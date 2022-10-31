@@ -29,7 +29,10 @@ export default {
         const path = schema.paths[name];
 
         if (path.schema) {
-          fields = [...fields, ...(await generateFieldsFromSchema(path.schema, `${name}.`))];
+          fields = [
+            ...fields,
+            ...(await generateFieldsFromSchema(path.schema, `${name}.`))
+          ];
         }
       }
     }

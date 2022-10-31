@@ -5,7 +5,11 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { IAsset, IAssetCategoryQeuryResponse, IAssetQueryResponse } from '../../common/types';
+import {
+  IAsset,
+  IAssetCategoryQeuryResponse,
+  IAssetQueryResponse
+} from '../../common/types';
 import { getRefetchQueries } from '../../common/utils';
 import { queries as categoryQueries } from '../category/graphql';
 import Form from '../components/Form';
@@ -26,7 +30,13 @@ class FormContainer extends React.Component<FinalProps> {
     super(props);
   }
 
-  renderButton({ text, values, isSubmitted, callback, object }: IButtonMutateProps) {
+  renderButton({
+    text,
+    values,
+    isSubmitted,
+    callback,
+    object
+  }: IButtonMutateProps) {
     const { unitPrice, assetCount, minimiumCount } = values;
     const attachmentMoreArray: any[] = [];
     const attachment = values.attachment || undefined;
@@ -39,7 +49,9 @@ class FormContainer extends React.Component<FinalProps> {
     values.unitPrice = Number(unitPrice);
     values.assetCount = Number(assetCount);
     values.minimiumCount = Number(minimiumCount);
-    values.attachment = attachment ? { ...attachment, __typename: undefined } : null;
+    values.attachment = attachment
+      ? { ...attachment, __typename: undefined }
+      : null;
     values.attachmentMore = attachmentMoreArray;
 
     return (
@@ -51,7 +63,9 @@ class FormContainer extends React.Component<FinalProps> {
         isSubmitted={isSubmitted}
         type="submit"
         uppercase={false}
-        successMessage={`You successfully ${object ? 'updated' : 'added'} a ${text}`}
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } a ${text}`}
       />
     );
   }

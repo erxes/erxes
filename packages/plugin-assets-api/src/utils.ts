@@ -52,7 +52,10 @@ export const generateFilter = async (params, type) => {
     filter.modifiedAt = { $gt: new Date(params.modifiedAtFrom) };
   }
   if (params.modifiedAtTo) {
-    filter.modifiedAt = { ...filter.modifiedAt, $lt: new Date(params.modifiedAtTo) };
+    filter.modifiedAt = {
+      ...filter.modifiedAt,
+      $lt: new Date(params.modifiedAtTo)
+    };
   }
 
   if (params.searchValue) {

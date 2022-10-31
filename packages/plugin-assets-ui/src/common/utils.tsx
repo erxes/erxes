@@ -1,4 +1,8 @@
-import { ContentColumn, ItemRow, ItemText } from '@erxes/ui-cards/src/deals/styles';
+import {
+  ContentColumn,
+  ItemRow,
+  ItemText
+} from '@erxes/ui-cards/src/deals/styles';
 import {
   ControlLabel,
   DataWithLoader,
@@ -48,8 +52,16 @@ export const DefaultWrapper = ({
   }
   return (
     <Wrapper
-      header={<Wrapper.Header title={title} submenu={subMenu} breadcrumb={breadcrumb} />}
-      actionBar={<Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />}
+      header={
+        <Wrapper.Header
+          title={title}
+          submenu={subMenu}
+          breadcrumb={breadcrumb}
+        />
+      }
+      actionBar={
+        <Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />
+      }
       content={
         <DataWithLoader
           loading={loading || false}
@@ -65,7 +77,11 @@ export const DefaultWrapper = ({
   );
 };
 
-export const CommonFormGroup = ({ children, label, required }: CommonFormGroupTypes) => {
+export const CommonFormGroup = ({
+  children,
+  label,
+  required
+}: CommonFormGroupTypes) => {
   return (
     <FormGroup>
       <ControlLabel required={required}>{label}</ControlLabel>

@@ -1,6 +1,12 @@
-import { attachmentSchema, customFieldSchema } from '@erxes/api-utils/src/types';
+import {
+  attachmentSchema,
+  customFieldSchema
+} from '@erxes/api-utils/src/types';
 import { Schema } from 'mongoose';
-import { ASSET_CATEGORY_STATUSES, ASSET_STATUSES } from '../../common/constant/asset';
+import {
+  ASSET_CATEGORY_STATUSES,
+  ASSET_STATUSES
+} from '../../common/constant/asset';
 import { field, schemaWrapper } from './utils';
 
 export const assetCategoriesSchema = schemaWrapper(

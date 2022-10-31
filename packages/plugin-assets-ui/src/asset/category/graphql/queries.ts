@@ -36,4 +36,8 @@ const assetCategoriesTotalCount = `
   }
 `;
 
-export default { assetCategory, assetCategoryDetail, assetCategoriesTotalCount };
+export default {
+  assetCategory,
+  assetCategoryDetail,
+  assetCategoriesTotalCount
+};

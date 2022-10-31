@@ -18,7 +18,10 @@ export interface IDataLoaders {
   department: DataLoader<string, any>;
 }
 
-export function generateAllDataLoaders(models: IModels, subdomain: string): IDataLoaders {
+export function generateAllDataLoaders(
+  models: IModels,
+  subdomain: string
+): IDataLoaders {
   return {
     assetCategories: assetCategories(models),
     asset: asset(models),

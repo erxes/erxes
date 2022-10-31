@@ -80,7 +80,12 @@ class List extends React.Component<Props> {
     };
 
     return (
-      <ModalTrigger isAnimate title="Edit Asset Category" content={content} trigger={trigger} />
+      <ModalTrigger
+        isAnimate
+        title="Edit Asset Category"
+        content={content}
+        trigger={trigger}
+      />
     );
   }
 
@@ -130,7 +135,10 @@ class List extends React.Component<Props> {
       );
 
       result.push(
-        <SidebarListItem key={category._id} isActive={this.isActive(category._id)}>
+        <SidebarListItem
+          key={category._id}
+          isActive={this.isActive(category._id)}
+        >
           <Link to={`?categoryId=${category._id}`}>
             {space}
             {name}

@@ -113,7 +113,9 @@ export type MutationVariables = {
 };
 
 export type AssetRemoveMutationResponse = {
-  assetsRemove: (mutation: { variables: { assetIds: string[] } }) => Promise<any>;
+  assetsRemove: (mutation: {
+    variables: { assetIds: string[] };
+  }) => Promise<any>;
 };
 
 export type AssetEditMutationResponse = {

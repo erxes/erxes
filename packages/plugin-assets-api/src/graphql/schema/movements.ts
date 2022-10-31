@@ -1,4 +1,7 @@
-import { movementFilters, commonFilterParams } from '../../common/graphql/movement';
+import {
+  movementFilters,
+  commonFilterParams
+} from '../../common/graphql/movement';
 
 export const types = contactsAvailable => `
 

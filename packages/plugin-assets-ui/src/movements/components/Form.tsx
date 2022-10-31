@@ -12,11 +12,20 @@ import {
   __
 } from '@erxes/ui/src';
 
-import { ContentColumn, ItemRow, ItemText } from '@erxes/ui-cards/src/deals/styles';
+import {
+  ContentColumn,
+  ItemRow,
+  ItemText
+} from '@erxes/ui-cards/src/deals/styles';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import client from '@erxes/ui/src/apolloClient';
-import { DateContainer, FormColumn, FormWrapper, ModalFooter } from '@erxes/ui/src/styles/main';
+import {
+  DateContainer,
+  FormColumn,
+  FormWrapper,
+  ModalFooter
+} from '@erxes/ui/src/styles/main';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
@@ -25,7 +34,11 @@ import _loadash from 'lodash';
 import React from 'react';
 import { IMovementItem, IMovementType } from '../../common/types';
 import { CommonFormGroup, CommonItemRow } from '../../common/utils';
-import { ContainerBox, MovementItemContainer, MovementTableWrapper } from '../../style';
+import {
+  ContainerBox,
+  MovementItemContainer,
+  MovementTableWrapper
+} from '../../style';
 import AssetChooser from '../containers/Chooser';
 import { queries } from '../graphql';
 import MovementItems from './MovementItem';
@@ -64,7 +77,8 @@ class Form extends React.Component<Props, State> {
 
     const { detail, assetId } = props;
 
-    const selectedItemsIds = detail?.items && detail.items.map(item => item.assetId);
+    const selectedItemsIds =
+      detail?.items && detail.items.map(item => item.assetId);
 
     this.state = {
       variables: detail?.items || [],
@@ -81,7 +95,15 @@ class Form extends React.Component<Props, State> {
     const { variables, movedAt, description } = this.state;
     const { detail } = this.props;
     const items = variables.map(
-      ({ assetId, assetName, branchId, departmentId, customerId, companyId, teamMemberId }) => ({
+      ({
+        assetId,
+        assetName,
+        branchId,
+        departmentId,
+        customerId,
+        companyId,
+        teamMemberId
+      }) => ({
         assetId,
         assetName,
         branchId,
@@ -143,7 +165,12 @@ class Form extends React.Component<Props, State> {
 
   assetChooserContent(trigger) {
     return (
-      <ModalTrigger title="Select Assets" content={this.assetChooser} trigger={trigger} size="lg" />
+      <ModalTrigger
+        title="Select Assets"
+        content={this.assetChooser}
+        trigger={trigger}
+        size="lg"
+      />
     );
   }
 
@@ -233,8 +260,12 @@ class Form extends React.Component<Props, State> {
 
   handleChangeRowItem = (prevItemId, newItem) => {
     const { variables } = this.state;
-    const newVariables = variables.map(item => (item.assetId === prevItemId ? newItem : item));
-    const removedSeletedItemIds = this.state.selectedItemsIds.filter(item => item !== prevItemId);
+    const newVariables = variables.map(item =>
+      item.assetId === prevItemId ? newItem : item
+    );
+    const removedSeletedItemIds = this.state.selectedItemsIds.filter(
+      item => item !== prevItemId
+    );
     this.setState({
       variables: newVariables,
       selectedItemsIds: [...removedSeletedItemIds, newItem.assetId]
@@ -336,7 +367,12 @@ class Form extends React.Component<Props, State> {
   }
 
   renderRow() {
-    const { variables, currentItems, selectedItemsIds, checkedItems } = this.state;
+    const {
+      variables,
+      currentItems,
+      selectedItemsIds,
+      checkedItems
+    } = this.state;
     const removeRow = id => {
       const newVariables = variables.filter(item => item.assetId !== id);
       const newSelectedItems = selectedItemsIds.filter(itemId => itemId !== id);
@@ -351,7 +387,9 @@ class Form extends React.Component<Props, State> {
     };
     const onChangeCheckedItems = (id: string) => {
       if (checkedItems.includes(id)) {
-        return this.setState({ checkedItems: checkedItems.filter(item => item !== id) });
+        return this.setState({
+          checkedItems: checkedItems.filter(item => item !== id)
+        });
       }
       return this.setState({ checkedItems: [...checkedItems, id] });
     };
@@ -395,7 +433,10 @@ class Form extends React.Component<Props, State> {
             <tr>
               <th style={{ width: 40 }}>
                 <FormControl
-                  checked={variables.length > 0 && variables.length === checkedItems.length}
+                  checked={
+                    variables.length > 0 &&
+                    variables.length === checkedItems.length
+                  }
                   componentClass="checkbox"
                   onChange={onChange}
                   color="#3B85F4"
@@ -450,7 +491,9 @@ class Form extends React.Component<Props, State> {
         {this.renderList()}
 
         <ContainerBox justifyCenter>
-          {this.assetChooserContent(<Button icon="plus-circle">{__('Add Asset')}</Button>)}
+          {this.assetChooserContent(
+            <Button icon="plus-circle">{__('Add Asset')}</Button>
+          )}
         </ContainerBox>
         {renderButton && (
           <ModalFooter>

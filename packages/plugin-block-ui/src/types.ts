@@ -36,6 +36,14 @@ export type PackagesQueryResponse = {
   packages: IPackage[];
 } & QueryResponse;
 
+export type BalanceQueryResponse = {
+  getBalance: number;
+} & QueryResponse;
+
+export type VerifyQueryResponse = {
+  isVerified: string;
+} & QueryResponse;
+
 export type PackageRemoveMutationResponse = {
   packagesRemove: (mutation: { variables: { _id: string } }) => Promise<string>;
 };
@@ -49,4 +57,26 @@ export type InvestmentsQueryResponse = {
   investments: IInvestment[];
   loading: boolean;
   refetch: () => void;
+};
+
+export type AddBalanceMutationVariables = {
+  erxesCustomerId: string;
+  amount: number;
+};
+
+export type AddBalanceMutationResponse = {
+  addBalanceMutation: (params: {
+    variables: AddBalanceMutationVariables;
+  }) => Promise<any>;
+};
+
+export type UpdateVerifyMutationVariables = {
+  erxesCustomerId: string;
+  isVerified: string;
+};
+
+export type UpdateVerifyMutationResponse = {
+  updateVerifyMutation: (params: {
+    variables: UpdateVerifyMutationVariables;
+  }) => Promise<any>;
 };

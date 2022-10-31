@@ -18,12 +18,24 @@ export const movementItemsSchema = schemaWrapper(
     assetName: field({ type: String, label: 'Asset Name' }),
     createdAt: field({ type: Date, label: 'Created At', default: Date.now }),
     branchId: field({ type: String, optional: true, label: 'Branch Id' }),
-    departmentId: field({ type: String, optional: true, label: 'Department Id' }),
-    teamMemberId: field({ type: String, optional: true, label: 'Team Member Id' }),
+    departmentId: field({
+      type: String,
+      optional: true,
+      label: 'Department Id'
+    }),
+    teamMemberId: field({
+      type: String,
+      optional: true,
+      label: 'Team Member Id'
+    }),
     companyId: field({ type: String, optional: true, label: 'Company Id' }),
     customerId: field({ type: String, optional: true, label: 'Customer Id' }),
     movementId: field({ type: String, optional: true, label: 'Movement Id' }),
-    sourceLocations: field({ type: sourceLocationsShema, label: 'Source Locations', default: {} })
+    sourceLocations: field({
+      type: sourceLocationsShema,
+      label: 'Source Locations',
+      default: {}
+    })
   })
 );
 

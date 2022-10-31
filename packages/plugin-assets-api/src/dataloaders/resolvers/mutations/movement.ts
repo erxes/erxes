@@ -3,8 +3,15 @@ import { IContext } from '../../../connectionResolver';
 import { MODULE_NAMES, putCreateLog } from '../../../logUtils';
 
 const movementMutations = {
-  async assetMovementAdd(_root, doc, { user, docModifier, models, subdomain }: IContext) {
-    const movement = await models.Movements.movementAdd(docModifier(doc), user._id);
+  async assetMovementAdd(
+    _root,
+    doc,
+    { user, docModifier, models, subdomain }: IContext
+  ) {
+    const movement = await models.Movements.movementAdd(
+      docModifier(doc),
+      user._id
+    );
 
     await putCreateLog(
       models,
@@ -20,7 +27,11 @@ const movementMutations = {
   async assetMovementRemove(_root, { ids }, { models }: IContext) {
     return await models.Movements.movementRemove(ids);
   },
-  async assetMovementUpdate(_root, { _id, doc }, { models, docModifier }: IContext) {
+  async assetMovementUpdate(
+    _root,
+    { _id, doc },
+    { models, docModifier }: IContext
+  ) {
     return await models.Movements.movementEdit(_id, docModifier(doc));
   }
 };

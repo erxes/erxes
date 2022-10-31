@@ -49,7 +49,11 @@ class RiskAssessmentForm extends React.Component<FinalProps, State> {
       return { ...values };
     };
 
-    const renderButton = ({ values, isSubmitted, callback }: IButtonMutateProps) => {
+    const renderButton = ({
+      values,
+      isSubmitted,
+      callback
+    }: IButtonMutateProps) => {
       return (
         <ButtonMutate
           mutation={riskAssessmentMutattions.riskAssessmentAdd}
@@ -64,7 +68,11 @@ class RiskAssessmentForm extends React.Component<FinalProps, State> {
     };
 
     return (
-      <AddRiskAssessmentForm {...props} renderButton={renderButton} generateDoc={generateDoc} />
+      <AddRiskAssessmentForm
+        {...props}
+        renderButton={renderButton}
+        generateDoc={generateDoc}
+      />
     );
   }
 

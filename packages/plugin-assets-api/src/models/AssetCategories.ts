@@ -3,11 +3,17 @@ import { IModels } from '../connectionResolver';
 import { assetCategoriesSchema } from './definitions/assets';
 
 import { ASSET_STATUSES } from '../common/constant/asset';
-import { IAssetCategories, IAssetCategoriesDocument } from '../common/types/asset';
+import {
+  IAssetCategories,
+  IAssetCategoriesDocument
+} from '../common/types/asset';
 export interface IAssetCategoriesModel extends Model<IAssetCategoriesDocument> {
   assetCategoryAdd(doc: IAssetCategories): Promise<IAssetCategoriesDocument>;
   getAssetCategory(selector: any): Promise<IAssetCategoriesDocument>;
-  updateAssetCategory(_id: string, doc: IAssetCategories): Promise<IAssetCategoriesDocument>;
+  updateAssetCategory(
+    _id: string,
+    doc: IAssetCategories
+  ): Promise<IAssetCategoriesDocument>;
   assetCategoryRemove(_id: string): void;
 }
 
@@ -36,7 +42,10 @@ export const loadAssetCategoriesClass = (models: IModels) => {
       return models.AssetCategories.create(doc);
     }
 
-    public static async updateAssetCategory(_id: string, doc: IAssetCategories) {
+    public static async updateAssetCategory(
+      _id: string,
+      doc: IAssetCategories
+    ) {
       const category = await models.AssetCategories.getAssetCategory({
         _id
       });
@@ -61,7 +70,10 @@ export const loadAssetCategoriesClass = (models: IModels) => {
       });
 
       const childCategories = await models.AssetCategories.find({
-        $and: [{ order: { $regex: new RegExp(assetCategories.order, 'i') } }, { _id: { $ne: _id } }]
+        $and: [
+          { order: { $regex: new RegExp(assetCategories.order, 'i') } },
+          { _id: { $ne: _id } }
+        ]
       });
 
       await models.AssetCategories.updateOne({ _id }, { $set: doc });
@@ -72,7 +84,10 @@ export const loadAssetCategoriesClass = (models: IModels) => {
 
         order = order.replace(assetCategories.order, doc.order);
 
-        await models.AssetCategories.updateOne({ _id: childCategory._id }, { $set: { order } });
+        await models.AssetCategories.updateOne(
+          { _id: childCategory._id },
+          { $set: { order } }
+        );
       });
 
       return models.AssetCategories.findOne({ _id });
@@ -107,8 +122,13 @@ export const loadAssetCategoriesClass = (models: IModels) => {
         throw new Error('Code must be unique');
       }
     }
-    public static async generateOrder(parentCategory: IAssetCategories, doc: IAssetCategories) {
-      const order = parentCategory ? `${parentCategory.order}/${doc.code}` : `${doc.code}`;
+    public static async generateOrder(
+      parentCategory: IAssetCategories,
+      doc: IAssetCategories
+    ) {
+      const order = parentCategory
+        ? `${parentCategory.order}/${doc.code}`
+        : `${doc.code}`;
 
       return order;
     }

@@ -3,7 +3,11 @@ import { Model } from 'mongoose';
 import { ASSET_STATUSES } from '../common/constant/asset';
 import { IAsset, IAssetDocument } from '../common/types/asset';
 import { IModels } from '../connectionResolver';
-import { sendCardsMessage, sendContactsMessage, sendFormsMessage } from '../messageBroker';
+import {
+  sendCardsMessage,
+  sendContactsMessage,
+  sendFormsMessage
+} from '../messageBroker';
 import { assetSchema } from './definitions/assets';
 export interface IAssetModel extends Model<IAssetDocument> {
   getAssets(selector: any): Promise<IAssetDocument>;
@@ -146,11 +150,19 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
       const movementItems = await models.MovementItems.find({
         assetId: { $in: [...unUsedIds, ...child_assets_ids] }
       });
-      const movement_ids = movementItems.map(movementItem => movementItem.movementId);
-      const movement_items_ids = movementItems.map(movementItem => movementItem._id);
+      const movement_ids = movementItems.map(
+        movementItem => movementItem.movementId
+      );
+      const movement_items_ids = movementItems.map(
+        movementItem => movementItem._id
+      );
 
-      await models.Movements.deleteMany({ _id: { $in: [...new Set(movement_ids)] } });
-      await models.MovementItems.deleteMany({ _id: { $in: movement_items_ids } });
+      await models.Movements.deleteMany({
+        _id: { $in: [...new Set(movement_ids)] }
+      });
+      await models.MovementItems.deleteMany({
+        _id: { $in: movement_items_ids }
+      });
 
       await models.Assets.deleteMany({ _id: { $in: child_assets_ids } });
 
@@ -168,7 +180,9 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
       }
 
       if (!checkParent.find(i => i)) {
-        throw new Error(`Can not merge assets. Must choose Parent or Category field`);
+        throw new Error(
+          `Can not merge assets. Must choose Parent or Category field`
+        );
       }
 
       let customFieldsData: ICustomField[] = [];
@@ -183,7 +197,10 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
         const assetObj = await models.Assets.getAssets({ _id: assetId });
 
         // merge custom fields data
-        customFieldsData = [...customFieldsData, ...(assetObj.customFieldsData || [])];
+        customFieldsData = [
+          ...customFieldsData,
+          ...(assetObj.customFieldsData || [])
+        ];
 
         await models.Assets.findByIdAndUpdate(assetId, {
           $set: {
@@ -240,7 +257,9 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
     }
 
     public static async generateOrder(parentAsset: IAsset, doc: IAsset) {
-      const order = parentAsset ? `${parentAsset.order}/${doc.code}` : `${doc.code}`;
+      const order = parentAsset
+        ? `${parentAsset.order}/${doc.code}`
+        : `${doc.code}`;
 
       return order;
     }

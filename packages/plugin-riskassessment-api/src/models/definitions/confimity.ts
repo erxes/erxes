@@ -20,7 +20,10 @@ export const riskConfirmitySchema = new Schema({
   _id: field({ pkey: true }),
   cardId: field({ type: String, label: 'Card Id' }),
   cardType: field({ type: String, label: 'Card Type' }),
-  riskAssessmentId: field({ type: String, label: 'Answer Risk assessment Ids' }),
+  riskAssessmentId: field({
+    type: String,
+    label: 'Answer Risk assessment Ids'
+  }),
   createdAt: field({ type: Date, label: 'Created At', default: Date.now })
 });
 

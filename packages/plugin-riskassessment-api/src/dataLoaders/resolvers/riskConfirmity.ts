@@ -6,7 +6,11 @@ export default {
     return models.RiskAssessment.findOne({ _id });
   },
 
-  async riskAssessment(riskConfimity: IRiskConfirmityDocument, {}, { dataLoaders }: IContext) {
+  async riskAssessment(
+    riskConfimity: IRiskConfirmityDocument,
+    {},
+    { dataLoaders }: IContext
+  ) {
     return (
       (riskConfimity.riskAssessmentId &&
         dataLoaders.riskAssessment.load(riskConfimity.riskAssessmentId)) ||

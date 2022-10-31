@@ -90,7 +90,9 @@ class AssessmentCategories extends React.Component<Props, State> {
     );
 
     const content = ({ closeModal }) => {
-      return <FormContainer refetch={this.props.refetch} closeModal={closeModal} />;
+      return (
+        <FormContainer refetch={this.props.refetch} closeModal={closeModal} />
+      );
     };
 
     return (
@@ -121,7 +123,10 @@ class AssessmentCategories extends React.Component<Props, State> {
     const { categories, queryParams } = this.props;
 
     return categories.map(category => (
-      <SidebarListItem key={category._id} isActive={queryParams.categoryId === category._id}>
+      <SidebarListItem
+        key={category._id}
+        isActive={queryParams.categoryId === category._id}
+      >
         <Link to={`?categoryId=${category._id}`}>
           {category.parentId && subOption(category)}
           {category.name}
@@ -243,7 +248,8 @@ class AssessmentCategories extends React.Component<Props, State> {
 
     const toggleSort = () => {
       this.setState({ sortDirection: sortDirection * -1 });
-      riskAssessmentsRefetch && riskAssessmentsRefetch({ sortDirection: sortDirection * -1 });
+      riskAssessmentsRefetch &&
+        riskAssessmentsRefetch({ sortDirection: sortDirection * -1 });
     };
 
     const dateOrder = (value, name) => {
@@ -281,7 +287,11 @@ class AssessmentCategories extends React.Component<Props, State> {
     return (
       <Box name="filter_list" title={__('Addition Filter List')}>
         <Padding horizontal vertical>
-          <CustomForm label="Status" field={'status'} clearable={!!this.props.queryParams.status}>
+          <CustomForm
+            label="Status"
+            field={'status'}
+            clearable={!!this.props.queryParams.status}
+          >
             <Container row>
               {statusColorConstant.map(status => (
                 <StatusBox
@@ -338,7 +348,12 @@ class AssessmentCategories extends React.Component<Props, State> {
   render() {
     return (
       <Sidebar wide={true} hasBorder={true}>
-        <Section maxHeight={500} collapsible={this.props.totalCount > 9} noMargin noShadow>
+        <Section
+          maxHeight={500}
+          collapsible={this.props.totalCount > 9}
+          noMargin
+          noShadow
+        >
           {this.rightActionBar}
           {this.renderCategoriesFilter()}
           {this.renderCategories()}

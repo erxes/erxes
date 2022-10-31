@@ -72,7 +72,10 @@ class AssetsMerge extends React.Component<Props, State> {
       selectedValues[key] = value;
 
       if (key === 'links') {
-        const links = Object.assign({ ...this.state.selectedValues.links }, value);
+        const links = Object.assign(
+          { ...this.state.selectedValues.links },
+          value
+        );
         selectedValues[key] = links;
       }
     } else {
@@ -158,7 +161,10 @@ class AssetsMerge extends React.Component<Props, State> {
       <Info>
         <InfoTitle>{__('Info')}: </InfoTitle>
         <InfoDetail>
-          {value.primaryName || value.primaryEmail || value.primaryPhone || value.code}
+          {value.primaryName ||
+            value.primaryEmail ||
+            value.primaryPhone ||
+            value.code}
         </InfoDetail>
       </Info>
     );
@@ -173,9 +179,13 @@ class AssetsMerge extends React.Component<Props, State> {
     return (
       <form onSubmit={this.save}>
         <Columns>
-          <Column className="multiple">{this.renderAsset(asset1, 'plus-1')}</Column>
+          <Column className="multiple">
+            {this.renderAsset(asset1, 'plus-1')}
+          </Column>
 
-          <Column className="multiple">{this.renderAsset(asset2, 'plus-1')}</Column>
+          <Column className="multiple">
+            {this.renderAsset(asset2, 'plus-1')}
+          </Column>
 
           <Column>{this.renderAsset(selectedValues, 'times')}</Column>
         </Columns>

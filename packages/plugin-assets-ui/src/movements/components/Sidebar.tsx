@@ -15,7 +15,11 @@ import {
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import moment from 'moment';
 import React from 'react';
-import { ContainerBox, CustomRangeContainer, EndDateContainer } from '../../style';
+import {
+  ContainerBox,
+  CustomRangeContainer,
+  EndDateContainer
+} from '../../style';
 
 type Props = {
   history: any;
@@ -134,7 +138,11 @@ export class SideBar extends React.Component<Props, State> {
           </Section.QuickButtons>
         </Section.Title>
         <ContainerBox vertical column gap={5}>
-          <FormGroup field="userId" label="Moved User" clearable={queryParams.userId}>
+          <FormGroup
+            field="userId"
+            label="Moved User"
+            clearable={queryParams.userId}
+          >
             <SelectTeamMembers
               label="Choose Moved User"
               name="userId"

@@ -94,7 +94,9 @@ export const SelectWithCategory = ({
 }) => {
   const defaultValue = queryParams ? queryParams[name] : initialValue;
 
-  const generateCategoryOptions = (array: RiskAssessmentCategory[] = []): IOption[] => {
+  const generateCategoryOptions = (
+    array: RiskAssessmentCategory[] = []
+  ): IOption[] => {
     let list: any[] = [];
     for (const item of array) {
       const category = item || ({} as RiskAssessmentCategory);
@@ -124,7 +126,9 @@ export const SelectWithCategory = ({
       generateOptions={generateCategoryOptions}
       onSelect={onSelect}
       customQuery={categoryQueries.listAssessmentCategories}
-      customOption={customOption ? customOption : { value: '', label: 'Choose a Category' }}
+      customOption={
+        customOption ? customOption : { value: '', label: 'Choose a Category' }
+      }
       multi={multi}
     />
   );

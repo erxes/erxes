@@ -10,7 +10,10 @@ import {
 import { IAssetDocument } from './common/types/asset';
 import { IModels } from './connectionResolver';
 import messageBroker from './messageBroker';
-import { assetCategoriesSchema, assetSchema } from './models/definitions/assets';
+import {
+  assetCategoriesSchema,
+  assetSchema
+} from './models/definitions/assets';
 
 export const MODULE_NAMES = {
   ASSET: 'asset',
@@ -65,7 +68,12 @@ const gatherDescriptions = async (
       extraDesc = await gatherAssetFieldNames(models, subdomain, object);
 
       if (updatedDocument) {
-        extraDesc = await gatherAssetFieldNames(models, subdomain, updatedDocument, extraDesc);
+        extraDesc = await gatherAssetFieldNames(
+          models,
+          subdomain,
+          updatedDocument,
+          extraDesc
+        );
       }
 
       break;
@@ -98,11 +106,20 @@ const gatherDescriptions = async (
   return { extraDesc, description };
 };
 
-export const putCreateLog = async (models: IModels, subdomain: string, logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions(models, subdomain, {
-    ...logDoc,
-    action: LOG_ACTIONS.CREATE
-  });
+export const putCreateLog = async (
+  models: IModels,
+  subdomain: string,
+  logDoc,
+  user
+) => {
+  const { description, extraDesc } = await gatherDescriptions(
+    models,
+    subdomain,
+    {
+      ...logDoc,
+      action: LOG_ACTIONS.CREATE
+    }
+  );
 
   await commonPutCreateLog(
     subdomain,
@@ -112,11 +129,20 @@ export const putCreateLog = async (models: IModels, subdomain: string, logDoc, u
   );
 };
 
-export const putUpdateLog = async (models: IModels, subdomain: string, logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions(models, subdomain, {
-    ...logDoc,
-    action: LOG_ACTIONS.UPDATE
-  });
+export const putUpdateLog = async (
+  models: IModels,
+  subdomain: string,
+  logDoc,
+  user
+) => {
+  const { description, extraDesc } = await gatherDescriptions(
+    models,
+    subdomain,
+    {
+      ...logDoc,
+      action: LOG_ACTIONS.UPDATE
+    }
+  );
 
   await commonPutUpdateLog(
     subdomain,
@@ -126,11 +152,20 @@ export const putUpdateLog = async (models: IModels, subdomain: string, logDoc, u
   );
 };
 
-export const putDeleteLog = async (models: IModels, subdomain: string, logDoc, user) => {
-  const { description, extraDesc } = await gatherDescriptions(models, subdomain, {
-    ...logDoc,
-    action: LOG_ACTIONS.DELETE
-  });
+export const putDeleteLog = async (
+  models: IModels,
+  subdomain: string,
+  logDoc,
+  user
+) => {
+  const { description, extraDesc } = await gatherDescriptions(
+    models,
+    subdomain,
+    {
+      ...logDoc,
+      action: LOG_ACTIONS.DELETE
+    }
+  );
 
   await commonPutDeleteLog(
     subdomain,

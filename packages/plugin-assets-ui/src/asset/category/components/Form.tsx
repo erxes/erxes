@@ -1,12 +1,23 @@
 import { Button, FormControl, Uploader } from '@erxes/ui/src';
 import CommonForm from '@erxes/ui/src/components/form/Form';
-import { FormColumn, FormWrapper, ModalFooter } from '@erxes/ui/src/styles/main';
-import { IAttachment, IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import {
+  FormColumn,
+  FormWrapper,
+  ModalFooter
+} from '@erxes/ui/src/styles/main';
+import {
+  IAttachment,
+  IButtonMutateProps,
+  IFormProps
+} from '@erxes/ui/src/types';
 import { extractAttachment } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { ASSET_CATEGORY_STATUSES } from '../../../common/constant';
 import { IAssetCategory, IAssetCategoryTypes } from '../../../common/types';
-import { CommonFormGroup, generateCategoryOptions } from '../../../common/utils';
+import {
+  CommonFormGroup,
+  generateCategoryOptions
+} from '../../../common/utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -49,15 +60,26 @@ class Form extends React.Component<Props> {
 
     const object = category || ({} as IAssetCategory);
 
-    const attachments = (object.attachment && extractAttachment([object.attachment])) || [];
+    const attachments =
+      (object.attachment && extractAttachment([object.attachment])) || [];
 
     return (
       <>
         <CommonFormGroup label="Name">
-          <FormControl name="name" {...formProps} type="text" defaultValue={object.name} />
+          <FormControl
+            name="name"
+            {...formProps}
+            type="text"
+            defaultValue={object.name}
+          />
         </CommonFormGroup>
         <CommonFormGroup label="Code">
-          <FormControl name="code" {...formProps} type="text" defaultValue={object.code} />
+          <FormControl
+            name="code"
+            {...formProps}
+            type="text"
+            defaultValue={object.code}
+          />
         </CommonFormGroup>
         <CommonFormGroup label="Description">
           <FormControl

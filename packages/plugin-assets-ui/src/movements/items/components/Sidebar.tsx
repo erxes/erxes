@@ -19,7 +19,11 @@ import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import moment from 'moment';
 import React from 'react';
 import { SelectWithAssets } from '../../../common/utils';
-import { ContainerBox, CustomRangeContainer, EndDateContainer } from '../../../style';
+import {
+  ContainerBox,
+  CustomRangeContainer,
+  EndDateContainer
+} from '../../../style';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -150,7 +154,11 @@ class Sidebar extends React.Component<Props, State> {
               customOption={{ value: '', label: 'Choose Branch' }}
             />
           </FormGroup>
-          <FormGroup label="Department" field="departmentId" clearable={!!departmentId}>
+          <FormGroup
+            label="Department"
+            field="departmentId"
+            clearable={!!departmentId}
+          >
             <SelectDepartments
               label="Choose Department"
               name="departmentId"
@@ -160,7 +168,11 @@ class Sidebar extends React.Component<Props, State> {
               customOption={{ value: '', label: 'Choose Department' }}
             />
           </FormGroup>
-          <FormGroup label="Team Member" field="teamMemberId" clearable={!!teamMemberId}>
+          <FormGroup
+            label="Team Member"
+            field="teamMemberId"
+            clearable={!!teamMemberId}
+          >
             <SelectCompanies
               label="Choose Team Member"
               name="teamMemberId"
@@ -180,7 +192,11 @@ class Sidebar extends React.Component<Props, State> {
               customOption={{ value: '', label: 'Choose Company' }}
             />
           </FormGroup>
-          <FormGroup label="Customer" field="customerId" clearable={!!customerId}>
+          <FormGroup
+            label="Customer"
+            field="customerId"
+            clearable={!!customerId}
+          >
             <SelectCustomers
               label="Choose Customer"
               name="customerId"

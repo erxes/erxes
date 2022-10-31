@@ -7,9 +7,15 @@ import {
   IMovementDocument,
   IMovementItemDocument
 } from './common/types/asset';
-import { IAssetCategoriesModel, loadAssetCategoriesClass } from './models/AssetCategories';
+import {
+  IAssetCategoriesModel,
+  loadAssetCategoriesClass
+} from './models/AssetCategories';
 import { IAssetModel, loadAssetClass } from './models/Assets';
-import { IMovementItemModel, loadMovementItemClass } from './models/MovementItems';
+import {
+  IMovementItemModel,
+  loadMovementItemClass
+} from './models/MovementItems';
 import { IMovementModel, loadMovementClass } from './models/Movements';
 
 export interface IModels {
@@ -26,17 +32,20 @@ export interface IContext extends IMainContext {
 
 export let models: IModels | null = null;
 
-export const loadClasses = (db: mongoose.Connection, subdomain: string): IModels => {
+export const loadClasses = (
+  db: mongoose.Connection,
+  subdomain: string
+): IModels => {
   models = {} as IModels;
 
   models.Assets = db.model<IAssetDocument, IAssetModel>(
     'assets',
     loadAssetClass(models, subdomain)
   );
-  models.AssetCategories = db.model<IAssetCategoriesDocument, IAssetCategoriesModel>(
-    'asset_categories',
-    loadAssetCategoriesClass(models)
-  );
+  models.AssetCategories = db.model<
+    IAssetCategoriesDocument,
+    IAssetCategoriesModel
+  >('asset_categories', loadAssetCategoriesClass(models));
   models.Movements = db.model<IMovementDocument, IMovementModel>(
     'asset_movements',
     loadMovementClass(models)
@@ -49,4 +58,7 @@ export const loadClasses = (db: mongoose.Connection, subdomain: string): IModels
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(models, loadClasses);
+export const generateModels = createGenerateModels<IModels>(
+  models,
+  loadClasses
+);

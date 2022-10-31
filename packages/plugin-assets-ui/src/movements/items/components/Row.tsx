@@ -79,7 +79,12 @@ class Row extends React.Component<Props> {
         <td>{(customer && renderFullName(customer)) || '-'}</td>
         <td>{moment(createdAt || '').format('YYYY-MM-DD HH:mm')}</td>
         <td style={{ width: 60 }}>
-          {this.renderForm({ modaltText: 'Edit', assetId, movementId, trigger: editTrigger })}
+          {this.renderForm({
+            modaltText: 'Edit',
+            assetId,
+            movementId,
+            trigger: editTrigger
+          })}
         </td>
       </tr>
     );

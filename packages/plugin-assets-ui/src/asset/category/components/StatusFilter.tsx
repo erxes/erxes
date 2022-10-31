@@ -40,20 +40,26 @@ class AssetStatusFilter extends React.Component<IProps> {
         name="showFilterByType"
       >
         <SidebarList>
-          {assetStatusChoises(__).map(({ value, label }: { value: string; label: string }) => {
-            return (
-              <li key={Math.random()}>
-                <a
-                  href="#filter"
-                  tabIndex={0}
-                  className={router.getParam(history, [paramKey]) === value ? 'active' : ''}
-                  onClick={onClick.bind(this, paramKey, value)}
-                >
-                  <FieldStyle>{label}</FieldStyle>
-                </a>
-              </li>
-            );
-          })}
+          {assetStatusChoises(__).map(
+            ({ value, label }: { value: string; label: string }) => {
+              return (
+                <li key={Math.random()}>
+                  <a
+                    href="#filter"
+                    tabIndex={0}
+                    className={
+                      router.getParam(history, [paramKey]) === value
+                        ? 'active'
+                        : ''
+                    }
+                    onClick={onClick.bind(this, paramKey, value)}
+                  >
+                    <FieldStyle>{label}</FieldStyle>
+                  </a>
+                </li>
+              );
+            }
+          )}
         </SidebarList>
       </Box>
     );

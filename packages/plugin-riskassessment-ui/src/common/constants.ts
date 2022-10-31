@@ -23,7 +23,11 @@ export const statusColorConstant = [
   }
 ];
 
-export const COLORS = [colors.colorCoreRed, colors.colorCoreYellow, colors.colorCoreGreen];
+export const COLORS = [
+  colors.colorCoreRed,
+  colors.colorCoreYellow,
+  colors.colorCoreGreen
+];
 
 export const calculateMethods = [
   {

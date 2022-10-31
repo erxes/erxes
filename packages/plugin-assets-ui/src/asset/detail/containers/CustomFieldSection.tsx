@@ -80,9 +80,12 @@ export default withProps<Props>(
         skip: !isEnabled('forms')
       }
     ),
-    graphql<Props, AssetEditMutationResponse, IAsset>(gql(mutations.assetEdit), {
-      name: 'editMutation',
-      options
-    })
+    graphql<Props, AssetEditMutationResponse, IAsset>(
+      gql(mutations.assetEdit),
+      {
+        name: 'editMutation',
+        options
+      }
+    )
   )(CustomFieldsSection)
 );

@@ -8,7 +8,11 @@ export default {
   },
 
   category(asset: IAssetDocument, _, { dataLoaders }: IContext) {
-    return (asset.categoryId && dataLoaders.assetCategories.load(asset.categoryId)) || null;
+    return (
+      (asset.categoryId &&
+        dataLoaders.assetCategories.load(asset.categoryId)) ||
+      null
+    );
   },
 
   parent(asset: IAssetDocument, _, { dataLoaders }: IContext) {

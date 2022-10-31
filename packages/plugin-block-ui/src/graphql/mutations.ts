@@ -44,8 +44,30 @@ const packagesRemove = `
   }
 `;
 
+const addBalance = `
+  mutation addBalance($erxesCustomerId: String, $amount: Float) {
+    addBalance(erxesCustomerId: $erxesCustomerId, amount: $amount) {
+      _id
+      balance
+      isVerified
+    }
+  }
+`;
+
+const updateVerify = `
+  mutation updateVerify($erxesCustomerId: String, $isVerified: String) {
+    updateVerify(erxesCustomerId: $erxesCustomerId, isVerified: $isVerified) {
+      _id
+      balance
+      isVerified
+    }
+  }
+`;
+
 export default {
   packagesAdd,
   packagesEdit,
-  packagesRemove
+  packagesRemove,
+  addBalance,
+  updateVerify
 };
