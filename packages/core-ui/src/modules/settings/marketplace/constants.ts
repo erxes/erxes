@@ -32,20 +32,6 @@ export const OS_SERVICES = [
   }
 ];
 
-export const SUB_KINDS = {
-  setupService: {
-    dataImport: 'Data import',
-    eventTrackingInstallation: 'Event tracking config',
-    widgetInstallation: 'Widget installation',
-    awsSes: 'AWS SES Setup',
-    webhooks: 'Webhooks',
-    scriptInstallation: 'Script Installation'
-  },
-  integrationService: {
-    facebook: 'Facebook'
-  }
-};
-
 export const CATEGORIES = [
   { value: 'marketing', label: 'Marketing' },
   { value: 'sales', label: 'Sales' },
