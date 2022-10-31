@@ -18,8 +18,6 @@ import messageBroker, {
   sendIntegrationsMessage,
   sendCoreMessage,
   sendFormsMessage,
-  sendLogsMessage,
-  sendEngagesMessage,
   sendCommonMessage
 } from '../../messageBroker';
 
@@ -264,13 +262,40 @@ const integrationMutations = {
 
     try {
       if ('webhook' !== kind) {
+        let brokerDoc: any = {
+          accountId: doc.accountId,
+          kind: doc.kind,
+          integrationId: integration._id
+        };
+
+        let serviceName;
+
+        if (
+          [
+            'facebook-messenger',
+            'facebook-post',
+            'callpro',
+            'webhook'
+          ].includes(kind)
+        ) {
+          serviceName = 'integrations';
+          brokerDoc.data = data ? JSON.stringify(data) : '';
+        } else {
+          serviceName = kind;
+          brokerDoc = {
+            ...brokerDoc,
+            ...data
+          };
+        }
+
         await sendCommonMessage({
-          serviceName: kind,
+          serviceName,
           subdomain,
           action: 'createIntegration',
           data: {
+            kind,
             integrationId: integration._id,
-            doc: data
+            doc: brokerDoc
           },
           isRPC: true
         });
@@ -368,11 +393,9 @@ const integrationMutations = {
           },
           isRPC: true
         });
-      }
-
-      if (integration.kind === 'imap') {
+      } else {
         await sendCommonMessage({
-          serviceName: 'imap',
+          serviceName: integration.kind,
           subdomain,
           action: 'removeIntegration',
           data: {

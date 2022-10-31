@@ -45,6 +45,18 @@ export const initBroker = async cl => {
       };
     }
   );
+
+  consumeRPCQueue(
+    'clientportal:clientPortals.count',
+    async ({ subdomain, data: { selector } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.ClientPortals.find(selector).count(),
+        status: 'success'
+      };
+    }
+  );
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs) => {

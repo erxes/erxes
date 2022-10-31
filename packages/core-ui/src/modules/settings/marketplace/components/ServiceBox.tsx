@@ -1,35 +1,27 @@
-import { Price, ReadMore, Service, SubService } from './styles';
+import { Price, ReadMore, Service } from './styles';
 
 import Icon from 'modules/common/components/Icon';
 import React from 'react';
-import { SUB_KINDS } from '../constants';
 import { __ } from 'modules/common/utils';
 
 type Props = {
-  service: any;
+  plugin: any;
 };
 
 class ServiceBox extends React.Component<Props, {}> {
-  renderSubService(type) {
-    if (!SUB_KINDS[type]) {
-      return null;
-    }
-
-    return (
-      Object.values(SUB_KINDS[type]) || []
-    ).map((item: any, index: number) => (
-      <SubService key={index}>{item}</SubService>
-    ));
-  }
-
   render() {
-    const { service } = this.props;
+    const { plugin } = this.props;
 
-    if (!service || service.mainType !== 'service' || !service.selfHosted) {
+    if (
+      !plugin ||
+      (plugin.mainType || '') !== 'service' ||
+      !(plugin.displayLocations || []).includes('os')
+    ) {
       return null;
     }
 
-    const { prices, shortDescription, title } = service || {};
+    const { prices, shortDescription, title } = plugin || {};
+    const domain = window.location.host;
 
     return (
       <Service>
@@ -39,7 +31,7 @@ class ServiceBox extends React.Component<Props, {}> {
           <div dangerouslySetInnerHTML={{ __html: shortDescription }} />
         </div>
         <ReadMore
-          href="https://erxes.io/addons#selfHosted"
+          href={`https://erxes.io/marketplace-global?domain=${domain}`}
           target="_blank"
           rel="noopener noreferrer"
         >

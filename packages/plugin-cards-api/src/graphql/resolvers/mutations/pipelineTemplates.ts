@@ -22,7 +22,7 @@ const pipelineTemplateMutations = {
     { stages, ...doc }: IPipelineTemplate,
     { user, docModifier, models, subdomain }: IContext
   ) {
-    await checkPermission(doc.type, user, 'templatesAdd');
+    await checkPermission(models, subdomain, doc.type, user, 'templatesAdd');
 
     const pipelineTemplate = await models.PipelineTemplates.createPipelineTemplate(
       docModifier({ createdBy: user._id, ...doc }),
@@ -51,9 +51,11 @@ const pipelineTemplateMutations = {
     { _id, stages, ...doc }: IPipelineTemplatesEdit,
     { user, models, subdomain }: IContext
   ) {
-    await checkPermission(doc.type, user, 'templatesEdit');
+    await checkPermission(models, subdomain, doc.type, user, 'templatesEdit');
 
-    const pipelineTemplate = await models.PipelineTemplates.getPipelineTemplate(_id);
+    const pipelineTemplate = await models.PipelineTemplates.getPipelineTemplate(
+      _id
+    );
     const updated = await models.PipelineTemplates.updatePipelineTemplate(
       _id,
       doc,
@@ -83,18 +85,26 @@ const pipelineTemplateMutations = {
     { _id }: { _id: string },
     { user, models, subdomain }: IContext
   ) {
-    const pipelineTemplate = await models.PipelineTemplates.getPipelineTemplate(_id);
+    const pipelineTemplate = await models.PipelineTemplates.getPipelineTemplate(
+      _id
+    );
 
-    await checkPermission(pipelineTemplate.type, user, 'templatesDuplicate');
+    await checkPermission(
+      models,
+      subdomain,
+      pipelineTemplate.type,
+      user,
+      'templatesDuplicate'
+    );
 
-      sendCoreMessage({
-        subdomain,
-        action: 'registerOnboardHistory',
-        data: {
-          type: `${pipelineTemplate.type}TemplatesDuplicate`,
-          user
-        }
-      });
+    sendCoreMessage({
+      subdomain,
+      action: 'registerOnboardHistory',
+      data: {
+        type: `${pipelineTemplate.type}TemplatesDuplicate`,
+        user
+      }
+    });
 
     return models.PipelineTemplates.duplicatePipelineTemplate(_id);
   },
@@ -107,9 +117,17 @@ const pipelineTemplateMutations = {
     { _id }: { _id: string },
     { user, models, subdomain }: IContext
   ) {
-    const pipelineTemplate = await models.PipelineTemplates.getPipelineTemplate(_id);
+    const pipelineTemplate = await models.PipelineTemplates.getPipelineTemplate(
+      _id
+    );
 
-    await checkPermission(pipelineTemplate.type, user, 'templatesRemove');
+    await checkPermission(
+      models,
+      subdomain,
+      pipelineTemplate.type,
+      user,
+      'templatesRemove'
+    );
 
     const removed = await models.PipelineTemplates.removePipelineTemplate(_id);
 

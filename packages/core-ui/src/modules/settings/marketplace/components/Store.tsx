@@ -1,17 +1,19 @@
-import { CATEGORIES, STATUS_TYPES } from '../constants';
 import {
   Container,
   EmptyContent,
   FilterContainer,
   FlexWrapContainer,
   Labels,
+  SearchBar,
+  SearchIcon,
+  SearchInput,
   StoreBlock,
   Tag
 } from './styles';
 
+import { CATEGORIES } from '../constants';
 import EmptyState from 'modules/common/components/EmptyState';
 import { FlexRow } from '@erxes/ui/src/components/filterableList/styles';
-import { FormControl } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
 import PluginBox from './PluginBox';
 import React from 'react';
@@ -101,29 +103,26 @@ class Store extends React.Component<Props, State> {
     });
   }
 
-  renderPlugins(type?: string) {
+  renderPlugins() {
     const { plugins } = this.state;
-    const isAddon = type === 'addon' ? true : false;
 
     if (!plugins || plugins.length === 0) {
       return (
         <EmptyContent>
           <EmptyState
-            text={__(
-              `Sorry, We don't have any suitable ${
-                isAddon ? 'add-ons' : 'plugins'
-              } at the moment`
-            )}
-            image={`/images/actions/${isAddon ? 5 : 30}.svg`}
+            text={__(`Sorry, We don't have any suitable plugins at the moment`)}
+            image={`/images/actions/30.svg`}
           />
         </EmptyContent>
       );
     }
 
     return plugins.map((plugin, index) => {
-      const addon = plugin.mainType === 'addon';
-
-      if ((isAddon ? !addon : addon) || plugin.mainType === 'service') {
+      if (
+        !plugin ||
+        !(plugin.displayLocations || []).includes('os') ||
+        (plugin.mainType || '') === 'service'
+      ) {
         return null;
       }
 
@@ -131,7 +130,6 @@ class Store extends React.Component<Props, State> {
         <PluginBox
           key={index}
           plugin={plugin}
-          isAddon={isAddon}
           plugins={plugins}
           isOpenSource={true}
         />
@@ -155,8 +153,8 @@ class Store extends React.Component<Props, State> {
       );
     }
 
-    return plugins.map((service, index) => (
-      <ServiceBox key={index} service={service} />
+    return plugins.map((plugin, index) => (
+      <ServiceBox key={index} plugin={plugin} />
     ));
   }
 
@@ -185,35 +183,27 @@ class Store extends React.Component<Props, State> {
     return (
       <Container>
         <FlexRow>
-          <FilterContainer width={300}>
-            <Tag>{__('Status')}</Tag>
-            {STATUS_TYPES.map(status => (
-              <FormControl
-                key={status.value}
-                componentClass="radio"
-                onChange={() => {
-                  this.handleStatus(status.value);
-                }}
-                checked={status.value === this.state.status}
-              >
-                {status.value}
-              </FormControl>
-            ))}
-          </FilterContainer>
-          <FilterContainer>
-            <input
-              placeholder={__('Type to search for an results') + '...'}
-              type="text"
-              onChange={this.onSearch}
-            />
+          <SearchBar>
+            <FlexRow>
+              <SearchIcon>
+                <Icon icon="search" />
+              </SearchIcon>
+              <SearchInput
+                placeholder={__('Type to search for an results') + '...'}
+                type="text"
+                onChange={this.onSearch}
+              />
+            </FlexRow>
+          </SearchBar>
+
+          <FilterContainer noPadding={true}>
+            <Labels>
+              {CATEGORIES.map((cat, index) =>
+                this.renderCategories(cat, index)
+              )}
+            </Labels>
           </FilterContainer>
         </FlexRow>
-
-        <FilterContainer noPadding={true}>
-          <Labels>
-            {CATEGORIES.map((cat, index) => this.renderCategories(cat, index))}
-          </Labels>
-        </FilterContainer>
 
         <StoreBlock>
           <h4>{__('Services')}</h4>

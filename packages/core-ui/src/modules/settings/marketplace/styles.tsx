@@ -185,11 +185,20 @@ const DetailMainContainer = styled.div`
   border: 1px solid ${colors.borderPrimary};
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   overflow-x: hidden;
+
   ::-webkit-scrollbar {
     display: none;
   }
+
   p {
     margin: 0;
+  }
+
+  .plugin-detail-tabs {
+    margin-top: ${dimensions.unitSpacing}px;
+  }
+  .plugin-detail-content {
+    margin-top: ${dimensions.coreSpacing}px;
   }
 `;
 
@@ -471,11 +480,15 @@ const DetailCard = styled.div`
 const MemberPic = styled.div`
   width: 39px;
   height: 39px;
-  border: 2px solid ${rgba(colors.colorPrimary, 0.4)};
+  border: 1px solid ${colors.borderPrimary};
   border-radius: 50%;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
 
   img {
-    height: 35px;
+    max-height: 100%;
+    max-width: 100%;
   }
 `;
 

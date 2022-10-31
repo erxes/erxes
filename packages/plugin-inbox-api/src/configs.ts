@@ -1,3 +1,4 @@
+import * as serverTiming from 'server-timing';
 import * as cors from 'cors';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
@@ -52,7 +53,7 @@ export default {
     // for fixing permissions
     permissions
   },
-  apolloServerContext: async (context, req) => {
+  apolloServerContext: async (context, req, res) => {
     const subdomain = getSubdomain(req);
 
     const models = await generateModels(subdomain);
@@ -61,8 +62,15 @@ export default {
     context.dataLoaders = generateAllDataLoaders(models);
     context.subdomain = subdomain;
 
+    context.serverTiming = {
+      startTime: res.startTime,
+      endTime: res.endTime,
+      setMetric: res.setMetric
+    };
+
     return context;
   },
+  middlewares: [(serverTiming as any)()],
   onServerInit: async options => {
     mainDb = options.db;
 

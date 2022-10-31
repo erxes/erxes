@@ -23,7 +23,6 @@ import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
-import { splitStr } from '@erxes/api-utils/src/core';
 import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
 import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
 import { IUserDocument } from '@erxes/api-utils/src/types';
@@ -59,13 +58,13 @@ interface IConversationConvert {
   itemName: string;
   bookingProductId?: string;
   customFieldsData?: { [key: string]: any };
-  priority?: String;
-  assignedUserIds?: [String];
-  labelIds?: [String];
+  priority?: string;
+  assignedUserIds?: string[];
+  labelIds?: string[];
   startDate?: Date;
   closeDate?: Date;
   attachments?: IAttachment[];
-  description?: String;
+  description?: string;
 }
 
 /**
@@ -374,7 +373,7 @@ const conversationMutations = {
       });
     }
 
-    let requestName;
+    const requestName = '';
     let type;
     let action;
 
@@ -584,13 +583,19 @@ const conversationMutations = {
   async conversationsChangeStatus(
     _root,
     { _ids, status }: { _ids: string[]; status: string },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain, serverTiming }: IContext
   ) {
+    serverTiming.startTime('changeStatus');
+
     const { oldConversationById } = await getConversationById(models, {
       _id: { $in: _ids }
     });
 
     await models.Conversations.changeStatusConversation(_ids, status, user._id);
+
+    serverTiming.endTime('changeStatus');
+
+    serverTiming.startTime('sendNotifications');
 
     // notify graphl subscription
     publishConversationsChanged(_ids, status);
@@ -604,6 +609,10 @@ const conversationMutations = {
       conversations: updatedConversations,
       type: 'conversationStateChange'
     });
+
+    serverTiming.endTime('sendNotifications');
+
+    serverTiming.startTime('putLog');
 
     for (const conversation of updatedConversations) {
       await putUpdateLog(
@@ -619,6 +628,8 @@ const conversationMutations = {
         user
       );
     }
+
+    serverTiming.endTime('putLog');
 
     return updatedConversations;
   },
