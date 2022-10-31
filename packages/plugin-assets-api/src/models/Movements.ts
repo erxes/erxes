@@ -29,7 +29,9 @@ export const loadMovementClass = (models: IModels) => {
         throw new Error('No moved date in movement ');
       }
 
-      const addedAssets = await models.MovementItems.movementItemsAdd(doc.items);
+      const addedAssets = await models.MovementItems.movementItemsAdd(
+        doc.items
+      );
 
       const movementItemIds = addedAssets.map(asset => asset._id);
 

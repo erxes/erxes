@@ -7,7 +7,9 @@ export default {
   },
 
   async user(movement: IMovementDocument, {}, { dataLoaders }: IContext) {
-    return (movement.userId && dataLoaders.teamMember.load(movement.userId)) || null;
+    return (
+      (movement.userId && dataLoaders.teamMember.load(movement.userId)) || null
+    );
   },
 
   async items(movement: IMovementDocument, {}, { models }: IContext) {

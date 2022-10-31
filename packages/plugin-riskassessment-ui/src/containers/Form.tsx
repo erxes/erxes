@@ -7,10 +7,7 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import {
-  RiskAssessmentsCategoriesQueryResponse,
-  RiskAssessmentDetailQueryResponse
-} from '../common/types';
+import { RiskAssessmentDetailQueryResponse } from '../common/types';
 import FormCompnent from '../components/Form';
 import { queries } from '../graphql';
 
@@ -22,7 +19,6 @@ type Props = {
 
 type FinalProps = {
   object;
-  categories: RiskAssessmentsCategoriesQueryResponse;
 } & ICommonFormProps &
   IRouterProps &
   Props;
@@ -33,12 +29,10 @@ class FormContainer extends React.Component<FinalProps> {
   }
 
   render() {
-    const { categories, assessmentDetail } = this.props;
+    const { assessmentDetail } = this.props;
 
     const updatedProps = {
       ...this.props,
-      categories: categories.riskAssesmentCategories,
-      loading: categories.loading,
       assessmentDetail: assessmentDetail?.riskAssessmentDetail,
       detailLoading: assessmentDetail?.loading
     };
@@ -53,9 +47,6 @@ class FormContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.listAssessmentCategories), {
-      name: 'categories'
-    }),
     graphql<Props>(gql(queries.assessmentDetail), {
       name: 'assessmentDetail',
       skip: ({ asssessmentId }) => !asssessmentId,

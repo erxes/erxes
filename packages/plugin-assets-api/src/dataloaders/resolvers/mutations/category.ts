@@ -1,6 +1,12 @@
 import { IContext } from '../../../connectionResolver';
-import { putCreateLog, MODULE_NAMES, putUpdateLog, putDeleteLog } from '../../../logUtils';
+import {
+  putCreateLog,
+  MODULE_NAMES,
+  putUpdateLog,
+  putDeleteLog
+} from '../../../logUtils';
 import { IAssetCategories } from '../../../common/types/asset';
+import { checkPermission } from '@erxes/api-utils/src';
 
 interface IAssetCategoryEdit extends IAssetCategories {
   _id: string;
@@ -12,7 +18,9 @@ const assetCategoriesMutations = {
     doc: IAssetCategories,
     { user, docModifier, models, subdomain }: IContext
   ) {
-    const assetCategory = await models.AssetCategories.assetCategoryAdd(docModifier(doc));
+    const assetCategory = await models.AssetCategories.assetCategoryAdd(
+      docModifier(doc)
+    );
 
     await putCreateLog(
       models,
@@ -74,4 +82,11 @@ const assetCategoriesMutations = {
   }
 };
 
+checkPermission(assetCategoriesMutations, 'assetCategoryAdd', 'manageAssets');
+checkPermission(assetCategoriesMutations, 'assetCategoryEdit', 'manageAssets');
+checkPermission(
+  assetCategoriesMutations,
+  'assetCategoryRemove',
+  'manageAssets'
+);
 export default assetCategoriesMutations;

@@ -1,23 +1,36 @@
 import { models } from './connectionResolver';
-import { sendCardsMessage, sendCoreMessage, sendFormsMessage } from './messageBroker';
+import {
+  sendCardsMessage,
+  sendCoreMessage,
+  sendFormsMessage
+} from './messageBroker';
 
 export const validRiskAssessment = async params => {
   if (!params.categoryId) {
     throw new Error('Please select some category');
   }
+  if (!params.calculateMethod) {
+    throw new Error('Please select calculate method');
+  }
   if (await models?.RiskAssessment.findOne({ name: params.name })) {
-    throw new Error('This risk assessment is already in use. Please type another name');
+    throw new Error(
+      'This risk assessment is already in use. Please type another name'
+    );
   }
 
   const { calculateLogics } = params;
 
-  if (!calculateLogics.length) {
-    throw new Error('You must specify at least one logics to calculate the risk assessment');
+  if (!calculateLogics || !calculateLogics.length) {
+    throw new Error(
+      'You must specify at least one logics to calculate the risk assessment'
+    );
   }
 
   for (const logic of calculateLogics) {
     if (!logic.logic) {
-      throw new Error(`${logic.name} calculate logic should not be empty.Please select a logic`);
+      throw new Error(
+        `${logic.name} calculate logic should not be empty.Please select a logic`
+      );
     }
     if (!logic.color) {
       throw new Error(
@@ -25,7 +38,9 @@ export const validRiskAssessment = async params => {
       );
     }
     if (!logic.value || logic.value === 0) {
-      throw new Error(`${logic.name} calculate value should be greather than zero`);
+      throw new Error(
+        `${logic.name} calculate value should be greather than zero`
+      );
     }
   }
 };
@@ -95,7 +110,11 @@ export const checkAllUsersSubmitted = async (
   return result;
 };
 
-export const getAsssignedUsers = async (subdomain, cardId: string, cardType: string) => {
+export const getAsssignedUsers = async (
+  subdomain,
+  cardId: string,
+  cardType: string
+) => {
   let assignedUsers;
   const card = await sendCardsMessage({
     subdomain,
@@ -125,9 +144,16 @@ export const getAsssignedUsers = async (subdomain, cardId: string, cardType: str
 };
 
 export const getFormId = async (model, cardId: string, cardType: String) => {
-  const { riskAssessmentId } = await model.RiskConfimity.findOne({ cardId, cardType }).lean();
-  const { categoryId } = await model.RiskAssessment.findOne({ _id: riskAssessmentId }).lean();
+  const { riskAssessmentId } = await model.RiskConfimity.findOne({
+    cardId,
+    cardType
+  }).lean();
+  const { categoryId } = await model.RiskAssessment.findOne({
+    _id: riskAssessmentId
+  }).lean();
 
-  const { formId } = await model.RiskAssessmentCategory.findOne({ _id: categoryId }).lean();
+  const { formId } = await model.RiskAssessmentCategory.findOne({
+    _id: categoryId
+  }).lean();
   return formId;
 };

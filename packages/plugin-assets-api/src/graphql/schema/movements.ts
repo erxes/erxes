@@ -1,4 +1,7 @@
-import { movementFilters, commonFilterParams } from '../../common/graphql/movement';
+import {
+  movementFilters,
+  commonFilterParams
+} from '../../common/graphql/movement';
 
 export const types = contactsAvailable => `
 
@@ -57,7 +60,8 @@ export const types = contactsAvailable => `
         itemIds:[String]
         description:String
         
-        user:JSON
+        ${contactsAvailable ? `user:JSON` : ``}
+        
         items:[MovementItem]
     }
 

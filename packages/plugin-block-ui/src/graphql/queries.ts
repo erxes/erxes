@@ -55,8 +55,39 @@ export const packageDetail = `
   }
 `;
 
+export const investments = `
+  query investments($erxesCustomerId: String) {
+    investments(erxesCustomerId: $erxesCustomerId) {
+      _id
+      erxesCustomerId
+      packageId
+      createdAt
+      modifiedAt
+      amount
+
+      package { _id, name }
+    }
+  }
+`;
+
+const getBalance = `
+  query Query($erxesCustomerId: String) {
+    getBalance(erxesCustomerId: $erxesCustomerId)
+}
+`;
+
+const isVerified = `
+  query Query($erxesCustomerId: String) {
+    isVerified(erxesCustomerId: $erxesCustomerId)
+}
+`;
+
 export default {
   packages,
   packageCounts,
-  packageDetail
+  packageDetail,
+
+  investments,
+  getBalance,
+  isVerified
 };

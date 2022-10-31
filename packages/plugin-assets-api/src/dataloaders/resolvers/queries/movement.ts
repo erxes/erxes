@@ -6,7 +6,10 @@ const movementQueries = {
   async assetMovements(_root, params, { models }: IContext) {
     const filter = await generateFilter(params, 'movement');
 
-    return paginate(models.Movements.find(filter).sort({ createdAt: -1 }), params);
+    return paginate(
+      models.Movements.find(filter).sort({ createdAt: -1 }),
+      params
+    );
   },
   async assetMovement(_root, { _id }, { models }: IContext) {
     return await models.Movements.findOne({ _id });

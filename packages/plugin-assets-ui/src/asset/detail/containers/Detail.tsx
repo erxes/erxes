@@ -49,13 +49,16 @@ const AssetDetailContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, IAssetDetailQueryResponse, { _id: string }>(gql(queries.assetDetail), {
-      name: 'assetDetailQuery',
-      options: ({ id }) => ({
-        variables: {
-          _id: id
-        }
-      })
-    })
+    graphql<Props, IAssetDetailQueryResponse, { _id: string }>(
+      gql(queries.assetDetail),
+      {
+        name: 'assetDetailQuery',
+        options: ({ id }) => ({
+          variables: {
+            _id: id
+          }
+        })
+      }
+    )
   )(AssetDetailContainer)
 );

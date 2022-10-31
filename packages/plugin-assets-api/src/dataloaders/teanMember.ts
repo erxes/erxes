@@ -3,7 +3,10 @@ import * as DataLoader from 'dataloader';
 import { sendCoreMessage } from '../messageBroker';
 import * as _ from 'underscore';
 
-export default function generateDataLoaderTeamMember(models: IModels, subdomain) {
+export default function generateDataLoaderTeamMember(
+  models: IModels,
+  subdomain
+) {
   return new DataLoader<string, any>(async (ids: readonly string[]) => {
     const result = await sendCoreMessage({
       subdomain,

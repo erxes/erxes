@@ -1,4 +1,7 @@
-import { attachmentInput, attachmentType } from '@erxes/api-utils/src/commonTypeDefs';
+import {
+  attachmentInput,
+  attachmentType
+} from '@erxes/api-utils/src/commonTypeDefs';
 import { assetCategoryParams, assetParams } from '../../common/graphql/asset';
 
 export const types = contactsAvailable => `

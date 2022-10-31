@@ -77,7 +77,9 @@ class ListContainer extends React.Component<FinalProps> {
         callback();
         this.setState({ mergeAssetLoading: false });
         Alert.success('You successfully merged a asset');
-        history.push(`/settings/asset-movements/detail/${result.data.assetsMerge._id}`);
+        history.push(
+          `/settings/asset-movements/detail/${result.data.assetsMerge._id}`
+        );
       })
       .catch(e => {
         Alert.error(e.message);

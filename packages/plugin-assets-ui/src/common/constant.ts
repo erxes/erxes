@@ -33,7 +33,10 @@ export const ASSET_CATEGORY_STATUS_FILTER = {
   archived: 'Archived'
 };
 
-export const breadcrumb = [{ title: __('Settings'), link: '/settings' }, { title: __('Assets') }];
+export const breadcrumb = [
+  { title: __('Settings'), link: '/settings' },
+  { title: __('Assets') }
+];
 
 export const menuMovements = [
   { title: 'Movements', link: '/asset-movements' },

@@ -67,7 +67,13 @@ class MovementItems extends React.Component<Props> {
       e.stopPropagation();
     };
 
-    const ItemRow = ({ label, children }: { label: string; children: React.ReactNode }) => {
+    const ItemRow = ({
+      label,
+      children
+    }: {
+      label: string;
+      children: React.ReactNode;
+    }) => {
       return (
         <CommonItemRow>
           <ItemText>{__(label)}</ItemText>

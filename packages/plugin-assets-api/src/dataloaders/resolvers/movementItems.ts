@@ -6,18 +6,50 @@ export default {
   },
 
   async branch(movement: IMovementItemDocument, {}, { dataLoaders }: IContext) {
-    return (movement.branchId && dataLoaders.branch.load(movement.branchId)) || null;
+    return (
+      (movement.branchId && dataLoaders.branch.load(movement.branchId)) || null
+    );
   },
-  async customer(movement: IMovementItemDocument, {}, { dataLoaders }: IContext) {
-    return (await (movement.customerId && dataLoaders.customer.load(movement.customerId))) || null;
+  async customer(
+    movement: IMovementItemDocument,
+    {},
+    { dataLoaders }: IContext
+  ) {
+    return (
+      (await (movement.customerId &&
+        dataLoaders.customer.load(movement.customerId))) || null
+    );
   },
-  async company(movement: IMovementItemDocument, {}, { dataLoaders }: IContext) {
-    return (movement.companyId && dataLoaders.company.load(movement.companyId)) || null;
+  async company(
+    movement: IMovementItemDocument,
+    {},
+    { dataLoaders }: IContext
+  ) {
+    return (
+      (movement.companyId && dataLoaders.company.load(movement.companyId)) ||
+      null
+    );
   },
-  async teamMember(movement: IMovementItemDocument, {}, { dataLoaders }: IContext) {
-    return (movement.teamMemberId && dataLoaders.teamMember.load(movement.teamMemberId)) || null;
+  async teamMember(
+    movement: IMovementItemDocument,
+    {},
+    { dataLoaders }: IContext
+  ) {
+    return (
+      (movement.teamMemberId &&
+        dataLoaders.teamMember.load(movement.teamMemberId)) ||
+      null
+    );
   },
-  async department(movement: IMovementItemDocument, {}, { dataLoaders }: IContext) {
-    return (movement.departmentId && dataLoaders.department.load(movement.departmentId)) || null;
+  async department(
+    movement: IMovementItemDocument,
+    {},
+    { dataLoaders }: IContext
+  ) {
+    return (
+      (movement.departmentId &&
+        dataLoaders.department.load(movement.departmentId)) ||
+      null
+    );
   }
 };

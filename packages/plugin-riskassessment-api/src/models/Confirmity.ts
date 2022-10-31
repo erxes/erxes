@@ -1,16 +1,36 @@
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { sendCardsMessage, sendCoreMessage, sendFormsMessage } from '../messageBroker';
+import {
+  sendCardsMessage,
+  sendCoreMessage,
+  sendFormsMessage
+} from '../messageBroker';
 import { calculateRiskAssessment } from '../utils';
-import { IRiskConfirmityField, IRiskConfirmityParams } from './definitions/common';
-import { IRiskConfirmityDocument, riskConfirmitySchema } from './definitions/confimity';
+import {
+  IRiskConfirmityField,
+  IRiskConfirmityParams
+} from './definitions/common';
+import {
+  IRiskConfirmityDocument,
+  riskConfirmitySchema
+} from './definitions/confimity';
 
 export interface IRiskConfirmityModel extends Model<IRiskConfirmityDocument> {
-  riskConfirmities(params: IRiskConfirmityParams): Promise<IRiskConfirmityDocument>;
-  riskConfirmitySubmissions(params: { cardId: string }): Promise<IRiskConfirmityDocument>;
-  riskConfirmityDetails(params: IRiskConfirmityParams): Promise<IRiskConfirmityDocument>;
-  riskConfirmityAdd(params: IRiskConfirmityField): Promise<IRiskConfirmityDocument>;
-  riskConfirmityUpdate(params: IRiskConfirmityParams): Promise<IRiskConfirmityDocument>;
+  riskConfirmities(
+    params: IRiskConfirmityParams
+  ): Promise<IRiskConfirmityDocument>;
+  riskConfirmitySubmissions(params: {
+    cardId: string;
+  }): Promise<IRiskConfirmityDocument>;
+  riskConfirmityDetails(
+    params: IRiskConfirmityParams
+  ): Promise<IRiskConfirmityDocument>;
+  riskConfirmityAdd(
+    params: IRiskConfirmityField
+  ): Promise<IRiskConfirmityDocument>;
+  riskConfirmityUpdate(
+    params: IRiskConfirmityParams
+  ): Promise<IRiskConfirmityDocument>;
   riskConfirmityRemove(cardId: string): Promise<IRiskConfirmityDocument>;
   riskConfirmityFormDetail(params): any;
 }
@@ -36,48 +56,12 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
     }
     public static async riskConfirmities(params: IRiskConfirmityParams) {
       const filter = generateFilter(params);
-      const confimities = await model.RiskConfimity.aggregate([
-        { $match: filter },
-        {
-          $lookup: {
-            from: 'risk_assessments',
-            localField: 'riskAssessmentId',
-            foreignField: '_id',
-            as: 'risk_assessment'
-          }
-        },
-        { $unwind: '$risk_assessment' },
-        {
-          $addFields: {
-            name: '$risk_assessment.name',
-            statusColor: '$risk_assessment.statusColor'
-          }
-        },
-        {
-          $project: { risk_assessment: 0 }
-        }
-      ]);
-
-      return confimities;
+      return await model.RiskConfimity.find(filter);
     }
     public static async riskConfirmityDetails(params: IRiskConfirmityParams) {
       const filter = generateFilter(params);
 
-      const result = await model.RiskConfimity.aggregate([
-        { $match: filter },
-        {
-          $lookup: {
-            from: 'risk_assessments',
-            localField: 'riskAssessmentId',
-            foreignField: '_id',
-            as: 'risk_assessment'
-          }
-        },
-        { $unwind: '$risk_assessment' },
-        { $project: { _id: 0, createdAt: 0, cardId: 0, riskAssessmentId: 0, __v: 0 } },
-        { $replaceWith: { $mergeObjects: ['$$ROOT', '$risk_assessment'] } },
-        { $project: { risk_assessment: 0 } }
-      ]);
+      const result = await model.RiskConfimity.find(filter);
 
       return result;
     }
@@ -92,7 +76,10 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
         throw new Error('cardId is required');
       }
 
-      const confimity = await model.RiskConfimity.findOne({ cardId,cardType }).lean();
+      const confimity = await model.RiskConfimity.findOne({
+        cardId,
+        cardType
+      }).lean();
 
       if (!confimity) {
         throw new Error('Confimity not found');
@@ -115,17 +102,20 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
     }
 
     public static async riskConfirmitySubmissions(params) {
-      const { cardId,cardType } = params;
+      const { cardId, cardType } = params;
 
       if (!cardId) {
         throw new Error('card Id is required');
       }
 
-      if (!await model.RiskConfimity.findOne({ cardId: cardId, cardType })) {
-        throw new Error('Not found selected risk assessment in card')
+      if (!(await model.RiskConfimity.findOne({ cardId: cardId, cardType }))) {
+        throw new Error('Not found selected risk assessment in card');
       }
 
-      const { riskAssessmentId } = await model.RiskConfimity.findOne({ cardId: cardId, cardType }).lean();
+      const { riskAssessmentId } = await model.RiskConfimity.findOne({
+        cardId: cardId,
+        cardType
+      }).lean();
 
       const assignedUsers = await this.getAsssignedUsers(cardId, cardType);
       const formId = await this.getFormId(cardId);
@@ -141,7 +131,9 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
           usr['isSubmittedRiskAssessmentForm'] = true;
         }
       }
-      const { status } = await model.RiskAssessment.findOne({ _id: riskAssessmentId }).lean();
+      const { status } = await model.RiskAssessment.findOne({
+        _id: riskAssessmentId
+      }).lean();
 
       if (status !== 'In Progress') {
         const assignedUserIds = assignedUsers.map(user => user._id);
@@ -151,7 +143,9 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
           cardId: cardId,
           formId
         });
-        const submittedUsersIds = [...new Set(submittedUsers.map(user => user.userId))];
+        const submittedUsersIds = [
+          ...new Set(submittedUsers.map(user => user.userId))
+        ];
         return assignedUsers.filter(user =>
           submittedUsersIds.some(submission => submission === user._id)
         );
@@ -166,9 +160,13 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
       if (!cardId) {
         throw new Error('Card ID is required');
       }
-      const { categoryId } = await model.RiskAssessment.findOne({ _id: riskAssessmentId }).lean();
+      const { categoryId } = await model.RiskAssessment.findOne({
+        _id: riskAssessmentId
+      }).lean();
 
-      const { formId } = await model.RiskAssessmentCategory.findOne({ _id: categoryId }).lean();
+      const { formId } = await model.RiskAssessmentCategory.findOne({
+        _id: categoryId
+      }).lean();
 
       if (!formId) {
         throw new Error('Form ID is required');
@@ -198,7 +196,7 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
       return { fields, submissions: editedsubmissions, formId };
     }
 
-    static async getAsssignedUsers(cardId: string,cardType:string) {
+    static async getAsssignedUsers(cardId: string, cardType: string) {
       let assignedUsers;
       const card = await sendCardsMessage({
         subdomain,
@@ -228,10 +226,16 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
     }
 
     static async getFormId(cardId: string) {
-      const { riskAssessmentId } = await model.RiskConfimity.findOne({ cardId }).lean();
-      const { categoryId } = await model.RiskAssessment.findOne({ _id: riskAssessmentId }).lean();
+      const { riskAssessmentId } = await model.RiskConfimity.findOne({
+        cardId
+      }).lean();
+      const { categoryId } = await model.RiskAssessment.findOne({
+        _id: riskAssessmentId
+      }).lean();
 
-      const { formId } = await model.RiskAssessmentCategory.findOne({ _id: categoryId }).lean();
+      const { formId } = await model.RiskAssessmentCategory.findOne({
+        _id: categoryId
+      }).lean();
       return formId;
     }
   }

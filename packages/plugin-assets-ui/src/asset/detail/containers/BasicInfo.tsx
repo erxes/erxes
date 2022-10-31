@@ -51,9 +51,12 @@ const generateOptions = () => ({
 
 export default withProps<Props>(
   compose(
-    graphql<{}, AssetRemoveMutationResponse, { assetIds: string[] }>(gql(mutations.assetsRemove), {
-      name: 'assetsRemove',
-      options: generateOptions
-    })
+    graphql<{}, AssetRemoveMutationResponse, { assetIds: string[] }>(
+      gql(mutations.assetsRemove),
+      {
+        name: 'assetsRemove',
+        options: generateOptions
+      }
+    )
   )(withRouter<FinalProps>(BasicInfoContainer))
 );

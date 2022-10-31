@@ -60,13 +60,21 @@ class AssetChooser extends React.Component<FinalProps, State> {
   }
 
   render() {
-    const { closeModal, assets, handleSelect, limit, selectedAssetIds } = this.props;
+    const {
+      closeModal,
+      assets,
+      handleSelect,
+      limit,
+      selectedAssetIds
+    } = this.props;
 
     if (assets.loading) {
       return <Spinner />;
     }
 
-    const selected = assets.assets.filter(asset => selectedAssetIds.includes(asset._id));
+    const selected = assets.assets.filter(asset =>
+      selectedAssetIds.includes(asset._id)
+    );
 
     return (
       <Chooser

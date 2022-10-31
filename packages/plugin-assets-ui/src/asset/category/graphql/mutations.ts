@@ -1,4 +1,7 @@
-import { assetCategoryParamsDef, assetCategoryParams } from '../../../common/graphql/assetCategory';
+import {
+  assetCategoryParamsDef,
+  assetCategoryParams
+} from '../../../common/graphql/assetCategory';
 
 const assetCategoryAdd = `
   mutation assetCategoryAdd(${assetCategoryParamsDef}) {

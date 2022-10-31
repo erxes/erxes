@@ -208,7 +208,9 @@ class Form extends React.Component<Props, State> {
         categoryId={this.state.categoryId}
         data={{
           name: 'Product',
-          products: (currentProducts || []).map(p => p.productId)
+          products: (currentProducts || [])
+            .filter(p => p.product)
+            .map(p => p.product)
         }}
         limit={
           this.state.jobType === 'end' && type === 'resultProducts' ? 1 : 50

@@ -74,8 +74,9 @@ export const createInvoice = async (
   invoice: IInvoiceDocument,
   payment: IPaymentDocument
 ) => {
-  const MAIN_API_DOMAIN =
-    process.env.MAIN_API_DOMAIN || 'http://localhost:4000';
+  const MAIN_API_DOMAIN = process.env.DOMAIN
+    ? `${process.env.DOMAIN}/gateway`
+    : 'http://localhost:4000';
 
   try {
     const token = await getToken(payment.config);

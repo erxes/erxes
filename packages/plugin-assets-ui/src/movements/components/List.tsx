@@ -94,7 +94,11 @@ class List extends React.Component<Props, State> {
   renderRow(props) {
     const { movements, history, queryParams } = this.props;
 
-    const handleSelecteRow = (movement: IMovementType, movementId: string, isChecked?: boolean) => {
+    const handleSelecteRow = (
+      movement: IMovementType,
+      movementId: string,
+      isChecked?: boolean
+    ) => {
       const { selectedRows } = this.state;
 
       props.toggleBulk(movement, isChecked);
@@ -125,7 +129,9 @@ class List extends React.Component<Props, State> {
     const onchange = () => {
       toggleAll(movements, 'movements');
       this.setState({
-        selectedRows: !isAllSelected ? movements.map(movement => movement._id || '') : []
+        selectedRows: !isAllSelected
+          ? movements.map(movement => movement._id || '')
+          : []
       });
     };
     return (
@@ -133,7 +139,11 @@ class List extends React.Component<Props, State> {
         <thead>
           <tr>
             <th style={{ width: 60 }}>
-              <FormControl checked={isAllSelected} componentClass="checkbox" onChange={onchange} />
+              <FormControl
+                checked={isAllSelected}
+                componentClass="checkbox"
+                onChange={onchange}
+              />
             </th>
             <th>{__('User')}</th>
             <th>{__('Moved At')}</th>

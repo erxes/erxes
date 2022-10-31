@@ -12,29 +12,54 @@ const AssetMovements = asyncComponent(() =>
 );
 
 const AssetMovementItems = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Asset Movement Item" */ './movements/items/containers/List')
+  import(
+    /* webpackChunkName: "List - Asset Movement Item" */ './movements/items/containers/List'
+  )
 );
 
 const AssetDetail = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Assets" */ './asset/detail/containers/Detail')
+  import(
+    /* webpackChunkName: "List - Assets" */ './asset/detail/containers/Detail'
+  )
 );
 
 const assets = ({ history, location }) => {
-  return <AssetList history={history} queryParams={queryString.parse(location.search)} />;
+  return (
+    <AssetList
+      history={history}
+      queryParams={queryString.parse(location.search)}
+    />
+  );
 };
 
 const detail = ({ history, location, match }) => {
   const id = match.params.id;
 
-  return <AssetDetail history={history} queryParams={queryString.parse(location.search)} id={id} />;
+  return (
+    <AssetDetail
+      history={history}
+      queryParams={queryString.parse(location.search)}
+      id={id}
+    />
+  );
 };
 
 const movements = props => {
-  return <AssetMovements {...props} queryParams={queryString.parse(location.search)} />;
+  return (
+    <AssetMovements
+      {...props}
+      queryParams={queryString.parse(location.search)}
+    />
+  );
 };
 
 const movementItems = props => {
-  return <AssetMovementItems {...props} queryParams={queryString.parse(location.search)} />;
+  return (
+    <AssetMovementItems
+      {...props}
+      queryParams={queryString.parse(location.search)}
+    />
+  );
 };
 
 const routes = () => {
@@ -48,7 +73,11 @@ const routes = () => {
         component={detail}
       />
       <Route path="/asset-movements" exact={true} component={movements} />
-      <Route path="/asset-movement-items" exact={true} component={movementItems} />
+      <Route
+        path="/asset-movement-items"
+        exact={true}
+        component={movementItems}
+      />
     </React.Fragment>
   );
 };

@@ -147,7 +147,11 @@ const assetQueries = {
       user
     );
   },
-  async assetsTotalCount(_root, params, { commonQuerySelector, models }: IContext) {
+  async assetsTotalCount(
+    _root,
+    params,
+    { commonQuerySelector, models }: IContext
+  ) {
     let filter: any = commonQuerySelector;
 
     filter = await generateCommonAssetFilter(params, models);

@@ -3,7 +3,11 @@ import { IContext } from '../../../connectionResolver';
 const assetCategoriesQueries = {
   assetCategories(
     _root,
-    { parentId, searchValue, status }: { parentId: string; searchValue: string; status: string },
+    {
+      parentId,
+      searchValue,
+      status
+    }: { parentId: string; searchValue: string; status: string },
     { commonQuerySelector, models }: IContext
   ) {
     const filter: any = commonQuerySelector;

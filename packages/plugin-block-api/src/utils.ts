@@ -1,4 +1,7 @@
 import { sendContactsMessage, sendFormsMessage } from './messageBroker';
+import { sendCoreMessage } from './messageBroker';
+import { sendRequest } from '@erxes/api-utils/src/requests';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 
 export const getBalance = async (
   subdomain: string,
@@ -91,4 +94,68 @@ export const updateBalance = async (
     isRPC: true,
     defaultValue: {}
   });
+};
+
+export const getConfig = async (
+  code: string,
+  subdomain: string,
+  defaultValue?: string
+) => {
+  const configs = await sendCoreMessage({
+    subdomain,
+    action: 'getConfigs',
+    data: {},
+    isRPC: true,
+    defaultValue: []
+  });
+
+  if (!configs[code]) {
+    return defaultValue;
+  }
+
+  return configs[code];
+};
+
+export const sendSms = async (
+  subdomain: string,
+  phoneNumber: string,
+  content: string
+) => {
+  const MESSAGE_PRO_API_KEY = await getConfig(
+    'MESSAGE_PRO_API_KEY',
+    subdomain,
+    ''
+  );
+
+  const MESSAGE_PRO_PHONE_NUMBER = await getConfig(
+    'MESSAGE_PRO_PHONE_NUMBER',
+    subdomain,
+    ''
+  );
+
+  if (!MESSAGE_PRO_API_KEY || !MESSAGE_PRO_PHONE_NUMBER) {
+    throw new Error('messagin config not set properly');
+  }
+
+  try {
+    await sendRequest({
+      url: 'https://api.messagepro.mn/send',
+      method: 'GET',
+      params: {
+        key: MESSAGE_PRO_API_KEY,
+        from: MESSAGE_PRO_PHONE_NUMBER,
+        to: phoneNumber,
+        text: content
+      }
+    });
+
+    return 'sent';
+  } catch (e) {
+    debugError(e.message);
+    throw new Error(e.message);
+  }
+};
+
+export const numberWithCommas = number => {
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 "use strict";
 
+const generator = require('generate-password');
 const { resolve, join } = require("path");
 const { createInterface } = require("readline");
 
-const inquirer = require("inquirer");
 const chalk = require("chalk");
 const fs = require("fs");
 const fse = require("fs-extra");
@@ -15,17 +15,17 @@ const packageJson = require("../package.json");
 
 const program = new commander.Command(packageJson.name);
 
+const generatePass = () => generator.generate({
+	length: 10,
+	numbers: true
+});
+
 let projectName;
 
 program
   .version(packageJson.version)
   .arguments("<directory>")
-  .option("--quickStart", "Not going to ask a lot of configurations")
   .option("--domain <domain>", "Domain")
-  .option("--mongoUrl <mongoUrl>", "Mongo url")
-  .option("--redisHost <redisHost>", "Redis host")
-  .option("--rabbitmqHost <rabbitmqHost>", "RabbitMQ host")
-  .option("--elasticsearchUrl <elasticsearchUrl>", "Elasticsearch url")
   .description("create a new application")
   .action((directory) => {
     projectName = directory;
@@ -39,11 +39,6 @@ if (projectName === undefined) {
 }
 
 let domain = program.domain;
-let rabbitmqHost = program.rabbitmqHost || "";
-let redisHost = program.redisHost || "";
-let redisPort = 6379;
-let redisPassword = "";
-let elasticsearchUrl = program.elasticsearchUrl;
 
 const stopProcess = (message) => {
   if (message) console.error(message);
@@ -102,22 +97,22 @@ const generate = async () => {
   }
 
   const configs = {
-    jwt_token_secret: Math.random().toString(),
+    jwt_token_secret: generatePass(),
+    image_tag: "dev",
     db_server_address: "",
-    main_app_domain: "",
-    dashboard: {},
-    elasticsearch: {},
+    domain,
+    main_api_domain: `${domain}/gateway`,
     redis: {
-      password: "",
+      password: generatePass(),
     },
     mongo: {
-      username: "",
-      password: "",
+      username: "erxes",
+      password: generatePass(),
     },
     rabbitmq: {
       cookie: "",
-      user: "",
-      pass: "",
+      user: "erxes",
+      pass: generatePass(),
       vhost: "",
     },
     plugins: [
@@ -126,16 +121,6 @@ const generate = async () => {
       },
     ],
   };
-
-  if (rabbitmqHost) {
-    configs.RABBITMQ_HOST = rabbitmqHost;
-  }
-
-  if (redisHost) {
-    configs.REDIS_HOST = redisHost;
-    configs.REDIS_PORT = redisPort;
-    configs.REDIS_PASSWORD = redisPassword;
-  }
 
   // create configs.json
   await fse.writeJSON(join(rootPath, "configs.json"), configs, {
@@ -156,7 +141,7 @@ const generate = async () => {
         "amqplib": "^0.8.0",
         "create-erxes-app": "0.0.28",
         "dup": "^1.0.0",
-        "erxes": "^0.2.105",
+        "erxes": "^0.3.58",
         "ip": "^1.1.5",
         "up": "^1.0.2"
       },
@@ -181,65 +166,6 @@ const main = (async function() {
     );
 
     domain = inputDomain || "localhost";
-  }
-
-  if (!rabbitmqHost) {
-    const rabbitmqHostInput = await askQuestion("Rabbitmq host (optional): ");
-
-    if (rabbitmqHostInput) {
-      rabbitmqHost = rabbitmqHostInput;
-    }
-  }
-
-  if (!redisHost) {
-    const redisHostInput = await askQuestion("Redis host (optional): ");
-
-    if (redisHostInput) {
-      redisHost = redisHostInput;
-
-      const redisPortInput = await askQuestion("Redis port (6379): ");
-
-      if (redisPortInput) {
-        redisPort = redisPortInput;
-      }
-
-      const redisPasswordInput = await askQuestion(
-        "Redis password (optional): "
-      );
-
-      if (redisPasswordInput) {
-        redisPassword = redisPasswordInput;
-      }
-    }
-  }
-
-  if (!elasticsearchUrl) {
-    let answer;
-    let answers = await inquirer.prompt([
-      {
-        type: "list",
-        name: "elasticsearch",
-        message: "Elasticsearch url ?",
-        choices: [
-          "http://localhost:9200 (on local)",
-          "enter your elasticsearch url",
-        ],
-      },
-    ]);
-
-    if (answers.elasticsearch.includes("http://localhost:9200")) {
-      elasticsearchUrl = "http://localhost:9200";
-    }
-
-    if (answers.elasticsearch.includes("enter")) {
-      answer = await inquirer.prompt({
-        type: "input",
-        name: "customElasticsearchUrl",
-        message: "Please enter your elasticsearch url ?",
-      });
-
-      elasticsearchUrl = answer.customElasticsearchUrl;
-    }
   }
 
   readline.close();

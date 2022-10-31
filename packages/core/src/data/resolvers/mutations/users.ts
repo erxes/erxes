@@ -80,7 +80,7 @@ const userMutations = {
       lastName?: string;
       subscribeEmail?: boolean;
     },
-    { user, subdomain, models }: IContext
+    { models }: IContext
   ) {
     const userCount = await models.Users.countDocuments();
 
@@ -97,7 +97,7 @@ const userMutations = {
       }
     };
 
-    const newUser = await models.Users.createUser(doc);
+    await models.Users.createUser(doc);
 
     if (subscribeEmail && process.env.NODE_ENV === 'production') {
       await sendRequest({
@@ -110,50 +110,12 @@ const userMutations = {
           lastName
         }
       });
-
-      await sendRequest({
-        url: 'https://api.office.erxes.io/webhooks/TfLkv6SxzkHMFT3cj',
-        method: 'POST',
-        headers: {
-          auth: '3QuWREv4A2nzmrCJe'
-        },
-        body: {
-          customerState: 'customer',
-          customerPrimaryEmail: email,
-          customerFirstName: firstName,
-          customerLastName: lastName,
-          customFields: [{ name: 'Customer Type', value: 'Open Source' }]
-        }
-      });
     }
 
     await models.Configs.createOrUpdateConfig({
       code: 'UPLOAD_SERVICE_TYPE',
       value: 'local'
     });
-
-    await sendIntegrationsMessage({
-      subdomain,
-      action: 'notification',
-      data: {
-        type: 'addUserId',
-        payload: {
-          _id: newUser._id
-        }
-      }
-    });
-
-    await putCreateLog(
-      models,
-      subdomain,
-      {
-        type: 'user',
-        description: 'create user',
-        object: newUser,
-        newData: doc
-      },
-      user
-    );
 
     return 'success';
   },

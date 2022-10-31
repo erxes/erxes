@@ -5,7 +5,10 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { IMovementDetailQueryResponse, IMovementItem } from '../../common/types';
+import {
+  IMovementDetailQueryResponse,
+  IMovementItem
+} from '../../common/types';
 import { movementRefetchQueries } from '../../common/utils';
 import Form from '../components/Form';
 import { mutations, queries } from '../graphql';
@@ -25,7 +28,13 @@ class FormContainer extends React.Component<FinalProps> {
     super(props);
   }
 
-  renderButton = ({ text, values, isSubmitted, callback, object }: IButtonMutateProps) => {
+  renderButton = ({
+    text,
+    values,
+    isSubmitted,
+    callback,
+    object
+  }: IButtonMutateProps) => {
     let mutation = mutations.movementAdd;
     if (object) {
       mutation = mutations.movementEdit;

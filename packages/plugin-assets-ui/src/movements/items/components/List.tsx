@@ -1,4 +1,12 @@
-import { BarItems, Button, FormControl, ModalTrigger, router, Table, __ } from '@erxes/ui/src';
+import {
+  BarItems,
+  Button,
+  FormControl,
+  ModalTrigger,
+  router,
+  Table,
+  __
+} from '@erxes/ui/src';
 import React from 'react';
 import { menuMovements } from '../../../common/constant';
 import { IMovementItem } from '../../../common/types';
@@ -64,7 +72,14 @@ class MovementItem extends React.Component<Props, State> {
 
       return <Form {...updatedProps} />;
     };
-    return <ModalTrigger title="Add Movement" content={content} trigger={trigger} size="xl" />;
+    return (
+      <ModalTrigger
+        title="Add Movement"
+        content={content}
+        trigger={trigger}
+        size="xl"
+      />
+    );
   }
 
   renderRow() {

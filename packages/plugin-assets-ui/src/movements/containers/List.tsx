@@ -5,7 +5,10 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { MovementQueryResponse, MovementsTotalCountQueryResponse } from '../../common/types';
+import {
+  MovementQueryResponse,
+  MovementsTotalCountQueryResponse
+} from '../../common/types';
 import { generateParams, movementRefetchQueries } from '../../common/utils';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';

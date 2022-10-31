@@ -12,8 +12,16 @@ import {
   Uploader
 } from '@erxes/ui/src';
 import EditorCK from '@erxes/ui/src/components/EditorCK';
-import { FormColumn, FormWrapper, ModalFooter } from '@erxes/ui/src/styles/main';
-import { IAttachment, IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import {
+  FormColumn,
+  FormWrapper,
+  ModalFooter
+} from '@erxes/ui/src/styles/main';
+import {
+  IAttachment,
+  IButtonMutateProps,
+  IFormProps
+} from '@erxes/ui/src/types';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { IAsset, IAssetCategoryTypes } from '../../common/types';
@@ -111,9 +119,17 @@ class Form extends React.Component<Props, State> {
   };
 
   renderFormTrigger(trigger: React.ReactNode) {
-    const content = props => <CategoryForm {...props} categories={this.props.categories} />;
+    const content = props => (
+      <CategoryForm {...props} categories={this.props.categories} />
+    );
 
-    return <ModalTrigger title="Add Asset Category" trigger={trigger} content={content} />;
+    return (
+      <ModalTrigger
+        title="Add Asset Category"
+        trigger={trigger}
+        content={content}
+      />
+    );
   }
   onChangeDescription = e => {
     this.setState({ description: e.editor.getData() });
@@ -160,7 +176,8 @@ class Form extends React.Component<Props, State> {
 
     const object = asset || ({} as IAsset);
 
-    const attachments = (object.attachment && extractAttachment([object.attachment])) || [];
+    const attachments =
+      (object.attachment && extractAttachment([object.attachment])) || [];
 
     const attachmentsMore =
       (object.attachmentMore && extractAttachment(object.attachmentMore)) || [];
@@ -243,7 +260,8 @@ class Form extends React.Component<Props, State> {
               <ControlLabel required={true}>Unit price</ControlLabel>
               <p>
                 Please ensure you have set the default currency in the{' '}
-                <a href="/settings/general"> {'General Settings'}</a> of the System Configuration.
+                <a href="/settings/general"> {'General Settings'}</a> of the
+                System Configuration.
               </p>
               <FormControl
                 {...formProps}
@@ -259,11 +277,16 @@ class Form extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel required={true}>Code</ControlLabel>
               <p>
-                Depending on your business type, you may type in a barcode or any other UPC
-                (Universal Asset Code). If you don't use UPC, type in any numeric value to
-                differentiate your assets.
+                Depending on your business type, you may type in a barcode or
+                any other UPC (Universal Asset Code). If you don't use UPC, type
+                in any numeric value to differentiate your assets.
               </p>
-              <FormControl {...formProps} name="code" defaultValue={object.code} required={true} />
+              <FormControl
+                {...formProps}
+                name="code"
+                defaultValue={object.code}
+                required={true}
+              />
             </FormGroup>
           </FormColumn>
         </FormWrapper>
@@ -337,7 +360,12 @@ class Form extends React.Component<Props, State> {
         </FormWrapper>
 
         <ModalFooter>
-          <Button btnStyle="simple" onClick={closeModal} icon="times-circle" uppercase={false}>
+          <Button
+            btnStyle="simple"
+            onClick={closeModal}
+            icon="times-circle"
+            uppercase={false}
+          >
             Close
           </Button>
 

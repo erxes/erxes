@@ -99,14 +99,14 @@ const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),
   ids: queryParams.ids,
   campaignId: queryParams.campaignId,
-  status: queryParams.Status,
+  status: queryParams.status,
   ownerId: queryParams.ownerId,
   ownerType: queryParams.ownerType,
   searchValue: queryParams.searchValue,
   sortField: queryParams.sortField,
   sortDirection: Number(queryParams.sortDirection) || undefined,
-  sortFromDate: queryParams.From || undefined,
-  sortToDate: queryParams.To || undefined,
+  sortFromDate: queryParams.from || undefined,
+  sortToDate: queryParams.to || undefined,
   categoryId: queryParams.categoryId
 });
 

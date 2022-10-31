@@ -225,7 +225,12 @@ class List extends React.Component<Props, State> {
               content={this.assetsMerge}
             />
           )}
-          <Button btnStyle="danger" size="small" icon="cancel-1" onClick={onClick}>
+          <Button
+            btnStyle="danger"
+            size="small"
+            icon="cancel-1"
+            onClick={onClick}
+          >
             Remove
           </Button>
         </BarItems>
@@ -246,7 +251,9 @@ class List extends React.Component<Props, State> {
 
     const leftActionBar = (
       <ContainerBox row>
-        <Title>{currentCategory.name || currentParent.name || 'All Assets'}</Title>
+        <Title>
+          {currentCategory.name || currentParent.name || 'All Assets'}
+        </Title>
         {!_loadash.isEmpty(currentCategory) && clearButton('category')}
         {!_loadash.isEmpty(currentParent) && clearButton('parent')}
       </ContainerBox>

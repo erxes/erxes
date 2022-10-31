@@ -77,9 +77,12 @@ export default withProps<Props>(
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<Props, IAssetCategoriesTotalCountResponse>(gql(queries.assetCategoriesTotalCount), {
-      name: 'assetCategoriesTotalCount'
-    }),
+    graphql<Props, IAssetCategoriesTotalCountResponse>(
+      gql(queries.assetCategoriesTotalCount),
+      {
+        name: 'assetCategoriesTotalCount'
+      }
+    ),
     graphql<Props>(gql(mutations.assetCategoryRemove), {
       name: 'assetCategoryRemove'
     })

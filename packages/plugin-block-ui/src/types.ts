@@ -18,8 +18,30 @@ export interface IPackage extends IPackageDoc {
   modifiedAt: Date;
 }
 
+export interface IInvestmentDoc {
+  erxesCustomerId: string;
+  packageId: string;
+  amount: number;
+
+  package: IPackage;
+}
+
+export interface IInvestment extends IInvestmentDoc {
+  _id: string;
+  createdAt: Date;
+  modifiedAt: Date;
+}
+
 export type PackagesQueryResponse = {
   packages: IPackage[];
+} & QueryResponse;
+
+export type BalanceQueryResponse = {
+  getBalance: number;
+} & QueryResponse;
+
+export type VerifyQueryResponse = {
+  isVerified: string;
 } & QueryResponse;
 
 export type PackageRemoveMutationResponse = {
@@ -29,4 +51,32 @@ export type PackageRemoveMutationResponse = {
 export type DetailQueryResponse = {
   packageDetail: IPackage;
   loading: boolean;
+};
+
+export type InvestmentsQueryResponse = {
+  investments: IInvestment[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type AddBalanceMutationVariables = {
+  erxesCustomerId: string;
+  amount: number;
+};
+
+export type AddBalanceMutationResponse = {
+  addBalanceMutation: (params: {
+    variables: AddBalanceMutationVariables;
+  }) => Promise<any>;
+};
+
+export type UpdateVerifyMutationVariables = {
+  erxesCustomerId: string;
+  isVerified: string;
+};
+
+export type UpdateVerifyMutationResponse = {
+  updateVerifyMutation: (params: {
+    variables: UpdateVerifyMutationVariables;
+  }) => Promise<any>;
 };
