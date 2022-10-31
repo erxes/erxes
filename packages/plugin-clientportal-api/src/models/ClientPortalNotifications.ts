@@ -12,7 +12,7 @@ export interface ICPNotificationModel extends Model<ICPNotificationDocument> {
   markAsRead(ids: string[], userId?: string): void;
   createNotification(
     doc: ICPNotification,
-    createdUser?: IUserDocument | string
+    createdUser?: string
   ): Promise<ICPNotificationDocument>;
   updateNotification(
     _id: string,

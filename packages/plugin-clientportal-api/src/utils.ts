@@ -1,6 +1,8 @@
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import { sendRequest } from '@erxes/api-utils/src/requests';
+
+import { IUserDocument } from './../../api-utils/src/types';
 import { generateModels, IModels } from './connectionResolver';
 import { sendCoreMessage } from './messageBroker';
 
@@ -170,13 +172,13 @@ export const generateRandomPassword = (len: number = 10) => {
 };
 
 interface ISendNotification {
-  createdUser;
   receivers: string[];
   title: string;
   content: string;
   notifType: string;
   link: string;
   clientPortalId: string;
+  createdUser?: IUserDocument;
   isMobile?: boolean;
 }
 
@@ -228,7 +230,7 @@ export const sendNotification = async (
           notifType,
           clientPortalId
         },
-        createdUser._id
+        createdUser && createdUser._id
       );
 
       console.log('notification', notification);

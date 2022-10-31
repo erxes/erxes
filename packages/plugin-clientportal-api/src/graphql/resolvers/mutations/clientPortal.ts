@@ -22,7 +22,7 @@ const clientPortalMutations = {
   async clientPortalCreateCard(
     _root,
     { type, email, subject, priority, description, stageId },
-    { subdomain, cpUser }: IContext
+    { subdomain, cpUser, models }: IContext
   ) {
     if (!cpUser) {
       throw new Error('You are not logged in');
@@ -41,7 +41,7 @@ const clientPortalMutations = {
       throw new Error('Customer not registered');
     }
 
-    return sendCardsMessage({
+    const card = await sendCardsMessage({
       subdomain,
       action: `${type}s.create`,
       data: {
@@ -55,6 +55,16 @@ const clientPortalMutations = {
       },
       isRPC: true
     });
+
+    await models.ClientPortalUserCards.createOrUpdateCard(
+      {
+        type,
+        cardId: card._id
+      },
+      cpUser._id
+    );
+
+    return card;
   }
 };
 
