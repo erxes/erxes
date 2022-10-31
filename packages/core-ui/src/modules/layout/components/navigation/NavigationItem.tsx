@@ -53,12 +53,13 @@ export default function NavigationItem(props: Props) {
   );
 
   const renderNavMenuItem = () => {
-    if (children.length === 0 && plugin.text !== 'Settings')
+    if (children.length === 0 && plugin.text !== 'Settings') {
       return (
         <Tip placement="right" key={Math.random()} text={__(plugin.text)}>
           {navMenuItemNode}
         </Tip>
       );
+    }
 
     return navMenuItemNode;
   };

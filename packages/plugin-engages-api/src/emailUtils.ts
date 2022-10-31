@@ -70,8 +70,8 @@ export const prepareEmailParams = (
   );
 
   return {
-    from: sender || fromEmail,
-    to: customer.primaryEmail,
+    from: (sender || fromEmail).toString(),
+    to: customer.primaryEmail.toLocaleLowerCase().trim(),
     replyTo,
     subject: replacedSubject,
     attachments: prepareAttachments(attachments),
