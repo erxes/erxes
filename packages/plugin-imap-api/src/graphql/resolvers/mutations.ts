@@ -91,6 +91,16 @@ const notificationMutations = {
       }
     });
 
+    console.log(
+      'mmmmmmmmmmmmmmmmm',
+      JSON.stringify(
+        attachments.map(attach => ({
+          filename: attach.name,
+          path: attach.url
+        }))
+      )
+    );
+
     const info = await transporter.sendMail({
       from,
       to,
