@@ -83,6 +83,7 @@ export default {
                   f = imap.fetch(results, { bodies: '', struct: true });
                 } catch (e) {
                   imap.end();
+                  debugError('messageId ', messageId);
                   return next(e);
                 }
 
