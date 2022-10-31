@@ -7,6 +7,7 @@ require('dotenv').config();
 
 const {
   DEPLOYMENT_METHOD,
+  SERVICE_INTERNAL_PORT = 80,
   GATEWAY_PORT = 3300,
   UI_PORT = 3000,
   MONGO_PORT = 27017,
@@ -69,8 +70,11 @@ const mongoEnv = (configs, plugin) => {
 };
 
 const healthcheck = {
-  test: ['CMD', 'curl', '-i', 'http://localhost:80/health'],
+  test: ['CMD', 'curl', '-i', `http://localhost:${SERVICE_INTERNAL_PORT}/health`],
 };
+
+const generateLBaddress = (address) => 
+  `${address}${ SERVICE_INTERNAL_PORT !== 80 ? `:${SERVICE_INTERNAL_PORT}` : ''}`
 
 const generatePluginBlock = (configs, plugin) => {
   const api_mongo_url = mongoEnv(configs, {});
@@ -92,10 +96,10 @@ const generatePluginBlock = (configs, plugin) => {
     image: `${registry}erxes/plugin-${plugin.name}-api:${image_tag}`,
     environment: {
       SERVICE_NAME: plugin.name,
-      PORT: plugin.port || 80,
+      PORT: plugin.port || SERVICE_INTERNAL_PORT || 80,
       API_MONGO_URL: api_mongo_url,
       MONGO_URL: mongo_url,
-      LOAD_BALANCER_ADDRESS: `http://plugin_${plugin.name}_api`,
+      LOAD_BALANCER_ADDRESS: generateLBaddress(`http://plugin_${plugin.name}_api`),
       ...commonEnvs(configs),
       ...(plugin.extra_env || {}),
     },
@@ -382,12 +386,13 @@ const up = async ({ uis, fromInstaller }) => {
           REACT_APP_API_URL: gateway_url,
           REACT_APP_DASHBOARD_URL: dashboard_domain,
           REACT_APP_API_SUBSCRIPTION_URL: subscription_url,
+          NGINX_PORT: (configs.coreui || {}).NGINX_PORT || SERVICE_INTERNAL_PORT,
           NGINX_HOST,
           NODE_ENV: 'production',
           REACT_APP_FILE_UPLOAD_MAX_SIZE: 524288000,
           ...((configs.coreui || {}).extra_env || {}),
         },
-        ports: [`${UI_PORT}:80`],
+        ports: [`${UI_PORT}:${SERVICE_INTERNAL_PORT}`],
         volumes: [
           './plugins.js:/usr/share/nginx/html/js/plugins.js',
           './plugin-uis:/usr/share/nginx/html/js/plugins',
@@ -398,10 +403,10 @@ const up = async ({ uis, fromInstaller }) => {
         image: `erxes/core:${image_tag}`,
         environment: {
           SERVICE_NAME: 'core-api',
-          PORT: '80',
+          PORT: SERVICE_INTERNAL_PORT,
           CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || '',
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
-          LOAD_BALANCER_ADDRESS: 'http://plugin_core_api',
+          LOAD_BALANCER_ADDRESS: generateLBaddress('http://plugin_core_api'),
           MONGO_URL: mongoEnv(configs),
           EMAIL_VERIFIER_ENDPOINT:
             configs.email_verifier_endpoint ||
@@ -422,8 +427,8 @@ const up = async ({ uis, fromInstaller }) => {
         image: `erxes/gateway:${image_tag}`,
         environment: {
           SERVICE_NAME: 'gateway',
-          PORT: '80',
-          LOAD_BALANCER_ADDRESS: 'http://gateway',
+          PORT: SERVICE_INTERNAL_PORT,
+          LOAD_BALANCER_ADDRESS: generateLBaddress('http://gateway'),
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
           CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || '',
           MONGO_URL: mongoEnv(configs),
@@ -433,7 +438,7 @@ const up = async ({ uis, fromInstaller }) => {
         volumes: ['./enabled-services.js:/data/enabled-services.js'],
         healthcheck,
         extra_hosts,
-        ports: [`${GATEWAY_PORT}:80`],
+        ports: [`${GATEWAY_PORT}:${SERVICE_INTERNAL_PORT}`],
         networks: ['erxes'],
       },
       crons: {
@@ -449,9 +454,9 @@ const up = async ({ uis, fromInstaller }) => {
         image: `erxes/workers:${image_tag}`,
         environment: {
           SERVICE_NAME: 'workers',
-          PORT: '80',
+          PORT: SERVICE_INTERNAL_PORT,
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
-          LOAD_BALANCER_ADDRESS: 'http://plugin_workers_api',
+          LOAD_BALANCER_ADDRESS: generateLBaddress('http://plugin_workers_api'),
           MONGO_URL: mongoEnv(configs),
           ...commonEnvs(configs),
           ...((configs.workers || {}).extra_env || {}),
