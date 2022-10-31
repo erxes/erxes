@@ -166,7 +166,7 @@ class Mail extends React.PureComponent<Props, State> {
       <Attachments
         integrationId={integrationId}
         attachments={attachments}
-        messageId={messageId}
+        messageId={encodeURIComponent(messageId)}
       />
     );
   }
