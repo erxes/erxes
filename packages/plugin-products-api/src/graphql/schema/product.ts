@@ -66,11 +66,6 @@ export const types = (tagsAvailable, contactsAvailable) => `
     category: ProductCategory
     ${contactsAvailable ? 'vendor: Company' : ''}
   }
-
-  type ProductsListResponse {
-    list: [Product],
-    totalCount: Float,
-  }
 `;
 
 const productParams = `
@@ -94,7 +89,7 @@ const productParams = `
   tag: String,
   searchValue: String,
   perPage: Int,
-  page: Int, 
+  page: Int,
   ids: [String],
   excludeIds: Boolean,
   pipelineId: String,
