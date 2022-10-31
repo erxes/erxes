@@ -183,7 +183,7 @@ class List extends React.Component<IProps> {
           {this.renderCategoryHeader()}
           {this.renderCategoryList()}
         </Section>
-        {isEnabled('segment') && (
+        {isEnabled('segments') && (
           <SegmentFilter loadingMainQuery={this.props.loading} />
         )}
         <CategoryStatusFilter />
