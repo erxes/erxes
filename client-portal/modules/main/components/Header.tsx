@@ -1,12 +1,14 @@
-import Link from "next/link";
-import { withRouter } from "next/router";
-import React, { useState } from "react";
-import Icon from "../../common/Icon";
-import Modal from "../../common/Modal";
-import { getConfigColor, readFile } from "../../common/utils";
+import Link from 'next/link';
+import { withRouter } from 'next/router';
+import React, { useState } from 'react';
+import Icon from '../../common/Icon';
+import Modal from '../../common/Modal';
+import { getConfigColor, readFile } from '../../common/utils';
 import {
+  Badge,
   Container,
   Header as Head,
+  HeaderLeft,
   HeaderLinks,
   HeaderLogo,
   HeaderRight,
@@ -14,13 +16,15 @@ import {
   HeaderTop,
   LinkItem,
   SupportMenus,
-} from "../../styles/main";
-import { Config, IUser } from "../../types";
-import Button from "../../common/Button";
-import LoginContainer from "../../user/containers/Login";
-import RegisterContainer from "../../user/containers/Register";
-import ResetPasswordContainer from "../../user/containers/ResetPassword";
-import { Alert } from "../../utils";
+} from '../../styles/main';
+import { Config, IUser } from '../../types';
+import Button from '../../common/Button';
+import LoginContainer from '../../user/containers/Login';
+import RegisterContainer from '../../user/containers/Register';
+import ResetPasswordContainer from '../../user/containers/ResetPassword';
+import { Alert } from '../../utils';
+import Popup from 'reactjs-popup';
+import 'reactjs-popup/dist/index.css';
 
 type Props = {
   config: Config;
@@ -30,6 +34,7 @@ type Props = {
   headerHtml?: string;
   headingSpacing?: boolean;
   headerBottomComponent?: React.ReactNode;
+  notificationsCount: number;
 };
 
 function Header({
@@ -40,14 +45,15 @@ function Header({
   headerHtml,
   headingSpacing,
   headerBottomComponent,
+  notificationsCount,
 }: Props) {
   const [showlogin, setLogin] = useState(false);
   const [showregister, setRegister] = useState(false);
   const [showResetPassword, setResetPassword] = useState(false);
 
   const onClick = (url) => {
-    if (!currentUser && url.includes("tickets")) {
-      Alert.error("Log in first to create or manage ticket cards");
+    if (!currentUser && url.includes('tickets')) {
+      Alert.error('Log in first to create or manage ticket cards');
 
       return setLogin(true);
     }
@@ -58,9 +64,9 @@ function Header({
       <LinkItem
         active={router && router.pathname === url}
         onClick={() => onClick(url)}
-        color={getConfigColor(config, "headingColor")}
+        color={getConfigColor(config, 'headingColor')}
       >
-        <Link href={!currentUser && url.includes("tickets") ? "" : url}>
+        <Link href={!currentUser && url.includes('tickets') ? '' : url}>
           {label}
         </Link>
       </LinkItem>
@@ -107,11 +113,11 @@ function Header({
       <Container>
         <HeaderTop>
           <HeaderRight>
-            <SupportMenus color={getConfigColor(config, "headingColor")}>
+            <SupportMenus color={getConfigColor(config, 'headingColor')}>
               {currentUser ? (
                 <span title="Log out" onClick={() => logout()}>
                   <Icon icon="user" /> &nbsp;
-                  {currentUser.type === "company"
+                  {currentUser.type === 'company'
                     ? currentUser.companyName
                     : currentUser.firstName}
                 </span>
@@ -120,22 +126,38 @@ function Header({
               )}
             </SupportMenus>
           </HeaderRight>
+
+          <HeaderLeft>
+            {currentUser ? (
+              <Popup
+                trigger={
+                  <span title="Notifications">
+                    <Badge color={'red'}>{notificationsCount}</Badge>
+                    <Icon icon="bell" />
+                  </span>
+                }
+                position="bottom right"
+              >
+                <div>Popup content here !!</div>
+              </Popup>
+            ) : null}
+          </HeaderLeft>
         </HeaderTop>
         <HeaderTop>
           <HeaderLogo>
             <Link href="/">
               <img src={readFile(config.logo)} />
             </Link>
-            <HeaderTitle color={getConfigColor(config, "headingColor")}>
+            <HeaderTitle color={getConfigColor(config, 'headingColor')}>
               {config.name}
             </HeaderTitle>
           </HeaderLogo>
           <HeaderLinks>
             {config.publicTaskToggle
-              ? renderMenu("/tasks", config.taskLabel || "Task")
+              ? renderMenu('/tasks', config.taskLabel || 'Task')
               : null}
             {config.ticketToggle
-              ? renderMenu("/tickets", config.ticketLabel || "Ticket")
+              ? renderMenu('/tickets', config.ticketLabel || 'Ticket')
               : null}
           </HeaderLinks>
         </HeaderTop>
@@ -143,10 +165,12 @@ function Header({
     );
   };
 
+  console.log('notificationsCount', notificationsCount);
+
   return (
     <Head
-      background={getConfigColor(config, "headerColor")}
-      color={getConfigColor(config, "headingColor")}
+      background={getConfigColor(config, 'headerColor')}
+      color={getConfigColor(config, 'headingColor')}
       headingSpacing={headingSpacing}
     >
       {renderTopHeader()}

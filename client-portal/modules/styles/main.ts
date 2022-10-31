@@ -62,13 +62,8 @@ const HeaderRight = styled.div`
 
 const HeaderLeft = styled.div`
   display: flex;
-  flex-basis: 0;
-  -ms-flex-positive: 1;
-  flex-grow: 1;
-  min-width: 0;
-  max-width: 100%;
-  align-items: baseline;
-`;
+  align-items: center;
+  `;
 
 const SupportMenus = styledTS<{ color?: string }>(styled.div)`
   display: flex;
@@ -430,6 +425,15 @@ const FormWrapper = styled.div`
   }
 `;
 
+const Badge = styled.div`
+  border-radius: 15px;
+  background-color: ${props => props.color};
+  font-size: 11px;
+  max-width: 50px;
+  color: white;
+  text-align: center;
+`;
+
 export {
   Header,
   HeaderTop,
@@ -451,4 +455,5 @@ export {
   ModalClose,
   HeaderWrapper,
   FormWrapper,
+  Badge
 };

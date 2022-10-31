@@ -177,7 +177,6 @@ interface ISendNotification {
   content: string;
   notifType: string;
   link: string;
-  clientPortalId: string;
   createdUser?: IUserDocument;
   isMobile?: boolean;
 }
@@ -187,15 +186,7 @@ export const sendNotification = async (
   subdomain: string,
   doc: ISendNotification
 ) => {
-  const {
-    createdUser,
-    receivers,
-    title,
-    content,
-    notifType,
-    clientPortalId,
-    isMobile
-  } = doc;
+  const { createdUser, receivers, title, content, notifType, isMobile } = doc;
 
   let link = doc.link;
 
@@ -204,37 +195,40 @@ export const sendNotification = async (
 
   // collecting emails
   const recipients = await models.ClientPortalUsers.find({
-    _id: { $in: receiverIds },
-    clientPortalId
-  });
+    _id: { $in: receiverIds }
+  }).lean();
 
   // collect recipient emails
   const toEmails: string[] = [];
 
   for (const recipient of recipients) {
-    if (recipient.notificationSettings.receiveByEmail && recipient.email) {
+    if (
+      recipient.notificationSettings &&
+      recipient.notificationSettings.receiveByEmail &&
+      recipient.email
+    ) {
       toEmails.push(recipient.email);
     }
+
+    const notification = await models.ClientPortalNotifications.createNotification(
+      {
+        title,
+        content,
+        link,
+        receiver: recipient._id,
+        notifType,
+        clientPortalId: recipient.clientPortalId
+      },
+      createdUser && createdUser._id
+    );
+
+    console.log('notification', notification);
   }
 
   // loop through receiver ids
   for (const receiverId of receiverIds) {
     try {
       // send web and mobile notification
-      const notification = await models.ClientPortalNotifications.createNotification(
-        {
-          title,
-          content,
-          link,
-          receiver: receiverId,
-          notifType,
-          clientPortalId
-        },
-        createdUser && createdUser._id
-      );
-
-      console.log('notification', notification);
-
       // graphqlPubsub.publish('notificationInserted', {
       //   notificationInserted: {
       //     _id: notification._id,

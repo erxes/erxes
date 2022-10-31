@@ -17,7 +17,7 @@ export interface ICPUserCardModel extends Model<ICPUserCardDocument> {
     cardId: string,
     userId: string
   ): Promise<ICPUserCardDocument>;
-  getUserIds(cardId: string): Promise<string[]>;
+  getUserIds(type: string, cardId: string): Promise<string[]>;
 }
 
 export const loadUserCardClass = (models: IModels) => {
@@ -91,9 +91,10 @@ export const loadUserCardClass = (models: IModels) => {
      * @memberof CleintPortalUserCard
      */
 
-    public static async getUserIds(cardId: string) {
+    public static async getUserIds(type: string, cardId: string) {
       const card = await models.ClientPortalUserCards.findOne({
-        cardId
+        cardId,
+        type
       });
 
       if (!card) {

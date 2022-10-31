@@ -1,3 +1,4 @@
+import { ICPUserCardDocument } from './models/definitions/clientPortalUserCards';
 import {
   ICPNotificationModel,
   loadNotificationClass
@@ -50,10 +51,10 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadClientPortalUserClass(models)
   );
 
-  models.ClientPortalUserCards = db.model<IUserDocument, IUserModel>(
-    'client_portal_user_cards',
-    loadUserCardClass(models)
-  );
+  models.ClientPortalUserCards = db.model<
+    ICPUserCardDocument,
+    ICPUserCardModel
+  >('client_portal_user_cards', loadUserCardClass(models));
 
   models.ClientPortalNotifications = db.model<
     ICPNotificationDocument,

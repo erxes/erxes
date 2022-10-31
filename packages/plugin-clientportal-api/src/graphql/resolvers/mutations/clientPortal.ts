@@ -21,7 +21,7 @@ const clientPortalMutations = {
 
   async clientPortalCreateCard(
     _root,
-    { type, email, subject, priority, description, stageId },
+    { type, subject, priority, description, stageId },
     { subdomain, cpUser, models }: IContext
   ) {
     if (!cpUser) {

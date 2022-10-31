@@ -205,9 +205,8 @@ export const mutations = cardAvailable => `
         stageId: String!
         subject: String!
         description: String
-        email: String!
         priority: String,
-      ): Ticket
+      ): JSON
      `
       : ''
   }

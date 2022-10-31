@@ -16,7 +16,6 @@ export const clientPortalCreateTask = gql`
     $stageId: String!
     $subject: String!
     $description: String
-    $email: String!
     $priority: String
   ) {
     clientPortalCreateCard(
@@ -24,11 +23,8 @@ export const clientPortalCreateTask = gql`
       stageId: $stageId
       subject: $subject
       description: $description
-      email: $email
       priority: $priority
-    ) {
-      _id
-    }
+    )
   }
 `;
 

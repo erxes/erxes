@@ -30,7 +30,7 @@ const params = `
 
 export const queries = `
   clientPortalNotifications(${params}): [ClientPortalNotification]
-  clientPortalNotificationCounts(requireRead: Boolean, notifType: String): Int
+  clientPortalNotificationCounts: Int
 `;
 
 export const mutations = `

@@ -1,5 +1,5 @@
 import { IModels } from '../connectionResolver';
-import { sendCoreMessage } from '../messageBroker';
+import { sendCardsMessage, sendCoreMessage } from '../messageBroker';
 import { sendNotification } from '../utils';
 
 export const ticketHandler = async (models: IModels, subdomain, params) => {
@@ -19,7 +19,7 @@ export const ticketHandler = async (models: IModels, subdomain, params) => {
 };
 
 export const taskHandler = async (models: IModels, subdomain, params) => {
-  const { type, action, user } = params;
+  const { type, action } = params;
 
   if (action === 'update') {
     const task = params.updatedDocument;
@@ -30,32 +30,46 @@ export const taskHandler = async (models: IModels, subdomain, params) => {
       return;
     }
 
-    const conformities = await sendCoreMessage({
-      subdomain,
-      action: 'conformities.getConformities',
-      data: {
-        mainType: 'task',
-        mainTypeIds: [task._id],
-        relTypes: ['company', 'customer']
-      },
-      isRPC: true,
-      defaultValue: []
-    });
+    const userIds = await models.ClientPortalUserCards.getUserIds(
+      'task',
+      task._id
+    );
 
-    const user = await models.ClientPortalUsers.findOne({ _id: task.userId });
-
-    if (!user) {
+    if (userIds.length === 0) {
       return;
     }
 
-    await sendNotification(models, subdomain, {
-      receivers: [user._id],
-      title: 'Task moved',
-      content: '',
-      notifType: '',
-      link: '',
-      clientPortalId: user.clientPortalId
+    const stage = await sendCardsMessage({
+      subdomain,
+      action: 'stages.findOne',
+      data: { _id: destinationStageId },
+      isRPC: true,
+      defaultValue: null
     });
+
+    const content = `Task ${task.name} has been moved to ${stage.name} stage`;
+
+    const users = await models.ClientPortalUsers.find({
+      _id: { $in: userIds }
+    }).lean();
+
+    for (const user of users) {
+      const config = await models.ClientPortals.findOne({
+        _id: user.clientPortalId
+      });
+
+      if (!config) {
+        continue;
+      }
+
+      await sendNotification(models, subdomain, {
+        receivers: [user._id],
+        title: 'Your submitted task has been moved',
+        content,
+        notifType: 'cardUpdate',
+        link: `${config.url}/tasks?stageId=${destinationStageId}`
+      });
+    }
 
     return;
   }
