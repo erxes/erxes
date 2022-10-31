@@ -221,7 +221,7 @@ const automationQueries = {
 
       if (meta && meta.automations && meta.automations.constants) {
         const pluginConstants = meta.automations.constants || {};
-        const { triggers, actions = [] } = pluginConstants;
+        const { triggers = [], actions = [] } = pluginConstants;
 
         for (const trigger of triggers) {
           constants.triggersConst.push(trigger);
