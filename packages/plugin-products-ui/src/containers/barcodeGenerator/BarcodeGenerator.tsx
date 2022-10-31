@@ -38,7 +38,6 @@ const BarcodeGeneratorContainer = (props: Props) => {
     <BarcodeGeneratorComponent
       barcode={queryParams.barcode}
       product={productDetail}
-      loading={productDetailQuery}
     />
   );
 };

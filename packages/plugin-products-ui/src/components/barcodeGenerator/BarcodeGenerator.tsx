@@ -14,11 +14,10 @@ import { BarcodeConfig, IProduct } from '../../types';
 type Props = {
   barcode: string;
   product: IProduct;
-  loading: boolean;
 };
 
 const BarcodeGenerator = (props: Props) => {
-  const { barcode, product, loading } = props;
+  const { barcode, product } = props;
 
   const configStored: BarcodeConfig = JSON.parse(
     localStorage.getItem('erxes_product_barcodeGenerator_config') ||
