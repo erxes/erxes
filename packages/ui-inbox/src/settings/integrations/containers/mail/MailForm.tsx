@@ -4,11 +4,6 @@ import * as compose from 'lodash.flowright';
 
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
-import {
-  defaultCustomerFields,
-  defaultMailFields,
-  defaultMessageFields
-} from './constants';
 import { mutations, queries } from '../../graphql';
 
 import { IUser } from '@erxes/ui/src/auth/types';
@@ -22,6 +17,7 @@ import { queries as messageQueries } from '@erxes/ui-inbox/src/inbox/graphql';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 
 type Props = {
+  detailQuery?: any;
   source?: 'inbox' | 'engage';
   clearOnSubmit?: boolean;
   integrationId?: string;
@@ -64,8 +60,8 @@ class MailFormContainer extends React.Component<
 
   render() {
     const {
+      detailQuery,
       source = 'engage',
-      mailData,
       integrationId,
       customerId,
       conversationId,
@@ -145,15 +141,11 @@ class MailFormContainer extends React.Component<
     const save = ({
       mutation,
       variables,
-      optimisticResponse,
-      update,
       callback
     }: {
       mutation: string;
       variables: any;
-      optimisticResponse?: any;
       callback?: () => void;
-      update?: any;
     }) => {
       return client
         .mutate({
@@ -164,11 +156,13 @@ class MailFormContainer extends React.Component<
             integrationId,
             conversationId,
             customerId
-          },
-          optimisticResponse,
-          update
+          }
         })
         .then(() => {
+          if (detailQuery) {
+            detailQuery.refetch();
+          }
+
           Alert.success('You have successfully sent a email');
 
           if (isReply && variables.shouldResolve) {
@@ -209,68 +203,9 @@ class MailFormContainer extends React.Component<
       variables: any;
       callback: () => void;
     }) => {
-      const email = mailData ? mailData.integrationEmail : '';
-
-      const imapSendMail = {
-        _id: Math.round(Math.random() * -1000000),
-        ...defaultMessageFields,
-        conversationId,
-        videoCallData: null,
-        contentType: '',
-        content: variables.body,
-        customer: {
-          ...defaultCustomerFields,
-          firstName: email,
-          primaryEmail: email
-        },
-        mailData: {
-          ...defaultMailFields,
-          bcc: [{ __typename: 'Email', email: variables.bcc }],
-          to: [{ __typename: 'Email', email: variables.to }],
-          from: [{ __typename: 'Email', email: variables.to }],
-          cc: [{ __typename: 'Email', email: variables.cc }],
-          body: variables.body,
-          subject: variables.subject,
-          attachments: variables.attachments,
-          integrationEmail: variables.from
-        }
-      };
-
       let sendEmailMutation = mutations.imapSendMail;
 
-      let optimisticResponse: any = {
-        __typename: 'Mutation',
-        imapSendMail
-      };
-
-      let update: any = store => {
-        const selector = {
-          query: gql(messageQueries.conversationMessages),
-          variables: { conversationId, limit: 10, skip: 0 }
-        };
-
-        // Read the data from our cache for this query.
-        try {
-          const data = store.readQuery(selector);
-          const messages = data.conversationMessages || [];
-
-          messages.push(imapSendMail);
-
-          // Write our data back to the cache.
-          store.writeQuery({ ...selector, data });
-
-          if (closeReply) {
-            closeReply();
-          }
-        } catch (e) {
-          Alert.error(e);
-          return;
-        }
-      };
-
       if (source === 'engage') {
-        update = undefined;
-        optimisticResponse = undefined;
         sendEmailMutation = engageMutations.sendMail;
       }
 
@@ -282,9 +217,7 @@ class MailFormContainer extends React.Component<
       return save({
         mutation: sendEmailMutation,
         variables,
-        callback,
-        optimisticResponse,
-        update
+        callback
       });
     };
 
