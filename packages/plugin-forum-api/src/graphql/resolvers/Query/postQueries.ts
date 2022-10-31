@@ -33,9 +33,11 @@ export const buildPostsQuery = async ({ Category }: IModels, params: any) => {
 
 const PostQueries: IObjectTypeResolver<any, IContext> = {
   async forumPost(_, { _id }, { models: { Post }, user, cpUser }) {
-    await Post.updateOne({ _id }, { $inc: { viewCount: 1 } });
-    const post = await Post.findById(_id);
+    if (!user) {
+      await Post.updateOne({ _id }, { $inc: { viewCount: 1 } });
+    }
 
+    const post = await Post.findById(_id);
     if (user) return post;
 
     // TODO: check user permission and remove content before returning
@@ -47,12 +49,16 @@ const PostQueries: IObjectTypeResolver<any, IContext> = {
     const query: any = await buildPostsQuery(models, params);
     const { limit = 0, offset = 0, sort = {} } = params;
 
-    return Post.find(query)
-      .select({ content: -1 })
+    const res = await Post.find(query)
+      .select('-content')
       .sort(sort)
       .skip(offset)
       .limit(limit)
       .lean();
+
+    console.log(res);
+
+    return res;
   },
   async forumPostsCount(_, params, { models }) {
     const { Post } = models;

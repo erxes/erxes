@@ -89,6 +89,7 @@ export const FORUM_POSTS_QUERY = gql`
       createdAt
       updatedAt
       commentCount
+      categoryApprovalState
 
       viewCount
 
@@ -150,6 +151,7 @@ export const FORUM_POST_DETAIL = gql`
         code
         name
         thumbnail
+        postsReqCrmApproval
       }
       categoryId
       content
@@ -160,6 +162,8 @@ export const FORUM_POST_DETAIL = gql`
       updatedAt
       stateChangedAt
       commentCount
+
+      categoryApprovalState
 
       viewCount
 

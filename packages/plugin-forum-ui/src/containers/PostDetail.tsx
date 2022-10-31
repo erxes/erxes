@@ -30,6 +30,22 @@ const MUT_PUBLISH = gql`
   }
 `;
 
+const MUT_APPROVE = gql`
+  mutation ForumPostApprove($_id: ID!) {
+    forumPostApprove(_id: $_id) {
+      _id
+    }
+  }
+`;
+
+const MUT_DENY = gql`
+  mutation ForumPostDeny($_id: ID!) {
+    forumPostDeny(_id: $_id) {
+      _id
+    }
+  }
+`;
+
 const PostDetail: React.FC = () => {
   const history = useHistory();
   const { postId } = useParams();
@@ -58,6 +74,16 @@ const PostDetail: React.FC = () => {
     refetchQueries: POST_REFETCH_AFTER_EDIT
   });
 
+  const [mutApprove] = useMutation(MUT_APPROVE, {
+    variables: { _id: postId },
+    refetchQueries: POST_REFETCH_AFTER_EDIT
+  });
+
+  const [mutDeny] = useMutation(MUT_DENY, {
+    variables: { _id: postId },
+    refetchQueries: POST_REFETCH_AFTER_EDIT
+  });
+
   if (loading) return null;
 
   if (error) return <pre>{error.message}</pre>;
@@ -79,6 +105,16 @@ const PostDetail: React.FC = () => {
     await mutPublish();
   };
 
+  const onApproveClick = async () => {
+    if (!confirm('Are you sure you want to approve this post?')) return;
+    await mutApprove();
+  };
+
+  const onDenyClick = async () => {
+    if (!confirm('Are you sure you want to deny this post?')) return;
+    await mutDeny();
+  };
+
   return (
     <div>
       <table>
@@ -87,7 +123,7 @@ const PostDetail: React.FC = () => {
             <th>State: </th>
             <td>{forumPost.state}</td>
             <th>Category: </th>
-            <td>{(forumPost.category || []).map(c => c.name).join(', ')}</td>
+            <td>{forumPost.category?.name || 'no category'}</td>
           </tr>
           <tr>
             <th>Thumbnail: </th>
@@ -167,6 +203,21 @@ const PostDetail: React.FC = () => {
         <button onClick={onClickDelete}>Delete</button>
       </div>
       <hr />
+      {forumPost.category.postsReqCrmApproval && (
+        <>
+          <div>
+            <h5>Category approval: {forumPost.categoryApprovalState}</h5>
+            <button type="button" onClick={onApproveClick}>
+              Approve
+            </button>
+            <button type="button" onClick={onDenyClick}>
+              Deny
+            </button>
+          </div>
+          <hr />
+        </>
+      )}
+
       <h1>View count: {forumPost.viewCount}</h1>
       <h1>Comments: {forumPost.commentCount}</h1>
       <Comments postId={postId} />

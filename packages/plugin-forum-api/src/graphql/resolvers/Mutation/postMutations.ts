@@ -25,6 +25,18 @@ const crmPostMutations: IObjectTypeResolver<any, IContext> = {
   },
   async forumPostPublish(_, { _id }, { models: { Post }, user }) {
     return Post.publish(_id, user);
+  },
+  async forumPostApprove(_, { _id }, { models: { Post }, user }) {
+    const post = await Post.findByIdOrThrow(_id);
+    post.categoryApprovalState = 'APPROVED';
+    await post.save();
+    return post;
+  },
+  async forumPostDeny(_, { _id }, { models: { Post }, user }) {
+    const post = await Post.findByIdOrThrow(_id);
+    post.categoryApprovalState = 'DENIED';
+    await post.save();
+    return post;
   }
 };
 

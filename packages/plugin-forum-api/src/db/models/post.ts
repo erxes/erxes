@@ -4,19 +4,22 @@ import { USER_TYPES, UserTypes } from '../../consts';
 import { ICpUser } from '../../graphql';
 import { IModels } from './index';
 import * as _ from 'lodash';
-import { posts } from '../../permissions';
 
 export const POST_STATES = ['DRAFT', 'PUBLISHED'] as const;
 
+export const ADMIN_APPROVAL_STATES = ['PENDING', 'APPROVED', 'DENIED'] as const;
+
 export type PostStates = typeof POST_STATES[number];
+export type AdminApprovalStates = typeof ADMIN_APPROVAL_STATES[number];
 
 export interface IPost {
   _id: any;
-  categoryId?: string[] | null;
+  categoryId?: string | null;
   content: string;
   description?: string | null;
   title: string;
   state: PostStates;
+  categoryApprovalState: AdminApprovalStates;
   thumbnail?: string | null;
 
   viewCount: number;
@@ -51,6 +54,8 @@ const OMIT_FROM_INPUT = [
   'createdAt',
   'createdById',
   'createdByCpId',
+
+  'categoryApprovalState',
 
   'updatedUserType',
   'updatedAt',
@@ -110,17 +115,17 @@ export interface IPostModel extends Model<PostDocument> {
 }
 
 export const postSchema = new Schema<PostDocument>({
-  categoryId: { type: [Types.ObjectId] },
+  categoryId: { type: Types.ObjectId },
   title: { type: String },
   content: { type: String },
   description: String,
-  state: {
+  categoryApprovalState: {
     type: String,
     required: true,
-    enum: POST_STATES,
-    default: (): PostStates => 'DRAFT',
+    enum: ADMIN_APPROVAL_STATES,
     index: true
   },
+
   thumbnail: String,
 
   viewCount: { type: Number, default: 0 },
@@ -141,7 +146,8 @@ export const postSchema = new Schema<PostDocument>({
   stateChangedById: String,
   stateChangedByCpId: String
 });
-postSchema.index({ categoryId: 1, state: 1 });
+// used by client portal front-end
+postSchema.index({ categoryApprovalState: 1, categoryId: 1, state: 1 });
 // mostly used by update query of updateTrendScoreOfPublished
 postSchema.index({ stateChangedAt: 1, state: 1 });
 
@@ -166,8 +172,13 @@ export const generatePostModel = (
       input: PostCreateInput,
       user: IUserDocument
     ): Promise<PostDocument> {
+      // admin posts are always approved
+      const categoryApprovalState: AdminApprovalStates = 'APPROVED';
+
       const res = await models.Post.create({
         ...input,
+
+        categoryApprovalState,
 
         createdUserType: USER_TYPES[0],
         createdById: user._id,
@@ -186,12 +197,14 @@ export const generatePostModel = (
       user: IUserDocument
     ): Promise<PostDocument> {
       const post = await models.Post.findByIdOrThrow(_id);
+
       _.extend(post, {
         ...patch,
         updatedUserType: USER_TYPES[0],
         updatedById: user._id,
         updatedAt: new Date()
       });
+
       await post.save();
       return post;
     }
@@ -243,8 +256,17 @@ export const generatePostModel = (
       cpUser?: ICpUser
     ): Promise<PostDocument> {
       if (!cpUser) throw new Error(`Unauthorized`);
+
+      const categoryRequiresApproval = await models.Category.doesRequireAdminApproval(
+        input.categoryId
+      );
+      const categoryApprovalState: AdminApprovalStates = categoryRequiresApproval
+        ? 'PENDING'
+        : 'APPROVED';
+
       const res = await models.Post.create({
         ...input,
+        categoryApprovalState,
 
         createdUserType: USER_TYPES[1],
         createdByCpId: cpUser.userId,
@@ -263,9 +285,21 @@ export const generatePostModel = (
       cpUser?: ICpUser
     ): Promise<PostDocument> {
       if (!cpUser) throw new Error(`Unauthorized`);
+
       const post = await models.Post.findByIdOrThrowCp(_id, cpUser);
+
+      const resultingCategoryId =
+        patch.categoryId === undefined ? post.categoryId : patch.categoryId;
+      const categoryRequiresApproval = await models.Category.doesRequireAdminApproval(
+        resultingCategoryId
+      );
+      const categoryApprovalState: AdminApprovalStates = categoryRequiresApproval
+        ? 'PENDING'
+        : 'APPROVED';
+
       _.extend(post, {
         ...patch,
+        categoryApprovalState,
         updatedUserType: USER_TYPES[1],
         updatedByCpId: cpUser.userId,
         updatedAt: new Date()

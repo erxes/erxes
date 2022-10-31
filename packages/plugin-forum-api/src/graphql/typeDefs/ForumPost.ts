@@ -40,9 +40,10 @@ export default `
     stateChangedByCpId: ID
     stateChangedByCp: ClientPortalUser
 
+    categoryApprovalState: String!
     
-    categoryId: [ID!]
-    category: [ForumCategory!]
+    categoryId: ID
+    category: ForumCategory
 
     upVoteCount: Int
     downVoteCount: Int

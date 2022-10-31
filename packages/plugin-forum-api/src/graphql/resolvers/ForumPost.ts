@@ -4,7 +4,7 @@ import { IPost } from '../../db/models/post';
 
 const ForumPost: IObjectTypeResolver<IPost, IContext> = {
   async category({ categoryId }, _, { models: { Category } }) {
-    return Category.find({ _id: { $in: categoryId || [] } }).lean();
+    return categoryId && Category.findById(categoryId);
   },
   async createdBy({ createdById }) {
     return createdById && { __typename: 'User', _id: createdById };

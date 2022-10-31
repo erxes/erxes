@@ -42,6 +42,8 @@ export interface ICategoryModel extends Model<CategoryDocument> {
     ancestorId: string,
     descendantId: string
   ): Promise<boolean>;
+
+  doesRequireAdminApproval(_id?: string | null): Promise<boolean>;
 }
 
 export const getDefaultPostReadCpUserLevel = (): ReadCpUserLevels => 'GUEST';
@@ -235,6 +237,18 @@ export const generateCategoryModel = (
         a => a._id.toString() === ancestorId
       );
       return isInAncestors;
+    }
+
+    public static async doesRequireAdminApproval(
+      _id?: string | null
+    ): Promise<boolean> {
+      if (!_id) return false;
+
+      const category = await models.Category.findById(_id);
+
+      if (category?.postsReqCrmApproval) return true;
+
+      return false;
     }
   }
   categorySchema.loadClass(CategoryModel);
