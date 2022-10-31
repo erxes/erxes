@@ -3,6 +3,7 @@ import { afterMutationHandlers } from './afterMutations';
 
 import { serviceDiscovery } from './configs';
 import { generateModels, IModels } from './connectionResolver';
+import { sendNotification } from './utils';
 
 let client;
 

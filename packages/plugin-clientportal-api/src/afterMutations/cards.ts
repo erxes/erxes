@@ -1,5 +1,6 @@
 import { IModels } from '../connectionResolver';
 import { sendCoreMessage } from '../messageBroker';
+import { sendNotification } from '../utils';
 
 export const ticketHandler = async (models: IModels, subdomain, params) => {
   const { type, action, user } = params;
@@ -29,8 +30,6 @@ export const taskHandler = async (models: IModels, subdomain, params) => {
       return;
     }
 
-    console.log('taskHandler');
-
     const conformities = await sendCoreMessage({
       subdomain,
       action: 'conformities.getConformities',
@@ -43,9 +42,20 @@ export const taskHandler = async (models: IModels, subdomain, params) => {
       defaultValue: []
     });
 
-    console.log('user: ', task.userId);
+    const user = await models.ClientPortalUsers.findOne({ _id: task.userId });
 
-    console.log('conformities', conformities);
+    if (!user) {
+      return;
+    }
+
+    await sendNotification(models, subdomain, {
+      receivers: [user._id],
+      title: 'Task moved',
+      content: '',
+      notifType: '',
+      link: '',
+      clientPortalId: user.clientPortalId
+    });
 
     return;
   }

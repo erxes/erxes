@@ -17,11 +17,16 @@ import {
 import { IClientPortalDocument } from './models/definitions/clientPortal';
 import { IUserDocument } from './models/definitions/clientPortalUser';
 import { ICPNotificationDocument } from './models/definitions/clientPortalNotifications';
+import {
+  ICPUserCardModel,
+  loadUserCardClass
+} from './models/ClientPortalUserCard';
 
 export interface IModels {
   ClientPortals: IClientPortalModel;
   ClientPortalUsers: IUserModel;
   ClientPortalNotifications: ICPNotificationModel;
+  ClientPortalUserCards: ICPUserCardModel;
 }
 
 export interface IContext extends IMainContext {
@@ -43,6 +48,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.ClientPortalUsers = db.model<IUserDocument, IUserModel>(
     'client_portal_users',
     loadClientPortalUserClass(models)
+  );
+
+  models.ClientPortalUserCards = db.model<IUserDocument, IUserModel>(
+    'client_portal_user_cards',
+    loadUserCardClass(models)
   );
 
   models.ClientPortalNotifications = db.model<
