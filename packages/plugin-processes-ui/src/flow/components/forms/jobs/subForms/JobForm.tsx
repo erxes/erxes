@@ -14,7 +14,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 type Props = {
   closeModal: () => void;
   activeFlowJob: IJob;
-  jobRefer: IJobRefer;
+  jobRefer?: IJobRefer;
   flowJobs: IJob[];
   addFlowJob: (job: IJob, id?: string, config?: any) => void;
   setUsedPopup: (check: boolean) => void;

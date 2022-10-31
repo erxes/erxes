@@ -11,6 +11,7 @@ export interface ITransaction {
   type: string;
   body: any;
   status: string;
+  bankStatus: string;
 }
 
 export interface ITransactionDocument extends ITransaction, Document {
@@ -41,6 +42,11 @@ export const transactionSchema = new Schema({
     default: 'processing',
     optional: true
   }),
+  bankStatus: field({
+    type: String,
+    label: 'Bank Status',
+    optional: true
+  }),
   body: field({
     type: String,
     label: 'Status',
@@ -51,5 +57,6 @@ export const transactionSchema = new Schema({
     default: Date.now,
     label: 'Created at'
   }),
+
   modifiedAt: field({ type: Date, label: 'Modified at' })
 });

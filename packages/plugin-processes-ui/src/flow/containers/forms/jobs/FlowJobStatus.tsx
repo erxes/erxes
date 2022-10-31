@@ -57,7 +57,9 @@ export default withProps<Props>(
       name: 'jobRefersQuery',
       options: ({ flowJobs }) => ({
         variables: {
-          ids: (flowJobs || []).map(j => j.config && j.config.jobReferId)
+          ids: (flowJobs || [])
+            .filter(j => j.config && j.config.jobReferId)
+            .map(j => j.config.jobReferId)
         }
       })
     }),
@@ -65,7 +67,9 @@ export default withProps<Props>(
       name: 'productsQuery',
       options: ({ flowJobs }) => ({
         variables: {
-          id: (flowJobs || []).map(j => j.config && j.config.productId)
+          ids: (flowJobs || [])
+            .filter(j => j.config && j.config.productId)
+            .map(j => j.config.productId)
         }
       })
     })

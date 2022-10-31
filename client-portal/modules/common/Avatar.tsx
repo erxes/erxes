@@ -10,6 +10,10 @@ type Props = {
 };
 
 export default function Avatar({ user = {} as IUser, date }: Props) {
+  if (!user || !user.details) {
+    return null;
+  }
+
   const { details = {} as IUserDetails } = user;
   const { fullName, avatar } = details;
 

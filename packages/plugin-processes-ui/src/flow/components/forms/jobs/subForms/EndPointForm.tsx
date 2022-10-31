@@ -15,7 +15,7 @@ import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
 type Props = {
   closeModal: () => void;
   activeFlowJob: IJob;
-  jobRefer: IJobRefer;
+  jobRefer?: IJobRefer;
   flowJobs: IJob[];
   lastFlowJob?: IJob;
   flowProduct?: IProduct;

@@ -64,7 +64,7 @@ const checkBeforeJobs = (job: IJob, beforeJobs: IJob[], jobReferById: any) => {
     np => !beforeResultProductIds.includes(np)
   );
 
-  if (lessNeedProductIds.length) {
+  if ((lessNeedProductIds || []).length) {
     return `${label}less products`;
   }
 
@@ -90,13 +90,13 @@ const recursiveChecker = (job: IJob, jobs: IJob[], jobReferById) => {
 };
 
 const getLatestLocations = (jobs: any[]) => {
-  if (!jobs.length) {
+  if (!(jobs || []).length) {
     return {};
   }
 
   let latestBranchId = '';
   let latestDepartmentId = '';
-  const latestJobs = jobs.filter(j => !j.nextJobIds.length) || [];
+  const latestJobs = jobs.filter(j => !(j.nextJobIds || []).length) || [];
   if (latestJobs.length === 1) {
     const latestJob = latestJobs[0];
     latestBranchId = (latestJob.config || {}).outBranchId;
@@ -125,12 +125,12 @@ export const loadFlowClass = (models: IModels) => {
     }
 
     public static async checkValidation(jobs?: IJob[]) {
-      if (!jobs || !jobs.length) {
+      if (!jobs || !(jobs || []).length) {
         return 'Has not jobs';
       }
 
       const endJobs = jobs.filter(j => j.type === JOB_TYPES.ENDPOINT);
-      if (!endJobs || !endJobs.length) {
+      if (!endJobs || !(endJobs || []).length) {
         return 'Has not endPoint job';
       }
 
@@ -139,7 +139,7 @@ export const loadFlowClass = (models: IModels) => {
       }
 
       const latestJobs = jobs.filter(
-        j => !j.nextJobIds || !j.nextJobIds.length
+        j => !j.nextJobIds || !(j.nextJobIds || []).length
       );
 
       if (!latestJobs || !latestJobs.length) {

@@ -65,9 +65,21 @@ export const investments = `
       modifiedAt
       amount
 
-      package { name }
+      package { _id, name }
     }
   }
+`;
+
+const getBalance = `
+  query Query($erxesCustomerId: String) {
+    getBalance(erxesCustomerId: $erxesCustomerId)
+}
+`;
+
+const isVerified = `
+  query Query($erxesCustomerId: String) {
+    isVerified(erxesCustomerId: $erxesCustomerId)
+}
 `;
 
 export default {
@@ -75,5 +87,7 @@ export default {
   packageCounts,
   packageDetail,
 
-  investments
+  investments,
+  getBalance,
+  isVerified
 };

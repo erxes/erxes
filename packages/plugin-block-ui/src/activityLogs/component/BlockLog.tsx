@@ -12,9 +12,13 @@ class TaggedLog extends React.Component<any> {
   renderContent = () => {
     const { activity, investments, packageId, amount } = this.props;
 
+    const found = investments.find(
+      element => element.package._id === packageId
+    );
+
     return (
       <span>
-        invested {amount} to {packageId}
+        invested {amount} to {found.package.name}
       </span>
     );
   };

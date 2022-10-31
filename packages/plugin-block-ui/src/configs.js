@@ -4,6 +4,7 @@ module.exports = {
   scope: 'block',
   exposes: {
     './routes': './src/routes.tsx',
+    './customerSidebar': './src/containers/CustomerSideBar.tsx',
     './activityLog': './src/activityLogs/activityLog.tsx'
   },
   routes: {
@@ -19,6 +20,13 @@ module.exports = {
       to: '/block/list',
       image: '/images/icons/erxes-18.svg',
       location: 'settings'
+    }
+  ],
+  customerRightSidebarSection: [
+    {
+      text: 'customerSection',
+      component: './customerSidebar',
+      scope: 'block'
     }
   ]
 };
