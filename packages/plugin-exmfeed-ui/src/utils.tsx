@@ -40,5 +40,9 @@ export const getUserOptions = (users: IUser[]) =>
   }));
 
 export function getDepartmentOptions(array: any[] = []) {
+  if (!Array.isArray(array)) {
+    return [];
+  }
+
   return array.map(item => ({ value: item._id, label: item.title }));
 }
