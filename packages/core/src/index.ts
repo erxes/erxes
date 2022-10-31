@@ -51,9 +51,6 @@ import { generateModels } from './connectionResolver';
 import { authCookieOptions, getSubdomain } from '@erxes/api-utils/src/core';
 import segments from './segments';
 import automations from './automations';
-
-// load environment variables
-dotenv.config();
 import { moduleObjects } from './data/permissions/actions/permission';
 
 const {
