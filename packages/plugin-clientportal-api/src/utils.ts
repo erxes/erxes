@@ -175,7 +175,7 @@ interface ISendNotification {
   receivers: string[];
   title: string;
   content: string;
-  notifType: string;
+  notifType: 'system' | 'engage';
   link: string;
   createdUser?: IUserDocument;
   isMobile?: boolean;

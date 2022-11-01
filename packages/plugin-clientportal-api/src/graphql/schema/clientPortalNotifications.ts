@@ -3,9 +3,15 @@ export const types = `
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
+
+  enum NotificationType {
+    system
+    engage
+  }
+
   type ClientPortalNotification {
     _id: String!
-    notifType: String
+    notifType: NotificationType
     title: String
     link: String
     content: String
@@ -22,8 +28,8 @@ const params = `
   page: Int,
   perPage: Int,
   requireRead: Boolean,
-  notifType: String
-  title: String
+  notifType: NotificationType
+  search: String
   startDate: String
   endDate: String
 `;

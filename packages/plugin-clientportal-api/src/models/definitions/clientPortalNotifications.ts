@@ -6,7 +6,7 @@ export interface ICPNotification {
   content?: string;
   link?: string;
   receiver?: string;
-  notifType?: string;
+  notifType?: 'engage' | 'system';
   clientPortalId: string;
 }
 

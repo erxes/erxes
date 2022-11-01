@@ -17,6 +17,49 @@ const notificationQueries = {
       receiver: cpUser._id,
       isRead: false
     }).countDocuments();
+  },
+
+  async clientPortalNotifications(
+    _root,
+    { page, perPage, requireRead, notifType, search, startDate, endDate },
+    { models, cpUser }: IContext
+  ) {
+    if (!cpUser) {
+      throw new Error('You are not logged in');
+    }
+
+    const query: any = {
+      receiver: cpUser._id
+    };
+
+    if (requireRead) {
+      query.isRead = false;
+    }
+
+    if (notifType) {
+      query.notifType = notifType;
+    }
+
+    if (search) {
+      query.title = { $regex: new RegExp(`^${search}`, 'i') };
+    }
+
+    if (startDate) {
+      query.createdAt = {
+        $gte: new Date(startDate)
+      };
+    }
+
+    if (endDate) {
+      query.createdAt = {
+        $lte: new Date(endDate)
+      };
+    }
+
+    return paginate(models.ClientPortalNotifications.find(query), {
+      page,
+      perPage
+    });
   }
 };
 

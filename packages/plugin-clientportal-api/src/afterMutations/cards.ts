@@ -66,7 +66,7 @@ export const taskHandler = async (models: IModels, subdomain, params) => {
         receivers: [user._id],
         title: 'Your submitted task has been moved',
         content,
-        notifType: 'cardUpdate',
+        notifType: 'system',
         link: `${config.url}/tasks?stageId=${destinationStageId}`
       });
     }
