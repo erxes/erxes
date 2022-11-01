@@ -1,9 +1,12 @@
 import { IContext } from '../..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
 
-const CategoryQueries: IObjectTypeResolver<any, IContext> = {
-  forumPermissionGroups: (_, __, { models: { PermissionGroup } }) => {
-    return PermissionGroup.find({}).lean();
+const permissionGroupQueries: IObjectTypeResolver<any, IContext> = {
+  forumPermissionGroup: async (_, { _id }, { models: { PermissionGroup } }) => {
+    return PermissionGroup.findById(_id);
+  },
+  forumPermissionGroups: async (_, __, { models: { PermissionGroup } }) => {
+    return PermissionGroup.find().lean();
   },
   forumPermissionGroupCategoryPermits: (
     _,
@@ -26,4 +29,4 @@ const CategoryQueries: IObjectTypeResolver<any, IContext> = {
   }
 };
 
-export default CategoryQueries;
+export default permissionGroupQueries;

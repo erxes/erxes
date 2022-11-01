@@ -247,3 +247,34 @@ export const FORUM_COMMENTS = gql`
     }
   }
 `;
+
+export const PERMISSION_GROUPS_QUERY = gql`
+  query ForumPermissionGroups {
+    forumPermissionGroups {
+      _id
+      name
+    }
+  }
+`;
+export const PERMISSION_GROUP_QUERY = gql`
+  query ForumPermissionGroup($_id: ID!) {
+    forumPermissionGroup(_id: $_id) {
+      _id
+      name
+      users {
+        _id
+        code
+        companyName
+        email
+        firstName
+        lastName
+        username
+      }
+    }
+  }
+`;
+
+export const PERMISSION_GROUP_REFETCH = [
+  'ForumPermissionGroups',
+  'ForumPermissionGroup'
+];

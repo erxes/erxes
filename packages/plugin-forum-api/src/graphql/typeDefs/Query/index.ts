@@ -46,6 +46,7 @@ const Query = `
 
     forumUserLevelValues: JSON!
 
+    forumPermissionGroup(_id: ID!): ForumPermissionGroup
     forumPermissionGroups: [ForumPermissionGroup!]
 
     forumPermissionGroupCategoryPermits(

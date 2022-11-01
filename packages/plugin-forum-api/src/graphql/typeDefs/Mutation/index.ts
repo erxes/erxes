@@ -3,6 +3,7 @@ import postMutations from './postMutations';
 import commentMutations from './commentMutations';
 import voteMutations from './voteMutations';
 import followMutations from './followMutations';
+import permissionGroup from './permissionGroup';
 
 const Mutation = `
   extend type Mutation {
@@ -11,6 +12,7 @@ const Mutation = `
     ${commentMutations}
     ${voteMutations}
     ${followMutations}
+    ${permissionGroup}
   }
 `;
 
