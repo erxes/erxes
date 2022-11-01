@@ -1,6 +1,7 @@
 import { generateModels, IModels } from './connectionResolver';
 import { fetchSegment } from './messageBroker';
 import * as moment from 'moment';
+import { ICarCategoryDocument } from './models/definitions/tumentech';
 
 export const IMPORT_EXPORT_TYPES = [
   {
@@ -54,6 +55,28 @@ export const fillValue = async (
 
     case 'modifiedAt':
       value = moment(value).format('YYYY-MM-DD HH:mm');
+
+      break;
+
+    case 'carCategoryId':
+      const category: ICarCategoryDocument | null = await models.CarCategories.findOne(
+        {
+          _id: item.carCategoryId
+        }
+      );
+
+      value = category ? category.name : '';
+
+      break;
+
+    case 'parentCarCategoryId':
+      const parentCategory: ICarCategoryDocument | null = await models.CarCategories.findOne(
+        {
+          _id: item.parentCarCategoryId
+        }
+      );
+
+      value = parentCategory ? parentCategory.name : '';
 
       break;
 

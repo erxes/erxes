@@ -80,7 +80,7 @@ type Props = {
 type State = {
   users?: IUser[];
 
-  categoryId: string;
+  carCategoryId: string;
 
   fuelType: string;
   steeringWheel: string;
@@ -148,7 +148,7 @@ class CarForm extends React.Component<Props, State> {
 
     this.state = {
       users: [],
-      categoryId: car.categoryId || '',
+      carCategoryId: car.carCategoryId || '',
 
       ownerBy: car.ownerBy || '',
       fuelType: car.fuelType || '',
@@ -213,7 +213,7 @@ class CarForm extends React.Component<Props, State> {
       vinNumber: finalValues.vinNumber,
       vintageYear: Number(finalValues.vintageYear),
       importYear: Number(finalValues.importYear),
-      categoryId: finalValues.categoryId,
+      carCategoryId: finalValues.carCategoryId,
       trailerType: finalValues.trailerType,
       manufacture: finalValues.manufacture,
       steeringWheel: finalValues.steeringWheel,
@@ -440,13 +440,13 @@ class CarForm extends React.Component<Props, State> {
     this.setState({ ...this.state, [key]: files ? files : undefined });
   };
 
-  updateCarCategoryValue(categoryId) {
-    if (!categoryId) {
+  updateCarCategoryValue(carCategoryId) {
+    if (!carCategoryId) {
       return;
     }
 
     const category = this.props.carCategories.find(
-      carCategories => carCategories._id === categoryId
+      carCategories => carCategories._id === carCategoryId
     );
 
     if (!category) {
@@ -1208,9 +1208,9 @@ class CarForm extends React.Component<Props, State> {
             <ControlLabel>Ерөнхий ангилал</ControlLabel>
             <FormControl
               {...formProps}
-              name="categoryId"
+              name="carCategoryId"
               componentClass="select"
-              defaultValue={car.categoryId}
+              defaultValue={car.carCategoryId}
               required={true}
               onChange={this.onChangeContent}
             >

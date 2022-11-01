@@ -220,7 +220,7 @@ const generateParams = ({ queryParams }) => {
   return {
     ...router.generatePaginationParams(queryParams || {}),
     ids: queryParams.ids,
-    categoryId: queryParams.categoryId,
+    carCategoryId: queryParams.carCategoryId,
     segment: queryParams.segment,
     searchValue: queryParams.searchValue,
     sortField: queryParams.sortField,

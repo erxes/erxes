@@ -12,8 +12,8 @@ const generateFilter = async (params, commonQuerySelector, subdomain) => {
 
   filter.status = { $ne: 'Deleted' };
 
-  if (params.categoryId) {
-    filter.categoryId = params.categoryId;
+  if (params.carCategoryId) {
+    filter.carCategoryId = params.carCategoryId;
   }
 
   if (params.searchValue) {

@@ -208,7 +208,7 @@ class CarsList extends React.Component<IProps, State> {
           location={location}
           history={history}
           excludedNames={COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES.LIST.filter(
-            e => e !== 'categoryId'
+            e => e !== 'carCategoryId'
           )}
         />
       );

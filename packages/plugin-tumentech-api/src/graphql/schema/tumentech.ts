@@ -73,8 +73,8 @@ type Car {
   plateNumber: String
   vinNumber: String
   color: String
-  categoryId: String
-  parentCategoryId: String
+  carCategoryId: String
+  parentCarCategoryId: String
 
   parentCategory: CarCategory
   category: CarCategory
@@ -202,7 +202,7 @@ const tumentechParams = `
   page: Int
   perPage: Int
   segment: String
-  categoryId: String
+  carCategoryId: String
   ids: [String]
   searchValue: String
   sortField: String
@@ -259,7 +259,7 @@ const tumentechCommonFields = `
   vinNumber: String
   color: String
 
-  categoryId: String
+  carCategoryId: String
   fuelType: String
   engineChange: String
   listChange: String

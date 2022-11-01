@@ -79,7 +79,7 @@ export const carFields = `
   description
   plateNumber
   vinNumber
-  categoryId
+  carCategoryId
   category {
     ${carCategoryFields}
   }
@@ -172,7 +172,7 @@ const listParamsDef = `
   $page: Int
   $perPage: Int
   $segment: String
-  $categoryId: String
+  $carCategoryId: String
   $ids: [String]
   $searchValue: String
   $brand: String
@@ -199,7 +199,7 @@ const listParamsValue = `
   page: $page
   perPage: $perPage
   segment: $segment
-  categoryId: $categoryId
+  carCategoryId: $carCategoryId
   ids: $ids
   searchValue: $searchValue
   brand: $brand
@@ -647,7 +647,7 @@ query tripDetail($_id: String!) {
         _id
         name
       }
-      categoryId
+      carCategoryId
       description
     }
     carIds
