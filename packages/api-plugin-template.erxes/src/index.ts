@@ -297,7 +297,8 @@ async function startServer() {
         search,
         webhooks,
         initialSetup,
-        cronjobs
+        cronjobs,
+        exporter
       } = configs.meta;
       const { consumeRPCQueue, consumeQueue } = messageBrokerClient;
 
@@ -454,6 +455,18 @@ async function startServer() {
         }
       }
 
+      if (exporter) {
+        if (exporter.prepareExportData) {
+          consumeRPCQueue(
+            `${configs.name}:exporter:prepareExportData`,
+            async args => ({
+              status: 'success',
+              data: await exporter.prepareExportData(args)
+            })
+          );
+        }
+      }
+
       if (automations) {
         if (automations.receiveActions) {
           consumeRPCQueue(
@@ -535,8 +548,7 @@ async function startServer() {
       port: PORT || '',
       dbConnectionString: mongoUrl,
       hasSubscriptions: configs.hasSubscriptions,
-      importTypes: configs.importTypes,
-      exportTypes: configs.exportTypes,
+      importExportTypes: configs.importExportTypes,
       meta: configs.meta
     });
 
