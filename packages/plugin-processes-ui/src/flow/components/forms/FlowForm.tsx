@@ -102,7 +102,7 @@ class FlowForm extends React.Component<Props, State> {
       isZoomable: false,
       zoomStep: 0.025,
       zoom: 1,
-      percentage: Number(localStorage.getItem('flowLastPercentage')) || 100,
+      percentage: 100,
       activeFlowJob: {} as IJob,
       flowJobEdited: false,
       productId: flow.productId || '',
@@ -265,8 +265,6 @@ class FlowForm extends React.Component<Props, State> {
   };
 
   handleSubmit = () => {
-    const { percentage } = this.state;
-    localStorage.setItem('flowLastPercentage', percentage.toString());
     const { save } = this.props;
     const values = this.generateValues();
     if (values) {
