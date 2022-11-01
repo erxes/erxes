@@ -8,6 +8,7 @@ import Spinner from 'modules/common/components/Spinner';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { queries } from '../graphql';
+import { queries as commonQueries } from '../../common/graphql';
 import { withProps } from 'modules/common/utils';
 
 type Props = {
@@ -21,7 +22,7 @@ type Props = {
 type State = {};
 
 type FinalProps = {
-  fieldsQuery: any; //check - FieldsCombinedByTypeQueryResponse
+  fieldsQuery: any; // check - FieldsCombinedByTypeQueryResponse
   importHistoryGetColumns: any;
 } & Props;
 
@@ -72,7 +73,7 @@ class MapColumnContainer extends React.Component<FinalProps, State> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.fieldsCombinedByContentType), {
+    graphql<Props>(gql(commonQueries.fieldsCombinedByContentType), {
       name: 'fieldsQuery',
       options: ({ contentType }) => {
         return {

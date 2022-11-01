@@ -34,25 +34,7 @@ export const COC_LIFECYCLE_STATE_TYPES = [
   'other'
 ];
 
-export const IMPORT_TYPES = [
-  {
-    text: 'Customers',
-    contentType: 'customer',
-    icon: 'users-alt'
-  },
-  {
-    text: 'Leads',
-    contentType: 'lead',
-    icon: 'file-alt'
-  },
-  {
-    text: 'Companies',
-    contentType: 'company',
-    icon: 'building'
-  }
-];
-
-export const EXPORT_TYPES = [
+export const IMPORT_EXPORT_TYPES = [
   {
     text: 'Customers',
     contentType: 'customer',

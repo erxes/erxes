@@ -1,75 +1,78 @@
-import { Content, LeftContent, MessengerPreview } from '../../styles';
-import {
-  ControlWrapper,
-  FlexItem,
-  FlexPad,
-  Indicator,
-  Preview,
-  StepWrapper
-} from 'modules/common/components/step/styles';
-import { Description, SubHeading } from '@erxes/ui-settings/src/styles';
-import { ImageWrapper, TextWrapper } from '@erxes/ui/src/styles/main';
-import { Step, Steps } from 'modules/common/components/step';
-import { __, getEnv, loadDynamicComponent } from 'modules/common/utils';
-
-import Button from 'modules/common/components/Button';
-import ConfigsForm from './ConfigsForm';
-import { Link } from 'react-router-dom';
+import { Content, LeftContent, ImportHeader } from '../../styles';
+import { Step, Steps } from '@erxes/ui/src/components/step';
+import ConfigsForm from '../containers/ConfigsForm';
 import React from 'react';
-import Spinner from 'modules/common/components/Spinner';
+import TypeForm from '../containers/TypeForm';
 import Wrapper from 'modules/layout/components/Wrapper';
-import queryString from 'query-string';
+import { Alert, __ } from 'modules/common/utils';
+import { FlexPad } from 'modules/common/components/step/styles';
+import { Description, SubHeading } from '@erxes/ui-settings/src/styles';
+import { loadDynamicComponent } from 'modules/common/utils';
+import { StepButton } from '@erxes/ui/src/components/step/styles';
+import Details from './Details';
+import Button from 'modules/common/components/Button';
 
 type Props = {
-  contentType: string;
-  columns: any[]; //check
   count: string;
   loading: boolean;
-  previewCount: (segmentId?: string) => void;
+  saveExport: (doc: any) => void;
+  contentType: string;
 };
 
 type State = {
-  segmentId: string;
-  configs: string[];
-  searchValue: string;
-  columns: any[]; //check
-  importType: string;
-  columnsConfig: any[]; //check
+  segmentData: any;
+  contentType: string;
+  disclaimer: boolean;
+  name: string;
+  columns: any[];
+  skipFilter: boolean;
 };
 
-const { REACT_APP_API_URL } = getEnv();
-
-class ExportForm extends React.Component<Props, State> {
-  constructor(props) {
+class Form extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
-      segmentId: '',
-      configs: [],
-      searchValue: '',
-      columns: props.columns,
-      columnsConfig: [],
-      importType: 'csv'
+      segmentData: {},
+      contentType: props.contentType || '',
+      disclaimer: false,
+      name: '',
+      columns: [],
+      skipFilter: false
     };
   }
 
-  addFilter = segmentId => {
-    this.setState({ segmentId });
+  shouldComponentUpdate(_nextProps, nextState) {
+    if (nextState.segmentData !== this.state.segmentData) {
+      return false;
+    }
 
-    this.props.previewCount(segmentId);
+    return true;
+  }
+
+  onChangeContentType = (contentType: string, skipFilter: boolean) => {
+    this.setState({ contentType });
+    this.setState({ skipFilter });
   };
 
-  onSearch = e => {
-    const value = e.target.value;
+  onClickField = columns => {
+    this.setState({ columns });
+  };
 
-    this.setState({ searchValue: value });
+  onChangeExportName = value => {
+    this.setState({ name: value });
+  };
+
+  onChangeDisclaimer = value => {
+    this.setState({ disclaimer: value });
+  };
+
+  segmentCloseModal = () => {
+    this.setState({ segmentData: {} });
   };
 
   onSubmit = () => {
-    const { contentType } = this.props;
-    const { columns, segmentId } = this.state;
-
-    const serviceType = contentType.split(':')[0];
+    const { contentType, columns, segmentData, name } = this.state;
 
     let columnsConfig = columns.filter(conf => conf.checked) as any;
 
@@ -77,42 +80,53 @@ class ExportForm extends React.Component<Props, State> {
       return conf.name;
     });
 
-    const stringified = queryString.stringify({
-      configs: JSON.stringify(columnsConfig),
-      type: contentType.split(':')[1],
-      segment: segmentId,
-      unlimited: true
-    });
+    const doc = {
+      contentType,
+      columnsConfig,
+      segmentData,
+      name
+    };
 
-    window.open(
-      `${REACT_APP_API_URL}/pl:${serviceType}/file-export?${stringified}`,
-      '_blank'
-    );
-
-    window.location.href = `/settings/importHistories?type=${contentType}`;
+    return this.props.saveExport(doc);
   };
 
-  onClickField = (checked, field) => {
-    const { columns } = this.state;
-
-    for (const column of columns) {
-      if (column._id === field._id) {
-        column.checked = checked;
-      }
+  renderExportButton = () => {
+    const { disclaimer, name } = this.state;
+    if (disclaimer && name) {
+      return (
+        <StepButton next={true} onClick={this.onSubmit}>
+          Export
+        </StepButton>
+      );
     }
-
-    this.setState({ columns });
+    return <></>;
   };
 
-  segmentCloseModal = () => {
-    this.setState({ segmentId: '' });
+  filterContent = (values: any) => {
+    return (
+      <Button
+        id="segment-filter"
+        onClick={() => {
+          const data = {
+            ...values,
+            conditions: values.conditionSegments[0].conditions
+          };
 
-    this.props.previewCount();
+          delete data.conditionSegments;
+
+          this.setState({ segmentData: data });
+
+          Alert.success('Success');
+        }}
+        icon="filter"
+      >
+        {'Apply Filter'}
+      </Button>
+    );
   };
 
   render() {
-    const { contentType, count, loading } = this.props;
-    const { segmentId, searchValue, columns } = this.state;
+    const { contentType, disclaimer, name, skipFilter } = this.state;
 
     const title = __('Export');
 
@@ -122,84 +136,81 @@ class ExportForm extends React.Component<Props, State> {
       { title }
     ];
 
-    return (
-      <StepWrapper>
-        <Wrapper.Header title={title} breadcrumb={breadcrumb} />
-        <Content>
-          <LeftContent>
-            <Steps active={1}>
-              <Step img="/images/icons/erxes-10.svg" title="Content">
-                <ConfigsForm
-                  columns={columns}
-                  onClickField={this.onClickField}
-                  onSearch={this.onSearch}
-                  searchValue={searchValue}
-                />
-              </Step>
-
-              <Step
-                img="/images/icons/erxes-14.svg"
-                title="Filter"
-                noButton={true}
+    const content = (
+      <Content>
+        <LeftContent>
+          <Steps active={1} direction="horizontal">
+            <Step title="Type" link="exportHistories">
+              <TypeForm
+                onChangeContentType={this.onChangeContentType}
+                contentType={contentType}
+              />
+            </Step>
+            <Step title="Content">
+              <FlexPad
+                direction="column"
+                overflow="auto"
+                thinner={true}
+                vh={70}
               >
-                <FlexItem>
-                  <FlexPad direction="column" overflow="auto">
-                    <SubHeading>{__('Filter')}</SubHeading>
-                    <Description>
-                      {__('Skip this step if you wish to export all items')}
-                    </Description>
-                    {loadDynamicComponent('importExportFilterForm', {
-                      ...this.props,
-                      id: segmentId,
-                      contentType: contentType || 'customer',
-                      closeModal: this.segmentCloseModal,
-                      addFilter: this.addFilter,
-                      hideDetailForm: true,
-                      usageType: 'export'
-                    })}
-                  </FlexPad>
-                </FlexItem>
-              </Step>
-            </Steps>
-
-            <ControlWrapper>
-              <Indicator>
-                {__('You are exporting')}
-                <strong> {this.props.contentType} </strong>
-                {__('data')}
-              </Indicator>
-              <Button.Group>
-                <Link to="settings/importHistories">
-                  <Button btnStyle="simple" icon="times-circle">
-                    Cancel
-                  </Button>
-                </Link>
-
-                <Button btnStyle="success" onClick={this.onSubmit}>
-                  Export
-                </Button>
-              </Button.Group>
-            </ControlWrapper>
-          </LeftContent>
-          <MessengerPreview>
-            <Preview fullHeight={true}>
-              <ImageWrapper>
-                <TextWrapper>
-                  {loading ? (
-                    <Spinner objective={true} />
-                  ) : (
-                    <h1>
-                      {__('Items found:')} {count}
-                    </h1>
+                <ImportHeader>{__(`Choose your content type`)}</ImportHeader>
+                <ImportHeader fontSize="small">
+                  {__(
+                    'Before you choose content fields, make sure your content type is ready to be selected.'
                   )}
-                </TextWrapper>
-              </ImageWrapper>
-            </Preview>
-          </MessengerPreview>
-        </Content>
-      </StepWrapper>
+                </ImportHeader>
+                <ConfigsForm
+                  onClickField={this.onClickField}
+                  contentType={contentType}
+                />
+              </FlexPad>
+            </Step>
+
+            {!skipFilter && (
+              <Step title="Filter">
+                <FlexPad
+                  direction="column"
+                  overflow="auto"
+                  thinner={true}
+                  vh={70}
+                >
+                  <SubHeading>{__('Filter')}</SubHeading>
+                  <Description>
+                    {__('Skip this step if you wish to export all items')}
+                  </Description>
+                  {loadDynamicComponent('importExportFilterForm', {
+                    ...this.props,
+                    contentType,
+                    closeModal: this.segmentCloseModal,
+                    filterContent: this.filterContent,
+                    hideDetailForm: true
+                  })}
+                </FlexPad>
+              </Step>
+            )}
+
+            <Step title="Detail" additionalButton={this.renderExportButton()}>
+              <Details
+                type="stepper"
+                disclaimer={disclaimer}
+                name={name}
+                onChangeExportName={this.onChangeExportName}
+                onChangeDisclaimer={this.onChangeDisclaimer}
+              />
+            </Step>
+          </Steps>
+        </LeftContent>
+      </Content>
+    );
+
+    return (
+      <Wrapper
+        header={<Wrapper.Header title={__('')} breadcrumb={breadcrumb} />}
+        content={content}
+        transparent={true}
+      />
     );
   }
 }
 
-export default ExportForm;
+export default Form;
