@@ -41,16 +41,12 @@ export interface IProductsData {
   productId: string;
   quantity: number;
   uomId: string;
-  branchId: string;
-  departmentId: string;
+
+  product?: IProduct;
+  uom?: IUom;
 }
 
-export interface IProductsDataDocument extends IProductsData {
-  product: IProduct;
-  branch?: IBranch;
-  department?: IDepartment;
-  uom: IUom;
-}
+export interface IProductsDataDocument extends IProductsData {}
 
 export interface IUom {
   code: string;
@@ -91,25 +87,25 @@ export interface IJobRefer {
   name: string;
   type: string;
   status: string;
-  createdAt: Date;
-  duration: number;
-  durationType: string;
+  createdAt?: Date;
+  duration?: number;
+  durationType?: string;
+  needProducts?: IProductsData[];
+  resultProducts?: IProductsData[];
 }
 
 export interface IJobReferDocument extends IJobRefer, Document {
   _id: string;
   createdAt: Date;
-  needProducts: any[];
-  resultProducts: any[];
+  needProducts?: IProductsData[];
+  resultProducts?: IProductsData[];
 }
 
 export const productsDataSchema = new Schema({
   _id: field({ pkey: true }),
   productId: field({ type: String, label: 'Product' }),
-  product: field({ type: Object }),
   quantity: field({ type: Number, label: 'Quantity' }),
   uomId: field({ type: String, label: 'UOM' }),
-  uom: field({ type: Object }),
   proportion: field({ type: Number, optional: true }),
   branchId: field({ type: String, optional: true, label: 'Branch' }),
   departmentId: field({ type: String, optional: true, label: 'Department' })

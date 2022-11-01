@@ -24,10 +24,8 @@ export const types = `
   input JobProductsInput {
     _id: String,
     productId: String,
-    product: JSON,
     quantity: Float,
     uomId: String,
-    uom: JSON,
     branchId: String,
     departmentId: String,
     proportion: Float

@@ -1,38 +1,6 @@
 import { IJobReferDocument } from '../../../models/definitions/jobs';
 import { IContext } from '../../../connectionResolver';
-import { sendProductsMessage } from '../../../messageBroker';
-
-const getProductAndUoms = async (subdomain, productsData) => {
-  const productIds = productsData.map(n => n.productId);
-
-  const products = await sendProductsMessage({
-    subdomain,
-    action: 'find',
-    data: { query: { _id: { $in: productIds } } },
-    isRPC: true,
-    defaultValue: []
-  });
-
-  const productById = {};
-  for (const product of products) {
-    productById[product._id] = product;
-  }
-
-  const uomIds = productsData.map(n => n.uomId);
-  const uoms = await sendProductsMessage({
-    subdomain,
-    action: 'findUom',
-    data: { _id: { $in: uomIds } },
-    isRPC: true,
-    defaultValue: []
-  });
-
-  const uomById = {};
-  for (const uom of uoms) {
-    uomById[uom._id] = uom;
-  }
-  return { productById, uomById };
-};
+import { getProductAndUoms } from './utils';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
@@ -47,7 +15,7 @@ export default {
       needProducts
     );
 
-    for await (const need of needProducts) {
+    for (const need of needProducts) {
       need.product = productById[need.productId] || {};
       need.uom = uomById[need.uomId] || {};
     }
@@ -67,7 +35,7 @@ export default {
       resultProducts
     );
 
-    for await (const result of resultProducts) {
+    for (const result of resultProducts) {
       result.product = productById[result.productId] || {};
       result.uom = uomById[result.uomId] || {};
     }
