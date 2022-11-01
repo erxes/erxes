@@ -38,10 +38,11 @@ export const PermissionGroupCategoryPermitSchema = new Schema<
 });
 
 PermissionGroupCategoryPermitSchema.index(
-  { categoryId: 1, permissionGroupId: 1, permission: 1 },
+  { permissionGroupId: 1, permission: 1, categoryId: 1 },
   { unique: true }
 );
-PermissionGroupCategoryPermitSchema.index({ permissionGroupId: 1 });
+PermissionGroupCategoryPermitSchema.index({ categoryId: 1 });
+PermissionGroupCategoryPermitSchema.index({ permission: 1 });
 
 export const generatePermissionGroupCategoryPermitModel = (
   subdomain: string,

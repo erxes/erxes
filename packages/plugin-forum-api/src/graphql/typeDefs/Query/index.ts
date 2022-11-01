@@ -30,8 +30,8 @@ const Query = `
   extend type Query {
     forumCategoryByCode(code: String!): ForumCategory
     forumCategory(_id: ID!): ForumCategory
-    forumCategories(_id: [ID!], parentId: [ID], code: [String!]): [ForumCategory!]
-    forumCategoryQuery(query: JSON!): [ForumCategory!]
+    forumCategories(_id: [ID!], parentId: [ID], code: [String!], not_ids: [ID!]): [ForumCategory!]
+    # forumCategoryQuery(query: JSON!): [ForumCategory!]
     forumCategoryPossibleParents(_id: ID): [ForumCategory!]
 
     forumPost(_id: ID!): ForumPost

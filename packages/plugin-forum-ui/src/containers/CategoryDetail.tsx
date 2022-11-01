@@ -64,6 +64,7 @@ export default function CategoryDetail() {
           justifyContent: 'space-around'
         }}
       >
+        <h1>Info</h1>
         <div>
           <h3>Code</h3>
           <p>{forumCategory.code || 'N/A'}</p>

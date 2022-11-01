@@ -23,7 +23,7 @@ export const forumClientPortalUserSchema = new Schema<
   ForumClientPortalUserDocument
 >(
   {
-    _id: { type: String, required: true, index: true },
+    _id: { type: String, required: true },
     subscriptionEndsAfter: Date
   },
   { _id: false }

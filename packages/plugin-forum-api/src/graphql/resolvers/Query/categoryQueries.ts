@@ -13,9 +13,18 @@ const CategoryQueries: IObjectTypeResolver<any, IContext> = {
     for (const field of fields) {
       const param = params[field];
 
-      if (param) {
+      if (param && param.length) {
         query[field] = { $in: param };
       }
+    }
+
+    for (const field of fields) {
+      const paramName = `not_${field}`;
+      const param = params[paramName];
+
+      if (!param || !param?.length) continue;
+
+      query[field] = { $nin: param };
     }
 
     return Category.find(query).lean();

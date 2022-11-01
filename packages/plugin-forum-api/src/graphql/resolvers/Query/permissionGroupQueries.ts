@@ -1,5 +1,6 @@
 import { IContext } from '../..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
+import { PermissionGroupCategoryPermitSchema } from '../../../db/models/permissionGroupModels/permissionGroupCategoryPermit';
 
 const permissionGroupQueries: IObjectTypeResolver<any, IContext> = {
   forumPermissionGroup: async (_, { _id }, { models: { PermissionGroup } }) => {
@@ -11,7 +12,7 @@ const permissionGroupQueries: IObjectTypeResolver<any, IContext> = {
   forumPermissionGroupCategoryPermits: (
     _,
     params,
-    { models: { PermissionGroup } }
+    { models: { PermissionGroupCategoryPermit } }
   ) => {
     const query: any = {};
 
@@ -25,7 +26,7 @@ const permissionGroupQueries: IObjectTypeResolver<any, IContext> = {
       }
     }
 
-    return PermissionGroup.find(query).lean();
+    return PermissionGroupCategoryPermit.find(query).lean();
   }
 };
 

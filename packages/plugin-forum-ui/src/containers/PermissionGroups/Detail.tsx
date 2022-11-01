@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, Link, useHistory } from 'react-router-dom';
 import { useQuery, useMutation } from 'react-apollo';
 import {
@@ -7,6 +7,10 @@ import {
   POST_REFETCH_AFTER_EDIT
 } from '../../graphql/queries';
 import gql from 'graphql-tag';
+
+import ChooseCategory from '../ChooseCategory';
+
+import PermitList from './PermitList';
 
 const MUT = gql`
   mutation ForumPermissionGroupDelete($_id: ID!) {
@@ -23,6 +27,9 @@ const PermissionGroupDetail: React.FC = () => {
     variables: { _id: permissionGroupId },
     fetchPolicy: 'network-only'
   });
+
+  const [showWriteChooseModal, setShowWriteChooseModal] = useState(false);
+  const [showReadChooseModal, setShowReadChooseModal] = useState(false);
 
   const [mutDelete] = useMutation(MUT, {
     variables: {
@@ -46,6 +53,14 @@ const PermissionGroupDetail: React.FC = () => {
   if (error) return <pre>{error.message}</pre>;
 
   const { forumPermissionGroup } = data;
+
+  const chooseWritePermitComplete = () => {
+    setShowWriteChooseModal(false);
+  };
+
+  const chooseReadPermitComplete = () => {
+    setShowReadChooseModal(false);
+  };
 
   return (
     <div>
@@ -71,6 +86,38 @@ const PermissionGroupDetail: React.FC = () => {
           <li>{u.email}</li>
         ))}
       </ol>
+
+      <hr />
+
+      <h3>
+        Write permits{' '}
+        <button type="button" onClick={() => setShowWriteChooseModal(true)}>
+          Add
+        </button>{' '}
+      </h3>
+
+      <ChooseCategory
+        show={showWriteChooseModal}
+        onChoose={chooseWritePermitComplete}
+      />
+
+      <PermitList permissionGroupId={permissionGroupId} permission="WRITE" />
+
+      <hr />
+      <h3>
+        Read permits{' '}
+        <button type="button" onClick={() => setShowReadChooseModal(true)}>
+          Add
+        </button>{' '}
+      </h3>
+
+      <ChooseCategory
+        show={showReadChooseModal}
+        onChoose={chooseReadPermitComplete}
+      />
+
+      <PermitList permissionGroupId={permissionGroupId} permission="READ" />
+      <hr />
     </div>
   );
 };

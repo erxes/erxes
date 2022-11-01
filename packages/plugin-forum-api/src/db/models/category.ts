@@ -153,11 +153,11 @@ export const generateCategoryModel = (
       session.startTransaction();
 
       try {
-        await models.Post.updateMany(
-          { categoryId: { $elemMatch: { $eq: _id } } },
-          { $pull: { categoryId: Types.ObjectId(_id) } }
-        );
+        await models.Post.updateMany({ categoryId: _id }, { categoryId: null });
         await models.Category.updateMany({ parentId: _id }, { parentId: null });
+        await models.PermissionGroupCategoryPermit.deleteMany({
+          categoryId: _id
+        });
         await cat.remove();
 
         await session.commitTransaction();
