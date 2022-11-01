@@ -37,6 +37,14 @@ export const customerToErkhet = async (subdomain, params, action) => {
 
 export const validCompanyCode = async (config, companyCode) => {
   let result = false;
+  if (
+    !config ||
+    !config.checkCompanyUrl ||
+    !config.checkCompanyUrl.includes('http')
+  ) {
+    return result;
+  }
+
   const re = new RegExp('(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)', 'gui');
 
   if (re.test(companyCode)) {
