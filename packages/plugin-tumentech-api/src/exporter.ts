@@ -1,5 +1,9 @@
 import { generateModels, IModels } from './connectionResolver';
-import { fetchSegment } from './messageBroker';
+import {
+  fetchSegment,
+  sendContactsMessage,
+  sendCoreMessage
+} from './messageBroker';
 import * as moment from 'moment';
 import { ICarCategoryDocument } from './models/definitions/tumentech';
 
@@ -77,6 +81,35 @@ export const fillValue = async (
       );
 
       value = parentCategory ? parentCategory.name : '';
+
+      break;
+
+    case 'drivers':
+      const customerIds = await sendCoreMessage({
+        subdomain,
+        action: 'conformities.savedConformity',
+        data: {
+          mainType: 'car',
+          mainTypeId: item._id.toString(),
+          relTypes: ['customer']
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      const customers = await sendContactsMessage({
+        subdomain,
+        action: 'customers.find',
+        data: { _id: { $in: customerIds } },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      customers
+        .map(customer => {
+          value = customer.firstName || '';
+        })
+        .join(', ');
 
       break;
 
