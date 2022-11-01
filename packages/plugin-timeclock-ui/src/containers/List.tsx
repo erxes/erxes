@@ -37,7 +37,6 @@ const ListContainer = (props: FinalProps) => {
     startTimeMutation,
     stopTimeMutation,
     currentUser,
-    history,
     queryEndDate,
     queryStartDate,
     queryUserId

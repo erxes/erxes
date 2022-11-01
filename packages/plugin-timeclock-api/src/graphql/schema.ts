@@ -22,6 +22,7 @@ export const types = `
 export const queries = `
   timeclocks(startDate: Date, endDate: Date, userId: String): [Timeclock]
   absences(startDate: Date, endDate: Date, userId: String): [Absence]
+  timeclockDetail(_id: String!): Timeclock
 `;
 
 const params = `

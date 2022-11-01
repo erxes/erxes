@@ -71,6 +71,10 @@ const templateQueries = {
     }
 
     return models.Templates.find(selector);
+  },
+
+  timeclockDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Templates.findOne({ _id });
   }
 };
 
