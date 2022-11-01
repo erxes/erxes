@@ -39,12 +39,13 @@ class Sidebar extends React.Component<Props> {
   renderList() {
     const { services } = this.props;
 
-    if (services && services.length !== 0)
+    if (services && services.length !== 0) {
       return (
         <List id={'ImportExportSidebar'}>
           {services.map(service => this.renderListItem(service))}
         </List>
       );
+    }
 
     return (
       <List id={'ImportExportSidebar'}>
@@ -57,7 +58,7 @@ class Sidebar extends React.Component<Props> {
 
   render() {
     return (
-      <LeftSidebar header={this.renderSidebarHeader()} hasBorder>
+      <LeftSidebar header={this.renderSidebarHeader()} hasBorder={true}>
         <LeftSidebar.Section>{this.renderList()}</LeftSidebar.Section>
       </LeftSidebar>
     );

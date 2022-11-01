@@ -529,11 +529,16 @@ export const sendCommonMessage = async (
   });
 };
 
-export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
+export const fetchSegment = (
+  subdomain: string,
+  segmentId: string,
+  options?,
+  segmentData?: any
+) =>
   sendSegmentsMessage({
     subdomain,
     action: 'fetchSegment',
-    data: { segmentId, options },
+    data: { segmentId, options, segmentData },
     isRPC: true
   });
 

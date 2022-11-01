@@ -91,7 +91,7 @@ const notificationMutations = {
       }
     });
 
-    const info = await transporter.sendMail({
+    const mailData = {
       from,
       to,
       subject: replyToMessageId ? `Re: ${subject}` : subject,
@@ -102,9 +102,23 @@ const notificationMutations = {
         filename: attach.name,
         path: attach.url
       }))
-    });
+    };
 
-    return info.messageId;
+    const info = await transporter.sendMail(mailData);
+
+    return models.Messages.create({
+      inboxIntegrationId: integration.inboxId,
+      inboxConversationId: conversationId,
+      createdAt: new Date(),
+      messageId: info.messageId,
+      inReplyTo: replyToMessageId,
+      references: mailData.references,
+      subject: mailData.subject,
+      body: mailData.html,
+      to: (mailData.to || []).map(to => ({ name: to, address: to })),
+      from: [{ name: mailData.from, address: mailData.from }],
+      attachments: mailData.attachments
+    });
   }
 };
 

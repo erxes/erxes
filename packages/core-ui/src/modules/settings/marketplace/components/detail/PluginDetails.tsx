@@ -124,7 +124,7 @@ class PluginDetails extends React.Component<Props, State> {
     const { loading, plugin, tabType } = this.state;
 
     const breadcrumb = [
-      { title: __('Marketplace'), link: '/settings/installer' },
+      { title: __('Marketplace'), link: '/marketplace' },
       { title: plugin.title || '' }
     ];
 

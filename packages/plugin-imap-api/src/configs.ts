@@ -50,7 +50,7 @@ export default {
     app.get(
       '/read-mail-attachment',
       routeErrorHandling(
-        async (req, res) => {
+        async (req, res, next) => {
           const subdomain = getSubdomain(req);
           const models = await generateModels(subdomain);
 
@@ -72,13 +72,29 @@ export default {
                 err,
                 results
               ) {
-                if (err) throw err;
+                if (err) {
+                  imap.end();
+                  return next(err);
+                }
 
-                const f = imap.fetch(results, { bodies: '', struct: true });
+                let f;
+
+                try {
+                  f = imap.fetch(results, { bodies: '', struct: true });
+                } catch (e) {
+                  imap.end();
+                  debugError('messageId ', messageId);
+                  return next(e);
+                }
 
                 f.on('message', function(msg) {
                   msg.once('attributes', function(attrs) {
                     const attachments = findAttachmentParts(attrs.struct);
+
+                    if (attachments.length === 0) {
+                      imap.end();
+                      return res.status(404).send('Not found');
+                    }
 
                     for (let i = 0, len = attachments.length; i < len; ++i) {
                       const attachment = attachments[i];
