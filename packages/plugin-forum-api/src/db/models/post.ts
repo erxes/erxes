@@ -198,7 +198,7 @@ export const generatePostModel = (
     ): Promise<PostDocument> {
       const post = await models.Post.findByIdOrThrow(_id);
 
-      _.extend(post, {
+      _.assign(post, {
         ...patch,
         updatedUserType: USER_TYPES[0],
         updatedById: user._id,
@@ -297,7 +297,7 @@ export const generatePostModel = (
         ? 'PENDING'
         : 'APPROVED';
 
-      _.extend(post, {
+      _.assign(post, {
         ...patch,
         categoryApprovalState,
         updatedUserType: USER_TYPES[1],

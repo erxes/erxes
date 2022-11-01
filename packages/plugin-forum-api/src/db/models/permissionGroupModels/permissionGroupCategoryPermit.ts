@@ -23,7 +23,7 @@ export interface IPermissionGroupCategoryPermitModel
     permission: Permissions
   ): Promise<PermissionGroupCategoryPermitDocument>;
   removePermission(
-    userGroupId: string,
+    permissionGroupId: string,
     categoryId: string,
     permission: Permissions
   ): Promise<void>;
@@ -82,7 +82,7 @@ export const generatePermissionGroupCategoryPermitModel = (
     PermissionGroupCategoryPermitDocument,
     IPermissionGroupCategoryPermitModel
   >(
-    'forum_user_group_category_permission',
+    'forum_permission_group_category_permit',
     PermissionGroupCategoryPermitSchema
   );
 };
