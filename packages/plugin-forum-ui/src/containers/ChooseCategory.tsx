@@ -10,8 +10,8 @@ type Props = {
 };
 
 const QUERY = gql`
-  query ForumCategories($notIds: [ID!]) {
-    forumCategories(not_ids: $notIds) {
+  query ForumCategories($not__id: [ID!]) {
+    forumCategories(not__id: $not__id) {
       _id
       name
     }
@@ -20,10 +20,13 @@ const QUERY = gql`
 
 const ChooseCategory: React.FC<Props> = ({ excludeIds, onChoose, show }) => {
   const { data, loading, error } = useQuery(QUERY, {
+    fetchPolicy: 'network-only',
     variables: {
-      not_ids: excludeIds
+      not__id: excludeIds
     }
   });
+
+  console.log(excludeIds);
 
   const [checkedIds, setCheckedIds] = useState({});
 
@@ -39,8 +42,6 @@ const ChooseCategory: React.FC<Props> = ({ excludeIds, onChoose, show }) => {
   }
 
   const forumCategories = data.forumCategories || [];
-
-  if (!forumCategories?.length) return <div>Nothing to select</div>;
 
   return (
     <Modal size={'sm'} show={show} enforceFocus centered>

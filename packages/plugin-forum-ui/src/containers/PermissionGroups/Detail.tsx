@@ -20,12 +20,63 @@ const MUT = gql`
   }
 `;
 
+const ADD_PERMIT = gql`
+  mutation ForumPermissionGroupAddCategoryPermit(
+    $_id: ID!
+    $categoryIds: [ID!]!
+    $permission: ForumPermission!
+  ) {
+    forumPermissionGroupAddCategoryPermit(
+      _id: $_id
+      categoryIds: $categoryIds
+      permission: $permission
+    )
+  }
+`;
+
+const PERMITS = gql`
+  query ForumPermissionGroupCategoryPermits(
+    $permissionGroupId: [ID!]
+    $permission: [ForumPermission!]
+    $categoryId: [ID!]
+  ) {
+    forumPermissionGroupCategoryPermits(
+      permissionGroupId: $permissionGroupId
+      permission: $permission
+      categoryId: $categoryId
+    ) {
+      categoryId
+      permissionGroupId
+      permission
+      category {
+        _id
+        name
+      }
+    }
+  }
+`;
+
 const PermissionGroupDetail: React.FC = () => {
   const history = useHistory();
   const { permissionGroupId } = useParams();
+
   const { data, loading, error } = useQuery(PERMISSION_GROUP_QUERY, {
     variables: { _id: permissionGroupId },
     fetchPolicy: 'network-only'
+  });
+
+  const writePermitsQuery = useQuery(PERMITS, {
+    variables: {
+      permissionGroupId,
+      permission: 'WRITE'
+    }
+  });
+
+  const readPermitsQuery = useQuery(PERMITS, {
+    variables: {
+      permissionGroupId,
+      permission: 'READ'
+    }
   });
 
   const [showWriteChooseModal, setShowWriteChooseModal] = useState(false);
@@ -43,6 +94,17 @@ const PermissionGroupDetail: React.FC = () => {
     }
   });
 
+  const [mutGivePermission] = useMutation(ADD_PERMIT, {
+    refetchQueries: ['ForumPermissionGroupCategoryPermits'],
+    onError: e => {
+      console.error(e);
+      alert(e.message);
+    },
+    onCompleted: () => {
+      alert('Permit granted');
+    }
+  });
+
   const onClickDelete = async () => {
     if (!confirm('Do you want to delete this permission group?')) return;
     await mutDelete();
@@ -54,12 +116,37 @@ const PermissionGroupDetail: React.FC = () => {
 
   const { forumPermissionGroup } = data;
 
-  const chooseWritePermitComplete = () => {
+  const writePermitedCategoryIds =
+    writePermitsQuery.data?.forumPermissionGroupCategoryPermits.map(
+      p => p.categoryId
+    ) || [];
+  const readPermitedCategoryIds =
+    readPermitsQuery.data?.forumPermissionGroupCategoryPermits.map(
+      p => p.categoryId
+    ) || [];
+
+  const chooseWritePermitComplete = async categoryIds => {
     setShowWriteChooseModal(false);
+    if (!categoryIds?.length) return;
+    await mutGivePermission({
+      variables: {
+        _id: permissionGroupId,
+        categoryIds,
+        permission: 'WRITE'
+      }
+    });
   };
 
-  const chooseReadPermitComplete = () => {
+  const chooseReadPermitComplete = async categoryIds => {
     setShowReadChooseModal(false);
+    if (!categoryIds?.length) return;
+    await mutGivePermission({
+      variables: {
+        _id: permissionGroupId,
+        categoryIds,
+        permission: 'READ'
+      }
+    });
   };
 
   return (
@@ -96,12 +183,19 @@ const PermissionGroupDetail: React.FC = () => {
         </button>{' '}
       </h3>
 
-      <ChooseCategory
-        show={showWriteChooseModal}
-        onChoose={chooseWritePermitComplete}
-      />
+      {
+        <ChooseCategory
+          show={showWriteChooseModal}
+          onChoose={chooseWritePermitComplete}
+          excludeIds={writePermitedCategoryIds}
+        />
+      }
 
-      <PermitList permissionGroupId={permissionGroupId} permission="WRITE" />
+      <PermitList
+        permits={
+          writePermitsQuery.data?.forumPermissionGroupCategoryPermits || []
+        }
+      />
 
       <hr />
       <h3>
@@ -111,12 +205,19 @@ const PermissionGroupDetail: React.FC = () => {
         </button>{' '}
       </h3>
 
-      <ChooseCategory
-        show={showReadChooseModal}
-        onChoose={chooseReadPermitComplete}
-      />
+      {
+        <ChooseCategory
+          show={showReadChooseModal}
+          onChoose={chooseReadPermitComplete}
+          excludeIds={readPermitedCategoryIds}
+        />
+      }
 
-      <PermitList permissionGroupId={permissionGroupId} permission="READ" />
+      <PermitList
+        permits={
+          readPermitsQuery.data?.forumPermissionGroupCategoryPermits || []
+        }
+      />
       <hr />
     </div>
   );

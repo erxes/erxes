@@ -6,8 +6,8 @@ const permissionGroupMutations = `
     forumPermissionGroupAddUser(_id: ID!, cpUserId: ID!): Boolean
     forumPermissionGroupRemoveUser(_id: ID!, cpUserId: ID!): Boolean
 
-    forumPermissionGroupAddCategoryPermit(_id: ID!, categoryId: ID!, permission: ForumPermission!): Boolean
-    forumPermissionGroupRemoveCategoryPermit(_id: ID!, categoryId: ID!, permission: ForumPermission!): Boolean
+    forumPermissionGroupAddCategoryPermit(_id: ID!, categoryIds: [ID!]!, permission: ForumPermission!): Boolean
+    forumPermissionGroupRemoveCategoryPermit(_id: ID!, categoryIds: [ID!]!, permission: ForumPermission!): Boolean
 `;
 
 export default permissionGroupMutations;

@@ -19,12 +19,12 @@ export interface IPermissionGroupCategoryPermitModel
   extends Model<PermissionGroupCategoryPermitDocument> {
   givePermission(
     permissionGroupId: string,
-    categoryId: string,
+    categoryIds: string[],
     permission: Permissions
-  ): Promise<PermissionGroupCategoryPermitDocument>;
+  ): Promise<void>;
   removePermission(
     permissionGroupId: string,
-    categoryId: string,
+    categoryIds: string[],
     permission: Permissions
   ): Promise<void>;
 }
@@ -52,25 +52,22 @@ export const generatePermissionGroupCategoryPermitModel = (
   class PermissionGroupCategoryPermitModel {
     public static async givePermission(
       permissionGroupId: string,
-      categoryId: string,
+      categoryIds: string[],
       permission: Permissions
-    ): Promise<PermissionGroupCategoryPermitDocument> {
-      const doc = new models.PermissionGroupCategoryPermit({
-        permissionGroupId,
-        categoryId,
-        permission
-      });
-      await doc.save();
-      return doc;
+    ): Promise<void> {
+      const toInsert: IPermissionGroupCategoryPermit[] = categoryIds.map(
+        categoryId => ({ permissionGroupId, categoryId, permission })
+      );
+      await models.PermissionGroupCategoryPermit.insertMany(toInsert);
     }
     public static async removePermission(
       permissionGroupId: string,
-      categoryId: string,
+      categoryIds: string[],
       permission: Permissions
     ): Promise<void> {
       await models.PermissionGroupCategoryPermit.deleteMany({
         permissionGroupId,
-        categoryId,
+        categoryId: { $in: categoryIds },
         permission
       });
     }

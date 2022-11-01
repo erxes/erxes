@@ -38,24 +38,24 @@ const permissionGroupMutations: IObjectTypeResolver<any, IContext> = {
   },
   async forumPermissionGroupAddCategoryPermit(
     _,
-    { _id, categoryId, permission },
+    { _id, categoryIds, permission },
     { models: { PermissionGroupCategoryPermit } }
   ) {
     await PermissionGroupCategoryPermit.givePermission(
       _id,
-      categoryId,
+      categoryIds,
       permission
     );
     return true;
   },
   async forumPermissionGroupRemoveCategoryPermit(
     _,
-    { _id, categoryId, permission },
+    { _id, categoryIds, permission },
     { models: { PermissionGroupCategoryPermit } }
   ) {
     await PermissionGroupCategoryPermit.removePermission(
       _id,
-      categoryId,
+      categoryIds,
       permission
     );
     return true;

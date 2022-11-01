@@ -22,10 +22,14 @@ const CategoryQueries: IObjectTypeResolver<any, IContext> = {
       const paramName = `not_${field}`;
       const param = params[paramName];
 
+      console.log({ paramName, param });
+
       if (!param || !param?.length) continue;
 
       query[field] = { $nin: param };
     }
+
+    console.log({ query });
 
     return Category.find(query).lean();
   },
