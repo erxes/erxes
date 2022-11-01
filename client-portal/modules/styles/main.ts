@@ -434,6 +434,64 @@ const Badge = styled.div`
   text-align: center;
 `;
 
+const NotificationContent = styledTS<{ isList?: boolean }>(styled.div)`
+  background: ${colors.bgMain};
+  padding: ${dimensions.unitSpacing - 5}px ${dimensions.unitSpacing}px;
+  border-radius: 3px;
+  margin: ${dimensions.unitSpacing - 5}px 0;
+  word-break: break-word;
+  max-width: ${props => (props.isList ? '100%' : '270px')};
+
+  > p {
+    margin: 0;
+  }
+`;
+
+const Content = styledTS<{ isList?: boolean }>(styled.div)`
+  background: ${colors.bgMain};
+  padding: ${dimensions.unitSpacing - 5}px ${dimensions.unitSpacing}px;
+  border-radius: 3px;
+  margin: ${dimensions.unitSpacing - 5}px 0;
+  word-break: break-word;
+  max-width: ${props => (props.isList ? '100%' : '270px')};
+
+  > p {
+    margin: 0;
+  }
+`;
+
+const NotificationList = styled.ul`
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+    border-bottom: 1px solid ${colors.bgActive};
+    position: relative;
+    display: flex;
+
+    &:last-child {
+      border: none;
+    }
+
+    &.unread {
+      background: #edf2fa;
+      border-color: #e3e9f3;
+
+      ${Content} {
+        background: ${colors.colorWhite};
+      }
+    }
+
+    &:hover,
+    &:focus {
+      background: ${colors.bgLight};
+      cursor: pointer;
+    }
+  }
+`;
+
 export {
   Header,
   HeaderTop,
@@ -455,5 +513,8 @@ export {
   ModalClose,
   HeaderWrapper,
   FormWrapper,
-  Badge
+  Badge,
+  NotificationContent,
+  Content,
+  NotificationList
 };

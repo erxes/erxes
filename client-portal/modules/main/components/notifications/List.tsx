@@ -1,104 +1,110 @@
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 
+import FormControl from '../../../common/form/Control';
+import { NotificationList } from '../../../styles/main';
 import { INotification } from '../../../types';
+import Alert from '../../../utils/Alert';
 import Row from './Row';
 
 type Props = {
   notifications: INotification[];
-  totalCount: number;
-  queryParams: any;
+  count: number;
   loading: boolean;
-  remove: (placeId: string) => void;
   refetch?: () => void;
+  markAsRead: (notificationIds?: string[]) => void;
 };
 
 const List = (props: Props) => {
-  const { totalCount, queryParams, loading, places, remove } = props;
+  const { loading, notifications, count } = props;
 
-  const renderRow = () => {
-    const { places } = props;
-    return places.map(place => (
-      <Row key={place._id} place={place} remove={remove} />
-    ));
-  };
+  const [filterUnread, setFilterByUnread] = React.useState(false);
 
-  queryParams.loadingMainQuery = loading;
-  let actionBarLeft: React.ReactNode;
+  const filterByUnread = () => {
+    setFilterByUnread(!filterUnread);
+  }
 
-  const trigger = (
-    <Button btnStyle="success" size="small" icon="plus-circle">
-      Add place
-    </Button>
+  const markAllRead = (isPageRead: boolean) => {
+    if (!isPageRead) {
+      return props.markAsRead();
+    }
+
+    const unreadNotifications = notifications.filter(n => !n.isRead);
+
+    if (unreadNotifications.length > 0) {
+      props.markAsRead(unreadNotifications.map(n => n._id));
+    }
+
+    Alert.success('All notifications are marked as read');
+    return;
+  }
+
+  const content = (
+    <NotificationList>
+      {notifications.map((notif, key) => (
+        <Row notification={notif} key={key} />
+      ))}
+    </NotificationList>
+  );
+  const actionBarLeft = (
+    <FormControl
+      id="isFilter"
+      componentClass="checkbox"
+      onClick={filterByUnread}
+    >
+      {__('Show unread')}
+    </FormControl>
   );
 
-  const formContent = props => <PlaceForm {...props} />;
-
-  const righActionBar = (
-    <ModalTrigger
-      size="lg"
-      title="place"
-      autoOpenKey="showAppAddModal"
-      trigger={trigger}
-      content={formContent}
-    />
+  const actionBarRight = (
+    <div>
+      <Button
+        btnStyle="primary"
+        size="small"
+        onClick={markAllRead.bind(null, false)}
+        icon="window-maximize"
+      >
+        Mark Page Read
+      </Button>
+      <Button
+        btnStyle="success"
+        size="small"
+        onClick={markAllRead.bind(null, true)}
+        icon="eye"
+      >
+        Mark All Read
+      </Button>
+    </div>
   );
 
   const actionBar = (
-    <Wrapper.ActionBar right={righActionBar} left={actionBarLeft} />
+    <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
   );
 
-  const content = (
-    <Table whiteSpace="nowrap" hover={true}>
-      <thead>
-        <tr>
-          <th>{__('Province')}</th>
-          <th>{__('Code')}</th>
-          <th>{__('Name')}</th>
-          <th>{__('Latitude')}</th>
-          <th>{__('Longitude')}</th>
-          <th>{__('Description')}</th>
-          <th>{__('Actions')}</th>
-        </tr>
-      </thead>
-      <tbody>{renderRow()}</tbody>
-    </Table>
-  );
   return (
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Places')}
-          queryParams={queryParams}
-          submenu={tumentechMenu}
+          title={__('Notifications')}
+          breadcrumb={[{ title: __('Notifications') }]}
         />
       }
       actionBar={actionBar}
-      footer={<Pagination count={totalCount} />}
       content={
         <DataWithLoader
           data={content}
           loading={loading}
-          count={places.length}
-          emptyContent={
-            <h3
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}
-            >
-              no data
-            </h3>
-          }
+          count={count}
+          emptyText="Looks like you are all caught up!"
+          emptyImage="/images/actions/17.svg"
         />
       }
+      center={true}
+      // footer={<Pagination count={count} />}
     />
   );
 };
