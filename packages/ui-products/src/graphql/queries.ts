@@ -62,7 +62,9 @@ const products = `
     $page: Int $ids: [String],
     $excludeIds: Boolean,
     $pipelineId: String,
-    $boardId: String
+    $boardId: String,
+    $segment: String,
+    $segmentData: String
   ) {
     products(
       type: $type,
@@ -73,7 +75,9 @@ const products = `
       page: $page ids: $ids,
       excludeIds: $excludeIds,
       pipelineId: $pipelineId,
-      boardId: $boardId
+      boardId: $boardId,
+      segment: $segment,
+      segmentData: $segmentData
     ) {
       ${productFields}
     }
