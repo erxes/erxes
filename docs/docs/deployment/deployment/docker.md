@@ -286,7 +286,7 @@ docker ps -a
 Wait until gateway container status becomes healthy
 :::
 
-9. nginx .conf - ийг /etc/nginx/sites-enabled/ руу move хийх
+9. nginx.conf move to /etc/nginx/sites-enabled/
 
 ```
 sudo mv nginx.conf /etc/nginx/sites-enabled/erxes.conf
