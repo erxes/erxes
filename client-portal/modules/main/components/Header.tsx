@@ -17,7 +17,7 @@ import {
   LinkItem,
   SupportMenus,
 } from '../../styles/main';
-import { Config, IUser } from '../../types';
+import { Config, INotification, IUser } from '../../types';
 import Button from '../../common/Button';
 import LoginContainer from '../../user/containers/Login';
 import RegisterContainer from '../../user/containers/Register';

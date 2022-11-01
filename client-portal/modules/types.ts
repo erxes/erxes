@@ -170,6 +170,15 @@ export interface IKbArticle extends ICommonFields {
   createdUser: IUser;
 }
 
+export interface INotification {
+  _id: string;
+  title: string;
+  content: string;
+  link: string;
+  isRead: boolean;
+  createdAt: Date;
+}
+
 export type Topic = {
   _id: string;
   title: string;
@@ -198,4 +207,12 @@ export type TopicQueryResponse = {
 
 export type UserQueryResponse = {
   clientPortalCurrentUser: IUser;
+};
+
+export type NotificationsCountQueryResponse = {
+  clientPortalNotificationCounts: number;
+};
+
+export type NotificationsQueryResponse = {
+  clientPortalNotifications: INotification[];
 };

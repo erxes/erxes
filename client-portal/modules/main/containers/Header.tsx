@@ -2,7 +2,7 @@ import { gql, useMutation, useQuery } from '@apollo/client';
 import React from 'react';
 import { mutations } from '../../user/graphql';
 import Header from '../components/Header';
-import { Config, IUser } from '../../types';
+import { Config, IUser, NotificationsCountQueryResponse, NotificationsQueryResponse } from '../../types';
 
 type Props = {
   config: Config;
@@ -12,7 +12,7 @@ type Props = {
   headerBottomComponent?: React.ReactNode;
 };
 
-const noficationsCountQuery = gql`
+const notificationsCountQuery = gql`
   query clientPortalNotificationCounts {
     clientPortalNotificationCounts
   }
@@ -52,7 +52,11 @@ const notificationsQuery = gql`
 
 function HeaderContainer(props: Props) {
   const [logout, { data, error }] = useMutation(gql(mutations.logout));
-  const notificationsCountResponse = useQuery(noficationsCountQuery, {
+  const notificationsCountResponse = useQuery<NotificationsCountQueryResponse>(notificationsCountQuery, {
+    skip: !props.currentUser,
+  });
+
+  const notificationsResponse = useQuery<NotificationsQueryResponse>(notificationsQuery, {
     skip: !props.currentUser,
   });
 
@@ -69,6 +73,8 @@ function HeaderContainer(props: Props) {
       notificationsCountResponse.data.clientPortalNotificationCounts) ||
     0;
 
+  const notifications = (notificationsResponse.data && notificationsResponse.data.clientPortalNotifications) || [];
+
   if (data) {
     window.location.href = '/';
   }
@@ -76,6 +82,7 @@ function HeaderContainer(props: Props) {
   const updatedProps = {
     ...props,
     notificationsCount,
+    notifications,
     logout,
   };
 
