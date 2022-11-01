@@ -3,7 +3,7 @@ import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
-import { ITimeClock } from '../../models/definitions/template';
+import { IAbsence, ITimeClock } from '../../models/definitions/template';
 import { putUpdateLog } from '@erxes/api-utils/src/logUtils';
 import messageBroker from '../../messageBroker';
 
@@ -55,6 +55,15 @@ const templateMutations = {
   async timeclockRemove(_root, { _id }, { models }: IContext) {
     const template = await models.Templates.removeTimeClock(_id);
     return template;
+  },
+
+  async sendAbsenceRequest(
+    _root,
+    doc: IAbsence,
+    { models, docModifier }: IContext
+  ) {
+    const absence = await models.Absences.createAbsence(docModifier(doc));
+    return absence;
   }
 };
 

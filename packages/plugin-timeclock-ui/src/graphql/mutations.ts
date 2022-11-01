@@ -20,7 +20,15 @@ const clockStop = `
   }
 `;
 
+const sendAbsenceRequest = `
+mutation sendAbsenceRequest($startTime: Date, $endTime: Date, $userId: String, $reason: String, $explanation: String){
+  sendAbsenceRequest(startTime: $startTime, endTime: $endTime, userId: $userId, reason: $reason, explanation: $explanation){
+    _id
+  }
+}`;
+
 export default {
+  sendAbsenceRequest,
   clockRemove,
   clockStart,
   clockStop

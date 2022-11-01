@@ -1,5 +1,3 @@
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import Button from '@erxes/ui/src/components/Button';
 import Tip from '@erxes/ui/src/components/Tip';
@@ -7,10 +5,9 @@ import Icon from '@erxes/ui/src/components/Icon';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { ITimeclock } from '../types';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
-import { FormControl } from '@erxes/ui/src/components/form';
 import { colors, dimensions } from '@erxes/ui/src/styles';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 
 const TimeclockNameStyled = styledTS<{ checked: boolean }>(styled.div).attrs(
   {}
@@ -85,6 +82,7 @@ class Row extends React.Component<Props, State> {
 
     return (
       <tr>
+        <td>{<NameCard user={timeclock.user} />}</td>
         <td>{shiftDate}</td>
         <td>{shiftStartTime}</td>
         <td>{shiftEndTime}</td>

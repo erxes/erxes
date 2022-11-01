@@ -5,7 +5,7 @@ import { Alert, confirm, router, withProps } from '@erxes/ui/src/utils';
 import List from '../components/List';
 import { TimeClockMutationResponse, TimeClockQueryResponse } from '../types';
 import { mutations, queries } from '../graphql';
-import React, { useState } from 'react';
+import React from 'react';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import Spinner from '@erxes/ui/src/components/Spinner';

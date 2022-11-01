@@ -19,17 +19,10 @@ const DropdownWrapper = styled.div`
   }
 `;
 
-const SelectMemberStyled = styledTS<{ zIndex?: number }>(styled.div)`
-  position: relative;
-  z-index: ${props => (props.zIndex ? props.zIndex : '2001')};
-`;
-
 const FlexCenter = styled.div`
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: center;
 `;
-
 const SidebarActions = styled.div`
   #date-popover {
     max-width: 470px;
@@ -128,11 +121,7 @@ class LeftSideBar extends React.Component<Props, State> {
       <Sidebar.Header>
         <FlexCenter>
           <DropdownWrapper>
-            <DateFilter
-              queryParams={queryParams}
-              history={history}
-              // countQueryParam="conversationsTotalCount"
-            />
+            <DateFilter queryParams={queryParams} history={history} />
           </DropdownWrapper>
         </FlexCenter>
       </Sidebar.Header>
@@ -143,15 +132,6 @@ class LeftSideBar extends React.Component<Props, State> {
     return <SidebarActions>{this.renderSidebarActions()}</SidebarActions>;
   }
 
-  ListItem = (date, currentDate) => {
-    const className = currentDate && date === currentDate ? 'active' : '';
-    return (
-      <SidebarListItem isActive={className === 'active'} key={date}>
-        <Link to={`/timeclocks?day=${date}`}>{__(date)}</Link>
-      </SidebarListItem>
-    );
-  };
-
   render() {
     this.state = {
       today: dayjs()
@@ -160,7 +140,7 @@ class LeftSideBar extends React.Component<Props, State> {
       thisWeek: addDaysOfWeek(new Date())
     };
 
-    const { queryParams } = this.props;
+    const { queryParams, history } = this.props;
     return (
       <Sidebar wide={true} full={true} header={this.renderSidebarHeader()}>
         <SelectTeamMembers

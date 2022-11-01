@@ -1,7 +1,7 @@
 import Button from '@erxes/ui/src/components/Button';
 import { ITimeclock } from '../types';
 import Row from './Row';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { menuTimeClock } from '../menu';
 import { router, __ } from '@erxes/ui/src/utils';
 import React, { useState, useEffect, useRef } from 'react';
 import TimeForm from './TimeForm';
@@ -24,7 +24,7 @@ type Props = {
   loading: boolean;
 };
 
-function convertMsToTime(milliseconds) {
+export function convertMsToTime(milliseconds) {
   let seconds = Math.floor(milliseconds / 1000);
   let minutes = Math.floor(seconds / 60);
   let hours = Math.floor(minutes / 60);
@@ -62,7 +62,6 @@ function renderTimeDuration(shiftStartTime): string {
 
 function List({
   timeclocks,
-  currentDate,
   startClockTime,
   stopClockTime,
   currentUserId,
@@ -152,6 +151,7 @@ function List({
     <Table>
       <thead>
         <tr>
+          <th>{__('Team member')}</th>
           <th>{__('Shift date')}</th>
           <th>{__('Shift started')}</th>
           <th>{__('Shift ended')}</th>
@@ -174,16 +174,11 @@ function List({
     )
   );
 
-  const breadcrumb = [
-    { title: __('Admin'), link: '/timeclocks/admin' },
-    { title: __('Timeclocks'), link: '/timeclocks' },
-    { title: __('Absence'), link: '/timeclocks/absence' },
-    { title: __('Schedule'), link: '/timeclocks/schedule' }
-  ];
-
   return (
     <Wrapper
-      header={<Wrapper.Header title={__('Timeclocks')} submenu={breadcrumb} />}
+      header={
+        <Wrapper.Header title={__('Timeclocks')} submenu={menuTimeClock} />
+      }
       actionBar={actionBar}
       content={
         <DataWithLoader
@@ -196,7 +191,6 @@ function List({
       leftSidebar={
         <SideBarList
           onUserSelect={onUserSelect}
-          currentDate={currentDate}
           queryParams={queryParams}
           history={history}
         />

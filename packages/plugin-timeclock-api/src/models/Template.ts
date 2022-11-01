@@ -4,7 +4,10 @@ import { IModels } from '../connectionResolver';
 import {
   ITimeClock,
   ITimeClockDocument,
-  timeSchema
+  timeSchema,
+  IAbsence,
+  IAbsenceDocument,
+  absenceSchema
 } from './definitions/template';
 
 export interface ITimeModel extends Model<ITimeClockDocument> {
@@ -49,4 +52,47 @@ export const loadTimeClass = (models: IModels) => {
   timeSchema.loadClass(Time);
 
   return timeSchema;
+};
+
+export interface IAbsenceModel extends Model<IAbsenceDocument> {
+  getAbsence(_id: string): Promise<IAbsenceDocument>;
+  createAbsence(doc: IAbsence): Promise<IAbsenceDocument>;
+  updateAbsence(_id: string, doc: IAbsence): Promise<IAbsenceDocument>;
+  removeAbsence(_id: string): void;
+}
+
+export const loadAbsenceClass = (models: IModels) => {
+  class Absence {
+    // get
+    public static async getAbsence(_id: string) {
+      const absence = await models.Absences.findOne({ _id });
+      if (!absence) {
+        throw new Error('absence not found');
+      }
+
+      return absence;
+    }
+
+    // create
+    public static async createAbsence(doc: IAbsence) {
+      return models.Absences.create({
+        ...doc
+      });
+    }
+    // update
+    public static async updateAbsence(_id: string, doc: IAbsence) {
+      await models.Absences.updateOne({ _id }, { $set: { ...doc } }).then(err =>
+        console.error(err)
+      );
+    }
+    // remove
+    public static async removeAbsence(_id: string) {
+      const absence = await models.Absences.getAbsence(_id);
+      return models.Absences.deleteOne({ _id });
+    }
+  }
+
+  absenceSchema.loadClass(Absence);
+
+  return absenceSchema;
 };
