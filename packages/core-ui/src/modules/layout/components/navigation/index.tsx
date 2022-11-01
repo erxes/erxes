@@ -50,6 +50,14 @@ export default class Navigation extends React.Component<Props> {
         <BottomMenu>
           <NavigationItem
             plugin={{
+              text: 'Marketplace',
+              url: '/marketplace',
+              icon: 'icon-store'
+            }}
+            navCollapse={navCollapse}
+          />
+          <NavigationItem
+            plugin={{
               text: 'Settings',
               url: '/settings',
               icon: 'icon-settings'
