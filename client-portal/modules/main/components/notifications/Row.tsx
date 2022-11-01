@@ -1,4 +1,4 @@
-import { RowTitle } from '@erxes/ui-engage/src/styles';
+
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
@@ -38,7 +38,7 @@ const Row = (props: Props) => {
 
   return (
     <li>
-        <RowTitle>{notification.title || 'New notification'}</RowTitle>
+        <p>{notification.title || 'New notification'}</p>
         <NotificationContent 
             dangerouslySetInnerHTML={{ __html: notification.content || '' }}
         />

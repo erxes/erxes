@@ -1,14 +1,12 @@
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
+import Button from '../../../common/Button';
 
 import FormControl from '../../../common/form/Control';
 import { NotificationList } from '../../../styles/main';
+import { Wrapper } from '../../../styles/tasks';
 import { INotification } from '../../../types';
 import Alert from '../../../utils/Alert';
+import DataWithLoader from '../DataWithLoader';
 import Row from './Row';
 
 type Props = {
@@ -56,7 +54,7 @@ const List = (props: Props) => {
       componentClass="checkbox"
       onClick={filterByUnread}
     >
-      {__('Show unread')}
+      {'Show unread'}
     </FormControl>
   );
 
@@ -81,20 +79,12 @@ const List = (props: Props) => {
     </div>
   );
 
-  const actionBar = (
-    <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
-  );
+  // const actionBar = (
+  //   <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
+  // );
 
   return (
-    <Wrapper
-      header={
-        <Wrapper.Header
-          title={__('Notifications')}
-          breadcrumb={[{ title: __('Notifications') }]}
-        />
-      }
-      actionBar={actionBar}
-      content={
+
         <DataWithLoader
           data={content}
           loading={loading}
@@ -102,10 +92,9 @@ const List = (props: Props) => {
           emptyText="Looks like you are all caught up!"
           emptyImage="/images/actions/17.svg"
         />
-      }
-      center={true}
+      
       // footer={<Pagination count={count} />}
-    />
+    
   );
 };
 
