@@ -1,4 +1,4 @@
-import { receiveImportCreate } from '../worker/utils';
+import { receiveImportCreate } from '../worker/import/utils';
 import { getFileUploadConfigs } from '../messageBroker';
 
 export const importer = async (
