@@ -45,6 +45,7 @@ const PERMITS = gql`
       permission: $permission
       categoryId: $categoryId
     ) {
+      _id
       categoryId
       permissionGroupId
       permission

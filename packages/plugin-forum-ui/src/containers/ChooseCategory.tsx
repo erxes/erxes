@@ -32,6 +32,7 @@ const ChooseCategory: React.FC<Props> = ({ excludeIds, onChoose, show }) => {
 
   const onChooseClick = () => {
     const ids = Object.keys(checkedIds);
+    setCheckedIds({});
     onChoose(ids || []);
   };
 
@@ -68,7 +69,13 @@ const ChooseCategory: React.FC<Props> = ({ excludeIds, onChoose, show }) => {
           </div>
         ))}
 
-        <button type="button" onClick={() => onChoose([])}>
+        <button
+          type="button"
+          onClick={() => {
+            setCheckedIds({});
+            onChoose([]);
+          }}
+        >
           Cancel
         </button>
         <button type="button" onClick={onChooseClick}>
