@@ -37,9 +37,10 @@ const params = `
 export const queries = `
   clientPortalNotifications(${params}): [ClientPortalNotification]
   clientPortalNotificationCounts: Int
+  clientPortalNotificationDetail(_id: String!): ClientPortalNotification
 `;
 
 export const mutations = `
-  clientPortalNotificationsMarkAsRead (_ids: [String], contentTypeId: String) : JSON
+  clientPortalNotificationsMarkAsRead (_ids: [String]) : JSON
   clientPortalNotificationsRemove(_ids: [String]) : JSON
 `;

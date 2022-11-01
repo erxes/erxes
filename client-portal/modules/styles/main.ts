@@ -492,6 +492,26 @@ const NotificationList = styled.ul`
   }
 `;
 
+const InfoSection = styled.div`
+  position: relative;
+  flex: 1;
+  padding: 0 ${dimensions.coreSpacing}px;
+`;
+
+const CreatedDate = styledTS<{ isList?: boolean }>(styled.div)`
+  font-size: 11px;
+  color: ${colors.colorCoreGray};
+  padding-top: 3px;
+
+  ${props =>
+    props.isList &&
+    css`
+      position: absolute;
+      right: 0;
+      top: 5px;
+    `}
+`;
+
 export {
   Header,
   HeaderTop,
@@ -516,5 +536,7 @@ export {
   Badge,
   NotificationContent,
   Content,
-  NotificationList
+  NotificationList,
+  InfoSection,
+  CreatedDate
 };

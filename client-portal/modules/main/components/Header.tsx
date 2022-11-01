@@ -25,7 +25,7 @@ import ResetPasswordContainer from '../../user/containers/ResetPassword';
 import { Alert } from '../../utils';
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
-import Notifications from '../containers/Notifications';
+import Notifications from '../containers/notifications/List';
 
 type Props = {
   config: Config;
@@ -133,11 +133,13 @@ function Header({
               <Popup
                 trigger={
                   <span title="Notifications">
-                    <Badge color={'red'}>{notificationsCount}</Badge>
+                    {notificationsCount > 0 && (
+                      <Badge color={'red'}>{notificationsCount}</Badge>
+                    )}
                     <Icon icon="bell" />
                   </span>
                 }
-                position="bottom right"
+                position="bottom center"
               >
                 <Notifications
                   count={notificationsCount}

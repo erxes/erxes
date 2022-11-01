@@ -60,6 +60,27 @@ const notificationQueries = {
       page,
       perPage
     });
+  },
+
+  async clientPortalNotificationDetail(
+    _root,
+    { _id },
+    { models, cpUser }: IContext
+  ) {
+    if (!cpUser) {
+      throw new Error('You are not logged in');
+    }
+
+    const notification = await models.ClientPortalNotifications.findOne({
+      _id,
+      receiver: cpUser._id
+    });
+
+    if (!notification) {
+      throw new Error('Notification not found');
+    }
+
+    return notification;
   }
 };
 

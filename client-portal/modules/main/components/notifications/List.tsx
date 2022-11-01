@@ -24,22 +24,22 @@ const List = (props: Props) => {
 
   const filterByUnread = () => {
     setFilterByUnread(!filterUnread);
-  }
+  };
 
   const markAllRead = (isPageRead: boolean) => {
     if (!isPageRead) {
       return props.markAsRead();
     }
 
-    const unreadNotifications = notifications.filter(n => !n.isRead);
+    const unreadNotifications = notifications.filter((n) => !n.isRead);
 
     if (unreadNotifications.length > 0) {
-      props.markAsRead(unreadNotifications.map(n => n._id));
+      props.markAsRead(unreadNotifications.map((n) => n._id));
     }
 
     Alert.success('All notifications are marked as read');
     return;
-  }
+  };
 
   const content = (
     <NotificationList>
@@ -79,22 +79,14 @@ const List = (props: Props) => {
     </div>
   );
 
-  // const actionBar = (
-  //   <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
-  // );
-
   return (
-
-        <DataWithLoader
-          data={content}
-          loading={loading}
-          count={count}
-          emptyText="Looks like you are all caught up!"
-          emptyImage="/images/actions/17.svg"
-        />
-      
-      // footer={<Pagination count={count} />}
-    
+    <DataWithLoader
+      data={content}
+      loading={loading}
+      count={count}
+      emptyText="Looks like you are all caught up!"
+      emptyImage="/images/actions/17.svg"
+    />
   );
 };
 

@@ -1,12 +1,12 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
 import React from 'react';
-import { mutations } from '../../user/graphql';
-import Notifications from '../components/notifications/List';
+import { mutations } from '../../../user/graphql';
+import Notifications from '../../components/notifications/List';
 import {
   IUser,
   NotificationsCountQueryResponse,
   NotificationsQueryResponse,
-} from '../../types';
+} from '../../../types';
 
 type Props = {
   count: number;
@@ -35,24 +35,17 @@ const notificationsQuery = gql`
       startDate: $startDate
     ) {
       _id
-      content
       createdAt
       isRead
-      link
-      notifType
       title
     }
   }
 `;
 
 function NotificationsContainer(props: Props) {
-  //   const notificationsCountResponse = useQuery<NotificationsCountQueryResponse>(noficationsCountQuery, {
-  //     skip: !props.currentUser,
-  //   });
-
   const markAsRead = (notificationIds?: string[]) => {
     console.log('markAsRead', notificationIds);
-  }
+  };
 
   const notificationsResponse = useQuery<NotificationsQueryResponse>(
     notificationsQuery,
@@ -61,23 +54,10 @@ function NotificationsContainer(props: Props) {
     }
   );
 
-  //   if (notificationsCountResponse.error) {
-  //     return <div>{notificationsCountResponse.error.message}</div>;
-  //   }
-
-  //   const notificationsCount =
-  //     (notificationsCountResponse.data &&
-  //       notificationsCountResponse.data.clientPortalNotificationCounts) ||
-  //     0;
-
   const notifications =
     (notificationsResponse.data &&
       notificationsResponse.data.clientPortalNotifications) ||
     [];
-
-  //   if (data) {
-  //     window.location.href = '/';
-  //   }
 
   const updatedProps = {
     ...props,

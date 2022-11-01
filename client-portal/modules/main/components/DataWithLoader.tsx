@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Spinner from '../../common/Spinner';
 
@@ -18,7 +17,7 @@ class DataWithLoader extends React.Component<Props> {
     emptyIcon: '',
     emptyImage: '',
     size: 'full',
-    objective: false
+    objective: false,
   };
 
   showData() {
@@ -28,7 +27,7 @@ class DataWithLoader extends React.Component<Props> {
       data,
       objective,
       emptyContent,
-      loadingContent
+      loadingContent,
     } = this.props;
 
     if (loading) {
@@ -44,9 +43,7 @@ class DataWithLoader extends React.Component<Props> {
         return emptyContent;
       }
 
-      return (
-        <h2>Empty</h2>
-      );
+      return <h4>There is no notification</h4>;
     }
 
     return data;

@@ -216,3 +216,7 @@ export type NotificationsCountQueryResponse = {
 export type NotificationsQueryResponse = {
   clientPortalNotifications: INotification[];
 };
+
+export type NotificationDetailQueryResponse = {
+  clientPortalNotificationDetail: INotification;
+};

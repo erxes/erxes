@@ -64,7 +64,7 @@ export const taskHandler = async (models: IModels, subdomain, params) => {
 
       await sendNotification(models, subdomain, {
         receivers: [user._id],
-        title: 'Your submitted task has been moved',
+        title: 'Your submitted task has been updated',
         content,
         notifType: 'system',
         link: `${config.url}/tasks?stageId=${destinationStageId}`
