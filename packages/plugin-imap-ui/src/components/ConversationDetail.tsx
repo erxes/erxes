@@ -18,6 +18,7 @@ class Detail extends React.Component<any> {
 
     return (
       <MailConversation
+        detailQuery={messagesQuery}
         conversation={currentConversation}
         conversationMessages={messages}
       />
