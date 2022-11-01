@@ -3,6 +3,15 @@ import {
   queries as ImportHistoryQueries,
   types as ImportHistoryTypes
 } from './importHistory';
+
+import {
+  mutations as ExportHistoryMutations,
+  queries as ExportHistoryQueries,
+  types as ExportHistoryTypes
+} from './exportHistory';
+
+import { queries as GeneralHistoryQueries } from './generalHistory';
+
 export let types = `
   scalar JSON
   scalar Date
@@ -18,16 +27,24 @@ export let types = `
     inheritMaxAge: Boolean
   ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
   
+  extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
+  
   ${ImportHistoryTypes}
+   ${ExportHistoryTypes}
 `;
 
 export let queries = `
   ${ImportHistoryQueries}
+   ${ExportHistoryQueries}
+   ${GeneralHistoryQueries}
 `;
 
 export let mutations = `
 
   ${ImportHistoryMutations}
+  ${ExportHistoryMutations}
 
 `;
 

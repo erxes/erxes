@@ -19,6 +19,7 @@ import {
   sendInternalNotesMessage,
   sendToWebhook
 } from '../messageBroker';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 
 interface IGetCustomerParams {
   email?: string;
@@ -84,6 +85,17 @@ interface IPSS {
   searchText: string;
   state: string;
 }
+
+const checkVerificationStatus = (doc: ICustomer) => {
+  const errorPrefix = 'Validation status can not be saved without primary';
+
+  if (!doc.primaryEmail && doc.emailValidationStatus) {
+    throw new Error(`${errorPrefix} email`);
+  }
+  if (!doc.primaryPhone && doc.phoneValidationStatus) {
+    throw new Error(`${errorPrefix} phone number`);
+  }
+};
 
 export interface ICustomerModel extends Model<ICustomerDocument> {
   checkDuplication(
@@ -263,8 +275,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
      */
     public static async createCustomer(
       doc: ICustomer,
-      // user?: IUserDocument
-      user?: any
+      user?: IUserDocument
     ): Promise<ICustomerDocument> {
       // Checking duplicated fields of customer
       try {
@@ -272,6 +283,8 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       } catch (e) {
         throw new Error(e.message);
       }
+
+      checkVerificationStatus(doc);
 
       if (!doc.ownerId && user) {
         doc.ownerId = user._id;
@@ -342,6 +355,8 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       } catch (e) {
         throw new Error(e.message);
       }
+
+      checkVerificationStatus(doc);
 
       const oldCustomer = await models.Customers.getCustomer(_id);
 
