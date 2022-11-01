@@ -1,11 +1,17 @@
-import queryString from 'query-string';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import React from 'react';
 import { Route } from 'react-router-dom';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import queryString from 'query-string';
 
 const WebBuilder = asyncComponent(() =>
   import(
     /* webpackChunkName: "webbuilderHome - Webbuilders" */ './components/WebBuilder'
+  )
+);
+
+const WebBuilderContainer = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "PageForm - Webbuilders" */ './containers/WebBuilder'
   )
 );
 
@@ -73,6 +79,8 @@ const entryEdit = ({ match, location }) => {
 const routes = () => {
   return (
     <>
+      <Route path="/webbuilder" exact={true} component={WebBuilderContainer} />
+
       <Route
         path="/webbuilder/pages/create"
         exact={true}
