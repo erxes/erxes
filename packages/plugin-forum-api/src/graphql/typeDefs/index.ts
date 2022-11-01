@@ -11,6 +11,8 @@ import {
   USER_TYPES,
   WRITE_CP_USER_LEVELS
 } from '../../consts';
+import ForumPermissionGroupCategoryPermit from './ForumPermissionGroupCategoryPermit';
+import ForumPermissionGroup from './ForumPermissionGroup';
 
 export default async function genTypeDefs(serviceDiscovery) {
   return gql`
@@ -54,6 +56,9 @@ export default async function genTypeDefs(serviceDiscovery) {
     ${ForumCategory}
     ${ForumPost}
     ${ForumComment}
+
+    ${ForumPermissionGroup}
+    ${ForumPermissionGroupCategoryPermit}
 
     ${Query}
     ${Mutation}
