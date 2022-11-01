@@ -43,6 +43,16 @@ const Query = `
     forumComment(_id: ID!): ForumComment
 
     forumCateogryIsDescendantRelationship(ancestorId: ID!, descendantId: ID!): Boolean
+
+    forumUserLevelValues: JSON!
+
+    forumPermissionGroups: [ForumPermissionGroup!]
+
+    forumPermissionGroupCategoryPermits(
+      categoryId: [ID!]
+      permissionGroupId: [ID!]
+      permission: [ForumPermission!]
+    ): [ForumPermissionGroupCategoryPermit!]
   }
 `;
 

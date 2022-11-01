@@ -15,11 +15,11 @@ export default `
     descendants: [ForumCategory!]
     ancestors: [ForumCategory!]
 
-    userLevelReqPostRead: String!
-    userLevelReqPostWrite: String!
+    userLevelReqPostRead: ForumUserLevelsRead!
+    userLevelReqPostWrite: ForumUserLevelsWrite!
   
-    # userLevelReqCommentRead: String!
-    userLevelReqCommentWrite: String!
+    # userLevelReqCommentRead: ForumUserLevelsRead!
+    userLevelReqCommentWrite: ForumUserLevelsWrite!
   
     postsReqCrmApproval: Boolean!
 
@@ -31,6 +31,6 @@ export default `
       ${commonPostsParams}
     ): [ForumPost!]
 
-    
+    permissionGroupCategoryPermits: [ForumPermissionGroupCategoryPermit!]
   }
 `;

@@ -8,6 +8,8 @@ import ForumPost from './ForumPost';
 import ForumComment from './ForumComment';
 import ClientPortalUser from './ClientPortalUser';
 import ClientPortalUser2 from './ClientPortalUser2';
+import ForumPermissionGroup from './ForumPermissionGroup';
+import ForumPermissionGroupCategoryPermit from './ForumPermissionGroupCategoryPermit';
 
 export default async function generateResolvers(
   serviceDiscovery
@@ -22,7 +24,9 @@ export default async function generateResolvers(
     ClientPortalUser: {
       ...ClientPortalUser,
       ...ClientPortalUser2
-    }
+    },
+    ForumPermissionGroup,
+    ForumPermissionGroupCategoryPermit
   };
 
   return resolvers;

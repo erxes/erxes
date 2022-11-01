@@ -39,6 +39,13 @@ const ForumCategory: IObjectTypeResolver<ICategory, IContext> = {
     params.categoryId = [_id];
     const query: any = await buildPostsQuery(models, params);
     return Post.find(query).countDocuments();
+  },
+  async permissionGroupCategoryPermits(
+    { _id },
+    params,
+    { models: { PermissionGroupCategoryPermit } }
+  ) {
+    return await PermissionGroupCategoryPermit.find({ categoryId: _id });
   }
 };
 

@@ -5,7 +5,12 @@ import ForumCategory from './ForumCategory';
 import ForumPost from './ForumPost';
 import ForumComment from './ForumComment';
 import { POST_STATES } from '../../db/models/post';
-import { USER_TYPES } from '../../consts';
+import {
+  PERMISSIONS,
+  READ_CP_USER_LEVELS,
+  USER_TYPES,
+  WRITE_CP_USER_LEVELS
+} from '../../consts';
 
 export default async function genTypeDefs(serviceDiscovery) {
   return gql`
@@ -20,6 +25,18 @@ export default async function genTypeDefs(serviceDiscovery) {
       ${USER_TYPES.join('\n')}
     }
 
+    enum ForumPermission {
+      ${PERMISSIONS.join('\n')}
+    }
+
+    enum ForumUserLevelsWrite {
+      ${Object.keys(WRITE_CP_USER_LEVELS).join('\n')}
+    }
+
+    enum ForumUserLevelsRead {
+      ${Object.keys(READ_CP_USER_LEVELS).join('\n')}
+    }
+
     extend type User @key(fields: "_id") {
       _id: String! @external
     }
@@ -31,6 +48,7 @@ export default async function genTypeDefs(serviceDiscovery) {
 
       forumFollowerCpUsers(limit: Int, offset: Int): [ClientPortalUser!]
       forumFollowingCpUsers(limit: Int, offset: Int): [ClientPortalUser!]
+      forumPermissionGroups: [ForumPermissionGroup!]
     }
 
     ${ForumCategory}

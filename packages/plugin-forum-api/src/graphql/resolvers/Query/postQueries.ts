@@ -1,8 +1,13 @@
 import { IContext } from '../..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
 import { IModels } from '../../../db/models';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 
-export const buildPostsQuery = async ({ Category }: IModels, params: any) => {
+export const buildPostsQuery = async (
+  { Category }: IModels,
+  params: any,
+  user?: IUserDocument | null
+) => {
   const query: any = {};
 
   for (const field of ['_id', 'state', 'createdById', 'createdByCpId']) {
@@ -21,6 +26,10 @@ export const buildPostsQuery = async ({ Category }: IModels, params: any) => {
       query.categoryId = { $in: allIds };
     } else {
       query.categoryId = { $in: params.categoryId };
+    }
+
+    if (!user) {
+      query.categoryApprovalState = 'APPROVED';
     }
   }
 
@@ -43,10 +52,10 @@ const PostQueries: IObjectTypeResolver<any, IContext> = {
     // TODO: check user permission and remove content before returning
     return post;
   },
-  async forumPosts(_, params, { models }) {
+  async forumPosts(_, params, { models, user }) {
     const { Post } = models;
 
-    const query: any = await buildPostsQuery(models, params);
+    const query: any = await buildPostsQuery(models, params, user);
     const { limit = 0, offset = 0, sort = {} } = params;
 
     const res = await Post.find(query)
@@ -55,8 +64,6 @@ const PostQueries: IObjectTypeResolver<any, IContext> = {
       .skip(offset)
       .limit(limit)
       .lean();
-
-    console.log(res);
 
     return res;
   },
