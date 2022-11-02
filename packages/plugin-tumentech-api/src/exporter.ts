@@ -107,7 +107,48 @@ export const fillValue = async (
 
       customers
         .map(customer => {
-          value = customer.firstName || '';
+          if (customer.firstName || customer.lastName) {
+            value =
+              (customer.firstName || '') +
+              ' ' +
+              (customer.lastName || '') +
+              ' ';
+          } else {
+            value = '';
+          }
+        })
+        .join(', ');
+
+      break;
+
+    case 'companies':
+      const companyIds = await sendCoreMessage({
+        subdomain,
+        action: 'conformities.savedConformity',
+        data: {
+          mainType: 'car',
+          mainTypeId: item._id.toString(),
+          relTypes: ['company']
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      const companies = await sendContactsMessage({
+        subdomain,
+        action: 'companies.findActiveCompanies',
+        data: { selector: { _id: { $in: companyIds } } },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      companies
+        .map(company => {
+          if (company.primaryName) {
+            value = company.firstName || '';
+          } else {
+            value = '';
+          }
         })
         .join(', ');
 
@@ -157,6 +198,7 @@ export default {
     } catch (e) {
       return { error: e.message };
     }
+
     return { docs, excelHeader };
   }
 };
