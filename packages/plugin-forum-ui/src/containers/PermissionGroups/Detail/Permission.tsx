@@ -48,23 +48,25 @@ type Props = {
   permissionGroupId: string;
 };
 
-const Permission: React.FC<Props> = ({ permissionGroupId }) => {
-  const writePermitsQuery = useQuery(PERMITS, {
+type PermissionTypeProps = {
+  permissionGroupId: string;
+  permission: string;
+  title: string;
+};
+
+const PermissionType: React.FC<PermissionTypeProps> = ({
+  permissionGroupId,
+  permission,
+  title
+}) => {
+  const { data, loading, error } = useQuery(PERMITS, {
     variables: {
       permissionGroupId,
-      permission: 'WRITE'
+      permission
     }
   });
 
-  const readPermitsQuery = useQuery(PERMITS, {
-    variables: {
-      permissionGroupId,
-      permission: 'READ'
-    }
-  });
-
-  const [showWriteChooseModal, setShowWriteChooseModal] = useState(false);
-  const [showReadChooseModal, setShowReadChooseModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const [mutGivePermission] = useMutation(ADD_PERMIT, {
     refetchQueries: ['ForumPermissionGroupCategoryPermits'],
@@ -77,84 +79,59 @@ const Permission: React.FC<Props> = ({ permissionGroupId }) => {
     }
   });
 
-  const writePermitedCategoryIds =
-    writePermitsQuery.data?.forumPermissionGroupCategoryPermits.map(
-      p => p.categoryId
-    ) || [];
-  const readPermitedCategoryIds =
-    readPermitsQuery.data?.forumPermissionGroupCategoryPermits.map(
-      p => p.categoryId
-    ) || [];
-
-  const chooseWritePermitComplete = async categoryIds => {
-    setShowWriteChooseModal(false);
+  const onChooseComplete = async categoryIds => {
+    setShowModal(false);
     if (!categoryIds?.length) return;
     await mutGivePermission({
       variables: {
         _id: permissionGroupId,
         categoryIds,
-        permission: 'WRITE'
+        permission
       }
     });
   };
 
-  const chooseReadPermitComplete = async categoryIds => {
-    setShowReadChooseModal(false);
-    if (!categoryIds?.length) return;
-    await mutGivePermission({
-      variables: {
-        _id: permissionGroupId,
-        categoryIds,
-        permission: 'READ'
-      }
-    });
-  };
+  const alreadyChosenCategoryIds =
+    data?.forumPermissionGroupCategoryPermits.map(p => p.categoryId) || [];
 
   return (
     <div>
       <h3>
-        Write permits for categories{' '}
-        <button type="button" onClick={() => setShowWriteChooseModal(true)}>
+        {title}{' '}
+        <button type="button" onClick={() => setShowModal(true)}>
           Add
         </button>{' '}
       </h3>
 
-      {
-        <ChooseCategory
-          show={showWriteChooseModal}
-          onChoose={chooseWritePermitComplete}
-          excludeIds={writePermitedCategoryIds}
-        />
-      }
-
-      <PermitList
-        permits={
-          writePermitsQuery.data?.forumPermissionGroupCategoryPermits || []
-        }
+      <ChooseCategory
+        show={showModal}
+        onChoose={onChooseComplete}
+        excludeIds={alreadyChosenCategoryIds}
       />
 
-      <hr />
-      <h3>
-        Read permits for categories{' '}
-        <button type="button" onClick={() => setShowReadChooseModal(true)}>
-          Add
-        </button>{' '}
-      </h3>
+      <PermitList permits={data?.forumPermissionGroupCategoryPermits || []} />
+    </div>
+  );
+};
 
-      {
-        <ChooseCategory
-          show={showReadChooseModal}
-          onChoose={chooseReadPermitComplete}
-          excludeIds={readPermitedCategoryIds}
-        />
-      }
-
-      <PermitList
-        permits={
-          readPermitsQuery.data?.forumPermissionGroupCategoryPermits || []
-        }
+const Permission: React.FC<Props> = ({ permissionGroupId }) => {
+  return (
+    <div>
+      <PermissionType
+        title="Post writing permits for categories"
+        permissionGroupId={permissionGroupId}
+        permission="WRITE_POST"
       />
-      <hr />
+      <PermissionType
+        title="Post reading permits for categories"
+        permissionGroupId={permissionGroupId}
+        permission="READ_POST"
+      />
+      <PermissionType
+        title="Comment writing permits for categories"
+        permissionGroupId={permissionGroupId}
+        permission="WRITE_COMMENT"
+      />
     </div>
   );
 };
