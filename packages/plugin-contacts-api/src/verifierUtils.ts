@@ -3,8 +3,7 @@ import {
   IValidationResponse,
   IVisitorContact
 } from './models/definitions/customers';
-import { debug } from './configs';
-import { get } from './inmemoryStorage';
+import { debug, redis } from './configs';
 import { getEnv } from './utils';
 import { sendRequest } from '@erxes/api-utils/src';
 import { IModels } from './connectionResolver';
@@ -20,11 +19,14 @@ export const validateSingle = async (contact: IVisitorContact) => {
   }
 
   const { email, phone } = contact;
-  const hostname = await get('hostname');
+
+  const callback_url = `${await redis.get('hostname')}/gateway/pl:contacts`;
 
   let body = {};
 
-  phone ? (body = { phone, hostname }) : (body = { email, hostname });
+  phone
+    ? (body = { phone, hostname: callback_url })
+    : (body = { email, hostname: callback_url });
 
   const requestOptions = {
     url: `${EMAIL_VERIFIER_ENDPOINT}/verify-single`,
@@ -62,13 +64,16 @@ export const updateContactValidationStatus = async (
   }
 };
 
-export const validateBulk = async (models: IModels ,verificationType: string) => {
+export const validateBulk = async (
+  models: IModels,
+  verificationType: string
+) => {
   const EMAIL_VERIFIER_ENDPOINT = getEnv({
     name: 'EMAIL_VERIFIER_ENDPOINT',
     defaultValue: ''
   });
 
-  const hostname = await get('hostname');
+  const callback_url = `${await redis.get('hostname')}/gateway/pl:contacts`;
 
   if (verificationType === 'email') {
     const emails: Array<{}> = [];
@@ -102,7 +107,7 @@ export const validateBulk = async (models: IModels ,verificationType: string) =>
           const requestOptions = {
             url: `${EMAIL_VERIFIER_ENDPOINT}/verify-bulk`,
             method: 'POST',
-            body: { emails, hostname }
+            body: { emails, hostname: callback_url }
           };
 
           sendRequest(requestOptions)
@@ -152,7 +157,7 @@ export const validateBulk = async (models: IModels ,verificationType: string) =>
         const requestOptions = {
           url: `${EMAIL_VERIFIER_ENDPOINT}/verify-bulk`,
           method: 'POST',
-          body: { phones, hostname }
+          body: { phones, hostname: callback_url }
         };
 
         sendRequest(requestOptions)

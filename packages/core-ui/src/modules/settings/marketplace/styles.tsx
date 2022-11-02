@@ -485,6 +485,7 @@ const MemberPic = styled.div`
   display: flex;
   align-items: center;
   overflow: hidden;
+  flex-shrink: 0;
 
   img {
     max-height: 100%;
@@ -496,10 +497,14 @@ const CardInformation = styled.div`
   display: flex;
   flex-direction: column;
   margin-left: 12px;
+
+  p {
+    font-size: 12px;
+  }
 `;
 
 const SmallText = styledTS<{ withMargin?: boolean }>(styled.span)`
-  font-size: 11px;
+  font-size: 12px;
   margin-top: ${props => props.withMargin && '5'}px;
 `;
 
