@@ -86,17 +86,6 @@ interface IPSS {
   state: string;
 }
 
-const checkVerificationStatus = (doc: ICustomer) => {
-  const errorPrefix = 'Validation status can not be saved without primary';
-
-  if (!doc.primaryEmail && doc.emailValidationStatus) {
-    throw new Error(`${errorPrefix} email`);
-  }
-  if (!doc.primaryPhone && doc.phoneValidationStatus) {
-    throw new Error(`${errorPrefix} phone number`);
-  }
-};
-
 export interface ICustomerModel extends Model<ICustomerDocument> {
   checkDuplication(
     customerFields: ICustomerFieldsInput,
@@ -284,8 +273,6 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         throw new Error(e.message);
       }
 
-      checkVerificationStatus(doc);
-
       if (!doc.ownerId && user) {
         doc.ownerId = user._id;
       }
@@ -355,8 +342,6 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       } catch (e) {
         throw new Error(e.message);
       }
-
-      checkVerificationStatus(doc);
 
       const oldCustomer = await models.Customers.getCustomer(_id);
 
