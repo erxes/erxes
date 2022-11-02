@@ -19,7 +19,7 @@ export interface ICPNotificationModel extends Model<ICPNotificationDocument> {
     doc: ICPNotification
   ): Promise<ICPNotificationDocument>;
   checkIfRead(userId: string, contentTypeId: string): Promise<boolean>;
-  removeNotification(_id: string): void;
+  removeNotification(_id: string, receiver: string): void;
 }
 
 export const loadNotificationClass = (models: IModels) => {
@@ -93,8 +93,8 @@ export const loadNotificationClass = (models: IModels) => {
     /**
      * Remove a notification
      */
-    public static removeNotification(_id: string) {
-      return models.ClientPortalNotifications.deleteOne({ _id });
+    public static removeNotification(_id: string, receiver: string) {
+      return models.ClientPortalNotifications.deleteOne({ _id, receiver });
     }
   }
 

@@ -87,6 +87,10 @@ function NotificationsContainer(props: Props) {
       notificationsResponse.data.clientPortalNotifications) ||
     [];
 
+  const refetch = () => {
+    notificationsResponse.refetch();
+  };
+
   console.log('notifications', notifications);
 
   const updatedProps = {
@@ -95,6 +99,7 @@ function NotificationsContainer(props: Props) {
     loading: notificationsResponse.loading,
     markAsRead,
     onClickNotification,
+    refetch,
   };
 
   return <Notifications {...updatedProps} />;

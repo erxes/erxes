@@ -69,6 +69,10 @@ const List = (props: Props) => {
             <NotificationDetail
               _id={selectedNotificationId}
               currentUser={props.currentUser}
+              afterRemove={() => {
+                setShowModal(false);
+                props.refetch && props.refetch();
+              }}
             />
           )}
           onClose={() => setShowModal(false)}

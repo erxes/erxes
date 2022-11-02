@@ -8,6 +8,7 @@ import NotificationDetail from '../../components/notifications/Detail';
 type Props = {
   _id: string;
   currentUser: IUser;
+  afterRemove: () => void;
 };
 
 const notificationDetailQuery = gql`
@@ -24,13 +25,14 @@ const notificationDetailQuery = gql`
   }
 `;
 
+const notificationsRemoveMutation = gql`
+  mutation ClientPortalNotificationsRemove($ids: [String]) {
+    clientPortalNotificationsRemove(_ids: $ids)
+  }
+`;
+
 function NotificationDetailContainer(props: Props) {
   // const [markAsRead] = useMutation(markAsReadMutation);
-
-  const removeNotification = (notificationId: string) => {
-    console.log('removeNotification', notificationId);
-  };
-
   const response = useQuery<NotificationDetailQueryResponse>(
     notificationDetailQuery,
     {
@@ -40,6 +42,18 @@ function NotificationDetailContainer(props: Props) {
       },
     }
   );
+
+  const [removeMutation] = useMutation(notificationsRemoveMutation);
+
+  const removeNotification = (notificationId: string) => {
+    removeMutation({
+      variables: {
+        ids: [notificationId],
+      },
+    }).then(() => {
+      props.afterRemove();
+    });
+  };
 
   const notification =
     (response.data && response.data.clientPortalNotificationDetail) || null;
