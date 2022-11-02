@@ -4,7 +4,6 @@ import { chunkArray } from '@erxes/api-utils/src/core';
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
 
-import { debug } from './configs';
 import {
   customerSchema,
   ICustomerDocument,
@@ -397,26 +396,6 @@ export const generateFields = async ({ subdomain, data }) => {
   }
 
   return fields;
-};
-
-export const getEnv = ({
-  name,
-  defaultValue
-}: {
-  name: string;
-  defaultValue?: string;
-}): string => {
-  const value = process.env[name];
-
-  if (!value && typeof defaultValue !== 'undefined') {
-    return defaultValue;
-  }
-
-  if (!value) {
-    debug.info(`Missing environment variable configuration for ${name}`);
-  }
-
-  return value || '';
 };
 
 export const getContentItem = async (
