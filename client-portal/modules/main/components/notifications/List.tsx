@@ -3,7 +3,7 @@ import Button from '../../../common/Button';
 
 import FormControl from '../../../common/form/Control';
 import { NotificationList } from '../../../styles/main';
-import { Wrapper } from '../../../styles/tasks';
+import { TabContainers, TabTitle, Wrapper } from '../../../styles/tasks';
 import { INotification } from '../../../types';
 import Alert from '../../../utils/Alert';
 import DataWithLoader from '../DataWithLoader';
@@ -48,46 +48,31 @@ const List = (props: Props) => {
       ))}
     </NotificationList>
   );
-  const actionBarLeft = (
-    <FormControl
-      id="isFilter"
-      componentClass="checkbox"
-      onClick={filterByUnread}
-    >
-      {'Show unread'}
-    </FormControl>
-  );
 
-  const actionBarRight = (
-    <div>
-      <Button
-        btnStyle="primary"
-        size="small"
-        onClick={markAllRead.bind(null, false)}
-        icon="window-maximize"
-      >
-        Mark Page Read
-      </Button>
-      <Button
-        btnStyle="success"
-        size="small"
-        onClick={markAllRead.bind(null, true)}
-        icon="eye"
-      >
-        Mark All Read
-      </Button>
-    </div>
-  );
+
+  // return (
+  //   <DataWithLoader
+  //     data={content}
+  //     loading={loading}
+  //     count={count}
+  //     emptyText="Looks like you are all caught up!"
+  //     emptyImage="/images/actions/17.svg"
+  //   />
+  // );
 
   return (
-    <DataWithLoader
-      data={content}
-      loading={loading}
-      count={count}
-      emptyText="Looks like you are all caught up!"
-      emptyImage="/images/actions/17.svg"
-    />
-  );
+    <TabContainers>
+        {stages.map((stage) => (
+          <TabTitle
+            key={stage._id}
+            active={stageId === stage._id}
+            color={getConfigColor(config, "activeTabColor")}
+          >
+            <Link href={`/tasks?stageId=${stage._id}`}>{stage.name}</Link>
+          </TabTitle>
+        ))}
+      </TabContainers>
+  )
 };
 
 export default List;
