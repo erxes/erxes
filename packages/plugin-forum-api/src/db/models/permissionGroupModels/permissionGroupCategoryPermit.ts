@@ -27,6 +27,11 @@ export interface IPermissionGroupCategoryPermitModel
     categoryIds: string[],
     permission: Permissions
   ): Promise<void>;
+  isUserPermitted(
+    categoryId: string,
+    permission: Permissions,
+    cpUserId?: string
+  ): Promise<boolean>;
 }
 
 export const PermissionGroupCategoryPermitSchema = new Schema<
@@ -70,6 +75,36 @@ export const generatePermissionGroupCategoryPermitModel = (
         categoryId: { $in: categoryIds },
         permission
       });
+    }
+
+    public static async isUserPermitted(
+      categoryId: string,
+      permission: Permissions,
+      cpUserId?: string
+    ): Promise<boolean> {
+      if (!cpUserId) return false;
+
+      const result = await models.PermissionGroupUser.aggregate()
+        .match({ userId: cpUserId })
+        .lookup({
+          from: models.PermissionGroupCategoryPermit.collection.collectionName,
+          localField: 'permissionGroupId',
+          foreignField: 'permissionGroupId',
+          as: 'permits'
+        })
+        .match({
+          permits: {
+            $elemMatch: {
+              permission: permission,
+              categoryId: ObjectId(categoryId.toString())
+            }
+          }
+        })
+        .project({ _id: 1 });
+
+      console.log(result);
+
+      return result.length > 0;
     }
   }
 

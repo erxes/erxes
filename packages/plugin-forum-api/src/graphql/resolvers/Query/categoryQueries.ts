@@ -52,6 +52,21 @@ const CategoryQueries: IObjectTypeResolver<any, IContext> = {
     const descendants = await Category.getDescendantsOf([_id]);
     const excludeIds = [_id, ...descendants.map(d => d._id)];
     return Category.find({ _id: { $nin: excludeIds } }).lean();
+  },
+
+  //forumCategoryIsUserPermitted(categoryId: ID!, permission: ForumPermission!, cpUserId: ID!): Boolean
+
+  async forumCategoryIsUserPermitted(
+    _,
+    { categoryId, permission, cpUserId },
+    { models: { PermissionGroupCategoryPermit } }
+  ) {
+    const res = await PermissionGroupCategoryPermit.isUserPermitted(
+      categoryId,
+      permission,
+      cpUserId
+    );
+    return res;
   }
 };
 

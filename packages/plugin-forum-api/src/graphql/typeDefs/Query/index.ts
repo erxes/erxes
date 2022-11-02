@@ -34,6 +34,8 @@ const Query = `
     # forumCategoryQuery(query: JSON!): [ForumCategory!]
     forumCategoryPossibleParents(_id: ID): [ForumCategory!]
 
+    forumCategoryIsUserPermitted(categoryId: ID!, permission: ForumPermission!, cpUserId: ID!): Boolean
+
     forumPost(_id: ID!): ForumPost
     forumPosts(${forumPostsQueryParams}): [ForumPost!]
     forumPostsCount(${forumPostsQueryParams}): Int
