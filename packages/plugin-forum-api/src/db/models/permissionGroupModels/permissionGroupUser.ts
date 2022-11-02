@@ -89,7 +89,7 @@ export const generatePermissionGroupUserModel = (
     ): Promise<void> {
       await models.PermissionGroupUser.deleteMany({
         userId: { $in: userIds },
-        permissionGroupId: { $in: permissionGroupIds.map(Object) }
+        permissionGroupId: { $in: permissionGroupIds.map(ObjectId) }
       });
     }
   }

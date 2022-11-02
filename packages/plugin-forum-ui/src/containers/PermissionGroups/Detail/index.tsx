@@ -19,6 +19,12 @@ const MUT = gql`
   }
 `;
 
+const REMOVE_USER = gql`
+  mutation ForumPermissionGroupRemoveUser($id: ID!, $cpUserId: ID!) {
+    forumPermissionGroupRemoveUser(_id: $id, cpUserId: $cpUserId)
+  }
+`;
+
 const PermissionGroupDetail: React.FC = () => {
   const history = useHistory();
   const { permissionGroupId } = useParams();
@@ -38,6 +44,11 @@ const PermissionGroupDetail: React.FC = () => {
     onError: e => {
       alert(JSON.stringify(e, null, 2));
     }
+  });
+
+  const [mutRemoveUser] = useMutation(REMOVE_USER, {
+    refetchQueries: ['ForumPermissionGroup'],
+    onError: console.error
   });
 
   const onClickDelete = async () => {
@@ -83,7 +94,19 @@ const PermissionGroupDetail: React.FC = () => {
         />
       </h3>
 
-      <UsersList users={forumPermissionGroup.users || []} />
+      <UsersList
+        users={forumPermissionGroup.users || []}
+        onRemove={async cpUserId => {
+          if (!confirm('Do you want to remove this user?')) return;
+          alert(cpUserId);
+          await mutRemoveUser({
+            variables: {
+              id: permissionGroupId,
+              cpUserId
+            }
+          });
+        }}
+      />
     </div>
   );
 };

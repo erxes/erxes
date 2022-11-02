@@ -72,8 +72,6 @@ const CategoryForm: React.FC<Props> = ({
     category?.postsReqCrmApproval || false
   );
 
-  console.log(postsReqCrmApproval);
-
   const _onSubmit = e => {
     e.preventDefault();
     if (onSubmit) {
@@ -137,7 +135,6 @@ const CategoryForm: React.FC<Props> = ({
           type="checkbox"
           checked={postsReqCrmApproval}
           onChange={e => {
-            console.log(e.target.checked);
             setPostsReqCrmApproval(e.target.checked);
           }}
         />

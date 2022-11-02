@@ -26,8 +26,6 @@ const ChooseCategory: React.FC<Props> = ({ excludeIds, onChoose, show }) => {
     }
   });
 
-  console.log(excludeIds);
-
   const [checkedIds, setCheckedIds] = useState({});
 
   const onChooseClick = () => {

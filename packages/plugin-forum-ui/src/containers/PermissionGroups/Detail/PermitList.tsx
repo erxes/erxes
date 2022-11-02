@@ -30,31 +30,43 @@ const PermitList: React.FC<Props> = ({ permits }) => {
 
   return (
     <div>
-      <ul>
-        {permits.map(p => {
-          return (
-            <li key={p._id}>
-              {p.category.name}{' '}
-              <button
-                type="button"
-                onClick={async () => {
-                  if (!confirm('Are you sure you want to remove this permit?'))
-                    return;
-                  await mutRemove({
-                    variables: {
-                      id: p.permissionGroupId,
-                      categoryIds: [p.categoryId],
-                      permission: p.permission
-                    }
-                  });
-                }}
-              >
-                Remove
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+      <table>
+        <thead>
+          <tr>
+            <th>Category Name</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {permits.map(p => {
+            return (
+              <tr key={p._id}>
+                <td>{p.category.name}</td>
+                <td>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (
+                        !confirm('Are you sure you want to remove this permit?')
+                      )
+                        return;
+                      await mutRemove({
+                        variables: {
+                          id: p.permissionGroupId,
+                          categoryIds: [p.categoryId],
+                          permission: p.permission
+                        }
+                      });
+                    }}
+                  >
+                    Remove
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 };
