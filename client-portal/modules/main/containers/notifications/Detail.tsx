@@ -1,5 +1,6 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
 import React, { useEffect } from 'react';
+import { Spinner } from 'react-bootstrap';
 
 import { IUser, NotificationDetailQueryResponse } from '../../../types';
 import NotificationDetail from '../../components/notifications/Detail';
@@ -23,10 +24,12 @@ const notificationDetailQuery = gql`
   }
 `;
 
-
 function NotificationDetailContainer(props: Props) {
   // const [markAsRead] = useMutation(markAsReadMutation);
 
+  const removeNotification = (notificationId: string) => {
+    console.log('removeNotification', notificationId);
+  };
 
   const response = useQuery<NotificationDetailQueryResponse>(
     notificationDetailQuery,
@@ -41,11 +44,14 @@ function NotificationDetailContainer(props: Props) {
   const notification =
     (response.data && response.data.clientPortalNotificationDetail) || null;
 
+  if (response.loading || !notification) {
+    return <Spinner animation="border" />;
+  }
 
   const updatedProps = {
     ...props,
     notification,
-    loading: response.loading,
+    removeNotification,
   };
 
   return <NotificationDetail {...updatedProps} />;

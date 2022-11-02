@@ -65,12 +65,9 @@ function NotificationsContainer(props: Props) {
         ids: [notificationId],
       },
     }).then(() => {
-      router.push(`/notification/${notificationId}`)
+      // router.push(`/notification/${notificationId}`)
     });
   };
-
-  console.log('props', props.requireRead);
-  console.log('props', props.currentUser);
 
   const notificationsResponse = useQuery<NotificationsQueryResponse>(
     notificationsQuery,
@@ -79,7 +76,7 @@ function NotificationsContainer(props: Props) {
       variables: {
         requireRead: props.requireRead,
         page: 1,
-        perPage: 20,
+        perPage: 10,
       },
       fetchPolicy: 'network-only',
     }

@@ -19,6 +19,8 @@ const Row = (props: Props) => {
   const gotoDetail = () => {
     props.onClickNotification(notification._id);
     // router.push(`/notification/${notification._id}`)
+
+    
   };
 
   const classes = classNames({ unread: !notification.isRead });

@@ -5,13 +5,13 @@ const notificationSubscription = `
 			title
 			content
 		}
-  }
+  	}
 `;
 
 const notificationRead = `
 	subscription clientPortalNotificationRead($userId: String) {
 		clientPortalNotificationRead(userId: $userId)
-  }
+  	}
 `;
 
 export default { notificationSubscription, notificationRead };

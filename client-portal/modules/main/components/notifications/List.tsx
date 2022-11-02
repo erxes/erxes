@@ -1,15 +1,15 @@
 import React from 'react';
-import Button from '../../../common/Button';
 
-import FormControl from '../../../common/form/Control';
+import Modal from '../../../common/Modal';
 import { NotificationList } from '../../../styles/main';
-import { TabContainers, TabTitle, Wrapper } from '../../../styles/tasks';
-import { INotification } from '../../../types';
+import { Wrapper } from '../../../styles/tasks';
+import { INotification, IUser } from '../../../types';
 import Alert from '../../../utils/Alert';
-import DataWithLoader from '../DataWithLoader';
+import NotificationDetail from '../../containers/notifications/Detail';
 import Row from './Row';
 
 type Props = {
+  currentUser: IUser;
   notifications: INotification[];
   count: number;
   loading: boolean;
@@ -19,13 +19,12 @@ type Props = {
 };
 
 const List = (props: Props) => {
-  const { loading, notifications, count } = props;
+  const { notifications } = props;
 
-  const [filterUnread, setFilterByUnread] = React.useState(false);
-
-  const filterByUnread = () => {
-    setFilterByUnread(!filterUnread);
-  };
+  const [showModal, setShowModal] = React.useState(false);
+  const [selectedNotificationId, setSelectedNotificationId] = React.useState(
+    ''
+  );
 
   const markAllRead = (isPageRead: boolean) => {
     if (!isPageRead) {
@@ -51,32 +50,35 @@ const List = (props: Props) => {
       );
     }
 
+    const onClick = (notificationId: string) => {
+      props.onClickNotification(notificationId);
+      setSelectedNotificationId(notificationId);
+      setShowModal(true);
+    };
+
     return (
       <>
         <NotificationList>
           {notifications.map((notif, key) => (
-            <Row notification={notif} key={key} onClickNotification={props.onClickNotification} />
+            <Row notification={notif} key={key} onClickNotification={onClick} />
           ))}
         </NotificationList>
+
+        <Modal
+          content={() => (
+            <NotificationDetail
+              _id={selectedNotificationId}
+              currentUser={props.currentUser}
+            />
+          )}
+          onClose={() => setShowModal(false)}
+          isOpen={showModal}
+        />
       </>
     );
   };
 
   return renderContent();
-
-  // return (
-  //   <TabContainers>
-  //       {stages.map((stage) => (
-  //         <TabTitle
-  //           key={stage._id}
-  //           active={stageId === stage._id}
-  //           color={getConfigColor(config, "activeTabColor")}
-  //         >
-  //           <Link href={`/tasks?stageId=${stage._id}`}>{stage.name}</Link>
-  //         </TabTitle>
-  //       ))}
-  //     </TabContainers>
-  // )
 };
 
 export default List;

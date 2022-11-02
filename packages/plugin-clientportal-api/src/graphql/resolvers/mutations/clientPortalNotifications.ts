@@ -12,7 +12,7 @@ const notificationMutations = {
     }
 
     graphqlPubsub.publish('clientPortalNotificationRead', {
-      notificationRead: { userId: cpUser._id }
+      clientPortalNotificationRead: { userId: cpUser._id }
     });
 
     await models.ClientPortalNotifications.markAsRead(_ids, cpUser._id);

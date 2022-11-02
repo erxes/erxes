@@ -3,6 +3,7 @@ export type Store = {
   topic: Topic;
   config: Config;
   router: any;
+  notificationsCount: number;
 };
 
 export type Ticket = {

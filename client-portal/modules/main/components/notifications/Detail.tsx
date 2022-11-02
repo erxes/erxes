@@ -1,26 +1,44 @@
+import dayjs from 'dayjs';
 import React from 'react';
 
-import Spinner from '../../../common/Spinner';
+import Button from '../../../common/Button';
+import { FormGroup } from '../../../common/form';
+import { CreatedDate, FormWrapper } from '../../../styles/main';
 import { INotification } from '../../../types';
 
 type Props = {
   notification: INotification;
-  loading: boolean;
-  refetch?: () => void;
+  removeNotification: (_id: string) => void;
 };
 
-const NotificationDetail = (props: Props) => {
-  const { loading, notification } = props;
+export default function Detail({ removeNotification, notification }: Props) {
+  const handleClick = () => {
+    removeNotification(notification._id);
+  };
 
-  if (loading) {
-    return <Spinner />;
-  }
+  return (
+    <FormWrapper>
+      <h4>{notification.title || 'Notification'}</h4>
+      <div className="content">
+        <FormGroup>
+          <div dangerouslySetInnerHTML={{ __html: notification.content }} />
 
-  if (!notification) {
-    return <h2>Notification not found</h2>;
-  }
+          <CreatedDate>
+            {dayjs(notification.createdAt).format('DD MMM YYYY, HH:mm')}
+          </CreatedDate>
+        </FormGroup>
 
-  return <p>{notification.title}</p>;
-};
-
-export default NotificationDetail;
+        <div className="left">
+          <Button
+            btnStyle="danger"
+            onClick={handleClick}
+            uppercase={false}
+            icon="check-circle"
+          >
+            Delete
+          </Button>
+        </div>
+      </div>
+    </FormWrapper>
+  );
+}
