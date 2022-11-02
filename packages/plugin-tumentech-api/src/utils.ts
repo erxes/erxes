@@ -47,11 +47,11 @@ const gatherCarFieldNames = async (models, doc, prevList = null) => {
     options = prevList;
   }
 
-  if (doc.categoryId) {
+  if (doc.carCategoryId) {
     options = await gatherNames({
       collection: models.CarCategories,
-      idFields: [doc.categoryId],
-      foreignKey: 'categoryId',
+      idFields: [doc.carCategoryId],
+      foreignKey: 'carCategoryId',
       prevList: options,
       nameFields: ['name']
     });
@@ -145,7 +145,10 @@ export const generateFields = async ({ subdomain }) => {
   }
 
   fields = fields.filter(field => {
-    if (field.name === 'parentCategoryId' || field.name === 'categoryId') {
+    if (
+      field.name === 'parentCarCategoryId' ||
+      field.name === 'carCategoryId'
+    ) {
       return false;
     }
 
@@ -163,7 +166,7 @@ export const generateFields = async ({ subdomain }) => {
   const additionalFields = [
     {
       _id: Math.random(),
-      name: 'parentCategoryId',
+      name: 'parentCarCategoryId',
       label: 'Category',
       type: 'String',
       selectOptions: parentCategories.map(category => ({
@@ -173,7 +176,7 @@ export const generateFields = async ({ subdomain }) => {
     },
     {
       _id: Math.random(),
-      name: 'categoryId',
+      name: 'carCategoryId',
       label: 'Sub category',
       type: 'String',
       selectOptions: categories.map(category => ({
