@@ -25,7 +25,7 @@ import ResetPasswordContainer from '../../user/containers/ResetPassword';
 import { Alert } from '../../utils';
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
-import Notifications from '../containers/notifications/List';
+import Notifications from '../components/notifications/Notifications';
 
 type Props = {
   config: Config;
@@ -144,6 +144,7 @@ function Header({
                 <Notifications
                   count={notificationsCount}
                   currentUser={currentUser}
+                  config={config}
                 />
               </Popup>
             ) : null}

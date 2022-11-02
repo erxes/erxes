@@ -11,6 +11,7 @@ import {
 type Props = {
   count: number;
   currentUser: IUser;
+  requireRead?: boolean;
 };
 
 const notificationsQuery = gql`
@@ -51,6 +52,11 @@ function NotificationsContainer(props: Props) {
     notificationsQuery,
     {
       skip: !props.currentUser,
+      variables: {
+        requireRead: props.requireRead,
+        page: 1,
+        perPage: 20,
+      },
     }
   );
 

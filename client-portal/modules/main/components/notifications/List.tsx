@@ -19,7 +19,7 @@ type Props = {
 
 const List = (props: Props) => {
   const { loading, notifications, count } = props;
-
+  console.log('notifications', notifications);
   const [filterUnread, setFilterByUnread] = React.useState(false);
 
   const filterByUnread = () => {
@@ -50,29 +50,29 @@ const List = (props: Props) => {
   );
 
 
-  // return (
-  //   <DataWithLoader
-  //     data={content}
-  //     loading={loading}
-  //     count={count}
-  //     emptyText="Looks like you are all caught up!"
-  //     emptyImage="/images/actions/17.svg"
-  //   />
-  // );
-
   return (
-    <TabContainers>
-        {stages.map((stage) => (
-          <TabTitle
-            key={stage._id}
-            active={stageId === stage._id}
-            color={getConfigColor(config, "activeTabColor")}
-          >
-            <Link href={`/tasks?stageId=${stage._id}`}>{stage.name}</Link>
-          </TabTitle>
-        ))}
-      </TabContainers>
-  )
+    <DataWithLoader
+      data={content}
+      loading={loading}
+      count={count}
+      emptyText="Looks like you are all caught up!"
+      emptyImage="/images/actions/17.svg"
+    />
+  );
+
+  // return (
+  //   <TabContainers>
+  //       {stages.map((stage) => (
+  //         <TabTitle
+  //           key={stage._id}
+  //           active={stageId === stage._id}
+  //           color={getConfigColor(config, "activeTabColor")}
+  //         >
+  //           <Link href={`/tasks?stageId=${stage._id}`}>{stage.name}</Link>
+  //         </TabTitle>
+  //       ))}
+  //     </TabContainers>
+  // )
 };
 
 export default List;
