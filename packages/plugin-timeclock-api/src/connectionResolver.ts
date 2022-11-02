@@ -5,17 +5,21 @@ import { createGenerateModels } from '@erxes/api-utils/src/core';
 import {
   IAbsenceModel,
   ITimeModel,
+  IScheduleModel,
   loadAbsenceClass,
-  loadTimeClass
+  loadTimeClass,
+  loadScheduleClass
 } from './models/Template';
 import {
   IAbsenceDocument,
+  IScheduleDocument,
   ITimeClockDocument
 } from './models/definitions/template';
 
 export interface IModels {
   Templates: ITimeModel;
   Absences: IAbsenceModel;
+  Schedules: IScheduleModel;
 }
 
 export interface IContext extends IMainContext {
@@ -36,6 +40,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Absences = db.model<IAbsenceDocument, IAbsenceModel>(
     'absence',
     loadAbsenceClass(models)
+  );
+
+  models.Schedules = db.model<IScheduleDocument, IScheduleModel>(
+    'schedule',
+    loadScheduleClass(models)
   );
 
   return models;

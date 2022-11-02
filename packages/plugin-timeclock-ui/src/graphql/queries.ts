@@ -24,10 +24,13 @@ const list = `
 const listAbsence = `
 query listAbsenceQuery($startDate: Date, $endDate: Date, $userId: String){
   absences(startDate: $startDate, endDate: $endDate, userId: $userId){
+    _id
     startTime
     endTime
     reason
     explanation
+    solved
+    status
     user {
       ${userFields}
     }

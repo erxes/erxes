@@ -17,9 +17,23 @@ export interface IAbsence {
   endTime?: Date;
   reason: string;
   explanation: string;
+  status: string;
+  solved?: boolean;
+}
+
+export interface ISchedule {
+  userId?: string;
+  startTime: Date;
+  endTime: Date;
+  status: string;
+  solved?: boolean;
 }
 
 export interface IAbsenceDocument extends IAbsence, Document {
+  _id: string;
+}
+
+export interface IScheduleDocument extends ISchedule, Document {
   _id: string;
 }
 
@@ -36,5 +50,32 @@ export const absenceSchema = new Schema({
   startTime: field({ type: Date, label: 'Absence starting time' }),
   endTime: field({ type: Date, label: 'Absence ending time' }),
   reason: field({ type: String, label: 'reason for absence' }),
-  explanation: field({ type: String, label: 'explanation by a team member' })
+  explanation: field({ type: String, label: 'explanation by a team member' }),
+  solved: field({
+    type: Boolean,
+    default: false,
+    label: 'whether absence request is solved or pending'
+  }),
+  status: field({
+    type: String,
+    label: 'Status of absence request, whether approved or rejected'
+  })
+});
+
+export const scheduleSchema = new Schema({
+  _id: field({ pkey: true }),
+  userId: field({ type: String, label: 'User' }),
+  startTime: field({ type: Date, label: 'Absence starting time' }),
+  endTime: field({ type: Date, label: 'Absence ending time' }),
+  reason: field({ type: String, label: 'reason for absence' }),
+  explanation: field({ type: String, label: 'explanation by a team member' }),
+  solved: field({
+    type: Boolean,
+    default: false,
+    label: 'whether absence request is solved or pending'
+  }),
+  status: field({
+    type: String,
+    label: 'Status of absence request, whether approved or rejected'
+  })
 });

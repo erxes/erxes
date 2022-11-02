@@ -13,6 +13,8 @@ export interface IAbsence {
   endTime: Date;
   reason: string;
   explanation: string;
+  solved: boolean;
+  status: string;
 }
 
 export interface IShift {
@@ -74,10 +76,18 @@ export type AbsenceMutationResponse = {
   sendAbsenceReqMutation: (params: {
     variables: AbsenceMutationVariables;
   }) => Promise<any>;
+
+  solveAbsenceMutation: (params: {
+    variables: { _id: string; status: string };
+  }) => Promise<any>;
 };
 
 export type ScheduleMutationResponse = {
   sendScheduleReqMutation: (params: {
     variables: ScheduleMutationVariables;
+  }) => Promise<any>;
+
+  solveScheduleMutation: (params: {
+    variables: { _id: string; status: string };
   }) => Promise<any>;
 };

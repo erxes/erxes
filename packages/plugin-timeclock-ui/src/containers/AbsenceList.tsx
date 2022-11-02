@@ -4,7 +4,11 @@ import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import AbsenceList from '../components/AbsenceList';
-import { AbsenceMutationResponse, AbsenceQueryResponse } from '../types';
+import {
+  AbsenceMutationResponse,
+  AbsenceQueryResponse,
+  ScheduleMutationResponse
+} from '../types';
 import { mutations, queries } from '../graphql';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert } from '@erxes/ui/src/utils';
@@ -17,6 +21,8 @@ type Props = {
   reason: string;
   startTime: Date;
   endTime: Date;
+  absenceId: string;
+  absenceStatus: string;
 
   queryStartDate: Date;
   queryEndDate: Date;
@@ -29,12 +35,25 @@ type FinalProps = {
   AbsenceMutationResponse;
 
 const ListContainer = (props: FinalProps) => {
-  const { queryParams, sendAbsenceReqMutation, listAbsenceQuery } = props;
+  const {
+    queryParams,
+    sendAbsenceReqMutation,
+    solveAbsenceMutation,
+    listAbsenceQuery
+  } = props;
   const { startDate, endDate, userId, reason } = queryParams;
 
   if (listAbsenceQuery.loading) {
     return <Spinner />;
   }
+
+  const solveAbsence = (absenceId: string, status: string) => {
+    solveAbsenceMutation({
+      variables: { _id: absenceId, status: `${status}` }
+    })
+      .then(() => Alert.success('Successfully solved absence request'))
+      .catch(err => Alert.error(err.message));
+  };
 
   const submitRequest = (expl: string) => {
     sendAbsenceReqMutation({
@@ -53,6 +72,7 @@ const ListContainer = (props: FinalProps) => {
     ...props,
     absences: listAbsenceQuery.absences || [],
     loading: listAbsenceQuery.loading,
+    solveAbsence,
     submitRequest
   };
   return <AbsenceList {...updatedProps} />;
@@ -75,17 +95,7 @@ export default withProps<Props>(
       })
     }),
 
-    graphql<
-      Props,
-      AbsenceMutationResponse,
-      {
-        startTime: string;
-        endTime: string;
-        userId: string;
-        reason: string;
-        explanation: string;
-      }
-    >(gql(mutations.sendAbsenceRequest), {
+    graphql<Props, AbsenceMutationResponse>(gql(mutations.sendAbsenceRequest), {
       name: 'sendAbsenceReqMutation',
       options: ({ startTime, endTime, userId, reason, explanation }) => ({
         variables: {
@@ -94,6 +104,17 @@ export default withProps<Props>(
           userId: `${userId}`,
           reason: `${reason}`,
           explanation: `${explanation}`
+        },
+        refetchQueries: ['listAbsenceQuery']
+      })
+    }),
+
+    graphql<Props, AbsenceMutationResponse>(gql(mutations.solveAbsence), {
+      name: 'solveAbsenceMutation',
+      options: ({ absenceId, absenceStatus }) => ({
+        variables: {
+          _id: absenceId,
+          status: absenceStatus
         },
         refetchQueries: ['listAbsenceQuery']
       })

@@ -4,9 +4,12 @@ import { IModels } from '../connectionResolver';
 import {
   ITimeClock,
   ITimeClockDocument,
-  timeSchema,
   IAbsence,
+  ISchedule,
   IAbsenceDocument,
+  IScheduleDocument,
+  scheduleSchema,
+  timeSchema,
   absenceSchema
 } from './definitions/template';
 
@@ -95,4 +98,45 @@ export const loadAbsenceClass = (models: IModels) => {
   absenceSchema.loadClass(Absence);
 
   return absenceSchema;
+};
+
+export interface IScheduleModel extends Model<IScheduleDocument> {
+  getSchedule(_id: string): Promise<IScheduleDocument>;
+  createSchedule(doc: ISchedule): Promise<IScheduleDocument>;
+  updateSchedule(_id: string, doc: ISchedule): Promise<IScheduleDocument>;
+  removeSchedule(_id: string): void;
+}
+
+export const loadScheduleClass = (models: IModels) => {
+  class Schedule {
+    // get
+    public static async getSchedule(_id: string) {
+      const schedule = await models.Schedules.findOne({ _id });
+      if (!schedule) {
+        throw new Error('schedule not found');
+      }
+      return schedule;
+    }
+    // create
+    public static async createSchedule(doc: ISchedule) {
+      return models.Schedules.create({
+        ...doc
+      });
+    }
+    // update
+    public static async updateSchedule(_id: string, doc: ISchedule) {
+      await models.Schedules.updateOne(
+        { _id },
+        { $set: { ...doc } }
+      ).then(err => console.error(err));
+    }
+    // remove
+    public static async removeSchedule(_id: string) {
+      return models.Schedules.deleteOne({ _id });
+    }
+  }
+
+  scheduleSchema.loadClass(Schedule);
+
+  return scheduleSchema;
 };

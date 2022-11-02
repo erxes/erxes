@@ -16,6 +16,7 @@ import DateFilter from '@erxes/ui/src/components/DateFilter';
 import { ISchedule, ITimeclock } from '../types';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import DatePicker from './DatePicker';
 
 type Props = {
   // schedules: ISchedule[];
@@ -37,34 +38,18 @@ const FlexRow = styled.div`
   }
 `;
 
-const Datetime = asyncComponent(
-  () =>
-    import(/* webpackChunkName: "Datetime" */ '@nateradebaugh/react-datetime')
-  // import('react-time-picker')
-);
-
-const addDaysOfNextWeek = (today: Date) => {
-  const nextWeek: Date[] = [];
-  const diffFromNextMon = 7 - today.getDay();
-  const nextMon = dayjs(today)
-    .add(diffFromNextMon + 1, 'day')
-    .toDate();
-  nextWeek.push(nextMon);
-
-  for (let i = 1; i < 7; i++) {
-    nextWeek.push(
-      dayjs(nextMon)
-        .add(i, 'day')
-        .toDate()
-    );
-  }
-
-  return nextWeek;
-};
+interface ISchedule {
+  day: Date;
+  start: Date;
+  end: Date;
+}
 
 function AbsenceList(props: Props) {
   const { queryParams, submitRequest } = props;
-  const [explanation, setTextReason] = useState('');
+  const [selectedDay, setSelectedDay] = useState(
+    new Date().toLocaleDateString()
+  );
+  console.log('hehe', selectedDay);
   const shiftStarted = localStorage.getItem('shiftStarted') === 'true' || false;
 
   const trigger = (
@@ -72,67 +57,47 @@ function AbsenceList(props: Props) {
       Create Request
     </Button>
   );
-  let week_day_key = 0;
   const today = new Date().toLocaleDateString();
-  // const nextWeekDic = {};
-  // nextWeekDic[today] = { start: new Date(), end: new Date() };
 
-  const [selectedDays, setSelectedTime] = useState({
-    [today]: { start: new Date(), end: new Date() }
-  });
-  // setSelectedTime({ [today]: { start: new Date(), end: new Date() } });
-  console.log('selected', selectedDays);
-
-  const [weekDays, setWeek] = useState([
-    <div style={{ display: 'flex', flexDirection: 'row' }} key={week_day_key}>
-      <Datetime
-        value={new Date()}
-        timeIntervals={15}
-        timeFormat="hh:mm a"
-        // onChange={onDateStartChange}
-      />
-      <Datetime
-        value={new Date()}
-        dateFormat={false}
-        timeIntervals={15}
-        timeFormat="hh:mm a"
-        // onChange={onDateStartChange}
-      />
-    </div>
-  ]);
-
-  const onDateStartChange = val => {
-    const val_to_day = new Date(val).toLocaleDateString();
-    // nextWeekDic[new Date(val).toLocaleDateString()].start = val;
+  const initial_state = {
+    0: { day: today, start: new Date(), end: new Date() }
   };
 
-  const onDateEndChange = val => {
-    const date = new Date(val).toLocaleDateString();
-    if (date) {
-      nextWeekDic[date].end = val;
-    }
+  const [selectedDays, setSelectedTime] = useState(initial_state);
+
+  const [absenceDates, setAbsenceDates] = useState<ISchedule[]>([]);
+
+  const onDateChange = (day_key, date) => {
+    // const val_to_day = new Date(val).toLocaleDateString();
   };
-  // console.log(nextWeekDic);
+
+  // const onStartTimeChange = (day_key, time) => {};
+
+  // const onEndTimeChange = (day_key, time) => {};
 
   const addDay = () => {
-    setWeek(
-      weekDays.concat(
-        <div style={{ display: 'flex', flexDirection: 'row' }}>
-          <Datetime
-            value={new Date()}
-            timeIntervals={15}
-            timeFormat="hh:mm a"
-            onChange={onDateStartChange}
-          />
-          <Datetime
-            value={new Date()}
-            dateFormat={false}
-            timeIntervals={15}
-            timeFormat="hh:mm a"
-            onChange={onDateStartChange}
-          />
-        </div>
-      )
+    const dates = absenceDates;
+    dates.push({ day: new Date(), start: new Date(), end: new Date() });
+    setAbsenceDates(dates);
+  };
+
+  const renderWeekDays = () => {
+    Object.keys(selectedDays);
+
+    return (
+      <>
+        {absenceDates.map((date, index) => {
+          return (
+            <DatePicker
+              key={index}
+              curr_day_key={index}
+              changeDate={onDateChange}
+              changeEndTime={onEndTimeChange}
+              changeStartTime={onStartTimeChange}
+            />
+          );
+        })}
+      </>
     );
   };
 
@@ -145,7 +110,7 @@ function AbsenceList(props: Props) {
         multi={false}
         name="userId"
       />
-      {weekDays}
+      {renderWeekDays()}
       <div
         style={{
           display: 'flex',
@@ -170,7 +135,7 @@ function AbsenceList(props: Props) {
   const setInputValue = e => {
     const expl = e.target.value;
     console.log(expl);
-    setTextReason(expl);
+    // setTextReason(expl);
   };
 
   const onUserSelect = userId => {

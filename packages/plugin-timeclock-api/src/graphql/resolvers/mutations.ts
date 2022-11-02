@@ -3,7 +3,11 @@ import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
-import { IAbsence, ITimeClock } from '../../models/definitions/template';
+import {
+  IAbsence,
+  ISchedule,
+  ITimeClock
+} from '../../models/definitions/template';
 import { putUpdateLog } from '@erxes/api-utils/src/logUtils';
 import messageBroker from '../../messageBroker';
 
@@ -12,6 +16,15 @@ interface ITimeClockEdit extends ITimeClock {
   time: Date;
 }
 
+interface IAbsenceEdit extends IAbsence {
+  _id: string;
+  status: string;
+}
+
+interface IScheduleEdit extends ISchedule {
+  _id: string;
+  status: string;
+}
 const templateMutations = {
   /**
    * Creates a new timeclock
@@ -64,6 +77,58 @@ const templateMutations = {
   ) {
     const absence = await models.Absences.createAbsence(docModifier(doc));
     return absence;
+  },
+
+  async solveAbsenceRequest(
+    _root,
+    { _id, status, ...doc }: IAbsenceEdit,
+    { models, subdomain, user }: IContext
+  ) {
+    const absence = models.Absences.getAbsence(_id);
+    const updated = models.Absences.updateAbsence(_id, {
+      status: `${status}`,
+      solved: true,
+      ...doc
+    });
+
+    await putUpdateLog(
+      subdomain,
+      messageBroker(),
+      {
+        type: 'absence',
+        object: absence,
+        newData: doc
+      },
+      user
+    );
+
+    return updated;
+  },
+
+  async solveScheduleRequest(
+    _root,
+    { _id, status, ...doc }: IScheduleEdit,
+    { models, subdomain, user }: IContext
+  ) {
+    const schedule = models.Schedules.getSchedule(_id);
+    const updated = models.Schedules.updateSchedule(_id, {
+      status: `${status}`,
+      solved: true,
+      ...doc
+    });
+
+    await putUpdateLog(
+      subdomain,
+      messageBroker(),
+      {
+        type: 'schedule',
+        object: schedule,
+        newData: doc
+      },
+      user
+    );
+
+    return updated;
   }
 };
 

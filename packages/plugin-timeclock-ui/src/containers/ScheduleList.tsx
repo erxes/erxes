@@ -33,12 +33,23 @@ type FinalProps = {
   ScheduleMutationResponse;
 
 const ListContainer = (props: FinalProps) => {
-  const { queryParams, sendScheduleReqMutation, listScheduleQuery } = props;
+  const {
+    queryParams,
+    sendScheduleReqMutation,
+    solveScheduleMutation,
+    listScheduleQuery
+  } = props;
   const { startDate, endDate, userId, reason } = queryParams;
 
-  // if (listScheduleQuery.loading) {
-  //   return <Spinner />;
-  // }
+  if (listScheduleQuery.loading) {
+    return <Spinner />;
+  }
+
+  const solveSchedule = (scheduleId: string, status: string) => {
+    solveScheduleMutation({
+      variables: { _id: scheduleId, status: `${status}` }
+    });
+  };
 
   const submitRequest = (filledShifts: ITimeclock[]) => {
     sendScheduleReqMutation({

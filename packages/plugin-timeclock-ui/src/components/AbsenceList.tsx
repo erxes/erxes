@@ -22,6 +22,7 @@ type Props = {
   history: any;
   startTime?: Date;
   loading?: boolean;
+  solveAbsence: (absenceId: string, status: string) => void;
   submitRequest: (explanation: string) => void;
 };
 
@@ -53,7 +54,15 @@ const addDaysOfWeek = (today: Date): string[] => {
 };
 
 function AbsenceList(props: Props) {
-  const { queryParams, history, loading, submitRequest, absences } = props;
+  const {
+    queryParams,
+    history,
+    loading,
+    submitRequest,
+    absences,
+    solveAbsence
+  } = props;
+
   const [explanation, setTextReason] = useState('');
   const shiftStarted = localStorage.getItem('shiftStarted') === 'true' || false;
   console.log('kakka', absences);
@@ -150,14 +159,14 @@ function AbsenceList(props: Props) {
   );
 
   const ListAbsenceContent = absence => {
-    console.log('absence', absence);
-
     const startTime = new Date(absence.startTime);
     const endTime = new Date(absence.endTime);
     const startingDate = startTime.toDateString();
     const startingTime = startTime.toLocaleTimeString();
     const endingDate = endTime.toDateString();
     const endingTime = endTime.toLocaleTimeString();
+
+    console.log('iddddd', absence._id);
     return (
       <tr>
         <td>{<NameCard user={absence.user} /> || '-'}</td>
@@ -165,6 +174,27 @@ function AbsenceList(props: Props) {
         <td>{endingTime + ', ' + endingDate || '-'}</td>
         <td>{absence.reason || '-'}</td>
         <td>{absence.explanation || '-'}</td>
+        <td>
+          {absence.solved ? (
+            __(absence.status)
+          ) : (
+            <>
+              <Button
+                disabled={absence.solved}
+                btnStyle="success"
+                onClick={() => solveAbsence(absence._id, 'Approved')}
+              >
+                Approve
+              </Button>
+              <Button
+                btnStyle="danger"
+                onClick={() => solveAbsence(absence._id, 'Rejected')}
+              >
+                Reject
+              </Button>
+            </>
+          )}
+        </td>
       </tr>
     );
   };
@@ -178,6 +208,7 @@ function AbsenceList(props: Props) {
           <th>{__('To')}</th>
           <th>{__('Reason')}</th>
           <th>{__('Explanation')}</th>
+          <th>{__('Status')}</th>
         </tr>
       </thead>
       <tbody>
