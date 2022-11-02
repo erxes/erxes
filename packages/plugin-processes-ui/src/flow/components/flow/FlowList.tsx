@@ -24,7 +24,7 @@ interface IProps extends IRouterProps {
   bulk: any[];
   emptyBulk: () => void;
   remove: (doc: { flowIds: string[] }, emptyBulk: () => void) => void;
-  addFlow: () => void;
+  addFlow: (isSub?: boolean) => void;
   toggleBulk: () => void;
   toggleAll: (targets: IFlowDocument[], containerId: string) => void;
   loading: boolean;
@@ -106,6 +106,14 @@ class List extends React.Component<IProps, State> {
     e.target.value = tmpValue;
   }
 
+  onClickCreateFlow = () => {
+    this.props.addFlow();
+  };
+
+  onClickCreateSubFlow = () => {
+    this.props.addFlow(true);
+  };
+
   render() {
     const {
       flowsTotalCount,
@@ -113,8 +121,7 @@ class List extends React.Component<IProps, State> {
       queryParams,
       isAllSelected,
       history,
-      bulk,
-      addFlow
+      bulk
     } = this.props;
 
     let actionBarRight = (
@@ -128,10 +135,18 @@ class List extends React.Component<IProps, State> {
           onFocus={this.moveCursorAtTheEnd}
         />
         <Button
+          btnStyle="primary"
+          size="small"
+          icon="plus-circle"
+          onClick={this.onClickCreateSubFlow}
+        >
+          {__('Create a SubFlow')}
+        </Button>
+        <Button
           btnStyle="success"
           size="small"
           icon="plus-circle"
-          onClick={addFlow}
+          onClick={this.onClickCreateFlow}
         >
           {__('Create a flow')}
         </Button>
@@ -151,8 +166,11 @@ class List extends React.Component<IProps, State> {
                   onChange={this.onChange}
                 />
               </th>
+              <th>{__('Type')}</th>
               <th>{__('Name')}</th>
               <th>{__('Product')}</th>
+              <th>{__('Latest Branch')}</th>
+              <th>{__('Latest Department')}</th>
               <th>{__('Status')}</th>
               <th>{__('Is match')}</th>
               <th>{__('Jobs count')}</th>

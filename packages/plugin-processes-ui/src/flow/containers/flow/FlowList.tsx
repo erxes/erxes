@@ -47,11 +47,12 @@ class ProductListContainer extends React.Component<FinalProps> {
       flowsAdd
     } = this.props;
 
-    const addFlow = () => {
+    const addFlow = (isSub?: boolean) => {
       flowsAdd({
         variables: {
           name: 'Your flow title',
-          status: 'draft'
+          status: 'draft',
+          isSub
         }
       })
         .then(data => {
@@ -114,7 +115,7 @@ class ProductListContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return ['flows', 'flowCategories', 'flowTotalCount'];
+  return ['flows', 'flowsMain', 'flowCategories', 'flowTotalCount'];
 };
 
 const options = () => ({
@@ -135,7 +136,7 @@ const generateFilter = qp => {
 export default withProps<Props>(
   compose(
     graphql<Props, FlowsQueryResponse, { page: number; perPage: number }>(
-      gql(queries.flows),
+      gql(queries.flowsMain),
       {
         name: 'flowsQuery',
         options: ({ queryParams }) => ({

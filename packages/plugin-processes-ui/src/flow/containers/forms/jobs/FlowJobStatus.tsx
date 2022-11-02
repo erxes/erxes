@@ -3,11 +3,12 @@ import gql from 'graphql-tag';
 import JobStatus from '../../../components/forms/jobs/JobStatus';
 import React, { useState } from 'react';
 import { graphql } from 'react-apollo';
-import { IJob } from '../../../types';
+import { FlowsQueryResponse, IJob } from '../../../types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { JobRefersQueryResponse } from '../../../../job/types';
-import { queries } from '../../../../job/graphql';
+import { queries as jobRefersQueries } from '../../../../job/graphql';
+import { queries as flowsQueries } from '../../../graphql';
 import { withProps } from '@erxes/ui/src/utils';
 import { withRouter } from 'react-router-dom';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -23,29 +24,36 @@ type Props = {
 
 type FinalProps = {
   jobRefersQuery: JobRefersQueryResponse;
+  subFlowsQuery: FlowsQueryResponse;
   productsQuery: ProductsQueryResponse;
   currentUser: IUser;
 } & Props &
   IRouterProps;
 
 const FlowJobStatusContainer = (props: FinalProps) => {
-  const { currentUser, jobRefersQuery, productsQuery } = props;
+  const { currentUser, jobRefersQuery, productsQuery, subFlowsQuery } = props;
 
   const [saveLoading] = useState(false);
 
-  if (jobRefersQuery.loading || productsQuery.loading) {
+  if (
+    jobRefersQuery.loading ||
+    productsQuery.loading ||
+    subFlowsQuery.loading
+  ) {
     return <Spinner />;
   }
 
   const jobRefers = jobRefersQuery.jobRefers || [];
   const products = productsQuery.products || [];
+  const subFlows = subFlowsQuery.flows || [];
 
   const updatedProps = {
     ...props,
     currentUser,
     saveLoading,
     jobRefers,
-    products
+    products,
+    subFlows
   };
 
   return <JobStatus {...updatedProps} />;
@@ -53,13 +61,23 @@ const FlowJobStatusContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, JobRefersQueryResponse>(gql(queries.jobRefers), {
+    graphql<Props, JobRefersQueryResponse>(gql(jobRefersQueries.jobRefers), {
       name: 'jobRefersQuery',
       options: ({ flowJobs }) => ({
         variables: {
           ids: (flowJobs || [])
             .filter(j => j.config && j.config.jobReferId)
             .map(j => j.config.jobReferId)
+        }
+      })
+    }),
+    graphql<Props, FlowsQueryResponse>(gql(flowsQueries.subFlows), {
+      name: 'subFlowsQuery',
+      options: ({ flowJobs }) => ({
+        variables: {
+          ids: (flowJobs || [])
+            .filter(j => j.config && j.config.subFlowId)
+            .map(j => j.config.subFlowId)
         }
       })
     }),

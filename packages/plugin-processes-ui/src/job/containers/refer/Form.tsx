@@ -6,6 +6,7 @@ import {
   ProductsConfigsQueryResponse,
   UomsQueryResponse
 } from '@erxes/ui-products/src/types';
+import { queries as productQueries } from '@erxes/ui-products/src/graphql';
 import { mutations, queries } from '../../graphql';
 
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
@@ -68,7 +69,6 @@ class ProductFormContainer extends React.Component<FinalProps> {
           ({
             _id: e._id,
             productId: e.productId,
-            product: e.product,
             quantity: e.quantity,
             uomId: e.uomId,
             branchId: e.branchId,
@@ -124,11 +124,14 @@ export default withProps<Props>(
     graphql<Props, JobCategoriesQueryResponse>(gql(queries.jobCategories), {
       name: 'jobCategoriesQuery'
     }),
-    graphql<{}, UomsQueryResponse>(gql(queries.uoms), {
+    graphql<{}, UomsQueryResponse>(gql(productQueries.uoms), {
       name: 'uomsQuery'
     }),
-    graphql<{}, ProductsConfigsQueryResponse>(gql(queries.productsConfigs), {
-      name: 'productsConfigsQuery'
-    })
+    graphql<{}, ProductsConfigsQueryResponse>(
+      gql(productQueries.productsConfigs),
+      {
+        name: 'productsConfigsQuery'
+      }
+    )
   )(ProductFormContainer)
 );

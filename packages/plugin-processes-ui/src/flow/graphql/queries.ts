@@ -8,11 +8,16 @@ export const flowFields = `
   productId
   product
   status
+  isSub
   flowValidation
   jobCount
+  latestBranchId
+  latestDepartmentId
 `;
 
 const flowsQueryDefs = `
+  $ids: [String]
+  $isSub: Boolean
   $categoryId: String,
   $searchValue: String,
   $branchId: String,
@@ -22,6 +27,8 @@ const flowsQueryDefs = `
 `;
 
 const flowsQueryParams = `
+  ids: $ids,
+  isSub: $isSub,
   categoryId: $categoryId,
   searchValue: $searchValue,
   branchId: $branchId,
@@ -31,11 +38,33 @@ const flowsQueryParams = `
 `;
 
 const flows = `
-query flows($page: Int, $perPage: Int, ${flowsQueryDefs}) {
-  flows(page: $page, perPage: $perPage, ${flowsQueryParams}) {
-    ${flowFields}
+  query flows($page: Int, $perPage: Int, ${flowsQueryDefs}) {
+    flows(page: $page, perPage: $perPage, ${flowsQueryParams}) {
+      ${flowFields}
+    }
   }
-}
+`;
+
+const flowsMain = `
+  query flows($page: Int, $perPage: Int, ${flowsQueryDefs}) {
+    flows(page: $page, perPage: $perPage, ${flowsQueryParams}) {
+      ${flowFields}
+      latestBranch
+      latestDepartment
+    }
+  }
+`;
+
+const subFlows = `
+  query flows($page: Int, $perPage: Int, ${flowsQueryDefs}) {
+    flows(page: $page, perPage: $perPage, ${flowsQueryParams}) {
+      ${flowFields}
+      latestNeedProducts
+      latestResultProducts
+      latestBranch
+      latestDepartment
+    }
+  }
 `;
 
 const flowsAll = `
@@ -51,6 +80,13 @@ query flowDetail($_id: String!) {
   flowDetail(_id: $_id) {
     ${flowFields}
     jobs
+
+    latestBranchId
+    latestDepartmentId
+    latestBranch
+    latestDepartment
+    latestNeedProducts
+    latestResultProducts
   }
 }
 `;
@@ -89,6 +125,8 @@ export default {
   flowCategoriesTotalCount,
 
   flows,
+  flowsMain,
+  subFlows,
   flowsAll,
   flowDetail,
   flowTotalCount

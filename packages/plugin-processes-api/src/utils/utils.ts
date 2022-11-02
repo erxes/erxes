@@ -52,7 +52,7 @@ export const findLastJob = (
   if (doubleCheckResult) {
     let justLastJobRefer = {} as IJobReferDocument;
     for (const lastJobRefer of lastJobRefers) {
-      const lastJobRefersIds = lastJobRefer.resultProducts.map(
+      const lastJobRefersIds = (lastJobRefer.resultProducts || []).map(
         last => last.productId
       );
       justLastJobRefer = lastJobRefersIds.includes(checkResult.productId)
@@ -158,12 +158,12 @@ export const initDocWork = async (
     outDepartmentId: job?.config.outDepartmentId,
     needProducts: await initProducts(
       parseInt(count, 10),
-      jobRefer.needProducts,
+      jobRefer.needProducts || [],
       subdomain
     ),
     resultProducts: await initProducts(
       parseInt(count, 10),
-      jobRefer.resultProducts,
+      jobRefer.resultProducts || [],
       subdomain
     )
   };
@@ -210,7 +210,7 @@ export const initProducts = async (
       const { ratio } = subUom;
 
       changedIProduct.uomId = product.uomId || '';
-      changedIProduct.quantity = quantity / ratio;
+      changedIProduct.quantity = quantity || 1 / ratio;
     }
 
     changedIProduct.quantity = (changedIProduct.quantity || 1) * count;
@@ -257,7 +257,7 @@ export const overallWorksUpdate = async (
     const wNeedProduct =
       wNeedProducts.find(wNeed => wNeed._id === need._id) ||
       ({} as IProductsData);
-    need.quantity = need.quantity + wNeedProduct.quantity || 0;
+    need.quantity = (need.quantity || 0) + (wNeedProduct.quantity || 0);
     updatedNeedProducts.push(need);
   }
 
@@ -265,7 +265,7 @@ export const overallWorksUpdate = async (
     const wResultProduct =
       wResultProducts.find(wNeed => wNeed._id === result._id) ||
       ({} as IProductsData);
-    result.quantity = result.quantity + wResultProduct.quantity || 0;
+    result.quantity = (result.quantity || 0) + (wResultProduct.quantity || 0);
     updatedResultProducts.push(result);
   }
 
