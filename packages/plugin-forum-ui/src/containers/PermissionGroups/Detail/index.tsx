@@ -8,6 +8,8 @@ import {
 } from '../../../graphql/queries';
 import gql from 'graphql-tag';
 import Permission from './Permission';
+import AddUsersButton from './AddUsersButton';
+import UsersList from './UsersList';
 
 const MUT = gql`
   mutation ForumPermissionGroupDelete($_id: ID!) {
@@ -63,20 +65,25 @@ const PermissionGroupDetail: React.FC = () => {
 
       <div>
         <button type="button" onClick={onClickDelete}>
-          Delete
+          Delete this permission group
         </button>
       </div>
-
-      <h3>Users: </h3>
-      <ol>
-        {(forumPermissionGroup.users || []).map(u => (
-          <li>{u.email}</li>
-        ))}
-      </ol>
 
       <hr />
 
       <Permission permissionGroupId={permissionGroupId} />
+
+      <hr />
+
+      <h3>
+        Users:{' '}
+        <AddUsersButton
+          permissionGroupId={permissionGroupId}
+          excludeIds={forumPermissionGroup?.users?.map(u => u._id) || []}
+        />
+      </h3>
+
+      <UsersList users={forumPermissionGroup.users || []} />
     </div>
   );
 };

@@ -17,12 +17,14 @@ const permissionGroupMutations: IObjectTypeResolver<any, IContext> = {
   ) {
     return PermissionGroup.deletePermissionGroup(_id);
   },
-  async forumPermissionGroupAddUser(
+  async forumPermissionGroupAddUsers(
     _,
-    { _id, cpUserId },
+    { _id, cpUserIds },
     { models: { PermissionGroupUser } }
   ) {
-    await PermissionGroupUser.addUsersToPermissionGroups([cpUserId], [_id]);
+    await PermissionGroupUser.addUsersToPermissionGroups(cpUserIds || [], [
+      _id
+    ]);
     return true;
   },
   async forumPermissionGroupRemoveUser(

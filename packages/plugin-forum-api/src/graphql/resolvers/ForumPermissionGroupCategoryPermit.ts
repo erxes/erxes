@@ -8,7 +8,6 @@ const ForumPermissionGroupCategoryPermit: IObjectTypeResolver<
   IContext
 > = {
   async category({ categoryId }, _, { models: { Category } }) {
-    console.log({ categoryId });
     return Category.findById(categoryId);
   },
 
