@@ -15,6 +15,7 @@ type Props = {
   loading: boolean;
   refetch?: () => void;
   markAsRead: (notificationIds?: string[]) => void;
+  onClickNotification: (notificationId: string) => void;
 };
 
 const List = (props: Props) => {
@@ -42,7 +43,6 @@ const List = (props: Props) => {
   };
 
   const renderContent = () => {
-     
     if (notifications.length === 0) {
       return (
         <Wrapper>
@@ -53,21 +53,16 @@ const List = (props: Props) => {
 
     return (
       <>
-    <NotificationList>
-      {notifications.map((notif, key) => (
-        <Row notification={notif} key={key} />
-      ))}
-    </NotificationList>
-    </>
-    )
-  }
- 
-  
+        <NotificationList>
+          {notifications.map((notif, key) => (
+            <Row notification={notif} key={key} onClickNotification={props.onClickNotification} />
+          ))}
+        </NotificationList>
+      </>
+    );
+  };
 
-
-  return (
-    renderContent()
-  );
+  return renderContent();
 
   // return (
   //   <TabContainers>

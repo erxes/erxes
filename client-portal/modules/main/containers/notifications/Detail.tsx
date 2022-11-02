@@ -1,5 +1,5 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { IUser, NotificationDetailQueryResponse } from '../../../types';
 import NotificationDetail from '../../components/notifications/Detail';
@@ -18,18 +18,15 @@ const notificationDetailQuery = gql`
       link
       notifType
       title
+      isRead
     }
   }
 `;
 
-const markAsReadMutation = gql`
-  mutation ClientPortalNotificationsMarkAsRead($ids: [String]) {
-    clientPortalNotificationsMarkAsRead(_ids: $ids)
-  }
-`;
 
 function NotificationDetailContainer(props: Props) {
-  const [markAsRead] = useMutation(markAsReadMutation);
+  // const [markAsRead] = useMutation(markAsReadMutation);
+
 
   const response = useQuery<NotificationDetailQueryResponse>(
     notificationDetailQuery,
@@ -44,13 +41,6 @@ function NotificationDetailContainer(props: Props) {
   const notification =
     (response.data && response.data.clientPortalNotificationDetail) || null;
 
-  if (response.data || !response.error) {
-    markAsRead({
-      variables: {
-        ids: [props._id],
-      },
-    });
-  }
 
   const updatedProps = {
     ...props,

@@ -1,7 +1,8 @@
+import { graphqlPubsub } from '../../../configs';
 import { IContext } from '../../../connectionResolver';
 
 const notificationMutations = {
-  clientPortalNotificationsMarkAsRead(
+  async clientPortalNotificationsMarkAsRead(
     _root,
     { _ids }: { _ids: string[] },
     { models, cpUser }: IContext
@@ -10,7 +11,13 @@ const notificationMutations = {
       throw new Error('You are not logged in');
     }
 
-    return models.ClientPortalNotifications.markAsRead(_ids, cpUser._id);
+    graphqlPubsub.publish('clientPortalNotificationRead', {
+      notificationRead: { userId: cpUser._id }
+    });
+
+    await models.ClientPortalNotifications.markAsRead(_ids, cpUser._id);
+
+    return 'marked';
   }
 };
 

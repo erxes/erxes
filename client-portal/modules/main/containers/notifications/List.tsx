@@ -7,6 +7,7 @@ import {
   NotificationsCountQueryResponse,
   NotificationsQueryResponse,
 } from '../../../types';
+import { useRouter } from 'next/router';
 
 type Props = {
   count: number;
@@ -43,9 +44,29 @@ const notificationsQuery = gql`
   }
 `;
 
+const markAsReadMutation = gql`
+  mutation ClientPortalNotificationsMarkAsRead($ids: [String]) {
+    clientPortalNotificationsMarkAsRead(_ids: $ids)
+  }
+`;
+
 function NotificationsContainer(props: Props) {
+  const router = useRouter()
+
+  const [markAsReadMutaion] = useMutation(markAsReadMutation);
+
   const markAsRead = (notificationIds?: string[]) => {
     console.log('markAsRead', notificationIds);
+  };
+
+  const onClickNotification = (notificationId: string) => {
+    markAsReadMutaion({
+      variables: {
+        ids: [notificationId],
+      },
+    }).then(() => {
+      router.push(`/notification/${notificationId}`)
+    });
   };
 
   console.log('props', props.requireRead);
@@ -62,7 +83,6 @@ function NotificationsContainer(props: Props) {
       },
       fetchPolicy: 'network-only',
     }
-    
   );
 
   const notifications =
@@ -77,6 +97,7 @@ function NotificationsContainer(props: Props) {
     notifications,
     loading: notificationsResponse.loading,
     markAsRead,
+    onClickNotification,
   };
 
   return <Notifications {...updatedProps} />;

@@ -51,8 +51,6 @@ function AppProvider({ children }: Props) {
       document: gql(subscriptions.notificationSubscription),
       variables: { userId: currentUser && currentUser._id },
       updateQuery: (prev, { subscriptionData }) => {
-        console.log('SUBSCRIPTION FIRED', subscriptionData);
-
         if (!subscriptionData.data) {
           return prev;
         }
@@ -63,16 +61,28 @@ function AppProvider({ children }: Props) {
 
         const { title, content } = clientPortalNotificationInserted;
 
-        console.log('title', title);
-        console.log('content', content);
-
-        sendDesktopNotification({title, content});
+        sendDesktopNotification({ title, content });
 
         notificationsCountQry.refetch();
       },
     });
 
-    return () => unsubscribe();
+    const unsubscribe2 = notificationsCountQry.subscribeToMore({
+      document: gql(subscriptions.notificationRead),
+      variables: { userId: currentUser && currentUser._id },
+      updateQuery: (prev, { subscriptionData }) => {
+        if (!subscriptionData.data) {
+          return prev;
+        }
+
+        notificationsCountQry.refetch();
+      },
+    });
+
+    return () => {
+      unsubscribe();
+      unsubscribe2();
+    };
   }, [userQuery, currentUser, notificationsCountQry, notificationsCount]);
 
   const response: any = useQuery(gql(clientPortalGetConfig), {});

@@ -41,6 +41,6 @@ export const queries = `
 `;
 
 export const mutations = `
-  clientPortalNotificationsMarkAsRead (_ids: [String]) : JSON
+  clientPortalNotificationsMarkAsRead (_ids: [String]) : String
   clientPortalNotificationsRemove(_ids: [String]) : JSON
 `;
