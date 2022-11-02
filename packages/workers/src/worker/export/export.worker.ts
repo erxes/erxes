@@ -141,7 +141,8 @@ connect()
           contentType,
           columnsConfig,
           segmentData
-        }
+        },
+        timeout: 5 * 60 * 1000
       }
     );
 
