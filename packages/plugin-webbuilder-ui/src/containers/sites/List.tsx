@@ -1,45 +1,41 @@
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
-import List from '../../components/sites/List';
-import { queries, mutations } from '../../graphql';
-import React from 'react';
+
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import {
   SitesQueryResponse,
   SitesRemoveMutationResponse,
   SitesTotalCountQueryResponse
 } from '../../types';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { mutations, queries } from '../../graphql';
+
+import List from '../../components/sites/List';
+import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 
 type Props = {
   queryParams: any;
   getActionBar: (actionBar: any) => void;
   setCount: (count: number) => void;
+  sitesCount: number;
   selectedSite: string;
 };
 
 type FinalProps = {
   sitesQuery: SitesQueryResponse;
-  sitesTotalCountQuery: any;
 } & Props &
   SitesRemoveMutationResponse;
 
 function SitesContainer(props: FinalProps) {
-  const {
-    sitesQuery,
-    sitesTotalCountQuery,
-    sitesRemoveMutation,
-    selectedSite
-  } = props;
+  const { sitesQuery, sitesRemoveMutation, selectedSite } = props;
 
   if (sitesQuery.loading) {
     return <Spinner objective={true} />;
   }
 
   const sites = sitesQuery.webbuilderSites || [];
-  const sitesCount = sitesTotalCountQuery.webbuilderSitesTotalCount || 0;
 
   const remove = (_id: string) => {
     if (_id === selectedSite) {
@@ -64,8 +60,7 @@ function SitesContainer(props: FinalProps) {
   const updatedProps = {
     ...props,
     sites,
-    remove,
-    sitesCount
+    remove
   };
 
   return <List {...updatedProps} />;
@@ -76,13 +71,10 @@ export default compose(
     name: 'sitesQuery',
     options: ({ queryParams }) => ({
       variables: {
-        ...generatePaginationParams(queryParams)
+        ...generatePaginationParams(queryParams || {})
       },
       fetchPolicy: 'network-only'
     })
-  }),
-  graphql<{}, SitesTotalCountQueryResponse>(gql(queries.sitesTotalCount), {
-    name: 'sitesTotalCountQuery'
   }),
   graphql<Props, SitesRemoveMutationResponse>(gql(mutations.sitesRemove), {
     name: 'sitesRemoveMutation',

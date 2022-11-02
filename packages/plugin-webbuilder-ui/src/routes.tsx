@@ -43,6 +43,16 @@ const webBuilders = history => {
   return <WebBuilder step={step} queryParams={queryParams} />;
 };
 
+const webBuilderContainer = history => {
+  const { location, match } = history;
+
+  const queryParams = queryString.parse(location.search);
+
+  const { step } = match.params;
+
+  return <WebBuilderContainer step={step} queryParams={queryParams} />;
+};
+
 const typeEdit = ({ match }) => {
   const id = match.params.id;
 
@@ -79,7 +89,7 @@ const entryEdit = ({ match, location }) => {
 const routes = () => {
   return (
     <>
-      <Route path="/webbuilder" exact={true} component={WebBuilderContainer} />
+      <Route path="/webbuilder" exact={true} component={webBuilderContainer} />
 
       <Route
         path="/webbuilder/pages/create"

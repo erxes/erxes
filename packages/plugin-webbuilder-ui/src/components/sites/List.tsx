@@ -1,12 +1,9 @@
-import React from 'react';
-import Button from '@erxes/ui/src/components/Button';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Table from '@erxes/ui/src/components/table';
-import { __ } from '@erxes/ui/src/utils';
+import { Content, SiteBox, SitePreview, Sites } from './styles';
+
 import { ISiteDoc } from '../../types';
-import Row from './Row';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Form from '../../containers/sites/SiteForm';
+import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   sites: ISiteDoc[];
@@ -17,76 +14,30 @@ type Props = {
   queryParams: any;
 };
 
-class Pages extends React.Component<Props, {}> {
-  renderRow = (sites: ISiteDoc[]) => {
-    const { remove, queryParams } = this.props;
-
-    return sites.map(site => (
-      <Row
-        key={site._id}
-        site={site}
-        remove={remove}
-        queryParams={queryParams}
-      />
-    ));
-  };
+class SiteList extends React.Component<Props, {}> {
+  renderList(site: ISiteDoc) {
+    return (
+      <SiteBox key={site._id}>
+        <SitePreview>
+          <img src="/images/usingGuide.png" alt="site-img" />
+        </SitePreview>
+        <Content>
+          <div>
+            <b>{site.name}</b>
+            <span>{site.domain}</span>
+          </div>
+          <Icon icon="ellipsis-h" size={18} />
+        </Content>
+      </SiteBox>
+    );
+  }
 
   render() {
-    const {
-      sites,
-      getActionBar,
-      setCount,
-      sitesCount,
-      queryParams
-    } = this.props;
+    const { sites } = this.props;
+    console.log(sites);
 
-    const modalContent = props => <Form {...props} queryParams={queryParams} />;
-
-    const trigger = (
-      <Button btnStyle="success" icon="plus-circle">
-        Add site
-      </Button>
-    );
-
-    const actionBarRight = (
-      <ModalTrigger
-        title="Add an site"
-        trigger={trigger}
-        autoOpenKey="showSiteModal"
-        content={modalContent}
-      />
-    );
-
-    getActionBar(actionBarRight);
-    setCount(sitesCount);
-
-    let content = (
-      <>
-        <Table hover={true}>
-          <thead>
-            <tr>
-              <th>{__('Name')}</th>
-              <th>{__('Domain')}</th>
-              <th>{__('Actions')}</th>
-            </tr>
-          </thead>
-          <tbody>{this.renderRow(sites)}</tbody>
-        </Table>
-      </>
-    );
-
-    if (sitesCount < 1) {
-      content = (
-        <EmptyState
-          image="/images/actions/8.svg"
-          text="No sites"
-          size="small"
-        />
-      );
-    }
-
-    return <>{content}</>;
+    return <Sites>{(sites || []).map(site => this.renderList(site))}</Sites>;
   }
 }
 
-export default Pages;
+export default SiteList;

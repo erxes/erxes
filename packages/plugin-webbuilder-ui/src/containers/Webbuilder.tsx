@@ -1,14 +1,41 @@
+import * as compose from 'lodash.flowright';
+
 import React from 'react';
+import { SitesTotalCountQueryResponse } from '../types';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import Webbuilder from '../components/Builder';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { queries } from '../graphql';
 
 type Props = {
-  //   queryParams: any;
-  //   type: string;
-  //   selectedSite: string;
+  queryParams: any;
 };
 
-function WebbuilderContainer(props: Props) {
-  return <Webbuilder {...props} />;
+type FinalProps = {
+  sitesTotalCountQuery: any;
+} & Props;
+
+function WebbuilderContainer(props: FinalProps) {
+  const { sitesTotalCountQuery } = props;
+
+  if (sitesTotalCountQuery.loading) {
+    return <Spinner objective={true} />;
+  }
+
+  const sitesCount = sitesTotalCountQuery.webbuilderSitesTotalCount || 0;
+
+  const updatedProps = {
+    ...props,
+    loading: sitesTotalCountQuery.loading,
+    sitesCount
+  };
+
+  return <Webbuilder {...updatedProps} />;
 }
 
-export default WebbuilderContainer;
+export default compose(
+  graphql<{}, SitesTotalCountQueryResponse>(gql(queries.sitesTotalCount), {
+    name: 'sitesTotalCountQuery'
+  })
+)(WebbuilderContainer);
