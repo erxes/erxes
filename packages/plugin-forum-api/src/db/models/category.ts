@@ -2,11 +2,14 @@ import { Document, Schema, Model, Connection, Types } from 'mongoose';
 import { IModels } from './index';
 import * as _ from 'lodash';
 import {
+  ALL_CP_USER_LEVELS,
+  Permissions,
   ReadCpUserLevels,
   READ_CP_USER_LEVELS,
   WriteCpUserLevels,
   WRITE_CP_USER_LEVELS
 } from '../../consts';
+import { ICpUser } from '../../graphql';
 
 export interface ICategory {
   _id: any;
@@ -44,6 +47,12 @@ export interface ICategoryModel extends Model<CategoryDocument> {
   ): Promise<boolean>;
 
   doesRequireAdminApproval(_id?: string | null): Promise<boolean>;
+
+  isUserAllowedTo(
+    permission: Permissions,
+    categoryId?: string | null,
+    user?: ICpUser | null
+  ): Promise<boolean>;
 }
 
 export const getDefaultPostReadCpUserLevel = (): ReadCpUserLevels => 'GUEST';
@@ -247,6 +256,84 @@ export const generateCategoryModel = (
       const category = await models.Category.findById(_id);
 
       if (category?.postsReqCrmApproval) return true;
+
+      return false;
+    }
+
+    public static async isUserAllowedTo(
+      permission: Permissions,
+      categoryId?: string | null,
+      user?: ICpUser | null
+    ): Promise<boolean> {
+      const userLevel = await models.ForumClientPortalUser.getUserLevel(user);
+
+      if (permission === 'READ_POST') {
+        if (!categoryId) return true;
+
+        const category = await models.Category.findByIdOrThrow(categoryId);
+        const requiredLevel = category.userLevelReqPostRead;
+
+        // user is allowed by its user level
+        if (ALL_CP_USER_LEVELS[userLevel] >= ALL_CP_USER_LEVELS[requiredLevel])
+          return true;
+
+        const hasPermit = await models.PermissionGroupCategoryPermit.isUserPermitted(
+          categoryId,
+          permission,
+          user?.userId
+        );
+
+        // user is allowed by its permission group
+        if (hasPermit) return true;
+
+        return false;
+      }
+
+      if (permission === 'WRITE_COMMENT') {
+        // only logged in users allowed to write anything
+        if (!user) return false;
+
+        if (!categoryId) return true;
+
+        const category = await models.Category.findByIdOrThrow(categoryId);
+
+        const requiredLevel = category.userLevelReqCommentWrite;
+
+        if (ALL_CP_USER_LEVELS[userLevel] >= ALL_CP_USER_LEVELS[requiredLevel])
+          return true;
+
+        const hasPermit = await models.PermissionGroupCategoryPermit.isUserPermitted(
+          categoryId,
+          permission,
+          user.userId
+        );
+
+        if (hasPermit) return true;
+
+        return false;
+      }
+
+      if (permission === 'WRITE_POST') {
+        // only logged in users allowed to write anything
+        if (!user) return false;
+        if (!categoryId) return true;
+
+        const category = await models.Category.findByIdOrThrow(categoryId);
+        const requiredLevel = category.userLevelReqPostWrite;
+
+        if (ALL_CP_USER_LEVELS[userLevel] >= ALL_CP_USER_LEVELS[requiredLevel])
+          return true;
+
+        const hasPermit = await models.PermissionGroupCategoryPermit.isUserPermitted(
+          categoryId,
+          permission,
+          user.userId
+        );
+
+        if (hasPermit) return true;
+
+        return false;
+      }
 
       return false;
     }

@@ -1,6 +1,8 @@
 import { Document, Schema, Model, Connection, Types } from 'mongoose';
 import { IModels } from './index';
 import * as _ from 'lodash';
+import { CpUserLevels } from '../../consts';
+import { ICpUser } from '../../graphql';
 
 export interface IForumClientPortalUser {
   _id: any;
@@ -17,6 +19,8 @@ export interface IForumClientPortalUserModel
   ): Promise<ForumClientPortalUserDocument[]>;
   findAndIsSubscribed(_id: string): Promise<boolean>;
   isSubscribed(doc: ForumClientPortalUserDocument): boolean;
+
+  getUserLevel(cpUser?: ICpUser | null): Promise<CpUserLevels>;
 }
 
 export const forumClientPortalUserSchema = new Schema<
@@ -76,6 +80,19 @@ export const generateForumClientPortalUserModel = (
       const subscriptionEndsAfter = doc.subscriptionEndsAfter.getTime();
 
       return now <= subscriptionEndsAfter;
+    }
+
+    public static async getUserLevel(
+      cpUser?: ICpUser | null
+    ): Promise<CpUserLevels> {
+      if (!cpUser?.userId) return 'GUEST';
+
+      const isSubscribed = await models.ForumClientPortalUser.findAndIsSubscribed(
+        cpUser.userId
+      );
+      if (isSubscribed) return 'SUBSCRIBED';
+
+      return 'REGISTERED';
     }
   }
   forumClientPortalUserSchema.loadClass(ForumClientPortalUserModel);
