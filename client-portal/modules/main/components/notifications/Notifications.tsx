@@ -40,6 +40,8 @@ const List = (props: Props) => {
 
   const requireRead = currentTab === 'Unread';
 
+  // console.log('requireRead', requireRead);
+
   return (
     <>
       <TabContainers>

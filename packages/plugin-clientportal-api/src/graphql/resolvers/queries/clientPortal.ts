@@ -125,16 +125,16 @@ const configClientPortalQueries = {
     });
   },
 
-  async clientPortalTickets(
-    _root,
-    { email }: { email: string },
-    { subdomain }: IContext
-  ) {
+  async clientPortalTickets(_root, _args, { subdomain, cpUser }: IContext) {
+    if (!cpUser) {
+      throw new Error('Login required');
+    }
+
     const customer = await sendContactsMessage({
       subdomain,
       action: 'customers.findOne',
       data: {
-        primaryEmail: email
+        _id: cpUser._id
       },
       isRPC: true
     });

@@ -4,7 +4,7 @@ import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 
 const notificationQueries = {
-  async clientPortalNotificationCounts(
+  async clientPortalNotificationCount(
     _root,
     _args,
     { models, cpUser }: IContext
@@ -56,10 +56,13 @@ const notificationQueries = {
       };
     }
 
-    return paginate(models.ClientPortalNotifications.find(query), {
-      page,
-      perPage
-    });
+    return paginate(
+      models.ClientPortalNotifications.find(query).sort({ createdAt: -1 }),
+      {
+        page,
+        perPage
+      }
+    );
   },
 
   async clientPortalNotificationDetail(

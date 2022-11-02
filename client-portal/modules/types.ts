@@ -210,11 +210,12 @@ export type UserQueryResponse = {
 };
 
 export type NotificationsCountQueryResponse = {
-  clientPortalNotificationCounts: number;
+  clientPortalNotificationCount: number;
 };
 
 export type NotificationsQueryResponse = {
   clientPortalNotifications: INotification[];
+  subscribeToMore: any;
 };
 
 export type NotificationDetailQueryResponse = {

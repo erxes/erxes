@@ -25,7 +25,7 @@ export default {
       resolvers
     };
   },
-  hasSubscriptions: false,
+  hasSubscriptions: true,
   meta: {
     forms,
     permissions,

@@ -1,5 +1,5 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { mutations } from '../../../user/graphql';
 import Notifications from '../../components/notifications/List';
 import {
@@ -48,6 +48,9 @@ function NotificationsContainer(props: Props) {
     console.log('markAsRead', notificationIds);
   };
 
+  console.log('props', props.requireRead);
+  console.log('props', props.currentUser);
+
   const notificationsResponse = useQuery<NotificationsQueryResponse>(
     notificationsQuery,
     {
@@ -57,13 +60,17 @@ function NotificationsContainer(props: Props) {
         page: 1,
         perPage: 20,
       },
+      fetchPolicy: 'network-only',
     }
+    
   );
 
   const notifications =
     (notificationsResponse.data &&
       notificationsResponse.data.clientPortalNotifications) ||
     [];
+
+  console.log('notifications', notifications);
 
   const updatedProps = {
     ...props,

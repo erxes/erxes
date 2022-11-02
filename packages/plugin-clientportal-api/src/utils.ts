@@ -3,6 +3,7 @@ import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import { sendRequest } from '@erxes/api-utils/src/requests';
 
 import { IUserDocument } from './../../api-utils/src/types';
+import { graphqlPubsub } from './configs';
 import { generateModels, IModels } from './connectionResolver';
 import { sendCoreMessage } from './messageBroker';
 
@@ -222,28 +223,15 @@ export const sendNotification = async (
       createdUser && createdUser._id
     );
 
-    console.log('notification', notification);
-  }
-
-  // loop through receiver ids
-  for (const receiverId of receiverIds) {
-    try {
-      // send web and mobile notification
-      // graphqlPubsub.publish('notificationInserted', {
-      //   notificationInserted: {
-      //     _id: notification._id,
-      //     userId: receiverId,
-      //     title: notification.title,
-      //     content: notification.content,
-      //   },
-      // });
-    } catch (e) {
-      // Any other error is serious
-      if (e.message !== 'Configuration does not exist') {
-        throw e;
+    graphqlPubsub.publish('clientPortalNotificationInserted', {
+      clientPortalNotificationInserted: {
+        _id: notification._id,
+        userId: recipient._id,
+        title: notification.title,
+        content: notification.content
       }
-    }
-  } // end receiverIds loop
+    });
+  }
 
   // const DOMAIN = getEnv({ name: 'DOMAIN' });
 

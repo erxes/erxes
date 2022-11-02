@@ -19,7 +19,7 @@ type Props = {
 
 const List = (props: Props) => {
   const { loading, notifications, count } = props;
-  console.log('notifications', notifications);
+
   const [filterUnread, setFilterByUnread] = React.useState(false);
 
   const filterByUnread = () => {
@@ -41,23 +41,32 @@ const List = (props: Props) => {
     return;
   };
 
-  const content = (
+  const renderContent = () => {
+     
+    if (notifications.length === 0) {
+      return (
+        <Wrapper>
+          <h4>Looks like you are all caught up!</h4>
+        </Wrapper>
+      );
+    }
+
+    return (
+      <>
     <NotificationList>
       {notifications.map((notif, key) => (
         <Row notification={notif} key={key} />
       ))}
     </NotificationList>
-  );
+    </>
+    )
+  }
+ 
+  
 
 
   return (
-    <DataWithLoader
-      data={content}
-      loading={loading}
-      count={count}
-      emptyText="Looks like you are all caught up!"
-      emptyImage="/images/actions/17.svg"
-    />
+    renderContent()
   );
 
   // return (

@@ -172,8 +172,6 @@ function Header({
     );
   };
 
-  console.log('notificationsCount', notificationsCount);
-
   return (
     <Head
       background={getConfigColor(config, 'headerColor')}
