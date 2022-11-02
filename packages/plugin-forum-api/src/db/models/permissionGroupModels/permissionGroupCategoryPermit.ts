@@ -84,6 +84,23 @@ export const generatePermissionGroupCategoryPermitModel = (
     ): Promise<boolean> {
       if (!cpUserId) return false;
 
+      const usersPermissionGroups = await models.PermissionGroupUser.find({
+        userId: cpUserId
+      }).lean();
+
+      if (!usersPermissionGroups?.length) return false;
+
+      const count = await models.PermissionGroupCategoryPermit.countDocuments({
+        categoryId,
+        permission,
+        permissionGroupId: {
+          $in: usersPermissionGroups.map(p => p.permissionGroupId)
+        }
+      });
+
+      return count > 0;
+
+      /*
       const result = await models.PermissionGroupUser.aggregate()
         .match({ userId: cpUserId })
         .lookup({
@@ -100,11 +117,11 @@ export const generatePermissionGroupCategoryPermitModel = (
             }
           }
         })
+        .limit(1)
         .project({ _id: 1 });
 
-      console.log(result);
-
       return result.length > 0;
+      */
     }
   }
 
