@@ -4,7 +4,7 @@ import Mutation from './Mutation';
 import ForumCategory from './ForumCategory';
 import ForumPost from './ForumPost';
 import ForumComment from './ForumComment';
-import { POST_STATES } from '../../db/models/post';
+import { ADMIN_APPROVAL_STATES, POST_STATES } from '../../db/models/post';
 import {
   PERMISSIONS,
   READ_CP_USER_LEVELS,
@@ -21,6 +21,10 @@ export default async function genTypeDefs(serviceDiscovery) {
 
     enum ForumPostState {
       ${POST_STATES.join('\n')}
+    }
+
+    enum AdminApprovalState {
+      ${ADMIN_APPROVAL_STATES.join('\n')}
     }
 
     enum ForumUserType {

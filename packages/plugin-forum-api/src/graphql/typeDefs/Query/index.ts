@@ -1,5 +1,6 @@
 export const commonPostsParams = `
   state: [ForumPostState!]
+  categoryApprovalState: [AdminApprovalState!]
   categoryIncludeDescendants: Boolean
   createdById: [String!]
   createdByCpId: [String!]

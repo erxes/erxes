@@ -58,7 +58,9 @@ const forumPostsParam = `
   $limit: Int 
   $offset: Int 
   $state: [ForumPostState!]
-  $sort: JSON`;
+  $sort: JSON
+  $categoryApprovalState: [AdminApprovalState!]
+`;
 
 const forumPostsArg = `
   _id: $_id
@@ -67,7 +69,9 @@ const forumPostsArg = `
   limit: $limit
   offset: $offset
   state: $state
-  sort: $sort`;
+  sort: $sort
+  categoryApprovalState: $categoryApprovalState
+`;
 
 export const POST_REFETCH_AFTER_CREATE_DELETE = [
   'ForumPostsQuery',

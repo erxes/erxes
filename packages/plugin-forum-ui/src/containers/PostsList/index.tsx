@@ -11,6 +11,10 @@ const PostsList: React.FC = () => {
     setCategoryIncludeDescendants
   ] = useSearchParam('categoryIncludeDescendants');
 
+  const [categoryApprovalState, setCategoryApprovalState] = useSearchParam(
+    'categoryApprovalState'
+  );
+
   return (
     <div
       style={{
@@ -55,6 +59,52 @@ const PostsList: React.FC = () => {
                 value="PUBLISHED"
                 onChange={e => setState(e.target.value)}
                 checked={state === 'PUBLISHED'}
+              />
+            </label>
+          </div>
+
+          <div style={{ margin: 10, padding: 10 }}>
+            <label>
+              All{' '}
+              <input
+                type="radio"
+                name="categoryApprovalState"
+                value=""
+                onChange={e => setCategoryApprovalState(e.target.value)}
+                checked={!categoryApprovalState}
+              />
+            </label>
+            <br />
+            <label>
+              Pending{' '}
+              <input
+                type="radio"
+                name="categoryApprovalState"
+                value="PENDING"
+                onChange={e => setCategoryApprovalState(e.target.value)}
+                checked={categoryApprovalState === 'PENDING'}
+              />
+            </label>
+            <br />
+            <label>
+              Approved{' '}
+              <input
+                type="radio"
+                name="categoryApprovalState"
+                value="APPROVED"
+                onChange={e => setCategoryApprovalState(e.target.value)}
+                checked={categoryApprovalState === 'APPROVED'}
+              />
+            </label>
+            <br />
+            <label>
+              Denied{' '}
+              <input
+                type="radio"
+                name="categoryApprovalState"
+                value="DENIED"
+                onChange={e => setCategoryApprovalState(e.target.value)}
+                checked={categoryApprovalState === 'DENIED'}
               />
             </label>
           </div>

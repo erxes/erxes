@@ -12,12 +12,15 @@ const List: React.FC = () => {
     'categoryIncludeDescendants'
   );
 
+  const [categoryApprovalState] = useSearchParam('categoryApprovalState');
+
   const [perPage] = useSearchParam('perPage');
   const [page] = useSearchParam('page');
 
   const variables = {
     categoryId,
     state,
+    categoryApprovalState,
     categoryIncludeDescendants: !!categoryIncludeDescendants,
     sort: { _id: -1 }
   };

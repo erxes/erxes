@@ -10,7 +10,13 @@ export const buildPostsQuery = async (
 ) => {
   const query: any = {};
 
-  for (const field of ['_id', 'state', 'createdById', 'createdByCpId']) {
+  for (const field of [
+    '_id',
+    'state',
+    'createdById',
+    'createdByCpId',
+    'categoryApprovalState'
+  ]) {
     const param = params[field];
 
     if (param) {
