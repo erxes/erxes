@@ -4,8 +4,7 @@ import {
   IVisitorContact
 } from './models/definitions/customers';
 import { debug, redis } from './configs';
-import { getEnv } from './utils';
-import { sendRequest } from '@erxes/api-utils/src';
+import { getEnv, sendRequest } from '@erxes/api-utils/src';
 import { IModels } from './connectionResolver';
 
 export const validateSingle = async (
