@@ -310,14 +310,14 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         (doc.primaryEmail && !doc.emailValidationStatus) ||
         (doc.primaryEmail && doc.emailValidationStatus === 'unknown')
       ) {
-        validateSingle({ email: doc.primaryEmail });
+        validateSingle(subdomain, { email: doc.primaryEmail });
       }
 
       if (
         (doc.primaryPhone && !doc.phoneValidationStatus) ||
         (doc.primaryPhone && doc.phoneValidationStatus === 'unknown')
       ) {
-        validateSingle({ phone: doc.primaryPhone });
+        validateSingle(subdomain, { phone: doc.primaryPhone });
       }
 
       await putActivityLog(subdomain, {
@@ -359,7 +359,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         if (doc.primaryEmail !== oldCustomer.primaryEmail) {
           doc.emailValidationStatus = 'unknown';
 
-          validateSingle({ email: doc.primaryEmail });
+          validateSingle(subdomain, { email: doc.primaryEmail });
         }
       }
 
@@ -367,7 +367,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         if (doc.primaryPhone !== oldCustomer.primaryPhone) {
           doc.phoneValidationStatus = 'unknown';
 
-          validateSingle({ phone: doc.primaryPhone });
+          validateSingle(subdomain, { phone: doc.primaryPhone });
         }
       }
 

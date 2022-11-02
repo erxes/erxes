@@ -8,7 +8,10 @@ import { getEnv } from './utils';
 import { sendRequest } from '@erxes/api-utils/src';
 import { IModels } from './connectionResolver';
 
-export const validateSingle = async (contact: IVisitorContact) => {
+export const validateSingle = async (
+  _subdomain: string,
+  contact: IVisitorContact
+) => {
   const EMAIL_VERIFIER_ENDPOINT = getEnv({
     name: 'EMAIL_VERIFIER_ENDPOINT',
     defaultValue: ''
@@ -66,6 +69,7 @@ export const updateContactValidationStatus = async (
 
 export const validateBulk = async (
   models: IModels,
+  _subdomain: string,
   verificationType: string
 ) => {
   const EMAIL_VERIFIER_ENDPOINT = getEnv({
