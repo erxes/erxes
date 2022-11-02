@@ -1,25 +1,15 @@
 import { generateModels } from './connectionResolver';
 import { sendFormsMessage, sendTagsMessage } from './messageBroker';
 
-export const EXPORT_TYPES = [
+export const IMPORT_EXPORT_TYPES = [
   {
     text: 'Product & Services',
     contentType: 'product',
     icon: 'server-alt'
   }
 ];
-
-export const IMPORT_TYPES = [
-  {
-    text: 'Product & Services',
-    contentType: 'product',
-    icon: 'server-alt'
-  }
-];
-
 export default {
-  exportTypes: EXPORT_TYPES,
-  importTypes: IMPORT_TYPES,
+  importExportTypes: IMPORT_EXPORT_TYPES,
 
   insertImportItems: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);

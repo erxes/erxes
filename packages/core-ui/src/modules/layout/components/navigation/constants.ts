@@ -27,7 +27,7 @@ export const GENERAL_SETTINGS = [
     name: 'General Settings',
     text: 'Import & Export',
     icon: 'icon-settings',
-    url: '/settings/importHistories'
+    url: '/settings/selectMenu'
   },
   {
     name: 'General Settings',

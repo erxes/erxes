@@ -25,6 +25,30 @@ export interface IImportHistoryContentType {
   type: 'core' | 'plugin';
   contentType: string;
 }
+
+export interface IExportHistory {
+  _id: string;
+  success: string;
+  total: string;
+  name: string;
+  contentType: string;
+  date: Date;
+  status: string;
+  percentage: number;
+  removed: string[];
+  user: IUser;
+  error: string;
+  exportLink: string;
+}
+
+export interface IExportHistoryItem {
+  list: IExportHistory[];
+  count: number;
+}
+export interface IExportHistoryContentType {
+  contentType: string;
+}
+
 // query types
 
 export type ImportHistoriesQueryResponse = {
@@ -32,8 +56,20 @@ export type ImportHistoriesQueryResponse = {
   stopPolling: () => any;
 } & QueryResponse;
 
+export type ExportHistoriesQueryResponse = {
+  exportHistories: IExportHistoryItem;
+  stopPolling: () => any;
+} & QueryResponse;
+
 export type ImportHistoryDetailQueryResponse = {
   importHistoryDetail: IImportHistory;
+  subscribeToMore: any;
+  error: any;
+  stopPolling: () => any;
+} & QueryResponse;
+
+export type ExportHistoryDetailQueryResponse = {
+  importHistoryDetail: IExportHistory;
   subscribeToMore: any;
   error: any;
   stopPolling: () => any;

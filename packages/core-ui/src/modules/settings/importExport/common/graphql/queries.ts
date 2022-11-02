@@ -1,6 +1,6 @@
-const importHistoryPreviewExportCount = `
-  query importHistoryPreviewExportCount($segmentId: String, $contentType: String!) {
-    importHistoryPreviewExportCount(segmentId: $segmentId, contentType: $contentType)
+const historyPreviewCount = `
+  query historyPreviewCount($segmentId: String, $contentType: String!) {
+    historyPreviewCount(segmentId: $segmentId, contentType: $contentType)
   }
 `;
 
@@ -10,7 +10,14 @@ const fieldsCombinedByContentType = `
   }
 `;
 
+const historyGetTypes = `
+  query historyGetTypes {
+    historyGetTypes
+  }
+`;
+
 export default {
-  importHistoryPreviewExportCount,
-  fieldsCombinedByContentType
+  historyPreviewCount,
+  fieldsCombinedByContentType,
+  historyGetTypes
 };

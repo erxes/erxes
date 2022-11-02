@@ -3,7 +3,7 @@ import resolvers from './graphql/resolvers';
 
 import { initBroker, sendSegmentsMessage } from './messageBroker';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
-import { buildFile } from './exporter';
+import { buildFile } from './exporterByUrl';
 import segments from './segments';
 import dashboards from './dashboards';
 import forms from './forms';
@@ -21,6 +21,7 @@ import {
   updateContactsValidationStatus,
   updateContactValidationStatus
 } from './verifierUtils';
+import exporter from './exporter';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -53,6 +54,7 @@ export default {
     internalNotes,
     webhooks,
     dashboards,
+    exporter,
     // for fixing permissions
     permissions
   },

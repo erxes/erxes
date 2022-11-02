@@ -183,7 +183,6 @@ function TemporarySegment({ history, contentType, btnSize }: Props) {
               contentType={contentType}
               closeModal={toggleDrawer}
               hideDetailForm={true}
-              usageType="filter"
               filterContent={filterContent}
             />
           </ScrolledContent>

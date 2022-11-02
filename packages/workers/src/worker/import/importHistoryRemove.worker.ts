@@ -5,10 +5,10 @@ import {
   removeDeals,
   removeTasks,
   removeTickets
-} from '../messageBroker';
+} from '../../messageBroker';
 
-import { connect } from './utils';
-import { removeProducts } from '../messageBroker';
+import { connect } from '../utils';
+import { removeProducts } from '../../messageBroker';
 
 // tslint:disable-next-line
 const { parentPort, workerData } = require('worker_threads');
