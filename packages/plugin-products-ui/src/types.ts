@@ -131,6 +131,8 @@ export type BarcodeConfig = {
   width: number;
   height: number;
   margin: number;
+  isDate: boolean;
+  date: number;
   isProductName: boolean;
   isBarcode: boolean;
   barWidth: number;

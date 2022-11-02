@@ -1,4 +1,5 @@
 import React from 'react';
+import Datetime from '@nateradebaugh/react-datetime';
 
 //erxes
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -6,7 +7,7 @@ import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormLabel from '@erxes/ui/src/components/form/Label';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import { FormWrapper } from '@erxes/ui/src/styles/main';
+import { FormWrapper, DateContainer } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
 
 //local
@@ -83,6 +84,29 @@ const LeftSidebar = (props: Props) => {
             handleChangeConfig('margin', parseInt(e.target.value))
           }
         />
+      </FormGroup>
+      <FormGroup>
+        <FormControl
+          name="addDate"
+          componentClass="checkbox"
+          defaultChecked={config.isDate}
+          onChange={(e: any) => handleChangeConfig('isDate', e.target.checked)}
+        >
+          {__('Add date')}
+        </FormControl>
+      </FormGroup>
+      <FormGroup>
+        <FormLabel>{__('Date')}</FormLabel>
+        <DateContainer>
+          <Datetime
+            dateFormat="MM/DD/YYYY"
+            closeOnSelect={true}
+            utc={true}
+            timeFormat={false}
+            defaultValue={new Date(config.date)}
+            onChange={(e: any) => handleChangeConfig('date', e.getTime())}
+          />
+        </DateContainer>
       </FormGroup>
       <FormGroup>
         <FormControl

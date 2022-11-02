@@ -27,6 +27,8 @@ const BarcodeGenerator = (props: Props) => {
       "width": 65,
       "height": 75,
       "margin": 0,
+      "date": ${Date.now()},
+      "isDate": false,
       "isProductName": true,
       "isBarcode": true,
       "barWidth": 2,
@@ -156,14 +158,22 @@ const BarcodeGenerator = (props: Props) => {
         <div id="barcode">
           <Barcode
             type="EAN13"
-            value={barcode}
+            value={`${barcode}${
+              config.isDate ? '_' + Math.floor(config.date / 1000) : ''
+            }`}
             fontSize={config.fontSize}
             width={config.barWidth}
             height={config.barHeight}
           />
         </div>
         <div id="qrcode">
-          <QRCode value={barcode} size={config.qrSize} />
+          <QRCode
+            value={`${barcode}${
+              config.isDate ? '_' + Math.floor(config.date / 1000) : ''
+            }`}
+            size={config.qrSize}
+            level="Q"
+          />
         </div>
       </BarcodeContentWrapper>
       <iframe
