@@ -76,9 +76,13 @@ export const createAWS = async () => {
     secretAccessKey: string;
     endpoint?: string;
     s3ForcePathStyle?: boolean;
+    httpOptions?: any;
   } = {
     accessKeyId: AWS_ACCESS_KEY_ID,
-    secretAccessKey: AWS_SECRET_ACCESS_KEY
+    secretAccessKey: AWS_SECRET_ACCESS_KEY,
+    httpOptions: {
+      timeout: 10 * 60 * 1000 // 10 minutes.
+    }
   };
 
   if (AWS_FORCE_PATH_STYLE === 'true') {
