@@ -543,7 +543,7 @@ const up = async ({ uis, fromInstaller }) => {
       let host = RABBITMQ_HOST;
 
       if (!configs.db_server_address) {
-        host.replace('erxes-dbs_rabbitmq', '127.0.0.1');
+        host = host.replace('erxes-dbs_rabbitmq', '127.0.0.1');
       }
 
       await execCommand(`cd installer && npm run pm2 delete all`, true);
