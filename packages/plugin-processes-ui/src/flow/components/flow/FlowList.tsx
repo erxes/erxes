@@ -13,7 +13,7 @@ import React from 'react';
 import CategoryList from '../../containers/flowCategory/CategoryList';
 import { IFlowDocument } from '../../types';
 import Row from './FlowListRow';
-import { menuContacts } from '../../../constants';
+import { menuSettings } from '../../../constants';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -219,7 +219,7 @@ class List extends React.Component<IProps, State> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header title={__('Flow')} submenu={menuContacts} />}
+        header={<Wrapper.Header title={__('Flow')} submenu={menuSettings} />}
         actionBar={
           <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
         }

@@ -18,8 +18,8 @@ import {
 } from '@erxes/ui/src/types';
 import { extractAttachment } from '@erxes/ui/src/utils';
 import { IJobCategory } from '../../types';
-import { PRODUCT_CATEGORY_STATUSES } from '../../../constants';
 import { ICategory } from '@erxes/ui/src/utils/categories';
+import { PRODUCT_CATEGORY_STATUSES } from '@erxes/ui-products/src/constants';
 
 type Props = {
   categories: IJobCategory[];
