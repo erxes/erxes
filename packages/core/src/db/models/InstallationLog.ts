@@ -12,8 +12,6 @@ export interface IInstallationLogModel extends Model<IInstallationLogDocument> {
 export const loadInstallationLogClass = (models: IModels) => {
   class InstallationLog {
     public static async createLog(doc) {
-      console.log('00000000000000');
-
       return models.InstallationLogs.create({
         date: new Date(),
         ...doc

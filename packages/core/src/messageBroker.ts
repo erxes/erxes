@@ -36,8 +36,6 @@ export const initBroker = async options => {
     async ({ subdomain, type, name, message }) => {
       const models = await generateModels(subdomain);
 
-      console.log('eeeeeeeeeeeeeee');
-
       if (type === 'uninstall' && message === 'done') {
         await models.InstallationLogs.remove({ pluginName: name });
         return;

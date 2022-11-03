@@ -29,16 +29,16 @@ open
               Buffer.from(JSON.stringify({ ...data, message: 'started' } )),
             );
 
-            try {
-              shell.cd('..');
-              shell.exec(
-                `npm run erxes manage-installation ${data.type} ${data.name}`
-              );
-            } catch (e) {
-              debugError(
-                `Error occurred during callback ${queueName} ${e.message}`
-              );
-            }
+            await new Promise((resolve) => {
+              setTimeout(() => {
+                shell.cd('..');
+                shell.exec(
+                  `npm run erxes manage-installation ${data.type} ${data.name}`
+                );
+
+                resolve('done');
+              }, 500)
+            });
 
             shell.cd('installer');
 
