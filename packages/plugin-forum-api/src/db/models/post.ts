@@ -49,6 +49,8 @@ export interface IPost {
   stateChangedUserType: UserTypes;
   stateChangedById?: string;
   stateChangedByCpId?: string;
+
+  contentRestricted?: boolean;
 }
 
 export type PostDocument = IPost & Document;
@@ -74,7 +76,8 @@ const OMIT_FROM_INPUT = [
   'stateChangedUserType',
   'stateChangedAt',
   'stateChangedById',
-  'stateChangedByCpId'
+  'stateChangedByCpId',
+  'contentRestricted'
 ] as const;
 
 export type PostCreateInput = Omit<IPost, typeof OMIT_FROM_INPUT[number]>;

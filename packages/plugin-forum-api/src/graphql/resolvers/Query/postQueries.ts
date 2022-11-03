@@ -47,13 +47,20 @@ export const buildPostsQuery = async (
 };
 
 const PostQueries: IObjectTypeResolver<any, IContext> = {
-  async forumPost(_, { _id }, { models: { Post }, user, cpUser }) {
+  async forumPost(_, { _id }, { models: { Post, Category }, user, cpUser }) {
     if (!user) {
       await Post.updateOne({ _id }, { $inc: { viewCount: 1 } });
     }
 
-    const post = await Post.findById(_id);
+    const post = await Post.findByIdOrThrow(_id);
     if (user) return post;
+
+    const isAllowedToRead = await Category.isUserAllowedToRead(post, cpUser);
+
+    if (!isAllowedToRead) {
+      post.content = '';
+      post.contentRestricted = true;
+    }
 
     // TODO: check user permission and remove content before returning
     return post;

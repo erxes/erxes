@@ -50,5 +50,7 @@ export default `
 
     upVotes: [ClientPortalUser]
     downVotes: [ClientPortalUser]
+
+    contentRestricted: Boolean
   }
 `;
