@@ -1,6 +1,7 @@
 import { IIntegrationDocument } from '../../models/definitions/integrations';
-import { sendFacebookMessage } from '../../messageBroker';
+import { sendCommonMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
+import { isServiceRunning } from '../../utils';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
@@ -80,9 +81,13 @@ export default {
     _args,
     { subdomain }: IContext
   ) {
-    if (integration.kind.includes('facebook')) {
+    const kind = integration.kind.split('-')[0];
+    const serviceRunning = await isServiceRunning(kind);
+
+    if (serviceRunning) {
       try {
-        return sendFacebookMessage({
+        return sendCommonMessage({
+          serviceName: kind,
           subdomain,
           action: 'getStatus',
           data: {
