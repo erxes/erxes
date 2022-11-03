@@ -17,11 +17,16 @@ import search from './search';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
+import {
+  updateContactsValidationStatus,
+  updateContactValidationStatus
+} from './verifierUtils';
 import exporter from './exporter';
 
 export let mainDb;
 export let graphqlPubsub;
 export let serviceDiscovery;
+export let redis;
 
 export let debug;
 
@@ -92,8 +97,30 @@ export default {
       })
     );
 
+    app.post(
+      `/verifier/webhook`,
+      routeErrorHandling(async (req, res) => {
+        const { emails, phones, email, phone } = req.body;
+        const subdomain = getSubdomain(req);
+        const models = await generateModels(subdomain);
+
+        if (email) {
+          await updateContactValidationStatus(models, email);
+        } else if (emails) {
+          await updateContactsValidationStatus(models, 'email', emails);
+        } else if (phone) {
+          await updateContactValidationStatus(models, phone);
+        } else if (phones) {
+          await updateContactsValidationStatus(models, 'phone', phones);
+        }
+
+        return res.send('success');
+      })
+    );
+
     initBroker(options.messageBrokerClient);
 
+    redis = options.redis;
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
   }

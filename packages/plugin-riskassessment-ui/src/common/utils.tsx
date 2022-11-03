@@ -1,17 +1,17 @@
-import React from 'react';
 import {
-  Wrapper,
-  Spinner,
-  DataWithLoader,
-  __,
-  Pagination,
   ControlLabel,
-  SelectWithSearch
+  DataWithLoader,
+  Pagination,
+  SelectWithSearch,
+  Spinner,
+  Wrapper,
+  __
 } from '@erxes/ui/src';
-import { CustomFormGroupProps, RiskAssessmentCategory } from './types';
-import { FormGroupRow } from '../styles';
 import { IOption, IQueryParams } from '@erxes/ui/src/types';
+import React from 'react';
 import { queries as categoryQueries } from '../categories/graphql';
+import { FormGroupRow } from '../styles';
+import { CustomFormGroupProps, RiskAssessmentCategory } from './types';
 
 export const DefaultWrapper = ({
   title,
@@ -94,9 +94,7 @@ export const SelectWithCategory = ({
 }) => {
   const defaultValue = queryParams ? queryParams[name] : initialValue;
 
-  const generateCategoryOptions = (
-    array: RiskAssessmentCategory[] = []
-  ): IOption[] => {
+  const generateCategoryOptions = (array: RiskAssessmentCategory[] = []): IOption[] => {
     let list: any[] = [];
     for (const item of array) {
       const category = item || ({} as RiskAssessmentCategory);
@@ -126,9 +124,7 @@ export const SelectWithCategory = ({
       generateOptions={generateCategoryOptions}
       onSelect={onSelect}
       customQuery={categoryQueries.listAssessmentCategories}
-      customOption={
-        customOption ? customOption : { value: '', label: 'Choose a Category' }
-      }
+      customOption={customOption ? customOption : { value: '', label: 'Choose a Category' }}
       multi={multi}
     />
   );

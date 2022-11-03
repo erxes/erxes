@@ -105,7 +105,8 @@ connect().then(async () => {
           user,
           scopeBrandIds,
           useElkSyncer
-        }
+        },
+        timeout: 5 * 60 * 1000 // 5 minutes
       }
     );
   } catch (e) {
