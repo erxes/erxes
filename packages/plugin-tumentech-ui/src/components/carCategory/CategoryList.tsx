@@ -50,12 +50,12 @@ class List extends React.Component<IProps> {
   }
 
   clearCategoryFilter = () => {
-    router.setParams(this.props.history, { categoryId: null });
+    router.setParams(this.props.history, { carCategoryId: null });
   };
 
   isActive = (id: string) => {
     const { queryParams } = this.props;
-    const currentGroup = queryParams.categoryId || '';
+    const currentGroup = queryParams.carCategoryId || '';
 
     return currentGroup === id;
   };
@@ -144,7 +144,7 @@ class List extends React.Component<IProps> {
           isActive={this.isActive(category._id)}
           isParent={category.parentId === ''}
         >
-          <Link to={`?categoryId=${category._id}`}>
+          <Link to={`?carCategoryId=${category._id}`}>
             {space}
             {name}
           </Link>
@@ -178,7 +178,7 @@ class List extends React.Component<IProps> {
         <Section.Title>
           {__('Categories')}
           <Section.QuickButtons>
-            {router.getParam(this.props.history, 'categoryId') && (
+            {router.getParam(this.props.history, 'carCategoryId') && (
               <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>
                 <Tip text={__('Clear filter')} placement="bottom">
                   <Icon icon="cancel-1" />

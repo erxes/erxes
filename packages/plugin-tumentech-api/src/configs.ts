@@ -4,6 +4,7 @@ import * as cookieParser from 'cookie-parser';
 import afterMutations from './afterMutations';
 import { generateModels } from './connectionResolver';
 import cpUserMiddleware from './cpUserMiddleware';
+import exporter from './exporter';
 import forms from './forms';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
@@ -30,7 +31,8 @@ export default {
   meta: {
     segments,
     forms,
-    afterMutations
+    afterMutations,
+    exporter
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);

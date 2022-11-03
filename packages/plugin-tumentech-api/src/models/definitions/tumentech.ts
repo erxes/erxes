@@ -12,8 +12,8 @@ export interface ICar {
   vinNumber: string;
   color: string;
   intervalValue: string;
-  categoryId: string;
-  parentCategoryId?: string;
+  carCategoryId: string;
+  parentCarCategoryId?: string;
   vintageYear: Number;
   importYear: Number;
   diagnosisDate: Date;
@@ -220,8 +220,8 @@ export const carSchema = schemaHooksWrapper(
       label: 'Interval value',
       optional: true
     }),
-    categoryId: field({ type: String, label: 'Category', index: true }),
-    parentCategoryId: field({
+    carCategoryId: field({ type: String, label: 'Category', index: true }),
+    parentCarCategoryId: field({
       type: String,
       label: 'Parent category',
       index: true

@@ -100,7 +100,7 @@ export const loadCarsClass = (models: IModels) => {
         doc.plateNumber || '',
         doc.vinNumber || '',
         doc.description || '',
-        doc.categoryId || ''
+        doc.carCategoryId || ''
       ]);
     }
 
@@ -129,11 +129,11 @@ export const loadCarsClass = (models: IModels) => {
       await models.Cars.checkDuplication(doc);
 
       const category = await models.CarCategories.getCarCatogery({
-        _id: doc.categoryId
+        _id: doc.carCategoryId
       });
 
       if (category.parentId) {
-        doc.parentCategoryId = category.parentId;
+        doc.parentCarCategoryId = category.parentId;
       }
 
       const car = await models.Cars.create({
@@ -159,13 +159,13 @@ export const loadCarsClass = (models: IModels) => {
 
       const car = await models.Cars.getCar(_id);
 
-      if (car.categoryId !== doc.categoryId) {
+      if (car.carCategoryId !== doc.carCategoryId) {
         const category = await models.CarCategories.getCarCatogery({
-          _id: doc.categoryId
+          _id: doc.carCategoryId
         });
 
         if (category.parentId) {
-          doc.parentCategoryId = category.parentId;
+          doc.parentCarCategoryId = category.parentId;
         }
       }
 
@@ -335,7 +335,7 @@ export const loadCarCategoryClass = models => {
     public static async removeCarCategory(_id) {
       await models.CarCategories.getCarCatogery({ _id });
 
-      let count = await models.Cars.countDocuments({ categoryId: _id });
+      let count = await models.Cars.countDocuments({ carCategoryId: _id });
       count += await models.CarCategories.countDocuments({
         parentId: _id
       });

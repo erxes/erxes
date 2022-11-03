@@ -46,7 +46,7 @@ class CarsMerge extends React.Component<Props, State> {
     }
 
     if (category) {
-      selectedValues.categoryId = category._id;
+      selectedValues.carCategoryId = category._id;
 
       delete selectedValues.category;
     }

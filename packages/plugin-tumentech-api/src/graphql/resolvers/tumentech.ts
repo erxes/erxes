@@ -9,17 +9,17 @@ import {
 const Cars = {
   category(car, _args, { models }) {
     return (
-      car.categoryId &&
+      car.carCategoryId &&
       models.CarCategories.findOne({
-        _id: car.categoryId
+        _id: car.carCategoryId
       })
     );
   },
 
   parentCategory(car: ICarDocument, _args, { models }: IContext) {
     return (
-      car.parentCategoryId &&
-      models.CarCategories.findOne({ _id: car.parentCategoryId })
+      car.parentCarCategoryId &&
+      models.CarCategories.findOne({ _id: car.parentCarCategoryId })
     );
   },
 
@@ -88,7 +88,7 @@ const CarCategory = {
     );
 
     return models.Cars.countDocuments({
-      categoryId: { $in: product_category_ids },
+      carCategoryId: { $in: product_category_ids },
       status: { $ne: 'Deleted' }
     });
   }

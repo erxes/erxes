@@ -99,7 +99,7 @@ export const filterDealsByCar = async (
   const car = await models.Cars.getCar(carId);
 
   const categoryIds = await models.ProductCarCategories.find({
-    carCategoryId: car.categoryId
+    carCategoryId: car.carCategoryId
   })
     .distinct('productCategoryId')
     .lean();
@@ -182,7 +182,7 @@ export const filterDeals = async (
   const car = await models.Cars.getCar(carId);
 
   const categoryIds = await models.ProductCarCategories.find({
-    carCategoryId: car.categoryId
+    carCategoryId: car.carCategoryId
   })
     .distinct('productCategoryId')
     .lean();

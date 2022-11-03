@@ -52,11 +52,11 @@ function displayValue(car, name, index) {
       : '-';
   }
 
-  if (name === 'categoryId') {
+  if (name === 'carCategoryId') {
     value = car.category ? car.category.name : '-';
   }
 
-  if (name === 'parentCategoryId') {
+  if (name === 'parentCarCategoryId') {
     value = car.parentCategory ? car.parentCategory.name : '-';
   }
 

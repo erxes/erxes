@@ -108,7 +108,7 @@ export interface ICarDoc {
   plateNumber?: string;
   vinNumber?: string;
   color: string;
-  categoryId?: string;
+  carCategoryId?: string;
 
   fuelType?: string;
   steeringWheel?: string;
@@ -347,7 +347,7 @@ export type ListQueryVariables = {
   segment?: string;
   searchValue?: string;
 
-  categoryId?: string;
+  carCategoryId?: string;
   ids?: string[];
   sortField?: string;
   sortDirection?: number;

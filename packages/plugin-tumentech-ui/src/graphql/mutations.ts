@@ -6,7 +6,7 @@ const commonFields = `
   $plateNumber: String,
   $vinNumber: String,
   $color: String,
-  $categoryId: String,
+  $carCategoryId: String,
 
   $fuelType: String,
   $engineChange: String,
@@ -89,7 +89,7 @@ const commonVariables = `
   plateNumber: $plateNumber,
   vinNumber: $vinNumber,
   color: $color,
-  categoryId: $categoryId,
+  carCategoryId: $carCategoryId,
 
   fuelType: $fuelType,
   engineChange: $engineChange,
