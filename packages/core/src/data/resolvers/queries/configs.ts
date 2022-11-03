@@ -124,6 +124,31 @@ const configQueries = {
     { models }: IContext
   ) {
     return models.Configs.findOne({ code });
+  },
+
+  async configsGetInstallationStatus(
+    _root,
+    { name }: { name: string },
+    { models }: IContext
+  ) {
+    const isExisting = await models.InstallationLogs.findOne({
+      pluginName: name
+    });
+
+    if (!isExisting) {
+      return 'notExisting';
+    }
+
+    const isDone = await models.InstallationLogs.findOne({
+      pluginName: name,
+      message: 'done'
+    });
+
+    if (isDone) {
+      return 'installed';
+    }
+
+    return 'installing';
   }
 };
 

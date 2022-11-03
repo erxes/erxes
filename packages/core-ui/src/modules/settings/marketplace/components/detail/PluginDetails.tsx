@@ -1,3 +1,4 @@
+import client from '@erxes/ui/src/apolloClient';
 import {
   AdditionalDesc,
   AttachmentContainer,
@@ -19,6 +20,8 @@ import React from 'react';
 import RightSidebar from './RightSidebar';
 import Wrapper from './Wrapper';
 import { __ } from '@erxes/ui/src/utils';
+import gql from 'graphql-tag';
+import { queries } from '../../graphql';
 
 type Props = {
   id: string;
@@ -38,11 +41,25 @@ class PluginDetails extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
+    const plugin = props.plugin || {};
+
     this.state = {
       tabType: 'Description',
-      plugin: props.plugin || {},
+      plugin,
       loading: {}
     };
+
+    client
+      .query({
+        query: gql(queries.getInstallationStatus),
+        fetchPolicy: 'network-only',
+        variables: { name: plugin.type }
+      })
+      .then(({ data: { configsGetInstallationStatus } }) => {
+        plugin.status = configsGetInstallationStatus;
+
+        this.setState({ plugin });
+      });
   }
 
   renderContent = () => {
@@ -120,15 +137,13 @@ class PluginDetails extends React.Component<Props, State> {
   }
 
   render() {
-    const { enabledServicesQuery, plugins } = this.props;
+    const { plugins } = this.props;
     const { loading, plugin, tabType } = this.state;
 
     const breadcrumb = [
       { title: __('Marketplace'), link: '/marketplace' },
       { title: plugin.title || '' }
     ];
-
-    const enabledServices = enabledServicesQuery.enabledServices || {};
 
     const manageInstall = (type: string, name: string) => {
       this.setState({ loading: { [name]: true } });
@@ -138,8 +153,30 @@ class PluginDetails extends React.Component<Props, State> {
           variables: { type, name }
         })
         .then(() => {
-          Alert.success('You successfully installed');
-          window.location.reload();
+          const querySubscription = client
+            .watchQuery({
+              query: gql(queries.getInstallationStatus),
+              fetchPolicy: 'network-only',
+              pollInterval: 3000,
+              variables: { name }
+            })
+            .subscribe({
+              next: ({ data: { configsGetInstallationStatus } }) => {
+                if (
+                  (type === 'install' &&
+                    configsGetInstallationStatus === 'installed') ||
+                  (type === 'uninstall' &&
+                    configsGetInstallationStatus === 'notExisting')
+                ) {
+                  querySubscription.unsubscribe();
+                  Alert.success('Success');
+                  window.location.reload();
+                }
+              },
+              error: e => {
+                Alert.error(e.message);
+              }
+            });
         })
         .catch(error => {
           Alert.error(error.message);
@@ -148,6 +185,49 @@ class PluginDetails extends React.Component<Props, State> {
 
     const handleSelect = tab => {
       this.setState({ tabType: tab });
+    };
+
+    const renderButton = () => {
+      if (!plugin.title) {
+        return null;
+      }
+
+      if (plugin.status === 'installed') {
+        return (
+          <div>
+            <button
+              onClick={manageInstall.bind(this, 'uninstall', plugin.type)}
+              className="uninstall"
+            >
+              {loading[plugin.type] ? 'Uninstalling ...' : 'Uninstall'}
+            </button>
+
+            {/* <button
+              onClick={manageInstall.bind(
+                this,
+                'update',
+                plugin.type
+              )}
+              className="update"
+            >
+              Update
+            </button> */}
+
+            <div style={{ clear: 'both' }} />
+          </div>
+        );
+      }
+
+      return (
+        <button
+          onClick={manageInstall.bind(this, 'install', plugin.type)}
+          className="install"
+        >
+          {loading[plugin.type] || plugin.status === 'installing'
+            ? 'Installing ...'
+            : 'Install'}
+        </button>
+      );
     };
 
     const content = (
@@ -162,53 +242,7 @@ class PluginDetails extends React.Component<Props, State> {
               <Flex>{this.renderCategories()}</Flex>
             </DetailInformation>
           </Center>
-          {plugin.title && enabledServices[plugin.title.toLowerCase()] ? (
-            <>
-              <span>
-                {plugin.title && loading[plugin.title.toLowerCase()]
-                  ? 'Loading ...'
-                  : ''}
-              </span>
-              <div>
-                <button
-                  onClick={manageInstall.bind(
-                    this,
-                    'uninstall',
-                    plugin.title && plugin.title.toLowerCase()
-                  )}
-                  className="uninstall"
-                >
-                  Uninstall
-                </button>
-
-                <button
-                  onClick={manageInstall.bind(
-                    this,
-                    'update',
-                    plugin.title && plugin.title.toLowerCase()
-                  )}
-                  className="update"
-                >
-                  Update
-                </button>
-
-                <div style={{ clear: 'both' }} />
-              </div>
-            </>
-          ) : (
-            <button
-              onClick={manageInstall.bind(
-                this,
-                'install',
-                plugin.title && plugin.title.toLowerCase()
-              )}
-              className="install"
-            >
-              {plugin.title && loading[plugin.title.toLowerCase()]
-                ? 'Loading ...'
-                : 'Install'}
-            </button>
-          )}
+          {renderButton()}
         </PluginTitle>
 
         <AttachmentContainer>{this.renderScreenshots()}</AttachmentContainer>
