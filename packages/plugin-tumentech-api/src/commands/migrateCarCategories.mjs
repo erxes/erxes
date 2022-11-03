@@ -22,15 +22,13 @@ var command = async () => {
 
   Cars = db.collection('cars');
 
-  await Cars.updateMany(
-    {},
-    {
-      $rename: {
-        parentCategoryId: 'parentCarCategoryId',
-        categoryId: 'carCategoryId'
-      }
-    }
-  );
+  const cars = await Cars.find({}).toArray();
+
+  for (var car of cars) {
+    const { _id, carCategoryId, parentCarCategoryId } = car;
+   
+    await Cars.updateOne({ _id }, { $set: { parentCategoryId: parentCarCategoryId,categoryId: carCategoryId  } });
+  }
 
   console.log(`Process finished at: ${new Date()}`);
 
