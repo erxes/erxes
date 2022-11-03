@@ -3,6 +3,8 @@ import { IModels } from './index';
 import * as _ from 'lodash';
 import {
   ALL_CP_USER_LEVELS,
+  ALL_CP_USER_LEVEL_REQUIREMENT_ERROR_MESSAGES,
+  CpUserLevels,
   Permissions,
   ReadCpUserLevels,
   READ_CP_USER_LEVELS,
@@ -10,6 +12,8 @@ import {
   WRITE_CP_USER_LEVELS
 } from '../../consts';
 import { ICpUser } from '../../graphql';
+import { PostDocument } from './post';
+import { InsufficientUserLevelError } from '../../customErrors';
 
 export interface ICategory {
   _id: any;
@@ -48,11 +52,16 @@ export interface ICategoryModel extends Model<CategoryDocument> {
 
   doesRequireAdminApproval(_id?: string | null): Promise<boolean>;
 
-  isUserAllowedTo(
-    permission: Permissions,
-    categoryId?: string | null,
+  isUserAllowedToRead(
+    post: PostDocument,
     user?: ICpUser | null
-  ): Promise<boolean>;
+  ): Promise<[boolean, CpUserLevels]>;
+
+  ensureUserIsAllowed(
+    permission: Exclude<Permissions, 'READ_POST'>,
+    category?: CategoryDocument | null,
+    user?: ICpUser | null
+  ): Promise<void>;
 }
 
 export const getDefaultPostReadCpUserLevel = (): ReadCpUserLevels => 'GUEST';
@@ -260,82 +269,81 @@ export const generateCategoryModel = (
       return false;
     }
 
-    public static async isUserAllowedTo(
-      permission: Permissions,
-      categoryId?: string | null,
+    public static async isUserAllowedToRead(
+      post: PostDocument,
       user?: ICpUser | null
-    ): Promise<boolean> {
+    ): Promise<[boolean, CpUserLevels?]> {
+      if (post.createdByCpId && post.createdByCpId === user?.userId)
+        return [true];
+      if (!post.categoryId) return [true, 'GUEST'];
+
+      const category = await models.Category.findByIdOrThrow(post.categoryId);
+      const requiredLevel = category.userLevelReqPostRead;
+
+      // everyone is allowed to read
+      if (requiredLevel === 'GUEST') return [true, requiredLevel];
+
       const userLevel = await models.ForumClientPortalUser.getUserLevel(user);
 
-      if (permission === 'READ_POST') {
-        if (!categoryId) return true;
+      // user is allowed by its user level
+      if (ALL_CP_USER_LEVELS[userLevel] >= ALL_CP_USER_LEVELS[requiredLevel])
+        return [true, requiredLevel];
 
-        const category = await models.Category.findByIdOrThrow(categoryId);
-        const requiredLevel = category.userLevelReqPostRead;
+      const hasPermit = await models.PermissionGroupCategoryPermit.isUserPermitted(
+        post.categoryId,
+        'READ_POST',
+        user?.userId
+      );
 
-        // user is allowed by its user level
-        if (ALL_CP_USER_LEVELS[userLevel] >= ALL_CP_USER_LEVELS[requiredLevel])
-          return true;
+      // user is allowed by its permission group
+      if (hasPermit) return [true, requiredLevel];
 
-        const hasPermit = await models.PermissionGroupCategoryPermit.isUserPermitted(
-          categoryId,
-          permission,
-          user?.userId
+      return [false, requiredLevel];
+    }
+
+    public static async ensureUserIsAllowed(
+      permission: Exclude<Permissions, 'READ_POST'>,
+      category?: CategoryDocument | null,
+      user?: ICpUser | null
+    ): Promise<void> {
+      if (!user)
+        throw new InsufficientUserLevelError(
+          ALL_CP_USER_LEVEL_REQUIREMENT_ERROR_MESSAGES.REGISTERED,
+          'REGISTERED'
         );
 
-        // user is allowed by its permission group
-        if (hasPermit) return true;
+      if (!category) return;
 
-        return false;
-      }
+      const userLevel = await models.ForumClientPortalUser.getUserLevel(user);
 
-      if (permission === 'WRITE_COMMENT') {
-        // only logged in users allowed to write anything
-        if (!user) return false;
+      const requiredLevel: CpUserLevels = (() => {
+        if (permission === 'WRITE_COMMENT') {
+          return category.userLevelReqPostWrite;
+        } else if (permission === 'WRITE_POST') {
+          return category.userLevelReqPostWrite;
+        } else {
+          throw new Error(
+            'Tried to check for an unrecgonized write permission'
+          );
+        }
+      })();
 
-        if (!categoryId) return true;
+      // user is allowed by its user level
+      if (ALL_CP_USER_LEVELS[userLevel] >= ALL_CP_USER_LEVELS[requiredLevel])
+        return;
 
-        const category = await models.Category.findByIdOrThrow(categoryId);
+      const hasPermit = await models.PermissionGroupCategoryPermit.isUserPermitted(
+        category._id,
+        permission,
+        user.userId
+      );
 
-        const requiredLevel = category.userLevelReqCommentWrite;
+      if (hasPermit) return;
 
-        if (ALL_CP_USER_LEVELS[userLevel] >= ALL_CP_USER_LEVELS[requiredLevel])
-          return true;
-
-        const hasPermit = await models.PermissionGroupCategoryPermit.isUserPermitted(
-          categoryId,
-          permission,
-          user.userId
-        );
-
-        if (hasPermit) return true;
-
-        return false;
-      }
-
-      if (permission === 'WRITE_POST') {
-        // only logged in users allowed to write anything
-        if (!user) return false;
-        if (!categoryId) return true;
-
-        const category = await models.Category.findByIdOrThrow(categoryId);
-        const requiredLevel = category.userLevelReqPostWrite;
-
-        if (ALL_CP_USER_LEVELS[userLevel] >= ALL_CP_USER_LEVELS[requiredLevel])
-          return true;
-
-        const hasPermit = await models.PermissionGroupCategoryPermit.isUserPermitted(
-          categoryId,
-          permission,
-          user.userId
-        );
-
-        if (hasPermit) return true;
-
-        return false;
-      }
-
-      return false;
+      throw new InsufficientUserLevelError(
+        ALL_CP_USER_LEVEL_REQUIREMENT_ERROR_MESSAGES[requiredLevel],
+        requiredLevel
+      );
     }
   }
   categorySchema.loadClass(CategoryModel);

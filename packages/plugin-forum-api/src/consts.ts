@@ -9,6 +9,15 @@ export const ALL_CP_USER_LEVELS = {
   NO_ONE: 999
 } as const;
 
+export const ALL_CP_USER_LEVEL_REQUIREMENT_ERROR_MESSAGES: {
+  [x in keyof typeof ALL_CP_USER_LEVELS]: string;
+} = {
+  GUEST: 'Everyone is allowed',
+  REGISTERED: 'Login is required',
+  SUBSCRIBED: 'Subscription is required',
+  NO_ONE: 'No one is allowed'
+} as const;
+
 export type CpUserLevels = keyof typeof ALL_CP_USER_LEVELS;
 
 export const WRITE_CP_USER_LEVELS = _.omit(ALL_CP_USER_LEVELS, 'GUEST');

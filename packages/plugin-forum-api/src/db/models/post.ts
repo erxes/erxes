@@ -1,9 +1,18 @@
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { Document, Schema, Model, Connection, Types } from 'mongoose';
-import { USER_TYPES, UserTypes } from '../../consts';
+import {
+  USER_TYPES,
+  UserTypes,
+  ALL_CP_USER_LEVEL_REQUIREMENT_ERROR_MESSAGES
+} from '../../consts';
 import { ICpUser } from '../../graphql';
 import { IModels } from './index';
 import * as _ from 'lodash';
+import { assert } from 'console';
+import {
+  InsufficientUserLevelError,
+  LoginRequiredError
+} from '../../customErrors';
 
 export const POST_STATES = ['DRAFT', 'PUBLISHED'] as const;
 
@@ -255,14 +264,15 @@ export const generatePostModel = (
       input: PostCreateInput,
       cpUser?: ICpUser
     ): Promise<PostDocument> {
-      if (!cpUser) throw new Error(`Unauthorized`);
+      const category = await models.Category.findById(input.categoryId);
 
-      const categoryRequiresApproval = await models.Category.doesRequireAdminApproval(
-        input.categoryId
-      );
-      const categoryApprovalState: AdminApprovalStates = categoryRequiresApproval
+      await models.Category.ensureUserIsAllowed('WRITE_POST', category, cpUser);
+
+      const categoryApprovalState: AdminApprovalStates = category?.postsReqCrmApproval
         ? 'PENDING'
         : 'APPROVED';
+
+      if (!cpUser) throw new Error('cpUser is null');
 
       const res = await models.Post.create({
         ...input,
@@ -284,16 +294,18 @@ export const generatePostModel = (
       patch: PostPatchInput,
       cpUser?: ICpUser
     ): Promise<PostDocument> {
-      if (!cpUser) throw new Error(`Unauthorized`);
+      if (!cpUser) throw new LoginRequiredError();
 
       const post = await models.Post.findByIdOrThrowCp(_id, cpUser);
 
       const resultingCategoryId =
         patch.categoryId === undefined ? post.categoryId : patch.categoryId;
-      const categoryRequiresApproval = await models.Category.doesRequireAdminApproval(
-        resultingCategoryId
-      );
-      const categoryApprovalState: AdminApprovalStates = categoryRequiresApproval
+
+      const category = await models.Category.findById(resultingCategoryId);
+
+      await models.Category.ensureUserIsAllowed('WRITE_POST', category, cpUser);
+
+      const categoryApprovalState: AdminApprovalStates = category?.postsReqCrmApproval
         ? 'PENDING'
         : 'APPROVED';
 
@@ -312,7 +324,7 @@ export const generatePostModel = (
       _id: string,
       cpUser?: ICpUser
     ): Promise<PostDocument> {
-      if (!cpUser) throw new Error(`Unauthorized`);
+      if (!cpUser) throw new LoginRequiredError();
       const post = await models.Post.findByIdOrThrowCp(_id, cpUser);
       await post.remove();
       await models.Comment.deleteMany({ postId: _id });
@@ -324,7 +336,7 @@ export const generatePostModel = (
       state: PostStates,
       cpUser?: ICpUser
     ): Promise<PostDocument> {
-      if (!cpUser) throw new Error(`Unauthorized`);
+      if (!cpUser) throw new LoginRequiredError();
       const post = await models.Post.findByIdOrThrowCp(_id, cpUser);
       return changeStateCommon(post, state, cpUser.userId, 'CP');
     }
@@ -333,14 +345,12 @@ export const generatePostModel = (
       _id: string,
       cpUser?: ICpUser
     ): Promise<PostDocument> {
-      if (!cpUser) throw new Error(`Unauthorized`);
       return models.Post.changeStateCp(_id, 'DRAFT', cpUser);
     }
     public static async publishCp(
       _id: string,
       cpUser?: ICpUser
     ): Promise<PostDocument> {
-      if (!cpUser) throw new Error(`Unauthorized`);
       return models.Post.changeStateCp(_id, 'PUBLISHED', cpUser);
     }
 
