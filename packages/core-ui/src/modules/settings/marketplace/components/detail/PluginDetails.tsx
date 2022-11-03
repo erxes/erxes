@@ -186,6 +186,7 @@ class PluginDetails extends React.Component<Props, State> {
         })
         .catch(error => {
           Alert.error(error.message);
+          this.setState({ loading: { [name]: false } });
           localStorage.setItem('currentInstallationType', '');
         });
     };
