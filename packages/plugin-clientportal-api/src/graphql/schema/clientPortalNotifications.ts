@@ -9,6 +9,24 @@ export const types = `
     engage
   }
 
+  type NotificationConfig {
+    notifType: String
+    label: String
+    isAllowed: Boolean
+  }
+
+  input NotificationConfigInput {
+    notifType: String
+    label: String
+    isAllowed: Boolean
+  }
+
+  type UserNotificationSettings {
+    receiveByEmail: Boolean
+    receiveBySMS: Boolean
+    configs: [NotificationConfig]
+  }
+
   type ClientPortalNotification {
     _id: String!
     notifType: NotificationType
@@ -43,4 +61,10 @@ export const queries = `
 export const mutations = `
   clientPortalNotificationsMarkAsRead (_ids: [String]) : String
   clientPortalNotificationsRemove(_ids: [String]) : JSON
+
+  clientPortalUserUpdateNotificationSettings(
+    receiveByEmail: Boolean,
+    receiveBySMS: Boolean,
+    configs: [NotificationConfigInput],
+  ): ClientPortalUser
 `;

@@ -121,35 +121,35 @@ export const loadConformityClass = (models: IModels, subdomain: string) => {
     }
 
     public static async savedConformity(doc: IConformitySaved) {
-      if (!isUsingElk()) {
-        return conformityHelper({
-          doc,
-          getConformities: async () => {
-            return models.Conformities.aggregate([
-              {
-                ...getMatchConformities({
-                  mainType: doc.mainType,
-                  relTypes: doc.relTypes,
-                  mainTypeIds: [doc.mainTypeId]
-                })
-              }
-            ]);
-          }
-        });
-      }
-
+      // if (!isUsingElk()) {
       return conformityHelper({
         doc,
         getConformities: async () => {
-          return findElk(subdomain, {
-            ...getQueryConformities({
-              mainType: doc.mainType,
-              relTypes: doc.relTypes,
-              mainTypeIds: [doc.mainTypeId]
-            })
-          });
+          return models.Conformities.aggregate([
+            {
+              ...getMatchConformities({
+                mainType: doc.mainType,
+                relTypes: doc.relTypes,
+                mainTypeIds: [doc.mainTypeId]
+              })
+            }
+          ]);
         }
       });
+      // }
+
+      // return conformityHelper({
+      //   doc,
+      //   getConformities: async () => {
+      //     return findElk(subdomain, {
+      //       ...getQueryConformities({
+      //         mainType: doc.mainType,
+      //         relTypes: doc.relTypes,
+      //         mainTypeIds: [doc.mainTypeId]
+      //       })
+      //     });
+      //   }
+      // });
     }
 
     public static async changeConformity(doc: IConformityChange) {
@@ -204,9 +204,14 @@ export const loadConformityClass = (models: IModels, subdomain: string) => {
     }
 
     public static async getConformities(doc: IGetConformityBulk) {
-      if (isUsingElk()) {
-        return findElk(subdomain, { ...getQueryConformities({ ...doc }) });
-      }
+      // if (isUsingElk()) {
+      //   return findElk(subdomain, { ...getQueryConformities({ ...doc }) });
+      // }
+
+      console.log(
+        'getConformities',
+        JSON.stringify(getMatchConformities({ ...doc }))
+      );
 
       return models.Conformities.aggregate([
         {

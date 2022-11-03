@@ -233,36 +233,27 @@ export const sendNotification = async (
     });
   }
 
-  // const DOMAIN = getEnv({ name: 'DOMAIN' });
+  sendCoreMessage({
+    subdomain,
+    action: 'sendEmail',
+    data: {
+      toEmails,
+      title: 'Notification',
+      template: {
+        name: 'notification',
+        data: {
+          notification: { ...doc, link }
+        }
+      },
+      modifier: (data: any, email: string) => {
+        const user = recipients.find(item => item.email === email);
 
-  // link = `${DOMAIN}${link}`;
-
-  // // for controlling email template data filling
-  // const modifier = (data: any, email: string) => {
-  //   const user = recipients.find((item) => item.email === email);
-
-  //   if (user) {
-  //     data.uid = user._id;
-  //   }
-  // };
-
-  // sendCoreMessage({
-  //   subdomain,
-  //   action: 'sendEmail',
-  //   data: {
-  //     toEmails,
-  //     title: 'Notification',
-  //     template: {
-  //       name: 'notification',
-  //       data: {
-  //         notification: { ...doc, link },
-  //         action,
-  //         userName: getUserDetail(createdUser),
-  //       },
-  //     },
-  //     modifier,
-  //   },
-  // });
+        if (user) {
+          data.uid = user._id;
+        }
+      }
+    }
+  });
 
   if (isMobile) {
     const deviceTokens = [
@@ -273,8 +264,8 @@ export const sendNotification = async (
       subdomain: subdomain,
       action: 'sendMobileNotification',
       data: {
-        title: 'Үнийн санал илгээсэн танд баярлалаа.',
-        body: 'Таны үнийн саналыг амжилттай хүлээн авлаа!',
+        title,
+        body: content,
         deviceTokens
       }
     });

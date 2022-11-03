@@ -1,76 +1,123 @@
 import { IModels } from '../connectionResolver';
-import { sendCardsMessage, sendCoreMessage } from '../messageBroker';
+import { sendCardsMessage } from '../messageBroker';
 import { sendNotification } from '../utils';
 
-export const ticketHandler = async (models: IModels, subdomain, params) => {
-  const { type, action, user } = params;
+export const cardUpdateHandler = async (models: IModels, subdomain, params) => {
+  const { type } = params;
 
-  if (action === 'update') {
-    const deal = params.updatedDocument;
-    const oldDeal = params.object;
-    const destinationStageId = deal.stageId || '';
+  const cardType = type.split(':')[1];
 
-    if (!(destinationStageId && destinationStageId !== oldDeal.stageId)) {
-      return;
-    }
+  const card = params.updatedDocument;
+  const oldCard = params.object;
+  const destinationStageId = card.stageId || '';
 
+  const oldStatus = oldCard.status;
+  const newStatus = card.status;
+
+  let content = '';
+
+  if (
+    !(destinationStageId && destinationStageId !== oldCard.stageId) &&
+    oldStatus === newStatus
+  ) {
     return;
   }
-};
 
-export const taskHandler = async (models: IModels, subdomain, params) => {
-  const { type, action } = params;
+  const userIds = await models.ClientPortalUserCards.getUserIds(
+    cardType,
+    card._id
+  );
 
-  if (action === 'update') {
-    const task = params.updatedDocument;
-    const oldTask = params.object;
-    const destinationStageId = task.stageId || '';
+  if (userIds.length === 0) {
+    return;
+  }
 
-    if (!(destinationStageId && destinationStageId !== oldTask.stageId)) {
-      return;
-    }
+  const stage = await sendCardsMessage({
+    subdomain,
+    action: 'stages.findOne',
+    data: { _id: destinationStageId },
+    isRPC: true,
+    defaultValue: null
+  });
 
-    const userIds = await models.ClientPortalUserCards.getUserIds(
-      'task',
-      task._id
-    );
+  content = `${cardType.charAt(0).toUpperCase() + cardType.slice(1)} ${
+    card.name
+  } has been moved to ${stage.name} stage`;
 
-    if (userIds.length === 0) {
-      return;
-    }
+  if (newStatus !== oldStatus && newStatus === 'archived') {
+    content = `Your ${cardType} named ${card.name} has been archived`;
+  }
 
-    const stage = await sendCardsMessage({
-      subdomain,
-      action: 'stages.findOne',
-      data: { _id: destinationStageId },
-      isRPC: true,
-      defaultValue: null
+  if (newStatus !== oldStatus && newStatus === 'active') {
+    content = `Your ${cardType} named ${card.name} has been activated`;
+  }
+
+  const users = await models.ClientPortalUsers.find({
+    _id: { $in: userIds }
+  }).lean();
+
+  for (const user of users) {
+    const config = await models.ClientPortals.findOne({
+      _id: user.clientPortalId
     });
 
-    const content = `Task ${task.name} has been moved to ${stage.name} stage`;
-
-    const users = await models.ClientPortalUsers.find({
-      _id: { $in: userIds }
-    }).lean();
-
-    for (const user of users) {
-      const config = await models.ClientPortals.findOne({
-        _id: user.clientPortalId
-      });
-
-      if (!config) {
-        continue;
-      }
-
-      await sendNotification(models, subdomain, {
-        receivers: [user._id],
-        title: 'Your submitted task has been updated',
-        content,
-        notifType: 'system',
-        link: `${config.url}/tasks?stageId=${destinationStageId}`
-      });
+    if (!config) {
+      continue;
     }
 
+    await sendNotification(models, subdomain, {
+      receivers: [user._id],
+      title: `Your submitted ${cardType} has been updated`,
+      content,
+      notifType: 'system',
+      link: `${config.url}/${cardType}s?stageId=${destinationStageId}`
+    });
+  }
+
+  return;
+};
+
+export const cardDeleteHandler = async (models: IModels, subdomain, params) => {
+  const { type } = params;
+
+  const cardType = type.split(':')[1];
+
+  const card = params.object;
+
+  const userIds = await models.ClientPortalUserCards.getUserIds(
+    cardType,
+    card._id
+  );
+
+  await models.ClientPortalUserCards.remove({ cardId: card._id });
+
+  if (userIds.length === 0) {
     return;
   }
+
+  const users = await models.ClientPortalUsers.find({
+    _id: { $in: userIds }
+  }).lean();
+
+  for (const user of users) {
+    const config = await models.ClientPortals.findOne({
+      _id: user.clientPortalId
+    });
+
+    if (!config) {
+      continue;
+    }
+
+    await sendNotification(models, subdomain, {
+      receivers: [user._id],
+      title: `Your submitted ${cardType} has been deleted`,
+      content: `${cardType.charAt(0).toUpperCase() + cardType.slice(1)} ${
+        card.name
+      } has been deleted`,
+      notifType: 'system',
+      link: `${config.url}/${cardType}s`
+    });
+  }
+
+  return;
 };

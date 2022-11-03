@@ -5,6 +5,7 @@ import { IContext } from '../../../connectionResolver';
 import {
   sendCardsMessage,
   sendContactsMessage,
+  sendCoreMessage,
   sendKbMessage
 } from '../../../messageBroker';
 
@@ -134,7 +135,7 @@ const configClientPortalQueries = {
       subdomain,
       action: 'customers.findOne',
       data: {
-        _id: cpUser._id
+        _id: cpUser.erxesCustomerId
       },
       isRPC: true
     });
@@ -143,11 +144,39 @@ const configClientPortalQueries = {
       return [];
     }
 
+    const conformities = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.getConformities',
+      data: {
+        mainType: 'customer',
+        mainTypeIds: [customer._id],
+        relTypes: ['ticket']
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    if (conformities.length === 0) {
+      return [];
+    }
+
+    const ticketIds: string[] = [];
+
+    for (const c of conformities) {
+      if (c.relType === 'ticket' && c.mainType === 'customer') {
+        ticketIds.push(c.relTypeId);
+      }
+
+      if (c.mainType === 'ticket' && c.relType === 'customer') {
+        ticketIds.push(c.mainTypeId);
+      }
+    }
+
     return sendCardsMessage({
       subdomain,
       action: 'tickets.find',
       data: {
-        userId: customer._id
+        _id: { $in: ticketIds }
       },
       isRPC: true
     });
