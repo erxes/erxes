@@ -60,6 +60,36 @@ class PluginDetails extends React.Component<Props, State> {
 
         this.setState({ plugin });
       });
+
+    const querySubscription = client
+      .watchQuery({
+        query: gql(queries.getInstallationStatus),
+        fetchPolicy: 'network-only',
+        pollInterval: 3000,
+        variables: { name: plugin.type }
+      })
+      .subscribe({
+        next: ({ data: { configsGetInstallationStatus } }) => {
+          const installationType = localStorage.getItem(
+            'currentInstallationType'
+          );
+
+          if (
+            (installationType === 'install' &&
+              configsGetInstallationStatus === 'installed') ||
+            (installationType === 'uninstall' &&
+              configsGetInstallationStatus === 'notExisting')
+          ) {
+            querySubscription.unsubscribe();
+            localStorage.setItem('currentInstallationType', '');
+            Alert.success('Success');
+            window.location.reload();
+          }
+        },
+        error: e => {
+          Alert.error(e.message);
+        }
+      });
   }
 
   renderContent = () => {
@@ -146,40 +176,17 @@ class PluginDetails extends React.Component<Props, State> {
     ];
 
     const manageInstall = (type: string, name: string) => {
+      localStorage.setItem('currentInstallationType', type);
+
       this.setState({ loading: { [name]: true } });
 
       this.props
         .manageInstall({
           variables: { type, name }
         })
-        .then(() => {
-          const querySubscription = client
-            .watchQuery({
-              query: gql(queries.getInstallationStatus),
-              fetchPolicy: 'network-only',
-              pollInterval: 3000,
-              variables: { name }
-            })
-            .subscribe({
-              next: ({ data: { configsGetInstallationStatus } }) => {
-                if (
-                  (type === 'install' &&
-                    configsGetInstallationStatus === 'installed') ||
-                  (type === 'uninstall' &&
-                    configsGetInstallationStatus === 'notExisting')
-                ) {
-                  querySubscription.unsubscribe();
-                  Alert.success('Success');
-                  window.location.reload();
-                }
-              },
-              error: e => {
-                Alert.error(e.message);
-              }
-            });
-        })
         .catch(error => {
           Alert.error(error.message);
+          localStorage.setItem('currentInstallationType', '');
         });
     };
 
