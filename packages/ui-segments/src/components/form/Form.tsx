@@ -58,7 +58,6 @@ type Props = {
   isModal?: boolean;
   hideDetailForm?: boolean;
   count: number;
-  usageType?: string;
 };
 
 type State = {
@@ -657,7 +656,6 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       closeModal,
       previewCount,
       isModal,
-      usageType,
       filterContent
     } = this.props;
 
@@ -702,21 +700,6 @@ class SegmentFormAutomations extends React.Component<Props, State> {
         );
       }
 
-      if (usageType && usageType === 'export') {
-        return (
-          <>
-            {renderButton({
-              name: 'segment',
-              text: 'Apply',
-              values: this.generateDoc(values),
-              callback: closeModal || afterSave,
-              isSubmitted,
-              object: segment
-            })}
-          </>
-        );
-      }
-
       return (
         <>
           {isModal ? (
@@ -753,11 +736,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
 
   renderCount = () => {
     const { segments, state } = this.state;
-    const { count, isModal, usageType } = this.props;
-
-    if (usageType && usageType === 'export') {
-      return null;
-    }
+    const { count, isModal } = this.props;
 
     if (
       segments.length > 0 &&

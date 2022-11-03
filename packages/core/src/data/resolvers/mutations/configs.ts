@@ -109,8 +109,10 @@ const configMutations = {
       subdomain,
       serviceName: '',
       action: 'managePluginInstall',
-      data: args,
-      isRPC: true
+      data: {
+        ...args,
+        subdomain
+      }
     });
 
     return { status: 'success' };

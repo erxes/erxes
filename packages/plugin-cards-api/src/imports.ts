@@ -1,10 +1,9 @@
 import { generateModels } from './connectionResolver';
-import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
+import { IMPORT_EXPORT_TYPES } from './constants';
 import { sendFormsMessage } from './messageBroker';
 
 export default {
-  importTypes: IMPORT_TYPES,
-  exportTypes: EXPORT_TYPES,
+  importExportTypes: IMPORT_EXPORT_TYPES,
   insertImportItems: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 

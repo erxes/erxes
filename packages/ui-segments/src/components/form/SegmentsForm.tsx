@@ -28,7 +28,6 @@ type Props = {
   counterLoading: boolean;
   isModal: boolean;
   hideDetailForm?: boolean;
-  usageType?: string;
   closeModal: () => void;
   closeParentModal?: () => void;
   activeTrigger?: ITrigger;
@@ -52,7 +51,6 @@ const SegmentsForm = (props: Props) => {
     segments,
     previewCount,
     count,
-    usageType,
     filterContent
   } = props;
 
@@ -101,7 +99,6 @@ const SegmentsForm = (props: Props) => {
       hideDetailForm={hideDetailForm}
       previewCount={previewCount}
       count={count}
-      usageType={usageType}
       filterContent={filterContent}
     />
   );

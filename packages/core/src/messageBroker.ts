@@ -31,6 +31,23 @@ export const initBroker = async options => {
   // do not receive messages in crons worker
   const { consumeQueue, consumeRPCQueue } = client;
 
+  consumeQueue(
+    'core:manage-installation-notification',
+    async ({ subdomain, type, name, message }) => {
+      const models = await generateModels(subdomain);
+
+      if (type === 'uninstall' && message === 'done') {
+        await models.InstallationLogs.remove({ pluginName: name });
+        return;
+      }
+
+      await models.InstallationLogs.createLog({
+        pluginName: name,
+        message: message
+      });
+    }
+  );
+
   consumeQueue('core:runCrons', async () => {
     console.log('Running crons ........');
   });

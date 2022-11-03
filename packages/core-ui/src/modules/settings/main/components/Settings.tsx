@@ -132,7 +132,7 @@ class Settings extends React.PureComponent {
             {this.renderBox(
               'Import & Export',
               '/images/icons/erxes-22.svg',
-              '/settings/importHistories',
+              '/settings/selectMenu',
               'importHistoriesAll',
               ['importHistories', 'removeImportHistories', 'importXlsFile']
             )}

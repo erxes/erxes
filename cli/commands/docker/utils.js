@@ -514,9 +514,9 @@ const up = async ({ uis, fromInstaller }) => {
   if (dashboard) {
     dockerComposeConfig.services.dashboard = {
       image: `erxes/dashboard:${dashboard.image_tag || image_tag}`,
-      ports: ['4300:80'],
+      ports: [`4300:${SERVICE_INTERNAL_PORT}`],
       environment: {
-        PORT: '80',
+        PORT: SERVICE_INTERNAL_PORT,
         CUBEJS_DB_TYPE: 'mongobi',
         CUBEJS_DB_HOST: `${dashboard.dashboard_db_host || 'mongosqld'}`,
         CUBEJS_DB_PORT: `${dashboard.dashboard_db_port || '3307'}`,
@@ -542,7 +542,7 @@ const up = async ({ uis, fromInstaller }) => {
     if (!fromInstaller) {
       await execCommand(`cd installer && npm run pm2 delete all`, true);
       await execCommand(
-        `cd installer && RABBITMQ_HOST=${RABBITMQ_HOST} npm run pm2 start index.js`
+        `cd installer && RABBITMQ_HOST=${configs.installer.rabbitmq_host} npm run pm2 start index.js`
       );
     }
   }
