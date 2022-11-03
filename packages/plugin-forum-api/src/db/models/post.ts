@@ -127,15 +127,22 @@ export interface IPostModel extends Model<PostDocument> {
 }
 
 export const postSchema = new Schema<PostDocument>({
-  categoryId: { type: Types.ObjectId },
-  title: { type: String },
+  categoryId: { type: Types.ObjectId, index: true },
+  title: { type: String, index: 'text' },
   content: { type: String },
-  description: String,
+  description: { type: String, index: 'text' },
   categoryApprovalState: {
     type: String,
     required: true,
     enum: ADMIN_APPROVAL_STATES,
     index: true
+  },
+  state: {
+    type: String,
+    required: true,
+    enum: POST_STATES,
+    index: true,
+    default: POST_STATES[0]
   },
 
   thumbnail: String,
@@ -159,7 +166,7 @@ export const postSchema = new Schema<PostDocument>({
   stateChangedByCpId: String
 });
 // used by client portal front-end
-postSchema.index({ categoryApprovalState: 1, categoryId: 1, state: 1 });
+postSchema.index({ state: 1, categoryApprovalState: 1, categoryId: 1 });
 // mostly used by update query of updateTrendScoreOfPublished
 postSchema.index({ stateChangedAt: 1, state: 1 });
 

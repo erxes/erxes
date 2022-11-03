@@ -7,7 +7,9 @@ const CategorySelect: React.FC<{
   value: string;
   onChange: (any) => any;
 }> = ({ value, onChange }) => {
-  const { data, loading, error } = useQuery(CATEGORIES_ALL);
+  const { data, loading, error } = useQuery(CATEGORIES_ALL, {
+    fetchPolicy: 'network-only'
+  });
 
   if (loading) return null;
   if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;

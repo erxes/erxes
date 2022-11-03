@@ -6,6 +6,7 @@ import ForumPost from './ForumPost';
 import ForumComment from './ForumComment';
 import { ADMIN_APPROVAL_STATES, POST_STATES } from '../../db/models/post';
 import {
+  ALL_CP_USER_LEVELS,
   PERMISSIONS,
   READ_CP_USER_LEVELS,
   USER_TYPES,
@@ -33,6 +34,10 @@ export default async function genTypeDefs(serviceDiscovery) {
 
     enum ForumPermission {
       ${PERMISSIONS.join('\n')}
+    }
+
+    enum ForumAllUserLevels {
+      ${Object.keys(ALL_CP_USER_LEVELS).join('\n')}
     }
 
     enum ForumUserLevelsWrite {

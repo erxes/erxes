@@ -18,7 +18,7 @@ export interface IForumClientPortalUserModel
     _ids: string[]
   ): Promise<ForumClientPortalUserDocument[]>;
   findAndIsSubscribed(_id: string): Promise<boolean>;
-  isSubscribed(doc: ForumClientPortalUserDocument): boolean;
+  isSubscribed(doc: IForumClientPortalUser): boolean;
 
   getUserLevel(cpUser?: ICpUser | null): Promise<CpUserLevels>;
 }
@@ -73,7 +73,7 @@ export const generateForumClientPortalUserModel = (
       const doc = await models.ForumClientPortalUser.findByIdOrCreate(_id);
       return models.ForumClientPortalUser.isSubscribed(doc);
     }
-    public static isSubscribed(doc: ForumClientPortalUserDocument): boolean {
+    public static isSubscribed(doc: IForumClientPortalUser): boolean {
       if (!doc.subscriptionEndsAfter) return false;
 
       const now = Date.now();

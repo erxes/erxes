@@ -43,7 +43,9 @@ const dictToOptions = (dict: object) => {
   return (
     <>
       {Object.entries(dict).map(entry => (
-        <option value={entry[1]}>{entry[0]}</option>
+        <option key={entry[1]} value={entry[1]}>
+          {entry[0]}
+        </option>
       ))}
     </>
   );
@@ -158,7 +160,9 @@ const CategoryForm: React.FC<Props> = ({
                     onChange={e => setUserLevelReqPostRead(e.target.value)}
                   >
                     {Object.keys(READ_CP_USER_LEVELS).map(enumVal => (
-                      <option value={enumVal}>{enumVal}</option>
+                      <option key={enumVal} value={enumVal}>
+                        {enumVal}
+                      </option>
                     ))}
                   </select>
                 </td>
@@ -172,7 +176,9 @@ const CategoryForm: React.FC<Props> = ({
                     onChange={e => setUserLevelReqPostWrite(e.target.value)}
                   >
                     {Object.keys(WRITE_CP_USER_LEVELS).map(enumVal => (
-                      <option value={enumVal}>{enumVal}</option>
+                      <option key={enumVal} value={enumVal}>
+                        {enumVal}
+                      </option>
                     ))}
                   </select>
                 </td>
@@ -198,7 +204,9 @@ const CategoryForm: React.FC<Props> = ({
                     onChange={e => setUserLevelReqCommentWrite(e.target.value)}
                   >
                     {Object.keys(WRITE_CP_USER_LEVELS).map(enumVal => (
-                      <option value={enumVal}>{enumVal}</option>
+                      <option key={enumVal} value={enumVal}>
+                        {enumVal}
+                      </option>
                     ))}
                   </select>
                 </td>

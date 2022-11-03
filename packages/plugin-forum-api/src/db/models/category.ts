@@ -276,7 +276,11 @@ export const generateCategoryModel = (
       post: PostDocument,
       user?: ICpUser | null
     ): Promise<[boolean, CpUserLevels?]> {
-      if (post.createdByCpId && post.createdByCpId === user?.userId)
+      if (
+        post.createdByCpId &&
+        user?.userId &&
+        post.createdByCpId === user?.userId
+      )
         return [true];
       if (!post.categoryId) return [true, 'GUEST'];
 
