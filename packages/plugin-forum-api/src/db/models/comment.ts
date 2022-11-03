@@ -2,6 +2,7 @@ import { IUserDocument } from '@erxes/api-utils/src/types';
 import { Document, Schema, Model, Connection, Types } from 'mongoose';
 import { cpus } from 'os';
 import { UserTypes, USER_TYPES } from '../../consts';
+import { LoginRequiredError } from '../../customErrors';
 import { ICpUser } from '../../graphql';
 import { IModels } from './index';
 
@@ -127,20 +128,30 @@ export const generateCommentModel = (
       const deletedComment = await models.Comment.findByIdOrThrow(_id);
 
       const idsToDelete = [_id];
-      let findReplies = [_id];
+      let findRepliesOf = [_id];
 
-      while (findReplies?.length) {
+      while (findRepliesOf?.length) {
         const replies = await models.Comment.find({
-          replyToId: { $in: findReplies }
+          replyToId: { $in: findRepliesOf }
         }).lean();
         const replyIds = replies.map(reply => reply._id);
         idsToDelete.push(...replyIds);
-        findReplies = replyIds;
+        findRepliesOf = replyIds;
       }
 
+      const oidsToDelete = idsToDelete.map(Types.ObjectId);
+
       const res = await models.Comment.deleteMany({
-        _id: { $in: idsToDelete }
+        _id: { $in: oidsToDelete }
       });
+
+      await models.CommentDownVote.deleteMany({
+        contentId: { $in: oidsToDelete }
+      });
+      await models.CommentUpVote.deleteMany({
+        contentId: { $in: oidsToDelete }
+      });
+
       return deletedComment;
     }
 
@@ -158,7 +169,16 @@ export const generateCommentModel = (
       c: Omit<IComment, '_id'>,
       cpUser?: ICpUser
     ): Promise<CommentDocument> {
-      if (!cpUser) throw new Error('Unauthorized');
+      if (!cpUser) throw new LoginRequiredError();
+
+      const post = await models.Post.findByIdOrThrow(c.postId);
+      const category = await models.Category.findById(post.categoryId);
+
+      await models.Category.ensureUserIsAllowed(
+        'WRITE_COMMENT',
+        category,
+        cpUser
+      );
 
       const res = await models.Comment.create({
         ...c,
@@ -188,28 +208,14 @@ export const generateCommentModel = (
       _id: string,
       cpUser?: ICpUser
     ): Promise<CommentDocument> {
-      if (!cpUser) throw new Error('Unauthorized');
+      if (!cpUser) throw new LoginRequiredError();
 
       const deletedComment = await models.Comment.findByIdOrThrowCp(
         _id,
         cpUser
       );
 
-      const idsToDelete = [_id];
-      let findReplies = [_id];
-
-      while (findReplies?.length) {
-        const replies = await models.Comment.find({
-          replyToId: { $in: findReplies }
-        }).lean();
-        const replyIds = replies.map(reply => reply._id);
-        idsToDelete.push(...replyIds);
-        findReplies = replyIds;
-      }
-
-      const res = await models.Comment.deleteMany({
-        _id: { $in: idsToDelete }
-      });
+      await models.Comment.deleteComment(_id);
 
       return deletedComment;
     }

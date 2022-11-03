@@ -272,7 +272,7 @@ export const generatePostModel = (
         ? 'PENDING'
         : 'APPROVED';
 
-      if (!cpUser) throw new Error('cpUser is null');
+      if (!cpUser) throw new LoginRequiredError();
 
       const res = await models.Post.create({
         ...input,

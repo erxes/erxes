@@ -13,7 +13,10 @@ import {
 } from '../../consts';
 import { ICpUser } from '../../graphql';
 import { PostDocument } from './post';
-import { InsufficientUserLevelError } from '../../customErrors';
+import {
+  InsufficientUserLevelError,
+  LoginRequiredError
+} from '../../customErrors';
 
 export interface ICategory {
   _id: any;
@@ -306,11 +309,7 @@ export const generateCategoryModel = (
       category?: CategoryDocument | null,
       user?: ICpUser | null
     ): Promise<void> {
-      if (!user)
-        throw new InsufficientUserLevelError(
-          ALL_CP_USER_LEVEL_REQUIREMENT_ERROR_MESSAGES.REGISTERED,
-          'REGISTERED'
-        );
+      if (!user) throw new LoginRequiredError();
 
       if (!category) return;
 
@@ -323,7 +322,7 @@ export const generateCategoryModel = (
           return category.userLevelReqPostWrite;
         } else {
           throw new Error(
-            'Tried to check for an unrecgonized write permission'
+            'Tried to check for an unrecognized write permission'
           );
         }
       })();
