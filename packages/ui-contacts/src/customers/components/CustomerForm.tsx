@@ -41,7 +41,7 @@ type Props = {
   queryParams: IQueryParams;
   changeRedirectType?: (type: string) => void;
   changeVerificationStatus?: (isEmail: boolean) => void;
-  fieldsVisibility: (key: string) => any; //check - IFieldsVisibility
+  fieldsVisibility: (key: string) => any; // check - IFieldsVisibility
 };
 
 type State = {
@@ -70,7 +70,9 @@ class CustomerForm extends React.Component<Props, State> {
       hasAuthority: customer.hasAuthority || 'No',
       users: [],
       birthDate: customer.birthDate,
-      avatar: customer.avatar
+      avatar: customer.avatar,
+      primaryEmail: customer.primaryEmail,
+      primaryPhone: customer.primaryPhone
     };
   }
 
@@ -487,7 +489,7 @@ class CustomerForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: customer.state || 'customer',
+            passedName: customer.state || 'customer',
             values: this.generateDoc(values),
             isSubmitted,
             object: this.props.customer,
