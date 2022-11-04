@@ -15,7 +15,6 @@ export const clientPortalCreateTicket = `
     $stageId: String!
     $subject: String!
     $description: String
-    $email: String!
     $priority: String
   ) {
     clientPortalCreateCard(
@@ -23,11 +22,8 @@ export const clientPortalCreateTicket = `
       stageId: $stageId
       subject: $subject
       description: $description
-      email: $email
       priority: $priority
-    ) {
-      _id
-    }
+    ) 
   }
 `;
 
