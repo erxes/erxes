@@ -51,22 +51,14 @@ const markAsReadMutation = gql`
 `;
 
 function NotificationsContainer(props: Props) {
-  const router = useRouter()
-
   const [markAsReadMutaion] = useMutation(markAsReadMutation);
-
-  const markAsRead = (notificationIds?: string[]) => {
-    console.log('markAsRead', notificationIds);
-  };
 
   const onClickNotification = (notificationId: string) => {
     markAsReadMutaion({
       variables: {
         ids: [notificationId],
       },
-    }).then(() => {
-      // router.push(`/notification/${notificationId}`)
-    });
+    })
   };
 
   const notificationsResponse = useQuery<NotificationsQueryResponse>(
