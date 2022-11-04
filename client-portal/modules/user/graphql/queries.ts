@@ -3,8 +3,19 @@ const currentUser = `
     clientPortalCurrentUser {
       _id
       email
+      phone
       firstName
       lastName
+
+      notificationSettings {
+        configs {
+          isAllowed
+          label
+          notifType
+        }
+        receiveByEmail
+        receiveBySMS
+      }
     }
   }
 `;

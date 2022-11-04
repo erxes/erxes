@@ -1,3 +1,4 @@
+
 export type Store = {
   currentUser: IUser;
   topic: Topic;
@@ -102,6 +103,11 @@ export interface IUserDetails {
   description: string;
 }
 
+export interface INotifcationSettings {
+  receiveByEmail?: boolean;
+  receiveBySMS?: boolean;
+}
+
 export interface IUser {
   _id: string;
   firstName: string;
@@ -110,6 +116,8 @@ export interface IUser {
   details?: IUserDetails;
   type: string;
   companyName: string;
+
+  notificationSettings?: INotifcationSettings;
 }
 
 export interface IStage {

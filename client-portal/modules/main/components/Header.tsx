@@ -22,6 +22,7 @@ import Button from '../../common/Button';
 import LoginContainer from '../../user/containers/Login';
 import RegisterContainer from '../../user/containers/Register';
 import ResetPasswordContainer from '../../user/containers/ResetPassword';
+import SettingsContainer from '../containers/notifications/Settings';
 import { Alert } from '../../utils';
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
@@ -51,6 +52,7 @@ function Header({
   const [showlogin, setLogin] = useState(false);
   const [showregister, setRegister] = useState(false);
   const [showResetPassword, setResetPassword] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const onClick = (url) => {
     if (!currentUser && url.includes('tickets')) {
@@ -130,23 +132,30 @@ function Header({
 
           <HeaderLeft>
             {currentUser ? (
-              <Popup
-                trigger={
-                  <span title="Notifications">
-                    {notificationsCount > 0 && (
-                      <Badge color={'red'}>{notificationsCount}</Badge>
-                    )}
-                    <Icon icon="bell" />
-                  </span>
-                }
-                position="bottom center"
-              >
-                <Notifications
-                  count={notificationsCount}
-                  currentUser={currentUser}
-                  config={config}
-                />
-              </Popup>
+              <>
+                <Popup
+                  trigger={
+                    <span title="Notifications">
+                      {notificationsCount > 0 && (
+                        <Badge color={'red'}>{notificationsCount}</Badge>
+                      )}
+                      <Icon icon="bell" />
+                    </span>
+                  }
+                  position="bottom center"
+                  contentStyle={{ width: '350px' }}
+                >
+                  <Notifications
+                    count={notificationsCount}
+                    currentUser={currentUser}
+                    config={config}
+                  />
+                </Popup>
+                |
+                <span title="Settings" onClick={() => setShowSettings(true)}>
+                  <Icon icon="settings" />
+                </span>
+              </>
             ) : null}
           </HeaderLeft>
         </HeaderTop>
@@ -197,6 +206,12 @@ function Header({
         content={() => <ResetPasswordContainer />}
         onClose={() => setResetPassword(false)}
         isOpen={showResetPassword}
+      />
+
+      <Modal
+        content={() => <SettingsContainer />}
+        onClose={() => setShowSettings(false)}
+        isOpen={showSettings}
       />
     </Head>
   );
