@@ -8,6 +8,7 @@ import NotificationDetail from '../../components/notifications/Detail';
 type Props = {
   _id: string;
   currentUser: IUser;
+  afterRemove: () => void;
 };
 
 const notificationDetailQuery = gql`
@@ -49,7 +50,9 @@ function NotificationDetailContainer(props: Props) {
       variables: {
         ids: [notificationId],
       },
-    })
+    }).then(() => {
+      props.afterRemove();
+    });
   };
 
   const notification =
