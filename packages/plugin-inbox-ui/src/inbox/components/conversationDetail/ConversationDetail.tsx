@@ -1,6 +1,6 @@
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import Sidebar from '../../containers/conversationDetail/Sidebar';
+import SidebarContainer from '@erxes/ui-inbox/src/inbox/containers/conversationDetail/SidebarContainer';
 import WorkArea from '../../containers/conversationDetail/WorkArea';
 import EmptySidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { MainContent, ContentBox } from '@erxes/ui/src/layout/styles';
@@ -21,7 +21,7 @@ export default class ConversationDetail extends React.Component<Props> {
 
     if (currentConversation) {
       return (
-        <Sidebar
+        <SidebarContainer
           conversation={currentConversation}
           conversationFields={conversationFields}
         />
@@ -39,9 +39,9 @@ export default class ConversationDetail extends React.Component<Props> {
     return (
       <EmptySidebar full={true}>
         <EmptyState
-          text='Customer not found'
-          size='full'
-          image='/images/actions/18.svg'
+          text="Customer not found"
+          size="full"
+          image="/images/actions/18.svg"
         />
       </EmptySidebar>
     );
@@ -64,9 +64,9 @@ export default class ConversationDetail extends React.Component<Props> {
 
     return (
       <EmptyState
-        text='Conversation not found'
-        size='full'
-        image='/images/actions/14.svg'
+        text="Conversation not found"
+        size="full"
+        image="/images/actions/14.svg"
       />
     );
   }

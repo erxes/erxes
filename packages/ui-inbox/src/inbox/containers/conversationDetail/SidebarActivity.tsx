@@ -1,12 +1,12 @@
 import * as compose from 'lodash.flowright';
+import React from 'react';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 
 import { ActivityLogQueryResponse } from '@erxes/ui-contacts/src/customers/types';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IUser } from '@erxes/ui/src/auth/types';
-import React from 'react';
 import SidebarActivity from '../../components/conversationDetail/sidebar/SidebarActivity';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
 import { queries } from '@erxes/ui-log/src/activityLogs/graphql';
 import { withProps } from '@erxes/ui/src/utils';
 
