@@ -83,8 +83,6 @@ const addDaysOfWeek = (today: Date): string[] => {
   return currWeek;
 };
 
-console.log(addDaysOfWeek(new Date()));
-
 class LeftSideBar extends React.Component<Props, State> {
   trigger = (
     <Button
@@ -111,8 +109,6 @@ class LeftSideBar extends React.Component<Props, State> {
   }
 
   onUserSelect = userId => {
-    console.log(userId);
-
     this.props.onUserSelect(userId);
   };
   renderSidebarActions() {

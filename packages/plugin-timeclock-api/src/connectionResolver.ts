@@ -38,12 +38,12 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   );
 
   models.Absences = db.model<IAbsenceDocument, IAbsenceModel>(
-    'absence',
+    'timeclock_absence',
     loadAbsenceClass(models)
   );
 
   models.Schedules = db.model<IScheduleDocument, IScheduleModel>(
-    'schedule',
+    'timeclock_schedule',
     loadScheduleClass(models)
   );
 

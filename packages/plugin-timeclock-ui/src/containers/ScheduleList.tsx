@@ -5,7 +5,7 @@ import { withProps } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import ScheduleList from '../components/ScheduleList';
 import {
-  ITimeclock,
+  IShift,
   ScheduleMutationResponse,
   ScheduleQueryResponse
 } from '../types';
@@ -21,7 +21,9 @@ type Props = {
   reason: string;
   startTime: Date;
   endTime: Date;
-
+  scheduleId: string;
+  scheduleStatus: string;
+  requestedShifts: IShift[];
   queryStartDate: Date;
   queryEndDate: Date;
   queryUserId: string;
@@ -39,11 +41,12 @@ const ListContainer = (props: FinalProps) => {
     solveScheduleMutation,
     listScheduleQuery
   } = props;
-  const { startDate, endDate, userId, reason } = queryParams;
 
-  if (listScheduleQuery.loading) {
-    return <Spinner />;
-  }
+  const { userId } = queryParams;
+
+  // if (listScheduleQuery.loading) {
+  //   return <Spinner />;
+  // }
 
   const solveSchedule = (scheduleId: string, status: string) => {
     solveScheduleMutation({
@@ -51,21 +54,65 @@ const ListContainer = (props: FinalProps) => {
     });
   };
 
-  const submitRequest = (filledShifts: ITimeclock[]) => {
+  const submitRequest = (requestedShifts: IShift[]) => {
     sendScheduleReqMutation({
       variables: {
         userId: `${userId}`,
-        shiftsOfWeek: filledShifts
+        shifts: requestedShifts
       }
     })
       .then(() => Alert.success('Successfully sent a schedule request'))
       .catch(err => Alert.error(err.message));
   };
+
   const updatedProps = {
     ...props,
+    shiftsOfMembers: listScheduleQuery.shifts,
+    loading: listScheduleQuery.loading,
     submitRequest
   };
   return <ScheduleList {...updatedProps} />;
 };
 
-export default ListContainer;
+export default withProps<Props>(
+  compose(
+    graphql<Props, ScheduleQueryResponse, { userId: string }>(
+      gql(queries.listSchedule),
+      {
+        name: 'listScheduleQuery',
+        options: ({ queryUserId }) => ({
+          variables: {
+            // startDate: queryStartDate,
+            // endDate: queryEndDate,
+            userId: queryUserId
+          },
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<Props, ScheduleMutationResponse>(
+      gql(mutations.sendScheduleRequest),
+      {
+        name: 'sendScheduleReqMutation',
+        options: ({ userId, requestedShifts }) => ({
+          variables: {
+            userId: `${userId}`,
+            shifts: requestedShifts
+          },
+          refetchQueries: ['listScheduleQuery']
+        })
+      }
+    ),
+
+    graphql<Props, ScheduleMutationResponse>(gql(mutations.solveSchedule), {
+      name: 'solveScheduleMutation',
+      options: ({ scheduleId, scheduleStatus }) => ({
+        variables: {
+          _id: scheduleId,
+          status: scheduleStatus
+        },
+        refetchQueries: ['listScheduleQuery']
+      })
+    })
+  )(ListContainer)
+);

@@ -36,7 +36,24 @@ query listAbsenceQuery($startDate: Date, $endDate: Date, $userId: String){
     }
   }
 }`;
+
+const listSchedule = `
+query listAbsenceQuery($startDate: Date, $endDate: Date, $userId: String){
+  schedules(startDate: $startDate, endDate: $endDate, userId: $userId){
+    _id
+    shifts{
+      shiftStart
+      shiftEnd
+    }
+    solved
+    status
+    user {
+      ${userFields}
+    }
+  }
+}`;
 export default {
+  listSchedule,
   list,
   listAbsence
 };

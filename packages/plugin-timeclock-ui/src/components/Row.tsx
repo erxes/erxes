@@ -60,7 +60,6 @@ class Row extends React.Component<Props, State> {
 
   render() {
     const { timeclock, space } = this.props;
-    console.log('row', timeclock);
     const editTrigger = (
       <Button btnStyle="link">
         <Tip text={__('Edit')} placement="top">

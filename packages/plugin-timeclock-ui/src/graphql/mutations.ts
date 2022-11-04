@@ -28,8 +28,8 @@ const sendAbsenceRequest = `
   }`;
 
 const sendScheduleRequest = `
-  mutation sendScheduleRequest($startTime: Date, $endTime: Date){
-    sendScheduleRequest(startTime: $startTime, endTime: $endTime){
+  mutation sendScheduleRequest($userId: String, $shifts: [ShiftsRequest]){
+    sendScheduleRequest(userId: $userId, shifts: $shifts){
       _id
     }
   }`;

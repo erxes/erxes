@@ -129,10 +129,17 @@ const templateMutations = {
     );
 
     return updated;
+  },
+  async sendScheduleRequest(
+    _root,
+    doc: ISchedule,
+    { models, docModifier }: IContext
+  ) {
+    const schedule = models.Schedules.createSchedule(docModifier(doc));
+    return schedule;
   }
 };
 
-// commented out for testing purposes
 // requireLogin(templateMutations, 'timeclocksAdd');
 
 export default templateMutations;

@@ -1,28 +1,23 @@
 import Button from '@erxes/ui/src/components/Button';
-import dayjs from 'dayjs';
 import { menuTimeClock } from '../menu';
 import { router, __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import Select from 'react-select-plus';
-import { Title } from '@erxes/ui-settings/src/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Table from '@erxes/ui/src/components/table';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { Input } from '@erxes/ui/src/components/form/styles';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import DateFilter from '@erxes/ui/src/components/DateFilter';
-import { ISchedule, ITimeclock } from '../types';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import DatePicker from './DatePicker';
+import { ISchedule, IShift } from '../types';
 
 type Props = {
-  // schedules: ISchedule[];
+  shiftsOfMembers: IShift[];
   queryParams: any;
   history: any;
-  submitRequest: (filledShifts: ITimeclock[]) => void;
+  submitRequest: (filledShifts: any) => void;
 };
 
 const FlexRow = styled.div`
@@ -38,59 +33,65 @@ const FlexRow = styled.div`
   }
 `;
 
-interface ISchedule {
-  day: Date;
-  start: Date;
-  end: Date;
-}
-
-function AbsenceList(props: Props) {
+function ScheduleList(props: Props) {
   const { queryParams, submitRequest } = props;
-  const [selectedDay, setSelectedDay] = useState(
-    new Date().toLocaleDateString()
-  );
-  console.log('hehe', selectedDay);
-  const shiftStarted = localStorage.getItem('shiftStarted') === 'true' || false;
+  const [key_counter, setKeyCounter] = useState(0);
 
   const trigger = (
     <Button id="timeClockButton2" btnStyle="success" icon="plus-circle">
       Create Request
     </Button>
   );
-  const today = new Date().toLocaleDateString();
 
-  const initial_state = {
-    0: { day: today, start: new Date(), end: new Date() }
+  const [scheduleDates, setScheduleDates] = useState<ISchedule>({});
+
+  const onDateChange = (day_key, selectedDate) => {
+    const newDate = { ...scheduleDates[day_key], shiftStart: selectedDate };
+    const newScheduleDates = { ...scheduleDates, [day_key]: newDate };
+    setScheduleDates(newScheduleDates);
   };
 
-  const [selectedDays, setSelectedTime] = useState(initial_state);
-
-  const [absenceDates, setAbsenceDates] = useState<ISchedule[]>([]);
-
-  const onDateChange = (day_key, date) => {
-    // const val_to_day = new Date(val).toLocaleDateString();
+  const onStartTimeChange = (day_key, time) => {
+    const newTime = { ...scheduleDates[day_key], shiftStart: time };
+    const newScheduleDates = { ...scheduleDates, [day_key]: newTime };
+    setScheduleDates(newScheduleDates);
   };
 
-  // const onStartTimeChange = (day_key, time) => {};
+  const onEndTimeChange = (day_key, time) => {
+    const newTime = { ...scheduleDates[day_key], shiftEnd: time };
+    const newScheduleDates = { ...scheduleDates, [day_key]: newTime };
+    setScheduleDates(newScheduleDates);
+  };
 
-  // const onEndTimeChange = (day_key, time) => {};
+  const onSubmitClick = () => {
+    // submitRequest(explanation);
+  };
+
+  const onUserSelect = userId => {
+    router.setParams(history, { userId: `${userId}` });
+  };
 
   const addDay = () => {
-    const dates = absenceDates;
-    dates.push({ day: new Date(), start: new Date(), end: new Date() });
-    setAbsenceDates(dates);
+    const dates = scheduleDates;
+    dates[key_counter] = {
+      shiftStart: new Date(),
+      shiftEnd: new Date()
+    };
+    setScheduleDates(dates);
+
+    setKeyCounter(key_counter + 1);
   };
 
   const renderWeekDays = () => {
-    Object.keys(selectedDays);
-
     return (
       <>
-        {absenceDates.map((date, index) => {
+        {Object.keys(scheduleDates).map(date_key => {
           return (
             <DatePicker
-              key={index}
-              curr_day_key={index}
+              startTime_value={scheduleDates[date_key].shiftStart}
+              endTime_value={scheduleDates[date_key].shiftEnd}
+              key={date_key}
+              curr_day_key={date_key}
               changeDate={onDateChange}
               changeEndTime={onEndTimeChange}
               changeStartTime={onStartTimeChange}
@@ -127,24 +128,9 @@ function AbsenceList(props: Props) {
       </div>
     </div>
   );
+  // const renderScheduleOfUsers = () => {
 
-  const onSubmitClick = () => {
-    // submitRequest(explanation);
-  };
-
-  const setInputValue = e => {
-    const expl = e.target.value;
-    console.log(expl);
-    // setTextReason(expl);
-  };
-
-  const onUserSelect = userId => {
-    router.setParams(history, { userId: `${userId}` });
-  };
-  const onReasonSelect = reason => {
-    router.setParams(history, { reason: `${reason.value}` });
-  };
-
+  // };
   const actionBarRight = (
     <ModalTrigger
       title={__('Send absence request')}
@@ -175,26 +161,6 @@ function AbsenceList(props: Props) {
       wideSpacing={true}
     />
   );
-
-  const ListAbsenceContent = absence => {
-    console.log('absence', absence);
-
-    const startTime = new Date(absence.startTime);
-    const endTime = new Date(absence.endTime);
-    const startingDate = startTime.toDateString();
-    const startingTime = startTime.toLocaleTimeString();
-    const endingDate = endTime.toDateString();
-    const endingTime = endTime.toLocaleTimeString();
-    return (
-      <tr>
-        <td>{<NameCard user={absence.user} /> || '-'}</td>
-        <td>{startingTime + ', ' + startingDate || '-'}</td>
-        <td>{endingTime + ', ' + endingDate || '-'}</td>
-        <td>{absence.reason || '-'}</td>
-        <td>{absence.explanation || '-'}</td>
-      </tr>
-    );
-  };
 
   const content = (
     <Table>
@@ -242,4 +208,4 @@ function AbsenceList(props: Props) {
   );
 }
 
-export default AbsenceList;
+export default ScheduleList;

@@ -73,8 +73,47 @@ const templateQueries = {
     return models.Templates.find(selector);
   },
 
+  schedules(
+    _root,
+    { startDate, endDate, userId },
+    { models, commonQuerySelector }: IContext
+  ) {
+    const selector: any = { ...commonQuerySelector };
+    // const timeFields = [
+    //   {
+    //     shiftStart: {
+    //       $gte: fixDate(startDate),
+    //       $lte: fixDate(endDate)
+    //     }
+    //   },
+    //   {
+    //     shiftEnd: {
+    //       $gte: fixDate(startDate),
+    //       $lte: fixDate(endDate)
+    //     }
+    //   }
+    // ];
+    // if (startDate && endDate) {
+    //   selector.$or = timeFields;
+    // }
+
+    if (userId) {
+      selector.userId = userId;
+    }
+
+    return models.Schedules.find(selector);
+  },
+
   timeclockDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Templates.findOne({ _id });
+  },
+
+  absenceDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Absences.findOne({ _id });
+  },
+
+  scheduleDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Schedules.findOne({ _id });
   }
 };
 

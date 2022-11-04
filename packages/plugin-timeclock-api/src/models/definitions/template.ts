@@ -6,7 +6,6 @@ export interface ITimeClock {
   shiftStart?: Date;
   shiftEnd?: Date;
 }
-
 export interface ITimeClockDocument extends ITimeClock, Document {
   _id: string;
 }
@@ -23,8 +22,7 @@ export interface IAbsence {
 
 export interface ISchedule {
   userId?: string;
-  startTime: Date;
-  endTime: Date;
+  shifts: ITimeClock[];
   status: string;
   solved?: boolean;
 }
@@ -62,13 +60,18 @@ export const absenceSchema = new Schema({
   })
 });
 
+const shiftSchema = new Schema({
+  shiftStart: field({
+    type: Date,
+    label: 'starting date and time of the shift'
+  }),
+  shiftEnd: field({ type: Date, label: 'ending date and time of the shift' })
+});
+
 export const scheduleSchema = new Schema({
   _id: field({ pkey: true }),
   userId: field({ type: String, label: 'User' }),
-  startTime: field({ type: Date, label: 'Absence starting time' }),
-  endTime: field({ type: Date, label: 'Absence ending time' }),
-  reason: field({ type: String, label: 'reason for absence' }),
-  explanation: field({ type: String, label: 'explanation by a team member' }),
+  shifts: [shiftSchema],
   solved: field({
     type: Boolean,
     default: false,

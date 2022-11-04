@@ -65,7 +65,6 @@ function AbsenceList(props: Props) {
 
   const [explanation, setTextReason] = useState('');
   const shiftStarted = localStorage.getItem('shiftStarted') === 'true' || false;
-  console.log('kakka', absences);
 
   const trigger = (
     <Button id="timeClockButton2" btnStyle="success" icon="plus-circle">
@@ -111,7 +110,6 @@ function AbsenceList(props: Props) {
 
   const setInputValue = e => {
     const expl = e.target.value;
-    console.log(expl);
     setTextReason(expl);
   };
 
@@ -166,7 +164,6 @@ function AbsenceList(props: Props) {
     const endingDate = endTime.toDateString();
     const endingTime = endTime.toLocaleTimeString();
 
-    console.log('iddddd', absence._id);
     return (
       <tr>
         <td>{<NameCard user={absence.user} /> || '-'}</td>

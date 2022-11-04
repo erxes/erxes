@@ -21,11 +21,21 @@ export const types = `
     status: String
   }
 
+  
+  input ShiftsRequestInput {
+    shiftStart: Date
+    shiftEnd: Date
+  }
+
+  type ShiftsRequest {
+    shiftStart: Date
+    shiftEnd: Date
+  }
+
   type Schedule {
     _id: String!
     user: User
-    startTime: Date
-    endTime: Date
+    shifts: [ShiftsRequest]
     solved: Boolean
     status: String
   }
@@ -33,6 +43,7 @@ export const types = `
 export const queries = `
   timeclocks(startDate: Date, endDate: Date, userId: String): [Timeclock]
   absences(startDate: Date, endDate: Date, userId: String): [Absence]
+  schedules(startDate: Date, endDate: Date, userId: String): [Schedule]
   timeclockDetail(_id: String!): Timeclock
   absenceDetail(_id: String!): Absence
   scheduleDetail(_id: String!): Schedule
@@ -53,9 +64,8 @@ const absence_params = `
 `;
 
 const schedule_params = `
-  userId: String
-  startTime: Date
-  endTime: Date
+    userId: String
+    shifts: [ShiftsRequestInput]
   `;
 
 export const mutations = `

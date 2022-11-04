@@ -2,10 +2,13 @@ import React from 'react';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 
 type Props = {
-  curr_day_key: number;
-  changeDate: (day_key: number, time: Date) => void;
-  changeStartTime: (day_key: number, time: Date) => void;
-  changeEndTime: (day_key: number, time: Date) => void;
+  // day_value: Date;
+  startTime_value: Date;
+  endTime_value: Date;
+  curr_day_key: string;
+  changeDate: (day_key: string, time: Date) => void;
+  changeStartTime: (day_key: string, time: Date) => void;
+  changeEndTime: (day_key: string, time: Date) => void;
 };
 
 const Datetime = asyncComponent(
@@ -15,7 +18,15 @@ const Datetime = asyncComponent(
 );
 
 const DatePicker = (props: Props) => {
-  const { changeDate, changeEndTime, changeStartTime, curr_day_key } = props;
+  const {
+    changeDate,
+    changeEndTime,
+    changeStartTime,
+    curr_day_key,
+    // day_value,
+    startTime_value,
+    endTime_value
+  } = props;
 
   const onDateChange = val => {
     changeDate(curr_day_key, val);
@@ -32,20 +43,20 @@ const DatePicker = (props: Props) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'row' }} key={curr_day_key}>
       <Datetime
-        value={new Date()}
+        value={startTime_value}
         timeIntervals={15}
         timeFormat={false}
         onChange={onDateChange}
       />
       <Datetime
-        value={new Date()}
+        value={startTime_value}
         dateFormat={false}
         timeIntervals={15}
         timeFormat="hh:mm a"
         onChange={onStartTimeChange}
       />
       <Datetime
-        value={new Date()}
+        value={endTime_value}
         dateFormat={false}
         timeIntervals={15}
         timeFormat="hh:mm a"

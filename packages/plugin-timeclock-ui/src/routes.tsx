@@ -30,7 +30,6 @@ const timeclocks = ({ location, history }) => {
   );
 };
 const absence = ({ location, history }) => {
-  console.log('histoyry', location.pathname.split('/').slice(-1));
   const route_path = location.pathname.split('/').slice(-1)[0];
   const queryParams = queryString.parse(location.search);
   const { startDate, endDate, userId } = queryParams;

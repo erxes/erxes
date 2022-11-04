@@ -18,16 +18,19 @@ export interface IAbsence {
 }
 
 export interface IShift {
-  shiftStart;
+  user?: IUser;
+  date?: Date;
+  shiftStart: Date;
+  shiftEnd: Date;
 }
 
 export interface ISchedule {
-  _id: string;
-  user: IUser;
-  shiftsOfWeek: ITimeclock[];
+  [key: number]: {
+    shiftStart: Date;
+    shiftEnd: Date;
+  };
 }
 
-// queries
 export type TimeClockQueryResponse = {
   timeclocks: ITimeclock[];
   refetch: () => void;
@@ -41,7 +44,7 @@ export type AbsenceQueryResponse = {
 };
 
 export type ScheduleQueryResponse = {
-  schedules: ISchedule[];
+  shifts: IShift[];
   refetch: () => void;
   loading: boolean;
 };
@@ -64,7 +67,7 @@ export type AbsenceMutationVariables = {
 export type ScheduleMutationVariables = {
   _id?: string;
   userId: string;
-  shiftsOfWeek: ITimeclock[];
+  shifts: IShift[];
 };
 
 export type TimeClockMutationResponse = {
