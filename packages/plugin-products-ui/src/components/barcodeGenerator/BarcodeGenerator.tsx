@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Barcode from 'react-barcode';
 import QRCode from 'react-qr-code';
+import dayjs from 'dayjs';
 
 //erxes
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -22,22 +23,26 @@ const BarcodeGenerator = (props: Props) => {
   const configStored: BarcodeConfig = JSON.parse(
     localStorage.getItem('erxes_product_barcodeGenerator_config') ||
       `{
-      "row": 1,
-      "column": 1,
-      "width": 65,
-      "height": 75,
-      "margin": 0,
-      "date": ${Date.now()},
-      "isDate": false,
-      "isProductName": true,
-      "isBarcode": true,
-      "barWidth": 2,
-      "barHeight": 50,
-      "fontSize": 13,
-      "isQrcode": true,
-      "qrSize": 128,
-      "isPrice": true
-    }`
+        "row": 1,
+        "column": 1,
+        "width": 65,
+        "height": 75,
+        "margin": 0,
+        "date": ${Date.now()},
+        "isDate": false,
+        "isProductName": true,
+        "isPrice": true,
+
+        "isBarcode": true,
+        "isBarcodeDescription": false,
+        "barWidth": 2,
+        "barHeight": 50,
+        "barcodeFontSize": 13,
+        "barcodeDescriptionFontSize": 13,
+
+        "isQrcode": true,
+        "qrSize": 128
+      }`
   );
 
   // Hooks
@@ -45,9 +50,16 @@ const BarcodeGenerator = (props: Props) => {
   const [printElement, setPrintElement] = useState<any>(null);
 
   useEffect(() => {
+    // If config date is in the past
+    // Make it today
+    const configCopy = { ...config };
+
+    if (dayjs().isAfter(dayjs(config.date), 'date'))
+      configCopy.date = Date.now();
+
     localStorage.setItem(
       'erxes_product_barcodeGenerator_config',
-      JSON.stringify(config)
+      JSON.stringify(configCopy)
     );
 
     updatePrint();
@@ -161,7 +173,7 @@ const BarcodeGenerator = (props: Props) => {
             value={`${barcode}${
               config.isDate ? '_' + Math.floor(config.date / 1000) : ''
             }`}
-            fontSize={config.fontSize}
+            fontSize={config.barcodeFontSize}
             width={config.barWidth}
             height={config.barHeight}
           />
@@ -200,6 +212,7 @@ const BarcodeGenerator = (props: Props) => {
         />
       }
       content={content}
+      transparent={true}
     />
   );
 };

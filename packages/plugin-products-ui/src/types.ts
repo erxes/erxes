@@ -134,13 +134,17 @@ export type BarcodeConfig = {
   isDate: boolean;
   date: number;
   isProductName: boolean;
+  isPrice: boolean;
+
   isBarcode: boolean;
+  isBarcodeDescription: boolean;
   barWidth: number;
   barHeight: number;
-  fontSize: number;
+  barcodeFontSize: number;
+  barcodeDescriptionFontSize: number;
+
   isQrcode: boolean;
   qrSize: number;
-  isPrice: boolean;
 };
 
 // query types
