@@ -11,8 +11,8 @@ import {
   IMessage
 } from '@erxes/ui-inbox/src/inbox/types';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import TypingIndicator from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/TypingIndicator';
 
-import TypingIndicator from './TypingIndicator';
 import ActionBar from './ActionBar';
 import Content from './Content';
 
