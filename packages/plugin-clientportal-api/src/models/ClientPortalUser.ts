@@ -882,8 +882,6 @@ export const loadClientPortalUserClass = (models: IModels) => {
         throw new Error('User not found');
       }
 
-      console.log('doc', doc);
-
       await models.ClientPortalUsers.updateOne(
         { _id },
         {
