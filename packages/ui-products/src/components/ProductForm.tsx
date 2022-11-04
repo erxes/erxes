@@ -227,7 +227,7 @@ class Form extends React.Component<Props, State> {
       return;
     }
 
-    barcodes.push(value);
+    barcodes.unshift(value);
 
     this.setState({ barcodes, barcodeInput: '' });
   };
