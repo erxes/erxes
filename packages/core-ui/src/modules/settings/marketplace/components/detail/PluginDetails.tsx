@@ -53,7 +53,7 @@ class PluginDetails extends React.Component<Props, State> {
       .query({
         query: gql(queries.getInstallationStatus),
         fetchPolicy: 'network-only',
-        variables: { name: plugin.type }
+        variables: { name: plugin.osName }
       })
       .then(({ data: { configsGetInstallationStatus } }) => {
         plugin.status = configsGetInstallationStatus;
@@ -66,7 +66,7 @@ class PluginDetails extends React.Component<Props, State> {
         query: gql(queries.getInstallationStatus),
         fetchPolicy: 'network-only',
         pollInterval: 3000,
-        variables: { name: plugin.type }
+        variables: { name: plugin.osName }
       })
       .subscribe({
         next: ({ data: { configsGetInstallationStatus } }) => {
@@ -204,10 +204,10 @@ class PluginDetails extends React.Component<Props, State> {
         return (
           <div>
             <button
-              onClick={manageInstall.bind(this, 'uninstall', plugin.type)}
+              onClick={manageInstall.bind(this, 'uninstall', plugin.osName)}
               className="uninstall"
             >
-              {loading[plugin.type] ? 'Uninstalling ...' : 'Uninstall'}
+              {loading[plugin.osName] ? 'Uninstalling ...' : 'Uninstall'}
             </button>
 
             {/* <button
@@ -228,10 +228,10 @@ class PluginDetails extends React.Component<Props, State> {
 
       return (
         <button
-          onClick={manageInstall.bind(this, 'install', plugin.type)}
+          onClick={manageInstall.bind(this, 'install', plugin.osName)}
           className="install"
         >
-          {loading[plugin.type] || plugin.status === 'installing'
+          {loading[plugin.osName] || plugin.status === 'installing'
             ? 'Installing ...'
             : 'Install'}
         </button>
