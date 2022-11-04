@@ -83,13 +83,10 @@ function NotificationsContainer(props: Props) {
     notificationsResponse.refetch();
   };
 
-  console.log('notifications', notifications);
-
   const updatedProps = {
     ...props,
     notifications,
     loading: notificationsResponse.loading,
-    markAsRead,
     onClickNotification,
     refetch,
   };
