@@ -41,7 +41,7 @@ function FormContainer({ config = {}, currentUser, ...props }: Props) {
         priority: "Critical", // TODO: Add select in Form
       },
     }).then(() => {
-      // window.location.href = "/tickets";
+      window.location.href = "/tickets";
     });
   };
 
