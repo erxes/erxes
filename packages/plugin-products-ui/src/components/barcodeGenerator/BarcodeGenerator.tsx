@@ -25,20 +25,22 @@ const BarcodeGenerator = (props: Props) => {
       `{
         "row": 1,
         "column": 1,
-        "width": 65,
-        "height": 75,
+        "width": 80,
+        "height": 100,
         "margin": 0,
         "date": ${Date.now()},
         "isDate": false,
         "isProductName": true,
+        "productNameFontSize": 11,
         "isPrice": true,
+        "priceFontSize": 11,
 
         "isBarcode": true,
         "isBarcodeDescription": false,
         "barWidth": 2,
         "barHeight": 50,
         "barcodeFontSize": 13,
-        "barcodeDescriptionFontSize": 13,
+        "barcodeDescriptionFontSize": 8,
 
         "isQrcode": true,
         "qrSize": 128
@@ -114,7 +116,11 @@ const BarcodeGenerator = (props: Props) => {
 
         if (config.isProductName) {
           printContentHTML += `
-            <div style=" width: 100%; text-align: center;">
+            <div style="
+              width: 100%;
+              text-align: center;
+              font-size: ${config.productNameFontSize}px !important;
+            ">
               ${product.name && product.name}
             </div>`;
         }
@@ -127,10 +133,28 @@ const BarcodeGenerator = (props: Props) => {
           printContentHTML += qrcode.innerHTML;
         }
 
+        if (config.isBarcodeDescription) {
+          printContentHTML += `
+            <div style="
+              width: 100%;
+              height: auto;
+              font-size: ${config.barcodeDescriptionFontSize}px !important;
+              text-align: justify;
+            ">
+              ${product.barcodeDescription && product.barcodeDescription}
+            </div>
+          `;
+        }
+
         // BarcodePrice
         if (config.isPrice)
           printContentHTML += `
-            <div style="width: 100%; text-align: center; margin-top: 10px;">
+            <div style="
+              width: 100%;
+              text-align: center;
+              margin-top: 10px;
+              font-size: ${config.priceFontSize}px !important;
+            ">
               ${__('Price')}: ${product.unitPrice && product.unitPrice}
             </div>
           `;

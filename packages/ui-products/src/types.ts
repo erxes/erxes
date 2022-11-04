@@ -27,6 +27,7 @@ export interface IProduct {
   getTags?: ITag[];
   sku: string;
   barcodes: string[];
+  barcodeDescription: string;
   code: string;
   unitPrice: number;
   customFieldsData?: any;

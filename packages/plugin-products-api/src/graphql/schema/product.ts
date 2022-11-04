@@ -48,6 +48,7 @@ export const types = (tagsAvailable, contactsAvailable) => `
     description: String
     sku: String
     barcodes: [String]
+    barcodeDescription: String
     unitPrice: Float
     categoryId: String
     customFieldsData: JSON
@@ -76,6 +77,7 @@ const productParams = `
   description: String,
   sku: String,
   barcodes: [String],
+  barcodeDescription: String,
   unitPrice: Float,
   code: String,
   customFieldsData: JSON,

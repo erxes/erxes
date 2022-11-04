@@ -135,6 +135,31 @@ const LeftSidebar = (props: Props) => {
             {__('Show price')}
           </FormControl>
         </FormGroup>
+        <FormGroup>
+          <FormLabel required={true}>{__('Product name font size')}</FormLabel>
+          <FormControl
+            name="productNameFontSize"
+            type="number"
+            defaultValue={config.productNameFontSize}
+            onChange={(e: any) =>
+              handleChangeConfig(
+                'productNameFontSize',
+                parseInt(e.target.value)
+              )
+            }
+          />
+        </FormGroup>
+        <FormGroup>
+          <FormLabel required={true}>{__('Price font size')}</FormLabel>
+          <FormControl
+            name="priceFontSize"
+            type="number"
+            defaultValue={config.priceFontSize}
+            onChange={(e: any) =>
+              handleChangeConfig('priceFontSize', parseInt(e.target.value))
+            }
+          />
+        </FormGroup>
       </SidebarContent>
     </Box>
   );
@@ -191,26 +216,29 @@ const LeftSidebar = (props: Props) => {
           </FormGroup>
         </FormWrapper>
         <FormGroup>
-          <FormLabel required={true}>{__('Barcode Font Size')}</FormLabel>
+          <FormLabel required={true}>{__('Barcode Font Size (px)')}</FormLabel>
           <FormControl
-            name="font size"
+            name="barcodeFontSize"
             type="number"
             defaultValue={config.barcodeFontSize}
             onChange={(e: any) =>
-              handleChangeConfig('fontSize', parseInt(e.target.value))
+              handleChangeConfig('barcodeFontSize', parseInt(e.target.value))
             }
           />
         </FormGroup>
         <FormGroup>
           <FormLabel required={true}>
-            {__('Barcode Description Font Size')}
+            {__('Barcode Description Font Size (px)')}
           </FormLabel>
           <FormControl
-            name="font size"
+            name="barcodeDescriptionFontSize"
             type="number"
-            defaultValue={config.barcodeFontSize}
+            defaultValue={config.barcodeDescriptionFontSize}
             onChange={(e: any) =>
-              handleChangeConfig('fontSize', parseInt(e.target.value))
+              handleChangeConfig(
+                'barcodeDescriptionFontSize',
+                parseInt(e.target.value)
+              )
             }
           />
         </FormGroup>

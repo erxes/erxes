@@ -134,7 +134,9 @@ export type BarcodeConfig = {
   isDate: boolean;
   date: number;
   isProductName: boolean;
+  productNameFontSize: number;
   isPrice: boolean;
+  priceFontSize: number;
 
   isBarcode: boolean;
   isBarcodeDescription: boolean;

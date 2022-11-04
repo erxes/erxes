@@ -11,6 +11,7 @@ const productFields = `
   unitPrice
   sku
   barcodes
+  barcodeDescription
   ${
     isEnabled('tags')
       ? `

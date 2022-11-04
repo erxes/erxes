@@ -207,6 +207,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       const name: string = productFields.name || '';
       const type: string = productFields.type || '';
       const description: string = productFields.description || '';
+      const barcodeDescription: string = productFields.barcodeDescription || '';
       const categoryId: string = productFields.categoryId || '';
       const vendorId: string = productFields.vendorId || '';
       const usedIds: string[] = [];
@@ -252,6 +253,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         customFieldsData,
         tagIds,
         barcodes,
+        barcodeDescription,
         mergedIds: productIds,
         name,
         type,
