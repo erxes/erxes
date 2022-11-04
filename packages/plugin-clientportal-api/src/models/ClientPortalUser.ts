@@ -13,6 +13,7 @@ import { generateRandomPassword, sendSms } from '../utils';
 import { IClientPortalDocument, IOTPConfig } from './definitions/clientPortal';
 import {
   clientPortalUserSchema,
+  INotifcationSettings,
   IUser,
   IUserDocument
 } from './definitions/clientPortalUser';
@@ -103,7 +104,10 @@ export interface IUserModel extends Model<IUserDocument> {
   verifyUsers(userids: string[], type: string): Promise<IUserDocument>;
   confirmInvitation(params: IConfirmParams): Promise<IUserDocument>;
   updateSession(_id: string): Promise<IUserDocument>;
-  updateNotificationSettings(_id: string, doc: any): Promise<IUserDocument>;
+  updateNotificationSettings(
+    _id: string,
+    doc: INotifcationSettings
+  ): Promise<IUserDocument>;
 }
 
 export const loadClientPortalUserClass = (models: IModels) => {
@@ -870,7 +874,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
      */
     public static async updateNotificationSettings(
       _id: string,
-      doc: any
+      doc: INotifcationSettings
     ): Promise<IUser> {
       const user = await models.ClientPortalUsers.findOne({ _id });
 
@@ -878,11 +882,13 @@ export const loadClientPortalUserClass = (models: IModels) => {
         throw new Error('User not found');
       }
 
+      console.log('doc', doc);
+
       await models.ClientPortalUsers.updateOne(
         { _id },
         {
           $set: {
-            isAllowedNotifications: doc.isAllowedNotifications
+            notificationSettings: { ...doc }
           }
         }
       );

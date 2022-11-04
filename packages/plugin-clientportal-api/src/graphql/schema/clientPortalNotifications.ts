@@ -23,7 +23,7 @@ export const types = `
 
   type UserNotificationSettings {
     receiveByEmail: Boolean
-    receiveBySMS: Boolean
+    receiveBySms: Boolean
     configs: [NotificationConfig]
   }
 
@@ -64,7 +64,7 @@ export const mutations = `
 
   clientPortalUserUpdateNotificationSettings(
     receiveByEmail: Boolean,
-    receiveBySMS: Boolean,
+    receiveBySms: Boolean,
     configs: [NotificationConfigInput],
   ): ClientPortalUser
 `;

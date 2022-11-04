@@ -12,18 +12,22 @@ type Props = {
 
 export default function Settings(props: Props) {
   const { currentUser } = props;
+  const notificationSettings  = currentUser.notificationSettings || {
+    receiveByEmail: false,
+    receiveBySms: false,
+  };
 
   const [receiveByEmail, setReceiveByEmail] = React.useState(
-    currentUser.notificationSettings.receiveByEmail
+    notificationSettings.receiveByEmail
   );
-  const [receiveBySMS, setReceiveBySMS] = React.useState(
-    currentUser.notificationSettings.receiveBySMS
+  const [receiveBySms, setreceiveBySms] = React.useState(
+    notificationSettings.receiveBySms
   );
 
   const onSave = () => {
     props.onSave({
       receiveByEmail,
-      receiveBySMS,
+      receiveBySms,
     });
   };
 
@@ -49,9 +53,9 @@ export default function Settings(props: Props) {
           id="toggle-check"
           type="checkbox"
           variant="outline-primary"
-          checked={receiveBySMS}
+          checked={receiveBySms}
           value="1"
-          onChange={(e) => setReceiveBySMS(e.currentTarget.checked)}
+          onChange={(e) => setreceiveBySms(e.currentTarget.checked)}
           color="white"
         >
           {'  Receive by SMS'}

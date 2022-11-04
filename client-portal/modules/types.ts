@@ -105,7 +105,7 @@ export interface IUserDetails {
 
 export interface INotifcationSettings {
   receiveByEmail?: boolean;
-  receiveBySMS?: boolean;
+  receiveBySms?: boolean;
 }
 
 export interface IUser {

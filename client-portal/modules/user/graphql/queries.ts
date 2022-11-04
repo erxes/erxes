@@ -14,7 +14,7 @@ const currentUser = `
           notifType
         }
         receiveByEmail
-        receiveBySMS
+        receiveBySms
       }
     }
   }

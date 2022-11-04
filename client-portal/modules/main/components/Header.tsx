@@ -209,7 +209,12 @@ function Header({
       />
 
       <Modal
-        content={() => <SettingsContainer />}
+        content={() => (
+          <SettingsContainer
+            currentUser={currentUser}
+            saveCallback={() => setShowSettings(false)}
+          />
+        )}
         onClose={() => setShowSettings(false)}
         isOpen={showSettings}
       />

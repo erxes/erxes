@@ -20,6 +20,7 @@ export const cardUpdateHandler = async (models: IModels, subdomain, params) => {
     !(destinationStageId && destinationStageId !== oldCard.stageId) &&
     oldStatus === newStatus
   ) {
+    console.log('Card status is not changed');
     return;
   }
 

@@ -11,7 +11,7 @@ export interface INotificationConfig {
 
 export interface INotifcationSettings {
   receiveByEmail: boolean;
-  receiveBySMS: boolean;
+  receiveBySms: boolean;
   configs: INotificationConfig[];
 }
 
@@ -74,7 +74,7 @@ export const notificationSettingsSchema = new Schema(
       type: Boolean,
       default: true
     }),
-    receiveBySMS: field({
+    receiveBySms: field({
       type: Boolean,
       default: true
     }),
