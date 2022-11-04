@@ -65,6 +65,9 @@ export interface ICategoryModel extends Model<CategoryDocument> {
     category?: CategoryDocument | null,
     user?: ICpUser | null
   ): Promise<void>;
+  categoriesUserAllowedToPost(
+    userId: string | null | undefined
+  ): Promise<ICategory[] | null | undefined>;
 }
 
 export const getDefaultPostReadCpUserLevel = (): ReadCpUserLevels => 'GUEST';
@@ -349,6 +352,33 @@ export const generateCategoryModel = (
         ALL_CP_USER_LEVEL_REQUIREMENT_ERROR_MESSAGES[requiredLevel],
         requiredLevel
       );
+    }
+
+    public static async categoriesUserAllowedToPost(
+      userId: string | undefined | null
+    ): Promise<ICategory[] | null | undefined> {
+      if (!userId) return [];
+
+      const userLevel = await models.ForumClientPortalUser.getUserLevel({
+        userId
+      });
+
+      const allowedLevels = Object.entries(ALL_CP_USER_LEVELS)
+        .filter(([_, v]) => v <= ALL_CP_USER_LEVELS[userLevel])
+        .map(([k]) => k);
+
+      const permittedCategoryIds: Types.ObjectId[] = await models.PermissionGroupCategoryPermit.userPermittedCategoryIds(
+        userId
+      );
+
+      const categories = await models.Category.find({
+        $or: [
+          { userLevelReqPostWrite: { $in: allowedLevels } },
+          { _id: { $in: permittedCategoryIds } }
+        ]
+      });
+
+      return categories;
     }
   }
   categorySchema.loadClass(CategoryModel);

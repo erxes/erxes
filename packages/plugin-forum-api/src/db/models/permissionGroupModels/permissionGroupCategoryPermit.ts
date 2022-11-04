@@ -9,7 +9,7 @@ export interface IPermissionGroupCategoryPermit {
   _id?: any;
   categoryId: string;
   permissionGroupId: string;
-  permission: string;
+  permission: Permissions;
 }
 
 export type PermissionGroupCategoryPermitDocument = IPermissionGroupCategoryPermit &
@@ -17,6 +17,7 @@ export type PermissionGroupCategoryPermitDocument = IPermissionGroupCategoryPerm
 
 export interface IPermissionGroupCategoryPermitModel
   extends Model<PermissionGroupCategoryPermitDocument> {
+  userPermittedCategoryIds(userId: string): Promise<Types.ObjectId[]>;
   givePermission(
     permissionGroupId: string,
     categoryIds: string[],
@@ -122,6 +123,22 @@ export const generatePermissionGroupCategoryPermitModel = (
 
       return result.length > 0;
       */
+    }
+
+    public static async userPermittedCategoryIds(
+      userId: string
+    ): Promise<Types.ObjectId[]> {
+      const rels = await models.PermissionGroupUser.find({ userId });
+      const permissionGroupIds = rels.map(rel => rel.permissionGroupId);
+
+      if (!permissionGroupIds?.length) return [];
+
+      const permits = await models.PermissionGroupCategoryPermit.find({
+        permissionGroupId: { $in: permissionGroupIds },
+        permission: 'WRITE_POST'
+      });
+
+      return permits.map(p => p.categoryId);
     }
   }
 

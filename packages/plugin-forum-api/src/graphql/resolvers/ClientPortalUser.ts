@@ -48,6 +48,9 @@ const ClientPortalUser: IObjectTypeResolver<
       __typename: 'ClientPortalUser',
       _id: follow.followeeId
     }));
+  },
+  async forumCategoriesAllowedToPost({ _id }, _, { models: { Category } }) {
+    return Category.categoriesUserAllowedToPost(_id);
   }
 };
 

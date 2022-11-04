@@ -60,6 +60,8 @@ export default async function genTypeDefs(serviceDiscovery) {
       forumFollowerCpUsers(limit: Int, offset: Int): [ClientPortalUser!]
       forumFollowingCpUsers(limit: Int, offset: Int): [ClientPortalUser!]
       forumPermissionGroups: [ForumPermissionGroup!]
+
+      forumCategoriesAllowedToPost: [ForumCategory!]
     }
 
     ${ForumCategory}
