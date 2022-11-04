@@ -71,6 +71,8 @@ const mongoEnv = (configs, plugin) => {
 
 const healthcheck = {
   test: ['CMD', 'curl', '-i', `http://localhost:${SERVICE_INTERNAL_PORT}/health`],
+  interval: '1s',
+  start_period: '5s'
 };
 
 const generateLBaddress = (address) => 
@@ -908,8 +910,8 @@ module.exports.manageInstallation = async program => {
 
     await restart('coreui');
 
-    log('Waiting for 30 seconds ....');
-    await sleep(30000);
+    log('Waiting for 10 seconds ....');
+    await sleep(10000);
     await restart('gateway');
   }
 
