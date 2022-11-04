@@ -243,8 +243,6 @@ const putLog = async (
   const value = await redis.get('afterMutations');
   const afterMutations = JSON.parse(value || '{}');
 
-  console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^', params.action);
-
   if (
     afterMutations[params.type] &&
     afterMutations[params.type][params.action] &&
