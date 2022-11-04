@@ -13,8 +13,6 @@ export const afterMutationHandlers = async (
   subdomain,
   params
 ) => {
-  // console.log('afterMutationHandlers', params);
-
   if (
     ['cards:task', 'cards:ticket'].includes(params.type) &&
     params.action === 'update'
