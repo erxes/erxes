@@ -14,7 +14,6 @@ type Props = {
 class CategoryFormContainer extends React.Component<Props> {
   render() {
     const renderButton = ({
-      name,
       values,
       isSubmitted,
       callback,

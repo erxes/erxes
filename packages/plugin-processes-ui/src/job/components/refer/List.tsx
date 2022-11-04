@@ -1,6 +1,5 @@
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
@@ -13,9 +12,9 @@ import { BarItems } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import Form from '../../containers/refer/Form';
 import CategoryList from '../../containers/category/List';
-import { IJobRefer, IProductCategory } from '../../types';
+import { IJobRefer } from '../../types';
 import Row from './Row';
-import { menuContacts } from '../../../constants';
+import { menuSettings } from '../../../constants';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -30,7 +29,6 @@ interface IProps extends IRouterProps {
   toggleAll: (targets: IJobRefer[], containerId: string) => void;
   loading: boolean;
   searchValue: string;
-  currentCategory: IProductCategory;
 }
 
 type State = {
@@ -115,8 +113,7 @@ class List extends React.Component<IProps, State> {
       queryParams,
       isAllSelected,
       history,
-      bulk,
-      currentCategory
+      bulk
     } = this.props;
 
     const trigger = (
@@ -149,7 +146,7 @@ class List extends React.Component<IProps, State> {
 
     let content = (
       <>
-        {this.renderCount(currentCategory.productCount || jobRefersCount)}
+        {this.renderCount(jobRefersCount)}
         <Table hover={true}>
           <thead>
             <tr>
@@ -172,16 +169,6 @@ class List extends React.Component<IProps, State> {
         </Table>
       </>
     );
-
-    if (currentCategory.productCount === 0) {
-      content = (
-        <EmptyState
-          image="/images/actions/8.svg"
-          text="No Brands"
-          size="small"
-        />
-      );
-    }
 
     if (bulk.length > 0) {
       const onClick = () =>
@@ -207,11 +194,11 @@ class List extends React.Component<IProps, State> {
       );
     }
 
-    const actionBarLeft = <Title>{currentCategory.name || 'All jobs'}</Title>;
+    const actionBarLeft = <Title>{'All jobs'}</Title>;
 
     return (
       <Wrapper
-        header={<Wrapper.Header title={__('Job')} submenu={menuContacts} />}
+        header={<Wrapper.Header title={__('Job')} submenu={menuSettings} />}
         actionBar={
           <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
         }

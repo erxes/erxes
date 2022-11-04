@@ -14,6 +14,7 @@ import { queries } from '../graphql';
 type Props = {
   asssessmentId?: string;
   assessmentDetail?: RiskAssessmentDetailQueryResponse;
+  fieldsSkip?: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
@@ -50,8 +51,8 @@ export default withProps<Props>(
     graphql<Props>(gql(queries.assessmentDetail), {
       name: 'assessmentDetail',
       skip: ({ asssessmentId }) => !asssessmentId,
-      options: ({ asssessmentId }) => ({
-        variables: { id: asssessmentId }
+      options: ({ asssessmentId, fieldsSkip }) => ({
+        variables: { id: asssessmentId, fieldsSkip }
       })
     })
   )(withRouter<IRouterProps>(FormContainer))

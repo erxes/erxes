@@ -10,7 +10,7 @@ import { Count } from '@erxes/ui/src/styles/main';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils';
 
-import { menuContacts1 } from '../../../constants';
+import { menuNavs } from '../../../constants';
 import { IOverallWorkDocument } from '../../types';
 import Row from './OverallWorkRow';
 
@@ -118,7 +118,7 @@ class List extends React.Component<IProps, State> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header title={__('Work')} submenu={menuContacts1} />}
+        header={<Wrapper.Header title={__('Work')} submenu={menuNavs} />}
         actionBar={<Wrapper.ActionBar right={actionBarRight} />}
         footer={<Pagination count={overallWorksCount || 0} />}
         content={

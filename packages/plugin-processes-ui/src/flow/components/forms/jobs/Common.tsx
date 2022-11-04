@@ -112,6 +112,8 @@ class CommonForm extends React.Component<Props, State> {
           return Alert.error('Must fill branch or department');
         }
         break;
+      case FLOWJOB_TYPES.FLOW:
+        break;
       default:
         if (
           !inBranchId ||
@@ -136,12 +138,8 @@ class CommonForm extends React.Component<Props, State> {
     this.setState({ [name]: value } as any);
   };
 
-  render() {
-    const { children, closeModal, activeFlowJob } = this.props;
-
-    if (this.timer) {
-      return <Spinner />;
-    }
+  renderCommonContent() {
+    const { activeFlowJob } = this.props;
 
     const {
       durationType,
@@ -152,125 +150,140 @@ class CommonForm extends React.Component<Props, State> {
       outDepartmentId
     } = this.state;
 
+    if (activeFlowJob.type === FLOWJOB_TYPES.FLOW) {
+      return <></>;
+    }
+    return (
+      <>
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Duration Type</ControlLabel>
+              <FormControl
+                name="durationType"
+                componentClass="select"
+                value={durationType}
+                required={true}
+                onChange={(e: any) => {
+                  this.onSelect('durationType', e.target.value);
+                }}
+              >
+                {Object.keys(DURATION_TYPES).map((typeName, index) => (
+                  <option key={index} value={typeName}>
+                    {typeName}
+                  </option>
+                ))}
+              </FormControl>
+            </FormGroup>
+          </FormColumn>
+
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Duration</ControlLabel>
+              <FormControl
+                name="duration"
+                value={duration}
+                required={true}
+                type="number"
+                onChange={(e: any) => {
+                  this.onSelect('duration', e.target.value);
+                }}
+              />
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
+        {activeFlowJob.type !== FLOWJOB_TYPES.INCOME && (
+          <>
+            <FormWrapper>
+              <ControlLabel uppercase={false}>
+                <ul>Info of outgoing for NEED products:</ul>
+              </ControlLabel>
+            </FormWrapper>
+            <FormWrapper>
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel required={true}>Branch</ControlLabel>
+                  <SelectBranches
+                    label="Choose branch"
+                    name="selectedBranchIds"
+                    initialValue={inBranchId}
+                    onSelect={branchId => this.onSelect('inBranchId', branchId)}
+                    multi={false}
+                  />
+                </FormGroup>
+              </FormColumn>
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel required={true}>Department</ControlLabel>
+                  <SelectDepartments
+                    label="Choose department"
+                    name="selectedDepartmentIds"
+                    initialValue={inDepartmentId}
+                    onSelect={departmentId =>
+                      this.onSelect('inDepartmentId', departmentId)
+                    }
+                    multi={false}
+                  />
+                </FormGroup>
+              </FormColumn>
+            </FormWrapper>
+          </>
+        )}
+        {activeFlowJob.type !== FLOWJOB_TYPES.OUTLET && (
+          <>
+            <FormWrapper>
+              <ControlLabel uppercase={false}>
+                <ul>Info of incoming for RESULT products:</ul>
+              </ControlLabel>
+            </FormWrapper>
+            <FormWrapper>
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel required={true}>Branch</ControlLabel>
+                  <SelectBranches
+                    label="Choose branch"
+                    name="selectedBranchIds"
+                    initialValue={outBranchId}
+                    onSelect={branchId =>
+                      this.onSelect('outBranchId', branchId)
+                    }
+                    multi={false}
+                  />
+                </FormGroup>
+              </FormColumn>
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel required={true}>Department</ControlLabel>
+                  <SelectDepartments
+                    label="Choose department"
+                    name="selectedDepartmentIds"
+                    initialValue={outDepartmentId}
+                    onSelect={departmentId =>
+                      this.onSelect('outDepartmentId', departmentId)
+                    }
+                    multi={false}
+                  />
+                </FormGroup>
+              </FormColumn>
+            </FormWrapper>
+          </>
+        )}
+      </>
+    );
+  }
+
+  render() {
+    const { children, closeModal } = this.props;
+
+    if (this.timer) {
+      return <Spinner />;
+    }
+
     return (
       <ScrolledContent>
         <DrawerDetail>
           {children}
-          <FormWrapper>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>Duration Type</ControlLabel>
-                <FormControl
-                  name="durationType"
-                  componentClass="select"
-                  value={durationType}
-                  required={true}
-                  onChange={(e: any) => {
-                    this.onSelect('durationType', e.target.value);
-                  }}
-                >
-                  {Object.keys(DURATION_TYPES).map((typeName, index) => (
-                    <option key={index} value={typeName}>
-                      {typeName}
-                    </option>
-                  ))}
-                </FormControl>
-              </FormGroup>
-            </FormColumn>
-
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>Duration</ControlLabel>
-                <FormControl
-                  name="duration"
-                  value={duration}
-                  required={true}
-                  type="number"
-                  onChange={(e: any) => {
-                    this.onSelect('duration', e.target.value);
-                  }}
-                />
-              </FormGroup>
-            </FormColumn>
-          </FormWrapper>
-          {activeFlowJob.type !== FLOWJOB_TYPES.INCOME && (
-            <>
-              <FormWrapper>
-                <ControlLabel uppercase={false}>
-                  <ul>Info of outgoing for NEED products:</ul>
-                </ControlLabel>
-              </FormWrapper>
-              <FormWrapper>
-                <FormColumn>
-                  <FormGroup>
-                    <ControlLabel required={true}>Branch</ControlLabel>
-                    <SelectBranches
-                      label="Choose branch"
-                      name="selectedBranchIds"
-                      initialValue={inBranchId}
-                      onSelect={branchId =>
-                        this.onSelect('inBranchId', branchId)
-                      }
-                      multi={false}
-                    />
-                  </FormGroup>
-                </FormColumn>
-                <FormColumn>
-                  <FormGroup>
-                    <ControlLabel required={true}>Department</ControlLabel>
-                    <SelectDepartments
-                      label="Choose department"
-                      name="selectedDepartmentIds"
-                      initialValue={inDepartmentId}
-                      onSelect={departmentId =>
-                        this.onSelect('inDepartmentId', departmentId)
-                      }
-                      multi={false}
-                    />
-                  </FormGroup>
-                </FormColumn>
-              </FormWrapper>
-            </>
-          )}
-          {activeFlowJob.type !== FLOWJOB_TYPES.OUTLET && (
-            <>
-              <FormWrapper>
-                <ControlLabel uppercase={false}>
-                  <ul>Info of incoming for RESULT products:</ul>
-                </ControlLabel>
-              </FormWrapper>
-              <FormWrapper>
-                <FormColumn>
-                  <FormGroup>
-                    <ControlLabel required={true}>Branch</ControlLabel>
-                    <SelectBranches
-                      label="Choose branch"
-                      name="selectedBranchIds"
-                      initialValue={outBranchId}
-                      onSelect={branchId =>
-                        this.onSelect('outBranchId', branchId)
-                      }
-                      multi={false}
-                    />
-                  </FormGroup>
-                </FormColumn>
-                <FormColumn>
-                  <FormGroup>
-                    <ControlLabel required={true}>Department</ControlLabel>
-                    <SelectDepartments
-                      label="Choose department"
-                      name="selectedDepartmentIds"
-                      initialValue={outDepartmentId}
-                      onSelect={departmentId =>
-                        this.onSelect('outDepartmentId', departmentId)
-                      }
-                      multi={false}
-                    />
-                  </FormGroup>
-                </FormColumn>
-              </FormWrapper>
-            </>
-          )}
+          {this.renderCommonContent()}
         </DrawerDetail>
         <FlowJobFooter>
           <ModalFooter>

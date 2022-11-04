@@ -14,7 +14,7 @@ export type CommonProps = {
   datas: any[];
   title: string;
   renderName: (data: any) => void;
-  renderForm: (props: { closeModal: () => void }) => any;
+  renderForm?: (props: { closeModal: () => void }) => any;
   perPage: number;
   clearState: () => void;
   limit?: number;
@@ -210,12 +210,15 @@ class CommonChooser extends React.Component<Props, State> {
         </Columns>
         <ModalFooter>
           <Footer>
-            <ModalTrigger
-              title={`New ${title}`}
-              trigger={addTrigger}
-              size="lg"
-              content={renderForm}
-            />
+            {renderForm && (
+              <ModalTrigger
+                title={`New ${title}`}
+                trigger={addTrigger}
+                size="lg"
+                content={renderForm}
+              />
+            )}
+
             <div>
               <Button
                 btnStyle="simple"

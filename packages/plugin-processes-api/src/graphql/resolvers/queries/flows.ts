@@ -9,14 +9,15 @@ import { rf } from '../../../utils/receiveFlow';
 import { FLOW_STATUSES } from '../../../models/definitions/constants';
 
 interface IParam {
-  categoryId: string;
+  categoryId?: string;
   searchValue?: string;
-  ids: string[];
-  excludeIds: boolean;
-  branchId: string;
-  departmentId: string;
-  status: string;
-  validation: string;
+  ids?: string[];
+  isSub?: boolean;
+  excludeIds?: boolean;
+  branchId?: string;
+  departmentId?: string;
+  status?: string;
+  validation?: string;
 }
 
 const generateFilter = async (
@@ -28,6 +29,7 @@ const generateFilter = async (
     categoryId,
     searchValue,
     ids,
+    isSub,
     excludeIds,
     branchId,
     departmentId,
@@ -51,6 +53,10 @@ const generateFilter = async (
       const productIds = products.map(p => p._id);
       selector.productId = { $in: productIds };
     }
+  }
+
+  if (isSub !== undefined) {
+    selector.isSub = isSub;
   }
 
   if (searchValue) {

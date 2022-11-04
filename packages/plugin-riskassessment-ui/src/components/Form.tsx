@@ -1,30 +1,26 @@
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import CommonForm from '@erxes/ui-settings/src/common/components/Form';
-import { Button, Spinner, Tip, FormGroup, __ } from '@erxes/ui/src';
+import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
+import { Button, FormGroup, Spinner, Tip, __ } from '@erxes/ui/src';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import {
-  ColorPick,
-  ColorPicker,
-  FormColumn,
-  FormWrapper
-} from '@erxes/ui/src/styles/main';
+import { ColorPick, ColorPicker, FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
-import { COLORS, calculateMethods } from '../common/constants';
+import Select from 'react-select-plus';
+import { calculateMethods, COLORS } from '../common/constants';
 import { RiskAssessmentsType, RiskCalculateLogicType } from '../common/types';
 import { SelectWithCategory } from '../common/utils';
-import { FormContainer, FormGroupRow } from '../styles';
-import Select from 'react-select-plus';
+import { FormContainer } from '../styles';
 
 type Props = {
   assessmentDetail?: RiskAssessmentsType;
   detailLoading?: boolean;
   renderButton?: (props: IButtonMutateProps) => JSX.Element;
   categoryId?: string;
+  fieldsSkip?: any;
 } & ICommonFormProps;
 
 type CustomFromGroupProps = {
@@ -58,12 +54,20 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
 
   generateDoc(values) {
     const { riskAssessment } = this.state;
-    const { assessmentDetail } = this.props;
+    const { assessmentDetail, fieldsSkip } = this.props;
     if (assessmentDetail) {
       delete values.logic;
       delete values.value;
       delete values.value2;
       riskAssessment.calculateLogics?.forEach(logic => delete logic.__typename);
+      if (fieldsSkip) {
+        return {
+          ...values,
+          calculateMethod: riskAssessment.calculateMethod,
+          categoryId: riskAssessment.categoryId,
+          calculateLogics: riskAssessment.calculateLogics
+        };
+      }
       return {
         id: assessmentDetail._id,
         doc: { ...values, calculateLogics: riskAssessment.calculateLogics }
@@ -72,10 +76,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     return { ...values, ...riskAssessment };
   }
 
-  renderLogic(
-    { _id, name, logic, value, value2, color }: RiskCalculateLogicType,
-    formProps
-  ) {
+  renderLogic({ _id, name, logic, value, value2, color }: RiskCalculateLogicType, formProps) {
     const handleRow = e => {
       const { riskAssessment } = this.state;
       const { name, value } = e.currentTarget as HTMLInputElement;
@@ -85,9 +86,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
           logic._id === _id
             ? {
                 ...logic,
-                [name]: ['value', 'value2'].includes(name)
-                  ? parseInt(value)
-                  : value
+                [name]: ['value', 'value2'].includes(name) ? parseInt(value) : value
               }
             : logic
         );
@@ -176,13 +175,11 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             onChange={handleRow}
           >
             <option />
-            {['(>) greater than', '(<) lower than', '(≈) between'].map(
-              value => (
-                <option value={value} key={value}>
-                  {value}
-                </option>
-              )
-            )}
+            {['(>) greater than', '(<) lower than', '(≈) between'].map(value => (
+              <option value={value} key={value}>
+                {value}
+              </option>
+            ))}
           </FormControl>
         </FormColumn>
         <FormColumn>
@@ -228,9 +225,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
 
     return (
       riskAssessment.calculateLogics &&
-      riskAssessment.calculateLogics.map(logic =>
-        this.renderLogic(logic, formProps)
-      )
+      riskAssessment.calculateLogics.map(logic => this.renderLogic(logic, formProps))
     );
   }
 
@@ -253,10 +248,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
       this.setState(prev => ({
         riskAssessment: {
           ...prev.riskAssessment,
-          calculateLogics: [
-            ...(prev.riskAssessment.calculateLogics || []),
-            variables
-          ]
+          calculateLogics: [...(prev.riskAssessment.calculateLogics || []), variables]
         }
       }));
     };
@@ -339,13 +331,16 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
   };
 
   render() {
-    const { assessmentDetail, renderButton } = this.props;
+    const { assessmentDetail, renderButton, fieldsSkip } = this.props;
 
     const renderBtn = () => {
       if (!assessmentDetail?.status) {
         return renderButton;
       }
       if (assessmentDetail.status === 'In Progress') {
+        return renderButton;
+      }
+      if (fieldsSkip) {
         return renderButton;
       }
     };

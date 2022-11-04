@@ -1,18 +1,17 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Bulk from '@erxes/ui/src/components/Bulk';
+import gql from 'graphql-tag';
+import List from '../../components/refer/List';
+import React from 'react';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import React from 'react';
 import { graphql } from 'react-apollo';
-import List from '../../components/refer/List';
-import { mutations, queries } from '../../graphql';
 import {
-  CategoryDetailQueryResponse,
+  JobRefersQueryResponse,
   jobRefersRemoveMutationResponse,
-  jobReferTotalCountQueryResponse,
-  JobRefersQueryResponse
+  jobReferTotalCountQueryResponse
 } from '../../types';
+import { mutations, queries } from '../../graphql';
 
 type Props = {
   queryParams: any;
@@ -23,7 +22,6 @@ type Props = {
 type FinalProps = {
   jobRefersQuery: JobRefersQueryResponse;
   jobRefersCountQuery: jobReferTotalCountQueryResponse;
-  productCategoryDetailQuery: CategoryDetailQueryResponse;
 } & Props &
   jobRefersRemoveMutationResponse;
 
@@ -41,8 +39,7 @@ class ProductListContainer extends React.Component<FinalProps> {
       jobRefersQuery,
       jobRefersCountQuery,
       jobRefersRemove,
-      queryParams,
-      productCategoryDetailQuery
+      queryParams
     } = this.props;
 
     if (jobRefersQuery.loading) {
@@ -79,8 +76,7 @@ class ProductListContainer extends React.Component<FinalProps> {
       remove,
       loading: jobRefersQuery.loading,
       searchValue,
-      jobRefersCount: jobRefersCountQuery.jobReferTotalCount || 0,
-      currentCategory: productCategoryDetailQuery.productCategoryDetail || {}
+      jobRefersCount: jobRefersCountQuery.jobReferTotalCount || 0
     };
 
     const jobReferList = props => {
@@ -143,17 +139,6 @@ export default withProps<Props>(
       {
         name: 'jobRefersRemove',
         options
-      }
-    ),
-    graphql<Props, CategoryDetailQueryResponse>(
-      gql(queries.productCategoryDetail),
-      {
-        name: 'productCategoryDetailQuery',
-        options: ({ queryParams }) => ({
-          variables: {
-            _id: queryParams.categoryId
-          }
-        })
       }
     )
   )(ProductListContainer)
