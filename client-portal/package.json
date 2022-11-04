@@ -46,6 +46,7 @@
     "google-map-react": "^1.1.7",
     "graphql": "^15.4.0",
     "graphql-tag": "^2.11.0",
+    "graphql-ws": "^5.11.2",
     "i18n-react": "^0.7.0",
     "isomorphic-unfetch": "^3.1.0",
     "jsonwebtoken": "^8.5.1",

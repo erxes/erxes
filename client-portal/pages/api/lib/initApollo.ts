@@ -9,8 +9,6 @@ import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { createClient } from 'graphql-ws';
 
-import { getEnv } from '../../../utils/configs';
-
 interface ApolloServer extends NodeJS.Global {
   fetch: typeof fetch;
 }
