@@ -131,6 +131,12 @@ const configQueries = {
     { name }: { name: string },
     { models }: IContext
   ) {
+    const names = await getServices();
+
+    if (names.includes(name)) {
+      return 'installed';
+    }
+
     const isExisting = await models.InstallationLogs.findOne({
       pluginName: name
     });
