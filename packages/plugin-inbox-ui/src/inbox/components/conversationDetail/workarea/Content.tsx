@@ -3,7 +3,7 @@ import React from 'react';
 import { ContentBox } from '@erxes/ui/src/layout/styles';
 import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
-import Conversation from './conversation/Conversation';
+import Conversation from './Conversation';
 import { ConversationWrapper } from './styles';
 import { IAttachmentPreview } from '@erxes/ui/src/types';
 
