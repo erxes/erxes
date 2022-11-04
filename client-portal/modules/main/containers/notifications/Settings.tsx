@@ -29,8 +29,6 @@ function NotificationDetailContainer(props: Props) {
   const onSave = (doc: { [key: string]: any }) => {
     const { receiveByEmail, receiveBySms } = doc;
 
-    console.log('save: ', { receiveByEmail, receiveBySms });
-
     settingsMutation({
       variables: {
         receiveByEmail,
