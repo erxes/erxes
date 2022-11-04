@@ -1,5 +1,5 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Spinner } from 'react-bootstrap';
 
 import { IUser, NotificationDetailQueryResponse } from '../../../types';

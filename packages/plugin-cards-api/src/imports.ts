@@ -114,20 +114,45 @@ export default {
       if (boardName && pipelineName && stageName) {
         doc.userId = user._id;
 
-        const board = await models.Boards.findOne({
+        let board = await models.Boards.findOne({
           name: boardName,
           type: contentType
         });
 
-        const pipeline = await models.Pipelines.findOne({
-          boardId: board && board._id,
+        if (!board) {
+          board = await models.Boards.create({
+            name: boardName,
+            type: contentType,
+            userId: user._id
+          });
+        }
+
+        let pipeline = await models.Pipelines.findOne({
+          boardId: board._id,
           name: pipelineName
         });
 
-        const stage = await models.Stages.findOne({
+        if (!pipeline) {
+          pipeline = await models.Pipelines.create({
+            boardId: board._id,
+            name: pipelineName,
+            type: contentType,
+            userId: user._id
+          });
+        }
+
+        let stage = await models.Stages.findOne({
           pipelineId: pipeline && pipeline._id,
           name: stageName
         });
+
+        if (!stage) {
+          stage = await models.Stages.create({
+            pipelineId: pipeline._id,
+            name: stageName,
+            type: contentType
+          });
+        }
 
         doc.stageId = stage ? stage._id : '';
       }

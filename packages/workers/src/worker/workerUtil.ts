@@ -26,7 +26,9 @@ export default class CustomWorker {
       // tslint:disable-next-line
       const Worker = require('worker_threads').Worker;
 
-      const workerInstance = new Worker(workerPath, { workerData });
+      const workerInstance = new Worker(workerPath, {
+        workerData: { subdomain, ...workerData }
+      });
 
       worker.id = workerInstance.threadId;
       worker.instance = workerInstance;
