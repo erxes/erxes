@@ -37,7 +37,16 @@ class Row extends React.Component<Props> {
       history.push(`/processes/flows/details/${flow._id}`);
     };
 
-    const { name, status, jobCount, flowValidation, product } = flow;
+    const {
+      name,
+      status,
+      jobCount,
+      flowValidation,
+      product,
+      latestBranch,
+      latestDepartment,
+      isSub
+    } = flow;
 
     return (
       <tr onClick={onTrClick}>
@@ -48,8 +57,23 @@ class Row extends React.Component<Props> {
             onChange={onChange}
           />
         </td>
+        <td>
+          {(isSub && renderLabelInfo('primary', 'SUB')) ||
+            renderLabelInfo('success', 'Main')}
+        </td>
         <td>{name}</td>
         <td>{(product && `${product.code} - ${product.name}`) || ''}</td>
+        <td>
+          {(latestBranch &&
+            `${latestBranch.code || ''} - ${latestBranch.title || ''}`) ||
+            ''}
+        </td>
+        <td>
+          {(latestDepartment &&
+            `${latestDepartment.code || ''} - ${latestDepartment.title ||
+              ''}`) ||
+            ''}
+        </td>
         <td>{status}</td>
         <td>
           {flowValidation === '' && renderLabelInfo('success', 'True')}

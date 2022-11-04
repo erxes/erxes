@@ -1,9 +1,5 @@
-import { sendRequest } from '@erxes/api-utils/src/requests';
-import {
-  sendContactsMessage,
-  sendNotificationsMessage
-} from '../messageBroker';
 import { getConfig, toErkhet } from './utils';
+import { sendRequest } from '@erxes/api-utils/src/requests';
 
 export const customerToErkhet = async (subdomain, params, action) => {
   const config = await getConfig(subdomain, 'ERKHET', {});
@@ -41,6 +37,14 @@ export const customerToErkhet = async (subdomain, params, action) => {
 
 export const validCompanyCode = async (config, companyCode) => {
   let result = false;
+  if (
+    !config ||
+    !config.checkCompanyUrl ||
+    !config.checkCompanyUrl.includes('http')
+  ) {
+    return result;
+  }
+
   const re = new RegExp('(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)', 'gui');
 
   if (re.test(companyCode)) {
@@ -60,44 +64,6 @@ export const validCompanyCode = async (config, companyCode) => {
 export const companyToErkhet = async (subdomain, params, action, user) => {
   const config = await getConfig(subdomain, 'ERKHET', {});
   const company = params.updatedDocument || params.object;
-  const companyName = await validCompanyCode(config, company.code);
-
-  if (companyName) {
-    if (company.primaryName !== companyName) {
-      company.primaryName = companyName;
-
-      await sendContactsMessage({
-        subdomain,
-        action: 'companies.updateCompany',
-        data: {
-          _id: company._id,
-          doc: {
-            company,
-            primaryName: companyName,
-            names: [companyName]
-          }
-        },
-        isRPC: true
-      });
-    }
-  } else {
-    sendNotificationsMessage({
-      subdomain,
-      action: 'send',
-      data: {
-        createdUser: user,
-        receivers: [user._id],
-        title: 'wrong company code',
-        content: `Байгууллагын код буруу бөглөсөн байна. "${company.code}"`,
-        notifType: 'companyMention',
-        link: `/companies/details/${company._id}`,
-        action: 'update',
-        contentType: 'company',
-        contentTypeId: company._id
-      },
-      defaultValue: true
-    });
-  }
 
   const oldCompany = params.object;
 

@@ -95,7 +95,7 @@ class ListContainer extends React.Component<FinalProps> {
   }
 }
 
-const generateParams = ({ queryParams }) => ({
+export const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),
   ids: queryParams.ids,
   campaignId: queryParams.campaignId,

@@ -300,7 +300,9 @@ class AssessmentCategories extends React.Component<Props, State> {
                   key={status.color}
                 >
                   <Container row gap align="center">
-                    <ColorBox color={status.color} />
+                    <Tip placement="bottom" text={status.label}>
+                      <ColorBox color={status.color} />
+                    </Tip>
                   </Container>
                 </StatusBox>
               ))}

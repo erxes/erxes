@@ -2,7 +2,7 @@ import customScalars from '@erxes/api-utils/src/customScalars';
 
 import JobCategory from './customResolver/jobCategory';
 import FlowCategory from './customResolver/flowCategory';
-import Flow from './customResolver/flowProduct';
+import Flow from './customResolver/flow';
 import JobRefer from './customResolver/jobRefer';
 import Work from './customResolver/work';
 import OverallWork from './customResolver/overallWork';

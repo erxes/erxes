@@ -15,6 +15,7 @@ export interface IRiskAssessmentModel extends Model<IRiskAssessmentDocument> {
   ): Promise<IRiskAssessmentDocument>;
   riskAssessmentDetail(params: {
     _id: string;
+    fieldsSkip: any;
   }): Promise<IRiskAssessmentDocument>;
   riskAssesmentAdd(
     params: IRiskAssessmentField
@@ -27,8 +28,10 @@ export interface IRiskAssessmentModel extends Model<IRiskAssessmentDocument> {
 }
 
 const statusColors = {
+  Unacceptable: '#393C40',
   Error: '#ea475d',
   Warning: '#f7ce53',
+  Danger: '#FF6600',
   Success: '#3ccc38',
   In_Progress: '#3B85F4',
   No_Result: '#888'
@@ -160,32 +163,17 @@ export const loadRiskAssessment = (model: IModels, subdomain: string) => {
       return result;
     }
 
-    public static async riskAssessmentDetail(params: { _id: string }) {
+    public static async riskAssessmentDetail(params: {
+      _id: string;
+      fieldsSkip: any;
+    }) {
       const filter = generateFilter(params);
+      const { fieldsSkip } = params;
       if (!filter._id) {
         throw new Error('You must provide a _id parameter');
       }
 
-      const match = { $match: filter };
-
-      const lookup = {
-        $lookup: {
-          from: 'risk_assessment_categories',
-          localField: 'categoryId',
-          foreignField: '_id',
-          as: 'category'
-        }
-      };
-      const unwind = {
-        $unwind: '$category'
-      };
-
-      const [first] = await model.RiskAssessment.aggregate([
-        match,
-        lookup,
-        unwind
-      ]);
-      return first;
+      return await model.RiskAssessment.findOne(filter).select(fieldsSkip);
     }
   }
   riskAssessmentSchema.loadClass(RiskAssessment);

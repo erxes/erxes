@@ -1,4 +1,5 @@
 import { QueryResponse } from '@erxes/ui/src/types';
+import { IProductsData } from '../types';
 
 // query types
 export interface IJobCategory {
@@ -25,8 +26,8 @@ export interface IJobRefer {
   categoryId?: string;
   duration: number;
   durationType: string;
-  needProducts?: any[];
-  resultProducts?: any[];
+  needProducts?: IProductsData[];
+  resultProducts?: IProductsData[];
 }
 
 // JOB

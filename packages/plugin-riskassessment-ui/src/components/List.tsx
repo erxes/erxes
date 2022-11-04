@@ -160,6 +160,7 @@ class ListComp extends React.Component<Props, IState> {
             <th>{__('Status')}</th>
             <th>{__('Score')}</th>
             <th>{__('Create At')}</th>
+            <th>{__('Action')}</th>
           </tr>
         </thead>
         <tbody>
@@ -171,6 +172,7 @@ class ListComp extends React.Component<Props, IState> {
                 selectedValue={selectedValue}
                 onchange={this.selectValue}
                 renderButton={this.props.renderButton}
+                queryParams={this.props.queryParams}
               />
             );
           })}

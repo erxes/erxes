@@ -13,7 +13,7 @@ import { Count, FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils';
 
-import { menuContacts1 } from '../../../constants';
+import { menuNavs } from '../../../constants';
 import { IOverallWorkDocument, IPerformDocument } from '../../types';
 import Row from './PerformRow';
 import OverallWorkSideBar from '../../containers/OverallWorkSideBar';
@@ -309,7 +309,7 @@ class List extends React.Component<IProps, State> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header title={__('Work')} submenu={menuContacts1} />}
+        header={<Wrapper.Header title={__('Work')} submenu={menuNavs} />}
         actionBar={this.renderAboveSide()}
         leftSidebar={
           <OverallWorkSideBar

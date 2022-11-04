@@ -10,12 +10,6 @@ query RiskAssessments($categoryId: String,${commonPaginateDef}) {
   }
 `;
 
-const totalCount = `
-  query riskassessmentsTotalCountQuery {
-    riskassessmentsTotalCount
-  }
-`;
-
 const listAssessmentCategories = `
   query RiskAssesmentCategories (${commonPaginateDef}) {
     riskAssesmentCategories (${commonPaginateValue}) {
@@ -25,8 +19,8 @@ const listAssessmentCategories = `
 `;
 
 const assessmentDetail = `
-  query RiskAssessmentDetail ($id: String) {
-    riskAssessmentDetail (_id: $id) {
+query RiskAssessmentDetail($id: String, $fieldsSkip: JSON) {
+  riskAssessmentDetail(_id: $id, fieldsSkip: $fieldsSkip) {
       ${riskAssessmentParams}
     }
   }
@@ -34,7 +28,6 @@ const assessmentDetail = `
 
 export default {
   list,
-  totalCount,
   listAssessmentCategories,
   assessmentDetail
 };

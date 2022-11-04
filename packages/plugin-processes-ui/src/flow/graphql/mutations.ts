@@ -2,8 +2,8 @@ import { flowFields } from './queries';
 
 // FLOW
 
-const flowParamsDef = `$name: String, $categoryId: String, $productId: String, $status: String, $jobs: [JobInput]`;
-const flowParams = `name: $name, categoryId: $categoryId, productId: $productId, status: $status, jobs: $jobs`;
+const flowParamsDef = `$name: String, $productId: String, $status: String, $isSub: Boolean, $jobs: [JobInput]`;
+const flowParams = `name: $name, productId: $productId, status: $status, isSub: $isSub, jobs: $jobs`;
 
 const flowsAdd = `
 mutation flowsAdd(${flowParamsDef}) {

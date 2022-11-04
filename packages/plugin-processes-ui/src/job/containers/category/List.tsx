@@ -8,14 +8,12 @@ import { mutations, queries } from '../../graphql';
 import {
   JobCategoriesCountQueryResponse,
   JobCategoriesQueryResponse,
-  JobCategoriesRemoveMutationResponse,
-  ProductsQueryResponse
+  JobCategoriesRemoveMutationResponse
 } from '../../types';
 type Props = { history: any; queryParams: any };
 
 type FinalProps = {
   jobCategoriesCountQuery: JobCategoriesCountQueryResponse;
-  productsQuery: ProductsQueryResponse;
   jobCategoriesQuery: JobCategoriesQueryResponse;
 } & Props &
   JobCategoriesRemoveMutationResponse;
@@ -23,7 +21,6 @@ class ProductListContainer extends React.Component<FinalProps> {
   render() {
     const {
       jobCategoriesCountQuery,
-      productsQuery,
       jobCategoriesQuery,
       jobCategoriesRemove
     } = this.props;
@@ -36,7 +33,6 @@ class ProductListContainer extends React.Component<FinalProps> {
           .then(() => {
             jobCategoriesQuery.refetch();
             jobCategoriesCountQuery.refetch();
-            productsQuery.refetch();
             Alert.success(`You successfully deleted a job & service category`);
           })
           .catch(error => {
@@ -93,9 +89,6 @@ export default withProps<Props>(
         name: 'jobCategoriesRemove',
         options
       }
-    ),
-    graphql<Props, ProductsQueryResponse>(gql(queries.products), {
-      name: 'productsQuery'
-    })
+    )
   )(ProductListContainer)
 );

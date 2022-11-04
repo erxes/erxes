@@ -15,7 +15,7 @@ const RiskAssessmentQueries = {
 
   async riskAssessmentDetail(
     _root,
-    params: { _id: string },
+    params: { _id: string; fieldsSkip: any },
     { models }: IContext
   ) {
     return await models.RiskAssessment.riskAssessmentDetail(params);
