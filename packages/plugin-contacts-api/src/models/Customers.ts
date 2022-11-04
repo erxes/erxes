@@ -86,17 +86,6 @@ interface IPSS {
   state: string;
 }
 
-const checkVerificationStatus = (doc: ICustomer) => {
-  const errorPrefix = 'Validation status can not be saved without primary';
-
-  if (!doc.primaryEmail && doc.emailValidationStatus) {
-    throw new Error(`${errorPrefix} email`);
-  }
-  if (!doc.primaryPhone && doc.phoneValidationStatus) {
-    throw new Error(`${errorPrefix} phone number`);
-  }
-};
-
 export interface ICustomerModel extends Model<ICustomerDocument> {
   checkDuplication(
     customerFields: ICustomerFieldsInput,
@@ -284,8 +273,6 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         throw new Error(e.message);
       }
 
-      checkVerificationStatus(doc);
-
       if (!doc.ownerId && user) {
         doc.ownerId = user._id;
       }
@@ -323,14 +310,14 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         (doc.primaryEmail && !doc.emailValidationStatus) ||
         (doc.primaryEmail && doc.emailValidationStatus === 'unknown')
       ) {
-        validateSingle({ email: doc.primaryEmail });
+        validateSingle(subdomain, { email: doc.primaryEmail });
       }
 
       if (
         (doc.primaryPhone && !doc.phoneValidationStatus) ||
         (doc.primaryPhone && doc.phoneValidationStatus === 'unknown')
       ) {
-        validateSingle({ phone: doc.primaryPhone });
+        validateSingle(subdomain, { phone: doc.primaryPhone });
       }
 
       await putActivityLog(subdomain, {
@@ -356,8 +343,6 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         throw new Error(e.message);
       }
 
-      checkVerificationStatus(doc);
-
       const oldCustomer = await models.Customers.getCustomer(_id);
 
       if (doc.customFieldsData) {
@@ -374,7 +359,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         if (doc.primaryEmail !== oldCustomer.primaryEmail) {
           doc.emailValidationStatus = 'unknown';
 
-          validateSingle({ email: doc.primaryEmail });
+          validateSingle(subdomain, { email: doc.primaryEmail });
         }
       }
 
@@ -382,7 +367,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         if (doc.primaryPhone !== oldCustomer.primaryPhone) {
           doc.phoneValidationStatus = 'unknown';
 
-          validateSingle({ phone: doc.primaryPhone });
+          validateSingle(subdomain, { phone: doc.primaryPhone });
         }
       }
 

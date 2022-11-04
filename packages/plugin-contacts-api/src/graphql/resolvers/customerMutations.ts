@@ -208,9 +208,9 @@ const customerMutations = {
   async customersVerify(
     _root,
     { verificationType }: { verificationType: string },
-    { models }: IContext
+    { models, subdomain }: IContext
   ) {
-    await validateBulk(models, verificationType);
+    await validateBulk(models, subdomain, verificationType);
   },
 
   async customersChangeVerificationStatus(
