@@ -117,14 +117,12 @@ const generate = async () => {
       vhost: "",
     },
     plugins: [
-      {
-        name: "logs",
-        name: "notifications",
-        name: "forms",
-        name: "tags",
-        name: "internalnotes",
-        name: "contacts",
-      },
+      { name: "logs" },
+      { name: "notifications" },
+      { name: "forms" },
+      { name: "tags" },
+      { name: "internalnotes" },
+      { name: "contacts" }
     ],
   };
 
