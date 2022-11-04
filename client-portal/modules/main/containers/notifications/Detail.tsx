@@ -1,5 +1,5 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Spinner } from 'react-bootstrap';
 
 import { IUser, NotificationDetailQueryResponse } from '../../../types';
@@ -8,7 +8,6 @@ import NotificationDetail from '../../components/notifications/Detail';
 type Props = {
   _id: string;
   currentUser: IUser;
-  afterRemove: () => void;
 };
 
 const notificationDetailQuery = gql`
@@ -50,9 +49,7 @@ function NotificationDetailContainer(props: Props) {
       variables: {
         ids: [notificationId],
       },
-    }).then(() => {
-      props.afterRemove();
-    });
+    })
   };
 
   const notification =
