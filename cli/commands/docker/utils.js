@@ -71,6 +71,8 @@ const mongoEnv = (configs, plugin) => {
 
 const healthcheck = {
   test: ['CMD', 'curl', '-i', `http://localhost:${SERVICE_INTERNAL_PORT}/health`],
+  interval: '1s',
+  start_period: '5s'
 };
 
 const generateLBaddress = (address) => 
@@ -540,9 +542,15 @@ const up = async ({ uis, fromInstaller }) => {
     await execCommand(`cd installer && npm install`);
 
     if (!fromInstaller) {
+      let host = RABBITMQ_HOST;
+
+      if (!configs.db_server_address) {
+        host = host.replace('erxes-dbs_rabbitmq', '127.0.0.1');
+      }
+
       await execCommand(`cd installer && npm run pm2 delete all`, true);
       await execCommand(
-        `cd installer && RABBITMQ_HOST=${RABBITMQ_HOST} npm run pm2 start index.js`
+        `cd installer && RABBITMQ_HOST=${host} npm run pm2 start index.js`
       );
     }
   }
@@ -902,8 +910,8 @@ module.exports.manageInstallation = async program => {
 
     await restart('coreui');
 
-    log('Waiting for 30 seconds ....');
-    await sleep(30000);
+    log('Waiting for 10 seconds ....');
+    await sleep(10000);
     await restart('gateway');
   }
 
