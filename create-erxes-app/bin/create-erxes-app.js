@@ -105,6 +105,7 @@ const generate = async () => {
     redis: {
       password: generatePass(),
     },
+    installer: {},
     mongo: {
       username: "erxes",
       password: generatePass(),
@@ -116,9 +117,12 @@ const generate = async () => {
       vhost: "",
     },
     plugins: [
-      {
-        name: "logs",
-      },
+      { name: "logs" },
+      { name: "notifications" },
+      { name: "forms" },
+      { name: "tags" },
+      { name: "internalnotes" },
+      { name: "contacts" }
     ],
   };
 
@@ -141,7 +145,7 @@ const generate = async () => {
         "amqplib": "^0.8.0",
         "create-erxes-app": "0.0.28",
         "dup": "^1.0.0",
-        "erxes": "^0.3.58",
+        "erxes": "^0.3.78",
         "ip": "^1.1.5",
         "up": "^1.0.2"
       },

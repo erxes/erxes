@@ -143,10 +143,13 @@ function General({
     className
   }: ControlItem) {
     const handleChange = (e: React.FormEvent) => {
-      handleFormChange(
-        formValueName,
-        (e.currentTarget as HTMLInputElement).value
-      );
+      let value = (e.target as HTMLInputElement).value;
+
+      if (formValueName === 'url' && value.slice(-1) === '/') {
+        value = value.substring(0, value.length - 1);
+      }
+
+      handleFormChange(formValueName, value);
     };
 
     return (

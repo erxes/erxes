@@ -441,7 +441,9 @@ export default {
                 subdomain,
                 action: 'fields.prepareCustomFieldsData',
                 data: doc.customFieldsData,
-                isRPC: true
+                isRPC: true,
+                defaultValue: doc.customFieldsData,
+                timeout: 60 * 1000 // 1 minute
               });
             }
             break;
