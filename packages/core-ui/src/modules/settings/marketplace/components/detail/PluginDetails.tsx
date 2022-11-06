@@ -33,6 +33,7 @@ type Props = {
 
 type State = {
   tabType: string;
+  lastLogMessage: string;
   plugin: any;
   loading: any;
 };
@@ -45,6 +46,7 @@ class PluginDetails extends React.Component<Props, State> {
 
     this.state = {
       tabType: 'Description',
+      lastLogMessage: '',
       plugin,
       loading: {}
     };
@@ -53,12 +55,46 @@ class PluginDetails extends React.Component<Props, State> {
       .query({
         query: gql(queries.getInstallationStatus),
         fetchPolicy: 'network-only',
-        variables: { name: plugin.type }
+        variables: { name: plugin.osName }
       })
       .then(({ data: { configsGetInstallationStatus } }) => {
-        plugin.status = configsGetInstallationStatus;
+        plugin.status = configsGetInstallationStatus.status;
 
         this.setState({ plugin });
+      });
+
+    const querySubscription = client
+      .watchQuery({
+        query: gql(queries.getInstallationStatus),
+        fetchPolicy: 'network-only',
+        pollInterval: 3000,
+        variables: { name: plugin.osName }
+      })
+      .subscribe({
+        next: ({ data: { configsGetInstallationStatus } }) => {
+          const installationType = localStorage.getItem(
+            'currentInstallationType'
+          );
+
+          const { status, lastLogMessage } = configsGetInstallationStatus;
+
+          if (lastLogMessage) {
+            this.setState({ lastLogMessage });
+          }
+
+          if (
+            (installationType === 'install' && status === 'installed') ||
+            (installationType === 'uninstall' && status === 'notExisting')
+          ) {
+            querySubscription.unsubscribe();
+            localStorage.setItem('currentInstallationType', '');
+            Alert.success('Success');
+            window.location.reload();
+          }
+        },
+        error: e => {
+          Alert.error(e.message);
+        }
       });
   }
 
@@ -138,7 +174,7 @@ class PluginDetails extends React.Component<Props, State> {
 
   render() {
     const { plugins } = this.props;
-    const { loading, plugin, tabType } = this.state;
+    const { loading, plugin, lastLogMessage, tabType } = this.state;
 
     const breadcrumb = [
       { title: __('Marketplace'), link: '/marketplace' },
@@ -146,40 +182,18 @@ class PluginDetails extends React.Component<Props, State> {
     ];
 
     const manageInstall = (type: string, name: string) => {
+      localStorage.setItem('currentInstallationType', type);
+
       this.setState({ loading: { [name]: true } });
 
       this.props
         .manageInstall({
           variables: { type, name }
         })
-        .then(() => {
-          const querySubscription = client
-            .watchQuery({
-              query: gql(queries.getInstallationStatus),
-              fetchPolicy: 'network-only',
-              pollInterval: 3000,
-              variables: { name }
-            })
-            .subscribe({
-              next: ({ data: { configsGetInstallationStatus } }) => {
-                if (
-                  (type === 'install' &&
-                    configsGetInstallationStatus === 'installed') ||
-                  (type === 'uninstall' &&
-                    configsGetInstallationStatus === 'notExisting')
-                ) {
-                  querySubscription.unsubscribe();
-                  Alert.success('Success');
-                  window.location.reload();
-                }
-              },
-              error: e => {
-                Alert.error(e.message);
-              }
-            });
-        })
         .catch(error => {
           Alert.error(error.message);
+          this.setState({ loading: { [name]: false } });
+          localStorage.setItem('currentInstallationType', '');
         });
     };
 
@@ -196,10 +210,14 @@ class PluginDetails extends React.Component<Props, State> {
         return (
           <div>
             <button
-              onClick={manageInstall.bind(this, 'uninstall', plugin.type)}
+              onClick={manageInstall.bind(this, 'uninstall', plugin.osName)}
               className="uninstall"
             >
-              {loading[plugin.type] ? 'Uninstalling ...' : 'Uninstall'}
+              {loading[plugin.osName]
+                ? `Uninstalling ... ${
+                    lastLogMessage ? `(${lastLogMessage})` : ''
+                  }`
+                : 'Uninstall'}
             </button>
 
             {/* <button
@@ -220,11 +238,11 @@ class PluginDetails extends React.Component<Props, State> {
 
       return (
         <button
-          onClick={manageInstall.bind(this, 'install', plugin.type)}
+          onClick={manageInstall.bind(this, 'install', plugin.osName)}
           className="install"
         >
-          {loading[plugin.type] || plugin.status === 'installing'
-            ? 'Installing ...'
+          {loading[plugin.osName] || plugin.status === 'installing'
+            ? `Installing ... ${lastLogMessage ? `(${lastLogMessage})` : ''}`
             : 'Install'}
         </button>
       );
