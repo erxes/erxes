@@ -39,10 +39,16 @@ open
 
             var { data } = JSON.parse(content);
 
-            ch.sendToQueue(
-              'core:manage-installation-notification',
-              Buffer.from(JSON.stringify({ ...data, message: 'started' } )),
-            );
+            var sendMessage = (ch, message) => {
+              console.log(message);
+
+              ch.sendToQueue(
+                'core:manage-installation-notification',
+                Buffer.from(JSON.stringify({ ...data, message } )),
+              );
+            }
+
+            sendMessage(ch, 'started');
 
             await runCommand('..', 'cd');
 
@@ -50,41 +56,39 @@ open
             await runCommand(`npm run erxes installer-update-configs ${data.type} ${data.name}`);
 
             if (data.type === 'install') {
-              console.log('Running up ....');
+              sendMessage(ch, 'Running up ....');
               await runCommand(`npm run erxes up -- --fromInstaller`);
 
-              console.log('Syncing ui ....');
+              sendMessage(ch, 'Syncing ui ....');
               await runCommand(`npm run erxes syncui ${data.name}`);
 
+              sendMessage(ch, 'Restarting coreui ....');
               await runCommand(`npm run erxes restart coreui`);
 
-              console.log('Waiting for 10 seconds ....');
+              sendMessage(ch, 'Waiting for 10 seconds for plugin api....');
               await sleep(10000);
 
-              console.log(`Restarting gateway`);
+              sendMessage(ch, 'Restarting gateway ...');
               await runCommand(`npm run erxes restart gateway`);
             }
 
             if (data.type === 'uninstall') {
-              console.log('Running up ....');
+              sendMessage(ch, 'Running up');
               await runCommand(`npm run erxes up -- --fromInstaller`);
 
-              console.log(`Removing ${data.name} service ....`);
+              sendMessage(ch, `Removing ${data.name} service ....`);
               await runCommand(`npm run erxes remove-service erxes_plugin_${data.name}_api`);
 
-              console.log(`Restarting coreui`);
+              sendMessage(ch, `Restarting coreui ....`);
               await runCommand(`npm run erxes restart coreui`);
 
-              console.log(`Restarting gateway`);
+              sendMessage(ch, `Restarting gateway ....`);
               await runCommand(`npm run erxes restart gateway`);
             }
 
             await runCommand('installer', 'cd');
 
-            ch.sendToQueue(
-              'core:manage-installation-notification',
-              Buffer.from(JSON.stringify({ ...data, message: 'done' } )),
-            );
+            sendMessage(ch, `done`);
 
             ch.ack(msg);
 
