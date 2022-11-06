@@ -33,6 +33,7 @@ type Props = {
 
 type State = {
   tabType: string;
+  lastLogMessage: string;
   plugin: any;
   loading: any;
 };
@@ -45,6 +46,7 @@ class PluginDetails extends React.Component<Props, State> {
 
     this.state = {
       tabType: 'Description',
+      lastLogMessage: '',
       plugin,
       loading: {}
     };
@@ -56,7 +58,7 @@ class PluginDetails extends React.Component<Props, State> {
         variables: { name: plugin.osName }
       })
       .then(({ data: { configsGetInstallationStatus } }) => {
-        plugin.status = configsGetInstallationStatus;
+        plugin.status = configsGetInstallationStatus.status;
 
         this.setState({ plugin });
       });
@@ -74,11 +76,15 @@ class PluginDetails extends React.Component<Props, State> {
             'currentInstallationType'
           );
 
+          const { status, lastLogMessage } = configsGetInstallationStatus;
+
+          if (lastLogMessage) {
+            this.setState({ lastLogMessage });
+          }
+
           if (
-            (installationType === 'install' &&
-              configsGetInstallationStatus === 'installed') ||
-            (installationType === 'uninstall' &&
-              configsGetInstallationStatus === 'notExisting')
+            (installationType === 'install' && status === 'installed') ||
+            (installationType === 'uninstall' && status === 'notExisting')
           ) {
             querySubscription.unsubscribe();
             localStorage.setItem('currentInstallationType', '');
@@ -168,7 +174,7 @@ class PluginDetails extends React.Component<Props, State> {
 
   render() {
     const { plugins } = this.props;
-    const { loading, plugin, tabType } = this.state;
+    const { loading, plugin, lastLogMessage, tabType } = this.state;
 
     const breadcrumb = [
       { title: __('Marketplace'), link: '/marketplace' },
@@ -207,7 +213,11 @@ class PluginDetails extends React.Component<Props, State> {
               onClick={manageInstall.bind(this, 'uninstall', plugin.osName)}
               className="uninstall"
             >
-              {loading[plugin.osName] ? 'Uninstalling ...' : 'Uninstall'}
+              {loading[plugin.osName]
+                ? `Uninstalling ... ${
+                    lastLogMessage ? `(${lastLogMessage})` : ''
+                  }`
+                : 'Uninstall'}
             </button>
 
             {/* <button
@@ -232,7 +242,7 @@ class PluginDetails extends React.Component<Props, State> {
           className="install"
         >
           {loading[plugin.osName] || plugin.status === 'installing'
-            ? 'Installing ...'
+            ? `Installing ... ${lastLogMessage ? `(${lastLogMessage})` : ''}`
             : 'Install'}
         </button>
       );
