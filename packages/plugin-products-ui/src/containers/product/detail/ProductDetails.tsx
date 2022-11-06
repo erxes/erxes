@@ -59,7 +59,8 @@ export default withProps<Props>(
           variables: {
             _id: id
           },
-          notifyOnNetworkStatusChange: true
+          notifyOnNetworkStatusChange: true,
+          fetchPolicy: 'network-only'
         })
       }
     )

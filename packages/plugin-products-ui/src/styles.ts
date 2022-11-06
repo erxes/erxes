@@ -70,9 +70,8 @@ const BarcodeContentWrapper = styled.div`
   pointer-events: none;
 `;
 
-const SidebarTitle = styled.h5`
-  margin-top: ${dimensions.coreSpacing}px;
-  margin-bottom: ${dimensions.unitSpacing}px;
+const SidebarContent = styled.div`
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
 `;
 
 export {
@@ -81,5 +80,5 @@ export {
   ContentBox,
   ProductBarcodeContent,
   BarcodeContentWrapper,
-  SidebarTitle
+  SidebarContent
 };

@@ -5,6 +5,7 @@ const productParamsDef = `
   $description: String,
   $sku: String,
   $barcodes: [String],
+  $barcodeDescription: String,
   $unitPrice: Float,
   $code: String
   $customFieldsData: JSON,
@@ -34,6 +35,7 @@ const productParams = `
   description: $description,
   sku: $sku,
   barcodes: $barcodes,
+  barcodeDescription: $barcodeDescription,
   unitPrice: $unitPrice,
   code: $code,
   customFieldsData: $customFieldsData,

@@ -43,6 +43,7 @@ type State = {
   disabled: boolean;
   barcodes: string[];
   barcodeInput: string;
+  barcodeDescription: string;
   productCount: number;
   minimiumCount: number;
   attachment?: IAttachment;
@@ -62,6 +63,7 @@ class Form extends React.Component<Props, State> {
       attachment,
       attachmentMore,
       barcodes,
+      barcodeDescription,
       supply,
       productCount,
       minimiumCount,
@@ -77,6 +79,7 @@ class Form extends React.Component<Props, State> {
       disabled: supply === 'limited' ? false : true,
       barcodes: barcodes ? barcodes : [],
       barcodeInput: '',
+      barcodeDescription: barcodeDescription ? barcodeDescription : '',
       productCount: productCount ? productCount : 0,
       minimiumCount: minimiumCount ? minimiumCount : 0,
       attachment: attachment ? attachment : undefined,
@@ -90,6 +93,7 @@ class Form extends React.Component<Props, State> {
 
   generateDoc = (values: {
     _id?: string;
+    barcodes?: string[];
     attachment?: IAttachment;
     attachmentMore?: IAttachment[];
     productCount: number;
@@ -106,6 +110,7 @@ class Form extends React.Component<Props, State> {
       attachmentMore,
       productCount,
       barcodes,
+      barcodeDescription,
       minimiumCount,
       vendorId,
       description,
@@ -124,6 +129,7 @@ class Form extends React.Component<Props, State> {
       attachment,
       attachmentMore,
       barcodes,
+      barcodeDescription,
       productCount,
       minimiumCount,
       vendorId,
@@ -227,7 +233,7 @@ class Form extends React.Component<Props, State> {
       return;
     }
 
-    barcodes.push(value);
+    barcodes.unshift(value);
 
     this.setState({ barcodes, barcodeInput: '' });
   };
@@ -249,6 +255,10 @@ class Form extends React.Component<Props, State> {
 
   onChangeDescription = e => {
     this.setState({ description: e.editor.getData() });
+  };
+
+  onChangeBarcodeDescription = e => {
+    this.setState({ barcodeDescription: e.editor.getData() });
   };
 
   onChangeAttachment = (files: IAttachment[]) => {
@@ -319,6 +329,7 @@ class Form extends React.Component<Props, State> {
     const {
       vendorId,
       description,
+      barcodeDescription,
       productCount,
       disabled,
       minimiumCount
@@ -372,39 +383,6 @@ class Form extends React.Component<Props, State> {
                 autoComplete="off"
                 required={true}
               />
-            </FormGroup>
-
-            <FormGroup>
-              <ControlLabel>Barcodes</ControlLabel>
-              <Row>
-                <FormControl
-                  {...formProps}
-                  name="barcodes"
-                  value={this.state.barcodeInput}
-                  autoComplete="off"
-                  onChange={this.onChangeBarcodeInput}
-                  onKeyDown={this.onKeyDownBarcodeInput}
-                />
-                <Button
-                  btnStyle="primary"
-                  icon="plus-circle"
-                  onClick={() => this.updateBarcodes()}
-                >
-                  Add barcode
-                </Button>
-              </Row>
-              <BarcodeContainer>
-                {this.state.barcodes.map((item: any, index: number) => {
-                  return (
-                    <BarcodeItem
-                      key={index}
-                      onClick={() => this.onClickBarcode(index)}
-                    >
-                      {item}
-                    </BarcodeItem>
-                  );
-                })}
-              </BarcodeContainer>
             </FormGroup>
 
             <FormGroup>
@@ -532,6 +510,66 @@ class Form extends React.Component<Props, State> {
                 onChange={this.onChangeAttachmentMore}
                 multiple={true}
                 single={false}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>Barcodes</ControlLabel>
+              <Row>
+                <FormControl
+                  {...formProps}
+                  name="barcodes"
+                  value={this.state.barcodeInput}
+                  autoComplete="off"
+                  onChange={this.onChangeBarcodeInput}
+                  onKeyDown={this.onKeyDownBarcodeInput}
+                />
+                <Button
+                  btnStyle="primary"
+                  icon="plus-circle"
+                  onClick={() => this.updateBarcodes()}
+                >
+                  Add barcode
+                </Button>
+              </Row>
+              <BarcodeContainer>
+                {this.state.barcodes.map((item: any, index: number) => {
+                  return (
+                    <BarcodeItem
+                      key={index}
+                      onClick={() => this.onClickBarcode(index)}
+                    >
+                      {item}
+                    </BarcodeItem>
+                  );
+                })}
+              </BarcodeContainer>
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>Barcode Description</ControlLabel>
+              <EditorCK
+                content={barcodeDescription}
+                onChange={this.onChangeBarcodeDescription}
+                height={150}
+                isSubmitted={formProps.isSaved}
+                name={`product_barcode_description_${barcodeDescription}`}
+                toolbar={[
+                  {
+                    name: 'basicstyles',
+                    items: [
+                      'Bold',
+                      'Italic',
+                      'NumberedList',
+                      'BulletedList',
+                      'Link',
+                      'Unlink',
+                      '-',
+                      'Image',
+                      'EmojiPanel'
+                    ]
+                  }
+                ]}
               />
             </FormGroup>
 
