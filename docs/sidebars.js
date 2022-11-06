@@ -10,10 +10,11 @@ var sideBar = {
       type: 'category',
       label: 'Getting started',
       link: {
-        type: 'generated-index'
+        type: 'doc',
+        id: 'intro'
       },
       collapsed: true,
-      items: ['intro', 'introduction/architecture', 'introduction/faq']
+      items: ['introduction/architecture', 'introduction/faq']
     },
     {
       type: 'category',
@@ -96,33 +97,20 @@ var sideBar = {
       type: 'category',
       label: 'Contributing to open source',
       link: {
-        type: 'generated-index'
+        type: 'doc',
+        id: 'contribute/overview'
       },
       collapsed: true,
       items: [
-        'contribute/overview',
         'contribute/contribute-to-codebase',
         'contribute/contribute-to-documentation',
         'contribute/documentation-style-guide'
       ]
     },
     {
-      type: 'category',
-      label: 'Update & Migration',
-      link: {
-        type: 'generated-index'
-      },
-      collapsed: true,
-      items: ['update/update', 'update/migration']
-    },
-    {
-      type: 'category',
+      type: 'link',
       label: 'Erxes XOS user guide',
-      link: {
-        type: 'generated-index'
-      },
-      collapsed: true,
-      items: ['developer/erxes-xos-user-guide']
+      href: 'https://docs.erxes.io/docs/user-guide/'
     },
     
   ],
