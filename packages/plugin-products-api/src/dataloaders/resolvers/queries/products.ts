@@ -88,7 +88,14 @@ const productQueries = {
         {
           name: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
         },
-        { code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] } }
+        {
+          code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
+        },
+        {
+          barcodes: {
+            $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
+          }
+        }
       ];
 
       filter.$or = fields;

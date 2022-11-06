@@ -10,6 +10,7 @@ import {
 } from '@erxes/ui/src/types';
 import { IConfigsMap, IProduct, IProductCategory, IUom } from '../types';
 import { PRODUCT_SUPPLY, TYPES } from '../constants';
+import { BarcodeContainer, BarcodeItem } from '../styles';
 import {
   extractAttachment,
   generateCategoryOptions
@@ -40,6 +41,9 @@ type Props = {
 
 type State = {
   disabled: boolean;
+  barcodes: string[];
+  barcodeInput: string;
+  barcodeDescription: string;
   productCount: number;
   minimiumCount: number;
   attachment?: IAttachment;
@@ -58,6 +62,8 @@ class Form extends React.Component<Props, State> {
     const {
       attachment,
       attachmentMore,
+      barcodes,
+      barcodeDescription,
       supply,
       productCount,
       minimiumCount,
@@ -71,6 +77,9 @@ class Form extends React.Component<Props, State> {
 
     this.state = {
       disabled: supply === 'limited' ? false : true,
+      barcodes: barcodes ? barcodes : [],
+      barcodeInput: '',
+      barcodeDescription: barcodeDescription ? barcodeDescription : '',
       productCount: productCount ? productCount : 0,
       minimiumCount: minimiumCount ? minimiumCount : 0,
       attachment: attachment ? attachment : undefined,
@@ -84,6 +93,7 @@ class Form extends React.Component<Props, State> {
 
   generateDoc = (values: {
     _id?: string;
+    barcodes?: string[];
     attachment?: IAttachment;
     attachmentMore?: IAttachment[];
     productCount: number;
@@ -99,6 +109,8 @@ class Form extends React.Component<Props, State> {
       attachment,
       attachmentMore,
       productCount,
+      barcodes,
+      barcodeDescription,
       minimiumCount,
       vendorId,
       description,
@@ -116,6 +128,8 @@ class Form extends React.Component<Props, State> {
       ...finalValues,
       attachment,
       attachmentMore,
+      barcodes,
+      barcodeDescription,
       productCount,
       minimiumCount,
       vendorId,
@@ -207,6 +221,23 @@ class Form extends React.Component<Props, State> {
     this.setState({ subUoms: others });
   };
 
+  updateBarcodes = (barcode?: string) => {
+    const value = barcode || this.state.barcodeInput || '';
+    if (!value) {
+      return;
+    }
+
+    const { barcodes } = this.state;
+
+    if (barcodes.includes(value)) {
+      return;
+    }
+
+    barcodes.unshift(value);
+
+    this.setState({ barcodes, barcodeInput: '' });
+  };
+
   onClickAddSub = () => {
     const subUoms = this.state.subUoms;
     const count = subUoms.length;
@@ -226,12 +257,37 @@ class Form extends React.Component<Props, State> {
     this.setState({ description: e.editor.getData() });
   };
 
+  onChangeBarcodeDescription = e => {
+    this.setState({ barcodeDescription: e.editor.getData() });
+  };
+
   onChangeAttachment = (files: IAttachment[]) => {
     this.setState({ attachment: files.length ? files[0] : undefined });
   };
 
   onChangeAttachmentMore = (files: IAttachment[]) => {
     this.setState({ attachmentMore: files ? files : undefined });
+  };
+
+  onChangeBarcodeInput = e => {
+    this.setState({ barcodeInput: e.target.value });
+
+    if (e.target.value.length - this.state.barcodeInput.length > 1)
+      this.updateBarcodes(e.target.value);
+  };
+
+  onKeyDownBarcodeInput = e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+
+      this.updateBarcodes();
+    }
+  };
+
+  onClickBarcode = (index: number) => {
+    const splicedBarcodes = [...this.state.barcodes];
+    splicedBarcodes.splice(index, 1);
+    this.setState({ barcodes: [...splicedBarcodes] });
   };
 
   onSupplyChange = e => {
@@ -273,6 +329,7 @@ class Form extends React.Component<Props, State> {
     const {
       vendorId,
       description,
+      barcodeDescription,
       productCount,
       disabled,
       minimiumCount
@@ -323,6 +380,7 @@ class Form extends React.Component<Props, State> {
                 {...formProps}
                 name="code"
                 defaultValue={object.code}
+                autoComplete="off"
                 required={true}
               />
             </FormGroup>
@@ -452,6 +510,66 @@ class Form extends React.Component<Props, State> {
                 onChange={this.onChangeAttachmentMore}
                 multiple={true}
                 single={false}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>Barcodes</ControlLabel>
+              <Row>
+                <FormControl
+                  {...formProps}
+                  name="barcodes"
+                  value={this.state.barcodeInput}
+                  autoComplete="off"
+                  onChange={this.onChangeBarcodeInput}
+                  onKeyDown={this.onKeyDownBarcodeInput}
+                />
+                <Button
+                  btnStyle="primary"
+                  icon="plus-circle"
+                  onClick={() => this.updateBarcodes()}
+                >
+                  Add barcode
+                </Button>
+              </Row>
+              <BarcodeContainer>
+                {this.state.barcodes.map((item: any, index: number) => {
+                  return (
+                    <BarcodeItem
+                      key={index}
+                      onClick={() => this.onClickBarcode(index)}
+                    >
+                      {item}
+                    </BarcodeItem>
+                  );
+                })}
+              </BarcodeContainer>
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>Barcode Description</ControlLabel>
+              <EditorCK
+                content={barcodeDescription}
+                onChange={this.onChangeBarcodeDescription}
+                height={150}
+                isSubmitted={formProps.isSaved}
+                name={`product_barcode_description_${barcodeDescription}`}
+                toolbar={[
+                  {
+                    name: 'basicstyles',
+                    items: [
+                      'Bold',
+                      'Italic',
+                      'NumberedList',
+                      'BulletedList',
+                      'Link',
+                      'Unlink',
+                      '-',
+                      'Image',
+                      'EmojiPanel'
+                    ]
+                  }
+                ]}
               />
             </FormGroup>
 

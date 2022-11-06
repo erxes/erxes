@@ -51,7 +51,8 @@ const clientPortalMutations = {
         priority,
         stageId,
         status: 'active',
-        customerId: customer._id
+        customerId: customer._id,
+        createdAt: new Date()
       },
       isRPC: true
     });
