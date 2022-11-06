@@ -5,6 +5,21 @@ var shell = require('shelljs');
 var open = amqplib.connect(process.env.RABBITMQ_HOST);
 var queueName = 'managePluginInstall';
 
+var runCommand = (command, method='exec') => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      shell[method](command);
+      resolve('done');
+    }, 500)
+  });
+}
+
+var sleep = ms => {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
+  });
+};
+
 // Consumer
 open
   .then(function(conn) {
@@ -29,18 +44,42 @@ open
               Buffer.from(JSON.stringify({ ...data, message: 'started' } )),
             );
 
-            await new Promise((resolve) => {
-              setTimeout(() => {
-                shell.cd('..');
-                shell.exec(
-                  `npm run erxes manage-installation ${data.type} ${data.name}`
-                );
+            await runCommand('..', 'cd');
 
-                resolve('done');
-              }, 500)
-            });
+            // Update configs.json
+            await runCommand(`npm run erxes installer-update-configs ${data.type} ${data.name}`);
 
-            shell.cd('installer');
+            if (data.type === 'install') {
+              console.log('Running up ....');
+              await runCommand(`npm run erxes up -- --fromInstaller`);
+
+              console.log('Syncing ui ....');
+              await runCommand(`npm run erxes syncui ${data.name}`);
+
+              await runCommand(`npm run erxes restart coreui`);
+
+              console.log('Waiting for 10 seconds ....');
+              await sleep(10000);
+
+              console.log(`Restarting gateway`);
+              await runCommand(`npm run erxes restart gateway`);
+            }
+
+            if (data.type === 'uninstall') {
+              console.log('Running up ....');
+              await runCommand(`npm run erxes up -- --fromInstaller`);
+
+              console.log(`Removing ${data.name} service ....`);
+              await runCommand(`npm run erxes remove-service erxes_plugin_${data.name}_api`);
+
+              console.log(`Restarting coreui`);
+              await runCommand(`npm run erxes restart coreui`);
+
+              console.log(`Restarting gateway`);
+              await runCommand(`npm run erxes restart gateway`);
+            }
+
+            await runCommand('installer', 'cd');
 
             ch.sendToQueue(
               'core:manage-installation-notification',

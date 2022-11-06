@@ -1,7 +1,7 @@
 const fs = require('fs');
 const fse = require('fs-extra');
 const yaml = require('yaml');
-const { log, sleep, execCommand, filePath, execCurl } = require('../utils');
+const { log, execCommand, filePath, execCurl } = require('../utils');
 
 require('dotenv').config();
 
@@ -878,7 +878,7 @@ const restart = async name => {
   await execCommand(`docker service update --force erxes_plugin_${name}_api`);
 };
 
-module.exports.manageInstallation = async program => {
+module.exports.installerUpdateConfigs = async () => {
   const type = process.argv[3];
   const name = process.argv[4];
 
@@ -899,41 +899,18 @@ module.exports.manageInstallation = async program => {
   log('Updating configs.json ....');
 
   await fse.writeJSON(filePath('configs.json'), configs);
+};
 
-  if (type === 'install') {
-    log('Running up ....');
-    await up({ fromInstaller: true });
+module.exports.removeService = async () => {
+  const name = process.argv[3];
 
-    log('Syncing ui ....');
+  log(`Removing ${name} service ....`);
 
-    await syncUI({ name });
-
-    await restart('coreui');
-
-    log('Waiting for 10 seconds ....');
-    await sleep(10000);
-    await restart('gateway');
-  }
-
-  if (type === 'uninstall') {
-    log('Running up ....');
-    await up({ fromInstaller: true });
-
-    log(`Removing ${name} service ....`);
-    await execCommand(`docker service rm erxes_plugin_${name}_api`, true);
-
-    await restart('coreui');
-    await restart('gateway');
-  }
-
-  if (type === 'update') {
-    log('Update ....');
-    await update({ serviceNames: name, uis: true });
-  }
+  await execCommand(`docker service rm ${name}`, true);
 };
 
 module.exports.up = program => {
-  return up({ uis: program.uis });
+  return up({ uis: program.uis, fromInstaller: program.fromInstaller });
 };
 
 const dumpDb = async program => {
@@ -1088,4 +1065,11 @@ module.exports.update = program => {
 module.exports.restart = () => {
   const name = process.argv[3];
   return restart(name);
+};
+
+module.exports.syncui = () => {
+  const name = process.argv[3];
+  const ui_location = process.argv[4];
+
+  return syncUI({ name, ui_location });
 };
