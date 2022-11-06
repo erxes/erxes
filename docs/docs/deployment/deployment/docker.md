@@ -292,7 +292,7 @@ Wait until gateway container status becomes healthy
 sudo mv nginx.conf /etc/nginx/sites-enabled/erxes.conf
 ```
 
-10. Configure your nginx.
+10. Test nginx config.
 
 ```
 sudo nginx -t
