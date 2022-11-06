@@ -20,32 +20,38 @@ type Props = {
 const BarcodeGenerator = (props: Props) => {
   const { barcode, product } = props;
 
-  const configStored: BarcodeConfig = JSON.parse(
-    localStorage.getItem('erxes_product_barcodeGenerator_config') ||
-      `{
-        "row": 1,
-        "column": 1,
-        "width": 80,
-        "height": 100,
-        "margin": 0,
-        "date": ${Date.now()},
-        "isDate": false,
-        "isProductName": true,
-        "productNameFontSize": 11,
-        "isPrice": true,
-        "priceFontSize": 11,
+  const configStored: BarcodeConfig = {
+    ...{
+      row: 1,
+      column: 1,
+      width: 80,
+      height: 100,
+      margin: 0,
+      date: Date.now(),
+      isDate: false,
+      isProductName: true,
+      productNameFontSize: 11,
+      isPrice: true,
+      priceFontSize: 11,
 
-        "isBarcode": true,
-        "isBarcodeDescription": false,
-        "barWidth": 2,
-        "barHeight": 50,
-        "barcodeFontSize": 13,
-        "barcodeDescriptionFontSize": 8,
+      isBarcode: true,
+      isBarcodeDescription: false,
+      barWidth: 2,
+      barHeight: 50,
+      barcodeFontSize: 13,
+      barcodeDescriptionFontSize: 8,
 
-        "isQrcode": true,
-        "qrSize": 128
-      }`
-  );
+      isQrcode: true,
+      qrSize: 128
+    },
+    ...JSON.parse(
+      localStorage.getItem('erxes_product_barcodeGenerator_config') || '{}'
+    )
+  };
+
+  if (new Date(configStored.date) < new Date()) {
+    configStored.date = Date.now();
+  }
 
   // Hooks
   const [config, setConfig] = useState<BarcodeConfig>(configStored);
