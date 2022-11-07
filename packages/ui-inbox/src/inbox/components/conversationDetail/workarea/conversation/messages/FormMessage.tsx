@@ -55,6 +55,11 @@ export default class FormMessage extends React.Component<Props, {}> {
     }
 
     if (data.type === 'objectList') {
+      // invalid data
+      if (!data.value.map) {
+        return null;
+      }
+
       return data.value.map(obj => {
         return (
           <>
