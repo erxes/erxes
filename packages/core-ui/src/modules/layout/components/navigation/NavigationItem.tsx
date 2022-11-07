@@ -80,7 +80,7 @@ export default function NavigationItem(props: Props) {
     );
   };
 
-  if (plugin.text === 'Settings') {
+  if (plugin.text === 'Settings' || plugin.text === 'Marketplace') {
     return <React.Fragment key={plugin.url}>{renderItem()}</React.Fragment>;
   }
 
