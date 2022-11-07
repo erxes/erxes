@@ -72,11 +72,11 @@ export const notificationSettingsSchema = new Schema(
   {
     receiveByEmail: field({
       type: Boolean,
-      default: true
+      default: false
     }),
     receiveBySms: field({
       type: Boolean,
-      default: true
+      default: false
     }),
 
     // notification configs
