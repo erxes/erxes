@@ -18,7 +18,7 @@ const inventoryMutations = {
     const productsCount = await sendProductsMessage({
       subdomain,
       action: 'count',
-      data: {},
+      data: { query: { status: { $ne: 'deleted' } } },
       isRPC: true
     });
 
@@ -26,6 +26,7 @@ const inventoryMutations = {
       subdomain,
       action: 'find',
       data: {
+        query: { status: { $ne: 'deleted' } },
         limit: productsCount
       },
       isRPC: true
@@ -110,18 +111,12 @@ const inventoryMutations = {
       throw new Error('Erkhet config not found.');
     }
 
-    const categoriesCount = await sendProductsMessage({
-      subdomain,
-      action: 'categories.count',
-      data: {},
-      isRPC: true
-    });
-
     const categories = await sendProductsMessage({
       subdomain,
       action: 'categories.find',
       data: {
-        limit: categoriesCount
+        query: { status: 'active' },
+        sort: { order: 1 }
       },
       isRPC: true
     });
