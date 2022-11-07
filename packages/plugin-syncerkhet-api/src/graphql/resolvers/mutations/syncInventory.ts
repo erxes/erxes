@@ -73,7 +73,7 @@ const inventoryMutations = {
         if (
           resProd.name === product.name &&
           resProd.unit_price === product.unitPrice &&
-          resProd.barcodes === product.barcodes.join(',')
+          resProd.barcodes === (product.barcodes || []).join(',')
         ) {
           matchedCount = matchedCount + 1;
         } else {
