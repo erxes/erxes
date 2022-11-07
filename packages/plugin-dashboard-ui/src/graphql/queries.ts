@@ -46,6 +46,7 @@ const dashboards = `
       description
       visibility
       selectedMemberIds
+      departmentIds
       parentId
       order
       createdAt
@@ -77,6 +78,7 @@ export const dashboardsMain = `
         description
         visibility
         selectedMemberIds
+        departmentIds
         parentId
         order
         createdAt
@@ -132,6 +134,7 @@ const dashboardDetails = `
       description
       visibility
       selectedMemberIds
+      departmentIds
       parentId
       order
       createdAt
