@@ -61,8 +61,6 @@ export const start = async (
 
       const msg = `Sent email to: ${customer.primaryEmail}`;
 
-      debugEngages(msg);
-
       await models.Logs.createLog(engageMessageId, 'success', msg);
 
       await models.Stats.updateOne({ engageMessageId }, { $inc: { total: 1 } });
@@ -72,7 +70,9 @@ export const start = async (
       await models.Logs.createLog(
         engageMessageId,
         'failure',
-        `Error occurred while sending email to ${customer.primaryEmail}: ${e.message}`
+        `Error occurred while sending email to ${customer.primaryEmail}: ${
+          e.message
+        }, data ${JSON.stringify(data)}`
       );
     }
   };

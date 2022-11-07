@@ -1,3 +1,4 @@
+import { getEnv } from './../../../utils/configs';
 import {
   ApolloClient,
   createHttpLink,
@@ -30,7 +31,7 @@ function create(
     typeof window !== 'undefined'
       ? new GraphQLWsLink(
           createClient({
-            url: process.env.NEXT_PUBLIC_SUBSCRIPTION_URL,
+            url: getEnv().REACT_APP_SUBSCRIPTION_URL || '',
           })
         )
       : null;
