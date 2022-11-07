@@ -268,9 +268,14 @@ export const initBroker = cl => {
       let filter;
 
       if (module.includes('contacts')) {
-        filter = {
-          _id: target[module.includes('company') ? 'companyId' : 'customerId']
-        };
+        const queryField =
+          target[module.includes('company') ? 'companyId' : 'customerId'];
+
+        if (queryField) {
+          filter = {
+            _id: queryField
+          };
+        }
       }
 
       return {

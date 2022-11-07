@@ -122,8 +122,13 @@ const relatedServices = (
           mainTypeId: target._id,
           relTypes: [moduleCollectionType]
         },
-        isRPC: true
+        isRPC: true,
+        defaultValue: []
       });
+
+      if (!relTypeIds.length) {
+        return;
+      }
 
       return { _id: { $in: relTypeIds } };
     }

@@ -440,10 +440,13 @@ export const initBroker = async cl => {
             mainTypeId: target._id,
             relTypes: [module.split(':')[1]]
           },
-          isRPC: true
+          isRPC: true,
+          defaultValue: []
         });
 
-        filter = { _id: { $in: relTypeIds } };
+        if (relTypeIds.length) {
+          filter = { _id: { $in: relTypeIds } };
+        }
       }
 
       return {
