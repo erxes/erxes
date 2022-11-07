@@ -1,9 +1,13 @@
-import { Content, SiteBox, SitePreview, Sites } from './styles';
+import { Content, PreviewContent, SiteBox, SitePreview, Sites } from './styles';
 
+import Button from '@erxes/ui/src/components/Button';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import { ISiteDoc } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
+import { getEnv } from '@erxes/ui/src/utils/core';
 
 type Props = {
   sites: ISiteDoc[];
@@ -15,18 +19,49 @@ type Props = {
 };
 
 class SiteList extends React.Component<Props, {}> {
+  showSite = (site: ISiteDoc) => {
+    const { REACT_APP_API_URL } = getEnv();
+
+    const url = `${REACT_APP_API_URL}/pl:webbuilder/${site.name}`;
+
+    window.open(`${url}`, '_blank');
+  };
+
   renderList(site: ISiteDoc) {
     return (
       <SiteBox key={site._id}>
         <SitePreview>
-          <img src="/images/usingGuide.png" alt="site-img" />
+          <img
+            src="https://templatemo.com/thumbnails-360/tm-557-grad-school.jpg"
+            alt="site-img"
+          />
+          <PreviewContent>
+            <Button btnStyle="white" onClick={() => this.showSite(site)}>
+              View site
+            </Button>
+          </PreviewContent>
         </SitePreview>
         <Content>
           <div>
             <b>{site.name}</b>
-            <span>{site.domain}</span>
+            <span>{site.domain || 'View site'}</span>
           </div>
-          <Icon icon="ellipsis-h" size={18} />
+          <Dropdown>
+            <Dropdown.Toggle as={DropdownToggle} id="dropdown-convert-to">
+              <Icon icon="ellipsis-h" size={18} />
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <li key="editor">
+                <Icon icon="edit-3" /> Editor
+              </li>
+              <li key="delete">
+                <Icon icon="trash-alt" size={14} /> Delete
+              </li>
+              <li key="duplicate">
+                <Icon icon="copy-alt" /> Duplicate
+              </li>
+            </Dropdown.Menu>
+          </Dropdown>
         </Content>
       </SiteBox>
     );
