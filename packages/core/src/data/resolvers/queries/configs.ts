@@ -134,7 +134,7 @@ const configQueries = {
     const names = await getServices();
 
     if (names.includes(name)) {
-      return 'installed';
+      return { status: 'installed' };
     }
 
     const isExisting = await models.InstallationLogs.findOne({
@@ -142,7 +142,7 @@ const configQueries = {
     });
 
     if (!isExisting) {
-      return 'notExisting';
+      return { status: 'notExisting' };
     }
 
     const isDone = await models.InstallationLogs.findOne({
@@ -151,10 +151,14 @@ const configQueries = {
     });
 
     if (isDone) {
-      return 'installed';
+      return { status: 'installed' };
     }
 
-    return 'installing';
+    const lastLog = await models.InstallationLogs.findOne({
+      pluginName: name
+    }).sort({ date: -1 });
+
+    return { status: 'installing', lastLogMessage: lastLog?.message };
   }
 };
 

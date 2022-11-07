@@ -116,12 +116,15 @@ const generate = async () => {
       pass: generatePass(),
       vhost: "",
     },
+    widgets: {},
     plugins: [
       { name: "logs" },
       { name: "notifications" },
+      { name: "products" },
       { name: "forms" },
       { name: "tags" },
       { name: "internalnotes" },
+      { name: "integrations" },
       { name: "contacts" }
     ],
   };
