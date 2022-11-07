@@ -4,7 +4,6 @@ import * as Random from 'meteor-random';
 import { IAttachment } from '@erxes/api-utils/src/types';
 import { ICustomer } from './types';
 import { getEnv } from './utils';
-import { debugEngages } from './debuggers';
 
 dotenv.config();
 
@@ -70,11 +69,8 @@ export const prepareEmailParams = (
     customer
   );
 
-  debugEngages(`Sender: ${sender} - ${typeof sender}`);
-  debugEngages(`From email: ${fromEmail} - ${typeof fromEmail}`);
-
   return {
-    from: (sender || fromEmail).toString(),
+    from: `${sender} <${fromEmail}>`,
     to: customer.primaryEmail.toLocaleLowerCase().trim(),
     replyTo,
     subject: replacedSubject,
