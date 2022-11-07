@@ -110,22 +110,22 @@ export default class FormMessage extends React.Component<Props, {}> {
 
   renderField(field) {
     return (
-      <FieldWrapper key={field._id} column={field.column}>
-        <FieldItem>
-          <FormGroup>
-            <ControlLabel ignoreTrans={true} required={field.isRequired}>
-              {field.text}
-            </ControlLabel>
-            {field.type === 'multiSelect' ? (
-              this.renderMultiSelect(field.value)
-            ) : (
-              <ErrorBoundary>
+      <ErrorBoundary>
+        <FieldWrapper key={field._id} column={field.column}>
+          <FieldItem>
+            <FormGroup>
+              <ControlLabel ignoreTrans={true} required={field.isRequired}>
+                {field.text}
+              </ControlLabel>
+              {field.type === 'multiSelect' ? (
+                this.renderMultiSelect(field.value)
+              ) : (
                 <FormMessageInput>{this.displayValue(field)}</FormMessageInput>
-              </ErrorBoundary>
-            )}
-          </FormGroup>
-        </FieldItem>
-      </FieldWrapper>
+              )}
+            </FormGroup>
+          </FieldItem>
+        </FieldWrapper>
+      </ErrorBoundary>
     );
   }
 
