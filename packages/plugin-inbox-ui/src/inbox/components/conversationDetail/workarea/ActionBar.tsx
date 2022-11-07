@@ -34,7 +34,7 @@ const Participators = asyncComponent(
 const ConvertTo = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-ConvertTo" */ '../../../containers/conversationDetail/workarea/ConvertTo'
+      /* webpackChunkName:"Inbox-ConvertTo" */ '@erxes/ui-inbox/src/inbox/containers/conversationDetail/ConvertTo'
     ),
   { height: '22px', width: '71px' }
 );

@@ -1,3 +1,7 @@
+import React from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
+import styled from 'styled-components';
+
 import Button from '@erxes/ui/src/components/Button';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -5,9 +9,6 @@ import { __ } from '@erxes/ui/src/utils/core';
 import DealConvertTrigger from '@erxes/ui-cards/src/deals/components/DealConvertTrigger';
 import TaskConvertTrigger from '@erxes/ui-cards/src/tasks/components/TaskConvertTrigger';
 import TicketConvertTrigger from '@erxes/ui-cards/src/tickets/components/TicketConvertTrigger';
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import styled from 'styled-components';
 import {
   IMessage,
   IConversation,

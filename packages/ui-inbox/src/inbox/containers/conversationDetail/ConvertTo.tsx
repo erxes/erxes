@@ -1,11 +1,12 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils';
-import ConvertTo from '../../../components/conversationDetail/workarea/ConvertTo';
-import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
-import { IConversation, IMessage } from '@erxes/ui-inbox/src/inbox/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
+
+import { withProps } from '@erxes/ui/src/utils';
+import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
+import { IConversation, IMessage } from '@erxes/ui-inbox/src/inbox/types';
+import ConvertTo from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/ConvertTo';
 
 type Props = {
   conversation: IConversation;
