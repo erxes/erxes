@@ -81,6 +81,11 @@ export const fillValue = async (
 
       break;
 
+    case 'barcodes':
+      value =
+        item.barcodes && item.barcodes.length ? item.barcodes.join(',') : '';
+      break;
+
     case 'uomId':
       const uom = await models.Uoms.findOne({
         _id: item.uomId

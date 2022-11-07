@@ -49,7 +49,7 @@ export const initBroker = async options => {
       if (message === 'done') {
         await models.InstallationLogs.remove({
           pluginName: name,
-          message: 'started'
+          message: { $ne: 'done' }
         });
       }
     }
