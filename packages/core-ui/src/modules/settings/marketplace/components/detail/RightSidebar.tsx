@@ -29,22 +29,25 @@ export default class RightSidebar extends React.Component<Props> {
 
     return (
       <SidebarBox>
-        <ColorHeader>Creater</ColorHeader>
+        <ColorHeader>{__('Creater')}</ColorHeader>
         <DetailCard>
           <MemberPic>
             <img src={logo ? logo : '/images/glyph_dark.png'} alt="creator" />
           </MemberPic>
           <CardInformation>
             <b>{name || 'Erxes Inc'}</b>
+            <div dangerouslySetInnerHTML={{ __html: description }} />
             <SmallText withMargin={true}>
+              <b>{__('Address')}:</b>{' '}
               {address ||
                 '6525 Woodman Avenue, Los Angeles California, USA, 91401'}
             </SmallText>
             <SmallText withMargin={true}>
-              Tel: {phone || '+1 617 506 9010'}
+              <b>{__('Tel')}</b>: {phone || '+1 617 506 9010'}
             </SmallText>
-            <SmallText>Email: {email || 'info@erxes.io'}</SmallText>
-            <div dangerouslySetInnerHTML={{ __html: description }} />
+            <SmallText>
+              <b>{__('Email')}</b>: {email || 'info@erxes.io'}
+            </SmallText>
           </CardInformation>
         </DetailCard>
       </SidebarBox>

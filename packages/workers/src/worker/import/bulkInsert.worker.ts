@@ -1,9 +1,9 @@
 import * as mongoose from 'mongoose';
 
 import * as _ from 'underscore';
-import messageBroker from '../messageBroker';
-import { generateModels } from '../connectionResolvers';
-import { connect } from './utils';
+import messageBroker from '../../messageBroker';
+import { generateModels } from '../../connectionResolvers';
+import { connect } from '../utils';
 
 // tslint:disable-next-line
 const { parentPort, workerData } = require('worker_threads');
@@ -105,7 +105,8 @@ connect().then(async () => {
           user,
           scopeBrandIds,
           useElkSyncer
-        }
+        },
+        timeout: 5 * 60 * 1000 // 5 minutes
       }
     );
   } catch (e) {

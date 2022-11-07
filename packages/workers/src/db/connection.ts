@@ -1,13 +1,5 @@
-// import { gql } from 'apollo-server-express';
 import * as dotenv from 'dotenv';
-// import { graphql } from 'graphql';
-// import { makeExecutableSchema } from 'graphql-tools';
 import mongoose = require('mongoose');
-// import resolvers from '../data/resolvers';
-// import { mutations, queries, subscriptions, types } from '../data/schema';
-
-// import { userFactory } from './factories';
-// import { generateAllDataLoaders } from '../data/dataLoaders';
 
 dotenv.config();
 

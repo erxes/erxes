@@ -330,7 +330,7 @@ const createFormConversation = async (
 
   return {
     status: 'ok',
-    messageId: message._id,
+    conversationId: conversation._id,
     customerId: cachedCustomer._id
   };
 };

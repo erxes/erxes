@@ -295,9 +295,9 @@ export const getUserAvatar = (user: IUserDoc) => {
     return '';
   }
 
-  const { details = {} } = user;
+  const details = user.details;
 
-  if (!details.avatar) {
+  if (!details || !details.avatar) {
     return '/images/avatar-colored.svg';
   }
 
