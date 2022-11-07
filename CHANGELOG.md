@@ -1,3 +1,38 @@
+# [1.0.0](https://github.com/erxes/erxes/compare/v0.3.39...%s) (2022-11-07)
+
+
+### Bug Fixes
+
+* **command:** remove plugin-empty-template [#3668](https://github.com/erxes/erxes/issues/3668) ([e247809](https://github.com/erxes/erxes/commit/e247809fda45b979ec44cf6e09133293bc81ef1e))
+* **contacts:** fixed email, phone verification action ([1d0c7f0](https://github.com/erxes/erxes/commit/1d0c7f092645cc36e0967233cd32b111c8029925))
+* **marketplace:** some styling on plugin detail ([6907000](https://github.com/erxes/erxes/commit/690700071249428851d84f926fb33f75f89dceda))
+* **navigation:** fix some height ([94fe633](https://github.com/erxes/erxes/commit/94fe6332542fa7555c81e8afe1e3bbf453e4e65e))
+* **plugins:** remove unused imports and fix ts error ([#3744](https://github.com/erxes/erxes/issues/3744)) ([00034e6](https://github.com/erxes/erxes/commit/00034e6b9f0a3a13b6760feec961d9c513b3c679))
+* **workers:** fixed large amount of data importing error ([#3786](https://github.com/erxes/erxes/issues/3786)) ([456bc7b](https://github.com/erxes/erxes/commit/456bc7baf7ec02eb2fe3ccae35ab51645f89b9e8))
+
+
+### Features
+
+* **cli:** added docker-compose feature in installation ([589ff93](https://github.com/erxes/erxes/commit/589ff938b09c982775957eb27efe7d57552e1486))
+* **inbox:** added ability to integrate new integration to inbox easyly ([7f19de3](https://github.com/erxes/erxes/commit/7f19de3cc7aa7b8a07448735ba4a469853285f0a)), closes [#3672](https://github.com/erxes/erxes/issues/3672)
+* **marketplace:** delete constant data in plugin detail ([346dccd](https://github.com/erxes/erxes/commit/346dccd9e8f035186d3c855c876b5ddcb77bc7b7))
+* **marketplace:** fix breadcrumb and some spacing ([abdd6ef](https://github.com/erxes/erxes/commit/abdd6ef47fde69927ba6f6e85faa19d47faf8ea1))
+* **marketplace:** fix searchbar ([#3740](https://github.com/erxes/erxes/issues/3740)) ([c5889e7](https://github.com/erxes/erxes/commit/c5889e79a7f8267b26ae452803deaf5325bc1777))
+* **marketplace:** fix some image ([b43176a](https://github.com/erxes/erxes/commit/b43176a1720d32626107ca9063ba28cca9146803))
+* **marketplace:** init ([#3703](https://github.com/erxes/erxes/issues/3703)) ([269aec1](https://github.com/erxes/erxes/commit/269aec16af2e76ab89d209f94088e5aabad80840))
+* **marketplace:** remove addons ([392b237](https://github.com/erxes/erxes/commit/392b237a62f670487cf877239748dee11de5805f))
+* **marketplace:** some fix in plugin detail ([40d651b](https://github.com/erxes/erxes/commit/40d651be34aca39e03f41b0db71c83b20a1f3111))
+* **marketplace:** update some styling in plugin detail ([321a584](https://github.com/erxes/erxes/commit/321a5847463c5e08600f6529ee7d9249903ac109))
+* **martketplace:** fix maintype ([8c8d431](https://github.com/erxes/erxes/commit/8c8d43170103d631820f97750e718eb009e06064))
+* **store:** fix service duplications ([#3729](https://github.com/erxes/erxes/issues/3729)) ([68cb4fc](https://github.com/erxes/erxes/commit/68cb4fc3aa146990c430bb4fe20733c16191b9b3))
+
+
+### Performance Improvements
+
+* **forms:** add dateTime to add properties validation ([#3727](https://github.com/erxes/erxes/issues/3727)) ([33c71c3](https://github.com/erxes/erxes/commit/33c71c3c48f05d7c2486edb2f5287561a4364476))
+* **message-broker:** waiting rpc message for 10sec by default ([01715ff](https://github.com/erxes/erxes/commit/01715ffd0d33f3cf5ba5364ee926a29207601a97))
+* **widget:** Add some improvement in datetime input ([ddddd6f](https://github.com/erxes/erxes/commit/ddddd6f4eff95a67d68b2560704cf26b61de061f))
+
 ## [0.22.3](https://github.com/erxes/erxes/compare/0.22.2...0.22.3) (2021-05-19)
 
 ## [0.22.2](https://github.com/erxes/erxes/compare/0.22.1...0.22.2) (2021-05-19)
