@@ -32,5 +32,11 @@ export const EXTEND_FIELDS = [
     name: 'tag',
     label: 'Tag',
     type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: 'barcodes',
+    label: 'Barcodes',
+    type: 'string'
   }
 ];
