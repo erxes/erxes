@@ -313,6 +313,13 @@ ${props =>
   `}
 `;
 
+const ConversationWrapper = styled.div`
+  height: 100%;
+  overflow: auto;
+  min-height: 100px;
+  background: ${colors.bgLight};
+`;
+
 export {
   MessageItem,
   MessageBody,
@@ -325,5 +332,6 @@ export {
   CallBox,
   CellWrapper,
   FieldWrapper,
-  FormMessageInput
+  FormMessageInput,
+  ConversationWrapper
 };

@@ -1,17 +1,17 @@
 import React from 'react';
 
 import { ContentBox } from '@erxes/ui/src/layout/styles';
-import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
-import { IAttachmentPreview } from '@erxes/ui/src/types';
 import { ConversationWrapper } from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/styles';
+import { IAttachmentPreview } from '@erxes/ui/src/types';
 
+import { IConversationMessage } from '../../../types';
 import Conversation from './Conversation';
 
 type Props = {
   currentConversation: IConversation;
   loading: boolean;
-  conversationMessages: any;
+  conversationMessages: IConversationMessage[];
   attachmentPreview: IAttachmentPreview;
   typingInfo?: string;
   loadMoreMessages: () => void;
@@ -92,38 +92,22 @@ export default class Content extends React.Component<Props> {
       loading
     } = this.props;
 
-    let content = (
-      <ConversationWrapper
-        id="conversationWrapper"
-        innerRef={this.node}
-        onScroll={this.onScroll}
-      >
-        <Conversation
-          conversation={currentConversation}
-          scrollBottom={this.scrollBottom}
-          conversationMessages={conversationMessages}
-          attachmentPreview={attachmentPreview}
-          loading={loading}
-        />
-      </ConversationWrapper>
+    return (
+      <ContentBox>
+        <ConversationWrapper
+          id="conversationWrapper"
+          innerRef={this.node}
+          onScroll={this.onScroll}
+        >
+          <Conversation
+            conversation={currentConversation}
+            scrollBottom={this.scrollBottom}
+            conversationMessages={conversationMessages}
+            attachmentPreview={attachmentPreview}
+            loading={loading}
+          />
+        </ConversationWrapper>
+      </ContentBox>
     );
-
-    if (
-      ![
-        'messenger',
-        'facebook-post',
-        'lead',
-        'booking',
-        'webhook',
-        'callpro'
-      ].includes(currentConversation.integration.kind)
-    ) {
-      content = loadDynamicComponent('inboxConversationDetail', {
-        ...this.props,
-        currentId: currentConversation._id
-      });
-    }
-
-    return <ContentBox>{content}</ContentBox>;
   }
 }
