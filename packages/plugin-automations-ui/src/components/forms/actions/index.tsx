@@ -8,8 +8,6 @@ import React from 'react';
 import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 import CustomCode from './subForms/CustomCode';
 import Delay from './subForms/Delay';
-import LoyaltyForm from '../../../containers/forms/actions/subForms/LoyaltyForm';
-import ChangeScore from './subForms/ChangeScore';
 import { renderDynamicComponent } from '../../../utils';
 
 type Props = {
@@ -31,9 +29,7 @@ const renderExtraContent = props => {
     delay: <Delay {...props} />,
     setProperty: <SetProperty {...props} />,
     if: <IfForm {...props} />,
-    customCode: <CustomCode {...props} />,
-    voucher: <LoyaltyForm {...props} />,
-    changeScore: <ChangeScore {...props} />
+    customCode: <CustomCode {...props} />
   };
 
   const Component = renderDynamicComponent(

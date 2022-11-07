@@ -1,9 +1,7 @@
 export const ACTIONS = {
   WAIT: 'wait',
   IF: 'if',
-  SET_PROPERTY: 'setProperty',
-  CREATE_VOUCHER: 'loyalties:voucher.create',
-  CHANGE_SCORE: 'loyalties:scoreLog.create'
+  SET_PROPERTY: 'setProperty'
 };
 
 export const UI_ACTIONS = [
@@ -20,20 +18,6 @@ export const UI_ACTIONS = [
     label: 'Manage properties',
     description:
       'Update existing default or custom properties for Contacts, Companies, Cards, Conversations',
-    isAvailable: true
-  },
-  {
-    type: 'loyalties:voucher.create',
-    icon: 'file-plus',
-    label: 'Create voucher',
-    description: 'Create voucher',
-    isAvailable: true
-  },
-  {
-    type: 'loyalties:scoreLog.create',
-    icon: 'file-plus',
-    label: 'Change Score',
-    description: 'Change Score',
     isAvailable: true
   },
   {

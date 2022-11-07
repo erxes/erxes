@@ -23,14 +23,7 @@ class ActionDetailForm extends React.Component<Props> {
   render() {
     const { activeAction } = this.props;
 
-    let { type } = activeAction;
-    if ('loyalties:voucher.create' === type) {
-      type = 'voucher';
-    }
-
-    if ('loyalties:scoreLog.create' === type) {
-      type = 'changeScore';
-    }
+    const { type } = activeAction;
 
     return <>{ActionForms({ onSave: this.onSave, ...this.props })[type]}</>;
   }
