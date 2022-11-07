@@ -43,6 +43,8 @@ ${
 
     clientPortal: ClientPortal
 
+    notificationSettings: UserNotificationSettings
+
     ${
       isContactsEnabled
         ? `

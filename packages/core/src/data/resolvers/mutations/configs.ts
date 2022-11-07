@@ -104,7 +104,19 @@ const configMutations = {
     }
   },
 
-  async configsManagePluginInstall(_root, args, { subdomain }: IContext) {
+  async configsManagePluginInstall(
+    _root,
+    args,
+    { models, subdomain }: IContext
+  ) {
+    const prevAction = await models.InstallationLogs.findOne({
+      message: { $ne: 'done' }
+    });
+
+    if (prevAction) {
+      throw new Error('Installer is busy. Please wait ...');
+    }
+
     await sendCommonMessage({
       subdomain,
       serviceName: '',

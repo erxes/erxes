@@ -47,6 +47,7 @@ export const productToErkhet = async (subdomain, params, action) => {
       code: product.code || '',
       name: product.name || '',
       measureUnit: product.sku || 'ш',
+      barcodes: product.barcodes.join(','),
       unitPrice: product.unitPrice || 0,
       costAccount: config.costAccount,
       saleAccount: config.saleAccount,

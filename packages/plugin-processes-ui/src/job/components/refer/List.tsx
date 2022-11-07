@@ -14,7 +14,7 @@ import Form from '../../containers/refer/Form';
 import CategoryList from '../../containers/category/List';
 import { IJobRefer } from '../../types';
 import Row from './Row';
-import { menuContacts } from '../../../constants';
+import { menuSettings } from '../../../constants';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -198,7 +198,7 @@ class List extends React.Component<IProps, State> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header title={__('Job')} submenu={menuContacts} />}
+        header={<Wrapper.Header title={__('Job')} submenu={menuSettings} />}
         actionBar={
           <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
         }

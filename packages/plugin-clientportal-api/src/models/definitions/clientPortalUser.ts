@@ -3,6 +3,18 @@ import { Document, Schema } from 'mongoose';
 import { USER_LOGIN_TYPES } from './constants';
 import { field } from './utils';
 
+export interface INotificationConfig {
+  notifType: string;
+  label: string;
+  isAllowed: boolean;
+}
+
+export interface INotifcationSettings {
+  receiveByEmail: boolean;
+  receiveBySms: boolean;
+  configs: INotificationConfig[];
+}
+
 export interface IUser {
   email?: string;
   phone?: string;
@@ -27,6 +39,7 @@ export interface IUser {
   isOnline: boolean;
   lastSeenAt: Date;
   sessionCount: number;
+  notificationSettings: INotifcationSettings;
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -38,6 +51,42 @@ export interface IUserDocument extends IUser, Document {
   isPhoneVerified: boolean;
   isEmailVerified: boolean;
 }
+
+export const notificationConfigSchema = new Schema(
+  {
+    notifType: field({
+      type: String
+    }),
+    isAllowed: field({
+      type: Boolean,
+      default: true
+    }),
+    label: field({
+      type: String
+    })
+  },
+  { _id: false }
+);
+
+export const notificationSettingsSchema = new Schema(
+  {
+    receiveByEmail: field({
+      type: Boolean,
+      default: false
+    }),
+    receiveBySms: field({
+      type: Boolean,
+      default: false
+    }),
+
+    // notification configs
+    configs: field({
+      type: [notificationConfigSchema],
+      default: []
+    })
+  },
+  { _id: false }
+);
 
 export const clientPortalUserSchema = new Schema({
   _id: field({ pkey: true }),
@@ -117,6 +166,12 @@ export const clientPortalUserSchema = new Schema({
     type: Number,
     label: 'Session count',
     optional: true
+  }),
+
+  // notification settings
+  notificationSettings: field({
+    type: notificationSettingsSchema,
+    default: {}
   })
 });
 
