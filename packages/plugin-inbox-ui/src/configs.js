@@ -5,6 +5,7 @@ module.exports = {
   exposes: {
     './routes': './src/routes.tsx',
     './activityLog': './src/activityLogs/activityLog.tsx',
+    './automation': './src/automations/automation.tsx',
     './unreadCount': './src/inbox/containers/UnreadCount.tsx',
     './actionForms': './src/settings/integrations/containers/ActionForms',
   },
@@ -14,6 +15,7 @@ module.exports = {
     module: './routes'
   },
   activityLog: './activityLog',
+  automation: './automation',
   actionForms: './actionForms',
   menus: [
     {
