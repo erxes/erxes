@@ -321,12 +321,6 @@ Update plugins section of the configs.json file
 ```
 "plugins": [
         {
-            "name": "products"
-        },
-        {
-            "name": "logs"
-        },
-        {
             "name": "engages"
         },
         {
@@ -336,19 +330,7 @@ Update plugins section of the configs.json file
             "name": "segments"
         },
         {
-            "name": "tags"
-        },
-        {
             "name": "emailtemplates"
-        },
-        {
-            "name": "internalnotes"
-        },
-        {
-            "name": "forms"
-        },
-        {
-            "name": "contacts"
         },
         {
             "name": "inbox"
@@ -361,37 +343,6 @@ Update plugins section of the configs.json file
         }
     ]
 ```
-
-To run inbox with widgets (web messenger, forms)
-add 
-
-```
-    "widgets": {}
-```
-
-in configs.json
-
-
-Then run
-
-```
-npm run erxes up -- --uis
-```
-
-```
-npm run erxes restart gateway
-```
-
-With docker-compose
-
-```
-docker-compose down
-```
-
-```
-docker-compose up -d
-```
-
 ### Running elasticsearch
 
 ```
