@@ -83,7 +83,8 @@ function AppProvider({ children }: Props) {
       unsubscribe();
       unsubscribe2();
     };
-  }, [userQuery, currentUser, notificationsCountQry, notificationsCount]);
+
+  }, [userQuery, currentUser, notificationsCountQry, notificationsCount, setNotificationsCount]);
 
   const response: any = useQuery(gql(clientPortalGetConfig), {});
 
