@@ -72,7 +72,7 @@ export const start = async (
       await models.Logs.createLog(
         engageMessageId,
         'failure',
-        `Error occurred while sending email to ${customer.primaryEmail}: ${e.message}`
+        `Error occurred while sending email to ${customer.primaryEmail}: ${e.message}, fromEmail ${fromEmail}`
       );
     }
   };
