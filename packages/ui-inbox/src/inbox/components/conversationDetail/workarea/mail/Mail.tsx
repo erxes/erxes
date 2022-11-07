@@ -9,11 +9,11 @@ import React from 'react';
 import { cleanHtml } from '../../../../../settings/integrations/containers/utils';
 
 type Props = {
+  detailQuery?: any;
   message: IMessage;
   integrationId: string;
   conversationId?: string;
   customerId?: string;
-  kind: string;
   isLast: boolean;
   brandId?: string;
   mails: IMessage[];
@@ -102,6 +102,7 @@ class Mail extends React.PureComponent<Props, State> {
     }
 
     const {
+      detailQuery,
       conversationId,
       message,
       integrationId,
@@ -113,6 +114,8 @@ class Mail extends React.PureComponent<Props, State> {
     return (
       <BoxItem>
         <MailForm
+          detailQuery={detailQuery}
+          source="inbox"
           replyAll={replyAll}
           isReply={isReply}
           isForward={isForward}
@@ -157,14 +160,13 @@ class Mail extends React.PureComponent<Props, State> {
       return;
     }
 
-    const { kind, integrationId } = this.props;
+    const { integrationId } = this.props;
 
     return (
       <Attachments
-        kind={kind}
         integrationId={integrationId}
         attachments={attachments}
-        messageId={messageId}
+        messageId={encodeURIComponent(messageId)}
       />
     );
   }

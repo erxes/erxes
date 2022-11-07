@@ -104,7 +104,7 @@ class Brands extends React.Component<Props, {}> {
             description={__('Add uoms ...')}
           />
         }
-        actionBar={<Wrapper.ActionBar right={righActionBar} />}
+        actionBar={<Wrapper.ActionBar right={righActionBar} wideSpacing />}
         leftSidebar={<Sidebar />}
         content={
           <DataWithLoader
@@ -116,6 +116,7 @@ class Brands extends React.Component<Props, {}> {
           />
         }
         footer={uomsTotalCount > 0 && <Pagination count={uomsTotalCount} />}
+        hasBorder
       />
     );
   }

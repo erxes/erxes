@@ -13,6 +13,7 @@ export type IOrder = {
   customerId: string;
   cardAmount: number;
   cashAmount: number;
+  receivableAmount: number;
   mobileAmount: number;
   totalAmount: number;
   finalAmount: number;
@@ -30,7 +31,7 @@ export type IOrder = {
   posName: string;
   user: IUser;
   customer: ICustomer;
-
+  origin?: string;
   syncedErkhet: boolean;
 };
 
@@ -95,6 +96,7 @@ export type PosOrderChangePaymentsMutationResponse = {
     variables: {
       _id: string;
       cashAmount: number;
+      receivableAmount: number;
       cardAmount: number;
       mobileAmount: number;
     };

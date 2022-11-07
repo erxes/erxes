@@ -1,6 +1,9 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
-import { ISafeRemainder } from '../../../models/definitions/safeRemainders';
+import {
+  ISafeRemainder,
+  ISafeRemainderSubmitParams
+} from '../../../models/definitions/safeRemainders';
 
 const safeRemainderMutations = {
   safeRemainderAdd: async (
@@ -25,6 +28,14 @@ const safeRemainderMutations = {
 
     // Delete safe remainder
     return models.SafeRemainders.findByIdAndDelete(_id);
+  },
+
+  safeRemainderSubmit: async (
+    _root: any,
+    params: ISafeRemainderSubmitParams,
+    { models, subdomain }: IContext
+  ) => {
+    await models.SafeRemainders.submitRemainder(subdomain, params);
   }
 };
 

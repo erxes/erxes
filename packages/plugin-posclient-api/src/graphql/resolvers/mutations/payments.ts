@@ -45,7 +45,12 @@ const paymentMutations = {
           invoice_receiver_code: 'terminal',
           invoice_description: order.number,
           amount: amount ? amount : order.totalAmount,
-          callback_url: `${config.qpayConfig.callbackUrl}?payment_id=${order._id}`
+          callback_url: config.qpayConfig.callbackUrl
+            ? `${config.qpayConfig.callbackUrl}?payment_id=${order._id}`
+            : '',
+          calback_url: config.qpayConfig.callbackUrl
+            ? `${config.qpayConfig.callbackUrl}?payment_id=${order._id}`
+            : ''
         },
         tokenInfo.access_token,
         config.qpayConfig
@@ -75,12 +80,12 @@ const paymentMutations = {
     try {
       const tokenInfo = await fetchQPayToken(config.qpayConfig!);
 
-      const order = models.Orders.findOne({ _id: orderId });
       let invoice;
 
-      if (!order && _id) {
+      if (!orderId && _id) {
         invoice = await models.QPayInvoices.findOne({ _id });
       } else {
+        const order = await models.Orders.findOne({ _id: orderId });
         invoice = await models.QPayInvoices.findOne({
           senderInvoiceNo: orderId
         });
@@ -119,12 +124,14 @@ const paymentMutations = {
     { models, config, subdomain }: IContext
   ) {
     let invoice;
-    const order = models.Orders.findOne({ _id: orderId });
+    const order = await models.Orders.findOne({ _id: orderId }).lean();
 
     if (!order && _id) {
-      invoice = await models.QPayInvoices.findOne({ _id });
+      invoice = await models.QPayInvoices.findOne({ _id }).lean();
     } else {
-      invoice = await models.QPayInvoices.findOne({ senderInvoiceNo: orderId });
+      invoice = await models.QPayInvoices.findOne({
+        senderInvoiceNo: orderId
+      }).lean();
     }
 
     if (!invoice) {
@@ -177,18 +184,29 @@ const paymentMutations = {
           orderId
         );
 
-        await commonCheckPayment(
-          subdomain,
-          models,
-          orderId,
-          config,
-          paidMobileAmount
+        await models.Orders.updateOne(
+          { _id: invoice.senderInvoiceNo },
+          {
+            $set: { mobileAmount: paidMobileAmount }
+          }
         );
-        return models.QPayInvoices.findOne({ _id: invoice._id });
+
+        const { SKIP_REDIS } = process.env;
+        if (!SKIP_REDIS) {
+          await commonCheckPayment(
+            subdomain,
+            models,
+            orderId,
+            config,
+            paidMobileAmount
+          );
+        }
+
+        return models.QPayInvoices.findOne({ _id: invoice._id }).lean();
       }
     }
 
-    return models.QPayInvoices.findOne({ _id: invoice._id });
+    return models.QPayInvoices.findOne({ _id: invoice._id }).lean();
   }
 };
 

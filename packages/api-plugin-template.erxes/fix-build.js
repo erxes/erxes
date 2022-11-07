@@ -32,6 +32,8 @@ async function main() {
   await copyFile('../src/graphql/subscriptionPlugin.js', `./dist/${pluginName}/src/graphql/subscriptionPlugin.js`);
   await copyDir('../src/cronjobs', `./dist/${pluginName}/src/cronjobs`);
   await copyDir('../src/commands', `./dist/${pluginName}/src/commands`);
+  await copyDir('../src/views', `./dist/${pluginName}/src/views`);
+  await copyDir('../src/public', `./dist/${pluginName}/src/public`);
 
   fs.rename(`./dist/${pluginName}`, './dist/main', function(err) {
     if (err) {

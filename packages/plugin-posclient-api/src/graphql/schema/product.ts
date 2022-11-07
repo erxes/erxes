@@ -35,6 +35,7 @@ export const types = `
     vendorId: String
     attachmentMore: Attachment
     category: PosProductCategory
+    remainder: Int
   }
 `;
 
@@ -47,6 +48,7 @@ export const queries = `
     type: String,
     categoryId: String,
     searchValue: String,
+    branchId: String,
     page: Int,
     perPage: Int,
   ): [PoscProduct]

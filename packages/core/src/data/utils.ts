@@ -901,11 +901,13 @@ export const sendMobileNotification = async (
     receivers,
     title,
     body,
+    deviceTokens,
     data
   }: {
     receivers: string[];
     title: string;
     body: string;
+    deviceTokens?: string[];
     data?: any;
   }
 ): Promise<void> => {
@@ -923,6 +925,10 @@ export const sendMobileNotification = async (
         role: { $ne: USER_ROLES.SYSTEM }
       }).distinct('deviceTokens'))
     );
+  }
+
+  if (deviceTokens && deviceTokens.length) {
+    tokens.push(...deviceTokens);
   }
 
   //   if (customerId) {

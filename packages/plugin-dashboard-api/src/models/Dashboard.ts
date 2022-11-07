@@ -1,3 +1,4 @@
+import { IUser, IUserDocument } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
 import _ = require('underscore');
 import { IModels } from '../connectionResolver';
@@ -16,7 +17,11 @@ import { escapeRegExp } from './definitions/utils';
 export interface IDashboardModel extends Model<IDashboardDocument> {
   getDashboard(_id: string): Promise<IDashboardDocument>;
   addDashboard(doc: IDashboard): Promise<IDashboardDocument>;
-  editDashboard(_id: string, fields: IDashboard): Promise<IDashboardDocument>;
+  editDashboard(
+    _id: string,
+    fields: IDashboard,
+    user: IUserDocument
+  ): Promise<IDashboardDocument>;
   removeDashboard(_id: string): void;
   validateUniqueness(selector: any, name: string): Promise<boolean>;
 }
@@ -203,7 +208,11 @@ export const loadDashboardClass = (models: IModels) => {
       return dashboard;
     }
 
-    public static async editDashboard(_id: string, doc: IDashboard) {
+    public static async editDashboard(
+      _id: string,
+      doc: IDashboard,
+      user: IUserDocument
+    ) {
       const isUnique = await models.Dashboards.validateUniqueness(
         { _id },
         doc.name
@@ -266,7 +275,10 @@ export const loadDashboardClass = (models: IModels) => {
         }
       }
 
-      await models.Dashboards.updateOne({ _id }, { $set: { ...doc, order } });
+      await models.Dashboards.updateOne(
+        { _id },
+        { $set: { ...doc, order, updatedAt: new Date(), updatedBy: user._id } }
+      );
 
       const updated = await models.Dashboards.findOne({ _id });
 

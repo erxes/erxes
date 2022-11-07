@@ -148,7 +148,6 @@ class PerSettings extends React.Component<Props, State> {
         {this.renderInput('userEmail', 'userEmail', '')}
         {this.renderCheckbox('hasVat', 'hasVat', '')}
         {this.renderCheckbox('hasCitytax', 'hasCitytax', '')}
-        {this.renderCheckbox('isEbarimt', 'isEbarimt', '')}
 
         <FormGroup>
           <ControlLabel>{'defaultPay'}</ControlLabel>

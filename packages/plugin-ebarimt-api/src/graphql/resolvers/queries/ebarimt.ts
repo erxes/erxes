@@ -1,14 +1,9 @@
 import { getFullDate, getTomorrow } from './utils';
 import { paginate, regexSearchText } from '@erxes/api-utils/src';
-import { sendCardsMessage } from '../../../messageBroker';
+import { sendCardsMessage, sendPosMessage } from '../../../messageBroker';
 import { IContext } from '../../../connectionResolver';
 
-const generateFilter = async (
-  subdomain,
-  models,
-  params,
-  commonQuerySelector
-) => {
+const generateFilter = async (subdomain, params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
 
   if (params.search) {
@@ -41,10 +36,15 @@ const generateFilter = async (
     filter.contentType = params.contentType;
 
     if (params.contentType === 'pos' && params.orderNumber) {
-      const posOrders = await models.PosOrders.find(
-        { number: { $regex: new RegExp(params.orderNumber) } },
-        { _id: 1 }
-      ).lean();
+      const posOrders = await sendPosMessage({
+        subdomain,
+        action: 'orders.find',
+
+        data: { number: { $regex: params.orderNumber, $options: 'mui' } },
+        isRPC: true,
+        defaultValue: []
+      });
+
       filter.contentId = { $in: (posOrders || []).map(p => p._id) };
     }
 
@@ -128,12 +128,7 @@ const queries = {
     params,
     { commonQuerySelector, models, subdomain }: IContext
   ) => {
-    const filter = await generateFilter(
-      subdomain,
-      models,
-      params,
-      commonQuerySelector
-    );
+    const filter = await generateFilter(subdomain, params, commonQuerySelector);
 
     if (params.isLast && params.isLast === '1') {
       const { page = 0, perPage = 0 } = params || { ids: null };
@@ -172,12 +167,7 @@ const queries = {
     params,
     { commonQuerySelector, models, subdomain }
   ) => {
-    const filter = await generateFilter(
-      subdomain,
-      models,
-      params,
-      commonQuerySelector
-    );
+    const filter = await generateFilter(subdomain, params, commonQuerySelector);
 
     if (params.isLast && params.isLast === '1') {
       return (
@@ -197,12 +187,7 @@ const queries = {
     params,
     { commonQuerySelector, models, subdomain }
   ) => {
-    const filter = await generateFilter(
-      subdomain,
-      models,
-      params,
-      commonQuerySelector
-    );
+    const filter = await generateFilter(subdomain, params, commonQuerySelector);
     let res: any[];
 
     if (params.isLast && params.isLast === '1') {

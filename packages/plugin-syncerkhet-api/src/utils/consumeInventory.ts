@@ -26,6 +26,7 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
       code: doc.code,
       productId: doc.id,
       sku: doc.measure_unit_code,
+      barcodes: (doc.barcodes || '').split(','),
       categoryId: productCategory ? productCategory._id : product.categoryId,
       categoryCode: productCategory
         ? productCategory.code
@@ -108,9 +109,7 @@ export const consumeInventoryCategory = async (
         data: {
           doc: {
             ...document,
-            parentId: parentCategory
-              ? parentCategory._id
-              : productCategory.parentId
+            parentId: parentCategory ? parentCategory._id : ''
           }
         },
         isRPC: true

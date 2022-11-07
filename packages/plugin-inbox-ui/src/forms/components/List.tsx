@@ -212,6 +212,7 @@ class List extends React.Component<Props, {}> {
             }
           />
         }
+        hasBorder
       />
     );
   }

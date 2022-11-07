@@ -44,7 +44,7 @@ class Pages extends React.Component<Props, {}> {
 
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">
-        Add an entry
+        Add site
       </Button>
     );
 

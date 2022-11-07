@@ -12,8 +12,11 @@ import {
   SaveMessengerAppearanceMutationResponse,
   SaveMessengerAppsMutationResponse,
   SaveMessengerConfigsMutationResponse
-} from '../../types';
-import { mutations, queries } from '../../graphql';
+} from '@erxes/ui-inbox/src/settings/integrations/types';
+import {
+  mutations,
+  queries
+} from '@erxes/ui-inbox/src/settings/integrations/graphql';
 
 import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
 import Form from '../../components/messenger/Form';
@@ -133,7 +136,7 @@ const EditMessenger = (props: FinalProps) => {
       .then(() => {
         Alert.success('You successfully updated a messenger');
 
-        history.push('/settings/add-ons?refetch=true');
+        history.push('/settings/integrations?refetch=true');
       })
       .catch(error => {
         if (error.message.includes('Duplicated messenger for single brand')) {

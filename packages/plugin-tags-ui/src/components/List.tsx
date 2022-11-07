@@ -63,7 +63,9 @@ function List({
       {contentType} {__('tags')}
     </Title>
   );
-  const actionBar = <Wrapper.ActionBar left={title} right={actionBarRight} />;
+  const actionBar = (
+    <Wrapper.ActionBar left={title} right={actionBarRight} wideSpacing />
+  );
 
   const content = (
     <Table>
@@ -120,8 +122,8 @@ function List({
         />
       }
       leftSidebar={<Sidebar types={types} type={type} />}
-      hasBorder={true}
       transparent={true}
+      hasBorder
     />
   );
 }

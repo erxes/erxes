@@ -1,8 +1,4 @@
 import { sendCommonMessage } from '../../../messageBroker';
-import {
-  moduleCheckPermission,
-  requireLogin
-} from '../../permissions/wrappers';
 import { IContext } from '../../../connectionResolver';
 import {
   checkPremiumService,
@@ -12,6 +8,10 @@ import {
   resetConfigsCache,
   sendRequest
 } from '../../utils';
+import {
+  moduleCheckPermission,
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
 
 const configMutations = {
   /**
@@ -104,13 +104,27 @@ const configMutations = {
     }
   },
 
-  async configsManagePluginInstall(_root, args, { subdomain }: IContext) {
+  async configsManagePluginInstall(
+    _root,
+    args,
+    { models, subdomain }: IContext
+  ) {
+    const prevAction = await models.InstallationLogs.findOne({
+      message: { $ne: 'done' }
+    });
+
+    if (prevAction) {
+      throw new Error('Installer is busy. Please wait ...');
+    }
+
     await sendCommonMessage({
       subdomain,
       serviceName: '',
       action: 'managePluginInstall',
-      data: args,
-      isRPC: true
+      data: {
+        ...args,
+        subdomain
+      }
     });
 
     return { status: 'success' };

@@ -1,21 +1,46 @@
-const dashboardItemDetail = `
-  query dashboardItemDetail($_id: String!) {
-    dashboardItemDetail(_id: $_id) {
-      _id
-      layout
-      vizState
-      name
-      parentId
-      order
-      createdAt
-      relatedIds
-    }
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
+const userFields = `
+  _id
+  username
+  email
+  details {
+    avatar
+    fullName
+  }
+`;
+
+const listParamsDef = `
+  $page: Int
+  $perPage: Int
+  $tag: String
+  $ids: [String]
+  $excludeIds: Boolean
+  $searchValue: String
+  $sortField: String
+  $sortDirection: Int
+`;
+
+const listParamsValue = `
+  page: $page
+  perPage: $perPage
+  tag: $tag
+  ids: $ids
+  excludeIds: $excludeIds
+  searchValue: $searchValue
+  sortField: $sortField
+  sortDirection: $sortDirection
+`;
+
+const dashboardCountByTags = `
+  query dashboardCountByTags{ 
+    dashboardCountByTags
   }
 `;
 
 const dashboards = `
-  query dashboards($page: Int, $perPage: Int) {
-    dashboards(page: $page, perPage: $perPage) {
+  query dashboards(${listParamsDef}) {
+    dashboards(${listParamsDef}) {
 	    _id
 	    name
       description
@@ -25,7 +50,65 @@ const dashboards = `
       order
       createdAt
       relatedIds
+      createdAt
+      updatedAt
+      createdBy
+      updatedBy
+      createdUser {
+        ${userFields}
+      }
+      updatedUser {
+        ${userFields}
+      }
+      members {
+        ${userFields}
+      }
+      itemsCount
 	  }
+  }
+`;
+
+export const dashboardsMain = `
+  query dashboardsMain(${listParamsDef}) {
+    dashboardsMain(${listParamsValue}) {
+      list {
+        _id
+        name
+        description
+        visibility
+        selectedMemberIds
+        parentId
+        order
+        createdAt
+        updatedAt
+        relatedIds
+        itemsCount
+        ${
+          isEnabled('tags')
+            ? `
+          getTags {
+            _id
+            name
+            colorCode
+          }
+          `
+            : ``
+        }
+        tagIds
+        createdUser {
+          ${userFields}
+        }
+
+        updatedUser {
+          ${userFields}
+        }
+        members {
+          ${userFields}
+        }
+      }
+
+      totalCount
+    }
   }
 `;
 
@@ -34,6 +117,18 @@ const dashboardDetails = `
     dashboardDetails(_id: $_id) {
 	    _id
 	    name
+      ${
+        isEnabled('tags')
+          ? `
+        getTags {
+          _id
+          name
+          colorCode
+        }
+        `
+          : ``
+      }
+      tagIds
       description
       visibility
       selectedMemberIds
@@ -41,6 +136,9 @@ const dashboardDetails = `
       order
       createdAt
       relatedIds
+      members {
+        ${userFields}
+      }
     }
   }
 `;
@@ -51,9 +149,44 @@ const totalCount = `
   }
 `;
 
+const dashboardItems = `
+  query dashboardItems($dashboardId: String!) {
+    dashboardItems(dashboardId: $dashboardId) {
+      _id
+      layout
+      vizState
+      name
+      type
+    }
+  }
+`;
+
+const dashboardItemDetail = `
+  query dashboardItemDetail($_id: String!) {
+    dashboardItemDetail(_id: $_id) {
+      _id
+      layout
+      vizState
+      name
+      type
+      isDateRange
+    }
+  }
+`;
+
+const dashboardGetTypes = `
+   query dashboardGetTypes {
+     dashboardGetTypes
+   }
+`;
+
 export default {
   dashboardItemDetail,
+  dashboardItems,
+  dashboardsMain,
   totalCount,
   dashboards,
-  dashboardDetails
+  dashboardDetails,
+  dashboardGetTypes,
+  dashboardCountByTags
 };

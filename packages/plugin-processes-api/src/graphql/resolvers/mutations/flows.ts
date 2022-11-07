@@ -98,6 +98,6 @@ const flowMutations = {
   }
 };
 
-// moduleCheckPermission(flowMutations, 'manageJobRefers');
+// moduleCheckPermission(flowMutations, 'manageJobs');
 
 export default flowMutations;

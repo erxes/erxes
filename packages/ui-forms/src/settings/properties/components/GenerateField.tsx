@@ -18,16 +18,18 @@ import ObjectList from './ObjectList';
 import React from 'react';
 import Select from 'react-select-plus';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import { __ } from '@erxes/ui/src/utils/core';
 import SelectProductCategory from '../containers/SelectProductCategory';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { isEnabled, __ } from '@erxes/ui/src/utils/core';
+import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
+import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 
 type Props = {
   field: IField;
   currentLocation?: ILocationOption;
   defaultValue?: any;
   hasLogic?: boolean;
-  isEditing: boolean;
+  isEditing?: boolean;
   isPreview?: boolean;
   onValueChange?: (data: { _id: string; value: any }) => void;
   onChangeLocationOptions?: (locationOptions: ILocationOption[]) => void;
@@ -188,13 +190,15 @@ export default class GenerateField extends React.Component<Props, State> {
       };
 
       return (
-        <Datetime
-          {...attrs}
-          value={value}
-          dateFormat="YYYY/MM/DD"
-          timeFormat={false}
-          closeOnSelect={true}
-        />
+        <div className="dateTime">
+          <Datetime
+            {...attrs}
+            value={value}
+            dateFormat="YYYY/MM/DD"
+            timeFormat={false}
+            closeOnSelect={true}
+          />
+        </div>
       );
     }
 
@@ -271,6 +275,27 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
+  renderProduct({ id, value }) {
+    const onSelect = e => {
+      const { onValueChange } = this.props;
+
+      if (onValueChange) {
+        this.setState({ value: e });
+
+        onValueChange({ _id: id, value: e });
+      }
+    };
+
+    return (
+      <SelectProducts
+        label="Filter by products"
+        name="productIds"
+        multi={false}
+        initialValue={value}
+        onSelect={onSelect}
+      />
+    );
+  }
   renderHtml() {
     const { content } = this.props.field;
     return (
@@ -321,7 +346,7 @@ export default class GenerateField extends React.Component<Props, State> {
       }
     }
 
-    const { field, onValueChange } = this.props;
+    const { field, onValueChange, isEditing } = this.props;
 
     if (field.contentType === 'form') {
       if (!objectListConfigs) {
@@ -330,8 +355,8 @@ export default class GenerateField extends React.Component<Props, State> {
 
       return (
         <>
-          {objectListConfigs.map(o => (
-            <>
+          {objectListConfigs.map((o, index) => (
+            <React.Fragment key={index}>
               <p>
                 <b>{o.label}</b>
               </p>
@@ -340,7 +365,7 @@ export default class GenerateField extends React.Component<Props, State> {
                 componentClass={`${o.type}`}
                 placeholder={`${o.label}`}
               />
-            </>
+            </React.Fragment>
           ))}
         </>
       );
@@ -354,14 +379,14 @@ export default class GenerateField extends React.Component<Props, State> {
     };
 
     return (
-      <>
+      <ErrorBoundary>
         <ObjectList
           objectListConfigs={objectListConfigs}
           value={value}
           onChange={onChange}
-          isEditing={this.props.isEditing}
+          isEditing={isEditing ? isEditing : false}
         />
-      </>
+      </ErrorBoundary>
     );
   }
 
@@ -556,6 +581,13 @@ export default class GenerateField extends React.Component<Props, State> {
         return this.renderCustomer(attrs);
       }
 
+      case 'product': {
+        if (!isEnabled('products')) {
+          return <p>Products service is not enabled</p>;
+        }
+        return this.renderProduct(attrs);
+      }
+
       case 'list': {
         return this.renderList(attrs);
       }
@@ -569,6 +601,9 @@ export default class GenerateField extends React.Component<Props, State> {
       }
 
       case 'selectProductCategory': {
+        if (!isEnabled('products')) {
+          return <p>Products service is not enabled</p>;
+        }
         return this.renderSelectCategory(attrs);
       }
 

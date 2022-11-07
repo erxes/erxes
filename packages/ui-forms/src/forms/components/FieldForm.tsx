@@ -10,7 +10,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { IField, IFieldLogic, IOption } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __, loadDynamicComponent } from 'coreui/utils';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Select from 'react-select-plus';
@@ -313,6 +313,33 @@ class FieldForm extends React.Component<Props, State> {
     );
   }
 
+  renderOptionsValue() {
+    const { field } = this.state;
+    const { optionsValues } = this.props.field;
+
+    const handleChange = e => {
+      const { value } = e.currentTarget as HTMLInputElement;
+
+      this.onFieldChange('optionsValues', value);
+    };
+
+    if (['select', 'radio'].includes(field.type)) {
+      return (
+        <CollapseContent title={__('Field Value')}>
+          <FormGroup>
+            <ControlLabel>{__('Value')}</ControlLabel>
+            <FormControl
+              id="FieldValue"
+              componentClass="textarea"
+              defaultValue={optionsValues}
+              onChange={handleChange}
+            />
+          </FormGroup>
+        </CollapseContent>
+      );
+    }
+  }
+
   renderPageSelect() {
     const { numberOfPages } = this.props;
     const { field } = this.state;
@@ -369,6 +396,13 @@ class FieldForm extends React.Component<Props, State> {
         'isRequired',
         (e.currentTarget as HTMLInputElement).checked
       );
+
+    const onCategoryChange = e => {
+      this.onFieldChange(
+        'productCategoryId',
+        (e.currentTarget as HTMLInputElement).value
+      );
+    };
 
     return (
       <>
@@ -442,7 +476,11 @@ class FieldForm extends React.Component<Props, State> {
           </FormGroup>
 
           {this.renderColumn()}
-          {this.renderProductCategory()}
+
+          {loadDynamicComponent('extendFormField', {
+            field,
+            onChange: this.onFieldChange
+          })}
           {this.renderHtml()}
           {this.renderCustomPropertyGroup()}
           {this.renderCustomProperty()}
@@ -456,6 +494,7 @@ class FieldForm extends React.Component<Props, State> {
             />
           </CollapseContent>
         )}
+        {this.renderOptionsValue()}
 
         <Modal.Footer>
           <Button
@@ -540,42 +579,42 @@ class FieldForm extends React.Component<Props, State> {
     );
   }
 
-  renderProductCategory() {
-    const { field } = this.state;
-    const { productCategories = [] } = this.props;
+  // renderProductCategory() {
+  //   const { field } = this.state;
+  //   const { productCategories = [] } = this.props;
 
-    if (field.type !== 'productCategory') {
-      return null;
-    }
+  //   if (field.type !== 'productCategory') {
+  //     return null;
+  //   }
 
-    const onCategoryChange = e => {
-      this.onFieldChange(
-        'productCategoryId',
-        (e.currentTarget as HTMLInputElement).value
-      );
-    };
+  //   const onCategoryChange = e => {
+  //     this.onFieldChange(
+  //       'productCategoryId',
+  //       (e.currentTarget as HTMLInputElement).value
+  //     );
+  //   };
 
-    return (
-      <>
-        <FormGroup>
-          <ControlLabel>Categories:</ControlLabel>
-          <FormControl
-            id="productCategories"
-            componentClass="select"
-            defaultValue={field.productCategoryId || ''}
-            onChange={onCategoryChange}
-          >
-            <option>-</option>
-            {productCategories.map(category => (
-              <option key={category._id} value={category._id}>
-                {category.name}
-              </option>
-            ))}
-          </FormControl>
-        </FormGroup>
-      </>
-    );
-  }
+  //   return (
+  //     <>
+  //       <FormGroup>
+  //         <ControlLabel>Categories:</ControlLabel>
+  //         <FormControl
+  //           id="productCategories"
+  //           componentClass="select"
+  //           defaultValue={field.productCategoryId || ''}
+  //           onChange={onCategoryChange}
+  //         >
+  //           <option>-</option>
+  //           {productCategories.map(category => (
+  //             <option key={category._id} value={category._id}>
+  //               {category.name}
+  //             </option>
+  //           ))}
+  //         </FormControl>
+  //       </FormGroup>
+  //     </>
+  //   );
+  // }
 
   renderColumn() {
     const { field } = this.state;

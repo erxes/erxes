@@ -35,6 +35,7 @@ export type IPos = {
   description?: string;
   createdAt: Date;
   productDetails?: string[];
+  token: string;
   adminIds: [string];
   cashierIds: [string];
   user: IUser;
@@ -56,6 +57,8 @@ export type IPos = {
   kioskExcludeProductIds?: string[];
   deliveryConfig?: any;
   cardsConfig?: any;
+  checkRemainder?: boolean;
+  permissionConfig?: any;
 };
 
 export type ISlot = {
@@ -181,6 +184,7 @@ export type SchemaLabelsQueryResponse = {
 export interface IOrdersSummary {
   cardAmount: number;
   cashAmount: number;
+  receivableAmount: number;
   mobileAmount: number;
   totalAmount: number;
   finalAmount: number;

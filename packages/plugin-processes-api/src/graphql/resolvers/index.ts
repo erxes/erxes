@@ -2,7 +2,7 @@ import customScalars from '@erxes/api-utils/src/customScalars';
 
 import JobCategory from './customResolver/jobCategory';
 import FlowCategory from './customResolver/flowCategory';
-import Flow from './customResolver/flowProduct';
+import Flow from './customResolver/flow';
 import JobRefer from './customResolver/jobRefer';
 import Work from './customResolver/work';
 import OverallWork from './customResolver/overallWork';
@@ -11,7 +11,6 @@ import {
   JobRefers as JobRefersMutations,
   JobCategories as JobCategoryMutations,
   Flows as FlowsMutations,
-  FlowCategories as FlowCategoryMutations,
   Works as WorkMutation,
   OverallWorks as OverallWorkMutations,
   Performs as PerformMutations
@@ -40,7 +39,6 @@ const resolvers: any = async () => ({
     ...JobRefersMutations,
     ...JobCategoryMutations,
     ...FlowsMutations,
-    ...FlowCategoryMutations,
     ...WorkMutation,
     ...OverallWorkMutations,
     ...PerformMutations

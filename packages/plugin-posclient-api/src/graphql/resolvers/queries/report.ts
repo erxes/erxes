@@ -34,6 +34,7 @@ const reportQueries = {
           $project: {
             cardAmount: '$cardAmount',
             cashAmount: '$cashAmount',
+            receivableAmount: '$receivableAmount',
             mobileAmount: '$mobileAmount',
             totalAmount: '$totalAmount'
           }
@@ -43,6 +44,7 @@ const reportQueries = {
             _id: '',
             cardAmount: { $sum: '$cardAmount' },
             cashAmount: { $sum: '$cashAmount' },
+            receivableAmount: { $sum: '$receivableAmount' },
             mobileAmount: { $sum: '$mobileAmount' },
             totalAmount: { $sum: '$totalAmount' }
           }
@@ -72,13 +74,12 @@ const reportQueries = {
 
       const productIds = groupedItems.map(g => g._id);
       const products = await models.Products.find(
-        { _id: { $in: productIds }, token: { $in: [config.token] } },
+        { _id: { $in: productIds } },
         { _id: 1, code: 1, name: 1, categoryId: 1 }
       ).lean();
       const productCategories = await models.ProductCategories.find(
         {
-          _id: { $in: products.map(p => p.categoryId) },
-          token: { $in: [config.token] }
+          _id: { $in: products.map(p => p.categoryId) }
         },
         { _id: 1, code: 1, name: 1 }
       )
@@ -98,7 +99,11 @@ const reportQueries = {
       const items = {};
       for (const groupedItem of groupedItems) {
         const product = productById[groupedItem._id];
-        const category = categoryById[product.categoryId];
+        const category = categoryById[product.categoryId] || {
+          _id: 'undefined',
+          code: 'Unknown',
+          name: 'Unknown'
+        };
 
         if (!Object.keys(items).includes(category._id)) {
           items[category._id] = {

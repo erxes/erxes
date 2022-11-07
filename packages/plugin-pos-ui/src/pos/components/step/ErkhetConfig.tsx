@@ -1,4 +1,5 @@
 import React from 'react';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import {
   __,
   ControlLabel,
@@ -6,31 +7,48 @@ import {
   FormGroup,
   Toggle
 } from '@erxes/ui/src';
-import { Block, BlockRow, FlexColumn, FlexItem } from '../../../styles';
+import {
+  Block,
+  BlockRow,
+  BlockRowUp,
+  FlexColumn,
+  FlexItem
+} from '../../../styles';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import { IPos } from '../../../types';
 import Select from 'react-select-plus';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 
 type Props = {
-  onChange: (name: 'erkhetConfig', value: any) => void;
-  pos?: IPos;
+  onChange: (
+    name: 'pos' | 'erkhetConfig' | 'checkRemainder',
+    value: any
+  ) => void;
+  pos: IPos;
+  checkRemainder: boolean;
 };
 
-class ErkhetConfig extends React.Component<Props, { config: any }> {
+class ErkhetConfig extends React.Component<
+  Props,
+  { config: any; checkRemainder: boolean }
+> {
   constructor(props: Props) {
     super(props);
 
+    const { pos, checkRemainder } = props;
     const config =
-      props.pos && props.pos.erkhetConfig
-        ? props.pos.erkhetConfig
+      pos && pos.erkhetConfig
+        ? pos.erkhetConfig
         : {
             isSyncErkhet: false,
             userEmail: '',
-            defaultPay: ''
+            defaultPay: '',
+            getRemainder: false
           };
 
     this.state = {
-      config
+      config,
+      checkRemainder
     };
   }
 
@@ -47,8 +65,42 @@ class ErkhetConfig extends React.Component<Props, { config: any }> {
     this.onChangeConfig(code, e.target.value);
   };
 
+  onChangeInputSub = (code: string, key1: string, e) => {
+    const { config } = this.state;
+
+    this.onChangeConfig(code, { ...config[code], [key1]: e.target.value });
+  };
+
   onChangeSwitch = e => {
     this.onChangeConfig('isSyncErkhet', e.target.checked);
+  };
+
+  onChangeSwitchCheckErkhet = e => {
+    let val = e.target.checked;
+    if (!this.state.config.isSyncErkhet) {
+      val = false;
+    }
+
+    if (val && this.state.checkRemainder) {
+      this.props.onChange('checkRemainder', false);
+      this.setState({ checkRemainder: false });
+    }
+
+    this.onChangeConfig('getRemainder', val);
+  };
+
+  onChangeSwitchCheckInv = e => {
+    let val = e.target.checked;
+    if (!isEnabled('inventories')) {
+      val = false;
+    }
+
+    if (val && this.state.config.getRemainder) {
+      this.onChangeConfig('getRemainder', false);
+    }
+
+    this.props.onChange('checkRemainder', val);
+    this.setState({ checkRemainder: val });
   };
 
   onChangeSelect = value => {
@@ -77,6 +129,65 @@ class ErkhetConfig extends React.Component<Props, { config: any }> {
     );
   };
 
+  renderInputSub = (
+    key: string,
+    key1: string,
+    title: string,
+    description?: string,
+    type?: string
+  ) => {
+    const { config } = this.state;
+
+    return (
+      <FormGroup>
+        <ControlLabel>{title}</ControlLabel>
+        {description && <p>{__(description)}</p>}
+        <FormControl
+          defaultValue={(config[key] && config[key][key1]) || ''}
+          type={type || 'text'}
+          onChange={this.onChangeInputSub.bind(this, key, key1)}
+          required={true}
+        />
+      </FormGroup>
+    );
+  };
+
+  renderAccLoc() {
+    const { pos } = this.props;
+
+    if (!pos.isOnline) {
+      return (
+        <BlockRow>
+          {this.renderInput('account', 'Account', '')}
+          {this.renderInput('location', 'Location', '')}
+        </BlockRow>
+      );
+    }
+
+    return (
+      <>
+        {(pos.allowBranchIds || []).map(branchId => {
+          return (
+            <BlockRow key={branchId}>
+              <FormGroup>
+                <ControlLabel>Branch</ControlLabel>
+                <SelectBranches
+                  label="Choose branch"
+                  name="branchId"
+                  initialValue={branchId}
+                  onSelect={() => {}}
+                  multi={false}
+                />
+              </FormGroup>
+              {this.renderInputSub(`${branchId}`, 'account', 'Account', '')}
+              {this.renderInputSub(`${branchId}`, 'location', 'Location', '')}
+            </BlockRow>
+          );
+        })}
+      </>
+    );
+  }
+
   renderOther() {
     if (!this.state.config.isSyncErkhet) {
       return <></>;
@@ -104,9 +215,11 @@ class ErkhetConfig extends React.Component<Props, { config: any }> {
             />
           </FormGroup>
         </BlockRow>
+        {this.renderAccLoc()}
       </Block>
     );
   }
+
   render() {
     return (
       <FlexItem>
@@ -132,6 +245,35 @@ class ErkhetConfig extends React.Component<Props, { config: any }> {
 
             {this.renderOther()}
 
+            <Block>
+              <h4>{__('Remainder')}</h4>
+              <BlockRow>
+                <FormGroup>
+                  <ControlLabel>Check erkhet</ControlLabel>
+                  <Toggle
+                    id={'getRemainder'}
+                    checked={this.state.config.getRemainder || false}
+                    onChange={this.onChangeSwitchCheckErkhet}
+                    icons={{
+                      checked: <span>Yes</span>,
+                      unchecked: <span>No</span>
+                    }}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <ControlLabel>Check inventories</ControlLabel>
+                  <Toggle
+                    id={'checkRemainder'}
+                    checked={this.state.checkRemainder}
+                    onChange={this.onChangeSwitchCheckInv}
+                    icons={{
+                      checked: <span>Yes</span>,
+                      unchecked: <span>No</span>
+                    }}
+                  />
+                </FormGroup>
+              </BlockRow>
+            </Block>
             <Block />
           </LeftItem>
         </FlexColumn>

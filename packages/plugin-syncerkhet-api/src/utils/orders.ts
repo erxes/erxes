@@ -20,7 +20,7 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
   });
 };
 
-export const getPostData = async (subdomain, pos, order, putRes) => {
+export const getPostData = async (subdomain, pos, order) => {
   let erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
 
   if (
@@ -87,6 +87,10 @@ export const getPostData = async (subdomain, pos, order, putRes) => {
     payments.cashAmount = order.cashAmount;
     sumSaleAmount -= order.cashAmount;
   }
+  if (order.receivableAmount) {
+    payments.debtAmount = order.receivableAmount;
+    sumSaleAmount -= order.receivableAmount;
+  }
   if (order.cardAmount) {
     payments.cardAmount = order.cardAmount;
     sumSaleAmount -= order.cardAmount;
@@ -106,8 +110,16 @@ export const getPostData = async (subdomain, pos, order, putRes) => {
         .toISOString()
         .slice(0, 10),
       orderId: order._id,
-      hasVat: putRes.vat ? true : false,
-      hasCitytax: putRes.citytax ? true : false,
+      hasVat: order.taxInfo
+        ? order.taxInfo.hasVat
+        : pos.ebarimtConfig && pos.ebarimtConfig.hasVat
+        ? true
+        : false,
+      hasCitytax: order.taxInfo
+        ? order.taxInfo.hasCitytax
+        : pos.ebarimtConfig && pos.ebarimtConfig.hasCitytax
+        ? true
+        : false,
       billType: order.billType,
       customerCode: (
         (await sendContactsMessage({
@@ -136,22 +148,6 @@ export const getPostData = async (subdomain, pos, order, putRes) => {
     apiSecret: erkhetConfig.apiSecret,
     orderInfos: JSON.stringify(orderInfos)
   };
-};
-
-export const orderToErkhet = async (subdomain, pos, orderId, putRes) => {
-  const postData = await getPostData(subdomain, pos, orderId, putRes);
-
-  if (!postData) {
-    return;
-  }
-
-  sendCommonMessage('rpc_queue:erxes-automation-erkhet', {
-    action: 'get-response-send-order-info',
-    isJson: true,
-    isEbarimt: false,
-    payload: JSON.stringify(postData),
-    thirdService: true
-  });
 };
 
 export const orderDeleteToErkhet = async (subdomain, pos, order) => {

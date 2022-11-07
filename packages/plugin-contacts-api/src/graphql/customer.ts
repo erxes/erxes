@@ -89,6 +89,7 @@ const queryParams = `
   sex:Int
   birthDate: Date
   dateFilters: String
+  segmentData: String
   ${conformityQueryFields}
 `;
 
@@ -134,4 +135,5 @@ export const mutations = `
   customersChangeState(_id: String!, value: String!): Customer
   customersVerify(verificationType:String!): String
   customersChangeVerificationStatus(customerIds: [String], type: String!, status: String!): [Customer]
+  customersChangeStateBulk(_ids: [String]!, value: String!): JSON
 `;

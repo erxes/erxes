@@ -11,6 +11,7 @@ export const types = `
     modifiedAt: Date
     contentType: String
     contentId: String
+    number: String
     success: String
     billId: String
     date: String

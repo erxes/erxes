@@ -15,7 +15,7 @@ export const types = `
 
 export const queries = `
   tagsGetTypes: [JSON]
-  tags(type: String, searchValue: String, tagIds: [String]): [Tag]
+  tags(type: String, searchValue: String, tagIds: [String], parentId: String): [Tag]
   tagDetail(_id: String!): Tag
 `;
 

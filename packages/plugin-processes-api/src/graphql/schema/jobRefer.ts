@@ -24,24 +24,25 @@ export const types = `
   input JobProductsInput {
     _id: String,
     productId: String,
-    product: JSON,
     quantity: Float,
     uomId: String,
-    uom: JSON,
     branchId: String,
     departmentId: String,
+    proportion: Float
   }
 `;
 
 const qryParams = `
   categoryId: String,
   searchValue: String,
-  ids: String,
+  ids: [String],
+  types: [String],
+  type: String,
   excludeIds: Boolean
 `;
 
 export const queries = `
-  jobRefers(page: Int, perPage: Int ids: [String], ${qryParams}): [JobRefer]
+  jobRefers(page: Int, perPage: Int, ${qryParams}): [JobRefer]
   jobReferTotalCount(${qryParams}): Int
   jobReferDetail(_id: String!): JobRefer
 

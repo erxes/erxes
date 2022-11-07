@@ -4,12 +4,12 @@ module.exports = {
   scope: 'tags',
   exposes: {
     './routes': './src/routes.tsx',
-    './activityLog': './src/activityLogs/activityLog.tsx'
+    './activityLog': './src/activityLogs/activityLog.tsx',
   },
   routes: {
     url: 'http://localhost:3012/remoteEntry.js',
     scope: 'tags',
-    module: './routes'
+    module: './routes',
   },
   activityLog: './activityLog',
   menus: [
@@ -20,7 +20,7 @@ module.exports = {
       location: 'settings',
       scope: 'tags',
       action: 'tagsAll',
-      permissions: ['showTags', 'manageTags']
-    }
-  ]
+      permissions: ['showTags', 'manageTags'],
+    },
+  ],
 };

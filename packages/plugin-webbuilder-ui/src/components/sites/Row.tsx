@@ -1,5 +1,5 @@
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import { __ } from '@erxes/ui/src/utils/core';
+import { getEnv, __ } from '@erxes/ui/src/utils/core';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import Button from '@erxes/ui/src/components/Button';
@@ -19,6 +19,14 @@ function Row({ site, remove, queryParams }: Props) {
     return <Form {...formProps} site={site} queryParams={queryParams} />;
   };
 
+  const show = () => {
+    const { REACT_APP_API_URL } = getEnv();
+
+    const url = `${REACT_APP_API_URL}/pl:webbuilder/${site.name}`;
+
+    window.open(`${url}`, '_blank');
+  };
+
   const renderActions = () => {
     const trigger = (
       <Button id="site-edit-site" btnStyle="link">
@@ -35,6 +43,11 @@ function Row({ site, remove, queryParams }: Props) {
           trigger={trigger}
           content={renderForm}
         />
+
+        <Tip text={__('Show')} placement="top">
+          <Button btnStyle="link" onClick={show} icon="eye" />
+        </Tip>
+
         <Tip text={__('Delete')} placement="top">
           <Button btnStyle="link" onClick={() => remove(site._id)}>
             <Icon icon="times-circle" />

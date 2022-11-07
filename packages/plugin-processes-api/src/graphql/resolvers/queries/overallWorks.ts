@@ -102,6 +102,6 @@ const overallWorkQueries = {
   }
 };
 
-// checkPermission(overallWorkQueries, 'overalWorks', 'showOverallWorks');
+// checkPermission(overallWorkQueries, 'overalWorks', 'showWorks');
 
 export default overallWorkQueries;

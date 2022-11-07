@@ -1,5 +1,4 @@
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
-
+// import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
 import { putCreateLog, MODULE_NAMES } from '../../../logUtils';
 import { IContext } from '../../../connectionResolver';
 import { IWork } from '../../../models/definitions/works';
@@ -33,6 +32,6 @@ const workMutations = {
   }
 };
 
-moduleCheckPermission(workMutations, 'manageWorks');
+// moduleCheckPermission(workMutations, 'manageWorks');
 
 export default workMutations;

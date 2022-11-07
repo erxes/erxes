@@ -1,7 +1,8 @@
 import CustomersMerge from '@erxes/ui-contacts/src/customers/components/detail/CustomersMerge';
 import {
   EMAIL_VALIDATION_STATUSES,
-  PHONE_VALIDATION_STATUSES
+  PHONE_VALIDATION_STATUSES,
+  CUSTOMER_STATE_OPTIONS
 } from '@erxes/ui-contacts/src/customers/constants';
 import CustomerForm from '@erxes/ui-contacts/src/customers/containers/CustomerForm';
 import { queries } from '@erxes/ui-contacts/src/customers/graphql';
@@ -34,6 +35,7 @@ import gql from 'graphql-tag';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Link, withRouter } from 'react-router-dom';
+import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
 
 import { ICustomer } from '../../types';
 import CustomerRow from './CustomerRow';
@@ -75,6 +77,7 @@ interface IProps extends IRouterProps {
   isExpand?: boolean;
   page: number;
   perPage: number;
+  changeStateBulk: (_ids: string[], value: string) => void;
 }
 
 type State = {
@@ -150,6 +153,18 @@ class CustomersList extends React.Component<IProps, State> {
 
     changeVerificationStatus({ verificationType: type, status, customerIds });
   };
+
+  changeState(value: string) {
+    const { type, changeStateBulk, bulk = [] } = this.props;
+
+    if (type === value) {
+      return Alert.warning(`Contacts are already in "${value}" state`);
+    }
+
+    const _ids: string[] = bulk.map(c => c._id);
+
+    changeStateBulk(_ids, value);
+  }
 
   renderContent() {
     const {
@@ -274,6 +289,10 @@ class CustomersList extends React.Component<IProps, State> {
       this.changeVerificationStatus('phone', e.target.id, bulk);
     };
 
+    const onStateClick = e => {
+      this.changeState(e.target.id);
+    };
+
     const emailVerificationStatusList = [] as any;
 
     for (const status of EMAIL_VALIDATION_STATUSES) {
@@ -301,6 +320,18 @@ class CustomersList extends React.Component<IProps, State> {
             onClick={onPhoneStatusClick}
           >
             {status.label}
+          </a>
+        </li>
+      );
+    }
+
+    const customerStateOptions: any[] = [];
+
+    for (const option of CUSTOMER_STATE_OPTIONS) {
+      customerStateOptions.push(
+        <li key={option.value}>
+          <a id={option.value} href="#changeState" onClick={onStateClick}>
+            {option.label}
           </a>
         </li>
       );
@@ -359,6 +390,10 @@ class CustomersList extends React.Component<IProps, State> {
         {renderExpandButton()}
 
         {dateFilter}
+
+        {isEnabled('segments') && (
+          <TemporarySegment contentType={`contacts:${type}`} />
+        )}
 
         <Dropdown className="dropdown-btn" alignRight={true}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
@@ -482,7 +517,7 @@ class CustomersList extends React.Component<IProps, State> {
           >
             <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
               <Button btnStyle="simple" size="small">
-                {__('Change email status ')} <Icon icon="angle-down" />
+                {__('Change email status')} <Icon icon="angle-down" />
               </Button>
             </Dropdown.Toggle>
             <Dropdown.Menu>
@@ -493,11 +528,22 @@ class CustomersList extends React.Component<IProps, State> {
           <Dropdown className="dropdown-btn" alignRight={true}>
             <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
               <Button btnStyle="simple" size="small">
-                {__('Change phone status ')} <Icon icon="angle-down" />
+                {__('Change phone status')} <Icon icon="angle-down" />
               </Button>
             </Dropdown.Toggle>
             <Dropdown.Menu>
               <div>{phoneVerificationStatusList}</div>
+            </Dropdown.Menu>
+          </Dropdown>
+
+          <Dropdown className="dropdown-btn" alignRight={true}>
+            <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
+              <Button btnStyle="simple" size="small">
+                {__('Change state')} <Icon icon="angle-down" />
+              </Button>
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <div>{customerStateOptions}</div>
             </Dropdown.Menu>
           </Dropdown>
 
@@ -537,6 +583,7 @@ class CustomersList extends React.Component<IProps, State> {
             emptyContent={<EmptyContent content={EMPTY_CONTENT_CONTACTS} />}
           />
         }
+        hasBorder={true}
       />
     );
   }

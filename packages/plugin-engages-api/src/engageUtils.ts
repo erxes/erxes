@@ -12,6 +12,7 @@ import {
   sendContactsMessage
 } from './messageBroker';
 import { IModels } from './connectionResolver';
+import { awsRequests } from './trackers/engageTracker';
 interface IEngageParams {
   engageMessage: IEngageMessageDocument;
   customersSelector: any;
@@ -77,19 +78,21 @@ export const generateCustomerSelector = async (
     let customerIdsBySegments: string[] = [];
 
     for (const segment of segments) {
+      const options: any = { perPage: 5000, scroll: true };
+
+      if (!segment.contentType.includes('contacts')) {
+        options.returnAssociated = {
+          mainType: segment.contentType,
+          relType: 'contacts:customer'
+        };
+      }
+
       const cIds = await sendSegmentsMessage({
         ...commonParams,
         action: 'fetchSegment',
         data: {
           segmentId: segment._id,
-          options: {
-            perPage: 5000,
-            scroll: true,
-            returnAssociated: {
-              mainType: segment.contentType,
-              relType: 'contacts:customer'
-            }
-          }
+          options
         }
       });
 
@@ -131,7 +134,8 @@ export const generateCustomerSelector = async (
 export const send = async (
   models: IModels,
   subdomain: string,
-  engageMessage: IEngageMessageDocument
+  engageMessage: IEngageMessageDocument,
+  forceCreateConversation?: boolean
 ) => {
   const {
     customerIds,
@@ -207,6 +211,40 @@ export const send = async (
       'sendEngageSms'
     );
   }
+
+  if (
+    engageMessage.method === CAMPAIGN_METHODS.MESSENGER &&
+    forceCreateConversation
+  ) {
+    const brandId =
+      (engageMessage.messenger && engageMessage.messenger.brandId) || '';
+    const integration = await sendInboxMessage({
+      subdomain,
+      action: 'integrations.findOne',
+      data: { brandId },
+      isRPC: true,
+      defaultValue: null
+    });
+    if (!integration || !brandId) {
+      throw new Error('Integration not found or brandId is not provided');
+    }
+
+    for (const customerId of customerIds || []) {
+      await models.EngageMessages.createVisitorOrCustomerMessages({
+        brandId,
+        integrationId: integration._id,
+        customer: await sendContactsMessage({
+          subdomain,
+          action: 'customers.findOne',
+          data: { _id: customerId },
+          isRPC: true,
+          defaultValue: null
+        }),
+        visitorId: undefined,
+        browserInfo: {}
+      });
+    }
+  }
 };
 
 const sendEmailOrSms = async (
@@ -243,7 +281,11 @@ const sendEmailOrSms = async (
 };
 
 // check & validate campaign doc
-export const checkCampaignDoc = (doc: IEngageMessage) => {
+export const checkCampaignDoc = async (
+  models: IModels,
+  subdomain: string,
+  doc: IEngageMessage
+) => {
   const {
     brandIds = [],
     kind,
@@ -251,7 +293,8 @@ export const checkCampaignDoc = (doc: IEngageMessage) => {
     scheduleDate,
     segmentIds = [],
     customerTagIds = [],
-    customerIds = []
+    customerIds = [],
+    fromUserId
   } = doc;
 
   const noDate =
@@ -276,6 +319,25 @@ export const checkCampaignDoc = (doc: IEngageMessage) => {
     )
   ) {
     throw new Error('One of brand or segment or tag must be chosen');
+  }
+
+  if (method === CAMPAIGN_METHODS.EMAIL) {
+    const user = await findUser(subdomain, fromUserId);
+
+    if (!user) {
+      throw new Error('From user must be specified');
+    }
+
+    if (!user.email) {
+      throw new Error(`From user email is not specified: ${user.username}`);
+    }
+
+    const verifiedEmails: any =
+      (await awsRequests.getVerifiedEmails(models)) || [];
+
+    if (!verifiedEmails.includes(user.email)) {
+      throw new Error(`From user email "${user.email}" is not verified in AWS`);
+    }
   }
 };
 

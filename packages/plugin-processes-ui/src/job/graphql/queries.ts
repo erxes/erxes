@@ -1,75 +1,40 @@
-import { queries as productQueries } from '@erxes/ui-products/src/graphql';
-
-const productFields = productQueries.productFields;
-
-const productCategories = productQueries.productCategories;
-
-const products = productQueries.products;
-
-const jobRefersParamsDef = `$page: Int, $perPage: Int, $categoryId: String, $searchValue: String`;
-const jobRefersParams = `page: $page, perPage: $perPage, categoryId: $categoryId, searchValue: $searchValue`;
+const jobRefersParamsDef = `
+  $categoryId: String,
+  $searchValue: String,
+  $ids: [String],
+  $types: [String],
+`;
+const jobRefersParams = `
+  categoryId: $categoryId,
+  searchValue: $searchValue,
+  ids: $ids,
+  types: $types,
+`;
 
 const jobRefersFields = `
-_id
-createdAt
-code
-name
-type
-status
-duration
-durationType
-categoryId
-needProducts
-resultProducts
-      `;
+  _id
+  createdAt
+  code
+  name
+  type
+  status
+  duration
+  durationType
+  categoryId
+  needProducts
+  resultProducts
+`;
 
 const jobCategoryFields = `
-      _id
-      createdAt
-      name
-      code
-      order
-      description
-      parentId
-      status
-      productCount
-      `;
-
-const productsCount = `
-  query productsTotalCount($type: String) {
-    productsTotalCount(type: $type)
-  }
-`;
-
-const productCountByTags = `
-  query productCountByTags {
-    productCountByTags
-  }
-`;
-
-const productCategoriesCount = `
-  query productCategoriesTotalCount {
-    productCategoriesTotalCount
-  }
-`;
-
-const productDetail = `
-  query productDetail($_id: String) {
-    productDetail(_id: $_id) {
-      ${productFields}
-      customFieldsData
-    }
-  }
-`;
-
-const productCategoryDetail = `
-  query productCategoryDetail($_id: String) {
-    productCategoryDetail(_id: $_id) {
-      _id
-      name
-      productCount
-    }
-  }
+  _id
+  createdAt
+  name
+  code
+  order
+  description
+  parentId
+  status
+  productCount
 `;
 
 // JOB
@@ -86,16 +51,16 @@ query jobRefersAll {
 `;
 
 const jobRefers = `
-query jobRefers(${jobRefersParamsDef}) {
-  jobRefers(${jobRefersParams}) {
+query jobRefers($page: Int, $perPage: Int, ${jobRefersParamsDef}) {
+  jobRefers(page: $page, perPage: $perPage, ${jobRefersParams}) {
     ${jobRefersFields}
   }
 }
 `;
 
 const jobReferTotalCount = `
-query jobReferTotalCount($categoryId: String, $searchValue: String) {
-  jobReferTotalCount(categoryId: $categoryId, searchValue: $searchValue)
+query jobReferTotalCount(${jobRefersParamsDef}) {
+  jobReferTotalCount(${jobRefersParams})
 }
 `;
 
@@ -121,34 +86,7 @@ const jobCategoriesTotalCount = `
   }
 `;
 
-// UOM
-
-const uoms = productQueries.uoms;
-
-const uomsTotalCount = `
-query uomsTotalCount {
-  uomsTotalCount
-}
-`;
-
-// Settings
-
-const productsConfigs = productQueries.productsConfigs;
-
 export default {
-  products,
-  productDetail,
-  productCountByTags,
-  productsCount,
-  productCategories,
-  productCategoriesCount,
-  productCategoryDetail,
-
-  uoms,
-  uomsTotalCount,
-
-  productsConfigs,
-
   jobRefersAll,
   jobRefers,
   jobReferDetail,

@@ -6,6 +6,7 @@ import {
 export const types = () => `
   ${attachmentType}
   ${attachmentInput}
+
   extend type Branch @key(fields: "_id") {
     _id: String! @external
   }
@@ -18,7 +19,7 @@ export const types = () => `
     _id: String! @external
   }
 
-  type SalesLog @key(fields: "_id"){
+  type SalesLog @key(fields: "_id") @cacheControl(maxAge: 3){
     _id: String!
     name: String
     description: String
@@ -121,7 +122,7 @@ export const types = () => `
     color: String
     type: String
     status:String
-  },
+  }
 `;
 
 const salesLogParams = `

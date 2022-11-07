@@ -27,6 +27,7 @@ import { connect } from './connection';
 import { debugInfo, debugError } from './debuggers';
 import { init as initBroker } from '@erxes/api-utils/src/messageBroker';
 import { logConsumers } from '@erxes/api-utils/src/logUtils';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
 import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
@@ -271,6 +272,7 @@ async function startServer() {
   try {
     // connect to mongo database
     const db = await connect(mongoUrl);
+
     const messageBrokerClient = await initBroker({
       RABBITMQ_HOST,
       MESSAGE_BROKER_PREFIX,
@@ -295,7 +297,8 @@ async function startServer() {
         search,
         webhooks,
         initialSetup,
-        cronjobs
+        cronjobs,
+        exporter
       } = configs.meta;
       const { consumeRPCQueue, consumeQueue } = messageBrokerClient;
 
@@ -452,6 +455,18 @@ async function startServer() {
         }
       }
 
+      if (exporter) {
+        if (exporter.prepareExportData) {
+          consumeRPCQueue(
+            `${configs.name}:exporter:prepareExportData`,
+            async args => ({
+              status: 'success',
+              data: await exporter.prepareExportData(args)
+            })
+          );
+        }
+      }
+
       if (automations) {
         if (automations.receiveActions) {
           consumeRPCQueue(
@@ -472,6 +487,11 @@ async function startServer() {
             status: 'success',
             data: await initialSetup.generate(args)
           }));
+
+          app.post('/initial-setup', async (req, res) => {
+            await initialSetup.generate({ subdomain: getSubdomain(req) });
+            return res.end('ok');
+          });
         }
       }
 
@@ -493,6 +513,16 @@ async function startServer() {
             data: await cronjobs.handleMinutelyJob(args)
           }));
         }
+
+        if (cronjobs.handle10MinutelyJob) {
+          cronjobs.handle10MinutelyJobAvailable = true;
+
+          consumeQueue(`${configs.name}:handle10MinutelyJob`, async args => ({
+            status: 'success',
+            data: await cronjobs.handle10MinutelyJob(args)
+          }));
+        }
+
         if (cronjobs.handleHourlyJob) {
           cronjobs.handleHourlyJobAvailable = true;
 
@@ -501,6 +531,7 @@ async function startServer() {
             data: await cronjobs.handleHourlyJob(args)
           }));
         }
+
         if (cronjobs.handleDailyJob) {
           cronjobs.handleDailyJobAvailable = true;
 
@@ -517,14 +548,14 @@ async function startServer() {
       port: PORT || '',
       dbConnectionString: mongoUrl,
       hasSubscriptions: configs.hasSubscriptions,
-      importTypes: configs.importTypes,
-      exportTypes: configs.exportTypes,
+      importExportTypes: configs.importExportTypes,
       meta: configs.meta
     });
 
     configs.onServerInit({
       db,
       app,
+      redis,
       pubsubClient: pubsub,
       messageBrokerClient,
       debug: {

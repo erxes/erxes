@@ -2,6 +2,7 @@ import customScalars from '@erxes/api-utils/src/customScalars';
 import RemainderProduct from './customResolvers/remainder';
 import SafeRemainder from './customResolvers/safeRemainder';
 import SafeRemainderItem from './customResolvers/safeRemainderItem';
+import Transaction from './customResolvers/transaction';
 import {
   Remainders as remainderMutations,
   SafeRemainders as safeRemainderMutations,
@@ -20,6 +21,7 @@ const resolvers: any = async _serviceDiscovery => ({
   RemainderProduct,
   SafeRemainder,
   SafeRemainderItem,
+  Transaction,
   Mutation: {
     ...remainderMutations,
     ...safeRemainderMutations,

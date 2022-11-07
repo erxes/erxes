@@ -1,19 +1,27 @@
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
-import { IJobRefer } from './jobs';
+import { IJobRefer, IProductsData, productsDataSchema } from './jobs';
 
 export interface IJob {
   id: string;
   nextJobIds: string[];
-  jobReferId: string;
+  type: string;
+  config: {
+    jobReferId?: string;
+    productId?: string;
+    subFlowId?: string;
+    inBranchId: string;
+    outBranchId: string;
+    inDepartmentId: string;
+    outDepartmentId: string;
+    durationType: string;
+    duration: number;
+    quantity?: number;
+    uomId?: string;
+  };
   style: object;
   label: string;
   description: string;
-  quantity: number;
-  inBranchId: string;
-  inDepartmentId: string;
-  outBranchId: string;
-  outDepartmentId: string;
 }
 
 export interface IJobDocument extends IJob {
@@ -25,7 +33,8 @@ export interface IFlow {
   categoryId?: string;
   productId?: string;
   status: string;
-  flowJobStatus: boolean;
+  isSub: boolean;
+  flowValidation: string;
   jobs?: IJobDocument[];
 }
 
@@ -35,22 +44,22 @@ export interface IFlowDocument extends IFlow, Document {
   createdBy: string;
   updatedAt: Date;
   updatedBy: string;
+  latestBranchId: string;
+  latestDepartmentId: string;
+  latestResultProducts: IProductsData[];
+  latestNeedProducts: IProductsData[];
 }
 
 export const jobSchema = new Schema(
   {
     id: { type: String, required: true },
+    type: { type: String, required: true },
     nextJobIds: { type: [String] },
+    config: { type: Object },
     style: { type: Object },
+    icon: { type: String, optional: true },
     label: { type: String, optional: true },
-    description: { type: String, optional: true },
-    jobReferId: { type: String },
-    quantity: { type: Number },
-    assignUserIds: { type: [String] },
-    inBranchId: { type: String },
-    inDepartmentId: { type: String },
-    outBranchId: { type: String },
-    outDepartmentId: { type: String }
+    description: { type: String, optional: true }
   },
   { _id: false }
 );
@@ -72,12 +81,33 @@ export const flowSchema = schemaHooksWrapper(
       index: true
     }),
     status: field({ type: String, label: 'Status' }),
-    flowJobStatus: field({ type: Boolean, label: 'FlowJob status' }),
+    isSub: field({ type: Boolean, optional: true, label: 'Is Sub Flow' }),
+    flowValidation: field({
+      type: String,
+      optional: true,
+      label: 'FlowJob status'
+    }),
     createdAt: { type: Date, default: new Date(), label: 'Created date' },
     createdBy: { type: String },
     updatedAt: { type: Date, default: new Date(), label: 'Updated date' },
     updatedBy: { type: String },
-    jobs: field({ type: [jobSchema], optional: true, label: 'Jobs' })
+    jobs: field({ type: [jobSchema], optional: true, label: 'Jobs' }),
+    latestBranchId: { type: String, optional: true },
+    latestDepartmentId: { type: String, optional: true },
+    latestResultProducts: {
+      type: {
+        type: [productsDataSchema],
+        optional: true,
+        label: 'Result products'
+      }
+    },
+    latestNeedProducts: {
+      type: {
+        type: [productsDataSchema],
+        optional: true,
+        label: 'Need products'
+      }
+    }
   }),
   'erxes_flows'
 );

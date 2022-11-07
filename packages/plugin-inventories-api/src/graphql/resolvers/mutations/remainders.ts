@@ -3,8 +3,8 @@ import { IContext } from '../../../connectionResolver';
 import { updateLiveRemainders } from './utils';
 
 export interface IUpdateRemaindersParams {
-  departmentId: string;
-  branchId: string;
+  departmentId?: string;
+  branchId?: string;
   productCategoryId?: string;
   productIds?: string[];
 }

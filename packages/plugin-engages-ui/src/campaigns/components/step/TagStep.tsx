@@ -24,6 +24,7 @@ type Props = {
     selectedComponent: React.ReactNode;
     customerCounts: React.ReactNode;
   }) => React.ReactNode;
+  loadingCount: boolean;
 };
 
 const TagStep = (props: Props) => {
@@ -35,7 +36,8 @@ const TagStep = (props: Props) => {
     customersCount,
     messageType,
     renderContent,
-    renderButton
+    renderButton,
+    loadingCount
   } = props;
 
   const icons: React.ReactNode[] = [];
@@ -59,6 +61,7 @@ const TagStep = (props: Props) => {
       renderButton={renderButton}
       icons={icons}
       formProps={{ tags }}
+      loadingCount={loadingCount}
     />
   );
 };

@@ -11,9 +11,9 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import CategoryList from '../../containers/flowCategory/CategoryList';
-import { IProductCategory, IFlowDocument } from '../../types';
+import { IFlowDocument } from '../../types';
 import Row from './FlowListRow';
-import { menuContacts } from '../../../constants';
+import { menuSettings } from '../../../constants';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -24,12 +24,11 @@ interface IProps extends IRouterProps {
   bulk: any[];
   emptyBulk: () => void;
   remove: (doc: { flowIds: string[] }, emptyBulk: () => void) => void;
-  addFlow: () => void;
+  addFlow: (isSub?: boolean) => void;
   toggleBulk: () => void;
   toggleAll: (targets: IFlowDocument[], containerId: string) => void;
   loading: boolean;
   searchValue: string;
-  currentCategory: IProductCategory;
 }
 
 type State = {
@@ -107,6 +106,14 @@ class List extends React.Component<IProps, State> {
     e.target.value = tmpValue;
   }
 
+  onClickCreateFlow = () => {
+    this.props.addFlow();
+  };
+
+  onClickCreateSubFlow = () => {
+    this.props.addFlow(true);
+  };
+
   render() {
     const {
       flowsTotalCount,
@@ -114,9 +121,7 @@ class List extends React.Component<IProps, State> {
       queryParams,
       isAllSelected,
       history,
-      bulk,
-      currentCategory,
-      addFlow
+      bulk
     } = this.props;
 
     let actionBarRight = (
@@ -130,10 +135,18 @@ class List extends React.Component<IProps, State> {
           onFocus={this.moveCursorAtTheEnd}
         />
         <Button
+          btnStyle="primary"
+          size="small"
+          icon="plus-circle"
+          onClick={this.onClickCreateSubFlow}
+        >
+          {__('Create a SubFlow')}
+        </Button>
+        <Button
           btnStyle="success"
           size="small"
           icon="plus-circle"
-          onClick={addFlow}
+          onClick={this.onClickCreateFlow}
         >
           {__('Create a flow')}
         </Button>
@@ -142,7 +155,7 @@ class List extends React.Component<IProps, State> {
 
     let content = (
       <>
-        {this.renderCount(currentCategory.productCount || flowsTotalCount)}
+        {this.renderCount(flowsTotalCount)}
         <Table hover={true}>
           <thead>
             <tr>
@@ -153,7 +166,11 @@ class List extends React.Component<IProps, State> {
                   onChange={this.onChange}
                 />
               </th>
+              <th>{__('Type')}</th>
               <th>{__('Name')}</th>
+              <th>{__('Product')}</th>
+              <th>{__('Latest Branch')}</th>
+              <th>{__('Latest Department')}</th>
               <th>{__('Status')}</th>
               <th>{__('Is match')}</th>
               <th>{__('Jobs count')}</th>
@@ -164,7 +181,7 @@ class List extends React.Component<IProps, State> {
       </>
     );
 
-    if (currentCategory.productCount === 0) {
+    if (flowsTotalCount === 0) {
       content = (
         <EmptyState
           image="/images/actions/8.svg"
@@ -198,18 +215,11 @@ class List extends React.Component<IProps, State> {
       );
     }
 
-    const actionBarLeft = <Title>{currentCategory.name || 'All flows'}</Title>;
+    const actionBarLeft = <Title>{'Flows list'}</Title>;
 
     return (
       <Wrapper
-        header={<Wrapper.Header title={__('Flow')} submenu={menuContacts} />}
-        // mainHead={
-        //   <HeaderDescription
-        //     icon="/images/actions/30.svg"
-        //     title={'Flow'}
-        //     description={``}
-        //   />
-        // }
+        header={<Wrapper.Header title={__('Flow')} submenu={menuSettings} />}
         actionBar={
           <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
         }

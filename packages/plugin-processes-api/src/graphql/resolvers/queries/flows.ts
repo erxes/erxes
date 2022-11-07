@@ -1,24 +1,62 @@
 import { paginate } from '@erxes/api-utils/src/core';
+import { sendProductsMessage } from '../../../messageBroker';
 // import {
 //   checkPermission,
 //   requireLogin
 // } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { rf } from '../../../utils/receiveFlow';
+import { FLOW_STATUSES } from '../../../models/definitions/constants';
 
 interface IParam {
-  categoryId: string;
+  categoryId?: string;
   searchValue?: string;
-  ids: string[];
-  excludeIds: boolean;
+  ids?: string[];
+  isSub?: boolean;
+  excludeIds?: boolean;
+  branchId?: string;
+  departmentId?: string;
+  status?: string;
+  validation?: string;
 }
 
-const generateFilter = (params: IParam, commonQuerySelector) => {
-  const { categoryId, searchValue, ids, excludeIds } = params;
+const generateFilter = async (
+  subdomain: string,
+  params: IParam,
+  commonQuerySelector
+) => {
+  const {
+    categoryId,
+    searchValue,
+    ids,
+    isSub,
+    excludeIds,
+    branchId,
+    departmentId,
+    status,
+    validation
+  } = params;
   const selector: any = { ...commonQuerySelector };
 
   if (categoryId) {
-    selector.categoryId = categoryId;
+    if (categoryId === 'unknownCategory') {
+      selector.productId = { $in: ['', null, undefined] };
+    } else {
+      const products = await sendProductsMessage({
+        subdomain,
+        action: 'find',
+        data: { query: {}, categoryId, fields: { _id: 1 }, limit: 10000 },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      const productIds = products.map(p => p._id);
+      selector.productId = { $in: productIds };
+    }
+  }
+
+  if (isSub !== undefined) {
+    selector.isSub = isSub;
   }
 
   if (searchValue) {
@@ -29,19 +67,45 @@ const generateFilter = (params: IParam, commonQuerySelector) => {
     selector._id = { [excludeIds ? '$nin' : '$in']: ids };
   }
 
+  if (branchId) {
+    selector.latestBranchId = branchId;
+  }
+
+  if (departmentId) {
+    selector.latestDepartmentId = departmentId;
+  }
+
+  if (status) {
+    selector.status = status;
+  } else {
+    selector.status = { $ne: FLOW_STATUSES.ARCHIVED };
+  }
+
+  if (validation) {
+    if (validation === 'true') {
+      selector.flowValidation = '';
+    } else {
+      selector.flowValidation = { $regex: validation };
+    }
+  }
+
   return selector;
 };
 
 const flowQueries = {
-  flows(
+  async flows(
     _root,
     params: IParam & {
       page: number;
       perPage: number;
     },
-    { models, commonQuerySelector }: IContext
+    { models, commonQuerySelector, subdomain }: IContext
   ) {
-    const selector = generateFilter(params, commonQuerySelector);
+    const selector = await generateFilter(
+      subdomain,
+      params,
+      commonQuerySelector
+    );
 
     return paginate(
       models.Flows.find(selector)
@@ -63,12 +127,16 @@ const flowQueries = {
       .lean();
   },
 
-  flowTotalCount(
+  async flowTotalCount(
     _root,
     params: IParam,
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models, subdomain }: IContext
   ) {
-    const selector = generateFilter(params, commonQuerySelector);
+    const selector = await generateFilter(
+      subdomain,
+      params,
+      commonQuerySelector
+    );
 
     return models.Flows.find(selector).count();
   },
@@ -103,7 +171,7 @@ const flowQueries = {
   }
 };
 
-// checkPermission(flowQueries, 'flowDetail', 'showFlows');
-// checkPermission(flowQueries, 'flows', 'showFlows');
+// checkPermission(flowQueries, 'flowDetail', 'showJobs');
+// checkPermission(flowQueries, 'flows', 'showJobs');
 
 export default flowQueries;

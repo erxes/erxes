@@ -24,6 +24,7 @@ export interface IOrder {
   customerId?: string;
   cardAmount?: number;
   cashAmount?: number;
+  receivableAmount?: number;
   mobileAmount?: number;
   totalAmount: number;
   finalAmount?: number;
@@ -47,6 +48,7 @@ export interface IOrder {
 
   //posSlot
   slotCode?: string;
+  taxInfo?: any;
 }
 
 const commonAttributes = { positive: true, default: 0 };
@@ -81,16 +83,26 @@ export const orderSchema = schemaHooksWrapper(
       type: String,
       label: 'Status of the order',
       enum: ORDER_STATUSES.ALL,
-      default: ORDER_STATUSES.NEW
+      default: ORDER_STATUSES.NEW,
+      index: true
     }),
     paidDate: field({ type: Date, label: 'Paid date' }),
-    number: field({ type: String, label: 'Order number', unique: true }),
+    number: field({
+      type: String,
+      label: 'Order number',
+      unique: true,
+      index: true
+    }),
     customerId: field({ type: String, optional: true, label: 'Customer' }),
     cardAmount: getNumberFieldDefinition({
       ...commonAttributes,
       label: 'Card amount'
     }),
     cashAmount: getNumberFieldDefinition({
+      ...commonAttributes,
+      label: 'Cash amount'
+    }),
+    receivableAmount: getNumberFieldDefinition({
       ...commonAttributes,
       label: 'Cash amount'
     }),
@@ -160,7 +172,8 @@ export const orderSchema = schemaHooksWrapper(
     posToken: field({
       type: String,
       optional: true,
-      label: 'If From online posToken'
+      label: 'If From online posToken',
+      index: true
     }),
     // {
     //   description: '',
@@ -194,7 +207,8 @@ export const orderSchema = schemaHooksWrapper(
       type: String,
       optional: true,
       label: 'Slot code'
-    })
+    }),
+    taxInfo: field({ type: Object, optional: true })
   }),
   'erxes_orders'
 );

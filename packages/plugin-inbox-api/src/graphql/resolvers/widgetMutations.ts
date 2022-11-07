@@ -1,9 +1,9 @@
 import * as strip from 'strip';
+import { Db, MongoClient } from 'mongodb';
 
 import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES,
-  KIND_CHOICES,
   MESSAGE_TYPES
 } from '../../models/definitions/constants';
 
@@ -23,7 +23,7 @@ import {
   BOT_MESSAGE_TYPES
 } from '../../models/definitions/constants';
 
-import { sendRequest } from '@erxes/api-utils/src';
+import { getEnv, sendRequest } from '@erxes/api-utils/src';
 
 import { solveSubmissions } from '../../widgetUtils';
 import { conversationNotifReceivers } from './conversationMutations';
@@ -329,9 +329,34 @@ const createFormConversation = async (
     });
   }
 
+  if (formId === 'j2maRsaS2J5uJGxgy') {
+    const MONGO_URL = getEnv({ name: 'MONGO_URL' });
+
+    const client = new MongoClient(MONGO_URL);
+
+    await client.connect();
+    const db = client.db() as Db;
+
+    const Blocks = db.collection('blocks');
+
+    const block = await Blocks.findOne({ erxesCustomerId: cachedCustomer._id });
+
+    if (block) {
+      await Blocks.updateOne(
+        { erxesCustomerId: cachedCustomer._id },
+        { $set: { isVerified: 'loading' } }
+      );
+    } else {
+      await Blocks.insert({
+        erxesCustomerId: cachedCustomer._id,
+        isVerified: 'loading'
+      });
+    }
+  }
+
   return {
     status: 'ok',
-    messageId: message._id,
+    conversationId: conversation._id,
     customerId: cachedCustomer._id
   };
 };
@@ -515,7 +540,7 @@ const widgetMutations = {
     // find integration
     const integration = await models.Integrations.findOne({
       brandId: brand._id,
-      kind: KIND_CHOICES.MESSENGER
+      kind: 'messenger'
     });
 
     if (!integration) {
@@ -949,7 +974,11 @@ const widgetMutations = {
             body: conversationContent,
             customerId,
             conversationId: conversation._id,
-            receivers: conversationNotifReceivers(conversation, customerId)
+            receivers: conversationNotifReceivers(conversation, customerId),
+            data: {
+              type: 'messenger',
+              id: conversation._id
+            }
           }
         });
       } catch (e) {

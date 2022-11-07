@@ -26,12 +26,6 @@ const CreateFacebook = asyncComponent(() =>
   )
 );
 
-const CreateGmail = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings CreateGmail" */ './containers/gmail/Form'
-  )
-);
-
 const IntegrationConfigs = asyncComponent(() =>
   import(
     /* webpackChunkName: "Integration configs" */ '../integrationsConfig/containers/IntegrationConfigs'
@@ -46,28 +40,14 @@ const createFacebook = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
 
   const callBack = () => {
-    history.push('/settings/add-ons/');
+    history.push('/settings/integrations/');
   };
 
   return <CreateFacebook callBack={callBack} kind={queryParams.kind} />;
 };
 
-const createGmail = ({ history }) => {
-  const callBack = () => {
-    history.push('/settings/add-ons/');
-  };
-
-  return <CreateGmail callBack={callBack} />;
-};
-
 const editMessenger = ({ match }) => {
   return <EditMessenger integrationId={match.params._id} />;
-};
-
-const twitterCallback = ({ location, history }) => {
-  const queryParams = queryString.parse(location.search);
-
-  return <Store history={history} queryParams={queryParams} />;
 };
 
 const store = ({ location }) => (
@@ -81,37 +61,24 @@ const auth = ({ location }) => (
 const routes = () => (
   <React.Fragment>
     <Route
-      key="/settings/add-ons/createMessenger"
+      key="/settings/integrations/createMessenger"
       exact={true}
-      path="/settings/add-ons/createMessenger"
+      path="/settings/integrations/createMessenger"
       component={createMessenger}
     />
 
     <Route
-      key="/settings/add-ons/editMessenger/:_id"
+      key="/settings/integrations/editMessenger/:_id"
       exact={true}
-      path="/settings/add-ons/editMessenger/:_id"
+      path="/settings/integrations/editMessenger/:_id"
       component={editMessenger}
     />
 
     <Route
-      key="/settings/add-ons/createFacebook"
+      key="/settings/integrations/createFacebook"
       exact={true}
-      path="/settings/add-ons/createFacebook"
+      path="/settings/integrations/createFacebook"
       component={createFacebook}
-    />
-
-    <Route
-      key="/settings/add-ons/createGmail"
-      exact={true}
-      path="/settings/add-ons/createGmail"
-      component={createGmail}
-    />
-
-    <Route
-      key="/service/oauth/twitter_callback"
-      path="/service/oauth/twitter_callback"
-      component={twitterCallback}
     />
 
     <Route
@@ -122,15 +89,15 @@ const routes = () => (
     />
 
     <Route
-      key="/settings/add-ons"
+      key="/settings/integrations"
       exact={true}
-      path="/settings/add-ons"
+      path="/settings/integrations"
       component={store}
     />
     <Route
-      key="/settings/add-ons-configs/"
+      key="/settings/integrations-configs/"
       exact={true}
-      path="/settings/add-ons-configs/"
+      path="/settings/integrations-configs/"
       component={IntegrationConfigs}
     />
   </React.Fragment>

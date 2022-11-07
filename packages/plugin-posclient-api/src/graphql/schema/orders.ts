@@ -11,6 +11,7 @@ const orderFields = `
 
 const paymentInputDefs = `
   cashAmount: Float
+  receivableAmount: Float
   billType: String
   registerNumber: String
   mobileAmount: Float
@@ -25,8 +26,9 @@ const addEditParams = `
   customerId: String,
   deliveryInfo: JSON,
   billType: String,
-  registerNumber: String
-  slotCode: String
+  registerNumber: String,
+  slotCode: String,
+  origin: String
 `;
 
 export const types = `
@@ -43,6 +45,7 @@ export const types = `
     isPackage: Boolean
     isTake: Boolean
     productImgUrl: String
+    status: String
   }
 
   type PosPutResponse {
@@ -118,6 +121,7 @@ export const types = `
     unitPrice: Float!
     isPackage: Boolean
     isTake: Boolean
+    status: String
   }
 
   input OrderPaymentInput {
@@ -125,20 +129,35 @@ export const types = `
   }
 `;
 
+export const ordersQueryParams = `
+  searchValue: String,
+  statuses: [String],
+  customerId: String,
+  startDate: Date,
+  endDate: Date,
+  page: Int,
+  perPage: Int,
+  sortField: String,
+  sortDirection: Int
+`;
+
 export const mutations = `
-  ordersAdd(${addEditParams}, origin: String): Order
+  ordersAdd(${addEditParams}): Order
   ordersEdit(_id: String!, ${addEditParams}): Order
   ordersMakePayment(_id: String!, doc: OrderPaymentInput): PosPutResponse
   orderChangeStatus(_id: String!, status: String): Order
-  ordersAddPayment(_id: String!, cashAmount: Float, cardAmount: Float, cardInfo: JSON): Order
+  ordersAddPayment(_id: String!, cashAmount: Float, receivableAmount: Float, cardAmount: Float, mobileAmount: Float, cardInfo: JSON): Order
   ordersCancel(_id: String!): JSON
   ordersSettlePayment(_id: String!, billType: String!, registerNumber: String): PosPutResponse
+  orderItemChangeStatus(_id: String!, status: String): PosOrderItem
 `;
 
 export const queries = `
   orders(searchValue: String, page: Int, perPage: Int): [Order]
-  fullOrders(searchValue: String, statuses: [String], customerId: String, page: Int, perPage: Int, sortField: String, sortDirection: Int): [Order]
+  fullOrders(${ordersQueryParams}): [Order]
+  ordersTotalCount(${ordersQueryParams}): Int
   orderDetail(_id: String, customerId: String): Order
   ordersCheckCompany(registerNumber: String!): JSON
   ordersDeliveryInfo(orderId: String!): JSON
+  fullOrderItems(searchValue: String, statuses: [String], page: Int, perPage: Int, sortField: String, sortDirection: Int): [PosOrderItem]
 `;

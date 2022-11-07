@@ -17,6 +17,12 @@ export type ConfigsQueryResponse = {
   refetch: () => void;
 };
 
+export const statusFilters = [
+  { key: 'create', value: 'Create' },
+  { key: 'update', value: 'Update' },
+  { key: 'delete', value: 'Delete' }
+];
+
 export type CheckSyncedDealsQueryResponse = {
   deals: any[];
 } & QueryResponse;
@@ -31,6 +37,26 @@ export type CheckSyncedMutationResponse = {
 
 export type ToSyncDealsMutationResponse = {
   toSyncDeals: (mutation: { variables: { dealIds: string[] } }) => Promise<any>;
+};
+
+export type ToCheckProductsMutationResponse = {
+  toCheckProducts: (mutation: { variables: {} }) => Promise<any>;
+};
+
+export type ToCheckCategoriesMutationResponse = {
+  toCheckCategories: (mutation: { variables: {} }) => Promise<any>;
+};
+
+export type ToSyncCategoriesMutationResponse = {
+  toSyncCategories: (mutation: {
+    variables: { action: string; categories: any[] };
+  }) => Promise<any>;
+};
+
+export type ToSyncProductsMutationResponse = {
+  toSyncProducts: (mutation: {
+    variables: { action: string; products: any[] };
+  }) => Promise<any>;
 };
 
 export type CheckSyncedOrdersQueryResponse = {

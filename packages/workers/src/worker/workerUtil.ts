@@ -18,7 +18,7 @@ export default class CustomWorker {
     workerPath: string,
     workerData: object
   ) {
-    try {
+    return new Promise(async (resolve, reject) => {
       this.pendingWorkers++;
 
       const { worker, workerIndex } = await this.getFreeWorker();
@@ -26,7 +26,9 @@ export default class CustomWorker {
       // tslint:disable-next-line
       const Worker = require('worker_threads').Worker;
 
-      const workerInstance = new Worker(workerPath, { workerData });
+      const workerInstance = new Worker(workerPath, {
+        workerData: { subdomain, ...workerData }
+      });
 
       worker.id = workerInstance.threadId;
       worker.instance = workerInstance;
@@ -41,6 +43,7 @@ export default class CustomWorker {
         this.pendingWorkers--;
 
         debugWorkers(message);
+        resolve(message);
 
         if (action === 'remove') {
           this.removeWorker(workerInstance.threadId);
@@ -53,6 +56,7 @@ export default class CustomWorker {
 
       workerInstance.on('error', e => {
         debugWorkers(e);
+        reject(e);
         this.removeWorker(workerInstance.threadId);
       });
 
@@ -61,10 +65,7 @@ export default class CustomWorker {
           debugWorkers(`Worker stopped with exit code ${code}`);
         }
       });
-    } catch (e) {
-      debugWorkers('Failed to create a worker');
-      throw e;
-    }
+    });
   }
 
   async getFreeWorker(): Promise<{ worker: any; workerIndex: number }> {

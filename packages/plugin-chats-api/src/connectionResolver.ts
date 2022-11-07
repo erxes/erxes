@@ -1,18 +1,24 @@
 import * as mongoose from 'mongoose';
-import { mainDb } from './configs';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
-import { IChatMessageDocument, IChatDocument } from './models/definitions/chat'; // IChatMessageDocument  IChatDocument
+import {
+  IChatMessageDocument,
+  IChatDocument,
+  IUserStatusDocument
+} from './models/definitions/chat'; // IChatMessageDocument  IChatDocument
 import {
   loadChatClass, // loadChatClass
   loadChatMessageClass, // loadChatMessageClass
   IChatModel, // IChatModel
-  IChatMessageModel // IChatMessageModel
+  IChatMessageModel, // IChatMessageModel
+  IUserStatusModel,
+  loadUserStatusClass
 } from './models/chat';
-import { MongoClient } from 'mongodb';
+import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 export interface IModels {
   ChatMessages: IChatMessageModel;
   Chats: IChatModel;
+  UserStatus: IUserStatusModel;
 }
 
 export interface IContext extends IMainContext {
@@ -20,19 +26,7 @@ export interface IContext extends IMainContext {
   models: IModels;
 }
 
-export let models: IModels;
-
-export const generateModels = async (
-  _hostnameOrSubdomain: string
-): Promise<IModels> => {
-  if (models) {
-    return models;
-  }
-
-  loadClasses(mainDb);
-
-  return models;
-};
+export let models: IModels | null = null;
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
@@ -46,6 +40,14 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'chat',
     loadChatClass(models)
   );
-
+  models.UserStatus = db.model<IUserStatusDocument, IUserStatusModel>(
+    'chat-user-status',
+    loadUserStatusClass(models)
+  );
   return models;
 };
+
+export const generateModels = createGenerateModels<IModels>(
+  models,
+  loadClasses
+);

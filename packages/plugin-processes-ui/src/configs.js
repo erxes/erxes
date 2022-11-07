@@ -17,14 +17,14 @@ module.exports = {
       location: 'settings',
       scope: 'processes',
       action: '',
-      permissions: ['showProcesses', 'manageProcesses']
+      permissions: ['showJobs', 'manageJobs']
     },
     {
       text: 'Processes',
       url: '/processes/performances',
       icon: 'icon-file-check-alt',
       location: 'mainNavigation',
-      permission: 'manageProcesses'
+      permission: 'showWorks'
     }
   ]
 };

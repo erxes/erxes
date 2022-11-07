@@ -25,14 +25,14 @@ export const findLastJob = (
   for (const job of jobs) {
     if (
       (!job.nextJobIds.length || job.nextJobIds.length === 0) &&
-      job.outBranchId === branchId &&
-      job.outDepartmentId === departmentId
+      job.config.outBranchId === branchId &&
+      job.config.outDepartmentId === departmentId
     ) {
       lastJobs.push(job);
     }
   }
 
-  const lastJobIds = lastJobs.map(last => last.jobReferId);
+  const lastJobIds = lastJobs.map(last => last.config.jobReferId);
   const lastJobRefers = jobRefers.filter(job => lastJobIds.includes(job._id));
 
   let resultProducts: IProductsData[] = [];
@@ -52,7 +52,7 @@ export const findLastJob = (
   if (doubleCheckResult) {
     let justLastJobRefer = {} as IJobReferDocument;
     for (const lastJobRefer of lastJobRefers) {
-      const lastJobRefersIds = lastJobRefer.resultProducts.map(
+      const lastJobRefersIds = (lastJobRefer.resultProducts || []).map(
         last => last.productId
       );
       justLastJobRefer = lastJobRefersIds.includes(checkResult.productId)
@@ -61,7 +61,7 @@ export const findLastJob = (
     }
 
     const justLastJob = Object.keys(justLastJobRefer).length
-      ? lastJobs.find(last => last.jobReferId === justLastJobRefer._id)
+      ? lastJobs.find(last => last.config.jobReferId === justLastJobRefer._id)
       : ({} as IJobDocument);
 
     return {
@@ -147,23 +147,23 @@ export const initDocWork = async (
     dueDate: new Date(),
     startAt: new Date(),
     endAt: new Date(),
-    jobId: job?.jobReferId || '',
+    jobId: job?.config.jobReferId || '',
     flowId: flow._id,
     productId,
     count,
     intervalId,
-    inBranchId: job?.inBranchId,
-    inDepartmentId: job?.inDepartmentId,
-    outBranchId: job?.outBranchId,
-    outDepartmentId: job?.outDepartmentId,
+    inBranchId: job?.config.inBranchId,
+    inDepartmentId: job?.config.inDepartmentId,
+    outBranchId: job?.config.outBranchId,
+    outDepartmentId: job?.config.outDepartmentId,
     needProducts: await initProducts(
       parseInt(count, 10),
-      jobRefer.needProducts,
+      jobRefer.needProducts || [],
       subdomain
     ),
     resultProducts: await initProducts(
       parseInt(count, 10),
-      jobRefer.resultProducts,
+      jobRefer.resultProducts || [],
       subdomain
     )
   };
@@ -210,7 +210,7 @@ export const initProducts = async (
       const { ratio } = subUom;
 
       changedIProduct.uomId = product.uomId || '';
-      changedIProduct.quantity = quantity / ratio;
+      changedIProduct.quantity = quantity || 1 / ratio;
     }
 
     changedIProduct.quantity = (changedIProduct.quantity || 1) * count;
@@ -257,7 +257,7 @@ export const overallWorksUpdate = async (
     const wNeedProduct =
       wNeedProducts.find(wNeed => wNeed._id === need._id) ||
       ({} as IProductsData);
-    need.quantity = need.quantity + wNeedProduct.quantity || 0;
+    need.quantity = (need.quantity || 0) + (wNeedProduct.quantity || 0);
     updatedNeedProducts.push(need);
   }
 
@@ -265,7 +265,7 @@ export const overallWorksUpdate = async (
     const wResultProduct =
       wResultProducts.find(wNeed => wNeed._id === result._id) ||
       ({} as IProductsData);
-    result.quantity = result.quantity + wResultProduct.quantity || 0;
+    result.quantity = (result.quantity || 0) + (wResultProduct.quantity || 0);
     updatedResultProducts.push(result);
   }
 
@@ -311,21 +311,11 @@ export const recursiveCatchBeforeJobs = async (
   intervalId,
   subdomain: string
 ) => {
-  console.log('Starting recursive ...');
-
-  console.log('level:', level);
   leftJobs =
     getLeftJobs(
       leftJobs,
       recursiveJobs.map(before => before.id)
     ) || [];
-
-  console.log(
-    'left jobs: ',
-    level,
-    leftJobs.map(e => e.label),
-    leftJobs.length
-  );
 
   const totalBeforeJobsRecursive: any[] = [];
 
@@ -333,7 +323,7 @@ export const recursiveCatchBeforeJobs = async (
     const { flow, productId, count, jobRefers, models } = params;
 
     const lastJobRefer = getJobRefers(
-      [recursiveJob?.jobReferId || ''],
+      [recursiveJob?.config.jobReferId || ''],
       jobRefers
     );
 
@@ -351,22 +341,12 @@ export const recursiveCatchBeforeJobs = async (
 
     const beforeJobsRecursive = getBeforeJobs(leftJobs, recursiveJob.id);
 
-    console.log(
-      'beforeJobsRecursive: ',
-      level,
-      beforeJobsRecursive.map(e => e.label),
-      beforeJobsRecursive.length
-    );
-
     if (beforeJobsRecursive.length > 0) {
       totalBeforeJobsRecursive.push(beforeJobsRecursive);
     }
   }
 
   if (totalBeforeJobsRecursive.length === 0) {
-    console.log('Finished before jobs .');
-    console.log('Finished before jobs ..');
-    console.log('Finished before jobs ...');
   } else {
     let levelCounter = 1;
 
@@ -380,13 +360,6 @@ export const recursiveCatchBeforeJobs = async (
         checkJobFrequentlyIds.length === 0 ||
         JSON.stringify(checkTempIds) !== JSON.stringify(checkJobFrequentlyIds)
       ) {
-        console.log(
-          'Compare1 ... checkTempIds: ',
-          checkTempIds,
-          'checkJobFrequentlyIds: ',
-          checkJobFrequentlyIds
-        );
-
         checkJobFrequentlyIds = checkTempIds;
         recursiveJobs = beforeJobsRecursive;
         leftJobs = recursiveCatchBeforeJobs(

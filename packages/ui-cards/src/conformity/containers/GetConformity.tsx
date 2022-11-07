@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
+
 import { ConformityQueryResponse, ISavedConformity } from '../types';
 import { renderWithProps } from '@erxes/ui/src/utils/core';
 
@@ -65,14 +66,22 @@ export default (props: IProps) =>
           skip: ({ mainType, mainTypeId, relType, alreadyItems }) =>
             (!mainType && !mainTypeId && !relType) ||
             alreadyItems !== undefined,
-          options: ({ mainType, mainTypeId, relType }) => ({
-            variables: {
+          options: ({ mainType, mainTypeId, relType }) => {
+            const variables: any = {
               mainType,
               mainTypeId,
               relType,
               isSaved: true
+            };
+
+            // conformity with mainType "user" is not saved
+            if (mainType === 'user') {
+              variables.assignedUserIds = [mainTypeId];
+              variables.isSaved = false;
             }
-          })
+
+            return { variables };
+          }
         }
       )
     )(PortableItemsContainer)

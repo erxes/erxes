@@ -25,9 +25,9 @@ export const initBroker = async cl => {
   });
 
   consumeQueue('syncerkhet:toOrder', async ({ subdomain, data }) => {
-    const { pos, order, putRes } = data;
+    const { pos, order } = data;
 
-    const postData = await getPostData(subdomain, pos, order, putRes);
+    const postData = await getPostData(subdomain, pos, order);
 
     return {
       status: 'success',

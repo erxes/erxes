@@ -119,7 +119,8 @@ class PropertyForm extends React.Component<Props, State> {
       ...doc,
       currentLocation: { lat: 0, lng: 0 },
       add: false,
-      logics: props.field && props.field.logics ? props.field.logics : []
+      logics: props.field && props.field.logics ? props.field.logics : [],
+      logicAction: props.field && props.field.logicAction
     };
   }
 
@@ -400,10 +401,8 @@ class PropertyForm extends React.Component<Props, State> {
             <option value="radio">Radio button</option>
             <option value="file">File</option>
             <option value="customer">Customer</option>
+            <option value="product">Product</option>
             <option value="map">Location/Map</option>
-            <option value="selectProductCategory">
-              Select Product Category
-            </option>
           </FormControl>
         </FormGroup>
         {this.renderOptions()}
@@ -425,6 +424,7 @@ class PropertyForm extends React.Component<Props, State> {
               <option value="email">Email</option>
               <option value="number">Number</option>
               <option value="date">Date</option>
+              <option value="datetime">Date Time</option>
             </FormControl>
           </FormGroup>
         )}

@@ -145,6 +145,7 @@ class HeaderDescription extends React.PureComponent<Props, State> {
       <>
         {this.renderAmount(summary, [
           'cashAmount',
+          'receivableAmount',
           'cardAmount',
           'mobileAmount',
           'totalAmount',

@@ -1,11 +1,13 @@
+import { IUser } from '@erxes/ui/src/auth/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 export interface IPage {
   name: string;
   description: string;
   html: string;
   css: string;
-  jsonData: any;
   siteId: string;
+  createdUser?: IUser;
+  updatedUser?: IUser;
 }
 
 export interface IPageDoc extends IPage {
@@ -31,7 +33,6 @@ export interface IContentTypeDoc extends IContentType {
 }
 
 export interface IEntryValue {
-  fieldId: string;
   fieldCode: string;
   value: any;
 }
@@ -47,7 +48,6 @@ export interface IEntryDoc extends IEntry {
 
 export interface ITemplate {
   name: string;
-  jsonData: any;
   html: string;
 }
 
@@ -167,12 +167,10 @@ export type EntriesRemoveMutationResponse = {
 };
 
 // template
-export type TemplatesAddMutationResponse = {
-  templatesAdd: (doc: { variables: ITemplate }) => Promise<any>;
-};
-
-export type TemplatesRemoveMutationResponse = {
-  templatesRemove: (doc: { variables: { _id: string } }) => Promise<any>;
+export type TemplatesUseMutationResponse = {
+  templatesUse: (doc: {
+    variables: { _id: string; name: string };
+  }) => Promise<any>;
 };
 
 // site

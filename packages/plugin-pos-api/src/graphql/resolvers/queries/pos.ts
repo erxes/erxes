@@ -46,6 +46,7 @@ const generateFilterQuery = async ({ isOnline }, commonQuerySelector) => {
 };
 
 const generateFilterPosQuery = async (
+  models,
   params,
   commonQuerySelector,
   currentUserId
@@ -59,15 +60,24 @@ const generateFilterPosQuery = async (
     createdEndDate,
     paidDate,
     userId,
-    customerId
+    customerId,
+    posId
   } = params;
 
   if (search) {
-    query.number = { $regex: new RegExp(search) };
+    query.$or = [
+      { number: { $regex: new RegExp(search) } },
+      { origin: { $regex: new RegExp(search) } }
+    ];
   }
 
   if (customerId) {
     query.customerId = customerId;
+  }
+
+  if (posId) {
+    const pos = await models.Pos.findOne({ _id: posId }).lean();
+    query.posToken = pos.token;
   }
 
   if (userId) {
@@ -97,6 +107,7 @@ const generateFilterPosQuery = async (
 
     const startDate = getFullDate(now);
     const endDate = getTomorrow(now);
+
     query.paidDate = { $gte: startDate, $lte: endDate };
   }
 
@@ -164,22 +175,32 @@ const queries = {
     { models, commonQuerySelector, user }: IContext
   ) => {
     const query = await generateFilterPosQuery(
+      models,
       params,
       commonQuerySelector,
       user._id
     );
 
-    return paginate(models.PosOrders.find(query), {
+    let sort: any = { number: 1 };
+    if (params.sortField && params.sortDirection) {
+      sort = {
+        [params.sortField]: params.sortDirection
+      };
+    }
+
+    return paginate(models.PosOrders.find(query).sort({ ...sort }), {
       page: params.page,
       perPage: params.perPage
     });
   },
+
   posOrdersTotalCount: async (
     _root,
     params,
     { models, commonQuerySelector, user }: IContext
   ) => {
     const query = await generateFilterPosQuery(
+      models,
       params,
       commonQuerySelector,
       user._id
@@ -220,6 +241,7 @@ const queries = {
     { models, commonQuerySelector, user }: IContext
   ) => {
     const query = await generateFilterPosQuery(
+      models,
       params,
       commonQuerySelector,
       user._id
@@ -231,6 +253,7 @@ const queries = {
         $project: {
           cardAmount: '$cardAmount',
           cashAmount: '$cashAmount',
+          receivableAmount: '$receivableAmount',
           mobileAmount: '$mobileAmount',
           totalAmount: '$totalAmount',
           finalAmount: '$finalAmount '
@@ -241,6 +264,7 @@ const queries = {
           _id: '',
           cardAmount: { $sum: '$cardAmount' },
           cashAmount: { $sum: '$cashAmount' },
+          receivableAmount: { $sum: '$receivableAmount' },
           mobileAmount: { $sum: '$mobileAmount' },
           totalAmount: { $sum: '$totalAmount' },
           finalAmount: { $sum: '$finalAmount ' }
@@ -264,6 +288,7 @@ const queries = {
     { models, commonQuerySelector, user, subdomain }: IContext
   ) => {
     const orderQuery = await generateFilterPosQuery(
+      models,
       params,
       commonQuerySelector,
       user._id

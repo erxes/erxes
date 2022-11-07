@@ -11,33 +11,43 @@ export const types = `
     productId: String,
     product: JSON,
     status: String,
+    isSub: Boolean,
     jobs: JSON,
-    flowJobStatus: Boolean
+    jobCount: Int,
+    flowValidation: String
+    latestBranchId: String
+    latestDepartmentId: String
+    latestBranch: JSON
+    latestDepartment: JSON
+    latestNeedProducts: JSON
+    latestResultProducts: JSON
   }
 
   input JobInput {
     id: String,
+    type: String,
     nextJobIds: [String],
-    jobReferId: String,
     style: JSON,
     label: String,
     description: String,
-    quantity: Int,
-    inBranchId: String,
-    inDepartmentId: String,
-    outBranchId: String,
-    outDepartmentId: String
+    config: JSON
   }
 `;
 
 const qryParams = `
   categoryId: String,
   searchValue: String,
-  excludeIds: Boolean
+  excludeIds: Boolean,
+  isSub: Boolean,
+  ids: [String],
+  branchId: String,
+  departmentId: String,
+  status: String,
+  validation: String,
 `;
 
 export const queries = `
-  flows(page: Int, perPage: Int, ids: [String], ${qryParams}): [Flow]
+  flows(page: Int, perPage: Int, ${qryParams}): [Flow]
   flowsAll: [Flow]
   flowTotalCount(${qryParams}): Int
   flowDetail(_id: String!): Flow
@@ -47,10 +57,10 @@ export const queries = `
 
 const flowParams = `
   name: String,
-  categoryId: String,
   productId: String,
   status: String,
-  flowJobStatus: Boolean,
+  isSub: Boolean,
+  flowValidation: String,
   jobs: [JobInput],
 `;
 

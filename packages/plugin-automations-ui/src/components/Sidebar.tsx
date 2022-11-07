@@ -9,7 +9,7 @@ type Props = {
 
 function Sidebar({ counts }: Props) {
   return (
-    <Wrapper.Sidebar>
+    <Wrapper.Sidebar hasBorder>
       <StatusFilter counts={counts.byStatus} />
     </Wrapper.Sidebar>
   );

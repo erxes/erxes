@@ -2,6 +2,10 @@ import { sendLoyaltiesMessage } from '../../messageBroker';
 import { IOrderInput } from '../types';
 
 export const checkLoyalties = async (subdomain: string, doc: IOrderInput) => {
+  if (!doc.customerId) {
+    return doc;
+  }
+
   let loyalties: any = {};
   try {
     loyalties = await sendLoyaltiesMessage({

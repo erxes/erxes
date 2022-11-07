@@ -25,8 +25,8 @@ export const remainderProductFields = `
   name
   type
   code
-  categoryId
   unitPrice
+  categoryId
   category {
     _id
     code

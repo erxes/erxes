@@ -7,6 +7,8 @@ const commonFields = `
   $isVisible: Boolean,
   $isVisibleInDetail: Boolean,
   $config: JSON,
+  $logicAction: String,
+  $logics: [LogicInput],
 `;
 
 const commonTypes = `
@@ -18,6 +20,8 @@ const commonTypes = `
   isVisible: $isVisible,
   isVisibleInDetail: $isVisibleInDetail,
   config: $config
+  logicAction: $logicAction,
+  logics: $logics,
 `;
 
 const updateVisibleFields = `

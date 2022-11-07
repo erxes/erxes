@@ -9,6 +9,14 @@ on:
       - 'packages/api-plugin-template.erxes/**'
       - 'packages/plugin-emailtemplates-api/**'
       - '.github/workflows/plugin-emailtemplates-api.yaml'
+  pull_request:
+    branches:
+      - dev
+    paths:
+      - 'packages/api-utils/**'
+      - 'packages/api-plugin-template.erxes/**'
+      - 'packages/plugin-emailtemplates-api/**'
+      - '.github/workflows/plugin-emailtemplates-api.yaml'
 
 jobs:
   api:

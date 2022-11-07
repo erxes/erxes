@@ -1,6 +1,7 @@
 import { DISTRICTS } from './constants';
 import { sendRequest } from '@erxes/api-utils/src';
 import { IPutResponse } from './definitions/ebarimt';
+import { IModels } from '../connectionResolver';
 
 const format_number = (num: number) => {
   try {
@@ -11,17 +12,18 @@ const format_number = (num: number) => {
 };
 
 export interface IPutDataArgs {
-  date: Date;
-  orderId: string;
-  hasVat: boolean;
-  hasCitytax: boolean;
-  billType: string;
-  customerCode: string;
-  customerName: string;
-  productsById: any;
-  details: any[];
-  cashAmount: number;
-  nonCashAmount: number;
+  date?: string;
+  number?: string;
+  orderId?: string;
+  hasVat?: boolean;
+  hasCitytax?: boolean;
+  billType?: string;
+  customerCode?: string;
+  customerName?: string;
+  productsById?: any;
+  details?: any[];
+  cashAmount?: number;
+  nonCashAmount?: number;
 
   transaction?;
   records?;
@@ -48,17 +50,18 @@ export class PutData<IListArgs extends IPutDataArgs> {
     this.params = params;
     this.models = params.models;
     this.config = params.config;
+    this.districtCode = DISTRICTS[this.config.districtName] || '';
+    this.vatPercent = Number(this.config.vatPercent) || 0;
+    this.cityTaxPercent = Number(this.config.cityTaxPercent) || 0;
+    this.defaultGScode = this.config.defaultGSCode || '';
   }
 
   public async run(): Promise<IPutResponse> {
     const url = this.config.ebarimtUrl || '';
     this.districtCode = DISTRICTS[this.config.districtName] || '';
     const rd = this.config.companyRD || '';
-    this.vatPercent = Number(this.config.vatPercent) || 0;
-    this.cityTaxPercent = Number(this.config.cityTaxPercent) || 0;
-    this.defaultGScode = this.config.defaultGSCode || '';
 
-    const { contentType, contentId } = this.params;
+    const { contentType, contentId, number } = this.params;
 
     if (!this.districtCode) {
       throw new Error('Not validate District');
@@ -78,7 +81,8 @@ export class PutData<IListArgs extends IPutDataArgs> {
     const resObj = await this.models.PutResponses.createPutResponse({
       sendInfo: { ...this.transactionInfo },
       contentId,
-      contentType
+      contentType,
+      number
     });
 
     const responseStr = await sendRequest({
@@ -145,7 +149,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
 
     const taxPercent = this.vatPercent + this.cityTaxPercent;
 
-    for (const detail of this.params.details) {
+    for (const detail of this.params.details || []) {
       sumAmount += detail.amount;
 
       const vat = (detail.amount / (100 + taxPercent)) * this.vatPercent;
@@ -161,7 +165,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
     return { stocks, sumAmount, vatAmount, citytaxAmount };
   }
 
-  private async generateTransactionInfo() {
+  public async generateTransactionInfo() {
     const {
       stocks,
       sumAmount,
@@ -170,7 +174,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
     } = await this.generateStocks();
 
     return {
-      date: this.params.date.toISOString().slice(0, 10),
+      date: this.params.date,
       cashAmount: format_number(sumAmount),
       nonCashAmount: format_number(0),
 
@@ -192,7 +196,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
   }
 }
 
-export const returnBill = async (models, doc, config) => {
+export const returnBill = async (models: IModels, doc, config) => {
   const url = config.ebarimtUrl || '';
   const { contentType, contentId } = doc;
 
@@ -208,9 +212,17 @@ export const returnBill = async (models, doc, config) => {
   }
 
   const rd = prePutResponse.registerNo;
+  const date = prePutResponse.date;
+
+  if (!prePutResponse.billId || !rd || !date) {
+    return {
+      error: 'Буцаалт гүйцэтгэх шаардлагагүй баримт байна.'
+    };
+  }
+
   const data = {
     returnBillId: prePutResponse.billId,
-    date: prePutResponse.date
+    date: date
   };
 
   const resObj = await models.PutResponses.createPutResponse({

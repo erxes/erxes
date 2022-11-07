@@ -1,10 +1,22 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
+import { generateModels } from './connectionResolver';
 
 let client;
 
 export const initBroker = async cl => {
   client = cl;
+
+  const { consumeQueue, consumeRPCQueue } = client;
+
+  consumeRPCQueue('exmfeed:ExmFeed.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.ExmFeed.find(data).lean()
+    };
+  });
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
@@ -50,6 +62,17 @@ export const sendNotificationsMessage = async (
 
 export const sendNotification = (subdomain: string, data) => {
   return sendNotificationsMessage({ subdomain, action: 'send', data });
+};
+
+export const sendEXMFeedMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'exmfeed',
+    ...args
+  });
 };
 
 export default function() {

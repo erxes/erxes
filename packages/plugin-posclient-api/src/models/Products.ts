@@ -18,7 +18,6 @@ const checkSKU = (doc: IProduct) => {
 };
 
 export interface IProductModel extends Model<IProductDocument> {
-  updateProductCategory(productIds: any, productFields: any);
   getProduct(selector: any): Promise<IProductDocument>;
   createProduct(doc: IProduct): Promise<IProductDocument>;
   updateProduct(_id: string, doc: IProduct): Promise<IProductDocument>;

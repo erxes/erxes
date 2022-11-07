@@ -1,5 +1,9 @@
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import {
+  gatherDependentServicesType,
+  ISegmentContentType
+} from '@erxes/api-utils/src/segments';
+import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
@@ -15,6 +19,11 @@ interface IPreviewParams {
   conditionsConjunction?: 'and' | 'or';
 }
 
+interface IAssociatedType {
+  type: string;
+  description: string;
+}
+
 const segmentQueries = {
   async segmentsGetTypes() {
     const serviceNames = await serviceDiscovery.getServices();
@@ -26,12 +35,18 @@ const segmentQueries = {
       const meta = service.config.meta || {};
 
       if (meta.segments) {
-        const descriptionMap = meta.segments.descriptionMap;
+        const serviceTypes = (meta.segments.contentTypes || []).flatMap(
+          (ct: ISegmentContentType) => {
+            if (ct.hideInSidebar) {
+              return [];
+            }
 
-        const serviceTypes = meta.segments.contentTypes.map(contentType => ({
-          contentType: `${serviceName}:${contentType}`,
-          description: descriptionMap[contentType]
-        }));
+            return {
+              contentType: `${serviceName}:${ct.type}`,
+              description: ct.description
+            };
+          }
+        );
 
         types = [...types, ...serviceTypes];
       }
@@ -41,7 +56,8 @@ const segmentQueries = {
   },
 
   async segmentsGetAssociationTypes(_root, { contentType }) {
-    const [serviceName, type] = contentType.split(':');
+    const [serviceName] = contentType.split(':');
+
     const service = await serviceDiscovery.getService(serviceName, true);
     const meta = service.config.meta || {};
 
@@ -49,11 +65,53 @@ const segmentQueries = {
       return [];
     }
 
-    const descriptionMap = meta.segments.descriptionMap;
+    // get current services content types
+    const serviceCts = meta.segments.contentTypes || [];
 
-    return (meta.segments.associationTypes || []).map(atype => ({
-      value: atype,
-      description: descriptionMap[atype.split(':')[1]]
+    const associatedTypes: IAssociatedType[] = serviceCts.map(
+      (ct: ISegmentContentType) => ({
+        type: `${serviceName}:${ct.type}`,
+        description: ct.description
+      })
+    );
+
+    // gather dependent services contentTypes
+    const dependentServices = meta.segments.dependentServices || [];
+
+    for (const dService of dependentServices) {
+      if (!(await serviceDiscovery.isEnabled(dService.name))) {
+        continue;
+      }
+
+      const depService = await serviceDiscovery.getService(dService.name, true);
+      const depServiceMeta = depService.config.meta || {};
+
+      if (depServiceMeta.segments) {
+        const contentTypes = depServiceMeta.segments.contentTypes || [];
+
+        contentTypes.forEach((ct: ISegmentContentType) => {
+          associatedTypes.push({
+            type: `${dService.name}:${ct.type}`,
+            description: ct.description
+          });
+        });
+      }
+    }
+
+    // gather contentTypes of services that are dependent on current service
+    await gatherDependentServicesType(
+      serviceName,
+      (ct: ISegmentContentType, sName: string) => {
+        associatedTypes.push({
+          type: `${sName}:${ct.type}`,
+          description: ct.description
+        });
+      }
+    );
+
+    return associatedTypes.map(atype => ({
+      value: atype.type,
+      description: atype.description
     }));
   },
 

@@ -1,5 +1,11 @@
 import * as Random from 'meteor-random';
 import {
+  BILL_TYPES,
+  ORDER_ITEM_STATUSES,
+  ORDER_STATUSES
+} from '../../../models/definitions/constants';
+import { checkLoyalties } from '../../utils/loyalties';
+import {
   checkOrderAmount,
   checkOrderStatus,
   checkUnpaidInvoices,
@@ -9,20 +15,17 @@ import {
   getTotalAmount,
   prepareEbarimtData,
   prepareOrderDoc,
+  reverseItemStatus,
   updateOrderItems,
   validateOrder,
   validateOrderPayment
 } from '../../utils/orderUtils';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { graphqlPubsub } from '../../../configs';
+import { IConfig } from '../../../models/definitions/configs';
 import { IContext } from '../../types';
 import { IOrderInput } from '../../types';
-import {
-  BILL_TYPES,
-  ORDER_STATUSES
-} from '../../../models/definitions/constants';
 import { sendPosMessage } from '../../../messageBroker';
-import { checkLoyalties } from '../../utils/loyalties';
 
 interface IPaymentBase {
   billType: string;
@@ -35,6 +38,7 @@ interface ISettlePaymentParams extends IPaymentBase {
 
 export interface IPayment extends IPaymentBase {
   cashAmount?: number;
+  receivableAmount?: number;
   mobileAmount?: number;
   cardAmount?: number;
 }
@@ -49,6 +53,14 @@ interface IOrderEditParams extends IOrderInput {
   billType: string;
   registerNumber: string;
 }
+
+const getTaxInfo = (config: IConfig) => {
+  return {
+    hasVat: (config.ebarimtConfig && config.ebarimtConfig.hasVat) || false,
+    hasCitytax:
+      (config.ebarimtConfig && config.ebarimtConfig?.hasCitytax) || false
+  };
+};
 
 const orderMutations = {
   async ordersAdd(
@@ -79,7 +91,8 @@ const orderMutations = {
         ...orderDoc,
         totalAmount: preparedDoc.totalAmount,
         posToken: config.token,
-        departmentId: config.departmentId
+        departmentId: config.departmentId,
+        taxInfo: getTaxInfo(config)
       });
 
       for (const item of preparedDoc.items) {
@@ -93,9 +106,19 @@ const orderMutations = {
           bonusVoucherId: item.bonusVoucherId,
           orderId: order._id,
           isPackage: item.isPackage,
-          isTake: item.isTake
+          isTake: item.isTake,
+          status: ORDER_ITEM_STATUSES.NEW
         });
       }
+
+      await graphqlPubsub.publish('ordersOrdered', {
+        ordersOrdered: {
+          ...order,
+          _id: order._id,
+          status: order.status,
+          customerId: order.customerId
+        }
+      });
 
       return order;
     } catch (e) {
@@ -106,6 +129,7 @@ const orderMutations = {
       return e;
     }
   },
+
   async ordersEdit(
     _root,
     doc: IOrderEditParams,
@@ -122,7 +146,23 @@ const orderMutations = {
     let preparedDoc = await prepareOrderDoc(doc, config, models);
     preparedDoc = await checkLoyalties(subdomain, preparedDoc);
 
+    preparedDoc.items = await reverseItemStatus(models, preparedDoc.items);
+
     await updateOrderItems(doc._id, preparedDoc.items, models);
+
+    let status = order.status;
+
+    if (
+      [ORDER_STATUSES.COMPLETE, ORDER_STATUSES.DONE].includes(
+        order.status || ''
+      )
+    ) {
+      const newItems =
+        doc.items.filter(i => i.status === ORDER_ITEM_STATUSES.NEW) || [];
+      if (newItems.length) {
+        status = ORDER_STATUSES.REDOING;
+      }
+    }
 
     const updatedOrder = await models.Orders.updateOrder(doc._id, {
       deliveryInfo: doc.deliveryInfo,
@@ -134,7 +174,18 @@ const orderMutations = {
       registerNumber: doc.registerNumber || '',
       slotCode: doc.slotCode,
       posToken: config.token,
-      departmentId: config.departmentId
+      departmentId: config.departmentId,
+      taxInfo: getTaxInfo(config),
+      status
+    });
+
+    await graphqlPubsub.publish('ordersOrdered', {
+      ordersOrdered: {
+        ...updatedOrder,
+        _id: updatedOrder._id,
+        status: updatedOrder.status,
+        customerId: updatedOrder.customerId
+      }
     });
 
     return updatedOrder;
@@ -147,10 +198,29 @@ const orderMutations = {
   ) {
     const oldOrder = await models.Orders.getOrder(_id);
 
-    const order = await models.Orders.updateOrder(_id, { ...oldOrder, status });
+    const order = await models.Orders.updateOrder(_id, {
+      ...oldOrder,
+      status,
+      modifiedAt: new Date()
+    });
+
+    if (status === ORDER_STATUSES.REDOING) {
+      await models.OrderItems.updateMany(
+        { orderId: order._id },
+        { $set: { status: ORDER_ITEM_STATUSES.CONFIRM } }
+      );
+    }
+
+    if (status === ORDER_STATUSES.DONE) {
+      await models.OrderItems.updateMany(
+        { orderId: order._id },
+        { $set: { status: ORDER_ITEM_STATUSES.DONE } }
+      );
+    }
 
     await graphqlPubsub.publish('ordersOrdered', {
       ordersOrdered: {
+        ...order,
         _id,
         status: order.status,
         customerId: order.customerId
@@ -168,6 +238,24 @@ const orderMutations = {
     }
   },
 
+  async orderItemChangeStatus(
+    _root,
+    { _id, status }: { _id: string; status: string },
+    { models }: IContext
+  ) {
+    const oldOrderItem = await models.OrderItems.getOrderItem(_id);
+
+    await models.OrderItems.updateOrderItem(_id, { ...oldOrderItem, status });
+
+    await graphqlPubsub.publish('orderItemsOrdered', {
+      orderItemsOrdered: {
+        _id,
+        status: status
+      }
+    });
+
+    return await models.OrderItems.getOrderItem(_id);
+  },
   /**
    * Веб болон мобайл дээр хэрэглээгүй бол устгана.
    */
@@ -219,7 +307,6 @@ const orderMutations = {
             $set: {
               ...doc,
               paidDate: now,
-              status: ORDER_STATUSES.PAID,
               modifiedAt: now
             }
           }
@@ -229,6 +316,7 @@ const orderMutations = {
       order = await models.Orders.getOrder(_id);
       graphqlPubsub.publish('ordersOrdered', {
         ordersOrdered: {
+          ...order,
           _id,
           status: order.status,
           customerId: order.customerId
@@ -260,12 +348,21 @@ const orderMutations = {
 
   async ordersAddPayment(
     _root,
-    { _id, cashAmount = 0, cardAmount = 0, cardInfo },
+    {
+      _id,
+      cashAmount = 0,
+      receivableAmount = 0,
+      cardAmount = 0,
+      mobileAmount = 0,
+      cardInfo
+    },
     { models }: IContext
   ) {
     const order = await models.Orders.getOrder(_id);
 
-    const amount = Number((cashAmount + cardAmount).toFixed(2));
+    const amount = Number(
+      (cashAmount + receivableAmount + cardAmount).toFixed(2)
+    );
 
     checkOrderStatus(order);
     checkOrderAmount(order, amount);
@@ -275,15 +372,25 @@ const orderMutations = {
         cashAmount: cashAmount
           ? (order.cashAmount || 0) + Number(cashAmount.toFixed(2))
           : order.cashAmount || 0,
+        receivableAmount: receivableAmount
+          ? (order.receivableAmount || 0) + Number(receivableAmount.toFixed(2))
+          : order.receivableAmount || 0,
+        mobileAmount: mobileAmount
+          ? (order.mobileAmount || 0) + Number(mobileAmount.toFixed(2))
+          : order.mobileAmount || 0,
         cardAmount: cardAmount
           ? (order.cardAmount || 0) + Number(cardAmount.toFixed(2))
           : order.cardAmount || 0
       }
     };
 
-    if (cardAmount) {
+    if (cardInfo) {
       modifier.$push = {
-        cardPayments: { amount: cardAmount, cardInfo, _id: Random.id() }
+        cardPayments: {
+          amount: cardAmount + mobileAmount,
+          cardInfo,
+          _id: Random.id()
+        }
       };
     }
 
@@ -341,32 +448,38 @@ const orderMutations = {
     }).lean();
 
     await validateOrderPayment(order, { billType });
+    const now = new Date();
 
     const ebarimtConfig: any = config.ebarimtConfig;
 
-    const data = await prepareEbarimtData(
-      models,
-      order,
-      ebarimtConfig,
-      items,
-      billType,
-      registerNumber
-    );
-
-    ebarimtConfig.districtName = getDistrictName(
-      (config.ebarimtConfig && config.ebarimtConfig.districtCode) || ''
-    );
-
     try {
-      const response = await models.PutResponses.putData({
-        ...data,
-        config: ebarimtConfig,
-        models
-      });
+      let response;
 
-      if (response && response.success === 'true') {
-        const now = new Date();
+      if (billType !== BILL_TYPES.INNER) {
+        const data = await prepareEbarimtData(
+          models,
+          order,
+          ebarimtConfig,
+          items,
+          billType,
+          registerNumber
+        );
 
+        ebarimtConfig.districtName = getDistrictName(
+          (config.ebarimtConfig && config.ebarimtConfig.districtCode) || ''
+        );
+
+        response = await models.PutResponses.putData({
+          ...data,
+          config: ebarimtConfig,
+          models
+        });
+      }
+
+      if (
+        billType === BILL_TYPES.INNER ||
+        (response && response.success === 'true')
+      ) {
         await models.Orders.updateOne(
           { _id },
           {
@@ -374,7 +487,6 @@ const orderMutations = {
               billType,
               registerNumber,
               paidDate: now,
-              status: ORDER_STATUSES.PAID,
               modifiedAt: now
             }
           }
@@ -385,6 +497,7 @@ const orderMutations = {
 
       graphqlPubsub.publish('ordersOrdered', {
         ordersOrdered: {
+          ...order,
           _id,
           status: order.status,
           customerId: order.customerId

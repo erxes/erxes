@@ -242,7 +242,7 @@ class LeftSidebar extends React.Component<Props, State> {
             <FilterToggler
               groupText="Integrations"
               toggleName="showIntegrations"
-              manageUrl="/settings/add-ons"
+              manageUrl="/settings/integrations"
             >
               <FilterList
                 query={{
@@ -288,6 +288,7 @@ class LeftSidebar extends React.Component<Props, State> {
       </RTG.CSSTransition>
     );
   }
+
   render() {
     const {
       currentUser,
@@ -307,7 +308,12 @@ class LeftSidebar extends React.Component<Props, State> {
             </AdditionalSidebar>
           )}
         </InboxManagementActionConsumer>
-        <Sidebar wide={true} full={true} header={this.renderSidebarHeader()}>
+        <Sidebar
+          wide={true}
+          full={true}
+          header={this.renderSidebarHeader()}
+          hasBorder
+        >
           <ConversationList
             currentUser={currentUser}
             currentConversationId={currentConversationId}

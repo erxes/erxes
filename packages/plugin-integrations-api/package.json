@@ -14,7 +14,6 @@
     "@types/express": "^4.16.0",
     "@types/jest": "^23.3.0",
     "@types/node": "^10.12.18",
-    "amqplib": "^0.5.5",
     "body-parser": "^1.17.1",
     "botbuilder": "^4.4.0",
     "botbuilder-adapter-facebook-erxes": "^1.0.5",

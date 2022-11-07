@@ -1,3 +1,5 @@
+import { ordersQueryParams } from '../graphql/schema/orders';
+
 const commonFields = `
   _id: String!
   createdAt: Date
@@ -11,6 +13,7 @@ const orderFields = `
 
 const paymentInputDefs = `
   cashAmount: Float
+  receivableAmount: Float
   billType: String
   registerNumber: String
   mobileAmount: Float
@@ -25,10 +28,12 @@ export const types = `
     unitPrice: Float
     discountAmount: Float
     discountPercent: Float
+    bonusCount: Float
     productName: String
     isPackage: Boolean
     isTake: Boolean
     productImgUrl: String
+    status: String
   }
 
   type PosPutResponse {
@@ -90,9 +95,10 @@ export const types = `
     origin: String
     items: [PosOrderItem]
     putResponses: [PosPutResponse]
+    slotCode: String
   }
 `;
 
 export const queries = `
-  fullOrders(searchValue: String, statuses: [String], customerId: String, page: Int, perPage: Int, sortField: String, sortDirection: Int): [Order]
+  fullOrders(${ordersQueryParams}): [Order]
 `;

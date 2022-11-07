@@ -17,6 +17,7 @@ type Props = {
   queryParams: any;
   getActionBar: (actionBar: any) => void;
   setCount: (count: number) => void;
+  selectedSite: string;
 };
 
 type FinalProps = {
@@ -26,7 +27,12 @@ type FinalProps = {
   SitesRemoveMutationResponse;
 
 function SitesContainer(props: FinalProps) {
-  const { sitesQuery, sitesTotalCountQuery, sitesRemoveMutation } = props;
+  const {
+    sitesQuery,
+    sitesTotalCountQuery,
+    sitesRemoveMutation,
+    selectedSite
+  } = props;
 
   if (sitesQuery.loading) {
     return <Spinner objective={true} />;
@@ -36,7 +42,13 @@ function SitesContainer(props: FinalProps) {
   const sitesCount = sitesTotalCountQuery.webbuilderSitesTotalCount || 0;
 
   const remove = (_id: string) => {
-    confirm().then(() => {
+    if (_id === selectedSite) {
+      localStorage.removeItem('webbuilderSiteId');
+    }
+
+    const message = `This will permanently delete the current site. Are you absolutely sure?`;
+
+    confirm(message, { hasDeleteConfirm: true }).then(() => {
       sitesRemoveMutation({ variables: { _id } })
         .then(() => {
           Alert.success('Successfully removed a site');
@@ -65,19 +77,24 @@ export default compose(
     options: ({ queryParams }) => ({
       variables: {
         ...generatePaginationParams(queryParams)
-      }
+      },
+      fetchPolicy: 'network-only'
     })
   }),
   graphql<{}, SitesTotalCountQueryResponse>(gql(queries.sitesTotalCount), {
     name: 'sitesTotalCountQuery'
   }),
-  graphql<{}, SitesRemoveMutationResponse>(gql(mutations.sitesRemove), {
+  graphql<Props, SitesRemoveMutationResponse>(gql(mutations.sitesRemove), {
     name: 'sitesRemoveMutation',
-    options: () => ({
+    options: ({ selectedSite }) => ({
       refetchQueries: [
-        { query: gql(queries.sites) },
+        { query: gql(queries.sites), variables: { fromSelect: true } },
         {
           query: gql(queries.sitesTotalCount)
+        },
+        {
+          query: gql(queries.contentTypes),
+          variables: { siteId: selectedSite }
         }
       ]
     })

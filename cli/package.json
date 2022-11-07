@@ -1,6 +1,6 @@
 {
   "name": "erxes",
-  "version": "0.3.15",
+  "version": "0.3.87",
   "description": "Free and open fair-code licensed all-in-one growth marketing & management software",
   "homepage": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes",
@@ -16,19 +16,22 @@
     "bin": "./bin"
   },
   "bin": {
-    "erxes": "./bin/erxes.js"
+    "erxes": "./bin/erxes.js",
+    "pm2": "./node_modules/pm2/bin/pm2"
   },
   "dependencies": {
     "chalk": "^4.1.0",
     "cli-progress": "^3.8.2",
     "colors": "^1.4.0",
     "commander": "^6.2.0",
+    "dotenv": "^16.0.3",
     "execa": "^4.1.0",
     "figlet": "^1.5.0",
     "fs-extra": "^9.0.1",
     "jsonwebtoken": "^8.5.1",
     "kill-port": "^1.6.1",
     "lodash": "^4.17.21",
+    "pm2": "^5.2.2",
     "request": "^2.88.2",
     "shelljs": "^0.8.5",
     "yaml": "^1.10.2"

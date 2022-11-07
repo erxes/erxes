@@ -90,7 +90,7 @@ function FieldLogics(props: Props) {
           <FormGroup>
             <FormControl
               componentClass="select"
-              defaultValue={props.action}
+              value={props.action}
               name="logicAction"
               options={showOptions}
               onChange={(e: any) => {

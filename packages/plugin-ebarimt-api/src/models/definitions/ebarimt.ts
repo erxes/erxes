@@ -11,17 +11,20 @@ export interface IPutResponseConfig {
 }
 
 export interface IPutResponse {
-  date: Date;
-  orderId: string;
-  hasVat: boolean;
-  hasCitytax: boolean;
-  billType: string;
-  customerCode: string;
-  customerName: string;
-  productsById: any;
-  details: any[];
-  cashAmount: number;
-  nonCashAmount: number;
+  number?: string;
+  billId?: string;
+  date?: string;
+  hasVat?: boolean;
+  hasCitytax?: boolean;
+  billType?: string;
+  customerCode?: string;
+  customerName?: string;
+  productsById?: any;
+  details?: any[];
+  cashAmount?: number;
+  nonCashAmount?: number;
+  customerNo?: string;
+  registerNo?: string;
 
   transaction?;
   records?;
@@ -30,6 +33,7 @@ export interface IPutResponse {
 
   contentType: string;
   contentId: string;
+  sendInfo?: any;
 }
 
 export interface IPutResponseDocument extends Document, IPutResponse {
@@ -43,6 +47,7 @@ export const putResponseSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     createdAt: field({ type: Date, label: 'Created at' }),
     modifiedAt: field({ type: Date, label: 'Modified at' }),
+    number: field({ type: String, label: 'Inner bill number' }),
 
     // Холбогдох обьект
     contentType: field({ type: String, label: 'Content Type' }),

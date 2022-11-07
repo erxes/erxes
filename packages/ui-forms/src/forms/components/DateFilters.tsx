@@ -1,15 +1,20 @@
+import {
+  CustomRangeContainer,
+  FilterContainer,
+  EndDateContainer
+} from '../styles';
+import React, { useEffect, useState } from 'react';
+import { __, router } from '@erxes/ui/src/utils/core';
+
 import Box from '@erxes/ui/src/components/Box';
 import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Icon from '@erxes/ui/src/components/Icon';
-import { FilterContainer, CustomRangeContainer } from '../styles';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { __, router } from '@erxes/ui/src/utils/core';
+import Icon from '@erxes/ui/src/components/Icon';
 import dayjs from 'dayjs';
 import queryString from 'query-string';
-import React, { useEffect, useState } from 'react';
 import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
@@ -69,7 +74,7 @@ function DateFilters(props: IProps) {
     <FilterContainer>
       {fields.map(field => {
         return (
-          <>
+          <React.Fragment key={field._id}>
             <ControlLabel>{field.label} range:</ControlLabel>
 
             <CustomRangeContainer id="CustomRangeContainer">
@@ -88,22 +93,24 @@ function DateFilters(props: IProps) {
                 dateFormat={'YYYY-MM-DD'}
               />
 
-              <DateControl
-                value={
-                  (filterParams[`${field.name}`] &&
-                    filterParams[`${field.name}`]['lte']) ||
-                  ''
-                }
-                required={false}
-                name="endDate"
-                placeholder={'End date'}
-                onChange={date =>
-                  onChangeRangeFilter(`${field.name}`, 'lte', date)
-                }
-                dateFormat={'YYYY-MM-DD'}
-              />
+              <EndDateContainer>
+                <DateControl
+                  value={
+                    (filterParams[`${field.name}`] &&
+                      filterParams[`${field.name}`]['lte']) ||
+                    ''
+                  }
+                  required={false}
+                  name="endDate"
+                  placeholder={'End date'}
+                  onChange={date =>
+                    onChangeRangeFilter(`${field.name}`, 'lte', date)
+                  }
+                  dateFormat={'YYYY-MM-DD'}
+                />
+              </EndDateContainer>
             </CustomRangeContainer>
-          </>
+          </React.Fragment>
         );
       })}
       <Button

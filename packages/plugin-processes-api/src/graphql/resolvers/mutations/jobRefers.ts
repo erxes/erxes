@@ -1,5 +1,4 @@
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
-
+// import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
 import { IJobRefer } from '../../../models/definitions/jobs';
 import {
   putCreateLog,
@@ -23,8 +22,6 @@ const jobReferMutations = {
     doc: IJobRefer,
     { user, docModifier, models, subdomain }: IContext
   ) {
-    console.log('jobRefers doc: ', doc);
-
     const jobRefer = await models.JobRefers.createJobRefer(docModifier(doc));
 
     await putCreateLog(
@@ -101,6 +98,6 @@ const jobReferMutations = {
   }
 };
 
-moduleCheckPermission(jobReferMutations, 'manageJobRefers');
+// moduleCheckPermission(jobReferMutations, 'manageJobs');
 
 export default jobReferMutations;

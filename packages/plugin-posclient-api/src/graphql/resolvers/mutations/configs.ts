@@ -1,3 +1,4 @@
+import { authCookieOptions } from '@erxes/api-utils/src/core';
 import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import {
   extractConfig,
@@ -228,7 +229,11 @@ const configMutations = {
       throw new Error('token not found');
     }
 
-    res.cookie('pos-config-token', token);
+    res.cookie(
+      'pos-config-token',
+      token,
+      authCookieOptions({ sameSite: 'none' })
+    );
 
     return 'chosen';
   }

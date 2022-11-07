@@ -34,7 +34,9 @@ type State = {
 
 export const menuPos = [
   { title: 'Check deals', link: '/check-synced-deals' },
-  { title: 'Check orders', link: '/check-pos-orders' }
+  { title: 'Check orders', link: '/check-pos-orders' },
+  { title: 'Check Category', link: '/inventory-category' },
+  { title: 'Check Products', link: '/inventory-products' }
 ];
 
 class CheckSyncedOrders extends React.Component<Props, State> {
@@ -204,8 +206,8 @@ class CheckSyncedOrders extends React.Component<Props, State> {
           <Wrapper.ActionBar
             left={<Title>Orders</Title>}
             right={actionBarRight}
-            withMargin
-            wide
+            // withMargin
+            // wide
             background="colorWhite"
           />
         }

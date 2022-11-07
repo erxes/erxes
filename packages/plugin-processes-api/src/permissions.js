@@ -1,21 +1,34 @@
 module.exports = {
-  products: {
+  processes: {
     name: 'processes',
     description: 'Processes',
     actions: [
       {
         name: 'processesAll',
         description: 'All',
-        use: ['showProcesses', 'manageProcesses']
+        use: [
+          'showJobs',
+          'manageJobs',
+          'showWorks',
+          'manageWorks',
+        ]
       },
       {
-        name: 'showProcesses',
-        description: 'Show Processes'
+        name: 'showJobs',
+        description: 'Show Jobs'
       },
       {
-        name: 'manageProcesses',
-        description: 'Manage Processes'
-      }
+        name: 'manageJobs',
+        description: 'Manage Jobs'
+      },
+      {
+        name: 'showWorks',
+        description: 'Show Works'
+      },
+      {
+        name: 'manageWorks',
+        description: 'Manage Works'
+      },
     ]
   }
 };

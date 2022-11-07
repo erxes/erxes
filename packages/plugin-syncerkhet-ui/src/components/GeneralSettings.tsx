@@ -72,7 +72,7 @@ class GeneralSettings extends React.Component<Props, State> {
   render() {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Ebarimt config') }
+      { title: __('Sync erkhet config') }
     ];
 
     const actionButtons = (
@@ -131,17 +131,15 @@ class GeneralSettings extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Ebarimt config')}
+            title={__('Sync erkhet config')}
             breadcrumb={breadcrumb}
           />
         }
         mainHead={<Header />}
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('Ebarimt configs')}</Title>}
+            left={<Title>{__('Sync erkhet configs')}</Title>}
             right={actionButtons}
-            withMargin
-            wide
             background="colorWhite"
           />
         }
@@ -149,7 +147,6 @@ class GeneralSettings extends React.Component<Props, State> {
         content={content}
         transparent={true}
         hasBorder={true}
-        noPadding
       />
     );
   }

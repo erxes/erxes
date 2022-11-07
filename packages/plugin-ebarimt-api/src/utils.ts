@@ -38,12 +38,21 @@ export const validCompanyCode = async (config, companyCode) => {
   return result;
 };
 
-export const companyCheckCode = async (user, params, subdomain) => {
+export const companyCheckCode = async (params, subdomain) => {
   if (!params.code) {
     return;
   }
 
   const config = await getConfig(subdomain, 'EBARIMT', {});
+
+  if (
+    !config ||
+    !config.checkCompanyUrl ||
+    !config.checkCompanyUrl.includes('http')
+  ) {
+    return;
+  }
+
   const companyName = await validCompanyCode(config, params.code);
 
   if (!companyName) {
@@ -178,8 +187,13 @@ export const getPostData = async (subdomain, config, deal) => {
   const cashAmount = (deal.paymentsData || {}).cashAmount || 0;
   const nonCashAmount = sumSaleAmount - cashAmount;
 
+  const date = new Date();
   const orderInfo = {
-    date: new Date(),
+    number: deal.number,
+    date:
+      date.toISOString().split('T')[0] +
+      ' ' +
+      date.toTimeString().split(' ')[0],
     orderId: deal._id,
     hasVat: config.hasVat || false,
     hasCitytax: config.hasCitytax || false,

@@ -140,12 +140,14 @@ export const initBroker = async cl => {
     }
 
     // ====== if (action === 'makePayment')
-    const putResponse = await sendEbarimtMessage({
-      subdomain,
-      action: 'putresponses.createOrUpdate',
-      data: { _id: response._id, doc: { ...response, posToken } },
-      isRPC: true
-    });
+    if (response && response._id) {
+      await sendEbarimtMessage({
+        subdomain,
+        action: 'putresponses.createOrUpdate',
+        data: { _id: response._id, doc: { ...response, posToken } },
+        isRPC: true
+      });
+    }
 
     await models.PosOrders.updateOne(
       { _id: order._id },
@@ -236,14 +238,16 @@ export const initBroker = async cl => {
       data: {
         status: 'ok',
         posToken,
-        responseId: response._id,
+        responseId: response && response._id,
         orderId: order._id
       },
       pos
     });
 
     if (newOrder.type === 'delivery' && newOrder.branchId) {
-      const toPos = await models.Pos.findOne({ branchId: newOrder.branchId });
+      const toPos = await models.Pos.findOne({
+        branchId: newOrder.branchId
+      }).lean();
 
       // paid order info to offline pos
       if (toPos) {
@@ -263,8 +267,7 @@ export const initBroker = async cl => {
       action: 'toOrder',
       data: {
         pos,
-        order: newOrder,
-        putRes: putResponse
+        order: newOrder
       }
     });
 
@@ -366,6 +369,14 @@ export const initBroker = async cl => {
     return {
       status: 'success',
       data: await models.Pos.find(data).lean()
+    };
+  });
+
+  consumeRPCQueue('pos:configs.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    return {
+      status: 'success',
+      data: await models.Pos.findOne(data).lean()
     };
   });
 };

@@ -1,0 +1,137 @@
+extends layout
+
+block layout-content
+    .my-layout  
+        .header Payment method
+        .paymentContainer
+            h3 Choose payment method
+            div.View.paymentMethod
+                each val in payments 
+                    form(method="post")
+                        input(type="hidden" name="selectedPaymentId", value=val._id)
+                        button(typupe="submit").button
+                            div.Payment__logo( class=`payments ${val.selected === true && 'active'}`)
+                                img(src=`${domain}/images/payments/${val.kind}.png`)
+                                .uppercase  !{val.name}
+            h3 Information of invoice
+            .flex#info
+                .info       
+                    .label(htmlFor="amount") Amount
+                        strong 
+                            p  #{invoiceData.amount}
+                    if invoiceData.description
+                        .label Description
+                            strong 
+                                p  #{invoiceData.description}
+                if invoice
+                    .qr
+                        .isMobile#isMobile
+                            .label Choose your bank
+                            .border 
+                                if invoice.apiResponse.qr_image
+                                    each url in (invoice.apiResponse.urls || [])
+                                        a(href=url.link class="bank")
+                                            img(src=url.logo class="urlLogo")
+                                if invoice.apiResponse.socialPayQrCode
+                                    img(src=`${invoice.apiResponse.socialPayQrCode}`)
+                                .label.status status: 
+                                    |  #{invoice.status}
+                            if invoice.status === 'paid'
+                                script. 
+                                    if (window.confirm('Payment is completed. Do you want to close this window?')) {
+                                        window.parent.postMessage({
+                                            fromPayment: true,
+                                            message:"paymentSuccessfull",
+                                            invoice
+                                        },'*');
+                                        if (`#{invoiceData.redirectUri}`) {
+                                            window.location.href = `#{invoiceData.redirectUri}`;
+                                        } else {
+                                            window.close();
+                                        }
+                                    }
+                        .desktop#desktop
+                            if invoice.paymentKind === 'socialPay' && invoice.phone
+                                .label #{invoice.apiResponse.text}
+                            else 
+                                .label QR code 
+                                .border
+                                    if invoice.apiResponse.qr_image
+                                        img(src="data:image/jpg;base64," + invoice.apiResponse.qr_image)
+                                    if invoice.apiResponse.socialPayQrCode
+                                        img(src=`${invoice.apiResponse.socialPayQrCode}`)
+                                    .label.status status: 
+                                        |  #{invoice.status}
+                            if invoice.status === 'paid'
+                                script. 
+                                    if (window.confirm('Payment is completed. Do you want to close this window?')) {
+                                        window.parent.postMessage({
+                                            fromPayment: true,
+                                            message:"paymentSuccessfull",
+                                            invoice
+                                        },'*');
+                                        if (`#{invoiceData.redirectUri}`) {
+                                            window.location.href = `#{invoiceData.redirectUri}`;
+                                        } else {
+                                            window.close();
+                                        }
+                                    }
+        if invoice && invoice.status !== 'paid'                               
+            script.
+                setInterval(() => {
+                    window.fetch('/pl:payment/checkInvoice', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            invoiceId: '#{invoice._id}'
+                        })
+                    }).then(res => res.json())
+                    .then(json => {
+                        if (json.status === 'paid') {
+                            if (window.confirm('Payment is completed. Do you want to close this window?')) {
+                                 window.parent.postMessage({
+                                        fromPayment: true,
+                                        message:"paymentSuccessfull",
+                                        invoice: `#{invoice}`
+                                    },'*');
+                                if (`#{invoiceData.redirectUri}`) {
+                                    window.location.href = `#{invoiceData.redirectUri}`;
+                                } else {
+                                    window.close();
+                                }
+                            }
+                        }
+                    });
+                }, 5000);
+
+    block extraScript
+        script.
+            (() => {
+                match();
+                })()
+            function match() {
+                const toMatch = [
+                    /Android/i,
+                    /webOS/i,
+                    /iPhone/i,
+                    /iPad/i,
+                    /iPod/i,
+                    /BlackBerry/i,
+                    /Windows Phone/i
+                ];
+                let mobile = toMatch.some((toMatchItem) => {
+                    return navigator.userAgent.match(toMatchItem);
+                });
+                let element = mobile ? document.getElementById("isMobile") : document.getElementById("desktop");
+                AddClass(element, "show")
+            }
+            function AddClass(element, name) {
+                var i, arr1, arr2;
+                arr1 = element.className.split(" ");
+                arr2 = name.split(" ");
+                for (i = 0; i < arr2.length; i++) {
+                    if (arr1.indexOf(arr2[i]) == -1) {element.className += " " + arr2[i];}
+                }
+            }
