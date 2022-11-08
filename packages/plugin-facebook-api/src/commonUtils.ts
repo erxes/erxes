@@ -8,6 +8,8 @@ import { get, set } from './inmemoryStorage';
 
 dotenv.config();
 
+const CACHE_NAME = 'configs_erxes_fb_integrations';
+
 interface IRequestParams {
   url?: string;
   path?: string;
@@ -186,7 +188,7 @@ export const downloadAttachment = urlOrName => {
 };
 
 export const getConfigs = async (models: IModels) => {
-  const configsCache = await get('configs_erxes_integrations');
+  const configsCache = await get(CACHE_NAME);
 
   if (configsCache && configsCache !== '{}') {
     return JSON.parse(configsCache);
@@ -199,7 +201,7 @@ export const getConfigs = async (models: IModels) => {
     configsMap[config.code] = config.value;
   }
 
-  set('configs_erxes_integrations', JSON.stringify(configsMap));
+  set(CACHE_NAME, JSON.stringify(configsMap));
 
   return configsMap;
 };
@@ -215,7 +217,7 @@ export const getConfig = async (models: IModels, code, defaultValue?) => {
 };
 
 export const resetConfigsCache = () => {
-  set('configs_erxes_integrations', '');
+  set(CACHE_NAME, '');
 };
 
 export const generateUid = () => {
