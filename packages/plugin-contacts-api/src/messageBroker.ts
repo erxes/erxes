@@ -167,6 +167,18 @@ export const initBroker = cl => {
   );
 
   consumeRPCQueue(
+    'contacts:companies.updateMany',
+    async ({ subdomain, data: { selector, modifier } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Companies.updateMany(selector, modifier)
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'contacts:customers.markCustomerAsActive',
     async ({ subdomain, data: { customerId } }) => {
       const models = await generateModels(subdomain);

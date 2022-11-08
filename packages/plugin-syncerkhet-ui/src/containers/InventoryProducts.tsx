@@ -17,7 +17,6 @@ import {
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = {} & Props &
@@ -42,6 +41,27 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
 
   render() {
     const { items, loading } = this.state;
+
+    const setSyncStatus = (data: any, action: string) => {
+      const createData = data[action].items.map(d => ({
+        ...d,
+        syncStatus: false
+      }));
+      data[action].items = createData;
+      return data;
+    };
+
+    const setSyncStatusTrue = (data: any, products: any, action: string) => {
+      data[action].items = data[action].items.map(i => {
+        if (products.find(c => c.code === i.code)) {
+          let temp = i;
+          temp.syncStatus = true;
+          return temp;
+        }
+        return i;
+      });
+    };
+
     const toSyncProducts = (action: string, products: any[]) => {
       this.setState({ loading: true });
       this.props
@@ -51,12 +71,16 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
             products: products
           }
         })
-        .then(response => {
+        .then(() => {
           this.setState({ loading: false });
           Alert.success('Success. Please check again.');
         })
         .finally(() => {
-          this.setState({ items: [] });
+          let data = this.state.items;
+
+          setSyncStatusTrue(data, products, action.toLowerCase());
+
+          this.setState({ items: data });
         })
         .catch(e => {
           Alert.error(e.message);
@@ -70,6 +94,12 @@ class InventoryProductsContainer extends React.Component<FinalProps, State> {
           variables: {}
         })
         .then(response => {
+          let data = response.data.toCheckProducts;
+
+          setSyncStatus(data, 'create');
+          setSyncStatus(data, 'update');
+          setSyncStatus(data, 'delete');
+
           this.setState({ items: response.data.toCheckProducts });
           this.setState({ loading: false });
         })
