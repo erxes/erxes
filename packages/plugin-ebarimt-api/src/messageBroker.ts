@@ -3,6 +3,7 @@ import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
 import { afterMutationHandlers } from './afterMutations';
 import { beforeResolverHandlers } from './beforeResolvers';
+import { getConfig } from './utils';
 
 let client;
 
@@ -37,6 +38,60 @@ export const initBroker = async cl => {
         data: await models.PutResponses.find(query)
           .sort(sort || {})
           .lean()
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'ebarimt:putresponses.putData',
+    async ({
+      subdomain,
+      data: { contentType, contentId, productsById, orderInfo, config }
+    }) => {
+      const models = await generateModels(subdomain);
+      // orderInfo = {
+      //   number: string /unique in day/,
+      //   date:
+      //     date.toISOString().split('T')[0] +
+      //     ' ' +
+      //     date.toTimeString().split(' ')[0],
+      //   orderId: =contentId,
+      //   hasVat: boolean,
+      //   hasCitytax: boolean,
+      //   billType: 1 | 3,
+      //   customerCode: string [7],
+      //   customerName: string,
+      //   description: string,
+      //   details: [{
+      //     productId: string
+      //     amount: number,
+      //     count: number,
+      //     inventoryCode: string,
+      //     discount?: number
+      //   }],
+      //   cashAmount: number,
+      //   nonCashAmount: number
+      // };
+
+      // config = {
+      //   districtName: string,
+      //   vatPercent?: number,
+      //   cityTaxPercent?: number
+      //   defaultGSCode?: string *
+      //   companyRD: string
+      // }
+
+      return {
+        status: 'success',
+        data: await models.PutResponses.putData(
+          {
+            ...orderInfo,
+            productsById,
+            contentType,
+            contentId
+          },
+          { ...(await getConfig(subdomain, 'EBARIMT', {})), ...config }
+        )
       };
     }
   );
