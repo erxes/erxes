@@ -52,7 +52,7 @@ interface IProps {
   sendEmail: (params: IEmailParams) => void;
 }
 
-const FormWithData = graphql<IProps, QueryResponse>(gql(formDetailQuery), {
+const FormWithData = graphql<IProps, QueryResponse>(gql(formDetailQuery(false)), {
   options: ({ form }) => ({
     fetchPolicy: "network-only",
     variables: {

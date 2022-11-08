@@ -1,7 +1,10 @@
-import { ITrigger, IAction } from './types';
+import React from 'react';
+import { ITrigger } from './types';
+import { IAction } from '@erxes/ui-automations/src/types';
 import { confirm, Alert } from '@erxes/ui/src/utils';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import { colors } from '@erxes/ui/src/styles';
+import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
 
 export const connectorPaintStyle = {
   strokeWidth: 2,
@@ -223,6 +226,26 @@ export const getTriggerType = (
 
   if (triggers && triggers.length > 0) {
     return triggers[0].type;
+  }
+
+  return;
+};
+
+export const renderDynamicComponent = (props, type) => {
+  const plugins: any[] = (window as any).plugins || [];
+
+  for (const plugin of plugins) {
+    if (type.includes(`${plugin.name}:`) && plugin.automation) {
+      return (
+        <RenderDynamicComponent
+          scope={plugin.scope}
+          component={plugin.automation}
+          injectedProps={{
+            ...props
+          }}
+        />
+      );
+    }
   }
 
   return;

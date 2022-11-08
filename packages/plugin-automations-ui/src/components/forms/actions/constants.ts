@@ -1,34 +1,3 @@
-export const PROPERTY_TYPES = [
-  {
-    value: 'contacts:customer',
-    label: 'Contact'
-  },
-  {
-    value: 'contacts:company',
-    label: 'Company'
-  },
-  {
-    value: 'cards:deal',
-    label: 'Deal'
-  },
-  {
-    value: 'cards:task',
-    label: 'Task'
-  },
-  {
-    value: 'cards:ticket',
-    label: 'Ticket'
-  },
-  {
-    value: 'inbox:conversation',
-    label: 'Conversation'
-  },
-  {
-    value: 'core:user',
-    label: 'Team Member'
-  }
-];
-
 export const PROPERTY_FIELD = [
   {
     value: 'size',

@@ -6,9 +6,10 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IOption } from '@erxes/ui/src/types';
 import React from 'react';
-import SelectBoard from './SelectBoard';
+
 import SelectDate from './SelectDate';
 import SelectOption from './SelectOption';
+import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
 
 type Props = {
   onChange: (config: any) => void;
@@ -82,24 +83,6 @@ class PlaceHolderInput extends React.Component<Props, State> {
     );
   }
 
-  renderBoardSelect() {
-    const { type, fieldType, inputName } = this.props;
-
-    if (fieldType !== 'stage' || !type) {
-      return '';
-    }
-
-    return (
-      <SelectBoard
-        type={type}
-        config={this.state.config}
-        setConfig={conf => this.onSelect(conf)}
-        triggerType={this.props.triggerType}
-        inputName={inputName}
-      />
-    );
-  }
-
   renderDate() {
     const { fieldType, inputName } = this.props;
     if (fieldType !== 'date') {
@@ -168,6 +151,28 @@ class PlaceHolderInput extends React.Component<Props, State> {
     this.props.onChange(config);
   };
 
+  renderExtraContent() {
+    const plugins: any[] = (window as any).plugins || [];
+    const { type = '' } = this.props;
+
+    for (const plugin of plugins) {
+      if (type.includes(`${plugin.name}:`) && plugin.automation) {
+        return (
+          <RenderDynamicComponent
+            scope={plugin.scope}
+            component={plugin.automation}
+            injectedProps={{
+              ...this.props,
+              setConfig: conf => this.onSelect(conf),
+              triggerType: type,
+              componentType: 'selectBoard'
+            }}
+          />
+        );
+      }
+    }
+  }
+
   render() {
     const { config } = this.state;
     const { options = [], inputName, label, fieldType = 'string' } = this.props;
@@ -203,8 +208,8 @@ class PlaceHolderInput extends React.Component<Props, State> {
             <div>
               {this.renderSelect()}
               {this.renderDate()}
-              {this.renderBoardSelect()}
               {this.renderAttribution()}
+              {this.renderExtraContent()}
             </div>
           </div>
 
