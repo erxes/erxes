@@ -18,7 +18,7 @@ const inventoryMutations = {
     const productsCount = await sendProductsMessage({
       subdomain,
       action: 'count',
-      data: {},
+      data: { query: { status: { $ne: 'deleted' } } },
       isRPC: true
     });
 
@@ -26,16 +26,13 @@ const inventoryMutations = {
       subdomain,
       action: 'find',
       data: {
+        query: { status: { $ne: 'deleted' } },
         limit: productsCount
       },
       isRPC: true
     });
 
-    const productCodes = products.map(p => p.code);
-
-    if (!productCodes) {
-      throw new Error('No product codes found.');
-    }
+    const productCodes = products.map(p => p.code) || [];
 
     const response = await sendRequest({
       url: process.env.ERKHET_URL + '/get-api/',
@@ -53,40 +50,56 @@ const inventoryMutations = {
       throw new Error('Erkhet data not found.');
     }
 
+    const updateProducts: any = [];
+    const createProducts: any = [];
+    const deleteProducts: any = [];
+    let matchedCount = 0;
+
     let result = JSON.parse(response).map(r => r.fields);
+    const resultCodes = result.map(r => r.code) || [];
 
-    const matchedErkhetData = result.filter(r => {
-      if (productCodes.find(p => p === r.code)) {
-        return r;
+    const productByCode = {};
+    for (const product of products) {
+      productByCode[product.code] = product;
+
+      if (!resultCodes.includes(product.code)) {
+        deleteProducts.push(product);
       }
-    });
-    const otherErkhetData = result.filter(r => !matchedErkhetData.includes(r));
+    }
 
-    let otherProducts: any[] = [];
-    for (const code of productCodes) {
-      if (result.every(r => r.code !== code)) {
-        const response = await sendProductsMessage({
-          subdomain,
-          action: 'findOne',
-          data: { code: code },
-          isRPC: true
-        });
-        otherProducts.push(response);
+    for (const resProd of result) {
+      if (productCodes.includes(resProd.code)) {
+        const product = productByCode[resProd.code];
+
+        if (
+          resProd.name === product.name &&
+          resProd.unit_price === product.unitPrice &&
+          resProd.barcodes === (product.barcodes || []).join(',')
+        ) {
+          matchedCount = matchedCount + 1;
+        } else {
+          updateProducts.push(resProd);
+        }
+      } else {
+        createProducts.push(resProd);
       }
     }
 
     return {
       create: {
-        count: otherErkhetData.length,
-        items: otherErkhetData
+        count: createProducts.length,
+        items: createProducts
       },
       update: {
-        count: matchedErkhetData.length,
-        items: matchedErkhetData
+        count: updateProducts.length,
+        items: updateProducts
       },
       delete: {
-        count: otherProducts.length,
-        items: otherProducts
+        count: deleteProducts.length,
+        items: deleteProducts
+      },
+      matched: {
+        count: matchedCount
       }
     };
   },
@@ -98,18 +111,12 @@ const inventoryMutations = {
       throw new Error('Erkhet config not found.');
     }
 
-    const categoriesCount = await sendProductsMessage({
-      subdomain,
-      action: 'categories.count',
-      data: {},
-      isRPC: true
-    });
-
     const categories = await sendProductsMessage({
       subdomain,
       action: 'categories.find',
       data: {
-        limit: categoriesCount
+        query: { status: 'active' },
+        sort: { order: 1 }
       },
       isRPC: true
     });
