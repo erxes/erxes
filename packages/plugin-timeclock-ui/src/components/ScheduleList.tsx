@@ -11,12 +11,13 @@ import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import DatePicker from './DatePicker';
-import { ISchedule, IShift } from '../types';
+import { ISchedule } from '../types';
 
 type Props = {
-  shiftsOfMembers: IShift[];
+  scheduleOfMembers: any;
   queryParams: any;
   history: any;
+  solveSchedule: (absenceId: string, status: string) => void;
   submitRequest: (filledShifts: any) => void;
 };
 
@@ -34,7 +35,16 @@ const FlexRow = styled.div`
 `;
 
 function ScheduleList(props: Props) {
-  const { queryParams, submitRequest } = props;
+  const {
+    queryParams,
+    submitRequest,
+    history,
+    scheduleOfMembers,
+    solveSchedule
+  } = props;
+
+  console.log('111kajshdkajsdh', scheduleOfMembers);
+
   const [key_counter, setKeyCounter] = useState(0);
 
   const trigger = (
@@ -64,7 +74,7 @@ function ScheduleList(props: Props) {
   };
 
   const onSubmitClick = () => {
-    // submitRequest(explanation);
+    submitRequest(Object.values(scheduleDates));
   };
 
   const onUserSelect = userId => {
@@ -162,6 +172,36 @@ function ScheduleList(props: Props) {
     />
   );
 
+  const ListScheduleContent = schedule => {
+    return (
+      <tr>
+        <NameCard user={schedule.user} />
+        <td> {schedule.shifts}</td>
+        <td>
+          {schedule.solved ? (
+            __(schedule.status)
+          ) : (
+            <>
+              <Button
+                disabled={schedule.solved}
+                btnStyle="success"
+                onClick={() => solveSchedule(schedule._id, 'Approved')}
+              >
+                Approve
+              </Button>
+              <Button
+                btnStyle="danger"
+                onClick={() => solveSchedule(schedule._id, 'Rejected')}
+              >
+                Reject
+              </Button>
+            </>
+          )}
+        </td>
+      </tr>
+    );
+  };
+
   const content = (
     <Table>
       <thead>
@@ -172,6 +212,11 @@ function ScheduleList(props: Props) {
           <th>{__('Shift end')}</th>
         </tr>
       </thead>
+      <tbody>
+        {/* {scheduleOfMembers.map(memberSchedule => {
+          ListScheduleContent(memberSchedule);
+        })} */}
+      </tbody>
     </Table>
   );
 

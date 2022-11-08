@@ -23,6 +23,8 @@ type Props = {
   endTime: Date;
   scheduleId: string;
   scheduleStatus: string;
+  shiftId: string;
+  shiftStatus: string;
   requestedShifts: IShift[];
   queryStartDate: Date;
   queryEndDate: Date;
@@ -39,6 +41,7 @@ const ListContainer = (props: FinalProps) => {
     queryParams,
     sendScheduleReqMutation,
     solveScheduleMutation,
+    solveShiftMutation,
     listScheduleQuery
   } = props;
 
@@ -53,6 +56,11 @@ const ListContainer = (props: FinalProps) => {
       variables: { _id: scheduleId, status: `${status}` }
     });
   };
+  const solveShift = (shiftId: string, status: string) => {
+    solveShiftMutation({
+      variables: { _id: shiftId, status: `${status}` }
+    });
+  };
 
   const submitRequest = (requestedShifts: IShift[]) => {
     sendScheduleReqMutation({
@@ -64,11 +72,14 @@ const ListContainer = (props: FinalProps) => {
       .then(() => Alert.success('Successfully sent a schedule request'))
       .catch(err => Alert.error(err.message));
   };
+  console.log('awawawa', listScheduleQuery.schedules);
 
   const updatedProps = {
     ...props,
-    shiftsOfMembers: listScheduleQuery.shifts,
+    scheduleOfMembers: listScheduleQuery.schedules,
     loading: listScheduleQuery.loading,
+    solveSchedule,
+    solveShift,
     submitRequest
   };
   return <ScheduleList {...updatedProps} />;
@@ -110,6 +121,17 @@ export default withProps<Props>(
         variables: {
           _id: scheduleId,
           status: scheduleStatus
+        },
+        refetchQueries: ['listScheduleQuery']
+      })
+    }),
+
+    graphql<Props, ScheduleMutationResponse>(gql(mutations.solveShift), {
+      name: 'solveShiftMutation',
+      options: ({ shiftId, shiftStatus }) => ({
+        variables: {
+          _id: shiftId,
+          status: shiftStatus
         },
         refetchQueries: ['listScheduleQuery']
       })

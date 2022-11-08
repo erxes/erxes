@@ -10,7 +10,10 @@ import {
   IScheduleDocument,
   scheduleSchema,
   timeSchema,
-  absenceSchema
+  absenceSchema,
+  scheduleShiftSchema,
+  IShift,
+  IShiftDocument
 } from './definitions/template';
 
 export interface ITimeModel extends Model<ITimeClockDocument> {
@@ -139,4 +142,44 @@ export const loadScheduleClass = (models: IModels) => {
   scheduleSchema.loadClass(Schedule);
 
   return scheduleSchema;
+};
+
+export interface IShiftModel extends Model<IShiftDocument> {
+  getShift(_id: string): Promise<IShiftDocument>;
+  createShift(doc: IShift): Promise<IShiftDocument>;
+  updateShift(_id: string, doc: IShift): Promise<IShiftDocument>;
+  removeShift(_id: string): void;
+}
+
+export const loadShiftClass = (models: IModels) => {
+  class Shift {
+    // get
+    public static async getShift(_id: string) {
+      const schedule = await models.Shifts.findOne({ _id });
+      if (!schedule) {
+        throw new Error('schedule not found');
+      }
+      return schedule;
+    }
+    // create
+    public static async createShift(doc: IShift) {
+      return models.Shifts.create({
+        ...doc
+      });
+    }
+    // update
+    public static async updateShift(_id: string, doc: IShift) {
+      await models.Shifts.updateOne({ _id }, { $set: { ...doc } }).then(err =>
+        console.error(err)
+      );
+    }
+    // remove
+    public static async removeShift(_id: string) {
+      return models.Shifts.deleteOne({ _id });
+    }
+  }
+
+  scheduleShiftSchema.loadClass(Shift);
+
+  return scheduleShiftSchema;
 };

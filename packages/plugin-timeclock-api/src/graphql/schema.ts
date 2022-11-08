@@ -27,9 +27,13 @@ export const types = `
     shiftEnd: Date
   }
 
-  type ShiftsRequest {
+  type ShiftsRequest @key(fields: "_id"){
+    _id: String
     shiftStart: Date
     shiftEnd: Date
+    solved: Boolean
+    status: String
+    scheduleId: String
   }
 
   type Schedule {
@@ -76,4 +80,5 @@ export const mutations = `
   sendScheduleRequest(${schedule_params}): Schedule
   solveAbsenceRequest(_id: String, status: String): Absence
   solveScheduleRequest(_id: String, status: String): Schedule
+  solveShiftRequest(_id: String, status: String): Schedule
 `;

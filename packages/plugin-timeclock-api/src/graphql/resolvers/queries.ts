@@ -73,35 +73,19 @@ const templateQueries = {
     return models.Templates.find(selector);
   },
 
-  schedules(
+  async schedules(
     _root,
     { startDate, endDate, userId },
     { models, commonQuerySelector }: IContext
   ) {
     const selector: any = { ...commonQuerySelector };
-    // const timeFields = [
-    //   {
-    //     shiftStart: {
-    //       $gte: fixDate(startDate),
-    //       $lte: fixDate(endDate)
-    //     }
-    //   },
-    //   {
-    //     shiftEnd: {
-    //       $gte: fixDate(startDate),
-    //       $lte: fixDate(endDate)
-    //     }
-    //   }
-    // ];
-    // if (startDate && endDate) {
-    //   selector.$or = timeFields;
-    // }
 
     if (userId) {
       selector.userId = userId;
     }
 
-    return models.Schedules.find(selector);
+    const schedules = await models.Schedules.find(selector);
+    return schedules;
   },
 
   timeclockDetail(_root, { _id }: { _id: string }, { models }: IContext) {

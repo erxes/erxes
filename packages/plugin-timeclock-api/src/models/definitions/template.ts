@@ -3,9 +3,12 @@ import { field } from './utils';
 
 export interface ITimeClock {
   userId?: string;
+  solved?: boolean;
+  status?: string;
   shiftStart?: Date;
   shiftEnd?: Date;
 }
+
 export interface ITimeClockDocument extends ITimeClock, Document {
   _id: string;
 }
@@ -20,18 +23,29 @@ export interface IAbsence {
   solved?: boolean;
 }
 
-export interface ISchedule {
-  userId?: string;
-  shifts: ITimeClock[];
-  status: string;
-  solved?: boolean;
-}
-
 export interface IAbsenceDocument extends IAbsence, Document {
   _id: string;
 }
 
+export interface ISchedule {
+  userId?: string;
+  status?: string;
+  solved?: boolean;
+}
+
 export interface IScheduleDocument extends ISchedule, Document {
+  _id: string;
+}
+
+export interface IShift {
+  scheduleId?: string;
+  solved?: boolean;
+  status?: string;
+  shiftStart?: Date;
+  shiftEnd?: Date;
+}
+
+export interface IShiftDocument extends IShift, Document {
   _id: string;
 }
 
@@ -60,25 +74,35 @@ export const absenceSchema = new Schema({
   })
 });
 
-const shiftSchema = new Schema({
+export const scheduleSchema = new Schema({
+  _id: field({ pkey: true }),
+  userId: field({ type: String, label: 'User' }),
+  solved: field({
+    type: Boolean,
+    default: false,
+    label: 'whether schedule request is solved or pending'
+  }),
+  status: field({
+    type: String,
+    label: 'Status of schedule request, whether approved or rejected'
+  })
+});
+
+export const scheduleShiftSchema = new Schema({
+  _id: field({ pkey: true }),
+  scheduleId: field({ type: String, label: 'id of an according schedule' }),
+  solved: field({
+    type: Boolean,
+    default: false,
+    label: 'whether shift is solved or pending'
+  }),
+  status: field({
+    type: String,
+    label: 'Status of shift request, whether approved or rejected'
+  }),
   shiftStart: field({
     type: Date,
     label: 'starting date and time of the shift'
   }),
   shiftEnd: field({ type: Date, label: 'ending date and time of the shift' })
-});
-
-export const scheduleSchema = new Schema({
-  _id: field({ pkey: true }),
-  userId: field({ type: String, label: 'User' }),
-  shifts: [shiftSchema],
-  solved: field({
-    type: Boolean,
-    default: false,
-    label: 'whether absence request is solved or pending'
-  }),
-  status: field({
-    type: String,
-    label: 'Status of absence request, whether approved or rejected'
-  })
 });

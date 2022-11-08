@@ -6,6 +6,7 @@ import {
 import {
   IAbsence,
   ISchedule,
+  IShift,
   ITimeClock
 } from '../../models/definitions/template';
 import { putUpdateLog } from '@erxes/api-utils/src/logUtils';
@@ -25,6 +26,11 @@ interface IScheduleEdit extends ISchedule {
   _id: string;
   status: string;
 }
+
+interface IShiftEdit extends IShift {
+  _id: string;
+}
+
 const templateMutations = {
   /**
    * Creates a new timeclock
@@ -130,12 +136,50 @@ const templateMutations = {
 
     return updated;
   },
+
+  async solveShiftRequest(
+    _root,
+    { _id, status, solved, ...doc }: IShiftEdit,
+    { models, subdomain, user }: IContext
+  ) {
+    const shift = await models.Shifts.getShift(_id);
+    const updated = await models.Shifts.updateShift(_id, {
+      status: `${status}`,
+      solved: true,
+      ...doc
+    });
+
+    await putUpdateLog(
+      subdomain,
+      messageBroker(),
+      {
+        type: 'schedule_shift',
+        object: shift,
+        newData: doc
+      },
+      user
+    );
+
+    return updated;
+  },
+
   async sendScheduleRequest(
     _root,
-    doc: ISchedule,
+    { userId, shifts },
     { models, docModifier }: IContext
   ) {
-    const schedule = models.Schedules.createSchedule(docModifier(doc));
+    const schedule = await models.Schedules.createSchedule({
+      userId: `${userId}`
+    });
+
+    shifts.map(shift => {
+      models.Shifts.createShift({
+        scheduleId: schedule._id,
+        shiftStart: shift.shiftStart,
+        shiftEnd: shift.shiftEnd
+      });
+    });
+
     return schedule;
   }
 };

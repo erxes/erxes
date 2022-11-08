@@ -24,6 +24,11 @@ export interface IShift {
   shiftEnd: Date;
 }
 
+export interface IShiftSchedule {
+  shifts: IShift[];
+  user: IUser;
+}
+
 export interface ISchedule {
   [key: number]: {
     shiftStart: Date;
@@ -44,7 +49,7 @@ export type AbsenceQueryResponse = {
 };
 
 export type ScheduleQueryResponse = {
-  shifts: IShift[];
+  schedules: IShiftSchedule[];
   refetch: () => void;
   loading: boolean;
 };
@@ -91,6 +96,10 @@ export type ScheduleMutationResponse = {
   }) => Promise<any>;
 
   solveScheduleMutation: (params: {
+    variables: { _id: string; status: string };
+  }) => Promise<any>;
+
+  solveShiftMutation: (params: {
     variables: { _id: string; status: string };
   }) => Promise<any>;
 };
