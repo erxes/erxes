@@ -124,6 +124,41 @@ const configQueries = {
     { models }: IContext
   ) {
     return models.Configs.findOne({ code });
+  },
+
+  async configsGetInstallationStatus(
+    _root,
+    { name }: { name: string },
+    { models }: IContext
+  ) {
+    const names = await getServices();
+
+    if (names.includes(name)) {
+      return { status: 'installed' };
+    }
+
+    const isExisting = await models.InstallationLogs.findOne({
+      pluginName: name
+    });
+
+    if (!isExisting) {
+      return { status: 'notExisting' };
+    }
+
+    const isDone = await models.InstallationLogs.findOne({
+      pluginName: name,
+      message: 'done'
+    });
+
+    if (isDone) {
+      return { status: 'installed' };
+    }
+
+    const lastLog = await models.InstallationLogs.findOne({
+      pluginName: name
+    }).sort({ date: -1 });
+
+    return { status: 'installing', lastLogMessage: lastLog?.message };
   }
 };
 

@@ -555,6 +555,7 @@ async function startServer() {
     configs.onServerInit({
       db,
       app,
+      redis,
       pubsubClient: pubsub,
       messageBrokerClient,
       debug: {

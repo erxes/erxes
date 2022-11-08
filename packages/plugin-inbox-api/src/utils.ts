@@ -21,7 +21,7 @@ export const getIntegrationsKinds = async () => {
 
   const response = {
     messenger: 'Messenger',
-    lead: 'Lead',
+    lead: 'Popups & forms',
     webhook: 'Webhook',
     booking: 'Booking',
     'facebook-post': 'Facebook post',

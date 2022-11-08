@@ -37,6 +37,7 @@ export default {
       };
 
       let colIndex: number = 0;
+      let barcodes = [];
       let subUomNames = [];
       let ratios = [];
 
@@ -56,7 +57,9 @@ export default {
                 subdomain,
                 action: 'fields.prepareCustomFieldsData',
                 data: doc.customFieldsData,
-                isRPC: true
+                isRPC: true,
+                defaultValue: doc.customFieldsData,
+                timeout: 60 * 1000 // 1 minute
               });
             }
             break;
@@ -95,6 +98,12 @@ export default {
               doc.tagIds = tag ? [tag._id] : [];
             }
 
+            break;
+
+          case 'barcodes':
+            {
+              barcodes = value.split(',');
+            }
             break;
 
           case 'subUoms.uomId':
