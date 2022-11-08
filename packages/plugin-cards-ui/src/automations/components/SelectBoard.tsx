@@ -4,7 +4,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import Icon from '@erxes/ui/src/components/Icon';
-import { Attributes } from '../styles';
+import { Attributes } from '@erxes/ui-automations/src/components/forms/actions/styles';
 import { IStage } from '@erxes/ui-cards/src/boards/types';
 import { queries as boardQueries } from '@erxes/ui-cards/src/boards/graphql';
 import gql from 'graphql-tag';

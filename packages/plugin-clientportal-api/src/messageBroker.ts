@@ -60,6 +60,17 @@ export const initBroker = async cl => {
     }
   );
 
+  /**
+   * Send notification to client portal
+   * @param {Object} data
+   * @param {String[]} data.receivers // client portal user ids
+   * @param {String} data.title // notification title
+   * @param {String} data.content // notification content
+   * @param {String} data.notifType // notification type could be "system" or "engage"
+   * @param {String} data.link // notification link
+   * @param {Object} data.createdUser // user who created this notification
+   * @param {Boolean} data.isMobile // is mobile notification
+   */
   consumeQueue('clientportal:sendNotification', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     await sendNotification(models, subdomain, data);
