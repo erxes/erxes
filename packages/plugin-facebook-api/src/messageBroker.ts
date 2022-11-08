@@ -1,6 +1,8 @@
 import * as dotenv from 'dotenv';
 
 import {
+  facebookCreateIntegration,
+  facebookGetCustomerPosts,
   removeAccount,
   removeCustomers,
   removeIntegration,
@@ -8,10 +10,6 @@ import {
 } from './helpers';
 import { handleFacebookMessage } from './handleFacebookMessage';
 import { userIds } from './middlewares/userMiddleware';
-import {
-  facebookCreateIntegration,
-  facebookGetCustomerPosts
-} from './controller';
 
 import {
   ISendMessageArgs,
@@ -139,10 +137,14 @@ export const initBroker = async cl => {
     async ({ subdomain, data: { doc, kind } }) => {
       const models = await generateModels(subdomain);
 
-      switch (kind) {
-        case 'facebook':
-          return facebookCreateIntegration(models, doc);
+      if (kind === 'facebook') {
+        return facebookCreateIntegration(models, doc);
       }
+
+      return {
+        status: 'error',
+        data: 'Wrong kind'
+      };
     }
   );
 

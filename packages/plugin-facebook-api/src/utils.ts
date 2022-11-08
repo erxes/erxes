@@ -1,9 +1,10 @@
 import * as graph from 'fbgraph';
+import { FacebookAdapter } from 'botbuilder-adapter-facebook-erxes';
 
 import { IModels } from './connectionResolver';
-import { debugError, debugFacebook } from './debuggers';
+import { debugBase, debugError, debugFacebook } from './debuggers';
 import { IIntegrationDocument } from './models/Integrations';
-import { generateAttachmentUrl } from './commonUtils';
+import { generateAttachmentUrl, getConfig } from './commonUtils';
 import { IAttachment, IAttachmentMessage } from './types';
 
 export const graphRequest = {
@@ -330,4 +331,26 @@ export const checkFacebookPages = async (models: IModels, pages: any) => {
   }
 
   return pages;
+};
+
+export const getAdapter = async (models: IModels): Promise<any> => {
+  const accessTokensByPageId = {};
+
+  const FACEBOOK_VERIFY_TOKEN = await getConfig(
+    models,
+    'FACEBOOK_VERIFY_TOKEN'
+  );
+  const FACEBOOK_APP_SECRET = await getConfig(models, 'FACEBOOK_APP_SECRET');
+
+  if (!FACEBOOK_VERIFY_TOKEN || !FACEBOOK_APP_SECRET) {
+    return debugBase('Invalid facebook config');
+  }
+
+  return new FacebookAdapter({
+    verify_token: FACEBOOK_VERIFY_TOKEN,
+    app_secret: FACEBOOK_APP_SECRET,
+    getAccessTokenForPage: async (pageId: string) => {
+      return accessTokensByPageId[pageId];
+    }
+  });
 };

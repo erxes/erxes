@@ -1,131 +1,14 @@
-import { FacebookAdapter } from 'botbuilder-adapter-facebook-erxes';
-
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { debugBase, debugError, debugFacebook } from './debuggers';
-import { getConfig, getEnv, sendRequest } from './commonUtils';
+
+import { debugError, debugFacebook } from './debuggers';
+import { getConfig } from './commonUtils';
 import loginMiddleware from './middlewares/loginMiddleware';
 import receiveComment from './receiveComment';
 import receiveMessage from './receiveMessage';
 import receivePost from './receivePost';
-
 import { FACEBOOK_POST_TYPES, INTEGRATION_KINDS } from './constants';
-import {
-  getPageAccessToken,
-  getPageAccessTokenFromMap,
-  subscribePage
-} from './utils';
-import { generateModels, IModels } from './connectionResolver';
-
-export const facebookCreateIntegration = async (
-  models: IModels,
-  { accountId, integrationId, data, kind }
-) => {
-  const facebookPageIds = JSON.parse(data).pageIds;
-
-  const account = await models.Accounts.getAccount({ _id: accountId });
-
-  const integration = await models.Integrations.create({
-    kind,
-    accountId,
-    erxesApiId: integrationId,
-    facebookPageIds
-  });
-
-  const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
-
-  if (ENDPOINT_URL) {
-    // send domain to core endpoints
-    try {
-      await sendRequest({
-        url: `${ENDPOINT_URL}/register-endpoint`,
-        method: 'POST',
-        body: {
-          domain: `${DOMAIN}/gateway/pl:facebook`,
-          facebookPageIds,
-          fbPageIds: facebookPageIds
-        }
-      });
-    } catch (e) {
-      await models.Integrations.deleteOne({ _id: integration._id });
-      throw e;
-    }
-  }
-
-  const facebookPageTokensMap: { [key: string]: string } = {};
-
-  for (const pageId of facebookPageIds) {
-    try {
-      const pageAccessToken = await getPageAccessToken(pageId, account.token);
-
-      facebookPageTokensMap[pageId] = pageAccessToken;
-
-      try {
-        await subscribePage(pageId, pageAccessToken);
-        debugFacebook(`Successfully subscribed page ${pageId}`);
-      } catch (e) {
-        debugError(
-          `Error ocurred while trying to subscribe page ${e.message || e}`
-        );
-        throw e;
-      }
-    } catch (e) {
-      debugError(
-        `Error ocurred while trying to get page access token with ${e.message ||
-          e}`
-      );
-
-      throw e;
-    }
-  }
-
-  integration.facebookPageTokensMap = facebookPageTokensMap;
-
-  await integration.save();
-
-  return { status: 'success' };
-};
-
-export const facebookGetCustomerPosts = async (
-  models: IModels,
-  { customerId }
-) => {
-  const customer = await models.Customers.findOne({ erxesApiId: customerId });
-
-  if (!customer) {
-    return null;
-  }
-
-  const result = await models.Comments.aggregate([
-    { $match: { senderId: customer.userId } },
-    {
-      $lookup: {
-        from: 'posts_facebooks',
-        localField: 'postId',
-        foreignField: 'postId',
-        as: 'post'
-      }
-    },
-    {
-      $unwind: {
-        path: '$post',
-        preserveNullAndEmptyArrays: true
-      }
-    },
-    {
-      $addFields: {
-        conversationId: '$post.erxesApiId'
-      }
-    },
-    {
-      $project: { _id: 0, conversationId: 1 }
-    }
-  ]);
-
-  const conversationIds = result.map(conv => conv.conversationId);
-
-  return conversationIds;
-};
+import { getAdapter, getPageAccessTokenFromMap } from './utils';
+import { generateModels } from './connectionResolver';
 
 const init = async app => {
   app.get('/fblogin', loginMiddleware);
@@ -142,9 +25,7 @@ const init = async app => {
 
     const post = await models.Posts.getPost({ erxesApiId }, true);
 
-    return res.json({
-      ...post
-    });
+    return res.json({ ...post });
   });
 
   app.get('/facebook/get-status', async (req, res) => {
@@ -172,26 +53,6 @@ const init = async app => {
   });
 
   const accessTokensByPageId = {};
-
-  const getAdapter = async (models: IModels): Promise<any> => {
-    const FACEBOOK_VERIFY_TOKEN = await getConfig(
-      models,
-      'FACEBOOK_VERIFY_TOKEN'
-    );
-    const FACEBOOK_APP_SECRET = await getConfig(models, 'FACEBOOK_APP_SECRET');
-
-    if (!FACEBOOK_VERIFY_TOKEN || !FACEBOOK_APP_SECRET) {
-      return debugBase('Invalid facebook config');
-    }
-
-    return new FacebookAdapter({
-      verify_token: FACEBOOK_VERIFY_TOKEN,
-      app_secret: FACEBOOK_APP_SECRET,
-      getAccessTokenForPage: async (pageId: string) => {
-        return accessTokensByPageId[pageId];
-      }
-    });
-  };
 
   // Facebook endpoint verifier
   app.get('/facebook/receive', async (req, res) => {
