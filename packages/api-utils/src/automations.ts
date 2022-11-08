@@ -1,4 +1,5 @@
 import * as moment from 'moment';
+import { pluralFormation } from './commonUtils';
 
 export const replacePlaceHolders = async ({
   models,
@@ -118,16 +119,23 @@ export const OPERATORS = {
 const getPerValue = async (args: {
   models;
   subdomain;
-  conformity;
+  relatedItem;
   rule;
   target;
   getRelatedValue;
 }) => {
-  const { models, subdomain, conformity, rule, target, getRelatedValue } = args;
+  const {
+    models,
+    subdomain,
+    relatedItem,
+    rule,
+    target,
+    getRelatedValue
+  } = args;
   const { field, operator, value } = rule;
-  const op1Type = typeof conformity[field];
+  const op1Type = typeof relatedItem[field];
 
-  let op1 = conformity[field];
+  let op1 = relatedItem[field];
 
   let updatedValue = (
     await replacePlaceHolders({
@@ -207,140 +215,22 @@ const getPerValue = async (args: {
   return updatedValue;
 };
 
-const replaceServiceTypes = value => {
-  return value.replace('cards:', '').replace('contacts:', '');
-};
-
-const getRelatedTargets = async (
-  subdomain,
-  triggerType,
-  action,
-  execution,
-  sendCommonMessage
-) => {
-  const { config } = action;
-  const { target } = execution;
-
-  const { module } = config;
-
-  if (module === triggerType) {
-    return [target];
-  }
-
-  if (
-    triggerType === 'inbox:conversation' &&
-    ['cards:task', 'cards:ticket', 'cards:deal'].includes(module)
-  ) {
-    return sendCommonMessage({
-      subdomain,
-      serviceName: 'cards',
-      action: `${module.replace('cards:', '')}s.find`,
-      data: {
-        sourceConversationIds: { $in: [target._id] }
-      },
-      isRPC: true
-    });
-  }
-
-  if (
-    ['contacts:customer', 'contacts:lead'].includes(triggerType) &&
-    target.isFormSubmission &&
-    ['cards:task', 'cards:ticket', 'cards:deal'].includes(module)
-  ) {
-    return sendCommonMessage({
-      subdomain,
-      serviceName: 'cards',
-      action: `${module.replace('cards:', '')}s.find`,
-      data: {
-        sourceConversationIds: { $in: [target.conversationId] }
-      },
-      isRPC: true
-    });
-  }
-
-  if (
-    triggerType === 'inbox:conversation' &&
-    ['contacts:customer', 'contacts:company'].includes(module)
-  ) {
-    return sendCommonMessage({
-      subdomain,
-      serviceName: 'contacts',
-      action: `${module.includes('customer') ? 'customers' : 'companies'}.find`,
-      data: {
-        _id: target[module.includes('customer') ? 'customerId' : 'companyId']
-      },
-      isRPC: true
-    });
-  }
-
-  if (
-    [
-      'cards:task',
-      'cards:ticket',
-      'cards:deal',
-      'contacts:customer',
-      'contacts:company'
-    ].includes(triggerType) &&
-    [
-      'cards:task',
-      'cards:ticket',
-      'cards:deal',
-      'contacts:customer',
-      'contacts:company'
-    ].includes(module)
-  ) {
-    const relType = replaceServiceTypes(module);
-
-    const relTypeIds = await sendCommonMessage({
-      subdomain,
-      serviceName: 'core',
-      action: 'conformities.savedConformity',
-      data: {
-        mainType: replaceServiceTypes(triggerType),
-        mainTypeId: target._id,
-        relTypes: [relType]
-      },
-      isRPC: true
-    });
-
-    const [serviceName, collectionType] = module.split(':');
-
-    return sendCommonMessage({
-      subdomain,
-      serviceName,
-      action: `${collectionType}s.find`,
-      data: { _id: { $in: relTypeIds } },
-      isRPC: true
-    });
-  }
-
-  return [];
-};
-
 export const setProperty = async ({
   models,
   subdomain,
-  action,
+  module,
+  rules,
   execution,
   getRelatedValue,
-  triggerType,
+  relatedItems,
   sendCommonMessage
 }) => {
-  const { module, rules } = action.config;
   const { target } = execution;
   const [serviceName, collectionType] = module.split(':');
 
   const result: any[] = [];
 
-  const conformities = await getRelatedTargets(
-    subdomain,
-    triggerType,
-    action,
-    execution,
-    sendCommonMessage
-  );
-
-  for (const conformity of conformities) {
+  for (const relatedItem of relatedItems) {
     const setDoc = {};
     const pushDoc = {};
 
@@ -348,7 +238,7 @@ export const setProperty = async ({
       const value = await getPerValue({
         models,
         subdomain,
-        conformity,
+        relatedItem,
         rule,
         target,
         getRelatedValue
@@ -393,8 +283,8 @@ export const setProperty = async ({
     const response = await sendCommonMessage({
       subdomain,
       serviceName,
-      action: `${collectionType}s.updateMany`,
-      data: { selector: { _id: conformity._id }, modifier },
+      action: `${pluralFormation(collectionType)}.updateMany`,
+      data: { selector: { _id: relatedItem._id }, modifier },
       isRPC: true
     });
 
@@ -404,7 +294,7 @@ export const setProperty = async ({
     }
 
     result.push({
-      _id: conformity._id,
+      _id: relatedItem._id,
       rules: (Object as any)
         .values(setDoc)
         .map(v => String(v))

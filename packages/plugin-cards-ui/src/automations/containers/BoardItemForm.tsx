@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { withProps } from '@erxes/ui/src/utils';
-import BoardItemForm from '../../../../components/forms/actions/subForms/BoardItemForm';
-import { IAction } from '../../../../types';
+import BoardItemForm from '../components/BoardItemForm';
+import { IAction } from '@erxes/ui-automations/src/types';
 import { graphql } from 'react-apollo';
 import { queries as teamQueries } from '@erxes/ui/src/team/graphql';
 import { queries as pipelineQuery } from '@erxes/ui-cards/src/boards/graphql';
