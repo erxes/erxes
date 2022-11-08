@@ -72,7 +72,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadConfigClass(models)
   );
   models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>(
-    'integrations',
+    'facebook_integrations',
     loadIntegrationClass(models)
   );
   models.Logs = db.model<ILogDocument, ILogModel>('logs', loadLogClass(models));
