@@ -270,7 +270,7 @@ export const listenIntegration = async (
   });
 
   imap.once('end', function(e) {
-    console.log('Connection ended', e.message);
+    console.log('Connection ended', e);
   });
 
   imap.connect();
