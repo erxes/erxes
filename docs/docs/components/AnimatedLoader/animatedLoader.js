@@ -3,7 +3,7 @@ import AnimatedLoader from "erxes-ui/lib/components/AnimatedLoader";
 import styles from "../../../src/components/styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
 import Table from "erxes-ui/lib/components/table/index";
-import { colors } from "../../../../dashboard-ui/src/modules/common/styles/index";
+import colors from "erxes-ui/lib/styles/colors";
 import { renderApiTable } from "../common.js";
 
 export function AnimatedLoaderComponent(props) {
