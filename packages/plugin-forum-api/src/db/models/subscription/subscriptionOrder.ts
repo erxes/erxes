@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 import { TimeDurationUnit, TIME_DURATION_UNITS } from '../../../consts';
 import { ICpUser } from '../../../graphql';
 import { LoginRequiredError } from '../../../customErrors';
+import * as moment from 'moment';
 
 export interface ISubscriptionOrder {
   _id: any;
@@ -38,10 +39,19 @@ export interface ISubscriptionOrderModel
     subscriptionProductId: string,
     user?: ICpUser | null
   ): Promise<SubscriptionOrderDocument>;
+
+  cpCompleteSubscriptionOrder(
+    subscriptionOrderId: string,
+    invoiceId: string
+  ): Promise<boolean>;
 }
 
 export const subscriptionOrderSchema = new Schema<SubscriptionOrderDocument>({
-  invoiceId: String,
+  invoiceId: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
   invoiceAt: Date,
 
   paymentConfirmed: Boolean,
@@ -76,6 +86,7 @@ export const subscriptionOrderSchema = new Schema<SubscriptionOrderDocument>({
     default: () => new Date()
   }
 });
+subscriptionOrderSchema.index({ invoiceId: 1 }, { unique: true });
 
 export const generateSubscriptionOrderModel = (
   subdomain: string,
@@ -136,6 +147,49 @@ export const generateSubscriptionOrderModel = (
       });
 
       return doc;
+    }
+
+    public static async cpCompleteSubscriptionOrder(
+      subscriptionOrderId: string,
+      invoiceId: string
+    ): Promise<boolean> {
+      const existing = await models.SubscriptionOrder.findOne({
+        invoiceId,
+        paymentConfirmed: true
+      });
+
+      if (existing) {
+        if (existing._id.toString() === subscriptionOrderId.toString()) {
+          throw new Error(`This order has already been completed`);
+        } else {
+          throw new Error(
+            `This payment has been already used to complete another order`
+          );
+        }
+      }
+
+      const order = await models.SubscriptionOrder.findByIdOrThrow(
+        subscriptionOrderId
+      );
+      order.invoiceId = invoiceId;
+      await order.save();
+
+      const user = await models.ForumClientPortalUser.findByIdOrCreate(
+        order.cpUserId
+      );
+
+      const duration = moment.duration(order.multiplier, order.unit);
+
+      const extendFrom = user.subscriptionEndsAfter
+        ? moment(user.subscriptionEndsAfter)
+        : moment();
+
+      extendFrom.add(duration);
+
+      user.subscriptionEndsAfter = extendFrom.toDate();
+      await user.save();
+
+      return true;
     }
   }
   subscriptionOrderSchema.loadClass(SubscriptionOrderModel);

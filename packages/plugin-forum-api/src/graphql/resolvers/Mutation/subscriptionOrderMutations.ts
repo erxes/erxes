@@ -11,6 +11,16 @@ const subscriptionOrderMutations: IObjectTypeResolver<any, IContext> = {
       subscriptionProductId,
       cpUser
     );
+  },
+  forumCpCompleteSubscriptionOrder(
+    _,
+    { subscriptionOrderId, invoiceId },
+    { models: { SubscriptionOrder } }
+  ) {
+    return SubscriptionOrder.cpCompleteSubscriptionOrder(
+      subscriptionOrderId,
+      invoiceId
+    );
   }
 };
 
