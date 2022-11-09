@@ -14,6 +14,11 @@ import { generateVoteModels, VoteModel } from './vote';
 import { IPermissionGroupModel } from './permissionGroupModels/permissionGroup';
 import { IPermissionGroupUserModel } from './permissionGroupModels/permissionGroupUser';
 import { IPermissionGroupCategoryPermitModel } from './permissionGroupModels/permissionGroupCategoryPermit';
+import {
+  generateSubscriptionProductModel,
+  ISubscriptionProductModel
+} from './subscription/subscriptionProduct';
+import { ISubscriptionOrderModel } from './subscription/subscriptionOrder';
 
 export interface IModels {
   Category: ICategoryModel;
@@ -28,6 +33,8 @@ export interface IModels {
   PermissionGroupUser: IPermissionGroupUserModel;
   PermissionGroupCategoryPermit: IPermissionGroupCategoryPermitModel;
   FollowCpUser: IFollowCpUserModel;
+  SubscriptionProduct: ISubscriptionProductModel;
+  SubscriptionOrder: ISubscriptionOrderModel;
 }
 
 export let models: IModels | null = null;
@@ -43,6 +50,7 @@ export const generateModels = createGenerateModels<IModels>(
     generateForumClientPortalUserModel(subdomain, connection, models);
     generateUserGroupModels(subdomain, connection, models);
     generateFollowCpUserModel(subdomain, connection, models);
+    generateSubscriptionProductModel(subdomain, connection, models);
     return models;
   }
 );

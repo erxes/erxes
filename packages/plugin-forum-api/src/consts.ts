@@ -32,3 +32,33 @@ export const PERMISSIONS = [
   'WRITE_COMMENT'
 ] as const;
 export type Permissions = typeof PERMISSIONS[number];
+
+/**
+years = y
+months = M
+weeks = w
+days = d
+hours = h
+minutes = m
+seconds = s
+milliseconds = ms
+ */
+export const TIME_DURATION_UNITS = [
+  'seconds',
+  'minutes',
+  'hours',
+  'days',
+  'weeks',
+  'months',
+  'years',
+  'y',
+  'M',
+  'w',
+  'd',
+  'h',
+  'm',
+  's',
+  'ms'
+] as const;
+
+export type TimeDurationUnit = typeof TIME_DURATION_UNITS[number];
