@@ -32,8 +32,6 @@ const participantMutations = {
       defaultValue: null
     });
 
-    console.log('cpUser', cpUser);
-
     if (cpUser) {
       sendClientPortalMessage({
         subdomain,
@@ -203,7 +201,7 @@ const participantMutations = {
       throw new Error('Deal not found');
     }
 
-    const cpUser = await sendClientPortalMessage({
+    const winner = await sendClientPortalMessage({
       subdomain,
       action: 'clientPortalUsers.findOne',
       data: {
@@ -214,14 +212,17 @@ const participantMutations = {
       defaultValue: null
     });
 
-    if (cpUser && cpUser.deviceTokens && cpUser.deviceTokens.length > 0) {
-      sendCoreMessage({
-        subdomain: subdomain,
-        action: 'sendMobileNotification',
+    if (winner) {
+      sendClientPortalMessage({
+        subdomain,
+        action: 'sendNotification',
         data: {
           title: 'Баяр хүргэе',
-          body: `Таны илгээсэн үнийн санал баталгаажиж,  ${deal.name} дугаартай тээврийн ажилд та сонгогдлоо !`,
-          deviceTokens: cpUser.deviceTokens
+          content: `Таны илгээсэн үнийн санал баталгаажиж,  ${deal.name} дугаартай тээврийн ажилд та сонгогдлоо !`,
+          receivers: [winner._id],
+          notifType: 'system',
+          link: ``,
+          isMobile: true
         }
       });
     }
@@ -239,25 +240,18 @@ const participantMutations = {
       });
 
       if (cpUsers && cpUsers.length > 0) {
-        const deviceTokens = cpUsers.reduce((acc, cpUser) => {
-          if (cpUser.deviceTokens && cpUser.deviceTokens.length > 0) {
-            return [...acc, ...cpUser.deviceTokens];
+        sendClientPortalMessage({
+          subdomain,
+          action: 'sendNotification',
+          data: {
+            title: 'Үнийн санал илгээсэн танд баярлалаа.',
+            content: `${deal.name} дугаартай тээврийн ажилд өөр тээвэрчин сонгогдсон байна.`,
+            receivers: cpUsers.map(u => u._id),
+            notifType: 'system',
+            link: ``,
+            isMobile: true
           }
-
-          return acc;
-        }, []);
-
-        if (deviceTokens.length > 0) {
-          sendCoreMessage({
-            subdomain: subdomain,
-            action: 'sendMobileNotification',
-            data: {
-              title: 'Үнийн санал илгээсэн танд баярлалаа.',
-              body: `${deal.name} дугаартай тээврийн ажилд өөр тээвэрчин сонгогдсон байна.`,
-              deviceTokens
-            }
-          });
-        }
+        });
       }
     }
 

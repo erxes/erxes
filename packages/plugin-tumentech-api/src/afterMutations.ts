@@ -1,8 +1,7 @@
 import {
-  sendCoreMessage,
   sendCardsMessage,
-  sendContactsMessage,
-  sendClientPortalMessage
+  sendClientPortalMessage,
+  sendContactsMessage
 } from './messageBroker';
 
 export default {
@@ -50,17 +49,16 @@ export const afterMutationHandlers = async (subdomain, params) => {
           defaultValue: []
         });
 
-        const deviceTokens: string[] = [];
-
-        deviceTokens.push(...cpUsers.map(user => user.deviceTokens));
-
-        sendCoreMessage({
-          subdomain: subdomain,
-          action: 'sendMobileNotification',
+        sendClientPortalMessage({
+          subdomain,
+          action: 'sendNotification',
           data: {
             title: 'Шинэ зар орлоо',
-            body: 'Шинэ ажлын зар орсон байна!',
-            deviceTokens
+            content: 'Шинэ ажлын зар орсон байна!',
+            receivers: cpUsers.map(u => u._id),
+            notifType: 'system',
+            link: ``,
+            isMobile: true
           }
         });
       }
