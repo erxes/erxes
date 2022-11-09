@@ -19,7 +19,6 @@ Before going any further into this user guide, we recommend you acknowledge the 
 
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/Pricing+plan.png
 " width="80%" alt="Pricing plan" ></img>
-</div>
 
 erxes provides 3 different packages for our clients, which include:
 

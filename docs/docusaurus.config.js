@@ -62,11 +62,19 @@ const config = {
             items: [
               {
                 label: 'Developer Docs',
-                to: '/docs/intro',
+                to: '#',
                 className: 'bold'
               },
               {
+                label: 'Getting started',
+                to: '/docs/intro'
+              },
+              {
                 label: 'Setup & Deployment',
+                to: '/docs/category/setup--deployment/'
+              },
+              {
+                label: 'Development',
                 to: '/docs/category/setup--deployment/'
               },
               {
@@ -79,8 +87,12 @@ const config = {
               },
               {
                 label: 'User guide',
-                to: '/docs/user-guide/',
+                to: '#',
                 className: 'bold'
+              },
+              {
+                label: 'Getting started',
+                to: '/docs/user-guide/'
               },
               {
                 label: 'XOS',
@@ -139,6 +151,10 @@ const config = {
               { label: 'Resources', to: '#', className: 'bold' },
                 
               { label: 'Use-cases', to: '/docs/user-guide/use-case/' },
+              {
+                label: 'Plugin tutorial',
+                to: 'https://erxes.io/marketplace'
+              }
             ]
           },
 
