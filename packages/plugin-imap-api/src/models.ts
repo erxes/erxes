@@ -104,7 +104,8 @@ export interface IIntegration {
   inboxId: string;
   host: string;
   smtpHost: string;
-  smtpPort: String;
+  smtpPort: string;
+  mainUser: string;
   user: string;
   password: string;
 }
@@ -117,6 +118,7 @@ export const integrationSchema = new Schema({
   host: String,
   smtpHost: String,
   smtpPort: String,
+  mainUser: String,
   user: String,
   password: String
 });

@@ -29,7 +29,7 @@ export const findAttachmentParts = (struct, attachments?) => {
 
 export const generateImap = (integration: IIntegrationDocument) => {
   return new Imap({
-    user: integration.user,
+    user: integration.mainUser || integration.user,
     password: integration.password,
     host: integration.host,
     keepalive: { forceNoop: true },

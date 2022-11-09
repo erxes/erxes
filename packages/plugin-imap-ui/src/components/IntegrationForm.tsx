@@ -24,6 +24,7 @@ class IntegrationForm extends React.Component<Props> {
     host: string;
     smtpHost: string;
     smtpPort: string;
+    mainUser: string;
     user: string;
     password: string;
     brandId: string;
@@ -36,6 +37,7 @@ class IntegrationForm extends React.Component<Props> {
         host: values.host,
         smtpHost: values.smtpHost,
         smtpPort: values.smtpPort,
+        mainUser: values.mainUser,
         user: values.user,
         password: values.password
       }
@@ -45,19 +47,21 @@ class IntegrationForm extends React.Component<Props> {
   renderField = ({
     label,
     name,
-    formProps
+    formProps,
+    required = true
   }: {
     label: string;
     name: string;
     formProps: IFormProps;
+    required?: boolean;
   }) => {
     return (
       <FormGroup>
-        <ControlLabel required={true}>{label}</ControlLabel>
+        <ControlLabel required={required}>{label}</ControlLabel>
         <FormControl
           {...formProps}
           name={name}
-          required={true}
+          required={required}
           autoFocus={name === 'name'}
         />
       </FormGroup>
@@ -93,6 +97,12 @@ class IntegrationForm extends React.Component<Props> {
         {this.renderField({ label: 'Host', name: 'host', formProps })}
         {this.renderField({ label: 'Smpt host', name: 'smtpHost', formProps })}
         {this.renderField({ label: 'Smpt port', name: 'smtpPort', formProps })}
+        {this.renderField({
+          label: 'Main user (for a mail with aliases)',
+          name: 'mainUser',
+          required: false,
+          formProps
+        })}
         {this.renderField({
           label: 'User',
           name: 'user',
