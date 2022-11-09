@@ -119,8 +119,9 @@ const generatePluginBlock = (configs, plugin) => {
   return conf;
 };
 
-const syncUI = async ({ name, ui_location }) => {
+const syncUI = async ({ name, image_tag, ui_location }) => {
   const configs = await fse.readJSON(filePath('configs.json'));
+  const tag = image_tag || configs.image_tag
 
   const plName = `plugin-${name}-ui`;
 
@@ -137,13 +138,13 @@ const syncUI = async ({ name, ui_location }) => {
 
     let s3_location = '';
 
-    if (!configs.image_tag) {
+    if (!tag) {
       s3_location = `https://erxes-plugins.s3.us-west-2.amazonaws.com/uis/${plName}`;
     } else {
-      if (configs.image_tag === 'dev') {
+      if (tag === 'dev') {
         s3_location = `https://erxes-dev-plugins.s3.us-west-2.amazonaws.com/uis/${plName}`;
       } else {
-        s3_location = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/uis/${plName}/${configs.image_tag}`;
+        s3_location = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/uis/${plName}/${tag}`;
       }
     }
 

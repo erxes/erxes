@@ -29,7 +29,7 @@ export const findAttachmentParts = (struct, attachments?) => {
 
 export const generateImap = (integration: IIntegrationDocument) => {
   return new Imap({
-    user: integration.user,
+    user: integration.mainUser || integration.user,
     password: integration.password,
     host: integration.host,
     keepalive: { forceNoop: true },
@@ -100,6 +100,16 @@ const saveMessages = async (
   const msgs: any = await searchMessages(imap, criteria);
 
   for (const msg of msgs) {
+    if (
+      msg.to &&
+      msg.to.value &&
+      msg.to.value[0] &&
+      msg.to.value[0].address !== integration.user
+    ) {
+      console.log('ignoring ', msg.to, integration.user);
+      continue;
+    }
+
     const message = await models.Messages.findOne({
       messageId: msg.messageId
     });
@@ -259,8 +269,8 @@ export const listenIntegration = async (
     console.log('on imap.once =============', e);
   });
 
-  imap.once('end', function() {
-    console.log('Connection ended');
+  imap.once('end', function(e) {
+    console.log('Connection ended', e);
   });
 
   imap.connect();
