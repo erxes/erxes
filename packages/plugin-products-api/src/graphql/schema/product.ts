@@ -47,6 +47,8 @@ export const types = (tagsAvailable, contactsAvailable) => `
     type: String
     description: String
     sku: String
+    barcodes: [String]
+    barcodeDescription: String
     unitPrice: Float
     categoryId: String
     customFieldsData: JSON
@@ -66,11 +68,6 @@ export const types = (tagsAvailable, contactsAvailable) => `
     category: ProductCategory
     ${contactsAvailable ? 'vendor: Company' : ''}
   }
-
-  type ProductsListResponse {
-    list: [Product],
-    totalCount: Float,
-  }
 `;
 
 const productParams = `
@@ -79,6 +76,8 @@ const productParams = `
   type: String,
   description: String,
   sku: String,
+  barcodes: [String],
+  barcodeDescription: String,
   unitPrice: Float,
   code: String,
   customFieldsData: JSON,
@@ -94,12 +93,12 @@ const productParams = `
   tag: String,
   searchValue: String,
   perPage: Int,
-  page: Int, 
+  page: Int,
   ids: [String],
   excludeIds: Boolean,
   pipelineId: String,
   boardId: String,
-  subUoms: JSON
+  subUoms: JSON,
 `;
 
 const productCategoryParams = `
@@ -115,10 +114,8 @@ export const queries = `
   productCategories(parentId: String, searchValue: String, status: String): [ProductCategory]
   productCategoriesTotalCount: Int
   productCategoryDetail(_id: String): ProductCategory
-
   products(${productParams}): [Product]
-  productsMain(${productParams}): ProductsListResponse
-  productsTotalCount(type: String): Int
+  productsTotalCount(type: String, segment: String, segmentData: String): Int
   productsGroupCounts(${productParams}, only: String): JSON
   productDetail(_id: String): Product
   productCountByTags: JSON

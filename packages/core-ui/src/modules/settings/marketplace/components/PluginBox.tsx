@@ -18,7 +18,6 @@ import { __ } from 'modules/common/utils';
 type Props = {
   plugin: any;
   plugins: any[];
-  isAddon?: boolean;
   isOpenSource?: boolean;
 };
 
@@ -55,8 +54,9 @@ class PluginBox extends React.Component<Props, {}> {
   }
 
   renderFooterLeftItems() {
-    const { isAddon, plugin } = this.props;
-    if (isAddon) {
+    const { plugin } = this.props;
+
+    if (plugin.mainType === 'power-up') {
       return (
         <AddOns>
           <span>{__('Works with')}</span>
@@ -80,15 +80,11 @@ class PluginBox extends React.Component<Props, {}> {
   }
 
   render() {
-    const { plugin, isAddon } = this.props;
-
-    if (!plugin || (isAddon && !plugin.selfHosted)) {
-      return null;
-    }
+    const { plugin } = this.props;
 
     return (
       <ItemBox>
-        <Link to={`installer/details/${plugin._id}`}>
+        <Link to={`marketplace/details/${plugin._id}`}>
           <PluginContent>
             <PluginBoxHeader>
               <div className="image-wrapper">
@@ -109,7 +105,6 @@ class PluginBox extends React.Component<Props, {}> {
           </PluginContent>
           <PluginBoxFooter>
             <div>{this.renderFooterLeftItems()}</div>
-
             <MoreBtn>
               <Icon icon="arrow-right" size={20} />
             </MoreBtn>

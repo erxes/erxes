@@ -1,17 +1,18 @@
+import { DrawerDetail } from '@erxes/ui-automations/src/styles';
+import { IAction } from '@erxes/ui-automations/src/types';
 import { Alert, __ } from 'coreui/utils';
-import { PROPERTY_OPERATOR, PROPERTY_TYPES } from '../constants';
 
 import Button from '@erxes/ui/src/components/Button';
-import Common from '../Common';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { DrawerDetail } from '../../../../styles';
 import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import { GroupWrapper } from '@erxes/ui-segments/src/styles';
-import { IAction } from '../../../../types';
-import PlaceHolderInput from '../placeHolder/PlaceHolderInput';
 import React from 'react';
 import Select from 'react-select-plus';
+
+import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
+import { PROPERTY_OPERATOR } from '../constants';
+import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
+import { GroupWrapper } from '@erxes/ui-segments/src/styles';
 import Tip from '@erxes/ui/src/components/Tip';
 import client from '@erxes/ui/src/apolloClient';
 import { excludedNames } from '../../../../containers/forms/actions/subForms/SetProperty';
@@ -24,6 +25,7 @@ type Props = {
   triggerType: string;
   addAction: (action: IAction, actionId?: string, config?: any) => void;
   fields: FieldsCombinedByType[];
+  propertyTypesConst: any[];
 };
 
 type State = {
@@ -206,6 +208,7 @@ class SetProperty extends React.Component<Props, State> {
 
   renderContent() {
     const { type } = this.state;
+    const { propertyTypesConst } = this.props;
 
     return (
       <DrawerDetail>
@@ -215,7 +218,7 @@ class SetProperty extends React.Component<Props, State> {
           <Select
             isRequired={true}
             value={type || ''}
-            options={PROPERTY_TYPES.map(p => ({
+            options={propertyTypesConst.map(p => ({
               label: p.label,
               value: p.value
             }))}

@@ -24,6 +24,8 @@ const productQueries = {
       excludeIds,
       pipelineId,
       boardId,
+      segment,
+      segmentData,
       ...pagintationArgs
     }: {
       ids: string[];
@@ -36,6 +38,8 @@ const productQueries = {
       perPage: number;
       pipelineId: string;
       boardId: string;
+      segment: string;
+      segmentData: string;
     },
     { commonQuerySelector, models, subdomain, user }: IContext
   ) {
@@ -84,10 +88,27 @@ const productQueries = {
         {
           name: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
         },
-        { code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] } }
+        {
+          code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
+        },
+        {
+          barcodes: {
+            $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
+          }
+        }
       ];
 
       filter.$or = fields;
+    }
+
+    if (segment || segmentData) {
+      const qb = new Builder(models, subdomain, { segment, segmentData }, {});
+
+      await qb.buildAllQueries();
+
+      const { list } = await qb.runQueries();
+
+      filter._id = { $in: list.map(l => l._id) };
     }
 
     return afterQueryWrapper(
@@ -102,6 +123,8 @@ const productQueries = {
         excludeIds,
         pipelineId,
         boardId,
+        segment,
+        segmentData,
         ...pagintationArgs
       },
       await paginate(
@@ -115,27 +138,18 @@ const productQueries = {
     );
   },
 
-  async productsMain(
+  async productsTotalCount(
     _root,
-    params: IListArgs,
-    { commonQuerySelector, commonQuerySelectorElk, models, subdomain }: IContext
-  ) {
-    const qb = new Builder(models, subdomain, params, {
-      commonQuerySelector,
-      commonQuerySelectorElk
-    });
-
-    await qb.buildAllQueries();
-
-    const { list, totalCount } = await qb.runQueries();
-
-    return { list, totalCount };
-  },
-
-  productsTotalCount(
-    _root,
-    { type }: { type: string },
-    { commonQuerySelector, models }: IContext
+    {
+      type,
+      segment,
+      segmentData
+    }: {
+      type: string;
+      segment: string;
+      segmentData: string;
+    },
+    { commonQuerySelector, subdomain, models }: IContext
   ) {
     const filter: any = commonQuerySelector;
 
@@ -143,6 +157,16 @@ const productQueries = {
 
     if (type) {
       filter.type = type;
+    }
+
+    if (segment || segmentData) {
+      const qb = new Builder(models, subdomain, { segment, segmentData }, {});
+
+      await qb.buildAllQueries();
+
+      const { list } = await qb.runQueries();
+
+      filter._id = { $in: list.map(l => l._id) };
     }
 
     return models.Products.find(filter).countDocuments();

@@ -1,3 +1,4 @@
+import client from '@erxes/ui/src/apolloClient';
 import {
   AdditionalDesc,
   AttachmentContainer,
@@ -19,6 +20,8 @@ import React from 'react';
 import RightSidebar from './RightSidebar';
 import Wrapper from './Wrapper';
 import { __ } from '@erxes/ui/src/utils';
+import gql from 'graphql-tag';
+import { queries } from '../../graphql';
 
 type Props = {
   id: string;
@@ -30,6 +33,7 @@ type Props = {
 
 type State = {
   tabType: string;
+  lastLogMessage: string;
   plugin: any;
   loading: any;
 };
@@ -38,11 +42,60 @@ class PluginDetails extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
+    const plugin = props.plugin || {};
+
     this.state = {
       tabType: 'Description',
-      plugin: props.plugin || {},
+      lastLogMessage: '',
+      plugin,
       loading: {}
     };
+
+    client
+      .query({
+        query: gql(queries.getInstallationStatus),
+        fetchPolicy: 'network-only',
+        variables: { name: plugin.osName }
+      })
+      .then(({ data: { configsGetInstallationStatus } }) => {
+        plugin.status = configsGetInstallationStatus.status;
+
+        this.setState({ plugin });
+      });
+
+    const querySubscription = client
+      .watchQuery({
+        query: gql(queries.getInstallationStatus),
+        fetchPolicy: 'network-only',
+        pollInterval: 3000,
+        variables: { name: plugin.osName }
+      })
+      .subscribe({
+        next: ({ data: { configsGetInstallationStatus } }) => {
+          const installationType = localStorage.getItem(
+            'currentInstallationType'
+          );
+
+          const { status, lastLogMessage } = configsGetInstallationStatus;
+
+          if (lastLogMessage) {
+            this.setState({ lastLogMessage });
+          }
+
+          if (
+            (installationType === 'install' && status === 'installed') ||
+            (installationType === 'uninstall' && status === 'notExisting')
+          ) {
+            querySubscription.unsubscribe();
+            localStorage.setItem('currentInstallationType', '');
+            Alert.success('Success');
+            window.location.reload();
+          }
+        },
+        error: e => {
+          Alert.error(e.message);
+        }
+      });
   }
 
   renderContent = () => {
@@ -120,34 +173,79 @@ class PluginDetails extends React.Component<Props, State> {
   }
 
   render() {
-    const { enabledServicesQuery, plugins } = this.props;
-    const { loading, plugin, tabType } = this.state;
+    const { plugins } = this.props;
+    const { loading, plugin, lastLogMessage, tabType } = this.state;
 
     const breadcrumb = [
-      { title: __('Marketplace'), link: '/settings/installer' },
+      { title: __('Marketplace'), link: '/marketplace' },
       { title: plugin.title || '' }
     ];
 
-    const enabledServices = enabledServicesQuery.enabledServices || {};
-
     const manageInstall = (type: string, name: string) => {
+      localStorage.setItem('currentInstallationType', type);
+
       this.setState({ loading: { [name]: true } });
 
       this.props
         .manageInstall({
           variables: { type, name }
         })
-        .then(() => {
-          Alert.success('You successfully installed');
-          window.location.reload();
-        })
         .catch(error => {
           Alert.error(error.message);
+          this.setState({ loading: { [name]: false } });
+          localStorage.setItem('currentInstallationType', '');
         });
     };
 
     const handleSelect = tab => {
       this.setState({ tabType: tab });
+    };
+
+    const renderButton = () => {
+      if (!plugin.title) {
+        return null;
+      }
+
+      if (plugin.status === 'installed') {
+        return (
+          <div>
+            <button
+              onClick={manageInstall.bind(this, 'uninstall', plugin.osName)}
+              className="uninstall"
+            >
+              {loading[plugin.osName]
+                ? `Uninstalling ... ${
+                    lastLogMessage ? `(${lastLogMessage})` : ''
+                  }`
+                : 'Uninstall'}
+            </button>
+
+            {/* <button
+              onClick={manageInstall.bind(
+                this,
+                'update',
+                plugin.type
+              )}
+              className="update"
+            >
+              Update
+            </button> */}
+
+            <div style={{ clear: 'both' }} />
+          </div>
+        );
+      }
+
+      return (
+        <button
+          onClick={manageInstall.bind(this, 'install', plugin.osName)}
+          className="install"
+        >
+          {loading[plugin.osName] || plugin.status === 'installing'
+            ? `Installing ... ${lastLogMessage ? `(${lastLogMessage})` : ''}`
+            : 'Install'}
+        </button>
+      );
     };
 
     const content = (
@@ -162,53 +260,7 @@ class PluginDetails extends React.Component<Props, State> {
               <Flex>{this.renderCategories()}</Flex>
             </DetailInformation>
           </Center>
-          {plugin.title && enabledServices[plugin.title.toLowerCase()] ? (
-            <>
-              <span>
-                {plugin.title && loading[plugin.title.toLowerCase()]
-                  ? 'Loading ...'
-                  : ''}
-              </span>
-              <div>
-                <button
-                  onClick={manageInstall.bind(
-                    this,
-                    'uninstall',
-                    plugin.title && plugin.title.toLowerCase()
-                  )}
-                  className="uninstall"
-                >
-                  Uninstall
-                </button>
-
-                <button
-                  onClick={manageInstall.bind(
-                    this,
-                    'update',
-                    plugin.title && plugin.title.toLowerCase()
-                  )}
-                  className="update"
-                >
-                  Update
-                </button>
-
-                <div style={{ clear: 'both' }} />
-              </div>
-            </>
-          ) : (
-            <button
-              onClick={manageInstall.bind(
-                this,
-                'install',
-                plugin.title && plugin.title.toLowerCase()
-              )}
-              className="install"
-            >
-              {plugin.title && loading[plugin.title.toLowerCase()]
-                ? 'Loading ...'
-                : 'Install'}
-            </button>
-          )}
+          {renderButton()}
         </PluginTitle>
 
         <AttachmentContainer>{this.renderScreenshots()}</AttachmentContainer>

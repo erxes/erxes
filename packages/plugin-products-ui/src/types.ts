@@ -21,18 +21,14 @@ type ProductCounts = {
   bySegment: Counts;
   byTag: Counts;
 };
-type MainProductsResponse = {
-  list: IProduct[];
-  totalCount: number;
-};
 // query types
 
 export type ProductsQueryResponse = {
   products: IProduct[];
 } & QueryResponse;
 
-export type ProductsMainQueryResponse = {
-  productsMain: MainProductsResponse;
+export type ProductsCountQueryResponse = {
+  productsTotalCount: number;
 } & QueryResponse;
 
 export type ProductsGroupCountsQueryResponse = {
@@ -138,6 +134,30 @@ export type IProductsConfig = {
   _id: string;
   code: string;
   value: any;
+};
+
+export type BarcodeConfig = {
+  row: number;
+  column: number;
+  width: number;
+  height: number;
+  margin: number;
+  isDate: boolean;
+  date: number;
+  isProductName: boolean;
+  productNameFontSize: number;
+  isPrice: boolean;
+  priceFontSize: number;
+
+  isBarcode: boolean;
+  isBarcodeDescription: boolean;
+  barWidth: number;
+  barHeight: number;
+  barcodeFontSize: number;
+  barcodeDescriptionFontSize: number;
+
+  isQrcode: boolean;
+  qrSize: number;
 };
 
 // query types

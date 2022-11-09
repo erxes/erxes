@@ -160,9 +160,21 @@ export const sendRPCMessage = async (
     const correlationId = uuid();
 
     return channel.assertQueue('', { exclusive: true }).then(q => {
+      var interval = setInterval(() => {
+        channel.deleteQueue(q.queue);
+
+        clearInterval(interval);
+
+        debugError(`${queueName} ${JSON.stringify(message)} timedout`);
+
+        return resolve(message.defaultValue);
+      }, message.timeout || process.env.RPC_TIMEOUT || 10000);
+
       channel.consume(
         q.queue,
         msg => {
+          clearInterval(interval);
+
           if (!msg) {
             return reject(new Error('consumer cancelled by rabbitmq'));
           }

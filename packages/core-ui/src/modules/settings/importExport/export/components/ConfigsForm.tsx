@@ -11,12 +11,25 @@ import { OperatorList } from '../../styles';
 
 type Props = {
   columns: any[];
-  searchValue: string;
-  onSearch: (e) => void;
-  onClickField: (checked, field) => void;
+  contentType: string;
+  onClickField: (column) => void;
 };
 
-class ConfigsForm extends React.Component<Props, {}> {
+type State = {
+  columns: any[];
+  searchValue: string;
+};
+
+class ConfigsForm extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      columns: props.columns || [],
+      searchValue: ''
+    };
+  }
+
   groupByType = results => {
     return results.reduce((acc, field) => {
       const value = field.name;
@@ -44,8 +57,18 @@ class ConfigsForm extends React.Component<Props, {}> {
   };
 
   renderFields = fields => {
-    const onClickField = (e, field) => {
-      this.props.onClickField(e.target.checked, field);
+    const onClickField = field => {
+      const { columns } = this.state;
+
+      for (const column of columns) {
+        if (column._id === field._id) {
+          column.checked = !column.checked;
+        }
+      }
+
+      this.setState({ columns });
+
+      this.props.onClickField(columns);
     };
 
     return fields.map(field => {
@@ -55,7 +78,7 @@ class ConfigsForm extends React.Component<Props, {}> {
           id={String(fields._id)}
           defaultChecked={fields.checked}
           componentClass="checkbox"
-          onChange={e => onClickField(e, field)}
+          onChange={() => onClickField(field)}
           checked={field.checked}
         >
           {field.label}
@@ -81,8 +104,14 @@ class ConfigsForm extends React.Component<Props, {}> {
     });
   };
 
+  onSearch = e => {
+    const value = e.target.value;
+
+    this.setState({ searchValue: value });
+  };
+
   render() {
-    const { columns, searchValue } = this.props;
+    const { columns, searchValue } = this.state;
 
     const condition = new RegExp(searchValue, 'i');
 
@@ -96,10 +125,7 @@ class ConfigsForm extends React.Component<Props, {}> {
           <FormGroup>
             <SubHeading>{__('Properties to export')}</SubHeading>
 
-            <FormControl
-              placeholder={__('Search')}
-              onChange={this.props.onSearch}
-            />
+            <FormControl placeholder={__('Search')} onChange={this.onSearch} />
           </FormGroup>
 
           <FormWrapper>{this.renderOperators(results)}</FormWrapper>

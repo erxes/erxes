@@ -18,6 +18,7 @@ import { __ } from '../../utils';
 import Map from './Map';
 import Marker from './Marker';
 import ObjectList from './ObjectList';
+import { connection } from '../connection';
 
 type Props = {
   field: IField;
@@ -448,7 +449,7 @@ export default class Field extends React.Component<Props, State> {
         <option>-</option>
         {products.map(({ _id, name, unitPrice }) => (
           <option key={_id} value={_id}>
-            {`${name} - ${unitPrice.toLocaleString()}`}
+            {`${name} - ${unitPrice || ''} `}
           </option>
         ))}
       </select>
@@ -648,6 +649,10 @@ export default class Field extends React.Component<Props, State> {
         return this.renderMap(field, value);
 
       case 'productCategory':
+        if (!connection.enabledServices.products) {
+          return null;
+        }
+
         return this.renderProduct(field);
 
       case 'objectList':
