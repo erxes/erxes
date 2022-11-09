@@ -1,9 +1,9 @@
 import { IContext } from '../../../connectionResolver';
 import {
-  sendCoreMessage,
-  sendContactsMessage,
+  sendCardsMessage,
   sendClientPortalMessage,
-  sendCardsMessage
+  sendContactsMessage,
+  sendCoreMessage
 } from '../../../messageBroker';
 import { IParticipant } from './../../../models/definitions/participants';
 
@@ -32,16 +32,89 @@ const participantMutations = {
       defaultValue: null
     });
 
-    if (cpUser && cpUser.deviceTokens && cpUser.deviceTokens.length > 0) {
-      sendCoreMessage({
-        subdomain: subdomain,
-        action: 'sendMobileNotification',
+    console.log('cpUser', cpUser);
+
+    if (cpUser) {
+      sendClientPortalMessage({
+        subdomain,
+        action: 'sendNotification',
         data: {
           title: 'Үнийн санал илгээсэн танд баярлалаа.',
-          body: 'Таны үнийн саналыг амжилттай хүлээн авлаа!',
-          deviceTokens: cpUser.deviceTokens
+          content: 'Таны үнийн саналыг амжилттай хүлээн авлаа!',
+          receivers: [cpUser._id],
+          notifType: 'system',
+          link: '',
+          isMobile: true
         }
       });
+    }
+
+    const conformities = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.getConformities',
+      data: {
+        mainType: 'deal',
+        mainTypeIds: [participant.dealId],
+        relTypes: ['customer']
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const deal = await sendCardsMessage({
+      subdomain,
+      action: 'deals.findOne',
+      data: {
+        _id: participant.dealId
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    if (conformities.length > 0) {
+      for (const conformity of conformities) {
+        const customer = await sendContactsMessage({
+          subdomain,
+          action: 'customers.findOne',
+          data: {
+            _id: conformity.relTypeId
+          },
+          isRPC: true,
+          defaultValue: null
+        });
+
+        if (!customer) {
+          continue;
+        }
+
+        const orderUser = await sendClientPortalMessage({
+          subdomain,
+          action: 'clientPortalUsers.findOne',
+          data: {
+            erxesCustomerId: customer._id,
+            clientPortalId: process.env.WEB_CP_ID || '4tjtd7Y6yrDuDNiYe'
+          },
+          isRPC: true,
+          defaultValue: null
+        });
+
+        if (!orderUser) {
+          continue;
+        }
+
+        sendClientPortalMessage({
+          subdomain,
+          action: 'sendNotification',
+          data: {
+            title: 'Үнийн санал ирлээ.',
+            content: `Таны ${deal.name} захиалгад үнийн санал ирлээ.`,
+            receivers: [orderUser._id],
+            notifType: 'system',
+            link: `/shipping/info?deal=${participant.dealId}`,
+            isMobile: false
+          }
+        });
+      }
     }
 
     return participant;
