@@ -15,6 +15,7 @@ import {
 } from '../../consts';
 import ForumPermissionGroupCategoryPermit from './ForumPermissionGroupCategoryPermit';
 import ForumPermissionGroup from './ForumPermissionGroup';
+import ForumSubscriptionProduct from './ForumSubscriptionProduct';
 
 export default async function genTypeDefs(serviceDiscovery) {
   return gql`
@@ -75,6 +76,8 @@ export default async function genTypeDefs(serviceDiscovery) {
 
     ${ForumPermissionGroup}
     ${ForumPermissionGroupCategoryPermit}
+
+    ${ForumSubscriptionProduct}
 
     ${Query}
     ${Mutation}
