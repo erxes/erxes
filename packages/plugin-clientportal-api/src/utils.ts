@@ -257,9 +257,13 @@ export const sendNotification = async (
   });
 
   if (isMobile) {
-    const deviceTokens = [
-      ...Array.from(new Set(recipients.map(r => r.deviceTokens)))
-    ];
+    const deviceTokens: string[] = [];
+
+    for (const recipient of recipients) {
+      if (recipient.deviceTokens) {
+        deviceTokens.push(...recipient.deviceTokens);
+      }
+    }
 
     sendCoreMessage({
       subdomain: subdomain,
@@ -267,7 +271,7 @@ export const sendNotification = async (
       data: {
         title,
         body: content,
-        deviceTokens
+        deviceTokens: [...Array.from(new Set(deviceTokens))]
       }
     });
   }
