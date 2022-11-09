@@ -28,7 +28,7 @@ const MessageFormContainer = (props: FinalProps) => {
   const message = engageMessageDetailQuery.engageMessageDetail;
   const brands = brandsQuery.brands || [];
 
-  let segmentType = 'lead';
+  let segmentType = 'contacts:lead';
 
   if (message && message.segments && message.segments.length > 0) {
     const segment = message.segments.pop();
