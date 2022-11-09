@@ -24,7 +24,7 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "erxes-icon": "^1.2.1",
-    "erxes-ui": "0.0.68-beta",
+    "erxes-ui": "0.0.90",
     "react-bootstrap": "1.0.0-beta.14",
     "react-beautiful-dnd": "^13.1.0",
     "react-code-blocks": "0.0.9-0",

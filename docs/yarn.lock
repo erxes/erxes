@@ -4105,10 +4105,10 @@ erxes-icon@^1.2.1:
   resolved "https://registry.yarnpkg.com/erxes-icon/-/erxes-icon-1.2.1.tgz#1df585ff385146dfffd0261398de474eed39c2c6"
   integrity sha512-qk1yavXsBCub9/XBaiTgg9OCouRfZnDxWIqtfi/tVr51zFYgZuGm5GkswglIhF5FCayJ+XtOFqf/Z/9UUc676g==
 
-erxes-ui@0.0.68-beta:
-  version "0.0.68-beta"
-  resolved "https://registry.yarnpkg.com/erxes-ui/-/erxes-ui-0.0.68-beta.tgz#06237ec73834b7623d82b3a17fc36fc1fc92f39d"
-  integrity sha512-lHErElXGnQ7gh36R+Hcv7vGh4Ww3lC3FigVguzy196PVpBsCMtTxcUaNWTGZ34NBIKr6PXPqLvHY+RikLESZmQ==
+erxes-ui@0.0.90:
+  version "0.0.90"
+  resolved "https://registry.yarnpkg.com/erxes-ui/-/erxes-ui-0.0.90.tgz#3c2ccc0df66cbf1727877ff8c7641998257f678d"
+  integrity sha512-7bnpYfUQIZEQabqqyCz31dr3zNRy5jkHWaCrnrx2tfpHfT+oPRmCHYzEXFFxq01onESAR4Zw/X2xzD024Jw5kg==
 
 es-module-lexer@^0.9.0:
   version "0.9.3"
