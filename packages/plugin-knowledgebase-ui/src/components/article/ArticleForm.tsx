@@ -1,26 +1,34 @@
-import Button from '@erxes/ui/src/components/Button';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { FillContent, FlexRow, Forms, ReactionItem } from './styles';
+import { IArticle, ITopic } from '@erxes/ui-knowledgeBase/src/types';
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps,
   IOption
 } from '@erxes/ui/src/types';
-import { extractAttachment, __ } from 'coreui/utils';
-import { articleReactions } from '../../icons.constant';
-import { FlexItem } from '@erxes/ui/src/layout/styles';
-import { FlexContent } from '@erxes/ui/src/layout/styles';
+import { __, extractAttachment } from 'coreui/utils';
+
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import EditorCK from '@erxes/ui/src/components/EditorCK';
 import { FILE_MIME_TYPES } from '@erxes/ui-settings/src/general/constants';
+import { FlexContent } from '@erxes/ui/src/layout/styles';
+import { FlexItem } from '@erxes/ui/src/layout/styles';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import Icon from '@erxes/ui/src/components/Icon';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import Select from 'react-select-plus';
-import { IArticle, ITopic } from '@erxes/ui-knowledgeBase/src/types';
-import { ReactionItem } from './styles';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { articleReactions } from '../../icons.constant';
+
+export interface IErxesForm {
+  _id: string;
+  brandId: string;
+  formId: string;
+}
 
 type Props = {
   article: IArticle;
@@ -37,6 +45,7 @@ type State = {
   categoryId: string;
   attachments: IAttachment[];
   image: IAttachment | null;
+  erxesForms: IErxesForm[];
 };
 
 class ArticleForm extends React.Component<Props, State> {
@@ -53,6 +62,7 @@ class ArticleForm extends React.Component<Props, State> {
       reactionChoices: article.reactionChoices || [],
       topicId: article.topicId,
       categoryId: article.categoryId,
+      erxesForms: [],
       image,
       attachments
     };
@@ -85,7 +95,8 @@ class ArticleForm extends React.Component<Props, State> {
       reactionChoices,
       topicId,
       categoryId,
-      image
+      image,
+      erxesForms
     } = this.state;
 
     const finalValues = values;
@@ -104,6 +115,7 @@ class ArticleForm extends React.Component<Props, State> {
         status: finalValues.status,
         categoryIds: [currentCategoryId],
         topicId,
+        forms: erxesForms,
         attachments,
         categoryId,
         image
@@ -139,6 +151,38 @@ class ArticleForm extends React.Component<Props, State> {
         }
       ]
     });
+  };
+
+  onChangeForm = (formId: string, key: string, value: string | number) => {
+    const erxesForms = this.state.erxesForms;
+
+    // find current editing one
+    const erxesForm = erxesForms.find(form => form._id === formId) || [];
+
+    // set new value
+    erxesForm[key] = value;
+
+    this.setState({ erxesForms });
+  };
+
+  addErxesForm = () => {
+    const erxesForms = this.state.erxesForms.slice();
+
+    erxesForms.push({
+      _id: Math.random().toString(),
+      brandId: '',
+      formId: ''
+    });
+
+    this.setState({ erxesForms });
+  };
+
+  removeForm = formId => {
+    let erxesForms = this.state.erxesForms;
+
+    erxesForms = erxesForms.filter(form => form._id !== formId);
+
+    this.setState({ erxesForms });
   };
 
   renderOption = option => {
@@ -223,6 +267,46 @@ class ArticleForm extends React.Component<Props, State> {
       </FormGroup>
     );
   }
+
+  renderErxesForm = (form: IErxesForm, formProps: IFormProps) => {
+    const remove = () => {
+      this.removeForm(form._id);
+    };
+
+    return (
+      <FlexRow key={form._id}>
+        <FormGroup>
+          <ControlLabel required={true}>{__('Brand id')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="brandId"
+            required={true}
+            // defaultValue={object.summary}
+            onChange={(e: any) =>
+              this.onChangeForm(form._id, 'brandId', e.target.value)
+            }
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={true}>{__('Form id')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="formId"
+            required={true}
+            // defaultValue={object.summary}
+            onChange={(e: any) =>
+              this.onChangeForm(form._id, 'formId', e.target.value)
+            }
+          />
+        </FormGroup>
+
+        <Button size="small" btnStyle="danger" onClick={remove}>
+          <Icon icon="cancel-1" />
+        </Button>
+      </FlexRow>
+    );
+  };
 
   renderContent = (formProps: IFormProps) => {
     const { article, renderButton, closeModal } = this.props;
@@ -387,6 +471,24 @@ class ArticleForm extends React.Component<Props, State> {
             </FormGroup>
           </FlexItem>
         </FlexContent>
+
+        <FormGroup>
+          <ControlLabel>{__('erxes forms')}</ControlLabel>
+          <Forms>
+            {this.state.erxesForms.map(form =>
+              this.renderErxesForm(form, formProps)
+            )}
+          </Forms>
+
+          <Button
+            btnStyle="simple"
+            size="small"
+            onClick={this.addErxesForm}
+            icon="add"
+          >
+            Add another form
+          </Button>
+        </FormGroup>
 
         <FormGroup>
           <ControlLabel required={true}>{__('Content')}</ControlLabel>
