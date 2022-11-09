@@ -218,7 +218,7 @@ const participantMutations = {
         action: 'sendNotification',
         data: {
           title: 'Баяр хүргэе',
-          content: `Таны илгээсэн үнийн санал баталгаажиж,  ${deal.name} дугаартай тээврийн ажилд та сонгогдлоо !`,
+          content: `Таны илгээсэн үнийн санал баталгаажиж,  ${deal.name} дугаартай тээврийн ажилд та сонгогдлоо, та ажлаа баталгаажуулна уу`,
           receivers: [winner._id],
           notifType: 'system',
           link: ``,
