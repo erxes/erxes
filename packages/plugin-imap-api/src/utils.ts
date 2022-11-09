@@ -100,6 +100,10 @@ const saveMessages = async (
   const msgs: any = await searchMessages(imap, criteria);
 
   for (const msg of msgs) {
+    if (msg.to && msg.to.value !== integration.user) {
+      continue;
+    }
+
     const message = await models.Messages.findOne({
       messageId: msg.messageId
     });
