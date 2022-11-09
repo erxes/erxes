@@ -62,27 +62,33 @@ const config = {
             items: [
               {
                 label: 'Developer Docs',
-                href: '/docs/intro'
+                to: '/docs/intro',
+                className: 'bold'
               },
               {
-                label: 'User Guide',
-                href: '/docs/user-guide'
+                label: 'Setup & Deployment',
+                to: '/docs/category/setup--deployment/'
               },
               {
-                label: '└─ Get Started',
-                to: '/docs/user-guide'
+                label: 'Development resources',
+                to: '/docs/category/developer-resources/'
               },
               {
-                label: '└─ XOS',
-                to: '/docs/user-guide/xos/xos-intro'
+                label: 'Contributing to open source',
+                to: '/docs/contribute/overview/'
               },
               {
-                label: '└─ Plugins',
-                to: '/docs/user-guide/plugins-intro'
+                label: 'User guide',
+                to: '/docs/user-guide/',
+                className: 'bold'
               },
               {
-                label: '└─ Use Cases',
-                to: '/docs/user-guide/use-case'
+                label: 'XOS',
+                to: '/docs/user-guide/xos/xos-intro/'
+              },
+              {
+                label: 'Use cases',
+                to: '/docs/user-guide/use-case/'
               }
             ]
           },
@@ -92,27 +98,47 @@ const config = {
             label: 'Eco system',
             position: 'right',
             items: [
-              { label: 'Erxes', to: '#' },
               {
-                label: '└─ Website',
+                label: 'Erxes',
+                to: '#',
+                className: 'bold',
+              },
+              {
+                label: 'Website',
                 to: 'https://erxes.io/'
               },
-              { label: '└─ Blog', to: 'https://erxes.io/blog' },
+              { label: 'Blog', to: 'https://erxes.io/blog' },
+              { label: 'Roadmap', to: 'https://github.com/orgs/erxes/projects/11/views/18' },
+              { label: 'Invest', to: 'https://erxes.io/invest' },
+              { label: 'Market place', to: 'https://erxes.io/marketplace' },
+              
 
-              { label: 'Community', to: '#' },
               {
-                label: '└─ Discord',
+                label: 'Community',
+                to: '#',
+                className: 'bold'
+              },
+
+              {
+                label: 'Discord',
                 to: 'https://discord.gg/K3hfx6ShmU'
               },
               {
-                label: '└─ Forum - not ready',
+                label: 'Forum - not ready',
                 to: '#'
               },
-              { label: 'Resources', to: '#' },
               {
-                label: '└─ Tutorials',
-                to: '/docs/plugin-tutorials/'
-              }
+                label: 'Show your use-case',
+                to: 'https://erxes.io/showcase'
+              },
+              {
+                label: 'Become a partner',
+                to: 'https://erxes.io/partners'
+              },
+
+              { label: 'Resources', to: '#', className: 'bold' },
+                
+              { label: 'Use-cases', to: '/docs/user-guide/use-case/' },
             ]
           },
 
@@ -131,84 +157,6 @@ const config = {
             position: 'right'
           }
         ]
-      },
-      footer: {
-        style: 'dark',
-        links: [
-          {
-            title: 'Docs',
-            items: [
-              {
-                label: 'Getting Started',
-                to: '/docs/deployment/#preparing-the-installation-1'
-              },
-              {
-                label: 'Installation Guide',
-                to: '/docs/developer/ubuntu'
-              },
-              {
-                label: 'Administrator`s Guide',
-                to: 'docs/administrator/creating-first-user'
-              },
-              {
-                label: 'Developers Guide',
-                to: '/docs/developer/developing-plugins'
-              },
-              {
-                label: 'Graphql API reference',
-                to: '/docs/api/objects'
-              }
-            ]
-          },
-          {
-            title: 'Company',
-            items: [
-              {
-                label: 'About Us',
-                href: 'https://erxes.io/team'
-              },
-              {
-                label: 'Blog',
-                to: '/blog'
-              },
-              {
-                label: 'Interviews',
-                to: '/interviews'
-              },
-              {
-                label: 'Case Studies',
-                to: '/caseStudies'
-              },
-              {
-                label: 'Roadmap',
-                href: 'https://erxes.io/roadmap'
-              },
-              {
-                label: 'GSoD',
-                href: 'docs/gsod'
-              }
-            ]
-          },
-          {
-            title: 'Community',
-            items: [
-              {
-                label: 'Discussions',
-                href: 'https://github.com/erxes/erxes/discussions '
-              },
-              {
-                label: 'Discord',
-                href: 'https://discord.gg/CEPj6vPh'
-              }
-            ]
-          }
-        ],
-        logo: {
-          alt: 'erxes Open Source Logo',
-          src: 'img/logo.svg',
-          href: 'https://erxes.io'
-        },
-        copyright: `Copyright © ${new Date().getFullYear()} erxes Inc.`
       },
       prism: {
         theme: lightCodeTheme,

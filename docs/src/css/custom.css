@@ -331,3 +331,7 @@ button.close {
 .bkGorI > div h4 {
   color: white;
 }
+
+.bold {
+  font-weight: bold;
+}
