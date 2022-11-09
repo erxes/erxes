@@ -1,8 +1,8 @@
 const paramDefs = `$kind: String`;
 const params = `kind: $kind`;
 
-const commentsParamDefs = `$postId: String!, $isResolved: Boolean, $commentId: String, $senderId: String, $skip: Int, $limit: Int`;
-const commentsParams = `postId: $postId, isResolved: $isResolved, commentId: $commentId, senderId: $senderId, skip: $skip, limit: $limit`;
+const commentsParamDefs = `$conversationId: String!, $isResolved: Boolean, $commentId: String, $senderId: String, $skip: Int, $limit: Int`;
+const commentsParams = `conversationId: $conversationId, isResolved: $isResolved, commentId: $commentId, senderId: $senderId, skip: $skip, limit: $limit`;
 
 const facebookGetConfigs = `
   query facebookGetConfigs {
@@ -44,8 +44,8 @@ const facebookGetComments = `
 `;
 
 const facebookGetCommentCount = `
-  query facebookGetCommentCount($postId: String!, $isResolved: Boolean) {
-    facebookGetCommentCount(postId: $postId, isResolved: $isResolved)
+  query facebookGetCommentCount($conversationId: String!, $isResolved: Boolean) {
+    facebookGetCommentCount(conversationId: $conversationId, isResolved: $isResolved)
   }
 `;
 

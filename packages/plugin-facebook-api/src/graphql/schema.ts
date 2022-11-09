@@ -45,14 +45,14 @@ export const queries = `
   facebookGetIntegrationDetail(erxesApiId: String): JSON 
   facebookGetConfigs: JSON
   facebookGetComments(
-    postId: String!
+    conversationId: String!
     isResolved: Boolean
     commentId: String
     senderId: String
     skip: Int
     limit: Int
   ): [FacebookComment]
-  facebookGetCommentCount(postId: String! isResolved: Boolean): JSON
+  facebookGetCommentCount(conversationId: String! isResolved: Boolean): JSON
   facebookGetPages(accountId: String! kind: String!): JSON
   facebookConversationDetail(_id: String!): JSON
   facebookConversationMessages(

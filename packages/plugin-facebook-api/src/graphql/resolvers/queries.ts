@@ -11,7 +11,7 @@ interface IDetailParams {
 }
 
 interface ICommentsParams {
-  postId: string;
+  conversationId: string;
   isResolved?: boolean;
   commentId?: string;
   senderId: string;
@@ -66,8 +66,14 @@ const facebookQueries = {
     args: ICommentsParams,
     { models }: IContext
   ) {
-    const { postId, isResolved, commentId, senderId, limit = 10 } = args;
-    const post = await models.Posts.getPost({ erxesApiId: postId });
+    const {
+      conversationId,
+      isResolved,
+      commentId,
+      senderId,
+      limit = 10
+    } = args;
+    const post = await models.Posts.getPost({ erxesApiId: conversationId });
 
     const query: {
       postId: string;
@@ -79,7 +85,7 @@ const facebookQueries = {
       isResolved
     };
 
-    if (senderId !== 'undefined') {
+    if (senderId && senderId !== 'undefined') {
       const customer = await models.Customers.findOne({ erxesApiId: senderId });
 
       if (!customer) {
@@ -148,9 +154,12 @@ const facebookQueries = {
   },
 
   async facebookGetCommentCount(_root, args, { models }: IContext) {
-    const { postId, isResolved = false } = args;
+    const { conversationId, isResolved = false } = args;
 
-    const post = await models.Posts.getPost({ erxesApiId: postId }, true);
+    const post = await models.Posts.getPost(
+      { erxesApiId: conversationId },
+      true
+    );
 
     const commentCount = await models.Comments.countDocuments({
       postId: post.postId,
