@@ -3,15 +3,29 @@ import { JOB_TYPES } from './definitions/constants';
 import { IFlowDocument, IJob } from './definitions/flows';
 import { IProductsData } from './definitions/jobs';
 
-const getProductIds = (job: IJob, jobReferById: any, type = 'need') => {
+const getProductIds = (
+  job: IJob,
+  jobReferById: any,
+  subFlowById: { [key: string]: IFlowDocument },
+  type = 'need'
+) => {
   const jobConfig = job.config;
   const key = type === 'need' ? 'needProducts' : 'resultProducts';
+  const fkey = type === 'need' ? 'latestNeedProducts' : 'latestResultProducts';
   let productIds: string[] = [];
   if (jobConfig.jobReferId && JOB_TYPES.JOBS.includes(job.type)) {
     productIds =
       ((jobReferById[jobConfig.jobReferId] || {})[key] || []).map(
         p => p.productId
       ) || [];
+  }
+
+  if (jobConfig.subFlowId && JOB_TYPES.FLOW === job.type) {
+    productIds =
+      ((subFlowById[jobConfig.subFlowId] || {})[fkey] || []).map(
+        p => p.productId
+      ) || [];
+    console.log(productIds);
   }
 
   if (jobConfig.productId) {
@@ -28,25 +42,41 @@ const getProductIds = (job: IJob, jobReferById: any, type = 'need') => {
   return productIds;
 };
 
-const checkBeforeJobs = (job: IJob, beforeJobs: IJob[], jobReferById: any) => {
+const checkBeforeJobs = (
+  job: IJob,
+  beforeJobs: IJob[],
+  jobReferById: any,
+  subFlowById: any
+) => {
   const label = `${job.label.substring(0, 10)}... `;
   const jobConfig = job.config;
 
-  const jobNeedProductIds = getProductIds(job, jobReferById);
+  const jobNeedProductIds = getProductIds(job, jobReferById, subFlowById);
   let beforeResultProductIds: string[] = [];
 
   for (const beforeJob of beforeJobs) {
     const beforeConfig = beforeJob.config;
 
-    if (jobConfig.inBranchId !== beforeConfig.outBranchId) {
-      return `${label}wrong In Branch`;
-    }
-    if (jobConfig.inDepartmentId !== beforeConfig.outDepartmentId) {
-      return `${label}wrong In Department`;
+    if (beforeJob.type === JOB_TYPES.FLOW && beforeConfig.subFlowId) {
+      const beforeSubFlow = subFlowById[beforeConfig.subFlowId];
+
+      if (jobConfig.inBranchId !== beforeSubFlow.latestBranchId) {
+        return `${label}wrong In Branch`;
+      }
+      if (jobConfig.inDepartmentId !== beforeSubFlow.latestDepartmentId) {
+        return `${label}wrong In Department`;
+      }
+    } else {
+      if (jobConfig.inBranchId !== beforeConfig.outBranchId) {
+        return `${label}wrong In Branch`;
+      }
+      if (jobConfig.inDepartmentId !== beforeConfig.outDepartmentId) {
+        return `${label}wrong In Department`;
+      }
     }
 
     beforeResultProductIds = beforeResultProductIds.concat(
-      getProductIds(beforeJob, jobReferById, 'result')
+      getProductIds(beforeJob, jobReferById, subFlowById, 'result')
     );
   }
 
@@ -61,16 +91,27 @@ const checkBeforeJobs = (job: IJob, beforeJobs: IJob[], jobReferById: any) => {
   return '';
 };
 
-export const recursiveChecker = (job: IJob, jobs: IJob[], jobReferById) => {
+export const recursiveChecker = (
+  job: IJob,
+  jobs: IJob[],
+  jobReferById,
+  subFlowById
+) => {
   const beforeJobs = jobs.filter(j => (j.nextJobIds || []).includes(job.id));
-  const result = checkBeforeJobs(job, beforeJobs, jobReferById);
+  const result = checkBeforeJobs(job, beforeJobs, jobReferById, subFlowById);
+
   if (result) {
     return result;
   }
 
   if (beforeJobs && beforeJobs.length) {
     for (const beforeJob of beforeJobs) {
-      const results = recursiveChecker(beforeJob, jobs, jobReferById);
+      const results = recursiveChecker(
+        beforeJob,
+        jobs,
+        jobReferById,
+        subFlowById
+      );
       if (results) {
         return results;
       }

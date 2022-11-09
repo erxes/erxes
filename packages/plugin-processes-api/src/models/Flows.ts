@@ -64,14 +64,26 @@ export const loadFlowClass = (models: IModels) => {
       const jobRefers = await models.JobRefers.find({
         _id: { $in: jobs.map(j => j.config && j.config.jobReferId) }
       }).lean();
-
       const jobReferById = {};
       for (const jobRefer of jobRefers) {
         jobReferById[jobRefer._id] = jobRefer;
       }
 
+      const subFlows = await models.Flows.find({
+        _id: { $in: jobs.map(j => j.config && j.config.subFlowId) }
+      }).lean();
+      const subFlowById = {};
+      for (const subFlow of subFlows) {
+        subFlowById[subFlow._id] = subFlow;
+      }
+
       const latestJob = latestJobs[0];
-      const result = recursiveChecker(latestJob, jobs, jobReferById);
+      const result = recursiveChecker(
+        latestJob,
+        jobs,
+        jobReferById,
+        subFlowById
+      );
 
       if (result) {
         return result;
