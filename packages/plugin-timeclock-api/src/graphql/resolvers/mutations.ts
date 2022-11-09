@@ -123,6 +123,11 @@ const templateMutations = {
       ...doc
     });
 
+    const updateScheduleShifts = await models.Shifts.updateMany(
+      { scheduleId: _id },
+      { $set: { status: `${status}`, solved: true } }
+    );
+
     await putUpdateLog(
       subdomain,
       messageBroker(),
