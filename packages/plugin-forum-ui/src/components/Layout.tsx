@@ -9,11 +9,10 @@ import PermissionGroupList from '../containers/PermissionGroups/List';
 import PermissionGroupNew from '../containers/PermissionGroups/New';
 import PermissionGroupEdit from '../containers/PermissionGroups/Edit';
 import PermissionGroupDetail from '../containers/PermissionGroups/Detail';
+import SubscriptionProductHome from '../containers/SubscriptionProduct';
+import SubscriptionProductNew from '../containers/SubscriptionProduct/New';
 
 function Layout() {
-  // The `path` lets us build <Route> paths that are
-  // relative to the parent route, while the `url` lets
-  // us build relative links.
   const { path, url } = useRouteMatch();
 
   return (
@@ -33,6 +32,11 @@ function Layout() {
         </li>
         <li>
           <Link to={'/forums/permission-groups'}>Permission Groups</Link>
+        </li>
+        <li>
+          <Link to={'/forums/subscription-products'}>
+            Subscription Products
+          </Link>
         </li>
       </ul>
 
@@ -78,6 +82,14 @@ function Layout() {
 
           <Route exact path={'/forums/permission-groups/:permissionGroupId'}>
             <PermissionGroupDetail />
+          </Route>
+
+          <Route exact path={'/forums/subscription-products/'}>
+            <SubscriptionProductHome />
+          </Route>
+
+          <Route exact path={'/forums/subscription-products/new'}>
+            <SubscriptionProductNew />
           </Route>
         </Switch>
       </div>

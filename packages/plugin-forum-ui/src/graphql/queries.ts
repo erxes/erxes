@@ -282,3 +282,17 @@ export const PERMISSION_GROUP_REFETCH = [
   'ForumPermissionGroups',
   'ForumPermissionGroup'
 ];
+
+export const FORUM_SUBSCRIPTION_PRODUCTS_QUERY = gql`
+  query ForumSubscriptionProducts($sort: JSON) {
+    forumSubscriptionProducts(sort: $sort) {
+      _id
+      description
+      listOrder
+      multiplier
+      name
+      price
+      unit
+    }
+  }
+`;

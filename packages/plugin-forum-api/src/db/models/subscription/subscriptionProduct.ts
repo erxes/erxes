@@ -65,13 +65,11 @@ export const generateSubscriptionProductModel = (
   con: Connection,
   models: IModels
 ): void => {
-  const { SubscriptionProduct } = models;
-
   class SubscriptionProductModel {
     public static async findByIdOrThrow(
       _id: string
     ): Promise<SubscriptionProductDocument> {
-      const product = await SubscriptionProduct.findById(_id);
+      const product = await models.SubscriptionProduct.findById(_id);
       if (!product) {
         throw new Error('Subscription product not found');
       }
@@ -80,8 +78,8 @@ export const generateSubscriptionProductModel = (
 
     public static async createSubscriptionProduct(
       input: SubscriptionProductInsert
-    ): Promise<SubscriptionProductDocument> {
-      const product = await SubscriptionProduct.create(input);
+    ): Promise<SubscriptionProductDocument | void> {
+      const product = await models.SubscriptionProduct.create(input);
       return product;
     }
 
@@ -89,7 +87,7 @@ export const generateSubscriptionProductModel = (
       _id: string,
       input: SubscriptionProductPatch
     ): Promise<SubscriptionProductDocument> {
-      const product = await SubscriptionProduct.findByIdOrThrow(_id);
+      const product = await models.SubscriptionProduct.findByIdOrThrow(_id);
       _.assign(product, input);
       await product.save();
       return product;
@@ -98,7 +96,7 @@ export const generateSubscriptionProductModel = (
     public static async deleteSubscriptionProduct(
       _id: string
     ): Promise<SubscriptionProductDocument> {
-      const product = await SubscriptionProduct.findByIdOrThrow(_id);
+      const product = await models.SubscriptionProduct.findByIdOrThrow(_id);
       await product.remove();
       return product;
     }
@@ -109,4 +107,6 @@ export const generateSubscriptionProductModel = (
     SubscriptionProductDocument,
     ISubscriptionProductModel
   >('forum_subscription_products', subscriptionProductSchema);
+
+  console.log('------------------', models.SubscriptionProduct);
 };
