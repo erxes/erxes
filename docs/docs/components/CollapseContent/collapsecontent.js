@@ -5,7 +5,6 @@ import CodeBlock from "@theme/CodeBlock";
 import { renderApiTable, stringify } from "../common.js";
 import "erxes-icon/css/erxes.min.css";
 import Icon from "erxes-ui/lib/components/Icon";
-import { updateExportDeclaration } from "typescript";
 
 export function CollapseContentComponent(props) {
   const { comp, opens, color, img, type, text, table = [] } = props;
