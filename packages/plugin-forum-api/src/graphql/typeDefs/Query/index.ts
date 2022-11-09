@@ -61,6 +61,8 @@ const Query = `
 
     forumSubscriptionProduct(_id: ID!): ForumSubscriptionProduct
     forumSubscriptionProducts(sort: JSON): [ForumSubscriptionProduct!]
+
+    forumCpMySubscriptionOrders: [ForumSubscriptionOrder!]
   }
 `;
 

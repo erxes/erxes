@@ -82,13 +82,11 @@ export const generateSubscriptionOrderModel = (
   con: Connection,
   models: IModels
 ): void => {
-  const { SubscriptionProduct, SubscriptionOrder } = models;
-
   class SubscriptionOrderModel {
     public static async findByIdOrThrow(
       _id: string
     ): Promise<SubscriptionOrderDocument> {
-      const doc = await SubscriptionOrder.findById(_id);
+      const doc = await models.SubscriptionOrder.findById(_id);
       if (!doc) {
         throw new Error('Subscription order not found');
       }
@@ -101,7 +99,7 @@ export const generateSubscriptionOrderModel = (
     ): Promise<SubscriptionOrderDocument> {
       if (!user) throw new LoginRequiredError();
 
-      const doc = await SubscriptionOrder.findByIdOrThrow(_id);
+      const doc = await models.SubscriptionOrder.findByIdOrThrow(_id);
       if (doc.cpUserId !== user.userId)
         throw new Error('Subscription order not found');
 
@@ -113,7 +111,9 @@ export const generateSubscriptionOrderModel = (
     ): Promise<SubscriptionOrderDocument[]> {
       if (!user) throw new LoginRequiredError();
 
-      const docs = await SubscriptionOrder.find({ cpUserId: user.userId });
+      const docs = await models.SubscriptionOrder.find({
+        cpUserId: user.userId
+      });
 
       return docs;
     }
@@ -124,11 +124,11 @@ export const generateSubscriptionOrderModel = (
     ): Promise<SubscriptionOrderDocument> {
       if (!user) throw new LoginRequiredError();
 
-      const product = await SubscriptionProduct.findByIdOrThrow(
+      const product = await models.SubscriptionProduct.findByIdOrThrow(
         subscriptionProductId
       );
 
-      const doc = await SubscriptionOrder.create({
+      const doc = await models.SubscriptionOrder.create({
         unit: product.unit,
         multiplier: product.multiplier,
         price: product.price,

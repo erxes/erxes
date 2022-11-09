@@ -5,6 +5,7 @@ import voteMutations from './voteMutations';
 import followMutations from './followMutations';
 import permissionGroup from './permissionGroup';
 import subscriptionProduct from './subscriptionProduct';
+import subscriptionOrder from './subscriptionOrder';
 
 const Mutation = `
   extend type Mutation {
@@ -15,6 +16,7 @@ const Mutation = `
     ${followMutations}
     ${permissionGroup}
     ${subscriptionProduct}
+    ${subscriptionOrder}
   }
 `;
 

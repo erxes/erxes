@@ -18,7 +18,10 @@ import {
   generateSubscriptionProductModel,
   ISubscriptionProductModel
 } from './subscription/subscriptionProduct';
-import { ISubscriptionOrderModel } from './subscription/subscriptionOrder';
+import {
+  generateSubscriptionOrderModel,
+  ISubscriptionOrderModel
+} from './subscription/subscriptionOrder';
 
 export interface IModels {
   Category: ICategoryModel;
@@ -51,6 +54,7 @@ export const generateModels = createGenerateModels<IModels>(
     generateUserGroupModels(subdomain, connection, models);
     generateFollowCpUserModel(subdomain, connection, models);
     generateSubscriptionProductModel(subdomain, connection, models);
+    generateSubscriptionOrderModel(subdomain, connection, models);
     return models;
   }
 );
