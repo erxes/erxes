@@ -10,6 +10,7 @@ export interface ISubscriptionProduct {
   unit: TimeDurationUnit;
   multiplier: number;
   price: number;
+  listOrder: number;
 }
 
 export type SubscriptionProductInsert = Omit<ISubscriptionProduct, '_id'>;
@@ -51,6 +52,11 @@ export const subscriptionProductSchema = new Schema<
     type: Number,
     required: true,
     min: 0
+  },
+  listOrder: {
+    type: Number,
+    required: true,
+    default: 0
   }
 });
 

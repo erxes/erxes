@@ -57,6 +57,10 @@ const Query = `
       permissionGroupId: [ID!]
       permission: [ForumPermission!]
     ): [ForumPermissionGroupCategoryPermit!]
+
+
+    forumSubscriptionProduct(_id: ID!): ForumSubscriptionProduct
+    forumSubscriptionProducts(sort: JSON): [ForumSubscriptionProduct!]
   }
 `;
 

@@ -9,6 +9,7 @@ import {
   ALL_CP_USER_LEVELS,
   PERMISSIONS,
   READ_CP_USER_LEVELS,
+  TIME_DURATION_UNITS,
   USER_TYPES,
   WRITE_CP_USER_LEVELS
 } from '../../consts';
@@ -46,6 +47,10 @@ export default async function genTypeDefs(serviceDiscovery) {
 
     enum ForumUserLevelsRead {
       ${Object.keys(READ_CP_USER_LEVELS).join('\n')}
+    }
+
+    enum ForumTimeDurationUnit {
+      ${TIME_DURATION_UNITS.join('\n')}
     }
 
     extend type User @key(fields: "_id") {

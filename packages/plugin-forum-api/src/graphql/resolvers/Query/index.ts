@@ -5,6 +5,7 @@ import postQueries from './postQueries';
 import commentQueries from './commentQueries';
 import { ALL_CP_USER_LEVELS } from '../../../consts';
 import permissionGroupQueries from './permissionGroupQueries';
+import subscriptionProductQueries from './subscriptionProductQueries';
 
 const userLevelQueries: IObjectTypeResolver<any, IContext> = {
   forumUserLevelValues: () => {
@@ -17,7 +18,8 @@ const Query: IObjectTypeResolver<any, IContext> = {
   ...postQueries,
   ...commentQueries,
   ...userLevelQueries,
-  ...permissionGroupQueries
+  ...permissionGroupQueries,
+  ...subscriptionProductQueries
 };
 
 export default Query;
