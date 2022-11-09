@@ -82,7 +82,7 @@ export default withProps<Props>(
       Props,
       ResolveFacebookCommentResponse,
       ResolveFacebookCommentMutationVariables
-    >(gql(mutations.conversationsChangeStatusFacebookComment), {
+    >(gql(mutations.facebookChangeCommentStatus), {
       name: 'resolveMutation'
     }),
     graphql(gql(queries.convertToInfo), {

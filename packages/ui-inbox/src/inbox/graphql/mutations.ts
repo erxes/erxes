@@ -41,16 +41,12 @@ const conversationsReplyFacebookComment = `
 }
 `;
 
-const conversationsChangeStatusFacebookComment = `
-  mutation conversationsChangeStatusFacebookComment(
-    $commentId: String,
-  ) {
-    conversationsChangeStatusFacebookComment(
-    commentId: $commentId,
-  ) {
-    commentId
+const facebookChangeCommentStatus = `
+  mutation facebookChangeCommentStatus($commentId: String) {
+    facebookChangeCommentStatus(commentId: $commentId) {
+      commentId
+    }
   }
-}
 `;
 
 const markAsRead = `
@@ -139,7 +135,7 @@ export default {
   conversationsUnassign,
   saveResponseTemplate,
   markAsRead,
-  conversationsChangeStatusFacebookComment,
+  facebookChangeCommentStatus,
   resolveAll,
   editCustomFields,
   createVideoChatRoom

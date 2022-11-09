@@ -452,28 +452,6 @@ const conversationMutations = {
     );
   },
 
-  async conversationsChangeStatusFacebookComment(
-    _root,
-    doc: IReplyFacebookComment,
-    { subdomain }: IContext
-  ) {
-    const requestName = 'replyFacebookPost';
-    const type = 'facebook';
-    const action = 'change-status-comment';
-    const conversationId = doc.commentId;
-    doc.content = '';
-
-    return sendConversationToServices(
-      subdomain,
-      type,
-      '',
-      conversationId,
-      requestName,
-      doc,
-      action
-    );
-  },
-
   /**
    * Assign employee to conversation
    */

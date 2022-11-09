@@ -8,23 +8,6 @@ export const handleFacebookMessage = async (models: IModels, msg) => {
   const { action, payload } = msg;
   const doc = JSON.parse(payload || '{}');
 
-  if (action === 'change-status-comment') {
-    const { conversationId } = doc;
-
-    const comment = await models.Comments.findOne({
-      commentId: conversationId
-    });
-
-    if (!comment) {
-      throw new Error('Comment not found');
-    }
-
-    return models.Comments.updateOne(
-      { commentId: conversationId },
-      { $set: { isResolved: comment.isResolved ? false : true } }
-    );
-  }
-
   if (action === 'reply-post') {
     const { integrationId, conversationId, content, attachments } = doc;
 

@@ -294,7 +294,6 @@ export const mutations = `
     facebookMessageTag: String
   ): ConversationMessage
   conversationsReplyFacebookComment(conversationId: String, commentId: String, content: String): FacebookComment
-  conversationsChangeStatusFacebookComment(commentId: String): FacebookComment
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
   conversationsUnassign(_ids: [String]!): [Conversation]
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]

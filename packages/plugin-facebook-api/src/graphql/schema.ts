@@ -67,4 +67,5 @@ export const queries = `
 export const mutations = `
   facebookUpdateConfigs(configsMap: JSON!): JSON
   facebookRepair(_id: String!): JSON
+  facebookChangeCommentStatus(commentId: String): FacebookComment
 `;
