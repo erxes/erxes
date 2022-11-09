@@ -12,6 +12,7 @@ import {
 import { receiveVisitorDetail } from './widgetUtils';
 import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
 import { getIntegrationsKinds } from './utils';
+import { sendNotifications } from './graphql/resolvers/conversationMutations';
 
 export let client;
 
@@ -284,6 +285,10 @@ export const initBroker = cl => {
       };
     }
   );
+
+  consumeQueue('inbox:sendNotifications', async ({ data, subdomain }) => {
+    await sendNotifications(subdomain, data);
+  });
 };
 
 export const sendCommonMessage = async (

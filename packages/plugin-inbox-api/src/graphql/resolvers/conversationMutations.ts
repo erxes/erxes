@@ -213,7 +213,7 @@ export const publishMessage = async (
   }
 };
 
-const sendNotifications = async (
+export const sendNotifications = async (
   subdomain: string,
   {
     user,
@@ -248,18 +248,24 @@ const sendNotifications = async (
       case 'conversationAddMessage':
         doc.action = `sent you a message`;
         doc.receivers = conversationNotifReceivers(conversation, user._id);
+
         break;
       case 'conversationAssigneeChange':
         doc.action = 'has assigned you to conversation ';
+
         break;
       case 'unassign':
         doc.notifType = 'conversationAssigneeChange';
         doc.action = 'has removed you from conversation';
+
         break;
       case 'conversationStateChange':
         doc.action = `changed conversation status to ${(
           conversation.status || ''
         ).toUpperCase()}`;
+
+        break;
+      default:
         break;
     }
 
@@ -413,43 +419,6 @@ const conversationMutations = {
     publishMessage(models, dbMessage, conversation.customerId);
 
     return dbMessage;
-  },
-
-  async conversationsReplyFacebookComment(
-    _root,
-    doc: IReplyFacebookComment,
-    { user, models, subdomain }: IContext
-  ) {
-    const conversation = await models.Conversations.getConversation(
-      doc.conversationId
-    );
-    const integration = await models.Integrations.getIntegration({
-      _id: conversation.integrationId
-    });
-
-    await sendNotifications(subdomain, {
-      user,
-      conversations: [conversation],
-      type: 'conversationStateChange',
-      mobile: true,
-      messageContent: doc.content
-    });
-
-    const requestName = 'replyFacebookPost';
-    const integrationId = integration.id;
-    const conversationId = doc.commentId;
-    const type = 'facebook';
-    const action = 'reply-post';
-
-    await sendConversationToServices(
-      subdomain,
-      type,
-      integrationId,
-      conversationId,
-      requestName,
-      doc,
-      action
-    );
   },
 
   /**

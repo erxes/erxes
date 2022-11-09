@@ -121,23 +121,6 @@ export const types = ({ tags, forms }) => `
     permalink_url: String
   }
 
-  type FacebookComment {
-    conversationId: String
-    commentId: String
-    postId: String
-    parentId: String
-    recipientId:String
-    senderId: String
-    permalink_url: String
-    attachments: [String]
-    content: String
-    erxesApiId: String
-    timestamp: Date
-    customer: Customer
-    commentCount: Int
-    isResolved: Boolean
-  }
-
   type Email {
     email: String
   }
@@ -293,7 +276,6 @@ export const mutations = `
     contentType: String
     facebookMessageTag: String
   ): ConversationMessage
-  conversationsReplyFacebookComment(conversationId: String, commentId: String, content: String): FacebookComment
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
   conversationsUnassign(_ids: [String]!): [Conversation]
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]

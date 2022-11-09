@@ -1,10 +1,12 @@
 import messageFields from './messageFields';
 import { paramsDef, paramsValue } from './queries';
 
+const commonParamDefs = `$conversationId: String, $content: String`;
+const commonParams = `conversationId: $conversationId, content: $content`;
+
 const conversationMessageAdd = `
   mutation conversationMessageAdd(
-    $conversationId: String,
-    $content: String,
+    ${commonParamDefs},
     $contentType: String,
     $mentionedUserIds: [String],
     $internal: Boolean,
@@ -12,8 +14,7 @@ const conversationMessageAdd = `
     $facebookMessageTag: String
   ) {
     conversationMessageAdd(
-      conversationId: $conversationId,
-      content: $content,
+      ${commonParams},
       contentType: $contentType,
       mentionedUserIds: $mentionedUserIds,
       internal: $internal,
@@ -25,18 +26,10 @@ const conversationMessageAdd = `
   }
 `;
 
-const conversationsReplyFacebookComment = `
-  mutation conversationsReplyFacebookComment(
-    $conversationId: String,
-    $content: String,
-    $commentId: String,
-  ) {
-    conversationsReplyFacebookComment(
-    conversationId: $conversationId,
-    content: $content,
-    commentId: $commentId,
-  ) {
-    commentId
+const facebookReplyToComment = `
+  mutation facebookReplyToComment(${commonParamDefs}, $commentId: String) {
+    facebookReplyToComment(${commonParams}, commentId: $commentId) {
+      commentId
   }
 }
 `;
@@ -50,12 +43,8 @@ const facebookChangeCommentStatus = `
 `;
 
 const markAsRead = `
-  mutation conversationMarkAsRead(
-    $_id: String
-  ) {
-    conversationMarkAsRead(
-      _id: $_id,
-    ) {
+  mutation conversationMarkAsRead($_id: String) {
+    conversationMarkAsRead(_id: $_id) {
       _id
     }
   }
@@ -128,7 +117,7 @@ const createVideoChatRoom = `
 `;
 
 export default {
-  conversationsReplyFacebookComment,
+  facebookReplyToComment,
   conversationMessageAdd,
   conversationsChangeStatus,
   conversationsAssign,
