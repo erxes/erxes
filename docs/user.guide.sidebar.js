@@ -93,7 +93,8 @@ module.exports = {
             'user-guide/products/messenger',
             'user-guide/products/knowledgebase',
             'user-guide/products/sentimental',
-            'user-guide/products/webbuilder'
+            'user-guide/products/webbuilder',
+            'user-guide/products/script-install'
           ]
         },
         {
