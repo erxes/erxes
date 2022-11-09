@@ -256,10 +256,6 @@ const integrationMutations = {
 
     let kind = doc.kind;
 
-    if (kind.includes('facebook')) {
-      kind = 'facebook';
-    }
-
     try {
       if ('webhook' !== kind) {
         let brokerDoc: any = {
@@ -279,6 +275,11 @@ const integrationMutations = {
           ].includes(kind)
         ) {
           serviceName = 'integrations';
+
+          if (kind.includes('facebook')) {
+            kind = 'facebook';
+          }
+
           brokerDoc.data = data ? JSON.stringify(data) : '';
         } else {
           serviceName = kind;
