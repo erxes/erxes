@@ -29,7 +29,7 @@ const timeclocks = ({ location, history }) => {
     />
   );
 };
-const absence = ({ location, history }) => {
+const schedule = ({ location, history }) => {
   const route_path = location.pathname.split('/').slice(-1)[0];
   const queryParams = queryString.parse(location.search);
   const { startDate, endDate, userId } = queryParams;
@@ -43,7 +43,11 @@ const absence = ({ location, history }) => {
       history={history}
     />
   ) : (
-    <ScheduleList queryParams={queryParams} history={history} />
+    <ScheduleList
+      queryParams={queryParams}
+      queryUserId={userId}
+      history={history}
+    />
   );
 };
 
@@ -51,8 +55,8 @@ const routes = () => {
   return (
     <>
       <Route path="/timeclocks" exact={true} component={timeclocks} />
-      <Route path="/timeclocks/absence" component={absence} />
-      <Route path="/timeclocks/schedule" component={absence} />
+      <Route path="/timeclocks/absence" component={schedule} />
+      <Route path="/timeclocks/schedule" component={schedule} />
     </>
   );
 };

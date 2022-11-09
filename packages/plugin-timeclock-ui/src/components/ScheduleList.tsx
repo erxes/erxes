@@ -17,7 +17,8 @@ type Props = {
   scheduleOfMembers: any;
   queryParams: any;
   history: any;
-  solveSchedule: (absenceId: string, status: string) => void;
+  solveSchedule: (scheduleId: string, status: string) => void;
+  solveShift: (shiftId: string, status: string) => void;
   submitRequest: (filledShifts: any) => void;
 };
 
@@ -40,10 +41,11 @@ function ScheduleList(props: Props) {
     submitRequest,
     history,
     scheduleOfMembers,
-    solveSchedule
+    solveSchedule,
+    solveShift
   } = props;
 
-  console.log('111kajshdkajsdh', scheduleOfMembers);
+  console.log('raw', scheduleOfMembers);
 
   const [key_counter, setKeyCounter] = useState(0);
 
@@ -171,12 +173,102 @@ function ScheduleList(props: Props) {
       wideSpacing={true}
     />
   );
+  const ListShiftContent = shifts => {
+    return (
+      <>
+        <td>
+          {shifts.map(shift => {
+            return (
+              <div key={shift.shiftStart}>
+                {new Date(shift.shiftStart).toDateString()}
+              </div>
+            );
+          })}
+        </td>
+        <td>
+          {shifts.map(shift => {
+            return (
+              <div key={shift.shiftStart}>
+                {new Date(shift.shiftStart).toLocaleTimeString()}
+              </div>
+            );
+          })}
+        </td>
+        <td>
+          {shifts.map(shift => {
+            return (
+              <div key={shift.shiftEnd}>
+                {' '}
+                {new Date(shift.shiftEnd).toLocaleTimeString()}
+              </div>
+            );
+          })}
+        </td>
+        <td>
+          {shifts.map(shift => {
+            return shift.solved ? (
+              __(shift.status)
+            ) : (
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  justifyContent: 'end'
+                }}
+              >
+                <Button
+                  disabled={shift.solved}
+                  btnStyle="success"
+                  onClick={() => solveShift(shift._id, 'Approved')}
+                >
+                  Approve
+                </Button>
+                <Button
+                  btnStyle="danger"
+                  onClick={() => solveShift(shift._id, 'Rejected')}
+                >
+                  Reject
+                </Button>
+              </div>
+            );
+          })}
+        </td>
+      </>
+    );
 
+    // <>
+    //   <div>{new Date(shift.shiftStart).toLocaleTimeString()} start</div>
+    //   <div>{shift.shiftEnd} end</div>
+    //   <td>
+    //     {shift.solved ? (
+    //       __(shift.status)
+    //     ) : (
+    //       <>
+    //         <Button
+    //           disabled={shift.solved}
+    //           btnStyle="success"
+    //           onClick={() => solveShift(shift._id, 'Approved')}
+    //         >
+    //           Approve
+    //         </Button>
+    //         <Button
+    //           btnStyle="danger"
+    //           onClick={() => solveShift(shift._id, 'Rejected')}
+    //         >
+    //           Reject
+    //         </Button>
+    //       </>
+    //     )}
+    //   </td>
+    // </>
+    // );
+  };
   const ListScheduleContent = schedule => {
     return (
-      <tr>
-        <NameCard user={schedule.user} />
-        <td> {schedule.shifts}</td>
+      <tr style={{}}>
+        <td>
+          <NameCard user={schedule.user} />
+        </td>
         <td>
           {schedule.solved ? (
             __(schedule.status)
@@ -198,6 +290,7 @@ function ScheduleList(props: Props) {
             </>
           )}
         </td>
+        {ListShiftContent(schedule.shifts)}
       </tr>
     );
   };
@@ -207,15 +300,18 @@ function ScheduleList(props: Props) {
       <thead>
         <tr>
           <th>{__('Team member')}</th>
+          <th>{__('Schedule status')}</th>
           <th>{__('Shift date')}</th>
           <th>{__('Shift start')}</th>
           <th>{__('Shift end')}</th>
+          <th>{__('Action')}</th>
         </tr>
       </thead>
       <tbody>
-        {/* {scheduleOfMembers.map(memberSchedule => {
-          ListScheduleContent(memberSchedule);
-        })} */}
+        {scheduleOfMembers &&
+          scheduleOfMembers.map(memberSchedule => {
+            return ListScheduleContent(memberSchedule);
+          })}
       </tbody>
     </Table>
   );

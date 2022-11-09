@@ -38,12 +38,15 @@ query listAbsenceQuery($startDate: Date, $endDate: Date, $userId: String){
 }`;
 
 const listSchedule = `
-query listAbsenceQuery($startDate: Date, $endDate: Date, $userId: String){
+query listScheduleQuery($startDate: Date, $endDate: Date, $userId: String){
   schedules(startDate: $startDate, endDate: $endDate, userId: $userId){
     _id
     shifts{
+      _id
       shiftStart
       shiftEnd
+      solved
+      status
     }
     solved
     status

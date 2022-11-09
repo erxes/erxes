@@ -139,7 +139,7 @@ const templateMutations = {
 
   async solveShiftRequest(
     _root,
-    { _id, status, solved, ...doc }: IShiftEdit,
+    { _id, status, ...doc }: IShiftEdit,
     { models, subdomain, user }: IContext
   ) {
     const shift = await models.Shifts.getShift(_id);
