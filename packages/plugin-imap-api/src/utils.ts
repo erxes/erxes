@@ -100,7 +100,12 @@ const saveMessages = async (
   const msgs: any = await searchMessages(imap, criteria);
 
   for (const msg of msgs) {
-    if (msg.to && msg.to.value !== integration.user) {
+    if (
+      msg.to &&
+      msg.to.value &&
+      msg.to.value[0] &&
+      msg.to.value[0].address !== integration.user
+    ) {
       console.log('ignoring ', msg.to, integration.user);
       continue;
     }
