@@ -8,6 +8,9 @@ The following documentation will guide you through the installation of an erxes 
 
 Docker is an open platform that allows to develop, ship and run applications by using containers (i.e. packages containing all the parts an application needs to function, such as libraries and dependencies).
 
+## Installation video
+<iframe width="560" height="315" src="https://www.youtube.com/embed/TWFEcGMECpA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 ## First steps: Setting up a server with Ubuntu 22.10
 
 You must have an account with your hosting provider prior to doing these steps.

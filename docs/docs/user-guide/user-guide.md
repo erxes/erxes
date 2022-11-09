@@ -17,6 +17,9 @@ Before going any further into this user guide, we recommend you acknowledge the 
 
 ## License & Pricing
 
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/Pricing+plan.png
+" width="80%" alt="Pricing plan" ></img>
+
 erxes provides 3 different packages for our clients, which include:
 
 1. **A self-hosted version** that is suitable for SaaS providers or enterprises operating in highly regulated industries, like insurance, mobile network providers, banking and etc. As it is self-hosted, you must ensure you and your organization have a skilled DevOps person/team to look after the server to maintain the smooth operation of your erxes operating system daily. As an erxes user, you can choose between using the Community Edition, which is entirely free, or paid plan of the Enterprise Edition.
