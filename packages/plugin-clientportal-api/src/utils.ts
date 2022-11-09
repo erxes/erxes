@@ -228,7 +228,8 @@ export const sendNotification = async (
         _id: notification._id,
         userId: recipient._id,
         title: notification.title,
-        content: notification.content
+        content: notification.content,
+        link: notification.link
       }
     });
   }
