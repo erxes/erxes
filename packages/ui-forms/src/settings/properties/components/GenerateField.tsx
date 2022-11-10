@@ -298,7 +298,7 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
-  renderCustomProperties({id,value}){
+  renderCustomProperties({id,value},type){
 
     const onSelect = e => {
       const { onValueChange } = this.props;
@@ -310,7 +310,7 @@ export default class GenerateField extends React.Component<Props, State> {
       }
     };
 
-    return pluginsCustomPropertyFields(value,onSelect);
+    return pluginsCustomPropertyFields(value,type,onSelect);
   }
 
   renderHtml() {
@@ -625,7 +625,7 @@ export default class GenerateField extends React.Component<Props, State> {
           );
 
           if (plugins?.customProperties.find(customProperty => customProperty.value === type)) {
-            return this.renderCustomProperties(attrs);
+            return this.renderCustomProperties(attrs,type);
           }
 
           return this.renderInput(attrs);
