@@ -95,16 +95,19 @@ export const afterDealUpdate = async (subdomain, params) => {
   }
 
   if (stage.code && stage.code === 'start') {
-    await notifyDealRelatedUsers(
-      subdomain,
-      process.env.MOBILE_CP_ID || '',
-      deal,
-      {
-        title: 'Жолооч ажлыг хүлээн авлаа',
-        content: `Жолооч ${deal.name} ажлыг хүлээн авч, эхлүүлсэн байна!`,
-        link: `/monitoring/deal?id=${deal._id}`
-      }
-    );
+    await notifyDealRelatedUsers(subdomain, process.env.WEB_CP_ID || '', deal, {
+      title: 'Жолооч ажлыг хүлээн авлаа',
+      content: `Жолооч ${deal.name} ажлыг хүлээн авлаа!`,
+      link: `/monitoring/deal?id=${deal._id}`
+    });
+  }
+
+  if (stage.code && stage.code === 'ready') {
+    await notifyDealRelatedUsers(subdomain, process.env.WEB_CP_ID || '', deal, {
+      title: 'Бэлэн байдал хангагдлаа',
+      content: `Жолооч ${deal.name} ажлыг бэлэн байдлыг хангалаа. Та ажлыг эхлүүлэх зөвшөөрөл олгоно уу!`,
+      link: `/monitoring/deal?id=${deal._id}`
+    });
   }
 
   return;
