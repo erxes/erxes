@@ -15,6 +15,8 @@ type ForumSubscriptionOrder {
   
     cpUserId: String!
     createdAt: String!
+
+    contentType: String!
 }
 `;
 

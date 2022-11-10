@@ -1,6 +1,15 @@
 import React, { FC } from 'react';
-import { useQuery } from 'react-apollo';
+import { useQuery, useMutation } from 'react-apollo';
 import { FORUM_SUBSCRIPTION_PRODUCTS_QUERY } from '../../graphql/queries';
+import gql from 'graphql-tag';
+
+const DELETE = gql`
+  mutation ForumDeleteSubscriptionProduct($id: ID!) {
+    forumDeleteSubscriptionProduct(_id: $id) {
+      _id
+    }
+  }
+`;
 
 const List: FC = () => {
   const { loading, error, data } = useQuery(FORUM_SUBSCRIPTION_PRODUCTS_QUERY, {
@@ -8,6 +17,10 @@ const List: FC = () => {
       sort: { listOrder: -1 }
     },
     fetchPolicy: 'network-only'
+  });
+
+  const [mutDelete] = useMutation(DELETE, {
+    refetchQueries: ['ForumSubscriptionProducts']
   });
 
   if (loading) return null;
@@ -24,6 +37,7 @@ const List: FC = () => {
             <th>Unit</th>
             <th>Price</th>
             <th>List order</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -35,6 +49,20 @@ const List: FC = () => {
               <td>{sp.unit}</td>
               <td>{sp.price}</td>
               <td>{sp.listOrder}</td>
+              <td>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await mutDelete({
+                      variables: {
+                        id: sp._id
+                      }
+                    });
+                  }}
+                >
+                  Delete
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
