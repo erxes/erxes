@@ -124,7 +124,7 @@ const templateMutations = {
     });
 
     const updateScheduleShifts = await models.Shifts.updateMany(
-      { scheduleId: _id },
+      { scheduleId: _id, solved: false },
       { $set: { status: `${status}`, solved: true } }
     );
 
@@ -153,6 +153,25 @@ const templateMutations = {
       solved: true,
       ...doc
     });
+
+    // check if all shifts of a schedule solved
+    let otherShiftsSolved = true;
+    const schedule = await models.Shifts.find({ scheduleId: shift.scheduleId });
+
+    for (const shiftOfSchedule of schedule) {
+      if (shiftOfSchedule.solved === false) {
+        otherShiftsSolved = false;
+        break;
+      }
+    }
+
+    if (otherShiftsSolved) {
+      const updateSchedule = await models.Schedules.updateOne(
+        { _id: shift.scheduleId },
+        { $set: { solved: true, status: 'solved' } }
+      );
+    }
+    console.log('gagag', schedule);
 
     await putUpdateLog(
       subdomain,

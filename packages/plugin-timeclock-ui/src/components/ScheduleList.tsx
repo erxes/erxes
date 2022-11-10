@@ -207,15 +207,9 @@ function ScheduleList(props: Props) {
         <td>
           {shifts.map(shift => {
             return shift.solved ? (
-              __(shift.status)
+              <div>{__(shift.status)}</div>
             ) : (
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  justifyContent: 'end'
-                }}
-              >
+              <div>
                 <Button
                   disabled={shift.solved}
                   btnStyle="success"
