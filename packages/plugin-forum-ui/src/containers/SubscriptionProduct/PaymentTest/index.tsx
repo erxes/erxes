@@ -61,7 +61,7 @@ const PaymentTest: FC = () => {
   const [iframeSrc, setIframeSrc] = useState('');
   const [paymentData, setPaymentData] = useState(null);
   const [subscriptionProductId, setSubscriptionProductId] = useState('');
-  const [currentOrder, setCurrentOrder] = useState(null);
+  const [currentOrder, setCurrentOrder] = useState<any>(null);
 
   const [mutGenInvoiceLink] = useMutation(GENERATE_INVOICE_URL, {
     onError: console.error
@@ -106,7 +106,14 @@ const PaymentTest: FC = () => {
       if (fromPayment) {
         console.log(event);
         if (message === 'paymentSuccessfull') {
+          console.log(typeof invoice);
+          console.log(invoice._id);
+
           const invoiceParsed = JSON.parse(invoice);
+
+          if (!currentOrder) {
+            return alert('Fatal error! Current order is not set');
+          }
 
           await mutPaymentSuccess({
             variables: {
