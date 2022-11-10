@@ -23,6 +23,7 @@ import Uploader from '@erxes/ui/src/components/Uploader';
 import { __ } from '@erxes/ui/src/utils/core';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
+import { pluginsCustomPropertyField } from 'coreui/pluginUtils';
 
 type Props = {
   field: IField;
@@ -296,6 +297,22 @@ export default class GenerateField extends React.Component<Props, State> {
       />
     );
   }
+
+  renderCustomProperties({id,value}){
+
+    const onSelect = e => {
+      const { onValueChange } = this.props;
+
+      if (onValueChange) {
+        this.setState({ value: e });
+
+        onValueChange({ _id: id, value: e });
+      }
+    };
+
+    return pluginsCustomPropertyField(value,onSelect);
+  }
+
   renderHtml() {
     const { content } = this.props.field;
     return (
@@ -603,6 +620,14 @@ export default class GenerateField extends React.Component<Props, State> {
 
       default:
         try {
+          const plugins = ((window as any).plugins || []).find(
+            plugin => plugin['customProperties']
+          );
+
+          if (plugins?.customProperties.find(customProperty => customProperty.value === type)) {
+            return this.renderCustomProperties(attrs);
+          }
+
           return this.renderInput(attrs);
         } catch {
           return this.renderInput(attrs, true);

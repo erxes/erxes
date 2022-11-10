@@ -26,6 +26,7 @@ import PropertyLogics from '../containers/PropertyLogics';
 import { IFieldGroup } from '../types';
 import LocationOptions from './LocationOptions';
 import ObjectListConfigs from './ObjectListConfigs';
+import { pluginsCustomPropertyTypes } from 'coreui/pluginUtils';
 
 type Props = {
   queryParams: any;
@@ -403,6 +404,7 @@ class PropertyForm extends React.Component<Props, State> {
             <option value="customer">Customer</option>
             <option value="product">Product</option>
             <option value="map">Location/Map</option>
+          {pluginsCustomPropertyTypes()}
           </FormControl>
         </FormGroup>
         {this.renderOptions()}
