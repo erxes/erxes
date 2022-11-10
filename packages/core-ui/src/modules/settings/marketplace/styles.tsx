@@ -296,9 +296,11 @@ const Detail = styled.div`
   .title-row i {
     margin-right: 5px;
   }
-  .intro {
+  .intro,
+  .protip,
+  .danger,
+  info {
     border-radius: 10px;
-    background: #6569df;
     color: #ffffff;
     padding: 20px;
     margin-top: 15px;
@@ -306,6 +308,9 @@ const Detail = styled.div`
     width: auto;
     height: auto;
     line-height: 24px;
+  }
+  .intro {
+    background: #6569df;
   }
   .intro p,
   .danger p,
@@ -314,37 +319,13 @@ const Detail = styled.div`
     color: white;
   }
   .protip {
-    border-radius: 10px;
     background: #63d2d6;
-    color: #ffffff;
-    padding: 20px;
-    margin-top: 15px;
-    margin-bottom: 15px;
-    width: auto;
-    height: auto;
-    line-height: 24px;
   }
   .danger {
-    border-radius: 10px;
     background: #ea475d;
-    color: #ffffff;
-    padding: 20px;
-    margin-top: 15px;
-    margin-bottom: 15px;
-    width: auto;
-    height: auto;
-    line-height: 24px;
   }
   .info {
-    border-radius: 10px;
     background: #3b85f4;
-    color: #ffffff;
-    padding: 20px;
-    margin-top: 15px;
-    margin-bottom: 15px;
-    width: auto;
-    height: auto;
-    line-height: 24px;
   }
 `;
 
