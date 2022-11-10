@@ -1,9 +1,14 @@
+import { PAYMENT_KINDS } from './../constants';
 import { Model } from 'mongoose';
 
 import { IModels } from '../connectionResolver';
 import redisUtils from '../redisUtils';
-import { cancelPayment, createNewInvoice, makeInvoiceNo } from '../utils';
-import { getInvoice } from './../api/qPay/utils';
+import {
+  cancelPayment,
+  checkInvoice,
+  createNewInvoice,
+  makeInvoiceNo
+} from '../utils';
 import {
   IInvoice,
   IInvoiceDocument,
@@ -15,6 +20,7 @@ export interface IInvoiceModel extends Model<IInvoiceDocument> {
   createInvoice(doc: IInvoice): Promise<IInvoiceDocument>;
   updateInvoice(_id: string, doc: any): Promise<IInvoiceDocument>;
   cancelInvoice(_id: string): Promise<String>;
+  checkInvoice(_id: string): Promise<String>;
 }
 
 export const loadInvoiceClass = (models: IModels) => {
@@ -135,6 +141,20 @@ export const loadInvoiceClass = (models: IModels) => {
       redisUtils.removeInvoice(_id);
 
       return 'success';
+    }
+
+    public static async checkInvoice(_id: string) {
+      const invoice = await models.Invoices.getInvoice({ _id });
+
+      if (!invoice.selectedPaymentId || !invoice.selectedPaymentId.length) {
+        return 'pending';
+      }
+
+      const payment = await models.Payments.getPayment(
+        invoice.selectedPaymentId
+      );
+
+      return checkInvoice(invoice, payment);
     }
   }
   invoiceSchema.loadClass(Invoices);

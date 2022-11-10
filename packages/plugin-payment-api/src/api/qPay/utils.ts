@@ -33,8 +33,7 @@ export const qPayHandler = async (models: IModels, queryParams) => {
         {
           $set: {
             status: PAYMENT_STATUS.PAID,
-            resolvedAt: new Date(),
-            description: response.invoice_description
+            resolvedAt: new Date()
           }
         }
       );

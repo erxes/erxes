@@ -42,7 +42,8 @@ block layout-content
                                         window.parent.postMessage({
                                             fromPayment: true,
                                             message:"paymentSuccessfull",
-                                            invoice
+                                            contentType: invoice.contentType,
+                                            contentTypeId: invoice.contentTypeId,
                                         },'*');
                                         if (`#{invoiceData.redirectUri}`) {
                                             window.location.href = `#{invoiceData.redirectUri}`;
@@ -68,7 +69,9 @@ block layout-content
                                         window.parent.postMessage({
                                             fromPayment: true,
                                             message:"paymentSuccessfull",
-                                            invoice
+                                            invoiceId: invoice._id,
+                                            contentType: invoice.contentType,
+                                            contentTypeId: invoice.contentTypeId,
                                         },'*');
                                         if (`#{invoiceData.redirectUri}`) {
                                             window.location.href = `#{invoiceData.redirectUri}`;
@@ -94,7 +97,9 @@ block layout-content
                                  window.parent.postMessage({
                                         fromPayment: true,
                                         message:"paymentSuccessfull",
-                                        invoice: `#{invoice}`
+                                        invoiceId: `#{invoice._id}`,
+                                        contentType: `#{invoice.contentType}`,
+                                        contentTypeId: `#{invoice.contentTypeId}`,
                                     },'*');
                                 if (`#{invoiceData.redirectUri}`) {
                                     window.location.href = `#{invoiceData.redirectUri}`;
