@@ -369,19 +369,21 @@ const integrationMutations = {
       } else {
         await sendIntegrationsMessage({ ...commonParams });
       }
-
-      await putDeleteLog(
-        models,
-        subdomain,
-        { type: MODULE_NAMES.INTEGRATION, object: integration },
-        user
-      );
-
-      return models.Integrations.removeIntegration(_id);
     } catch (e) {
-      debug.error(e);
-      throw e;
+      if (e.message !== 'Integration not found') {
+        debug.error(e);
+        throw e;
+      }
     }
+
+    await putDeleteLog(
+      models,
+      subdomain,
+      { type: MODULE_NAMES.INTEGRATION, object: integration },
+      user
+    );
+
+    return models.Integrations.removeIntegration(_id);
   },
 
   /**
