@@ -32,7 +32,7 @@
   <a href="https://www.figma.com/@erxes" target="_blank">
       <img alt="Figma" src="https://img.shields.io/badge/Figma-Design%20System-blueviolet">
   </a>
-   <a href="https://docs.erxes.io/contribute/overview">
+   <a href="https://docs.erxes.io/docs/contribute/overview">
       <img alt="Help Wanted" src="https://img.shields.io/badge/Help%20Wanted-Contribute-blue">
   </a>
    <a href="https://github.com/erxes/erxes/stargazers">
@@ -50,7 +50,7 @@
 </p>
 
 <p align="center">
- <a href="https://www.erxes.io/![Cover](https://erxes-docs.s3.us-west-2.amazonaws.com/xos.jpeg)"><img src="https://erxes-docs.s3.us-west-2.amazonaws.com/xos.jpeg" width="100%" alt="erxes: Free and open fair-code licensed experience operating system (XOS)">
+ <a href="https://erxes-docs.s3.us-west-2.amazonaws.com/xos.jpeg"><img src="https://erxes-docs.s3.us-west-2.amazonaws.com/xos.jpeg" width="100%" alt="erxes: Free and open fair-code licensed experience operating system (XOS)">
 </a>
 </p>
 
