@@ -223,3 +223,32 @@ export const TRIP_STATUSES = {
   START: 'start',
   READY: 'ready'
 };
+
+export const DEAL_STAGE_CODES = {
+  newOrder: 'HqYQxg7s9kTEgKeiQ',
+  driverFound: 'SyXSohjbeg8Prg2AZ',
+  orderAgain: 'xiKTAAuNZFFzAhP3M',
+  negotiationAccepted: 'jhNLB2k9hhi2P9Ti9',
+  advancePaid: '55Frmoa3ReudtzziA',
+  driverCanceled: 'QznBBdCg5YpcrmrPc',
+  driverNotFound: 'LcEkBCFaYeDLqie2B',
+  clientCanceled: 'MdLDB5DsA8ydJ7ZYd',
+  prePaymentContract: 'vxyANwWwJctPBizaY',
+
+  // dispatch
+  start: 'cukDh4pYmFqHNwHBf',
+  ready: 'EWEivyngnZsKGpjia',
+  load: 'dNXPKPoaPaeiGR2uP',
+  loadAccepted: 'Hn5xFhcZwe9Mccarb',
+  gone: 'bDcvy3bMjGtqscvRv',
+  break: '8yGH779NcYg2KGAhN',
+  discoveredBreak: 'r8fxfzMNQcoodrSLY',
+  end: 'cnXiBivHDimt9GNDY',
+  unload: 'mDBF2pZg3TqCWW4Ky',
+  unloadFinish: 'o7e5JCGux9ay5yiHJ',
+  unloadAccepted: 'yotg64TeoK9AEjDd8',
+  getPaid: 'mRSKSa28TjmXfZiyQ',
+  complete: '44njLM4nwpHst65Aw',
+  fight: 'utsRvQMGpAy4QjZ2R',
+  paymentContract: 'qwgsrzPXAPWSBGSDG'
+};
