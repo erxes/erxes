@@ -1,5 +1,20 @@
 import { attachmentType } from '@erxes/api-utils/src/commonTypeDefs';
 
+const commonCommentAndMessageFields = `
+  content: String
+  conversationId: String
+`;
+
+const commonPostAndCommentFields = `
+  postId: String
+  recipientId: String
+  senderId: String
+  erxesApiId: String
+  attachments: [String]
+  timestamp: Date
+  permalink_url: String
+`;
+
 export const types = `
   ${attachmentType}
 
@@ -8,17 +23,10 @@ export const types = `
   }
 
   type FacebookComment {
-    conversationId: String
+    ${commonCommentAndMessageFields}
     commentId: String
-    postId: String
+    ${commonPostAndCommentFields}
     parentId: String
-    recipientId:String
-    senderId: String
-    permalink_url: String
-    attachments: [String]
-    content: String
-    erxesApiId: String
-    timestamp: Date
     customer: Customer
     commentCount: Int
     isResolved: Boolean
@@ -26,9 +34,8 @@ export const types = `
 
   type FacebookConversationMessage {
     _id: String!
-    content: String
+    ${commonCommentAndMessageFields}
     attachments: [Attachment]
-    conversationId: String
     fromBot: Boolean
     botData: JSON
     customerId: String
@@ -36,6 +43,12 @@ export const types = `
     createdAt: Date
     isCustomerRead: Boolean
     mid: String
+  }
+
+  type FacebookPost @key(fields: "_id") {
+    _id: String!
+    ${commonPostAndCommentFields}
+    content:String
   }
 `;
 

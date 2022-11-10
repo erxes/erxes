@@ -3,7 +3,7 @@ import {
   attachmentType
 } from '@erxes/api-utils/src/commonTypeDefs';
 
-export const types = ({ tags, forms }) => `
+export const types = ({ tags, forms, facebook, contacts }) => `
   ${attachmentType}
   ${attachmentInput}
 
@@ -26,17 +26,18 @@ export const types = ({ tags, forms }) => `
       : ''
   }
 
-  extend type User @key(fields: "_id") {
-    _id: String! @external
+  ${
+    facebook
+      ? `
+      extend type FacebookPost @key(fields: "_id") {
+        _id: String! @external
+      }
+    `
+      : ''
   }
 
-  type ConversationFacebookData {
-    kind: String
-    senderName: String
-    senderId: String
-    recipientId: String
-    postId: String
-    pageId: String
+  extend type User @key(fields: "_id") {
+    _id: String! @external
   }
 
   type Conversation {
@@ -58,12 +59,11 @@ export const types = ({ tags, forms }) => `
     operatorStatus: String
 
     messages: [ConversationMessage]
-    facebookPost: FacebookPost
+    ${facebook ? `facebookPost: FacebookPost` : ''}
     callProAudio: String
     
-    ${tags ? `tags: [Tag]` : ''}
-
-    customer: Customer
+    ${tags ? 'tags: [Tag]' : ''}
+    ${contacts ? 'customer: Customer' : ''}
     integration: Integration
     user: User
     assignedUser: User
@@ -108,17 +108,6 @@ export const types = ({ tags, forms }) => `
     videoCallData: VideoCallData
     contentType: String
     bookingWidgetData: JSON
-  }
-
-  type FacebookPost {
-    postId: String
-    recipientId: String
-    senderId: String
-    content:String
-    erxesApiId: String
-    attachments: [String]
-    timestamp: Date
-    permalink_url: String
   }
 
   type Email {

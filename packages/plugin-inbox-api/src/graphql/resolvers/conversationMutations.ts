@@ -39,12 +39,6 @@ export interface IConversationMessageAdd {
   userId?: string;
 }
 
-interface IReplyFacebookComment {
-  conversationId: string;
-  commentId: string;
-  content: string;
-}
-
 interface IAttachment {
   name: string;
   type: string;
