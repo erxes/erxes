@@ -2,8 +2,7 @@ module.exports = {
   name: "products",
   port: 3022,
   exposes: {
-    "./routes": "./src/routes.tsx",
-    "./customProperties":"./src/test.tsx"
+    "./routes": "./src/routes.tsx"
   },
   routes: {
     url: "http://localhost:3022/remoteEntry.js",
@@ -29,13 +28,5 @@ module.exports = {
       action: "productsAll",
       permissions: ["showProducts", "manageProducts"],
     },
-  ],
-  customProperties: [
-    {
-      scope: 'products',
-      component: './customProperties',
-      label:'Asset',
-      value:'asset'
-    }
   ]
 };
