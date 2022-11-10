@@ -204,6 +204,57 @@ const DetailMainContainer = styled.div`
     ul {
       margin: 0;
     }
+    .title-row {
+      display: flex;
+    }
+    .title-row i {
+      margin-right: 5px;
+    }
+    .caution {
+      border-radius: 10px;
+      background: #fda50d;
+      color: #333;
+      padding: 20px;
+      margin-top: 15px;
+      margin-bottom: 15px;
+      width: auto;
+      height: auto;
+      line-height: 24px;
+    }
+    .caution p {
+      color: #333;
+    }
+    .intro,
+    .protip,
+    .danger,
+    info {
+      border-radius: 10px;
+      color: #ffffff;
+      padding: 20px;
+      margin-top: 15px;
+      margin-bottom: 15px;
+      width: auto;
+      height: auto;
+      line-height: 24px;
+    }
+    .intro {
+      background: #6569df;
+    }
+    .intro p,
+    .danger p,
+    .info p,
+    .protip p {
+      color: white;
+    }
+    .protip {
+      background: #63d2d6;
+    }
+    .danger {
+      background: #ea475d;
+    }
+    .info {
+      background: #3b85f4;
+    }
   }
 `;
 
@@ -400,70 +451,6 @@ const DetailStyle = styled.div`
     display: flex;
     margin: 10px 0;
     align-items: center;
-  }
-  .intro {
-    border-radius: 10px;
-    background: #6569df;
-    color: #ffffff;
-    padding: 20px;
-    margin-top: 15px;
-    margin-bottom: 15px;
-    width: auto;
-    height: auto;
-    line-height: 24px;
-  }
-  .intro p,
-  .danger p,
-  .info p,
-  .protip p {
-    color: white;
-  }
-  .protip {
-    border-radius: 10px;
-    background: #63d2d6;
-    color: #ffffff;
-    padding: 20px;
-    margin-top: 15px;
-    margin-bottom: 15px;
-    width: auto;
-    height: auto;
-    line-height: 24px;
-  }
-  .caution {
-    border-radius: 10px;
-    background: #fda50d;
-    color: #333;
-    padding: 20px;
-    margin-top: 15px;
-    margin-bottom: 15px;
-    width: auto;
-    height: auto;
-    line-height: 24px;
-  }
-  .caution p {
-    color: #333;
-  }
-  .danger {
-    border-radius: 10px;
-    background: #ea475d;
-    color: #ffffff;
-    padding: 20px;
-    margin-top: 15px;
-    margin-bottom: 15px;
-    width: auto;
-    height: auto;
-    line-height: 24px;
-  }
-  .info {
-    border-radius: 10px;
-    background: #3b85f4;
-    color: #ffffff;
-    padding: 20px;
-    margin-top: 15px;
-    margin-bottom: 15px;
-    width: auto;
-    height: auto;
-    line-height: 24px;
   }
 
   img {
