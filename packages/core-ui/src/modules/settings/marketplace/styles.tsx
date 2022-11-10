@@ -199,6 +199,11 @@ const DetailMainContainer = styled.div`
   }
   .plugin-detail-content {
     margin-top: ${dimensions.coreSpacing}px;
+    font-size: 14px;
+
+    ul {
+      margin: 0;
+    }
   }
 `;
 
@@ -255,9 +260,9 @@ const DetailInformation = styled.div`
 const Hashtag = styled.div`
   border-radius: 4px;
   color: ${colors.colorWhite};
-  background: #000;
+  background: ${colors.bgDark};
   padding: 2px 6px;
-  margin-right: 5px;
+  margin: 0 5px 5px 0;
   font-size: 11px;
 
   $:nth-last-child(1) {
@@ -463,6 +468,7 @@ const DetailStyle = styled.div`
     font-weight: 700;
     color: #5629b6 !important;
     display: flex;
+    margin: 10px 0;
     align-items: center;
   }
   .intro {
@@ -534,6 +540,9 @@ const DetailStyle = styled.div`
   }
   .title-row i {
     margin-right: 5px;
+
+  img {
+    margin: ${dimensions.unitSpacing}px 0;
   }
 `;
 
@@ -561,6 +570,7 @@ const MemberPic = styled.div`
   display: flex;
   align-items: center;
   overflow: hidden;
+  flex-shrink: 0;
 
   img {
     max-height: 100%;
@@ -572,10 +582,14 @@ const CardInformation = styled.div`
   display: flex;
   flex-direction: column;
   margin-left: 12px;
+
+  p {
+    font-size: 12px;
+  }
 `;
 
 const SmallText = styledTS<{ withMargin?: boolean }>(styled.span)`
-  font-size: 11px;
+  font-size: 12px;
   margin-top: ${props => props.withMargin && '5'}px;
 `;
 

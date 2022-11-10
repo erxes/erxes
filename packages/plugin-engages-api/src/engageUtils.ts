@@ -12,6 +12,7 @@ import {
   sendContactsMessage
 } from './messageBroker';
 import { IModels } from './connectionResolver';
+import { awsRequests } from './trackers/engageTracker';
 interface IEngageParams {
   engageMessage: IEngageMessageDocument;
   customersSelector: any;
@@ -280,7 +281,11 @@ const sendEmailOrSms = async (
 };
 
 // check & validate campaign doc
-export const checkCampaignDoc = (doc: IEngageMessage) => {
+export const checkCampaignDoc = async (
+  models: IModels,
+  subdomain: string,
+  doc: IEngageMessage
+) => {
   const {
     brandIds = [],
     kind,
@@ -288,7 +293,8 @@ export const checkCampaignDoc = (doc: IEngageMessage) => {
     scheduleDate,
     segmentIds = [],
     customerTagIds = [],
-    customerIds = []
+    customerIds = [],
+    fromUserId
   } = doc;
 
   const noDate =
@@ -313,6 +319,25 @@ export const checkCampaignDoc = (doc: IEngageMessage) => {
     )
   ) {
     throw new Error('One of brand or segment or tag must be chosen');
+  }
+
+  if (method === CAMPAIGN_METHODS.EMAIL) {
+    const user = await findUser(subdomain, fromUserId);
+
+    if (!user) {
+      throw new Error('From user must be specified');
+    }
+
+    if (!user.email) {
+      throw new Error(`From user email is not specified: ${user.username}`);
+    }
+
+    const verifiedEmails: any =
+      (await awsRequests.getVerifiedEmails(models)) || [];
+
+    if (!verifiedEmails.includes(user.email)) {
+      throw new Error(`From user email "${user.email}" is not verified in AWS`);
+    }
   }
 };
 

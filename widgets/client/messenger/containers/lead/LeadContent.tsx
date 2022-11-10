@@ -50,12 +50,9 @@ interface IProps {
   onSubmit: (doc: IFormDoc, formCode: string) => void;
   onCreateNew: () => void;
   sendEmail: (params: IEmailParams) => void;
-  invoiceResponse?: any;
-  lastMessageId?: string;
-  onCancelOrder: (customerId: string, messageId: string) => void;
 }
 
-const FormWithData = graphql<IProps, QueryResponse>(gql(formDetailQuery), {
+const FormWithData = graphql<IProps, QueryResponse>(gql(formDetailQuery(false)), {
   options: ({ form }) => ({
     fetchPolicy: "network-only",
     variables: {
@@ -77,9 +74,6 @@ const WithContext = ({ formCode }: { formCode: string }) => (
         isCallOutVisible,
         isSubmitting,
         showForm,
-        invoiceResponse,
-        lastMessageId,
-        cancelOrder
       }) => {
         const integration = getIntegration(formCode);
         const form = getForm(formCode);
@@ -101,9 +95,6 @@ const WithContext = ({ formCode }: { formCode: string }) => (
             sendEmail={sendEmail}
             form={form}
             integration={integration}
-            invoiceResponse={invoiceResponse}
-            lastMessageId={lastMessageId}
-            onCancelOrder={cancelOrder}
           />
         );
       }}

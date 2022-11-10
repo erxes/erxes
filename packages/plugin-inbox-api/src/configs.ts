@@ -22,6 +22,7 @@ import search from './search';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
+import automations from './automations';
 import cronjobs from './cronjobs/conversations';
 
 export let mainDb;
@@ -49,6 +50,7 @@ export default {
     search,
     logs: { providesActivityLog: true, consumers: logs },
     webhooks,
+    automations,
     cronjobs,
     // for fixing permissions
     permissions

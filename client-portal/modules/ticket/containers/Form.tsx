@@ -15,7 +15,6 @@ export const clientPortalCreateTicket = `
     $stageId: String!
     $subject: String!
     $description: String
-    $email: String!
     $priority: String
   ) {
     clientPortalCreateCard(
@@ -23,11 +22,8 @@ export const clientPortalCreateTicket = `
       stageId: $stageId
       subject: $subject
       description: $description
-      email: $email
       priority: $priority
-    ) {
-      _id
-    }
+    ) 
   }
 `;
 
@@ -45,7 +41,7 @@ function FormContainer({ config = {}, currentUser, ...props }: Props) {
         priority: "Critical", // TODO: Add select in Form
       },
     }).then(() => {
-      // window.location.href = "/tickets";
+      window.location.href = "/tickets";
     });
   };
 

@@ -1,14 +1,16 @@
 import gql from 'graphql-tag';
+
 import client from '../../apollo-client';
 import { getLocalStorageItem } from '../../common';
 import { IBrowserInfo, IEmailParams } from '../../types';
 import { requestBrowserInfo } from '../../utils';
 import { connection } from '../connection';
 import {
-  cancelOrderMutation,
+  generateInvoiceUrl,
+  getPaymentMethods,
   increaseViewCountMutation,
   saveFormMutation,
-  sendEmailMutation
+  sendEmailMutation,
 } from '../graphql';
 import { IFormDoc, ISaveFormResponse } from '../types';
 
@@ -22,7 +24,7 @@ export const postMessage = (options: any) => {
       fromErxes: true,
       source: 'fromForms',
       setting: connection.setting,
-      ...options
+      ...options,
     },
     '*'
   );
@@ -32,11 +34,11 @@ export const saveBrowserInfo = () => {
   requestBrowserInfo({
     source: 'fromForms',
     postData: {
-      setting: connection.setting
+      setting: connection.setting,
     },
-    callback: browserInfo => {
+    callback: (browserInfo) => {
       connection.browserInfo = browserInfo;
-    }
+    },
   });
 };
 
@@ -49,7 +51,7 @@ export const sendEmail = ({
   title,
   content,
   formId,
-  attachments
+  attachments,
 }: IEmailParams) => {
   const customerId = connection.customerId
     ? connection.customerId
@@ -64,8 +66,8 @@ export const sendEmail = ({
       content,
       customerId,
       formId,
-      attachments
-    }
+      attachments,
+    },
   });
 };
 
@@ -76,8 +78,8 @@ export const increaseViewCount = (formId: string) => {
   return client.mutate({
     mutation: gql(increaseViewCountMutation),
     variables: {
-      formId
-    }
+      formId,
+    },
   });
 };
 
@@ -98,10 +100,10 @@ export const saveLead = (params: {
     integrationId,
     formId,
     saveCallback,
-    userId
+    userId,
   } = params;
 
-  const submissions = Object.keys(doc).map(fieldId => {
+  const submissions = Object.keys(doc).map((fieldId) => {
     const {
       value,
       text,
@@ -111,7 +113,7 @@ export const saveLead = (params: {
       groupId,
       isHidden,
       column,
-      productId
+      productId,
     } = doc[fieldId] || {};
 
     if (isHidden) {
@@ -127,7 +129,7 @@ export const saveLead = (params: {
       associatedFieldId,
       groupId,
       column,
-      productId
+      productId,
     };
   });
 
@@ -139,15 +141,15 @@ export const saveLead = (params: {
     integrationId,
     formId,
     browserInfo,
-    submissions: submissions.filter(e => e),
+    submissions: submissions.filter((e) => e),
     cachedCustomerId,
-    userId
+    userId,
   };
 
   client
     .mutate({
       mutation: gql(saveFormMutation),
-      variables
+      variables,
     })
 
     .then(async ({ data }) => {
@@ -161,7 +163,7 @@ export const saveLead = (params: {
             fromErxes: true,
             message: 'setLocalStorageItem',
             key: 'customerId',
-            value: widgetsSaveLead.customerId
+            value: widgetsSaveLead.customerId,
           });
         }
 
@@ -170,36 +172,62 @@ export const saveLead = (params: {
         if (widgetsSaveLead && widgetsSaveLead.status === 'ok') {
           postMessage({
             message: 'formSuccess',
-            variables
+            variables,
           });
         }
       }
     })
 
-    .catch(e => {
-      saveCallback({ status: 'error', errors: [{ text: e.message }] });
+    .catch((e) => {
+      saveCallback({
+        status: 'error',
+        conversationId: '',
+        errors: [{ text: e.message }],
+      });
     });
 };
 
-export const cancelOrder = (params: {
-  customerId: string;
-  messageId: string;
-  cancelCallback: (response: string) => void;
-}) => {
-  const { customerId, messageId, cancelCallback } = params;
+export const generatePaymentLink = async (
+  amount: number,
+  conversationId: string
+) => {
+  try {
+    const qryResponse: any = await client.query({
+      query: gql(getPaymentMethods),
+      variables: {
+        contentType: 'inbox:integrations',
+        contentTypeId: connection.data.integration._id,
+      },
+    });
 
-  client
-    .mutate({
-      mutation: gql(cancelOrderMutation),
+    const { getPaymentConfig } = qryResponse.data;
+
+    if (!getPaymentConfig || getPaymentConfig.paymentIds.length === 0) {
+      return undefined;
+    }
+
+    const customerId = getLocalStorageItem('customerId');
+
+    const mutationResponse: any = await client.mutate({
+      mutation: gql(generateInvoiceUrl),
       variables: {
         customerId,
-        messageId
-      }
-    })
-    .then(res => {
-      cancelCallback('CANCELLED');
-    })
-    .catch(_e => {
-      cancelCallback('CANCEL_FAILED');
+        amount,
+        contentType: 'inbox:conversations',
+        contentTypeId: conversationId,
+        paymentIds: getPaymentConfig.paymentIds,
+      },
     });
+
+    const invoiceLink = mutationResponse.data.generateInvoiceUrl;
+
+    if (invoiceLink) {
+      return invoiceLink;
+    }
+
+    return undefined;
+  } catch (e) {
+    return undefined;
+  }
+  return undefined;
 };

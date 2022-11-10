@@ -47,6 +47,8 @@ export const types = (tagsAvailable, contactsAvailable) => `
     type: String
     description: String
     sku: String
+    barcodes: [String]
+    barcodeDescription: String
     unitPrice: Float
     categoryId: String
     customFieldsData: JSON
@@ -74,6 +76,8 @@ const productParams = `
   type: String,
   description: String,
   sku: String,
+  barcodes: [String],
+  barcodeDescription: String,
   unitPrice: Float,
   code: String,
   customFieldsData: JSON,
@@ -83,9 +87,18 @@ const productParams = `
   productCount: Int,
   minimiumCount: Int,
   vendorId: String,
-
+  segment: String,
+  segmentData: String,
   uomId: String,
-  subUoms: JSON
+  tag: String,
+  searchValue: String,
+  perPage: Int,
+  page: Int,
+  ids: [String],
+  excludeIds: Boolean,
+  pipelineId: String,
+  boardId: String,
+  subUoms: JSON,
 `;
 
 const productCategoryParams = `
@@ -101,19 +114,9 @@ export const queries = `
   productCategories(parentId: String, searchValue: String, status: String): [ProductCategory]
   productCategoriesTotalCount: Int
   productCategoryDetail(_id: String): ProductCategory
-
-  products(
-    type: String,
-    categoryId: String,
-    searchValue: String,
-    tag: String,
-    page: Int,
-    perPage: Int ids: [String],
-    excludeIds: Boolean,
-    pipelineId: String,
-    boardId: String
-  ): [Product]
-  productsTotalCount(type: String): Int
+  products(${productParams}): [Product]
+  productsTotalCount(type: String, segment: String, segmentData: String): Int
+  productsGroupCounts(${productParams}, only: String): JSON
   productDetail(_id: String): Product
   productCountByTags: JSON
 `;

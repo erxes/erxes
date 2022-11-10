@@ -26,11 +26,9 @@ type Props = {
   closeModal: () => void;
   activeTrigger?: ITrigger;
   addConfig?: (trigger: ITrigger, id?: string, config?: any) => void;
-  addFilter?: (segmentId: string) => void;
   filterContent?: (values: any) => void;
   afterSave?: () => void;
   hideDetailForm?: boolean;
-  usageType?: string;
 };
 
 type FinalProps = {
@@ -69,8 +67,7 @@ class SegmentsFormContainer extends React.Component<
       history,
       addConfig,
       activeTrigger,
-      closeModal,
-      addFilter
+      closeModal
     } = this.props;
 
     const callBackResponse = data => {
@@ -91,12 +88,6 @@ class SegmentsFormContainer extends React.Component<
         addConfig(trigger, activeTrigger.id, { contentId: result._id });
 
         closeModal();
-      }
-
-      if (addFilter) {
-        const result = values._id ? data.segmentsEdit : data.segmentsAdd;
-
-        addFilter(result._id);
       }
     };
 

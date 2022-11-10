@@ -26,17 +26,11 @@ export default {
   async integration(
     conversation: IConversationDocument,
     _args,
-    { models, serverTiming }: IContext
+    { models }: IContext
   ) {
-    serverTiming.startTime('conversationsIntegration');
-
-    const integration = await models.Integrations.findOne({
+    return models.Integrations.findOne({
       _id: conversation.integrationId
     });
-
-    serverTiming.endTime('conversationsIntegration');
-
-    return integration;
   },
 
   user(conversation: IConversationDocument) {
@@ -139,8 +133,7 @@ export default {
   },
 
   async tags(conv: IConversationDocument) {
-    return [];
-    // return (conv.tagIds || []).map(_id => ({ __typename: 'Tag', _id }));
+    return (conv.tagIds || []).map(_id => ({ __typename: 'Tag', _id }));
   },
 
   async videoCallData(

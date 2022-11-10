@@ -1,14 +1,16 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { afterMutationHandlers } from './afterMutations';
 
 import { serviceDiscovery } from './configs';
-import { generateModels } from './connectionResolver';
+import { generateModels, IModels } from './connectionResolver';
+import { sendNotification } from './utils';
 
 let client;
 
 export const initBroker = async cl => {
   client = cl;
 
-  const { consumeRPCQueue } = client;
+  const { consumeRPCQueue, consumeQueue } = client;
 
   consumeRPCQueue(
     'clientportal:clientPortals.findOne',
@@ -57,6 +59,28 @@ export const initBroker = async cl => {
       };
     }
   );
+
+  /**
+   * Send notification to client portal
+   * @param {Object} data
+   * @param {String[]} data.receivers // client portal user ids
+   * @param {String} data.title // notification title
+   * @param {String} data.content // notification content
+   * @param {String} data.notifType // notification type could be "system" or "engage"
+   * @param {String} data.link // notification link
+   * @param {Object} data.createdUser // user who created this notification
+   * @param {Boolean} data.isMobile // is mobile notification
+   */
+  consumeQueue('clientportal:sendNotification', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    await sendNotification(models, subdomain, data);
+  });
+
+  consumeQueue('clientportal:afterMutation', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return afterMutationHandlers(models, subdomain, data);
+  });
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs) => {

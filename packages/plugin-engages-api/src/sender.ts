@@ -26,7 +26,14 @@ export const start = async (
   subdomain: string,
   data: IEmailParams
 ) => {
-  const { engageMessageId, customers = [], createdBy, title } = data;
+  const {
+    engageMessageId,
+    customers = [],
+    createdBy,
+    title,
+    fromEmail,
+    email
+  } = data;
 
   const configs = await getConfigs(models);
 
@@ -35,6 +42,14 @@ export const start = async (
     { engageMessageId },
     { upsert: true }
   );
+
+  if (!(fromEmail || email.sender)) {
+    const msg = `Sender email address missing: ${fromEmail}/${email.sender}`;
+
+    await models.Logs.createLog(engageMessageId, 'failure', msg);
+
+    return;
+  }
 
   const transporter = await createTransporter(models);
 
@@ -46,8 +61,6 @@ export const start = async (
 
       const msg = `Sent email to: ${customer.primaryEmail}`;
 
-      debugEngages(msg);
-
       await models.Logs.createLog(engageMessageId, 'success', msg);
 
       await models.Stats.updateOne({ engageMessageId }, { $inc: { total: 1 } });
@@ -57,7 +70,9 @@ export const start = async (
       await models.Logs.createLog(
         engageMessageId,
         'failure',
-        `Error occurred while sending email to ${customer.primaryEmail}: ${e.message}`
+        `Error occurred while sending email to ${customer.primaryEmail}: ${
+          e.message
+        }, data ${JSON.stringify(data)}`
       );
     }
   };
@@ -83,6 +98,23 @@ export const start = async (
   } else {
     filteredCustomers = customers;
   }
+
+  const malformedEmails = filteredCustomers
+    .filter(c => !c.primaryEmail.includes('@'))
+    .map(c => c.primaryEmail);
+
+  if (malformedEmails.length > 0) {
+    await models.Logs.createLog(
+      engageMessageId,
+      'regular',
+      `The following (${malformedEmails.length}) emails were malformed and will be ignored: ${malformedEmails}`
+    );
+  }
+
+  // customer email can come as malformed
+  filteredCustomers = filteredCustomers.filter(c =>
+    c.primaryEmail.includes('@')
+  );
 
   // cleans customers who do not open or click emails often
   const {
