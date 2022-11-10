@@ -482,7 +482,7 @@ export const pluginsCustomPropertyTypes = () => {
   );
 }
 
-export const pluginsCustomPropertyField = (value,onSelect) =>{
+export const pluginsCustomPropertyFields = (value,onSelect) =>{
   const plugins :any[] = (window as any).plugins || [] ;
     return (
       <PluginsWrapper

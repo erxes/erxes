@@ -23,7 +23,7 @@ import Uploader from '@erxes/ui/src/components/Uploader';
 import { __ } from '@erxes/ui/src/utils/core';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
-import { pluginsCustomPropertyField } from 'coreui/pluginUtils';
+import { pluginsCustomPropertyFields } from 'coreui/pluginUtils';
 
 type Props = {
   field: IField;
@@ -310,7 +310,7 @@ export default class GenerateField extends React.Component<Props, State> {
       }
     };
 
-    return pluginsCustomPropertyField(value,onSelect);
+    return pluginsCustomPropertyFields(value,onSelect);
   }
 
   renderHtml() {
