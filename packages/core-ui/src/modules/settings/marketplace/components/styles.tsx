@@ -444,3 +444,8 @@ export const SearchBar = styled(FilterContainer)`
 export const SearchIcon = styled.div`
   margin: 4px 6px;
 `;
+
+export const PluginCategories = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+`;

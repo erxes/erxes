@@ -61,8 +61,6 @@ export const start = async (
 
       const msg = `Sent email to: ${customer.primaryEmail}`;
 
-      debugEngages(msg);
-
       await models.Logs.createLog(engageMessageId, 'success', msg);
 
       await models.Stats.updateOne({ engageMessageId }, { $inc: { total: 1 } });

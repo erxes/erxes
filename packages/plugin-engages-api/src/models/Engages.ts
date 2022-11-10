@@ -225,26 +225,13 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         ? customer
         : { _id: '', state: CONTENT_TYPES.VISITOR };
 
-      let messages: IEngageMessageDocument[] = [];
-
-      if (isUsingElk()) {
-        messages =
-          (await findElk(subdomain, 'engage_messages', {
-            bool: {
-              must: [
-                { match: { 'messenger.brandId': brandId } },
-                { match: { method: CAMPAIGN_METHODS.MESSENGER } },
-                { match: { isLive: true } }
-              ]
-            }
-          })) || [];
-      } else {
-        messages = await models.EngageMessages.find({
+      const messages: IEngageMessageDocument[] = await models.EngageMessages.find(
+        {
           'messenger.brandId': brandId,
           method: CAMPAIGN_METHODS.MESSENGER,
           isLive: true
-        });
-      }
+        }
+      );
 
       const conversationMessages: IMessageDocument[] = [];
 
