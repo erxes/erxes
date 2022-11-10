@@ -620,11 +620,15 @@ export default class GenerateField extends React.Component<Props, State> {
 
       default:
         try {
-          const plugins = ((window as any).plugins || []).find(
+          const plugins = ((window as any).plugins || []).filter(
             plugin => plugin['customProperties']
-          );
-
-          if (plugins?.customProperties.find(customProperty => customProperty.value === type)) {
+          ) || [];
+          if 
+          (plugins?.find(plugin=>
+            plugin.customProperties.find(customProperty => 
+              customProperty.value === type)
+            )
+          ) {
             return this.renderCustomProperties(attrs,type);
           }
 
