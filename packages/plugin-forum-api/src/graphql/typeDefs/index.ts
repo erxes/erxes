@@ -17,6 +17,7 @@ import ForumPermissionGroupCategoryPermit from './ForumPermissionGroupCategoryPe
 import ForumPermissionGroup from './ForumPermissionGroup';
 import ForumSubscriptionProduct from './ForumSubscriptionProduct';
 import ForumSubscriptionOrder from './ForumSubscriptionOrder';
+import { SUBSCRIPTION_ORDER_STATES } from '../../db/models/subscription/subscriptionOrder';
 
 export default async function genTypeDefs(serviceDiscovery) {
   return gql`
@@ -53,6 +54,10 @@ export default async function genTypeDefs(serviceDiscovery) {
 
     enum ForumTimeDurationUnit {
       ${TIME_DURATION_UNITS.join('\n')}
+    }
+
+    enum ForumSubscriptionOrderState {
+      ${SUBSCRIPTION_ORDER_STATES.join('\n')}
     }
 
     extend type User @key(fields: "_id") {

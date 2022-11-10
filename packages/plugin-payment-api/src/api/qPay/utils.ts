@@ -76,7 +76,7 @@ export const createInvoice = async (
 ) => {
   const MAIN_API_DOMAIN = process.env.DOMAIN
     ? `${process.env.DOMAIN}/gateway`
-    : 'http://localhost:4000';
+    : 'https://b73f-202-21-107-76.jp.ngrok.io';
 
   try {
     const token = await getToken(payment.config);
@@ -125,6 +125,7 @@ export const getInvoice = async (
 
     try {
       return sendRequest(requestOptions);
+      // return { invoice_status: 'CLOSED' };
     } catch (e) {
       throw new Error(e.message);
     }

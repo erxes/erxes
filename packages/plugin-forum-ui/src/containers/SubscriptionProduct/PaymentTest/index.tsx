@@ -1,4 +1,4 @@
-import React, { useState, useEffect, FC } from 'react';
+import React, { useState, useEffect, useCallback, FC } from 'react';
 import gql from 'graphql-tag';
 import { useMutation, useQuery } from 'react-apollo';
 import { FORUM_SUBSCRIPTION_PRODUCTS_QUERY } from '../../../graphql/queries';
@@ -31,15 +31,25 @@ const CREATE_ORDER = gql`
       _id
       cpUserId
       createdAt
-      invoiceAt
-      invoiceId
-      multiplier
-      paymentConfirmed
-      paymentConfirmedAt
+      state
       price
-      unit
+      multiplier
+      invoiceId
       contentType
+      unit
     }
+  }
+`;
+
+const PAYMENT_SUCCESS = gql`
+  mutation ForumCpCompleteSubscriptionOrder(
+    $invoiceId: ID!
+    $subscriptionOrderId: ID!
+  ) {
+    forumCpCompleteSubscriptionOrder(
+      invoiceId: $invoiceId
+      subscriptionOrderId: $subscriptionOrderId
+    )
   }
 `;
 
@@ -57,6 +67,7 @@ const PaymentTest: FC = () => {
     onError: console.error
   });
   const [mutCreateOrder] = useMutation(CREATE_ORDER);
+  const [mutPaymentSuccess] = useMutation(PAYMENT_SUCCESS);
 
   const onClickPay = async () => {
     if (!currentUser) return alert('Login first');
@@ -70,6 +81,8 @@ const PaymentTest: FC = () => {
       });
 
       const order = createOrderRes.data.forumCpCreateSubscriptionOrder;
+
+      setCurrentOrder(order);
 
       const invoiceRes = await mutGenInvoiceLink({
         variables: {
@@ -87,16 +100,29 @@ const PaymentTest: FC = () => {
   };
 
   useEffect(() => {
-    window.addEventListener('message', event => {
-      const { fromPublisher, ...rest } = event.data;
+    const onMessage = async event => {
+      const { fromPayment, message, invoice } = event.data;
 
-      if (fromPublisher) {
-        setPaymentData(rest);
+      if (fromPayment) {
+        console.log(event);
+        if (message === 'paymentSuccessfull') {
+          const invoiceParsed = JSON.parse(invoice);
+
+          await mutPaymentSuccess({
+            variables: {
+              invoiceId: invoiceParsed._id,
+              subscriptionOrderId: currentOrder._id
+            }
+          });
+          alert('success');
+        }
       }
-    });
+    };
+
+    window.addEventListener('message', onMessage);
 
     return () => {
-      window.removeEventListener('message', () => {});
+      window.removeEventListener('message', onMessage);
     };
   }, []);
 

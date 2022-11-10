@@ -8,10 +8,11 @@ const ORDERS = gql`
       _id
       cpUserId
       createdAt
-      invoiceAt
-      invoiceId
-      multiplier
+      state
       price
+      multiplier
+      invoiceId
+      contentType
       unit
     }
   }

@@ -3,10 +3,6 @@ type ForumSubscriptionOrder {
     _id: ID!
   
     invoiceId: String
-    invoiceAt: Date
-  
-    paymentConfirmed: Boolean
-    paymentConfirmedAt: Date
   
     unit: ForumTimeDurationUnit!
     multiplier: Float!
@@ -17,7 +13,25 @@ type ForumSubscriptionOrder {
     createdAt: String!
 
     contentType: String!
+
+    state: ForumSubscriptionOrderState!
 }
 `;
 
 export default ForumSubscriptionOrder;
+
+/*
+  _id: any;
+
+  invoiceId?: string | null;
+
+  unit: TimeDurationUnit;
+  multiplier: number;
+
+  price: number;
+
+  cpUserId: string;
+  createdAt: Date;
+
+  state: SubscriptionOrderState;
+  */
