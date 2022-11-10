@@ -25,7 +25,7 @@ const loginMiddleware = async (req, res) => {
     client_id: FACEBOOK_APP_ID,
     client_secret: FACEBOOK_APP_SECRET,
     scope: FACEBOOK_PERMISSIONS,
-    redirect_uri: `https://be16-202-9-40-73.ngrok.io/pl:facebook/fblogin`
+    redirect_uri: `${DOMAIN}/pl:facebook/fblogin`
   };
 
   debugRequest(debugFacebook, req);

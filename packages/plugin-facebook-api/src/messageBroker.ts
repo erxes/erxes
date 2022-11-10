@@ -176,6 +176,18 @@ export const initBroker = async cl => {
         break;
     }
   });
+
+  consumeRPCQueue(
+    'facebook:conversationMessages.find',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.ConversationMessages.find(data).lean()
+      };
+    }
+  );
 };
 
 export default function() {

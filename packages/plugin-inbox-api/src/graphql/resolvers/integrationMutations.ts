@@ -220,7 +220,7 @@ const integrationMutations = {
   },
 
   /**
-   * Create external integrations like twitter, facebook, gmail etc ...
+   * Create external integrations like twitter, gmail etc ...
    */
   async integrationsCreateExternalIntegration(
     _root,

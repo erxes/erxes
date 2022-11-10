@@ -179,7 +179,7 @@ export default {
   async isFacebookTaggedMessage(
     conversation: IConversationDocument,
     _args,
-    { models }: IContext
+    { models, subdomain }: IContext
   ) {
     const integration =
       (await models.Integrations.findOne({
@@ -190,15 +190,18 @@ export default {
       return false;
     }
 
-    const message = await models.ConversationMessages.find({
-      conversationId: conversation._id,
-      customerId: { $exists: true },
-      createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) }
-    })
-      .limit(1)
-      .lean();
+    const messages = await sendFacebookMessage({
+      action: 'conversationMessages.find',
+      isRPC: true,
+      subdomain,
+      data: {
+        conversationId: conversation._id,
+        customerId: { $exists: true },
+        createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+      }
+    });
 
-    if (message.length && message.length >= 1) {
+    if (messages.length && messages.length >= 1) {
       return false;
     }
 
