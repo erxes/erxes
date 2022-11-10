@@ -171,7 +171,6 @@ const templateMutations = {
         { $set: { solved: true, status: 'solved' } }
       );
     }
-    console.log('gagag', schedule);
 
     await putUpdateLog(
       subdomain,
@@ -187,11 +186,7 @@ const templateMutations = {
     return updated;
   },
 
-  async sendScheduleRequest(
-    _root,
-    { userId, shifts },
-    { models, docModifier }: IContext
-  ) {
+  async sendScheduleRequest(_root, { userId, shifts }, { models }: IContext) {
     const schedule = await models.Schedules.createSchedule({
       userId: `${userId}`
     });
@@ -201,6 +196,31 @@ const templateMutations = {
         scheduleId: schedule._id,
         shiftStart: shift.shiftStart,
         shiftEnd: shift.shiftEnd
+      });
+    });
+
+    return schedule;
+  },
+
+  async submitShift(_root, { userIds, shifts }, { models }: IContext) {
+    let schedule;
+
+    console.log('hahah', userIds);
+    userIds.map(async userId => {
+      schedule = await models.Schedules.createSchedule({
+        userId: `${userId}`,
+        solved: true,
+        status: 'approved'
+      });
+
+      shifts.map(shift => {
+        models.Shifts.createShift({
+          scheduleId: schedule._id,
+          shiftStart: shift.shiftStart,
+          shiftEnd: shift.shiftEnd,
+          solved: true,
+          status: 'approved'
+        });
       });
     });
 

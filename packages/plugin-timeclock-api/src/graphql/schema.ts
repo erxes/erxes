@@ -78,6 +78,7 @@ export const mutations = `
   timeclockRemove(_id : String): Timeclock
   sendAbsenceRequest(${absence_params}): Absence
   sendScheduleRequest(${schedule_params}): Schedule
+  submitShift(userIds: [String], shifts:[ShiftsRequestInput]): Schedule
   solveAbsenceRequest(_id: String, status: String): Absence
   solveScheduleRequest(_id: String, status: String): Schedule
   solveShiftRequest(_id: String, status: String): ShiftsRequest

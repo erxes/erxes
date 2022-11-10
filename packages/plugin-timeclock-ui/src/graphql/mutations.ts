@@ -34,6 +34,13 @@ const sendScheduleRequest = `
     }
   }`;
 
+const submitShift = `
+  mutation submitShift($userIds: [String], $shifts: [ShiftsRequestInput]){
+    submitShift(userIds: $userIds, shifts: $shifts){
+      _id
+    }
+  }`;
+
 const solveAbsence = `
   mutation solveAbsenceRequest($_id: String, $status: String){
     solveAbsenceRequest(_id: $_id, status: $status){
@@ -60,6 +67,7 @@ const solveShift = `
 
 export default {
   sendScheduleRequest,
+  submitShift,
   sendAbsenceRequest,
   solveAbsence,
   solveSchedule,

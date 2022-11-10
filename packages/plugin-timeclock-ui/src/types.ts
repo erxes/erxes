@@ -95,6 +95,10 @@ export type ScheduleMutationResponse = {
     variables: ScheduleMutationVariables;
   }) => Promise<any>;
 
+  submitShiftMutation: (params: {
+    variables: { userIds: string[]; shifts: IShift[] };
+  }) => Promise<any>;
+
   solveScheduleMutation: (params: {
     variables: { _id: string; status: string };
   }) => Promise<any>;

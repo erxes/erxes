@@ -9,6 +9,7 @@ import Table from '@erxes/ui/src/components/table';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import { isObject } from 'util';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import DatePicker from './DatePicker';
 import { ISchedule } from '../types';
@@ -19,7 +20,8 @@ type Props = {
   history: any;
   solveSchedule: (scheduleId: string, status: string) => void;
   solveShift: (shiftId: string, status: string) => void;
-  submitRequest: (filledShifts: any) => void;
+  submitRequest: (userId: string[], filledShifts: any) => void;
+  submitShift: (userIds: string[], filledShifts: any) => void;
 };
 
 const FlexRow = styled.div`
@@ -39,6 +41,7 @@ function ScheduleList(props: Props) {
   const {
     queryParams,
     submitRequest,
+    submitShift,
     history,
     scheduleOfMembers,
     solveSchedule,
@@ -48,6 +51,7 @@ function ScheduleList(props: Props) {
   console.log('raw', scheduleOfMembers);
 
   const [key_counter, setKeyCounter] = useState(0);
+  const [userIds, setUserIds] = useState(['']);
 
   const trigger = (
     <Button id="timeClockButton2" btnStyle="success" icon="plus-circle">
@@ -55,6 +59,11 @@ function ScheduleList(props: Props) {
     </Button>
   );
 
+  const adminTrigger = (
+    <Button id="timeClockButton2" btnStyle="success" icon="plus-circle">
+      Create Request - Admin
+    </Button>
+  );
   const [scheduleDates, setScheduleDates] = useState<ISchedule>({});
 
   const onDateChange = (day_key, selectedDate) => {
@@ -76,12 +85,22 @@ function ScheduleList(props: Props) {
   };
 
   const onSubmitClick = () => {
-    submitRequest(Object.values(scheduleDates));
+    console.log('ids', userIds);
+    submitRequest(userIds, Object.values(scheduleDates));
+  };
+  const onAdminSubmitClick = () => {
+    submitShift(userIds, Object.values(scheduleDates));
   };
 
-  const onUserSelect = userId => {
-    router.setParams(history, { userId: `${userId}` });
+  const correctValue = (data: any): string => {
+    return data ? data.value : '';
   };
+
+  const onUserSelect = users => {
+    setUserIds(users);
+  };
+
+  console.log('users', userIds);
 
   const addDay = () => {
     const dates = scheduleDates;
@@ -140,15 +159,48 @@ function ScheduleList(props: Props) {
       </div>
     </div>
   );
+  const adminModalContent = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <SelectTeamMembers
+        queryParams={queryParams}
+        label={'Team member'}
+        onSelect={onUserSelect}
+        name="userId"
+      />
+      {renderWeekDays()}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'center'
+        }}
+      >
+        <Button style={{ marginTop: 10 }} onClick={addDay}>
+          Add day
+        </Button>
+        <Button style={{ marginTop: 10 }} onClick={onAdminSubmitClick}>
+          {'Submit'}
+        </Button>
+      </div>
+    </div>
+  );
+
   // const renderScheduleOfUsers = () => {
 
   // };
   const actionBarRight = (
-    <ModalTrigger
-      title={__('Send absence request')}
-      trigger={trigger}
-      content={modalContent}
-    />
+    <>
+      <ModalTrigger
+        title={__('Send schedule request')}
+        trigger={trigger}
+        content={modalContent}
+      />
+      <ModalTrigger
+        title={__('Send schedule request - Admin')}
+        trigger={adminTrigger}
+        content={adminModalContent}
+      />
+    </>
   );
 
   const title = (
