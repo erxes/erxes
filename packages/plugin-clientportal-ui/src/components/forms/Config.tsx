@@ -52,7 +52,7 @@ function General({
         handleFormChange('otpConfig', {
           smsTransporterType: '',
           codeLength: 4,
-          content: 'Your verification code is {{code}}'
+          content: 'Your verification code is {{ code }}'
         });
       }
     }
@@ -118,7 +118,7 @@ function General({
         const regex = new RegExp('[sS]*?' + base + '[sS]*?', 'i');
 
         if (!regex.test(value)) {
-          content = content.replace(/{{code}}/g, base);
+          content = content.replace(/{{ code }}/g, base);
           if (content.search(base) === -1) {
             content = base;
           }
@@ -199,8 +199,8 @@ function General({
 
   const renderMailConfig = () => {
     let obj = mailConfig || {
-      registrationContent: `Hello <br /><br />Your verification link is {{link}}.<br /><br />Thanks<br />${name}`,
-      invitationContent: `Hello <br /><br />Your verification link is {{link}}.<br />  Your password is: {{password}} . Please change your password after you login. <br /><br />Thanks <br />${name}`,
+      registrationContent: `Hello <br /><br />Your verification link is {{ link }}.<br /><br />Thanks<br />${name}`,
+      invitationContent: `Hello <br /><br />Your verification link is {{ link }}.<br />  Your password is: {{ password }} . Please change your password after you login. <br /><br />Thanks <br />${name}`,
       subject: `${name} - invitation`
     };
 
