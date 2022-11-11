@@ -9,6 +9,7 @@ import ForumComment from './ForumComment';
 import ClientPortalUser from './ClientPortalUser';
 import ForumPermissionGroup from './ForumPermissionGroup';
 import ForumPermissionGroupCategoryPermit from './ForumPermissionGroupCategoryPermit';
+import ForumSubscriptionOrder from './ForumSubscriptionOrder';
 
 export default async function generateResolvers(
   serviceDiscovery
@@ -22,7 +23,8 @@ export default async function generateResolvers(
     ForumComment,
     ClientPortalUser,
     ForumPermissionGroup,
-    ForumPermissionGroupCategoryPermit
+    ForumPermissionGroupCategoryPermit,
+    ForumSubscriptionOrder
   };
 
   return resolvers;

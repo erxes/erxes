@@ -1,13 +1,13 @@
 module.exports = {
   name: 'forum',
-  port: 3012,
+  port: 3019,
   scope: 'forum',
   exposes: {
     './routes': './src/routes.tsx',
     './settings': './src/Settings.tsx',
   },
   routes: {
-    url: 'http://localhost:3012/remoteEntry.js',
+    url: 'http://localhost:3019/remoteEntry.js',
     scope: 'forum',
     module: './routes'
   },

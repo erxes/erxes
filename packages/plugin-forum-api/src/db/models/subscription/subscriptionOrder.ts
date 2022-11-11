@@ -6,14 +6,17 @@ import { ICpUser } from '../../../graphql';
 import { LoginRequiredError } from '../../../customErrors';
 import * as moment from 'moment';
 
+export const SUBSCRIPTION_ORDER_STATES = [
+  'PENDING',
+  'SUCCESS',
+  'FAILED'
+] as const;
+export type SubscriptionOrderState = typeof SUBSCRIPTION_ORDER_STATES[number];
+
 export interface ISubscriptionOrder {
   _id: any;
 
   invoiceId?: string | null;
-  invoiceAt?: Date | null;
-
-  paymentConfirmed?: boolean | null;
-  paymentConfirmedAt?: Date | null;
 
   unit: TimeDurationUnit;
   multiplier: number;
@@ -22,6 +25,8 @@ export interface ISubscriptionOrder {
 
   cpUserId: string;
   createdAt: Date;
+
+  state: SubscriptionOrderState;
 }
 
 export type SubscriptionOrderDocument = ISubscriptionOrder & Document;
@@ -44,7 +49,15 @@ export interface ISubscriptionOrderModel
     subscriptionOrderId: string,
     invoiceId: string
   ): Promise<boolean>;
+
+  cpFailSubscriptionOrder(
+    subscriptionOrderId: string,
+    cpUser?: ICpUser | null
+  ): Promise<boolean>;
 }
+
+export const collectionName = 'forum_subscription_orders';
+export const contentType = `forum:${collectionName}`;
 
 export const subscriptionOrderSchema = new Schema<SubscriptionOrderDocument>({
   invoiceId: {
@@ -52,10 +65,13 @@ export const subscriptionOrderSchema = new Schema<SubscriptionOrderDocument>({
     unique: true,
     sparse: true
   },
-  invoiceAt: Date,
 
-  paymentConfirmed: Boolean,
-  paymentConfirmedAt: Date,
+  state: {
+    type: String,
+    required: true,
+    enum: SUBSCRIPTION_ORDER_STATES,
+    default: (): SubscriptionOrderState => 'PENDING'
+  },
 
   unit: {
     type: String,
@@ -153,14 +169,16 @@ export const generateSubscriptionOrderModel = (
       subscriptionOrderId: string,
       invoiceId: string
     ): Promise<boolean> {
-      const existing = await models.SubscriptionOrder.findOne({
+      const completedOrder = await models.SubscriptionOrder.findOne({
         invoiceId,
-        paymentConfirmed: true
+        state: 'SUCCESS'
       });
 
-      if (existing) {
-        if (existing._id.toString() === subscriptionOrderId.toString()) {
-          throw new Error(`This order has already been completed`);
+      if (completedOrder) {
+        if (completedOrder._id.toString() === subscriptionOrderId.toString()) {
+          throw new Error(
+            `This order has already been completed by this payment`
+          );
         } else {
           throw new Error(
             `This payment has been already used to complete another order`
@@ -171,13 +189,10 @@ export const generateSubscriptionOrderModel = (
       const order = await models.SubscriptionOrder.findByIdOrThrow(
         subscriptionOrderId
       );
-      order.invoiceId = invoiceId;
-      await order.save();
 
       const user = await models.ForumClientPortalUser.findByIdOrCreate(
         order.cpUserId
       );
-
       const duration = moment.duration(order.multiplier, order.unit);
 
       const extendFrom = user.subscriptionEndsAfter
@@ -189,6 +204,29 @@ export const generateSubscriptionOrderModel = (
       user.subscriptionEndsAfter = extendFrom.toDate();
       await user.save();
 
+      order.invoiceId = invoiceId;
+      order.state = 'SUCCESS';
+      await order.save();
+
+      return true;
+    }
+
+    public static async cpFailSubscriptionOrder(
+      subscriptionOrderId: string,
+      cpUser?: ICpUser | null
+    ): Promise<boolean> {
+      if (!cpUser) throw new LoginRequiredError();
+
+      const order = await models.SubscriptionOrder.findByIdOrThrow(
+        subscriptionOrderId
+      );
+
+      if (order.cpUserId !== cpUser.userId)
+        throw new Error('Subscription order not found');
+
+      order.state = 'FAILED';
+      await order.save();
+
       return true;
     }
   }
@@ -197,5 +235,5 @@ export const generateSubscriptionOrderModel = (
   models.SubscriptionOrder = con.model<
     SubscriptionOrderDocument,
     ISubscriptionOrderModel
-  >('forum_subscription_orders', subscriptionOrderSchema);
+  >(collectionName, subscriptionOrderSchema);
 };

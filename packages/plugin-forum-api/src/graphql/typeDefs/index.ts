@@ -17,8 +17,18 @@ import ForumPermissionGroupCategoryPermit from './ForumPermissionGroupCategoryPe
 import ForumPermissionGroup from './ForumPermissionGroup';
 import ForumSubscriptionProduct from './ForumSubscriptionProduct';
 import ForumSubscriptionOrder from './ForumSubscriptionOrder';
+import { SUBSCRIPTION_ORDER_STATES } from '../../db/models/subscription/subscriptionOrder';
+
+const Invoice = `
+  extend type Invoice @key(fields: "_id") {
+    _id: String @external
+  }
+
+`;
 
 export default async function genTypeDefs(serviceDiscovery) {
+  const isPaymentEnabled = await serviceDiscovery.isEnabled('payment');
+
   return gql`
     scalar JSON
     scalar Date
@@ -55,9 +65,15 @@ export default async function genTypeDefs(serviceDiscovery) {
       ${TIME_DURATION_UNITS.join('\n')}
     }
 
+    enum ForumSubscriptionOrderState {
+      ${SUBSCRIPTION_ORDER_STATES.join('\n')}
+    }
+
     extend type User @key(fields: "_id") {
       _id: String! @external
     }
+
+    ${isPaymentEnabled ? Invoice : ''}
 
     extend type ClientPortalUser @key(fields: "_id") {
       _id: String! @external
@@ -79,7 +95,7 @@ export default async function genTypeDefs(serviceDiscovery) {
     ${ForumPermissionGroupCategoryPermit}
 
     ${ForumSubscriptionProduct}
-    ${ForumSubscriptionOrder}
+    ${ForumSubscriptionOrder({ isPaymentEnabled })}
 
     ${Query}
     ${Mutation}

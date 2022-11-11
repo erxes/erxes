@@ -32,7 +32,6 @@ const permissionGroupMutations: IObjectTypeResolver<any, IContext> = {
     { _id, cpUserId },
     { models: { PermissionGroupUser } }
   ) {
-    console.log({ _id, cpUserId });
     await PermissionGroupUser.removeUsersFromPermissionGroups(
       [cpUserId],
       [_id]
