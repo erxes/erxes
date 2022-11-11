@@ -95,12 +95,12 @@ const PaymentTest: FC = () => {
         }
       });
 
-      // setIframeSrc(invoiceRes.data.generateInvoiceUrl);
-      window.open(
-        invoiceRes.data.generateInvoiceUrl,
-        'popup',
-        'width=1280,height=720'
-      );
+      setIframeSrc(invoiceRes.data.generateInvoiceUrl);
+      // window.open(
+      //   invoiceRes.data.generateInvoiceUrl,
+      //   'popup',
+      //   'width=1280,height=720'
+      // );
     } catch (e) {
       console.error(e);
     }
