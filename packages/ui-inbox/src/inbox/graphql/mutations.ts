@@ -1,12 +1,10 @@
 import messageFields from './messageFields';
 import { paramsDef, paramsValue } from './queries';
 
-const commonParamDefs = `$conversationId: String, $content: String`;
-const commonParams = `conversationId: $conversationId, content: $content`;
-
 const conversationMessageAdd = `
   mutation conversationMessageAdd(
-    ${commonParamDefs},
+    $conversationId: String,
+    $content: String,
     $contentType: String,
     $mentionedUserIds: [String],
     $internal: Boolean,
@@ -14,7 +12,8 @@ const conversationMessageAdd = `
     $facebookMessageTag: String
   ) {
     conversationMessageAdd(
-      ${commonParams},
+      conversationId: $conversationId,
+      content: $content,
       contentType: $contentType,
       mentionedUserIds: $mentionedUserIds,
       internal: $internal,
@@ -26,25 +25,41 @@ const conversationMessageAdd = `
   }
 `;
 
-const facebookReplyToComment = `
-  mutation facebookReplyToComment(${commonParamDefs}, $commentId: String) {
-    facebookReplyToComment(${commonParams}, commentId: $commentId) {
-      commentId
+const conversationsReplyFacebookComment = `
+  mutation conversationsReplyFacebookComment(
+    $conversationId: String,
+    $content: String,
+    $commentId: String,
+  ) {
+    conversationsReplyFacebookComment(
+    conversationId: $conversationId,
+    content: $content,
+    commentId: $commentId,
+  ) {
+    commentId
   }
 }
 `;
 
-const facebookChangeCommentStatus = `
-  mutation facebookChangeCommentStatus($commentId: String) {
-    facebookChangeCommentStatus(commentId: $commentId) {
-      commentId
-    }
+const conversationsChangeStatusFacebookComment = `
+  mutation conversationsChangeStatusFacebookComment(
+    $commentId: String,
+  ) {
+    conversationsChangeStatusFacebookComment(
+    commentId: $commentId,
+  ) {
+    commentId
   }
+}
 `;
 
 const markAsRead = `
-  mutation conversationMarkAsRead($_id: String) {
-    conversationMarkAsRead(_id: $_id) {
+  mutation conversationMarkAsRead(
+    $_id: String
+  ) {
+    conversationMarkAsRead(
+      _id: $_id,
+    ) {
       _id
     }
   }
@@ -117,14 +132,14 @@ const createVideoChatRoom = `
 `;
 
 export default {
-  facebookReplyToComment,
+  conversationsReplyFacebookComment,
   conversationMessageAdd,
   conversationsChangeStatus,
   conversationsAssign,
   conversationsUnassign,
   saveResponseTemplate,
   markAsRead,
-  facebookChangeCommentStatus,
+  conversationsChangeStatusFacebookComment,
   resolveAll,
   editCustomFields,
   createVideoChatRoom

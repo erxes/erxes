@@ -391,9 +391,9 @@ const generateCustomerDetailQuery = params => {
   `;
 };
 
-const facebookGetComments = `
-  query facebookGetComments($conversationId: String!, $isResolved: Boolean, $commentId: String, $senderId: String, $skip: Int, $limit: Int) {
-    facebookGetComments(conversationId: $conversationId, isResolved:$isResolved, limit: $limit, commentId: $commentId, senderId: $senderId, skip: $skip) {
+const integrationsConversationFbComments = `
+  query integrationsConversationFbComments($postId: String!,$isResolved: Boolean, $commentId: String, $senderId: String, $skip: Int, $limit: Int) {
+    integrationsConversationFbComments(postId: $postId,isResolved:$isResolved, limit: $limit, commentId: $commentId, senderId: $senderId, skip: $skip) {
       conversationId
       commentId
       postId
@@ -424,9 +424,9 @@ const facebookGetComments = `
   }
 `;
 
-export const facebookGetCommentCount = `
-  query facebookGetCommentCount($conversationId: String!, $isResolved: Boolean) {
-    facebookGetCommentCount(conversationId: $conversationId, isResolved:$isResolved) 
+export const integrationsConversationFbCommentsCount = `
+  query integrationsConversationFbCommentsCount($postId: String!, $isResolved: Boolean) {
+    integrationsConversationFbCommentsCount(postId: $postId, isResolved:$isResolved) 
   }
 `;
 
@@ -452,6 +452,6 @@ export default {
   channelsByMembers,
   generateCustomerDetailQuery,
   convertToInfo,
-  facebookGetComments,
-  facebookGetCommentCount
+  integrationsConversationFbComments,
+  integrationsConversationFbCommentsCount
 };

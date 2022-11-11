@@ -604,7 +604,7 @@ class MailForm extends React.Component<Props, State> {
       }
 
       this.setState(prevState => ({
-        attachments: [...prevState.attachments, attachments]
+        attachments: [...prevState.attachments, ...attachments]
       }));
     };
 

@@ -2,34 +2,7 @@ import { SelectWrapper } from '@erxes/ui/src/components/form/styles';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-
-// this style is duplicated due to loading error
-const Attachment = styled.div`
-  display: flex;
-  max-width: 250px;
-  padding: 5px;
-  margin: 0 0 5px 5px;
-  font-size: 12px;
-  background-color: ${colors.colorSecondary};
-  align-items: center;
-
-  > div {
-    margin-right: 8px;
-  }
-
-  i {
-    color: ${colors.colorWhite};
-    opacity: 0.7;
-    margin: 0 3px;
-    font-size: 13px;
-    transition: all ease 0.3s;
-
-    &:hover {
-      cursor: pointer;
-      opacity: 1;
-    }
-  }
-`;
+import { Attachment } from '@erxes/ui-inbox/src/inbox/styles';
 
 const AttachmentContainer = styled(Attachment)`
   padding: 3px 8px;

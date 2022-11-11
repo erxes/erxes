@@ -307,12 +307,12 @@ export type UnreadConversationsTotalCountQueryResponse = {
 } & QueryResponse;
 
 export type FacebookCommentsQueryResponse = {
-  facebookGetComments: IFacebookComment[];
+  integrationsConversationFbComments: IFacebookComment[];
   fetchMore: (variables) => void;
 } & QueryResponse;
 
 export type FacebookCommentsCountQueryResponse = {
-  facebookGetCommentCount: any;
+  integrationsConversationFbCommentsCount: any;
   fetchMore: (variables) => void;
 } & QueryResponse;
 
