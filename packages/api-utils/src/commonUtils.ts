@@ -92,3 +92,13 @@ export const pluralFormation = (type: string) => {
 
   return type + 's';
 };
+
+export const removeLastTrailingSlash = url => {
+  if (typeof url !== 'string') return url;
+  return url.replace(/\/$/, '');
+};
+
+export const removeExtraSpaces = text => {
+  if (typeof text !== 'string') return;
+  return text.replace(/\s+/g, ' ').trim();
+};
