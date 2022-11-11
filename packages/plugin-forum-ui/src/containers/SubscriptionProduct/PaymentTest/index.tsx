@@ -114,6 +114,8 @@ const PaymentTest: FC = () => {
             }
           });
           alert('success');
+
+          setIframeSrc('');
         }
       }
     };
