@@ -107,6 +107,4 @@ export const generateSubscriptionProductModel = (
     SubscriptionProductDocument,
     ISubscriptionProductModel
   >('forum_subscription_products', subscriptionProductSchema);
-
-  console.log('------------------', models.SubscriptionProduct);
 };

@@ -1,22 +1,30 @@
-const ForumSubscriptionOrder = `
-type ForumSubscriptionOrder {
-    _id: ID!
-  
-    invoiceId: String
-  
-    unit: ForumTimeDurationUnit!
-    multiplier: Float!
-  
-    price: Float!
-  
-    cpUserId: String!
-    createdAt: String!
+function ForumSubscriptionOrder({
+  isPaymentEnabled
+}: {
+  isPaymentEnabled?: boolean;
+}) {
+  return `
+    type ForumSubscriptionOrder {
+        _id: ID!
+      
+        invoiceId: String
+      
+        unit: ForumTimeDurationUnit!
+        multiplier: Float!
+      
+        price: Float!
+      
+        cpUserId: String!
+        createdAt: String!
 
-    contentType: String!
+        contentType: String!
 
-    state: ForumSubscriptionOrderState!
-}
+        state: ForumSubscriptionOrderState!
+
+        ${isPaymentEnabled ? 'invoice: Invoice' : ''}
+    }
 `;
+}
 
 export default ForumSubscriptionOrder;
 

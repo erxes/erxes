@@ -322,8 +322,6 @@ export const generateCategoryModel = (
 
       const userLevel = await models.ForumClientPortalUser.getUserLevel(user);
 
-      console.log({ user, category, userLevel });
-
       const requiredLevel: CpUserLevels = (() => {
         if (permission === 'WRITE_COMMENT') {
           return category.userLevelReqCommentWrite;
