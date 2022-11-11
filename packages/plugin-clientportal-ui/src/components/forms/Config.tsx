@@ -114,7 +114,7 @@ function General({
       if (key === 'content') {
         let content = value;
 
-        const base = ' {{code}} ';
+        const base = ' {{ code }} ';
         const regex = new RegExp('[sS]*?' + base + '[sS]*?', 'i');
 
         if (!regex.test(value)) {
