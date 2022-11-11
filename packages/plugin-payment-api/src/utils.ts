@@ -2,7 +2,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 
 import { qPayHandler } from './api/qPay/utils';
 import * as qPayUtils from './api/qPay/utils';
-import { socialPayHandler } from './api/socialPay/utils';
+import { hmac256, socialPayHandler } from './api/socialPay/utils';
 import * as socialPayUtils from './api/socialPay/utils';
 import { graphqlPubsub } from './configs';
 import { generateModels } from './connectionResolver';
@@ -135,5 +135,47 @@ export const createNewInvoice = async (
     }
   } catch (e) {
     throw new Error(e.message);
+  }
+};
+
+export const checkInvoice = async (
+  invoice: IInvoiceDocument,
+  payment: IPaymentDocument
+) => {
+  switch (payment.kind) {
+    case PAYMENT_KINDS.QPAY:
+      // check qpay invoice
+      const res = await qPayUtils.getInvoice(
+        invoice.apiResponse.invoice_id,
+        payment
+      );
+
+      if (res.invoice_status !== 'CLOSED') {
+        return 'pending';
+      }
+
+      return 'paid';
+
+    case PAYMENT_KINDS.SOCIAL_PAY:
+      // check socialpay invoice
+      const { inStoreSPTerminal, inStoreSPKey } = payment.config;
+
+      const { body } = await socialPayUtils.socialPayInvoiceCheck({
+        amount: invoice.amount,
+        checksum: hmac256(
+          inStoreSPKey,
+          inStoreSPTerminal + invoice.identifier + invoice.amount
+        ),
+        invoice: invoice.identifier,
+        terminal: inStoreSPTerminal
+      });
+
+      if (body.response.resp_code !== '00') {
+        return 'pending';
+      }
+
+      return 'paid';
+    default:
+      return 'pending';
   }
 };
