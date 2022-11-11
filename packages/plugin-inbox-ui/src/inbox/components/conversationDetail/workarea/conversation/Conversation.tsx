@@ -1,11 +1,11 @@
 import { IAttachmentPreview } from '@erxes/ui/src/types';
-import { FacebookPost } from '../../../containers/conversationDetail';
+import { FacebookPost } from '../../../../containers/conversationDetail';
 import React from 'react';
 import styled from 'styled-components';
 import { IConversation, IMessage } from '@erxes/ui-inbox/src/inbox/types';
-import CallPro from './callpro/Callpro';
+import CallPro from '../callpro/Callpro';
 import MailConversation from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/mail/MailConversation';
-import AttachmentPreview from '@erxes/ui-inbox/src/inbox/components/conversationDetail/AttachmentPreview';
+import AttachmentPreview from './AttachmentPreview';
 import Message from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/Message';
 
 type Props = {

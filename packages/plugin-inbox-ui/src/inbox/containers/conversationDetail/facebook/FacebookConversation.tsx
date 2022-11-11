@@ -57,7 +57,8 @@ class FacebookPostContainer extends React.Component<FinalProps> {
           subscriptions.conversationExternalIntegrationMessageInserted
         ),
         updateQuery: () => {
-          const comments = commentsQuery.facebookGetComments || [];
+          const comments =
+            commentsQuery.integrationsConversationFbComments || [];
           const limit = comments.length + 10;
 
           this.fetchMoreComments({ limit }, { isSubscriptions: true });
@@ -76,14 +77,14 @@ class FacebookPostContainer extends React.Component<FinalProps> {
           return prev;
         }
 
-        const prevComments = prev.facebookGetComments || [];
+        const prevComments = prev.integrationsConversationFbComments || [];
 
         const prevCommentIds = prevComments.map(
           (comment: IFacebookComment) => comment.commentId
         );
 
         const fetchedComments: IFacebookComment[] = [];
-        for (const comment of fetchMoreResult.facebookGetComments) {
+        for (const comment of fetchMoreResult.integrationsConversationFbComments) {
           if (!prevCommentIds.includes(comment.commentId)) {
             fetchedComments.push(comment);
           }
@@ -92,13 +93,19 @@ class FacebookPostContainer extends React.Component<FinalProps> {
         if (isSubscriptions) {
           return {
             ...prev,
-            facebookGetComments: [...prevComments, ...fetchedComments]
+            integrationsConversationFbComments: [
+              ...prevComments,
+              ...fetchedComments
+            ]
           };
         }
 
         return {
           ...prev,
-          facebookGetComments: [...fetchedComments, ...prevComments]
+          integrationsConversationFbComments: [
+            ...fetchedComments,
+            ...prevComments
+          ]
         };
       }
     });
@@ -146,8 +153,9 @@ class FacebookPostContainer extends React.Component<FinalProps> {
     }
 
     const post = conversation.facebookPost || ({} as IFacebookPost);
-    const comments = commentsQuery.facebookGetComments || [];
-    const commentCounts = commentsCountQuery.facebookGetCommentCount || {};
+    const comments = commentsQuery.integrationsConversationFbComments || [];
+    const commentCounts =
+      commentsCountQuery.integrationsConversationFbCommentsCount || {};
 
     const hasMore = commentCounts.commentCountWithoutReplies > comments.length;
     const commentCount = commentCounts.commentCount;
@@ -172,8 +180,8 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
     graphql<
       Props,
       FacebookCommentsQueryResponse,
-      { conversationId: string; isResolved: boolean }
-    >(gql(queries.facebookGetComments), {
+      { postId: string; isResolved: boolean }
+    >(gql(queries.integrationsConversationFbComments), {
       name: 'commentsQuery',
       options: ({
         conversation,
@@ -184,7 +192,7 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
       }) => {
         return {
           variables: {
-            conversationId: conversation._id,
+            postId: conversation._id,
             isResolved
           },
           fetchPolicy: 'network-only'
@@ -194,8 +202,8 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
     graphql<
       Props,
       FacebookCommentsCountQueryResponse,
-      { conversationId: string; isResolved: boolean }
-    >(gql(queries.facebookGetCommentCount), {
+      { postId: string; isResolved: boolean }
+    >(gql(queries.integrationsConversationFbCommentsCount), {
       name: 'commentsCountQuery',
       options: ({
         conversation,
@@ -206,7 +214,7 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
       }) => {
         return {
           variables: {
-            conversationId: conversation._id,
+            postId: conversation._id,
             isResolved
           },
           fetchPolicy: 'network-only'

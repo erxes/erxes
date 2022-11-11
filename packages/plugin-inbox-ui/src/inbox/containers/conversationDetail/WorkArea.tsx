@@ -1,15 +1,17 @@
+import { AppConsumer } from 'coreui/appContext';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import strip from 'strip';
-
+import DumbWorkArea from '../../components/conversationDetail/workarea/WorkArea';
+import { NOTIFICATION_TYPE } from '../../constants';
 import {
   mutations,
   queries,
   subscriptions
 } from '@erxes/ui-inbox/src/inbox/graphql';
 import { isConversationMailKind } from '@erxes/ui-inbox/src/inbox/utils';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import strip from 'strip';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { sendDesktopNotification, withProps } from '@erxes/ui/src/utils';
 import {
@@ -20,10 +22,6 @@ import {
   MessagesQueryResponse,
   MessagesTotalCountQuery
 } from '@erxes/ui-inbox/src/inbox/types';
-
-import { AppConsumer } from 'coreui/appContext';
-import DumbWorkArea from '../../components/conversationDetail/workarea/WorkArea';
-import { NOTIFICATION_TYPE } from '../../constants';
 
 // messages limit
 let initialLimit = 10;

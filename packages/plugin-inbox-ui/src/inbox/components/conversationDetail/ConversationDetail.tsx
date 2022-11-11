@@ -1,6 +1,6 @@
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import SidebarContainer from '@erxes/ui-inbox/src/inbox/containers/conversationDetail/SidebarContainer';
+import Sidebar from '../../containers/conversationDetail/Sidebar';
 import WorkArea from '../../containers/conversationDetail/WorkArea';
 import EmptySidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { MainContent, ContentBox } from '@erxes/ui/src/layout/styles';
@@ -21,7 +21,7 @@ export default class ConversationDetail extends React.Component<Props> {
 
     if (currentConversation) {
       return (
-        <SidebarContainer
+        <Sidebar
           conversation={currentConversation}
           conversationFields={conversationFields}
         />
