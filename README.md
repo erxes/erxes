@@ -1,7 +1,7 @@
 <br>
 
 <p align="center">
- <img src="docs/static/img/logo_dark.svg" alt="erxes logo" width="20%" />
+ <a href="https://erxes.io/"><img src="docs/static/img/logo_dark.svg" alt="erxes logo" width="20%" /></a>
 </p>
 
 <p align="center">An open-source Hubspot/Qualtrics alternative enables SaaS providers and digital marketing agencies/developers to create unique experiences for their entire business
@@ -36,7 +36,10 @@
       <img alt="Help Wanted" src="https://img.shields.io/badge/Help%20Wanted-Contribute-blue">
   </a>
    <a href="https://github.com/erxes/erxes/stargazers">
-      <img alt="Stars" src="https://img.shields.io/badge/stars-%202.2k-orange">
+    <img alt="stars" src="https://img.shields.io/github/stars/erxes/erxes?color=orange">
+  </a>
+  <a href="https://github.com/erxes/erxes/network/members">
+      <img alt="forks" src="https://img.shields.io/github/forks/erxes/erxes?color=red&logoColor=red">
   </a>
    <a href="https://discord.com/invite/aaGzy3gQK5">
       <img alt="Discord" src="https://img.shields.io/badge/Discord-%20Community-blueviolet">
