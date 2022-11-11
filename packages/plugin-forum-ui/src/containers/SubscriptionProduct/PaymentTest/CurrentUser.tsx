@@ -10,6 +10,7 @@ const CURRENT_USER = gql`
       email
       forumIsSubscribed
       erxesCustomerId
+      forumSubscriptionEndsAfter
     }
   }
 `;

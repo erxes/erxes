@@ -67,7 +67,9 @@ const PaymentTest: FC = () => {
     onError: console.error
   });
   const [mutCreateOrder] = useMutation(CREATE_ORDER);
-  const [mutPaymentSuccess] = useMutation(PAYMENT_SUCCESS);
+  const [mutPaymentSuccess] = useMutation(PAYMENT_SUCCESS, {
+    refetchQueries: ['ForumCpMySubscriptionOrders', 'ClientPortalCurrentUser']
+  });
 
   const onClickPay = async () => {
     if (!currentUser) return alert('Login first');
@@ -101,24 +103,14 @@ const PaymentTest: FC = () => {
 
   useEffect(() => {
     const onMessage = async event => {
-      const { fromPayment, message, invoice } = event.data;
+      const { fromPayment, message, invoiceId, contentTypeId } = event.data;
 
       if (fromPayment) {
-        console.log(event);
         if (message === 'paymentSuccessfull') {
-          console.log(typeof invoice);
-          console.log(invoice._id);
-
-          const invoiceParsed = JSON.parse(invoice);
-
-          if (!currentOrder) {
-            return alert('Fatal error! Current order is not set');
-          }
-
           await mutPaymentSuccess({
             variables: {
-              invoiceId: invoiceParsed._id,
-              subscriptionOrderId: currentOrder._id
+              invoiceId,
+              subscriptionOrderId: contentTypeId
             }
           });
           alert('success');
