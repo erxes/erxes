@@ -25,13 +25,13 @@ const conversationMessageAdd = `
   }
 `;
 
-const conversationsReplyFacebookComment = `
-  mutation conversationsReplyFacebookComment(
+const facebookReplyToComment = `
+  mutation facebookReplyToComment(
     $conversationId: String,
     $content: String,
     $commentId: String,
   ) {
-    conversationsReplyFacebookComment(
+    facebookReplyToComment(
     conversationId: $conversationId,
     content: $content,
     commentId: $commentId,
@@ -41,11 +41,11 @@ const conversationsReplyFacebookComment = `
 }
 `;
 
-const conversationsChangeStatusFacebookComment = `
-  mutation conversationsChangeStatusFacebookComment(
+const facebookChangeCommentStatus = `
+  mutation facebookChangeCommentStatus(
     $commentId: String,
   ) {
-    conversationsChangeStatusFacebookComment(
+    facebookChangeCommentStatus(
     commentId: $commentId,
   ) {
     commentId
@@ -132,14 +132,14 @@ const createVideoChatRoom = `
 `;
 
 export default {
-  conversationsReplyFacebookComment,
+  facebookReplyToComment,
   conversationMessageAdd,
   conversationsChangeStatus,
   conversationsAssign,
   conversationsUnassign,
   saveResponseTemplate,
   markAsRead,
-  conversationsChangeStatusFacebookComment,
+  facebookChangeCommentStatus,
   resolveAll,
   editCustomFields,
   createVideoChatRoom
