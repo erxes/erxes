@@ -26,7 +26,6 @@ class ProductFormContainer extends React.Component<FinalProps> {
       callback,
       object
     }: IButtonMutateProps) => {
-      console.log('11111111111111111', values);
       return (
         <ButtonMutate
           mutation={

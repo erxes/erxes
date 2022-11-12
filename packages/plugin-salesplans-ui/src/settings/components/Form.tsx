@@ -59,7 +59,7 @@ class Form extends React.Component<Props, State> {
     }
 
     spLabel.multiplier = Number(spLabel.multiplier || 0);
-    console.log('222222222222222', finalValues, spLabel);
+
     return {
       ...finalValues,
       ...spLabel
@@ -79,7 +79,6 @@ class Form extends React.Component<Props, State> {
     e.preventDefault();
     const value = e.target.value;
     const name = e.target.name;
-    console.log(name, value);
 
     this.setState({
       spLabel: { ...this.state.spLabel, [name]: value }

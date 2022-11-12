@@ -181,7 +181,7 @@ class SPLabels extends React.Component<Props, State> {
       { title: __('Settings'), link: '/settings' },
       { title: __('Sales Plans Labels') }
     ];
-    console.log('ddddddddddddddddddddddddd');
+
     const content = (
       <Table hover={true}>
         <thead>
