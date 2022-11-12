@@ -1,33 +1,23 @@
-import { Model } from 'mongoose';
 import * as _ from 'underscore';
-import { IModels, models } from '../connectionResolver';
-import {
-  ITemplate,
-  ITemplateDocument,
-  IType,
-  ITypeDocument,
-  templateSchema,
-  typeSchema
-} from './definitions/template';
+import { model } from 'mongoose';
+import { Schema } from 'mongoose';
 
-export interface ITemplateModel extends Model<ITemplateDocument> {
-  getTemplate(_id: string): Promise<ITemplateDocument>;
-  createTemplate(doc: ITemplate): Promise<ITemplateDocument>;
-  updateTemplate(_id: string, doc: ITemplate): Promise<ITemplateDocument>;
-  removeTemplate(_id: string): void;
-}
+export const typeSchema = new Schema({
+  name: String
+});
 
-export interface ITypeModel extends Model<ITypeDocument> {
-  getType(_id: String): Promise<ITypeDocument>;
-  createType(doc: IType): Promise<ITypeDocument>;
-  updateType(_id: string, doc: IType): Promise<ITypeDocument>;
-  removeType(_id: String): void;
-}
+export const {name}Schema = new Schema({
+  name: String,
+  createdAt: Date,
+  expiryDate: Date,
+  checked: Boolean,
+  typeId: String
+});
 
-export const loadTypeClass = (models: IModels) => {
+export const loadTypeClass = () => {
   class Type {
     public static async getType(_id: string) {
-      const type = await models.Types.findOne({ _id });
+      const type = await Types.findOne({ _id });
 
       if (!type) {
         throw new Error('Type not found');
@@ -36,19 +26,16 @@ export const loadTypeClass = (models: IModels) => {
       return type;
     }
     // create type
-    public static async createType(doc: IType) {
-      return models.Types.create({ ...doc });
+    public static async createType(doc) {
+      return Types.create({ ...doc });
     }
     // remove type
     public static async removeType(_id: string) {
-      const type = await models?.Types.getType(_id);
-      return models.Types.deleteOne({ _id });
+      return Types.deleteOne({ _id });
     }
 
-    public static async updateType(_id: string, doc: IType) {
-      await models.Types.updateOne({ _id }, { $set: { ...doc } }).then(err =>
-        console.error(err)
-      );
+    public static async updateType(_id: string, doc) {
+      return Types.updateOne({ _id }, { $set: { ...doc } });
     }
   }
 
@@ -56,10 +43,10 @@ export const loadTypeClass = (models: IModels) => {
   return typeSchema;
 };
 
-export const loadTemplateClass = models => {
-  class Template {
-    public static async getTemplate(_id: string) {
-      const {name} = await models.Templates.findOne({ _id });
+export const load{Name}Class = () => {
+  class {Name} {
+    public static async get{Name}(_id: string) {
+      const {name} = await {Name}s.findOne({ _id });
 
       if (!{name}) {
         throw new Error('{Name} not found');
@@ -69,28 +56,38 @@ export const loadTemplateClass = models => {
     }
 
     // create
-    public static async createTemplate(doc: ITemplate) {
-      return models.Templates.create({
+    public static async create{Name}(doc) {
+      return {Name}s.create({
         ...doc,
         createdAt: new Date()
       });
     }
     // update
-    public static async updateTemplate(_id: string, doc: ITemplate) {
-      await models.Templates.updateOne(
+    public static async update{Name} (_id: string, doc) {
+      await {Name}s.updateOne(
         { _id },
         { $set: { ...doc } }
       ).then(err => console.error(err));
     }
     // remove
-    public static async removeTemplate(_id: string) {
-      const {name} = await models.Templates.getTemplate(_id);
-
-      return models.Templates.deleteOne({ _id });
+    public static async remove{Name}(_id: string) {
+      return {Name}s.deleteOne({ _id });
     }
   }
 
-  templateSchema.loadClass(Template);
+{name}Schema.loadClass({Name});
 
-  return templateSchema;
+return {name}Schema;
 };
+
+load{Name}Class();
+loadTypeClass();
+
+// tslint:disable-next-line
+export const Types = model<any, any>(
+  '{name}_types',
+  typeSchema
+);
+
+// tslint:disable-next-line
+export const {Name}s = model<any, any>('{name}s', {name}Schema);
