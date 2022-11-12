@@ -25,11 +25,29 @@ const promptBlank = new Select({
 const capitalizeFirstLetter = value =>
   value.charAt(0).toUpperCase() + value.slice(1);
 
+const pluralFormation = type => {
+  if (type[type.length - 1] === 'y') {
+    return type.slice(0, -1) + 'ies';
+  }
+
+  return type + 's';
+};
+
 const replacer = (fullPath, name) => {
   const JSONBuffer = fs.readFileSync(fullPath);
 
+  // replace models Template.ts to plugin name
+  if (path.basename(fullPath) === 'Template.ts') {
+    fs.rename(
+      fullPath,
+      fullPath.replace('Template', capitalizeFirstLetter(name))
+    );
+  }
+
   const content = JSONBuffer.toString()
     .replace(/_name_/gi, name)
+    .replace(/{name}s/g, pluralFormation(name))
+    .replace(/{Name}s/g, pluralFormation(capitalizeFirstLetter(name)))
     .replace(/{name}/g, name)
     .replace(/{Name}/g, capitalizeFirstLetter(name));
 
@@ -81,6 +99,8 @@ var createUi = async (name, location, isEmpty) => {
 
 var createApi = async (name, isEmpty) => {
   const dir = filePath('./packages/api-plugin-templ');
+  const dotErxes = filePath('./packages/api-plugin-template.erxes');
+
   const newDir = filePath(`./packages/plugin-${name}-api`);
   const sourceDir = isEmpty
     ? filePath(`./packages/api-plugin-templ/source-empty`)
@@ -94,9 +114,14 @@ var createApi = async (name, isEmpty) => {
         return !/.*source.*/g.test(path);
       }
     },
+    fs.copySync(dotErxes, `${newDir}/.erxes`),
     fs.copySync(sourceDir, `${newDir}/src`)
   );
+
   loopDirFiles(newDir, name);
+
+  // add plugin into configs.json
+  addIntoApiConfigs(name);
 };
 
 const addIntoUIConfigs = (name, location, callback) => {
@@ -133,7 +158,7 @@ const addIntoUIConfigs = (name, location, callback) => {
   });
 };
 
-const addIntoConfigs = async name => {
+const addIntoApiConfigs = async name => {
   const configsPath = resolve(__dirname, '..', 'cli/configs.json');
 
   var newPlugin = {
@@ -141,16 +166,24 @@ const addIntoConfigs = async name => {
     ui: 'local'
   };
 
-  fs.readFile(configsPath, (err, data) => {
+  fs.readFile(configsPath, async (err, data) => {
     if (err) {
-      console.error(
-        `Could not read the file at directory: ${configsPath}`,
-        err
-      );
-      process.exit(1);
+      if (err.code === 'ENOENT') {
+        console.log("configs.json doesn't exist, creating one...");
+
+        // File configs.json will be created
+        fs.copyFileSync(`${configsPath}.sample`, configsPath);
+
+        console.log('configs.json.sample was copied to configs.json');
+      }
+
+      data = await fs.readFile(configsPath);
     }
+
     var json = JSON.parse(data);
+
     json.plugins.push(newPlugin);
+
     fs.writeFile(configsPath, JSON.stringify(json));
   });
 };
@@ -194,7 +227,6 @@ const main = async () => {
           const isEmpty = defaultTemplate === 'no';
           createUi(name, location, isEmpty);
           createApi(name, isEmpty);
-          addIntoConfigs(name);
           installDeps(name);
         })
         .catch(err => console.error(err));
