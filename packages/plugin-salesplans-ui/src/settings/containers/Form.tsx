@@ -1,9 +1,7 @@
 import * as compose from 'lodash.flowright';
 import From from '../components/Form';
-import gql from 'graphql-tag';
 import React from 'react';
 import { ButtonMutate } from '@erxes/ui/src/components';
-import { graphql } from 'react-apollo';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { ISPLabel } from '../types';
 import { mutations } from '../graphql';

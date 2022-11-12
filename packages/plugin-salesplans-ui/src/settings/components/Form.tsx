@@ -1,35 +1,22 @@
-import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import React from 'react';
+import TwitterPicker from 'react-color/lib/Twitter';
+import { __ } from '@erxes/ui/src/utils';
+import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { ISPLabel } from '../types';
 import {
   Button,
   ControlLabel,
   Form as CommonForm,
   FormControl,
-  FormGroup,
-  DateControl,
-  Uploader
+  FormGroup
 } from '@erxes/ui/src/components';
 import {
-  MainStyleFormColumn as FormColumn,
-  MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
-  MainStyleDateContainer as DateContainer
+  MainStyleScrollWrapper as ScrollWrapper
 } from '@erxes/ui/src/styles/eindex';
-import {
-  IAttachment,
-  IButtonMutateProps,
-  IFormProps
-} from '@erxes/ui/src/types';
-import { ISPLabel } from '../types';
-import Select from 'react-select-plus';
-import { extractAttachment, __ } from '@erxes/ui/src/utils';
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
-import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
-import Popover from 'react-bootstrap/Popover';
-import TwitterPicker from 'react-color/lib/Twitter';
-import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
-import { COLORS } from '../../constants';
 
 type Props = {
   spLabel?: ISPLabel;
