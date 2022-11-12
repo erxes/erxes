@@ -1,27 +1,3 @@
-const labels = `
-  query labels($type: String) {
-    labels(type: $type) {
-      _id,
-      type,
-      color,
-      title,
-      status
-    }
-  }
-`;
-
-const timeframes = `
-  query timeframes {
-    timeframes {
-      _id,
-      name,
-      description,
-      startTime,
-      endTime
-    }
-  }
-`;
-
 const departments = `
   query departments {
     departments {
@@ -124,8 +100,6 @@ const yearPlanConfig = `
 `;
 
 export default {
-  labels,
-  timeframes,
   departments,
   branches,
   salesLogs,

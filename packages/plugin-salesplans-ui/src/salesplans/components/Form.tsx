@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Select from 'react-select-plus';
 import Datetime from '@nateradebaugh/react-datetime';
 import { FlexItem } from '@erxes/ui-settings/src/styles';

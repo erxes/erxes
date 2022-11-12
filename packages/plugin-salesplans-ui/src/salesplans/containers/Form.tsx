@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from 'react-apollo';
-import { queries } from '../graphql';
+import { queries } from '../../settings/graphql';
 import gql from 'graphql-tag';
 import FormComponent from '../components/Form';
 
@@ -17,7 +17,7 @@ const FormContainer = (props: Props) => {
     initialData && initialData.type ? initialData.type : ''
   );
 
-  const labelsQuery = useQuery(gql(queries.labels), {
+  const labelsQuery = useQuery(gql(queries.spLabels), {
     variables: { type }
   });
 

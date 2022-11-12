@@ -47,22 +47,6 @@ export const types = () => `
     value: String
   }
 
-  type Label {
-    _id: String
-    title: String
-    color: String
-    type: String
-    status: String
-  },
-
-  type Timeframe {
-    _id: String
-    name: String
-    description: String
-    startTime: Int
-    endTime: Int
-  },
-
   type DayPlanConfig {
     _id: String
     salesLogId: String
@@ -93,36 +77,6 @@ export const types = () => `
     label: String
     value: String
   }
-
-  input TimeframeInput {
-    _id: String
-    name: String
-    description: String
-    startTime: Int
-    endTime: Int
-  },
-
-  input AddTimeframeInput {
-    name: String
-    description: String
-    startTime: Int
-    endTime: Int
-  },
-
-  input LabelInput {
-    _id: String
-    title: String
-    color: String
-    type: String
-    status:String
-  },
-
-  input AddLabelInput {
-    title: String
-    color: String
-    type: String
-    status:String
-  }
 `;
 
 const salesLogParams = `
@@ -150,13 +104,11 @@ export const queries = `
   dayPlanConfig(salesLogId: String): [DayPlanConfig]
   monthPlanConfig(salesLogId: String): [MonthPlanConfig]
   yearPlanConfig(salesLogId: String): [YearPlanConfig]
-  labels(type: String): [Label]
   salesLogs(
     type: String,
     status: String
   ): [SalesLog]
   salesLogDetail(salesLogId: String): SalesLog
-  timeframes: [Timeframe]
 `;
 
 export const mutations = `
@@ -166,10 +118,6 @@ export const mutations = `
   salesLogProductUpdate(_id: String, data: ProductInput): JSON
   salesLogProductRemove(_id: String, productId: String): JSON
   salesLogStatusUpdate(_id: String, status: String): JSON
-  labelsEdit(update: [LabelInput], add: [AddLabelInput]): [Label]
-  labelsRemove(_id:String): JSON
-  timeframesEdit(update:[TimeframeInput], add:[AddTimeframeInput]): [Timeframe]
-  timeframesRemove(_id: String): JSON
   saveDayPlanConfig(salesLogId: String, data:JSON):[DayPlanConfig]
   saveMonthPlanConfig(salesLogId: String, day: Date, data:JSON):[MonthPlanConfig]
   saveYearPlanConfig(salesLogId: String, data:JSON):[YearPlanConfig]

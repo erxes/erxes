@@ -1,32 +1,25 @@
-import { ICustomField, IUser, IUserDocument } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { labelSchema, ILabel, ILabelDocument } from './definitions/labels';
 
 export interface ILabelModel extends Model<ILabelDocument> {
-  labelsEdit(doc: {
-    add: ILabel[];
-    update: ILabelDocument[];
-  }): Promise<ILabelDocument[]>;
-  labelsRemove(_id: string): Promise<JSON>;
+  labelsAdd(doc: ILabel): Promise<ILabelDocument>;
+  labelsEdit(_id: string, doc: ILabel): Promise<ILabelDocument>;
+  labelsRemove(_ids: string[]): Promise<JSON>;
 }
 
 export const loadLabelClass = (models: IModels) => {
   class Label {
-    public static async labelsEdit(doc: {
-      add: ILabel[];
-      update: ILabelDocument[];
-    }) {
-      const { add, update } = doc;
-
-      for (const item of update)
-        await models.Labels.updateOne({ _id: item._id }, { $set: { ...item } });
-
-      return await models.Labels.insertMany(add);
+    public static async labelsAdd(doc: ILabel) {
+      return models.Labels.create({ ...doc });
     }
 
-    public static async labelsRemove(_id: String) {
-      return await models.Labels.remove({ _id });
+    public static async labelsEdit(_id: string, doc: ILabel) {
+      return await models.Labels.updateOne({ _id }, { $set: { ...doc } });
+    }
+
+    public static async labelsRemove(_ids: string[]) {
+      return await models.Labels.deleteMany({ _id: { $in: _ids } });
     }
   }
 

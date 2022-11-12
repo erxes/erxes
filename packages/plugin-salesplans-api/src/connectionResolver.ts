@@ -51,7 +51,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   );
 
   models.Labels = db.model<ILabelDocument, ILabelModel>(
-    'labels',
+    'salesplans_labels',
     loadLabelClass(models)
   );
 

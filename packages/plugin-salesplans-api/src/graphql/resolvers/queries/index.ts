@@ -1,3 +1,4 @@
 import query from './salesplans';
+import labelsQueries from './settings';
 
-export default { ...query };
+export default { ...query, ...labelsQueries };

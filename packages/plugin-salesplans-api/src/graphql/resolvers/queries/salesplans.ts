@@ -5,14 +5,6 @@ import {
 import { IContext } from '../../../connectionResolver';
 
 const salesLogQueries = {
-  labels: async (
-    _root: any,
-    { type }: { type: string },
-    { models }: IContext
-  ) => {
-    return await models.Labels.find({ type });
-  },
-
   salesLogs: async (
     _root: any,
     { type, status }: { type: string; status: string },
@@ -33,10 +25,6 @@ const salesLogQueries = {
     { models }: IContext
   ) => {
     return await models.SalesLogs.findOne({ _id: salesLogId });
-  },
-
-  timeframes: async (_root: any, _args: any, { models }: IContext) => {
-    return await models.Timeframes.find({});
   },
 
   dayPlanConfig: async (

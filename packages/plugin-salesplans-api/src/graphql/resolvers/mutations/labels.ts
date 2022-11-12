@@ -3,23 +3,37 @@ import {
   moduleCheckPermission
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
-import { ILabel, ILabelDocument } from '../../../models/definitions/labels';
+import { ILabel } from '../../../models/definitions/labels';
 
 const labelsMutations = {
-  labelsEdit: async (
+  spLabelsAdd: async (_root: any, doc: ILabel, { models, user }: IContext) => {
+    return await models.Labels.labelsAdd({
+      ...doc,
+      createdAt: new Date(),
+      modifiedAt: new Date(),
+      createdUser: user._id,
+      modifiedUser: user._id
+    });
+  },
+
+  spLabelsEdit: async (
     _root: any,
-    doc: { update: ILabelDocument[]; add: ILabel[] },
-    { models }: IContext
+    { _id, ...doc }: ILabel & { _id: string },
+    { models, user }: IContext
   ) => {
-    return await models.Labels.labelsEdit(doc);
+    return await models.Labels.labelsEdit(_id, {
+      ...doc,
+      modifiedAt: new Date(),
+      modifiedUser: user._id
+    });
   },
 
   labelsRemove: async (
     _root: any,
-    { _id }: { _id: string },
+    { _ids }: { _ids: string[] },
     { models }: IContext
   ) => {
-    return await models.Labels.labelsRemove(_id);
+    return await models.Labels.labelsRemove(_ids);
   }
 };
 

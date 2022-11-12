@@ -6,6 +6,12 @@ import {
   mutations as salesLogMutations
 } from './schema/salesplans';
 
+import {
+  types as settingsTypes,
+  queries as settingsQueries,
+  mutations as settingsMutations
+} from './schema/settings';
+
 const typeDefs = async () => {
   return gql`
     scalar JSON
@@ -23,13 +29,16 @@ const typeDefs = async () => {
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
 
     ${salesLogTypes()}
+    ${settingsTypes}
 
     extend type Query {
-      ${salesLogQueries}
+      ${salesLogQueries},
+      ${settingsQueries},
     }
 
     extend type Mutation {
-      ${salesLogMutations}
+      ${salesLogMutations},
+      ${settingsMutations}
     }
   `;
 };

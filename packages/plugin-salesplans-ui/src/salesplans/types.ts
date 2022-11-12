@@ -1,31 +1,3 @@
-type labelsQuery = {
-  _id: string;
-  type: string;
-  color: string;
-  title: string;
-  status: string;
-};
-
-export type labelsQueryResponse = {
-  getLabels: labelsQuery[];
-  loading: boolean;
-  refetch: () => void;
-};
-
-type timeframe = {
-  _id: string;
-  name: string;
-  description: string;
-  startTime: number;
-  endTime: number;
-};
-
-export type timeframeQueryResponse = {
-  getTimeframes: timeframe[];
-  loading: boolean;
-  refetch: () => void;
-};
-
 type dayplanconfs = {
   _id: string;
   labelsId: string[];
