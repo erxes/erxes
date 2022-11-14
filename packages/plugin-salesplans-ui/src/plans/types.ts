@@ -41,7 +41,7 @@ export type YearPlansQueryResponse = {
   refetch: () => void;
 };
 
-export type YearPlansTotalCountQueryResponse = {
+export type YearPlansCountQueryResponse = {
   yearPlansCount: number;
   loading: boolean;
   refetch: () => void;

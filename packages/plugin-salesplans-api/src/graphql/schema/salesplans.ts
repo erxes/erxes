@@ -186,4 +186,5 @@ export const mutations = `
   saveYearPlanConfig(salesLogId: String, data:JSON):[YearPlanConfig]
 
   yearPlansAdd(${planCreateParams}): [YearPlan]
+  yearPlansRemove(_ids: [String]): JSON
 `;

@@ -10,7 +10,7 @@ import { mutations, queries } from '../graphql';
 import {
   YearPlansQueryResponse,
   YearPlansRemoveMutationResponse,
-  YearPlansTotalCountQueryResponse
+  YearPlansCountQueryResponse
 } from '../types';
 
 type Props = {
@@ -21,7 +21,7 @@ type Props = {
 
 type FinalProps = {
   yearPlanQuery: YearPlansQueryResponse;
-  yearPlanTotalCountQuery: YearPlansTotalCountQueryResponse;
+  yearPlansCountQuery: YearPlansCountQueryResponse;
 } & Props &
   YearPlansRemoveMutationResponse;
 
@@ -29,12 +29,12 @@ class YearPlansContainer extends React.Component<FinalProps> {
   render() {
     const {
       yearPlanQuery,
-      yearPlanTotalCountQuery,
+      yearPlansCountQuery,
       queryParams,
       yearPlansRemove
     } = this.props;
 
-    if (yearPlanQuery.loading || yearPlanTotalCountQuery.loading) {
+    if (yearPlanQuery.loading || yearPlansCountQuery.loading) {
       return <Spinner />;
     }
 
@@ -61,7 +61,7 @@ class YearPlansContainer extends React.Component<FinalProps> {
     const maxMultiplier = this.props.queryParams.maxMultiplier;
 
     const yearPlans = yearPlanQuery.yearPlans || [];
-    const totalCount = yearPlanTotalCountQuery.yearPlansCount || 0;
+    const totalCount = yearPlansCountQuery.yearPlansCount || 0;
 
     const updatedProps = {
       ...this.props,
@@ -86,7 +86,7 @@ class YearPlansContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return ['yearPlans'];
+  return ['yearPlans', 'yearPlansCount'];
 };
 
 const options = () => ({
@@ -95,13 +95,18 @@ const options = () => ({
 
 const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),
-  ids: queryParams.ids,
-  filterStatus: queryParams.filterStatus,
+  _ids: queryParams._ids,
   searchValue: queryParams.searchValue,
-  sortField: queryParams.sortField,
-  sortDirection: Number(queryParams.sortDirection) || undefined,
-  minMultiplier: Number(queryParams.minMultiplier) || undefined,
-  maxMultiplier: Number(queryParams.maxMultiplier) || undefined
+  filterStatus: queryParams.filterStatus,
+  departmentId: queryParams.departmentId,
+  branchId: queryParams.branchId,
+  productId: queryParams.productId,
+  productCategoryId: queryParams.productCategoryId,
+  minValue: queryParams.minValue,
+  maxValue: queryParams.maxValue,
+  dateType: queryParams.dateType,
+  startDate: queryParams.startDate,
+  endDate: queryParams.endDate
 });
 
 export default withProps<Props>(
@@ -116,10 +121,10 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<{ queryParams: any }, YearPlansTotalCountQueryResponse>(
+    graphql<{ queryParams: any }, YearPlansCountQueryResponse>(
       gql(queries.yearPlansCount),
       {
-        name: 'yearPlanTotalCountQuery',
+        name: 'yearPlansCountQuery',
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
           fetchPolicy: 'network-only'

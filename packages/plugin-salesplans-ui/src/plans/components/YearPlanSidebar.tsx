@@ -12,6 +12,10 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import { SidebarFilters } from '../../salesplans/styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
+import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 
 interface Props {
   history: any;
@@ -23,12 +27,14 @@ const { Section } = Wrapper.Sidebar;
 class Sidebar extends React.Component<Props> {
   private timer?: NodeJS.Timer;
 
-  clearCategoryFilter = () => {
+  clearFilter = () => {
     router.removeParams(
       this.props.history,
       'filterStatus',
-      'minMultiplier',
-      'maxMultiplier'
+      'branchId',
+      'departmentId',
+      'productCategoryId',
+      'productId'
     );
   };
 
@@ -37,14 +43,15 @@ class Sidebar extends React.Component<Props> {
     router.setParams(this.props.history, { [name]: value });
   };
 
-  searchMultiplier = e => {
+  onInputChange = e => {
+    e.preventDefault();
+
     if (this.timer) {
       clearTimeout(this.timer);
     }
 
-    const name = e.target.name;
     const value = e.target.value;
-
+    const name = e.target.name;
     this.timer = setTimeout(() => {
       this.setFilter(name, value);
     }, 500);
@@ -55,19 +62,17 @@ class Sidebar extends React.Component<Props> {
 
     return (
       <Wrapper.Sidebar hasBorder>
-        <LeftSidebar header={<SidebarHeader />} hasBorder>
+        <LeftSidebar hasBorder>
           <Section maxHeight={188} collapsible={false}>
             <Section.Title>
               {__('Filters')}
               <Section.QuickButtons>
                 {(router.getParam(this.props.history, 'filterStatus') ||
-                  router.getParam(this.props.history, 'minMulitiplier') ||
-                  router.getParam(this.props.history, 'maxMulitiplier')) && (
-                  <a
-                    href="#cancel"
-                    tabIndex={0}
-                    onClick={this.clearCategoryFilter}
-                  >
+                  router.getParam(this.props.history, 'branchId') ||
+                  router.getParam(this.props.history, 'departmentId') ||
+                  router.getParam(this.props.history, 'productCategoryId') ||
+                  router.getParam(this.props.history, 'productId')) && (
+                  <a href="#cancel" tabIndex={0} onClick={this.clearFilter}>
                     <Tip text={__('Clear filter')} placement="bottom">
                       <Icon icon="cancel-1" />
                     </Tip>
@@ -78,26 +83,74 @@ class Sidebar extends React.Component<Props> {
             <SidebarFilters>
               <List id="SettingsSidebar">
                 <FormGroup>
-                  <ControlLabel>{__(`Min Multiplier`)}</ControlLabel>
+                  <ControlLabel required={true}>{__(`Year`)}</ControlLabel>
                   <FormControl
-                    name="minMultiplier"
                     type="number"
-                    min={0}
-                    required={false}
-                    defaultValue={queryParams.minMultiplier}
-                    onChange={this.searchMultiplier}
+                    name="year"
+                    defaultValue={new Date().getFullYear()}
+                    onChange={this.onInputChange}
                   />
                 </FormGroup>
-
                 <FormGroup>
-                  <ControlLabel>{__(`Max Multiplier`)}</ControlLabel>
-                  <FormControl
-                    name="maxMultiplier"
-                    type="number"
-                    min={0}
-                    required={false}
-                    defaultValue={queryParams.maxMultiplier}
-                    onChange={this.searchMultiplier}
+                  <ControlLabel>Branch</ControlLabel>
+                  <SelectBranches
+                    label="Choose branch"
+                    name="branchId"
+                    initialValue={queryParams.branchId || ''}
+                    customOption={{
+                      value: '',
+                      label: '...Clear branch filter'
+                    }}
+                    onSelect={branchId => this.setFilter('branchId', branchId)}
+                    multi={false}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <ControlLabel>Department</ControlLabel>
+                  <SelectDepartments
+                    label="Choose department"
+                    name="departmentId"
+                    initialValue={queryParams.departmentId || ''}
+                    customOption={{
+                      value: '',
+                      label: '...Clear department filter'
+                    }}
+                    onSelect={departmentId =>
+                      this.setFilter('departmentId', departmentId)
+                    }
+                    multi={false}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <ControlLabel>Product Category</ControlLabel>
+                  <SelectProductCategory
+                    label="Choose product category"
+                    name="productCategoryId"
+                    initialValue={queryParams.productCategoryId || ''}
+                    customOption={{
+                      value: '',
+                      label: '...Clear product category filter'
+                    }}
+                    onSelect={categoryId =>
+                      this.setFilter('productCategoryId', categoryId)
+                    }
+                    multi={false}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <ControlLabel>Product</ControlLabel>
+                  <SelectProducts
+                    label="Choose product"
+                    name="productId"
+                    initialValue={queryParams.productId || ''}
+                    customOption={{
+                      value: '',
+                      label: '...Clear product filter'
+                    }}
+                    onSelect={productId =>
+                      this.setFilter('productId', productId)
+                    }
+                    multi={false}
                   />
                 </FormGroup>
                 <FormGroup>

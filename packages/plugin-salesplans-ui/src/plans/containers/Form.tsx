@@ -26,7 +26,6 @@ class ProductFormContainer extends React.Component<FinalProps> {
       callback,
       object
     }: IButtonMutateProps) => {
-      console.log(values);
       return (
         <ButtonMutate
           mutation={mutations.yearPlansAdd}
@@ -53,7 +52,7 @@ class ProductFormContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return ['yearPlans'];
+  return ['yearPlans', 'yearPlansCount'];
 };
 
 export default withProps<Props>(compose()(ProductFormContainer));

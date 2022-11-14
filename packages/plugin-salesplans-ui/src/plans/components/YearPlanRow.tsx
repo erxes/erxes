@@ -3,6 +3,11 @@ import React from 'react';
 import { FormControl, TextInfo } from '@erxes/ui/src/components';
 import { IYearPlan } from '../types';
 import { MONTHS } from '../../constants';
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils';
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
 
 type Props = {
   yearPlan: IYearPlan;
@@ -41,7 +46,6 @@ class Row extends React.Component<Props> {
         <td>{department ? `${department.code} - ${department.title}` : ''}</td>
         <td>{product ? `${product.code} - ${product.name}` : ''}</td>
         <td>{uom ? `${uom.code} - ${uom.name}` : ''}</td>
-
         {MONTHS.map(m => (
           <td key={m}>
             <FormControl
@@ -51,7 +55,18 @@ class Row extends React.Component<Props> {
             />
           </td>
         ))}
-        <td></td>
+        <td>
+          {Object.values(values).reduce((sum, i) => Number(sum) + Number(i), 0)}
+        </td>
+        <td>
+          <ActionButtons>
+            <Tip text={__('Remove')} placement="bottom">
+              <Button id="duplicate-box-line" btnStyle="link">
+                <Icon icon="copy-1" />
+              </Button>
+            </Tip>
+          </ActionButtons>
+        </td>
       </tr>
     );
   }

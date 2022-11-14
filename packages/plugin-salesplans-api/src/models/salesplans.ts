@@ -238,7 +238,7 @@ export const loadYearPlanConfigClass = (models: IModels) => {
 export interface IYearPlanModel extends Model<IYearPlanDocument> {
   yearPlanAdd(doc: IYearPlan): Promise<IYearPlanDocument>;
   yearPlanEdit(_id: string, doc: IYearPlan): Promise<IYearPlanDocument>;
-  yearPlanRemove(_ids: string[]): Promise<JSON>;
+  yearPlansRemove(_ids: string[]): Promise<JSON>;
   yearPlansPublish(_ids: string[]): Promise<IYearPlanDocument[]>;
 }
 export const loadYearPlanClass = (models: IModels) => {
@@ -247,7 +247,7 @@ export const loadYearPlanClass = (models: IModels) => {
       return models.YearPlans.create({ ...doc });
     }
 
-    public static async yearPlansEdit(_id: string, doc: IYearPlan) {
+    public static async yearPlanEdit(_id: string, doc: IYearPlan) {
       return await models.YearPlans.updateOne({ _id }, { $set: { ...doc } });
     }
 

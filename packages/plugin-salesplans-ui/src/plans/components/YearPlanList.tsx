@@ -181,7 +181,8 @@ class YearPlans extends React.Component<Props, State> {
             {MONTHS.map(m => (
               <th key={m}>{m}</th>
             ))}
-            <th>{__('Actions')}</th>
+            <th>{__('Sum')}</th>
+            <th>{__('')}</th>
           </tr>
         </thead>
         <tbody>{this.renderRow()}</tbody>

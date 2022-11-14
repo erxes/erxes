@@ -65,6 +65,10 @@ class Form extends React.Component<Props, State> {
     });
   };
 
+  onAfterSave = () => {
+    this.props.closeModal();
+  };
+
   renderContent = (formProps: IFormProps) => {
     const { renderButton, closeModal } = this.props;
     const { values, isSubmitted } = formProps;
@@ -146,7 +150,7 @@ class Form extends React.Component<Props, State> {
           {renderButton({
             values: this.generateDoc(values),
             isSubmitted,
-            callback: closeModal,
+            callback: this.onAfterSave,
             object: yearPlanParams
           })}
         </ModalFooter>
