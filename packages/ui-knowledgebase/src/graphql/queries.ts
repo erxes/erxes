@@ -115,6 +115,10 @@ const knowledgeBaseArticles = `
       createdBy
       topicId
       categoryId
+      forms {
+        brandId
+        formId
+      }
       createdUser {
         _id
         username
