@@ -1,5 +1,15 @@
-import { FillContent, FlexRow, Forms, ReactionItem } from './styles';
 import { IArticle, ITopic } from '@erxes/ui-knowledgeBase/src/types';
+import { FILE_MIME_TYPES } from '@erxes/ui-settings/src/general/constants';
+import Button from '@erxes/ui/src/components/Button';
+import EditorCK from '@erxes/ui/src/components/EditorCK';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Icon from '@erxes/ui/src/components/Icon';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import {
   IAttachment,
   IButtonMutateProps,
@@ -7,22 +17,11 @@ import {
   IOption
 } from '@erxes/ui/src/types';
 import { __, extractAttachment } from 'coreui/utils';
-
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
-import { FILE_MIME_TYPES } from '@erxes/ui-settings/src/general/constants';
-import { FlexContent } from '@erxes/ui/src/layout/styles';
-import { FlexItem } from '@erxes/ui/src/layout/styles';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Icon from '@erxes/ui/src/components/Icon';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import Select from 'react-select-plus';
-import Uploader from '@erxes/ui/src/components/Uploader';
+
 import { articleReactions } from '../../icons.constant';
+import { FlexRow, Forms, ReactionItem } from './styles';
 
 export interface IErxesForm {
   _id: string;
@@ -115,7 +114,7 @@ class ArticleForm extends React.Component<Props, State> {
         status: finalValues.status,
         categoryIds: [currentCategoryId],
         topicId,
-        forms: erxesForms,
+        forms: erxesForms.map(f => ({ formId: f.formId, brandId: f.brandId })),
         attachments,
         categoryId,
         image
@@ -512,7 +511,7 @@ class ArticleForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'article',
+            passedName: 'article',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,

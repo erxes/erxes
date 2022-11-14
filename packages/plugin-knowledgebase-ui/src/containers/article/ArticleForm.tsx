@@ -36,7 +36,7 @@ const ArticleContainer = (props: FinalProps) => {
   } = props;
 
   const renderButton = ({
-    name,
+    passedName: name,
     values,
     isSubmitted,
     callback,
