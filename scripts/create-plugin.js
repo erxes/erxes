@@ -44,14 +44,6 @@ const pluralFormation = type => {
 const replacer = (fullPath, name) => {
   const JSONBuffer = fs.readFileSync(fullPath);
 
-  // replace models Template.ts to plugin name
-  if (path.basename(fullPath) === 'Template.ts') {
-    fs.rename(
-      fullPath,
-      fullPath.replace('Template', capitalizeFirstLetter(name))
-    );
-  }
-
   const content = JSONBuffer.toString()
     .replace(/_name_/gi, name)
     .replace(/{name}s/g, pluralFormation(name))

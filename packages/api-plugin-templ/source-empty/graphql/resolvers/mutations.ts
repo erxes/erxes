@@ -1,4 +1,4 @@
-import { {Name}s } from "../../models/{Name}";
+import { {Name}s } from "../../models";
 import { IContext } from "@erxes/api-utils/src/types"
 
 const {name}Mutations = {
