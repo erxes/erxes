@@ -1,6 +1,9 @@
 import { IContext } from '../../connectionResolver';
 
 const ClientPortalUser = {
+  __resolveReference: ({ _id }, { models }: IContext) => {
+    return models.ClientPortalUsers.findOne({ _id });
+  },
   clientPortal(user, _args, { models: { ClientPortals } }: IContext) {
     return (
       user.clientPortalId &&
