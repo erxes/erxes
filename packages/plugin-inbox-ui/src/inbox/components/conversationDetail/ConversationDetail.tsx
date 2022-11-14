@@ -1,12 +1,17 @@
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import Sidebar from '../../containers/conversationDetail/Sidebar';
-import WorkArea from '../../containers/conversationDetail/WorkArea';
 import EmptySidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { MainContent, ContentBox } from '@erxes/ui/src/layout/styles';
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
+import Sidebar from '../../containers/conversationDetail/Sidebar';
+import {
+  getPluginConfig,
+  loadDynamicComponent
+} from '@erxes/ui/src/utils/core';
+import DmWorkArea from '../../containers/conversationDetail/DmWorkArea';
+import WorkArea from './workarea/WorkArea';
 
 type Props = {
   currentConversation: IConversation;
@@ -51,7 +56,45 @@ export default class ConversationDetail extends React.Component<Props> {
     const { loading, currentConversation } = this.props;
 
     if (currentConversation) {
-      return <WorkArea {...this.props} />;
+      const { integration } = currentConversation;
+
+      let kind = integration.kind;
+
+      if (kind.includes('facebook')) {
+        kind = 'facebook';
+      }
+
+      const dmConfig = getPluginConfig({
+        pluginName: kind,
+        configName: 'inboxDirectMessage'
+      });
+
+      if (dmConfig) {
+        return <DmWorkArea {...this.props} dmConfig={dmConfig} />;
+      }
+
+      let content;
+
+      if (
+        !['messenger', 'lead', 'booking', 'webhook', 'callpro'].includes(
+          currentConversation.integration.kind
+        )
+      ) {
+        content = loadDynamicComponent('inboxConversationDetail', {
+          ...this.props
+        });
+
+        if (content) {
+          return (
+            <WorkArea
+              currentConversation={currentConversation}
+              content={content}
+            />
+          );
+        }
+      }
+
+      return <DmWorkArea {...this.props} />;
     }
 
     if (loading) {
