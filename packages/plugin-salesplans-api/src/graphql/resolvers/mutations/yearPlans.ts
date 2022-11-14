@@ -113,7 +113,6 @@ const yearPlansMutations = {
       counter += 1;
 
       if (counter > 100) {
-        console.log(docs);
         const inserted = await models.YearPlans.insertMany(docs);
         inserteds = inserteds.concat(inserted);
         docs = [];
@@ -145,7 +144,6 @@ const yearPlansMutations = {
     { _ids }: { _ids: string[] },
     { models }: IContext
   ) => {
-    console.log(_ids, 'ssssssssssss');
     return await models.YearPlans.yearPlansRemove(_ids);
   }
 };
