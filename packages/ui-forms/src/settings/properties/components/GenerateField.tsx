@@ -20,10 +20,9 @@ import Select from 'react-select-plus';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import SelectProductCategory from '../containers/SelectProductCategory';
 import Uploader from '@erxes/ui/src/components/Uploader';
-import { __ } from '@erxes/ui/src/utils/core';
+import { RenderDynamicComponent, __ } from '@erxes/ui/src/utils/core';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
-import { pluginsCustomPropertyFields } from 'coreui/pluginUtils';
 
 type Props = {
   field: IField;
@@ -298,7 +297,7 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
-  renderCustomProperties({id,value},type){
+  renderExtraFields({id,value},type,filteredPlugin){
 
     const onSelect = e => {
       const { onValueChange } = this.props;
@@ -310,7 +309,12 @@ export default class GenerateField extends React.Component<Props, State> {
       }
     };
 
-    return pluginsCustomPropertyFields(value,type,onSelect);
+      const {scope,component} = filteredPlugin.formsExtraFields.find(extraField => extraField.type === type);
+      return (
+        <ErrorBoundary key={scope}>
+          <RenderDynamicComponent scope={scope} component={component} injectedProps={{value,onSelect}}/>
+        </ErrorBoundary>
+      );
   }
 
   renderHtml() {
@@ -620,16 +624,14 @@ export default class GenerateField extends React.Component<Props, State> {
 
       default:
         try {
-          const plugins = ((window as any).plugins || []).filter(
-            plugin => plugin['customProperties']
-          ) || [];
-          if 
-          (plugins?.find(plugin=>
-            plugin.customProperties.find(customProperty => 
-              customProperty.value === type)
-            )
-          ) {
-            return this.renderCustomProperties(attrs,type);
+          const plugins = ((window as any).plugins || []).filter( plugin => plugin['formsExtraFields'] );
+
+          const filteredPlugin = plugins.find(plugin =>
+            plugin.formsExtraFields.find(extraField => extraField.type === type)
+          );
+
+          if (filteredPlugin) {
+            return this.renderExtraFields(attrs, type, filteredPlugin);
           }
 
           return this.renderInput(attrs);

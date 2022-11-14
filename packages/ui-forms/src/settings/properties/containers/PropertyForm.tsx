@@ -10,7 +10,8 @@ import { mutations, queries } from '../graphql';
 import {
   FieldsAddMutationResponse,
   FieldsEditMutationResponse,
-  FieldsGroupsQueryResponse
+  FieldsGroupsQueryResponse,
+  FieldsInputTypesQueryResponse
 } from '../types';
 import { updateCustomFieldsCache } from '../utils';
 
@@ -22,12 +23,13 @@ type Props = {
 
 type FinalProps = {
   fieldsGroupsQuery: FieldsGroupsQueryResponse;
+  fieldsInputTypes:FieldsInputTypesQueryResponse
 } & Props &
   FieldsAddMutationResponse &
   FieldsEditMutationResponse;
 
 const PropertyFormContainer = (props: FinalProps) => {
-  const { fieldsGroupsQuery, queryParams } = props;
+  const { fieldsGroupsQuery,fieldsInputTypes, queryParams } = props;
   const { type } = queryParams;
 
   let { renderButton } = props;
@@ -74,6 +76,7 @@ const PropertyFormContainer = (props: FinalProps) => {
     type,
     renderButton,
     groups: fieldsGroupsQuery.fieldsGroups,
+    inputTypes: fieldsInputTypes?.getFieldsInputTypes || [],
     refetchQueries: getRefetchQueries(queryParams)
   };
 
@@ -91,16 +94,16 @@ const getRefetchQueries = queryParams => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, FieldsGroupsQueryResponse, { contentType: string }>(
-      gql(queries.fieldsGroups),
-      {
-        name: 'fieldsGroupsQuery',
-        options: ({ queryParams }) => ({
-          variables: {
-            contentType: queryParams.type
-          }
-        })
-      }
-    )
+    graphql<Props, FieldsGroupsQueryResponse, { contentType: string }>(gql(queries.fieldsGroups), {
+      name: 'fieldsGroupsQuery',
+      options: ({ queryParams }) => ({
+        variables: {
+          contentType: queryParams.type
+        }
+      })
+    }),
+    graphql<Props>(gql(queries.getFieldsInputTypes), {
+      name: 'fieldsInputTypes'
+    })
   )(PropertyFormContainer)
 );

@@ -466,37 +466,3 @@ export const pluginsOfJobCategoryActions = (productCategoryId: string) => {
   );
 };
 
-
-export const pluginsCustomPropertyTypes = () => {
-  const plugins :any [] = (window as any).plugins || [] ;
-  return (
-    <PluginsWrapper
-      plugins={plugins}
-      itemName={'customProperties'}
-      callBack={(_plugin, actions) => {
-        return actions.map(action => {
-          return <option key={Math.random()} value={action.value}>{action.label}</option>;
-        });
-      }}
-    />
-  );
-}
-
-export const pluginsCustomPropertyFields = (initialValue,type,onSelect) =>{
-  const plugins :any[] = (window as any).plugins || [] ;
-    return (
-      <PluginsWrapper
-        plugins={plugins}
-        itemName={'customProperties'}
-        callBack={(_plugin, actions) => {
-          return actions.map(({ scope,value, component }) => {
-            if(type === value){
-              const Component = React.lazy(loadComponent(scope, component));
-              return <Component key={Math.random()} onSelect={onSelect} value={initialValue} />;
-            }
-            return null
-          });
-        }}
-      />
-    );
-}
