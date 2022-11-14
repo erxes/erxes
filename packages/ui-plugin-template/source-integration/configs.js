@@ -20,11 +20,9 @@ module.exports = {
     name: '{Name}',
     description:
       'Please write integration description on plugin config file',
-    inMessenger: false,
     isAvailable: true,
     kind: '{name}',
     logo: '/images/integrations/{name}.png',
-    createModal: '{name}',
     createUrl: '/settings/integrations/{name}',
     category:
       'All integrations, For support teams, Marketing automation, Email marketing'
