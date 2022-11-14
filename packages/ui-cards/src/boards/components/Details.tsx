@@ -4,6 +4,7 @@ import { IProduct } from '@erxes/ui-products/src/types';
 import { ItemIndicator } from '../styles/stage';
 import React from 'react';
 import { renderFullName } from '@erxes/ui/src/utils';
+import { ProductItem } from '../../deals/styles';
 
 type Props = {
   items: ICompany[] | ICustomer[] | IProduct[];
@@ -13,12 +14,14 @@ type Props = {
 class Details extends React.Component<Props> {
   renderItem(item, color, index) {
     return (
-      <div key={index}>
+      <ProductItem key={index}>
         <ItemIndicator color={color} />
-        {item.name || item.primaryName || renderFullName(item)} -{' '}
-        {item.productCount}
-        {item.sku}
-      </div>
+        {item.name || item.primaryName || renderFullName(item)}
+        <div style={{ marginLeft: 'auto', display: 'flex' }}>
+          {item.quantity}
+          {item.sku}
+        </div>
+      </ProductItem>
     );
   }
 

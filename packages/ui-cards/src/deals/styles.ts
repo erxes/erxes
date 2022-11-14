@@ -32,6 +32,12 @@ const ProductItemContainer = styled.div`
   }
 `;
 
+const ProductItem = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: row;
+`;
+
 const ItemRow = styled(Flex)`
   margin-bottom: 5px;
   align-items: center;
@@ -298,6 +304,7 @@ export {
   Add,
   ItemText,
   Amount,
+  ProductItem,
   ProductItemContainer,
   ContentRowTitle,
   ItemRow,
