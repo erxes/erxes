@@ -465,4 +465,3 @@ export const pluginsOfJobCategoryActions = (productCategoryId: string) => {
     />
   );
 };
-
