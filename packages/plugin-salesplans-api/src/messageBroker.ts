@@ -43,6 +43,17 @@ export const sendInternalNotesMessage = async (
   });
 };
 
+export const sendProductsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'products',
+    ...args
+  });
+};
+
 export const sendProcessesMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {

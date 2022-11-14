@@ -21,7 +21,7 @@ module.exports = {
     },
     {
       text: 'Sales Plans',
-      url: '/sales-plans',
+      url: '/sales-plans/year-plan',
       icon: 'icon-file-check-alt',
       location: 'mainNavigation',
       scope: 'salesplans',

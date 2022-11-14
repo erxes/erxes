@@ -15,8 +15,38 @@ export const types = () => `
     _id: String! @external
   }
 
+  extend type Product @key(fields: "_id") {
+    _id: String! @external
+  }
+
+  extend type Uom @key(fields: "_id") {
+    _id: String! @external
+  }
+
   extend type User @key(fields: "_id") {
     _id: String! @external
+  }
+
+  type YearPlan @key(fields: "_id") @cacheControl(maxAge: 3) {
+    _id: String,
+    year: Int,
+    confirmedData: JSON,
+    departmentId: String,
+    branchId: String,
+    productId: String,
+    uomId: String,
+    values: JSON
+    createdAt: Date,
+    createdBy: String,
+    modifiedAt: Date,
+    modifiedBy: String,
+
+    department: Department,
+    branch: Branch,
+    product: Product,
+    uom: Uom,
+    createdUser: User,
+    modifiedUser: User
   }
 
   type SalesLog @key(fields: "_id") @cacheControl(maxAge: 3){
@@ -100,6 +130,28 @@ const salesLogDocumentParams = `
   labels: [String],
 `;
 
+export const paginateParams = `
+  page: Int,
+  perPage: Int,
+  sortField: String,
+  sortDirection: Int,
+`;
+
+export const planFilterParams = `
+  _ids:[String],
+  searchValue: String,
+  filterStatus: String,
+  departmentId: String,
+  branchId: String,
+  productId: String,
+  productCategoryId: String,
+  minValue: Float,
+  maxValue: Float,
+  dateType: String,
+  startDate: Date,
+  endDate: Date,
+`;
+
 export const queries = `
   dayPlanConfig(salesLogId: String): [DayPlanConfig]
   monthPlanConfig(salesLogId: String): [MonthPlanConfig]
@@ -109,6 +161,17 @@ export const queries = `
     status: String
   ): [SalesLog]
   salesLogDetail(salesLogId: String): SalesLog
+
+  yearPlans(year: Int, ${planFilterParams}, ${paginateParams}): [YearPlan],
+  yearPlansCount(year: Int, ${planFilterParams}, ${paginateParams}): Int,
+`;
+
+export const planCreateParams = `
+  year: Int,
+  departmentId: String,
+  branchId: String,
+  productCategoryId: String,
+  productId: String,
 `;
 
 export const mutations = `
@@ -121,4 +184,6 @@ export const mutations = `
   saveDayPlanConfig(salesLogId: String, data:JSON):[DayPlanConfig]
   saveMonthPlanConfig(salesLogId: String, day: Date, data:JSON):[MonthPlanConfig]
   saveYearPlanConfig(salesLogId: String, data:JSON):[YearPlanConfig]
+
+  yearPlansAdd(${planCreateParams}): [YearPlan]
 `;

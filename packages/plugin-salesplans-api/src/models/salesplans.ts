@@ -3,6 +3,16 @@ import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { STATUS } from '../constants';
 import {
+  dayPlanSchema,
+  IDayPlan,
+  IDayPlanDocument,
+  IYearPlan,
+  IYearPlanDocument,
+  IYearPlansAddParams,
+  yearPlanSchema
+} from './definitions/salesplans';
+import { sendProductsMessage } from '../../../plugin-processes-api/src/messageBroker';
+import {
   ISalesLog,
   ISalesLogDocument,
   ISalesLogProduct,
@@ -30,7 +40,7 @@ export interface ISalesLogModel extends Model<ISalesLogDocument> {
 export const loadSalesLogClass = (models: IModels) => {
   class SalesLog {
     /*
-     create SalesLog 
+     create SalesLog
     */
     public static async salesLogAdd(data: ISalesLog, userId: String) {
       return await models.SalesLogs.create({
@@ -40,7 +50,7 @@ export const loadSalesLogClass = (models: IModels) => {
       });
     }
 
-    /* 
+    /*
       update SalesLog
     */
     public static async salesLogEdit(_id: String, data: ISalesLogDocument) {
@@ -54,7 +64,7 @@ export const loadSalesLogClass = (models: IModels) => {
       return await models.SalesLogs.findOne({ _id });
     }
 
-    /* 
+    /*
       remove SalesLog and DayPlanConfigs with SaleslogId
     */
     public static async salesLogRemove(_id: string) {
@@ -223,4 +233,82 @@ export const loadYearPlanConfigClass = (models: IModels) => {
   yearPlanConfigSchema.loadClass(YearPlanConfig);
 
   return yearPlanConfigSchema;
+};
+
+export interface IYearPlanModel extends Model<IYearPlanDocument> {
+  yearPlanAdd(doc: IYearPlan): Promise<IYearPlanDocument>;
+  yearPlanEdit(_id: string, doc: IYearPlan): Promise<IYearPlanDocument>;
+  yearPlanRemove(_ids: string[]): Promise<JSON>;
+  yearPlansPublish(_ids: string[]): Promise<IYearPlanDocument[]>;
+}
+export const loadYearPlanClass = (models: IModels) => {
+  class YearPlan {
+    public static async yearPlanAdd(doc: IYearPlan) {
+      return models.YearPlans.create({ ...doc });
+    }
+
+    public static async yearPlansEdit(_id: string, doc: IYearPlan) {
+      return await models.YearPlans.updateOne({ _id }, { $set: { ...doc } });
+    }
+
+    public static async yearPlansRemove(_ids: string[]) {
+      return await models.YearPlans.deleteMany({ _id: { $in: _ids } });
+    }
+
+    public static async yearPlansPublish(_ids: string[]) {
+      return await models.YearPlans.updateMany(
+        { _id: { $in: _ids } },
+        {
+          $set: {
+            status: 'publish',
+            confirmedData: {
+              date: new Date(),
+              values: '$values'
+            }
+          }
+        }
+      );
+    }
+  }
+
+  yearPlanSchema.loadClass(YearPlan);
+
+  return yearPlanSchema;
+};
+
+export interface IDayPlanModel extends Model<IDayPlanDocument> {
+  dayPlanAdd(doc: IDayPlan): Promise<IDayPlanDocument>;
+  dayPlanEdit(_id: string, doc: IDayPlan): Promise<IDayPlanDocument>;
+  dayPlanRemove(_ids: string[]): Promise<JSON>;
+  dayPlansPublish(_ids: string[]): Promise<IDayPlanDocument[]>;
+}
+export const loadDayPlanClass = (models: IModels) => {
+  class DayPlan {
+    public static async dayPlansAdd(doc: IDayPlan) {
+      return models.DayPlans.create({ ...doc });
+    }
+
+    public static async dayPlansEdit(_id: string, doc: IDayPlan) {
+      return await models.DayPlans.updateOne({ _id }, { $set: { ...doc } });
+    }
+
+    public static async dayPlansRemove(_ids: string[]) {
+      return await models.DayPlans.deleteMany({ _id: { $in: _ids } });
+    }
+
+    public static async dayPlansPublish(_ids: string[]) {
+      return await models.DayPlans.updateMany(
+        { _id: { $in: _ids } },
+        {
+          $set: {
+            status: 'publish'
+          }
+        }
+      );
+    }
+  }
+
+  dayPlanSchema.loadClass(DayPlan);
+
+  return dayPlanSchema;
 };

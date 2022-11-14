@@ -28,6 +28,21 @@ const labelsList = ({ location, history }) => {
   );
 };
 
+const YearPlans = asyncComponent(() =>
+  import(
+    /* webpackChunkName: 'Sales Plans' */ './plans/containers/YearPlanList'
+  )
+);
+
+const yearPlanList = ({ location, history }) => {
+  return (
+    <YearPlans
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
 const routes = () => {
   return (
     <>
@@ -39,9 +54,9 @@ const routes = () => {
       />
       <Route
         exact={true}
-        path="/sales-plans"
-        key="/sales-plans"
-        component={salesplans}
+        path="/sales-plans/year-plan"
+        key="/sales-plans/year-plan"
+        component={yearPlanList}
       />
       <Route
         exact={true}

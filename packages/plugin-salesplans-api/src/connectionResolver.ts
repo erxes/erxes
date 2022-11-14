@@ -6,7 +6,9 @@ import {
   ISalesLogDocument,
   IDayPlanConfigDocument,
   IMonthPlanConfigDocument,
-  IYearPlanConfigDocument
+  IYearPlanConfigDocument,
+  IYearPlanDocument,
+  IDayPlanDocument
 } from './models/definitions/salesplans';
 import { ILabelModel, loadLabelClass } from './models/labels';
 import { ITimeframeModel, loadTimeframeClass } from './models/timeframes';
@@ -18,7 +20,11 @@ import {
   IMonthPlanConfigModel,
   loadMonthPlanConfigClass,
   IYearPlanConfigModel,
-  loadYearPlanConfigClass
+  loadYearPlanConfigClass,
+  IYearPlanModel,
+  loadYearPlanClass,
+  IDayPlanModel,
+  loadDayPlanClass
 } from './models/salesplans';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 
@@ -29,6 +35,9 @@ export interface IModels {
   DayPlanConfigs: IDayPlanConfigModel;
   MonthPlanConfigs: IMonthPlanConfigModel;
   YearPlanConfigs: IYearPlanConfigModel;
+
+  YearPlans: IYearPlanModel;
+  DayPlans: IDayPlanModel;
 }
 
 export interface IContext extends IMainContext {
@@ -74,6 +83,16 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     IYearPlanConfigDocument,
     IYearPlanConfigModel
   >('yearPlanConfigs', loadYearPlanConfigClass(models));
+
+  models.YearPlans = db.model<IYearPlanDocument, IYearPlanModel>(
+    'salesplans_yearplans',
+    loadYearPlanClass(models)
+  );
+
+  models.DayPlans = db.model<IDayPlanDocument, IDayPlanModel>(
+    'salesplans_dayplans',
+    loadDayPlanClass(models)
+  );
 
   return models;
 };
