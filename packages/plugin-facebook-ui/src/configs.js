@@ -5,7 +5,6 @@ module.exports = {
   exposes: {
     './routes': './src/routes.tsx',
     './inboxIntegrationSettings': './src/containers/UpdateConfigsContainer.tsx',
-    './inboxConversationDetail': './src/containers/ConversationDetailContainer.tsx',
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
@@ -13,7 +12,34 @@ module.exports = {
     module: './routes',
   },
   inboxIntegrationSettings: './inboxIntegrationSettings',
-  inboxConversationDetail: './inboxConversationDetail',
+  inboxDirectMessage: {
+    messagesQuery: `
+      query conversationMessages(
+        $conversationId: String!
+        $skip: Int
+        $limit: Int
+        $getFirst: Boolean
+      ) {
+        facebookConversationMessages(
+          conversationId: $conversationId,
+          skip: $skip,
+          limit: $limit,
+          getFirst: $getFirst
+        ) {
+          _id
+          content
+          conversationId
+          fromBot
+          botData
+          customerId
+          userId
+          createdAt
+          isCustomerRead
+          mid
+        }
+      }
+    `
+  },
   inboxIntegrations: [
     {
       name: 'Facebook Post',
