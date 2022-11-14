@@ -15,7 +15,9 @@ class Details extends React.Component<Props> {
     return (
       <div key={index}>
         <ItemIndicator color={color} />
-        {item.name || item.primaryName || renderFullName(item)}
+        {item.name || item.primaryName || renderFullName(item)} -{' '}
+        {item.productCount}
+        {item.sku}
       </div>
     );
   }
