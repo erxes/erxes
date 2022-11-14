@@ -5,7 +5,7 @@ module.exports = {
   exposes: {
     './routes': './src/routes.tsx',
     './inboxIntegrationSettings': './src/containers/UpdateConfigsContainer.tsx',
-    './inboxConversationDetail': './src/containers/ConversationDetailContainer.tsx',
+    './inboxConversationDetail': './src/containers/post/FbCommentsContainer',
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',

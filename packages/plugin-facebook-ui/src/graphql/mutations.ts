@@ -10,7 +10,25 @@ const facebookRepair = `
   }
 `;
 
+const facebookReplyToComment = `
+  mutation facebookReplyToComment($conversationId: String, $content: String, $commentId: String) {
+    facebookReplyToComment(conversationId: $conversationId, content: $content, commentId: $commentId) {
+      commentId
+    }
+  }
+`;
+
+const facebookChangeCommentStatus = `
+  mutation facebookChangeCommentStatus($commentId: String) {
+    facebookChangeCommentStatus(commentId: $commentId) {
+      commentId
+    }
+  }
+`;
+
 export default {
   facebookUpdateConfigs,
-  facebookRepair
+  facebookRepair,
+  facebookReplyToComment,
+  facebookChangeCommentStatus
 };

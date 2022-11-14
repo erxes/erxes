@@ -1,5 +1,4 @@
 import ConversationDetail from './ConversationDetail';
-import FacebookPost from './facebook/FacebookConversation';
 import RespondBox from './RespondBox';
 import ResponseTemplate from './responseTemplate/ResponseTemplate';
 import Sidebar from './Sidebar';
@@ -12,6 +11,5 @@ export {
   Sidebar,
   RespondBox,
   ResponseTemplate,
-  SidebarActivity,
-  FacebookPost
+  SidebarActivity
 };

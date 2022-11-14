@@ -1,12 +1,13 @@
-import { IAttachmentPreview } from '@erxes/ui/src/types';
-import { FacebookPost } from '../../../../containers/conversationDetail';
 import React from 'react';
 import styled from 'styled-components';
+
+import { IAttachmentPreview } from '@erxes/ui/src/types';
 import { IConversation, IMessage } from '@erxes/ui-inbox/src/inbox/types';
-import CallPro from '../callpro/Callpro';
 import MailConversation from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/mail/MailConversation';
-import AttachmentPreview from './AttachmentPreview';
 import Message from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/Message';
+
+import AttachmentPreview from './AttachmentPreview';
+import CallPro from '../callpro/Callpro';
 
 type Props = {
   conversation: IConversation;
@@ -67,7 +68,7 @@ class Conversation extends React.Component<Props, { isResolved: boolean }> {
   };
 
   renderConversation() {
-    const { conversation, conversationMessages, scrollBottom } = this.props;
+    const { conversation, conversationMessages } = this.props;
 
     if (!conversation) {
       return null;
@@ -82,17 +83,6 @@ class Conversation extends React.Component<Props, { isResolved: boolean }> {
         <MailConversation
           conversation={conversation}
           conversationMessages={conversationMessages}
-        />
-      );
-    }
-
-    if (kind === 'facebook-post') {
-      return (
-        <FacebookPost
-          scrollBottom={scrollBottom}
-          conversation={conversation}
-          isResolved={this.state.isResolved}
-          onToggleClick={this.onPostToggleClick}
         />
       );
     }

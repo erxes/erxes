@@ -1,18 +1,20 @@
+import * as React from 'react';
+import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import FacebookComment from '../../../components/conversationDetail/workarea/facebook/FacebookComment';
-import { mutations } from '@erxes/ui-inbox/src/inbox/graphql';
-import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
+import { queries as inboxQueries } from '@erxes/ui-inbox/src/inbox/graphql';
+
+import { mutations } from '../../graphql/index';
 import {
   IFacebookComment,
   ReplyFacebookCommentMutationResponse,
   ReplyFaceBookCommentMutationVariables,
   ResolveFacebookCommentMutationVariables,
   ResolveFacebookCommentResponse
-} from '@erxes/ui-inbox/src/inbox/types';
-import * as React from 'react';
-import { graphql } from 'react-apollo';
+} from '../../types';
+import FacebookComment from '../../components/conversationDetail/facebook/FacebookComment';
 
 type Props = {
   comment: IFacebookComment;
@@ -85,7 +87,7 @@ export default withProps<Props>(
     >(gql(mutations.facebookChangeCommentStatus), {
       name: 'resolveMutation'
     }),
-    graphql(gql(queries.convertToInfo), {
+    graphql(gql(inboxQueries.convertToInfo), {
       name: 'convertToInfoQuery',
       options: ({ comment }: Props) => ({
         variables: { conversationId: comment.commentId }

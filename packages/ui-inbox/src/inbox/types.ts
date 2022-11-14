@@ -39,7 +39,6 @@ export interface IConversation {
   tags: ITag[];
   updatedAt: Date;
   idleTime: number;
-  facebookPost?: IFacebookPost;
   callProAudio?: string;
   videoCallData?: IVideoCallData;
 
@@ -57,31 +56,6 @@ interface IEngageDataRules {
   text: string;
   condition: string;
   value?: string;
-}
-
-export interface IFacebookPost {
-  postId: string;
-  recipientId: string;
-  senderId: string;
-  content: string;
-  erxesApiId?: string;
-  attachments: string[];
-  timestamp: Date;
-  permalink_url: string;
-}
-
-export interface IFacebookComment {
-  postId: string;
-  conversationId: string;
-  parentId: string;
-  commentId: string;
-  content: string;
-  attachments: string[];
-  commentCount: number;
-  timestamp: Date;
-  customer: ICustomer;
-  isResolved: boolean;
-  permalink_url: string;
 }
 
 export interface IEmail {
@@ -305,38 +279,6 @@ export type UnreadConversationsTotalCountQueryResponse = {
   conversationsTotalUnreadCount: number;
   subscribeToMore: (variables) => void;
 } & QueryResponse;
-
-export type FacebookCommentsQueryResponse = {
-  facebookGetComments: IFacebookComment[];
-  fetchMore: (variables) => void;
-} & QueryResponse;
-
-export type FacebookCommentsCountQueryResponse = {
-  facebookGetCommentCount: any;
-  fetchMore: (variables) => void;
-} & QueryResponse;
-
-export type ReplyFaceBookCommentMutationVariables = {
-  conversationId: string;
-  commentId: string;
-  content: string;
-};
-
-export type ReplyFacebookCommentMutationResponse = {
-  replyMutation: (doc: {
-    variables: ReplyFaceBookCommentMutationVariables;
-  }) => Promise<any>;
-};
-
-export type ResolveFacebookCommentMutationVariables = {
-  commentId: string;
-};
-
-export type ResolveFacebookCommentResponse = {
-  resolveMutation: (doc: {
-    variables: ResolveFacebookCommentMutationVariables;
-  }) => Promise<any>;
-};
 
 export type EditCustomFieldsMutationVariables = {
   _id: string;

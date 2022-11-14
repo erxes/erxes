@@ -6,7 +6,7 @@ import Date from './Date';
 import FacebookContent from './FacebookContent';
 import { FormControl } from '@erxes/ui/src/components/form';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import { IFacebookPost } from '@erxes/ui-inbox/src/inbox/types';
+import { IFacebookPost } from '../../../types';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import { PostContainer } from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/styles';
 import UserName from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/UserName';

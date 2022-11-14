@@ -1,16 +1,13 @@
 import * as React from 'react';
 
-import {
-  IFacebookComment,
-  IFacebookPost,
-  IMessage
-} from '@erxes/ui-inbox/src/inbox/types';
-
-import FacebookComment from '../../../../containers/conversationDetail/facebook/FacebookComment';
-import FacebookPost from './FacebookPost';
+import { IMessage } from '@erxes/ui-inbox/src/inbox/types';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import { ShowMore } from './styles';
 import SimpleMessage from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/SimpleMessage';
+
+import FacebookPost from './FacebookPost';
+import { ShowMore } from './styles';
+import { IFacebookComment, IFacebookPost } from '../../../types';
+import FacebookComment from '../../../containers/post/FacebookComment';
 
 type Props = {
   commentCount: number;
@@ -45,6 +42,7 @@ const getAttr = (comment: IFacebookComment, attr: string) => {
 export default class FacebookConversation extends React.Component<Props> {
   fetchComments = () => {
     const { post, comments } = this.props;
+
     if (!post) {
       return;
     }

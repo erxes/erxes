@@ -1,23 +1,31 @@
-import { AppConsumer } from 'coreui/appContext';
+import * as React from 'react';
+import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+
 import { IUser } from '@erxes/ui/src/auth/types';
 import { withProps } from '@erxes/ui/src/utils';
-import FacebookConversation from '../../../components/conversationDetail/workarea/facebook/FacebookConversation';
-import { queries, subscriptions } from '@erxes/ui-inbox/src/inbox/graphql';
+import {
+  queries as inboxQueries,
+  subscriptions as inboxSubscriptions
+} from '@erxes/ui-inbox/src/inbox/graphql';
+import { MessagesQueryResponse } from '@erxes/ui-inbox/src/inbox/types';
+
+import { AppConsumer } from 'coreui/appContext';
+import FacebookConversation from '../../components/conversationDetail/facebook/FacebookConversation';
+import { queries } from '../../graphql/index';
 import {
   FacebookCommentsCountQueryResponse,
   FacebookCommentsQueryResponse,
-  IConversation,
   IFacebookComment,
   IFacebookPost,
-  MessagesQueryResponse
-} from '@erxes/ui-inbox/src/inbox/types';
-import * as React from 'react';
-import { graphql } from 'react-apollo';
+  IFbConversation
+} from '../../types';
+import { Spinner } from '@erxes/ui/src/components';
 
 type Props = {
-  conversation: IConversation;
+  currentId: string;
+  conversation: IFbConversation;
   isResolved: boolean;
   onToggleClick: () => void;
   scrollBottom: () => void;
@@ -45,7 +53,7 @@ class FacebookPostContainer extends React.Component<FinalProps> {
     // It is first time or subsequent conversation change
     if (
       !this.subscription ||
-      conversation._id !== this.props.conversation._id
+      (conversation && conversation._id !== this.props.conversation._id)
     ) {
       // Unsubscribe previous subscription ==========
       if (this.subscription) {
@@ -54,7 +62,7 @@ class FacebookPostContainer extends React.Component<FinalProps> {
 
       this.subscription = commentsQuery.subscribeToMore({
         document: gql(
-          subscriptions.conversationExternalIntegrationMessageInserted
+          inboxSubscriptions.conversationExternalIntegrationMessageInserted
         ),
         updateQuery: () => {
           const comments = commentsQuery.facebookGetComments || [];
@@ -142,10 +150,15 @@ class FacebookPostContainer extends React.Component<FinalProps> {
       internalNotesQuery.loading ||
       commentsCountQuery.loading
     ) {
-      return null;
+      return <Spinner />;
     }
 
-    const post = conversation.facebookPost || ({} as IFacebookPost);
+    if (!conversation) {
+      return 'No conversation found';
+    }
+
+    const post =
+      (conversation && conversation.facebookPost) || ({} as IFacebookPost);
     const comments = commentsQuery.facebookGetComments || [];
     const commentCounts = commentsCountQuery.facebookGetCommentCount || {};
 
@@ -156,7 +169,7 @@ class FacebookPostContainer extends React.Component<FinalProps> {
       ...this.props,
       commentCount,
       post,
-      customer: conversation.customer || ({} as any),
+      customer: (conversation && conversation.customer) || ({} as any),
       comments,
       internalNotes: internalNotesQuery.conversationMessages,
       hasMore,
@@ -167,60 +180,59 @@ class FacebookPostContainer extends React.Component<FinalProps> {
   }
 }
 
+type Resolved = {
+  isResolved: boolean;
+};
+
+type ConversationId = {
+  conversationId: string;
+} & Resolved;
+
+type ConversationAndResolved = {
+  conversation: IFbConversation;
+} & Resolved;
+
 const WithQuery = withProps<Props & { currentUser: IUser }>(
   compose(
-    graphql<
-      Props,
-      FacebookCommentsQueryResponse,
-      { conversationId: string; isResolved: boolean }
-    >(gql(queries.facebookGetComments), {
-      name: 'commentsQuery',
-      options: ({
-        conversation,
-        isResolved
-      }: {
-        conversation: IConversation;
-        isResolved: boolean;
-      }) => {
-        return {
-          variables: {
-            conversationId: conversation._id,
-            isResolved
-          },
-          fetchPolicy: 'network-only'
-        };
-      }
-    }),
-    graphql<
-      Props,
-      FacebookCommentsCountQueryResponse,
-      { conversationId: string; isResolved: boolean }
-    >(gql(queries.facebookGetCommentCount), {
-      name: 'commentsCountQuery',
-      options: ({
-        conversation,
-        isResolved
-      }: {
-        conversation: IConversation;
-        isResolved: boolean;
-      }) => {
-        return {
-          variables: {
-            conversationId: conversation._id,
-            isResolved
-          },
-          fetchPolicy: 'network-only'
-        };
-      }
-    }),
-    graphql<Props, MessagesQueryResponse, { conversationId: string }>(
-      gql(queries.conversationMessages),
+    graphql<Props, FacebookCommentsQueryResponse, ConversationId>(
+      gql(queries.facebookGetComments),
       {
-        name: 'internalNotesQuery',
-        options: ({ conversation }: { conversation: IConversation }) => {
+        name: 'commentsQuery',
+        // options: ({ conversation, isResolved, currentId }) => {
+        options: ({ isResolved, currentId }) => {
           return {
             variables: {
-              conversationId: conversation._id
+              conversationId: currentId,
+              isResolved
+            },
+            fetchPolicy: 'network-only'
+          };
+        }
+      }
+    ),
+    graphql<Props, FacebookCommentsCountQueryResponse, ConversationId>(
+      gql(queries.facebookGetCommentCount),
+      {
+        name: 'commentsCountQuery',
+        options: ({ isResolved, currentId }) => {
+          return {
+            variables: {
+              conversationId: currentId,
+              isResolved
+            },
+            fetchPolicy: 'network-only'
+          };
+        }
+      }
+    ),
+    graphql<Props, MessagesQueryResponse, { conversationId: string }>(
+      gql(inboxQueries.conversationMessages),
+      {
+        name: 'internalNotesQuery',
+        options: ({ currentId }) => {
+          return {
+            variables: {
+              conversationId: currentId
             },
             fetchPolicy: 'network-only'
           };
