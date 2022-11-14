@@ -1,16 +1,16 @@
-import {
-  moduleRequireLogin,
-  moduleCheckPermission
-} from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
-import { sendProductsMessage } from '../../../messageBroker';
-import { MONTHS } from '../../../constants';
 import {
   IPlanValue,
   IYearPlan,
-  IYearPlanDocument
-} from '../../../models/definitions/salesplans';
-import { IYearPlansAddParams } from '../../../models/definitions/salesplans';
+  IYearPlanDocument,
+  IYearPlansAddParams
+} from '../../../models/definitions/yearPlans';
+import {
+  moduleCheckPermission,
+  moduleRequireLogin
+} from '@erxes/api-utils/src/permissions';
+import { MONTHS } from '../../../constants';
+import { sendProductsMessage } from '../../../messageBroker';
 
 const yearPlansMutations = {
   yearPlansAdd: async (

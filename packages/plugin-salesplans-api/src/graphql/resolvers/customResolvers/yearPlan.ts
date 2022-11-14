@@ -1,6 +1,6 @@
 import { IContext } from '../../../connectionResolver';
 import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
-import { IYearPlanDocument } from '../../../models/definitions/salesplans';
+import { IYearPlanDocument } from '../../../models/definitions/yearPlans';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {

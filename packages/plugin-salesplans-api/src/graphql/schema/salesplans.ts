@@ -27,28 +27,6 @@ export const types = () => `
     _id: String! @external
   }
 
-  type YearPlan @key(fields: "_id") @cacheControl(maxAge: 3) {
-    _id: String,
-    year: Int,
-    confirmedData: JSON,
-    departmentId: String,
-    branchId: String,
-    productId: String,
-    uomId: String,
-    values: JSON
-    createdAt: Date,
-    createdBy: String,
-    modifiedAt: Date,
-    modifiedBy: String,
-
-    department: Department,
-    branch: Branch,
-    product: Product,
-    uom: Uom,
-    createdUser: User,
-    modifiedUser: User
-  }
-
   type SalesLog @key(fields: "_id") @cacheControl(maxAge: 3){
     _id: String!
     name: String
@@ -161,9 +139,6 @@ export const queries = `
     status: String
   ): [SalesLog]
   salesLogDetail(salesLogId: String): SalesLog
-
-  yearPlans(year: Int, ${planFilterParams}, ${paginateParams}): [YearPlan],
-  yearPlansCount(year: Int, ${planFilterParams}, ${paginateParams}): Int,
 `;
 
 export const planCreateParams = `
@@ -184,8 +159,4 @@ export const mutations = `
   saveDayPlanConfig(salesLogId: String, data:JSON):[DayPlanConfig]
   saveMonthPlanConfig(salesLogId: String, day: Date, data:JSON):[MonthPlanConfig]
   saveYearPlanConfig(salesLogId: String, data:JSON):[YearPlanConfig]
-
-  yearPlansAdd(${planCreateParams}): [YearPlan]
-  yearPlansRemove(_ids: [String]): JSON
-  yearPlanEdit(_id: String!, uomId: String, values: JSON): YearPlan
 `;

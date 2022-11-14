@@ -6,11 +6,9 @@ import {
   ISalesLogDocument,
   IDayPlanConfigDocument,
   IMonthPlanConfigDocument,
-  IYearPlanConfigDocument,
-  IYearPlanDocument,
-  IDayPlanDocument
+  IYearPlanConfigDocument
 } from './models/definitions/salesplans';
-import { ILabelModel, loadLabelClass } from './models/labels';
+import { ILabelModel, loadLabelClass } from './models/Labels';
 import { ITimeframeModel, loadTimeframeClass } from './models/timeframes';
 import {
   ISalesLogModel,
@@ -20,13 +18,13 @@ import {
   IMonthPlanConfigModel,
   loadMonthPlanConfigClass,
   IYearPlanConfigModel,
-  loadYearPlanConfigClass,
-  IYearPlanModel,
-  loadYearPlanClass,
-  IDayPlanModel,
-  loadDayPlanClass
+  loadYearPlanConfigClass
 } from './models/salesplans';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
+import { IYearPlanModel, loadYearPlanClass } from './models/YearPlans';
+import { IDayPlanModel, loadDayPlanClass } from './models/DayPlans';
+import { IYearPlanDocument } from './models/definitions/yearPlans';
+import { IDayPlanDocument } from './models/definitions/dayPlans';
 
 export interface IModels {
   SalesLogs: ISalesLogModel;

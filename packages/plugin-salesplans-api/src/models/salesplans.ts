@@ -1,29 +1,15 @@
-import { ICustomField, IUser, IUserDocument } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { STATUS } from '../constants';
-import {
-  dayPlanSchema,
-  IDayPlan,
-  IDayPlanDocument,
-  IYearPlan,
-  IYearPlanDocument,
-  IYearPlansAddParams,
-  yearPlanSchema
-} from './definitions/salesplans';
-import { sendProductsMessage } from '../../../plugin-processes-api/src/messageBroker';
 import {
   ISalesLog,
   ISalesLogDocument,
   ISalesLogProduct,
   salesLogSchema,
-  IDayPlanConfig,
   IDayPlanConfigDocument,
   dayPlanConfigSchema,
-  IMonthPlanConfig,
   IMonthPlanConfigDocument,
   monthPlanConfigSchema,
-  IYearPlanConfig,
   IYearPlanConfigDocument,
   yearPlanConfigSchema
 } from './definitions/salesplans';
@@ -233,91 +219,4 @@ export const loadYearPlanConfigClass = (models: IModels) => {
   yearPlanConfigSchema.loadClass(YearPlanConfig);
 
   return yearPlanConfigSchema;
-};
-
-export interface IYearPlanModel extends Model<IYearPlanDocument> {
-  getYearPlan(filter: any): Promise<IYearPlanDocument>;
-  yearPlanAdd(doc: IYearPlan): Promise<IYearPlanDocument>;
-  yearPlanEdit(_id: string, doc: IYearPlan): Promise<IYearPlanDocument>;
-  yearPlansRemove(_ids: string[]): Promise<JSON>;
-  yearPlansPublish(_ids: string[]): Promise<IYearPlanDocument[]>;
-}
-export const loadYearPlanClass = (models: IModels) => {
-  class YearPlan {
-    public static async getYearPlan(filter: any) {
-      const plan = models.YearPlans.findOne({ ...filter }).lean();
-      if (!plan) {
-        throw new Error('Not found year plan');
-      }
-      return plan;
-    }
-
-    public static async yearPlanAdd(doc: IYearPlan) {
-      return models.YearPlans.create({ ...doc });
-    }
-
-    public static async yearPlanEdit(_id: string, doc: IYearPlan) {
-      return await models.YearPlans.updateOne({ _id }, { $set: { ...doc } });
-    }
-
-    public static async yearPlansRemove(_ids: string[]) {
-      return await models.YearPlans.deleteMany({ _id: { $in: _ids } });
-    }
-
-    public static async yearPlansPublish(_ids: string[]) {
-      return await models.YearPlans.updateMany(
-        { _id: { $in: _ids } },
-        {
-          $set: {
-            status: 'publish',
-            confirmedData: {
-              date: new Date(),
-              values: '$values'
-            }
-          }
-        }
-      );
-    }
-  }
-
-  yearPlanSchema.loadClass(YearPlan);
-
-  return yearPlanSchema;
-};
-
-export interface IDayPlanModel extends Model<IDayPlanDocument> {
-  dayPlanAdd(doc: IDayPlan): Promise<IDayPlanDocument>;
-  dayPlanEdit(_id: string, doc: IDayPlan): Promise<IDayPlanDocument>;
-  dayPlanRemove(_ids: string[]): Promise<JSON>;
-  dayPlansPublish(_ids: string[]): Promise<IDayPlanDocument[]>;
-}
-export const loadDayPlanClass = (models: IModels) => {
-  class DayPlan {
-    public static async dayPlansAdd(doc: IDayPlan) {
-      return models.DayPlans.create({ ...doc });
-    }
-
-    public static async dayPlansEdit(_id: string, doc: IDayPlan) {
-      return await models.DayPlans.updateOne({ _id }, { $set: { ...doc } });
-    }
-
-    public static async dayPlansRemove(_ids: string[]) {
-      return await models.DayPlans.deleteMany({ _id: { $in: _ids } });
-    }
-
-    public static async dayPlansPublish(_ids: string[]) {
-      return await models.DayPlans.updateMany(
-        { _id: { $in: _ids } },
-        {
-          $set: {
-            status: 'publish'
-          }
-        }
-      );
-    }
-  }
-
-  dayPlanSchema.loadClass(DayPlan);
-
-  return dayPlanSchema;
 };

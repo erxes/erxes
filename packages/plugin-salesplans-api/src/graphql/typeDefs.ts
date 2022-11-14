@@ -5,6 +5,11 @@ import {
   queries as salesLogQueries,
   mutations as salesLogMutations
 } from './schema/salesplans';
+import {
+  types as yearPlanTypes,
+  queries as yearPlanQueries,
+  mutations as yearPlanMutations
+} from './schema/yearPlans';
 
 import {
   types as settingsTypes,
@@ -29,15 +34,18 @@ const typeDefs = async () => {
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
 
     ${salesLogTypes()}
+    ${yearPlanTypes()}
     ${settingsTypes}
 
     extend type Query {
       ${salesLogQueries},
+      ${yearPlanQueries},
       ${settingsQueries},
     }
 
     extend type Mutation {
       ${salesLogMutations},
+      ${yearPlanMutations},
       ${settingsMutations}
     }
   `;
