@@ -1,7 +1,8 @@
 import {
   sendClientPortalMessage,
   sendContactsMessage,
-  sendCoreMessage
+  sendCoreMessage,
+  sendFormsMessage
 } from '../messageBroker';
 
 interface INotificationParams {
@@ -76,6 +77,123 @@ export const notifyDealRelatedUsers = async (
         link,
         isMobile
       }
+    });
+  }
+};
+
+export const notifyConfirmationFilesAttached = async (
+  subdomain: string,
+  deal: any,
+  oldDeal: any
+) => {
+  // DriverReceivedDocument
+  // ShipmentComfirmation
+
+  const docField = await sendFormsMessage({
+    subdomain,
+    action: 'fields.findOne',
+    data: {
+      query: { contentType: 'cards:deal', code: 'DriverReceivedDocument' }
+    },
+    isRPC: true,
+    defaultValue: null
+  });
+
+  const imageField = await sendFormsMessage({
+    subdomain,
+    action: 'fields.findOne',
+    data: {
+      query: { contentType: 'cards:deal', code: 'ShipmentComfirmation' }
+    },
+    isRPC: true,
+    defaultValue: null
+  });
+
+  if (!docField || !imageField) {
+    return;
+  }
+
+  const docValue =
+    deal.customFieldsData.find((f: any) => f.field === docField._id).value ||
+    [];
+
+  const imageValue =
+    deal.customFieldsData.find((f: any) => f.field === imageField._id).value ||
+    [];
+
+  const oldDocValue =
+    oldDeal.customFieldsData.find((f: any) => f.field === docField._id).value ||
+    [];
+
+  const oldImageValue =
+    oldDeal.customFieldsData.find((f: any) => f.field === imageField._id)
+      .value || [];
+
+  if (
+    docValue.length > oldDocValue.length &&
+    imageValue.length > oldImageValue.length
+  ) {
+    notifyDealRelatedUsers(subdomain, process.env.WEB_CP_ID || '', deal, {
+      title: 'Ачилт баталгаажуулах хүсэлт',
+      content: `${deal.name} aжилд ачилт баталгаажуулах хүсэлт ирлээ. Та хүсэлтийг баталгаажуулна уу?`,
+      link: `/monitoring/deal?id=${deal._id}`
+    });
+  }
+};
+
+export const notifyUnloadConfirmationFilesAttached = async (
+  subdomain: string,
+  deal: any,
+  oldDeal: any
+) => {
+  const docField = await sendFormsMessage({
+    subdomain,
+    action: 'fields.findOne',
+    data: {
+      query: { contentType: 'cards:deal', code: 'DriverSubmittedDocument' }
+    },
+    isRPC: true,
+    defaultValue: null
+  });
+
+  const imageField = await sendFormsMessage({
+    subdomain,
+    action: 'fields.findOne',
+    data: {
+      query: { contentType: 'cards:deal', code: 'MappingDocument' }
+    },
+    isRPC: true,
+    defaultValue: null
+  });
+
+  if (!docField || !imageField) {
+    return;
+  }
+
+  const docValue =
+    deal.customFieldsData.find((f: any) => f.field === docField._id).value ||
+    [];
+
+  const imageValue =
+    deal.customFieldsData.find((f: any) => f.field === imageField._id).value ||
+    [];
+
+  const oldDocValue =
+    oldDeal.customFieldsData.find((f: any) => f.field === docField._id).value ||
+    [];
+
+  const oldImageValue =
+    oldDeal.customFieldsData.find((f: any) => f.field === imageField._id)
+      .value || [];
+
+  if (
+    docValue.length > oldDocValue.length &&
+    imageValue.length > oldImageValue.length
+  ) {
+    notifyDealRelatedUsers(subdomain, process.env.WEB_CP_ID || '', deal, {
+      title: 'Буулгалт баталгаажуулах хүсэлт',
+      content: `${deal.name} aжилд буулгалт баталгаажуулах хүсэлт ирлээ. Та хүсэлтийг баталгаажуулна уу?`,
+      link: `/monitoring/deal?id=${deal._id}`
     });
   }
 };

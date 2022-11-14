@@ -3,7 +3,6 @@ import * as cookieParser from 'cookie-parser';
 
 import afterMutations from './afterMutations';
 import { generateModels } from './connectionResolver';
-import cpUserMiddleware from './cpUserMiddleware';
 import exporter from './exporter';
 import forms from './forms';
 import resolvers from './graphql/resolvers';
@@ -46,7 +45,7 @@ export default {
 
     return context;
   },
-  middlewares: [cookieParser(), cpUserMiddleware],
+  middlewares: [cookieParser()],
   onServerInit: async options => {
     mainDb = options.db;
 
