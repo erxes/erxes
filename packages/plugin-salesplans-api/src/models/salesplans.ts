@@ -236,6 +236,7 @@ export const loadYearPlanConfigClass = (models: IModels) => {
 };
 
 export interface IYearPlanModel extends Model<IYearPlanDocument> {
+  getYearPlan(filter: any): Promise<IYearPlanDocument>;
   yearPlanAdd(doc: IYearPlan): Promise<IYearPlanDocument>;
   yearPlanEdit(_id: string, doc: IYearPlan): Promise<IYearPlanDocument>;
   yearPlansRemove(_ids: string[]): Promise<JSON>;
@@ -243,6 +244,14 @@ export interface IYearPlanModel extends Model<IYearPlanDocument> {
 }
 export const loadYearPlanClass = (models: IModels) => {
   class YearPlan {
+    public static async getYearPlan(filter: any) {
+      const plan = models.YearPlans.findOne({ ...filter }).lean();
+      if (!plan) {
+        throw new Error('Not found year plan');
+      }
+      return plan;
+    }
+
     public static async yearPlanAdd(doc: IYearPlan) {
       return models.YearPlans.create({ ...doc });
     }

@@ -3,20 +3,14 @@ import {
   moduleCheckPermission
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
+import { sendProductsMessage } from '../../../messageBroker';
+import { MONTHS } from '../../../constants';
 import {
-  sendProcessesMessage,
-  sendProductsMessage
-} from '../../../messageBroker';
-import { STATUS, MONTHS } from '../../../constants';
-import {
+  IPlanValue,
   IYearPlan,
   IYearPlanDocument
 } from '../../../models/definitions/salesplans';
-import {
-  ISalesLogDocument,
-  ISalesLogProduct,
-  IYearPlansAddParams
-} from '../../../models/definitions/salesplans';
+import { IYearPlansAddParams } from '../../../models/definitions/salesplans';
 
 const yearPlansMutations = {
   yearPlansAdd: async (
@@ -133,6 +127,19 @@ const yearPlansMutations = {
     return inserteds;
   },
 
+  yearPlanEdit: async (
+    _root,
+    { _id, uomId, values }: { _id: string; uomId?: string; values: IPlanValue },
+    { models, user }: IContext
+  ) => {
+    const yearPlan = await models.YearPlans.getYearPlan({ _id });
+    const uom = uomId || yearPlan.uomId;
+    return await models.YearPlans.yearPlanEdit(_id, {
+      ...yearPlan,
+      uomId: uom,
+      values
+    });
+  },
   yearPlansRemove: async (
     _root: any,
     { _ids }: { _ids: string[] },

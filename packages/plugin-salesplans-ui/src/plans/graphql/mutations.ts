@@ -16,16 +16,6 @@ const addParams = `
   productId: $productId,
 `;
 
-const editParamDefs = `
-  $uomId: String,
-  $values: YearPlanInput,
-`;
-
-const editParams = `
-  uomId: $uomId,
-  values: $values,
-`;
-
 const yearPlansAdd = `
   mutation yearPlansAdd (${addParamDefs}) {
     yearPlansAdd(${addParams}) {
@@ -35,11 +25,11 @@ const yearPlansAdd = `
 `;
 
 const yearPlanEdit = `
-mutation yearPlanEdit ($_id: String!, ${editParamDefs}) {
-  yearPlanEdit($_id: String!, ${editParams}) {
-    ${yearPlanFields}
+  mutation yearPlanEdit($_id: String!, $uomId: String, $values: JSON) {
+    yearPlanEdit(_id: $_id, uomId: $uomId, values: $values) {
+      ${yearPlanFields}
+    }
   }
-}
 `;
 
 const yearPlansRemove = `

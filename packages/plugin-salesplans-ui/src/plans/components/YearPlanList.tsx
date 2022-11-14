@@ -10,7 +10,7 @@ import {
   ModalTrigger,
   Table
 } from '@erxes/ui/src/components';
-import { IYearPlan } from '../types';
+import { IPlanValue, IYearPlan } from '../types';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import Form from '../containers/Form';
 import { menuSalesplans, MONTHS } from '../../constants';
@@ -27,16 +27,13 @@ type Props = {
   emptyBulk: () => void;
   toggleBulk: () => void;
   remove: (doc: { yearPlanIds: string[] }, emptyBulk: () => void) => void;
+  edit: (doc: IYearPlan) => void;
   searchValue: string;
-  filterStatus: string;
-  minMultiplier: number;
-  maxMultiplier: number;
 };
 
 type State = {
   // configsMap: IConfigsMap;
   searchValue: string;
-  filterStatus: string;
 };
 
 class YearPlans extends React.Component<Props, State> {
@@ -46,8 +43,7 @@ class YearPlans extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue || '',
-      filterStatus: this.props.filterStatus || ''
+      searchValue: this.props.searchValue || ''
     };
   }
 
@@ -80,7 +76,7 @@ class YearPlans extends React.Component<Props, State> {
   };
 
   renderRow = () => {
-    const { yearPlans, history, toggleBulk, bulk } = this.props;
+    const { yearPlans, history, toggleBulk, bulk, edit } = this.props;
 
     return yearPlans.map(yearPlan => (
       <Row
@@ -89,6 +85,7 @@ class YearPlans extends React.Component<Props, State> {
         yearPlan={yearPlan}
         toggleBulk={toggleBulk}
         isChecked={bulk.includes(yearPlan)}
+        edit={edit}
       />
     ));
   };

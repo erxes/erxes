@@ -7,10 +7,12 @@ import { Alert, router, withProps } from '@erxes/ui/src/utils';
 import { Bulk } from '@erxes/ui/src/components';
 import { graphql } from 'react-apollo';
 import { mutations, queries } from '../graphql';
+import { IYearPlan } from '../types';
 import {
   YearPlansQueryResponse,
   YearPlansRemoveMutationResponse,
-  YearPlansCountQueryResponse
+  YearPlansCountQueryResponse,
+  YearPlansEditMutationResponse
 } from '../types';
 
 type Props = {
@@ -23,6 +25,7 @@ type FinalProps = {
   yearPlanQuery: YearPlansQueryResponse;
   yearPlansCountQuery: YearPlansCountQueryResponse;
 } & Props &
+  YearPlansEditMutationResponse &
   YearPlansRemoveMutationResponse;
 
 class YearPlansContainer extends React.Component<FinalProps> {
@@ -31,12 +34,27 @@ class YearPlansContainer extends React.Component<FinalProps> {
       yearPlanQuery,
       yearPlansCountQuery,
       queryParams,
+      yearPlanEdit,
       yearPlansRemove
     } = this.props;
 
     if (yearPlanQuery.loading || yearPlansCountQuery.loading) {
       return <Spinner />;
     }
+
+    // edit row action
+    const edit = (doc: IYearPlan) => {
+      yearPlanEdit({
+        variables: { ...doc }
+      })
+        .then(() => {
+          Alert.success('You successfully updated a census');
+          yearPlanQuery.refetch();
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
 
     // remove action
     const remove = ({ yearPlanIds }, emptyBulk) => {
@@ -56,10 +74,6 @@ class YearPlansContainer extends React.Component<FinalProps> {
     };
 
     const searchValue = this.props.queryParams.searchValue || '';
-    const filterStatus = this.props.queryParams.filterStatus || '';
-    const minMultiplier = this.props.queryParams.minMultiplier;
-    const maxMultiplier = this.props.queryParams.maxMultiplier;
-
     const yearPlans = yearPlanQuery.yearPlans || [];
     const totalCount = yearPlansCountQuery.yearPlansCount || 0;
 
@@ -68,11 +82,9 @@ class YearPlansContainer extends React.Component<FinalProps> {
       queryParams,
       yearPlans,
       totalCount,
+      edit,
       remove,
-      searchValue,
-      filterStatus,
-      minMultiplier,
-      maxMultiplier
+      searchValue
     };
 
     const yearPlanList = props => <YearPlans {...updatedProps} {...props} />;
@@ -129,6 +141,12 @@ export default withProps<Props>(
           variables: generateParams({ queryParams }),
           fetchPolicy: 'network-only'
         })
+      }
+    ),
+    graphql<Props, YearPlansEditMutationResponse, {}>(
+      gql(mutations.yearPlanEdit),
+      {
+        name: 'yearPlanEdit'
       }
     ),
     graphql<Props, YearPlansRemoveMutationResponse, { yearPlanIds: string[] }>(

@@ -39,21 +39,6 @@ const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
   } = params;
 
   const filter: any = {};
-  if (searchValue) {
-    filter.$or = [
-      {
-        title: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
-      },
-      {
-        effect: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
-      },
-      {
-        description: {
-          $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
-        }
-      }
-    ];
-  }
 
   if (filterStatus) {
     filter.status = filterStatus;
@@ -68,20 +53,44 @@ const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
   if (departmentId) {
     filter.departmentId = departmentId;
   }
+
   if (productId) {
     filter.productId = productId;
-  }
-  if (productCategoryId) {
-    const products = await sendProductsMessage({
-      subdomain,
-      action: 'find',
-      data: { categoryId: productCategoryId, fields: { _id: 1 } },
-      isRPC: true,
-      defaultValue: []
-    });
+  } else {
+    const productFilter: any = {};
 
-    filter.productId = { $in: products.map(p => p._id) };
+    if (searchValue) {
+      productFilter.query = {
+        $or: [
+          {
+            name: { $regex: `.*${escapeRegExp(searchValue)}.*` }
+          },
+          {
+            code: { $regex: `.*${escapeRegExp(searchValue)}.*` }
+          },
+          {
+            barcodes: { $regex: `.*${escapeRegExp(searchValue)}.*` }
+          }
+        ]
+      };
+    }
+
+    if (productCategoryId) {
+      productFilter.categoryId = productCategoryId;
+    }
+
+    if (Object.keys(productFilter)) {
+      const products = await sendProductsMessage({
+        subdomain,
+        action: 'find',
+        data: { ...productFilter, fields: { _id: 1 } },
+        isRPC: true,
+        defaultValue: []
+      });
+      filter.productId = { $in: products.map(p => p._id) };
+    }
   }
+
   return filter;
 };
 

@@ -9,22 +9,22 @@ export interface IPlanValue {
 
 export interface IYearPlan {
   _id: string;
-  year: number;
-  departmentId: string;
-  branchId: string;
-  productId: string;
-  uomId: string;
-  values: any;
-  confirmedData: any;
-  createdAt: Date;
-  createdBy: string;
-  modifiedAt: Date;
-  modifiedBy: string;
+  year?: number;
+  departmentId?: string;
+  branchId?: string;
+  productId?: string;
+  uomId?: string;
+  values?: IPlanValue;
+  confirmedData?: any;
+  createdAt?: Date;
+  createdBy?: string;
+  modifiedAt?: Date;
+  modifiedBy?: string;
 
-  branch: IBranch;
-  department: IDepartment;
-  product: IProduct;
-  uom: IUom;
+  branch?: IBranch;
+  department?: IDepartment;
+  product?: IProduct;
+  uom?: IUom;
 }
 
 export interface IYearPlanParams {
@@ -51,6 +51,10 @@ export type YearPlansRemoveMutationResponse = {
   yearPlansRemove: (mutation: {
     variables: { _ids: string[] };
   }) => Promise<any>;
+};
+
+export type YearPlansEditMutationResponse = {
+  yearPlanEdit: (mutation: { variables: IYearPlan }) => Promise<any>;
 };
 
 ///////// day

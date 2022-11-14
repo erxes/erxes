@@ -187,4 +187,5 @@ export const mutations = `
 
   yearPlansAdd(${planCreateParams}): [YearPlan]
   yearPlansRemove(_ids: [String]): JSON
+  yearPlanEdit(_id: String!, uomId: String, values: JSON): YearPlan
 `;
