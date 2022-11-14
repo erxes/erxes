@@ -15,6 +15,14 @@ const promptLocation = new Select({
   message: 'Where do you want to place the plugin at?',
   choices: ['settings', 'main navigation']
 });
+
+const promptChoice = new Select({
+  name: 'choice',
+  message:
+    'What type of plugin do you wanna create? (You can create general plugin or integration plugin)',
+  choices: ['general', 'integration']
+});
+
 const promptBlank = new Select({
   name: 'location',
   message:
@@ -49,7 +57,8 @@ const replacer = (fullPath, name) => {
     .replace(/{name}s/g, pluralFormation(name))
     .replace(/{Name}s/g, pluralFormation(capitalizeFirstLetter(name)))
     .replace(/{name}/g, name)
-    .replace(/{Name}/g, capitalizeFirstLetter(name));
+    .replace(/{Name}/g, capitalizeFirstLetter(name))
+    .replace(/{NAME}/g, name.toUpperCase());
 
   fs.writeFile(fullPath, content);
 };
@@ -77,12 +86,15 @@ const loopDirFiles = async (dir, name) => {
   });
 };
 
-var createUi = async (name, location, isEmpty) => {
+var createUi = async (name, location, type) => {
   const dir = filePath('./packages/ui-plugin-template');
   const newDir = filePath(`./packages/plugin-${name}-ui`);
-  const sourceDir = isEmpty
-    ? filePath(`./packages/ui-plugin-template/source-empty`)
-    : filePath(`./packages/ui-plugin-template/source-default`);
+
+  const sourceDirs = {
+    default: filePath(`./packages/ui-plugin-template/source-default`),
+    empty: filePath(`./packages/ui-plugin-template/source-empty`),
+    integration: filePath(`./packages/ui-plugin-template/source-integration`)
+  }
 
   fs.copySync(
     dir,
@@ -92,19 +104,23 @@ var createUi = async (name, location, isEmpty) => {
         return !/.*source.*/g.test(path);
       }
     },
-    fs.copySync(sourceDir, `${newDir}/src`)
+    fs.copySync(sourceDirs[type], `${newDir}/src`),
+    fs.copySync(sourceDirs[type], `${newDir}/.erxes/plugin-src`)
   );
   addIntoUIConfigs(name, location, () => loopDirFiles(newDir, name));
 };
 
-var createApi = async (name, isEmpty) => {
+var createApi = async (name, type) => {
   const dir = filePath('./packages/api-plugin-templ');
   const dotErxes = filePath('./packages/api-plugin-template.erxes');
 
   const newDir = filePath(`./packages/plugin-${name}-api`);
-  const sourceDir = isEmpty
-    ? filePath(`./packages/api-plugin-templ/source-empty`)
-    : filePath(`./packages/api-plugin-templ/source-default`);
+
+  const sourceDirs = {
+    default: filePath(`./packages/api-plugin-templ/source-default`),
+    empty: filePath(`./packages/api-plugin-templ/source-empty`),
+    integration: filePath(`./packages/api-plugin-templ/source-integration`)
+  }
 
   fs.copySync(
     dir,
@@ -115,7 +131,7 @@ var createApi = async (name, isEmpty) => {
       }
     },
     fs.copySync(dotErxes, `${newDir}/.erxes`),
-    fs.copySync(sourceDir, `${newDir}/src`)
+    fs.copySync(sourceDirs[type], `${newDir}/src`)
   );
 
   loopDirFiles(newDir, name);
@@ -217,21 +233,35 @@ const main = async () => {
       message: 'Please enter the plugin name:'
     }
   ]);
-  promptBlank
-    .run()
-    .then(defaultTemplate => {
-      promptLocation
+  promptChoice.run().then(type => {
+    if (type === 'integration') {
+      const name = input.name;
+
+      createUi(name, '', type);
+      createApi(name, type);
+      installDeps(name);
+
+    } else {
+      promptBlank
         .run()
-        .then(location => {
-          const name = input.name;
-          const isEmpty = defaultTemplate === 'no';
-          createUi(name, location, isEmpty);
-          createApi(name, isEmpty);
-          installDeps(name);
+        .then(defaultTemplate => {
+          promptLocation
+            .run()
+            .then(location => {
+              const name = input.name;
+
+              const type = defaultTemplate === 'no' ? 'empty' : 'default';
+
+              createUi(name, location, type);
+              createApi(name, type);
+
+              installDeps(name);
+            })
+            .catch(err => console.error(err));
         })
         .catch(err => console.error(err));
-    })
-    .catch(err => console.error(err));
+    }
+  })
 };
 
 main();
