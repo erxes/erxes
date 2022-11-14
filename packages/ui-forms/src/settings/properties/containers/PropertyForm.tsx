@@ -95,7 +95,7 @@ const getRefetchQueries = queryParams => {
 export default withProps<Props>(
   compose(
     graphql<Props, FieldsGroupsQueryResponse, { contentType: string }>(
-      gql(queries.fieldsGroups), 
+      gql(queries.fieldsGroups),
       {
         name: 'fieldsGroupsQuery',
         options: ({ queryParams }) => ({
