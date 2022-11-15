@@ -11,6 +11,7 @@ export const types = `
         order: String
         parent: CategoryField
         formName: String
+        type:String
     }
 
 
@@ -27,8 +28,8 @@ export const queries = `
     riskAssessmentFormDetail(_id : String):JSON
 `;
 export const mutations = `
-    addAssessmentCategory (name: String,formId: String,parentId: String,code: String):JSON
+    addAssessmentCategory (name: String,formId: String,parentId: String,code: String,type:String):JSON
     removeAssessmentCategory (_id:String):JSON
-    editAssessmentCategory(_id:String,name: String,formId: String,parentId: String,code: String):JSON
+    editAssessmentCategory(_id:String,name: String,formId: String,parentId: String,code: String,type:String):JSON
     removeUnsavedRiskAssessmentCategoryForm(formId: String): Boolean
 `;

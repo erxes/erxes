@@ -1,6 +1,7 @@
 import {
   ControlLabel,
   DataWithLoader,
+  Icon,
   Pagination,
   SelectWithSearch,
   Spinner,
@@ -70,7 +71,12 @@ export const CustomFormGroup = ({
 export const subOption = category => {
   const { order } = category;
   const foundedString = order.match(/[/]/gi);
-  return '\u00A0 '.repeat(foundedString.length);
+  return (
+    <>
+      {'\u00A0 '.repeat(foundedString.length)}
+      <Icon icon="arrows-up-right" color="#3CCC38" />
+    </>
+  );
 };
 
 export const SelectWithCategory = ({

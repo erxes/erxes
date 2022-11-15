@@ -1,12 +1,12 @@
-import 'erxes-icon/css/erxes.min.css';
+import "erxes-icon/css/erxes.min.css";
 
-import Head from 'next/head';
-import React from 'react';
+import AppProvider, { AppConsumer } from "../../appContext";
 
-import AppProvider, { AppConsumer } from '../../appContext';
-import { readFile } from '../../common/utils';
-import { Store } from '../../types';
-import DumbLayout from '../components/Layout';
+import DumbLayout from "../components/Layout";
+import Head from "next/head";
+import React from "react";
+import { Store } from "../../types";
+import { readFile } from "../../common/utils";
 
 type Props = {
   children: (values: any) => JSX.Element;
@@ -27,7 +27,7 @@ const Layout = (props: Props) => {
                 {config.icon && (
                   <link
                     rel="shortcut icon"
-                    href={readFile(config.icon || '/static/favicon.png')}
+                    href={readFile(config.icon || "/static/favicon.png")}
                     type="image/x-icon"
                   />
                 )}
