@@ -5,6 +5,7 @@ description: String
 title: String
 thumbnail: String
 custom: JSON
+customIndexed: JSON
 listOrder: Float
 `;
 
