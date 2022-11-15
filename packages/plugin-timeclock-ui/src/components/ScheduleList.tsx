@@ -24,19 +24,6 @@ type Props = {
   submitShift: (userIds: string[], filledShifts: any) => void;
 };
 
-const FlexRow = styled.div`
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  > button {
-    margin: 0 10px;
-  }
-
-  .Select {
-    flex: 1;
-  }
-`;
-
 function ScheduleList(props: Props) {
   const {
     queryParams,
@@ -47,8 +34,6 @@ function ScheduleList(props: Props) {
     solveSchedule,
     solveShift
   } = props;
-
-  console.log('raw', scheduleOfMembers);
 
   const [key_counter, setKeyCounter] = useState(0);
   const [userIds, setUserIds] = useState(['']);
@@ -85,7 +70,6 @@ function ScheduleList(props: Props) {
   };
 
   const onSubmitClick = () => {
-    console.log('ids', userIds);
     submitRequest(userIds, Object.values(scheduleDates));
   };
   const onAdminSubmitClick = () => {
@@ -99,8 +83,6 @@ function ScheduleList(props: Props) {
   const onUserSelect = users => {
     setUserIds(users);
   };
-
-  console.log('users', userIds);
 
   const addDay = () => {
     const dates = scheduleDates;

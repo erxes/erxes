@@ -69,8 +69,6 @@ const ListContainer = (props: FinalProps) => {
     selectedUserId: string[],
     requestedShifts: IShift[]
   ) => {
-    console.log(selectedUserId);
-
     sendScheduleReqMutation({
       variables: {
         userId: `${selectedUserId}`,
@@ -94,7 +92,6 @@ const ListContainer = (props: FinalProps) => {
       .then(() => Alert.success('Successfully sent a schedule request'))
       .catch(err => Alert.error(err.message));
   };
-  console.log('awawawa', listScheduleQuery.schedules);
 
   const updatedProps = {
     ...props,

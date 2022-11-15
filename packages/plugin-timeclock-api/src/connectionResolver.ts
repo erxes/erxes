@@ -14,8 +14,10 @@ import {
 } from './models/Template';
 import {
   IAbsenceDocument,
+  ISchedule,
   IScheduleDocument,
   IShiftDocument,
+  ITimeClock,
   ITimeClockDocument
 } from './models/definitions/template';
 

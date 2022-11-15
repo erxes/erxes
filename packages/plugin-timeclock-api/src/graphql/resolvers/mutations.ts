@@ -11,6 +11,7 @@ import {
 } from '../../models/definitions/template';
 import { putUpdateLog } from '@erxes/api-utils/src/logUtils';
 import messageBroker from '../../messageBroker';
+import { findDepartment } from '../../departments.';
 
 interface ITimeClockEdit extends ITimeClock {
   _id: string;
@@ -205,7 +206,6 @@ const templateMutations = {
   async submitShift(_root, { userIds, shifts }, { models }: IContext) {
     let schedule;
 
-    console.log('hahah', userIds);
     userIds.map(async userId => {
       schedule = await models.Schedules.createSchedule({
         userId: `${userId}`,

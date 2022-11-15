@@ -13,6 +13,8 @@ const AbsenceList = asyncComponent(() =>
   import(/* webpackChunkName: "List - Absence" */ './containers/AbsenceList')
 );
 
+const ReportList = asyncComponent(() => import('./containers/ReportList'));
+
 const ScheduleList = asyncComponent(() => import('./containers/ScheduleList'));
 
 const timeclocks = ({ location, history }) => {
@@ -34,7 +36,7 @@ const schedule = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
   const { startDate, endDate, userId } = queryParams;
 
-  return route_path === 'absence' ? (
+  return route_path === 'requests' ? (
     <AbsenceList
       queryStartDate={startDate}
       queryEndDate={endDate}
@@ -51,12 +53,28 @@ const schedule = ({ location, history }) => {
   );
 };
 
+const report = ({ location, history }) => {
+  const queryParams = queryString.parse(location.search);
+  const { startDate, endDate, userId } = queryParams;
+
+  return (
+    <ReportList
+      queryStartDate={startDate}
+      queryEndDate={endDate}
+      queryUserId={userId}
+      queryParams={queryParams}
+      history={history}
+    />
+  );
+};
+
 const routes = () => {
   return (
     <>
       <Route path="/timeclocks" exact={true} component={timeclocks} />
-      <Route path="/timeclocks/absence" component={schedule} />
+      <Route path="/timeclocks/requests" component={schedule} />
       <Route path="/timeclocks/schedule" component={schedule} />
+      <Route path="/timeclocks/report" component={report} />
     </>
   );
 };
