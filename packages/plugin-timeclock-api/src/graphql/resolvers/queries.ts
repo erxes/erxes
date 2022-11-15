@@ -1,16 +1,6 @@
 import { IContext } from '../../connectionResolver';
 import { fixDate } from '@erxes/api-utils/src/core';
-import {
-  findAllBranches,
-  findBranch,
-  findDepartment
-} from '../../departments.';
-import {
-  ISchedule,
-  IScheduleDocument,
-  ITimeClock,
-  ITimeClockDocument
-} from '../../models/definitions/template';
+import { findBranch, findDepartment } from '../../departments';
 
 const templateQueries = {
   absences(
@@ -125,6 +115,7 @@ const templateQueries = {
       userId: string;
       schedule: any;
       recordedShift: any;
+      absence: any;
     }
 
     const reports: IReport[] = [];
@@ -136,9 +127,11 @@ const templateQueries = {
       for (const userId of departmentUserIds) {
         const schedules = models.Schedules.find({ userId: `${userId}` });
         const timeclocks = models.Templates.find({ userId: `${userId}` });
+        const absences = models.Absences.find({ userId: `${userId}` });
         reports.push({
           userId: `${userId}`,
           schedule: schedules,
+          absence: absences,
           recordedShift: timeclocks
         });
       }
@@ -150,8 +143,10 @@ const templateQueries = {
       for (const userId of branchUserIds) {
         const schedules = models.Schedules.find({ userId: `${userId}` });
         const timeclocks = models.Templates.find({ userId: `${userId}` });
+        const absences = models.Absences.find({ userId: `${userId}` });
         reports.push({
           userId: `${userId}`,
+          absence: absences,
           schedule: schedules,
           recordedShift: timeclocks
         });
@@ -159,15 +154,6 @@ const templateQueries = {
     }
 
     return reports;
-  },
-
-  async branches(
-    _root,
-    { searchValue }: { searchValue: string },
-    { models, subdomain }: IContext
-  ) {
-    const branches = findAllBranches(subdomain, searchValue);
-    return branches;
   }
 };
 

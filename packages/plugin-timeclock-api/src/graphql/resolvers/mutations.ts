@@ -11,7 +11,6 @@ import {
 } from '../../models/definitions/template';
 import { putUpdateLog } from '@erxes/api-utils/src/logUtils';
 import messageBroker from '../../messageBroker';
-import { findDepartment } from '../../departments.';
 
 interface ITimeClockEdit extends ITimeClock {
   _id: string;

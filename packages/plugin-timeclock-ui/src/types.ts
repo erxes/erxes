@@ -1,4 +1,5 @@
 import { IUser } from '@erxes/ui/src/auth/types';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 
 export interface ITimeclock {
   _id: string;
@@ -16,7 +17,12 @@ export interface IAbsence {
   solved: boolean;
   status: string;
 }
-
+export interface IReport {
+  user: IUser;
+  schedule: ISchedule[];
+  absence: IAbsence[];
+  recordedShift: ITimeclock[];
+}
 export interface IShift {
   user?: IUser;
   date?: Date;
@@ -54,7 +60,18 @@ export type ScheduleQueryResponse = {
   loading: boolean;
 };
 
-// mutations
+export type BranchesQueryResponse = {
+  branches: IBranch[];
+  refetch: () => void;
+  loading: boolean;
+};
+
+export type ReportsQueryResponse = {
+  timeclockReports: IReport[];
+  refetch: () => void;
+  loading: boolean;
+};
+
 export type MutationVariables = {
   _id?: string;
   time: Date;

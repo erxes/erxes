@@ -1,32 +1,6 @@
-const commonContactInfoTypes = `
-
-    phoneNumber: String
-    email: String
-    links: JSON
-    coordinate: Coordinate
-    image: Attachment
-`;
-
 export const types = `  
-    extend type User @key(fields: "_id") {
-      _id: String! @external
-    }
-
-    type Branch @key(fields: "_id") @cacheControl(maxAge: 3){
-      _id: String!
-      title: String
-      parentId: String
-      supervisorId: String
-      supervisor: User
-      code: String
-      users: [User]
-      userIds: [String]
-      parent: Branch
-      children: [Branch]
-
-      address: String
-      radius: Int
-      ${commonContactInfoTypes}
+  extend type User @key(fields: "_id") {
+    _id: String! @external
   }
 
   type Timeclock {
@@ -73,7 +47,7 @@ export const types = `
   type Report {
     user: User
     schedule: [Schedule]
-    abence: [Absence]
+    absence: [Absence]
     recordedShift: [Timeclock]
   }
 `;
@@ -82,9 +56,6 @@ export const queries = `
   absences(startDate: Date, endDate: Date, userId: String): [Absence]
   timeclockReports(departmentId: String, branchId: String): [Report]
   schedules(startDate: Date, endDate: Date, userId: String): [Schedule]
-  
-  branches(searchValue: String): [Branch]
-  
   timeclockDetail(_id: String!): Timeclock
   absenceDetail(_id: String!): Absence
   scheduleDetail(_id: String!): Schedule

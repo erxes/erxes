@@ -1,17 +1,17 @@
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { menuTimeClock } from '../menu';
-import { __ } from '@erxes/ui/src/utils';
+import { router, __ } from '@erxes/ui/src/utils';
 import styled from 'styled-components';
-import React from 'react';
+import React, { useState } from 'react';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Table from '@erxes/ui/src/components/table';
 import { colors } from '@erxes/ui/src/styles';
-
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import Select from 'react-select-plus';
 import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
 import Button from '@erxes/ui/src/components/Button';
-import Filter from '@erxes/ui/src/components/filter/Filter';
 
 const FilterWrapper = styled.div`
   margin: 10px 20px 0 20px;
@@ -26,6 +26,19 @@ const FilterWrapper = styled.div`
     margin-right: 2 0px;
   }
 `;
+const Row = styled.div`
+  display: flex;
+
+  .Select {
+    flex: 1;
+  }
+
+  button {
+    flex-shrink: 0;
+    margin-left: 10px;
+    align-self: baseline;
+  }
+`;
 
 const FilterItem = styled(DateContainer)`
   position: relative;
@@ -36,13 +49,19 @@ const FilterItem = styled(DateContainer)`
 `;
 
 type Props = {
+  branchId;
+  deptId;
   queryParams: any;
   history: any;
+  branchesList: any;
 };
 
 function ReportList(props: Props) {
-  const { queryParams, history } = props;
-
+  const { queryParams, history, branchesList, branchId, deptId } = props;
+  console.log(branchId, deptId);
+  const [selectedBranchId, setBranches] = useState(['']);
+  const [selectedDeptId, setDepartments] = useState('');
+  const [selectedType, setType] = useState('');
   const content = (
     <Table>
       <thead>
@@ -57,32 +76,106 @@ function ReportList(props: Props) {
     </Table>
   );
 
-  const actionBar = <Wrapper.ActionBar right={renderFilter()} hasFlex={true} />;
+  const renderSelectionBar = () => {
+    const onTypeSelect = type => {
+      console.log('woo', type);
+      localStorage.setItem('displayType', JSON.stringify(type));
+      console.log(localStorage.getItem('displayType'));
+      const h = JSON.parse(localStorage.getItem('displayType') || '[]');
+      setType(h);
+    };
 
-  const onDepartmentSelect = dept => {
-    console.log(dept);
+    return (
+      <FilterItem>
+        <FormGroup>
+          <ControlLabel>Select type</ControlLabel>
+          <Row>
+            <Select
+              value={JSON.parse(localStorage.getItem('displayType') || '[]')}
+              onChange={onTypeSelect}
+              placeholder="Select type"
+              multi={false}
+              options={['By Employee', 'By Department', 'By Branch'].map(
+                ipt => ({
+                  value: ipt,
+                  label: __(ipt)
+                })
+              )}
+            />
+          </Row>
+        </FormGroup>
+      </FilterItem>
+    );
   };
+  const renderFilter = () => {
+    const renderBranchOptions = (branches: any[]) => {
+      return branches.map(branch => ({
+        value: branch._id,
+        label: branch.title
+      }));
+    };
 
-  function renderFilter() {
+    const onBranchSelect = selectedBranch => {
+      setBranches(selectedBranch);
+
+      const branchIds: any[] = [];
+      selectedBranch.map(branch => branchIds.push(branch.value));
+
+      router.setParams(history, {
+        branchIds: `${branchIds}`
+      });
+    };
+
+    const onDepartmentSelect = dept => {
+      console.log(dept);
+
+      setDepartments(dept);
+      const departmentIds: any[] = [];
+
+      dept.map(department => departmentIds.push(department));
+
+      router.setParams(history, {
+        departmentIds: `${departmentIds}`
+      });
+    };
+
     return (
       <FilterWrapper>
-        <strong>{__('Filter')}</strong>
         <FilterItem>
           <SelectDepartments
-            defaultValue={['123', '54345', '511']}
             isRequired={false}
+            defaultValue={selectedDeptId}
             onChange={onDepartmentSelect}
           />
         </FilterItem>
         <FilterItem>
-          <Select />
+          <FormGroup>
+            <ControlLabel>Branches</ControlLabel>
+            <Row>
+              <Select
+                value={selectedBranchId}
+                onChange={onBranchSelect}
+                placeholder="Select branch"
+                multi={true}
+                options={branchesList && renderBranchOptions(branchesList)}
+              />
+            </Row>
+          </FormGroup>
         </FilterItem>
         <div style={{ justifySelf: 'end' }}>
           <Button>Export</Button>
         </div>
       </FilterWrapper>
     );
-  }
+  };
+
+  const actionBar = (
+    <Wrapper.ActionBar
+      left={renderSelectionBar()}
+      right={renderFilter()}
+      hasFlex={true}
+    />
+  );
 
   return (
     <Wrapper
