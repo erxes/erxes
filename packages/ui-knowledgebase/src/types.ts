@@ -1,6 +1,7 @@
-import { IUser } from '@erxes/ui/src/auth/types';
 import { IAttachment, QueryResponse } from '@erxes/ui/src/types';
+
 import { IBrand } from '@erxes/ui/src/brands/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 export interface IArticle {
   _id: string;
@@ -19,6 +20,7 @@ export interface IArticle {
   categoryId: string;
   image: IAttachment;
   attachments: [IAttachment];
+  forms: IErxesForm[];
 }
 
 export interface ITopic {
@@ -49,6 +51,11 @@ export interface ICategory {
   modifiedDate: Date;
   firstTopic: ITopic;
   parentCategoryId?: string;
+}
+
+export interface IErxesForm {
+  brandId: string;
+  formId: string;
 }
 
 // mutation types
