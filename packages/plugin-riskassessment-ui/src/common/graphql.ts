@@ -40,6 +40,7 @@ parentId
 name
 code
 order
+type
 `;
 
 export const riskAssessmentParams = `

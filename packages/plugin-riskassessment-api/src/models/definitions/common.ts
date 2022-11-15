@@ -28,6 +28,7 @@ export interface IRiskAssessmentCategoryField extends PaginateField {
   formId: string;
   parentId: string;
   code: string;
+  type: string
 }
 
 export interface IRiskConfirmityField {
