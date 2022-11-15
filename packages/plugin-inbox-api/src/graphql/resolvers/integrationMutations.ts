@@ -256,10 +256,6 @@ const integrationMutations = {
 
     let kind = doc.kind;
 
-    if (kind.includes('facebook')) {
-      kind = 'facebook';
-    }
-
     try {
       if ('webhook' !== kind) {
         let brokerDoc: any = {
@@ -279,6 +275,11 @@ const integrationMutations = {
           ].includes(kind)
         ) {
           serviceName = 'integrations';
+
+          if (kind.includes('facebook')) {
+            kind = 'facebook';
+          }
+
           brokerDoc.data = data ? JSON.stringify(data) : '';
         } else {
           serviceName = kind;
@@ -404,19 +405,21 @@ const integrationMutations = {
           isRPC: true
         });
       }
-
-      await putDeleteLog(
-        models,
-        subdomain,
-        { type: MODULE_NAMES.INTEGRATION, object: integration },
-        user
-      );
-
-      return models.Integrations.removeIntegration(_id);
     } catch (e) {
-      debug.error(e);
-      throw e;
+      if (e.message !== 'Integration not found') {
+        debug.error(e);
+        throw e;
+      }
     }
+
+    await putDeleteLog(
+      models,
+      subdomain,
+      { type: MODULE_NAMES.INTEGRATION, object: integration },
+      user
+    );
+
+    return models.Integrations.removeIntegration(_id);
   },
 
   /**
