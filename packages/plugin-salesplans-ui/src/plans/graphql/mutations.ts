@@ -24,9 +24,19 @@ const yearPlansAdd = `
   }
 `;
 
+const yearPlanEditParamDefs = `
+  $uomId: String,
+  $values: JSON
+`;
+
+const yearPlanEditParams = `
+  uomId: $uomId,
+  values: $values
+`;
+
 const yearPlanEdit = `
-  mutation yearPlanEdit($_id: String!, $uomId: String, $values: JSON) {
-    yearPlanEdit(_id: $_id, uomId: $uomId, values: $values) {
+  mutation yearPlanEdit($_id: String!, ${yearPlanEditParamDefs}) {
+    yearPlanEdit(_id: $_id, ${yearPlanEditParams}) {
       ${yearPlanFields}
     }
   }

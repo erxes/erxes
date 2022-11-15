@@ -1,16 +1,14 @@
 import * as compose from 'lodash.flowright';
 import From from '../components/Form';
-import gql from 'graphql-tag';
 import React from 'react';
 import { ButtonMutate } from '@erxes/ui/src/components';
-import { graphql } from 'react-apollo';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { IYearPlan } from '../types';
+import { IDayLabel } from '../types';
 import { mutations } from '../graphql';
 import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
-  yearPlan?: IYearPlan;
+  dayLabel?: IDayLabel;
   closeModal: () => void;
 };
 
@@ -28,16 +26,14 @@ class ProductFormContainer extends React.Component<FinalProps> {
     }: IButtonMutateProps) => {
       return (
         <ButtonMutate
-          mutation={mutations.yearPlansAdd}
+          mutation={mutations.dayLabelsAdd}
           variables={values}
           callback={callback}
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
           type="submit"
           uppercase={false}
-          successMessage={`You successfully ${
-            object ? 'updated' : 'added'
-          } year plan`}
+          successMessage={`You successfully created a day labels}`}
         />
       );
     };
@@ -52,7 +48,7 @@ class ProductFormContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return ['yearPlans', 'yearPlansCount'];
+  return ['dayLabels', 'dayLabelsCount'];
 };
 
 export default withProps<Props>(compose()(ProductFormContainer));

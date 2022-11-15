@@ -1,20 +1,19 @@
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import SelectLabels from '../../settings/containers/SelectLabels';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __, router } from '@erxes/ui/src/utils';
 import {
   Sidebar as LeftSidebar,
   SidebarList as List
 } from '@erxes/ui/src/layout';
-import { Wrapper } from '@erxes/ui/src/layout';
-import { __, router } from '@erxes/ui/src/utils';
-import React from 'react';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
 import { SidebarFilters } from '../../salesplans/styles';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
+import { Wrapper } from '@erxes/ui/src/layout';
 
 interface Props {
   history: any;
@@ -32,8 +31,7 @@ class Sidebar extends React.Component<Props> {
       'filterStatus',
       'branchId',
       'departmentId',
-      'productCategoryId',
-      'productId'
+      'labelId'
     );
   };
 
@@ -69,8 +67,7 @@ class Sidebar extends React.Component<Props> {
                 {(router.getParam(this.props.history, 'filterStatus') ||
                   router.getParam(this.props.history, 'branchId') ||
                   router.getParam(this.props.history, 'departmentId') ||
-                  router.getParam(this.props.history, 'productCategoryId') ||
-                  router.getParam(this.props.history, 'productId')) && (
+                  router.getParam(this.props.history, 'labelId')) && (
                   <a href="#cancel" tabIndex={0} onClick={this.clearFilter}>
                     <Tip text={__('Clear filter')} placement="bottom">
                       <Icon icon="cancel-1" />
@@ -121,34 +118,16 @@ class Sidebar extends React.Component<Props> {
                   />
                 </FormGroup>
                 <FormGroup>
-                  <ControlLabel>Product Category</ControlLabel>
-                  <SelectProductCategory
-                    label="Choose product category"
-                    name="productCategoryId"
-                    initialValue={queryParams.productCategoryId || ''}
+                  <ControlLabel>Label</ControlLabel>
+                  <SelectLabels
+                    label="Choose label"
+                    name="labelId"
+                    initialValue={queryParams.labelId || ''}
                     customOption={{
                       value: '',
-                      label: '...Clear product category filter'
+                      label: '...Clear label filter'
                     }}
-                    onSelect={categoryId =>
-                      this.setFilter('productCategoryId', categoryId)
-                    }
-                    multi={false}
-                  />
-                </FormGroup>
-                <FormGroup>
-                  <ControlLabel>Product</ControlLabel>
-                  <SelectProducts
-                    label="Choose product"
-                    name="productId"
-                    initialValue={queryParams.productId || ''}
-                    customOption={{
-                      value: '',
-                      label: '...Clear product filter'
-                    }}
-                    onSelect={productId =>
-                      this.setFilter('productId', productId)
-                    }
+                    onSelect={labelId => this.setFilter('labelId', labelId)}
                     multi={false}
                   />
                 </FormGroup>

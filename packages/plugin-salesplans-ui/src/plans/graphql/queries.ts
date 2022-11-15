@@ -110,7 +110,7 @@ export const filterValues = `
 `;
 
 const yearPlans = `
-  query yearPlans($year: Int, ${filterDefs} ${paginateDefs} ) {
+  query yearPlans($year: Int, ${filterDefs} ${paginateDefs}) {
     yearPlans(year: $year, ${filterValues} ${paginateValues}) {
       ${yearPlanFields}
     }
@@ -118,7 +118,7 @@ const yearPlans = `
 `;
 
 const dayPlans = `
-  query dayPlans($date: Int, ${filterDefs} ) {
+  query dayPlans($date: Int, ${filterDefs}) {
     dayPlans(date: $date, ${filterValues}) {
       _id,
       labelIds,
@@ -128,13 +128,13 @@ const dayPlans = `
 `;
 
 const yearPlansCount = `
-  query yearPlansCount($year: Int, ${filterDefs} ) {
+  query yearPlansCount($year: Int, ${filterDefs}) {
     yearPlansCount(year: $year, ${filterValues})
   }
 `;
 
 const dayPlansCount = `
-  query dayPlansCount($date: Int, ${filterDefs} ) {
+  query dayPlansCount($date: Int, ${filterDefs}) {
     dayPlansCount(date: $date, ${filterValues})
   }
 `;

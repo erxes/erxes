@@ -1,6 +1,5 @@
 import { IContext } from '../../../connectionResolver';
 import {
-  IPlanValue,
   IYearPlan,
   IYearPlanDocument,
   IYearPlansAddParams
@@ -74,7 +73,7 @@ const yearPlansMutations = {
 
     const latestYearPlansByProductId = {};
     for (const yearPlan of latestYearPlans) {
-      latestYearPlansByProductId[yearPlan.productId] = yearPlan;
+      latestYearPlansByProductId[yearPlan.productId || ''] = yearPlan;
     }
 
     let docs: IYearPlan[] = [];
@@ -128,16 +127,19 @@ const yearPlansMutations = {
 
   yearPlanEdit: async (
     _root,
-    { _id, uomId, values }: { _id: string; uomId?: string; values: IPlanValue },
+    doc: IYearPlan & { _id: string },
     { models, user }: IContext
   ) => {
+    const { _id, ...params } = doc;
     const yearPlan = await models.YearPlans.getYearPlan({ _id });
-    const uom = uomId || yearPlan.uomId;
-    return await models.YearPlans.yearPlanEdit(_id, {
-      ...yearPlan,
-      uomId: uom,
-      values
-    });
+    return await models.YearPlans.yearPlanEdit(
+      _id,
+      {
+        ...yearPlan,
+        ...params
+      },
+      user
+    );
   },
   yearPlansRemove: async (
     _root: any,

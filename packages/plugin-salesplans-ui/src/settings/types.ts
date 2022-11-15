@@ -1,5 +1,5 @@
 export interface ISPLabel {
-  _id?: string;
+  _id: string;
   title?: string;
   description?: string;
   effect?: string;

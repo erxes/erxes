@@ -1,5 +1,5 @@
 export const menuSalesplans = [
-  { title: 'Labels', link: '/sales-plans/set-labels' },
+  { title: 'Labels', link: '/sales-plans/day-labels' },
   { title: 'Day plans', link: '/sales-plans/day-plan' },
   { title: 'Year plans', link: '/sales-plans/year-plan' }
 ];

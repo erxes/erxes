@@ -1,3 +1,4 @@
+import { IUserDocument } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import {
@@ -9,7 +10,11 @@ import {
 export interface IYearPlanModel extends Model<IYearPlanDocument> {
   getYearPlan(filter: any): Promise<IYearPlanDocument>;
   yearPlanAdd(doc: IYearPlan): Promise<IYearPlanDocument>;
-  yearPlanEdit(_id: string, doc: IYearPlan): Promise<IYearPlanDocument>;
+  yearPlanEdit(
+    _id: string,
+    doc: IYearPlan,
+    user: IUserDocument
+  ): Promise<IYearPlanDocument>;
   yearPlansRemove(_ids: string[]): Promise<JSON>;
   yearPlansPublish(_ids: string[]): Promise<IYearPlanDocument[]>;
 }
@@ -27,8 +32,15 @@ export const loadYearPlanClass = (models: IModels) => {
       return models.YearPlans.create({ ...doc });
     }
 
-    public static async yearPlanEdit(_id: string, doc: IYearPlan) {
-      return await models.YearPlans.updateOne({ _id }, { $set: { ...doc } });
+    public static async yearPlanEdit(
+      _id: string,
+      doc: IYearPlan,
+      user: IUserDocument
+    ) {
+      return await models.YearPlans.updateOne(
+        { _id },
+        { $set: { ...doc, modifiedAt: new Date(), modifiedBy: user._id } }
+      );
     }
 
     public static async yearPlansRemove(_ids: string[]) {

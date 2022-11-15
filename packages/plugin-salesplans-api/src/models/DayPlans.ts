@@ -4,7 +4,7 @@ import {
   dayPlanSchema,
   IDayPlan,
   IDayPlanDocument
-} from './definitions/yearPlans';
+} from './definitions/dayPlans';
 
 export interface IDayPlanModel extends Model<IDayPlanDocument> {
   dayPlanAdd(doc: IDayPlan): Promise<IDayPlanDocument>;

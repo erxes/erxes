@@ -34,9 +34,24 @@ const YearPlans = asyncComponent(() =>
   )
 );
 
+const DayLabels = asyncComponent(() =>
+  import(
+    /* webpackChunkName: 'Sales Plans' */ './dayLabels/containers/DayLabelList'
+  )
+);
+
 const yearPlanList = ({ location, history }) => {
   return (
     <YearPlans
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const dayLabelsList = ({ location, history }) => {
+  return (
+    <DayLabels
       queryParams={queryString.parse(location.search)}
       history={history}
     />
@@ -57,6 +72,12 @@ const routes = () => {
         path="/sales-plans/year-plan"
         key="/sales-plans/year-plan"
         component={yearPlanList}
+      />
+      <Route
+        exact={true}
+        path="/sales-plans/day-labels"
+        key="/sales-plans/day-labels"
+        component={dayLabelsList}
       />
       <Route
         exact={true}

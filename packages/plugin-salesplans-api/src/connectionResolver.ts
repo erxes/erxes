@@ -22,9 +22,11 @@ import {
 } from './models/salesplans';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 import { IYearPlanModel, loadYearPlanClass } from './models/YearPlans';
+import { IDayLabelModel, loadDayLabelClass } from './models/DayLabels';
 import { IDayPlanModel, loadDayPlanClass } from './models/DayPlans';
 import { IYearPlanDocument } from './models/definitions/yearPlans';
 import { IDayPlanDocument } from './models/definitions/dayPlans';
+import { IDayLabelDocument } from './models/definitions/dayLabels';
 
 export interface IModels {
   SalesLogs: ISalesLogModel;
@@ -35,6 +37,7 @@ export interface IModels {
   YearPlanConfigs: IYearPlanConfigModel;
 
   YearPlans: IYearPlanModel;
+  DayLabels: IDayLabelModel;
   DayPlans: IDayPlanModel;
 }
 
@@ -85,6 +88,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.YearPlans = db.model<IYearPlanDocument, IYearPlanModel>(
     'salesplans_yearplans',
     loadYearPlanClass(models)
+  );
+
+  models.DayLabels = db.model<IDayLabelDocument, IDayLabelModel>(
+    'salesplans_daylabels',
+    loadDayLabelClass(models)
   );
 
   models.DayPlans = db.model<IDayPlanDocument, IDayPlanModel>(
