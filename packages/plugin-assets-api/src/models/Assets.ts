@@ -141,7 +141,7 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
       }
 
       const assets = await models.Assets.find({ _id: { $in: unUsedIds } });
-      const orders = assets.map(asset => new RegExp(asset.order));
+      const orders = assets.map(asset => asset.order.match(/\\/) ? asset.order : new RegExp(asset.order));
 
       const child_assets = await models.Assets.find({ order: { $in: orders } });
 
