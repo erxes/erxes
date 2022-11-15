@@ -9,8 +9,10 @@ export interface IPage {
   description?: string | null;
   title?: string | null;
   thumbnail?: string | null;
+  listOrder?: number | null;
 
   custom: any;
+  customIndexed: any;
 }
 
 export type PageDocument = IPage & Document;
@@ -33,7 +35,9 @@ export const pageSchema = new Schema<PageDocument>({
   description: String,
   title: String,
   thumbnail: String,
-  custom: Schema.Types.Mixed
+  custom: Schema.Types.Mixed,
+  customIndexed: Schema.Types.Mixed,
+  listOrder: Number
 });
 pageSchema.index({ code: 1 });
 
@@ -73,4 +77,6 @@ export const generatePageModel = (
   pageSchema.loadClass(PageModelStatics);
 
   models.Page = con.model<PageDocument, IPageModel>('forum_pages', pageSchema);
+  // creating wildcard index on the schema doesn't work
+  models.Page.collection.createIndex({ 'customIndexed.$**': 1 });
 };
