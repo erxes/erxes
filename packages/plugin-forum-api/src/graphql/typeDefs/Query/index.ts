@@ -10,6 +10,8 @@ export const commonPostsParams = `
   sort: JSON
   offset: Int
   limit: Int
+
+  customQuery: JSON
 `;
 
 const forumPostsQueryParams = `
