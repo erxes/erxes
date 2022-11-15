@@ -54,6 +54,7 @@ export type RiskAssessmentCategory = {
   order?: string;
   parent?: RiskAssessmentCategory;
   formName?: string;
+  type: string
 };
 
 export type RiskAssessmentsCategoriesQueryResponse = {
