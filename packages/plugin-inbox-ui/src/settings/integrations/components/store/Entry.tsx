@@ -92,6 +92,10 @@ function renderCreate(createUrl, kind, isAvailable) {
     return <Link to={createUrl}>+ {__('Add')}</Link>;
   }
 
+  if ((createUrl || '').includes('create')) {
+    return <Link to={createUrl}>+ {__('Add')}</Link>;
+  }
+
   const formContent = props => <IntegrationForm {...props} type={kind} />;
 
   return (
