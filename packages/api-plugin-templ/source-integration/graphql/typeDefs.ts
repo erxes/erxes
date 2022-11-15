@@ -10,10 +10,11 @@ const types = `
 
 const queries = `
   {name}ConversationDetail(conversationId: String!): [{Name}]
+  {name}Accounts: JSON
 `;
 
 const mutations = `
-  {name}Send: String
+  {name}AccountRemove(_id: String!): String
 `;
 
 const typeDefs = gql`

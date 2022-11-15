@@ -7,6 +7,13 @@ const detail = `
   }
 `;
 
+const accounts = `
+  query {name}Accounts {
+    {name}Accounts 
+  }
+`;
+
 export default {
-  detail
+  detail,
+  accounts
 };

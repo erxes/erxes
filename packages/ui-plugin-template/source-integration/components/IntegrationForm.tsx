@@ -9,6 +9,7 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
 import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
+import Accounts from '../containers/Accounts';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -17,7 +18,22 @@ type Props = {
   channelIds: string[];
 };
 
-class IntegrationForm extends React.Component<Props> {
+type State = {
+  accountId: string;
+};
+class IntegrationForm extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props)
+
+    this.state = {
+      accountId: ""
+    }
+  }
+
+  onSelectAccount = (accountId: string) => {
+    this.setState({ accountId });
+  }
+
   generateDoc = (values: {
     name: string;
     brandId: string;
@@ -26,6 +42,7 @@ class IntegrationForm extends React.Component<Props> {
       name: values.name,
       brandId: values.brandId,
       kind: '{name}',
+      accountId: this.state.accountId
     };
   };
 
@@ -72,6 +89,11 @@ class IntegrationForm extends React.Component<Props> {
           defaultValue={channelIds}
           isRequired={true}
           onChange={onChannelChange}
+        />
+
+        <Accounts
+          onSelectAccount={this.onSelectAccount}
+          accountId={this.state.accountId}
         />
 
         <ModalFooter>

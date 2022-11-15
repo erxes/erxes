@@ -1,11 +1,11 @@
 import { IContext } from '@erxes/api-utils/src/types';
-import { Messages } from '../../models';
+import { Accounts, Messages } from '../../models';
 
 const queries = {
   async {name}ConversationDetail(
     _root,
     { conversationId },
-    {}: IContext
+    _context: IContext
   ) {
     const messages = await Messages.find({
       inboxConversationId: conversationId
@@ -29,6 +29,10 @@ const queries = {
       };
     });
   },
+
+  async {name}Accounts(_root, _args, _context: IContext) {
+    return Accounts.getAccounts();
+  }
 };
 
 export default queries;

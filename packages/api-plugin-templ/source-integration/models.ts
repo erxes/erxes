@@ -50,11 +50,7 @@ export const loadMessageClass = () => {
 // schema for integration document
 export const integrationSchema = new Schema({
   inboxId: String,
-  host: String,
-  smtpHost: String,
-  smtpPort: String,
-  user: String,
-  password: String
+  accountId: String
 });
 
 export const loadIntegrationClass = () => {
@@ -64,6 +60,28 @@ export const loadIntegrationClass = () => {
 
   return integrationSchema;
 };
+
+// schema for integration account
+export const accountSchema = new Schema({
+  name: String
+});
+
+export const loadAccountClass = () => {
+  class Account {
+    static async removeAccount(_id) {
+      return Accounts.deleteOne({ _id });
+    }
+
+    static async getAccounts() {
+      return Accounts.find({});
+    }
+  }
+
+  accountSchema.loadClass(Account);
+
+  return accountSchema;
+};
+
 
 export const Customers = model<any, any>(
   '{name}_customers',
@@ -79,3 +97,5 @@ export const Messages = model<any, any>(
   '{name}_messages',
   loadMessageClass()
 );
+
+export const Accounts = model<any, any>('{name}_accounts', loadAccountClass());

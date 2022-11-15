@@ -117,6 +117,10 @@ const saveMessages = async (
 
 // controller for {name}
 const init = async app => {
+  app.get('/login', async (req, res) => {
+    res.send("login")
+  });
+  
   app.post('/receive', async (req, res, next) => {
     try {
       // write receive code here
