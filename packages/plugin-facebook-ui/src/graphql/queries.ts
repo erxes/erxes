@@ -77,13 +77,10 @@ const facebookConversationMessages = `
       _id
       content
       conversationId
-      fromBot
-      botData
       customerId
       userId
       createdAt
       isCustomerRead
-      mid
     }
   }
 `;

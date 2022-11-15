@@ -163,6 +163,7 @@ export interface IMessage {
   createdAt: Date;
   updatedAt: Date;
   bookingWidgetData?: any;
+  mid?: string;
 }
 
 // mutation types

@@ -1,4 +1,3 @@
-import styled from 'styled-components';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { IAttachmentPreview } from '@erxes/ui/src/types';
 import { __ } from 'coreui/utils';

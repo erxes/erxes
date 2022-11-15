@@ -14,7 +14,7 @@ module.exports = {
   inboxIntegrationSettings: './inboxIntegrationSettings',
   inboxDirectMessage: {
     messagesQuery: `
-      query conversationMessages(
+      query facebookConversationMessages(
         $conversationId: String!
         $skip: Int
         $limit: Int
@@ -29,16 +29,20 @@ module.exports = {
           _id
           content
           conversationId
-          fromBot
-          botData
           customerId
           userId
           createdAt
           isCustomerRead
-          mid
         }
       }
-    `
+    `,
+    messagesQueryName: 'facebookConversationMessages',
+    countQuery: `
+      query facebookConversationMessagesCount($conversationId: String!) {
+        facebookConversationMessagesCount(conversationId: $conversationId)
+      }
+    `,
+    countQueryName: 'facebookConversationMessagesCount'
   },
   inboxIntegrations: [
     {

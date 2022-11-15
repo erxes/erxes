@@ -93,7 +93,7 @@ const sendConversationToServices = async (
     const content = strip(doc.content);
 
     try {
-      await sendFacebookMessage({
+      return sendFacebookMessage({
         ...commonParams,
         action: 'api_to_integrations',
         data: {
@@ -384,7 +384,7 @@ const conversationMutations = {
       type = kind.split('-')[0];
       action = `reply-${kind.split('-')[1]}`;
 
-      return sendConversationToServices(
+      const response = await sendConversationToServices(
         subdomain,
         type,
         integrationId,
@@ -394,6 +394,8 @@ const conversationMutations = {
         action,
         facebookMessageTag
       );
+
+      return { ...response.data };
     }
 
     const message = await models.ConversationMessages.addMessage(doc, user._id);

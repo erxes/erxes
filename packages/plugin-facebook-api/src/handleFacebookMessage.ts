@@ -70,6 +70,11 @@ export const handleFacebookMessage = async (models: IModels, msg) => {
       throw new Error(e.message);
     }
 
-    return { status: 'success' };
+    return {
+      status: 'success',
+      // inbox conversation id is used for mutation response,
+      // therefore override local id
+      data: { ...localMessage.toObject(), conversationId }
+    };
   }
 };
