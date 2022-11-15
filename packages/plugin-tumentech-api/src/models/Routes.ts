@@ -2,17 +2,39 @@ import { validSearchText } from '@erxes/api-utils/src';
 import { Model } from 'mongoose';
 
 import { IModels } from '../connectionResolver';
-import { IRouteEdit } from './../graphql/resolvers/mutations/routes';
-import { IDirectionDocument } from './definitions/directions';
 import { IRoute, IRouteDocument, routeSchema } from './definitions/routes';
 
 export interface IRouteModel extends Model<IRouteDocument> {
   getRoute(doc: any): IRouteDocument;
   createRoute(doc: IRoute): IRouteDocument;
-  updateRoute(doc: IRouteEdit): IRouteDocument;
+  updateRoute(_id: string, doc: IRoute): IRouteDocument;
   removeRoute(_id: string): IRouteDocument;
   fillSearchText(doc: IRoute): string;
 }
+
+const docModifer = async (models: IModels, doc: IRoute) => {
+  const startDir = await models.Directions.getDirection({
+    _id: doc.directionIds[0]
+  });
+
+  const endDir = await models.Directions.getDirection({
+    _id: doc.directionIds[doc.directionIds.length - 1]
+  });
+
+  const startPlace = await models.Places.getPlace({
+    _id: startDir.placeIds[0]
+  });
+
+  const endPlace = await models.Places.getPlace({
+    _id: endDir.placeIds[endDir.placeIds.length - 1]
+  });
+
+  doc.name = `${startPlace.name} - ${endPlace.name}`;
+
+  const searchText = await models.Routes.fillSearchText(doc);
+
+  return { ...doc, searchText };
+};
 
 export const loadRouteClass = (models: IModels) => {
   class Route {
@@ -27,34 +49,15 @@ export const loadRouteClass = (models: IModels) => {
     }
 
     public static async createRoute(doc: IRoute) {
-      const placeIds = await models.Directions.find({
-        _id: { $in: doc.directionIds }
-      }).distinct('placeIds');
-
-      return models.Routes.create({
-        ...doc,
-        placeIds,
-        searchText: await models.Routes.fillSearchText(doc)
-      });
+      return models.Routes.create(await docModifer(models, doc));
     }
 
-    public static async updateRoute(doc: IRouteEdit) {
-      const route = await models.Routes.getRoute({ _id: doc._id });
+    public static async updateRoute(_id: string, doc: IRoute) {
+      await models.Routes.getRoute({ _id });
 
-      const searchText = await models.Routes.fillSearchText(
-        Object.assign(route, doc)
-      );
+      await models.Routes.updateOne({ _id }, await docModifer(models, doc));
 
-      const placeIds = await models.Directions.find({
-        _id: { $in: doc.directionIds }
-      }).distinct('placeIds');
-
-      await models.Routes.updateOne(
-        { _id: doc._id },
-        { $set: { ...doc, placeIds, searchText } }
-      );
-
-      return models.Routes.findOne({ _id: doc._id });
+      return models.Routes.findOne({ _id });
     }
 
     public static async removeRoute(doc: IRoute) {
@@ -62,28 +65,7 @@ export const loadRouteClass = (models: IModels) => {
     }
 
     public static async fillSearchText(doc: IRoute) {
-      const directions: IDirectionDocument[] = await models.Directions.find({
-        _id: { $in: doc.directionIds }
-      }).lean();
-
-      if (!directions.length) {
-        return;
-      }
-
-      let relatedPlaces: string[] = [];
-
-      for (const dir of directions) {
-        const places = await models.Places.find({
-          _id: { $in: dir.placeIds }
-        }).distinct('province');
-        relatedPlaces = relatedPlaces.concat(places);
-      }
-
-      return validSearchText([
-        doc.code || '',
-        doc.name || '',
-        ...Array.from(new Set([...relatedPlaces]))
-      ]);
+      return validSearchText([doc.code || '', doc.name || '']);
     }
   }
 

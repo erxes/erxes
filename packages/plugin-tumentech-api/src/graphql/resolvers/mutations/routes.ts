@@ -11,7 +11,8 @@ const routeMutations = {
   },
 
   routesEdit: async (_root, doc: IRouteEdit, { models }: IContext) => {
-    return models.Routes.updateRoute(doc);
+    const { _id, ...route } = doc;
+    return models.Routes.updateRoute(_id, route);
   },
 
   routesRemove: (_root, { _id }, { models }: IContext) => {

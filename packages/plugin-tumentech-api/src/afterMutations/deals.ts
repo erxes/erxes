@@ -209,18 +209,18 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    // if (stage.code && stage.code === 'getPaid') {
-    //   await notifyDealRelatedUsers(
-    //     subdomain,
-    //     process.env.MOBILE_CP_ID || '',
-    //     deal,
-    //     {
-    //       title: 'Төлбөр төлөгдсөн байна',
-    //       content: `Таны ${deal.name} ажлын төлбөр төлөгдлөө!`,
-    //       isMobile: true
-    //     }
-    //   );
-    // }
+    if (stage.code && stage.code === 'complete') {
+      await notifyDealRelatedUsers(
+        subdomain,
+        process.env.MOBILE_CP_ID || '',
+        deal,
+        {
+          title: 'Төлбөр төлөгдсөн байна',
+          content: `Таны ${deal.name} ажлын төлбөр төлөгдлөө!`,
+          isMobile: true
+        }
+      );
+    }
 
     return;
   }
