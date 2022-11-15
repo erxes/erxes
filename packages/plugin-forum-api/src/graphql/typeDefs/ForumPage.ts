@@ -9,7 +9,7 @@ type ForumPage {
     listOrder: Float
   
     custom: JSON
-    customIndexed: JSON;
+    customIndexed: JSON
 }
 `;
 
