@@ -11,7 +11,7 @@ const SubscriptionProductHome: FC = () => {
 
       <List />
 
-      <PaymentTest />
+      {/* <PaymentTest /> */}
     </div>
   );
 };
