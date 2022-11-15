@@ -20,7 +20,20 @@ const promptChoice = new Select({
   name: 'choice',
   message:
     'What type of plugin do you wanna create? (You can create general plugin or integration plugin)',
-  choices: ['general', 'integration']
+  choices: [
+    { name: 'general', message: 'General' },
+    { name: 'integration', message: 'Integration' },
+  ]
+});
+
+const promptIntegrationChoice = new Select({
+  name: 'choice',
+  message:
+    'Choose the integration plugin`s ui template.',
+  choices: [
+    { name: 'integration', message: 'With form' },
+    { name: 'integrationDetail', message: 'With detail page' },
+  ]
 });
 
 const promptBlank = new Select({
@@ -85,7 +98,8 @@ var createUi = async (name, location, type) => {
   const sourceDirs = {
     default: filePath(`./packages/ui-plugin-template/source-default`),
     empty: filePath(`./packages/ui-plugin-template/source-empty`),
-    integration: filePath(`./packages/ui-plugin-template/source-integration`)
+    integration: filePath(`./packages/ui-plugin-template/source-integration`),
+    integrationDetail: filePath(`./packages/ui-plugin-template/source-integration-detail`)
   }
 
   fs.copySync(
@@ -227,12 +241,13 @@ const main = async () => {
   ]);
   promptChoice.run().then(type => {
     if (type === 'integration') {
-      const name = input.name;
+      promptIntegrationChoice.run().then(templateType => {
+        const name = input.name;
 
-      createUi(name, '', type);
-      createApi(name, type);
-      installDeps(name);
-
+        createUi(name, '', templateType);
+        createApi(name, type);
+        installDeps(name);
+      });
     } else {
       promptBlank
         .run()
