@@ -1,4 +1,10 @@
-import { Content, PreviewContent, SiteBox, SitePreview, Sites } from './styles';
+import {
+  Content,
+  FlexWrap,
+  PreviewContent,
+  SiteBox,
+  SitePreview
+} from './styles';
 
 import Button from '@erxes/ui/src/components/Button';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -29,7 +35,7 @@ class SiteList extends React.Component<Props, {}> {
 
   renderList(site: ISiteDoc) {
     return (
-      <SiteBox key={site._id}>
+      <SiteBox key={site._id} nowrap={true}>
         <SitePreview>
           <img
             src="https://templatemo.com/thumbnails-360/tm-557-grad-school.jpg"
@@ -71,7 +77,9 @@ class SiteList extends React.Component<Props, {}> {
     const { sites } = this.props;
     console.log(sites);
 
-    return <Sites>{(sites || []).map(site => this.renderList(site))}</Sites>;
+    return (
+      <FlexWrap>{(sites || []).map(site => this.renderList(site))}</FlexWrap>
+    );
   }
 }
 

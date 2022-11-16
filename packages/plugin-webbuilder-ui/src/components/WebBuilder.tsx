@@ -1,19 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { router } from '@erxes/ui/src/utils';
-import { __ } from '@erxes/ui/src/utils';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import ContentTypeList from '../containers/contentTypes/List';
-import EntriesList from '../containers/entries/List';
-import Pages from '../containers/pages/Pages';
-import Sites from '../containers/sites/List';
-import SideBar from '../containers/Sidebar';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import TemplatesList from '../containers/templates/List';
+import React, { useEffect, useState } from 'react';
+
 import { BarItems } from '@erxes/ui/src/layout/styles';
-import SelectSite from '../containers/sites/SelectSite';
-import { withRouter } from 'react-router-dom';
+import ContentTypeList from '../containers/contentTypes/List';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import EntriesList from '../containers/entries/List';
 import { IRouterProps } from '@erxes/ui/src/types';
+import Pages from '../containers/pages/Pages';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import SelectSite from '../containers/sites/SelectSite';
+import SideBar from '../containers/Sidebar';
+import Sites from '../containers/sites/List';
+import TemplatesList from '../containers/templates/List';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from '@erxes/ui/src/utils';
+import { router } from '@erxes/ui/src/utils';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   step: string;

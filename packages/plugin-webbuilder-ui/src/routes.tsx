@@ -15,6 +15,12 @@ const WebBuilderContainer = asyncComponent(() =>
   )
 );
 
+const SitesListContainer = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "Websites - ListContainer" */ './containers/templates/List'
+  )
+);
+
 const PageForm = asyncComponent(() =>
   import(
     /* webpackChunkName: "PageForm - Webbuilders" */ './containers/pages/PageForm'
@@ -43,7 +49,7 @@ const webBuilders = history => {
   return <WebBuilder step={step} queryParams={queryParams} />;
 };
 
-const webBuilderContainer = history => {
+const webBuilderSitesContainer = history => {
   const { location, match } = history;
 
   const queryParams = queryString.parse(location.search);
@@ -51,6 +57,16 @@ const webBuilderContainer = history => {
   const { step } = match.params;
 
   return <WebBuilderContainer step={step} queryParams={queryParams} />;
+};
+
+const webBuilderTemplatesContainer = history => {
+  const { location, match } = history;
+
+  const queryParams = queryString.parse(location.search);
+
+  const { step } = match.params;
+
+  return <SitesListContainer step={step} queryParams={queryParams} />;
 };
 
 const typeEdit = ({ match }) => {
@@ -89,7 +105,17 @@ const entryEdit = ({ match, location }) => {
 const routes = () => {
   return (
     <>
-      <Route path="/webbuilder" exact={true} component={webBuilderContainer} />
+      <Route
+        path="/webbuilder"
+        exact={true}
+        component={webBuilderSitesContainer}
+      />
+
+      <Route
+        path="/webbuilder/sites/create"
+        exact={true}
+        component={webBuilderTemplatesContainer}
+      />
 
       <Route
         path="/webbuilder/pages/create"

@@ -51,7 +51,7 @@ function Builder(props: Props) {
         value={searchValue}
         autoFocus={true}
       />
-      <Link to="pages/create">
+      <Link to="/webbuilder/sites/create">
         <Button btnStyle="success" size="small" icon="plus-circle">
           New website
         </Button>

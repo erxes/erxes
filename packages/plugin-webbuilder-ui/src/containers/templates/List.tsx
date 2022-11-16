@@ -1,22 +1,22 @@
-import React from 'react';
-import List from '../../components/templates/List';
 import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
-import { queries, mutations } from '../../graphql';
+
+import { Alert, confirm } from '@erxes/ui/src/utils';
 import {
   TemplatesQueryResponse,
   TemplatesTotalCountQueryResponse,
   TemplatesUseMutationResponse
 } from '../../types';
+import { mutations, queries } from '../../graphql';
+
+import List from '../../components/templates/List';
+import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { Alert, confirm } from '@erxes/ui/src/utils';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 
 type Props = {
-  setCount: (count: number) => void;
   queryParams: any;
-  selectedSite: string;
 };
 
 type FinalProps = {
@@ -48,7 +48,7 @@ function ListContainer(props: FinalProps) {
 
   const templates = templatesQuery.webbuilderTemplates || [];
   const templatesCount = templatesCountQuery.webbuilderTemplatesTotalCount || 0;
-
+  console.log('kkkkk');
   const updatedProps = {
     ...props,
     templates,
@@ -60,21 +60,21 @@ function ListContainer(props: FinalProps) {
 }
 
 export default compose(
-  graphql<Props, TemplatesUseMutationResponse>(gql(mutations.templatesUse), {
-    name: 'templatesUse',
-    options: ({ selectedSite }) => ({
-      refetchQueries: [
-        { query: gql(queries.sites), variables: { fromSelect: true } },
-        { query: gql(queries.sitesTotalCount) },
-        {
-          query: gql(queries.contentTypes),
-          variables: {
-            siteId: selectedSite
-          }
-        }
-      ]
-    })
-  }),
+  // graphql<Props, TemplatesUseMutationResponse>(gql(mutations.templatesUse), {
+  //   name: "templatesUse",
+  //   options: ({ selectedSite }) => ({
+  //     refetchQueries: [
+  //       { query: gql(queries.sites), variables: { fromSelect: true } },
+  //       { query: gql(queries.sitesTotalCount) },
+  //       {
+  //         query: gql(queries.contentTypes),
+  //         variables: {
+  //           siteId: selectedSite,
+  //         },
+  //       },
+  //     ],
+  //   }),
+  // }),
   graphql<Props, TemplatesQueryResponse>(gql(queries.templates), {
     name: 'templatesQuery',
     options: ({ queryParams }) => ({
