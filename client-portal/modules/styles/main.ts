@@ -1,6 +1,7 @@
 import { colors, dimensions, typography } from "../styles";
-import { rgba } from "../styles/ecolor";
 import styled, { css } from "styled-components";
+
+import { rgba } from "../styles/ecolor";
 import styledTS from "styled-components-ts";
 
 const Header = styledTS<{
@@ -57,6 +58,7 @@ const HeaderTitle = styledTS<{ color?: string }>(styled.span)`
 
 const HeaderRight = styled.div`
   display: flex;
+  flex: 1;
   flex-direction: column;
 `;
 
