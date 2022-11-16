@@ -101,7 +101,12 @@ const labelsQueries = {
     { models, subdomain }: IContext
   ) => {
     const filter = await getGenerateFilter(subdomain, params);
-    return paginate(models.YearPlans.find(filter).lean(), params);
+    return paginate(
+      models.YearPlans.find(filter)
+        .sort({ year: -1 })
+        .lean(),
+      params
+    );
   },
 
   yearPlansCount: async (

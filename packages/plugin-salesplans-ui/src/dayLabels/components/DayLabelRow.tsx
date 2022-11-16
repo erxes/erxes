@@ -11,6 +11,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import SelectLabels from '../../settings/containers/SelectLabels';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Form from '../containers/EditForm';
+import moment from 'moment';
 
 type Props = {
   dayLabel: IDayLabel;
@@ -83,7 +84,7 @@ class Row extends React.Component<Props, State> {
             onChange={onChange}
           />
         </td>
-        <td>{date}</td>
+        <td>{moment(date).format('YYYY/MM/DD')}</td>
         <td>{branch ? `${branch.code} - ${branch.title}` : ''}</td>
         <td>{department ? `${department.code} - ${department.title}` : ''}</td>
         <td>

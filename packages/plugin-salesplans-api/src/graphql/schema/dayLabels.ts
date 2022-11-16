@@ -43,7 +43,7 @@ export const queries = `
 `;
 
 export const planCreateParams = `
-  date: Date,
+  dates: [String],
   departmentIds: [String],
   branchIds: [String],
   labelIds: [String]

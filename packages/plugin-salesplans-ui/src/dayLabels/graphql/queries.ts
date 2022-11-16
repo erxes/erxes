@@ -22,8 +22,9 @@ export const paginateValues = `
   sortDirection: $sortDirection,
 `;
 
-const commonPlanFields = `
-  _id,
+export const dayLabelFields = `
+  _id
+  date
   departmentId
   branchId
   labelIds
@@ -57,10 +58,6 @@ const commonPlanFields = `
   modifiedUser {
     ${userFields}
   }
-`;
-
-export const dayLabelFields = `
-  ${commonPlanFields}
 `;
 
 export const filterDefs = `

@@ -3,8 +3,7 @@ import {
   moduleCheckPermission
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
-import { escapeRegExp, paginate } from '@erxes/api-utils/src/core';
-import { sendProductsMessage } from '../../../messageBroker';
+import { paginate } from '@erxes/api-utils/src/core';
 import { getFullDate, getTomorrow } from '../../../utils';
 
 interface IListArgs {
@@ -33,9 +32,7 @@ const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
   }
 
   if (date) {
-    const sd = getFullDate(date);
-    const ed = getTomorrow(date);
-    filter.date = { $gte: sd, $lte: ed };
+    filter.date = date;
   }
 
   if (branchId) {

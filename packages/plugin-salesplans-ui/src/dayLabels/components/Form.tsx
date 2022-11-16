@@ -1,3 +1,4 @@
+import Label from '@erxes/ui/src/components/Label';
 import React from 'react';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
@@ -34,7 +35,7 @@ class Form extends React.Component<Props, State> {
 
     this.state = {
       dayLabelParams: {
-        date: new Date()
+        dates: []
       }
     };
   }
@@ -42,7 +43,6 @@ class Form extends React.Component<Props, State> {
   generateDoc = (values: { _id?: string }) => {
     const finalValues = values;
     const { dayLabelParams } = this.state;
-    dayLabelParams.date = new Date(dayLabelParams.date || new Date());
 
     return {
       ...finalValues,
@@ -61,9 +61,21 @@ class Form extends React.Component<Props, State> {
   };
 
   onSelectChange = (name, value) => {
-    console.log(value);
     this.setState({
       dayLabelParams: { ...this.state.dayLabelParams, [name]: value }
+    });
+  };
+
+  onSelectDate = value => {
+    const { dayLabelParams } = this.state;
+
+    const strVal = moment(value).format('YYYY/MM/DD');
+    if (!(dayLabelParams.dates || []).includes(strVal)) {
+      (dayLabelParams.dates || []).push(strVal);
+    }
+
+    this.setState({
+      dayLabelParams: { ...dayLabelParams }
     });
   };
 
@@ -80,21 +92,24 @@ class Form extends React.Component<Props, State> {
     return (
       <>
         <ScrollWrapper>
+          {(dayLabelParams.dates || []).map(d => (
+            <span key={Math.random()}>
+              <Label children={d} />
+              &nbsp;
+            </span>
+          ))}
           <FormGroup>
             <ControlLabel required={true}>{__(`Date`)}</ControlLabel>
             <DateContainer>
               <DateControl
                 name="createdAtFrom"
-                placeholder="Choose start date"
-                value={dayLabelParams.date || new Date()}
-                onChange={e =>
-                  this.onSelectChange(
-                    'date',
-                    moment((e.target as HTMLInputElement).value).format(
-                      'YYYY/MM/DD hh:mm'
-                    )
-                  )
+                placeholder="Choose date"
+                value={
+                  dayLabelParams.dates && dayLabelParams.dates.length
+                    ? dayLabelParams.dates[dayLabelParams.dates.length - 1]
+                    : new Date()
                 }
+                onChange={this.onSelectDate}
               />
             </DateContainer>
           </FormGroup>

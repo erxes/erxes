@@ -14,7 +14,7 @@ const dayLabelsMutations = {
     doc: IDayLabelsAddParams,
     { user, models }: IContext
   ) => {
-    const { date, departmentIds, branchIds, labelIds } = doc;
+    const { dates, departmentIds, branchIds, labelIds } = doc;
 
     const latestDayLabels = await models.DayLabels.find({
       // date,
@@ -35,50 +35,53 @@ const dayLabelsMutations = {
     const now = new Date();
     const inserteds: any = [];
 
-    for (const branchId of branchIds) {
-      for (const departmentId of departmentIds) {
-        const key = `${branchId}_${departmentId}`;
+    for (const strDate of dates) {
+      const date = new Date(strDate);
+      for (const branchId of branchIds) {
+        for (const departmentId of departmentIds) {
+          const key = `${branchId}_${departmentId}`;
 
-        const oldDayLabel = latestDayLabelsByKey[key];
+          const oldDayLabel = latestDayLabelsByKey[key];
 
-        if (oldDayLabel) {
-          const newLabelIds = oldDayLabel.labelIds;
-          let checkAdded = false;
+          if (oldDayLabel) {
+            const newLabelIds = oldDayLabel.labelIds;
+            let checkAdded = false;
 
-          for (const labelId of labelIds) {
-            if (!newLabelIds.includes(labelId)) {
-              checkAdded = true;
-              newLabelIds.push(labelId);
+            for (const labelId of labelIds) {
+              if (!newLabelIds.includes(labelId)) {
+                checkAdded = true;
+                newLabelIds.push(labelId);
+              }
             }
-          }
 
-          if (checkAdded) {
-            updatedIds.push(oldDayLabel._id);
+            if (checkAdded) {
+              updatedIds.push(oldDayLabel._id);
 
-            bulkUpdateOps.push({
-              updateOne: {
-                filter: {
-                  _id: oldDayLabel._id
-                },
-                update: {
-                  $set: {
-                    labelIds,
-                    modifiedAt: now,
-                    modifiedBy: user._id
+              bulkUpdateOps.push({
+                updateOne: {
+                  filter: {
+                    _id: oldDayLabel._id
+                  },
+                  update: {
+                    $set: {
+                      labelIds,
+                      modifiedAt: now,
+                      modifiedBy: user._id
+                    }
                   }
                 }
-              }
+              });
+            }
+          } else {
+            bulkCreateOps.push({
+              branchId,
+              departmentId,
+              labelIds,
+              date,
+              createdAt: now,
+              createBy: user._id
             });
           }
-        } else {
-          bulkCreateOps.push({
-            branchId,
-            departmentId,
-            labelIds,
-            date,
-            createdAt: now,
-            createBy: user._id
-          });
         }
       }
     }

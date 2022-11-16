@@ -95,9 +95,9 @@ class Row extends React.Component<Props, State> {
         </td>
         <td>
           <ActionButtons>
-            <Tip text={__('Remove')} placement="bottom">
-              <Button id="duplicate-box-line" btnStyle="link">
-                <Icon icon="copy-1" />
+            <Tip text={__('Text')} placement="bottom">
+              <Button id="action-button" btnStyle="link">
+                <Icon icon="pen-1" />
               </Button>
             </Tip>
           </ActionButtons>

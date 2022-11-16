@@ -14,6 +14,9 @@ import {
 } from '@erxes/ui/src/layout';
 import { SidebarFilters } from '../../salesplans/styles';
 import { Wrapper } from '@erxes/ui/src/layout';
+import { DateContainer } from '@erxes/ui/src/styles/main';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
+import moment from 'moment';
 
 interface Props {
   history: any;
@@ -28,6 +31,7 @@ class Sidebar extends React.Component<Props> {
   clearFilter = () => {
     router.removeParams(
       this.props.history,
+      'date',
       'filterStatus',
       'branchId',
       'departmentId',
@@ -54,6 +58,11 @@ class Sidebar extends React.Component<Props> {
     }, 500);
   };
 
+  onSelectDate = value => {
+    const strVal = moment(value).format('YYYY/MM/DD');
+    this.setFilter('date', strVal);
+  };
+
   render() {
     const { queryParams } = this.props;
 
@@ -67,6 +76,7 @@ class Sidebar extends React.Component<Props> {
                 {(router.getParam(this.props.history, 'filterStatus') ||
                   router.getParam(this.props.history, 'branchId') ||
                   router.getParam(this.props.history, 'departmentId') ||
+                  router.getParam(this.props.history, 'date') ||
                   router.getParam(this.props.history, 'labelId')) && (
                   <a href="#cancel" tabIndex={0} onClick={this.clearFilter}>
                     <Tip text={__('Clear filter')} placement="bottom">
@@ -79,13 +89,15 @@ class Sidebar extends React.Component<Props> {
             <SidebarFilters>
               <List id="SettingsSidebar">
                 <FormGroup>
-                  <ControlLabel required={true}>{__(`Year`)}</ControlLabel>
-                  <FormControl
-                    type="number"
-                    name="year"
-                    defaultValue={new Date().getFullYear()}
-                    onChange={this.onInputChange}
-                  />
+                  <ControlLabel required={true}>{__(`Date`)}</ControlLabel>
+                  <DateContainer>
+                    <DateControl
+                      name="createdAtFrom"
+                      placeholder="Choose date"
+                      value={queryParams.date || ''}
+                      onChange={this.onSelectDate}
+                    />
+                  </DateContainer>
                 </FormGroup>
                 <FormGroup>
                   <ControlLabel>Branch</ControlLabel>

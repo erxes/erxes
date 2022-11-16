@@ -22,7 +22,7 @@ export interface IDayLabel {
 }
 
 export interface IDayLabelParams {
-  date?: Date;
+  dates?: string[];
   departmentIds?: string[];
   branchIds?: string[];
   labelIds?: string[];

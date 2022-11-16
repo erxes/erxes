@@ -106,6 +106,7 @@ const options = () => ({
 const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),
   _ids: queryParams._ids,
+  date: queryParams.date,
   filterStatus: queryParams.filterStatus,
   departmentId: queryParams.departmentId,
   branchId: queryParams.branchId,

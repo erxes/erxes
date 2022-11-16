@@ -1,14 +1,14 @@
 import { dayLabelFields } from './queries';
 
 const addParamDefs = `
-  $date: Date,
+  $dates: [String],
   $departmentIds: [String],
   $branchIds: [String],
   $labelIds: [String],
 `;
 
 const addParams = `
-  date: $date,
+  dates: $dates,
   departmentIds: $departmentIds,
   branchIds: $branchIds,
   labelIds: $labelIds,

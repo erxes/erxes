@@ -2,7 +2,7 @@ import { Document, Schema } from 'mongoose';
 import { field, schemaWrapper } from './utils';
 
 export interface IDayLabelsAddParams {
-  date: Date;
+  dates: string[];
   departmentIds: string[];
   branchIds: string[];
   labelIds: string[];

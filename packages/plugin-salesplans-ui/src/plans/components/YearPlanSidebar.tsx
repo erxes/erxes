@@ -29,6 +29,7 @@ class Sidebar extends React.Component<Props> {
   clearFilter = () => {
     router.removeParams(
       this.props.history,
+      'year',
       'filterStatus',
       'branchId',
       'departmentId',
@@ -70,7 +71,8 @@ class Sidebar extends React.Component<Props> {
                   router.getParam(this.props.history, 'branchId') ||
                   router.getParam(this.props.history, 'departmentId') ||
                   router.getParam(this.props.history, 'productCategoryId') ||
-                  router.getParam(this.props.history, 'productId')) && (
+                  router.getParam(this.props.history, 'productId') ||
+                  router.getParam(this.props.history, 'year')) && (
                   <a href="#cancel" tabIndex={0} onClick={this.clearFilter}>
                     <Tip text={__('Clear filter')} placement="bottom">
                       <Icon icon="cancel-1" />
@@ -86,7 +88,8 @@ class Sidebar extends React.Component<Props> {
                   <FormControl
                     type="number"
                     name="year"
-                    defaultValue={new Date().getFullYear()}
+                    placeholder='all year is "0"'
+                    defaultValue={queryParams.year || new Date().getFullYear()}
                     onChange={this.onInputChange}
                   />
                 </FormGroup>
