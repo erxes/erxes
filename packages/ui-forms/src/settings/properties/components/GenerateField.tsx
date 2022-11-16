@@ -20,7 +20,11 @@ import Select from 'react-select-plus';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import SelectProductCategory from '../containers/SelectProductCategory';
 import Uploader from '@erxes/ui/src/components/Uploader';
-import { RenderDynamicComponent, __ } from '@erxes/ui/src/utils/core';
+import {
+  isEnabled,
+  RenderDynamicComponent,
+  __
+} from '@erxes/ui/src/utils/core';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 
@@ -297,8 +301,7 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
-  renderExtraFields({id,value},type,filteredPlugin){
-
+  renderExtraFields({ id, value }, type, filteredPlugin) {
     const onSelect = e => {
       const { onValueChange } = this.props;
 
@@ -309,12 +312,18 @@ export default class GenerateField extends React.Component<Props, State> {
       }
     };
 
-      const {scope,component} = filteredPlugin.formsExtraFields.find(extraField => extraField.type === type);
-      return (
-        <ErrorBoundary key={scope}>
-          <RenderDynamicComponent scope={scope} component={component} injectedProps={{value,onSelect}}/>
-        </ErrorBoundary>
-      );
+    const { scope, component } = filteredPlugin.formsExtraFields.find(
+      extraField => extraField.type === type
+    );
+    return (
+      <ErrorBoundary key={scope}>
+        <RenderDynamicComponent
+          scope={scope}
+          component={component}
+          injectedProps={{ value, onSelect }}
+        />
+      </ErrorBoundary>
+    );
   }
 
   renderHtml() {
@@ -603,6 +612,9 @@ export default class GenerateField extends React.Component<Props, State> {
       }
 
       case 'product': {
+        if (!isEnabled('products')) {
+          return <p>Products service is not enabled</p>;
+        }
         return this.renderProduct(attrs);
       }
 
@@ -619,12 +631,17 @@ export default class GenerateField extends React.Component<Props, State> {
       }
 
       case 'selectProductCategory': {
+        if (!isEnabled('products')) {
+          return <p>Products service is not enabled</p>;
+        }
         return this.renderSelectCategory(attrs);
       }
 
       default:
         try {
-          const plugins = ((window as any).plugins || []).filter( plugin => plugin['formsExtraFields'] );
+          const plugins = ((window as any).plugins || []).filter(
+            plugin => plugin['formsExtraFields']
+          );
 
           const filteredPlugin = plugins.find(plugin =>
             plugin.formsExtraFields.find(extraField => extraField.type === type)
