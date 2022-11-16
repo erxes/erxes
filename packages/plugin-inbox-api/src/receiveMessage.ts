@@ -3,10 +3,8 @@ import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendLogsMessage,
-  sendFacebookMessage
+  sendLogsMessage
 } from './messageBroker';
-import { debugExternalApi } from '@erxes/api-utils/src/debuggers';
 import { generateModels } from './connectionResolver';
 import { IConversationDocument } from './models/definitions/conversations';
 
@@ -224,7 +222,7 @@ export const removeEngageConversations = async (models, _id) => {
 
 export const collectConversations = async (
   subdomain: string,
-  { contentId, contentType }: { contentId: string; contentType: string }
+  { contentId }: { contentId: string; contentType: string }
 ) => {
   const models = await generateModels(subdomain);
   const results: any[] = [];
@@ -266,34 +264,6 @@ export const collectConversations = async (
       contentId,
       createdAt: c.createdAt
     });
-  }
-
-  if (contentType === 'customer') {
-    let conversationIds;
-
-    try {
-      conversationIds = await sendFacebookMessage({
-        subdomain,
-        action: 'getCustomerPosts',
-        data: { customerId: contentId },
-        isRPC: true
-      });
-
-      const cons = await models.Conversations.find({
-        _id: { $in: conversationIds }
-      }).lean();
-
-      for (const c of cons) {
-        results.push({
-          _id: c._id,
-          contentType: 'comment',
-          contentId,
-          createdAt: c.createdAt
-        });
-      }
-    } catch (e) {
-      debugExternalApi(e);
-    }
   }
 
   return results;

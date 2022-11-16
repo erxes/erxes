@@ -7,6 +7,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import initApp from './index';
 import { INTEGRATION_KINDS } from './constants';
+import logs from './logUtils';
 
 export let mainDb;
 export let debug;
@@ -33,7 +34,8 @@ export default {
         kind: INTEGRATION_KINDS.POST,
         label: 'Facebook post'
       }
-    ]
+    ],
+    logs: { providesActivityLog: true, consumers: logs }
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
