@@ -20,7 +20,11 @@ import Select from 'react-select-plus';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import SelectProductCategory from '../containers/SelectProductCategory';
 import Uploader from '@erxes/ui/src/components/Uploader';
-import { isEnabled, __ } from '@erxes/ui/src/utils/core';
+import {
+  isEnabled,
+  RenderDynamicComponent,
+  __
+} from '@erxes/ui/src/utils/core';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 
@@ -296,6 +300,32 @@ export default class GenerateField extends React.Component<Props, State> {
       />
     );
   }
+
+  renderExtraFields({ id, value }, type, filteredPlugin) {
+    const onSelect = e => {
+      const { onValueChange } = this.props;
+
+      if (onValueChange) {
+        this.setState({ value: e });
+
+        onValueChange({ _id: id, value: e });
+      }
+    };
+
+    const { scope, component } = filteredPlugin.formsExtraFields.find(
+      extraField => extraField.type === type
+    );
+    return (
+      <ErrorBoundary key={scope}>
+        <RenderDynamicComponent
+          scope={scope}
+          component={component}
+          injectedProps={{ value, onSelect }}
+        />
+      </ErrorBoundary>
+    );
+  }
+
   renderHtml() {
     const { content } = this.props.field;
     return (
@@ -609,6 +639,18 @@ export default class GenerateField extends React.Component<Props, State> {
 
       default:
         try {
+          const plugins = ((window as any).plugins || []).filter(
+            plugin => plugin['formsExtraFields']
+          );
+
+          const filteredPlugin = plugins.find(plugin =>
+            plugin.formsExtraFields.find(extraField => extraField.type === type)
+          );
+
+          if (filteredPlugin) {
+            return this.renderExtraFields(attrs, type, filteredPlugin);
+          }
+
           return this.renderInput(attrs);
         } catch {
           return this.renderInput(attrs, true);
