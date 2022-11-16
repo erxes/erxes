@@ -52,11 +52,6 @@ function Builder(props: Props) {
         autoFocus={true}
       />
       <Link to="pages/create">
-        <Button btnStyle="simple" size="small" icon="plus-circle">
-          New post
-        </Button>
-      </Link>
-      <Link to="pages/create">
         <Button btnStyle="success" size="small" icon="plus-circle">
           New website
         </Button>
