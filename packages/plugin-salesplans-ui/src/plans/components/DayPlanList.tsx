@@ -10,15 +10,17 @@ import {
   ModalTrigger,
   Table
 } from '@erxes/ui/src/components';
-import { IPlanValue, IDayPlan } from '../types';
+import { IDayPlan } from '../types';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import Form from '../containers/DayPlanForm';
-import { menuSalesplans, MONTHS } from '../../constants';
+import { menuSalesplans } from '../../constants';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import { ITimeframe } from '../../settings/types';
 
 type Props = {
   dayPlans: IDayPlan[];
   totalCount: number;
+  timeFrames: ITimeframe[];
   isAllSelected: boolean;
   toggleAll: (targets: IDayPlan[], containerId: string) => void;
   history: any;
@@ -76,13 +78,21 @@ class DayPlans extends React.Component<Props, State> {
   };
 
   renderRow = () => {
-    const { dayPlans, history, toggleBulk, bulk, edit } = this.props;
+    const {
+      dayPlans,
+      history,
+      toggleBulk,
+      bulk,
+      edit,
+      timeFrames
+    } = this.props;
 
     return dayPlans.map(dayPlan => (
       <Row
         key={dayPlan._id}
         history={history}
         dayPlan={dayPlan}
+        timeFrames={timeFrames}
         toggleBulk={toggleBulk}
         isChecked={bulk.includes(dayPlan)}
         edit={edit}
@@ -157,7 +167,13 @@ class DayPlans extends React.Component<Props, State> {
   }
 
   render() {
-    const { isAllSelected, totalCount, queryParams, history } = this.props;
+    const {
+      isAllSelected,
+      totalCount,
+      queryParams,
+      history,
+      timeFrames
+    } = this.props;
 
     const content = (
       <Table hover={true}>
@@ -175,10 +191,13 @@ class DayPlans extends React.Component<Props, State> {
             <th>{__('Department')}</th>
             <th>{__('Product')}</th>
             <th>{__('Uom')}</th>
-            {MONTHS.map(m => (
-              <th key={m}>{m}</th>
+            <th>{__('Plan')}</th>
+            {timeFrames.map(tf => (
+              <th key={tf._id}>{tf.name}</th>
             ))}
+
             <th>{__('Sum')}</th>
+            <th>{__('Diff')}</th>
             <th>{__('')}</th>
           </tr>
         </thead>

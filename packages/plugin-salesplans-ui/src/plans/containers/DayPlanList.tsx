@@ -7,6 +7,7 @@ import { Alert, router, withProps } from '@erxes/ui/src/utils';
 import { Bulk } from '@erxes/ui/src/components';
 import { graphql } from 'react-apollo';
 import { mutations, queries } from '../graphql';
+import { queries as timeFrameQueries } from '../../settings/graphql';
 import { IDayPlan } from '../types';
 import {
   DayPlansQueryResponse,
@@ -14,6 +15,7 @@ import {
   DayPlansCountQueryResponse,
   DayPlansEditMutationResponse
 } from '../types';
+import { TimeframeQueryResponse } from '../../settings/types';
 
 type Props = {
   queryParams: any;
@@ -24,6 +26,7 @@ type Props = {
 type FinalProps = {
   dayPlanQuery: DayPlansQueryResponse;
   dayPlansCountQuery: DayPlansCountQueryResponse;
+  timeFrameQuery: TimeframeQueryResponse;
 } & Props &
   DayPlansEditMutationResponse &
   DayPlansRemoveMutationResponse;
@@ -34,11 +37,16 @@ class DayPlansContainer extends React.Component<FinalProps> {
       dayPlanQuery,
       dayPlansCountQuery,
       queryParams,
+      timeFrameQuery,
       dayPlanEdit,
       dayPlansRemove
     } = this.props;
 
-    if (dayPlanQuery.loading || dayPlansCountQuery.loading) {
+    if (
+      dayPlanQuery.loading ||
+      dayPlansCountQuery.loading ||
+      timeFrameQuery.loading
+    ) {
       return <Spinner />;
     }
 
@@ -73,6 +81,7 @@ class DayPlansContainer extends React.Component<FinalProps> {
         });
     };
 
+    const timeFrames = timeFrameQuery.timeframes || [];
     const searchValue = this.props.queryParams.searchValue || '';
     const dayPlans = dayPlanQuery.dayPlans || [];
     const totalCount = dayPlansCountQuery.dayPlansCount || 0;
@@ -82,6 +91,7 @@ class DayPlansContainer extends React.Component<FinalProps> {
       queryParams,
       dayPlans,
       totalCount,
+      timeFrames,
       edit,
       remove,
       searchValue
@@ -144,6 +154,9 @@ export default withProps<Props>(
         })
       }
     ),
+    graphql<{}, TimeframeQueryResponse>(gql(timeFrameQueries.timeframes), {
+      name: 'timeFrameQuery'
+    }),
     graphql<Props, DayPlansEditMutationResponse, {}>(
       gql(mutations.dayPlanEdit),
       {

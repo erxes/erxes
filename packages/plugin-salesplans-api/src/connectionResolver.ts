@@ -9,7 +9,7 @@ import {
   IYearPlanConfigDocument
 } from './models/definitions/salesplans';
 import { ILabelModel, loadLabelClass } from './models/Labels';
-import { ITimeframeModel, loadTimeframeClass } from './models/timeframes';
+import { ITimeframeModel, loadTimeframeClass } from './models/Timeframes';
 import {
   ISalesLogModel,
   loadSalesLogClass,

@@ -1,19 +1,19 @@
-import Label from '@erxes/ui/src/components/Label';
 import React from 'react';
 import { FormControl } from '@erxes/ui/src/components';
 import { IDayPlan, IPlanValue } from '../types';
-import { MONTHS } from '../../constants';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import moment from 'moment';
+import { ITimeframe } from '../../settings/types';
 
 type Props = {
   dayPlan: IDayPlan;
   history: any;
   isChecked: boolean;
+  timeFrames: ITimeframe[];
   toggleBulk: (dayPlan: IDayPlan, isChecked?: boolean) => void;
   edit: (doc: IDayPlan) => void;
 };
@@ -52,7 +52,7 @@ class Row extends React.Component<Props, State> {
   };
 
   render() {
-    const { dayPlan, toggleBulk, isChecked } = this.props;
+    const { dayPlan, toggleBulk, isChecked, timeFrames } = this.props;
 
     const onChange = e => {
       if (toggleBulk) {
@@ -64,8 +64,14 @@ class Row extends React.Component<Props, State> {
       e.stopPropagation();
     };
 
-    const { _id, date, branch, department, product, uom } = dayPlan;
+    const { _id, date, branch, department, product, uom, planCount } = dayPlan;
     const { values } = this.state;
+
+    const sumValue = Object.values(values).reduce(
+      (sum, i) => Number(sum) + Number(i),
+      0
+    );
+    const diff = (planCount || 0) - sumValue;
 
     return (
       <tr key={_id}>
@@ -81,19 +87,19 @@ class Row extends React.Component<Props, State> {
         <td>{department ? `${department.code} - ${department.title}` : ''}</td>
         <td>{product ? `${product.code} - ${product.name}` : ''}</td>
         <td>{uom ? `${uom.code} - ${uom.name}` : ''}</td>
-        {MONTHS.map(m => (
-          <td key={m}>
+        <td>{(planCount || 0).toLocaleString()}</td>
+        {timeFrames.map(tf => (
+          <td key={tf._id}>
             <FormControl
               type="number"
-              name={m}
-              defaultValue={values[m] || 0}
+              name={tf.name}
+              defaultValue={values[tf._id] || 0}
               onChange={this.onChangeValue}
             />
           </td>
         ))}
-        <td>
-          {Object.values(values).reduce((sum, i) => Number(sum) + Number(i), 0)}
-        </td>
+        <td>{sumValue.toLocaleString()}</td>
+        <td>{diff.toLocaleString()}</td>
         <td>
           <ActionButtons>
             <Tip text={__('Text')} placement="bottom">

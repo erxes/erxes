@@ -41,16 +41,10 @@ const spLabelsRemove = `
 `;
 
 const timeframesEdit = `
-  mutation timeframesEdit($update: [TimeframeInput], $add: [AddTimeframeInput]) {
-    timeframesEdit(update: $update, add: $add){
+  mutation timeframesEdit($docs: [JSON]) {
+    timeframesEdit(docs: $docs){
       _id
     }
-  }
-`;
-
-const timeframesRemove = `
-  mutation timeframesRemove($_id: String) {
-    timeframesRemove(_id: $_id)
   }
 `;
 
@@ -58,6 +52,5 @@ export default {
   spLabelsAdd,
   spLabelsEdit,
   spLabelsRemove,
-  timeframesEdit,
-  timeframesRemove
+  timeframesEdit
 };

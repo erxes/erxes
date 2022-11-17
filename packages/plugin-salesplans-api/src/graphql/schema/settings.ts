@@ -13,21 +13,7 @@ export const types = `
     _id: String
     name: String
     description: String
-    startTime: Int
-    endTime: Int
-  },
-
-  input TimeframeInput {
-    _id: String
-    name: String
-    description: String
-    startTime: Int
-    endTime: Int
-  },
-
-  input AddTimeframeInput {
-    name: String
-    description: String
+    percent: Float
     startTime: Int
     endTime: Int
   }
@@ -63,8 +49,7 @@ const params = `
 `;
 
 export const mutations = `
-  timeframesEdit(update:[TimeframeInput], add:[AddTimeframeInput]): [Timeframe]
-  timeframesRemove(_id: String): JSON
+  timeframesEdit(docs: [JSON]): [Timeframe]
   spLabelsAdd(${params}): SPLabel
   spLabelsEdit(_id: String!, ${params}): SPLabel
   spLabelsRemove(_ids: [String]): JSON

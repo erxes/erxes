@@ -66,6 +66,7 @@ export interface IDayPlan {
   branchId?: string;
   productId?: string;
   uomId?: string;
+  planCount?: number;
   values?: IPlanValue;
   confirmedData?: any;
   createdAt?: Date;

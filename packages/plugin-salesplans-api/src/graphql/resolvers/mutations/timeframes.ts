@@ -1,24 +1,21 @@
+import { IContext } from '../../../connectionResolver';
+import { ITimeframe } from '../../../models/definitions/timeframes';
 import {
-  moduleRequireLogin,
-  moduleCheckPermission
+  moduleCheckPermission,
+  moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
-import { IContext, IModels } from '../../../connectionResolver';
-import {
-  ITimeframe,
-  ITimeframeDocument
-} from '../../../models/definitions/timeframes';
 
+interface IEditArgs extends ITimeframe {
+  _id?: string;
+}
 const timeframeMutations = {
   timeframesEdit: async (
     _root: any,
-    doc: { update: ITimeframeDocument[]; add: ITimeframe[] },
+    { docs }: { docs: any[] },
     { models }: IContext
   ) => {
-    return await models.Timeframes.timeframesEdit(doc);
-  },
-
-  timeframesRemove: async (_root: any, _id: string, { models }: IContext) => {
-    return await models.Timeframes.timeframesRemove(_id);
+    console.log(docs, 'ddddddddddddddddd');
+    return await models.Timeframes.timeframesEdit(docs);
   }
 };
 

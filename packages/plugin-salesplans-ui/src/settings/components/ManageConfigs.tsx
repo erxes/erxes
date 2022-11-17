@@ -1,106 +1,45 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import {
+  __,
+  Button,
+  ControlLabel,
+  FormControl,
+  Icon,
+  Tip
+} from '@erxes/ui/src';
+import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
 import {
   FullContent,
   MiddleContent,
   ModalFooter
 } from '@erxes/ui/src/styles/main';
-import {
-  __,
-  ControlLabel,
-  FormControl,
-  Tip,
-  Icon,
-  Button
-} from '@erxes/ui/src';
-import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
+import { ITimeframe } from '../types';
 
 type Props = {
-  data: any;
+  data: ITimeframe[];
   closeModal: () => void;
-  edit: (update: any, add: any) => void;
-  remove: (_id: string) => void;
+  edit: (doc: any) => void;
 };
 
 const ManageConfigs = (props: Props) => {
-  const { data, closeModal, edit, remove } = props;
+  const { data, closeModal, edit } = props;
 
-  const [configs, setConfigs] = useState<any[]>([]);
-  const [configsData, setConfigsData] = useState<any[]>(data ? data : []);
+  const [configsData, setConfigsData] = useState<ITimeframe[]>(
+    data ? data : []
+  );
+  const [sumPercent, setSumPercent] = useState<number>(0);
 
   useEffect(() => {
-    data.map(value => {
-      delete value.__typename;
-    });
     setConfigsData(data);
+    setSumPercent(
+      data.length
+        ? data.map(d => d.percent || 0).reduce((sum, d) => sum + d)
+        : 0
+    );
   }, [data]);
 
   const addConfig = () => {
-    setConfigs([...configs, {}]);
-  };
-
-  const onChangeConfig = (event: any, index: number, key: string) => {
-    const updatedLabels: any = [...configs];
-
-    let value = (event.target as HTMLInputElement).value;
-
-    if (
-      key === 'startTime' &&
-      updatedLabels[index].endTime &&
-      parseFloat(value) > updatedLabels[index].endTime
-    ) {
-      updatedLabels[index].startTime = updatedLabels[index].endTime;
-    } else {
-      if (
-        key === 'endTime' &&
-        updatedLabels[index].startTime &&
-        parseFloat(value) < updatedLabels[index].startTime
-      ) {
-        updatedLabels[index].endTime = updatedLabels[index].startTime;
-      } else {
-        if (key === 'startTime' || key === 'endTime') {
-          updatedLabels[index][key] = parseInt(value);
-        } else updatedLabels[index][key] = value;
-      }
-    }
-
-    setConfigs(updatedLabels);
-  };
-
-  const onChangeConfigData = (event: any, index: number, key: string) => {
-    const updatedLabels = [...configsData];
-
-    let value = (event.target as HTMLInputElement).value;
-
-    if (
-      key === 'startTime' &&
-      updatedLabels[index].endTime &&
-      parseFloat(value) > updatedLabels[index].endTime
-    ) {
-      updatedLabels[index].startTime = updatedLabels[index].endTime;
-    } else {
-      if (
-        key === 'endTime' &&
-        updatedLabels[index].startTime &&
-        parseFloat(value) < updatedLabels[index].startTime
-      ) {
-        updatedLabels[index].endTime = updatedLabels[index].startTime;
-      } else {
-        if (key === 'startTime' || key === 'endTime') {
-          updatedLabels[index][key] = parseInt(value);
-        } else updatedLabels[index][key] = value;
-      }
-    }
-
-    setConfigsData(updatedLabels);
-  };
-
-  const removeConfig = (index: number) => {
-    setConfigs(configs.filter((_element, _index) => _index !== index));
-  };
-
-  const removeConfigData = (index: number, _id: string) => {
-    setConfigsData(configsData.filter((_element, _index) => _index !== index));
-    remove(_id);
+    setConfigsData([...configsData, {}]);
   };
 
   const onCancel = () => {
@@ -108,177 +47,109 @@ const ManageConfigs = (props: Props) => {
   };
 
   const onSave = () => {
-    edit(configsData, configs);
-    closeModal();
-  };
-
-  const renderConfig = () => {
-    const renderState = configs.map((item, index) => (
-      <>
-        <FlexRow>
-          <FlexItem>
-            <FormControl
-              type="text"
-              id={`${index}`}
-              value={item.name || ''}
-              placeholder={'Name'}
-              onChange={(event: any) => onChangeConfig(event, index, 'name')}
-            />
-          </FlexItem>
-          <FlexItem>
-            <FormControl
-              componentClass="textarea"
-              id={`${index}`}
-              value={item.description || ''}
-              placeholder={'Description'}
-              onChange={(event: any) =>
-                onChangeConfig(event, index, 'description')
-              }
-            />
-          </FlexItem>
-          <FlexItem>
-            <FormControl
-              type="number"
-              componentClass="number"
-              min={0}
-              max={24}
-              id={`${index}`}
-              value={item.startTime || ''}
-              onChange={(event: any) =>
-                onChangeConfig(event, index, 'startTime')
-              }
-            />
-          </FlexItem>
-          <FlexItem>
-            <FormControl
-              type="number"
-              componentClass="number"
-              min={0}
-              max={24}
-              id={`${index}`}
-              value={item.endTime || ''}
-              onChange={(event: any) => onChangeConfig(event, index, 'endTime')}
-            />
-          </FlexItem>
-          <FlexItem>
-            <Button
-              id="skill-edit-skill"
-              btnStyle="link"
-              onClick={() => removeConfig(index)}
-            >
-              <Tip text={__('remove')} placement="bottom">
-                <Icon icon="times-circle" />
-              </Tip>
-            </Button>
-          </FlexItem>
-        </FlexRow>
-      </>
-    ));
-
-    if (configs.length > 0)
-      return (
-        <>
-          <ControlLabel>New Labels</ControlLabel>
-          {renderState}
-        </>
-      );
-
-    return null;
+    edit(configsData);
   };
 
   const renderConfigData = () => {
-    return configsData.map((item: any, index: number) => (
-      <>
-        <FlexRow>
-          <FlexItem>
-            <FormControl
-              type="text"
-              id={`${index}`}
-              value={item.name || ''}
-              placeholder={'Name'}
-              onChange={(event: any) =>
-                onChangeConfigData(event, index, 'name')
-              }
-            />
-          </FlexItem>
-          <FlexItem>
-            <FormControl
-              componentClass="textarea"
-              id={`${index}`}
-              value={item.description || ''}
-              placeholder={'Description'}
-              onChange={(event: any) =>
-                onChangeConfigData(event, index, 'description')
-              }
-            />
-          </FlexItem>
-          <FlexItem>
-            <FormControl
-              type="number"
-              componentClass="number"
-              min={0}
-              max={24}
-              id={`${index}`}
-              value={item.startTime || ''}
-              onChange={(event: any) =>
-                onChangeConfigData(event, index, 'startTime')
-              }
-            />
-          </FlexItem>
-          <FlexItem>
-            <FormControl
-              type="number"
-              componentClass="number"
-              min={0}
-              max={24}
-              id={`${index}`}
-              value={item.endTime || ''}
-              onChange={(event: any) =>
-                onChangeConfigData(event, index, 'endTime')
-              }
-            />
-          </FlexItem>
-          <FlexItem>
-            <Button
-              id="skill-edit-skill"
-              btnStyle="link"
-              onClick={() => removeConfigData(index, item._id)}
-            >
-              <Tip text={__('remove')} placement="bottom">
-                <Icon icon="times-circle" />
-              </Tip>
-            </Button>
-          </FlexItem>
-        </FlexRow>
-      </>
-    ));
+    return configsData.map((item: any, index: number) => {
+      const onChangeConfigData = (event: any, key: string) => {
+        const updatedLabels = [...configsData];
+
+        let value: any = (event.target as HTMLInputElement).value;
+        if (['startTime', 'endTime', 'percent'].includes(key)) {
+          value = Number(value);
+        }
+        item[key] = value;
+
+        setConfigsData(updatedLabels);
+        setSumPercent(
+          configsData.length
+            ? configsData.map(d => d.percent || 0).reduce((sum, d) => sum + d)
+            : 0
+        );
+      };
+
+      const removeConfigData = (index: number, _id?: string) => {
+        setConfigsData(
+          configsData.filter((_element, _index) => _index !== index)
+        );
+      };
+
+      return (
+        <div key={index}>
+          <FlexRow>
+            <FlexItem>
+              <FormControl
+                type="text"
+                id={`${index}`}
+                value={item.name || ''}
+                placeholder={'Name'}
+                onChange={(event: any) => onChangeConfigData(event, 'name')}
+              />
+            </FlexItem>
+            <FlexItem>
+              <FormControl
+                id={`${index}`}
+                value={item.description || ''}
+                placeholder={'Description'}
+                onChange={(event: any) =>
+                  onChangeConfigData(event, 'description')
+                }
+              />
+            </FlexItem>
+            <FlexItem>
+              <FormControl
+                type="number"
+                componentClass="number"
+                min={0}
+                max={100}
+                id={`${index}`}
+                value={item.percent || 0}
+                onChange={(event: any) => onChangeConfigData(event, 'percent')}
+              />
+            </FlexItem>
+            <FlexItem>
+              <FormControl
+                type="number"
+                componentClass="number"
+                min={0}
+                max={24}
+                id={`${index}`}
+                value={item.startTime || ''}
+                onChange={(event: any) =>
+                  onChangeConfigData(event, 'startTime')
+                }
+              />
+            </FlexItem>
+            <FlexItem>
+              <FormControl
+                type="number"
+                componentClass="number"
+                min={0}
+                max={24}
+                id={`${index}`}
+                value={item.endTime || ''}
+                onChange={(event: any) => onChangeConfigData(event, 'endTime')}
+              />
+            </FlexItem>
+            <FlexItem>
+              <Button
+                id="skill-edit-skill"
+                btnStyle="link"
+                onClick={() => removeConfigData(index, item._id)}
+              >
+                <Tip text={__('remove')} placement="bottom">
+                  <Icon icon="times-circle" />
+                </Tip>
+              </Button>
+            </FlexItem>
+          </FlexRow>
+        </div>
+      );
+    });
   };
 
-  const renderTab = () => {
-    const cancel = (
-      <Button
-        btnStyle="simple"
-        type="button"
-        onClick={onCancel}
-        icon="times-circle"
-        uppercase={false}
-      >
-        Cancel
-      </Button>
-    );
-
-    const saveButton = (
-      <Button
-        btnStyle="success"
-        type="button"
-        onClick={onSave}
-        icon="check-circle"
-        uppercase={false}
-      >
-        Save
-      </Button>
-    );
-
+  const renderContent = () => {
     return (
       <>
         <FlexRow>
@@ -287,6 +158,9 @@ const ManageConfigs = (props: Props) => {
           </FlexItem>
           <FlexItem>
             <ControlLabel>Description</ControlLabel>
+          </FlexItem>
+          <FlexItem>
+            <ControlLabel>Percent</ControlLabel>
           </FlexItem>
           <FlexItem>
             <ControlLabel>Start time (Hour)</ControlLabel>
@@ -298,8 +172,9 @@ const ManageConfigs = (props: Props) => {
             <ControlLabel>Action</ControlLabel>
           </FlexItem>
         </FlexRow>
+
         {renderConfigData()}
-        {renderConfig()}
+        <FlexRow>Summary Percent: {sumPercent}</FlexRow>
         <Button
           type="button"
           onClick={addConfig}
@@ -309,8 +184,24 @@ const ManageConfigs = (props: Props) => {
           Add config
         </Button>
         <ModalFooter>
-          {cancel}
-          {saveButton}
+          <Button
+            btnStyle="simple"
+            type="button"
+            onClick={onCancel}
+            icon="times-circle"
+            uppercase={false}
+          >
+            Cancel
+          </Button>
+          <Button
+            btnStyle="success"
+            type="button"
+            onClick={onSave}
+            icon="check-circle"
+            uppercase={false}
+          >
+            Save
+          </Button>
         </ModalFooter>
       </>
     );
@@ -318,7 +209,7 @@ const ManageConfigs = (props: Props) => {
 
   return (
     <FullContent center={true} align={true}>
-      <MiddleContent transparent={true}>{renderTab()}</MiddleContent>
+      <MiddleContent transparent={true}>{renderContent()}</MiddleContent>
       <ModalFooter></ModalFooter>
     </FullContent>
   );

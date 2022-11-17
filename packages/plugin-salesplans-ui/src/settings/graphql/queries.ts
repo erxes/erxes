@@ -58,6 +58,7 @@ const timeframes = `
       _id,
       name,
       description,
+      percent,
       startTime,
       endTime
     }

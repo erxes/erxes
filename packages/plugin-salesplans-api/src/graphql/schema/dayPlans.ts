@@ -2,6 +2,7 @@ export const types = () => `
   type DayPlan @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String,
     date: Date,
+    planCount: Float,
     status: String,
     departmentId: String,
     branchId: String,

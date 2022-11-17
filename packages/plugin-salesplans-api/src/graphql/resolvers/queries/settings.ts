@@ -78,7 +78,9 @@ const labelsQueries = {
   },
 
   timeframes: async (_root: any, _args: any, { models }: IContext) => {
-    return await models.Timeframes.find({}).sort({ startDate: 1 });
+    return await models.Timeframes.find({ status: { $ne: 'deleted' } })
+      .sort({ startTime: 1 })
+      .lean();
   }
 };
 

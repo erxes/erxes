@@ -11,7 +11,7 @@ export function generateUserOptions(array: ISPLabel[] = []): IOption[] {
     const spLabel = item || ({} as ISPLabel);
 
     return {
-      value: spLabel._id,
+      value: spLabel._id || '',
       label: `${spLabel.title} (${spLabel.effect}) #${spLabel.multiplier}`
     };
   });

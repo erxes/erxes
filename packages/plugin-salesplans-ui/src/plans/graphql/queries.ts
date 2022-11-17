@@ -75,6 +75,7 @@ export const yearPlanFields = `
 
 export const dayPlanFields = `
   ${commonPlanFields}
+  planCount
   date
   status
 `;
