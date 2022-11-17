@@ -3,13 +3,21 @@ module.exports = {
   port: 3012,
   scope: 'assets',
   exposes: {
-    './routes': './src/routes.tsx'
+    './routes': './src/routes.tsx',
+    './selectWithAsset': './src/common/SelectWithAssets.tsx',
   },
   routes: {
     url: 'http://localhost:3012/remoteEntry.js',
     scope: 'assets',
     module: './routes'
   },
+  formsExtraFields: [
+    {
+      scope: 'assets',
+      component: './selectWithAsset',
+      type: 'asset',
+    },
+  ],
   menus: [
     {
       text: 'Assets',
