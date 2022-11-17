@@ -73,6 +73,8 @@ const Query = `
       limit: Int
       offset: Int
     ): [ForumPage!]
+
+    forumPage(_id: ID!): ForumPage!
   }
 `;
 
