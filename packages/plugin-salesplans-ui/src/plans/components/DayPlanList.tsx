@@ -1,6 +1,6 @@
 import React from 'react';
-import Row from './YearPlanRow';
-import Sidebar from './YearPlanSidebar';
+import Row from './DayPlanRow';
+import Sidebar from './DayPlanSidebar';
 import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
 import { BarItems, Wrapper } from '@erxes/ui/src/layout';
 import {
@@ -10,24 +10,24 @@ import {
   ModalTrigger,
   Table
 } from '@erxes/ui/src/components';
-import { IPlanValue, IYearPlan } from '../types';
+import { IPlanValue, IDayPlan } from '../types';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
-import Form from '../containers/YearPlanForm';
+import Form from '../containers/DayPlanForm';
 import { menuSalesplans, MONTHS } from '../../constants';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 
 type Props = {
-  yearPlans: IYearPlan[];
+  dayPlans: IDayPlan[];
   totalCount: number;
   isAllSelected: boolean;
-  toggleAll: (targets: IYearPlan[], containerId: string) => void;
+  toggleAll: (targets: IDayPlan[], containerId: string) => void;
   history: any;
   queryParams: any;
   bulk: any[];
   emptyBulk: () => void;
   toggleBulk: () => void;
-  remove: (doc: { yearPlanIds: string[] }, emptyBulk: () => void) => void;
-  edit: (doc: IYearPlan) => void;
+  remove: (doc: { dayPlanIds: string[] }, emptyBulk: () => void) => void;
+  edit: (doc: IDayPlan) => void;
   searchValue: string;
 };
 
@@ -36,7 +36,7 @@ type State = {
   searchValue: string;
 };
 
-class YearPlans extends React.Component<Props, State> {
+class DayPlans extends React.Component<Props, State> {
   private timer?: NodeJS.Timer;
 
   constructor(props: Props) {
@@ -71,20 +71,20 @@ class YearPlans extends React.Component<Props, State> {
   }
 
   onChange = () => {
-    const { toggleAll, yearPlans } = this.props;
-    toggleAll(yearPlans, 'yearPlans');
+    const { toggleAll, dayPlans } = this.props;
+    toggleAll(dayPlans, 'dayPlans');
   };
 
   renderRow = () => {
-    const { yearPlans, history, toggleBulk, bulk, edit } = this.props;
+    const { dayPlans, history, toggleBulk, bulk, edit } = this.props;
 
-    return yearPlans.map(yearPlan => (
+    return dayPlans.map(dayPlan => (
       <Row
-        key={yearPlan._id}
+        key={dayPlan._id}
         history={history}
-        yearPlan={yearPlan}
+        dayPlan={dayPlan}
         toggleBulk={toggleBulk}
-        isChecked={bulk.includes(yearPlan)}
+        isChecked={bulk.includes(dayPlan)}
         edit={edit}
       />
     ));
@@ -94,14 +94,14 @@ class YearPlans extends React.Component<Props, State> {
     return <Form {...props} />;
   };
 
-  removeYearPlans = yearPlans => {
-    const yearPlanIds: string[] = [];
+  removeDayPlans = dayPlans => {
+    const dayPlanIds: string[] = [];
 
-    yearPlans.forEach(yearPlan => {
-      yearPlanIds.push(yearPlan._id);
+    dayPlans.forEach(dayPlan => {
+      dayPlanIds.push(dayPlan._id);
     });
 
-    this.props.remove({ yearPlanIds }, this.props.emptyBulk);
+    this.props.remove({ dayPlanIds }, this.props.emptyBulk);
   };
 
   actionBarRight() {
@@ -111,7 +111,7 @@ class YearPlans extends React.Component<Props, State> {
       const onClick = () =>
         confirm()
           .then(() => {
-            this.removeYearPlans(bulk);
+            this.removeDayPlans(bulk);
           })
           .catch(error => {
             Alert.error(error.message);
@@ -170,7 +170,7 @@ class YearPlans extends React.Component<Props, State> {
                 onChange={this.onChange}
               />
             </th>
-            <th>{__('Year')}</th>
+            <th>{__('Date')}</th>
             <th>{__('Branch')}</th>
             <th>{__('Department')}</th>
             <th>{__('Product')}</th>
@@ -190,13 +190,13 @@ class YearPlans extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Sales Year plans')}
+            title={__('Sales Day plans')}
             submenu={menuSalesplans}
           />
         }
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('Sales Year plans')}</Title>}
+            left={<Title>{__('Sales Day plans')}</Title>}
             right={this.actionBarRight()}
           />
         }
@@ -218,4 +218,4 @@ class YearPlans extends React.Component<Props, State> {
   }
 }
 
-export default YearPlans;
+export default DayPlans;

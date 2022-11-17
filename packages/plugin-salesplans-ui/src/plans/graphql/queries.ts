@@ -117,31 +117,29 @@ const yearPlans = `
   }
 `;
 
-const dayPlans = `
-  query dayPlans($date: Int, ${filterDefs}) {
-    dayPlans(date: $date, ${filterValues}) {
-      _id,
-      labelIds,
-      month
-    }
-  }
-`;
-
 const yearPlansCount = `
   query yearPlansCount($year: Int, ${filterDefs}) {
     yearPlansCount(year: $year, ${filterValues})
   }
 `;
 
+const dayPlans = `
+  query dayPlans($date: Date, ${filterDefs} ${paginateDefs}) {
+    dayPlans(date: $date, ${filterValues} ${paginateValues}) {
+      ${dayPlanFields}
+    }
+  }
+`;
+
 const dayPlansCount = `
-  query dayPlansCount($date: Int, ${filterDefs}) {
+  query dayPlansCount($date: Date, ${filterDefs}) {
     dayPlansCount(date: $date, ${filterValues})
   }
 `;
 
 export default {
   yearPlans,
-  dayPlans,
   yearPlansCount,
+  dayPlans,
   dayPlansCount
 };

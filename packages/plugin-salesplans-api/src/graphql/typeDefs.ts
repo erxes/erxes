@@ -11,6 +11,11 @@ import {
   mutations as yearPlanMutations
 } from './schema/yearPlans';
 import {
+  types as dayPlanTypes,
+  queries as dayPlanQueries,
+  mutations as dayPlanMutations
+} from './schema/dayPlans';
+import {
   types as dayLabelTypes,
   queries as dayLabelQueries,
   mutations as dayLabelMutations
@@ -40,12 +45,14 @@ const typeDefs = async () => {
 
     ${salesLogTypes()}
     ${yearPlanTypes()}
+    ${dayPlanTypes()}
     ${dayLabelTypes()}
     ${settingsTypes}
 
     extend type Query {
       ${salesLogQueries},
       ${yearPlanQueries},
+      ${dayPlanQueries},
       ${dayLabelQueries},
       ${settingsQueries},
     }
@@ -53,6 +60,7 @@ const typeDefs = async () => {
     extend type Mutation {
       ${salesLogMutations},
       ${yearPlanMutations},
+      ${dayPlanMutations},
       ${dayLabelMutations},
       ${settingsMutations}
     }

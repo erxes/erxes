@@ -12,6 +12,14 @@ export interface IDayPlan {
   status: string;
 }
 
+export interface IDayPlansAddParams {
+  date: Date;
+  departmentId: string;
+  branchId: string;
+  productCategoryId: string;
+  productId: string;
+}
+
 export interface IDayPlanDocument extends IDayPlan, Document {
   _id: string;
   createdAt?: Date;

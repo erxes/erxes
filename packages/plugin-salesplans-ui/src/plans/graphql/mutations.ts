@@ -1,7 +1,6 @@
-import { yearPlanFields } from './queries';
+import { dayPlanFields, yearPlanFields } from './queries';
 
 const addParamDefs = `
-  $year: Int,
   $departmentId: String,
   $branchId: String,
   $productCategoryId: String,
@@ -9,7 +8,6 @@ const addParamDefs = `
 `;
 
 const addParams = `
-  year: $year,
   departmentId: $departmentId,
   branchId: $branchId,
   productCategoryId: $productCategoryId,
@@ -17,26 +15,26 @@ const addParams = `
 `;
 
 const yearPlansAdd = `
-  mutation yearPlansAdd (${addParamDefs}) {
-    yearPlansAdd(${addParams}) {
+  mutation yearPlansAdd ($year: Int, ${addParamDefs}) {
+    yearPlansAdd(year: $year, ${addParams}) {
       ${yearPlanFields}
     }
   }
 `;
 
-const yearPlanEditParamDefs = `
+const planEditParamDefs = `
   $uomId: String,
   $values: JSON
 `;
 
-const yearPlanEditParams = `
+const planEditParams = `
   uomId: $uomId,
   values: $values
 `;
 
 const yearPlanEdit = `
-  mutation yearPlanEdit($_id: String!, ${yearPlanEditParamDefs}) {
-    yearPlanEdit(_id: $_id, ${yearPlanEditParams}) {
+  mutation yearPlanEdit($_id: String!, ${planEditParamDefs}) {
+    yearPlanEdit(_id: $_id, ${planEditParams}) {
       ${yearPlanFields}
     }
   }
@@ -48,8 +46,34 @@ const yearPlansRemove = `
   }
 `;
 
+const dayPlansAdd = `
+  mutation dayPlansAdd($date: Date, ${addParamDefs}) {
+    dayPlansAdd(date: $date, ${addParams}) {
+      ${dayPlanFields}
+    }
+  }
+`;
+
+const dayPlanEdit = `
+  mutation dayPlanEdit($_id: String!, ${planEditParamDefs}) {
+    dayPlanEdit(_id: $_id, ${planEditParams}) {
+      ${dayPlanFields}
+    }
+  }
+`;
+
+const dayPlansRemove = `
+  mutation dayPlansRemove ($_ids: [String]) {
+    dayPlansRemove(_ids: $_ids)
+  }
+`;
+
 export default {
   yearPlansAdd,
   yearPlanEdit,
-  yearPlansRemove
+  yearPlansRemove,
+
+  dayPlansAdd,
+  dayPlanEdit,
+  dayPlansRemove
 };

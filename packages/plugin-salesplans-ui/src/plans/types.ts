@@ -60,13 +60,31 @@ export type YearPlansEditMutationResponse = {
 ///////// day
 
 export interface IDayPlan {
-  _id?: string;
-  title?: string;
-  description?: string;
-  effect?: string;
-  color?: string;
-  status?: string;
-  multiplier?: number;
+  _id: string;
+  date?: Date;
+  departmentId?: string;
+  branchId?: string;
+  productId?: string;
+  uomId?: string;
+  values?: IPlanValue;
+  confirmedData?: any;
+  createdAt?: Date;
+  createdBy?: string;
+  modifiedAt?: Date;
+  modifiedBy?: string;
+
+  branch?: IBranch;
+  department?: IDepartment;
+  product?: IProduct;
+  uom?: IUom;
+}
+
+export interface IDayPlanParams {
+  date?: Date;
+  departmentId?: string;
+  branchId?: string;
+  productCategory?: string;
+  productId?: string;
 }
 
 export type DayPlansQueryResponse = {
@@ -75,10 +93,14 @@ export type DayPlansQueryResponse = {
   refetch: () => void;
 };
 
-export type DayPlansTotalCountQueryResponse = {
+export type DayPlansCountQueryResponse = {
   dayPlansCount: number;
   loading: boolean;
   refetch: () => void;
+};
+
+export type DayPlansEditMutationResponse = {
+  dayPlanEdit: (mutation: { variables: IDayPlan }) => Promise<any>;
 };
 
 export type DayPlansRemoveMutationResponse = {
