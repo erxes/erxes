@@ -1,3 +1,5 @@
+import moment = require('moment');
+import { models } from '../connectionResolver';
 import {
   sendCardsMessage,
   sendClientPortalMessage,
@@ -145,6 +147,59 @@ export const afterDealUpdate = async (subdomain, params) => {
     }
 
     if (stage.code && stage.code === 'gone') {
+      const trip = await models.Trips.findOne({ dealId: deal._id });
+      const dealRoute = await models.DealRoutes.findOne({ dealId: deal._id });
+      const participant = await models.Participants.findOne({
+        dealId: deal._id,
+        status: 'won'
+      });
+
+      if (!trip && dealRoute && participant) {
+        const route = (await models.Routes.findOne({
+          _id: dealRoute.routeId
+        })) || { directionIds: [] };
+
+        const result: any = await models.Directions.aggregate([
+          { $match: { _id: { $in: route.directionIds } } },
+          {
+            $group: {
+              _id: null,
+              duration: {
+                $sum: '$duration'
+              }
+            }
+          },
+          {
+            $project: {
+              duration: '$duration'
+            }
+          }
+        ]);
+
+        if (!result || !result.length) {
+          return null;
+        }
+
+        const obj: any = result[0];
+
+        const estimatedCloseDate = moment(new Date())
+          .add(obj.duration, 'minutes')
+          .toDate();
+
+        if (dealRoute) {
+          await models.Trips.create({
+            dealIds: [deal._id],
+            driverId: participant.driverId,
+            carIds: participant.carIds,
+            routeId: dealRoute.routeId,
+            status: 'ongoing',
+            routeReversed: dealRoute.reversed,
+            startedDate: new Date(),
+            estimatedCloseDate
+          });
+        }
+      }
+
       await notifyDealRelatedUsers(
         subdomain,
         process.env.WEB_CP_ID || '',

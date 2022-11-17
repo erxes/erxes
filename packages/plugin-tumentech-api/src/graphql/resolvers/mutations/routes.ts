@@ -17,6 +17,18 @@ const routeMutations = {
 
   routesRemove: (_root, { _id }, { models }: IContext) => {
     return models.Routes.remove({ _id });
+  },
+
+  setDealRoute: async (
+    _root,
+    { dealId, routeId, reversed },
+    { models }: IContext
+  ) => {
+    return models.DealRoutes.createOrUpdateDealRoute({
+      dealId,
+      routeId,
+      reversed
+    });
   }
 };
 

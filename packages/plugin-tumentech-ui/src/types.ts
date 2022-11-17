@@ -476,6 +476,13 @@ export type IDealPlace = {
   endPlace: IPlace;
 };
 
+export type IDealRoute = {
+  dealId: string;
+  routeId: string;
+
+  route: IRoute;
+};
+
 export type ITrackingData = {
   lat: number;
   lng: number;

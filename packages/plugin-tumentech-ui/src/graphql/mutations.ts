@@ -386,6 +386,21 @@ mutation setDealPlace(
 }
 `;
 
+const setDealRoute = `
+mutation setDealRoute(
+  $dealId: String!
+  $routeId: String!
+) {
+  setDealRoute(
+    dealId: $dealId
+    routeId: $routeId
+  ) {
+    dealId
+    routeId
+  }
+}
+`;
+
 export default {
   carsAdd,
   carsEdit,
@@ -409,6 +424,7 @@ export default {
   editPlace,
   removePlace,
   setDealPlace,
+  setDealRoute,
 
   addDirection,
   editDirection,

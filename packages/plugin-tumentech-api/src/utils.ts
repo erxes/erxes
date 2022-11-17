@@ -273,3 +273,52 @@ export const getPath = async (apiKey: string, places: IPlaceDocument[]) => {
     return null;
   }
 };
+
+export const transliterate = (value: string) => {
+  let response = '';
+
+  const A = new Array();
+  A['a'] = 'а';
+  A['b'] = 'б';
+  A['c'] = 'ц';
+  A['d'] = 'д';
+  A['e'] = 'э';
+  A['f'] = 'ф';
+  A['g'] = 'г';
+  A['h'] = 'х';
+  A['i'] = 'и';
+  A['j'] = 'ж';
+  A['k'] = 'к';
+  A['l'] = 'л';
+  A['m'] = 'м';
+  A['n'] = 'н';
+  A['o'] = 'о';
+  A['p'] = 'п';
+  A['q'] = 'ө';
+  A['r'] = 'р';
+  A['s'] = 'с';
+  A['t'] = 'т';
+  A['u'] = 'у';
+  A['v'] = 'в';
+  A['w'] = 'в';
+  A['x'] = 'кс';
+  A['y'] = 'ү';
+  A['z'] = 'з';
+
+  A['ye'] = 'е';
+  A['yo'] = 'ё';
+  A['yu'] = 'ю';
+  A['ya'] = 'я';
+  A['sh'] = 'ш';
+  A['ch'] = 'ч';
+  A['kh'] = 'х';
+  A['ts'] = 'ц';
+  A['zh'] = 'ж';
+  A['ii'] = 'ий';
+  A['yi'] = 'й';
+
+  for (let i = 0; i < value.length; ++i) {
+    response += A[value[i]] === undefined ? value[i] : A[value[i]];
+  }
+  return response;
+};

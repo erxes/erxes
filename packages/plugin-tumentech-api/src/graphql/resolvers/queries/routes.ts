@@ -1,6 +1,7 @@
 import { paginate } from '@erxes/api-utils/src';
 
 import { IContext } from '../../../connectionResolver';
+import { transliterate } from '../../../utils';
 
 const routesQuery = {
   routes: async (
@@ -21,7 +22,9 @@ const routesQuery = {
     let filter: any = {};
 
     if (searchValue) {
-      filter.searchText = { $in: [new RegExp(`.*${searchValue}.*`, 'i')] };
+      filter.searchText = {
+        $in: [new RegExp(`.*${transliterate(searchValue)}.*`, 'i')]
+      };
     }
 
     if (placeIds && placeIds.length) {
@@ -43,6 +46,14 @@ const routesQuery = {
     { models }: IContext
   ) => {
     return models.Routes.getRoute({ _id });
+  },
+
+  getDealRoute: async (
+    _root,
+    { dealId }: { dealId: string },
+    { models }: IContext
+  ) => {
+    return models.DealRoutes.findOne({ dealId });
   }
 };
 

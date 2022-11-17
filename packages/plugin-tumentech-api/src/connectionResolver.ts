@@ -3,7 +3,9 @@ import * as mongoose from 'mongoose';
 
 import { mainDb } from './configs';
 import { IDealPlaceModel, loadDealPlaceClass } from './models/DealPlaces';
+import { IDealRouteModel, loadDealRouteClass } from './models/DealRoutes';
 import { IDealPlaceDocument } from './models/definitions/dealPlaces';
+import { IDealRouteDocument } from './models/definitions/dealRoutes';
 import { IDirectionDocument } from './models/definitions/directions';
 import { IParticipantDocument } from './models/definitions/participants';
 import { IPlaceDocument } from './models/definitions/places';
@@ -38,6 +40,7 @@ export interface IModels {
   Routes: IRouteModel;
   Trips: ITripModel;
   DealPlaces: IDealPlaceModel;
+  DealRoutes: IDealRouteModel;
 }
 
 export interface IContext extends IMainContext {
@@ -105,6 +108,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.DealPlaces = db.model<IDealPlaceDocument, IDealPlaceModel>(
     'deal_places',
     loadDealPlaceClass(models)
+  );
+
+  models.DealRoutes = db.model<IDealRouteDocument, IDealRouteModel>(
+    'deal_routes',
+    loadDealRouteClass(models)
   );
 
   return models;

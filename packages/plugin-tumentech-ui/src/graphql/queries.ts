@@ -480,6 +480,8 @@ query routes($searchValue: String, $page: Int, $perPage: Int) {
         roadConditions
         routeCode
         totalDistance
+
+        googleMapPath
       }
       name
       summary {
@@ -744,6 +746,37 @@ query fieldsGroups($contentType: String!, $isDefinedByErxes: Boolean, $config: J
 }
 `;
 
+const dealRouteQuery = `
+query GetDealRoute($dealId: String!) {
+  getDealRoute(dealId: $dealId) {
+    dealId
+    route {
+      _id
+      name
+      directions {
+        _id
+        duration
+        placeIds
+        places {
+          _id
+          center
+          code
+          name
+          province
+        }
+        roadCode
+        roadConditions
+        routeCode
+        totalDistance
+
+        googleMapPath
+      }
+    }
+    routeId
+  }
+}
+`;
+
 export default {
   cars,
   carsMain,
@@ -776,5 +809,7 @@ export default {
   trips,
   tripDetail,
 
-  fieldsGroups
+  fieldsGroups,
+
+  dealRouteQuery
 };
