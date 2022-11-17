@@ -58,6 +58,7 @@ const PageForm: React.FC<{ page?: any; onSubmit?: (any) => any }> = ({
         <label htmlFor="listOrder">List order:</label>
 
         <input
+          value={listOrder}
           type="number"
           name="listOrder"
           placeholder="0"
