@@ -1,7 +1,6 @@
 import { sendCommonMessage } from '../../../messageBroker';
 import { IContext } from '../../../connectionResolver';
 import {
-  checkPremiumService,
   getCoreDomain,
   initFirebase,
   registerOnboardHistory,
@@ -20,14 +19,8 @@ const configMutations = {
   async configsUpdate(_root, { configsMap }, { user, models }: IContext) {
     const codes = Object.keys(configsMap);
 
-    const isThemeEnabled = await checkPremiumService('isThemeServiceEnabled');
-
     for (const code of codes) {
       if (!code) {
-        continue;
-      }
-
-      if (code.includes('THEME_') && !isThemeEnabled) {
         continue;
       }
 

@@ -87,6 +87,12 @@ export type FieldsGroupsQueryResponse = {
   refetch: ({ contentType }: { contentType?: string }) => Promise<any>;
 };
 
+export type FieldsInputTypesQueryResponse = {
+  getFieldsInputTypes:{value: string,label:string}[],
+  loading: boolean,
+  refetch:()=>any
+}
+
 export type AddFieldsMutationVariables = {
   contentType: string;
   contentTypeId: string;
