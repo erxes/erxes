@@ -48,5 +48,11 @@ export default {
       contentType: `assets:asset`,
       canHide: false,
       isDefinedByErxes: true
-    }))
+    })),
+    extraFieldTypes: [
+      {
+        value: 'asset',
+        label: 'Asset',
+     },
+    ],
 };
