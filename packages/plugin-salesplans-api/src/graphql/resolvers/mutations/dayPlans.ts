@@ -17,7 +17,6 @@ const dayPlansMutations = {
     doc: IDayPlansAddParams,
     { user, models, subdomain }: IContext
   ) => {
-    console.log(doc, 'ddddddddddddddd');
     const { date, departmentId, branchId, productCategoryId, productId } = doc;
     if (!departmentId || !branchId) {
       throw new Error('Must fill departmend and branch');
