@@ -8,6 +8,7 @@ import { IProductCategory } from '../types';
 
 type Props = {
   categories: IProductCategory[];
+  current?: string;
   onChangeCategory: (catgeoryId: string) => void;
 };
 
@@ -20,7 +21,7 @@ class ProductCategoryChooser extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      categoryId: ''
+      categoryId: this.props.current || ''
     };
   }
 
