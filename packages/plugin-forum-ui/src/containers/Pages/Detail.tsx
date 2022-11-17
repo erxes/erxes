@@ -1,10 +1,19 @@
 import React, { FC } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { useQuery } from 'react-apollo';
+import { useParams, Link, useHistory } from 'react-router-dom';
+import { useQuery, useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
-import { PAGE_DETAIL } from '../../graphql/queries';
+import { PAGE_DETAIL, PAGE_REFETCH } from '../../graphql/queries';
+
+const DELETE = gql`
+  mutation ForumDeletePage($id: ID!) {
+    forumDeletePage(_id: $id) {
+      _id
+    }
+  }
+`;
 
 const PageDetail: FC = () => {
+  const history = useHistory();
   const { id } = useParams();
   const { data, loading, error } = useQuery(PAGE_DETAIL, {
     fetchPolicy: 'network-only',
@@ -12,6 +21,16 @@ const PageDetail: FC = () => {
       id
     }
   });
+
+  const [mutDelete] = useMutation(DELETE, {
+    variables: { id },
+    refetchQueries: PAGE_REFETCH
+  });
+
+  const onDelete = async () => {
+    await mutDelete();
+    history.replace('/forums/pages');
+  };
 
   if (loading) return null;
   if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;
@@ -53,7 +72,10 @@ const PageDetail: FC = () => {
       <div>
         <Link to={`/forums/pages/${forumPage._id}/edit`}>Edit</Link>
         <br />
-        <button type="button"> Delete</button>
+        <button type="button" onClick={onDelete}>
+          {' '}
+          Delete
+        </button>
       </div>
     </div>
   );
