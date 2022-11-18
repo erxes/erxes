@@ -15,10 +15,6 @@ export interface ITimeframeModel extends Model<ITimeframeDocument> {
 export const loadTimeframeClass = (models: IModels) => {
   class Timeframe {
     public static async timeframesEdit(doc: (ITimeframe & { _id?: string })[]) {
-      const oldFrames = await models.Timeframes.find().lean();
-      const oldFrameIds = oldFrames.map(o => o._id);
-      console.log(oldFrameIds);
-
       const insertDocs: ITimeframe[] = [];
       const updateDocs: any[] = [];
 

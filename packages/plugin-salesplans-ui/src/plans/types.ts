@@ -78,7 +78,6 @@ export interface IDayPlan {
   uomId?: string;
   planCount?: number;
   values?: IPlanValue[];
-  timeFrames?: IPlanTime[];
   confirmedData?: any;
   createdAt?: Date;
   createdBy?: string;

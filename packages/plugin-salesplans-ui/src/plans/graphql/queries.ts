@@ -82,18 +82,6 @@ export const dayPlanFields = `
     timeId
     count
   }
-  timeFrames {
-    _id
-    timeId
-    count
-    time {
-      _id
-      name
-      percent
-      startTime
-      endTime
-    }
-  }
   status
 `;
 

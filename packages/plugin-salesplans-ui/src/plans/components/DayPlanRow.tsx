@@ -69,10 +69,7 @@ class Row extends React.Component<Props, State> {
     const { values } = this.state;
 
     const sumValue =
-      Object.values(values).reduce(
-        (sum, i) => Number(sum) + Number(i.count),
-        0
-      ) || 0;
+      values.reduce((sum, i) => Number(sum) + Number(i.count), 0) || 0;
     const diff = sumValue - (planCount || 0);
     const valueById = {};
     for (const val of values) {

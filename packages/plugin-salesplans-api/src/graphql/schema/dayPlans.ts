@@ -2,8 +2,7 @@ export const types = () => `
   type PlanTimeValues {
     _id: String,
     timeId: String,
-    count: Float,
-    time: Timeframe
+    count: Float
   }
 
   type DayPlan @key(fields: "_id") @cacheControl(maxAge: 3) {
@@ -16,7 +15,6 @@ export const types = () => `
     productId: String,
     uomId: String,
     values: [PlanTimeValues],
-    timeFrames: [PlanTimeValues],
     createdAt: Date,
     createdBy: String,
     modifiedAt: Date,
