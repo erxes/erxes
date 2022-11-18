@@ -1,6 +1,6 @@
 import React from 'react';
 import { FormControl } from '@erxes/ui/src/components';
-import { IDayPlan, IPlanValue } from '../types';
+import { IDayPlan, IPlanValues } from '../types';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
@@ -19,7 +19,7 @@ type Props = {
 };
 
 type State = {
-  values: IPlanValue;
+  values: IPlanValues;
 };
 
 class Row extends React.Component<Props, State> {

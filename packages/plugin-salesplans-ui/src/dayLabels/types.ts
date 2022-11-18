@@ -1,7 +1,7 @@
 import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 import { ISPLabel } from '../settings/types';
 
-export interface IPlanValue {
+export interface IPlanValues {
   [key: string]: number;
 }
 

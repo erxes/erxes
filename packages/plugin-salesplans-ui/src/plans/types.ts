@@ -2,8 +2,9 @@
 
 import { IProduct, IUom } from '@erxes/ui-products/src/types';
 import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
+import { ITimeframe } from '../../.erxes/plugin-src/settings/types';
 
-export interface IPlanValue {
+export interface IPlanValues {
   [key: string]: number;
 }
 
@@ -14,7 +15,7 @@ export interface IYearPlan {
   branchId?: string;
   productId?: string;
   uomId?: string;
-  values?: IPlanValue;
+  values?: IPlanValues;
   confirmedData?: any;
   createdAt?: Date;
   createdBy?: string;
@@ -59,6 +60,15 @@ export type YearPlansEditMutationResponse = {
 
 ///////// day
 
+export interface IPlanValue {
+  _id: string;
+  timeId: string;
+  count: number;
+}
+
+export interface IPlanTime extends IPlanValue {
+  time?: ITimeframe;
+}
 export interface IDayPlan {
   _id: string;
   date?: Date;
@@ -67,7 +77,8 @@ export interface IDayPlan {
   productId?: string;
   uomId?: string;
   planCount?: number;
-  values?: IPlanValue;
+  values?: IPlanValue[];
+  times?: IPlanTime[];
   confirmedData?: any;
   createdAt?: Date;
   createdBy?: string;

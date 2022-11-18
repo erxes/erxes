@@ -1,7 +1,7 @@
 import Label from '@erxes/ui/src/components/Label';
 import React from 'react';
 import { FormControl } from '@erxes/ui/src/components';
-import { IDayLabel, IPlanValue } from '../types';
+import { IDayLabel, IPlanValues } from '../types';
 import { MONTHS } from '../../constants';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Tip from '@erxes/ui/src/components/Tip';

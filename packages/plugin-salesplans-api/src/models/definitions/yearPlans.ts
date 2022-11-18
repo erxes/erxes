@@ -1,7 +1,7 @@
 import { Document, Schema } from 'mongoose';
 import { field, schemaWrapper } from './utils';
 
-export interface IPlanValue {
+export interface IPlanValues {
   [month: string]: number;
 }
 
@@ -19,7 +19,7 @@ export interface IYearPlan {
   branchId?: string;
   productId?: string;
   uomId?: string;
-  values?: IPlanValue;
+  values?: IPlanValues;
 }
 
 export interface IYearPlanDocument extends IYearPlan, Document {

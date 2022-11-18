@@ -79,6 +79,7 @@ const dayPlansMutations = {
         product,
         timeFrames
       );
+      console.log({ planCount, values }, 'jkjkjkjkjk');
 
       const dayPlanDoc: IDayPlan & any = {
         date,

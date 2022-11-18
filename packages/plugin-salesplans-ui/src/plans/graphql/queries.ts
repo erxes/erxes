@@ -28,7 +28,6 @@ const commonPlanFields = `
   branchId
   productId
   uomId
-  values
   createdAt
   createdBy
   modifiedAt
@@ -70,6 +69,7 @@ const commonPlanFields = `
 export const yearPlanFields = `
   ${commonPlanFields}
   year
+  values
   confirmedData
 `;
 
@@ -77,6 +77,23 @@ export const dayPlanFields = `
   ${commonPlanFields}
   planCount
   date
+  values {
+    _id
+    timeId
+    count
+  }
+  timeFrames {
+    _id
+    timeId
+    count
+    time {
+      _id
+      name
+      percent
+      startTime
+      endTime
+    }
+  }
   status
 `;
 

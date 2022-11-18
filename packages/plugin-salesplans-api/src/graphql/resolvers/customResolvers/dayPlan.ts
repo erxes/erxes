@@ -1,3 +1,4 @@
+import { time } from 'console';
 import { IContext } from '../../../connectionResolver';
 import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
 import { IDayPlanDocument } from '../../../models/definitions/dayPlans';
@@ -53,5 +54,16 @@ export default {
       data: { _id: plan.uomId },
       isRPC: true
     });
+  },
+
+  async timeFrames(plan: IDayPlanDocument, _, { models }: IContext) {
+    const times = await models.Timeframes.find({
+      _id: { $in: plan.values.map(t => t.timeId) }
+    }).lean();
+
+    return plan.values.map(p => ({
+      ...p,
+      time: times.find(t => t._id === p.timeId)
+    }));
   }
 };

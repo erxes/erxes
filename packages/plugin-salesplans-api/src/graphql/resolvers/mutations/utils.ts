@@ -67,7 +67,7 @@ export const getDayPlanValues = async (
   const month = date.getMonth() + 1;
   const key = MONTH_NUMBERS[month];
 
-  const monthPlanCount = yearPlan.values[key];
+  const monthPlanCount = Number(yearPlan.values[key]) || 0;
 
   const daysInMonth = getDaysInMonth(date.getFullYear(), date.getMonth() + 1);
 
@@ -83,16 +83,21 @@ export const getDayPlanValues = async (
   const labels = await models.Labels.find({ _id: { $in: labelIds } });
 
   const multiplier = labels.map(l => l.multiplier).reduce((a, b) => a * b);
+
   const dayCalcedCount = dayPlanCount * multiplier;
 
   const sumPercent = timeFrames
     .map(d => d.percent || 0)
     .reduce((sum, d) => sum + d);
+  console.log(sumPercent, 'ssssssssss', dayCalcedCount);
 
   for (const timeFrame of timeFrames) {
+    console.log(timeFrame.percent, 'tttttttttttt');
     values.push({
       timeId: timeFrame._id,
-      count: Math.round((dayCalcedCount / sumPercent) * timeFrame.percent)
+      count: Math.round(
+        (dayCalcedCount / sumPercent) * (timeFrame.percent || 1)
+      )
     });
   }
 

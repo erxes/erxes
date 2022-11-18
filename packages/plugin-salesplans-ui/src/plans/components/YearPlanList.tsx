@@ -10,7 +10,7 @@ import {
   ModalTrigger,
   Table
 } from '@erxes/ui/src/components';
-import { IPlanValue, IYearPlan } from '../types';
+import { IYearPlan } from '../types';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import Form from '../containers/YearPlanForm';
 import { menuSalesplans, MONTHS } from '../../constants';
