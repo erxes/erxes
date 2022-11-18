@@ -11,6 +11,10 @@ import PermissionGroupEdit from '../containers/PermissionGroups/Edit';
 import PermissionGroupDetail from '../containers/PermissionGroups/Detail';
 import SubscriptionProductHome from '../containers/SubscriptionProduct';
 import SubscriptionProductNew from '../containers/SubscriptionProduct/New';
+import PagesList from '../containers/Pages/List';
+import PageNew from '../containers/Pages/New';
+import PageDetail from '../containers/Pages/Detail';
+import PageEdit from '../containers/Pages/Edit';
 
 function Layout() {
   const { path, url } = useRouteMatch();
@@ -29,6 +33,9 @@ function Layout() {
         </li>
         <li>
           <Link to={`/forums/posts`}>Posts</Link>
+        </li>
+        <li>
+          <Link to={`/forums/pages`}>Pages</Link>
         </li>
         <li>
           <Link to={'/forums/permission-groups'}>Permission Groups</Link>
@@ -90,6 +97,22 @@ function Layout() {
 
           <Route exact path={'/forums/subscription-products/new'}>
             <SubscriptionProductNew />
+          </Route>
+
+          <Route exact path={`/forums/pages`}>
+            <PagesList />
+          </Route>
+
+          <Route exact path={`/forums/pages/new`}>
+            <PageNew />
+          </Route>
+
+          <Route exact path={`/forums/pages/:id`}>
+            <PageDetail />
+          </Route>
+
+          <Route exact path={`/forums/pages/:id/edit`}>
+            <PageEdit />
           </Route>
         </Switch>
       </div>
