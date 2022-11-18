@@ -17,6 +17,7 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { IFormProps } from '@erxes/ui/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   onSelect: (accountId?: string) => void;
@@ -65,7 +66,7 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
       return <GoogleButton href="#add" onClick={onAdd} />;
     }
 
-    if (kind === 'facebook') {
+    if (kind === 'facebook' && isEnabled('facebook')) {
       return (
         <FacebookButton onClick={onAdd}>
           <Icon icon="facebook-official" />
