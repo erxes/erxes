@@ -1,27 +1,28 @@
-import Button from '@erxes/ui/src/components/Button';
-import { readFile } from '@erxes/ui/src/utils/core';
-import GrapesJS from 'grapesjs';
-import gjsPresetWebpage from 'grapesjs-preset-webpage';
-import { uploadHandler, __ } from '@erxes/ui/src/utils';
 import 'grapesjs/dist/css/grapes.min.css';
+
+import { FlexItem, FlexPad } from '@erxes/ui/src/components/step/styles';
+import { IContentTypeDoc, IPageDoc } from '../../types';
+import { __, uploadHandler } from '@erxes/ui/src/utils';
+
+import Alert from '@erxes/ui/src/utils/Alert';
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { ControlWrapper } from '@erxes/ui/src/components/step/styles';
+import { EditorContainer } from '@erxes/ui-engage/src/styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FlexItem, FlexPad } from '@erxes/ui/src/components/step/styles';
-import { EditorContainer } from '@erxes/ui-engage/src/styles';
+import GrapesJS from 'grapesjs';
 import { Indicator } from '@erxes/ui/src/components/step/styles';
-import { ControlWrapper } from '@erxes/ui/src/components/step/styles';
-import Step from '@erxes/ui/src/components/step/Step';
-import Steps from '@erxes/ui/src/components/step/Steps';
-import { StepWrapper } from '@erxes/ui/src/components/step/styles';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-
-import React from 'react';
 import { Link } from 'react-router-dom';
-import { IContentTypeDoc, IPageDoc } from '../../types';
-import customPlugins from './customPlugins';
+import React from 'react';
 import SelectSite from '../../containers/sites/SelectSite';
-import Alert from '@erxes/ui/src/utils/Alert';
+import Step from '@erxes/ui/src/components/step/Step';
+import { StepWrapper } from '@erxes/ui/src/components/step/styles';
+import Steps from '@erxes/ui/src/components/step/Steps';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import customPlugins from './customPlugins';
+import gjsPresetWebpage from 'grapesjs-preset-webpage';
+import { readFile } from '@erxes/ui/src/utils/core';
 
 type Props = {
   page?: IPageDoc;
@@ -250,42 +251,42 @@ class PageForm extends React.Component<Props, State> {
     const { description, name, siteId } = this.state;
 
     return (
-      <Step img={imagePath} title="Manage web builder page" noButton={true}>
-        <FlexItem>
-          <FlexPad direction="column" overflow="auto">
-            <FormGroup>
-              <ControlLabel>Name:</ControlLabel>
-              <FormControl
-                placeholder="Enter a name"
-                onChange={(e: any) => this.onChange('name', e.target.value)}
-                defaultValue={name}
-              />
-            </FormGroup>
+      // <Step img={imagePath} title="Manage web builder page" noButton={true}>
+      <FlexItem>
+        <FlexPad direction="column" overflow="auto">
+          <FormGroup>
+            <ControlLabel>Name:</ControlLabel>
+            <FormControl
+              placeholder="Enter a name"
+              onChange={(e: any) => this.onChange('name', e.target.value)}
+              defaultValue={name}
+            />
+          </FormGroup>
 
-            <FormGroup>
-              <ControlLabel>Description:</ControlLabel>
-              <FormControl
-                placeholder="Enter a description"
-                onChange={(e: any) =>
-                  this.onChange('description', e.target.value)
-                }
-                defaultValue={description}
-              />
-            </FormGroup>
+          <FormGroup>
+            <ControlLabel>Description:</ControlLabel>
+            <FormControl
+              placeholder="Enter a description"
+              onChange={(e: any) =>
+                this.onChange('description', e.target.value)
+              }
+              defaultValue={description}
+            />
+          </FormGroup>
 
-            <FormGroup>
-              <ControlLabel>Site:</ControlLabel>
-              <SelectSite onSelect={this.onSelectSite} initialValue={siteId} />
-            </FormGroup>
-          </FlexPad>
+          <FormGroup>
+            <ControlLabel>Site:</ControlLabel>
+            <SelectSite onSelect={this.onSelectSite} initialValue={siteId} />
+          </FormGroup>
+        </FlexPad>
 
-          <FlexItem overflow="auto" count="7">
-            <EditorContainer>
-              <div id="editor" />
-            </EditorContainer>
-          </FlexItem>
+        <FlexItem overflow="auto" count="7">
+          <EditorContainer>
+            <div id="editor" />
+          </EditorContainer>
         </FlexItem>
-      </Step>
+      </FlexItem>
+      // </Step>
     );
   }
 
@@ -323,13 +324,13 @@ class PageForm extends React.Component<Props, State> {
         <Wrapper.Header title={'Page Form'} breadcrumb={breadcrumb} />
         <Steps>{this.renderPageContent()}</Steps>
 
-        <ControlWrapper>
+        {/* <ControlWrapper>
           <Indicator>
             {__('You are')} {page ? 'editing ' : 'creating '}
             <strong>{name}</strong> {__('page')}
           </Indicator>
           {this.renderButtons()}
-        </ControlWrapper>
+        </ControlWrapper> */}
       </StepWrapper>
     );
   }
