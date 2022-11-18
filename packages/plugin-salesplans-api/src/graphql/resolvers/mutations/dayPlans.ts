@@ -1,15 +1,15 @@
+import { getDayPlanValues, getProducts } from './utils';
 import { IContext } from '../../../connectionResolver';
 import {
   IDayPlan,
   IDayPlanDocument,
   IDayPlansAddParams
 } from '../../../models/definitions/dayPlans';
+import { IYearPlan } from '../../../models/definitions/yearPlans';
 import {
   moduleCheckPermission,
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
-import { getDayPlanValues, getProducts } from './utils';
-import { IYearPlan } from '../../../../../plugin-salesplans-ui/src/plans/types';
 
 const dayPlansMutations = {
   dayPlansAdd: async (
