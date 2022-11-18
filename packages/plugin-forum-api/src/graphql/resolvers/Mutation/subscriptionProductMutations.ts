@@ -1,5 +1,6 @@
 import { IContext } from '../..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
+import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 
 const subscriptionProductMutations: IObjectTypeResolver<any, IContext> = {
   async forumCreateSubscriptionProduct(
@@ -25,5 +26,7 @@ const subscriptionProductMutations: IObjectTypeResolver<any, IContext> = {
     return SubscriptionProduct.deleteSubscriptionProduct(args._id);
   }
 };
+
+moduleRequireLogin(subscriptionProductMutations);
 
 export default subscriptionProductMutations;

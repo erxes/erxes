@@ -1,4 +1,4 @@
-const requiredIf = (x: boolean): string => (x ? '!' : '');
+import { requiredIf } from '../utils';
 
 const commonParams = (isInsert = false): string => {
   return `
