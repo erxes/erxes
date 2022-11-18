@@ -5,6 +5,7 @@ module.exports = {
   exposes: {
     './routes': './src/routes.tsx',
     './inboxIntegrationSettings': './src/containers/UpdateConfigsContainer.tsx',
+    './activityLog': './src/containers/ActivityLogsContainer'
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
@@ -71,4 +72,5 @@ module.exports = {
         'All integrations, For support teams, Messaging, Social media, Conversation',
     },
   ],
+  activityLog: './activityLog'
 };
