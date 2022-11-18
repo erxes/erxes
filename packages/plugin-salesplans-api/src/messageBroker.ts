@@ -8,19 +8,19 @@ export const initBroker = async cl => {
   client = cl;
 
   const { consumeQueue } = cl;
-  consumeQueue(
-    'salesplans:saleslogs.statusUpdate',
-    async ({ subdomain, data: { _id, status } }) => {
-      const models = await generateModels(subdomain);
+  // consumeQueue(
+  //   'salesplans:saleslogs.statusUpdate',
+  //   async ({ subdomain, data: { _id, status } }) => {
+  //     const models = await generateModels(subdomain);
 
-      const result = await models.SalesLogs.salesLogStatusUpdate(_id, status);
+  //     const result = await models.SalesLogs.salesLogStatusUpdate(_id, status);
 
-      return {
-        data: result,
-        status: 'success'
-      };
-    }
-  );
+  //     return {
+  //       data: result,
+  //       status: 'success'
+  //     };
+  //   }
+  // );
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
@@ -39,6 +39,17 @@ export const sendInternalNotesMessage = async (
     client,
     serviceDiscovery,
     serviceName: 'internalnotes',
+    ...args
+  });
+};
+
+export const sendProductsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'products',
     ...args
   });
 };

@@ -152,14 +152,28 @@ export const initBroker = async cl => {
     }
   );
 
-  consumeRPCQueue('products:count', async ({ subdomain, data: { query } }) => {
-    const models = await generateModels(subdomain);
+  consumeRPCQueue(
+    'products:count',
+    async ({ subdomain, data: { query, categoryId } }) => {
+      const models = await generateModels(subdomain);
 
-    return {
-      data: await models.Products.find(query).countDocuments(),
-      status: 'success'
-    };
-  });
+      if (categoryId) {
+        const category = await models.ProductCategories.findOne({
+          _id: categoryId
+        }).lean();
+        const categories = await models.ProductCategories.find({
+          order: { $regex: new RegExp(category.order) }
+        }).lean();
+
+        query.categoryId = { $in: categories.map(c => c._id) };
+      }
+
+      return {
+        data: await models.Products.find(query).countDocuments(),
+        status: 'success'
+      };
+    }
+  );
 
   consumeRPCQueue(
     'products:categories.count',

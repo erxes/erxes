@@ -1,0 +1,22 @@
+import { colors, dimensions } from '@erxes/ui/src/styles';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+
+const FilterContainer = styled.div`
+  position: relative;
+  padding-bottom: ${dimensions.coreSpacing}px;
+  z-index: 2;
+`;
+
+const LabelsTableWrapper = styled.div`
+  border: 1px solid ${colors.borderDarker};
+  border-radius: 5px;
+  padding: 10px 0px !important;
+`;
+
+const SidebarFilters = styledTS(styled.div)`
+  overflow: hidden;
+  padding: 5px 15px 30px 15px;
+`;
+
+export { FilterContainer, LabelsTableWrapper, SidebarFilters };
