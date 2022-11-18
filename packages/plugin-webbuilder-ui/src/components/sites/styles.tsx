@@ -3,10 +3,10 @@ import { colors, dimensions } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-export const FlexWrap = styled.div`
+export const FlexWrap = styledTS<{ noPadding?: boolean }>(styled.div)`
   display: flex;
   flex-wrap: wrap;
-  padding: ${dimensions.coreSpacing}px;
+  padding: ${props => (props.noPadding ? '0 20px 20px 20px' : '20px')};
 
   > a,
   > div {
@@ -57,6 +57,31 @@ export const SiteBox = styledTS<{ nowrap?: boolean }>(styled.div)`
   }
 `;
 
+export const Tag = styledTS<{ isActive?: boolean }>(styled.span)`
+  background: ${props =>
+    props.isActive ? colors.colorSecondary : colors.bgLight};
+  padding: 5px ${dimensions.unitSpacing}px;
+  border-radius: 6px;
+  color: ${props =>
+    props.isActive ? colors.colorWhite : 'rgba(0, 0, 0, 0.62)'};
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 12px;
+  white-space: nowrap;
+  margin-right: ${dimensions.unitSpacing}px;
+  transition: all ease 0.3s;
+
+  > i {
+    margin-left: 5px;
+    cursor: pointer;
+  }
+
+  &:hover {
+    background: ${colors.colorSecondary};
+    color: ${colors.colorWhite};
+  }
+`;
+
 export const PreviewContent = styled.div`
   position: absolute;
   top: 0;
@@ -65,10 +90,17 @@ export const PreviewContent = styled.div`
   left: 0;
   background: rgba(0, 0, 0, 0.8);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   opacity: 0;
+  padding: ${dimensions.headerSpacing}px;
   transition: all ease 0.3s;
+
+  > button {
+    margin: 0 0 ${dimensions.unitSpacing}px 0;
+    min-width: 140px;
+  }
 `;
 
 export const SitePreview = styled.div`
@@ -139,5 +171,36 @@ export const Content = styled.div`
     > span {
       color: ${colors.colorCoreGray};
     }
+  }
+`;
+
+export const FilterContainer = styledTS<{
+  width?: number;
+}>(styled.div)`
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  flex: ${props => !props.width && 1};
+  position: relative;
+  width: ${props => props.width && `${props.width}px`};
+
+  > label {
+    margin-right: ${dimensions.coreSpacing}px;
+  }
+
+  > input {
+    border: 0;
+    outline: 0;
+    width: 100%;
+  }
+`;
+
+export const Labels = styledTS<{ filteredCategories?: boolean }>(styled.div)`
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  padding: 8px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    display: none;
   }
 `;

@@ -1,15 +1,19 @@
 import { Actions, HeaderContent, TemplateBox } from './styles';
 import {
   Content,
+  FilterContainer,
   FlexWrap,
+  Labels,
   PreviewContent,
   SiteBox,
-  SitePreview
+  SitePreview,
+  Tag
 } from '../sites/styles';
 import { __, getEnv } from '@erxes/ui/src/utils/core';
 
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
+import { CATEGORIES } from '../../constants';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { ITemplateDoc } from '../../types';
@@ -37,29 +41,31 @@ function List(props: Props) {
     const onClick = () => window.open(`${url}`, '_blank');
 
     return (
-      <div onClick={onClick}>
-        <Icon icon="eye" /> Show demo
-      </div>
+      <Button btnStyle="white" onClick={onClick}>
+        Preview
+      </Button>
     );
   };
 
-  const renderR = (template: ITemplateDoc, index: number) => {
-    return (
-      <SiteBox key={index}>
-        <h5>{template.name}</h5>
-        <TemplateBox>
-          <Actions>
-            <div onClick={() => use(template._id, template.name)}>
-              <Icon icon="play" /> Use
-            </div>
+  const renderCategories = (cat: any, index: number) => {
+    // const isActive = this.state.selectedCategories.includes(cat.value);
 
-            {renderDemoAction(template)}
-          </Actions>
-          {/* <IframePreview>
-            <iframe title="content-iframe" srcDoc={template.html} />
-          </IframePreview> */}
-        </TemplateBox>
-      </SiteBox>
+    return (
+      <Tag
+        key={index}
+        // onClick={() => this.handleCategory(cat.value)}
+        // isActive={isActive}
+      >
+        {cat.icon} &nbsp;
+        {cat.label}
+        {/* {isActive && (
+          <Icon
+            icon="cancel-1"
+            size={11}
+            onClick={() => this.handleCategory(cat.value)}
+          />
+        )} */}
+      </Tag>
     );
   };
 
@@ -72,8 +78,12 @@ function List(props: Props) {
             alt="site-img"
           />
           <PreviewContent>
-            <Button btnStyle="white" onClick={() => this.showSite(template)}>
-              View site
+            {renderDemoAction(template)}
+            <Button
+              btnStyle="white"
+              onClick={() => use(template._id, template.name)}
+            >
+              Use
             </Button>
           </PreviewContent>
         </SitePreview>
@@ -122,9 +132,23 @@ function List(props: Props) {
       content={
         <DataWithLoader
           data={
-            <FlexWrap>
-              {templates.map((template, index) => renderRow(template, index))}
-            </FlexWrap>
+            <>
+              <FilterContainer>
+                <Labels>
+                  <Tag
+                    // onClick={() => this.handleCategory(cat.value)}
+                    isActive={true}
+                  >
+                    <Icon icon="menu-2" />
+                    &nbsp; All
+                  </Tag>
+                  {CATEGORIES.map((cat, index) => renderCategories(cat, index))}
+                </Labels>
+              </FilterContainer>
+              <FlexWrap noPadding={true}>
+                {templates.map((template, index) => renderRow(template, index))}
+              </FlexWrap>
+            </>
           }
           count={5}
           loading={false}
