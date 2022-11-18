@@ -9,7 +9,7 @@ import { IProductCategory } from '../types';
 type Props = {
   categories: IProductCategory[];
   current?: string;
-  onChangeCategory: (catgeoryId: string) => void;
+  onChangeCategory: (parentCategoryId: string, catgeoryIds: string[]) => void;
 };
 
 type State = {
@@ -34,9 +34,29 @@ class ProductCategoryChooser extends React.Component<Props, State> {
     }));
   }
 
-  onChange = categoryId => {
+  onChange = (categoryId: string) => {
+    const { categories } = this.props;
+
+    const foundCategory = categories.find(c => c._id === categoryId);
+    const categoryIds: string[] = [];
+
+    categoryIds.push(categoryId);
+
+    if (foundCategory) {
+      const childrenCategories = categories.filter(
+        c =>
+          c.order.startsWith(foundCategory.order) && foundCategory._id !== c._id
+      );
+
+      if (childrenCategories) {
+        for (const children of childrenCategories) {
+          categoryIds.push(children._id);
+        }
+      }
+    }
+
     this.setState({ categoryId });
-    this.props.onChangeCategory(categoryId);
+    this.props.onChangeCategory(categoryId, categoryIds);
   };
 
   renderOptions = option => {

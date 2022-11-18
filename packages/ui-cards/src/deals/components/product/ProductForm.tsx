@@ -66,7 +66,8 @@ class ProductForm extends React.Component<Props, State> {
       currentTab: 'products',
       changePayData: {},
       tempId: '',
-      filterProductCategoryId: localStorage.getItem('dealCategoryId') || '',
+      filterProductCategoryId:
+        localStorage.getItem('dealCategoryParentId') || '',
       filterProductName: localStorage.getItem('dealProductSearch') || ''
     };
   }
@@ -188,7 +189,11 @@ class ProductForm extends React.Component<Props, State> {
     }
 
     const filterSearch = localStorage.getItem('dealProductSearch');
-    const filterCategory = localStorage.getItem('dealCategoryId');
+    const filterParentCategory = localStorage.getItem('dealCategoryParentId');
+    const filterCategoryIds = JSON.parse(
+      localStorage.getItem('dealCategoryIds') || '{}'
+    );
+
     let filteredProductsData = productsData;
 
     if (filterSearch) {
@@ -201,10 +206,10 @@ class ProductForm extends React.Component<Props, State> {
       });
     }
 
-    if (filterCategory) {
+    if (filterParentCategory && filterCategoryIds.length > 0) {
       filteredProductsData = filteredProductsData.filter(p => {
         if (p.product) {
-          return p.product.categoryId === filterCategory;
+          return filterCategoryIds.find(_id => _id === p.product?.categoryId);
         }
       });
     }
@@ -334,13 +339,15 @@ class ProductForm extends React.Component<Props, State> {
     this.setState({ filterProductName: searchText });
   };
 
-  onFilterCategory = (categoryId: string) => {
-    localStorage.setItem('dealCategoryId', categoryId);
+  onFilterCategory = (categoryId: string, categoryIds: string[]) => {
+    localStorage.setItem('dealCategoryIds', JSON.stringify(categoryIds));
+    localStorage.setItem('dealCategoryParentId', categoryId);
     this.setState({ filterProductCategoryId: categoryId });
   };
 
   clearFilter = () => {
-    localStorage.setItem('dealCategoryId', '');
+    localStorage.setItem('dealCategoryIds', '');
+    localStorage.setItem('dealCategoryParentId', '');
     this.setState({ filterProductCategoryId: '' });
     localStorage.setItem('dealProductSearch', '');
     this.setState({ filterProductName: '' });
