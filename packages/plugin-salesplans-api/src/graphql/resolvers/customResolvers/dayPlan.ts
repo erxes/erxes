@@ -54,16 +54,17 @@ export default {
       data: { _id: plan.uomId },
       isRPC: true
     });
-  },
-
-  async timeFrames(plan: IDayPlanDocument, _, { models }: IContext) {
-    const times = await models.Timeframes.find({
-      _id: { $in: plan.values.map(t => t.timeId) }
-    }).lean();
-
-    return plan.values.map(p => ({
-      ...p,
-      time: times.find(t => t._id === p.timeId)
-    }));
   }
+
+  // async timeFrames(plan: IDayPlanDocument, _, { models }: IContext) {
+  //   console.log(plan)
+  //   const times = await models.Timeframes.find({
+  //     _id: { $in: (plan.values || []).map(t => t.timeId) }
+  //   }).lean();
+
+  //   return plan.values.map(p => ({
+  //     ...p,
+  //     time: times.find(t => t._id === p.timeId)
+  //   })).sort((a, b) => a.time.startTime - b.time.startTime);
+  // }
 };

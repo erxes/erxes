@@ -89,17 +89,18 @@ export const getDayPlanValues = async (
   const sumPercent = timeFrames
     .map(d => d.percent || 0)
     .reduce((sum, d) => sum + d);
-  console.log(sumPercent, 'ssssssssss', dayCalcedCount);
 
+  let planCount = 0;
   for (const timeFrame of timeFrames) {
-    console.log(timeFrame.percent, 'tttttttttttt');
+    const count = Math.round(
+      (dayCalcedCount / sumPercent) * (timeFrame.percent || 1)
+    );
     values.push({
       timeId: timeFrame._id,
-      count: Math.round(
-        (dayCalcedCount / sumPercent) * (timeFrame.percent || 1)
-      )
+      count
     });
+    planCount += count;
   }
 
-  return { planCount: dayCalcedCount, values };
+  return { planCount, values };
 };

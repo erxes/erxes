@@ -37,10 +37,11 @@ export const loadDayPlanClass = (models: IModels) => {
       doc: IDayPlan,
       user: IUserDocument
     ) {
-      return await models.DayPlans.updateOne(
+      await models.DayPlans.updateOne(
         { _id },
         { $set: { ...doc, modifiedAt: new Date(), modifiedBy: user._id } }
       );
+      return await models.DayPlans.findOne({ _id }).lean();
     }
 
     public static async dayPlansRemove(_ids: string[]) {
