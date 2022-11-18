@@ -10,6 +10,7 @@ import {
 } from '@erxes/api-utils/src/permissions';
 import { MONTHS } from '../../../constants';
 import { sendProductsMessage } from '../../../messageBroker';
+import { getProducts } from './utils';
 
 const yearPlansMutations = {
   yearPlansAdd: async (
@@ -26,44 +27,11 @@ const yearPlansMutations = {
       throw new Error('Must fill product category or product');
     }
 
-    let products: any[] = [];
-    if (productId) {
-      const product = await sendProductsMessage({
-        subdomain,
-        action: 'find',
-        data: { _id: productId },
-        isRPC: true
-      });
-      products = [product];
-    }
-
-    if (productCategoryId) {
-      const limit = await sendProductsMessage({
-        subdomain,
-        action: 'count',
-        data: {
-          query: { status: { $nin: ['archived', 'deleted'] } },
-          categoryId: productCategoryId
-        },
-        isRPC: true,
-        defaultValue: 0
-      });
-
-      products = await sendProductsMessage({
-        subdomain,
-        action: 'find',
-        data: {
-          query: { status: { $nin: ['archived', 'deleted'] } },
-          categoryId: productCategoryId,
-          limit,
-          sort: { code: 1 }
-        },
-        isRPC: true,
-        defaultValue: []
-      });
-    }
-
-    const productIds = products.map(p => p._id);
+    const { products, productIds } = await getProducts(
+      subdomain,
+      productId,
+      productCategoryId
+    );
 
     const latestYearPlans = await models.YearPlans.find({
       departmentId,

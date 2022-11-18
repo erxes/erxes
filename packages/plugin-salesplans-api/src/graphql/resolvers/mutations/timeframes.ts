@@ -14,7 +14,6 @@ const timeframeMutations = {
     { docs }: { docs: any[] },
     { models }: IContext
   ) => {
-    console.log(docs, 'ddddddddddddddddd');
     return await models.Timeframes.timeframesEdit(docs);
   }
 };

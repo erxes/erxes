@@ -8,8 +8,8 @@ import {
   moduleCheckPermission,
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
-import { MONTHS } from '../../../constants';
-import { sendProductsMessage } from '../../../messageBroker';
+import { getDayPlanValues, getProducts } from './utils';
+import { IYearPlan } from '../../../../../plugin-salesplans-ui/src/plans/types';
 
 const dayPlansMutations = {
   dayPlansAdd: async (
@@ -26,55 +26,39 @@ const dayPlansMutations = {
       throw new Error('Must fill product category or product');
     }
 
-    let products: any[] = [];
-    if (productId) {
-      const product = await sendProductsMessage({
-        subdomain,
-        action: 'find',
-        data: { _id: productId },
-        isRPC: true
-      });
-      products = [product];
-    }
+    const { products, productIds } = await getProducts(
+      subdomain,
+      productId,
+      productCategoryId
+    );
 
-    if (productCategoryId) {
-      const limit = await sendProductsMessage({
-        subdomain,
-        action: 'count',
-        data: {
-          query: { status: { $nin: ['archived', 'deleted'] } },
-          categoryId: productCategoryId
-        },
-        isRPC: true,
-        defaultValue: 0
-      });
-
-      products = await sendProductsMessage({
-        subdomain,
-        action: 'find',
-        data: {
-          query: { status: { $nin: ['archived', 'deleted'] } },
-          categoryId: productCategoryId,
-          limit,
-          sort: { code: 1 }
-        },
-        isRPC: true,
-        defaultValue: []
-      });
-    }
-
-    const productIds = products.map(p => p._id);
-
-    const latestDayPlans = await models.DayPlans.find({
+    const oldDayPlans = await models.DayPlans.find({
+      date,
       departmentId,
       branchId,
       productId: { $in: productIds }
     });
 
-    const latestDayPlansByProductId = {};
-    for (const dayPlan of latestDayPlans) {
-      latestDayPlansByProductId[dayPlan.productId || ''] = dayPlan;
+    const oldDayPlansByProductId = {};
+    for (const dayPlan of oldDayPlans) {
+      oldDayPlansByProductId[dayPlan.productId || ''] = dayPlan;
     }
+
+    const yearPlans: IYearPlan[] = await models.YearPlans.find({
+      year: date.getFullYear(),
+      departmentId,
+      branchId,
+      productId: { $in: productIds }
+    }).lean();
+    const yearPlanByProductId = {};
+
+    for (const yearPlan of yearPlans) {
+      yearPlanByProductId[yearPlan.productId || ''] = yearPlan;
+    }
+
+    const timeFrames = await models.Timeframes.find({
+      status: { $ne: 'deleted' }
+    }).lean();
 
     let docs: IDayPlan[] = [];
     let inserteds: IDayPlanDocument[] = [];
@@ -82,18 +66,19 @@ const dayPlansMutations = {
     const now = new Date();
 
     for (const product of products) {
-      const latestDayPlan = latestDayPlansByProductId[product._id];
-      let values = {};
+      const oldDayPlan = oldDayPlansByProductId[product._id];
 
-      if (latestDayPlan) {
-        if (latestDayPlan.date === date) {
-          continue;
-        }
-
-        values = latestDayPlan.values;
-      } else {
-        MONTHS.map(m => (values[m] = 0));
+      if (oldDayPlan) {
+        continue;
       }
+
+      const { planCount, values } = await getDayPlanValues(
+        models,
+        doc,
+        yearPlanByProductId,
+        product,
+        timeFrames
+      );
 
       const dayPlanDoc: IDayPlan & any = {
         date,
@@ -101,6 +86,7 @@ const dayPlansMutations = {
         branchId,
         productId: product._id,
         uomId: product.uomId,
+        planCount,
         values,
         createdAt: now,
         modifiedAt: now,
