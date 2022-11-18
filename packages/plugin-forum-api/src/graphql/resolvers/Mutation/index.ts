@@ -8,6 +8,7 @@ import followMutations from './followMutations';
 import permissionGroupMutations from './permissionGroup';
 import subscriptionProductMutations from './subscriptionProductMutations';
 import subscriptionOrderMutations from './subscriptionOrderMutations';
+import pageMutations from './pageMutations';
 
 const Mutation: IObjectTypeResolver<any, IContext> = {
   ...categoryMutations,
@@ -17,7 +18,8 @@ const Mutation: IObjectTypeResolver<any, IContext> = {
   ...followMutations,
   ...permissionGroupMutations,
   ...subscriptionProductMutations,
-  ...subscriptionOrderMutations
+  ...subscriptionOrderMutations,
+  ...pageMutations
 };
 
 export default Mutation;

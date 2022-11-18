@@ -6,6 +6,7 @@ import followMutations from './followMutations';
 import permissionGroup from './permissionGroup';
 import subscriptionProduct from './subscriptionProduct';
 import subscriptionOrder from './subscriptionOrder';
+import page from './page';
 
 const Mutation = `
   extend type Mutation {
@@ -17,6 +18,7 @@ const Mutation = `
     ${permissionGroup}
     ${subscriptionProduct}
     ${subscriptionOrder}
+    ${page}
   }
 `;
 
