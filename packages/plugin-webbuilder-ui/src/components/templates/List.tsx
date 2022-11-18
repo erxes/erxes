@@ -70,6 +70,7 @@ function List(props: Props) {
   };
 
   const renderRow = (template: ITemplateDoc, index: number) => {
+    console.log(template);
     return (
       <SiteBox key={index}>
         <SitePreview>
@@ -90,6 +91,7 @@ function List(props: Props) {
         <Content>
           <div>
             <b>{template.name}</b>
+            <span>Business</span>
           </div>
         </Content>
       </SiteBox>

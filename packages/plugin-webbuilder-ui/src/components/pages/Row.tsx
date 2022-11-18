@@ -1,13 +1,14 @@
+import { __, getEnv } from '@erxes/ui/src/utils/core';
+
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import { RowTitle } from '@erxes/ui-engage/src/styles';
-import { getEnv, __ } from '@erxes/ui/src/utils/core';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
 import Button from '@erxes/ui/src/components/Button';
-import { Link } from 'react-router-dom';
-import React from 'react';
 import { IPageDoc } from '../../types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { Link } from 'react-router-dom';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import React from 'react';
+import { RowTitle } from '@erxes/ui-engage/src/styles';
+import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
   page: IPageDoc;
@@ -61,7 +62,7 @@ class Row extends React.Component<Props> {
     const { page } = this.props;
 
     const { name, description, _id, site, createdUser, updatedUser } = page;
-
+    console.log(_id, name);
     return (
       <tr>
         <td>

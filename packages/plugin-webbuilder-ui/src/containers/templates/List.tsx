@@ -10,6 +10,7 @@ import { mutations, queries } from '../../graphql';
 
 import List from '../../components/templates/List';
 import React from 'react';
+import { Redirect } from 'react-router-dom';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import gql from 'graphql-tag';
@@ -17,6 +18,7 @@ import { graphql } from 'react-apollo';
 
 type Props = {
   queryParams: any;
+  selectedSite: string;
 };
 
 type FinalProps = {
@@ -33,22 +35,24 @@ function ListContainer(props: FinalProps) {
   }
 
   const use = (_id: string, name: string) => {
-    const message = `Are you sure to create a website using this template? The site will automatically generate!`;
+    // const message = `Are you sure to create a website using this template? The site will automatically generate!`;
 
-    confirm(message).then(() => {
-      templatesUse({ variables: { _id, name } })
-        .then(() => {
-          Alert.success('Successfully created a website');
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    });
+    window.location.href = '/webbuilder/pages/edit/637718c1e1162731183cd03c';
+
+    // confirm(message).then(() => {
+    //   templatesUse({ variables: { _id, name } })
+    //     .then(() => {
+    //       Alert.success("Successfully created a website");
+    //     })
+    //     .catch((e) => {
+    //       Alert.error(e.message);
+    //     });
+    // });
   };
 
   const templates = templatesQuery.webbuilderTemplates || [];
   const templatesCount = templatesCountQuery.webbuilderTemplatesTotalCount || 0;
-  console.log('kkkkk');
+
   const updatedProps = {
     ...props,
     templates,
@@ -60,21 +64,21 @@ function ListContainer(props: FinalProps) {
 }
 
 export default compose(
-  // graphql<Props, TemplatesUseMutationResponse>(gql(mutations.templatesUse), {
-  //   name: "templatesUse",
-  //   options: ({ selectedSite }) => ({
-  //     refetchQueries: [
-  //       { query: gql(queries.sites), variables: { fromSelect: true } },
-  //       { query: gql(queries.sitesTotalCount) },
-  //       {
-  //         query: gql(queries.contentTypes),
-  //         variables: {
-  //           siteId: selectedSite,
-  //         },
-  //       },
-  //     ],
-  //   }),
-  // }),
+  graphql<Props, TemplatesUseMutationResponse>(gql(mutations.templatesUse), {
+    name: 'templatesUse',
+    options: ({ selectedSite }) => ({
+      refetchQueries: [
+        { query: gql(queries.sites), variables: { fromSelect: true } },
+        { query: gql(queries.sitesTotalCount) },
+        {
+          query: gql(queries.contentTypes),
+          variables: {
+            siteId: selectedSite
+          }
+        }
+      ]
+    })
+  }),
   graphql<Props, TemplatesQueryResponse>(gql(queries.templates), {
     name: 'templatesQuery',
     options: ({ queryParams }) => ({

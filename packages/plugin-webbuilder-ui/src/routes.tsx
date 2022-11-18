@@ -63,10 +63,17 @@ const webBuilderTemplatesContainer = history => {
   const { location, match } = history;
 
   const queryParams = queryString.parse(location.search);
+  const site = localStorage.getItem('webbuilderSiteId') || '';
 
   const { step } = match.params;
 
-  return <SitesListContainer step={step} queryParams={queryParams} />;
+  return (
+    <SitesListContainer
+      step={step}
+      selectedSite={site}
+      queryParams={queryParams}
+    />
+  );
 };
 
 const typeEdit = ({ match }) => {

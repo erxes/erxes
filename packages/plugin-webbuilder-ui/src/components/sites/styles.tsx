@@ -98,7 +98,7 @@ export const PreviewContent = styled.div`
   transition: all ease 0.3s;
 
   > button {
-    margin: 0 0 ${dimensions.unitSpacing}px 0;
+    margin: 0 0 ${dimensions.unitSpacing}px 0 !important;
     min-width: 140px;
   }
 `;
@@ -170,6 +170,8 @@ export const Content = styled.div`
 
     > span {
       color: ${colors.colorCoreGray};
+      font-size: 12px;
+      margin-top: 5px;
     }
   }
 `;
