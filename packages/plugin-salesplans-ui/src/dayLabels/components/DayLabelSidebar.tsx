@@ -12,7 +12,7 @@ import {
   Sidebar as LeftSidebar,
   SidebarList as List
 } from '@erxes/ui/src/layout';
-import { SidebarFilters } from '../../salesplans/styles';
+import { SidebarFilters } from '../../styles';
 import { Wrapper } from '@erxes/ui/src/layout';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import DateControl from '@erxes/ui/src/components/form/DateControl';

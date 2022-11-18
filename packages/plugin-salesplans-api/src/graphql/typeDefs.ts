@@ -1,10 +1,6 @@
 import { gql } from 'apollo-server-express';
 
-import {
-  types as salesLogTypes,
-  queries as salesLogQueries,
-  mutations as salesLogMutations
-} from './schema/salesplans';
+import { types as salesLogTypes } from './schema/salesplans';
 import {
   types as yearPlanTypes,
   queries as yearPlanQueries,
@@ -50,7 +46,6 @@ const typeDefs = async () => {
     ${settingsTypes}
 
     extend type Query {
-      ${salesLogQueries},
       ${yearPlanQueries},
       ${dayPlanQueries},
       ${dayLabelQueries},
@@ -58,7 +53,6 @@ const typeDefs = async () => {
     }
 
     extend type Mutation {
-      ${salesLogMutations},
       ${yearPlanMutations},
       ${dayPlanMutations},
       ${dayLabelMutations},

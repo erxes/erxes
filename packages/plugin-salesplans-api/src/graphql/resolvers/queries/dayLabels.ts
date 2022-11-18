@@ -56,7 +56,12 @@ const labelsQueries = {
     { models, subdomain }: IContext
   ) => {
     const filter = await getGenerateFilter(subdomain, params);
-    return paginate(models.DayLabels.find(filter).lean(), params);
+    return paginate(
+      models.DayLabels.find(filter)
+        .sort({ date: -1 })
+        .lean(),
+      params
+    );
   },
 
   dayLabelsCount: async (

@@ -8,7 +8,7 @@ import React from 'react';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { SidebarFilters } from '../../salesplans/styles';
+import { SidebarFilters } from '../../styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
