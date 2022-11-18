@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import dayjs from 'dayjs';
-// erxes
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
+import moment from 'moment';
+import React, { useEffect, useRef, useState } from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
-// local
 import { FinanceAmount } from '../../styles';
 
 type Props = {
@@ -32,8 +30,7 @@ export default function Row(props: Props) {
     if (!date) {
       return null;
     }
-
-    return dayjs(date).format('lll');
+    return moment(date).format('YYYY/MM/DD');
   };
 
   const handleCheckChange = (event: any) => {
