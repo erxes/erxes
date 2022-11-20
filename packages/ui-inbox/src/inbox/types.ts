@@ -295,3 +295,15 @@ export type EditMutationResponse = {
 export type ResponseTemplatesTotalCountQueryResponse = {
   responseTemplatesTotalCount: number;
 } & QueryResponse;
+
+// inbox direct message configs
+export type DmQueryItem = {
+  query: string;
+  name: string;
+  integrationKind: string;
+};
+
+export type DmConfig = {
+  messagesQueries: DmQueryItem[];
+  countQueries: DmQueryItem[];
+};

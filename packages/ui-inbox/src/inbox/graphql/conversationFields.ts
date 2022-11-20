@@ -1,4 +1,4 @@
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { isEnabled } from '@erxes/ui/src/utils/core';
 export default `
   _id
   content
@@ -31,7 +31,7 @@ export default `
   }
   customerId
   ${
-    isEnabled("contacts")
+    isEnabled('contacts')
       ? `
   customer {
     _id
@@ -61,7 +61,7 @@ export default `
   }
   tagIds
   ${
-    isEnabled("tags")
+    isEnabled('tags')
       ? `
   tags {
     _id
@@ -77,6 +77,10 @@ export default `
   }
   readUserIds
   callProAudio
+
+  ${
+    isEnabled('facebook')
+      ? `
   facebookPost {
     postId
     recipientId
@@ -86,6 +90,9 @@ export default `
     attachments
     timestamp
     permalink_url
+  }
+  `
+      : ''
   }
   isFacebookTaggedMessage
   customFieldsData

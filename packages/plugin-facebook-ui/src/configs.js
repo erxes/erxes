@@ -14,36 +14,79 @@ module.exports = {
   },
   inboxIntegrationSettings: './inboxIntegrationSettings',
   inboxDirectMessage: {
-    messagesQuery: `
-      query facebookConversationMessages(
-        $conversationId: String!
-        $skip: Int
-        $limit: Int
-        $getFirst: Boolean
-      ) {
-        facebookConversationMessages(
-          conversationId: $conversationId,
-          skip: $skip,
-          limit: $limit,
-          getFirst: $getFirst
-        ) {
-          _id
-          content
-          conversationId
-          customerId
-          userId
-          createdAt
-          isCustomerRead
-        }
+    messagesQueries: [
+      {
+        query: `
+          query facebookConversationMessages(
+            $conversationId: String!
+            $skip: Int
+            $limit: Int
+            $getFirst: Boolean
+          ) {
+            facebookConversationMessages(
+              conversationId: $conversationId,
+              skip: $skip,
+              limit: $limit,
+              getFirst: $getFirst
+            ) {
+              _id
+              content
+              conversationId
+              customerId
+              userId
+              createdAt
+              isCustomerRead
+            }
+          }
+        `,
+        name: 'facebookConversationMessages',
+        integrationKind: 'facebook-messenger'
+      },
+      {
+        query: `
+          query facebookGetComments($conversationId: String!, $isResolved: Boolean, $commentId: String, $senderId: String, $skip: Int, $limit: Int) {
+            facebookGetComments(conversationId: $conversationId, isResolved: $isResolved, commentId: $commentId, senderId: $senderId, skip: $skip, limit: $limit) {
+              conversationId
+              commentId
+              postId
+              parentId
+              recipientId
+              senderId
+              permalink_url
+              attachments
+              content
+              erxesApiId
+              timestamp
+              customer
+              commentCount
+              isResolved
+            }
+          }
+        `,
+        name: 'facebookGetComments',
+        integrationKind: 'facebook-post'
       }
-    `,
-    messagesQueryName: 'facebookConversationMessages',
-    countQuery: `
-      query facebookConversationMessagesCount($conversationId: String!) {
-        facebookConversationMessagesCount(conversationId: $conversationId)
+    ],
+    countQueries: [
+      {
+        query: `
+          query facebookConversationMessagesCount($conversationId: String!) {
+            facebookConversationMessagesCount(conversationId: $conversationId)
+          }
+        `,
+        name: 'facebookConversationMessagesCount',
+        integrationKind: 'facebook-messenger'
+      },
+      {
+        query: `
+          query facebookGetCommentCount($conversationId: String!, $isResolved: Boolean) {
+            facebookGetCommentCount(conversationId: $conversationId, isResolved: $isResolved)
+          }
+        `,
+        name: 'facebookGetCommentCount',
+        integrationKind: 'facebook-post'
       }
-    `,
-    countQueryName: 'facebookConversationMessagesCount'
+    ],
   },
   inboxIntegrations: [
     {

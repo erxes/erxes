@@ -188,17 +188,12 @@ type ConversationId = {
   conversationId: string;
 } & Resolved;
 
-type ConversationAndResolved = {
-  conversation: IFbConversation;
-} & Resolved;
-
 const WithQuery = withProps<Props & { currentUser: IUser }>(
   compose(
     graphql<Props, FacebookCommentsQueryResponse, ConversationId>(
       gql(queries.facebookGetComments),
       {
         name: 'commentsQuery',
-        // options: ({ conversation, isResolved, currentId }) => {
         options: ({ isResolved, currentId }) => {
           return {
             variables: {

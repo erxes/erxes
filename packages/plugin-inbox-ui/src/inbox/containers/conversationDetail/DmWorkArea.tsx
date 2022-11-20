@@ -17,6 +17,8 @@ import { sendDesktopNotification, withProps } from '@erxes/ui/src/utils';
 import {
   AddMessageMutationResponse,
   AddMessageMutationVariables,
+  DmConfig,
+  DmQueryItem,
   IConversation,
   IMessage,
   MessagesQueryResponse,
@@ -30,7 +32,7 @@ type Props = {
   currentConversation: IConversation;
   currentId?: string;
   refetchDetail: () => void;
-  dmConfig?: any;
+  dmConfig?: DmConfig;
 };
 
 type FinalProps = {
@@ -45,17 +47,46 @@ type State = {
   typingInfo?: string;
 };
 
-const getMessagesQueryValue = (messagesQuery, queryName: string) => {
-  let key = queryName || 'conversationMessages';
+const getQueryString = (
+  dmConfig: DmConfig,
+  kind: string,
+  type: 'messagesQueries' | 'countQueries'
+): string => {
+  const defaultQuery =
+    type === 'messagesQueries'
+      ? 'conversationMessages'
+      : 'conversationMessagesTotalCount';
+  const item = dmConfig[type].find(i => i.integrationKind === kind);
 
-  for (const k of Object.keys(messagesQuery)) {
+  return item ? item.query : defaultQuery;
+};
+
+const getQueryResult = (
+  queryResponse: object,
+  configQueries: DmQueryItem[] = [],
+  conv: IConversation
+) => {
+  const { integration } = conv;
+  let key = 'conversationMessages';
+
+  if (conv && configQueries.length > 0) {
+    const query = configQueries.find(
+      q => q.integrationKind === integration.kind
+    );
+
+    if (query) {
+      key = query.name;
+    }
+  }
+
+  for (const k of Object.keys(queryResponse)) {
     if (k.includes('ConversationMessages')) {
       key = k;
       break;
     }
   }
 
-  return messagesQuery[key] || [];
+  return queryResponse[key] || [];
 };
 
 class WorkArea extends React.Component<FinalProps, State> {
@@ -119,8 +150,11 @@ class WorkArea extends React.Component<FinalProps, State> {
             return;
           }
 
-          const messages =
-            prev[dmConfig.messagesQueryName] || prev.conversationMessages;
+          const messages = getQueryResult(
+            prev,
+            dmConfig?.messagesQueries,
+            currentConversation
+          );
 
           // Sometimes it is becoming undefined because of left sidebar query
           if (!messages) {
@@ -137,8 +171,7 @@ class WorkArea extends React.Component<FinalProps, State> {
           // add new message to messages list
           const next = {
             ...prev,
-            conversationMessages: [...messages, message],
-            [dmConfig.messagesQueryName]: [...messages, message]
+            conversationMessages: [...messages, message]
           };
 
           // send desktop notification
@@ -179,7 +212,12 @@ class WorkArea extends React.Component<FinalProps, State> {
     optimisticResponse: any;
     callback?: (e?) => void;
   }) => {
-    const { addMessageMutation, currentId, dmConfig } = this.props;
+    const {
+      addMessageMutation,
+      currentId,
+      dmConfig,
+      currentConversation
+    } = this.props;
 
     // immediate ui update =======
     let update;
@@ -187,8 +225,18 @@ class WorkArea extends React.Component<FinalProps, State> {
     if (optimisticResponse) {
       update = (proxy, { data: { conversationMessageAdd } }) => {
         const message = conversationMessageAdd;
+        const { integration } = currentConversation;
+        let query = queries.conversationMessages;
 
-        const query = dmConfig.messagesQuery || queries.conversationMessages;
+        if (dmConfig) {
+          const item = dmConfig.messagesQueries.find(
+            i => i.integrationKind === integration.kind
+          );
+
+          if (item) {
+            query = item.query;
+          }
+        }
         // trying to read query by initial variables. Because currenty it is apollo bug.
         // https://github.com/apollographql/apollo-client/issues/2499
         const selector = {
@@ -211,8 +259,11 @@ class WorkArea extends React.Component<FinalProps, State> {
           return;
         }
 
-        const messages =
-          data[dmConfig.messagesQueryName] || data.conversationMessages;
+        const messages = getQueryResult(
+          data,
+          dmConfig?.messagesQueries,
+          currentConversation
+        );
 
         // check duplications
         if (messages.find(m => m._id === message._id)) {
@@ -248,13 +299,15 @@ class WorkArea extends React.Component<FinalProps, State> {
       currentId,
       messagesTotalCountQuery,
       messagesQuery,
-      dmConfig
+      dmConfig,
+      currentConversation
     } = this.props;
     const { conversationMessagesTotalCount } = messagesTotalCountQuery;
-    const conversationMessages =
-      messagesQuery[dmConfig.messagesQueryName] ||
-      messagesQuery.conversationMessages ||
-      [];
+    const conversationMessages = getQueryResult(
+      messagesQuery,
+      dmConfig?.messagesQueries,
+      currentConversation
+    );
 
     const loading = messagesQuery.loading || messagesTotalCountQuery.loading;
     const hasMore =
@@ -276,15 +329,33 @@ class WorkArea extends React.Component<FinalProps, State> {
             return prev;
           }
 
+          const { integration } = currentConversation;
+          let listQueryName = 'conversationMessages';
+
+          if (dmConfig) {
+            const item = dmConfig.messagesQueries.find(
+              q => q.integrationKind === integration.kind
+            );
+
+            if (item) {
+              listQueryName = item.name;
+            }
+          }
+
           const result = { ...prev };
-          const prevConversationMessages =
-            prev[dmConfig.messagesQueryName] || prev.conversationMessages || [];
+          const prevConversationMessages = getQueryResult(
+            prev,
+            dmConfig?.messagesQueries,
+            currentConversation
+          );
           const prevMessageIds = prevConversationMessages.map(m => m._id);
 
           const fetchedMessages: IMessage[] = [];
-          const more =
-            fetchMoreResult[dmConfig.messagesQueryName] ||
-            fetchMoreResult.conversationMessages;
+          const more = getQueryResult(
+            fetchMoreResult,
+            dmConfig?.messagesQueries,
+            currentConversation
+          );
 
           for (const message of more) {
             if (!prevMessageIds.includes(message._id)) {
@@ -292,7 +363,7 @@ class WorkArea extends React.Component<FinalProps, State> {
             }
           }
 
-          result[dmConfig.messagesQueryName] = [
+          result[listQueryName] = [
             ...fetchedMessages,
             ...prevConversationMessages
           ];
@@ -305,11 +376,12 @@ class WorkArea extends React.Component<FinalProps, State> {
 
   render() {
     const { loadingMessages, typingInfo } = this.state;
-    const { messagesQuery, dmConfig } = this.props;
+    const { messagesQuery, dmConfig, currentConversation } = this.props;
 
-    const conversationMessages = getMessagesQueryValue(
+    const conversationMessages = getQueryResult(
       messagesQuery,
-      dmConfig && dmConfig.messagesQueryName
+      dmConfig?.messagesQueries,
+      currentConversation
     );
 
     const updatedProps = {
@@ -326,8 +398,17 @@ class WorkArea extends React.Component<FinalProps, State> {
   }
 }
 
-const generateWithQuery = props => {
-  const { dmConfig = {} } = props;
+const generateWithQuery = (props: Props) => {
+  const { dmConfig, currentConversation } = props;
+  const { integration } = currentConversation;
+
+  let listQuery = queries.conversationMessages;
+  let countQuery = queries.conversationMessagesTotalCount;
+
+  if (dmConfig) {
+    listQuery = getQueryString(dmConfig, integration.kind, 'messagesQueries');
+    countQuery = getQueryString(dmConfig, integration.kind, 'countQueries');
+  }
 
   return withProps<Props & { currentUser: IUser }>(
     compose(
@@ -335,7 +416,7 @@ const generateWithQuery = props => {
         Props,
         MessagesQueryResponse,
         { conversationId?: string; limit: number }
-      >(gql(dmConfig.messagesQuery || queries.conversationMessages), {
+      >(gql(listQuery), {
         name: 'messagesQuery',
         options: ({ currentId }) => {
           return {
@@ -349,7 +430,7 @@ const generateWithQuery = props => {
         }
       }),
       graphql<Props, MessagesTotalCountQuery, { conversationId?: string }>(
-        gql(dmConfig.countQuery || queries.conversationMessagesTotalCount),
+        gql(countQuery),
         {
           name: 'messagesTotalCountQuery',
           options: ({ currentId }) => ({
