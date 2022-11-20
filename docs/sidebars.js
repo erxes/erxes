@@ -44,7 +44,10 @@ var sideBar = {
             type: 'generated-index'
           },
           collapsed: true,
-          items: ['deployment/deployment/deploymentDocker']
+          items: [
+            'deployment/deployment/deploymentDocker',
+            'deployment/deployment/deploymentDockerCompose'
+          ]
         }
       ]
     },
@@ -140,7 +143,8 @@ var sideBar = {
                     'components/Uploader/uploader'
                   ]
                 }
-              ]
+              ],
+              API: ['code-reference/api/common-functions']
             }
           ]
         }
