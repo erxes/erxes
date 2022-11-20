@@ -3,22 +3,17 @@ import { sendProductsMessage } from '../../../messageBroker';
 import { IRemainderDocument } from '../../../models/definitions/remainders';
 
 export default {
-  async uom(product: any, _, {}: IContext) {
-    return { _id: '465', code: '1', name: 'aa' };
-    // if (!(await models.ProductsConfigs.getConfig('isReqiureUOM', ''))) {
-    //   return {};
-    // }
+  async uom(product: any, _, { subdomain }: IContext) {
+    if (!product.uomId) {
+      return product.sku;
+    }
 
-    // let uomId = product.uomId;
-    // if (!uomId) {
-    //   uomId = await models.ProductsConfigs.getConfig('default_uom', '');
-    // }
-
-    // if (!uomId) {
-    //   return {};
-    // }
-
-    // return models.Uoms.getUom({ _id: uomId });
+    return await sendProductsMessage({
+      subdomain,
+      action: 'uoms.findOne',
+      data: { _id: product.uomId },
+      isRPC: true
+    });
   },
 
   async category(remainder: any, _, { subdomain }: IContext) {

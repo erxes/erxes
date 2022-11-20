@@ -1,6 +1,7 @@
 export const SUBMENU = [
   { title: 'Live Remainders', link: '/inventories/remainders' },
   { title: 'Safe Remainders', link: '/inventories/safe-remainders' },
+  { title: 'Reserve Remainders', link: '/inventories/reserve-remainders' },
   { title: 'Transactions', link: '/inventories/transactions' }
 ];
 

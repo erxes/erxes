@@ -1,11 +1,16 @@
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
-// erxes
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 
 const remainders = asyncComponent(() =>
   import(
     /* webpackChunkName: 'List - LiveRemainders' */ './remainders/containers/List'
+  )
+);
+const ReserveRems = asyncComponent(() =>
+  import(
+    /* webpackChunkName: 'List - LiveRemainders' */ './reserveRemainders/containers/List'
   )
 );
 
@@ -27,6 +32,15 @@ const transactions = asyncComponent(() =>
   )
 );
 
+const reserveRems = ({ location, history }) => {
+  return (
+    <ReserveRems
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
 const routes = () => {
   return (
     <>
@@ -35,6 +49,13 @@ const routes = () => {
         path="/inventories/remainders/"
         key="/inventories/remainders/"
         component={remainders}
+      />
+
+      <Route
+        exact={true}
+        path="/inventories/reserve-remainders/"
+        key="/inventories/reserve-remainders/"
+        component={reserveRems}
       />
 
       <Route

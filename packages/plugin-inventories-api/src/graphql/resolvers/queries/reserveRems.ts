@@ -12,15 +12,11 @@ interface IListArgs {
   sortField: string;
   sortDirection: number;
   _ids: string[];
-  year: number;
-  searchValue: string;
-  filterStatus: string;
+  searchValue;
   departmentId: string;
   branchId: string;
   productId: string;
   productCategoryId: string;
-  minValue: number;
-  maxValue: number;
   dateType: string;
   startDate: Date;
   endDate: Date;
@@ -29,9 +25,7 @@ interface IListArgs {
 const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
   const {
     _ids,
-    year,
     searchValue,
-    filterStatus,
     branchId,
     departmentId,
     productId,
@@ -40,16 +34,10 @@ const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
 
   const filter: any = {};
 
-  if (filterStatus) {
-    filter.status = filterStatus;
-  }
-  if (year) {
-    filter.year = year;
-  }
-
   if (branchId) {
     filter.branchId = branchId;
   }
+
   if (departmentId) {
     filter.departmentId = departmentId;
   }
@@ -105,32 +93,32 @@ const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
   return filter;
 };
 
-const labelsQueries = {
-  yearPlans: async (
+const reserveRemsQueries = {
+  reserveRems: async (
     _root: any,
     params: IListArgs,
     { models, subdomain }: IContext
   ) => {
     const filter = await getGenerateFilter(subdomain, params);
     return paginate(
-      models.YearPlans.find(filter)
-        .sort({ year: -1 })
+      models.ReserveRems.find(filter)
+        .sort({})
         .lean(),
       params
     );
   },
 
-  yearPlansCount: async (
+  reserveRemsCount: async (
     _root: any,
     params: IListArgs,
     { models, subdomain }: IContext
   ) => {
     const filter = await getGenerateFilter(subdomain, params);
-    return await models.YearPlans.find(filter).count();
+    return await models.ReserveRems.find(filter).count();
   }
 };
 
-moduleRequireLogin(labelsQueries);
-moduleCheckPermission(labelsQueries, 'showSalesPlans');
+moduleRequireLogin(reserveRemsQueries);
+moduleCheckPermission(reserveRemsQueries, 'showSalesPlans');
 
-export default labelsQueries;
+export default reserveRemsQueries;

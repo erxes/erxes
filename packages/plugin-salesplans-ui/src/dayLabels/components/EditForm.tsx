@@ -1,23 +1,22 @@
+import DateControl from '@erxes/ui/src/components/form/DateControl';
 import React from 'react';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import { Alert, __ } from '@erxes/ui/src/utils';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { IDayLabelParams } from '../types';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
+import SelectLabels from '../../settings/containers/SelectLabels';
+import { __ } from '@erxes/ui/src/utils';
 import {
   Button,
   ControlLabel,
   Form as CommonForm,
   FormGroup
 } from '@erxes/ui/src/components';
+import { DateContainer } from '@erxes/ui/src/styles/main';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { IDayLabel } from '../types';
 import {
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper
 } from '@erxes/ui/src/styles/eindex';
-import SelectLabels from '../../settings/containers/SelectLabels';
-import { IDayLabel } from '../../../.erxes/plugin-src/dayLabels/types';
 
 type Props = {
   dayLabel: IDayLabel;

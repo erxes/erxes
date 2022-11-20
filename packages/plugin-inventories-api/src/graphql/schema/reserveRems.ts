@@ -1,10 +1,11 @@
-export const types = () => `
-  type DayLabel @key(fields: "_id") @cacheControl(maxAge: 3) {
+export const types = `
+  type ReserveRem @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String,
-    date: Date,
     departmentId: String,
     branchId: String,
-    labelIds: [String]
+    productId: String,
+    uomId: String,
+    remainder: Float
     createdAt: Date,
     createdBy: String,
     modifiedAt: Date,
@@ -12,7 +13,8 @@ export const types = () => `
 
     department: Department,
     branch: Branch,
-    labels: [SPLabel]
+    product: Product,
+    uom: Uom,
     createdUser: User,
     modifiedUser: User
   }
@@ -27,30 +29,32 @@ export const paginateParams = `
 
 export const planFilterParams = `
   _ids:[String],
-  date: Date,
-  filterStatus: String,
+  searchValue: String,
   departmentId: String,
   branchId: String,
-  labelId: String,
+  productId: String,
+  productCategoryId: String,
+  remainder: Float,
   dateType: String,
   startDate: Date,
   endDate: Date,
 `;
 
 export const queries = `
-  dayLabels(${planFilterParams}, ${paginateParams}): [DayLabel],
-  dayLabelsCount(${planFilterParams}, ${paginateParams}): Int,
+  reserveRems(${planFilterParams}, ${paginateParams}): [ReserveRem],
+  reserveRemsCount(${planFilterParams}, ${paginateParams}): Int,
 `;
 
 export const planCreateParams = `
-  dates: [String],
   departmentIds: [String],
   branchIds: [String],
-  labelIds: [String]
+  productCategoryId: String,
+  productId: String,
+  remainder: Float
 `;
 
 export const mutations = `
-  dayLabelsAdd(${planCreateParams}): [DayLabel]
-  dayLabelsRemove(_ids: [String]): JSON
-  dayLabelEdit(_id: String!, labelIds: [String]): DayLabel
+  reserveRemsAdd(${planCreateParams}): [ReserveRem]
+  reserveRemsRemove(_ids: [String]): JSON
+  reserveRemEdit(_id: String!, remainder: Float): ReserveRem
 `;

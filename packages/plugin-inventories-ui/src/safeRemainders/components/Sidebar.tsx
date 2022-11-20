@@ -1,22 +1,20 @@
-import React, { useRef } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
-import queryString from 'query-string';
-import dayjs from 'dayjs';
-import Datetime from '@nateradebaugh/react-datetime';
-// erxes
-import { __, router } from '@erxes/ui/src/utils/core';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Box from '@erxes/ui/src/components/Box';
-import Icon from '@erxes/ui/src/components/Icon';
 import CommonForm from '@erxes/ui/src/components/form/Form';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Datetime from '@nateradebaugh/react-datetime';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import Icon from '@erxes/ui/src/components/Icon';
+import queryString from 'query-string';
+import React, { useRef } from 'react';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
-// local
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __, router } from '@erxes/ui/src/utils/core';
+import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 import { SidebarContent } from '../../styles';
+import { useHistory, useLocation } from 'react-router-dom';
+import moment from 'moment';
 
 export default function Sidebar() {
   // Hooks
@@ -52,7 +50,7 @@ export default function Sidebar() {
   };
 
   const handleChangeDate = (label: string, date: any) => {
-    const _date = dayjs(date).format('YYYY-MM-DD HH:mm');
+    const _date = moment(date).format('YYYY/MM/DD HH:mm');
     setFilter(label, _date);
   };
 

@@ -168,7 +168,7 @@ class Form extends React.Component<Props, State> {
       const currentProducts = this.state[type];
       const currentProductIds = currentProducts.map(p => p.productId);
       const chosenProductIds = products.map(p => p._id);
-      const defaultUom = (configsMap || {}).default_uom || '';
+      const defaultUom = (configsMap || {}).defaultUOM || '';
 
       for (const product of products.filter(
         p => !currentProductIds.includes(p._id)
@@ -268,7 +268,7 @@ class Form extends React.Component<Props, State> {
               const defaultUomId =
                 product.product && product.product.uomId
                   ? product.product.uomId
-                  : (configsMap || {}).default_uom;
+                  : (configsMap || {}).defaultUOM;
 
               const productUoms = subUoms.map(e => e.uomId);
               const mergedUoms = [...productUoms, defaultUomId];

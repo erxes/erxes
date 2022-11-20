@@ -22,12 +22,13 @@ export const paginateValues = `
   sortDirection: $sortDirection,
 `;
 
-export const dayLabelFields = `
+export const reserveRemFields = `
   _id
-  date
   departmentId
   branchId
-  labelIds
+  productId
+  uomId
+  remainder
   createdAt
   createdBy
   modifiedAt
@@ -45,12 +46,18 @@ export const dayLabelFields = `
     title,
     parentId
   }
-  labels {
+  product {
     _id
-    title,
-    color,
-    effect,
-    multiplier
+    code
+    name
+    categoryId
+    uomId
+    subUoms
+  }
+  uom {
+    _id
+    code
+    name
   }
   createdUser {
     ${userFields}
@@ -62,10 +69,12 @@ export const dayLabelFields = `
 
 export const filterDefs = `
   $_ids:[String],
-  $filterStatus: String,
+  $searchValue: String,
   $departmentId: String,
   $branchId: String,
-  $labelId: String,
+  $productId: String,
+  $productCategoryId: String,
+  $remainder: Float,
   $dateType: String,
   $startDate: Date,
   $endDate: Date,
@@ -73,30 +82,32 @@ export const filterDefs = `
 
 export const filterValues = `
   _ids: $_ids,
-  filterStatus: $filterStatus,
+  searchValue: $searchValue,
   departmentId: $departmentId,
   branchId: $branchId,
-  labelId: $labelId,
+  productId: $productId,
+  productCategoryId: $productCategoryId,
+  remainder: $remainder,
   dateType: $dateType,
   startDate: $startDate,
   endDate: $endDate,
 `;
 
-const dayLabels = `
-  query dayLabels($date: Date, ${filterDefs} ${paginateDefs} ) {
-    dayLabels(date: $date, ${filterValues} ${paginateValues}) {
-      ${dayLabelFields}
+const reserveRems = `
+  query reserveRems(${filterDefs} ${paginateDefs} ) {
+    reserveRems(${filterValues} ${paginateValues}) {
+      ${reserveRemFields}
     }
   }
 `;
 
-const dayLabelsCount = `
-  query dayLabelsCount($date: Date, ${filterDefs}) {
-    dayLabelsCount(date: $date, ${filterValues})
+const reserveRemsCount = `
+  query reserveRemsCount(${filterDefs}) {
+    reserveRemsCount(${filterValues})
   }
 `;
 
 export default {
-  dayLabels,
-  dayLabelsCount
+  reserveRems,
+  reserveRemsCount
 };

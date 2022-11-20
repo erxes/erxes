@@ -1,24 +1,22 @@
+import FormControl from '@erxes/ui/src/components/form/Control';
 import React from 'react';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
-import { Alert, __ } from '@erxes/ui/src/utils';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { IDayPlanParams } from '../types';
+import { __ } from '@erxes/ui/src/utils';
 import {
   Button,
   ControlLabel,
-  DateControl,
   Form as CommonForm,
   FormGroup
 } from '@erxes/ui/src/components';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { IReserveRemParams } from '../types';
 import {
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper
 } from '@erxes/ui/src/styles/eindex';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import moment from 'moment';
+import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
+import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -26,7 +24,7 @@ type Props = {
 };
 
 type State = {
-  dayPlanParams: IDayPlanParams;
+  reserveRemParams: IReserveRemParams;
 };
 
 class Form extends React.Component<Props, State> {
@@ -34,22 +32,19 @@ class Form extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      dayPlanParams: {
-        date: new Date()
-      }
+      reserveRemParams: {}
     };
   }
 
   generateDoc = (values: { _id?: string }) => {
     const finalValues = values;
-    const { dayPlanParams } = this.state;
+    const { reserveRemParams } = this.state;
 
-    const strVal = moment(dayPlanParams.date).format('YYYY/MM/DD');
+    reserveRemParams.remainder = Number(reserveRemParams.remainder || 0);
 
     return {
       ...finalValues,
-      ...dayPlanParams,
-      date: new Date(strVal)
+      ...reserveRemParams
     };
   };
 
@@ -59,19 +54,13 @@ class Form extends React.Component<Props, State> {
     const name = e.target.name;
 
     this.setState({
-      dayPlanParams: { ...this.state.dayPlanParams, [name]: value }
+      reserveRemParams: { ...this.state.reserveRemParams, [name]: value }
     });
   };
 
   onSelectChange = (name, value) => {
     this.setState({
-      dayPlanParams: { ...this.state.dayPlanParams, [name]: value }
-    });
-  };
-
-  onSelectDate = value => {
-    this.setState({
-      dayPlanParams: { ...this.state.dayPlanParams, date: value }
+      reserveRemParams: { ...this.state.reserveRemParams, [name]: value }
     });
   };
 
@@ -83,42 +72,33 @@ class Form extends React.Component<Props, State> {
     const { renderButton, closeModal } = this.props;
     const { values, isSubmitted } = formProps;
 
-    const { dayPlanParams } = this.state;
+    const { reserveRemParams } = this.state;
 
     return (
       <>
         <ScrollWrapper>
           <FormGroup>
-            <ControlLabel required={true}>{__(`Year`)}</ControlLabel>
-            <DateContainer>
-              <DateControl
-                name="createdAtFrom"
-                placeholder="Choose date"
-                value={dayPlanParams.date || new Date()}
-                onChange={this.onSelectDate}
-              />
-            </DateContainer>
-          </FormGroup>
-          <FormGroup>
             <ControlLabel>Branch</ControlLabel>
             <SelectBranches
               label="Choose branch"
-              name="selectedBranchId"
+              name="branchIds"
               initialValue={''}
-              onSelect={branchId => this.onSelectChange('branchId', branchId)}
-              multi={false}
+              onSelect={branchIds =>
+                this.onSelectChange('branchIds', branchIds)
+              }
+              multi={true}
             />
           </FormGroup>
           <FormGroup>
             <ControlLabel>Department</ControlLabel>
             <SelectDepartments
               label="Choose department"
-              name="selectedDepartmentId"
+              name="departmentIds"
               initialValue={''}
-              onSelect={departmentId =>
-                this.onSelectChange('departmentId', departmentId)
+              onSelect={departmentIds =>
+                this.onSelectChange('departmentIds', departmentIds)
               }
-              multi={false}
+              multi={true}
             />
           </FormGroup>
           <FormGroup>
@@ -145,6 +125,15 @@ class Form extends React.Component<Props, State> {
               multi={false}
             />
           </FormGroup>
+          <FormGroup>
+            <ControlLabel required={true}>Remainder</ControlLabel>
+            <FormControl
+              type="number"
+              name={'remainder'}
+              defaultValue={0}
+              onChange={this.onInputChange}
+            />
+          </FormGroup>
         </ScrollWrapper>
         <ModalFooter>
           <Button
@@ -160,7 +149,7 @@ class Form extends React.Component<Props, State> {
             values: this.generateDoc(values),
             isSubmitted,
             callback: this.onAfterSave,
-            object: dayPlanParams
+            object: reserveRemParams
           })}
         </ModalFooter>
       </>

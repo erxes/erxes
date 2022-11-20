@@ -1,39 +1,21 @@
+import Mutation from './mutations';
+import Query from './queries';
 import customScalars from '@erxes/api-utils/src/customScalars';
 import RemainderProduct from './customResolvers/remainder';
 import SafeRemainder from './customResolvers/safeRemainder';
+import ReserveRem from './customResolvers/reserveRem';
 import SafeRemainderItem from './customResolvers/safeRemainderItem';
 import Transaction from './customResolvers/transaction';
-import {
-  Remainders as remainderMutations,
-  SafeRemainders as safeRemainderMutations,
-  SafeRemainderItems as safeRemainderItemMutations,
-  Transactions as transactionMutations
-} from './mutations';
-import {
-  Remainders as remainderQueries,
-  SafeRemainders as safeRemainderQueries,
-  SafeRemainderItems as safeRemainderItemsQueries,
-  Transactions as transactionQueries
-} from './queries';
 
 const resolvers: any = async _serviceDiscovery => ({
   ...customScalars,
   RemainderProduct,
   SafeRemainder,
   SafeRemainderItem,
+  ReserveRem,
   Transaction,
-  Mutation: {
-    ...remainderMutations,
-    ...safeRemainderMutations,
-    ...safeRemainderItemMutations,
-    ...transactionMutations
-  },
-  Query: {
-    ...remainderQueries,
-    ...safeRemainderQueries,
-    ...safeRemainderItemsQueries,
-    ...transactionQueries
-  }
+  Mutation,
+  Query
 });
 
 export default resolvers;

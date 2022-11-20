@@ -1,56 +1,60 @@
 import { IContext } from '../../../connectionResolver';
 import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
-import { IDayPlanDocument } from '../../../models/definitions/dayPlans';
+import { IReserveRemDocument } from '../../../models/definitions/reserveRems';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
-    return models.DayPlans.findOne({ _id });
+    return models.ReserveRems.findOne({ _id });
   },
 
   async branch(
-    plan: IDayPlanDocument,
+    reserveRem: IReserveRemDocument,
     _,
     { dataLoaders, subdomain }: IContext
   ) {
     return await sendCoreMessage({
       subdomain,
       action: 'branches.findOne',
-      data: { _id: plan.branchId },
+      data: { _id: reserveRem.branchId },
       isRPC: true
     });
   },
 
   async department(
-    plan: IDayPlanDocument,
+    reserveRem: IReserveRemDocument,
     _,
     { dataLoaders, subdomain }: IContext
   ) {
     return await sendCoreMessage({
       subdomain,
       action: 'departments.findOne',
-      data: { _id: plan.departmentId },
+      data: { _id: reserveRem.departmentId },
       isRPC: true
     });
   },
 
   async product(
-    plan: IDayPlanDocument,
+    reserveRem: IReserveRemDocument,
     _,
     { dataLoaders, subdomain }: IContext
   ) {
     return await sendProductsMessage({
       subdomain,
       action: 'findOne',
-      data: { _id: plan.productId },
+      data: { _id: reserveRem.productId },
       isRPC: true
     });
   },
 
-  async uom(plan: IDayPlanDocument, _, { dataLoaders, subdomain }: IContext) {
+  async uom(
+    reserveRem: IReserveRemDocument,
+    _,
+    { dataLoaders, subdomain }: IContext
+  ) {
     return await sendProductsMessage({
       subdomain,
       action: 'uoms.findOne',
-      data: { _id: plan.uomId },
+      data: { _id: reserveRem.uomId },
       isRPC: true
     });
   }

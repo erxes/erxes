@@ -1,7 +1,7 @@
-import React from 'react';
-import { Route } from 'react-router-dom';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
+import React from 'react';
+import { Route } from 'react-router-dom';
 
 const LabelConfigs = asyncComponent(() =>
   import(/* webpackChunkName: 'Sales Plans' */ './settings/containers/List')
