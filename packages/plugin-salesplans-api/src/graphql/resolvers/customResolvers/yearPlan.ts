@@ -49,7 +49,7 @@ export default {
   async uom(plan: IYearPlanDocument, _, { dataLoaders, subdomain }: IContext) {
     return await sendProductsMessage({
       subdomain,
-      action: 'findOneUom',
+      action: 'uoms.findOne',
       data: { _id: plan.uomId },
       isRPC: true
     });

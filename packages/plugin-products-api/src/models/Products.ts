@@ -45,6 +45,23 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       return product;
     }
 
+    static async checkUOM(doc) {
+      if (doc.uomId) {
+        return doc.uomId;
+      }
+      const configs = await models.ProductsConfigs.find({
+        code: { $in: ['isRequireUOM', 'defaultUOM'] }
+      }).lean();
+      const isRequireUOM = configs.find(c => c.code === 'isRequireUOM');
+      const defaultUOM = configs.find(c => c.code === 'defaultUOM');
+
+      if (isRequireUOM && defaultUOM) {
+        return defaultUOM;
+      }
+
+      return '';
+    }
+
     static async checkCodeDuplication(code: string) {
       const product = await models.Products.findOne({
         code,
@@ -110,6 +127,8 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         isRPC: true
       });
 
+      doc.uomId = await this.checkUOM(doc);
+
       return models.Products.create(doc);
     }
 
@@ -136,7 +155,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
           isRPC: true
         });
       }
-
+      doc.uomId = await this.checkUOM(doc);
       await models.Products.updateOne({ _id }, { $set: doc });
 
       return models.Products.findOne({ _id });
@@ -257,6 +276,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         mergedIds: productIds,
         name,
         type,
+        uomId: await this.checkUOM(productFields),
         description,
         categoryId,
         vendorId

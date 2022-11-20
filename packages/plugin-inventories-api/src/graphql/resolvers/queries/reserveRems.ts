@@ -114,7 +114,6 @@ const reserveRemsQueries = {
     { models, subdomain }: IContext
   ) => {
     const filter = await getGenerateFilter(subdomain, params);
-    console.log(filter);
     return await models.ReserveRems.find(filter).count();
   }
 };

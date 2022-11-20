@@ -9,7 +9,7 @@ export const initBroker = async cl => {
 
   const { consumeRPCQueue, consumeQueue } = client;
 
-  consumeRPCQueue('products:findOneUom', async ({ subdomain, data }) => {
+  consumeRPCQueue('products:uoms.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     return {
       data: await models.Uoms.findOne(data).lean(),
@@ -17,7 +17,24 @@ export const initBroker = async cl => {
     };
   });
 
-  consumeRPCQueue('products:findUom', async ({ subdomain, data }) => {
+  consumeRPCQueue(
+    'products:uoms.findByProductId',
+    async ({ subdomain, data: { productId } }) => {
+      const models = await generateModels(subdomain);
+      const product = await models.Products.getProduct({ _id: productId });
+
+      if (!product.uomId) {
+        throw new Error('has not uom');
+      }
+
+      return {
+        data: await models.Uoms.findOne({ _id: product.uomId }).lean(),
+        status: 'success'
+      };
+    }
+  );
+
+  consumeRPCQueue('products:uoms.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     return {
       data: await models.Uoms.find(data).lean(),
