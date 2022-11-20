@@ -21,8 +21,6 @@ module.exports = {
     isAvailable: true,
     kind: '{name}',
     logo: '/images/integrations/{name}.png',
-    createUrl: '/settings/integrations/create{Name}',
-    category:
-      'All integrations, For support teams, Marketing automation, Email marketing'
+    createUrl: '/settings/integrations/create{Name}'
   }
 };

@@ -22,9 +22,6 @@ module.exports = {
       'Please write integration description on plugin config file',
     isAvailable: true,
     kind: '{name}',
-    logo: '/images/integrations/{name}.png',
-    createUrl: '/settings/integrations/{name}',
-    category:
-      'All integrations, For support teams, Marketing automation, Email marketing'
+    logo: '/images/integrations/{name}.png'
   }
 };
