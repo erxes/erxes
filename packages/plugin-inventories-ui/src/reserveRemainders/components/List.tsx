@@ -1,9 +1,7 @@
-import Form from '../containers/Form';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import React from 'react';
-import Row from './DayLabelRow';
-import Sidebar from './DayLabelSidebar';
-import { __, Alert, confirm } from '@erxes/ui/src/utils';
+import Row from './Row';
+import Sidebar from './Sidebar';
+import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
 import { BarItems, Wrapper } from '@erxes/ui/src/layout';
 import {
   Button,
@@ -12,51 +10,80 @@ import {
   ModalTrigger,
   Table
 } from '@erxes/ui/src/components';
-import { IDayLabel } from '../types';
+import { IReserveRem } from '../types';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
-import { menuSalesplans } from '../../constants';
+import Form from '../containers/Form';
+import { SUBMENU } from '../../constants';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 
 type Props = {
-  dayLabels: IDayLabel[];
+  reserveRems: IReserveRem[];
   totalCount: number;
   isAllSelected: boolean;
-  toggleAll: (targets: IDayLabel[], containerId: string) => void;
+  toggleAll: (targets: IReserveRem[], containerId: string) => void;
   history: any;
   queryParams: any;
   bulk: any[];
   emptyBulk: () => void;
   toggleBulk: () => void;
-  remove: (doc: { dayLabelIds: string[] }, emptyBulk: () => void) => void;
-  edit: (doc: IDayLabel) => void;
+  remove: (doc: { reserveRemIds: string[] }, emptyBulk: () => void) => void;
+  edit: (doc: IReserveRem) => void;
   searchValue: string;
 };
 
-type State = {};
+type State = {
+  searchValue: string;
+};
 
-class DayLabels extends React.Component<Props, State> {
+class ReserveRems extends React.Component<Props, State> {
   private timer?: NodeJS.Timer;
 
   constructor(props: Props) {
     super(props);
 
-    this.state = {};
+    this.state = {
+      searchValue: this.props.searchValue || ''
+    };
+  }
+
+  search = e => {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+
+    const { history } = this.props;
+    const searchValue = e.target.value;
+
+    this.setState({ searchValue });
+
+    this.timer = setTimeout(() => {
+      router.removeParams(history, 'page');
+      router.setParams(history, { searchValue });
+    }, 500);
+  };
+
+  moveCursorAtTheEnd(e) {
+    const tmpValue = e.target.value;
+
+    e.target.value = '';
+    e.target.value = tmpValue;
   }
 
   onChange = () => {
-    const { toggleAll, dayLabels } = this.props;
-    toggleAll(dayLabels, 'dayLabels');
+    const { toggleAll, reserveRems } = this.props;
+    toggleAll(reserveRems, 'reserveRems');
   };
 
   renderRow = () => {
-    const { dayLabels, history, toggleBulk, bulk, edit } = this.props;
+    const { reserveRems, history, toggleBulk, bulk, edit } = this.props;
 
-    return dayLabels.map(dayLabel => (
+    return reserveRems.map(reserveRem => (
       <Row
-        key={dayLabel._id}
+        key={reserveRem._id}
         history={history}
-        dayLabel={dayLabel}
+        reserveRem={reserveRem}
         toggleBulk={toggleBulk}
-        isChecked={bulk.includes(dayLabel)}
+        isChecked={bulk.includes(reserveRem)}
         edit={edit}
       />
     ));
@@ -66,14 +93,14 @@ class DayLabels extends React.Component<Props, State> {
     return <Form {...props} />;
   };
 
-  removeDayLabels = dayLabels => {
-    const dayLabelIds: string[] = [];
+  removeReserveRems = reserveRems => {
+    const reserveRemIds: string[] = [];
 
-    dayLabels.forEach(dayLabel => {
-      dayLabelIds.push(dayLabel._id);
+    reserveRems.forEach(reserveRem => {
+      reserveRemIds.push(reserveRem._id);
     });
 
-    this.props.remove({ dayLabelIds }, this.props.emptyBulk);
+    this.props.remove({ reserveRemIds }, this.props.emptyBulk);
   };
 
   actionBarRight() {
@@ -83,7 +110,7 @@ class DayLabels extends React.Component<Props, State> {
       const onClick = () =>
         confirm()
           .then(() => {
-            this.removeDayLabels(bulk);
+            this.removeReserveRems(bulk);
           })
           .catch(error => {
             Alert.error(error.message);
@@ -109,6 +136,14 @@ class DayLabels extends React.Component<Props, State> {
 
     return (
       <BarItems>
+        <FormControl
+          type="text"
+          placeholder={__('Type to search')}
+          onChange={this.search}
+          value={this.state.searchValue}
+          autoFocus={true}
+          onFocus={this.moveCursorAtTheEnd}
+        />
         <ModalTrigger
           size={'lg'}
           title="Add label"
@@ -134,10 +169,11 @@ class DayLabels extends React.Component<Props, State> {
                 onChange={this.onChange}
               />
             </th>
-            <th>{__('Date')}</th>
             <th>{__('Branch')}</th>
             <th>{__('Department')}</th>
-            <th>{__('Labels')}</th>
+            <th>{__('Product')}</th>
+            <th>{__('Uom')}</th>
+            <th>{__('Remainder')}</th>
             <th>{__('')}</th>
           </tr>
         </thead>
@@ -148,14 +184,11 @@ class DayLabels extends React.Component<Props, State> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header
-            title={__('Sales Year plans')}
-            submenu={menuSalesplans}
-          />
+          <Wrapper.Header title={__('Sales Year plans')} submenu={SUBMENU} />
         }
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('Day labels')}</Title>}
+            left={<Title>{__('Reserve Remainders')}</Title>}
             right={this.actionBarRight()}
           />
         }
@@ -177,4 +210,4 @@ class DayLabels extends React.Component<Props, State> {
   }
 }
 
-export default DayLabels;
+export default ReserveRems;

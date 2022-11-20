@@ -1,17 +1,15 @@
-import Label from '@erxes/ui/src/components/Label';
-import React from 'react';
-import { FormControl } from '@erxes/ui/src/components';
-import { IDayLabel, IPlanValues } from '../types';
-import { MONTHS } from '../../constants';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Button from '@erxes/ui/src/components/Button';
+import Form from '../containers/EditForm';
+import Icon from '@erxes/ui/src/components/Icon';
+import Label from '@erxes/ui/src/components/Label';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import moment from 'moment';
+import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import SelectLabels from '../../settings/containers/SelectLabels';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Form from '../containers/EditForm';
-import moment from 'moment';
+import { FormControl } from '@erxes/ui/src/components';
+import { IDayLabel } from '../types';
 
 type Props = {
   dayLabel: IDayLabel;

@@ -79,11 +79,22 @@ const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
       productFilter.categoryId = productCategoryId;
     }
 
-    if (Object.keys(productFilter)) {
+    if (Object.keys(productFilter).length) {
+      const limit = await sendProductsMessage({
+        subdomain,
+        action: 'count',
+        data: {
+          ...productFilter,
+          categoryId: productCategoryId
+        },
+        isRPC: true,
+        defaultValue: 0
+      });
+
       const products = await sendProductsMessage({
         subdomain,
         action: 'find',
-        data: { ...productFilter, fields: { _id: 1 } },
+        data: { ...productFilter, limit, fields: { _id: 1 } },
         isRPC: true,
         defaultValue: []
       });
