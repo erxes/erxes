@@ -1,6 +1,24 @@
 import { gql } from 'apollo-server-express';
 
-import { types, queries, mutations } from './schema';
+const types = `
+  type {Name} {
+    _id: String!
+    name: String
+  }
+`;
+
+const queries = `
+  {name}s(typeId: String): [{Name}]
+`;
+
+const params = `
+  name: String,
+`;
+
+const mutations = `
+  {name}sAdd(${params}): {Name}
+`;
+
 
 const typeDefs = async _serviceDiscovery => {
   return gql`
