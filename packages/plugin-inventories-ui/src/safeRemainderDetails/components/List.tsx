@@ -93,6 +93,7 @@ export default function List(props: Props) {
         <DataWithLoader
           data={content}
           loading={loading}
+          count={totalCount}
           emptyContent={
             <EmptyState
               image="/images/actions/5.svg"
@@ -105,6 +106,7 @@ export default function List(props: Props) {
       actionBar={<Wrapper.ActionBar right={actionbarRight} />}
       leftSidebar={<Sidebar safeRemainder={safeRemainder} />}
       footer={<Pagination count={totalCount} />}
+      transparent={true}
     />
   );
 }

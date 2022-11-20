@@ -42,7 +42,7 @@ export const safeRemainderItemFields = `
   _id
   branchId
   departmentId
-  
+
   preCount
   count
   status
@@ -61,7 +61,7 @@ export const safeRemainderItemFields = `
     code
     name
   }
-  uomId\  
+  uomId
 `;
 
 const safeRemainderDetail = `
@@ -83,6 +83,8 @@ const safeRemainderItems = `
     $productCategoryId: String
     $diffType: String
     $searchValue: String
+    $page: Int
+    $perPage: Int
   ) {
     safeRemainderItems (
       remainderId: $remainderId,
@@ -90,6 +92,8 @@ const safeRemainderItems = `
       productCategoryId: $productCategoryId,
       diffType: $diffType,
       searchValue: $searchValue
+      page: $page
+      perPage: $perPage
     ) {
       ${safeRemainderItemFields}
     }

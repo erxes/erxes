@@ -28,7 +28,7 @@ const safeRemainderItemsFilterParams = `
 `;
 
 export const queries = `
-  safeRemainderItems(${safeRemainderItemsFilterParams}): [SafeRemainderItem]
+  safeRemainderItems(${safeRemainderItemsFilterParams}, page: Int, perPage: Int): [SafeRemainderItem]
   safeRemainderItemsCount(${safeRemainderItemsFilterParams}): Int
 `;
 
