@@ -1,3 +1,4 @@
+import { paginate } from '@erxes/api-utils/src/core';
 import {
   checkPermission,
   requireLogin
@@ -57,7 +58,7 @@ const safeRemainderItemsQueries = {
     { models, subdomain }: IContext
   ) => {
     const query: any = await generateFilterItems(subdomain, params);
-    return models.SafeRemainderItems.find(query);
+    return paginate(models.SafeRemainderItems.find(query).lean(), params);
   },
 
   safeRemainderItemsCount: async (
