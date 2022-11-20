@@ -146,7 +146,7 @@ This file contains main configuration of a plugin.
 
 ##### messageBroker.ts
 
-This file uses for connect with other plugins. You can see message broker functions from <a href="http://localhost:3001/docs/code-reference/api/common-functions#message-broker-functions" target="_blank">**Common functions**</a>.
+This file uses for connect with other plugins. You can see message broker functions from <a href="https://docs.erxes.io/docs/code-reference/api/common-functions#message-broker-functions" target="_blank">**Common functions**</a>.
 
 <details>
   <summary>Click to see messageBroker.ts file: </summary>

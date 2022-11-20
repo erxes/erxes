@@ -456,7 +456,7 @@ This file contains integration controllers such as listening integration, connec
 
 ##### messageBroker.ts
 
-This file uses for connect with other plugins. You can see message broker functions from <a href="http://localhost:3001/docs/code-reference/api/common-functions#message-broker-functions" target="_blank">**Common functions**</a>.
+This file uses for connect with other plugins. You can see message broker functions from <a href="https://docs.erxes.io/docs/code-reference/api/common-functions#message-broker-functions" target="_blank">**Common functions**</a>.
 
 <details>
   <summary>Click to see messageBroker.ts file:</summary>
@@ -692,7 +692,7 @@ Inside `src/models.ts`, file contains Mongoose schema and models.
 
 
 ### UI file structure
-Automatically generated integration plugin UI's file structure same as general plugin. Only difference is configuring UI. If you want to see general plugin UI file structure <a href="http://localhost:3001/docs/developer/developing-plugins#ui-file-structure">click here</a>.
+Automatically generated integration plugin UI's file structure same as general plugin. Only difference is configuring UI. If you want to see general plugin UI file structure <a href="https://docs.erxes.io/docs/developer/developing-plugins#ui-file-structure">click here</a>.
 
 
 ## Configuring UI
