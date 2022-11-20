@@ -24,7 +24,7 @@ type Props = {
 type State = {
   currentMap: IConfigsMap;
   is_uom: boolean;
-  default_uom: string;
+  defaultUOM: string;
 };
 
 class GeneralSettings extends React.Component<Props, State> {
@@ -33,10 +33,8 @@ class GeneralSettings extends React.Component<Props, State> {
 
     this.state = {
       currentMap: props.configsMap || {},
-      is_uom: props.configsMap.isReqiureUOM || false,
-      default_uom: props.configsMap.default_uom
-        ? props.configsMap.default_uom
-        : ''
+      is_uom: props.configsMap.isRequireUOM || false,
+      defaultUOM: props.configsMap.defaultUOM ? props.configsMap.defaultUOM : ''
     };
   }
 
@@ -67,7 +65,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
   onChangeCombobox = (code: string, option) => {
     const value = option.value;
-    this.setState({ default_uom: value });
+    this.setState({ defaultUOM: value });
     this.onChangeConfig(code, value);
   };
 
@@ -95,7 +93,7 @@ class GeneralSettings extends React.Component<Props, State> {
         <ControlLabel>{title || key}</ControlLabel>
         {description && <p>{__(description)}</p>}
         <Select
-          value={this.state.default_uom}
+          value={this.state.defaultUOM}
           onChange={this.onChangeCombobox.bind(this, key)}
           options={uoms.map(e => ({ value: e._id, label: e.name }))}
         />
@@ -123,9 +121,9 @@ class GeneralSettings extends React.Component<Props, State> {
     const content = (
       <ContentBox id={'GeneralSettingsMenu'}>
         <CollapseContent title="General settings">
-          {this.renderCheckbox('isReqiureUOM', 'is Reqiured UOM', '')}
+          {this.renderCheckbox('isRequireUOM', 'is Required UOM', '')}
           {this.state.is_uom &&
-            this.renderCombobox('default_uom', 'default uom')}
+            this.renderCombobox('defaultUOM', 'default uom')}
         </CollapseContent>
       </ContentBox>
     );
