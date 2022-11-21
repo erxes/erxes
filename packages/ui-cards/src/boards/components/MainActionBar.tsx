@@ -2,7 +2,7 @@ import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils/core';
+import { isEnabled, __ } from '@erxes/ui/src/utils/core';
 import Participators from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/Participators';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -28,6 +28,8 @@ import {
   showByTime
 } from '../constants';
 import SelectType from './SelectType';
+import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
+import Filter from '@erxes/ui/src/components/filter/Filter';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -349,7 +351,8 @@ class MainActionBar extends React.Component<Props> {
       options,
       rightContent,
       boardText,
-      pipelineText
+      pipelineText,
+      queryParams
     } = this.props;
 
     const type = options.type;
@@ -410,6 +413,9 @@ class MainActionBar extends React.Component<Props> {
         {this.renderChartView()}
 
         {this.renderTimeView()}
+        {queryParams && <Filter queryParams={queryParams} />}
+
+        {isEnabled('segments') && <TemporarySegment contentType={`cards:${type}`} />}
 
         {this.renderViewChooser()}
 
