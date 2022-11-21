@@ -781,7 +781,15 @@ export const getItemList = async (
     pipelines.splice(3, 0, { $limit: limit });
   }
 
+  if (serverTiming) {
+    serverTiming.startTime('getItemsPipelineAggregate');
+  }
+
   const list = await collection.aggregate(pipelines);
+
+  if (serverTiming) {
+    serverTiming.endTime('getItemsPipelineAggregate');
+  }
 
   const ids = list.map(item => item._id);
 
@@ -965,6 +973,10 @@ export const getItemList = async (
     serverTiming.endTime('getItemsNotifications');
   }
 
+  if (serverTiming) {
+    serverTiming.startTime('getItemsFields');
+  }
+
   const fields = await sendFormsMessage({
     subdomain,
     action: 'fields.find',
@@ -977,6 +989,10 @@ export const getItemList = async (
     isRPC: true,
     defaultValue: []
   });
+
+  if (serverTiming) {
+    serverTiming.endTime('getItemsFields');
+  }
 
   for (const item of list) {
     if (
