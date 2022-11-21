@@ -54,6 +54,8 @@ export interface IPost {
 
   custom: any;
   customIndexed: any;
+
+  tagIds?: string[] | null;
 }
 
 export type PostDocument = IPost & Document;
@@ -169,12 +171,15 @@ export const postSchema = new Schema<PostDocument>({
   stateChangedByCpId: String,
 
   custom: Schema.Types.Mixed,
-  customIndexed: Schema.Types.Mixed
+  customIndexed: Schema.Types.Mixed,
+
+  tagIds: [String]
 });
 // used by client portal front-end
 postSchema.index({ state: 1, categoryApprovalState: 1, categoryId: 1 });
 // mostly used by update query of updateTrendScoreOfPublished
 postSchema.index({ stateChangedAt: 1, state: 1 });
+postSchema.index({ tagIds: 1, state: 1 });
 
 postSchema.index({
   title: 'text'
