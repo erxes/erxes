@@ -15,6 +15,7 @@ const commonParams = `
   $sortDirection: Int,
   $userIds: [String],
   $segment: String,
+  $segmentData:String,
   $assignedToMe: String,
   $startDate: String,
   $endDate: String,
@@ -33,6 +34,7 @@ const commonParamDefs = `
   sortDirection: $sortDirection
   userIds: $userIds
   segment: $segment
+  segmentData: $segmentData,
   assignedToMe: $assignedToMe
   startDate: $startDate
   endDate: $endDate
