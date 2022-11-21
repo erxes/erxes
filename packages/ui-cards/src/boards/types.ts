@@ -385,6 +385,7 @@ export interface IFilterParams extends ISavedConformity {
   labelIds?: string;
   userIds?: string;
   segment?: string;
+  segmentData?: string;
   assignedToMe?: string;
   startDate?: string;
   endDate?: string;

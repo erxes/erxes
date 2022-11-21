@@ -16,10 +16,22 @@ const configMutations = {
       const doc = { code, value };
 
       await models.ProductsConfigs.createOrUpdateConfig(doc);
-
-      // resetConfigsCache();
     }
 
+    const { isRequireUOM, defaultUOM } = configsMap;
+
+    if (isRequireUOM && !defaultUOM) {
+      throw new Error('must fill default UOM');
+    }
+
+    if (isRequireUOM && defaultUOM) {
+      await models.Products.updateMany(
+        {
+          $or: [{ uomId: { $exists: false } }, { uomId: '' }]
+        },
+        { $set: { uomId: defaultUOM } }
+      );
+    }
     return ['success'];
   }
 };
