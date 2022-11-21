@@ -2,7 +2,6 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import Icon from '@erxes/ui/src/components/Icon';
-import moment from 'moment';
 import React from 'react';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
@@ -10,11 +9,8 @@ import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProdu
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __, router } from '@erxes/ui/src/utils';
-import {
-  Sidebar as LeftSidebar,
-  SidebarList as List
-} from '@erxes/ui/src/layout';
 import { SidebarFilters } from '../../styles';
+import { SidebarList as List } from '@erxes/ui/src/layout';
 import { Wrapper } from '@erxes/ui/src/layout';
 
 interface Props {
@@ -68,101 +64,95 @@ class Sidebar extends React.Component<Props> {
 
     return (
       <Wrapper.Sidebar hasBorder>
-        <LeftSidebar hasBorder>
-          <Section maxHeight={188} collapsible={false}>
-            <Section.Title>
-              {__('Filters')}
-              <Section.QuickButtons>
-                {(router.getParam(this.props.history, 'branchId') ||
-                  router.getParam(this.props.history, 'departmentId') ||
-                  router.getParam(this.props.history, 'productCategoryId') ||
-                  router.getParam(this.props.history, 'productId') ||
-                  router.getParam(this.props.history, 'remainder')) && (
-                  <a href="#cancel" tabIndex={0} onClick={this.clearFilter}>
-                    <Tip text={__('Clear filter')} placement="bottom">
-                      <Icon icon="cancel-1" />
-                    </Tip>
-                  </a>
-                )}
-              </Section.QuickButtons>
-            </Section.Title>
-            <SidebarFilters>
-              <List id="SettingsSidebar">
-                <FormGroup>
-                  <ControlLabel>Branch</ControlLabel>
-                  <SelectBranches
-                    label="Choose branch"
-                    name="branchId"
-                    initialValue={queryParams.branchId || ''}
-                    customOption={{
-                      value: '',
-                      label: '...Clear branch filter'
-                    }}
-                    onSelect={branchId => this.setFilter('branchId', branchId)}
-                    multi={false}
-                  />
-                </FormGroup>
-                <FormGroup>
-                  <ControlLabel>Department</ControlLabel>
-                  <SelectDepartments
-                    label="Choose department"
-                    name="departmentId"
-                    initialValue={queryParams.departmentId || ''}
-                    customOption={{
-                      value: '',
-                      label: '...Clear department filter'
-                    }}
-                    onSelect={departmentId =>
-                      this.setFilter('departmentId', departmentId)
-                    }
-                    multi={false}
-                  />
-                </FormGroup>
-                <FormGroup>
-                  <ControlLabel>Product Category</ControlLabel>
-                  <SelectProductCategory
-                    label="Choose product category"
-                    name="productCategoryId"
-                    initialValue={queryParams.productCategoryId || ''}
-                    customOption={{
-                      value: '',
-                      label: '...Clear product category filter'
-                    }}
-                    onSelect={categoryId =>
-                      this.setFilter('productCategoryId', categoryId)
-                    }
-                    multi={false}
-                  />
-                </FormGroup>
-                <FormGroup>
-                  <ControlLabel>Product</ControlLabel>
-                  <SelectProducts
-                    label="Choose product"
-                    name="productId"
-                    initialValue={queryParams.productId || ''}
-                    customOption={{
-                      value: '',
-                      label: '...Clear product filter'
-                    }}
-                    onSelect={productId =>
-                      this.setFilter('productId', productId)
-                    }
-                    multi={false}
-                  />
-                </FormGroup>
-                <FormGroup>
-                  <ControlLabel>Remainder</ControlLabel>
-                  <FormControl
-                    type="number"
-                    name={'remainder'}
-                    defaultValue={queryParams.remainder || 0}
-                    onChange={onChange}
-                  />
-                </FormGroup>
-              </List>
-            </SidebarFilters>
-          </Section>
-        </LeftSidebar>
+        <Section.Title>
+          {__('Filters')}
+          <Section.QuickButtons>
+            {(router.getParam(this.props.history, 'branchId') ||
+              router.getParam(this.props.history, 'departmentId') ||
+              router.getParam(this.props.history, 'productCategoryId') ||
+              router.getParam(this.props.history, 'productId') ||
+              router.getParam(this.props.history, 'remainder')) && (
+              <a href="#cancel" tabIndex={0} onClick={this.clearFilter}>
+                <Tip text={__('Clear filter')} placement="bottom">
+                  <Icon icon="cancel-1" />
+                </Tip>
+              </a>
+            )}
+          </Section.QuickButtons>
+        </Section.Title>
+        <SidebarFilters>
+          <List id="SettingsSidebar">
+            <FormGroup>
+              <ControlLabel>Branch</ControlLabel>
+              <SelectBranches
+                label="Choose branch"
+                name="branchId"
+                initialValue={queryParams.branchId || ''}
+                customOption={{
+                  value: '',
+                  label: '...Clear branch filter'
+                }}
+                onSelect={branchId => this.setFilter('branchId', branchId)}
+                multi={false}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Department</ControlLabel>
+              <SelectDepartments
+                label="Choose department"
+                name="departmentId"
+                initialValue={queryParams.departmentId || ''}
+                customOption={{
+                  value: '',
+                  label: '...Clear department filter'
+                }}
+                onSelect={departmentId =>
+                  this.setFilter('departmentId', departmentId)
+                }
+                multi={false}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Product Category</ControlLabel>
+              <SelectProductCategory
+                label="Choose product category"
+                name="productCategoryId"
+                initialValue={queryParams.productCategoryId || ''}
+                customOption={{
+                  value: '',
+                  label: '...Clear product category filter'
+                }}
+                onSelect={categoryId =>
+                  this.setFilter('productCategoryId', categoryId)
+                }
+                multi={false}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Product</ControlLabel>
+              <SelectProducts
+                label="Choose product"
+                name="productId"
+                initialValue={queryParams.productId || ''}
+                customOption={{
+                  value: '',
+                  label: '...Clear product filter'
+                }}
+                onSelect={productId => this.setFilter('productId', productId)}
+                multi={false}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Remainder</ControlLabel>
+              <FormControl
+                type="number"
+                name={'remainder'}
+                defaultValue={queryParams.remainder || 0}
+                onChange={onChange}
+              />
+            </FormGroup>
+          </List>
+        </SidebarFilters>
       </Wrapper.Sidebar>
     );
   }

@@ -1,23 +1,17 @@
-import React from 'react';
-// erxes
-import { __ } from '@erxes/ui/src/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Table from '@erxes/ui/src/components/table';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-// local
+import React from 'react';
 import Row from './Row';
 import Sidebar from './Sidebar';
-import { SUBMENU } from '../../constants';
-// types
+import Table from '@erxes/ui/src/components/table';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from '@erxes/ui/src/utils';
+import { BarItems } from '@erxes/ui/src/layout/styles';
 import { IRemainderProduct } from '../types';
+import { SUBMENU } from '../../constants';
 
 type Props = {
   products: IRemainderProduct[];
@@ -35,7 +29,6 @@ type Props = {
     emptyBulk: () => void
   ) => void;
   handleSearch: (event: any) => void;
-  handleFilter: (key: string, value: any) => void;
   emptyBulk: () => void;
   toggleBulk: () => void;
   toggleAll: (targets: IRemainderProduct[], containerId: string) => void;
@@ -53,7 +46,6 @@ export default function ListComponent(props: Props) {
     bulk,
     recalculate,
     handleSearch,
-    handleFilter,
     emptyBulk,
     toggleBulk,
     toggleAll
@@ -72,24 +64,6 @@ export default function ListComponent(props: Props) {
 
   let actionButtons = (
     <BarItems>
-      <SelectBranches
-        label="Choose branch"
-        name="selectedBranchIds"
-        initialValue={branchId}
-        onSelect={(branchId: any) => handleFilter('branchId', branchId)}
-        multi={false}
-        customOption={{ value: '', label: 'All branches' }}
-      />
-      <SelectDepartments
-        label="Choose department"
-        name="selectedDepartmentIds"
-        initialValue={departmentId}
-        onSelect={(departmentId: any) =>
-          handleFilter('departmentId', departmentId)
-        }
-        multi={false}
-        customOption={{ value: '', label: 'All departments' }}
-      />
       <FormControl
         type="text"
         placeholder={__('Type to search')}
@@ -101,6 +75,7 @@ export default function ListComponent(props: Props) {
         btnStyle="primary"
         size="small"
         icon="calcualtor"
+        disabled={!(branchId && departmentId && bulk.length)}
         onClick={() => recalculate(bulk, departmentId, branchId, emptyBulk)}
       >
         {__('Recalculate')}
