@@ -247,6 +247,7 @@ const getFilterParams = (
     labelIds: queryParams.labelIds,
     userIds: queryParams.userIds,
     segment: queryParams.segment,
+    segmentData:queryParams.segmentData,
     assignedToMe: queryParams.assignedToMe,
     startDate: queryParams.startDate,
     endDate: queryParams.endDate,

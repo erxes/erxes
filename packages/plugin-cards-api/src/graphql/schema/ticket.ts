@@ -50,6 +50,7 @@ const listQueryParams = `
   sortDirection: Int
   userIds: [String]
   segment: String
+  segmentData: String
   assignedToMe: String
   startDate: String
   endDate: String
