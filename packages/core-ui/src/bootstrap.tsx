@@ -12,7 +12,7 @@ import { getEnv, readFile } from 'modules/common/utils';
 import React from 'react';
 import { ApolloProvider } from 'react-apollo';
 import { render } from 'react-dom';
-import { getThemeItem } from 'utils';
+import { getThemeItem } from '@erxes/ui/src/utils/core';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
