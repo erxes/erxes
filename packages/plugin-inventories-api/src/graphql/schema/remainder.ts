@@ -16,18 +16,12 @@ export const types = `
     uom: JSON
   }
 
-  type Uom_ {
-    _id: String!
-    code: String
-    name: String
-  }
-
   type RemainderProduct @key(fields: "_id") {
     _id: String!
     name: String
     code: String
     type: String
-    uom: Uom_
+    uom: Uom
     uomId: String
     category: ProductCategory
     categoryId: String

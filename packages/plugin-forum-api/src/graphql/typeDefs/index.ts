@@ -18,6 +18,7 @@ import ForumPermissionGroup from './ForumPermissionGroup';
 import ForumSubscriptionProduct from './ForumSubscriptionProduct';
 import ForumSubscriptionOrder from './ForumSubscriptionOrder';
 import { SUBSCRIPTION_ORDER_STATES } from '../../db/models/subscription/subscriptionOrder';
+import ForumPage from './ForumPage';
 
 const Invoice = `
   extend type Invoice @key(fields: "_id") {
@@ -96,6 +97,8 @@ export default async function genTypeDefs(serviceDiscovery) {
 
     ${ForumSubscriptionProduct}
     ${ForumSubscriptionOrder({ isPaymentEnabled })}
+
+    ${ForumPage}
 
     ${Query}
     ${Mutation}

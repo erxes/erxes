@@ -161,16 +161,27 @@ export const loadRemainderClass = (models: IModels) => {
         productId: { $in: productIds }
       };
 
-      if (params.departmentId)
+      if (params.departmentId) {
         remainderQuery.departmentId = params.departmentId;
-      if (params.branchId) remainderQuery.branchId = params.branchId;
+      }
+
+      if (params.branchId) {
+        remainderQuery.branchId = params.branchId;
+      }
 
       const remainders = await models.Remainders.find(remainderQuery).lean();
+      const remaindersByProductId = {};
+
+      for (const rem of remainders) {
+        if (!Object.keys(remaindersByProductId).includes(rem.productId)) {
+          remaindersByProductId[rem.productId] = 0;
+        }
+        remaindersByProductId[rem.productId] =
+          remaindersByProductId[rem.productId] + rem.count;
+      }
 
       for (const product of products) {
-        const { count = 0, uomId = '' } =
-          remainders.find((item: any) => item.productId === product._id) || {};
-
+        const count = remaindersByProductId[product._id] || 0;
         product.remainder = count;
       }
 

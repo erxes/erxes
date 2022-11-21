@@ -51,6 +51,11 @@ export interface IPost {
   stateChangedByCpId?: string;
 
   contentRestricted?: boolean;
+
+  custom: any;
+  customIndexed: any;
+
+  tagIds?: string[] | null;
 }
 
 export type PostDocument = IPost & Document;
@@ -163,12 +168,18 @@ export const postSchema = new Schema<PostDocument>({
   stateChangedAt: { type: Date, required: true, default: () => new Date() },
   stateChangedUserType: { type: String, required: true, enum: USER_TYPES },
   stateChangedById: String,
-  stateChangedByCpId: String
+  stateChangedByCpId: String,
+
+  custom: Schema.Types.Mixed,
+  customIndexed: Schema.Types.Mixed,
+
+  tagIds: [String]
 });
 // used by client portal front-end
 postSchema.index({ state: 1, categoryApprovalState: 1, categoryId: 1 });
 // mostly used by update query of updateTrendScoreOfPublished
 postSchema.index({ stateChangedAt: 1, state: 1 });
+postSchema.index({ tagIds: 1, state: 1 });
 
 postSchema.index({
   title: 'text'
@@ -383,6 +394,7 @@ export const generatePostModel = (
   postSchema.loadClass(PostModel);
 
   models.Post = con.model<PostDocument, IPostModel>('forum_posts', postSchema);
+  models.Post.collection.createIndex({ 'customIndexed.$**': 1 });
 };
 
 async function changeStateCommon(

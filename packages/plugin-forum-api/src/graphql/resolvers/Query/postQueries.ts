@@ -10,6 +10,8 @@ export const buildPostsQuery = async (
 ) => {
   const query: any = {};
 
+  const { customQuery = {} } = params;
+
   for (const field of [
     '_id',
     'state',
@@ -43,7 +45,7 @@ export const buildPostsQuery = async (
     query.$text = { $search: params.search };
   }
 
-  return query;
+  return { ...query, ...customQuery };
 };
 
 const PostQueries: IObjectTypeResolver<any, IContext> = {
@@ -77,6 +79,8 @@ const PostQueries: IObjectTypeResolver<any, IContext> = {
 
     const query: any = await buildPostsQuery(models, params, user);
     const { limit = 0, offset = 0, sort = {} } = params;
+
+    console.log(query);
 
     const res = await Post.find(query)
       .select('-content')
