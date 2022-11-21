@@ -159,7 +159,11 @@ export class PutData<IListArgs extends IPutDataArgs> {
         (detail.amount / (100 + taxPercent)) * this.cityTaxPercent;
       citytaxAmount += cityTax;
 
-      stocks.push(await this.generateStock(detail, vat, cityTax));
+      const stock = await this.generateStock(detail, vat, cityTax);
+
+      if (stock) {
+        stocks.push(stock);
+      }
     }
 
     return { stocks, sumAmount, vatAmount, citytaxAmount };
