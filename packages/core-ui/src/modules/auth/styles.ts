@@ -1,5 +1,8 @@
+import { getThemeItem } from '@erxes/ui/src/utils/core';
 import { colors, dimensions, typography } from 'modules/common/styles';
 import styled from 'styled-components';
+
+const thBackground = getThemeItem('background');
 
 const AuthBox = styled.div`
   width: 100%;
@@ -15,7 +18,7 @@ const AuthBox = styled.div`
   }
 
   h2 {
-    color: ${colors.colorPrimary};
+    color: ${thBackground || colors.colorPrimary};
     font-size: 24px;
     font-weight: 800;
     margin: 0 0 10px;
@@ -58,8 +61,13 @@ const AuthBox = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-  }
+    background-color: ${thBackground || colors.colorPrimaryDark}
 
+    &:hover {
+      background-color: ${thBackground || colors.colorPrimaryDark}
+    }
+  }
+  
   a {
     display: block;
     text-align: center;
