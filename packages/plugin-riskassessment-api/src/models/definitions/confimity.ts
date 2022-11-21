@@ -4,15 +4,16 @@ import { field } from './utils';
 export interface IRiskConfirmityDocument extends Document {
   _id: string;
   cardId: string;
+  cardType: string;
   riskAssessmentId: string;
 }
 
 export interface IRiskFormSubmissionDocument extends Document {
-  _id: String;
-  cardId: String;
-  userId: String;
-  formId: String;
-  fieldId: String;
+  _id: string;
+  cardId: string;
+  userId: string;
+  formId: string;
+  fieldId: string;
   value: Number;
 }
 

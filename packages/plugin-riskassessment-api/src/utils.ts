@@ -69,13 +69,22 @@ export const calculateRiskAssessment = async (models, cardId, cardType) => {
     if (['>', '<'].includes(operator)) {
       operator += '=';
       if (eval(resultScore + operator + value)) {
-        await models.RiskAssessment.findOneAndUpdate(
+        return await models.RiskAssessment.findOneAndUpdate(
           { _id: riskAssessmentId },
           { $set: { status: name, statusColor: color } },
           { new: true }
         );
       }
     }
+
+  const riskAssessment = await models.RiskAssessment.findOne({ _id: riskAssessmentId }).lean();
+  if (riskAssessment.status === 'In Progress') {
+    return await models.RiskAssessment.findOneAndUpdate(
+      { _id: riskAssessmentId },
+      { $set: { status: 'No Result', statusColor: '#888' } },
+      { new: true }
+    );
+  }
   }
 };
 
