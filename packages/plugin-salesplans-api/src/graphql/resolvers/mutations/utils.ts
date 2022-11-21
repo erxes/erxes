@@ -49,6 +49,34 @@ function getDaysInMonth(year, month) {
   return new Date(year, month, 0).getDate();
 }
 
+const getMultiplier = async (models, date, departmentId, branchId) => {
+  const dayLabel = await models.DayLabels.findOne({
+    date,
+    departmentId,
+    branchId
+  }).lean();
+
+  if (!dayLabel) {
+    return 1;
+  }
+
+  const labelIds = dayLabel.labelIds;
+
+  if (!labelIds.length) {
+    return 1;
+  }
+
+  const labels = await models.Labels.find({ _id: { $in: labelIds } });
+
+  if (!labels.length) {
+    return 1;
+  }
+
+  const multiplier = labels.map(l => l.multiplier).reduce((a, b) => a * b);
+
+  return multiplier;
+};
+
 export const getDayPlanValues = async (
   models: IModels,
   doc,
@@ -73,16 +101,7 @@ export const getDayPlanValues = async (
 
   const dayPlanCount = monthPlanCount / daysInMonth;
 
-  const dayLabel = await models.DayLabels.findOne({
-    date,
-    departmentId,
-    branchId
-  }).lean();
-  const labelIds = dayLabel.labelIds;
-
-  const labels = await models.Labels.find({ _id: { $in: labelIds } });
-
-  const multiplier = labels.map(l => l.multiplier).reduce((a, b) => a * b);
+  const multiplier = await getMultiplier(models, date, departmentId, branchId);
 
   const dayCalcedCount = dayPlanCount * multiplier;
 

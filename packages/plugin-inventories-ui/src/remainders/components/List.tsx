@@ -73,7 +73,6 @@ export default function ListComponent(props: Props) {
       />
       <Button
         btnStyle="primary"
-        size="small"
         icon="calcualtor"
         disabled={!(branchId && departmentId && bulk.length)}
         onClick={() => recalculate(bulk, departmentId, branchId, emptyBulk)}

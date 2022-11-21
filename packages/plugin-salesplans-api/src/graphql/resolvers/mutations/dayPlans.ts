@@ -1,7 +1,9 @@
+import { DAYPLAN_STATUS } from '../../../constants';
 import { getDayPlanValues, getProducts } from './utils';
 import { IContext } from '../../../connectionResolver';
 import {
   IDayPlan,
+  IDayPlanConfirmParams,
   IDayPlanDocument,
   IDayPlansAddParams
 } from '../../../models/definitions/dayPlans';
@@ -10,6 +12,7 @@ import {
   moduleCheckPermission,
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
+import { sendProcessesMessage } from '../../../messageBroker';
 
 const dayPlansMutations = {
   dayPlansAdd: async (
@@ -133,6 +136,51 @@ const dayPlansMutations = {
     { models }: IContext
   ) => {
     return await models.DayPlans.dayPlansRemove(_ids);
+  },
+  dayPlansConfirm: async (
+    _root: any,
+    doc: IDayPlanConfirmParams,
+    { models, subdomain }: IContext
+  ) => {
+    const {
+      date,
+      branchId,
+      departmentId,
+      productCategoryId,
+      productId,
+      ids
+    } = doc;
+
+    const filter: any = { date, branchId, departmentId };
+
+    if (ids.length) {
+      filter._id = { $in: ids };
+    }
+
+    const { productIds } = await getProducts(
+      subdomain,
+      productId,
+      productCategoryId
+    );
+
+    if (productIds.length) {
+      filter.productId = { $in: productIds };
+    }
+
+    const dayPlans = await models.DayPlans.find(filter).lean();
+
+    await sendProcessesMessage({
+      subdomain,
+      action: 'createWorks',
+      data: { dayPlans, date, branchId, departmentId },
+      isRPC: false
+    });
+
+    await models.DayPlans.updateMany(
+      { _id: { $in: dayPlans.map(d => d._id) } },
+      { $set: { status: DAYPLAN_STATUS.SENT } }
+    );
+    return await models.DayPlans.find(filter).lean();
   }
 };
 

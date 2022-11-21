@@ -8,19 +8,17 @@ export const initBroker = async cl => {
   client = cl;
 
   const { consumeQueue } = cl;
-  // consumeQueue(
-  //   'salesplans:saleslogs.statusUpdate',
-  //   async ({ subdomain, data: { _id, status } }) => {
-  //     const models = await generateModels(subdomain);
+  consumeQueue(
+    'salesplans:dayPlans.updateStatus',
+    async ({ subdomain, data: { _ids, status } }) => {
+      const models = await generateModels(subdomain);
 
-  //     const result = await models.SalesLogs.salesLogStatusUpdate(_id, status);
-
-  //     return {
-  //       data: result,
-  //       status: 'success'
-  //     };
-  //   }
-  // );
+      await models.DayPlans.updateMany(
+        { _id: { $in: _ids } },
+        { $set: { status } }
+      );
+    }
+  );
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {

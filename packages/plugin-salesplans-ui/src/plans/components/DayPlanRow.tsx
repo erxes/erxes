@@ -1,12 +1,10 @@
-import React from 'react';
-import { FormControl } from '@erxes/ui/src/components';
-import { IDayPlan, IPlanValue } from '../types';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
+import Label from '@erxes/ui/src/components/Label';
 import moment from 'moment';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils';
+import { colors, IDayPlan, IPlanValue } from '../types';
+import { FormControl } from '@erxes/ui/src/components';
 import { ITimeframe } from '../../settings/types';
 
 type Props = {
@@ -65,7 +63,16 @@ class Row extends React.Component<Props, State> {
       e.stopPropagation();
     };
 
-    const { _id, date, branch, department, product, uom, planCount } = dayPlan;
+    const {
+      _id,
+      date,
+      branch,
+      department,
+      product,
+      uom,
+      planCount,
+      status
+    } = dayPlan;
     const { values } = this.state;
 
     const sumValue =
@@ -105,26 +112,29 @@ class Row extends React.Component<Props, State> {
         <td>{diff.toLocaleString()}</td>
         <td>
           <ActionButtons>
-            <Tip text={__('Text')} placement="bottom">
-              <Button id="action-button" btnStyle="link">
-                <Icon icon="pen-1" />
-              </Button>
-            </Tip>
+            <Label
+              lblColor={colors[status || ''] || '#0078bf'}
+              children={status}
+            />
           </ActionButtons>
         </td>
         {(
           values.filter(v => !timeFrames.map(t => t._id).includes(v.timeId)) ||
           []
-        ).map(val => (
-          <td key={val._id}>
-            <FormControl
-              type="number"
-              name={val.timeId}
-              defaultValue={(valueById[val.timeId || ''] || {}).count || 0}
-              onChange={this.onChangeValue}
-            />
-          </td>
-        ))}
+        ).map(val =>
+          (valueById[val.timeId || ''] || {}).count ? (
+            <td key={val._id}>
+              <FormControl
+                type="number"
+                name={val.timeId}
+                defaultValue={(valueById[val.timeId || ''] || {}).count}
+                onChange={this.onChangeValue}
+              />
+            </td>
+          ) : (
+            ''
+          )
+        )}
       </tr>
     );
   }
