@@ -27,8 +27,15 @@ const Invoice = `
 
 `;
 
+const Tag = `
+  extend type Tag @key(fields: "_id") {
+    _id: String! @external
+  }
+`;
+
 export default async function genTypeDefs(serviceDiscovery) {
   const isPaymentEnabled = await serviceDiscovery.isEnabled('payment');
+  const isTagsEnabled = await serviceDiscovery.isEnabled('tags');
 
   return gql`
     scalar JSON
@@ -76,6 +83,8 @@ export default async function genTypeDefs(serviceDiscovery) {
 
     ${isPaymentEnabled ? Invoice : ''}
 
+    ${isTagsEnabled ? Tag : ''}
+
     extend type ClientPortalUser @key(fields: "_id") {
       _id: String! @external
       forumSubscriptionEndsAfter: Date
@@ -89,7 +98,7 @@ export default async function genTypeDefs(serviceDiscovery) {
     }
 
     ${ForumCategory}
-    ${ForumPost}
+    ${ForumPost({ isTagsEnabled })}
     ${ForumComment}
 
     ${ForumPermissionGroup}
