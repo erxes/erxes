@@ -10,20 +10,20 @@ export const types = (tagsAvailable, contactsAvailable) => `
   ${
     tagsAvailable
       ? `
-      extend type Tag @key(fields: "_id") {
-        _id: String! @external
-      }
-    `
+        extend type Tag @key(fields: "_id") {
+          _id: String! @external
+        }
+      `
       : ''
   }
 
   ${
     contactsAvailable
       ? `
-      extend type Company @key(fields: "_id") {
-        _id: String! @external
-      }
-    `
+        extend type Company @key(fields: "_id") {
+          _id: String! @external
+        }
+      `
       : ''
   }
 
