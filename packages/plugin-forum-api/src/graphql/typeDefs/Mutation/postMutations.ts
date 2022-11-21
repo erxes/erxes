@@ -10,6 +10,7 @@ const commonPostParams = (isInsert = false) => {
     description: String
     custom: JSON
     customIndexed: JSON
+    tagIds: [ID!]
   `;
 };
 
