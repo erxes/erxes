@@ -18,8 +18,6 @@ import {
 } from '@erxes/ui-inbox/src/inbox/styles';
 
 import Button from '@erxes/ui/src/components/Button';
-// import { FacebookTaggedMessage } from './styles';
-// import FacebookTaggedMessageModal from './facebook/FacebookTaggedMessageModal';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IAttachmentPreview } from '@erxes/ui/src/types';
 import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
@@ -34,7 +32,7 @@ import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import Tip from '@erxes/ui/src/components/Tip';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { deleteHandler } from '@erxes/ui/src/utils/uploadHandler';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 const Editor = asyncComponent(
   () => import(/* webpackChunkName: "Editor-in-Inbox" */ './Editor'),
@@ -391,33 +389,6 @@ class RespondBox extends React.Component<Props, State> {
     return null;
   }
 
-  // renderFacebookTagMessage() {
-  //   const selectTag = value => {
-  //     this.setState({ facebookMessageTag: value });
-  //   };
-
-  //   if (this.state.isFacebookTaggedMessage) {
-  //     return (
-  //       <Mask id="mask">
-  //         <div>
-  //           {__(
-  //             'Your last interaction with this contact was more than 24 hours ago. Only Tagged Messages are allowed outside the standard messaging window'
-  //           )}
-  //           <FacebookTaggedMessage>
-  //             <FacebookTaggedMessageModal
-  //               tag={this.state.facebookMessageTag}
-  //               selectTag={selectTag}
-  //               hideMask={this.hideMask}
-  //             />
-  //           </FacebookTaggedMessage>
-  //         </div>
-  //       </Mask>
-  //     );
-  //   }
-
-  //   return null;
-  // }
-
   renderEditor() {
     const { isInternal, responseTemplate } = this.state;
     const { responseTemplates, conversation } = this.props;
@@ -546,12 +517,30 @@ class RespondBox extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { isInternal, isInactive, isFacebookTaggedMessage } = this.state;
+    const {
+      isInternal,
+      isInactive,
+      isFacebookTaggedMessage,
+      facebookMessageTag
+    } = this.state;
+
+    const selectTag = value => {
+      this.setState({ facebookMessageTag: value });
+    };
+
+    const fbTagMessage = isEnabled('facebook')
+      ? loadDynamicComponent('tagMessage', {
+          hideMask: this.hideMask,
+          selectTag,
+          tag: facebookMessageTag,
+          isTaggedMessage: isFacebookTaggedMessage
+        })
+      : null;
 
     return (
       <MaskWrapper>
         {this.renderMask()}
-        {/* {this.renderFacebookTagMessage()} */}
+        {fbTagMessage}
         <RespondBoxStyled
           isInternal={isInternal}
           isInactive={isInactive || isFacebookTaggedMessage}
