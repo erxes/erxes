@@ -1,24 +1,15 @@
-import { IContext } from '../../connectionResolver';
-import { ITemplate } from '../../models/definitions/template';
+import { {Name}s } from "../../models";
+import { IContext } from "@erxes/api-utils/src/types"
 
-
-
-interface ITemplateEdit extends ITemplate {
-  _id: string;
-}
-
-const templateMutations = {
+const {name}Mutations = {
   /**
    * Creates a new {name}
    */
-  async {name}sAdd(_root, doc: ITemplate, { models }: IContext) {
-    const template = await models.Templates.createTemplate(doc);
+  async {name}sAdd(_root, doc, _context: IContext) {
+    const {name} = await {Name}s.create{Name}(doc);
 
-    return template;
+    return {name};
   }
 };
 
-// commented out for testing purposes
-// requireLogin(templateMutations, '{name}sAdd');
-
-export default templateMutations;
+export default {name}Mutations;
