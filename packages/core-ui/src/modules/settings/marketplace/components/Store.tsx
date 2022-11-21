@@ -103,31 +103,25 @@ class Store extends React.Component<Props, State> {
     });
   }
 
-  renderPlugins(type?: string) {
+  renderPlugins() {
     const { plugins } = this.state;
-    const isAddon = type === 'addon' ? true : false;
 
     if (!plugins || plugins.length === 0) {
       return (
         <EmptyContent>
           <EmptyState
-            text={__(
-              `Sorry, We don't have any suitable ${
-                isAddon ? 'add-ons' : 'plugins'
-              } at the moment`
-            )}
-            image={`/images/actions/${isAddon ? 5 : 30}.svg`}
+            text={__(`Sorry, We don't have any suitable plugins at the moment`)}
+            image={`/images/actions/30.svg`}
           />
         </EmptyContent>
       );
     }
 
     return plugins.map((plugin, index) => {
-      const addon = plugin.mainType === 'addon';
-
       if (
-        (isAddon ? !addon : addon) ||
-        (plugin.mainType || [] || '').includes('service')
+        !plugin ||
+        !(plugin.displayLocations || []).includes('os') ||
+        (plugin.mainType || '') === 'service'
       ) {
         return null;
       }
@@ -136,7 +130,6 @@ class Store extends React.Component<Props, State> {
         <PluginBox
           key={index}
           plugin={plugin}
-          isAddon={isAddon}
           plugins={plugins}
           isOpenSource={true}
         />
@@ -160,8 +153,8 @@ class Store extends React.Component<Props, State> {
       );
     }
 
-    return plugins.map((service, index) => (
-      <ServiceBox key={index} service={service} />
+    return plugins.map((plugin, index) => (
+      <ServiceBox key={index} plugin={plugin} />
     ));
   }
 

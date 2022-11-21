@@ -23,12 +23,14 @@ export default {
     );
   },
 
-  integration(
+  async integration(
     conversation: IConversationDocument,
     _args,
     { models }: IContext
   ) {
-    return models.Integrations.findOne({ _id: conversation.integrationId });
+    return models.Integrations.findOne({
+      _id: conversation.integrationId
+    });
   },
 
   user(conversation: IConversationDocument) {

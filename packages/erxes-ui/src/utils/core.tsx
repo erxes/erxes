@@ -295,9 +295,9 @@ export const getUserAvatar = (user: IUserDoc) => {
     return '';
   }
 
-  const { details = {} } = user;
+  const details = user.details;
 
-  if (!details.avatar) {
+  if (!details || !details.avatar) {
     return '/images/avatar-colored.svg';
   }
 
@@ -644,4 +644,13 @@ export const publicUrl = path => {
   }
 
   return `${prefix}${path}`;
+};
+
+export const getThemeItem = code => {
+  const configs = JSON.parse(
+    localStorage.getItem('erxes_theme_configs') || '[]'
+  );
+  const config = configs.find(c => c.code === `THEME_${code.toUpperCase()}`);
+
+  return config ? config.value : '';
 };

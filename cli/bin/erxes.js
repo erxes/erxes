@@ -7,7 +7,18 @@ const program = require('commander');
 const packageJSON = require('../package.json');
 const startCmd = require('../commands/start');
 const updateCmd = require('../commands/update');
-const { manageInstallation, up, update, restart, deployDbs, dumpDb, deployMongoBi } = require('../commands/docker/utils');
+const {
+  removeService,
+  syncui,
+  installerUpdateConfigs,
+  up,
+  update,
+  restart,
+  deployDbs,
+  dumpDb,
+  deployMongoBi
+} = require('../commands/docker/utils');
+
 const { devOnly, devCmd, devStop } = require('../commands/dev');
 
 /**
@@ -43,6 +54,8 @@ program
   .option('--bash', 'Add interpreter:/bin/bash')
   .option('--deps', 'Install ui dependencies')
   .option('--ignoreRun', 'Ignore pm2 start')
+  .option('--ignoreCoreUI', 'Do not stop uis')
+  .option('--ignoreCore', 'Do not stop coreapi')
   .action(devCmd);
 
 program
@@ -76,6 +89,7 @@ program
   .command('up')
   .description('Run erxes using docker')
   .option('--uis', 'Download uis')
+  .option('--fromInstaller', 'From installer')
   .action(up);
 
 program
@@ -89,8 +103,16 @@ program
   .action(restart);
 
 program
-  .command('manage-installation')
-  .action(manageInstallation);
+  .command('remove-service')
+  .action(removeService);
+
+program
+  .command('syncui')
+  .action(syncui);
+
+program
+  .command('installer-update-configs')
+  .action(installerUpdateConfigs);
 
 program
   .command('deploy-mongobi')

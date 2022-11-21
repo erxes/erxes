@@ -28,11 +28,11 @@ export type TypeQueryResponse = {
 
 // mutations
 export type MutationVariables = {
-  _id?: String;
-  name: String;
+  _id?: string;
+  name: string;
   createdAt?: Date;
   expiryDate?: Date;
-  checked?: Boolean;
+  checked?: boolean;
   type?: string;
 };
 export type AddMutationResponse = {
@@ -54,9 +54,3 @@ export type EditTypeMutationResponse = {
 export type RemoveTypeMutationResponse = {
   typesRemove: (params: { variables: { _id: string } }) => Promise<any>;
 };
-
-// export type {Name}MutationVariables = {
-//   type: string;
-//   targetIds: string[];
-//   tagIds: string[];
-// };

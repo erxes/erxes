@@ -1,4 +1,4 @@
-import { checkPermission, requireLogin } from '../../permissions/wrappers';
+import { checkPermission, requireLogin } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 
 interface IListArgs {

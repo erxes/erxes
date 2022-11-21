@@ -1,17 +1,16 @@
 import { sendCommonMessage } from '../../../messageBroker';
-import {
-  moduleCheckPermission,
-  requireLogin
-} from '../../permissions/wrappers';
 import { IContext } from '../../../connectionResolver';
 import {
-  checkPremiumService,
   getCoreDomain,
   initFirebase,
   registerOnboardHistory,
   resetConfigsCache,
   sendRequest
 } from '../../utils';
+import {
+  moduleCheckPermission,
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
 
 const configMutations = {
   /**
@@ -20,14 +19,8 @@ const configMutations = {
   async configsUpdate(_root, { configsMap }, { user, models }: IContext) {
     const codes = Object.keys(configsMap);
 
-    const isThemeEnabled = await checkPremiumService('isThemeServiceEnabled');
-
     for (const code of codes) {
       if (!code) {
-        continue;
-      }
-
-      if (code.includes('THEME_') && !isThemeEnabled) {
         continue;
       }
 
@@ -104,13 +97,27 @@ const configMutations = {
     }
   },
 
-  async configsManagePluginInstall(_root, args, { subdomain }: IContext) {
+  async configsManagePluginInstall(
+    _root,
+    args,
+    { models, subdomain }: IContext
+  ) {
+    const prevAction = await models.InstallationLogs.findOne({
+      message: { $ne: 'done' }
+    });
+
+    if (prevAction) {
+      throw new Error('Installer is busy. Please wait ...');
+    }
+
     await sendCommonMessage({
       subdomain,
       serviceName: '',
       action: 'managePluginInstall',
-      data: args,
-      isRPC: true
+      data: {
+        ...args,
+        subdomain
+      }
     });
 
     return { status: 'success' };

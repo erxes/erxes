@@ -143,10 +143,9 @@ function General({
     className
   }: ControlItem) {
     const handleChange = (e: React.FormEvent) => {
-      handleFormChange(
-        formValueName,
-        (e.currentTarget as HTMLInputElement).value
-      );
+      const value = (e.target as HTMLInputElement).value;
+
+      handleFormChange(formValueName, value);
     };
 
     return (

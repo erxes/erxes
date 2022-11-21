@@ -21,6 +21,7 @@ export const queries = `
   configsCheckPremiumService(type: String!): Boolean
   configsGetEmailTemplate(name: String): String
   configsGetValue(code:String!):JSON
+  configsGetInstallationStatus(name: String!): JSON
   enabledServices: JSON
 `;
 

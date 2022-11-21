@@ -1,7 +1,7 @@
 import {
   receiveImportCreate,
   receiveImportRemove
-} from '../../../worker/utils';
+} from '../../../worker/import/utils';
 import { IContext } from '../../../connectionResolvers';
 import messageBroker, { getFileUploadConfigs } from '../../../messageBroker';
 import { RABBITMQ_QUEUES } from '../../constants';

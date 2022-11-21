@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { dimensions, colors } from '@erxes/ui/src/styles';
-import { TriggerBox, DrawerDetail } from '../../../styles';
+import { TriggerBox } from '../../../styles';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 
 export const ActionFooter = styled.div`
@@ -90,9 +90,3 @@ export const ActionBox = styledTS<{
       }
     }
   `;
-  
-export const BoardItemWrapper = styled(DrawerDetail)`
-  > div > div {
-    padding: 0;
-  }
-`;
