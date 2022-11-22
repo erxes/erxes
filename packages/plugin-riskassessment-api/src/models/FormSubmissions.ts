@@ -170,9 +170,20 @@ export const loadRiskFormSubmissions = (model: IModels, subdomain: string) => {
             defaultValue: {}
           });
 
+          let fieldOptionsValues:any[]=[]
+
+
+          const { optionsValues,options } = fieldData[0]
+
+          fieldOptionsValues = optionsValues?.split('\n')
+
+          if(!optionsValues){
+            fieldOptionsValues = options.map(option=>`${option}=NaN`)
+          }
+
           fields.push({
             ...field,
-            optionsValues: fieldData[0]?.optionsValues.split('\n'),
+            optionsValues: fieldOptionsValues,
             text: fieldData[0]?.text,
             description: fieldData[0]?.description
           });

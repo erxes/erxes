@@ -83,7 +83,7 @@ class FormHistory extends React.Component<Props, State> {
                 className={currentTab === _id ? 'active' : ''}
                 onClick={handleTab.bind(this, _id)}
               >
-                {user.details.fullName}
+                {user?.details?.fullName}
               </TabTitle>
             ))}
           </Tabs>
@@ -101,8 +101,8 @@ class FormHistory extends React.Component<Props, State> {
     return (
       <>
         <FormContainer column gap>
-          <ControlLabel>{__(`Risk Assessment Name: ${riskAssessment.name}`)}</ControlLabel>
-          <ControlLabel>{__(`${cardType} Name: ${card.name}`)}</ControlLabel>
+          <ControlLabel>{__(`Risk Assessment Name: ${riskAssessment.name || ''}`)}</ControlLabel>
+          <ControlLabel>{__(`${cardType} Name: ${card.name || ''}`)}</ControlLabel>
         </FormContainer>
         {this.renderUsersSubmit()}
       </>
