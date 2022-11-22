@@ -111,6 +111,7 @@ const RouteForm = (props: Props) => {
             name="name"
             defaultValue={name}
             onChange={e => setName((e.currentTarget as HTMLInputElement).value)}
+            disabled={true}
           />
         </FormGroup>
 
