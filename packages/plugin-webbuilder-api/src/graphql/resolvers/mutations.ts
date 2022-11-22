@@ -91,20 +91,13 @@ const webbuilderMutations = {
     { _id, name }: { _id: string; name: string },
     { models, user }: IContext
   ) {
-    const siteName = await models.Sites.createSite(
+    const site = await models.Sites.createSite(
       {
         templateId: _id,
         name
       },
-      user._id,
-      true
+      user._id
     );
-
-    const site = await models.Sites.findOne({ name: siteName });
-
-    if (!site) {
-      return;
-    }
 
     const pages = await readHelpersData('pages', `templateId=${_id}`);
 
@@ -145,6 +138,8 @@ const webbuilderMutations = {
         userId: user._id
       });
     }
+
+    return site._id;
   },
 
   async webbuilderTemplatesRemove(

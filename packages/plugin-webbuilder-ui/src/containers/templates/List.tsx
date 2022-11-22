@@ -1,6 +1,6 @@
 import * as compose from 'lodash.flowright';
 
-import { Alert, confirm } from '@erxes/ui/src/utils';
+import { Alert } from '@erxes/ui/src/utils';
 import {
   TemplatesQueryResponse,
   TemplatesTotalCountQueryResponse,
@@ -35,19 +35,19 @@ function ListContainer(props: FinalProps) {
   }
 
   const use = (_id: string, name: string) => {
-    // const message = `Are you sure to create a website using this template? The site will automatically generate!`;
+    templatesUse({ variables: { _id, name } })
+      .then(res => {
+        const {
+          data: { webbuilderTemplatesUse }
+        } = res;
 
-    window.location.href = '/webbuilder/pages/edit/637718c1e1162731183cd03c';
+        Alert.success('Successfully created a website');
 
-    // confirm(message).then(() => {
-    //   templatesUse({ variables: { _id, name } })
-    //     .then(() => {
-    //       Alert.success("Successfully created a website");
-    //     })
-    //     .catch((e) => {
-    //       Alert.error(e.message);
-    //     });
-    // });
+        window.location.href = `/webbuilder/pages/edit/${webbuilderTemplatesUse}`;
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
   };
 
   const templates = templatesQuery.webbuilderTemplates || [];
