@@ -28,12 +28,7 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
     this.setState({ channelIds: values });
   };
 
-  renderButton = ({
-    name,
-    values,
-    isSubmitted,
-    callback
-  }: IButtonMutateProps) => {
+  renderButton = ({ values, isSubmitted, callback }: IButtonMutateProps) => {
     const { type } = this.props;
 
     return (
@@ -44,7 +39,7 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
         isSubmitted={isSubmitted}
         refetchQueries={getRefetchQueries(type)}
         type="submit"
-        successMessage={`You successfully added a ${type} ${name}`}
+        successMessage={`You successfully added a ${type}`}
       />
     );
   };
@@ -60,7 +55,12 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
       onChannelChange: this.onChannelChange
     };
 
-    return loadDynamicComponent('inboxIntegrationForm', updatedProps);
+    return loadDynamicComponent(
+      'inboxIntegrationForm',
+      updatedProps,
+      false,
+      type
+    );
   }
 }
 

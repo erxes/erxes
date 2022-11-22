@@ -24,7 +24,7 @@
   },
   "license": "ISC",
   "dependencies": {
-    "@apollo/client": "^3.3.7",
+    "@apollo/client": "^3.7.1",
     "@nateradebaugh/react-datetime": "^4.4.6",
     "@types/next": "^9.0.0",
     "@zeit/next-css": "^1.0.1",

@@ -14,7 +14,6 @@ import {
 } from './telnyxUtils';
 import { ICustomer, IEmailParams, ISmsParams } from './types';
 import {
-  cleanIgnoredCustomers,
   createTransporter,
   getConfig,
   getConfigs,
@@ -60,8 +59,6 @@ export const start = async (
       );
 
       const msg = `Sent email to: ${customer.primaryEmail}`;
-
-      debugEngages(msg);
 
       await models.Logs.createLog(engageMessageId, 'success', msg);
 
@@ -116,17 +113,8 @@ export const start = async (
     c.primaryEmail.includes('@')
   );
 
-  // cleans customers who do not open or click emails often
-  const {
-    customers: cleanCustomers,
-    ignoredCustomerIds
-  } = await cleanIgnoredCustomers(subdomain, models, {
-    customers: filteredCustomers,
-    engageMessageId
-  });
-
   // finalized email list
-  emails = cleanCustomers.map(customer => customer.primaryEmail);
+  emails = filteredCustomers.map(customer => customer.primaryEmail);
 
   await models.Logs.createLog(
     engageMessageId,
@@ -134,28 +122,14 @@ export const start = async (
     `Preparing to send emails to ${emails.length}: ${emails}`
   );
 
-  if (ignoredCustomerIds.length > 0) {
-    const ignoredCustomers = filteredCustomers.filter(
-      cus => ignoredCustomerIds.indexOf(cus._id) !== -1
-    );
-
-    await models.Logs.createLog(
-      engageMessageId,
-      'regular',
-      `The following customers did not open emails frequently, therefore ignored: ${ignoredCustomers.map(
-        i => i.primaryEmail
-      )}`
-    );
-  }
-
   // set finalized count of the campaign
   await setCampaignCount(models, {
     _id: engageMessageId,
     totalCustomersCount: filteredCustomers.length,
-    validCustomersCount: cleanCustomers.length
+    validCustomersCount: filteredCustomers.length
   });
 
-  for (const customer of cleanCustomers) {
+  for (const customer of filteredCustomers) {
     // multiple customers could have same emails, so check before sending
     const delivery = await models.DeliveryReports.findOne({
       engageMessageId,

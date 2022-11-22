@@ -1,4 +1,5 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
+
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
 import styled from 'styled-components';
 
@@ -96,6 +97,26 @@ const ReactionItem = styled(ReactionCount)`
   }
 `;
 
+const FillContent = styled.div`
+  flex: 1;
+  margin-right: 5px;
+`;
+
+const Forms = styled.div`
+  margin-top: ${dimensions.unitSpacing}px;
+`;
+
+const FlexRow = styled.div`
+  display: flex;
+  flex: 1;
+  align-items: center;
+
+  > div {
+    margin: 0 20px 10px 0;
+    flex: 1;
+  }
+`;
+
 export {
   RowArticle,
   ArticleTitle,
@@ -103,5 +124,8 @@ export {
   AuthorName,
   ReactionCounts,
   ReactionCount,
-  ReactionItem
+  ReactionItem,
+  FillContent,
+  FlexRow,
+  Forms
 };

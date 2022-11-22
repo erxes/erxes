@@ -244,6 +244,10 @@ export default class WorkArea extends React.Component<Props, State> {
         {participatedUsers && (
           <Participators participatedUsers={participatedUsers} limit={3} />
         )}
+
+        {loadDynamicComponent('inboxConversationDetailActionBar', {
+          conversation: currentConversation
+        })}
       </ActionBarLeft>
     );
 
