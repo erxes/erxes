@@ -1,6 +1,8 @@
 import { IModels } from '../../../connectionResolver';
-import { MONTHS, MONTH_NUMBERS } from '../../../constants';
+import { MONTH_NUMBERS } from '../../../constants';
 import { sendProductsMessage } from '../../../messageBroker';
+import { ILabelDocument } from '../../../models/definitions/labels';
+import { IDayLabelDocument } from '../../../models/definitions/dayLabels';
 
 export const getProducts = async (subdomain, productId, productCategoryId) => {
   let products: any[] = [];
@@ -45,9 +47,41 @@ export const getProducts = async (subdomain, productId, productCategoryId) => {
   return { products, productIds };
 };
 
-function getDaysInMonth(year, month) {
-  return new Date(year, month, 0).getDate();
-}
+const getDivederInMonth = async (models: IModels, year, month) => {
+  const dayInMonth = new Date(year, month, 0).getDate();
+  const publicLabels: ILabelDocument[] = await models.Labels.find({
+    effect: 'public'
+  }).lean();
+  const multiplierByLabelId = {};
+
+  for (const label of publicLabels) {
+    multiplierByLabelId[label._id] = label.multiplier;
+  }
+
+  const publicLabelIds = publicLabels.map(pl => pl._id);
+
+  const dayLabels: IDayLabelDocument[] = await models.DayLabels.find({
+    date: {
+      $gte: new Date(year, month, 1),
+      $lte: new Date(year, month, dayInMonth, 23, 59, 59)
+    },
+    labelIds: { $in: publicLabelIds }
+  }).lean();
+
+  let divider = dayInMonth;
+
+  for (const dayLabel of dayLabels) {
+    const currentPubliceLabelIds = dayLabel.labelIds.filter(lId =>
+      publicLabelIds.includes(lId)
+    );
+
+    for (const labelId of currentPubliceLabelIds) {
+      divider += multiplierByLabelId[labelId] - 1;
+    }
+  }
+
+  return divider;
+};
 
 const getMultiplier = async (models, date, departmentId, branchId) => {
   const dayLabel = await models.DayLabels.findOne({
@@ -97,7 +131,11 @@ export const getDayPlanValues = async (
 
   const monthPlanCount = Number(yearPlan.values[key]) || 0;
 
-  const daysInMonth = getDaysInMonth(date.getFullYear(), date.getMonth() + 1);
+  const daysInMonth = await getDivederInMonth(
+    models,
+    date.getFullYear(),
+    date.getMonth() + 1
+  );
 
   const dayPlanCount = monthPlanCount / daysInMonth;
 
