@@ -9,15 +9,21 @@ type Props = {
 };
 
 const SelectCategoryContainer = (props: Props) => {
+  const { field, onChange } = props;
+
+  if (field && field.type !== 'productCategory') {
+    return null;
+  }
+
   return (
     <>
       <ControlLabel>Categories:</ControlLabel>
       <SelectProductCategory
         label="Choose product category"
         name="productCategoryId"
-        initialValue={''}
+        initialValue={(field && field.productCategoryId) || ''}
         onSelect={categoryId =>
-          props.onChange('productCategoryId', categoryId as string)
+          onChange('productCategoryId', categoryId as string)
         }
         multi={false}
       />
