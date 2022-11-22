@@ -16,6 +16,7 @@ import AssetDetails from '../components/Details';
 
 type Props = {
   id: string;
+  history:any
 };
 
 type FinalProps = {
