@@ -10,11 +10,17 @@ import {
   fetchSegment,
   sendCoreMessage,
   sendFormsMessage,
-  sendSegmentsMessage
+  sendSegmentsMessage,
+  sendTagsMessage
 } from '../../../messageBroker';
 import { IContext } from '../../../connectionResolver';
 import { getContentTypeDetail } from '../../../utils';
 import { IUserDocument } from '@erxes/api-utils/src/types';
+
+export interface IIntervals {
+  startTime: string;
+  endTime: string;
+}
 
 export interface IDate {
   month: number;
@@ -805,6 +811,87 @@ const boardQueries = {
     }
 
     return result;
+  },
+
+  async checkFreeTimes(
+    _root,
+    { pipelineId, date, intervals },
+    { models, subdomain }: IContext
+  ) {
+    if (!intervals.length) {
+      return [];
+    }
+
+    const pipeline = await models.Pipelines.getPipeline(pipelineId);
+
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const day = date.getDate();
+    const startTime = intervals[0].startTime.split(':')[0];
+    const startMin = intervals[0].startTime.split(':')[1];
+    const endTime = intervals[intervals.length - 1].endTime.split(':')[0];
+    const endMin = intervals[intervals.length - 1].endTime.split(':')[1];
+
+    const latestStartDate = new Date(year, month, day, startTime, startMin);
+
+    const latestEndDate = new Date(year, month, day, endTime, endMin);
+
+    const { collection } = getCollection(models, pipeline.type);
+
+    if (!pipeline.tagId) {
+      return intervals;
+    }
+
+    const tags = await sendTagsMessage({
+      subdomain,
+      action: 'getTagChildIds',
+      data: { parentId: pipeline.tagId },
+      isRPC: true
+    });
+
+    const stages = await models.Stages.find({ pipelineId });
+
+    const stageIds = stages.map(stage => stage._id);
+
+    const items = await collection.find(
+      {
+        status: { $ne: 'archived' },
+        stageId: { $in: stageIds },
+        startDate: {
+          $lte: latestEndDate
+        },
+        closeDate: {
+          $gte: latestStartDate
+        },
+        tagIds: { $in: tags.map(t => t._id) }
+      },
+      { startDate: 1, closeDate: 1, tagIds: 1 }
+    );
+
+    for (const interval of intervals) {
+      const startTime = interval.startTime.split(':')[0];
+      const startMin = interval.startTime.split(':')[1];
+      const endTime = interval.endTime.split(':')[0];
+      const endMin = interval.endTime.split(':')[1];
+
+      const startDate = new Date(year, month, day, startTime, startMin);
+
+      const endDate = new Date(year, month, day, endTime, endMin);
+
+      const checkingItems = items.filter(
+        item => item.startDate < endDate && item.closeDate > startDate
+      );
+
+      let checkedTagIds: string[] = [];
+
+      for (const item of checkingItems) {
+        checkedTagIds = checkedTagIds.concat(item.tagIds);
+      }
+
+      interval.freeTags = tags.filter(t => !checkedTagIds.includes(t._id));
+    }
+
+    return intervals;
   }
 };
 

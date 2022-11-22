@@ -35,6 +35,18 @@ export const initBroker = async cl => {
       data: await models.Tags.createTag(data)
     };
   });
+
+  consumeRPCQueue(
+    'tags:getTagChildIds',
+    async ({ subdomain, data: { parentId } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.Tags.find({ parentId }).lean(),
+        status: 'success'
+      };
+    }
+  );
 };
 
 export const sendCommonMessage = async (
