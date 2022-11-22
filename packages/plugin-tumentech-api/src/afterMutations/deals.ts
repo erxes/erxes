@@ -4,6 +4,7 @@ import {
   sendCardsMessage,
   sendClientPortalMessage,
   sendContactsMessage,
+  sendCoreMessage,
   sendFormsMessage
 } from '../messageBroker';
 import {
@@ -79,6 +80,10 @@ export const afterDealUpdate = async (subdomain, params) => {
     isRPC: true,
     defaultValue: {}
   });
+
+  await notifyConfirmationFilesAttached(subdomain, deal, oldDeal);
+
+  await notifyUnloadConfirmationFilesAttached(subdomain, deal, oldDeal);
 
   if (deal.stageId !== oldDeal.stageId) {
     if (stage.code && stage.code === 'negotiationAccepted') {
@@ -186,6 +191,18 @@ export const afterDealUpdate = async (subdomain, params) => {
           .add(obj.duration, 'minutes')
           .toDate();
 
+        const conformities = await sendCoreMessage({
+          subdomain,
+          action: 'conformities.getConformities',
+          data: {
+            mainType: 'deal',
+            mainTypeIds: [deal._id],
+            relTypes: ['customer']
+          },
+          isRPC: true,
+          defaultValue: []
+        });
+
         if (dealRoute) {
           await models.Trips.create({
             dealIds: [deal._id],
@@ -195,6 +212,7 @@ export const afterDealUpdate = async (subdomain, params) => {
             status: 'ongoing',
             routeReversed: dealRoute.reversed,
             startedDate: new Date(),
+            customerIds: conformities.map(c => c.relTypeId),
             estimatedCloseDate
           });
         }
@@ -311,10 +329,6 @@ export const afterDealUpdate = async (subdomain, params) => {
       return;
     }
   }
-
-  await notifyConfirmationFilesAttached(subdomain, deal, oldDeal);
-
-  await notifyUnloadConfirmationFilesAttached(subdomain, deal, oldDeal);
 
   return;
 };

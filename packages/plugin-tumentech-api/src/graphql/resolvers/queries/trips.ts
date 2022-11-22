@@ -8,12 +8,14 @@ const tripsQuery = {
     {
       status,
       dealId,
+      customerId,
       driverId,
       page,
       perPage
     }: {
       status?: string;
       dealId?: string;
+      customerId?: string;
       driverId?: string;
       page?: number;
       perPage?: number;
@@ -34,11 +36,20 @@ const tripsQuery = {
       filter.dealIds = dealId;
     }
 
+    if (customerId) {
+      filter.customerIds = customerId;
+    }
+
     return {
-      list: paginate(models.Trips.find(filter).sort({createdAt: -1}).lean(), {
-        page: page || 1,
-        perPage: perPage || 20
-      }),
+      list: paginate(
+        models.Trips.find(filter)
+          .sort({ createdAt: -1 })
+          .lean(),
+        {
+          page: page || 1,
+          perPage: perPage || 20
+        }
+      ),
       totalCount: models.Trips.find(filter).count()
     };
   },
@@ -82,6 +93,14 @@ const tripsQuery = {
       currentLocation,
       searchRadius
     );
+  },
+
+  tripByDealId: async (
+    _root,
+    { dealId }: { dealId: string },
+    { models }: IContext
+  ) => {
+    return models.Trips.getTrip({ dealIds: dealId });
   }
 };
 

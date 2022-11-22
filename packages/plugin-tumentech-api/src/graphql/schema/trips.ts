@@ -35,7 +35,7 @@ input LocationInput {
     ${
       cards
         ? `
-          deals: [Deal]
+          deals(customerId: String): [Deal]
         `
         : ''
     }
@@ -62,9 +62,11 @@ input LocationInput {
 `;
 
 export const queries = `
-    trips(status: String, driverId: String, dealId: String, page: Int, perPage: Int): TripListResponse
+    trips(status: String, customerId: String, driverId: String, dealId: String, page: Int, perPage: Int): TripListResponse
     activeTrips: [Trip]
     tripDetail(_id: String!): Trip
+    tripByDealId(dealId: String! customerId: String): Trip
+
     matchingDeals(routeId:String, carId: String, categoryIds: [String], currentLocation:LocationInput, searchRadius: Int ,date: String, dateType: DateFilterType): [Deal]
 `;
 

@@ -1,3 +1,4 @@
+import { sendCoreMessage } from './../../messageBroker';
 import { IContext } from '../../connectionResolver';
 import { ITripDocument } from '../../models/definitions/trips';
 
@@ -6,8 +7,32 @@ const Trip = {
     return Routes.findOne({ _id: trip.routeId });
   },
 
-  async deals(trip: ITripDocument, _params) {
-    return (trip.dealIds || []).map(_id => ({ __typename: 'Deal', _id }));
+  async deals(trip: ITripDocument, params, { subdomain }: IContext) {
+    const { customerId } = params;
+
+    if (!customerId) {
+      return (trip.dealIds || []).map(_id => ({ __typename: 'Deal', _id }));
+    }
+
+    const conformities = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.getConformities',
+      data: {
+        mainType: 'deal',
+        mainTypeIds: trip.dealIds,
+        relTypes: ['customer']
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    if (conformities.length === 0) {
+      return [];
+    }
+
+    return conformities
+      .filter(c => c.relTypeId === customerId)
+      .map(c => ({ __typename: 'Deal', _id: c.mainTypeId }));
   },
 
   async driver(trip: ITripDocument, _params) {
