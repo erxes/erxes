@@ -40,8 +40,6 @@ const dealQueries = {
       amount: await dealResolvers.amount(item)
     });
 
-    serverTiming.startTime('getItemsList');
-
     const deals = await getItemList(
       models,
       subdomain,
@@ -53,8 +51,6 @@ const dealQueries = {
       getExtraFields,
       serverTiming
     );
-
-    serverTiming.endTime('getItemsList');
 
     // @ts-ignore
     const dealProductIds = deals.flatMap(deal => {

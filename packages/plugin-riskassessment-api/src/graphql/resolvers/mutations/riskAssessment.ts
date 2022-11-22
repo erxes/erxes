@@ -1,3 +1,4 @@
+import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { IRiskAssessmentField } from '../../../models/definitions/common';
 
@@ -24,5 +25,21 @@ const RiskAssessmentMutations = {
     return result;
   }
 };
+
+checkPermission(
+  RiskAssessmentMutations,
+  'addRiskAssesment',
+  'manageRiskAssessment'
+);
+checkPermission(
+  RiskAssessmentMutations,
+  'removeRiskAssessment',
+  'manageRiskAssessment'
+);
+checkPermission(
+  RiskAssessmentMutations,
+  'updateRiskAssessment',
+  'manageRiskAssessment'
+);
 
 export default RiskAssessmentMutations;

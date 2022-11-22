@@ -11,6 +11,7 @@ import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import { generateModels } from './db/models';
 import { IContext } from './graphql';
 import cronjobs from './cronjobs';
+import tags from './tags';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -32,7 +33,8 @@ export default {
   hasSubscriptions: false,
 
   meta: {
-    cronjobs
+    cronjobs,
+    tags
   },
 
   apolloServerContext: async (context, req, res): Promise<IContext> => {

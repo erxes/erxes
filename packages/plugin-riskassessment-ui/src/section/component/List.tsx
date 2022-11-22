@@ -51,7 +51,10 @@ function RiskAssessmentSection(props: Props) {
         size="lg"
         trigger={trigger}
         content={props =>
-          renderFormModalContent({ ...props, riskAssessmentId })
+          renderFormModalContent({
+            ...props,
+            riskAssessmentId
+          })
         }
         title="Risk Assessment"
       />
@@ -152,7 +155,7 @@ function RiskAssessmentSection(props: Props) {
           ) : (
             <EmptyState
               icon="folder-2"
-              text={`No risk assessment submissions`}
+              text={`No risk assessment submission`}
             />
           )}
         </Box>

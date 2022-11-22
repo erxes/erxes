@@ -59,7 +59,19 @@ export const afterQueryHandlers = async (subdomain, data) => {
     let responseByCode = jsonRes;
 
     if (remConfig.account && remConfig.location) {
-      responseByCode = jsonRes[remConfig.account][remConfig.location] || {};
+      const accounts = remConfig.account.split(',') || [];
+      const locations = remConfig.location.split(',') || [];
+      for (const acc of accounts) {
+        for (const loc of locations) {
+          const resp = jsonRes[acc][loc] || {};
+          for (const invCode of Object.keys(resp)) {
+            if (!Object.keys(responseByCode).includes(invCode)) {
+              responseByCode[invCode] = 0;
+            }
+            responseByCode[invCode] += resp[invCode];
+          }
+        }
+      }
     }
 
     for (const r of results) {

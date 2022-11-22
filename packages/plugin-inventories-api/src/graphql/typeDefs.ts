@@ -11,6 +11,11 @@ import {
   types as SafeRemainderTypes
 } from './schema/safeRemainder';
 import {
+  mutations as ReserveRemMutations,
+  queries as ReserveRemQueries,
+  types as ReserveRemTypes
+} from './schema/reserveRems';
+import {
   mutations as SafeRemainderItemMutations,
   queries as SafeRemainderItemQueries,
   types as SafeRemainderItemTypes
@@ -41,12 +46,14 @@ const typeDefs = async _serviceDiscovery => {
     ${RemainderTypes}
     ${SafeRemainderTypes}
     ${SafeRemainderItemTypes}
+    ${ReserveRemTypes}
     ${TransactionTypes}
 
     extend type Query {
       ${RemainderQueries}
       ${SafeRemainderQueries}
       ${SafeRemainderItemQueries}
+      ${ReserveRemQueries}
       ${TransactionQueries}
     }
 
@@ -54,6 +61,7 @@ const typeDefs = async _serviceDiscovery => {
       ${RemainderMutations}
       ${SafeRemainderMutations}
       ${SafeRemainderItemMutations}
+      ${ReserveRemMutations}
       ${TransactionMutations}
     }
   `;

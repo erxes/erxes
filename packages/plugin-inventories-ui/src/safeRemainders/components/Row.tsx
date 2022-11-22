@@ -1,17 +1,15 @@
-import React from 'react';
-import { useHistory } from 'react-router-dom';
-import dayjs from 'dayjs';
-// erxes
-import { __ } from '@erxes/ui/src/utils';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import Label from '@erxes/ui/src/components/Label';
+import moment from 'moment';
+import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils';
 import { DateWrapper } from '@erxes/ui/src/styles/main';
-import { renderUserFullName } from '@erxes/ui/src/utils/core';
-// local
 import { ISafeRemainder } from '../types';
+import { renderUserFullName } from '@erxes/ui/src/utils/core';
+import { useHistory } from 'react-router-dom';
 
 type Props = {
   remainder: ISafeRemainder;
@@ -54,7 +52,9 @@ export default function Row(props: Props) {
     <tr onClick={handleClick}>
       <td>
         <Icon icon="calender" />{' '}
-        <DateWrapper>{dayjs(date).format('ll') || 'Created at'}</DateWrapper>
+        <DateWrapper>
+          {moment(date).format('YYYY/MM/DD') || 'Created at'}
+        </DateWrapper>
       </td>
       <td>{branch ? branch.title : ''}</td>
       <td>{department ? department.title : ''}</td>
@@ -68,7 +68,7 @@ export default function Row(props: Props) {
       <td>
         <Icon icon="calender" />{' '}
         <DateWrapper>
-          {dayjs(modifiedAt).format('ll') || 'Created at'}
+          {moment(date).format('YYYY/MM/DD') || 'Created at'}
         </DateWrapper>
       </td>
       <td>{renderUserFullName(modifiedUser || {})}</td>

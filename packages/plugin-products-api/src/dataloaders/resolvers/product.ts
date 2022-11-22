@@ -26,13 +26,13 @@ export default {
   },
 
   async uom(product: IProductDocument, _, { dataLoaders, models }: IContext) {
-    if (!(await models.ProductsConfigs.getConfig('isReqiureUOM', ''))) {
+    if (!(await models.ProductsConfigs.getConfig('isRequireUOM', ''))) {
       return null;
     }
 
     let uomId = product.uomId;
     if (!uomId) {
-      uomId = await models.ProductsConfigs.getConfig('default_uom', '');
+      uomId = await models.ProductsConfigs.getConfig('defaultUOM', '');
     }
 
     if (!uomId) {

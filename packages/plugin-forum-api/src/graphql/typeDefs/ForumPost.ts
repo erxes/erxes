@@ -52,5 +52,8 @@ export default `
     downVotes: [ClientPortalUser]
 
     contentRestricted: Boolean
+
+    custom: JSON
+    customIndexed: JSON
   }
 `;

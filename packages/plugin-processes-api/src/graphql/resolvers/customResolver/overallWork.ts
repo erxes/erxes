@@ -94,7 +94,7 @@ export default {
       const uom =
         (await sendProductsMessage({
           subdomain,
-          action: 'findOneUom',
+          action: 'uoms.findOne',
           data: { _id: need.uomId || '' },
           isRPC: true
         })) || null;
@@ -128,7 +128,7 @@ export default {
       const uom =
         (await sendProductsMessage({
           subdomain,
-          action: 'findOneUom',
+          action: 'uoms.findOne',
           data: { _id: result.uomId || '' },
           isRPC: true
         })) || null;

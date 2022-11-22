@@ -9,16 +9,14 @@ export const initBroker = async cl => {
 
   const { consumeQueue } = cl;
   consumeQueue(
-    'salesplans:saleslogs.statusUpdate',
-    async ({ subdomain, data: { _id, status } }) => {
+    'salesplans:dayPlans.updateStatus',
+    async ({ subdomain, data: { _ids, status } }) => {
       const models = await generateModels(subdomain);
 
-      const result = await models.SalesLogs.salesLogStatusUpdate(_id, status);
-
-      return {
-        data: result,
-        status: 'success'
-      };
+      await models.DayPlans.updateMany(
+        { _id: { $in: _ids } },
+        { $set: { status } }
+      );
     }
   );
 };
@@ -39,6 +37,17 @@ export const sendInternalNotesMessage = async (
     client,
     serviceDiscovery,
     serviceName: 'internalnotes',
+    ...args
+  });
+};
+
+export const sendProductsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'products',
     ...args
   });
 };

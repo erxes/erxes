@@ -1,3 +1,4 @@
+import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { IRiskAssessmentCategoryField } from '../../../models/definitions/common';
 
@@ -35,4 +36,21 @@ const RiskAssessmentCategoryMutation = {
     );
   }
 };
+
+checkPermission(
+  RiskAssessmentCategoryMutation,
+  'addAssessmentCategory',
+  'manageRiskAssessment'
+);
+checkPermission(
+  RiskAssessmentCategoryMutation,
+  'removeAssessmentCategory',
+  'manageRiskAssessment'
+);
+checkPermission(
+  RiskAssessmentCategoryMutation,
+  'editAssessmentCategory',
+  'manageRiskAssessment'
+);
+
 export default RiskAssessmentCategoryMutation;

@@ -10,6 +10,8 @@ export const commonPostsParams = `
   sort: JSON
   offset: Int
   limit: Int
+
+  customQuery: JSON
 `;
 
 const forumPostsQueryParams = `
@@ -63,6 +65,16 @@ const Query = `
     forumSubscriptionProducts(sort: JSON): [ForumSubscriptionProduct!]
 
     forumCpMySubscriptionOrders: [ForumSubscriptionOrder!]
+
+    forumPages(
+      code: [String!]
+      customQuery: JSON
+      sort: JSON
+      limit: Int
+      offset: Int
+    ): [ForumPage!]
+
+    forumPage(_id: ID!): ForumPage!
   }
 `;
 

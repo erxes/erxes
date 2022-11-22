@@ -154,6 +154,7 @@ export const generateCommonFilters = async (
     userIds,
     tagIds,
     segment,
+    segmentData,
     assignedToMe,
     startDate,
     endDate,
@@ -373,6 +374,12 @@ export const generateCommonFilters = async (
 
   if (assignedToMe) {
     filter.assignedUserIds = { $in: [currentUserId] };
+  }
+
+  if (segmentData) {
+    const segment = JSON.parse(segmentData);
+    const itemIds = await fetchSegment(subdomain, '', {}, segment);
+    filter._id = { $in: itemIds };
   }
 
   if (segment) {
@@ -781,7 +788,15 @@ export const getItemList = async (
     pipelines.splice(3, 0, { $limit: limit });
   }
 
+  if (serverTiming) {
+    serverTiming.startTime('getItemsPipelineAggregate');
+  }
+
   const list = await collection.aggregate(pipelines);
+
+  if (serverTiming) {
+    serverTiming.endTime('getItemsPipelineAggregate');
+  }
 
   const ids = list.map(item => item._id);
 
@@ -965,6 +980,10 @@ export const getItemList = async (
     serverTiming.endTime('getItemsNotifications');
   }
 
+  if (serverTiming) {
+    serverTiming.startTime('getItemsFields');
+  }
+
   const fields = await sendFormsMessage({
     subdomain,
     action: 'fields.find',
@@ -977,6 +996,10 @@ export const getItemList = async (
     isRPC: true,
     defaultValue: []
   });
+
+  if (serverTiming) {
+    serverTiming.endTime('getItemsFields');
+  }
 
   for (const item of list) {
     if (

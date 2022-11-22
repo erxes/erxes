@@ -296,3 +296,21 @@ export const FORUM_SUBSCRIPTION_PRODUCTS_QUERY = gql`
     }
   }
 `;
+
+export const PAGE_DETAIL = gql`
+  query ForumPage($id: ID!) {
+    forumPage(_id: $id) {
+      _id
+      content
+      code
+      custom
+      customIndexed
+      description
+      listOrder
+      thumbnail
+      title
+    }
+  }
+`;
+
+export const PAGE_REFETCH = ['ForumPages', 'ForumPage'];

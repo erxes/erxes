@@ -253,3 +253,40 @@ export const EndDateContainer = styled.div`
     left: -98px !important;
   }
 `;
+
+export const TriggerTabs = styled.div`
+  .hxZkUW {
+    border: 1px solid ${colors.borderPrimary};
+    border-radius: 5px;
+    padding: 2px;
+
+    > span {
+      flex: 1;
+      flex-shrink: 0;
+      text-align: center;
+      font-weight: 500;
+      padding: ${dimensions.unitSpacing - 4}px ${dimensions.coreSpacing}px
+      border-radius: ${dimensions.unitSpacing - 5}px;
+
+      &.active {
+        background: ${colors.colorSecondary};
+        color: ${colors.colorWhite};
+
+        &:before {
+          display: none;
+        }
+      }
+    }
+  }
+`;
+
+export const Divider = styled.div`
+  &:before,
+  &:after {
+    content: '';
+    flex: 1;
+    height: 0;
+    align-self: center;
+    border-bottom: 1px solid ${colors.borderPrimary};
+  }
+`;

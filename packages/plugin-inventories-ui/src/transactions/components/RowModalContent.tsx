@@ -1,14 +1,13 @@
-import React from 'react';
-import dayjs from 'dayjs';
-// erxes
-import { __ } from '@erxes/ui/src/utils/core';
-import Table from '@erxes/ui/src/components/table';
-import TextInfo from '@erxes/ui/src/components/TextInfo';
-import Label from '@erxes/ui/src/components/Label';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Label from '@erxes/ui/src/components/Label';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import Table from '@erxes/ui/src/components/table';
+import TextInfo from '@erxes/ui/src/components/TextInfo';
+import { __ } from '@erxes/ui/src/utils/core';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import moment from 'moment';
 
 type Props = {
   loading: boolean;
@@ -32,7 +31,9 @@ export default function RowModalContent(props: Props) {
             )}
           </td>
           <td>
-            {(item.modifiedAt && dayjs(item.modifiedAt).format('ll')) || ''}
+            {(item.modifiedAt &&
+              moment(item.modifiedAt).format('YYYY/MM/DD')) ||
+              ''}
           </td>
         </tr>
       );
@@ -62,7 +63,7 @@ export default function RowModalContent(props: Props) {
         <FlexItem>
           <TextInfo hugeness="big">Created Date</TextInfo>
           <br />
-          {dayjs(data.createdAt).format('ll') || 'Created at'}
+          {moment(data.createdAt).format('YYYY/MM/DD') || 'Created at'}
         </FlexItem>
       </FlexContent>
       <br />
