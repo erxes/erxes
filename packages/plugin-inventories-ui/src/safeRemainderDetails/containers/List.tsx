@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { useQuery, useMutation } from 'react-apollo';
+import { router } from '@erxes/ui/src/utils';
 import queryString from 'query-string';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
@@ -30,7 +31,8 @@ function ListContainer() {
       remainderId: id,
       status: queryParams.status,
       diffType: queryParams.diffType,
-      productCategoryId: queryParams.productCategoryId
+      productCategoryId: queryParams.productCategoryId,
+      ...router.generatePaginationParams(queryParams || {})
     }
   });
   const safeRemainderItemsCountQuery = useQuery(

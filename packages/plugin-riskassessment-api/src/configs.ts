@@ -5,6 +5,7 @@ import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { generateAllDataLoaders } from './dataLoaders';
+import * as permissions from './permissions'
 
 export let mainDb;
 export let debug;
@@ -13,6 +14,7 @@ export let serviceDiscovery;
 
 export default {
   name: 'riskassessment',
+  permissions,
   graphql: async sd => {
     serviceDiscovery = sd;
 

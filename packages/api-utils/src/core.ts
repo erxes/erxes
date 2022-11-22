@@ -268,16 +268,19 @@ export const sendMessage = async (
     }
   }
 
-  return client[isRPC ? 'sendRPCMessage' : 'sendMessage'](
-    serviceName + (serviceName ? ':' : '') + action,
-    {
-      subdomain,
-      data,
-      defaultValue,
-      timeout,
-      thirdService: data && data.thirdService
-    }
-  );
+  const queueName = serviceName + (serviceName ? ':' : '') + action;
+
+  if (!client) {
+    throw new Error(`client not found during ${queueName}`);
+  }
+
+  return client[isRPC ? 'sendRPCMessage' : 'sendMessage'](queueName, {
+    subdomain,
+    data,
+    defaultValue,
+    timeout,
+    thirdService: data && data.thirdService
+  });
 };
 
 interface IActionMap {

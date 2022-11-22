@@ -31,7 +31,7 @@ class AssetChooser extends React.Component<FinalProps, State> {
     this.assetAddForm = this.assetAddForm.bind(this);
 
     this.state = {
-      perpage: 0,
+      perpage: 20,
       searchValue: ''
     };
 

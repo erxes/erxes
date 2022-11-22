@@ -1,14 +1,12 @@
-import React from 'react';
-import dayjs from 'dayjs';
-// erxes
-import { __ } from '@erxes/ui/src/utils/core';
 import AsyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import Icon from '@erxes/ui/src/components/Icon';
 import Button from '@erxes/ui/src/components/Button';
-import Tip from '@erxes/ui/src/components/Tip';
+import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import moment from 'moment';
+import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils/core';
 import { DateWrapper } from '@erxes/ui/src/styles/main';
-// local
 
 const RowModalContent = AsyncComponent(() =>
   import(
@@ -33,7 +31,7 @@ const Row = (props: Props) => {
       <td>
         <Icon icon="calender" />{' '}
         <DateWrapper>
-          {dayjs(data.createdAt).format('ll') || 'Created at'}
+          {moment(data.createdAt).format('YYYY/MM/DD') || 'Created at'}
         </DateWrapper>
       </td>
       <td>

@@ -8,15 +8,10 @@ const GeneralSettings = asyncComponent(() =>
   )
 );
 
-const Theme = asyncComponent(() =>
-  import(/* webpackChunkName: "Theme" */ './containers/Theme')
-);
-
 const routes = () => {
   return (
     <React.Fragment>
       <Route path="/settings/general/" component={GeneralSettings} />
-      <Route path="/settings/theme/" component={Theme} />
     </React.Fragment>
   );
 };

@@ -112,3 +112,46 @@ export const updateLiveRemainders = async ({
 
   return resultRemainder;
 };
+
+export const getProducts = async (subdomain, productId, productCategoryId) => {
+  let products: any[] = [];
+  if (productId) {
+    const product = await sendProductsMessage({
+      subdomain,
+      action: 'find',
+      data: { _id: productId },
+      isRPC: true
+    });
+    products = [product];
+  }
+
+  if (productCategoryId) {
+    const limit = await sendProductsMessage({
+      subdomain,
+      action: 'count',
+      data: {
+        query: { status: { $nin: ['archived', 'deleted'] } },
+        categoryId: productCategoryId
+      },
+      isRPC: true,
+      defaultValue: 0
+    });
+
+    products = await sendProductsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        query: { status: { $nin: ['archived', 'deleted'] } },
+        categoryId: productCategoryId,
+        limit,
+        sort: { code: 1 }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+  }
+
+  const productIds = products.map(p => p._id);
+
+  return { products, productIds };
+};

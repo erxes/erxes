@@ -35,7 +35,7 @@ export const getProductAndUoms = async (
   if (uomIds.length) {
     const uoms = await sendProductsMessage({
       subdomain,
-      action: 'findUom',
+      action: 'uoms.find',
       data: { _id: { $in: uomIds } },
       isRPC: true,
       defaultValue: []

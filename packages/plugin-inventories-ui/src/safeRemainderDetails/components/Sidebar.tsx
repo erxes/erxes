@@ -1,16 +1,14 @@
-import React from 'react';
-import { useLocation, useHistory } from 'react-router-dom';
-import queryString from 'query-string';
-import Select from 'react-select-plus';
-// erxes
-import { __, router } from '@erxes/ui/src/utils/core';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Box from '@erxes/ui/src/components/Box';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormGroup from '@erxes/ui/src/components/form/Group';
+import queryString from 'query-string';
+import React from 'react';
+import Select from 'react-select-plus';
 import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
-// local
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __, router } from '@erxes/ui/src/utils/core';
 import { SidebarContent } from '../../styles';
+import { useHistory, useLocation } from 'react-router-dom';
 
 type Props = {
   safeRemainder: any;

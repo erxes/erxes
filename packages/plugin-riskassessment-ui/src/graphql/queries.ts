@@ -26,8 +26,33 @@ query RiskAssessmentDetail($id: String, $fieldsSkip: JSON) {
   }
 `;
 
+const assessmentHistory = `
+query RiskFormSubmitHistory($riskAssessmentId: String) {
+  riskFormSubmitHistory(riskAssessmentId: $riskAssessmentId) {
+    cardId
+    cardType
+    card
+    formId
+    riskAssessment
+    riskAssessmentId
+    users {
+      _id
+      fields {
+        description
+        fieldId
+        optionsValues
+        text
+        value
+      }
+      user
+    }
+  }
+}
+`;
+
 export default {
   list,
   listAssessmentCategories,
-  assessmentDetail
+  assessmentDetail,
+  assessmentHistory
 };

@@ -1,15 +1,14 @@
-import { IContext } from '../../connectionResolver';
+import { {Name}s } from "../../models";
+import { IContext } from "@erxes/api-utils/src/types"
 
-const templateQueries = {
+const {name}Queries = {
   {name}s(
     _root,
-    {
-     _args},
-    { models }: IContext
+    _args,
+    _context: IContext
   ) {
-    // return models.Templates.find({});
-    return models.Templates.find({});
-  },
+    return {Name}s.find({});
+  }
 };
 
-export default templateQueries;
+export default {name}Queries;
