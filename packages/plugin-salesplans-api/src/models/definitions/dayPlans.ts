@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+import { DAYPLAN_STATUS } from '../../constants';
 import { field, schemaWrapper } from './utils';
 
 export interface IPlanValue {
@@ -26,6 +27,15 @@ export interface IDayPlansAddParams {
   productId: string;
 }
 
+export interface IDayPlanConfirmParams {
+  date: Date;
+  branchId: string;
+  departmentId: string;
+  productCategoryId: string;
+  productId: string;
+  ids: string[];
+}
+
 export interface IDayPlanDocument extends IDayPlan, Document {
   _id: string;
   createdAt?: Date;
@@ -50,7 +60,12 @@ export const dayPlanSchema = schemaWrapper(
     uomId: field({ type: String, label: 'Uom' }),
     planCount: field({ type: Number, label: 'Plan count' }),
     values: field({ type: [valueSchema], label: '' }),
-    status: field({ type: String, label: 'Status' }),
+    status: field({
+      type: String,
+      enum: DAYPLAN_STATUS.ALL,
+      default: DAYPLAN_STATUS.NEW,
+      label: 'Status'
+    }),
     createdAt: field({ type: Date, default: new Date(), label: 'Created at' }),
     createdBy: field({ type: String, label: 'Created by' }),
     modifiedAt: field({

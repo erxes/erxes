@@ -72,9 +72,7 @@ export const ContentWrapper = styled.div`
   }
 `;
 
-export const Padding = styledTS<{ horizontal?: boolean; vertical?: boolean }>(
-  styled.div
-)`
+export const Padding = styledTS<{ horizontal?: boolean; vertical?: boolean }>(styled.div)`
   padding: ${({ horizontal, vertical }) =>
     !horizontal && !vertical
       ? '10px'
@@ -92,11 +90,10 @@ export const FormContainer = styledTS<{
   justifyCenter?: boolean;
 }>(styled.div)`
   display: flex;
-  flex-direction: ${({ row }) => row && 'row'} ${({ column }) =>
-  column && 'column'};
-  justify-content: ${({ spaceBetween }) =>
-    spaceBetween ? 'space-between' : ''} ${({ spaceAround }) =>
-  spaceAround ? 'space-around' : ''};
+  flex-direction: ${({ row }) => row && 'row'} ${({ column }) => column && 'column'};
+  justify-content: ${({ spaceBetween }) => (spaceBetween ? 'space-between' : '')} ${({
+  spaceAround
+}) => (spaceAround ? 'space-around' : '')};
   gap: ${({ gap }) => (gap ? '25px' : '')};
   gap: ${({ gapBetween }) => (gapBetween ? `${gapBetween}px` : '')};
   place-items:${({ align }) => (align ? align : '')};
@@ -137,9 +134,7 @@ export const ClearableBtn = styled.a`
   cursor: pointer;
 `;
 
-export const ProductName = styledTS<{ pointer?: boolean; underline?: boolean }>(
-  styled.a
-)`
+export const ProductName = styledTS<{ pointer?: boolean; underline?: boolean }>(styled.a)`
   cursor: pointer;
   color: ${colors.textSecondary};
   display: flex;
@@ -251,5 +246,42 @@ export const CustomRangeContainer = styled.div`
 export const EndDateContainer = styled.div`
   .rdtPicker {
     left: -98px !important;
+  }
+`;
+
+export const TriggerTabs = styled.div`
+  .hxZkUW {
+    border: 1px solid ${colors.borderPrimary};
+    border-radius: 5px;
+    padding: 2px;
+
+    > span {
+      flex: 1;
+      flex-shrink: 0;
+      text-align: center;
+      font-weight: 500;
+      padding: ${dimensions.unitSpacing - 4}px ${dimensions.coreSpacing}px
+      border-radius: ${dimensions.unitSpacing - 5}px;
+
+      &.active {
+        background: ${colors.colorSecondary};
+        color: ${colors.colorWhite};
+
+        &:before {
+          display: none;
+        }
+      }
+    }
+  }
+`;
+
+export const Divider = styled.div`
+  &:before,
+  &:after {
+    content: '';
+    flex: 1;
+    height: 0;
+    align-self: center;
+    border-bottom: 1px solid ${colors.borderPrimary};
   }
 `;
