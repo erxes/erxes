@@ -664,11 +664,11 @@ export default class GenerateField extends React.Component<Props, State> {
         return this.renderProduct(attrs);
       }
 
-      case 'branch':{
+      case 'branch': {
         return this.renderBranch(attrs);
       }
 
-      case 'department':{
+      case 'department': {
         return this.renderDepartment(attrs);
       }
 
