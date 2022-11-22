@@ -44,23 +44,38 @@ export const types = `
     status: String
   }
 
-  type Report {
+  type ScheduleReport{
+    date: String
+    scheduleStart: Date
+    scheduleEnd: Date
+    recordedStart: Date
+    recordedEnd: Date
+    minsLate: Int
+  }
+
+  type UserReport{
     user: User
-    schedule: [Schedule]
-    absence: [Absence]
-    recordedShift: [Timeclock]
+    scheduleReport: [ScheduleReport]
+    totalMinsLate: Int
+    totalAbsenceMins: Int
+  }
+
+  type Report {
+    groupTitle: String
+    groupReport: [UserReport]
+    groupTotalMinsLate: Int
+    groupTotalAbsenceMins: Int
   }
 `;
 export const queries = `
   timeclocks(startDate: Date, endDate: Date, userId: String): [Timeclock]
   absences(startDate: Date, endDate: Date, userId: String): [Absence]
-  timeclockReports(departmentId: String, branchId: String): [Report]
+  timeclockReports(departmentIds: [String], branchIds: [String]): [Report]
   schedules(startDate: Date, endDate: Date, userId: String): [Schedule]
   timeclockDetail(_id: String!): Timeclock
   absenceDetail(_id: String!): Absence
   scheduleDetail(_id: String!): Schedule
 `;
-
 const params = `
   time: Date
   userId: String

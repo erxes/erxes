@@ -4,11 +4,11 @@ import queries from './queries';
 import Schedule from './schedule';
 import Absence from './absence';
 import Timeclock from './timeclock';
-import Report from './reports';
+import UserReport from './report';
 
 const resolvers: any = async serviceDiscovery => ({
   ...customScalars,
-  Report,
+  UserReport,
   Schedule,
   Absence,
   Timeclock,

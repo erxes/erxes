@@ -6,6 +6,10 @@ const userFields = `
     avatar
     fullName
   }
+  department{
+    _id
+    title
+  }
 `;
 
 const absenceFields = `
@@ -92,20 +96,26 @@ const listBranches = `
 `;
 
 const listReports = `
-  query listReportsQuery($departmentId: String, $branchId: String){
-    timeclockReports(departmentId:$departmentId, branchId: $branchId){
-      user {
-        ${userFields}
+  query listReportsQuery($departmentIds: [String], $branchIds: [String]){
+    timeclockReports(departmentIds:$departmentIds, branchIds: $branchIds){
+      groupTitle
+      groupReport{
+        user {
+          ${userFields}
+        }
+        scheduleReport {
+          date
+          scheduleStart
+          scheduleEnd
+          recordedStart
+          recordedEnd
+          minsLate
+        }
+        totalMinsLate
+        totalAbsenceMins
       }
-      schedule{
-        ${scheduleFields}
-      }
-      absence{
-        ${absenceFields}
-      }
-      recordedShift{
-        ${timeclockFields}
-      }
+      groupTotalMinsLate
+      groupTotalAbsenceMins
     }
   }`;
 

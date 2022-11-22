@@ -56,11 +56,12 @@ const schedule = ({ location, history }) => {
 const report = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
   const { startDate, endDate, userId, branchIds, departmentIds } = queryParams;
-  console.log(departmentIds);
-  console.log(branchIds);
+  console.log('branch', branchIds);
+
   return (
     <ReportList
-      departmentId="jQxyjrjqPcG38s2Pm"
+      departmentIds={departmentIds ? departmentIds.split(',') : null}
+      branchIds={branchIds ? branchIds.split(',') : null}
       queryStartDate={startDate}
       queryEndDate={endDate}
       queryUserId={userId}

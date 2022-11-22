@@ -5,7 +5,7 @@ export interface ITimeClock {
   userId?: string;
   solved?: boolean;
   status?: string;
-  shiftStart?: Date;
+  shiftStart: Date;
   shiftEnd?: Date;
 }
 
@@ -43,6 +43,9 @@ export interface IShift {
   status?: string;
   shiftStart?: Date;
   shiftEnd?: Date;
+  absentWholeShift?: boolean;
+  absenceStart?: Date;
+  absenceEnd?: Date;
 }
 
 export interface IShiftDocument extends IShift, Document {
@@ -104,5 +107,11 @@ export const scheduleShiftSchema = new Schema({
     type: Date,
     label: 'starting date and time of the shift'
   }),
-  shiftEnd: field({ type: Date, label: 'ending date and time of the shift' })
+  shiftEnd: field({ type: Date, label: 'ending date and time of the shift' }),
+  absentWholeShift: field({
+    type: Boolean,
+    labale: 'true if employee was absent during scheduled shift'
+  }),
+  absenceStart: field({ type: Date, label: 'absence starting time' }),
+  absenceEnd: field({ type: Date, label: 'absence ending time' })
 });

@@ -1,15 +1,13 @@
 import Button from '@erxes/ui/src/components/Button';
 import { menuTimeClock } from '../menu';
-import { router, __ } from '@erxes/ui/src/utils';
+import { __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Table from '@erxes/ui/src/components/table';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import { isObject } from 'util';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import DatePicker from './DatePicker';
 import { ISchedule } from '../types';
@@ -64,7 +62,12 @@ function ScheduleList(props: Props) {
   };
 
   const onEndTimeChange = (day_key, time) => {
-    const newTime = { ...scheduleDates[day_key], shiftEnd: time };
+    const getCorrectDateTime = new Date(
+      scheduleDates[day_key].shiftStart.toDateString() +
+        ',' +
+        time.toTimeString()
+    );
+    const newTime = { ...scheduleDates[day_key], shiftEnd: getCorrectDateTime };
     const newScheduleDates = { ...scheduleDates, [day_key]: newTime };
     setScheduleDates(newScheduleDates);
   };
@@ -74,10 +77,6 @@ function ScheduleList(props: Props) {
   };
   const onAdminSubmitClick = () => {
     submitShift(userIds, Object.values(scheduleDates));
-  };
-
-  const correctValue = (data: any): string => {
-    return data ? data.value : '';
   };
 
   const onUserSelect = users => {
@@ -167,9 +166,6 @@ function ScheduleList(props: Props) {
     </div>
   );
 
-  // const renderScheduleOfUsers = () => {
-
-  // };
   const actionBarRight = (
     <>
       <ModalTrigger
@@ -194,9 +190,7 @@ function ScheduleList(props: Props) {
         marginRight: '20px',
         fontSize: '24px'
       }}
-    >
-      {/* <Title>{__(`Week of ${startOfWeek}`)}</Title> */}
-    </div>
+    />
   );
 
   const actionBar = (

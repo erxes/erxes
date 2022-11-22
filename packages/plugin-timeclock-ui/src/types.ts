@@ -17,12 +17,30 @@ export interface IAbsence {
   solved: boolean;
   status: string;
 }
+
 export interface IReport {
-  user: IUser;
-  schedule: ISchedule[];
-  absence: IAbsence[];
-  recordedShift: ITimeclock[];
+  groupTitle: string;
+  groupReport: IUserReport[];
+  groupTotalMinsLate: number;
+  groupTotalAbsenceMins?: number;
 }
+
+export interface IUserReport {
+  user: IUser;
+  scheduleReport: IScheduleReport[];
+  totalMinsLate?: number;
+  totalAbsenceMins?: number;
+}
+
+export interface IScheduleReport {
+  date?: string;
+  scheduleStart?: Date;
+  scheduleEnd?: Date;
+  recordedStart?: Date;
+  recordedEnd?: Date;
+  minsLate?: number;
+}
+
 export interface IShift {
   user?: IUser;
   date?: Date;

@@ -12,6 +12,8 @@ import { DateContainer } from '@erxes/ui/src/styles/main';
 import Select from 'react-select-plus';
 import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
 import Button from '@erxes/ui/src/components/Button';
+import ReportRow from './ReportRow';
+import { IReport } from '../types';
 
 const FilterWrapper = styled.div`
   margin: 10px 20px 0 20px;
@@ -54,11 +56,19 @@ type Props = {
   queryParams: any;
   history: any;
   branchesList: any;
+  reports: IReport[];
 };
 
 function ReportList(props: Props) {
-  const { queryParams, history, branchesList, branchId, deptId } = props;
-  console.log(branchId, deptId);
+  const {
+    queryParams,
+    history,
+    branchesList,
+    branchId,
+    deptId,
+    reports
+  } = props;
+  console.log('comp', reports);
   const [selectedBranchId, setBranches] = useState(['']);
   const [selectedDeptId, setDepartments] = useState('');
   const [selectedType, setType] = useState('');
@@ -68,21 +78,32 @@ function ReportList(props: Props) {
         <tr>
           <th>{__('Team member')}</th>
           <th>{__('Shift date')}</th>
-          <th>{__('Arrival / Shift start')}</th>
-          <th>{__('Departure / Shift end')}</th>
+          <th>{__('Arrival')}</th>
+          <th>{__('Shift start')}</th>
+          <th>{__('Departure')}</th>
+          <th>{__('Shift end')}</th>
+          <th>{__('Mins late')}</th>
           <th>{__('Total mins late')}</th>
+          <th>{__('Total mins absent')}</th>
         </tr>
       </thead>
+      {reports &&
+        reports.map(reportt => (
+          <ReportRow
+            key={Math.random()}
+            displayType={selectedType}
+            report={reportt}
+          />
+        ))}
     </Table>
   );
 
   const renderSelectionBar = () => {
     const onTypeSelect = type => {
-      console.log('woo', type);
       localStorage.setItem('displayType', JSON.stringify(type));
-      console.log(localStorage.getItem('displayType'));
-      const h = JSON.parse(localStorage.getItem('displayType') || '[]');
-      setType(h);
+      const selType = JSON.parse(localStorage.getItem('displayType') || '[]')
+        .value;
+      setType(selType);
     };
 
     return (
@@ -95,12 +116,10 @@ function ReportList(props: Props) {
               onChange={onTypeSelect}
               placeholder="Select type"
               multi={false}
-              options={['By Employee', 'By Department', 'By Branch'].map(
-                ipt => ({
-                  value: ipt,
-                  label: __(ipt)
-                })
-              )}
+              options={['By Employee', 'By Group'].map(ipt => ({
+                value: ipt,
+                label: __(ipt)
+              }))}
             />
           </Row>
         </FormGroup>
@@ -127,8 +146,6 @@ function ReportList(props: Props) {
     };
 
     const onDepartmentSelect = dept => {
-      console.log(dept);
-
       setDepartments(dept);
       const departmentIds: any[] = [];
 

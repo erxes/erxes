@@ -27,8 +27,8 @@ const ListContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    branchesList: listBranchesQuery.branches,
-    // reports: listReportsQuery.timeclockReports,
+    branchesList: listBranchesQuery.branches || [],
+    reports: listReportsQuery.timeclockReports || [],
     branchId,
     deptId
   };
