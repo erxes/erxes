@@ -307,7 +307,7 @@ const createFormConversation = async (
     const submissionValues = {};
 
     for (const submit of submissions) {
-      submissionValues[submit.formFieldId] = submit.value;
+      submissionValues[submit._id] = submit.value;
     }
 
     sendAutomationsMessage({
@@ -330,7 +330,7 @@ const createFormConversation = async (
 
   return {
     status: 'ok',
-    messageId: message._id,
+    conversationId: conversation._id,
     customerId: cachedCustomer._id
   };
 };

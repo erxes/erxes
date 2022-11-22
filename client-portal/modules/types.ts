@@ -1,8 +1,10 @@
+
 export type Store = {
   currentUser: IUser;
   topic: Topic;
   config: Config;
   router: any;
+  notificationsCount: number;
 };
 
 export type Ticket = {
@@ -101,6 +103,15 @@ export interface IUserDetails {
   description: string;
 }
 
+export interface INotifcationSettings {
+  receiveByEmail?: boolean;
+  receiveBySms?: boolean;
+}
+
+export interface IErxesForm {
+  brandId: string;
+  formId: string;
+}
 export interface IUser {
   _id: string;
   firstName: string;
@@ -109,6 +120,8 @@ export interface IUser {
   details?: IUserDetails;
   type: string;
   companyName: string;
+
+  notificationSettings?: INotifcationSettings;
 }
 
 export interface IStage {
@@ -165,9 +178,19 @@ export interface IKbArticle extends ICommonFields {
   summary: string;
   content: string;
   status: string;
+  forms?: IErxesForm[];
   categoryId?: string;
   reactionChoices?: string[];
   createdUser: IUser;
+}
+
+export interface INotification {
+  _id: string;
+  title: string;
+  content: string;
+  link: string;
+  isRead: boolean;
+  createdAt: Date;
 }
 
 export type Topic = {
@@ -198,4 +221,17 @@ export type TopicQueryResponse = {
 
 export type UserQueryResponse = {
   clientPortalCurrentUser: IUser;
+};
+
+export type NotificationsCountQueryResponse = {
+  clientPortalNotificationCount: number;
+};
+
+export type NotificationsQueryResponse = {
+  clientPortalNotifications: INotification[];
+  subscribeToMore: any;
+};
+
+export type NotificationDetailQueryResponse = {
+  clientPortalNotificationDetail: INotification;
 };

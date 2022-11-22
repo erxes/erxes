@@ -7,7 +7,7 @@ import NavigationItem from './NavigationItem';
 import NavigationList from './NavigationList';
 import NavigationToggler from './NavigationToggler';
 import React from 'react';
-import { getThemeItem } from 'utils';
+import { getThemeItem } from '@erxes/ui/src/utils/core';
 
 type Props = {
   navCollapse: number;

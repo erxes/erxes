@@ -1,7 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
 import React from "react";
 import { withRouter } from "next/router";
-import { Config, Store } from "../../types";
+import { Config, IUser, Store } from "../../types";
 import Tasks from "../components/Tasks";
 import Spinner from "../../common/Spinner";
 import Layout from "../../main/containers/Layout";
@@ -10,6 +10,7 @@ import TaskHeader from "../components/Header";
 type Props = {
   config: Config;
   router: any;
+  currentUser: IUser;
 };
 
 const clientPortalGetTaskStages = `
@@ -53,7 +54,7 @@ function TasksContainer({ config, router, ...props }: Props) {
 
 const WithRouterParams = (props) => {
   return (
-    <Layout headerBottomComponent={<TaskHeader />}>
+    <Layout headerBottomComponent={<TaskHeader {...props} />}>
       {(layoutProps: Store) => {
         return <TasksContainer {...props} {...layoutProps} />;
       }}

@@ -14,7 +14,6 @@ import {
 } from './telnyxUtils';
 import { ICustomer, IEmailParams, ISmsParams } from './types';
 import {
-  cleanIgnoredCustomers,
   createTransporter,
   getConfig,
   getConfigs,
@@ -26,7 +25,14 @@ export const start = async (
   subdomain: string,
   data: IEmailParams
 ) => {
-  const { engageMessageId, customers = [], createdBy, title } = data;
+  const {
+    engageMessageId,
+    customers = [],
+    createdBy,
+    title,
+    fromEmail,
+    email
+  } = data;
 
   const configs = await getConfigs(models);
 
@@ -35,6 +41,14 @@ export const start = async (
     { engageMessageId },
     { upsert: true }
   );
+
+  if (!(fromEmail || email.sender)) {
+    const msg = `Sender email address missing: ${fromEmail}/${email.sender}`;
+
+    await models.Logs.createLog(engageMessageId, 'failure', msg);
+
+    return;
+  }
 
   const transporter = await createTransporter(models);
 
@@ -45,8 +59,6 @@ export const start = async (
       );
 
       const msg = `Sent email to: ${customer.primaryEmail}`;
-
-      debugEngages(msg);
 
       await models.Logs.createLog(engageMessageId, 'success', msg);
 
@@ -84,17 +96,25 @@ export const start = async (
     filteredCustomers = customers;
   }
 
-  // cleans customers who do not open or click emails often
-  const {
-    customers: cleanCustomers,
-    ignoredCustomerIds
-  } = await cleanIgnoredCustomers(subdomain, models, {
-    customers: filteredCustomers,
-    engageMessageId
-  });
+  const malformedEmails = filteredCustomers
+    .filter(c => !c.primaryEmail.includes('@'))
+    .map(c => c.primaryEmail);
+
+  if (malformedEmails.length > 0) {
+    await models.Logs.createLog(
+      engageMessageId,
+      'regular',
+      `The following (${malformedEmails.length}) emails were malformed and will be ignored: ${malformedEmails}`
+    );
+  }
+
+  // customer email can come as malformed
+  filteredCustomers = filteredCustomers.filter(c =>
+    c.primaryEmail.includes('@')
+  );
 
   // finalized email list
-  emails = cleanCustomers.map(customer => customer.primaryEmail);
+  emails = filteredCustomers.map(customer => customer.primaryEmail);
 
   await models.Logs.createLog(
     engageMessageId,
@@ -102,28 +122,14 @@ export const start = async (
     `Preparing to send emails to ${emails.length}: ${emails}`
   );
 
-  if (ignoredCustomerIds.length > 0) {
-    const ignoredCustomers = filteredCustomers.filter(
-      cus => ignoredCustomerIds.indexOf(cus._id) !== -1
-    );
-
-    await models.Logs.createLog(
-      engageMessageId,
-      'regular',
-      `The following customers did not open emails frequently, therefore ignored: ${ignoredCustomers.map(
-        i => i.primaryEmail
-      )}`
-    );
-  }
-
   // set finalized count of the campaign
   await setCampaignCount(models, {
     _id: engageMessageId,
     totalCustomersCount: filteredCustomers.length,
-    validCustomersCount: cleanCustomers.length
+    validCustomersCount: filteredCustomers.length
   });
 
-  for (const customer of cleanCustomers) {
+  for (const customer of filteredCustomers) {
     // multiple customers could have same emails, so check before sending
     const delivery = await models.DeliveryReports.findOne({
       engageMessageId,

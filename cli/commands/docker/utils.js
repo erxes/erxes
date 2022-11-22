@@ -1,7 +1,7 @@
 const fs = require('fs');
 const fse = require('fs-extra');
 const yaml = require('yaml');
-const { log, sleep, execCommand, filePath, execCurl } = require('../utils');
+const { log, execCommand, filePath, execCurl } = require('../utils');
 
 require('dotenv').config();
 
@@ -71,6 +71,8 @@ const mongoEnv = (configs, plugin) => {
 
 const healthcheck = {
   test: ['CMD', 'curl', '-i', `http://localhost:${SERVICE_INTERNAL_PORT}/health`],
+  interval: '1s',
+  start_period: '5s'
 };
 
 const generateLBaddress = (address) => 
@@ -117,8 +119,9 @@ const generatePluginBlock = (configs, plugin) => {
   return conf;
 };
 
-const syncUI = async ({ name, ui_location }) => {
+const syncUI = async ({ name, image_tag, ui_location }) => {
   const configs = await fse.readJSON(filePath('configs.json'));
+  const tag = image_tag || configs.image_tag
 
   const plName = `plugin-${name}-ui`;
 
@@ -135,13 +138,13 @@ const syncUI = async ({ name, ui_location }) => {
 
     let s3_location = '';
 
-    if (!configs.image_tag) {
+    if (!tag) {
       s3_location = `https://erxes-plugins.s3.us-west-2.amazonaws.com/uis/${plName}`;
     } else {
-      if (configs.image_tag === 'dev') {
+      if (tag === 'dev') {
         s3_location = `https://erxes-dev-plugins.s3.us-west-2.amazonaws.com/uis/${plName}`;
       } else {
-        s3_location = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/uis/${plName}/${configs.image_tag}`;
+        s3_location = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/uis/${plName}/${tag}`;
       }
     }
 
@@ -540,9 +543,15 @@ const up = async ({ uis, fromInstaller }) => {
     await execCommand(`cd installer && npm install`);
 
     if (!fromInstaller) {
+      let host = RABBITMQ_HOST;
+
+      if (!configs.db_server_address) {
+        host = host.replace('erxes-dbs_rabbitmq', '127.0.0.1');
+      }
+
       await execCommand(`cd installer && npm run pm2 delete all`, true);
       await execCommand(
-        `cd installer && RABBITMQ_HOST=${RABBITMQ_HOST} npm run pm2 start index.js`
+        `cd installer && RABBITMQ_HOST=${host} npm run pm2 start index.js`
       );
     }
   }
@@ -870,7 +879,7 @@ const restart = async name => {
   await execCommand(`docker service update --force erxes_plugin_${name}_api`);
 };
 
-module.exports.manageInstallation = async program => {
+module.exports.installerUpdateConfigs = async () => {
   const type = process.argv[3];
   const name = process.argv[4];
 
@@ -891,41 +900,18 @@ module.exports.manageInstallation = async program => {
   log('Updating configs.json ....');
 
   await fse.writeJSON(filePath('configs.json'), configs);
+};
 
-  if (type === 'install') {
-    log('Running up ....');
-    await up({ fromInstaller: true });
+module.exports.removeService = async () => {
+  const name = process.argv[3];
 
-    log('Syncing ui ....');
+  log(`Removing ${name} service ....`);
 
-    await syncUI({ name });
-
-    await restart('coreui');
-
-    log('Waiting for 30 seconds ....');
-    await sleep(30000);
-    await restart('gateway');
-  }
-
-  if (type === 'uninstall') {
-    log('Running up ....');
-    await up({ fromInstaller: true });
-
-    log(`Removing ${name} service ....`);
-    await execCommand(`docker service rm erxes_plugin_${name}_api`, true);
-
-    await restart('coreui');
-    await restart('gateway');
-  }
-
-  if (type === 'update') {
-    log('Update ....');
-    await update({ serviceNames: name, uis: true });
-  }
+  await execCommand(`docker service rm ${name}`, true);
 };
 
 module.exports.up = program => {
-  return up({ uis: program.uis });
+  return up({ uis: program.uis, fromInstaller: program.fromInstaller });
 };
 
 const dumpDb = async program => {
@@ -1080,4 +1066,11 @@ module.exports.update = program => {
 module.exports.restart = () => {
   const name = process.argv[3];
   return restart(name);
+};
+
+module.exports.syncui = () => {
+  const name = process.argv[3];
+  const ui_location = process.argv[4];
+
+  return syncUI({ name, ui_location });
 };

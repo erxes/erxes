@@ -10,20 +10,20 @@ export const types = (tagsAvailable, contactsAvailable) => `
   ${
     tagsAvailable
       ? `
-      extend type Tag @key(fields: "_id") {
-        _id: String! @external
-      }
-    `
+        extend type Tag @key(fields: "_id") {
+          _id: String! @external
+        }
+      `
       : ''
   }
 
   ${
     contactsAvailable
       ? `
-      extend type Company @key(fields: "_id") {
-        _id: String! @external
-      }
-    `
+        extend type Company @key(fields: "_id") {
+          _id: String! @external
+        }
+      `
       : ''
   }
 
@@ -47,6 +47,8 @@ export const types = (tagsAvailable, contactsAvailable) => `
     type: String
     description: String
     sku: String
+    barcodes: [String]
+    barcodeDescription: String
     unitPrice: Float
     categoryId: String
     customFieldsData: JSON
@@ -74,6 +76,8 @@ const productParams = `
   type: String,
   description: String,
   sku: String,
+  barcodes: [String],
+  barcodeDescription: String,
   unitPrice: Float,
   code: String,
   customFieldsData: JSON,
