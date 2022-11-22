@@ -51,12 +51,14 @@ export const types = `
     _id: String!
     name: String
     html: String
+    image: String
   }
 
   type WebbuilderSite {
     _id: String!
     name: String
     domain: String
+    templateImage: String 
   }
 `;
 

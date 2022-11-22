@@ -49,6 +49,7 @@ export interface IEntryDoc extends IEntry {
 export interface ITemplate {
   name: string;
   html: string;
+  image: string;
 }
 
 export interface ITemplateDoc extends ITemplate {
@@ -58,6 +59,7 @@ export interface ITemplateDoc extends ITemplate {
 export interface ISite {
   name: string;
   domain: string;
+  templateImage: string;
 }
 
 export interface ISiteDoc extends ISite {

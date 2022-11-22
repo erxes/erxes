@@ -120,10 +120,7 @@ function List(props: Props) {
     return (
       <SiteBox key={index}>
         <SitePreview>
-          <img
-            src="https://templatemo.com/thumbnails-360/tm-557-grad-school.jpg"
-            alt="site-img"
-          />
+          <img src={template.image} alt="template-img" />
           <PreviewContent>
             {renderDemoAction(template)}
             {renderUseAction(template)}
