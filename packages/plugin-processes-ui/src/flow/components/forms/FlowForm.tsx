@@ -1,16 +1,3 @@
-import Button from '@erxes/ui/src/components/Button';
-import Confirmation from '../../containers/forms/Confirmation';
-import FlowJobsForm from './jobs/FlowJobsForm';
-import Icon from '@erxes/ui/src/components/Icon';
-import JobDetailForm from './jobs/JobDetailForm';
-import jquery from 'jquery';
-import Label from '@erxes/ui/src/components/Label';
-import PageContent from '@erxes/ui/src/layout/components/PageContent';
-import React from 'react';
-import RTG from 'react-transition-group';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __, Alert } from '@erxes/ui/src/utils';
 import {
   ActionBarButtonsWrapper,
   BackButton,
@@ -24,11 +11,14 @@ import {
   ZoomFlowJobs,
   ZoomIcon
 } from '../../styles';
+import { Alert, __ } from '@erxes/ui/src/utils';
 import {
   BarItems,
   FlexContent,
   HeightedWrapper
 } from '@erxes/ui/src/layout/styles';
+import { FLOWJOBS, FLOWJOB_TYPES } from '../../constants';
+import { IFlowDocument, IJob } from '../../../flow/types';
 import {
   connection,
   connectorHoverStyle,
@@ -39,12 +29,23 @@ import {
   sourceEndpoint,
   targetEndpoint
 } from '../../utils';
-import { FLOWJOB_TYPES, FLOWJOBS } from '../../constants';
+
+import Button from '@erxes/ui/src/components/Button';
+import Confirmation from '../../containers/forms/Confirmation';
+import FlowJobsForm from './jobs/FlowJobsForm';
 import { FormControl } from '@erxes/ui/src/components/form';
-import { IFlowDocument, IJob } from '../../../flow/types';
 import { IProduct } from '@erxes/ui-products/src/types';
-import { jsPlumb } from 'jsplumb';
+import Icon from '@erxes/ui/src/components/Icon';
+import JobDetailForm from './jobs/JobDetailForm';
+import Label from '@erxes/ui/src/components/Label';
 import { Link } from 'react-router-dom';
+import PageContent from '@erxes/ui/src/layout/components/PageContent';
+import RTG from 'react-transition-group';
+import React from 'react';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import jquery from 'jquery';
+import { jsPlumb } from 'jsplumb';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -101,8 +102,9 @@ class FlowForm extends React.Component<Props, State> {
       showFlowJob: false,
       isZoomable: false,
       zoomStep: 0.025,
-      zoom: 1,
-      percentage: 100,
+      zoom: Number(localStorage.getItem('processFlowZoom')) || 1,
+      percentage:
+        Number(localStorage.getItem('processFlowZoomPercentage')) || 100,
       activeFlowJob: {} as IJob,
       flowJobEdited: false,
       productId: flow.productId || '',
@@ -241,7 +243,7 @@ class FlowForm extends React.Component<Props, State> {
       name,
       status: isActive ? 'active' : 'draft',
       productId,
-      flowValidation: flowValidation,
+      flowValidation,
       jobs: flowJobs.map(a => ({
         id: a.id,
         type: a.type,
@@ -292,6 +294,8 @@ class FlowForm extends React.Component<Props, State> {
         setTimeout(() => this.doZoom(step, inRange), 100);
       }
     }
+
+    localStorage.setItem('processFlowZoom', JSON.stringify(this.state.zoom));
   };
 
   onZoom = (type: string) => {
@@ -306,12 +310,22 @@ class FlowForm extends React.Component<Props, State> {
         step = +zoomStep;
 
         this.doZoom(step, max);
-        this.setState({ percentage: max ? percentage + 10 : 100 });
+        this.setState({ percentage: max ? percentage + 10 : 100 }, () => {
+          localStorage.setItem(
+            'processFlowZoomPercentage',
+            JSON.stringify(this.state.percentage)
+          );
+        });
       }
 
       if (type === 'zoomOut') {
         this.doZoom(step, min);
-        this.setState({ percentage: min ? percentage - 10 : 0 });
+        this.setState({ percentage: min ? percentage - 10 : 0 }, () => {
+          localStorage.setItem(
+            'processFlowZoomPercentage',
+            JSON.stringify(this.state.percentage)
+          );
+        });
       }
     });
   };
@@ -438,7 +452,9 @@ class FlowForm extends React.Component<Props, State> {
     const idElm = `${key}-${item.id}`;
 
     jquery('#canvas').append(`
-      <div class="${key} control" id="${idElm}" style="${item.style}">
+      <div class="${key} control" id="${idElm}" style="${
+      item.style
+    } transform: scale(${this.state.zoom})">
         <div class="trigger-header">
           <div class='custom-menu'>
             <div>
