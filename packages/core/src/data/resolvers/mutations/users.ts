@@ -19,7 +19,6 @@ import { putCreateLog, putUpdateLog } from '../../logUtils';
 import { resetPermissionsCache } from '../../permissions/utils';
 import utils, { getEnv, sendRequest } from '../../utils';
 import { IContext, IModels } from '../../../connectionResolver';
-import { debugBase } from 'src/debuggers';
 
 interface IUsersEdit extends IUser {
   channelIds?: string[];
