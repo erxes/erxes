@@ -19,6 +19,7 @@ import { putCreateLog, putUpdateLog } from '../../logUtils';
 import { resetPermissionsCache } from '../../permissions/utils';
 import utils, { getEnv, sendRequest } from '../../utils';
 import { IContext, IModels } from '../../../connectionResolver';
+import { debugBase } from 'src/debuggers';
 
 interface IUsersEdit extends IUser {
   channelIds?: string[];
@@ -133,9 +134,14 @@ const userMutations = {
 
     const cookieOptions: any = { secure: requestInfo.secure };
 
+    debugBase('Request origin', res.req.headers.origin);
+    debugBase('ENV DOMAIN', DOMAIN);
+
     if (sameSite && sameSite === 'none' && res.req.headers.origin !== DOMAIN) {
       cookieOptions.sameSite = sameSite;
     }
+
+    debugBase('Cookie options', cookieOptions);
 
     res.cookie('auth-token', token, authCookieOptions(cookieOptions));
 
