@@ -82,6 +82,7 @@ class ProductForm extends React.Component<Props, State> {
   }
 
   addProductItem = () => {
+    this.clearFilter();
     const { productsData, onChangeProductsData, currencies } = this.props;
     const { tax, discount } = this.state;
 
@@ -392,8 +393,9 @@ class ProductForm extends React.Component<Props, State> {
                 type="text"
                 placeholder={__('Type to search')}
                 onChange={this.onFilterSearch}
-                defaultValue={localStorage.getItem('dealProductSearch')}
+                value={localStorage.getItem('dealProductSearch')}
                 autoFocus={true}
+                onFocus={() => {}}
               />
             </div>
             <div style={{ width: '200px' }}>

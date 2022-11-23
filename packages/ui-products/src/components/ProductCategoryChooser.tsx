@@ -14,6 +14,7 @@ type Props = {
 
 type State = {
   categoryId?: string;
+  clear?: boolean;
 };
 
 class ProductCategoryChooser extends React.Component<Props, State> {
@@ -23,6 +24,15 @@ class ProductCategoryChooser extends React.Component<Props, State> {
     this.state = {
       categoryId: this.props.current || ''
     };
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>): void {
+    const { current } = this.props;
+    if (prevProps.current) {
+      if (current === '') {
+        this.setState({ categoryId: '' });
+      }
+    }
   }
 
   selectOptions(categories: IProductCategory[]) {
@@ -87,7 +97,7 @@ class ProductCategoryChooser extends React.Component<Props, State> {
 
   render() {
     const { categories } = this.props;
-    const onChangeCategory = option => this.onChange(option.value);
+    const onChangeCategory = option => this.onChange(option?.value);
 
     return (
       <CategoryContainer>
