@@ -45,7 +45,7 @@ export interface IListParams extends IConformityQueryParams {
   labelIds?: string[];
   userIds?: string[];
   segment?: string;
-  segmentData?:string;
+  segmentData?: string;
   stageChangedStartDate?: Date;
   stageChangedEndDate?: Date;
   noSkipArchive?: boolean;
