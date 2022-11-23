@@ -128,7 +128,13 @@ const userMutations = {
 
     const { token } = response;
 
+    const sameSite = getEnv({ name: 'SAME_SITE' });
+
     const cookieOptions: any = { secure: requestInfo.secure };
+
+    if (sameSite) {
+      cookieOptions.sameSite = sameSite;
+    }
 
     res.cookie('auth-token', token, authCookieOptions(cookieOptions));
 
