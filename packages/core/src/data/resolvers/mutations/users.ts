@@ -129,10 +129,11 @@ const userMutations = {
     const { token } = response;
 
     const sameSite = getEnv({ name: 'SAME_SITE' });
+    const DOMAIN = getEnv({ name: 'DOMAIN' });
 
     const cookieOptions: any = { secure: requestInfo.secure };
 
-    if (sameSite) {
+    if (sameSite && sameSite === 'none' && res.req.headers.origin !== DOMAIN) {
       cookieOptions.sameSite = sameSite;
     }
 
