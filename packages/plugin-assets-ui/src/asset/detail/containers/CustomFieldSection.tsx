@@ -62,7 +62,7 @@ const CustomFieldsSection = (props: FinalProps) => {
 };
 
 const options = () => ({
-  refetchQueries: ['companDetail']
+  refetchQueries: ['assetDetailQuery']
 });
 
 export default withProps<Props>(
