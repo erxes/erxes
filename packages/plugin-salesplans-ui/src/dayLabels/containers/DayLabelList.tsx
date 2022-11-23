@@ -61,12 +61,9 @@ class DayLabelsContainer extends React.Component<FinalProps> {
       dayLabelsRemove({
         variables: { _ids: dayLabelIds }
       })
-        .then(removeStatus => {
+        .then(() => {
           emptyBulk();
-
-          removeStatus.data.dayLabelsRemove.deletedCount
-            ? Alert.success('You successfully deleted a product')
-            : Alert.warning('Product status deleted');
+          Alert.success('You successfully deleted a day label');
         })
         .catch(e => {
           Alert.error(e.message);

@@ -61,12 +61,10 @@ class YearPlansContainer extends React.Component<FinalProps> {
       yearPlansRemove({
         variables: { _ids: yearPlanIds }
       })
-        .then(removeStatus => {
+        .then(() => {
           emptyBulk();
 
-          removeStatus.data.yearPlansRemove.deletedCount
-            ? Alert.success('You successfully deleted a product')
-            : Alert.warning('Product status deleted');
+          Alert.success('You successfully deleted a year plan');
         })
         .catch(e => {
           Alert.error(e.message);

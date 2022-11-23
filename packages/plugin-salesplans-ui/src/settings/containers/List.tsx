@@ -46,9 +46,7 @@ class SPLabelsContainer extends React.Component<FinalProps> {
         .then(removeStatus => {
           emptyBulk();
 
-          removeStatus.data.spLabelsRemove.deletedCount
-            ? Alert.success('You successfully deleted a product')
-            : Alert.warning('Product status deleted');
+          Alert.success('You successfully deleted a labels');
         })
         .catch(e => {
           Alert.error(e.message);
