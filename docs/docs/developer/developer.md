@@ -4,18 +4,18 @@ title: Developing erxes
 sidebar_label: Developer
 ---
 
-This document describes how to set up your development environment to develop and test Erxes. It also explains the basic mechanics of using `git`, `node`, and `yarn`.
+This document describes how to set up your development environment to develop and test Erxes. It also explains the basic mechanics of using `git`, `node` and `yarn`.
 
 - [Prerequisite Software](#prerequisite-software)
 - [Installing prerequisite software](#installing-prerequisite-software)
 - [Getting the Sources and running locally](#getting-the-sources-and-running-locally)
 - [Checkout running website](#checkout-running-website)
 
-See the [contribution guidelines](contributing) if you'd like to contribute to erxes.
+See the [contribution guidelines](contributing) if you'd like to contribute to Erxes.
 
-## Prerequisite Software
+## Prerequisite Software.
 
-Before you can develop and test erxes, you must install and configure the following products on your development machine:
+Before you can develop and test erxes, you must install and configure the following products on your development machine:-
 
 - [Git](http://git-scm.com/) and/or the **GitHub app** (for [Mac](http://mac.github.com) or [Windows](http://windows.github.com)); [GitHub's Guide to Installing Git](https://help.github.com/articles/set-up-git) is a good source of information.
 - [Node.js](http://nodejs.org), v10.x LTS which is used to run a development web server, run tests, and generate distributable files.
@@ -23,7 +23,7 @@ Before you can develop and test erxes, you must install and configure the follow
 - [MongoDB](https://www.mongodb.com) version 3.6.x
 
 
-## Installing prerequisite software 
+## Installing prerequisite software.
 ```sh
 # install git 
 sudo apt install git
@@ -44,9 +44,9 @@ sudo npm install --global yarn
 
 ```
 
-## Getting the Sources and running locally
+## Getting the Sources and running locally.
 
-1. Login to your GitHub account or create one by following the instructions given [here](https://github.com/signup/free).
+1. Login to your GitHub account or Create one by following the instructions given [here](https://github.com/signup/free).
 
 2. Configure your ssh key [here](https://github.com/settings/keys).
 
@@ -88,7 +88,7 @@ yarn install
 yarn start
 ```
 
-## Checkout running website
+## Checkout running website.
 
-Visit http://localhost:3000 and login using following credentials
+Visit http://localhost:3000 and login using following credentials.
 
