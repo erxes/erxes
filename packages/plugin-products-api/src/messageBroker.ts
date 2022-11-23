@@ -174,6 +174,7 @@ export const initBroker = async cl => {
     async ({ subdomain, data: { query, categoryId } }) => {
       const models = await generateModels(subdomain);
 
+      const filter = { ...(query || {}) };
       if (categoryId) {
         const category = await models.ProductCategories.findOne({
           _id: categoryId
@@ -182,11 +183,11 @@ export const initBroker = async cl => {
           order: { $regex: new RegExp(category.order) }
         }).lean();
 
-        query.categoryId = { $in: categories.map(c => c._id) };
+        filter.categoryId = { $in: categories.map(c => c._id) };
       }
 
       return {
-        data: await models.Products.find(query).countDocuments(),
+        data: await models.Products.find(filter).countDocuments(),
         status: 'success'
       };
     }
