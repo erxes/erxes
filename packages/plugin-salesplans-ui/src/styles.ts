@@ -19,4 +19,17 @@ const SidebarFilters = styledTS(styled.div)`
   padding: 5px 15px 30px 15px;
 `;
 
+export const TableWrapper = styled.div`
+  th {
+    min-width: 60px;
+  }
+
+  td {
+    max-width: 240px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+`;
+
 export { FilterContainer, LabelsTableWrapper, SidebarFilters };
