@@ -88,10 +88,10 @@ export type FieldsGroupsQueryResponse = {
 };
 
 export type FieldsInputTypesQueryResponse = {
-  getFieldsInputTypes:{value: string,label:string}[],
-  loading: boolean,
-  refetch:()=>any
-}
+  getFieldsInputTypes: { value: string; label: string }[];
+  loading: boolean;
+  refetch: () => any;
+};
 
 export type AddFieldsMutationVariables = {
   contentType: string;

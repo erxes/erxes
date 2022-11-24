@@ -44,7 +44,7 @@ const fieldQueries = {
     return fieldTypes;
   },
 
-  async getFieldsInputTypes () {
+  async getFieldsInputTypes() {
     const services = await serviceDiscovery.getServices();
     const fieldInputTypes: Array<{ value: string; label: string }> = [
       { value: 'input', label: 'Input' },
@@ -58,6 +58,8 @@ const fieldQueries = {
       { value: 'file', label: 'File' },
       { value: 'customer', label: 'customer' },
       { value: 'product', label: 'Product' },
+      { value: 'branch', label: 'Branch' },
+      { value: 'department', label: 'Department' },
       { value: 'map', label: 'Location/Map' }
     ];
 
