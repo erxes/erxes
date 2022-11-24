@@ -1,5 +1,9 @@
 import { generateModels } from './connectionResolver';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  escapeRegExp,
+  ISendMessageArgs,
+  sendMessage
+} from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
 
 let client;
@@ -41,8 +45,16 @@ export const initBroker = async cl => {
     async ({ subdomain, data: { parentId } }) => {
       const models = await generateModels(subdomain);
 
+      const tag = await models.Tags.getTag(parentId);
+
+      const tags =
+        tag.order &&
+        (await models.Tags.find({
+          order: { $regex: new RegExp(escapeRegExp(tag.order), 'i') }
+        }).lean());
+
       return {
-        data: await models.Tags.find({ parentId }).lean(),
+        data: tags,
         status: 'success'
       };
     }

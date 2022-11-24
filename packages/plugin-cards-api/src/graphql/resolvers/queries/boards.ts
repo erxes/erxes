@@ -815,7 +815,7 @@ const boardQueries = {
 
   async checkFreeTimes(
     _root,
-    { pipelineId, date, intervals },
+    { pipelineId, intervals },
     { models, subdomain }: IContext
   ) {
     if (!intervals.length) {
@@ -824,17 +824,9 @@ const boardQueries = {
 
     const pipeline = await models.Pipelines.getPipeline(pipelineId);
 
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    const day = date.getDate();
-    const startTime = intervals[0].startTime.split(':')[0];
-    const startMin = intervals[0].startTime.split(':')[1];
-    const endTime = intervals[intervals.length - 1].endTime.split(':')[0];
-    const endMin = intervals[intervals.length - 1].endTime.split(':')[1];
+    const latestStartDate = new Date(intervals[0].startTime);
 
-    const latestStartDate = new Date(year, month, day, startTime, startMin);
-
-    const latestEndDate = new Date(year, month, day, endTime, endMin);
+    const latestEndDate = new Date(intervals[intervals.length - 1].endTime);
 
     const { collection } = getCollection(models, pipeline.type);
 
@@ -869,14 +861,9 @@ const boardQueries = {
     );
 
     for (const interval of intervals) {
-      const startTime = interval.startTime.split(':')[0];
-      const startMin = interval.startTime.split(':')[1];
-      const endTime = interval.endTime.split(':')[0];
-      const endMin = interval.endTime.split(':')[1];
+      const startDate = new Date(interval.startTime);
 
-      const startDate = new Date(year, month, day, startTime, startMin);
-
-      const endDate = new Date(year, month, day, endTime, endMin);
+      const endDate = new Date(interval.endTime);
 
       const checkingItems = items.filter(
         item => item.startDate < endDate && item.closeDate > startDate
@@ -895,6 +882,6 @@ const boardQueries = {
   }
 };
 
-moduleRequireLogin(boardQueries);
+// moduleRequireLogin(boardQueries);
 
 export default boardQueries;

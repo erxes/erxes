@@ -126,7 +126,7 @@ export const queries = `
   cardsFields: JSON
   boardContentTypeDetail(contentType: String, contentId: String): JSON
   boardLogs(action: String, content:JSON, contentId: String, contentType: String): JSON
-  checkFreeTimes(date: Date, pipelineId: String, intervals: JSON): JSON
+  checkFreeTimes(pipelineId: String, intervals: JSON): JSON
 `;
 
 const commonParams = `
