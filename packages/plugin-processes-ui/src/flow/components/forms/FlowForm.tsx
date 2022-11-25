@@ -4,6 +4,7 @@ import {
   BackIcon,
   CloseIcon,
   Container,
+  Description,
   FlowFormContainer,
   RightDrawerContainer,
   Title,
@@ -42,6 +43,7 @@ import { Link } from 'react-router-dom';
 import PageContent from '@erxes/ui/src/layout/components/PageContent';
 import RTG from 'react-transition-group';
 import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import jquery from 'jquery';
@@ -638,19 +640,22 @@ class FlowForm extends React.Component<Props, State> {
     if (showFlowJob && activeFlowJob) {
       return (
         <>
-          <CloseIcon
-            onClick={() => {
-              this.setState({
-                showDrawer: false
-              });
-            }}
-          >
-            {__('Close')}
-            <Icon icon="angle-double-right" size={20} />
-          </CloseIcon>
-          <BackIcon onClick={onBackAction}>
-            <Icon icon="angle-left" size={20} /> {__('Back to jobs')}
-          </BackIcon>
+          <Description noMargin={true}>
+            <BackIcon onClick={onBackAction}>
+              <Icon icon="angle-left" size={20} /> {__('Back to jobs')}
+            </BackIcon>
+            <CloseIcon
+              onClick={() => {
+                this.setState({
+                  showDrawer: false
+                });
+              }}
+            >
+              <Tip text={__('Close')} placement="bottom">
+                <Icon icon="cancel" size={18} />
+              </Tip>
+            </CloseIcon>
+          </Description>
           <JobDetailForm
             activeFlowJob={activeFlowJob}
             addFlowJob={this.addFlowJob}
