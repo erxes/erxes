@@ -133,9 +133,14 @@ const userMutations = {
 
     const cookieOptions: any = { secure: requestInfo.secure };
 
+    console.log('Request origin', res.req.headers.origin);
+    console.log('ENV DOMAIN', DOMAIN);
+
     if (sameSite && sameSite === 'none' && res.req.headers.origin !== DOMAIN) {
       cookieOptions.sameSite = sameSite;
     }
+
+    console.log('Cookie options', cookieOptions);
 
     res.cookie('auth-token', token, authCookieOptions(cookieOptions));
 
