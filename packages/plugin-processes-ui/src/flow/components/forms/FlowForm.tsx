@@ -157,9 +157,10 @@ class FlowForm extends React.Component<Props, State> {
         el.style[p[i] + 'TransformOrigin'] = oString;
       }
 
+      localStorage.setItem('processFlowZoom', JSON.stringify(zoom));
+
       el.style.transform = s;
       el.style.transformOrigin = oString;
-
       instanceZoom.setZoom(zoom);
     };
   }
@@ -452,9 +453,7 @@ class FlowForm extends React.Component<Props, State> {
     const idElm = `${key}-${item.id}`;
 
     jquery('#canvas').append(`
-      <div class="${key} control" id="${idElm}" style="${
-      item.style
-    } transform: scale(${this.state.zoom})">
+      <div class="${key} control" id="${idElm}" style="${item.style}">
         <div class="trigger-header">
           <div class='custom-menu'>
             <div>
@@ -699,7 +698,7 @@ class FlowForm extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { flowJobs } = this.state;
+    const { flowJobs, zoom } = this.state;
 
     if (flowJobs.length === 0) {
       return (
@@ -718,7 +717,10 @@ class FlowForm extends React.Component<Props, State> {
     return (
       <Container>
         {this.renderZoomFlowJobs()}
-        <div id="canvas" />
+        <div
+          id="canvas"
+          style={{ transform: `scale(${zoom})`, transformOrigin: '50% 50%' }}
+        />
       </Container>
     );
   }
