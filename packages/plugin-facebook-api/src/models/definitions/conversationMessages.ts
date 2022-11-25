@@ -25,7 +25,7 @@ export interface IConversationMessageDocument
 
 export const conversationMessageSchema = new Schema({
   _id: field({ pkey: true }),
-  mid: { type: String, unique: true, label: 'Facebook message id' },
+  mid: { type: String, label: 'Facebook message id' },
   content: { type: String },
   // the following derives from inbox
   attachments: [attachmentSchema],
