@@ -1,7 +1,7 @@
-import { QueryResponse } from '@erxes/ui/src/types';
 import { IJobRefer } from '../job/types';
 import { IProduct } from '@erxes/ui-products/src/types';
 import { IProductsData } from '../types';
+import { QueryResponse } from '@erxes/ui/src/types';
 
 export type IFlowCategory = {
   _id: string;
@@ -67,8 +67,8 @@ export interface IFlowDocument extends IFlow, Document {
   updatedAt?: Date;
   updatedBy?: string;
   jobCount: number;
-  latestBranchId?: String;
-  latestDepartmentId?: String;
+  latestBranchId?: string;
+  latestDepartmentId?: string;
   latestBranch?: any;
   latestDepartment?: any;
   latestNeedProducts?: IProductsData[];
