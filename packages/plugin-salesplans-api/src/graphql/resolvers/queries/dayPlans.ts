@@ -84,8 +84,7 @@ const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
         subdomain,
         action: 'count',
         data: {
-          ...productFilter,
-          categoryId: productCategoryId
+          ...productFilter
         },
         isRPC: true,
         defaultValue: 0

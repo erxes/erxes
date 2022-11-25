@@ -15,6 +15,7 @@ import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import Form from '../containers/YearPlanForm';
 import { menuSalesplans, MONTHS } from '../../constants';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import { TableWrapper } from '../../styles';
 
 type Props = {
   yearPlans: IYearPlan[];
@@ -160,30 +161,32 @@ class YearPlans extends React.Component<Props, State> {
     const { isAllSelected, totalCount, queryParams, history } = this.props;
 
     const content = (
-      <Table hover={true}>
-        <thead>
-          <tr>
-            <th style={{ width: 60 }}>
-              <FormControl
-                checked={isAllSelected}
-                componentClass="checkbox"
-                onChange={this.onChange}
-              />
-            </th>
-            <th>{__('Year')}</th>
-            <th>{__('Branch')}</th>
-            <th>{__('Department')}</th>
-            <th>{__('Product')}</th>
-            <th>{__('Uom')}</th>
-            {MONTHS.map(m => (
-              <th key={m}>{m}</th>
-            ))}
-            <th>{__('Sum')}</th>
-            <th>{__('')}</th>
-          </tr>
-        </thead>
-        <tbody>{this.renderRow()}</tbody>
-      </Table>
+      <TableWrapper>
+        <Table hover={true}>
+          <thead>
+            <tr>
+              <th style={{ width: 60 }}>
+                <FormControl
+                  checked={isAllSelected}
+                  componentClass="checkbox"
+                  onChange={this.onChange}
+                />
+              </th>
+              <th>{__('Year')}</th>
+              <th>{__('Branch')}</th>
+              <th>{__('Department')}</th>
+              <th>{__('Product')}</th>
+              <th>{__('Uom')}</th>
+              {MONTHS.map(m => (
+                <th key={m}>{m}</th>
+              ))}
+              <th>{__('Sum')}</th>
+              <th>{__('')}</th>
+            </tr>
+          </thead>
+          <tbody>{this.renderRow()}</tbody>
+        </Table>
+      </TableWrapper>
     );
 
     return (
