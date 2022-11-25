@@ -44,7 +44,7 @@ const fieldQueries = {
     return fieldTypes;
   },
 
-  async getFieldsInputTypes () {
+  async getFieldsInputTypes() {
     const services = await serviceDiscovery.getServices();
     const fieldInputTypes: Array<{ value: string; label: string }> = [
       { value: 'input', label: 'Input' },

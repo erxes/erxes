@@ -32,7 +32,7 @@ type Props = {
   field?: IField;
   groups: IFieldGroup[];
   type: string;
-  inputTypes:{value:string,label:string}[];
+  inputTypes: { value: string; label: string }[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
@@ -317,7 +317,7 @@ class PropertyForm extends React.Component<Props, State> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const { groups,inputTypes, closeModal, renderButton, field } = this.props;
+    const { groups, inputTypes, closeModal, renderButton, field } = this.props;
 
     const object = field || ({} as IField);
 
@@ -393,7 +393,11 @@ class PropertyForm extends React.Component<Props, State> {
           >
             <option />
             {inputTypes.map(inputType => {
-              return <option value={inputType.value} key={Math.random()}>{inputType.label}</option>;
+              return (
+                <option value={inputType.value} key={Math.random()}>
+                  {inputType.label}
+                </option>
+              );
             })}
           </FormControl>
         </FormGroup>

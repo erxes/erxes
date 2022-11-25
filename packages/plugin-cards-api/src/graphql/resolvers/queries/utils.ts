@@ -376,12 +376,12 @@ export const generateCommonFilters = async (
     filter.assignedUserIds = { $in: [currentUserId] };
   }
 
-  if(segmentData){
-    const segment = JSON.parse(segmentData)
-    const itemIds = await fetchSegment(subdomain, '', { }, segment);
+  if (segmentData) {
+    const segment = JSON.parse(segmentData);
+    const itemIds = await fetchSegment(subdomain, '', {}, segment);
     filter._id = { $in: itemIds };
   }
-  
+
   if (segment) {
     const segmentObj = await sendSegmentsMessage({
       subdomain,
