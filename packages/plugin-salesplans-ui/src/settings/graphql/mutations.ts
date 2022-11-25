@@ -1,4 +1,4 @@
-import { spLabelFields } from './queries';
+import { spLabelFields, timeProportionFields } from './queries';
 
 const paramDefs = `
   $title: String,
@@ -48,9 +48,56 @@ const timeframesEdit = `
   }
 `;
 
+const addParamDefs = `
+  $departmentIds: [String],
+  $branchIds: [String],
+  $productCategoryId: String,
+  $percents: JSON,
+`;
+
+const addParams = `
+  departmentIds: $departmentIds,
+  branchIds: $branchIds,
+  productCategoryId: $productCategoryId,
+  percents: $percents,
+`;
+
+const timeProportionsAdd = `
+  mutation timeProportionsAdd(${addParamDefs}) {
+    timeProportionsAdd(${addParams}) {
+      ${timeProportionFields}
+    }
+  }
+`;
+
+const timeEditParamDefs = `
+  $percents: JSON,
+`;
+
+const timeEditParams = `
+  percents: $percents
+`;
+
+const timeProportionEdit = `
+  mutation timeProportionEdit($_id: String!, ${timeEditParamDefs}) {
+    timeProportionEdit(_id: $_id, ${timeEditParams}) {
+      ${timeProportionFields}
+    }
+  }
+`;
+
+const timeProportionsRemove = `
+  mutation timeProportionsRemove ($_ids: [String]) {
+    timeProportionsRemove(_ids: $_ids)
+  }
+`;
+
 export default {
   spLabelsAdd,
   spLabelsEdit,
   spLabelsRemove,
-  timeframesEdit
+  timeframesEdit,
+  timeProportionsAdd,
+  timeProportionEdit,
+  timeProportionsRemove
 };

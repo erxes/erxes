@@ -38,8 +38,16 @@ const dayPlansMutations = {
     const {
       products,
       productIds,
-      parentIdsByProductId
-    } = await getProductsAndParents(subdomain, productId, productCategoryId);
+      parentIdsByProductId,
+      timePercentsByProdId
+    } = await getProductsAndParents(
+      subdomain,
+      models,
+      productId,
+      productCategoryId,
+      branchId,
+      departmentId
+    );
 
     const oldDayPlans = await models.DayPlans.find({
       date,
@@ -67,7 +75,9 @@ const dayPlansMutations = {
 
     const timeFrames = await models.Timeframes.find({
       status: { $ne: 'deleted' }
-    }).lean();
+    })
+      .sort({ startTime: 1 })
+      .lean();
 
     const publicLabels = await getPublicLabels({
       models,
@@ -100,6 +110,7 @@ const dayPlansMutations = {
         parentIdsByProductId,
         publicLabels,
         dayLabels,
+        timePercentsByProdId,
         product,
         timeFrames
       });

@@ -56,7 +56,8 @@ export const getParentCategories = async (
     data: {
       query: {
         $or: [{ order: { $in: orders } }, { order: { $regex: category.order } }]
-      }
+      },
+      sort: { order: 1 }
     },
     isRPC: true
   });
@@ -114,10 +115,14 @@ export const getProducts = async (
 
 export const getProductsAndParents = async (
   subdomain: string,
+  models: IModels,
   productId: string,
-  productCategoryId: string
+  productCategoryId: string,
+  branchId: string,
+  departmentId: string
 ) => {
   const parentIdsByProdId = {};
+  const timePercentsByProdId = {};
 
   const categories = await getParentCategories(
     subdomain,
@@ -136,6 +141,12 @@ export const getProductsAndParents = async (
     categoryById[cat._id] = cat;
   }
 
+  const specTimeFrames = await models.TimeProportions.find({
+    branchId,
+    departmentId,
+    productCategoryId: { $in: categories.map(c => c._id) }
+  }).lean();
+
   for (const product of products) {
     const category = categoryById[product.categoryId];
 
@@ -150,10 +161,40 @@ export const getProductsAndParents = async (
     );
   }
 
-  return { products, productIds, parentIdsByProductId: parentIdsByProdId };
-};
+  for (const product of products) {
+    const parentIds = parentIdsByProdId[product._id];
+    const productOfspecs = specTimeFrames.filter(tf =>
+      parentIds.includes(tf.productCategoryId)
+    );
 
-const getExactMultiplier = async () => {};
+    if (!productOfspecs.length) {
+      continue;
+    }
+
+    timePercentsByProdId[product._id] = productOfspecs[0];
+
+    for (const specTimeFrame of productOfspecs) {
+      // to specialize, latest ordered category
+      if (
+        !String(
+          categoryById[timePercentsByProdId[product._id].productCategoryId]
+            .order
+        ).localeCompare(
+          String(categoryById[specTimeFrame.productCategoryId].order)
+        )
+      ) {
+        timePercentsByProdId[product._id] = specTimeFrame;
+      }
+    }
+  }
+
+  return {
+    products,
+    productIds,
+    parentIdsByProductId: parentIdsByProdId,
+    timePercentsByProdId
+  };
+};
 
 export const getPublicLabels = async ({
   models,
@@ -270,6 +311,7 @@ export const getDayPlanValues = async ({
   parentIdsByProductId,
   publicLabels,
   dayLabels,
+  timePercentsByProdId,
   product,
   timeFrames
 }: {
@@ -278,6 +320,7 @@ export const getDayPlanValues = async ({
   parentIdsByProductId;
   publicLabels;
   dayLabels;
+  timePercentsByProdId;
   product;
   timeFrames;
 }) => {
@@ -311,17 +354,27 @@ export const getDayPlanValues = async ({
 
   const dayCalcedCount = dayPlanCount * multiplier;
 
-  const sumPercent = timeFrames
-    .map(d => d.percent || 0)
+  let percents = timeFrames.map(tf => ({
+    _id: tf._id,
+    timeId: tf._id,
+    percent: tf.percent
+  }));
+  const timePercent = timePercentsByProdId[product._id];
+  if (timePercent) {
+    percents = timePercent.percents;
+  }
+
+  const sumPercent = (percents || [])
+    .map(p => p.percent || 0)
     .reduce((sum, d) => sum + d);
 
   let planCount = 0;
-  for (const timeFrame of timeFrames) {
+  for (const timeFrame of percents) {
     const count = Math.round(
       (dayCalcedCount / sumPercent) * (timeFrame.percent || 1)
     );
     values.push({
-      timeId: timeFrame._id,
+      timeId: timeFrame.timeId,
       count
     });
     planCount += count;

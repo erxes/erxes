@@ -1,34 +1,33 @@
-import Form from '../containers/Form';
-import Label from '@erxes/ui/src/components/Label';
+import Form from '../containers/TimesEditForm';
 import React from 'react';
-import { ISPLabel } from '../types';
+import { ITimeProportion } from '../types';
 import { FormControl, TextInfo, ModalTrigger } from '@erxes/ui/src/components';
 
 type Props = {
-  spLabel: ISPLabel;
+  timeProportion: ITimeProportion;
   history: any;
   isChecked: boolean;
-  toggleBulk: (spLabel: ISPLabel, isChecked?: boolean) => void;
+  toggleBulk: (timeProportion: ITimeProportion, isChecked?: boolean) => void;
 };
 
 class Row extends React.Component<Props> {
   modalContent = props => {
-    const { spLabel } = this.props;
+    const { timeProportion } = this.props;
 
     const updatedProps = {
       ...props,
-      spLabel
+      timeProportion
     };
 
     return <Form {...updatedProps} />;
   };
 
   render() {
-    const { spLabel, toggleBulk, isChecked } = this.props;
+    const { timeProportion, toggleBulk, isChecked } = this.props;
 
     const onChange = e => {
       if (toggleBulk) {
-        toggleBulk(spLabel, e.target.checked);
+        toggleBulk(timeProportion, e.target.checked);
       }
     };
 
@@ -36,7 +35,13 @@ class Row extends React.Component<Props> {
       e.stopPropagation();
     };
 
-    const { _id, title, effect, color, status } = spLabel;
+    const {
+      _id,
+      department,
+      branch,
+      productCategory,
+      percents
+    } = timeProportion;
 
     const trigger = (
       <tr key={_id}>
@@ -47,17 +52,14 @@ class Row extends React.Component<Props> {
             onChange={onChange}
           />
         </td>
-        <td>{title}</td>
-        <td>{effect}</td>
-
+        <td>{branch ? `${branch.code} - ${branch.title}` : ''}</td>
+        <td>{department ? `${department.code} - ${department.title}` : ''}</td>
         <td>
-          <Label lblColor={color} ignoreTrans={true}>
-            {color}
-          </Label>
+          {productCategory
+            ? `${productCategory.code} - ${productCategory.name}`
+            : ''}
         </td>
-        <td>
-          <TextInfo>{status}</TextInfo>
-        </td>
+        <td>{(percents || []).map(p => `${p.percent},`)}</td>
       </tr>
     );
 
