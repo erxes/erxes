@@ -5,6 +5,9 @@ module.exports = {
   exposes: {
     './routes': './src/routes.tsx',
     './inboxIntegrationSettings': './src/containers/UpdateConfigsContainer.tsx',
+    './activityLog': './src/containers/ActivityLogsContainer.tsx',
+    './tagMessage': './src/components/conversationDetail/workarea/TagMessage.tsx',
+    './specialUi': './src/containers/post/FbCommentsContainer.tsx'
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
@@ -13,32 +16,81 @@ module.exports = {
   },
   inboxIntegrationSettings: './inboxIntegrationSettings',
   inboxDirectMessage: {
-    messagesQuery: `
-      query conversationMessages(
-        $conversationId: String!
-        $skip: Int
-        $limit: Int
-        $getFirst: Boolean
-      ) {
-        facebookConversationMessages(
-          conversationId: $conversationId,
-          skip: $skip,
-          limit: $limit,
-          getFirst: $getFirst
-        ) {
-          _id
-          content
-          conversationId
-          fromBot
-          botData
-          customerId
-          userId
-          createdAt
-          isCustomerRead
-          mid
-        }
+    messagesQueries: [
+      {
+        query: `
+          query facebookConversationMessages(
+            $conversationId: String!
+            $skip: Int
+            $limit: Int
+            $getFirst: Boolean
+          ) {
+            facebookConversationMessages(
+              conversationId: $conversationId,
+              skip: $skip,
+              limit: $limit,
+              getFirst: $getFirst
+            ) {
+              _id
+              content
+              conversationId
+              customerId
+              userId
+              createdAt
+              isCustomerRead
+            }
+          }
+        `,
+        name: 'facebookConversationMessages',
+        integrationKind: 'facebook-messenger'
+      },
+      {
+        query: `
+          query facebookGetComments($conversationId: String!, $isResolved: Boolean, $commentId: String, $senderId: String, $skip: Int, $limit: Int) {
+            facebookGetComments(conversationId: $conversationId, isResolved: $isResolved, commentId: $commentId, senderId: $senderId, skip: $skip, limit: $limit) {
+              conversationId
+              commentId
+              postId
+              parentId
+              recipientId
+              senderId
+              permalink_url
+              attachments
+              content
+              erxesApiId
+              timestamp
+              customer {
+                _id
+              }
+              commentCount
+              isResolved
+            }
+          }
+        `,
+        name: 'facebookGetComments',
+        integrationKind: 'facebook-post'
       }
-    `
+    ],
+    countQueries: [
+      {
+        query: `
+          query facebookConversationMessagesCount($conversationId: String!) {
+            facebookConversationMessagesCount(conversationId: $conversationId)
+          }
+        `,
+        name: 'facebookConversationMessagesCount',
+        integrationKind: 'facebook-messenger'
+      },
+      {
+        query: `
+          query facebookGetCommentCount($conversationId: String!, $isResolved: Boolean) {
+            facebookGetCommentCount(conversationId: $conversationId, isResolved: $isResolved)
+          }
+        `,
+        name: 'facebookGetCommentCount',
+        integrationKind: 'facebook-post'
+      }
+    ],
   },
   inboxIntegrations: [
     {
@@ -52,6 +104,7 @@ module.exports = {
       createUrl: '/settings/integrations/createFacebook',
       category:
         'All integrations, For support teams, Marketing automation, Social media',
+      component: 'specialUi'
     },
     {
       name: 'Facebook Messenger',
@@ -67,4 +120,7 @@ module.exports = {
         'All integrations, For support teams, Messaging, Social media, Conversation',
     },
   ],
+  activityLog: './activityLog',
+  tagMessage: './tagMessage',
+  specialUi: './specialUi'
 };

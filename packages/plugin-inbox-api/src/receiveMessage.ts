@@ -3,12 +3,12 @@ import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendLogsMessage,
-  sendFacebookMessage
+  sendFacebookMessage,
+  sendLogsMessage
 } from './messageBroker';
-import { debugExternalApi } from '@erxes/api-utils/src/debuggers';
 import { generateModels } from './connectionResolver';
 import { IConversationDocument } from './models/definitions/conversations';
+import { debugExternalApi } from '@erxes/api-utils/src/debuggers';
 
 const sendError = message => ({
   status: 'error',
@@ -264,7 +264,10 @@ export const collectConversations = async (
       _id: c._id,
       contentType: 'inbox:conversation',
       contentId,
-      createdAt: c.createdAt
+      createdAt: c.createdAt,
+      contentTypeDetail: {
+        integration: await models.Integrations.findOne({ _id: c.integrationId })
+      }
     });
   }
 
@@ -274,13 +277,18 @@ export const collectConversations = async (
     try {
       conversationIds = await sendFacebookMessage({
         subdomain,
-        action: 'getCustomerPosts',
-        data: { customerId: contentId },
+        action: 'getFbCustomerPosts',
+        data: {
+          customerId: contentId
+        },
         isRPC: true
       });
 
+      const currentIds = results.map(r => r._id);
+
+      // to prevent from sending duplicated conversations
       const cons = await models.Conversations.find({
-        _id: { $in: conversationIds }
+        _id: { $in: conversationIds, $nin: currentIds }
       }).lean();
 
       for (const c of cons) {
@@ -288,7 +296,12 @@ export const collectConversations = async (
           _id: c._id,
           contentType: 'comment',
           contentId,
-          createdAt: c.createdAt
+          createdAt: c.createdAt,
+          contentTypeDetail: {
+            integration: await models.Integrations.findOne({
+              _id: c.integrationId
+            })
+          }
         });
       }
     } catch (e) {

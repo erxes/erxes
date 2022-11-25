@@ -39,7 +39,6 @@ export interface IConversation {
   tags: ITag[];
   updatedAt: Date;
   idleTime: number;
-  facebookPost?: IFacebookPost;
   callProAudio?: string;
   videoCallData?: IVideoCallData;
 
@@ -57,31 +56,6 @@ interface IEngageDataRules {
   text: string;
   condition: string;
   value?: string;
-}
-
-export interface IFacebookPost {
-  postId: string;
-  recipientId: string;
-  senderId: string;
-  content: string;
-  erxesApiId?: string;
-  attachments: string[];
-  timestamp: Date;
-  permalink_url: string;
-}
-
-export interface IFacebookComment {
-  postId: string;
-  conversationId: string;
-  parentId: string;
-  commentId: string;
-  content: string;
-  attachments: string[];
-  commentCount: number;
-  timestamp: Date;
-  customer: ICustomer;
-  isResolved: boolean;
-  permalink_url: string;
 }
 
 export interface IEmail {
@@ -189,6 +163,7 @@ export interface IMessage {
   createdAt: Date;
   updatedAt: Date;
   bookingWidgetData?: any;
+  mid?: string;
 }
 
 // mutation types
@@ -306,38 +281,6 @@ export type UnreadConversationsTotalCountQueryResponse = {
   subscribeToMore: (variables) => void;
 } & QueryResponse;
 
-export type FacebookCommentsQueryResponse = {
-  integrationsConversationFbComments: IFacebookComment[];
-  fetchMore: (variables) => void;
-} & QueryResponse;
-
-export type FacebookCommentsCountQueryResponse = {
-  integrationsConversationFbCommentsCount: any;
-  fetchMore: (variables) => void;
-} & QueryResponse;
-
-export type ReplyFaceBookCommentMutationVariables = {
-  conversationId: string;
-  commentId: string;
-  content: string;
-};
-
-export type ReplyFacebookCommentMutationResponse = {
-  replyMutation: (doc: {
-    variables: ReplyFaceBookCommentMutationVariables;
-  }) => Promise<any>;
-};
-
-export type ResolveFacebookCommentMutationVariables = {
-  commentId: string;
-};
-
-export type ResolveFacebookCommentResponse = {
-  resolveMutation: (doc: {
-    variables: ResolveFacebookCommentMutationVariables;
-  }) => Promise<any>;
-};
-
 export type EditCustomFieldsMutationVariables = {
   _id: string;
   customFieldsData: any;
@@ -352,3 +295,15 @@ export type EditMutationResponse = {
 export type ResponseTemplatesTotalCountQueryResponse = {
   responseTemplatesTotalCount: number;
 } & QueryResponse;
+
+// inbox direct message configs
+export type DmQueryItem = {
+  query: string;
+  name: string;
+  integrationKind: string;
+};
+
+export type DmConfig = {
+  messagesQueries: DmQueryItem[];
+  countQueries: DmQueryItem[];
+};

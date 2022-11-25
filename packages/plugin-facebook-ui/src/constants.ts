@@ -25,3 +25,9 @@ export const INTEGRATIONS = [
       'All integrations, For support teams, Messaging, Social media, Conversation'
   }
 ];
+
+export const KINDS = {
+  MESSENGER: 'facebook-messenger',
+  POST: 'facebook-post',
+  ALL: ['facebook-messenger', 'facebook-post']
+};

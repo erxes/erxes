@@ -108,6 +108,7 @@ export const types = ({ tags, forms, facebook, contacts }) => `
     videoCallData: VideoCallData
     contentType: String
     bookingWidgetData: JSON
+    mid: String
   }
 
   type Email {

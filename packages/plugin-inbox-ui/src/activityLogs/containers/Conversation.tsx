@@ -1,19 +1,18 @@
 import * as compose from 'lodash.flowright';
+import React from 'react';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 
+import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
+import { withProps } from '@erxes/ui/src/utils';
 import {
   ConversationDetailQueryResponse,
-  FacebookCommentsQueryResponse,
   MessagesQueryResponse
 } from '@erxes/ui-inbox/src/inbox/types';
 
 import Conversation from '../components/Conversation';
-import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
-import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
-import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   activity: IActivityLog;
@@ -22,17 +21,12 @@ type Props = {
 
 type FinalProps = {
   messagesQuery: MessagesQueryResponse;
-  commentsQuery: FacebookCommentsQueryResponse;
   conversationDetailQuery: ConversationDetailQueryResponse;
 } & Props;
 
 class ConversationContainer extends React.Component<FinalProps> {
   render() {
-    const {
-      conversationDetailQuery,
-      messagesQuery,
-      commentsQuery
-    } = this.props;
+    const { conversationDetailQuery, messagesQuery } = this.props;
 
     if (conversationDetailQuery.loading || messagesQuery.loading) {
       return <Spinner />;
@@ -40,14 +34,11 @@ class ConversationContainer extends React.Component<FinalProps> {
 
     const conversation = conversationDetailQuery.conversationDetail;
     const messages = messagesQuery.conversationMessages || [];
-    const comments =
-      (commentsQuery && commentsQuery.integrationsConversationFbComments) || [];
 
     const updatedProps = {
       ...this.props,
       conversation,
-      messages,
-      comments
+      messages
     };
 
     return <Conversation {...updatedProps} />;
@@ -76,19 +67,6 @@ export default withProps<Props>(
           getFirst: true
         }
       })
-    }),
-    graphql<Props, FacebookCommentsQueryResponse>(
-      gql(queries.integrationsConversationFbComments),
-      {
-        name: 'commentsQuery',
-        skip: ({ activity }) => activity.contentType !== 'comment',
-        options: ({ conversationId, activity }) => ({
-          variables: {
-            postId: conversationId,
-            senderId: activity.contentId
-          }
-        })
-      }
-    )
+    })
   )(ConversationContainer)
 );

@@ -1,23 +1,31 @@
-import { AppConsumer } from 'coreui/appContext';
+import * as React from 'react';
+import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+
 import { IUser } from '@erxes/ui/src/auth/types';
 import { withProps } from '@erxes/ui/src/utils';
-import FacebookConversation from '../../../components/conversationDetail/workarea/facebook/FacebookConversation';
-import { queries, subscriptions } from '@erxes/ui-inbox/src/inbox/graphql';
+import {
+  queries as inboxQueries,
+  subscriptions as inboxSubscriptions
+} from '@erxes/ui-inbox/src/inbox/graphql';
+import { MessagesQueryResponse } from '@erxes/ui-inbox/src/inbox/types';
+
+import { AppConsumer } from 'coreui/appContext';
+import FacebookConversation from '../../components/conversationDetail/facebook/FacebookConversation';
+import { queries } from '../../graphql/index';
 import {
   FacebookCommentsCountQueryResponse,
   FacebookCommentsQueryResponse,
-  IConversation,
   IFacebookComment,
   IFacebookPost,
-  MessagesQueryResponse
-} from '@erxes/ui-inbox/src/inbox/types';
-import * as React from 'react';
-import { graphql } from 'react-apollo';
+  IFbConversation
+} from '../../types';
+import { Spinner } from '@erxes/ui/src/components';
 
 type Props = {
-  conversation: IConversation;
+  currentId: string;
+  conversation: IFbConversation;
   isResolved: boolean;
   onToggleClick: () => void;
   scrollBottom: () => void;
@@ -45,7 +53,7 @@ class FacebookPostContainer extends React.Component<FinalProps> {
     // It is first time or subsequent conversation change
     if (
       !this.subscription ||
-      conversation._id !== this.props.conversation._id
+      (conversation && conversation._id !== this.props.conversation._id)
     ) {
       // Unsubscribe previous subscription ==========
       if (this.subscription) {
@@ -54,11 +62,10 @@ class FacebookPostContainer extends React.Component<FinalProps> {
 
       this.subscription = commentsQuery.subscribeToMore({
         document: gql(
-          subscriptions.conversationExternalIntegrationMessageInserted
+          inboxSubscriptions.conversationExternalIntegrationMessageInserted
         ),
         updateQuery: () => {
-          const comments =
-            commentsQuery.integrationsConversationFbComments || [];
+          const comments = commentsQuery.facebookGetComments || [];
           const limit = comments.length + 10;
 
           this.fetchMoreComments({ limit }, { isSubscriptions: true });
@@ -77,14 +84,14 @@ class FacebookPostContainer extends React.Component<FinalProps> {
           return prev;
         }
 
-        const prevComments = prev.integrationsConversationFbComments || [];
+        const prevComments = prev.facebookGetComments || [];
 
         const prevCommentIds = prevComments.map(
           (comment: IFacebookComment) => comment.commentId
         );
 
         const fetchedComments: IFacebookComment[] = [];
-        for (const comment of fetchMoreResult.integrationsConversationFbComments) {
+        for (const comment of fetchMoreResult.facebookGetComments) {
           if (!prevCommentIds.includes(comment.commentId)) {
             fetchedComments.push(comment);
           }
@@ -93,19 +100,13 @@ class FacebookPostContainer extends React.Component<FinalProps> {
         if (isSubscriptions) {
           return {
             ...prev,
-            integrationsConversationFbComments: [
-              ...prevComments,
-              ...fetchedComments
-            ]
+            facebookGetComments: [...prevComments, ...fetchedComments]
           };
         }
 
         return {
           ...prev,
-          integrationsConversationFbComments: [
-            ...fetchedComments,
-            ...prevComments
-          ]
+          facebookGetComments: [...fetchedComments, ...prevComments]
         };
       }
     });
@@ -149,13 +150,17 @@ class FacebookPostContainer extends React.Component<FinalProps> {
       internalNotesQuery.loading ||
       commentsCountQuery.loading
     ) {
-      return null;
+      return <Spinner />;
     }
 
-    const post = conversation.facebookPost || ({} as IFacebookPost);
-    const comments = commentsQuery.integrationsConversationFbComments || [];
-    const commentCounts =
-      commentsCountQuery.integrationsConversationFbCommentsCount || {};
+    if (!conversation) {
+      return 'No conversation found';
+    }
+
+    const post =
+      (conversation && conversation.facebookPost) || ({} as IFacebookPost);
+    const comments = commentsQuery.facebookGetComments || [];
+    const commentCounts = commentsCountQuery.facebookGetCommentCount || {};
 
     const hasMore = commentCounts.commentCountWithoutReplies > comments.length;
     const commentCount = commentCounts.commentCount;
@@ -164,7 +169,7 @@ class FacebookPostContainer extends React.Component<FinalProps> {
       ...this.props,
       commentCount,
       post,
-      customer: conversation.customer || ({} as any),
+      customer: (conversation && conversation.customer) || ({} as any),
       comments,
       internalNotes: internalNotesQuery.conversationMessages,
       hasMore,
@@ -175,60 +180,54 @@ class FacebookPostContainer extends React.Component<FinalProps> {
   }
 }
 
+type Resolved = {
+  isResolved: boolean;
+};
+
+type ConversationId = {
+  conversationId: string;
+} & Resolved;
+
 const WithQuery = withProps<Props & { currentUser: IUser }>(
   compose(
-    graphql<
-      Props,
-      FacebookCommentsQueryResponse,
-      { postId: string; isResolved: boolean }
-    >(gql(queries.integrationsConversationFbComments), {
-      name: 'commentsQuery',
-      options: ({
-        conversation,
-        isResolved
-      }: {
-        conversation: IConversation;
-        isResolved: boolean;
-      }) => {
-        return {
-          variables: {
-            postId: conversation._id,
-            isResolved
-          },
-          fetchPolicy: 'network-only'
-        };
-      }
-    }),
-    graphql<
-      Props,
-      FacebookCommentsCountQueryResponse,
-      { postId: string; isResolved: boolean }
-    >(gql(queries.integrationsConversationFbCommentsCount), {
-      name: 'commentsCountQuery',
-      options: ({
-        conversation,
-        isResolved
-      }: {
-        conversation: IConversation;
-        isResolved: boolean;
-      }) => {
-        return {
-          variables: {
-            postId: conversation._id,
-            isResolved
-          },
-          fetchPolicy: 'network-only'
-        };
-      }
-    }),
-    graphql<Props, MessagesQueryResponse, { conversationId: string }>(
-      gql(queries.conversationMessages),
+    graphql<Props, FacebookCommentsQueryResponse, ConversationId>(
+      gql(queries.facebookGetComments),
       {
-        name: 'internalNotesQuery',
-        options: ({ conversation }: { conversation: IConversation }) => {
+        name: 'commentsQuery',
+        options: ({ isResolved, currentId }) => {
           return {
             variables: {
-              conversationId: conversation._id
+              conversationId: currentId,
+              isResolved
+            },
+            fetchPolicy: 'network-only'
+          };
+        }
+      }
+    ),
+    graphql<Props, FacebookCommentsCountQueryResponse, ConversationId>(
+      gql(queries.facebookGetCommentCount),
+      {
+        name: 'commentsCountQuery',
+        options: ({ isResolved, currentId }) => {
+          return {
+            variables: {
+              conversationId: currentId,
+              isResolved
+            },
+            fetchPolicy: 'network-only'
+          };
+        }
+      }
+    ),
+    graphql<Props, MessagesQueryResponse, { conversationId: string }>(
+      gql(inboxQueries.conversationMessages),
+      {
+        name: 'internalNotesQuery',
+        options: ({ currentId }) => {
+          return {
+            variables: {
+              conversationId: currentId
             },
             fetchPolicy: 'network-only'
           };

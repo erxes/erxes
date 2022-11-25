@@ -9,6 +9,7 @@ import InternalNote from '../containers/items/InternalNote';
 import React from 'react';
 import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
 import Tip from '@erxes/ui/src/components/Tip';
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 
 type Props = {
   activity: IActivityLog;
@@ -22,7 +23,7 @@ type Props = {
 class ActivityItem extends React.Component<Props> {
   render() {
     const { activity, currentUser } = this.props;
-    const { contentType, _id } = activity;
+    const { contentType, _id, contentTypeDetail } = activity;
 
     const type = contentType.split(':')[1];
 
@@ -50,16 +51,40 @@ class ActivityItem extends React.Component<Props> {
     const pluginName = contentType.split(':')[0];
 
     for (const plugin of plugins) {
-      if (pluginName === plugin.name && plugin.activityLog) {
+      const hasIntegration =
+        contentType.includes('conversation') &&
+        contentTypeDetail &&
+        contentTypeDetail.integration;
+      let kind = '';
+      let scope = plugin.scope;
+      let component = plugin.activityLog;
+
+      if (hasIntegration) {
+        const integration = (contentTypeDetail.integration ||
+          {}) as IIntegration;
+        kind = integration.kind.split('-')[0];
+      }
+
+      if (kind) {
+        const p = plugins.find(p => p.name === kind);
+
+        if (p) {
+          scope = p.scope;
+          component = p.activityLog;
+        }
+      }
+
+      if ((kind === plugin.name || pluginName === plugin.name) && component) {
         return (
           <ErrorBoundary>
             <RenderDynamicComponent
-              scope={plugin.scope}
-              component={plugin.activityLog}
+              scope={scope}
+              component={component}
               injectedProps={{
                 contentType,
                 activity,
-                currentUser
+                currentUser,
+                conversationId: _id
               }}
             />
           </ErrorBoundary>

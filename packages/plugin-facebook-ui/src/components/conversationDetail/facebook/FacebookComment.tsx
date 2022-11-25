@@ -8,7 +8,7 @@ import TicketConvertTrigger from '@erxes/ui-cards/src/tickets/components/TicketC
 import * as React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import styled from 'styled-components';
-import { IFacebookComment } from '@erxes/ui-inbox/src/inbox/types';
+import { IFacebookComment } from '../../../types';
 import Date from './Date';
 import FacebookContent from './FacebookContent';
 import ReplyingMessage from './ReplyingMessage';
@@ -178,9 +178,9 @@ export default class FacebookComment extends React.Component<
             </FlexItem>
 
             {!isReply ? (
-              <Reply type='reply'>
+              <Reply type="reply">
                 <ModalTrigger
-                  title='Reply'
+                  title="Reply"
                   trigger={<span>Reply</span>}
                   content={content}
                 />
@@ -188,25 +188,25 @@ export default class FacebookComment extends React.Component<
             ) : null}
             <Container>
               <Dropdown>
-                <Dropdown.Toggle as={DropdownToggle} id='dropdown-convert-to'>
-                  <Reply type='convert'>
+                <Dropdown.Toggle as={DropdownToggle} id="dropdown-convert-to">
+                  <Reply type="convert">
                     <span>Convert</span>
                   </Reply>
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
-                  <li key='ticket'>
+                  <li key="ticket">
                     <TicketConvertTrigger
                       {...triggerProps}
                       url={convertToInfo.ticketUrl}
                     />
                   </li>
-                  <li key='deal'>
+                  <li key="deal">
                     <DealConvertTrigger
                       {...triggerProps}
                       url={convertToInfo.dealUrl}
                     />
                   </li>
-                  <li key='task'>
+                  <li key="task">
                     <TaskConvertTrigger
                       {...triggerProps}
                       url={convertToInfo.taskUrl}
@@ -221,7 +221,7 @@ export default class FacebookComment extends React.Component<
             </Reply>
             <span>
               <Date
-                type='comment'
+                type="comment"
                 timestamp={comment.timestamp}
                 permalink_url={comment.permalink_url}
               />
@@ -233,7 +233,7 @@ export default class FacebookComment extends React.Component<
             onClick={this.fetchReplies.bind(this, comment.commentId)}
             isReply={true}
           >
-            <Icon icon='reply' />
+            <Icon icon="reply" />
             <span>View more replies</span>
           </ShowMore>
         )}

@@ -36,7 +36,9 @@ const facebookGetComments = `
       content
       erxesApiId
       timestamp
-      customer
+      customer {
+        _id
+      }
       commentCount
       isResolved
     }
@@ -77,13 +79,10 @@ const facebookConversationMessages = `
       _id
       content
       conversationId
-      fromBot
-      botData
       customerId
       userId
       createdAt
       isCustomerRead
-      mid
     }
   }
 `;

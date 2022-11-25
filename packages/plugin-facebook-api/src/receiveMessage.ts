@@ -113,11 +113,17 @@ const receiveMessage = async (
       });
 
       graphqlPubsub.publish('conversationClientMessageInserted', {
-        conversationClientMessageInserted: created
+        conversationClientMessageInserted: {
+          ...created.toObject(),
+          conversationId: conversation.erxesApiId
+        }
       });
 
       graphqlPubsub.publish('conversationMessageInserted', {
-        conversationMessageInserted: created
+        conversationMessageInserted: {
+          ...created.toObject(),
+          conversationId: conversation.erxesApiId
+        }
       });
     } catch (e) {
       throw new Error(

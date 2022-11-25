@@ -1,16 +1,13 @@
 import * as React from 'react';
 
-import {
-  IFacebookComment,
-  IFacebookPost,
-  IMessage
-} from '@erxes/ui-inbox/src/inbox/types';
-
-import FacebookComment from '../../../../containers/conversationDetail/facebook/FacebookComment';
-import FacebookPost from './FacebookPost';
+import { IMessage } from '@erxes/ui-inbox/src/inbox/types';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import { ShowMore } from './styles';
 import SimpleMessage from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/SimpleMessage';
+
+import FacebookPost from './FacebookPost';
+import { ShowMore } from './styles';
+import { IFacebookComment, IFacebookPost } from '../../../types';
+import FacebookComment from '../../../containers/post/FacebookComment';
 
 type Props = {
   commentCount: number;
@@ -30,7 +27,9 @@ type Props = {
     postId?: string;
     limit?: number;
   }) => void;
-  onToggleClick: () => void;
+};
+
+type State = {
   isResolved: boolean;
 };
 
@@ -42,9 +41,27 @@ const getAttr = (comment: IFacebookComment, attr: string) => {
   return comment[attr];
 };
 
-export default class FacebookConversation extends React.Component<Props> {
+export default class FacebookConversation extends React.Component<
+  Props,
+  State
+> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      isResolved: false
+    };
+  }
+
+  onToggleClick = () => {
+    const { isResolved } = this.state;
+
+    this.setState({ isResolved: !isResolved });
+  };
+
   fetchComments = () => {
     const { post, comments } = this.props;
+
     if (!post) {
       return;
     }
@@ -141,8 +158,8 @@ export default class FacebookConversation extends React.Component<Props> {
           commentCount={commentCount}
           customer={customer}
           scrollBottom={scrollBottom}
-          onToggleClick={this.props.onToggleClick}
-          isResolved={this.props.isResolved}
+          onToggleClick={this.onToggleClick}
+          isResolved={this.state.isResolved}
         />
         {this.renderViewMore()}
         {this.renderComments()}

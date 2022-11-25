@@ -16,26 +16,32 @@ import {
   FlexCenterContent,
   Header
 } from '@erxes/ui-log/src/activityLogs/styles';
-import { IConversation, IMessage } from '@erxes/ui-inbox/src/inbox/types';
+import {
+  Comment,
+  PostContainer
+} from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/styles';
+import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
 import { __, renderFullName } from '@erxes/ui/src/utils';
 import {
   formatText,
   getIconAndColor
 } from '@erxes/ui-log/src/activityLogs/utils';
-
 import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import Icon from '@erxes/ui/src/components/Icon';
-import MailConversation from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/mail/MailConversation';
 import Message from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/Message';
 import Tip from '@erxes/ui/src/components/Tip';
+import UserName from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/UserName';
+
+import { IConversationMessage, IFacebookComment } from '../types';
 
 type Props = {
   activity: any;
   conversation: IConversation;
-  messages: IMessage[];
+  messages: IConversationMessage[];
+  comments: IFacebookComment[];
 };
 
-class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
+class ActivityLogs extends React.Component<Props, { toggleMessage: boolean }> {
   constructor(props) {
     super(props);
 
@@ -48,6 +54,30 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
     this.setState({ toggleMessage: !this.state.toggleMessage });
   };
 
+  renderComments() {
+    const { comments } = this.props;
+
+    if (!comments || comments.length === 0) {
+      return null;
+    }
+
+    return comments.map(comment => (
+      <div key={comment.commentId}>
+        <Comment>
+          <UserName
+            username={`${comment.customer.firstName} ${comment.customer
+              .lastName || ''}`}
+          />
+          <p
+            dangerouslySetInnerHTML={{
+              __html: xss(comment.content)
+            }}
+          />
+        </Comment>
+      </div>
+    ));
+  }
+
   renderMessages() {
     const { conversation, messages } = this.props;
 
@@ -57,12 +87,12 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
 
     const { kind } = conversation.integration;
 
-    if (kind.includes('nylas')) {
+    if (kind === 'facebook-post') {
       return (
-        <MailConversation
-          conversation={conversation}
-          conversationMessages={messages}
-        />
+        <>
+          <PostContainer>{conversation.content}</PostContainer>
+          {this.renderComments()}
+        </>
       );
     }
 
@@ -98,10 +128,10 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
   }
 
   renderAction() {
-    const { activity, conversation } = this.props;
-
+    const { activity, conversation, comments } = this.props;
     const { _id, integration } = conversation;
-    const { customer } = conversation;
+
+    let { customer } = conversation;
 
     if (!customer) {
       return null;
@@ -116,18 +146,26 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
     let item = 'message';
 
     switch (condition) {
-      case 'callpro':
-        action = 'made a';
-        kind = 'phone call';
-        item = 'by CallPro';
+      case 'comment':
+        action = '';
+        kind = 'commented';
+        item = `on ${renderFullName(customer)}'s facebook post`;
         break;
-      case 'lead':
-        action = 'submitted a';
-        kind = 'Form';
+      case 'facebook-post':
+        action = 'wrote a Facebook';
+        kind = 'Post';
         item = '';
+        break;
+      case 'facebook-messenger':
+        kind = 'message';
+        item = 'by Facebook Messenger';
         break;
       default:
         break;
+    }
+
+    if (condition === 'comment') {
+      customer = comments.length > 0 ? comments[0].customer : customer;
     }
 
     return (
@@ -149,6 +187,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
 
   renderContent() {
     const { conversation, messages } = this.props;
+
     const { customer, content, createdAt, integration } = conversation;
 
     if (!this.state.toggleMessage && integration) {
@@ -218,4 +257,4 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
   }
 }
 
-export default Conversation;
+export default ActivityLogs;

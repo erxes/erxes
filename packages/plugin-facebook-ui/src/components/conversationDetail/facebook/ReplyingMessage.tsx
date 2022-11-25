@@ -71,7 +71,7 @@ class ReplyingMessage extends React.Component<Props, State> {
         <FormGroup>
           <FormControl
             autoFocus={true}
-            componentClass='textarea'
+            componentClass="textarea"
             onChange={this.onContentChange}
             required={true}
             onFocus={this.moveCursorAtTheEnd}
@@ -80,14 +80,14 @@ class ReplyingMessage extends React.Component<Props, State> {
 
         <Footer>
           <Button
-            btnStyle='simple'
+            btnStyle="simple"
             onClick={this.props.closeModal}
-            icon='times-circle'
+            icon="times-circle"
           >
             Close
           </Button>
 
-          <Button btnStyle='success' type='submit' icon='check-circle'>
+          <Button btnStyle="success" type="submit" icon="check-circle">
             Post
           </Button>
         </Footer>

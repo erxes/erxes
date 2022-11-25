@@ -82,7 +82,7 @@ const facebookQueries = {
       senderId?: string;
     } = {
       postId: post.postId,
-      isResolved
+      isResolved: isResolved === true
     };
 
     if (senderId && senderId !== 'undefined') {

@@ -25,12 +25,12 @@ export default class FacebookContent extends React.Component<Props, {}> {
         return (
           <iframe
             key={index}
-            title='erxesIframe'
+            title="erxesIframe"
             src={`https://www.youtube.com/embed/${iframeSrc}`}
-            width='100%'
-            height='280'
-            scrolling='no'
-            frameBorder='0'
+            width="100%"
+            height="280"
+            scrolling="no"
+            frameBorder="0"
             allowFullScreen={true}
           />
         );
@@ -39,12 +39,12 @@ export default class FacebookContent extends React.Component<Props, {}> {
         return (
           <iframe
             key={index}
-            title='erxesIframeVideo'
+            title="erxesIframeVideo"
             src={link}
-            width='100%'
-            height='280'
-            scrolling='no'
-            frameBorder='0'
+            width="100%"
+            height="280"
+            scrolling="no"
+            frameBorder="0"
             allowFullScreen={true}
           />
         );
@@ -63,8 +63,8 @@ export default class FacebookContent extends React.Component<Props, {}> {
           <a
             key={index}
             href={`https://www.facebook.com/${link}`}
-            target='_blank'
-            rel='noopener noreferrer'
+            target="_blank"
+            rel="noopener noreferrer"
           >
             {link}
           </a>
