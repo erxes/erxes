@@ -1,4 +1,4 @@
-import { Spinner, withProps } from '@erxes/ui/src';
+import { EmptyState, Spinner, withProps } from '@erxes/ui/src';
 import React from 'react';
 import * as compose from 'lodash.flowright';
 import gql from 'graphql-tag';
@@ -22,11 +22,20 @@ class FormHistory extends React.Component<FinalProps> {
   render() {
     const { riskAssessmentHistory } = this.props;
 
-    if (riskAssessmentHistory.loading) {
+    const { loading, error, riskFormSubmitHistory } = riskAssessmentHistory;
+
+    if (loading) {
       return <Spinner />;
     }
 
-    return <FormHistoryComponent detail={riskAssessmentHistory.riskFormSubmitHistory || []} />;
+    if(error){
+
+      const errorMessage = error.message.replace('GraphQL error:','')
+
+      return <EmptyState text={errorMessage} image="/images/actions/25.svg" />;
+    }
+
+    return <FormHistoryComponent detail={riskFormSubmitHistory || []} />;
   }
 }
 

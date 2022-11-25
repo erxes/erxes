@@ -67,34 +67,35 @@ export const loadRiskFormSubmissions = (model: IModels, subdomain: string) => {
 
       for (const [key, value] of Object.entries(formSubmissions)) {
         const { optionsValues } = fields.find(field => field._id === key);
-        if(!optionsValues){
-          newSubmission.push({ ...filter, fieldId: key, value });
-          break;
-        }
-        const optValues = optionsValues
-          .split('\n')
-          .map(item => {
-            if (item.match(/=/g)) {
-              const label = item?.substring(0, item.indexOf('='));
-              const value = parseInt(item.substring(item?.indexOf('=') + 1, item.length));
-              if (!Number.isNaN(value)) {
-                return { label, value };
+        if(optionsValues){
+          const optValues = optionsValues
+            .split('\n')
+            .map(item => {
+              if (item.match(/=/g)) {
+                const label = item?.substring(0, item.indexOf('='));
+                const value = parseInt(item.substring(item?.indexOf('=') + 1, item.length));
+                if (!Number.isNaN(value)) {
+                  return { label, value };
+                }
               }
-            }
-          }, [])
-          .filter(item => item);
-        const fieldValue = optValues.find(option => option.label === value);
-        switch (calculateMethod) {
-          case 'Multiply':
-            sumNumber *= parseInt(fieldValue.value);
-            break;
-          case 'Addition':
-            sumNumber += parseInt(fieldValue.value);
-            break;
+            }, [])
+            .filter(item => item);
+          const fieldValue = optValues.find(option => option.label === value);
+          switch (calculateMethod) {
+            case 'Multiply':
+              sumNumber *= parseInt(fieldValue.value);
+              break;
+            case 'Addition':
+              sumNumber += parseInt(fieldValue.value);
+              break;
+          }
+  
+          newSubmission.push({ ...filter, fieldId: key, value });
+        }else{
+          newSubmission.push({ ...filter, fieldId: key, value });
         }
-
-        newSubmission.push({ ...filter, fieldId: key, value });
       }
+
 
       await model.RiskAssessment.findOneAndUpdate(
         { _id: riskAssessmentId },
@@ -170,9 +171,20 @@ export const loadRiskFormSubmissions = (model: IModels, subdomain: string) => {
             defaultValue: {}
           });
 
+          let fieldOptionsValues:any[]=[]
+
+
+          const { optionsValues,options } = fieldData[0]
+
+          fieldOptionsValues = optionsValues?.split('\n')
+
+          if(!optionsValues){
+            fieldOptionsValues = options.map(option=>`${option}=NaN`)
+          }
+
           fields.push({
             ...field,
-            optionsValues: fieldData[0]?.optionsValues.split('\n'),
+            optionsValues: fieldOptionsValues,
             text: fieldData[0]?.text,
             description: fieldData[0]?.description
           });
