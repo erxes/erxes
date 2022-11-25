@@ -27,7 +27,9 @@ type Props = {
     postId?: string;
     limit?: number;
   }) => void;
-  onToggleClick: () => void;
+};
+
+type State = {
   isResolved: boolean;
 };
 
@@ -39,7 +41,24 @@ const getAttr = (comment: IFacebookComment, attr: string) => {
   return comment[attr];
 };
 
-export default class FacebookConversation extends React.Component<Props> {
+export default class FacebookConversation extends React.Component<
+  Props,
+  State
+> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      isResolved: false
+    };
+  }
+
+  onToggleClick = () => {
+    const { isResolved } = this.state;
+
+    this.setState({ isResolved: !isResolved });
+  };
+
   fetchComments = () => {
     const { post, comments } = this.props;
 
@@ -139,8 +158,8 @@ export default class FacebookConversation extends React.Component<Props> {
           commentCount={commentCount}
           customer={customer}
           scrollBottom={scrollBottom}
-          onToggleClick={this.props.onToggleClick}
-          isResolved={this.props.isResolved}
+          onToggleClick={this.onToggleClick}
+          isResolved={this.state.isResolved}
         />
         {this.renderViewMore()}
         {this.renderComments()}
