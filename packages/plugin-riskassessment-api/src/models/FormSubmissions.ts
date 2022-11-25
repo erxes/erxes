@@ -91,8 +91,7 @@ export const loadRiskFormSubmissions = (model: IModels, subdomain: string) => {
           }
   
           newSubmission.push({ ...filter, fieldId: key, value });
-        }
-        if(!optionsValues){
+        }else{
           newSubmission.push({ ...filter, fieldId: key, value });
         }
       }
