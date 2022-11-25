@@ -6,7 +6,8 @@ module.exports = {
     './routes': './src/routes.tsx',
     './inboxIntegrationSettings': './src/containers/UpdateConfigsContainer.tsx',
     './activityLog': './src/containers/ActivityLogsContainer.tsx',
-    './tagMessage': './src/components/conversationDetail/workarea/TagMessage.tsx'
+    './tagMessage': './src/components/conversationDetail/workarea/TagMessage.tsx',
+    './specialUi': './src/containers/post/FbCommentsContainer.tsx'
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
@@ -58,7 +59,9 @@ module.exports = {
               content
               erxesApiId
               timestamp
-              customer
+              customer {
+                _id
+              }
               commentCount
               isResolved
             }
@@ -101,6 +104,7 @@ module.exports = {
       createUrl: '/settings/integrations/createFacebook',
       category:
         'All integrations, For support teams, Marketing automation, Social media',
+      component: 'specialUi'
     },
     {
       name: 'Facebook Messenger',
@@ -117,5 +121,6 @@ module.exports = {
     },
   ],
   activityLog: './activityLog',
-  tagMessage: './tagMessage'
+  tagMessage: './tagMessage',
+  specialUi: './specialUi'
 };

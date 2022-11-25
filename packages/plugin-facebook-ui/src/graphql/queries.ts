@@ -36,7 +36,9 @@ const facebookGetComments = `
       content
       erxesApiId
       timestamp
-      customer
+      customer {
+        _id
+      }
       commentCount
       isResolved
     }

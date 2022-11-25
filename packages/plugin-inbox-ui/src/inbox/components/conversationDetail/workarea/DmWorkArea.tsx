@@ -1,14 +1,18 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { IAttachmentPreview } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
-import RespondBox from '../../../containers/conversationDetail/RespondBox';
-import { ContenFooter, ContentBox } from '@erxes/ui/src/layout/styles';
 import React from 'react';
+
+import { getPluginConfig, isEnabled } from '@erxes/ui/src/utils/core';
+import { IAttachmentPreview } from '@erxes/ui/src/types';
+import Message from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/Message';
+import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
+import { ContenFooter, ContentBox } from '@erxes/ui/src/layout/styles';
 import {
   AddMessageMutationVariables,
   IConversation,
   IMessage
 } from '@erxes/ui-inbox/src/inbox/types';
+import MailConversation from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/mail/MailConversation';
+import { __ } from 'coreui/utils';
+
 import {
   ConversationWrapper,
   RenderConversationWrapper,
@@ -16,7 +20,8 @@ import {
 } from './styles';
 import TypingIndicator from './TypingIndicator';
 import ActionBar from './ActionBar';
-import Message from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/Message';
+import RespondBox from '../../../containers/conversationDetail/RespondBox';
+import CallPro from './callpro/Callpro';
 
 type Props = {
   queryParams?: any;
@@ -77,7 +82,7 @@ export default class WorkArea extends React.Component<Props, State> {
     return null;
   }
 
-  componentDidUpdate(prevProps, prevState, snapshot) {
+  componentDidUpdate(prevProps, _prevState, snapshot) {
     const { conversationMessages, typingInfo } = this.props;
 
     const messageCount = conversationMessages.length;
@@ -171,6 +176,46 @@ export default class WorkArea extends React.Component<Props, State> {
 
     const messages = (conversationMessages || []).slice();
     const firstMessage = messages[0];
+
+    const { integration } = currentConversation;
+    const kind = integration && integration.kind.split('-')[0];
+
+    const integrations = getPluginConfig({
+      pluginName: kind,
+      configName: 'inboxIntegrations'
+    });
+
+    if (integrations) {
+      const entry = integrations.find(s => s.kind === integration.kind);
+
+      if (entry && entry.component) {
+        return loadDynamicComponent(entry.component, {
+          ...this.props,
+          conversation: currentConversation,
+          currentId: currentConversation._id
+        });
+      }
+
+      return this.renderMessages(messages, firstMessage);
+    }
+
+    if (kind === 'callpro') {
+      return (
+        <>
+          <CallPro conversation={currentConversation} />
+          {this.renderMessages(messages, firstMessage)}
+        </>
+      );
+    }
+
+    if (kind.includes('nylas') || kind === 'gmail') {
+      return (
+        <MailConversation
+          conversation={currentConversation}
+          conversationMessages={conversationMessages}
+        />
+      );
+    }
 
     return this.renderMessages(messages, firstMessage);
   }
