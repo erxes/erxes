@@ -196,7 +196,6 @@ class SPLabels extends React.Component<Props, State> {
             <th>{__('Title')}</th>
             <th>{__('Effect')}</th>
             <th>{__('Color')}</th>
-            <th>{__('Multiplier')}</th>
             <th>{__('Status')}</th>
           </tr>
         </thead>

@@ -36,7 +36,7 @@ class Row extends React.Component<Props> {
       e.stopPropagation();
     };
 
-    const { _id, title, effect, color, status, multiplier } = spLabel;
+    const { _id, title, effect, color, status } = spLabel;
 
     const trigger = (
       <tr key={_id}>
@@ -55,7 +55,6 @@ class Row extends React.Component<Props> {
             {color}
           </Label>
         </td>
-        <td>{multiplier}</td>
         <td>
           <TextInfo>{status}</TextInfo>
         </td>
@@ -64,6 +63,7 @@ class Row extends React.Component<Props> {
 
     return (
       <ModalTrigger
+        size={'lg'}
         title="Edit label"
         trigger={trigger}
         autoOpenKey="showProductModal"

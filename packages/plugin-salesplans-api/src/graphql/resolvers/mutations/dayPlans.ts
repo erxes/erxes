@@ -1,5 +1,11 @@
 import { DAYPLAN_STATUS } from '../../../constants';
-import { getDayPlanValues, getProducts } from './utils';
+import {
+  getDayPlanValues,
+  getLabelsOfDay,
+  getProducts,
+  getProductsAndParents,
+  getPublicLabels
+} from './utils';
 import { IContext } from '../../../connectionResolver';
 import {
   IDayPlan,
@@ -29,11 +35,11 @@ const dayPlansMutations = {
       throw new Error('Must fill product category or product');
     }
 
-    const { products, productIds } = await getProducts(
-      subdomain,
-      productId,
-      productCategoryId
-    );
+    const {
+      products,
+      productIds,
+      parentIdsByProductId
+    } = await getProductsAndParents(subdomain, productId, productCategoryId);
 
     const oldDayPlans = await models.DayPlans.find({
       date,
@@ -53,8 +59,8 @@ const dayPlansMutations = {
       branchId,
       productId: { $in: productIds }
     }).lean();
-    const yearPlanByProductId = {};
 
+    const yearPlanByProductId = {};
     for (const yearPlan of yearPlans) {
       yearPlanByProductId[yearPlan.productId || ''] = yearPlan;
     }
@@ -62,6 +68,19 @@ const dayPlansMutations = {
     const timeFrames = await models.Timeframes.find({
       status: { $ne: 'deleted' }
     }).lean();
+
+    const publicLabels = await getPublicLabels({
+      models,
+      year: date.getFullYear(),
+      month: date.getMonth()
+    });
+
+    const dayLabels = await getLabelsOfDay(
+      models,
+      date,
+      branchId,
+      departmentId
+    );
 
     let docs: IDayPlan[] = [];
     let inserteds: IDayPlanDocument[] = [];
@@ -75,13 +94,15 @@ const dayPlansMutations = {
         continue;
       }
 
-      const { planCount, values } = await getDayPlanValues(
-        models,
-        doc,
+      const { planCount, values } = await getDayPlanValues({
+        date,
         yearPlanByProductId,
+        parentIdsByProductId,
+        publicLabels,
+        dayLabels,
         product,
         timeFrames
-      );
+      });
 
       const dayPlanDoc: IDayPlan & any = {
         date,

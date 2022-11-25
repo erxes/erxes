@@ -5,7 +5,7 @@ export const spLabelFields = `
   effect,
   status,
   color,
-  multiplier
+  rules
 `;
 
 export const paginateDefs = `

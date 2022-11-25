@@ -50,7 +50,7 @@ export const dayLabelFields = `
     title,
     color,
     effect,
-    multiplier
+    rules
   }
   createdUser {
     ${userFields}

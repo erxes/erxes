@@ -4,17 +4,72 @@ import { sendProductsMessage } from '../../../messageBroker';
 import { ILabelDocument } from '../../../models/definitions/labels';
 import { IDayLabelDocument } from '../../../models/definitions/dayLabels';
 
-export const getProducts = async (subdomain, productId, productCategoryId) => {
-  let products: any[] = [];
+const getParentsOrders = order => {
+  const orders: string[] = [];
+  const splitOrders = order.split('/');
+  let currentOrder = '';
+
+  for (const oStr of splitOrders) {
+    if (oStr) {
+      currentOrder = `${currentOrder}${oStr}/`;
+      orders.push(currentOrder);
+    }
+  }
+
+  return orders;
+};
+
+export const getParentCategories = async (
+  subdomain: string,
+  productId: string,
+  productCategoryId: string
+) => {
+  let categoryId = productCategoryId;
+
   if (productId) {
     const product = await sendProductsMessage({
       subdomain,
-      action: 'find',
+      action: 'findOne',
       data: { _id: productId },
       isRPC: true
     });
-    products = [product];
+
+    categoryId = product.categoryId;
   }
+
+  const category = await sendProductsMessage({
+    subdomain,
+    action: 'categories.findOne',
+    data: { _id: categoryId },
+    isRPC: true
+  });
+
+  if (!category) {
+    throw new Error('not found category');
+  }
+
+  const orders = getParentsOrders(category.order);
+
+  const categories = await sendProductsMessage({
+    subdomain,
+    action: 'categories.find',
+    data: {
+      query: {
+        $or: [{ order: { $in: orders } }, { order: { $regex: category.order } }]
+      }
+    },
+    isRPC: true
+  });
+
+  return categories;
+};
+
+export const getProducts = async (
+  subdomain: string,
+  productId: string,
+  productCategoryId: string
+) => {
+  let products: any[] = [];
 
   if (productCategoryId) {
     const limit = await sendProductsMessage({
@@ -42,25 +97,87 @@ export const getProducts = async (subdomain, productId, productCategoryId) => {
     });
   }
 
+  if (productId) {
+    products = await sendProductsMessage({
+      subdomain,
+      action: 'find',
+      data: { query: { _id: productId } },
+      isRPC: true,
+      defaultValue: []
+    });
+  }
+
   const productIds = products.map(p => p._id);
 
   return { products, productIds };
 };
 
-const getDivederInMonth = async (models: IModels, year, month) => {
+export const getProductsAndParents = async (
+  subdomain: string,
+  productId: string,
+  productCategoryId: string
+) => {
+  const parentIdsByProdId = {};
+
+  const categories = await getParentCategories(
+    subdomain,
+    productId,
+    productCategoryId
+  );
+
+  const { products, productIds } = await getProducts(
+    subdomain,
+    productId,
+    productCategoryId
+  );
+
+  const categoryById = {};
+  for (const cat of categories) {
+    categoryById[cat._id] = cat;
+  }
+
+  for (const product of products) {
+    const category = categoryById[product.categoryId];
+
+    const orders = getParentsOrders(category.order);
+
+    if (!Object.keys(parentIdsByProdId).includes(product._id)) {
+      parentIdsByProdId[product._id] = [];
+    }
+
+    parentIdsByProdId[product._id] = parentIdsByProdId[product._id].concat(
+      categories.filter(c => orders.includes(c.order)).map(c => c._id)
+    );
+  }
+
+  return { products, productIds, parentIdsByProductId: parentIdsByProdId };
+};
+
+const getExactMultiplier = async () => {};
+
+export const getPublicLabels = async ({
+  models,
+  year,
+  month
+}: {
+  models: IModels;
+  year: number;
+  month: number;
+}) => {
   const dayInMonth = new Date(year, month, 0).getDate();
+
   const publicLabels: ILabelDocument[] = await models.Labels.find({
     effect: 'public'
   }).lean();
-  const multiplierByLabelId = {};
 
+  const rulesByLabelId = {};
   for (const label of publicLabels) {
-    multiplierByLabelId[label._id] = label.multiplier;
+    rulesByLabelId[label._id] = label.rules;
   }
 
   const publicLabelIds = publicLabels.map(pl => pl._id);
 
-  const dayLabels: IDayLabelDocument[] = await models.DayLabels.find({
+  const dayLabelsOfMonth = await models.DayLabels.find({
     date: {
       $gte: new Date(year, month, 1),
       $lte: new Date(year, month, dayInMonth, 23, 59, 59)
@@ -68,22 +185,19 @@ const getDivederInMonth = async (models: IModels, year, month) => {
     labelIds: { $in: publicLabelIds }
   }).lean();
 
-  let divider = dayInMonth;
-
-  for (const dayLabel of dayLabels) {
-    const currentPubliceLabelIds = dayLabel.labelIds.filter(lId =>
-      publicLabelIds.includes(lId)
-    );
-
-    for (const labelId of currentPubliceLabelIds) {
-      divider += multiplierByLabelId[labelId] - 1;
-    }
+  for (const dl of dayLabelsOfMonth) {
+    dl.labels = publicLabels.filter(pl => dl.labelIds.includes(pl._id));
   }
 
-  return divider;
+  return dayLabelsOfMonth;
 };
 
-const getMultiplier = async (models, date, departmentId, branchId) => {
+export const getLabelsOfDay = async (
+  models: IModels,
+  date,
+  branchId,
+  departmentId
+) => {
   const dayLabel = await models.DayLabels.findOne({
     date,
     departmentId,
@@ -91,34 +205,82 @@ const getMultiplier = async (models, date, departmentId, branchId) => {
   }).lean();
 
   if (!dayLabel) {
-    return 1;
+    return [];
   }
 
   const labelIds = dayLabel.labelIds;
 
   if (!labelIds.length) {
-    return 1;
+    return [];
   }
 
-  const labels = await models.Labels.find({ _id: { $in: labelIds } });
+  return await models.Labels.find({ _id: { $in: labelIds } });
+};
 
-  if (!labels.length) {
-    return 1;
+const getDivederInMonth = async (
+  product,
+  parentIdsByProductId,
+  publicLabels: (IDayLabelDocument & { labels: ILabelDocument[] })[],
+  year: number,
+  month: number
+) => {
+  const dayInMonth = new Date(year, month, 0).getDate();
+  let divider = dayInMonth;
+
+  for (const dayLabel of publicLabels) {
+    const categoryIds = parentIdsByProductId[product._id] || [];
+    for (const perLabel of dayLabel.labels) {
+      const publicRules = (perLabel.rules || []).filter(rule =>
+        categoryIds.includes(rule.productCategoryId)
+      );
+
+      if (publicRules && publicRules.length) {
+        const lastPublicRule = publicRules[publicRules.length - 1];
+        publicRules.map(r => r.multiplier || 0);
+        divider += (lastPublicRule.multiplier || 1) - 1;
+      }
+    }
   }
 
-  const multiplier = labels.map(l => l.multiplier).reduce((a, b) => a * b);
+  return divider;
+};
+
+const getMultiplier = async (product, parentIdsByProductId, dayLabels) => {
+  let multiplier = 1;
+  const categoryIds = parentIdsByProductId[product._id] || [];
+
+  for (const perLabel of dayLabels) {
+    const rules = (perLabel.rules || []).filter(rule =>
+      categoryIds.includes(rule.productCategoryId)
+    );
+
+    if (rules && rules.length) {
+      multiplier *= rules
+        .map(r => r.multiplier || 0)
+        .reduce((sum, cur) => sum * cur);
+    }
+  }
 
   return multiplier;
 };
 
-export const getDayPlanValues = async (
-  models: IModels,
-  doc,
+export const getDayPlanValues = async ({
+  date,
   yearPlanByProductId,
+  parentIdsByProductId,
+  publicLabels,
+  dayLabels,
   product,
   timeFrames
-) => {
-  const { date, departmentId, branchId } = doc;
+}: {
+  date: Date;
+  yearPlanByProductId;
+  parentIdsByProductId;
+  publicLabels;
+  dayLabels;
+  product;
+  timeFrames;
+}) => {
   let values: any = [];
   const yearPlan = yearPlanByProductId[product._id];
 
@@ -132,14 +294,20 @@ export const getDayPlanValues = async (
   const monthPlanCount = Number(yearPlan.values[key]) || 0;
 
   const daysInMonth = await getDivederInMonth(
-    models,
+    product,
+    parentIdsByProductId,
+    publicLabels,
     date.getFullYear(),
     date.getMonth() + 1
   );
 
   const dayPlanCount = monthPlanCount / daysInMonth;
 
-  const multiplier = await getMultiplier(models, date, departmentId, branchId);
+  const multiplier = await getMultiplier(
+    product,
+    parentIdsByProductId,
+    dayLabels
+  );
 
   const dayCalcedCount = dayPlanCount * multiplier;
 

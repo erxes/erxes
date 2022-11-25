@@ -1,3 +1,8 @@
+export interface ILabelRule {
+  id: string;
+  productCategoryId?: string;
+  multiplier?: number;
+}
 export interface ISPLabel {
   _id?: string;
   title?: string;
@@ -5,7 +10,7 @@ export interface ISPLabel {
   effect?: string;
   color?: string;
   status?: string;
-  multiplier?: number;
+  rules?: ILabelRule[];
 }
 
 export type SPLabelsQueryResponse = {

@@ -6,7 +6,7 @@ const paramDefs = `
   $effect: String,
   $status: String,
   $color: String,
-  $multiplier: Float
+  $rules: [LabelRuleInput]
 `;
 
 const params = `
@@ -15,7 +15,7 @@ const params = `
   effect: $effect
   status: $status
   color: $color
-  multiplier: $multiplier
+  rules: $rules
 `;
 
 const spLabelsAdd = `
