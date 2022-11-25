@@ -823,11 +823,17 @@ const boardQueries = {
       return [];
     }
 
+    const TimeZone = Number(process.env.TIMEZONE || 0) * 1000 * 60 * 60;
+
     const pipeline = await models.Pipelines.getPipeline(pipelineId);
 
-    const latestStartDate = new Date(intervals[0].startTime);
+    const latestStartDate = new Date(
+      intervals[0].startTime.getTime() - TimeZone
+    );
 
-    const latestEndDate = new Date(intervals[intervals.length - 1].endTime);
+    const latestEndDate = new Date(
+      intervals[intervals.length - 1].endTime.getTime() - TimeZone
+    );
 
     const { collection } = getCollection(models, pipeline.type);
 
@@ -862,9 +868,9 @@ const boardQueries = {
     );
 
     for (const interval of intervals) {
-      const startDate = new Date(interval.startTime);
+      const startDate = new Date(interval.startTime.getTime() - TimeZone);
 
-      const endDate = new Date(interval.endTime);
+      const endDate = new Date(interval.endTime.getTime() - TimeZone);
 
       const checkingItems = items.filter(
         item => item.startDate < endDate && item.closeDate > startDate
