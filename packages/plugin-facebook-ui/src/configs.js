@@ -38,6 +38,13 @@ module.exports = {
               userId
               createdAt
               isCustomerRead
+
+              attachments {
+                url
+                name
+                type
+                size
+              }
             }
           }
         `,
