@@ -528,19 +528,15 @@ class RespondBox extends React.Component<Props, State> {
       this.setState({ facebookMessageTag: value });
     };
 
-    const fbTagMessage = isEnabled('facebook')
-      ? loadDynamicComponent('tagMessage', {
+    return (
+      <MaskWrapper>
+        {this.renderMask()}
+        {loadDynamicComponent('tagMessage', {
           hideMask: this.hideMask,
           selectTag,
           tag: facebookMessageTag,
           isTaggedMessage: isFacebookTaggedMessage
-        })
-      : null;
-
-    return (
-      <MaskWrapper>
-        {this.renderMask()}
-        {fbTagMessage}
+        })}
         <RespondBoxStyled
           isInternal={isInternal}
           isInactive={isInactive || isFacebookTaggedMessage}
