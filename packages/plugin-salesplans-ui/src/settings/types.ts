@@ -1,3 +1,11 @@
+import { IProductCategory } from '@erxes/ui-products/src/types';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
+
+export interface ILabelRule {
+  id: string;
+  productCategoryId?: string;
+  multiplier?: number;
+}
 export interface ISPLabel {
   _id?: string;
   title?: string;
@@ -5,7 +13,7 @@ export interface ISPLabel {
   effect?: string;
   color?: string;
   status?: string;
-  multiplier?: number;
+  rules?: ILabelRule[];
 }
 
 export type SPLabelsQueryResponse = {
@@ -37,4 +45,62 @@ export type TimeframeQueryResponse = {
   timeframes: ITimeframe[];
   loading: boolean;
   refetch: () => void;
+};
+
+//////// time proportions
+
+export interface IPercentValue {
+  _id: string;
+  timeId: string;
+  percent: number;
+}
+
+export interface IPercentTime extends IPercentValue {
+  time?: ITimeframe;
+}
+export interface ITimeProportion {
+  _id: string;
+  departmentId?: string;
+  branchId?: string;
+  productCategoryId?: string;
+  percents?: IPercentValue[];
+  createdAt?: Date;
+  createdBy?: string;
+  modifiedAt?: Date;
+  modifiedBy?: string;
+
+  branch?: IBranch;
+  department?: IDepartment;
+  productCategory?: IProductCategory;
+}
+
+export interface ITimeProportionParams {
+  departmentIds?: string[];
+  branchIds?: string[];
+  productCategory?: string;
+  percents?: IPercentValue[];
+}
+
+export type TimeProportionsQueryResponse = {
+  timeProportions: ITimeProportion[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type TimeProportionsCountQueryResponse = {
+  timeProportionsCount: number;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type TimeProportionsEditMutationResponse = {
+  timeProportionEdit: (mutation: {
+    variables: ITimeProportion;
+  }) => Promise<any>;
+};
+
+export type TimeProportionsRemoveMutationResponse = {
+  timeProportionsRemove: (mutation: {
+    variables: { _ids: string[] };
+  }) => Promise<any>;
 };

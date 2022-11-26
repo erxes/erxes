@@ -6,8 +6,14 @@ export const types = `
     effect: String
     status: String
     color: String
-    multiplier: Float
+    rules: JSON
   },
+
+  input LabelRuleInput {
+    id: String,
+    productCategoryId: String
+    multiplier: Float
+  }
 
   type Timeframe {
     _id: String
@@ -29,6 +35,7 @@ export const filterParams = `
   _ids:[String],
   searchValue: String,
   filterStatus: String,
+  productCateogryId: String,
   minMultiplier: Float,
   maxMultiplier: Float
 `;
@@ -45,7 +52,7 @@ const params = `
   effect: String,
   status: String,
   color: String,
-  multiplier: Float
+  rules: [LabelRuleInput]
 `;
 
 export const mutations = `

@@ -3,7 +3,7 @@ import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
-import { Alert, __ } from '@erxes/ui/src/utils';
+import { __, router } from '@erxes/ui/src/utils';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { IDayPlanParams } from '../types';
 import {
@@ -21,6 +21,7 @@ import { DateContainer } from '@erxes/ui/src/styles/main';
 import moment from 'moment';
 
 type Props = {
+  history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
@@ -71,11 +72,19 @@ class Form extends React.Component<Props, State> {
 
   onSelectDate = value => {
     this.setState({
-      dayPlanParams: { ...this.state.dayPlanParams, date: value }
+      dayPlanParams: {
+        ...this.state.dayPlanParams,
+        date: new Date(moment(value).format('YYYY/MM/DD'))
+      }
     });
   };
 
   onAfterSave = () => {
+    router.removeParams(this.props.history, 'page');
+    router.setParams(this.props.history, {
+      ...this.state.dayPlanParams,
+      date: moment(this.state.dayPlanParams.date).format('YYYY/MM/DD')
+    });
     this.props.closeModal();
   };
 
@@ -94,7 +103,10 @@ class Form extends React.Component<Props, State> {
               <DateControl
                 name="createdAtFrom"
                 placeholder="Choose date"
-                value={dayPlanParams.date || new Date()}
+                value={
+                  dayPlanParams.date ||
+                  new Date(moment(new Date()).format('YYYY/MM/DD'))
+                }
                 onChange={this.onSelectDate}
               />
             </DateContainer>

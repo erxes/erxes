@@ -1,7 +1,7 @@
-import Form from '../containers/Form';
-import ManageConfigsContainer from '../containers/ManageConfigs';
+import Form from '../containers/LabelsForm';
 import React from 'react';
-import Row from './Row';
+import Row from './LabelsRow';
+import LabelsSidebar from './LabelsSidebar';
 import Sidebar from './Sidebar';
 import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
 import { BarItems, Wrapper } from '@erxes/ui/src/layout';
@@ -33,7 +33,6 @@ type Props = {
 };
 
 type State = {
-  // configsMap: IConfigsMap;
   searchValue: string;
   filterStatus: string;
 };
@@ -131,15 +130,6 @@ class SPLabels extends React.Component<Props, State> {
       );
     }
 
-    const manageConfigContent = (formProps: any) => {
-      return <ManageConfigsContainer {...formProps} />;
-    };
-    const manageConfigTrigger = (
-      <Button type="button" icon="processor" size="small" uppercase={false}>
-        Manage Day Configs
-      </Button>
-    );
-
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">
         Add label
@@ -155,14 +145,6 @@ class SPLabels extends React.Component<Props, State> {
           value={this.state.searchValue}
           autoFocus={true}
           onFocus={this.moveCursorAtTheEnd}
-        />
-        <ModalTrigger
-          size="lg"
-          title={'Manage Day Configs'}
-          autoOpenKey="showSLManageDayConfigs"
-          trigger={manageConfigTrigger}
-          content={manageConfigContent}
-          enforceFocus={false}
         />
         <ModalTrigger
           size={'lg'}
@@ -196,7 +178,6 @@ class SPLabels extends React.Component<Props, State> {
             <th>{__('Title')}</th>
             <th>{__('Effect')}</th>
             <th>{__('Color')}</th>
-            <th>{__('Multiplier')}</th>
             <th>{__('Status')}</th>
           </tr>
         </thead>
@@ -227,7 +208,13 @@ class SPLabels extends React.Component<Props, State> {
             emptyImage="/images/actions/5.svg"
           />
         }
-        leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
+        leftSidebar={
+          <Sidebar
+            queryParams={queryParams}
+            history={history}
+            children={LabelsSidebar}
+          />
+        }
         transparent={true}
         hasBorder
       />

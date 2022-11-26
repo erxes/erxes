@@ -105,7 +105,7 @@ class DayPlans extends React.Component<Props, State> {
   };
 
   modalContent = props => {
-    return <Form {...props} />;
+    return <Form {...props} history={this.props.history} />;
   };
 
   removeDayPlans = dayPlans => {
