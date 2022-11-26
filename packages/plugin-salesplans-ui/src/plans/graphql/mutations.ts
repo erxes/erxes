@@ -68,6 +68,26 @@ const dayPlansRemove = `
   }
 `;
 
+const dayPlansConfirm = `
+  mutation dayPlansConfirm (
+    $date: Date,
+    $branchId: String,
+    $departmentId: String,
+    $productCategoryId: String,
+    $productId: String,
+    $ids: [String]
+  ) {
+    dayPlansConfirm(
+      date: $date,
+      branchId: $branchId,
+      departmentId: $departmentId,
+      productCategoryId: $productCategoryId,
+      productId: $productId,
+      ids: $ids
+    )
+  }
+`;
+
 export default {
   yearPlansAdd,
   yearPlanEdit,
@@ -75,5 +95,6 @@ export default {
 
   dayPlansAdd,
   dayPlanEdit,
-  dayPlansRemove
+  dayPlansRemove,
+  dayPlansConfirm
 };

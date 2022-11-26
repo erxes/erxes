@@ -1,21 +1,24 @@
 import * as compose from 'lodash.flowright';
+import DayPlans from '../components/DayPlanList';
 import gql from 'graphql-tag';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import DayPlans from '../components/DayPlanList';
 import { Alert, router, withProps } from '@erxes/ui/src/utils';
 import { Bulk } from '@erxes/ui/src/components';
+import {
+  DayPlansConfirmMutationResponse,
+  DayPlansCountQueryResponse,
+  DayPlansEditMutationResponse,
+  DayPlansQueryResponse,
+  DayPlansRemoveMutationResponse,
+  IDayPlan,
+  IDayPlanConfirmParams
+} from '../types';
 import { graphql } from 'react-apollo';
 import { mutations, queries } from '../graphql';
 import { queries as timeFrameQueries } from '../../settings/graphql';
-import { IDayPlan } from '../types';
-import {
-  DayPlansQueryResponse,
-  DayPlansRemoveMutationResponse,
-  DayPlansCountQueryResponse,
-  DayPlansEditMutationResponse
-} from '../types';
 import { TimeframeQueryResponse } from '../../settings/types';
+import {} from '../types';
 
 type Props = {
   queryParams: any;
@@ -29,7 +32,8 @@ type FinalProps = {
   timeFrameQuery: TimeframeQueryResponse;
 } & Props &
   DayPlansEditMutationResponse &
-  DayPlansRemoveMutationResponse;
+  DayPlansRemoveMutationResponse &
+  DayPlansConfirmMutationResponse;
 
 class DayPlansContainer extends React.Component<FinalProps> {
   render() {
@@ -39,7 +43,8 @@ class DayPlansContainer extends React.Component<FinalProps> {
       queryParams,
       timeFrameQuery,
       dayPlanEdit,
-      dayPlansRemove
+      dayPlansRemove,
+      dayPlansConfirm
     } = this.props;
 
     if (
@@ -69,12 +74,26 @@ class DayPlansContainer extends React.Component<FinalProps> {
       dayPlansRemove({
         variables: { _ids: dayPlanIds }
       })
-        .then(removeStatus => {
+        .then(() => {
           emptyBulk();
+          Alert.success('You successfully deleted a year plan');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
 
-          removeStatus.data.dayPlansRemove.deletedCount
-            ? Alert.success('You successfully deleted a product')
-            : Alert.warning('Product status deleted');
+    // confirm action
+    const toConfirm = (doc: IDayPlanConfirmParams, callback?: () => void) => {
+      dayPlansConfirm({
+        variables: { ...doc }
+      })
+        .then(() => {
+          if (callback) {
+            callback();
+          }
+
+          Alert.success('You successfully confirmed');
         })
         .catch(e => {
           Alert.error(e.message);
@@ -94,6 +113,7 @@ class DayPlansContainer extends React.Component<FinalProps> {
       timeFrames,
       edit,
       remove,
+      toConfirm,
       searchValue
     };
 
@@ -119,7 +139,7 @@ const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),
   _ids: queryParams._ids,
   searchValue: queryParams.searchValue,
-  date: queryParams.date,
+  date: new Date(queryParams.date),
   filterStatus: queryParams.filterStatus,
   departmentId: queryParams.departmentId,
   branchId: queryParams.branchId,
@@ -167,6 +187,13 @@ export default withProps<Props>(
       gql(mutations.dayPlansRemove),
       {
         name: 'dayPlansRemove',
+        options
+      }
+    ),
+    graphql<Props, DayPlansConfirmMutationResponse, {}>(
+      gql(mutations.dayPlansConfirm),
+      {
+        name: 'dayPlansConfirm',
         options
       }
     )

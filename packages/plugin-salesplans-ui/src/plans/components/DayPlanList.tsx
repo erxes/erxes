@@ -1,3 +1,6 @@
+import Form from '../containers/DayPlanForm';
+import moment from 'moment';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import React from 'react';
 import Row from './DayPlanRow';
 import Sidebar from './DayPlanSidebar';
@@ -10,12 +13,12 @@ import {
   ModalTrigger,
   Table
 } from '@erxes/ui/src/components';
-import { IDayPlan } from '../types';
-import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
-import Form from '../containers/DayPlanForm';
-import { menuSalesplans } from '../../constants';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import { IDayPlan, IDayPlanConfirmParams } from '../types';
 import { ITimeframe } from '../../settings/types';
+import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
+import { menuSalesplans } from '../../constants';
+import { scrollTo } from '../../../../../widgets/client/utils';
+import { TableWrapper } from '../../styles';
 
 type Props = {
   dayPlans: IDayPlan[];
@@ -31,6 +34,7 @@ type Props = {
   remove: (doc: { dayPlanIds: string[] }, emptyBulk: () => void) => void;
   edit: (doc: IDayPlan) => void;
   searchValue: string;
+  toConfirm: (doc: IDayPlanConfirmParams, callback: () => void) => void;
 };
 
 type State = {
@@ -101,7 +105,7 @@ class DayPlans extends React.Component<Props, State> {
   };
 
   modalContent = props => {
-    return <Form {...props} />;
+    return <Form {...props} history={this.props.history} />;
   };
 
   removeDayPlans = dayPlans => {
@@ -115,7 +119,15 @@ class DayPlans extends React.Component<Props, State> {
   };
 
   actionBarRight() {
-    const { bulk } = this.props;
+    const { bulk, queryParams, emptyBulk, toConfirm } = this.props;
+    const {
+      date,
+      branchId,
+      departmentId,
+      productCategoryId,
+      productId
+    } = queryParams;
+    const _date = new Date(moment(date).format('YYYY/MM/DD'));
 
     if (bulk.length) {
       const onClick = () =>
@@ -162,6 +174,26 @@ class DayPlans extends React.Component<Props, State> {
           autoOpenKey="showProductModal"
           content={this.modalContent}
         />
+        <Button
+          btnStyle="primary"
+          icon="calcualtor"
+          disabled={!(branchId && departmentId && date && _date > new Date())}
+          onClick={() =>
+            toConfirm(
+              {
+                date: _date,
+                departmentId: (departmentId || '').toString(),
+                branchId: (branchId || '').toString(),
+                productCategoryId: (productCategoryId || '').toString(),
+                productId: (productId || '').toString(),
+                ids: bulk.map(b => b._id)
+              },
+              emptyBulk
+            )
+          }
+        >
+          {__('To Confirm')}
+        </Button>
       </BarItems>
     );
   }
@@ -176,33 +208,35 @@ class DayPlans extends React.Component<Props, State> {
     } = this.props;
 
     const content = (
-      <Table hover={true}>
-        <thead>
-          <tr>
-            <th style={{ width: 60 }}>
-              <FormControl
-                checked={isAllSelected}
-                componentClass="checkbox"
-                onChange={this.onChange}
-              />
-            </th>
-            <th>{__('Date')}</th>
-            <th>{__('Branch')}</th>
-            <th>{__('Department')}</th>
-            <th>{__('Product')}</th>
-            <th>{__('Uom')}</th>
-            <th>{__('Plan')}</th>
-            {timeFrames.map(tf => (
-              <th key={tf._id}>{tf.name}</th>
-            ))}
+      <TableWrapper>
+        <Table hover={true} responsive={true}>
+          <thead>
+            <tr>
+              <th style={{ width: 60 }}>
+                <FormControl
+                  checked={isAllSelected}
+                  componentClass="checkbox"
+                  onChange={this.onChange}
+                />
+              </th>
+              <th>{__('Date')}</th>
+              <th>{__('Branch')}</th>
+              <th>{__('Department')}</th>
+              <th>{__('Product')}</th>
+              <th>{__('Uom')}</th>
+              <th>{__('Plan')}</th>
+              {timeFrames.map(tf => (
+                <th key={tf._id}>{tf.name}</th>
+              ))}
 
-            <th>{__('Sum')}</th>
-            <th>{__('Diff')}</th>
-            <th>{__('')}</th>
-          </tr>
-        </thead>
-        <tbody>{this.renderRow()}</tbody>
-      </Table>
+              <th>{__('Sum')}</th>
+              <th>{__('Diff')}</th>
+              <th>{__('')}</th>
+            </tr>
+          </thead>
+          <tbody>{this.renderRow()}</tbody>
+        </Table>
+      </TableWrapper>
     );
 
     return (

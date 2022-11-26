@@ -10,7 +10,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { IField, IFieldLogic, IOption } from '@erxes/ui/src/types';
-import { __, loadDynamicComponent } from 'coreui/utils';
+import { __, loadDynamicComponent } from '@erxes/ui/src/utils';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Select from 'react-select-plus';
@@ -397,13 +397,6 @@ class FieldForm extends React.Component<Props, State> {
         (e.currentTarget as HTMLInputElement).checked
       );
 
-    const onCategoryChange = e => {
-      this.onFieldChange(
-        'productCategoryId',
-        (e.currentTarget as HTMLInputElement).value
-      );
-    };
-
     return (
       <>
         <CollapseContent
@@ -476,7 +469,6 @@ class FieldForm extends React.Component<Props, State> {
           </FormGroup>
 
           {this.renderColumn()}
-
           {loadDynamicComponent('extendFormField', {
             field,
             onChange: this.onFieldChange
@@ -579,42 +571,42 @@ class FieldForm extends React.Component<Props, State> {
     );
   }
 
-  // renderProductCategory() {
-  //   const { field } = this.state;
-  //   const { productCategories = [] } = this.props;
+  renderProductCategory() {
+    const { field } = this.state;
+    const { productCategories = [] } = this.props;
 
-  //   if (field.type !== 'productCategory') {
-  //     return null;
-  //   }
+    if (field.type !== 'productCategory') {
+      return null;
+    }
 
-  //   const onCategoryChange = e => {
-  //     this.onFieldChange(
-  //       'productCategoryId',
-  //       (e.currentTarget as HTMLInputElement).value
-  //     );
-  //   };
+    const onCategoryChange = e => {
+      this.onFieldChange(
+        'productCategoryId',
+        (e.currentTarget as HTMLInputElement).value
+      );
+    };
 
-  //   return (
-  //     <>
-  //       <FormGroup>
-  //         <ControlLabel>Categories:</ControlLabel>
-  //         <FormControl
-  //           id="productCategories"
-  //           componentClass="select"
-  //           defaultValue={field.productCategoryId || ''}
-  //           onChange={onCategoryChange}
-  //         >
-  //           <option>-</option>
-  //           {productCategories.map(category => (
-  //             <option key={category._id} value={category._id}>
-  //               {category.name}
-  //             </option>
-  //           ))}
-  //         </FormControl>
-  //       </FormGroup>
-  //     </>
-  //   );
-  // }
+    return (
+      <>
+        <FormGroup>
+          <ControlLabel>Categories:</ControlLabel>
+          <FormControl
+            id="productCategories"
+            componentClass="select"
+            defaultValue={field.productCategoryId || ''}
+            onChange={onCategoryChange}
+          >
+            <option>-</option>
+            {productCategories.map(category => (
+              <option key={category._id} value={category._id}>
+                {category.name}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
+      </>
+    );
+  }
 
   renderColumn() {
     const { field } = this.state;

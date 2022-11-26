@@ -1,4 +1,5 @@
 import { IContext } from '../../../connectionResolver';
+import * as moment from 'moment';
 import {
   IDayLabel,
   IDayLabelsAddParams
@@ -8,6 +9,10 @@ import {
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
 
+const getDateStr = date => {
+  return moment(date).format('YYYYMMDD');
+};
+
 const dayLabelsMutations = {
   dayLabelsAdd: async (
     _root: any,
@@ -16,16 +21,18 @@ const dayLabelsMutations = {
   ) => {
     const { dates, departmentIds, branchIds, labelIds } = doc;
 
-    const latestDayLabels = await models.DayLabels.find({
-      // date,
+    const oldDayLabels = await models.DayLabels.find({
+      date: { $in: dates },
       departmentId: { $in: departmentIds },
       branchId: { $in: branchIds }
     });
 
-    const latestDayLabelsByKey = {};
-    for (const dayLabel of latestDayLabels) {
-      latestDayLabelsByKey[
-        `${dayLabel.branchId}_${dayLabel.departmentId}`
+    const oldDayLabelsByKey = {};
+    for (const dayLabel of oldDayLabels) {
+      oldDayLabelsByKey[
+        `${dayLabel.branchId}_${dayLabel.departmentId}_${getDateStr(
+          dayLabel.date
+        )}`
       ] = dayLabel;
     }
 
@@ -39,12 +46,12 @@ const dayLabelsMutations = {
       const date = new Date(strDate);
       for (const branchId of branchIds) {
         for (const departmentId of departmentIds) {
-          const key = `${branchId}_${departmentId}`;
+          const key = `${branchId}_${departmentId}_${getDateStr(date)}`;
 
-          const oldDayLabel = latestDayLabelsByKey[key];
+          const oldDayLabel = oldDayLabelsByKey[key];
 
           if (oldDayLabel) {
-            const newLabelIds = oldDayLabel.labelIds;
+            const newLabelIds = [...oldDayLabel.labelIds];
             let checkAdded = false;
 
             for (const labelId of labelIds) {
@@ -64,7 +71,7 @@ const dayLabelsMutations = {
                   },
                   update: {
                     $set: {
-                      labelIds,
+                      labelIds: newLabelIds,
                       modifiedAt: now,
                       modifiedBy: user._id
                     }

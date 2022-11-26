@@ -1,3 +1,4 @@
+import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { IRiskConfirmityField } from '../../../models/definitions/common';
 
@@ -12,5 +13,9 @@ const RiskConfimityMutations = {
     return await models.RiskConfimity.riskConfirmityRemove(cardId);
   }
 };
+
+checkPermission(RiskConfimityMutations, 'addRiskConfirmity', 'manageRiskAssessment');
+checkPermission(RiskConfimityMutations, 'updateRiskConfirmity', 'manageRiskAssessment');
+checkPermission(RiskConfimityMutations, 'removeRiskConfirmity', 'manageRiskAssessment');
 
 export default RiskConfimityMutations;

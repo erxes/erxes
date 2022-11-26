@@ -1,10 +1,12 @@
-import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
-import { FLOWJOB_TYPES, FLOWJOBS } from '../../../constants';
+import { CloseIcon, Description, ScrolledContent } from '../../../styles';
+import { FLOWJOBS, FLOWJOB_TYPES } from '../../../constants';
+
 import { FlowJobBox } from './styles';
 import { IJob } from '../../../types';
-import { ScrolledContent, CloseIcon } from '../../../styles';
+import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   flowJobsOfEnd?: IJob;
@@ -69,17 +71,25 @@ class FlowJobsForm extends React.Component<Props, State> {
   render() {
     return (
       <>
-        <CloseIcon
-          onClick={() => {
-            this.props.setMainState({
-              usedPopup: false,
-              showDrawer: false
-            });
-          }}
-        >
-          {__('Close')}
-          <Icon icon="angle-double-right" size={20} />
-        </CloseIcon>
+        <Description>
+          <div>
+            <h4>{__('Choose your flow type')}</h4>
+            <p>{__('Start with a flow type that enrolls your job')}</p>
+          </div>
+
+          <CloseIcon
+            onClick={() => {
+              this.props.setMainState({
+                usedPopup: false,
+                showDrawer: false
+              });
+            }}
+          >
+            <Tip text={__('Close')} placement="bottom">
+              <Icon icon="cancel" size={18} />
+            </Tip>
+          </CloseIcon>
+        </Description>
         <ScrolledContent>{this.renderContent()}</ScrolledContent>
       </>
     );

@@ -415,7 +415,9 @@ class MainActionBar extends React.Component<Props> {
         {this.renderTimeView()}
         {queryParams && <Filter queryParams={queryParams} />}
 
-        {isEnabled('segments') && <TemporarySegment contentType={`cards:${type}`} />}
+        {isEnabled('segments') && (
+          <TemporarySegment contentType={`cards:${type}`} />
+        )}
 
         {this.renderViewChooser()}
 

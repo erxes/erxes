@@ -7,6 +7,14 @@ export const STATUS = {
   ALL: ['active', 'disabled', 'archived', 'pending', 'published']
 };
 
+export const DAYPLAN_STATUS = {
+  NEW: 'new',
+  SENT: 'sent',
+  PENDING: 'pending',
+  CONFIRMED: 'confirmed',
+  ALL: ['new', 'sent', 'pending', 'confirmed']
+};
+
 export const MONTHS = [
   'jan',
   'feb',

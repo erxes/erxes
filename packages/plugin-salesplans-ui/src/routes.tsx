@@ -4,12 +4,29 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 const LabelConfigs = asyncComponent(() =>
-  import(/* webpackChunkName: 'Sales Plans' */ './settings/containers/List')
+  import(
+    /* webpackChunkName: 'Sales Plans' */ './settings/containers/LabelsList'
+  )
 );
 
 const labelsList = ({ location, history }) => {
   return (
     <LabelConfigs
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const TimeConfigs = asyncComponent(() =>
+  import(
+    /* webpackChunkName: 'Sales Plans' */ './settings/containers/TimesList'
+  )
+);
+
+const timesList = ({ location, history }) => {
+  return (
+    <TimeConfigs
       queryParams={queryString.parse(location.search)}
       history={history}
     />
@@ -67,6 +84,12 @@ const routes = () => {
         path="/salesplans/labels"
         key="/salesplans/labels"
         component={labelsList}
+      />
+      <Route
+        exact={true}
+        path="/salesplans/timeframes"
+        key="/salesplans/timeframes"
+        component={timesList}
       />
       <Route
         exact={true}

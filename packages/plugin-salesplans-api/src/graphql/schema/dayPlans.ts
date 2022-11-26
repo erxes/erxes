@@ -68,4 +68,12 @@ export const mutations = `
   dayPlansAdd(${planCreateParams}): [DayPlan]
   dayPlansRemove(_ids: [String]): JSON
   dayPlanEdit(_id: String!, uomId: String, values: JSON): DayPlan
+  dayPlansConfirm(
+    date: Date,
+    branchId: String,
+    departmentId: String,
+    productCategoryId: String,
+    productId: String,
+    ids: [String]
+  ): JSON
 `;
