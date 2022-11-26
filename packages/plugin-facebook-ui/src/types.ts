@@ -100,3 +100,7 @@ export type ResolveFacebookCommentResponse = {
 export interface IFbConversation extends IConversation {
   facebookPost?: IFacebookPost;
 }
+
+export type FacebookPostQueryResponse = {
+  facebookGetPost: IFacebookPost;
+} & QueryResponse;

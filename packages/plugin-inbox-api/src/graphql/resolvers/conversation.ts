@@ -69,36 +69,6 @@ export default {
     return messages.filter(message => message);
   },
 
-  async facebookPost(
-    conv: IConversationDocument,
-    _args,
-    { models, subdomain }: IContext
-  ) {
-    const integration =
-      (await models.Integrations.findOne({ _id: conv.integrationId })) ||
-      ({} as any);
-
-    if (integration && integration.kind !== 'facebook-post') {
-      return null;
-    }
-
-    try {
-      const response = await sendFacebookMessage({
-        subdomain,
-        action: 'getPost',
-        data: {
-          erxesApiId: conv._id
-        },
-        isRPC: true
-      });
-
-      return response;
-    } catch (e) {
-      debug.error(e);
-      return null;
-    }
-  },
-
   async callProAudio(
     conv: IConversationDocument,
     _args,

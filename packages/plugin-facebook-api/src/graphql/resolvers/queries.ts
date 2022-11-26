@@ -57,7 +57,7 @@ const facebookQueries = {
     return models.Integrations.findOne({ erxesApiId });
   },
 
-  async facebookGetConfigs(_root, _args, { models }: IContext) {
+  facebookGetConfigs(_root, _args, { models }: IContext) {
     return models.Configs.find({}).lean();
   },
 
@@ -244,6 +244,10 @@ const facebookQueries = {
     const selector = await buildSelector(conversationId, models);
 
     return models.ConversationMessages.countDocuments(selector);
+  },
+
+  facebookGetPost(_root, { erxesApiId }: IDetailParams, { models }: IContext) {
+    return models.Posts.findOne({ erxesApiId });
   }
 };
 

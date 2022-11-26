@@ -1,4 +1,5 @@
 import { isEnabled } from '@erxes/ui/src/utils/core';
+
 export default `
   _id
   content
@@ -77,23 +78,6 @@ export default `
   }
   readUserIds
   callProAudio
-
-  ${
-    isEnabled('facebook')
-      ? `
-  facebookPost {
-    postId
-    recipientId
-    senderId
-    content
-    erxesApiId
-    attachments
-    timestamp
-    permalink_url
-  }
-  `
-      : ''
-  }
   isFacebookTaggedMessage
   customFieldsData
   
