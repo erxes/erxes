@@ -28,6 +28,7 @@
     "ioredis": "^4.28.2",
     "lodash": "^4.17.21",
     "nodejs-file-downloader": "^4.9.2",
+    "server-timing": "^3.3.2",
     "ws": "^8.4.0"
   },
   "devDependencies": {
