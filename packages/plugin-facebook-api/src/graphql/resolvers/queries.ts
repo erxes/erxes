@@ -88,11 +88,9 @@ const facebookQueries = {
     if (senderId && senderId !== 'undefined') {
       const customer = await models.Customers.findOne({ erxesApiId: senderId });
 
-      if (!customer) {
-        return null;
+      if (customer && customer.userId) {
+        query.senderId = customer.userId;
       }
-
-      query.senderId = customer.userId;
     } else {
       query.parentId = commentId !== 'undefined' ? commentId : '';
     }

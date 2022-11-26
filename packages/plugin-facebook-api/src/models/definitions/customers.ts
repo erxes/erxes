@@ -21,5 +21,5 @@ export const customerSchema = new Schema({
   firstName: String,
   lastName: String,
   profilePic: String,
-  integrationId: String
+  integrationId: { type: String, label: 'Inbox integration id' }
 });
