@@ -9,7 +9,12 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Info from 'modules/common/components/Info';
 import CURRENCIES from '@erxes/ui/src/constants/currencies';
-import { __, uploadHandler, readFile } from 'modules/common/utils';
+import {
+  __,
+  uploadHandler,
+  readFile,
+  loadDynamicComponent
+} from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import EmailConfigForm from '@erxes/ui-settings/src/general/components/EmailConfigForm';
 import React from 'react';
@@ -550,6 +555,12 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('MESSAGE_PRO_API_KEY')}
           {this.renderItem('MESSAGE_PRO_PHONE_NUMBER')}
         </CollapseContent>
+
+        {loadDynamicComponent(
+          'extendSystemConfig',
+          { ...this.props, onChangeConfig: this.onChangeConfig },
+          true
+        )}
       </ContentBox>
     );
 
