@@ -5,7 +5,7 @@ export const spLabelFields = `
   effect,
   status,
   color,
-  multiplier
+  rules
 `;
 
 export const paginateDefs = `
@@ -65,8 +65,68 @@ const timeframes = `
   }
 `;
 
+export const timeProportionFields = `
+  _id
+  departmentId
+  branchId
+  productCategoryId
+  percents {
+    _id
+    timeId
+    percent
+  }
+
+  department {
+    _id
+    code
+    title
+    parentId
+  }
+  branch {
+    _id
+    code
+    title,
+    parentId
+  }
+  productCategory {
+    _id
+    code
+    name
+    parentId
+    order
+  }
+`;
+
+export const timeFilterDefs = `
+  $departmentId: String,
+  $branchId: String,
+  $productCategoryId: String,
+`;
+
+export const timeFilterValues = `
+  departmentId: $departmentId,
+  branchId: $branchId,
+  productCategoryId: $productCategoryId,
+`;
+
+const timeProportions = `
+  query timeProportions(${timeFilterDefs} ${paginateDefs}) {
+    timeProportions(${timeFilterValues} ${paginateValues}) {
+      ${timeProportionFields}
+    }
+  }
+`;
+
+const timeProportionsCount = `
+  query timeProportionsCount(${timeFilterDefs}) {
+    timeProportionsCount(${timeFilterValues})
+  }
+`;
+
 export default {
   spLabels,
   spLabelsCount,
-  timeframes
+  timeframes,
+  timeProportions,
+  timeProportionsCount
 };

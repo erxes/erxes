@@ -2,7 +2,7 @@ import * as compose from 'lodash.flowright';
 import gql from 'graphql-tag';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import SPLabels from '../components/List';
+import SPLabels from '../components/LabelsList';
 import { Alert, router, withProps } from '@erxes/ui/src/utils';
 import { Bulk } from '@erxes/ui/src/components';
 import { graphql } from 'react-apollo';
@@ -16,7 +16,6 @@ import {
 type Props = {
   queryParams: any;
   history: any;
-  type?: string;
 };
 
 type FinalProps = {
@@ -43,7 +42,7 @@ class SPLabelsContainer extends React.Component<FinalProps> {
       spLabelsRemove({
         variables: { _ids: spLabelIds }
       })
-        .then(removeStatus => {
+        .then(() => {
           emptyBulk();
 
           Alert.success('You successfully deleted a labels');

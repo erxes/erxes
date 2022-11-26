@@ -2,11 +2,16 @@ import { field, schemaWrapper } from './utils';
 import { Schema, Document } from 'mongoose';
 import { STATUS } from '../../constants';
 
+export interface ILabelRule {
+  id: string;
+  productCategoryId?: string;
+  multiplier?: number;
+}
 export interface ILabel {
   title: string;
   effect: string;
   description?: string;
-  multiplier: number;
+  rules: ILabelRule[];
   color?: string;
   status: string;
   createdAt?: Date;
@@ -19,6 +24,15 @@ export interface ILabelDocument extends ILabel, Document {
   _id: string;
 }
 
+export const labelRuleSchema = new Schema(
+  {
+    id: { type: String, required: true },
+    productCategoryId: field({ type: String }),
+    multiplier: field({ type: Number, default: 1, label: 'Multiplier' })
+  },
+  { _id: false }
+);
+
 export const labelSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
@@ -26,7 +40,7 @@ export const labelSchema = schemaWrapper(
     color: field({ type: String, default: '#BFBFBF', label: 'Color' }),
     effect: field({ type: String, optional: true, label: 'Effect' }),
     description: field({ type: String, optional: true, label: 'Description' }),
-    multiplier: field({ type: Number, default: 1, label: 'Multiplier' }),
+    rules: field({ type: [labelRuleSchema], label: 'Rules' }),
     status: field({
       type: String,
       enum: STATUS.ALL,

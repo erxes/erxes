@@ -1,17 +1,17 @@
-import { SidebarList as List } from '@erxes/ui/src/layout';
-import { Wrapper } from '@erxes/ui/src/layout';
-import { __, router } from '@erxes/ui/src/utils';
-import React from 'react';
-import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { SidebarFilters } from '../../styles';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
+import { __, router } from '@erxes/ui/src/utils';
+import { Link } from 'react-router-dom';
+import { SidebarFilters } from '../../styles';
+import { SidebarList as List } from '@erxes/ui/src/layout';
+import { Wrapper } from '@erxes/ui/src/layout';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 
 interface Props {
   history: any;
@@ -23,15 +23,12 @@ const { Section } = Wrapper.Sidebar;
 class Sidebar extends React.Component<Props> {
   private timer?: NodeJS.Timer;
 
-  clearFilter = () => {
+  clearCategoryFilter = () => {
     router.removeParams(
       this.props.history,
-      'year',
-      'filterStatus',
-      'branchId',
       'departmentId',
-      'productCategoryId',
-      'productId'
+      'branchId',
+      'productCategoryId'
     );
   };
 
@@ -40,35 +37,31 @@ class Sidebar extends React.Component<Props> {
     router.setParams(this.props.history, { [name]: value });
   };
 
-  onInputChange = e => {
-    e.preventDefault();
-
-    if (this.timer) {
-      clearTimeout(this.timer);
-    }
-
-    const value = e.target.value;
-    const name = e.target.name;
-    this.timer = setTimeout(() => {
-      this.setFilter(name, value);
-    }, 500);
-  };
+  renderListItem(url: string, text: string) {
+    return (
+      <li>
+        <Link
+          to={url}
+          className={window.location.href.includes(url) ? 'active' : ''}
+        >
+          {__(text)}
+        </Link>
+      </li>
+    );
+  }
 
   render() {
     const { queryParams } = this.props;
 
     return (
-      <Wrapper.Sidebar hasBorder>
+      <>
         <Section.Title>
           {__('Filters')}
           <Section.QuickButtons>
-            {(router.getParam(this.props.history, 'filterStatus') ||
+            {(router.getParam(this.props.history, 'departmentId') ||
               router.getParam(this.props.history, 'branchId') ||
-              router.getParam(this.props.history, 'departmentId') ||
-              router.getParam(this.props.history, 'productCategoryId') ||
-              router.getParam(this.props.history, 'productId') ||
-              router.getParam(this.props.history, 'year')) && (
-              <a href="#cancel" tabIndex={0} onClick={this.clearFilter}>
+              router.getParam(this.props.history, 'productCategoryId')) && (
+              <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>
                 <Tip text={__('Clear filter')} placement="bottom">
                   <Icon icon="cancel-1" />
                 </Tip>
@@ -78,16 +71,6 @@ class Sidebar extends React.Component<Props> {
         </Section.Title>
         <SidebarFilters>
           <List id="SettingsSidebar">
-            <FormGroup>
-              <ControlLabel required={true}>{__(`Year`)}</ControlLabel>
-              <FormControl
-                type="number"
-                name="year"
-                placeholder='all year is "0"'
-                defaultValue={queryParams.year || new Date().getFullYear()}
-                onChange={this.onInputChange}
-              />
-            </FormGroup>
             <FormGroup>
               <ControlLabel>Branch</ControlLabel>
               <SelectBranches
@@ -134,51 +117,9 @@ class Sidebar extends React.Component<Props> {
                 multi={false}
               />
             </FormGroup>
-            <FormGroup>
-              <ControlLabel>Product</ControlLabel>
-              <SelectProducts
-                label="Choose product"
-                name="productId"
-                initialValue={queryParams.productId || ''}
-                customOption={{
-                  value: '',
-                  label: '...Clear product filter'
-                }}
-                onSelect={productId => this.setFilter('productId', productId)}
-                multi={false}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>Status</ControlLabel>
-              <FormControl
-                name="filterStatus"
-                componentClass="select"
-                defaultValue={queryParams.filterStatus}
-                required={false}
-                onChange={e =>
-                  this.setFilter(
-                    'filterStatus',
-                    (e.currentTarget as HTMLInputElement).value
-                  )
-                }
-              >
-                <option key={''} value={''}>
-                  {' '}
-                  {'All status'}{' '}
-                </option>
-                <option key={'active'} value={'active'}>
-                  {' '}
-                  {'active'}{' '}
-                </option>
-                <option key={'archived'} value={'archived'}>
-                  {' '}
-                  {'archived'}{' '}
-                </option>
-              </FormControl>
-            </FormGroup>
           </List>
         </SidebarFilters>
-      </Wrapper.Sidebar>
+      </>
     );
   }
 }

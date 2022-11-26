@@ -12,6 +12,7 @@ import {
 const getDateStr = date => {
   return moment(date).format('YYYYMMDD');
 };
+
 const dayLabelsMutations = {
   dayLabelsAdd: async (
     _root: any,

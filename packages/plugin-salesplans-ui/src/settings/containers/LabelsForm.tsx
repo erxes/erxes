@@ -1,5 +1,5 @@
 import * as compose from 'lodash.flowright';
-import From from '../components/Form';
+import From from '../components/LabelsForm';
 import React from 'react';
 import { ButtonMutate } from '@erxes/ui/src/components';
 import { IButtonMutateProps } from '@erxes/ui/src/types';

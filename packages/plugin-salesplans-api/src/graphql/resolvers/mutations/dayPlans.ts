@@ -1,5 +1,11 @@
 import { DAYPLAN_STATUS } from '../../../constants';
-import { getDayPlanValues, getProducts } from './utils';
+import {
+  getDayPlanValues,
+  getLabelsOfDay,
+  getProducts,
+  getProductsAndParents,
+  getPublicLabels
+} from './utils';
 import { IContext } from '../../../connectionResolver';
 import {
   IDayPlan,
@@ -29,10 +35,18 @@ const dayPlansMutations = {
       throw new Error('Must fill product category or product');
     }
 
-    const { products, productIds } = await getProducts(
+    const {
+      products,
+      productIds,
+      parentIdsByProductId,
+      timePercentsByProdId
+    } = await getProductsAndParents(
       subdomain,
+      models,
       productId,
-      productCategoryId
+      productCategoryId,
+      branchId,
+      departmentId
     );
 
     const oldDayPlans = await models.DayPlans.find({
@@ -53,15 +67,30 @@ const dayPlansMutations = {
       branchId,
       productId: { $in: productIds }
     }).lean();
-    const yearPlanByProductId = {};
 
+    const yearPlanByProductId = {};
     for (const yearPlan of yearPlans) {
       yearPlanByProductId[yearPlan.productId || ''] = yearPlan;
     }
 
     const timeFrames = await models.Timeframes.find({
       status: { $ne: 'deleted' }
-    }).lean();
+    })
+      .sort({ startTime: 1 })
+      .lean();
+
+    const publicLabels = await getPublicLabels({
+      models,
+      year: date.getFullYear(),
+      month: date.getMonth()
+    });
+
+    const dayLabels = await getLabelsOfDay(
+      models,
+      date,
+      branchId,
+      departmentId
+    );
 
     let docs: IDayPlan[] = [];
     let inserteds: IDayPlanDocument[] = [];
@@ -75,13 +104,16 @@ const dayPlansMutations = {
         continue;
       }
 
-      const { planCount, values } = await getDayPlanValues(
-        models,
-        doc,
+      const { planCount, values } = await getDayPlanValues({
+        date,
         yearPlanByProductId,
+        parentIdsByProductId,
+        publicLabels,
+        dayLabels,
+        timePercentsByProdId,
         product,
         timeFrames
-      );
+      });
 
       const dayPlanDoc: IDayPlan & any = {
         date,
