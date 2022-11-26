@@ -27,6 +27,7 @@ type Props = {
     postId?: string;
     limit?: number;
   }) => void;
+  refetchComments: (variables) => void;
 };
 
 type State = {
@@ -57,10 +58,11 @@ export default class FacebookConversation extends React.Component<
     const { isResolved } = this.state;
 
     this.setState({ isResolved: !isResolved });
+    this.props.refetchComments(!isResolved);
   };
 
   fetchComments = () => {
-    const { post, comments } = this.props;
+    const { post, comments, fetchFacebook } = this.props;
 
     if (!post) {
       return;
@@ -68,10 +70,7 @@ export default class FacebookConversation extends React.Component<
 
     const limit = comments.length + 5;
 
-    this.props.fetchFacebook({
-      postId: post.erxesApiId,
-      limit
-    });
+    fetchFacebook({ postId: post.erxesApiId, limit });
   };
 
   renderReplies(comment: IFacebookComment) {

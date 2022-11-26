@@ -10,6 +10,7 @@ import {
   subscriptions as inboxSubscriptions
 } from '@erxes/ui-inbox/src/inbox/graphql';
 import { MessagesQueryResponse } from '@erxes/ui-inbox/src/inbox/types';
+import { Spinner } from '@erxes/ui/src/components';
 
 import { AppConsumer } from 'coreui/appContext';
 import FacebookConversation from '../../components/conversationDetail/post/FacebookConversation';
@@ -19,10 +20,8 @@ import {
   FacebookCommentsQueryResponse,
   FacebookPostQueryResponse,
   IFacebookComment,
-  IFacebookPost,
   IFbConversation
 } from '../../types';
-import { Spinner } from '@erxes/ui/src/components';
 
 type Props = {
   currentId: string;
@@ -167,6 +166,11 @@ class FacebookPostContainer extends React.Component<FinalProps> {
     const hasMore = commentCounts.commentCountWithoutReplies > comments.length;
     const commentCount = commentCounts.commentCount;
 
+    const refetchComments = (isResolved: boolean) => {
+      commentsQuery.refetch({ isResolved });
+      commentsCountQuery.refetch({ isResolved });
+    };
+
     const updatedProps = {
       ...this.props,
       commentCount,
@@ -175,7 +179,8 @@ class FacebookPostContainer extends React.Component<FinalProps> {
       comments,
       internalNotes: internalNotesQuery.conversationMessages,
       hasMore,
-      fetchFacebook: this.fetchFacebook
+      fetchFacebook: this.fetchFacebook,
+      refetchComments
     };
 
     return <FacebookConversation {...updatedProps} />;

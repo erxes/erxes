@@ -192,7 +192,8 @@ export default class WorkArea extends React.Component<Props, State> {
         return loadDynamicComponent(entry.component, {
           ...this.props,
           conversation: currentConversation,
-          currentId: currentConversation._id
+          currentId: currentConversation._id,
+          scrollBottom: this.scrollBottom
         });
       }
 
