@@ -114,7 +114,11 @@ const command = async () => {
     const intAccounts = await IntAccounts.find({ kind: 'facebook' }).toArray();
     await checkAndInsert(intAccounts, FbAccounts);
 
-    for (const i of intIntegrations) {
+    const inboxIntegrations = await InboxIntegrations.find({
+      kind: { $in: [FB_MSNGR, FB_POST] }
+    }).toArray();
+
+    for (const i of inboxIntegrations) {
       const customers = await IntCustomers.find({
         integrationId: i._id
       }).toArray();
