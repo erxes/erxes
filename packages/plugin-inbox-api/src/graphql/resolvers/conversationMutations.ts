@@ -35,8 +35,8 @@ export interface IConversationMessageAdd {
   mentionedUserIds?: string[];
   internal?: boolean;
   attachments?: any;
-  facebookMessageTag?: string;
   userId?: string;
+  extraInfo?: any;
 }
 
 interface IAttachment {
@@ -75,7 +75,7 @@ const sendConversationToServices = async (
   requestName: string,
   doc: IConversationMessageAdd,
   action?: string,
-  facebookMessageTag?: string
+  extraInfo?: any
 ) => {
   const commonParams = { subdomain, isRPC: true };
 
@@ -104,7 +104,7 @@ const sendConversationToServices = async (
             conversationId,
             content: content.replace(/&amp;/g, '&'),
             attachments: doc.attachments || [],
-            tag: facebookMessageTag,
+            extraInfo,
             userId: doc.userId
           })
         }
@@ -347,7 +347,6 @@ const conversationMutations = {
     const kind = integration.kind;
     const integrationId = integration.id;
     const conversationId = conversation.id;
-    const facebookMessageTag = doc.facebookMessageTag;
 
     const customer = await sendContactsMessage({
       subdomain,
@@ -392,7 +391,7 @@ const conversationMutations = {
         requestName,
         { ...doc, userId: user._id },
         action,
-        facebookMessageTag
+        doc.extraInfo
       );
 
       return { ...response.data };

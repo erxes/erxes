@@ -7,14 +7,19 @@ import TaggedMessageModal from './TaggedMessageModal';
 import { FacebookTaggedMessage } from './styles';
 
 type Props = {
-  selectTag: (value) => void;
+  setExtraInfo: (value) => void;
   isTaggedMessage: boolean;
   hideMask: () => void;
-  tag: string;
+  extraInfo: any;
 };
 
 export default function TagMessage(props: Props) {
-  const { isTaggedMessage, selectTag, tag, hideMask } = props;
+  const {
+    isTaggedMessage,
+    setExtraInfo,
+    extraInfo = { tag: '' },
+    hideMask
+  } = props;
 
   if (!isTaggedMessage) {
     return null;
@@ -28,8 +33,8 @@ export default function TagMessage(props: Props) {
         )}
         <FacebookTaggedMessage>
           <TaggedMessageModal
-            tag={tag}
-            selectTag={selectTag}
+            extraInfo={extraInfo}
+            setExtraInfo={setExtraInfo}
             hideMask={hideMask}
           />
         </FacebookTaggedMessage>

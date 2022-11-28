@@ -9,7 +9,14 @@ export const handleFacebookMessage = async (models: IModels, msg) => {
   const doc = JSON.parse(payload || '{}');
 
   if (action === 'reply-messenger') {
-    const { integrationId, conversationId, content, attachments, tag } = doc;
+    const {
+      integrationId,
+      conversationId,
+      content,
+      attachments,
+      extraInfo
+    } = doc;
+    const tag = extraInfo && extraInfo.tag ? extraInfo.tag : '';
 
     const conversation = await models.Conversations.getConversation({
       erxesApiId: conversationId

@@ -9,7 +9,7 @@ const conversationMessageAdd = `
     $mentionedUserIds: [String],
     $internal: Boolean,
     $attachments: [AttachmentInput],
-    $facebookMessageTag: String
+    $extraInfo: JSON
   ) {
     conversationMessageAdd(
       conversationId: $conversationId,
@@ -18,7 +18,7 @@ const conversationMessageAdd = `
       mentionedUserIds: $mentionedUserIds,
       internal: $internal,
       attachments: $attachments,
-      facebookMessageTag: $facebookMessageTag
+      extraInfo: $extraInfo
     ) {
       ${messageFields}
     }

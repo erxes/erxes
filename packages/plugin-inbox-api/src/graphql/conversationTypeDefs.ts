@@ -253,7 +253,7 @@ export const mutations = `
     internal: Boolean,
     attachments: [AttachmentInput],
     contentType: String
-    facebookMessageTag: String
+    extraInfo: JSON
   ): ConversationMessage
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
   conversationsUnassign(_ids: [String]!): [Conversation]

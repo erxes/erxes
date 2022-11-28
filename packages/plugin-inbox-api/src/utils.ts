@@ -25,8 +25,6 @@ export const getIntegrationsKinds = async () => {
     lead: 'Popups & forms',
     webhook: 'Webhook',
     booking: 'Booking',
-    'facebook-post': 'Facebook post',
-    'facebook-messenger': 'Facebook messenger',
     callpro: 'Callpro'
   };
 

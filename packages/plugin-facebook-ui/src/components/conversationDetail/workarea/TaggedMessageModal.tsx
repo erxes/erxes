@@ -11,19 +11,21 @@ import { __ } from '@erxes/ui/src/utils/core';
 import { FacebookTagText } from './styles';
 
 type Props = {
-  selectTag: (value: string) => void;
+  setExtraInfo: (value: any) => void;
   hideMask: () => void;
-  tag: string;
+  extraInfo: any;
 };
 
 class Modal extends React.Component<Props, {}> {
   onSave = () => {
+    const { setExtraInfo, hideMask } = this.props;
+
     const tag = (document.getElementById(
       'facebook-message-tag'
     ) as HTMLInputElement).value;
 
-    this.props.selectTag(tag);
-    this.props.hideMask();
+    setExtraInfo({ tag });
+    hideMask();
 
     const element = document.querySelector('button.close') as HTMLElement;
 
@@ -37,6 +39,8 @@ class Modal extends React.Component<Props, {}> {
       { label: 'Account Update', value: 'ACCOUNT_UPDATE' }
     ];
 
+    const { extraInfo = { tag: '' } } = this.props;
+
     return (
       <React.Fragment>
         <FormGroup>
@@ -49,8 +53,8 @@ class Modal extends React.Component<Props, {}> {
           <FormControl
             id="facebook-message-tag"
             componentClass="select"
-            placeholder={__('Select Brand') as string}
-            defaultValue={this.props.tag}
+            placeholder={__('Select Facebook Tag') as string}
+            defaultValue={extraInfo.tag || ''}
           >
             {tags.map(tag => (
               <option key={tag.value} value={tag.value}>

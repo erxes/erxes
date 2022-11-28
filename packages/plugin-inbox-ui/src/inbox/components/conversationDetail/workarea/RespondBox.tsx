@@ -70,8 +70,9 @@ type State = {
   mentionedUserIds: string[];
   editorKey: string;
   loading: object;
-  facebookMessageTag: string;
+  extraInfo?: any;
 };
+
 class RespondBox extends React.Component<Props, State> {
   constructor(props) {
     super(props);
@@ -86,8 +87,7 @@ class RespondBox extends React.Component<Props, State> {
       responseTemplate: '',
       content: '',
       mentionedUserIds: [],
-      loading: {},
-      facebookMessageTag: ''
+      loading: {}
     };
   }
   isContentWritten() {
@@ -117,8 +117,7 @@ class RespondBox extends React.Component<Props, State> {
     if (this.props.conversation.customer !== nextProps.conversation.customer) {
       this.setState({
         isInactive: !this.checkIsActive(nextProps.conversation),
-        isFacebookTaggedMessage: nextProps.conversation.isFacebookTaggedMessage,
-        facebookMessageTag: ''
+        isFacebookTaggedMessage: nextProps.conversation.isFacebookTaggedMessage
       });
     }
 
@@ -296,13 +295,13 @@ class RespondBox extends React.Component<Props, State> {
       attachments,
       content,
       mentionedUserIds,
-      facebookMessageTag
+      extraInfo
     } = this.state;
 
     const message = {
       conversationId: conversation._id,
       content: this.cleanText(content) || ' ',
-      facebookMessageTag,
+      extraInfo,
       contentType: 'text',
       internal: isInternal,
       attachments,
@@ -521,11 +520,11 @@ class RespondBox extends React.Component<Props, State> {
       isInternal,
       isInactive,
       isFacebookTaggedMessage,
-      facebookMessageTag
+      extraInfo
     } = this.state;
 
-    const selectTag = value => {
-      this.setState({ facebookMessageTag: value });
+    const setExtraInfo = value => {
+      this.setState({ extraInfo: value });
     };
 
     return (
@@ -533,8 +532,8 @@ class RespondBox extends React.Component<Props, State> {
         {this.renderMask()}
         {loadDynamicComponent('tagMessage', {
           hideMask: this.hideMask,
-          selectTag,
-          tag: facebookMessageTag,
+          extraInfo,
+          setExtraInfo,
           isTaggedMessage: isFacebookTaggedMessage
         })}
         <RespondBoxStyled
