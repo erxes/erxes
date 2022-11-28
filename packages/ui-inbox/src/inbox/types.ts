@@ -42,8 +42,6 @@ export interface IConversation {
   callProAudio?: string;
   videoCallData?: IVideoCallData;
 
-  isFacebookTaggedMessage?: boolean;
-
   customFieldsData?: {
     [key: string]: any;
   };

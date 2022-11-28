@@ -104,3 +104,7 @@ export interface IFbConversation extends IConversation {
 export type FacebookPostQueryResponse = {
   facebookGetPost: IFacebookPost;
 } & QueryResponse;
+
+export type TaggedMessagesQueryResponse = {
+  facebookHasTaggedMessages: boolean;
+} & QueryResponse;

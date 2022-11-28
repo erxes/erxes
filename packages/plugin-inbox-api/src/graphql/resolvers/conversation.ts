@@ -138,37 +138,5 @@ export default {
       debug.error(e);
       return null;
     }
-  },
-
-  async isFacebookTaggedMessage(
-    conversation: IConversationDocument,
-    _args,
-    { models, subdomain }: IContext
-  ) {
-    const integration =
-      (await models.Integrations.findOne({
-        _id: conversation.integrationId
-      })) || ({} as any);
-
-    if (integration && integration.kind !== 'facebook-messenger') {
-      return false;
-    }
-
-    const messages = await sendFacebookMessage({
-      action: 'conversationMessages.find',
-      isRPC: true,
-      subdomain,
-      data: {
-        conversationId: conversation._id,
-        customerId: { $exists: true },
-        createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) }
-      }
-    });
-
-    if (messages.length && messages.length >= 1) {
-      return false;
-    }
-
-    return true;
   }
 };

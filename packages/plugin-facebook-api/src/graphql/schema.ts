@@ -73,6 +73,7 @@ export const queries = `
   facebookConversationMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [FacebookConversationMessage]
   facebookConversationMessagesCount(conversationId: String!): Int
   facebookGetPost(erxesApiId: String): FacebookPost
+  facebookHasTaggedMessages(conversationId: String!): Boolean
 `;
 
 export const mutations = `

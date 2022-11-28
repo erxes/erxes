@@ -61,7 +61,6 @@ type Props = {
 
 type State = {
   isInactive: boolean;
-  isFacebookTaggedMessage: boolean;
   isInternal: boolean;
   sending: boolean;
   attachments: any[];
@@ -79,7 +78,6 @@ class RespondBox extends React.Component<Props, State> {
 
     this.state = {
       isInactive: !this.checkIsActive(props.conversation),
-      isFacebookTaggedMessage: props.conversation.isFacebookTaggedMessage,
       editorKey: 'editor',
       isInternal: props.showInternal || false,
       sending: false,
@@ -116,8 +114,7 @@ class RespondBox extends React.Component<Props, State> {
   componentWillReceiveProps(nextProps) {
     if (this.props.conversation.customer !== nextProps.conversation.customer) {
       this.setState({
-        isInactive: !this.checkIsActive(nextProps.conversation),
-        isFacebookTaggedMessage: nextProps.conversation.isFacebookTaggedMessage
+        isInactive: !this.checkIsActive(nextProps.conversation)
       });
     }
 
@@ -163,15 +160,11 @@ class RespondBox extends React.Component<Props, State> {
       return conversation.customer && conversation.customer.isOnline;
     }
 
-    if (conversation.integration.kind === 'facebook-messenger') {
-      return !conversation.isFacebookTaggedMessage;
-    }
-
     return true;
   }
 
   hideMask = () => {
-    this.setState({ isInactive: false, isFacebookTaggedMessage: false });
+    this.setState({ isInactive: false });
 
     const element = document.querySelector('.DraftEditor-root') as HTMLElement;
 
@@ -516,12 +509,8 @@ class RespondBox extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const {
-      isInternal,
-      isInactive,
-      isFacebookTaggedMessage,
-      extraInfo
-    } = this.state;
+    const { conversation } = this.props;
+    const { isInternal, isInactive, extraInfo } = this.state;
 
     const setExtraInfo = value => {
       this.setState({ extraInfo: value });
@@ -534,12 +523,9 @@ class RespondBox extends React.Component<Props, State> {
           hideMask: this.hideMask,
           extraInfo,
           setExtraInfo,
-          isTaggedMessage: isFacebookTaggedMessage
+          conversationId: conversation._id
         })}
-        <RespondBoxStyled
-          isInternal={isInternal}
-          isInactive={isInactive || isFacebookTaggedMessage}
-        >
+        <RespondBoxStyled isInternal={isInternal} isInactive={isInactive}>
           {this.renderBody()}
         </RespondBoxStyled>
       </MaskWrapper>

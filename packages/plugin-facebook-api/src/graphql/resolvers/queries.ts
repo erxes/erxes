@@ -1,4 +1,6 @@
 import { IContext, IModels } from '../../connectionResolver';
+import { INTEGRATION_KINDS } from '../../constants';
+import { sendInboxMessage } from '../../messageBroker';
 import { IConversationMessageDocument } from '../../models/definitions/conversationMessages';
 import { getPageList } from '../../utils';
 
@@ -10,19 +12,22 @@ interface IDetailParams {
   erxesApiId: string;
 }
 
-interface ICommentsParams {
+interface IConversationId {
   conversationId: string;
-  isResolved?: boolean;
-  commentId?: string;
-  senderId: string;
+}
+
+interface IPageParams {
   skip?: number;
   limit?: number;
 }
 
-interface IMessagesParams {
-  conversationId: string;
-  skip?: number;
-  limit?: number;
+interface ICommentsParams extends IConversationId, IPageParams {
+  isResolved?: boolean;
+  commentId?: string;
+  senderId: string;
+}
+
+interface IMessagesParams extends IConversationId, IPageParams {
   getFirst?: boolean;
 }
 
@@ -246,6 +251,37 @@ const facebookQueries = {
 
   facebookGetPost(_root, { erxesApiId }: IDetailParams, { models }: IContext) {
     return models.Posts.findOne({ erxesApiId });
+  },
+
+  async facebookHasTaggedMessages(
+    _root,
+    { conversationId }: IConversationId,
+    { models, subdomain }: IContext
+  ) {
+    const integration = await sendInboxMessage({
+      action: 'integrations.findOne',
+      subdomain,
+      isRPC: true,
+      data: { _id: conversationId }
+    });
+
+    if (integration && integration.kind !== INTEGRATION_KINDS.MESSENGER) {
+      return false;
+    }
+
+    const query = await buildSelector(conversationId, models);
+
+    const messages = await models.ConversationMessages.find({
+      ...query,
+      customerId: { $exists: true },
+      createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+    });
+
+    if (messages.length && messages.length >= 1) {
+      return false;
+    }
+
+    return true;
   }
 };
 

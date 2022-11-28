@@ -6,7 +6,7 @@ module.exports = {
     './routes': './src/routes.tsx',
     './inboxIntegrationSettings': './src/containers/UpdateConfigsContainer.tsx',
     './activityLog': './src/containers/ActivityLogsContainer.tsx',
-    './tagMessage': './src/components/conversationDetail/workarea/TagMessage.tsx',
+    './tagMessage': './src/containers/TagMessageContainer.tsx',
     './specialUi': './src/containers/post/FbCommentsContainer.tsx'
   },
   routes: {

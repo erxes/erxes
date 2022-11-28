@@ -59,7 +59,6 @@ export const types = ({ tags, forms, contacts }) => `
     participatedUsers: [User]
     participatorCount: Int
     videoCallData: VideoCallData
-    isFacebookTaggedMessage: Boolean
     customFieldsData: JSON
 
     bookingProductId: String

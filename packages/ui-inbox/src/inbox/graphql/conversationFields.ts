@@ -78,7 +78,6 @@ export default `
   }
   readUserIds
   callProAudio
-  isFacebookTaggedMessage
   customFieldsData
   
   bookingProductId

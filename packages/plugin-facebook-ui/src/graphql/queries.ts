@@ -116,6 +116,12 @@ const facebookGetPost = `
   }
 `;
 
+const facebookHasTaggedMessages = `
+  query facebookHasTaggedMessages($conversationId: String!) {
+    facebookHasTaggedMessages(conversationId: $conversationId)
+  }
+`;
+
 export default {
   facebookGetConfigs,
   facebookGetIntegrations,
@@ -126,5 +132,6 @@ export default {
   facebookGetAccounts,
   facebookConversationMessages,
   facebookConversationMessagesCount,
-  facebookGetPost
+  facebookGetPost,
+  facebookHasTaggedMessages
 };
