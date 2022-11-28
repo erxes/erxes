@@ -1,12 +1,14 @@
 import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';
-import Table from '@erxes/ui/src/components/table';
-import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __, Alert } from '@erxes/ui/src/utils';
-import { IProduct } from '@erxes/ui-products/src/types';
+import PaymentForm from './PaymentForm';
+import ProductCategoryChooser from '@erxes/ui-products/src/components/ProductCategoryChooser';
+import ProductItem from '../../containers/product/ProductItem';
+import ProductTotal from './ProductTotal';
 import React from 'react';
+import Table from '@erxes/ui/src/components/table';
+import { __, Alert } from '@erxes/ui/src/utils';
 import {
   Add,
   FlexRowGap,
@@ -15,18 +17,12 @@ import {
   FormContainer,
   ProductTableWrapper
 } from '../../styles';
-import {
-  IDeal,
-  IPaymentsData,
-  IProductCategory,
-  IProductData
-} from '../../types';
-import PaymentForm from './PaymentForm';
-import ProductItem from '../../containers/product/ProductItem';
-import ProductTotal from './ProductTotal';
-import FormControl from '@erxes/ui/src/components/form/Control';
 import { ControlLabel } from '@erxes/ui/src/components';
-import ProductCategoryChooser from '@erxes/ui-products/src/components/ProductCategoryChooser';
+import { IDeal, IPaymentsData, IProductData } from '../../types';
+import { IProduct } from '@erxes/ui-products/src/types';
+import { IProductCategory } from '@erxes/ui-products/src/types';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;

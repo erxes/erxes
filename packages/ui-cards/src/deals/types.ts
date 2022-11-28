@@ -1,6 +1,5 @@
 import { IItem, IItemParams } from '../boards/types';
 import { IProduct } from '@erxes/ui-products/src/types';
-import { QueryResponse } from '@erxes/ui/src/types';
 
 export interface IQueryParams {
   brandIds: string;
@@ -49,20 +48,6 @@ export interface IProductData {
   maxQuantity: number;
 }
 
-export interface IProductCategory {
-  _id: string;
-  name: string;
-  order: string;
-  code: string;
-  description?: string;
-  attachment?: any;
-  status: string;
-  parentId?: string;
-  createdAt: Date;
-  productCount: number;
-  isRoot: boolean;
-}
-
 export interface IPaymentsData {
   [key: string]: {
     currency?: string;
@@ -98,7 +83,3 @@ export type DealsTotalCountQueryResponse = {
   refetch: () => void;
   fetchMore: any;
 };
-
-export type ProductCategoriesQueryResponse = {
-  productCategories: IProductCategory[];
-} & QueryResponse;

@@ -1,18 +1,14 @@
-import { IProduct } from '@erxes/ui-products/src/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import ProductForm from '../../components/product/ProductForm';
-import {
-  IDeal,
-  IPaymentsData,
-  IProductData,
-  ProductCategoriesQueryResponse
-} from '../../types';
-import { AppConsumer } from 'coreui/appContext';
-import { withProps } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';
 import gql from 'graphql-tag';
+import ProductForm from '../../components/product/ProductForm';
+import React from 'react';
+import { AppConsumer } from 'coreui/appContext';
+import { graphql } from 'react-apollo';
+import { IProduct } from '@erxes/ui-products/src/types';
+import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
 import { queries } from '../../graphql';
+import { withProps } from '@erxes/ui/src/utils/core';
+import { IDeal, IPaymentsData, IProductData } from '../../types';
 
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
