@@ -53,7 +53,6 @@ const typeDefs = async serviceDiscovery => {
   const isTagsEnabled = await serviceDiscovery.isEnabled('tags');
   const isFormsEnabled = await serviceDiscovery.isEnabled('forms');
   const isKbEnabled = await serviceDiscovery.isEnabled('knowledgebase');
-  const isFacebookEnabled = await serviceDiscovery.isEnabled('facebook');
   const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
 
   const isEnabled = {
@@ -61,7 +60,6 @@ const typeDefs = async serviceDiscovery => {
     tags: isTagsEnabled,
     forms: isFormsEnabled,
     knowledgeBase: isKbEnabled,
-    facebook: isFacebookEnabled,
     contacts: isContactsEnabled
   };
 

@@ -49,7 +49,7 @@ export const initBroker = async cl => {
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
-      const { action, type } = data;
+      const { action } = data;
 
       let response: any = null;
 

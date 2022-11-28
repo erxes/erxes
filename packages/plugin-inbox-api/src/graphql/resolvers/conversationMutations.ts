@@ -1,12 +1,17 @@
 import * as strip from 'strip';
 import * as _ from 'underscore';
 
-import { MESSAGE_TYPES } from '../../models/definitions/constants';
+import {
+  checkPermission,
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 
+import { MESSAGE_TYPES } from '../../models/definitions/constants';
 import { IMessageDocument } from '../../models/definitions/conversationMessages';
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { AUTO_BOT_MESSAGES } from '../../models/definitions/constants';
-import { debug } from '../../configs';
+import { debug, graphqlPubsub } from '../../configs';
 import {
   sendContactsMessage,
   sendCardsMessage,
@@ -14,20 +19,14 @@ import {
   sendIntegrationsMessage,
   sendNotificationsMessage,
   sendToWebhook,
-  sendFacebookMessage
+  sendCommonMessage
 } from '../../messageBroker';
-import { graphqlPubsub } from '../../configs';
-
 import { putUpdateLog } from '../../logUtils';
-
-import {
-  checkPermission,
-  requireLogin
-} from '@erxes/api-utils/src/permissions';
 import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
 import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
-import { IUserDocument } from '@erxes/api-utils/src/types';
 import { IContext, IModels } from '../../connectionResolver';
+import { isServiceRunning } from '../../utils';
+import { IIntegrationDocument } from '../../models/definitions/integrations';
 
 export interface IConversationMessageAdd {
   conversationId: string;
@@ -46,6 +45,7 @@ interface IAttachment {
   size?: number;
   duration?: number;
 }
+
 interface IConversationConvert {
   _id: string;
   type: string;
@@ -66,68 +66,30 @@ interface IConversationConvert {
 /**
  *  Send conversation to integrations
  */
-
 const sendConversationToServices = async (
   subdomain: string,
-  type: string,
-  integrationId: string,
-  conversationId: string,
-  requestName: string,
-  doc: IConversationMessageAdd,
-  action?: string,
-  extraInfo?: any
+  integration: IIntegrationDocument,
+  payload: object
 ) => {
-  const commonParams = { subdomain, isRPC: true };
+  const serviceName = integration.kind.split('-')[0];
+  const serviceRunning = await isServiceRunning(serviceName);
 
-  if (type === 'facebook') {
-    const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
-
-    const images: string[] = (doc.content.match(regex) || []).map(m =>
-      m.replace(regex, '$1')
-    );
-
-    images.forEach(img => {
-      doc.attachments.push({ type: 'image', url: img });
-    });
-
-    const content = strip(doc.content);
-
-    try {
-      return sendFacebookMessage({
-        ...commonParams,
-        action: 'api_to_integrations',
-        data: {
-          action,
-          type,
-          payload: JSON.stringify({
-            integrationId,
-            conversationId,
-            content: content.replace(/&amp;/g, '&'),
-            attachments: doc.attachments || [],
-            extraInfo,
-            userId: doc.userId
-          })
-        }
-      });
-    } catch (e) {
-      throw new Error(
-        `Your message not sent Error: ${e.message}. Go to integrations list and fix it`
-      );
-    }
-  }
-
-  if (requestName) {
-    return sendIntegrationsMessage({
-      ...commonParams,
-      action: 'reply',
+  try {
+    return sendCommonMessage({
+      subdomain,
+      isRPC: true,
+      serviceName: serviceRunning ? serviceName : 'integrations',
+      action: 'api_to_integrations',
       data: {
-        conversationId,
-        integrationId,
-        content: strip(doc.content),
-        attachments: doc.attachments || [],
-        requestName
+        action: `reply-${integration.kind.split('-')[1]}`,
+        type: serviceName,
+        payload: JSON.stringify(payload)
       }
     });
+  } catch (e) {
+    throw new Error(
+      `Your message not sent Error: ${e.message}. Go to integrations list and fix it`
+    );
   }
 };
 
@@ -345,8 +307,6 @@ const conversationMutations = {
     }
 
     const kind = integration.kind;
-    const integrationId = integration.id;
-    const conversationId = conversation.id;
 
     const customer = await sendContactsMessage({
       subdomain,
@@ -375,25 +335,23 @@ const conversationMutations = {
       });
     }
 
-    const requestName = '';
-    let type;
-    let action;
+    const payload = {
+      integrationId: integration._id,
+      conversationId: conversation._id,
+      content: doc.content,
+      attachments: doc.attachments || [],
+      extraInfo: doc.extraInfo,
+      userId: doc.userId
+    };
 
-    if (kind.includes('facebook') && kind.includes('-')) {
-      type = kind.split('-')[0];
-      action = `reply-${kind.split('-')[1]}`;
+    const response = await sendConversationToServices(
+      subdomain,
+      integration,
+      payload
+    );
 
-      const response = await sendConversationToServices(
-        subdomain,
-        type,
-        integrationId,
-        conversationId,
-        requestName,
-        { ...doc, userId: user._id },
-        action,
-        doc.extraInfo
-      );
-
+    // if the service runs separately & returns data, then don't save message inside inbox
+    if (response && response.data) {
       return { ...response.data };
     }
 
