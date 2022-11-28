@@ -67,6 +67,16 @@ const FooterInfo = styled.div`
   }
 `;
 
+const FlexSpace = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+const FlexRowGap = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+`;
+
 const Add = styled.div`
   display: block;
   margin: 20px;
@@ -312,5 +322,7 @@ export {
   ProductSettings,
   VoucherCard,
   RemoveRow,
-  VoucherContainer
+  VoucherContainer,
+  FlexSpace,
+  FlexRowGap
 };
