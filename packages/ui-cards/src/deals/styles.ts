@@ -1,6 +1,7 @@
-import { Input } from '@erxes/ui/src/components/form/styles';
 import { colors, dimensions } from '@erxes/ui/src/styles';
+
 import { Flex } from '@erxes/ui/src/styles/main';
+import { Input } from '@erxes/ui/src/components/form/styles';
 import { darken } from '@erxes/ui/src/styles/ecolor';
 import { highlight } from '@erxes/ui/src/utils/animations';
 import styled from 'styled-components';
@@ -119,6 +120,7 @@ const ProductName = styled.a`
   cursor: pointer;
   color: ${colors.textSecondary};
   display: flex;
+  align-items: center;
   justify-content: space-between;
 
   > i {
