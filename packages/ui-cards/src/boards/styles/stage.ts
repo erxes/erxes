@@ -1,8 +1,9 @@
-import { PopoverList } from '@erxes/ui/src/components/filterableList/styles';
+import { borderRadius, stageWidth } from './common';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import styled, { css } from 'styled-components';
+
+import { PopoverList } from '@erxes/ui/src/components/filterableList/styles';
 import styledTS from 'styled-components-ts';
-import { borderRadius, stageWidth } from './common';
 
 const hoverColor = 'rgba(10,45,65,.13)';
 const stageGray = '#e5e8ec';
@@ -225,6 +226,13 @@ export const ActionButton = styled.div`
     background: rgba(0, 0, 0, 0.1);
     cursor: pointer;
   }
+`;
+
+export const Quantity = styled.div`
+  display: inline;
+  font-weight: 600;
+  font-size: 11px;
+  margin-left: ${dimensions.unitSpacing - 5}px;
 `;
 
 export {
