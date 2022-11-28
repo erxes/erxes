@@ -6,7 +6,7 @@ module.exports = {
     './routes': './src/routes.tsx',
     './inboxIntegrationSettings': './src/containers/UpdateConfigsContainer.tsx',
     './activityLog': './src/containers/ActivityLogsContainer.tsx',
-    './tagMessage': './src/containers/TagMessageContainer.tsx',
+    './inboxConversationDetailRespondBoxMask': './src/containers/TagMessageContainer.tsx',
     './specialUi': './src/containers/post/FbCommentsContainer.tsx'
   },
   routes: {
@@ -128,6 +128,6 @@ module.exports = {
     },
   ],
   activityLog: './activityLog',
-  tagMessage: './tagMessage',
+  inboxConversationDetailRespondBoxMask: './inboxConversationDetailRespondBoxMask',
   specialUi: './specialUi'
 };

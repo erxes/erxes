@@ -8,37 +8,50 @@ import { FacebookTaggedMessage } from './styles';
 
 type Props = {
   setExtraInfo: (value) => void;
-  isTaggedMessage: boolean;
+  hasTaggedMessages: boolean;
   hideMask: () => void;
   extraInfo: any;
 };
 
-export default function TagMessage(props: Props) {
-  const {
-    isTaggedMessage,
-    setExtraInfo,
-    extraInfo = { tag: '' },
-    hideMask
-  } = props;
+type State = {
+  hasTag: boolean;
+};
 
-  if (!isTaggedMessage) {
-    return null;
+export default class TagMessage extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = { hasTag: props.hasTaggedMessages };
   }
 
-  return (
-    <Mask id="mask">
-      <div>
-        {__(
-          'Your last interaction with this contact was more than 24 hours ago. Only Tagged Messages are allowed outside the standard messaging window'
-        )}
-        <FacebookTaggedMessage>
-          <TaggedMessageModal
-            extraInfo={extraInfo}
-            setExtraInfo={setExtraInfo}
-            hideMask={hideMask}
-          />
-        </FacebookTaggedMessage>
-      </div>
-    </Mask>
-  );
+  render() {
+    const { setExtraInfo, extraInfo = { tag: '' }, hideMask } = this.props;
+
+    const hide = () => {
+      this.setState({ hasTag: false });
+
+      hideMask();
+    };
+
+    if (!this.state.hasTag) {
+      return null;
+    }
+
+    return (
+      <Mask id="mask">
+        <div>
+          {__(
+            'Your last interaction with this contact was more than 24 hours ago. Only Tagged Messages are allowed outside the standard messaging window'
+          )}
+          <FacebookTaggedMessage>
+            <TaggedMessageModal
+              extraInfo={extraInfo}
+              setExtraInfo={setExtraInfo}
+              hideMask={hide}
+            />
+          </FacebookTaggedMessage>
+        </div>
+      </Mask>
+    );
+  }
 }

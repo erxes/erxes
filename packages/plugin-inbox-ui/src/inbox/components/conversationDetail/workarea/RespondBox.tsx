@@ -519,7 +519,7 @@ class RespondBox extends React.Component<Props, State> {
     return (
       <MaskWrapper>
         {this.renderMask()}
-        {loadDynamicComponent('tagMessage', {
+        {loadDynamicComponent('inboxConversationDetailRespondBoxMask', {
           hideMask: this.hideMask,
           extraInfo,
           setExtraInfo,

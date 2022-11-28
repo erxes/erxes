@@ -30,7 +30,7 @@ const TagMessageContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    isTaggedMessage: taggedMessagesQuery.facebookHasTaggedMessages
+    hasTaggedMessages: taggedMessagesQuery.facebookHasTaggedMessages
   };
 
   return <TagMessage {...updatedProps} />;
