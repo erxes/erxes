@@ -8,8 +8,9 @@ import { IProductCategory } from '../types';
 
 type Props = {
   categories: IProductCategory[];
-  current?: string;
-  onChangeCategory: (parentCategoryId: string, catgeoryIds: string[]) => void;
+  currentId?: string;
+  hasChildIds?: boolean;
+  onChangeCategory: (categoryId: string, childIds?: string[]) => void;
 };
 
 type State = {
@@ -22,14 +23,14 @@ class ProductCategoryChooser extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      categoryId: this.props.current || ''
+      categoryId: this.props.currentId || ''
     };
   }
 
   componentDidUpdate(prevProps: Readonly<Props>): void {
-    const { current } = this.props;
-    if (prevProps.current) {
-      if (current === '') {
+    const { currentId } = this.props;
+    if (prevProps.currentId) {
+      if (currentId === '') {
         this.setState({ categoryId: '' });
       }
     }
@@ -45,28 +46,26 @@ class ProductCategoryChooser extends React.Component<Props, State> {
   }
 
   onChange = (categoryId: string) => {
-    const { categories } = this.props;
+    const { categories, hasChildIds } = this.props;
 
-    const foundCategory = categories.find(c => c._id === categoryId);
-    const categoryIds: string[] = [];
+    let childIds: string[] = [];
 
-    categoryIds.push(categoryId);
+    if (hasChildIds) {
+      const foundCategory = categories.find(c => c._id === categoryId);
 
-    if (foundCategory) {
-      const childrenCategories = categories.filter(
-        c =>
-          c.order.startsWith(foundCategory.order) && foundCategory._id !== c._id
-      );
+      if (foundCategory) {
+        const childs = categories.filter(c =>
+          c.order.startsWith(foundCategory.order)
+        );
 
-      if (childrenCategories) {
-        for (const children of childrenCategories) {
-          categoryIds.push(children._id);
+        if (childs.length) {
+          childIds = childIds.concat(childs.map(ch => ch._id));
         }
       }
     }
 
     this.setState({ categoryId });
-    this.props.onChangeCategory(categoryId, categoryIds);
+    this.props.onChangeCategory(categoryId, childIds);
   };
 
   renderOptions = option => {
