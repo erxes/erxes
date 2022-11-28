@@ -2,7 +2,6 @@ import {
   AccountBox,
   AccountItem,
   AccountTitle,
-  FacebookButton,
   GoogleButton
 } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import {
@@ -15,9 +14,7 @@ import Button from '@erxes/ui/src/components/Button';
 import { CenterText } from '@erxes/ui-log/src/activityLogs/styles';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { IFormProps } from '@erxes/ui/src/types';
-import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   onSelect: (accountId?: string) => void;
@@ -64,15 +61,6 @@ class Accounts extends React.Component<Props, { accountId?: string }> {
 
     if (kind === 'gmail' || kind === 'nylas-gmail') {
       return <GoogleButton href="#add" onClick={onAdd} />;
-    }
-
-    if (kind === 'facebook' && isEnabled('facebook')) {
-      return (
-        <FacebookButton onClick={onAdd}>
-          <Icon icon="facebook-official" />
-          {__('Continue with Facebook')}
-        </FacebookButton>
-      );
     }
 
     return (

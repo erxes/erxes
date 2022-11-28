@@ -1,10 +1,7 @@
 import { debug } from '../../configs';
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { MESSAGE_TYPES } from '../../models/definitions/constants';
-import {
-  sendFacebookMessage,
-  sendIntegrationsMessage
-} from '../../messageBroker';
+import { sendIntegrationsMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 
 export default {
