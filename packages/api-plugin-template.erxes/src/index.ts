@@ -269,314 +269,307 @@ async function startServer() {
 
   const mongoUrl = MONGO_URL || '';
 
-  try {
-    // connect to mongo database
-    const db = await connect(mongoUrl);
+  // connect to mongo database
+  const db = await connect(mongoUrl);
 
-    const messageBrokerClient = await initBroker({
-      RABBITMQ_HOST,
-      MESSAGE_BROKER_PREFIX,
-      redis
-    });
+  const messageBrokerClient = await initBroker({
+    RABBITMQ_HOST,
+    MESSAGE_BROKER_PREFIX,
+    redis
+  });
 
-    if (configs.permissions) {
-      await messageBrokerClient.sendMessage(
-        'registerPermissions',
-        configs.permissions
-      );
+  if (configs.permissions) {
+    await messageBrokerClient.sendMessage(
+      'registerPermissions',
+      configs.permissions
+    );
+  }
+
+  if (configs.meta) {
+    const {
+      segments,
+      forms,
+      tags,
+      imports,
+      internalNotes,
+      automations,
+      search,
+      webhooks,
+      initialSetup,
+      cronjobs,
+      exporter
+    } = configs.meta;
+    const { consumeRPCQueue, consumeQueue } = messageBrokerClient;
+
+    const logs = configs.meta.logs && configs.meta.logs.consumers;
+
+    if (segments) {
+      if (segments.propertyConditionExtender) {
+        segments.propertyConditionExtenderAvailable = true;
+
+        consumeRPCQueue(
+          `${configs.name}:segments.propertyConditionExtender`,
+          segments.propertyConditionExtender
+        );
+      }
+
+      if (segments.associationFilter) {
+        segments.associationFilterAvailable = true;
+
+        consumeRPCQueue(
+          `${configs.name}:segments.associationFilter`,
+          segments.associationFilter
+        );
+      }
+
+      if (segments.esTypesMap) {
+        segments.esTypesMapAvailable = true;
+
+        consumeRPCQueue(
+          `${configs.name}:segments.esTypesMap`,
+          segments.esTypesMap
+        );
+      }
+
+      if (segments.initialSelector) {
+        segments.initialSelectorAvailable = true;
+
+        consumeRPCQueue(
+          `${configs.name}:segments.initialSelector`,
+          segments.initialSelector
+        );
+      }
     }
 
-    if (configs.meta) {
-      const {
-        segments,
-        forms,
-        tags,
-        imports,
-        internalNotes,
-        automations,
-        search,
-        webhooks,
-        initialSetup,
-        cronjobs,
-        exporter
-      } = configs.meta;
-      const { consumeRPCQueue, consumeQueue } = messageBrokerClient;
+    if (logs) {
+      logConsumers({
+        name: configs.name,
+        consumeRPCQueue,
+        getActivityContent: logs.getActivityContent,
+        getContentTypeDetail: logs.getContentTypeDetail,
+        collectItems: logs.collectItems,
+        getContentIds: logs.getContentIds,
+        getSchemalabels: logs.getSchemaLabels
+      });
+    }
 
-      const logs = configs.meta.logs && configs.meta.logs.consumers;
-
-      if (segments) {
-        if (segments.propertyConditionExtender) {
-          segments.propertyConditionExtenderAvailable = true;
-
-          consumeRPCQueue(
-            `${configs.name}:segments.propertyConditionExtender`,
-            segments.propertyConditionExtender
-          );
-        }
-
-        if (segments.associationFilter) {
-          segments.associationFilterAvailable = true;
-
-          consumeRPCQueue(
-            `${configs.name}:segments.associationFilter`,
-            segments.associationFilter
-          );
-        }
-
-        if (segments.esTypesMap) {
-          segments.esTypesMapAvailable = true;
-
-          consumeRPCQueue(
-            `${configs.name}:segments.esTypesMap`,
-            segments.esTypesMap
-          );
-        }
-
-        if (segments.initialSelector) {
-          segments.initialSelectorAvailable = true;
-
-          consumeRPCQueue(
-            `${configs.name}:segments.initialSelector`,
-            segments.initialSelector
-          );
-        }
-      }
-
-      if (logs) {
-        logConsumers({
-          name: configs.name,
-          consumeRPCQueue,
-          getActivityContent: logs.getActivityContent,
-          getContentTypeDetail: logs.getContentTypeDetail,
-          collectItems: logs.collectItems,
-          getContentIds: logs.getContentIds,
-          getSchemalabels: logs.getSchemaLabels
-        });
-      }
-
-      if (forms) {
-        if (forms.fields) {
-          consumeRPCQueue(`${configs.name}:fields.getList`, async args => ({
-            status: 'success',
-            data: await forms.fields(args)
-          }));
-        }
-
-        if (forms.groupsFilter) {
-          consumeRPCQueue(
-            `${configs.name}:fields.groupsFilter`,
-            async args => ({
-              status: 'success',
-              data: await forms.groupsFilter(args)
-            })
-          );
-        }
-
-        if (forms.systemFields) {
-          forms.systemFieldsAvailable = true;
-
-          consumeRPCQueue(`${configs.name}:systemFields`, async args => ({
-            status: 'success',
-            data: await forms.systemFields(args)
-          }));
-        }
-
-        if (forms.fieldsGroupsHook) {
-          forms.groupsHookAvailable = true;
-
-          consumeRPCQueue(`${configs.name}:fieldsGroupsHook`, async args => ({
-            status: 'success',
-            data: await forms.fieldsGroupsHook(args)
-          }));
-        }
-      }
-
-      if (tags) {
-        if (tags.tag) {
-          consumeRPCQueue(`${configs.name}:tag`, async args => ({
-            status: 'success',
-            data: await tags.tag(args)
-          }));
-        }
-        if (tags.publishChange) {
-          tags.publishChangeAvailable = true;
-
-          consumeRPCQueue(`${configs.name}:publishChange`, async args => ({
-            status: 'success',
-            data: await tags.publishChange(args)
-          }));
-        }
-        if (tags.fixRelatedItems) {
-          consumeRPCQueue(`${configs.name}:fixRelatedItems`, async args => ({
-            status: 'success',
-            data: await tags.fixRelatedItems(args)
-          }));
-        }
-      }
-
-      if (webhooks) {
-        if (webhooks.getInfo) {
-          webhooks.getInfoAvailable = true;
-
-          consumeRPCQueue(`${configs.name}:webhooks.getInfo`, async args => ({
-            status: 'success',
-            data: await webhooks.getInfo(args)
-          }));
-        }
-      }
-
-      if (internalNotes) {
-        internalNoteConsumers({
-          name: configs.name,
-          consumeRPCQueue,
-          generateInternalNoteNotif: internalNotes.generateInternalNoteNotif
-        });
-      }
-
-      if (imports) {
-        if (imports.prepareImportDocs) {
-          consumeRPCQueue(
-            `${configs.name}:imports:prepareImportDocs`,
-            async args => ({
-              status: 'success',
-              data: await imports.prepareImportDocs(args)
-            })
-          );
-        }
-
-        if (imports.insertImportItems) {
-          consumeRPCQueue(
-            `${configs.name}:imports:insertImportItems`,
-            async args => ({
-              status: 'success',
-              data: await imports.insertImportItems(args)
-            })
-          );
-        }
-      }
-
-      if (exporter) {
-        if (exporter.prepareExportData) {
-          consumeRPCQueue(
-            `${configs.name}:exporter:prepareExportData`,
-            async args => ({
-              status: 'success',
-              data: await exporter.prepareExportData(args)
-            })
-          );
-        }
-      }
-
-      if (automations) {
-        if (automations.receiveActions) {
-          consumeRPCQueue(
-            `${configs.name}:automations.receiveActions`,
-            async args => ({
-              status: 'success',
-              data: await automations.receiveActions(args)
-            })
-          );
-        }
-      }
-
-      if (initialSetup) {
-        if (initialSetup.generate) {
-          initialSetup.generateAvailable = true;
-
-          consumeQueue(`${configs.name}:initialSetup`, async args => ({
-            status: 'success',
-            data: await initialSetup.generate(args)
-          }));
-
-          app.post('/initial-setup', async (req, res) => {
-            await initialSetup.generate({ subdomain: getSubdomain(req) });
-            return res.end('ok');
-          });
-        }
-      }
-
-      if (search) {
-        configs.meta.isSearchable = true;
-
-        consumeRPCQueue(`${configs.name}:search`, async args => ({
+    if (forms) {
+      if (forms.fields) {
+        consumeRPCQueue(`${configs.name}:fields.getList`, async args => ({
           status: 'success',
-          data: await search(args)
+          data: await forms.fields(args)
         }));
       }
 
-      if (cronjobs) {
-        if (cronjobs.handleMinutelyJob) {
-          cronjobs.handleMinutelyJobAvailable = true;
-
-          consumeQueue(`${configs.name}:handleMinutelyJob`, async args => ({
-            status: 'success',
-            data: await cronjobs.handleMinutelyJob(args)
-          }));
-        }
-
-        if (cronjobs.handle10MinutelyJob) {
-          cronjobs.handle10MinutelyJobAvailable = true;
-
-          consumeQueue(`${configs.name}:handle10MinutelyJob`, async args => ({
-            status: 'success',
-            data: await cronjobs.handle10MinutelyJob(args)
-          }));
-        }
-
-        if (cronjobs.handleHourlyJob) {
-          cronjobs.handleHourlyJobAvailable = true;
-
-          consumeQueue(`${configs.name}:handleHourlyJob`, async args => ({
-            status: 'success',
-            data: await cronjobs.handleHourlyJob(args)
-          }));
-        }
-
-        if (cronjobs.handleDailyJob) {
-          cronjobs.handleDailyJobAvailable = true;
-
-          consumeQueue(`${configs.name}:handleDailyJob`, async args => ({
-            status: 'success',
-            data: await cronjobs.handleDailyJob(args)
-          }));
-        }
+      if (forms.groupsFilter) {
+        consumeRPCQueue(`${configs.name}:fields.groupsFilter`, async args => ({
+          status: 'success',
+          data: await forms.groupsFilter(args)
+        }));
       }
-    } // end configs.meta if
 
-    await join({
-      name: configs.name,
-      port: PORT || '',
-      dbConnectionString: mongoUrl,
-      hasSubscriptions: configs.hasSubscriptions,
-      importExportTypes: configs.importExportTypes,
-      meta: configs.meta
-    });
+      if (forms.systemFields) {
+        forms.systemFieldsAvailable = true;
 
-    configs.onServerInit({
-      db,
-      app,
-      redis,
-      pubsubClient: pubsub,
-      messageBrokerClient,
-      debug: {
-        info: debugInfo,
-        error: debugError
+        consumeRPCQueue(`${configs.name}:systemFields`, async args => ({
+          status: 'success',
+          data: await forms.systemFields(args)
+        }));
       }
-    });
 
-    if (configs.freeSubscriptions) {
-      const wsServer = new ws.Server({
-        server: httpServer,
-        path: '/subscriptions'
-      });
+      if (forms.fieldsGroupsHook) {
+        forms.groupsHookAvailable = true;
 
-      await configs.freeSubscriptions(wsServer);
+        consumeRPCQueue(`${configs.name}:fieldsGroupsHook`, async args => ({
+          status: 'success',
+          data: await forms.fieldsGroupsHook(args)
+        }));
+      }
     }
 
-    debugInfo(`${configs.name} server is running on port: ${PORT}`);
-  } catch (e) {
-    debugError(`Error during startup ${e.message}`);
+    if (tags) {
+      if (tags.tag) {
+        consumeRPCQueue(`${configs.name}:tag`, async args => ({
+          status: 'success',
+          data: await tags.tag(args)
+        }));
+      }
+      if (tags.publishChange) {
+        tags.publishChangeAvailable = true;
+
+        consumeRPCQueue(`${configs.name}:publishChange`, async args => ({
+          status: 'success',
+          data: await tags.publishChange(args)
+        }));
+      }
+      if (tags.fixRelatedItems) {
+        consumeRPCQueue(`${configs.name}:fixRelatedItems`, async args => ({
+          status: 'success',
+          data: await tags.fixRelatedItems(args)
+        }));
+      }
+    }
+
+    if (webhooks) {
+      if (webhooks.getInfo) {
+        webhooks.getInfoAvailable = true;
+
+        consumeRPCQueue(`${configs.name}:webhooks.getInfo`, async args => ({
+          status: 'success',
+          data: await webhooks.getInfo(args)
+        }));
+      }
+    }
+
+    if (internalNotes) {
+      internalNoteConsumers({
+        name: configs.name,
+        consumeRPCQueue,
+        generateInternalNoteNotif: internalNotes.generateInternalNoteNotif
+      });
+    }
+
+    if (imports) {
+      if (imports.prepareImportDocs) {
+        consumeRPCQueue(
+          `${configs.name}:imports:prepareImportDocs`,
+          async args => ({
+            status: 'success',
+            data: await imports.prepareImportDocs(args)
+          })
+        );
+      }
+
+      if (imports.insertImportItems) {
+        consumeRPCQueue(
+          `${configs.name}:imports:insertImportItems`,
+          async args => ({
+            status: 'success',
+            data: await imports.insertImportItems(args)
+          })
+        );
+      }
+    }
+
+    if (exporter) {
+      if (exporter.prepareExportData) {
+        consumeRPCQueue(
+          `${configs.name}:exporter:prepareExportData`,
+          async args => ({
+            status: 'success',
+            data: await exporter.prepareExportData(args)
+          })
+        );
+      }
+    }
+
+    if (automations) {
+      if (automations.receiveActions) {
+        consumeRPCQueue(
+          `${configs.name}:automations.receiveActions`,
+          async args => ({
+            status: 'success',
+            data: await automations.receiveActions(args)
+          })
+        );
+      }
+    }
+
+    if (initialSetup) {
+      if (initialSetup.generate) {
+        initialSetup.generateAvailable = true;
+
+        consumeQueue(`${configs.name}:initialSetup`, async args => ({
+          status: 'success',
+          data: await initialSetup.generate(args)
+        }));
+
+        app.post('/initial-setup', async (req, res) => {
+          await initialSetup.generate({ subdomain: getSubdomain(req) });
+          return res.end('ok');
+        });
+      }
+    }
+
+    if (search) {
+      configs.meta.isSearchable = true;
+
+      consumeRPCQueue(`${configs.name}:search`, async args => ({
+        status: 'success',
+        data: await search(args)
+      }));
+    }
+
+    if (cronjobs) {
+      if (cronjobs.handleMinutelyJob) {
+        cronjobs.handleMinutelyJobAvailable = true;
+
+        consumeQueue(`${configs.name}:handleMinutelyJob`, async args => ({
+          status: 'success',
+          data: await cronjobs.handleMinutelyJob(args)
+        }));
+      }
+
+      if (cronjobs.handle10MinutelyJob) {
+        cronjobs.handle10MinutelyJobAvailable = true;
+
+        consumeQueue(`${configs.name}:handle10MinutelyJob`, async args => ({
+          status: 'success',
+          data: await cronjobs.handle10MinutelyJob(args)
+        }));
+      }
+
+      if (cronjobs.handleHourlyJob) {
+        cronjobs.handleHourlyJobAvailable = true;
+
+        consumeQueue(`${configs.name}:handleHourlyJob`, async args => ({
+          status: 'success',
+          data: await cronjobs.handleHourlyJob(args)
+        }));
+      }
+
+      if (cronjobs.handleDailyJob) {
+        cronjobs.handleDailyJobAvailable = true;
+
+        consumeQueue(`${configs.name}:handleDailyJob`, async args => ({
+          status: 'success',
+          data: await cronjobs.handleDailyJob(args)
+        }));
+      }
+    }
+  } // end configs.meta if
+
+  await join({
+    name: configs.name,
+    port: PORT || '',
+    dbConnectionString: mongoUrl,
+    hasSubscriptions: configs.hasSubscriptions,
+    importExportTypes: configs.importExportTypes,
+    meta: configs.meta
+  });
+
+  configs.onServerInit({
+    db,
+    app,
+    redis,
+    pubsubClient: pubsub,
+    messageBrokerClient,
+    debug: {
+      info: debugInfo,
+      error: debugError
+    }
+  });
+
+  if (configs.freeSubscriptions) {
+    const wsServer = new ws.Server({
+      server: httpServer,
+      path: '/subscriptions'
+    });
+
+    await configs.freeSubscriptions(wsServer);
   }
+
+  debugInfo(`${configs.name} server is running on port: ${PORT}`);
 }
 
 startServer();

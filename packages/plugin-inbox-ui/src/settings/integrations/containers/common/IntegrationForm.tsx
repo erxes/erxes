@@ -1,5 +1,8 @@
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import CallPro from '../../components/callpro/Form';
+import OutgoingWebHookFrom from '../../components/outgoing-webhook/Form';
+import WebHookForm from '../../components/webhook/Form';
 import React from 'react';
 import { getRefetchQueries } from '@erxes/ui-inbox/src/settings/integrations/containers/utils';
 import { mutations } from '@erxes/ui-inbox/src/settings/integrations/graphql';
@@ -17,6 +20,12 @@ type State = {
 
 type FinalProps = {} & IRouterProps & Props;
 
+const INTEGRATION_FORM = {
+  callpro: CallPro,
+  webhook: WebHookForm,
+  'outgoing-webhook': OutgoingWebHookFrom
+};
+
 class IntegrationFormContainer extends React.Component<FinalProps, State> {
   constructor(props: FinalProps) {
     super(props);
@@ -28,12 +37,7 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
     this.setState({ channelIds: values });
   };
 
-  renderButton = ({
-    name,
-    values,
-    isSubmitted,
-    callback
-  }: IButtonMutateProps) => {
+  renderButton = ({ values, isSubmitted, callback }: IButtonMutateProps) => {
     const { type } = this.props;
 
     return (
@@ -44,7 +48,7 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
         isSubmitted={isSubmitted}
         refetchQueries={getRefetchQueries(type)}
         type="submit"
-        successMessage={`You successfully added a ${type} ${name}`}
+        successMessage={`You successfully added a ${type}`}
       />
     );
   };
@@ -60,7 +64,18 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
       onChannelChange: this.onChannelChange
     };
 
-    return loadDynamicComponent('inboxIntegrationForm', updatedProps);
+    if (['imap'].includes(type)) {
+      return loadDynamicComponent(
+        'inboxIntegrationForm',
+        updatedProps,
+        false,
+        type
+      );
+    }
+
+    const Component = INTEGRATION_FORM[type];
+
+    return <Component {...updatedProps} />;
   }
 }
 

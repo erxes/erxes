@@ -1,3 +1,4 @@
+import { ConversationMessages } from './../../plugin-integrations-api/src/facebook/models';
 import {
   receiveIntegrationsNotification,
   receiveRpcMessage
@@ -190,6 +191,16 @@ export const initBroker = cl => {
       const models = await generateModels(subdomain);
 
       return models.Conversations.removeCustomersConversations(customerIds);
+    }
+  );
+
+  consumeQueue(
+    'inbox:removeConversation',
+    async ({ subdomain, data: { _id } }) => {
+      const models = await generateModels(subdomain);
+
+      await models.ConversationMessages.deleteMany({ conversationId: _id });
+      return models.Conversations.deleteOne({ _id });
     }
   );
 
