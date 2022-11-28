@@ -180,7 +180,7 @@ class WorkArea extends React.Component<FinalProps, State> {
 
           // send desktop notification
           sendDesktopNotification({
-            title: NOTIFICATION_TYPE[kind],
+            title: NOTIFICATION_TYPE[kind] || `You have a new ${kind} message`,
             content: strip(message.content) || ''
           });
 
