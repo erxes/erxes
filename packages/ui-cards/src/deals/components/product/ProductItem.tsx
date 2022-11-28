@@ -124,7 +124,7 @@ class ProductItem extends React.Component<Props, State> {
     }
   };
 
-  onChangeCategory = (categoryId: string, []) => {
+  onChangeCategory = (categoryId: string) => {
     this.setState({ categoryId });
   };
 

@@ -4,7 +4,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Table from '@erxes/ui/src/components/table';
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __, Alert, generateCategoryOptions } from '@erxes/ui/src/utils';
+import { __, Alert } from '@erxes/ui/src/utils';
 import { IProduct } from '@erxes/ui-products/src/types';
 import React from 'react';
 import {
@@ -25,7 +25,7 @@ import PaymentForm from './PaymentForm';
 import ProductItem from '../../containers/product/ProductItem';
 import ProductTotal from './ProductTotal';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { ControlLabel, FormGroup } from '@erxes/ui/src/components';
+import { ControlLabel } from '@erxes/ui/src/components';
 import ProductCategoryChooser from '@erxes/ui-products/src/components/ProductCategoryChooser';
 
 type Props = {
@@ -192,7 +192,7 @@ class ProductForm extends React.Component<Props, State> {
     const filterSearch = localStorage.getItem('dealProductSearch');
     const filterParentCategory = localStorage.getItem('dealCategoryParentId');
     const filterCategoryIds = JSON.parse(
-      localStorage.getItem('dealCategoryIds') || '{}'
+      localStorage.getItem('dealCategoryIds') || '[]'
     );
 
     let filteredProductsData = productsData;

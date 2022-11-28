@@ -24,7 +24,7 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 type Props = {
   data: { name: string; products: IProduct[] };
   categoryId: string;
-  onChangeCategory: (categoryParentId: string, categoryIds: string[]) => void;
+  onChangeCategory: (categoryParentId: string) => void;
   closeModal: () => void;
   onSelect: (products: IProduct[]) => void;
   loadDiscountPercent?: (productsData: any) => void;
