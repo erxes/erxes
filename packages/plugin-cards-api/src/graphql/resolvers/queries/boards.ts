@@ -896,6 +896,6 @@ const boardQueries = {
   }
 };
 
-// moduleRequireLogin(boardQueries);
+moduleRequireLogin(boardQueries);
 
 export default boardQueries;
