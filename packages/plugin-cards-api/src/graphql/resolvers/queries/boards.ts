@@ -823,16 +823,16 @@ const boardQueries = {
       return [];
     }
 
-    const TimeZone = Number(process.env.TIMEZONE || 0) * 1000 * 60 * 60;
+    const timezone = Number(process.env.TIMEZONE || 0) * 1000 * 60 * 60;
 
     const pipeline = await models.Pipelines.getPipeline(pipelineId);
 
     const latestStartDate = new Date(
-      intervals[0].startTime.getTime() - TimeZone
+      intervals[0].startTime.getTime() - timezone
     );
 
     const latestEndDate = new Date(
-      intervals[intervals.length - 1].endTime.getTime() - TimeZone
+      intervals[intervals.length - 1].endTime.getTime() - timezone
     );
 
     const { collection } = getCollection(models, pipeline.type);
@@ -843,8 +843,15 @@ const boardQueries = {
 
     const tags = await sendTagsMessage({
       subdomain,
-      action: 'getTagChildIds',
-      data: { parentId: pipeline.tagId },
+      action: 'withChilds',
+      data: {
+        query: {
+          _id: pipeline.tagId
+        },
+        fields: {
+          _id: 1
+        }
+      },
       isRPC: true
     });
 
@@ -868,9 +875,9 @@ const boardQueries = {
     );
 
     for (const interval of intervals) {
-      const startDate = new Date(interval.startTime.getTime() - TimeZone);
+      const startDate = new Date(interval.startTime.getTime() - timezone);
 
-      const endDate = new Date(interval.endTime.getTime() - TimeZone);
+      const endDate = new Date(interval.endTime.getTime() - timezone);
 
       const checkingItems = items.filter(
         item => item.startDate < endDate && item.closeDate > startDate
@@ -889,6 +896,6 @@ const boardQueries = {
   }
 };
 
-moduleRequireLogin(boardQueries);
+// moduleRequireLogin(boardQueries);
 
 export default boardQueries;

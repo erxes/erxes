@@ -41,20 +41,21 @@ export const initBroker = async cl => {
   });
 
   consumeRPCQueue(
-    'tags:getTagChildIds',
-    async ({ subdomain, data: { parentId } }) => {
+    'tags:withChilds',
+    async ({ subdomain, data: { query, fields } }) => {
       const models = await generateModels(subdomain);
 
-      const tag = await models.Tags.getTag(parentId);
-
-      const tags =
-        tag.order &&
-        (await models.Tags.find({
-          order: { $regex: new RegExp(escapeRegExp(tag.order), 'i') }
-        }).lean());
+      const tag = await models.Tags.getTag(query._id);
 
       return {
-        data: tags,
+        data: await models.Tags.find(
+          {
+            order: { $regex: new RegExp(escapeRegExp(tag.order || ''), 'i') }
+          },
+          fields
+        )
+          .sort({ order: 1 })
+          .lean(),
         status: 'success'
       };
     }
