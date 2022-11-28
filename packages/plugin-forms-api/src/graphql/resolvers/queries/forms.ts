@@ -1,8 +1,8 @@
-import { checkPermission } from "@erxes/api-utils/src/permissions";
-import { IContext } from "../../../connectionResolver";
-import { sendInboxMessage } from "../../../messageBroker";
-import { IFormSubmissionFilter } from "../../../models/definitions/forms";
-import { formSubmissionsQuery } from "../../../utils";
+import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { IContext, IModels } from '../../../connectionResolver';
+import { sendInboxMessage } from '../../../messageBroker';
+import { IFormSubmissionFilter } from '../../../models/definitions/forms';
+import { formSubmissionsQuery } from '../../../utils';
 
 const formQueries = {
   /**
@@ -25,6 +25,7 @@ const formQueries = {
       formId,
       tagId,
       contentTypeIds,
+      customerId,
       filters,
       page,
       perPage
@@ -32,6 +33,7 @@ const formQueries = {
       formId: string;
       tagId: string;
       contentTypeIds: string[];
+      customerId: string;
       filters: IFormSubmissionFilter[];
       page: number;
       perPage: number;
@@ -42,12 +44,13 @@ const formQueries = {
       formId,
       tagId,
       contentTypeIds,
+      customerId,
       filters
     });
 
     const conversations = await sendInboxMessage({
       subdomain,
-      action: "getConversationsList",
+      action: 'getConversationsList',
       data: { query: convsSelector, listParams: { page, perPage } },
       isRPC: true,
       defaultValue: []
@@ -74,11 +77,13 @@ const formQueries = {
       formId,
       tagId,
       contentTypeIds,
+      customerId,
       filters
     }: {
       formId: string;
       tagId: string;
       contentTypeIds: string[];
+      customerId: string;
       filters: IFormSubmissionFilter[];
     },
     { subdomain, models }: IContext
@@ -87,19 +92,33 @@ const formQueries = {
       formId,
       tagId,
       contentTypeIds,
+      customerId,
       filters
     });
 
     return await sendInboxMessage({
       subdomain,
-      action: "conversations.count",
+      action: 'conversations.count',
       data: { query: convsSelector },
       isRPC: true,
       defaultValue: []
     });
+  },
+
+  formSubmissionDetail: async (_root, params, { models }: IContext) => {
+    const { contentTypeId } = params;
+
+    const submissions = await models.FormSubmissions.find({
+      contentTypeId
+    }).lean();
+
+    return {
+      contentTypeId,
+      submissions
+    };
   }
 };
 
-checkPermission(formQueries, "forms", "showForms", []);
+checkPermission(formQueries, 'forms', 'showForms', []);
 
 export default formQueries;
