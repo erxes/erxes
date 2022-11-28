@@ -64,15 +64,13 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
       onChannelChange: this.onChannelChange
     };
 
-    const dynamicComponent = loadDynamicComponent(
-      'inboxIntegrationForm',
-      updatedProps,
-      false,
-      type
-    );
-
-    if (dynamicComponent) {
-      return dynamicComponent;
+    if (['imap'].includes(type)) {
+      return loadDynamicComponent(
+        'inboxIntegrationForm',
+        updatedProps,
+        false,
+        type
+      );
     }
 
     const Component = INTEGRATION_FORM[type];
