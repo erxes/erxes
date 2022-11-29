@@ -1,6 +1,7 @@
-import { Input } from '@erxes/ui/src/components/form/styles';
 import { colors, dimensions } from '@erxes/ui/src/styles';
+
 import { Flex } from '@erxes/ui/src/styles/main';
+import { Input } from '@erxes/ui/src/components/form/styles';
 import { darken } from '@erxes/ui/src/styles/ecolor';
 import { highlight } from '@erxes/ui/src/utils/animations';
 import styled from 'styled-components';
@@ -66,6 +67,16 @@ const FooterInfo = styled.div`
   }
 `;
 
+const FlexSpace = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+const FlexRowGap = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+`;
+
 const Add = styled.div`
   display: block;
   margin: 20px;
@@ -119,6 +130,7 @@ const ProductName = styled.a`
   cursor: pointer;
   color: ${colors.textSecondary};
   display: flex;
+  align-items: center;
   justify-content: space-between;
 
   > i {
@@ -310,5 +322,7 @@ export {
   ProductSettings,
   VoucherCard,
   RemoveRow,
-  VoucherContainer
+  VoucherContainer,
+  FlexSpace,
+  FlexRowGap
 };
