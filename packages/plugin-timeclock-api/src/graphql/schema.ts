@@ -51,6 +51,7 @@ export const types = `
     recordedStart: Date
     recordedEnd: Date
     minsLate: Int
+    minsWorked: Int
   }
 
   type UserReport{
@@ -58,6 +59,7 @@ export const types = `
     scheduleReport: [ScheduleReport]
     totalMinsLate: Int
     totalAbsenceMins: Int
+    totalMinsWorked: Int
   }
 
   type Report {
@@ -65,6 +67,7 @@ export const types = `
     groupReport: [UserReport]
     groupTotalMinsLate: Int
     groupTotalAbsenceMins: Int
+    groupTotalMinsWorked: Int
   }
 `;
 export const queries = `

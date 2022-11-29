@@ -68,7 +68,6 @@ function ReportList(props: Props) {
     deptId,
     reports
   } = props;
-  console.log('comp', reports);
   const [selectedBranchId, setBranches] = useState(['']);
   const [selectedDeptId, setDepartments] = useState('');
   const [selectedType, setType] = useState('');
@@ -78,11 +77,9 @@ function ReportList(props: Props) {
         <tr>
           <th>{__('Team member')}</th>
           <th>{__('Shift date')}</th>
-          <th>{__('Arrival')}</th>
-          <th>{__('Shift start')}</th>
-          <th>{__('Departure')}</th>
-          <th>{__('Shift end')}</th>
+          <th>{__('Shift duration')}</th>
           <th>{__('Mins late')}</th>
+          <th>{__('Shifts total')}</th>
           <th>{__('Total mins late')}</th>
           <th>{__('Total mins absent')}</th>
         </tr>

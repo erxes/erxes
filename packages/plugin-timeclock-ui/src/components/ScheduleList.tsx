@@ -1,6 +1,6 @@
 import Button from '@erxes/ui/src/components/Button';
 import { menuTimeClock } from '../menu';
-import { __ } from '@erxes/ui/src/utils';
+import { router, __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -9,8 +9,16 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import DatePicker from './DatePicker';
+import DateRange from './DateRange';
+import DateFilter from '@erxes/ui/src/components/DateFilter';
+import dayjs from 'dayjs';
+import DatePicker from './DateTimePicker';
 import { ISchedule } from '../types';
+import styledTS from 'styled-components-ts';
+import styled from 'styled-components';
+import { colors, dimensions } from '@erxes/ui/src/styles';
+import ScheduleConfig from './ScheduleConfig';
+import Select from 'react-select-plus';
 
 type Props = {
   scheduleOfMembers: any;
@@ -21,6 +29,62 @@ type Props = {
   submitRequest: (userId: string[], filledShifts: any) => void;
   submitShift: (userIds: string[], filledShifts: any) => void;
 };
+
+const Datetime = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "Datetime" */ '@nateradebaugh/react-datetime')
+  // import('react-time-picker')
+);
+
+const Input = styledTS<{ round?: boolean; hasError?: boolean; align?: string }>(
+  styled.input
+)`
+  border: none;
+  width: 100%;
+  padding: ${dimensions.unitSpacing}px 0;
+  color: ${colors.textPrimary};
+  border-bottom: 1px solid;
+  border-color:${props =>
+    props.hasError ? colors.colorCoreRed : colors.colorShadowGray};
+  background: none;
+  transition: all 0.3s ease;
+
+  ${props => {
+    if (props.round) {
+      return `
+        font-size: 13px;
+        border: 1px solid ${colors.borderDarker};
+        border-radius: 20px;
+        padding: 5px 20px;
+      `;
+    }
+
+    return '';
+  }};
+
+  ${props => {
+    if (props.align) {
+      return `
+        text-align: ${props.align};
+      `;
+    }
+
+    return '';
+  }};
+
+  &:hover {
+    border-color: ${colors.colorLightGray};
+  }
+
+  &:focus {
+    outline: none;
+    border-color: ${colors.colorSecondary};
+  }
+
+  ::placeholder {
+    color: #aaa;
+  }
+`;
 
 function ScheduleList(props: Props) {
   const {
@@ -33,7 +97,7 @@ function ScheduleList(props: Props) {
     solveShift
   } = props;
 
-  const [key_counter, setKeyCounter] = useState(0);
+  const [dateKeyCounter, setKeyCounter] = useState('');
   const [userIds, setUserIds] = useState(['']);
 
   const trigger = (
@@ -47,7 +111,33 @@ function ScheduleList(props: Props) {
       Create Request - Admin
     </Button>
   );
+
+  const adminConfigTrigger = (
+    <Button id="timeClockButton2" btnStyle="success" icon="plus-circle">
+      Schedule Configuration - Admin
+    </Button>
+  );
+  const [dateRangeStart, setDateStart] = useState(new Date());
+  const [dateRangeEnd, setDateEnd] = useState(new Date());
   const [scheduleDates, setScheduleDates] = useState<ISchedule>({});
+  const [contentType, setContentType] = useState('');
+  const [configDays, setConfigDays] = useState<ISchedule>({
+    Monday: { display: true },
+    Tuesday: { display: true },
+    Wednesday: { display: true },
+    Thursday: { display: true },
+    Friday: { display: true },
+    Saturday: { display: true },
+    Sunday: { display: true }
+  });
+
+  const onRemoveDate = day_key => {
+    delete scheduleDates[day_key];
+    setScheduleDates({
+      ...scheduleDates
+    });
+    setKeyCounter(Object.keys(scheduleDates).at(-1) || '');
+  };
 
   const onDateChange = (day_key, selectedDate) => {
     const newDate = { ...scheduleDates[day_key], shiftStart: selectedDate };
@@ -63,7 +153,7 @@ function ScheduleList(props: Props) {
 
   const onEndTimeChange = (day_key, time) => {
     const getCorrectDateTime = new Date(
-      scheduleDates[day_key].shiftStart.toDateString() +
+      scheduleDates[day_key].shiftStart?.toDateString() +
         ',' +
         time.toTimeString()
     );
@@ -85,13 +175,20 @@ function ScheduleList(props: Props) {
 
   const addDay = () => {
     const dates = scheduleDates;
-    dates[key_counter] = {
-      shiftStart: new Date(),
-      shiftEnd: new Date()
-    };
-    setScheduleDates(dates);
+    const getLatestDayKey = dateKeyCounter
+      ? dayjs(dateKeyCounter)
+          .add(1, 'day')
+          .toDate()
+          .toDateString()
+      : new Date().toDateString();
 
-    setKeyCounter(key_counter + 1);
+    dates[getLatestDayKey] = {
+      shiftStart: new Date(getLatestDayKey),
+      shiftEnd: new Date(getLatestDayKey)
+    };
+
+    setScheduleDates(dates);
+    setKeyCounter(getLatestDayKey);
   };
 
   const renderWeekDays = () => {
@@ -100,11 +197,12 @@ function ScheduleList(props: Props) {
         {Object.keys(scheduleDates).map(date_key => {
           return (
             <DatePicker
-              startTime_value={scheduleDates[date_key].shiftStart}
-              endTime_value={scheduleDates[date_key].shiftEnd}
+              startTime_value={scheduleDates[date_key].shiftStart || new Date()}
+              endTime_value={scheduleDates[date_key].shiftEnd || new Date()}
               key={date_key}
               curr_day_key={date_key}
               changeDate={onDateChange}
+              removeDate={onRemoveDate}
               changeEndTime={onEndTimeChange}
               changeStartTime={onStartTimeChange}
             />
@@ -166,6 +264,207 @@ function ScheduleList(props: Props) {
     </div>
   );
 
+  const toggleWeekDays = dayKey => {
+    const oldConfigBoolean = {
+      ...configDays[dayKey],
+      display: !configDays[dayKey].display
+    };
+    const newConfigDays = { ...configDays, [dayKey]: oldConfigBoolean };
+    setConfigDays(newConfigDays);
+  };
+
+  const renderWeekendSettings = () => {
+    return (
+      <>
+        {Object.keys(configDays).map(weekDay => (
+          <ScheduleConfig
+            key={weekDay}
+            weekDay={weekDay}
+            toggleWeekDays={toggleWeekDays}
+          />
+        ))}
+      </>
+    );
+  };
+
+  const renderConfigDays = () => {
+    return Object.keys(configDays).map(configDay => {
+      return (
+        <div
+          key={configDay}
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between'
+          }}
+        >
+          {configDays[configDay].display && (
+            <>
+              {configDay}
+              <div style={{ display: 'flex', flexDirection: 'row' }}>
+                <Datetime
+                  defaultValue={new Date()}
+                  dateFormat={false}
+                  timeIntervals={15}
+                  timeFormat="hh:mm a"
+                />
+                <Datetime
+                  defaultValue={new Date()}
+                  dateFormat={false}
+                  timeIntervals={15}
+                  timeFormat="hh:mm a"
+                />
+              </div>
+            </>
+          )}
+        </div>
+      );
+    });
+  };
+  const onDateRangeStartChange = (newStart: Date) => {
+    setDateStart(newStart);
+  };
+  const onDateRangeEndChange = (newEnd: Date) => {
+    setDateEnd(newEnd);
+  };
+
+  const onSaveDateRange = () => {
+    const format = 'YYYY-MM-DD HH:mm';
+    const formattedStartDate = dayjs(dateRangeStart).format(format);
+    const formattedEndDate = dayjs(dateRangeEnd).format(format);
+
+    router.setParams(history, {
+      startDate: formattedStartDate,
+      endDate: formattedEndDate
+    });
+
+    const totalDatesArray: string[] = [];
+
+    let temp = dayjs(dateRangeStart);
+    const endRange = dayjs(dateRangeEnd);
+    while (temp <= endRange) {
+      totalDatesArray.push(temp.toDate().toDateString());
+      temp = temp.add(1, 'day');
+    }
+
+    const newDatesByRange: ISchedule = scheduleDates;
+
+    for (const eachDay of totalDatesArray) {
+      newDatesByRange[eachDay] = {
+        shiftStart: new Date(eachDay),
+        shiftEnd: new Date(eachDay)
+      };
+      setKeyCounter(eachDay);
+    }
+
+    const difference = Object.keys(newDatesByRange).filter(
+      x => !totalDatesArray.includes(x)
+    );
+
+    for (const removeKey of difference) {
+      delete newDatesByRange[removeKey];
+    }
+
+    setScheduleDates(newDatesByRange);
+  };
+
+  const adminConfigByDate = () => {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <DateRange
+          startDate={dateRangeStart}
+          endDate={dateRangeEnd}
+          onChangeEnd={onDateRangeEndChange}
+          onChangeStart={onDateRangeStartChange}
+          onSaveButton={onSaveDateRange}
+        />
+        {renderWeekDays()}
+      </div>
+    );
+  };
+
+  const adminConfigByDay = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <strong>Set as Weekend</strong>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-between'
+        }}
+      >
+        {renderWeekendSettings()}
+      </div>
+      {renderConfigDays()}
+      <div>
+        <div>
+          <strong>Repeat Cycle</strong>
+        </div>
+        <Input
+          type="number"
+          name="cycleNumber"
+          placeholder="Please input number"
+          // onChange={setInputValue}
+        />
+        <Select
+          value={contentType}
+          onChange={onContentTypeSelect}
+          placeholder="How long"
+          options={['Days', 'Weeks', 'Months'].map(day => ({
+            value: day,
+            label: __(day)
+          }))}
+        />
+      </div>
+    </div>
+  );
+
+  const onContentTypeSelect = contntType => {
+    localStorage.setItem('contentType', JSON.stringify(contntType));
+    const contType = JSON.parse(localStorage.getItem('contentType') || '[]')
+      .value;
+    setContentType(contType);
+  };
+
+  const defaultContent = () => {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <SelectTeamMembers
+          queryParams={queryParams}
+          label={'Team member'}
+          onSelect={onUserSelect}
+          name="userId"
+        />
+        <Select
+          value={contentType}
+          onChange={onContentTypeSelect}
+          placeholder="Select Content Type"
+          options={['By Date Range', 'By Week Day'].map(day => ({
+            value: day,
+            label: __(day)
+          }))}
+        />
+        {contentType === 'By Date Range'
+          ? adminConfigByDate()
+          : adminConfigByDay()}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'center'
+          }}
+        >
+          <Button style={{ marginTop: 10 }} onClick={addDay}>
+            Add day
+          </Button>
+          <Button style={{ marginTop: 10 }} onClick={onAdminSubmitClick}>
+            {'Submit'}
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
   const actionBarRight = (
     <>
       <ModalTrigger
@@ -174,9 +473,15 @@ function ScheduleList(props: Props) {
         content={modalContent}
       />
       <ModalTrigger
-        title={__('Send schedule request - Admin')}
+        title={__('Create schedule - Admin')}
         trigger={adminTrigger}
         content={adminModalContent}
+      />
+      <ModalTrigger
+        size="lg"
+        title={__('Schedule config - Admin')}
+        trigger={adminConfigTrigger}
+        content={defaultContent}
       />
     </>
   );
@@ -201,6 +506,7 @@ function ScheduleList(props: Props) {
       wideSpacing={true}
     />
   );
+
   const ListShiftContent = shifts => {
     return (
       <>
@@ -257,37 +563,10 @@ function ScheduleList(props: Props) {
         </td>
       </>
     );
-
-    // <>
-    //   <div>{new Date(shift.shiftStart).toLocaleTimeString()} start</div>
-    //   <div>{shift.shiftEnd} end</div>
-    //   <td>
-    //     {shift.solved ? (
-    //       __(shift.status)
-    //     ) : (
-    //       <>
-    //         <Button
-    //           disabled={shift.solved}
-    //           btnStyle="success"
-    //           onClick={() => solveShift(shift._id, 'Approved')}
-    //         >
-    //           Approve
-    //         </Button>
-    //         <Button
-    //           btnStyle="danger"
-    //           onClick={() => solveShift(shift._id, 'Rejected')}
-    //         >
-    //           Reject
-    //         </Button>
-    //       </>
-    //     )}
-    //   </td>
-    // </>
-    // );
   };
   const ListScheduleContent = schedule => {
     return (
-      <tr style={{}}>
+      <tr>
         <td>
           <NameCard user={schedule.user} />
         </td>

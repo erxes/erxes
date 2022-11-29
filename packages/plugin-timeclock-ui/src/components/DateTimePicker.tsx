@@ -1,5 +1,7 @@
 import React from 'react';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import Button from '@erxes/ui/src/components/Button';
+import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
   // day_value: Date;
@@ -9,6 +11,7 @@ type Props = {
   changeDate: (day_key: string, time: Date) => void;
   changeStartTime: (day_key: string, time: Date) => void;
   changeEndTime: (day_key: string, time: Date) => void;
+  removeDate: (day_key: string) => void;
 };
 
 const Datetime = asyncComponent(
@@ -22,6 +25,7 @@ const DatePicker = (props: Props) => {
     changeDate,
     changeEndTime,
     changeStartTime,
+    removeDate,
     curr_day_key,
     // day_value,
     startTime_value,
@@ -38,6 +42,10 @@ const DatePicker = (props: Props) => {
 
   const onEndTimeChange = val => {
     changeEndTime(curr_day_key, val);
+  };
+
+  const onDeleteDate = () => {
+    removeDate(curr_day_key);
   };
 
   return (
@@ -62,6 +70,9 @@ const DatePicker = (props: Props) => {
         timeFormat="hh:mm a"
         onChange={onEndTimeChange}
       />
+      <Tip text="Delete" placement="top">
+        <Button btnStyle="link" onClick={onDeleteDate} icon="times-circle" />
+      </Tip>
     </div>
   );
 };

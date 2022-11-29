@@ -2,15 +2,17 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import List from '../components/List';
+import TimeForm from '../components/TimeForm';
 import { TimeClockMutationResponse, TimeClockQueryResponse } from '../types';
-import { mutations, queries } from '../graphql';
+import { mutations } from '../graphql';
 import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { IUser } from '@erxes/ui/src/auth/types';
+import { ITimeclock } from '../types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 
 type Props = {
+  timeclocks: ITimeclock[];
   currentUser: IUser;
   queryParams: any;
   history: any;
@@ -23,25 +25,16 @@ type Props = {
   queryUserId: string;
 };
 
-type FinalProps = {
-  listQuery: TimeClockQueryResponse;
-} & Props &
-  TimeClockMutationResponse;
+type FinalProps = {} & Props & TimeClockMutationResponse;
 
 const ListContainer = (props: FinalProps) => {
   const {
-    listQuery,
+    timeclocks,
     startTimeMutation,
     stopTimeMutation,
     currentUser,
-    queryEndDate,
-    queryStartDate,
     queryUserId
   } = props;
-
-  if (listQuery.loading) {
-    return <Spinner />;
-  }
 
   const currentUserId = queryUserId || currentUser._id;
 
@@ -79,33 +72,15 @@ const ListContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     currentUserId,
-    timeclocks: listQuery.timeclocks || [],
+    timeclocks,
     startClockTime,
-    stopClockTime,
-    // shiftStarted,
-    loading: listQuery.loading
+    stopClockTime
   };
-  return <List {...updatedProps} />;
+  return <TimeForm {...updatedProps} currentUserId={currentUserId} />;
 };
 
 export default withProps<Props>(
   compose(
-    graphql<
-      Props,
-      TimeClockQueryResponse,
-      { startDate: string; endDate: string; userId: string }
-    >(gql(queries.list), {
-      name: 'listQuery',
-      options: ({ queryStartDate, queryEndDate, queryUserId }) => ({
-        variables: {
-          startDate: queryStartDate,
-          endDate: queryEndDate,
-          userId: queryUserId
-        },
-        fetchPolicy: 'network-only'
-      })
-    }),
-
     graphql<Props, TimeClockMutationResponse, { time: Date; userId: string }>(
       gql(mutations.clockStart),
       {

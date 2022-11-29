@@ -23,6 +23,7 @@ export interface IReport {
   groupReport: IUserReport[];
   groupTotalMinsLate: number;
   groupTotalAbsenceMins?: number;
+  groupTotalMinsWorked?: number;
 }
 
 export interface IUserReport {
@@ -30,6 +31,7 @@ export interface IUserReport {
   scheduleReport: IScheduleReport[];
   totalMinsLate?: number;
   totalAbsenceMins?: number;
+  totalMinsWorked?: number;
 }
 
 export interface IScheduleReport {
@@ -39,6 +41,7 @@ export interface IScheduleReport {
   recordedStart?: Date;
   recordedEnd?: Date;
   minsLate?: number;
+  minsWorked?: number;
 }
 
 export interface IShift {
@@ -54,9 +57,10 @@ export interface IShiftSchedule {
 }
 
 export interface ISchedule {
-  [key: number]: {
-    shiftStart: Date;
-    shiftEnd: Date;
+  [key: string]: {
+    display?: boolean;
+    shiftStart?: Date;
+    shiftEnd?: Date;
   };
 }
 

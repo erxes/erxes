@@ -51,61 +51,9 @@ type Props = {
   currentDate?: string;
 };
 
-type State = {
-  today: string;
-  thisWeek: string[];
-};
-
-const addDaysOfWeek = (today: Date): string[] => {
-  let diffFromMon = today.getDay() - 1;
-  const diffFromSun = 7 - today.getDay();
-  const currWeek: string[] = [];
-
-  while (diffFromMon !== 0) {
-    currWeek.push(
-      dayjs(today)
-        .add(-diffFromMon, 'day')
-        .toDate()
-        .toDateString()
-    );
-    diffFromMon -= 1;
-  }
-  currWeek.push(today.toDateString());
-  for (let i = 1; i <= diffFromSun; i++) {
-    currWeek.push(
-      dayjs(today)
-        .add(i, 'day')
-        .toDate()
-        .toDateString()
-    );
-  }
-
-  return currWeek;
-};
-
-class LeftSideBar extends React.Component<Props, State> {
-  trigger = (
-    <Button
-      id={'AddTypeButton'}
-      btnStyle="success"
-      icon="plus-circle"
-      block={true}
-    >
-      Create Category
-    </Button>
-  );
-
-  editTrigger = (
-    <Button btnStyle="link">
-      <Tip text={__('Edit')}>
-        <Icon icon="edit-3" />
-      </Tip>
-    </Button>
-  );
-
-  constructor(props: Props) {
+class LeftSideBar extends React.Component<Props> {
+  constructor(props) {
     super(props);
-    // const { currentDate } = this.props;
   }
 
   onUserSelect = userId => {
@@ -129,13 +77,6 @@ class LeftSideBar extends React.Component<Props, State> {
   }
 
   render() {
-    this.state = {
-      today: dayjs()
-        .toDate()
-        .toDateString(),
-      thisWeek: addDaysOfWeek(new Date())
-    };
-
     const { queryParams, history } = this.props;
     return (
       <Sidebar wide={true} full={true} header={this.renderSidebarHeader()}>

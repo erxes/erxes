@@ -121,13 +121,15 @@ const templateQueries = {
     interface IReport {
       groupTitle: string;
       groupReport: IUserReport[];
-      groupTotalMinsLate: number;
+      groupTotalMinsWorked?: number;
+      groupTotalMinsLate?: number;
       groupTotalAbsenceMins?: number;
     }
 
     interface IUserReport {
       userId?: string;
       scheduleReport: IScheduleReport[];
+      totalMinsWorked?: number;
       totalMinsLate?: number;
       totalAbsenceMins?: number;
     }
@@ -139,16 +141,18 @@ const templateQueries = {
       recordedStart?: Date;
       recordedEnd?: Date;
       minsLate?: number;
+      minsWorked?: number;
     }
 
     const finalReport: IReport[] = [];
 
     const returnReportByUserIds = async (
       userIds: string[]
-    ): Promise<[IUserReport[], number, number]> => {
+    ): Promise<[IUserReport[], number, number, number]> => {
       let idx = 0;
       const reports: IUserReport[] = [];
       let groupTotalAbsence = 0;
+      let groupTotalMinsWorked = 0;
 
       for (const userId of userIds) {
         const schedules = models.Schedules.find({ userId: `${userId}` });
@@ -176,14 +180,28 @@ const templateQueries = {
         ) {
           reports.push({ userId: `${userId}`, scheduleReport: [] });
 
+          let totalMinsWorkedPerUser = 0;
+
           for (const timeclock of await timeclocks) {
             const previousSchedules = reports[idx].scheduleReport;
+
+            const shiftDuration =
+              timeclock.shiftEnd &&
+              timeclock.shiftStart &&
+              Math.round(
+                (timeclock.shiftEnd.getTime() -
+                  timeclock.shiftStart.getTime()) /
+                  60000
+              );
+
+            totalMinsWorkedPerUser += shiftDuration || 0;
             reports[idx] = {
               ...reports[idx],
               scheduleReport: previousSchedules?.concat({
                 date: new Date(timeclock.shiftStart).toDateString(),
                 recordedStart: timeclock.shiftStart,
-                recordedEnd: timeclock.shiftEnd
+                recordedEnd: timeclock.shiftEnd,
+                minsWorked: shiftDuration
               })
             };
           }
@@ -218,20 +236,22 @@ const templateQueries = {
           }
 
           // calculate total absent mins per user
-          let totalAbsenceInMins = 0;
+          let totalAbsencePerUser = 0;
           for (const absence of await absences) {
             if (absence.startTime && absence.endTime) {
-              totalAbsenceInMins +=
+              totalAbsencePerUser +=
                 (absence.endTime.getTime() - absence.startTime.getTime()) /
                 60000;
             }
           }
           reports[idx] = {
             ...reports[idx],
-            totalAbsenceMins: Math.trunc(totalAbsenceInMins)
+            totalAbsenceMins: Math.trunc(totalAbsencePerUser),
+            totalMinsWorked: totalMinsWorkedPerUser
           };
 
-          groupTotalAbsence += Math.trunc(totalAbsenceInMins);
+          groupTotalMinsWorked += totalMinsWorkedPerUser;
+          groupTotalAbsence += Math.trunc(totalAbsencePerUser);
           idx += 1;
         }
       }
@@ -248,19 +268,17 @@ const templateQueries = {
             userSchedule.scheduleStart
           ) {
             const shiftStartDiff =
-              userSchedule.recordedStart?.getTime() -
+              userSchedule.recordedStart.getTime() -
               userSchedule.scheduleStart.getTime();
 
             const shiftEndDiff =
               userSchedule.scheduleEnd.getTime() -
-              userSchedule.recordedEnd?.getTime();
+              userSchedule.recordedEnd.getTime();
 
-            const sumMinsLate = Math.round(
-              (shiftEndDiff > 0
-                ? shiftEndDiff
-                : 0 + shiftStartDiff > 0
-                ? shiftStartDiff
-                : 0) / 60000
+            const sumMinsLate = Math.trunc(
+              ((shiftEndDiff > 0 ? shiftEndDiff : 0) +
+                (shiftStartDiff > 0 ? shiftStartDiff : 0)) /
+                60000
             );
 
             totalMinsLatePerUser += sumMinsLate;
@@ -270,6 +288,7 @@ const templateQueries = {
             };
           }
         });
+
         groupTotalMinsLate += totalMinsLatePerUser;
         reports[group_report_idx] = {
           ...userReport,
@@ -277,7 +296,12 @@ const templateQueries = {
         };
       });
 
-      return [reports, groupTotalMinsLate, groupTotalAbsence];
+      return [
+        reports,
+        groupTotalMinsLate,
+        groupTotalAbsence,
+        groupTotalMinsWorked
+      ];
     };
 
     if (departmentIds || branchIds) {
@@ -316,13 +340,15 @@ const templateQueries = {
         const [
           reportsReturned,
           totalMinsLatePerGroup,
-          totalAbsenceMinsPerGroup
+          totalAbsenceMinsPerGroup,
+          totalWorkedMinsPerGroup
         ] = await returnReportByUserIds(commonUserIds);
         finalReport.push({
           groupReport: [...reportsReturned],
           groupTitle: '',
           groupTotalMinsLate: totalMinsLatePerGroup,
-          groupTotalAbsenceMins: totalAbsenceMinsPerGroup
+          groupTotalAbsenceMins: totalAbsenceMinsPerGroup,
+          groupTotalMinsWorked: totalWorkedMinsPerGroup
         });
       } else {
         // for each department, push dept users' report with department title
@@ -331,14 +357,16 @@ const templateQueries = {
           const [
             departmentReport,
             totalMinsLatePerGroup,
-            totalAbsenceMinsPerGroup
+            totalAbsenceMinsPerGroup,
+            totalWorkedMinsPerGroup
           ] = await returnReportByUserIds(departmentUserIds);
 
           finalReport.push({
             groupReport: departmentReport.slice(),
             groupTitle: dept.title,
             groupTotalMinsLate: totalMinsLatePerGroup,
-            groupTotalAbsenceMins: totalAbsenceMinsPerGroup
+            groupTotalAbsenceMins: totalAbsenceMinsPerGroup,
+            groupTotalMinsWorked: totalWorkedMinsPerGroup
           });
         }
 
@@ -348,13 +376,15 @@ const templateQueries = {
           const [
             branchReport,
             totalMinsLatePerGroup,
-            totalAbsenceMinsPerGroup
+            totalAbsenceMinsPerGroup,
+            totalWorkedMinsPerGroup
           ] = await returnReportByUserIds(branchUserIds);
           finalReport.push({
             groupReport: [...branchReport],
             groupTitle: brnch.title,
             groupTotalMinsLate: totalMinsLatePerGroup,
-            groupTotalAbsenceMins: totalAbsenceMinsPerGroup
+            groupTotalAbsenceMins: totalAbsenceMinsPerGroup,
+            groupTotalMinsWorked: totalWorkedMinsPerGroup
           });
         }
       }

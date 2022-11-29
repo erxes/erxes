@@ -54,14 +54,7 @@ const addDaysOfWeek = (today: Date): string[] => {
 };
 
 function AbsenceList(props: Props) {
-  const {
-    queryParams,
-    history,
-    loading,
-    submitRequest,
-    absences,
-    solveAbsence
-  } = props;
+  const { queryParams, history, submitRequest, absences, solveAbsence } = props;
 
   const [explanation, setTextReason] = useState('');
   const shiftStarted = localStorage.getItem('shiftStarted') === 'true' || false;

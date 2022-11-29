@@ -110,12 +110,15 @@ const listReports = `
           recordedStart
           recordedEnd
           minsLate
+          minsWorked
         }
         totalMinsLate
         totalAbsenceMins
+        totalMinsWorked
       }
       groupTotalMinsLate
       groupTotalAbsenceMins
+      groupTotalMinsWorked
     }
   }`;
 

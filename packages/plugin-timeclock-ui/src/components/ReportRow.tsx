@@ -25,52 +25,14 @@ const ReportRow = (userReport: IUserReport) => {
       </td>
       <td>
         {userReport.scheduleReport.map(userSchedule => {
+          const shiftTimeFormatted =
+            userSchedule.minsWorked &&
+            `${Math.round(
+              userSchedule.minsWorked / 60
+            )}h : ${userSchedule.minsWorked || 0 % 60}m`;
           return (
             <>
-              <div>
-                {(userSchedule.recordedStart &&
-                  new Date(userSchedule.recordedStart).toLocaleTimeString()) ||
-                  '-'}
-              </div>
-            </>
-          );
-        })}
-      </td>
-      <td>
-        {userReport.scheduleReport.map(userSchedule => {
-          return (
-            <>
-              <div>
-                {(userSchedule.scheduleStart &&
-                  new Date(userSchedule.scheduleStart).toLocaleTimeString()) ||
-                  '-'}
-              </div>
-            </>
-          );
-        })}
-      </td>
-      <td>
-        {userReport.scheduleReport.map(userSchedule => {
-          return (
-            <>
-              <div>
-                {(userSchedule.recordedEnd &&
-                  new Date(userSchedule.recordedEnd).toLocaleTimeString()) ||
-                  '-'}
-              </div>
-            </>
-          );
-        })}
-      </td>
-      <td>
-        {userReport.scheduleReport.map(userSchedule => {
-          return (
-            <>
-              <div>
-                {(userSchedule.scheduleEnd &&
-                  new Date(userSchedule.scheduleEnd).toLocaleTimeString()) ||
-                  '-'}
-              </div>
+              <div>{shiftTimeFormatted || '-'}</div>
             </>
           );
         })}
@@ -84,6 +46,12 @@ const ReportRow = (userReport: IUserReport) => {
           );
         })}
       </td>
+      <td>
+        {userReport.totalMinsWorked &&
+          `${Math.round(
+            userReport.totalMinsWorked / 60
+          )}h : ${userReport.totalMinsWorked || 0 % 60}m`}
+      </td>
       <td>{userReport.totalMinsLate}</td>
       <td>{userReport.totalAbsenceMins}</td>
     </tr>
@@ -92,10 +60,6 @@ const ReportRow = (userReport: IUserReport) => {
 
 const ReportList = (props: Props) => {
   const { report, displayType } = props;
-
-  // const renderScheduledShifts = () => {} ;
-  console.log('nani', report);
-  console.log('nani', displayType);
   return (
     <tbody>
       {displayType === 'By Group' && (
@@ -110,11 +74,21 @@ const ReportList = (props: Props) => {
           <td>&nbsp;</td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td>{report.groupTotalMinsLate}</td>
-          <td>{report.groupTotalAbsenceMins}</td>
+          <td>
+            <strong>
+              {' '}
+              {report.groupTotalMinsWorked &&
+                `${Math.round(
+                  report.groupTotalMinsWorked / 60
+                )}h : ${report.groupTotalMinsWorked || 0 % 60}m`}
+            </strong>
+          </td>
+          <td>
+            <strong>{report.groupTotalMinsLate}</strong>
+          </td>
+          <td>
+            <strong>{report.groupTotalAbsenceMins}</strong>
+          </td>
         </tr>
       )}
     </tbody>

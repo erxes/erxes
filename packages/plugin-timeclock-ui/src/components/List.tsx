@@ -4,13 +4,13 @@ import Row from './Row';
 import { menuTimeClock } from '../menu';
 import { router, __ } from '@erxes/ui/src/utils';
 import React, { useState, useEffect, useRef } from 'react';
-import TimeForm from './TimeForm';
 import { Title } from '@erxes/ui-settings/src/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Table from '@erxes/ui/src/components/table';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+// import TimeForm from './TimeForm';
 
 type Props = {
   currentDate?: string;
@@ -43,18 +43,6 @@ export function convertMsToTime(milliseconds) {
 
 function renderTimeDuration(shiftStartTime): string {
   const [currentTime, setCurrentTime] = useState(new Date());
-  // const currentTime = useRef(new Date());
-
-  // const timer = setInterval(() => (currentTime.current = new Date()), 1000);
-  // clearInterval(timer);
-
-  // useEffect(() => {
-  //   const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-  //   return function cleanup() {
-  //     clearInterval(timer);
-  //   };
-  // });
-
   const timeDiff = currentTime.getTime() - shiftStartTime.getTime();
   const shiftDuration = convertMsToTime(timeDiff);
   return shiftDuration;
@@ -114,11 +102,6 @@ function List({
   if (timeclocks[0]) {
     const shiftStartTime = new Date(timeclocks[0].shiftStart);
     shiftDuration = renderTimeDuration(shiftStartTime);
-    // const timer = setInterval(
-    //   (shiftDuration = renderTimeDuration(shiftStartTime)),
-    //   1000
-    // );
-    // clearInterval(timer);
   }
 
   const title = (
@@ -174,6 +157,11 @@ function List({
     )
   );
 
+  const TimeForm = asyncComponent(() =>
+    import(
+      /* webpackChunkName: "List - Timeclocks" */ '../containers/TimeFormList'
+    )
+  );
   return (
     <Wrapper
       header={
