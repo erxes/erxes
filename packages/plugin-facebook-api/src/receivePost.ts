@@ -1,4 +1,5 @@
 import { IModels } from './connectionResolver';
+import { INTEGRATION_KINDS } from './constants';
 import { getOrCreateCustomer, getOrCreatePost } from './store';
 import { IPostParams } from './types';
 
@@ -8,10 +9,11 @@ const receivePost = async (
   params: IPostParams,
   pageId: string
 ) => {
-  const kind = 'facebook-post';
-
   const integration = await models.Integrations.findOne({
-    $and: [{ facebookPageIds: { $in: pageId } }, { kind: 'facebook-post' }]
+    $and: [
+      { facebookPageIds: { $in: pageId } },
+      { kind: INTEGRATION_KINDS.POST }
+    ]
   });
 
   if (!integration) {
@@ -25,7 +27,7 @@ const receivePost = async (
     subdomain,
     pageId,
     userId,
-    kind
+    INTEGRATION_KINDS.POST
   );
 
   await getOrCreatePost(
