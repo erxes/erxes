@@ -442,15 +442,6 @@ export const sendAutomationsMessage = async (
   });
 };
 
-export const sendFacebookMessage = (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({
-    client,
-    serviceDiscovery,
-    serviceName: 'facebook',
-    ...args
-  });
-};
-
 export const sendToWebhook = ({ subdomain, data }) => {
   return sendWebhook(client, { subdomain, data });
 };

@@ -3,12 +3,10 @@ import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendFacebookMessage,
   sendLogsMessage
 } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import { IConversationDocument } from './models/definitions/conversations';
-import { debugExternalApi } from '@erxes/api-utils/src/debuggers';
 
 const sendError = message => ({
   status: 'error',
@@ -224,7 +222,7 @@ export const removeEngageConversations = async (models, _id) => {
 
 export const collectConversations = async (
   subdomain: string,
-  { contentId, contentType }: { contentId: string; contentType: string }
+  { contentId }: { contentId: string }
 ) => {
   const models = await generateModels(subdomain);
   const results: any[] = [];
@@ -266,47 +264,11 @@ export const collectConversations = async (
       contentId,
       createdAt: c.createdAt,
       contentTypeDetail: {
-        integration: await models.Integrations.findOne({ _id: c.integrationId })
+        integration: await models.Integrations.findOne({
+          _id: c.integrationId
+        })
       }
     });
-  }
-
-  if (contentType === 'customer') {
-    let conversationIds;
-
-    try {
-      conversationIds = await sendFacebookMessage({
-        subdomain,
-        action: 'getFbCustomerPosts',
-        data: {
-          customerId: contentId
-        },
-        isRPC: true
-      });
-
-      const currentIds = results.map(r => r._id);
-
-      // to prevent from sending duplicated conversations
-      const cons = await models.Conversations.find({
-        _id: { $in: conversationIds, $nin: currentIds }
-      }).lean();
-
-      for (const c of cons) {
-        results.push({
-          _id: c._id,
-          contentType: 'comment',
-          contentId,
-          createdAt: c.createdAt,
-          contentTypeDetail: {
-            integration: await models.Integrations.findOne({
-              _id: c.integrationId
-            })
-          }
-        });
-      }
-    } catch (e) {
-      debugExternalApi(e);
-    }
   }
 
   return results;

@@ -229,7 +229,7 @@ export const facebookGetCustomerPosts = async (
   const customer = await models.Customers.findOne({ erxesApiId: customerId });
 
   if (!customer) {
-    return null;
+    return [];
   }
 
   const result = await models.Comments.aggregate([
