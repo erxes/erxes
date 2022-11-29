@@ -172,10 +172,12 @@ class WorkArea extends React.Component<FinalProps, State> {
             return;
           }
 
+          messages.push(message);
+
           // add new message to messages list
           const next = {
             ...prev,
-            conversationMessages: [...messages, message]
+            conversationMessages: [...messages]
           };
 
           // send desktop notification
