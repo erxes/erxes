@@ -8,11 +8,14 @@ import { IProductCategory } from '../types';
 
 type Props = {
   categories: IProductCategory[];
-  onChangeCategory: (catgeoryId: string) => void;
+  currentId?: string;
+  hasChildIds?: boolean;
+  onChangeCategory: (categoryId: string, childIds?: string[]) => void;
 };
 
 type State = {
   categoryId?: string;
+  clear?: boolean;
 };
 
 class ProductCategoryChooser extends React.Component<Props, State> {
@@ -20,8 +23,17 @@ class ProductCategoryChooser extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      categoryId: ''
+      categoryId: this.props.currentId || ''
     };
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>): void {
+    const { currentId } = this.props;
+    if (prevProps.currentId) {
+      if (currentId === '') {
+        this.setState({ categoryId: '' });
+      }
+    }
   }
 
   selectOptions(categories: IProductCategory[]) {
@@ -33,9 +45,27 @@ class ProductCategoryChooser extends React.Component<Props, State> {
     }));
   }
 
-  onChange = categoryId => {
+  onChange = (categoryId: string) => {
+    const { categories, hasChildIds } = this.props;
+
+    let childIds: string[] = [];
+
+    if (hasChildIds) {
+      const foundCategory = categories.find(c => c._id === categoryId);
+
+      if (foundCategory) {
+        const childs = categories.filter(c =>
+          c.order.startsWith(foundCategory.order)
+        );
+
+        if (childs.length) {
+          childIds = childIds.concat(childs.map(ch => ch._id));
+        }
+      }
+    }
+
     this.setState({ categoryId });
-    this.props.onChangeCategory(categoryId);
+    this.props.onChangeCategory(categoryId, childIds);
   };
 
   renderOptions = option => {
@@ -66,7 +96,7 @@ class ProductCategoryChooser extends React.Component<Props, State> {
 
   render() {
     const { categories } = this.props;
-    const onChangeCategory = option => this.onChange(option.value);
+    const onChangeCategory = option => this.onChange(option?.value);
 
     return (
       <CategoryContainer>
