@@ -37,10 +37,8 @@ class SiteList extends React.Component<Props, {}> {
     return (
       <SiteBox key={site._id} nowrap={true}>
         <SitePreview>
-          <img
-            src="https://templatemo.com/thumbnails-360/tm-557-grad-school.jpg"
-            alt="site-img"
-          />
+          <img src={site.templateImage} alt="site-img" />
+
           <PreviewContent>
             <Button btnStyle="white" onClick={() => this.showSite(site)}>
               View site

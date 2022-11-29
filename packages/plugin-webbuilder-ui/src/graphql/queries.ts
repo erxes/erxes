@@ -117,6 +117,7 @@ const templates = `
       _id
       name
       html
+      image
     } 
   }
 `;
@@ -142,6 +143,8 @@ const sites = `
       _id
       name
       domain
+
+      templateImage
     }
   }
 `;

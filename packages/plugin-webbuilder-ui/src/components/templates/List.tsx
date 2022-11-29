@@ -19,9 +19,12 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import { ITemplateDoc } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import React from 'react';
-import { Title } from '@erxes/ui/src/styles/main';
+import React, { useState } from 'react';
+import { ModalFooter, Title } from '@erxes/ui/src/styles/main';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 
 type Props = {
   templates: ITemplateDoc[];
@@ -31,6 +34,8 @@ type Props = {
 };
 
 function List(props: Props) {
+  const [name, setName] = useState('');
+
   const { templates, templatesCount, use } = props;
 
   const renderDemoAction = (template: ITemplateDoc) => {
@@ -69,23 +74,56 @@ function List(props: Props) {
     );
   };
 
+  const renderUseAction = template => {
+    const trigger = <Button btnStyle="white">{__('Use')}</Button>;
+
+    const content = ({ closeModal }) => (
+      <>
+        <FormGroup>
+          <ControlLabel required={true}>Name</ControlLabel>
+
+          <FormControl
+            name="name"
+            autoFocus={true}
+            defaultValue={name}
+            required={true}
+            onChange={(e: any) => setName(e.target.value)}
+          />
+        </FormGroup>
+
+        <ModalFooter>
+          <Button
+            btnStyle="simple"
+            onClick={closeModal}
+            icon="times-circle"
+            uppercase={false}
+          >
+            Close
+          </Button>
+
+          <Button
+            btnStyle="success"
+            icon="check-circle"
+            onClick={() => use(template._id, name)}
+            uppercase={false}
+          >
+            Save
+          </Button>
+        </ModalFooter>
+      </>
+    );
+
+    return <ModalTrigger title="Use" trigger={trigger} content={content} />;
+  };
+
   const renderRow = (template: ITemplateDoc, index: number) => {
-    console.log(template);
     return (
       <SiteBox key={index}>
         <SitePreview>
-          <img
-            src="https://templatemo.com/thumbnails-360/tm-557-grad-school.jpg"
-            alt="site-img"
-          />
+          <img src={template.image} alt="template-img" />
           <PreviewContent>
             {renderDemoAction(template)}
-            <Button
-              btnStyle="white"
-              onClick={() => use(template._id, template.name)}
-            >
-              Use
-            </Button>
+            {renderUseAction(template)}
           </PreviewContent>
         </SitePreview>
         <Content>
