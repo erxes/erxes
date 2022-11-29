@@ -1,54 +1,17 @@
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { menuTimeClock } from '../menu';
 import { router, __ } from '@erxes/ui/src/utils';
-import styled from 'styled-components';
 import React, { useState } from 'react';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Table from '@erxes/ui/src/components/table';
-import { colors } from '@erxes/ui/src/styles';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { DateContainer } from '@erxes/ui/src/styles/main';
 import Select from 'react-select-plus';
 import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
 import Button from '@erxes/ui/src/components/Button';
 import ReportRow from './ReportRow';
 import { IReport } from '../types';
-
-const FilterWrapper = styled.div`
-  margin: 10px 20px 0 20px;
-  padding-bottom: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  border-bottom: 1px solid ${colors.borderPrimary};
-
-  strong {
-    margin-right: 2 0px;
-  }
-`;
-const Row = styled.div`
-  display: flex;
-
-  .Select {
-    flex: 1;
-  }
-
-  button {
-    flex-shrink: 0;
-    margin-left: 10px;
-    align-self: baseline;
-  }
-`;
-
-const FilterItem = styled(DateContainer)`
-  position: relative;
-  float: left;
-  min-width: 200px;
-  margin-right: 20px;
-  z-index: 100;
-`;
+import { FilterWrapper, Row, FilterItem } from '../styles';
 
 type Props = {
   branchId;
@@ -60,14 +23,7 @@ type Props = {
 };
 
 function ReportList(props: Props) {
-  const {
-    queryParams,
-    history,
-    branchesList,
-    branchId,
-    deptId,
-    reports
-  } = props;
+  const { history, branchesList, reports } = props;
   const [selectedBranchId, setBranches] = useState(['']);
   const [selectedDeptId, setDepartments] = useState('');
   const [selectedType, setType] = useState('');
@@ -196,15 +152,12 @@ function ReportList(props: Props) {
       header={<Wrapper.Header title={__('Reports')} submenu={menuTimeClock} />}
       actionBar={actionBar}
       content={
-        <>
-          {/* {renderFilter()} */}
-          <DataWithLoader
-            data={content}
-            loading={false}
-            emptyText={__('Theres no timeclock')}
-            emptyImage="/images/actions/8.svg"
-          />
-        </>
+        <DataWithLoader
+          data={content}
+          loading={false}
+          emptyText={__('Theres no timeclock')}
+          emptyImage="/images/actions/8.svg"
+        />
       }
       transparent={false}
       hasBorder={true}

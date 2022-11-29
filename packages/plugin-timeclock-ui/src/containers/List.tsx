@@ -45,44 +45,10 @@ const ListContainer = (props: FinalProps) => {
 
   const currentUserId = queryUserId || currentUser._id;
 
-  const startClockTime = (currentTime: Date, userId: string) => {
-    startTimeMutation({
-      variables: { time: currentTime, userId: `${userId}` }
-    })
-      .then(() => {
-        // setShiftStarted(true);
-        localStorage.setItem('shiftStarted', 'true');
-        Alert.success('Successfully clocked in');
-      })
-      .catch(err => Alert.error(err.message));
-  };
-
-  const stopClockTime = (
-    currentTime: Date,
-    userId: string,
-    timeId?: string
-  ) => {
-    stopTimeMutation({
-      variables: {
-        _id: timeId,
-        time: currentTime,
-        userId: `${userId}`
-      }
-    })
-      .then(() => {
-        localStorage.setItem('shiftStarted', '');
-        Alert.success('Successfully clocked out');
-      })
-      .catch(err => Alert.error(err.message));
-  };
-
   const updatedProps = {
     ...props,
     currentUserId,
     timeclocks: listQuery.timeclocks || [],
-    startClockTime,
-    stopClockTime,
-    // shiftStarted,
     loading: listQuery.loading
   };
   return <List {...updatedProps} />;
@@ -103,29 +69,6 @@ export default withProps<Props>(
           userId: queryUserId
         },
         fetchPolicy: 'network-only'
-      })
-    }),
-
-    graphql<Props, TimeClockMutationResponse, { time: Date; userId: string }>(
-      gql(mutations.clockStart),
-      {
-        name: 'startTimeMutation',
-        options: ({ startTime, userId }) => ({
-          variables: { time: startTime, userId: `${userId}` },
-          refetchQueries: ['listQuery']
-        })
-      }
-    ),
-
-    graphql<
-      Props,
-      TimeClockMutationResponse,
-      { time: Date; userId: string; _id: string }
-    >(gql(mutations.clockStop), {
-      name: 'stopTimeMutation',
-      options: ({ stopTime, userId, timeId }) => ({
-        variables: { time: stopTime, userId: `${userId}`, _id: timeId },
-        refetchQueries: ['listQuery']
       })
     })
   )(withCurrentUser(ListContainer))

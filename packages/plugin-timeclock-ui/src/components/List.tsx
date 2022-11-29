@@ -3,14 +3,13 @@ import { ITimeclock } from '../types';
 import Row from './Row';
 import { menuTimeClock } from '../menu';
 import { router, __ } from '@erxes/ui/src/utils';
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { Title } from '@erxes/ui-settings/src/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Table from '@erxes/ui/src/components/table';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-// import TimeForm from './TimeForm';
 
 type Props = {
   currentDate?: string;
@@ -19,53 +18,21 @@ type Props = {
   history: any;
   startTime?: Date;
   timeclocks: ITimeclock[];
-  startClockTime: (startTime: Date, userId: string) => void;
-  stopClockTime: (stopTime: Date, userId: string, timeId: string) => void;
+  startClockTime?: (userId: string) => void;
   loading: boolean;
 };
-
-export function convertMsToTime(milliseconds) {
-  let seconds = Math.floor(milliseconds / 1000);
-  let minutes = Math.floor(seconds / 60);
-  let hours = Math.floor(minutes / 60);
-
-  seconds = seconds % 60;
-  minutes = minutes % 60;
-
-  // 👇️ If you don't want to roll hours over, e.g. 24 to 00
-  // 👇️ comment (or remove) the line below
-  // commenting next line gets you `24:00:00` instead of `00:00:00`
-  // or `36:15:31` instead of `12:15:31`, etc.
-  hours = hours % 24;
-
-  return `${hours}:${minutes}:${seconds}`;
-}
-
-function renderTimeDuration(shiftStartTime): string {
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const timeDiff = currentTime.getTime() - shiftStartTime.getTime();
-  const shiftDuration = convertMsToTime(timeDiff);
-  return shiftDuration;
-}
 
 function List({
   timeclocks,
   startClockTime,
-  stopClockTime,
   currentUserId,
   queryParams,
   history,
   loading
 }: Props) {
-  const shiftStarted = localStorage.getItem('shiftStarted') === 'true' || false;
-
-  const trigger = shiftStarted ? (
-    <Button id="timeClockButton1" btnStyle="danger" icon="plus-circle">
-      End Shift
-    </Button>
-  ) : (
-    <Button id="timeClockButton2" btnStyle="success" icon="plus-circle">
-      Start Shift
+  const trigger = (
+    <Button id="btn1" btnStyle={'primary'} icon="plus-circle">
+      {`Start Shift`}
     </Button>
   );
 
@@ -74,7 +41,6 @@ function List({
       {...props}
       currentUserId={currentUserId}
       startClockTime={startClockTime}
-      stopClockTime={stopClockTime}
       timeclocks={timeclocks}
     />
   );
@@ -83,13 +49,7 @@ function List({
     router.setParams(history, { userId: `${userId}` });
   };
 
-  const actionBarRight = shiftStarted ? (
-    <ModalTrigger
-      title={__('End shift')}
-      trigger={trigger}
-      content={modalContent}
-    />
-  ) : (
+  const actionBarRight = (
     <ModalTrigger
       title={__('Start shift')}
       trigger={trigger}
@@ -97,28 +57,10 @@ function List({
     />
   );
 
-  let shiftDuration;
-
-  if (timeclocks[0]) {
-    const shiftStartTime = new Date(timeclocks[0].shiftStart);
-    shiftDuration = renderTimeDuration(shiftStartTime);
-  }
-
   const title = (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginRight: '20px',
-        fontSize: '24px'
-      }}
-    >
-      <Title capitalize={true}>
-        {__(new Date().toDateString().slice(0, -4))}
-      </Title>
-      {shiftDuration}
-    </div>
+    <Title capitalize={true}>
+      {__(new Date().toDateString().slice(0, -4))}
+    </Title>
   );
 
   const actionBar = (
@@ -136,32 +78,23 @@ function List({
         <tr>
           <th>{__('Team member')}</th>
           <th>{__('Shift date')}</th>
+          <th>{__('Shift status')}</th>
           <th>{__('Shift started')}</th>
           <th>{__('Shift ended')}</th>
+          <th>{__('Action')}</th>
         </tr>
       </thead>
-      <tbody id={'TimeclocksShowing'}>
+      <tbody>
         {timeclocks.map(timeclock => {
-          return (
-            // <tr key={Math.random()}>{shiftStartTime.toLocaleTimeString()}</tr>
-            <Row space={0} key={timeclock._id} timeclock={timeclock} />
-          );
+          return <Row key={timeclock._id} timeclock={timeclock} />;
         })}
       </tbody>
     </Table>
   );
 
-  const SideBarList = asyncComponent(() =>
-    import(
-      /* webpackChunkName: "List - Timeclocks" */ '../containers/SideBarList'
-    )
-  );
+  const SideBarList = asyncComponent(() => import('../containers/SideBarList'));
+  const TimeForm = asyncComponent(() => import('../containers/TimeFormList'));
 
-  const TimeForm = asyncComponent(() =>
-    import(
-      /* webpackChunkName: "List - Timeclocks" */ '../containers/TimeFormList'
-    )
-  );
   return (
     <Wrapper
       header={

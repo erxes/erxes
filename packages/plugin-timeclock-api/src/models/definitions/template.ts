@@ -7,6 +7,7 @@ export interface ITimeClock {
   status?: string;
   shiftStart: Date;
   shiftEnd?: Date;
+  shiftActive?: boolean;
 }
 
 export interface ITimeClockDocument extends ITimeClock, Document {
@@ -56,7 +57,12 @@ export const timeSchema = new Schema({
   _id: field({ pkey: true }),
   userId: field({ type: String, label: 'User' }),
   shiftStart: field({ type: Date, label: 'Shift starting time' }),
-  shiftEnd: field({ type: Date, label: 'Shift ending time' })
+  shiftEnd: field({ type: Date, label: 'Shift ending time' }),
+  shiftActive: field({
+    type: Boolean,
+    label: 'Is shift started and active',
+    default: false
+  })
 });
 
 export const absenceSchema = new Schema({

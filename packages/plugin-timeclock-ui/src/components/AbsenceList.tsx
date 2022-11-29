@@ -55,9 +55,7 @@ const addDaysOfWeek = (today: Date): string[] => {
 
 function AbsenceList(props: Props) {
   const { queryParams, history, submitRequest, absences, solveAbsence } = props;
-
   const [explanation, setTextReason] = useState('');
-  const shiftStarted = localStorage.getItem('shiftStarted') === 'true' || false;
 
   const trigger = (
     <Button id="timeClockButton2" btnStyle="success" icon="plus-circle">

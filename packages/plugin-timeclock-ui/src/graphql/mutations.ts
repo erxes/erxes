@@ -5,16 +5,16 @@ const clockRemove = `
   `;
 
 const clockStart = `
-  mutation timeclockStart($time: Date!, $userId: String){
-    timeclockStart(time: $time, userId: $userId){
+  mutation timeclockStart($userId: String){
+    timeclockStart(userId: $userId){
       _id
     }
   }
 `;
 
 const clockStop = `
-  mutation timeclockStop($time: Date!, $userId: String, $_id: String){
-    timeclockStop(time: $time, userId: $userId, _id: $_id){
+  mutation timeclockStop( $userId: String, $_id: String){
+    timeclockStop(userId: $userId, _id: $_id){
       _id
     }
   }

@@ -8,6 +8,7 @@ export const types = `
     user: User
     shiftStart: Date
     shiftEnd: Date
+    shiftActive: Boolean
   }
 
   type Absence {

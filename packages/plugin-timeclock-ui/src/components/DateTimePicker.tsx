@@ -4,7 +4,6 @@ import Button from '@erxes/ui/src/components/Button';
 import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
-  // day_value: Date;
   startTime_value: Date;
   endTime_value: Date;
   curr_day_key: string;
@@ -14,10 +13,8 @@ type Props = {
   removeDate: (day_key: string) => void;
 };
 
-const Datetime = asyncComponent(
-  () =>
-    import(/* webpackChunkName: "Datetime" */ '@nateradebaugh/react-datetime')
-  // import('react-time-picker')
+const Datetime = asyncComponent(() =>
+  import(/* webpackChunkName: "Datetime" */ '@nateradebaugh/react-datetime')
 );
 
 const DatePicker = (props: Props) => {
@@ -27,7 +24,6 @@ const DatePicker = (props: Props) => {
     changeStartTime,
     removeDate,
     curr_day_key,
-    // day_value,
     startTime_value,
     endTime_value
   } = props;

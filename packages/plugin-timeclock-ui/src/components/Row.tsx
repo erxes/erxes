@@ -1,90 +1,64 @@
 import React from 'react';
 import Button from '@erxes/ui/src/components/Button';
-import Tip from '@erxes/ui/src/components/Tip';
-import Icon from '@erxes/ui/src/components/Icon';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
 import { ITimeclock } from '../types';
 import { __ } from '@erxes/ui/src/utils';
-import { colors, dimensions } from '@erxes/ui/src/styles';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 
-const TimeclockNameStyled = styledTS<{ checked: boolean }>(styled.div).attrs(
-  {}
-)`
-    color: ${colors.colorCoreBlack};
-    text-decoration: ${props => (props.checked ? 'line-through' : 'none')}
-    `;
-
-export const TimeclockWrapper = styledTS<{ space: number }>(
-  styled.div
-)`padding-left: ${props => props.space * 20}px;
-  display:inline-flex;
-  justify-content:flex-start;
-  align-items: center;
-`;
-
-const Margin = styledTS(styled.div)`
- margin: ${dimensions.unitSpacing}px;
-`;
+const TimeForm = asyncComponent(() => import('../containers/TimeFormList'));
 
 type Props = {
   timeclock: ITimeclock;
-  space: number;
-  // renderButton: (props: IButtonMutateProps) => JSX.Element;
-  // timeclocks: ITimeclock[];
 };
 
-type State = {
-  checked: boolean;
-};
-
-class Row extends React.Component<Props, State> {
-  Timeclocks({ timeclock, checked }) {
-    return (
-      <TimeclockNameStyled checked={checked}>
-        {timeclock.name}
-      </TimeclockNameStyled>
-    );
+class Row extends React.Component<Props> {
+  constructor(props) {
+    super(props);
   }
 
-  // removeTimeclock = () => {
-  //   remove(timeclock);
-  // };
+  shiftTrigger = shiftStarted => (
+    <Button
+      id="timeClockButton1"
+      btnStyle={shiftStarted ? 'danger' : 'success'}
+      icon="plus-circle"
+    >
+      {`${shiftStarted ? 'End' : 'Start'} Shift`}
+    </Button>
+  );
 
-  // toggleCheck = () => {
-  //   const { edit, timeclock } = this.props;
+  modalContent = props => (
+    <TimeForm
+      {...props}
+      shiftId={this.props.timeclock._id}
+      shiftStarted={this.props.timeclock.shiftActive}
+    />
+  );
 
-  //   edit({ _id: timeclock._id, checked: !timeclock.checked });
-  // };
+  shiftBtnTrigger = shiftStarted => (
+    <ModalTrigger
+      title={__('Start shift')}
+      trigger={this.shiftTrigger(shiftStarted)}
+      content={this.modalContent}
+    />
+  );
 
   render() {
-    const { timeclock, space } = this.props;
-    const editTrigger = (
-      <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="top">
-          <Icon icon="edit-3" />
-        </Tip>
-      </Button>
-    );
-
-    // const content = props => (
-    //   <Form {...props} timeclock={timeclock} timeclocks={timeclocks} />
-    // );
-
+    const { timeclock } = this.props;
     const shiftStartTime = new Date(timeclock.shiftStart).toLocaleTimeString();
     const shiftDate = new Date(timeclock.shiftStart).toDateString();
-    let shiftEndTime = '-';
-    if (timeclock.shiftEnd) {
-      shiftEndTime = new Date(timeclock.shiftEnd).toLocaleTimeString();
-    }
+    const shiftEndTime = timeclock.shiftActive
+      ? '-'
+      : new Date(timeclock.shiftEnd).toLocaleTimeString();
 
     return (
       <tr>
         <td>{<NameCard user={timeclock.user} />}</td>
         <td>{shiftDate}</td>
+        <td>{timeclock.shiftActive ? 'Active' : 'Ended'}</td>
         <td>{shiftStartTime}</td>
         <td>{shiftEndTime}</td>
+        <td>{this.shiftBtnTrigger(timeclock.shiftActive)}</td>
       </tr>
     );
   }

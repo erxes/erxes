@@ -4,6 +4,7 @@ import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 export interface ITimeclock {
   _id: string;
   shiftStart: Date;
+  shiftActive: boolean;
   user: IUser;
   shiftEnd: Date;
 }
@@ -96,7 +97,6 @@ export type ReportsQueryResponse = {
 
 export type MutationVariables = {
   _id?: string;
-  time: Date;
   userId: string;
 };
 export type AbsenceMutationVariables = {

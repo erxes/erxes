@@ -44,6 +44,7 @@ const list = `
       _id
       shiftStart
       shiftEnd
+      shiftActive
       user {
         ${userFields}
       }

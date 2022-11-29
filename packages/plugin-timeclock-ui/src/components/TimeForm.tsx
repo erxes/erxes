@@ -5,7 +5,6 @@ import { IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import Button from '@erxes/ui/src/components/Button';
 import React, { useEffect, useState } from 'react';
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { ControlLabel, FormGroup } from '@erxes/ui/src/components/form';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 
@@ -13,31 +12,19 @@ type Props = {
   startTime?: Date;
   queryParams: any;
   currentUserId: string;
-  startClockTime: (startTime: Date, userId: string) => void;
-  stopClockTime: (stopTime: Date, userId: string, timeId: string) => void;
+  startClockTime: (userId: string) => void;
+  stopClockTime: (userId: string, timeId: string) => void;
   timeclocks: ITimeclock[];
-};
-
-const sizes = {
-  large: {
-    padding: '10px 30px',
-    fontSize: '13px'
-  },
-  medium: {
-    padding: '7px 20px',
-    fontSize: '12px'
-  },
-  small: {
-    padding: '5px 15px',
-    fontSize: '10px'
-  }
+  shiftId: string;
+  shiftStarted: boolean;
 };
 
 const FormComponent = ({
   startClockTime,
   stopClockTime,
   currentUserId,
-  timeclocks
+  shiftId,
+  shiftStarted
 }: Props) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [userId, setUserId] = useState(currentUserId);
@@ -56,27 +43,22 @@ const FormComponent = ({
   };
 
   const startClock = () => {
-    startClockTime(new Date(), userId);
+    startClockTime(userId);
   };
 
   const stopClock = () => {
-    const last_time_idx = timeclocks.length - 1;
-    const timeId = timeclocks[last_time_idx]._id;
-    stopClockTime(new Date(), userId, timeId);
+    stopClockTime(userId, shiftId);
   };
 
-  const renderContent = (formProps: IFormProps) => {
-    const shiftStarted =
-      localStorage.getItem('shiftStarted') === 'true' || false;
-    const { values, isSubmitted } = formProps;
-
+  const renderContent = () => {
     return (
       <div
         style={{
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-          alignItems: 'center'
+          alignItems: 'center',
+          gap: '20px'
         }}
       >
         <div style={{ display: 'block', fontSize: '26px', fontWeight: 500 }}>
@@ -98,7 +80,7 @@ const FormComponent = ({
             <SelectTeamMembers
               label="Choose a team member"
               name="userId"
-              initialValue={userId}
+              initialValue={currentUserId}
               onSelect={onTeamMemberSelect}
               multi={false}
             />

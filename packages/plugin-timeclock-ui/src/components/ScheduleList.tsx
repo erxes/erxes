@@ -10,81 +10,31 @@ import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import DateRange from './DateRange';
-import DateFilter from '@erxes/ui/src/components/DateFilter';
 import dayjs from 'dayjs';
 import DatePicker from './DateTimePicker';
 import { ISchedule } from '../types';
-import styledTS from 'styled-components-ts';
-import styled from 'styled-components';
-import { colors, dimensions } from '@erxes/ui/src/styles';
 import ScheduleConfig from './ScheduleConfig';
 import Select from 'react-select-plus';
+import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
+import { Input } from '../styles';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { Row } from '../styles';
 
 type Props = {
   scheduleOfMembers: any;
   queryParams: any;
   history: any;
+  branchesList: string[];
   solveSchedule: (scheduleId: string, status: string) => void;
   solveShift: (shiftId: string, status: string) => void;
   submitRequest: (userId: string[], filledShifts: any) => void;
   submitShift: (userIds: string[], filledShifts: any) => void;
 };
 
-const Datetime = asyncComponent(
-  () =>
-    import(/* webpackChunkName: "Datetime" */ '@nateradebaugh/react-datetime')
-  // import('react-time-picker')
+const Datetime = asyncComponent(() =>
+  import(/* webpackChunkName: "Datetime" */ '@nateradebaugh/react-datetime')
 );
-
-const Input = styledTS<{ round?: boolean; hasError?: boolean; align?: string }>(
-  styled.input
-)`
-  border: none;
-  width: 100%;
-  padding: ${dimensions.unitSpacing}px 0;
-  color: ${colors.textPrimary};
-  border-bottom: 1px solid;
-  border-color:${props =>
-    props.hasError ? colors.colorCoreRed : colors.colorShadowGray};
-  background: none;
-  transition: all 0.3s ease;
-
-  ${props => {
-    if (props.round) {
-      return `
-        font-size: 13px;
-        border: 1px solid ${colors.borderDarker};
-        border-radius: 20px;
-        padding: 5px 20px;
-      `;
-    }
-
-    return '';
-  }};
-
-  ${props => {
-    if (props.align) {
-      return `
-        text-align: ${props.align};
-      `;
-    }
-
-    return '';
-  }};
-
-  &:hover {
-    border-color: ${colors.colorLightGray};
-  }
-
-  &:focus {
-    outline: none;
-    border-color: ${colors.colorSecondary};
-  }
-
-  ::placeholder {
-    color: #aaa;
-  }
-`;
 
 function ScheduleList(props: Props) {
   const {
@@ -94,7 +44,8 @@ function ScheduleList(props: Props) {
     history,
     scheduleOfMembers,
     solveSchedule,
-    solveShift
+    solveShift,
+    branchesList
   } = props;
 
   const [dateKeyCounter, setKeyCounter] = useState('');
@@ -121,6 +72,8 @@ function ScheduleList(props: Props) {
   const [dateRangeEnd, setDateEnd] = useState(new Date());
   const [scheduleDates, setScheduleDates] = useState<ISchedule>({});
   const [contentType, setContentType] = useState('');
+  const [selectedDeptId, setDepartments] = useState('');
+  const [selectedBranchId, setBranches] = useState(['']);
   const [configDays, setConfigDays] = useState<ISchedule>({
     Monday: { display: true },
     Tuesday: { display: true },
@@ -130,6 +83,35 @@ function ScheduleList(props: Props) {
     Saturday: { display: true },
     Sunday: { display: true }
   });
+
+  const renderBranchOptions = (branches: any[]) => {
+    return branches.map(branch => ({
+      value: branch._id,
+      label: branch.title
+    }));
+  };
+
+  const onBranchSelect = selectedBranch => {
+    setBranches(selectedBranch);
+
+    const branchIds: any[] = [];
+    selectedBranch.map(branch => branchIds.push(branch.value));
+
+    router.setParams(history, {
+      branchIds: `${branchIds}`
+    });
+  };
+
+  const onDepartmentSelect = dept => {
+    setDepartments(dept);
+    const departmentIds: any[] = [];
+
+    dept.map(department => departmentIds.push(department));
+
+    router.setParams(history, {
+      departmentIds: `${departmentIds}`
+    });
+  };
 
   const onRemoveDate = day_key => {
     delete scheduleDates[day_key];
@@ -426,7 +408,7 @@ function ScheduleList(props: Props) {
     setContentType(contType);
   };
 
-  const defaultContent = () => {
+  const adminConfigDefault = () => {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <SelectTeamMembers
@@ -435,6 +417,23 @@ function ScheduleList(props: Props) {
           onSelect={onUserSelect}
           name="userId"
         />
+        <SelectDepartments
+          isRequired={false}
+          defaultValue={selectedDeptId}
+          onChange={onDepartmentSelect}
+        />
+        <FormGroup>
+          <ControlLabel>Branches</ControlLabel>
+          <Row>
+            <Select
+              value={selectedBranchId}
+              onChange={onBranchSelect}
+              placeholder="Select branch"
+              multi={true}
+              options={branchesList && renderBranchOptions(branchesList)}
+            />
+          </Row>
+        </FormGroup>
         <Select
           value={contentType}
           onChange={onContentTypeSelect}
@@ -481,7 +480,7 @@ function ScheduleList(props: Props) {
         size="lg"
         title={__('Schedule config - Admin')}
         trigger={adminConfigTrigger}
-        content={defaultContent}
+        content={adminConfigDefault}
       />
     </>
   );

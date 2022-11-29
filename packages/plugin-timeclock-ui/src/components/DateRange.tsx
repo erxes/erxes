@@ -8,21 +8,7 @@ import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-
-const FlexRow = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px
-    ${dimensions.unitSpacing}px;
-`;
-
-const DateName = styled.div`
-  text-transform: uppercase;
-  margin: ${dimensions.unitSpacing}px 0;
-  text-align: center;
-`;
+import { FlexRow, DateName } from '../styles';
 
 const Datetime = asyncComponent(() =>
   import(/* webpackChunkName: "Datetime" */ '@nateradebaugh/react-datetime')

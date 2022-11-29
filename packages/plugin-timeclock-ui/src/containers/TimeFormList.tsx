@@ -23,6 +23,8 @@ type Props = {
   queryStartDate: string;
   queryEndDate: string;
   queryUserId: string;
+  shiftId: string;
+  shiftStarted: boolean;
 };
 
 type FinalProps = {} & Props & TimeClockMutationResponse;
@@ -33,14 +35,16 @@ const ListContainer = (props: FinalProps) => {
     startTimeMutation,
     stopTimeMutation,
     currentUser,
-    queryUserId
+    queryUserId,
+    shiftId,
+    shiftStarted
   } = props;
 
   const currentUserId = queryUserId || currentUser._id;
 
-  const startClockTime = (currentTime: Date, userId: string) => {
+  const startClockTime = (userId: string) => {
     startTimeMutation({
-      variables: { time: currentTime, userId: `${userId}` }
+      variables: { userId: `${userId}` }
     })
       .then(() => {
         // setShiftStarted(true);
@@ -50,20 +54,14 @@ const ListContainer = (props: FinalProps) => {
       .catch(err => Alert.error(err.message));
   };
 
-  const stopClockTime = (
-    currentTime: Date,
-    userId: string,
-    timeId?: string
-  ) => {
+  const stopClockTime = (userId: string, timeId?: string) => {
     stopTimeMutation({
       variables: {
         _id: timeId,
-        time: currentTime,
         userId: `${userId}`
       }
     })
       .then(() => {
-        localStorage.setItem('shiftStarted', '');
         Alert.success('Successfully clocked out');
       })
       .catch(err => Alert.error(err.message));
@@ -73,6 +71,8 @@ const ListContainer = (props: FinalProps) => {
     ...props,
     currentUserId,
     timeclocks,
+    shiftStarted,
+    shiftId,
     startClockTime,
     stopClockTime
   };

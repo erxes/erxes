@@ -35,22 +35,30 @@ const templateMutations = {
   /**
    * Creates a new timeclock
    */
-  async timeclockStart(_root, { time, userId }, { models }: IContext) {
+  async timeclockStart(_root, { userId }, { models, user }: IContext) {
     const template = await models.Templates.createTimeClock({
-      shiftStart: time,
-      userId: `${userId}`
+      shiftStart: new Date(),
+      shiftActive: true,
+      userId: userId ? `${userId}` : user._id
     });
     return template;
   },
 
   async timeclockStop(
     _root,
-    { _id, time, ...doc }: ITimeClockEdit,
+    { _id, userId, ...doc }: ITimeClockEdit,
     { models, subdomain, user }: IContext
   ) {
-    const timeclock = await models.Templates.getTimeClock(_id);
+    const timeclock = await models.Templates.findOne({
+      _id,
+      shiftActive: true
+    });
+    if (!timeclock) {
+      throw new Error('time clock not found');
+    }
     const updated = await models.Templates.updateTimeClock(_id, {
-      shiftEnd: time,
+      shiftEnd: new Date(),
+      shiftActive: false,
       ...doc
     });
 
