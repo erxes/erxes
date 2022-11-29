@@ -130,7 +130,7 @@ class ReserveRems extends React.Component<Props, State> {
 
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">
-        Set Labels
+        Add remainders
       </Button>
     );
 

@@ -601,6 +601,15 @@ export const sendToWebhook = ({ subdomain, data }) => {
   return sendWebhook(client, { subdomain, data });
 };
 
+export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'tags',
+    ...args
+  });
+};
+
 export default function() {
   return client;
 }

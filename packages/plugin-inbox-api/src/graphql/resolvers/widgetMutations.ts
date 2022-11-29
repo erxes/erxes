@@ -308,7 +308,7 @@ const createFormConversation = async (
     const submissionValues = {};
 
     for (const submit of submissions) {
-      submissionValues[submit.formFieldId] = submit.value;
+      submissionValues[submit._id] = submit.value;
     }
 
     sendAutomationsMessage({

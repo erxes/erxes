@@ -58,9 +58,5 @@ export const calculateMethods = [
   {
     value: 'Multiply',
     label: 'Multiply'
-  },
-  {
-    value: 'Matrix',
-    label: 'Matrix'
   }
 ];

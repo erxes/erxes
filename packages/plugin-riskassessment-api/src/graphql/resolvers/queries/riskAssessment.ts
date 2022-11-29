@@ -1,3 +1,4 @@
+import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { IRiskAssessmentField, PaginateField } from '../../../models/definitions/common';
 
@@ -18,5 +19,8 @@ const RiskAssessmentQueries = {
     return await models.RiskAssessment.riskAssessmentDetail(params);
   }
 };
+
+checkPermission(RiskAssessmentQueries, 'riskAssessments', 'showRiskAssessment');
+checkPermission(RiskAssessmentQueries, 'riskAssessmentDetail', 'showRiskAssessment');
 
 export default RiskAssessmentQueries;

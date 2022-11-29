@@ -1,24 +1,20 @@
-import * as compose from 'lodash.flowright';
-import From from '../components/Form';
-import React from 'react';
-import { ButtonMutate } from '@erxes/ui/src/components';
+import { ButtonMutate } from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { ISPLabel } from '../types';
-import { mutations } from '../graphql';
-import { withProps } from '@erxes/ui/src/utils';
+import React from 'react';
+import CategoryForm from '../../components/carCategory/CategoryForm';
+import { mutations } from '../../graphql';
+import { ICarCategory } from '../../types';
 
 type Props = {
-  spLabel?: ISPLabel;
+  categories: ICarCategory[];
+  category?: ICarCategory;
   closeModal: () => void;
 };
 
-type FinalProps = {} & Props;
-
-class ProductFormContainer extends React.Component<FinalProps> {
+class CategoryFormContainer extends React.Component<Props> {
   render() {
-    const {} = this.props;
-
     const renderButton = ({
+      name,
       values,
       isSubmitted,
       callback,
@@ -27,9 +23,7 @@ class ProductFormContainer extends React.Component<FinalProps> {
       return (
         <ButtonMutate
           mutation={
-            object && object._id
-              ? mutations.spLabelsEdit
-              : mutations.spLabelsAdd
+            object ? mutations.carCategoryEdit : mutations.carCategoryAdd
           }
           variables={values}
           callback={callback}
@@ -49,12 +43,12 @@ class ProductFormContainer extends React.Component<FinalProps> {
       renderButton
     };
 
-    return <From {...updatedProps} />;
+    return <CategoryForm {...updatedProps} />;
   }
 }
 
 const getRefetchQueries = () => {
-  return ['spLabels'];
+  return ['carCategories', 'carCategoriesTotalCount'];
 };
 
-export default withProps<Props>(compose()(ProductFormContainer));
+export default CategoryFormContainer;

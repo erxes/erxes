@@ -313,7 +313,7 @@ class Form extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Description</ControlLabel>
             <EditorCK
-              content={donateCampaign.description}
+              content={donateCampaign.description || ''}
               onChange={this.onChangeDescription}
               height={150}
               isSubmitted={formProps.isSaved}

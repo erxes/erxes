@@ -219,9 +219,14 @@ class Form extends React.Component<IProps, IState> {
             onChange={this.handleDoc}
           />
         </CustomFormGroup>
-        <CustomFormGroup label='Type'>
-          <FormControl name='type' componentClass='select' value={detail?.type} onChange={this.handleDoc}>
-            <option/>
+        <CustomFormGroup label="Type">
+          <FormControl
+            name="type"
+            componentClass="select"
+            value={detail?.type}
+            onChange={this.handleDoc}
+          >
+            <option />
             <option value="devation">Devation</option>
             <option value="safeWorkPermit">Safe Work Permit</option>
             <option value="action">Action</option>

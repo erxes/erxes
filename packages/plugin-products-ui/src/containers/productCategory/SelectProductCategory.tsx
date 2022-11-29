@@ -1,13 +1,7 @@
-import { IProductCategory } from '@erxes/ui-products/src/types';
-import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import gql from 'graphql-tag';
-import React from 'react';
-import { useQuery } from 'react-apollo';
-import { queries } from '../../graphql';
-
-import SelectCategory from '../../components/productCategory/SelectProductCategory';
+import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IField } from '@erxes/ui/src/types';
+import React from 'react';
 
 type Props = {
   field?: IField;
@@ -15,26 +9,26 @@ type Props = {
 };
 
 const SelectCategoryContainer = (props: Props) => {
-  console.log('SelectCategoryContainer', props);
+  const { field, onChange } = props;
 
-  if (props.field && props.field.type !== 'productCategory') {
+  if (field && field.type !== 'productCategory') {
     return null;
   }
 
-  const { data, loading, error } = useQuery(gql(queries.productCategories));
-
-  if (loading) {
-    return <Spinner />;
-  }
-
-  if (error) {
-    return <ErrorMsg>{error.message}</ErrorMsg>;
-  }
-
-  const productCategories: IProductCategory[] =
-    (data && data.productCategories) || [];
-
-  return <SelectCategory {...props} productCategories={productCategories} />;
+  return (
+    <>
+      <ControlLabel>Categories:</ControlLabel>
+      <SelectProductCategory
+        label="Choose product category"
+        name="productCategoryId"
+        initialValue={(field && field.productCategoryId) || ''}
+        onSelect={categoryId =>
+          onChange('productCategoryId', categoryId as string)
+        }
+        multi={false}
+      />
+    </>
+  );
 };
 
 export default SelectCategoryContainer;

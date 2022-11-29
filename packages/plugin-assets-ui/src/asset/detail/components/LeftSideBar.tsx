@@ -8,11 +8,12 @@ import CustomFieldsSection from '../containers/CustomFieldSection';
 
 type Props = {
   asset: IAsset;
+  history:any
 };
 
 class LeftSidebar extends React.Component<Props> {
   render() {
-    const { asset } = this.props;
+    const { asset,history } = this.props;
 
     const refetchQueries = [
       {
@@ -23,7 +24,11 @@ class LeftSidebar extends React.Component<Props> {
 
     return (
       <Sidebar wide={true}>
-        <BasicInfo asset={asset} refetchQueries={refetchQueries} />
+        <BasicInfo
+          asset={asset}
+          refetchQueries={refetchQueries}
+          history={history}
+        />
         <CustomFieldsSection asset={asset} />
       </Sidebar>
     );

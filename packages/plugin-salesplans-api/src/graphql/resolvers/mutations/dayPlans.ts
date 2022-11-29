@@ -1,7 +1,15 @@
-import { getDayPlanValues, getProducts } from './utils';
+import { DAYPLAN_STATUS } from '../../../constants';
+import {
+  getDayPlanValues,
+  getLabelsOfDay,
+  getProducts,
+  getProductsAndParents,
+  getPublicLabels
+} from './utils';
 import { IContext } from '../../../connectionResolver';
 import {
   IDayPlan,
+  IDayPlanConfirmParams,
   IDayPlanDocument,
   IDayPlansAddParams
 } from '../../../models/definitions/dayPlans';
@@ -10,6 +18,7 @@ import {
   moduleCheckPermission,
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
+import { sendProcessesMessage } from '../../../messageBroker';
 
 const dayPlansMutations = {
   dayPlansAdd: async (
@@ -26,10 +35,18 @@ const dayPlansMutations = {
       throw new Error('Must fill product category or product');
     }
 
-    const { products, productIds } = await getProducts(
+    const {
+      products,
+      productIds,
+      parentIdsByProductId,
+      timePercentsByProdId
+    } = await getProductsAndParents(
       subdomain,
+      models,
       productId,
-      productCategoryId
+      productCategoryId,
+      branchId,
+      departmentId
     );
 
     const oldDayPlans = await models.DayPlans.find({
@@ -50,15 +67,30 @@ const dayPlansMutations = {
       branchId,
       productId: { $in: productIds }
     }).lean();
-    const yearPlanByProductId = {};
 
+    const yearPlanByProductId = {};
     for (const yearPlan of yearPlans) {
       yearPlanByProductId[yearPlan.productId || ''] = yearPlan;
     }
 
     const timeFrames = await models.Timeframes.find({
       status: { $ne: 'deleted' }
-    }).lean();
+    })
+      .sort({ startTime: 1 })
+      .lean();
+
+    const publicLabels = await getPublicLabels({
+      models,
+      year: date.getFullYear(),
+      month: date.getMonth()
+    });
+
+    const dayLabels = await getLabelsOfDay(
+      models,
+      date,
+      branchId,
+      departmentId
+    );
 
     let docs: IDayPlan[] = [];
     let inserteds: IDayPlanDocument[] = [];
@@ -72,13 +104,16 @@ const dayPlansMutations = {
         continue;
       }
 
-      const { planCount, values } = await getDayPlanValues(
-        models,
-        doc,
+      const { planCount, values } = await getDayPlanValues({
+        date,
         yearPlanByProductId,
+        parentIdsByProductId,
+        publicLabels,
+        dayLabels,
+        timePercentsByProdId,
         product,
         timeFrames
-      );
+      });
 
       const dayPlanDoc: IDayPlan & any = {
         date,
@@ -133,6 +168,51 @@ const dayPlansMutations = {
     { models }: IContext
   ) => {
     return await models.DayPlans.dayPlansRemove(_ids);
+  },
+  dayPlansConfirm: async (
+    _root: any,
+    doc: IDayPlanConfirmParams,
+    { models, subdomain }: IContext
+  ) => {
+    const {
+      date,
+      branchId,
+      departmentId,
+      productCategoryId,
+      productId,
+      ids
+    } = doc;
+
+    const filter: any = { date, branchId, departmentId };
+
+    if (ids.length) {
+      filter._id = { $in: ids };
+    }
+
+    const { productIds } = await getProducts(
+      subdomain,
+      productId,
+      productCategoryId
+    );
+
+    if (productIds.length) {
+      filter.productId = { $in: productIds };
+    }
+
+    const dayPlans = await models.DayPlans.find(filter).lean();
+
+    await sendProcessesMessage({
+      subdomain,
+      action: 'createWorks',
+      data: { dayPlans, date, branchId, departmentId },
+      isRPC: false
+    });
+
+    await models.DayPlans.updateMany(
+      { _id: { $in: dayPlans.map(d => d._id) } },
+      { $set: { status: DAYPLAN_STATUS.SENT } }
+    );
+    return await models.DayPlans.find(filter).lean();
   }
 };
 

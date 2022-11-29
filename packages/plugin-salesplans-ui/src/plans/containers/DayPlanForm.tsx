@@ -8,6 +8,7 @@ import { mutations } from '../graphql';
 import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
+  history: any;
   dayPlan?: IDayPlan;
   closeModal: () => void;
 };

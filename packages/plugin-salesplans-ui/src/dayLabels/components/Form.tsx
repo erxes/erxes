@@ -46,7 +46,8 @@ class Form extends React.Component<Props, State> {
 
     return {
       ...finalValues,
-      ...dayLabelParams
+      ...dayLabelParams,
+      dates: (dayLabelParams.dates || []).map(d => new Date(d))
     };
   };
 

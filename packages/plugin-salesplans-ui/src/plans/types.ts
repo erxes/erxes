@@ -72,6 +72,7 @@ export interface IPlanTime extends IPlanValue {
 export interface IDayPlan {
   _id: string;
   date?: Date;
+  status?: string;
   departmentId?: string;
   branchId?: string;
   productId?: string;
@@ -98,6 +99,15 @@ export interface IDayPlanParams {
   productId?: string;
 }
 
+export interface IDayPlanConfirmParams {
+  date: Date;
+  branchId: string;
+  departmentId: string;
+  productCategoryId?: string;
+  productId?: string;
+  ids?: any[];
+}
+
 export type DayPlansQueryResponse = {
   dayPlans: IDayPlan[];
   loading: boolean;
@@ -116,4 +126,27 @@ export type DayPlansEditMutationResponse = {
 
 export type DayPlansRemoveMutationResponse = {
   dayPlansRemove: (mutation: { variables: { _ids: string[] } }) => Promise<any>;
+};
+
+export type DayPlansConfirmMutationResponse = {
+  dayPlansConfirm: (mutation: {
+    variables: IDayPlanConfirmParams;
+  }) => Promise<any>;
+};
+
+export const colors = {
+  new: '#01aecc',
+  sent: '#D9E3F0',
+  pending: '#F47373',
+  confirmed: '#697689',
+  '': '#4bbf6b'
+  // '#0078bf',
+  // '#89609d',
+  // '#838c91',
+  // '#cd5a91',
+  // '#d29034',
+  // '#63D2D6',
+  // '#F7CE53',
+  // '#FF6900',
+  // '#EB144C'
 };
