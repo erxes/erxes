@@ -341,7 +341,7 @@ const conversationMutations = {
       content: doc.content,
       attachments: doc.attachments || [],
       extraInfo: doc.extraInfo,
-      userId: doc.userId
+      userId: user._id
     };
 
     const response = await sendConversationToServices(
