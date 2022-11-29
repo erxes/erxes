@@ -1,4 +1,3 @@
-import { ConversationMessages } from './../../plugin-integrations-api/src/facebook/models';
 import {
   receiveIntegrationsNotification,
   receiveRpcMessage
