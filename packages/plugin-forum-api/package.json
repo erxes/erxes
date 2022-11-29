@@ -6,5 +6,9 @@
     "dev": "cd .erxes && yarn dev",
     "build": "cd .erxes && yarn build",
     "start": "cd .erxes/dist/plugin-forum-api/.erxes && node src"
+  },
+  "dependencies": {
+    "server-timing": "3.3.1",
+    "jsonwebtoken": "^8.5.1"
   }
 }
