@@ -23,13 +23,13 @@ type Props = {
 
 type FinalProps = {
   fieldsGroupsQuery: FieldsGroupsQueryResponse;
-  fieldsInputTypes:FieldsInputTypesQueryResponse
+  fieldsInputTypes: FieldsInputTypesQueryResponse;
 } & Props &
   FieldsAddMutationResponse &
   FieldsEditMutationResponse;
 
 const PropertyFormContainer = (props: FinalProps) => {
-  const { fieldsGroupsQuery,fieldsInputTypes, queryParams } = props;
+  const { fieldsGroupsQuery, fieldsInputTypes, queryParams } = props;
   const { type } = queryParams;
 
   let { renderButton } = props;
