@@ -313,7 +313,7 @@ class PageForm extends React.Component<Props, State> {
   render() {
     const { name } = this.state;
     const { page } = this.props;
-
+    console.log('pp', page);
     const breadcrumb = [
       { title: 'Webbuilder', link: '/webbuilder/pages' },
       { title: __('Page') }

@@ -7,7 +7,7 @@ import {
 } from '../../types';
 import { mutations, queries } from '../../graphql';
 
-import List from '../../components/contentTypes/List';
+import List1 from '../../components/contentTypes/List1';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
@@ -15,7 +15,10 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 
 type Props = {
-  siteId: string;
+  queryParams: any;
+  getActionBar: (actionBar: any) => void;
+  setCount: (count: number) => void;
+  selectedSite: string;
 };
 
 type FinalProps = {
@@ -54,27 +57,28 @@ function ContentTypesContainer(props: FinalProps) {
     contentTypesCount: totalCount
   };
 
-  return <List {...updatedProps} />;
+  return <List1 {...updatedProps} />;
 }
 
 export default compose(
   graphql<Props, TypesMainQueryResponse>(gql(queries.contentTypesMain), {
     name: 'typesMainQuery',
-    options: ({ siteId }) => ({
+    options: ({ queryParams, selectedSite }) => ({
       variables: {
-        siteId
+        ...generatePaginationParams(queryParams),
+        siteId: queryParams.siteId || selectedSite
       },
       fetchPolicy: 'network-only'
     })
   }),
   graphql<Props, TypesRemoveMutationResponse>(gql(mutations.typesRemove), {
     name: 'typesRemoveMutation',
-    options: ({ siteId }) => ({
+    options: ({ selectedSite }) => ({
       refetchQueries: [
         {
           query: gql(queries.contentTypes),
           variables: {
-            siteId
+            siteId: selectedSite
           }
         }
       ]

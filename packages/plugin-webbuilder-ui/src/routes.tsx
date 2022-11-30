@@ -27,6 +27,12 @@ const PageForm = asyncComponent(() =>
   )
 );
 
+const SiteForm = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "SiteForm - Webbuilders" */ './containers/sites/SiteForm'
+  )
+);
+
 const EntryForm = asyncComponent(() =>
   import(
     /* webpackChunkName: "EntryForm - Webbuilders" */ './containers/entries/EntryForm'
@@ -82,10 +88,10 @@ const typeEdit = ({ match }) => {
   return <ContentTypeForm contentTypeId={id} />;
 };
 
-const pageEdit = ({ match }) => {
+const siteEdit = ({ match }) => {
   const _id = match.params._id;
 
-  return <PageForm _id={_id} />;
+  return <SiteForm _id={_id} />;
 };
 
 const entryAdd = ({ match, location }) => {
@@ -125,16 +131,15 @@ const routes = () => {
       />
 
       <Route
-        path="/webbuilder/pages/create"
+        path="/webbuilder/sites/edit/:_id"
         exact={true}
-        component={PageForm}
+        component={siteEdit}
       />
 
       <Route
-        key="/webbuilder/pages/edit/:_id"
-        path="/webbuilder/pages/edit/:_id"
+        path="/webbuilder/pages/create"
         exact={true}
-        component={pageEdit}
+        component={PageForm}
       />
 
       <Route

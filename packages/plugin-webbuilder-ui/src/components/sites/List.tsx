@@ -62,14 +62,11 @@ class SiteList extends React.Component<Props, {}> {
               <Icon icon="ellipsis-h" size={18} />
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <Link to={`pages/edit/`}>
+              <Link to={`/webbuilder/sites/edit/${site._id}`}>
                 <li key="editor">
                   <Icon icon="edit-3" /> Editor
                 </li>
               </Link>
-              {/* <li key="duplicate">
-                <Icon icon="copy-alt" /> Duplicate
-              </li> */}
               <li key="delete" onClick={() => remove(site._id)}>
                 <Icon icon="trash-alt" size={14} /> Delete
               </li>

@@ -1,28 +1,26 @@
 import 'grapesjs/dist/css/grapes.min.css';
 
-import { IContentTypeDoc } from '../../types';
+import { IPageDoc } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
-import { List } from '../pages/styles';
+import { List } from './styles';
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
-  contentTypes: IContentTypeDoc[];
-  remove: (contentTypeId: string) => void;
-  contentTypesCount: number;
+  pages: IPageDoc[];
 };
 
-class ContentTypesList extends React.Component<Props> {
+class PageList extends React.Component<Props> {
   render() {
-    const { contentTypes = [] } = this.props;
+    const { pages } = this.props;
 
     return (
       <List>
-        {contentTypes.map(type => (
-          <li key={type._id}>
+        {pages.map(page => (
+          <li key={page._id}>
             <div>
               <Icon icon="file-1" />
-              {type.displayName}
+              {page.name}
             </div>
             <Icon icon="settings" />
           </li>
@@ -30,7 +28,7 @@ class ContentTypesList extends React.Component<Props> {
         <li>
           <div className="link">
             <Icon icon="plus-1" />
-            {__('Create content type')}
+            {__('Create page')}
           </div>
         </li>
       </List>
@@ -38,4 +36,4 @@ class ContentTypesList extends React.Component<Props> {
   }
 }
 
-export default ContentTypesList;
+export default PageList;

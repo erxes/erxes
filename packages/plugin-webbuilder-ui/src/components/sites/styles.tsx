@@ -210,3 +210,31 @@ export const Labels = styledTS<{ filteredCategories?: boolean }>(styled.div)`
     display: none;
   }
 `;
+
+export const LeftSidebar = styled.div`
+  overflow: auto;
+  height: 100%;
+  flex: 1 1 0%;
+  background: #444444;
+  color: ${colors.colorShadowGray};
+`;
+
+export const CollapseLeftMenu = styled.div`
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 9px ${dimensions.unitSpacing}px;
+`;
+
+export const SubTitle = styled.div`
+  background: #3e3e3e;
+  margin: 0;
+  letter-spacing: 1px;
+  padding: 9px ${dimensions.unitSpacing}px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+  border-top: 1px solid rgba(0, 0, 0, 0.25);
+`;
+
+export const LeftSidebarContent = styled.div`
+  padding: 9px ${dimensions.unitSpacing}px;
+`;

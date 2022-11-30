@@ -1,6 +1,5 @@
 import * as compose from 'lodash.flowright';
 
-import { Alert } from '@erxes/ui/src/utils';
 import {
   TemplatesQueryResponse,
   TemplatesTotalCountQueryResponse,
@@ -8,6 +7,7 @@ import {
 } from '../../types';
 import { mutations, queries } from '../../graphql';
 
+import { Alert } from '@erxes/ui/src/utils';
 import List from '../../components/templates/List';
 import React from 'react';
 import { Redirect } from 'react-router-dom';
@@ -43,7 +43,7 @@ function ListContainer(props: FinalProps) {
 
         Alert.success('Successfully created a website');
 
-        window.location.href = `/webbuilder/pages/edit/${webbuilderTemplatesUse}`;
+        window.location.href = `/webbuilder/sites/edit/${webbuilderTemplatesUse}`;
       })
       .catch(e => {
         Alert.error(e.message);
