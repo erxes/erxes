@@ -19,7 +19,7 @@ type Props = {
 export const Authorization = (props: Props) => {
   const { queryParams } = props;
 
-  if (queryParams.fbAuthorized || queryParams.gmailAuthorized) {
+  if (queryParams.gmailAuthorized) {
     window.opener.location.reload();
     window.close();
   }

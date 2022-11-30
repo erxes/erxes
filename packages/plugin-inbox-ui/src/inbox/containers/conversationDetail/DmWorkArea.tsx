@@ -24,9 +24,13 @@ import {
   MessagesQueryResponse,
   MessagesTotalCountQuery
 } from '@erxes/ui-inbox/src/inbox/types';
+import {
+  isConversationMailKind,
+  isConversationDmKind
+} from '@erxes/ui-inbox/src/inbox/utils';
 
 // messages limit
-const initialLimit = 10;
+let initialLimit = 10;
 
 type Props = {
   currentConversation: IConversation;
@@ -64,10 +68,13 @@ const getQueryString = (
 const getQueryResult = (
   queryResponse: object,
   configQueries: DmQueryItem[] = [],
-  conv: IConversation
+  conv: IConversation,
+  countQuery?: boolean
 ) => {
   const { integration } = conv;
-  let key = 'conversationMessages';
+  let key = countQuery
+    ? 'conversationMessagesTotalCount'
+    : 'conversationMessages';
 
   if (conv && configQueries.length > 0) {
     const query = configQueries.find(
@@ -168,15 +175,17 @@ class WorkArea extends React.Component<FinalProps, State> {
             return;
           }
 
+          messages.push(message);
+
           // add new message to messages list
           const next = {
             ...prev,
-            conversationMessages: [...messages, message]
+            conversationMessages: [...messages]
           };
 
           // send desktop notification
           sendDesktopNotification({
-            title: NOTIFICATION_TYPE[kind],
+            title: NOTIFICATION_TYPE[kind] || `You have a new ${kind} message`,
             content: strip(message.content) || ''
           });
 
@@ -302,7 +311,12 @@ class WorkArea extends React.Component<FinalProps, State> {
       dmConfig,
       currentConversation
     } = this.props;
-    const { conversationMessagesTotalCount } = messagesTotalCountQuery;
+    const conversationMessagesTotalCount = getQueryResult(
+      messagesTotalCountQuery,
+      dmConfig?.countQueries,
+      currentConversation,
+      true
+    );
     const conversationMessages = getQueryResult(
       messagesQuery,
       dmConfig?.messagesQueries,
@@ -419,10 +433,20 @@ const generateWithQuery = (props: Props) => {
       >(gql(listQuery), {
         name: 'messagesQuery',
         options: ({ currentId }) => {
+          const windowHeight = window.innerHeight;
+          const isMail = isConversationMailKind(currentConversation);
+          const isDm = isConversationDmKind(currentConversation);
+
+          // 330 - height of above and below sections of detail area
+          // 45 -  min height of per message
+          initialLimit = !isMail
+            ? Math.round((windowHeight - 330) / 45 + 1)
+            : 10;
+
           return {
             variables: {
               conversationId: currentId,
-              limit: initialLimit,
+              limit: isDm || isMail ? initialLimit : 0,
               skip: 0
             },
             fetchPolicy: 'network-only'

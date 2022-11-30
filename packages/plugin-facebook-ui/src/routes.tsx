@@ -33,9 +33,9 @@ const routes = () => (
     />
 
     <Route
-      key="/settings/authorization"
+      key="/settings/fb-authorization"
       exact={true}
-      path="/settings/authorization"
+      path="/settings/fb-authorization"
       component={auth}
     />
   </React.Fragment>

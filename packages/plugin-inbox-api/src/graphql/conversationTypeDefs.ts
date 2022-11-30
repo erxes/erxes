@@ -3,7 +3,7 @@ import {
   attachmentType
 } from '@erxes/api-utils/src/commonTypeDefs';
 
-export const types = ({ tags, forms, facebook, contacts }) => `
+export const types = ({ tags, forms, contacts }) => `
   ${attachmentType}
   ${attachmentInput}
 
@@ -20,16 +20,6 @@ export const types = ({ tags, forms, facebook, contacts }) => `
     tags
       ? `
       extend type Tag @key(fields: "_id") {
-        _id: String! @external
-      }
-    `
-      : ''
-  }
-
-  ${
-    facebook
-      ? `
-      extend type FacebookPost @key(fields: "_id") {
         _id: String! @external
       }
     `
@@ -59,7 +49,6 @@ export const types = ({ tags, forms, facebook, contacts }) => `
     operatorStatus: String
 
     messages: [ConversationMessage]
-    ${facebook ? `facebookPost: FacebookPost` : ''}
     callProAudio: String
     
     ${tags ? 'tags: [Tag]' : ''}
@@ -70,7 +59,6 @@ export const types = ({ tags, forms, facebook, contacts }) => `
     participatedUsers: [User]
     participatorCount: Int
     videoCallData: VideoCallData
-    isFacebookTaggedMessage: Boolean
     customFieldsData: JSON
 
     bookingProductId: String
@@ -264,7 +252,7 @@ export const mutations = `
     internal: Boolean,
     attachments: [AttachmentInput],
     contentType: String
-    facebookMessageTag: String
+    extraInfo: JSON
   ): ConversationMessage
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
   conversationsUnassign(_ids: [String]!): [Conversation]

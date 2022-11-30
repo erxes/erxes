@@ -2,7 +2,7 @@ import Button from '@erxes/ui/src/components/Button';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import colors from '@erxes/ui/src/styles/colors';
 import { BoxRoot } from '@erxes/ui/src/styles/main';
-import { __, isEnabled } from '@erxes/ui/src/utils/core';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -75,41 +75,9 @@ export const IntegrationModal = ({ trigger }: Props) => {
     return (
       <Wrapper>
         <h3>{__('Which integration would you like to connect?')}</h3>
-        {isEnabled('facebook') ? (
-          <React.Fragment>
-            <Link to="/settings/integrations/createFacebook?kind=facebook-post">
-              <Box>
-                <img
-                  src="/images/integrations/facebook.png"
-                  alt="Facebook Post"
-                />
-                <span>{__('Facebook Post')}</span>
-                <p>
-                  {__(
-                    'Receiving Facebook post and comments in your team inbox'
-                  )}
-                </p>
-              </Box>
-            </Link>
-            <Link to="/settings/integrations/createFacebook?kind=facebook-messenger">
-              <Box>
-                <img
-                  src="/images/integrations/fb-messenger.png"
-                  alt="Facebook Messenger"
-                />
-                <span>{__('Facebook Messenger')}</span>
-                <p>{__('Receiving Facebook messages in your team inbox')}</p>
-              </Box>
-            </Link>
-          </React.Fragment>
-        ) : null}
-
         <Link to="/settings/integrations/createMessenger">
           <Box>
-            <img
-              src="/images/integrations/messenger.png"
-              alt="Facebook Messenger"
-            />
+            <img src="/images/integrations/messenger.png" alt="Messenger" />
             <span>{__('Messenger')}</span>
             <p>
               {__('Answer questions on your website with a live chat widget')}

@@ -57,12 +57,7 @@ export default class ConversationDetail extends React.Component<Props> {
 
     if (currentConversation) {
       const { integration } = currentConversation;
-
-      let kind = integration.kind;
-
-      if (kind.includes('facebook')) {
-        kind = 'facebook';
-      }
+      const kind = integration.kind.split('-')[0];
 
       const dmConfig = getPluginConfig({
         pluginName: kind,

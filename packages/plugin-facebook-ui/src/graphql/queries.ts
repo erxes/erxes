@@ -1,8 +1,25 @@
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
 const paramDefs = `$kind: String`;
 const params = `kind: $kind`;
 
 const commentsParamDefs = `$conversationId: String!, $isResolved: Boolean, $commentId: String, $senderId: String, $skip: Int, $limit: Int`;
 const commentsParams = `conversationId: $conversationId, isResolved: $isResolved, commentId: $commentId, senderId: $senderId, skip: $skip, limit: $limit`;
+
+const commonCommentAndMessageFields = `
+  content
+  conversationId
+`;
+
+const commonPostAndCommentFields = `
+  postId
+  recipientId
+  senderId
+  erxesApiId
+  attachments
+  timestamp
+  permalink_url
+`;
 
 const facebookGetConfigs = `
   query facebookGetConfigs {
@@ -25,17 +42,10 @@ const facebookGetIntegrationDetail = `
 const facebookGetComments = `
   query facebookGetComments(${commentsParamDefs}) {
     facebookGetComments(${commentsParams}) {
-      conversationId
+      ${commonCommentAndMessageFields}
+      ${commonPostAndCommentFields}
       commentId
-      postId
       parentId
-      recipientId
-      senderId
-      permalink_url
-      attachments
-      content
-      erxesApiId
-      timestamp
       customer {
         _id
       }
@@ -77,12 +87,52 @@ const facebookConversationMessages = `
       getFirst: $getFirst
     ) {
       _id
-      content
-      conversationId
+      ${commonCommentAndMessageFields}
       customerId
       userId
       createdAt
       isCustomerRead
+
+      attachments {
+        url
+        name
+        type
+        size
+      }
+
+      user {
+        _id
+        username
+        details {
+          avatar
+          fullName
+          position
+        }
+      }
+      ${
+        isEnabled('contacts')
+          ? `
+          customer {
+            _id
+            avatar
+            firstName
+            middleName
+            lastName
+            primaryEmail
+            primaryPhone
+            state
+            companies {
+              _id
+              primaryName
+              website
+            }
+
+            customFieldsData
+            tagIds
+          }
+        `
+          : ``
+      }
     }
   }
 `;
@@ -90,6 +140,21 @@ const facebookConversationMessages = `
 const facebookConversationMessagesCount = `
   query facebookConversationMessagesCount($conversationId: String!) {
     facebookConversationMessagesCount(conversationId: $conversationId)
+  }
+`;
+
+const facebookGetPost = `
+  query facebookGetPost($erxesApiId: String) {
+    facebookGetPost(erxesApiId: $erxesApiId) {
+      _id
+      ${commonPostAndCommentFields}
+    }
+  }
+`;
+
+const facebookHasTaggedMessages = `
+  query facebookHasTaggedMessages($conversationId: String!) {
+    facebookHasTaggedMessages(conversationId: $conversationId)
   }
 `;
 
@@ -102,5 +167,7 @@ export default {
   facebookGetPages,
   facebookGetAccounts,
   facebookConversationMessages,
-  facebookConversationMessagesCount
+  facebookConversationMessagesCount,
+  facebookGetPost,
+  facebookHasTaggedMessages
 };

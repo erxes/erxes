@@ -5,7 +5,6 @@ import {
   Type
 } from '@erxes/ui-inbox/src/settings/integrations/components/store/styles';
 
-import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import Icon from '@erxes/ui/src/components/Icon';
 import IntegrationForm from '../../containers/common/IntegrationForm';
 import { Link } from 'react-router-dom';
@@ -72,23 +71,11 @@ function renderCreate(createUrl, kind, isAvailable) {
 
   const trigger = <button>+ {__('Add')}</button>;
 
-  if (kind === INTEGRATION_KINDS.FACEBOOK_MESSENGER) {
-    return (
-      <Link to={`${createUrl}?kind=${INTEGRATION_KINDS.FACEBOOK_MESSENGER}`}>
-        + {__('Add')}
-      </Link>
-    );
+  if (createUrl && kind && isAvailable) {
+    return <Link to={`${createUrl}?kind=${kind}`}>+ {__('Add')}</Link>;
   }
 
-  if (kind === INTEGRATION_KINDS.FACEBOOK_POST) {
-    return (
-      <Link to={`${createUrl}?kind=${INTEGRATION_KINDS.FACEBOOK_POST}`}>
-        + {__('Add')}
-      </Link>
-    );
-  }
-
-  if (kind === INTEGRATION_KINDS.MESSENGER) {
+  if ((createUrl || '').includes('create')) {
     return <Link to={createUrl}>+ {__('Add')}</Link>;
   }
 
@@ -104,7 +91,7 @@ function renderCreate(createUrl, kind, isAvailable) {
 }
 
 function Entry({ integration, getClassName, toggleBox, totalCount }: Props) {
-  const { kind, isAvailable, createUrl, createModal } = integration;
+  const { kind, isAvailable, createUrl } = integration;
 
   return (
     <IntegrationItem key={integration.name} className={getClassName(kind)}>
@@ -127,7 +114,7 @@ function Entry({ integration, getClassName, toggleBox, totalCount }: Props) {
           </Ribbon>
         )}
       </Box>
-      {renderCreate(createUrl, createModal, isAvailable)}
+      {renderCreate(createUrl, kind, isAvailable)}
     </IntegrationItem>
   );
 }

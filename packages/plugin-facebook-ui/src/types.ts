@@ -1,6 +1,7 @@
 import { QueryResponse } from '@erxes/ui/src/types';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 export interface IAccount {
   _id: string;
@@ -27,6 +28,9 @@ export interface IConversationMessage {
   _id: string;
   createdAt: Date;
   updatedAt: Date;
+
+  user?: IUser;
+  customer: ICustomer;
 }
 
 export type MessagesQueryResponse = {
@@ -100,3 +104,11 @@ export type ResolveFacebookCommentResponse = {
 export interface IFbConversation extends IConversation {
   facebookPost?: IFacebookPost;
 }
+
+export type FacebookPostQueryResponse = {
+  facebookGetPost: IFacebookPost;
+} & QueryResponse;
+
+export type TaggedMessagesQueryResponse = {
+  facebookHasTaggedMessages: boolean;
+} & QueryResponse;

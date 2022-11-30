@@ -1,4 +1,6 @@
 import { IContext, IModels } from '../../connectionResolver';
+import { INTEGRATION_KINDS } from '../../constants';
+import { sendInboxMessage } from '../../messageBroker';
 import { IConversationMessageDocument } from '../../models/definitions/conversationMessages';
 import { getPageList } from '../../utils';
 
@@ -10,19 +12,22 @@ interface IDetailParams {
   erxesApiId: string;
 }
 
-interface ICommentsParams {
+interface IConversationId {
   conversationId: string;
-  isResolved?: boolean;
-  commentId?: string;
-  senderId: string;
+}
+
+interface IPageParams {
   skip?: number;
   limit?: number;
 }
 
-interface IMessagesParams {
-  conversationId: string;
-  skip?: number;
-  limit?: number;
+interface ICommentsParams extends IConversationId, IPageParams {
+  isResolved?: boolean;
+  commentId?: string;
+  senderId: string;
+}
+
+interface IMessagesParams extends IConversationId, IPageParams {
   getFirst?: boolean;
 }
 
@@ -57,7 +62,7 @@ const facebookQueries = {
     return models.Integrations.findOne({ erxesApiId });
   },
 
-  async facebookGetConfigs(_root, _args, { models }: IContext) {
+  facebookGetConfigs(_root, _args, { models }: IContext) {
     return models.Configs.find({}).lean();
   },
 
@@ -88,11 +93,9 @@ const facebookQueries = {
     if (senderId && senderId !== 'undefined') {
       const customer = await models.Customers.findOne({ erxesApiId: senderId });
 
-      if (!customer) {
-        return null;
+      if (customer && customer.userId) {
+        query.senderId = customer.userId;
       }
-
-      query.senderId = customer.userId;
     } else {
       query.parentId = commentId !== 'undefined' ? commentId : '';
     }
@@ -244,6 +247,54 @@ const facebookQueries = {
     const selector = await buildSelector(conversationId, models);
 
     return models.ConversationMessages.countDocuments(selector);
+  },
+
+  facebookGetPost(_root, { erxesApiId }: IDetailParams, { models }: IContext) {
+    return models.Posts.findOne({ erxesApiId });
+  },
+
+  async facebookHasTaggedMessages(
+    _root,
+    { conversationId }: IConversationId,
+    { models, subdomain }: IContext
+  ) {
+    const commonParams = { isRPC: true, subdomain };
+
+    const inboxConversation = await sendInboxMessage({
+      ...commonParams,
+      action: 'conversations.findOne',
+      data: { query: { _id: conversationId } }
+    });
+
+    let integration;
+
+    if (inboxConversation) {
+      integration = await sendInboxMessage({
+        ...commonParams,
+        action: 'integrations.findOne',
+        data: { _id: inboxConversation.integrationId }
+      });
+    }
+
+    if (integration && integration.kind !== INTEGRATION_KINDS.MESSENGER) {
+      return false;
+    }
+
+    const query = await buildSelector(conversationId, models);
+
+    const messages = await models.ConversationMessages.find({
+      ...query,
+      customerId: { $exists: true },
+      createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+    })
+      .limit(2)
+      .lean();
+
+    if (messages.length >= 1) {
+      return false;
+    }
+
+    return true;
   }
 };
 

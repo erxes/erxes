@@ -10,18 +10,18 @@ import {
   subscriptions as inboxSubscriptions
 } from '@erxes/ui-inbox/src/inbox/graphql';
 import { MessagesQueryResponse } from '@erxes/ui-inbox/src/inbox/types';
+import { Spinner } from '@erxes/ui/src/components';
 
 import { AppConsumer } from 'coreui/appContext';
-import FacebookConversation from '../../components/conversationDetail/facebook/FacebookConversation';
+import FacebookConversation from '../../components/conversationDetail/post/FacebookConversation';
 import { queries } from '../../graphql/index';
 import {
   FacebookCommentsCountQueryResponse,
   FacebookCommentsQueryResponse,
+  FacebookPostQueryResponse,
   IFacebookComment,
-  IFacebookPost,
   IFbConversation
 } from '../../types';
-import { Spinner } from '@erxes/ui/src/components';
 
 type Props = {
   currentId: string;
@@ -36,6 +36,7 @@ type FinalProps = {
   commentsQuery: FacebookCommentsQueryResponse;
   commentsCountQuery: FacebookCommentsCountQueryResponse;
   internalNotesQuery: MessagesQueryResponse;
+  postQuery: FacebookPostQueryResponse;
 } & Props;
 
 class FacebookPostContainer extends React.Component<FinalProps> {
@@ -142,10 +143,12 @@ class FacebookPostContainer extends React.Component<FinalProps> {
       commentsQuery,
       conversation,
       internalNotesQuery,
-      commentsCountQuery
+      commentsCountQuery,
+      postQuery
     } = this.props;
 
     if (
+      postQuery.loading ||
       commentsQuery.loading ||
       internalNotesQuery.loading ||
       commentsCountQuery.loading
@@ -157,23 +160,27 @@ class FacebookPostContainer extends React.Component<FinalProps> {
       return 'No conversation found';
     }
 
-    const post =
-      (conversation && conversation.facebookPost) || ({} as IFacebookPost);
     const comments = commentsQuery.facebookGetComments || [];
     const commentCounts = commentsCountQuery.facebookGetCommentCount || {};
 
     const hasMore = commentCounts.commentCountWithoutReplies > comments.length;
     const commentCount = commentCounts.commentCount;
 
+    const refetchComments = (isResolved: boolean) => {
+      commentsQuery.refetch({ isResolved });
+      commentsCountQuery.refetch({ isResolved });
+    };
+
     const updatedProps = {
       ...this.props,
       commentCount,
-      post,
+      post: postQuery.facebookGetPost,
       customer: (conversation && conversation.customer) || ({} as any),
       comments,
       internalNotes: internalNotesQuery.conversationMessages,
       hasMore,
-      fetchFacebook: this.fetchFacebook
+      fetchFacebook: this.fetchFacebook,
+      refetchComments
     };
 
     return <FacebookConversation {...updatedProps} />;
@@ -233,7 +240,13 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
           };
         }
       }
-    )
+    ),
+    graphql<Props, FacebookPostQueryResponse>(gql(queries.facebookGetPost), {
+      name: 'postQuery',
+      options: ({ currentId }) => ({
+        variables: { erxesApiId: currentId }
+      })
+    })
   )(FacebookPostContainer)
 );
 

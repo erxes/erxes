@@ -15,10 +15,18 @@ const commonPostAndCommentFields = `
   permalink_url: String
 `;
 
+const commentQueryParamDefs = `conversationId: String!, isResolved: Boolean`;
+
+const pageParams = `skip: Int, limit: Int`;
+
 export const types = `
   ${attachmentType}
 
   extend type Customer @key(fields: "_id") {
+    _id: String! @external
+  }
+
+  extend type User @key(fields: "_id") {
     _id: String! @external
   }
 
@@ -43,6 +51,9 @@ export const types = `
     createdAt: Date
     isCustomerRead: Boolean
     mid: String
+
+    customer: Customer
+    user: User
   }
 
   type FacebookPost @key(fields: "_id") {
@@ -58,23 +69,18 @@ export const queries = `
   facebookGetIntegrationDetail(erxesApiId: String): JSON 
   facebookGetConfigs: JSON
   facebookGetComments(
-    conversationId: String!
-    isResolved: Boolean
-    commentId: String
-    senderId: String
-    skip: Int
-    limit: Int
+    ${commentQueryParamDefs},
+    commentId: String,
+    senderId: String,
+    ${pageParams}
   ): [FacebookComment]
-  facebookGetCommentCount(conversationId: String! isResolved: Boolean): JSON
+  facebookGetCommentCount(${commentQueryParamDefs}): JSON
   facebookGetPages(accountId: String! kind: String!): JSON
   facebookConversationDetail(_id: String!): JSON
-  facebookConversationMessages(
-    conversationId: String!
-    skip: Int
-    limit: Int
-    getFirst: Boolean
-  ): [FacebookConversationMessage]
+  facebookConversationMessages(conversationId: String! getFirst: Boolean, ${pageParams}): [FacebookConversationMessage]
   facebookConversationMessagesCount(conversationId: String!): Int
+  facebookGetPost(erxesApiId: String): FacebookPost
+  facebookHasTaggedMessages(conversationId: String!): Boolean
 `;
 
 export const mutations = `

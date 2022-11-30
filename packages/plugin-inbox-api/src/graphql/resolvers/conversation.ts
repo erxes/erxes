@@ -1,10 +1,7 @@
 import { debug } from '../../configs';
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { MESSAGE_TYPES } from '../../models/definitions/constants';
-import {
-  sendFacebookMessage,
-  sendIntegrationsMessage
-} from '../../messageBroker';
+import { sendIntegrationsMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 
 export default {
@@ -67,36 +64,6 @@ export default {
       conv._id
     );
     return messages.filter(message => message);
-  },
-
-  async facebookPost(
-    conv: IConversationDocument,
-    _args,
-    { models, subdomain }: IContext
-  ) {
-    const integration =
-      (await models.Integrations.findOne({ _id: conv.integrationId })) ||
-      ({} as any);
-
-    if (integration && integration.kind !== 'facebook-post') {
-      return null;
-    }
-
-    try {
-      const response = await sendFacebookMessage({
-        subdomain,
-        action: 'getPost',
-        data: {
-          erxesApiId: conv._id
-        },
-        isRPC: true
-      });
-
-      return response;
-    } catch (e) {
-      debug.error(e);
-      return null;
-    }
   },
 
   async callProAudio(
@@ -168,37 +135,5 @@ export default {
       debug.error(e);
       return null;
     }
-  },
-
-  async isFacebookTaggedMessage(
-    conversation: IConversationDocument,
-    _args,
-    { models, subdomain }: IContext
-  ) {
-    const integration =
-      (await models.Integrations.findOne({
-        _id: conversation.integrationId
-      })) || ({} as any);
-
-    if (integration && integration.kind !== 'facebook-messenger') {
-      return false;
-    }
-
-    const messages = await sendFacebookMessage({
-      action: 'conversationMessages.find',
-      isRPC: true,
-      subdomain,
-      data: {
-        conversationId: conversation._id,
-        customerId: { $exists: true },
-        createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) }
-      }
-    });
-
-    if (messages.length && messages.length >= 1) {
-      return false;
-    }
-
-    return true;
   }
 };

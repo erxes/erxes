@@ -20,7 +20,7 @@ const userMiddleware = async (req, _res, next) => {
     userIds = response.userIds;
   }
 
-  if (path.startsWith('/accounts') || path.startsWith('/integrations')) {
+  if (path.startsWith('/accounts')) {
     try {
       const userId = headers.userid || query.userId;
 

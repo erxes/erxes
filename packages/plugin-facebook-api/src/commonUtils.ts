@@ -37,20 +37,6 @@ interface IRequestParams {
 }
 
 /**
- * Check and throw error when concurrent
- * @param {Object} e - error
- * @param {String} name - model
- * @returns throw Error
- */
-export const checkConcurrentError = (e: any, name: string) => {
-  throw new Error(
-    e.message.includes('duplicate')
-      ? `Concurrent request: nylas ${name} duplication`
-      : e
-  );
-};
-
-/**
  * Send request
  */
 export const sendRequest = ({
@@ -111,20 +97,6 @@ export const sendRequest = ({
   });
 };
 
-/**
- * Clean html and css
- * @param {String} body
- * @returns {String} striped text
- */
-export const cleanHtml = (body: string) => {
-  const clean = sanitizeHtml(body || '', {
-    allowedTags: [],
-    allowedAttributes: {}
-  }).trim();
-
-  return clean.substring(0, 65);
-};
-
 export const getEnv = ({
   name,
   defaultValue
@@ -145,14 +117,6 @@ export const getEnv = ({
   return value || '';
 };
 
-/**
- * Compose functions
- * @param {Functions} fns
- * @returns {Promise} fns value
- */
-export const compose = (...fns) => arg =>
-  fns.reduceRight((p, f) => p.then(f), Promise.resolve(arg));
-
 /*
  * Generate url depending on given file upload publicly or not
  */
@@ -164,27 +128,6 @@ export const generateAttachmentUrl = (urlOrName: string) => {
   }
 
   return `${DOMAIN}/gateway/pl:core/read-file?key=${urlOrName}`;
-};
-
-export const downloadAttachment = urlOrName => {
-  return new Promise(async (resolve, reject) => {
-    const url = generateAttachmentUrl(urlOrName);
-
-    const options = {
-      url,
-      encoding: null
-    };
-
-    try {
-      await request.get(options).then(res => {
-        const buffer = Buffer.from(res, 'utf8');
-
-        resolve(buffer.toString('base64'));
-      });
-    } catch (e) {
-      reject(e);
-    }
-  });
 };
 
 export const getConfigs = async (models: IModels) => {
@@ -218,27 +161,4 @@ export const getConfig = async (models: IModels, code, defaultValue?) => {
 
 export const resetConfigsCache = () => {
   set(CACHE_NAME, '');
-};
-
-export const generateUid = () => {
-  return (
-    '_' +
-    Math.random()
-      .toString(36)
-      .substr(2, 9)
-  );
-};
-
-export const isAfter = (
-  expiresTimestamp: number,
-  defaultMillisecond?: number
-) => {
-  const millisecond = defaultMillisecond || new Date().getTime();
-  const expiresMillisecond = new Date(expiresTimestamp * 1000).getTime();
-
-  if (expiresMillisecond > millisecond) {
-    return true;
-  }
-
-  return false;
 };

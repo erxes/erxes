@@ -14,7 +14,7 @@ import {
   ResolveFacebookCommentMutationVariables,
   ResolveFacebookCommentResponse
 } from '../../types';
-import FacebookComment from '../../components/conversationDetail/facebook/FacebookComment';
+import FacebookComment from '../../components/conversationDetail/post/FacebookComment';
 
 type Props = {
   comment: IFacebookComment;

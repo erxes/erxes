@@ -194,6 +194,16 @@ export const initBroker = cl => {
     }
   );
 
+  consumeQueue(
+    'inbox:removeConversation',
+    async ({ subdomain, data: { _id } }) => {
+      const models = await generateModels(subdomain);
+
+      await models.ConversationMessages.deleteMany({ conversationId: _id });
+      return models.Conversations.deleteOne({ _id });
+    }
+  );
+
   consumeRPCQueue(
     'inbox:getConversations',
     async ({ subdomain, data: { query } }) => {
@@ -428,15 +438,6 @@ export const sendAutomationsMessage = async (
     client,
     serviceDiscovery,
     serviceName: 'automations',
-    ...args
-  });
-};
-
-export const sendFacebookMessage = (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({
-    client,
-    serviceDiscovery,
-    serviceName: 'facebook',
     ...args
   });
 };

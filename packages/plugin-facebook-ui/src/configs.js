@@ -6,8 +6,8 @@ module.exports = {
     './routes': './src/routes.tsx',
     './inboxIntegrationSettings': './src/containers/UpdateConfigsContainer.tsx',
     './activityLog': './src/containers/ActivityLogsContainer.tsx',
-    './tagMessage': './src/components/conversationDetail/workarea/TagMessage.tsx',
-    './specialUi': './src/containers/post/FbCommentsContainer.tsx'
+    './inboxConversationDetailRespondBoxMask': './src/containers/TagMessageContainer.tsx',
+    './specialConversationUi': './src/containers/post/FbCommentsContainer.tsx'
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
@@ -38,6 +38,43 @@ module.exports = {
               userId
               createdAt
               isCustomerRead
+
+              attachments {
+                url
+                name
+                type
+                size
+              }
+
+              user {
+                _id
+                username
+                details {
+                  avatar
+                  fullName
+                  position
+                }
+              }
+
+              customer {
+                _id
+                avatar
+                firstName
+                middleName
+                lastName
+                primaryEmail
+                primaryPhone
+                state
+
+                companies {
+                  _id
+                  primaryName
+                  website
+                }
+
+                customFieldsData
+                tagIds
+              }
             }
           }
         `,
@@ -104,7 +141,7 @@ module.exports = {
       createUrl: '/settings/integrations/createFacebook',
       category:
         'All integrations, For support teams, Marketing automation, Social media',
-      component: 'specialUi'
+      components: ['specialConversationUi']
     },
     {
       name: 'Facebook Messenger',
@@ -118,9 +155,10 @@ module.exports = {
       createUrl: '/settings/integrations/createFacebook',
       category:
         'All integrations, For support teams, Messaging, Social media, Conversation',
+      components: ['inboxConversationDetailRespondBoxMask']
     },
   ],
   activityLog: './activityLog',
-  tagMessage: './tagMessage',
-  specialUi: './specialUi'
+  inboxConversationDetailRespondBoxMask: './inboxConversationDetailRespondBoxMask',
+  specialConversationUi: './specialConversationUi'
 };

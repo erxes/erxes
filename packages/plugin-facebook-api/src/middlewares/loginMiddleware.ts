@@ -101,7 +101,7 @@ const loginMiddleware = async (req, res) => {
       });
     }
 
-    const url = `${DOMAIN}/settings/authorization?fbAuthorized=true`;
+    const url = `${DOMAIN}/settings/fb-authorization?fbAuthorized=true`;
 
     debugResponse(debugFacebook, req, url);
 
