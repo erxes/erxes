@@ -68,10 +68,13 @@ const getQueryString = (
 const getQueryResult = (
   queryResponse: object,
   configQueries: DmQueryItem[] = [],
-  conv: IConversation
+  conv: IConversation,
+  countQuery?: boolean
 ) => {
   const { integration } = conv;
-  let key = 'conversationMessages';
+  let key = countQuery
+    ? 'conversationMessagesTotalCount'
+    : 'conversationMessages';
 
   if (conv && configQueries.length > 0) {
     const query = configQueries.find(
@@ -308,7 +311,12 @@ class WorkArea extends React.Component<FinalProps, State> {
       dmConfig,
       currentConversation
     } = this.props;
-    const { conversationMessagesTotalCount } = messagesTotalCountQuery;
+    const conversationMessagesTotalCount = getQueryResult(
+      messagesTotalCountQuery,
+      dmConfig?.countQueries,
+      currentConversation,
+      true
+    );
     const conversationMessages = getQueryResult(
       messagesQuery,
       dmConfig?.messagesQueries,
