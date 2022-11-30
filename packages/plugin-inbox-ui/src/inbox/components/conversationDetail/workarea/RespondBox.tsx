@@ -32,7 +32,11 @@ import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import Tip from '@erxes/ui/src/components/Tip';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { deleteHandler } from '@erxes/ui/src/utils/uploadHandler';
-import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
+import {
+  getPluginConfig,
+  isEnabled,
+  loadDynamicComponent
+} from '@erxes/ui/src/utils/core';
 
 const Editor = asyncComponent(
   () => import(/* webpackChunkName: "Editor-in-Inbox" */ './Editor'),
@@ -516,15 +520,38 @@ class RespondBox extends React.Component<Props, State> {
       this.setState({ extraInfo: value });
     };
 
+    const { integration } = conversation;
+
+    const integrations = getPluginConfig({
+      pluginName: integration.kind.split('-')[0],
+      configName: 'inboxIntegrations'
+    });
+
+    let dynamicComponent = null;
+
+    if (integrations && integrations.length > 0) {
+      const entry = integrations.find(s => s.kind === integration.kind);
+
+      if (entry && entry.components && entry.components.length > 0) {
+        const name = entry.components.find(
+          el => el === 'inboxConversationDetailRespondBoxMask'
+        );
+
+        if (name) {
+          dynamicComponent = loadDynamicComponent(name, {
+            hideMask: this.hideMask,
+            extraInfo,
+            setExtraInfo,
+            conversationId: conversation._id
+          });
+        }
+      }
+    }
+
     return (
       <MaskWrapper>
         {this.renderMask()}
-        {loadDynamicComponent('inboxConversationDetailRespondBoxMask', {
-          hideMask: this.hideMask,
-          extraInfo,
-          setExtraInfo,
-          conversationId: conversation._id
-        })}
+        {dynamicComponent}
         <RespondBoxStyled isInternal={isInternal} isInactive={isInactive}>
           {this.renderBody()}
         </RespondBoxStyled>

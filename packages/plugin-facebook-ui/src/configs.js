@@ -7,7 +7,7 @@ module.exports = {
     './inboxIntegrationSettings': './src/containers/UpdateConfigsContainer.tsx',
     './activityLog': './src/containers/ActivityLogsContainer.tsx',
     './inboxConversationDetailRespondBoxMask': './src/containers/TagMessageContainer.tsx',
-    './specialUi': './src/containers/post/FbCommentsContainer.tsx'
+    './specialConversationUi': './src/containers/post/FbCommentsContainer.tsx'
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
@@ -111,7 +111,7 @@ module.exports = {
       createUrl: '/settings/integrations/createFacebook',
       category:
         'All integrations, For support teams, Marketing automation, Social media',
-      component: 'specialUi'
+      components: ['specialConversationUi']
     },
     {
       name: 'Facebook Messenger',
@@ -125,9 +125,10 @@ module.exports = {
       createUrl: '/settings/integrations/createFacebook',
       category:
         'All integrations, For support teams, Messaging, Social media, Conversation',
+      components: ['inboxConversationDetailRespondBoxMask']
     },
   ],
   activityLog: './activityLog',
   inboxConversationDetailRespondBoxMask: './inboxConversationDetailRespondBoxMask',
-  specialUi: './specialUi'
+  specialConversationUi: './specialConversationUi'
 };

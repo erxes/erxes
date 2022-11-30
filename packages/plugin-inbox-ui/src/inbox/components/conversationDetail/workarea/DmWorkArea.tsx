@@ -188,8 +188,12 @@ export default class WorkArea extends React.Component<Props, State> {
     if (integrations) {
       const entry = integrations.find(s => s.kind === integration.kind);
 
-      if (entry && entry.component) {
-        return loadDynamicComponent(entry.component, {
+      if (entry && entry.components && entry.components.length > 0) {
+        const name = entry.components.find(
+          el => el === 'specialConversationUi'
+        );
+
+        return loadDynamicComponent(name, {
           ...this.props,
           conversation: currentConversation,
           currentId: currentConversation._id,
