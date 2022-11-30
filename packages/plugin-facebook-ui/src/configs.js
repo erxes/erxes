@@ -45,6 +45,36 @@ module.exports = {
                 type
                 size
               }
+
+              user {
+                _id
+                username
+                details {
+                  avatar
+                  fullName
+                  position
+                }
+              }
+
+              customer {
+                _id
+                avatar
+                firstName
+                middleName
+                lastName
+                primaryEmail
+                primaryPhone
+                state
+
+                companies {
+                  _id
+                  primaryName
+                  website
+                }
+
+                customFieldsData
+                tagIds
+              }
             }
           }
         `,

@@ -26,6 +26,10 @@ export const types = `
     _id: String! @external
   }
 
+  extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
+
   type FacebookComment {
     ${commonCommentAndMessageFields}
     commentId: String
@@ -47,6 +51,9 @@ export const types = `
     createdAt: Date
     isCustomerRead: Boolean
     mid: String
+
+    customer: Customer
+    user: User
   }
 
   type FacebookPost @key(fields: "_id") {

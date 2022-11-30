@@ -1,3 +1,5 @@
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
 const paramDefs = `$kind: String`;
 const params = `kind: $kind`;
 
@@ -96,6 +98,40 @@ const facebookConversationMessages = `
         name
         type
         size
+      }
+
+      user {
+        _id
+        username
+        details {
+          avatar
+          fullName
+          position
+        }
+      }
+      ${
+        isEnabled('contacts')
+          ? `
+          customer {
+            _id
+            avatar
+            firstName
+            middleName
+            lastName
+            primaryEmail
+            primaryPhone
+            state
+            companies {
+              _id
+              primaryName
+              website
+            }
+
+            customFieldsData
+            tagIds
+          }
+        `
+          : ``
       }
     }
   }
