@@ -13,10 +13,11 @@ interface IListArgs {
   sortField: string;
   sortDirection: number;
   tag: string;
+  departmentId: String;
 }
 
 const generateFilter = (params: IListArgs, user: IUserDocument) => {
-  const { searchValue, tag } = params;
+  const { searchValue, tag, departmentId } = params;
 
   const filter: any = user.isOwner
     ? {}
@@ -40,6 +41,9 @@ const generateFilter = (params: IListArgs, user: IUserDocument) => {
   }
   if (tag) {
     filter.tagIds = { $in: [tag] };
+  }
+  if (departmentId) {
+    filter.departmentIds = { $in: [departmentId] };
   }
 
   return filter;
