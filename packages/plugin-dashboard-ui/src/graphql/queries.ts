@@ -14,6 +14,7 @@ const listParamsDef = `
   $page: Int
   $perPage: Int
   $tag: String
+  $departmentId: String
   $ids: [String]
   $excludeIds: Boolean
   $searchValue: String
@@ -25,6 +26,7 @@ const listParamsValue = `
   page: $page
   perPage: $perPage
   tag: $tag
+  departmentId: $departmentId
   ids: $ids
   excludeIds: $excludeIds
   searchValue: $searchValue
