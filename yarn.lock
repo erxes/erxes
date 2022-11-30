@@ -4567,6 +4567,11 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-12.20.48.tgz#55f70bd432b6515828c0298689776861b90ca4fa"
   integrity sha512-4kxzqkrpwYtn6okJUcb2lfUu9ilnb3yhUOH6qX3nug8D2DupZ2drIkff2yJzYcNJVl3begnlcaBJ7tqiTTzjnQ==
 
+"@types/node@^16.0.0":
+  version "16.18.3"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.18.3.tgz#d7f7ba828ad9e540270f01ce00d391c54e6e0abc"
+  integrity sha512-jh6m0QUhIRcZpNv7Z/rpN+ZWXOicUUQbSoWks7Htkbb9IjFQj4kzcX/xFCkjstCj5flMsN8FiSvt+q+Tcs4Llg==
+
 "@types/node@^17.0.7", "@types/node@^17.0.8":
   version "17.0.19"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.19.tgz#726171367f404bfbe8512ba608a09ebad810c7e6"
@@ -20675,6 +20680,16 @@ server-timing@3.3.1:
   dependencies:
     "@types/express" "^4.17.3"
     "@types/node" "^12.12.30"
+    minimist "^1.2.5"
+    on-headers "^1.0.2"
+
+server-timing@^3.3.2:
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/server-timing/-/server-timing-3.3.2.tgz#91781023bcf27477a5f30d452384019331a0acaa"
+  integrity sha512-jeI0+FhIEKjunZqJw1NGBT1lXHSJy5KN+wbuiTw/hG+REY9E74iW0/+8sIm2WSql3hOsxdlu9ybRyS3u8oig5A==
+  dependencies:
+    "@types/express" "^4.17.3"
+    "@types/node" "^16.0.0"
     minimist "^1.2.5"
     on-headers "^1.0.2"
 
