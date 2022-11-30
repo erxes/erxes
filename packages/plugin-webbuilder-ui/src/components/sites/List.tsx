@@ -11,6 +11,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import { ISiteDoc } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
+import { Link } from 'react-router-dom';
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 import { getEnv } from '@erxes/ui/src/utils/core';
@@ -34,13 +35,19 @@ class SiteList extends React.Component<Props, {}> {
   };
 
   renderList(site: ISiteDoc) {
+    const { remove } = this.props;
+
     return (
       <SiteBox key={site._id} nowrap={true}>
         <SitePreview>
           <img src={site.templateImage} alt="site-img" />
 
           <PreviewContent>
-            <Button btnStyle="white" onClick={() => this.showSite(site)}>
+            <Button
+              btnStyle="white"
+              onClick={() => this.showSite(site)}
+              icon="eye"
+            >
               View site
             </Button>
           </PreviewContent>
@@ -55,14 +62,16 @@ class SiteList extends React.Component<Props, {}> {
               <Icon icon="ellipsis-h" size={18} />
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <li key="editor">
-                <Icon icon="edit-3" /> Editor
-              </li>
-              <li key="delete">
-                <Icon icon="trash-alt" size={14} /> Delete
-              </li>
-              <li key="duplicate">
+              <Link to={`pages/edit/`}>
+                <li key="editor">
+                  <Icon icon="edit-3" /> Editor
+                </li>
+              </Link>
+              {/* <li key="duplicate">
                 <Icon icon="copy-alt" /> Duplicate
+              </li> */}
+              <li key="delete" onClick={() => remove(site._id)}>
+                <Icon icon="trash-alt" size={14} /> Delete
               </li>
             </Dropdown.Menu>
           </Dropdown>
@@ -72,11 +81,9 @@ class SiteList extends React.Component<Props, {}> {
   }
 
   render() {
-    const { sites } = this.props;
+    const { sites = [] } = this.props;
 
-    return (
-      <FlexWrap>{(sites || []).map(site => this.renderList(site))}</FlexWrap>
-    );
+    return <FlexWrap>{sites.map(site => this.renderList(site))}</FlexWrap>;
   }
 }
 

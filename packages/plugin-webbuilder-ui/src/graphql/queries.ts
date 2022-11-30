@@ -143,7 +143,6 @@ const sites = `
       _id
       name
       domain
-
       templateImage
     }
   }

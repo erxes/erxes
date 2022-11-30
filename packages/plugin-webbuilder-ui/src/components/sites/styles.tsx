@@ -38,8 +38,6 @@ export const SiteBox = styledTS<{ nowrap?: boolean }>(styled.div)`
   display: flex;
   flex-direction: column;
   position: relative;
-  z-index: 1;
-  overflow: hidden;
   flex: ${props => !props.nowrap && 1};
   min-height: 200px;
   transition: all ease 0.3s;
@@ -108,6 +106,8 @@ export const SitePreview = styled.div`
   height: 300px;
   border-radius: ${dimensions.unitSpacing - 2}px ${dimensions.unitSpacing - 2}px
     0 0;
+  border: 1px solid ${colors.borderPrimary};
+  background: #fefefe;
   overflow: hidden;
   position: relative;
 
@@ -143,6 +143,10 @@ export const Content = styled.div`
   }
 
   .dropdown-menu {
+    a {
+      color: ${colors.textPrimary};
+    }
+
     li {
       display: flex;
       align-items: center;

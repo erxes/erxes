@@ -9,22 +9,22 @@ import {
   SitePreview,
   Tag
 } from '../sites/styles';
+import { ModalFooter, Title } from '@erxes/ui/src/styles/main';
+import React, { useState } from 'react';
 import { __, getEnv } from '@erxes/ui/src/utils/core';
 
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
 import { CATEGORIES } from '../../constants';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import { ITemplateDoc } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import React, { useState } from 'react';
-import { ModalFooter, Title } from '@erxes/ui/src/styles/main';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 
 type Props = {
   templates: ITemplateDoc[];
@@ -80,7 +80,7 @@ function List(props: Props) {
     const content = ({ closeModal }) => (
       <>
         <FormGroup>
-          <ControlLabel required={true}>Name</ControlLabel>
+          <ControlLabel required={true}>Your WebSite Name</ControlLabel>
 
           <FormControl
             name="name"
@@ -98,22 +98,28 @@ function List(props: Props) {
             icon="times-circle"
             uppercase={false}
           >
-            Close
+            Cancel
           </Button>
 
           <Button
             btnStyle="success"
-            icon="check-circle"
+            icon="plus-circle"
             onClick={() => use(template._id, name)}
             uppercase={false}
           >
-            Save
+            Create
           </Button>
         </ModalFooter>
       </>
     );
 
-    return <ModalTrigger title="Use" trigger={trigger} content={content} />;
+    return (
+      <ModalTrigger
+        title="Name your site"
+        trigger={trigger}
+        content={content}
+      />
+    );
   };
 
   const renderRow = (template: ITemplateDoc, index: number) => {
