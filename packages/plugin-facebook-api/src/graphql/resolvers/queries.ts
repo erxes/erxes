@@ -258,12 +258,23 @@ const facebookQueries = {
     { conversationId }: IConversationId,
     { models, subdomain }: IContext
   ) {
-    const integration = await sendInboxMessage({
-      action: 'integrations.findOne',
-      subdomain,
-      isRPC: true,
-      data: { _id: conversationId }
+    const commonParams = { isRPC: true, subdomain };
+
+    const inboxConversation = await sendInboxMessage({
+      ...commonParams,
+      action: 'conversations.findOne',
+      data: { query: { _id: conversationId } }
     });
+
+    let integration;
+
+    if (inboxConversation) {
+      integration = await sendInboxMessage({
+        ...commonParams,
+        action: 'integrations.findOne',
+        data: { _id: inboxConversation.integrationId }
+      });
+    }
 
     if (integration && integration.kind !== INTEGRATION_KINDS.MESSENGER) {
       return false;
@@ -275,9 +286,11 @@ const facebookQueries = {
       ...query,
       customerId: { $exists: true },
       createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) }
-    });
+    })
+      .limit(2)
+      .lean();
 
-    if (messages.length && messages.length >= 1) {
+    if (messages.length >= 1) {
       return false;
     }
 

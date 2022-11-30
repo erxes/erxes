@@ -193,12 +193,14 @@ export default class WorkArea extends React.Component<Props, State> {
           el => el === 'specialConversationUi'
         );
 
-        return loadDynamicComponent(name, {
-          ...this.props,
-          conversation: currentConversation,
-          currentId: currentConversation._id,
-          scrollBottom: this.scrollBottom
-        });
+        if (name) {
+          return loadDynamicComponent(name, {
+            ...this.props,
+            conversation: currentConversation,
+            currentId: currentConversation._id,
+            scrollBottom: this.scrollBottom
+          });
+        }
       }
 
       return this.renderMessages(messages, firstMessage);
