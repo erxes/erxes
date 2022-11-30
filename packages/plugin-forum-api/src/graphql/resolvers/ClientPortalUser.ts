@@ -51,6 +51,10 @@ const ClientPortalUser: IObjectTypeResolver<
   },
   async forumCategoriesAllowedToPost({ _id }, _, { models: { Category } }) {
     return Category.categoriesUserAllowedToPost(_id);
+  },
+  async forumFollowingTags({ _id }, _, { models: { FollowTag } }) {
+    const follows = await FollowTag.find({ followerId: _id }).lean();
+    return follows.map(follow => ({ __typename: 'Tag', _id: follow.tagId }));
   }
 };
 

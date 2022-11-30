@@ -95,6 +95,8 @@ export default async function genTypeDefs(serviceDiscovery) {
       forumPermissionGroups: [ForumPermissionGroup!]
 
       forumCategoriesAllowedToPost: [ForumCategory!]
+
+      ${isTagsEnabled ? 'forumFollowingTags: [Tag]' : ''}      
     }
 
     ${ForumCategory}
