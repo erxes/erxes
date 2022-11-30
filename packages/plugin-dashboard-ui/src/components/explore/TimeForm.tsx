@@ -15,15 +15,7 @@ type Props = {
   schemaType: string;
 };
 
-type State = { dateRange: string[] };
-
-class TimeForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = { dateRange: [] };
-  }
-
+class TimeForm extends React.Component<Props> {
   render() {
     const {
       timeDimensions,
@@ -65,7 +57,12 @@ class TimeForm extends React.Component<Props, State> {
       if (dimension) {
         return updateTimeDimensions.update(dimension, {
           ...dimension,
-          dateRange: value.value === 'All time' ? undefined : value.value,
+          dateRange:
+            value.value === 'All time'
+              ? undefined
+              : value.value === 'Date range'
+              ? []
+              : '',
           granularity: undefined
         });
       }
@@ -76,6 +73,10 @@ class TimeForm extends React.Component<Props, State> {
         return 'All time';
       }
 
+      if (Array.isArray(value)) {
+        return 'Date range';
+      }
+
       return value;
     };
 
@@ -83,33 +84,20 @@ class TimeForm extends React.Component<Props, State> {
       if (dateSring) {
         const date = moment(dateSring || '2017-05-13').format('YYYY-MM-DD');
 
-        const { dateRange } = this.state;
-
-        const aa = [...dateRange];
-
         if (date) {
-          aa[index] = date;
+          m.dateRange[index] = date;
         }
 
-        if (aa.length === 2) {
-          updateTimeDimensions.update(m, {
-            ...m,
-            dateRange: aa
-          });
-        }
-
-        this.setState({ dateRange: aa });
+        updateTimeDimensions.update(m, m);
       }
     };
 
     const renderDatePicker = m => {
-      const { dateRange } = this.state;
-
-      if (m.dateRange === 'Date range') {
+      if (renderDateRangeValue(m.dateRange) === 'Date range') {
         return (
           <CustomRangeContainer>
             <DateControl
-              value={dateRange[0]}
+              value={m.dateRange[0]}
               required={false}
               name="startDate"
               onChange={dateString => onDateRangeChange(dateString, m, 0)}
@@ -117,7 +105,7 @@ class TimeForm extends React.Component<Props, State> {
               dateFormat={'YYYY-MM-DD'}
             />
             <DateControl
-              value={dateRange[1]}
+              value={m.dateRange[1] || ''}
               required={false}
               name="endDate"
               placeholder={'End date'}
