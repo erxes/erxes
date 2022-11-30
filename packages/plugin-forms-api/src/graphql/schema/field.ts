@@ -88,9 +88,9 @@ export const fieldsTypes = ({ products }) => `
         ? `
         products: [Product]
       `
-        : `products: [JSON]`
+        : ''
     }
-
+    
     ${fieldCommonFields}
     logics: [Logic]
   }
