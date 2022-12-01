@@ -1,4 +1,5 @@
-export default `
+export default function ForumPost({ isTagsEnabled }) {
+  return `
   type ForumPost @key(fields: "_id") {
     _id: ID!
     content: String
@@ -55,5 +56,10 @@ export default `
 
     custom: JSON
     customIndexed: JSON
+
+    tagIds: [ID!]
+
+    ${isTagsEnabled ? 'tags: [Tag!]' : ''}
   }
 `;
+}

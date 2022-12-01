@@ -17,7 +17,8 @@ export const buildPostsQuery = async (
     'state',
     'createdById',
     'createdByCpId',
-    'categoryApprovalState'
+    'categoryApprovalState',
+    'tagIds'
   ]) {
     const param = params[field];
 
