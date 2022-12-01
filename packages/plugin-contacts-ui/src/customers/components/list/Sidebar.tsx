@@ -32,7 +32,11 @@ class Sidebar extends React.Component<Props> {
     return (
       <Wrapper.Sidebar hasBorder>
         {isEnabled('segments') && (
-          <SegmentFilter type={type} loadingMainQuery={loadingMainQuery} />
+          <SegmentFilter
+            type={type}
+            loadingMainQuery={loadingMainQuery}
+            abortController={this.abortController}
+          />
         )}
         {isEnabled('tags') && (
           <TagFilter
