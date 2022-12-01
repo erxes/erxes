@@ -74,6 +74,7 @@ function LeadFilterContainer(props: Props) {
 }
 
 type WrapperProps = {
+  abortController?: any;
   type: string;
   loadingMainQuery: boolean;
 };
@@ -84,8 +85,11 @@ export default withProps<WrapperProps>(
       gql(integrationQuery.integrations),
       {
         name: 'integrationsQuery',
-        options: () => ({
-          variables: { kind: 'lead', perPage: 10, page: 1 }
+        options: ({ abortController }) => ({
+          variables: { kind: 'lead', perPage: 10, page: 1 },
+          context: {
+            fetchOptions: { signal: abortController && abortController.signal }
+          }
         }),
         skip: ({ loadingMainQuery }) => loadingMainQuery
       }
@@ -94,7 +98,12 @@ export default withProps<WrapperProps>(
       gql((integrationQuery || ({} as any)).integrationTotalCount),
       {
         name: 'totalCountQuery',
-        skip: ({ loadingMainQuery }) => loadingMainQuery
+        skip: ({ loadingMainQuery }) => loadingMainQuery,
+        options: ({ abortController }) => ({
+          context: {
+            fetchOptions: { signal: abortController && abortController.signal }
+          }
+        })
       }
     ),
     graphql<WrapperProps, CountQueryResponse, { only: string }>(
@@ -102,8 +111,11 @@ export default withProps<WrapperProps>(
       {
         name: 'customersCountQuery',
         skip: ({ loadingMainQuery }) => loadingMainQuery,
-        options: ({ type }) => ({
-          variables: { type, only: 'byForm' }
+        options: ({ type, abortController }) => ({
+          variables: { type, only: 'byForm' },
+          context: {
+            fetchOptions: { signal: abortController && abortController.signal }
+          }
         })
       }
     )
