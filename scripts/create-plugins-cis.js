@@ -51,7 +51,8 @@ var plugins = [
   { name: 'imap', ui: true, api: true },
   { name: 'block', ui: true, api: true },
   { name: 'assets', ui: true, api: true },
-  { name: 'riskassessment', ui: true, api: true }
+  { name: 'riskassessment', ui: true, api: true },
+  { name: 'forum', ui: true, api: true }
 ];
 
 const pluginsMap = {};
