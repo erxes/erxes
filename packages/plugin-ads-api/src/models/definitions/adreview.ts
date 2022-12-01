@@ -13,5 +13,5 @@ export interface IadReviewDocument extends IadReview, Document {
 export const adReviewSchema = new Schema({
   _id: field({ pkey: true }),
   adId: field({ type: String, label: 'AdId' }),
-  review: field({ type: Number, label: 'Review' })
+  review: field({ type: Number, label: 'Ad Review' })
 });

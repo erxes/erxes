@@ -57,6 +57,10 @@ const ForumPost: IObjectTypeResolver<IPost, IContext> = {
       __typename: 'ClientPortalUser',
       _id: v.userId
     }));
+  },
+
+  async tags({ tagIds }) {
+    return tagIds && tagIds.map(_id => ({ __typename: 'Tag', _id }));
   }
 };
 

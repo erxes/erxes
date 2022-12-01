@@ -23,6 +23,7 @@ import {
   ISubscriptionOrderModel
 } from './subscription/subscriptionOrder';
 import { generatePageModel, IPageModel } from './page';
+import { generateFollowTagModel, IFollowTagModel } from './followTag';
 
 export interface IModels {
   Category: ICategoryModel;
@@ -40,6 +41,7 @@ export interface IModels {
   SubscriptionProduct: ISubscriptionProductModel;
   SubscriptionOrder: ISubscriptionOrderModel;
   Page: IPageModel;
+  FollowTag: IFollowTagModel;
 }
 
 export let models: IModels | null = null;
@@ -58,6 +60,7 @@ export const generateModels = createGenerateModels<IModels>(
     generateSubscriptionProductModel(subdomain, connection, models);
     generateSubscriptionOrderModel(subdomain, connection, models);
     generatePageModel(subdomain, connection, models);
+    generateFollowTagModel(subdomain, connection, models);
     return models;
   }
 );
