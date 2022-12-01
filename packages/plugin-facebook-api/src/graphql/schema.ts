@@ -30,12 +30,22 @@ export const types = `
     _id: String! @external
   }
 
+  type FacebookCustomer {
+    _id: String
+    userId: String
+    erxesApiId: String
+    firstName: String
+    lastName: String
+    profilePic: String
+    integrationId: String
+  }
+
   type FacebookComment {
     ${commonCommentAndMessageFields}
     commentId: String
     ${commonPostAndCommentFields}
     parentId: String
-    customer: Customer
+    customer: FacebookCustomer
     commentCount: Int
     isResolved: Boolean
   }

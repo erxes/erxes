@@ -12,7 +12,9 @@ export interface ICustomer {
   integrationId: string;
 }
 
-export interface ICustomerDocument extends ICustomer, Document {}
+export interface ICustomerDocument extends ICustomer, Document {
+  _id: string;
+}
 
 export const customerSchema = new Schema({
   _id: field({ pkey: true }),
