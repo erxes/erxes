@@ -12,6 +12,8 @@ export const commonPostsParams = `
   limit: Int
 
   customQuery: JSON
+
+  tagIds: [ID!]
 `;
 
 const forumPostsQueryParams = `

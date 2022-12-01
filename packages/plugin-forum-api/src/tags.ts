@@ -48,23 +48,20 @@ export default {
     subdomain,
     data: { sourceId, destId, type, action }
   }) => {
-    console.log('-----------------------------------------------');
-    console.log({
-      sourceId,
-      destId,
-      type,
-      action
-    });
-    console.log('-----------------------------------------------');
-
     const models = await generateModels(subdomain);
     const model = models[tagTypeModelName[type as TagTypes]];
 
     if (action === 'remove') {
-      await model.updateMany(
-        { tagIds: { $in: [sourceId] } },
-        { $pull: { tagIds: { $in: [sourceId] } } }
-      );
+      try {
+        await model.updateMany(
+          { tagIds: { $in: [sourceId] } },
+          { $pull: { tagIds: { $in: [sourceId] } } }
+        );
+      } catch (e) {}
+
+      try {
+        await models.FollowTag.deleteMany({ tagId: sourceId });
+      } catch (e) {}
     }
 
     if (action === 'merge') {
@@ -72,12 +69,34 @@ export default {
         .find({ tagIds: { $in: [sourceId] } }, { _id: 1 })
         .distinct('_id');
 
-      // add to new destination
-      await model.updateMany(
-        { _id: { $in: itemIds } },
-        { $set: { 'tagIds.$[elem]': destId } },
-        { arrayFilters: [{ elem: { $eq: sourceId } }] }
-      );
+      try {
+        // add to new destination
+        await model.updateMany(
+          { _id: { $in: itemIds } },
+          { $set: { 'tagIds.$[elem]': destId } },
+          { arrayFilters: [{ elem: { $eq: sourceId } }] }
+        );
+      } catch (error) {}
+
+      try {
+        // delete if users are already following destination tag
+        const existing = await models.FollowTag.find({ tagId: destId });
+        const followerIds = existing.map(follow => follow.followerId);
+        await models.FollowTag.deleteMany({
+          tagId: sourceId,
+          followerId: { $in: followerIds }
+        });
+
+        /* 
+        Change source tag to destination tag. 
+        Unique index { tagId : 1, followerId : 1 } won't be violoted,
+         since we already deleted the entries that could cause it.
+        */
+        await models.FollowTag.updateMany(
+          { tagId: sourceId },
+          { $set: { tagId: destId } }
+        );
+      } catch (error) {}
     }
   }
 };

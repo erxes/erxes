@@ -19,7 +19,7 @@ class Details extends React.Component<Props> {
         {item.name || item.primaryName || renderFullName(item)}
         {item.quantity && (
           <Quantity>
-            ({item.quantity} {item.uom})
+            ({item.quantity} {item.uom ? item.uom : 'PC'})
           </Quantity>
         )}
       </div>

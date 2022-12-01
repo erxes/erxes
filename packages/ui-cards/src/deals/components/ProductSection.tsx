@@ -94,7 +94,7 @@ function ProductSection({
           {productName}
           {quantity && (
             <Quantity>
-              ({quantity} {uom})
+              ({quantity} {uom ? uom : 'PC'})
             </Quantity>
           )}
         </div>
