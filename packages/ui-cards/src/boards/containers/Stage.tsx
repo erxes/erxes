@@ -33,6 +33,7 @@ type StageProps = {
   refetchStage: (stageId: string) => void;
   onAddItem: (stageId: string, item: IItem, aboveItemId?: string) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
+  abortController: any;
 };
 
 type FinalStageProps = {
@@ -261,11 +262,14 @@ const withQuery = ({ options }) => {
       graphql<StageProps>(gql(options.queries.itemsQuery), {
         name: 'itemsQuery',
         skip: ({ loadingState }) => loadingState !== 'readyToLoad',
-        options: ({ stage, queryParams, loadingState }) => ({
+        options: ({ stage, queryParams, loadingState, abortController }) => ({
           variables: {
             stageId: stage._id,
             pipelineId: stage.pipelineId,
             ...getFilterParams(queryParams, options.getExtraParams)
+          },
+          context: {
+            fetchOptions: { signal: abortController && abortController.signal }
           },
           fetchPolicy:
             loadingState === 'readyToLoad' ? 'network-only' : 'cache-only',
@@ -284,17 +288,28 @@ const withQuery = ({ options }) => {
 
 class WithData extends React.Component<StageProps> {
   private withQuery;
+  private abortController;
+
+  componentWillUnmount() {
+    this.abortController.abort();
+  }
 
   constructor(props) {
     super(props);
 
     this.withQuery = withQuery({ options: props.options });
+    this.abortController = new AbortController();
   }
 
   render() {
     const Component = this.withQuery;
 
-    return <Component {...this.props} />;
+    const updatedProps = {
+      ...this.props,
+      abortController: this.abortController
+    };
+
+    return <Component {...updatedProps} />;
   }
 }
 
