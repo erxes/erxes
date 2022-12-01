@@ -9,32 +9,23 @@ export const initBroker = async cl => {
 
   const { consumeRPCQueue } = client;
 
-  /* consumeRPCQueue("ads:find", async ({ subdomain, data }) => {
+  consumeRPCQueue('ads:find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       data: await models.Ads.find(data).lean(),
-      status: "success",
+      status: 'success'
     };
   });
 
-  consumeRPCQueue("ads:findOne", async ({ subdomain, data }) => {
+  consumeRPCQueue('ads:findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       data: await models.Ads.findOne(data).lean(),
-      status: "success",
+      status: 'success'
     };
   });
-
-  consumeRPCQueue("ads:createTag", async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
-
-    return {
-      status: "success",
-      data: await models.Ads.createTag(data),
-    };
-  }); */
 };
 
 export const sendCommonMessage = async (
