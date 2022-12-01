@@ -57,6 +57,10 @@ const checkAndInsert = async (
       exists = await collection.findOne({ mid: item.mid });
     }
 
+    if (item.userId) {
+      exists = await collection.findOne({ userId: item.userId });
+    }
+
     if (!exists) {
       await collection.insertOne(item);
     }
