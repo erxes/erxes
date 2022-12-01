@@ -180,7 +180,7 @@ class Dashboard extends React.Component<Props, State> {
               icon={'check-circle'}
               onClick={onClickButton}
             >
-              {__('Select  members')}
+              {__('Select  members or department')}
             </Button>
             <Participators participatedUsers={members} limit={100} />
           </>
