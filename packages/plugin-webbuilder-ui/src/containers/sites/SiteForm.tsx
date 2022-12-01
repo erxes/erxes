@@ -13,12 +13,14 @@ import { Alert } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import SiteForm from '../../components/sites/SiteForm';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 
 type Props = {
   _id?: string;
+  queryParams: any;
 } & IRouterProps;
 
 type FinalProps = Props & {
@@ -106,10 +108,13 @@ export default compose(
 
   graphql<Props, PagesEditMutationResponse>(gql(mutations.edit), {
     name: 'pagesEdit',
-    options: ({ _id }) => ({
+    options: ({ queryParams }) => ({
       refetchQueries: [
         ...refetchPageQueries(),
-        { query: gql(queries.pageDetail), variables: { _id } }
+        {
+          query: gql(queries.pageDetail),
+          variables: { _id: queryParams.pageId || '' }
+        }
       ]
     })
   }),
@@ -118,9 +123,9 @@ export default compose(
     gql(queries.pageDetail),
     {
       name: 'pageDetailQuery',
-      skip: ({ _id }) => !_id,
-      options: ({ _id }) => ({
-        variables: { _id }
+      skip: ({ queryParams }) => !queryParams.pageId,
+      options: ({ queryParams }) => ({
+        variables: { _id: queryParams.pageId || '' }
       })
     }
   ),
@@ -129,8 +134,11 @@ export default compose(
   }),
   graphql<Props, PagesMainQueryResponse>(gql(queries.pagesMain), {
     name: 'pagesMainQuery',
-    options: ({ _id }) => ({
-      variables: { siteId: _id || '' }
+    options: ({ _id, queryParams }) => ({
+      variables: {
+        ...generatePaginationParams(queryParams),
+        siteId: _id || ''
+      }
     })
   })
 )(withRouter(FormContainer));

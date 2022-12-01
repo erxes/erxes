@@ -88,10 +88,11 @@ const typeEdit = ({ match }) => {
   return <ContentTypeForm contentTypeId={id} />;
 };
 
-const siteEdit = ({ match }) => {
+const siteEdit = ({ match, location }) => {
   const _id = match.params._id;
+  const queryParams = queryString.parse(location.search);
 
-  return <SiteForm _id={_id} />;
+  return <SiteForm _id={_id} queryParams={queryParams} />;
 };
 
 const entryAdd = ({ match, location }) => {

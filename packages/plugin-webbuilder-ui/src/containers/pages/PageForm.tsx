@@ -1,19 +1,22 @@
-import { Alert } from '@erxes/ui/src';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
-import PageForm from '../../components/pages/PageForm';
-import React from 'react';
-import { mutations, queries } from '../../graphql';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
+
 import {
+  IPageDoc,
   PageDetailQueryResponse,
   PagesAddMutationResponse,
   PagesEditMutationResponse,
   PagesMainQueryResponse,
   TypesQueryResponse
 } from '../../types';
+import { mutations, queries } from '../../graphql';
+
+import { Alert } from '@erxes/ui/src';
+import { IRouterProps } from '@erxes/ui/src/types';
+import PageForm from '../../components/pages/PageForm';
+import React from 'react';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   _id?: string;
@@ -21,19 +24,13 @@ type Props = {
 
 type FinalProps = Props & {
   pageDetailQuery?: PageDetailQueryResponse;
-  pagesMainQuery: PagesMainQueryResponse;
-  typesQuery: TypesQueryResponse;
 } & PagesAddMutationResponse &
   PagesEditMutationResponse;
 
 const FormContainer = (props: FinalProps) => {
-  const { pageDetailQuery, history, pagesMainQuery, typesQuery } = props;
+  const { pageDetailQuery, history } = props;
 
-  if (
-    (pageDetailQuery && pageDetailQuery.loading) ||
-    pagesMainQuery.loading ||
-    typesQuery.loading
-  ) {
+  if (!pageDetailQuery || (pageDetailQuery && pageDetailQuery.loading)) {
     return null;
   }
 
@@ -72,21 +69,10 @@ const FormContainer = (props: FinalProps) => {
       });
   };
 
-  let page;
-
-  if (pageDetailQuery) {
-    page = pageDetailQuery.webbuilderPageDetail;
-  }
-
-  const pagesMain = pagesMainQuery.webbuilderPagesMain || {};
-  const contentTypes = typesQuery.webbuilderContentTypes || [];
-
   const updatedProps = {
     ...props,
     save,
-    page,
-    contentTypes,
-    pages: pagesMain.list || []
+    page: pageDetailQuery.webbuilderPageDetail || ({} as IPageDoc)
   };
 
   return <PageForm {...updatedProps} />;
@@ -121,11 +107,5 @@ export default compose(
         variables: { _id }
       })
     }
-  ),
-  graphql<{}, TypesQueryResponse>(gql(queries.contentTypes), {
-    name: 'typesQuery'
-  }),
-  graphql<{}, PagesMainQueryResponse>(gql(queries.pagesMain), {
-    name: 'pagesMainQuery'
-  })
+  )
 )(withRouter(FormContainer));

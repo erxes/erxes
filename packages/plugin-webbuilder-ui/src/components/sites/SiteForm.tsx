@@ -4,28 +4,21 @@ import {
   CollapseLeftMenu,
   LeftSidebar,
   LeftSidebarContent,
+  SettingsContent,
+  SiteFormContainer,
   SubTitle
 } from './styles';
-import { FlexItem, FlexPad } from '@erxes/ui/src/components/step/styles';
 import { IContentTypeDoc, IPageDoc } from '../../types';
 import { __, uploadHandler } from '@erxes/ui/src/utils';
 
 import Alert from '@erxes/ui/src/utils/Alert';
-import Button from '@erxes/ui/src/components/Button';
-import ContentTypeList from '../contentTypes/List';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { ControlWrapper } from '@erxes/ui/src/components/step/styles';
-import { EditorContainer } from '@erxes/ui-engage/src/styles';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
+import ContentTypeList from '../../containers/contentTypes/List';
+import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import GrapesJS from 'grapesjs';
 import Icon from '@erxes/ui/src/components/Icon';
-import { Indicator } from '@erxes/ui/src/components/step/styles';
-import { Link } from 'react-router-dom';
+import PageForm from '../../containers/pages/PageForm';
 import PageList from '../pages/List';
 import React from 'react';
-import SelectSite from '../../containers/sites/SelectSite';
-import { StepWrapper } from '@erxes/ui/src/components/step/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import customPlugins from '../customPlugins';
 import gjsPresetWebpage from 'grapesjs-preset-webpage';
@@ -42,12 +35,15 @@ type Props = {
   ) => void;
   contentTypes: IContentTypeDoc[];
   pages: IPageDoc[];
+  _id?: string;
 };
 
 type State = {
   name: string;
   description: string;
   siteId: string;
+  settingsObject: any;
+  type?: string;
 };
 
 class SiteForm extends React.Component<Props, State> {
@@ -61,7 +57,8 @@ class SiteForm extends React.Component<Props, State> {
     this.state = {
       name: page.name,
       description: page.description,
-      siteId: page.siteId
+      siteId: page.siteId,
+      settingsObject: undefined
     };
   }
 
@@ -175,6 +172,7 @@ class SiteForm extends React.Component<Props, State> {
 
     cmdm.add('html-edit', {
       run: (editr, sender) => {
+        // tslint:disable-next-line:no-unused-expression
         sender && sender.set('active', 0);
         let htmlViewer = htmlCodeViewer.editor;
         let cssViewer = cssCodeViewer.editor;
@@ -241,6 +239,10 @@ class SiteForm extends React.Component<Props, State> {
     this.setState({ siteId: value });
   };
 
+  handleItemSettings = (settingsObject: any, type: string) => {
+    this.setState({ settingsObject, type });
+  };
+
   save = () => {
     const e = this.grapes;
 
@@ -254,7 +256,7 @@ class SiteForm extends React.Component<Props, State> {
   };
 
   renderLeftSidebar() {
-    const { pages = [] } = this.props;
+    const { pages = [], _id } = this.props;
 
     return (
       <LeftSidebar>
@@ -266,23 +268,39 @@ class SiteForm extends React.Component<Props, State> {
           <Icon icon="downarrow" size={9} /> &nbsp;{__('Pages')}
         </SubTitle>
         <LeftSidebarContent>
-          <PageList pages={pages} />
+          <PageList
+            pages={pages}
+            siteId={_id}
+            handleItemSettings={this.handleItemSettings}
+          />
         </LeftSidebarContent>
 
         <SubTitle>
           <Icon icon="downarrow" size={9} /> &nbsp;{__('Content Type Builder')}
         </SubTitle>
         <LeftSidebarContent>
-          <ContentTypeList pages={pages} />
+          <ContentTypeList />
         </LeftSidebarContent>
       </LeftSidebar>
     );
   }
 
+  renderItemSettings() {
+    const { settingsObject, type } = this.state;
+
+    switch (type) {
+      case 'page':
+        return <PageForm page={settingsObject} />;
+      case 'contenttype':
+        return <div>aaaa</div>;
+      default:
+        return null;
+    }
+  }
+
   render() {
-    const { name } = this.state;
-    const { page } = this.props;
-    console.log('pp', page);
+    const { name, settingsObject } = this.state;
+
     const breadcrumb = [
       { title: 'Sites', link: '/webbuilder' },
       { title: name }
@@ -292,12 +310,19 @@ class SiteForm extends React.Component<Props, State> {
       <>
         <Wrapper.Header title={'Site Edit Form'} breadcrumb={breadcrumb} />
 
-        <FlexItem>
-          {this.renderLeftSidebar()}
-          <FlexItem count="7">
-            <div id="editor" />
+        <SiteFormContainer>
+          <FlexItem>
+            {this.renderLeftSidebar()}
+            {settingsObject && (
+              <SettingsContent className="gjs-one-bg gjs-two-color">
+                {this.renderItemSettings()}
+              </SettingsContent>
+            )}
+            <FlexItem count="7">
+              <div id="editor" />
+            </FlexItem>
           </FlexItem>
-        </FlexItem>
+        </SiteFormContainer>
       </>
     );
   }

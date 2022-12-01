@@ -211,10 +211,10 @@ export const Labels = styledTS<{ filteredCategories?: boolean }>(styled.div)`
   }
 `;
 
-export const LeftSidebar = styled.div`
+export const LeftSidebar = styledTS<{ width?: number }>(styled.div)`
   overflow: auto;
   height: 100%;
-  flex: 1 1 0%;
+  width: 200px;
   background: #444444;
   color: ${colors.colorShadowGray};
 `;
@@ -230,6 +230,7 @@ export const SubTitle = styled.div`
   background: #3e3e3e;
   margin: 0;
   letter-spacing: 1px;
+  font-size: 12px;
   padding: 9px ${dimensions.unitSpacing}px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.25);
   border-top: 1px solid rgba(0, 0, 0, 0.25);
@@ -237,4 +238,16 @@ export const SubTitle = styled.div`
 
 export const LeftSidebarContent = styled.div`
   padding: 9px ${dimensions.unitSpacing}px;
+`;
+
+export const SiteFormContainer = styled.div`
+  position: relative;
+`;
+
+export const SettingsContent = styled.div`
+  height: 100%;
+  position: absolute;
+  left: 200px;
+  width: 400px;
+  z-index: 10;
 `;

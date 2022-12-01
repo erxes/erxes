@@ -1,4 +1,5 @@
-import { colors } from '@erxes/ui/src/styles';
+import { colors, dimensions } from '@erxes/ui/src/styles';
+
 import styled from 'styled-components';
 
 export const List = styled.ul`
@@ -19,9 +20,12 @@ export const List = styled.ul`
 
     > i {
       visibility: hidden;
+      margin-left: ${dimensions.unitSpacing}px;
     }
 
     > div {
+      display: flex;
+
       &.link {
         color: ${colors.colorWhite};
       }
