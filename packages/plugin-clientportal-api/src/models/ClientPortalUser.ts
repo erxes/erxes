@@ -551,16 +551,18 @@ export const loadClientPortalUserClass = (models: IModels) => {
       clientPortalId,
       phone,
       email,
+      expireAfter,
       isRessetting
     }: {
       codeLength: number;
       clientPortalId: string;
       phone?: string;
       email?: string;
+      expireAfter?: number;
       isRessetting?: boolean;
     }) {
       const code = this.generateVerificationCode(codeLength);
-      const codeExpires = Date.now() + 60000 * 5;
+      const codeExpires = Date.now() + 60000 * (expireAfter || 5);
 
       let query: any = {};
       let userFindQuery: any = {};

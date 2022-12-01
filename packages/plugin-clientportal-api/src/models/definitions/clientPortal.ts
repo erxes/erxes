@@ -6,6 +6,8 @@ export interface IOTPConfig {
   content: string;
   codeLength: number;
   smsTransporterType: '' | 'messagePro' | 'telnyx';
+  loginWithOTP: boolean;
+  expireAfter: number;
 }
 
 export interface IMailConfig {
@@ -99,6 +101,8 @@ const otpConfigSchema = new Schema(
   {
     content: field({ type: String, optional: true }),
     codeLength: field({ type: Number, default: 4, min: 4 }),
+    loginWithOTP: field({ type: Boolean, default: false }),
+    expireAfter: field({ type: Number, default: 1, min: 1, max: 10 }),
     smsTransporterType: field({
       type: String,
       enum: ['', 'messagePro', 'telnyx'],
