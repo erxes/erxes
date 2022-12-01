@@ -93,7 +93,9 @@ const userMutations = {
       email: (email || '').toLowerCase().trim(),
       password: (password || '').trim(),
       details: {
-        fullName: `${firstName} ${lastName || ''}`
+        fullName: `${firstName} ${lastName || ''}`,
+        firstName,
+        lastName
       }
     };
 
@@ -231,6 +233,8 @@ const userMutations = {
     const userOnDb = await models.Users.getUser(_id);
 
     const updatedUser = await models.Users.updateUser(_id, doc);
+
+    console.log(args, 'ararar');
 
     if (channelIds) {
       await sendInboxMessage({
