@@ -1,9 +1,8 @@
 import React from 'react';
 
-import { getPluginConfig, isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import { IAttachmentPreview } from '@erxes/ui/src/types';
 import Message from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/Message';
-import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
 import { ContenFooter, ContentBox } from '@erxes/ui/src/layout/styles';
 import {
   AddMessageMutationVariables,
