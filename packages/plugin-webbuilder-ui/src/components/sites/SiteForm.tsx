@@ -60,7 +60,8 @@ class SiteForm extends React.Component<Props, State> {
       description: page.description,
       siteId: page.siteId,
       settingsObject: undefined,
-      showDarkMode: Boolean(localStorage.getItem('showDarkMode')) || false
+      showDarkMode:
+        localStorage.getItem('showDarkMode') === 'true' ? true : false || false
     };
   }
 
@@ -246,10 +247,8 @@ class SiteForm extends React.Component<Props, State> {
   };
 
   handleDarkMode = () => {
-    const { showDarkMode } = this.state;
-
-    this.setState({ showDarkMode: !showDarkMode }, () => {
-      localStorage.setItem('showDarkMode', showDarkMode.toString());
+    this.setState({ showDarkMode: !this.state.showDarkMode }, () => {
+      localStorage.setItem('showDarkMode', this.state.showDarkMode.toString());
     });
   };
 

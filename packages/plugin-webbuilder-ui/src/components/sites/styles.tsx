@@ -215,10 +215,12 @@ export const LeftSidebar = styledTS<{ width?: number }>(styled.div)`
   overflow: auto;
   height: 100%;
   width: 200px;
+  border-right: 1px solid ${colors.colorShadowGray};
 
   &.darkmode {
     background: #444;
     color: ${colors.colorShadowGray};
+    border-right: 0;
   }
 `;
 
@@ -257,6 +259,33 @@ export const SiteFormContainer = styledTS<{ showDarkMode?: boolean }>(
       }
 
       .gjs-two-color {
+        color: ${colors.colorCoreGray};
+      }
+
+      .gjs-pn-options {
+        border-right: 1px solid ${colors.colorShadowGray};
+      }
+
+      .gjs-pn-commands,
+      .gjs-pn-views-container {
+        box-shadow: none;
+      }
+
+      .gjs-block,
+      .gjs-category-title,
+      .gjs-layer-title,
+      .gjs-block-category .gjs-title,
+      .gjs-sm-sector-title {
+        border-bottom: 1px solid ${colors.borderDarker};
+        box-shadow: none;
+        background: ${colors.colorWhite};
+        font-weight: 500;
+      }
+
+      ${SubTitle} {
+        border-bottom: 1px solid ${colors.borderPrimary};
+        border-top: 1px solid ${colors.borderPrimary};
+        background: ${colors.colorWhite};
         color: ${colors.colorCoreGray};
       }
     `};
