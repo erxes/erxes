@@ -18,7 +18,7 @@ on:
       - "packages/ui-segments/**"
       - "packages/ui-settings/**"
       - "packages/ui-team/**"
-      - "packages/ui-cards/**"
+      - "packages/ui-forum/**"
       - "packages/plugin-forum-ui/**"
       - ".github/workflows/plugin-forum-ui.yaml"
   pull_request:
@@ -38,7 +38,7 @@ on:
       - "packages/ui-segments/**"
       - "packages/ui-settings/**"
       - "packages/ui-team/**"
-      - "packages/ui-cards/**"
+      - "packages/ui-forum/**"
       - "packages/plugin-forum-ui/**"
       - ".github/workflows/plugin-forum-ui.yaml"
 
