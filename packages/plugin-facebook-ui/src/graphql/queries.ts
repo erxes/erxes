@@ -48,6 +48,9 @@ const facebookGetComments = `
       parentId
       customer {
         _id
+        firstName
+        lastName
+        profilePic
       }
       commentCount
       isResolved
