@@ -81,32 +81,6 @@ module.exports = {
         name: 'facebookConversationMessages',
         integrationKind: 'facebook-messenger'
       },
-      {
-        query: `
-          query facebookGetComments($conversationId: String!, $isResolved: Boolean, $commentId: String, $senderId: String, $skip: Int, $limit: Int) {
-            facebookGetComments(conversationId: $conversationId, isResolved: $isResolved, commentId: $commentId, senderId: $senderId, skip: $skip, limit: $limit) {
-              conversationId
-              commentId
-              postId
-              parentId
-              recipientId
-              senderId
-              permalink_url
-              attachments
-              content
-              erxesApiId
-              timestamp
-              customer {
-                _id
-              }
-              commentCount
-              isResolved
-            }
-          }
-        `,
-        name: 'facebookGetComments',
-        integrationKind: 'facebook-post'
-      }
     ],
     countQueries: [
       {
@@ -118,15 +92,6 @@ module.exports = {
         name: 'facebookConversationMessagesCount',
         integrationKind: 'facebook-messenger'
       },
-      {
-        query: `
-          query facebookGetCommentCount($conversationId: String!, $isResolved: Boolean) {
-            facebookGetCommentCount(conversationId: $conversationId, isResolved: $isResolved)
-          }
-        `,
-        name: 'facebookGetCommentCount',
-        integrationKind: 'facebook-post'
-      }
     ],
   },
   inboxIntegrations: [
