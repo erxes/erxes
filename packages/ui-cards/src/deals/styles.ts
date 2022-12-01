@@ -67,19 +67,21 @@ const FooterInfo = styled.div`
   }
 `;
 
-const FlexSpace = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
 const FlexRowGap = styled.div`
   display: flex;
-  flex-direction: row;
-  gap: 20px;
+  align-items: center;
+  padding: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px;
+  gap: ${dimensions.coreSpacing}px;
+
+  > div {
+    margin: 0;
+    flex: 1;
+  }
 `;
 
 const Add = styled.div`
   display: block;
-  margin: 20px;
+  margin: ${dimensions.coreSpacing}px;
   text-align: center;
 `;
 
@@ -323,6 +325,5 @@ export {
   VoucherCard,
   RemoveRow,
   VoucherContainer,
-  FlexSpace,
   FlexRowGap
 };
