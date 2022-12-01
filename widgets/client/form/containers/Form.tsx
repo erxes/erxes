@@ -36,7 +36,7 @@ interface IProps {
   integration: IIntegration;
   form: IForm;
   currentStatus: ICurrentStatus;
-  onSubmit: (doc: IFormDoc) => void;
+  onSubmit: (doc: IFormDoc, formCode: string, requiredPaymentAmount?: number) => void;
   onCreateNew: () => void;
   setHeight: () => void;
   sendEmail: (params: IEmailParams) => void;
