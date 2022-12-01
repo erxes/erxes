@@ -1,4 +1,4 @@
-name: Plugin tumentech Api CI
+name: Plugin ads Api CI
 
 on:
   push:
@@ -7,16 +7,16 @@ on:
     paths:
       - 'packages/api-utils/**'
       - 'packages/api-plugin-template.erxes/**'
-      - 'packages/plugin-tumentech-api/**'
-      - '.github/workflows/plugin-tumentech-api.yaml'
+      - 'packages/plugin-ads-api/**'
+      - '.github/workflows/plugin-ads-api.yaml'
   pull_request:
     branches:
       - dev
     paths:
       - 'packages/api-utils/**'
       - 'packages/api-plugin-template.erxes/**'
-      - 'packages/plugin-tumentech-api/**'
-      - '.github/workflows/plugin-tumentech-api.yaml'
+      - 'packages/plugin-ads-api/**'
+      - '.github/workflows/plugin-ads-api.yaml'
 
 jobs:
   api:
@@ -39,9 +39,9 @@ jobs:
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-plugin-tumentech-api-${{ hashFiles('yarn.lock', 'plugin-tumentech-api/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-plugin-ads-api-${{ hashFiles('yarn.lock', 'plugin-ads-api/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-plugin-tumentech-api-
+            ${{ runner.os }}-yarn-plugin-ads-api-
             ${{ runner.os }}-yarn-
 
       - name: Build
@@ -49,14 +49,14 @@ jobs:
           cp -r builder dist
           cd dist
           yarn install
-          yarn build plugin tumentech
-          cd plugin-tumentech-api/.erxes
+          yarn build plugin ads
+          cd plugin-ads-api/.erxes
           cd dist/main/.erxes/src
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'  )
         run: |
-          cd dist/plugin-tumentech-api/.erxes
+          cd dist/plugin-ads-api/.erxes
           echo ${{ secrets.DOCKER_PASSWORD }} | docker login https://registry.erxes.io -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-          docker build -t registry.erxes.io/erxes/plugin-tumentech-api:enterprise -f Dockerfile .
-          docker push registry.erxes.io/erxes/plugin-tumentech-api:enterprise
+          docker build -t registry.erxes.io/erxes/plugin-ads-api:enterprise -f Dockerfile .
+          docker push registry.erxes.io/erxes/plugin-ads-api:enterprise
