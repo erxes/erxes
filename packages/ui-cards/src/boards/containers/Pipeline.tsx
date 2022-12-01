@@ -180,11 +180,18 @@ const WithStagesQuery = (props: WithStagesQueryProps) => {
   return <WithStages {...props} stageMap={stageMap} initialItemMap={itemMap} />;
 };
 
-export default withProps<Props>(
+type WithQueryProps = Props & { abortController };
+
+const WithQuery = withProps<WithQueryProps>(
   compose(
-    graphql<Props, StagesQueryResponse>(gql(queries.stages), {
+    graphql<WithQueryProps, StagesQueryResponse>(gql(queries.stages), {
       name: 'stagesQuery',
-      options: ({ pipeline, queryParams, options: { getExtraParams } }) => ({
+      options: ({
+        pipeline,
+        queryParams,
+        options: { getExtraParams },
+        abortController
+      }) => ({
         variables: {
           pipelineId: pipeline._id,
           search: queryParams.search,
@@ -196,8 +203,36 @@ export default withProps<Props>(
           closeDateType: queryParams.closeDateType,
           userIds: queryParams.userIds,
           assignedToMe: queryParams.assignedToMe
+        },
+        context: {
+          fetchOptions: { signal: abortController && abortController.signal }
         }
       })
     })
   )(withRouter(WithStagesQuery))
 );
+
+class WithData extends React.Component<Props> {
+  private abortController;
+
+  componentWillUnmount() {
+    this.abortController.abort();
+  }
+
+  constructor(props) {
+    super(props);
+
+    this.abortController = new AbortController();
+  }
+
+  render() {
+    const updatedProps = {
+      ...this.props,
+      abortController: this.abortController
+    };
+
+    return <WithQuery {...updatedProps} />;
+  }
+}
+
+export default withProps<Props>(WithData);
