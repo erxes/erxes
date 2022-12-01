@@ -2,7 +2,7 @@ import { paginate } from '@erxes/api-utils/src';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { serviceDiscovery } from '../../configs';
 import { IContext } from '../../connectionResolver';
-import { sendTagsMessage } from '../../messageBroker';
+import { sendCoreMessage, sendTagsMessage } from '../../messageBroker';
 
 interface IListArgs {
   status: string;
@@ -13,28 +13,50 @@ interface IListArgs {
   sortField: string;
   sortDirection: number;
   tag: string;
-  departmentId: String;
+  departmentId: string;
 }
 
-const generateFilter = (params: IListArgs, user: IUserDocument) => {
+const generateFilter = async (
+  params: IListArgs,
+  user: IUserDocument,
+  subdomain: string
+) => {
   const { searchValue, tag, departmentId } = params;
 
-  const filter: any = user.isOwner
-    ? {}
-    : {
-        $or: [
-          { visibility: { $exists: null } },
-          { visibility: 'public' },
-          {
-            $and: [
-              { visibility: 'private' },
-              {
-                $or: [{ selectedMemberIds: user._id }, { createdBy: user._id }]
-              }
-            ]
-          }
-        ]
-      };
+  let filter: any = {};
+
+  if (!user.isOwner) {
+    const departments = await sendCoreMessage({
+      subdomain,
+      action: 'departments.find',
+      data: {
+        userIds: { $in: [user._id] }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const departmentIds = departments.map(d => d._id);
+
+    filter = {
+      $or: [
+        { visibility: { $exists: null } },
+        { visibility: 'public' },
+        {
+          $and: [
+            { visibility: 'private' },
+            {
+              $or: [
+                { selectedMemberIds: user._id },
+                { createdBy: user._id },
+                { departmentIds: { $in: departmentIds } }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+  }
 
   if (searchValue) {
     filter.name = new RegExp(`.*${searchValue}.*`, 'i');
@@ -50,16 +72,24 @@ const generateFilter = (params: IListArgs, user: IUserDocument) => {
 };
 
 const dashBoardQueries = {
-  async dashboards(_root, params: IListArgs, { models, user }: IContext) {
-    const filter = generateFilter(params, user);
+  async dashboards(
+    _root,
+    params: IListArgs,
+    { models, user, subdomain }: IContext
+  ) {
+    const filter = await generateFilter(params, user, subdomain);
 
     return models.Dashboards.find(filter);
   },
 
-  async dashboardsMain(_root, params: IListArgs, { models, user }: IContext) {
+  async dashboardsMain(
+    _root,
+    params: IListArgs,
+    { models, user, subdomain }: IContext
+  ) {
     const { page, perPage } = params;
 
-    const filter = generateFilter(params, user);
+    const filter = await generateFilter(params, user, subdomain);
 
     const dashboards = paginate(
       models.Dashboards.find(filter).sort({ createdAt: -1 }),
