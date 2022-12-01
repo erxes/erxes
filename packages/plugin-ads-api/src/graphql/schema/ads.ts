@@ -38,6 +38,7 @@ export const types = ({ contacts, forms }) => `
 
 export const queries = `
   adReview(adId: String!): AdReview
+  adReviews: [AdReview]
 `;
 
 export const mutations = `

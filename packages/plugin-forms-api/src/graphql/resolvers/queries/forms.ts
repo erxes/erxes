@@ -105,15 +105,31 @@ const formQueries = {
     });
   },
 
-  formSubmissionDetail: async (_root, params, { models }: IContext) => {
+  formSubmissionDetail: async (
+    _root,
+    params,
+    { models, subdomain }: IContext
+  ) => {
     const { contentTypeId } = params;
+
+    const conversation = await sendInboxMessage({
+      subdomain,
+      action: 'getConversation',
+      data: { conversationId: contentTypeId },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    if (!conversation) {
+      return null;
+    }
 
     const submissions = await models.FormSubmissions.find({
       contentTypeId
     }).lean();
 
     return {
-      contentTypeId,
+      ...conversation,
       submissions
     };
   }
