@@ -180,32 +180,6 @@ export default class WorkArea extends React.Component<Props, State> {
     const { integration } = currentConversation;
     const kind = integration && integration.kind.split('-')[0];
 
-    const integrations = getPluginConfig({
-      pluginName: kind,
-      configName: 'inboxIntegrations'
-    });
-
-    if (integrations) {
-      const entry = integrations.find(s => s.kind === integration.kind);
-
-      if (entry && entry.components && entry.components.length > 0) {
-        const name = entry.components.find(
-          el => el === 'specialConversationUi'
-        );
-
-        if (name) {
-          return loadDynamicComponent(name, {
-            ...this.props,
-            conversation: currentConversation,
-            currentId: currentConversation._id,
-            scrollBottom: this.scrollBottom
-          });
-        }
-      }
-
-      return this.renderMessages(messages, firstMessage);
-    }
-
     if (kind === 'callpro') {
       return (
         <>

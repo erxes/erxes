@@ -59,15 +59,6 @@ export default class ConversationDetail extends React.Component<Props> {
       const { integration } = currentConversation;
       const kind = integration.kind.split('-')[0];
 
-      const dmConfig = getPluginConfig({
-        pluginName: kind,
-        configName: 'inboxDirectMessage'
-      });
-
-      if (dmConfig) {
-        return <DmWorkArea {...this.props} dmConfig={dmConfig} />;
-      }
-
       let content;
 
       if (
@@ -76,7 +67,8 @@ export default class ConversationDetail extends React.Component<Props> {
         )
       ) {
         content = loadDynamicComponent('inboxConversationDetail', {
-          ...this.props
+          ...this.props,
+          conversation: currentConversation
         });
 
         if (content) {
@@ -87,6 +79,15 @@ export default class ConversationDetail extends React.Component<Props> {
             />
           );
         }
+      }
+
+      const dmConfig = getPluginConfig({
+        pluginName: kind,
+        configName: 'inboxDirectMessage'
+      });
+
+      if (dmConfig) {
+        return <DmWorkArea {...this.props} dmConfig={dmConfig} />;
       }
 
       return <DmWorkArea {...this.props} />;
