@@ -7,7 +7,7 @@ export const List = styled.ul`
   padding: 0;
   list-style: none;
 
-  > li {
+  li {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -23,8 +23,9 @@ export const List = styled.ul`
       margin-left: ${dimensions.unitSpacing}px;
     }
 
-    > div {
+    > a {
       display: flex;
+      color: inherit;
 
       &.link {
         color: ${colors.colorWhite};

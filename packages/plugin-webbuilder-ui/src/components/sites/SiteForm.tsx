@@ -43,6 +43,7 @@ type State = {
   description: string;
   siteId: string;
   settingsObject: any;
+  showDarkMode: boolean;
   type?: string;
 };
 
@@ -58,7 +59,8 @@ class SiteForm extends React.Component<Props, State> {
       name: page.name,
       description: page.description,
       siteId: page.siteId,
-      settingsObject: undefined
+      settingsObject: undefined,
+      showDarkMode: Boolean(localStorage.getItem('showDarkMode')) || false
     };
   }
 
@@ -243,6 +245,14 @@ class SiteForm extends React.Component<Props, State> {
     this.setState({ settingsObject, type });
   };
 
+  handleDarkMode = () => {
+    const { showDarkMode } = this.state;
+
+    this.setState({ showDarkMode: !showDarkMode }, () => {
+      localStorage.setItem('showDarkMode', showDarkMode.toString());
+    });
+  };
+
   save = () => {
     const e = this.grapes;
 
@@ -257,12 +267,22 @@ class SiteForm extends React.Component<Props, State> {
 
   renderLeftSidebar() {
     const { pages = [], _id } = this.props;
+    const { showDarkMode } = this.state;
 
     return (
-      <LeftSidebar>
+      <LeftSidebar
+        className={`${!showDarkMode ? 'gjs-one-bg gjs-two-color' : 'darkmode'}`}
+      >
         <CollapseLeftMenu>
-          <Icon icon="left-arrow-to-left" /> &nbsp;
-          {__('Collapse')}
+          <div>
+            <Icon icon="left-arrow-to-left" /> &nbsp;
+            {__('Collapse')}
+          </div>
+          <Icon
+            icon={showDarkMode ? 'sun-1' : `moon-1`}
+            size={15}
+            onClick={() => this.handleDarkMode()}
+          />
         </CollapseLeftMenu>
         <SubTitle>
           <Icon icon="downarrow" size={9} /> &nbsp;{__('Pages')}
@@ -299,7 +319,7 @@ class SiteForm extends React.Component<Props, State> {
   }
 
   render() {
-    const { name, settingsObject } = this.state;
+    const { name, settingsObject, showDarkMode } = this.state;
 
     const breadcrumb = [
       { title: 'Sites', link: '/webbuilder' },
@@ -310,7 +330,7 @@ class SiteForm extends React.Component<Props, State> {
       <>
         <Wrapper.Header title={'Site Edit Form'} breadcrumb={breadcrumb} />
 
-        <SiteFormContainer>
+        <SiteFormContainer showDarkMode={showDarkMode}>
           <FlexItem>
             {this.renderLeftSidebar()}
             {settingsObject && (

@@ -1,6 +1,6 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
+import styled, { css } from 'styled-components';
 
-import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 export const FlexWrap = styledTS<{ noPadding?: boolean }>(styled.div)`
@@ -215,22 +215,26 @@ export const LeftSidebar = styledTS<{ width?: number }>(styled.div)`
   overflow: auto;
   height: 100%;
   width: 200px;
-  background: #444444;
-  color: ${colors.colorShadowGray};
+
+  &.darkmode {
+    background: #444;
+    color: ${colors.colorShadowGray};
+  }
 `;
 
 export const CollapseLeftMenu = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   cursor: pointer;
   padding: 9px ${dimensions.unitSpacing}px;
 `;
 
 export const SubTitle = styled.div`
-  background: #3e3e3e;
   margin: 0;
   letter-spacing: 1px;
   font-size: 12px;
+  background-color: rgba(0, 0, 0, 0.1);
   padding: 9px ${dimensions.unitSpacing}px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.25);
   border-top: 1px solid rgba(0, 0, 0, 0.25);
@@ -240,8 +244,22 @@ export const LeftSidebarContent = styled.div`
   padding: 9px ${dimensions.unitSpacing}px;
 `;
 
-export const SiteFormContainer = styled.div`
+export const SiteFormContainer = styledTS<{ showDarkMode?: boolean }>(
+  styled.div
+)`
   position: relative;
+
+  ${props =>
+    !props.showDarkMode &&
+    css`
+      .gjs-one-bg {
+        background: ${colors.bgLight};
+      }
+
+      .gjs-two-color {
+        color: ${colors.colorCoreGray};
+      }
+    `};
 `;
 
 export const SettingsContent = styled.div`

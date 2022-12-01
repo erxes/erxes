@@ -20,21 +20,16 @@ class PageList extends React.Component<Props> {
     return (
       <List>
         {pages.map(page => (
-          <a
-            key={page._id}
-            href={`/webbuilder/sites/edit/${siteId}?pageId=${page._id}`}
-          >
-            <li>
-              <div>
-                <Icon icon="file-1" />
-                {page.name}
-              </div>
-              <Icon
-                icon="settings"
-                onClick={() => handleItemSettings(page, 'page')}
-              />
-            </li>
-          </a>
+          <li key={page._id}>
+            <a href={`/webbuilder/sites/edit/${siteId}?pageId=${page._id}`}>
+              <Icon icon="file-1" />
+              {page.name}
+            </a>
+            <Icon
+              icon="settings"
+              onClick={() => handleItemSettings(page, 'page')}
+            />
+          </li>
         ))}
         <li>
           <div className="link">
