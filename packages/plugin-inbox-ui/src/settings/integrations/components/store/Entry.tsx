@@ -92,6 +92,10 @@ function renderCreate(createUrl, kind, isAvailable) {
     return <Link to={createUrl}>+ {__('Add')}</Link>;
   }
 
+  if ((createUrl || '').includes('create')) {
+    return <Link to={createUrl}>+ {__('Add')}</Link>;
+  }
+
   const formContent = props => <IntegrationForm {...props} type={kind} />;
 
   return (
@@ -104,7 +108,7 @@ function renderCreate(createUrl, kind, isAvailable) {
 }
 
 function Entry({ integration, getClassName, toggleBox, totalCount }: Props) {
-  const { kind, isAvailable, createUrl, createModal } = integration;
+  const { kind, isAvailable, createUrl } = integration;
 
   return (
     <IntegrationItem key={integration.name} className={getClassName(kind)}>
@@ -127,7 +131,7 @@ function Entry({ integration, getClassName, toggleBox, totalCount }: Props) {
           </Ribbon>
         )}
       </Box>
-      {renderCreate(createUrl, createModal, isAvailable)}
+      {renderCreate(createUrl, kind, isAvailable)}
     </IntegrationItem>
   );
 }

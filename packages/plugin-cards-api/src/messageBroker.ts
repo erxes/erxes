@@ -424,6 +424,37 @@ export const initBroker = async cl => {
       };
     }
   );
+
+  consumeRPCQueue(
+    'cards:getModuleRelation',
+    async ({ subdomain, data: { module, target, triggerType } }) => {
+      let filter;
+
+      if (module.includes('contacts')) {
+        const relTypeIds = await sendCommonMessage({
+          subdomain,
+          serviceName: 'core',
+          action: 'conformities.savedConformity',
+          data: {
+            mainType: triggerType.split(':')[1],
+            mainTypeId: target._id,
+            relTypes: [module.split(':')[1]]
+          },
+          isRPC: true,
+          defaultValue: []
+        });
+
+        if (relTypeIds.length) {
+          filter = { _id: { $in: relTypeIds } };
+        }
+      }
+
+      return {
+        status: 'success',
+        data: filter
+      };
+    }
+  );
 };
 
 export const sendContactsMessage = async (
@@ -568,6 +599,15 @@ export const fetchSegment = (
 
 export const sendToWebhook = ({ subdomain, data }) => {
   return sendWebhook(client, { subdomain, data });
+};
+
+export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'tags',
+    ...args
+  });
 };
 
 export default function() {

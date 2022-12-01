@@ -193,6 +193,16 @@ export const initBroker = cl => {
     }
   );
 
+  consumeQueue(
+    'inbox:removeConversation',
+    async ({ subdomain, data: { _id } }) => {
+      const models = await generateModels(subdomain);
+
+      await models.ConversationMessages.deleteMany({ conversationId: _id });
+      return models.Conversations.deleteOne({ _id });
+    }
+  );
+
   consumeRPCQueue(
     'inbox:getConversations',
     async ({ subdomain, data: { query } }) => {
@@ -261,6 +271,29 @@ export const initBroker = cl => {
       data: await getIntegrationsKinds()
     };
   });
+
+  consumeRPCQueue(
+    'inbox:getModuleRelation',
+    async ({ data: { module, target } }) => {
+      let filter;
+
+      if (module.includes('contacts')) {
+        const queryField =
+          target[module.includes('company') ? 'companyId' : 'customerId'];
+
+        if (queryField) {
+          filter = {
+            _id: queryField
+          };
+        }
+      }
+
+      return {
+        status: 'success',
+        data: filter
+      };
+    }
+  );
 };
 
 export const sendCommonMessage = async (

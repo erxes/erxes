@@ -1,3 +1,7 @@
+import Popover from 'react-bootstrap/Popover';
+import TwitterPicker from 'react-color/lib/Twitter';
+import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Button from 'modules/common/components/Button';
 import CollapseContent from 'modules/common/components/CollapseContent';
 import { FormControl } from 'modules/common/components/form';
@@ -5,7 +9,12 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Info from 'modules/common/components/Info';
 import CURRENCIES from '@erxes/ui/src/constants/currencies';
-import { __ } from 'modules/common/utils';
+import {
+  __,
+  uploadHandler,
+  readFile,
+  loadDynamicComponent
+} from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import EmailConfigForm from '@erxes/ui-settings/src/general/components/EmailConfigForm';
 import React from 'react';
@@ -98,7 +107,7 @@ class GeneralSettings extends React.Component<Props, State> {
     this.setState({ language: language.value });
   };
 
-  renderItem = (key: string, description?: string) => {
+  renderItem = (key: string, description?: string, componentClass?: string) => {
     const { configsMap } = this.state;
 
     return (
@@ -106,12 +115,83 @@ class GeneralSettings extends React.Component<Props, State> {
         <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
         {description && <p>{__(description)}</p>}
         <FormControl
+          componentClass={componentClass}
           defaultValue={configsMap[key]}
           onChange={this.onChangeInput.bind(this, key)}
         />
       </FormGroup>
     );
   };
+
+  onChangeColor = (field, e) => {
+    this.onChangeConfig(field, e.hex);
+  };
+
+  renderColorPicker = field => {
+    const { configsMap } = this.state;
+    const value = configsMap[field];
+
+    const popoverContent = (
+      <Popover id="color-picker">
+        <TwitterPicker
+          color={value}
+          onChange={this.onChangeColor.bind(this, field)}
+          triangle="hide"
+        />
+      </Popover>
+    );
+
+    return (
+      <OverlayTrigger
+        trigger="click"
+        rootClose={true}
+        placement="bottom-start"
+        overlay={popoverContent}
+      >
+        <ColorPick>
+          <ColorPicker style={{ backgroundColor: value }} />
+        </ColorPick>
+      </OverlayTrigger>
+    );
+  };
+
+  handleLogoChange = (field, e) => {
+    const imageFile = e.target.files;
+
+    uploadHandler({
+      files: imageFile,
+
+      beforeUpload: () => {
+        return;
+      },
+
+      afterUpload: ({ response }) => {
+        this.onChangeConfig(field, response);
+      },
+
+      afterRead: ({ result }) => {
+        return;
+      }
+    });
+  };
+
+  renderUploadImage(field, description?) {
+    const { configsMap } = this.state;
+    const value = configsMap[field];
+
+    return (
+      <FormGroup>
+        <ControlLabel>{KEY_LABELS[field]}</ControlLabel>
+        {description && <p>{__(description)}</p>}
+        {value ? (
+          <p>
+            <img alt={field} src={readFile(value)} />
+          </p>
+        ) : null}
+        <input type="file" onChange={this.handleLogoChange.bind(this, field)} />
+      </FormGroup>
+    );
+  }
 
   renderConstant(kind: string) {
     const { constants } = this.props;
@@ -201,6 +281,30 @@ class GeneralSettings extends React.Component<Props, State> {
               onChange={this.onChangeMultiCombo.bind(this, 'dealUOM')}
               multi={true}
             />
+          </FormGroup>
+        </CollapseContent>
+
+        <CollapseContent title={__('Theme')}>
+          {this.renderUploadImage(
+            'THEME_LOGO',
+            'Transparent PNG, around 3:1 aspect ratio. Max width: 600px.'
+          )}
+          {this.renderUploadImage('THEME_FAVICON', '16x16px transparent PNG.')}
+
+          {this.renderItem('THEME_MOTTO', '', 'textarea')}
+
+          {this.renderItem('THEME_LOGIN_PAGE_DESCRIPTION', '', 'textarea')}
+
+          <FormGroup>
+            <ControlLabel>{__('Text color')}</ControlLabel>
+            <p>{__('Used on the login page text')}</p>
+            {this.renderColorPicker('THEME_TEXT_COLOR')}
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>{__('Background')}</ControlLabel>
+            <p>{__('Used on the login background')}</p>
+            {this.renderColorPicker('THEME_BACKGROUND')}
           </FormGroup>
         </CollapseContent>
 
@@ -451,6 +555,12 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('MESSAGE_PRO_API_KEY')}
           {this.renderItem('MESSAGE_PRO_PHONE_NUMBER')}
         </CollapseContent>
+
+        {loadDynamicComponent(
+          'extendSystemConfig',
+          { ...this.props, onChangeConfig: this.onChangeConfig },
+          true
+        )}
       </ContentBox>
     );
 

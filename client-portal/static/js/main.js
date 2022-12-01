@@ -16,6 +16,11 @@ window.envMaps = [
     name: 'REACT_APP_DOMAIN',
     processValue: '%REACT_APP_DOMAIN%'
   },
+
+  {
+    name: 'REACT_APP_SUBSCRIPTION_URL',
+    processValue: '%REACT_APP_SUBSCRIPTION_URL%'
+  }
 ];
 
 for (var i = 0; i < window.envMaps.length; i++) {
