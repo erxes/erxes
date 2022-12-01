@@ -32,7 +32,11 @@ class Sidebar extends React.Component<Props> {
     return (
       <Wrapper.Sidebar hasBorder>
         {isEnabled('segments') && (
-          <SegmentFilter type={type} loadingMainQuery={loadingMainQuery} />
+          <SegmentFilter
+            type={type}
+            loadingMainQuery={loadingMainQuery}
+            abortController={this.abortController}
+          />
         )}
         {isEnabled('tags') && (
           <TagFilter
@@ -48,12 +52,25 @@ class Sidebar extends React.Component<Props> {
             abortController={this.abortController}
           />
         )}
-        <BrandFilter type={type} loadingMainQuery={loadingMainQuery} />
+        <BrandFilter
+          type={type}
+          loadingMainQuery={loadingMainQuery}
+          abortController={this.abortController}
+        />
+
         {isEnabled('inbox') && (
-          <LeadFilter type={type} loadingMainQuery={loadingMainQuery} />
+          <LeadFilter
+            type={type}
+            loadingMainQuery={loadingMainQuery}
+            abortController={this.abortController}
+          />
         )}
         {type === 'inbox' && (
-          <LeadStatusFilter type={type} loadingMainQuery={loadingMainQuery} />
+          <LeadStatusFilter
+            type={type}
+            loadingMainQuery={loadingMainQuery}
+            abortController={this.abortController}
+          />
         )}
         {isEnabled('forms') && (
           <DateFilters
