@@ -33,7 +33,6 @@ type StageProps = {
   refetchStage: (stageId: string) => void;
   onAddItem: (stageId: string, item: IItem, aboveItemId?: string) => void;
   onRemoveItem: (itemId: string, stageId: string) => void;
-  abortController: any;
 };
 
 type FinalStageProps = {
@@ -256,10 +255,12 @@ const getFilterParams = (
   };
 };
 
+type WithQueryProps = StageProps & { abortController: any };
+
 const withQuery = ({ options }) => {
-  return withProps<StageProps>(
+  return withProps<WithQueryProps>(
     compose(
-      graphql<StageProps>(gql(options.queries.itemsQuery), {
+      graphql<WithQueryProps>(gql(options.queries.itemsQuery), {
         name: 'itemsQuery',
         skip: ({ loadingState }) => loadingState !== 'readyToLoad',
         options: ({ stage, queryParams, loadingState, abortController }) => ({
@@ -276,10 +277,10 @@ const withQuery = ({ options }) => {
           notifyOnNetworkStatusChange: loadingState === 'readyToLoad'
         })
       }),
-      graphql<StageProps>(gql(mutations.stagesRemove), {
+      graphql<WithQueryProps>(gql(mutations.stagesRemove), {
         name: 'removeStageMutation'
       }),
-      graphql<StageProps>(gql(mutations.stagesSortItems), {
+      graphql<WithQueryProps>(gql(mutations.stagesSortItems), {
         name: 'stagesSortItemsMutation'
       })
     )(StageContainer)
