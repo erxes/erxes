@@ -60,16 +60,28 @@ export default class ConversationDetail extends React.Component<Props> {
       const kind = integration.kind.split('-')[0];
 
       let content;
+      const key = 'inboxConversationDetail';
 
       if (
         !['messenger', 'lead', 'booking', 'webhook', 'callpro'].includes(
           currentConversation.integration.kind
         )
       ) {
-        content = loadDynamicComponent('inboxConversationDetail', {
-          ...this.props,
-          conversation: currentConversation
+        const integrations = getPluginConfig({
+          pluginName: kind,
+          configName: 'inboxIntegrations'
         });
+
+        if (integrations) {
+          const entry = integrations.find(i => i.kind === integration.kind);
+
+          if (entry && entry.components && entry.components.includes(key)) {
+            content = loadDynamicComponent(key, {
+              ...this.props,
+              conversation: currentConversation
+            });
+          }
+        }
 
         if (content) {
           return (
