@@ -3,16 +3,16 @@ import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import TimeForm from '../components/TimeForm';
-import { TimeClockMutationResponse, TimeClockQueryResponse } from '../types';
+import { TimeClockMutationResponse, BranchesQueryResponse } from '../types';
 import { mutations } from '../graphql';
 import React from 'react';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { ITimeclock } from '../types';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
 
 type Props = {
   timeclocks: ITimeclock[];
+  searchValue: string;
   currentUser: IUser;
   queryParams: any;
   history: any;
@@ -25,6 +25,8 @@ type Props = {
   queryUserId: string;
   shiftId: string;
   shiftStarted: boolean;
+  departmendIds: string[];
+  branchIds: string[];
 };
 
 type FinalProps = {} & Props & TimeClockMutationResponse;

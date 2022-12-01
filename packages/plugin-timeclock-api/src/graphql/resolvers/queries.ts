@@ -103,6 +103,19 @@ const templateQueries = {
     return models.Schedules.findOne({ _id });
   },
 
+  // async returnUserIdsOfBranches(
+  //   _root,
+  //   { branchIds }: { branchIds: string[] },
+  //   { models, subdomain }: IContext
+  // ) {
+  //   const finalUserIds: string[] = [];
+  //   for (const branchId of branchIds) {
+  //     const branch = await findBranch(subdomain, branchId);
+  //     finalUserIds.push(branch.userIds);
+  //   }
+  //   return finalUserIds;
+  // },
+
   async timeclockReports(
     _root,
     { departmentIds, branchIds },

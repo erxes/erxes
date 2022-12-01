@@ -1,7 +1,6 @@
 import Form from '@erxes/ui/src/components/form/Form';
 import Icon from '@erxes/ui/src/components/Icon';
 import { ITimeclock } from '../types';
-import { IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import Button from '@erxes/ui/src/components/Button';
 import React, { useEffect, useState } from 'react';

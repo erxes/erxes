@@ -5,15 +5,17 @@ import { withProps } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import ScheduleList from '../components/ScheduleList';
 import {
+  BranchesQueryResponse,
   IShift,
   ScheduleMutationResponse,
   ScheduleQueryResponse
 } from '../types';
 import { mutations, queries } from '../graphql';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert } from '@erxes/ui/src/utils';
+import erxesQuery from '@erxes/ui/src/team/graphql/queries';
 
 type Props = {
+  searchValue: string;
   history: any;
   queryParams: any;
   explanation: string;
@@ -34,6 +36,7 @@ type Props = {
 
 type FinalProps = {
   listScheduleQuery: ScheduleQueryResponse;
+  listBranchesQuery: BranchesQueryResponse;
 } & Props &
   ScheduleMutationResponse;
 
@@ -44,7 +47,8 @@ const ListContainer = (props: FinalProps) => {
     submitShiftMutation,
     solveScheduleMutation,
     solveShiftMutation,
-    listScheduleQuery
+    listScheduleQuery,
+    listBranchesQuery
   } = props;
 
   const { userId } = queryParams;
@@ -102,7 +106,9 @@ const ListContainer = (props: FinalProps) => {
     submitRequest,
     submitShift
   };
-  return <ScheduleList {...updatedProps} />;
+  return (
+    <ScheduleList {...updatedProps} branchesList={listBranchesQuery.branches} />
+  );
 };
 
 export default withProps<Props>(
@@ -117,6 +123,16 @@ export default withProps<Props>(
             // endDate: queryEndDate,
             userId: queryUserId
           },
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<Props, BranchesQueryResponse, { searchValue: string }>(
+      gql(erxesQuery.branches),
+      {
+        name: 'listBranchesQuery',
+        options: ({ searchValue }) => ({
+          variables: { searchValue },
           fetchPolicy: 'network-only'
         })
       }

@@ -19,6 +19,7 @@ class Row extends React.Component<Props> {
 
   shiftTrigger = shiftStarted => (
     <Button
+      disabled={!shiftStarted && this.props.timeclock.shiftEnd ? true : false}
       id="timeClockButton1"
       btnStyle={shiftStarted ? 'danger' : 'success'}
       icon="plus-circle"

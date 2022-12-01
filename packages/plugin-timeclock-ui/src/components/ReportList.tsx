@@ -14,8 +14,6 @@ import { IReport } from '../types';
 import { FilterWrapper, Row, FilterItem } from '../styles';
 
 type Props = {
-  branchId;
-  deptId;
   queryParams: any;
   history: any;
   branchesList: any;

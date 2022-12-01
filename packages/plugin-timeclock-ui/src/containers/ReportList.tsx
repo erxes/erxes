@@ -4,7 +4,7 @@ import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import React from 'react';
 import ReportList from '../components/ReportList';
-import { mutations, queries } from '../graphql';
+import { queries } from '../graphql';
 import { BranchesQueryResponse, ReportsQueryResponse } from '../types';
 import erxesQuery from '@erxes/ui/src/team/graphql/queries';
 

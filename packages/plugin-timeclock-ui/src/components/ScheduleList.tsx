@@ -20,12 +20,16 @@ import { Input } from '../styles';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { Row } from '../styles';
+import { IBranch } from '@erxes/ui/src/team/types';
+import SelectDate from './SelectDate';
+import { CustomRangeContainer } from '../styles';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
 
 type Props = {
   scheduleOfMembers: any;
   queryParams: any;
   history: any;
-  branchesList: string[];
+  branchesList: IBranch[];
   solveSchedule: (scheduleId: string, status: string) => void;
   solveShift: (shiftId: string, status: string) => void;
   submitRequest: (userId: string[], filledShifts: any) => void;
@@ -64,7 +68,7 @@ function ScheduleList(props: Props) {
   );
 
   const adminConfigTrigger = (
-    <Button id="timeClockButton2" btnStyle="success" icon="plus-circle">
+    <Button id="timeClockButton2" btnStyle="primary" icon="plus-circle">
       Schedule Configuration - Admin
     </Button>
   );
@@ -400,6 +404,38 @@ function ScheduleList(props: Props) {
       </div>
     </div>
   );
+  const onSelectDateChange = dateString => {
+    if (dateString) {
+      const getDate = new Date(dateString).toDateString();
+      console.log('getdate', getDate);
+
+      const newDates = scheduleDates;
+
+      newDates[getDate] = {
+        shiftStart: new Date(getDate),
+        shiftEnd: new Date(getDate)
+      };
+
+      setScheduleDates(newDates);
+      setKeyCounter(getDate);
+    }
+  };
+
+  const adminConfigBySelect = () => (
+    <>
+      <CustomRangeContainer>
+        <DateControl
+          // value={new Date()}
+          required={false}
+          name="startDate"
+          onChange={onSelectDateChange}
+          placeholder={'Select date'}
+          dateFormat={'YYYY-MM-DD'}
+        />
+      </CustomRangeContainer>
+      {renderWeekDays()}
+    </>
+  );
 
   const onContentTypeSelect = contntType => {
     localStorage.setItem('contentType', JSON.stringify(contntType));
@@ -407,7 +443,16 @@ function ScheduleList(props: Props) {
       .value;
     setContentType(contType);
   };
-
+  const renderSwitchContent = () => {
+    switch (contentType) {
+      case 'By Date Selection':
+        return adminConfigBySelect();
+      case 'By Date Range':
+        return adminConfigByDate();
+      default:
+        return adminConfigByDay();
+    }
+  };
   const adminConfigDefault = () => {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -438,14 +483,14 @@ function ScheduleList(props: Props) {
           value={contentType}
           onChange={onContentTypeSelect}
           placeholder="Select Content Type"
-          options={['By Date Range', 'By Week Day'].map(day => ({
-            value: day,
-            label: __(day)
-          }))}
+          options={['By Date Range', 'By Week Day', 'By Date Selection'].map(
+            day => ({
+              value: day,
+              label: __(day)
+            })
+          )}
         />
-        {contentType === 'By Date Range'
-          ? adminConfigByDate()
-          : adminConfigByDay()}
+        {renderSwitchContent()}
         <div
           style={{
             display: 'flex',

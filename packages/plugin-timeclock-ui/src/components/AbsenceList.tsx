@@ -15,6 +15,8 @@ import DateFilter from '@erxes/ui/src/components/DateFilter';
 import { IAbsence } from '../types';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 
 type Props = {
   absences: IAbsence[];
@@ -61,6 +63,26 @@ function AbsenceList(props: Props) {
     <Button id="timeClockButton2" btnStyle="success" icon="plus-circle">
       Create Request
     </Button>
+  );
+  const configTrigger = (
+    <Button id="timeClockButton2" btnStyle="primary" icon="plus-circle">
+      Absence Config
+    </Button>
+  );
+
+  const configContent = () => (
+    <FormGroup>
+      <ControlLabel>Types of Absence requests</ControlLabel>
+      {/* {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>} */}
+      <Select
+        // value={configsMap.UPLOAD_FILE_TYPES}
+        // options={mimeTypeOptions}
+        // onChange={this.onChangeMultiCombo.bind(this, 'UPLOAD_FILE_TYPES')}
+        multi={true}
+        delimiter=","
+        simpleValue={true}
+      />
+    </FormGroup>
   );
 
   const modalContent = () => (
@@ -112,11 +134,18 @@ function AbsenceList(props: Props) {
   };
 
   const actionBarRight = (
-    <ModalTrigger
-      title={__('Send absence request')}
-      trigger={trigger}
-      content={modalContent}
-    />
+    <>
+      <ModalTrigger
+        title={__('Absence Config')}
+        trigger={trigger}
+        content={modalContent}
+      />
+      <ModalTrigger
+        title={__('Send absence request')}
+        trigger={configTrigger}
+        content={configContent}
+      />
+    </>
   );
 
   const thisWeek = addDaysOfWeek(new Date());
@@ -168,7 +197,6 @@ function AbsenceList(props: Props) {
           ) : (
             <>
               <Button
-                disabled={absence.solved}
                 btnStyle="success"
                 onClick={() => solveAbsence(absence._id, 'Approved')}
               >
