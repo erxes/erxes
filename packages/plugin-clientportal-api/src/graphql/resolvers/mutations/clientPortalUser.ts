@@ -1,3 +1,4 @@
+import { OTPConfig } from './../../../../../plugin-clientportal-ui/src/types';
 import { authCookieOptions, getEnv } from '@erxes/api-utils/src/core';
 import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
@@ -6,6 +7,7 @@ import { sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
 import { IUser } from '../../../models/definitions/clientPortalUser';
 import { sendSms } from '../../../utils';
+import { createJwtToken } from '../../../auth/authUtils';
 
 export interface IVerificationParams {
   userId: string;
@@ -85,9 +87,38 @@ const clientPortalUserMutations = {
     args: IVerificationParams,
     context: IContext
   ) => {
-    const { models } = context;
+    const { models, res } = context;
 
-    return models.ClientPortalUsers.verifyUser(args);
+    const user = await models.ClientPortalUsers.verifyUser(args);
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const clientPortal = await models.ClientPortals.getConfig(
+      user.clientPortalId
+    );
+
+    const optConfig = clientPortal.otpConfig;
+
+    if (args.phoneOtp && optConfig && optConfig.loginWithOTP) {
+      const cookieOptions: any = {};
+
+      const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+
+      if (!['test', 'development'].includes(NODE_ENV)) {
+        cookieOptions.sameSite = 'none';
+      }
+
+      const options = authCookieOptions(cookieOptions);
+      const { token } = createJwtToken({ userId: user._id });
+
+      res.cookie('client-auth-token', token, options);
+
+      return 'loggedin';
+    }
+
+    return 'verified';
   },
 
   clientPortalUsersVerify: async (
@@ -256,6 +287,36 @@ const clientPortalUserMutations = {
     });
 
     return user;
+  },
+
+  clientPortalLoginWithPhone: async (
+    _root,
+    args: { phone: string; clientPortalId: string; deviceToken },
+    { models, subdomain, res }: IContext
+  ) => {
+    const { phone, clientPortalId, deviceToken } = args;
+
+    const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
+
+    const { userId, phoneCode } = await models.ClientPortalUsers.loginWithPhone(
+      clientPortal,
+      phone
+    );
+
+    if (phoneCode) {
+      const config = clientPortal.otpConfig || {
+        content: '',
+        smsTransporterType: '',
+        codeLength: 4
+      };
+      const body =
+        config.content.replace(/{.*}/, phoneCode) ||
+        `Your verification code is ${phoneCode}`;
+
+      await sendSms(subdomain, config.smsTransporterType, phone, body);
+    }
+
+    return { userId, message: 'Sms sent' };
   }
 };
 
