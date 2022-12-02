@@ -5,7 +5,6 @@ import { __ } from '@erxes/ui/src/utils/core';
 import ConversationItem from '../../containers/leftSidebar/ConversationItem';
 import React from 'react';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
-import { IntegrationModal } from './IntegrationModal';
 import { ConversationItems } from './styles';
 
 type Props = {
@@ -56,7 +55,6 @@ export default class ConversationList extends React.Component<Props> {
             text="Let's get you messaging away!"
             size="full"
             image="/images/actions/6.svg"
-            extra={<IntegrationModal trigger={popupTrigger} />}
           />
         )}
 
