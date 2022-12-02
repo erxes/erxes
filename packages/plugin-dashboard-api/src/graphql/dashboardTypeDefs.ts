@@ -31,6 +31,7 @@ export const types = tagsAvailable => `
     createdBy: String
     updatedBy: String
     tagIds: [String]
+    departmentIds: [String]
 
     ${tagsAvailable ? `getTags: [Tag]` : ''}
     createdUser: User
@@ -64,6 +65,7 @@ const queryParams = `
   sortField: String
   sortDirection: Int
   tag: String
+  departmentId: String
 `;
 
 export const queries = `
@@ -78,8 +80,8 @@ export const queries = `
 `;
 
 export const mutations = `
-  dashboardsAdd(name: String, description: String, visibility: String, selectedMemberIds: [String], parentId: String): Dashboard
-  dashboardsEdit(_id: String!, name: String, description: String, visibility: String, selectedMemberIds: [String], parentId: String): Dashboard
+  dashboardsAdd(name: String, description: String, visibility: String, selectedMemberIds: [String], departmentIds: [String], parentId: String): Dashboard
+  dashboardsEdit(_id: String!, name: String, description: String, visibility: String, selectedMemberIds: [String], departmentIds: [String], parentId: String): Dashboard
   dashboardsRemove(dashboardIds: [String]): JSON
   dashboardItemsAdd(dashboardId: String, layout: String, vizState: String, name: String, type: String, isDateRange: Boolean): DashboardItem
   dashboardItemsEdit(_id: String!, dashboardId:String, layout: String, vizState: String, name: String, type: String): DashboardItem
