@@ -1,4 +1,3 @@
-import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import LoadMore from '@erxes/ui/src/components/LoadMore';
 import { __ } from '@erxes/ui/src/utils/core';
@@ -28,10 +27,6 @@ export default class ConversationList extends React.Component<Props> {
       loading,
       totalCount
     } = this.props;
-
-    const popupTrigger = (
-      <Button icon="processor">{__('Connect Integration')}</Button>
-    );
 
     return (
       <React.Fragment>
