@@ -108,6 +108,23 @@ class WorkArea extends React.Component<FinalProps, State> {
     this.prevMessageInsertedSubscription = null;
   }
 
+  shouldComponentUpdate(nextProps: Readonly<FinalProps>): boolean {
+    const { dmConfig, messagesQuery, currentConversation } = this.props;
+
+    const prevMessages = getQueryResult(
+      messagesQuery,
+      dmConfig?.messagesQueries,
+      currentConversation
+    );
+    const nextMessages = getQueryResult(
+      nextProps.messagesQuery,
+      dmConfig?.messagesQueries,
+      nextProps.currentConversation
+    );
+
+    return prevMessages.length < nextMessages.length;
+  }
+
   componentWillReceiveProps(nextProps) {
     const { currentUser, dmConfig } = this.props;
     const { currentId, currentConversation, messagesQuery } = nextProps;
