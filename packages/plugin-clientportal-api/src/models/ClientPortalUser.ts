@@ -925,8 +925,6 @@ export const loadClientPortalUserClass = (models: IModels) => {
         });
       }
 
-      console.log('user', user);
-
       if (!user) {
         throw new Error('Can not create user');
       }
