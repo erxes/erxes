@@ -1,4 +1,4 @@
-import { sendCommonMessage } from './messageBrokerErkhet';
+import { sendCommonMessage, sendRPCMessage } from './messageBrokerErkhet';
 import { getPostData } from './utils/ebarimtData';
 import {
   productToErkhet,
@@ -6,6 +6,7 @@ import {
 } from './utils/productToErkhet';
 import { getConfig } from './utils/utils';
 import { customerToErkhet, companyToErkhet } from './utils/customerToErkhet';
+import { sendCardsMessage } from './messageBroker';
 
 export default {
   'cards:deal': ['update'],
@@ -77,13 +78,49 @@ export const afterMutationHandlers = async (subdomain, params) => {
       };
       const postData = await getPostData(subdomain, config, deal);
 
-      await sendCommonMessage('rpc_queue:erxes-automation-erkhet', {
-        action: 'get-response-send-order-info',
-        isEbarimt: false,
-        payload: JSON.stringify(postData),
-        thirdService: true
-      });
+      const response = await sendRPCMessage(
+        'rpc_queue:erxes-automation-erkhet',
+        {
+          action: 'get-response-send-order-info',
+          isEbarimt: false,
+          payload: JSON.stringify(postData),
+          isJson: true,
+          thirdService: true
+        }
+      );
 
+      if (response.message || response.error) {
+        const txt = JSON.stringify({
+          message: response.message,
+          error: response.error
+        });
+        if (config.responseField) {
+          await sendCardsMessage({
+            subdomain,
+            action: 'deals.updateOne',
+            data: {
+              selector: { _id: deal._id },
+              modifier: {
+                $push: {
+                  customFieldsData: [
+                    {
+                      field: config.responseField.replace(
+                        'customFieldsData.',
+                        ''
+                      ),
+                      value: txt,
+                      stringValue: txt
+                    }
+                  ]
+                }
+              }
+            },
+            isRPC: true
+          });
+        } else {
+          console.log(txt);
+        }
+      }
       return;
     }
     return;
