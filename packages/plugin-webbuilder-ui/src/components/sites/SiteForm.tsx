@@ -284,7 +284,8 @@ class SiteForm extends React.Component<Props, State> {
           />
         </CollapseLeftMenu>
         <SubTitle>
-          <Icon icon="downarrow" size={9} /> &nbsp;{__('Pages')}
+          <i className="gjs-caret-icon fa fa-caret-down" />
+          &nbsp;{__('Pages')}
         </SubTitle>
         <LeftSidebarContent>
           <PageList
@@ -295,7 +296,8 @@ class SiteForm extends React.Component<Props, State> {
         </LeftSidebarContent>
 
         <SubTitle>
-          <Icon icon="downarrow" size={9} /> &nbsp;{__('Content Type Builder')}
+          <i className="gjs-caret-icon fa fa-caret-down" /> &nbsp;
+          {__('Content Type Builder')}
         </SubTitle>
         <LeftSidebarContent>
           <ContentTypeList />

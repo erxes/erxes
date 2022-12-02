@@ -283,8 +283,7 @@ export const SiteFormContainer = styledTS<{ showDarkMode?: boolean }>(
       }
 
       ${SubTitle} {
-        border-bottom: 1px solid ${colors.borderPrimary};
-        border-top: 1px solid ${colors.borderPrimary};
+        border: 1px solid ${colors.borderPrimary};
         background: ${colors.colorWhite};
         color: ${colors.colorCoreGray};
       }
