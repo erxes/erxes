@@ -1,13 +1,11 @@
-import { OTPConfig } from './../../../../../plugin-clientportal-ui/src/types';
 import { authCookieOptions, getEnv } from '@erxes/api-utils/src/core';
-import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
+import { createJwtToken } from '../../../auth/authUtils';
 import { IContext } from '../../../connectionResolver';
 import { sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
 import { IUser } from '../../../models/definitions/clientPortalUser';
 import { sendSms } from '../../../utils';
-import { createJwtToken } from '../../../auth/authUtils';
 
 export interface IVerificationParams {
   userId: string;
