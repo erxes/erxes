@@ -30,6 +30,7 @@ class LeadStatusFilterContainer extends React.Component<Props> {
 }
 
 type WrapperProps = {
+  abortController?: any;
   type: string;
   loadingMainQuery: boolean;
 };
@@ -41,8 +42,11 @@ export default withProps<WrapperProps>(
       {
         name: 'customersCountQuery',
         skip: ({ loadingMainQuery }) => loadingMainQuery,
-        options: ({ type }) => ({
-          variables: { type, only: 'byLeadStatus' }
+        options: ({ type, abortController }) => ({
+          variables: { type, only: 'byLeadStatus' },
+          context: {
+            fetchOptions: { signal: abortController && abortController.signal }
+          }
         })
       }
     )

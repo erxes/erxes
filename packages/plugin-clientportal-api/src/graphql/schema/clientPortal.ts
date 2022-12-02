@@ -36,6 +36,8 @@ ${
     content: String
     codeLength: Int
     smsTransporterType: String
+    loginWithOTP: Boolean
+    expireAfter: Int
   }
 
   type MailConfig {
@@ -48,6 +50,8 @@ ${
     content: String
     codeLength: Int
     smsTransporterType: String
+    loginWithOTP: Boolean
+    expireAfter: Int
   }
 
   input MailConfigInput {

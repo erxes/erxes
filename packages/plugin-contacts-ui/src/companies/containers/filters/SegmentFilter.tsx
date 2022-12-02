@@ -16,21 +16,30 @@ const SegmentFilterContainer = (props: {
     ? companyCountsQuery.companyCounts
     : null) || { bySegment: {} };
 
-  return <Segments contentType="contacts:company" counts={counts.bySegment || {}} />;
+  return (
+    <Segments contentType="contacts:company" counts={counts.bySegment || {}} />
+  );
 };
 
-export default withProps<{ loadingMainQuery: boolean }>(
+type Props = {
+  loadingMainQuery: boolean;
+  abortController?: any;
+};
+
+export default withProps<Props>(
   compose(
-    graphql<
-      { loadingMainQuery: boolean },
-      CountQueryResponse,
-      { only: string }
-    >(gql(queries.companyCounts), {
-      name: 'companyCountsQuery',
-      skip: ({ loadingMainQuery }) => loadingMainQuery,
-      options: {
-        variables: { only: 'bySegment' }
+    graphql<Props, CountQueryResponse, { only: string }>(
+      gql(queries.companyCounts),
+      {
+        name: 'companyCountsQuery',
+        skip: ({ loadingMainQuery }) => loadingMainQuery,
+        options: ({ abortController }) => ({
+          variables: { only: 'bysegment' },
+          context: {
+            fetchoptions: { signal: abortController && abortController.signal }
+          }
+        })
       }
-    })
+    )
   )(SegmentFilterContainer)
 );
