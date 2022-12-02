@@ -59,25 +59,29 @@ export default class ConversationDetail extends React.Component<Props> {
       const { integration } = currentConversation;
       const kind = integration.kind.split('-')[0];
 
-      const dmConfig = getPluginConfig({
-        pluginName: kind,
-        configName: 'inboxDirectMessage'
-      });
-
-      if (dmConfig) {
-        return <DmWorkArea {...this.props} dmConfig={dmConfig} />;
-      }
-
       let content;
+      const key = 'inboxConversationDetail';
 
       if (
         !['messenger', 'lead', 'booking', 'webhook', 'callpro'].includes(
           currentConversation.integration.kind
         )
       ) {
-        content = loadDynamicComponent('inboxConversationDetail', {
-          ...this.props
+        const integrations = getPluginConfig({
+          pluginName: kind,
+          configName: 'inboxIntegrations'
         });
+
+        if (integrations) {
+          const entry = integrations.find(i => i.kind === integration.kind);
+
+          if (entry && entry.components && entry.components.includes(key)) {
+            content = loadDynamicComponent(key, {
+              ...this.props,
+              conversation: currentConversation
+            });
+          }
+        }
 
         if (content) {
           return (
@@ -87,6 +91,15 @@ export default class ConversationDetail extends React.Component<Props> {
             />
           );
         }
+      }
+
+      const dmConfig = getPluginConfig({
+        pluginName: kind,
+        configName: 'inboxDirectMessage'
+      });
+
+      if (dmConfig) {
+        return <DmWorkArea {...this.props} dmConfig={dmConfig} />;
       }
 
       return <DmWorkArea {...this.props} />;

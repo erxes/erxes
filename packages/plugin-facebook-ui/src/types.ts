@@ -10,6 +10,16 @@ export interface IAccount {
   id: string;
 }
 
+interface IFacebookCustomer {
+  _id: string;
+  userId: string;
+  erxesApiId: string;
+  firstName?: string;
+  lastName?: string;
+  profilePic?: string;
+  integrationId: string;
+}
+
 export type AccountsQueryResponse = {
   facebookGetAccounts: IAccount[];
   error?: Error;
@@ -64,7 +74,7 @@ export interface IFacebookComment {
   attachments: string[];
   commentCount: number;
   timestamp: Date;
-  customer: ICustomer;
+  customer: IFacebookCustomer;
   isResolved: boolean;
   permalink_url: string;
 }

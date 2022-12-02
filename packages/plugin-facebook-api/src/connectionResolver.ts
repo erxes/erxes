@@ -78,29 +78,29 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Logs = db.model<ILogDocument, ILogModel>('logs', loadLogClass(models));
 
   models.Comments = db.model<ICommentDocument, ICommentModel>(
-    'comments_facebook',
+    'comments_facebooks',
     loadCommentClass(models)
   );
 
   models.Conversations = db.model<IConversationDocument, IConversationModel>(
-    'conversations_facebook',
+    'conversations_facebooks',
     loadConversationClass(models)
   );
 
   models.Customers = db.model<ICustomerDocument, ICustomerModel>(
-    'customers_facebook',
+    'customers_facebooks',
     loadCustomerClass(models)
   );
 
   models.Posts = db.model<IPostDocument, IPostModel>(
-    'posts_facebook',
+    'posts_facebooks',
     loadPostClass(models)
   );
 
   models.ConversationMessages = db.model<
     IConversationMessageDocument,
     IConversationMessageModel
-  >('conversation_messages_facebook', loadConversationMessageClass(models));
+  >('conversation_messages_facebooks', loadConversationMessageClass(models));
 
   return models;
 };

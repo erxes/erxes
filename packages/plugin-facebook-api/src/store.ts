@@ -53,7 +53,7 @@ export const generatePostDoc = (
   return doc;
 };
 
-export const generateCommentDoc = (
+const generateCommentDoc = (
   commentParams: ICommentParams,
   pageId: string,
   userId: string
@@ -190,7 +190,7 @@ export const getOrCreateComment = async (
     ]
   });
 
-  models.Accounts.getAccount({ _id: integration.accountId });
+  await models.Accounts.getAccount({ _id: integration.accountId });
 
   const doc = generateCommentDoc(commentParams, pageId, userId);
 
