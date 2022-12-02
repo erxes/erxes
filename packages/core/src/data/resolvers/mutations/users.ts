@@ -234,8 +234,6 @@ const userMutations = {
 
     const updatedUser = await models.Users.updateUser(_id, doc);
 
-    console.log(args, 'ararar');
-
     if (channelIds) {
       await sendInboxMessage({
         subdomain,
