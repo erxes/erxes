@@ -27,6 +27,12 @@ cube(`DealsProductsdata`, {
       sql: `${CUBE}.\`productsData.discount\``,
       type: `sum`,
       title: `Discount sum`
+    },
+
+    unitprice: {
+      sql: `${Products}.\`unitPrice\``,
+      type: `sum`,
+      title: `Unit Price sum`
     }
   },
 
@@ -36,7 +42,7 @@ cube(`DealsProductsdata`, {
       type: `string`,
       primaryKey: true
     },
-    // .\`productsData.productId\`
+
     productsdataProduct: {
       sql: `${Products}.name`,
       type: `string`,

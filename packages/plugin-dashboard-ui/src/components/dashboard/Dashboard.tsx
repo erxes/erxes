@@ -1,4 +1,4 @@
-import { __ } from 'coreui/utils';
+import { __, generateTree } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import { IDashboard, IDashboardItem } from '../../types';
@@ -32,6 +32,8 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import Form from '@erxes/ui/src/components/form/Form';
 import ChartForm from '../../containers/dashboard/ChartForm';
+import Select from 'react-select-plus';
+import { IDepartment } from '@erxes/ui/src/team/types';
 
 const deserializeItem = i => ({
   ...i,
@@ -58,6 +60,7 @@ type Props = {
   dashboardId: string;
   history: any;
   queryParams: any;
+  departments: IDepartment[];
 };
 
 type State = {
@@ -69,6 +72,7 @@ type State = {
   showTeamMemberSelect: boolean;
   selectedMemberIds: string[];
   item?: IDashboardItem;
+  departmentIds?: string[];
 };
 
 class Dashboard extends React.Component<Props, State> {
@@ -88,7 +92,8 @@ class Dashboard extends React.Component<Props, State> {
       showDrawer: false,
       isPublic: visibility === 'public' ? true : false,
       showTeamMemberSelect: false,
-      selectedMemberIds: dashboard.selectedMemberIds || []
+      selectedMemberIds: dashboard.selectedMemberIds || [],
+      departmentIds: dashboard ? dashboard.departmentIds || [] : []
     };
   }
 
@@ -175,7 +180,7 @@ class Dashboard extends React.Component<Props, State> {
               icon={'check-circle'}
               onClick={onClickButton}
             >
-              {__('Select  members')}
+              {__('Select  members or department')}
             </Button>
             <Participators participatedUsers={members} limit={100} />
           </>
@@ -284,15 +289,19 @@ class Dashboard extends React.Component<Props, State> {
     this.setState({ selectedMemberIds });
   };
 
+  onChangeDepartments = options => {
+    this.setState({ departmentIds: (options || []).map(o => o.value) });
+  };
+
   onCancel = () => {
     this.setState({ showTeamMemberSelect: false });
   };
 
   onConfirm = () => {
     const { dashboard, save } = this.props;
-    const { selectedMemberIds } = this.state;
+    const { selectedMemberIds, departmentIds } = this.state;
 
-    save({ _id: dashboard._id, selectedMemberIds });
+    save({ _id: dashboard._id, selectedMemberIds, departmentIds });
     this.setState({ showTeamMemberSelect: false });
   };
 
@@ -313,7 +322,11 @@ class Dashboard extends React.Component<Props, State> {
 
   render() {
     const { dashboard, dashboardItems, dashboardId } = this.props;
-    const { showTeamMemberSelect, selectedMemberIds } = this.state;
+    const {
+      showTeamMemberSelect,
+      selectedMemberIds,
+      departmentIds
+    } = this.state;
 
     const haveChart = dashboardItems.length > 0 ? true : false;
 
@@ -355,18 +368,39 @@ class Dashboard extends React.Component<Props, State> {
           <Modal.Body>
             <Form
               renderContent={() => (
-                <FormGroup>
-                  <SelectMemberStyled zIndex={2002}>
-                    <ControlLabel>Members</ControlLabel>
+                <>
+                  <FormGroup>
+                    <SelectMemberStyled zIndex={2003}>
+                      <ControlLabel>Members</ControlLabel>
 
-                    <SelectTeamMembers
-                      label="Choose members"
-                      name="selectedMemberIds"
-                      initialValue={selectedMemberIds}
-                      onSelect={this.onChangeMembers}
-                    />
-                  </SelectMemberStyled>
-                </FormGroup>
+                      <SelectTeamMembers
+                        label="Choose members"
+                        name="selectedMemberIds"
+                        initialValue={selectedMemberIds}
+                        onSelect={this.onChangeMembers}
+                      />
+                    </SelectMemberStyled>
+                  </FormGroup>
+                  <FormGroup>
+                    <SelectMemberStyled zIndex={2002}>
+                      <ControlLabel>Departments</ControlLabel>
+                      <Select
+                        value={departmentIds}
+                        options={generateTree(
+                          this.props.departments,
+                          null,
+                          (node, level) => ({
+                            value: node._id,
+                            label: `${'---'.repeat(level)} ${node.title}`
+                          })
+                        )}
+                        onChange={this.onChangeDepartments.bind(this)}
+                        placeholder={__('Choose department ...')}
+                        multi={true}
+                      />
+                    </SelectMemberStyled>
+                  </FormGroup>
+                </>
               )}
             />
             <ModalFooter>
