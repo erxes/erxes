@@ -4,18 +4,6 @@ cube(`DealsProductsdata`, {
   sql: `SELECT * FROM ${tableSchema()}.\`deals_productsData\``,
 
   joins: {
-    Deals: {
-      sql: `${CUBE}._id = ${Deals}._id`,
-      relationship: `belongsTo`
-    },
-    Stages: {
-      sql: `${Deals}.stageId = ${Stages}._id`,
-      relationship: `belongsTo`
-    },
-    Pipelines: {
-      sql: `${Stages}.pipelineId = ${Pipelines}._id`,
-      relationship: `belongsTo`
-    },
     Products: {
       sql: `${CUBE}.\`productsData.productId\` = ${Products}._id`,
       relationship: `belongsTo`
