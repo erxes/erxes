@@ -77,18 +77,6 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       }
     }
 
-    static async checkBarcodeDuplication(barcodes: string[], id?: string) {
-      const product = await models.Products.findOne({
-        _id: { $ne: id ? id : '' },
-        barcodes: { $in: barcodes },
-        status: { $ne: PRODUCT_STATUSES.DELETED }
-      });
-
-      if (product) {
-        throw new Error('Barcode must be unique');
-      }
-    }
-
     /**
      * Create a product
      */
@@ -96,7 +84,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       await this.checkCodeDuplication(doc.code);
 
       if (doc.barcodes) {
-        await this.checkBarcodeDuplication(doc.barcodes);
+        doc.barcodes = doc.barcodes.filter(bc => bc);
       }
 
       if (doc.categoryCode) {
@@ -146,8 +134,8 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         await this.checkCodeDuplication(doc.code);
       }
 
-      if (doc.barcodes && !_.isEqual(product.barcodes, doc.barcodes)) {
-        await this.checkBarcodeDuplication(doc.barcodes, product._id);
+      if (doc.barcodes) {
+        doc.barcodes = doc.barcodes.filter(bc => bc);
       }
 
       if (doc.customFieldsData) {
