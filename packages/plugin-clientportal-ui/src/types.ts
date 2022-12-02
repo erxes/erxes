@@ -6,6 +6,8 @@ export type OTPConfig = {
   content: string;
   smsTransporterType?: '' | 'messagePro';
   codeLength: number;
+  loginWithOTP: boolean;
+  expireAfter: number;
 };
 
 export type MailConfig = {
