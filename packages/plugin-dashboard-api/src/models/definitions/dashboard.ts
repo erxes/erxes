@@ -11,6 +11,7 @@ export interface IDashboard {
   childsDashboard?: [IDashboard];
   createdBy?: string;
   updatedBy?: string;
+  departmentIds?: string[];
 }
 
 export interface IDashboardItemInput {
@@ -68,6 +69,7 @@ export const dashboardSchema = schemaWrapper(
       label: 'Tags',
       index: true
     }),
+    departmentIds: field({ type: [String], label: 'Departments' }),
     code: field({ type: String }),
     dashboardCount: field({ type: Number }),
     relatedIds: field({ type: [String] }),
@@ -78,7 +80,11 @@ export const dashboardSchema = schemaWrapper(
       label: 'Created date'
     },
     createdBy: { type: String },
-    updatedAt: { type: Date, default: new Date(), label: 'Updated date' },
+    updatedAt: {
+      type: Date,
+      default: new Date(),
+      label: 'Updated date'
+    },
     updatedBy: { type: String }
   })
 );

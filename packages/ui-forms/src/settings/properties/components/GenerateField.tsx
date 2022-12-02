@@ -27,6 +27,8 @@ import {
 } from '@erxes/ui/src/utils/core';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 
 type Props = {
   field: IField;
@@ -294,6 +296,50 @@ export default class GenerateField extends React.Component<Props, State> {
       <SelectProducts
         label="Filter by products"
         name="productIds"
+        multi={false}
+        initialValue={value}
+        onSelect={onSelect}
+      />
+    );
+  }
+
+  renderBranch({ id, value }) {
+    const onSelect = e => {
+      const { onValueChange } = this.props;
+
+      if (onValueChange) {
+        this.setState({ value: e });
+
+        onValueChange({ _id: id, value: e });
+      }
+    };
+
+    return (
+      <SelectBranches
+        label="Filter by branches"
+        name="branchIds"
+        multi={false}
+        initialValue={value}
+        onSelect={onSelect}
+      />
+    );
+  }
+
+  renderDepartment({ id, value }) {
+    const onSelect = e => {
+      const { onValueChange } = this.props;
+
+      if (onValueChange) {
+        this.setState({ value: e });
+
+        onValueChange({ _id: id, value: e });
+      }
+    };
+
+    return (
+      <SelectDepartments
+        label="Filter by departments"
+        name="departmentIds"
         multi={false}
         initialValue={value}
         onSelect={onSelect}
@@ -616,6 +662,14 @@ export default class GenerateField extends React.Component<Props, State> {
           return <p>Products service is not enabled</p>;
         }
         return this.renderProduct(attrs);
+      }
+
+      case 'branch': {
+        return this.renderBranch(attrs);
+      }
+
+      case 'department': {
+        return this.renderDepartment(attrs);
       }
 
       case 'list': {

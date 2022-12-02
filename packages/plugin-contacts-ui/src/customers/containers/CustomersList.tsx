@@ -334,14 +334,17 @@ const getRefetchQueries = (queryParams?: any, type?: string) => {
   ];
 };
 
-export default withProps<Props>(
+const WithProps = withProps<Props>(
   compose(
-    graphql<Props, MainQueryResponse, ListQueryVariables>(
+    graphql<Props & { abortController }, MainQueryResponse, ListQueryVariables>(
       gql(queries.customersMain),
       {
         name: 'customersMainQuery',
-        options: ({ queryParams, type }) => ({
-          variables: generateParams({ queryParams, type })
+        options: ({ queryParams, type, abortController }) => ({
+          variables: generateParams({ queryParams, type }),
+          context: {
+            fetchOptions: { signal: abortController && abortController.signal }
+          }
         })
       }
     ),
@@ -395,3 +398,25 @@ export default withProps<Props>(
     })
   )(withRouter<IRouterProps>(CustomerListContainer))
 );
+
+export default class extends React.Component<Props> {
+  private abortController;
+
+  constructor(props) {
+    super(props);
+    this.abortController = new AbortController();
+  }
+
+  componentWillUnmount() {
+    this.abortController.abort();
+  }
+
+  render() {
+    const updatedProps = {
+      ...this.props,
+      abortController: this.abortController
+    };
+
+    return <WithProps {...updatedProps} />;
+  }
+}

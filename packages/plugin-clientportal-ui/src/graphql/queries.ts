@@ -55,6 +55,8 @@ export const commonFields = `
     smsTransporterType
     content
     codeLength
+    loginWithOTP
+    expireAfter
   }
 
   mailConfig {

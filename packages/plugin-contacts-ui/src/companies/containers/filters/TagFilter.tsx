@@ -31,30 +31,35 @@ const TagFilterContainer = (props: {
   );
 };
 
-export default withProps<{ loadingMainQuery: boolean }>(
+type Props = {
+  loadingMainQuery: boolean;
+  abortController?;
+};
+
+export default withProps<Props>(
   compose(
-    graphql<
-      { loadingMainQuery: boolean },
-      CountQueryResponse,
-      { only: string }
-    >(gql(companyQueries.companyCounts), {
-      name: 'companyCountsQuery',
-      skip: ({ loadingMainQuery }) => loadingMainQuery,
-      options: {
-        variables: { only: 'byTag' }
-      }
-    }),
-    graphql<{ loadingMainQuery: boolean }, TagsQueryResponse, { type: string }>(
-      gql(tagQueries.tags),
+    graphql<Props, CountQueryResponse, { only: string }>(
+      gql(companyQueries.companyCounts),
       {
-        name: 'tagsQuery',
+        name: 'companyCountsQuery',
         skip: ({ loadingMainQuery }) => loadingMainQuery,
-        options: () => ({
-          variables: {
-            type: TAG_TYPES.COMPANY
+        options: ({ abortController }) => ({
+          variables: { only: 'byTag' },
+          context: {
+            fetchoptions: { signal: abortController && abortController.signal }
           }
         })
       }
-    )
+    ),
+    graphql<Props, TagsQueryResponse, { type: string }>(gql(tagQueries.tags), {
+      name: 'tagsQuery',
+      skip: ({ loadingMainQuery }) => loadingMainQuery,
+      options: ({ abortController }) => ({
+        variables: { type: TAG_TYPES.COMPANY },
+        context: {
+          fetchoptions: { signal: abortController && abortController.signal }
+        }
+      })
+    })
   )(TagFilterContainer)
 );
