@@ -52,7 +52,9 @@ function General({
         handleFormChange('otpConfig', {
           smsTransporterType: '',
           codeLength: 4,
-          content: 'Your verification code is {{ code }}'
+          content: 'Your verification code is {{ code }}',
+          expireAfter: 1,
+          loginWithOTP: false
         });
       }
     }
@@ -103,9 +105,11 @@ function General({
     let obj = otpConfig || {
       content: '',
       codeLength: 4,
-      smsTransporterType: 'messagePro'
+      smsTransporterType: 'messagePro',
+      loginWithOTP: false,
+      expireAfter: 1
     };
-    const handleChange = (e: React.FormEvent) => {
+    const handleChange = e => {
       const key = e.currentTarget.id;
       const value = (e.currentTarget as HTMLInputElement).value;
 
@@ -129,8 +133,12 @@ function General({
         obj.content = content;
       }
 
-      if (key === 'codeLength') {
+      if (['codeLength', 'expireAfter'].includes(key)) {
         obj[key] = parseInt(value);
+      }
+
+      if (key === 'loginWithOTP') {
+        obj[key] = e.currentTarget.checked;
       }
 
       handleFormChange('otpConfig', obj);
@@ -188,6 +196,36 @@ function General({
                   onChange={handleChange}
                   type={'number'}
                   min={4}
+                />
+              </FlexContent>
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel required={true}>OTP expiry</ControlLabel>
+              <p>{'OTP expiration duration (min)'}</p>
+              <FlexContent>
+                <FormControl
+                  id="expireAfter"
+                  name="expireAfter"
+                  value={obj.expireAfter}
+                  onChange={handleChange}
+                  type={'number'}
+                  min={1}
+                  max={10}
+                />
+              </FlexContent>
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>Login with OTP</ControlLabel>
+              <p>Enable this option to accept customer login with OTP</p>
+              <FlexContent>
+                <FormControl
+                  id="loginWithOTP"
+                  name="loginWithOTP"
+                  checked={obj.loginWithOTP}
+                  onChange={handleChange}
+                  componentClass="checkbox"
                 />
               </FlexContent>
             </FormGroup>
