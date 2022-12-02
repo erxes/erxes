@@ -109,8 +109,10 @@ export interface IUserModel extends Model<IUserDocument> {
     doc: INotifcationSettings
   ): Promise<IUserDocument>;
   loginWithPhone(
+    subdomain: string,
     clientPortal: IClientPortalDocument,
-    phone: string
+    phone: string,
+    deviceToken?: string
   ): Promise<{ userId: string; phoneCode: string }>;
 }
 
@@ -904,21 +906,27 @@ export const loadClientPortalUserClass = (models: IModels) => {
      * login with phone
      */
     public static async loginWithPhone(
+      subdomain: string,
       clientPortal: IClientPortalDocument,
       phone: string,
       deviceToken?: string
     ) {
-      const user = await models.ClientPortalUsers.findOne({
+      let user = await models.ClientPortalUsers.findOne({
         phone,
         clientPortalId: clientPortal._id
       });
 
       if (!user) {
-        throw new Error('User not found');
+        user = await handleContacts({
+          subdomain,
+          models,
+          clientPortalId: clientPortal._id,
+          document: { phone }
+        });
       }
 
-      if (!user.isPhoneVerified) {
-        throw new Error('User is not verified');
+      if (!user) {
+        throw new Error('Can not create user');
       }
 
       if (deviceToken) {
