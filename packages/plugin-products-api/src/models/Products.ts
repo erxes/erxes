@@ -84,7 +84,9 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       await this.checkCodeDuplication(doc.code);
 
       if (doc.barcodes) {
-        doc.barcodes = doc.barcodes.filter(bc => bc);
+        doc.barcodes = doc.barcodes
+          .filter(bc => bc)
+          .map(bc => bc.replace(/\s/g, ''));
       }
 
       if (doc.categoryCode) {
@@ -135,7 +137,9 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       }
 
       if (doc.barcodes) {
-        doc.barcodes = doc.barcodes.filter(bc => bc);
+        doc.barcodes = doc.barcodes
+          .filter(bc => bc)
+          .map(bc => bc.replace(/\s/g, ''));
       }
 
       if (doc.customFieldsData) {
