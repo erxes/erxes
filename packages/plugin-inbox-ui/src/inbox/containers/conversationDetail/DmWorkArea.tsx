@@ -175,8 +175,6 @@ class WorkArea extends React.Component<FinalProps, State> {
             return;
           }
 
-          messages.push(message);
-
           // add new message to messages list
           const next = {
             ...prev,
@@ -311,12 +309,14 @@ class WorkArea extends React.Component<FinalProps, State> {
       dmConfig,
       currentConversation
     } = this.props;
+
     const conversationMessagesTotalCount = getQueryResult(
       messagesTotalCountQuery,
       dmConfig?.countQueries,
       currentConversation,
       true
     );
+
     const conversationMessages = getQueryResult(
       messagesQuery,
       dmConfig?.messagesQueries,
