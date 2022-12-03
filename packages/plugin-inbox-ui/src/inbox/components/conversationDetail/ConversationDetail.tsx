@@ -60,7 +60,6 @@ export default class ConversationDetail extends React.Component<Props> {
       const kind = integration.kind.split('-')[0];
 
       let content;
-      const key = 'inboxConversationDetail';
 
       if (
         !['messenger', 'lead', 'booking', 'webhook', 'callpro'].includes(
@@ -74,6 +73,7 @@ export default class ConversationDetail extends React.Component<Props> {
 
         if (integrations) {
           const entry = integrations.find(i => i.kind === integration.kind);
+          const key = 'inboxConversationDetail';
 
           if (entry && entry.components && entry.components.includes(key)) {
             content = loadDynamicComponent(key, {
