@@ -412,66 +412,51 @@ class WorkArea extends React.Component<FinalProps, State> {
   }
 }
 
-const generateWithQuery = (props: Props) => {
-  const { dmConfig, currentConversation } = props;
-  const { integration } = currentConversation;
+const WithQuery = withProps<Props & { currentUser: IUser }>(
+  compose(
+    graphql<
+      Props,
+      MessagesQueryResponse,
+      { conversationId?: string; limit: number }
+    >(gql(queries.conversationMessages), {
+      name: 'messagesQuery',
+      options: ({ currentId, currentConversation }) => {
+        const windowHeight = window.innerHeight;
+        const isMail = isConversationMailKind(currentConversation);
+        const isDm = isConversationDmKind(currentConversation);
 
-  let listQuery = queries.conversationMessages;
-  let countQuery = queries.conversationMessagesTotalCount;
+        // 330 - height of above and below sections of detail area
+        // 45 -  min height of per message
+        initialLimit = !isMail ? Math.round((windowHeight - 330) / 45 + 1) : 10;
 
-  if (dmConfig) {
-    listQuery = getQueryString(dmConfig, integration.kind, 'messagesQueries');
-    countQuery = getQueryString(dmConfig, integration.kind, 'countQueries');
-  }
-
-  return withProps<Props & { currentUser: IUser }>(
-    compose(
-      graphql<
-        Props,
-        MessagesQueryResponse,
-        { conversationId?: string; limit: number }
-      >(gql(listQuery), {
-        name: 'messagesQuery',
-        options: ({ currentId }) => {
-          const windowHeight = window.innerHeight;
-          const isMail = isConversationMailKind(currentConversation);
-          const isDm = isConversationDmKind(currentConversation);
-
-          // 330 - height of above and below sections of detail area
-          // 45 -  min height of per message
-          initialLimit = !isMail
-            ? Math.round((windowHeight - 330) / 45 + 1)
-            : 10;
-
-          return {
-            variables: {
-              conversationId: currentId,
-              limit: isDm || isMail ? initialLimit : 0,
-              skip: 0
-            },
-            fetchPolicy: 'network-only'
-          };
-        }
-      }),
-      graphql<Props, MessagesTotalCountQuery, { conversationId?: string }>(
-        gql(countQuery),
-        {
-          name: 'messagesTotalCountQuery',
-          options: ({ currentId }) => ({
-            variables: { conversationId: currentId },
-            fetchPolicy: 'network-only'
-          })
-        }
-      ),
-      graphql<Props, AddMessageMutationResponse, AddMessageMutationVariables>(
-        gql(mutations.conversationMessageAdd),
-        {
-          name: 'addMessageMutation'
-        }
-      )
-    )(WorkArea)
-  );
-};
+        return {
+          variables: {
+            conversationId: currentId,
+            limit: isDm || isMail ? initialLimit : 0,
+            skip: 0
+          },
+          fetchPolicy: 'network-only'
+        };
+      }
+    }),
+    graphql<Props, MessagesTotalCountQuery, { conversationId?: string }>(
+      gql(queries.conversationMessagesTotalCount),
+      {
+        name: 'messagesTotalCountQuery',
+        options: ({ currentId }) => ({
+          variables: { conversationId: currentId },
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<Props, AddMessageMutationResponse, AddMessageMutationVariables>(
+      gql(mutations.conversationMessageAdd),
+      {
+        name: 'addMessageMutation'
+      }
+    )
+  )(WorkArea)
+);
 
 const WithConsumer = (props: Props) => {
   return (
@@ -480,8 +465,6 @@ const WithConsumer = (props: Props) => {
         if (!currentUser) {
           return null;
         }
-
-        const WithQuery = generateWithQuery(props);
 
         return <WithQuery {...props} currentUser={currentUser} />;
       }}
