@@ -296,17 +296,25 @@ const clientPortalUserMutations = {
 
     const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
 
+    const config = clientPortal.otpConfig || {
+      content: '',
+      smsTransporterType: '',
+      codeLength: 4,
+      loginWithOTP: false
+    };
+
+    if (!config.loginWithOTP) {
+      throw new Error('Login with OTP is not enabled');
+    }
+
     const { userId, phoneCode } = await models.ClientPortalUsers.loginWithPhone(
+      subdomain,
       clientPortal,
-      phone
+      phone,
+      deviceToken
     );
 
     if (phoneCode) {
-      const config = clientPortal.otpConfig || {
-        content: '',
-        smsTransporterType: '',
-        codeLength: 4
-      };
       const body =
         config.content.replace(/{.*}/, phoneCode) ||
         `Your verification code is ${phoneCode}`;
