@@ -154,11 +154,13 @@ class WorkArea extends React.Component<FinalProps, State> {
             return;
           }
 
-          const messages = getQueryResult(
-            prev,
-            dmConfig?.messagesQueries,
-            currentConversation
-          );
+          const messages = [
+            ...getQueryResult(
+              prev,
+              dmConfig?.messagesQueries,
+              currentConversation
+            )
+          ];
 
           // Sometimes it is becoming undefined because of left sidebar query
           if (!messages) {
@@ -172,10 +174,12 @@ class WorkArea extends React.Component<FinalProps, State> {
             return;
           }
 
+          messages.push(message);
+
           // add new message to messages list
           const next = {
             ...prev,
-            conversationMessages: [...messages, message]
+            conversationMessages: messages
           };
 
           // send desktop notification
