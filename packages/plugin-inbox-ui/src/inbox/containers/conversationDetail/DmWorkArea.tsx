@@ -137,7 +137,7 @@ class WorkArea extends React.Component<FinalProps, State> {
             return;
           }
 
-          const messages = getQueryResult(prev);
+          const messages = [...getQueryResult(prev)];
 
           // Sometimes it is becoming undefined because of left sidebar query
           if (!messages) {
@@ -156,7 +156,7 @@ class WorkArea extends React.Component<FinalProps, State> {
           // add new message to messages list
           const next = {
             ...prev,
-            conversationMessages: [...messages]
+            conversationMessages: messages
           };
 
           // send desktop notification
