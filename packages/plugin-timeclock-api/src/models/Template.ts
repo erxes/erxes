@@ -11,9 +11,12 @@ import {
   scheduleSchema,
   timeSchema,
   absenceSchema,
+  absenceTypeSchema,
   scheduleShiftSchema,
   IShift,
-  IShiftDocument
+  IShiftDocument,
+  IAbsenceTypeDocument,
+  IAbsenceType
 } from './definitions/template';
 
 export interface ITimeModel extends Model<ITimeClockDocument> {
@@ -101,6 +104,52 @@ export const loadAbsenceClass = (models: IModels) => {
   absenceSchema.loadClass(Absence);
 
   return absenceSchema;
+};
+
+export interface IAbsenceTypeModel extends Model<IAbsenceTypeDocument> {
+  getAbsenceType(_id: string): Promise<IAbsenceTypeDocument>;
+  createAbsenceType(doc: IAbsenceType): Promise<IAbsenceTypeDocument>;
+  updateAbsenceType(
+    _id: string,
+    doc: IAbsenceType
+  ): Promise<IAbsenceTypeDocument>;
+  removeAbsenceType(_id: string): void;
+}
+
+export const loadAbsenceTypeClass = (models: IModels) => {
+  class AbsenceType {
+    // get
+    public static async getAbsenceType(_id: string) {
+      const absencetype = await models.AbsenceTypes.findOne({ _id });
+      if (!absencetype) {
+        throw new Error('absence type not found');
+      }
+      return absencetype;
+    }
+
+    // create
+    public static async createAbsenceType(doc: IAbsenceType) {
+      return models.AbsenceTypes.create({
+        ...doc
+      });
+    }
+    // update
+    public static async updateAbsenceType(_id: string, doc: IAbsenceType) {
+      await models.AbsenceTypes.updateOne(
+        { _id },
+        { $set: { ...doc } }
+      ).then(err => console.error(err));
+    }
+    // remove
+    public static async removeAbsenceType(_id: string) {
+      const absencetype = await models.AbsenceTypes.getAbsenceType(_id);
+      return models.AbsenceTypes.deleteOne({ _id });
+    }
+  }
+
+  absenceTypeSchema.loadClass(AbsenceType);
+
+  return absenceTypeSchema;
 };
 
 export interface IScheduleModel extends Model<IScheduleDocument> {

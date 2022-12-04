@@ -17,16 +17,14 @@ class Row extends React.Component<Props> {
     super(props);
   }
 
-  shiftTrigger = shiftStarted => (
-    <Button
-      disabled={!shiftStarted && this.props.timeclock.shiftEnd ? true : false}
-      id="timeClockButton1"
-      btnStyle={shiftStarted ? 'danger' : 'success'}
-      icon="plus-circle"
-    >
-      {`${shiftStarted ? 'End' : 'Start'} Shift`}
-    </Button>
-  );
+  shiftTrigger = shiftStarted =>
+    shiftStarted ? (
+      <Button id="timeClockButton1" btnStyle={'danger'} icon="plus-circle">
+        End shift
+      </Button>
+    ) : (
+      <>Ended</>
+    );
 
   modalContent = props => (
     <TimeForm
@@ -56,7 +54,6 @@ class Row extends React.Component<Props> {
       <tr>
         <td>{<NameCard user={timeclock.user} />}</td>
         <td>{shiftDate}</td>
-        <td>{timeclock.shiftActive ? 'Active' : 'Ended'}</td>
         <td>{shiftStartTime}</td>
         <td>{shiftEndTime}</td>
         <td>{this.shiftBtnTrigger(timeclock.shiftActive)}</td>

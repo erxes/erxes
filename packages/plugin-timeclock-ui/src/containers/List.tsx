@@ -20,7 +20,7 @@ type Props = {
   userId: string;
   queryStartDate: string;
   queryEndDate: string;
-  queryUserId: string;
+  queryUserIds: string[];
 };
 
 type FinalProps = {
@@ -36,21 +36,23 @@ const ListContainer = (props: FinalProps) => {
     currentUser,
     queryEndDate,
     queryStartDate,
-    queryUserId
+    queryUserIds
   } = props;
 
   if (listQuery.loading) {
     return <Spinner />;
   }
 
-  const currentUserId = queryUserId || currentUser._id;
+  const currentUserId = currentUser._id;
 
   const updatedProps = {
     ...props,
     currentUserId,
+    queryUserIds,
     timeclocks: listQuery.timeclocks || [],
     loading: listQuery.loading
   };
+
   return <List {...updatedProps} />;
 };
 
@@ -59,14 +61,14 @@ export default withProps<Props>(
     graphql<
       Props,
       TimeClockQueryResponse,
-      { startDate: string; endDate: string; userId: string }
+      { startDate: string; endDate: string; userIds: string[] }
     >(gql(queries.list), {
       name: 'listQuery',
-      options: ({ queryStartDate, queryEndDate, queryUserId }) => ({
+      options: ({ queryStartDate, queryEndDate, queryUserIds }) => ({
         variables: {
           startDate: queryStartDate,
           endDate: queryEndDate,
-          userId: queryUserId
+          userIds: queryUserIds
         },
         fetchPolicy: 'network-only'
       })

@@ -8,22 +8,24 @@ import {
   IScheduleModel,
   IShiftModel,
   loadAbsenceClass,
+  loadAbsenceTypeClass,
   loadTimeClass,
   loadScheduleClass,
-  loadShiftClass
+  loadShiftClass,
+  IAbsenceTypeModel
 } from './models/Template';
 import {
   IAbsenceDocument,
-  ISchedule,
+  IAbsenceTypeDocument,
   IScheduleDocument,
   IShiftDocument,
-  ITimeClock,
   ITimeClockDocument
 } from './models/definitions/template';
 
 export interface IModels {
   Templates: ITimeModel;
   Absences: IAbsenceModel;
+  AbsenceTypes: IAbsenceTypeModel;
   Schedules: IScheduleModel;
   Shifts: IShiftModel;
 }
@@ -46,6 +48,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Absences = db.model<IAbsenceDocument, IAbsenceModel>(
     'timeclock_absence',
     loadAbsenceClass(models)
+  );
+
+  models.AbsenceTypes = db.model<IAbsenceTypeDocument, IAbsenceTypeModel>(
+    'timeclock_absence_type',
+    loadAbsenceTypeClass(models)
   );
 
   models.Schedules = db.model<IScheduleDocument, IScheduleModel>(

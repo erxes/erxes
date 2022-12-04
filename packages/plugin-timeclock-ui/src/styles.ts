@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { DateContainer } from '@erxes/ui/src/styles/main';
-import { colors, dimensions } from '@erxes/ui/src/styles';
+import { colors, dimensions, typography } from '@erxes/ui/src/styles';
 
 const FilterWrapper = styled.div`
   margin: 10px 20px 0 20px;
@@ -15,6 +15,20 @@ const FilterWrapper = styled.div`
   strong {
     margin-right: 2 0px;
   }
+`;
+
+const SidebarHeader = styledTS<{
+  spaceBottom?: boolean;
+  uppercase?: boolean;
+  bold?: boolean;
+}>(styled.div)`
+  height: ${dimensions.headerSpacing}px;
+  text-transform: ${props => props.uppercase && 'uppercase'};
+  font-weight: ${props => (props.bold ? 'bold' : '500')};
+  display: flex;
+  font-size: ${typography.fontSizeHeading8}px;
+  flex-direction: column;
+  margin: 0px ${dimensions.coreSpacing}px;
 `;
 
 const CustomRangeContainer = styled.div`
@@ -161,5 +175,6 @@ export {
   Input,
   FlexRow,
   DateName,
-  CustomRangeContainer
+  CustomRangeContainer,
+  SidebarHeader
 };

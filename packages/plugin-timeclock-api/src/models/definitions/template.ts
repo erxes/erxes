@@ -23,8 +23,16 @@ export interface IAbsence {
   status: string;
   solved?: boolean;
 }
+export interface IAbsenceType {
+  name: string;
+  explRequired: boolean;
+}
 
 export interface IAbsenceDocument extends IAbsence, Document {
+  _id: string;
+}
+
+export interface IAbsenceTypeDocument extends IAbsenceType, Document {
   _id: string;
 }
 
@@ -62,6 +70,15 @@ export const timeSchema = new Schema({
     type: Boolean,
     label: 'Is shift started and active',
     default: false
+  })
+});
+
+export const absenceTypeSchema = new Schema({
+  _id: field({ pkey: true }),
+  name: field({ type: String, label: 'Absence type' }),
+  explRequired: field({
+    type: Boolean,
+    label: 'whether absence type requires explanation'
   })
 });
 
@@ -113,11 +130,5 @@ export const scheduleShiftSchema = new Schema({
     type: Date,
     label: 'starting date and time of the shift'
   }),
-  shiftEnd: field({ type: Date, label: 'ending date and time of the shift' }),
-  absentWholeShift: field({
-    type: Boolean,
-    labale: 'true if employee was absent during scheduled shift'
-  }),
-  absenceStart: field({ type: Date, label: 'absence starting time' }),
-  absenceEnd: field({ type: Date, label: 'absence ending time' })
+  shiftEnd: field({ type: Date, label: 'ending date and time of the shift' })
 });

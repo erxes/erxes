@@ -17,15 +17,17 @@ const ReportList = asyncComponent(() => import('./containers/ReportList'));
 
 const ScheduleList = asyncComponent(() => import('./containers/ScheduleList'));
 
+const ConfigList = asyncComponent(() => import('./containers/ConfigList'));
+
 const timeclocks = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
-  const { startDate, endDate, userId } = queryParams;
+  const { startDate, endDate, userIds } = queryParams;
 
   return (
     <List
       queryStartDate={startDate}
       queryEndDate={endDate}
-      queryUserId={userId}
+      queryUserIds={userIds ? userIds.split(',') : null}
       history={history}
       queryParams={queryParams}
     />
@@ -34,22 +36,17 @@ const timeclocks = ({ location, history }) => {
 const schedule = ({ location, history }) => {
   const route_path = location.pathname.split('/').slice(-1)[0];
   const queryParams = queryString.parse(location.search);
-  const { startDate, endDate, userId } = queryParams;
+  const { startDate, endDate } = queryParams;
 
   return route_path === 'requests' ? (
     <AbsenceList
       queryStartDate={startDate}
       queryEndDate={endDate}
-      queryUserId={userId}
       queryParams={queryParams}
       history={history}
     />
   ) : (
-    <ScheduleList
-      queryParams={queryParams}
-      queryUserId={userId}
-      history={history}
-    />
+    <ScheduleList queryParams={queryParams} history={history} />
   );
 };
 
@@ -69,6 +66,10 @@ const report = ({ location, history }) => {
     />
   );
 };
+const config = ({ location, history }) => {
+  const queryParams = queryString.parse(location.search);
+  return <ConfigList queryParams={queryParams} history={history} />;
+};
 
 const routes = () => {
   return (
@@ -77,6 +78,7 @@ const routes = () => {
       <Route path="/timeclocks/requests" component={schedule} />
       <Route path="/timeclocks/schedule" component={schedule} />
       <Route path="/timeclocks/report" component={report} />
+      <Route path="/timeclocks/config" component={config} />
     </>
   );
 };

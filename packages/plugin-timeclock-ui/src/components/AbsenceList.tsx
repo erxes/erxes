@@ -15,8 +15,6 @@ import DateFilter from '@erxes/ui/src/components/DateFilter';
 import { IAbsence } from '../types';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
 
 type Props = {
   absences: IAbsence[];
@@ -28,32 +26,32 @@ type Props = {
   submitRequest: (explanation: string) => void;
 };
 
-const addDaysOfWeek = (today: Date): string[] => {
-  let diffFromMon = today.getDay() - 1;
-  const diffFromSun = 7 - today.getDay();
-  const currWeek: string[] = [];
+// const addDaysOfWeek = (today: Date): string[] => {
+//   let diffFromMon = today.getDay() - 1;
+//   const diffFromSun = 7 - today.getDay();
+//   const currWeek: string[] = [];
 
-  while (diffFromMon !== 0) {
-    currWeek.push(
-      dayjs(today)
-        .add(-diffFromMon, 'day')
-        .toDate()
-        .toDateString()
-    );
-    diffFromMon -= 1;
-  }
-  currWeek.push(today.toDateString());
-  for (let i = 1; i <= diffFromSun; i++) {
-    currWeek.push(
-      dayjs(today)
-        .add(i, 'day')
-        .toDate()
-        .toDateString()
-    );
-  }
+//   while (diffFromMon !== 0) {
+//     currWeek.push(
+//       dayjs(today)
+//         .add(-diffFromMon, 'day')
+//         .toDate()
+//         .toDateString()
+//     );
+//     diffFromMon -= 1;
+//   }
+//   currWeek.push(today.toDateString());
+//   for (let i = 1; i <= diffFromSun; i++) {
+//     currWeek.push(
+//       dayjs(today)
+//         .add(i, 'day')
+//         .toDate()
+//         .toDateString()
+//     );
+//   }
 
-  return currWeek;
-};
+//   return currWeek;
+// };
 
 function AbsenceList(props: Props) {
   const { queryParams, history, submitRequest, absences, solveAbsence } = props;
@@ -63,26 +61,6 @@ function AbsenceList(props: Props) {
     <Button id="timeClockButton2" btnStyle="success" icon="plus-circle">
       Create Request
     </Button>
-  );
-  const configTrigger = (
-    <Button id="timeClockButton2" btnStyle="primary" icon="plus-circle">
-      Absence Config
-    </Button>
-  );
-
-  const configContent = () => (
-    <FormGroup>
-      <ControlLabel>Types of Absence requests</ControlLabel>
-      {/* {mimeTypeDesc && <p>{__(mimeTypeDesc)}</p>} */}
-      <Select
-        // value={configsMap.UPLOAD_FILE_TYPES}
-        // options={mimeTypeOptions}
-        // onChange={this.onChangeMultiCombo.bind(this, 'UPLOAD_FILE_TYPES')}
-        multi={true}
-        delimiter=","
-        simpleValue={true}
-      />
-    </FormGroup>
   );
 
   const modalContent = () => (
@@ -134,42 +112,35 @@ function AbsenceList(props: Props) {
   };
 
   const actionBarRight = (
-    <>
-      <ModalTrigger
-        title={__('Absence Config')}
-        trigger={trigger}
-        content={modalContent}
-      />
-      <ModalTrigger
-        title={__('Send absence request')}
-        trigger={configTrigger}
-        content={configContent}
-      />
-    </>
+    <ModalTrigger
+      title={__('Absence Config')}
+      trigger={trigger}
+      content={modalContent}
+    />
   );
 
-  const thisWeek = addDaysOfWeek(new Date());
-  const startOfWeek = thisWeek[0]
-    .split(' ')
-    .slice(1, 3)
-    .join(' ');
-  const title = (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginRight: '20px',
-        fontSize: '24px'
-      }}
-    >
-      <Title>{__(`Week of ${startOfWeek}`)}</Title>
-    </div>
-  );
+  // const thisWeek = addDaysOfWeek(new Date());
+  // const startOfWeek = thisWeek[0]
+  //   .split(' ')
+  //   .slice(1, 3)
+  //   .join(' ');
+  // const title = (
+  //   <div
+  //     style={{
+  //       display: 'flex',
+  //       justifyContent: 'space-between',
+  //       alignItems: 'center',
+  //       marginRight: '20px',
+  //       fontSize: '24px'
+  //     }}
+  //   >
+  //     <Title>{__(`Week of ${startOfWeek}`)}</Title>
+  //   </div>
+  // );
 
   const actionBar = (
     <Wrapper.ActionBar
-      left={title}
+      // left={title}
       right={actionBarRight}
       hasFlex={true}
       wideSpacing={true}
@@ -257,13 +228,7 @@ function AbsenceList(props: Props) {
       }
       transparent={true}
       hasBorder={true}
-      leftSidebar={
-        <SideBarList
-          onUserSelect={onUserSelect}
-          queryParams={queryParams}
-          history={history}
-        />
-      }
+      leftSidebar={<SideBarList queryParams={queryParams} history={history} />}
     />
   );
 }

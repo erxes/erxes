@@ -39,8 +39,8 @@ const scheduleFields = `
 `;
 
 const list = `
-  query listQuery($startDate: Date, $endDate: Date, $userId: String) {
-    timeclocks(startDate: $startDate, endDate: $endDate, userId: $userId) {
+  query listQuery($startDate: Date, $endDate: Date, $userIds: [String]) {
+    timeclocks(startDate: $startDate, endDate: $endDate, userIds: $userIds) {
       _id
       shiftStart
       shiftEnd
@@ -123,8 +123,39 @@ const listReports = `
     }
   }`;
 
+const listReportByUser = `
+  query timeclockReportByUser($selectedUser: String){
+    timeclockReportByUser(selectedUser:$selectedUser){
+      user {
+        ${userFields}
+      }
+      scheduleReport {
+        date
+        scheduleStart
+        scheduleEnd
+        recordedStart
+        recordedEnd
+        minsLate
+        minsWorked
+      }
+      totalMinsLate
+      totalAbsenceMins
+      totalMinsWorked
+    }
+  }`;
+
+const listAbsenceTypes = `
+  query absenceTypes{
+    absenceTypes{
+      name
+      explRequired
+    }
+  }
+`;
 export default {
   listReports,
+  listReportByUser,
+  listAbsenceTypes,
   listSchedule,
   listBranches,
   list,

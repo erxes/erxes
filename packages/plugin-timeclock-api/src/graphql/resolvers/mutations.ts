@@ -75,6 +75,24 @@ const templateMutations = {
 
     return updated;
   },
+  async absenceTypeAdd(_root, { name, explRequired }, { models }: IContext) {
+    const explanationReqd: boolean = explRequired;
+    const absenceType = await models.AbsenceTypes.createAbsenceType({
+      name: `${name}`,
+      explRequired: explanationReqd
+    });
+    return absenceType;
+  },
+
+  async absenceTypeRemove(_root, { _id }, { models }: IContext) {
+    const absenceType = await models.AbsenceTypes.removeAbsenceType(_id);
+    return absenceType;
+  },
+
+  async absenceTypeEdit(_root, { _id, doc }, { models }: IContext) {
+    const absenceType = await models.AbsenceTypes.getAbsenceType(_id);
+    return models.AbsenceTypes.updateAbsenceType(_id, doc);
+  },
 
   /**
    * Removes a single timeclock
@@ -176,7 +194,7 @@ const templateMutations = {
     if (otherShiftsSolved) {
       const updateSchedule = await models.Schedules.updateOne(
         { _id: shift.scheduleId },
-        { $set: { solved: true, status: 'solved' } }
+        { $set: { solved: true, status: 'Solved' } }
       );
     }
 
@@ -217,7 +235,7 @@ const templateMutations = {
       schedule = await models.Schedules.createSchedule({
         userId: `${userId}`,
         solved: true,
-        status: 'approved'
+        status: 'Approved'
       });
 
       shifts.map(shift => {
@@ -226,7 +244,7 @@ const templateMutations = {
           shiftStart: shift.shiftStart,
           shiftEnd: shift.shiftEnd,
           solved: true,
-          status: 'approved'
+          status: 'Approved'
         });
       });
     });

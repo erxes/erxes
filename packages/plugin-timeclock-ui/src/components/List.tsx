@@ -31,7 +31,7 @@ function List({
   loading
 }: Props) {
   const trigger = (
-    <Button id="btn1" btnStyle={'primary'} icon="plus-circle">
+    <Button id="btn1" btnStyle={'success'} icon="plus-circle">
       {`Start Shift`}
     </Button>
   );
@@ -45,16 +45,21 @@ function List({
     />
   );
 
-  const onUserSelect = userId => {
-    router.setParams(history, { userId: `${userId}` });
+  const onUserSelect = (userIds: string[]) => {
+    const usrIds: string[] = [];
+    userIds.map(user => usrIds.push(user));
+    console.log('222', usrIds);
+    router.setParams(history, { userIds: `${usrIds}` });
   };
 
   const actionBarRight = (
-    <ModalTrigger
-      title={__('Start shift')}
-      trigger={trigger}
-      content={modalContent}
-    />
+    <>
+      <ModalTrigger
+        title={__('Start shift')}
+        trigger={trigger}
+        content={modalContent}
+      />
+    </>
   );
 
   const title = (
@@ -78,10 +83,9 @@ function List({
         <tr>
           <th>{__('Team member')}</th>
           <th>{__('Shift date')}</th>
-          <th>{__('Shift status')}</th>
           <th>{__('Shift started')}</th>
           <th>{__('Shift ended')}</th>
-          <th>{__('Action')}</th>
+          <th>{__('Status')}</th>
         </tr>
       </thead>
       <tbody>

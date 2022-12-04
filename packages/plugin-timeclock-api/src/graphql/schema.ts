@@ -22,6 +22,12 @@ export const types = `
     status: String
   }
 
+  type AbsenceType {
+    _id: String!
+    name: String
+    explRequired: Boolean
+  }
+
   
   input ShiftsRequestInput {
     shiftStart: Date
@@ -72,16 +78,17 @@ export const types = `
   }
 `;
 export const queries = `
-  timeclocks(startDate: Date, endDate: Date, userId: String): [Timeclock]
+  timeclocks(startDate: Date, endDate: Date, userIds: [String]): [Timeclock]
   absences(startDate: Date, endDate: Date, userId: String): [Absence]
-  timeclockReports(departmentIds: [String], branchIds: [String]): [Report]
+  absenceTypes:[AbsenceType]
+  timeclockReports(departmentIds: [String], branchIds: [String], userIds: [String]): [Report]
+  timeclockReportByUser(selectedUser: String): UserReport
   schedules(startDate: Date, endDate: Date, userId: String): [Schedule]
   timeclockDetail(_id: String!): Timeclock
   absenceDetail(_id: String!): Absence
   scheduleDetail(_id: String!): Schedule
 `;
 const params = `
-  time: Date
   userId: String
   _id: String
 `;
@@ -93,6 +100,10 @@ const absence_params = `
     reason: String
     explanation: String
 `;
+const absenceType_params = `
+    name: String
+    explRequired: Boolean
+`;
 
 const schedule_params = `
     userId: String
@@ -103,6 +114,9 @@ export const mutations = `
   timeclockStart(${params}): Timeclock
   timeclockStop(${params}): Timeclock
   timeclockRemove(_id : String): Timeclock
+  absenceTypeRemove(_id: String): AbsenceType
+  absenceTypeAdd(${absenceType_params}): AbsenceType
+  absenceTypeEdit(_id: String, ${absenceType_params}): AbsenceType
   sendAbsenceRequest(${absence_params}): Absence
   sendScheduleRequest(${schedule_params}): Schedule
   submitShift(userIds: [String], shifts:[ShiftsRequestInput]): Schedule

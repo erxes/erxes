@@ -21,7 +21,6 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { Row } from '../styles';
 import { IBranch } from '@erxes/ui/src/team/types';
-import SelectDate from './SelectDate';
 import { CustomRangeContainer } from '../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 
