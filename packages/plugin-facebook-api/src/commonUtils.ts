@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 import * as request from 'request-promise';
-import * as sanitizeHtml from 'sanitize-html';
 
 import { IModels } from './connectionResolver';
 import { debugBase, debugExternalRequests } from './debuggers';
