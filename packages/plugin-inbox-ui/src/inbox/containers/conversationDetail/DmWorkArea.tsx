@@ -18,7 +18,6 @@ import {
   AddMessageMutationResponse,
   AddMessageMutationVariables,
   DmConfig,
-  DmQueryItem,
   IConversation,
   IMessage,
   MessagesQueryResponse,
@@ -62,26 +61,10 @@ const getQueryString = (
   return item ? item.query : defaultQuery;
 };
 
-const getQueryResult = (
-  queryResponse: object,
-  configQueries: DmQueryItem[] = [],
-  conv: IConversation,
-  countQuery?: boolean
-) => {
-  const { integration } = conv;
+const getQueryResult = (queryResponse: object, countQuery?: boolean) => {
   let key = countQuery
     ? 'conversationMessagesTotalCount'
     : 'conversationMessages';
-
-  if (conv && configQueries.length > 0) {
-    const query = configQueries.find(
-      q => q.integrationKind === integration.kind
-    );
-
-    if (query) {
-      key = query.name;
-    }
-  }
 
   for (const k of Object.keys(queryResponse)) {
     if (k.includes('ConversationMessages')) {
@@ -154,13 +137,7 @@ class WorkArea extends React.Component<FinalProps, State> {
             return;
           }
 
-          const messages = [
-            ...getQueryResult(
-              prev,
-              dmConfig?.messagesQueries,
-              currentConversation
-            )
-          ];
+          const messages = getQueryResult(prev);
 
           // Sometimes it is becoming undefined because of left sidebar query
           if (!messages) {
@@ -174,10 +151,12 @@ class WorkArea extends React.Component<FinalProps, State> {
             return;
           }
 
+          messages.push(message);
+
           // add new message to messages list
           const next = {
             ...prev,
-            conversationMessages: [...messages, message]
+            conversationMessages: [...messages]
           };
 
           // send desktop notification
@@ -266,11 +245,7 @@ class WorkArea extends React.Component<FinalProps, State> {
           return;
         }
 
-        const messages = getQueryResult(
-          data,
-          dmConfig?.messagesQueries,
-          currentConversation
-        );
+        const messages = getQueryResult(data);
 
         // check duplications
         if (messages.find(m => m._id === message._id)) {
@@ -312,16 +287,10 @@ class WorkArea extends React.Component<FinalProps, State> {
 
     const conversationMessagesTotalCount = getQueryResult(
       messagesTotalCountQuery,
-      dmConfig?.countQueries,
-      currentConversation,
       true
     );
 
-    const conversationMessages = getQueryResult(
-      messagesQuery,
-      dmConfig?.messagesQueries,
-      currentConversation
-    );
+    const conversationMessages = getQueryResult(messagesQuery);
 
     const loading = messagesQuery.loading || messagesTotalCountQuery.loading;
     const hasMore =
@@ -370,11 +339,7 @@ class WorkArea extends React.Component<FinalProps, State> {
     const { loadingMessages, typingInfo } = this.state;
     const { messagesQuery, dmConfig, currentConversation } = this.props;
 
-    const conversationMessages = getQueryResult(
-      messagesQuery,
-      dmConfig?.messagesQueries,
-      currentConversation
-    );
+    const conversationMessages = getQueryResult(messagesQuery);
 
     const updatedProps = {
       ...this.props,
