@@ -33,6 +33,7 @@ export interface IDashboard {
   createdUser?: IUser;
   itemsCount?: number;
   members?: IUser[];
+  departmentIds?: string[];
 }
 
 export interface IDashboardDoc {
