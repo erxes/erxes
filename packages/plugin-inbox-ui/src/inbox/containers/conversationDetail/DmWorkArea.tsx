@@ -178,7 +178,7 @@ class WorkArea extends React.Component<FinalProps, State> {
           // add new message to messages list
           const next = {
             ...prev,
-            conversationMessages: [...messages]
+            conversationMessages: [...messages, message]
           };
 
           // send desktop notification
@@ -263,6 +263,7 @@ class WorkArea extends React.Component<FinalProps, State> {
 
           // Do not do anything while reading query somewhere else
         } catch (e) {
+          console.log(e.message);
           return;
         }
 
@@ -343,46 +344,24 @@ class WorkArea extends React.Component<FinalProps, State> {
             return prev;
           }
 
-          const { integration } = currentConversation;
-          let listQueryName = 'conversationMessages';
-
-          if (dmConfig) {
-            const item = dmConfig.messagesQueries.find(
-              q => q.integrationKind === integration.kind
-            );
-
-            if (item) {
-              listQueryName = item.name;
-            }
-          }
-
-          const result = { ...prev };
-          const prevConversationMessages = getQueryResult(
-            prev,
-            dmConfig?.messagesQueries,
-            currentConversation
-          );
+          const prevConversationMessages = prev.conversationMessages || [];
           const prevMessageIds = prevConversationMessages.map(m => m._id);
 
           const fetchedMessages: IMessage[] = [];
-          const more = getQueryResult(
-            fetchMoreResult,
-            dmConfig?.messagesQueries,
-            currentConversation
-          );
 
-          for (const message of more) {
+          for (const message of fetchMoreResult.conversationMessages) {
             if (!prevMessageIds.includes(message._id)) {
               fetchedMessages.push(message);
             }
           }
 
-          result[listQueryName] = [
-            ...fetchedMessages,
-            ...prevConversationMessages
-          ];
-
-          return result;
+          return {
+            ...prev,
+            conversationMessages: [
+              ...fetchedMessages,
+              ...prevConversationMessages
+            ]
+          };
         }
       });
     }
