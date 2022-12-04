@@ -1,22 +1,23 @@
-import React from 'react';
-import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
-import { mutations, queries } from '../../graphql';
-import { Alert } from '@erxes/ui/src/utils';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { withRouter } from 'react-router-dom';
+
 import {
   TypeDetailQueryResponse,
   TypesAddMutationResponse,
   TypesEditMutationResponse
 } from '../../types';
-import Spinner from '@erxes/ui/src/components/Spinner';
+import { mutations, queries } from '../../graphql';
+
+import { Alert } from '@erxes/ui/src/utils';
 import ContentTypeForm from '../../components/contentTypes/ContenTypeForm';
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   contentTypeId?: string;
-  contentTypeDetailQuery: TypeDetailQueryResponse;
 } & IRouterProps;
 
 type FinalProps = {

@@ -12,6 +12,7 @@ import { IContentTypeDoc, IPageDoc } from '../../types';
 import { __, uploadHandler } from '@erxes/ui/src/utils';
 
 import Alert from '@erxes/ui/src/utils/Alert';
+import ContentTypeForm from '../../containers/contentTypes/ContentTypeForm';
 import ContentTypeList from '../../containers/contentTypes/List';
 import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import GrapesJS from 'grapesjs';
@@ -300,7 +301,10 @@ class SiteForm extends React.Component<Props, State> {
           {__('Content Type Builder')}
         </SubTitle>
         <LeftSidebarContent>
-          <ContentTypeList />
+          <ContentTypeList
+            siteId={_id}
+            handleItemSettings={this.handleItemSettings}
+          />
         </LeftSidebarContent>
       </LeftSidebar>
     );
@@ -311,9 +315,9 @@ class SiteForm extends React.Component<Props, State> {
 
     switch (type) {
       case 'page':
-        return <PageForm page={settingsObject} />;
+        return <PageForm _id={settingsObject._id} />;
       case 'contenttype':
-        return <div>aaaa</div>;
+        return <ContentTypeForm contentTypeId={settingsObject._id} />;
       default:
         return null;
     }

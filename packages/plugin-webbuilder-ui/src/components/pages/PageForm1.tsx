@@ -2,7 +2,6 @@ import 'grapesjs/dist/css/grapes.min.css';
 
 import { FlexItem, FlexPad } from '@erxes/ui/src/components/step/styles';
 import { IContentTypeDoc, IPageDoc } from '../../types';
-import { PageFormContainer, PageHeader } from './styles';
 import { __, uploadHandler } from '@erxes/ui/src/utils';
 
 import Alert from '@erxes/ui/src/utils/Alert';
@@ -76,42 +75,13 @@ class PageForm extends React.Component<Props, State> {
     );
   };
 
-  renderButtons = () => {
-    const cancelButton = (
-      <Link to="/webbuilder">
-        <Button btnStyle="simple" icon="times-circle" size="small">
-          Cancel
-        </Button>
-      </Link>
-    );
-
-    return (
-      <Button.Group>
-        {cancelButton}
-
-        <Button
-          btnStyle="success"
-          icon={'check-circle'}
-          onClick={this.save}
-          size="small"
-        >
-          Save
-        </Button>
-      </Button.Group>
-    );
-  };
-
-  render() {
-    const { page } = this.props;
-    console.log('pp', page);
+  renderPageContent() {
+    const imagePath = '/images/icons/erxes-12.svg';
     const { description, name, siteId } = this.state;
 
     return (
-      <PageFormContainer>
-        <PageHeader>
-          Page Settings
-          {this.renderButtons()}
-        </PageHeader>
+      // <Step img={imagePath} title="Manage web builder page" noButton={true}>
+      <FlexItem>
         <FlexPad direction="column" overflow="auto">
           <FormGroup>
             <ControlLabel>Name:</ControlLabel>
@@ -138,7 +108,45 @@ class PageForm extends React.Component<Props, State> {
             <SelectSite onSelect={this.onSelectSite} initialValue={siteId} />
           </FormGroup>
         </FlexPad>
-      </PageFormContainer>
+      </FlexItem>
+      // </Step>
+    );
+  }
+
+  renderButtons = () => {
+    const cancelButton = (
+      <Link to="/webbuilder/pages">
+        <Button btnStyle="simple" icon="times-circle">
+          Cancel
+        </Button>
+      </Link>
+    );
+
+    return (
+      <Button.Group>
+        {cancelButton}
+
+        <Button btnStyle="success" icon={'check-circle'} onClick={this.save}>
+          Save
+        </Button>
+      </Button.Group>
+    );
+  };
+
+  render() {
+    const { name } = this.state;
+    const { page } = this.props;
+    console.log('pp', page);
+    const breadcrumb = [
+      { title: 'Webbuilder', link: '/webbuilder/pages' },
+      { title: __('Page') }
+    ];
+
+    return (
+      <StepWrapper>
+        <Wrapper.Header title={'Page Form'} breadcrumb={breadcrumb} />
+        <Steps>{this.renderPageContent()}</Steps>
+      </StepWrapper>
     );
   }
 }

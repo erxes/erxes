@@ -105,44 +105,49 @@ class ContentTypeForm extends React.Component<Props, State> {
     const { displayName, code, siteId } = this.state;
     const { contentType } = this.props;
 
+    const breadcrumb = [{ title: __('Content types'), link: '/contenttypes' }];
+
     return (
-      <Content>
-        <LeftContent>
-          <Steps>
-            <Step
-              img="/images/icons/erxes-04.svg"
-              title="Content type"
-              noButton={true}
-            >
-              <ContentTypeStep
-                onChange={this.onChange}
-                displayName={displayName}
-                code={code}
-                fields={this.state.fields}
-                siteId={siteId}
-              />
-            </Step>
-          </Steps>
+      <StepWrapper>
+        <Wrapper.Header title={__('Content types')} breadcrumb={breadcrumb} />
+        <Content>
+          <LeftContent>
+            <Steps>
+              <Step
+                img="/images/icons/erxes-04.svg"
+                title="Content type"
+                noButton={true}
+              >
+                <ContentTypeStep
+                  onChange={this.onChange}
+                  displayName={displayName}
+                  code={code}
+                  fields={this.state.fields}
+                  siteId={siteId}
+                />
+              </Step>
+            </Steps>
 
-          <ControlWrapper>
-            <Indicator>
-              {__('You are')} {contentType ? 'editing' : 'creating'}{' '}
-              <strong>{displayName}</strong> {__('content type')}
-            </Indicator>
-            {this.renderButtons()}
-          </ControlWrapper>
-        </LeftContent>
+            <ControlWrapper>
+              <Indicator>
+                {__('You are')} {contentType ? 'editing' : 'creating'}{' '}
+                <strong>{displayName}</strong> {__('content type')}
+              </Indicator>
+              {this.renderButtons()}
+            </ControlWrapper>
+          </LeftContent>
 
-        <PreviewWrapper>
-          <FullPreview
-            onChange={this.onChange}
-            color=""
-            theme=""
-            type="dropdown"
-            fields={this.state.fields}
-          />
-        </PreviewWrapper>
-      </Content>
+          <PreviewWrapper>
+            <FullPreview
+              onChange={this.onChange}
+              color=""
+              theme=""
+              type="dropdown"
+              fields={this.state.fields}
+            />
+          </PreviewWrapper>
+        </Content>
+      </StepWrapper>
     );
   }
 }

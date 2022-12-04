@@ -10,11 +10,13 @@ type Props = {
   contentTypes: IContentTypeDoc[];
   remove: (contentTypeId: string) => void;
   contentTypesCount: number;
+  siteId?: string;
+  handleItemSettings: (item: any, type: string) => void;
 };
 
 class ContentTypesList extends React.Component<Props> {
   render() {
-    const { contentTypes = [] } = this.props;
+    const { contentTypes = [], handleItemSettings, siteId } = this.props;
 
     return (
       <List>
@@ -24,7 +26,10 @@ class ContentTypesList extends React.Component<Props> {
               <Icon icon="file-1" />
               {type.displayName}
             </div>
-            <Icon icon="settings" />
+            <Icon
+              icon="settings"
+              onClick={() => handleItemSettings(type, 'contenttype')}
+            />
           </li>
         ))}
         <li>

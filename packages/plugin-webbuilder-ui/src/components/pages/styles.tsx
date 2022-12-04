@@ -45,3 +45,18 @@ export const List = styled.ul`
     }
   }
 `;
+
+export const PageFormContainer = styled.div`
+  background: ${colors.colorWhite};
+  border: 1px solid ${colors.borderPrimary};
+  height: 100%;
+`;
+
+export const PageHeader = styled.div`
+  background: #f5f5f5;
+  display: flex;
+  justify-content: space-between;
+  color: #444;
+  align-items: center;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+`;

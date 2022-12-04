@@ -294,6 +294,6 @@ export const SettingsContent = styled.div`
   height: 100%;
   position: absolute;
   left: 200px;
-  width: 400px;
+  min-width: 400px;
   z-index: 10;
 `;
