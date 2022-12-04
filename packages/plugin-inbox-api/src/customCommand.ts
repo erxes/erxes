@@ -32,6 +32,7 @@ let FbAccounts: Collection<any>;
 let FbCustomers: Collection<any>;
 let FbPosts: Collection<any>;
 let FbComments: Collection<any>;
+let FbConfigs: Collection<any>;
 
 // integrations-api
 let IntConversations: Collection<any>;
@@ -41,6 +42,7 @@ let IntAccounts: Collection<any>;
 let IntCustomers: Collection<any>;
 let IntPosts: Collection<any>;
 let IntComments: Collection<any>;
+let IntConfigs: Collection<any>;
 
 const FB_MSNGR = 'facebook-messenger';
 const FB_POST = 'facebook-post';
@@ -93,15 +95,17 @@ const command = async () => {
     IntCustomers = intDb.collection('customers_facebooks');
     IntPosts = intDb.collection('posts_facebooks');
     IntComments = intDb.collection('comments_facebooks');
+    IntConfigs = intDb.collection('configs');
 
     // fb
-    FbAccounts = fbDb.collection('accounts');
+    FbAccounts = fbDb.collection('facebook_accounts');
     FbIntegrations = fbDb.collection('facebook_integrations');
     FbConversations = fbDb.collection('conversations_facebooks');
     FbConversationMessages = fbDb.collection('conversation_messages_facebooks');
     FbCustomers = fbDb.collection('customers_facebooks');
     FbPosts = fbDb.collection('posts_facebooks');
     FbComments = fbDb.collection('comments_facebooks');
+    FbConfigs = fbDb.collection('facebook_configs');
 
     /** integrations-api */
     const intIntegrations = await IntIntegrations.find({
@@ -135,6 +139,11 @@ const command = async () => {
 
     const intComments = await IntComments.find().toArray();
     await checkAndInsert(intComments, FbComments);
+
+    const intConfigs = await IntConfigs.find({
+      code: { $regex: 'facebook_', $options: '$i' }
+    }).toArray();
+    await checkAndInsert(intConfigs, FbConfigs);
 
     /** inbox-api */
     const fbMsgIntegrations = await InboxIntegrations.find({
