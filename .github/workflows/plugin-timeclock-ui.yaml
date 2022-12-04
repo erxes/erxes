@@ -4,7 +4,7 @@ name: Plugin timeclock UI CI
 on:
   push:
     branches:
-      - timeclock
+      - time_clock
     paths:
       - "packages/erxes-ui/**"
       - "packages/ui-plugin-template/**"
