@@ -33,7 +33,7 @@ const addDaysOfWeek = (today: Date): string[] => {
   const diffFromSun = 7 - today.getDay();
   const currWeek: string[] = [];
 
-  while (diffFromMon !== 0) {
+  while (diffFromMon > 0) {
     currWeek.push(
       dayjs(today)
         .add(-diffFromMon, 'day')
@@ -42,7 +42,9 @@ const addDaysOfWeek = (today: Date): string[] => {
     );
     diffFromMon -= 1;
   }
+
   currWeek.push(today.toDateString());
+
   for (let i = 1; i <= diffFromSun; i++) {
     currWeek.push(
       dayjs(today)
