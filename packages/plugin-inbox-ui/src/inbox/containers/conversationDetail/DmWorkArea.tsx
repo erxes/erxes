@@ -178,7 +178,7 @@ class WorkArea extends React.Component<FinalProps, State> {
           // add new message to messages list
           const next = {
             ...prev,
-            conversationMessages: [...messages]
+            conversationMessages: [...messages, message]
           };
 
           // send desktop notification
@@ -263,6 +263,7 @@ class WorkArea extends React.Component<FinalProps, State> {
 
           // Do not do anything while reading query somewhere else
         } catch (e) {
+          console.log(e.message);
           return;
         }
 
@@ -343,46 +344,24 @@ class WorkArea extends React.Component<FinalProps, State> {
             return prev;
           }
 
-          const { integration } = currentConversation;
-          let listQueryName = 'conversationMessages';
-
-          if (dmConfig) {
-            const item = dmConfig.messagesQueries.find(
-              q => q.integrationKind === integration.kind
-            );
-
-            if (item) {
-              listQueryName = item.name;
-            }
-          }
-
-          const result = { ...prev };
-          const prevConversationMessages = getQueryResult(
-            prev,
-            dmConfig?.messagesQueries,
-            currentConversation
-          );
+          const prevConversationMessages = prev.conversationMessages || [];
           const prevMessageIds = prevConversationMessages.map(m => m._id);
 
           const fetchedMessages: IMessage[] = [];
-          const more = getQueryResult(
-            fetchMoreResult,
-            dmConfig?.messagesQueries,
-            currentConversation
-          );
 
-          for (const message of more) {
+          for (const message of fetchMoreResult.conversationMessages) {
             if (!prevMessageIds.includes(message._id)) {
               fetchedMessages.push(message);
             }
           }
 
-          result[listQueryName] = [
-            ...fetchedMessages,
-            ...prevConversationMessages
-          ];
-
-          return result;
+          return {
+            ...prev,
+            conversationMessages: [
+              ...fetchedMessages,
+              ...prevConversationMessages
+            ]
+          };
         }
       });
     }
@@ -412,51 +391,68 @@ class WorkArea extends React.Component<FinalProps, State> {
   }
 }
 
-const WithQuery = withProps<Props & { currentUser: IUser }>(
-  compose(
-    graphql<
-      Props,
-      MessagesQueryResponse,
-      { conversationId?: string; limit: number }
-    >(gql(queries.conversationMessages), {
-      name: 'messagesQuery',
-      options: ({ currentId, currentConversation }) => {
-        const windowHeight = window.innerHeight;
-        const isMail = isConversationMailKind(currentConversation);
-        const isDm = isConversationDmKind(currentConversation);
+const generateWithQuery = (props: Props) => {
+  const { dmConfig, currentConversation } = props;
+  const { integration } = currentConversation;
 
-        // 330 - height of above and below sections of detail area
-        // 45 -  min height of per message
-        initialLimit = !isMail ? Math.round((windowHeight - 330) / 45 + 1) : 10;
+  let listQuery = queries.conversationMessages;
+  let countQuery = queries.conversationMessagesTotalCount;
 
-        return {
-          variables: {
-            conversationId: currentId,
-            limit: isDm || isMail ? initialLimit : 0,
-            skip: 0
-          },
-          fetchPolicy: 'network-only'
-        };
-      }
-    }),
-    graphql<Props, MessagesTotalCountQuery, { conversationId?: string }>(
-      gql(queries.conversationMessagesTotalCount),
-      {
-        name: 'messagesTotalCountQuery',
-        options: ({ currentId }) => ({
-          variables: { conversationId: currentId },
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
-    graphql<Props, AddMessageMutationResponse, AddMessageMutationVariables>(
-      gql(mutations.conversationMessageAdd),
-      {
-        name: 'addMessageMutation'
-      }
-    )
-  )(WorkArea)
-);
+  if (dmConfig) {
+    listQuery = getQueryString(dmConfig, integration.kind, 'messagesQueries');
+    countQuery = getQueryString(dmConfig, integration.kind, 'countQueries');
+  }
+
+  return withProps<Props & { currentUser: IUser }>(
+    compose(
+      graphql<
+        Props,
+        MessagesQueryResponse,
+        { conversationId?: string; limit: number }
+      >(gql(listQuery), {
+        name: 'messagesQuery',
+        options: ({ currentId, currentConversation }) => {
+          const windowHeight = window.innerHeight;
+          const isMail = isConversationMailKind(currentConversation);
+          const isDm = isConversationDmKind(currentConversation);
+
+          // 330 - height of above and below sections of detail area
+          // 45 -  min height of per message
+          initialLimit = !isMail
+            ? Math.round((windowHeight - 330) / 45 + 1)
+            : 10;
+
+          return {
+            variables: {
+              conversationId: currentId,
+              limit: isDm || isMail ? initialLimit : 0,
+              skip: 0
+            },
+            fetchPolicy: 'network-only'
+          };
+        }
+      }),
+      graphql<Props, MessagesTotalCountQuery, { conversationId?: string }>(
+        gql(countQuery),
+        {
+          name: 'messagesTotalCountQuery',
+          options: ({ currentId }) => ({
+            variables: { conversationId: currentId },
+            fetchPolicy: 'network-only'
+          })
+        }
+      ),
+      graphql<Props, AddMessageMutationResponse, AddMessageMutationVariables>(
+        gql(mutations.conversationMessageAdd),
+        {
+          name: 'addMessageMutation'
+        }
+      )
+    )(WorkArea)
+  );
+};
+
+let WithQuery;
 
 const WithConsumer = (props: Props) => {
   return (
@@ -464,6 +460,10 @@ const WithConsumer = (props: Props) => {
       {({ currentUser }) => {
         if (!currentUser) {
           return null;
+        }
+
+        if (!WithQuery) {
+          WithQuery = generateWithQuery(props);
         }
 
         return <WithQuery {...props} currentUser={currentUser} />;
