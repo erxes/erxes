@@ -76,14 +76,3 @@ export const linkify = (url: string) => {
 };
 
 export const hasAnyActivity = activityLogsUtils.hasAnyActivity;
-
-export const isConversationDmKind = (conversation: IConversation) => {
-  const integration = conversation.integration;
-  const { kind } = integration;
-
-  if (!kind) {
-    return false;
-  }
-
-  return kind === 'messenger' || kind.includes('facebook');
-};

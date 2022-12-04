@@ -24,10 +24,7 @@ import {
   MessagesQueryResponse,
   MessagesTotalCountQuery
 } from '@erxes/ui-inbox/src/inbox/types';
-import {
-  isConversationMailKind,
-  isConversationDmKind
-} from '@erxes/ui-inbox/src/inbox/utils';
+import { isConversationMailKind } from '@erxes/ui-inbox/src/inbox/utils';
 
 // messages limit
 let initialLimit = 10;
@@ -411,10 +408,10 @@ const generateWithQuery = (props: Props) => {
         { conversationId?: string; limit: number }
       >(gql(listQuery), {
         name: 'messagesQuery',
-        options: ({ currentId, currentConversation }) => {
+        options: ({ currentId }) => {
           const windowHeight = window.innerHeight;
           const isMail = isConversationMailKind(currentConversation);
-          const isDm = isConversationDmKind(currentConversation);
+          const isDm = integration.kind === 'messenger' || dmConfig;
 
           // 330 - height of above and below sections of detail area
           // 45 -  min height of per message
