@@ -64,11 +64,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
   models.Accounts = db.model<IAccountDocument, IAccountModel>(
-    'accounts',
+    'facebook_accounts',
     loadAccountClass(models)
   );
   models.Configs = db.model<IConfigDocument, IConfigModel>(
-    'configs',
+    'facebook_configs',
     loadConfigClass(models)
   );
   models.Integrations = db.model<IIntegrationDocument, IIntegrationModel>(
