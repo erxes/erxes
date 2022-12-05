@@ -21,15 +21,25 @@ export const ADMIN_APPROVAL_STATES = ['PENDING', 'APPROVED', 'DENIED'] as const;
 export type PostStates = typeof POST_STATES[number];
 export type AdminApprovalStates = typeof ADMIN_APPROVAL_STATES[number];
 
-export interface IPost {
+interface CommonPostFields {
+  title?: string | null;
+  content?: string | null;
+  description?: string | null;
+  thumbnail?: string | null;
+  custom: any;
+}
+
+interface TranslationsFields extends CommonPostFields {
+  lang: string;
+}
+
+export interface IPost extends CommonPostFields {
   _id: any;
   categoryId?: string | null;
-  content: string;
-  description?: string | null;
-  title: string;
   state: PostStates;
   categoryApprovalState: AdminApprovalStates;
-  thumbnail?: string | null;
+
+  translations?: TranslationsFields[] | null;
 
   viewCount: number;
 
@@ -51,8 +61,6 @@ export interface IPost {
   stateChangedByCpId?: string;
 
   contentRestricted?: boolean;
-
-  custom: any;
   customIndexed: any;
 
   tagIds?: string[] | null;
@@ -109,6 +117,27 @@ export interface IPostModel extends Model<PostDocument> {
   publish(_id: string, user: IUserDocument): Promise<PostDocument>;
 
   updateTrendScoreOfPublished(query: any);
+
+  addTranslation(
+    _id: string,
+    lang: string,
+    translation: Omit<TranslationsFields, 'lang'>,
+    isClientPortal?: boolean,
+    cpUser?: ICpUser
+  );
+  updateTranslation(
+    _id: string,
+    lang: string,
+    translation: Omit<TranslationsFields, 'lang'>,
+    isClientPortal?: boolean,
+    cpUser?: ICpUser
+  );
+  removeTranslation(
+    _id: string,
+    lang: string,
+    isClientPortal?: boolean,
+    cpUser?: ICpUser
+  );
 
   /* <<< Client portal */
   findByIdOrThrowCp(_id: string, cpUser?: ICpUser): Promise<PostDocument>;
@@ -278,6 +307,102 @@ export const generatePostModel = (
       user: IUserDocument
     ): Promise<PostDocument> {
       return models.Post.changeState(_id, 'PUBLISHED', user);
+    }
+
+    public static async addTranslation(
+      _id: string,
+      lang: string,
+      translation: Omit<TranslationsFields, 'lang'>,
+      isClientPortal?: boolean,
+      cpUser?: ICpUser
+    ) {
+      const post = await (() => {
+        if (!isClientPortal) return models.Post.findByIdOrThrow(_id);
+
+        if (!cpUser?.userId) throw new LoginRequiredError();
+
+        return models.Post.findByIdOrThrowCp(_id, cpUser);
+      })();
+
+      const translationDoc = { ...translation, lang };
+
+      if (!post.translations?.length) {
+        await models.Post.updateOne(
+          { _id },
+          { $set: { translations: [translationDoc] } }
+        );
+      } else {
+        const exists = post.translations.some(t => t.lang === lang);
+        if (exists) {
+          throw new Error(`Translation already exists`);
+        }
+        await models.Post.updateOne(
+          { _id },
+          { $push: { translations: translationDoc } }
+        );
+      }
+    }
+    public static async updateTranslation(
+      _id: string,
+      lang: string,
+      translation: Omit<TranslationsFields, 'lang'>,
+      isClientPortal?: boolean,
+      cpUser?: ICpUser
+    ) {
+      const post = await (() => {
+        if (!isClientPortal) return models.Post.findByIdOrThrow(_id);
+
+        if (!cpUser?.userId) throw new LoginRequiredError();
+
+        return models.Post.findByIdOrThrowCp(_id, cpUser);
+      })();
+
+      if (!post.translations?.some(t => t.lang === lang)) {
+        throw new Error("Translation doesn't exist");
+      }
+
+      const translationDoc = { ...translation, lang };
+
+      await models.Post.updateOne(
+        { _id },
+        {
+          $set: {
+            'translations.$[elem]': translationDoc
+          }
+        },
+        {
+          arrayFilters: [{ 'elem.lang': lang }]
+        }
+      );
+    }
+    public static async removeTranslation(
+      _id: string,
+      lang: string,
+      isClientPortal?: boolean,
+      cpUser?: ICpUser
+    ) {
+      const post = await (() => {
+        if (!isClientPortal) return models.Post.findByIdOrThrow(_id);
+
+        if (!cpUser?.userId) throw new LoginRequiredError();
+
+        return models.Post.findByIdOrThrowCp(_id, cpUser);
+      })();
+
+      if (!post.translations?.some(t => t.lang === lang)) {
+        throw new Error("Translation already doesn't exist");
+      }
+
+      await models.Post.updateOne(
+        { _id },
+        {
+          $pull: {
+            translations: {
+              lang
+            }
+          }
+        }
+      );
     }
 
     /* <<< Client portal */
