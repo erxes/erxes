@@ -36,6 +36,7 @@ type Props = {
   ) => void;
   contentTypes: IContentTypeDoc[];
   pages: IPageDoc[];
+  queryParams: any;
   _id?: string;
 };
 
@@ -54,7 +55,7 @@ class SiteForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const page = props.page || {};
+    const page = props.page ? props.page : props.pages[0];
 
     this.state = {
       name: page.name,
@@ -67,9 +68,10 @@ class SiteForm extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const { page, contentTypes } = this.props;
+    const { contentTypes } = this.props;
     let { pages } = this.props;
 
+    const page = this.props.page ? this.props.page : pages[0];
     pages = pages.filter(p => p._id !== page?._id);
 
     this.grapes = GrapesJS.init({
@@ -266,7 +268,7 @@ class SiteForm extends React.Component<Props, State> {
   };
 
   renderLeftSidebar() {
-    const { pages = [], _id } = this.props;
+    const { pages = [], _id, queryParams } = this.props;
     const { showDarkMode } = this.state;
 
     return (
@@ -292,6 +294,7 @@ class SiteForm extends React.Component<Props, State> {
           <PageList
             pages={pages}
             siteId={_id}
+            queryParams={queryParams}
             handleItemSettings={this.handleItemSettings}
           />
         </LeftSidebarContent>

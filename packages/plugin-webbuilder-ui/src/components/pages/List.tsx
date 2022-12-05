@@ -10,18 +10,26 @@ import { __ } from '@erxes/ui/src/utils/core';
 type Props = {
   siteId?: string;
   pages: IPageDoc[];
+  queryParams: any;
   handleItemSettings: (item: any, type: string) => void;
 };
 
 class PageList extends React.Component<Props> {
   render() {
-    const { pages, handleItemSettings, siteId = '' } = this.props;
+    const { pages, handleItemSettings, siteId = '', queryParams } = this.props;
 
     return (
       <List>
         {pages.map(page => (
           <li key={page._id}>
-            <a href={`/webbuilder/sites/edit/${siteId}?pageId=${page._id}`}>
+            <a
+              className={
+                queryParams.pageId && queryParams.pageId === page._id
+                  ? 'active'
+                  : ''
+              }
+              href={`/webbuilder/sites/edit/${siteId}?pageId=${page._id}`}
+            >
               <Icon icon="file-1" />
               {page.name}
             </a>

@@ -11,7 +11,6 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import { ISiteDoc } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 import { getEnv } from '@erxes/ui/src/utils/core';
@@ -40,7 +39,10 @@ class SiteList extends React.Component<Props, {}> {
     return (
       <SiteBox key={site._id} nowrap={true}>
         <SitePreview>
-          <img src={site.templateImage} alt="site-img" />
+          <img
+            src={site.templateImage || '/images/template-preview.png'}
+            alt="site-img"
+          />
 
           <PreviewContent>
             <Button
@@ -48,14 +50,14 @@ class SiteList extends React.Component<Props, {}> {
               onClick={() => this.showSite(site)}
               icon="eye"
             >
-              View site
+              {__('View site')}
             </Button>
           </PreviewContent>
         </SitePreview>
         <Content>
           <div>
             <b>{site.name}</b>
-            <span>{site.domain || 'View site'}</span>
+            <span>{site.domain || __('View site')}</span>
           </div>
           <Dropdown>
             <Dropdown.Toggle as={DropdownToggle} id="dropdown-convert-to">
@@ -64,11 +66,11 @@ class SiteList extends React.Component<Props, {}> {
             <Dropdown.Menu>
               <a href={`/webbuilder/sites/edit/${site._id}`}>
                 <li key="editor">
-                  <Icon icon="edit-3" /> Editor
+                  <Icon icon="edit-3" /> {__('Editor')}
                 </li>
               </a>
               <li key="delete" onClick={() => remove(site._id)}>
-                <Icon icon="trash-alt" size={14} /> Delete
+                <Icon icon="trash-alt" size={14} /> {__('Delete')}
               </li>
             </Dropdown.Menu>
           </Dropdown>

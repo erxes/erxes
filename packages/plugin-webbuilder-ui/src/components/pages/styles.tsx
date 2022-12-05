@@ -27,6 +27,10 @@ export const List = styled.ul`
       display: flex;
       color: inherit;
 
+      &.active {
+        color: ${colors.colorSecondary};
+      }
+
       &.link {
         color: ${colors.colorWhite};
       }

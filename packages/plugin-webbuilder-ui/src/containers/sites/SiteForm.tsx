@@ -90,7 +90,7 @@ const FormContainer = (props: FinalProps) => {
     save,
     page,
     contentTypes,
-    pages: pagesMain.list || []
+    pages: pagesMain.list.reverse() || []
   };
 
   return <SiteForm {...updatedProps} />;

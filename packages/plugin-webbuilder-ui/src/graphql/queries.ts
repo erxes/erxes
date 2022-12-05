@@ -24,6 +24,8 @@ const pagesMain = `
     webbuilderPagesMain(page: $page, perPage: $perPage, searchValue: $searchValue, siteId: $siteId) {
       list {
         ${fields}
+        html
+        css
       }
       totalCount
     }
