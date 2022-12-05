@@ -175,6 +175,7 @@ const relationSchema = new Schema(
 
 export const commonItemFieldsSchema = {
   _id: field({ pkey: true }),
+  parentId: field({ type: String,optional:true,label: 'Parent Id'}),
   userId: field({ type: String, optional: true, esType: 'keyword' }),
   createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
   order: field({ type: Number }),

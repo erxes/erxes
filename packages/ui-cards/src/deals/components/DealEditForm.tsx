@@ -13,6 +13,9 @@ import PortableTickets from '../../tickets/components/PortableTickets';
 import { pluginsOfItemSidebar } from 'coreui/pluginUtils';
 import React from 'react';
 import { IDeal, IDealParams, IPaymentsData } from '../types';
+import { __ } from '@erxes/ui/src/utils';
+import ChildrenSection from '../../boards/containers/editForm/ChildrenSection';
+import queryString from 'query-string';
 
 type Props = {
   options: IOptions;
@@ -172,6 +175,25 @@ export default class DealEditForm extends React.Component<Props, State> {
     );
   };
 
+
+  renderChildrenSection = () =>{
+    const { item, options } = this.props;
+
+    const updatedProps = {
+      ...this.props,
+      type: 'deal',
+      itemId: item._id,
+      stageId: item.stageId,
+      pipelineId: item.pipeline._id,
+      options,
+      queryParams: queryString.parse(window.location.search) || {}
+    };
+
+    return <ChildrenSection {...updatedProps} />
+
+  }
+
+
   renderItems = () => {
     const { item } = this.props;
     return (
@@ -222,7 +244,6 @@ export default class DealEditForm extends React.Component<Props, State> {
             onChangeStage={onChangeStage}
             onChangeRefresh={this.onChangeRefresh}
           />
-
           <Sidebar
             options={options}
             item={item}
@@ -230,6 +251,7 @@ export default class DealEditForm extends React.Component<Props, State> {
             sidebar={this.renderProductSection}
             saveItem={saveItem}
             renderItems={this.renderItems}
+            childrenSection={this.renderChildrenSection}
           />
         </Flex>
       </>
