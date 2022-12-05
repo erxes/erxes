@@ -4,6 +4,7 @@ import { requiredIf } from '../utils';
 const commonPostParams = (isInsert = false) => {
   return `
     categoryId: ID${requiredIf(isInsert)}
+    lang: String
     ${translationAndPostCommonFields}
     state: ForumPostState
     customIndexed: JSON

@@ -37,6 +37,7 @@ export interface IPost extends CommonPostFields {
   _id: any;
   categoryId?: string | null;
   state: PostStates;
+  lang?: string | null;
   categoryApprovalState: AdminApprovalStates;
 
   translations?: TranslationsFields[] | null;
@@ -184,6 +185,7 @@ export const postSchema = new Schema<PostDocument>({
     default: POST_STATES[0]
   },
   ...common,
+  lang: String,
 
   translations: [
     {

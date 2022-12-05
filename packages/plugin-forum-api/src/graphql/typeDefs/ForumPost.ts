@@ -17,6 +17,8 @@ export default function ForumPost({ isTagsEnabled }) {
     _id: ID!
     state: ForumPostState
 
+    lang: String
+
     ${translationAndPostCommonFields}
 
     translations: [ForumPostTranslation!]
