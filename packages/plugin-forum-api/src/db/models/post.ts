@@ -131,11 +131,16 @@ export interface IPostModel extends Model<PostDocument> {
   /* >>> Client portal */
 }
 
+const common = {
+  title: { type: String },
+  content: { type: String },
+  description: { type: String },
+  thumbnail: String,
+  custom: Schema.Types.Mixed
+};
+
 export const postSchema = new Schema<PostDocument>({
   categoryId: { type: Types.ObjectId, index: true },
-  title: { type: String, index: 'text' },
-  content: { type: String },
-  description: { type: String, index: 'text' },
   categoryApprovalState: {
     type: String,
     required: true,
@@ -149,8 +154,15 @@ export const postSchema = new Schema<PostDocument>({
     index: true,
     default: POST_STATES[0]
   },
+  ...common,
 
-  thumbnail: String,
+  translations: [
+    {
+      _id: false,
+      lang: { type: String, required: true },
+      ...common
+    }
+  ],
 
   viewCount: { type: Number, default: 0 },
   trendScore: { type: Number, default: 0 },
@@ -170,7 +182,6 @@ export const postSchema = new Schema<PostDocument>({
   stateChangedById: String,
   stateChangedByCpId: String,
 
-  custom: Schema.Types.Mixed,
   customIndexed: Schema.Types.Mixed,
 
   tagIds: [String]
@@ -182,7 +193,8 @@ postSchema.index({ stateChangedAt: 1, state: 1 });
 postSchema.index({ tagIds: 1, state: 1 });
 
 postSchema.index({
-  title: 'text'
+  title: 'text',
+  'translations.title': 'text'
 });
 
 export const generatePostModel = (
