@@ -18,6 +18,12 @@ export interface IAbsence {
   solved: boolean;
   status: string;
 }
+export interface IAbsenceType {
+  _id: string;
+  name: string;
+  explRequired: boolean;
+  attachRequired: boolean;
+}
 
 export interface IReport {
   groupTitle: string;
@@ -77,6 +83,12 @@ export type AbsenceQueryResponse = {
   loading: boolean;
 };
 
+export type AbsenceTypeQueryResponse = {
+  absenceTypes: IAbsenceType[];
+  refetch: () => void;
+  loading: boolean;
+};
+
 export type ScheduleQueryResponse = {
   schedules: IShiftSchedule[];
   refetch: () => void;
@@ -126,6 +138,24 @@ export type AbsenceMutationResponse = {
 
   solveAbsenceMutation: (params: {
     variables: { _id: string; status: string };
+  }) => Promise<any>;
+};
+
+export type ConfigMutationResponse = {
+  submitAbsenceConfigMutation: (params: {
+    variables: {
+      _id: string;
+      name: string;
+      explRequired: boolean;
+      attachRequired: boolean;
+    };
+  }) => Promise<any>;
+  submitScheduleConfigMutation: (params: {
+    variables: {
+      name: string;
+      explRequired: boolean;
+      attachRequired: boolean;
+    };
   }) => Promise<any>;
 };
 

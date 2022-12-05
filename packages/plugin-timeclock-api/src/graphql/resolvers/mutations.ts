@@ -75,11 +75,17 @@ const templateMutations = {
 
     return updated;
   },
-  async absenceTypeAdd(_root, { name, explRequired }, { models }: IContext) {
+  async absenceTypeAdd(
+    _root,
+    { name, explRequired, attachRequired },
+    { models }: IContext
+  ) {
     const explanationReqd: boolean = explRequired;
+    const attachReqd: boolean = attachRequired;
     const absenceType = await models.AbsenceTypes.createAbsenceType({
       name: `${name}`,
-      explRequired: explanationReqd
+      explRequired: explanationReqd,
+      attachRequired: attachReqd
     });
     return absenceType;
   },

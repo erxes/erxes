@@ -136,6 +136,7 @@ const DropdownWrapper = styled.div`
 
 const FlexCenter = styled.div`
   display: flex;
+  flex-direction: row;
   justify-content: center;
 `;
 
@@ -155,8 +156,13 @@ const FlexRow = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 0 ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px
-    ${dimensions.unitSpacing}px;
+`;
+
+const FlexColumn = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 10px;
 `;
 
 const DateName = styled.div`
@@ -174,6 +180,7 @@ export {
   SidebarActions,
   Input,
   FlexRow,
+  FlexColumn,
   DateName,
   CustomRangeContainer,
   SidebarHeader

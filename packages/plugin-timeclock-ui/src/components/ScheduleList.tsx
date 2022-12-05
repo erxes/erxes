@@ -406,7 +406,6 @@ function ScheduleList(props: Props) {
   const onSelectDateChange = dateString => {
     if (dateString) {
       const getDate = new Date(dateString).toDateString();
-      console.log('getdate', getDate);
 
       const newDates = scheduleDates;
 
@@ -575,7 +574,6 @@ function ScheduleList(props: Props) {
           {shifts.map(shift => {
             return (
               <div key={shift.shiftEnd}>
-                {' '}
                 {new Date(shift.shiftEnd).toLocaleTimeString()}
               </div>
             );
@@ -588,13 +586,14 @@ function ScheduleList(props: Props) {
             ) : (
               <div>
                 <Button
-                  disabled={shift.solved}
+                  size="small"
                   btnStyle="success"
                   onClick={() => solveShift(shift._id, 'Approved')}
                 >
                   Approve
                 </Button>
                 <Button
+                  size="small"
                   btnStyle="danger"
                   onClick={() => solveShift(shift._id, 'Rejected')}
                 >
@@ -634,7 +633,11 @@ function ScheduleList(props: Props) {
             </>
           )}
         </td>
-        {ListShiftContent(schedule.shifts)}
+        {ListShiftContent(
+          schedule.shifts.sort(
+            (a, b) => new Date(a.shiftStart) - new Date(b.shiftStart)
+          )
+        )}
       </tr>
     );
   };

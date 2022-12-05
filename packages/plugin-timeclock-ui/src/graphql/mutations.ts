@@ -27,6 +27,20 @@ const sendAbsenceRequest = `
     }
   }`;
 
+const absenceTypeAdd = `
+  mutation absenceTypeAdd($name: String, $explRequired: Boolean, $attachRequired: Boolean){
+    absenceTypeAdd(name: $name, explRequired: $explRequired, attachRequired: $attachRequired){
+      _id
+    }
+  }`;
+
+const absenceTypeEdit = `
+  mutation absenceTypeEdit($_id: String, $name: String, $explRequired: Boolean, $attachRequired: Boolean){
+    absenceTypeEdit(_id: $_id, name: $name, explRequired: $explRequired, attachRequired: $attachRequired){
+      _id
+    }
+  }`;
+
 const sendScheduleRequest = `
   mutation sendScheduleRequest($userId: String, $shifts: [ShiftsRequestInput]){
     sendScheduleRequest(userId: $userId, shifts: $shifts){
@@ -69,6 +83,8 @@ export default {
   sendScheduleRequest,
   submitShift,
   sendAbsenceRequest,
+  absenceTypeAdd,
+  absenceTypeEdit,
   solveAbsence,
   solveSchedule,
   solveShift,

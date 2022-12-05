@@ -26,6 +26,7 @@ export interface IAbsence {
 export interface IAbsenceType {
   name: string;
   explRequired: boolean;
+  attachRequired: boolean;
 }
 
 export interface IAbsenceDocument extends IAbsence, Document {
@@ -79,6 +80,10 @@ export const absenceTypeSchema = new Schema({
   explRequired: field({
     type: Boolean,
     label: 'whether absence type requires explanation'
+  }),
+  attachRequired: field({
+    type: Boolean,
+    label: 'whether absence type requires attachment'
   })
 });
 

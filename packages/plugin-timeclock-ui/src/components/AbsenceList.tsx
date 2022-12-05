@@ -1,10 +1,8 @@
 import Button from '@erxes/ui/src/components/Button';
-import dayjs from 'dayjs';
 import { menuTimeClock } from '../menu';
 import { router, __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import Select from 'react-select-plus';
-import { Title } from '@erxes/ui-settings/src/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Table from '@erxes/ui/src/components/table';
@@ -25,33 +23,6 @@ type Props = {
   solveAbsence: (absenceId: string, status: string) => void;
   submitRequest: (explanation: string) => void;
 };
-
-// const addDaysOfWeek = (today: Date): string[] => {
-//   let diffFromMon = today.getDay() - 1;
-//   const diffFromSun = 7 - today.getDay();
-//   const currWeek: string[] = [];
-
-//   while (diffFromMon !== 0) {
-//     currWeek.push(
-//       dayjs(today)
-//         .add(-diffFromMon, 'day')
-//         .toDate()
-//         .toDateString()
-//     );
-//     diffFromMon -= 1;
-//   }
-//   currWeek.push(today.toDateString());
-//   for (let i = 1; i <= diffFromSun; i++) {
-//     currWeek.push(
-//       dayjs(today)
-//         .add(i, 'day')
-//         .toDate()
-//         .toDateString()
-//     );
-//   }
-
-//   return currWeek;
-// };
 
 function AbsenceList(props: Props) {
   const { queryParams, history, submitRequest, absences, solveAbsence } = props;
@@ -119,28 +90,8 @@ function AbsenceList(props: Props) {
     />
   );
 
-  // const thisWeek = addDaysOfWeek(new Date());
-  // const startOfWeek = thisWeek[0]
-  //   .split(' ')
-  //   .slice(1, 3)
-  //   .join(' ');
-  // const title = (
-  //   <div
-  //     style={{
-  //       display: 'flex',
-  //       justifyContent: 'space-between',
-  //       alignItems: 'center',
-  //       marginRight: '20px',
-  //       fontSize: '24px'
-  //     }}
-  //   >
-  //     <Title>{__(`Week of ${startOfWeek}`)}</Title>
-  //   </div>
-  // );
-
   const actionBar = (
     <Wrapper.ActionBar
-      // left={title}
       right={actionBarRight}
       hasFlex={true}
       wideSpacing={true}

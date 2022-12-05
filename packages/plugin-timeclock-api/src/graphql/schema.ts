@@ -26,6 +26,7 @@ export const types = `
     _id: String!
     name: String
     explRequired: Boolean
+    attachRequired: Boolean
   }
 
   
@@ -103,6 +104,7 @@ const absence_params = `
 const absenceType_params = `
     name: String
     explRequired: Boolean
+    attachRequired: Boolean
 `;
 
 const schedule_params = `

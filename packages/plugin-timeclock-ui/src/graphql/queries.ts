@@ -147,8 +147,10 @@ const listReportByUser = `
 const listAbsenceTypes = `
   query absenceTypes{
     absenceTypes{
+      _id
       name
       explRequired
+      attachRequired
     }
   }
 `;

@@ -144,6 +144,7 @@ const templateQueries = {
       recordedEnd?: Date;
       minsLate?: number;
       minsWorked?: number;
+      include?: boolean;
     }
 
     interface IUserReport {

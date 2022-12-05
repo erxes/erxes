@@ -8,84 +8,148 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { CustomRangeContainer } from '../styles';
+import {
+  CustomRangeContainer,
+  FlexRow,
+  FlexColumn,
+  Input,
+  FlexCenter
+} from '../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
+import { FormControl } from '@erxes/ui/src/components/form';
+import { IAbsenceType } from '../types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import Table from '@erxes/ui/src/components/table';
+import Icon from '@erxes/ui/src/components/Icon';
 
 type Props = {
   queryParams: any;
   history: any;
-  startTime?: Date;
+  absenceTypes?: IAbsenceType[];
   loading?: boolean;
-  solveAbsence: (absenceId: string, status: string) => void;
-  submitRequest: (explanation: string) => void;
+  submitAbsenceConfig: (props: IButtonMutateProps) => void;
 };
 
 function ConfigList(props: Props) {
-  const { queryParams, history, submitRequest } = props;
-  const [explanation, setTextReason] = useState('');
+  const { queryParams, history, submitAbsenceConfig, absenceTypes } = props;
+  const [absenceName, setAbsenceName] = useState('');
+  const [explRequired, setExplRequired] = useState(false);
+  const [attachRequired, setAttachRequired] = useState(false);
+  const [displayConfig, setDisplayConfig] = useState(false);
+  const [configDates, setConfigDates] = useState({
+    date1: new Date(),
+    date2: new Date()
+  });
 
   const absenceConfigTrigger = (
     <Button id="configBtn" btnStyle="primary" icon="plus-circle">
-      Schedule Config
+      Absence
     </Button>
   );
   const scheduleConfigTrigger = (
     <Button id="configBtn" btnStyle="primary" icon="plus-circle">
-      Absence Config
+      Schedule
     </Button>
   );
 
-  const absenceConfigContent = () => (
-    <FormGroup>
-      <ControlLabel>Types of Absence requests</ControlLabel>
-      <Select
-        // value={configsMap.UPLOAD_FILE_TYPES}
-        // options={mimeTypeOptions}
-        // onChange={this.onChangeMultiCombo.bind(this, 'UPLOAD_FILE_TYPES')}
-        multi={true}
-        delimiter=","
-        simpleValue={true}
-      />
-    </FormGroup>
+  const onConfigDateChange = (dateNum: string, newDate: Date) => {
+    configDates[dateNum] = newDate;
+    setConfigDates({ ...configDates });
+  };
+
+  const absenceConfigContent = absenceType => (
+    <FlexColumn>
+      <div>
+        <ControlLabel>Name for an absence request</ControlLabel>
+        <Input
+          value={absenceType && absenceType.name}
+          type="text"
+          required={true}
+          onChange={event => {
+            event.preventDefault();
+            setAbsenceName(event.target.value);
+          }}
+        />
+      </div>
+      <FlexRow>
+        <ControlLabel>Explanation Required</ControlLabel>
+        <FormControl
+          componentClass="checkbox"
+          onChange={() => setExplRequired(!explRequired)}
+          checked={absenceType ? absenceType.explRequired : explRequired}
+        />
+      </FlexRow>
+      <FlexRow>
+        <ControlLabel>Attachment Required</ControlLabel>
+        <FormControl
+          componentClass="checkbox"
+          onChange={() => setAttachRequired(!attachRequired)}
+          checked={absenceType ? absenceType.attachRequired : attachRequired}
+        />
+      </FlexRow>
+      <FlexCenter style={{ marginTop: '10px' }}>
+        <Button onClick={onSubmitAbsenceConfig}>Submit</Button>
+      </FlexCenter>
+    </FlexColumn>
   );
 
   const scheduleConfigContent = () => (
-    <CustomRangeContainer>
-      <DateControl
-        // value={new Date()}
-        required={false}
-        name="startDate"
-        // onChange={onSelectDateChange}
-        placeholder={'Starting date'}
-        dateFormat={'YYYY-MM-DD'}
-      />
-      <DateControl
-        // value={new Date()}
-        required={false}
-        name="startDate"
-        // onChange={onSelectDateChange}
-        placeholder={'Ending date'}
-        dateFormat={'YYYY-MM-DD'}
-      />
-      <Button btnStyle="success">Save</Button>
-    </CustomRangeContainer>
+    <FlexColumn>
+      <CustomRangeContainer>
+        <DateControl
+          value={configDates.date1}
+          required={false}
+          onChange={val => onConfigDateChange('date1', val)}
+          placeholder={'Enter date'}
+          dateFormat={'YYYY-MM-DD'}
+        />
+        {displayConfig ? (
+          <DateControl
+            value={configDates.date2}
+            required={false}
+            onChange={val => onConfigDateChange('date2', val)}
+            placeholder={'Enter date'}
+            dateFormat={'YYYY-MM-DD'}
+          />
+        ) : (
+          <></>
+        )}
+      </CustomRangeContainer>
+      <FlexCenter>
+        <Button onClick={() => setDisplayConfig(!displayConfig)}>
+          {(displayConfig ? 'Remove' : 'Add') + ' date'}
+        </Button>
+        <Button>Submit</Button>
+      </FlexCenter>
+    </FlexColumn>
   );
 
-  const onSubmitClick = () => {
-    submitRequest(explanation);
+  const onSubmitAbsenceConfig = () => {
+    submitAbsenceConfig({
+      values: {
+        name: absenceName,
+        explRequired: `${explRequired}`,
+        attachRequired: `${attachRequired}`
+      },
+      isSubmitted: false
+    });
   };
 
-  const setInputValue = e => {
-    const expl = e.target.value;
-    setTextReason(expl);
-  };
+  // const onSubmitScheduleConfig = () => {
+  //   submitScheduleConfig(configDates);
+  // };
 
-  const onUserSelect = userId => {
-    router.setParams(history, { userId: `${userId}` });
-  };
-  const onReasonSelect = reason => {
-    router.setParams(history, { reason: `${reason.value}` });
-  };
+  // const setInputValue = e => {
+  //   const expl = e.target.value;
+  //   setTextReason(expl);
+  // };
+
+  // const onUserSelect = userId => {
+  //   router.setParams(history, { userId: `${userId}` });
+  // };
+  // const onReasonSelect = reason => {
+  //   router.setParams(history, { reason: `${reason.value}` });
+  // };
 
   const actionBarRight = (
     <>
@@ -109,8 +173,39 @@ function ConfigList(props: Props) {
       wideSpacing={true}
     />
   );
+  const editTrigger = (
+    <Button btnStyle="link">
+      <Icon icon="edit-3" />
+    </Button>
+  );
 
-  const content = <div>asdasd</div>;
+  const content = (
+    <Table>
+      <tr>
+        <th>Absence type</th>
+        <th>Explanation required</th>
+        <th>Attachment required</th>
+        <th>Action</th>
+      </tr>
+      {absenceTypes &&
+        absenceTypes.map(absenceType => {
+          return (
+            <tr key={absenceType._id}>
+              <td>{absenceType.name}</td>
+              <td>{absenceType.explRequired ? 'true' : 'false'}</td>
+              <td>{absenceType.attachRequired ? 'true' : 'false'}</td>
+              <td>
+                <ModalTrigger
+                  title="Edit absence type"
+                  trigger={editTrigger}
+                  content={() => absenceConfigContent(absenceType)}
+                />
+              </td>
+            </tr>
+          );
+        })}
+    </Table>
+  );
 
   return (
     <Wrapper
