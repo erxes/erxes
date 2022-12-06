@@ -54,7 +54,7 @@ class ChildrenSection extends React.Component<Props, State> {
   }
 
   renderParentForm() {
-    const { itemId, stageId, parentId } = this.props;
+    const { stageId, parentId } = this.props;
 
     const { openParentId } = this.state;
 
@@ -126,13 +126,13 @@ class ChildrenSection extends React.Component<Props, State> {
     };
 
     return (
-      <Box title="Chidlren" extraButtons={extraButtons()} isOpen={true}>
+      <Box title="Children" extraButtons={extraButtons()} isOpen={true}>
         {children?.length ? (
           (children as Array<IDeal | ITicket | ITask>).map(child => (
             <SectionBodyItem key={child._id}>{this.renderChildForm(child)}</SectionBodyItem>
           ))
         ) : (
-          <EmptyState text="No Chidlren" icon="list-ui-alt" />
+          <EmptyState text="No Children" icon="list-ui-alt" />
         )}
       </Box>
     );

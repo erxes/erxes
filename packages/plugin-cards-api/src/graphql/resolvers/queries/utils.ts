@@ -171,7 +171,7 @@ export const generateCommonFilters = async (
 
   const filter: any = noSkipArchive
     ? {}
-    : { status: { $ne: BOARD_STATUSES.ARCHIVED },parentId: undefined };
+    : { status: { $ne: BOARD_STATUSES.ARCHIVED }, parentId: undefined };
 
   let filterIds: string[] = [];
 
