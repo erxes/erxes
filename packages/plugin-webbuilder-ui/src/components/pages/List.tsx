@@ -2,7 +2,6 @@ import 'grapesjs/dist/css/grapes.min.css';
 
 import { IPageDoc } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
 import { List } from './styles';
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils/core';
@@ -39,9 +38,13 @@ class PageList extends React.Component<Props> {
             />
           </li>
         ))}
-        <li>
+        <li
+          onClick={() =>
+            handleItemSettings({ name: '', description: '' }, 'page')
+          }
+        >
           <div className="link">
-            <Icon icon="plus-1" />
+            <Icon icon="plus-1" /> &nbsp;
             {__('Create page')}
           </div>
         </li>

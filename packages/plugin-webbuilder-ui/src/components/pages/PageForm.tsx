@@ -1,45 +1,29 @@
 import 'grapesjs/dist/css/grapes.min.css';
 
-import { FlexItem, FlexPad } from '@erxes/ui/src/components/step/styles';
-import { IContentTypeDoc, IPageDoc } from '../../types';
 import { PageFormContainer, PageHeader } from './styles';
-import { __, uploadHandler } from '@erxes/ui/src/utils';
 
-import Alert from '@erxes/ui/src/utils/Alert';
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { ControlWrapper } from '@erxes/ui/src/components/step/styles';
-import { EditorContainer } from '@erxes/ui-engage/src/styles';
+import { FlexPad } from '@erxes/ui/src/components/step/styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import GrapesJS from 'grapesjs';
-import { Indicator } from '@erxes/ui/src/components/step/styles';
+import { IPageDoc } from '../../types';
+import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
 import React from 'react';
-import SelectSite from '../../containers/sites/SelectSite';
-import Step from '@erxes/ui/src/components/step/Step';
-import { StepWrapper } from '@erxes/ui/src/components/step/styles';
-import Steps from '@erxes/ui/src/components/step/Steps';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import customPlugins from './customPlugins';
-import gjsPresetWebpage from 'grapesjs-preset-webpage';
-import { readFile } from '@erxes/ui/src/utils/core';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
-  page?: IPageDoc;
-  save: (
-    name: string,
-    description: string,
-    siteId: string,
-    html: string,
-    css: string
-  ) => void;
+  page: IPageDoc;
+  onCancel: (settingsObject: any, type: string) => void;
+  remove: (_id: string, afterSave?: any) => void;
+  save: (pageName: string, pageDescription: string, pageId: string) => void;
 };
 
 type State = {
   name: string;
   description: string;
-  siteId: string;
+  slug: string;
 };
 
 class PageForm extends React.Component<Props, State> {
@@ -51,42 +35,59 @@ class PageForm extends React.Component<Props, State> {
     this.state = {
       name: page.name,
       description: page.description,
-      siteId: page.siteId
+      slug: page.slug || ''
     };
+  }
+
+  componentDidUpdate(prevProps) {
+    const { page } = this.props;
+
+    if (prevProps.page !== page) {
+      this.setState({
+        name: page.name,
+        description: page.description
+      });
+    }
   }
 
   onChange = (type: string, value: any) => {
     this.setState({ [type]: value } as any);
   };
 
-  onSelectSite = (value: any) => {
-    this.setState({ siteId: value });
-  };
-
   save = () => {
-    // const e = this.grapes;
-    const e = {} as any;
+    const { save, page } = this.props;
 
-    this.props.save(
-      this.state.name,
-      this.state.description,
-      this.state.siteId,
-      e.getHtml(),
-      e.getCss({ keepUnusedStyles: true })
-    );
+    save(this.state.name, this.state.description, page._id || '');
   };
 
   renderButtons = () => {
+    const { remove, page, onCancel } = this.props;
+
     const cancelButton = (
-      <Link to="/webbuilder">
-        <Button btnStyle="simple" icon="times-circle" size="small">
-          Cancel
-        </Button>
-      </Link>
+      <Button
+        btnStyle="simple"
+        icon="times-circle"
+        size="small"
+        onClick={() => onCancel(null, '')}
+      >
+        Cancel
+      </Button>
+    );
+
+    const deleteButton = (
+      <Button
+        btnStyle="danger"
+        icon="trash-alt"
+        size="small"
+        onClick={() => remove(page._id, onCancel(null, ''))}
+      >
+        Delete
+      </Button>
     );
 
     return (
       <Button.Group>
+        {deleteButton}
         {cancelButton}
 
         <Button
@@ -102,10 +103,8 @@ class PageForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { page } = this.props;
-    console.log('pp', page);
-    const { description, name, siteId } = this.state;
-
+    const { description, name, slug } = this.state;
+    console.log('aaaa', this.props.page.name, name);
     return (
       <PageFormContainer>
         <PageHeader>
@@ -118,7 +117,7 @@ class PageForm extends React.Component<Props, State> {
             <FormControl
               placeholder="Enter a name"
               onChange={(e: any) => this.onChange('name', e.target.value)}
-              defaultValue={name}
+              value={name}
             />
           </FormGroup>
 
@@ -129,13 +128,17 @@ class PageForm extends React.Component<Props, State> {
               onChange={(e: any) =>
                 this.onChange('description', e.target.value)
               }
-              defaultValue={description}
+              value={description}
             />
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Site:</ControlLabel>
-            <SelectSite onSelect={this.onSelectSite} initialValue={siteId} />
+            <ControlLabel>Slug:</ControlLabel>
+            <FormControl
+              placeholder="Enter a page slug"
+              onChange={(e: any) => this.onChange('slug', e.target.value)}
+              value={slug}
+            />
           </FormGroup>
         </FlexPad>
       </PageFormContainer>

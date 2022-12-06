@@ -17,7 +17,7 @@ import ContentTypeList from '../../containers/contentTypes/List';
 import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import GrapesJS from 'grapesjs';
 import Icon from '@erxes/ui/src/components/Icon';
-import PageForm from '../../containers/pages/PageForm';
+import PageForm from '../pages/PageForm';
 import PageList from '../pages/List';
 import React from 'react';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -27,17 +27,20 @@ import { readFile } from '@erxes/ui/src/utils/core';
 
 type Props = {
   page?: IPageDoc;
-  save: (
+  pageSave: (
     name: string,
     description: string,
     siteId: string,
     html: string,
-    css: string
+    css: string,
+    pageId?: string,
+    afterSave?: any
   ) => void;
+  pageRemove: (_id: string, afterSave?: any) => void;
   contentTypes: IContentTypeDoc[];
   pages: IPageDoc[];
   queryParams: any;
-  _id?: string;
+  _id: string;
 };
 
 type State = {
@@ -61,7 +64,7 @@ class SiteForm extends React.Component<Props, State> {
       name: page.name,
       description: page.description,
       siteId: page.siteId,
-      settingsObject: undefined,
+      settingsObject: null,
       showDarkMode:
         localStorage.getItem('showDarkMode') === 'true' ? true : false || false
     };
@@ -255,18 +258,6 @@ class SiteForm extends React.Component<Props, State> {
     });
   };
 
-  save = () => {
-    const e = this.grapes;
-
-    this.props.save(
-      this.state.name,
-      this.state.description,
-      this.state.siteId,
-      e.getHtml(),
-      e.getCss({ keepUnusedStyles: true })
-    );
-  };
-
   renderLeftSidebar() {
     const { pages = [], _id, queryParams } = this.props;
     const { showDarkMode } = this.state;
@@ -313,12 +304,38 @@ class SiteForm extends React.Component<Props, State> {
     );
   }
 
+  pageSave = (
+    pageName: string,
+    pageDescription: string,
+    pageId: string,
+    pageSlug?: string
+  ) => {
+    const e = this.grapes;
+
+    this.props.pageSave(
+      pageName,
+      pageDescription,
+      this.props._id,
+      pageId ? e.getHtml() : '',
+      pageId ? e.getCss({ keepUnusedStyles: true }) : '',
+      pageId,
+      this.handleItemSettings(null, '')
+    );
+  };
+
   renderItemSettings() {
     const { settingsObject, type } = this.state;
 
     switch (type) {
       case 'page':
-        return <PageForm _id={settingsObject._id} />;
+        return (
+          <PageForm
+            page={settingsObject}
+            save={this.pageSave}
+            remove={this.props.pageRemove}
+            onCancel={this.handleItemSettings}
+          />
+        );
       case 'contenttype':
         return <ContentTypeForm contentTypeId={settingsObject._id} />;
       default:

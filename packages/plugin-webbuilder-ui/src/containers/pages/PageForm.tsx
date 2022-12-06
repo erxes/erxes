@@ -81,23 +81,6 @@ const FormContainer = (props: FinalProps) => {
 const refetchPageQueries = () => [{ query: gql(queries.pagesMain) }];
 
 export default compose(
-  graphql<{}, PagesAddMutationResponse>(gql(mutations.add), {
-    name: 'pagesAdd',
-    options: () => ({
-      refetchQueries: refetchPageQueries()
-    })
-  }),
-
-  graphql<Props, PagesEditMutationResponse>(gql(mutations.edit), {
-    name: 'pagesEdit',
-    options: ({ _id }) => ({
-      refetchQueries: [
-        ...refetchPageQueries(),
-        { query: gql(queries.pageDetail), variables: { _id } }
-      ]
-    })
-  }),
-
   graphql<Props, PageDetailQueryResponse, { _id?: string }>(
     gql(queries.pageDetail),
     {

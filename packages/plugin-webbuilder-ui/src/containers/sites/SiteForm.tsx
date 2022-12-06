@@ -1,15 +1,16 @@
 import * as compose from 'lodash.flowright';
 
+import { Alert, confirm } from '@erxes/ui/src/utils';
 import {
   PageDetailQueryResponse,
   PagesAddMutationResponse,
   PagesEditMutationResponse,
   PagesMainQueryResponse,
+  PagesRemoveMutationResponse,
   TypesQueryResponse
 } from '../../types';
 import { mutations, queries } from '../../graphql';
 
-import { Alert } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import SiteForm from '../../components/sites/SiteForm';
@@ -19,7 +20,7 @@ import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 
 type Props = {
-  _id?: string;
+  _id: string;
   queryParams: any;
 } & IRouterProps;
 
@@ -28,7 +29,8 @@ type FinalProps = Props & {
   pagesMainQuery: PagesMainQueryResponse;
   typesQuery: TypesQueryResponse;
 } & PagesAddMutationResponse &
-  PagesEditMutationResponse;
+  PagesEditMutationResponse &
+  PagesRemoveMutationResponse;
 
 const FormContainer = (props: FinalProps) => {
   const { pageDetailQuery, history, pagesMainQuery, typesQuery } = props;
@@ -41,12 +43,14 @@ const FormContainer = (props: FinalProps) => {
     return null;
   }
 
-  const save = (
+  const pageSave = (
     name: string,
     description: string,
     siteId: string,
     html: string,
-    css: string
+    css: string,
+    pageId?: string,
+    afterSave?: any
   ) => {
     let method: any = props.pagesAdd;
 
@@ -58,22 +62,43 @@ const FormContainer = (props: FinalProps) => {
       css
     };
 
-    if (props._id) {
+    if (pageId) {
       method = props.pagesEdit;
-      variables._id = props._id;
+      variables._id = pageId;
     }
 
     method({ variables })
       .then(() => {
         Alert.success(`Success`);
 
-        history.push({
-          pathname: '/webbuilder/pages'
-        });
+        if (afterSave) {
+          afterSave();
+        }
+
+        pagesMainQuery.refetch();
       })
       .catch(error => {
         Alert.error(error.message);
       });
+  };
+
+  const pageRemove = (_id: string, afterSave?: any) => {
+    confirm().then(() => {
+      props
+        .pagesRemoveMutation({ variables: { _id } })
+        .then(() => {
+          Alert.success('You successfully deleted a page.');
+
+          if (afterSave) {
+            afterSave();
+          }
+
+          pagesMainQuery.refetch();
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    });
   };
 
   let page;
@@ -87,10 +112,11 @@ const FormContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    save,
+    pageSave,
+    pageRemove,
     page,
     contentTypes,
-    pages: pagesMain.list.reverse() || []
+    pages: pagesMain.list || []
   };
 
   return <SiteForm {...updatedProps} />;
@@ -105,7 +131,9 @@ export default compose(
       refetchQueries: refetchPageQueries()
     })
   }),
-
+  graphql<{}, PagesRemoveMutationResponse>(gql(mutations.remove), {
+    name: 'pagesRemoveMutation'
+  }),
   graphql<Props, PagesEditMutationResponse>(gql(mutations.edit), {
     name: 'pagesEdit',
     options: ({ queryParams }) => ({

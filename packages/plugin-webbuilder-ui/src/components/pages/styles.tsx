@@ -14,7 +14,6 @@ export const List = styled.ul`
     padding: 5px 0;
     font-size: 12px;
     text-transform: capitalize;
-    cursor: pointer;
     line-height: 15px;
     transition: all ease 0.3s;
 
@@ -26,13 +25,10 @@ export const List = styled.ul`
     > a {
       display: flex;
       color: inherit;
+      cursor: pointer;
 
       &.active {
         color: ${colors.colorSecondary};
-      }
-
-      &.link {
-        color: ${colors.colorWhite};
       }
 
       > i {
@@ -40,11 +36,17 @@ export const List = styled.ul`
       }
     }
 
+    .link,
+    .link > i:before {
+      font-weight: 600;
+    }
+
     &: hover {
       color: ${colors.colorSecondary};
 
       > i {
         visibility: visible;
+        cursor: pointer;
       }
     }
   }
