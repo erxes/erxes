@@ -1,7 +1,7 @@
 import { gql } from 'apollo-server-express';
 
 const types = `
-  type Das {
+  type c {
     _id: String!
     name: String
     createdAt:Date
@@ -9,19 +9,19 @@ const types = `
     checked:Boolean
     typeId: String
   
-    currentType: DasType
+    currentType: DacType
   }
 
-  type DasType {
+  type DacType {
     _id: String!
     name: String
   }
 `;
 
 const queries = `
-  dass(typeId: String): [Das]
-  dasTypes: [DasType]
-  dassTotalCount: Int
+  dac(typeId: String): [Dac]
+  dacTypes: [DacType]
+  dacTotalCount: Int
 `;
 
 const params = `
@@ -32,12 +32,12 @@ const params = `
 `;
 
 const mutations = `
-  dassAdd(${params}): Das
-  dassRemove(_id: String!): JSON
-  dassEdit(_id:String!, ${params}): Das
-  dasTypesAdd(name:String):DasType
-  dasTypesRemove(_id: String!):JSON
-  dasTypesEdit(_id: String!, name:String): DasType
+  dacAdd(${params}): Dac
+  dacRemove(_id: String!): JSON
+  dacEdit(_id:String!, ${params}): Dac
+  dacTypesAdd(name:String):DacType
+  dacTypesRemove(_id: String!):JSON
+  dacTypesEdit(_id: String!, name:String): DacType
 `;
 
 const typeDefs = async _serviceDiscovery => {

@@ -1,24 +1,24 @@
 module.exports = {
-  name: 'das',
+  name: 'dac',
   port: 3017,
-  scope: 'das',
+  scope: 'dac',
   exposes: {
     './routes': './src/routes.tsx',
-    './extendSystemConfig': './src/components/Config.tsx',
+    './extendSystemConfig': './src/components/Config.tsx'
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
-    scope: 'das',
-    module: './routes',
+    scope: 'dac',
+    module: './routes'
   },
   extendSystemConfig: './extendSystemConfig',
   menus: [
     {
-      text: 'Doctor Auto Service',
-      to: '/das',
+      text: 'Doctor Auto Chain',
+      to: '/dac',
       image: '/images/icons/erxes-18.svg',
       location: 'settings',
-      scope: 'das',
-    },
-  ],
+      scope: 'dac'
+    }
+  ]
 };

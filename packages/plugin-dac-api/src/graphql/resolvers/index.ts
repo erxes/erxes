@@ -4,15 +4,15 @@ import mutations from './mutations';
 import queries from './queries';
 // import { Types } from '../../models';
 
-const Das = {
-  currentType(das, _args) {
+const Dac = {
+  currentType(dac, _args) {
     return null;
   }
 };
 
 const resolvers: any = async _serviceDiscovery => ({
   ...customScalars,
-  Das,
+  Dac,
   Mutation: {
     ...mutations
   },

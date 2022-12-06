@@ -8,7 +8,7 @@ export let graphqlPubsub;
 export let serviceDiscovery;
 
 export default {
-  name: 'das',
+  name: 'dac',
   graphql: async sd => {
     serviceDiscovery = sd;
 
@@ -23,14 +23,14 @@ export default {
     afterMutations
   },
 
-  getHandlers: [
-    { path: `/customer`, method: getCustomer },
-    { path: `/pos-sync-config`, method: posSyncConfig }
-  ],
-  postHandlers: [
-    { path: `/customer/update`, method: unfetchOrderInfo },
-    { path: `/customer/create`, method: posSyncOrders }
-  ],
+  // getHandlers: [
+  //   { path: `/customer`, method: getCustomer },
+  //   { path: `/pos-sync-config`, method: posSyncConfig }
+  // ],
+  // postHandlers: [
+  //   { path: `/customer/update`, method: unfetchOrderInfo },
+  //   { path: `/customer/create`, method: posSyncOrders }
+  // ],
 
   apolloServerContext: async context => {
     return context;
