@@ -13,18 +13,18 @@ import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 import UserCommonInfos from '@erxes/ui-settings/src/common/components/UserCommonInfos';
 
 type Props = {
-  channels: any[]; //check - IChannel
-  groups: any[]; //check - IUserGroup
-  selectedChannels: any[]; //check - IChannel
-  selectedGroups: any[]; //check - IUserGroup
+  channels: any[]; // check - IChannel
+  groups: any[]; // check - IUserGroup
+  selectedChannels: any[]; // check - IChannel
+  selectedGroups: any[]; // check - IUserGroup
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   showBrands: boolean;
 } & ICommonFormProps;
 
 type State = {
   avatar: string;
-  selectedChannels: any[]; //check - IChannel
-  selectedGroups: any[]; //check - IUserGroup
+  selectedChannels: any[]; // check - IChannel
+  selectedGroups: any[]; // check - IUserGroup
   selectedBrands: string[];
 };
 
@@ -159,13 +159,15 @@ class UserForm extends React.Component<Props, State> {
       details: {
         avatar: this.state.avatar,
         shortName: finalValues.shortName,
-        fullName: finalValues.fullName,
         birthDate: finalValues.birthDate,
         position: finalValues.position,
         workStartedDate: finalValues.workStartedDate,
         location: finalValues.location,
         description: finalValues.description,
-        operatorPhone: finalValues.operatorPhone
+        operatorPhone: finalValues.operatorPhone,
+        firstName: finalValues.firstName,
+        lastName: finalValues.lastName,
+        middleName: finalValues.middleName
       },
       channelIds: this.collectValues(selectedChannels),
       links,

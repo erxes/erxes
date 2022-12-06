@@ -15,6 +15,7 @@ const createTicketComment = `
 `;
 
 export const commonMutationVariables = `
+  $parentId: String,
   $proccessId: String,
   $aboveItemId: String,
   $stageId: String,
@@ -34,6 +35,7 @@ export const commonMutationVariables = `
 `;
 
 export const commonMutationParams = `
+  parentId: $parentId,
   proccessId: $proccessId,
   aboveItemId: $aboveItemId,
   stageId: $stageId,
