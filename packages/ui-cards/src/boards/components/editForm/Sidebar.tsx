@@ -23,7 +23,7 @@ type Props = {
     }: { _id: string; status: string; timeSpent: number; startDate?: string },
     callback?: () => void
   ) => void;
-  childrenSection:()=>any
+  childrenSection: () => any;
 };
 
 class Sidebar extends React.Component<Props> {
@@ -44,10 +44,10 @@ class Sidebar extends React.Component<Props> {
             onSelect={userOnChange}
           />
         </FormGroup>
-        {childrenSection()}
         {isEnabled('products') && sidebar && sidebar(saveItem)}
 
         <SidebarConformity {...this.props} />
+        {childrenSection()}
       </RightContent>
     );
   }
