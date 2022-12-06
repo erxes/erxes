@@ -54,10 +54,16 @@ export const loadRiskFormSubmissions = (model: IModels, subdomain: string) => {
       const filter = generateFields(params);
 
       const formId = await getFormId(model, cardId, cardType);
-      const { riskAssessmentId } = await model.RiskConfimity.findOne({
+      const conformity = await model.RiskConfimity.findOne({
         cardId,
         cardType
       }).lean();
+
+      if (!conformity) {
+        throw new Error(`Not selected some risk assessment on ${cardType}`);
+      }
+
+      const { riskAssessmentId } = conformity;
 
       const {
         resultScore,

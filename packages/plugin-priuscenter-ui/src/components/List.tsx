@@ -50,7 +50,10 @@ function List({ ads, remove, renderButton, loading, edit }: Props) {
     <Table>
       <thead>
         <tr>
-          <th>{__('Todo')}</th>
+          <th>{__('Type')}</th>
+          <th>{__('Title')}</th>
+          <th>{__('Mark')}</th>
+          <th>{__('Model')}</th>
           <th>{__('Actions')}</th>
         </tr>
       </thead>

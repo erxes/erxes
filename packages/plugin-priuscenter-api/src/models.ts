@@ -14,7 +14,7 @@ export const adSchema = new Schema({
   mark: String,
   model: String,
   color: String,
-  manufacturedAt: Date,
+  manufacturedYear: Number,
   state: String, // new, used
 
   price: Number,

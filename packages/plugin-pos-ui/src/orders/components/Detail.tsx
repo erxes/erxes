@@ -147,7 +147,9 @@ class PutResponseDetail extends React.Component<Props, State> {
           dayjs(order.paidDate || order.createdAt).format('lll')
         )}
         {this.renderDeliveryInfo()}
-
+        {order.syncErkhetInfo
+          ? this.renderRow('Erkhet Info', order.syncErkhetInfo)
+          : ''}
         <>
           {(order.putResponses || []).map(p => {
             return (

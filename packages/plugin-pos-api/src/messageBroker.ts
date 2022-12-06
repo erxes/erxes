@@ -262,14 +262,25 @@ export const initBroker = async cl => {
       }
     }
 
-    await sendSyncerkhetMessage({
+    const resp = await sendSyncerkhetMessage({
       subdomain,
       action: 'toOrder',
       data: {
         pos,
         order: newOrder
-      }
+      },
+      isRPC: true,
+      defaultValue: {}
     });
+
+    if (resp.message || resp.error) {
+      const txt = JSON.stringify({ message: resp.message, error: resp.error });
+
+      await models.PosOrders.updateOne(
+        { _id: order._id },
+        { $set: { syncErkhetInfo: txt } }
+      );
+    }
 
     return {
       status: 'success'
@@ -284,6 +295,18 @@ export const initBroker = async cl => {
       data: await models.PosSlots.find({ posId: data.posId }).lean()
     };
   });
+
+  consumeRPCQueue(
+    'pos:orders.updateOne',
+    async ({ subdomain, data: { selector, modifier } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.PosOrders.updateOne(selector, modifier)
+      };
+    }
+  );
 
   consumeRPCQueue('pos:ecommerceGetBranches', async ({ subdomain, data }) => {
     const { posToken } = data;

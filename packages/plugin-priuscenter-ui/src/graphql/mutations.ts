@@ -5,7 +5,7 @@ const variables = `
   $mark: String
   $model: String
   $color: String
-  $manufacturedAt: Date
+  $manufacturedYear: Int
 
   $state: String
   $price: Float
@@ -25,7 +25,7 @@ const params = `
   mark: $mark
   model: $model
   color: $color
-  manufacturedAt: $manufacturedAt
+  manufacturedYear: $manufacturedYear
 
   state: $state
   price: $price

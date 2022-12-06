@@ -10,7 +10,7 @@ const list = `
       mark
       model
       color
-      manufacturedAt
+      manufacturedYear
 
       state
       price

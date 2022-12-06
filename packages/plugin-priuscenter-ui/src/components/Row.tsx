@@ -54,12 +54,6 @@ class Row extends React.Component<Props, State> {
     remove(ad);
   };
 
-  toggleCheck = () => {
-    const { edit, ad } = this.props;
-
-    edit({ _id: ad._id, checked: !ad.checked });
-  };
-
   render() {
     const { ad, renderButton, space, ads } = this.props;
 
@@ -77,19 +71,11 @@ class Row extends React.Component<Props, State> {
 
     return (
       <tr>
-        <td>
-          <AdWrapper space={space}>
-            <FormControl
-              componentClass="checkbox"
-              onChange={this.toggleCheck}
-              color={colors.colorPrimary}
-              defaultChecked={ad.checked || false}
-            ></FormControl>
-            <Margin>
-              <this.Ads ad={ad} checked={ad.checked || false} />
-            </Margin>
-          </AdWrapper>
-        </td>
+        <td>{ad.type}</td>
+        <td>{ad.title}</td>
+        <td>{ad.mark}</td>
+        <td>{ad.model}</td>
+
         <td>
           <ActionButtons>
             <ModalTrigger
