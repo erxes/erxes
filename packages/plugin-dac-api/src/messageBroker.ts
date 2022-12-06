@@ -10,7 +10,7 @@ export const initBroker = async cl => {
 
   const { consumeQueue } = client;
 
-  consumeQueue('das:afterMutation', async ({ subdomain, data }) => {
+  consumeQueue('dac:afterMutation', async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
     return;
   });

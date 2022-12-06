@@ -1,4 +1,4 @@
-export interface IDas {
+export interface IDac {
   _id: string;
   name?: string;
   createdAt?: Date;
@@ -15,13 +15,13 @@ export interface IType {
 }
 
 // queries
-export type DasQueryResponse = {
-  dass: IDas[];
+export type DacQueryResponse = {
+  dac: IDac[];
   refetch: () => void;
   loading: boolean;
 };
 export type TypeQueryResponse = {
-  dasTypes: IType[];
+  dacTypes: IType[];
   refetch: () => void;
   loading: boolean;
 };

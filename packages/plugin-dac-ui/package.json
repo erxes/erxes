@@ -1,5 +1,5 @@
 {
-  "name": "plugin-das-ui",
+  "name": "plugin-dac-ui",
   "version": "1.0.0",
   "scripts": {
     "install-deps": "cd .erxes && yarn install",
