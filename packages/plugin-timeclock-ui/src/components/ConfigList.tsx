@@ -21,6 +21,7 @@ import { IAbsenceType } from '../types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import Table from '@erxes/ui/src/components/table';
 import Icon from '@erxes/ui/src/components/Icon';
+import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
   queryParams: any;
@@ -28,10 +29,18 @@ type Props = {
   absenceTypes?: IAbsenceType[];
   loading?: boolean;
   submitAbsenceConfig: (props: IButtonMutateProps) => void;
+  removeAbsenceType: (absenceTypeId: string) => void;
 };
 
 function ConfigList(props: Props) {
-  const { queryParams, history, submitAbsenceConfig, absenceTypes } = props;
+  const {
+    queryParams,
+    history,
+    absenceTypes,
+    submitAbsenceConfig,
+    removeAbsenceType
+  } = props;
+
   const [absenceName, setAbsenceName] = useState('');
   const [explRequired, setExplRequired] = useState(false);
   const [attachRequired, setAttachRequired] = useState(false);
@@ -135,21 +144,9 @@ function ConfigList(props: Props) {
     });
   };
 
-  // const onSubmitScheduleConfig = () => {
-  //   submitScheduleConfig(configDates);
-  // };
-
-  // const setInputValue = e => {
-  //   const expl = e.target.value;
-  //   setTextReason(expl);
-  // };
-
-  // const onUserSelect = userId => {
-  //   router.setParams(history, { userId: `${userId}` });
-  // };
-  // const onReasonSelect = reason => {
-  //   router.setParams(history, { reason: `${reason.value}` });
-  // };
+  const onRemoveAbsenceType = absenceTypeId => {
+    removeAbsenceType(absenceTypeId);
+  };
 
   const actionBarRight = (
     <>
@@ -174,9 +171,21 @@ function ConfigList(props: Props) {
     />
   );
   const editTrigger = (
-    <Button btnStyle="link">
-      <Icon icon="edit-3" />
-    </Button>
+    <Tip text={__('Edit')} placement="top">
+      <Button btnStyle="link">
+        <Icon icon="edit-3" />
+      </Button>
+    </Tip>
+  );
+
+  const removeTrigger = absenceTypeId => (
+    <Tip text={__('Delete')} placement="top">
+      <Button
+        btnStyle="link"
+        onClick={() => onRemoveAbsenceType(absenceTypeId)}
+        icon="times-circle"
+      />
+    </Tip>
   );
 
   const content = (
@@ -200,6 +209,7 @@ function ConfigList(props: Props) {
                   trigger={editTrigger}
                   content={() => absenceConfigContent(absenceType)}
                 />
+                {removeTrigger(absenceType._id)}
               </td>
             </tr>
           );

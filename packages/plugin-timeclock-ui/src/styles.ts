@@ -55,6 +55,12 @@ const CustomRangeContainer = styled.div`
   }
 `;
 
+const CustomRow = styledTS<{
+  marginNum: number;
+}>(styled.div)`
+  margin: ${props => props.marginNum}px 0
+`;
+
 const Input = styledTS<{ round?: boolean; hasError?: boolean; align?: string }>(
   styled.input
 )`
@@ -183,5 +189,6 @@ export {
   FlexColumn,
   DateName,
   CustomRangeContainer,
-  SidebarHeader
+  SidebarHeader,
+  CustomRow
 };

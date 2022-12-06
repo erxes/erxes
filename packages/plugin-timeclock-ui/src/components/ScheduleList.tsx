@@ -16,7 +16,7 @@ import { ISchedule } from '../types';
 import ScheduleConfig from './ScheduleConfig';
 import Select from 'react-select-plus';
 import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
-import { Input } from '../styles';
+import { CustomRow, Input } from '../styles';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { Row } from '../styles';
@@ -555,36 +555,36 @@ function ScheduleList(props: Props) {
         <td>
           {shifts.map(shift => {
             return (
-              <div key={shift.shiftStart}>
+              <CustomRow key={shift.shiftEnd} marginNum={10}>
                 {new Date(shift.shiftStart).toDateString()}
-              </div>
+              </CustomRow>
             );
           })}
         </td>
         <td>
           {shifts.map(shift => {
             return (
-              <div key={shift.shiftStart}>
+              <CustomRow key={shift.shiftEnd} marginNum={10}>
                 {new Date(shift.shiftStart).toLocaleTimeString()}
-              </div>
+              </CustomRow>
             );
           })}
         </td>
         <td>
           {shifts.map(shift => {
             return (
-              <div key={shift.shiftEnd}>
+              <CustomRow key={shift.shiftEnd} marginNum={10}>
                 {new Date(shift.shiftEnd).toLocaleTimeString()}
-              </div>
+              </CustomRow>
             );
           })}
         </td>
         <td>
           {shifts.map(shift => {
             return shift.solved ? (
-              <div>{__(shift.status)}</div>
+              <CustomRow marginNum={10}>{__(shift.status)}</CustomRow>
             ) : (
-              <div>
+              <CustomRow marginNum={3}>
                 <Button
                   size="small"
                   btnStyle="success"
@@ -599,7 +599,7 @@ function ScheduleList(props: Props) {
                 >
                   Reject
                 </Button>
-              </div>
+              </CustomRow>
             );
           })}
         </td>
