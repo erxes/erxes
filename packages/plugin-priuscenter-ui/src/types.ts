@@ -8,7 +8,7 @@ export interface IAd {
   mark?: string;
   model?: string;
   color?: string;
-  manufacturedAt?: Date;
+  manufacturedYear?: Number;
   state?: string;
   price?: number;
   attachments?: string[];

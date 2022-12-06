@@ -1,13 +1,13 @@
 import { gql } from 'apollo-server-express';
 
 const params = `
-  type: String!
-  title: String!
-  description: String!
+  type: String
+  title: String
+  description: String
   mark: String
   model: String
   color: String
-  manufacturedAt: Date
+  manufacturedYear: Int
 
   state: String
   price: Float
@@ -31,7 +31,7 @@ const types = `
 `;
 
 const queries = `
-  ads(typeId: String): [Ad]
+  ads(limit: Int, skip: Int, priceRange: String, ${params}): [Ad]
   adsTotalCount: Int
 `;
 
