@@ -18,7 +18,8 @@ var plugins = [
   { name: 'loan', ui: true, api: true },
   { name: 'neighbor', ui: true, api: true },
   { name: 'rentpay', ui: true, api: true },
-  { name: 'tumentech', ui: true, api: true }
+  { name: 'tumentech', ui: true, api: true },
+  { name: 'priuscenter', ui: true, api: true }
 ];
 
 const pluginsMap = {};
