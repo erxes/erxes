@@ -29,7 +29,7 @@ interface IStore extends IState {
   toggleShoutbox: (isVisible?: boolean) => void;
   showPopup: () => void;
   closePopup: () => void;
-  save: (doc: IFormDoc) => void;
+  save: (doc: IFormDoc, formCode?: string, requiredPaymentAmount?: number) => void;
   createNew: () => void;
   sendEmail: (params: IEmailParams) => void;
   setHeight: () => void;
@@ -168,7 +168,7 @@ export class AppProvider extends React.Component<{}, IState> {
   /*
    * Save user submissions
    */
-  save = (doc: IFormDoc, requiredPaymentAmount?: number) => {
+  save = (doc: IFormDoc, _formCode?: string, requiredPaymentAmount?: number) => {
     this.setState({ isSubmitting: true });
 
     saveLead({

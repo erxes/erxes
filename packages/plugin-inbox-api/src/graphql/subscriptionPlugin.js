@@ -28,7 +28,6 @@ module.exports = {
 			conversationAdminMessageInserted(customerId: String): ConversationAdminMessageInsertedResponse
 			conversationExternalIntegrationMessageInserted: JSON
 			conversationBotTypingStatus(_id: String!): JSON
-      formInvoiceUpdated(messageId: String): JSON
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {
@@ -165,16 +164,6 @@ module.exports = {
           graphqlPubsub.asyncIterator(
             "conversationExternalIntegrationMessageInserted"
           ),
-      },
-
-      formInvoiceUpdated: {
-        subscribe: withFilter(
-          () => graphqlPubsub.asyncIterator('formInvoiceUpdated'),
-          // filter by messageId
-          (payload, variables) => {
-            return payload.formInvoiceUpdated.messageId === variables.messageId;
-          }
-        )
       }
     };
   },
