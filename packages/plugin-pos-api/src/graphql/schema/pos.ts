@@ -168,6 +168,7 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
 
   type PosOrderDetail {
     ${posOrderFields(contactsEnabled)}
+    syncErkhetInfo: String
     putResponses: JSON
     deliveryInfo: JSON
   }
