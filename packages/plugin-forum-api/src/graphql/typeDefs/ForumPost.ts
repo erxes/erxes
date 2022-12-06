@@ -1,12 +1,28 @@
+export const translationAndPostCommonFields = `
+  title: String
+  content: String
+  description: String
+  thumbnail: String
+  custom: JSON
+`;
+
 export default function ForumPost({ isTagsEnabled }) {
   return `
+  type ForumPostTranslation {
+    lang: String!
+    ${translationAndPostCommonFields}
+  }
+
   type ForumPost @key(fields: "_id") {
     _id: ID!
-    content: String
-    description: String
-    title: String!
-    thumbnail: String
     state: ForumPostState
+
+    lang: String
+
+    ${translationAndPostCommonFields}
+
+    translations: [ForumPostTranslation!]
+
     commentCount: Int!
 
     viewCount: Int!
@@ -54,7 +70,6 @@ export default function ForumPost({ isTagsEnabled }) {
 
     contentRestricted: Boolean
 
-    custom: JSON
     customIndexed: JSON
 
     tagIds: [ID!]

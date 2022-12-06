@@ -1,14 +1,12 @@
+import { translationAndPostCommonFields } from '../ForumPost';
 import { requiredIf } from '../utils';
 
 const commonPostParams = (isInsert = false) => {
   return `
     categoryId: ID${requiredIf(isInsert)}
-    content: String
-    title: String${requiredIf(isInsert)}
+    lang: String
+    ${translationAndPostCommonFields}
     state: ForumPostState
-    thumbnail: String
-    description: String
-    custom: JSON
     customIndexed: JSON
     tagIds: [ID!]
   `;
@@ -39,7 +37,40 @@ const postMutations = `
   forumPostDraftCp(_id: ID!): ForumPost!
   forumPostPublishCp(_id: ID!): ForumPost!
 
-  #updateTrendScoreOfPublished: Boolean
+  forumPostAddTranslation(
+    _id: ID!
+    lang: ID!
+    ${translationAndPostCommonFields}
+  ): Boolean
+
+  forumPostUpdateTranslation(
+    _id: ID!
+    lang: ID!
+    ${translationAndPostCommonFields}
+  ): Boolean
+
+  forumPostRemoveTranslation(
+    _id: ID!
+    lang: ID!
+  ): Boolean
+
+  forumPostAddTranslationCp(
+    _id: ID!
+    lang: ID!
+    ${translationAndPostCommonFields}
+  ): Boolean
+
+  forumPostUpdateTranslationCp(
+    _id: ID!
+    lang: ID!
+    ${translationAndPostCommonFields}
+  ): Boolean
+
+  forumPostRemoveTranslationCp(
+    _id: ID!
+    lang: ID!
+  ): Boolean
+
 `;
 
 export default postMutations;

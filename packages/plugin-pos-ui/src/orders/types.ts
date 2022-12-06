@@ -36,6 +36,7 @@ export type IOrder = {
 };
 
 export type IOrderDet = {
+  syncErkhetInfo: string;
   putResponses: any[];
   deliveryInfo: any;
 } & IOrder;

@@ -1,9 +1,12 @@
 import { __ } from 'coreui/utils';
 import React from 'react';
+import moment from 'moment';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
 import { ControlLabel, FormGroup } from '@erxes/ui/src/components/form';
 import Select from 'react-select-plus';
 import { DATE_RANGES } from '../../constants';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import { CustomRangeContainer } from '../../styles';
 
 type Props = {
   timeDimensions: any;
@@ -12,9 +15,7 @@ type Props = {
   schemaType: string;
 };
 
-type State = {};
-
-class TimeForm extends React.Component<Props, State> {
+class TimeForm extends React.Component<Props> {
   render() {
     const {
       timeDimensions,
@@ -56,7 +57,12 @@ class TimeForm extends React.Component<Props, State> {
       if (dimension) {
         return updateTimeDimensions.update(dimension, {
           ...dimension,
-          dateRange: value.value === 'All time' ? undefined : value.value,
+          dateRange:
+            value.value === 'All time'
+              ? undefined
+              : value.value === 'Date range'
+              ? []
+              : '',
           granularity: undefined
         });
       }
@@ -67,7 +73,50 @@ class TimeForm extends React.Component<Props, State> {
         return 'All time';
       }
 
+      if (Array.isArray(value)) {
+        return 'Date range';
+      }
+
       return value;
+    };
+
+    const onDateRangeChange = (dateSring, m, index) => {
+      if (dateSring) {
+        const date = moment(dateSring || '2017-05-13').format('YYYY-MM-DD');
+
+        if (date) {
+          m.dateRange[index] = date;
+        }
+
+        updateTimeDimensions.update(m, m);
+      }
+    };
+
+    const renderDatePicker = m => {
+      if (renderDateRangeValue(m.dateRange) === 'Date range') {
+        return (
+          <CustomRangeContainer>
+            <DateControl
+              value={m.dateRange[0]}
+              required={false}
+              name="startDate"
+              onChange={dateString => onDateRangeChange(dateString, m, 0)}
+              placeholder={'Start date'}
+              dateFormat={'YYYY-MM-DD'}
+            />
+            <DateControl
+              value={m.dateRange[1] || ''}
+              required={false}
+              name="endDate"
+              placeholder={'End date'}
+              onChange={dateString => onDateRangeChange(dateString, m, 1)}
+              dateFormat={'YYYY-MM-DD'}
+            />
+          </CustomRangeContainer>
+        );
+      }
+
+      return;
     };
 
     const generateOptions = () => {
@@ -207,7 +256,9 @@ class TimeForm extends React.Component<Props, State> {
                       placeholder={__('Choose date range')}
                     />
                   </FormGroup>
+                  <FormGroup>{renderDatePicker(timeDimension)}</FormGroup>
                 </FlexItem>
+
                 <FlexItem count={5} hasSpace={true}>
                   <FormGroup>
                     <ControlLabel>By</ControlLabel>

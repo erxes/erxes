@@ -40,6 +40,7 @@ export interface IPosOrder {
   departmentId: string;
   posToken: string;
   syncedErkhet?: Boolean;
+  syncErkhetInfo?: string;
   deliveryInfo?: any;
   origin?: string;
   taxInfo?: any;
@@ -179,6 +180,11 @@ export const posOrderSchema = schemaHooksWrapper(
     posToken: field({ type: String, optional: true }),
 
     syncedErkhet: field({ type: Boolean, default: false }),
+    syncErkhetInfo: field({
+      type: String,
+      optional: true,
+      label: 'SyncErkhetInfo'
+    }),
     deliveryInfo: field({
       type: Object,
       optional: true,
