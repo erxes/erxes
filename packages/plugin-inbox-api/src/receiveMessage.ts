@@ -114,7 +114,12 @@ export const receiveRpcMessage = async (subdomain, data) => {
     if (conversationId) {
       await Conversations.updateConversation(conversationId, {
         content,
-        assignedUserId
+        assignedUserId,
+        // mark this conversation as unread
+        readUserIds: [],
+
+        // reopen this conversation if it's closed
+        status: CONVERSATION_STATUSES.OPEN
       });
 
       return sendSuccess({ _id: conversationId });

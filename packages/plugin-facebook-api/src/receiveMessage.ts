@@ -65,36 +65,37 @@ const receiveMessage = async (
           : e
       );
     }
+  }
 
-    // save on api
-    try {
-      const apiConversationResponse = await sendInboxMessage({
-        subdomain,
-        action: 'integrations.receive',
-        data: {
-          action: 'create-or-update-conversation',
-          payload: JSON.stringify({
-            customerId: customer.erxesApiId,
-            integrationId: integration.erxesApiId,
-            content: text || '',
-            attachments: (attachments || [])
-              .filter(att => att.type !== 'fallback')
-              .map(att => ({
-                type: att.type,
-                url: att.payload ? att.payload.url : ''
-              }))
-          })
-        },
-        isRPC: true
-      });
+  // save on api
+  try {
+    const apiConversationResponse = await sendInboxMessage({
+      subdomain,
+      action: 'integrations.receive',
+      data: {
+        action: 'create-or-update-conversation',
+        payload: JSON.stringify({
+          customerId: customer.erxesApiId,
+          integrationId: integration.erxesApiId,
+          content: text || '',
+          attachments: (attachments || [])
+            .filter(att => att.type !== 'fallback')
+            .map(att => ({
+              type: att.type,
+              url: att.payload ? att.payload.url : ''
+            })),
+          conversationId: conversation.erxesApiId
+        })
+      },
+      isRPC: true
+    });
 
-      conversation.erxesApiId = apiConversationResponse._id;
+    conversation.erxesApiId = apiConversationResponse._id;
 
-      await conversation.save();
-    } catch (e) {
-      await models.Conversations.deleteOne({ _id: conversation._id });
-      throw new Error(e);
-    }
+    await conversation.save();
+  } catch (e) {
+    await models.Conversations.deleteOne({ _id: conversation._id });
+    throw new Error(e);
   }
 
   // get conversation message

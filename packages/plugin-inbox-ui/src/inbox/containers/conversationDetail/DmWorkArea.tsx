@@ -137,7 +137,7 @@ class WorkArea extends React.Component<FinalProps, State> {
             return;
           }
 
-          const messages = [...getQueryResult(prev)];
+          const messages = getQueryResult(prev);
 
           // Sometimes it is becoming undefined because of left sidebar query
           if (!messages) {
@@ -281,8 +281,8 @@ class WorkArea extends React.Component<FinalProps, State> {
       currentId,
       messagesTotalCountQuery,
       messagesQuery,
-      dmConfig,
-      currentConversation
+      currentConversation,
+      dmConfig
     } = this.props;
 
     const conversationMessagesTotalCount = getQueryResult(
@@ -312,12 +312,27 @@ class WorkArea extends React.Component<FinalProps, State> {
             return prev;
           }
 
-          const prevConversationMessages = prev.conversationMessages || [];
+          const { integration } = currentConversation;
+          let listQueryName = 'conversationMessages';
+
+          if (dmConfig) {
+            const item = dmConfig.messagesQueries.find(
+              q => q.integrationKind === integration.kind
+            );
+
+            if (item) {
+              listQueryName = item.name;
+            }
+          }
+
+          const prevConversationMessages = getQueryResult(prev);
           const prevMessageIds = prevConversationMessages.map(m => m._id);
 
           const fetchedMessages: IMessage[] = [];
 
-          for (const message of fetchMoreResult.conversationMessages) {
+          const more = getQueryResult(fetchMoreResult);
+
+          for (const message of more) {
             if (!prevMessageIds.includes(message._id)) {
               fetchedMessages.push(message);
             }
@@ -325,10 +340,7 @@ class WorkArea extends React.Component<FinalProps, State> {
 
           return {
             ...prev,
-            conversationMessages: [
-              ...fetchedMessages,
-              ...prevConversationMessages
-            ]
+            [listQueryName]: [...fetchedMessages, ...prevConversationMessages]
           };
         }
       });
@@ -337,7 +349,7 @@ class WorkArea extends React.Component<FinalProps, State> {
 
   render() {
     const { loadingMessages, typingInfo } = this.state;
-    const { messagesQuery, dmConfig, currentConversation } = this.props;
+    const { messagesQuery } = this.props;
 
     const conversationMessages = getQueryResult(messagesQuery);
 
