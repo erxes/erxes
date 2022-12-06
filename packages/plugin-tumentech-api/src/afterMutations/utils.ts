@@ -113,21 +113,27 @@ export const notifyConfirmationFilesAttached = async (
     return;
   }
 
-  const docValue =
-    deal.customFieldsData.find((f: any) => f.field === docField._id).value ||
-    [];
+  const docObj =
+    deal.customFieldsData.find((f: any) => f.field === docField._id) || {};
 
-  const imageValue =
-    deal.customFieldsData.find((f: any) => f.field === imageField._id).value ||
-    [];
+  const imageObj =
+    deal.customFieldsData.find((f: any) => f.field === imageField._id) || {};
 
-  const oldDocValue =
-    oldDeal.customFieldsData.find((f: any) => f.field === docField._id).value ||
-    [];
+  const oldDocObj =
+    oldDeal.customFieldsData.find((f: any) => f.field === docField._id) || {};
 
-  const oldImageValue =
-    oldDeal.customFieldsData.find((f: any) => f.field === imageField._id)
-      .value || [];
+  const oldImageObj =
+    oldDeal.customFieldsData.find((f: any) => f.field === imageField._id) || {};
+
+  if (!docObj || !imageObj || !oldDocObj || !oldImageObj) {
+    return;
+  }
+
+  const docValue = docObj.value || [];
+  const imageValue = imageObj.value || [];
+
+  const oldDocValue = oldDocObj.value || [];
+  const oldImageValue = oldImageObj.value || [];
 
   if (
     docValue.length > oldDocValue.length &&
@@ -170,21 +176,27 @@ export const notifyUnloadConfirmationFilesAttached = async (
     return;
   }
 
-  const docValue =
-    deal.customFieldsData.find((f: any) => f.field === docField._id).value ||
-    [];
+  const docObj =
+    deal.customFieldsData.find((f: any) => f.field === docField._id) || {};
 
-  const imageValue =
-    deal.customFieldsData.find((f: any) => f.field === imageField._id).value ||
-    [];
+  const imageObj =
+    deal.customFieldsData.find((f: any) => f.field === imageField._id) || {};
 
-  const oldDocValue =
-    oldDeal.customFieldsData.find((f: any) => f.field === docField._id).value ||
-    [];
+  const oldDocObj =
+    oldDeal.customFieldsData.find((f: any) => f.field === docField._id) || {};
 
-  const oldImageValue =
-    oldDeal.customFieldsData.find((f: any) => f.field === imageField._id)
-      .value || [];
+  const oldImageObj =
+    oldDeal.customFieldsData.find((f: any) => f.field === imageField._id) || {};
+
+  if (!docObj || !imageObj || !oldDocObj || !oldImageObj) {
+    return;
+  }
+
+  const docValue = docObj.value || [];
+  const imageValue = imageObj.value || [];
+
+  const oldDocValue = oldDocObj.value || [];
+  const oldImageValue = oldImageObj.value || [];
 
   if (
     docValue.length > oldDocValue.length &&
