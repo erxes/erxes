@@ -1,34 +1,44 @@
-import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { IContext } from '@erxes/api-utils/src/types';
 import { Ads } from '../../models';
 
 const adMutations = {
   /**
    * Creates a new ad
    */
-  async adsAdd(_root, doc, _context: IContext) {
+  async adsAdd(_root, doc, { cpUser }) {
+    if (!cpUser) {
+      throw new Error('Permission denied');
+    }
+
     return Ads.createAd(doc);
   },
+
   /**
    * Edits a new ad
    */
-  async adsEdit(_root, { _id, ...doc }, { user }: IContext) {
-    await Ads.getAd(_id);
+  async adsEdit(_root, { _id, ...doc }, { cpUser }) {
+    const ad = await Ads.getAd(_id);
 
-    doc.createdUserId = user._id;
+    if (!cpUser || cpUser._id !== ad.cpUserId) {
+      throw new Error('Permission denied');
+    }
+
+    doc.cpUserId = cpUser._id;
 
     return Ads.updateAd(_id, doc);
   },
+
   /**
    * Removes a single ad
    */
-  async adsRemove(_root, { _id }, _context: IContext) {
+  async adsRemove(_root, { _id }, { cpUser }) {
+    const ad = await Ads.getAd(_id);
+
+    if (!cpUser || cpUser._id !== ad.cpUserId) {
+      throw new Error('Permission denied');
+    }
+
     return Ads.removeAd(_id);
   }
 };
-
-checkPermission(adMutations, 'adsAdd', 'priuscenterManageAds');
-checkPermission(adMutations, 'adsEdit', 'priuscenterManageAds');
-checkPermission(adMutations, 'adsRemove', 'priuscenterManageAds');
 
 export default adMutations;
