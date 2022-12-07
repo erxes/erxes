@@ -2,6 +2,7 @@ import React, { FC } from 'react';
 import { useQuery, useMutation } from 'react-apollo';
 import { FORUM_SUBSCRIPTION_PRODUCTS_QUERY } from '../../graphql/queries';
 import gql from 'graphql-tag';
+import { useSearchParam } from '../../hooks';
 
 const DELETE = gql`
   mutation ForumDeleteSubscriptionProduct($id: ID!) {
@@ -12,9 +13,11 @@ const DELETE = gql`
 `;
 
 const List: FC = () => {
+  const [userType, setUserType] = useSearchParam('userType');
   const { loading, error, data } = useQuery(FORUM_SUBSCRIPTION_PRODUCTS_QUERY, {
     variables: {
-      sort: { listOrder: -1 }
+      sort: { listOrder: -1 },
+      userType
     },
     fetchPolicy: 'network-only'
   });
@@ -28,6 +31,17 @@ const List: FC = () => {
 
   return (
     <div>
+      <div>
+        User type:
+        <select
+          value={userType || ''}
+          onChange={e => setUserType(e.target.value)}
+        >
+          <option value="">All</option>
+          <option value="customer">Customer</option>
+          <option value="company">Company</option>
+        </select>
+      </div>
       <table>
         <thead>
           <tr>
@@ -36,6 +50,7 @@ const List: FC = () => {
             <th>Multiplier</th>
             <th>Unit</th>
             <th>Price</th>
+            <th>User type</th>
             <th>List order</th>
             <th></th>
           </tr>
@@ -48,6 +63,7 @@ const List: FC = () => {
               <td>{sp.multiplier}</td>
               <td>{sp.unit}</td>
               <td>{sp.price}</td>
+              <td>{sp.userType ? sp.userType : 'All'}</td>
               <td>{sp.listOrder}</td>
               <td>
                 <button

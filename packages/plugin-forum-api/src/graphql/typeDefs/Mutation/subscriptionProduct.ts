@@ -6,6 +6,7 @@ const subscriptionProduct = `
         multiplier: Float!
         price: Float!
         listOrder: Float
+        userType: String
     ): ForumSubscriptionProduct
 
     forumPatchSubscriptionProduct(
@@ -16,6 +17,7 @@ const subscriptionProduct = `
         multiplier: Float
         price: Float
         listOrder: Float
+        userType: String
     ): ForumSubscriptionProduct
 
     forumDeleteSubscriptionProduct(_id: ID!): ForumSubscriptionProduct

@@ -7,6 +7,7 @@ type ForumSubscriptionProduct {
     multiplier: Float!
     price: Float!
     listOrder: Float!
+    userType: String
 }
 `;
 
