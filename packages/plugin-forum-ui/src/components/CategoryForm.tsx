@@ -176,7 +176,13 @@ const CategoryForm: React.FC<Props> = ({
                   <select
                     name="userLevelReqPostRead"
                     value={userLevelReqPostRead}
-                    onChange={e => setUserLevelReqPostRead(e.target.value)}
+                    onChange={e => {
+                      const val = e.target.value;
+                      if (val === 'GUEST') {
+                        setPostReadRequiresPermissionGroup(false);
+                      }
+                      setUserLevelReqPostRead(val);
+                    }}
                   >
                     {Object.keys(READ_CP_USER_LEVELS).map(enumVal => (
                       <option key={enumVal} value={enumVal}>
@@ -187,6 +193,7 @@ const CategoryForm: React.FC<Props> = ({
                   <label style={{ marginLeft: 5 }}>
                     Also requires permission group{' '}
                     <input
+                      disabled={userLevelReqPostRead === 'GUEST'}
                       type="checkbox"
                       checked={postReadRequiresPermissionGroup}
                       onChange={e => {
@@ -202,7 +209,15 @@ const CategoryForm: React.FC<Props> = ({
                   <select
                     name="userLevelReqPostWrite"
                     value={userLevelReqPostWrite}
-                    onChange={e => setUserLevelReqPostWrite(e.target.value)}
+                    onChange={e => {
+                      const val = e.target.value;
+
+                      if (val === 'GUEST') {
+                        setPostWriteRequiresPermissionGroup(false);
+                      }
+
+                      setUserLevelReqPostWrite(val);
+                    }}
                   >
                     {Object.keys(WRITE_CP_USER_LEVELS).map(enumVal => (
                       <option key={enumVal} value={enumVal}>
@@ -214,6 +229,7 @@ const CategoryForm: React.FC<Props> = ({
                   <label style={{ marginLeft: 5 }}>
                     Also requires permission group{' '}
                     <input
+                      disabled={userLevelReqPostWrite === 'GUEST'}
                       type="checkbox"
                       checked={postWriteRequiresPermissionGroup}
                       onChange={e => {
@@ -241,7 +257,13 @@ const CategoryForm: React.FC<Props> = ({
                   <select
                     name="userLevelReqCommentWrite"
                     value={userLevelReqCommentWrite}
-                    onChange={e => setUserLevelReqCommentWrite(e.target.value)}
+                    onChange={e => {
+                      const val = e.target.value;
+                      if (val === 'GUEST') {
+                        setCommentWriteRequiresPermissionGroup(false);
+                      }
+                      setUserLevelReqCommentWrite(val);
+                    }}
                   >
                     {Object.keys(WRITE_CP_USER_LEVELS).map(enumVal => (
                       <option key={enumVal} value={enumVal}>
@@ -252,6 +274,7 @@ const CategoryForm: React.FC<Props> = ({
                   <label style={{ marginLeft: 5 }}>
                     Also requires permission group{' '}
                     <input
+                      disabled={userLevelReqCommentWrite === 'GUEST'}
                       type="checkbox"
                       checked={commentWriteRequiresPermissionGroup}
                       onChange={e => {
@@ -268,19 +291,19 @@ const CategoryForm: React.FC<Props> = ({
         </div>
 
         <div style={{ color: '#004691', marginLeft: 20, padding: 20 }}>
-          If "Also requires permission group" is checked 2 conditions must be
-          met for a user to be able to perform the action:
-          <ol>
-            <li>User level is high enough</li>
-            <li>
-              User must be in a permission group that also permits the action{' '}
-            </li>
-          </ol>
-          If "Also requires permission group" is unchecked 1 conditions must be
-          met for a user to be able to perform the action:
-          <ol>
-            <li>User level is high enough</li>
-          </ol>
+          If "Also requires permission group" is <b>checked</b>, <b>both 2</b>{' '}
+          conditions must be met for a user to be able to perform the action.
+          <br />
+          If "Also requires permission group" is <b>unchecked</b>, only{' '}
+          <b>one</b> of 2 conditions must be met for a user to be able to
+          perform the action.
+          <div style={{ border: '1px solid #004691', margin: 10, padding: 10 }}>
+            <h5>Conditions:</h5>
+            <ol>
+              <li>User level is high enough</li>
+              <li>User is in a permission group that permits the action </li>
+            </ol>
+          </div>
         </div>
       </div>
 

@@ -152,6 +152,18 @@ export const generateCategoryModel = (
           throw new Error(`A category with same code already exists`);
         }
       }
+      if (input.userLevelReqPostWrite === 'NO_ONE') {
+        input.postWriteRequiresPermissionGroup = false;
+      }
+      if (input.userLevelReqCommentWrite === 'NO_ONE') {
+        input.commentWriteRequiresPermissionGroup = false;
+      }
+      if (
+        input.userLevelReqPostRead === 'NO_ONE' ||
+        input.userLevelReqPostRead === 'GUEST'
+      ) {
+        input.postReadRequiresPermissionGroup = false;
+      }
       return await models.Category.create(input);
     }
     public static async patchCategory(
@@ -178,6 +190,10 @@ export const generateCategoryModel = (
             `A category cannot be a subcategory of one of its own descendants`
           );
         }
+      }
+
+      if (input.userLevelReqPostRead === 'GUEST') {
+        patch.postReadRequiresPermissionGroup = false;
       }
 
       await models.Category.updateOne({ _id }, patch);
@@ -380,26 +396,39 @@ export const generateCategoryModel = (
       const isAllowedByLevel =
         ALL_CP_USER_LEVELS[userLevel] >= ALL_CP_USER_LEVELS[requiredLevel];
 
-      const hasPermit = () =>
-        models.PermissionGroupCategoryPermit.isUserPermitted(
+      let hasPermit = false;
+      const fetchHasPermit = async (): Promise<boolean> => {
+        hasPermit = await models.PermissionGroupCategoryPermit.isUserPermitted(
           category._id,
           permission,
           user.userId
         );
+        return hasPermit;
+      };
 
       if (!requiresPermissionGroup) {
-        if (isAllowedByLevel || (await hasPermit())) return;
-      } else if (requiresPermissionGroup) {
-        if (isAllowedByLevel && (await hasPermit())) return;
+        if (isAllowedByLevel) return;
+
+        await fetchHasPermit();
+        if (hasPermit) return;
       }
 
+      if (requiresPermissionGroup) {
+        await fetchHasPermit();
+        if (hasPermit && isAllowedByLevel) return;
+      }
+
+      const insufficientLevel = new InsufficientUserLevelError(
+        ALL_CP_USER_LEVEL_REQUIREMENT_ERROR_MESSAGES[requiredLevel],
+        requiredLevel
+      );
+      const insufficientPermission = new InsufficientPermissionError();
+
       if (!requiresPermissionGroup) {
-        throw new InsufficientUserLevelError(
-          ALL_CP_USER_LEVEL_REQUIREMENT_ERROR_MESSAGES[requiredLevel],
-          requiredLevel
-        );
-      } else {
-        throw new InsufficientPermissionError();
+        throw insufficientLevel;
+      } else if (requiresPermissionGroup) {
+        if (requiredLevel === 'NO_ONE' || hasPermit) throw insufficientLevel;
+        else throw insufficientPermission;
       }
     }
 
