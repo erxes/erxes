@@ -8,7 +8,7 @@ import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import { FlexRow, DateName } from '../styles';
+import { FlexRow, DateName, FlexCenter } from '../styles';
 
 const Datetime = asyncComponent(() =>
   import(/* webpackChunkName: "Datetime" */ '@nateradebaugh/react-datetime')
@@ -67,7 +67,7 @@ const DateRange = (props: Props) => {
           </div>
         </FlexRow>
 
-        <FlexRow>
+        <FlexCenter>
           <Button
             btnStyle="warning"
             onClick={onSaveDateButton}
@@ -76,7 +76,7 @@ const DateRange = (props: Props) => {
           >
             Save
           </Button>
-        </FlexRow>
+        </FlexCenter>
       </Popover>
     );
   };

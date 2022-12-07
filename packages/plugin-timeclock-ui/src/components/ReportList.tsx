@@ -24,7 +24,7 @@ function ReportList(props: Props) {
   const { history, branchesList, reports } = props;
   const [selectedBranchId, setBranches] = useState(['']);
   const [selectedDeptId, setDepartments] = useState('');
-  const [selectedType, setType] = useState('');
+  const [selectedType, setType] = useState('By Employee');
   const content = (
     <Table>
       <thead>

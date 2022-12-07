@@ -12,7 +12,7 @@ import {
 } from '../types';
 import { mutations, queries } from '../graphql';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { Alert } from '@erxes/ui/src/utils';
+import { Alert, confirm } from '@erxes/ui/src/utils';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 
@@ -36,56 +36,42 @@ type Props = {
 };
 
 type FinalProps = {
-  listAbsenceTypeQuery: AbsenceTypeQueryResponse;
+  listAbsenceTypesQuery: AbsenceTypeQueryResponse;
 } & Props &
   ConfigMutationResponse;
 
 const ListContainer = (props: FinalProps) => {
   const {
     queryParams,
-    submitAbsenceConfigMutation,
+    addAbsenceType,
+    editAbsenceType,
     submitScheduleConfigMutation,
-    listAbsenceTypeQuery
+    removeAbsenceTypeMutation,
+    listAbsenceTypesQuery
   } = props;
   const { startDate, endDate, userId, reason } = queryParams;
 
-  // if (listAbsenceQuery.loading) {
-  //   return <Spinner />;
-  // }
-
-  // const solveAbsence = (absenceId: string, status: string) => {
-  //   solveAbsenceMutation({
-  //     variables: { _id: absenceId, status: `${status}` }
-  //   })
-  //     .then(() => Alert.success('Successfully solved absence request'))
-  //     .catch(err => Alert.error(err.message));
-  // };
-
-  // const submitRequest = (expl: string) => {
-  //   sendAbsenceReqMutation({
-  //     variables: {
-  //       startTime: startDate,
-  //       endTime: endDate,
-  //       userId: `${userId}`,
-  //       reason: `${reason}`,
-  //       explanation: expl
-  //     }
-  //   })
-  //     .then(() => Alert.success('Successfully sent an absence request'))
-  //     .catch(err => Alert.error(err.message));
-  // };
-
-  const submitAbsenceConfig = ({
+  const renderButton = ({
     values,
-    object,
-    isSubmitted
+    isSubmitted,
+    callback,
+    object
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
-        mutation={object ? mutations.absenceTypeEdit : mutations.absenceTypeAdd}
+        mutation={
+          object._id ? mutations.absenceTypeEdit : mutations.absenceTypeAdd
+        }
         variables={values}
-        type="submit"
+        callback={callback}
+        refetchQueries={[
+          {
+            query: gql(queries.listAbsenceTypes)
+          }
+        ]}
         isSubmitted={isSubmitted}
+        btnStyle="primary"
+        type="submit"
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } absence type`}
@@ -93,59 +79,65 @@ const ListContainer = (props: FinalProps) => {
     );
   };
 
-  // const submitAbsenceConfig = (
-  //   name: string,
-  //   explanation: boolean,
-  //   attachment: boolean,
-  //   _id?: string
-  // ) => {
-  //   submitAbsenceConfigMutation({
-  //     variables: {
-  //       _id: `${_id}`,
-  //       name: `${name}`,
-  //       explRequired: explanation,
-  //       attachRequired: attachment
-  //     }
-  //   }).then(() => Alert.success('Successfully added an absence type'));
-  // };
+  const removeAbsenceType = absenceId => {
+    confirm('Are you sure to remove this absence type').then(() => {
+      removeAbsenceTypeMutation({ variables: { _id: absenceId } }).then(() =>
+        Alert.success('Successfully removed an absence type')
+      );
+    });
+  };
 
   const updatedProps = {
     ...props,
-    absenceTypes: listAbsenceTypeQuery.absenceTypes,
-    submitAbsenceConfig
+    absenceTypes: listAbsenceTypesQuery.absenceTypes,
+    removeAbsenceType,
+    renderButton
   };
   return <ConfigList {...updatedProps} />;
 };
+
 export default withProps<Props>(
   compose(
     graphql<Props, AbsenceTypeQueryResponse>(gql(queries.listAbsenceTypes), {
-      name: 'listAbsenceTypeQuery',
+      name: 'listAbsenceTypesQuery',
       options: () => ({
         fetchPolicy: 'network-only'
       })
+    }),
+
+    graphql<Props, AbsenceMutationResponse>(gql(mutations.absenceTypeRemove), {
+      name: 'removeAbsenceTypeMutation',
+      options: ({ absenceId }) => ({
+        variables: {
+          _id: absenceId
+        },
+        refetchQueries: ['absenceTypes']
+      })
+    }),
+
+    graphql<Props, AbsenceMutationResponse>(gql(mutations.absenceTypeAdd), {
+      name: 'addAbsenceType',
+      options: ({ absenceName, explanation, attachment }) => ({
+        variables: {
+          name: absenceName,
+          explRequired: explanation,
+          attachRequired: attachment
+        },
+        refetchQueries: ['absenceTypes']
+      })
+    }),
+
+    graphql<Props, AbsenceMutationResponse>(gql(mutations.absenceTypeEdit), {
+      name: 'editAbsenceType',
+      options: ({ absenceId, absenceName, explanation, attachment }) => ({
+        variables: {
+          _id: absenceId,
+          name: absenceName,
+          explRequired: explanation,
+          attachRequired: attachment
+        },
+        refetchQueries: ['absenceTypes']
+      })
     })
-    // graphql<Props, AbsenceMutationResponse>(gql(mutations.absenceTypeAdd), {
-    //   name: 'submitAbsenceConfigMutation',
-    //   options: ({ absenceName, explanation, attachment }) => ({
-    //     variables: {
-    //       name: absenceName,
-    //       explRequired: explanation,
-    //       attachRequired: attachment
-    //     },
-    //     refetchQueries: ['absenceTypes']
-    //   })
-    // })
-    // graphql<Props, AbsenceMutationResponse>(gql(mutations.absenceTypeEdit), {
-    //   name: 'submitAbsenceConfigMutation',
-    //   options: ({ absenceTypeId, absenceName, explanation, attachment }) => ({
-    //     variables: {
-    //       _id: absenceTypeId,
-    //       name: absenceName,
-    //       explRequired: explanation,
-    //       attachRequired: attachment
-    //     },
-    //     refetchQueries: ['listAbsenceQuery']
-    //   })
-    // })
   )(ListContainer)
 );

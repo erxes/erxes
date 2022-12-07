@@ -13,42 +13,65 @@ import {
   FlexRow,
   FlexColumn,
   Input,
-  FlexCenter
+  FlexCenter,
+  Row,
+  FilterItem
 } from '../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import { FormControl } from '@erxes/ui/src/components/form';
 import { IAbsenceType } from '../types';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import Table from '@erxes/ui/src/components/table';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
+
+import Form from '@erxes/ui/src/components/form/Form';
+import ConfigForm from './ConfigForm';
 
 type Props = {
   queryParams: any;
   history: any;
   absenceTypes?: IAbsenceType[];
   loading?: boolean;
-  submitAbsenceConfig: (props: IButtonMutateProps) => void;
+  renderButton: (props: IButtonMutateProps) => void;
   removeAbsenceType: (absenceTypeId: string) => void;
 };
 
 function ConfigList(props: Props) {
-  const {
-    queryParams,
-    history,
-    absenceTypes,
-    submitAbsenceConfig,
-    removeAbsenceType
-  } = props;
+  const { absenceTypes, removeAbsenceType } = props;
+  const [selectedType, setType] = useState('');
 
-  const [absenceName, setAbsenceName] = useState('');
-  const [explRequired, setExplRequired] = useState(false);
-  const [attachRequired, setAttachRequired] = useState(false);
-  const [displayConfig, setDisplayConfig] = useState(false);
-  const [configDates, setConfigDates] = useState({
-    date1: new Date(),
-    date2: new Date()
-  });
+  const renderSelectionBar = () => {
+    const onTypeSelect = type => {
+      localStorage.setItem('displayConfigType', JSON.stringify(type));
+      const selType = JSON.parse(
+        localStorage.getItem('displayConfigType') || '[]'
+      ).value;
+      setType(selType);
+    };
+
+    return (
+      <FilterItem>
+        <FormGroup>
+          <ControlLabel>Select type</ControlLabel>
+          <Row>
+            <Select
+              value={JSON.parse(
+                localStorage.getItem('displayConfigType') || '[]'
+              )}
+              onChange={onTypeSelect}
+              placeholder="Select type"
+              multi={false}
+              options={['Absence types', 'Pay period', 'Holidays'].map(ipt => ({
+                value: ipt,
+                label: __(ipt)
+              }))}
+            />
+          </Row>
+        </FormGroup>
+      </FilterItem>
+    );
+  };
 
   const absenceConfigTrigger = (
     <Button id="configBtn" btnStyle="primary" icon="plus-circle">
@@ -60,88 +83,26 @@ function ConfigList(props: Props) {
       Schedule
     </Button>
   );
+  const holidayConfigTrigger = (
+    <Button id="configBtn" btnStyle="primary" icon="plus-circle">
+      Holiday
+    </Button>
+  );
 
-  const onConfigDateChange = (dateNum: string, newDate: Date) => {
-    configDates[dateNum] = newDate;
-    setConfigDates({ ...configDates });
+  const absenceConfigContent = absenceType => {
+    return (
+      <ConfigForm {...props} absenceType={absenceType} configType="Absence" />
+    );
   };
-
-  const absenceConfigContent = absenceType => (
-    <FlexColumn>
-      <div>
-        <ControlLabel>Name for an absence request</ControlLabel>
-        <Input
-          value={absenceType && absenceType.name}
-          type="text"
-          required={true}
-          onChange={event => {
-            event.preventDefault();
-            setAbsenceName(event.target.value);
-          }}
-        />
-      </div>
-      <FlexRow>
-        <ControlLabel>Explanation Required</ControlLabel>
-        <FormControl
-          componentClass="checkbox"
-          onChange={() => setExplRequired(!explRequired)}
-          checked={absenceType ? absenceType.explRequired : explRequired}
-        />
-      </FlexRow>
-      <FlexRow>
-        <ControlLabel>Attachment Required</ControlLabel>
-        <FormControl
-          componentClass="checkbox"
-          onChange={() => setAttachRequired(!attachRequired)}
-          checked={absenceType ? absenceType.attachRequired : attachRequired}
-        />
-      </FlexRow>
-      <FlexCenter style={{ marginTop: '10px' }}>
-        <Button onClick={onSubmitAbsenceConfig}>Submit</Button>
-      </FlexCenter>
-    </FlexColumn>
-  );
-
-  const scheduleConfigContent = () => (
-    <FlexColumn>
-      <CustomRangeContainer>
-        <DateControl
-          value={configDates.date1}
-          required={false}
-          onChange={val => onConfigDateChange('date1', val)}
-          placeholder={'Enter date'}
-          dateFormat={'YYYY-MM-DD'}
-        />
-        {displayConfig ? (
-          <DateControl
-            value={configDates.date2}
-            required={false}
-            onChange={val => onConfigDateChange('date2', val)}
-            placeholder={'Enter date'}
-            dateFormat={'YYYY-MM-DD'}
-          />
-        ) : (
-          <></>
-        )}
-      </CustomRangeContainer>
-      <FlexCenter>
-        <Button onClick={() => setDisplayConfig(!displayConfig)}>
-          {(displayConfig ? 'Remove' : 'Add') + ' date'}
-        </Button>
-        <Button>Submit</Button>
-      </FlexCenter>
-    </FlexColumn>
-  );
-
-  const onSubmitAbsenceConfig = () => {
-    submitAbsenceConfig({
-      values: {
-        name: absenceName,
-        explRequired: `${explRequired}`,
-        attachRequired: `${attachRequired}`
-      },
-      isSubmitted: false
-    });
+  const scheduleConfigContent = absenceType => {
+    return (
+      <ConfigForm {...props} absenceType={absenceType} configType="Schedule" />
+    );
+  };
+  const holidayConfigContent = absenceType => {
+    return (
+      <ConfigForm {...props} absenceType={absenceType} configType="Holiday" />
+    );
   };
 
   const onRemoveAbsenceType = absenceTypeId => {
@@ -160,22 +121,26 @@ function ConfigList(props: Props) {
         trigger={scheduleConfigTrigger}
         content={scheduleConfigContent}
       />
+      <ModalTrigger
+        title={__('Holiday Config')}
+        trigger={holidayConfigTrigger}
+        content={holidayConfigContent}
+      />
     </>
   );
 
   const actionBar = (
     <Wrapper.ActionBar
       right={actionBarRight}
+      left={renderSelectionBar()}
       hasFlex={true}
       wideSpacing={true}
     />
   );
   const editTrigger = (
-    <Tip text={__('Edit')} placement="top">
-      <Button btnStyle="link">
-        <Icon icon="edit-3" />
-      </Button>
-    </Tip>
+    <Button btnStyle="link">
+      <Icon icon="edit-3" />
+    </Button>
   );
 
   const removeTrigger = absenceTypeId => (
@@ -190,30 +155,34 @@ function ConfigList(props: Props) {
 
   const content = (
     <Table>
-      <tr>
-        <th>Absence type</th>
-        <th>Explanation required</th>
-        <th>Attachment required</th>
-        <th>Action</th>
-      </tr>
-      {absenceTypes &&
-        absenceTypes.map(absenceType => {
-          return (
-            <tr key={absenceType._id}>
-              <td>{absenceType.name}</td>
-              <td>{absenceType.explRequired ? 'true' : 'false'}</td>
-              <td>{absenceType.attachRequired ? 'true' : 'false'}</td>
-              <td>
-                <ModalTrigger
-                  title="Edit absence type"
-                  trigger={editTrigger}
-                  content={() => absenceConfigContent(absenceType)}
-                />
-                {removeTrigger(absenceType._id)}
-              </td>
-            </tr>
-          );
-        })}
+      <thead>
+        <tr>
+          <th>Absence type</th>
+          <th>Explanation required</th>
+          <th>Attachment required</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {absenceTypes &&
+          absenceTypes.map(absenceType => {
+            return (
+              <tr key={absenceType._id}>
+                <td>{absenceType.name}</td>
+                <td>{absenceType.explRequired ? 'true' : 'false'}</td>
+                <td>{absenceType.attachRequired ? 'true' : 'false'}</td>
+                <td>
+                  <ModalTrigger
+                    title="Edit absence type"
+                    trigger={editTrigger}
+                    content={() => absenceConfigContent(absenceType)}
+                  />
+                  {removeTrigger(absenceType._id)}
+                </td>
+              </tr>
+            );
+          })}
+      </tbody>
     </Table>
   );
 

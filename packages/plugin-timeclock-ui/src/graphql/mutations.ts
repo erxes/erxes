@@ -21,8 +21,8 @@ const clockStop = `
 `;
 
 const sendAbsenceRequest = `
-  mutation sendAbsenceRequest($startTime: Date, $endTime: Date, $userId: String, $reason: String, $explanation: String){
-    sendAbsenceRequest(startTime: $startTime, endTime: $endTime, userId: $userId, reason: $reason, explanation: $explanation){
+  mutation sendAbsenceRequest($startTime: Date, $endTime: Date, $userId: String, $reason: String, $explanation: String, $attachment: AttachmentInput){
+    sendAbsenceRequest(startTime: $startTime, endTime: $endTime, userId: $userId, reason: $reason, explanation: $explanation, attachment: $attachment){
       _id
     }
   }`;
@@ -39,6 +39,11 @@ const absenceTypeEdit = `
     absenceTypeEdit(_id: $_id, name: $name, explRequired: $explRequired, attachRequired: $attachRequired){
       _id
     }
+  }`;
+
+const absenceTypeRemove = `
+  mutation absenceTypeRemove($_id: String!){
+    absenceTypeRemove(_id: $_id)
   }`;
 
 const sendScheduleRequest = `
@@ -85,6 +90,7 @@ export default {
   sendAbsenceRequest,
   absenceTypeAdd,
   absenceTypeEdit,
+  absenceTypeRemove,
   solveAbsence,
   solveSchedule,
   solveShift,

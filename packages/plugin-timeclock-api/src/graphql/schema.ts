@@ -1,4 +1,11 @@
+import {
+  attachmentType,
+  attachmentInput
+} from '@erxes/api-utils/src/commonTypeDefs';
+
 export const types = `  
+  ${attachmentType}
+  ${attachmentInput}
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
@@ -20,6 +27,7 @@ export const types = `
     explanation: String
     solved: Boolean
     status: String
+    attachment: Attachment
   }
 
   type AbsenceType {
@@ -100,6 +108,7 @@ const absence_params = `
     endTime: Date
     reason: String
     explanation: String
+    attachment: AttachmentInput
 `;
 const absenceType_params = `
     name: String
@@ -116,7 +125,7 @@ export const mutations = `
   timeclockStart(${params}): Timeclock
   timeclockStop(${params}): Timeclock
   timeclockRemove(_id : String): Timeclock
-  absenceTypeRemove(_id: String): AbsenceType
+  absenceTypeRemove(_id: String): JSON
   absenceTypeAdd(${absenceType_params}): AbsenceType
   absenceTypeEdit(_id: String, ${absenceType_params}): AbsenceType
   sendAbsenceRequest(${absence_params}): Absence

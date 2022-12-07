@@ -7,7 +7,8 @@ import {
   IAbsence,
   ISchedule,
   IShift,
-  ITimeClock
+  ITimeClock,
+  IAbsenceType
 } from '../../models/definitions/template';
 import { putUpdateLog } from '@erxes/api-utils/src/logUtils';
 import messageBroker from '../../messageBroker';
@@ -28,6 +29,10 @@ interface IScheduleEdit extends ISchedule {
 }
 
 interface IShiftEdit extends IShift {
+  _id: string;
+}
+
+interface IAbsenceTypeEdit extends IAbsenceType {
   _id: string;
 }
 
@@ -95,7 +100,11 @@ const templateMutations = {
     return absenceType;
   },
 
-  async absenceTypeEdit(_root, { _id, doc }, { models }: IContext) {
+  async absenceTypeEdit(
+    _root,
+    { _id, ...doc }: IAbsenceTypeEdit,
+    { models }: IContext
+  ) {
     const absenceType = await models.AbsenceTypes.getAbsenceType(_id);
     return models.AbsenceTypes.updateAbsenceType(_id, doc);
   },

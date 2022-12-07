@@ -7,6 +7,7 @@ import AbsenceList from '../components/AbsenceList';
 import {
   AbsenceMutationResponse,
   AbsenceQueryResponse,
+  AbsenceTypeQueryResponse,
   ScheduleMutationResponse
 } from '../types';
 import { mutations, queries } from '../graphql';
@@ -31,6 +32,7 @@ type Props = {
 
 type FinalProps = {
   listAbsenceQuery: AbsenceQueryResponse;
+  listAbsenceTypesQuery: AbsenceTypeQueryResponse;
 } & Props &
   AbsenceMutationResponse;
 
@@ -39,7 +41,8 @@ const ListContainer = (props: FinalProps) => {
     queryParams,
     sendAbsenceReqMutation,
     solveAbsenceMutation,
-    listAbsenceQuery
+    listAbsenceQuery,
+    listAbsenceTypesQuery
   } = props;
   const { startDate, endDate, userId, reason } = queryParams;
 
@@ -71,6 +74,7 @@ const ListContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     absences: listAbsenceQuery.absences || [],
+    absenceTypes: listAbsenceTypesQuery.absenceTypes || [],
     loading: listAbsenceQuery.loading,
     solveAbsence,
     submitRequest
@@ -91,6 +95,13 @@ export default withProps<Props>(
           endDate: queryEndDate,
           userId: queryUserId
         },
+        fetchPolicy: 'network-only'
+      })
+    }),
+
+    graphql<Props, AbsenceTypeQueryResponse>(gql(queries.listAbsenceTypes), {
+      name: 'listAbsenceTypesQuery',
+      options: () => ({
         fetchPolicy: 'network-only'
       })
     }),

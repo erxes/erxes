@@ -7,15 +7,18 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Table from '@erxes/ui/src/components/table';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { Input } from '@erxes/ui/src/components/form/styles';
+import { FormControl } from '@erxes/ui/src/components/form';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import DateFilter from '@erxes/ui/src/components/DateFilter';
-import { IAbsence } from '../types';
+import { IAbsence, IAbsenceType } from '../types';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import Uploader from '@erxes/ui/src/components/Uploader';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import { FlexCenter } from '../styles';
 
 type Props = {
   absences: IAbsence[];
+  absenceTypes?: IAbsenceType[];
   queryParams: any;
   history: any;
   startTime?: Date;
@@ -25,15 +28,26 @@ type Props = {
 };
 
 function AbsenceList(props: Props) {
-  const { queryParams, history, submitRequest, absences, solveAbsence } = props;
+  const {
+    queryParams,
+    history,
+    submitRequest,
+    absences,
+    absenceTypes,
+    solveAbsence
+  } = props;
   const [explanation, setTextReason] = useState('');
+  const [attachment, onChangeAttachment] = useState('');
+  const [absenceIdx, setArrayIdx] = useState(0);
 
   const trigger = (
     <Button id="timeClockButton2" btnStyle="success" icon="plus-circle">
       Create Request
     </Button>
   );
-
+  const onFileChange = attchment => {
+    console.log(attchment);
+  };
   const modalContent = () => (
     <div style={{ flex: 'column', justifyContent: 'space-around' }}>
       <DateFilter queryParams={queryParams} history={history} />
@@ -49,20 +63,43 @@ function AbsenceList(props: Props) {
         placeholder={__('Reason')}
         onChange={onReasonSelect}
         value={router.getParam(history, 'reason') || ''}
-        options={['Vacation', 'Sick Leave', 'Non paid absence'].map(ipt => ({
-          value: ipt,
-          label: __(ipt)
-        }))}
+        options={
+          absenceTypes &&
+          absenceTypes.map((absenceType, idx) => ({
+            value: absenceType.name,
+            label: absenceType.name,
+            arrayIdx: idx
+          }))
+        }
       />
-      <Input
-        type="text"
-        name="reason"
-        placeholder="Please write short explanation"
-        onChange={setInputValue}
-      />
-      <Button style={{ marginTop: 10 }} onClick={onSubmitClick}>
-        {'Submit'}
-      </Button>
+      {absenceTypes && absenceTypes[absenceIdx].explRequired ? (
+        <FormControl
+          type="text"
+          name="reason"
+          placeholder="Please write short explanation"
+          onChange={setInputValue}
+          required={true}
+        />
+      ) : (
+        <></>
+      )}
+
+      {absenceTypes && absenceTypes[absenceIdx].attachRequired ? (
+        <Uploader
+          text={`Choose a file to upload`}
+          warningText={'Only .jpg or jpeg file is supported.'}
+          single={true}
+          defaultFileList={[]}
+          onChange={onFileChange}
+        />
+      ) : (
+        <></>
+      )}
+      <FlexCenter>
+        <Button style={{ marginTop: 10 }} onClick={onSubmitClick}>
+          {'Submit'}
+        </Button>
+      </FlexCenter>
     </div>
   );
 
@@ -71,14 +108,14 @@ function AbsenceList(props: Props) {
   };
 
   const setInputValue = e => {
-    const expl = e.target.value;
-    setTextReason(expl);
+    setTextReason(e.target.value);
   };
 
   const onUserSelect = userId => {
     router.setParams(history, { userId: `${userId}` });
   };
   const onReasonSelect = reason => {
+    setArrayIdx(reason.arrayIdx);
     router.setParams(history, { reason: `${reason.value}` });
   };
 

@@ -142,7 +142,14 @@ export type AbsenceMutationResponse = {
 };
 
 export type ConfigMutationResponse = {
-  submitAbsenceConfigMutation: (params: {
+  addAbsenceType: (params: {
+    variables: {
+      name: string;
+      explRequired: boolean;
+      attachRequired: boolean;
+    };
+  }) => Promise<any>;
+  editAbsenceType: (params: {
     variables: {
       _id: string;
       name: string;
@@ -155,6 +162,11 @@ export type ConfigMutationResponse = {
       name: string;
       explRequired: boolean;
       attachRequired: boolean;
+    };
+  }) => Promise<any>;
+  removeAbsenceTypeMutation: (params: {
+    variables: {
+      _id: string;
     };
   }) => Promise<any>;
 };
