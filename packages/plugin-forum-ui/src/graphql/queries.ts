@@ -38,6 +38,9 @@ export const CATEGORY_DETAIL = gql`
       userLevelReqPostWrite
       userLevelReqCommentWrite
       postsReqCrmApproval
+      postReadRequiresPermissionGroup
+      postWriteRequiresPermissionGroup
+      commentWriteRequiresPermissionGroup
     }
   }
 `;

@@ -12,6 +12,9 @@ type Props = {
     userLevelReqPostRead?: string | null;
     userLevelReqPostWrite?: string | null;
     userLevelReqCommentWrite?: string | null;
+    postReadRequiresPermissionGroup?: boolean | null;
+    postWriteRequiresPermissionGroup?: boolean | null;
+    commentWriteRequiresPermissionGroup?: boolean | null;
   };
   onSubmit?: (val: any) => any;
   noParent?: boolean;
@@ -74,6 +77,19 @@ const CategoryForm: React.FC<Props> = ({
     category?.postsReqCrmApproval || false
   );
 
+  const [
+    postReadRequiresPermissionGroup,
+    setPostReadRequiresPermissionGroup
+  ] = useState(category?.postReadRequiresPermissionGroup || false);
+  const [
+    postWriteRequiresPermissionGroup,
+    setPostWriteRequiresPermissionGroup
+  ] = useState(category?.postWriteRequiresPermissionGroup || false);
+  const [
+    commentWriteRequiresPermissionGroup,
+    setCommentWriteRequiresPermissionGroup
+  ] = useState(category?.commentWriteRequiresPermissionGroup || false);
+
   const _onSubmit = e => {
     e.preventDefault();
     if (onSubmit) {
@@ -85,7 +101,10 @@ const CategoryForm: React.FC<Props> = ({
         userLevelReqPostRead,
         userLevelReqPostWrite,
         userLevelReqCommentWrite,
-        postsReqCrmApproval
+        postsReqCrmApproval,
+        postReadRequiresPermissionGroup,
+        postWriteRequiresPermissionGroup,
+        commentWriteRequiresPermissionGroup
       });
     }
   };
@@ -165,6 +184,16 @@ const CategoryForm: React.FC<Props> = ({
                       </option>
                     ))}
                   </select>
+                  <label style={{ marginLeft: 5 }}>
+                    Also requires permission group{' '}
+                    <input
+                      type="checkbox"
+                      checked={postReadRequiresPermissionGroup}
+                      onChange={e => {
+                        setPostReadRequiresPermissionGroup(e.target.checked);
+                      }}
+                    />
+                  </label>
                 </td>
               </tr>
               <tr>
@@ -181,6 +210,17 @@ const CategoryForm: React.FC<Props> = ({
                       </option>
                     ))}
                   </select>
+
+                  <label style={{ marginLeft: 5 }}>
+                    Also requires permission group{' '}
+                    <input
+                      type="checkbox"
+                      checked={postWriteRequiresPermissionGroup}
+                      onChange={e => {
+                        setPostWriteRequiresPermissionGroup(e.target.checked);
+                      }}
+                    />
+                  </label>
                 </td>
               </tr>
             </tbody>
@@ -209,6 +249,18 @@ const CategoryForm: React.FC<Props> = ({
                       </option>
                     ))}
                   </select>
+                  <label style={{ marginLeft: 5 }}>
+                    Also requires permission group{' '}
+                    <input
+                      type="checkbox"
+                      checked={commentWriteRequiresPermissionGroup}
+                      onChange={e => {
+                        setCommentWriteRequiresPermissionGroup(
+                          e.target.checked
+                        );
+                      }}
+                    />
+                  </label>
                 </td>
               </tr>
             </tbody>
