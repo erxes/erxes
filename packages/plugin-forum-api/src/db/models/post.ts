@@ -60,11 +60,12 @@ export interface IPost extends CommonPostFields {
   stateChangedUserType: UserTypes;
   stateChangedById?: string;
   stateChangedByCpId?: string;
-
-  contentRestricted?: boolean;
   customIndexed: any;
 
   tagIds?: string[] | null;
+
+  requiredLevel?: string | null;
+  isPermissionRequired?: boolean | null;
 }
 
 export type PostDocument = IPost & Document;
@@ -91,7 +92,8 @@ const OMIT_FROM_INPUT = [
   'stateChangedAt',
   'stateChangedById',
   'stateChangedByCpId',
-  'contentRestricted'
+  'requiredLevel',
+  'isPermissionRequired'
 ] as const;
 
 export type PostCreateInput = Omit<IPost, typeof OMIT_FROM_INPUT[number]>;

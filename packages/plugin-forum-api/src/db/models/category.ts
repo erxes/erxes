@@ -14,6 +14,7 @@ import {
 import { ICpUser } from '../../graphql';
 import { PostDocument } from './post';
 import {
+  InsufficientPermissionError,
   InsufficientUserLevelError,
   LoginRequiredError
 } from '../../customErrors';
@@ -62,7 +63,13 @@ export interface ICategoryModel extends Model<CategoryDocument> {
   isUserAllowedToRead(
     post: PostDocument,
     user?: ICpUser | null
-  ): Promise<[boolean, CpUserLevels]>;
+  ): Promise<
+    | undefined
+    | {
+        requiredLevel: CpUserLevels;
+        isPermissionGroupRequired: boolean;
+      }
+  >;
 
   ensureUserIsAllowed(
     permission: Exclude<Permissions, 'READ_POST'>,
@@ -286,40 +293,56 @@ export const generateCategoryModel = (
     public static async isUserAllowedToRead(
       post: PostDocument,
       user?: ICpUser | null
-    ): Promise<[boolean, CpUserLevels?]> {
+    ): Promise<
+      | undefined
+      | {
+          requiredLevel: CpUserLevels;
+          isPermissionGroupRequired: boolean;
+        }
+    > {
       if (
         post.createdByCpId &&
         user?.userId &&
         post.createdByCpId === user?.userId
       )
-        return [true];
-      if (!post.categoryId) return [true, 'GUEST'];
+        return;
 
-      const category = await models.Category.findByIdOrThrow(post.categoryId);
+      const categoryId = post.categoryId;
+
+      if (!categoryId) {
+        return;
+      }
+
+      const category = await models.Category.findByIdOrThrow(categoryId);
       const requiredLevel = category.userLevelReqPostRead;
+      const isPermissionGroupRequired = !!category.postReadRequiresPermissionGroup;
 
       // everyone is allowed to read
-      if (requiredLevel === 'GUEST') return [true, requiredLevel];
+      if (requiredLevel === 'GUEST') return;
 
       const userLevel = await models.ForumClientPortalUser.getUserLevel(user);
 
-      // user is allowed by its user level
-      if (
-        ALL_CP_USER_LEVELS[userLevel] >= ALL_CP_USER_LEVELS[requiredLevel] &&
-        !category.postReadRequiresPermissionGroup
-      )
-        return [true, requiredLevel];
+      const allowedByUserLevel =
+        ALL_CP_USER_LEVELS[userLevel] >= ALL_CP_USER_LEVELS[requiredLevel];
 
-      const hasPermit = await models.PermissionGroupCategoryPermit.isUserPermitted(
-        post.categoryId,
-        'READ_POST',
-        user?.userId
-      );
+      const hasPermit = () =>
+        models.PermissionGroupCategoryPermit.isUserPermitted(
+          categoryId,
+          'READ_POST',
+          user?.userId
+        );
 
-      // user is allowed by its permission group
-      if (hasPermit) return [true, requiredLevel];
+      if (isPermissionGroupRequired) {
+        if (allowedByUserLevel && (await hasPermit())) return;
+      }
+      if (!isPermissionGroupRequired) {
+        if (allowedByUserLevel || (await hasPermit())) return;
+      }
 
-      return [false, requiredLevel];
+      return {
+        requiredLevel,
+        isPermissionGroupRequired
+      };
     }
 
     public static async ensureUserIsAllowed(
@@ -354,25 +377,30 @@ export const generateCategoryModel = (
         }
       })();
 
-      // user is allowed by its user level
-      if (
-        ALL_CP_USER_LEVELS[userLevel] >= ALL_CP_USER_LEVELS[requiredLevel] &&
-        !requiresPermissionGroup
-      )
-        return;
+      const isAllowedByLevel =
+        ALL_CP_USER_LEVELS[userLevel] >= ALL_CP_USER_LEVELS[requiredLevel];
 
-      const hasPermit = await models.PermissionGroupCategoryPermit.isUserPermitted(
-        category._id,
-        permission,
-        user.userId
-      );
+      const hasPermit = () =>
+        models.PermissionGroupCategoryPermit.isUserPermitted(
+          category._id,
+          permission,
+          user.userId
+        );
 
-      if (hasPermit) return;
+      if (!requiresPermissionGroup) {
+        if (isAllowedByLevel || (await hasPermit())) return;
+      } else if (requiresPermissionGroup) {
+        if (isAllowedByLevel && (await hasPermit())) return;
+      }
 
-      throw new InsufficientUserLevelError(
-        ALL_CP_USER_LEVEL_REQUIREMENT_ERROR_MESSAGES[requiredLevel],
-        requiredLevel
-      );
+      if (!requiresPermissionGroup) {
+        throw new InsufficientUserLevelError(
+          ALL_CP_USER_LEVEL_REQUIREMENT_ERROR_MESSAGES[requiredLevel],
+          requiredLevel
+        );
+      } else {
+        throw new InsufficientPermissionError();
+      }
     }
 
     public static async categoriesUserAllowedToPost(
