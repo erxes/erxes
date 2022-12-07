@@ -15,16 +15,17 @@ import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { FlexCenter } from '../styles';
+import { IAttachment } from '@erxes/ui/src/types';
 
 type Props = {
   absences: IAbsence[];
-  absenceTypes?: IAbsenceType[];
+  absenceTypes: IAbsenceType[];
   queryParams: any;
   history: any;
   startTime?: Date;
   loading?: boolean;
   solveAbsence: (absenceId: string, status: string) => void;
-  submitRequest: (explanation: string) => void;
+  submitRequest: (explanation: string, attachment: IAttachment) => void;
 };
 
 function AbsenceList(props: Props) {
@@ -37,7 +38,11 @@ function AbsenceList(props: Props) {
     solveAbsence
   } = props;
   const [explanation, setTextReason] = useState('');
-  const [attachment, onChangeAttachment] = useState('');
+  const [attachment, setAttachment] = useState<IAttachment>({
+    name: ' ',
+    type: '',
+    url: ''
+  });
   const [absenceIdx, setArrayIdx] = useState(0);
 
   const trigger = (
@@ -45,9 +50,11 @@ function AbsenceList(props: Props) {
       Create Request
     </Button>
   );
-  const onFileChange = attchment => {
-    console.log(attchment);
+  const onChangeAttachment = (files: IAttachment[]) => {
+    console.log(files[0]);
+    setAttachment(files[0]);
   };
+
   const modalContent = () => (
     <div style={{ flex: 'column', justifyContent: 'space-around' }}>
       <DateFilter queryParams={queryParams} history={history} />
@@ -72,7 +79,7 @@ function AbsenceList(props: Props) {
           }))
         }
       />
-      {absenceTypes && absenceTypes[absenceIdx].explRequired ? (
+      {absenceTypes.length > 0 && absenceTypes[absenceIdx].explRequired ? (
         <FormControl
           type="text"
           name="reason"
@@ -84,13 +91,13 @@ function AbsenceList(props: Props) {
         <></>
       )}
 
-      {absenceTypes && absenceTypes[absenceIdx].attachRequired ? (
+      {absenceTypes.length > 0 && absenceTypes[absenceIdx].attachRequired ? (
         <Uploader
           text={`Choose a file to upload`}
           warningText={'Only .jpg or jpeg file is supported.'}
           single={true}
           defaultFileList={[]}
-          onChange={onFileChange}
+          onChange={onChangeAttachment}
         />
       ) : (
         <></>
@@ -104,7 +111,7 @@ function AbsenceList(props: Props) {
   );
 
   const onSubmitClick = () => {
-    submitRequest(explanation);
+    submitRequest(explanation, attachment);
   };
 
   const setInputValue = e => {

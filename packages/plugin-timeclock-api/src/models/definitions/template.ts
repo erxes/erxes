@@ -61,6 +61,16 @@ export interface IShift {
 export interface IShiftDocument extends IShift, Document {
   _id: string;
 }
+export const attachmentSchema = new Schema(
+  {
+    name: field({ type: String }),
+    url: field({ type: String }),
+    type: field({ type: String }),
+    size: field({ type: Number, optional: true }),
+    duration: field({ type: Number, optional: true })
+  },
+  { _id: false }
+);
 
 export const timeSchema = new Schema({
   _id: field({ pkey: true }),
@@ -99,6 +109,7 @@ export const absenceSchema = new Schema({
     default: false,
     label: 'whether absence request is solved or pending'
   }),
+  attachment: field({ type: attachmentSchema, label: 'Attachment' }),
   status: field({
     type: String,
     label: 'Status of absence request, whether approved or rejected'

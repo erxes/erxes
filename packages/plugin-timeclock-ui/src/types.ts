@@ -1,5 +1,6 @@
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
+import { IAttachment } from '@erxes/ui/src/types';
 
 export interface ITimeclock {
   _id: string;
@@ -117,7 +118,8 @@ export type AbsenceMutationVariables = {
   endTime: Date;
   userId: string;
   reason: string;
-  explanation: string;
+  explanation?: string;
+  attachment?: IAttachment;
 };
 
 export type ScheduleMutationVariables = {

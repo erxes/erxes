@@ -13,6 +13,7 @@ import {
 import { mutations, queries } from '../graphql';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert } from '@erxes/ui/src/utils';
+import { IAttachment } from '@erxes/ui/src/types';
 
 type Props = {
   history: any;
@@ -24,7 +25,7 @@ type Props = {
   endTime: Date;
   absenceId: string;
   absenceStatus: string;
-
+  attachment: IAttachment;
   queryStartDate: Date;
   queryEndDate: Date;
   queryUserId: string;
@@ -58,14 +59,15 @@ const ListContainer = (props: FinalProps) => {
       .catch(err => Alert.error(err.message));
   };
 
-  const submitRequest = (expl: string) => {
+  const submitRequest = (expl: string, attchment: IAttachment) => {
     sendAbsenceReqMutation({
       variables: {
         startTime: startDate,
         endTime: endDate,
         userId: `${userId}`,
         reason: `${reason}`,
-        explanation: expl
+        explanation: expl,
+        attachment: attchment
       }
     })
       .then(() => Alert.success('Successfully sent an absence request'))
@@ -108,13 +110,21 @@ export default withProps<Props>(
 
     graphql<Props, AbsenceMutationResponse>(gql(mutations.sendAbsenceRequest), {
       name: 'sendAbsenceReqMutation',
-      options: ({ startTime, endTime, userId, reason, explanation }) => ({
+      options: ({
+        startTime,
+        endTime,
+        userId,
+        reason,
+        explanation,
+        attachment
+      }) => ({
         variables: {
           startTime: `${startTime}`,
           endTime: `${endTime}`,
           userId: `${userId}`,
           reason: `${reason}`,
-          explanation: `${explanation}`
+          explanation: `${explanation}`,
+          attachment: `${attachment}`
         },
         refetchQueries: ['listAbsenceQuery']
       })
