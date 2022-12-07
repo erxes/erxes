@@ -3,6 +3,7 @@ import { useQuery, useMutation } from 'react-apollo';
 import { FORUM_SUBSCRIPTION_PRODUCTS_QUERY } from '../../graphql/queries';
 import gql from 'graphql-tag';
 import { useSearchParam } from '../../hooks';
+import { Link } from 'react-router-dom';
 
 const DELETE = gql`
   mutation ForumDeleteSubscriptionProduct($id: ID!) {
@@ -66,6 +67,9 @@ const List: FC = () => {
               <td>{sp.userType ? sp.userType : 'All'}</td>
               <td>{sp.listOrder}</td>
               <td>
+                <Link to={`/forums/subscription-products/${sp._id}/edit`}>
+                  Edit
+                </Link>
                 <button
                   type="button"
                   onClick={async () => {
