@@ -66,8 +66,8 @@ export interface ICategoryModel extends Model<CategoryDocument> {
   ): Promise<
     | undefined
     | {
-        requiredLevel: CpUserLevels;
-        isPermissionGroupRequired: boolean;
+        requiredLevel?: CpUserLevels;
+        isPermissionGroupRequired?: boolean;
       }
   >;
 
@@ -312,8 +312,8 @@ export const generateCategoryModel = (
     ): Promise<
       | undefined
       | {
-          requiredLevel: CpUserLevels;
-          isPermissionGroupRequired: boolean;
+          requiredLevel?: CpUserLevels;
+          isPermissionGroupRequired?: boolean;
         }
     > {
       if (
@@ -331,7 +331,7 @@ export const generateCategoryModel = (
 
       const category = await models.Category.findByIdOrThrow(categoryId);
       const requiredLevel = category.userLevelReqPostRead;
-      const isPermissionGroupRequired = !!category.postReadRequiresPermissionGroup;
+      const postReadRequiresPermissionGroup = !!category.postReadRequiresPermissionGroup;
 
       // everyone is allowed to read
       if (requiredLevel === 'GUEST') return;
@@ -341,24 +341,32 @@ export const generateCategoryModel = (
       const allowedByUserLevel =
         ALL_CP_USER_LEVELS[userLevel] >= ALL_CP_USER_LEVELS[requiredLevel];
 
-      const hasPermit = () =>
-        models.PermissionGroupCategoryPermit.isUserPermitted(
+      let hasPermit = false;
+      const fetchHasPermit = async () => {
+        hasPermit = await models.PermissionGroupCategoryPermit.isUserPermitted(
           categoryId,
           'READ_POST',
           user?.userId
         );
-
-      if (isPermissionGroupRequired) {
-        if (allowedByUserLevel && (await hasPermit())) return;
-      }
-      if (!isPermissionGroupRequired) {
-        if (allowedByUserLevel || (await hasPermit())) return;
-      }
-
-      return {
-        requiredLevel,
-        isPermissionGroupRequired
       };
+
+      if (!postReadRequiresPermissionGroup) {
+        if (allowedByUserLevel) return;
+        await fetchHasPermit();
+        if (hasPermit) return;
+      } else {
+        await fetchHasPermit();
+        if (allowedByUserLevel && hasPermit) return;
+      }
+
+      if (postReadRequiresPermissionGroup) {
+        return {
+          requiredLevel: allowedByUserLevel ? undefined : requiredLevel,
+          isPermissionGroupRequired: hasPermit ? undefined : true
+        };
+      } else {
+        return { requiredLevel };
+      }
     }
 
     public static async ensureUserIsAllowed(
