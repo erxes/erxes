@@ -31,7 +31,7 @@ const types = `
 `;
 
 const queries = `
-  ads(limit: Int, skip: Int, priceRange: String, ${params}): [Ad]
+  ads(limit: Int, skip: Int, priceRange: String, cpUserId: String, ${params}): [Ad]
   adsTotalCount: Int
 `;
 

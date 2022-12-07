@@ -3,7 +3,15 @@ import { IContext } from '@erxes/api-utils/src/types';
 
 const adQueries = {
   ads(_root, args, _context: IContext) {
-    const { skip, limit, title, description, authorName, priceRange } = args;
+    const {
+      skip,
+      limit,
+      cpUserId,
+      title,
+      description,
+      authorName,
+      priceRange
+    } = args;
 
     const selector: any = {};
 
@@ -15,7 +23,8 @@ const adQueries = {
       'state',
       'authorPhone',
       'authorEmail',
-      'manufacturedYear'
+      'manufacturedYear',
+      'cpUserId'
     ];
 
     for (const field of exactFields) {
