@@ -39,7 +39,6 @@ import { field, schemaWrapper } from './definitions/utils';
 
 import { IColumnLabel } from './types';
 import { afterQueryWrapper } from './quiriesWrappers';
-import {} from './core';
 
 export { getEnv }; // ({ name, defaultValue })
 export { getUserDetail }; // (user: IUserDocument)
