@@ -6,6 +6,8 @@ import {
   getEnv,
   getNextMonth,
   getToday,
+  getPureDate,
+  getTomorrow,
   getUserDetail,
   paginate,
   regexSearchText,
@@ -37,6 +39,7 @@ import { field, schemaWrapper } from './definitions/utils';
 
 import { IColumnLabel } from './types';
 import { afterQueryWrapper } from './quiriesWrappers';
+import {} from './core';
 
 export { getEnv }; // ({ name, defaultValue })
 export { getUserDetail }; // (user: IUserDocument)
@@ -48,6 +51,8 @@ export { sendToWebhook };
 export { fixDate };
 export { getDate };
 export { getToday };
+export { getPureDate };
+export { getTomorrow };
 export { getNextMonth };
 export { checkUserIds };
 export { chunkArray };
@@ -87,6 +92,8 @@ export default {
   fixDate,
   getDate,
   getToday,
+  getPureDate,
+  getTomorrow,
   getNextMonth,
   checkUserIds,
   chunkArray,
