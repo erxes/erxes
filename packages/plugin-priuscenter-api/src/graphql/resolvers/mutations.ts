@@ -5,8 +5,6 @@ const adMutations = {
    * Creates a new ad
    */
   async adsAdd(_root, doc, { cpUser }) {
-    console.log('==============', cpUser);
-
     if (!cpUser) {
       throw new Error('Permission denied');
     }
