@@ -32,6 +32,7 @@ const types = `
 
 const queries = `
   ads(limit: Int, skip: Int, priceRange: String, cpUserId: String, ${params}): [Ad]
+  adDetail(_id: String): Ad
   adsTotalCount: Int
 `;
 
