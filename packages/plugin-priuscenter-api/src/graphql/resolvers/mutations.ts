@@ -9,6 +9,8 @@ const adMutations = {
       throw new Error('Permission denied');
     }
 
+    doc.cpUserId = cpUser._id;
+
     return Ads.createAd(doc);
   },
 
@@ -21,8 +23,6 @@ const adMutations = {
     if (!cpUser || cpUser._id !== ad.cpUserId) {
       throw new Error('Permission denied');
     }
-
-    doc.cpUserId = cpUser._id;
 
     return Ads.updateAd(_id, doc);
   },
