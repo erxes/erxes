@@ -27,6 +27,8 @@ type Props = {
   shiftStarted: boolean;
   departmendIds: string[];
   branchIds: string[];
+  longitude: number;
+  latitude: number;
 };
 
 type FinalProps = {} & Props & TimeClockMutationResponse;
@@ -43,14 +45,23 @@ const ListContainer = (props: FinalProps) => {
   } = props;
 
   const currentUserId = queryUserId || currentUser._id;
+  // get current location of an user
+  let long = 0;
+  let lat = 0;
+  navigator.geolocation.getCurrentPosition(position => {
+    long = position.coords.longitude;
+    lat = position.coords.latitude;
+  });
 
   const startClockTime = (userId: string) => {
     startTimeMutation({
-      variables: { userId: `${userId}` }
+      variables: {
+        userId: `${userId}`,
+        longitude: long,
+        latitude: lat
+      }
     })
       .then(() => {
-        // setShiftStarted(true);
-        localStorage.setItem('shiftStarted', 'true');
         Alert.success('Successfully clocked in');
       })
       .catch(err => Alert.error(err.message));
@@ -60,7 +71,9 @@ const ListContainer = (props: FinalProps) => {
     stopTimeMutation({
       variables: {
         _id: timeId,
-        userId: `${userId}`
+        userId: `${userId}`,
+        longitude: long,
+        latitude: lat
       }
     })
       .then(() => {
@@ -83,25 +96,29 @@ const ListContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, TimeClockMutationResponse, { time: Date; userId: string }>(
-      gql(mutations.clockStart),
-      {
-        name: 'startTimeMutation',
-        options: ({ startTime, userId }) => ({
-          variables: { time: startTime, userId: `${userId}` },
-          refetchQueries: ['listQuery']
-        })
-      }
-    ),
+    graphql<Props, TimeClockMutationResponse>(gql(mutations.clockStart), {
+      name: 'startTimeMutation',
+      options: ({ startTime, userId, longitude, latitude }) => ({
+        variables: {
+          time: startTime,
+          userId: `${userId}`,
+          longitude: `${longitude}`,
+          latitude: `${latitude}`
+        },
+        refetchQueries: ['listQuery']
+      })
+    }),
 
-    graphql<
-      Props,
-      TimeClockMutationResponse,
-      { time: Date; userId: string; _id: string }
-    >(gql(mutations.clockStop), {
+    graphql<Props, TimeClockMutationResponse>(gql(mutations.clockStop), {
       name: 'stopTimeMutation',
-      options: ({ stopTime, userId, timeId }) => ({
-        variables: { time: stopTime, userId: `${userId}`, _id: timeId },
+      options: ({ stopTime, userId, timeId, longitude, latitude }) => ({
+        variables: {
+          time: stopTime,
+          userId: `${userId}`,
+          _id: timeId,
+          longitude: `${longitude}`,
+          latitude: `${latitude}`
+        },
         refetchQueries: ['listQuery']
       })
     })

@@ -8,6 +8,8 @@ export interface ITimeClock {
   shiftStart: Date;
   shiftEnd?: Date;
   shiftActive?: boolean;
+  longitude?: number;
+  latitude?: number;
 }
 
 export interface ITimeClockDocument extends ITimeClock, Document {

@@ -100,6 +100,8 @@ export const queries = `
 const params = `
   userId: String
   _id: String
+  longitude: Float
+  latitude: Float
 `;
 
 const absence_params = `

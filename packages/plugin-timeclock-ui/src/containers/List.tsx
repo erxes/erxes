@@ -29,15 +29,7 @@ type FinalProps = {
   TimeClockMutationResponse;
 
 const ListContainer = (props: FinalProps) => {
-  const {
-    listQuery,
-    startTimeMutation,
-    stopTimeMutation,
-    currentUser,
-    queryEndDate,
-    queryStartDate,
-    queryUserIds
-  } = props;
+  const { listQuery, currentUser, queryUserIds } = props;
 
   if (listQuery.loading) {
     return <Spinner />;

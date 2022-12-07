@@ -12,6 +12,7 @@ import {
 } from '../../models/definitions/template';
 import { putUpdateLog } from '@erxes/api-utils/src/logUtils';
 import messageBroker from '../../messageBroker';
+import { findBranch } from '../../departments';
 
 interface ITimeClockEdit extends ITimeClock {
   _id: string;
@@ -40,18 +41,40 @@ const templateMutations = {
   /**
    * Creates a new timeclock
    */
-  async timeclockStart(_root, { userId }, { models, user }: IContext) {
-    const template = await models.Templates.createTimeClock({
-      shiftStart: new Date(),
-      shiftActive: true,
-      userId: userId ? `${userId}` : user._id
-    });
+  async timeclockStart(
+    _root,
+    { userId, longitude, latitude },
+    { models, user, subdomain }: IContext
+  ) {
+    console.log(longitude, latitude);
+
+    let insideCoordinate = true;
+    console.log(user);
+
+    // const userBranchIds = user;
+    // if (userBranchIds) {
+    //   for (const userBranchId of userBranchIds) {
+    //     const branch = await findBranch(subdomain, userBranchId);
+    //     console.log(branch);
+    //   }
+    // }
+
+    let template;
+    if (insideCoordinate) {
+      template = await models.Templates.createTimeClock({
+        shiftStart: new Date(),
+        shiftActive: true,
+        userId: userId ? `${userId}` : user._id
+      });
+    } else {
+      throw new Error('User not in the coordinate');
+    }
     return template;
   },
 
   async timeclockStop(
     _root,
-    { _id, userId, ...doc }: ITimeClockEdit,
+    { _id, userId, longitude, latitude, ...doc }: ITimeClockEdit,
     { models, subdomain, user }: IContext
   ) {
     const timeclock = await models.Templates.findOne({

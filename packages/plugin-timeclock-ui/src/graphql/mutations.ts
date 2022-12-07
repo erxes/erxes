@@ -5,16 +5,16 @@ const clockRemove = `
   `;
 
 const clockStart = `
-  mutation timeclockStart($userId: String){
-    timeclockStart(userId: $userId){
+  mutation timeclockStart($userId: String, $longitude: Float, $latitude: Float){
+    timeclockStart(userId: $userId, longitude: $longitude, latitude: $latitude){
       _id
     }
   }
 `;
 
 const clockStop = `
-  mutation timeclockStop( $userId: String, $_id: String){
-    timeclockStop(userId: $userId, _id: $_id){
+  mutation timeclockStop( $userId: String, $_id: String, $longitude: Float, $latitude: Float){
+    timeclockStop(userId: $userId, _id: $_id, longitude: $longitude, latitude: $latitude){
       _id
     }
   }

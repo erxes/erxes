@@ -60,6 +60,11 @@ function List({
       />
     </>
   );
+  // if ('geolocation' in navigator) {
+  //   console.log('activated');
+  // } else {
+  //   console.log('not activated');
+  // }
 
   const title = (
     <Title capitalize={true}>

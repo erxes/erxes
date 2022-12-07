@@ -12,6 +12,13 @@ const userFields = `
   }
 `;
 
+const attachmentFields = `
+  _id
+  startTime
+  endTime
+  reason
+  solved
+`;
 const absenceFields = `
   _id
   startTime
@@ -64,6 +71,9 @@ query listAbsenceQuery($startDate: Date, $endDate: Date, $userId: String){
     status
     user {
       ${userFields}
+    }
+    attachment{
+      ${attachmentFields}
     }
   }
 }`;

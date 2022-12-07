@@ -18,6 +18,7 @@ export interface IAbsence {
   explanation: string;
   solved: boolean;
   status: string;
+  attachment: IAttachment;
 }
 export interface IAbsenceType {
   _id: string;
@@ -111,6 +112,8 @@ export type ReportsQueryResponse = {
 export type MutationVariables = {
   _id?: string;
   userId: string;
+  longitude: number;
+  latitude: number;
 };
 export type AbsenceMutationVariables = {
   _id?: string;
