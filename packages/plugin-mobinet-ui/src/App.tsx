@@ -4,9 +4,11 @@ import { PluginLayout } from '@erxes/ui/src/styles/main';
 
 const App = () => {
   return (
-    <PluginLayout>
-      <GeneralRoutes />
-    </PluginLayout>
+    <>
+      <PluginLayout>
+        <GeneralRoutes />
+      </PluginLayout>
+    </>
   );
 };
 

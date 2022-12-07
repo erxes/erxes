@@ -15,7 +15,11 @@ const mobinets = ({ location, history }) => {
 };
 
 const routes = () => {
-  return <Route path="/mobinet/" component={mobinets} />;
+  return (
+    <>
+      <Route path="/mobinet/" component={mobinets} />
+    </>
+  );
 };
 
 export default routes;

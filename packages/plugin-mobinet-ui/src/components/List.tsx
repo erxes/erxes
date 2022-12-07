@@ -62,31 +62,38 @@ function List({
   );
 
   const content = (
-    <Table>
-      <thead>
-        <tr>
-          <th>{__('Todo')}</th>
-          <th>{__('Expiry Date')}</th>
-          <th>{__('Actions')}</th>
-        </tr>
-      </thead>
-      <tbody id={'MobinetsShowing'}>
-        {mobinets.map(mobinet => {
-          return (
-            <Row
-              space={0}
-              key={mobinet._id}
-              mobinet={mobinet}
-              remove={remove}
-              edit={edit}
-              renderButton={renderButton}
-              mobinets={mobinets}
-              types={types}
-            />
-          );
-        })}
-      </tbody>
-    </Table>
+    <div>
+      <iframe
+        src={'http://localhost:3000/map.html'}
+        width={'100%'}
+        height={'700px'}
+      />
+    </div>
+    // <Table>
+    //   <thead>
+    //     <tr>
+    //       <th>{__('Todo')}</th>
+    //       <th>{__('Expiry Date')}</th>
+    //       <th>{__('Actions')}</th>
+    //     </tr>
+    //   </thead>
+    //   <tbody id={'MobinetsShowing'}>
+    //     {mobinets.map(mobinet => {
+    //       return (
+    //         <Row
+    //           space={0}
+    //           key={mobinet._id}
+    //           mobinet={mobinet}
+    //           remove={remove}
+    //           edit={edit}
+    //           renderButton={renderButton}
+    //           mobinets={mobinets}
+    //           types={types}
+    //         />
+    //       );
+    //     })}
+    //   </tbody>
+    // </Table>
   );
 
   const SideBarList = asyncComponent(() =>
@@ -105,7 +112,7 @@ function List({
         <DataWithLoader
           data={content}
           loading={loading}
-          count={mobinets.length}
+          count={1}
           emptyText={__('Theres no mobinet')}
           emptyImage="/images/actions/8.svg"
         />

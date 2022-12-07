@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      href="https://cdn.osmbuildings.org/4.1.1/OSMBuildings.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.osmbuildings.org/4.1.1/OSMBuildings.js"></script>
+  </head>
+  <body>
+    <div id="map" style="width: 100%; height: 700px"></div>
+
+    <script>
+      var osmb = new OSMBuildings({
+        container: 'map',
+        position: { latitude: 47.918812, longitude: 106.9154893 },
+        state: false,
+        backgroundColor: '#efe8e0',
+        highlightColor: '#FF0000',
+        tilt: 60,
+        zoom: 16,
+        fastMode: true,
+        minZoom: 10,
+        maxZoom: 30,
+        style: 'object',
+        attribution:
+          '© Data <a href="https://openstreetmap.org/copyright/">OpenStreetMap</a> © Map <a href="https://mapbox.com/">Mapbox</a> © 3D <a href="https://osmbuildings.org/copyright/">OSM Buildings</a>',
+      });
+
+      osmb.appendTo('map');
+
+      osmb.addMapTiles('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution:
+          '© Data <a href="http://openstreetmap.org/copyright/">OpenStreetMap</a> · © Map <a href="http://mapbox.com">Mapbox</a>',
+      });
+
+      osmb.addGeoJSONTiles(
+        'http://{s}.data.osmbuildings.org/0.2/anonymous/tile/{z}/{x}/{y}.json'
+      );
+
+      osmb.on('pointerup', (e) => {
+        // console.log("pointerup", e);
+        var feature = e.features[0];
+
+        if (feature) {
+          console.log('feature', feature);
+          osmb.highlight(feature.id, '#FF0000');
+        } else {
+          osmb.highlight(null);
+        }
+      });
+
+      var controlButtons = document.querySelectorAll('.control button');
+
+      for (var i = 0, il = controlButtons.length; i < il; i++) {
+        controlButtons[i].addEventListener('click', function (e) {
+          var button = this;
+          var parentClassList = button.parentNode.classList;
+          var direction = button.classList.contains('inc') ? 1 : -1;
+          var increment;
+          var property;
+
+          if (parentClassList.contains('tilt')) {
+            property = 'Tilt';
+            increment = direction * 10;
+          }
+          if (parentClassList.contains('rotation')) {
+            property = 'Rotation';
+            increment = direction * 10;
+          }
+          if (parentClassList.contains('zoom')) {
+            property = 'Zoom';
+            increment = direction * 1;
+          }
+          if (property) {
+            osmb['set' + property](osmb['get' + property]() + increment);
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
