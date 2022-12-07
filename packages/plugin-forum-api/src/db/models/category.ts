@@ -28,6 +28,10 @@ export interface ICategory {
   userLevelReqPostRead: ReadCpUserLevels;
   userLevelReqPostWrite: WriteCpUserLevels;
 
+  postReadRequiresPermissionGroup?: boolean | null;
+  postWriteRequiresPermissionGroup?: boolean | null;
+  commentWriteRequiresPermissionGroup?: boolean | null;
+
   // userLevelReqCommentRead: ReadCpUserLevels;
   userLevelReqCommentWrite: WriteCpUserLevels;
 
@@ -108,7 +112,11 @@ export const categorySchema = new Schema<CategoryDocument>({
     type: Boolean,
     required: true,
     default: (): boolean => false
-  }
+  },
+
+  postReadRequiresPermissionGroup: Boolean,
+  postWriteRequiresPermissionGroup: Boolean,
+  commentWriteRequiresPermissionGroup: Boolean
 });
 
 export const generateCategoryModel = (

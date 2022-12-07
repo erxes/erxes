@@ -20,6 +20,10 @@ export default `
   
     # userLevelReqCommentRead: ForumUserLevelsRead!
     userLevelReqCommentWrite: ForumUserLevelsWrite!
+
+    postReadRequiresPermissionGroup: Boolean,
+    postWriteRequiresPermissionGroup: Boolean,
+    commentWriteRequiresPermissionGroup: Boolean,
   
     postsReqCrmApproval: Boolean!
 
