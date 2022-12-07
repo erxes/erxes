@@ -48,7 +48,6 @@ function List({
   const onUserSelect = (userIds: string[]) => {
     const usrIds: string[] = [];
     userIds.map(user => usrIds.push(user));
-    console.log('222', usrIds);
     router.setParams(history, { userIds: `${usrIds}` });
   };
 

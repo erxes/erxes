@@ -40,7 +40,6 @@ const LeftSideBar = (props: Props) => {
   };
 
   const onDepartmentSelect = dept => {
-    console.log('sidedept', dept);
     setDeptIds(dept);
     router.setParams(history, {
       departmentIds: dept
@@ -48,9 +47,7 @@ const LeftSideBar = (props: Props) => {
   };
 
   const onMemberSelect = selectedUserIds => {
-    console.log('sidebar', selectedUserIds);
     setUsers(userIds);
-    // onUserSelect(selectedUserIds);
   };
 
   const renderSidebarActions = () => {

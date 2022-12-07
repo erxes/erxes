@@ -51,7 +51,6 @@ function AbsenceList(props: Props) {
     </Button>
   );
   const onChangeAttachment = (files: IAttachment[]) => {
-    console.log(files[0]);
     setAttachment(files[0]);
   };
 
