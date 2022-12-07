@@ -459,8 +459,18 @@ export const generateCategoryModel = (
 
       const categories = await models.Category.find({
         $or: [
-          { userLevelReqPostWrite: { $in: allowedLevels } },
-          { _id: { $in: permittedCategoryIds } }
+          {
+            postWriteRequiresPermissionGroup: { $ne: true },
+            $or: [
+              { userLevelReqPostWrite: { $in: allowedLevels } },
+              { _id: { $in: permittedCategoryIds } }
+            ]
+          },
+          {
+            postWriteRequiresPermissionGroup: true,
+            userLevelReqPostWrite: { $in: allowedLevels },
+            _id: { $in: permittedCategoryIds }
+          }
         ]
       });
 

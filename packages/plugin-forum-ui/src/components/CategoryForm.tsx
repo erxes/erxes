@@ -292,10 +292,10 @@ const CategoryForm: React.FC<Props> = ({
 
         <div style={{ color: '#004691', marginLeft: 20, padding: 20 }}>
           If "Also requires permission group" is <b>checked</b>, <b>both 2</b>{' '}
-          conditions must be met for a user to be able to perform the action.
+          conditions are required for a user to be able to perform the action.
           <br />
           If "Also requires permission group" is <b>unchecked</b>, only{' '}
-          <b>one</b> of 2 conditions must be met for a user to be able to
+          <b>one</b> of 2 conditions is required for a user to be able to
           perform the action.
           <div style={{ border: '1px solid #004691', margin: 10, padding: 10 }}>
             <h5>Conditions:</h5>
