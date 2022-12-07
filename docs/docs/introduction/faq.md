@@ -4,15 +4,15 @@ title: Frequently Asked Questions
 sidebar_label: Frequently Asked Questions
 ---
 
-## What does erxes mean? How do you pronounce it?
+### What does erxes mean? How do you pronounce it?
 
 erxes (pronounced 'erk-sis') means "heavenly bodies" in Mongolian. It is branded as “erxes” with all lowercase letters.
 
-## What kind of licence erxes has?
+### What kind of licence erxes has?
 
 Please see the <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md" target="_blank">**LICENSE**</a> file for licensing information.
 
-## Are these all free? Can we just use it for free?
+### Are these all free? Can we just use it for free?
 
 
 Yes, we’re open-source software, our license is **<a href="https://github.com/erxes/erxes/blob/master/LICENSE.md">AGPLv3</a>** with **<a href="https://github.com/erxes/erxes/tree/master/ee">Enterprise Edition</a>**, which means some of our plugins and code for SaaS are require prior agmeenent and kept private under Enterpise Edition. But the rest are all free for you to install and use for you. 
