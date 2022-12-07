@@ -164,7 +164,7 @@ const CategoryForm: React.FC<Props> = ({
       <hr />
       <h3>User level based permissions</h3>
 
-      <div style={{ display: 'flex' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap' }}>
         <div style={{ border: '1px solid black', padding: 20 }}>
           <h4>Post</h4>
 
@@ -265,6 +265,22 @@ const CategoryForm: React.FC<Props> = ({
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <div style={{ color: '#004691', marginLeft: 20, padding: 20 }}>
+          If "Also requires permission group" is checked 2 conditions must be
+          met for a user to be able to perform the action:
+          <ol>
+            <li>User level is high enough</li>
+            <li>
+              User must be in a permission group that also permits the action{' '}
+            </li>
+          </ol>
+          If "Also requires permission group" is unchecked 1 conditions must be
+          met for a user to be able to perform the action:
+          <ol>
+            <li>User level is high enough</li>
+          </ol>
         </div>
       </div>
 

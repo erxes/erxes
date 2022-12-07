@@ -304,7 +304,10 @@ export const generateCategoryModel = (
       const userLevel = await models.ForumClientPortalUser.getUserLevel(user);
 
       // user is allowed by its user level
-      if (ALL_CP_USER_LEVELS[userLevel] >= ALL_CP_USER_LEVELS[requiredLevel])
+      if (
+        ALL_CP_USER_LEVELS[userLevel] >= ALL_CP_USER_LEVELS[requiredLevel] &&
+        !category.postReadRequiresPermissionGroup
+      )
         return [true, requiredLevel];
 
       const hasPermit = await models.PermissionGroupCategoryPermit.isUserPermitted(
@@ -330,11 +333,20 @@ export const generateCategoryModel = (
 
       const userLevel = await models.ForumClientPortalUser.getUserLevel(user);
 
-      const requiredLevel: CpUserLevels = (() => {
+      const [requiredLevel, requiresPermissionGroup]: [
+        CpUserLevels,
+        boolean | null | undefined
+      ] = (() => {
         if (permission === 'WRITE_COMMENT') {
-          return category.userLevelReqCommentWrite;
+          return [
+            category.userLevelReqCommentWrite,
+            category.commentWriteRequiresPermissionGroup
+          ];
         } else if (permission === 'WRITE_POST') {
-          return category.userLevelReqPostWrite;
+          return [
+            category.userLevelReqPostWrite,
+            category.postWriteRequiresPermissionGroup
+          ];
         } else {
           throw new Error(
             'Tried to check for an unrecognized write permission'
@@ -343,7 +355,10 @@ export const generateCategoryModel = (
       })();
 
       // user is allowed by its user level
-      if (ALL_CP_USER_LEVELS[userLevel] >= ALL_CP_USER_LEVELS[requiredLevel])
+      if (
+        ALL_CP_USER_LEVELS[userLevel] >= ALL_CP_USER_LEVELS[requiredLevel] &&
+        !requiresPermissionGroup
+      )
         return;
 
       const hasPermit = await models.PermissionGroupCategoryPermit.isUserPermitted(
