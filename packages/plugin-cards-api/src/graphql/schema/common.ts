@@ -81,6 +81,7 @@ export const commonTypes = `
 `;
 
 export const commonMutationParams = `
+  parentId:String,
   proccessId: String,
   aboveItemId: String,
   stageId: String,

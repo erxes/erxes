@@ -25,7 +25,11 @@ export const getEnv = ({
  * Returns user's name  or email
  */
 export const getUserDetail = (user: IUserDocument) => {
-  return (user.details && user.details.fullName) || user.email;
+  if (user.details) {
+    return `${user.details.firstName} ${user.details.lastName}`;
+  }
+
+  return user.email;
 };
 
 export const paginate = (
@@ -201,9 +205,9 @@ export const splitStr = (str: string, size: number): string[] => {
 };
 
 const generateRandomEmail = () => {
-  var chars = 'abcdefghijklmnopqrstuvwxyz1234567890';
-  var string = '';
-  for (var ii = 0; ii < 15; ii++) {
+  let chars = 'abcdefghijklmnopqrstuvwxyz1234567890';
+  let string = '';
+  for (let ii = 0; ii < 15; ii++) {
     string += chars[Math.floor(Math.random() * chars.length)];
   }
 
