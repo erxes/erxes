@@ -189,6 +189,11 @@ const isDiffValue = (latest, target, field) => {
     const latestFoundItem = latest[ct].find(i => i.field === fieldId);
     const targetFoundItem = target[ct].find(i => i.field === fieldId);
 
+    // previously empty and now receiving new value
+    if (!latestFoundItem && targetFoundItem) {
+      return true;
+    }
+
     if (latestFoundItem && targetFoundItem) {
       return latestFoundItem.value !== targetFoundItem.value;
     }
