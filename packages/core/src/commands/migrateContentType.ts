@@ -95,6 +95,9 @@ const switchContentType = contentType => {
     case 'knowledgeBaseArticle':
       changedContentType = `knowledgebase:${contentType}`;
       break;
+
+    default:
+      break;
   }
 
   return changedContentType;
@@ -111,73 +114,77 @@ const command = async () => {
   InternalNotes = db.collection('internal_notes');
   Webhooks = db.collection('webhooks');
 
-  await Segments.find({}).forEach(doc => {
-    const contentType = switchContentType(doc.contentType);
+  try {
+    await Segments.find({}).forEach(doc => {
+      const contentType = switchContentType(doc.contentType);
 
-    Segments.updateOne({ _id: doc._id }, { $set: { contentType } });
+      Segments.updateOne({ _id: doc._id }, { $set: { contentType } });
 
-    const updatedConditions: any = [];
+      const updatedConditions: any = [];
 
-    for (const condition of doc.conditions || []) {
-      if (condition.propertyType) {
-        condition.propertyType = switchContentType(condition.propertyType);
-      }
-
-      updatedConditions.push(condition);
-    }
-
-    Segments.updateOne(
-      { _id: doc._id },
-      { $set: { conditions: updatedConditions } }
-    );
-  });
-
-  // await FieldGroups.find({}).forEach(doc => {
-  //   const contentType = switchContentType(doc.contentType);
-
-  //   FieldGroups.updateOne({ _id: doc._id }, { $set: { contentType } });
-  // });
-
-  // await Fields.find({}).forEach(doc => {
-  //   const contentType = switchContentType(doc.contentType);
-
-  //   Fields.updateOne({ _id: doc._id }, { $set: { contentType } });
-  // });
-
-  await Tags.find({}).forEach(doc => {
-    const contentType = switchContentType(doc.type);
-
-    Tags.updateOne({ _id: doc._id }, { $set: { type: contentType } });
-  });
-
-  await InternalNotes.find({}).forEach(doc => {
-    const contentType = switchContentType(doc.contentType);
-
-    InternalNotes.updateOne({ _id: doc._id }, { $set: { contentType } });
-  });
-
-  await Webhooks.find({}).forEach(webhook => {
-    const actions = webhook.actions || [];
-    const fixedActions = [] as any;
-
-    for (const action of actions) {
-      const type = switchContentType(action.type);
-
-      fixedActions.push({
-        ...action,
-        type
-      });
-    }
-
-    Webhooks.updateOne(
-      { _id: webhook._id },
-      {
-        $set: {
-          actions: fixedActions
+      for (const condition of doc.conditions || []) {
+        if (condition.propertyType) {
+          condition.propertyType = switchContentType(condition.propertyType);
         }
+
+        updatedConditions.push(condition);
       }
-    );
-  });
+
+      Segments.updateOne(
+        { _id: doc._id },
+        { $set: { conditions: updatedConditions } }
+      );
+    });
+
+    // await FieldGroups.find({}).forEach(doc => {
+    //   const contentType = switchContentType(doc.contentType);
+
+    //   FieldGroups.updateOne({ _id: doc._id }, { $set: { contentType } });
+    // });
+
+    // await Fields.find({}).forEach(doc => {
+    //   const contentType = switchContentType(doc.contentType);
+
+    //   Fields.updateOne({ _id: doc._id }, { $set: { contentType } });
+    // });
+
+    await Tags.find({}).forEach(doc => {
+      const contentType = switchContentType(doc.type);
+
+      Tags.updateOne({ _id: doc._id }, { $set: { type: contentType } });
+    });
+
+    await InternalNotes.find({}).forEach(doc => {
+      const contentType = switchContentType(doc.contentType);
+
+      InternalNotes.updateOne({ _id: doc._id }, { $set: { contentType } });
+    });
+
+    await Webhooks.find({}).forEach(webhook => {
+      const actions = webhook.actions || [];
+      const fixedActions = [] as any;
+
+      for (const action of actions) {
+        const type = switchContentType(action.type);
+
+        fixedActions.push({
+          ...action,
+          type
+        });
+      }
+
+      Webhooks.updateOne(
+        { _id: webhook._id },
+        {
+          $set: {
+            actions: fixedActions
+          }
+        }
+      );
+    });
+  } catch (e) {
+    console.log(`Error occurred: ${e.message}`);
+  }
 
   console.log(`Process finished at: ${new Date()}`);
 
