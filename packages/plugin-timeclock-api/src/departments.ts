@@ -21,3 +21,14 @@ export const findBranch = async (subdomain: string, target) => {
 
   return branch;
 };
+
+export const findBranches = async (subdomain: string, userId: string) => {
+  const branches = await sendCoreMessage({
+    subdomain,
+    action: 'branches.find',
+    data: { query: { userIds: userId } },
+    isRPC: true
+  });
+
+  return branches;
+};

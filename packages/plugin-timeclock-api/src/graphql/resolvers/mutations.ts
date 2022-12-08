@@ -12,7 +12,7 @@ import {
 } from '../../models/definitions/template';
 import { putUpdateLog } from '@erxes/api-utils/src/logUtils';
 import messageBroker from '../../messageBroker';
-import { findBranch } from '../../departments';
+import { findBranch, findBranches } from '../../departments';
 
 interface ITimeClockEdit extends ITimeClock {
   _id: string;
@@ -46,18 +46,40 @@ const templateMutations = {
     { userId, longitude, latitude },
     { models, user, subdomain }: IContext
   ) {
-    console.log(longitude, latitude);
+    // convert long, lat into radians
+    const longRad = (Math.PI * longitude) / 180;
+    const latRad = (latitude * Math.PI) / 180;
 
-    let insideCoordinate = true;
-    console.log(user);
+    let insideCoordinate = false;
 
-    // const userBranchIds = user;
-    // if (userBranchIds) {
-    //   for (const userBranchId of userBranchIds) {
-    //     const branch = await findBranch(subdomain, userBranchId);
-    //     console.log(branch);
-    //   }
-    // }
+    const EARTH_RADIUS = 6378.14;
+    const branches = await findBranches(subdomain, user._id);
+
+    for (const branch of branches) {
+      // convert into radians
+      const branchLong = (branch.coordinate.longitude * Math.PI) / 180;
+      const branchLat = (branch.coordinate.latitude * Math.PI) / 180;
+
+      const longDiff = longRad - branchLong;
+      const latDiff = latRad - branchLat;
+
+      // distance in km
+      const dist =
+        EARTH_RADIUS *
+        2 *
+        Math.asin(
+          Math.sqrt(
+            Math.pow(Math.sin(latDiff / 2), 2) +
+              Math.cos(latRad) *
+                Math.cos(branchLat) *
+                Math.pow(Math.sin(longDiff / 2), 2)
+          )
+        );
+      // if user's coordinate is within the radius
+      if (dist * 1000 <= branch.radius) {
+        insideCoordinate = true;
+      }
+    }
 
     let template;
     if (insideCoordinate) {
