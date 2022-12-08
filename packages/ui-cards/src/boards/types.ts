@@ -100,6 +100,7 @@ export interface IItemParams {
   _id?: string;
   name?: string;
   stageId?: string;
+  parentId?: string;
   assignedUserIds?: string[];
   closeDate?: Date;
   description?: string;

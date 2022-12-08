@@ -127,6 +127,17 @@ export const getToday = (date: Date): Date => {
   );
 };
 
+export const getPureDate = (date: Date, multiplier = 1) => {
+  const ndate = new Date(date);
+  const diffTimeZone =
+    multiplier * Number(process.env.TIMEZONE || 0) * 1000 * 60 * 60;
+  return new Date(ndate.getTime() - diffTimeZone);
+};
+
+export const getTomorrow = (date: Date) => {
+  return getToday(new Date(date.getTime() + 24 * 60 * 60 * 1000));
+};
+
 export const getNextMonth = (date: Date): { start: number; end: number } => {
   const today = getToday(date);
   const currentMonth = new Date().getMonth();

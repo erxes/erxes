@@ -28,6 +28,7 @@ type IProps = {
   boardId?: string;
   pipelineId?: string;
   stageId?: string;
+  parentId?: string;
   showSelect?: boolean;
   relType?: string;
   mailSubject?: string;
@@ -70,7 +71,8 @@ class AddFormContainer extends React.Component<FinalProps> {
       relType,
       relTypeIds,
       editConformity,
-      bookingProductId
+      bookingProductId,
+      parentId
     } = this.props;
 
     doc.assignedUserIds = doc.assignedUserIds || assignedUserIds;
@@ -82,6 +84,7 @@ class AddFormContainer extends React.Component<FinalProps> {
     doc.proccessId = proccessId;
     doc.description = doc.description || description;
     doc.attachments = doc.attachments || attachments;
+    doc.parentId = parentId
 
     if (sourceConversationId) {
       doc.sourceConversationIds = [sourceConversationId];
