@@ -33,6 +33,7 @@ var plugins = [
   { name: 'segments', ui: true, api: true },
   { name: 'tags', ui: true, api: true },
   { name: 'webbuilder', ui: true, api: true },
+  { name: 'documents', ui: true, api: true },
 ];
 
 const pluginsMap = {};
