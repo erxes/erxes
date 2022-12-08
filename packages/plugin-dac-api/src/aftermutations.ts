@@ -115,6 +115,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           customFields.lastName = params.object.lastName;
           customFields.cellular = params.object.primaryPhone;
           customFields.e_mail = params.object.primaryEmail;
+          customFields.cardCode = orchardCustomer.cardCode;
 
           for (const customFieldData of params.updatedDocument
             .customFieldsData || []) {
@@ -127,7 +128,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
             }
           }
 
-          await updateCustomer(customFields);
+          const response = await updateCustomer(customFields);
+
+          return response;
         } else {
           const customFields: any = {};
 

@@ -96,7 +96,7 @@ export const createCustomer = async (doc: any) => {
 
 export const updateCustomer = async (doc: any) => {
   try {
-    return sendRequestToOrchard('POST', 'customer', doc);
+    return sendRequestToOrchard('PUT', 'customer', doc);
   } catch (e) {
     throw new Error('Failed to update customer: ' + e.message);
   }
