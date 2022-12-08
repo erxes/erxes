@@ -2,6 +2,8 @@ import { initBroker } from './messageBroker';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import afterMutations from './afterMutations';
+import { getCustomer } from './api/erxesApi';
+
 export let mainDb;
 export let debug;
 export let graphqlPubsub;
@@ -23,14 +25,7 @@ export default {
     afterMutations
   },
 
-  // getHandlers: [
-  //   { path: `/customer`, method: getCustomer },
-  //   { path: `/pos-sync-config`, method: posSyncConfig }
-  // ],
-  // postHandlers: [
-  //   { path: `/customer/update`, method: unfetchOrderInfo },
-  //   { path: `/customer/create`, method: posSyncOrders }
-  // ],
+  getHandlers: [{ path: `/customer`, method: getCustomer }],
 
   apolloServerContext: async context => {
     return context;

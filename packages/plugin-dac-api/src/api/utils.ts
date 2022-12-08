@@ -1,78 +1,28 @@
-import {
-  removeExtraSpaces,
-  removeLastTrailingSlash
-} from '@erxes/api-utils/src/commonUtils';
 import { sendRequest } from '@erxes/api-utils/src/requests';
-
-import redis from '../redis';
-import { sendCoreMessage } from './../messageBroker';
-import { CONFIG_KEYS } from './constants';
+import { getConfig } from '../utils';
 
 // ************************* common methods ************************* //
-const getConfigs = async (subdomain: string) => {
-  const response = await redis.get('orchardConfigs');
-  const configsOnRedis = JSON.parse(response || '{}');
 
-  if (Object.keys(configsOnRedis).length > 0) {
-    CONFIG_KEYS.ALL.forEach(key => {
-      if (!configsOnRedis[key]) {
-        configsOnRedis[key] = '';
-      }
-    });
-    return configsOnRedis;
-  }
-
-  const configs = await sendCoreMessage({
-    subdomain,
-    action: 'getConfigs',
-    data: {},
-    isRPC: true,
-    defaultValue: {}
-  });
-
-  const { ORCHARD_API_URL, ORCHARD_USERNAME, ORCHARD_PASSWORD } = configs;
-
-  if (!ORCHARD_API_URL || !ORCHARD_USERNAME || !ORCHARD_PASSWORD) {
-    throw new Error('Orchard configs are not set properly');
-  }
-
-  const configsToSave = {
-    ORCHARD_API_URL: removeLastTrailingSlash(ORCHARD_API_URL),
-    ORCHARD_USERNAME,
-    ORCHARD_PASSWORD
+export const getConfigs = async () => {
+  return {
+    OrchardApi: await getConfig('ORCHARD_API_URL'),
+    OrchardUsername: await getConfig('ORCHARD_USERNAME'),
+    OrchardPassword: await getConfig('ORCHARD_PASSWORD')
   };
-
-  await redis.set('orchardConfigs', JSON.stringify(configsToSave));
-
-  return configsToSave;
 };
 
-const getApiUrl = async (subdomain: string) => {
-  const configs = await getConfigs(subdomain);
-
-  const { ORCHARD_API_URL } = configs;
-
-  return removeExtraSpaces(removeLastTrailingSlash(ORCHARD_API_URL));
-};
-
-export const getToken = async (subdomain: string) => {
-  const configs = await getConfigs(subdomain);
-
-  const { ORCHARD_API_URL, ORCHARD_USERNAME, ORCHARD_PASSWORD } = configs;
-
-  const baseApiUrl = removeExtraSpaces(
-    removeLastTrailingSlash(ORCHARD_API_URL)
-  );
+export const getToken = async () => {
+  const DacApi = await getConfigs();
 
   const options = {
     method: 'POST',
-    url: `${baseApiUrl}/mobile/token`,
+    url: `${DacApi.OrchardApi}/mobile/token`,
     headers: {
       'Content-Type': 'application/json'
     },
     body: {
-      username: ORCHARD_USERNAME,
-      password: ORCHARD_PASSWORD
+      username: DacApi.OrchardUsername,
+      password: DacApi.OrchardPassword
     }
   };
 
@@ -98,12 +48,12 @@ const sendRequestToOrchard = async (
   data?: any
 ) => {
   try {
-    const token = await getToken(subdomain);
-    const baseApiUrl = await getApiUrl(subdomain);
+    const token = await getToken();
+    const DacApi = await getConfigs();
 
     const options = {
       method,
-      url: `${baseApiUrl}/mobile/api/v1/${action}`,
+      url: `${DacApi.OrchardApi}/mobile/api/v1/${action}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`
@@ -147,7 +97,7 @@ export const createCustomer = async (subdomain: string, doc: any) => {
 
 export const updateCustomer = async (subdomain: string, doc: any) => {
   try {
-    return sendRequestToOrchard(subdomain, 'PUT', 'customer', doc);
+    return sendRequestToOrchard(subdomain, 'POST', 'customer', doc);
   } catch (e) {
     throw new Error('Failed to update customer: ' + e.message);
   }

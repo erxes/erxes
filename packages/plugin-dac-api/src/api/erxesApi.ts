@@ -1,8 +1,8 @@
 import { sendFormsMessage } from './../../../plugin-inbox-api/src/messageBroker';
 import { sendContactsMessage } from '../messageBroker';
 
-export const getCustomer = async (subdomain: string, req, res) => {
-  const { phone } = req.queryParams;
+export const getCustomer = async (req, res, subdomain) => {
+  const phone = req.query.phone;
 
   const customer = await sendContactsMessage({
     subdomain,
@@ -20,7 +20,7 @@ export const getCustomer = async (subdomain: string, req, res) => {
 
   const fields = await sendFormsMessage({
     subdomain,
-    action: 'fields',
+    action: 'fields.find',
     data: {
       contentType: 'contacts:customer'
     },
@@ -39,10 +39,9 @@ export const getCustomer = async (subdomain: string, req, res) => {
   }
 
   return res.json(customerObj);
-};
 
-export const createCustomer = async (subdomain: string, req, res) => {
-  const { body } = req;
+  // export const createCustomer = async (subdomain: string, req, res) => {
+  //   const { body } = req;
 
-  return res.send('ok');
+  //   return res.send('ok');
 };

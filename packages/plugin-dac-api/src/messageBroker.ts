@@ -33,6 +33,23 @@ export const sendCoreMessage = (args: ISendMessageArgs) => {
     ...args
   });
 };
+export const sendFormsMessage = (args: ISendMessageArgs) => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'forms',
+    ...args
+  });
+};
+export const sendCommonMessage = async (
+  args: ISendMessageArgs & { serviceName: string }
+): Promise<any> => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    ...args
+  });
+};
 
 export default function() {
   return client;
