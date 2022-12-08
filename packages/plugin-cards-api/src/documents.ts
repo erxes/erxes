@@ -54,7 +54,10 @@ export default {
     let replacedContent = content;
 
     for (const field of simpleFields) {
-      replacedContent = replacedContent.replace(`{{ ${field} }}`, item[field]);
+      replacedContent = replacedContent.replace(
+        `{{ ${field} }}`,
+        item[field] || ''
+      );
     }
 
     const users = await sendCoreMessage({
