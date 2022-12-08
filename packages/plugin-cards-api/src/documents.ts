@@ -1,5 +1,9 @@
 import { generateModels } from './connectionResolver';
-import { sendCoreMessage, sendProductsMessage } from './messageBroker';
+import {
+  sendContactsMessage,
+  sendCoreMessage,
+  sendProductsMessage
+} from './messageBroker';
 
 export default {
   editorAttributes: async () => {
@@ -9,7 +13,9 @@ export default {
       { value: 'closeDate', name: 'Close date' },
       { value: 'description', name: 'Description' },
       { value: 'productsInfo', name: 'Products information' },
-      { value: 'assignedUsers', name: 'Assigned users' }
+      { value: 'assignedUsers', name: 'Assigned users' },
+      { value: 'customers', name: 'Customers' },
+      { value: 'companies', name: 'Companies' }
     ];
   },
 
@@ -60,6 +66,7 @@ export default {
       );
     }
 
+    // ============ replace users
     const users = await sendCoreMessage({
       subdomain,
       action: 'users.find',
@@ -72,9 +79,94 @@ export default {
     replacedContent = replacedContent.replace(
       '{{ assignedUsers }}',
       users
-        .map(user => `${user.firstName || ''} ${user.lastName || ''}`)
+        .map(
+          user =>
+            `${user.details.firstName || ''} ${user.details.lastName || ''}`
+        )
         .join(',')
     );
+
+    if (replacedContent.includes('{{ customers }}')) {
+      const customerIds = await sendCoreMessage({
+        subdomain,
+        action: 'conformities.savedConformity',
+        data: {
+          mainType: stage.type,
+          mainTypeId: item._id,
+          relTypes: ['customer']
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      const activeCustomers = await sendContactsMessage({
+        subdomain,
+        action: 'customers.findActiveCustomers',
+        data: { selector: { _id: { $in: customerIds } } },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      const customerRows: string[] = [];
+
+      for (const item of activeCustomers) {
+        const name = await sendContactsMessage({
+          subdomain,
+          action: 'customers.getCustomerName',
+          data: { customer: item },
+          isRPC: true,
+          defaultValue: ''
+        });
+
+        customerRows.push(name);
+      }
+
+      replacedContent = replacedContent.replace(
+        '{{ customers }}',
+        customerRows.join(',')
+      );
+    }
+
+    if (replacedContent.includes('{{ companies }}')) {
+      const companyIds = await sendCoreMessage({
+        subdomain,
+        action: 'conformities.savedConformity',
+        data: {
+          mainType: stage.type,
+          mainTypeId: item._id,
+          relTypes: ['company']
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      const activeCompanies = await sendContactsMessage({
+        subdomain,
+        action: 'companies.findActiveCompanies',
+        data: { selector: { _id: { $in: companyIds } } },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      const companyRows: string[] = [];
+
+      for (const item of activeCompanies) {
+        const name = await sendContactsMessage({
+          subdomain,
+          action: 'companies.getCompanyName',
+          data: { company: item },
+          isRPC: true,
+          defaultValue: ''
+        });
+
+        companyRows.push(name);
+      }
+
+      replacedContent = replacedContent.replace(
+        '{{ companies }}',
+        companyRows.join(',')
+      );
+    }
 
     const productsData = item.productsData || [];
 
