@@ -80,7 +80,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           <Info>
             <a
               target="_blank"
-              href="https://erxes.org/administrator/system-config#facebook"
+              href="https://docs.erxes.io/docs/user-guide/xos/system-configuration#facebook"
               rel="noopener noreferrer"
             >
               {__('Learn how to set Facebook Integration Variables')}
@@ -101,7 +101,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           <Info>
             <a
               target="_blank"
-              href="https://erxes.org/administrator/system-config#twitter"
+              href="https://docs.erxes.io/docs/user-guide/xos/system-configuration#twitter"
               rel="noopener noreferrer"
             >
               {__('Learn how to set Twitter Integration Variables')}
@@ -118,7 +118,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           <Info>
             <a
               target="_blank"
-              href="https://erxes.org/administrator/system-config#nylas-integrations"
+              href="https://docs.erxes.io/docs/user-guide/xos/system-configuration#nylas-integrations"
               rel="noopener noreferrer"
             >
               {__('Learn how to set Nylas Integration')}
@@ -139,7 +139,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           <Info>
             <a
               target="_blank"
-              href="https://erxes.org/administrator/system-config#video-calls"
+              href="https://docs.erxes.io/docs/user-guide/xos/system-configuration#video-calls"
               rel="noopener noreferrer"
             >
               {__('Learn more about Video call configuration')}
@@ -168,7 +168,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           <Info>
             <a
               target="_blank"
-              href="https://erxes.org/administrator/system-config#sunshine-conversations-api-integration"
+              href="https://docs.erxes.io/docs/user-guide/xos/system-configuration#sunshine-conversations-api-integration"
               rel="noopener noreferrer"
             >
               {__('Learn how to set Smooch Integration Variables')}
@@ -188,7 +188,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           <Info>
             <a
               target="_blank"
-              href="https://erxes.org/administrator/system-config#whatsapp-integration"
+              href="https://docs.erxes.io/docs/user-guide/xos/system-configuration#whatsapp-integration"
               rel="noopener noreferrer"
             >
               {__('Learn how to set WhatsApp Integration Variables')}
