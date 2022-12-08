@@ -10,7 +10,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
   const { type, action } = params;
   const { primaryPhone } = params.object;
 
-  const orchardCustomer = await getCustomer(subdomain, primaryPhone);
+  const orchardCustomer = await getCustomer(primaryPhone);
   console.log('ORCHARD CUSTOMER', orchardCustomer);
 
   try {
@@ -51,7 +51,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
             }
           }
 
-          await updateCustomer(subdomain, customFields);
+          await updateCustomer(customFields);
         } else {
           const customFields: any = {};
 
@@ -87,7 +87,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
             }
           }
 
-          await createCustomer(subdomain, customFields);
+          await createCustomer(customFields);
         }
       }
 
@@ -127,7 +127,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
             }
           }
 
-          await updateCustomer(subdomain, customFields);
+          await updateCustomer(customFields);
         } else {
           const customFields: any = {};
 
@@ -163,7 +163,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
             }
           }
 
-          await createCustomer(subdomain, customFields);
+          await createCustomer(customFields);
         }
       }
 

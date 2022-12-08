@@ -42,7 +42,6 @@ export const getToken = async () => {
 };
 
 const sendRequestToOrchard = async (
-  subdomain: string,
   method: string,
   action: string,
   data?: any
@@ -71,45 +70,41 @@ const sendRequestToOrchard = async (
 
 // ************************* customer methods ************************* //
 
-export const getCustomer = async (subdomain: string, phone: string) => {
+export const getCustomer = async (phone: string) => {
   try {
-    return sendRequestToOrchard(subdomain, 'GET', `customer?cellular=${phone}`);
+    return sendRequestToOrchard('GET', `customer?cellular=${phone}`);
   } catch (e) {
     throw new Error('Failed to get customer by phone: ' + e.message);
   }
 };
 
-export const getCustomerById = async (subdomain: string, idnumber: string) => {
+export const getCustomerById = async (idnumber: string) => {
   try {
-    return sendRequestToOrchard(subdomain, 'GET', `customer/${idnumber}`);
+    return sendRequestToOrchard('GET', `customer/${idnumber}`);
   } catch (e) {
     throw new Error('Failed to get customer by id: ' + e.message);
   }
 };
 
-export const createCustomer = async (subdomain: string, doc: any) => {
+export const createCustomer = async (doc: any) => {
   try {
-    return sendRequestToOrchard(subdomain, 'POST', 'customer', doc);
+    return sendRequestToOrchard('POST', 'customer', doc);
   } catch (e) {
     throw new Error('Failed to create customer: ' + e.message);
   }
 };
 
-export const updateCustomer = async (subdomain: string, doc: any) => {
+export const updateCustomer = async (doc: any) => {
   try {
-    return sendRequestToOrchard(subdomain, 'POST', 'customer', doc);
+    return sendRequestToOrchard('POST', 'customer', doc);
   } catch (e) {
     throw new Error('Failed to update customer: ' + e.message);
   }
 };
 
-export const updatePinCode = async (
-  subdomain: string,
-  cardcode: string,
-  pincode: string
-) => {
+export const updatePinCode = async (cardcode: string, pincode: string) => {
   try {
-    return sendRequestToOrchard(subdomain, 'PUT', 'customer/pin', {
+    return sendRequestToOrchard('PUT', 'customer/pin', {
       cardcode,
       pincode
     });
@@ -120,17 +115,17 @@ export const updatePinCode = async (
 
 // ************************* vehicle methods ************************* //
 
-export const getVehicle = async (subdomain: string, plate: string) => {
+export const getVehicle = async (plate: string) => {
   try {
-    return sendRequestToOrchard(subdomain, 'GET', `vehicle/${plate}`);
+    return sendRequestToOrchard('GET', `vehicle/${plate}`);
   } catch (e) {
     throw new Error('Failed to get vehicle by plate: ' + e.message);
   }
 };
 
-export const createVehicle = async (subdomain: string, doc: any) => {
+export const createVehicle = async (doc: any) => {
   try {
-    return sendRequestToOrchard(subdomain, 'POST', 'vehicle', doc);
+    return sendRequestToOrchard('POST', 'vehicle', doc);
   } catch (e) {
     throw new Error('Failed to create vehicle: ' + e.message);
   }
@@ -138,7 +133,7 @@ export const createVehicle = async (subdomain: string, doc: any) => {
 
 export const updateVehicle = async (subdomain: string, doc: any) => {
   try {
-    return sendRequestToOrchard(subdomain, 'PUT', 'vehicle', doc);
+    return sendRequestToOrchard('PUT', 'vehicle', doc);
   } catch (e) {
     throw new Error('Failed to update vehicle: ' + e.message);
   }

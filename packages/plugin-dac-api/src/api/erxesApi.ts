@@ -1,14 +1,13 @@
-import { sendFormsMessage } from './../../../plugin-inbox-api/src/messageBroker';
 import { sendContactsMessage } from '../messageBroker';
 
 export const getCustomer = async (req, res, subdomain) => {
-  const phone = req.query.phone;
+  const phoneNumber = req.query.phone;
 
   const customer = await sendContactsMessage({
     subdomain,
     action: 'customers.findOne',
     data: {
-      primaryPhone: phone
+      primaryPhone: phoneNumber
     },
     isRPC: true,
     defaultValue: null
@@ -17,28 +16,6 @@ export const getCustomer = async (req, res, subdomain) => {
   if (!customer) {
     throw new Error('Customer not found');
   }
-
-  const fields = await sendFormsMessage({
-    subdomain,
-    action: 'fields.find',
-    data: {
-      contentType: 'contacts:customer'
-    },
-    isRPC: true,
-    defaultValue: []
-  });
-
-  const customerObj: any = {};
-
-  for (const data of customer.customFieldsData) {
-    const field = fields.find(f => f._id === data.fieldId);
-
-    if (field) {
-      customerObj[field.code] = data.value;
-    }
-  }
-
-  return res.json(customerObj);
 
   // export const createCustomer = async (subdomain: string, req, res) => {
   //   const { body } = req;
