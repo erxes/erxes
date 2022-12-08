@@ -1,6 +1,6 @@
-import { AppConsumer } from "../appContext";
-import React from "react";
-import { can } from "../utils/core";
+import { AppConsumer } from '../appContext';
+import React from 'react';
+import { can } from '../utils/core';
 
 type Props = {
   action: string;
@@ -28,7 +28,7 @@ const WithPermission = (props: Props) => {
           }
         }
 
-        if (!can(action, currentUser)) {
+        if (action && !can(action, currentUser)) {
           return fallbackComponent || null;
         }
 
