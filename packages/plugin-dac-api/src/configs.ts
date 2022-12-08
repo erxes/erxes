@@ -2,7 +2,7 @@ import { initBroker } from './messageBroker';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import afterMutations from './afterMutations';
-import { getCustomer } from './api/erxesApi';
+import { createCustomer, getCustomer } from './api/erxesApi';
 
 export let mainDb;
 export let debug;
@@ -26,6 +26,7 @@ export default {
   },
 
   getHandlers: [{ path: `/customer`, method: getCustomer }],
+  postHandlers: [{ path: `/customer`, method: createCustomer }],
 
   apolloServerContext: async context => {
     return context;
