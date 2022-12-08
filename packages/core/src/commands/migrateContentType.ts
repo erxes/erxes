@@ -15,8 +15,8 @@ const client = new MongoClient(MONGO_URL);
 let db: Db;
 
 let Segments: Collection<any>;
-// let Fields: Collection<any>;
-// let FieldGroups: Collection<any>;
+let Fields: Collection<any>;
+let FieldGroups: Collection<any>;
 let Tags: Collection<any>;
 let InternalNotes: Collection<any>;
 let Webhooks: Collection<any>;
@@ -108,8 +108,8 @@ const command = async () => {
   db = client.db() as Db;
 
   Segments = db.collection('segments');
-  // Fields = db.collection('fields');
-  // FieldGroups = db.collection('fields_groups');
+  Fields = db.collection('fields');
+  FieldGroups = db.collection('fields_groups');
   Tags = db.collection('tags');
   InternalNotes = db.collection('internal_notes');
   Webhooks = db.collection('webhooks');
@@ -136,17 +136,17 @@ const command = async () => {
       );
     });
 
-    // await FieldGroups.find({}).forEach(doc => {
-    //   const contentType = switchContentType(doc.contentType);
+    await FieldGroups.find({}).forEach(doc => {
+      const contentType = switchContentType(doc.contentType);
 
-    //   FieldGroups.updateOne({ _id: doc._id }, { $set: { contentType } });
-    // });
+      FieldGroups.updateOne({ _id: doc._id }, { $set: { contentType } });
+    });
 
-    // await Fields.find({}).forEach(doc => {
-    //   const contentType = switchContentType(doc.contentType);
+    await Fields.find({}).forEach(doc => {
+      const contentType = switchContentType(doc.contentType);
 
-    //   Fields.updateOne({ _id: doc._id }, { $set: { contentType } });
-    // });
+      Fields.updateOne({ _id: doc._id }, { $set: { contentType } });
+    });
 
     await Tags.find({}).forEach(doc => {
       const contentType = switchContentType(doc.type);
