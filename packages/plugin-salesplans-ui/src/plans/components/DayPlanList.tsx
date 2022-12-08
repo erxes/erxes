@@ -177,7 +177,8 @@ class DayPlans extends React.Component<Props, State> {
         <Button
           btnStyle="primary"
           icon="calcualtor"
-          disabled={!(branchId && departmentId && date && _date > new Date())}
+          disabled={!(branchId && departmentId && date)}
+          // disabled={!(branchId && departmentId && date && _date > new Date())}
           onClick={() =>
             toConfirm(
               {

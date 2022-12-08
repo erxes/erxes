@@ -1,12 +1,4 @@
-import {
-  attachmentInput,
-  attachmentType
-} from '@erxes/api-utils/src/commonTypeDefs';
-
 export const types = `
-  ${attachmentType}
-  ${attachmentInput}
-
   type JobRefer @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String,
     createdAt: Date,

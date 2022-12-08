@@ -1,6 +1,7 @@
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 import { IWork } from '../../types';
+import moment from 'moment';
 
 type Props = {
   work: IWork;
@@ -8,44 +9,52 @@ type Props = {
 };
 
 class Row extends React.Component<Props> {
+  renderLoc(obj) {
+    if (!obj) {
+      return '';
+    }
+
+    const value = `${obj.code} - ${obj.title}`;
+
+    if (value.length > 20) {
+      return `${value.substring(0, 20)}...`;
+    }
+
+    return value;
+  }
+
   render() {
     const { work } = this.props;
 
     const {
       name,
       status,
-      job,
       flow,
-      product,
       inBranch,
       inDepartment,
       outBranch,
       outDepartment,
       startAt,
+      dueDate,
       count,
-      intervalId,
       needProducts,
       resultProducts
     } = work;
-
-    const date = startAt.toString().split('T');
 
     return (
       <tr>
         <td>{name}</td>
         <td>{status}</td>
-        <td>{job ? job.label : ''}</td>
         <td>{flow ? flow.name : ''}</td>
-        <td>{product ? product.name : ''}</td>
         <td>{count || 0}</td>
-        <td>{inBranch}</td>
-        <td>{inDepartment}</td>
-        <td>{outBranch}</td>
-        <td>{outDepartment}</td>
-        <td>{intervalId}</td>
+        <td>{this.renderLoc(inBranch)}</td>
+        <td>{this.renderLoc(inDepartment)}</td>
+        <td>{this.renderLoc(outBranch)}</td>
+        <td>{this.renderLoc(outDepartment)}</td>
         <td>{(needProducts || []).length}</td>
         <td>{(resultProducts || []).length}</td>
-        <td>{date[0]}</td>
+        <td>{startAt}</td>
+        <td>{moment(dueDate).format('YYYY-MM-DD HH:mm')}</td>
       </tr>
     );
   }

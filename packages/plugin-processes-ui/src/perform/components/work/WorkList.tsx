@@ -100,18 +100,16 @@ class List extends React.Component<IProps, State> {
             <tr>
               <th>{__('Name')}</th>
               <th>{__('Status')}</th>
-              <th>{__('Job')}</th>
               <th>{__('Flow')}</th>
-              <th>{__('Product')}</th>
               <th>{__('Count')}</th>
-              <th>{__('InBranch')}</th>
-              <th>{__('InDepartment')}</th>
-              <th>{__('OutBranch')}</th>
-              <th>{__('OutDepartment')}</th>
-              <th>{__('Interval')}</th>
+              <th>{__('In Branch')}</th>
+              <th>{__('In Department')}</th>
+              <th>{__('Out Branch')}</th>
+              <th>{__('Out Department')}</th>
               <th>{__('Need products')}</th>
               <th>{__('Result products')}</th>
-              <th>{__('StartAt')}</th>
+              <th>{__('Start At')}</th>
+              <th>{__('Due Date')}</th>
             </tr>
           </thead>
           <tbody>{this.renderRow()}</tbody>

@@ -14,6 +14,7 @@ export interface IProduct {
   sku?: string;
   unitPrice?: number;
   code: string;
+  barcodes: string[];
   productId?: string;
   tagIds?: string[];
   attachment?: any;
