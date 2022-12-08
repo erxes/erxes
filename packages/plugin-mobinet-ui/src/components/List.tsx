@@ -1,18 +1,24 @@
-import Button from '@erxes/ui/src/components/Button';
-import { IMobinet, IType } from '../types';
-import Row from './Row';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import Form from './Form';
 import { Title } from '@erxes/ui-settings/src/styles';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import Table from '@erxes/ui/src/components/table';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import Button from '@erxes/ui/src/components/Button';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Table from '@erxes/ui/src/components/table';
+import { BarItems } from '@erxes/ui/src/layout';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { router, __ } from '@erxes/ui/src/utils';
+
+import React from 'react';
+import { withRouter } from 'react-router-dom';
+import { IMobinet, IType } from '../types';
+import Form from './Form';
+import OSMBuildings from '../common/OpenStreetMapBuildings';
+import Row from './Row';
 
 type Props = {
+  viewType: string;
   mobinets: IMobinet[];
   types: IType[];
   typeId?: string;
@@ -20,7 +26,7 @@ type Props = {
   remove: (mobinet: IMobinet) => void;
   edit: (mobinet: IMobinet) => void;
   loading: boolean;
-};
+} & IRouterProps;
 
 function List({
   mobinets,
@@ -29,15 +35,27 @@ function List({
   remove,
   renderButton,
   loading,
-  edit
+  edit,
+  viewType,
+  history,
 }: Props) {
+  const [isMap, setIsMap] = React.useState(viewType && viewType.includes('map'));
+
+  const onClickToggle = () => {
+    router.setParams(history, { viewType: isMap ? 'list' : 'map' });
+
+    !isMap && window.location.reload();
+
+    setIsMap(!isMap);
+  };
+
   const trigger = (
     <Button id={'AddMobinetButton'} btnStyle="success" icon="plus-circle">
       Add Mobinet
     </Button>
   );
 
-  const modalContent = props => (
+  const modalContent = (props) => (
     <Form
       {...props}
       types={types}
@@ -47,12 +65,18 @@ function List({
   );
 
   const actionBarRight = (
-    <ModalTrigger
-      title={__('Add mobinet')}
-      trigger={trigger}
-      content={modalContent}
-      enforceFocus={false}
-    />
+    <BarItems>
+      <Button btnStyle="simple" size="small" onClick={onClickToggle}>
+        <Icon icon={isMap ? 'list' : 'map'} />
+      </Button>
+
+      <ModalTrigger
+        title={__('Add mobinet')}
+        trigger={trigger}
+        content={modalContent}
+        enforceFocus={false}
+      />
+    </BarItems>
   );
 
   const title = <Title capitalize={true}>{__('Mobinet')}</Title>;
@@ -61,39 +85,59 @@ function List({
     <Wrapper.ActionBar left={title} right={actionBarRight} wideSpacing />
   );
 
+  const renderMap = () => {
+    if (!isMap) {
+      return null;
+    }
+
+    const onClickBuilding = (e) => {};
+
+    const mapProps = {
+      id: Math.random().toString(),
+      onClickBuilding,
+    };
+
+    return <OSMBuildings {...mapProps} />;
+  };
+
+  const renderList = () => {
+    if (isMap) {
+      return null;
+    }
+    return (
+      <Table>
+        <thead>
+          <tr>
+            <th>{__('Todo')}</th>
+            <th>{__('Expiry Date')}</th>
+            <th>{__('Actions')}</th>
+          </tr>
+        </thead>
+        <tbody id={'MobinetsShowing'}>
+          {mobinets.map((mobinet) => {
+            return (
+              <Row
+                space={0}
+                key={mobinet._id}
+                mobinet={mobinet}
+                remove={remove}
+                edit={edit}
+                renderButton={renderButton}
+                mobinets={mobinets}
+                types={types}
+              />
+            );
+          })}
+        </tbody>
+      </Table>
+    );
+  };
+
   const content = (
-    <div>
-      <iframe
-        src={'http://localhost:3000/map.html'}
-        width={'100%'}
-        height={'700px'}
-      />
-    </div>
-    // <Table>
-    //   <thead>
-    //     <tr>
-    //       <th>{__('Todo')}</th>
-    //       <th>{__('Expiry Date')}</th>
-    //       <th>{__('Actions')}</th>
-    //     </tr>
-    //   </thead>
-    //   <tbody id={'MobinetsShowing'}>
-    //     {mobinets.map(mobinet => {
-    //       return (
-    //         <Row
-    //           space={0}
-    //           key={mobinet._id}
-    //           mobinet={mobinet}
-    //           remove={remove}
-    //           edit={edit}
-    //           renderButton={renderButton}
-    //           mobinets={mobinets}
-    //           types={types}
-    //         />
-    //       );
-    //     })}
-    //   </tbody>
-    // </Table>
+    <>
+      {renderList()}
+      {renderMap()}
+    </>
   );
 
   const SideBarList = asyncComponent(() =>
@@ -124,4 +168,4 @@ function List({
   );
 }
 
-export default List;
+export default withRouter<Props>(List);

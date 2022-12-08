@@ -9,9 +9,9 @@ const List = asyncComponent(() =>
 
 const mobinets = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
-  const { type } = queryParams;
+  const { type, viewType } = queryParams;
 
-  return <List typeId={type} history={history} />;
+  return <List typeId={type} history={history} viewType={viewType} />;
 };
 
 const routes = () => {

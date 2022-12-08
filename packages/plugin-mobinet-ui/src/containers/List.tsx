@@ -18,6 +18,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 type Props = {
   history: any;
   typeId: string;
+  viewType: string;
 };
 
 type FinalProps = {
@@ -33,7 +34,6 @@ const ListContainer = (props: FinalProps) => {
     listMobinetTypeQuery,
     removeMutation,
     editMutation,
-    history,
     typeId
   } = props;
 
