@@ -4,6 +4,7 @@ import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { initBroker, sendCommonMessage } from './messageBroker';
+import * as permissions from './permissions';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -13,6 +14,7 @@ export let debug;
 
 export default {
   name: 'documents',
+  permissions,
   graphql: sd => {
     serviceDiscovery = sd;
     return {

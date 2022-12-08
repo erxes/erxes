@@ -1,4 +1,5 @@
 import client from '@erxes/ui/src/apolloClient';
+import WithPermission from 'coreui/withPermission';
 import gql from 'graphql-tag';
 import { colors } from '@erxes/ui/src/styles';
 import React from 'react';
@@ -8,7 +9,6 @@ import { rgba } from '@erxes/ui/src/styles/ecolor';
 import { queries } from '../graphql';
 import { getEnv, __ } from '@erxes/ui/src/utils';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import Icon from '@erxes/ui/src/components/Icon';
 import Dropdown from 'react-bootstrap/Dropdown';
 
 type Props = {
@@ -105,21 +105,23 @@ export default class Container extends React.Component<FinalProps, State> {
     );
 
     return (
-      <Dropdown>
-        <Dropdown.Toggle as={DropdownToggle} id="dropdown-select">
-          {trigger}
-        </Dropdown.Toggle>
+      <WithPermission action="manageDocuments">
+        <Dropdown>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-select">
+            {trigger}
+          </Dropdown.Toggle>
 
-        <Dropdown.Menu>
-          {documents.map(item => (
-            <li key={item._id}>
-              <ActionItem onClick={this.print.bind(this, item._id)}>
-                {item.name}
-              </ActionItem>
-            </li>
-          ))}
-        </Dropdown.Menu>
-      </Dropdown>
+          <Dropdown.Menu>
+            {documents.map(item => (
+              <li key={item._id}>
+                <ActionItem onClick={this.print.bind(this, item._id)}>
+                  {item.name}
+                </ActionItem>
+              </li>
+            ))}
+          </Dropdown.Menu>
+        </Dropdown>
+      </WithPermission>
     );
   }
 }

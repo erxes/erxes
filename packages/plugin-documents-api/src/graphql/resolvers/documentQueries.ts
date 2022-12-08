@@ -1,4 +1,4 @@
-import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
+import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../connectionResolver';
 import { sendCommonMessage } from '../../messageBroker';
@@ -49,6 +49,6 @@ const documentQueries = {
   }
 };
 
-moduleRequireLogin(documentQueries);
+moduleCheckPermission(documentQueries, 'manageDocuments');
 
 export default documentQueries;
