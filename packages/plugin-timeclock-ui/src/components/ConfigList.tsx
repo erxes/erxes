@@ -75,12 +75,12 @@ function ConfigList(props: Props) {
 
   const absenceConfigTrigger = (
     <Button id="configBtn" btnStyle="primary" icon="plus-circle">
-      Absence
+      Requests
     </Button>
   );
   const scheduleConfigTrigger = (
     <Button id="configBtn" btnStyle="primary" icon="plus-circle">
-      Schedule
+      Pay period
     </Button>
   );
   const holidayConfigTrigger = (
@@ -112,7 +112,7 @@ function ConfigList(props: Props) {
   const actionBarRight = (
     <>
       <ModalTrigger
-        title={__('Absence Config')}
+        title={__('Requests Config')}
         trigger={absenceConfigTrigger}
         content={absenceConfigContent}
       />

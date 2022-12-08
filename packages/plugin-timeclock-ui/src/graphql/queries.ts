@@ -13,11 +13,11 @@ const userFields = `
 `;
 
 const attachmentFields = `
-  _id
-  startTime
-  endTime
-  reason
-  solved
+  url
+  name
+  type
+  size
+  duration
 `;
 const absenceFields = `
   _id

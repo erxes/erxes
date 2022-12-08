@@ -177,7 +177,7 @@ const templateMutations = {
     { models, subdomain, user }: IContext
   ) {
     const absence = models.Absences.getAbsence(_id);
-    const updated = models.Absences.updateAbsence(_id, {
+    let updated = models.Absences.updateAbsence(_id, {
       status: `${status}`,
       solved: true,
       ...doc
@@ -193,6 +193,33 @@ const templateMutations = {
       },
       user
     );
+
+    const shiftRequest = await absence;
+
+    // if request is shift request
+    if (shiftRequest.reason.toLocaleLowerCase() === 'shift request') {
+      updated = models.Absences.updateAbsence(_id, { status: 'Shift', ...doc });
+      const newSchedule = await models.Schedules.createSchedule({
+        userId: user._id,
+        solved: true,
+        status: 'Approved'
+      });
+
+      const newShift = await models.Shifts.createShift({
+        scheduleId: newSchedule._id,
+        shiftStart: shiftRequest.startTime,
+        shiftEnd: shiftRequest.endTime,
+        solved: true,
+        status: 'Approved'
+      });
+
+      const newTimeClock = await models.Templates.createTimeClock({
+        userId: user._id,
+        shiftStart: shiftRequest.startTime,
+        shiftEnd: shiftRequest.endTime,
+        shiftActive: false
+      });
+    }
 
     return updated;
   },

@@ -18,10 +18,10 @@ export interface ITimeClockDocument extends ITimeClock, Document {
 
 export interface IAbsence {
   userId?: string;
-  startTime?: Date;
+  startTime: Date;
   endTime?: Date;
   reason: string;
-  explanation: string;
+  explanation?: string;
   status: string;
   solved?: boolean;
 }

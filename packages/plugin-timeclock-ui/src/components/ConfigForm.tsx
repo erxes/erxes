@@ -11,7 +11,8 @@ import {
   FlexRow,
   FlexColumn,
   Input,
-  FlexCenter
+  FlexCenter,
+  Row
 } from '../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import Form from '@erxes/ui/src/components/form/Form';
@@ -30,6 +31,7 @@ type Props = {
   closeModal?: () => void;
   renderButton: (props: IButtonMutateProps) => void;
   removeAbsenceType: (absenceTypeId: string) => void;
+  submitScheduleConfig(payDays: any);
 };
 
 function ConfigForm(props: Props) {
@@ -38,31 +40,36 @@ function ConfigForm(props: Props) {
     history,
     absenceTypes,
     renderButton,
-    removeAbsenceType
+    removeAbsenceType,
+    submitScheduleConfig
   } = props;
   const { absenceType } = props;
   const [explanationRequired, setExplRequired] = useState(false);
   const [attachmentRequired, setAttachRequired] = useState(false);
-
+  const [payPeriod, setPayPeriod] = useState('');
   const [displayConfig, setDisplayConfig] = useState(false);
-  const [configDates, setConfigDates] = useState({
+  const [payDates, setpayDates] = useState({
     date1: new Date(),
     date2: new Date()
   });
   const { afterSave, closeModal } = props;
 
+  const togglePayPeriod = e => {
+    setPayPeriod(e.target.value);
+  };
   const toggleExplRequired = e => {
     setExplRequired(e.target.checked);
   };
   const toggleAttachRequired = e => {
     setAttachRequired(e.target.checked);
   };
-
-  const onConfigDateChange = (dateNum: string, newDate: Date) => {
-    configDates[dateNum] = newDate;
-    setConfigDates({ ...configDates });
+  const onSubmitScheduleConfig = () => {
+    submitScheduleConfig(payDates);
   };
-
+  const onConfigDateChange = (dateNum: string, newDate: Date) => {
+    payDates[dateNum] = newDate;
+    setpayDates({ ...payDates });
+  };
   const generateDoc = (values: {
     _id?: string;
     absenceName: string;
@@ -139,17 +146,43 @@ function ConfigForm(props: Props) {
 
   const renderScheduleContent = () => (
     <FlexColumn>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <ControlLabel>Pay period</ControlLabel>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-around',
+            gap: '10px'
+          }}
+        >
+          <div>Once</div>
+          <FormControl
+            rows={2}
+            name="payPeriod"
+            componentClass="radio"
+            options={['once', 'twice'].map(el => ({
+              value: el
+            }))}
+            onChange={togglePayPeriod}
+          />
+          <div>Twice</div>
+        </div>
+      </div>
       <CustomRangeContainer>
-        <DateControl
-          value={configDates.date1}
-          required={false}
-          onChange={val => onConfigDateChange('date1', val)}
-          placeholder={'Enter date'}
-          dateFormat={'YYYY-MM-DD'}
-        />
-        {displayConfig ? (
+        {payPeriod !== '' ? (
           <DateControl
-            value={configDates.date2}
+            value={payDates.date1}
+            required={false}
+            onChange={val => onConfigDateChange('date1', val)}
+            placeholder={'Enter date'}
+            dateFormat={'YYYY-MM-DD'}
+          />
+        ) : (
+          <></>
+        )}
+        {payPeriod === 'twice' ? (
+          <DateControl
+            value={payDates.date2}
             required={false}
             onChange={val => onConfigDateChange('date2', val)}
             placeholder={'Enter date'}
@@ -160,10 +193,7 @@ function ConfigForm(props: Props) {
         )}
       </CustomRangeContainer>
       <FlexCenter>
-        <Button onClick={() => setDisplayConfig(!displayConfig)}>
-          {(displayConfig ? 'Remove' : 'Add') + ' date'}
-        </Button>
-        <Button>Submit</Button>
+        <Button onClick={onSubmitScheduleConfig}>Submit</Button>
       </FlexCenter>
     </FlexColumn>
   );
@@ -180,7 +210,7 @@ function ConfigForm(props: Props) {
       />
       <CustomRangeContainer>
         <DateControl
-          value={configDates.date1}
+          value={payDates.date1}
           required={false}
           onChange={val => onConfigDateChange('date1', val)}
           placeholder={'Enter date'}

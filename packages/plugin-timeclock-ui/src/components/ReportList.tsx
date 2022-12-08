@@ -9,9 +9,15 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Select from 'react-select-plus';
 import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
 import Button from '@erxes/ui/src/components/Button';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
 import ReportRow from './ReportRow';
 import { IReport } from '../types';
-import { FilterWrapper, Row, FilterItem } from '../styles';
+import {
+  FilterWrapper,
+  Row,
+  FilterItem,
+  CustomRangeContainer
+} from '../styles';
 
 type Props = {
   queryParams: any;
@@ -58,10 +64,10 @@ function ReportList(props: Props) {
     };
 
     return (
-      <FilterItem>
-        <FormGroup>
-          <ControlLabel>Select type</ControlLabel>
-          <Row>
+      <>
+        <FilterItem>
+          <FormGroup>
+            <ControlLabel>Select type</ControlLabel>
             <Select
               value={JSON.parse(localStorage.getItem('displayType') || '[]')}
               onChange={onTypeSelect}
@@ -72,9 +78,30 @@ function ReportList(props: Props) {
                 label: __(ipt)
               }))}
             />
-          </Row>
-        </FormGroup>
-      </FilterItem>
+          </FormGroup>
+        </FilterItem>
+        <FilterItem>
+          <CustomRangeContainer>
+            <DateControl
+              // value={new Date()}
+              required={false}
+              name="startDate"
+              // onChange={onSelectDateChange}
+              placeholder={'Starting date'}
+              dateFormat={'YYYY-MM-DD'}
+            />
+            <DateControl
+              // value={new Date()}
+              required={false}
+              name="startDate"
+              // onChange={onSelectDateChange}
+              placeholder={'Ending date'}
+              dateFormat={'YYYY-MM-DD'}
+            />
+            <Button btnStyle="primary">Filter</Button>
+          </CustomRangeContainer>
+        </FilterItem>
+      </>
     );
   };
   const renderFilter = () => {

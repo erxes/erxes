@@ -66,8 +66,8 @@ const ListContainer = (props: FinalProps) => {
         endTime: endDate,
         userId: `${userId}`,
         reason: `${reason}`,
-        explanation: expl,
-        attachment: attchment
+        explanation: expl.length > 0 ? expl : undefined,
+        attachment: attchment.url.length > 0 ? attchment : undefined
       }
     })
       .then(() => Alert.success('Successfully sent an absence request'))

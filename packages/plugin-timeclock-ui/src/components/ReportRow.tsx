@@ -29,7 +29,7 @@ const ReportRow = (userReport: IUserReport) => {
             userSchedule.minsWorked &&
             `${Math.round(
               userSchedule.minsWorked / 60
-            )}h : ${userSchedule.minsWorked || 0 % 60}m`;
+            )}h : ${userSchedule.minsWorked % 60}m`;
           return (
             <>
               <div>{shiftTimeFormatted || '-'}</div>
@@ -50,7 +50,7 @@ const ReportRow = (userReport: IUserReport) => {
         {userReport.totalMinsWorked &&
           `${Math.round(
             userReport.totalMinsWorked / 60
-          )}h : ${userReport.totalMinsWorked || 0 % 60}m`}
+          )}h : ${userReport.totalMinsWorked % 60}m`}
       </td>
       <td>{userReport.totalMinsLate}</td>
       <td>{userReport.totalAbsenceMins}</td>
@@ -80,7 +80,7 @@ const ReportList = (props: Props) => {
               {report.groupTotalMinsWorked &&
                 `${Math.round(
                   report.groupTotalMinsWorked / 60
-                )}h : ${report.groupTotalMinsWorked || 0 % 60}m`}
+                )}h : ${report.groupTotalMinsWorked % 60}m`}
             </strong>
           </td>
           <td>
