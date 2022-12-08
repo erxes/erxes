@@ -17,7 +17,7 @@ type Props = {
   status?: string[];
   isSub?: boolean;
   flowValidation?: string[];
-  onChangeCategory: (catgeoryId: string) => void;
+  onChangeCategory: (categoryId: string) => void;
   closeModal: () => void;
   onSelect: (flows: IFlow[]) => void;
 };

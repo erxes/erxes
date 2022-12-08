@@ -37,7 +37,12 @@ const workQueries = {
   ) {
     const selector = generateFilter(params, commonQuerySelector);
 
-    return paginate(models.Works.find(selector).lean(), { ...params });
+    return paginate(
+      models.Works.find(selector)
+        .sort({ dueDate: -1 })
+        .lean(),
+      { ...params }
+    );
   },
 
   worksTotalCount(
