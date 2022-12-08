@@ -41,6 +41,10 @@ export const CATEGORY_DETAIL = gql`
       postReadRequiresPermissionGroup
       postWriteRequiresPermissionGroup
       commentWriteRequiresPermissionGroup
+      parent {
+        _id
+        name
+      }
     }
   }
 `;

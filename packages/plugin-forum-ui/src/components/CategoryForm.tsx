@@ -120,7 +120,7 @@ const CategoryForm: React.FC<Props> = ({
           required
         />
       </label>
-
+      <br />
       <label>
         Code:{' '}
         <input
@@ -129,16 +129,19 @@ const CategoryForm: React.FC<Props> = ({
           onChange={e => setCode(e.target.value)}
         />
       </label>
-
+      <br />
       {!noParent && (
-        <label>
-          Parent category:
-          <CategoryParentSelect
-            value={parentId}
-            parentFor={category?._id}
-            onChange={setParentId}
-          />
-        </label>
+        <>
+          <label>
+            Parent category:
+            <CategoryParentSelect
+              value={parentId}
+              parentFor={category?._id}
+              onChange={setParentId}
+            />
+          </label>
+          <br />
+        </>
       )}
 
       <label>
@@ -149,7 +152,7 @@ const CategoryForm: React.FC<Props> = ({
           onChange={e => setThumbnail(e.target.value)}
         />
       </label>
-
+      <br />
       <label>
         Posts in this category require admin approval
         <input
@@ -160,7 +163,7 @@ const CategoryForm: React.FC<Props> = ({
           }}
         />
       </label>
-
+      <br />
       <hr />
       <h3>User level based permissions</h3>
 

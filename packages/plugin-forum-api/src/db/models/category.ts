@@ -173,10 +173,11 @@ export const generateCategoryModel = (
       const patch = { ...input } as Partial<Omit<ICategory, '_id'>>;
 
       if (patch.code) {
-        const exists = await models.Category.find({
+        const exists = await models.Category.findOne({
           _id: { $ne: Types.ObjectId(_id) },
           code: patch.code
         });
+
         if (exists) {
           throw new Error(`A category with same code already exists`);
         }
