@@ -71,10 +71,10 @@ export default {
       item.createdAt.toLocaleDateString()
     );
 
-    if (item.closeAt) {
+    if (item.closeDate) {
       replacedContent = replacedContent.replace(
-        `{{ closeAt }}`,
-        item.closeAt.toLocaleDateString()
+        `{{ closeDate }}`,
+        item.closeDate.toLocaleDateString()
       );
     }
 
