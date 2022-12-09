@@ -54,7 +54,7 @@ export default {
           return next(new Error('Permission denied'));
         }
 
-        const replacedContent = await sendCommonMessage({
+        let replacedContent = await sendCommonMessage({
           subdomain,
           serviceName: document.contentType,
           action: 'documents.replaceContent',
@@ -65,6 +65,15 @@ export default {
             content: document.content
           }
         });
+
+        const replacers = (document.replacer || '').split('\n');
+
+        for (const replacer of replacers) {
+          const [key, value] = replacer.split(',');
+
+          const regex = new RegExp(key, 'g');
+          replacedContent = replacedContent.replace(regex, value);
+        }
 
         const style = `
           <style type="text/css">

@@ -5,6 +5,10 @@ import {
   sendProductsMessage
 } from './messageBroker';
 
+const toMoney = value => {
+  return new Intl.NumberFormat().format(value);
+};
+
 export default {
   editorAttributes: async () => {
     return [
@@ -13,9 +17,16 @@ export default {
       { value: 'closeDate', name: 'Close date' },
       { value: 'description', name: 'Description' },
       { value: 'productsInfo', name: 'Products information' },
+      { value: 'servicesInfo', name: 'Services information' },
       { value: 'assignedUsers', name: 'Assigned users' },
       { value: 'customers', name: 'Customers' },
-      { value: 'companies', name: 'Companies' }
+      { value: 'companies', name: 'Companies' },
+      { value: 'now', name: 'Now' },
+      { value: 'productTotalAmount', name: 'Products total amount' },
+      { value: 'servicesTotalAmount', name: 'Services total amount' },
+      { value: 'totalAmount', name: 'Total amount' },
+      { value: 'totalAmountVat', name: 'Total amount vat' },
+      { value: 'totalAmountWithoutVat', name: 'Total amount without vat' }
     ];
   },
 
@@ -77,6 +88,11 @@ export default {
         item.closeDate.toLocaleDateString()
       );
     }
+
+    replacedContent = replacedContent.replace(
+      `{{ now }}`,
+      new Date().toLocaleDateString()
+    );
 
     // ============ replace users
     const users = await sendCoreMessage({
@@ -180,46 +196,62 @@ export default {
       );
     }
 
-    const productsData = item.productsData || [];
+    const replaceProducts = async (key, type) => {
+      let totalAmount = 0;
 
-    const productRows: string[] = [];
+      const productsData = item.productsData || [];
 
-    for (const pd of productsData) {
-      if (!pd || !pd.productId) {
-        continue;
-      }
+      const productRows: string[] = [];
+      let index = 0;
 
-      const product = await sendProductsMessage({
-        subdomain,
-        action: 'findOne',
-        data: { _id: pd.productId },
-        isRPC: true
-      });
+      for (const pd of productsData) {
+        if (!pd || !pd.productId) {
+          continue;
+        }
 
-      if (!product) {
-        continue;
-      }
+        const product = await sendProductsMessage({
+          subdomain,
+          action: 'findOne',
+          data: { _id: pd.productId },
+          isRPC: true
+        });
 
-      productRows.push(`
+        if (!product || product.type !== type) {
+          continue;
+        }
+
+        index++;
+
+        const tAmount = pd.quantity * pd.unitPrice;
+
+        totalAmount += tAmount;
+
+        productRows.push(`
         <tr>
+          <td>${index}</td>
+          <td>${product.code || ''}</td>
           <td>${product.name}</td>
           <td>${pd.quantity}</td>
-          <td>${pd.unitPrice}</td>
+          <td>${toMoney(pd.unitPrice)}</td>
+          <td>${toMoney(tAmount)}</td>
         </tr>
      `);
-    }
+      }
 
-    replacedContent = replacedContent.replace(
-      '{{ productsInfo }}',
-      productRows.length > 0
-        ? `
+      replacedContent = replacedContent.replace(
+        key,
+        productRows.length > 0
+          ? `
         <table>
           <tbody>
             <thead>
               <tr>
-                <th>Product name</th>
+                <th>№</th>
+                <th>Code</th>
+                <th>${type === 'product' ? 'Product name' : 'Service name'}</th>
                 <th>Quantity</th>
                 <th>Unit price</th>
+                <th>Total amount</th>
               </tr>
             </thead>
             ${productRows}
@@ -230,7 +262,43 @@ export default {
           window.print();
         </script>
       `
-        : ''
+          : ''
+      );
+
+      return totalAmount;
+    };
+
+    const productsTotalAmount = await replaceProducts(
+      '{{ productsInfo }}',
+      'product'
+    );
+    const servicesTotalAmount = await replaceProducts(
+      '{{ servicesInfo }}',
+      'service'
+    );
+    const totalAmount = productsTotalAmount + servicesTotalAmount;
+    const totalAmountVat = (totalAmount * 10) / 100;
+    const totalAmountWithoutVat = totalAmount - totalAmountVat;
+
+    replacedContent = replacedContent.replace(
+      '{{ productTotalAmount }}',
+      toMoney(productsTotalAmount)
+    );
+    replacedContent = replacedContent.replace(
+      '{{ servicesTotalAmount }}',
+      toMoney(servicesTotalAmount)
+    );
+    replacedContent = replacedContent.replace(
+      '{{ totalAmount }}',
+      toMoney(totalAmount)
+    );
+    replacedContent = replacedContent.replace(
+      '{{ totalAmountVat }}',
+      toMoney(totalAmountVat)
+    );
+    replacedContent = replacedContent.replace(
+      '{{ totalAmountWithoutVat }}',
+      toMoney(totalAmountWithoutVat)
     );
 
     return replacedContent;

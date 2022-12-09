@@ -9,6 +9,7 @@ interface IDocument {
   contentType: string;
   name: string;
   content: string;
+  replacer: string;
 }
 
 export interface IDocumentDocument extends IDocument, Document {
@@ -21,7 +22,8 @@ const documentSchema = new Schema({
 
   contentType: { type: String },
   name: { type: String },
-  content: { type: String }
+  content: { type: String },
+  replacer: { type: String }
 });
 
 export interface IDocumentModel extends Model<IDocumentDocument> {

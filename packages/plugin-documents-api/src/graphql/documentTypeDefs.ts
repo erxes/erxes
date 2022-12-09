@@ -8,6 +8,7 @@ export const types = `
     contentType: String!
     name: String!
     content: String
+    replacer: String
   }
 
   type DocumentEditorAttribute {
@@ -31,6 +32,6 @@ export const queries = `
 `;
 
 export const mutations = `
-  documentsSave(_id: String, contentType: String!, name: String!, content: String): Document
+  documentsSave(_id: String, contentType: String!, name: String!, content: String, replacer: String): Document
   documentsRemove(_id: String!): JSON
 `;
