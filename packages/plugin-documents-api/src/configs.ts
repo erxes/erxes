@@ -71,8 +71,10 @@ export default {
         for (const replacer of replacers) {
           const [key, value] = replacer.split(',');
 
-          const regex = new RegExp(key, 'g');
-          replacedContent = replacedContent.replace(regex, value);
+          if (key) {
+            const regex = new RegExp(key, 'g');
+            replacedContent = replacedContent.replace(regex, value);
+          }
         }
 
         const style = `
