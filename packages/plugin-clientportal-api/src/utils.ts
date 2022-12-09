@@ -239,7 +239,8 @@ export const sendNotification = async (
         userId: recipient._id,
         title: notification.title,
         content: notification.content,
-        link: notification.link
+        link: notification.link,
+        eventData
       }
     });
   }
