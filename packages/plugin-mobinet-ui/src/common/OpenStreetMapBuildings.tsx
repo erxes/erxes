@@ -91,6 +91,7 @@ const Map = (props: Props) => {
       map.highlight((feature) => {
         if (featureIDList.indexOf(feature.id) > -1) {
           props.onClickBuilding(feature);
+          console.log('feature: ', feature);
           return '#ff0000';
         }
       });
