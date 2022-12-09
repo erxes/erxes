@@ -5,6 +5,10 @@ import {
   sendProductsMessage
 } from './messageBroker';
 
+const toMoney = value => {
+  return new Intl.NumberFormat().format(value);
+};
+
 export default {
   editorAttributes: async () => {
     return [
@@ -228,8 +232,8 @@ export default {
           <td>${product.code || ''}</td>
           <td>${product.name}</td>
           <td>${pd.quantity}</td>
-          <td>${pd.unitPrice}</td>
-          <td>${tAmount}</td>
+          <td>${toMoney(pd.unitPrice)}</td>
+          <td>${toMoney(tAmount)}</td>
         </tr>
      `);
       }
@@ -278,20 +282,23 @@ export default {
 
     replacedContent = replacedContent.replace(
       '{{ productTotalAmount }}',
-      productsTotalAmount
+      toMoney(productsTotalAmount)
     );
     replacedContent = replacedContent.replace(
       '{{ servicesTotalAmount }}',
-      servicesTotalAmount
+      toMoney(servicesTotalAmount)
     );
-    replacedContent = replacedContent.replace('{{ totalAmount }}', totalAmount);
+    replacedContent = replacedContent.replace(
+      '{{ totalAmount }}',
+      toMoney(totalAmount)
+    );
     replacedContent = replacedContent.replace(
       '{{ totalAmountVat }}',
-      totalAmountVat
+      toMoney(totalAmountVat)
     );
     replacedContent = replacedContent.replace(
       '{{ totalAmountWithoutVat }}',
-      totalAmountWithoutVat
+      toMoney(totalAmountWithoutVat)
     );
 
     return replacedContent;
