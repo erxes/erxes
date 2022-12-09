@@ -1,78 +1,28 @@
-import {
-  removeExtraSpaces,
-  removeLastTrailingSlash
-} from '@erxes/api-utils/src/commonUtils';
 import { sendRequest } from '@erxes/api-utils/src/requests';
-
-import redis from '../redis';
-import { sendCoreMessage } from './../messageBroker';
-import { CONFIG_KEYS } from './constants';
+import { getConfig } from '../utils';
 
 // ************************* common methods ************************* //
-const getConfigs = async (subdomain: string) => {
-  const response = await redis.get('orchardConfigs');
-  const configsOnRedis = JSON.parse(response || '{}');
 
-  if (Object.keys(configsOnRedis).length > 0) {
-    CONFIG_KEYS.ALL.forEach(key => {
-      if (!configsOnRedis[key]) {
-        configsOnRedis[key] = '';
-      }
-    });
-    return configsOnRedis;
-  }
-
-  const configs = await sendCoreMessage({
-    subdomain,
-    action: 'getConfigs',
-    data: {},
-    isRPC: true,
-    defaultValue: {}
-  });
-
-  const { ORCHARD_API_URL, ORCHARD_USERNAME, ORCHARD_PASSWORD } = configs;
-
-  if (!ORCHARD_API_URL || !ORCHARD_USERNAME || !ORCHARD_PASSWORD) {
-    throw new Error('Orchard configs are not set properly');
-  }
-
-  const configsToSave = {
-    ORCHARD_API_URL: removeLastTrailingSlash(ORCHARD_API_URL),
-    ORCHARD_USERNAME,
-    ORCHARD_PASSWORD
+export const getConfigs = async () => {
+  return {
+    OrchardApi: await getConfig('ORCHARD_API_URL'),
+    OrchardUsername: await getConfig('ORCHARD_USERNAME'),
+    OrchardPassword: await getConfig('ORCHARD_PASSWORD')
   };
-
-  await redis.set('orchardConfigs', JSON.stringify(configsToSave));
-
-  return configsToSave;
 };
 
-const getApiUrl = async (subdomain: string) => {
-  const configs = await getConfigs(subdomain);
-
-  const { ORCHARD_API_URL } = configs;
-
-  return removeExtraSpaces(removeLastTrailingSlash(ORCHARD_API_URL));
-};
-
-export const getToken = async (subdomain: string) => {
-  const configs = await getConfigs(subdomain);
-
-  const { ORCHARD_API_URL, ORCHARD_USERNAME, ORCHARD_PASSWORD } = configs;
-
-  const baseApiUrl = removeExtraSpaces(
-    removeLastTrailingSlash(ORCHARD_API_URL)
-  );
+export const getToken = async () => {
+  const DacApi = await getConfigs();
 
   const options = {
     method: 'POST',
-    url: `${baseApiUrl}/mobile/token`,
+    url: `${DacApi.OrchardApi}/mobile/token`,
     headers: {
       'Content-Type': 'application/json'
     },
     body: {
-      username: ORCHARD_USERNAME,
-      password: ORCHARD_PASSWORD
+      username: DacApi.OrchardUsername,
+      password: DacApi.OrchardPassword
     }
   };
 
@@ -92,18 +42,17 @@ export const getToken = async (subdomain: string) => {
 };
 
 const sendRequestToOrchard = async (
-  subdomain: string,
   method: string,
   action: string,
   data?: any
 ) => {
   try {
-    const token = await getToken(subdomain);
-    const baseApiUrl = await getApiUrl(subdomain);
+    const token = await getToken();
+    const DacApi = await getConfigs();
 
     const options = {
       method,
-      url: `${baseApiUrl}/mobile/api/v1/${action}`,
+      url: `${DacApi.OrchardApi}/mobile/api/v1/${action}`,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`
@@ -121,45 +70,41 @@ const sendRequestToOrchard = async (
 
 // ************************* customer methods ************************* //
 
-export const getCustomer = async (subdomain: string, phone: string) => {
+export const getCustomer = async (phone: string) => {
   try {
-    return sendRequestToOrchard(subdomain, 'GET', `customer?cellular=${phone}`);
+    return sendRequestToOrchard('GET', `customer?cellular=${phone}`);
   } catch (e) {
     throw new Error('Failed to get customer by phone: ' + e.message);
   }
 };
 
-export const getCustomerById = async (subdomain: string, idnumber: string) => {
+export const getCustomerById = async (idnumber: string) => {
   try {
-    return sendRequestToOrchard(subdomain, 'GET', `customer/${idnumber}`);
+    return sendRequestToOrchard('GET', `customer/${idnumber}`);
   } catch (e) {
     throw new Error('Failed to get customer by id: ' + e.message);
   }
 };
 
-export const createCustomer = async (subdomain: string, doc: any) => {
+export const createCustomer = async (doc: any) => {
   try {
-    return sendRequestToOrchard(subdomain, 'POST', 'customer', doc);
+    return sendRequestToOrchard('POST', 'customer', doc);
   } catch (e) {
     throw new Error('Failed to create customer: ' + e.message);
   }
 };
 
-export const updateCustomer = async (subdomain: string, doc: any) => {
+export const updateCustomer = async (doc: any) => {
   try {
-    return sendRequestToOrchard(subdomain, 'PUT', 'customer', doc);
+    return sendRequestToOrchard('PUT', 'customer', doc);
   } catch (e) {
     throw new Error('Failed to update customer: ' + e.message);
   }
 };
 
-export const updatePinCode = async (
-  subdomain: string,
-  cardcode: string,
-  pincode: string
-) => {
+export const updatePinCode = async (cardcode: string, pincode: string) => {
   try {
-    return sendRequestToOrchard(subdomain, 'PUT', 'customer/pin', {
+    return sendRequestToOrchard('PUT', 'customer/pin', {
       cardcode,
       pincode
     });
@@ -170,17 +115,17 @@ export const updatePinCode = async (
 
 // ************************* vehicle methods ************************* //
 
-export const getVehicle = async (subdomain: string, plate: string) => {
+export const getVehicle = async (plate: string) => {
   try {
-    return sendRequestToOrchard(subdomain, 'GET', `vehicle/${plate}`);
+    return sendRequestToOrchard('GET', `vehicle/${plate}`);
   } catch (e) {
     throw new Error('Failed to get vehicle by plate: ' + e.message);
   }
 };
 
-export const createVehicle = async (subdomain: string, doc: any) => {
+export const createVehicle = async (doc: any) => {
   try {
-    return sendRequestToOrchard(subdomain, 'POST', 'vehicle', doc);
+    return sendRequestToOrchard('POST', 'vehicle', doc);
   } catch (e) {
     throw new Error('Failed to create vehicle: ' + e.message);
   }
@@ -188,7 +133,7 @@ export const createVehicle = async (subdomain: string, doc: any) => {
 
 export const updateVehicle = async (subdomain: string, doc: any) => {
   try {
-    return sendRequestToOrchard(subdomain, 'PUT', 'vehicle', doc);
+    return sendRequestToOrchard('PUT', 'vehicle', doc);
   } catch (e) {
     throw new Error('Failed to update vehicle: ' + e.message);
   }

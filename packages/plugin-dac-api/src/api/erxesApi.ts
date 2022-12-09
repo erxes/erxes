@@ -1,47 +1,60 @@
-import { sendFormsMessage } from './../../../plugin-inbox-api/src/messageBroker';
-import { sendContactsMessage } from '../messageBroker';
+import { sendCommonMessage, sendContactsMessage } from '../messageBroker';
 
-export const getCustomer = async (subdomain: string, req, res) => {
-  const { phone } = req.queryParams;
+export const getCustomer = async (req, res, subdomain) => {
+  const phoneNumber = req.query.phone;
 
   const customer = await sendContactsMessage({
     subdomain,
     action: 'customers.findOne',
     data: {
-      primaryPhone: phone
+      primaryPhone: phoneNumber
     },
     isRPC: true,
     defaultValue: null
   });
 
   if (!customer) {
-    throw new Error('Customer not found');
+    res.json({
+      status: 'error',
+      message: 'Customer not found'
+    });
   }
+  const customFields: any = {};
 
-  const fields = await sendFormsMessage({
-    subdomain,
-    action: 'fields',
+  customFields.firstName = customer.firstName;
+  customFields.lastName = customer.lastName;
+  customFields.cellular = customer.primaryPhone;
+  customFields.e_mail = customer.primaryEmail;
+
+  const fieldIds = (customer.customFieldsData || []).map(d => d.field);
+
+  const fields = await sendCommonMessage({
+    subdomain: 'os',
     data: {
-      contentType: 'contacts:customer'
+      query: {
+        _id: { $in: fieldIds }
+      }
     },
+    serviceName: 'forms',
+    action: 'fields.find',
     isRPC: true,
     defaultValue: []
   });
 
-  const customerObj: any = {};
-
-  for (const data of customer.customFieldsData) {
-    const field = fields.find(f => f._id === data.fieldId);
+  for (const customFieldData of customer.customFieldsData || []) {
+    const field = fields.find(f => f._id === customFieldData.field);
 
     if (field) {
-      customerObj[field.code] = data.value;
+      if (field) {
+        customFields[field.code] = customFieldData.value;
+      }
     }
   }
 
-  return res.json(customerObj);
+  return res.json(customFields);
 };
 
-export const createCustomer = async (subdomain: string, req, res) => {
+export const createCustomer = async (req, res, subdomain) => {
   const { body } = req;
 
   return res.send('ok');

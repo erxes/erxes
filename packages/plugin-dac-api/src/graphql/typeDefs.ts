@@ -1,7 +1,7 @@
 import { gql } from 'apollo-server-express';
 
 const types = `
-  type c {
+  type Dac {
     _id: String!
     name: String
     createdAt:Date
