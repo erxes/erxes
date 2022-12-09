@@ -55,7 +55,7 @@ export default {
       return '';
     }
 
-    const simpleFields = ['name', 'createdAt', 'closeAt', 'description'];
+    const simpleFields = ['name', 'description'];
 
     let replacedContent = content;
 
@@ -63,6 +63,18 @@ export default {
       replacedContent = replacedContent.replace(
         `{{ ${field} }}`,
         item[field] || ''
+      );
+    }
+
+    replacedContent = replacedContent.replace(
+      `{{ createdAt }}`,
+      item.createdAt.toLocaleDateString()
+    );
+
+    if (item.closeDate) {
+      replacedContent = replacedContent.replace(
+        `{{ closeDate }}`,
+        item.closeDate.toLocaleDateString()
       );
     }
 
