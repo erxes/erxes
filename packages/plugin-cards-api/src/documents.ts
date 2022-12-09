@@ -17,7 +17,12 @@ export default {
       { value: 'assignedUsers', name: 'Assigned users' },
       { value: 'customers', name: 'Customers' },
       { value: 'companies', name: 'Companies' },
-      { value: 'now', name: 'Now' }
+      { value: 'now', name: 'Now' },
+      { value: 'productTotalAmount', name: 'Products total amount' },
+      { value: 'servicesTotalAmount', name: 'Services total amount' },
+      { value: 'totalAmount', name: 'Total amount' },
+      { value: 'totalAmountVat', name: 'Total amount vat' },
+      { value: 'totalAmountWithoutVat', name: 'Total amount without vat' }
     ];
   },
 
@@ -188,6 +193,8 @@ export default {
     }
 
     const replaceProducts = async (key, type) => {
+      let totalAmount = 0;
+
       const productsData = item.productsData || [];
 
       const productRows: string[] = [];
@@ -211,6 +218,10 @@ export default {
 
         index++;
 
+        const tAmount = pd.quantity * pd.unitPrice;
+
+        totalAmount += tAmount;
+
         productRows.push(`
         <tr>
           <td>${index}</td>
@@ -218,7 +229,7 @@ export default {
           <td>${product.name}</td>
           <td>${pd.quantity}</td>
           <td>${pd.unitPrice}</td>
-          <td>${pd.quantity * pd.unitPrice}</td>
+          <td>${tAmount}</td>
         </tr>
      `);
       }
@@ -249,10 +260,39 @@ export default {
       `
           : ''
       );
+
+      return totalAmount;
     };
 
-    await replaceProducts('{{ productsInfo }}', 'product');
-    await replaceProducts('{{ servicesInfo }}', 'service');
+    const productsTotalAmount = await replaceProducts(
+      '{{ productsInfo }}',
+      'product'
+    );
+    const servicesTotalAmount = await replaceProducts(
+      '{{ servicesInfo }}',
+      'service'
+    );
+    const totalAmount = productsTotalAmount + servicesTotalAmount;
+    const totalAmountVat = (totalAmount * 10) / 100;
+    const totalAmountWithoutVat = totalAmount - totalAmountVat;
+
+    replacedContent = replacedContent.replace(
+      '{{ productTotalAmount }}',
+      productsTotalAmount
+    );
+    replacedContent = replacedContent.replace(
+      '{{ servicesTotalAmount }}',
+      servicesTotalAmount
+    );
+    replacedContent = replacedContent.replace('{{ totalAmount }}', totalAmount);
+    replacedContent = replacedContent.replace(
+      '{{ totalAmountVat }}',
+      totalAmountVat
+    );
+    replacedContent = replacedContent.replace(
+      '{{ totalAmountWithoutVat }}',
+      totalAmountWithoutVat
+    );
 
     return replacedContent;
   }
