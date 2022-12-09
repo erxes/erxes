@@ -9,6 +9,8 @@ const adMutations = {
       throw new Error('Permission denied');
     }
 
+    console.log('=================', cpUser);
+
     doc.cpUserId = cpUser._id;
 
     return Ads.createAd(doc);
