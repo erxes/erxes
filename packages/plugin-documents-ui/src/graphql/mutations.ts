@@ -3,6 +3,7 @@ const commonParamsDef = `
   $contentType: String!,
   $name: String!,
   $content: String,
+  $replacer: String,
 `;
 
 const commonParams = `
@@ -10,6 +11,7 @@ const commonParams = `
   contentType: $contentType,
   name: $name,
   content: $content,
+  replacer: $replacer,
 `;
 
 const documentsSave = `

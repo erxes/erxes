@@ -18,6 +18,7 @@ type Props = {
 type State = {
   name?: string;
   content?: string;
+  replacer?: string;
 };
 
 const FormWrapper = styled.div`
@@ -47,11 +48,12 @@ class Form extends React.Component<Props, State> {
   };
 
   onSave = () => {
-    const { name, content } = this.state;
+    const { name, content, replacer } = this.state;
 
     this.props.save({
       name,
-      content
+      content,
+      replacer
     });
   };
 
@@ -89,6 +91,18 @@ class Form extends React.Component<Props, State> {
           ></div>
 
           <div style={{ clear: 'both' }} />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={true}>Replacer</ControlLabel>
+
+          <FormControl
+            componentClass="textarea"
+            name="name"
+            required={true}
+            defaultValue={obj.replacer}
+            onChange={this.onChangeField.bind(this, 'replacer')}
+          />
         </FormGroup>
       </FormWrapper>
     );

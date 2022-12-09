@@ -13,9 +13,11 @@ export default {
       { value: 'closeDate', name: 'Close date' },
       { value: 'description', name: 'Description' },
       { value: 'productsInfo', name: 'Products information' },
+      { value: 'servicesInfo', name: 'Services information' },
       { value: 'assignedUsers', name: 'Assigned users' },
       { value: 'customers', name: 'Customers' },
-      { value: 'companies', name: 'Companies' }
+      { value: 'companies', name: 'Companies' },
+      { value: 'now', name: 'Now' }
     ];
   },
 
@@ -77,6 +79,11 @@ export default {
         item.closeDate.toLocaleDateString()
       );
     }
+
+    replacedContent = replacedContent.replace(
+      `{{ now }}`,
+      new Date().toLocaleDateString()
+    );
 
     // ============ replace users
     const users = await sendCoreMessage({
@@ -180,46 +187,56 @@ export default {
       );
     }
 
-    const productsData = item.productsData || [];
+    const replaceProducts = async (key, type) => {
+      const productsData = item.productsData || [];
 
-    const productRows: string[] = [];
+      const productRows: string[] = [];
+      let index = 0;
 
-    for (const pd of productsData) {
-      if (!pd || !pd.productId) {
-        continue;
-      }
+      for (const pd of productsData) {
+        if (!pd || !pd.productId) {
+          continue;
+        }
 
-      const product = await sendProductsMessage({
-        subdomain,
-        action: 'findOne',
-        data: { _id: pd.productId },
-        isRPC: true
-      });
+        const product = await sendProductsMessage({
+          subdomain,
+          action: 'findOne',
+          data: { _id: pd.productId },
+          isRPC: true
+        });
 
-      if (!product) {
-        continue;
-      }
+        if (!product || product.type !== type) {
+          continue;
+        }
 
-      productRows.push(`
+        index++;
+
+        productRows.push(`
         <tr>
+          <td>${index}</td>
+          <td>${product.code || ''}</td>
           <td>${product.name}</td>
           <td>${pd.quantity}</td>
           <td>${pd.unitPrice}</td>
+          <td>${pd.quantity * pd.unitPrice}</td>
         </tr>
      `);
-    }
+      }
 
-    replacedContent = replacedContent.replace(
-      '{{ productsInfo }}',
-      productRows.length > 0
-        ? `
+      replacedContent = replacedContent.replace(
+        key,
+        productRows.length > 0
+          ? `
         <table>
           <tbody>
             <thead>
               <tr>
-                <th>Product name</th>
+                <th>№</th>
+                <th>Code</th>
+                <th>${type === 'product' ? 'Product name' : 'Service name'}</th>
                 <th>Quantity</th>
                 <th>Unit price</th>
+                <th>Total amount</th>
               </tr>
             </thead>
             ${productRows}
@@ -230,8 +247,12 @@ export default {
           window.print();
         </script>
       `
-        : ''
-    );
+          : ''
+      );
+    };
+
+    await replaceProducts('{{ productsInfo }}', 'product');
+    await replaceProducts('{{ servicesInfo }}', 'service');
 
     return replacedContent;
   }

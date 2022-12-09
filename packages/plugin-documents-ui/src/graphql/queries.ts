@@ -16,6 +16,7 @@ const documentsDetail = `
       contentType
       name
       content
+      replacer
     }
   }
 `;
