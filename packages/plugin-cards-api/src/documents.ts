@@ -226,42 +226,44 @@ export default {
 
         totalAmount += tAmount;
 
-        productRows.push(`
-        <tr>
-          <td>${index}</td>
-          <td>${product.code || ''}</td>
-          <td>${product.name}</td>
-          <td>${pd.quantity}</td>
-          <td>${toMoney(pd.unitPrice)}</td>
-          <td>${toMoney(tAmount)}</td>
-        </tr>
-     `);
+        productRows.push(
+          `<tr>
+            <td>${index}</td>
+            <td>${product.code || ''}</td>
+            <td>${product.name}</td>
+            <td>${pd.quantity}</td>
+            <td>${toMoney(pd.unitPrice)}</td>
+            <td>${toMoney(tAmount)}</td>
+          </tr>
+          `
+        );
       }
 
       replacedContent = replacedContent.replace(
         key,
         productRows.length > 0
-          ? `
-        <table>
-          <tbody>
-            <thead>
-              <tr>
-                <th>№</th>
-                <th>Code</th>
-                <th>${type === 'product' ? 'Product name' : 'Service name'}</th>
-                <th>Quantity</th>
-                <th>Unit price</th>
-                <th>Total amount</th>
-              </tr>
-            </thead>
-            ${productRows}
-          </tbody>
-        </table>
+          ? `<table>
+              <tbody>
+                <thead>
+                  <tr>
+                    <th>№</th>
+                    <th>Code</th>
+                    <th>${
+                      type === 'product' ? 'Product name' : 'Service name'
+                    }</th>
+                    <th>Quantity</th>
+                    <th>Unit price</th>
+                    <th>Total amount</th>
+                  </tr>
+                </thead>
+                ${productRows.join('')}
+              </tbody>
+            </table>
 
-        <script>
-          window.print();
-        </script>
-      `
+            <script>
+              window.print();
+            </script>
+            `
           : ''
       );
 
