@@ -45,6 +45,7 @@ export const initBroker = async cl => {
       if (data) {
         switch (data.type) {
           case 'product':
+            console.log('ddddddddddddd');
             await receiveProduct(models, data);
             break;
           case 'productCategory':

@@ -207,6 +207,7 @@ export const posSchema = schemaHooksWrapper(
     adminIds: field({ type: [String], label: 'Admin user ids' }),
     cashierIds: field({ type: [String], label: 'Cashier ids' }),
     isOnline: field({ type: Boolean, label: 'Is online pos' }),
+    paymentIds: field({ type: [String], label: 'Online Payments' }),
     onServer: field({
       type: Boolean,
       optional: true,

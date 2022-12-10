@@ -18,6 +18,7 @@ const posCommonFields = `
   productDetails: [String]
   adminIds: [String]
   cashierIds: [String]
+  paymentIds: [String]
   isOnline: Boolean
   onServer: Boolean
   branchId: String

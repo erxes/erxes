@@ -54,6 +54,7 @@ export const types = `
     productDetails: [String]
     adminIds: [String]
     cashierIds: [String]
+    paymentIds: [String]
     beginNumber: String
     maxSkipNumber: Int
     waitingScreen: JSON
