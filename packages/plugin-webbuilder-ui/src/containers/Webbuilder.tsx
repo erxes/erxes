@@ -16,7 +16,7 @@ type FinalProps = {
   sitesTotalCountQuery: any;
 } & Props;
 
-function WebbuilderContainer(props: FinalProps) {
+function WebBuilderContainer(props: FinalProps) {
   const { sitesTotalCountQuery } = props;
 
   if (sitesTotalCountQuery.loading) {
@@ -38,4 +38,4 @@ export default compose(
   graphql<{}, SitesTotalCountQueryResponse>(gql(queries.sitesTotalCount), {
     name: 'sitesTotalCountQuery'
   })
-)(WebbuilderContainer);
+)(WebBuilderContainer);
