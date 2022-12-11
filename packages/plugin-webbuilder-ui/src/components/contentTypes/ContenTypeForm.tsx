@@ -1,21 +1,13 @@
-import {
-  Content,
-  LeftContent
-} from '@erxes/ui-inbox/src/settings/integrations/styles';
-import { Step, Steps } from '@erxes/ui/src/components/step';
+import { LeftItem, RightItem, TypeFormContainer } from './styles';
 
 import { Alert } from '@erxes/ui/src/utils';
 import Button from '@erxes/ui/src/components/Button';
 import ContentTypeStep from './step/ContenTypeStep';
-import { ControlWrapper } from '@erxes/ui/src/components/step/styles';
 import FullPreview from './step/FullPreview';
 import { IContentTypeDoc } from '../../types';
-import { Indicator } from '@erxes/ui/src/components/step/styles';
 import { Link } from 'react-router-dom';
-import { PreviewWrapper } from '@erxes/ui/src/components/step/style';
 import React from 'react';
-import { StepWrapper } from '@erxes/ui/src/components/step/styles';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { SubTitle } from '../sites/styles';
 import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
@@ -80,19 +72,32 @@ class ContentTypeForm extends React.Component<Props, State> {
   renderButtons = () => {
     const cancelButton = (
       <Link to="/webbuilder/contenttypes">
-        <Button btnStyle="simple" icon="times-circle">
+        <Button btnStyle="simple" size="small" icon="times-circle">
           Cancel
         </Button>
       </Link>
     );
 
+    const deleteButton = (
+      <Button
+        btnStyle="danger"
+        icon="trash-alt"
+        size="small"
+        // onClick={() => remove(page._id, onCancel(null, ""))}
+      >
+        Delete
+      </Button>
+    );
+
     return (
       <Button.Group>
+        {deleteButton}
         {cancelButton}
 
         <Button
           btnStyle="success"
           icon={'check-circle'}
+          size="small"
           onClick={this.handleSubmit}
         >
           Save
@@ -106,34 +111,22 @@ class ContentTypeForm extends React.Component<Props, State> {
     const { contentType } = this.props;
 
     return (
-      <Content>
-        <LeftContent>
-          <Steps>
-            <Step
-              img="/images/icons/erxes-04.svg"
-              title="Content type"
-              noButton={true}
-            >
-              <ContentTypeStep
-                onChange={this.onChange}
-                displayName={displayName}
-                code={code}
-                fields={this.state.fields}
-                siteId={siteId}
-              />
-            </Step>
-          </Steps>
-
-          <ControlWrapper>
-            <Indicator>
-              {__('You are')} {contentType ? 'editing' : 'creating'}{' '}
-              <strong>{displayName}</strong> {__('content type')}
-            </Indicator>
+      <TypeFormContainer className="gjs-one-bg gjs-two-color">
+        <LeftItem>
+          <SubTitle flexBetween={true}>
+            {__('Content Type Settings')}
             {this.renderButtons()}
-          </ControlWrapper>
-        </LeftContent>
+          </SubTitle>
+          <ContentTypeStep
+            onChange={this.onChange}
+            displayName={displayName}
+            code={code}
+            fields={this.state.fields}
+            siteId={siteId}
+          />
+        </LeftItem>
 
-        <PreviewWrapper>
+        <RightItem>
           <FullPreview
             onChange={this.onChange}
             color=""
@@ -141,8 +134,8 @@ class ContentTypeForm extends React.Component<Props, State> {
             type="dropdown"
             fields={this.state.fields}
           />
-        </PreviewWrapper>
-      </Content>
+        </RightItem>
+      </TypeFormContainer>
     );
   }
 }

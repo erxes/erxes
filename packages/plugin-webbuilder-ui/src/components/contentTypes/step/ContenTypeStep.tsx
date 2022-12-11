@@ -1,13 +1,13 @@
-import React from 'react';
-import { Description } from '@erxes/ui-settings/src/styles';
 import { Alert, __ } from '@erxes/ui/src/utils';
+
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { FlexColumn, FlexItem } from '@erxes/ui/src/components/step/style';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import FieldChoices from './FieldChoices';
 import FieldForm from '../FieldForm';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { GroupTitle } from '../styles';
+import { LeftItem } from '@erxes/ui/src/components/step/styles';
+import React from 'react';
 import SelectSite from '../../../containers/sites/SelectSite';
 
 type Props = {
@@ -83,55 +83,51 @@ class Step extends React.Component<Props, State> {
     };
 
     return (
-      <FlexItem>
-        <FlexColumn>
-          <LeftItem deactive={false}>
-            <FormGroup>
-              <ControlLabel required={true}>{__('Display name')}</ControlLabel>
-              <FormControl
-                required={true}
-                name="displayName"
-                value={displayName}
-                onChange={(e: any) => onChange('displayName', e.target.value)}
-              />
-            </FormGroup>
+      <LeftItem deactive={false}>
+        <FormGroup>
+          <ControlLabel required={true}>{__('Display name')}</ControlLabel>
+          <FormControl
+            required={true}
+            name="displayName"
+            value={displayName}
+            onChange={(e: any) => onChange('displayName', e.target.value)}
+          />
+        </FormGroup>
 
-            <FormGroup>
-              <ControlLabel>{__('Code')}</ControlLabel>
-              <FormControl
-                required={true}
-                name="code"
-                value={code}
-                onChange={(e: any) => onChange('code', e.target.value)}
-              />
-            </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Code')}</ControlLabel>
+          <FormControl
+            required={true}
+            name="code"
+            value={code}
+            onChange={(e: any) => onChange('code', e.target.value)}
+          />
+        </FormGroup>
 
-            <FormGroup>
-              <ControlLabel>{__('Site')}</ControlLabel>
-              <SelectSite
-                initialValue={siteId}
-                onSelect={(value: string) => onChange('siteId', value)}
-              />
-            </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Site')}</ControlLabel>
+          <SelectSite
+            initialValue={siteId}
+            onSelect={(value: string) => onChange('siteId', value)}
+          />
+        </FormGroup>
 
-            <p>{__('Add a new field')}</p>
-            <Description>
-              {__('Choose a field type from the options below.')}
-            </Description>
+        <GroupTitle>
+          <h4>{__('Add a new field')}</h4>
+          <p>{__('Choose a field type from the options below.')}</p>
+        </GroupTitle>
 
-            <FieldChoices type={'input'} onChoiceClick={onChoiceClick} />
+        <FieldChoices type={'input'} onChoiceClick={onChoiceClick} />
 
-            {currentField && (
-              <FieldForm
-                mode={currentMode || 'create'}
-                field={currentField}
-                onSubmit={this.onFieldSubmit}
-                onCancel={onFieldFormCancel}
-              />
-            )}
-          </LeftItem>
-        </FlexColumn>
-      </FlexItem>
+        {currentField && (
+          <FieldForm
+            mode={currentMode || 'create'}
+            field={currentField}
+            onSubmit={this.onFieldSubmit}
+            onCancel={onFieldFormCancel}
+          />
+        )}
+      </LeftItem>
     );
   }
 }

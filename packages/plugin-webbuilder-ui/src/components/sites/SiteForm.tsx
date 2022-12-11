@@ -2,6 +2,7 @@ import 'grapesjs/dist/css/grapes.min.css';
 
 import {
   CollapseLeftMenu,
+  ItemDetailContainer,
   LeftSidebar,
   LeftSidebarContent,
   SettingsContent,
@@ -359,8 +360,10 @@ class SiteForm extends React.Component<Props, State> {
           <FlexItem>
             {this.renderLeftSidebar()}
             {settingsObject && (
-              <SettingsContent className="gjs-one-bg gjs-two-color">
-                {this.renderItemSettings()}
+              <SettingsContent>
+                <ItemDetailContainer>
+                  {this.renderItemSettings()}
+                </ItemDetailContainer>
               </SettingsContent>
             )}
             <FlexItem count="7">

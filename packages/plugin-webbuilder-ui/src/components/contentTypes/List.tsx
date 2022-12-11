@@ -22,10 +22,10 @@ class ContentTypesList extends React.Component<Props> {
       <List>
         {contentTypes.map(type => (
           <li key={type._id}>
-            <div>
-              <Icon icon="file-1" />
+            <a>
+              <Icon icon="layers" />
               {type.displayName}
-            </div>
+            </a>
             <Icon
               icon="settings"
               onClick={() => handleItemSettings(type, 'contenttype')}
@@ -34,7 +34,7 @@ class ContentTypesList extends React.Component<Props> {
         ))}
         <li>
           <div className="link">
-            <Icon icon="plus-1" />
+            <Icon icon="plus-1" /> &nbsp;
             {__('Create content type')}
           </div>
         </li>

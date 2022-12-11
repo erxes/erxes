@@ -1,7 +1,5 @@
 import 'grapesjs/dist/css/grapes.min.css';
 
-import { PageFormContainer, PageHeader } from './styles';
-
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FlexPad } from '@erxes/ui/src/components/step/styles';
@@ -10,7 +8,9 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IPageDoc } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
+import { PageFormContainer } from './styles';
 import React from 'react';
+import { SubTitle } from '../sites/styles';
 import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
@@ -104,13 +104,13 @@ class PageForm extends React.Component<Props, State> {
 
   render() {
     const { description, name, slug } = this.state;
-    console.log('aaaa', this.props.page.name, name);
+
     return (
-      <PageFormContainer>
-        <PageHeader>
-          Page Settings
+      <PageFormContainer className="gjs-one-bg gjs-two-color">
+        <SubTitle flexBetween={true}>
+          {__('Page Settings')}
           {this.renderButtons()}
-        </PageHeader>
+        </SubTitle>
         <FlexPad direction="column" overflow="auto">
           <FormGroup>
             <ControlLabel>Name:</ControlLabel>
