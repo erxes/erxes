@@ -68,7 +68,8 @@ export default function ForumPost({ isTagsEnabled }) {
     upVotes: [ClientPortalUser]
     downVotes: [ClientPortalUser]
 
-    contentRestricted: Boolean
+    requiredLevel: String
+    isPermissionRequired: Boolean
 
     customIndexed: JSON
 

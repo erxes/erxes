@@ -1,150 +1,128 @@
-import { IOverallWorkDocument } from './../../../models/definitions/overallWorks';
+import { getProductsData } from './utils';
 import { IContext } from '../../../connectionResolver';
-import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
-import { IJobRefer } from '../../../models/definitions/jobs';
+import { IOverallWork } from './../../../models/definitions/overallWorks';
+import { JOB_TYPES } from '../../../models/definitions/constants';
+import {
+  sendCoreMessage,
+  sendInventoriesMessage,
+  sendProductsMessage
+} from '../../../messageBroker';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
     return models.Works.findOne({ _id });
   },
 
-  async job(work: IOverallWorkDocument, {}, { models }: IContext) {
-    const { jobId } = work;
-    const jobRefer: IJobRefer | null = await models.JobRefers.findOne({
-      _id: jobId
-    });
-
-    return { label: jobRefer?.name || '', description: jobRefer?.code || '' };
+  async type(work: IOverallWork, {}, {}) {
+    const { key } = work;
+    const { type } = key;
+    return type;
   },
 
-  async flow(work: IOverallWorkDocument, {}, { models }: IContext) {
-    const { flowId } = work;
-    const flow = await models.Flows.findOne({ _id: flowId });
-
-    return { name: flow?.name || '', status: flow?.status };
-  },
-
-  async inBranch(work: IOverallWorkDocument, {}, { subdomain }: IContext) {
-    const { inBranchId } = work;
-
-    const branch =
-      (await sendCoreMessage({
-        subdomain,
-        action: 'branches.findOne',
-        data: { _id: inBranchId || '' },
-        isRPC: true
-      })) || null;
-
-    return branch ? branch.title : '';
-  },
-
-  async outBranch(work: IOverallWorkDocument, {}, { subdomain }: IContext) {
-    const { outBranchId } = work;
-
-    const branch =
-      (await sendCoreMessage({
-        subdomain,
-        action: 'branches.findOne',
-        data: { _id: outBranchId || '' },
-        isRPC: true
-      })) || null;
-
-    return branch ? branch.title : '';
-  },
-
-  async inDepartment(work: IOverallWorkDocument, {}, { subdomain }: IContext) {
-    const { inDepartmentId } = work;
-
-    const department =
-      (await sendCoreMessage({
-        subdomain,
-        action: 'departments.findOne',
-        data: { _id: inDepartmentId || '' },
-        isRPC: true
-      })) || null;
-
-    return department ? department.title : '';
-  },
-
-  async outDepartment(work: IOverallWorkDocument, {}, { subdomain }: IContext) {
-    const { outDepartmentId } = work;
-
-    const department =
-      (await sendCoreMessage({
-        subdomain,
-        action: 'departments.findOne',
-        data: { _id: outDepartmentId || '' },
-        isRPC: true
-      })) || null;
-
-    return department ? department.title : '';
-  },
-  async needProductsDetail(
-    overallWork: IOverallWorkDocument,
-    {},
-    { models, subdomain }: IContext
-  ) {
-    const jobRefers = await models.OverallWorks.findOne({
-      _id: overallWork._id
-    });
-
-    const needProducts = jobRefers?.needProducts || [];
-
-    for await (const need of needProducts) {
-      const uom =
-        (await sendProductsMessage({
-          subdomain,
-          action: 'uoms.findOne',
-          data: { _id: need.uomId || '' },
-          isRPC: true
-        })) || null;
-
-      const product =
-        (await sendProductsMessage({
-          subdomain,
-          action: 'findOne',
-          data: { _id: need.productId || '' },
-          isRPC: true
-        })) || null;
-
-      need.product = product;
-      need.uom = uom;
+  async jobRefer(work: IOverallWork, {}, { models }: IContext) {
+    const { key } = work;
+    const { type, typeId } = key;
+    if (![JOB_TYPES.ENDPOINT, JOB_TYPES.JOB].includes(type)) {
+      return;
     }
 
-    return needProducts;
+    return await models.JobRefers.findOne({ _id: typeId }).lean();
   },
-  async resultProductsDetail(
-    overallWork: IOverallWorkDocument,
-    {},
-    { models, subdomain }: IContext
-  ) {
-    const jobRefers = await models.OverallWorks.findOne({
-      _id: overallWork._id
-    });
 
-    const resultProducts = jobRefers?.resultProducts || [];
-
-    for await (const result of resultProducts) {
-      const uom =
-        (await sendProductsMessage({
-          subdomain,
-          action: 'uoms.findOne',
-          data: { _id: result.uomId || '' },
-          isRPC: true
-        })) || null;
-
-      const product =
-        (await sendProductsMessage({
-          subdomain,
-          action: 'findOne',
-          data: { _id: result.productId || '' },
-          isRPC: true
-        })) || null;
-
-      result.product = product;
-      result.uom = uom;
+  async product(work: IOverallWork, {}, { subdomain }: IContext) {
+    const { key } = work;
+    const { type, typeId } = key;
+    if ([JOB_TYPES.ENDPOINT, JOB_TYPES.JOB].includes(type)) {
+      return;
     }
 
-    return resultProducts;
+    return await sendProductsMessage({
+      subdomain,
+      action: 'findOne',
+      data: { _id: typeId },
+      isRPC: true
+    });
+  },
+
+  async inBranch(work: IOverallWork, {}, { subdomain }: IContext) {
+    const { key } = work;
+    const { inBranchId } = key;
+
+    if (!inBranchId) {
+      return;
+    }
+
+    return await sendCoreMessage({
+      subdomain,
+      action: 'branches.findOne',
+      data: { _id: inBranchId || '' },
+      isRPC: true
+    });
+  },
+
+  async outBranch(work: IOverallWork, {}, { subdomain }: IContext) {
+    const { key } = work;
+    const { outBranchId } = key;
+
+    if (!outBranchId) {
+      return;
+    }
+
+    return await sendCoreMessage({
+      subdomain,
+      action: 'branches.findOne',
+      data: { _id: outBranchId || '' },
+      isRPC: true
+    });
+  },
+
+  async inDepartment(work: IOverallWork, {}, { subdomain }: IContext) {
+    const { key } = work;
+    const { inDepartmentId } = key;
+    if (!inDepartmentId) {
+      return;
+    }
+
+    return await sendCoreMessage({
+      subdomain,
+      action: 'departments.findOne',
+      data: { _id: inDepartmentId || '' },
+      isRPC: true
+    });
+  },
+
+  async outDepartment(work: IOverallWork, {}, { subdomain }: IContext) {
+    const { key } = work;
+    const { outDepartmentId } = key;
+    if (!outDepartmentId) {
+      return;
+    }
+
+    return await sendCoreMessage({
+      subdomain,
+      action: 'departments.findOne',
+      data: { _id: outDepartmentId || '' },
+      isRPC: true
+    });
+  },
+
+  async needProducts(overallWork: IOverallWork, {}, {}) {
+    const { needProducts } = overallWork;
+
+    if (!needProducts || !needProducts.length) {
+      return;
+    }
+
+    return getProductsData(needProducts);
+  },
+
+  async resultProducts(overallWork: IOverallWork, {}, {}) {
+    const { resultProducts } = overallWork;
+
+    if (!resultProducts || !resultProducts.length) {
+      return;
+    }
+
+    return getProductsData(resultProducts);
   }
 };

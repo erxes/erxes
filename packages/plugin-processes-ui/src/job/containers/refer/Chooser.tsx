@@ -22,7 +22,7 @@ type Props = {
   data: { name: string; jobRefers: IJobRefer[] };
   types: string[];
   categoryId: string;
-  onChangeCategory: (catgeoryId: string) => void;
+  onChangeCategory: (categoryId: string) => void;
   closeModal: () => void;
   onSelect: (jobRefers: IJobRefer[]) => void;
 };

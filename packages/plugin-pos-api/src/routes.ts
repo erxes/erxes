@@ -11,19 +11,6 @@ import { getChildCategories, getConfig } from './utils';
 export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   const data: any = { pos };
 
-  // qpay configs
-  const qpayConfig = await getConfig(subdomain, 'QPAY', {});
-
-  if (qpayConfig) {
-    data.qpayConfig = {
-      url: qpayConfig.qpayUrl,
-      callbackUrl: pos.isOnline ? qpayConfig.callbackUrl : '',
-      username: qpayConfig.qpayMerchantUser,
-      password: qpayConfig.qpayMerchantPassword,
-      invoiceCode: qpayConfig.qpayInvoiceCode
-    };
-  }
-
   // collect admin users
   if (pos.adminIds) {
     data.adminUsers = await sendCoreMessage({

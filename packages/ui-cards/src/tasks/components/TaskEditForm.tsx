@@ -13,6 +13,8 @@ import PortableDeals from '../../deals/components/PortableDeals';
 import PortableTickets from '../../tickets/components/PortableTickets';
 import React from 'react';
 import { pluginsOfItemSidebar } from 'coreui/pluginUtils';
+import queryString from 'query-string';
+import ChildrenSection from '../../boards/containers/editForm/ChildrenSection';
 
 type Props = {
   options: IOptions;
@@ -63,6 +65,21 @@ export default class TaskEditForm extends React.Component<Props, State> {
     );
   };
 
+  renderChildrenSection = () => {
+    const { item } = this.props;
+
+    const updatedProps = {
+      ...this.props,
+      type: 'task',
+      itemId: item._id,
+      stageId: item.stageId,
+      pipelineId: item.pipeline._id,
+      queryParams: queryString.parse(window.location.search) || {}
+    };
+
+    return <ChildrenSection {...updatedProps} />;
+  };
+
   renderFormContent = ({
     state,
     copy,
@@ -109,6 +126,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
             saveItem={saveItem}
             updateTimeTrack={updateTimeTrack}
             renderItems={this.renderItems}
+            childrenSection={this.renderChildrenSection}
           />
         </Flex>
       </>

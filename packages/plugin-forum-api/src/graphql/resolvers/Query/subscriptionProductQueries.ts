@@ -7,10 +7,14 @@ const subscriptionProductQueries: IObjectTypeResolver<any, IContext> = {
   },
   forumSubscriptionProducts(
     _,
-    { sort = {} },
+    { sort = {}, userType },
     { models: { SubscriptionProduct } }
   ) {
-    return SubscriptionProduct.find()
+    const query: any = {};
+    if (userType) {
+      query.userType = userType;
+    }
+    return SubscriptionProduct.find(query)
       .sort(sort)
       .lean();
   }

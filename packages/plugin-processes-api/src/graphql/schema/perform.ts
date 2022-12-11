@@ -2,6 +2,8 @@ export const types = `
 
   type Perform @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String,
+    overallWorkId: String,
+    overallWorkKey: OverallWorkKey,
     createdAt: Date,
     createdBy: String,
     updatedAt: Date,
@@ -9,28 +11,44 @@ export const types = `
     dueDate: Date,
     startAt: Date,
     endAt: Date,
-    overallWorkId: String,
     overallWork: JSON,
     status: String,
     productId: String,
     count: String,
     needProducts: JSON,
-    resultProducts: JSON
+    resultProducts: JSON,
+    needConfirmInfo: JSON,
+    resultConfirmInfo: JSON,
   }
 `;
 
-const qryParams = `
-  searchValue: String
+const paginateParams = `
+  page: Int
+  perPage: Int
+  sortField: String
+  sortDirection: Int
+`;
 
+const qryParams = `
+  search: String
+  type: String
+  startDate: Date
+  endDate: Date
+  inBranchId: String
+  outBranchId: String
+  inDepartmentId: String
+  outDepartmentId: String
+  productCategoryId: String
+  productId: String
+  jobCategoryId: String
+  jobReferId: String
 `;
 
 export const queries = `
-  performs(page: Int, perPage: Int, ${qryParams}): [Perform]
+  performs(${paginateParams}, ${qryParams}): [Perform]
   performsByOverallWorkId(overallWorkId: String, ${qryParams}):  [Perform]
   performsByOverallWorkIdTotalCount(overallWorkId: String, ${qryParams}): Int
-  performsTotalCount(${qryParams}): Int
-
-  allProducts: JSON
+  performsCount(${qryParams}): Int
 `;
 
 const performParams = `

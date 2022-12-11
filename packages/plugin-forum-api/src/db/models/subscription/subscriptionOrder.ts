@@ -5,6 +5,10 @@ import { TimeDurationUnit, TIME_DURATION_UNITS } from '../../../consts';
 import { ICpUser } from '../../../graphql';
 import { LoginRequiredError } from '../../../customErrors';
 import * as moment from 'moment';
+import {
+  SubscriptionProductUserTypes,
+  SUBSCRIPTION_PRODUCT_USER_TYPES
+} from './subscriptionProduct';
 
 export const SUBSCRIPTION_ORDER_STATES = [
   'PENDING',
@@ -22,6 +26,8 @@ export interface ISubscriptionOrder {
   multiplier: number;
 
   price: number;
+
+  userType: SubscriptionProductUserTypes;
 
   cpUserId: string;
   createdAt: Date;
@@ -91,6 +97,11 @@ export const subscriptionOrderSchema = new Schema<SubscriptionOrderDocument>({
     min: 0
   },
 
+  userType: {
+    type: String,
+    enum: SUBSCRIPTION_PRODUCT_USER_TYPES
+  },
+
   cpUserId: {
     type: String,
     required: true
@@ -154,6 +165,12 @@ export const generateSubscriptionOrderModel = (
       const product = await models.SubscriptionProduct.findByIdOrThrow(
         subscriptionProductId
       );
+
+      if (product.userType && user.type && product.userType !== user.type) {
+        throw new Error(
+          `This product is for ${product.userType} users. Current user is ${user.type}`
+        );
+      }
 
       const doc = await models.SubscriptionOrder.create({
         unit: product.unit,

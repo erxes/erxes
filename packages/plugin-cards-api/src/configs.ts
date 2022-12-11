@@ -17,6 +17,7 @@ import automations from './automations';
 import search from './search';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
+import documents from './documents';
 import tags from './tags';
 import exporter from './exporter';
 
@@ -50,7 +51,8 @@ export default {
     search,
     webhooks,
     tags,
-    permissions
+    permissions,
+    documents
   },
 
   apolloServerContext: async (context, req, res) => {
