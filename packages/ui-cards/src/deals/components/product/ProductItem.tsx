@@ -252,8 +252,8 @@ class ProductItem extends React.Component<Props, State> {
       <ModalTrigger
         title="Choose product & service"
         trigger={this.renderProductServiceTrigger(productData.product)}
-        dialogClassName="modal-1000w"
-        size="lg"
+        dialogClassName="modal-1400w"
+        size="xl"
         content={content}
       />
     );

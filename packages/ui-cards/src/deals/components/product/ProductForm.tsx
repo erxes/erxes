@@ -460,8 +460,8 @@ class ProductForm extends React.Component<Props, State> {
       <ModalTrigger
         title="Choose product & service"
         trigger={trigger}
-        dialogClassName="modal-1000w"
-        size="lg"
+        dialogClassName="modal-1400w"
+        size="xl"
         content={content}
       />
     );
