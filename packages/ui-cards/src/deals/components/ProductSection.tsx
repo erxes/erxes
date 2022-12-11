@@ -74,8 +74,8 @@ function ProductSection({
     return (
       <ModalTrigger
         title="Manage Product & Service"
-        size="lg"
-        dialogClassName="modal-1000w"
+        size="xl"
+        dialogClassName="wide-modal extra-wide-modal"
         trigger={trigger}
         content={contentWithId(productId)}
       />
