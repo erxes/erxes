@@ -14,6 +14,7 @@ type Props = {
   productData: IProductData;
   removeProductItem?: (productId: string) => void;
   onChangeProductsData?: (productsData: IProductData[]) => void;
+  calculatePerProductAmount: (type: string, productData: IProductData) => void;
   updateTotal?: () => void;
   currentProduct?: string;
   onChangeDiscount: (id: string, discount: number) => void;

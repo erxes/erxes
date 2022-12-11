@@ -714,7 +714,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
       this.updateSession(user._id);
 
-      return createJwtToken({ userId: user._id });
+      return createJwtToken({ userId: user._id, type: user.type });
     }
 
     public static async invite(

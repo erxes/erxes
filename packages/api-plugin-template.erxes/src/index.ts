@@ -297,8 +297,10 @@ async function startServer() {
       webhooks,
       initialSetup,
       cronjobs,
+      documents,
       exporter
     } = configs.meta;
+
     const { consumeRPCQueue, consumeQueue } = messageBrokerClient;
 
     const logs = configs.meta.logs && configs.meta.logs.consumers;
@@ -394,6 +396,7 @@ async function startServer() {
           data: await tags.tag(args)
         }));
       }
+
       if (tags.publishChange) {
         tags.publishChangeAvailable = true;
 
@@ -536,6 +539,24 @@ async function startServer() {
           data: await cronjobs.handleDailyJob(args)
         }));
       }
+    }
+
+    if (documents) {
+      consumeRPCQueue(
+        `${configs.name}:documents.editorAttributes`,
+        async args => ({
+          status: 'success',
+          data: await documents.editorAttributes()
+        })
+      );
+
+      consumeRPCQueue(
+        `${configs.name}:documents.replaceContent`,
+        async args => ({
+          status: 'success',
+          data: await documents.replaceContent(args)
+        })
+      );
     }
   } // end configs.meta if
 

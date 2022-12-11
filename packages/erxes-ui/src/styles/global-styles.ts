@@ -149,6 +149,10 @@ a:hover {
   width: 90%;
 }
 
+.extra-wide-modal {
+  max-width: 100%;
+}
+
 .close {
   font-weight: ${typography.fontWeightLight};
   text-shadow: none;
