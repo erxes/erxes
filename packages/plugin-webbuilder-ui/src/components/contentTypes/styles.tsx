@@ -20,10 +20,6 @@ export const GroupTitle = styled.div`
   }
 `;
 
-export const LeftItem = styled.div`
-  width: 50%;
-`;
-
 export const RightItem = styled.div`
   width: 50%;
 

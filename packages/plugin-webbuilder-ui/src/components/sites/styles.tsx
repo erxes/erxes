@@ -241,6 +241,11 @@ export const SubTitle = styledTS<{ flexBetween?: boolean }>(styled.div)`
   border-bottom: 1px solid rgba(0, 0, 0, 0.25);
   border-top: 1px solid rgba(0, 0, 0, 0.25);
 
+  > div {
+    display: flex;
+    align-items: center;
+  }
+
   ${props =>
     props.flexBetween &&
     css`
@@ -258,6 +263,11 @@ export const ItemDetailContainer = styled.div`
   border-left: 1px solid rgba(0, 0, 0, 0.25);
   border-right: 1px solid rgba(0, 0, 0, 0.25);
   height: 100%;
+`;
+
+export const LeftItem = styled.div`
+  width: 50%;
+  border-right: 1px solid rgba(0, 0, 0, 0.25);
 `;
 
 export const SiteFormContainer = styledTS<{ showDarkMode?: boolean }>(
@@ -306,6 +316,10 @@ export const SiteFormContainer = styledTS<{ showDarkMode?: boolean }>(
         border-left: 1px solid ${colors.borderPrimary};
         border-right: 1px solid ${colors.borderPrimary};
       }
+
+      ${LeftItem} {
+        border-right: 1px solid ${colors.borderPrimary};
+      }
     `};
 
     ${props =>
@@ -324,7 +338,7 @@ export const SiteFormContainer = styledTS<{ showDarkMode?: boolean }>(
 export const SettingsContent = styled.div`
   height: 100%;
   position: absolute;
-  left: 200px;
+  left: 199px;
   width: calc(100% - 200px);
   z-index: 10;
 `;

@@ -1,13 +1,14 @@
 import * as compose from 'lodash.flowright';
 
+import { Alert, confirm } from '@erxes/ui/src/utils';
 import {
   TypeDetailQueryResponse,
   TypesAddMutationResponse,
-  TypesEditMutationResponse
+  TypesEditMutationResponse,
+  TypesRemoveMutationResponse
 } from '../../types';
 import { mutations, queries } from '../../graphql';
 
-import { Alert } from '@erxes/ui/src/utils';
 import ContentTypeForm from '../../components/contentTypes/ContenTypeForm';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
@@ -17,6 +18,7 @@ import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 
 type Props = {
+  onCancel: (settingsObject: any, type: string) => void;
   contentTypeId?: string;
 } & IRouterProps;
 
@@ -24,12 +26,15 @@ type FinalProps = {
   contentTypeDetailQuery: TypeDetailQueryResponse;
 } & Props &
   TypesAddMutationResponse &
-  TypesEditMutationResponse;
+  TypesEditMutationResponse &
+  TypesRemoveMutationResponse;
 
 function ContentTypeFormContainer(props: FinalProps) {
   const {
+    onCancel,
     typesAddMutation,
     typesEditMutation,
+    typesRemoveMutation,
     history,
     contentTypeId,
     contentTypeDetailQuery
@@ -66,8 +71,26 @@ function ContentTypeFormContainer(props: FinalProps) {
       });
   };
 
+  const remove = (_id: string, afterSave?: any) => {
+    confirm().then(() => {
+      typesRemoveMutation({ variables: { _id } })
+        .then(() => {
+          Alert.success('Successfully removed a content type');
+
+          if (afterSave) {
+            afterSave();
+          }
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    });
+  };
+
   const updatedProps = {
     action,
+    remove,
+    onCancel,
     contentType
   };
 
@@ -99,6 +122,12 @@ export default compose(
           variables: { _id: contentTypeId }
         }
       ]
+    })
+  }),
+  graphql<Props, TypesRemoveMutationResponse>(gql(mutations.typesRemove), {
+    name: 'typesRemoveMutation',
+    options: () => ({
+      refetchQueries: refetchTypeQueries()
     })
   }),
   graphql<Props, TypeDetailQueryResponse>(gql(queries.contentTypeDetail), {

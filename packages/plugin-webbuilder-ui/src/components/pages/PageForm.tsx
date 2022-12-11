@@ -87,7 +87,7 @@ class PageForm extends React.Component<Props, State> {
 
     return (
       <Button.Group>
-        {deleteButton}
+        {page.name && deleteButton}
         {cancelButton}
 
         <Button

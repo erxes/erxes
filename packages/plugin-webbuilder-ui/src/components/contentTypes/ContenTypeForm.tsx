@@ -1,17 +1,19 @@
-import { LeftItem, RightItem, TypeFormContainer } from './styles';
+import { LeftItem, SubTitle } from '../sites/styles';
+import { RightItem, TypeFormContainer } from './styles';
 
 import { Alert } from '@erxes/ui/src/utils';
 import Button from '@erxes/ui/src/components/Button';
 import ContentTypeStep from './step/ContenTypeStep';
 import FullPreview from './step/FullPreview';
 import { IContentTypeDoc } from '../../types';
-import { Link } from 'react-router-dom';
+import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
-import { SubTitle } from '../sites/styles';
 import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   action: (doc: any) => void;
+  remove: (contentTypeId: string, afterSave?: any) => void;
+  onCancel: (settingsObject: any, type: string) => void;
   contentType?: IContentTypeDoc;
 };
 
@@ -70,28 +72,31 @@ class ContentTypeForm extends React.Component<Props, State> {
   };
 
   renderButtons = () => {
-    const cancelButton = (
-      <Link to="/webbuilder/contenttypes">
-        <Button btnStyle="simple" size="small" icon="times-circle">
-          Cancel
-        </Button>
-      </Link>
-    );
+    const { onCancel, remove, contentType } = this.props;
 
-    const deleteButton = (
+    const cancelButton = (
       <Button
-        btnStyle="danger"
-        icon="trash-alt"
+        btnStyle="simple"
         size="small"
-        // onClick={() => remove(page._id, onCancel(null, ""))}
+        icon="times-circle"
+        onClick={() => onCancel(null, '')}
       >
-        Delete
+        Cancel
       </Button>
     );
 
     return (
       <Button.Group>
-        {deleteButton}
+        {contentType && (
+          <Button
+            btnStyle="danger"
+            icon="trash-alt"
+            size="small"
+            onClick={() => remove(contentType._id, onCancel(null, ''))}
+          >
+            Delete
+          </Button>
+        )}
         {cancelButton}
 
         <Button
@@ -108,7 +113,6 @@ class ContentTypeForm extends React.Component<Props, State> {
 
   render() {
     const { displayName, code, siteId } = this.state;
-    const { contentType } = this.props;
 
     return (
       <TypeFormContainer className="gjs-one-bg gjs-two-color">
@@ -127,6 +131,13 @@ class ContentTypeForm extends React.Component<Props, State> {
         </LeftItem>
 
         <RightItem>
+          <SubTitle>
+            <div>
+              <Icon icon="file-search-alt" size={18} />
+              &nbsp;
+              {__('Editor Preview')}
+            </div>
+          </SubTitle>
           <FullPreview
             onChange={this.onChange}
             color=""
