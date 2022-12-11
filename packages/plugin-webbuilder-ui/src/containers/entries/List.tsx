@@ -18,8 +18,7 @@ import { graphql } from 'react-apollo';
 
 type Props = {
   contentType: IContentType;
-  // getActionBar: (actionBar: any) => void;
-  // setCount: (count: number) => void;
+  queryParams: any;
 };
 
 type FinalProps = {
@@ -67,10 +66,10 @@ function ListContainer(props: FinalProps) {
 export default compose(
   graphql<Props, EntriesMainQueryResponse>(gql(queries.entriesMain), {
     name: 'entriesMainQuery',
-    options: ({ contentType }) => ({
+    options: ({ contentType, queryParams }) => ({
       variables: {
-        contentTypeId: contentType._id || ''
-        // ...generatePaginationParams(queryParams)
+        contentTypeId: contentType._id || '',
+        ...generatePaginationParams(queryParams)
       },
       fetchPolicy: 'network-only'
     })

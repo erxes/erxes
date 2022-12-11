@@ -11,13 +11,12 @@ import { __ } from '@erxes/ui/src/utils/core';
 type Props = {
   contentTypes: IContentTypeDoc[];
   contentTypesCount: number;
-  siteId?: string;
   handleItemSettings: (item: any, type: string) => void;
 };
 
 class ContentTypesList extends React.Component<Props> {
   render() {
-    const { contentTypes = [], handleItemSettings, siteId } = this.props;
+    const { contentTypes = [], handleItemSettings } = this.props;
 
     return (
       <List>

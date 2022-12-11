@@ -29,7 +29,6 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 type Props = {
   templates: ITemplateDoc[];
   templatesCount: number;
-  // setCount: (count: number) => void;
   use: (_id: string, name: string) => void;
 };
 
@@ -53,23 +52,10 @@ function List(props: Props) {
   };
 
   const renderCategories = (cat: any, index: number) => {
-    // const isActive = this.state.selectedCategories.includes(cat.value);
-
     return (
-      <Tag
-        key={index}
-        // onClick={() => this.handleCategory(cat.value)}
-        // isActive={isActive}
-      >
+      <Tag key={index}>
         {cat.icon} &nbsp;
         {cat.label}
-        {/* {isActive && (
-          <Icon
-            icon="cancel-1"
-            size={11}
-            onClick={() => this.handleCategory(cat.value)}
-          />
-        )} */}
       </Tag>
     );
   };
@@ -181,12 +167,9 @@ function List(props: Props) {
             <>
               <FilterContainer>
                 <Labels>
-                  <Tag
-                    // onClick={() => this.handleCategory(cat.value)}
-                    isActive={true}
-                  >
+                  <Tag isActive={true}>
                     <Icon icon="menu-2" />
-                    &nbsp; All
+                    &nbsp; {__('All')}
                   </Tag>
                   {CATEGORIES.map((cat, index) => renderCategories(cat, index))}
                 </Labels>
@@ -196,7 +179,7 @@ function List(props: Props) {
               </FlexWrap>
             </>
           }
-          count={5}
+          count={templates.length || templatesCount}
           loading={false}
           emptyText="No templates"
           emptyImage="/images/actions/8.svg"

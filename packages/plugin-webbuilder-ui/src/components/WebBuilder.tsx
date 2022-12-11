@@ -1,155 +1,83 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { __, router } from '@erxes/ui/src/utils';
 
 import { BarItems } from '@erxes/ui/src/layout/styles';
-import ContentTypeList from '../containers/contentTypes/List';
+import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import EntriesList from '../containers/entries/List';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import { IRouterProps } from '@erxes/ui/src/types';
-import Pages from '../containers/pages/Pages';
+import { Link } from 'react-router-dom';
+import List from '../containers/sites/List';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import SelectSite from '../containers/sites/SelectSite';
-import SideBar from '../containers/Sidebar';
-import Sites from '../containers/sites/List';
-import TemplatesList from '../containers/templates/List';
+import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils';
-import { router } from '@erxes/ui/src/utils';
 import { withRouter } from 'react-router-dom';
 
 type Props = {
-  step: string;
+  loading: boolean;
+  sitesCount: number;
   queryParams: any;
-  history: any;
 } & IRouterProps;
 
 function WebBuilder(props: Props) {
-  const [Component, setComponent] = useState(<div />);
-  const [RightActionBar, setRightActionBar] = useState(<div />);
-  const [count, setCount] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const [searchValue, setSearchValue] = useState('');
 
-  const { step, queryParams, history } = props;
-  const site = localStorage.getItem('webbuilderSiteId') || '';
+  const { loading, sitesCount, queryParams } = props;
 
-  useEffect(() => {
-    switch (step) {
-      case 'contenttypes':
-        setComponent(
-          <ContentTypeList
-            queryParams={queryParams}
-            getActionBar={setRightActionBar}
-            setCount={setCount}
-            selectedSite={site}
-          />
-        );
-
-        setLoading(false);
-        break;
-
-      case 'entries':
-        setComponent(
-          <EntriesList
-            queryParams={queryParams}
-            getActionBar={setRightActionBar}
-            setCount={setCount}
-          />
-        );
-
-        setLoading(false);
-        break;
-
-      case 'pages':
-        setComponent(
-          <Pages
-            getActionBar={setRightActionBar}
-            setCount={setCount}
-            queryParams={queryParams}
-            history={history}
-            selectedSite={site}
-          />
-        );
-
-        setLoading(false);
-        break;
-
-      case 'templates':
-        setComponent(
-          <TemplatesList
-            setCount={setCount}
-            queryParams={queryParams}
-            selectedSite={site}
-          />
-        );
-
-        setRightActionBar(<></>);
-
-        setLoading(false);
-        break;
-
-      case 'sites':
-        setComponent(
-          <Sites
-            getActionBar={setRightActionBar}
-            setCount={setCount}
-            queryParams={queryParams}
-            selectedSite={site}
-          />
-        );
-
-        setLoading(false);
-        break;
-
-      default:
-        setComponent(<div />);
-        setLoading(false);
-    }
-  }, [queryParams]);
-
-  const breadcrumb = [{ title: __('Webbuilder') }];
-
-  const onChangeSite = value => {
+  const search = (e: any) => {
     const { history } = props;
+    const value = e.target.value;
 
-    const siteId = value;
+    setSearchValue(value);
 
-    localStorage.setItem('webbuilderSiteId', siteId);
-
-    router.setParams(history, { siteId });
+    this.timer = setTimeout(() => {
+      router.removeParams(history, 'page');
+      router.setParams(history, { searchValue });
+    }, 500);
   };
 
-  const actionBarLeft = () => {
-    return (
-      <BarItems>
-        <SelectSite initialValue={site} onSelect={onChangeSite} />
-      </BarItems>
-    );
-  };
+  const actionBarRight = (
+    <BarItems>
+      <FormControl
+        type="text"
+        placeholder={__('Search sites')}
+        onChange={search}
+        value={searchValue}
+      />
+      <Link to="/webbuilder/sites/create">
+        <Button btnStyle="success" size="small" icon="plus-circle">
+          New website
+        </Button>
+      </Link>
+    </BarItems>
+  );
 
   return (
     <>
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Webbuilder Entries')}
-            breadcrumb={breadcrumb}
+            title={__('Webbuilder Workspace')}
+            breadcrumb={[{ title: __('Webbuilder') }]}
           />
         }
         actionBar={
-          <Wrapper.ActionBar right={RightActionBar} left={actionBarLeft()} />
-        }
-        leftSidebar={
-          <SideBar queryParams={queryParams} type={step} selectedSite={site} />
+          <Wrapper.ActionBar
+            left={<Title>{__('All sites')}</Title>}
+            right={actionBarRight}
+          />
         }
         content={
           <DataWithLoader
-            data={Component}
+            data={<List sitesCount={sitesCount} queryParams={queryParams} />}
+            count={sitesCount}
             loading={loading}
-            emptyText="There is no data"
-            emptyImage="/images/actions/5.svg"
+            emptyText="You haven't created any website. Start building your site"
+            emptyImage="/images/actions/31.svg"
           />
         }
-        footer={<Pagination count={count} />}
-        transparent={true}
+        footer={<Pagination count={sitesCount} />}
+        hasBorder={true}
       />
     </>
   );

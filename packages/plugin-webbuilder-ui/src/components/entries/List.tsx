@@ -1,11 +1,9 @@
-import { Flex, ModalFooter } from '@erxes/ui/src/styles/main';
 import { IContentType, IEntryDoc } from '../../types';
 
 import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { EntryContainer } from './styles';
 import EntryForm from '../../containers/entries/EntryForm';
-import { Link } from 'react-router-dom';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import Row from './Row';
@@ -14,13 +12,10 @@ import Table from '@erxes/ui/src/components/table';
 import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
-  // queryParams: any;
   loading: boolean;
   entries: IEntryDoc[];
   contentType: IContentType;
-  // getActionBar: (actionBar: any) => void;
   remove: (_id: string) => void;
-  // setCount: (count: number) => void;
   entriesCount: number;
 };
 
@@ -64,19 +59,6 @@ class List extends React.Component<Props> {
   render() {
     const { contentType, entriesCount } = this.props;
     const { fields = [] } = contentType;
-
-    // const actionBarRight = (
-    //   <Flex>
-    //     <Link to={`create/${contentType._id}`}>
-    //       <Button btnStyle="success" size="small" icon="plus-circle">
-    //         Add Entry
-    //       </Button>
-    //     </Link>
-    //   </Flex>
-    // );
-
-    // // getActionBar(actionBarRight);
-    // // setCount(entriesCount);
 
     let content = (
       <Table hover={true}>

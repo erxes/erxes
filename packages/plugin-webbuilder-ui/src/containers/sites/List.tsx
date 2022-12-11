@@ -1,11 +1,7 @@
 import * as compose from 'lodash.flowright';
 
 import { Alert, confirm } from '@erxes/ui/src/utils';
-import {
-  SitesQueryResponse,
-  SitesRemoveMutationResponse,
-  SitesTotalCountQueryResponse
-} from '../../types';
+import { SitesQueryResponse, SitesRemoveMutationResponse } from '../../types';
 import { mutations, queries } from '../../graphql';
 
 import List from '../../components/sites/List';
@@ -29,13 +25,14 @@ type FinalProps = {
   SitesRemoveMutationResponse;
 
 function SitesContainer(props: FinalProps) {
-  const { sitesQuery, sitesRemoveMutation, selectedSite } = props;
+  const { sitesQuery, sitesRemoveMutation, selectedSite, queryParams } = props;
 
   if (sitesQuery.loading) {
     return <Spinner objective={true} />;
   }
 
   const sites = sitesQuery.webbuilderSites || [];
+  const searchValue = queryParams.searchValue || '';
 
   const remove = (_id: string) => {
     if (_id === selectedSite) {
@@ -60,7 +57,8 @@ function SitesContainer(props: FinalProps) {
   const updatedProps = {
     ...props,
     sites,
-    remove
+    remove,
+    searchValue
   };
 
   return <List {...updatedProps} />;
@@ -71,7 +69,8 @@ export default compose(
     name: 'sitesQuery',
     options: ({ queryParams }) => ({
       variables: {
-        ...generatePaginationParams(queryParams || {})
+        ...generatePaginationParams(queryParams || {}),
+        searchValue: queryParams.searchValue
       },
       fetchPolicy: 'network-only'
     })

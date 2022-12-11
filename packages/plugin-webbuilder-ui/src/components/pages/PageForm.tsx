@@ -6,8 +6,6 @@ import { FlexPad } from '@erxes/ui/src/components/step/styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IPageDoc } from '../../types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
 import { PageFormContainer } from './styles';
 import React from 'react';
 import { SubTitle } from '../sites/styles';

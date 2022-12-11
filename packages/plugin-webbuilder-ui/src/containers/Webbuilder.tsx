@@ -3,7 +3,7 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import { SitesTotalCountQueryResponse } from '../types';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import Webbuilder from '../components/Builder';
+import Webbuilder from '../components/WebBuilder';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { queries } from '../graphql';

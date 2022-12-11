@@ -1,4 +1,3 @@
-import { FlexItem, FlexPad } from '@erxes/ui/src/components/step/styles';
 import {
   FormColumn,
   FormWrapper,
@@ -10,17 +9,10 @@ import { __, readFile } from '@erxes/ui/src/utils';
 
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { ControlWrapper } from '@erxes/ui/src/components/step/styles';
 import EditorCK from '@erxes/ui/src/components/EditorCK';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import { Indicator } from '@erxes/ui/src/components/step/styles';
-import { Link } from 'react-router-dom';
-import Step from '@erxes/ui/src/components/step/Step';
-import { StepWrapper } from '@erxes/ui/src/components/step/styles';
-import Steps from '@erxes/ui/src/components/step/Steps';
 import { Uploader } from '@erxes/ui/src/components';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 
 type Props = {
   contentType: IContentTypeDoc;

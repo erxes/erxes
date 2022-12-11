@@ -380,6 +380,7 @@ class SiteForm extends React.Component<Props, State> {
         return (
           <EntryList
             contentType={settingsObject}
+            queryParams={this.props.queryParams}
             // siteId={this.props._id}
             // onCancel={this.handleItemSettings}
           />

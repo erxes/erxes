@@ -10,7 +10,6 @@ import { mutations, queries } from '../../graphql';
 import { Alert } from '@erxes/ui/src/utils';
 import List from '../../components/templates/List';
 import React from 'react';
-import { Redirect } from 'react-router-dom';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import gql from 'graphql-tag';

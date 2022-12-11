@@ -3,7 +3,6 @@ import * as compose from 'lodash.flowright';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import {
   IContentType,
-  TypeDetailQueryResponse,
   TypesAddMutationResponse,
   TypesEditMutationResponse,
   TypesRemoveMutationResponse
@@ -13,7 +12,6 @@ import { mutations, queries } from '../../graphql';
 import ContentTypeForm from '../../components/contentTypes/ContenTypeForm';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
