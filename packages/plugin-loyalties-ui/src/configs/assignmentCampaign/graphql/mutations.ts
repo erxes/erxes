@@ -3,12 +3,12 @@ import { assignmentCampaignFields } from './queries';
 
 const paramDefs = `
   ${commonParamDefs},
-  $segmentData: String
+  $segmentIds: [String] 
 `;
 
 const params = `
   ${commonParams},
-  segmentData: $segmentData
+  segmentIds: $segmentIds
 `;
 
 const assignmentCampaignsAdd = `

@@ -9,7 +9,7 @@ export const types = `
   type AssignmentCampaign @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String,
     ${commonCampaignTypes}
-    segmentData: String
+    segmentIds: [String]
   }
 `;
 
@@ -21,7 +21,7 @@ export const queries = `
 
 const AssignmentCampaignDoc = `
   ${commonCampaignInputs}
-  segmentData: String
+  segmentIds: [String]
 `;
 
 export const mutations = `

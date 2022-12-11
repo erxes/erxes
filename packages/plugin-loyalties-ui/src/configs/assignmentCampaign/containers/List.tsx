@@ -6,6 +6,10 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import AssignmentCampaign from '../components/List';
 import { mutations, queries } from '../graphql';
+import {
+  AssignmentCampaignQueryResponse,
+  AssignmentCampaignRemoveMutationResponse
+} from '../types';
 
 type Props = {
   queryParams: any;

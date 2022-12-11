@@ -1,9 +1,17 @@
 import React from 'react';
-import { ButtonMutate } from '@erxes/ui/src/components';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { graphql } from 'react-apollo';
+import { ButtonMutate, Spinner } from '@erxes/ui/src/components';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import From from '../components/Form';
+import Form from '../components/Form';
 import { mutations, queries } from '../graphql';
-import { AssignmentCampaignQueryResponse, IAssignmentCampaign } from '../types';
+import {
+  AssignmentCampaignQueryResponse,
+  IAssignmentCampaign,
+  SegmentDetailQueryResponse
+} from '../types';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   assignmentCampaign?: IAssignmentCampaign;
@@ -14,10 +22,22 @@ type Props = {
 
 type FinalProps = {
   assignmentCampaignsQuery: AssignmentCampaignQueryResponse;
+  segmentDetailQuery: SegmentDetailQueryResponse;
 } & Props;
 
 class AssignmentFormContainer extends React.Component<FinalProps> {
   render() {
+    const { segmentDetailQuery } = this.props;
+
+    if (segmentDetailQuery.loading) {
+      return (
+        <>
+          <Spinner objective={true} size={18} />
+          Loading...
+        </>
+      );
+    }
+
     const renderButton = ({
       name,
       values,
@@ -58,12 +78,15 @@ class AssignmentFormContainer extends React.Component<FinalProps> {
       );
     };
 
+    const segmentDetails = segmentDetailQuery.segmentDetail || [];
+
     const updatedProps = {
       ...this.props,
-      renderButton
+      renderButton,
+      segmentDetails
     };
 
-    return <From {...updatedProps} />;
+    return <Form {...updatedProps} />;
   }
 }
 
@@ -71,4 +94,15 @@ const getRefetchQueries = () => {
   return ['assignmentCampaigns'];
 };
 
-export default AssignmentFormContainer;
+export default withProps<Props>(
+  compose(
+    graphql<Props, SegmentDetailQueryResponse>(gql(queries.segmentDetail), {
+      name: 'segmentDetailQuery',
+      options: ({ queryParams }) => ({
+        variables: {
+          _id: JSON.parse(queryParams.segmentIds)[0]
+        }
+      })
+    })
+  )(AssignmentFormContainer)
+);

@@ -25,11 +25,14 @@ import { IAssignmentCampaign } from '../types';
 import { extractAttachment, __ } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
+import { ISegment } from '@erxes/ui-segments/src/types';
+import * as routerUtils from '@erxes/ui/src/utils/router';
 
 type Props = {
   assignmentCampaign?: IAssignmentCampaign;
-  history: any;
+  segmentDetails: ISegment;
   queryParams: any;
+  history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
@@ -57,12 +60,6 @@ class Form extends React.Component<Props, State> {
 
     if (assignmentCampaign._id) {
       finalValues._id = assignmentCampaign._id;
-    }
-
-    const { queryParams } = this.props;
-
-    if (queryParams && 'segmentData' in queryParams) {
-      assignmentCampaign.segmentData = queryParams.segmentData;
     }
 
     return {
@@ -114,6 +111,23 @@ class Form extends React.Component<Props, State> {
 
     this.setState({
       assignmentCampaign: { ...this.state.assignmentCampaign, [name]: value }
+    });
+  };
+
+  afterSave = response => {
+    const { history } = this.props;
+    const newAssignmentCampaign = { ...this.state.assignmentCampaign };
+    let newSegmentIds = [...(newAssignmentCampaign.segmentIds || [])];
+    newSegmentIds.push(response.data.segmentsAdd._id);
+
+    this.setState({
+      assignmentCampaign: {
+        ...this.state.assignmentCampaign,
+        segmentIds: newSegmentIds
+      }
+    });
+    routerUtils.setParams(history, {
+      segmentIds: JSON.stringify(this.state.assignmentCampaign.segmentIds)
     });
   };
 
@@ -205,7 +219,10 @@ class Form extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>Customer Segment</ControlLabel>
               <br />
-              <TemporarySegment contentType={`contacts:customer`} />
+              <TemporarySegment
+                contentType={`contacts:customer`}
+                afterSave={this.afterSave}
+              />
             </FormGroup>
           )}
           <FormGroup>

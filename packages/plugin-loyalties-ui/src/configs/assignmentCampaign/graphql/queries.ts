@@ -33,8 +33,19 @@ const assignmentCampaignDetail = `
   }
 `;
 
+const segmentDetail = `
+  query segmentDetail($_id: String) {
+    segmentDetail(_id: $_id) {
+      _id,
+      name,
+      color,
+      count
+    }
+  }
+`;
 export default {
   assignmentCampaigns,
   assignmentCampaignsCount,
-  assignmentCampaignDetail
+  assignmentCampaignDetail,
+  segmentDetail
 };
