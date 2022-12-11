@@ -64,7 +64,7 @@ class List extends React.Component<Props> {
   render() {
     const { contentType, entriesCount } = this.props;
     const { fields = [] } = contentType;
-    console.log(contentType);
+
     // const actionBarRight = (
     //   <Flex>
     //     <Link to={`create/${contentType._id}`}>

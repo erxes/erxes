@@ -2,6 +2,7 @@ import * as compose from 'lodash.flowright';
 
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import {
+  IContentType,
   TypeDetailQueryResponse,
   TypesAddMutationResponse,
   TypesEditMutationResponse,
@@ -20,12 +21,10 @@ import { withRouter } from 'react-router-dom';
 type Props = {
   onCancel: (settingsObject: any, type: string) => void;
   siteId: string;
-  contentTypeId?: string;
+  contentType?: IContentType;
 } & IRouterProps;
 
-type FinalProps = {
-  contentTypeDetailQuery: TypeDetailQueryResponse;
-} & Props &
+type FinalProps = {} & Props &
   TypesAddMutationResponse &
   TypesEditMutationResponse &
   TypesRemoveMutationResponse;
@@ -35,26 +34,16 @@ function ContentTypeFormContainer(props: FinalProps) {
     typesAddMutation,
     typesEditMutation,
     typesRemoveMutation,
-    contentTypeId,
-    contentTypeDetailQuery
+    contentType
   } = props;
-
-  if (contentTypeDetailQuery && contentTypeDetailQuery.loading) {
-    return <Spinner objective={true} />;
-  }
-
-  const contentType =
-    (contentTypeDetailQuery &&
-      contentTypeDetailQuery.webbuilderContentTypeDetail) ||
-    {};
 
   const action = (variables: any, afterSave?: any) => {
     let method: any = typesAddMutation;
 
-    if (contentTypeId) {
+    if (contentType && contentType._id) {
       method = typesEditMutation;
 
-      variables._id = contentTypeId;
+      variables._id = contentType._id;
     }
 
     method({ variables })
@@ -90,7 +79,7 @@ function ContentTypeFormContainer(props: FinalProps) {
     ...props,
     action,
     remove,
-    contentType
+    contentType: contentType || ({} as IContentType)
   };
 
   return <ContentTypeForm {...updatedProps} />;
@@ -113,12 +102,14 @@ export default compose(
   }),
   graphql<Props, TypesEditMutationResponse>(gql(mutations.typesEdit), {
     name: 'typesEditMutation',
-    options: ({ contentTypeId, siteId }) => ({
+    options: ({ contentType, siteId }) => ({
       refetchQueries: [
         ...refetchTypeQueries(siteId),
         {
           query: gql(queries.contentTypeDetail),
-          variables: { _id: contentTypeId }
+          variables: {
+            _id: contentType && contentType._id ? contentType._id : ''
+          }
         }
       ]
     })
@@ -127,15 +118,6 @@ export default compose(
     name: 'typesRemoveMutation',
     options: ({ siteId }) => ({
       refetchQueries: refetchTypeQueries(siteId)
-    })
-  }),
-  graphql<Props, TypeDetailQueryResponse>(gql(queries.contentTypeDetail), {
-    name: 'contentTypeDetailQuery',
-    skip: ({ contentTypeId }) => !contentTypeId,
-    options: ({ contentTypeId }) => ({
-      variables: {
-        _id: contentTypeId
-      }
     })
   })
 )(withRouter(ContentTypeFormContainer));

@@ -18,7 +18,7 @@ type Props = {
 class ContentTypesList extends React.Component<Props> {
   render() {
     const { contentTypes = [], handleItemSettings, siteId } = this.props;
-    console.log(contentTypes);
+
     return (
       <List>
         {contentTypes.map(type => (
@@ -43,7 +43,12 @@ class ContentTypesList extends React.Component<Props> {
           </li>
         ))}
         <li
-          onClick={() => handleItemSettings({ displayName: '' }, 'contenttype')}
+          onClick={() =>
+            handleItemSettings(
+              { displayName: '', code: '', fields: [] },
+              'contenttype'
+            )
+          }
         >
           <div className="link">
             <Icon icon="plus-1" /> &nbsp;

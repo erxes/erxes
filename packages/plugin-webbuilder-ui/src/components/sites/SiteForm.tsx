@@ -371,7 +371,7 @@ class SiteForm extends React.Component<Props, State> {
       case 'contenttype':
         return (
           <ContentTypeForm
-            contentTypeId={settingsObject._id}
+            contentType={settingsObject}
             siteId={this.props._id}
             onCancel={this.handleItemSettings}
           />
