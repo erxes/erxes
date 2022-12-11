@@ -3,12 +3,6 @@ import { Route } from 'react-router-dom';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 
-const WebBuilderContainer = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "PageForm - WebbuilderContainer" */ './containers/WebBuilder'
-  )
-);
-
 const SitesListContainer = asyncComponent(() =>
   import(
     /* webpackChunkName: "Websites - ListContainer" */ './containers/templates/List'
@@ -17,7 +11,13 @@ const SitesListContainer = asyncComponent(() =>
 
 const SiteForm = asyncComponent(() =>
   import(
-    /* webpackChunkName: "SiteForm - Webbuilders" */ './containers/sites/SiteForm'
+    /* webpackChunkName: "SiteForm - WebBuilders" */ './containers/sites/SiteForm'
+  )
+);
+
+const WebBuilderContainer = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "PageForm - WebBuilderContainer" */ './containers/WebBuilder'
   )
 );
 
