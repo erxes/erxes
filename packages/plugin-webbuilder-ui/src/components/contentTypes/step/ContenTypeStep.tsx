@@ -8,14 +8,12 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import { GroupTitle } from '../styles';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import React from 'react';
-import SelectSite from '../../../containers/sites/SelectSite';
 
 type Props = {
   onChange: (key: string, value: any) => void;
   displayName: string;
   code: string;
   fields: any[];
-  siteId: string;
 };
 
 type State = {
@@ -63,7 +61,7 @@ class Step extends React.Component<Props, State> {
   };
 
   render() {
-    const { onChange, displayName, code, siteId } = this.props;
+    const { onChange, displayName, code } = this.props;
     const { currentField, currentMode } = this.state;
 
     const onFieldFormCancel = () => {
@@ -95,20 +93,12 @@ class Step extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__('Code')}</ControlLabel>
+          <ControlLabel required={true}>{__('Code')}</ControlLabel>
           <FormControl
             required={true}
             name="code"
             value={code}
             onChange={(e: any) => onChange('code', e.target.value)}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>{__('Site')}</ControlLabel>
-          <SelectSite
-            initialValue={siteId}
-            onSelect={(value: string) => onChange('siteId', value)}
           />
         </FormGroup>
 

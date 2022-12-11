@@ -19,6 +19,7 @@ import { withRouter } from 'react-router-dom';
 
 type Props = {
   onCancel: (settingsObject: any, type: string) => void;
+  siteId: string;
   contentTypeId?: string;
 } & IRouterProps;
 
@@ -31,11 +32,9 @@ type FinalProps = {
 
 function ContentTypeFormContainer(props: FinalProps) {
   const {
-    onCancel,
     typesAddMutation,
     typesEditMutation,
     typesRemoveMutation,
-    history,
     contentTypeId,
     contentTypeDetailQuery
   } = props;
@@ -49,7 +48,7 @@ function ContentTypeFormContainer(props: FinalProps) {
       contentTypeDetailQuery.webbuilderContentTypeDetail) ||
     {};
 
-  const action = (variables: any) => {
+  const action = (variables: any, afterSave?: any) => {
     let method: any = typesAddMutation;
 
     if (contentTypeId) {
@@ -62,9 +61,9 @@ function ContentTypeFormContainer(props: FinalProps) {
       .then(() => {
         Alert.success('Success');
 
-        history.push({
-          pathname: '/webbuilder/contenttypes'
-        });
+        if (afterSave) {
+          afterSave();
+        }
       })
       .catch(e => {
         Alert.error(e.message);
@@ -88,35 +87,35 @@ function ContentTypeFormContainer(props: FinalProps) {
   };
 
   const updatedProps = {
+    ...props,
     action,
     remove,
-    onCancel,
     contentType
   };
 
   return <ContentTypeForm {...updatedProps} />;
 }
 
-const refetchTypeQueries = () => [
-  { query: gql(queries.contentTypesMain) },
+const refetchTypeQueries = (siteId: string) => [
+  { query: gql(queries.contentTypesMain), variables: { siteId } },
   {
     query: gql(queries.contentTypes),
-    variables: { siteId: localStorage.getItem('webbuilderSiteId') }
+    variables: { siteId }
   }
 ];
 
 export default compose(
-  graphql<{}, TypesAddMutationResponse>(gql(mutations.typesAdd), {
+  graphql<Props, TypesAddMutationResponse>(gql(mutations.typesAdd), {
     name: 'typesAddMutation',
-    options: () => ({
-      refetchQueries: refetchTypeQueries()
+    options: ({ siteId }) => ({
+      refetchQueries: refetchTypeQueries(siteId)
     })
   }),
   graphql<Props, TypesEditMutationResponse>(gql(mutations.typesEdit), {
     name: 'typesEditMutation',
-    options: ({ contentTypeId }) => ({
+    options: ({ contentTypeId, siteId }) => ({
       refetchQueries: [
-        ...refetchTypeQueries(),
+        ...refetchTypeQueries(siteId),
         {
           query: gql(queries.contentTypeDetail),
           variables: { _id: contentTypeId }
@@ -126,8 +125,8 @@ export default compose(
   }),
   graphql<Props, TypesRemoveMutationResponse>(gql(mutations.typesRemove), {
     name: 'typesRemoveMutation',
-    options: () => ({
-      refetchQueries: refetchTypeQueries()
+    options: ({ siteId }) => ({
+      refetchQueries: refetchTypeQueries(siteId)
     })
   }),
   graphql<Props, TypeDetailQueryResponse>(gql(queries.contentTypeDetail), {

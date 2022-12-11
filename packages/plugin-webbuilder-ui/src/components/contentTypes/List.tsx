@@ -8,7 +8,6 @@ import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   contentTypes: IContentTypeDoc[];
-  remove: (contentTypeId: string) => void;
   contentTypesCount: number;
   siteId?: string;
   handleItemSettings: (item: any, type: string) => void;
@@ -32,7 +31,9 @@ class ContentTypesList extends React.Component<Props> {
             />
           </li>
         ))}
-        <li>
+        <li
+          onClick={() => handleItemSettings({ displayName: '' }, 'contenttype')}
+        >
           <div className="link">
             <Icon icon="plus-1" /> &nbsp;
             {__('Create content type')}

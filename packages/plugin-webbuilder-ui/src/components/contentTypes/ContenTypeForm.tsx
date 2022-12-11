@@ -11,17 +11,17 @@ import React from 'react';
 import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
-  action: (doc: any) => void;
+  action: (doc: any, afterSave?: any) => void;
   remove: (contentTypeId: string, afterSave?: any) => void;
   onCancel: (settingsObject: any, type: string) => void;
-  contentType?: IContentTypeDoc;
+  siteId: string;
+  contentType: IContentTypeDoc;
 };
 
 type State = {
   displayName: string;
   code: string;
   fields: any;
-  siteId: string;
 };
 
 class ContentTypeForm extends React.Component<Props, State> {
@@ -29,7 +29,7 @@ class ContentTypeForm extends React.Component<Props, State> {
     super(props);
 
     const { contentType = {} as IContentTypeDoc } = props;
-
+    console.log(contentType);
     const fields = (contentType.fields || []).map(field => ({
       ...field,
       _id: Math.random()
@@ -38,16 +38,15 @@ class ContentTypeForm extends React.Component<Props, State> {
     this.state = {
       displayName: contentType.displayName || '',
       code: contentType.code || '',
-      fields: fields || [],
-      siteId: contentType.siteId
+      fields: fields || []
     };
   }
 
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { displayName, code, fields, siteId } = this.state;
-    const { contentType } = this.props;
+    const { displayName, code, fields } = this.state;
+    const { contentType, onCancel, siteId } = this.props;
 
     if (!code) {
       return Alert.error('Please enter a code!');
@@ -64,7 +63,7 @@ class ContentTypeForm extends React.Component<Props, State> {
       doc._id = contentType._id;
     }
 
-    this.props.action(doc);
+    this.props.action(doc, () => onCancel(null, ''));
   };
 
   onChange = (key: string, value: any) => {
@@ -87,7 +86,7 @@ class ContentTypeForm extends React.Component<Props, State> {
 
     return (
       <Button.Group>
-        {contentType && (
+        {contentType.displayName && (
           <Button
             btnStyle="danger"
             icon="trash-alt"
@@ -112,7 +111,7 @@ class ContentTypeForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { displayName, code, siteId } = this.state;
+    const { displayName, code } = this.state;
 
     return (
       <TypeFormContainer className="gjs-one-bg gjs-two-color">
@@ -126,7 +125,6 @@ class ContentTypeForm extends React.Component<Props, State> {
             displayName={displayName}
             code={code}
             fields={this.state.fields}
-            siteId={siteId}
           />
         </LeftItem>
 
