@@ -9,9 +9,7 @@ const adMutations = {
       throw new Error('Permission denied');
     }
 
-    console.log('=================', cpUser);
-
-    doc.cpUserId = cpUser._id;
+    doc.cpUserId = cpUser.userId;
 
     return Ads.createAd(doc);
   },
@@ -22,7 +20,7 @@ const adMutations = {
   async adsEdit(_root, { _id, ...doc }, { cpUser }) {
     const ad = await Ads.getAd(_id);
 
-    if (!cpUser || cpUser._id !== ad.cpUserId) {
+    if (!cpUser || cpUser.userId !== ad.cpUserId) {
       throw new Error('Permission denied');
     }
 
@@ -35,7 +33,7 @@ const adMutations = {
   async adsRemove(_root, { _id }, { cpUser }) {
     const ad = await Ads.getAd(_id);
 
-    if (!cpUser || cpUser._id !== ad.cpUserId) {
+    if (!cpUser || cpUser.userId !== ad.cpUserId) {
       throw new Error('Permission denied');
     }
 
