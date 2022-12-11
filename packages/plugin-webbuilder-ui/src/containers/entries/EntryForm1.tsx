@@ -1,27 +1,24 @@
+import { Alert } from '@erxes/ui/src';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
-
+import EntryForm from '../../components/entries/EntryForm';
+import React from 'react';
+import { mutations, queries } from '../../graphql';
+import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '@erxes/ui/src/types';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import {
   EntriesAddMutationResponse,
   EntriesEditMutationResponse,
   EntryDetailQueryResponse,
   TypeDetailQueryResponse
 } from '../../types';
-import { mutations, queries } from '../../graphql';
-
-import { Alert } from '@erxes/ui/src';
-import EntryForm from '../../components/entries/EntryForm';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
 
 type Props = {
   _id?: string;
   contentTypeId: string;
   queryParams: any;
-  closeModal: () => void;
 } & IRouterProps;
 
 type FinalProps = Props & {
@@ -31,7 +28,7 @@ type FinalProps = Props & {
   EntriesEditMutationResponse;
 
 const FormContainer = (props: FinalProps) => {
-  const { contentTypeDetailQuery, entryDetailQuery, closeModal } = props;
+  const { contentTypeDetailQuery, entryDetailQuery, history } = props;
 
   if (
     (entryDetailQuery && entryDetailQuery.loading) ||
@@ -57,7 +54,9 @@ const FormContainer = (props: FinalProps) => {
       .then(() => {
         Alert.success(`Success`);
 
-        closeModal();
+        history.push({
+          pathname: `/webbuilder/pages`
+        });
       })
       .catch(error => {
         Alert.error(error.message);
@@ -74,7 +73,6 @@ const FormContainer = (props: FinalProps) => {
   const updatedProps = {
     save,
     entry,
-    closeModal,
     contentType
   };
 

@@ -1,9 +1,5 @@
 import { FlexItem, FlexPad } from '@erxes/ui/src/components/step/styles';
-import {
-  FormColumn,
-  FormWrapper,
-  ModalFooter
-} from '@erxes/ui/src/styles/main';
+import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 import { IContentTypeDoc, IEntryDoc } from '../../types';
 import React, { useEffect, useState } from 'react';
 import { __, readFile } from '@erxes/ui/src/utils';
@@ -25,12 +21,11 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 type Props = {
   contentType: IContentTypeDoc;
   entry?: IEntryDoc;
-  closeModal: () => void;
   save: (contentTypeId: string, values: any) => void;
 };
 
 function Form(props: Props) {
-  const { contentType, entry = {} as IEntryDoc, save, closeModal } = props;
+  const { contentType, entry = {} as IEntryDoc, save } = props;
   const entryValues = entry.values || [];
   const [data, setData] = useState({} as any);
 
@@ -131,16 +126,33 @@ function Form(props: Props) {
     );
   };
 
+  const renderContent = () => {
+    return (
+      <Step title="Manage Entry" noButton={true}>
+        <FlexItem>
+          <FlexPad direction="column" overflow="auto">
+            <FormWrapper>
+              <FormColumn>
+                {fields.map(field => {
+                  return renderField(field);
+                })}
+              </FormColumn>
+            </FormWrapper>
+          </FlexPad>
+
+          <FlexItem overflow="auto" />
+        </FlexItem>
+      </Step>
+    );
+  };
+
   const renderButtons = () => {
     const cancelButton = (
-      <Button
-        btnStyle="simple"
-        icon="times-circle"
-        onClick={closeModal}
-        uppercase={false}
-      >
-        Cancel
-      </Button>
+      <Link to={`/webbuilder/entries/?contentTypeId=${contentType._id}`}>
+        <Button btnStyle="simple" icon="times-circle">
+          Cancel
+        </Button>
+      </Link>
     );
 
     return (
@@ -150,7 +162,6 @@ function Form(props: Props) {
         <Button
           btnStyle="success"
           icon={'check-circle'}
-          uppercase={false}
           onClick={() => submit()}
         >
           Save
@@ -159,16 +170,28 @@ function Form(props: Props) {
     );
   };
 
+  const breadcrumb = [
+    {
+      title: 'Webbuilder',
+      link: `/webbuilder/entries/?contentTypeId=${contentType._id}`
+    },
+    { title: 'Entries' }
+  ];
+
   return (
     <>
-      <FormWrapper>
-        <FormColumn>
-          {fields.map(field => {
-            return renderField(field);
-          })}
-        </FormColumn>
-      </FormWrapper>
-      <ModalFooter> {renderButtons()}</ModalFooter>
+      <StepWrapper>
+        <Wrapper.Header title={'Entry Form'} breadcrumb={breadcrumb} />
+        <Steps>{renderContent()}</Steps>
+
+        <ControlWrapper>
+          <Indicator>
+            {__('You are')} {entry ? 'editing' : 'creating'}
+            <strong>{' entry'}</strong>
+          </Indicator>
+          {renderButtons()}
+        </ControlWrapper>
+      </StepWrapper>
     </>
   );
 }

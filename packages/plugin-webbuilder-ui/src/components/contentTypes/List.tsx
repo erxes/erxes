@@ -26,7 +26,9 @@ class ContentTypesList extends React.Component<Props> {
             <a>
               <FlexCenter>
                 <Icon icon="layers" />
-                <ContentTypeItem>
+                <ContentTypeItem
+                  onClick={() => handleItemSettings(type, 'entries')}
+                >
                   {type.displayName}
                   <i>
                     ({type.entries.length || 0} {__('items')})

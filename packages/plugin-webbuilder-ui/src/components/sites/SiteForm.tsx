@@ -15,6 +15,7 @@ import { __, uploadHandler } from '@erxes/ui/src/utils';
 import Alert from '@erxes/ui/src/utils/Alert';
 import ContentTypeForm from '../../containers/contentTypes/ContentTypeForm';
 import ContentTypeList from '../../containers/contentTypes/List';
+import EntryList from '../../containers/entries/List';
 import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import GrapesJS from 'grapesjs';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -50,6 +51,8 @@ type State = {
   siteId: string;
   settingsObject: any;
   showDarkMode: boolean;
+  showPage: boolean;
+  showContentType: boolean;
   type?: string;
 };
 
@@ -66,6 +69,8 @@ class SiteForm extends React.Component<Props, State> {
       description: page.description,
       siteId: page.siteId,
       settingsObject: null,
+      showPage: false,
+      showContentType: false,
       showDarkMode:
         localStorage.getItem('showDarkMode') === 'true' ? true : false || false
     };
@@ -249,6 +254,10 @@ class SiteForm extends React.Component<Props, State> {
     this.setState({ siteId: value });
   };
 
+  toggleSubTitle = (key: string, value: boolean) => {
+    this.setState({ [key]: value } as any);
+  };
+
   handleItemSettings = (settingsObject: any, type: string) => {
     this.setState({ settingsObject, type });
   };
@@ -261,7 +270,7 @@ class SiteForm extends React.Component<Props, State> {
 
   renderLeftSidebar() {
     const { pages = [], _id, queryParams } = this.props;
-    const { showDarkMode } = this.state;
+    const { showDarkMode, showContentType, showPage } = this.state;
 
     return (
       <LeftSidebar
@@ -278,29 +287,51 @@ class SiteForm extends React.Component<Props, State> {
             onClick={() => this.handleDarkMode()}
           />
         </CollapseLeftMenu>
-        <SubTitle>
-          <i className="gjs-caret-icon fa fa-caret-down" />
-          &nbsp;{__('Pages')}
-        </SubTitle>
-        <LeftSidebarContent>
-          <PageList
-            pages={pages}
-            siteId={_id}
-            queryParams={queryParams}
-            handleItemSettings={this.handleItemSettings}
-          />
-        </LeftSidebarContent>
 
-        <SubTitle>
-          <i className="gjs-caret-icon fa fa-caret-down" /> &nbsp;
+        <SubTitle
+          className="collapses"
+          onClick={() => this.toggleSubTitle('showPage', !showPage)}
+        >
+          <i
+            className={`gjs-caret-icon fa fa-caret-${
+              showPage ? 'right' : 'down'
+            }`}
+          />
+          &emsp;{__('Pages')}
+        </SubTitle>
+        {!showPage && (
+          <LeftSidebarContent>
+            <PageList
+              pages={pages}
+              siteId={_id}
+              queryParams={queryParams}
+              handleItemSettings={this.handleItemSettings}
+            />
+          </LeftSidebarContent>
+        )}
+
+        <SubTitle
+          className="collapses"
+          onClick={() =>
+            this.toggleSubTitle('showContentType', !showContentType)
+          }
+        >
+          <i
+            className={`gjs-caret-icon fa fa-caret-${
+              showContentType ? 'right' : 'down'
+            }`}
+          />{' '}
+          &emsp;
           {__('Content Type Builder')}
         </SubTitle>
-        <LeftSidebarContent>
-          <ContentTypeList
-            siteId={_id}
-            handleItemSettings={this.handleItemSettings}
-          />
-        </LeftSidebarContent>
+        {!showContentType && (
+          <LeftSidebarContent>
+            <ContentTypeList
+              siteId={this.props._id}
+              handleItemSettings={this.handleItemSettings}
+            />
+          </LeftSidebarContent>
+        )}
       </LeftSidebar>
     );
   }
@@ -343,6 +374,14 @@ class SiteForm extends React.Component<Props, State> {
             contentTypeId={settingsObject._id}
             siteId={this.props._id}
             onCancel={this.handleItemSettings}
+          />
+        );
+      case 'entries':
+        return (
+          <EntryList
+            contentType={settingsObject}
+            // siteId={this.props._id}
+            // onCancel={this.handleItemSettings}
           />
         );
       default:

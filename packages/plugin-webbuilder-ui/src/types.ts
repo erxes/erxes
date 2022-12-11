@@ -21,6 +21,7 @@ export interface IField {
   show: boolean;
 }
 export interface IContentType {
+  _id: string;
   code: string;
   displayName: string;
   entries: IEntry[];

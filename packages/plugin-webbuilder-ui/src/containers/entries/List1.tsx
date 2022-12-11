@@ -4,7 +4,6 @@ import { Alert, confirm } from '@erxes/ui/src/utils';
 import {
   EntriesMainQueryResponse,
   EntriesRemoveMutationResponse,
-  IContentType,
   TypeDetailQueryResponse
 } from '../../types';
 import { mutations, queries } from '../../graphql';
@@ -17,9 +16,9 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 
 type Props = {
-  contentType: IContentType;
-  // getActionBar: (actionBar: any) => void;
-  // setCount: (count: number) => void;
+  queryParams: any;
+  getActionBar: (actionBar: any) => void;
+  setCount: (count: number) => void;
 };
 
 type FinalProps = {
@@ -29,9 +28,13 @@ type FinalProps = {
   EntriesRemoveMutationResponse;
 
 function ListContainer(props: FinalProps) {
-  const { entriesMainQuery, contentType, entriesRemoveMutation } = props;
+  const {
+    entriesMainQuery,
+    contentTypeDetailQuery,
+    entriesRemoveMutation
+  } = props;
 
-  if (entriesMainQuery.loading) {
+  if (contentTypeDetailQuery.loading) {
     return <Spinner objective={true} />;
   }
 
@@ -51,6 +54,7 @@ function ListContainer(props: FinalProps) {
 
   const { list = [], totalCount = 0 } =
     entriesMainQuery.webbuilderEntriesMain || {};
+  const contentType = contentTypeDetailQuery.webbuilderContentTypeDetail || {};
 
   const updatedProps = {
     ...props,
@@ -67,12 +71,20 @@ function ListContainer(props: FinalProps) {
 export default compose(
   graphql<Props, EntriesMainQueryResponse>(gql(queries.entriesMain), {
     name: 'entriesMainQuery',
-    options: ({ contentType }) => ({
+    options: ({ queryParams }) => ({
       variables: {
-        contentTypeId: contentType._id || ''
-        // ...generatePaginationParams(queryParams)
+        contentTypeId: queryParams.contentTypeId || '',
+        ...generatePaginationParams(queryParams)
       },
       fetchPolicy: 'network-only'
+    })
+  }),
+  graphql<Props, TypeDetailQueryResponse>(gql(queries.contentTypeDetail), {
+    name: 'contentTypeDetailQuery',
+    options: ({ queryParams }) => ({
+      variables: {
+        _id: queryParams.contentTypeId || ''
+      }
     })
   }),
   graphql<{}, EntriesRemoveMutationResponse>(gql(mutations.entriesRemove), {

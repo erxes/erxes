@@ -241,6 +241,10 @@ export const SubTitle = styledTS<{ flexBetween?: boolean }>(styled.div)`
   border-bottom: 1px solid rgba(0, 0, 0, 0.25);
   border-top: 1px solid rgba(0, 0, 0, 0.25);
 
+  &.collapses {
+    cursor: pointer;
+  }
+
   > div {
     display: flex;
     align-items: center;
