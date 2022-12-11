@@ -29,7 +29,7 @@ class ContentTypeForm extends React.Component<Props, State> {
     super(props);
 
     const { contentType = {} as IContentTypeDoc } = props;
-    console.log(contentType);
+
     const fields = (contentType.fields || []).map(field => ({
       ...field,
       _id: Math.random()

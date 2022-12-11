@@ -1,5 +1,7 @@
 import 'grapesjs/dist/css/grapes.min.css';
 
+import { ContentTypeItem } from './styles';
+import { FlexCenter } from '@erxes/ui/src/styles/main';
 import { IContentTypeDoc } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { List } from '../pages/styles';
@@ -16,14 +18,21 @@ type Props = {
 class ContentTypesList extends React.Component<Props> {
   render() {
     const { contentTypes = [], handleItemSettings, siteId } = this.props;
-
+    console.log(contentTypes);
     return (
       <List>
         {contentTypes.map(type => (
           <li key={type._id}>
             <a>
-              <Icon icon="layers" />
-              {type.displayName}
+              <FlexCenter>
+                <Icon icon="layers" />
+                <ContentTypeItem>
+                  {type.displayName}
+                  <i>
+                    ({type.entries.length || 0} {__('items')})
+                  </i>
+                </ContentTypeItem>
+              </FlexCenter>
             </a>
             <Icon
               icon="settings"

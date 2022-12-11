@@ -1,3 +1,5 @@
+import { colors, dimensions } from '@erxes/ui/src/styles';
+
 import { FullPreview } from '@erxes/ui/src/components/step/style';
 import styled from 'styled-components';
 
@@ -11,6 +13,15 @@ export const TypeFormContainer = styled.div`
     display: flex;
     flex-direction: column;
     flex: 1;
+  }
+`;
+
+export const ContentTypeItem = styled.div`
+  margin-left: ${dimensions.unitSpacing - 5}px;
+
+  i {
+    color: ${colors.colorCoreGray};
+    display: block;
   }
 `;
 

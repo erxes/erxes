@@ -62,7 +62,7 @@ class PageForm extends React.Component<Props, State> {
 
   renderButtons = () => {
     const { remove, page, onCancel } = this.props;
-    console.log(page);
+
     const cancelButton = (
       <Button
         btnStyle="simple"

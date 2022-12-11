@@ -23,6 +23,7 @@ export interface IField {
 export interface IContentType {
   code: string;
   displayName: string;
+  entries: IEntry[];
   fields: IField[];
   siteId: string;
 }
