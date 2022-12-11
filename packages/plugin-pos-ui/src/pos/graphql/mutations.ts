@@ -6,6 +6,7 @@ const commonFields = `
   $productDetails: [String]
   $adminIds: [String]
   $cashierIds: [String]
+  $paymentIds: [String]
   $isOnline: Boolean
   $onServer: Boolean
   $branchId: String
@@ -34,6 +35,7 @@ const commonVariables = `
   productDetails: $productDetails
   adminIds: $adminIds
   cashierIds: $cashierIds
+  paymentIds: $paymentIds
   isOnline: $isOnline
   onServer: $onServer
   branchId: $branchId

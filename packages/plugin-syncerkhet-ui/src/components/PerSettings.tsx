@@ -5,12 +5,17 @@ import {
   FormControl,
   FormGroup
 } from '@erxes/ui/src/components';
+import client from '@erxes/ui/src/apolloClient';
+import gql from 'graphql-tag';
 import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import { __ } from '@erxes/ui/src/utils';
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
 import Select from 'react-select-plus';
 import React from 'react';
 import { IConfigsMap } from '../types';
+import { FieldsCombinedByType } from '../../../ui-forms/src/settings/properties/types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 
 type Props = {
   configsMap: IConfigsMap;
@@ -23,6 +28,7 @@ type Props = {
 type State = {
   config: any;
   hasOpen: boolean;
+  fieldsCombined: FieldsCombinedByType[];
 };
 
 class PerSettings extends React.Component<Props, State> {
@@ -31,8 +37,24 @@ class PerSettings extends React.Component<Props, State> {
 
     this.state = {
       config: props.config,
-      hasOpen: false
+      hasOpen: false,
+      fieldsCombined: []
     };
+
+    if (isEnabled('forms')) {
+      client
+        .query({
+          query: gql(formQueries.fieldsCombinedByContentType),
+          variables: {
+            contentType: 'cards:deal'
+          }
+        })
+        .then(({ data }) => {
+          this.setState({
+            fieldsCombined: data ? data.fieldsCombinedByContentType : [] || []
+          });
+        });
+    }
   }
 
   onChangeBoard = (boardId: string) => {
@@ -80,6 +102,11 @@ class PerSettings extends React.Component<Props, State> {
 
   onChangeInput = (code: string, e) => {
     this.onChangeConfig(code, e.target.value);
+  };
+
+  onresponseCustomFieldChange = option => {
+    const value = !option ? '' : option.value.toString();
+    this.onChangeConfig('responseField', value);
   };
 
   renderInput = (key: string, title?: string, description?: string) => {
@@ -164,6 +191,18 @@ class PerSettings extends React.Component<Props, State> {
           />
         </FormGroup>
 
+        <FormGroup>
+          <ControlLabel>{__('Choose response field')}</ControlLabel>
+          <Select
+            name="responseField"
+            value={config.responseField}
+            onChange={this.onresponseCustomFieldChange}
+            options={(this.state.fieldsCombined || []).map(f => ({
+              value: f.name,
+              label: f.label
+            }))}
+          />
+        </FormGroup>
         <ModalFooter>
           <Button
             btnStyle="simple"

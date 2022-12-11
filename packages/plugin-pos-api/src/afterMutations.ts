@@ -32,6 +32,9 @@ const isInProduct = async (
     allProductIds.push(pos.deliveryConfig.productId);
   }
 
+  let allExcludedProductIds: string[] = [];
+  let allCategoryIds: string[] = [];
+
   for (const group of groups) {
     const includeCatIds = await getChildCategories(
       subdomain,
@@ -46,24 +49,35 @@ const isInProduct = async (
       c => !excludeCatIds.includes(c)
     );
 
-    const products = await sendProductsMessage({
-      subdomain,
-      action: 'find',
-      data: {
-        query: {
-          status: { $ne: 'deleted' },
-          categoryId: { $in: productCategoryIds },
-          _id: { $nin: group.excludedProductIds }
-        }
-      },
-      isRPC: true,
-      defaultValue: []
-    });
-
-    allProductIds = allProductIds.concat(products.map(p => p._id));
+    allExcludedProductIds = allExcludedProductIds.concat(
+      group.excludedProductIds
+    );
+    allCategoryIds = allCategoryIds.concat(productCategoryIds);
   } // end product group for loop
 
-  return allProductIds.includes(productId);
+  if (allExcludedProductIds.includes(productId)) {
+    return false;
+  }
+
+  const products = await sendProductsMessage({
+    subdomain,
+    action: 'find',
+    data: {
+      query: {
+        status: { $ne: 'deleted' },
+        categoryId: { $in: allCategoryIds },
+        _id: productId
+      }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  if (!products.length) {
+    return false;
+  }
+
+  return true;
 };
 
 const isInProductCategory = async (

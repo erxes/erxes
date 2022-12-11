@@ -1,5 +1,11 @@
 import channelQueries from '@erxes/ui-settings/src/channels/graphql/queries';
 
+const nameFields = `
+  firstName
+  middleName
+  lastName
+`;
+
 const allUsers = `
   query allUsers($isActive: Boolean) {
     allUsers(isActive: $isActive) {
@@ -10,6 +16,7 @@ const allUsers = `
       details {
         avatar
         fullName
+        ${nameFields}
       }
     }
   }
@@ -25,6 +32,7 @@ const detailFields = `
   location
   description
   operatorPhone
+  ${nameFields}
 `;
 
 const listParamsDef = `

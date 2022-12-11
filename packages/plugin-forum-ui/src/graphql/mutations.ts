@@ -8,6 +8,9 @@ const forumCreateCategoryParamsCommon = `
   $userLevelReqPostWrite: String!
   $userLevelReqCommentWrite: String!
   $postsReqCrmApproval: Boolean!
+  $postReadRequiresPermissionGroup: Boolean
+  $postWriteRequiresPermissionGroup: Boolean
+  $commentWriteRequiresPermissionGroup: Boolean
 `;
 
 const forumCreateCategoryArgsCommon = `
@@ -18,6 +21,9 @@ const forumCreateCategoryArgsCommon = `
   userLevelReqPostWrite: $userLevelReqPostWrite
   userLevelReqCommentWrite: $userLevelReqCommentWrite
   postsReqCrmApproval: $postsReqCrmApproval
+  postReadRequiresPermissionGroup: $postReadRequiresPermissionGroup
+  postWriteRequiresPermissionGroup: $postWriteRequiresPermissionGroup
+  commentWriteRequiresPermissionGroup: $commentWriteRequiresPermissionGroup
 `;
 
 export const UPDATE_CATEGORY = gql`

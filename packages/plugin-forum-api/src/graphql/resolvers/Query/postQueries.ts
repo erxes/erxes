@@ -58,21 +58,19 @@ const PostQueries: IObjectTypeResolver<any, IContext> = {
     const post = await Post.findByIdOrThrow(_id);
     if (user) return post;
 
-    const [isAllowedToRead] = await Category.isUserAllowedToRead(post, cpUser);
+    const requirement = await Category.isUserAllowedToRead(post, cpUser);
 
-    if (!isAllowedToRead) {
+    if (requirement) {
       post.content = '';
-      post.contentRestricted = true;
+      post.requiredLevel = requirement.requiredLevel;
+      post.isPermissionRequired = requirement.isPermissionGroupRequired;
     }
 
     if (post.state === 'DRAFT') {
-      const draftError = new Error('This post is in draft');
-      if (!cpUser) throw draftError;
-
-      if (post.createdByCpId !== cpUser.userId) throw draftError;
+      if (!cpUser || post.createdByCpId !== cpUser.userId)
+        throw new Error('This post is in draft');
     }
 
-    // TODO: check user permission and remove content before returning
     return post;
   },
   async forumPosts(_, params, { models, user }) {

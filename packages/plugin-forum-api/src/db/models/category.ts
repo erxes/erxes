@@ -14,6 +14,7 @@ import {
 import { ICpUser } from '../../graphql';
 import { PostDocument } from './post';
 import {
+  InsufficientPermissionError,
   InsufficientUserLevelError,
   LoginRequiredError
 } from '../../customErrors';
@@ -27,6 +28,10 @@ export interface ICategory {
 
   userLevelReqPostRead: ReadCpUserLevels;
   userLevelReqPostWrite: WriteCpUserLevels;
+
+  postReadRequiresPermissionGroup?: boolean | null;
+  postWriteRequiresPermissionGroup?: boolean | null;
+  commentWriteRequiresPermissionGroup?: boolean | null;
 
   // userLevelReqCommentRead: ReadCpUserLevels;
   userLevelReqCommentWrite: WriteCpUserLevels;
@@ -58,7 +63,13 @@ export interface ICategoryModel extends Model<CategoryDocument> {
   isUserAllowedToRead(
     post: PostDocument,
     user?: ICpUser | null
-  ): Promise<[boolean, CpUserLevels]>;
+  ): Promise<
+    | undefined
+    | {
+        requiredLevel?: CpUserLevels;
+        isPermissionGroupRequired?: boolean;
+      }
+  >;
 
   ensureUserIsAllowed(
     permission: Exclude<Permissions, 'READ_POST'>,
@@ -108,7 +119,11 @@ export const categorySchema = new Schema<CategoryDocument>({
     type: Boolean,
     required: true,
     default: (): boolean => false
-  }
+  },
+
+  postReadRequiresPermissionGroup: Boolean,
+  postWriteRequiresPermissionGroup: Boolean,
+  commentWriteRequiresPermissionGroup: Boolean
 });
 
 export const generateCategoryModel = (
@@ -137,6 +152,18 @@ export const generateCategoryModel = (
           throw new Error(`A category with same code already exists`);
         }
       }
+      if (input.userLevelReqPostWrite === 'NO_ONE') {
+        input.postWriteRequiresPermissionGroup = false;
+      }
+      if (input.userLevelReqCommentWrite === 'NO_ONE') {
+        input.commentWriteRequiresPermissionGroup = false;
+      }
+      if (
+        input.userLevelReqPostRead === 'NO_ONE' ||
+        input.userLevelReqPostRead === 'GUEST'
+      ) {
+        input.postReadRequiresPermissionGroup = false;
+      }
       return await models.Category.create(input);
     }
     public static async patchCategory(
@@ -146,10 +173,11 @@ export const generateCategoryModel = (
       const patch = { ...input } as Partial<Omit<ICategory, '_id'>>;
 
       if (patch.code) {
-        const exists = await models.Category.find({
+        const exists = await models.Category.findOne({
           _id: { $ne: Types.ObjectId(_id) },
           code: patch.code
         });
+
         if (exists) {
           throw new Error(`A category with same code already exists`);
         }
@@ -163,6 +191,10 @@ export const generateCategoryModel = (
             `A category cannot be a subcategory of one of its own descendants`
           );
         }
+      }
+
+      if (input.userLevelReqPostRead === 'GUEST') {
+        patch.postReadRequiresPermissionGroup = false;
       }
 
       await models.Category.updateOne({ _id }, patch);
@@ -278,37 +310,64 @@ export const generateCategoryModel = (
     public static async isUserAllowedToRead(
       post: PostDocument,
       user?: ICpUser | null
-    ): Promise<[boolean, CpUserLevels?]> {
+    ): Promise<
+      | undefined
+      | {
+          requiredLevel?: CpUserLevels;
+          isPermissionGroupRequired?: boolean;
+        }
+    > {
       if (
         post.createdByCpId &&
         user?.userId &&
         post.createdByCpId === user?.userId
       )
-        return [true];
-      if (!post.categoryId) return [true, 'GUEST'];
+        return;
 
-      const category = await models.Category.findByIdOrThrow(post.categoryId);
+      const categoryId = post.categoryId;
+
+      if (!categoryId) {
+        return;
+      }
+
+      const category = await models.Category.findByIdOrThrow(categoryId);
       const requiredLevel = category.userLevelReqPostRead;
+      const postReadRequiresPermissionGroup = !!category.postReadRequiresPermissionGroup;
 
       // everyone is allowed to read
-      if (requiredLevel === 'GUEST') return [true, requiredLevel];
+      if (requiredLevel === 'GUEST') return;
 
       const userLevel = await models.ForumClientPortalUser.getUserLevel(user);
 
-      // user is allowed by its user level
-      if (ALL_CP_USER_LEVELS[userLevel] >= ALL_CP_USER_LEVELS[requiredLevel])
-        return [true, requiredLevel];
+      const allowedByUserLevel =
+        ALL_CP_USER_LEVELS[userLevel] >= ALL_CP_USER_LEVELS[requiredLevel];
 
-      const hasPermit = await models.PermissionGroupCategoryPermit.isUserPermitted(
-        post.categoryId,
-        'READ_POST',
-        user?.userId
-      );
+      let hasPermit = false;
+      const fetchHasPermit = async () => {
+        hasPermit = await models.PermissionGroupCategoryPermit.isUserPermitted(
+          categoryId,
+          'READ_POST',
+          user?.userId
+        );
+      };
 
-      // user is allowed by its permission group
-      if (hasPermit) return [true, requiredLevel];
+      if (!postReadRequiresPermissionGroup) {
+        if (allowedByUserLevel) return;
+        await fetchHasPermit();
+        if (hasPermit) return;
+      } else {
+        await fetchHasPermit();
+        if (allowedByUserLevel && hasPermit) return;
+      }
 
-      return [false, requiredLevel];
+      if (postReadRequiresPermissionGroup) {
+        return {
+          requiredLevel: allowedByUserLevel ? undefined : requiredLevel,
+          isPermissionGroupRequired: hasPermit ? undefined : true
+        };
+      } else {
+        return { requiredLevel };
+      }
     }
 
     public static async ensureUserIsAllowed(
@@ -322,11 +381,20 @@ export const generateCategoryModel = (
 
       const userLevel = await models.ForumClientPortalUser.getUserLevel(user);
 
-      const requiredLevel: CpUserLevels = (() => {
+      const [requiredLevel, requiresPermissionGroup]: [
+        CpUserLevels,
+        boolean | null | undefined
+      ] = (() => {
         if (permission === 'WRITE_COMMENT') {
-          return category.userLevelReqCommentWrite;
+          return [
+            category.userLevelReqCommentWrite,
+            category.commentWriteRequiresPermissionGroup
+          ];
         } else if (permission === 'WRITE_POST') {
-          return category.userLevelReqPostWrite;
+          return [
+            category.userLevelReqPostWrite,
+            category.postWriteRequiresPermissionGroup
+          ];
         } else {
           throw new Error(
             'Tried to check for an unrecognized write permission'
@@ -334,22 +402,43 @@ export const generateCategoryModel = (
         }
       })();
 
-      // user is allowed by its user level
-      if (ALL_CP_USER_LEVELS[userLevel] >= ALL_CP_USER_LEVELS[requiredLevel])
-        return;
+      const isAllowedByLevel =
+        ALL_CP_USER_LEVELS[userLevel] >= ALL_CP_USER_LEVELS[requiredLevel];
 
-      const hasPermit = await models.PermissionGroupCategoryPermit.isUserPermitted(
-        category._id,
-        permission,
-        user.userId
-      );
+      let hasPermit = false;
+      const fetchHasPermit = async (): Promise<boolean> => {
+        hasPermit = await models.PermissionGroupCategoryPermit.isUserPermitted(
+          category._id,
+          permission,
+          user.userId
+        );
+        return hasPermit;
+      };
 
-      if (hasPermit) return;
+      if (!requiresPermissionGroup) {
+        if (isAllowedByLevel) return;
 
-      throw new InsufficientUserLevelError(
+        await fetchHasPermit();
+        if (hasPermit) return;
+      }
+
+      if (requiresPermissionGroup) {
+        await fetchHasPermit();
+        if (hasPermit && isAllowedByLevel) return;
+      }
+
+      const insufficientLevel = new InsufficientUserLevelError(
         ALL_CP_USER_LEVEL_REQUIREMENT_ERROR_MESSAGES[requiredLevel],
         requiredLevel
       );
+      const insufficientPermission = new InsufficientPermissionError();
+
+      if (!requiresPermissionGroup) {
+        throw insufficientLevel;
+      } else if (requiresPermissionGroup) {
+        if (requiredLevel === 'NO_ONE' || hasPermit) throw insufficientLevel;
+        else throw insufficientPermission;
+      }
     }
 
     public static async categoriesUserAllowedToPost(
@@ -371,8 +460,18 @@ export const generateCategoryModel = (
 
       const categories = await models.Category.find({
         $or: [
-          { userLevelReqPostWrite: { $in: allowedLevels } },
-          { _id: { $in: permittedCategoryIds } }
+          {
+            postWriteRequiresPermissionGroup: { $ne: true },
+            $or: [
+              { userLevelReqPostWrite: { $in: allowedLevels } },
+              { _id: { $in: permittedCategoryIds } }
+            ]
+          },
+          {
+            postWriteRequiresPermissionGroup: true,
+            userLevelReqPostWrite: { $in: allowedLevels },
+            _id: { $in: permittedCategoryIds }
+          }
         ]
       });
 

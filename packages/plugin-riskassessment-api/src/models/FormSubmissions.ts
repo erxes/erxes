@@ -1,16 +1,29 @@
 import { Model } from 'mongoose';
 import { IModels, models } from '../connectionResolver';
-import { sendCardsMessage, sendCoreMessage, sendFormsMessage } from '../messageBroker';
-import { calculateRiskAssessment, checkAllUsersSubmitted, getFormId } from '../utils';
+import {
+  sendCardsMessage,
+  sendCoreMessage,
+  sendFormsMessage
+} from '../messageBroker';
+import {
+  calculateRiskAssessment,
+  checkAllUsersSubmitted,
+  getFormId
+} from '../utils';
 import { IRiskFormSubmissionParams } from './definitions/common';
 import {
   IRiskFormSubmissionDocument,
   riskConfirmityFormSubmissionSchema
 } from './definitions/confimity';
 
-export interface IRiskFormSubmissionModel extends Model<IRiskFormSubmissionDocument> {
-  formSaveSubmission(params: IRiskFormSubmissionParams): Promise<IRiskFormSubmissionDocument>;
-  formSubmitHistory(riskAssessmentId: string): Promise<IRiskFormSubmissionDocument>;
+export interface IRiskFormSubmissionModel
+  extends Model<IRiskFormSubmissionDocument> {
+  formSaveSubmission(
+    params: IRiskFormSubmissionParams
+  ): Promise<IRiskFormSubmissionDocument>;
+  formSubmitHistory(
+    riskAssessmentId: string
+  ): Promise<IRiskFormSubmissionDocument>;
 }
 
 const generateFields = params => {
@@ -41,12 +54,21 @@ export const loadRiskFormSubmissions = (model: IModels, subdomain: string) => {
       const filter = generateFields(params);
 
       const formId = await getFormId(model, cardId, cardType);
-      const { riskAssessmentId } = await model.RiskConfimity.findOne({
+      const conformity = await model.RiskConfimity.findOne({
         cardId,
         cardType
       }).lean();
 
-      const { resultScore, calculateMethod } = await model.RiskAssessment.findOne({
+      if (!conformity) {
+        throw new Error(`Not selected some risk assessment on ${cardType}`);
+      }
+
+      const { riskAssessmentId } = conformity;
+
+      const {
+        resultScore,
+        calculateMethod
+      } = await model.RiskAssessment.findOne({
         _id: riskAssessmentId
       }).lean();
 
@@ -67,13 +89,15 @@ export const loadRiskFormSubmissions = (model: IModels, subdomain: string) => {
 
       for (const [key, value] of Object.entries(formSubmissions)) {
         const { optionsValues } = fields.find(field => field._id === key);
-        if(optionsValues){
+        if (optionsValues) {
           const optValues = optionsValues
             .split('\n')
             .map(item => {
               if (item.match(/=/g)) {
                 const label = item?.substring(0, item.indexOf('='));
-                const value = parseInt(item.substring(item?.indexOf('=') + 1, item.length));
+                const value = parseInt(
+                  item.substring(item?.indexOf('=') + 1, item.length)
+                );
                 if (!Number.isNaN(value)) {
                   return { label, value };
                 }
@@ -89,13 +113,12 @@ export const loadRiskFormSubmissions = (model: IModels, subdomain: string) => {
               sumNumber += parseInt(fieldValue.value);
               break;
           }
-  
+
           newSubmission.push({ ...filter, fieldId: key, value });
-        }else{
+        } else {
           newSubmission.push({ ...filter, fieldId: key, value });
         }
       }
-
 
       await model.RiskAssessment.findOneAndUpdate(
         { _id: riskAssessmentId },
@@ -115,7 +138,9 @@ export const loadRiskFormSubmissions = (model: IModels, subdomain: string) => {
       };
     }
     public static async formSubmitHistory(riskAssessmentId: string) {
-      const riskAssessment = await model.RiskAssessment.findOne({ _id: riskAssessmentId });
+      const riskAssessment = await model.RiskAssessment.findOne({
+        _id: riskAssessmentId
+      });
 
       if (!riskAssessment) {
         throw new Error('Cannot find risk assessment');
@@ -125,7 +150,9 @@ export const loadRiskFormSubmissions = (model: IModels, subdomain: string) => {
         throw new Error('This risk assessment in progress');
       }
 
-      const conformity = await model.RiskConfimity.findOne({ riskAssessmentId });
+      const conformity = await model.RiskConfimity.findOne({
+        riskAssessmentId
+      });
 
       if (!conformity) {
         throw new Error('Cannot find risk assessment');
@@ -150,7 +177,10 @@ export const loadRiskFormSubmissions = (model: IModels, subdomain: string) => {
       const submissions = await model.RiksFormSubmissions.aggregate([
         { $match: { cardId, cardType, formId, riskAssessmentId } },
         {
-          $group: { _id: '$userId', fields: { $push: { fieldId: '$fieldId', value: '$value' } } }
+          $group: {
+            _id: '$userId',
+            fields: { $push: { fieldId: '$fieldId', value: '$value' } }
+          }
         }
       ]);
       for (const submission of submissions) {
@@ -171,15 +201,14 @@ export const loadRiskFormSubmissions = (model: IModels, subdomain: string) => {
             defaultValue: {}
           });
 
-          let fieldOptionsValues:any[]=[]
+          let fieldOptionsValues: any[] = [];
 
+          const { optionsValues, options } = fieldData[0];
 
-          const { optionsValues,options } = fieldData[0]
+          fieldOptionsValues = optionsValues?.split('\n');
 
-          fieldOptionsValues = optionsValues?.split('\n')
-
-          if(!optionsValues){
-            fieldOptionsValues = options.map(option=>`${option}=NaN`)
+          if (!optionsValues) {
+            fieldOptionsValues = options.map(option => `${option}=NaN`);
           }
 
           fields.push({

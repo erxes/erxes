@@ -6,7 +6,7 @@ export const posCommonFields = `
   token
   adminIds
   cashierIds
-
+  paymentIds
   user {
     _id
     details {
