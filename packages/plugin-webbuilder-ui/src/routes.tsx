@@ -5,7 +5,7 @@ import queryString from 'query-string';
 
 const WebBuilderContainer = asyncComponent(() =>
   import(
-    /* webpackChunkName: "PageForm - Webbuilders" */ './containers/WebBuilder'
+    /* webpackChunkName: "PageForm - WebbuilderContainer" */ './containers/WebBuilder'
   )
 );
 
