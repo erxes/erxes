@@ -157,6 +157,15 @@ export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
     isRPC: true
   });
 
+export const sendClientPortalMessage = (args: ISendMessageArgs) => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    serviceName: 'clientportal',
+    ...args
+  });
+};
+
 export const sendToWebhook = ({ subdomain, data }) => {
   return sendWebhook(client, { subdomain, data });
 };

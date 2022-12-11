@@ -64,7 +64,7 @@ const Query = `
 
 
     forumSubscriptionProduct(_id: ID!): ForumSubscriptionProduct
-    forumSubscriptionProducts(sort: JSON): [ForumSubscriptionProduct!]
+    forumSubscriptionProducts(sort: JSON, userType: String): [ForumSubscriptionProduct!]
 
     forumCpMySubscriptionOrders: [ForumSubscriptionOrder!]
 

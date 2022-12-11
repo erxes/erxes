@@ -1,12 +1,11 @@
-import {
-  Add,
-  FlexRowGap,
-  FooterInfo,
-  FormContainer,
-  ProductTableWrapper
-} from '../../styles';
+import { Add, FlexRowGap, FooterInfo, FormContainer } from '../../styles';
 import { Alert, __ } from '@erxes/ui/src/utils';
-import { ControlLabel, FormGroup } from '@erxes/ui/src/components';
+import {
+  ControlLabel,
+  FormGroup,
+  ModalTrigger,
+  Table
+} from '@erxes/ui/src/components';
 import { IDeal, IPaymentsData, IProductData } from '../../types';
 import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 
@@ -22,7 +21,15 @@ import ProductCategoryChooser from '@erxes/ui-products/src/components/ProductCat
 import ProductItem from '../../containers/product/ProductItem';
 import ProductTotal from './ProductTotal';
 import React from 'react';
-import Table from '@erxes/ui/src/components/table';
+import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
+
+import styled from 'styled-components';
+
+const TableWrapper = styled.div`
+  table thead tr th {
+    font-size: 10px;
+  }
+`;
 
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
@@ -47,6 +54,7 @@ type State = {
   currentTab: string;
   changePayData: { [currency: string]: number };
   tempId: string;
+  categoryId?: string;
   filterProductSearch: string;
   filterProductCategoryId: string;
 };
@@ -70,40 +78,7 @@ class ProductForm extends React.Component<Props, State> {
 
   componentDidMount() {
     this.updateTotal();
-
-    // initial product item
-    if (this.props.productsData.length === 0) {
-      this.addProductItem();
-    }
   }
-
-  addProductItem = () => {
-    this.clearFilter();
-    const { productsData, onChangeProductsData, currencies } = this.props;
-    const { tax, discount } = this.state;
-
-    const currency = currencies ? currencies[0] : '';
-
-    this.setState({ tempId: Math.random().toString() }, () => {
-      productsData.push({
-        _id: this.state.tempId,
-        quantity: 1,
-        unitPrice: 0,
-        tax: 0,
-        taxPercent: tax[currency] ? tax[currency].percent || 0 : 0,
-        discount: 0,
-        discountPercent: discount[currency]
-          ? discount[currency].percent || 0
-          : 0,
-        amount: 0,
-        currency,
-        tickUsed: true,
-        maxQuantity: 0
-      });
-
-      onChangeProductsData(productsData);
-    });
-  };
 
   removeProductItem = productId => {
     const { productsData, onChangeProductsData } = this.props;
@@ -213,16 +188,22 @@ class ProductForm extends React.Component<Props, State> {
     }
 
     return (
-      <ProductTableWrapper>
+      <TableWrapper>
         <Table>
           <thead>
             <tr>
               <th>{__('Product / Service')}</th>
-              <th>{__('Quantity')}</th>
+              <th style={{ width: '30px' }}>{__('Quantity')}</th>
               <th>{__('Unit price')}</th>
+              <th style={{ width: '90px' }}>{__('Discount %')}</th>
               <th>{__('Discount')}</th>
+              <th style={{ width: '50px' }}>{__('Tax %')}</th>
               <th>{__('Tax')}</th>
               <th>{__('Amount')}</th>
+              <th>{__('Currency')}</th>
+              <th>{__('UOM')}</th>
+              <th>{__('Is used')}</th>
+              <th>{__('Assigned to')}</th>
               <th />
             </tr>
           </thead>
@@ -239,12 +220,13 @@ class ProductForm extends React.Component<Props, State> {
                 currencies={this.props.currencies}
                 currentProduct={currentProduct}
                 onChangeDiscount={this.setDiscount}
+                calculatePerProductAmount={this.calculatePerProductAmount}
                 dealQuery={dealQuery}
               />
             ))}
           </tbody>
         </Table>
-      </ProductTableWrapper>
+      </TableWrapper>
     );
   }
 
@@ -386,6 +368,105 @@ class ProductForm extends React.Component<Props, State> {
     );
   }
 
+  onChangeCategory = (categoryId: string) => {
+    this.setState({ categoryId });
+  };
+
+  calculatePerProductAmount = (type: string, productData: IProductData) => {
+    const amount = productData.unitPrice * productData.quantity;
+
+    if (amount > 0) {
+      if (type === 'discount') {
+        productData.discountPercent = (productData.discount * 100) / amount;
+      } else {
+        productData.discount = (amount * productData.discountPercent) / 100;
+      }
+
+      productData.tax =
+        ((amount - productData.discount || 0) * productData.taxPercent) / 100;
+      productData.amount =
+        amount - (productData.discount || 0) + (productData.tax || 0);
+    } else {
+      productData.tax = 0;
+      productData.discount = 0;
+      productData.amount = 0;
+    }
+
+    this.updateTotal();
+  };
+
+  renderBulkProductChooser() {
+    const { productsData } = this.props;
+
+    const productOnChange = (products: IProduct[]) => {
+      this.clearFilter();
+      const { productsData, onChangeProductsData, currencies } = this.props;
+      const { tax, discount } = this.state;
+      const currency = currencies ? currencies[0] : '';
+
+      const currentProductIds = productsData.map(p => p.productId);
+
+      for (const product of products) {
+        if (currentProductIds.includes(product._id)) {
+          continue;
+        }
+
+        productsData.push({
+          tax: 0,
+          taxPercent: tax[currency] ? tax[currency].percent || 0 : 0,
+          discount: 0,
+          discountPercent: discount[currency]
+            ? discount[currency].percent || 0
+            : 0,
+          amount: 0,
+          currency,
+          tickUsed: true,
+          maxQuantity: 0,
+          product,
+          ...product,
+          quantity: 1
+        });
+      }
+
+      onChangeProductsData(productsData);
+
+      for (const productData of productsData) {
+        this.calculatePerProductAmount('discount', productData);
+      }
+    };
+
+    const content = props => (
+      <ProductChooser
+        {...props}
+        onSelect={productOnChange}
+        onChangeCategory={this.onChangeCategory}
+        categoryId={this.state.categoryId}
+        data={{
+          name: 'Product',
+          products: productsData.filter(p => p.product).map(p => p.product)
+        }}
+      />
+    );
+
+    const trigger = (
+      <Add>
+        <Button btnStyle="primary" icon="plus-circle">
+          Add Product / Service
+        </Button>
+      </Add>
+    );
+
+    return (
+      <ModalTrigger
+        title="Choose product & service"
+        trigger={trigger}
+        dialogClassName="modal-1400w"
+        size="xl"
+        content={content}
+      />
+    );
+  }
+
   renderTabContent() {
     const { total, tax, discount, currentTab } = this.state;
 
@@ -408,15 +489,7 @@ class ProductForm extends React.Component<Props, State> {
       <FormContainer>
         {this.renderProductFilter()}
         {this.renderContent()}
-        <Add>
-          <Button
-            btnStyle="primary"
-            onClick={this.addProductItem}
-            icon="plus-circle"
-          >
-            Add Product / Service
-          </Button>
-        </Add>
+        {this.renderBulkProductChooser()}
 
         <FooterInfo>
           <table>

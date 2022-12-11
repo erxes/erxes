@@ -1,5 +1,32 @@
 import { IProductsData } from '../../../models/definitions/jobs';
 import { sendProductsMessage } from '../../../messageBroker';
+import { IOverallProductsData } from '../../../models/definitions/overallWorks';
+
+export const getProductsData = productsData => {
+  const quantityByKey = {};
+  const result: IOverallProductsData[] = [];
+
+  for (const perProductsData of productsData) {
+    for (const productData of perProductsData) {
+      const key = `${productData.productId}_${productData.uomId}`;
+      if (!Object.keys(quantityByKey).includes(key)) {
+        quantityByKey[key] = 0;
+      }
+
+      quantityByKey[key] = quantityByKey[key] + productData.quantity;
+    }
+  }
+
+  for (const key of Object.keys(quantityByKey)) {
+    const [productId, uomId] = key.split('_');
+    result.push({
+      productId,
+      uomId,
+      quantity: quantityByKey[key]
+    });
+  }
+  return result;
+};
 
 export const getProductAndUoms = async (
   subdomain: string,

@@ -7,7 +7,7 @@ let client: any;
 export const initBroker = async cl => {
   client = cl;
 
-  const { consumeQueue } = cl;
+  const { consumeQueue, consumeRPCQueue } = cl;
   consumeQueue(
     'salesplans:dayPlans.updateStatus',
     async ({ subdomain, data: { _ids, status } }) => {
@@ -17,6 +17,20 @@ export const initBroker = async cl => {
         { _id: { $in: _ids } },
         { $set: { status } }
       );
+    }
+  );
+
+  consumeRPCQueue(
+    'salesplans:timeframes.find',
+    async ({ subdomain, data: {} }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Timeframes.find({
+          status: { $ne: 'deleted' }
+        }).lean()
+      };
     }
   );
 };

@@ -38,6 +38,13 @@ export const CATEGORY_DETAIL = gql`
       userLevelReqPostWrite
       userLevelReqCommentWrite
       postsReqCrmApproval
+      postReadRequiresPermissionGroup
+      postWriteRequiresPermissionGroup
+      commentWriteRequiresPermissionGroup
+      parent {
+        _id
+        name
+      }
     }
   }
 `;
@@ -284,8 +291,8 @@ export const PERMISSION_GROUP_REFETCH = [
 ];
 
 export const FORUM_SUBSCRIPTION_PRODUCTS_QUERY = gql`
-  query ForumSubscriptionProducts($sort: JSON) {
-    forumSubscriptionProducts(sort: $sort) {
+  query ForumSubscriptionProducts($sort: JSON, $userType: String) {
+    forumSubscriptionProducts(sort: $sort, userType: $userType) {
       _id
       description
       listOrder
@@ -293,6 +300,7 @@ export const FORUM_SUBSCRIPTION_PRODUCTS_QUERY = gql`
       name
       price
       unit
+      userType
     }
   }
 `;

@@ -77,25 +77,6 @@ const performQueries = {
     const selector = generateFilter(params, commonQuerySelector);
 
     return models.Performs.find(selector).count();
-  },
-  async allProducts(_root, _args, { subdomain }: IContext) {
-    const productsCount =
-      (await sendProductsMessage({
-        subdomain,
-        action: 'count',
-        data: {},
-        isRPC: true
-      })) || null;
-
-    const productsData =
-      (await sendProductsMessage({
-        subdomain,
-        action: 'find',
-        data: { limit: productsCount },
-        isRPC: true
-      })) || [];
-
-    return productsData;
   }
 };
 

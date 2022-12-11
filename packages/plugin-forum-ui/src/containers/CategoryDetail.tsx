@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation } from 'react-apollo';
 import CategoryForm from '../components/CategoryForm';
 import { allCategoryQueries, CATEGORY_DETAIL } from '../graphql/queries';
@@ -56,30 +56,37 @@ export default function CategoryDetail() {
 
   return (
     <div>
-      <div
-        style={{
-          border: '1px solid #e0e0e0',
-          padding: 20,
-          display: 'flex',
-          justifyContent: 'space-around'
-        }}
-      >
-        <h1>Info</h1>
-        <div>
-          <h3>Code</h3>
-          <p>{forumCategory.code || 'N/A'}</p>
-        </div>
-        <div>
-          <h3>Name</h3>
-          <p>{forumCategory.name}</p>
-        </div>
-        <div>
-          <h3>Thumbnail</h3>
-          <p>
-            <img src={forumCategory.thumbnail} />
-          </p>
-        </div>
-      </div>
+      <h1>Category info</h1>
+      <table>
+        <tbody>
+          <tr>
+            <td>Code:</td>
+            <p>{forumCategory.code || 'N/A'}</p>
+          </tr>
+
+          {forumCategory.parentId && (
+            <tr>
+              <td>Parent</td>
+              <td>
+                <Link to={`/forums/categories/${forumCategory.parentId}`}>
+                  {forumCategory.parent.name}
+                </Link>
+              </td>
+            </tr>
+          )}
+
+          <tr>
+            <td>Name:</td>
+            <p>{forumCategory.name}</p>
+          </tr>
+          <tr>
+            <td>Thumbnail:</td>
+            <td>
+              <img src={forumCategory.thumbnail} />
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
       <div style={{ border: '1px solid #e0e0e0', padding: 20 }}>
         <h1>Edit</h1>

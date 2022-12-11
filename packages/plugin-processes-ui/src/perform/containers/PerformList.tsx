@@ -8,8 +8,6 @@ import { graphql } from 'react-apollo';
 import List from '../components/perform/PerformList';
 import { queries } from '../graphql';
 import {
-  IOverallWork,
-  OverallWorksSideBarDetailQueryResponse,
   PerformsQueryResponse,
   PerformsTotalCountQueryResponse
 } from '../types';
@@ -22,7 +20,6 @@ type Props = {
 type FinalProps = {
   performsQuery: PerformsQueryResponse;
   performsTotalCountQuery: PerformsTotalCountQueryResponse;
-  overallWorksSideBarDetailQuery: OverallWorksSideBarDetailQueryResponse;
 } & Props;
 
 class WorkListContainer extends React.Component<FinalProps> {
@@ -31,26 +28,15 @@ class WorkListContainer extends React.Component<FinalProps> {
   }
 
   render() {
-    const {
-      performsQuery,
-      overallWorksSideBarDetailQuery,
-      performsTotalCountQuery,
-      queryParams
-    } = this.props;
+    const { performsQuery, performsTotalCountQuery, queryParams } = this.props;
 
-    if (
-      performsQuery.loading ||
-      performsTotalCountQuery.loading ||
-      overallWorksSideBarDetailQuery.loading
-    ) {
+    if (performsQuery.loading || performsTotalCountQuery.loading) {
       return false;
     }
 
     const performs = performsQuery.performs || [];
     const performsCount = performsTotalCountQuery.performsTotalCount || 0;
-    const overallWorkDetail =
-      overallWorksSideBarDetailQuery.overallWorksSideBarDetail ||
-      ({} as IOverallWork);
+
     const searchValue = this.props.queryParams.searchValue || '';
 
     const updatedProps = {
@@ -58,7 +44,6 @@ class WorkListContainer extends React.Component<FinalProps> {
       queryParams,
       performs,
       performsCount,
-      overallWorkDetail,
       loading: performsQuery.loading,
       searchValue
     };
@@ -95,18 +80,6 @@ export default withProps<Props>(
         options: ({ queryParams }) => ({
           variables: {
             searchValue: queryParams.searchValue
-          },
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
-    graphql<Props, OverallWorksSideBarDetailQueryResponse, {}>(
-      gql(queries.overallWorksSideBarDetail),
-      {
-        name: 'overallWorksSideBarDetailQuery',
-        options: ({ queryParams }) => ({
-          variables: {
-            id: queryParams.overallWorkId
           },
           fetchPolicy: 'network-only'
         })

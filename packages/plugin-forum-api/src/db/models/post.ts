@@ -13,6 +13,7 @@ import {
   InsufficientUserLevelError,
   LoginRequiredError
 } from '../../customErrors';
+import { notifyUsersPublishedPost } from './utils';
 
 export const POST_STATES = ['DRAFT', 'PUBLISHED'] as const;
 
@@ -60,11 +61,12 @@ export interface IPost extends CommonPostFields {
   stateChangedUserType: UserTypes;
   stateChangedById?: string;
   stateChangedByCpId?: string;
-
-  contentRestricted?: boolean;
   customIndexed: any;
 
   tagIds?: string[] | null;
+
+  requiredLevel?: string | null;
+  isPermissionRequired?: boolean | null;
 }
 
 export type PostDocument = IPost & Document;
@@ -91,7 +93,8 @@ const OMIT_FROM_INPUT = [
   'stateChangedAt',
   'stateChangedById',
   'stateChangedByCpId',
-  'contentRestricted'
+  'requiredLevel',
+  'isPermissionRequired'
 ] as const;
 
 export type PostCreateInput = Omit<IPost, typeof OMIT_FROM_INPUT[number]>;
@@ -262,6 +265,9 @@ export const generatePostModel = (
         stateChangedUserType: USER_TYPES[0],
         stateChangedById: user._id
       });
+      if (res.state === 'PUBLISHED') {
+        await notifyUsersPublishedPost(subdomain, models, res);
+      }
       return res;
     }
     public static async patchPost(
@@ -271,12 +277,18 @@ export const generatePostModel = (
     ): Promise<PostDocument> {
       const post = await models.Post.findByIdOrThrow(_id);
 
+      const originalState = post.state;
+
       _.assign(post, {
         ...patch,
         updatedUserType: USER_TYPES[0],
         updatedById: user._id,
         updatedAt: new Date()
       });
+
+      if (originalState === 'DRAFT' && post.state === 'PUBLISHED') {
+        await notifyUsersPublishedPost(subdomain, models, post);
+      }
 
       await post.save();
       return post;
@@ -295,7 +307,7 @@ export const generatePostModel = (
       user: IUserDocument
     ): Promise<PostDocument> {
       const post = await models.Post.findByIdOrThrow(_id);
-      return changeStateCommon(post, state, user._id, 'CRM');
+      return changeStateCommon(subdomain, models, post, state, user._id, 'CRM');
     }
 
     public static async draft(
@@ -447,6 +459,10 @@ export const generatePostModel = (
         stateChangedUserType: USER_TYPES[1],
         stateChangedByCpId: cpUser.userId
       });
+
+      if (res.state === 'PUBLISHED') {
+        await notifyUsersPublishedPost(subdomain, models, res);
+      }
       return res;
     }
     public static async patchPostCp(
@@ -457,6 +473,8 @@ export const generatePostModel = (
       if (!cpUser) throw new LoginRequiredError();
 
       const post = await models.Post.findByIdOrThrowCp(_id, cpUser);
+
+      const originalState = post.state;
 
       const resultingCategoryId =
         patch.categoryId === undefined ? post.categoryId : patch.categoryId;
@@ -476,6 +494,10 @@ export const generatePostModel = (
         updatedByCpId: cpUser.userId,
         updatedAt: new Date()
       });
+
+      if (originalState === 'DRAFT' && post.state === 'PUBLISHED') {
+        await notifyUsersPublishedPost(subdomain, models, post);
+      }
       await post.save();
       return post;
     }
@@ -498,7 +520,16 @@ export const generatePostModel = (
     ): Promise<PostDocument> {
       if (!cpUser) throw new LoginRequiredError();
       const post = await models.Post.findByIdOrThrowCp(_id, cpUser);
-      return changeStateCommon(post, state, cpUser.userId, 'CP');
+      const res = changeStateCommon(
+        subdomain,
+        models,
+        post,
+        state,
+        cpUser.userId,
+        'CP'
+      );
+
+      return res;
     }
 
     public static async draftCp(
@@ -537,11 +568,14 @@ export const generatePostModel = (
 };
 
 async function changeStateCommon(
+  subdomain: string,
+  models: IModels,
   post: PostDocument,
   state: PostStates,
   userId: string,
   userType: UserTypes
 ) {
+  const originalState = post.state;
   post.state = state;
   post.stateChangedById = userId;
   post.stateChangedUserType = userType;
@@ -549,5 +583,9 @@ async function changeStateCommon(
   post.viewCount = 0;
   post.stateChangedAt = new Date();
   await post.save();
+
+  if (originalState === 'DRAFT' && post.state === 'PUBLISHED') {
+    await notifyUsersPublishedPost(subdomain, models, post);
+  }
   return post;
 }

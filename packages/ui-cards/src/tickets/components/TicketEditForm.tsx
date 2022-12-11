@@ -16,6 +16,8 @@ import React, { useEffect, useState } from 'react';
 import Select from 'react-select-plus';
 import { ITicket, ITicketParams } from '../types';
 import { pluginsOfItemSidebar } from 'coreui/pluginUtils';
+import queryString from 'query-string';
+import ChildrenSection from '../../boards/containers/editForm/ChildrenSection';
 
 type Props = {
   options: IOptions;
@@ -97,6 +99,22 @@ export default function TicketEditForm(props: Props) {
     );
   }
 
+  const renderChildrenSection = () => {
+    const { item, options } = props;
+
+    const updatedProps = {
+      ...props,
+      type: 'ticket',
+      itemId: item._id,
+      stageId: item.stageId,
+      pipelineId: item.pipeline._id,
+      options,
+      queryParams: queryString.parse(window.location.search) || {}
+    };
+
+    return <ChildrenSection {...updatedProps} />;
+  };
+
   function renderFormContent({
     state,
     copy,
@@ -139,6 +157,7 @@ export default function TicketEditForm(props: Props) {
             saveItem={saveItem}
             renderItems={renderItems}
             updateTimeTrack={updateTimeTrack}
+            childrenSection={renderChildrenSection}
           />
         </Flex>
       </>

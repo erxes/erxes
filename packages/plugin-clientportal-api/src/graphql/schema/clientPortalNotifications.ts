@@ -38,6 +38,7 @@ export const types = `
     createdAt: Date
     isRead: Boolean
     clientPortalId: String
+    eventData: JSON
   }
 `;
 

@@ -1,70 +1,85 @@
+const commontTypes = `
+  _id: String
+  key: OverallWorkKey
+  workIds: [String]
+  type: String
+  jobRefer: JobRefer
+  product: Product
+  count: Float
+  needProducts: JSON
+  resultProducts: JSON
+
+  inDepartment: Department
+  inBranch: Branch
+  outDepartment: Department
+  outBranch: Branch
+`;
+
 export const types = `
+  type OverallWorkKey {
+    inBranchId: String
+    inDepartmentId: String
+    outBranchId: String
+    outDepartmentId: String
+    type: String
+    typeId: String
+  }
+
   type OverallWork @key(fields: "_id") @cacheControl(maxAge: 3) {
-    _id: String,
-    createdAt: Date,
-    createdBy: String,
-    updatedAt: Date,
-    updatedBy: String,
-    status: String,
-    dueDate: Date,
-    startAt: Date,
-    endAt: Date,
-    assignUserIds: JSON
-    jobId: String,
-    job: JSON,
-    flowId: String,
-    flow: JSON,
-    intervalId: String,
-    interval: JSON,
-    outBranchId: String,
-    outBranch: String,
-    outDepartmentId: String,
-    outDepartment: String,
-    inBranchId: String,
-    inBranch: String,
-    inDepartmentId: String,
-    inDepartment: String,
-    needProducts: JSON,
-    resultProducts: JSON,
-    needProductsDetail: JSON,
-    resultProductsDetail: JSON
+    ${commontTypes}
+  }
+
+  type OverallWorkDetail @key(fields: "_id") @cacheControl(maxAge: 3) {
+    ${commontTypes}
+    startAt: Date
+    dueDate: Date
+    interval: JSON
+    intervalId: String
+    needProductsData: JSON
+    resultProductsData: JSON
   }
 `;
 
+const paginateParams = `
+  page: Int
+  perPage: Int
+  sortField: String
+  sortDirection: Int
+`;
+
 const qryParams = `
-  searchValue: String,
-  inBranchId: String,
-  inDepartmentId: String,
-  outBranchId: String,
-  outDepartmentId: String,
-  id: String,
+  search: String
+  type: String
+  startDate: Date
+  endDate: Date
+  inBranchId: String
+  outBranchId: String
+  inDepartmentId: String
+  outDepartmentId: String
+  productCategoryId: String
+  productId: String
+  jobCategoryId: String
   jobReferId: String
 `;
 
-export const queries = `
-  overallWorks(page: Int, perPage: Int, ${qryParams}): [OverallWork]
-  overallWorksSideBar(${qryParams}): [OverallWork]
-  overallWorksSideBarDetail(${qryParams}): OverallWork
-  overallWorksTotalCount(${qryParams}): Int
+const detailParamsDef = `
+  startDate: Date
+  endDate: Date
+  type: String
+  productCategoryId: String
+  productId: String
+  jobReferId: String
+  inBranchId: String
+  outBranchId: String
+  inDepartmentId: String
+  outDepartmentId: String
 `;
 
-const workParams = `
-  status: String,
-  dueDate: Date,
-  startAt: Date,
-  endAt: Date,
-  assignUserIds: [String]
-  jobId: String,
-  flowId: String,
-  intervalId: String,
-  outBranchId: String,
-  outDepartmentId: String,
-  inBranchId: String,
-  inDepartmentId: String,
-  needProducts: [JobProductsInput],
-  resultProducts: [JobProductsInput]
+export const queries = `
+  overallWorks(${qryParams}, ${paginateParams}): [OverallWork]
+  overallWorksCount(${qryParams}): Int
+  overallWorkDetail(${detailParamsDef}): OverallWorkDetail
 `;
 
 export const mutations = `
-  overallWorksAdd(${workParams}): OverallWork
 `;
