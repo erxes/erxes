@@ -277,10 +277,7 @@ class SiteForm extends React.Component<Props, State> {
         className={`${!showDarkMode ? 'gjs-one-bg gjs-two-color' : 'darkmode'}`}
       >
         <CollapseLeftMenu>
-          <div>
-            <Icon icon="left-arrow-to-left" /> &nbsp;
-            {__('Collapse')}
-          </div>
+          <div>{__('Navigator')}</div>
           <Icon
             icon={showDarkMode ? 'sun-1' : `moon-1`}
             size={15}
@@ -381,8 +378,6 @@ class SiteForm extends React.Component<Props, State> {
           <EntryList
             contentType={settingsObject}
             queryParams={this.props.queryParams}
-            // siteId={this.props._id}
-            // onCancel={this.handleItemSettings}
           />
         );
       default:

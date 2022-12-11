@@ -228,13 +228,17 @@ export const CollapseLeftMenu = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  cursor: pointer;
   padding: 9px ${dimensions.unitSpacing}px;
+
+  > i,
+  > div {
+    cursor: pointer;
+  }
 `;
 
 export const SubTitle = styledTS<{ flexBetween?: boolean }>(styled.div)`
   margin: 0;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   font-size: 12px;
   background-color: rgba(0, 0, 0, 0.1);
   padding: 9px ${dimensions.unitSpacing}px;
@@ -313,7 +317,7 @@ export const SiteFormContainer = styledTS<{ showDarkMode?: boolean }>(
       ${SubTitle} {
         border: 1px solid ${colors.borderPrimary};
         background: ${colors.colorWhite};
-        color: ${colors.colorCoreGray};
+        color: #666;
       }
 
       ${ItemDetailContainer} {
@@ -331,10 +335,16 @@ export const SiteFormContainer = styledTS<{ showDarkMode?: boolean }>(
       css`
         label,
         input,
+        td,
+        th,
         .Select-control,
         .Select-value-label {
           color: ${colors.colorShadowGray} !important;
-          border-color: ${colors.colorCoreGray};
+          border-color: ${colors.colorCoreGray} !important;
+        }
+
+        th {
+          background-color: #3d3d3d !important;
         }
       `}
 `;
