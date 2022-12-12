@@ -14,7 +14,7 @@ import { mutations } from '../graphql';
 import { IPaymentDocument } from '../types';
 import QpayForm from './form/QpayForm';
 import SocialPayForm from './form/SocialPayForm';
-import { getRefetchQueries } from '../containers/utils';
+import { getGqlString, getRefetchQueries } from '../containers/utils';
 import { PAYMENT_KINDS } from './constants';
 
 type Props = {
@@ -64,7 +64,7 @@ class IntegrationListItem extends React.Component<Props, State> {
     }: IButtonMutateProps) => {
       return (
         <ButtonMutate
-          mutation={mutations.paymentEdit}
+          mutation={getGqlString(mutations.paymentEdit)}
           variables={values}
           callback={callback}
           refetchQueries={getRefetchQueries()}
