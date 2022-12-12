@@ -26,6 +26,36 @@ export const afterDealCreate = async (subdomain, params) => {
     defaultValue: {}
   });
 
+  const conformities = await sendCoreMessage({
+    subdomain,
+    action: 'conformities.getConformities',
+    data: {
+      mainType: 'deal',
+      mainTypeIds: [deal._id],
+      relTypes: ['customer']
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const testers = await sendContactsMessage({
+    subdomain,
+    action: 'customers.find',
+    data: {
+      code: 'tester'
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const testerIds = testers.map(tester => tester._id);
+
+  const customerIds = conformities.map(c => c.relTypeId);
+
+  if (testerIds.some(testerId => customerIds.includes(testerId))) {
+    return;
+  }
+
   if (stage.code && stage.code === 'newOrder') {
     const drivers = await sendContactsMessage({
       subdomain,
