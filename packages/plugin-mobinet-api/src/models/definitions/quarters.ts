@@ -8,7 +8,7 @@ export interface IQuarter {
   cityId: string;
   districtId: string;
   center: any;
-  
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,7 +21,7 @@ export interface IQuarterEdit extends IQuarter {
   _id: string;
 }
 
-export const placeSchema = schemaHooksWrapper(
+export const quarterSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     code: field({ type: String, label: 'code', required: false }),
@@ -29,7 +29,11 @@ export const placeSchema = schemaHooksWrapper(
     order: field({ type: Number, label: 'order', required: false }),
     cityId: field({ type: String, label: 'city', required: false }),
     districtId: field({ type: String, label: 'district', required: false }),
-    center: field({ type: Schema.Types.Mixed, label: 'Center location', required: false }),
+    center: field({
+      type: Schema.Types.Mixed,
+      label: 'Center location',
+      required: false
+    }),
     createdAt: field({ type: Date, label: 'createdAt', required: true }),
     updatedAt: field({ type: Date, label: 'updatedAt', required: true }),
 

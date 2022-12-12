@@ -7,6 +7,7 @@ export interface IBuilding {
   description: string;
   type: string;
   osmbId: string;
+  quarterId: string;
   bounds: {
     minLat: number;
     maxLat: number;
@@ -14,7 +15,7 @@ export interface IBuilding {
     maxLong: number;
   };
 
-  location: {
+  center: {
     lat: number;
     long: number;
   };
@@ -33,22 +34,49 @@ export interface IBuildingEdit extends IBuilding {
   _id: string;
 }
 
-export const placeSchema = schemaHooksWrapper(
+export const buildingSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     code: field({ type: String, label: 'code', required: false }),
     name: field({ type: String, label: 'name', required: true }),
-    iso: field({ type: String, label: 'iso', required: false }),
-    stat: field({ type: Schema.Types.Mixed, label: 'stat', required: false }),
-    center: field({
-      type: Schema.Types.Mixed,
-      label: 'Center location',
+    description: field({ type: String, label: 'description', required: false }),
+    type: field({ type: String, label: 'type', required: false }),
+    osmbId: field({ type: String, label: 'osmbId', required: false }),
+    quarterId: field({ type: String, label: 'quarterId', required: false }),
+    bounds: field({
+      type: {
+        minLat: field({ type: Number, label: 'minLat', required: false }),
+        maxLat: field({ type: Number, label: 'maxLat', required: false }),
+        minLong: field({ type: Number, label: 'minLong', required: false }),
+        maxLong: field({ type: Number, label: 'maxLong', required: false })
+      },
+      label: 'bounds',
       required: false
     }),
-    createdAt: field({ type: Date, label: 'createdAt', required: true }),
-    updatedAt: field({ type: Date, label: 'updatedAt', required: true }),
+    center: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        optional: true
+      },
+      coordinates: {
+        type: [Number],
+        optional: true
+      },
+      required: false
+    },
+
+    customerIds: field({
+      type: [String],
+      label: 'customerIds',
+      required: false
+    }),
+    createdAt: field({ type: Date, label: 'createdAt', default: Date.now }),
+    updatedAt: field({ type: Date, label: 'updatedAt', default: Date.now }),
 
     searchText: field({ type: String, optional: true, index: true })
   }),
   'mobinet_cities'
 );
+
+buildingSchema.index({ location: '2dsphere' });

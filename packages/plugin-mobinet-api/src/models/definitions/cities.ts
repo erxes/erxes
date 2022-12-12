@@ -5,9 +5,9 @@ export interface ICity {
   name: string;
   code: string;
   iso: string;
-  stat: any;
+  stat: string;
   center: any;
-  
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -20,18 +20,18 @@ export interface ICityEdit extends ICity {
   _id: string;
 }
 
-export const placeSchema = schemaHooksWrapper(
+export const citySchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    code: field({ type: String, label: 'code', required: false }),
+    code: field({ type: String, label: 'code', required: false, unique: true }),
     name: field({ type: String, label: 'name', required: true }),
     iso: field({ type: String, label: 'iso', required: false }),
-    stat: field({ type: Schema.Types.Mixed, label: 'stat', required: false }),
+    stat: field({ type: String, label: 'stat', required: false }),
     center: field({
-        type: Schema.Types.Mixed,
-        label: 'Center location',
-        required: false
-      }),
+      type: Schema.Types.Mixed,
+      label: 'Center location',
+      required: false
+    }),
     createdAt: field({ type: Date, label: 'createdAt', required: true }),
     updatedAt: field({ type: Date, label: 'updatedAt', required: true }),
 

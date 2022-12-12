@@ -1,58 +1,65 @@
 import { gql } from 'apollo-server-express';
 
-const types = `
-  type Mobinet {
-    _id: String!
-    name: String
-    createdAt:Date
-    expiryDate:Date
-    checked:Boolean
-    typeId: String
-  
-    currentType: MobinetType
-  }
+import {
+  mutations as buildingMutations,
+  queries as buildingQueries,
+  types as buildingTypes
+} from './schema/buildings';
+import {
+  mutations as cityMutations,
+  queries as cityQueries,
+  types as cityTypes
+} from './schema/cities';
+import {
+  mutations as districtMutations,
+  queries as districtQueries,
+  types as districtTypes
+} from './schema/districts';
+import {
+  mutations as quarterMutations,
+  queries as quarterQueries,
+  types as quarterTypes
+} from './schema/quarters';
 
-  type MobinetType {
-    _id: String!
-    name: String
-  }
-`;
+const typeDefs = async serviceDiscovery => {
+  const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
 
-const queries = `
-  mobinets(typeId: String): [Mobinet]
-  mobinetTypes: [MobinetType]
-  mobinetsTotalCount: Int
-`;
+  const isEnabled = {
+    contacts: isContactsEnabled
+  };
 
-const params = `
-  name: String,
-  expiryDate: Date,
-  checked: Boolean,
-  typeId:String
-`;
-
-const mutations = `
-  mobinetsAdd(${params}): Mobinet
-  mobinetsRemove(_id: String!): JSON
-  mobinetsEdit(_id:String!, ${params}): Mobinet
-  mobinetTypesAdd(name:String):MobinetType
-  mobinetTypesRemove(_id: String!):JSON
-  mobinetTypesEdit(_id: String!, name:String): MobinetType
-`;
-
-const typeDefs = async _serviceDiscovery => {
   return gql`
     scalar JSON
     scalar Date
 
-    ${types}
+    enum CacheControlScope {
+      PUBLIC
+      PRIVATE
+    }
+    
+    directive @cacheControl(
+      maxAge: Int
+      scope: CacheControlScope
+      inheritMaxAge: Boolean
+    ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
+    
+    ${districtTypes}
+    ${quarterTypes}
+    ${cityTypes}
+    ${buildingTypes(isEnabled)}
     
     extend type Query {
-      ${queries}
+      ${districtQueries}
+      ${cityQueries}
+      ${quarterQueries}
+      ${buildingQueries}
     }
     
     extend type Mutation {
-      ${mutations}
+      ${districtMutations}
+      ${cityMutations}
+      ${quarterMutations}
+      ${buildingMutations}
     }
   `;
 };

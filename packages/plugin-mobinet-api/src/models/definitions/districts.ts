@@ -6,7 +6,7 @@ export interface IDistrict {
   code: string;
   cityId: string;
   center: any;
-  
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -19,13 +19,17 @@ export interface IDistrictEdit extends IDistrict {
   _id: string;
 }
 
-export const placeSchema = schemaHooksWrapper(
+export const districtSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     code: field({ type: String, label: 'code', required: false }),
     name: field({ type: String, label: 'name', required: true }),
     cityId: field({ type: String, label: 'city', required: false }),
-    center: field({ type: Schema.Types.Mixed, label: 'Center location', required: false }),
+    center: field({
+      type: Schema.Types.Mixed,
+      label: 'Center location',
+      required: false
+    }),
     createdAt: field({ type: Date, label: 'createdAt', required: true }),
     updatedAt: field({ type: Date, label: 'updatedAt', required: true }),
 
