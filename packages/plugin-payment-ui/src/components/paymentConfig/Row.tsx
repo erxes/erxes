@@ -11,7 +11,7 @@ import { IPaymentConfig } from '../../types';
 
 type Props = {
   config: IPaymentConfig;
-  remove: (placeId: string) => void;
+  remove: (configId: string) => void;
 };
 
 const Row = (props: Props) => {
