@@ -17,7 +17,7 @@ const SiteForm = asyncComponent(() =>
 
 const WebBuilderContainer = asyncComponent(() =>
   import(
-    /* webpackChunkName: "PageForm - WebBuilderContainer" */ './containers/WebBuilder'
+    /* webpackChunkName: "PageForm - WebBuilderContainer" */ './containers/Webbuilder'
   )
 );
 
