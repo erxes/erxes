@@ -1,14 +1,11 @@
-import { __ } from '@erxes/ui/src/utils/core';
+import { FlexItem, FullPreview } from '@erxes/ui/src/components/step/style';
+
+import { Alert } from '@erxes/ui/src/utils';
 import FieldForm from '../FieldForm';
 import FieldsPreview from '@erxes/ui-forms/src/forms/components/FieldsPreview';
-import React from 'react';
 import FormPreview from '@erxes/ui/src/components/step/preview/FormPreview';
-import {
-  DesktopPreview,
-  FlexItem,
-  FullPreview
-} from '@erxes/ui/src/components/step/style';
-import { Alert } from '@erxes/ui/src/utils';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   type: string;
@@ -111,14 +108,10 @@ class FullPreviewStep extends React.Component<Props, State> {
     );
   }
 
-  renderResolutionPreview() {
-    return <DesktopPreview>{this.renderPreview()}</DesktopPreview>;
-  }
-
   render() {
     return (
       <FlexItem>
-        <FullPreview>{this.renderResolutionPreview()}</FullPreview>
+        <FullPreview>{this.renderPreview()}</FullPreview>
       </FlexItem>
     );
   }
