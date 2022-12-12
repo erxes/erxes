@@ -25,21 +25,31 @@ const mutations = {
       ? `${process.env.DOMAIN}/gateway`
       : 'http://localhost:4000';
 
-    const dataInCookie = requestInfo.cookies['paymentData'];
+    const cookies = requestInfo.cookies;
 
-    const paymentData =
-      dataInCookie &&
-      JSON.parse(
-        Buffer.from(dataInCookie as string, 'base64').toString('ascii')
-      );
+    const paymentCookies = Object.keys(cookies).filter(key =>
+      key.includes('paymentData')
+    );
 
-    if (
-      dataInCookie &&
-      paymentData.amount === params.amount &&
-      paymentData.customerId === params.customerId &&
-      paymentData.contentTypeId === params.contentTypeId
-    ) {
-      return `${MAIN_API_DOMAIN}/pl:payment/gateway?params=${dataInCookie}`;
+    for (const cookie of paymentCookies) {
+      const contentTypeId = cookie.split('_')[1];
+      if (contentTypeId === params.contentTypeId) {
+        const dataInCookie = cookies[cookie];
+
+        const paymentData =
+          dataInCookie &&
+          JSON.parse(
+            Buffer.from(dataInCookie as string, 'base64').toString('ascii')
+          );
+
+        if (
+          dataInCookie &&
+          paymentData.amount === params.amount &&
+          paymentData.customerId === params.customerId
+        ) {
+          return `${MAIN_API_DOMAIN}/pl:payment/gateway?params=${dataInCookie}`;
+        }
+      }
     }
 
     const invoice = await models.Invoices.create({
@@ -68,7 +78,7 @@ const mutations = {
       delete cookieOptions.sameSite;
     }
 
-    res.cookie('paymentData', base64, cookieOptions);
+    res.cookie(`paymentData_${params.contentTypeId}`, base64, cookieOptions);
 
     return `${MAIN_API_DOMAIN}/pl:payment/gateway?params=${base64}`;
   }
