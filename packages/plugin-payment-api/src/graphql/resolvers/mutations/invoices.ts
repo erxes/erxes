@@ -36,7 +36,8 @@ const mutations = {
     if (
       dataInCookie &&
       paymentData.amount === params.amount &&
-      paymentData.customerId === params.customerId
+      paymentData.customerId === params.customerId &&
+      paymentData.contentTypeId === params.contentTypeId
     ) {
       return `${MAIN_API_DOMAIN}/pl:payment/gateway?params=${dataInCookie}`;
     }
