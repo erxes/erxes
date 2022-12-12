@@ -3,6 +3,17 @@ import { IModels } from '../index';
 import * as _ from 'lodash';
 import { TimeDurationUnit, TIME_DURATION_UNITS } from '../../../consts';
 
+// null, undefined, '' means it's for every user types
+export const SUBSCRIPTION_PRODUCT_USER_TYPES = [
+  null,
+  undefined,
+  '',
+  'company',
+  'customer'
+] as const;
+
+export type SubscriptionProductUserTypes = typeof SUBSCRIPTION_PRODUCT_USER_TYPES[number];
+
 export interface ISubscriptionProduct {
   _id: any;
   name?: string | null;
@@ -11,6 +22,7 @@ export interface ISubscriptionProduct {
   multiplier: number;
   price: number;
   listOrder: number;
+  userType: SubscriptionProductUserTypes;
 }
 
 export type SubscriptionProductInsert = Omit<ISubscriptionProduct, '_id'>;
@@ -57,6 +69,10 @@ export const subscriptionProductSchema = new Schema<
     type: Number,
     required: true,
     default: 0
+  },
+  userType: {
+    type: String,
+    enum: SUBSCRIPTION_PRODUCT_USER_TYPES
   }
 });
 

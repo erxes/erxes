@@ -12,6 +12,10 @@ const commonParams = (isInsert = false): string => {
     userLevelReqCommentWrite: String${requiredIf(isInsert)}
 
     postsReqCrmApproval: Boolean${requiredIf(isInsert)}
+
+    postReadRequiresPermissionGroup: Boolean
+    postWriteRequiresPermissionGroup: Boolean
+    commentWriteRequiresPermissionGroup: Boolean
   `;
 };
 

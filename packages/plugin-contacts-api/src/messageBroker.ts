@@ -95,6 +95,18 @@ export const initBroker = cl => {
   );
 
   consumeRPCQueue(
+    'contacts:companies.getCompanyName',
+    async ({ subdomain, data: { company } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Companies.getCompanyName(company)
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'contacts:companies.findActiveCompanies',
     async ({ subdomain, data: { selector, fields } }) => {
       const models = await generateModels(subdomain);

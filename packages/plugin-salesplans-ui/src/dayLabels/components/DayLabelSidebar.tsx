@@ -64,7 +64,7 @@ class Sidebar extends React.Component<Props> {
     const { queryParams } = this.props;
 
     return (
-      <Wrapper.Sidebar hasBorder>
+      <Wrapper.Sidebar hasBorder wide={true}>
         <Section.Title>
           {__('Filters')}
           <Section.QuickButtons>

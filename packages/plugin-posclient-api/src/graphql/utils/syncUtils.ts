@@ -255,6 +255,7 @@ export const extractConfig = async (subdomain, doc) => {
     productDetails: doc.productDetails,
     adminIds: doc.adminIds,
     cashierIds: doc.cashierIds,
+    paymentIds: doc.paymentIds,
     beginNumber: doc.beginNumber,
     maxSkipNumber: doc.maxSkipNumber,
     uiOptions,

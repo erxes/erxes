@@ -12,6 +12,7 @@ const CREATE_NEW = gql`
     $description: String
     $listOrder: Float
     $name: String
+    $userType: String
   ) {
     forumCreateSubscriptionProduct(
       multiplier: $multiplier
@@ -20,6 +21,7 @@ const CREATE_NEW = gql`
       description: $description
       listOrder: $listOrder
       name: $name
+      userType: $userType
     ) {
       _id
     }

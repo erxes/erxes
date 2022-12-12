@@ -38,6 +38,7 @@ export type IPos = {
   token: string;
   adminIds: [string];
   cashierIds: [string];
+  paymentIds: [string];
   user: IUser;
   isOnline: boolean;
   onServer: boolean;

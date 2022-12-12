@@ -12,7 +12,8 @@ export const initBroker = async cl => {
   consumeQueue(
     'processes:createWorks',
     async ({ subdomain, data: { dayPlans, date, branchId, departmentId } }) => {
-      if (!(branchId && departmentId && date && new Date(date) > new Date())) {
+      // if (!(branchId && departmentId && date && new Date(date) > new Date())) {
+      if (!(branchId && departmentId && date)) {
         throw new Error('not valid data');
       }
 
@@ -26,12 +27,16 @@ export const initBroker = async cl => {
         data: { _ids: dayPlans.map(d => d._id), status: 'pending' }
       });
 
-      await consumeSalesPlans(subdomain, {
+      const models = await generateModels(subdomain);
+
+      const qb = new consumeSalesPlans(models, subdomain, {
         dayPlans,
         date,
         branchId,
         departmentId
       });
+
+      await qb.run();
     }
   );
 
@@ -78,6 +83,17 @@ export const sendProductsMessage = async (
     client,
     serviceDiscovery,
     serviceName: 'products',
+    ...args
+  });
+};
+
+export const sendInventoriesMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'inventories',
     ...args
   });
 };

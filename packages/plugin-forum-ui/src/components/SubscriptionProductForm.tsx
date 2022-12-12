@@ -5,6 +5,7 @@ type Props = {
     _id: string;
     name?: string | null;
     description?: string | null;
+    userType?: string | null;
     listOrder: number;
     multiplier: number;
     price: number;
@@ -31,6 +32,7 @@ const SubscriptionProductForm: React.FC<Props> = ({
   );
   const [price, setPrice] = useState(subscriptionProduct?.price || 0);
   const [unit, setUnit] = useState(subscriptionProduct?.unit || 'months');
+  const [userType, setUserType] = useState(subscriptionProduct?.userType || '');
 
   const _onSubmit = e => {
     e.preventDefault();
@@ -41,7 +43,8 @@ const SubscriptionProductForm: React.FC<Props> = ({
         listOrder,
         multiplier,
         price,
-        unit
+        unit,
+        userType: userType || null
       });
     }
   };
@@ -92,6 +95,16 @@ const SubscriptionProductForm: React.FC<Props> = ({
           value={price}
           onChange={e => setPrice(parseInt(e.target.value))}
         />
+      </label>
+
+      <br />
+      <label>
+        User type:{' '}
+        <select value={userType} onChange={e => setUserType(e.target.value)}>
+          <option value="">All</option>
+          <option value="customer">customer</option>
+          <option value="company">company</option>
+        </select>
       </label>
       <br />
       <label>

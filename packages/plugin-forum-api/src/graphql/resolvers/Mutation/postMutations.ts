@@ -37,6 +37,28 @@ const crmPostMutations: IObjectTypeResolver<any, IContext> = {
     post.categoryApprovalState = 'DENIED';
     await post.save();
     return post;
+  },
+  async forumPostAddTranslation(
+    _,
+    { _id, lang, ...translation },
+    { models: { Post } }
+  ) {
+    await Post.addTranslation(_id, lang, translation);
+    return true;
+  },
+
+  async forumPostUpdateTranslation(
+    _,
+    { _id, lang, ...translation },
+    { models: { Post } }
+  ) {
+    await Post.updateTranslation(_id, lang, translation);
+    return true;
+  },
+
+  async forumPostRemoveTranslation(_, { _id, lang }, { models: { Post } }) {
+    await Post.removeTranslation(_id, lang);
+    return true;
   }
 };
 
@@ -58,6 +80,32 @@ const cpPostMutations: IObjectTypeResolver<any, IContext> = {
   },
   async forumPostPublishCp(_, { _id }, { models: { Post }, cpUser }) {
     return Post.publishCp(_id, cpUser);
+  },
+  async forumPostAddTranslationCp(
+    _,
+    { _id, lang, ...translation },
+    { models: { Post }, cpUser }
+  ) {
+    await Post.addTranslation(_id, lang, translation, true, cpUser);
+    return true;
+  },
+
+  async forumPostUpdateTranslationCp(
+    _,
+    { _id, lang, ...translation },
+    { models: { Post }, cpUser }
+  ) {
+    await Post.updateTranslation(_id, lang, translation, true, cpUser);
+    return true;
+  },
+
+  async forumPostRemoveTranslationCp(
+    _,
+    { _id, lang },
+    { models: { Post }, cpUser }
+  ) {
+    await Post.removeTranslation(_id, lang, true, cpUser);
+    return true;
   }
 };
 

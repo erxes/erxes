@@ -64,7 +64,7 @@ class List extends React.Component<Props, State> {
   );
 
   renderFormContent = props => {
-    return <Form {...props} />;
+    return <Form {...props} queryParams={this.props.queryParams} />;
   };
 
   renderRightActionBar = (

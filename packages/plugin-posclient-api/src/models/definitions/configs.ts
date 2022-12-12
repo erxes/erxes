@@ -131,6 +131,7 @@ export const configSchema = new Schema({
   productDetails: field({ type: [String] }),
   adminIds: field({ type: [String] }),
   cashierIds: field({ type: [String] }),
+  paymentIds: field({ type: [String] }),
   beginNumber: field({ type: String, optional: true }),
   maxSkipNumber: field({ type: Number }),
   waitingScreen: field({ type: Object }),

@@ -27,6 +27,22 @@ export const initBroker = async cl => {
     };
   });
 
+  consumeRPCQueue(
+    'inventories:reserveRemainders.find',
+    async ({ subdomain, data: { productIds, branchId, departmentId } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.ReserveRems.find({
+          branchId,
+          departmentId,
+          productId: { $in: productIds }
+        }).lean()
+      };
+    }
+  );
+
   consumeRPCQueue('inventories:transactionAdd', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
