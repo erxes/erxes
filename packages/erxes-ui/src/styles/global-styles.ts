@@ -1,6 +1,7 @@
+import { colors, typography } from './';
+
 import { injectGlobal } from 'styled-components';
 import { robotAnimation } from '../utils/animations';
-import { colors, typography } from './';
 
 const style = `
 html {
@@ -315,6 +316,10 @@ a:hover {
   background: ${colors.bgActive};
   outline: 0;
   cursor: pointer;
+}
+
+.gjs-four-color, .gjs-four-color-h:hover {
+  color: #6569df !important;
 }
 
 /* tooltip */

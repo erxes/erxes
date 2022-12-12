@@ -1,40 +1,33 @@
-import {
-  Content,
-  LeftContent
-} from '@erxes/ui-inbox/src/settings/integrations/styles';
-import { Step, Steps } from '@erxes/ui/src/components/step';
+import { LeftItem, SubTitle } from '../sites/styles';
+import { RightItem, TypeFormContainer } from './styles';
 
 import { Alert } from '@erxes/ui/src/utils';
 import Button from '@erxes/ui/src/components/Button';
 import ContentTypeStep from './step/ContenTypeStep';
-import { ControlWrapper } from '@erxes/ui/src/components/step/styles';
 import FullPreview from './step/FullPreview';
-import { IContentTypeDoc } from '../../types';
-import { Indicator } from '@erxes/ui/src/components/step/styles';
-import { Link } from 'react-router-dom';
-import { PreviewWrapper } from '@erxes/ui/src/components/step/style';
+import { IContentType } from '../../types';
+import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
-import { StepWrapper } from '@erxes/ui/src/components/step/styles';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
-  action: (doc: any) => void;
-  contentType?: IContentTypeDoc;
+  action: (doc: any, afterSave?: any) => void;
+  remove: (contentTypeId: string, afterSave?: any) => void;
+  onCancel: (settingsObject: any, type: string) => void;
+  siteId: string;
+  contentType: IContentType;
 };
 
 type State = {
   displayName: string;
   code: string;
   fields: any;
-  siteId: string;
 };
 
 class ContentTypeForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-
-    const { contentType = {} as IContentTypeDoc } = props;
+    const { contentType } = props;
 
     const fields = (contentType.fields || []).map(field => ({
       ...field,
@@ -44,16 +37,32 @@ class ContentTypeForm extends React.Component<Props, State> {
     this.state = {
       displayName: contentType.displayName || '',
       code: contentType.code || '',
-      fields: fields || [],
-      siteId: contentType.siteId
+      fields: fields || []
     };
+  }
+
+  componentDidUpdate(prevProps) {
+    const { contentType } = this.props;
+
+    const fields = (contentType.fields || []).map(field => ({
+      ...field,
+      _id: Math.random()
+    }));
+
+    if (prevProps.contentType !== contentType) {
+      this.setState({
+        displayName: contentType.displayName,
+        code: contentType.code,
+        fields: fields || []
+      });
+    }
   }
 
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { displayName, code, fields, siteId } = this.state;
-    const { contentType } = this.props;
+    const { displayName, code, fields } = this.state;
+    const { contentType, onCancel, siteId } = this.props;
 
     if (!code) {
       return Alert.error('Please enter a code!');
@@ -70,7 +79,7 @@ class ContentTypeForm extends React.Component<Props, State> {
       doc._id = contentType._id;
     }
 
-    this.props.action(doc);
+    this.props.action(doc, () => onCancel(null, ''));
   };
 
   onChange = (key: string, value: any) => {
@@ -78,21 +87,37 @@ class ContentTypeForm extends React.Component<Props, State> {
   };
 
   renderButtons = () => {
+    const { onCancel, remove, contentType } = this.props;
+
     const cancelButton = (
-      <Link to="/webbuilder/contenttypes">
-        <Button btnStyle="simple" icon="times-circle">
-          Cancel
-        </Button>
-      </Link>
+      <Button
+        btnStyle="simple"
+        size="small"
+        icon="times-circle"
+        onClick={() => onCancel(null, '')}
+      >
+        Cancel
+      </Button>
     );
 
     return (
       <Button.Group>
+        {contentType.displayName && (
+          <Button
+            btnStyle="danger"
+            icon="trash-alt"
+            size="small"
+            onClick={() => remove(contentType._id, onCancel(null, ''))}
+          >
+            Delete
+          </Button>
+        )}
         {cancelButton}
 
         <Button
           btnStyle="success"
           icon={'check-circle'}
+          size="small"
           onClick={this.handleSubmit}
         >
           Save
@@ -102,52 +127,40 @@ class ContentTypeForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { displayName, code, siteId } = this.state;
-    const { contentType } = this.props;
-
-    const breadcrumb = [{ title: __('Content types'), link: '/contenttypes' }];
+    const { displayName, code, fields } = this.state;
 
     return (
-      <StepWrapper>
-        <Wrapper.Header title={__('Content types')} breadcrumb={breadcrumb} />
-        <Content>
-          <LeftContent>
-            <Steps>
-              <Step
-                img="/images/icons/erxes-04.svg"
-                title="Content type"
-                noButton={true}
-              >
-                <ContentTypeStep
-                  onChange={this.onChange}
-                  displayName={displayName}
-                  code={code}
-                  fields={this.state.fields}
-                  siteId={siteId}
-                />
-              </Step>
-            </Steps>
+      <TypeFormContainer className="gjs-one-bg gjs-two-color">
+        <LeftItem>
+          <SubTitle flexBetween={true}>
+            {__('Content Type Settings')}
+            {this.renderButtons()}
+          </SubTitle>
+          <ContentTypeStep
+            onChange={this.onChange}
+            displayName={displayName}
+            code={code}
+            fields={fields}
+          />
+        </LeftItem>
 
-            <ControlWrapper>
-              <Indicator>
-                {__('You are')} {contentType ? 'editing' : 'creating'}{' '}
-                <strong>{displayName}</strong> {__('content type')}
-              </Indicator>
-              {this.renderButtons()}
-            </ControlWrapper>
-          </LeftContent>
-
-          <PreviewWrapper>
-            <FullPreview
-              onChange={this.onChange}
-              color=""
-              theme=""
-              type="dropdown"
-              fields={this.state.fields}
-            />
-          </PreviewWrapper>
-        </Content>
-      </StepWrapper>
+        <RightItem>
+          <SubTitle>
+            <div>
+              <Icon icon="file-search-alt" size={18} />
+              &nbsp;
+              {__('Editor Preview')}
+            </div>
+          </SubTitle>
+          <FullPreview
+            onChange={this.onChange}
+            color=""
+            theme=""
+            type="dropdown"
+            fields={this.state.fields}
+          />
+        </RightItem>
+      </TypeFormContainer>
     );
   }
 }
