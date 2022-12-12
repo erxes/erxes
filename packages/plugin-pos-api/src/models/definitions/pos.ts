@@ -231,6 +231,7 @@ export const posSchema = schemaHooksWrapper(
     kitchenScreen: field({ type: Object, label: 'Kitchen screen config' }),
     uiOptions: field({ type: Object, label: 'UI Options' }),
     token: field({ type: String, label: 'Pos token' }),
+    erxesAppToken: field({ type: String, label: 'Erxes App token' }),
     ebarimtConfig: field({ type: Object, label: 'Ebarimt Config' }),
     erkhetConfig: field({ type: Object, label: 'Erkhet Config' }),
     syncInfos: field({ type: Object, label: 'sync info' }),

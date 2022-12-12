@@ -138,6 +138,7 @@ export const configSchema = new Schema({
   kioskMachine: field({ type: Object, optional: true }),
   kitchenScreen: field({ type: Object }),
   token: field({ type: String, label: 'Token generated at erxes-api' }),
+  erxesAppToken: field({ type: String, label: 'Erxes app token' }),
   uiOptions: field({ type: Object, label: 'Logo & color configs' }),
   ebarimtConfig: field({ type: ebarimtConfigSchema }),
   erkhetConfig: field({ type: Object }),
