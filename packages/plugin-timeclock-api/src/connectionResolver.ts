@@ -7,16 +7,19 @@ import {
   ITimeModel,
   IScheduleModel,
   IShiftModel,
+  IPayDateModel,
   loadAbsenceClass,
   loadAbsenceTypeClass,
   loadTimeClass,
   loadScheduleClass,
   loadShiftClass,
-  IAbsenceTypeModel
+  IAbsenceTypeModel,
+  loadPayDateClass
 } from './models/Template';
 import {
   IAbsenceDocument,
   IAbsenceTypeDocument,
+  IPayDateDocument,
   IScheduleDocument,
   IShiftDocument,
   ITimeClockDocument
@@ -28,6 +31,7 @@ export interface IModels {
   AbsenceTypes: IAbsenceTypeModel;
   Schedules: IScheduleModel;
   Shifts: IShiftModel;
+  PayDates: IPayDateModel;
 }
 
 export interface IContext extends IMainContext {
@@ -63,6 +67,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Shifts = db.model<IShiftDocument, IShiftModel>(
     'timeclock_schedule_shifts',
     loadShiftClass(models)
+  );
+
+  models.PayDates = db.model<IPayDateDocument, IPayDateModel>(
+    'timeclock_pay_date',
+    loadPayDateClass(models)
   );
 
   return models;

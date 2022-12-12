@@ -6,6 +6,7 @@ import {
   ITimeClockDocument,
   IAbsence,
   ISchedule,
+  IPayDate,
   IAbsenceDocument,
   IScheduleDocument,
   scheduleSchema,
@@ -16,7 +17,9 @@ import {
   IShift,
   IShiftDocument,
   IAbsenceTypeDocument,
-  IAbsenceType
+  IAbsenceType,
+  IPayDateDocument,
+  payDateSchema
 } from './definitions/template';
 
 export interface ITimeModel extends Model<ITimeClockDocument> {
@@ -231,4 +234,45 @@ export const loadShiftClass = (models: IModels) => {
   scheduleShiftSchema.loadClass(Shift);
 
   return scheduleShiftSchema;
+};
+
+export interface IPayDateModel extends Model<IPayDateDocument> {
+  getPayDate(_id: string): Promise<IPayDateDocument>;
+  createPayDate(doc: IPayDate): Promise<IPayDateDocument>;
+  updatePayDate(_id: string, doc: IPayDate): Promise<IPayDateDocument>;
+  removePayDate(_id: string): void;
+}
+
+export const loadPayDateClass = (models: IModels) => {
+  // tslint:disable-next-line:max-classes-per-file
+  class PayDate {
+    // get
+    public static async getPayDate(_id: string) {
+      const payDate = await models.PayDates.findOne({ _id });
+      if (!payDate) {
+        throw new Error('payDate not found');
+      }
+      return payDate;
+    }
+    // create
+    public static async createPayDate(doc: IPayDate) {
+      return models.PayDates.create({
+        ...doc
+      });
+    }
+    // update
+    public static async updatePayDate(_id: string, doc: IPayDate) {
+      await models.PayDates.updateOne({ _id }, { $set: { ...doc } }).then(err =>
+        console.error(err)
+      );
+    }
+    // remove
+    public static async removePayDate(_id: string) {
+      return models.PayDates.deleteOne({ _id });
+    }
+  }
+
+  payDateSchema.loadClass(PayDate);
+
+  return payDateSchema;
 };

@@ -8,7 +8,8 @@ import {
   AbsenceMutationResponse,
   AbsenceQueryResponse,
   AbsenceTypeQueryResponse,
-  ConfigMutationResponse
+  ConfigMutationResponse,
+  PayDatesQueryResponse
 } from '../types';
 import { mutations, queries } from '../graphql';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -29,7 +30,7 @@ type Props = {
   endTime: Date;
   absenceId: string;
   absenceStatus: string;
-
+  payDates: number[];
   queryStartDate: Date;
   queryEndDate: Date;
   queryUserId: string;
@@ -37,6 +38,7 @@ type Props = {
 
 type FinalProps = {
   listAbsenceTypesQuery: AbsenceTypeQueryResponse;
+  listPayDatesQuery: PayDatesQueryResponse;
 } & Props &
   ConfigMutationResponse;
 
@@ -45,9 +47,12 @@ const ListContainer = (props: FinalProps) => {
     queryParams,
     addAbsenceType,
     editAbsenceType,
-    submitScheduleConfigMutation,
     removeAbsenceTypeMutation,
-    listAbsenceTypesQuery
+    addPayDateMutation,
+    editPayDateMutation,
+    removePayDateMutation,
+    listAbsenceTypesQuery,
+    listPayDatesQuery
   } = props;
   const { startDate, endDate, userId, reason } = queryParams;
 
@@ -81,17 +86,33 @@ const ListContainer = (props: FinalProps) => {
 
   const removeAbsenceType = absenceId => {
     confirm('Are you sure to remove this absence type').then(() => {
-      removeAbsenceTypeMutation({ variables: { _id: absenceId } }).then(() =>
-        Alert.success('Successfully removed an absence type')
-      );
+      removeAbsenceTypeMutation({ variables: { _id: absenceId } })
+        .then(() => Alert.success('Successfully removed an absence type'))
+        .catch(err => {
+          throw new Error(err);
+        });
     });
   };
+
+  const submitPayDatesConfig = (payDates: number[]) => {
+    confirm('Are you sure to submit these dates as pay dates ? ').then(() => {
+      addPayDateMutation({ variables: { dateNums: payDates } })
+        .then(() => Alert.success('Successfully submitted pay dates'))
+        .catch(err => {
+          throw new Error(err);
+        });
+    });
+  };
+
+  console.log(listPayDatesQuery.payDates);
 
   const updatedProps = {
     ...props,
     absenceTypes: listAbsenceTypesQuery.absenceTypes,
+    payDates: listPayDatesQuery.payDates || [],
     removeAbsenceType,
-    renderButton
+    renderButton,
+    submitPayDatesConfig
   };
   return <ConfigList {...updatedProps} />;
 };
@@ -100,6 +121,12 @@ export default withProps<Props>(
   compose(
     graphql<Props, AbsenceTypeQueryResponse>(gql(queries.listAbsenceTypes), {
       name: 'listAbsenceTypesQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<Props, PayDatesQueryResponse>(gql(queries.listPayDates), {
+      name: 'listPayDatesQuery',
       options: () => ({
         fetchPolicy: 'network-only'
       })
@@ -135,6 +162,16 @@ export default withProps<Props>(
           name: absenceName,
           explRequired: explanation,
           attachRequired: attachment
+        },
+        refetchQueries: ['absenceTypes']
+      })
+    }),
+
+    graphql<Props, ConfigMutationResponse>(gql(mutations.payDateAdd), {
+      name: 'addPayDateMutation',
+      options: ({ payDates }) => ({
+        variables: {
+          dateNums: payDates
         },
         refetchQueries: ['absenceTypes']
       })

@@ -126,10 +126,12 @@ const listReports = `
         totalMinsLate
         totalAbsenceMins
         totalMinsWorked
+        totalMinsScheduled
       }
       groupTotalMinsLate
       groupTotalAbsenceMins
       groupTotalMinsWorked
+      groupTotalMinsScheduled
     }
   }`;
 
@@ -164,12 +166,22 @@ const listAbsenceTypes = `
     }
   }
 `;
+
+const listPayDates = `
+  query listPayDatesQuery{
+    payDates{
+      _id
+      payDates
+    } 
+  }
+`;
 export default {
   listReports,
   listReportByUser,
-  listAbsenceTypes,
   listSchedule,
   listBranches,
   list,
-  listAbsence
+  listAbsence,
+  listAbsenceTypes,
+  listPayDates
 };

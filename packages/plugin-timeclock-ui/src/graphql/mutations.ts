@@ -83,6 +83,25 @@ const solveShift = `
     }
   }  
 `;
+const payDateAdd = `
+  mutation payDateAdd($dateNums: [Int]){
+    payDateAdd(dateNums: $dateNums){
+      _id
+    }
+  }
+`;
+
+const payDateEdit = `
+  mutation payDateEdit($_id: String, $dateNums:[Int]){
+    payDateEdit(_id: $_id, dateNums: $dateNums){
+      _id
+    }
+  }`;
+
+const payDateRemove = `
+  mutation payDateRemove($_id: String){
+    payDateRemove(_id: $_id)
+  }`;
 
 export default {
   sendScheduleRequest,
@@ -96,5 +115,8 @@ export default {
   solveShift,
   clockRemove,
   clockStart,
-  clockStop
+  clockStop,
+  payDateAdd,
+  payDateEdit,
+  payDateRemove
 };

@@ -19,7 +19,7 @@ import {
 } from '../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import { FormControl } from '@erxes/ui/src/components/form';
-import { IAbsenceType } from '../types';
+import { IAbsenceType, IPayDates } from '../types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import Table from '@erxes/ui/src/components/table';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -32,22 +32,20 @@ type Props = {
   queryParams: any;
   history: any;
   absenceTypes?: IAbsenceType[];
+  payDates: IPayDates[];
   loading?: boolean;
   renderButton: (props: IButtonMutateProps) => void;
   removeAbsenceType: (absenceTypeId: string) => void;
+  submitPayDatesConfig: (payDates: number[]) => void;
 };
 
 function ConfigList(props: Props) {
-  const { absenceTypes, removeAbsenceType } = props;
-  const [selectedType, setType] = useState('');
+  const { absenceTypes, payDates, removeAbsenceType } = props;
+  const [selectedType, setType] = useState('Absence types');
 
   const renderSelectionBar = () => {
     const onTypeSelect = type => {
-      localStorage.setItem('displayConfigType', JSON.stringify(type));
-      const selType = JSON.parse(
-        localStorage.getItem('displayConfigType') || '[]'
-      ).value;
-      setType(selType);
+      setType(type.value);
     };
 
     return (
@@ -56,9 +54,7 @@ function ConfigList(props: Props) {
           <ControlLabel>Select type</ControlLabel>
           <Row>
             <Select
-              value={JSON.parse(
-                localStorage.getItem('displayConfigType') || '[]'
-              )}
+              value={selectedType}
               onChange={onTypeSelect}
               placeholder="Select type"
               multi={false}
@@ -79,7 +75,12 @@ function ConfigList(props: Props) {
     </Button>
   );
   const scheduleConfigTrigger = (
-    <Button id="configBtn" btnStyle="primary" icon="plus-circle">
+    <Button
+      id="configBtn"
+      btnStyle="primary"
+      icon="plus-circle"
+      disabled={payDates.length > 0}
+    >
       Pay period
     </Button>
   );
@@ -94,11 +95,11 @@ function ConfigList(props: Props) {
       <ConfigForm {...props} absenceType={absenceType} configType="Absence" />
     );
   };
-  const scheduleConfigContent = absenceType => {
-    return (
-      <ConfigForm {...props} absenceType={absenceType} configType="Schedule" />
-    );
+
+  const scheduleConfigContent = payDate => {
+    return <ConfigForm {...props} payDate={payDate} configType="Schedule" />;
   };
+
   const holidayConfigContent = absenceType => {
     return (
       <ConfigForm {...props} absenceType={absenceType} configType="Holiday" />
@@ -153,38 +154,79 @@ function ConfigList(props: Props) {
     </Tip>
   );
 
-  const content = (
-    <Table>
-      <thead>
-        <tr>
-          <th>Absence type</th>
-          <th>Explanation required</th>
-          <th>Attachment required</th>
+  const content = () => {
+    switch (selectedType) {
+      case 'Holidays':
+        return;
+      case 'Pay period':
+        return renderPayPeriodContent();
+      default:
+        return renderAbsenceTypesContent();
+    }
+  };
+
+  const renderPayPeriodContent = () => {
+    return (
+      <Table>
+        <thead>
+          <th>Pay date occurrence</th>
+          <th colSpan={2}>Dates</th>
           <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {absenceTypes &&
-          absenceTypes.map(absenceType => {
-            return (
-              <tr key={absenceType._id}>
-                <td>{absenceType.name}</td>
-                <td>{absenceType.explRequired ? 'true' : 'false'}</td>
-                <td>{absenceType.attachRequired ? 'true' : 'false'}</td>
-                <td>
-                  <ModalTrigger
-                    title="Edit absence type"
-                    trigger={editTrigger}
-                    content={() => absenceConfigContent(absenceType)}
-                  />
-                  {removeTrigger(absenceType._id)}
-                </td>
-              </tr>
-            );
-          })}
-      </tbody>
-    </Table>
-  );
+        </thead>
+        <tbody>
+          {payDates.length > 0 && (
+            <>
+              <td>{payDates[0].payDates.length}</td>
+              <td>{payDates[0].payDates[0]}</td>
+              <td>{payDates[0].payDates[1]}</td>
+              <td>
+                <ModalTrigger
+                  title="Edit Pay Dates"
+                  trigger={editTrigger}
+                  content={() => scheduleConfigContent(payDates[0])}
+                />
+                {removeTrigger(payDates[0]._id)}
+              </td>
+            </>
+          )}
+        </tbody>
+      </Table>
+    );
+  };
+  const renderAbsenceTypesContent = () => {
+    return (
+      <Table>
+        <thead>
+          <tr>
+            <th>Absence type</th>
+            <th>Explanation required</th>
+            <th>Attachment required</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {absenceTypes &&
+            absenceTypes.map(absenceType => {
+              return (
+                <tr key={absenceType._id}>
+                  <td>{absenceType.name}</td>
+                  <td>{absenceType.explRequired ? 'true' : 'false'}</td>
+                  <td>{absenceType.attachRequired ? 'true' : 'false'}</td>
+                  <td>
+                    <ModalTrigger
+                      title="Edit absence type"
+                      trigger={editTrigger}
+                      content={() => absenceConfigContent(absenceType)}
+                    />
+                    {removeTrigger(absenceType._id)}
+                  </td>
+                </tr>
+              );
+            })}
+        </tbody>
+      </Table>
+    );
+  };
 
   return (
     <Wrapper
@@ -194,7 +236,7 @@ function ConfigList(props: Props) {
       actionBar={actionBar}
       content={
         <DataWithLoader
-          data={content}
+          data={content()}
           loading={false}
           emptyText={__('Theres no timeclock')}
           emptyImage="/images/actions/8.svg"

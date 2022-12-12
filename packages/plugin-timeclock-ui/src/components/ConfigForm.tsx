@@ -17,7 +17,7 @@ import {
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { IAbsenceType } from '../types';
+import { IAbsenceType, IPayDates } from '../types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 
 type Props = {
@@ -25,13 +25,14 @@ type Props = {
   history: any;
   configType: string;
   absenceType?: IAbsenceType;
+  payDate?: IPayDates;
   absenceTypes?: IAbsenceType[];
   loading?: boolean;
   afterSave?: () => void;
   closeModal?: () => void;
   renderButton: (props: IButtonMutateProps) => void;
   removeAbsenceType: (absenceTypeId: string) => void;
-  submitScheduleConfig(payDays: any);
+  submitPayDatesConfig: (payDates: number[]) => void;
 };
 
 function ConfigForm(props: Props) {
@@ -41,7 +42,7 @@ function ConfigForm(props: Props) {
     absenceTypes,
     renderButton,
     removeAbsenceType,
-    submitScheduleConfig
+    submitPayDatesConfig
   } = props;
   const { absenceType } = props;
   const [explanationRequired, setExplRequired] = useState(false);
@@ -63,9 +64,16 @@ function ConfigForm(props: Props) {
   const toggleAttachRequired = e => {
     setAttachRequired(e.target.checked);
   };
-  const onSubmitScheduleConfig = () => {
-    submitScheduleConfig(payDates);
+
+  const onSubmitPayDatesConfig = () => {
+    payPeriod === 'twice'
+      ? submitPayDatesConfig([
+          payDates.date1.getDate(),
+          payDates.date2.getDate()
+        ])
+      : submitPayDatesConfig([payDates.date1.getDate()]);
   };
+
   const onConfigDateChange = (dateNum: string, newDate: Date) => {
     payDates[dateNum] = newDate;
     setpayDates({ ...payDates });
@@ -163,37 +171,42 @@ function ConfigForm(props: Props) {
             options={['once', 'twice'].map(el => ({
               value: el
             }))}
+            inline={true}
             onChange={togglePayPeriod}
           />
           <div>Twice</div>
         </div>
       </div>
       <CustomRangeContainer>
-        {payPeriod !== '' ? (
-          <DateControl
-            value={payDates.date1}
-            required={false}
-            onChange={val => onConfigDateChange('date1', val)}
-            placeholder={'Enter date'}
-            dateFormat={'YYYY-MM-DD'}
-          />
-        ) : (
+        {payPeriod === '' ? (
           <></>
-        )}
-        {payPeriod === 'twice' ? (
-          <DateControl
-            value={payDates.date2}
-            required={false}
-            onChange={val => onConfigDateChange('date2', val)}
-            placeholder={'Enter date'}
-            dateFormat={'YYYY-MM-DD'}
-          />
         ) : (
-          <></>
+          <>
+            <DateControl
+              value={payDates.date1}
+              required={false}
+              onChange={val => onConfigDateChange('date1', val)}
+              placeholder={'Enter date'}
+              dateFormat={'YYYY-MM-DD'}
+            />
+            {payPeriod === 'twice' ? (
+              <DateControl
+                value={payDates.date2}
+                required={false}
+                onChange={val => onConfigDateChange('date2', val)}
+                placeholder={'Enter date'}
+                dateFormat={'YYYY-MM-DD'}
+              />
+            ) : (
+              <></>
+            )}
+          </>
         )}
       </CustomRangeContainer>
       <FlexCenter>
-        <Button onClick={onSubmitScheduleConfig}>Submit</Button>
+        <Button onClick={onSubmitPayDatesConfig} disabled={payPeriod === ''}>
+          Submit
+        </Button>
       </FlexCenter>
     </FlexColumn>
   );

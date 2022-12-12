@@ -17,6 +17,8 @@ import { findBranch, findBranches } from '../../departments';
 interface ITimeClockEdit extends ITimeClock {
   _id: string;
   time: Date;
+  longitude: number;
+  latitude: number;
 }
 
 interface IAbsenceEdit extends IAbsence {
@@ -106,22 +108,62 @@ const templateMutations = {
     if (!timeclock) {
       throw new Error('time clock not found');
     }
-    const updated = await models.Templates.updateTimeClock(_id, {
-      shiftEnd: new Date(),
-      shiftActive: false,
-      ...doc
-    });
+    // convert long, lat into radians
+    const longRad = (Math.PI * longitude) / 180;
+    const latRad = (latitude * Math.PI) / 180;
 
-    await putUpdateLog(
-      subdomain,
-      messageBroker(),
-      {
-        type: 'timeclock',
-        object: timeclock,
-        newData: doc
-      },
-      user
-    );
+    let insideCoordinate = false;
+
+    const EARTH_RADIUS = 6378.14;
+    const branches = await findBranches(subdomain, user._id);
+
+    for (const branch of branches) {
+      // convert into radians
+      const branchLong = (branch.coordinate.longitude * Math.PI) / 180;
+      const branchLat = (branch.coordinate.latitude * Math.PI) / 180;
+
+      const longDiff = longRad - branchLong;
+      const latDiff = latRad - branchLat;
+
+      // distance in km
+      const dist =
+        EARTH_RADIUS *
+        2 *
+        Math.asin(
+          Math.sqrt(
+            Math.pow(Math.sin(latDiff / 2), 2) +
+              Math.cos(latRad) *
+                Math.cos(branchLat) *
+                Math.pow(Math.sin(longDiff / 2), 2)
+          )
+        );
+      // if user's coordinate is within the radius
+      if (dist * 1000 <= branch.radius) {
+        insideCoordinate = true;
+      }
+    }
+
+    let updated;
+    if (insideCoordinate) {
+      updated = await models.Templates.updateTimeClock(_id, {
+        shiftEnd: new Date(),
+        shiftActive: false,
+        ...doc
+      });
+
+      await putUpdateLog(
+        subdomain,
+        messageBroker(),
+        {
+          type: 'timeclock',
+          object: timeclock,
+          newData: doc
+        },
+        user
+      );
+    } else {
+      throw new Error('User not in the coordinate');
+    }
 
     return updated;
   },
@@ -337,6 +379,20 @@ const templateMutations = {
     });
 
     return schedule;
+  },
+
+  payDateAdd(_root, { dateNums }, { models }: IContext) {
+    return models.PayDates.createPayDate({ payDates: dateNums });
+  },
+
+  payDateEdit(_root, { _id, dateNums }, { models }: IContext) {
+    models.PayDates.getPayDate(_id);
+    const updated = models.PayDates.updatePayDate(_id, { payDates: dateNums });
+    return updated;
+  },
+
+  payDateRemove(_root, { _id }, { models }: IContext) {
+    return models.PayDates.removePayDate(_id);
   }
 };
 

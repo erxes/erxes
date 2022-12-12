@@ -52,6 +52,10 @@ export interface IScheduleReport {
   minsLate?: number;
   minsWorked?: number;
 }
+export interface IPayDates {
+  _id: string;
+  payDates: number[];
+}
 
 export interface IShift {
   user?: IUser;
@@ -87,6 +91,12 @@ export type AbsenceQueryResponse = {
 
 export type AbsenceTypeQueryResponse = {
   absenceTypes: IAbsenceType[];
+  refetch: () => void;
+  loading: boolean;
+};
+
+export type PayDatesQueryResponse = {
+  payDates: IPayDates[];
   refetch: () => void;
   loading: boolean;
 };
@@ -162,14 +172,23 @@ export type ConfigMutationResponse = {
       attachRequired: boolean;
     };
   }) => Promise<any>;
-  submitScheduleConfigMutation: (params: {
+  removeAbsenceTypeMutation: (params: {
     variables: {
-      name: string;
-      explRequired: boolean;
-      attachRequired: boolean;
+      _id: string;
     };
   }) => Promise<any>;
-  removeAbsenceTypeMutation: (params: {
+  addPayDateMutation: (params: {
+    variables: {
+      dateNums: number[];
+    };
+  }) => Promise<any>;
+  editPayDateMutation: (params: {
+    variables: {
+      _id: string;
+      dateNums: number[];
+    };
+  }) => Promise<any>;
+  removePayDateMutation: (params: {
     variables: {
       _id: string;
     };

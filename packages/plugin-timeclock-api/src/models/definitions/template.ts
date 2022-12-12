@@ -63,6 +63,14 @@ export interface IShift {
 export interface IShiftDocument extends IShift, Document {
   _id: string;
 }
+
+export interface IPayDate {
+  payDates: number[];
+}
+export interface IPayDateDocument extends IPayDate, Document {
+  _id: string;
+}
+
 export const attachmentSchema = new Schema(
   {
     name: field({ type: String }),
@@ -149,4 +157,9 @@ export const scheduleShiftSchema = new Schema({
     label: 'starting date and time of the shift'
   }),
   shiftEnd: field({ type: Date, label: 'ending date and time of the shift' })
+});
+
+export const payDateSchema = new Schema({
+  _id: field({ pkey: true }),
+  payDates: field({ type: [Number], label: 'pay dates' })
 });

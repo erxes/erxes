@@ -68,6 +68,7 @@ export const types = `
     recordedEnd: Date
     minsLate: Int
     minsWorked: Int
+    minsScheduled: Int
   }
 
   type UserReport{
@@ -76,6 +77,14 @@ export const types = `
     totalMinsLate: Int
     totalAbsenceMins: Int
     totalMinsWorked: Int
+    totalMinsWorkedToday: Int
+    totalMinsWorkedThisMonth: Int
+    totalMinsScheduled: Int
+    totalMinsScheduledToday: Int
+    totalMinsScheduledThisMonth: Int
+    totalMinsLateToday: Int
+    totalMinsLateThisMonth: Int
+    totalMinsAbsenceThisMonth: Int
   }
 
   type Report {
@@ -84,6 +93,18 @@ export const types = `
     groupTotalMinsLate: Int
     groupTotalAbsenceMins: Int
     groupTotalMinsWorked: Int
+    groupTotalMinsScheduled: Int
+  }
+
+  type PayDate {
+    _id: String
+    payDates: [Int]
+  }
+
+  type Holiday {
+    _id: String
+    name: String
+    date: Date
   }
 `;
 export const queries = `
@@ -96,6 +117,8 @@ export const queries = `
   timeclockDetail(_id: String!): Timeclock
   absenceDetail(_id: String!): Absence
   scheduleDetail(_id: String!): Schedule
+  payDates: [PayDate]
+  holidays: [Holiday]
 `;
 const params = `
   userId: String
@@ -136,4 +159,7 @@ export const mutations = `
   solveAbsenceRequest(_id: String, status: String): Absence
   solveScheduleRequest(_id: String, status: String): Schedule
   solveShiftRequest(_id: String, status: String): ShiftsRequest
+  payDateAdd(dateNums: [Int]): PayDate
+  payDateEdit(_id: String, dateNums: [Int]): PayDate
+  payDateRemove(_id: String): JSON
 `;

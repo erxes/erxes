@@ -25,7 +25,7 @@ const LeftSideBar = (props: Props) => {
     setBranches(selectedBranch);
 
     const branchIds: any[] = [];
-    selectedBranch.map(branch => branchIds.push(branch.value));
+    selectedBranch.map(branch => branchIds.push(branch.valu - e));
 
     router.setParams(history, {
       branchIds: `${branchIds}`

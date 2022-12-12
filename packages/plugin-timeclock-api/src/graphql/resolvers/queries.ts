@@ -106,6 +106,10 @@ const templateQueries = {
     return schedules;
   },
 
+  payDates(_root, {}, { models }: IContext) {
+    return models.PayDates.find();
+  },
+
   timeclockDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Templates.findOne({ _id });
   },
@@ -150,27 +154,69 @@ const templateQueries = {
     interface IUserReport {
       userId?: string;
       scheduleReport: IScheduleReport[];
-      totalMinsWorked?: number;
-      totalMinsLate?: number;
-      totalAbsenceMins?: number;
+      totalMinsWorkedToday?: number;
+      totalMinsScheduledToday?: number;
+      totalMinsWorkedThisMonth?: number;
+      totalMinsScheduledThisMonth?: number;
+      totalMinsLateToday?: number;
+      totalMinsLateThisMonth?: number;
+      totalMinsAbsenceThisMonth?: number;
     }
 
     const userId = selectedUser || user._id;
-    let report: IUserReport = { scheduleReport: [] };
-
-    const schedules = models.Schedules.find({ userId: `${userId}` });
-    const timeclocks = models.Templates.find({ userId: `${userId}` });
-    const absences = models.Absences.find({
+    let report: IUserReport = {
+      scheduleReport: [],
       userId: `${userId}`,
-      status: 'Approved'
-    });
+      totalMinsScheduledThisMonth: 0
+    };
     const shifts_of_schedule: any = [];
+
+    // get 1st of the next Month
+    const NOW = new Date();
+    const startOfNextMonth = new Date(NOW.getFullYear(), NOW.getMonth() + 1, 1);
+    // get 1st of this month
+    const startOfThisMonth = new Date(NOW.getFullYear(), NOW.getMonth(), 1);
+    // get the schedule data of this month
+    const schedules = models.Schedules.find({ userId: `${userId}` });
+    const timeclocks = models.Templates.find({
+      $or: [
+        { userId: `${userId}` },
+        {
+          shiftStart: {
+            $gte: fixDate(startOfThisMonth),
+            $lt: fixDate(startOfNextMonth)
+          }
+        }
+      ]
+    });
+    const absences = models.Absences.find({
+      $or: [
+        {
+          userId: `${userId}`,
+          status: 'Approved'
+        },
+        {
+          startTime: {
+            $gte: fixDate(startOfThisMonth),
+            $lt: fixDate(startOfNextMonth)
+          }
+        }
+      ]
+    });
 
     for (const { _id } of await schedules) {
       shifts_of_schedule.push(
         ...(await models.Shifts.find({
-          scheduleId: _id,
-          status: 'Approved'
+          $or: [
+            { scheduleId: _id },
+            { status: 'Approved' },
+            {
+              shiftStart: {
+                $gte: fixDate(startOfThisMonth),
+                $lt: fixDate(startOfNextMonth)
+              }
+            }
+          ]
         }))
       );
     }
@@ -181,10 +227,8 @@ const templateQueries = {
       (await schedules).length !== 0 ||
       (await timeclocks).length !== 0
     ) {
-      report = { userId: `${userId}`, scheduleReport: [] };
-
-      let totalMinsWorkedPerUser = 0;
-
+      let totalMinsWorkedThisMonthPerUser = 0;
+      let totalMinsWorkedTodayPerUser = 0;
       for (const timeclock of await timeclocks) {
         const previousSchedules = report.scheduleReport;
 
@@ -196,7 +240,11 @@ const templateQueries = {
               60000
           );
 
-        totalMinsWorkedPerUser += shiftDuration || 0;
+        totalMinsWorkedThisMonthPerUser += shiftDuration || 0;
+        if (timeclock.shiftStart.toDateString() === NOW.toDateString()) {
+          totalMinsWorkedTodayPerUser += shiftDuration || 0;
+          report.totalMinsWorkedToday = totalMinsWorkedTodayPerUser;
+        }
         report = {
           ...report,
           scheduleReport: previousSchedules?.concat({
@@ -213,6 +261,23 @@ const templateQueries = {
         const scheduleDateString = new Date(
           scheduleShift.shiftStart
         ).toDateString();
+
+        // schedule duration per shift
+        const scheduleDuration =
+          scheduleShift.shiftEnd &&
+          scheduleShift.shiftStart &&
+          Math.round(
+            (scheduleShift.shiftEnd.getTime() -
+              scheduleShift.shiftStart.getTime()) /
+              60000
+          );
+
+        report.totalMinsScheduledThisMonth += scheduleDuration;
+
+        // if today's scheduled time is found
+        if (scheduleDateString === NOW.toDateString()) {
+          report.totalMinsScheduledToday = scheduleDuration;
+        }
 
         report.scheduleReport.forEach(
           (recordedShiftOfReport, recorded_shiftIdx) => {
@@ -234,7 +299,7 @@ const templateQueries = {
         }
       }
 
-      // calculate total absent mins per user
+      // calculate total absent mins of this month per user
       let totalAbsencePerUser = 0;
       for (const absence of await absences) {
         if (absence.startTime && absence.endTime) {
@@ -244,8 +309,8 @@ const templateQueries = {
       }
       report = {
         ...report,
-        totalAbsenceMins: Math.trunc(totalAbsencePerUser),
-        totalMinsWorked: totalMinsWorkedPerUser
+        totalMinsAbsenceThisMonth: Math.trunc(totalAbsencePerUser),
+        totalMinsWorkedThisMonth: totalMinsWorkedThisMonthPerUser
       };
     }
 
@@ -271,13 +336,16 @@ const templateQueries = {
             (shiftStartDiff > 0 ? shiftStartDiff : 0)) /
             60000
         );
-
+        // if report of today is found
+        if (userSchedule.date === NOW.toDateString()) {
+          report.totalMinsLateToday = sumMinsLate;
+        }
         totalMinsLatePerUser += sumMinsLate;
         report.scheduleReport[user_report_idx].minsLate = sumMinsLate;
       }
     });
 
-    report.totalMinsLate = totalMinsLatePerUser;
+    report.totalMinsLateThisMonth = totalMinsLatePerUser;
 
     return report;
   },
@@ -303,6 +371,7 @@ const templateQueries = {
       groupTotalMinsWorked?: number;
       groupTotalMinsLate?: number;
       groupTotalAbsenceMins?: number;
+      groupTotalMinsScheduled?: number;
     }
 
     interface IUserReport {
@@ -311,6 +380,7 @@ const templateQueries = {
       totalMinsWorked?: number;
       totalMinsLate?: number;
       totalAbsenceMins?: number;
+      totalMinsScheduled?: number;
     }
 
     interface IScheduleReport {
@@ -326,11 +396,12 @@ const templateQueries = {
     const finalReport: IReport[] = [];
     const returnReportByUserIds = async (
       selectedUserIds: string[]
-    ): Promise<[IUserReport[], number, number, number]> => {
+    ): Promise<[IUserReport[], number, number, number, number]> => {
       let idx = 0;
       const reports: IUserReport[] = [];
       let groupTotalAbsence = 0;
       let groupTotalMinsWorked = 0;
+      let groupTotalMinsScheduled = 0;
 
       for (const userId of selectedUserIds) {
         const schedules = models.Schedules.find({ userId: `${userId}` });
@@ -359,6 +430,7 @@ const templateQueries = {
           reports.push({ userId: `${userId}`, scheduleReport: [] });
 
           let totalMinsWorkedPerUser = 0;
+          let totalMinsScheduledPerUser = 0;
 
           for (const timeclock of await timeclocks) {
             const previousSchedules = reports[idx].scheduleReport;
@@ -389,6 +461,19 @@ const templateQueries = {
             const scheduleDateString = new Date(
               scheduleShift.shiftStart
             ).toDateString();
+
+            // schedule duration per shift
+            const scheduleDuration =
+              scheduleShift.shiftEnd &&
+              scheduleShift.shiftStart &&
+              Math.round(
+                (scheduleShift.shiftEnd.getTime() -
+                  scheduleShift.shiftStart.getTime()) /
+                  60000
+              );
+
+            totalMinsScheduledPerUser += scheduleDuration;
+            reports[idx].totalMinsScheduled = totalMinsScheduledPerUser;
 
             reports[idx].scheduleReport.forEach(
               (recordedShiftOfReport, recorded_shiftIdx) => {
@@ -428,6 +513,7 @@ const templateQueries = {
             totalMinsWorked: totalMinsWorkedPerUser
           };
 
+          groupTotalMinsScheduled += totalMinsScheduledPerUser;
           groupTotalMinsWorked += totalMinsWorkedPerUser;
           groupTotalAbsence += Math.trunc(totalAbsencePerUser);
           idx += 1;
@@ -438,6 +524,7 @@ const templateQueries = {
       //  calculate how many mins late per user
       reports.forEach((userReport, group_report_idx) => {
         let totalMinsLatePerUser = 0;
+        console.log(userReport);
         userReport.scheduleReport.forEach((userSchedule, user_report_idx) => {
           if (
             userSchedule.recordedEnd &&
@@ -478,7 +565,8 @@ const templateQueries = {
         reports,
         groupTotalMinsLate,
         groupTotalAbsence,
-        groupTotalMinsWorked
+        groupTotalMinsWorked,
+        groupTotalMinsScheduled
       ];
     };
 
@@ -555,14 +643,16 @@ const templateQueries = {
             branchReport,
             totalMinsLatePerGroup,
             totalAbsenceMinsPerGroup,
-            totalWorkedMinsPerGroup
+            totalWorkedMinsPerGroup,
+            totalScheduledMinsPerGroup
           ] = await returnReportByUserIds(branchUserIds);
           finalReport.push({
             groupReport: [...branchReport],
             groupTitle: brnch.title,
             groupTotalMinsLate: totalMinsLatePerGroup,
             groupTotalAbsenceMins: totalAbsenceMinsPerGroup,
-            groupTotalMinsWorked: totalWorkedMinsPerGroup
+            groupTotalMinsWorked: totalWorkedMinsPerGroup,
+            groupTotalMinsScheduled: totalScheduledMinsPerGroup
           });
         }
       }
