@@ -42,7 +42,7 @@ export const afterDealCreate = async (subdomain, params) => {
     subdomain,
     action: 'customers.find',
     data: {
-      code: 'tester'
+      description: 'tester'
     },
     isRPC: true,
     defaultValue: []
