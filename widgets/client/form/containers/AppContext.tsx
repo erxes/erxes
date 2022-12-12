@@ -113,14 +113,23 @@ export class AppProvider extends React.Component<{}, IState> {
    */
   showForm = () => {
     const cookies = cookie.parse(document.cookie);
-    if (cookies['paymentData']) {
-      const { API_URL } = getEnv();
 
-      this.setState({
-        currentStatus: { status: 'PAYMENT_PENDING'},
-        invoiceLink: `${API_URL}/pl:payment/gateway?params=${cookies['paymentData']}`,
-      });
+    const paymentCookies = Object.keys(cookies).filter(key =>
+      key.includes('paymentData')
+    );
+
+    if (paymentCookies.length > 0) {
+      if (cookies[paymentCookies[0]]) {
+        const { API_URL } = getEnv();
+  
+        this.setState({
+          currentStatus: { status: 'PAYMENT_PENDING'},
+          invoiceLink: `${API_URL}/pl:payment/gateway?params=${cookies[paymentCookies[0]]}`,
+        });
+      }
     }
+
+
     this.setState({
       isCalloutVisible: false,
       isFormVisible: true,
