@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { IEmailParams, IIntegration, IIntegrationLeadData } from '../../types';
-import { checkRules } from '../../utils';
+import { checkRules, getEnv } from '../../utils';
 import { connection } from '../connection';
 import { ICurrentStatus, IForm, IFormDoc, ISaveFormResponse } from '../types';
 import {
@@ -11,6 +11,7 @@ import {
   saveLead,
   sendEmail,
 } from './utils';
+import * as cookie from 'cookie';
 
 interface IState {
   isPopupVisible: boolean;
@@ -29,7 +30,11 @@ interface IStore extends IState {
   toggleShoutbox: (isVisible?: boolean) => void;
   showPopup: () => void;
   closePopup: () => void;
-  save: (doc: IFormDoc, formCode?: string, requiredPaymentAmount?: number) => void;
+  save: (
+    doc: IFormDoc,
+    formCode?: string,
+    requiredPaymentAmount?: number
+  ) => void;
   createNew: () => void;
   sendEmail: (params: IEmailParams) => void;
   setHeight: () => void;
@@ -107,6 +112,15 @@ export class AppProvider extends React.Component<{}, IState> {
    * Will be called when user click callout's submit button
    */
   showForm = () => {
+    const cookies = cookie.parse(document.cookie);
+    if (cookies['paymentData']) {
+      const { API_URL } = getEnv();
+
+      this.setState({
+        currentStatus: { status: 'PAYMENT_PENDING'},
+        invoiceLink: `${API_URL}/pl:payment/gateway?params=${cookies['paymentData']}`,
+      });
+    }
     this.setState({
       isCalloutVisible: false,
       isFormVisible: true,
@@ -168,7 +182,11 @@ export class AppProvider extends React.Component<{}, IState> {
   /*
    * Save user submissions
    */
-  save = (doc: IFormDoc, _formCode?: string, requiredPaymentAmount?: number) => {
+  save = (
+    doc: IFormDoc,
+    _formCode?: string,
+    requiredPaymentAmount?: number
+  ) => {
     this.setState({ isSubmitting: true });
 
     saveLead({
@@ -305,4 +323,3 @@ export class AppProvider extends React.Component<{}, IState> {
     );
   }
 }
-
