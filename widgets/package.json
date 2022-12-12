@@ -82,6 +82,7 @@
     "xss": "^1.0.3"
   },
   "devDependencies": {
+    "@types/cookie": "^0.5.1",
     "git-repo-info": "^2.1.0",
     "nodemon": "^1.11.0",
     "ts-node": "^8.3.0",
