@@ -188,6 +188,31 @@ const updateLocales = async () => {
 
   log(`Removing locales.tar ......`);
   await execCommand(`rm locales.tar`);
+
+  const plugins = configs.plugins || [];
+
+  for (const plugin of plugins) {
+    const localesPath = `plugin-uis/plugin-${plugin.name}-ui/locales`;
+
+    if (!(await fse.exists(filePath(localesPath)))) {
+      continue;
+    }
+
+    const files = await fse.readdir(localesPath);
+
+    for (const file of files) {
+      if (!(await fse.exists(filePath(`locales/${file}`)))) {
+        continue;
+      }
+
+      const globalFile = await fse.readJSON(filePath(`locales/${file}`));
+      const localFile = await fse.readJSON(filePath(`${localesPath}/${file}`));
+
+      const combined = { ...globalFile, ...localFile };
+
+      await fse.writeJSON(filePath(filePath(`locales/${file}`)), combined);
+    }
+  }
 };
 
 const generateNetworks = (configs) => {
