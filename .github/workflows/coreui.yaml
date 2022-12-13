@@ -42,7 +42,7 @@ jobs:
       - name: Deploy locales
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' )
         run: |
-          tar -cf locales.tar --directory=packages/core-ui/public/locales .
+          tar -cf locales.tar packages/core-ui/public/locales
           aws s3 sync locales.tar s3://erxes-dev-plugins/locales.tar --delete
 
       - name: Build docker image
