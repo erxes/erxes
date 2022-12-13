@@ -6,7 +6,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { generateAllDataLoaders } from './dataloaders';
 import imports from './imports';
-import exporter from './exporter'
+import exporter from './exporter';
 import forms from './forms';
 import internalNotes from './internalNotes';
 import logUtils from './logUtils';

@@ -23,6 +23,7 @@ import {
   PosSlotAddButton
 } from '../../../styles';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 type Props = {
   onChange: (name: 'pos' | 'slots', value: any) => void;
@@ -167,6 +168,12 @@ class GeneralStep extends React.Component<Props, State> {
       pos[e.target.id] = { isActive: e.target.checked };
     }
 
+    this.onChangeFunction('pos', pos);
+  };
+
+  onChangePayments = ids => {
+    const { pos } = this.props;
+    pos.paymentIds = ids;
     this.onChangeFunction('pos', pos);
   };
 
@@ -524,6 +531,23 @@ class GeneralStep extends React.Component<Props, State> {
                 </FormGroup>
                 <FormGroup>{this.renderPosSlotForm(slotTrigger)}</FormGroup>
               </BlockRow>
+            </Block>
+
+            {loadDynamicComponent('extendFormOptions', {
+              defaultValue: pos.paymentIds || [],
+              onChange: (ids: string[]) => this.onChangePayments(ids)
+            })}
+
+            <Block>
+              <FormGroup>
+                <ControlLabel>Erxes App Token:</ControlLabel>
+                <FormControl
+                  id="erxesAppToken"
+                  type="text"
+                  value={pos.erxesAppToken || ''}
+                  onChange={this.onChangeInput}
+                />
+              </FormGroup>
             </Block>
 
             <Block>

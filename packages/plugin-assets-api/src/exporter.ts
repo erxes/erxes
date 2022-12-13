@@ -76,13 +76,13 @@ export const fillValue = async (
 };
 
 export const IMPORT_EXPORT_TYPES = [
-         {
-           text: 'Assets',
-           contentType: 'asset',
-           icon: 'piggy-bank',
-           skipFilter: true
-         }
-       ];
+  {
+    text: 'Assets',
+    contentType: 'asset',
+    icon: 'piggy-bank',
+    skipFilter: true
+  }
+];
 
 export default {
   importExportTypes: IMPORT_EXPORT_TYPES,

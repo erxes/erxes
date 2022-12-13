@@ -1,16 +1,18 @@
+import { IContentType, IEntryDoc } from '../../types';
+import React, { useEffect, useState } from 'react';
+
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import { Link } from 'react-router-dom';
-import { __ } from '@erxes/ui/src/utils/core';
 import Button from '@erxes/ui/src/components/Button';
+import EntryForm from '../../containers/entries/EntryForm';
 import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
-import React, { useState, useEffect } from 'react';
-import { IContentTypeDoc, IEntryDoc } from '../../types';
+import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   entry: IEntryDoc;
   remove: (_id: string) => void;
-  contentType: IContentTypeDoc;
+  contentType: IContentType;
 };
 
 function Row(props: Props) {
@@ -27,14 +29,29 @@ function Row(props: Props) {
   }, [values]);
 
   const renderEditAction = () => {
+    const trigger = (
+      <Button btnStyle="link">
+        <Tip text={__('Manage')} placement="top">
+          <Icon icon="edit-3" />
+        </Tip>
+      </Button>
+    );
+
+    const content = ({ closeModal }) => (
+      <EntryForm
+        contentTypeId={contentType._id}
+        _id={entry._id}
+        closeModal={closeModal}
+      />
+    );
+
     return (
-      <Link to={`edit/${entry.contentTypeId}/${entry._id}`}>
-        <Button btnStyle="link">
-          <Tip text={__('Manage')} placement="top">
-            <Icon icon="edit-3" />
-          </Tip>
-        </Button>
-      </Link>
+      <ModalTrigger
+        title="Edit entry"
+        size="lg"
+        trigger={trigger}
+        content={content}
+      />
     );
   };
 

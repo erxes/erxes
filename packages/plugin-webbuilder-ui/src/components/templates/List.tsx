@@ -1,25 +1,41 @@
-import React from 'react';
-import Icon from '@erxes/ui/src/components/Icon';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { Actions, HeaderContent, TemplateBox } from './styles';
 import {
-  Actions,
-  IframePreview,
-  Template,
-  TemplateBox,
-  Templates
-} from './styles';
+  Content,
+  FilterContainer,
+  FlexWrap,
+  Labels,
+  PreviewContent,
+  SiteBox,
+  SitePreview,
+  Tag
+} from '../sites/styles';
+import { ModalFooter, Title } from '@erxes/ui/src/styles/main';
+import React, { useState } from 'react';
+import { __, getEnv } from '@erxes/ui/src/utils/core';
+
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import Button from '@erxes/ui/src/components/Button';
+import { CATEGORIES } from '../../constants';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import { ITemplateDoc } from '../../types';
-import { getEnv } from '@erxes/ui/src/utils/core';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 
 type Props = {
   templates: ITemplateDoc[];
   templatesCount: number;
-  setCount: (count: number) => void;
   use: (_id: string, name: string) => void;
 };
 
 function List(props: Props) {
-  const { templates, templatesCount, setCount, use } = props;
+  const [name, setName] = useState('');
+
+  const { templates, templatesCount, use } = props;
 
   const renderDemoAction = (template: ITemplateDoc) => {
     const { REACT_APP_API_URL } = getEnv();
@@ -29,48 +45,150 @@ function List(props: Props) {
     const onClick = () => window.open(`${url}`, '_blank');
 
     return (
-      <div onClick={onClick}>
-        <Icon icon="eye" /> Show demo
-      </div>
+      <Button btnStyle="white" onClick={onClick}>
+        Preview
+      </Button>
     );
   };
 
-  const renderRow = () => {
-    return templates.map((template, index) => {
-      return (
-        <Template key={index} isLongName={false}>
-          <h5>{template.name}</h5>
-          <TemplateBox>
-            <Actions>
-              <div onClick={() => use(template._id, template.name)}>
-                <Icon icon="play" /> Use
-              </div>
-
-              {renderDemoAction(template)}
-            </Actions>
-            <IframePreview>
-              <iframe title="content-iframe" srcDoc={template.html} />
-            </IframePreview>
-          </TemplateBox>
-        </Template>
-      );
-    });
+  const renderCategories = (cat: any, index: number) => {
+    return (
+      <Tag key={index}>
+        {cat.icon} &nbsp;
+        {cat.label}
+      </Tag>
+    );
   };
 
-  let content = <Templates>{renderRow()}</Templates>;
-  setCount(templatesCount);
+  const renderUseAction = template => {
+    const trigger = <Button btnStyle="white">{__('Use')}</Button>;
 
-  if (templates.length < 1) {
-    content = (
-      <EmptyState
-        image="/images/actions/8.svg"
-        text="No templates"
-        size="small"
+    const content = ({ closeModal }) => (
+      <>
+        <FormGroup>
+          <ControlLabel required={true}>Your WebSite Name</ControlLabel>
+
+          <FormControl
+            name="name"
+            autoFocus={true}
+            defaultValue={name}
+            required={true}
+            onChange={(e: any) => setName(e.target.value)}
+          />
+        </FormGroup>
+
+        <ModalFooter>
+          <Button
+            btnStyle="simple"
+            onClick={closeModal}
+            icon="times-circle"
+            uppercase={false}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            btnStyle="success"
+            icon="plus-circle"
+            onClick={() => use(template._id, name)}
+            uppercase={false}
+          >
+            Create
+          </Button>
+        </ModalFooter>
+      </>
+    );
+
+    return (
+      <ModalTrigger
+        title="Name your site"
+        trigger={trigger}
+        content={content}
       />
     );
-  }
+  };
 
-  return <>{content}</>;
+  const renderRow = (template: ITemplateDoc, index: number) => {
+    return (
+      <SiteBox key={index}>
+        <SitePreview>
+          <img src={template.image} alt="template-img" />
+          <PreviewContent>
+            {renderDemoAction(template)}
+            {renderUseAction(template)}
+          </PreviewContent>
+        </SitePreview>
+        <Content>
+          <div>
+            <b>{template.name}</b>
+            <span>Business</span>
+          </div>
+        </Content>
+      </SiteBox>
+    );
+  };
+
+  const actionBarLeft = (
+    <HeaderContent>
+      <Title>{__('Create new site')}</Title>
+      <p>
+        {__('You can easily customize any of our Portfolio website templates')}
+      </p>
+    </HeaderContent>
+  );
+
+  const actionBarRight = (
+    <BarItems>
+      <FormControl
+        type="text"
+        placeholder={__('Search templates')}
+        autoFocus={true}
+      />
+    </BarItems>
+  );
+
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={__('Webbuilder Workspace')}
+          breadcrumb={[
+            { title: 'Webbuilder', link: '/webbuilder' },
+            { title: __('New website') }
+          ]}
+        />
+      }
+      actionBar={
+        <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
+      }
+      content={
+        <DataWithLoader
+          data={
+            <>
+              <FilterContainer>
+                <Labels>
+                  <Tag isActive={true}>
+                    <Icon icon="menu-2" />
+                    &nbsp; {__('All')}
+                  </Tag>
+                  {CATEGORIES.map((cat, index) => renderCategories(cat, index))}
+                </Labels>
+              </FilterContainer>
+              <FlexWrap noPadding={true}>
+                {templates.map((template, index) => renderRow(template, index))}
+              </FlexWrap>
+            </>
+          }
+          count={templates.length || templatesCount}
+          loading={false}
+          emptyText="No templates"
+          emptyImage="/images/actions/8.svg"
+        />
+      }
+      footer={<Pagination count={templatesCount} />}
+      hasBorder={true}
+    />
+  );
 }
 
 export default List;

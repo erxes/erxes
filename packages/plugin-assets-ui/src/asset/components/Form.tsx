@@ -33,7 +33,7 @@ type Props = {
   asset?: IAsset;
   assets: IAsset[];
   categories: IAssetCategoryTypes[];
-  queryParams:any;
+  queryParams: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
@@ -169,7 +169,7 @@ class Form extends React.Component<Props, State> {
   };
 
   renderContent(formProps: IFormProps) {
-    const { asset,queryParams, closeModal, renderButton } = this.props;
+    const { asset, queryParams, closeModal, renderButton } = this.props;
 
     const { description, vendorId } = this.state;
 
@@ -212,15 +212,15 @@ class Form extends React.Component<Props, State> {
         );
       }
 
-      const categoryDefaultValue = () =>{
-        if(object?.categoryId){
-          return object.categoryId
+      const categoryDefaultValue = () => {
+        if (object?.categoryId) {
+          return object.categoryId;
         }
-        if(queryParams?.categoryId){
-          return queryParams.categoryId
+        if (queryParams?.categoryId) {
+          return queryParams.categoryId;
         }
-        return undefined
-      }
+        return undefined;
+      };
 
       return (
         <FormGroup>

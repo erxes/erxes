@@ -92,6 +92,7 @@ block layout-content
                 setInterval(() => {
                     window.fetch('/pl:payment/checkInvoice', {
                         method: 'POST',
+                        credentials: 'include',
                         headers: {
                             'Content-Type': 'application/json'
                         },
@@ -120,7 +121,42 @@ block layout-content
                             }
                         }
                     });
-                }, 5000);
+                }, 3000);
+        
+        if invoice && invoice.status === 'paid'
+            script.
+                window.fetch('/pl:payment/checkInvoice', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        invoiceId: '#{invoice._id}'
+                    })
+                }).then(res => res.json())
+                .then(json => {
+                    if (json.status === 'paid') {
+                        const message = {
+                            fromPayment: true,
+                            message:"paymentSuccessfull",
+                            invoiceId: `#{invoice._id}`,
+                            contentType: `#{invoice.contentType}`,
+                            contentTypeId: `#{invoice.contentTypeId}`,
+                        }
+                        if(window.opener) {
+                            window.opener.postMessage(message, '*');
+                        }
+                        window.parent.postMessage(message, '*');
+
+                        if(`#{invoiceData.redirectUri}` && window.confirm('Payment is completed. Do you want to continue?')) {
+                            window.location.href = `#{invoiceData.redirectUri}`;
+                        } else if (window.opener && window.confirm('Payment is completed. Do you want to close this window?')) {
+                            window.close();
+                        }
+                    }
+                });
+                
 
     block extraScript
         script.

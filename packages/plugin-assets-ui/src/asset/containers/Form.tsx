@@ -17,7 +17,7 @@ import { mutations, queries } from '../graphql';
 
 type Props = {
   asset: IAsset;
-  queryParams:any;
+  queryParams: any;
   closeModal: () => void;
 };
 

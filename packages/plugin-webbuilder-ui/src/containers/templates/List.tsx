@@ -1,20 +1,21 @@
-import React from 'react';
-import List from '../../components/templates/List';
 import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
-import { queries, mutations } from '../../graphql';
+
 import {
   TemplatesQueryResponse,
   TemplatesTotalCountQueryResponse,
   TemplatesUseMutationResponse
 } from '../../types';
+import { mutations, queries } from '../../graphql';
+
+import { Alert } from '@erxes/ui/src/utils';
+import List from '../../components/templates/List';
+import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { Alert, confirm } from '@erxes/ui/src/utils';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 
 type Props = {
-  setCount: (count: number) => void;
   queryParams: any;
   selectedSite: string;
 };
@@ -33,17 +34,19 @@ function ListContainer(props: FinalProps) {
   }
 
   const use = (_id: string, name: string) => {
-    const message = `Are you sure to create a website using this template? The site will automatically generate!`;
+    templatesUse({ variables: { _id, name } })
+      .then(res => {
+        const {
+          data: { webbuilderTemplatesUse }
+        } = res;
 
-    confirm(message).then(() => {
-      templatesUse({ variables: { _id, name } })
-        .then(() => {
-          Alert.success('Successfully created a website');
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    });
+        Alert.success('Successfully created a website');
+
+        window.location.href = `/webbuilder/sites/edit/${webbuilderTemplatesUse}`;
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
   };
 
   const templates = templatesQuery.webbuilderTemplates || [];

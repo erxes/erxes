@@ -16,6 +16,10 @@ export type FollowTagDocument = IFollowTag & Document;
 export interface IFollowTagModel extends Model<FollowTagDocument> {
   follow(tagId: string, followerId: string): Promise<boolean>;
   unfollow(tagId: string, followerId: string): Promise<boolean>;
+  getFollowerIds(
+    tagId: string,
+    excldueFollowerIds?: string[]
+  ): Promise<string[]>;
 }
 
 export const followTagSchema = new Schema<FollowTagDocument>({
@@ -46,6 +50,18 @@ export const generateFollowTagModel = (
     ): Promise<boolean> {
       await models.FollowTag.deleteMany({ tagId, followerId });
       return true;
+    }
+    public static async getFollowerIds(
+      tagId: string,
+      excldueFollowerIds?: string[]
+    ): Promise<string[]> {
+      const query: any = { tagId };
+      if (excldueFollowerIds) {
+        query.followerId = { $nin: excldueFollowerIds };
+      }
+      const follows = await models.FollowTag.find(query);
+      const followerIds = follows.map(follow => follow.followerId);
+      return followerIds;
     }
   }
   followTagSchema.loadClass(FollowTagModel);
