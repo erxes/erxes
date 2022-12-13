@@ -87,12 +87,14 @@ export class AppProvider extends React.Component<
         .then(() => dayjs.locale(currentLanguage))
         .catch(_ => dayjs.locale('en'));
     }
-    import(`../../core-ui/src/locales/${currentLanguage}.json`)
-      .then(data => {
-        const translations = data.default;
-        T.setTexts(translations);
+
+    fetch(`/locales/${currentLanguage}.json`)
+      .then(res => res.json())
+      .catch(() => console.log(`${currentLanguage} translation not found`))
+      .then(json => {
+        T.setTexts(json);
       })
-      .catch(e => console.log(e)); // tslint:disable-line
+      .catch(e => console.log(e));
   };
 
   changeLanguage = (languageCode): void => {
