@@ -6,7 +6,7 @@ const cityMutations = {
     return models.Cities.createCity(doc);
   },
 
-  citeisEdit: async (_root, doc: ICityEdit, { models }: IContext) => {
+  citiesEdit: async (_root, doc: ICityEdit, { models }: IContext) => {
     const { _id } = doc;
     return models.Cities.updateCity(_id, doc);
   },
