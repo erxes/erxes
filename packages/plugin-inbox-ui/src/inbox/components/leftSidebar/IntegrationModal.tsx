@@ -106,14 +106,6 @@ export const IntegrationModal = ({ trigger }: Props) => {
             </p>
           </Box>
         </Link>
-        <Link to="#" />
-        <Link to="/settings/integrations/">
-          <Box>
-            <img src="/images/integrations/email.png" alt="Email" />
-            <span>{__('IMAP')}</span>
-            <p>{__('Connect a company email address')}</p>
-          </Box>
-        </Link>
         <Link to="/settings/integrations" className="other">
           {__('See all Integration')} &raquo;
         </Link>
