@@ -45,7 +45,7 @@ jobs:
           tar -cf locales.tar --directory=packages/core-ui/public/locales .
           pwd
           ls -la
-          aws s3 sync locales.tar s3://erxes-dev-plugins/locales.tar --delete
+          aws s3 cp locales.tar s3://erxes-dev-plugins/locales.tar
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')
