@@ -27,7 +27,7 @@ const mutationParams = `
 export const mutations = `
   citiesAdd(${mutationParams}): City
   citiesEdit(_id: String!, ${mutationParams}): City
-  citiesRemove(_id: String!): JSON
+  citiesRemove(_ids: [String]): JSON
 `;
 
 const qryParams = `
@@ -37,6 +37,7 @@ const qryParams = `
 `;
 
 export const queries = `
-  cities(${qryParams}): CityListResponse
+  cityList(${qryParams}): CityListResponse
+  cities(searchValue: String): [City]
   cityDetail(_id: String!): City
 `;

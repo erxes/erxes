@@ -16,6 +16,7 @@ import { IMobinet, IType } from '../types';
 import Form from './Form';
 import OSMBuildings from '../common/OpenStreetMapBuildings';
 import Row from './Row';
+import { submenu } from '../utils';
 
 type Props = {
   viewType: string;
@@ -37,9 +38,11 @@ function List({
   loading,
   edit,
   viewType,
-  history,
+  history
 }: Props) {
-  const [isMap, setIsMap] = React.useState(viewType && viewType.includes('map'));
+  const [isMap, setIsMap] = React.useState(
+    viewType && viewType.includes('map')
+  );
 
   const onClickToggle = () => {
     router.setParams(history, { viewType: isMap ? 'list' : 'map' });
@@ -55,7 +58,7 @@ function List({
     </Button>
   );
 
-  const modalContent = (props) => (
+  const modalContent = props => (
     <Form
       {...props}
       types={types}
@@ -90,11 +93,11 @@ function List({
       return null;
     }
 
-    const onClickBuilding = (e) => {};
+    const onClickBuilding = e => {};
 
     const mapProps = {
       id: Math.random().toString(),
-      onClickBuilding,
+      onClickBuilding
     };
 
     return <OSMBuildings {...mapProps} />;
@@ -114,7 +117,7 @@ function List({
           </tr>
         </thead>
         <tbody id={'MobinetsShowing'}>
-          {mobinets.map((mobinet) => {
+          {mobinets.map(mobinet => {
             return (
               <Row
                 space={0}
@@ -150,7 +153,13 @@ function List({
 
   return (
     <Wrapper
-      header={<Wrapper.Header title={__('Mobinet')} breadcrumb={breadcrumb} />}
+      header={
+        <Wrapper.Header
+          title={__('Mobinet')}
+          submenu={submenu}
+          // breadcrumb={breadcrumb}
+        />
+      }
       actionBar={actionBar}
       content={
         <DataWithLoader

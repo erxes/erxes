@@ -11,8 +11,8 @@ const mutations = {
     return models.Quarters.updateQuarter(_id, doc);
   },
 
-  quartersRemove: (_root, { _id }, { models }: IContext) => {
-    return models.Quarters.removeQuarter(_id);
+  quartersRemove: (_root, { _ids }, { models }: IContext) => {
+    return models.Quarters.deleteMany({ _id: { $in: _ids } });
   }
 };
 

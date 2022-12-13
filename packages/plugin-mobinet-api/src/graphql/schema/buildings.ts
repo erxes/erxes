@@ -61,7 +61,7 @@ const mutationParams = `
 export const mutations = `
   buildingsAdd(${mutationParams}): Building
   buildingsEdit(_id: String!, ${mutationParams}): Building
-  buildingsRemove(_id: String!): JSON
+  buildingsRemove(_id: [String]): JSON
 `;
 
 const qryParams = `
@@ -77,6 +77,7 @@ const qryParams = `
 `;
 
 export const queries = `
-  buildings(${qryParams}): BuildingListResponse
+  buildingList(${qryParams}): BuildingListResponse
+  buildings(${qryParams}): [Building]
   buildingDetail(_id: String!): Building
 `;

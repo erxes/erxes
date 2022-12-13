@@ -2218,11 +2218,32 @@
     
       constructor (position, data = null, options = {}) {
         this.data = data;
+
+        function hexToRgbA(hex){
+          console.log('hexToRgbA')
+          var c;
+          if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+              c= hex.substring(1).split('');
+              if(c.length== 3){
+                  c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+              }
+              c= '0x'+c.join('');
+              return [(c>>16)&255, (c>>8)&255, c&255, 0.8];
+          }
+          throw new Error('Bad Hex');
+      }
+
+        const col = options.color ? hexToRgbA(options.color) : [0,0,0,0]
     
         const anchor = options.anchor; // TODO
         const scale = options.scale || 1; // TODO
     
-        this.color = Qolor.parse(options.color || Marker.defaultColor).toArray();
+      console.log('col: ',col)
+
+        // this.color = col
+        this.color = options.color
+
+        console.log(Qolor.parse(options.color))
     
         this.metersPerLon = METERS_PER_DEGREE_LATITUDE * Math.cos(position.latitude / 180 * Math.PI);
     

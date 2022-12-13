@@ -7,6 +7,64 @@ const List = asyncComponent(() =>
   import(/* webpackChunkName: "List - Mobinet" */ './containers/List')
 );
 
+const CityList = asyncComponent(() =>
+  import(/* webpackChunkName: "CityList" */ './modules/cities/containers/List')
+);
+
+const DistrictList = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "CityList" */ './modules/districts/containers/List'
+  )
+);
+
+const QuarterList = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "CityList" */ './modules/quarters/containers/List'
+  )
+);
+
+const BuildingList = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "CityList" */ './modules/buildings/containers/List'
+  )
+);
+
+const cityList = history => {
+  const { location } = history;
+  const queryParams = queryString.parse(location.search);
+
+  return <CityList queryParams={queryParams} history={history} />;
+};
+
+const districtList = history => {
+  const { location } = history;
+  const queryParams = queryString.parse(location.search);
+
+  return <DistrictList queryParams={queryParams} history={history} />;
+};
+
+const quarterList = history => {
+  const { location } = history;
+  const queryParams = queryString.parse(location.search);
+
+  return <QuarterList queryParams={queryParams} history={history} />;
+};
+
+const buildingList = history => {
+  const { location } = history;
+  const queryParams = queryString.parse(location.search);
+
+  const { type, viewType } = queryParams;
+
+  return (
+    <BuildingList
+      queryParams={queryParams}
+      history={history}
+      viewType={viewType}
+    />
+  );
+};
+
 const mobinets = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
   const { type, viewType } = queryParams;
@@ -17,7 +75,10 @@ const mobinets = ({ location, history }) => {
 const routes = () => {
   return (
     <>
-      <Route path="/mobinet/" component={mobinets} />
+      <Route path="/mobinet/building" component={buildingList} />
+      <Route path="/mobinet/city" component={cityList} />
+      <Route path="/mobinet/district" component={districtList} />
+      <Route path="/mobinet/quarter" component={quarterList} />
     </>
   );
 };

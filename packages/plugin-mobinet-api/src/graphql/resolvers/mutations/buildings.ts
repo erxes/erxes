@@ -14,8 +14,8 @@ const mutations = {
     return models.Buildings.updateBuilding(_id, doc);
   },
 
-  buildingsRemove: (_root, { _id }, { models }: IContext) => {
-    return models.Buildings.removeBuilding(_id);
+  buildingsRemove: (_root, { _ids }, { models }: IContext) => {
+    return models.Buildings.deleteMany({ _id: { $in: _ids } });
   }
 };
 

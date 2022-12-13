@@ -28,6 +28,37 @@ const queries = {
       filter.cityId = cityId;
     }
 
+    return paginate(models.Districts.find(filter).lean(), {
+      page: page || 1,
+      perPage: perPage || 20
+    });
+  },
+
+  districtList: async (
+    _root,
+    {
+      searchValue,
+      cityId,
+      page,
+      perPage
+    }: {
+      searchValue?: string;
+      page?: number;
+      perPage?: number;
+      cityId?: string;
+    },
+    { models }: IContext
+  ) => {
+    const filter: any = {};
+
+    if (searchValue) {
+      filter.searchText = { $in: [new RegExp(`.*${searchValue}.*`, 'i')] };
+    }
+
+    if (cityId) {
+      filter.cityId = cityId;
+    }
+
     return {
       list: paginate(models.Districts.find(filter).lean(), {
         page: page || 1,

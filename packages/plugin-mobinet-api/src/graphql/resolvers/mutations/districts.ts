@@ -14,8 +14,8 @@ const cityMutations = {
     return models.Districts.updateDistrict(_id, doc);
   },
 
-  districtsRemove: (_root, { _id }, { models }: IContext) => {
-    return models.Districts.removeDistrict(_id);
+  districtsRemove: (_root, { _ids }, { models }: IContext) => {
+    return models.Districts.deleteMany({ _id: { $in: _ids } });
   }
 };
 

@@ -11,8 +11,8 @@ const cityMutations = {
     return models.Cities.updateCity(_id, doc);
   },
 
-  citiesRemove: (_root, { _id }, { models }: IContext) => {
-    return models.Cities.removeCity(_id);
+  citiesRemove: (_root, { _ids }, { models }: IContext) => {
+    return models.Cities.deleteMany({ _id: { $in: _ids } });
   }
 };
 

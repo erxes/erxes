@@ -3,7 +3,7 @@ import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 
 const queries = {
-  quarters: async (
+  quarterList: async (
     _root,
     {
       searchValue,
@@ -41,6 +41,43 @@ const queries = {
       }),
       totalCount: models.Quarters.find(filter).count()
     };
+  },
+
+  quarters: async (
+    _root,
+    {
+      searchValue,
+      cityId,
+      districtId,
+      page,
+      perPage
+    }: {
+      searchValue?: string;
+      page?: number;
+      perPage?: number;
+      cityId?: string;
+      districtId?: string;
+    },
+    { models }: IContext
+  ) => {
+    const filter: any = {};
+
+    if (searchValue) {
+      filter.searchText = { $in: [new RegExp(`.*${searchValue}.*`, 'i')] };
+    }
+
+    if (cityId) {
+      filter.cityId = cityId;
+    }
+
+    if (districtId) {
+      filter.districtId = districtId;
+    }
+
+    return paginate(models.Quarters.find(filter).lean(), {
+      page: page || 1,
+      perPage: perPage || 20
+    });
   },
 
   quarterDetail: async (

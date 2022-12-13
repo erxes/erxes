@@ -27,7 +27,7 @@ const mutationParams = `
 export const mutations = `
   districtAdd(${mutationParams}): District
   districtEdit(_id: String!, ${mutationParams}): District
-  districtRemove(_id: String!): JSON
+  districtRemove(_id: [String]): JSON
 `;
 
 const qryParams = `
@@ -38,6 +38,7 @@ const qryParams = `
 `;
 
 export const queries = `
-  districts(${qryParams}): DistrictListResponse
+  districtList(${qryParams}): DistrictListResponse
+  districts(${qryParams}): [District]
   districtDetail(_id: String!): District
 `;
