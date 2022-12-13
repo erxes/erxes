@@ -6,6 +6,7 @@ import React from 'react';
 interface IState {
   currentUser?: IUser;
   plugins?;
+  isLoadedLocale?: boolean;
   currentLanguage: string;
   isShownIndicator: boolean;
   isRemovingImport: boolean;
@@ -37,6 +38,7 @@ export class AppProvider extends React.Component<
     this.state = {
       currentUser: props.currentUser,
       currentLanguage,
+      isLoadedLocale: false,
       isShownIndicator: false,
       isRemovingImport: false,
 
@@ -93,8 +95,12 @@ export class AppProvider extends React.Component<
       .catch(() => console.log(`${currentLanguage} translation not found`))
       .then(json => {
         T.setTexts(json);
+        this.setState({ isLoadedLocale: true });
       })
-      .catch(e => console.log(e));
+      .catch(e => {
+        console.log(e);
+        this.setState({ isLoadedLocale: true });
+      });
   };
 
   changeLanguage = (languageCode): void => {
