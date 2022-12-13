@@ -43,6 +43,7 @@ jobs:
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' )
         run: |
           tar -cf locales.tar --directory=packages/core-ui/public/locales .
+          pwd
           ls -la
           aws s3 sync locales.tar s3://erxes-dev-plugins/locales.tar --delete
 
