@@ -51,6 +51,7 @@ export type IAssetTotalCountQueryResponse = {
 export type IAssetDetailQueryResponse = {
   assetDetail: IAsset;
   loading: boolean;
+  refetch: () => void;
 };
 export interface IAssetCategory {
   _id: string;
@@ -88,6 +89,7 @@ export interface IAsset {
   parent: IAsset;
   childAssetCount: number;
   vendor?: ICompany;
+  knowledgeData?:any;
 }
 
 export interface IAssetDoc {
