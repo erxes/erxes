@@ -18,6 +18,7 @@ on:
       - "packages/ui-segments/**"
       - "packages/ui-settings/**"
       - "packages/ui-team/**"
+      - "packages/ui-timeclock/**"
       - "packages/plugin-timeclock-ui/**"
       - ".github/workflows/plugin-timeclock-ui.yaml"
   pull_request:
@@ -37,6 +38,7 @@ on:
       - "packages/ui-segments/**"
       - "packages/ui-settings/**"
       - "packages/ui-team/**"
+      - "packages/ui-timeclock/**"
       - "packages/plugin-timeclock-ui/**"
       - ".github/workflows/plugin-timeclock-ui.yaml"
 
@@ -76,4 +78,4 @@ jobs:
           tar -cf build.tar --directory=packages/plugin-timeclock-ui/.erxes/dist .
           cp build.tar packages/plugin-timeclock-ui/.erxes/dist
           rm -rf packages/plugin-timeclock-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-timeclock-ui/.erxes/dist s3://erxes-timeclock-plugin/uis/plugin-timeclock-ui --delete
+          aws s3 sync packages/plugin-timeclock-ui/.erxes/dist s3://erxes-dev-plugins/uis/plugin-timeclock-ui --delete
