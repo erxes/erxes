@@ -2,6 +2,7 @@ import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { ICommonParams } from '../../../models/definitions/common';
 import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src/core';
+import { isInSegment } from '../../../utils';
 
 const generateFilter = (params: ICommonParams) => {
   const filter: any = {};
@@ -34,6 +35,21 @@ const assignmentQueries = {
       list,
       totalCount
     };
+  },
+  async checkAssignments(
+    _root,
+    params: { customerId: string; segmentIds: string[] },
+    { models, subdomain }: IContext
+  ) {
+    const { segmentIds } = params;
+    for (const segmentId in segmentIds) {
+      const data = await isInSegment(subdomain, segmentId, segmentId);
+
+      if (data.status !== 'success') {
+        // not all
+      }
+    }
+    // add voucher
   }
 };
 

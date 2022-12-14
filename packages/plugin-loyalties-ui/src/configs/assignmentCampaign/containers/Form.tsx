@@ -100,7 +100,7 @@ export default withProps<Props>(
       name: 'segmentDetailQuery',
       options: ({ queryParams }) => ({
         variables: {
-          _id: JSON.parse(queryParams.segmentIds)[0]
+          _id: JSON.parse(queryParams.segmentIds)
         }
       })
     })

@@ -1,5 +1,5 @@
 import { IModels } from './connectionResolver';
-import { sendProductsMessage } from './messageBroker';
+import { sendProductsMessage, sendSegmentsMessage } from './messageBroker';
 import { VOUCHER_STATUS } from './models/definitions/constants';
 
 interface IProductD {
@@ -229,4 +229,19 @@ export const confirmVoucherSale = async (
       await models.Vouchers.updateOne({ _id: rule.voucherId }, updateInfo);
     }
   }
+};
+
+export const isInSegment = async (
+  subdomain: string,
+  segmentId: string,
+  targetId: string
+) => {
+  const response = await sendSegmentsMessage({
+    subdomain,
+    action: 'isInSegment',
+    data: { segmentId, idToCheck: targetId },
+    isRPC: true
+  });
+
+  return response;
 };

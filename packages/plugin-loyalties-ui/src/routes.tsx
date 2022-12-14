@@ -69,6 +69,13 @@ const Award = asyncComponent(() =>
     /* webpackChunkName: "KnowledgeBase" */ './loyalties/lotteries/containers/Award'
   )
 );
+
+const Assignments = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "KnowledgeBase" */ './loyalties/assignments/containers/List'
+  )
+);
+
 const voucherCampaignList = ({ location, history }) => {
   return (
     <VoucherCampaigns
@@ -162,6 +169,15 @@ const scorelogs = ({ history, location }) => {
   );
 };
 
+const assignments = ({ location, history }) => {
+  return (
+    <Assignments
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
 const routes = () => {
   return (
     <>
@@ -204,7 +220,10 @@ const routes = () => {
       <Route path="/spins" component={spins} />
 
       <Route path="/donates" component={donates} />
+
       <Route path="/score" component={scorelogs} />
+
+      <Route path="/assignments" component={assignments} />
     </>
   );
 };
