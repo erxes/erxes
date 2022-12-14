@@ -19,7 +19,10 @@ export interface IDataLoaders {
   field: DataLoader<string, any>;
 }
 
-export function generateAllDataLoaders(models: IModels, subdomain: string): IDataLoaders {
+export function generateAllDataLoaders(
+  models: IModels,
+  subdomain: string
+): IDataLoaders {
   return {
     riskAssessment: riskAssessment(models),
     categories: categories(models),
