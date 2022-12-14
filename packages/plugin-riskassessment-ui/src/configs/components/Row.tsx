@@ -4,7 +4,14 @@ import { withProps } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { Button, FormControl, Icon, ModalTrigger, Tip, __ } from '@erxes/ui/src';
+import {
+  Button,
+  FormControl,
+  Icon,
+  ModalTrigger,
+  Tip,
+  __
+} from '@erxes/ui/src';
 import Form from '../containers/Form';
 import moment from 'moment';
 type Props = {

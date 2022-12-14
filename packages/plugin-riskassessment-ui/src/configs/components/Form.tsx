@@ -11,7 +11,10 @@ import {
   EmptyState
 } from '@erxes/ui/src';
 import { cardTypes } from '../../common/constants';
-import { SelectCustomFields, SelectWithRiskAssessment } from '../../common/utils';
+import {
+  SelectCustomFields,
+  SelectWithRiskAssessment
+} from '../../common/utils';
 import { Features, ListItem, Block } from '../../styles';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
@@ -59,7 +62,14 @@ class Form extends React.Component<Props, State> {
   }
 
   renderForm(formProps: IFormProps) {
-    const { cardType, boardId, pipelineId, stageId, customFieldId, configs } = this.state;
+    const {
+      cardType,
+      boardId,
+      pipelineId,
+      stageId,
+      customFieldId,
+      configs
+    } = this.state;
     const { renderButton, closeModal } = this.props;
     const { isSubmitted } = formProps;
 
@@ -141,7 +151,9 @@ class Form extends React.Component<Props, State> {
                     label="select risk assessment"
                     initialValue={field.riskAssessmentId}
                     onSelect={e => onChangeConfig(e, field)}
-                    ignoreIds={configs.map(config => config.riskAssessmentId).filter(id => id)}
+                    ignoreIds={configs
+                      .map(config => config.riskAssessmentId)
+                      .filter(id => id)}
                   />
                 </ListItem>
               ))

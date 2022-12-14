@@ -23,7 +23,13 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   list: RiskAssessmentsType[];
   totalCount: number;
-  refetch: ({ perPage, searchValue }: { perPage: number; searchValue: string }) => void;
+  refetch: ({
+    perPage,
+    searchValue
+  }: {
+    perPage: number;
+    searchValue: string;
+  }) => void;
 } & ICommonListProps &
   IRouterProps;
 
@@ -192,7 +198,11 @@ class ListComp extends React.Component<Props, IState> {
     );
 
     const leftActionBar = (
-      <HeaderDescription title="Risk Assessments" icon="/images/actions/25.svg" description="" />
+      <HeaderDescription
+        title="Risk Assessments"
+        icon="/images/actions/25.svg"
+        description=""
+      />
     );
 
     const updatedProps = {

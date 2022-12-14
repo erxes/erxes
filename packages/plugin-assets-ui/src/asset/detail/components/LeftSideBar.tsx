@@ -12,7 +12,7 @@ import Knowledge from './KnowledgeForm';
 type Props = {
   asset: IAsset;
   history: any;
-  refetchDetail:() => void
+  refetchDetail: () => void;
 };
 
 class LeftSidebar extends React.Component<Props> {
@@ -36,7 +36,10 @@ class LeftSidebar extends React.Component<Props> {
         </KnowledgeCard>
       );
 
-      data.contents = data.contents.map(content => ({ ...content, isTitleEntered: true }));
+      data.contents = data.contents.map(content => ({
+        ...content,
+        isTitleEntered: true
+      }));
 
       const content = props => {
         const updatedProps = {
@@ -62,7 +65,11 @@ class LeftSidebar extends React.Component<Props> {
 
     return (
       <Sidebar wide={true}>
-        <BasicInfo asset={asset} refetchQueries={refetchQueries} history={history} />
+        <BasicInfo
+          asset={asset}
+          refetchQueries={refetchQueries}
+          history={history}
+        />
         <Sidebar.Section>
           <ContainerBox gap={5} flexWrap={true}>
             {(knowledgeData || []).map(data => editKnowledgeForm(data))}

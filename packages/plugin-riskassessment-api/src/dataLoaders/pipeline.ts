@@ -3,7 +3,10 @@ import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
 import { sendCardsMessage } from '../messageBroker';
 
-export default function generateDataLoaderPipelines(models: IModels, subdomain: string) {
+export default function generateDataLoaderPipelines(
+  models: IModels,
+  subdomain: string
+) {
   return new DataLoader<string, any>(async (ids: readonly string[]) => {
     const result = await sendCardsMessage({
       subdomain,

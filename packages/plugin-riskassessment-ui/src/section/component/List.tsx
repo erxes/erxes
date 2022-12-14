@@ -1,5 +1,12 @@
 import { SectionBodyItem, __ } from '@erxes/ui/src';
-import { Box, Button, EmptyState, Icon, ModalTrigger, Tip } from '@erxes/ui/src/components';
+import {
+  Box,
+  Button,
+  EmptyState,
+  Icon,
+  ModalTrigger,
+  Tip
+} from '@erxes/ui/src/components';
 import React from 'react';
 import { ICardRiskAssements, RiskAssessmentsType } from '../../common/types';
 import { ColorBox, ProductName } from '../../styles';
@@ -27,11 +34,18 @@ function RiskAssessmentSection(props: Props) {
     riskAssessmentId?: string;
   }) => {
     return (
-      <RiskAssessmentForm {...props} closeModal={closeModal} riskAssessmentId={riskAssessmentId} />
+      <RiskAssessmentForm
+        {...props}
+        closeModal={closeModal}
+        riskAssessmentId={riskAssessmentId}
+      />
     );
   };
 
-  const renderFormModal = (trigger: React.ReactNode, riskAssessmentId?: string) => {
+  const renderFormModal = (
+    trigger: React.ReactNode,
+    riskAssessmentId?: string
+  ) => {
     return (
       <ModalTrigger
         size="lg"
@@ -56,7 +70,10 @@ function RiskAssessmentSection(props: Props) {
     );
   };
 
-  const renderSubmissionForm = (isSubmitted?: boolean, riskAssessmentId?: string) => {
+  const renderSubmissionForm = (
+    isSubmitted?: boolean,
+    riskAssessmentId?: string
+  ) => {
     const trigger = (
       <Button btnStyle="link">
         <Tip text={isSubmitted ? 'See Submitted Form' : 'Submission Form'}>
@@ -110,7 +127,10 @@ function RiskAssessmentSection(props: Props) {
             {
               <SectionBodyItem key={conformity.riskAssessmentId}>
                 {renderFormModal(
-                  renderItem(conformity.riskAssessment, conformity?.statusColor),
+                  renderItem(
+                    conformity.riskAssessment,
+                    conformity?.statusColor
+                  ),
                   conformity.riskAssessmentId
                 )}
               </SectionBodyItem>
@@ -136,7 +156,10 @@ function RiskAssessmentSection(props: Props) {
               </SectionBodyItem>
             ))
           ) : (
-            <EmptyState icon="folder-2" text={`No risk assessment submission`} />
+            <EmptyState
+              icon="folder-2"
+              text={`No risk assessment submission`}
+            />
           )}
         </Box>
       )}

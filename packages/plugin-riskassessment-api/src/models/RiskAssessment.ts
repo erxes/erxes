@@ -4,14 +4,22 @@ import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { validRiskAssessment } from '../utils';
 import { IRiskAssessmentField, PaginateField } from './definitions/common';
-import { IRiskAssessmentDocument, riskAssessmentSchema } from './definitions/riskassessment';
+import {
+  IRiskAssessmentDocument,
+  riskAssessmentSchema
+} from './definitions/riskassessment';
 
 export interface IRiskAssessmentModel extends Model<IRiskAssessmentDocument> {
   riskAssessments(
     params: { categoryId: string } & IRiskAssessmentField & PaginateField
   ): Promise<IRiskAssessmentDocument>;
-  riskAssessmentDetail(params: { _id: string; fieldsSkip: any }): Promise<IRiskAssessmentDocument>;
-  riskAssesmentAdd(params: IRiskAssessmentField): Promise<IRiskAssessmentDocument>;
+  riskAssessmentDetail(params: {
+    _id: string;
+    fieldsSkip: any;
+  }): Promise<IRiskAssessmentDocument>;
+  riskAssesmentAdd(
+    params: IRiskAssessmentField
+  ): Promise<IRiskAssessmentDocument>;
   riskAssesmentRemove(_ids: string[]): void;
   riskAssessmentUpdate(params: {
     _id: string;
@@ -30,7 +38,11 @@ const statusColors = {
 };
 
 const generateFilter = (
-  params: { _id?: string; categoryId?: string; ignoreIds?: string[] } & IRiskAssessmentField &
+  params: {
+    _id?: string;
+    categoryId?: string;
+    ignoreIds?: string[];
+  } & IRiskAssessmentField &
     PaginateField
 ) => {
   let filter: any = {};
@@ -89,7 +101,11 @@ const generateOrderFilters = (params: IRiskAssessmentField & PaginateField) => {
 export const loadRiskAssessment = (model: IModels, subdomain: string) => {
   class RiskAssessment {
     public static async riskAssessments(
-      params: { categoryId: string; ignoreIds: string[] } & IRiskAssessmentField & PaginateField
+      params: {
+        categoryId: string;
+        ignoreIds: string[];
+      } & IRiskAssessmentField &
+        PaginateField
     ) {
       const lookup = {
         $lookup: {
@@ -104,7 +120,10 @@ export const loadRiskAssessment = (model: IModels, subdomain: string) => {
       const match = { $match: filter };
       const sort = { $sort: generateOrderFilters(params) };
       const set = { $unwind: '$category' };
-      const list = paginate(model.RiskAssessment.aggregate([match, lookup, set, sort]), params);
+      const list = paginate(
+        model.RiskAssessment.aggregate([match, lookup, set, sort]),
+        params
+      );
 
       const totalCount = model.RiskAssessment.find(filter).countDocuments();
 
@@ -139,7 +158,10 @@ export const loadRiskAssessment = (model: IModels, subdomain: string) => {
       }
     }
 
-    public static async riskAssessmentUpdate(params: { _id: string; doc: IRiskAssessmentField }) {
+    public static async riskAssessmentUpdate(params: {
+      _id: string;
+      doc: IRiskAssessmentField;
+    }) {
       const { _id, doc } = params;
 
       if (!_id && !doc) {
@@ -153,7 +175,10 @@ export const loadRiskAssessment = (model: IModels, subdomain: string) => {
       return result;
     }
 
-    public static async riskAssessmentDetail(params: { _id: string; fieldsSkip: any }) {
+    public static async riskAssessmentDetail(params: {
+      _id: string;
+      fieldsSkip: any;
+    }) {
       const filter = generateFilter(params);
       const { fieldsSkip } = params;
       if (!filter._id) {

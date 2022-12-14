@@ -52,7 +52,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
         .limit(1);
 
       if (config) {
-        const customField = config.configs.find(item => item.value === data.value);
+        const customField = config.configs.find(
+          item => item.value === data.value
+        );
         if (customField) {
           const conformity = {
             cardId: _id,

@@ -15,7 +15,11 @@ import {
 } from '@erxes/ui/src';
 import { IFormProps } from '@erxes/ui/src/types';
 import { ContainerBox, MovementTableWrapper, RemoveRow } from '../../../style';
-import { FormColumn, FormWrapper, ModalFooter } from '@erxes/ui/src/styles/main';
+import {
+  FormColumn,
+  FormWrapper,
+  ModalFooter
+} from '@erxes/ui/src/styles/main';
 import { EditorWrapper } from '@erxes/ui-internalnotes/src/components/Form';
 import EditorCK from '@erxes/ui/src/components/EditorCK';
 import { mutations, queries } from '../../graphql';
@@ -64,7 +68,12 @@ class Knowledge extends React.Component<Props, State> {
         ...knowledgeData,
         contents: [
           ...(knowledgeData?.contents || []),
-          { _id: String(Math.random()), content: '', title: '', isTitleEntered: false }
+          {
+            _id: String(Math.random()),
+            content: '',
+            title: '',
+            isTitleEntered: false
+          }
         ]
       }
     }));
@@ -96,7 +105,9 @@ class Knowledge extends React.Component<Props, State> {
     };
 
     const removeItem = () => {
-      const removedActiveItemIds = currentActiveItems.filter(id => id !== content._id);
+      const removedActiveItemIds = currentActiveItems.filter(
+        id => id !== content._id
+      );
       const removeContents = knowledgeData?.contents.filter(
         c => c._id !== content._id
       );
@@ -121,10 +132,14 @@ class Knowledge extends React.Component<Props, State> {
     const handleActve = () => {
       if (currentActiveItems.includes(content._id)) {
         return this.setState({
-          currentActiveItems: currentActiveItems.filter(item => item !== content._id)
+          currentActiveItems: currentActiveItems.filter(
+            item => item !== content._id
+          )
         });
       }
-      this.setState({ currentActiveItems: [...currentActiveItems, content._id] });
+      this.setState({
+        currentActiveItems: [...currentActiveItems, content._id]
+      });
     };
 
     const handleEditorChange = e => {
@@ -222,7 +237,7 @@ class Knowledge extends React.Component<Props, State> {
   };
 
   removeKnowledge = () => {
-    const { assetId, knowledgeData, closeModal,refetchQueries } = this.props;
+    const { assetId, knowledgeData, closeModal, refetchQueries } = this.props;
     knowledgeData &&
       client
         .mutate({
@@ -289,7 +304,11 @@ class Knowledge extends React.Component<Props, State> {
         <ModalFooter>
           <Button btnStyle="simple">Cancel</Button>
           {this.props.knowledgeData && (
-            <Button btnStyle="danger" icon="minus-1" onClick={this.removeKnowledge}>
+            <Button
+              btnStyle="danger"
+              icon="minus-1"
+              onClick={this.removeKnowledge}
+            >
               Delete
             </Button>
           )}

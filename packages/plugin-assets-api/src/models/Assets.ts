@@ -17,10 +17,7 @@ export interface IAssetModel extends Model<IAssetDocument> {
   mergeAssets(assetIds: string[], assetFields: IAsset): Promise<IAssetDocument>;
   addKnowledge(assetId: string, doc: any): Promise<IAssetDocument>;
   updateKnowledge(assetId: string, doc: any): Promise<IAssetDocument>;
-  removeKnowledge(
-    assetId: string,
-    knowledgeId: any
-  ): Promise<IAssetDocument>;
+  removeKnowledge(assetId: string, knowledgeId: any): Promise<IAssetDocument>;
 }
 
 const knowledgeDataValidator = (assetId, doc) => {
@@ -31,7 +28,7 @@ const knowledgeDataValidator = (assetId, doc) => {
     throw new Error('You must provide a title');
   }
 
-  if(!doc.contents.length){
+  if (!doc.contents.length) {
     throw new Error('You must add at least one content');
   }
 
@@ -331,17 +328,12 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
       return 'updated';
     }
 
-    public static async removeKnowledge(
-      assetId: string,
-      knowledgeId: any
-    ) {
+    public static async removeKnowledge(assetId: string, knowledgeId: any) {
       if (!assetId) {
         throw new Error('You cannot remove a knowledge  without assetId');
       }
       if (!knowledgeId) {
-        throw new Error(
-          'You cannot remove a knowledge  without knowledgeId'
-        );
+        throw new Error('You cannot remove a knowledge  without knowledgeId');
       }
 
       return await models.Assets.updateOne(

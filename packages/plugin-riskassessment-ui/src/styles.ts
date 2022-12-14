@@ -73,9 +73,11 @@ export const ContentWrapper = styled.div`
   }
 `;
 
-export const Padding = styledTS<{ horizontal?: boolean; vertical?: boolean; padding?: string }>(
-  styled.div
-)`
+export const Padding = styledTS<{
+  horizontal?: boolean;
+  vertical?: boolean;
+  padding?: string;
+}>(styled.div)`
   padding: ${({ horizontal, vertical, padding }) =>
     !horizontal && !vertical
       ? '10px'
@@ -96,10 +98,11 @@ export const FormContainer = styledTS<{
 }>(styled.div)`
   display: flex;
   flex-wrap: wrap;
-  flex-direction: ${({ row }) => row && 'row'} ${({ column }) => column && 'column'};
-  justify-content: ${({ spaceBetween }) => (spaceBetween ? 'space-between' : '')} ${({
-  spaceAround
-}) => (spaceAround ? 'space-around' : '')};
+  flex-direction: ${({ row }) => row && 'row'} ${({ column }) =>
+  column && 'column'};
+  justify-content: ${({ spaceBetween }) =>
+    spaceBetween ? 'space-between' : ''} ${({ spaceAround }) =>
+  spaceAround ? 'space-around' : ''};
   gap: ${({ gap }) => (gap ? '25px' : '')};
   gap: ${({ gapBetween }) => (gapBetween ? `${gapBetween}px` : '')};
   place-items:${({ align }) => (align ? align : '')};
@@ -140,7 +143,9 @@ export const ClearableBtn = styled.a`
   cursor: pointer;
 `;
 
-export const ProductName = styledTS<{ pointer?: boolean; underline?: boolean }>(styled.a)`
+export const ProductName = styledTS<{ pointer?: boolean; underline?: boolean }>(
+  styled.a
+)`
   cursor: pointer;
   color: ${colors.textSecondary};
   display: flex;

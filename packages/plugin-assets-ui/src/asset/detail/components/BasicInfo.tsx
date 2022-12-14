@@ -109,7 +109,7 @@ class BasicInfo extends React.Component<Props> {
     const { asset, history } = this.props;
 
     const editForm = props => <AssetForm {...props} asset={asset} />;
-    const addKnowledge = props => <Knowledge {...props} assetId={asset._id}/>;
+    const addKnowledge = props => <Knowledge {...props} assetId={asset._id} />;
     const {
       code,
       name,
@@ -164,10 +164,17 @@ class BasicInfo extends React.Component<Props> {
           {this.renderView('Code', code)}
           {this.renderView('Type', type)}
           {this.renderView('Category', category ? category.name : '')}
-          {this.renderView('Parent', parent ? parent.name : '', parent && changeAssetDetail())}
+          {this.renderView(
+            'Parent',
+            parent ? parent.name : '',
+            parent && changeAssetDetail()
+          )}
           {this.renderView('Unit price', (unitPrice || 0).toLocaleString())}
           {this.renderVendor(vendor)}
-          {this.renderView('Create At', moment(createdAt).format('YYYY-MM-DD HH:mm'))}
+          {this.renderView(
+            'Create At',
+            moment(createdAt).format('YYYY-MM-DD HH:mm')
+          )}
           <SidebarFlexRow>{__(`Description`)}</SidebarFlexRow>
         </SidebarList>
         <AssetContent

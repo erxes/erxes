@@ -89,7 +89,7 @@ export interface IAsset {
   parent: IAsset;
   childAssetCount: number;
   vendor?: ICompany;
-  knowledgeData?:any;
+  knowledgeData?: any;
 }
 
 export interface IAssetDoc {

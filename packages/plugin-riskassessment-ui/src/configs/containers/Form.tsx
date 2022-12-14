@@ -21,7 +21,13 @@ class Form extends React.Component<Props> {
     super(props);
   }
   render() {
-    const renderButton = ({ text, values, isSubmitted, callback, object }: IButtonMutateProps) => {
+    const renderButton = ({
+      text,
+      values,
+      isSubmitted,
+      callback,
+      object
+    }: IButtonMutateProps) => {
       return (
         <ButtonMutate
           mutation={object ? mutations.updateConfig : mutations.addConfig}
@@ -31,7 +37,9 @@ class Form extends React.Component<Props> {
           isSubmitted={isSubmitted}
           type="submit"
           uppercase={false}
-          successMessage={`You successfully ${object ? 'updated' : 'added'} a ${text}`}
+          successMessage={`You successfully ${
+            object ? 'updated' : 'added'
+          } a ${text}`}
         />
       );
     };

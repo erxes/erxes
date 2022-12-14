@@ -11,6 +11,10 @@ export default {
     {},
     { dataLoaders }: IContext
   ) {
-    return (formSubmissionUser._id && dataLoaders.user.load(formSubmissionUser._id)) || null;
+    return (
+      (formSubmissionUser._id &&
+        dataLoaders.user.load(formSubmissionUser._id)) ||
+      null
+    );
   }
 };

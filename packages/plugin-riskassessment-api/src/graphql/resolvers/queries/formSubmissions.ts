@@ -12,10 +12,18 @@ const formSubmissionQueries = {
     }: { cardId: string; cardType: string; riskAssessmentId: string },
     { models }: IContext
   ) {
-    return models.RiksFormSubmissions.formSubmitHistory(cardId, cardType, riskAssessmentId);
+    return models.RiksFormSubmissions.formSubmitHistory(
+      cardId,
+      cardType,
+      riskAssessmentId
+    );
   }
 };
 
-checkPermission(formSubmissionQueries, 'formSubmissionQueries', 'showRiskAssessment');
+checkPermission(
+  formSubmissionQueries,
+  'formSubmissionQueries',
+  'showRiskAssessment'
+);
 
 export default formSubmissionQueries;

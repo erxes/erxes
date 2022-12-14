@@ -1,4 +1,12 @@
-import { Button, ButtonMutate, FormControl, Icon, ModalTrigger, Tip, __ } from '@erxes/ui/src';
+import {
+  Button,
+  ButtonMutate,
+  FormControl,
+  Icon,
+  ModalTrigger,
+  Tip,
+  __
+} from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import gql from 'graphql-tag';
 import moment from 'moment';
@@ -93,7 +101,10 @@ class TableRow extends React.Component<IProps> {
         </td>
         <td>{object.name}</td>
         <td>{object.category?.name || '-'}</td>
-        <Tip text={moment(object.createdAt).format('MM/DD/YYYY HH:mm')} placement="bottom">
+        <Tip
+          text={moment(object.createdAt).format('MM/DD/YYYY HH:mm')}
+          placement="bottom"
+        >
           <td>{moment(object.createdAt).fromNow()}</td>
         </Tip>
         <td onClick={onclick}>{renderDuplicateForm()}</td>

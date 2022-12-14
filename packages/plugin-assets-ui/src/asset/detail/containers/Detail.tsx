@@ -6,16 +6,13 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import {
-  IAsset,
-  IAssetDetailQueryResponse
-} from '../../../common/types';
+import { IAsset, IAssetDetailQueryResponse } from '../../../common/types';
 import { queries } from '../../graphql';
 import AssetDetails from '../components/Details';
 
 type Props = {
   id: string;
-  history:any
+  history: any;
 };
 
 type FinalProps = {
@@ -36,9 +33,9 @@ const AssetDetailContainer = (props: FinalProps) => {
 
   const assetDetail = assetDetailQuery.assetDetail || ({} as IAsset);
 
-  const refetchDetail = () =>{
+  const refetchDetail = () => {
     props.assetDetailQuery.refetch();
-  }
+  };
 
   const updatedProps = {
     ...props,

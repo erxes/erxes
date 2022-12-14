@@ -6,16 +6,41 @@ export default {
     return models.RiskAssessment.findOne({ _id });
   },
 
-  async board(config: IRiskAssessmentsConfigDocument, {}, { dataLoaders }: IContext) {
+  async board(
+    config: IRiskAssessmentsConfigDocument,
+    {},
+    { dataLoaders }: IContext
+  ) {
     return (config.boardId && dataLoaders.board.load(config.boardId)) || null;
   },
-  async pipeline(config: IRiskAssessmentsConfigDocument, {}, { dataLoaders }: IContext) {
-    return (config.pipelineId && dataLoaders.pipeline.load(config.pipelineId)) || null;
+
+  async pipeline(
+    config: IRiskAssessmentsConfigDocument,
+    {},
+    { dataLoaders }: IContext
+  ) {
+    return (
+      (config.pipelineId && dataLoaders.pipeline.load(config.pipelineId)) ||
+      null
+    );
   },
-  async stage(config: IRiskAssessmentsConfigDocument, {}, { dataLoaders }: IContext) {
+
+  async stage(
+    config: IRiskAssessmentsConfigDocument,
+    {},
+    { dataLoaders }: IContext
+  ) {
     return (config.stageId && dataLoaders.stage.load(config.stageId)) || null;
   },
-  async field(config: IRiskAssessmentsConfigDocument, {}, { dataLoaders }: IContext) {
-    return (config.customFieldId && dataLoaders.field.load(config.customFieldId)) || null;
+
+  async field(
+    config: IRiskAssessmentsConfigDocument,
+    {},
+    { dataLoaders }: IContext
+  ) {
+    return (
+      (config.customFieldId && dataLoaders.field.load(config.customFieldId)) ||
+      null
+    );
   }
 };

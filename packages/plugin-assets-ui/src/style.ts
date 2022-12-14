@@ -18,25 +18,31 @@ interface ContainerBoxType {
   marginX?: number;
   marginY?: number;
   rightBorder?: boolean;
-  flexWrap?:boolean;
+  flexWrap?: boolean;
 }
 
 export const ContainerBox = styledTS<ContainerBoxType>(styled.div)`
     display:flex;
-    flex-wrap:${({flexWrap})=>(flexWrap?'wrap':'')};
-    flex-direction:${({ row }) => (row ? 'row' : '')} ${({ column }) => (column ? 'column' : '')};
+    flex-wrap:${({ flexWrap }) => (flexWrap ? 'wrap' : '')};
+    flex-direction:${({ row }) => (row ? 'row' : '')} ${({ column }) =>
+  column ? 'column' : ''};
     gap: ${({ gap }) => (gap ? `${gap}px` : '')};
     place-items: ${({ align }) => (align ? `${align}` : '')};
     padding: ${({ horizontal, vertical }) =>
       horizontal && vertical
         ? '10px'
         : `${vertical ? '10px' : '0px'} ${horizontal ? '10px' : '0px'}`};
-    justify-content: ${({ spaceBetween }) => (spaceBetween ? 'space-between' : '')};
+    justify-content: ${({ spaceBetween }) =>
+      spaceBetween ? 'space-between' : ''};
     justify-content: ${({ justifyEnd }) => (justifyEnd ? 'end' : '')};
-    justify-content: ${({ justifyCenter }) => (justifyCenter ? 'center  ' : '')};
+    justify-content: ${({ justifyCenter }) =>
+      justifyCenter ? 'center  ' : ''};
     margin:${({ marginX, marginY }) =>
-      `${marginX ? `${marginX}px` : '0px'} margin${marginY ? `${marginY}px` : '0px'}`};
-    border-right:${({ rightBorder }) => (rightBorder ? '1px solid ${colors.borderPrimary}' : '')};
+      `${marginX ? `${marginX}px` : '0px'} margin${
+        marginY ? `${marginY}px` : '0px'
+      }`};
+    border-right:${({ rightBorder }) =>
+      rightBorder ? '1px solid ${colors.borderPrimary}' : ''};
 `;
 
 export const InfoDetail = styled.p`
@@ -226,7 +232,9 @@ export const MovementItemInfoContainer = styled.div`
   padding-top: 16px;
 `;
 
-export const MovementItemConfigContainer = styledTS<{ flex?: string }>(styled.div)`
+export const MovementItemConfigContainer = styledTS<{ flex?: string }>(
+  styled.div
+)`
   flex: ${props => (props.flex ? props.flex : '1')};
   margin-right: 10px;
 

@@ -63,7 +63,10 @@ const riskAssessmentFieldsConfigsSchema = new Schema({
   _id: field({ pkey: true }),
   value: field({ type: String, label: 'Field Value' }),
   label: field({ type: String, label: 'Field Label' }),
-  riskAssessmentId: field({ type: String, label: 'Field Config Risk assessment ID' })
+  riskAssessmentId: field({
+    type: String,
+    label: 'Field Config Risk assessment ID'
+  })
 });
 
 export const riskAssessmentConfigsSchema = new Schema({
@@ -73,7 +76,10 @@ export const riskAssessmentConfigsSchema = new Schema({
   pipelineId: field({ type: String, label: 'Pipeline Id' }),
   stageId: field({ type: String, label: 'Stage Id', optional: true }),
   customFieldId: field({ type: String, label: 'Custom Field Id' }),
-  configs: field({ type: [riskAssessmentFieldsConfigsSchema], label: 'Custom Field Config' }),
+  configs: field({
+    type: [riskAssessmentFieldsConfigsSchema],
+    label: 'Custom Field Config'
+  }),
   createdAt: field({ type: Date, label: 'Created At', default: new Date() }),
   modifiedAt: field({ type: Date, label: 'Modified At', default: new Date() })
 });

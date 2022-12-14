@@ -3,7 +3,10 @@ import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
 import { sendFormsMessage } from '../messageBroker';
 
-export default function generateDataLoaderField(models: IModels, subdomain: string) {
+export default function generateDataLoaderField(
+  models: IModels,
+  subdomain: string
+) {
   return new DataLoader<string, any>(async (ids: readonly string[]) => {
     const result = await sendFormsMessage({
       subdomain,

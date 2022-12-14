@@ -21,4 +21,3 @@ export const assetParams = `
   assetCount: Int,
   vendorId: String,
 `;
-

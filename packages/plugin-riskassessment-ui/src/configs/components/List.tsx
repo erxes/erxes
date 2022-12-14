@@ -77,7 +77,9 @@ class List extends React.Component<Props, State> {
 
     const selectItem = id => {
       if (selectedItems.includes(id)) {
-        const removedSelectedItems = selectedItems.filter(selectItem => selectItem !== id);
+        const removedSelectedItems = selectedItems.filter(
+          selectItem => selectItem !== id
+        );
         return this.setState({ selectedItems: removedSelectedItems });
       }
       this.setState({ selectedItems: [...selectedItems, id] });
@@ -138,7 +140,12 @@ class List extends React.Component<Props, State> {
     const handleFilterParams = (type, value) => {
       if (!value) {
         if (type === 'cardType') {
-          for (const param of ['cardType', 'boardId', 'pipelineId', 'stageId']) {
+          for (const param of [
+            'cardType',
+            'boardId',
+            'pipelineId',
+            'stageId'
+          ]) {
             removeParams(this.props.history, param);
           }
           return;
@@ -149,7 +156,10 @@ class List extends React.Component<Props, State> {
     };
 
     const sidebar = (
-      <Sidebar full header={<SidebarHeader>{__('Addition Filters')}</SidebarHeader>}>
+      <Sidebar
+        full
+        header={<SidebarHeader>{__('Addition Filters')}</SidebarHeader>}
+      >
         <Padding horizontal>
           <FormGroup>
             <ControlLabel>{__('Type')}</ControlLabel>

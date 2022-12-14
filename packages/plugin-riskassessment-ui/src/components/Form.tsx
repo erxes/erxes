@@ -3,7 +3,12 @@ import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { Button, FormGroup, Spinner, Tip, __ } from '@erxes/ui/src';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { ColorPick, ColorPicker, FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
+import {
+  ColorPick,
+  ColorPicker,
+  FormColumn,
+  FormWrapper
+} from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -46,7 +51,9 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     super(props);
 
     this.state = {
-      riskAssessment: props.assessmentDetail || { categoryId: props.categoryId || '' }
+      riskAssessment: props.assessmentDetail || {
+        categoryId: props.categoryId || ''
+      }
     };
 
     this.generateDoc = this.generateDoc.bind(this);
@@ -76,7 +83,10 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     return { ...values, ...riskAssessment };
   }
 
-  renderLogic({ _id, name, logic, value, value2, color }: RiskCalculateLogicType, formProps) {
+  renderLogic(
+    { _id, name, logic, value, value2, color }: RiskCalculateLogicType,
+    formProps
+  ) {
     const handleRow = e => {
       const { riskAssessment } = this.state;
       const { name, value } = e.currentTarget as HTMLInputElement;
@@ -86,7 +96,9 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
           logic._id === _id
             ? {
                 ...logic,
-                [name]: ['value', 'value2'].includes(name) ? parseInt(value) : value
+                [name]: ['value', 'value2'].includes(name)
+                  ? parseInt(value)
+                  : value
               }
             : logic
         );
@@ -175,11 +187,13 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             onChange={handleRow}
           >
             <option />
-            {['(>) greater than', '(<) lower than', '(≈) between'].map(value => (
-              <option value={value} key={value}>
-                {value}
-              </option>
-            ))}
+            {['(>) greater than', '(<) lower than', '(≈) between'].map(
+              value => (
+                <option value={value} key={value}>
+                  {value}
+                </option>
+              )
+            )}
           </FormControl>
         </FormColumn>
         <FormColumn>
@@ -225,7 +239,9 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
 
     return (
       riskAssessment.calculateLogics &&
-      riskAssessment.calculateLogics.map(logic => this.renderLogic(logic, formProps))
+      riskAssessment.calculateLogics.map(logic =>
+        this.renderLogic(logic, formProps)
+      )
     );
   }
 
@@ -248,7 +264,10 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
       this.setState(prev => ({
         riskAssessment: {
           ...prev.riskAssessment,
-          calculateLogics: [...(prev.riskAssessment.calculateLogics || []), variables]
+          calculateLogics: [
+            ...(prev.riskAssessment.calculateLogics || []),
+            variables
+          ]
         }
       }));
     };

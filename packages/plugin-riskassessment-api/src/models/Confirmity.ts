@@ -1,19 +1,41 @@
 import { paginate } from '@erxes/api-utils/src';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { sendCardsMessage, sendCoreMessage, sendFormsMessage } from '../messageBroker';
+import {
+  sendCardsMessage,
+  sendCoreMessage,
+  sendFormsMessage
+} from '../messageBroker';
 import { calculateRiskAssessment } from '../utils';
-import { IRiskConformityField, IRiskConformityParams } from './definitions/common';
-import { IRiskConformityDocument, riskConformitySchema } from './definitions/confimity';
+import {
+  IRiskConformityField,
+  IRiskConformityParams
+} from './definitions/common';
+import {
+  IRiskConformityDocument,
+  riskConformitySchema
+} from './definitions/confimity';
 
 export interface IRiskConformityModel extends Model<IRiskConformityDocument> {
-  riskConformity(params: IRiskConformityParams): Promise<IRiskConformityDocument>;
-  riskConformities(params: IRiskConformityParams): Promise<IRiskConformityDocument>;
+  riskConformity(
+    params: IRiskConformityParams
+  ): Promise<IRiskConformityDocument>;
+  riskConformities(
+    params: IRiskConformityParams
+  ): Promise<IRiskConformityDocument>;
   riskConformitiesTotalCount(params: IRiskConformityParams): Number;
-  riskConformitySubmissions(params: { cardId: string }): Promise<IRiskConformityDocument>;
-  riskConformityDetails(params: IRiskConformityParams): Promise<IRiskConformityDocument>;
-  riskConformityAdd(params: IRiskConformityField): Promise<IRiskConformityDocument>;
-  riskConformityUpdate(params: IRiskConformityParams): Promise<IRiskConformityDocument>;
+  riskConformitySubmissions(params: {
+    cardId: string;
+  }): Promise<IRiskConformityDocument>;
+  riskConformityDetails(
+    params: IRiskConformityParams
+  ): Promise<IRiskConformityDocument>;
+  riskConformityAdd(
+    params: IRiskConformityField
+  ): Promise<IRiskConformityDocument>;
+  riskConformityUpdate(
+    params: IRiskConformityParams
+  ): Promise<IRiskConformityDocument>;
   riskConformityRemove(cardId: string): Promise<IRiskConformityDocument>;
   riskConformityFormDetail(params): any;
 }
@@ -167,7 +189,9 @@ export const loadRiskConformity = (model: IModels, subdomain: string) => {
           cardId: cardId,
           formId
         });
-        const submittedUsersIds = [...new Set(submittedUsers.map(user => user.userId))];
+        const submittedUsersIds = [
+          ...new Set(submittedUsers.map(user => user.userId))
+        ];
         return assignedUsers.filter(user =>
           submittedUsersIds.some(submission => submission === user._id)
         );

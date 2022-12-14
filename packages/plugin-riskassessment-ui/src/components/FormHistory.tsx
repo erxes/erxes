@@ -49,7 +49,9 @@ class FormHistory extends React.Component<Props, State> {
           return (
             <CollapseContent
               key={field?.fieldId}
-              beforeTitle={<ControlLabel>{`${field?.text}: ${field?.value}`}</ControlLabel>}
+              beforeTitle={
+                <ControlLabel>{`${field?.text}: ${field?.value}`}</ControlLabel>
+              }
               title={''}
               compact
             >
@@ -101,8 +103,12 @@ class FormHistory extends React.Component<Props, State> {
     return (
       <>
         <FormContainer column gap>
-          <ControlLabel>{__(`Risk Assessment Name: ${riskAssessment.name || ''}`)}</ControlLabel>
-          <ControlLabel>{__(`${cardType} Name: ${card.name || ''}`)}</ControlLabel>
+          <ControlLabel>
+            {__(`Risk Assessment Name: ${riskAssessment.name || ''}`)}
+          </ControlLabel>
+          <ControlLabel>
+            {__(`${cardType} Name: ${card.name || ''}`)}
+          </ControlLabel>
         </FormContainer>
         {this.renderUsersSubmit()}
       </>

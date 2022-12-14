@@ -5,7 +5,8 @@ import {
   IRiskAssessmentsConfigDocument,
   riskAssessmentConfigsSchema
 } from './definitions/riskassessment';
-export interface IRiskAssessmentsConfigModel extends Model<IRiskAssessmentsConfigDocument> {
+export interface IRiskAssessmentsConfigModel
+  extends Model<IRiskAssessmentsConfigDocument> {
   addConfig(doc): Promise<IRiskAssessmentsConfigDocument>;
   updateConfig(_id, doc): Promise<IRiskAssessmentsConfigDocument>;
   removeConfigs(ids: string[]): Promise<IRiskAssessmentsConfigDocument>;
@@ -19,7 +20,9 @@ const validDoc = doc => {
     throw new Error(`Cannot add risk assessment config without a pipelineId`);
   }
   if (!doc.customFieldId) {
-    throw new Error(`Cannot add risk assessment config without select any a custom field`);
+    throw new Error(
+      `Cannot add risk assessment config without select any a custom field`
+    );
   }
   if (!doc.configs.some(config => config.riskAssessmentId)) {
     throw new Error(
@@ -28,7 +31,10 @@ const validDoc = doc => {
   }
 };
 
-export const loadRiskAssessmentConfig = (models: IModels, subdomain: string) => {
+export const loadRiskAssessmentConfig = (
+  models: IModels,
+  subdomain: string
+) => {
   class RiskAssessmentConfigsClass {
     public static async addConfig(doc) {
       try {
@@ -47,7 +53,9 @@ export const loadRiskAssessmentConfig = (models: IModels, subdomain: string) => 
         throw new Error(e.message);
       }
       if (!_id) {
-        throw new Error('Cannot update risk assessment configuration without id');
+        throw new Error(
+          'Cannot update risk assessment configuration without id'
+        );
       }
 
       return models.RiskAssessmentConfigs.findByIdAndUpdate(_id, {
@@ -56,7 +64,9 @@ export const loadRiskAssessmentConfig = (models: IModels, subdomain: string) => 
       });
     }
     public static async removeConfigs(ids: string[]) {
-      return await models.RiskAssessmentConfigs.deleteMany({ _id: { $in: ids } });
+      return await models.RiskAssessmentConfigs.deleteMany({
+        _id: { $in: ids }
+      });
     }
   }
 

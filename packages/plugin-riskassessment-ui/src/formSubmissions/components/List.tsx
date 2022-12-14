@@ -14,7 +14,11 @@ import {
 } from '@erxes/ui/src';
 import React from 'react';
 import { DefaultWrapper, SelectWithRiskAssessment } from '../../common/utils';
-import { cardTypes, statusColorConstant, subMenu } from '../../common/constants';
+import {
+  cardTypes,
+  statusColorConstant,
+  subMenu
+} from '../../common/constants';
 import Row from './Row';
 import { setParams } from '@erxes/ui/src/utils/router';
 import { DateContainer } from '@erxes/ui/src/styles/main';
@@ -93,7 +97,9 @@ class List extends React.Component<Props> {
     };
 
     const dateOrder = (value, name) => {
-      router.setParams(this.props.history, { [name]: new Date(value).valueOf() });
+      router.setParams(this.props.history, {
+        [name]: new Date(value).valueOf()
+      });
     };
     const onChangeCardType = e => {
       router.setParams(this.props.history, { cardType: e.value });
@@ -124,9 +130,16 @@ class List extends React.Component<Props> {
     };
 
     const sidebar = (
-      <Sidebar full header={<SidebarHeader>{__('Additional Filter')}</SidebarHeader>}>
+      <Sidebar
+        full
+        header={<SidebarHeader>{__('Additional Filter')}</SidebarHeader>}
+      >
         <Padding>
-          <CustomForm label="Card type" field={'cardType'} clearable={!!queryParams?.cardType}>
+          <CustomForm
+            label="Card type"
+            field={'cardType'}
+            clearable={!!queryParams?.cardType}
+          >
             <Select
               placeholder={__('Select Type')}
               value={queryParams?.cardType}
@@ -147,7 +160,11 @@ class List extends React.Component<Props> {
               onSelect={handleRiskAssessment}
             />
           </CustomForm>
-          <CustomForm label="Status" field={'status'} clearable={!!queryParams.status}>
+          <CustomForm
+            label="Status"
+            field={'status'}
+            clearable={!!queryParams.status}
+          >
             <Container row>
               {statusColorConstant.map(status => (
                 <StatusBox
@@ -195,7 +212,11 @@ class List extends React.Component<Props> {
     );
 
     const leftActionBar = (
-      <HeaderDescription title="Form Submissions" icon="/images/actions/25.svg" description="" />
+      <HeaderDescription
+        title="Form Submissions"
+        icon="/images/actions/25.svg"
+        description=""
+      />
     );
 
     const updatedProps = {

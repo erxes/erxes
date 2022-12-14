@@ -36,7 +36,12 @@ class Row extends React.Component<Props> {
       );
 
       return (
-        <ModalTrigger title="Form Submit History" content={content} trigger={trigger} size="lg" />
+        <ModalTrigger
+          title="Form Submit History"
+          content={content}
+          trigger={trigger}
+          size="lg"
+        />
       );
     };
 
@@ -48,9 +53,15 @@ class Row extends React.Component<Props> {
         <td>
           <Badge color={item.statusColor}>{__(item.status)}</Badge>
         </td>
-        <td>{item.status !== 'In Progress' ? __(item.resultScore?.toString() || '') : '-'}</td>
+        <td>
+          {item.status !== 'In Progress'
+            ? __(item.resultScore?.toString() || '')
+            : '-'}
+        </td>
         <td>{moment(item.createdAt).fromNow()}</td>
-        <td>{item.status !== 'In Progress' && renderFormSubmitHistory(item)}</td>
+        <td>
+          {item.status !== 'In Progress' && renderFormSubmitHistory(item)}
+        </td>
       </tr>
     );
   }

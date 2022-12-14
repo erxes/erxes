@@ -80,7 +80,9 @@ class AssessmentCategories extends React.Component<Props, State> {
     );
 
     const content = ({ closeModal }) => {
-      return <FormContainer refetch={this.props.refetch} closeModal={closeModal} />;
+      return (
+        <FormContainer refetch={this.props.refetch} closeModal={closeModal} />
+      );
     };
 
     return (
@@ -111,7 +113,10 @@ class AssessmentCategories extends React.Component<Props, State> {
     const { categories, queryParams } = this.props;
 
     return categories.map(category => (
-      <SidebarListItem key={category._id} isActive={queryParams.categoryId === category._id}>
+      <SidebarListItem
+        key={category._id}
+        isActive={queryParams.categoryId === category._id}
+      >
         <Link to={`?categoryId=${category._id}`}>
           {category.parentId && subOption(category)}
           {category.name}
@@ -230,7 +235,12 @@ class AssessmentCategories extends React.Component<Props, State> {
   render() {
     return (
       <Sidebar wide={true} hasBorder={true}>
-        <Section maxHeight={500} collapsible={this.props.totalCount > 9} noMargin noShadow>
+        <Section
+          maxHeight={500}
+          collapsible={this.props.totalCount > 9}
+          noMargin
+          noShadow
+        >
           {this.rightActionBar}
           {this.renderCategoriesFilter()}
           {this.renderCategories()}

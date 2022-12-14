@@ -7,14 +7,22 @@ export default {
     return models.RiskAssessment.findOne({ _id });
   },
 
-  async riskAssessment(riskConformity: IRiskConformityDocument, {}, { dataLoaders }: IContext) {
+  async riskAssessment(
+    riskConformity: IRiskConformityDocument,
+    {},
+    { dataLoaders }: IContext
+  ) {
     return (
       (riskConformity.riskAssessmentId &&
         dataLoaders.riskAssessment.load(riskConformity.riskAssessmentId)) ||
       null
     );
   },
-  async card(riskConformity: IRiskConformityDocument, {}, { subdomain }: IContext) {
+  async card(
+    riskConformity: IRiskConformityDocument,
+    {},
+    { subdomain }: IContext
+  ) {
     if (riskConformity.cardId) {
       const [cardDetail] = await sendCardsMessage({
         subdomain,

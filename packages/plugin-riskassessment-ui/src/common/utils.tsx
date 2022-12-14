@@ -13,7 +13,11 @@ import React from 'react';
 import { queries as categoryQueries } from '../categories/graphql';
 import { queries as riskAssessmentQueries } from '../graphql';
 import { FormGroupRow } from '../styles';
-import { CustomFormGroupProps, RiskAssessmentCategory, RiskAssessmentsType } from './types';
+import {
+  CustomFormGroupProps,
+  RiskAssessmentCategory,
+  RiskAssessmentsType
+} from './types';
 import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
 import gql from 'graphql-tag';
@@ -50,7 +54,9 @@ export const DefaultWrapper = ({
   return (
     <Wrapper
       header={<Wrapper.Header title={title} submenu={subMenu} />}
-      actionBar={<Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />}
+      actionBar={
+        <Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />
+      }
       content={
         <DataWithLoader
           loading={loading || false}
@@ -113,7 +119,9 @@ export const SelectWithCategory = ({
 }) => {
   const defaultValue = queryParams ? queryParams[name] : initialValue;
 
-  const generateCategoryOptions = (array: RiskAssessmentCategory[] = []): IOption[] => {
+  const generateCategoryOptions = (
+    array: RiskAssessmentCategory[] = []
+  ): IOption[] => {
     let list: any[] = [];
     for (const item of array) {
       const category = item || ({} as RiskAssessmentCategory);
@@ -143,7 +151,9 @@ export const SelectWithCategory = ({
       generateOptions={generateCategoryOptions}
       onSelect={onSelect}
       customQuery={categoryQueries.listAssessmentCategories}
-      customOption={customOption ? customOption : { value: '', label: 'Choose a Category' }}
+      customOption={
+        customOption ? customOption : { value: '', label: 'Choose a Category' }
+      }
       multi={multi}
     />
   );
@@ -214,7 +224,15 @@ type SelectCustomFieldProps = {
   name: string;
   initialValue: string;
   customOption?: IOption;
-  onSelect: ({ value, label, _id }: { value: any[] | string; label: string; _id: string }) => void;
+  onSelect: ({
+    value,
+    label,
+    _id
+  }: {
+    value: any[] | string;
+    label: string;
+    _id: string;
+  }) => void;
   type?: string;
 };
 
@@ -222,7 +240,9 @@ type SelectCustomFieldFinalProps = {
   fields: any;
 } & SelectCustomFieldProps;
 
-class SelectCustomFieldsComponent extends React.Component<SelectCustomFieldFinalProps> {
+class SelectCustomFieldsComponent extends React.Component<
+  SelectCustomFieldFinalProps
+> {
   constructor(props) {
     super(props);
   }
@@ -252,7 +272,10 @@ class SelectCustomFieldsComponent extends React.Component<SelectCustomFieldFinal
     };
 
     const defaultValue = !!initialValue
-      ? options.find(option => option.name.replace('customFieldsData.', '') === initialValue)
+      ? options.find(
+          option =>
+            option.name.replace('customFieldsData.', '') === initialValue
+        )
       : null;
 
     return (
@@ -269,14 +292,17 @@ class SelectCustomFieldsComponent extends React.Component<SelectCustomFieldFinal
 
 export const SelectCustomFields = withProps<SelectCustomFieldProps>(
   compose(
-    graphql<SelectCustomFieldProps>(gql(formQueries.fieldsCombinedByContentType), {
-      name: 'fields',
-      skip: ({ type }) => !type,
-      options: ({ type }) => ({
-        variables: {
-          contentType: `cards:${type}`
-        }
-      })
-    })
+    graphql<SelectCustomFieldProps>(
+      gql(formQueries.fieldsCombinedByContentType),
+      {
+        name: 'fields',
+        skip: ({ type }) => !type,
+        options: ({ type }) => ({
+          variables: {
+            contentType: `cards:${type}`
+          }
+        })
+      }
+    )
   )(SelectCustomFieldsComponent)
 );
