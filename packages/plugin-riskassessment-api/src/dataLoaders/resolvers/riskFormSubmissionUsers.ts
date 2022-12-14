@@ -1,4 +1,3 @@
-import { IRiskConfirmityDocument } from '../../models/definitions/confimity';
 import { IContext } from '../../connectionResolver';
 import { ExecFileOptionsWithStringEncoding } from 'child_process';
 

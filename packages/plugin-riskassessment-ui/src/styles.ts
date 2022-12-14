@@ -4,6 +4,7 @@ import { rgba } from '@erxes/ui/src/styles/ecolor';
 import { BoxRoot } from '@erxes/ui/src/styles/main';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
+import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 
 export const GridContainer = styledTS<{
   horizontal?: boolean;
@@ -72,11 +73,15 @@ export const ContentWrapper = styled.div`
   }
 `;
 
-export const Padding = styledTS<{ horizontal?: boolean; vertical?: boolean }>(styled.div)`
-  padding: ${({ horizontal, vertical }) =>
+export const Padding = styledTS<{ horizontal?: boolean; vertical?: boolean; padding?: string }>(
+  styled.div
+)`
+  padding: ${({ horizontal, vertical, padding }) =>
     !horizontal && !vertical
       ? '10px'
-      : `${horizontal ? '10px' : '0px'} ${vertical ? '10px' : '0px'}`}
+      : `${vertical ? (padding ? `${padding}px` : '10px') : '0px'} ${
+          horizontal ? (padding ? `${padding}px` : '10px') : '0px'
+        }`}
 `;
 
 export const FormContainer = styledTS<{
@@ -90,6 +95,7 @@ export const FormContainer = styledTS<{
   justifyCenter?: boolean;
 }>(styled.div)`
   display: flex;
+  flex-wrap: wrap;
   flex-direction: ${({ row }) => row && 'row'} ${({ column }) => column && 'column'};
   justify-content: ${({ spaceBetween }) => (spaceBetween ? 'space-between' : '')} ${({
   spaceAround
@@ -186,6 +192,7 @@ export const ColorButton = styledTS<{ color?: string }>(styled.div)`
 `;
 export const Box = styled(BoxRoot)`
   flex: 1;
+  min-width: 80px;
   padding: ${dimensions.unitSpacing}px;
   text-align: center;
   background: ${colors.colorWhite};
@@ -284,4 +291,70 @@ export const Divider = styled.div`
     align-self: center;
     border-bottom: 1px solid ${colors.borderPrimary};
   }
+`;
+export const Features = styledTS<{ isToggled: boolean }>(styled.span)`
+  transition: all ease .3s;
+  filter: ${props => !props.isToggled && `blur(4px)`};
+  pointer-events: ${props => !props.isToggled && `none`};
+`;
+
+export const ListItem = styledTS<{
+  column?: number;
+}>(styled.div)`
+  background: ${colors.colorWhite};
+  padding: 5px;
+  margin-bottom: 10px;
+  border-left: 2px solid transparent; 
+  border-top: none;
+  border-radius: 4px;
+  box-shadow: none;
+  left: auto;
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  &:hover {
+    box-shadow: 0 2px 8px ${colors.shadowPrimary};
+    border-color: ${colors.colorSecondary};
+    border-top: none;
+  }
+  ${props =>
+    props.column &&
+    css`
+      width: ${100 / props.column}%;
+      display: inline-block;
+    `}
+`;
+
+export const Block = styled.div`
+  border-bottom: 1px dashed ${colors.borderPrimary};
+  margin-bottom: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+  padding-bottom: ${dimensions.unitSpacing}px;
+
+  .Select {
+    min-width: 300px;
+  }
+
+  > h4 {
+    margin-bottom: ${dimensions.coreSpacing}px;
+    color: ${colors.colorPrimary};
+  }
+
+  > h5 {
+    margin-bottom: ${dimensions.coreSpacing}px;
+    color: ${colors.colorPrimary};
+  }
+`;
+
+export const BoardSelection = styled(BoardSelectContainer)`
+  display: flex;
+  gap: 15px;
+  max-width: 300px;
+  padding-right: 100px;
+`;
+
+export const SidebarHeader = styled.h5`
+  margin-bottom: ${dimensions.coreSpacing}px;
+  color: ${colors.colorPrimary};
+  padding-left: 10px;
 `;

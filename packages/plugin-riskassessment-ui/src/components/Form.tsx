@@ -46,7 +46,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     super(props);
 
     this.state = {
-      riskAssessment: props.assessmentDetail || {}
+      riskAssessment: props.assessmentDetail || { categoryId: props.categoryId || '' }
     };
 
     this.generateDoc = this.generateDoc.bind(this);
@@ -230,7 +230,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
   }
 
   renderContent = (formProps: IFormProps) => {
-    const { detailLoading, categoryId } = this.props;
+    const { detailLoading } = this.props;
     const { riskAssessment } = this.state;
 
     if (detailLoading) {
@@ -301,7 +301,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             name="categoryId"
             label="Choose Category"
             multi={false}
-            initialValue={!categoryId ? riskAssessment.categoryId : categoryId}
+            initialValue={riskAssessment?.categoryId}
             onSelect={handleChangeCategory}
           />
         </FormGroup>
@@ -331,19 +331,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
   };
 
   render() {
-    const { assessmentDetail, renderButton, fieldsSkip } = this.props;
-
-    const renderBtn = () => {
-      if (!assessmentDetail?.status) {
-        return renderButton;
-      }
-      if (assessmentDetail.status === 'In Progress') {
-        return renderButton;
-      }
-      if (fieldsSkip) {
-        return renderButton;
-      }
-    };
+    const { assessmentDetail, renderButton } = this.props;
 
     return (
       <CommonForm
@@ -351,7 +339,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         renderContent={this.renderContent}
         generateDoc={this.generateDoc}
         object={this.props.object}
-        renderButton={renderBtn()}
+        renderButton={renderButton}
         createdAt={assessmentDetail?.createdAt}
       />
     );

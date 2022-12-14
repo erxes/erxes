@@ -1,4 +1,5 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { afterMutationHandlers } from './afterMutations';
 import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
 let client;
@@ -6,13 +7,18 @@ let client;
 export const initBroker = async cl => {
   client = cl;
 
-  const { consumeRPCQueue } = client;
+  const { consumeRPCQueue, consumeQueue } = client;
 
-  consumeRPCQueue('riskassessment:riskConfirmities:find', async ({ subdomain, data }) => {
+  consumeQueue('riskassessment:afterMutation', async ({ subdomain, data }) => {
+    await afterMutationHandlers(subdomain, data);
+    return;
+  });
+
+  consumeRPCQueue('riskassessment:riskConformity:find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      data: await models.RiskConfimity.riskConfirmities(data),
+      data: await models.RiskConformity.riskConformity(data),
       status: 'success'
     };
   });

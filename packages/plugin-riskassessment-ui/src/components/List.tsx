@@ -1,4 +1,13 @@
-import { BarItems, Button, FormControl, ModalTrigger, Table, __ } from '@erxes/ui/src';
+import {
+  BarItems,
+  Button,
+  FormControl,
+  HeaderDescription,
+  ModalTrigger,
+  SortHandler,
+  Table,
+  __
+} from '@erxes/ui/src';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import _loadash from 'lodash';
 import React from 'react';
@@ -7,6 +16,7 @@ import { ICommonListProps, RiskAssessmentsType } from '../common/types';
 import { DefaultWrapper } from '../common/utils';
 import Form from '../containers/Form';
 import TableRow from './Row';
+import { subMenu } from '../common/constants';
 
 type Props = {
   queryParams: any;
@@ -144,9 +154,10 @@ class ListComp extends React.Component<Props, IState> {
             </th>
             <th>Name</th>
             <th>{__('Category Name')}</th>
-            <th>{__('Status')}</th>
-            <th>{__('Score')}</th>
-            <th>{__('Create At')}</th>
+            <th>
+              <SortHandler />
+              {__('Create At')}
+            </th>
             <th>{__('Action')}</th>
           </tr>
         </thead>
@@ -180,10 +191,15 @@ class ListComp extends React.Component<Props, IState> {
       </BarItems>
     );
 
+    const leftActionBar = (
+      <HeaderDescription title="Risk Assessments" icon="/images/actions/25.svg" description="" />
+    );
+
     const updatedProps = {
       ...this.props,
       title: 'Assessment List',
       rightActionBar: rightActionBar,
+      leftActionBar,
       content: this.renderContent(list),
       sidebar: (
         <AssessmentCategories
@@ -191,7 +207,8 @@ class ListComp extends React.Component<Props, IState> {
           riskAssessmentsRefetch={refetch}
           queryParams={queryParams}
         />
-      )
+      ),
+      subMenu
     };
 
     return <DefaultWrapper {...updatedProps} />;

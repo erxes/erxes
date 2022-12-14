@@ -19,6 +19,17 @@ const RiskAssessmentMutations = {
   ) {
     const result = await models.RiskAssessment.riskAssessmentUpdate(params);
     return result;
+  },
+
+  async addRiskAssesmentConfig(_root, params, { models }: IContext) {
+    return await models.RiskAssessmentConfigs.addConfig(params);
+  },
+  async updateRiskAssessmentConfig(_root, { configId, doc }, { models }: IContext) {
+    return await models.RiskAssessmentConfigs.updateConfig(configId, doc);
+  },
+
+  async removeRiskAssessmentConfigs(_root, { configIds }, { models }: IContext) {
+    return await models.RiskAssessmentConfigs.removeConfigs(configIds);
   }
 };
 

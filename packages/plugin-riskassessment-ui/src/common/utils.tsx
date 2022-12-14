@@ -11,33 +11,46 @@ import {
 import { IOption, IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
 import { queries as categoryQueries } from '../categories/graphql';
+import { queries as riskAssessmentQueries } from '../graphql';
 import { FormGroupRow } from '../styles';
-import { CustomFormGroupProps, RiskAssessmentCategory } from './types';
+import { CustomFormGroupProps, RiskAssessmentCategory, RiskAssessmentsType } from './types';
+import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
+import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
+import gql from 'graphql-tag';
+import Select from 'react-select-plus';
+import client from '@erxes/ui/src/apolloClient';
+import { graphql } from 'react-apollo';
+import { withProps } from '@erxes/ui/src/utils/core';
+import * as compose from 'lodash.flowright';
 
 export const DefaultWrapper = ({
   title,
   rightActionBar,
+  leftActionBar,
   loading,
   totalCount,
   content,
   sidebar,
-  isPaginationHide
+  isPaginationHide,
+  subMenu
 }: {
   title: string;
   rightActionBar?: JSX.Element;
+  leftActionBar?: JSX.Element;
   loading?: boolean;
   totalCount?: number;
   content: JSX.Element;
   sidebar?: JSX.Element;
   isPaginationHide?: boolean;
+  subMenu: { title: string; link: string }[];
 }) => {
   if (loading) {
     return <Spinner objective />;
   }
   return (
     <Wrapper
-      header={<Wrapper.Header title={title} />}
-      actionBar={<Wrapper.ActionBar right={rightActionBar} />}
+      header={<Wrapper.Header title={title} submenu={subMenu} />}
+      actionBar={<Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />}
       content={
         <DataWithLoader
           loading={loading || false}
@@ -135,3 +148,135 @@ export const SelectWithCategory = ({
     />
   );
 };
+
+type SelectRiskAssessmentProps = {
+  queryParams?: IQueryParams;
+  label: string;
+  onSelect: (value: string[] | string, name: string) => void;
+  multi?: boolean;
+  customOption?: IOption;
+  initialValue?: string | string[];
+  name: string;
+  ignoreIds?: string[];
+};
+
+type SelectRiskAssessmentState = {
+  options: any[];
+};
+export class SelectWithRiskAssessment extends React.Component<
+  SelectRiskAssessmentProps,
+  SelectRiskAssessmentState
+> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      options: []
+    };
+
+    client
+      .query({
+        query: gql(riskAssessmentQueries.list)
+      })
+      .then(({ data }) => {
+        let options = data?.riskAssessments?.list.map(riskAssessment => ({
+          value: riskAssessment._id,
+          label: riskAssessment.name
+        }));
+
+        this.setState({ options });
+      });
+  }
+
+  render() {
+    const { label, multi, initialValue, onSelect, ignoreIds } = this.props;
+    let { options } = this.state;
+
+    if (ignoreIds) {
+      const ids = ignoreIds.filter(id => id !== initialValue);
+      options = options.filter(option => !ids.includes(option.value));
+    }
+
+    return (
+      <Select
+        placeholder={__(label)}
+        options={options}
+        multi={multi}
+        value={initialValue}
+        onChange={onSelect}
+      />
+    );
+  }
+}
+
+type SelectCustomFieldProps = {
+  label: string;
+  name: string;
+  initialValue: string;
+  customOption?: IOption;
+  onSelect: ({ value, label, _id }: { value: any[] | string; label: string; _id: string }) => void;
+  type?: string;
+};
+
+type SelectCustomFieldFinalProps = {
+  fields: any;
+} & SelectCustomFieldProps;
+
+class SelectCustomFieldsComponent extends React.Component<SelectCustomFieldFinalProps> {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    const { label, initialValue, onSelect, fields } = this.props;
+    if (fields?.loading) {
+      return null;
+    }
+
+    const options =
+      fields?.fieldsCombinedByContentType
+        .map(
+          ({ _id, label, name, selectOptions }) =>
+            selectOptions && {
+              _id,
+              label,
+              name,
+              value: selectOptions
+            }
+        )
+        .filter(field => field) || [];
+
+    const handleChange = e => {
+      const _id = e?.name.replace('customFieldsData.', '');
+      onSelect({ value: e?.value, label: e?.label, _id });
+    };
+
+    const defaultValue = !!initialValue
+      ? options.find(option => option.name.replace('customFieldsData.', '') === initialValue)
+      : null;
+
+    return (
+      <Select
+        placeholder={__(label)}
+        value={defaultValue}
+        options={[{ label: 'Select custom field', value: '' }, ...options]}
+        multi={false}
+        onChange={handleChange}
+      />
+    );
+  }
+}
+
+export const SelectCustomFields = withProps<SelectCustomFieldProps>(
+  compose(
+    graphql<SelectCustomFieldProps>(gql(formQueries.fieldsCombinedByContentType), {
+      name: 'fields',
+      skip: ({ type }) => !type,
+      options: ({ type }) => ({
+        variables: {
+          contentType: `cards:${type}`
+        }
+      })
+    })
+  )(SelectCustomFieldsComponent)
+);

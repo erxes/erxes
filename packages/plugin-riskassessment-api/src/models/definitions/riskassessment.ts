@@ -18,6 +18,15 @@ export interface IRiskAssessmentCategoryDocument extends Document {
   code: String;
 }
 
+export interface IRiskAssessmentsConfigDocument extends Document {
+  _id: String;
+  boardId: String;
+  pipelineId: String;
+  stageId?: String;
+  customFieldId?: String;
+  configs: any[];
+}
+
 export const riskAssessmentCategorySchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Category Name' }),
@@ -25,7 +34,7 @@ export const riskAssessmentCategorySchema = new Schema({
   parentId: field({ type: String, label: 'Category Parent Name' }),
   order: field({ type: String, label: 'Category Order' }),
   code: field({ type: String, label: 'Category Code' }),
-  type:field({type:String,label: 'Category Type'})
+  type: field({ type: String, label: 'Category Type' })
 });
 
 const calculateLogicsSchema = new Schema({
@@ -43,16 +52,28 @@ export const riskAssessmentSchema = new Schema({
   description: field({ type: String, label: 'Description' }),
   createdAt: field({ type: Date, default: Date.now, label: 'Created At' }),
   categoryId: field({ type: String, label: 'Risk Assessment Category Id' }),
-  status: field({ type: String, label: 'Status', default: 'In Progress' }),
-  statusColor: field({
-    type: String,
-    label: 'Status Status Color',
-    default: '#3B85F4'
-  }),
   calculateMethod: field({ type: String, label: 'Calculate Method' }),
   calculateLogics: field({
     type: [calculateLogicsSchema],
     label: 'Calculate Logics'
-  }),
-  resultScore: field({ type: Number, label: 'Result Score', default: 0 })
+  })
+});
+
+const riskAssessmentFieldsConfigsSchema = new Schema({
+  _id: field({ pkey: true }),
+  value: field({ type: String, label: 'Field Value' }),
+  label: field({ type: String, label: 'Field Label' }),
+  riskAssessmentId: field({ type: String, label: 'Field Config Risk assessment ID' })
+});
+
+export const riskAssessmentConfigsSchema = new Schema({
+  _id: field({ pkey: true }),
+  cardType: field({ type: String, label: 'Card Type' }),
+  boardId: field({ type: String, label: 'Board Id' }),
+  pipelineId: field({ type: String, label: 'Pipeline Id' }),
+  stageId: field({ type: String, label: 'Stage Id', optional: true }),
+  customFieldId: field({ type: String, label: 'Custom Field Id' }),
+  configs: field({ type: [riskAssessmentFieldsConfigsSchema], label: 'Custom Field Config' }),
+  createdAt: field({ type: Date, label: 'Created At', default: new Date() }),
+  modifiedAt: field({ type: Date, label: 'Modified At', default: new Date() })
 });

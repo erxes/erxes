@@ -1,5 +1,14 @@
 import { SidebarContent } from '@erxes/ui-forms/src/settings/properties/styles';
-import { CollapseContent, ControlLabel, FieldStyle, Tabs, TabTitle, __ } from '@erxes/ui/src';
+import {
+  CollapseContent,
+  ControlLabel,
+  FieldStyle,
+  getUserAvatar,
+  NameCard,
+  Tabs,
+  TabTitle,
+  __
+} from '@erxes/ui/src';
 import { Flex } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import { Divider, FormContainer, Padding, TriggerTabs } from '../styles';
@@ -35,31 +44,22 @@ class FormHistory extends React.Component<Props, State> {
     const { fields } = result;
 
     return (
-      <>
+      <Padding vertical>
         {fields.map(field => {
           return (
-            <FormContainer column key={Math.random()}>
-              <Divider>
-                <ControlLabel>{field.text}</ControlLabel>
-                <p>{field.description}</p>
-                <Padding vertical>
-                  <FormContainer row>
-                    <div style={{ flex: 2, alignSelf: 'center' }}>
-                      <ControlLabel>{__('Options:')}</ControlLabel>
-                      {field.optionsValues.map(value => (
-                        <p key={Math.random()}>{__(value)}</p>
-                      ))}
-                    </div>
-                    <div style={{ flex: 1, alignSelf: 'center' }}>
-                      <ControlLabel>{__(`Answer:${field.value}`)}</ControlLabel>
-                    </div>
-                  </FormContainer>
-                </Padding>
-              </Divider>
-            </FormContainer>
+            <CollapseContent
+              key={field?.fieldId}
+              beforeTitle={<ControlLabel>{`${field?.text}: ${field?.value}`}</ControlLabel>}
+              title={''}
+              compact
+            >
+              {(field.optionsValues || []).map(value => (
+                <p key={Math.random()}>{__(value)}</p>
+              ))}
+            </CollapseContent>
           );
         })}
-      </>
+      </Padding>
     );
   }
 
@@ -83,7 +83,7 @@ class FormHistory extends React.Component<Props, State> {
                 className={currentTab === _id ? 'active' : ''}
                 onClick={handleTab.bind(this, _id)}
               >
-                {user?.details?.fullName}
+                <NameCard user={user} />
               </TabTitle>
             ))}
           </Tabs>

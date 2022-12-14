@@ -82,24 +82,6 @@ class TableRow extends React.Component<IProps> {
       );
     };
 
-    const renderFormSubmitHistory = id => {
-      const content = () => {
-        return <FormHistory riskAssessmentId={id} />;
-      };
-
-      const trigger = (
-        <Button btnStyle="link" style={{ padding: '5px' }}>
-          <Tip placement="bottom" text="See form submit history">
-            <Icon icon="file-check-alt" />
-          </Tip>
-        </Button>
-      );
-
-      return (
-        <ModalTrigger title="Form Submit History" content={content} trigger={trigger} size="lg" />
-      );
-    };
-
     const trigger = (
       <tr key={object._id}>
         <td onClick={onclick}>
@@ -111,17 +93,10 @@ class TableRow extends React.Component<IProps> {
         </td>
         <td>{object.name}</td>
         <td>{object.category?.name || '-'}</td>
-        <td>
-          <Badge color={object.statusColor}>{__(object.status)}</Badge>
-        </td>
-        <td>{object.status !== 'In Progress' ? __(object.resultScore?.toString() || '') : '-'}</td>
         <Tip text={moment(object.createdAt).format('MM/DD/YYYY HH:mm')} placement="bottom">
           <td>{moment(object.createdAt).fromNow()}</td>
         </Tip>
-        <td onClick={onclick}>
-          {renderDuplicateForm()}
-          {object.status !== 'In Progress' && renderFormSubmitHistory(object._id)}
-        </td>
+        <td onClick={onclick}>{renderDuplicateForm()}</td>
       </tr>
     );
 

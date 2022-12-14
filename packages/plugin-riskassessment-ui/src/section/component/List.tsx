@@ -1,19 +1,12 @@
 import { SectionBodyItem, __ } from '@erxes/ui/src';
-import {
-  Box,
-  Button,
-  EmptyState,
-  Icon,
-  ModalTrigger,
-  Tip
-} from '@erxes/ui/src/components';
+import { Box, Button, EmptyState, Icon, ModalTrigger, Tip } from '@erxes/ui/src/components';
 import React from 'react';
 import { ICardRiskAssements, RiskAssessmentsType } from '../../common/types';
 import { ColorBox, ProductName } from '../../styles';
 import RiskAssessmentForm from '../container/Form';
 import Submissions from '../container/Submissions';
 type Props = {
-  list: ICardRiskAssements[];
+  conformity: ICardRiskAssements;
   refetch: () => void;
   refetchSubmissions: () => void;
   submissions: any;
@@ -23,7 +16,7 @@ type Props = {
 };
 
 function RiskAssessmentSection(props: Props) {
-  const { list, submissions, currentUser } = props;
+  const { conformity, submissions, currentUser } = props;
 
   const renderFormModalContent = ({
     closeModal,
@@ -34,18 +27,11 @@ function RiskAssessmentSection(props: Props) {
     riskAssessmentId?: string;
   }) => {
     return (
-      <RiskAssessmentForm
-        {...props}
-        closeModal={closeModal}
-        riskAssessmentId={riskAssessmentId}
-      />
+      <RiskAssessmentForm {...props} closeModal={closeModal} riskAssessmentId={riskAssessmentId} />
     );
   };
 
-  const renderFormModal = (
-    trigger: React.ReactNode,
-    riskAssessmentId?: string
-  ) => {
+  const renderFormModal = (trigger: React.ReactNode, riskAssessmentId?: string) => {
     return (
       <ModalTrigger
         size="lg"
@@ -61,19 +47,16 @@ function RiskAssessmentSection(props: Props) {
     );
   };
 
-  const renderItem = (item: RiskAssessmentsType) => {
+  const renderItem = (item: RiskAssessmentsType, statusColor) => {
     return (
       <ProductName>
         {item && item?.name}
-        <ColorBox color={item && item?.statusColor} />
+        <ColorBox color={statusColor && statusColor} />
       </ProductName>
     );
   };
 
-  const renderSubmissionForm = (
-    isSubmitted?: boolean,
-    riskAssessmentId?: string
-  ) => {
+  const renderSubmissionForm = (isSubmitted?: boolean, riskAssessmentId?: string) => {
     const trigger = (
       <Button btnStyle="link">
         <Tip text={isSubmitted ? 'See Submitted Form' : 'Submission Form'}>
@@ -122,22 +105,22 @@ function RiskAssessmentSection(props: Props) {
           </button>
         )}
       >
-        {list.length ? (
+        {conformity ? (
           <div>
-            {list.map(item => (
-              <SectionBodyItem key={item.riskAssessmentId}>
+            {
+              <SectionBodyItem key={conformity.riskAssessmentId}>
                 {renderFormModal(
-                  renderItem(item.riskAssessment),
-                  item.riskAssessmentId
+                  renderItem(conformity.riskAssessment, conformity?.statusColor),
+                  conformity.riskAssessmentId
                 )}
               </SectionBodyItem>
-            ))}
+            }
           </div>
         ) : (
           <EmptyState icon="folder-2" text={`No risk assessment`} />
         )}
       </Box>
-      {list.length > 0 && (
+      {conformity && (
         <Box name="riskSubmissions" title={__('Risk Assessment Submissions')}>
           {submissions ? (
             submissions.map(user => (
@@ -147,16 +130,13 @@ function RiskAssessmentSection(props: Props) {
                   {currentUser.email === user.email &&
                     renderSubmissionForm(
                       user.isSubmittedRiskAssessmentForm,
-                      list[0].riskAssessmentId
+                      conformity?.riskAssessmentId
                     )}
                 </ProductName>
               </SectionBodyItem>
             ))
           ) : (
-            <EmptyState
-              icon="folder-2"
-              text={`No risk assessment submission`}
-            />
+            <EmptyState icon="folder-2" text={`No risk assessment submission`} />
           )}
         </Box>
       )}
