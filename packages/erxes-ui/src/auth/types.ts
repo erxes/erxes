@@ -23,6 +23,9 @@ export interface IUserDetails {
   workStartedDate?: Date;
   location?: string;
   operatorPhone?: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
 }
 
 export interface IUserLinks {
@@ -65,7 +68,7 @@ export interface IUser extends IUserDoc {
     [key: string]: any;
   };
   isShowNotification?: boolean;
-  isSubscribed?: boolean
+  isSubscribed?: boolean;
 }
 
 export type AllUsersQueryResponse = {

@@ -180,6 +180,7 @@ interface ISendNotification {
   link: string;
   createdUser?: IUserDocument;
   isMobile?: boolean;
+  eventData?: any | null;
 }
 
 export const sendNotification = async (
@@ -187,7 +188,15 @@ export const sendNotification = async (
   subdomain: string,
   doc: ISendNotification
 ) => {
-  const { createdUser, receivers, title, content, notifType, isMobile } = doc;
+  const {
+    createdUser,
+    receivers,
+    title,
+    content,
+    notifType,
+    isMobile,
+    eventData
+  } = doc;
 
   let link = doc.link;
 
@@ -218,7 +227,8 @@ export const sendNotification = async (
         link,
         receiver: recipient._id,
         notifType,
-        clientPortalId: recipient.clientPortalId
+        clientPortalId: recipient.clientPortalId,
+        eventData
       },
       createdUser && createdUser._id
     );
@@ -229,7 +239,8 @@ export const sendNotification = async (
         userId: recipient._id,
         title: notification.title,
         content: notification.content,
-        link: notification.link
+        link: notification.link,
+        eventData
       }
     });
   }
