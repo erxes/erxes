@@ -54,6 +54,7 @@ var plugins = [
   { name: 'riskassessment', ui: true, api: true },
   { name: 'forum', ui: true, api: true },
   { name: 'documents', ui: true, api: true },
+  { name: 'pricing', ui: true, api: true },
   { name: 'timeclock', ui: true, api: true }
 ];
 

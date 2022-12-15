@@ -11,7 +11,6 @@ export const commonPaginateTypes = `
     searchValue: String,
     sortFromDate: String,
     sortToDate: String
-    status: String
 `;
 
 export const commonRiskAssessmentTypes = `
@@ -22,7 +21,7 @@ export const commonRiskAssessmentTypes = `
     calculateMethod: String
 `;
 
-export const commonRiskConfirmityTypes = `
+export const commonRiskConformityTypes = `
     _id: String!,
     cardId: String!,
     riskAssessmentId: String!,

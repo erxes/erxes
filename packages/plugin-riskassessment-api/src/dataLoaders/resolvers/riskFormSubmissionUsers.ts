@@ -1,4 +1,3 @@
-import { IRiskConfirmityDocument } from '../../models/definitions/confimity';
 import { IContext } from '../../connectionResolver';
 import { ExecFileOptionsWithStringEncoding } from 'child_process';
 
@@ -12,6 +11,10 @@ export default {
     {},
     { dataLoaders }: IContext
   ) {
-    return (formSubmissionUser._id && dataLoaders.user.load(formSubmissionUser._id)) || null;
+    return (
+      (formSubmissionUser._id &&
+        dataLoaders.user.load(formSubmissionUser._id)) ||
+      null
+    );
   }
 };

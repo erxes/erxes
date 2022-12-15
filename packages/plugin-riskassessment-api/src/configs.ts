@@ -5,7 +5,8 @@ import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { generateAllDataLoaders } from './dataLoaders';
-import * as permissions from './permissions'
+import * as permissions from './permissions';
+import afterMutations from './afterMutations';
 
 export let mainDb;
 export let debug;
@@ -42,5 +43,8 @@ export default {
     graphqlPubsub = options.pubsubClient;
 
     debug = options.debug;
+  },
+  meta: {
+    afterMutations
   }
 };

@@ -6,22 +6,17 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import {
-  //   AssetsConfigsQueryResponse,
-  IAsset,
-  IAssetDetailQueryResponse
-} from '../../../common/types';
+import { IAsset, IAssetDetailQueryResponse } from '../../../common/types';
 import { queries } from '../../graphql';
 import AssetDetails from '../components/Details';
 
 type Props = {
   id: string;
-  history:any
+  history: any;
 };
 
 type FinalProps = {
   assetDetailQuery: IAssetDetailQueryResponse;
-  //   assetsConfigsQuery: AssetsConfigsQueryResponse;
   currentUser: IUser;
 } & Props;
 
@@ -38,10 +33,15 @@ const AssetDetailContainer = (props: FinalProps) => {
 
   const assetDetail = assetDetailQuery.assetDetail || ({} as IAsset);
 
+  const refetchDetail = () => {
+    props.assetDetailQuery.refetch();
+  };
+
   const updatedProps = {
     ...props,
     loading: assetDetailQuery.loading,
     asset: assetDetail,
+    refetchDetail,
     currentUser
   };
 
