@@ -25,6 +25,25 @@ function GenerateAddFormFields(props: Props) {
   const onCustomFieldsDataChange = ({ _id, value }) => {
     const field = customFieldsData.find(c => c.field === _id);
 
+    //check nested logics and clear field value
+    for (const f of customFields) {
+      const logics = f.logics || [];
+
+      if (!logics.length) {
+        continue;
+      }
+
+      if (logics.findIndex(l => l.fieldId && l.fieldId.includes(_id)) === -1) {
+        continue;
+      }
+
+      customFieldsData.forEach(c => {
+        if (c.field === f._id) {
+          c.value = '';
+        }
+      });
+    }
+
     if (field) {
       field.value = value;
 
