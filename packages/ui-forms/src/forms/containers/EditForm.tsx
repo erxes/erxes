@@ -116,6 +116,13 @@ class EditFormContainer extends React.Component<FinalProps> {
               });
             }
 
+            if (f.objectListConfigs && f.objectListConfigs.length) {
+              f.objectListConfigs = f.objectListConfigs.map(config => {
+                delete config.__typename;
+                return config;
+              });
+            }
+
             return f;
           });
 

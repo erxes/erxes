@@ -307,6 +307,12 @@ const commonFields = `
   type
   text
 
+  logicAction
+  logics {
+    fieldId
+    logicOperator
+    logicValue
+  }
   canHide
   validation
   options
@@ -341,6 +347,12 @@ const fieldsGroups = `
       name
       ${genericFields}
       config
+      logicAction
+      logics {
+        fieldId
+        logicOperator
+        logicValue
+      }
       lastUpdatedUser {
         details {
           fullName
