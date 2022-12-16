@@ -65,7 +65,7 @@ export const calculateRiskAssessment = async (models, cardId, cardType) => {
       if (value < resultScore && resultScore < value2) {
         return await models.RiskConformity.findOneAndUpdate(
           { _id: riskAssessmentId },
-          { $set: { status: name, statusColor: color } },
+          { $set: { status: name, statusColor: color, closedAt: Date.now() } },
           { new: true }
         );
       }
@@ -75,7 +75,7 @@ export const calculateRiskAssessment = async (models, cardId, cardType) => {
       if (eval(resultScore + operator + value)) {
         return await models.RiskConformity.findOneAndUpdate(
           { riskAssessmentId, cardId, cardType },
-          { $set: { status: name, statusColor: color } },
+          { $set: { status: name, statusColor: color, closedAt: Date.now() } },
           { new: true }
         );
       }
@@ -84,7 +84,13 @@ export const calculateRiskAssessment = async (models, cardId, cardType) => {
     if (status === 'In Progress') {
       return await models.RiskConformity.findOneAndUpdate(
         { riskAssessmentId, cardId, cardType },
-        { $set: { status: 'No Result', statusColor: '#888' } },
+        {
+          $set: {
+            status: 'No Result',
+            statusColor: '#888',
+            closedAt: Date.now()
+          }
+        },
         { new: true }
       );
     }

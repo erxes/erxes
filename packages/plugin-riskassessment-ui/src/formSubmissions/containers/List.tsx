@@ -38,14 +38,16 @@ class List extends React.Component<FinalProps, State> {
 
 export const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),
-  cardType: queryParams?.cardTyp,
+  cardType: queryParams?.cardType,
   riskAssessmentId: queryParams?.riskAssessmentId,
   status: queryParams?.status,
   searchValue: queryParams?.searchValue,
   sortField: queryParams?.sortField,
   sortDirection: Number(queryParams?.sortDirection) || undefined,
-  sortFromDate: queryParams.from || undefined,
-  sortToDate: queryParams.to || undefined
+  createdFrom: queryParams.createdFrom || undefined,
+  createdTo: queryParams.createdTo || undefined,
+  closedFrom: queryParams.closedFrom || undefined,
+  closedTo: queryParams.closedTo || undefined
 });
 
 export default withProps<Props>(

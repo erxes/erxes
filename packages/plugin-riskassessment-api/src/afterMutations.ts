@@ -34,35 +34,56 @@ export const afterMutationHandlers = async (subdomain, params) => {
       defaultValue: []
     });
 
-    for (const data of customFieldsData) {
-      const commonFilter = {
-        cardType: type.replace('cards:', ''),
-        boardId: pipeline.boardId,
-        pipelineId: stage.pipelineId,
-        customFieldId: data.field
-      };
+    const commonFilter = {
+      cardType: type.replace('cards:', ''),
+      boardId: pipeline.boardId,
+      pipelineId: stage.pipelineId
+    };
 
+    const addedConformities: any[] = [];
+    const conformity = {
+      cardId: _id,
+      cardType: type.replace('cards:', '')
+    } as IRiskConformityField;
+
+    for (const data of customFieldsData) {
       const config = await models.RiskAssessmentConfigs.findOne({
         $or: [
-          { ...commonFilter, stageId },
-          { ...commonFilter, stageId: '' }
+          { ...commonFilter, stageId, customFieldId: data.field },
+          { ...commonFilter, stageId: '', customFieldId: data.field }
         ]
       })
         .sort({ createdAt: -1 })
         .limit(1);
-
       if (config) {
         const customField = config.configs.find(
           item => item.value === data.value
         );
         if (customField) {
-          const conformity = {
-            cardId: _id,
-            cardType: type.replace('cards:', ''),
-            riskAssessmentId: customField.riskAssessmentId
-          } as IRiskConformityField;
-          await models.RiskConformity.riskConformityAdd(conformity);
+          const addedConformity = await models.RiskConformity.riskConformityAdd(
+            { ...conformity, riskAssessmentId: customField.riskAssessmentId }
+          );
+          addedConformities.push(addedConformity);
         }
+      }
+    }
+
+    if (!addedConformities.length) {
+      const filter = { ...commonFilter, customFieldId: null, configs: [] };
+
+      const config = await models.RiskAssessmentConfigs.findOne({
+        $or: [
+          { ...filter, stageId },
+          { ...filter, stageId: '' }
+        ]
+      })
+        .sort({ createdAt: -1 })
+        .limit(1);
+      if (config?.riskAssessmentId) {
+        await models.RiskConformity.riskConformityAdd({
+          ...conformity,
+          riskAssessmentId: String(config?.riskAssessmentId)
+        });
       }
     }
   }
