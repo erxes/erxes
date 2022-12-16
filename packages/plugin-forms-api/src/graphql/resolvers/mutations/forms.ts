@@ -1,5 +1,6 @@
 import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
+import { sendInboxMessage } from '../../../messageBroker';
 import { IForm } from '../../../models/definitions/forms';
 
 interface IFormsEdit extends IForm {
@@ -73,6 +74,61 @@ const formMutations = {
     }
 
     return true;
+  },
+
+  formSubmissionsEdit: async (
+    _root,
+    params,
+    { models, subdomain }: IContext
+  ) => {
+    const { contentTypeId, customerId, submissions } = params;
+
+    const conversation = await sendInboxMessage({
+      subdomain,
+      action: 'findOne',
+      data: {
+        _id: contentTypeId,
+        customerId
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    if (!conversation) {
+      throw new Error('Form submission not found !');
+    }
+
+    for (const submission of submissions) {
+      const { _id, value } = submission;
+      await models.FormSubmissions.updateOne({ _id }, { $set: { value } });
+    }
+
+    const formSubmissions = await models.FormSubmissions.find({
+      contentTypeId
+    }).lean();
+
+    return {
+      ...conversation,
+      contentTypeId: conversation._id,
+      submissions: formSubmissions
+    };
+  },
+
+  formSubmissionsRemove: async (
+    _root,
+    params,
+    { models, subdomain }: IContext
+  ) => {
+    const { customerId, contentTypeId } = params;
+    sendInboxMessage({
+      subdomain,
+      action: 'removeConversation',
+      data: {
+        _id: contentTypeId
+      }
+    });
+
+    return models.FormSubmissions.remove({ customerId, contentTypeId });
   }
 };
 

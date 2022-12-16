@@ -3,7 +3,10 @@ import {
   CpUserLevels
 } from './consts';
 
-const CUSTOM_ERROR_TYPES = ['INSUFFICIENT_USER_LEVEL'] as const;
+const CUSTOM_ERROR_TYPES = [
+  'INSUFFICIENT_USER_LEVEL',
+  'INSUFFICIENT_PERMISSION'
+] as const;
 export type CustomErrorType = typeof CUSTOM_ERROR_TYPES[number];
 
 class BaseCustomError extends Error {
@@ -21,6 +24,12 @@ export class InsufficientUserLevelError extends BaseCustomError {
   constructor(message: string, requiredLevel: CpUserLevels) {
     super(message, 'INSUFFICIENT_USER_LEVEL');
     this.requiredLevel = requiredLevel;
+  }
+}
+
+export class InsufficientPermissionError extends BaseCustomError {
+  constructor() {
+    super('Insufficient user permission', 'INSUFFICIENT_PERMISSION');
   }
 }
 

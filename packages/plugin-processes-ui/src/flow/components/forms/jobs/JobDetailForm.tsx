@@ -1,10 +1,11 @@
 import { Description, FlowJobTabs, ScrolledContent } from '../../../styles';
-import { IJob } from 'flow/types';
-import React from 'react';
+import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
+
 import { ActionForms } from '.';
-import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import { __ } from '@erxes/ui/src/utils/core';
+import { IJob } from 'flow/types';
 import JobStatus from '../../../containers/forms/jobs/FlowJobStatus';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   activeFlowJob: IJob;
@@ -81,10 +82,12 @@ class JobDetailForm extends React.Component<Props, State> {
     return (
       <>
         <Description>
-          <h4>
-            {activeFlowJob.type}: {activeFlowJob.label}
-          </h4>
-          <p>{activeFlowJob.description}</p>
+          <div>
+            <h4>
+              {activeFlowJob.type}: {activeFlowJob.label}
+            </h4>
+            <p>{activeFlowJob.description}</p>
+          </div>
         </Description>
         <FlowJobTabs>
           <Tabs full={true}>

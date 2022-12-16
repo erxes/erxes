@@ -1,4 +1,4 @@
-import { sendCommonMessage } from './messageBrokerErkhet';
+import { sendCommonMessage, sendRPCMessage } from './messageBrokerErkhet';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { afterMutationHandlers } from './afterMutations';
 import { serviceDiscovery } from './configs';
@@ -24,18 +24,19 @@ export const initBroker = async cl => {
     };
   });
 
-  consumeQueue('syncerkhet:toOrder', async ({ subdomain, data }) => {
+  consumeRPCQueue('syncerkhet:toOrder', async ({ subdomain, data }) => {
     const { pos, order } = data;
 
     const postData = await getPostData(subdomain, pos, order);
 
     return {
       status: 'success',
-      data: await sendCommonMessage('rpc_queue:erxes-automation-erkhet', {
+      data: await sendRPCMessage('rpc_queue:erxes-automation-erkhet', {
         action: 'get-response-send-order-info',
         isEbarimt: false,
         payload: JSON.stringify(postData),
-        thirdService: true
+        thirdService: true,
+        isJson: true
       })
     };
   });

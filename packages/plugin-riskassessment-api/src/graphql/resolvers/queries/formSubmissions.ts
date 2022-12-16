@@ -5,13 +5,25 @@ import { IRiskFormSubmissionParams } from '../../../models/definitions/common';
 const formSubmissionQueries = {
   riskFormSubmitHistory(
     _root,
-    { riskAssessmentId }: { riskAssessmentId: string },
+    {
+      cardId,
+      cardType,
+      riskAssessmentId
+    }: { cardId: string; cardType: string; riskAssessmentId: string },
     { models }: IContext
   ) {
-    return models.RiksFormSubmissions.formSubmitHistory(riskAssessmentId);
+    return models.RiksFormSubmissions.formSubmitHistory(
+      cardId,
+      cardType,
+      riskAssessmentId
+    );
   }
 };
 
-checkPermission(formSubmissionQueries, 'formSubmissionQueries', 'showRiskAssessment');
+checkPermission(
+  formSubmissionQueries,
+  'formSubmissionQueries',
+  'showRiskAssessment'
+);
 
 export default formSubmissionQueries;

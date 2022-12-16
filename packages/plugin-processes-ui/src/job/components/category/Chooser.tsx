@@ -13,7 +13,7 @@ const CategoryContainer = styled.div`
 
 type Props = {
   categories: IJobCategory[];
-  onChangeCategory: (catgeoryId: string) => void;
+  onChangeCategory: (categoryId: string) => void;
 };
 
 type State = {

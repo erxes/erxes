@@ -47,7 +47,9 @@ export const loadTimeframeClass = (models: IModels) => {
 
       return await models.Timeframes.find({
         status: { $ne: 'deleted' }
-      }).lean();
+      })
+        .sort({ startTime: 1 })
+        .lean();
     }
   }
 

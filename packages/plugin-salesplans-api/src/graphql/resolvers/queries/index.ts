@@ -1,11 +1,13 @@
 import dayLabelsQueries from './dayLabels';
-import labelsQueries from './settings';
-import yearPlansQueries from './yearPlans';
 import dayPlansQueries from './dayPlans';
+import labelsQueries from './settings';
+import timeProportionQueries from './timeProprotions';
+import yearPlansQueries from './yearPlans';
 
 export default {
   ...dayLabelsQueries,
+  ...dayPlansQueries,
   ...labelsQueries,
-  ...yearPlansQueries,
-  ...dayPlansQueries
+  ...timeProportionQueries,
+  ...yearPlansQueries
 };

@@ -12,6 +12,8 @@ export const commonPostsParams = `
   limit: Int
 
   customQuery: JSON
+
+  tagIds: [ID!]
 `;
 
 const forumPostsQueryParams = `
@@ -62,7 +64,7 @@ const Query = `
 
 
     forumSubscriptionProduct(_id: ID!): ForumSubscriptionProduct
-    forumSubscriptionProducts(sort: JSON): [ForumSubscriptionProduct!]
+    forumSubscriptionProducts(sort: JSON, userType: String): [ForumSubscriptionProduct!]
 
     forumCpMySubscriptionOrders: [ForumSubscriptionOrder!]
 

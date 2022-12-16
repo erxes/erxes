@@ -1,11 +1,12 @@
-import { commonFields, commonListFields } from "../../boards/graphql/mutations";
+import { commonFields, commonListFields } from '../../boards/graphql/mutations';
 import {
   conformityQueryFieldDefs,
-  conformityQueryFields,
-} from "../../conformity/graphql/queries";
+  conformityQueryFields
+} from '../../conformity/graphql/queries';
 
 const commonParams = `
   $companyIds: [String],
+  $parentId: String,
   $customerIds: [String],
   $assignedUserIds: [String],
   $closeDateType: String,
@@ -26,6 +27,7 @@ const commonParams = `
 const commonParamDefs = `
   companyIds: $companyIds,
   customerIds: $customerIds,
+  parentId: $parentId,
   assignedUserIds: $assignedUserIds,
   closeDateType: $closeDateType,
   priority: $priority,
@@ -159,5 +161,5 @@ export default {
   ticketsTotalCount,
   ticketDetail,
   archivedTickets,
-  archivedTicketsCount,
+  archivedTicketsCount
 };

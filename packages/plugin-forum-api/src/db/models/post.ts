@@ -13,6 +13,7 @@ import {
   InsufficientUserLevelError,
   LoginRequiredError
 } from '../../customErrors';
+import { notifyUsersPublishedPost } from './utils';
 
 export const POST_STATES = ['DRAFT', 'PUBLISHED'] as const;
 
@@ -21,15 +22,26 @@ export const ADMIN_APPROVAL_STATES = ['PENDING', 'APPROVED', 'DENIED'] as const;
 export type PostStates = typeof POST_STATES[number];
 export type AdminApprovalStates = typeof ADMIN_APPROVAL_STATES[number];
 
-export interface IPost {
+interface CommonPostFields {
+  title?: string | null;
+  content?: string | null;
+  description?: string | null;
+  thumbnail?: string | null;
+  custom: any;
+}
+
+interface TranslationsFields extends CommonPostFields {
+  lang: string;
+}
+
+export interface IPost extends CommonPostFields {
   _id: any;
   categoryId?: string | null;
-  content: string;
-  description?: string | null;
-  title: string;
   state: PostStates;
+  lang?: string | null;
   categoryApprovalState: AdminApprovalStates;
-  thumbnail?: string | null;
+
+  translations?: TranslationsFields[] | null;
 
   viewCount: number;
 
@@ -49,13 +61,12 @@ export interface IPost {
   stateChangedUserType: UserTypes;
   stateChangedById?: string;
   stateChangedByCpId?: string;
-
-  contentRestricted?: boolean;
-
-  custom: any;
   customIndexed: any;
 
   tagIds?: string[] | null;
+
+  requiredLevel?: string | null;
+  isPermissionRequired?: boolean | null;
 }
 
 export type PostDocument = IPost & Document;
@@ -82,7 +93,8 @@ const OMIT_FROM_INPUT = [
   'stateChangedAt',
   'stateChangedById',
   'stateChangedByCpId',
-  'contentRestricted'
+  'requiredLevel',
+  'isPermissionRequired'
 ] as const;
 
 export type PostCreateInput = Omit<IPost, typeof OMIT_FROM_INPUT[number]>;
@@ -110,6 +122,27 @@ export interface IPostModel extends Model<PostDocument> {
 
   updateTrendScoreOfPublished(query: any);
 
+  addTranslation(
+    _id: string,
+    lang: string,
+    translation: Omit<TranslationsFields, 'lang'>,
+    isClientPortal?: boolean,
+    cpUser?: ICpUser
+  );
+  updateTranslation(
+    _id: string,
+    lang: string,
+    translation: Omit<TranslationsFields, 'lang'>,
+    isClientPortal?: boolean,
+    cpUser?: ICpUser
+  );
+  removeTranslation(
+    _id: string,
+    lang: string,
+    isClientPortal?: boolean,
+    cpUser?: ICpUser
+  );
+
   /* <<< Client portal */
   findByIdOrThrowCp(_id: string, cpUser?: ICpUser): Promise<PostDocument>;
   createPostCp(c: PostCreateInput, user?: ICpUser): Promise<PostDocument>;
@@ -131,11 +164,16 @@ export interface IPostModel extends Model<PostDocument> {
   /* >>> Client portal */
 }
 
+const common = {
+  title: { type: String },
+  content: { type: String },
+  description: { type: String },
+  thumbnail: String,
+  custom: Schema.Types.Mixed
+};
+
 export const postSchema = new Schema<PostDocument>({
   categoryId: { type: Types.ObjectId, index: true },
-  title: { type: String, index: 'text' },
-  content: { type: String },
-  description: { type: String, index: 'text' },
   categoryApprovalState: {
     type: String,
     required: true,
@@ -149,8 +187,16 @@ export const postSchema = new Schema<PostDocument>({
     index: true,
     default: POST_STATES[0]
   },
+  ...common,
+  lang: String,
 
-  thumbnail: String,
+  translations: [
+    {
+      _id: false,
+      lang: { type: String, required: true },
+      ...common
+    }
+  ],
 
   viewCount: { type: Number, default: 0 },
   trendScore: { type: Number, default: 0 },
@@ -170,7 +216,6 @@ export const postSchema = new Schema<PostDocument>({
   stateChangedById: String,
   stateChangedByCpId: String,
 
-  custom: Schema.Types.Mixed,
   customIndexed: Schema.Types.Mixed,
 
   tagIds: [String]
@@ -182,7 +227,8 @@ postSchema.index({ stateChangedAt: 1, state: 1 });
 postSchema.index({ tagIds: 1, state: 1 });
 
 postSchema.index({
-  title: 'text'
+  title: 'text',
+  'translations.title': 'text'
 });
 
 export const generatePostModel = (
@@ -219,6 +265,9 @@ export const generatePostModel = (
         stateChangedUserType: USER_TYPES[0],
         stateChangedById: user._id
       });
+      if (res.state === 'PUBLISHED') {
+        await notifyUsersPublishedPost(subdomain, models, res);
+      }
       return res;
     }
     public static async patchPost(
@@ -228,12 +277,18 @@ export const generatePostModel = (
     ): Promise<PostDocument> {
       const post = await models.Post.findByIdOrThrow(_id);
 
+      const originalState = post.state;
+
       _.assign(post, {
         ...patch,
         updatedUserType: USER_TYPES[0],
         updatedById: user._id,
         updatedAt: new Date()
       });
+
+      if (originalState === 'DRAFT' && post.state === 'PUBLISHED') {
+        await notifyUsersPublishedPost(subdomain, models, post);
+      }
 
       await post.save();
       return post;
@@ -252,7 +307,7 @@ export const generatePostModel = (
       user: IUserDocument
     ): Promise<PostDocument> {
       const post = await models.Post.findByIdOrThrow(_id);
-      return changeStateCommon(post, state, user._id, 'CRM');
+      return changeStateCommon(subdomain, models, post, state, user._id, 'CRM');
     }
 
     public static async draft(
@@ -266,6 +321,102 @@ export const generatePostModel = (
       user: IUserDocument
     ): Promise<PostDocument> {
       return models.Post.changeState(_id, 'PUBLISHED', user);
+    }
+
+    public static async addTranslation(
+      _id: string,
+      lang: string,
+      translation: Omit<TranslationsFields, 'lang'>,
+      isClientPortal?: boolean,
+      cpUser?: ICpUser
+    ) {
+      const post = await (() => {
+        if (!isClientPortal) return models.Post.findByIdOrThrow(_id);
+
+        if (!cpUser?.userId) throw new LoginRequiredError();
+
+        return models.Post.findByIdOrThrowCp(_id, cpUser);
+      })();
+
+      const translationDoc = { ...translation, lang };
+
+      if (!post.translations?.length) {
+        await models.Post.updateOne(
+          { _id },
+          { $set: { translations: [translationDoc] } }
+        );
+      } else {
+        const exists = post.translations.some(t => t.lang === lang);
+        if (exists) {
+          throw new Error(`Translation already exists`);
+        }
+        await models.Post.updateOne(
+          { _id },
+          { $push: { translations: translationDoc } }
+        );
+      }
+    }
+    public static async updateTranslation(
+      _id: string,
+      lang: string,
+      translation: Omit<TranslationsFields, 'lang'>,
+      isClientPortal?: boolean,
+      cpUser?: ICpUser
+    ) {
+      const post = await (() => {
+        if (!isClientPortal) return models.Post.findByIdOrThrow(_id);
+
+        if (!cpUser?.userId) throw new LoginRequiredError();
+
+        return models.Post.findByIdOrThrowCp(_id, cpUser);
+      })();
+
+      if (!post.translations?.some(t => t.lang === lang)) {
+        throw new Error("Translation doesn't exist");
+      }
+
+      const translationDoc = { ...translation, lang };
+
+      await models.Post.updateOne(
+        { _id },
+        {
+          $set: {
+            'translations.$[elem]': translationDoc
+          }
+        },
+        {
+          arrayFilters: [{ 'elem.lang': lang }]
+        }
+      );
+    }
+    public static async removeTranslation(
+      _id: string,
+      lang: string,
+      isClientPortal?: boolean,
+      cpUser?: ICpUser
+    ) {
+      const post = await (() => {
+        if (!isClientPortal) return models.Post.findByIdOrThrow(_id);
+
+        if (!cpUser?.userId) throw new LoginRequiredError();
+
+        return models.Post.findByIdOrThrowCp(_id, cpUser);
+      })();
+
+      if (!post.translations?.some(t => t.lang === lang)) {
+        throw new Error("Translation already doesn't exist");
+      }
+
+      await models.Post.updateOne(
+        { _id },
+        {
+          $pull: {
+            translations: {
+              lang
+            }
+          }
+        }
+      );
     }
 
     /* <<< Client portal */
@@ -308,6 +459,10 @@ export const generatePostModel = (
         stateChangedUserType: USER_TYPES[1],
         stateChangedByCpId: cpUser.userId
       });
+
+      if (res.state === 'PUBLISHED') {
+        await notifyUsersPublishedPost(subdomain, models, res);
+      }
       return res;
     }
     public static async patchPostCp(
@@ -318,6 +473,8 @@ export const generatePostModel = (
       if (!cpUser) throw new LoginRequiredError();
 
       const post = await models.Post.findByIdOrThrowCp(_id, cpUser);
+
+      const originalState = post.state;
 
       const resultingCategoryId =
         patch.categoryId === undefined ? post.categoryId : patch.categoryId;
@@ -337,6 +494,10 @@ export const generatePostModel = (
         updatedByCpId: cpUser.userId,
         updatedAt: new Date()
       });
+
+      if (originalState === 'DRAFT' && post.state === 'PUBLISHED') {
+        await notifyUsersPublishedPost(subdomain, models, post);
+      }
       await post.save();
       return post;
     }
@@ -359,7 +520,16 @@ export const generatePostModel = (
     ): Promise<PostDocument> {
       if (!cpUser) throw new LoginRequiredError();
       const post = await models.Post.findByIdOrThrowCp(_id, cpUser);
-      return changeStateCommon(post, state, cpUser.userId, 'CP');
+      const res = changeStateCommon(
+        subdomain,
+        models,
+        post,
+        state,
+        cpUser.userId,
+        'CP'
+      );
+
+      return res;
     }
 
     public static async draftCp(
@@ -398,11 +568,14 @@ export const generatePostModel = (
 };
 
 async function changeStateCommon(
+  subdomain: string,
+  models: IModels,
   post: PostDocument,
   state: PostStates,
   userId: string,
   userType: UserTypes
 ) {
+  const originalState = post.state;
   post.state = state;
   post.stateChangedById = userId;
   post.stateChangedUserType = userType;
@@ -410,5 +583,9 @@ async function changeStateCommon(
   post.viewCount = 0;
   post.stateChangedAt = new Date();
   await post.save();
+
+  if (originalState === 'DRAFT' && post.state === 'PUBLISHED') {
+    await notifyUsersPublishedPost(subdomain, models, post);
+  }
   return post;
 }

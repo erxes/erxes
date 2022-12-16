@@ -12,7 +12,7 @@ export function generateUserOptions(array: ISPLabel[] = []): IOption[] {
 
     return {
       value: spLabel._id || '',
-      label: `${spLabel.title} (${spLabel.effect}) #${spLabel.multiplier}`
+      label: `${spLabel.title} (${spLabel.effect})`
     };
   });
 }

@@ -21,12 +21,15 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import { Link } from 'react-router-dom';
 import xss from 'xss';
 import { IAsset } from '../../../common/types';
-import { AssetContent } from '../../../style';
+import { AssetContent, ContainerBox } from '../../../style';
 import AssetForm from '../../containers/Form';
+import { Tip } from '@erxes/ui/src';
+import Knowledge from './KnowledgeForm';
 
 type Props = {
   asset: IAsset;
   remove: () => void;
+  history: any;
 };
 
 class BasicInfo extends React.Component<Props> {
@@ -51,13 +54,14 @@ class BasicInfo extends React.Component<Props> {
     );
   };
 
-  renderView = (name, variable) => {
+  renderView = (name, variable, extraField?: any) => {
     const defaultName = name.includes('count') ? 0 : '-';
 
     return (
       <li>
         <FieldStyle>{__(name)}</FieldStyle>
         <SidebarCounter>{variable || defaultName}</SidebarCounter>
+        {extraField && extraField}
       </li>
     );
   };
@@ -102,15 +106,16 @@ class BasicInfo extends React.Component<Props> {
   };
 
   renderInfo() {
-    const { asset } = this.props;
+    const { asset, history } = this.props;
 
-    const content = props => <AssetForm {...props} asset={asset} />;
+    const editForm = props => <AssetForm {...props} asset={asset} />;
+    const addKnowledge = props => <Knowledge {...props} assetId={asset._id} />;
     const {
       code,
       name,
       type,
       category,
-      minimiumCount,
+      parent,
       unitPrice,
       attachment,
       vendor,
@@ -118,16 +123,38 @@ class BasicInfo extends React.Component<Props> {
       createdAt
     } = asset;
 
+    const changeAssetDetail = () => {
+      return (
+        <Button
+          onClick={() => history.push(`/settings/assets/detail/${parent._id}`)}
+          btnStyle="link"
+          style={{ paddingTop: '0' }}
+        >
+          <Tip text="See Parent Asset Detail" placement="bottom">
+            <Icon icon="rightarrow" />
+          </Tip>
+        </Button>
+      );
+    };
+
     return (
       <Sidebar.Section>
         <InfoWrapper>
           <Name>{name}</Name>
-          <ModalTrigger
-            title="Edit basic info"
-            trigger={<Icon icon="edit" />}
-            size="lg"
-            content={content}
-          />
+          <ContainerBox gap={5}>
+            <ModalTrigger
+              title="Edit basic info"
+              trigger={<Icon icon="edit" />}
+              size="lg"
+              content={editForm}
+            />
+            <ModalTrigger
+              title="Add Knowledge "
+              trigger={<Icon icon="lightbulb-alt" />}
+              content={addKnowledge}
+              size="lg"
+            />
+          </ContainerBox>
         </InfoWrapper>
 
         {this.renderAction()}
@@ -137,9 +164,13 @@ class BasicInfo extends React.Component<Props> {
           {this.renderView('Code', code)}
           {this.renderView('Type', type)}
           {this.renderView('Category', category ? category.name : '')}
+          {this.renderView(
+            'Parent',
+            parent ? parent.name : '',
+            parent && changeAssetDetail()
+          )}
           {this.renderView('Unit price', (unitPrice || 0).toLocaleString())}
           {this.renderVendor(vendor)}
-          {this.renderView('Minimium asset count', minimiumCount)}
           {this.renderView(
             'Create At',
             moment(createdAt).format('YYYY-MM-DD HH:mm')

@@ -1,3 +1,4 @@
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 
 // query types
@@ -8,23 +9,20 @@ export interface IWork {
   dueDate: Date;
   startAt: Date;
   endAt: Date;
-  jobId: string;
-  job: any;
   flowId: string;
   flow: any;
-  productId: string;
-  product: any;
   count: string;
   intervalId?: string;
   interval: any;
+
   inBranchId?: string;
-  inBranch: string;
   inDepartmentId?: string;
-  inDepartment: string;
   outBranchId?: string;
-  outBranch: string;
   outDepartmentId?: string;
-  outDepartment: string;
+  inBranch: IBranch;
+  inDepartment: IDepartment;
+  outBranch: IBranch;
+  outDepartment: IDepartment;
   needProducts?: any[];
   resultProducts?: any[];
 }
@@ -35,38 +33,6 @@ export interface IWorkDocument extends IWork, Document {
   createdBy: string;
   updatedAt: Date;
   updatedBy: string;
-}
-
-export interface IOverallWork {
-  status: string;
-  dueDate: Date;
-  startAt: Date;
-  endAt: Date;
-  assignUserIds: string[];
-  jobId: string;
-  job: any;
-  flowId: string;
-  flow: any;
-  intervalId?: string;
-  interval: any;
-  outBranchId?: string;
-  outBranch: string;
-  outDepartmentId?: string;
-  outDepartment: string;
-  inBranchId?: string;
-  inBranch: any;
-  inDepartmentId?: string;
-  inDepartment: string;
-  needProducts?: any[];
-  resultProducts?: any[];
-  needProductsDetail?: any[];
-  resultProductsDetail?: any[];
-}
-
-export interface IOverallWorkDocument extends IOverallWork, Document {
-  _id: string;
-  createdAt: Date;
-  createdBy: string;
 }
 
 export interface IPerform {
@@ -96,22 +62,6 @@ export type WorksTotalCountQueryResponse = {
   worksTotalCount: number;
 } & QueryResponse;
 
-export type OverallWorksQueryResponse = {
-  overallWorks: IOverallWork[];
-} & QueryResponse;
-
-export type OverallWorksSideBarQueryResponse = {
-  overallWorksSideBar: IOverallWork[];
-} & QueryResponse;
-
-export type OverallWorksSideBarDetailQueryResponse = {
-  overallWorksSideBarDetail: IOverallWorkDocument;
-} & QueryResponse;
-
-export type OverallWorksTotalCountQueryResponse = {
-  overallWorksTotalCount: number;
-} & QueryResponse;
-
 export type PerformsQueryResponse = {
   performs: IPerform[];
 } & QueryResponse;
@@ -126,8 +76,4 @@ export type PerformsTotalCountQueryResponse = {
 
 export type PerformsByOverallWorkIdTotalCountQueryResponse = {
   performsByOverallWorkIdTotalCount: number;
-} & QueryResponse;
-
-export type AllProductsQueryResponse = {
-  allProducts: any[];
 } & QueryResponse;

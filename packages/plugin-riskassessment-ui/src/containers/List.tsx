@@ -99,7 +99,6 @@ export const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),
   ids: queryParams.ids,
   campaignId: queryParams.campaignId,
-  status: queryParams.status,
   ownerId: queryParams.ownerId,
   ownerType: queryParams.ownerType,
   searchValue: queryParams.searchValue,

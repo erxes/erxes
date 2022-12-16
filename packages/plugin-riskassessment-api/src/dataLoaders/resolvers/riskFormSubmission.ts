@@ -1,4 +1,4 @@
-import { IRiskConfirmityDocument } from '../../models/definitions/confimity';
+import { IRiskConformityDocument } from '../../models/definitions/confimity';
 import { IContext } from '../../connectionResolver';
 
 export default {
@@ -6,7 +6,11 @@ export default {
     return models.RiksFormSubmissions.findOne({ _id });
   },
 
-  async riskAssessment(riskConfimity: IRiskConfirmityDocument, {}, { dataLoaders }: IContext) {
+  async riskAssessment(
+    riskConfimity: IRiskConformityDocument,
+    {},
+    { dataLoaders }: IContext
+  ) {
     return (
       (riskConfimity.riskAssessmentId &&
         dataLoaders.riskAssessment.load(riskConfimity.riskAssessmentId)) ||

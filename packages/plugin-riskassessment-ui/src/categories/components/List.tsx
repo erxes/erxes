@@ -18,22 +18,12 @@ import {
   Wrapper,
   __
 } from '@erxes/ui/src';
-import { DateContainer } from '@erxes/ui/src/styles/main';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { statusColorConstant } from '../../common/constants';
 import { commonRefetchType } from '../../common/types';
 import { subOption } from '../../common/utils';
-import {
-  Box as StatusBox,
-  ClearableBtn,
-  ColorBox,
-  CustomRangeContainer,
-  EndDateContainer,
-  FormContainer as Container,
-  Padding
-} from '../../styles';
+import { Padding } from '../../styles';
 import FormContainer from '../container/Form';
 
 type Props = {
@@ -90,7 +80,9 @@ class AssessmentCategories extends React.Component<Props, State> {
     );
 
     const content = ({ closeModal }) => {
-      return <FormContainer refetch={this.props.refetch} closeModal={closeModal} />;
+      return (
+        <FormContainer refetch={this.props.refetch} closeModal={closeModal} />
+      );
     };
 
     return (
@@ -121,7 +113,10 @@ class AssessmentCategories extends React.Component<Props, State> {
     const { categories, queryParams } = this.props;
 
     return categories.map(category => (
-      <SidebarListItem key={category._id} isActive={queryParams.categoryId === category._id}>
+      <SidebarListItem
+        key={category._id}
+        isActive={queryParams.categoryId === category._id}
+      >
         <Link to={`?categoryId=${category._id}`}>
           {category.parentId && subOption(category)}
           {category.name}
@@ -237,115 +232,19 @@ class AssessmentCategories extends React.Component<Props, State> {
     );
   }
 
-  renderListFilter() {
-    const { from, to, sortDirection } = this.state;
-    const { riskAssessmentsRefetch, history, queryParams } = this.props;
-
-    const toggleSort = () => {
-      this.setState({ sortDirection: sortDirection * -1 });
-      riskAssessmentsRefetch && riskAssessmentsRefetch({ sortDirection: sortDirection * -1 });
-    };
-
-    const dateOrder = (value, name) => {
-      router.setParams(history, { [name]: new Date(value).valueOf() });
-    };
-    const selectStatus = color => {
-      router.setParams(history, { status: color });
-    };
-
-    const CustomForm = ({ children, label, field, clearable }: LayoutProps) => {
-      const handleClearable = () => {
-        if (Array.isArray(field)) {
-          field.forEach(name => {
-            return router.removeParams(history, name);
-          });
-        }
-        router.removeParams(history, field);
-      };
-
-      return (
-        <FormGroup>
-          <ControlLabel>{label}</ControlLabel>
-          {clearable && (
-            <ClearableBtn onClick={handleClearable}>
-              <Tip text="Clear">
-                <Icon icon="cancel-1" />
-              </Tip>
-            </ClearableBtn>
-          )}
-          {children}
-        </FormGroup>
-      );
-    };
-
-    return (
-      <Box name="filter_list" title={__('Addition Filter List')}>
-        <Padding horizontal vertical>
-          <CustomForm label="Status" field={'status'} clearable={!!this.props.queryParams.status}>
-            <Container row>
-              {statusColorConstant.map(status => (
-                <StatusBox
-                  selected={this.props.queryParams.Status === status.name}
-                  onClick={() => selectStatus(status.name)}
-                  key={status.color}
-                >
-                  <Container row gap align="center">
-                    <Tip placement="bottom" text={status.label}>
-                      <ColorBox color={status.color} />
-                    </Tip>
-                  </Container>
-                </StatusBox>
-              ))}
-            </Container>
-          </CustomForm>
-          <Container align="center" spaceBetween>
-            <ControlLabel>Sort:</ControlLabel>
-            <Button btnStyle="link" onClick={toggleSort}>
-              <Tip text={`Sort by Created Date`} placement="bottom">
-                <Icon size={15} icon="sort" />
-              </Tip>
-            </Button>
-          </Container>
-          <CustomForm
-            label="Created Date Range"
-            field={['from', 'to']}
-            clearable={queryParams?.from || queryParams?.to}
-          >
-            <CustomRangeContainer>
-              <DateContainer>
-                <DateControl
-                  name="from"
-                  value={from}
-                  placeholder="select from date "
-                  onChange={e => dateOrder(e, 'from')}
-                />
-              </DateContainer>
-              <EndDateContainer>
-                <DateContainer>
-                  <DateControl
-                    name="to"
-                    value={to}
-                    placeholder="select to date "
-                    onChange={e => dateOrder(e, 'to')}
-                  />
-                </DateContainer>
-              </EndDateContainer>
-            </CustomRangeContainer>
-          </CustomForm>
-        </Padding>
-      </Box>
-    );
-  }
-
   render() {
     return (
       <Sidebar wide={true} hasBorder={true}>
-        <Section maxHeight={500} collapsible={this.props.totalCount > 9} noMargin noShadow>
+        <Section
+          maxHeight={500}
+          collapsible={this.props.totalCount > 9}
+          noMargin
+          noShadow
+        >
           {this.rightActionBar}
           {this.renderCategoriesFilter()}
           {this.renderCategories()}
         </Section>
-          {this.renderListFilter()}
       </Sidebar>
     );
   }

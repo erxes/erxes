@@ -607,18 +607,6 @@ const widgetMutations = {
       });
     }
 
-    // customer automation trigger =========
-    if (customer) {
-      sendAutomationsMessage({
-        subdomain,
-        action: 'trigger',
-        data: {
-          type: `contacts:${customer.state}`,
-          targets: [customer]
-        }
-      });
-    }
-
     // get or create company
     if (companyData && companyData.name) {
       let company = await sendContactsMessage({
@@ -663,18 +651,6 @@ const widgetMutations = {
             scopeBrandIds: [brand._id]
           },
           isRPC: true
-        });
-      }
-
-      // company automation trigger =========
-      if (company) {
-        sendAutomationsMessage({
-          subdomain,
-          action: 'trigger',
-          data: {
-            type: `contacts:company`,
-            targets: [company]
-          }
         });
       }
 

@@ -11,10 +11,16 @@ import { IDayPlanModel, loadDayPlanClass } from './models/DayPlans';
 import { IYearPlanDocument } from './models/definitions/yearPlans';
 import { IDayPlanDocument } from './models/definitions/dayPlans';
 import { IDayLabelDocument } from './models/definitions/dayLabels';
+import {
+  ITimeProportionModel,
+  loadTimeProportionClass
+} from './models/TimeProportions';
+import { ITimeProportionDocument } from './models/definitions/timeProportions';
 
 export interface IModels {
   Labels: ILabelModel;
   Timeframes: ITimeframeModel;
+  TimeProportions: ITimeProportionModel;
   YearPlans: IYearPlanModel;
   DayLabels: IDayLabelModel;
   DayPlans: IDayPlanModel;
@@ -43,6 +49,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'timeframes',
     loadTimeframeClass(models)
   );
+
+  models.TimeProportions = db.model<
+    ITimeProportionDocument,
+    ITimeProportionModel
+  >('time_proportions', loadTimeProportionClass(models));
 
   models.YearPlans = db.model<IYearPlanDocument, IYearPlanModel>(
     'salesplans_yearplans',

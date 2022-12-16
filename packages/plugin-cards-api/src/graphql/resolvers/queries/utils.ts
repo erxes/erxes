@@ -138,6 +138,7 @@ export const generateCommonFilters = async (
     pipelineId,
     pipelineIds,
     stageId,
+    parentId,
     search,
     closeDateType,
     assignedUserIds,
@@ -170,9 +171,13 @@ export const generateCommonFilters = async (
 
   const filter: any = noSkipArchive
     ? {}
-    : { status: { $ne: BOARD_STATUSES.ARCHIVED } };
+    : { status: { $ne: BOARD_STATUSES.ARCHIVED }, parentId: undefined };
 
   let filterIds: string[] = [];
+
+  if (parentId) {
+    filter.parentId = parentId;
+  }
 
   if (assignedUserIds) {
     // Filter by assigned to no one
@@ -376,12 +381,12 @@ export const generateCommonFilters = async (
     filter.assignedUserIds = { $in: [currentUserId] };
   }
 
-  if(segmentData){
-    const segment = JSON.parse(segmentData)
-    const itemIds = await fetchSegment(subdomain, '', { }, segment);
+  if (segmentData) {
+    const segment = JSON.parse(segmentData);
+    const itemIds = await fetchSegment(subdomain, '', {}, segment);
     filter._id = { $in: itemIds };
   }
-  
+
   if (segment) {
     const segmentObj = await sendSegmentsMessage({
       subdomain,

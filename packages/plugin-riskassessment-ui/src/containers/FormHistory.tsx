@@ -8,6 +8,8 @@ import FormHistoryComponent from '../components/FormHistory';
 
 type Props = {
   riskAssessmentId: string;
+  cardId: string;
+  cardType: string;
 };
 
 type FinalProps = {
@@ -28,9 +30,8 @@ class FormHistory extends React.Component<FinalProps> {
       return <Spinner />;
     }
 
-    if(error){
-
-      const errorMessage = error.message.replace('GraphQL error:','')
+    if (error) {
+      const errorMessage = error.message.replace('GraphQL error:', '');
 
       return <EmptyState text={errorMessage} image="/images/actions/25.svg" />;
     }
@@ -43,8 +44,8 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.assessmentHistory), {
       name: 'riskAssessmentHistory',
-      options: ({ riskAssessmentId }) => ({
-        variables: { riskAssessmentId }
+      options: props => ({
+        variables: { ...props }
       })
     })
   )(FormHistory)

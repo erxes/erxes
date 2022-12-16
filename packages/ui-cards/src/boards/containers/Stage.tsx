@@ -247,7 +247,7 @@ const getFilterParams = (
     labelIds: queryParams.labelIds,
     userIds: queryParams.userIds,
     segment: queryParams.segment,
-    segmentData:queryParams.segmentData,
+    segmentData: queryParams.segmentData,
     assignedToMe: queryParams.assignedToMe,
     startDate: queryParams.startDate,
     endDate: queryParams.endDate,
@@ -255,27 +255,32 @@ const getFilterParams = (
   };
 };
 
+type WithQueryProps = StageProps & { abortController: any };
+
 const withQuery = ({ options }) => {
-  return withProps<StageProps>(
+  return withProps<WithQueryProps>(
     compose(
-      graphql<StageProps>(gql(options.queries.itemsQuery), {
+      graphql<WithQueryProps>(gql(options.queries.itemsQuery), {
         name: 'itemsQuery',
         skip: ({ loadingState }) => loadingState !== 'readyToLoad',
-        options: ({ stage, queryParams, loadingState }) => ({
+        options: ({ stage, queryParams, loadingState, abortController }) => ({
           variables: {
             stageId: stage._id,
             pipelineId: stage.pipelineId,
             ...getFilterParams(queryParams, options.getExtraParams)
+          },
+          context: {
+            fetchOptions: { signal: abortController && abortController.signal }
           },
           fetchPolicy:
             loadingState === 'readyToLoad' ? 'network-only' : 'cache-only',
           notifyOnNetworkStatusChange: loadingState === 'readyToLoad'
         })
       }),
-      graphql<StageProps>(gql(mutations.stagesRemove), {
+      graphql<WithQueryProps>(gql(mutations.stagesRemove), {
         name: 'removeStageMutation'
       }),
-      graphql<StageProps>(gql(mutations.stagesSortItems), {
+      graphql<WithQueryProps>(gql(mutations.stagesSortItems), {
         name: 'stagesSortItemsMutation'
       })
     )(StageContainer)
@@ -284,17 +289,28 @@ const withQuery = ({ options }) => {
 
 class WithData extends React.Component<StageProps> {
   private withQuery;
+  private abortController;
+
+  componentWillUnmount() {
+    this.abortController.abort();
+  }
 
   constructor(props) {
     super(props);
 
     this.withQuery = withQuery({ options: props.options });
+    this.abortController = new AbortController();
   }
 
   render() {
     const Component = this.withQuery;
 
-    return <Component {...this.props} />;
+    const updatedProps = {
+      ...this.props,
+      abortController: this.abortController
+    };
+
+    return <Component {...updatedProps} />;
   }
 }
 

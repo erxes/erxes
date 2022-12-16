@@ -18,10 +18,12 @@ interface ContainerBoxType {
   marginX?: number;
   marginY?: number;
   rightBorder?: boolean;
+  flexWrap?: boolean;
 }
 
 export const ContainerBox = styledTS<ContainerBoxType>(styled.div)`
     display:flex;
+    flex-wrap:${({ flexWrap }) => (flexWrap ? 'wrap' : '')};
     flex-direction:${({ row }) => (row ? 'row' : '')} ${({ column }) =>
   column ? 'column' : ''};
     gap: ${({ gap }) => (gap ? `${gap}px` : '')};
@@ -238,5 +240,25 @@ export const MovementItemConfigContainer = styledTS<{ flex?: string }>(
 
   &:last-of-type {
     margin-right: 0;
+  }
+`;
+
+export const KnowledgeCard = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 80px;
+  width: 80px;
+  border-radius: 5px;
+  background-color: rgba(10, 30, 65, 0.05);
+  text-align: center;
+  margin-top: 10px;
+  transition: background 0.3s ease;
+  word-break: break-word;
+  color: ${colors.textPrimary};
+  font-size: 13px;
+  color: ${colors.colorCoreGray};
+  &:hover {
+    background: rgba(10, 30, 65, 0.08);
+    cursor: pointer;
   }
 `;

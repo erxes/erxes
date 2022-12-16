@@ -14,7 +14,13 @@ router.post('/checkInvoice', async (req, res) => {
   const status = await redisUtils.getInvoiceStatus(invoiceId);
 
   if (status === 'paid') {
+    const subdomain = getSubdomain(req);
+    const models = await generateModels(subdomain);
+    const invoice = await models.Invoices.getInvoice({ _id: invoiceId });
+
     redisUtils.removeInvoice(invoiceId);
+
+    res.clearCookie(`paymentData_${invoice.contentTypeId}`);
   }
 
   return res.json({ status });
@@ -39,6 +45,22 @@ router.get('/gateway', async (req, res) => {
   const payments = await models.Payments.find(filter).sort({
     type: 1
   });
+
+  let invoice = await models.Invoices.findOne({ _id: data._id });
+
+  const prefix = subdomain === 'localhost' ? '' : `/gateway`;
+  const domain = process.env.domain || 'http://localhost:3000';
+
+  if (invoice && invoice.status === 'paid') {
+    return res.render('index', {
+      title: 'Payment gateway',
+      payments: payments,
+      invoiceData: data,
+      invoice,
+      prefix,
+      domain
+    });
+  }
 
   res.render('index', {
     title: 'Payment gateway',

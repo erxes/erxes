@@ -17,6 +17,8 @@ import { IDayPlan, IDayPlanConfirmParams } from '../types';
 import { ITimeframe } from '../../settings/types';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { menuSalesplans } from '../../constants';
+import { scrollTo } from '../../../../../widgets/client/utils';
+import { TableWrapper } from '../../styles';
 
 type Props = {
   dayPlans: IDayPlan[];
@@ -103,7 +105,7 @@ class DayPlans extends React.Component<Props, State> {
   };
 
   modalContent = props => {
-    return <Form {...props} />;
+    return <Form {...props} history={this.props.history} />;
   };
 
   removeDayPlans = dayPlans => {
@@ -175,7 +177,8 @@ class DayPlans extends React.Component<Props, State> {
         <Button
           btnStyle="primary"
           icon="calcualtor"
-          disabled={!(branchId && departmentId && date && _date > new Date())}
+          disabled={!(branchId && departmentId && date)}
+          // disabled={!(branchId && departmentId && date && _date > new Date())}
           onClick={() =>
             toConfirm(
               {
@@ -206,33 +209,35 @@ class DayPlans extends React.Component<Props, State> {
     } = this.props;
 
     const content = (
-      <Table hover={true}>
-        <thead>
-          <tr>
-            <th style={{ width: 60 }}>
-              <FormControl
-                checked={isAllSelected}
-                componentClass="checkbox"
-                onChange={this.onChange}
-              />
-            </th>
-            <th>{__('Date')}</th>
-            <th>{__('Branch')}</th>
-            <th>{__('Department')}</th>
-            <th>{__('Product')}</th>
-            <th>{__('Uom')}</th>
-            <th>{__('Plan')}</th>
-            {timeFrames.map(tf => (
-              <th key={tf._id}>{tf.name}</th>
-            ))}
+      <TableWrapper>
+        <Table hover={true} responsive={true}>
+          <thead>
+            <tr>
+              <th style={{ width: 60 }}>
+                <FormControl
+                  checked={isAllSelected}
+                  componentClass="checkbox"
+                  onChange={this.onChange}
+                />
+              </th>
+              <th>{__('Date')}</th>
+              <th>{__('Branch')}</th>
+              <th>{__('Department')}</th>
+              <th>{__('Product')}</th>
+              <th>{__('Uom')}</th>
+              <th>{__('Plan')}</th>
+              {timeFrames.map(tf => (
+                <th key={tf._id}>{tf.name}</th>
+              ))}
 
-            <th>{__('Sum')}</th>
-            <th>{__('Diff')}</th>
-            <th>{__('')}</th>
-          </tr>
-        </thead>
-        <tbody>{this.renderRow()}</tbody>
-      </Table>
+              <th>{__('Sum')}</th>
+              <th>{__('Diff')}</th>
+              <th>{__('')}</th>
+            </tr>
+          </thead>
+          <tbody>{this.renderRow()}</tbody>
+        </Table>
+      </TableWrapper>
     );
 
     return (

@@ -1,79 +1,172 @@
+import * as compose from 'lodash.flowright';
+
+import { Alert, confirm } from '@erxes/ui/src/utils';
+import {
+  PageDetailQueryResponse,
+  PagesAddMutationResponse,
+  PagesEditMutationResponse,
+  PagesMainQueryResponse,
+  PagesRemoveMutationResponse,
+  TypesQueryResponse
+} from '../../types';
+import { mutations, queries } from '../../graphql';
+
+import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
+import SiteForm from '../../components/sites/SiteForm';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import * as compose from 'lodash.flowright';
-import { mutations, queries } from '../../graphql';
-import SiteForm from '../../components/sites/SiteForm';
-import {
-  ISiteDoc,
-  SitesAddMutationResponse,
-  SitesEditMutationResponse
-} from '../../types';
-import Alert from '@erxes/ui/src/utils/Alert';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
-  site?: ISiteDoc;
-  closeModal: () => void;
+  _id: string;
   queryParams: any;
-};
+} & IRouterProps;
 
-type FinalProps = {} & Props &
-  SitesAddMutationResponse &
-  SitesEditMutationResponse;
+type FinalProps = Props & {
+  pageDetailQuery?: PageDetailQueryResponse;
+  pagesMainQuery: PagesMainQueryResponse;
+  typesQuery: TypesQueryResponse;
+} & PagesAddMutationResponse &
+  PagesEditMutationResponse &
+  PagesRemoveMutationResponse;
 
-function SiteFormContainer(props: FinalProps) {
-  const save = (variables: any, id: string) => {
-    const { sitesAddMutation, sitesEditMutation, closeModal } = props;
+const FormContainer = (props: FinalProps) => {
+  const { pageDetailQuery, history, pagesMainQuery, typesQuery } = props;
 
-    let method: any = sitesAddMutation;
-    let message: string = 'create';
+  if (
+    (pageDetailQuery && pageDetailQuery.loading) ||
+    pagesMainQuery.loading ||
+    typesQuery.loading
+  ) {
+    return null;
+  }
 
-    if (id) {
-      method = sitesEditMutation;
-      variables._id = id;
+  const pageSave = (
+    name: string,
+    description: string,
+    siteId: string,
+    html: string,
+    css: string,
+    pageId?: string,
+    afterSave?: any
+  ) => {
+    let method: any = props.pagesAdd;
 
-      message = 'update';
+    const variables: any = {
+      name,
+      description,
+      siteId,
+      html,
+      css
+    };
+
+    if (pageId) {
+      method = props.pagesEdit;
+      variables._id = pageId;
     }
 
     method({ variables })
       .then(() => {
-        Alert.success(`You successfully ${message} a site.`);
+        Alert.success(`Success`);
 
-        closeModal();
+        if (afterSave) {
+          afterSave();
+        }
+
+        pagesMainQuery.refetch();
       })
-      .catch(e => {
-        Alert.error(e.message);
+      .catch(error => {
+        Alert.error(error.message);
       });
   };
 
+  const pageRemove = (_id: string, afterSave?: any) => {
+    confirm().then(() => {
+      props
+        .pagesRemoveMutation({ variables: { _id } })
+        .then(() => {
+          Alert.success('You successfully deleted a page.');
+
+          if (afterSave) {
+            afterSave();
+          }
+
+          pagesMainQuery.refetch();
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    });
+  };
+
+  let page;
+
+  if (pageDetailQuery) {
+    page = pageDetailQuery.webbuilderPageDetail;
+  }
+
+  const pagesMain = pagesMainQuery.webbuilderPagesMain || {};
+  const contentTypes = typesQuery.webbuilderContentTypes || [];
+
   const updatedProps = {
     ...props,
-    save
+    pageSave,
+    pageRemove,
+    page,
+    contentTypes,
+    pages: pagesMain.list || []
   };
 
   return <SiteForm {...updatedProps} />;
-}
+};
 
-const getRefetchQueries = queryParams => [
-  {
-    query: gql(queries.sites),
-    variables: { ...generatePaginationParams(queryParams) }
-  },
-  { query: gql(queries.sitesTotalCount) }
-];
+const refetchPageQueries = () => [{ query: gql(queries.pagesMain) }];
 
 export default compose(
-  graphql<Props, SitesAddMutationResponse>(gql(mutations.sitesAdd), {
-    name: 'sitesAddMutation',
-    options: ({ queryParams }) => ({
-      refetchQueries: getRefetchQueries(queryParams)
+  graphql<{}, PagesAddMutationResponse>(gql(mutations.add), {
+    name: 'pagesAdd',
+    options: () => ({
+      refetchQueries: refetchPageQueries()
     })
   }),
-  graphql<Props, SitesEditMutationResponse>(gql(mutations.sitesEdit), {
-    name: 'sitesEditMutation',
+  graphql<{}, PagesRemoveMutationResponse>(gql(mutations.remove), {
+    name: 'pagesRemoveMutation'
+  }),
+  graphql<Props, PagesEditMutationResponse>(gql(mutations.edit), {
+    name: 'pagesEdit',
     options: ({ queryParams }) => ({
-      refetchQueries: getRefetchQueries(queryParams)
+      refetchQueries: [
+        ...refetchPageQueries(),
+        {
+          query: gql(queries.pageDetail),
+          variables: { _id: queryParams.pageId || '' }
+        }
+      ]
+    })
+  }),
+
+  graphql<Props, PageDetailQueryResponse, { _id?: string }>(
+    gql(queries.pageDetail),
+    {
+      name: 'pageDetailQuery',
+      skip: ({ queryParams }) => !queryParams.pageId,
+      options: ({ queryParams }) => ({
+        variables: { _id: queryParams.pageId || '' }
+      })
+    }
+  ),
+  graphql<{}, TypesQueryResponse>(gql(queries.contentTypes), {
+    name: 'typesQuery'
+  }),
+  graphql<Props, PagesMainQueryResponse>(gql(queries.pagesMain), {
+    name: 'pagesMainQuery',
+    options: ({ _id, queryParams }) => ({
+      variables: {
+        ...generatePaginationParams(queryParams),
+        siteId: _id || ''
+      }
     })
   })
-)(SiteFormContainer);
+)(withRouter(FormContainer));

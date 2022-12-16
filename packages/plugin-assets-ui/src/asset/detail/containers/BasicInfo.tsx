@@ -13,6 +13,7 @@ import BasicInfo from '../components/BasicInfo';
 type Props = {
   asset: IAsset;
   refetchQueries?: any[];
+  history: any;
 };
 
 type FinalProps = {

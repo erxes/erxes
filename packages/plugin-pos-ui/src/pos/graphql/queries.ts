@@ -4,9 +4,10 @@ export const posCommonFields = `
   description
   createdAt
   token
+  erxesAppToken
   adminIds
   cashierIds
-
+  paymentIds
   user {
     _id
     details {

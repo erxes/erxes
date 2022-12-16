@@ -62,6 +62,7 @@ const dealMutationParams = `
 const commonQueryParams = `
   _ids: [String]
   date: ItemDate
+  parentId:String
   pipelineId: String
   pipelineIds: [String]
   customerIds: [String]

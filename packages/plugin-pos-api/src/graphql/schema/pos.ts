@@ -18,6 +18,7 @@ const posCommonFields = `
   productDetails: [String]
   adminIds: [String]
   cashierIds: [String]
+  paymentIds: [String]
   isOnline: Boolean
   onServer: Boolean
   branchId: String
@@ -30,6 +31,7 @@ const posCommonFields = `
   kioskMachine: JSON
   uiOptions: JSON
   token: String
+  erxesAppToken: String
   ebarimtConfig: JSON
   erkhetConfig: JSON
   initialCategoryIds: [String]
@@ -168,6 +170,7 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
 
   type PosOrderDetail {
     ${posOrderFields(contactsEnabled)}
+    syncErkhetInfo: String
     putResponses: JSON
     deliveryInfo: JSON
   }

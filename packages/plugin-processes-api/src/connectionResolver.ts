@@ -10,20 +10,19 @@ import {
 } from './models/JobCategories';
 import { IJobReferDocument } from './models/definitions/jobs';
 import { IJobReferModel, loadJobReferClass } from './models/Jobs';
-import { IOverallWorkDocument } from './models/definitions/overallWorks';
-import { IOverallWorkModel, loadOverallWorkClass } from './models/OverallWorks';
 import { IPerformDocument } from './models/definitions/performs';
 import { IPerformModel, loadPerformClass } from './models/Performs';
 import { IWorkDocument } from './models/definitions/works';
 import { IWorkModel, loadWorkClass } from './models/Works';
+import { IProcessModel, loadProcessClass } from './models/Processes';
+import { IProcessDocument } from './models/definitions/processes';
 
 export interface IModels {
   JobCategories: IJobCategoryModel;
   JobRefers: IJobReferModel;
   Flows: IFlowModel;
-  // Processes: IProcessModel;
+  Processes: IProcessModel;
   Works: IWorkModel;
-  OverallWorks: IOverallWorkModel;
   Performs: IPerformModel;
 }
 export interface IContext extends IMainContext {
@@ -48,13 +47,13 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'flows',
     loadFlowClass(models)
   );
+  models.Processes = db.model<IProcessDocument, IProcessModel>(
+    'process',
+    loadProcessClass(models)
+  );
   models.Works = db.model<IWorkDocument, IWorkModel>(
     'works',
     loadWorkClass(models)
-  );
-  models.OverallWorks = db.model<IOverallWorkDocument, IOverallWorkModel>(
-    'overall_works',
-    loadOverallWorkClass(models)
   );
   models.Performs = db.model<IPerformDocument, IPerformModel>(
     'performs',

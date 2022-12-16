@@ -74,12 +74,9 @@ class DayPlansContainer extends React.Component<FinalProps> {
       dayPlansRemove({
         variables: { _ids: dayPlanIds }
       })
-        .then(removeStatus => {
+        .then(() => {
           emptyBulk();
-
-          removeStatus.data.dayPlansRemove.deletedCount
-            ? Alert.success('You successfully deleted a product')
-            : Alert.warning('Product status deleted');
+          Alert.success('You successfully deleted a year plan');
         })
         .catch(e => {
           Alert.error(e.message);
@@ -142,7 +139,7 @@ const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),
   _ids: queryParams._ids,
   searchValue: queryParams.searchValue,
-  date: queryParams.date,
+  date: new Date(queryParams.date),
   filterStatus: queryParams.filterStatus,
   departmentId: queryParams.departmentId,
   branchId: queryParams.branchId,

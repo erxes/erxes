@@ -1,7 +1,8 @@
+import { ItemIndicator, Quantity } from '../styles/stage';
+
 import { ICompany } from '@erxes/ui-contacts/src/companies/types';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IProduct } from '@erxes/ui-products/src/types';
-import { ItemIndicator } from '../styles/stage';
 import React from 'react';
 import { renderFullName } from '@erxes/ui/src/utils';
 
@@ -16,6 +17,11 @@ class Details extends React.Component<Props> {
       <div key={index}>
         <ItemIndicator color={color} />
         {item.name || item.primaryName || renderFullName(item)}
+        {item.quantity && (
+          <Quantity>
+            ({item.quantity} {item.uom ? item.uom : 'PC'})
+          </Quantity>
+        )}
       </div>
     );
   }

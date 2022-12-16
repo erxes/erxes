@@ -3,9 +3,11 @@ import { posCommonFields } from './queries';
 const commonFields = `
   $name: String
   $description: String
+  $erxesAppToken: String
   $productDetails: [String]
   $adminIds: [String]
   $cashierIds: [String]
+  $paymentIds: [String]
   $isOnline: Boolean
   $onServer: Boolean
   $branchId: String
@@ -31,9 +33,11 @@ const commonFields = `
 const commonVariables = `
   name: $name,
   description: $description,
+  erxesAppToken: $erxesAppToken
   productDetails: $productDetails
   adminIds: $adminIds
   cashierIds: $cashierIds
+  paymentIds: $paymentIds
   isOnline: $isOnline
   onServer: $onServer
   branchId: $branchId

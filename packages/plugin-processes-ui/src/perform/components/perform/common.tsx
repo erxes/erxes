@@ -1,14 +1,15 @@
 import { IProduct } from '@erxes/ui-products/src/types';
+import { IOverallWorkDet } from '../../../overallWork/types';
 import { IFlowDocument } from '../../../flow/types';
-import { IJobRefer, IProductsData } from '../../../job/types';
-import { IOverallWorkDocument } from '../../types';
+import { IJobRefer } from '../../../job/types';
+import { IProductsData } from '../../../types';
 
 export const calculateCount = (
   jobRefers: IJobRefer[],
   flows: IFlowDocument[],
-  overallWorkDetail?: IOverallWorkDocument
+  overallWorkDetail?: IOverallWorkDet
 ) => {
-  const jobId = overallWorkDetail?.jobId;
+  const jobId = overallWorkDetail?.key.typeId || '';
   const resultProducts = overallWorkDetail?.resultProducts;
 
   const jobRefer = jobId
