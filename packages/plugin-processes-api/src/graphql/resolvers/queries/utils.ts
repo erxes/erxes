@@ -1,17 +1,22 @@
-import { IOverallWork } from './../../../models/definitions/overallWorks';
+import { IOverallProductsData } from './../../../models/definitions/overallWorks';
+import { getRatio } from '../../../utils/utils';
 import {
   sendProductsMessage,
   sendInventoriesMessage
 } from '../../../messageBroker';
 
-export const needProductsData = async (
+export const getProductsDataOnOwork = async (
   subdomain: string,
-  overallWork: IOverallWork
+  productsData: IOverallProductsData[],
+  branchId: string,
+  departmentId: string,
+  uomById: any
 ) => {
-  const { needProducts } = overallWork;
+  if (!productsData.length) {
+    return [];
+  }
 
-  const needProductsData: any = needProducts;
-  const productIds = needProductsData.map(np => np.productId);
+  const productIds = productsData.map(np => np.productId);
 
   const products = await sendProductsMessage({
     subdomain,
@@ -31,8 +36,8 @@ export const needProductsData = async (
     action: 'reserveRemainders.find',
     data: {
       productIds,
-      branchId: overallWork.key.inBranchId,
-      departmentId: overallWork.key.inDepartmentId
+      branchId,
+      departmentId
     },
     isRPC: true,
     defaultValue: []
@@ -48,8 +53,8 @@ export const needProductsData = async (
     action: 'remainders',
     data: {
       productIds,
-      branchId: overallWork.key.inBranchId,
-      departmentId: overallWork.key.inDepartmentId
+      branchId,
+      departmentId
     },
     isRPC: true,
     defaultValue: []
@@ -61,86 +66,25 @@ export const needProductsData = async (
   }
 
   const result: any[] = [];
-  for (const data of needProductsData) {
-    result.push({
+  for (const data of productsData) {
+    const product = productById[data.productId];
+    const ratio = getRatio(product, data.uomId);
+    const perData: any = {
       productId: data.productId,
       uomId: data.uomId,
       quantity: data.quantity,
+      uom: uomById[data.uomId],
       reserveRem: reserveRemByProductId[data.productId] || 0,
       liveRem: liveRemByProductId[data.productId] || 0,
-      product: productById[data.productId]
-    });
-  }
+      mainUom: uomById[product.uomId],
+      mainQuantity: ratio ? data.quantity / ratio : NaN,
+      product
+    };
 
-  return result;
-};
+    if (ratio && ratio !== 1) {
+    }
 
-export const resultProductsData = async (
-  subdomain: string,
-  overallWork: IOverallWork
-) => {
-  const { resultProducts } = overallWork;
-
-  const resultProductsData: any = resultProducts;
-  const productIds = resultProductsData.map(np => np.productId);
-
-  const products = await sendProductsMessage({
-    subdomain,
-    action: 'find',
-    data: { query: { _id: { $in: productIds } }, limit: productIds.length },
-    isRPC: true,
-    defaultValue: []
-  });
-
-  const productById = {};
-  for (const product of products) {
-    productById[product._id] = product;
-  }
-
-  const reserveRems = await sendInventoriesMessage({
-    subdomain,
-    action: 'reserveRemainders.find',
-    data: {
-      productIds,
-      branchId: overallWork.key.outBranchId,
-      departmentId: overallWork.key.outDepartmentId
-    },
-    isRPC: true,
-    defaultValue: []
-  });
-
-  const reserveRemByProductId = {};
-  for (const rem of reserveRems) {
-    reserveRemByProductId[rem.productId] = rem.remainder;
-  }
-
-  const liveRems = await sendInventoriesMessage({
-    subdomain,
-    action: 'remainders',
-    data: {
-      productIds,
-      branchId: overallWork.key.outBranchId,
-      departmentId: overallWork.key.outDepartmentId
-    },
-    isRPC: true,
-    defaultValue: []
-  });
-
-  const liveRemByProductId = {};
-  for (const rem of liveRems) {
-    liveRemByProductId[rem.productId] = rem.count;
-  }
-
-  const result: any[] = [];
-  for (const data of resultProductsData) {
-    result.push({
-      productId: data.productId,
-      uomId: data.uomId,
-      quantity: data.quantity,
-      reserveRem: reserveRemByProductId[data.productId] || 0,
-      liveRem: liveRemByProductId[data.productId] || 0,
-      product: productById[data.productId]
-    });
+    result.push(perData);
   }
 
   return result;

@@ -4,6 +4,7 @@ import { productsDataSchema } from './jobs';
 import { field, schemaHooksWrapper } from './utils';
 
 export interface IWork {
+  processId: string;
   name?: string;
   status: string;
   dueDate: Date;
@@ -33,6 +34,7 @@ export interface IWorkDocument extends IWork, Document {
 export const workSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
+    processId: field({ type: String, label: 'Process', index: true }),
     name: field({ type: String, optional: true, label: 'Name' }),
     status: field({ type: String, label: 'Status' }),
     type: field({
