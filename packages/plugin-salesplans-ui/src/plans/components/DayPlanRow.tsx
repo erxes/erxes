@@ -118,8 +118,8 @@ class Row extends React.Component<Props, State> {
             />
           </td>
         ))}
-        <td>{sumValue.toLocaleString()}</td>
-        <td>{diff.toLocaleString()}</td>
+        <td>{(sumValue || 0).toLocaleString()}</td>
+        <td>{(diff || 0).toLocaleString()}</td>
         <td>
           <ActionButtons>
             <Label
