@@ -8,7 +8,6 @@ import { IPayment } from '../../../models/definitions/payments';
 
 const mutations = {
   async paymentAdd(_root, doc: IPayment, { models }: IContext) {
-    console.log('paymentAdd', doc);
     return models.Payments.createPayment(doc);
   },
 
