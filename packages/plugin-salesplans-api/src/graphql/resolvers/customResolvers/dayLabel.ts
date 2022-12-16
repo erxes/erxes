@@ -7,11 +7,11 @@ export default {
     return models.DayLabels.findOne({ _id });
   },
 
-  async branch(
-    dayLabel: IDayLabelDocument,
-    _,
-    { dataLoaders, subdomain }: IContext
-  ) {
+  async branch(dayLabel: IDayLabelDocument, _, { subdomain }: IContext) {
+    if (!dayLabel.branchId) {
+      return;
+    }
+
     return await sendCoreMessage({
       subdomain,
       action: 'branches.findOne',
@@ -20,11 +20,11 @@ export default {
     });
   },
 
-  async department(
-    dayLabel: IDayLabelDocument,
-    _,
-    { dataLoaders, subdomain }: IContext
-  ) {
+  async department(dayLabel: IDayLabelDocument, _, { subdomain }: IContext) {
+    if (!dayLabel.departmentId) {
+      return;
+    }
+
     return await sendCoreMessage({
       subdomain,
       action: 'departments.findOne',
@@ -33,11 +33,7 @@ export default {
     });
   },
 
-  async labels(
-    dayLabel: IDayLabelDocument,
-    _,
-    { dataLoaders, models }: IContext
-  ) {
+  async labels(dayLabel: IDayLabelDocument, _, { models }: IContext) {
     return await models.Labels.find({ _id: { $in: dayLabel.labelIds } });
   }
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
-import { IPerform } from '../../types';
+import { IPerform } from '../../../overallWork/types';
 
 type Props = {
   perform: IPerform;
@@ -11,20 +11,12 @@ class Row extends React.Component<Props> {
   render() {
     const { perform } = this.props;
 
-    const {
-      overallWork,
-      status,
-      startAt,
-      count,
-      needProducts,
-      resultProducts
-    } = perform;
+    const { status, startAt, count, needProducts, resultProducts } = perform;
 
     const date = (startAt || '').toString().split('T');
 
     return (
       <tr>
-        <td>{overallWork.label}</td>
         <td>{status}</td>
         <td>{count || 0}</td>
         <td>{(needProducts || []).length}</td>

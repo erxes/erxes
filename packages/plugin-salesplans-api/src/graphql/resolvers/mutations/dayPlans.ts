@@ -162,6 +162,7 @@ const dayPlansMutations = {
       user
     );
   },
+
   dayPlansRemove: async (
     _root: any,
     { _ids }: { _ids: string[] },
@@ -169,6 +170,7 @@ const dayPlansMutations = {
   ) => {
     return await models.DayPlans.dayPlansRemove(_ids);
   },
+
   dayPlansConfirm: async (
     _root: any,
     doc: IDayPlanConfirmParams,
@@ -212,6 +214,7 @@ const dayPlansMutations = {
       { _id: { $in: dayPlans.map(d => d._id) } },
       { $set: { status: DAYPLAN_STATUS.SENT } }
     );
+
     return await models.DayPlans.find(filter).lean();
   }
 };

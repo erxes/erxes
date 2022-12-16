@@ -54,6 +54,7 @@ export const planFilterParams = `
 export const queries = `
   dayPlans(date: Date, ${planFilterParams}, ${paginateParams}): [DayPlan],
   dayPlansCount(date: Date, ${planFilterParams}, ${paginateParams}): Int,
+  dayPlansSum(date: Date, ${planFilterParams}, ${paginateParams}): JSON,
 `;
 
 export const planCreateParams = `

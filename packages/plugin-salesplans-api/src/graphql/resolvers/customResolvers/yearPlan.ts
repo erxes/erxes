@@ -7,11 +7,11 @@ export default {
     return models.YearPlans.findOne({ _id });
   },
 
-  async branch(
-    plan: IYearPlanDocument,
-    _,
-    { dataLoaders, subdomain }: IContext
-  ) {
+  async branch(plan: IYearPlanDocument, _, { subdomain }: IContext) {
+    if (!plan.branchId) {
+      return;
+    }
+
     return await sendCoreMessage({
       subdomain,
       action: 'branches.findOne',
@@ -20,11 +20,11 @@ export default {
     });
   },
 
-  async department(
-    plan: IYearPlanDocument,
-    _,
-    { dataLoaders, subdomain }: IContext
-  ) {
+  async department(plan: IYearPlanDocument, _, { subdomain }: IContext) {
+    if (!plan.departmentId) {
+      return;
+    }
+
     return await sendCoreMessage({
       subdomain,
       action: 'departments.findOne',
@@ -33,11 +33,11 @@ export default {
     });
   },
 
-  async product(
-    plan: IYearPlanDocument,
-    _,
-    { dataLoaders, subdomain }: IContext
-  ) {
+  async product(plan: IYearPlanDocument, _, { subdomain }: IContext) {
+    if (!plan.productId) {
+      return;
+    }
+
     return await sendProductsMessage({
       subdomain,
       action: 'findOne',
@@ -46,7 +46,11 @@ export default {
     });
   },
 
-  async uom(plan: IYearPlanDocument, _, { dataLoaders, subdomain }: IContext) {
+  async uom(plan: IYearPlanDocument, _, { subdomain }: IContext) {
+    if (!plan.uomId) {
+      return;
+    }
+
     return await sendProductsMessage({
       subdomain,
       action: 'uoms.findOne',

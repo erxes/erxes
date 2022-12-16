@@ -17,12 +17,12 @@ import { IDayPlan, IDayPlanConfirmParams } from '../types';
 import { ITimeframe } from '../../settings/types';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { menuSalesplans } from '../../constants';
-import { scrollTo } from '../../../../../widgets/client/utils';
 import { TableWrapper } from '../../styles';
 
 type Props = {
   dayPlans: IDayPlan[];
   totalCount: number;
+  totalSum: any;
   timeFrames: ITimeframe[];
   isAllSelected: boolean;
   toggleAll: (targets: IDayPlan[], containerId: string) => void;
@@ -38,7 +38,6 @@ type Props = {
 };
 
 type State = {
-  // configsMap: IConfigsMap;
   searchValue: string;
 };
 
@@ -203,27 +202,34 @@ class DayPlans extends React.Component<Props, State> {
     const {
       isAllSelected,
       totalCount,
+      totalSum,
       queryParams,
       history,
       timeFrames
     } = this.props;
 
+    const timeIds = Object.keys(totalSum).filter(k => k !== 'planCount');
+    const totalSumValue = timeIds.reduce(
+      (sum, i) => Number(sum) + Number(totalSum[i]),
+      0
+    );
+    const totalDiff = totalSumValue - totalSum.planCount;
     const content = (
       <TableWrapper>
         <Table hover={true} responsive={true}>
           <thead>
             <tr>
-              <th style={{ width: 60 }}>
+              <th rowSpan={2} style={{ width: 60 }}>
                 <FormControl
                   checked={isAllSelected}
                   componentClass="checkbox"
                   onChange={this.onChange}
                 />
               </th>
-              <th>{__('Date')}</th>
-              <th>{__('Branch')}</th>
-              <th>{__('Department')}</th>
-              <th>{__('Product')}</th>
+              <th rowSpan={2}>{__('Date')}</th>
+              <th rowSpan={2}>{__('Branch')}</th>
+              <th rowSpan={2}>{__('Department')}</th>
+              <th rowSpan={2}>{__('Product')}</th>
               <th>{__('Uom')}</th>
               <th>{__('Plan')}</th>
               {timeFrames.map(tf => (
@@ -232,6 +238,17 @@ class DayPlans extends React.Component<Props, State> {
 
               <th>{__('Sum')}</th>
               <th>{__('Diff')}</th>
+              <th>{__('')}</th>
+            </tr>
+            <tr>
+              <th>{__('Sum')}:</th>
+              <th>{totalSum.planCount.toLocaleString()}</th>
+              {timeFrames.map(tf => (
+                <th key={tf._id}>{totalSum[tf._id || '']}</th>
+              ))}
+
+              <th>{totalSumValue.toLocaleString()}</th>
+              <th>{totalDiff.toLocaleString()}</th>
               <th>{__('')}</th>
             </tr>
           </thead>

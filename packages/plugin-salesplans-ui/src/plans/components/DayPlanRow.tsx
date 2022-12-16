@@ -45,8 +45,7 @@ class Row extends React.Component<Props, State> {
     const timeId = e.target.name;
 
     const ind = values.findIndex(v => v.timeId === timeId);
-    console.log(values);
-    console.log(ind);
+
     values[ind].count = count;
     this.setState({ values }, () => {
       if (this.timer) {

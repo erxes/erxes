@@ -5,12 +5,11 @@ import { IFlow, IFlowDocument } from './flows';
 export interface IProcess {
   flowId: string;
   flow: IFlowDocument;
-  dueDate: Date;
+  date: Date;
   branchId: string;
   departmentId: string;
   productId: string;
   uomId?: string;
-  quantity: number;
   status: string;
   isSub: boolean;
   referInfos: any;
@@ -30,14 +29,9 @@ export const processSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     flowId: field({ type: String, label: 'flow' }),
     flow: field({ type: Object, label: 'flow' }),
-    dueDate: field({ type: Date, label: 'date' }),
-    productId: field({
-      type: String,
-      label: 'Product',
-      optional: true,
-      index: true
-    }),
-    quantity: field({ type: Number, label: 'quantity' }),
+    date: field({ type: Date, label: 'date' }),
+    productId: field({ type: String, label: 'Product', index: true }),
+    uomId: field({ type: String, label: 'Product', index: true }),
     status: field({ type: String, label: 'Status' }),
     isSub: field({ type: Boolean, optional: true, label: 'Is Sub Process' }),
     createdAt: { type: Date, default: new Date(), label: 'Created date' },
@@ -45,8 +39,8 @@ export const processSchema = schemaHooksWrapper(
     updatedAt: { type: Date, default: new Date(), label: 'Updated date' },
     updatedBy: { type: String },
     referInfos: field({ type: Object, optional: true, label: 'Jobs' }),
-    branchId: { type: String, optional: true },
-    departmentId: { type: String, optional: true }
+    branchId: { type: String, label: 'Branch' },
+    departmentId: { type: String, label: 'Department' }
   }),
   'erxes_processes'
 );

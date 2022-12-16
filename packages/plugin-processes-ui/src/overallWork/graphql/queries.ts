@@ -133,31 +133,6 @@ export const overallWorkDetailFields = `
   resultProductsData
 `;
 
-export const performFields = `
-  _id
-  jobType
-  jobReferId
-  productId
-
-  inBranchId
-  inDepartmentId
-  outBranchId
-  outDepartmentId
-
-  needProducts
-  resultProducts
-  needConfirmInfo
-  resultConfirmInfo
-  count
-  status
-  startAt
-  endAt
-  createdAt
-  modifiedAt
-  createdBy
-  modifiedBy
-`;
-
 const overallWorks = `
   query overallWorks(${listParamsDef}, ${paginateDefs}) {
     overallWorks(${listParamsValue}, ${paginateParams}) {
@@ -180,8 +155,96 @@ const overallWorkDetail = `
   }
 `;
 
+const userFields = `
+  _id
+  email
+  username
+  details {
+    fullName
+    shortName
+  }
+`;
+
+export const performFields = `
+  _id
+  overallWorkId
+  overallWorkKey {
+    inBranchId
+    inDepartmentId
+    outBranchId
+    outDepartmentId
+    type
+    typeId
+  }
+  status
+  startAt
+  dueDate
+  endAt
+  count
+  inBranchId
+  inDepartmentId
+  outBranchId
+  outDepartmentId
+  needProducts
+  resultProducts
+  inProducts
+  outProducts
+
+  inDepartment {
+    _id
+    code
+    title
+    parentId
+  }
+  inBranch {
+    _id
+    code
+    title,
+    parentId
+  }
+  outDepartment {
+    _id
+    code
+    title
+    parentId
+  }
+  outBranch {
+    _id
+    code
+    title,
+    parentId
+  }
+
+  createdAt
+  createdBy
+  modifiedAt
+  modifiedBy
+  createdUser {
+    ${userFields}
+  }
+  modifiedUser {
+    ${userFields}
+  }
+`;
+
+const performs = `
+  query performs(${detailParamsDef}, ${paginateDefs}) {
+    performs(${detailParamsValue}, ${paginateParams}) {
+      ${performFields}
+    }
+  }
+`;
+
+const performsCount = `
+  query performs(${detailParamsDef}) {
+    performs(${detailParamsValue}) Int
+  }
+`;
+
 export default {
   overallWorks,
   overallWorksCount,
-  overallWorkDetail
+  overallWorkDetail,
+  performs,
+  performsCount
 };
