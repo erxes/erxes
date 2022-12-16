@@ -3,17 +3,23 @@ import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { sendFormsMessage } from '../messageBroker';
-import { IRiskAssessmentCategoryField, PaginateField } from './definitions/common';
+import {
+  IRiskAssessmentCategoryField,
+  PaginateField
+} from './definitions/common';
 import {
   IRiskAssessmentCategoryDocument,
   riskAssessmentCategorySchema
 } from './definitions/riskassessment';
 
-export interface IRiskAssessmentCategoryModel extends Model<IRiskAssessmentCategoryDocument> {
+export interface IRiskAssessmentCategoryModel
+  extends Model<IRiskAssessmentCategoryDocument> {
   addAssessmentCategory(
     params: IRiskAssessmentCategoryField
   ): Promise<IRiskAssessmentCategoryDocument>;
-  removeAssessmentCategory(params: { _id: string }): Promise<IRiskAssessmentCategoryDocument>;
+  removeAssessmentCategory(params: {
+    _id: string;
+  }): Promise<IRiskAssessmentCategoryDocument>;
   editAssessmentCategory(
     params: IRiskAssessmentCategoryField
   ): Promise<IRiskAssessmentCategoryDocument>;
@@ -25,7 +31,9 @@ export interface IRiskAssessmentCategoryModel extends Model<IRiskAssessmentCateg
   removeUnsavedRiskAssessmentCategoryForm(formId: string): Boolean;
 }
 
-const generateFilter = (params: IRiskAssessmentCategoryField & PaginateField) => {
+const generateFilter = (
+  params: IRiskAssessmentCategoryField & PaginateField
+) => {
   let filter: any = {};
 
   if (params.formId) {
@@ -44,7 +52,9 @@ const generateFilter = (params: IRiskAssessmentCategoryField & PaginateField) =>
 
 export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
   class AssessmentClass {
-    public static addAssessmentCategory = async (params: IRiskAssessmentCategoryField) => {
+    public static addAssessmentCategory = async (
+      params: IRiskAssessmentCategoryField
+    ) => {
       const { name, code, parentId } = params;
       if (!params) {
         throw new Error('please type the assessment category fields');
@@ -62,20 +72,26 @@ export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
       return result;
     };
 
-    public static getAssessmentCategories = (params: IRiskAssessmentCategoryField) => {
+    public static getAssessmentCategories = (
+      params: IRiskAssessmentCategoryField
+    ) => {
       const filter = generateFilter(params);
 
       return paginate(models.RiskAssessmentCategory.find(filter), params);
     };
 
     public static getAssessmentCategory = async (_id: string) => {
-      const category = await models.RiskAssessmentCategory.findOne({ _id }).lean();
+      const category = await models.RiskAssessmentCategory.findOne({
+        _id
+      }).lean();
 
       if (!category) {
         throw new Error('Not found assessment category');
       }
 
-      const parent = await models.RiskAssessmentCategory.findOne({ _id: category.parentId });
+      const parent = await models.RiskAssessmentCategory.findOne({
+        _id: category.parentId
+      });
 
       if (parent) {
         category.parent = parent;
@@ -108,7 +124,9 @@ export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
       return category;
     };
 
-    public static removeAssessmentCategory = async (params: { _id: string }) => {
+    public static removeAssessmentCategory = async (params: {
+      _id: string;
+    }) => {
       if (!params._id) {
         throw new Error('Not found risk assessment category');
       }
@@ -118,10 +136,14 @@ export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
       }).lean();
 
       try {
-        const riskAssessments = await models.RiskAssessment.find({ categoryId: { $in: _id } });
+        const riskAssessments = await models.RiskAssessment.find({
+          categoryId: { $in: _id }
+        });
         const riskAssessmentIds = riskAssessments.map(p => p._id);
         await models.RiskAssessment.deleteMany({ categoryId: _id });
-        await models.RiskConfimity.deleteMany({ riskAssessmentId: { $in: riskAssessmentIds } });
+        await models.RiskConformity.deleteMany({
+          riskAssessmentId: { $in: riskAssessmentIds }
+        });
         await sendFormsMessage({
           subdomain,
           action: 'removeForm',
@@ -131,16 +153,22 @@ export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
           isRPC: true,
           defaultValue: []
         });
-        return await models.RiskAssessmentCategory.findByIdAndDelete(params._id);
+        return await models.RiskAssessmentCategory.findByIdAndDelete(
+          params._id
+        );
       } catch (error) {
         throw new Error(error.message);
       }
     };
 
-    public static editAssessmentCategory = async (params: IRiskAssessmentCategoryField) => {
+    public static editAssessmentCategory = async (
+      params: IRiskAssessmentCategoryField
+    ) => {
       const { _id, name, code, parentId, formId } = params;
 
-      const category = await models.RiskAssessmentCategory.findOne({ _id }).lean();
+      const category = await models.RiskAssessmentCategory.findOne({
+        _id
+      }).lean();
 
       if (!category) {
         throw new Error('Not found risk assessment category');
@@ -192,7 +220,10 @@ export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
       return parent ? `${parent.order}/${code}` : `${name}${code}`;
     }
 
-    static async checkParams(params: IRiskAssessmentCategoryField, checkCode?: boolean) {
+    static async checkParams(
+      params: IRiskAssessmentCategoryField,
+      checkCode?: boolean
+    ) {
       if (!params.formId) {
         return 'You must a build form';
       }
@@ -205,7 +236,10 @@ export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
         return 'You must provide code';
       }
 
-      if (checkCode && (await models.RiskAssessmentCategory.findOne({ code: params.code }))) {
+      if (
+        checkCode &&
+        (await models.RiskAssessmentCategory.findOne({ code: params.code }))
+      ) {
         return 'Code must be unique';
       }
     }

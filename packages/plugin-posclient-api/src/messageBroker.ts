@@ -231,6 +231,12 @@ export const sendLoyaltiesMessage = async (
   return sendMessageWrapper('loyalties', args);
 };
 
+export const sendPricingMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessageWrapper('pricing', args);
+};
+
 export default function() {
   return client;
 }

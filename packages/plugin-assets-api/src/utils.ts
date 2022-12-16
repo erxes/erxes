@@ -1,4 +1,5 @@
 import { Types } from 'mongoose';
+import { models } from './connectionResolver';
 export const generateFilter = async (params, type) => {
   let filter: any = {};
 
@@ -8,6 +9,20 @@ export const generateFilter = async (params, type) => {
 
   if (params.assetId) {
     filter.assetId = params.assetId;
+  }
+
+  if (params.parentId) {
+    if (params.parentId === '*') {
+      const assets = await models?.Assets.find({
+        parentId: ''
+      });
+      const assetIds = (assets || []).map(asset => asset._id);
+      filter.assetId = { $in: assetIds };
+    } else {
+      const assets = await models?.Assets.find({ parentId: params.parentId });
+      const assetIds = (assets || []).map(asset => asset._id);
+      filter.assetId = { $in: assetIds };
+    }
   }
 
   if (params.userId) {

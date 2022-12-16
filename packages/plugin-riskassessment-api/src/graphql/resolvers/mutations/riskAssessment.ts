@@ -3,7 +3,11 @@ import { IContext } from '../../../connectionResolver';
 import { IRiskAssessmentField } from '../../../models/definitions/common';
 
 const RiskAssessmentMutations = {
-  async addRiskAssesment(_root, params: IRiskAssessmentField, { models }: IContext) {
+  async addRiskAssesment(
+    _root,
+    params: IRiskAssessmentField,
+    { models }: IContext
+  ) {
     const result = await models.RiskAssessment.riskAssesmentAdd(params);
     return result;
   },
@@ -19,11 +23,42 @@ const RiskAssessmentMutations = {
   ) {
     const result = await models.RiskAssessment.riskAssessmentUpdate(params);
     return result;
+  },
+
+  async addRiskAssesmentConfig(_root, params, { models }: IContext) {
+    return await models.RiskAssessmentConfigs.addConfig(params);
+  },
+  async updateRiskAssessmentConfig(
+    _root,
+    { configId, doc },
+    { models }: IContext
+  ) {
+    return await models.RiskAssessmentConfigs.updateConfig(configId, doc);
+  },
+
+  async removeRiskAssessmentConfigs(
+    _root,
+    { configIds },
+    { models }: IContext
+  ) {
+    return await models.RiskAssessmentConfigs.removeConfigs(configIds);
   }
 };
 
-checkPermission(RiskAssessmentMutations, 'addRiskAssesment', 'manageRiskAssessment');
-checkPermission(RiskAssessmentMutations, 'removeRiskAssessment', 'manageRiskAssessment');
-checkPermission(RiskAssessmentMutations, 'updateRiskAssessment', 'manageRiskAssessment');
+checkPermission(
+  RiskAssessmentMutations,
+  'addRiskAssesment',
+  'manageRiskAssessment'
+);
+checkPermission(
+  RiskAssessmentMutations,
+  'removeRiskAssessment',
+  'manageRiskAssessment'
+);
+checkPermission(
+  RiskAssessmentMutations,
+  'updateRiskAssessment',
+  'manageRiskAssessment'
+);
 
 export default RiskAssessmentMutations;
