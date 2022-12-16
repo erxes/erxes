@@ -242,13 +242,13 @@ class DayPlans extends React.Component<Props, State> {
             </tr>
             <tr>
               <th>{__('Sum')}:</th>
-              <th>{totalSum.planCount.toLocaleString()}</th>
+              <th>{(totalSum.planCount || 0).toLocaleString()}</th>
               {timeFrames.map(tf => (
                 <th key={tf._id}>{totalSum[tf._id || '']}</th>
               ))}
 
-              <th>{totalSumValue.toLocaleString()}</th>
-              <th>{totalDiff.toLocaleString()}</th>
+              <th>{(totalSumValue || 0).toLocaleString()}</th>
+              <th>{(totalDiff || 0).toLocaleString()}</th>
               <th>{__('')}</th>
             </tr>
           </thead>
