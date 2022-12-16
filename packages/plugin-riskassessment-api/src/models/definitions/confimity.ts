@@ -29,6 +29,7 @@ export const riskConformitySchema = new Schema({
     label: 'Answer Risk assessment Ids'
   }),
   createdAt: field({ type: Date, label: 'Created At', default: Date.now }),
+  closedAt: field({ type: Date, optional: true, label: 'Closed At' }),
   status: field({ type: String, label: 'Status', default: 'In Progress' }),
   statusColor: field({
     type: String,

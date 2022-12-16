@@ -50,6 +50,9 @@ const statusColors = {
   No_Result: '#888'
 };
 
+const convertToDateParams = date =>
+  parseInt(date) ? new Date(parseInt(date)).toString() : new Date(date);
+
 const generateFilter = params => {
   let filter: any = {};
 
@@ -61,25 +64,46 @@ const generateFilter = params => {
     filter.riskAssessmentId = params.riskAssessmentId;
   }
   if (params.sortFromDate) {
-    if (parseInt(params.sortFromDate)) {
-      params.sortFromDate = new Date(parseInt(params.sortFromDate)).toString();
-    }
-    filter.createdAt = { $gte: new Date(params.sortFromDate) };
+    filter.createdAt = { $gte: convertToDateParams(params.sortFromDate) };
   }
 
   if (params.sortToDate) {
-    if (parseInt(params.sortToDate)) {
-      params.sortToDate = new Date(parseInt(params.sortToDate)).toString();
-    }
     filter.createdAt = {
       ...filter.createdAt,
-      $lte: new Date(params.sortToDate)
+      $lte: convertToDateParams(params.sortToDate)
     };
   }
 
   if (params.status) {
     filter.statusColor = statusColors[params.status];
   }
+
+  if (params.closedFrom) {
+    filter.closedAt = { $gte: convertToDateParams(params.closedFrom) };
+  }
+
+  if (params.closedTo) {
+    filter.closedAt = {
+      ...filter.closedAt,
+      $lte: convertToDateParams(params.closedTo)
+    };
+  }
+
+  if (params.createdFrom) {
+    filter.createdAt = { $gte: convertToDateParams(params.createdFrom) };
+  }
+
+  if (params.createdTo) {
+    filter.createdAt = {
+      ...filter.createdAt,
+      $lte: convertToDateParams(params.createdTo)
+    };
+  }
+
+  if (params.cardType) {
+    filter.cardType = params.cardType;
+  }
+
   return filter;
 };
 

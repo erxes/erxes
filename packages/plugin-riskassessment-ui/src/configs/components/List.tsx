@@ -100,6 +100,7 @@ class List extends React.Component<Props, State> {
             <th>{__('Pipeline')}</th>
             <th>{__('Stage')}</th>
             <th>{__('Field')}</th>
+            <th>{__('Risk Assessment')}</th>
             <th>
               <SortHandler sortField="createdAt" />
               {__('Created At')}

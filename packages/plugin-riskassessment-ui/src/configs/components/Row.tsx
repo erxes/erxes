@@ -71,6 +71,7 @@ class Row extends React.Component<Props, State> {
         <td>{__(config?.pipeline?.name || '-')}</td>
         <td>{__(config?.stage?.name || '-')}</td>
         <td>{__(config?.field?.text || '-')}</td>
+        <td>{__(config?.riskAssessment?.name || '-')}</td>
         <td>{moment(__(config?.createdAt)).format('ll HH:mm')}</td>
         <td>{moment(__(config?.modifiedAt)).format('ll HH:mm')}</td>
         <td>{renderActions()}</td>

@@ -32,6 +32,8 @@ query RiskAssessmentConfigs (${configParamsDef},${commonPaginateDef}) {
     stageId
     createdAt
     modifiedAt
+    riskAssessmentId
+    riskAssessment
   }
 }
 `;
