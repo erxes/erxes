@@ -45,7 +45,6 @@ export const initBroker = async cl => {
       if (data) {
         switch (data.type) {
           case 'product':
-            console.log('ddddddddddddd');
             await receiveProduct(models, data);
             break;
           case 'productCategory':
@@ -230,6 +229,12 @@ export const sendLoyaltiesMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessageWrapper('loyalties', args);
+};
+
+export const sendPricingMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessageWrapper('pricing', args);
 };
 
 export default function() {

@@ -21,14 +21,15 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import { Link } from 'react-router-dom';
 import xss from 'xss';
 import { IAsset } from '../../../common/types';
-import { AssetContent } from '../../../style';
+import { AssetContent, ContainerBox } from '../../../style';
 import AssetForm from '../../containers/Form';
 import { Tip } from '@erxes/ui/src';
+import Knowledge from './KnowledgeForm';
 
 type Props = {
   asset: IAsset;
   remove: () => void;
-  history:any
+  history: any;
 };
 
 class BasicInfo extends React.Component<Props> {
@@ -53,7 +54,7 @@ class BasicInfo extends React.Component<Props> {
     );
   };
 
-  renderView = (name, variable,extraField?:any) => {
+  renderView = (name, variable, extraField?: any) => {
     const defaultName = name.includes('count') ? 0 : '-';
 
     return (
@@ -105,9 +106,10 @@ class BasicInfo extends React.Component<Props> {
   };
 
   renderInfo() {
-    const { asset,history } = this.props;
+    const { asset, history } = this.props;
 
-    const content = props => <AssetForm {...props} asset={asset} />;
+    const editForm = props => <AssetForm {...props} asset={asset} />;
+    const addKnowledge = props => <Knowledge {...props} assetId={asset._id} />;
     const {
       code,
       name,
@@ -121,7 +123,7 @@ class BasicInfo extends React.Component<Props> {
       createdAt
     } = asset;
 
-    const changeAssetDetail = () =>{
+    const changeAssetDetail = () => {
       return (
         <Button
           onClick={() => history.push(`/settings/assets/detail/${parent._id}`)}
@@ -133,18 +135,26 @@ class BasicInfo extends React.Component<Props> {
           </Tip>
         </Button>
       );
-    }
+    };
 
     return (
       <Sidebar.Section>
         <InfoWrapper>
           <Name>{name}</Name>
-          <ModalTrigger
-            title="Edit basic info"
-            trigger={<Icon icon="edit" />}
-            size="lg"
-            content={content}
-          />
+          <ContainerBox gap={5}>
+            <ModalTrigger
+              title="Edit basic info"
+              trigger={<Icon icon="edit" />}
+              size="lg"
+              content={editForm}
+            />
+            <ModalTrigger
+              title="Add Knowledge "
+              trigger={<Icon icon="lightbulb-alt" />}
+              content={addKnowledge}
+              size="lg"
+            />
+          </ContainerBox>
         </InfoWrapper>
 
         {this.renderAction()}

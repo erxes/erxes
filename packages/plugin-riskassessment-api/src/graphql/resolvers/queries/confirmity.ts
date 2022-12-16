@@ -1,50 +1,64 @@
 import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
-import { IRiskConfirmityParams } from '../../../models/definitions/common';
+import { IRiskConformityParams } from '../../../models/definitions/common';
 
-const RiskConfimityQuries = {
-  async riskConfirmities(
+const RiskConformityQuries = {
+  async riskConformity(
     _root,
-    params: IRiskConfirmityParams,
+    params: IRiskConformityParams,
     { models }: IContext
   ) {
-    return await models.RiskConfimity.riskConfirmities(params);
+    return await models.RiskConformity.riskConformity(params);
   },
-  async riskConfirmityDetails(
+  async riskConformities(
     _root,
-    params: IRiskConfirmityParams,
+    params: IRiskConformityParams,
     { models }: IContext
   ) {
-    return await models.RiskConfimity.riskConfirmityDetails(params);
+    return await models.RiskConformity.riskConformities(params);
   },
-  async riskConfirmitySubmissions(
+  async riskConformitiesTotalCount(
+    _root,
+    params: IRiskConformityParams,
+    { models }: IContext
+  ) {
+    return await models.RiskConformity.riskConformitiesTotalCount(params);
+  },
+  async riskConformityDetails(
+    _root,
+    params: IRiskConformityParams,
+    { models }: IContext
+  ) {
+    return await models.RiskConformity.riskConformityDetails(params);
+  },
+  async riskConformitySubmissions(
     _root,
     params: { cardId: string },
     { models }: IContext
   ) {
-    return await models.RiskConfimity.riskConfirmitySubmissions(params);
+    return await models.RiskConformity.riskConformitySubmissions(params);
   },
 
-  async riskConfirmityFormDetail(_root, params, { models }: IContext) {
-    return await models.RiskConfimity.riskConfirmityFormDetail(params);
+  async riskConformityFormDetail(_root, params, { models }: IContext) {
+    return await models.RiskConformity.riskConformityFormDetail(params);
   }
 };
 
-checkPermission(RiskConfimityQuries, 'riskConfirmities', 'showRiskAssessment');
+checkPermission(RiskConformityQuries, 'riskConformity', 'showRiskAssessment');
 checkPermission(
-  RiskConfimityQuries,
-  'riskConfirmityDetails',
+  RiskConformityQuries,
+  'riskConformityDetails',
   'showRiskAssessment'
 );
 checkPermission(
-  RiskConfimityQuries,
-  'riskConfirmitySubmissions',
+  RiskConformityQuries,
+  'riskConformitySubmissions',
   'showRiskAssessment'
 );
 checkPermission(
-  RiskConfimityQuries,
-  'riskConfirmityFormDetail',
+  RiskConformityQuries,
+  'riskConformityFormDetail',
   'showRiskAssessment'
 );
 
-export default RiskConfimityQuries;
+export default RiskConformityQuries;

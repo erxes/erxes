@@ -14,9 +14,13 @@ router.post('/checkInvoice', async (req, res) => {
   const status = await redisUtils.getInvoiceStatus(invoiceId);
 
   if (status === 'paid') {
+    const subdomain = getSubdomain(req);
+    const models = await generateModels(subdomain);
+    const invoice = await models.Invoices.getInvoice({ _id: invoiceId });
+
     redisUtils.removeInvoice(invoiceId);
 
-    res.clearCookie('paymentData');
+    res.clearCookie(`paymentData_${invoice.contentTypeId}`);
   }
 
   return res.json({ status });

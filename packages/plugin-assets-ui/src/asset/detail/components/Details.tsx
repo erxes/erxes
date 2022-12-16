@@ -11,7 +11,8 @@ import LeftSidebar from './LeftSideBar';
 type Props = {
   asset: IAsset;
   currentUser: IUser;
-  history:any
+  history: any;
+  refetchDetail: () => void;
 };
 
 class AssetDetail extends React.Component<Props> {

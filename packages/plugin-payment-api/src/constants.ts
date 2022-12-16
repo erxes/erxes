@@ -46,5 +46,9 @@ export const PLUGIN_RESOLVERS_META = {
     action: 'getConversation',
     queryKey: 'conversationId'
   },
-  'cards:deals': { action: 'deals.findOne', queryKey: '_id' }
+  'cards:deals': { action: 'deals.findOne', queryKey: '_id' },
+  'pos:orders': {
+    action: 'orders.findOne',
+    queryKey: '_id'
+  }
 };

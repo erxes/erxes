@@ -1,12 +1,12 @@
 extends layout
 
 block layout-content
-    .my-layout  
+    .my-layout
         .header Payment method
         .paymentContainer
             h3 Choose payment method
             div.View.paymentMethod
-                each val in payments 
+                each val in payments
                     form(method="post")
                         input(type="hidden" name="selectedPaymentId", value=val._id)
                         button(typupe="submit").button
@@ -15,29 +15,29 @@ block layout-content
                                 .uppercase  !{val.name}
             h3 Information of invoice
             .flex#info
-                .info       
+                .info
                     .label(htmlFor="amount") Amount
-                        strong 
+                        strong
                             p  #{invoiceData.amount}
                     if invoiceData.description
                         .label Description
-                            strong 
+                            strong
                                 p  #{invoiceData.description}
                 if invoice
                     .qr
                         .isMobile#isMobile
                             .label Choose your bank
-                            .border 
+                            .border
                                 if invoice.apiResponse.qr_image
                                     each url in (invoice.apiResponse.urls || [])
                                         a(href=url.link class="bank")
                                             img(src=url.logo class="urlLogo")
                                 if invoice.apiResponse.socialPayQrCode
                                     img(src=`${invoice.apiResponse.socialPayQrCode}`)
-                                .label.status status: 
+                                .label.status status:
                                     |  #{invoice.status}
                             if invoice.status === 'paid'
-                                script. 
+                                script.
                                     const message = {
                                         fromPayment: true,
                                         message:"paymentSuccessfull",
@@ -58,17 +58,17 @@ block layout-content
                         .desktop#desktop
                             if invoice.paymentKind === 'socialPay' && invoice.phone
                                 .label #{invoice.apiResponse.text}
-                            else 
-                                .label QR code 
+                            else
+                                .label QR code
                                 .border
                                     if invoice.apiResponse.qr_image
                                         img(src="data:image/jpg;base64," + invoice.apiResponse.qr_image)
                                     if invoice.apiResponse.socialPayQrCode
                                         img(src=`${invoice.apiResponse.socialPayQrCode}`)
-                                    .label.status status: 
+                                    .label.status status:
                                         |  #{invoice.status}
                             if invoice.status === 'paid'
-                                script. 
+                                script.
                                     const message = {
                                         fromPayment: true,
                                         message:"paymentSuccessfull",
@@ -87,10 +87,10 @@ block layout-content
                                     } else if (window.opener && window.confirm('Payment is completed. Do you want to close this window?')) {
                                         window.close();
                                     }
-        if invoice && invoice.status !== 'paid'                               
+        if invoice && invoice.status !== 'paid'
             script.
                 setInterval(() => {
-                    window.fetch('/pl:payment/checkInvoice', {
+                    window.fetch(`#{prefix}/pl:payment/checkInvoice`, {
                         method: 'POST',
                         credentials: 'include',
                         headers: {
@@ -122,10 +122,10 @@ block layout-content
                         }
                     });
                 }, 3000);
-        
+
         if invoice && invoice.status === 'paid'
             script.
-                window.fetch('/pl:payment/checkInvoice', {
+                window.fetch(`#{prefix}/pl:payment/checkInvoice`, {
                     method: 'POST',
                     credentials: 'include',
                     headers: {
@@ -156,7 +156,6 @@ block layout-content
                         }
                     }
                 });
-                
 
     block extraScript
         script.
