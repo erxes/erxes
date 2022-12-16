@@ -343,7 +343,9 @@ export const loadUserClass = (models: IModels) => {
             registrationToken: undefined,
             username,
             details: {
-              fullName
+              fullName,
+              firstName: (fullName || '').split(' ')[0],
+              lastName: (fullName || '').split(' ')[1] || ''
             }
           }
         }

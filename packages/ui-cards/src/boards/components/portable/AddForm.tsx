@@ -140,6 +140,11 @@ class AddForm extends React.Component<Props, State> {
           alert = true;
         }
 
+        // check if field is required but hidden
+        if (field._id !== customField.field) {
+          alert = false;
+        }
+
         if (alert) {
           return Alert.error('Please enter or choose a required field');
         }
