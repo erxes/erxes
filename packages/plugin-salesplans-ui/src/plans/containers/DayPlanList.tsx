@@ -2,7 +2,6 @@ import * as compose from 'lodash.flowright';
 import DayPlans from '../components/DayPlanList';
 import gql from 'graphql-tag';
 import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert, router, withProps } from '@erxes/ui/src/utils';
 import { Bulk } from '@erxes/ui/src/components';
 import {
@@ -48,14 +47,6 @@ class DayPlansContainer extends React.Component<FinalProps> {
       dayPlansRemove,
       dayPlansConfirm
     } = this.props;
-
-    if (
-      dayPlanQuery.loading ||
-      dayPlansCountQuery.loading ||
-      timeFrameQuery.loading
-    ) {
-      return <Spinner />;
-    }
 
     // edit row action
     const edit = (doc: IDayPlan) => {

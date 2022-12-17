@@ -1,7 +1,6 @@
 import * as compose from 'lodash.flowright';
 import gql from 'graphql-tag';
 import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import YearPlans from '../components/YearPlanList';
 import { Alert, router, withProps } from '@erxes/ui/src/utils';
 import { Bulk } from '@erxes/ui/src/components';
@@ -40,10 +39,6 @@ class YearPlansContainer extends React.Component<FinalProps> {
       yearPlanEdit,
       yearPlansRemove
     } = this.props;
-
-    if (yearPlanQuery.loading || yearPlansCountQuery.loading) {
-      return <Spinner />;
-    }
 
     // edit row action
     const edit = (doc: IYearPlan) => {
