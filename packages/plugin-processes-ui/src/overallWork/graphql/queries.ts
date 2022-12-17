@@ -185,11 +185,25 @@ export const performFields = `
   inDepartmentId
   outBranchId
   outDepartmentId
+ 
+  createdAt
+  createdBy
+  modifiedAt
+  modifiedBy
+  createdUser {
+    ${userFields}
+  }
+  modifiedUser {
+    ${userFields}
+  }
+`;
+
+const performDetailFields = `
+  ${performFields}
   needProducts
   resultProducts
   inProducts
   outProducts
-
   inDepartment {
     _id
     code
@@ -215,16 +229,6 @@ export const performFields = `
     parentId
   }
 
-  createdAt
-  createdBy
-  modifiedAt
-  modifiedBy
-  createdUser {
-    ${userFields}
-  }
-  modifiedUser {
-    ${userFields}
-  }
 `;
 
 const performs = `
@@ -236,8 +240,16 @@ const performs = `
 `;
 
 const performsCount = `
-  query performs(${detailParamsDef}) {
-    performs(${detailParamsValue}) Int
+  query performsCount(${detailParamsDef}) {
+    performsCount(${detailParamsValue})
+  }
+`;
+
+const performDetail = `
+  query performDetail($_id: String) {
+    performDetail(_id: $_id) {
+      ${performDetailFields}
+    }
   }
 `;
 
@@ -246,5 +258,6 @@ export default {
   overallWorksCount,
   overallWorkDetail,
   performs,
-  performsCount
+  performsCount,
+  performDetail
 };

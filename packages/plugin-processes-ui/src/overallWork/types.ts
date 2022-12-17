@@ -92,7 +92,13 @@ export type OverallWorkDetailQueryResponse = {
 };
 
 export type PerformsQueryResponse = {
-  performs: IOverallWorkDet;
+  performs: IPerform[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type PerformDetailQueryResponse = {
+  perform: IPerform;
   loading: boolean;
   refetch: () => void;
 };

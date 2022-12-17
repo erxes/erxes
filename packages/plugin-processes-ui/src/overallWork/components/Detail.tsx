@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import Button from '@erxes/ui/src/components/Button';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import DetailLeftSidebar from './DetailLeftSidebar';
 import DetailRightSidebar from './DetailRightSidebar';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
@@ -19,6 +20,7 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import { menuNavs } from '../../constants';
 import { Title } from '@erxes/ui-settings/src/styles';
 import { withRouter } from 'react-router-dom';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 
 type Props = {
   history: any;
@@ -26,6 +28,7 @@ type Props = {
   overallWork: IOverallWorkDet;
   errorMsg?: string;
   performs: IPerform[];
+  performsCount: number;
   removePerform: (_id: string) => void;
 } & IRouterProps;
 
@@ -178,9 +181,17 @@ class OverallWorkDetail extends React.Component<Props, State> {
   }
 
   render() {
-    const { queryParams, history, overallWork } = this.props;
+    const { queryParams, history, overallWork, performsCount } = this.props;
 
-    const mainContent = this.renderContent();
+    const mainContent = (
+      <DataWithLoader
+        data={this.renderContent()}
+        loading={false}
+        count={performsCount}
+        emptyText="There is no data"
+        emptyImage="/images/actions/5.svg"
+      />
+    );
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">
         {__('Add performance')}
@@ -207,7 +218,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
       </BarItems>
     );
 
-    const actionBarLeft = <Title>{'All jobs'}</Title>;
+    const actionBarLeft = <Title>{'Performances'}</Title>;
 
     return (
       <Wrapper
@@ -228,6 +239,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
           />
         }
         content={mainContent}
+        footer={<Pagination count={performsCount} />}
       />
     );
   }

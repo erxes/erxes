@@ -8,10 +8,12 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import {
   OverallWorkDetailQueryResponse,
   PerformRemoveMutationResponse,
+  PerformsCountQueryResponse,
   PerformsQueryResponse
 } from '../types';
 import { mutations, queries } from '../graphql';
 import { withRouter } from 'react-router-dom';
+import { router } from '@erxes/ui/src/utils';
 
 type Props = {
   queryParams: any;
@@ -21,6 +23,7 @@ type Props = {
 type FinalProps = {
   overallWorkDetailQuery: OverallWorkDetailQueryResponse;
   performsQuery: PerformsQueryResponse;
+  performsCountQuery: PerformsCountQueryResponse;
 } & Props &
   IRouterProps &
   PerformRemoveMutationResponse;
@@ -35,9 +38,18 @@ class OverallWorkDetailContainer extends React.Component<FinalProps> {
   }
 
   render() {
-    const { overallWorkDetailQuery, performsQuery, performRemove } = this.props;
+    const {
+      overallWorkDetailQuery,
+      performsQuery,
+      performsCountQuery,
+      performRemove
+    } = this.props;
 
-    if (overallWorkDetailQuery.loading || performsQuery.loading) {
+    if (
+      overallWorkDetailQuery.loading ||
+      performsQuery.loading ||
+      performsCountQuery.loading
+    ) {
       return <Spinner />;
     }
 
@@ -60,13 +72,15 @@ class OverallWorkDetailContainer extends React.Component<FinalProps> {
     }
 
     const overallWork = overallWorkDetailQuery.overallWorkDetail;
-    const performs = performsQuery.performs;
+    const performs = performsQuery.performs || [];
+    const performsCount = performsCountQuery.performsCount || 0;
 
     const updatedProps = {
       ...this.props,
       errorMsg,
       overallWork,
       performs,
+      performsCount,
       removePerform
     };
 
@@ -102,10 +116,23 @@ export default withProps<Props>(
     graphql<{ queryParams }, PerformsQueryResponse, {}>(gql(queries.performs), {
       name: 'performsQuery',
       options: ({ queryParams }) => ({
-        variables: generateParams({ queryParams }),
+        variables: {
+          ...generateParams({ queryParams }),
+          ...router.generatePaginationParams(queryParams || {})
+        },
         fetchPolicy: 'network-only'
       })
     }),
+    graphql<{ queryParams }, PerformsCountQueryResponse, {}>(
+      gql(queries.performsCount),
+      {
+        name: 'performsCountQuery',
+        options: ({ queryParams }) => ({
+          variables: generateParams({ queryParams }),
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
     graphql<Props, PerformRemoveMutationResponse, { performId: string }>(
       gql(mutations.performRemove),
       {
