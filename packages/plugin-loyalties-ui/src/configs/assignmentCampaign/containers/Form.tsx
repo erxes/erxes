@@ -9,7 +9,7 @@ import { mutations, queries } from '../graphql';
 import {
   AssignmentCampaignQueryResponse,
   IAssignmentCampaign,
-  SegmentDetailQueryResponse
+  SegmentsDetailQueryResponse
 } from '../types';
 import { withProps } from '@erxes/ui/src/utils';
 
@@ -22,14 +22,14 @@ type Props = {
 
 type FinalProps = {
   assignmentCampaignsQuery: AssignmentCampaignQueryResponse;
-  segmentDetailQuery: SegmentDetailQueryResponse;
+  segmentsDetailQuery: SegmentsDetailQueryResponse;
 } & Props;
 
 class AssignmentFormContainer extends React.Component<FinalProps> {
   render() {
-    const { segmentDetailQuery } = this.props;
+    const { segmentsDetailQuery } = this.props;
 
-    if (segmentDetailQuery.loading) {
+    if (segmentsDetailQuery.loading) {
       return (
         <>
           <Spinner objective={true} size={18} />
@@ -58,6 +58,10 @@ class AssignmentFormContainer extends React.Component<FinalProps> {
         : null;
       values.attachmentMore = attachmentMoreArray;
 
+      values.segmentIds = this.props.queryParams.segmentIds
+        ? JSON.parse(this.props.queryParams.segmentIds)
+        : [];
+
       return (
         <ButtonMutate
           mutation={
@@ -78,7 +82,7 @@ class AssignmentFormContainer extends React.Component<FinalProps> {
       );
     };
 
-    const segmentDetails = segmentDetailQuery.segmentDetail || [];
+    const segmentDetails = segmentsDetailQuery.segmentsDetail || [];
 
     const updatedProps = {
       ...this.props,
@@ -96,11 +100,14 @@ const getRefetchQueries = () => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, SegmentDetailQueryResponse>(gql(queries.segmentDetail), {
-      name: 'segmentDetailQuery',
+    graphql<Props, SegmentsDetailQueryResponse>(gql(queries.segmentsDetail), {
+      name: 'segmentsDetailQuery',
       options: ({ queryParams }) => ({
         variables: {
-          _id: JSON.parse(queryParams.segmentIds)
+          _ids:
+            queryParams.segmentIds === undefined
+              ? []
+              : JSON.parse(queryParams.segmentIds)
         }
       })
     })

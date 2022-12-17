@@ -6,7 +6,8 @@ import {
   FormControl,
   FormGroup,
   DateControl,
-  Uploader
+  Uploader,
+  Table
 } from '@erxes/ui/src/components';
 import EditorCK from '@erxes/ui/src/components/EditorCK';
 import {
@@ -27,10 +28,11 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
 import { ISegment } from '@erxes/ui-segments/src/types';
 import * as routerUtils from '@erxes/ui/src/utils/router';
+import Row from './SegmentRow';
 
 type Props = {
   assignmentCampaign?: IAssignmentCampaign;
-  segmentDetails: ISegment;
+  segmentDetails: ISegment[];
   queryParams: any;
   history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -116,19 +118,23 @@ class Form extends React.Component<Props, State> {
 
   afterSave = response => {
     const { history } = this.props;
-    const newAssignmentCampaign = { ...this.state.assignmentCampaign };
-    let newSegmentIds = [...(newAssignmentCampaign.segmentIds || [])];
-    newSegmentIds.push(response.data.segmentsAdd._id);
 
-    this.setState({
-      assignmentCampaign: {
-        ...this.state.assignmentCampaign,
-        segmentIds: newSegmentIds
-      }
-    });
+    const prevSegmentIds = routerUtils.getParam(history, 'segmentIds');
+
+    let arr: string[] = [];
+    if (prevSegmentIds) arr = JSON.parse(prevSegmentIds);
+    arr.push(response.data.segmentsAdd._id);
+    console.log(arr);
     routerUtils.setParams(history, {
-      segmentIds: JSON.stringify(this.state.assignmentCampaign.segmentIds)
+      segmentIds: JSON.stringify(arr)
     });
+  };
+
+  renderRow = () => {
+    const { segmentDetails, history } = this.props;
+    return segmentDetails.map(segment => (
+      <Row key={segment._id} history={history} segment={segment} />
+    ));
   };
 
   renderContent = (formProps: IFormProps) => {
@@ -216,14 +222,29 @@ class Form extends React.Component<Props, State> {
             </FormColumn>
           </FormWrapper>
           {isEnabled('segments') && isEnabled('contacts') && (
-            <FormGroup>
-              <ControlLabel>Customer Segment</ControlLabel>
+            <>
+              <FormGroup>
+                <ControlLabel>Customer Segment</ControlLabel>
+                <br />
+                <TemporarySegment
+                  contentType={`contacts:customer`}
+                  afterSave={this.afterSave}
+                />
+              </FormGroup>
+              {this.props.segmentDetails.length > 0 && (
+                <Table hover={true} bordered={true}>
+                  <thead>
+                    <tr>
+                      <th>{__('Color')}</th>
+                      <th>{__('Name')}</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>{this.renderRow()}</tbody>
+                </Table>
+              )}
               <br />
-              <TemporarySegment
-                contentType={`contacts:customer`}
-                afterSave={this.afterSave}
-              />
-            </FormGroup>
+            </>
           )}
           <FormGroup>
             <ControlLabel>Description</ControlLabel>

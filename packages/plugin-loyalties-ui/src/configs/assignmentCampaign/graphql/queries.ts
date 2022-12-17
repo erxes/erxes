@@ -33,9 +33,9 @@ const assignmentCampaignDetail = `
   }
 `;
 
-const segmentDetail = `
-  query segmentDetail($_id: String) {
-    segmentDetail(_id: $_id) {
+const segmentsDetail = `
+  query segmentsDetail($_ids: [String]) {
+    segmentsDetail(_ids: $_ids) {
       _id,
       name,
       color,
@@ -47,5 +47,5 @@ export default {
   assignmentCampaigns,
   assignmentCampaignsCount,
   assignmentCampaignDetail,
-  segmentDetail
+  segmentsDetail
 };

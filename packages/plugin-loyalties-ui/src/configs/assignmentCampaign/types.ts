@@ -12,8 +12,8 @@ export type AssignmentCampaignQueryResponse = {
   refetch: () => void;
 };
 
-export type SegmentDetailQueryResponse = {
-  segmentDetail: ISegment;
+export type SegmentsDetailQueryResponse = {
+  segmentsDetail: ISegment[];
   loading: boolean;
   refetch: () => void;
 };

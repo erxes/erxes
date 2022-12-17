@@ -160,6 +160,18 @@ const segmentQueries = {
     return models.Segments.findOne({ _id });
   },
 
+  async segmentsDetail(
+    _root,
+    { _ids }: { _ids: string[] },
+    { models }: IContext
+  ) {
+    return models.Segments.find({
+      _id: {
+        $in: _ids
+      }
+    });
+  },
+
   /**
    * Return event names with attribute names
    */
@@ -247,6 +259,7 @@ const segmentQueries = {
 
 requireLogin(segmentQueries, 'segmentsGetHeads');
 requireLogin(segmentQueries, 'segmentDetail');
+requireLogin(segmentQueries, 'segmentsDetail');
 requireLogin(segmentQueries, 'segmentsPreviewCount');
 requireLogin(segmentQueries, 'segmentsEvents');
 
