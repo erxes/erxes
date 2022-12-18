@@ -58,7 +58,6 @@ class Row extends React.Component<Props> {
 
     const content = props => <Form {...props} work={work} />;
 
-    console.log(origin);
     return (
       <tr>
         <td>{name}</td>
