@@ -1,22 +1,20 @@
 import { commonDefs, commonVariables } from '../../common/graphq';
-import {
-  commonFields,
-  commonParamsDef,
-  commonParamsValue
-} from '../../common/graphq';
+import { commonFields } from '../../common/graphq';
 
 const assignmentsAdd = `
-  mutation assignmentsAdd(${commonDefs}) {
-    assignmentsAdd(${commonVariables}) {
-      ${commonFields}
+  mutation assignmentsAdd(${commonDefs}, $segmentIds: [String]) {
+    assignmentsAdd(${commonVariables}, segmentIds: $segmentIds) {
+      ${commonFields},
+      segmentIds
     }
   }
 `;
 
 const assignmentsEdit = `
-  mutation assignmentsEdit($_id: String!, ${commonDefs}, $status: String) {
-    assignmentsEdit(_id: $_id, ${commonVariables}, status: $status) {
-      ${commonFields}
+  mutation assignmentsEdit($_id: String!, ${commonDefs}, $status: String, $segmentIds: [String]) {
+    assignmentsEdit(_id: $_id, ${commonVariables}, status: $status, segmentIds: $segmentIds) {
+      ${commonFields},
+      segmentIds
     }
   }
 `;

@@ -3,7 +3,8 @@ import {
   ControlLabel,
   Form,
   FormControl,
-  FormGroup
+  FormGroup,
+  Table
 } from '@erxes/ui/src/components';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { IAssignment, IAssignmentDoc } from '../types';
@@ -17,14 +18,20 @@ import SelectCampaigns from '../../containers/SelectCampaigns';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { __ } from '@erxes/ui/src/utils';
+import { __, router } from '@erxes/ui/src/utils';
 import { queries } from '../../../configs/assignmentCampaign/graphql';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
+import { ISegment } from '@erxes/ui-segments/src/types';
+import Row from './SegmentRow';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   assignment: IAssignment;
   closeModal: () => void;
   queryParams: any;
+  history: any;
+  segmentsDetail: ISegment[];
 };
 
 type State = {
@@ -141,11 +148,39 @@ class AssignmentForm extends React.Component<Props, State> {
     );
   };
 
+  afterSave = response => {
+    const { history } = this.props;
+
+    const prevSegmentIds = router.getParam(history, 'segmentIds');
+
+    let arr: string[] = [];
+    if (prevSegmentIds) arr = JSON.parse(prevSegmentIds);
+    arr.push(response.data.segmentsAdd._id);
+    router.setParams(history, {
+      segmentIds: JSON.stringify(arr)
+    });
+  };
+
+  renderRow = () => {
+    const { segmentsDetail, history, assignment } = this.props;
+
+    return segmentsDetail.map(segment => (
+      <Row key={segment._id} history={history} segment={segment} />
+    ));
+  };
+
   renderContent = (formProps: IFormProps) => {
     const { assignment } = this.state;
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
 
+    // const {history} = this.props;
+
+    // if (assignment.segmentIds) {
+    //   router.setParams(history, {
+    //     segmentIds: assignment.segmentIds
+    //   })
+    // }
     return (
       <>
         <ScrollWrapper>
@@ -170,6 +205,31 @@ class AssignmentForm extends React.Component<Props, State> {
             <ControlLabel required={true}>Owner</ControlLabel>
             {this.renderOwner()}
           </FormGroup>
+          {isEnabled('segments') && isEnabled('contacts') && (
+            <>
+              <FormGroup>
+                <ControlLabel>Customer Segment</ControlLabel>
+                <br />
+                <TemporarySegment
+                  contentType={`contacts:customer`}
+                  afterSave={this.afterSave}
+                />
+              </FormGroup>
+              {this.props.segmentsDetail.length > 0 && (
+                <Table hover={true} bordered={true}>
+                  <thead>
+                    <tr>
+                      <th>{__('Color')}</th>
+                      <th>{__('Name')}</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>{this.renderRow()}</tbody>
+                </Table>
+              )}
+              <br />
+            </>
+          )}
         </ScrollWrapper>
 
         <ModalFooter>

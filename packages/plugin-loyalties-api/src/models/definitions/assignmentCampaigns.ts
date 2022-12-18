@@ -7,7 +7,8 @@ import {
 import { field } from './utils';
 
 export interface IAssignmentCampaign extends ICommonCampaignFields {
-  segmentIds?: string[];
+  segmentIds: string[];
+  voucherCampaignId: string;
 }
 
 export interface IAssignmentCampaignDocument
@@ -19,5 +20,6 @@ export interface IAssignmentCampaignDocument
 
 export const assignmentCampaignSchema = new Schema({
   ...commonCampaignSchema,
-  segmentIds: field({ type: [String], label: 'Segment Data' })
+  segmentIds: field({ type: [String], label: 'Segment Data' }),
+  voucherCampaignId: field({ type: String, label: 'Voucher Campaign Id' })
 });

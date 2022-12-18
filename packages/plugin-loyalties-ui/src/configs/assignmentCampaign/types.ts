@@ -3,6 +3,7 @@ import { ICommonTypes } from '../../types';
 
 export interface IAssignmentCampaign extends ICommonTypes {
   segmentIds?: string[];
+  voucherCampaignId?: string;
 }
 
 // query types

@@ -1,8 +1,10 @@
 import { commonSchema, ICommonFields, ICommonDocument } from './common';
 import { Document, Schema } from 'mongoose';
-import { schemaHooksWrapper } from './utils';
+import { field, schemaHooksWrapper } from './utils';
 
-export interface IAssignment extends ICommonFields {}
+export interface IAssignment extends ICommonFields {
+  segmentIds?: string[];
+}
 
 export interface IAssignmentDocument
   extends IAssignment,
@@ -13,7 +15,8 @@ export interface IAssignmentDocument
 
 export const assignmentSchema = schemaHooksWrapper(
   new Schema({
-    ...commonSchema
+    ...commonSchema,
+    segmentIds: field({ type: [String], label: 'Segment Data' })
   }),
   'erxes_loyalty_assignments'
 );

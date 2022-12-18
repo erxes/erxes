@@ -106,6 +106,11 @@ class AssignmentCampaigns extends React.Component<Props, State> {
     this.props.remove({ assignmentCampaignIds }, this.props.emptyBulk);
   };
 
+  removeSegmentParams = () => {
+    const { history } = this.props;
+    router.removeParams(history, 'segmentIds');
+  };
+
   actionBarRight() {
     const { bulk } = this.props;
 
@@ -153,6 +158,7 @@ class AssignmentCampaigns extends React.Component<Props, State> {
           trigger={trigger}
           autoOpenKey="showProductModal"
           content={this.modalContent}
+          onExit={this.removeSegmentParams}
         />
       </BarItems>
     );

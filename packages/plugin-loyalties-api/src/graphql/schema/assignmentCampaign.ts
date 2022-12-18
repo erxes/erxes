@@ -10,6 +10,7 @@ export const types = `
     _id: String,
     ${commonCampaignTypes}
     segmentIds: [String]
+    voucherCampaignId: String
   }
 `;
 
@@ -22,6 +23,7 @@ export const queries = `
 const AssignmentCampaignDoc = `
   ${commonCampaignInputs}
   segmentIds: [String]
+  voucherCampaignId: String
 `;
 
 export const mutations = `

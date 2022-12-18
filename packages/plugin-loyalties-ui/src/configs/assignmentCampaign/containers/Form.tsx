@@ -12,6 +12,9 @@ import {
   SegmentsDetailQueryResponse
 } from '../types';
 import { withProps } from '@erxes/ui/src/utils';
+import { VoucherCampaignQueryResponse } from '../../voucherCampaign/types';
+import { queries as voucherCampaignQueries } from '../../voucherCampaign/graphql';
+import * as routerUtils from '@erxes/ui/src/utils/router';
 
 type Props = {
   assignmentCampaign?: IAssignmentCampaign;
@@ -23,21 +26,17 @@ type Props = {
 type FinalProps = {
   assignmentCampaignsQuery: AssignmentCampaignQueryResponse;
   segmentsDetailQuery: SegmentsDetailQueryResponse;
+  voucherCampaignsQuery: VoucherCampaignQueryResponse;
 } & Props;
 
 class AssignmentFormContainer extends React.Component<FinalProps> {
   render() {
-    const { segmentsDetailQuery } = this.props;
-
-    if (segmentsDetailQuery.loading) {
-      return (
-        <>
-          <Spinner objective={true} size={18} />
-          Loading...
-        </>
-      );
-    }
-
+    const {
+      segmentsDetailQuery,
+      voucherCampaignsQuery,
+      assignmentCampaign,
+      history
+    } = this.props;
     const renderButton = ({
       name,
       values,
@@ -58,9 +57,13 @@ class AssignmentFormContainer extends React.Component<FinalProps> {
         : null;
       values.attachmentMore = attachmentMoreArray;
 
-      values.segmentIds = this.props.queryParams.segmentIds
-        ? JSON.parse(this.props.queryParams.segmentIds)
-        : [];
+      if (this.props.queryParams) {
+        values.segmentIds = this.props.queryParams.segmentIds
+          ? this.props.queryParams.segmentIds
+            ? JSON.parse(this.props.queryParams.segmentIds)
+            : []
+          : [];
+      }
 
       return (
         <ButtonMutate
@@ -83,11 +86,13 @@ class AssignmentFormContainer extends React.Component<FinalProps> {
     };
 
     const segmentDetails = segmentsDetailQuery.segmentsDetail || [];
+    const voucherCampaigns = voucherCampaignsQuery.voucherCampaigns || [];
 
     const updatedProps = {
       ...this.props,
       renderButton,
-      segmentDetails
+      segmentDetails,
+      voucherCampaigns
     };
 
     return <Form {...updatedProps} />;
@@ -105,11 +110,19 @@ export default withProps<Props>(
       options: ({ queryParams }) => ({
         variables: {
           _ids:
-            queryParams.segmentIds === undefined
+            queryParams === undefined
               ? []
-              : JSON.parse(queryParams.segmentIds)
+              : queryParams.segmentIds
+              ? JSON.parse(queryParams.segmentIds)
+              : []
         }
       })
-    })
+    }),
+    graphql<Props, VoucherCampaignQueryResponse>(
+      gql(voucherCampaignQueries.voucherCampaigns),
+      {
+        name: 'voucherCampaignsQuery'
+      }
+    )
   )(AssignmentFormContainer)
 );

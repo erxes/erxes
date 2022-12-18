@@ -245,3 +245,8 @@ export const isInSegment = async (
 
   return response;
 };
+
+export interface AssignmentCheckResponse {
+  segmentId: string;
+  isIn: boolean;
+}

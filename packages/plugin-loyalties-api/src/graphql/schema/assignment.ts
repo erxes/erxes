@@ -3,6 +3,7 @@ import { commonTypes, commonInputs, commonFilters } from './common';
 export const types = `
   type Assignment @key(fields: "_id") @cacheControl(maxAge: 3) {
     ${commonTypes}
+    segmentIds: [String]
   }
 
   type AssignmentMain {
@@ -15,11 +16,12 @@ export const queries = `
   assignmentsMain(${commonFilters}): AssignmentMain
   assignments(${commonFilters}): [Assignment]
   assignmentDetail(_id: String!): Assignment
+  checkAssignment(customerId: String, _id: String): JSON
 `;
 
 const AssignmentDoc = `
   ${commonInputs}
-  assignmentScore: Float
+  segmentIds: [String]
 `;
 
 export const mutations = `

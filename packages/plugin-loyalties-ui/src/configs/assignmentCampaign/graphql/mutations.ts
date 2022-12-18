@@ -4,11 +4,13 @@ import { assignmentCampaignFields } from './queries';
 const paramDefs = `
   ${commonParamDefs},
   $segmentIds: [String] 
+  $voucherCampaignId: String
 `;
 
 const params = `
   ${commonParams},
   segmentIds: $segmentIds
+  voucherCampaignId: $voucherCampaignId
 `;
 
 const assignmentCampaignsAdd = `

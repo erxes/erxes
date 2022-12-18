@@ -8,6 +8,7 @@ import React from 'react';
 import Form from '../containers/Form';
 import { IAssignmentCampaign } from '../types';
 import { Link } from 'react-router-dom';
+import { router } from '@erxes/ui/src/utils';
 
 type Props = {
   assignmentCampaign: IAssignmentCampaign;
@@ -28,11 +29,17 @@ class Row extends React.Component<Props> {
       assignmentCampaign
     };
 
-    return <Form {...updatedProps} />;
+    return <Form {...updatedProps} history={this.props.history} />;
+  };
+
+  removeSegmentParams = () => {
+    const { history } = this.props;
+
+    router.removeParams(history, 'segmentIds');
   };
 
   render() {
-    const { assignmentCampaign, history, toggleBulk, isChecked } = this.props;
+    const { assignmentCampaign, toggleBulk, isChecked } = this.props;
 
     const onChange = e => {
       if (toggleBulk) {
@@ -84,6 +91,7 @@ class Row extends React.Component<Props> {
         trigger={trigger}
         autoOpenKey="showProductModal"
         content={this.modalContent}
+        onExit={this.removeSegmentParams}
       />
     );
   }

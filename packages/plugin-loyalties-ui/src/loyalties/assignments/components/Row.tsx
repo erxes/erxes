@@ -43,41 +43,14 @@ class AssignmentRow extends React.Component<Props> {
 
   renderOwner = () => {
     const { assignment } = this.props;
-    if (!assignment.owner || !assignment.owner._id) {
-      return '-';
-    }
 
-    if (assignment.ownerType === 'customer') {
-      return (
-        <FlexItem>
-          <Link to={`/contacts/details/${assignment.ownerId}`}>
-            {formatValue(renderFullName(assignment.owner))}
-          </Link>
-        </FlexItem>
-      );
-    }
-
-    if (assignment.ownerType === 'user') {
-      return (
-        <FlexItem>
-          <Link to={`/settings/team/details/${assignment.ownerId}`}>
-            {formatValue(renderUserFullName(assignment.owner))}
-          </Link>
-        </FlexItem>
-      );
-    }
-
-    if (assignment.ownerType === 'company') {
-      return (
-        <FlexItem>
-          <Link to={`/companies/details/${assignment.ownerId}`}>
-            {formatValue(this.displayValue(assignment.owner, 'name'))}
-          </Link>
-        </FlexItem>
-      );
-    }
-
-    return '';
+    return (
+      <FlexItem>
+        <Link to={`/contacts/details/${assignment.ownerId}`}>
+          {formatValue(renderFullName(assignment.owner))}
+        </Link>
+      </FlexItem>
+    );
   };
 
   modalContent = props => {
@@ -108,12 +81,8 @@ class AssignmentRow extends React.Component<Props> {
           />
         </td>
         <td key={'createdAt'}>{dayjs(assignment.createdAt).format('lll')} </td>
-        <td key={'ownerType'}>{this.displayValue(assignment, 'ownerType')}</td>
         <td key={'ownerId'} onClick={onClick}>
           {this.renderOwner()}
-        </td>
-        <td key={'status'}>
-          {this.displayValue(assignment, 'assignmentScore')}
         </td>
         <td key={'actions'} onClick={onClick}>
           .

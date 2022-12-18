@@ -29,9 +29,12 @@ import TemporarySegment from '@erxes/ui-segments/src/components/filter/Temporary
 import { ISegment } from '@erxes/ui-segments/src/types';
 import * as routerUtils from '@erxes/ui/src/utils/router';
 import Row from './SegmentRow';
+import Select from 'react-select-plus';
+import { IVoucherCampaign } from '../../voucherCampaign/types';
 
 type Props = {
   assignmentCampaign?: IAssignmentCampaign;
+  voucherCampaigns: IVoucherCampaign[];
   segmentDetails: ISegment[];
   queryParams: any;
   history: any;
@@ -124,7 +127,6 @@ class Form extends React.Component<Props, State> {
     let arr: string[] = [];
     if (prevSegmentIds) arr = JSON.parse(prevSegmentIds);
     arr.push(response.data.segmentsAdd._id);
-    console.log(arr);
     routerUtils.setParams(history, {
       segmentIds: JSON.stringify(arr)
     });
@@ -141,11 +143,16 @@ class Form extends React.Component<Props, State> {
     const { renderButton, closeModal } = this.props;
     const { values, isSubmitted } = formProps;
 
-    const trigger = (
-      <Button btnStyle="primary" uppercase={false} icon="plus-circle">
-        Add category
-      </Button>
-    );
+    const onChangeVoucherCampaign = selected => {
+      const value = (selected || {}).value;
+
+      this.setState({
+        assignmentCampaign: {
+          ...this.state.assignmentCampaign,
+          voucherCampaignId: value
+        }
+      });
+    };
 
     const { assignmentCampaign } = this.state;
 
@@ -246,6 +253,20 @@ class Form extends React.Component<Props, State> {
               <br />
             </>
           )}
+          <FormGroup>
+            <ControlLabel>Voucher</ControlLabel>
+            <Select
+              placeholder={__('Choose voucher')}
+              value={this.state.assignmentCampaign.voucherCampaignId}
+              options={this.props.voucherCampaigns.map(voucher => ({
+                label: `${voucher.title}`,
+                value: voucher._id
+              }))}
+              name="voucherCampaignId"
+              onChange={onChangeVoucherCampaign}
+              loadingPlaceholder={__('Loading...')}
+            />
+          </FormGroup>
           <FormGroup>
             <ControlLabel>Description</ControlLabel>
             <EditorCK

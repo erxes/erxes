@@ -126,16 +126,7 @@ class AssignmentsList extends React.Component<IProps, State> {
                 <SortHandler sortField={'createdAt'} label={__('Created')} />
               </th>
               <th>
-                <SortHandler sortField={'ownerType'} label={__('Owner Type')} />
-              </th>
-              <th>
                 <SortHandler sortField={'ownerId'} label={__('Owner')} />
-              </th>
-              <th>
-                <SortHandler
-                  sortField={'assignmentScore'}
-                  label={__('Assignment Score')}
-                />
               </th>
               <th>Actions</th>
             </tr>
@@ -164,7 +155,13 @@ class AssignmentsList extends React.Component<IProps, State> {
     );
 
     const assignmentForm = props => {
-      return <AssignmentForm {...props} queryParams={queryParams} />;
+      return (
+        <AssignmentForm
+          {...props}
+          queryParams={queryParams}
+          history={history}
+        />
+      );
     };
 
     const actionBarRight = () => {
