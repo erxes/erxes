@@ -10,7 +10,6 @@ import Tip from '@erxes/ui/src/components/Tip';
 import { __, confirm } from '@erxes/ui/src/utils';
 import { FinanceAmount } from '../../styles';
 import { IOverallWorkDet, IPerform } from '../types';
-import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   overallWork: IOverallWorkDet;

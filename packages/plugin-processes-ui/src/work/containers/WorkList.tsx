@@ -5,9 +5,14 @@ import { withProps } from '@erxes/ui/src/utils';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import List from '../components/work/WorkList';
-import { queries } from '../graphql';
-import { WorksQueryResponse, WorksTotalCountQueryResponse } from '../types';
+import List from '../components/WorkList';
+import { mutations, queries } from '../graphql';
+import {
+  WorkRemoveMutationResponse,
+  WorksQueryResponse,
+  WorksTotalCountQueryResponse
+} from '../types';
+import Alert from '@erxes/ui/src/utils/Alert';
 
 type Props = {
   queryParams: any;
@@ -17,7 +22,8 @@ type Props = {
 type FinalProps = {
   worksQuery: WorksQueryResponse;
   worksTotalCountQuery: WorksTotalCountQueryResponse;
-} & Props;
+} & Props &
+  WorkRemoveMutationResponse;
 
 class WorkListContainer extends React.Component<FinalProps> {
   constructor(props) {
@@ -25,11 +31,28 @@ class WorkListContainer extends React.Component<FinalProps> {
   }
 
   render() {
-    const { worksQuery, worksTotalCountQuery, queryParams } = this.props;
+    const {
+      worksQuery,
+      worksTotalCountQuery,
+      queryParams,
+      workRemove
+    } = this.props;
 
     if (worksQuery.loading || worksTotalCountQuery.loading) {
       return false;
     }
+
+    const removeWork = (id: string) => {
+      workRemove({
+        variables: { _id: id }
+      })
+        .then(() => {
+          Alert.success('You successfully deleted a work');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
 
     const works = worksQuery.works || [];
     const worksCount = worksTotalCountQuery.worksTotalCount || 0;
@@ -41,7 +64,8 @@ class WorkListContainer extends React.Component<FinalProps> {
       works,
       worksCount,
       loading: worksQuery.loading,
-      searchValue
+      searchValue,
+      removeWork
     };
 
     const workList = props => {
@@ -57,13 +81,31 @@ class WorkListContainer extends React.Component<FinalProps> {
   }
 }
 
+const generateParams = ({ queryParams }) => ({
+  sortField: queryParams.sortField,
+  sortDirection: queryParams.sortDirection
+    ? parseInt(queryParams.sortDirection, 10)
+    : undefined,
+  type: queryParams.type,
+  startDate: queryParams.startDate,
+  endDate: queryParams.endDate,
+  inBranchId: queryParams.inBranchId,
+  inDepartmentId: queryParams.inDepartmentId,
+  outBranchId: queryParams.outBranchId,
+  outDepartmentId: queryParams.outDepartmentId,
+  productCategoryId: queryParams.productCategoryId,
+  productId: queryParams.productId,
+  jobCategoryId: queryParams.jobCategoryId,
+  jobReferId: queryParams.jobReferId
+});
+
 export default withProps<Props>(
   compose(
     graphql<Props, WorksQueryResponse, {}>(gql(queries.works), {
       name: 'worksQuery',
       options: ({ queryParams }) => ({
         variables: {
-          searchValue: queryParams.searchValue,
+          ...generateParams({ queryParams }),
           ...generatePaginationParams(queryParams)
         },
         fetchPolicy: 'network-only'
@@ -75,10 +117,19 @@ export default withProps<Props>(
         name: 'worksTotalCountQuery',
         options: ({ queryParams }) => ({
           variables: {
-            searchValue: queryParams.searchValue
+            ...generateParams({ queryParams })
           },
           fetchPolicy: 'network-only'
         })
+      }
+    ),
+    graphql<Props, WorkRemoveMutationResponse, { workId: string }>(
+      gql(mutations.workRemove),
+      {
+        name: 'workRemove',
+        options: {
+          refetchQueries: ['works', 'worksTotalCount']
+        }
       }
     )
   )(WorkListContainer)

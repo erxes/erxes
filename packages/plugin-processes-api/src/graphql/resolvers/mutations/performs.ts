@@ -172,7 +172,8 @@ const performMutations = {
         newData: {
           ...doc
         },
-        object: perform
+        object: perform,
+        updatedDocument: updatedPerform
       },
       user
     );

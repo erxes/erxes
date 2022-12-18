@@ -5,7 +5,6 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import moment from 'moment';
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 import {

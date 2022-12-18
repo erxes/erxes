@@ -1,6 +1,6 @@
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
-import { IPerform } from '../../../overallWork/types';
+import { IPerform } from '../../overallWork/types';
 
 type Props = {
   perform: IPerform;

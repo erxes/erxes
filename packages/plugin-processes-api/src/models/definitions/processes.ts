@@ -10,6 +10,7 @@ export interface IProcess {
   departmentId: string;
   productId: string;
   uomId?: string;
+  origin: string;
   status: string;
   isSub: boolean;
   referInfos: any;
@@ -40,7 +41,8 @@ export const processSchema = schemaHooksWrapper(
     updatedBy: { type: String },
     referInfos: field({ type: Object, optional: true, label: 'Jobs' }),
     branchId: { type: String, label: 'Branch' },
-    departmentId: { type: String, label: 'Department' }
+    departmentId: { type: String, label: 'Department' },
+    origin: field({ type: String, label: 'Origin' })
   }),
   'erxes_processes'
 );

@@ -219,7 +219,8 @@ export class consumeSalesPlans {
       branchId: this.branchId,
       departmentId: this.departmentId,
       productId,
-      status: 'string',
+      status: 'new',
+      origin: 'plan',
       isSub: false,
       referInfos
     };
@@ -393,6 +394,7 @@ export class consumeSalesPlans {
         endAt: dueDate,
         type: job.type,
         typeId,
+        origin: 'plan',
         flowId: flow._id,
         count: calcedCount,
         intervalId: timeId,

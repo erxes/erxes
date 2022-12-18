@@ -5,7 +5,7 @@ import { withProps } from '@erxes/ui/src/utils';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import List from '../components/perform/PerformList';
+import List from '../components/PerformList';
 import { queries as performQueries } from '../../overallWork/graphql';
 import {
   PerformsQueryResponse,
