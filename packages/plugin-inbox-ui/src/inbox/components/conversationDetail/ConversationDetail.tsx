@@ -10,7 +10,9 @@ import {
   getPluginConfig,
   loadDynamicComponent
 } from '@erxes/ui/src/utils/core';
-import DmWorkArea from '../../containers/conversationDetail/DmWorkArea';
+import DmWorkArea, {
+  resetDmWithQueryCache
+} from '../../containers/conversationDetail/DmWorkArea';
 import WorkArea from './workarea/WorkArea';
 
 type Props = {
@@ -50,6 +52,19 @@ export default class ConversationDetail extends React.Component<Props> {
         />
       </EmptySidebar>
     );
+  }
+
+  componentWillReceiveProps(nextProps: Readonly<Props>) {
+    const current = this.props.currentConversation;
+    const ncurrent = nextProps.currentConversation;
+
+    if (
+      current &&
+      ncurrent &&
+      current.integration.kind !== ncurrent.integration.kind
+    ) {
+      resetDmWithQueryCache();
+    }
   }
 
   renderContent() {

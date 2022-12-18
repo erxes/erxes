@@ -89,7 +89,7 @@ class WorkArea extends React.Component<FinalProps, State> {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { currentUser, dmConfig } = this.props;
+    const { currentUser } = this.props;
     const { currentId, currentConversation, messagesQuery } = nextProps;
 
     // It is first time or subsequent conversation change
@@ -117,11 +117,6 @@ class WorkArea extends React.Component<FinalProps, State> {
 
           if (!prev) {
             return;
-          }
-
-          // Whenever mail thread receives a new message refetch for optimistic ui
-          if (kind === 'gmail' || kind.includes('nylas')) {
-            return messagesQuery.refetch();
           }
 
           // current user's message is being showed after insert message
@@ -313,6 +308,7 @@ class WorkArea extends React.Component<FinalProps, State> {
           }
 
           const { integration } = currentConversation;
+
           let listQueryName = 'conversationMessages';
 
           if (dmConfig) {
@@ -429,6 +425,10 @@ const generateWithQuery = (props: Props) => {
 };
 
 let WithQuery;
+
+export const resetDmWithQueryCache = () => {
+  WithQuery = null;
+};
 
 const WithConsumer = (props: Props) => {
   return (
