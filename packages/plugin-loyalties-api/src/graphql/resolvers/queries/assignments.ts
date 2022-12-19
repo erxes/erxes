@@ -39,41 +39,51 @@ const assignmentQueries = {
   },
   async checkAssignment(
     _root,
-    params: { customerId: string; _id: string },
+    params: { customerId: string; _ids?: string[] },
     { models, subdomain }: IContext
   ) {
-    const { _id, customerId } = params;
+    const { _ids, customerId } = params;
 
-    const assignment = await models.Assignments.findOne({ _id });
+    const now = new Date();
+
+    const filter: any = {
+      status: 'active',
+      startAt: { $lte: now },
+      endAt: { $gte: now }
+    };
+
+    if (_ids) {
+      filter._id = { $in: _ids };
+    }
+
+    const assignmentCampaigns = await models.AssignmentCampaigns.find(
+      filter
+    ).lean();
+
+    const assignments = await models.Assignments.find({
+      ownerId: customerId,
+      campaignId: { $in: assignmentCampaigns.map(ac => ac._id) }
+    });
 
     let positiveSegments: AssignmentCheckResponse[] = [];
     let negativeSegments: AssignmentCheckResponse[] = [];
 
-    if (assignment) {
-      const assignmentCampaign = await models.AssignmentCampaigns.getAssignmentCampaign(
-        assignment.campaignId
-      );
+    if (!assignmentCampaigns.length) {
+      return { status: 'checked' };
+    }
 
-      if (!assignmentCampaign) {
-        throw new Error('Assignment Campaign not found.');
+    for (const assignmentCampaign of assignmentCampaigns) {
+      if (
+        (assignments.map(a => a.campaignId) || []).includes(
+          assignmentCampaign._id
+        )
+      ) {
+        continue;
       }
 
-      if (assignment.segmentIds && assignmentCampaign.segmentIds) {
-        const segmentIds = assignment.segmentIds;
-        const campaignSegmentIds = assignmentCampaign.segmentIds;
+      if (assignmentCampaign.segmentIds) {
+        const segmentIds = assignmentCampaign.segmentIds;
 
-        // for (const campaignSegmentId of campaignSegmentIds) {
-        //   for (const segmentId of segmentIds) {
-        //     const isIn = await isInSegment(subdomain, campaignSegmentId , segmentId);
-
-        //     if (isIn) {
-        //       positiveSegments.push({ segmentId: segmentId, isIn: true });
-        //     } else {
-        //       negativeSegments.push({ segmentId: segmentId, isIn: false });
-        //     }
-
-        //   }
-        // }
         for (const segmentId of segmentIds) {
           const isIn = await isInSegment(subdomain, segmentId, customerId);
 
@@ -91,15 +101,20 @@ const assignmentQueries = {
             ownerType: 'customer',
             status: 'new'
           });
+          // create assignment
+          await models.Assignments.createAssignment({
+            campaignId: assignmentCampaign._id,
+            ownerType: 'customer',
+            ownerId: customerId,
+            status: 'new',
+            voucherId: voucher._id,
+            voucherCampaignId: assignmentCampaign.voucherCampaignId
+          });
         }
-      } else {
-        throw new Error('Segment IDs not found.');
       }
-    } else {
-      throw new Error('Assignment not found.');
     }
-
     return {
+      status: 'checked',
       positive: positiveSegments,
       negative: negativeSegments
     };
