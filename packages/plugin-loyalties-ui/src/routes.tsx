@@ -34,6 +34,18 @@ const AssignmentCampaigns = asyncComponent(() =>
   )
 );
 
+const AssignmentCampaignsCreate = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "KnowledgeBase" */ './configs/assignmentCampaign/containers/CreateForm'
+  )
+);
+
+const AssignmentCampaignsEdit = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "KnowledgeBase" */ './configs/assignmentCampaign/containers/EditForm'
+  )
+);
+
 const Vouchers = asyncComponent(() =>
   import(
     /* webpackChunkName: "KnowledgeBase" */ './loyalties/vouchers/containers/List'
@@ -115,6 +127,24 @@ const donateCampaignList = ({ location, history }) => {
 const assignmentCampaignList = ({ location, history }) => {
   return (
     <AssignmentCampaigns
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const assignmentCampaignCreate = ({ location, history }) => {
+  return (
+    <AssignmentCampaignsCreate
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const assignmentCampaignEdit = ({ location, history }) => {
+  return (
+    <AssignmentCampaignsEdit
       queryParams={queryString.parse(location.search)}
       history={history}
     />
@@ -208,7 +238,20 @@ const routes = () => {
 
       <Route
         path="/erxes-plugin-loyalty/settings/assignment"
+        exact={true}
         component={assignmentCampaignList}
+      />
+
+      <Route
+        path="/erxes-plugin-loyalty/settings/assignment/create"
+        exact={true}
+        component={assignmentCampaignCreate}
+      />
+
+      <Route
+        path="/erxes-plugin-loyalty/settings/assignment/edit"
+        exact={true}
+        component={assignmentCampaignEdit}
       />
 
       <Route path="/lotteryAward" component={award} />

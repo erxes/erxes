@@ -3,8 +3,7 @@ import {
   ControlLabel,
   Form,
   FormControl,
-  FormGroup,
-  Table
+  FormGroup
 } from '@erxes/ui/src/components';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { IAssignment, IAssignmentDoc } from '../types';
@@ -12,16 +11,11 @@ import {
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper
 } from '@erxes/ui/src/styles/eindex';
-
 import React from 'react';
 import SelectCampaigns from '../../containers/SelectCampaigns';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { __, router } from '@erxes/ui/src/utils';
 import { queries } from '../../../configs/assignmentCampaign/graphql';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
 import { ISegment } from '@erxes/ui-segments/src/types';
 import Row from './SegmentRow';
 
@@ -124,28 +118,6 @@ class AssignmentForm extends React.Component<Props, State> {
         />
       );
     }
-
-    if (assignment.ownerType === 'user') {
-      return (
-        <SelectTeamMembers
-          label="Team member"
-          name="ownerId"
-          multi={false}
-          initialValue={assignment.ownerId}
-          onSelect={this.onChangeOwnerId}
-        />
-      );
-    }
-
-    return (
-      <SelectCompanies
-        label="Company"
-        name="ownerId"
-        multi={false}
-        initialValue={assignment.ownerId}
-        onSelect={this.onChangeOwnerId}
-      />
-    );
   };
 
   afterSave = response => {
@@ -174,13 +146,6 @@ class AssignmentForm extends React.Component<Props, State> {
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
 
-    // const {history} = this.props;
-
-    // if (assignment.segmentIds) {
-    //   router.setParams(history, {
-    //     segmentIds: assignment.segmentIds
-    //   })
-    // }
     return (
       <>
         <ScrollWrapper>
@@ -205,31 +170,6 @@ class AssignmentForm extends React.Component<Props, State> {
             <ControlLabel required={true}>Owner</ControlLabel>
             {this.renderOwner()}
           </FormGroup>
-          {isEnabled('segments') && isEnabled('contacts') && (
-            <>
-              <FormGroup>
-                <ControlLabel>Customer Segment</ControlLabel>
-                <br />
-                <TemporarySegment
-                  contentType={`contacts:customer`}
-                  afterSave={this.afterSave}
-                />
-              </FormGroup>
-              {this.props.segmentsDetail.length > 0 && (
-                <Table hover={true} bordered={true}>
-                  <thead>
-                    <tr>
-                      <th>{__('Color')}</th>
-                      <th>{__('Name')}</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>{this.renderRow()}</tbody>
-                </Table>
-              )}
-              <br />
-            </>
-          )}
         </ScrollWrapper>
 
         <ModalFooter>

@@ -6,13 +6,13 @@ import {
   Button,
   DataWithLoader,
   FormControl,
-  ModalTrigger,
   Table
 } from '@erxes/ui/src/components';
 import { BarItems, Wrapper } from '@erxes/ui/src/layout';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { __, router, confirm, Alert } from '@erxes/ui/src/utils';
 import { IAssignmentCampaign } from '../types';
+import { Link } from 'react-router-dom';
 
 type Props = {
   assignmentCampaigns: IAssignmentCampaign[];
@@ -91,7 +91,7 @@ class AssignmentCampaigns extends React.Component<Props, State> {
     ));
   };
 
-  modalContent = props => {
+  formContent = props => {
     const { queryParams, history } = this.props;
     return <Form {...props} queryParams={queryParams} history={history} />;
   };
@@ -104,11 +104,6 @@ class AssignmentCampaigns extends React.Component<Props, State> {
     });
 
     this.props.remove({ assignmentCampaignIds }, this.props.emptyBulk);
-  };
-
-  removeSegmentParams = () => {
-    const { history } = this.props;
-    router.removeParams(history, 'segmentIds');
   };
 
   actionBarRight() {
@@ -136,12 +131,6 @@ class AssignmentCampaigns extends React.Component<Props, State> {
       );
     }
 
-    const trigger = (
-      <Button btnStyle="success" icon="plus-circle">
-        Add assignment
-      </Button>
-    );
-
     return (
       <BarItems>
         <FormControl
@@ -152,14 +141,11 @@ class AssignmentCampaigns extends React.Component<Props, State> {
           autoFocus={true}
           onFocus={this.moveCursorAtTheEnd}
         />
-        <ModalTrigger
-          size={'lg'}
-          title="Add assignment campaign"
-          trigger={trigger}
-          autoOpenKey="showProductModal"
-          content={this.modalContent}
-          onExit={this.removeSegmentParams}
-        />
+        <Link to={`/erxes-plugin-loyalty/settings/assignment/create`}>
+          <Button btnStyle="success" size="medium" icon="plus-circle">
+            Add assignment
+          </Button>
+        </Link>
       </BarItems>
     );
   }

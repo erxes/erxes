@@ -16,7 +16,6 @@ import { VoucherCampaignQueryResponse } from '../../voucherCampaign/types';
 import { queries as voucherCampaignQueries } from '../../voucherCampaign/graphql';
 
 type Props = {
-  assignmentCampaign?: IAssignmentCampaign;
   history: any;
   queryParams: any;
 };
@@ -27,14 +26,9 @@ type FinalProps = {
   voucherCampaignsQuery: VoucherCampaignQueryResponse;
 } & Props;
 
-class AssignmentFormContainer extends React.Component<FinalProps> {
+class AssignmentEditFormContainer extends React.Component<FinalProps> {
   render() {
-    const {
-      segmentsDetailQuery,
-      voucherCampaignsQuery,
-      assignmentCampaign,
-      history
-    } = this.props;
+    const { segmentsDetailQuery, voucherCampaignsQuery, history } = this.props;
     const renderButton = ({
       name,
       values,
@@ -122,5 +116,5 @@ export default withProps<Props>(
         name: 'voucherCampaignsQuery'
       }
     )
-  )(AssignmentFormContainer)
+  )(AssignmentEditFormContainer)
 );

@@ -45,7 +45,7 @@ type State = {
   assignmentCampaign: IAssignmentCampaign;
 };
 
-class Form extends React.Component<Props, State> {
+class CreateForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -328,4 +328,4 @@ class Form extends React.Component<Props, State> {
   }
 }
 
-export default Form;
+export default CreateForm;

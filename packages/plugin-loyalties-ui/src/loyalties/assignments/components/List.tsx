@@ -17,7 +17,6 @@ import { BarItems } from '@erxes/ui/src/layout/styles';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-
 import AssignmentForm from '../containers/Form';
 import { LoyaltiesTableWrapper } from '../../common/styles';
 import { IAssignment } from '../types';
@@ -32,7 +31,6 @@ interface IProps extends IRouterProps {
   loading: boolean;
   searchValue: string;
   totalCount: number;
-  // TODO: check is below line not throwing error ?
   toggleBulk: () => void;
   toggleAll: (targets: IAssignment[], containerId: string) => void;
   bulk: any[];
