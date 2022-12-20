@@ -4,6 +4,44 @@
 ### Bug Fixes
 
 * **automations:** customFieldsData empty value check in isDiffValue ([f47a817](https://github.com/erxes/erxes/commit/f47a8179486fab38016840095d04908ff2a1baf2))
+* **engages:** removed invalid visitor segmentType ([e21a411](https://github.com/erxes/erxes/commit/e21a4110abe798f9783afcf845de076b2e42a330))
+* **engages:** removed invalid visitor segmentType ([f986cdb](https://github.com/erxes/erxes/commit/f986cdbb93ef85acd4e350984c6ec7ccc161f004))
+* **imap:** fixed to check ([b441183](https://github.com/erxes/erxes/commit/b44118347e91c46b1361b52f462772d40199706d))
+* **imap:** igoring the aliases ([8f69635](https://github.com/erxes/erxes/commit/8f69635be14819ef6152ec9ee0e10f2f2dcea4e4))
+* **inbox:** Fix convert to form reloading when conversation updated ([8ecfece](https://github.com/erxes/erxes/commit/8ecfecefca5daea5aeaa432ad3579e121e107e7c))
+
+
+### enhancement
+
+* **cli:** improve create plugin cli and add create integration cli ([58165a5](https://github.com/erxes/erxes/commit/58165a5a407c8d429dd3e1199e3b3015d3bdd78a))
+
+
+### Features
+
+* **cards:** added ability to create new child card on cards ([#3905](https://github.com/erxes/erxes/issues/3905)) ([505256e](https://github.com/erxes/erxes/commit/505256ef10efeba061f830ace9f5e2235ef38cc2))
+* **documents:** added documents feature ([1091ae9](https://github.com/erxes/erxes/commit/1091ae959633639a6cd362e9e99aebc249c16b10))
+* **forms:** added ability to add extra fields in custom properties ([b361ece](https://github.com/erxes/erxes/commit/b361ece28768d60a2c5f90cc848e2be437ae03e9))
+* **imap:** added main authentication user feature ([6bf1542](https://github.com/erxes/erxes/commit/6bf1542a2c053ae86fa2e8089336e41be72ba3d4))
+* **theme:** added alibity to change logo, color, background, description of login page ([c284f6e](https://github.com/erxes/erxes/commit/c284f6e30687ac8a9c7c61682c3bb9517ed3855b))
+* **timeclock:** add plugin named timeclock ([63f4ad0](https://github.com/erxes/erxes/commit/63f4ad0864f68c6e64b39caa9796973282acf22d))
+
+
+### Performance Improvements
+
+* **product/service:** Update product edit form ([829fe3d](https://github.com/erxes/erxes/commit/829fe3d185ddae4d2b8e8908a267105b8cba7330))
+* **webbuilder:** Update webbuilder UI([#3925](https://github.com/erxes/erxes/issues/3925)) ([e848cff](https://github.com/erxes/erxes/commit/e848cff032b047d00b19737e3e1f44e4691a17d1))
+
+
+### BREAKING CHANGES
+
+* **cli:** The hot reloader dependency added in plugin-ui's webpack config. Need to enter a command yarn install-deps on every plugin-ui that you are working on to install that dependency.
+
+## [1.0.1](https://github.com/erxes/erxes/compare/1.0.0...1.0.1) (2022-12-20)
+
+
+### Bug Fixes
+
+* **automations:** customFieldsData empty value check in isDiffValue ([f47a817](https://github.com/erxes/erxes/commit/f47a8179486fab38016840095d04908ff2a1baf2))
 * **command:** remove plugin-empty-template [#3668](https://github.com/erxes/erxes/issues/3668) ([e247809](https://github.com/erxes/erxes/commit/e247809fda45b979ec44cf6e09133293bc81ef1e))
 * **contacts:** fixed email, phone verification action ([1d0c7f0](https://github.com/erxes/erxes/commit/1d0c7f092645cc36e0967233cd32b111c8029925))
 * **engages:** removed invalid visitor segmentType ([e21a411](https://github.com/erxes/erxes/commit/e21a4110abe798f9783afcf845de076b2e42a330))
