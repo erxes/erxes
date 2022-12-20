@@ -26,7 +26,14 @@ export const loadAssignmentClass = (models: IModels, subdomain: string) => {
     }
 
     public static async createAssignment(doc: IAssignment) {
-      const { campaignId, ownerId, segmentIds } = doc;
+      const {
+        campaignId,
+        ownerId,
+        segmentIds,
+        voucherCampaignId,
+        voucherId,
+        status
+      } = doc;
 
       const assignmentCampaign = await models.AssignmentCampaigns.getAssignmentCampaign(
         campaignId
@@ -45,7 +52,10 @@ export const loadAssignmentClass = (models: IModels, subdomain: string) => {
         campaignId,
         createdAt: new Date(),
         ownerId,
-        segmentIds
+        segmentIds,
+        voucherCampaignId,
+        voucherId,
+        status
       });
     }
 

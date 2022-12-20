@@ -4,6 +4,8 @@ export const types = `
   type Assignment @key(fields: "_id") @cacheControl(maxAge: 3) {
     ${commonTypes}
     segmentIds: [String]
+    status: String
+    voucherId: String
   }
 
   type AssignmentMain {
@@ -16,7 +18,7 @@ export const queries = `
   assignmentsMain(${commonFilters}): AssignmentMain
   assignments(${commonFilters}): [Assignment]
   assignmentDetail(_id: String!): Assignment
-  checkAssignment(customerId: String, _id: String): JSON
+  checkAssignment(customerId: String, _ids: [String]): JSON
 `;
 
 const AssignmentDoc = `

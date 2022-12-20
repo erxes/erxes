@@ -4,16 +4,16 @@ import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 import { ButtonMutate, Spinner } from '@erxes/ui/src/components';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import Form from '../components/Form';
 import { mutations, queries } from '../graphql';
 import {
   AssignmentCampaignQueryResponse,
-  IAssignmentCampaign,
   SegmentsDetailQueryResponse
 } from '../types';
 import { withProps } from '@erxes/ui/src/utils';
 import { VoucherCampaignQueryResponse } from '../../voucherCampaign/types';
 import { queries as voucherCampaignQueries } from '../../voucherCampaign/graphql';
+import CreateForm from '../components/CreateForm';
+import { Link } from 'react-router-dom';
 
 type Props = {
   history: any;
@@ -28,7 +28,11 @@ type FinalProps = {
 
 class AssignmentCreateFormContainer extends React.Component<FinalProps> {
   render() {
-    const { segmentsDetailQuery, voucherCampaignsQuery, history } = this.props;
+    const { segmentsDetailQuery, voucherCampaignsQuery } = this.props;
+
+    if (segmentsDetailQuery.loading || voucherCampaignsQuery.loading) {
+      return <Spinner />;
+    }
     const renderButton = ({
       name,
       values,
@@ -87,7 +91,7 @@ class AssignmentCreateFormContainer extends React.Component<FinalProps> {
       voucherCampaigns
     };
 
-    return <Form {...updatedProps} />;
+    return <CreateForm {...updatedProps} />;
   }
 }
 

@@ -7,14 +7,13 @@ import {
   FormGroup,
   DateControl,
   Uploader,
-  Table
+  Table,
+  DataWithLoader
 } from '@erxes/ui/src/components';
 import EditorCK from '@erxes/ui/src/components/EditorCK';
 import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
-  MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
   MainStyleDateContainer as DateContainer
 } from '@erxes/ui/src/styles/eindex';
 import {
@@ -31,9 +30,14 @@ import * as routerUtils from '@erxes/ui/src/utils/router';
 import Row from './SegmentRow';
 import Select from 'react-select-plus';
 import { IVoucherCampaign } from '../../voucherCampaign/types';
+import { Wrapper } from '@erxes/ui/src/layout';
+import { Title } from '@erxes/ui-settings/src/styles';
+import Sidebar from '../../general/components/Sidebar';
+import { FormFooter, SettingsContent } from '../../../styles';
+import { Link } from 'react-router-dom';
 
 type Props = {
-  assignmentCampaign?: IAssignmentCampaign;
+  assignmentCampaign: IAssignmentCampaign;
   voucherCampaigns: IVoucherCampaign[];
   segmentDetails: ISegment[];
   queryParams: any;
@@ -160,6 +164,11 @@ class EditForm extends React.Component<Props, State> {
         extractAttachment([assignmentCampaign.attachment])) ||
       [];
 
+    const onSave = () => {
+      const { history } = this.props;
+      history.push(`/erxes-plugin-loyalty/settings/assignment`);
+    };
+
     return (
       <>
         <FormGroup>
@@ -252,9 +261,9 @@ class EditForm extends React.Component<Props, State> {
           </>
         )}
         <FormGroup>
-          <ControlLabel>Voucher</ControlLabel>
+          <ControlLabel>Voucher Campaign</ControlLabel>
           <Select
-            placeholder={__('Choose voucher')}
+            placeholder={__('Choose voucher campaign')}
             value={this.state.assignmentCampaign.voucherCampaignId}
             options={this.props.voucherCampaigns.map(voucher => ({
               label: `${voucher.title}`,
@@ -302,29 +311,68 @@ class EditForm extends React.Component<Props, State> {
             single={true}
           />
         </FormGroup>
-        <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={() => {}}
-            icon="times-circle"
-            uppercase={false}
-          >
-            Close
-          </Button>
+        <FormFooter>
+          <Link to={`/erxes-plugin-loyalty/settings/assignment`}>
+            <Button
+              btnStyle="simple"
+              onClick={() => {}}
+              icon="times-circle"
+              uppercase={false}
+            >
+              Close
+            </Button>
+          </Link>
 
           {renderButton({
             name: 'Assignment Campaign',
             values: this.generateDoc(values),
             isSubmitted,
-            object: assignmentCampaign
+            object: assignmentCampaign,
+            callback: onSave
           })}
-        </ModalFooter>
+        </FormFooter>
       </>
     );
   };
 
   render() {
-    return <CommonForm renderContent={this.renderContent} />;
+    const breadcrumb = [
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Assignment Campaign') }
+    ];
+
+    const content = (
+      <SettingsContent>
+        <CommonForm renderContent={this.renderContent} />
+      </SettingsContent>
+    );
+
+    return (
+      <Wrapper
+        header={
+          <Wrapper.Header
+            title={__('Edit Assignment Campaign')}
+            breadcrumb={breadcrumb}
+          />
+        }
+        actionBar={
+          <Wrapper.ActionBar
+            left={<Title>{__('Edit Assignment Campaign')}</Title>}
+          />
+        }
+        content={
+          <DataWithLoader
+            data={content}
+            loading={false}
+            emptyText="There is no data"
+            emptyImage="/images/actions/5.svg"
+          />
+        }
+        leftSidebar={<Sidebar />}
+        transparent={true}
+        hasBorder
+      />
+    );
   }
 }
 

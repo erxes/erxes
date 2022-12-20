@@ -4,16 +4,16 @@ import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 import { ButtonMutate, Spinner } from '@erxes/ui/src/components';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import Form from '../components/Form';
 import { mutations, queries } from '../graphql';
 import {
-  AssignmentCampaignQueryResponse,
-  IAssignmentCampaign,
+  AssignmentCampaignDetailQueryResponse,
   SegmentsDetailQueryResponse
 } from '../types';
 import { withProps } from '@erxes/ui/src/utils';
 import { VoucherCampaignQueryResponse } from '../../voucherCampaign/types';
 import { queries as voucherCampaignQueries } from '../../voucherCampaign/graphql';
+import EditForm from '../components/EditForm';
+import { Link } from 'react-router-dom';
 
 type Props = {
   history: any;
@@ -21,14 +21,26 @@ type Props = {
 };
 
 type FinalProps = {
-  assignmentCampaignsQuery: AssignmentCampaignQueryResponse;
+  assignmentCampaignDetailQuery: AssignmentCampaignDetailQueryResponse;
   segmentsDetailQuery: SegmentsDetailQueryResponse;
   voucherCampaignsQuery: VoucherCampaignQueryResponse;
 } & Props;
 
 class AssignmentEditFormContainer extends React.Component<FinalProps> {
   render() {
-    const { segmentsDetailQuery, voucherCampaignsQuery, history } = this.props;
+    const {
+      segmentsDetailQuery,
+      voucherCampaignsQuery,
+      assignmentCampaignDetailQuery
+    } = this.props;
+
+    if (
+      segmentsDetailQuery.loading ||
+      voucherCampaignsQuery.loading ||
+      assignmentCampaignDetailQuery.loading
+    ) {
+      return <Spinner />;
+    }
     const renderButton = ({
       name,
       values,
@@ -79,15 +91,18 @@ class AssignmentEditFormContainer extends React.Component<FinalProps> {
 
     const segmentDetails = segmentsDetailQuery.segmentsDetail || [];
     const voucherCampaigns = voucherCampaignsQuery.voucherCampaigns || [];
+    const assignmentCampaign =
+      assignmentCampaignDetailQuery.assignmentCampaignDetail || {};
 
     const updatedProps = {
       ...this.props,
       renderButton,
       segmentDetails,
-      voucherCampaigns
+      voucherCampaigns,
+      assignmentCampaign
     };
 
-    return <Form {...updatedProps} />;
+    return <EditForm {...updatedProps} />;
   }
 }
 
@@ -114,6 +129,17 @@ export default withProps<Props>(
       gql(voucherCampaignQueries.voucherCampaigns),
       {
         name: 'voucherCampaignsQuery'
+      }
+    ),
+    graphql<Props, AssignmentCampaignDetailQueryResponse>(
+      gql(queries.assignmentCampaignDetail),
+      {
+        name: 'assignmentCampaignDetailQuery',
+        options: ({ queryParams }) => ({
+          variables: {
+            _id: queryParams.campaignId
+          }
+        })
       }
     )
   )(AssignmentEditFormContainer)

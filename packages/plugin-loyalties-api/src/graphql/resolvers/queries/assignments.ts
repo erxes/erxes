@@ -3,7 +3,6 @@ import { ICommonParams } from '../../../models/definitions/common';
 import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src/core';
 import { AssignmentCheckResponse, isInSegment } from '../../../utils';
-import { IAssignment } from '../../../models/definitions/assignments';
 
 const generateFilter = (params: ICommonParams) => {
   const filter: any = {};
@@ -48,8 +47,8 @@ const assignmentQueries = {
 
     const filter: any = {
       status: 'active',
-      startAt: { $lte: now },
-      endAt: { $gte: now }
+      startDate: { $lte: now },
+      endDate: { $gte: now }
     };
 
     if (_ids) {
@@ -101,7 +100,7 @@ const assignmentQueries = {
             ownerType: 'customer',
             status: 'new'
           });
-          // create assignment
+
           await models.Assignments.createAssignment({
             campaignId: assignmentCampaign._id,
             ownerType: 'customer',

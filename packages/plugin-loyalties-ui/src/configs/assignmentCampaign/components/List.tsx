@@ -1,4 +1,3 @@
-import Form from '../containers/Form';
 import React from 'react';
 import Row from './Row';
 import Sidebar from '../../general/components/Sidebar';
@@ -13,6 +12,7 @@ import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { __, router, confirm, Alert } from '@erxes/ui/src/utils';
 import { IAssignmentCampaign } from '../types';
 import { Link } from 'react-router-dom';
+import CreateForm from './CreateForm';
 
 type Props = {
   assignmentCampaigns: IAssignmentCampaign[];
@@ -93,7 +93,9 @@ class AssignmentCampaigns extends React.Component<Props, State> {
 
   formContent = props => {
     const { queryParams, history } = this.props;
-    return <Form {...props} queryParams={queryParams} history={history} />;
+    return (
+      <CreateForm {...props} queryParams={queryParams} history={history} />
+    );
   };
 
   removeAssignmentCampaigns = assignmentCampaigns => {

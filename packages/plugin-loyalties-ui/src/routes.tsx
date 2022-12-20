@@ -250,7 +250,6 @@ const routes = () => {
 
       <Route
         path="/erxes-plugin-loyalty/settings/assignment/edit"
-        exact={true}
         component={assignmentCampaignEdit}
       />
 

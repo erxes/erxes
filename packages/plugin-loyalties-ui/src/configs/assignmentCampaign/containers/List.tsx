@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Bulk } from '@erxes/ui/src/components';
+import { Bulk, Spinner } from '@erxes/ui/src/components';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -29,6 +29,10 @@ class AssignmentCampaignContainer extends React.Component<FinalProps> {
       queryParams,
       assignmentCampaignsRemove
     } = this.props;
+
+    if (assignmentCampaignQuery.loading) {
+      return <Spinner />;
+    }
 
     // remove action
     const remove = ({ assignmentCampaignIds }, emptyBulk) => {

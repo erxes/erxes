@@ -154,3 +154,9 @@ export const Indicator = styledTS<{ color: string }>(styled.div)`
   height: 10px;
   background: ${props => props.color}
 `;
+
+export const FormFooter = styled.div`
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+`;
