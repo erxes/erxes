@@ -1,44 +1,44 @@
 import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
-import { IRiskConfirmityField } from '../../../models/definitions/common';
+import { IRiskConformityField } from '../../../models/definitions/common';
 
 const RiskConfimityMutations = {
-  async addRiskConfirmity(
+  async addRiskConformity(
     _root,
-    params: IRiskConfirmityField,
+    params: IRiskConformityField,
     { models }: IContext
   ) {
-    return await models.RiskConfimity.riskConfirmityAdd(params);
+    return await models.RiskConformity.riskConformityAdd(params);
   },
-  async updateRiskConfirmity(
+  async updateRiskConformity(
     _root,
-    params: IRiskConfirmityField,
+    params: IRiskConformityField,
     { models }: IContext
   ) {
-    return await models.RiskConfimity.riskConfirmityUpdate(params);
+    return await models.RiskConformity.riskConformityUpdate(params);
   },
-  async removeRiskConfirmity(
+  async removeRiskConformity(
     _root,
     { cardId }: { cardId: string },
     { models }: IContext
   ) {
-    return await models.RiskConfimity.riskConfirmityRemove(cardId);
+    return await models.RiskConformity.riskConformityRemove(cardId);
   }
 };
 
 checkPermission(
   RiskConfimityMutations,
-  'addRiskConfirmity',
+  'addRiskConformity',
   'manageRiskAssessment'
 );
 checkPermission(
   RiskConfimityMutations,
-  'updateRiskConfirmity',
+  'updateRiskConformity',
   'manageRiskAssessment'
 );
 checkPermission(
   RiskConfimityMutations,
-  'removeRiskConfirmity',
+  'removeRiskConformity',
   'manageRiskAssessment'
 );
 

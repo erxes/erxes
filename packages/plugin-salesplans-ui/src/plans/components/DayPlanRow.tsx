@@ -45,8 +45,7 @@ class Row extends React.Component<Props, State> {
     const timeId = e.target.name;
 
     const ind = values.findIndex(v => v.timeId === timeId);
-    console.log(values);
-    console.log(ind);
+
     values[ind].count = count;
     this.setState({ values }, () => {
       if (this.timer) {
@@ -118,8 +117,8 @@ class Row extends React.Component<Props, State> {
             />
           </td>
         ))}
-        <td>{sumValue.toLocaleString()}</td>
-        <td>{diff.toLocaleString()}</td>
+        <td>{(sumValue || 0).toLocaleString()}</td>
+        <td>{(diff || 0).toLocaleString()}</td>
         <td>
           <ActionButtons>
             <Label

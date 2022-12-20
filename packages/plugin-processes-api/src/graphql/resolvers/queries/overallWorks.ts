@@ -6,7 +6,7 @@ import { sendProductsMessage } from '../../../messageBroker';
 // } from '@erxes/api-utils/src/permissions';
 import { IContext, IModels } from '../../../connectionResolver';
 import { JOB_TYPES } from '../../../models/definitions/constants';
-import { needProductsData, resultProductsData } from './utils';
+import { getProductsDataOnOwork } from './utils';
 import { getProductsData } from '../customResolver/utils';
 
 interface IParam {
@@ -274,9 +274,7 @@ const overallWorkQueries = {
       outBranchId,
       outDepartmentId,
       type,
-      jobReferId,
-      productCategoryId,
-      productId
+      jobReferId
     } = params;
 
     if (!type) {
@@ -312,12 +310,6 @@ const overallWorkQueries = {
     ) {
       throw new Error('Must choose in or out location infos');
     }
-
-    // if (!jobReferId && !(productId || productCategoryId)) {
-    //   throw new Error(
-    //     'Must choose job refer or product or product category on filter'
-    //   );
-    // }
 
     const selector = await generateFilter(
       subdomain,
@@ -404,20 +396,38 @@ const overallWorkQueries = {
       overallWork.resultProducts = resultData;
     }
 
+    const uoms = await sendProductsMessage({
+      subdomain,
+      action: 'uoms.find',
+      data: {},
+      isRPC: true
+    });
+
+    const uomById = {};
+    for (const uom of uoms) {
+      uomById[uom._id] = uom;
+    }
+
     overallWork.needProducts =
       getProductsData(overallWork.needProducts || []) || [];
 
     overallWork.resultProducts =
       getProductsData(overallWork.resultProducts || []) || [];
 
-    overallWork.needProductsData = await needProductsData(
+    overallWork.needProductsData = await getProductsDataOnOwork(
       subdomain,
-      overallWork
+      overallWork.needProducts,
+      overallWork.key.inBranchId,
+      overallWork.key.inDepartmentId,
+      uomById
     );
 
-    overallWork.resultProductsData = await resultProductsData(
+    overallWork.resultProductsData = await getProductsDataOnOwork(
       subdomain,
-      overallWork
+      overallWork.resultProducts,
+      overallWork.key.outBranchId,
+      overallWork.key.outDepartmentId,
+      uomById
     );
 
     return overallWork;

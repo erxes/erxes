@@ -4,8 +4,9 @@ export const SOCIALPAY_ENDPOINT = 'https://instore.golomtbank.com';
 export const PAYMENT_KINDS = {
   QPAY: 'qpay',
   SOCIAL_PAY: 'socialPay',
+  MONPAY: 'monpay',
 
-  ALL: ['qpay', 'socialPay']
+  ALL: ['qpay', 'socialPay', 'monpay']
 };
 
 export const QPAY_ACTIONS = {
@@ -28,8 +29,9 @@ export const POST_CALLBACK_TYPES = {
 
 export const GET_CALLBACK_TYPES = {
   QPAY: 'qpay',
+  MONPAY: 'monpay',
 
-  ALL: ['qpay']
+  ALL: ['qpay', 'monpay']
 };
 
 export const PAYMENT_STATUS = {

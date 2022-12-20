@@ -1,15 +1,15 @@
-const confirmityRiskAssessment = `
-  mutation AddRiskConfirmity( $riskAssessmentId: String!, $cardId: String!,$cardType: String) {
-    addRiskConfirmity( riskAssessmentId: $riskAssessmentId, cardId: $cardId,cardType: $cardType) {
+const conformityRiskAssessment = `
+  mutation AddRiskConformity( $riskAssessmentId: String!, $cardId: String!,$cardType: String) {
+    addRiskConformity( riskAssessmentId: $riskAssessmentId, cardId: $cardId,cardType: $cardType) {
       cardId
       _id
       riskAssessmentId
     }
   }
 `;
-const editConfimityRiskAssessment = `
-  mutation UpdateRiskConfirmity($cardId: String,$cardType:String, $riskAssessmentId: String) {
-    updateRiskConfirmity(cardId: $cardId,cardType:$cardType, riskAssessmentId: $riskAssessmentId) {
+const editConformityRiskAssessment = `
+  mutation UpdateRiskConformity($cardId: String,$cardType:String, $riskAssessmentId: String) {
+    updateRiskConformity(cardId: $cardId,cardType:$cardType, riskAssessmentId: $riskAssessmentId) {
       _id
       cardId
       cardType
@@ -18,9 +18,9 @@ const editConfimityRiskAssessment = `
   }
 `;
 
-const removeConfirmityRiskAssessment = `
-  mutation RemoveRiskConfirmity($cardId: String,$cardType:String) {
-    removeRiskConfirmity(cardId: $cardId,cardType:$cardType) 
+const removeConformityRiskAssessment = `
+  mutation RemoveRiskConformity($cardId: String,$cardType:String) {
+    removeRiskConformity(cardId: $cardId,cardType:$cardType) 
   }
 `;
 
@@ -31,8 +31,8 @@ const riskFormSaveSubmission = `
 `;
 
 export default {
-  confirmityRiskAssessment,
-  editConfimityRiskAssessment,
-  removeConfirmityRiskAssessment,
+  conformityRiskAssessment,
+  editConformityRiskAssessment,
+  removeConformityRiskAssessment,
   riskFormSaveSubmission
 };

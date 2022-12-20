@@ -14,6 +14,7 @@ import { mutations } from '../graphql';
 import { IPaymentDocument } from '../types';
 import QpayForm from './form/QpayForm';
 import SocialPayForm from './form/SocialPayForm';
+import MonpayForm from './form/MonpayForm';
 import { getRefetchQueries } from '../containers/utils';
 import { PAYMENT_KINDS } from './constants';
 
@@ -94,6 +95,15 @@ class IntegrationListItem extends React.Component<Props, State> {
       case PAYMENT_KINDS.SOCIALPAY:
         content = props => (
           <SocialPayForm
+            {...props}
+            payment={payment}
+            renderButton={renderButton}
+          />
+        );
+        break;
+      case PAYMENT_KINDS.MONPAY:
+        content = props => (
+          <MonpayForm
             {...props}
             payment={payment}
             renderButton={renderButton}

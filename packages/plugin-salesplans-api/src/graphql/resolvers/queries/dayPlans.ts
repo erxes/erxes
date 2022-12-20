@@ -126,6 +126,32 @@ const labelsQueries = {
   ) => {
     const filter = await getGenerateFilter(subdomain, params);
     return await models.DayPlans.find(filter).count();
+  },
+
+  dayPlansSum: async (
+    _root: any,
+    params: IListArgs,
+    { models, subdomain }: IContext
+  ) => {
+    const filter = await getGenerateFilter(subdomain, params);
+    const plans = await models.DayPlans.find(filter, {
+      values: 1,
+      planCount: 1
+    }).lean();
+
+    const result: { [key: string]: number } = { planCount: 0 };
+
+    for (const plan of plans || []) {
+      result.planCount += plan.planCount;
+
+      for (const timeValue of plan.values || []) {
+        if (!Object.keys(result).includes(timeValue.timeId)) {
+          result[timeValue.timeId] = 0;
+        }
+        result[timeValue.timeId] += Number(timeValue.count);
+      }
+    }
+    return result;
   }
 };
 

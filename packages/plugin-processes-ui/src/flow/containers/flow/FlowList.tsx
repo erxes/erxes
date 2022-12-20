@@ -169,7 +169,7 @@ export default withProps<Props>(
       {
         name: 'flowsAdd',
         options: () => ({
-          refetchQueries: ['flows', 'flowDetail', 'jobRefersAll']
+          refetchQueries: ['flows', 'flowDetail']
         })
       }
     )

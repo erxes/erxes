@@ -194,5 +194,5 @@ export const CustomSideContent = styledTS<{
   full?: boolean;
   hasBorder?: boolean;
 }>(styled(SideContent))`
-  width: ${props => (props.wide ? '440px' : '290px')};
+  width: ${props => (props.wide ? '550px' : '290px')};
 `;

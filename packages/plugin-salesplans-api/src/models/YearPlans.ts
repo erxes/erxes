@@ -37,10 +37,11 @@ export const loadYearPlanClass = (models: IModels) => {
       doc: IYearPlan,
       user: IUserDocument
     ) {
-      return await models.YearPlans.updateOne(
+      await models.YearPlans.updateOne(
         { _id },
         { $set: { ...doc, modifiedAt: new Date(), modifiedBy: user._id } }
       );
+      return await models.YearPlans.findOne({ _id }).lean();
     }
 
     public static async yearPlansRemove(_ids: string[]) {

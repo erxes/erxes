@@ -1,13 +1,12 @@
-import Label from '@erxes/ui/src/components/Label';
-import React from 'react';
-import { FormControl } from '@erxes/ui/src/components';
-import { IYearPlan, IPlanValues } from '../types';
-import { MONTHS } from '../../constants';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils';
+import { FormControl } from '@erxes/ui/src/components';
+import { IPlanValues, IYearPlan } from '../types';
+import { MONTHS } from '../../constants';
 
 type Props = {
   yearPlan: IYearPlan;
