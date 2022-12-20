@@ -54,7 +54,7 @@ class PerformFormContainer extends React.Component<FinalProps> {
       );
     };
 
-    const perform = performDetailQuery.perform;
+    const perform = performDetailQuery.performDetail;
 
     const updatedProps = {
       ...this.props,
