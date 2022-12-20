@@ -37,6 +37,7 @@ type Props<Target, OnSubmit> = {
     customerCounts: React.ReactNode;
   }) => React.ReactNode;
   icons?: React.ReactNode[];
+  loadingCount: boolean;
 };
 
 type State = {
@@ -138,7 +139,8 @@ class Common<Target, OnSubmit> extends React.Component<
       Form,
       formProps,
       onSubmit,
-      icons
+      icons,
+      loadingCount
     } = this.props;
 
     if (this.state.show) {
@@ -162,6 +164,7 @@ class Common<Target, OnSubmit> extends React.Component<
         defaultValues={targetIds}
         onChangeStep={this.onChangeStep}
         icons={icons}
+        loadingCount={loadingCount}
       />
     );
   }

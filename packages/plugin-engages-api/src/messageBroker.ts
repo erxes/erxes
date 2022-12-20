@@ -2,7 +2,7 @@ import { sendMessage, ISendMessageArgs } from '@erxes/api-utils/src/core';
 import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
 import { serviceDiscovery, debug } from './configs';
 import { generateModels } from './connectionResolver';
-import { start, sendBulkSms } from './sender';
+import { start, sendBulkSms, sendEmail } from './sender';
 import { CAMPAIGN_KINDS } from './constants';
 
 export let client;
@@ -118,6 +118,12 @@ export const initBroker = async cl => {
       };
     }
   );
+
+  consumeQueue('engages:sendEmail', async ({ data, subdomain }) => {
+    const models = await generateModels(subdomain);
+
+    await sendEmail(models, data);
+  });
 };
 
 export const removeEngageConversations = async (_id): Promise<any> => {

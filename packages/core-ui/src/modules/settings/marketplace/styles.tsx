@@ -1,7 +1,8 @@
+import { colors, dimensions, typography } from '@erxes/ui/src/styles';
+
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { colors, dimensions, typography } from '@erxes/ui/src/styles';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
 
 // Main page
 
@@ -184,11 +185,76 @@ const DetailMainContainer = styled.div`
   border: 1px solid ${colors.borderPrimary};
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   overflow-x: hidden;
+
   ::-webkit-scrollbar {
     display: none;
   }
+
   p {
     margin: 0;
+  }
+
+  .plugin-detail-tabs {
+    margin-top: ${dimensions.unitSpacing}px;
+  }
+  .plugin-detail-content {
+    margin-top: ${dimensions.coreSpacing}px;
+    font-size: 14px;
+
+    ul {
+      margin: 0;
+    }
+    .title-row {
+      display: flex;
+    }
+    .title-row i {
+      margin-right: 5px;
+    }
+    .caution {
+      border-radius: 10px;
+      background: #fda50d;
+      color: #333;
+      padding: 20px;
+      margin-top: 15px;
+      margin-bottom: 15px;
+      width: auto;
+      height: auto;
+      line-height: 24px;
+    }
+    .caution p {
+      color: #333;
+    }
+    .intro,
+    .protip,
+    .danger,
+    info {
+      border-radius: 10px;
+      color: #ffffff;
+      padding: 20px;
+      margin-top: 15px;
+      margin-bottom: 15px;
+      width: auto;
+      height: auto;
+      line-height: 24px;
+    }
+    .intro {
+      background: #6569df;
+    }
+    .intro p,
+    .danger p,
+    .info p,
+    .protip p {
+      color: white;
+    }
+    .protip {
+      background: #63d2d6;
+    }
+    .danger {
+      background: #ea475d;
+    }
+    .info {
+      background: #3b85f4;
+    }
   }
 `;
 
@@ -245,9 +311,9 @@ const DetailInformation = styled.div`
 const Hashtag = styled.div`
   border-radius: 4px;
   color: ${colors.colorWhite};
-  background: ${colors.colorPrimary};
+  background: ${colors.bgDark};
   padding: 2px 6px;
-  margin-right: 5px;
+  margin: 0 5px 5px 0;
   font-size: 11px;
 
   $:nth-last-child(1) {
@@ -341,7 +407,6 @@ const SidebarWrapper = styled.div`
   max-width: 350px;
 
   a {
-    padding: 12px;
     font-weight: bold;
     display: flex;
     align-items: center;
@@ -378,6 +443,31 @@ const ColorHeader = styled.p`
   margin: 0;
 `;
 
+const DetailStyle = styled.div`
+  .section-header {
+    font-size: 16px;
+    font-weight: 700;
+    color: #5629b6 !important;
+    display: flex;
+    margin: 10px 0;
+    align-items: center;
+  }
+
+  img {
+    margin: ${dimensions.unitSpacing}px 0;
+  }
+`;
+
+const AdditionalDesc = styled.p`
+  .section-header {
+    font-size: 16px;
+    font-weight: 700;
+    color: #5629b6 !important;
+    display: flex;
+    align-items: center;
+  }
+`;
+
 const DetailCard = styled.div`
   display: flex;
   margin-top: ${dimensions.unitSpacing}px;
@@ -387,11 +477,16 @@ const DetailCard = styled.div`
 const MemberPic = styled.div`
   width: 39px;
   height: 39px;
-  border: 2px solid ${rgba(colors.colorPrimary, 0.4)};
+  border: 1px solid ${colors.borderPrimary};
   border-radius: 50%;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  flex-shrink: 0;
 
   img {
-    height: 35px;
+    max-height: 100%;
+    max-width: 100%;
   }
 `;
 
@@ -399,14 +494,16 @@ const CardInformation = styled.div`
   display: flex;
   flex-direction: column;
   margin-left: 12px;
+
+  p {
+    font-size: 12px;
+  }
 `;
 
 const SmallText = styledTS<{ withMargin?: boolean }>(styled.span)`
-  font-size: 11px;
+  font-size: 12px;
   margin-top: ${props => props.withMargin && '5'}px;
 `;
-
-//**************
 
 const inputPadding = '0px';
 const inputHeight = '15px';
@@ -553,6 +650,25 @@ const Checkbox = styledTS<{ color?: string }>(styled(inputStyle))`
   }
 `;
 
+const AttachmentContainer = styled.div`
+  display: flex;
+  height: 300px;
+  margin-top: 30px;
+  overflow: auto;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  img {
+    width: 50%;
+    border: 1px solid ${colors.borderPrimary};
+    object-fit: cover;
+    margin-right: 10px;
+    border-radius: 8px;
+  }
+`;
+
 export {
   ImageWrapper,
   MainContainer,
@@ -594,5 +710,8 @@ export {
   SmallText,
   WidgetApperance,
   FormLabel,
-  Checkbox
+  Checkbox,
+  AttachmentContainer,
+  DetailStyle,
+  AdditionalDesc
 };

@@ -25,10 +25,10 @@ import { Modal } from 'react-bootstrap';
 import { twinkling } from 'modules/common/utils/animations';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { getThemeItem } from 'utils';
 
 import { colors, dimensions } from '../common/styles';
 import { rgba } from '../common/styles/color';
+import { getThemeItem } from '@erxes/ui/src/utils/core';
 
 const thBackground = getThemeItem('background');
 const thColor = getThemeItem('text_color');
@@ -300,7 +300,7 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
     }
 
     &:hover {
-      background: rgba(0, 0, 0, 0.04);
+      background: rgb(245, 245, 246);
 
       > i, label {
         opacity: .8;
@@ -566,6 +566,10 @@ const MoreMenuWrapper = styledTS<{ visible: boolean; navCollapse: number }>(
     0px 0px 1px rgba(0, 0, 0, 0.04);
     cursor : default
 
+  @media (max-height: 760px) {
+    top: unset;
+    bottom: 0;
+  }
 `;
 
 const MoreSearch = styled.div`

@@ -1,25 +1,15 @@
 import { generateModels } from './connectionResolver';
 import { sendFormsMessage, sendTagsMessage } from './messageBroker';
 
-export const EXPORT_TYPES = [
+export const IMPORT_EXPORT_TYPES = [
   {
     text: 'Product & Services',
     contentType: 'product',
     icon: 'server-alt'
   }
 ];
-
-export const IMPORT_TYPES = [
-  {
-    text: 'Product & Services',
-    contentType: 'product',
-    icon: 'server-alt'
-  }
-];
-
 export default {
-  exportTypes: EXPORT_TYPES,
-  importTypes: IMPORT_TYPES,
+  importExportTypes: IMPORT_EXPORT_TYPES,
 
   insertImportItems: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
@@ -47,6 +37,7 @@ export default {
       };
 
       let colIndex: number = 0;
+      let barcodes = [];
       let subUomNames = [];
       let ratios = [];
 
@@ -66,7 +57,9 @@ export default {
                 subdomain,
                 action: 'fields.prepareCustomFieldsData',
                 data: doc.customFieldsData,
-                isRPC: true
+                isRPC: true,
+                defaultValue: doc.customFieldsData,
+                timeout: 60 * 1000 // 1 minute
               });
             }
             break;
@@ -105,6 +98,13 @@ export default {
               doc.tagIds = tag ? [tag._id] : [];
             }
 
+            break;
+
+          case 'barcodes':
+            {
+              barcodes = value.replace(/\s/g, '').split(',');
+              barcodes = barcodes.filter(br => br);
+            }
             break;
 
           case 'subUoms.uomId':

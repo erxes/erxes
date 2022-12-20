@@ -232,6 +232,7 @@ class AutomationsList extends React.Component<IProps, State> {
             }
           />
         }
+        hasBorder
       />
     );
   }

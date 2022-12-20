@@ -3,7 +3,6 @@ import * as strip from 'strip';
 import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES,
-  KIND_CHOICES,
   MESSAGE_TYPES
 } from '../../models/definitions/constants';
 
@@ -308,7 +307,7 @@ const createFormConversation = async (
     const submissionValues = {};
 
     for (const submit of submissions) {
-      submissionValues[submit.formFieldId] = submit.value;
+      submissionValues[submit._id] = submit.value;
     }
 
     sendAutomationsMessage({
@@ -331,7 +330,7 @@ const createFormConversation = async (
 
   return {
     status: 'ok',
-    messageId: message._id,
+    conversationId: conversation._id,
     customerId: cachedCustomer._id
   };
 };
@@ -515,7 +514,7 @@ const widgetMutations = {
     // find integration
     const integration = await models.Integrations.findOne({
       brandId: brand._id,
-      kind: KIND_CHOICES.MESSENGER
+      kind: 'messenger'
     });
 
     if (!integration) {
@@ -582,18 +581,6 @@ const widgetMutations = {
       });
     }
 
-    // customer automation trigger =========
-    if (customer) {
-      sendAutomationsMessage({
-        subdomain,
-        action: 'trigger',
-        data: {
-          type: `contacts:${customer.state}`,
-          targets: [customer]
-        }
-      });
-    }
-
     // get or create company
     if (companyData && companyData.name) {
       let company = await sendContactsMessage({
@@ -638,18 +625,6 @@ const widgetMutations = {
             scopeBrandIds: [brand._id]
           },
           isRPC: true
-        });
-      }
-
-      // company automation trigger =========
-      if (company) {
-        sendAutomationsMessage({
-          subdomain,
-          action: 'trigger',
-          data: {
-            type: `contacts:company`,
-            targets: [company]
-          }
         });
       }
 
@@ -949,7 +924,11 @@ const widgetMutations = {
             body: conversationContent,
             customerId,
             conversationId: conversation._id,
-            receivers: conversationNotifReceivers(conversation, customerId)
+            receivers: conversationNotifReceivers(conversation, customerId),
+            data: {
+              type: 'messenger',
+              id: conversation._id
+            }
           }
         });
       } catch (e) {

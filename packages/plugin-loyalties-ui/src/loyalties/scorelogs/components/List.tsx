@@ -159,6 +159,7 @@ class ScoreLogsListComponent extends React.Component<IProps> {
         leftSidebar={sidebar}
         content={content}
         footer={<Pagination count={total} />}
+        hasBorder
       />
     );
   }

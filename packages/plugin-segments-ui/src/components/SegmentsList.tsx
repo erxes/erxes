@@ -107,7 +107,9 @@ class SegmentsList extends React.Component<Props> {
       </Link>
     );
 
-    const actionBar = <Wrapper.ActionBar left={title} right={actionBarRight} />;
+    const actionBar = (
+      <Wrapper.ActionBar left={title} right={actionBarRight} wideSpacing />
+    );
 
     return (
       <Wrapper
@@ -129,6 +131,7 @@ class SegmentsList extends React.Component<Props> {
           />
         }
         leftSidebar={<Sidebar types={types} contentType={contentType} />}
+        hasBorder
       />
     );
   }

@@ -3,10 +3,10 @@ import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IMessages } from '../../../types';
+import { IMessages } from '@erxes/ui-inbox/src/settings/integrations/types';
 import React from 'react';
-import SelectBrand from '../../../containers/SelectBrand';
-import SelectChannels from '../../../containers/SelectChannels';
+import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
+import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { __ } from 'coreui/utils';
 

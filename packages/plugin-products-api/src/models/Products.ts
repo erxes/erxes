@@ -1,5 +1,6 @@
 import { ICustomField, IUserDocument } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
+import * as _ from 'lodash';
 import { IModels } from '../connectionResolver';
 import {
   sendCardsMessage,
@@ -17,11 +18,6 @@ import {
 } from './definitions/products';
 
 export interface IProductModel extends Model<IProductDocument> {
-  updateProductCategory(
-    productIds: any,
-    productFields: any,
-    user: IUserDocument
-  );
   getProduct(selector: any): Promise<IProductDocument>;
   createProduct(doc: IProduct): Promise<IProductDocument>;
   updateProduct(_id: string, doc: IProduct): Promise<IProductDocument>;
@@ -49,6 +45,27 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       return product;
     }
 
+    static async checkUOM(doc) {
+      if (doc.uomId) {
+        return doc.uomId;
+      }
+
+      const configs = await models.ProductsConfigs.find({
+        code: { $in: ['isRequireUOM', 'defaultUOM'] }
+      }).lean();
+
+      const isRequireUOM = (configs.find(c => c.code === 'isRequireUOM') || {})
+        .value;
+      const defaultUOM = (configs.find(c => c.code === 'defaultUOM') || {})
+        .value;
+
+      if (isRequireUOM && defaultUOM) {
+        return defaultUOM;
+      }
+
+      return '';
+    }
+
     static async checkCodeDuplication(code: string) {
       const product = await models.Products.findOne({
         code,
@@ -65,6 +82,12 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
      */
     public static async createProduct(doc: IProduct) {
       await this.checkCodeDuplication(doc.code);
+
+      if (doc.barcodes) {
+        doc.barcodes = doc.barcodes
+          .filter(bc => bc)
+          .map(bc => bc.replace(/\s/g, ''));
+      }
 
       if (doc.categoryCode) {
         const category = await models.ProductCategories.getProductCatogery({
@@ -98,6 +121,8 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         isRPC: true
       });
 
+      doc.uomId = await this.checkUOM(doc);
+
       return models.Products.create(doc);
     }
 
@@ -111,6 +136,12 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         await this.checkCodeDuplication(doc.code);
       }
 
+      if (doc.barcodes) {
+        doc.barcodes = doc.barcodes
+          .filter(bc => bc)
+          .map(bc => bc.replace(/\s/g, ''));
+      }
+
       if (doc.customFieldsData) {
         // clean custom field values
         doc.customFieldsData = await sendFormsMessage({
@@ -120,10 +151,10 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
           isRPC: true
         });
       }
-
+      doc.uomId = await this.checkUOM(doc);
       await models.Products.updateOne({ _id }, { $set: doc });
 
-      return models.Products.findOne({ _id });
+      return await models.Products.findOne({ _id }).lean();
     }
 
     /**
@@ -187,9 +218,11 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
 
       let customFieldsData: ICustomField[] = [];
       let tagIds: string[] = [];
+      let barcodes: string[] = [];
       const name: string = productFields.name || '';
       const type: string = productFields.type || '';
       const description: string = productFields.description || '';
+      const barcodeDescription: string = productFields.barcodeDescription || '';
       const categoryId: string = productFields.categoryId || '';
       const vendorId: string = productFields.vendorId || '';
       const usedIds: string[] = [];
@@ -199,6 +232,8 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
 
         const productTags = productObj.tagIds || [];
 
+        const productBarcodes = productObj.barcodes || [];
+
         // merge custom fields data
         customFieldsData = [
           ...customFieldsData,
@@ -207,6 +242,9 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
 
         // Merging products tagIds
         tagIds = tagIds.concat(productTags);
+
+        // Merging products barcodes
+        barcodes = barcodes.concat(productBarcodes);
 
         await models.Products.findByIdAndUpdate(productId, {
           $set: {
@@ -221,14 +259,20 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       // Removing Duplicates
       tagIds = Array.from(new Set(tagIds));
 
+      // Removing Duplicates
+      barcodes = Array.from(new Set(barcodes));
+
       // Creating product with properties
       const product = await models.Products.createProduct({
         ...productFields,
         customFieldsData,
         tagIds,
+        barcodes,
+        barcodeDescription,
         mergedIds: productIds,
         name,
         type,
+        uomId: await this.checkUOM(productFields),
         description,
         categoryId,
         vendorId
@@ -414,8 +458,8 @@ export const loadProductCategoryClass = (models: IModels) => {
       doc: IProductCategory
     ) {
       const order = parentCategory
-        ? `${parentCategory.order}/${doc.code}`
-        : `${doc.code}`;
+        ? `${parentCategory.order}${doc.code}/`
+        : `${doc.code}/`;
 
       return order;
     }

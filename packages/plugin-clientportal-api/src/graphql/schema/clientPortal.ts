@@ -32,18 +32,32 @@ ${
     : ''
 }
 
-  type OTPConfig{
+  type OTPConfig {
     content: String
     codeLength: Int
     smsTransporterType: String
-    emailTransporterType: String
+    loginWithOTP: Boolean
+    expireAfter: Int
+  }
+
+  type MailConfig {
+    subject: String
+    invitationContent : String
+    registrationContent : String
   }
 
   input OTPConfigInput {
     content: String
     codeLength: Int
     smsTransporterType: String
-    emailTransporterType: String
+    loginWithOTP: Boolean
+    expireAfter: Int
+  }
+
+  input MailConfigInput {
+    subject: String
+    invitationContent : String
+    registrationContent : String
   }
 
   type ClientPortal {
@@ -76,6 +90,7 @@ ${
     mobileResponsive: Boolean
   
     otpConfig: OTPConfig
+    mailConfig: MailConfig
 
     kbToggle: Boolean,
     publicTaskToggle: Boolean,
@@ -132,7 +147,7 @@ export const queries = (cardAvailable, kbAvailable) => `
       ? `
     clientPortalGetTaskStages: [Stage]
     clientPortalGetTasks(stageId: String!): [Task]
-    clientPortalTickets(email: String!): [Ticket]
+    clientPortalTickets: [Ticket]
     clientPortalTicket(_id: String!): Ticket
    `
       : ''
@@ -181,6 +196,7 @@ export const mutations = cardAvailable => `
     taskToggle: Boolean,
 
     otpConfig: OTPConfigInput
+    mailConfig: MailConfigInput
   ): ClientPortal
 
   clientPortalRemove (_id: String!): JSON
@@ -193,9 +209,8 @@ export const mutations = cardAvailable => `
         stageId: String!
         subject: String!
         description: String
-        email: String!
-        priority: String
-      ): Ticket
+        priority: String,
+      ): JSON
      `
       : ''
   }

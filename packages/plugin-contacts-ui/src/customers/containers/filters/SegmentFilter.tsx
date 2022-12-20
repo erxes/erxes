@@ -27,6 +27,7 @@ const SegmentFilterContainer = (props: Props & WrapperProps) => {
 };
 
 type WrapperProps = {
+  abortController?: any;
   type: string;
   loadingMainQuery: boolean;
 };
@@ -38,8 +39,11 @@ export default withProps<WrapperProps>(
       {
         name: 'customersCountQuery',
         skip: ({ loadingMainQuery }) => loadingMainQuery,
-        options: ({ type }) => ({
-          variables: { type, only: 'bySegment' }
+        options: ({ type, abortController }) => ({
+          variables: { type, only: 'bySegment' },
+          context: {
+            fetchOptions: { signal: abortController && abortController.signal }
+          }
         })
       }
     )

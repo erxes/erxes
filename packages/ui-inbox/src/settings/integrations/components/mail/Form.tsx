@@ -70,19 +70,6 @@ class Form extends React.Component<Props, State> {
 
   renderProvideForm(formProps: IFormProps) {
     const { kind } = this.props;
-
-    if (['nylas-gmail', 'nylas-office365'].includes(kind)) {
-      return null;
-    }
-
-    if (kind === 'nylas-imap') {
-      return <ImapForm formProps={formProps} />;
-    }
-
-    if (kind === 'nylas-exchange') {
-      return <ExchangeForm formProps={formProps} />;
-    }
-
     return <MailAuthForm formProps={formProps} kind={kind} />;
   }
 

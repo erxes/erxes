@@ -5,7 +5,7 @@ import {
 } from './graphql/resolvers/customResolvers/deal';
 import { conversationConvertToCard } from './models/utils';
 import { getCardItem } from './utils';
-import { notifiedUserIds } from './graphql/utils';
+import { createConformity, notifiedUserIds } from './graphql/utils';
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { publishHelper } from './graphql/resolvers/mutations/utils';
@@ -21,18 +21,42 @@ export const initBroker = async cl => {
   consumeRPCQueue('cards:tickets.create', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
+    const ticket = await models.Tickets.create(data);
+
+    const { customerId = '' } = data;
+
+    if (customerId) {
+      await createConformity(subdomain, {
+        customerIds: [customerId],
+        mainType: 'ticket',
+        mainTypeId: ticket._id
+      });
+    }
+
     return {
       status: 'success',
-      data: await models.Tickets.create(data)
+      data: ticket
     };
   });
 
   consumeRPCQueue('cards:tasks.create', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
+    const task = await models.Tasks.create(data);
+
+    const { customerId = '' } = data;
+
+    if (customerId) {
+      await createConformity(subdomain, {
+        customerIds: [customerId],
+        mainType: 'task',
+        mainTypeId: task._id
+      });
+    }
+
     return {
       status: 'success',
-      data: await models.Tasks.create(data)
+      data: task
     };
   });
 
@@ -152,6 +176,30 @@ export const initBroker = async cl => {
       data: await models.Boards.find(data).lean()
     };
   });
+
+  consumeRPCQueue(
+    'cards:boards.count',
+    async ({ subdomain, data: { selector } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Boards.find(selector).count()
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'cards:growthHacks.count',
+    async ({ subdomain, data: { selector } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.GrowthHacks.count(selector)
+      };
+    }
+  );
 
   consumeQueue(
     'cards:checklists.removeChecklists',
@@ -376,6 +424,37 @@ export const initBroker = async cl => {
       };
     }
   );
+
+  consumeRPCQueue(
+    'cards:getModuleRelation',
+    async ({ subdomain, data: { module, target, triggerType } }) => {
+      let filter;
+
+      if (module.includes('contacts')) {
+        const relTypeIds = await sendCommonMessage({
+          subdomain,
+          serviceName: 'core',
+          action: 'conformities.savedConformity',
+          data: {
+            mainType: triggerType.split(':')[1],
+            mainTypeId: target._id,
+            relTypes: [module.split(':')[1]]
+          },
+          isRPC: true,
+          defaultValue: []
+        });
+
+        if (relTypeIds.length) {
+          filter = { _id: { $in: relTypeIds } };
+        }
+      }
+
+      return {
+        status: 'success',
+        data: filter
+      };
+    }
+  );
 };
 
 export const sendContactsMessage = async (
@@ -505,16 +584,30 @@ export const sendCommonMessage = async (
   });
 };
 
-export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
+export const fetchSegment = (
+  subdomain: string,
+  segmentId: string,
+  options?,
+  segmentData?: any
+) =>
   sendSegmentsMessage({
     subdomain,
     action: 'fetchSegment',
-    data: { segmentId, options },
+    data: { segmentId, options, segmentData },
     isRPC: true
   });
 
 export const sendToWebhook = ({ subdomain, data }) => {
   return sendWebhook(client, { subdomain, data });
+};
+
+export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'tags',
+    ...args
+  });
 };
 
 export default function() {

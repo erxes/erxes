@@ -72,7 +72,7 @@ module.exports.devCmd = async program => {
         PORT: (configs.core || {}).port || port,
         CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || '',
         ...commonEnv,
-        ...((configs.core || {}).envs || {})
+        ...((configs.core || {}).extra_env || {})
       }
     }
   ];
@@ -86,7 +86,7 @@ module.exports.devCmd = async program => {
       REACT_APP_PUBLIC_PATH=""
       REACT_APP_CDN_HOST="http://localhost:3200"
       REACT_APP_API_URL="http://localhost:4000"
-      REACT_APP_DASHBOARD_URL="http://localhost:4200"
+      REACT_APP_DASHBOARD_URL="http://localhost:4300"
       REACT_APP_API_SUBSCRIPTION_URL="ws://localhost:4000/graphql"
     `
   );
@@ -201,6 +201,26 @@ module.exports.devCmd = async program => {
     });
   }
 
+  if (configs.dashboard) {
+    await execCommand(
+      `cd ${filePath(`../packages/dashboard`)} && yarn install`
+    );
+
+    apps.push({
+      name: 'dashboard',
+      cwd: filePath(`../packages/dashboard`),
+      script: 'yarn',
+      args: 'dev',
+      ...commonOptions,
+      ignore_watch: ['node_modules'],
+      env: {
+        PORT: 4300,
+        ...commonEnv,
+        ...((configs.dashboard || {}).envs || {})
+      }
+    });
+  }
+
   apps.push({
     name: 'gateway',
     cwd: filePath(`../packages/gateway`),
@@ -227,6 +247,7 @@ module.exports.devCmd = async program => {
   );
 
   log('Generated ui plugins.js file ....');
+
   await fse.writeFile(
     filePath('../packages/core-ui/public/js/plugins.js'),
     `
@@ -235,17 +256,19 @@ module.exports.devCmd = async program => {
   );
 
   if (!program.ignoreRun) {
-    log('starting core ....');
-
     if (program.deps) {
       log(`Installing dependencies in core-ui .........`);
+
       await execCommand(
         `cd ${filePath(`../packages/core-ui`)} && yarn install`
       );
     }
 
-    await execCommand('pm2 start ecosystem.config.js --only core');
-    await sleep(30000);
+    if (!program.ignoreCore) {
+      log('starting core ....');
+      await execCommand('pm2 start ecosystem.config.js --only core');
+      await sleep(30000);
+    }
 
     for (const plugin of configs.plugins) {
       log(`starting ${plugin.name} ....`);
@@ -268,16 +291,24 @@ module.exports.devCmd = async program => {
       await sleep(10000);
     }
 
+    if (configs.dashboard) {
+      log('starting workers ....');
+      await execCommand('pm2 start ecosystem.config.js --only dashboard');
+      await sleep(10000);
+    }
+
     log(`starting gateway ....`);
     await execCommand(`pm2 start ecosystem.config.js --only gateway`);
     await sleep(10000);
 
-    log('starting coreui ....');
-    await execCommand('pm2 start ecosystem.config.js --only coreui');
+    if (!program.ignoreCoreUI) {
+      log('starting coreui ....');
+      await execCommand('pm2 start ecosystem.config.js --only coreui');
 
-    if (configs.widgets) {
-      log('starting widgets ....');
-      await execCommand('pm2 start ecosystem.config.js --only widgets');
+      if (configs.widgets) {
+        log('starting widgets ....');
+        await execCommand('pm2 start ecosystem.config.js --only widgets');
+      }
     }
   }
 };

@@ -96,6 +96,7 @@ export interface IPipeline extends ICommonFields {
   numberSize?: string;
   lastNum?: string;
   departmentIds?: string[];
+  tagId?: string;
 }
 
 export interface IPipelineDocument extends IPipeline, Document {
@@ -174,6 +175,7 @@ const relationSchema = new Schema(
 
 export const commonItemFieldsSchema = {
   _id: field({ pkey: true }),
+  parentId: field({ type: String,optional:true,label: 'Parent Id'}),
   userId: field({ type: String, optional: true, esType: 'keyword' }),
   createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
   order: field({ type: Number }),
@@ -267,6 +269,11 @@ export const pipelineSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Name' }),
   boardId: field({ type: String, label: 'Board' }),
+  tagId: field({
+    type: String,
+    optional: true,
+    label: 'Tags'
+  }),
   status: field({
     type: String,
     enum: BOARD_STATUSES.ALL,

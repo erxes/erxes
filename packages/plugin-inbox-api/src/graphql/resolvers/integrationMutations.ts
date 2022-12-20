@@ -3,8 +3,6 @@ import * as telemetry from 'erxes-telemetry';
 import { getUniqueValue } from '@erxes/api-utils/src/core';
 import { putActivityLog } from '@erxes/api-utils/src/logUtils';
 
-import { KIND_CHOICES } from '../../models/definitions/constants';
-
 import {
   IIntegration,
   IIntegrationDocument,
@@ -20,17 +18,13 @@ import messageBroker, {
   sendIntegrationsMessage,
   sendCoreMessage,
   sendFormsMessage,
-  sendLogsMessage
+  sendCommonMessage
 } from '../../messageBroker';
 
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 
 import { checkPermission } from '@erxes/api-utils/src/permissions';
-
-import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
-import { client as msgBrokerClient } from '../../messageBroker';
-import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
 import { IContext, IModels } from '../../connectionResolver';
 
 interface IEditIntegration extends IIntegration {
@@ -234,7 +228,7 @@ const integrationMutations = {
   ) {
     const modifiedDoc: any = { ...doc };
 
-    if (modifiedDoc.kind === KIND_CHOICES.WEBHOOK) {
+    if (modifiedDoc.kind === 'webhook') {
       modifiedDoc.webhookData = { ...data };
 
       if (
@@ -262,35 +256,47 @@ const integrationMutations = {
 
     let kind = doc.kind;
 
-    if (kind.includes('nylas')) {
-      kind = 'nylas';
-    }
-
-    if (kind.includes('facebook')) {
-      kind = 'facebook';
-    }
-
-    if (kind === 'twitter-dm') {
-      kind = 'twitter';
-    }
-
-    if (kind.includes('smooch')) {
-      kind = 'smooch';
-    }
-
     try {
-      if (KIND_CHOICES.WEBHOOK !== kind) {
-        await sendIntegrationsMessage({
+      if ('webhook' !== kind) {
+        let brokerDoc: any = {
+          accountId: doc.accountId,
+          kind: doc.kind,
+          integrationId: integration._id
+        };
+
+        let serviceName;
+
+        if (
+          [
+            'facebook-messenger',
+            'facebook-post',
+            'callpro',
+            'webhook'
+          ].includes(kind)
+        ) {
+          serviceName = 'integrations';
+
+          if (kind.includes('facebook')) {
+            kind = 'facebook';
+          }
+
+          brokerDoc.data = data ? JSON.stringify(data) : '';
+        } else {
+          serviceName = kind;
+          brokerDoc = {
+            ...brokerDoc,
+            ...data
+          };
+        }
+
+        await sendCommonMessage({
+          serviceName,
           subdomain,
           action: 'createIntegration',
           data: {
             kind,
-            doc: {
-              accountId: doc.accountId,
-              kind: doc.kind,
-              integrationId: integration._id,
-              data: data ? JSON.stringify(data) : ''
-            }
+            integrationId: integration._id,
+            doc: brokerDoc
           },
           isRPC: true
         });
@@ -326,7 +332,7 @@ const integrationMutations = {
     const doc: any = { name, brandId, data };
 
     switch (integration.kind) {
-      case KIND_CHOICES.WEBHOOK: {
+      case 'webhook': {
         doc.webhookData = data;
 
         break;
@@ -376,27 +382,9 @@ const integrationMutations = {
 
     try {
       if (
-        [
-          'facebook-messenger',
-          'facebook-post',
-          'gmail',
-          'callpro',
-          'nylas-gmail',
-          'nylas-imap',
-          'nylas-office365',
-          'nylas-outlook',
-          'nylas-exchange',
-          'nylas-yahoo',
-          'chatfuel',
-          'twitter-dm',
-          'smooch-viber',
-          'smooch-telegram',
-          'smooch-line',
-          'smooch-twilio',
-          'whatsapp',
-          'telnyx',
-          'webhook'
-        ].includes(integration.kind)
+        ['facebook-messenger', 'facebook-post', 'callpro', 'webhook'].includes(
+          integration.kind
+        )
       ) {
         await sendIntegrationsMessage({
           subdomain,
@@ -406,20 +394,32 @@ const integrationMutations = {
           },
           isRPC: true
         });
+      } else {
+        await sendCommonMessage({
+          serviceName: integration.kind,
+          subdomain,
+          action: 'removeIntegration',
+          data: {
+            integrationId: _id
+          },
+          isRPC: true
+        });
       }
-
-      await putDeleteLog(
-        models,
-        subdomain,
-        { type: MODULE_NAMES.INTEGRATION, object: integration },
-        user
-      );
-
-      return models.Integrations.removeIntegration(_id);
     } catch (e) {
-      debug.error(e);
-      throw e;
+      if (e.message !== 'Integration not found') {
+        debug.error(e);
+        throw e;
+      }
     }
+
+    await putDeleteLog(
+      models,
+      subdomain,
+      { type: MODULE_NAMES.INTEGRATION, object: integration },
+      user
+    );
+
+    return models.Integrations.removeIntegration(_id);
   },
 
   /**
@@ -450,102 +450,6 @@ const integrationMutations = {
       debug.error(e);
       throw e;
     }
-  },
-
-  /**
-   * Send mail
-   */
-  async integrationSendMail(_root, args: any, { user, subdomain }: IContext) {
-    const { erxesApiId, body, customerId, ...doc } = args;
-
-    let kind = doc.kind;
-
-    if (kind.includes('nylas')) {
-      kind = 'nylas';
-    }
-
-    let customer;
-
-    const selector = customerId
-      ? { _id: customerId }
-      : { status: { $ne: 'deleted' }, emails: { $in: doc.to } };
-
-    customer = await sendContactsMessage({
-      subdomain,
-      action: 'customers.findOne',
-      data: selector,
-      isRPC: true
-    });
-
-    if (!customer) {
-      const [primaryEmail] = doc.to;
-
-      customer = await sendContactsMessage({
-        subdomain,
-        action: 'customers.createCustomer',
-        data: {
-          state: 'lead',
-          primaryEmail
-        },
-        isRPC: true
-      });
-    }
-
-    const replacedContent = await new EditorAttributeUtil(
-      msgBrokerClient,
-      `${process.env.DOMAIN}/gateway/pl:core`,
-      await getServices(),
-      subdomain
-    ).replaceAttributes({
-      content: body,
-      user,
-      customer: customer || undefined
-    });
-
-    doc.body = replacedContent || '';
-
-    try {
-      await sendIntegrationsMessage({
-        subdomain,
-        action: 'sendEmail',
-        data: {
-          kind,
-          doc: {
-            erxesApiId,
-            data: JSON.stringify(doc)
-          }
-        },
-        isRPC: true
-      });
-    } catch (e) {
-      debug.error(e);
-      throw e;
-    }
-
-    const customerIds = await sendContactsMessage({
-      subdomain,
-      action: 'customers.getCustomerIds',
-      data: {
-        primaryEmail: { $in: doc.to }
-      },
-      isRPC: true
-    });
-
-    doc.userId = user._id;
-
-    for (const cusId of customerIds) {
-      await sendLogsMessage({
-        subdomain,
-        action: 'emailDeliveries.create',
-        data: {
-          ...doc,
-          customerId: cusId
-        },
-        isRPC: true
-      });
-    }
-
-    return;
   },
 
   async integrationsArchive(

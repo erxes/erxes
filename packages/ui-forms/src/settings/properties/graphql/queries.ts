@@ -7,6 +7,13 @@ const genericFields = `
   isVisibleInDetail
   contentType
   isDefinedByErxes
+
+  logicAction
+  logics {
+    fieldId
+    logicOperator
+    logicValue
+  }
 `;
 
 const commonFields = `
@@ -67,6 +74,12 @@ const fieldsGetTypes = `
   query fieldsGetTypes {
     fieldsGetTypes
   }
+`;
+
+const getFieldsInputTypes = `
+  query getFieldsInputTypes {
+    getFieldsInputTypes
+  }  
 `;
 
 const fieldsGroups = `
@@ -163,6 +176,7 @@ query fieldsCombinedByContentType($contentType: String!) {
 export default {
   fieldsGroups,
   fieldsGetTypes,
+  getFieldsInputTypes,
   fields,
   getSystemFieldsGroup,
   inboxFields,

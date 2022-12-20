@@ -35,6 +35,7 @@ class BrandFilterContainer extends React.Component<Props> {
 }
 
 type WrapperProps = {
+  abortController?: any;
   type: string;
   loadingMainQuery: boolean;
 };
@@ -43,15 +44,23 @@ export default withProps<WrapperProps>(
   compose(
     graphql<WrapperProps, BrandsQueryResponse, {}>(gql(queries.brands), {
       name: 'brandsQuery',
-      skip: ({ loadingMainQuery }) => loadingMainQuery
+      skip: ({ loadingMainQuery }) => loadingMainQuery,
+      options: ({ abortController }) => ({
+        context: {
+          fetchOptions: { signal: abortController && abortController.signal }
+        }
+      })
     }),
     graphql<WrapperProps, CountQueryResponse, { only: string }>(
       gql(customerQueries.customerCounts),
       {
         name: 'customersCountQuery',
         skip: ({ loadingMainQuery }) => loadingMainQuery,
-        options: ({ type }) => ({
-          variables: { type, only: 'byBrand' }
+        options: ({ type, abortController }) => ({
+          variables: { type, only: 'byBrand' },
+          context: {
+            fetchOptions: { signal: abortController && abortController.signal }
+          }
         })
       }
     )

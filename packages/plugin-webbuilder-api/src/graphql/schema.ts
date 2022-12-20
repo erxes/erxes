@@ -1,13 +1,19 @@
 export const types = `
+  extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
+
   type WebbuilderPage {
     _id: String!
     name: String
     description: String
     html: String
     css: String
-    jsonData: JSON
     siteId: String
     site: WebbuilderSite
+    
+    createdUser: User
+    updatedUser: User
   }
 
   type WebbuilderPagesList {
@@ -44,23 +50,24 @@ export const types = `
   type WebbuilderTemplate {
     _id: String!
     name: String
-    jsonData: JSON,
     html: String
+    image: String
   }
 
   type WebbuilderSite {
     _id: String!
     name: String
     domain: String
+    templateImage: String 
   }
 `;
 
 export const queries = `
-  webbuilderPagesMain(page: Int, perPage: Int, searchValue: String): WebbuilderPagesList
+  webbuilderPagesMain(page: Int, perPage: Int, searchValue: String, siteId: String): WebbuilderPagesList
   webbuilderPageDetail(_id: String!): WebbuilderPage
 
-  webbuilderContentTypes: [WebbuilderContentType]
-  webbuilderContentTypesMain(page: Int, perPage: Int): WebbuilderContentTypesList 
+  webbuilderContentTypes(siteId: String): [WebbuilderContentType]
+  webbuilderContentTypesMain(page: Int, perPage: Int, siteId: String): WebbuilderContentTypesList 
   webbuilderContentTypeDetail(_id: String!): WebbuilderContentType 
 
   webbuilderEntriesMain(contentTypeId: String! page: Int perPage: Int): WebbuilderEntriesList
@@ -70,7 +77,7 @@ export const queries = `
   webbuilderTemplatesTotalCount: Int
   webbuilderTemplateDetail(_id: String!): WebbuilderTemplate
 
-  webbuilderSites(page: Int, perPage: Int): [WebbuilderSite]
+  webbuilderSites(page: Int, perPage: Int, fromSelect: Boolean): [WebbuilderSite]
   webbuilderSitesTotalCount: Int
 `;
 
@@ -79,8 +86,7 @@ const params = `
   description: String,
   html: String,
   css: String,
-  jsonData: JSON,
-  siteId: String
+  siteId: String,
 `;
 
 const contentTypeParams = `
@@ -103,7 +109,8 @@ export const mutations = `
   webbuilderEntriesEdit(_id: String!, contentTypeId: String! values: JSON): WebbuilderEntry
   webbuilderEntriesRemove(_id: String!): JSON
 
-  webbuilderTemplatesAdd(name: String, jsonData: JSON, html: String): WebbuilderTemplate 
+  webbuilderTemplatesAdd(name: String, html: String): WebbuilderTemplate 
+  webbuilderTemplatesUse(_id: String!, name: String!): String
   webbuilderTemplatesRemove(_id: String!): JSON
   
   webbuilderSitesAdd(name: String domain: String): WebbuilderSite 

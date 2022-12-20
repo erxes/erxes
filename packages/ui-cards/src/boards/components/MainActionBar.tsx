@@ -2,7 +2,7 @@ import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils/core';
+import { isEnabled, __ } from '@erxes/ui/src/utils/core';
 import Participators from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/Participators';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -24,9 +24,12 @@ import {
   chartTypes,
   stackByChart,
   groupByList,
-  groupByGantt
+  groupByGantt,
+  showByTime
 } from '../constants';
 import SelectType from './SelectType';
+import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
+import Filter from '@erxes/ui/src/components/filter/Filter';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -222,6 +225,27 @@ class MainActionBar extends React.Component<Props> {
     );
   };
 
+  renderTimeView = () => {
+    const { viewType, queryParams } = this.props;
+
+    if (viewType !== 'time') {
+      return null;
+    }
+
+    return (
+      <GroupByContent>
+        <SelectType
+          title={__('Group by:')}
+          icon="list-2"
+          list={showByTime}
+          text={__('Stage')}
+          queryParamName="groupBy"
+          queryParams={queryParams}
+        />
+      </GroupByContent>
+    );
+  };
+
   renderViewChooser = () => {
     const { currentBoard, currentPipeline, options, viewType } = this.props;
 
@@ -304,16 +328,15 @@ class MainActionBar extends React.Component<Props> {
                 {__('Gantt')}
               </Link>
             </li>
-            {options.type === 'deal' && (
-              <li key="time">
-                <Link
-                  to={onFilterClick('time')}
-                  className={viewType === 'time' ? 'active' : ''}
-                >
-                  {__('Time')}
-                </Link>
-              </li>
-            )}
+
+            <li key="time">
+              <Link
+                to={onFilterClick('time')}
+                className={viewType === 'time' ? 'active' : ''}
+              >
+                {__('Time')}
+              </Link>
+            </li>
           </Dropdown.Menu>
         </Dropdown>
       </ButtonGroup>
@@ -328,7 +351,8 @@ class MainActionBar extends React.Component<Props> {
       options,
       rightContent,
       boardText,
-      pipelineText
+      pipelineText,
+      queryParams
     } = this.props;
 
     const type = options.type;
@@ -387,6 +411,13 @@ class MainActionBar extends React.Component<Props> {
         {this.renderGroupBy()}
 
         {this.renderChartView()}
+
+        {this.renderTimeView()}
+        {queryParams && <Filter queryParams={queryParams} />}
+
+        {isEnabled('segments') && (
+          <TemporarySegment contentType={`cards:${type}`} />
+        )}
 
         {this.renderViewChooser()}
 

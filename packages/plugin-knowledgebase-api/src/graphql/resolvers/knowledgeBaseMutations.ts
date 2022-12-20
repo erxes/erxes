@@ -228,7 +228,7 @@ const knowledgeBaseMutations = {
         return;
       } else {
         const regex = /(&nbsp;|<([^>]+)>)/gi;
-        var result = string.replace(regex, '');
+        let result = string.replace(regex, '');
         result = result.replace(/&#[0-9][0-9][0-9][0-9];/gi, ' ');
         const cut = result.slice(0, 70);
         return cut;
@@ -236,7 +236,7 @@ const knowledgeBaseMutations = {
     };
 
     sendCoreMessage({
-      subdomain: subdomain,
+      subdomain,
       action: 'sendMobileNotification',
       data: {
         title: doc.title,

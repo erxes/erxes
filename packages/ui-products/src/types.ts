@@ -26,6 +26,8 @@ export interface IProduct {
   description: string;
   getTags?: ITag[];
   sku: string;
+  barcodes: string[];
+  barcodeDescription: string;
   code: string;
   unitPrice: number;
   customFieldsData?: any;
@@ -37,6 +39,7 @@ export interface IProduct {
   supply: string;
   productCount: number;
   minimiumCount: number;
+  quantity: number;
   category: IProductCategory;
   vendor?: ICompany;
 
@@ -65,6 +68,7 @@ export type MutationVariables = {
   name?: string;
   description?: string;
   sku?: string;
+  barcodes?: string[];
   createdAt?: Date;
 };
 

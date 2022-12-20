@@ -11,6 +11,7 @@ import {
 } from '@erxes/api-utils/src/core';
 import { receiveVisitorDetail } from './widgetUtils';
 import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
+import { getIntegrationsKinds } from './utils';
 
 export let client;
 
@@ -102,6 +103,17 @@ export const initBroker = cl => {
     }
   );
 
+  consumeRPCQueue(
+    'inbox:integrations.count',
+    async ({ subdomain, data: { selector } }) => {
+      const models = await generateModels(subdomain);
+
+      const count = await models.Integrations.count(selector);
+
+      return { data: count, status: 'success' };
+    }
+  );
+
   consumeQueue(
     'inbox:changeCustomer',
     async ({ subdomain, data: { customerId, customerIds } }) => {
@@ -181,6 +193,16 @@ export const initBroker = cl => {
     }
   );
 
+  consumeQueue(
+    'inbox:removeConversation',
+    async ({ subdomain, data: { _id } }) => {
+      const models = await generateModels(subdomain);
+
+      await models.ConversationMessages.deleteMany({ conversationId: _id });
+      return models.Conversations.deleteOne({ _id });
+    }
+  );
+
   consumeRPCQueue(
     'inbox:getConversations',
     async ({ subdomain, data: { query } }) => {
@@ -189,6 +211,18 @@ export const initBroker = cl => {
       return {
         status: 'success',
         data: await models.Conversations.find(query).lean()
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'inbox:conversations.findOne',
+    async ({ subdomain, data: { query } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Conversations.findOne(query)
       };
     }
   );
@@ -229,6 +263,46 @@ export const initBroker = cl => {
       status: 'success',
       data: await models.Channels.updateUserChannels(channelIds, userId)
     };
+  });
+
+  consumeRPCQueue('inbox:getIntegrationKinds', async () => {
+    return {
+      status: 'success',
+      data: await getIntegrationsKinds()
+    };
+  });
+
+  consumeRPCQueue(
+    'inbox:getModuleRelation',
+    async ({ data: { module, target } }) => {
+      let filter;
+
+      if (module.includes('contacts')) {
+        const queryField =
+          target[module.includes('company') ? 'companyId' : 'customerId'];
+
+        if (queryField) {
+          filter = {
+            _id: queryField
+          };
+        }
+      }
+
+      return {
+        status: 'success',
+        data: filter
+      };
+    }
+  );
+};
+
+export const sendCommonMessage = async (
+  args: ISendMessageArgs & { serviceName: string }
+): Promise<any> => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    ...args
   });
 };
 

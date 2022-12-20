@@ -1,11 +1,13 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils';
-import ConvertTo from '../../../components/conversationDetail/workarea/ConvertTo';
-import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
+
 import { IConversation, IMessage } from '@erxes/ui-inbox/src/inbox/types';
+
+import ConvertTo from '../../../components/conversationDetail/workarea/ConvertTo';
 import React from 'react';
+import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
+import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   conversation: IConversation;
@@ -15,18 +17,30 @@ type Props = {
 type FinalProps = {
   convertToInfoQuery: any;
 } & Props;
+class ConvertToInfoContainer extends React.Component<FinalProps> {
+  shouldComponentUpdate(nextProps: FinalProps) {
+    if (
+      nextProps.convertToInfoQuery.convertToInfo !==
+      this.props.convertToInfoQuery.convertToInfo
+    ) {
+      return true;
+    }
 
-const ConvertToInfoContainer = (props: FinalProps) => {
-  const { convertToInfoQuery } = props;
+    return false;
+  }
 
-  const updatedProps = {
-    ...props,
-    convertToInfo: convertToInfoQuery.convertToInfo || {},
-    refetch: convertToInfoQuery.refetch
-  };
+  render() {
+    const { convertToInfoQuery } = this.props;
 
-  return <ConvertTo {...updatedProps} />;
-};
+    const updatedProps = {
+      ...this.props,
+      convertToInfo: convertToInfoQuery.convertToInfo || {},
+      refetch: convertToInfoQuery.refetch
+    };
+
+    return <ConvertTo {...updatedProps} />;
+  }
+}
 
 export default withProps<Props>(
   compose(

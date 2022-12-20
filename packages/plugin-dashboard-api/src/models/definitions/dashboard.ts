@@ -7,7 +7,11 @@ export interface IDashboard {
   selectedMemberIds?: string[];
   description?: string;
   parentId?: string;
+  tagIds?: string[];
   childsDashboard?: [IDashboard];
+  createdBy?: string;
+  updatedBy?: string;
+  departmentIds?: string[];
 }
 
 export interface IDashboardItemInput {
@@ -37,9 +41,12 @@ export interface IDashboardItemEdit {
 export interface IDashboardDocument extends IDashboard, Document {
   _id: string;
   createdAt: Date;
+  updatedAt: Date;
   order?: string;
   dashboardCount?: number;
   relatedIds?: string[];
+  createdBy?: string;
+  updatedBy?: string;
 }
 export interface IDashboardItemDocument extends IDashboardItem, Document {
   _id: string;
@@ -56,10 +63,29 @@ export const dashboardSchema = schemaWrapper(
     parentId: field({ type: String, optional: true }),
     childsDashboard: field({ type: [String] }),
     order: field({ type: String }),
-    createdAt: field({ type: Date }),
+    tagIds: field({
+      type: [String],
+      optional: true,
+      label: 'Tags',
+      index: true
+    }),
+    departmentIds: field({ type: [String], label: 'Departments' }),
     code: field({ type: String }),
     dashboardCount: field({ type: Number }),
-    relatedIds: field({ type: [String] })
+    relatedIds: field({ type: [String] }),
+
+    createdAt: {
+      type: Date,
+      default: new Date(),
+      label: 'Created date'
+    },
+    createdBy: { type: String },
+    updatedAt: {
+      type: Date,
+      default: new Date(),
+      label: 'Updated date'
+    },
+    updatedBy: { type: String }
   })
 );
 

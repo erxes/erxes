@@ -4,7 +4,7 @@ const commonTypes = `
   type: String
 `;
 
-export const types = ({}) => `
+export const types = ({ tags }) => `
 
   type Board @key(fields: "_id") {
     _id: String!
@@ -18,6 +18,8 @@ export const types = ({}) => `
     name: String!
     status: String
     boardId: String!
+    tagId: String
+    ${tags ? `tag: Tag` : ''}
     visibility: String!
     memberIds: [String]
     departmentIds: [String]
@@ -86,6 +88,11 @@ export const types = ({}) => `
     month: Int
     year: Int
   }
+
+  input Interval {
+    startTime: Date
+    endTime: Date
+  }
 `;
 
 const stageParams = `
@@ -124,6 +131,7 @@ export const queries = `
   cardsFields: JSON
   boardContentTypeDetail(contentType: String, contentId: String): JSON
   boardLogs(action: String, content:JSON, contentId: String, contentType: String): JSON
+  checkFreeTimes(pipelineId: String, intervals: [Interval]): JSON
 `;
 
 const commonParams = `
@@ -138,6 +146,7 @@ const pipelineParams = `
   stages: JSON,
   visibility: String!,
   memberIds: [String],
+  tagId: String,
   bgColor: String,
   startDate: Date,
   endDate: Date,

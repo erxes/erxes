@@ -1,15 +1,22 @@
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import { IConformity, IConformityRelated } from './definitions/conformities';
 
+interface IMainParams {
+  mainType: string;
+  mainTypeId: string;
+}
+
+interface IParams {
+  mainType: string;
+  mainTypeIds: string[];
+  relTypes: string[];
+}
+
 export const getMatchConformities = ({
   mainType,
   mainTypeIds,
   relTypes
-}: {
-  mainType: string;
-  mainTypeIds: string[];
-  relTypes: string[];
-}) => {
+}: IParams) => {
   return {
     $match: {
       $or: [
@@ -36,53 +43,25 @@ export const getQueryConformities = ({
   mainType,
   mainTypeIds,
   relTypes
-}: {
-  mainType: string;
-  mainTypeIds: string[];
-  relTypes: string[];
-}) => {
+}: IParams) => {
   return {
     bool: {
       should: [
         {
           bool: {
             must: [
-              {
-                match: {
-                  mainType
-                }
-              },
-              {
-                terms: {
-                  mainTypeId: mainTypeIds
-                }
-              },
-              {
-                terms: {
-                  relType: relTypes
-                }
-              }
+              { match: { mainType } },
+              { terms: { mainTypeId: mainTypeIds } },
+              { terms: { relType: relTypes } }
             ]
           }
         },
         {
           bool: {
             must: [
-              {
-                terms: {
-                  mainType: relTypes
-                }
-              },
-              {
-                match: {
-                  relType: mainType
-                }
-              },
-              {
-                terms: {
-                  relTypeId: mainTypeIds
-                }
-              }
+              { terms: { mainType: relTypes } },
+              { match: { relType: mainType } },
+              { terms: { relTypeId: mainTypeIds } }
             ]
           }
         }
@@ -94,18 +73,11 @@ export const getQueryConformities = ({
 export const getSavedAnyConformityMatch = ({
   mainType,
   mainTypeId
-}: {
-  mainType: string;
-  mainTypeId: string;
-}) => {
+}: IMainParams) => {
   return {
     $or: [
-      {
-        $and: [{ mainType }, { mainTypeId }]
-      },
-      {
-        $and: [{ relType: mainType }, { relTypeId: mainTypeId }]
-      }
+      { $and: [{ mainType }, { mainTypeId }] },
+      { $and: [{ relType: mainType }, { relTypeId: mainTypeId }] }
     ]
   };
 };
@@ -113,42 +85,20 @@ export const getSavedAnyConformityMatch = ({
 export const getSavedAnyConformityQuery = ({
   mainType,
   mainTypeId
-}: {
-  mainType: string;
-  mainTypeId: string;
-}) => {
+}: IMainParams) => {
   return {
     bool: {
       should: [
         {
           bool: {
-            must: [
-              {
-                match: {
-                  mainType
-                }
-              },
-              {
-                match: {
-                  mainTypeId
-                }
-              }
-            ]
+            must: [{ match: { mainType } }, { match: { mainTypeId } }]
           }
         },
         {
           bool: {
             must: [
-              {
-                match: {
-                  relType: mainType
-                }
-              },
-              {
-                match: {
-                  relTypeId: mainTypeId
-                }
-              }
+              { match: { relType: mainType } },
+              { match: { relTypeId: mainTypeId } }
             ]
           }
         }

@@ -46,20 +46,7 @@ export interface IAccount {
 }
 
 // query types
-export type IntegrationTypes =
-  | 'facebook'
-  | 'gmail'
-  | 'nylas-gmail'
-  | 'nylas-exchange'
-  | 'nylas-imap'
-  | 'nylas-office365'
-  | 'nylas-outlook'
-  | 'nylas-yahoo'
-  | 'twitter'
-  | 'smooch-telegram'
-  | 'smooch-viber'
-  | 'smooch-line'
-  | 'smooch-twilio';
+export type IntegrationTypes = 'facebook';
 
 export type IntegrationDetailQueryResponse = {
   integrationDetail: IIntegration;
@@ -277,7 +264,6 @@ export interface IIntegration {
   formId: string;
   languageCode?: string;
   createUrl: string;
-  createModal: string;
   messengerData?: IMessengerData;
   form: IForm;
   uiOptions?: IUiOptions;
@@ -349,8 +335,14 @@ export type LeadIntegrationDetailQueryResponse = {
   integrationDetail: ILeadIntegration;
 } & QueryResponse;
 
-export type SendSmsMutationResponse = ({
-  variables: SendSmsMutationVariables
+export type SendSmsMutationVariables = {
+  integrationId: string;
+  content: string;
+  to: string;
+};
+
+export type SendSmsMutationResponse = (params: {
+  variables: SendSmsMutationVariables;
 }) => Promise<any>;
 
 type By = { [key: string]: number };

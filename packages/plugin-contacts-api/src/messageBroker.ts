@@ -40,6 +40,18 @@ export const initBroker = cl => {
     };
   });
 
+  consumeRPCQueue(
+    'contacts:customers.count',
+    async ({ subdomain, data: { selector } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Customers.count(selector)
+      };
+    }
+  );
+
   consumeRPCQueue('contacts:companies.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -78,6 +90,18 @@ export const initBroker = cl => {
       return {
         status: 'success',
         data: await models.Customers.findActiveCustomers(selector, fields)
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'contacts:companies.getCompanyName',
+    async ({ subdomain, data: { company } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Companies.getCompanyName(company)
       };
     }
   );
@@ -150,6 +174,18 @@ export const initBroker = cl => {
       return {
         status: 'success',
         data: await models.Customers.updateMany(selector, modifier)
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'contacts:companies.updateMany',
+    async ({ subdomain, data: { selector, modifier } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Companies.updateMany(selector, modifier)
       };
     }
   );
@@ -467,11 +503,16 @@ export const sendIntegrationsMessage = (
   });
 };
 
-export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
+export const fetchSegment = (
+  subdomain: string,
+  segmentId: string,
+  options?,
+  segmentData?: any
+) =>
   sendSegmentsMessage({
     subdomain,
     action: 'fetchSegment',
-    data: { segmentId, options },
+    data: { segmentId, options, segmentData },
     isRPC: true
   });
 

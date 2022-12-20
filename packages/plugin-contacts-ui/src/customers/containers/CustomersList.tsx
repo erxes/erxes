@@ -23,7 +23,9 @@ import {
   VerifyMutationVariables,
   VerifyMutationResponse,
   ChangeStatusMutationResponse,
-  ChangeStatusMutationVariables
+  ChangeStatusMutationVariables,
+  ChangeStateBulkMutationResponse,
+  ChangeStateBulkMutationVariables
 } from '@erxes/ui-contacts/src/customers/types';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
@@ -41,7 +43,8 @@ type FinalProps = {
   MergeMutationResponse &
   VerifyMutationResponse &
   ChangeStatusMutationResponse &
-  IRouterProps;
+  IRouterProps &
+  ChangeStateBulkMutationResponse;
 
 type State = {
   loading: boolean;
@@ -89,7 +92,8 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       customersVerify,
       customersChangeVerificationStatus,
       type,
-      history
+      history,
+      customersChangeStateBulk
     } = this.props;
 
     let columnsConfig = (customersListConfigQuery &&
@@ -208,13 +212,13 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       }
 
       columnsConfig.forEach(checked => {
-        checkedConfigs.push(checked);
+        checkedConfigs.push(checked.name);
       });
 
       const exportQuery = {
         ...queryParams,
         type,
-        configs: JSON.stringify(columnsConfig)
+        configs: JSON.stringify(checkedConfigs)
       };
 
       const stringified = queryString.stringify(exportQuery);
@@ -223,6 +227,16 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
         `${REACT_APP_API_URL}/pl:contacts/file-export?${stringified}`,
         '_blank'
       );
+    };
+
+    const changeStateBulk = (_ids: string[], value: string) => {
+      customersChangeStateBulk({ variables: { _ids, value } })
+        .then(() => {
+          Alert.success('Customer state has been changed');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
     };
 
     const searchValue = this.props.queryParams.searchValue || '';
@@ -244,7 +258,8 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       verifyCustomers,
       changeVerificationStatus,
       mergeCustomerLoading: this.state.mergeCustomerLoading,
-      refetch: this.refetchWithDelay
+      refetch: this.refetchWithDelay,
+      changeStateBulk
     };
 
     const content = props => {
@@ -267,6 +282,7 @@ const generateParams = ({ queryParams, type }) => {
   return {
     ...generatePaginationParams(queryParams),
     segment: queryParams.segment,
+    segmentData: queryParams.segmentData,
     tag: queryParams.tag,
     ids: queryParams.ids,
     searchValue: queryParams.searchValue,
@@ -318,14 +334,17 @@ const getRefetchQueries = (queryParams?: any, type?: string) => {
   ];
 };
 
-export default withProps<Props>(
+const WithProps = withProps<Props>(
   compose(
-    graphql<Props, MainQueryResponse, ListQueryVariables>(
+    graphql<Props & { abortController }, MainQueryResponse, ListQueryVariables>(
       gql(queries.customersMain),
       {
         name: 'customersMainQuery',
-        options: ({ queryParams, type }) => ({
-          variables: generateParams({ queryParams, type })
+        options: ({ queryParams, type, abortController }) => ({
+          variables: generateParams({ queryParams, type }),
+          context: {
+            fetchOptions: { signal: abortController && abortController.signal }
+          }
         })
       }
     ),
@@ -366,6 +385,38 @@ export default withProps<Props>(
       {
         name: 'customersChangeVerificationStatus'
       }
-    )
+    ),
+    graphql<
+      Props,
+      ChangeStateBulkMutationResponse,
+      ChangeStateBulkMutationVariables
+    >(gql(mutations.customersChangeStateBulk), {
+      name: 'customersChangeStateBulk',
+      options: ({ queryParams, type }) => ({
+        refetchQueries: getRefetchQueries(queryParams, type)
+      })
+    })
   )(withRouter<IRouterProps>(CustomerListContainer))
 );
+
+export default class extends React.Component<Props> {
+  private abortController;
+
+  constructor(props) {
+    super(props);
+    this.abortController = new AbortController();
+  }
+
+  componentWillUnmount() {
+    this.abortController.abort();
+  }
+
+  render() {
+    const updatedProps = {
+      ...this.props,
+      abortController: this.abortController
+    };
+
+    return <WithProps {...updatedProps} />;
+  }
+}

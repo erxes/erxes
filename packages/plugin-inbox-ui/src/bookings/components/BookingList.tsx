@@ -154,6 +154,7 @@ function BookingList(props: Props) {
           }
         />
       }
+      hasBorder
     />
   );
 }

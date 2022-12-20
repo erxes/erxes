@@ -251,6 +251,7 @@ class DonatesList extends React.Component<IProps, State> {
             />
           </>
         }
+        hasBorder
       />
     );
   }

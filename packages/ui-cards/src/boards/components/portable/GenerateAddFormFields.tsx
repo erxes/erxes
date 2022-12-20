@@ -1,5 +1,6 @@
 import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
-import { applyLogics } from '@erxes/ui-forms/src/settings/properties/utils';
+import { LogicParams } from '@erxes/ui-forms/src/settings/properties/types';
+import { checkLogic } from '@erxes/ui-forms/src/settings/properties/utils';
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 
@@ -23,6 +24,25 @@ function GenerateAddFormFields(props: Props) {
 
   const onCustomFieldsDataChange = ({ _id, value }) => {
     const field = customFieldsData.find(c => c.field === _id);
+
+    //check nested logics and clear field value
+    for (const f of customFields) {
+      const logics = f.logics || [];
+
+      if (!logics.length) {
+        continue;
+      }
+
+      if (logics.findIndex(l => l.fieldId && l.fieldId.includes(_id)) === -1) {
+        continue;
+      }
+
+      customFieldsData.forEach(c => {
+        if (c.field === f._id) {
+          c.value = '';
+        }
+      });
+    }
 
     if (field) {
       field.value = value;
@@ -89,7 +109,32 @@ function GenerateAddFormFields(props: Props) {
             data[f.field] = f.value;
           });
 
-          if (!applyLogics(field, fields, props.object, data)) {
+          const logics: LogicParams[] = field.logics.map(logic => {
+            let { fieldId = '' } = logic;
+
+            if (fieldId.includes('customFieldsData')) {
+              fieldId = fieldId.split('.')[1];
+              return {
+                fieldId,
+                operator: logic.logicOperator,
+                validation: fields.find(e => e._id === fieldId)?.validation,
+                logicValue: logic.logicValue,
+                fieldValue: data[fieldId],
+                type: field.type
+              };
+            }
+
+            return {
+              fieldId,
+              operator: logic.logicOperator,
+              logicValue: logic.logicValue,
+              fieldValue: props.object[logic.fieldId || ''],
+              validation: fields.find(e => e._id === fieldId)?.validation,
+              type: field.type
+            };
+          });
+
+          if (!checkLogic(logics)) {
             return null;
           }
         }

@@ -150,13 +150,13 @@ class CompanyListContainer extends React.Component<FinalProps, State> {
       }
 
       columnsConfig.forEach(checked => {
-        checkedConfigs.push(checked);
+        checkedConfigs.push(checked.name);
       });
 
       const stringified = queryString.stringify({
         ...queryParams,
         type: 'company',
-        configs: JSON.stringify(columnsConfig)
+        configs: JSON.stringify(checkedConfigs)
       });
 
       window.open(
@@ -201,6 +201,7 @@ const generateParams = ({ queryParams }) => {
   return {
     ...generatePaginationParams(queryParams),
     segment: queryParams.segment,
+    segmentData: queryParams.segmentData,
     tag: queryParams.tag,
     brand: queryParams.brand,
     ids: queryParams.ids,

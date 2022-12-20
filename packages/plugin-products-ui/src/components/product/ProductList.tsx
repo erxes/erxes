@@ -22,6 +22,7 @@ import Table from '@erxes/ui/src/components/table';
 import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -153,6 +154,9 @@ class List extends React.Component<IProps, State> {
           autoFocus={true}
           onFocus={this.moveCursorAtTheEnd}
         />
+        {isEnabled('segments') && (
+          <TemporarySegment contentType={`products:product`} />
+        )}
         <Link to="/settings/importHistories?type=product">
           <Button btnStyle="simple" icon="arrow-from-right">
             {__('Import items')}
@@ -298,13 +302,7 @@ class List extends React.Component<IProps, State> {
           />
         }
         actionBar={
-          <Wrapper.ActionBar
-            left={actionBarLeft}
-            right={actionBarRight}
-            withMargin
-            wide
-            background="colorWhite"
-          />
+          <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
         }
         leftSidebar={
           <CategoryList queryParams={queryParams} history={history} />
@@ -319,9 +317,8 @@ class List extends React.Component<IProps, State> {
             emptyImage="/images/actions/5.svg"
           />
         }
-        hasBorder={true}
         transparent={true}
-        noPadding
+        hasBorder
       />
     );
   }

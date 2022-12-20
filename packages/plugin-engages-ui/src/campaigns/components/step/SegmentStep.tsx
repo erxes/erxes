@@ -24,6 +24,7 @@ type Props = {
   }) => React.ReactNode;
   segmentType: string;
   afterSave?: () => void;
+  loadingCount: boolean;
 };
 
 const SegmentStep = (props: Props) => {
@@ -36,7 +37,8 @@ const SegmentStep = (props: Props) => {
     messageType,
     renderContent,
     segmentType,
-    afterSave
+    afterSave,
+    loadingCount
   } = props;
 
   const formProps = {
@@ -76,6 +78,7 @@ const SegmentStep = (props: Props) => {
       content={renderContent}
       formProps={formProps}
       icons={icons}
+      loadingCount={loadingCount}
     />
   );
 };

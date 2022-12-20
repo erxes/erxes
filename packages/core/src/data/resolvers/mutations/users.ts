@@ -1,3 +1,7 @@
+import {
+  checkPermission,
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
 import * as telemetry from 'erxes-telemetry';
 import { ILink } from '@erxes/api-utils/src/types';
 import { authCookieOptions } from '@erxes/api-utils/src/core';
@@ -13,7 +17,6 @@ import {
 } from '../../../messageBroker';
 import { putCreateLog, putUpdateLog } from '../../logUtils';
 import { resetPermissionsCache } from '../../permissions/utils';
-import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import utils, { getEnv, sendRequest } from '../../utils';
 import { IContext, IModels } from '../../../connectionResolver';
 
@@ -77,7 +80,7 @@ const userMutations = {
       lastName?: string;
       subscribeEmail?: boolean;
     },
-    { user, subdomain, models }: IContext
+    { models }: IContext
   ) {
     const userCount = await models.Users.countDocuments();
 
@@ -90,11 +93,13 @@ const userMutations = {
       email: (email || '').toLowerCase().trim(),
       password: (password || '').trim(),
       details: {
-        fullName: `${firstName} ${lastName || ''}`
+        fullName: `${firstName} ${lastName || ''}`,
+        firstName,
+        lastName
       }
     };
 
-    const newUser = await models.Users.createUser(doc);
+    await models.Users.createUser(doc);
 
     if (subscribeEmail && process.env.NODE_ENV === 'production') {
       await sendRequest({
@@ -107,50 +112,12 @@ const userMutations = {
           lastName
         }
       });
-
-      await sendRequest({
-        url: 'https://api.office.erxes.io/webhooks/TfLkv6SxzkHMFT3cj',
-        method: 'POST',
-        headers: {
-          auth: '3QuWREv4A2nzmrCJe'
-        },
-        body: {
-          customerState: 'customer',
-          customerPrimaryEmail: email,
-          customerFirstName: firstName,
-          customerLastName: lastName,
-          customFields: [{ name: 'Customer Type', value: 'Open Source' }]
-        }
-      });
     }
 
     await models.Configs.createOrUpdateConfig({
       code: 'UPLOAD_SERVICE_TYPE',
       value: 'local'
     });
-
-    await sendIntegrationsMessage({
-      subdomain,
-      action: 'notification',
-      data: {
-        type: 'addUserId',
-        payload: {
-          _id: newUser._id
-        }
-      }
-    });
-
-    await putCreateLog(
-      models,
-      subdomain,
-      {
-        type: 'user',
-        description: 'create user',
-        object: newUser,
-        newData: doc
-      },
-      user
-    );
 
     return 'success';
   },
@@ -163,7 +130,14 @@ const userMutations = {
 
     const { token } = response;
 
+    const sameSite = getEnv({ name: 'SAME_SITE' });
+    const DOMAIN = getEnv({ name: 'DOMAIN' });
+
     const cookieOptions: any = { secure: requestInfo.secure };
+
+    if (sameSite && sameSite === 'none' && res.req.headers.origin !== DOMAIN) {
+      cookieOptions.sameSite = sameSite;
+    }
 
     res.cookie('auth-token', token, authCookieOptions(cookieOptions));
 
@@ -258,7 +232,16 @@ const userMutations = {
     const { _id, channelIds, ...doc } = args;
     const userOnDb = await models.Users.getUser(_id);
 
-    const updatedUser = await models.Users.updateUser(_id, doc);
+    const updatedDoc = {
+      ...doc,
+      details: {
+        ...doc.details,
+        fullName: `${doc.details?.firstName || ''} ${doc.details?.lastName ||
+          ''}`
+      }
+    };
+
+    const updatedUser = await models.Users.updateUser(_id, updatedDoc);
 
     if (channelIds) {
       await sendInboxMessage({
@@ -277,7 +260,7 @@ const userMutations = {
         type: 'user',
         description: 'edit profile',
         object: userOnDb,
-        newData: doc,
+        newData: updatedDoc,
         updatedDocument: updatedUser
       },
       user
@@ -321,9 +304,13 @@ const userMutations = {
     const doc = {
       username,
       email,
-      details,
+      details: {
+        ...details,
+        fullName: `${details.firstName || ''} ${details.lastName || ''}`
+      },
       links
     };
+
     const updatedUser = models.Users.editProfile(user._id, doc);
 
     await putUpdateLog(

@@ -10,7 +10,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { IField, IFieldLogic, IOption } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { __, loadDynamicComponent } from '@erxes/ui/src/utils';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Select from 'react-select-plus';
@@ -313,6 +313,33 @@ class FieldForm extends React.Component<Props, State> {
     );
   }
 
+  renderOptionsValue() {
+    const { field } = this.state;
+    const { optionsValues } = this.props.field;
+
+    const handleChange = e => {
+      const { value } = e.currentTarget as HTMLInputElement;
+
+      this.onFieldChange('optionsValues', value);
+    };
+
+    if (['select', 'radio'].includes(field.type)) {
+      return (
+        <CollapseContent title={__('Field Value')}>
+          <FormGroup>
+            <ControlLabel>{__('Value')}</ControlLabel>
+            <FormControl
+              id="FieldValue"
+              componentClass="textarea"
+              defaultValue={optionsValues}
+              onChange={handleChange}
+            />
+          </FormGroup>
+        </CollapseContent>
+      );
+    }
+  }
+
   renderPageSelect() {
     const { numberOfPages } = this.props;
     const { field } = this.state;
@@ -442,7 +469,10 @@ class FieldForm extends React.Component<Props, State> {
           </FormGroup>
 
           {this.renderColumn()}
-          {this.renderProductCategory()}
+          {loadDynamicComponent('extendFormField', {
+            field,
+            onChange: this.onFieldChange
+          })}
           {this.renderHtml()}
           {this.renderCustomPropertyGroup()}
           {this.renderCustomProperty()}
@@ -456,6 +486,7 @@ class FieldForm extends React.Component<Props, State> {
             />
           </CollapseContent>
         )}
+        {this.renderOptionsValue()}
 
         <Modal.Footer>
           <Button

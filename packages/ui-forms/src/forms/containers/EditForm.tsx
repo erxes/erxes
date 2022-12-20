@@ -85,14 +85,14 @@ class EditFormContainer extends React.Component<FinalProps> {
     const form = formDetailQuery.formDetail || {};
 
     const saveForm = doc => {
-      const { title, desc, buttonText, type, numberOfPages } = doc;
+      const { title, description, buttonText, type, numberOfPages } = doc;
       let { fields } = doc;
 
       editFormMutation({
         variables: {
           _id: formId,
           title,
-          description: desc,
+          description,
           buttonText,
           numberOfPages: Number(numberOfPages),
           type
@@ -113,6 +113,13 @@ class EditFormContainer extends React.Component<FinalProps> {
               f.logics = f.logics.map(l => {
                 delete l.__typename;
                 return l;
+              });
+            }
+
+            if (f.objectListConfigs && f.objectListConfigs.length) {
+              f.objectListConfigs = f.objectListConfigs.map(config => {
+                delete config.__typename;
+                return config;
               });
             }
 

@@ -1,20 +1,21 @@
-import Button from '@erxes/ui/src/components/Button';
-import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Icon from '@erxes/ui/src/components/Icon';
-import { FlexItem } from '@erxes/ui/src/components/step/styles';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import Modal from 'react-bootstrap/Modal';
 import {
   LeftSection,
   Preview,
   PreviewSection,
   ShowPreview
 } from '@erxes/ui-forms/src/forms/styles';
+
+import Button from '@erxes/ui/src/components/Button';
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FieldPreview from '@erxes/ui-forms/src/forms/components/FieldPreview';
+import { FlexItem } from '@erxes/ui/src/components/step/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import Icon from '@erxes/ui/src/components/Icon';
+import Modal from 'react-bootstrap/Modal';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   onSubmit: (field: any) => void;
@@ -106,17 +107,18 @@ class FieldForm extends React.Component<Props, State> {
           open={true}
         >
           <FormGroup>
-            <ControlLabel>Field Label</ControlLabel>
+            <ControlLabel required={true}>Field Label</ControlLabel>
 
             <FormControl
               value={field.text || ''}
               onChange={text}
+              required={true}
               autoFocus={true}
             />
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel>Field Code</ControlLabel>
+            <ControlLabel required={true}>Field Code</ControlLabel>
             <FormControl value={field.code || ''} onChange={code} />
           </FormGroup>
 
@@ -125,6 +127,7 @@ class FieldForm extends React.Component<Props, State> {
             <FormControl
               checked={field.show}
               componentClass="checkbox"
+              required={true}
               onChange={show}
             />
           </FormGroup>

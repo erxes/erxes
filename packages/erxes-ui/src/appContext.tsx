@@ -6,6 +6,7 @@ import React from 'react';
 interface IState {
   currentUser?: IUser;
   plugins?;
+  isLoadedLocale?: boolean;
   currentLanguage: string;
   isShownIndicator: boolean;
   isRemovingImport: boolean;
@@ -37,8 +38,10 @@ export class AppProvider extends React.Component<
     this.state = {
       currentUser: props.currentUser,
       currentLanguage,
+      isLoadedLocale: false,
       isShownIndicator: false,
       isRemovingImport: false,
+
       isDoneIndicatorAction: false
     };
 
@@ -86,12 +89,18 @@ export class AppProvider extends React.Component<
         .then(() => dayjs.locale(currentLanguage))
         .catch(_ => dayjs.locale('en'));
     }
-    import(`../../core-ui/src/locales/${currentLanguage}.json`)
-      .then(data => {
-        const translations = data.default;
-        T.setTexts(translations);
+
+    fetch(`/locales/${currentLanguage}.json`)
+      .then(res => res.json())
+      .catch(() => console.log(`${currentLanguage} translation not found`))
+      .then(json => {
+        T.setTexts(json);
+        this.setState({ isLoadedLocale: true });
       })
-      .catch(e => console.log(e)); // tslint:disable-line
+      .catch(e => {
+        console.log(e);
+        this.setState({ isLoadedLocale: true });
+      });
   };
 
   changeLanguage = (languageCode): void => {

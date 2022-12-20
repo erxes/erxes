@@ -39,6 +39,8 @@ const {
   DOMAIN,
   WIDGETS_DOMAIN,
   CLIENT_PORTAL_DOMAINS,
+  ALLOWED_ORIGINS,
+  PLUGINS_INTERNAL_PORT,
   PORT,
   RABBITMQ_HOST,
   MESSAGE_BROKER_PREFIX
@@ -61,7 +63,7 @@ const {
       WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
       ...(CLIENT_PORTAL_DOMAINS || '').split(','),
       'https://studio.apollographql.com',
-      ...(process.env.ALLOWED_ORIGINS || '').split(',').map(c => c && RegExp(c))
+      ...(ALLOWED_ORIGINS || '').split(',').map(c => c && RegExp(c))
     ]
   };
 
@@ -71,8 +73,10 @@ const {
     /\/((?!graphql).)*/,
     createProxyMiddleware({
       target:
-        process.env.NODE_ENV === 'production'
-          ? 'http://plugin_core_api'
+        NODE_ENV === 'production'
+          ? `http://plugin_core_api${
+              PLUGINS_INTERNAL_PORT ? `:${PLUGINS_INTERNAL_PORT}` : ''
+            }`
           : 'http://localhost:3300',
       router: async req => {
         const services = await getServices();
@@ -80,7 +84,10 @@ const {
         let host;
 
         for (const service of services) {
-          if (req.path.includes(`/pl:${service}/`)) {
+          if (
+            req.path.includes(`/pl:${service}/`) ||
+            req.path.includes(`/pl-${service}/`)
+          ) {
             const foundService = await getService(service);
             host = foundService.address;
             break;
@@ -101,7 +108,9 @@ const {
         const services = await getServices();
 
         for (const service of services) {
-          newPath = newPath.replace(`/pl:${service}/`, '/');
+          newPath = newPath
+            .replace(`/pl:${service}/`, '/')
+            .replace(`/pl-${service}/`, '/');
         }
 
         return newPath;

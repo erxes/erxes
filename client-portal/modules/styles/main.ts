@@ -1,6 +1,7 @@
 import { colors, dimensions, typography } from "../styles";
-import { rgba } from "../styles/ecolor";
 import styled, { css } from "styled-components";
+
+import { rgba } from "../styles/ecolor";
 import styledTS from "styled-components-ts";
 
 const Header = styledTS<{
@@ -57,18 +58,14 @@ const HeaderTitle = styledTS<{ color?: string }>(styled.span)`
 
 const HeaderRight = styled.div`
   display: flex;
+  flex: 1;
   flex-direction: column;
 `;
 
 const HeaderLeft = styled.div`
   display: flex;
-  flex-basis: 0;
-  -ms-flex-positive: 1;
-  flex-grow: 1;
-  min-width: 0;
-  max-width: 100%;
-  align-items: baseline;
-`;
+  align-items: center;
+  `;
 
 const SupportMenus = styledTS<{ color?: string }>(styled.div)`
   display: flex;
@@ -430,6 +427,93 @@ const FormWrapper = styled.div`
   }
 `;
 
+const Badge = styled.div`
+  border-radius: 15px;
+  background-color: ${props => props.color};
+  font-size: 11px;
+  max-width: 50px;
+  color: white;
+  text-align: center;
+`;
+
+const NotificationContent = styledTS<{ isList?: boolean }>(styled.div)`
+  background: ${colors.bgMain};
+  padding: ${dimensions.unitSpacing - 5}px ${dimensions.unitSpacing}px;
+  border-radius: 3px;
+  margin: ${dimensions.unitSpacing - 5}px 0;
+  word-break: break-word;
+  max-width: ${props => (props.isList ? '100%' : '270px')};
+
+  > p {
+    margin: 0;
+  }
+`;
+
+const Content = styledTS<{ isList?: boolean }>(styled.div)`
+  background: ${colors.bgMain};
+  padding: ${dimensions.unitSpacing - 5}px ${dimensions.unitSpacing}px;
+  border-radius: 3px;
+  margin: ${dimensions.unitSpacing - 5}px 0;
+  word-break: break-word;
+  max-width: ${props => (props.isList ? '100%' : '270px')};
+
+  > p {
+    margin: 0;
+  }
+`;
+
+const NotificationList = styled.ul`
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+    border-bottom: 1px solid ${colors.bgActive};
+    position: relative;
+    display: flex;
+
+    &:last-child {
+      border: none;
+    }
+
+    &.unread {
+      background: #edf2fa;
+      border-color: #e3e9f3;
+
+      ${Content} {
+        background: ${colors.colorWhite};
+      }
+    }
+
+    &:hover,
+    &:focus {
+      background: ${colors.bgLight};
+      cursor: pointer;
+    }
+  }
+`;
+
+const InfoSection = styled.div`
+  position: relative;
+  flex: 1;
+  padding: 0 ${dimensions.coreSpacing}px;
+`;
+
+const CreatedDate = styledTS<{ isList?: boolean }>(styled.div)`
+  font-size: 11px;
+  color: ${colors.colorCoreGray};
+  padding-top: 3px;
+
+  ${props =>
+    props.isList &&
+    css`
+      position: absolute;
+      right: 0;
+      top: 5px;
+    `}
+`;
+
 export {
   Header,
   HeaderTop,
@@ -451,4 +535,10 @@ export {
   ModalClose,
   HeaderWrapper,
   FormWrapper,
+  Badge,
+  NotificationContent,
+  Content,
+  NotificationList,
+  InfoSection,
+  CreatedDate
 };

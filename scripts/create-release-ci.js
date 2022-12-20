@@ -49,31 +49,60 @@ var releaseYaml = {
 var main = async () => {
 	const services = ['erxes', 'core', 'gateway', 'crons', 'workers', 'essyncer', 'widgets', 'client-portal'];
 
-	var plugins = ['inbox', 'automations', 'cards', 'clientportal', 'contacts', 'dashboard',
-		'emailtemplates', 'engages', 'forms', 'integrations', 'internalnotes',
-		'knowledgebase', 'logs', 'notifications',
-		'webhooks', 'products', 'segments', 'tags', 'loyalties', 'webbuilder'
+	var plugins = [
+		{ name: 'inbox', ui: true, api: true },
+		{ name: 'automations', ui: true, api: true },
+		{ name: 'calendar', ui: true },
+		{ name: 'cards', ui: true, api: true },
+		{ name: 'clientportal', ui: true, api: true },
+		{ name: 'contacts', ui: true, api: true },
+		{ name: 'dashboard', ui: true, api: true },
+		{ name: 'emailtemplates', ui: true, api: true },
+		{ name: 'engages', ui: true, api: true },
+		{ name: 'forms', ui: true, api: true },
+		{ name: 'integrations', api: true },
+		{ name: 'internalnotes', api: true },
+		{ name: 'knowledgebase', ui: true, api: true },
+		{ name: 'logs', ui: true, api: true },
+		{ name: 'loyalties', ui: true, api: true },
+		{ name: 'notifications', ui: true, api: true },
+		{ name: 'webhooks', ui: true, api: true },
+		{ name: 'products', ui: true, api: true },
+		{ name: 'segments', ui: true, api: true },
+		{ name: 'tags', ui: true, api: true },
+		{ name: 'webbuilder', ui: true, api: true },
+  		{ name: 'documents', ui: true, api: true },
 	];
 
 	for (const plugin of plugins) {
-		services.push(`plugin-${plugin}-api`);
+		if (plugin.api) {
+			services.push(`plugin-${plugin.name}-api`);
+		}
 	}
 
 	for (const service of services) {
-		releaseYaml.jobs.release.steps.push({
-			name: `${service}`,
-			run: "echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin \n"
+		let run = "echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin \n"
 				+ `docker image pull erxes/${service}:dev \n`
 				+ `docker tag erxes/${service}:dev erxes/${service}:\${GITHUB_REF#refs/tags/} \n`
-				+ `docker push erxes/${service}:\${GITHUB_REF#refs/tags/} \n`
+				+ `docker push erxes/${service}:\${GITHUB_REF#refs/tags/} \n`;
+
+		if (service === 'erxes') {
+			run += `aws s3 copy s3://erxes-dev-plugins/locales.tar s3://erxes-release-plugins/\${GITHUB_REF#refs/tags/}/locales.tar \n`;
+		}
+
+		releaseYaml.jobs.release.steps.push({
+			name: `${service}`,
+			run
 		})
 	}
 
 	for (const plugin of plugins) {
-		releaseYaml.jobs.release.steps.push({
-			name: `${plugin} ui`,
-			run: `aws s3 sync s3://erxes-dev-plugins/uis/plugin-${plugin}-ui s3://erxes-release-plugins/uis/plugin-${plugin}-ui/\${GITHUB_REF#refs/tags/}/`
-		})
+		if (plugin.ui) {
+			releaseYaml.jobs.release.steps.push({
+				name: `${plugin.name} ui`,
+				run: `aws s3 sync s3://erxes-dev-plugins/uis/plugin-${plugin.name}-ui s3://erxes-release-plugins/uis/plugin-${plugin.name}-ui/\${GITHUB_REF#refs/tags/}/`
+			})
+		}
 	}
 
 	const yamlString = yaml.stringify(releaseYaml);

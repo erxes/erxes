@@ -25,7 +25,11 @@ export const getEnv = ({
  * Returns user's name  or email
  */
 export const getUserDetail = (user: IUserDocument) => {
-  return (user.details && user.details.fullName) || user.email;
+  if (user.details) {
+    return `${user.details.firstName} ${user.details.lastName}`;
+  }
+
+  return user.email;
 };
 
 export const paginate = (
@@ -123,6 +127,17 @@ export const getToday = (date: Date): Date => {
   );
 };
 
+export const getPureDate = (date: Date, multiplier = 1) => {
+  const ndate = new Date(date);
+  const diffTimeZone =
+    multiplier * Number(process.env.TIMEZONE || 0) * 1000 * 60 * 60;
+  return new Date(ndate.getTime() - diffTimeZone);
+};
+
+export const getTomorrow = (date: Date) => {
+  return getToday(new Date(date.getTime() + 24 * 60 * 60 * 1000));
+};
+
 export const getNextMonth = (date: Date): { start: number; end: number } => {
   const today = getToday(date);
   const currentMonth = new Date().getMonth();
@@ -190,9 +205,9 @@ export const splitStr = (str: string, size: number): string[] => {
 };
 
 const generateRandomEmail = () => {
-  var chars = 'abcdefghijklmnopqrstuvwxyz1234567890';
-  var string = '';
-  for (var ii = 0; ii < 15; ii++) {
+  let chars = 'abcdefghijklmnopqrstuvwxyz1234567890';
+  let string = '';
+  for (let ii = 0; ii < 15; ii++) {
     string += chars[Math.floor(Math.random() * chars.length)];
   }
 
@@ -229,6 +244,7 @@ export interface ISendMessageArgs {
   action: string;
   data;
   isRPC?: boolean;
+  timeout?: number;
   defaultValue?;
 }
 
@@ -247,7 +263,8 @@ export const sendMessage = async (
     action,
     data,
     defaultValue,
-    isRPC
+    isRPC,
+    timeout
   } = args;
 
   if (serviceName) {
@@ -264,10 +281,19 @@ export const sendMessage = async (
     }
   }
 
-  return client[isRPC ? 'sendRPCMessage' : 'sendMessage'](
-    serviceName + (serviceName ? ':' : '') + action,
-    { subdomain, data, thirdService: data && data.thirdService }
-  );
+  const queueName = serviceName + (serviceName ? ':' : '') + action;
+
+  if (!client) {
+    throw new Error(`client not found during ${queueName}`);
+  }
+
+  return client[isRPC ? 'sendRPCMessage' : 'sendMessage'](queueName, {
+    subdomain,
+    data,
+    defaultValue,
+    timeout,
+    thirdService: data && data.thirdService
+  });
 };
 
 interface IActionMap {
@@ -338,15 +364,21 @@ export const createGenerateModels = <IModels>(models, loadClasses) => {
   };
 };
 
-export const authCookieOptions = (options = {}) => {
+export const authCookieOptions = (options: any = {}) => {
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
   const twoWeek = 14 * 24 * 3600 * 1000; // 14 days
+
+  const secure = !['test', 'development'].includes(NODE_ENV);
+
+  if (!secure && options.sameSite) {
+    delete options.sameSite;
+  }
 
   const cookieOptions = {
     httpOnly: true,
     expires: new Date(Date.now() + twoWeek),
     maxAge: twoWeek,
-    secure: !['test', 'development'].includes(NODE_ENV),
+    secure,
     ...options
   };
 

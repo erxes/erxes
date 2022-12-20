@@ -1,31 +1,39 @@
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
-import Wrapper from './Wrapper';
-import RightSidebar from './RightSidebar';
-import { Alert } from 'modules/common/utils';
-import { Tabs } from './tabs/index';
-import { TabTitle } from './tabs/index';
-import { Flex } from '@erxes/ui/src/styles/main';
-import { ListHeader } from '../../styles';
 import {
-  DetailMainContainer,
-  PluginTitle,
+  AdditionalDesc,
+  AttachmentContainer,
   Center,
-  DetailInformation,
-  Hashtag,
+  ColorHeader,
   Detail,
-  ColorHeader
+  DetailInformation,
+  DetailMainContainer,
+  DetailStyle,
+  Hashtag,
+  PluginTitle
 } from '../../styles';
-import Carousel from './Carousel';
+import { Attachment, TabTitle, Tabs } from '@erxes/ui/src/components';
+
+import { Alert } from 'modules/common/utils';
+import { ListHeader } from '../../styles';
+import { PluginCategories } from '../styles';
+import React from 'react';
+import RightSidebar from './RightSidebar';
+import Wrapper from './Wrapper';
+import { __ } from '@erxes/ui/src/utils';
+import client from '@erxes/ui/src/apolloClient';
+import gql from 'graphql-tag';
+import { queries } from '../../graphql';
 
 type Props = {
   id: string;
-  enabledServicesQuery;
-  manageInstall;
+  enabledServicesQuery: any;
+  manageInstall: any;
+  plugin: any;
+  plugins: any[];
 };
 
 type State = {
   tabType: string;
+  lastLogMessage: string;
   plugin: any;
   loading: any;
 };
@@ -34,22 +42,59 @@ class PluginDetails extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
+    const plugin = props.plugin || {};
+
     this.state = {
       tabType: 'Description',
-      plugin: {},
+      lastLogMessage: '',
+      plugin,
       loading: {}
     };
-  }
 
-  async componentDidMount() {
-    await fetch(`https://erxes.io/pluginDetail/${this.props.id}`)
-      .then(async response => {
-        const plugin = await response.json();
+    client
+      .query({
+        query: gql(queries.getInstallationStatus),
+        fetchPolicy: 'network-only',
+        variables: { name: plugin.osName }
+      })
+      .then(({ data: { configsGetInstallationStatus } }) => {
+        plugin.status = configsGetInstallationStatus.status;
 
         this.setState({ plugin });
+      });
+
+    const querySubscription = client
+      .watchQuery({
+        query: gql(queries.getInstallationStatus),
+        fetchPolicy: 'network-only',
+        pollInterval: 3000,
+        variables: { name: plugin.osName }
       })
-      .catch(e => {
-        console.log(e);
+      .subscribe({
+        next: ({ data: { configsGetInstallationStatus } }) => {
+          const installationType = localStorage.getItem(
+            'currentInstallationType'
+          );
+
+          const { status, lastLogMessage } = configsGetInstallationStatus;
+
+          if (lastLogMessage) {
+            this.setState({ lastLogMessage });
+          }
+
+          if (
+            (installationType === 'install' && status === 'installed') ||
+            (installationType === 'uninstall' && status === 'notExisting')
+          ) {
+            querySubscription.unsubscribe();
+            localStorage.setItem('currentInstallationType', '');
+            Alert.success('Success');
+            window.location.reload();
+          }
+        },
+        error: e => {
+          Alert.error(e.message);
+        }
       });
   }
 
@@ -71,52 +116,84 @@ class PluginDetails extends React.Component<Props, State> {
           <Detail>
             <ListHeader>
               <ColorHeader>
-                <b>✨ FEATURES</b>
+                <b>✨ BENEFITS</b>
               </ColorHeader>
             </ListHeader>
-            <p dangerouslySetInnerHTML={{ __html: plugin.features }} />
+            <AdditionalDesc
+              dangerouslySetInnerHTML={{ __html: plugin.features }}
+            />
           </Detail>
         </>
       );
-    } else if (tabType === 'Guide') {
-      return <div dangerouslySetInnerHTML={{ __html: plugin.userGuide }} />;
     }
+
+    if (tabType === 'Guide') {
+      return (
+        <>
+          <DetailStyle dangerouslySetInnerHTML={{ __html: plugin.tango }} />
+        </>
+      );
+    }
+
     return null;
   };
 
+  renderCategories() {
+    const categories = this.state.plugin.categories || [];
+
+    if (categories.length === 0) {
+      return <Hashtag>#Free</Hashtag>;
+    }
+
+    return categories.map((category, index) => (
+      <Hashtag key={index}>
+        {'#'}
+        {category}
+      </Hashtag>
+    ));
+  }
+
+  renderScreenshots() {
+    const { screenShots } = this.state.plugin;
+    const items = screenShots.split(',');
+
+    if (!items || items.length === 0) {
+      return null;
+    }
+
+    return items.map((item, index) => {
+      const attachment = {
+        name: item,
+        type: 'image',
+        url: item
+      };
+
+      return <Attachment key={index} simple={true} attachment={attachment} />;
+    });
+  }
+
   render() {
-    const { enabledServicesQuery } = this.props;
-    const { loading, plugin, tabType } = this.state;
-
-    // fake data
-    const pluginCategories = 'Free Marketing'.split(' ');
-
-    const dataSlider = [
-      'https://wallpaperaccess.com/full/1760844.jpg',
-      'https://wallpaperaccess.com/full/1282257.jpg',
-      'https://wallpaperaccess.com/full/124624.jpg'
-    ];
+    const { plugins } = this.props;
+    const { loading, plugin, lastLogMessage, tabType } = this.state;
 
     const breadcrumb = [
-      { title: __('Store'), link: '/settings/installer' },
+      { title: __('Marketplace'), link: '/marketplace' },
       { title: plugin.title || '' }
     ];
 
-    const enabledServices = enabledServicesQuery.enabledServices || {};
-
     const manageInstall = (type: string, name: string) => {
+      localStorage.setItem('currentInstallationType', type);
+
       this.setState({ loading: { [name]: true } });
 
       this.props
         .manageInstall({
           variables: { type, name }
         })
-        .then(() => {
-          Alert.success('You successfully installed');
-          window.location.reload();
-        })
         .catch(error => {
           Alert.error(error.message);
+          this.setState({ loading: { [name]: false } });
+          localStorage.setItem('currentInstallationType', '');
         });
     };
 
@@ -124,103 +201,86 @@ class PluginDetails extends React.Component<Props, State> {
       this.setState({ tabType: tab });
     };
 
+    const renderButton = () => {
+      if (!plugin.title) {
+        return null;
+      }
+
+      if (plugin.status === 'installed') {
+        return (
+          <div>
+            <button
+              onClick={manageInstall.bind(this, 'uninstall', plugin.osName)}
+              className="uninstall"
+            >
+              {loading[plugin.osName]
+                ? `Uninstalling ... ${
+                    lastLogMessage ? `(${lastLogMessage})` : ''
+                  }`
+                : 'Uninstall'}
+            </button>
+
+            <div style={{ clear: 'both' }} />
+          </div>
+        );
+      }
+
+      return (
+        <button
+          onClick={manageInstall.bind(this, 'install', plugin.osName)}
+          className="install"
+        >
+          {loading[plugin.osName] || plugin.status === 'installing'
+            ? `Installing ... ${lastLogMessage ? `(${lastLogMessage})` : ''}`
+            : 'Install'}
+        </button>
+      );
+    };
+
     const content = (
       <DetailMainContainer>
         <PluginTitle>
           <Center>
-            <img src={plugin.image} />
+            <img
+              src={plugin.avatar || plugin.image || '/images/no-plugin.png'}
+            />
             <DetailInformation>
               <b>{plugin.title}</b>
-              <Flex>
-                {pluginCategories.map(category => (
-                  <Hashtag>
-                    {'#'}
-                    {category}
-                  </Hashtag>
-                ))}
-              </Flex>
+              <PluginCategories>{this.renderCategories()}</PluginCategories>
             </DetailInformation>
           </Center>
-          {plugin.title && enabledServices[plugin.title.toLowerCase()] ? (
-            <>
-              <span>
-                {plugin.title && loading[plugin.title.toLowerCase()]
-                  ? 'Loading ...'
-                  : ''}
-              </span>
-              <div>
-                <button
-                  onClick={manageInstall.bind(
-                    this,
-                    'uninstall',
-                    plugin.title && plugin.title.toLowerCase()
-                  )}
-                  className="uninstall"
-                >
-                  Uninstall
-                </button>
-
-                <button
-                  onClick={manageInstall.bind(
-                    this,
-                    'update',
-                    plugin.title && plugin.title.toLowerCase()
-                  )}
-                  className="update"
-                >
-                  Update
-                </button>
-
-                <div style={{ clear: 'both' }} />
-              </div>
-            </>
-          ) : (
-            <button
-              onClick={manageInstall.bind(
-                this,
-                'install',
-                plugin.title && plugin.title.toLowerCase()
-              )}
-              className="install"
-            >
-              {plugin.title && loading[plugin.title.toLowerCase()]
-                ? 'Loading ...'
-                : 'Install'}
-            </button>
-          )}
+          {renderButton()}
         </PluginTitle>
 
-        {dataSlider.length !== 0 && <Carousel dataSlider={dataSlider} />}
+        <AttachmentContainer>{this.renderScreenshots()}</AttachmentContainer>
 
-        <Tabs>
-          <TabTitle
-            onClick={() => handleSelect('Description')}
-            active={tabType === 'Description'}
-          >
-            Description
-          </TabTitle>
-          <TabTitle
-            onClick={() => handleSelect('Guide')}
-            active={tabType === 'Guide'}
-          >
-            Guide
-          </TabTitle>
-          <TabTitle
-            onClick={() => handleSelect('Changelog')}
-            active={tabType === 'Changelog'}
-          >
-            Changelog
-          </TabTitle>
-        </Tabs>
+        <div className="plugin-detail-tabs">
+          <Tabs>
+            <TabTitle
+              onClick={() => handleSelect('Description')}
+              className={tabType === 'Description' ? 'active' : ''}
+            >
+              Description
+            </TabTitle>
+            <TabTitle
+              onClick={() => handleSelect('Guide')}
+              className={tabType === 'Guide' ? 'active' : ''}
+            >
+              Guide
+            </TabTitle>
+          </Tabs>
 
-        {this.renderContent()}
+          <div className="plugin-detail-content">{this.renderContent()}</div>
+        </div>
       </DetailMainContainer>
     );
 
     return (
       <Wrapper
-        mainHead={<Wrapper.Header title="" breadcrumb={breadcrumb} />}
-        rightSidebar={<RightSidebar plugin={plugin} />}
+        mainHead={
+          <Wrapper.Header title={plugin.title} breadcrumb={breadcrumb} />
+        }
+        rightSidebar={<RightSidebar plugin={plugin} plugins={plugins} />}
         content={content}
       />
     );

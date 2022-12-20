@@ -52,6 +52,7 @@ const commonVariables = `
   $scheduleDate: EngageScheduleDateInput,
   $messenger: EngageMessageMessenger,
   $shortMessage: EngageMessageSmsInput,
+  $forceCreateConversation: Boolean,
 `;
 
 const commonParams = `
@@ -70,6 +71,7 @@ const commonParams = `
   messenger: $messenger,
   scheduleDate: $scheduleDate,
   shortMessage: $shortMessage,
+  forceCreateConversation: $forceCreateConversation,
 `;
 
 const messagesAdd = `
@@ -140,6 +142,34 @@ const engageMessageCopy = `
   }
 `;
 
+const mailParamsDef = `
+  $subject: String!,
+  $body: String!,
+  $to: [String]!,
+  $cc: [String],
+  $bcc: [String] ,
+  $from: String!,
+  $attachments: [JSON],
+  $customerId: String
+`;
+
+const mailParams = `
+  subject: $subject,
+  body: $body,
+  to: $to,
+  cc: $cc,
+  bcc: $bcc,
+  from: $from,
+  attachments: $attachments,
+  customerId: $customerId
+`;
+
+const sendMail = ` 
+  mutation engageSendMail(${mailParamsDef}) {
+    engageSendMail(${mailParams})
+  }
+`;
+
 export default {
   setPause,
   setLive,
@@ -152,5 +182,6 @@ export default {
   removeVerifiedEmail,
   verifyEmail,
   sendTestEmail,
-  engageMessageCopy
+  engageMessageCopy,
+  sendMail
 };

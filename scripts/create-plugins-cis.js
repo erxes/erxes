@@ -26,13 +26,14 @@ var plugins = [
   { name: 'internalnotes',  api: true },
   { name: 'knowledgebase', ui: true, api: true },
   { name: 'logs', ui: true, api: true },
+  { name: 'loyalties', ui: true, api: true },
   { name: 'notifications', ui: true, api: true },
   { name: 'webhooks', ui: true, api: true },
   { name: 'products', ui: true, api: true },
   { name: 'segments', ui: true, api: true },
   { name: 'tags', ui: true, api: true },
-  { name: 'loyalties', ui: true, api: true },
   { name: 'webbuilder', ui: true, api: true },
+  { name: 'documents', ui: true, api: true },
 ];
 
 const pluginsMap = {};

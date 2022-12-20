@@ -1,12 +1,13 @@
-import gql from "graphql-tag";
-import * as React from "react";
-import { ChildProps, graphql } from "react-apollo";
-import client from "../../apollo-client";
-import { IEmailParams, IIntegration } from "../../types";
-import DumbForm from "../components/Form";
-import { formDetailQuery, formInvoiceUpdated } from "../graphql";
-import { ICurrentStatus, IForm, IFormDoc } from "../types";
-import { AppConsumer } from "./AppContext";
+import gql from 'graphql-tag';
+import * as React from 'react';
+import { ChildProps, graphql } from 'react-apollo';
+
+import { IEmailParams, IIntegration } from '../../types';
+import DumbForm from '../components/Form';
+import { connection } from '../connection';
+import { formDetailQuery } from '../graphql';
+import { ICurrentStatus, IForm, IFormDoc } from '../types';
+import { AppConsumer } from './AppContext';
 
 const Form = (props: ChildProps<IProps, QueryResponse>) => {
   const data = props.data;
@@ -23,24 +24,6 @@ const Form = (props: ChildProps<IProps, QueryResponse>) => {
     ...props,
     form: data.formDetail,
   };
-
-  React.useEffect(() => {
-    client
-      .subscribe({
-        query: gql(formInvoiceUpdated),
-        variables: { messageId: props.lastMessageId || "" },
-      })
-      .subscribe({
-        next({ data }) {
-          if (data.formInvoiceUpdated.status === "success") {
-            props.onChangeCurrentStatus("SUCCESS");
-          }
-        },
-        error(err: any) {
-          console.error("err", err);
-        },
-      });
-  });
 
   return <DumbForm {...extendedProps} hasTopBar={true} />;
 };
@@ -60,16 +43,12 @@ interface IProps {
   callSubmit: boolean;
   extraContent?: string;
   isSubmitting?: boolean;
-  invoiceResponse?: any;
-  invoiceType?: string;
-  lastMessageId?: string;
-  onCancelOrder: (customerId: string, messageId: string) => void;
+  invoiceLink?: string;
   onChangeCurrentStatus: (status: string) => void;
 }
 
 const FormWithData = graphql<IProps, QueryResponse>(
-  gql(formDetailQuery),
-
+  gql(formDetailQuery(connection.enabledServices.products)),
   {
     options: ({ form }) => ({
       fetchPolicy: "network-only",
@@ -93,11 +72,8 @@ const WithContext = () => (
       extraContent,
       isSubmitting,
       getForm,
-      invoiceResponse,
-      invoiceType,
-      lastMessageId,
-      cancelOrder,
       onChangeCurrentStatus,
+      invoiceLink,
     }) => {
       const integration = getIntegration();
       const form = getForm();
@@ -114,11 +90,8 @@ const WithContext = () => (
           integration={integration}
           extraContent={extraContent}
           callSubmit={callSubmit}
-          invoiceResponse={invoiceResponse}
-          invoiceType={invoiceType}
-          lastMessageId={lastMessageId}
-          onCancelOrder={cancelOrder}
           onChangeCurrentStatus={onChangeCurrentStatus}
+          invoiceLink={invoiceLink}
         />
       );
     }}

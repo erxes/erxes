@@ -120,16 +120,12 @@ class GeneralSettings extends React.Component<Props, State> {
           <Wrapper.ActionBar
             left={<Title>{__('Loyalty config')}</Title>}
             right={actionButtons}
-            withMargin
-            wide
-            background="colorWhite"
           />
         }
         content={content}
         leftSidebar={<Sidebar />}
-        hasBorder={true}
         transparent={true}
-        noPadding
+        hasBorder
       />
     );
   }

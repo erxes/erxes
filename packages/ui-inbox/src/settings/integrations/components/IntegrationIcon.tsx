@@ -1,10 +1,10 @@
+import { IIntegration } from '../../integrations/types';
 import Icon from '@erxes/ui/src/components/Icon';
-import { colors } from '@erxes/ui/src/styles';
 import React from 'react';
+import { colors } from '@erxes/ui/src/styles';
+import { darken } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { IIntegration } from '../../integrations/types';
-import { darken } from '@erxes/ui/src/styles/ecolor';
 
 const RoundedBackground = styledTS<{ type: string; size?: number }>(
   styled.span
@@ -30,12 +30,10 @@ const RoundedBackground = styledTS<{ type: string; size?: number }>(
     (props.type.includes('line') && colors.socialLine) ||
     (props.type.includes('twilio') && colors.socialTwilio) ||
     colors.colorCoreRed};
-
   i {
     color: ${colors.colorWhite};
     font-size: ${props => (props.size ? `${props.size / 2}px` : '11px')};
   }
-
   img {
     max-width: 65%;
   }
@@ -58,44 +56,11 @@ class IntegrationIcon extends React.PureComponent<Props> {
       case 'facebook-post':
         icon = 'facebook';
         break;
-      case 'twitter-dm':
-        icon = 'twitter';
-        break;
       case 'messenger':
         icon = 'comment';
         break;
-      case 'nylas-gmail':
-      case 'gmail':
-        icon = 'gmail';
-        break;
-      case 'nylas-imap':
-      case 'nylas-exchange':
-      case 'nylas-office365':
-      case 'nylas-outlook':
-      case 'nylas-yahoo':
-        icon = 'mail-alt';
-        break;
       case 'callpro':
         icon = 'phone-volume';
-        break;
-      case 'chatfuel':
-        icon = 'comment-dots';
-        break;
-      case 'smooch-line':
-        icon = 'line';
-        break;
-      case 'smooch-telegram':
-        icon = 'telegram-alt';
-        break;
-      case 'smooch-viber':
-        icon = 'viber';
-        break;
-      case 'smooch-twilio':
-        icon = 'twilio';
-        break;
-
-      case 'whatsapp':
-        icon = 'whatsapp-fill';
         break;
       default:
         icon = 'doc-text-inv-1';

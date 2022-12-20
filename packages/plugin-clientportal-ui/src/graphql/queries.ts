@@ -53,9 +53,16 @@ export const commonFields = `
   taskToggle
   otpConfig {
     smsTransporterType
-    emailTransporterType
     content
     codeLength
+    loginWithOTP
+    expireAfter
+  }
+
+  mailConfig {
+    subject
+    invitationContent
+    registrationContent
   }
 `;
 

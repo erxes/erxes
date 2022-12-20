@@ -8,7 +8,6 @@ import {
   sendFormsMessage
 } from '../messageBroker';
 
-import { KIND_CHOICES } from './definitions/constants';
 import {
   IBookingData,
   IIntegration,
@@ -193,15 +192,6 @@ export const loadClass = (models: IModels, subdomain: string) => {
       return models.Integrations.aggregate([
         { $match: query },
         {
-          $lookup: {
-            from: 'forms',
-            localField: 'formId',
-            foreignField: '_id',
-            as: 'form'
-          }
-        },
-        { $unwind: '$form' },
-        {
           $project: {
             isActive: 1,
             name: 1,
@@ -260,7 +250,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       userId: string
     ) {
       const integration = await models.Integrations.findOne({
-        kind: KIND_CHOICES.MESSENGER,
+        kind: 'messenger',
         brandId: doc.brandId
       });
 
@@ -268,10 +258,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
         throw new Error('Duplicated messenger for single brand');
       }
 
-      return this.createIntegration(
-        { ...doc, kind: KIND_CHOICES.MESSENGER },
-        userId
-      );
+      return this.createIntegration({ ...doc, kind: 'messenger' }, userId);
     }
 
     /**
@@ -283,7 +270,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
     ) {
       const integration = await models.Integrations.findOne({
         _id: { $ne: _id },
-        kind: KIND_CHOICES.MESSENGER,
+        kind: 'messenger',
         brandId: doc.brandId
       });
 
@@ -334,7 +321,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       { leadData = {}, ...mainDoc }: IIntegration,
       userId: string
     ) {
-      const doc = { ...mainDoc, kind: KIND_CHOICES.LEAD, leadData };
+      const doc = { ...mainDoc, kind: 'lead', leadData };
 
       if (Object.keys(leadData).length === 0) {
         throw new Error('leadData must be supplied');
@@ -365,7 +352,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
       const doc = {
         ...mainDoc,
-        kind: KIND_CHOICES.LEAD,
+        kind: 'lead',
         leadData: {
           ...leadData,
           viewCount: prevLeadData.viewCount,
@@ -610,7 +597,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
         throw new Error('Product main category already registered!');
       }
 
-      const doc = { ...mainDoc, kind: KIND_CHOICES.BOOKING, bookingData };
+      const doc = { ...mainDoc, kind: 'booking', bookingData };
 
       if (Object.keys(bookingData).length === 0) {
         throw new Error('bookingData must be supplied');
@@ -641,7 +628,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
       const doc = {
         ...mainDoc,
-        kind: KIND_CHOICES.BOOKING,
+        kind: 'booking',
         bookingData: {
           ...bookingData,
           viewCount: prevBookingData.viewCount

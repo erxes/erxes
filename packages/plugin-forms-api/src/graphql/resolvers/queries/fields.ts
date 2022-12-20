@@ -44,6 +44,44 @@ const fieldQueries = {
     return fieldTypes;
   },
 
+  async getFieldsInputTypes() {
+    const services = await serviceDiscovery.getServices();
+    const fieldInputTypes: Array<{ value: string; label: string }> = [
+      { value: 'input', label: 'Input' },
+      { value: 'list', label: 'String List' },
+      { value: 'objectList', label: 'Object List' },
+      { value: 'textarea', label: 'Text area' },
+      { value: 'select', label: 'Select' },
+      { value: 'multiSelect', label: 'Multiple select' },
+      { value: 'check', label: 'Checkbox' },
+      { value: 'radio', label: 'Radio button' },
+      { value: 'file', label: 'File' },
+      { value: 'customer', label: 'customer' },
+      { value: 'product', label: 'Product' },
+      { value: 'branch', label: 'Branch' },
+      { value: 'department', label: 'Department' },
+      { value: 'map', label: 'Location/Map' }
+    ];
+
+    for (const serviceName of services) {
+      const service = await serviceDiscovery.getService(serviceName, true);
+      const meta = service.config?.meta || {};
+
+      if (meta && meta.forms) {
+        const types = meta.forms?.extraFieldTypes || [];
+
+        for (const type of types) {
+          fieldInputTypes.push({
+            value: type.value,
+            label: type.label
+          });
+        }
+      }
+    }
+
+    return fieldInputTypes;
+  },
+
   /**
    * Fields list
    */
@@ -167,7 +205,9 @@ const fieldsGroupQueries = {
     },
     { commonQuerySelector, models, subdomain }: IContext
   ) {
-    let query: any = commonQuerySelector;
+    let query: any = {
+      $or: [{ ...commonQuerySelector }, { isDefinedByErxes: true }]
+    };
 
     // querying by content type
     query.contentType = contentType;

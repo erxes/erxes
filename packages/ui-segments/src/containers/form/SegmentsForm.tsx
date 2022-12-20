@@ -26,10 +26,9 @@ type Props = {
   closeModal: () => void;
   activeTrigger?: ITrigger;
   addConfig?: (trigger: ITrigger, id?: string, config?: any) => void;
-  addFilter?: (segmentId: string) => void;
+  filterContent?: (values: any) => void;
   afterSave?: () => void;
   hideDetailForm?: boolean;
-  usageType?: string;
 };
 
 type FinalProps = {
@@ -68,8 +67,7 @@ class SegmentsFormContainer extends React.Component<
       history,
       addConfig,
       activeTrigger,
-      closeModal,
-      addFilter
+      closeModal
     } = this.props;
 
     const callBackResponse = data => {
@@ -91,12 +89,6 @@ class SegmentsFormContainer extends React.Component<
 
         closeModal();
       }
-
-      if (addFilter) {
-        const result = values._id ? data.segmentsEdit : data.segmentsAdd;
-
-        addFilter(result._id);
-      }
     };
 
     return (
@@ -109,7 +101,7 @@ class SegmentsFormContainer extends React.Component<
         type="submit"
         successMessage={`Success`}
       >
-        {text || 'save'}
+        {text || 'Save'}
       </ButtonMutate>
     );
   };
@@ -156,7 +148,8 @@ class SegmentsFormContainer extends React.Component<
       headSegmentsQuery,
       eventsQuery,
       segmentsQuery,
-      history
+      history,
+      filterContent
     } = this.props;
 
     if (segmentDetailQuery.loading) {
@@ -183,7 +176,8 @@ class SegmentsFormContainer extends React.Component<
       fields: this.state.fields,
       count: this.state.count,
       counterLoading: this.state.loading,
-      isModal
+      isModal,
+      filterContent
     };
 
     return <SegmentsForm {...updatedProps} />;

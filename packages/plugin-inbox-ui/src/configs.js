@@ -5,6 +5,7 @@ module.exports = {
   exposes: {
     './routes': './src/routes.tsx',
     './activityLog': './src/activityLogs/activityLog.tsx',
+    './automation': './src/automations/automation.tsx',
     './unreadCount': './src/inbox/containers/UnreadCount.tsx',
     './actionForms': './src/settings/integrations/containers/ActionForms',
   },
@@ -14,6 +15,7 @@ module.exports = {
     module: './routes'
   },
   activityLog: './activityLog',
+  automation: './automation',
   actionForms: './actionForms',
   menus: [
     {
@@ -62,8 +64,8 @@ module.exports = {
       permissions: ['showChannels', 'manageChannels']
     },
     {
-      text: 'Add-ons',
-      to: '/settings/add-ons',
+      text: 'Integrations',
+      to: '/settings/integrations',
       image: '/images/icons/erxes-04.svg',
       location: 'settings',
       scope: 'inbox',
@@ -82,8 +84,8 @@ module.exports = {
       ]
     },
     {
-      text: 'Add-ons config',
-      to: '/settings/add-ons-config',
+      text: 'Integrations config',
+      to: '/settings/integrations-config',
       image: '/images/icons/erxes-24.svg',
       location: 'settings',
       scope: 'inbox',
@@ -102,7 +104,7 @@ module.exports = {
     {
       text: 'Widget Script Manager',
       to: '/settings/scripts',
-      image: '/images/icons/erxes-30.png',
+      image: '/images/icons/erxes-34.png',
       location: 'settings',
       scope: 'inbox',
       action: 'scriptsAll',

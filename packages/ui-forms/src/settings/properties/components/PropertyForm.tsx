@@ -32,6 +32,7 @@ type Props = {
   field?: IField;
   groups: IFieldGroup[];
   type: string;
+  inputTypes: { value: string; label: string }[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
@@ -111,7 +112,13 @@ class PropertyForm extends React.Component<Props, State> {
       }
 
       if (objectListConfigs) {
-        doc.objectListConfigs = objectListConfigs;
+        doc.objectListConfigs = objectListConfigs.map(e => {
+          return {
+            key: e.key,
+            label: e.label,
+            type: e.type
+          };
+        });
       }
     }
 
@@ -119,7 +126,8 @@ class PropertyForm extends React.Component<Props, State> {
       ...doc,
       currentLocation: { lat: 0, lng: 0 },
       add: false,
-      logics: props.field && props.field.logics ? props.field.logics : []
+      logics: props.field && props.field.logics ? props.field.logics : [],
+      logicAction: props.field && props.field.logicAction
     };
   }
 
@@ -156,7 +164,13 @@ class PropertyForm extends React.Component<Props, State> {
       type,
       options,
       locationOptions,
-      objectListConfigs,
+      objectListConfigs: objectListConfigs.map(e => {
+        return {
+          key: e.key,
+          label: e.label,
+          type: e.type
+        };
+      }),
       searchable,
       showInCard,
       logicAction,
@@ -315,7 +329,7 @@ class PropertyForm extends React.Component<Props, State> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const { groups, closeModal, renderButton, field } = this.props;
+    const { groups, inputTypes, closeModal, renderButton, field } = this.props;
 
     const object = field || ({} as IField);
 
@@ -390,20 +404,13 @@ class PropertyForm extends React.Component<Props, State> {
             required={true}
           >
             <option />
-            <option value="input">Input</option>
-            <option value="list">String List</option>
-            <option value="objectList">Object List</option>
-            <option value="textarea">Text area</option>
-            <option value="select">Select</option>
-            <option value="multiSelect">Multiple select</option>
-            <option value="check">Checkbox</option>
-            <option value="radio">Radio button</option>
-            <option value="file">File</option>
-            <option value="customer">Customer</option>
-            <option value="map">Location/Map</option>
-            <option value="selectProductCategory">
-              Select Product Category
-            </option>
+            {inputTypes.map(inputType => {
+              return (
+                <option value={inputType.value} key={Math.random()}>
+                  {inputType.label}
+                </option>
+              );
+            })}
           </FormControl>
         </FormGroup>
         {this.renderOptions()}
@@ -425,6 +432,7 @@ class PropertyForm extends React.Component<Props, State> {
               <option value="email">Email</option>
               <option value="number">Number</option>
               <option value="date">Date</option>
+              <option value="datetime">Date Time</option>
             </FormControl>
           </FormGroup>
         )}

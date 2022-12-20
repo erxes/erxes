@@ -26,6 +26,7 @@ export const loadComponent = (scope, module) => {
 
     // Initialize the container, it may provide shared modules
     await container.init(__webpack_share_scopes__.default);
+
     const factory = await window[scope].get(module);
 
     const Module = factory();
@@ -75,6 +76,8 @@ export class RenderDynamicComponent extends React.Component<
   { scope: string; component: any; injectedProps: any },
   { showComponent: boolean }
 > {
+  private Component;
+
   constructor(props) {
     super(props);
 
@@ -97,11 +100,16 @@ export class RenderDynamicComponent extends React.Component<
 
     const { scope, component, injectedProps } = this.props;
 
-    const Component = React.lazy(loadComponent(scope, component));
+    let Comp = this.Component;
+
+    if (!Comp) {
+      this.Component = React.lazy(loadComponent(scope, component));
+      Comp = this.Component;
+    }
 
     return (
       <React.Suspense fallback="">
-        <Component {...injectedProps} />
+        <Comp {...injectedProps} />
       </React.Suspense>
     );
   };
@@ -268,7 +276,12 @@ export const isEnabled = (service: string) => {
  * @return {String} - URL
  */
 export const readFile = (value: string): string => {
-  if (!value || urlParser.isValidURL(value) || value.includes('/')) {
+  if (
+    !value ||
+    urlParser.isValidURL(value) ||
+    value.includes('http') ||
+    value.startsWith('/')
+  ) {
     return value;
   }
 
@@ -282,9 +295,9 @@ export const getUserAvatar = (user: IUserDoc) => {
     return '';
   }
 
-  const { details = {} } = user;
+  const details = user.details;
 
-  if (!details.avatar) {
+  if (!details || !details.avatar) {
     return '/images/avatar-colored.svg';
   }
 
@@ -631,4 +644,13 @@ export const publicUrl = path => {
   }
 
   return `${prefix}${path}`;
+};
+
+export const getThemeItem = code => {
+  const configs = JSON.parse(
+    localStorage.getItem('erxes_theme_configs') || '[]'
+  );
+  const config = configs.find(c => c.code === `THEME_${code.toUpperCase()}`);
+
+  return config ? config.value : '';
 };

@@ -120,6 +120,7 @@ export interface IField {
   showInCard?: boolean;
   keys?: string[];
   productCategoryId?: string;
+  optionsValues?: string;
 }
 
 export interface IFormProps {
@@ -139,6 +140,7 @@ export type IOption = {
 };
 
 export type IButtonMutateProps = {
+  passedName?: string;
   name?: string;
   values: any;
   isSubmitted: boolean;

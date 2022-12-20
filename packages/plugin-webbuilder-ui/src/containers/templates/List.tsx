@@ -1,49 +1,52 @@
-import React from 'react';
-import List from '../../components/templates/List';
 import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
-import { queries, mutations } from '../../graphql';
+
 import {
   TemplatesQueryResponse,
-  TemplatesRemoveMutationResponse,
-  TemplatesTotalCountQueryResponse
+  TemplatesTotalCountQueryResponse,
+  TemplatesUseMutationResponse
 } from '../../types';
+import { mutations, queries } from '../../graphql';
+
+import { Alert } from '@erxes/ui/src/utils';
+import List from '../../components/templates/List';
+import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { Alert, confirm } from '@erxes/ui/src/utils';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 
 type Props = {
-  setCount: (count: number) => void;
   queryParams: any;
+  selectedSite: string;
 };
 
 type FinalProps = {
   templatesQuery: TemplatesQueryResponse;
   templatesCountQuery: TemplatesTotalCountQueryResponse;
 } & Props &
-  TemplatesRemoveMutationResponse;
+  TemplatesUseMutationResponse;
 
 function ListContainer(props: FinalProps) {
-  const { templatesQuery, templatesCountQuery, templatesRemove } = props;
+  const { templatesQuery, templatesCountQuery, templatesUse } = props;
 
   if (templatesQuery.loading || templatesCountQuery.loading) {
     return <Spinner objective={true} />;
   }
 
-  const remove = (_id: string) => {
-    confirm().then(() => {
-      templatesRemove({ variables: { _id } })
-        .then(() => {
-          Alert.success('Successfully deleted a template');
+  const use = (_id: string, name: string) => {
+    templatesUse({ variables: { _id, name } })
+      .then(res => {
+        const {
+          data: { webbuilderTemplatesUse }
+        } = res;
 
-          templatesQuery.refetch();
-          templatesCountQuery.refetch();
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    });
+        Alert.success('Successfully created a website');
+
+        window.location.href = `/webbuilder/sites/edit/${webbuilderTemplatesUse}`;
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
   };
 
   const templates = templatesQuery.webbuilderTemplates || [];
@@ -53,15 +56,27 @@ function ListContainer(props: FinalProps) {
     ...props,
     templates,
     templatesCount,
-    remove
+    use
   };
 
   return <List {...updatedProps} />;
 }
 
 export default compose(
-  graphql<{}, TemplatesRemoveMutationResponse>(gql(mutations.templatesRemove), {
-    name: 'templatesRemove'
+  graphql<Props, TemplatesUseMutationResponse>(gql(mutations.templatesUse), {
+    name: 'templatesUse',
+    options: ({ selectedSite }) => ({
+      refetchQueries: [
+        { query: gql(queries.sites), variables: { fromSelect: true } },
+        { query: gql(queries.sitesTotalCount) },
+        {
+          query: gql(queries.contentTypes),
+          variables: {
+            siteId: selectedSite
+          }
+        }
+      ]
+    })
   }),
   graphql<Props, TemplatesQueryResponse>(gql(queries.templates), {
     name: 'templatesQuery',

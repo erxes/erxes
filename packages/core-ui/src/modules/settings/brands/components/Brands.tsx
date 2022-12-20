@@ -5,7 +5,7 @@ import HeaderDescription from 'modules/common/components/HeaderDescription';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
-import { Title } from 'modules/common/styles/main';
+import { Title } from '@erxes/ui-settings/src/styles';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import BrandForm from '@erxes/ui/src/brands/components/BrandForm';
 import React from 'react';
@@ -121,6 +121,7 @@ class Brands extends React.Component<Props, {}> {
           />
         }
         footer={currentBrand._id && <Pagination count={brandsTotalCount} />}
+        hasBorder
       />
     );
   }

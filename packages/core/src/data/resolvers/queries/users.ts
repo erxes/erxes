@@ -1,6 +1,9 @@
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
+import {
+  checkPermission,
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
 import { IContext, IModels } from '../../../connectionResolver';
-import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { paginate } from '../../utils';
 
 interface IListArgs {
