@@ -20,7 +20,7 @@
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
     "erxes-inmemory-storage": "^1.0.20",
-    "express": "^4.16.4",
+    "express": "^4.17.3",
     "fbgraph": "^1.4.4",
     "formidable": "^1.2.1",
     "gmail-api-parse-message": "^2.1.2",
