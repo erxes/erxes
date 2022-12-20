@@ -351,6 +351,11 @@ export const Block = styled.div`
   }
 `;
 
+export const Header = styled.h4`
+  margin-bottom: ${dimensions.coreSpacing}px;
+  color: ${colors.colorPrimary};
+`;
+
 export const BoardSelection = styled(BoardSelectContainer)`
   display: flex;
   gap: 15px;

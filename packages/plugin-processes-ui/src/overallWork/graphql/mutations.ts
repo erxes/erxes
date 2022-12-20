@@ -1,70 +1,64 @@
 import { performFields } from './queries';
 
 const addParamDefs = `
-  $jobType: String,
-  $jobReferId: String,
-  $productId: String,
-
-  $inBranchId: String,
-  $inDepartmentId: String,
-  $outBranchId: String,
-  $outDepartmentId: String,
+  $overallWorkId: String
+  $overallWorkKey: JSON
+  $status: String
+  $startAt: Date
+  $dueDate: Date
+  $endAt: Date
+  $count: Float
+  $inBranchId: String
+  $inDepartmentId: String
+  $outBranchId: String
+  $outDepartmentId: String
+  $needProducts: JSON
+  $resultProducts: JSON
+  $inProducts: JSON
+  $outProducts: JSON
 `;
 
 const addParams = `
-  jobType: $jobType,
-  jobReferId: $jobReferId,
-  productId: $productId,
-
-  inBranchId: $inBranchId,
-  inDepartmentId: $inDepartmentId,
-  outBranchId: $outBranchId,
-  outDepartmentId: $outDepartmentId,
-`;
-
-const commonParamDefs = `
-  $count: Float,
-  $startAt: Date,
-  $endAt: Date,
-  $status: String,
-
-  $needProducts: JSON,
-  $resultProducts: JSON,
-`;
-
-const commonParams = `
-  count: $count,
-  startAt: $startAt,
-  endAt: $endAt,
-  status: $status,
-
-  needProducts: $needProducts,
-  resultProducts: $resultProducts,
+  overallWorkId: $overallWorkId
+  overallWorkKey: $overallWorkKey
+  status: $status
+  startAt: $startAt
+  dueDate: $dueDate
+  endAt: $endAt
+  count: $count
+  inBranchId: $inBranchId
+  inDepartmentId: $inDepartmentId
+  outBranchId: $outBranchId
+  outDepartmentId: $outDepartmentId
+  needProducts: $needProducts
+  resultProducts: $resultProducts
+  inProducts: $inProducts
+  outProducts: $outProducts
 `;
 
 const performAdd = `
-  mutation performAdd(${addParamDefs}, ${commonParamDefs}) {
-    performAdd(${addParams}, ${commonParams}) {
+  mutation performAdd(${addParamDefs}) {
+    performAdd(${addParams}) {
       ${performFields}
     }
   }
 `;
 
 const performEdit = `
-  mutation performEdit($_id: String!, ${addParamDefs}, ${commonParamDefs}) {
-    performEdit(_id: $_id, ${addParams}, ${commonParams}) {
+  mutation performEdit($_id: String!, ${addParamDefs}) {
+    performEdit(_id: $_id, ${addParams}) {
       ${performFields}
     }
   }
 `;
 
-const performChange = `
-  mutation performChange($_id: String!, ${commonParamDefs}) {
-    performChange(_id: $_id, ${commonParams}) {
-      ${performFields}
-    }
-  }
-`;
+// const performChange = `
+//   mutation performChange($_id: String!, ${commonParamDefs}) {
+//     performChange(_id: $_id, ${commonParams}) {
+//       ${performFields}
+//     }
+//   }
+// `;
 
 const performRemove = `
   mutation performRemove($_id: String!) {
@@ -75,6 +69,6 @@ const performRemove = `
 export default {
   performAdd,
   performEdit,
-  performChange,
+  // performChange,
   performRemove
 };

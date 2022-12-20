@@ -42,5 +42,16 @@ export default {
       (config.customFieldId && dataLoaders.field.load(config.customFieldId)) ||
       null
     );
+  },
+  async riskAssessment(
+    config: IRiskAssessmentsConfigDocument,
+    {},
+    { dataLoaders }: IContext
+  ) {
+    return (
+      (config.riskAssessmentId &&
+        dataLoaders.riskAssessment.load(config.riskAssessmentId)) ||
+      null
+    );
   }
 };

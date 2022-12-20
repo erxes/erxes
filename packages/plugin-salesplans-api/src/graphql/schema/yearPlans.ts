@@ -47,6 +47,7 @@ export const planFilterParams = `
 export const queries = `
   yearPlans(year: Int, ${planFilterParams}, ${paginateParams}): [YearPlan],
   yearPlansCount(year: Int, ${planFilterParams}, ${paginateParams}): Int,
+  yearPlansSum(year: Int, ${planFilterParams}, ${paginateParams}): JSON,
 `;
 
 export const planCreateParams = `

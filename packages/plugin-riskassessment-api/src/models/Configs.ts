@@ -14,20 +14,20 @@ export interface IRiskAssessmentsConfigModel
 
 const validDoc = doc => {
   if (!doc.boardId) {
-    throw new Error(`Cannot add risk assessment config without a boardId`);
+    throw new Error(`Cannot provide risk assessment config without a boardId`);
   }
   if (!doc.pipelineId) {
-    throw new Error(`Cannot add risk assessment config without a pipelineId`);
-  }
-  if (!doc.customFieldId) {
     throw new Error(
-      `Cannot add risk assessment config without select any a custom field`
+      `Cannot provide risk assessment config without a pipelineId`
     );
   }
-  if (!doc.configs.some(config => config.riskAssessmentId)) {
-    throw new Error(
-      `Cannot add risk assessment config without select any risk assessment on field`
-    );
+
+  if (
+    !doc.riskAssessmentId &&
+    !doc.customFieldId &&
+    !doc.configs.some(config => config.riskAssessmentId)
+  ) {
+    throw new Error(`Select some configration on risk assessment config`);
   }
 };
 

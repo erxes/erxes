@@ -21,6 +21,11 @@ export interface ISocialPayConfig {
   inStoreSPKey: string;
 }
 
+export interface IMonpayConfig {
+  username: string;
+  accountId: string;
+}
+
 export interface IPaymentDocument extends IPayment, Document {
   _id: string;
 }

@@ -14,7 +14,8 @@ const configParams = `
     customFieldId:String,
     createdAt:Date,
     modifiedAt:Date,
-    configs:JSON
+    configs:JSON,
+    riskAssessmentId:String
 
 `;
 
@@ -85,6 +86,7 @@ export const types = `
         pipeline:JSON,
         stage:JSON,
         field:JSON
+        riskAssessment:JSON
     }
 `;
 

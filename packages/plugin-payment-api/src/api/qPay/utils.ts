@@ -100,7 +100,12 @@ export const createInvoice = async (
     };
 
     try {
-      return sendRequest(requestOptions);
+      const res = await sendRequest(requestOptions);
+
+      return {
+        ...res,
+        qrData: `data:image/jpg;base64,${res.qr_image}`
+      };
     } catch (e) {
       throw new Error(e.message);
     }

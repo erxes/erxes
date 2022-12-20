@@ -7,11 +7,13 @@ import { graphql } from 'react-apollo';
 import { IRouterProps } from '@erxes/ui/src/types';
 import {
   OverallWorkDetailQueryResponse,
+  PerformRemoveMutationResponse,
+  PerformsCountQueryResponse,
   PerformsQueryResponse
 } from '../types';
-import { queries } from '../graphql';
-import { queries as performQueries } from '../../perform/graphql';
+import { mutations, queries } from '../graphql';
 import { withRouter } from 'react-router-dom';
+import { router } from '@erxes/ui/src/utils';
 
 type Props = {
   queryParams: any;
@@ -21,8 +23,10 @@ type Props = {
 type FinalProps = {
   overallWorkDetailQuery: OverallWorkDetailQueryResponse;
   performsQuery: PerformsQueryResponse;
+  performsCountQuery: PerformsCountQueryResponse;
 } & Props &
-  IRouterProps;
+  IRouterProps &
+  PerformRemoveMutationResponse;
 
 class OverallWorkDetailContainer extends React.Component<FinalProps> {
   constructor(props) {
@@ -34,11 +38,32 @@ class OverallWorkDetailContainer extends React.Component<FinalProps> {
   }
 
   render() {
-    const { overallWorkDetailQuery, performsQuery } = this.props;
+    const {
+      overallWorkDetailQuery,
+      performsQuery,
+      performsCountQuery,
+      performRemove
+    } = this.props;
 
-    if (overallWorkDetailQuery.loading || performsQuery.loading) {
+    if (
+      overallWorkDetailQuery.loading ||
+      performsQuery.loading ||
+      performsCountQuery.loading
+    ) {
       return <Spinner />;
     }
+
+    const removePerform = (_id: string) => {
+      performRemove({
+        variables: { _id }
+      })
+        .then(() => {
+          Alert.success('You successfully deleted a performance');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
 
     let errorMsg: string = '';
     if (overallWorkDetailQuery.error) {
@@ -47,13 +72,16 @@ class OverallWorkDetailContainer extends React.Component<FinalProps> {
     }
 
     const overallWork = overallWorkDetailQuery.overallWorkDetail;
-    const performs = performsQuery.performs;
+    const performs = performsQuery.performs || [];
+    const performsCount = performsCountQuery.performsCount || 0;
 
     const updatedProps = {
       ...this.props,
       errorMsg,
       overallWork,
-      performs
+      performs,
+      performsCount,
+      removePerform
     };
 
     return <Detail {...updatedProps} />;
@@ -85,14 +113,33 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<{ queryParams }, PerformsQueryResponse, {}>(
-      gql(performQueries.performs),
+    graphql<{ queryParams }, PerformsQueryResponse, {}>(gql(queries.performs), {
+      name: 'performsQuery',
+      options: ({ queryParams }) => ({
+        variables: {
+          ...generateParams({ queryParams }),
+          ...router.generatePaginationParams(queryParams || {})
+        },
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<{ queryParams }, PerformsCountQueryResponse, {}>(
+      gql(queries.performsCount),
       {
-        name: 'performsQuery',
+        name: 'performsCountQuery',
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
           fetchPolicy: 'network-only'
         })
+      }
+    ),
+    graphql<Props, PerformRemoveMutationResponse, { performId: string }>(
+      gql(mutations.performRemove),
+      {
+        name: 'performRemove',
+        options: {
+          refetchQueries: ['performs', 'overallWorkDetail', 'performsCount']
+        }
       }
     )
   )(withRouter<IRouterProps>(OverallWorkDetailContainer))

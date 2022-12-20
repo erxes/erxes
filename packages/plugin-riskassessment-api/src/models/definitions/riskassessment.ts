@@ -25,6 +25,7 @@ export interface IRiskAssessmentsConfigDocument extends Document {
   stageId?: String;
   customFieldId?: String;
   configs: any[];
+  riskAssessmentId?: String;
 }
 
 export const riskAssessmentCategorySchema = new Schema({
@@ -75,6 +76,11 @@ export const riskAssessmentConfigsSchema = new Schema({
   boardId: field({ type: String, label: 'Board Id' }),
   pipelineId: field({ type: String, label: 'Pipeline Id' }),
   stageId: field({ type: String, label: 'Stage Id', optional: true }),
+  riskAssessmentId: field({
+    type: String,
+    optional: true,
+    label: 'Risk assessment ID'
+  }),
   customFieldId: field({ type: String, label: 'Custom Field Id' }),
   configs: field({
     type: [riskAssessmentFieldsConfigsSchema],

@@ -58,7 +58,12 @@ class Row extends React.Component<Props> {
             ? __(item.resultScore?.toString() || '')
             : '-'}
         </td>
-        <td>{moment(item.createdAt).fromNow()}</td>
+        <td>
+          {item?.createdAt ? moment(item.createdAt).format('ll HH:mm') : '-'}
+        </td>
+        <td>
+          {item?.closedAt ? moment(item.closedAt).format('ll HH:mm') : '-'}
+        </td>
         <td>
           {item.status !== 'In Progress' && renderFormSubmitHistory(item)}
         </td>
