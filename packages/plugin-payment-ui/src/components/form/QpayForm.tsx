@@ -68,15 +68,23 @@ class QpayConfigForm extends React.Component<Props, State> {
     this.setState({ [code]: e.target.value } as any);
   };
 
-  renderItem = (key: string, title: string, description?: string) => {
-    const value = this.state[key] || '';
+  renderItem = (
+    key: string,
+    title: string,
+    description?: string,
+    isPassword?: boolean
+  ) => {
+    const value = this.state[key];
+
     return (
       <FormGroup>
         <ControlLabel>{title}</ControlLabel>
+        {description && <p>{description}</p>}
         <FormControl
           defaultValue={value}
           onChange={this.onChangeConfig.bind(this, key)}
           value={value}
+          type={isPassword ? 'password' : ''}
         />
       </FormGroup>
     );
@@ -105,7 +113,7 @@ class QpayConfigForm extends React.Component<Props, State> {
         <SettingsContent title={__('General settings')}>
           {this.renderItem('paymentName', 'Name')}
           {this.renderItem('qpayMerchantUser', 'Username')}
-          {this.renderItem('qpayMerchantPassword', 'Password')}
+          {this.renderItem('qpayMerchantPassword', 'Password', '', true)}
           {this.renderItem('qpayInvoiceCode', 'Invoice code')}
         </SettingsContent>
 

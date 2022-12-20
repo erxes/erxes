@@ -1,27 +1,25 @@
-import React from 'react';
-
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import React from 'react';
+import Row from './PerformRow';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __, router } from '@erxes/ui/src/utils';
 import {
   BarItems,
   FieldStyle,
   SidebarCounter
 } from '@erxes/ui/src/layout/styles';
 import { Count } from '@erxes/ui/src/styles/main';
+import { IPerform } from '../../overallWork/types';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { __, router } from '@erxes/ui/src/utils';
-
-import { menuNavs } from '../../../constants';
-import { IPerformDocument } from '../../types';
-import Row from './PerformRow';
+import { menuNavs } from '../../constants';
 
 interface IProps extends IRouterProps {
   history: any;
   queryParams: any;
-  performs: IPerformDocument[];
+  performs: IPerform[];
   performsCount: number;
   loading: boolean;
   searchValue: string;

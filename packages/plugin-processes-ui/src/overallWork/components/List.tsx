@@ -1,17 +1,16 @@
-import { __ } from '@erxes/ui/src/utils';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import Table from '@erxes/ui/src/components/table';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { menuNavs } from '../../constants';
+import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-
+import { menuNavs } from '../../constants';
 import { TableWrapper } from '../../styles';
 import { IOverallWork } from '../types';
 import Row from './Row';
 import Sidebar from './Sidebar';
-import Table from '@erxes/ui/src/components/table';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 
 interface IProps extends IRouterProps {
   overallWorks: IOverallWork[];

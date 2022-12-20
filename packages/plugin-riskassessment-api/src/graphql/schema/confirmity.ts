@@ -10,6 +10,7 @@ export const types = `
         resultScore:String,
         riskAssessmentId: String,
         createdAt: Date,
+        closedAt: Date,
         riskAssessment:JSON
         card:JSON
     }
@@ -28,10 +29,22 @@ export const types = `
     }
 `;
 
+const conformityParams = `
+    cardType:String,
+    riskAssessmentId:String,
+    status:String,
+    createdFrom: String,
+    createdTo: String,
+    closedFrom: String,
+    closedTo: String
+    ${commonTypes},
+    ${commonPaginateTypes}
+`;
+
 export const queries = `
     riskConformity(cardId:String,riskAssessmentId:String):RiskConformity
-    riskConformities(cardId:String,riskAssessmentId:String,status:String,${commonTypes},${commonPaginateTypes}):[RiskConformity]
-    riskConformitiesTotalCount(cardId:String,riskAssessmentId:String,status:String,${commonTypes},${commonPaginateTypes}): Int
+    riskConformities(${conformityParams}):[RiskConformity]
+    riskConformitiesTotalCount(${conformityParams}): Int
     riskConformityDetails(cardId:String) :[RiskConformity]
     riskConformitySubmissions(cardId:String,cardType:String) :JSON
     riskConformityFormDetail(cardId:String,userId: String,riskAssessmentId:String) :RiskConformityFormDetailType

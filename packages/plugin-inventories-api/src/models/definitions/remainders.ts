@@ -36,7 +36,6 @@ export interface IRemainder {
   departmentId: string;
   productId: string;
   count: number;
-  uomId: string;
 }
 
 export interface IRemainderDocument extends IRemainder, Document {

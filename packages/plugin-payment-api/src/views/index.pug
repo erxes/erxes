@@ -28,7 +28,7 @@ block layout-content
                         .isMobile#isMobile
                             .label Choose your bank
                             .border
-                                if invoice.apiResponse.qr_image
+                                if invoice.apiResponse.qrData
                                     each url in (invoice.apiResponse.urls || [])
                                         a(href=url.link class="bank")
                                             img(src=url.logo class="urlLogo")
@@ -61,8 +61,8 @@ block layout-content
                             else
                                 .label QR code
                                 .border
-                                    if invoice.apiResponse.qr_image
-                                        img(src="data:image/jpg;base64," + invoice.apiResponse.qr_image)
+                                    if invoice.apiResponse.qrData
+                                        img(src=invoice.apiResponse.qrData)
                                     if invoice.apiResponse.socialPayQrCode
                                         img(src=`${invoice.apiResponse.socialPayQrCode}`)
                                     .label.status status:

@@ -5,12 +5,12 @@ import { withProps } from '@erxes/ui/src/utils';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import List from '../components/perform/PerformList';
-import { queries } from '../graphql';
+import List from '../components/PerformList';
+import { queries as performQueries } from '../../overallWork/graphql';
 import {
   PerformsQueryResponse,
-  PerformsTotalCountQueryResponse
-} from '../types';
+  PerformsCountQueryResponse
+} from '../../overallWork/types';
 
 type Props = {
   queryParams: any;
@@ -19,7 +19,7 @@ type Props = {
 
 type FinalProps = {
   performsQuery: PerformsQueryResponse;
-  performsTotalCountQuery: PerformsTotalCountQueryResponse;
+  performsTotalCountQuery: PerformsCountQueryResponse;
 } & Props;
 
 class WorkListContainer extends React.Component<FinalProps> {
@@ -35,7 +35,7 @@ class WorkListContainer extends React.Component<FinalProps> {
     }
 
     const performs = performsQuery.performs || [];
-    const performsCount = performsTotalCountQuery.performsTotalCount || 0;
+    const performsCount = performsTotalCountQuery.performsCount || 0;
 
     const searchValue = this.props.queryParams.searchValue || '';
 
@@ -63,7 +63,7 @@ class WorkListContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, PerformsQueryResponse, {}>(gql(queries.performs), {
+    graphql<Props, PerformsQueryResponse, {}>(gql(performQueries.performs), {
       name: 'performsQuery',
       options: ({ queryParams }) => ({
         variables: {
@@ -73,8 +73,8 @@ export default withProps<Props>(
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<Props, PerformsTotalCountQueryResponse, {}>(
-      gql(queries.performsTotalCount),
+    graphql<Props, PerformsCountQueryResponse, {}>(
+      gql(performQueries.performsCount),
       {
         name: 'performsTotalCountQuery',
         options: ({ queryParams }) => ({

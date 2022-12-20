@@ -1,7 +1,6 @@
 import * as compose from 'lodash.flowright';
 import gql from 'graphql-tag';
 import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import YearPlans from '../components/YearPlanList';
 import { Alert, router, withProps } from '@erxes/ui/src/utils';
 import { Bulk } from '@erxes/ui/src/components';
@@ -12,6 +11,7 @@ import {
   YearPlansQueryResponse,
   YearPlansRemoveMutationResponse,
   YearPlansCountQueryResponse,
+  YearPlansSumQueryResponse,
   YearPlansEditMutationResponse
 } from '../types';
 
@@ -24,6 +24,7 @@ type Props = {
 type FinalProps = {
   yearPlanQuery: YearPlansQueryResponse;
   yearPlansCountQuery: YearPlansCountQueryResponse;
+  yearPlansSumQuery: YearPlansSumQueryResponse;
 } & Props &
   YearPlansEditMutationResponse &
   YearPlansRemoveMutationResponse;
@@ -33,14 +34,11 @@ class YearPlansContainer extends React.Component<FinalProps> {
     const {
       yearPlanQuery,
       yearPlansCountQuery,
+      yearPlansSumQuery,
       queryParams,
       yearPlanEdit,
       yearPlansRemove
     } = this.props;
-
-    if (yearPlanQuery.loading || yearPlansCountQuery.loading) {
-      return <Spinner />;
-    }
 
     // edit row action
     const edit = (doc: IYearPlan) => {
@@ -48,8 +46,7 @@ class YearPlansContainer extends React.Component<FinalProps> {
         variables: { ...doc }
       })
         .then(() => {
-          Alert.success('You successfully updated a census');
-          yearPlanQuery.refetch();
+          Alert.success('You successfully updated a day plan');
         })
         .catch(e => {
           Alert.error(e.message);
@@ -64,7 +61,7 @@ class YearPlansContainer extends React.Component<FinalProps> {
         .then(() => {
           emptyBulk();
 
-          Alert.success('You successfully deleted a year plan');
+          Alert.success('You successfully deleted a day plan');
         })
         .catch(e => {
           Alert.error(e.message);
@@ -74,12 +71,14 @@ class YearPlansContainer extends React.Component<FinalProps> {
     const searchValue = this.props.queryParams.searchValue || '';
     const yearPlans = yearPlanQuery.yearPlans || [];
     const totalCount = yearPlansCountQuery.yearPlansCount || 0;
+    const totalSum = yearPlansSumQuery.yearPlansSum || {};
 
     const updatedProps = {
       ...this.props,
       queryParams,
       yearPlans,
       totalCount,
+      totalSum,
       edit,
       remove,
       searchValue
@@ -96,7 +95,7 @@ class YearPlansContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return ['yearPlans', 'yearPlansCount'];
+  return ['yearPlans', 'yearPlansCount', 'yearPlansSum'];
 };
 
 const options = () => ({
@@ -142,10 +141,21 @@ export default withProps<Props>(
         })
       }
     ),
+    graphql<{ queryParams: any }, YearPlansSumQueryResponse>(
+      gql(queries.yearPlansSum),
+      {
+        name: 'yearPlansSumQuery',
+        options: ({ queryParams }) => ({
+          variables: generateParams({ queryParams }),
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
     graphql<Props, YearPlansEditMutationResponse, {}>(
       gql(mutations.yearPlanEdit),
       {
-        name: 'yearPlanEdit'
+        name: 'yearPlanEdit',
+        options
       }
     ),
     graphql<Props, YearPlansRemoveMutationResponse, { yearPlanIds: string[] }>(

@@ -24,7 +24,8 @@ export default ({
   multi = true,
   label,
   name,
-  customOption
+  customOption,
+  filterParams
 }: {
   queryParams?: IQueryParams;
   label: string;
@@ -34,6 +35,7 @@ export default ({
   initialValue?: string | string[];
   setParam?: boolean;
   name: string;
+  filterParams?: any;
 }) => {
   const defaultValue = queryParams ? queryParams[name] : initialValue;
 
@@ -49,6 +51,7 @@ export default ({
       generateOptions={generateProductOptions}
       onSelect={onSelect}
       multi={multi}
+      filterParams={filterParams}
     />
   );
 };

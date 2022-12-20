@@ -74,6 +74,10 @@ class List extends React.Component<Props> {
               <SortHandler sortField="createdAt" />
               {__('Created At')}
             </th>
+            <th>
+              <SortHandler sortField="closedAt" />
+              {__('Closed At')}
+            </th>
             <th>{__('Action')}</th>
           </tr>
         </thead>
@@ -183,25 +187,51 @@ class List extends React.Component<Props> {
           </CustomForm>
           <CustomForm
             label="Created Date Range"
-            field={['from', 'to']}
-            clearable={queryParams?.from || queryParams?.to}
+            field={['createdFrom', 'createdTo']}
+            clearable={queryParams?.createdFrom || queryParams?.createdTo}
           >
             <CustomRangeContainer>
               <DateContainer>
                 <DateControl
-                  name="from"
-                  value={generateQueryParamsDate(queryParams?.from)}
+                  name="createdFrom"
+                  value={generateQueryParamsDate(queryParams?.createdFrom)}
                   placeholder="select from date "
-                  onChange={e => dateOrder(e, 'from')}
+                  onChange={e => dateOrder(e, 'createdFrom')}
                 />
               </DateContainer>
               <EndDateContainer>
                 <DateContainer>
                   <DateControl
-                    name="to"
-                    value={generateQueryParamsDate(queryParams?.to)}
+                    name="createdTo"
+                    value={generateQueryParamsDate(queryParams?.createdTo)}
                     placeholder="select to date "
-                    onChange={e => dateOrder(e, 'to')}
+                    onChange={e => dateOrder(e, 'createdTo')}
+                  />
+                </DateContainer>
+              </EndDateContainer>
+            </CustomRangeContainer>
+          </CustomForm>
+          <CustomForm
+            label="Closed Date Range"
+            field={['closedFrom', 'closedTo']}
+            clearable={queryParams?.closedFrom || queryParams?.closedTo}
+          >
+            <CustomRangeContainer>
+              <DateContainer>
+                <DateControl
+                  name="closedFrom"
+                  value={generateQueryParamsDate(queryParams?.closedFrom)}
+                  placeholder="select from date "
+                  onChange={e => dateOrder(e, 'closedFrom')}
+                />
+              </DateContainer>
+              <EndDateContainer>
+                <DateContainer>
+                  <DateControl
+                    name="closedTo"
+                    value={generateQueryParamsDate(queryParams?.closedTo)}
+                    placeholder="select to date "
+                    onChange={e => dateOrder(e, 'closedTo')}
                   />
                 </DateContainer>
               </EndDateContainer>

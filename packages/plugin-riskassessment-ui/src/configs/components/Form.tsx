@@ -8,16 +8,21 @@ import {
   Form as CommonForm,
   __,
   Button,
-  EmptyState
+  EmptyState,
+  Toggle
 } from '@erxes/ui/src';
 import { cardTypes } from '../../common/constants';
 import {
   SelectCustomFields,
   SelectWithRiskAssessment
 } from '../../common/utils';
-import { Features, ListItem, Block } from '../../styles';
+import { Features, ListItem, Block, Header, FormContainer } from '../../styles';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+import {
+  FormColumn,
+  FormWrapper,
+  ModalFooter
+} from '@erxes/ui/src/styles/main';
 type Props = {
   queryParams: any;
   history: any;
@@ -33,11 +38,18 @@ type State = {
   stageId: string;
   customFieldId: string;
   configs: any[];
+  riskAssessmentId: string;
+  isOpenSelectionCustomField: boolean;
 };
 
 class Form extends React.Component<Props, State> {
   constructor(props) {
     super(props);
+
+    const isOpenSelectionCustomField =
+      !!props?.config?.configs.length && !!props?.config.pipelineId
+        ? true
+        : false;
 
     this.state = {
       cardType: props?.config?.cardType || '',
@@ -45,7 +57,9 @@ class Form extends React.Component<Props, State> {
       pipelineId: props?.config?.pipelineId || '',
       stageId: props?.config?.stageId || '',
       customFieldId: props?.config?.customFieldId || null,
-      configs: props?.config?.configs || []
+      configs: props?.config?.configs || [],
+      isOpenSelectionCustomField,
+      riskAssessmentId: props?.config?.riskAssessmentId || ''
     };
 
     this.renderForm = this.renderForm.bind(this);
@@ -53,12 +67,87 @@ class Form extends React.Component<Props, State> {
 
   generateDoc() {
     const { config } = this.props;
+    const {
+      cardType,
+      boardId,
+      pipelineId,
+      stageId,
+      customFieldId,
+      configs,
+      riskAssessmentId
+    } = this.state;
+
+    const doc = {
+      cardType,
+      boardId,
+      pipelineId,
+      stageId,
+      customFieldId,
+      configs,
+      riskAssessmentId
+    };
 
     if (config) {
-      return { doc: { ...this.state }, configId: config._id };
+      return { doc: { ...doc }, configId: config._id };
     }
 
-    return { ...this.state };
+    return { ...doc };
+  }
+
+  renderSelectionCustomField() {
+    const {
+      customFieldId,
+      configs,
+      boardId,
+      pipelineId,
+      cardType
+    } = this.state;
+    const onChangeCustomFields = ({ value, _id }) => {
+      this.setState({ customFieldId: _id, configs: value });
+    };
+    const onChangeConfig = (config, field) => {
+      const updatedFieldConfig = configs.map(fieldConfig =>
+        fieldConfig.value === field.value
+          ? { ...fieldConfig, riskAssessmentId: config.value }
+          : fieldConfig
+      );
+
+      return this.setState({ configs: updatedFieldConfig });
+    };
+
+    return (
+      <>
+        <FormGroup>
+          <ControlLabel>{__('Choose Field')}</ControlLabel>
+          <SelectCustomFields
+            label="Choose custom field"
+            name="customField"
+            initialValue={customFieldId}
+            onSelect={onChangeCustomFields}
+            type={!!boardId && !!pipelineId ? cardType : ''}
+          />
+        </FormGroup>
+        <h5>Selections</h5>
+        {configs.length ? (
+          configs.map((field, i) => (
+            <ListItem key={i}>
+              <ControlLabel>{field.label}</ControlLabel>
+              <SelectWithRiskAssessment
+                name="riskAssessment"
+                label="Select risk assessment"
+                initialValue={field.riskAssessmentId}
+                onSelect={e => onChangeConfig(e, field)}
+                ignoreIds={configs
+                  .map(config => config.riskAssessmentId)
+                  .filter(id => id)}
+              />
+            </ListItem>
+          ))
+        ) : (
+          <EmptyState text="No Selection" icon="file-landscape-alt" />
+        )}
+      </>
+    );
   }
 
   renderForm(formProps: IFormProps) {
@@ -68,7 +157,9 @@ class Form extends React.Component<Props, State> {
       pipelineId,
       stageId,
       customFieldId,
-      configs
+      configs,
+      riskAssessmentId,
+      isOpenSelectionCustomField
     } = this.state;
     const { renderButton, closeModal } = this.props;
     const { isSubmitted } = formProps;
@@ -87,20 +178,17 @@ class Form extends React.Component<Props, State> {
       this.setState({ stageId: e });
     };
 
-    const onChangeCustomFields = ({ value, _id }) => {
-      this.setState({ customFieldId: _id, configs: value });
+    const onChangeToggle = e => {
+      const isOpen = e.target.checked;
+      this.setState({
+        isOpenSelectionCustomField: isOpen,
+        configs: [],
+        riskAssessmentId: ''
+      });
     };
-
-    const onChangeConfig = (config, field) => {
-      const updatedFieldConfig = configs.map(fieldConfig =>
-        fieldConfig.value === field.value
-          ? { ...fieldConfig, riskAssessmentId: config.value }
-          : fieldConfig
-      );
-
-      return this.setState({ configs: updatedFieldConfig });
+    const onChangeSelectedRiskAssessment = e => {
+      this.setState({ riskAssessmentId: e?.value });
     };
-
     return (
       <>
         <Block>
@@ -130,35 +218,27 @@ class Form extends React.Component<Props, State> {
         </Block>
         <Features isToggled={!!boardId && !!pipelineId}>
           <Block>
-            <h4>{__('Configration')}</h4>
-            <FormGroup>
-              <ControlLabel>{__('Choose Field')}</ControlLabel>
-              <SelectCustomFields
-                label="Choose custom field"
-                name="customField"
-                initialValue={customFieldId}
-                onSelect={onChangeCustomFields}
-                type={!!boardId && !!pipelineId ? cardType : ''}
-              />
-            </FormGroup>
-            <h5>Selections</h5>
-            {configs.length ? (
-              configs.map((field, i) => (
-                <ListItem key={i}>
-                  <ControlLabel>{field.label}</ControlLabel>
-                  <SelectWithRiskAssessment
-                    name="riskAssessment"
-                    label="select risk assessment"
-                    initialValue={field.riskAssessmentId}
-                    onSelect={e => onChangeConfig(e, field)}
-                    ignoreIds={configs
-                      .map(config => config.riskAssessmentId)
-                      .filter(id => id)}
-                  />
-                </ListItem>
-              ))
+            <FormWrapper>
+              <FormColumn>
+                <Header>{__('Configration')}</Header>
+              </FormColumn>
+              <FormContainer row align="center" gap>
+                <ControlLabel>{__('User Custom field')}</ControlLabel>
+                <Toggle onChange={onChangeToggle} />
+              </FormContainer>
+            </FormWrapper>
+            {isOpenSelectionCustomField ? (
+              this.renderSelectionCustomField()
             ) : (
-              <EmptyState text="No Selection" icon="file-landscape-alt" />
+              <FormGroup>
+                <ControlLabel>{__('Select risk assessment')}</ControlLabel>
+                <SelectWithRiskAssessment
+                  name="riskAssessment"
+                  label="Select risk assessment"
+                  initialValue={riskAssessmentId}
+                  onSelect={onChangeSelectedRiskAssessment}
+                />
+              </FormGroup>
             )}
           </Block>
         </Features>
