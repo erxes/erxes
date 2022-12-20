@@ -153,8 +153,6 @@ class GenerateGroup extends React.Component<Props, State> {
     const { data } = this.state;
     const { fields } = fieldGroup;
 
-    console.log('renderContent', data);
-
     const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
 
     if (!fields || fields.length === 0) {
