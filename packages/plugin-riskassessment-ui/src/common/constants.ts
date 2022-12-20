@@ -58,9 +58,26 @@ export const calculateMethods = [
   {
     value: 'Multiply',
     label: 'Multiply'
+  }
+];
+
+export const subMenu = [
+  { title: 'Risk assessments', link: '/settings/risk-assessments' },
+  { title: 'Configs', link: '/settings/risk-assessment-configs' },
+  { title: 'Submissions', link: '/settings/risk-assessment-submissions' }
+];
+
+export const cardTypes = [
+  {
+    value: '',
+    label: 'Choose Type'
   },
   {
-    value: 'Matrix',
-    label: 'Matrix'
+    value: 'task',
+    label: 'Task'
+  },
+  {
+    value: 'ticket',
+    label: 'Ticket'
   }
 ];

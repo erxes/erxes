@@ -6,19 +6,19 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import {
-  ICardRiskConfirmitiesQueryResponse,
+  ICardRiskConformitiesQueryResponse,
   IRiskSubmissionsQueryResponse
 } from '../../common/types';
 import SectionComponent from '../component/List';
 import { queries } from '../graphql';
 type Props = {
-  mainType:string;
+  mainType: string;
   mainTypeId: string;
   currentUser: IUser;
 };
 
 type FinalProps = {
-  lists: ICardRiskConfirmitiesQueryResponse;
+  lists: ICardRiskConformitiesQueryResponse;
   submissions: IRiskSubmissionsQueryResponse;
 } & Props;
 
@@ -36,11 +36,11 @@ class RiskAssessmentSection extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      cardId:this.props.mainTypeId,
-      cardType:this.props.mainType,
-      list: lists?.riskConfirmities || [],
+      cardId: this.props.mainTypeId,
+      cardType: this.props.mainType,
+      conformity: lists?.riskConformity,
       refetch: lists?.refetch,
-      submissions: submissions.riskConfirmitySubmissions,
+      submissions: submissions.riskConformitySubmissions,
       refetchSubmissions: submissions.refetch
     };
 
@@ -50,15 +50,19 @@ class RiskAssessmentSection extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.riskConfirmities), {
+    graphql<Props>(gql(queries.riskConformity), {
       name: 'lists',
       skip: ({ mainTypeId }) => !mainTypeId,
-      options: ({ mainTypeId,mainType }) => ({ variables: { cardId: mainTypeId,cardType:mainType } })
+      options: ({ mainTypeId, mainType }) => ({
+        variables: { cardId: mainTypeId, cardType: mainType }
+      })
     }),
-    graphql<Props>(gql(queries.riskConfirmitySubmissions), {
+    graphql<Props>(gql(queries.riskConformitySubmissions), {
       name: 'submissions',
       skip: ({ mainTypeId }) => !mainTypeId,
-      options: ({ mainTypeId,mainType }) => ({ variables: { cardId: mainTypeId,cardType:mainType } })
+      options: ({ mainTypeId, mainType }) => ({
+        variables: { cardId: mainTypeId, cardType: mainType }
+      })
     })
   )(withCurrentUser(RiskAssessmentSection))
 );

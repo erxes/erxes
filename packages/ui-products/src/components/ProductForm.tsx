@@ -73,7 +73,7 @@ class Form extends React.Component<Props, State> {
       subUoms
     } = product;
 
-    const defaultUom = props.configsMap.default_uom || '';
+    const defaultUom = props.configsMap.defaultUOM || '';
 
     this.state = {
       disabled: supply === 'limited' ? false : true,
@@ -335,7 +335,7 @@ class Form extends React.Component<Props, State> {
       minimiumCount
     } = this.state;
 
-    const isUom = (configsMap || {}).isReqiureUOM || false;
+    const isUom = (configsMap || {}).isRequireUOM || false;
 
     return (
       <>

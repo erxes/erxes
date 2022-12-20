@@ -1,4 +1,4 @@
-import { paginate } from '@erxes/api-utils/src/core';
+import { getPureDate, paginate } from '@erxes/api-utils/src/core';
 // import {
 //   checkPermission,
 //   requireLogin
@@ -7,26 +7,92 @@ import { IContext } from '../../../connectionResolver';
 import { sendProductsMessage } from '../../../messageBroker';
 
 interface IParam {
-  searchValue?: string;
-  ids: string[];
-  excludeIds: boolean;
-  overallWorkId: string;
+  search: string;
+  type: string;
+  startDate: Date;
+  endDate: Date;
+  inBranchId: string;
+  outBranchId: string;
+  inDepartmentId: string;
+  outDepartmentId: string;
+  productCategoryId: string;
+  productId: string;
+  jobReferId: string;
 }
 
-const generateFilter = (params: IParam, commonQuerySelector) => {
-  const { searchValue, ids, excludeIds, overallWorkId } = params;
+const generateFilter = async (
+  subdomain: string,
+  params: IParam,
+  commonQuerySelector
+) => {
+  const {
+    search,
+    startDate,
+    endDate,
+    inBranchId,
+    inDepartmentId,
+    outBranchId,
+    outDepartmentId,
+    type,
+    jobReferId,
+    productCategoryId,
+    productId
+  } = params;
   const selector: any = { ...commonQuerySelector };
 
-  if (overallWorkId) {
-    selector.overallWorkId = new RegExp(`.*${overallWorkId}.*`, 'i');
+  if (startDate) {
+    selector.endAt = { $gte: getPureDate(startDate) };
+  }
+  if (endDate) {
+    selector.startAt = { $lte: getPureDate(endDate) };
   }
 
-  if (searchValue) {
-    selector.name = new RegExp(`.*${searchValue}.*`, 'i');
+  if (search) {
+    selector.name = new RegExp(`.*${search}.*`, 'i');
   }
 
-  if (ids && ids.length > 0) {
-    selector._id = { [excludeIds ? '$nin' : '$in']: ids };
+  if (type) {
+    selector.type = type;
+  }
+
+  if (outBranchId) {
+    selector.outBranchId = outBranchId;
+  }
+  if (outDepartmentId) {
+    selector.outDepartmentId = outDepartmentId;
+  }
+
+  if (inBranchId) {
+    selector.inBranchId = inBranchId;
+  }
+  if (inDepartmentId) {
+    selector.inDepartmentId = inDepartmentId;
+  }
+
+  if (productCategoryId) {
+    const limit = await sendProductsMessage({
+      subdomain,
+      action: 'count',
+      data: { categoryId: productCategoryId },
+      isRPC: true
+    });
+
+    const products = await sendProductsMessage({
+      subdomain,
+      action: 'find',
+      data: { limit, categoryId: productCategoryId, fields: { _id: 1 } },
+      isRPC: true
+    });
+
+    selector.typeId = { $in: products.map(pr => pr._id) };
+  }
+
+  if (productId) {
+    selector.typeId = productId;
+  }
+
+  if (jobReferId) {
+    selector.typeId = jobReferId;
   }
 
   return selector;
@@ -39,63 +105,33 @@ const performQueries = {
       page: number;
       perPage: number;
     },
-    { models, commonQuerySelector }: IContext
+    { subdomain, models, commonQuerySelector }: IContext
   ) {
-    const selector = generateFilter(params, commonQuerySelector);
+    const selector = await generateFilter(
+      subdomain,
+      params,
+      commonQuerySelector
+    );
 
     return paginate(models.Performs.find(selector).lean(), { ...params });
   },
 
-  performsByOverallWorkId(
-    _root,
-    params: IParam & {
-      page: number;
-      perPage: number;
-    },
-    { models, commonQuerySelector }: IContext
-  ) {
-    const selector = generateFilter(params, commonQuerySelector);
-
-    return models.Performs.find(selector).lean();
-  },
-
-  performsTotalCount(
+  async performsCount(
     _root,
     params: IParam,
-    { commonQuerySelector, models }: IContext
+    { subdomain, models, commonQuerySelector }: IContext
   ) {
-    const selector = generateFilter(params, commonQuerySelector);
+    const selector = await generateFilter(
+      subdomain,
+      params,
+      commonQuerySelector
+    );
 
     return models.Performs.find(selector).count();
   },
 
-  performsByOverallWorkIdTotalCount(
-    _root,
-    params: IParam,
-    { commonQuerySelector, models }: IContext
-  ) {
-    const selector = generateFilter(params, commonQuerySelector);
-
-    return models.Performs.find(selector).count();
-  },
-  async allProducts(_root, _args, { subdomain }: IContext) {
-    const productsCount =
-      (await sendProductsMessage({
-        subdomain,
-        action: 'count',
-        data: {},
-        isRPC: true
-      })) || null;
-
-    const productsData =
-      (await sendProductsMessage({
-        subdomain,
-        action: 'find',
-        data: { limit: productsCount },
-        isRPC: true
-      })) || [];
-
-    return productsData;
+  performDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Performs.getPerform(_id);
   }
 };
 

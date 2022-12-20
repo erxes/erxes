@@ -68,7 +68,7 @@ export const mutations = `
 `;
 
 export const queries = `
-  checkInvoice(_id:String!, paymentId: String!): Invoice
+  checkInvoice(_id:String!): String
   invoices(searchValue: String, kind: String, status: String, page: Int, perPage: Int, contentType: String, contentTypeId: String): [Invoice]
   invoicesTotalCount(searchValue: String, kind: String, status: String, contentType: String, contentTypeId: String): invoicesTotalCount
 `;

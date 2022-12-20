@@ -14,31 +14,39 @@ module.exports = {
   menus: [
     {
       text: 'Risk Assessments',
-      to: '/riskassessments',
+      to: '/settings/risk-assessments',
       image: '/images/icons/erxes-18.svg',
       location: 'settings',
-      scope: 'riskassessment'
+      scope: 'riskassessment',
+      action: 'riskAssessmentAll',
+      permissions: ['showRiskAssessment', 'manageRiskAssessment']
     }
   ],
   dealRightSidebarSection: [
     {
       text: 'riskAssessmentSection',
       component: './dealSection',
-      scope: 'riskassessment'
+      scope: 'riskassessment',
+      action: 'riskAssessmentAll',
+      permissions: ['showRiskAssessment', 'manageRiskAssessment']
     }
   ],
   ticketRightSidebarSection: [
     {
       text: 'riskAssessmentSection',
       component: './dealSection',
-      scope: 'riskassessment'
+      scope: 'riskassessment',
+      action: 'riskAssessmentAll',
+      permissions: ['showRiskAssessment', 'manageRiskAssessment']
     }
   ],
   taskRightSidebarSection: [
     {
       text: 'riskAssessmentSection',
       component: './dealSection',
-      scope: 'riskassessment'
+      scope: 'riskassessment',
+      action: 'riskAssessmentAll',
+      permissions: ['showRiskAssessment', 'manageRiskAssessment']
     }
   ]
 };

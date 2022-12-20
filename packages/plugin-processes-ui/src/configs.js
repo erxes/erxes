@@ -21,9 +21,12 @@ module.exports = {
     },
     {
       text: 'Processes',
-      url: '/processes/performances',
+      url: '/processes/overallWorks',
       icon: 'icon-file-check-alt',
-      location: 'mainNavigation',
+      location: 'mainNavigation'
+      
+      ,
+      scope: 'processes',
       permission: 'showWorks'
     }
   ]

@@ -100,6 +100,7 @@ const posOrderDetail = `
   query posOrderDetail($_id: String) {
     posOrderDetail(_id: $_id) {
       ${orderFields}
+      syncErkhetInfo
       putResponses
       deliveryInfo
     }

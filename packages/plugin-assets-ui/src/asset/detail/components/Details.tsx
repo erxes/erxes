@@ -11,9 +11,11 @@ import LeftSidebar from './LeftSideBar';
 type Props = {
   asset: IAsset;
   currentUser: IUser;
+  history: any;
+  refetchDetail: () => void;
 };
 
-class CompanyDetails extends React.Component<Props> {
+class AssetDetail extends React.Component<Props> {
   render() {
     const { asset } = this.props;
 
@@ -54,4 +56,4 @@ class CompanyDetails extends React.Component<Props> {
   }
 }
 
-export default CompanyDetails;
+export default AssetDetail;

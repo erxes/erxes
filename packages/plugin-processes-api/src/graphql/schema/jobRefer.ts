@@ -1,12 +1,4 @@
-import {
-  attachmentInput,
-  attachmentType
-} from '@erxes/api-utils/src/commonTypeDefs';
-
 export const types = `
-  ${attachmentType}
-  ${attachmentInput}
-
   type JobRefer @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String,
     createdAt: Date,
@@ -19,6 +11,8 @@ export const types = `
     durationType: String,
     needProducts: JSON,
     resultProducts: JSON,
+    needProductsData: JSON,
+    resultProductsData: JSON,
   }
 
   input JobProductsInput {
@@ -45,8 +39,6 @@ export const queries = `
   jobRefers(page: Int, perPage: Int, ${qryParams}): [JobRefer]
   jobReferTotalCount(${qryParams}): Int
   jobReferDetail(_id: String!): JobRefer
-
-  jobRefersAll: [JobRefer]
 `;
 
 const jobReferParams = `

@@ -100,6 +100,7 @@ export interface IItemParams {
   _id?: string;
   name?: string;
   stageId?: string;
+  parentId?: string;
   assignedUserIds?: string[];
   closeDate?: Date;
   description?: string;
@@ -385,6 +386,7 @@ export interface IFilterParams extends ISavedConformity {
   labelIds?: string;
   userIds?: string;
   segment?: string;
+  segmentData?: string;
   assignedToMe?: string;
   startDate?: string;
   endDate?: string;

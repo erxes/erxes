@@ -1,4 +1,12 @@
-import { Button, ButtonMutate, FormControl, Icon, ModalTrigger, Tip, __ } from '@erxes/ui/src';
+import {
+  Button,
+  ButtonMutate,
+  FormControl,
+  Icon,
+  ModalTrigger,
+  Tip,
+  __
+} from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import gql from 'graphql-tag';
 import moment from 'moment';
@@ -8,6 +16,7 @@ import { default as Form, default as FormContainer } from '../containers/Form';
 import { generateParams } from '../containers/List';
 import { mutations, queries } from '../graphql';
 import { Badge } from '../styles';
+import FormHistory from '../containers/FormHistory';
 
 type IProps = {
   object: RiskAssessmentsType;
@@ -29,11 +38,11 @@ class TableRow extends React.Component<IProps> {
       e.stopPropagation();
     };
 
-    const renderForm = () => {
+    const renderDuplicateForm = () => {
       const { queryParams } = this.props;
       const trigger = (
-        <Button btnStyle="link">
-          <Tip text="Duplicate this risk assessment">
+        <Button btnStyle="link" style={{ padding: '5px' }}>
+          <Tip text="Duplicate this risk assessment" placement="bottom">
             <Icon icon="copy" />
           </Tip>
         </Button>
@@ -92,14 +101,13 @@ class TableRow extends React.Component<IProps> {
         </td>
         <td>{object.name}</td>
         <td>{object.category?.name || '-'}</td>
-        <td>
-          <Badge color={object.statusColor}>{__(object.status)}</Badge>
-        </td>
-        <td>{object.status !== 'In Progress' ? __(object.resultScore?.toString() || '') : '-'}</td>
-        <Tip text={moment(object.createdAt).format('MM/DD/YYYY HH:mm')} placement="bottom">
+        <Tip
+          text={moment(object.createdAt).format('MM/DD/YYYY HH:mm')}
+          placement="bottom"
+        >
           <td>{moment(object.createdAt).fromNow()}</td>
         </Tip>
-        <td onClick={onclick}>{renderForm()}</td>
+        <td onClick={onclick}>{renderDuplicateForm()}</td>
       </tr>
     );
 

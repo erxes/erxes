@@ -7,17 +7,29 @@ let client: any;
 export const initBroker = async cl => {
   client = cl;
 
-  const { consumeQueue } = cl;
+  const { consumeQueue, consumeRPCQueue } = cl;
   consumeQueue(
-    'salesplans:saleslogs.statusUpdate',
-    async ({ subdomain, data: { _id, status } }) => {
+    'salesplans:dayPlans.updateStatus',
+    async ({ subdomain, data: { _ids, status } }) => {
       const models = await generateModels(subdomain);
 
-      const result = await models.SalesLogs.salesLogStatusUpdate(_id, status);
+      await models.DayPlans.updateMany(
+        { _id: { $in: _ids } },
+        { $set: { status } }
+      );
+    }
+  );
+
+  consumeRPCQueue(
+    'salesplans:timeframes.find',
+    async ({ subdomain, data: {} }) => {
+      const models = await generateModels(subdomain);
 
       return {
-        data: result,
-        status: 'success'
+        status: 'success',
+        data: await models.Timeframes.find({
+          status: { $ne: 'deleted' }
+        }).lean()
       };
     }
   );
@@ -39,6 +51,17 @@ export const sendInternalNotesMessage = async (
     client,
     serviceDiscovery,
     serviceName: 'internalnotes',
+    ...args
+  });
+};
+
+export const sendProductsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'products',
     ...args
   });
 };

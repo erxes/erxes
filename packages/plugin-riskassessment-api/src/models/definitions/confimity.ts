@@ -1,22 +1,26 @@
 import { Document, Schema } from 'mongoose';
 import { field } from './utils';
 
-export interface IRiskConfirmityDocument extends Document {
+export interface IRiskConformityDocument extends Document {
   _id: string;
   cardId: string;
+  cardType: string;
   riskAssessmentId: string;
+  status: string;
+  statusColor: string;
+  resultScore: string;
 }
 
 export interface IRiskFormSubmissionDocument extends Document {
-  _id: String;
-  cardId: String;
-  userId: String;
-  formId: String;
-  fieldId: String;
+  _id: string;
+  cardId: string;
+  userId: string;
+  formId: string;
+  fieldId: string;
   value: Number;
 }
 
-export const riskConfirmitySchema = new Schema({
+export const riskConformitySchema = new Schema({
   _id: field({ pkey: true }),
   cardId: field({ type: String, label: 'Card Id' }),
   cardType: field({ type: String, label: 'Card Type' }),
@@ -24,10 +28,18 @@ export const riskConfirmitySchema = new Schema({
     type: String,
     label: 'Answer Risk assessment Ids'
   }),
-  createdAt: field({ type: Date, label: 'Created At', default: Date.now })
+  createdAt: field({ type: Date, label: 'Created At', default: Date.now }),
+  closedAt: field({ type: Date, optional: true, label: 'Closed At' }),
+  status: field({ type: String, label: 'Status', default: 'In Progress' }),
+  statusColor: field({
+    type: String,
+    label: 'Status Status Color',
+    default: '#3B85F4'
+  }),
+  resultScore: field({ type: Number, label: 'Result Score', default: 0 })
 });
 
-export const riskConfirmityFormSubmissionSchema = new Schema({
+export const riskConformityFormSubmissionSchema = new Schema({
   _id: field({ pkey: true }),
   cardId: field({ type: String, label: 'Card Id' }),
   cardType: field({ type: String, label: 'Card Type' }),

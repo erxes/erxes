@@ -180,6 +180,7 @@ interface ISendNotification {
   link: string;
   createdUser?: IUserDocument;
   isMobile?: boolean;
+  eventData?: any | null;
 }
 
 export const sendNotification = async (
@@ -187,7 +188,15 @@ export const sendNotification = async (
   subdomain: string,
   doc: ISendNotification
 ) => {
-  const { createdUser, receivers, title, content, notifType, isMobile } = doc;
+  const {
+    createdUser,
+    receivers,
+    title,
+    content,
+    notifType,
+    isMobile,
+    eventData
+  } = doc;
 
   let link = doc.link;
 
@@ -218,7 +227,8 @@ export const sendNotification = async (
         link,
         receiver: recipient._id,
         notifType,
-        clientPortalId: recipient.clientPortalId
+        clientPortalId: recipient.clientPortalId,
+        eventData
       },
       createdUser && createdUser._id
     );
@@ -228,7 +238,9 @@ export const sendNotification = async (
         _id: notification._id,
         userId: recipient._id,
         title: notification.title,
-        content: notification.content
+        content: notification.content,
+        link: notification.link,
+        eventData
       }
     });
   }
@@ -256,9 +268,13 @@ export const sendNotification = async (
   });
 
   if (isMobile) {
-    const deviceTokens = [
-      ...Array.from(new Set(recipients.map(r => r.deviceTokens)))
-    ];
+    const deviceTokens: string[] = [];
+
+    for (const recipient of recipients) {
+      if (recipient.deviceTokens) {
+        deviceTokens.push(...recipient.deviceTokens);
+      }
+    }
 
     sendCoreMessage({
       subdomain: subdomain,
@@ -266,7 +282,7 @@ export const sendNotification = async (
       data: {
         title,
         body: content,
-        deviceTokens
+        deviceTokens: [...Array.from(new Set(deviceTokens))]
       }
     });
   }

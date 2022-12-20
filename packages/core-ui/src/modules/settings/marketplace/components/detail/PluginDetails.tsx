@@ -1,4 +1,3 @@
-import client from '@erxes/ui/src/apolloClient';
 import {
   AdditionalDesc,
   AttachmentContainer,
@@ -14,12 +13,13 @@ import {
 import { Attachment, TabTitle, Tabs } from '@erxes/ui/src/components';
 
 import { Alert } from 'modules/common/utils';
-import { Flex } from '@erxes/ui/src/styles/main';
 import { ListHeader } from '../../styles';
+import { PluginCategories } from '../styles';
 import React from 'react';
 import RightSidebar from './RightSidebar';
 import Wrapper from './Wrapper';
 import { __ } from '@erxes/ui/src/utils';
+import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 import { queries } from '../../graphql';
 
@@ -220,17 +220,6 @@ class PluginDetails extends React.Component<Props, State> {
                 : 'Uninstall'}
             </button>
 
-            {/* <button
-              onClick={manageInstall.bind(
-                this,
-                'update',
-                plugin.type
-              )}
-              className="update"
-            >
-              Update
-            </button> */}
-
             <div style={{ clear: 'both' }} />
           </div>
         );
@@ -257,7 +246,7 @@ class PluginDetails extends React.Component<Props, State> {
             />
             <DetailInformation>
               <b>{plugin.title}</b>
-              <Flex>{this.renderCategories()}</Flex>
+              <PluginCategories>{this.renderCategories()}</PluginCategories>
             </DetailInformation>
           </Center>
           {renderButton()}

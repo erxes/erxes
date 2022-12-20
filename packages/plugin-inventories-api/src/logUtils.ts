@@ -4,10 +4,9 @@ import {
   putDeleteLog as commonPutDeleteLog,
   putActivityLog as commonPutActivityLog,
   LogDesc,
-  IDescriptions,
-  getSchemaLabels
+  IDescriptions
 } from '@erxes/api-utils/src/logUtils';
-import { IModels, generateModels } from './connectionResolver';
+import { IModels } from './connectionResolver';
 
 import messageBroker from './messageBroker';
 

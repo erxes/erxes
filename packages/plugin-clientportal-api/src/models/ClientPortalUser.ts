@@ -100,7 +100,7 @@ export interface IUserModel extends Model<IUserDocument> {
     code: string;
     password: string;
   }): string;
-  verifyUser(args: IVerificationParams): string;
+  verifyUser(args: IVerificationParams): Promise<IUserDocument>;
   verifyUsers(userids: string[], type: string): Promise<IUserDocument>;
   confirmInvitation(params: IConfirmParams): Promise<IUserDocument>;
   updateSession(_id: string): Promise<IUserDocument>;
@@ -108,6 +108,12 @@ export interface IUserModel extends Model<IUserDocument> {
     _id: string,
     doc: INotifcationSettings
   ): Promise<IUserDocument>;
+  loginWithPhone(
+    subdomain: string,
+    clientPortal: IClientPortalDocument,
+    phone: string,
+    deviceToken?: string
+  ): Promise<{ userId: string; phoneCode: string }>;
 }
 
 export const loadClientPortalUserClass = (models: IModels) => {
@@ -551,16 +557,18 @@ export const loadClientPortalUserClass = (models: IModels) => {
       clientPortalId,
       phone,
       email,
+      expireAfter,
       isRessetting
     }: {
       codeLength: number;
       clientPortalId: string;
       phone?: string;
       email?: string;
+      expireAfter?: number;
       isRessetting?: boolean;
     }) {
       const code = this.generateVerificationCode(codeLength);
-      const codeExpires = Date.now() + 60000 * 5;
+      const codeExpires = Date.now() + 60000 * (expireAfter || 5);
 
       let query: any = {};
       let userFindQuery: any = {};
@@ -652,7 +660,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
       await putActivityLog(user);
 
-      return 'verified';
+      return user;
     }
 
     public static async login({
@@ -706,7 +714,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
       this.updateSession(user._id);
 
-      return createJwtToken({ userId: user._id });
+      return createJwtToken({ userId: user._id, type: user.type });
     }
 
     public static async invite(
@@ -892,6 +900,60 @@ export const loadClientPortalUserClass = (models: IModels) => {
       );
 
       return models.ClientPortalUsers.getUser({ _id });
+    }
+
+    /*
+     * login with phone
+     */
+    public static async loginWithPhone(
+      subdomain: string,
+      clientPortal: IClientPortalDocument,
+      phone: string,
+      deviceToken?: string
+    ) {
+      let user = await models.ClientPortalUsers.findOne({
+        phone,
+        clientPortalId: clientPortal._id
+      });
+
+      if (!user) {
+        user = await handleContacts({
+          subdomain,
+          models,
+          clientPortalId: clientPortal._id,
+          document: { phone }
+        });
+      }
+
+      if (!user) {
+        throw new Error('Can not create user');
+      }
+
+      if (deviceToken) {
+        const deviceTokens: string[] = user.deviceTokens || [];
+
+        if (!deviceTokens.includes(deviceToken)) {
+          deviceTokens.push(deviceToken);
+
+          await user.update({ $set: { deviceTokens } });
+        }
+      }
+
+      this.updateSession(user._id);
+
+      const config = clientPortal.otpConfig || {
+        codeLength: 4,
+        expireAfter: 1
+      };
+
+      const phoneCode = await this.imposeVerificationCode({
+        clientPortalId: clientPortal._id,
+        codeLength: config.codeLength,
+        phone: user.phone,
+        expireAfter: config.expireAfter
+      });
+
+      return { userId: user._id, phoneCode };
     }
   }
 

@@ -8,6 +8,7 @@ export interface ICPNotification {
   receiver?: string;
   notifType?: 'engage' | 'system';
   clientPortalId: string;
+  eventData?: any | null;
 }
 
 export interface ICPNotificationDocument extends ICPNotification, Document {
@@ -21,7 +22,7 @@ export interface ICPNotificationDocument extends ICPNotification, Document {
 export const cpNotificationSchema = new Schema({
   _id: field({ pkey: true }),
   title: field({ type: String }),
-  link: field({ type: String }),
+  link: field({ type: String, optional: true }),
   content: field({ type: String }),
   createdUser: field({ type: String }),
   receiver: field({ type: String, index: true }),
@@ -39,5 +40,9 @@ export const cpNotificationSchema = new Schema({
   clientPortalId: field({
     type: String,
     index: true
+  }),
+  eventData: field({
+    type: Schema.Types.Mixed,
+    optional: true
   })
 });

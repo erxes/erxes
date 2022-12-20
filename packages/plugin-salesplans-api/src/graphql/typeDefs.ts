@@ -1,10 +1,32 @@
 import { gql } from 'apollo-server-express';
 
+import { types as salesLogTypes } from './schema/salesplans';
 import {
-  types as salesLogTypes,
-  queries as salesLogQueries,
-  mutations as salesLogMutations
-} from './schema/salesplans';
+  types as yearPlanTypes,
+  queries as yearPlanQueries,
+  mutations as yearPlanMutations
+} from './schema/yearPlans';
+import {
+  types as dayPlanTypes,
+  queries as dayPlanQueries,
+  mutations as dayPlanMutations
+} from './schema/dayPlans';
+import {
+  types as timeProportionTypes,
+  queries as timeProportionQueries,
+  mutations as timeProportionMutations
+} from './schema/timeProportions';
+import {
+  types as dayLabelTypes,
+  queries as dayLabelQueries,
+  mutations as dayLabelMutations
+} from './schema/dayLabels';
+
+import {
+  types as settingsTypes,
+  queries as settingsQueries,
+  mutations as settingsMutations
+} from './schema/settings';
 
 const typeDefs = async () => {
   return gql`
@@ -23,13 +45,26 @@ const typeDefs = async () => {
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
 
     ${salesLogTypes()}
+    ${yearPlanTypes()}
+    ${dayPlanTypes()}
+    ${timeProportionTypes()}
+    ${dayLabelTypes()}
+    ${settingsTypes}
 
     extend type Query {
-      ${salesLogQueries}
+      ${yearPlanQueries},
+      ${dayPlanQueries},
+      ${timeProportionQueries},
+      ${dayLabelQueries},
+      ${settingsQueries},
     }
 
     extend type Mutation {
-      ${salesLogMutations}
+      ${yearPlanMutations},
+      ${dayPlanMutations},
+      ${timeProportionMutations},
+      ${dayLabelMutations},
+      ${settingsMutations}
     }
   `;
 };

@@ -32,7 +32,7 @@ class SettingsContainer extends React.Component<FinalProps> {
         .then(() => {
           configsQuery.refetch();
 
-          Alert.success('You successfully updated loyalty settings');
+          Alert.success('You successfully updated ebarimt settings');
         })
         .catch(error => {
           Alert.error(error.message);

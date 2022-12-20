@@ -64,7 +64,7 @@ class List extends React.Component<Props, State> {
   );
 
   renderFormContent = props => {
-    return <Form {...props} />;
+    return <Form {...props} queryParams={this.props.queryParams} />;
   };
 
   renderRightActionBar = (
@@ -266,7 +266,6 @@ class List extends React.Component<Props, State> {
       content: this.renderContent(),
       sidebar: <SideBar queryParams={queryParams} history={history} />,
       totalCount: assetsCount,
-      isPaginationHide: true,
       breadcrumb: breadcrumb
     };
 

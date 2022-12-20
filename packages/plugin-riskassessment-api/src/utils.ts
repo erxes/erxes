@@ -46,12 +46,16 @@ export const validRiskAssessment = async params => {
 };
 
 export const calculateRiskAssessment = async (models, cardId, cardType) => {
-  const { riskAssessmentId } = await models.RiskConfimity.findOne({
+  const {
+    riskAssessmentId,
+    resultScore,
+    status
+  } = await models.RiskConformity.findOne({
     cardId,
     cardType
   }).lean();
 
-  const { calculateLogics, resultScore } = await models.RiskAssessment.findOne({
+  const { calculateLogics } = await models.RiskAssessment.findOne({
     _id: riskAssessmentId
   }).lean();
 
@@ -59,9 +63,9 @@ export const calculateRiskAssessment = async (models, cardId, cardType) => {
     let operator = logic.substring(1, 2);
     if (operator === '≈') {
       if (value < resultScore && resultScore < value2) {
-        return await models.RiskAssessment.findOneAndUpdate(
+        return await models.RiskConformity.findOneAndUpdate(
           { _id: riskAssessmentId },
-          { $set: { status: name, statusColor: color } },
+          { $set: { status: name, statusColor: color, closedAt: Date.now() } },
           { new: true }
         );
       }
@@ -69,12 +73,26 @@ export const calculateRiskAssessment = async (models, cardId, cardType) => {
     if (['>', '<'].includes(operator)) {
       operator += '=';
       if (eval(resultScore + operator + value)) {
-        await models.RiskAssessment.findOneAndUpdate(
-          { _id: riskAssessmentId },
-          { $set: { status: name, statusColor: color } },
+        return await models.RiskConformity.findOneAndUpdate(
+          { riskAssessmentId, cardId, cardType },
+          { $set: { status: name, statusColor: color, closedAt: Date.now() } },
           { new: true }
         );
       }
+    }
+
+    if (status === 'In Progress') {
+      return await models.RiskConformity.findOneAndUpdate(
+        { riskAssessmentId, cardId, cardType },
+        {
+          $set: {
+            status: 'No Result',
+            statusColor: '#888',
+            closedAt: Date.now()
+          }
+        },
+        { new: true }
+      );
     }
   }
 };
@@ -144,7 +162,7 @@ export const getAsssignedUsers = async (
 };
 
 export const getFormId = async (model, cardId: string, cardType: String) => {
-  const { riskAssessmentId } = await model.RiskConfimity.findOne({
+  const { riskAssessmentId } = await model.RiskConformity.findOne({
     cardId,
     cardType
   }).lean();

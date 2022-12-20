@@ -33,6 +33,7 @@ type Props = {
   asset?: IAsset;
   assets: IAsset[];
   categories: IAssetCategoryTypes[];
+  queryParams: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
@@ -168,7 +169,7 @@ class Form extends React.Component<Props, State> {
   };
 
   renderContent(formProps: IFormProps) {
-    const { asset, closeModal, renderButton } = this.props;
+    const { asset, queryParams, closeModal, renderButton } = this.props;
 
     const { description, vendorId } = this.state;
 
@@ -211,6 +212,16 @@ class Form extends React.Component<Props, State> {
         );
       }
 
+      const categoryDefaultValue = () => {
+        if (object?.categoryId) {
+          return object.categoryId;
+        }
+        if (queryParams?.categoryId) {
+          return queryParams.categoryId;
+        }
+        return undefined;
+      };
+
       return (
         <FormGroup>
           <ControlLabel required={true}>Category</ControlLabel>
@@ -220,7 +231,7 @@ class Form extends React.Component<Props, State> {
                 label="Choose Asset Category"
                 name="categoryId"
                 multi={false}
-                initialValue={object.categoryId}
+                initialValue={categoryDefaultValue()}
                 onSelect={handleSelect}
                 customOption={{ value: '', label: 'Choose Asset Category' }}
               />

@@ -1,17 +1,20 @@
 import { Document, Schema } from 'mongoose';
+import { JOB_TYPES } from './constants';
 import { productsDataSchema } from './jobs';
 import { field, schemaHooksWrapper } from './utils';
 
 export interface IWork {
+  processId?: string;
   name?: string;
   status: string;
   dueDate: Date;
   startAt: Date;
   endAt: Date;
-  jobId: string;
-  flowId: string;
-  productId: string;
-  count: string;
+  type: string;
+  typeId: string;
+  flowId?: string;
+  origin: string;
+  count: number;
   intervalId?: string;
   inBranchId?: string;
   inDepartmentId?: string;
@@ -32,13 +35,24 @@ export interface IWorkDocument extends IWork, Document {
 export const workSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
+    processId: field({
+      type: String,
+      optional: true,
+      label: 'Process',
+      index: true
+    }),
     name: field({ type: String, optional: true, label: 'Name' }),
     status: field({ type: String, label: 'Status' }),
+    type: field({
+      type: String,
+      enum: JOB_TYPES.ALL,
+      label: 'Type'
+    }),
+    typeId: field({ type: String, label: 'jobId' }), // jobReferId || productId || ~subFlowId
     jobId: field({ type: String, label: 'jobId' }),
-    flowId: field({ type: String, label: 'flowId' }),
-    productId: field({ type: String, label: 'productId' }),
-    count: field({ type: String, label: 'count' }),
-    intervalId: field({ type: String, label: 'Interval Id' }),
+    flowId: field({ type: String, optional: true, label: 'flowId' }),
+    count: field({ type: Number, label: 'count' }),
+    intervalId: field({ type: String, optional: true, label: 'Interval Id' }),
     inBranchId: field({ type: String, optional: true, label: 'branchId' }),
     inDepartmentId: field({
       type: String,
@@ -68,7 +82,8 @@ export const workSchema = schemaHooksWrapper(
     }),
     dueDate: field({ type: Date, label: 'Due Date' }),
     startAt: field({ type: Date, optional: true, label: 'Start at' }),
-    endAt: field({ type: Date, optional: true, label: 'End at' })
+    endAt: field({ type: Date, optional: true, label: 'End at' }),
+    origin: field({ type: String, label: 'Origin' })
   }),
   'erxes_works'
 );

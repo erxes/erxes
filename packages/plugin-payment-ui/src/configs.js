@@ -1,6 +1,6 @@
 module.exports = {
   name: 'payment',
-  port: 3012,
+  port: 3021,
   scope: 'payment',
   exposes: {
     './routes': './src/routes.tsx',
@@ -8,7 +8,7 @@ module.exports = {
     "./invoiceSection": "./src/containers/InvoiceSection.tsx",
   },
   routes: {
-    url: 'http://localhost:3012/remoteEntry.js',
+    url: 'http://localhost:3021/remoteEntry.js',
     scope: 'payment',
     module: './routes'
   },

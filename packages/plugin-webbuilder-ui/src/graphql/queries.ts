@@ -24,6 +24,8 @@ const pagesMain = `
     webbuilderPagesMain(page: $page, perPage: $perPage, searchValue: $searchValue, siteId: $siteId) {
       list {
         ${fields}
+        html
+        css
       }
       totalCount
     }
@@ -117,6 +119,7 @@ const templates = `
       _id
       name
       html
+      image
     } 
   }
 `;
@@ -142,6 +145,7 @@ const sites = `
       _id
       name
       domain
+      templateImage
     }
   }
 `;

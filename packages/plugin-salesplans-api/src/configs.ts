@@ -14,7 +14,8 @@ export let serviceDiscovery: any;
 export default {
   name: 'salesplans',
   permissions,
-  graphql: async _sd => {
+  graphql: async sd => {
+    serviceDiscovery = sd;
     return {
       typeDefs: await typeDefs(),
       resolvers

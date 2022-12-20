@@ -54,12 +54,14 @@ export const types = `
     productDetails: [String]
     adminIds: [String]
     cashierIds: [String]
+    paymentIds: [String]
     beginNumber: String
     maxSkipNumber: Int
     waitingScreen: JSON
     kioskMachine: JSON
     kitchenScreen: JSON
     token: String
+    erxesAppToken: String
     uiOptions: UIOptions
     ebarimtConfig: EbarimtConfig
     qpayConfig: QPayConfig

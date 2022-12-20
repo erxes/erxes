@@ -1,22 +1,44 @@
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
-import { debugBase } from '@erxes/api-utils/src/debuggers';
-import { rf } from './utils/receiveFlow';
 import { beforeResolverHandlers } from './beforeResolvers';
+import { consumeSalesPlans } from './utils/consumeSalesPlans';
 
 let client;
 
 export const initBroker = async cl => {
   client = cl;
   const { consumeQueue, consumeRPCQueue } = cl;
-  consumeQueue('processes:createWorks', async ({ subdomain, data }) => {
-    debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
+  consumeQueue(
+    'processes:createWorks',
+    async ({ subdomain, data: { dayPlans, date, branchId, departmentId } }) => {
+      // if (!(branchId && departmentId && date && new Date(date) > new Date())) {
+      if (!(branchId && departmentId && date)) {
+        throw new Error('not valid data');
+      }
 
-    const models = await generateModels(subdomain);
-    await rf(models, subdomain, { data });
-    return { status: 'success' };
-  });
+      if (!dayPlans || !dayPlans.length) {
+        throw new Error('not valid data');
+      }
+
+      await sendSalesplansMessage({
+        subdomain,
+        action: 'dayPlans.updateStatus',
+        data: { _ids: dayPlans.map(d => d._id), status: 'pending' }
+      });
+
+      const models = await generateModels(subdomain);
+
+      const qb = new consumeSalesPlans(models, subdomain, {
+        dayPlans,
+        date,
+        branchId,
+        departmentId
+      });
+
+      await qb.run();
+    }
+  );
 
   consumeRPCQueue('processes:beforeResolver', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
@@ -61,6 +83,17 @@ export const sendProductsMessage = async (
     client,
     serviceDiscovery,
     serviceName: 'products',
+    ...args
+  });
+};
+
+export const sendInventoriesMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'inventories',
     ...args
   });
 };

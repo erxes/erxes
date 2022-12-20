@@ -90,7 +90,6 @@ export const orderSchema = schemaHooksWrapper(
     number: field({
       type: String,
       label: 'Order number',
-      unique: true,
       index: true
     }),
     customerId: field({ type: String, optional: true, label: 'Customer' }),
@@ -212,3 +211,5 @@ export const orderSchema = schemaHooksWrapper(
   }),
   'erxes_orders'
 );
+
+orderSchema.index({ posToken: 1, number: 1 }, { unique: true });

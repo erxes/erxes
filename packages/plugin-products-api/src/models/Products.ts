@@ -45,6 +45,27 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       return product;
     }
 
+    static async checkUOM(doc) {
+      if (doc.uomId) {
+        return doc.uomId;
+      }
+
+      const configs = await models.ProductsConfigs.find({
+        code: { $in: ['isRequireUOM', 'defaultUOM'] }
+      }).lean();
+
+      const isRequireUOM = (configs.find(c => c.code === 'isRequireUOM') || {})
+        .value;
+      const defaultUOM = (configs.find(c => c.code === 'defaultUOM') || {})
+        .value;
+
+      if (isRequireUOM && defaultUOM) {
+        return defaultUOM;
+      }
+
+      return '';
+    }
+
     static async checkCodeDuplication(code: string) {
       const product = await models.Products.findOne({
         code,
@@ -56,18 +77,6 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       }
     }
 
-    static async checkBarcodeDuplication(barcodes: string[], id?: string) {
-      const product = await models.Products.findOne({
-        _id: { $ne: id ? id : '' },
-        barcodes: { $in: barcodes },
-        status: { $ne: PRODUCT_STATUSES.DELETED }
-      });
-
-      if (product) {
-        throw new Error('Barcode must be unique');
-      }
-    }
-
     /**
      * Create a product
      */
@@ -75,7 +84,9 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       await this.checkCodeDuplication(doc.code);
 
       if (doc.barcodes) {
-        await this.checkBarcodeDuplication(doc.barcodes);
+        doc.barcodes = doc.barcodes
+          .filter(bc => bc)
+          .map(bc => bc.replace(/\s/g, ''));
       }
 
       if (doc.categoryCode) {
@@ -110,6 +121,8 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         isRPC: true
       });
 
+      doc.uomId = await this.checkUOM(doc);
+
       return models.Products.create(doc);
     }
 
@@ -123,8 +136,10 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         await this.checkCodeDuplication(doc.code);
       }
 
-      if (doc.barcodes && !_.isEqual(product.barcodes, doc.barcodes)) {
-        await this.checkBarcodeDuplication(doc.barcodes, product._id);
+      if (doc.barcodes) {
+        doc.barcodes = doc.barcodes
+          .filter(bc => bc)
+          .map(bc => bc.replace(/\s/g, ''));
       }
 
       if (doc.customFieldsData) {
@@ -136,10 +151,10 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
           isRPC: true
         });
       }
-
+      doc.uomId = await this.checkUOM(doc);
       await models.Products.updateOne({ _id }, { $set: doc });
 
-      return models.Products.findOne({ _id });
+      return await models.Products.findOne({ _id }).lean();
     }
 
     /**
@@ -257,6 +272,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         mergedIds: productIds,
         name,
         type,
+        uomId: await this.checkUOM(productFields),
         description,
         categoryId,
         vendorId

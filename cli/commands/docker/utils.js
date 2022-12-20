@@ -119,8 +119,9 @@ const generatePluginBlock = (configs, plugin) => {
   return conf;
 };
 
-const syncUI = async ({ name, ui_location }) => {
+const syncUI = async ({ name, image_tag, ui_location }) => {
   const configs = await fse.readJSON(filePath('configs.json'));
+  const tag = image_tag || configs.image_tag
 
   const plName = `plugin-${name}-ui`;
 
@@ -137,13 +138,13 @@ const syncUI = async ({ name, ui_location }) => {
 
     let s3_location = '';
 
-    if (!configs.image_tag) {
+    if (!tag) {
       s3_location = `https://erxes-plugins.s3.us-west-2.amazonaws.com/uis/${plName}`;
     } else {
-      if (configs.image_tag === 'dev') {
+      if (tag === 'dev') {
         s3_location = `https://erxes-dev-plugins.s3.us-west-2.amazonaws.com/uis/${plName}`;
       } else {
-        s3_location = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/uis/${plName}/${configs.image_tag}`;
+        s3_location = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/uis/${plName}/${tag}`;
       }
     }
 
@@ -157,6 +158,61 @@ const syncUI = async ({ name, ui_location }) => {
 
   log(`Removing build.tar ......`);
   await execCommand(`rm plugin-uis/${plName}/build.tar`);
+};
+
+const updateLocales = async () => {
+  const configs = await fse.readJSON(filePath('configs.json'));
+  const tag = configs.image_tag || 'dev';
+
+  let s3_location = '';
+
+  if (tag === 'dev') {
+    s3_location = `https://erxes-dev-plugins.s3.us-west-2.amazonaws.com`;
+  } else {
+    s3_location = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/${tag}`;
+  }
+
+  log(`Downloading locales from ${s3_location}`);
+
+  await execCurl(`${s3_location}/locales.tar`, `locales.tar`);
+
+  log(`Extracting build ......`);
+
+  if (!(await fse.exists(filePath('locales')))) {
+    await execCommand('mkdir locales');
+  }
+
+  await execCommand(
+    `tar -xf locales.tar --directory=locales`
+  );
+
+  log(`Removing locales.tar ......`);
+  await execCommand(`rm locales.tar`);
+
+  const plugins = configs.plugins || [];
+
+  for (const plugin of plugins) {
+    const localesPath = `plugin-uis/plugin-${plugin.name}-ui/locales`;
+
+    if (!(await fse.exists(filePath(localesPath)))) {
+      continue;
+    }
+
+    const files = await fse.readdir(localesPath);
+
+    for (const file of files) {
+      if (!(await fse.exists(filePath(`locales/${file}`)))) {
+        continue;
+      }
+
+      const globalFile = await fse.readJSON(filePath(`locales/${file}`));
+      const localFile = await fse.readJSON(filePath(`${localesPath}/${file}`));
+
+      const combined = { ...globalFile, ...localFile };
+
+      await fse.writeJSON(filePath(filePath(`locales/${file}`)), combined);
+    }
+  }
 };
 
 const generateNetworks = (configs) => {
@@ -336,7 +392,7 @@ const deployDbs = async () => {
   );
 };
 
-const up = async ({ uis, fromInstaller }) => {
+const up = async ({ uis, downloadLocales, fromInstaller }) => {
   await cleaning();
 
   const configs = await fse.readJSON(filePath('configs.json'));
@@ -398,6 +454,7 @@ const up = async ({ uis, fromInstaller }) => {
         volumes: [
           './plugins.js:/usr/share/nginx/html/js/plugins.js',
           './plugin-uis:/usr/share/nginx/html/js/plugins',
+          './locales:/usr/share/nginx/html/locales',
         ],
         networks: ['erxes'],
       },
@@ -584,6 +641,10 @@ const up = async ({ uis, fromInstaller }) => {
     for (const key of Object.keys(privatePluginsMap)) {
       pluginsMap[key] = privatePluginsMap[key];
     }
+  }
+
+  if (downloadLocales) {
+    updateLocales();
   }
 
   const enabledPlugins = ["'workers'"];
@@ -910,7 +971,7 @@ module.exports.removeService = async () => {
 };
 
 module.exports.up = program => {
-  return up({ uis: program.uis, fromInstaller: program.fromInstaller });
+  return up({ uis: program.uis, fromInstaller: program.fromInstaller, downloadLocales: program.locales });
 };
 
 const dumpDb = async program => {

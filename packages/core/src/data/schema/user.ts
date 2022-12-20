@@ -1,14 +1,21 @@
+const commonDetailFields = `
+  avatar: String
+  fullName: String
+  shortName: String
+  birthDate: Date
+  position: String
+  workStartedDate: Date
+  location: String
+  description: String
+  operatorPhone: String
+  firstName: String
+  middleName: String
+  lastName: String
+`;
+
 export const types = `
   input UserDetails {
-    avatar: String
-    fullName: String
-    shortName: String
-    birthDate: Date
-    position: String
-    workStartedDate: Date
-    location: String
-    description: String
-    operatorPhone: String
+    ${commonDetailFields}
   }
 
   input EmailSignature {
@@ -27,15 +34,7 @@ export const types = `
   }
 
   type UserDetailsType {
-    avatar: String
-    fullName: String
-    shortName: String
-    birthDate: Date
-    position: String
-    workStartedDate: Date
-    location: String
-    description: String
-    operatorPhone: String
+    ${commonDetailFields}
   }
 
   type User @key(fields: "_id") @cacheControl(maxAge: 3) {

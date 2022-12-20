@@ -62,6 +62,7 @@ const dealMutationParams = `
 const commonQueryParams = `
   _ids: [String]
   date: ItemDate
+  parentId:String
   pipelineId: String
   pipelineIds: [String]
   customerIds: [String]
@@ -76,6 +77,7 @@ const commonQueryParams = `
   sortDirection: Int
   userIds: [String]
   segment: String
+  segmentData: String
   assignedToMe: String
   startDate: String
   endDate: String

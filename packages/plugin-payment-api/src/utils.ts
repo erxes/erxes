@@ -1,9 +1,9 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
-import { qPayHandler } from './api/qPay/utils';
+import * as monpayUtils from './api/monpay/api';
 import * as qPayUtils from './api/qPay/utils';
-import { socialPayHandler } from './api/socialPay/utils';
 import * as socialPayUtils from './api/socialPay/utils';
+import { IMonpayConfig } from './api/types';
 import { graphqlPubsub } from './configs';
 import { generateModels } from './connectionResolver';
 import { PAYMENT_KINDS } from './constants';
@@ -33,7 +33,11 @@ export const getHandler = async (req, res) => {
     let invoice: any;
     switch (kind) {
       case PAYMENT_KINDS.QPAY:
-        invoice = await qPayHandler(models, query);
+        invoice = await qPayUtils.qPayHandler(models, query);
+        break;
+      case PAYMENT_KINDS.MONPAY:
+        invoice = await monpayUtils.monpayHandler(models, query);
+        break;
     }
 
     if (invoice) {
@@ -70,7 +74,7 @@ export const postHandler = async (req, res) => {
     let invoice: any;
     switch (type) {
       case PAYMENT_KINDS.SOCIAL_PAY:
-        invoice = await socialPayHandler(models, body);
+        invoice = await socialPayUtils.socialPayHandler(models, body);
     }
 
     if (invoice) {
@@ -130,10 +134,63 @@ export const createNewInvoice = async (
       case PAYMENT_KINDS.SOCIAL_PAY:
         // create socialpay invoice
         return socialPayUtils.createInvoice(invoice, payment);
+      case PAYMENT_KINDS.MONPAY:
+        // create monpay invoice
+        return monpayUtils.createInvoice(invoice, payment);
       default:
         break;
     }
   } catch (e) {
     throw new Error(e.message);
+  }
+};
+
+export const checkInvoice = async (
+  invoice: IInvoiceDocument,
+  payment: IPaymentDocument
+) => {
+  switch (payment.kind) {
+    case PAYMENT_KINDS.QPAY:
+      // check qpay invoice
+      const qpayRes = await qPayUtils.getInvoice(
+        invoice.apiResponse.invoice_id,
+        payment
+      );
+
+      if (qpayRes.invoice_status !== 'CLOSED') {
+        return 'pending';
+      }
+
+      return 'paid';
+
+    case PAYMENT_KINDS.SOCIAL_PAY:
+      // check socialpay invoice
+      const { inStoreSPTerminal, inStoreSPKey } = payment.config;
+
+      const { body } = await socialPayUtils.socialPayInvoiceCheck({
+        amount: invoice.amount,
+        checksum: socialPayUtils.hmac256(
+          inStoreSPKey,
+          inStoreSPTerminal + invoice.identifier + invoice.amount
+        ),
+        invoice: invoice.identifier,
+        terminal: inStoreSPTerminal
+      });
+
+      if (body.response.resp_code !== '00') {
+        return 'pending';
+      }
+
+      return 'paid';
+
+    case PAYMENT_KINDS.MONPAY:
+      // check monpay invoice
+      const monpayRes = await monpayUtils.checkInvoice(invoice, payment);
+
+      if (monpayRes !== 'paid') {
+        return 'pending';
+      }
+
+      return 'paid';
   }
 };

@@ -7,7 +7,7 @@ let client;
 export const initBroker = async cl => {
   client = cl;
 
-  const { consumeRPCQueue } = client;
+  const { consumeRPCQueue, consumeQueue } = client;
 
   consumeRPCQueue('inventories:remainders', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
@@ -26,6 +26,39 @@ export const initBroker = async cl => {
       status: 'success'
     };
   });
+
+  consumeQueue(
+    'inventories:remainders.updateMany',
+    async ({ subdomain, data: { branchId, departmentId, productsData } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Remainders.updateRemainders(
+          subdomain,
+          branchId,
+          departmentId,
+          productsData
+        )
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'inventories:reserveRemainders.find',
+    async ({ subdomain, data: { productIds, branchId, departmentId } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.ReserveRems.find({
+          branchId,
+          departmentId,
+          productId: { $in: productIds }
+        }).lean()
+      };
+    }
+  );
 
   consumeRPCQueue('inventories:transactionAdd', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);

@@ -40,6 +40,7 @@ export interface IPosOrder {
   departmentId: string;
   posToken: string;
   syncedErkhet?: Boolean;
+  syncErkhetInfo?: string;
   deliveryInfo?: any;
   origin?: string;
   taxInfo?: any;
@@ -179,6 +180,11 @@ export const posOrderSchema = schemaHooksWrapper(
     posToken: field({ type: String, optional: true }),
 
     syncedErkhet: field({ type: Boolean, default: false }),
+    syncErkhetInfo: field({
+      type: String,
+      optional: true,
+      label: 'SyncErkhetInfo'
+    }),
     deliveryInfo: field({
       type: Object,
       optional: true,
@@ -201,6 +207,7 @@ export const posSchema = schemaHooksWrapper(
     adminIds: field({ type: [String], label: 'Admin user ids' }),
     cashierIds: field({ type: [String], label: 'Cashier ids' }),
     isOnline: field({ type: Boolean, label: 'Is online pos' }),
+    paymentIds: field({ type: [String], label: 'Online Payments' }),
     onServer: field({
       type: Boolean,
       optional: true,
@@ -224,6 +231,7 @@ export const posSchema = schemaHooksWrapper(
     kitchenScreen: field({ type: Object, label: 'Kitchen screen config' }),
     uiOptions: field({ type: Object, label: 'UI Options' }),
     token: field({ type: String, label: 'Pos token' }),
+    erxesAppToken: field({ type: String, label: 'Erxes App token' }),
     ebarimtConfig: field({ type: Object, label: 'Ebarimt Config' }),
     erkhetConfig: field({ type: Object, label: 'Erkhet Config' }),
     syncInfos: field({ type: Object, label: 'sync info' }),

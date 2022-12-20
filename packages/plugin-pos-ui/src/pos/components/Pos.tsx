@@ -136,10 +136,12 @@ class Pos extends React.Component<Props, State> {
     let doc: any = {
       name: pos.name,
       description: pos.description,
+      erxesAppToken: pos.erxesAppToken,
       productDetails: pos.productDetails || [],
       groups,
       adminIds: pos.adminIds,
       cashierIds: pos.cashierIds,
+      paymentIds: pos.paymentIds || [],
       kioskMachine: pos.kioskMachine,
       uiOptions,
       ebarimtConfig,

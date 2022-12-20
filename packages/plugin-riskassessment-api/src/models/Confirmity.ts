@@ -1,3 +1,4 @@
+import { paginate } from '@erxes/api-utils/src';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import {
@@ -7,35 +8,52 @@ import {
 } from '../messageBroker';
 import { calculateRiskAssessment } from '../utils';
 import {
-  IRiskConfirmityField,
-  IRiskConfirmityParams
+  IRiskConformityField,
+  IRiskConformityParams
 } from './definitions/common';
 import {
-  IRiskConfirmityDocument,
-  riskConfirmitySchema
+  IRiskConformityDocument,
+  riskConformitySchema
 } from './definitions/confimity';
 
-export interface IRiskConfirmityModel extends Model<IRiskConfirmityDocument> {
-  riskConfirmities(
-    params: IRiskConfirmityParams
-  ): Promise<IRiskConfirmityDocument>;
-  riskConfirmitySubmissions(params: {
+export interface IRiskConformityModel extends Model<IRiskConformityDocument> {
+  riskConformity(
+    params: IRiskConformityParams
+  ): Promise<IRiskConformityDocument>;
+  riskConformities(
+    params: IRiskConformityParams
+  ): Promise<IRiskConformityDocument>;
+  riskConformitiesTotalCount(params: IRiskConformityParams): Number;
+  riskConformitySubmissions(params: {
     cardId: string;
-  }): Promise<IRiskConfirmityDocument>;
-  riskConfirmityDetails(
-    params: IRiskConfirmityParams
-  ): Promise<IRiskConfirmityDocument>;
-  riskConfirmityAdd(
-    params: IRiskConfirmityField
-  ): Promise<IRiskConfirmityDocument>;
-  riskConfirmityUpdate(
-    params: IRiskConfirmityParams
-  ): Promise<IRiskConfirmityDocument>;
-  riskConfirmityRemove(cardId: string): Promise<IRiskConfirmityDocument>;
-  riskConfirmityFormDetail(params): any;
+  }): Promise<IRiskConformityDocument>;
+  riskConformityDetails(
+    params: IRiskConformityParams
+  ): Promise<IRiskConformityDocument>;
+  riskConformityAdd(
+    params: IRiskConformityField
+  ): Promise<IRiskConformityDocument>;
+  riskConformityUpdate(
+    params: IRiskConformityParams
+  ): Promise<IRiskConformityDocument>;
+  riskConformityRemove(cardId: string): Promise<IRiskConformityDocument>;
+  riskConformityFormDetail(params): any;
 }
 
-const generateFilter = (params: IRiskConfirmityParams) => {
+const statusColors = {
+  Unacceptable: '#393c40',
+  Error: '#ea475d',
+  Warning: '#f7ce53',
+  Danger: '#ff6600',
+  Success: '#3ccc38',
+  In_Progress: '#3B85F4',
+  No_Result: '#888'
+};
+
+const convertDateParams = date =>
+  parseInt(date) ? new Date(parseInt(date)).toString() : new Date(date);
+
+const generateFilter = params => {
   let filter: any = {};
 
   if (params.cardId) {
@@ -45,28 +63,83 @@ const generateFilter = (params: IRiskConfirmityParams) => {
   if (params.riskAssessmentId) {
     filter.riskAssessmentId = params.riskAssessmentId;
   }
+  if (params.sortFromDate) {
+    filter.createdAt = { $gte: convertDateParams(params.sortFromDate) };
+  }
+
+  if (params.sortToDate) {
+    filter.createdAt = {
+      ...filter.createdAt,
+      $lte: convertDateParams(params.sortToDate)
+    };
+  }
+
+  if (params.status) {
+    filter.statusColor = statusColors[params.status];
+  }
+
+  if (params.closedFrom) {
+    filter.closedAt = { $gte: convertDateParams(params.closedFrom) };
+  }
+
+  if (params.closedTo) {
+    filter.closedAt = {
+      ...filter.closedAt,
+      $lte: convertDateParams(params.closedTo)
+    };
+  }
+
+  if (params.createdFrom) {
+    filter.createdAt = { $gte: convertDateParams(params.createdFrom) };
+  }
+
+  if (params.createdTo) {
+    filter.createdAt = {
+      ...filter.createdAt,
+      $lte: convertDateParams(params.createdTo)
+    };
+  }
+
+  if (params.cardType) {
+    filter.cardType = params.cardType;
+  }
 
   return filter;
 };
 
-export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
-  class RiskConfimity {
-    public static async riskConfirmityAdd(params: IRiskConfirmityField) {
-      return model.RiskConfimity.create({ ...params });
+export const loadRiskConformity = (model: IModels, subdomain: string) => {
+  class RiskConformity {
+    public static async riskConformityAdd(params: IRiskConformityField) {
+      return model.RiskConformity.create({ ...params });
     }
-    public static async riskConfirmities(params: IRiskConfirmityParams) {
+    public static async riskConformity(params: IRiskConformityParams) {
       const filter = generateFilter(params);
-      return await model.RiskConfimity.find(filter);
+      return await model.RiskConformity.findOne(filter);
     }
-    public static async riskConfirmityDetails(params: IRiskConfirmityParams) {
+
+    public static async riskConformities(params) {
       const filter = generateFilter(params);
 
-      const result = await model.RiskConfimity.find(filter);
+      const sort = params?.sortField
+        ? { [params.sortField]: params.sortDirection }
+        : { createdAt: -1 };
 
-      return result;
+      return await model.RiskConformity.find(filter).sort(sort);
     }
 
-    public static async riskConfirmityUpdate(params: IRiskConfirmityParams) {
+    public static async riskConformitiesTotalCount(params) {
+      const filter = generateFilter(params);
+
+      return await model.RiskConformity.find(filter).countDocuments();
+    }
+
+    public static async riskConformityDetails(params) {
+      const filter = generateFilter(params);
+
+      return paginate(model.RiskConformity.find(filter), params);
+    }
+
+    public static async riskConformityUpdate(params: IRiskConformityParams) {
       const { cardId, riskAssessmentId, cardType } = params;
 
       if (!riskAssessmentId) {
@@ -76,7 +149,7 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
         throw new Error('cardId is required');
       }
 
-      const confimity = await model.RiskConfimity.findOne({
+      const confimity = await model.RiskConformity.findOne({
         cardId,
         cardType
       }).lean();
@@ -85,34 +158,34 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
         throw new Error('Confimity not found');
       }
 
-      return await model.RiskConfimity.findOneAndUpdate(
+      return await model.RiskConformity.findOneAndUpdate(
         { _id: confimity._id },
         { ...confimity, riskAssessmentId },
         { new: true }
       );
     }
 
-    public static async riskConfirmityRemove(cardId: string) {
+    public static async riskConformityRemove(cardId: string) {
       if (!cardId) {
         throw new Error('cardId is required');
       }
 
-      await model.RiskConfimity.deleteOne({ cardId });
+      await model.RiskConformity.deleteOne({ cardId });
       return 'success';
     }
 
-    public static async riskConfirmitySubmissions(params) {
+    public static async riskConformitySubmissions(params) {
       const { cardId, cardType } = params;
 
       if (!cardId) {
         throw new Error('card Id is required');
       }
 
-      if (!(await model.RiskConfimity.findOne({ cardId: cardId, cardType }))) {
+      if (!(await model.RiskConformity.findOne({ cardId: cardId, cardType }))) {
         throw new Error('Not found selected risk assessment in card');
       }
 
-      const { riskAssessmentId } = await model.RiskConfimity.findOne({
+      const { riskAssessmentId, status } = await model.RiskConformity.findOne({
         cardId: cardId,
         cardType
       }).lean();
@@ -131,9 +204,6 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
           usr['isSubmittedRiskAssessmentForm'] = true;
         }
       }
-      const { status } = await model.RiskAssessment.findOne({
-        _id: riskAssessmentId
-      }).lean();
 
       if (status !== 'In Progress') {
         const assignedUserIds = assignedUsers.map(user => user._id);
@@ -154,7 +224,7 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
       return assignedUsers;
     }
 
-    public static async riskConfirmityFormDetail(params) {
+    public static async riskConformityFormDetail(params) {
       const { cardId, userId, riskAssessmentId } = params;
 
       if (!cardId) {
@@ -226,7 +296,7 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
     }
 
     static async getFormId(cardId: string) {
-      const { riskAssessmentId } = await model.RiskConfimity.findOne({
+      const { riskAssessmentId } = await model.RiskConformity.findOne({
         cardId
       }).lean();
       const { categoryId } = await model.RiskAssessment.findOne({
@@ -239,6 +309,6 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
       return formId;
     }
   }
-  riskConfirmitySchema.loadClass(RiskConfimity);
-  return riskConfirmitySchema;
+  riskConformitySchema.loadClass(RiskConformity);
+  return riskConformitySchema;
 };

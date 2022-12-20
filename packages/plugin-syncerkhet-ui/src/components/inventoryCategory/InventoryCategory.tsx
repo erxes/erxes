@@ -1,9 +1,9 @@
-import { CollapseContent } from '@erxes/ui/src/components';
+import { CollapseContent, Pagination } from '@erxes/ui/src/components';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils/core';
+import { router, __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import Row from './InventoryCategoryRow';
 
@@ -16,7 +16,10 @@ type Props = {
   items: any;
 };
 
-type State = {};
+type State = {
+  openCollapse: Number;
+  loading: boolean;
+};
 
 export const menuPos = [
   { title: 'Check deals', link: '/check-synced-deals' },
@@ -28,23 +31,55 @@ export const menuPos = [
 class InventoryCategory extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = {};
+    this.state = {
+      openCollapse: -1,
+      loading: false
+    };
   }
 
-  renderRow = (data: any) => {
-    return data.map(c => <Row history={history} key={c.code} category={c} />);
+  renderRow = (data: any, action: string) => {
+    return data.map(c => <Row key={c.code} category={c} action={action} />);
   };
+  calculatePagination = (data: any) => {
+    const { queryParams } = this.props;
 
-  renderTable = (data: any, action: string) => {
-    const data_len = data.length;
+    if (Object.keys(queryParams).length !== 0) {
+      if (queryParams.perPage !== undefined && queryParams.page == undefined) {
+        data = data.slice(queryParams.perPage * 0, queryParams.perPage * 1);
+      }
 
-    if (data_len > 20) {
+      if (queryParams.page !== undefined) {
+        if (queryParams.perPage !== undefined) {
+          data = data.slice(
+            Number(queryParams.page - 1) * queryParams.perPage,
+            Number((queryParams.page - 1) * queryParams.perPage) +
+              Number(queryParams.perPage)
+          );
+        } else {
+          data = data.slice(
+            (queryParams.page - 1) * 20,
+            (queryParams.page - 1) * 20 + 20
+          );
+        }
+      }
+    } else {
       data = data.slice(0, 20);
     }
 
+    return data;
+  };
+
+  excludeSyncTrue = (data: any) => {
+    return data.filter(d => d.syncStatus == false);
+  };
+
+  renderTable = (data: any, action: string) => {
+    data = this.calculatePagination(data);
     const onClickSync = () => {
+      data = this.excludeSyncTrue(data);
       this.props.toSyncCategories(action, data);
     };
+
     const syncButton = (
       <>
         <Button
@@ -57,20 +92,8 @@ class InventoryCategory extends React.Component<Props, State> {
         </Button>
       </>
     );
-    const header = (
-      <Wrapper.ActionBar
-        left={
-          data_len > 20 ? (
-            <>20 of {data_len} </>
-          ) : (
-            <>
-              {data_len} of {data_len}
-            </>
-          )
-        }
-        right={syncButton}
-      />
-    );
+    const header = <Wrapper.ActionBar right={syncButton} />;
+
     return (
       <>
         {header}
@@ -79,18 +102,39 @@ class InventoryCategory extends React.Component<Props, State> {
             <tr>
               <th>{__('Code')}</th>
               <th>{__('Name')}</th>
+              {action === 'UPDATE' ? <th>{__('Update Status')}</th> : <></>}
+              {action === 'CREATE' ? <th>{__('Create Status')}</th> : <></>}
+              {action === 'DELETE' ? <th>{__('Delete Status')}</th> : <></>}
             </tr>
           </thead>
-          <tbody>{this.renderRow(data)}</tbody>
+          <tbody>{this.renderRow(data, action)}</tbody>
         </Table>
       </>
     );
   };
+
   render() {
     const { items } = this.props;
+    const { openCollapse } = this.state;
+
     const onClickCheck = () => {
       this.props.toCheckCategories();
     };
+
+    const checkOpenCollapse = (num: number): boolean => {
+      return openCollapse == num ? true : false;
+    };
+
+    const onChangeCollapse = (num: number): void => {
+      if (num !== openCollapse) {
+        this.setState({ loading: true });
+
+        this.setState({ openCollapse: num }, () => {
+          this.setState({ loading: false });
+        });
+      }
+    };
+
     const checkButton = (
       <>
         <Button
@@ -110,57 +154,84 @@ class InventoryCategory extends React.Component<Props, State> {
         <br />
         <CollapseContent
           title={__(
-            'Create Categories' +
+            'Create categories' +
               (items.create ? ':  ' + items.create.count : '')
           )}
+          id={'1'}
+          onClick={() => {
+            onChangeCollapse(1);
+          }}
+          open={checkOpenCollapse(1)}
         >
-          <DataWithLoader
-            data={
-              items.create
-                ? this.renderTable(items.create?.items, 'CREATE')
-                : []
-            }
-            loading={false}
-            count={3}
-            emptyText={'Please check first.'}
-            emptyIcon="leaf"
-            size="large"
-            objective={true}
-          />
+          <>
+            <DataWithLoader
+              data={
+                items.create
+                  ? this.renderTable(items.create?.items, 'CREATE')
+                  : []
+              }
+              loading={false}
+              emptyText={'Please check first.'}
+              emptyIcon="leaf"
+              size="large"
+              objective={true}
+            />
+            <Pagination count={items.create?.count || 0} />
+          </>
         </CollapseContent>
         <CollapseContent
           title={__(
             'Update categories' +
               (items.update ? ':  ' + items.update.count : '')
           )}
+          id={'2'}
+          onClick={() => {
+            onChangeCollapse(2);
+          }}
+          open={checkOpenCollapse(2)}
         >
-          <DataWithLoader
-            data={
-              items.update ? this.renderTable(items.update.items, 'UPDATE') : []
-            }
-            loading={false}
-            emptyText={'Please check first.'}
-            emptyIcon="leaf"
-            size="large"
-            objective={true}
-          />
+          <>
+            <DataWithLoader
+              data={
+                items.update
+                  ? this.renderTable(items.update.items, 'UPDATE')
+                  : []
+              }
+              loading={false}
+              emptyText={'Please check first.'}
+              emptyIcon="leaf"
+              size="large"
+              objective={true}
+            />
+            <Pagination count={items.update?.count || 0} />
+          </>
         </CollapseContent>
         <CollapseContent
           title={__(
             'Delete categories' +
               (items.delete ? ':  ' + items.delete.count : '')
           )}
+          id={'3'}
+          onClick={() => {
+            onChangeCollapse(3);
+          }}
+          open={checkOpenCollapse(3)}
         >
-          <DataWithLoader
-            data={
-              items.delete ? this.renderTable(items.delete.items, 'DELETE') : []
-            }
-            loading={false}
-            emptyText={'Please check first.'}
-            emptyIcon="leaf"
-            size="large"
-            objective={true}
-          />
+          <>
+            <DataWithLoader
+              data={
+                items.delete
+                  ? this.renderTable(items.delete.items, 'DELETE')
+                  : []
+              }
+              loading={false}
+              emptyText={'Please check first.'}
+              emptyIcon="leaf"
+              size="large"
+              objective={true}
+            />
+            <Pagination count={items.delete?.count || 0} />
+          </>
         </CollapseContent>
       </>
     );
@@ -173,7 +244,12 @@ class InventoryCategory extends React.Component<Props, State> {
             submenu={menuPos}
           />
         }
-        content={<DataWithLoader data={content} loading={this.props.loading} />}
+        content={
+          <DataWithLoader
+            data={content}
+            loading={this.props.loading || this.state.loading}
+          />
+        }
         hasBorder
       />
     );

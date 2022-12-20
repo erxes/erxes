@@ -52,7 +52,9 @@ function General({
         handleFormChange('otpConfig', {
           smsTransporterType: '',
           codeLength: 4,
-          content: 'Your verification code is {{code}}'
+          content: 'Your verification code is {{ code }}',
+          expireAfter: 1,
+          loginWithOTP: false
         });
       }
     }
@@ -103,9 +105,11 @@ function General({
     let obj = otpConfig || {
       content: '',
       codeLength: 4,
-      smsTransporterType: 'messagePro'
+      smsTransporterType: 'messagePro',
+      loginWithOTP: false,
+      expireAfter: 1
     };
-    const handleChange = (e: React.FormEvent) => {
+    const handleChange = e => {
       const key = e.currentTarget.id;
       const value = (e.currentTarget as HTMLInputElement).value;
 
@@ -114,11 +118,11 @@ function General({
       if (key === 'content') {
         let content = value;
 
-        const base = ' {{code}} ';
+        const base = ' {{ code }} ';
         const regex = new RegExp('[sS]*?' + base + '[sS]*?', 'i');
 
         if (!regex.test(value)) {
-          content = content.replace(/{{code}}/g, base);
+          content = content.replace(/{{ code }}/g, base);
           if (content.search(base) === -1) {
             content = base;
           }
@@ -129,8 +133,12 @@ function General({
         obj.content = content;
       }
 
-      if (key === 'codeLength') {
+      if (['codeLength', 'expireAfter'].includes(key)) {
         obj[key] = parseInt(value);
+      }
+
+      if (key === 'loginWithOTP') {
+        obj[key] = e.currentTarget.checked;
       }
 
       handleFormChange('otpConfig', obj);
@@ -191,6 +199,36 @@ function General({
                 />
               </FlexContent>
             </FormGroup>
+
+            <FormGroup>
+              <ControlLabel required={true}>OTP expiry</ControlLabel>
+              <p>{'OTP expiration duration (min)'}</p>
+              <FlexContent>
+                <FormControl
+                  id="expireAfter"
+                  name="expireAfter"
+                  value={obj.expireAfter}
+                  onChange={handleChange}
+                  type={'number'}
+                  min={1}
+                  max={10}
+                />
+              </FlexContent>
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>Login with OTP</ControlLabel>
+              <p>Enable this option to accept customer login with OTP</p>
+              <FlexContent>
+                <FormControl
+                  id="loginWithOTP"
+                  name="loginWithOTP"
+                  checked={obj.loginWithOTP}
+                  onChange={handleChange}
+                  componentClass="checkbox"
+                />
+              </FlexContent>
+            </FormGroup>
           </>
         )}
       </CollapseContent>
@@ -199,8 +237,8 @@ function General({
 
   const renderMailConfig = () => {
     let obj = mailConfig || {
-      registrationContent: `Hello <br /><br />Your verification link is {{link}}.<br /><br />Thanks<br />${name}`,
-      invitationContent: `Hello <br /><br />Your verification link is {{link}}.<br />  Your password is: {{password}} . Please change your password after you login. <br /><br />Thanks <br />${name}`,
+      registrationContent: `Hello <br /><br />Your verification link is {{ link }}.<br /><br />Thanks<br />${name}`,
+      invitationContent: `Hello <br /><br />Your verification link is {{ link }}.<br />  Your password is: {{ password }} . Please change your password after you login. <br /><br />Thanks <br />${name}`,
       subject: `${name} - invitation`
     };
 

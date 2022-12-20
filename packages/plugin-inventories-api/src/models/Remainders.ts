@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
 import { sendProductsMessage } from '../messageBroker';
+import { getRatio } from '../utils';
 import {
   IRemainderCount,
   IRemainderParams,
@@ -31,6 +32,12 @@ export interface IRemainderModel extends Model<IRemainderDocument> {
     _id: string,
     doc: Partial<IRemainder>
   ): Promise<IRemainderDocument>;
+  updateRemainders(
+    subdomain: string,
+    branchId: string,
+    departmentId: string,
+    data: { productId: string; uomId: string; diffCount: number }[]
+  );
   removeRemainder(_id: string): void;
 }
 
@@ -161,16 +168,27 @@ export const loadRemainderClass = (models: IModels) => {
         productId: { $in: productIds }
       };
 
-      if (params.departmentId)
+      if (params.departmentId) {
         remainderQuery.departmentId = params.departmentId;
-      if (params.branchId) remainderQuery.branchId = params.branchId;
+      }
+
+      if (params.branchId) {
+        remainderQuery.branchId = params.branchId;
+      }
 
       const remainders = await models.Remainders.find(remainderQuery).lean();
+      const remaindersByProductId = {};
+
+      for (const rem of remainders) {
+        if (!Object.keys(remaindersByProductId).includes(rem.productId)) {
+          remaindersByProductId[rem.productId] = 0;
+        }
+        remaindersByProductId[rem.productId] =
+          remaindersByProductId[rem.productId] + rem.count;
+      }
 
       for (const product of products) {
-        const { count = 0, uomId = '' } =
-          remainders.find((item: any) => item.productId === product._id) || {};
-
+        const count = remaindersByProductId[product._id] || 0;
         product.remainder = count;
       }
 
@@ -233,6 +251,66 @@ export const loadRemainderClass = (models: IModels) => {
     public static async updateRemainder(_id: string, doc: IRemainder) {
       await models.Remainders.findByIdAndUpdate(_id, { $set: { ...doc } });
       return await this.getRemainder(_id);
+    }
+
+    public static async updateRemainders(
+      subdomain: string,
+      branchId: string,
+      departmentId: string,
+      productsData: { productId: string; uomId: string; diffCount: number }[]
+    ) {
+      let bulkOps: {
+        updateOne: {
+          filter: any;
+          update: any;
+          upsert: boolean;
+        };
+      }[] = [];
+
+      const productIds = productsData.map(pd => pd.productId);
+      const products = await sendProductsMessage({
+        subdomain,
+        action: 'find',
+        data: { query: { _id: { $in: productIds } }, limit: productIds.length },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      const productById = {};
+      for (const product of products) {
+        productById[product._id] = product;
+      }
+
+      for (const data of productsData) {
+        const product = productById[data.productId];
+        const ratio = getRatio(product, data.uomId);
+
+        bulkOps.push({
+          updateOne: {
+            filter: { productId: data.productId, branchId, departmentId },
+            update: {
+              $inc: { count: data.diffCount / (ratio || 1) },
+              $set: { productId: data.productId, branchId, departmentId }
+            },
+            upsert: true
+          }
+        });
+
+        if (bulkOps.length > 100) {
+          await models.Remainders.bulkWrite(bulkOps);
+          bulkOps = [];
+        }
+      }
+
+      if (bulkOps.length) {
+        await models.Remainders.bulkWrite(bulkOps);
+      }
+
+      return await models.Remainders.find({
+        branchId,
+        departmentId,
+        productId: { $in: productIds }
+      }).lean();
     }
 
     /**

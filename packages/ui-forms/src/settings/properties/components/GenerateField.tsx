@@ -20,9 +20,15 @@ import Select from 'react-select-plus';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import SelectProductCategory from '../containers/SelectProductCategory';
 import Uploader from '@erxes/ui/src/components/Uploader';
-import { isEnabled, __ } from '@erxes/ui/src/utils/core';
+import {
+  isEnabled,
+  RenderDynamicComponent,
+  __
+} from '@erxes/ui/src/utils/core';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 
 type Props = {
   field: IField;
@@ -296,6 +302,76 @@ export default class GenerateField extends React.Component<Props, State> {
       />
     );
   }
+
+  renderBranch({ id, value }) {
+    const onSelect = e => {
+      const { onValueChange } = this.props;
+
+      if (onValueChange) {
+        this.setState({ value: e });
+
+        onValueChange({ _id: id, value: e });
+      }
+    };
+
+    return (
+      <SelectBranches
+        label="Filter by branches"
+        name="branchIds"
+        multi={false}
+        initialValue={value}
+        onSelect={onSelect}
+      />
+    );
+  }
+
+  renderDepartment({ id, value }) {
+    const onSelect = e => {
+      const { onValueChange } = this.props;
+
+      if (onValueChange) {
+        this.setState({ value: e });
+
+        onValueChange({ _id: id, value: e });
+      }
+    };
+
+    return (
+      <SelectDepartments
+        label="Filter by departments"
+        name="departmentIds"
+        multi={false}
+        initialValue={value}
+        onSelect={onSelect}
+      />
+    );
+  }
+
+  renderExtraFields({ id, value }, type, filteredPlugin) {
+    const onSelect = e => {
+      const { onValueChange } = this.props;
+
+      if (onValueChange) {
+        this.setState({ value: e });
+
+        onValueChange({ _id: id, value: e });
+      }
+    };
+
+    const { scope, component } = filteredPlugin.formsExtraFields.find(
+      extraField => extraField.type === type
+    );
+    return (
+      <ErrorBoundary key={scope}>
+        <RenderDynamicComponent
+          scope={scope}
+          component={component}
+          injectedProps={{ value, onSelect }}
+        />
+      </ErrorBoundary>
+    );
+  }
+
   renderHtml() {
     const { content } = this.props.field;
     return (
@@ -588,6 +664,14 @@ export default class GenerateField extends React.Component<Props, State> {
         return this.renderProduct(attrs);
       }
 
+      case 'branch': {
+        return this.renderBranch(attrs);
+      }
+
+      case 'department': {
+        return this.renderDepartment(attrs);
+      }
+
       case 'list': {
         return this.renderList(attrs);
       }
@@ -609,6 +693,18 @@ export default class GenerateField extends React.Component<Props, State> {
 
       default:
         try {
+          const plugins = ((window as any).plugins || []).filter(
+            plugin => plugin['formsExtraFields']
+          );
+
+          const filteredPlugin = plugins.find(plugin =>
+            plugin.formsExtraFields.find(extraField => extraField.type === type)
+          );
+
+          if (filteredPlugin) {
+            return this.renderExtraFields(attrs, type, filteredPlugin);
+          }
+
           return this.renderInput(attrs);
         } catch {
           return this.renderInput(attrs, true);
