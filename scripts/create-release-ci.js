@@ -84,6 +84,7 @@ var main = async () => {
 		{ name: 'processes', ui: true, api: true },
 		{ name: 'inventories', ui: true, api: true },
 		{ name: 'posclient', api: true },
+		{ name: 'imap', ui: true, api: true },
 	];
 
 	for (const plugin of plugins) {
