@@ -87,7 +87,7 @@ var main = async () => {
 				+ `docker push erxes/${service}:\${GITHUB_REF#refs/tags/} \n`;
 
 		if (service === 'erxes') {
-			run += `aws s3 copy s3://erxes-dev-plugins/locales.tar s3://erxes-release-plugins/\${GITHUB_REF#refs/tags/}/locales.tar \n`;
+			run += `aws s3 cp s3://erxes-dev-plugins/locales.tar s3://erxes-release-plugins/\${GITHUB_REF#refs/tags/}/locales.tar \n`;
 		}
 
 		releaseYaml.jobs.release.steps.push({
