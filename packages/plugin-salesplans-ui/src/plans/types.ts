@@ -48,6 +48,12 @@ export type YearPlansCountQueryResponse = {
   refetch: () => void;
 };
 
+export type YearPlansSumQueryResponse = {
+  yearPlansSum: any;
+  loading: boolean;
+  refetch: () => void;
+};
+
 export type YearPlansRemoveMutationResponse = {
   yearPlansRemove: (mutation: {
     variables: { _ids: string[] };
@@ -116,6 +122,12 @@ export type DayPlansQueryResponse = {
 
 export type DayPlansCountQueryResponse = {
   dayPlansCount: number;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type DayPlansSumQueryResponse = {
+  dayPlansSum: number;
   loading: boolean;
   refetch: () => void;
 };

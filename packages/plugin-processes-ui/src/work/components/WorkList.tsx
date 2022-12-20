@@ -1,18 +1,20 @@
-import React from 'react';
-
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import Form from '../containers/WorkForm';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import React from 'react';
+import Row from './WorkRow';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __, router } from '@erxes/ui/src/utils';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import { Count } from '@erxes/ui/src/styles/main';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { __, router } from '@erxes/ui/src/utils';
-
-import { menuNavs } from '../../../constants';
-import { IWorkDocument } from '../../types';
-import Row from './WorkRow';
+import { IWorkDocument } from '../types';
+import { menuNavs } from '../../constants';
+import Sidebar from './WorkSidebar';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Button from '@erxes/ui/src/components/Button';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -21,6 +23,7 @@ interface IProps extends IRouterProps {
   worksCount: number;
   loading: boolean;
   searchValue: string;
+  removeWork: (id: string) => void;
 }
 
 type State = {
@@ -39,9 +42,14 @@ class List extends React.Component<IProps, State> {
   }
 
   renderRow = () => {
-    const { works, history } = this.props;
+    const { works, history, removeWork } = this.props;
     return works.map(work => (
-      <Row history={history} key={work._id} work={work} />
+      <Row
+        history={history}
+        key={work._id}
+        work={work}
+        removeWork={removeWork}
+      />
     ));
   };
 
@@ -77,7 +85,15 @@ class List extends React.Component<IProps, State> {
   }
 
   render() {
-    const { worksCount, loading } = this.props;
+    const { worksCount, loading, queryParams, history } = this.props;
+
+    const trigger = (
+      <Button btnStyle="success" icon="plus-circle">
+        {__('Add work')}
+      </Button>
+    );
+
+    const modalContent = props => <Form {...props} />;
 
     const actionBarRight = (
       <BarItems>
@@ -88,6 +104,13 @@ class List extends React.Component<IProps, State> {
           value={this.state.searchValue}
           autoFocus={true}
           onFocus={this.moveCursorAtTheEnd}
+        />
+        <ModalTrigger
+          title="Add Work"
+          size="xl"
+          trigger={trigger}
+          autoOpenKey="showProductModal"
+          content={modalContent}
         />
       </BarItems>
     );
@@ -108,8 +131,8 @@ class List extends React.Component<IProps, State> {
               <th>{__('Out Department')}</th>
               <th>{__('Need products')}</th>
               <th>{__('Result products')}</th>
-              <th>{__('Start At')}</th>
               <th>{__('Due Date')}</th>
+              <th>{__('Actions')}</th>
             </tr>
           </thead>
           <tbody>{this.renderRow()}</tbody>
@@ -121,6 +144,7 @@ class List extends React.Component<IProps, State> {
       <Wrapper
         header={<Wrapper.Header title={__('Work')} submenu={menuNavs} />}
         actionBar={<Wrapper.ActionBar right={actionBarRight} />}
+        leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
         footer={<Pagination count={worksCount || 0} />}
         content={
           <DataWithLoader

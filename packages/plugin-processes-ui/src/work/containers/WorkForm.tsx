@@ -1,56 +1,58 @@
 import * as compose from 'lodash.flowright';
-import From from '../components/YearPlanForm';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import Form from '../components/WorkForm';
 import React from 'react';
-import { ButtonMutate } from '@erxes/ui/src/components';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { IYearPlan } from '../types';
 import { mutations } from '../graphql';
 import { withProps } from '@erxes/ui/src/utils';
+import { IWorkDocument } from '../types';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 
 type Props = {
-  yearPlan?: IYearPlan;
   closeModal: () => void;
+  history: any;
+  work?: IWorkDocument;
 };
 
 type FinalProps = {} & Props;
 
-class ProductFormContainer extends React.Component<FinalProps> {
+class PerformFormContainer extends React.Component<FinalProps> {
   render() {
-    const {} = this.props;
+    const { work } = this.props;
 
     const renderButton = ({
+      name,
       values,
       isSubmitted,
-      callback,
-      object
+      callback
     }: IButtonMutateProps) => {
       return (
         <ButtonMutate
-          mutation={mutations.yearPlansAdd}
+          mutation={values._id ? mutations.workEdit : mutations.workAdd}
           variables={values}
           callback={callback}
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
           type="submit"
           uppercase={false}
-          successMessage={`You successfully ${
-            object ? 'updated' : 'added'
-          } year plan`}
+          successMessage={`You successfully added a ${name}`}
         />
       );
     };
 
     const updatedProps = {
       ...this.props,
+      work,
       renderButton
     };
 
-    return <From {...updatedProps} />;
+    return <Form {...updatedProps} work={work} />;
   }
 }
 
 const getRefetchQueries = () => {
-  return ['yearPlans', 'yearPlansCount', 'yearPlansSum'];
+  return ['works', 'work', 'worksCount'];
 };
 
-export default withProps<Props>(compose()(ProductFormContainer));
+export default withProps<Props>(compose()(PerformFormContainer));

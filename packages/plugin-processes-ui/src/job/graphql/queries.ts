@@ -38,18 +38,6 @@ const jobCategoryFields = `
 `;
 
 // JOB
-
-const jobRefersAll = `
-query jobRefersAll {
-  jobRefersAll {
-    _id
-    name
-    needProducts
-    resultProducts
-  }
-}
-`;
-
 const jobRefers = `
 query jobRefers($page: Int, $perPage: Int, ${jobRefersParamsDef}) {
   jobRefers(page: $page, perPage: $perPage, ${jobRefersParams}) {
@@ -68,6 +56,8 @@ const jobReferDetail = `
   query jobReferDetail($id: String!) {
   jobReferDetail(_id: $id) {
     ${jobRefersFields}
+    needProductsData
+    resultProductsData
   }
 }
 `;
@@ -87,7 +77,6 @@ const jobCategoriesTotalCount = `
 `;
 
 export default {
-  jobRefersAll,
   jobRefers,
   jobReferDetail,
   jobReferTotalCount,

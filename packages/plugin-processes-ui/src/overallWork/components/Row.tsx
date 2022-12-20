@@ -56,6 +56,7 @@ class OverallWorkRow extends React.Component<Props> {
         <td>{this.displayWithNameInfo(work.product)}</td>
         <td key={'receivableAmount'}>{this.displayValue(work, 'count')}</td>
         <td>{this.displayLocInfo(work.inBranch)}</td>
+        <td>{this.displayLocInfo(work.inDepartment)}</td>
         <td>{this.displayLocInfo(work.outBranch)}</td>
         <td>{this.displayLocInfo(work.outDepartment)}</td>
         <td key={'actions'} onClick={onClick}></td>

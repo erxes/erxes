@@ -1,24 +1,35 @@
 export const types = `
 
   type Perform @key(fields: "_id") @cacheControl(maxAge: 3) {
-    _id: String,
-    overallWorkId: String,
-    overallWorkKey: OverallWorkKey,
-    createdAt: Date,
-    createdBy: String,
-    updatedAt: Date,
-    updatedBy: String,
-    dueDate: Date,
-    startAt: Date,
-    endAt: Date,
-    overallWork: JSON,
-    status: String,
-    productId: String,
-    count: String,
-    needProducts: JSON,
-    resultProducts: JSON,
-    needConfirmInfo: JSON,
-    resultConfirmInfo: JSON,
+    _id: String
+
+    overallWorkId: String
+    overallWorkKey: OverallWorkKey
+    status: String
+    startAt: Date
+    dueDate: Date
+    endAt: Date
+    count: Float
+    inBranchId: String
+    inDepartmentId: String
+    outBranchId: String
+    outDepartmentId: String
+    needProducts: JSON
+    resultProducts: JSON
+    inProducts: JSON
+    outProducts: JSON
+
+    inBranch: Branch
+    inDepartment: Department
+    outBranch: Branch
+    outDepartment: Department
+
+    createdAt: Date
+    createdBy: String
+    modifiedAt: Date
+    modifiedBy: String
+    createdUser: User
+    modifiedUser: User
   }
 `;
 
@@ -46,23 +57,31 @@ const qryParams = `
 
 export const queries = `
   performs(${paginateParams}, ${qryParams}): [Perform]
-  performsByOverallWorkId(overallWorkId: String, ${qryParams}):  [Perform]
-  performsByOverallWorkIdTotalCount(overallWorkId: String, ${qryParams}): Int
+  performDetail(_id: String): Perform
   performsCount(${qryParams}): Int
 `;
 
 const performParams = `
-  startAt: Date,
-  endAt: Date,
-  dueDate: Date,
-  overallWorkId: String,
-  status: String,
-  productId: String,
-  count: String,
-  needProducts: [JobProductsInput],
-  resultProducts: [JobProductsInput]
+  overallWorkId: String
+  overallWorkKey: JSON
+  status: String
+  startAt: Date
+  dueDate: Date
+  endAt: Date
+  count: Float
+  inBranchId: String
+  inDepartmentId: String
+  outBranchId: String
+  outDepartmentId: String
+  needProducts: JSON
+  resultProducts: JSON
+  inProducts: JSON
+  outProducts: JSON
 `;
 
 export const mutations = `
-  performsAdd(${performParams}): Perform
+  performAdd(${performParams}): Perform
+  performEdit(_id: String!, ${performParams}): Perform
+  performChange(_id: String!, ${performParams}): Perform
+  performRemove(_id: String!): JSON
 `;

@@ -2,12 +2,12 @@ import * as compose from 'lodash.flowright';
 import DayPlans from '../components/DayPlanList';
 import gql from 'graphql-tag';
 import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert, router, withProps } from '@erxes/ui/src/utils';
 import { Bulk } from '@erxes/ui/src/components';
 import {
   DayPlansConfirmMutationResponse,
   DayPlansCountQueryResponse,
+  DayPlansSumQueryResponse,
   DayPlansEditMutationResponse,
   DayPlansQueryResponse,
   DayPlansRemoveMutationResponse,
@@ -18,7 +18,6 @@ import { graphql } from 'react-apollo';
 import { mutations, queries } from '../graphql';
 import { queries as timeFrameQueries } from '../../settings/graphql';
 import { TimeframeQueryResponse } from '../../settings/types';
-import {} from '../types';
 
 type Props = {
   queryParams: any;
@@ -29,6 +28,7 @@ type Props = {
 type FinalProps = {
   dayPlanQuery: DayPlansQueryResponse;
   dayPlansCountQuery: DayPlansCountQueryResponse;
+  dayPlansSumQuery: DayPlansSumQueryResponse;
   timeFrameQuery: TimeframeQueryResponse;
 } & Props &
   DayPlansEditMutationResponse &
@@ -40,20 +40,13 @@ class DayPlansContainer extends React.Component<FinalProps> {
     const {
       dayPlanQuery,
       dayPlansCountQuery,
+      dayPlansSumQuery,
       queryParams,
       timeFrameQuery,
       dayPlanEdit,
       dayPlansRemove,
       dayPlansConfirm
     } = this.props;
-
-    if (
-      dayPlanQuery.loading ||
-      dayPlansCountQuery.loading ||
-      timeFrameQuery.loading
-    ) {
-      return <Spinner />;
-    }
 
     // edit row action
     const edit = (doc: IDayPlan) => {
@@ -62,7 +55,6 @@ class DayPlansContainer extends React.Component<FinalProps> {
       })
         .then(() => {
           Alert.success('You successfully updated a census');
-          dayPlanQuery.refetch();
         })
         .catch(e => {
           Alert.error(e.message);
@@ -104,12 +96,14 @@ class DayPlansContainer extends React.Component<FinalProps> {
     const searchValue = this.props.queryParams.searchValue || '';
     const dayPlans = dayPlanQuery.dayPlans || [];
     const totalCount = dayPlansCountQuery.dayPlansCount || 0;
+    const totalSum = dayPlansSumQuery.dayPlansSum || {};
 
     const updatedProps = {
       ...this.props,
       queryParams,
       dayPlans,
       totalCount,
+      totalSum,
       timeFrames,
       edit,
       remove,
@@ -128,7 +122,7 @@ class DayPlansContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return ['dayPlans', 'dayPlansCount'];
+  return ['dayPlans', 'dayPlansCount', 'dayPlansSum'];
 };
 
 const options = () => ({
@@ -174,13 +168,24 @@ export default withProps<Props>(
         })
       }
     ),
+    graphql<{ queryParams: any }, DayPlansSumQueryResponse>(
+      gql(queries.dayPlansSum),
+      {
+        name: 'dayPlansSumQuery',
+        options: ({ queryParams }) => ({
+          variables: generateParams({ queryParams }),
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
     graphql<{}, TimeframeQueryResponse>(gql(timeFrameQueries.timeframes), {
       name: 'timeFrameQuery'
     }),
     graphql<Props, DayPlansEditMutationResponse, {}>(
       gql(mutations.dayPlanEdit),
       {
-        name: 'dayPlanEdit'
+        name: 'dayPlanEdit',
+        options
       }
     ),
     graphql<Props, DayPlansRemoveMutationResponse, { dayPlanIds: string[] }>(

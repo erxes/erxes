@@ -53,10 +53,6 @@ const jobReferQueries = {
     );
   },
 
-  jobRefersAll(_root, _params: IParam, { models }: IContext) {
-    return models.JobRefers.find({});
-  },
-
   jobReferTotalCount(
     _root,
     params: IParam,
@@ -71,7 +67,7 @@ const jobReferQueries = {
    * Get one jobRefer
    */
   jobReferDetail(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.JobRefers.findOne({ _id });
+    return models.JobRefers.findOne({ _id }).lean();
   }
 };
 

@@ -20,6 +20,7 @@ import { TableWrapper } from '../../styles';
 type Props = {
   yearPlans: IYearPlan[];
   totalCount: number;
+  totalSum: any;
   isAllSelected: boolean;
   toggleAll: (targets: IYearPlan[], containerId: string) => void;
   history: any;
@@ -33,7 +34,6 @@ type Props = {
 };
 
 type State = {
-  // configsMap: IConfigsMap;
   searchValue: string;
 };
 
@@ -158,29 +158,48 @@ class YearPlans extends React.Component<Props, State> {
   }
 
   render() {
-    const { isAllSelected, totalCount, queryParams, history } = this.props;
+    const {
+      isAllSelected,
+      totalCount,
+      totalSum,
+      queryParams,
+      history
+    } = this.props;
 
     const content = (
       <TableWrapper>
         <Table hover={true}>
           <thead>
             <tr>
-              <th style={{ width: 60 }}>
+              <th style={{ width: 60 }} rowSpan={2}>
                 <FormControl
                   checked={isAllSelected}
                   componentClass="checkbox"
                   onChange={this.onChange}
                 />
               </th>
-              <th>{__('Year')}</th>
-              <th>{__('Branch')}</th>
-              <th>{__('Department')}</th>
-              <th>{__('Product')}</th>
+              <th rowSpan={2}>{__('Year')}</th>
+              <th rowSpan={2}>{__('Branch')}</th>
+              <th rowSpan={2}>{__('Department')}</th>
+              <th rowSpan={2}>{__('Product')}</th>
               <th>{__('Uom')}</th>
               {MONTHS.map(m => (
                 <th key={m}>{m}</th>
               ))}
               <th>{__('Sum')}</th>
+              <th>{__('')}</th>
+            </tr>
+            <tr>
+              <th>{__('Sum')}:</th>
+              {MONTHS.map(m => (
+                <th key={m}>{totalSum[m]}</th>
+              ))}
+              <th>
+                {Object.values(totalSum).reduce(
+                  (sum, i) => Number(sum) + Number(i),
+                  0
+                )}
+              </th>
               <th>{__('')}</th>
             </tr>
           </thead>
