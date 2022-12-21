@@ -103,7 +103,7 @@ export default {
 };
 
 setTimeout(() => {
-  if (process.env.SKIP_REDIS) {
+  if (process.env.SKIP_REDIS && !graphqlPubsub) {
     graphqlPubsub = new PubSub();
   }
 }, 10000);

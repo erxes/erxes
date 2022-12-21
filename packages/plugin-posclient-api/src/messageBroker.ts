@@ -166,10 +166,10 @@ const sendMessageWrapper = async (
 ): Promise<any> => {
   const { SKIP_REDIS } = process.env;
   if (SKIP_REDIS) {
-    const { action, isRPC } = args;
+    const { action, isRPC, defaultValue } = args;
 
     if (!client) {
-      return args.defaultValue;
+      return defaultValue;
     }
 
     // check connected gateway on server and check some plugins isAvailable
@@ -188,7 +188,7 @@ const sendMessageWrapper = async (
       );
 
       if (!response) {
-        return args.defaultValue;
+        return defaultValue;
       }
     }
 
