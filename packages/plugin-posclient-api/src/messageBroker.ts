@@ -168,6 +168,10 @@ const sendMessageWrapper = async (
   if (SKIP_REDIS) {
     const { action, isRPC } = args;
 
+    if (!client) {
+      return args.defaultValue;
+    }
+
     // check connected gateway on server and check some plugins isAvailable
     if (isRPC) {
       const longTask = async () =>
