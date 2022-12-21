@@ -19,7 +19,7 @@ type Props = {
   history: any;
   overallWorkDetail: IOverallWorkDet;
   perform?: IPerform;
-  max?: number;
+  max: number;
 };
 
 type FinalProps = {
@@ -38,8 +38,9 @@ class PerformFormContainer extends React.Component<FinalProps> {
       name,
       values,
       isSubmitted,
-      callback
-    }: IButtonMutateProps) => {
+      callback,
+      disabled
+    }: IButtonMutateProps & { disabled: boolean }) => {
       return (
         <ButtonMutate
           mutation={values._id ? mutations.performEdit : mutations.performAdd}
@@ -50,6 +51,7 @@ class PerformFormContainer extends React.Component<FinalProps> {
           type="submit"
           uppercase={false}
           successMessage={`You successfully added a ${name}`}
+          disabled={disabled}
         />
       );
     };
