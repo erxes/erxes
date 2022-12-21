@@ -332,7 +332,8 @@ export const getDayPlanValues = async ({
     return { planCount: 0, values: [] };
   }
 
-  const month = getPureDate(date).getMonth() + 1;
+  const pureDate = getPureDate(date);
+  const month = pureDate.getMonth() + 1;
   const key = MONTH_NUMBERS[month];
 
   const monthPlanCount = Number(yearPlan.values[key]) || 0;
@@ -341,8 +342,8 @@ export const getDayPlanValues = async ({
     product,
     parentIdsByProductId,
     publicLabels,
-    date.getFullYear(),
-    date.getMonth() + 1
+    pureDate.getFullYear(),
+    pureDate.getMonth() + 1
   );
 
   const dayPlanCount = monthPlanCount / daysInMonth;
