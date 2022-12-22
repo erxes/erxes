@@ -361,7 +361,11 @@ class Form extends React.Component<Props, State> {
                 name="count"
                 defaultValue={count}
                 type="number"
-                max={max}
+                max={
+                  overallWorkDetail.type !== JOB_TYPE_CHOISES.income
+                    ? max
+                    : undefined
+                }
                 autoFocus={true}
                 required={true}
                 onChange={this.onChangeCount}
@@ -463,7 +467,9 @@ class Form extends React.Component<Props, State> {
             isSubmitted,
             callback: closeModal,
             object: perform,
-            disabled: max < this.state.count
+            disabled:
+              overallWorkDetail.type !== JOB_TYPE_CHOISES.income &&
+              max < this.state.count
           })}
         </ModalFooter>
       </>
