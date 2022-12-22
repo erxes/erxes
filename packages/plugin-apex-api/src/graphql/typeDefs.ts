@@ -10,6 +10,10 @@ const typeDefs = gql`
   scalar JSON
   scalar Date
 
+  extend type Company @key(fields: "_id") {
+    _id: String! @external
+  }
+
   ${ReportTypes}
 
   extend type Query {

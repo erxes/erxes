@@ -9,7 +9,7 @@ interface IReport {
   contentType: string;
   name: string;
   content: string;
-  replacer: string;
+  companyId: string;
 }
 
 export interface IReportDocument extends IReport, Document {
@@ -22,7 +22,8 @@ const reportSchema = new Schema({
 
   name: { type: String },
   code: { type: String },
-  content: { type: String }
+  content: { type: String },
+  companyId: { type: String }
 });
 
 export interface IReportModel extends Model<IReportDocument> {

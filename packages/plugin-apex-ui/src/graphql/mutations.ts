@@ -3,6 +3,7 @@ const commonParamsDef = `
   $name: String!,
   $code: String!,
   $content: String,
+  $companyId: String!,
 `;
 
 const commonParams = `
@@ -10,6 +11,7 @@ const commonParams = `
   name: $name,
   code: $code,
   content: $content,
+  companyId: $companyId,
 `;
 
 const reportsSave = `

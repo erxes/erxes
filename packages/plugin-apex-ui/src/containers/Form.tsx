@@ -12,12 +12,19 @@ type Props = {
 
 type FinalProps = {
   detailQuery?;
+  companiesQuery: any;
   saveMutation;
   history;
 } & Props;
 class Container extends React.Component<FinalProps> {
   render() {
-    const { _id, detailQuery, saveMutation, history } = this.props;
+    const {
+      _id,
+      detailQuery,
+      companiesQuery,
+      saveMutation,
+      history
+    } = this.props;
 
     if (detailQuery && detailQuery.loading) {
       return null;
@@ -37,6 +44,7 @@ class Container extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
+      companies: companiesQuery.companies || [],
       obj: detailQuery ? detailQuery.apexReportDetail || {} : {},
       save
     };
@@ -55,6 +63,10 @@ export default withProps<Props>(
           _id
         }
       })
+    }),
+
+    graphql<Props>(gql(queries.companies), {
+      name: 'companiesQuery'
     }),
 
     // mutations

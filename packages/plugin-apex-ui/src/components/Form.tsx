@@ -8,8 +8,10 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { Title } from '@erxes/ui/src/styles/main';
+import Select from 'react-select-plus';
 
 type Props = {
+  companies: any[];
   history: any;
   obj: any;
   save: (doc) => void;
@@ -19,6 +21,8 @@ type State = {
   name?: string;
   code?: string;
   content?: string;
+  companyId?: string;
+  selectedCompany?: any;
 };
 
 const FormWrapper = styled.div`
@@ -30,7 +34,13 @@ class Form extends React.Component<Props, State> {
 
     const { obj } = props;
 
-    this.state = { name: obj.name, code: obj.code, content: obj.content };
+    this.state = {
+      name: obj.name,
+      code: obj.code,
+      content: obj.content,
+      companyId: obj.companyId,
+      selectedCompany: { value: obj.companyId, label: obj.company.primaryName }
+    };
   }
 
   onContentChange = e => {
@@ -48,18 +58,23 @@ class Form extends React.Component<Props, State> {
   };
 
   onSave = () => {
-    const { name, code, content } = this.state;
+    const { name, code, content, companyId } = this.state;
 
     this.props.save({
       name,
       code,
-      content
+      content,
+      companyId
     });
   };
 
+  onChangeCompany = obj => {
+    this.setState({ selectedCompany: obj, companyId: obj.value });
+  };
+
   render() {
-    const { obj } = this.props;
-    const { content } = this.state;
+    const { obj, companies } = this.props;
+    const { selectedCompany } = this.state;
 
     const formContent = (
       <FormWrapper>
@@ -84,6 +99,20 @@ class Form extends React.Component<Props, State> {
             autoFocus={true}
             defaultValue={obj.code}
             onChange={this.onChangeField.bind(this, 'code')}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={true}>Company</ControlLabel>
+
+          <Select
+            options={companies.map(comp => ({
+              value: comp._id,
+              label: comp.primaryName
+            }))}
+            value={selectedCompany}
+            onChange={this.onChangeCompany}
+            searchable={true}
           />
         </FormGroup>
 

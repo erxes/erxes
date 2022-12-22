@@ -8,6 +8,8 @@ export const types = `
     name: String!
     code: String!
     content: String
+    companyId: String
+    company: Company
   }
 `;
 
@@ -23,6 +25,6 @@ export const queries = `
 `;
 
 export const mutations = `
-  apexReportSave(_id: String, name: String!, code: String!, content: String): ApexReport
+  apexReportSave(_id: String, name: String!, code: String!, content: String, companyId: String!): ApexReport
   apexReportRemove(_id: String!): JSON
 `;

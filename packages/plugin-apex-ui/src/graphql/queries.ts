@@ -16,11 +16,26 @@ const reportsDetail = `
       name
       code
       content
+      companyId
+      company {
+        _id
+        primaryName
+      }
+    }
+  }
+`;
+
+const companies = `
+  query companies {
+    companies {
+      _id
+      primaryName
     }
   }
 `;
 
 export default {
   reports,
+  companies,
   reportsDetail
 };
