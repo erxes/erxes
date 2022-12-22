@@ -63,8 +63,7 @@ const {
       WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
       ...(CLIENT_PORTAL_DOMAINS || '').split(','),
       'https://studio.apollographql.com',
-      ...(ALLOWED_ORIGINS || '').split(',').map(c => c && RegExp(c)),
-      'http://localhost:4200'
+      ...(ALLOWED_ORIGINS || '').split(',').map(c => c && RegExp(c))
     ]
   };
 
