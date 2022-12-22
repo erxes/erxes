@@ -9,7 +9,6 @@ import DealPlacesSection from '../../components/dealPlaces/DealPlacesSection';
 import { mutations, queries } from '../../graphql';
 
 type Props = {
-  title: string;
   dealId: string;
 };
 

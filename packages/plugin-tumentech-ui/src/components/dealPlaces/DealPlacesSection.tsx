@@ -69,7 +69,7 @@ export default function Component({
   const extraButtons = (
     <>
       <ModalTrigger
-        title="General location information"
+        title="Places"
         size="lg"
         trigger={
           <button>
@@ -83,7 +83,7 @@ export default function Component({
 
   return (
     <Box
-      title={__(`${title || 'General location information'}`)}
+      title={__(`${title || 'Places'}`)}
       extraButtons={extraButtons}
       isOpen={true}
       name="showLocation"
