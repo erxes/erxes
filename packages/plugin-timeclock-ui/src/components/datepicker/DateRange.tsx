@@ -25,15 +25,23 @@ const DateRange = (props: Props) => {
     onSaveButton
   } = props;
 
-  const onDateEndChange = (date: Date) => {
+  let overlayTrigger;
+  const closePopover = () => {
+    if (overlayTrigger) {
+      overlayTrigger.hide();
+    }
+  };
+
+  const onDateEndChange = date => {
     onChangeEnd(date);
   };
 
-  const onDateStartChange = (date: Date) => {
+  const onDateStartChange = date => {
     onChangeStart(date);
   };
   const onSaveDateButton = () => {
     onSaveButton();
+    closePopover();
   };
   const renderPopover = () => {
     return (
@@ -77,6 +85,7 @@ const DateRange = (props: Props) => {
 
   return (
     <OverlayTrigger
+      ref={overLay => (overlayTrigger = overLay)}
       trigger="click"
       placement="bottom-start"
       overlay={renderPopover()}

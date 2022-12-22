@@ -8,7 +8,6 @@ import {
   IAbsenceType
 } from '../../models/definitions/timeclock';
 import { findBranches } from './utils';
-import { loadShiftClass } from '../../models/Timeclock';
 
 interface ITimeClockEdit extends ITimeClock {
   _id: string;
@@ -201,7 +200,7 @@ const timeclockMutations = {
   async solveAbsenceRequest(
     _root,
     { _id, status, ...doc }: IAbsenceEdit,
-    { models, user }: IContext
+    { models }: IContext
   ) {
     const absence = models.Absences.getAbsence(_id);
     let updated = models.Absences.updateAbsence(_id, {
@@ -217,27 +216,33 @@ const timeclockMutations = {
       shiftRequest.reason &&
       shiftRequest.reason.toLocaleLowerCase() === 'shift request'
     ) {
-      updated = models.Absences.updateAbsence(_id, { status: 'Shift', ...doc });
-      const newSchedule = await models.Schedules.createSchedule({
-        userId: user._id,
-        solved: true,
-        status: 'Approved'
+      updated = models.Absences.updateAbsence(_id, {
+        status: `Shift / ${status}`,
+        ...doc
       });
+      // if shift request is approved
+      if (status === 'Approved') {
+        const newSchedule = await models.Schedules.createSchedule({
+          userId: shiftRequest.userId,
+          solved: true,
+          status: 'Approved'
+        });
 
-      await models.Shifts.createShift({
-        scheduleId: newSchedule._id,
-        shiftStart: shiftRequest.startTime,
-        shiftEnd: shiftRequest.endTime,
-        solved: true,
-        status: 'Approved'
-      });
+        await models.Shifts.createShift({
+          scheduleId: newSchedule._id,
+          shiftStart: shiftRequest.startTime,
+          shiftEnd: shiftRequest.endTime,
+          solved: true,
+          status: 'Approved'
+        });
 
-      await models.Timeclocks.createTimeClock({
-        userId: user._id,
-        shiftStart: shiftRequest.startTime,
-        shiftEnd: shiftRequest.endTime,
-        shiftActive: false
-      });
+        await models.Timeclocks.createTimeClock({
+          userId: shiftRequest.userId,
+          shiftStart: shiftRequest.startTime,
+          shiftEnd: shiftRequest.endTime,
+          shiftActive: false
+        });
+      }
     }
 
     return updated;
@@ -335,6 +340,23 @@ const timeclockMutations = {
     return schedule;
   },
 
+  scheduleRemove(_root, { _id }, { models }: IContext) {
+    models.Schedules.removeSchedule(_id);
+    models.Shifts.remove({ scheduleId: _id });
+    return;
+  },
+  async scheduleShiftRemove(_root, { _id }, { models }: IContext) {
+    const getShift = await models.Shifts.getShift(_id);
+    const getShiftsCount = await models.Shifts.count({
+      scheduleId: getShift.scheduleId
+    });
+    // if it's the only one shift in schedule, remove schedule
+    if (getShiftsCount === 1 && getShift.scheduleId) {
+      await models.Schedules.removeSchedule(getShift.scheduleId);
+    }
+
+    return models.Shifts.removeShift(_id);
+  },
   payDateAdd(_root, { dateNums }, { models }: IContext) {
     return models.PayDates.createPayDate({ payDates: dateNums });
   },

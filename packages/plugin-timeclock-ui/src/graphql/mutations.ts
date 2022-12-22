@@ -122,6 +122,14 @@ const holidayRemove = `
   mutation holidayRemove($_id: String){
     holidayRemove(_id: $_id)
   }`;
+const scheduleRemove = `
+  mutation scheduleRemove($_id: String){
+    scheduleRemove(_id: $_id)
+  }`;
+const scheduleShiftRemove = `
+  mutation scheduleShiftRemove($_id: String){
+    scheduleShiftRemove(_id: $_id)
+  }`;
 
 export default {
   sendScheduleRequest,
@@ -141,5 +149,7 @@ export default {
   payDateRemove,
   holidayAdd,
   holidayEdit,
-  holidayRemove
+  holidayRemove,
+  scheduleRemove,
+  scheduleShiftRemove
 };
