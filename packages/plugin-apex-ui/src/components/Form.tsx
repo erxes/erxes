@@ -101,6 +101,7 @@ class Form extends React.Component<Props, State> {
 
           <Select
             options={[
+              { value: '', label: '' },
               { value: 'finance', label: 'Санхүүгийн байдлийн тайлан' },
               { value: 'operation', label: 'Үйл ажиллагааний тайлан' }
             ]}
