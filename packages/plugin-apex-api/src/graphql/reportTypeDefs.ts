@@ -5,6 +5,7 @@ export const types = `
     createdAt: Date
     createdUserId: String
 
+    type: String!
     name: String!
     code: String!
     content: String
@@ -14,6 +15,8 @@ export const types = `
 `;
 
 const params = `
+  type: String,
+  companyId: String,
   limit: Int,
   page: Int,
   perPage: Int,
@@ -21,10 +24,10 @@ const params = `
 
 export const queries = `
   apexReports(${params}): [ApexReport]
-  apexReportDetail(_id: String!): ApexReport
+  apexReportDetail(_id: String, code: String): ApexReport
 `;
 
 export const mutations = `
-  apexReportSave(_id: String, name: String!, code: String!, content: String, companyId: String!): ApexReport
+  apexReportSave(_id: String, type: String!, name: String!, code: String!, content: String, companyId: String!): ApexReport
   apexReportRemove(_id: String!): JSON
 `;

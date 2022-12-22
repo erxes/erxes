@@ -13,6 +13,7 @@ const reportsDetail = `
   query apexReportDetail($_id: String!) {
     apexReportDetail(_id: $_id) {
       _id
+      type
       name
       code
       content

@@ -1,5 +1,6 @@
 const commonParamsDef = `
   $_id: String,
+  $type: String!,
   $name: String!,
   $code: String!,
   $content: String,
@@ -8,6 +9,7 @@ const commonParamsDef = `
 
 const commonParams = `
   _id: $_id,
+  type: $type,
   name: $name,
   code: $code,
   content: $content,

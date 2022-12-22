@@ -18,10 +18,12 @@ type Props = {
 };
 
 type State = {
+  type?: string;
   name?: string;
   code?: string;
   content?: string;
   companyId?: string;
+  selectedType?: any;
   selectedCompany?: any;
 };
 
@@ -36,10 +38,21 @@ class Form extends React.Component<Props, State> {
 
     this.state = {
       name: obj.name,
+      type: obj.type,
       code: obj.code,
       content: obj.content,
       companyId: obj.companyId,
-      selectedCompany: { value: obj.companyId, label: obj.company.primaryName }
+      selectedType: {
+        value: obj.type,
+        label:
+          obj.type === 'finance'
+            ? 'Санхүүгийн байдлийн тайлан'
+            : 'Үйл ажиллагааний тайлан'
+      },
+      selectedCompany: {
+        value: obj.companyId,
+        label: obj.company ? obj.company.primaryName : ''
+      }
     };
   }
 
@@ -58,9 +71,10 @@ class Form extends React.Component<Props, State> {
   };
 
   onSave = () => {
-    const { name, code, content, companyId } = this.state;
+    const { type, name, code, content, companyId } = this.state;
 
     this.props.save({
+      type,
       name,
       code,
       content,
@@ -72,12 +86,29 @@ class Form extends React.Component<Props, State> {
     this.setState({ selectedCompany: obj, companyId: obj.value });
   };
 
+  onChangeType = obj => {
+    this.setState({ selectedType: obj, type: obj.value });
+  };
+
   render() {
     const { obj, companies } = this.props;
-    const { selectedCompany } = this.state;
+    const { selectedCompany, selectedType } = this.state;
 
     const formContent = (
       <FormWrapper>
+        <FormGroup>
+          <ControlLabel required={true}>Type</ControlLabel>
+
+          <Select
+            options={[
+              { value: 'finance', label: 'Санхүүгийн байдлийн тайлан' },
+              { value: 'operation', label: 'Үйл ажиллагааний тайлан' }
+            ]}
+            value={selectedType}
+            onChange={this.onChangeType}
+          />
+        </FormGroup>
+
         <FormGroup>
           <ControlLabel required={true}>Name</ControlLabel>
 

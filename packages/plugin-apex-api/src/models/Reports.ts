@@ -6,7 +6,7 @@ interface IReport {
   createdAt: Date;
   createdUserId: string;
 
-  contentType: string;
+  type: string;
   name: string;
   content: string;
   companyId: string;
@@ -20,6 +20,7 @@ const reportSchema = new Schema({
   createdAt: { type: Date },
   createdUserId: { type: String },
 
+  type: { type: String },
   name: { type: String },
   code: { type: String },
   content: { type: String },
