@@ -25,6 +25,7 @@ const params = `
 export const queries = `
   apexReports(${params}): [ApexReport]
   apexReportDetail(_id: String, code: String): ApexReport
+  apexCompanyDetail(companyId: String!): Company
 `;
 
 export const mutations = `

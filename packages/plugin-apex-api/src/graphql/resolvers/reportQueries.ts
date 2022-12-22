@@ -1,5 +1,6 @@
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../connectionResolver';
+import { sendCommonMessage } from '../../messageBroker';
 
 const reportQueries = {
   apexReports(_root, { type, companyId, limit }, { models }: IContext) {
@@ -26,6 +27,18 @@ const reportQueries = {
 
   apexReportDetail(_root, { _id, code }, { models }: IContext) {
     return models.Reports.findOne(_id ? { _id } : { code });
+  },
+
+  apexCompanyDetail(_root, { companyId }, { models }: IContext) {
+    return sendCommonMessage({
+      subdomain: 'os',
+      serviceName: 'contacts',
+      action: 'companies.findOne',
+      isRPC: true,
+      data: {
+        _id: companyId
+      }
+    });
   }
 };
 
