@@ -45,6 +45,47 @@ export const initBroker = async cl => {
       status: 'success'
     };
   });
+
+  consumeRPCQueue(
+    'loyalties:scoreLogs.create',
+    async ({
+      subdomain,
+      data: { ownerType, ownerId, changeScore, description, createdBy }
+    }) => {
+      const models = await generateModels(subdomain);
+
+      const scoreLog = await models.ScoreLogs.changeScore({
+        ownerType,
+        ownerId,
+        changeScore,
+        description,
+        createdBy
+      });
+
+      return {
+        status: 'success',
+        data: scoreLog
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'loyalties:vouchers.create',
+    async ({ subdomain, data: { ownerType, ownerId, voucherCampaignId } }) => {
+      const models = await generateModels(subdomain);
+
+      const voucher = await models.Vouchers.createVoucher({
+        campaignId: voucherCampaignId,
+        ownerType,
+        ownerId
+      });
+
+      return {
+        data: voucher,
+        status: 'success'
+      };
+    }
+  );
 };
 
 export const sendProductsMessage = async (

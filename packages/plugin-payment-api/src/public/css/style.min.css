@@ -494,11 +494,11 @@ span.red {
 .info {
   align-items: center;
   justify-content: space-between;
-  width: 100%;
+  width: 30%;
   margin-right: 30px;
 }
 .qr {
-  width: 30%;
+  width: 70%;
 }
 .border {
   border: 1.5px dotted rgba(217, 207, 207, 0.8);
@@ -511,7 +511,7 @@ span.red {
   margin-top: 10px;
 }
 .border img {
-  width: 150px;
+  width: 250px;
 }
 .uppercase {
   text-transform: uppercase;

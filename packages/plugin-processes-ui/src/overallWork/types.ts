@@ -98,7 +98,7 @@ export type PerformsQueryResponse = {
 };
 
 export type PerformDetailQueryResponse = {
-  perform: IPerform;
+  performDetail: IPerform;
   loading: boolean;
   refetch: () => void;
 };

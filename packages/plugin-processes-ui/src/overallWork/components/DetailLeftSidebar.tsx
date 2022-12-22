@@ -37,8 +37,6 @@ const generateQueryParams = ({ location }) => {
 };
 
 class DetailLeftSidebar extends React.Component<Props, State> {
-  private timer?: NodeJS.Timer;
-
   constructor(props) {
     super(props);
 
