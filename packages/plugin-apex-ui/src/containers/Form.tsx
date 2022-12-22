@@ -66,7 +66,12 @@ export default withProps<Props>(
     }),
 
     graphql<Props>(gql(queries.companies), {
-      name: 'companiesQuery'
+      name: 'companiesQuery',
+      options: () => ({
+        variables: {
+          perPage: 1000
+        }
+      })
     }),
 
     // mutations

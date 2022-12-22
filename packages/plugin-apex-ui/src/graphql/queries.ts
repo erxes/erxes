@@ -27,8 +27,8 @@ const reportsDetail = `
 `;
 
 const companies = `
-  query companies {
-    companies {
+  query companies($perPage: Int) {
+    companies(perPage: $perPage) {
       _id
       primaryName
     }
