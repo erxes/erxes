@@ -49,7 +49,7 @@
     "graphql-ws": "^5.11.2",
     "i18n-react": "^0.7.0",
     "isomorphic-unfetch": "^3.1.0",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "mongoose": "^5.11.15",
     "next-routes": "^1.4.2",
     "react": "17.0.1",
