@@ -4,6 +4,8 @@ import resolvers from './graphql/resolvers';
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
+import { connectToMysql } from '../cronjobs/timelock';
+import * as cors from 'cors';
 
 export let mainDb;
 export let debug;
@@ -33,6 +35,9 @@ export default {
 
   onServerInit: async options => {
     mainDb = options.db;
+    const app = options.app;
+
+    app.get('/mysql', connectToMysql);
 
     initBroker(options.messageBrokerClient);
 

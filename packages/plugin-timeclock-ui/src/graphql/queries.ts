@@ -21,8 +21,8 @@ const attachmentFields = `
 `;
 
 const list = `
-  query listQuery($startDate: Date, $endDate: Date, $userIds: [String]) {
-    timeclocks(startDate: $startDate, endDate: $endDate, userIds: $userIds) {
+  query listTimeclocksQuery($startDate: Date, $endDate: Date, $userIds: [String], $branchIds: [String], $departmentIds: [String]) {
+    timeclocks(startDate: $startDate, endDate: $endDate, userIds: $userIds, branchIds: $branchIds, departmentIds: $departmentIds) {
       _id
       shiftStart
       shiftEnd
@@ -35,8 +35,8 @@ const list = `
 `;
 
 const listAbsence = `
-query listAbsenceQuery($startDate: Date, $endDate: Date, $userId: String){
-  absences(startDate: $startDate, endDate: $endDate, userId: $userId){
+query listAbsenceQuery($startDate: Date, $endDate: Date, $userIds: [String], $branchIds: [String], $departmentIds: [String]){
+  absences(startDate: $startDate, endDate: $endDate, userIds: $userIds, branchIds: $branchIds, departmentIds: $departmentIds) {
     _id
     startTime
     endTime
@@ -54,8 +54,8 @@ query listAbsenceQuery($startDate: Date, $endDate: Date, $userId: String){
 }`;
 
 const listSchedule = `
-query listScheduleQuery($startDate: Date, $endDate: Date, $userId: String){
-  schedules(startDate: $startDate, endDate: $endDate, userId: $userId){
+query listScheduleQuery($startDate: Date, $endDate: Date, $userIds: [String], $branchIds: [String], $departmentIds: [String]){
+  schedules(startDate: $startDate, endDate: $endDate, userIds: $userIds, branchIds: $branchIds, departmentIds: $departmentIds) {
     _id
     shifts{
       _id

@@ -24,11 +24,10 @@ type Props = {
   afterSave?: () => void;
   closeModal: () => void;
   renderButton: (props: IButtonMutateProps) => void;
-  submitPayDatesConfig: (payDates: number[]) => void;
 };
 
 function ConfigForm(props: Props) {
-  const { renderButton, submitPayDatesConfig, history } = props;
+  const { renderButton, history } = props;
   const { absenceType, holiday, payDate } = props;
   const [explanationRequired, setExplRequired] = useState(false);
   const [attachmentRequired, setAttachRequired] = useState(false);
@@ -53,15 +52,6 @@ function ConfigForm(props: Props) {
   };
   const toggleAttachRequired = e => {
     setAttachRequired(e.target.checked);
-  };
-
-  const onSubmitPayDatesConfig = () => {
-    payPeriod === 'twice'
-      ? submitPayDatesConfig([
-          payDates.date1.getDate(),
-          payDates.date2.getDate()
-        ])
-      : submitPayDatesConfig([payDates.date1.getDate()]);
   };
 
   const onConfigDateChange = (dateNum: string, newDate: Date) => {

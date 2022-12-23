@@ -3,17 +3,19 @@ import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import React from 'react';
-import ReportList from '../components/report/ReportList';
-import { queries } from '../graphql';
-import { BranchesQueryResponse, ReportsQueryResponse } from '../types';
-import erxesQuery from '@erxes/ui/src/team/graphql/queries';
+import ReportList from '../../components/report/ReportList';
+import { queries } from '../../graphql';
+import { BranchesQueryResponse, ReportsQueryResponse } from '../../types';
+import { IBranch } from '@erxes/ui/src/team/types';
 
 type Props = {
   history: any;
   queryParams: any;
-  searchValue: string;
-  departmentIds: string[];
-  branchIds: string[];
+  searchValue?: string;
+  departmentIds?: string[];
+  branchIds?: string[];
+  getActionBar: (actionBar: any) => void;
+  branchesList: IBranch[];
 };
 
 type FinalProps = {
@@ -22,11 +24,17 @@ type FinalProps = {
 } & Props;
 
 const ListContainer = (props: FinalProps) => {
-  const { listBranchesQuery, listReportsQuery, queryParams } = props;
+  const {
+    listBranchesQuery,
+    listReportsQuery,
+    queryParams,
+    getActionBar
+  } = props;
   const { branchId, deptId } = queryParams;
 
   const updatedProps = {
     ...props,
+    getActionBar,
     branchesList: listBranchesQuery.branches || [],
     reports: listReportsQuery.timeclockReports || [],
     branchId,
@@ -37,17 +45,6 @@ const ListContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, BranchesQueryResponse, { searchValue: string }>(
-      gql(erxesQuery.branches),
-      {
-        name: 'listBranchesQuery',
-        options: ({ searchValue }) => ({
-          variables: { searchValue },
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
-
     graphql<Props, ReportsQueryResponse>(gql(queries.listReports), {
       name: 'listReportsQuery',
       options: ({ departmentIds, branchIds }) => ({

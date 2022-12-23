@@ -3,8 +3,6 @@ import { field } from './utils';
 
 export interface ITimeClock {
   userId?: string;
-  solved?: boolean;
-  status?: string;
   shiftStart: Date;
   shiftEnd?: Date;
   shiftActive?: boolean;

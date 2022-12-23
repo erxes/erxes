@@ -3,36 +3,34 @@ import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import ConfigList from '../components/config/ConfigList';
+import ConfigList from '../../components/config/ConfigList';
 import {
   AbsenceMutationResponse,
   AbsenceTypeQueryResponse,
   ConfigMutationResponse,
   PayDatesQueryResponse,
   HolidaysQueryResponse
-} from '../types';
-import { mutations, queries } from '../graphql';
+} from '../../types';
+import { mutations, queries } from '../../graphql';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 
 type Props = {
+  getActionBar: (actionBar: any) => void;
   history: any;
   queryParams: any;
-  absenceTypeId: string;
-  absenceName: string;
-  attachment: boolean;
-  explanation: boolean;
-  userId: string;
-  reason: string;
-  startTime: Date;
-  endTime: Date;
-  absenceId: string;
-  absenceStatus: string;
-  payDates: number[];
-  queryStartDate: Date;
-  queryEndDate: Date;
-  queryUserId: string;
+  absenceTypeId?: string;
+  absenceName?: string;
+  attachment?: boolean;
+  explanation?: boolean;
+  userId?: string;
+  reason?: string;
+  startTime?: Date;
+  endTime?: Date;
+  absenceId?: string;
+  absenceStatus?: string;
+  payDates?: number[];
 };
 
 type FinalProps = {
@@ -45,8 +43,6 @@ type FinalProps = {
 const ListContainer = (props: FinalProps) => {
   const {
     removeAbsenceTypeMutation,
-    addPayDateMutation,
-    editPayDateMutation,
     removePayDateMutation,
     removeHolidayMutation,
     listAbsenceTypesQuery,
@@ -100,16 +96,6 @@ const ListContainer = (props: FinalProps) => {
     );
   };
 
-  const submitPayDatesConfig = (payDates: number[]) => {
-    confirm('Are you sure to submit these dates as pay dates ? ').then(() => {
-      addPayDateMutation({ variables: { dateNums: payDates } })
-        .then(() => Alert.success('Successfully submitted pay dates'))
-        .catch(err => {
-          throw new Error(err);
-        });
-    });
-  };
-
   const removeAbsenceType = absenceId => {
     confirm('Are you sure to remove this absence type').then(() => {
       removeAbsenceTypeMutation({ variables: { _id: absenceId } })
@@ -148,8 +134,7 @@ const ListContainer = (props: FinalProps) => {
     removeAbsenceType,
     removeHoliday,
     removePayDate,
-    renderButton,
-    submitPayDatesConfig
+    renderButton
   };
   return <ConfigList {...updatedProps} />;
 };

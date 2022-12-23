@@ -237,4 +237,12 @@ export type ScheduleMutationResponse = {
   solveShiftMutation: (params: {
     variables: { _id: string; status: string };
   }) => Promise<any>;
+
+  removeScheduleMutation: (params: {
+    variables: { _id: string };
+  }) => Promise<any>;
+
+  removeScheduleShiftMutation: (params: {
+    variables: { _id: string };
+  }) => Promise<any>;
 };
