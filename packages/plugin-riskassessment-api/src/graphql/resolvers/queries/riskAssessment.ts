@@ -62,11 +62,11 @@ const RiskAssessmentQueries = {
   }
 };
 
-checkPermission(RiskAssessmentQueries, 'riskAssessments', 'showRiskAssessment');
-checkPermission(
-  RiskAssessmentQueries,
-  'riskAssessmentDetail',
-  'showRiskAssessment'
-);
+// checkPermission(RiskAssessmentQueries, 'riskAssessments', 'showRiskAssessment');
+// checkPermission(
+//   RiskAssessmentQueries,
+//   'riskAssessmentDetail',
+//   'showRiskAssessment'
+// );
 
 export default RiskAssessmentQueries;

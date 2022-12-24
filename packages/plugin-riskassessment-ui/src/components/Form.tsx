@@ -1,6 +1,15 @@
 import CommonForm from '@erxes/ui-settings/src/common/components/Form';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { Button, FormGroup, Spinner, Tip, __ } from '@erxes/ui/src';
+import {
+  Button,
+  confirm,
+  EmptyState,
+  FormGroup,
+  Spinner,
+  Tip,
+  __
+} from '@erxes/ui/src';
+import client from '@erxes/ui/src/apolloClient';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import {
@@ -18,7 +27,10 @@ import Select from 'react-select-plus';
 import { calculateMethods, COLORS } from '../common/constants';
 import { RiskAssessmentsType, RiskCalculateLogicType } from '../common/types';
 import { SelectWithCategory } from '../common/utils';
-import { FormContainer } from '../styles';
+import { mutations } from '../graphql';
+import { FormContainer, FormContent, Header } from '../styles';
+import FormItem from './FormItem';
+import gql from 'graphql-tag';
 
 type Props = {
   assessmentDetail?: RiskAssessmentsType;
@@ -28,21 +40,16 @@ type Props = {
   fieldsSkip?: any;
 } & ICommonFormProps;
 
-type CustomFromGroupProps = {
-  children?: React.ReactChild;
-  label: string;
-  required?: boolean;
-  row?: boolean;
-  spaceBetween?: boolean;
-};
-
 type State = {
   riskAssessment: {
     name?: string;
     description?: string;
     categoryId?: string;
+    forms: any[];
     calculateMethod?: string;
     calculateLogics?: RiskCalculateLogicType[];
+    createdAt?: string;
+    category?: any;
   };
 };
 
@@ -66,18 +73,40 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
       delete values.logic;
       delete values.value;
       delete values.value2;
-      riskAssessment.calculateLogics?.forEach(logic => delete logic.__typename);
-      if (fieldsSkip) {
-        return {
-          ...values,
-          calculateMethod: riskAssessment.calculateMethod,
-          categoryId: riskAssessment.categoryId,
-          calculateLogics: riskAssessment.calculateLogics
-        };
-      }
+      riskAssessment.forms?.forEach(formData => {
+        delete formData.__typename;
+        formData.calculateLogics.forEach(logic => delete logic.__typename);
+      });
+
+      const {
+        _id,
+        name,
+        description,
+        categoryId,
+        forms,
+        calculateLogics,
+        calculateMethod
+      } = riskAssessment as RiskAssessmentsType;
+      // if (fieldsSkip) {
+      //   return {
+      //     ...values,
+      //     calculateMethod: riskAssessment.calculateMethod,
+      //     categoryId: riskAssessment.categoryId,
+      //     calculateLogics: riskAssessment.calculateLogics
+      //   };
+      // }
       return {
-        id: assessmentDetail._id,
-        doc: { ...values, calculateLogics: riskAssessment.calculateLogics }
+        // id: assessmentDetail._id,
+        doc: {
+          ...values,
+          _id,
+          name,
+          description,
+          categoryId,
+          forms,
+          calculateLogics,
+          calculateMethod
+        }
       };
     }
     return { ...values, ...riskAssessment };
@@ -90,9 +119,10 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     const handleRow = e => {
       const { riskAssessment } = this.state;
       const { name, value } = e.currentTarget as HTMLInputElement;
+      const { calculateLogics } = riskAssessment;
       const newVariables =
-        riskAssessment.calculateLogics &&
-        riskAssessment?.calculateLogics.map(logic =>
+        // riskAssessment.calculateLogics &&
+        (calculateLogics || []).map(logic =>
           logic._id === _id
             ? {
                 ...logic,
@@ -245,13 +275,14 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     );
   }
 
-  renderContent = (formProps: IFormProps) => {
-    const { detailLoading } = this.props;
+  renderGeneralLogics(formProps) {
     const { riskAssessment } = this.state;
 
-    if (detailLoading) {
-      return <Spinner objective />;
-    }
+    const handleChangeCalculateMethod = ({ value }) => {
+      this.setState(prev => ({
+        riskAssessment: { ...prev.riskAssessment, calculateMethod: value }
+      }));
+    };
 
     const handleAddLevel = e => {
       const variables = {
@@ -271,6 +302,68 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         }
       }));
     };
+    return (
+      <FormContent>
+        <Header>{__('General Configuration of Forms')}</Header>
+        <FormGroup>
+          <ControlLabel>{__('Calculate Methods')}</ControlLabel>
+          <Select
+            placeholder={__('Select Calculate Method')}
+            value={riskAssessment?.calculateMethod}
+            options={calculateMethods}
+            multi={false}
+            onChange={handleChangeCalculateMethod}
+          />
+        </FormGroup>
+        <FormWrapper>
+          {['Name', 'Logic', 'Value', 'Status Color'].map(head => (
+            <FormColumn key={head}>
+              <ControlLabel required>{head}</ControlLabel>
+            </FormColumn>
+          ))}
+          <Tip text="Add Level" placement="bottom">
+            <Button btnStyle="default" icon="add" onClick={handleAddLevel} />
+          </Tip>
+        </FormWrapper>
+        {this.renderLogics(formProps)}
+      </FormContent>
+    );
+  }
+
+  renderForms() {
+    const { riskAssessment } = this.state;
+    const handleChangeFormData = doc => {
+      const { riskAssessment } = this.state;
+
+      const updatedForms = (riskAssessment?.forms || []).map(formData =>
+        formData?._id === doc._id ? doc : formData
+      );
+
+      this.setState(prev => ({
+        riskAssessment: { ...prev.riskAssessment, forms: updatedForms }
+      }));
+    };
+
+    return (riskAssessment?.forms || []).map(form => (
+      <>
+        <FormItem
+          key={form.id}
+          doc={form}
+          handleChange={handleChangeFormData}
+          totalFormsCount={riskAssessment?.forms.length}
+          max={100}
+        />
+      </>
+    ));
+  }
+
+  renderContent = (formProps: IFormProps) => {
+    const { detailLoading } = this.props;
+    const { riskAssessment } = this.state;
+
+    if (detailLoading) {
+      return <Spinner objective />;
+    }
     const handleState = e => {
       const { name, value } = e.currentTarget as HTMLInputElement;
       this.setState(prev => ({
@@ -284,10 +377,36 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
       }));
     };
 
-    const handleChangeCalculateMethod = ({ value }) => {
+    const addForm = () => {
       this.setState(prev => ({
-        riskAssessment: { ...prev.riskAssessment, calculateMethod: value }
+        riskAssessment: {
+          forms: [
+            ...(prev?.riskAssessment?.forms || []),
+            { _id: String(Math.random()) }
+          ]
+        }
       }));
+    };
+
+    const getMaxValuePercentWeight = () => {
+      const { riskAssessment } = this.state;
+
+      const { forms } = riskAssessment;
+
+      const percentWeights = forms
+        .map(form => form.percentWeight)
+        .filter(item => item);
+      if (percentWeights.length === 1) {
+        return 100 - percentWeights[0];
+      }
+      if (percentWeights.length > 1) {
+        const total = percentWeights.reduce((prev, curr) => prev + curr);
+        if (100 - total < 0) {
+          return 0;
+        }
+        return 100 - total;
+      }
+      return 100;
     };
 
     return (
@@ -324,37 +443,57 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             onSelect={handleChangeCategory}
           />
         </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Calculate Methods')}</ControlLabel>
-          <Select
-            placeholder={__('Select Calculate Method')}
-            value={riskAssessment?.calculateMethod}
-            options={calculateMethods}
-            multi={false}
-            onChange={handleChangeCalculateMethod}
-          />
-        </FormGroup>
-        <FormWrapper>
-          {['Name', 'Logic', 'Value', 'Status Color'].map(head => (
-            <FormColumn key={head}>
-              <ControlLabel required>{head}</ControlLabel>
+        <FormContainer column gap style={{ padding: 10 }}>
+          {riskAssessment.forms.length > 1 &&
+            this.renderGeneralLogics(formProps)}
+          <FormWrapper>
+            <FormColumn>
+              <Header>{__('Forms')}</Header>
             </FormColumn>
-          ))}
-          <Tip text="Add Level" placement="bottom">
-            <Button btnStyle="default" icon="add" onClick={handleAddLevel} />
-          </Tip>
-        </FormWrapper>
-        {this.renderLogics(formProps)}
+            <Button icon="plus-1" onClick={addForm}>
+              {__('Add Form')}
+            </Button>
+          </FormWrapper>
+          {!!riskAssessment?.forms?.length ? (
+            this.renderForms()
+          ) : (
+            <EmptyState text="No Forms" icon="file-question" />
+          )}
+        </FormContainer>
       </>
     );
   };
 
   render() {
-    const { assessmentDetail, renderButton } = this.props;
+    const { assessmentDetail, renderButton, closeModal } = this.props;
+    const { riskAssessment } = this.state;
+
+    const handleClose = () => {
+      const formIds: any[] = [];
+
+      for (const form of riskAssessment.forms || []) {
+        if (form.formId) {
+          formIds.push(form.formId);
+        }
+      }
+
+      if (!!formIds.length) {
+        confirm(
+          `Are you sure you want to close.Your created form won't save`
+        ).then(() => {
+          client.mutate({
+            mutation: gql(mutations.removeUnusedRiskAssessmentForm),
+            variables: { formIds }
+          });
+          return closeModal();
+        });
+      }
+    };
 
     return (
       <CommonForm
         {...this.props}
+        closeModal={handleClose}
         renderContent={this.renderContent}
         generateDoc={this.generateDoc}
         object={this.props.object}

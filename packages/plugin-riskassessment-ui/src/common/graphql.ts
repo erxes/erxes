@@ -45,25 +45,27 @@ export const riskAssessmentParams = `
     _id,
     name,
     description,
-    status,
-    statusColor,
     categoryId,
     createdAt,
-    resultScore,
     category{
         _id
         formId
         parentId
         name
     },
-    calculateMethod,
-    calculateLogics {
+      forms {
         _id
-        logic
-        name
-        value
-        value2
-        color
+        calculateMethod
+        formId
+        percentWeight
+        calculateLogics {
+          _id
+          color
+          logic
+          name
+          value
+          value2
+        }
       }
 `;
 

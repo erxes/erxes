@@ -18,7 +18,6 @@ export const commonRiskAssessmentTypes = `
     name: String!
     description: String
     categoryId: String
-    calculateMethod: String
 `;
 
 export const commonRiskConformityTypes = `
@@ -42,4 +41,27 @@ export const commonFormSubmissionsTypes = `
     fieldId: String,
     riskAssessmentId: String,
     formSubmissions:JSON
+`;
+
+export const commonRiskAssessmentFormParams = `
+        _id:String,
+        formId:String,
+        calculateMethod:String,
+        percentWeight:Int,
+`;
+
+export const commonRiskAssessmentParams = `
+        _id:String,
+        name: String
+        description: String
+        categoryId: String
+`;
+
+export const commonCalculateLogicParams = `
+        _id: String,
+        name: String,
+        value: Int
+        value2:Int
+        logic: String
+        color: String
 `;

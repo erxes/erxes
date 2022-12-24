@@ -230,20 +230,18 @@ export const loadRiskConformity = (model: IModels, subdomain: string) => {
       if (!cardId) {
         throw new Error('Card ID is required');
       }
-      const { categoryId } = await model.RiskAssessment.findOne({
+      const { categoryId, forms } = await model.RiskAssessment.findOne({
         _id: riskAssessmentId
       }).lean();
 
-      const { formId } = await model.RiskAssessmentCategory.findOne({
-        _id: categoryId
-      }).lean();
+      const formIds = forms.map(form => form.formId);
+      // if (!formId) {
+      //   throw new Error('Form ID is required');
+      // }
 
-      if (!formId) {
-        throw new Error('Form ID is required');
-      }
-
-      const query = { contentType: 'form', contentTypeId: formId };
+      const query = { contentType: 'form', contentTypeId: { $in: formIds } };
       const editedsubmissions = {};
+      let submissionForms: any[] = [];
 
       const fields = await sendFormsMessage({
         subdomain,
@@ -253,17 +251,47 @@ export const loadRiskConformity = (model: IModels, subdomain: string) => {
         defaultValue: []
       });
 
+      for (const field of fields) {
+        // editedFields[field.contentTypeId] = field;
+        if (submissionForms.find(form => form.formId === field.contentTypeId)) {
+          submissionForms = submissionForms.map(form =>
+            form.formId === field.contentTypeId
+              ? { ...form, fields: [...form.fields, field] }
+              : form
+          );
+        } else {
+          const { title } = await sendFormsMessage({
+            subdomain,
+            action: 'findOne',
+            data: { _id: field.contentTypeId },
+            isRPC: true,
+            defaultValue: {}
+          });
+
+          submissionForms.push({
+            formId: field.contentTypeId,
+            formTitle: title || '',
+            fields: [field]
+          });
+        }
+      }
       const submissions = await model.RiksFormSubmissions.find({
         cardId,
-        formId,
+        formId: { $in: formIds },
         userId
       }).lean();
+
+      console.log({ submissions });
 
       for (const submission of submissions) {
         editedsubmissions[submission.fieldId] = submission.value;
       }
 
-      return { fields, submissions: editedsubmissions, formId };
+      return {
+        forms: submissionForms,
+        submissions: editedsubmissions,
+        formId: ''
+      };
     }
 
     static async getAsssignedUsers(cardId: string, cardType: string) {

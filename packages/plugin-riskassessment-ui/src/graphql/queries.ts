@@ -23,6 +23,15 @@ const assessmentDetail = `
 query RiskAssessmentDetail($id: String, $fieldsSkip: JSON) {
   riskAssessmentDetail(_id: $id, fieldsSkip: $fieldsSkip) {
       ${riskAssessmentParams}
+      calculateMethod
+      calculateLogics {
+      _id
+      color
+      logic
+      name
+      value
+      value2
+    }
     }
   }
 `;

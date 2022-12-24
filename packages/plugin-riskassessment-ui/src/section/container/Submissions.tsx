@@ -68,7 +68,7 @@ class Submissions extends React.Component<FinalProps> {
     }
 
     const updatedProps = {
-      fields: formDetail.riskConformityFormDetail.fields,
+      forms: formDetail.riskConformityFormDetail.forms,
       submissions: formDetail.riskConformityFormDetail.submissions,
       formId: formDetail.riskConformityFormDetail.formId,
       formSubmissionsSave,

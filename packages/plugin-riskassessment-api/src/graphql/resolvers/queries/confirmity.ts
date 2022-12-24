@@ -44,21 +44,21 @@ const RiskConformityQuries = {
   }
 };
 
-checkPermission(RiskConformityQuries, 'riskConformity', 'showRiskAssessment');
-checkPermission(
-  RiskConformityQuries,
-  'riskConformityDetails',
-  'showRiskAssessment'
-);
-checkPermission(
-  RiskConformityQuries,
-  'riskConformitySubmissions',
-  'showRiskAssessment'
-);
-checkPermission(
-  RiskConformityQuries,
-  'riskConformityFormDetail',
-  'showRiskAssessment'
-);
+// checkPermission(RiskConformityQuries, 'riskConformity', 'showRiskAssessment');
+// checkPermission(
+//   RiskConformityQuries,
+//   'riskConformityDetails',
+//   'showRiskAssessment'
+// );
+// checkPermission(
+//   RiskConformityQuries,
+//   'riskConformitySubmissions',
+//   'showRiskAssessment'
+// );
+// checkPermission(
+//   RiskConformityQuries,
+//   'riskConformityFormDetail',
+//   'showRiskAssessment'
+// );
 
 export default RiskConformityQuries;

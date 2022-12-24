@@ -1,28 +1,27 @@
-import { riskAssessmentDef, riskAssessmentValues } from '../common/graphql';
+const riskAssessmentParams = `
+    $name: String!, 
+    $id: String, 
+    $categoryId: String, 
+    $description: String, 
+    $forms: [IRiskAssessmentForm],
+    $calculateMethod:String,
+    $calculateLogics:[CalculateLogicType],
+`;
 
-export const types = `
-input RiskAssessmentInput {
-  name: String
-  description: String
-  categoryId: String
-  status: String
-  calculateMethod:String
-  calculateLogics:[CalculateLogicInput]
-}
-input CalculateLogicInput {
-  _id: String,
-  name: String,
-  value: Int
-  value2:Int
-  logic: String
-  color: String
-}
+const riskAssessmentParamsDef = `
+    name:$name,
+    id:$id,
+    categoryId:$categoryId,
+    description:$description,
+    forms:$forms,
+    calculateMethod:$calculateMethod,
+    calculateLogics:$calculateLogics,
 `;
 
 const riskAssessmentAdd = `
-  mutation AddRiskAssesment(${riskAssessmentDef},$calculateLogics:[CalculateLogicInput]) {
-    addRiskAssesment(${riskAssessmentValues},calculateLogics:$calculateLogics)
-  }
+mutation AddRiskAssesment(${riskAssessmentParams}) {
+  addRiskAssesment(${riskAssessmentParamsDef})
+}
 `;
 
 const riskAssesmentRemove = `
@@ -32,13 +31,20 @@ const riskAssesmentRemove = `
 `;
 
 const riskAssessmentUpdate = `
-  mutation UpdateRiskAssessment($id:String,$doc:RiskAssessmentInput){
-    updateRiskAssessment(_id: $id,doc:$doc)
+  mutation UpdateRiskAssessment($doc:IRiskAssessment){
+    updateRiskAssessment(doc:$doc)
   }
+`;
+
+const removeUnusedRiskAssessmentForm = `
+mutation RemoveUnusedRiskAssessmentForm($formIds: [String]) {
+  removeUnusedRiskAssessmentForm(formIds: $formIds)
+}
 `;
 
 export default {
   riskAssessmentAdd,
   riskAssesmentRemove,
-  riskAssessmentUpdate
+  riskAssessmentUpdate,
+  removeUnusedRiskAssessmentForm
 };

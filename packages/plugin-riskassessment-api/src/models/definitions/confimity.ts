@@ -20,6 +20,17 @@ export interface IRiskFormSubmissionDocument extends Document {
   value: Number;
 }
 
+const conformityFormsResultSchema = new Schema({
+  formId: field({ type: String, label: 'Form Id' }),
+  status: field({ type: String, label: 'Status', default: 'In Progress' }),
+  statusColor: field({
+    type: String,
+    label: 'Status Status Color',
+    default: '#3B85F4'
+  }),
+  resultScore: field({ type: Number, label: 'Result Score', default: 0 })
+});
+
 export const riskConformitySchema = new Schema({
   _id: field({ pkey: true }),
   cardId: field({ type: String, label: 'Card Id' }),
@@ -36,7 +47,12 @@ export const riskConformitySchema = new Schema({
     label: 'Status Status Color',
     default: '#3B85F4'
   }),
-  resultScore: field({ type: Number, label: 'Result Score', default: 0 })
+  resultScore: field({ type: Number, label: 'Result Score', default: 0 }),
+  forms: field({
+    type: [conformityFormsResultSchema],
+    optional: true,
+    label: 'Forms results'
+  })
 });
 
 export const riskConformityFormSubmissionSchema = new Schema({

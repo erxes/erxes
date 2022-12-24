@@ -106,6 +106,7 @@ function RiskAssessmentSection(props: Props) {
         trigger={trigger}
         content={content}
         backDrop
+        size="lg"
         isAnimate
       />
     );

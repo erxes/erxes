@@ -1,6 +1,9 @@
 import {
   commonAssessmentCategoryTypes,
+  commonCalculateLogicParams,
   commonPaginateTypes,
+  commonRiskAssessmentFormParams,
+  commonRiskAssessmentParams,
   commonRiskAssessmentTypes,
   commonTypes
 } from './common';
@@ -28,58 +31,49 @@ customFieldId:String
 `;
 
 export const types = `
-    input RiskAssessmentInput {
-        name: String
-        description: String
-        categoryId: String
-        status: String,
-        calculateMethod: String,
-        calculateLogics: [CalculateLogicInput]
+    input IRiskAssessment {
+        ${commonRiskAssessmentParams}
+        calculateMethod:String
+        calculateLogics:[ICalculateLogic]
+        forms:[IRiskAssessmentForm]
+    }
+
+    type RiskAssessmentType {
+        ${commonRiskAssessmentParams}
+        createdAt:Date
+        category:RiskAssessmentCategoryInput
+        calculateMethod:String
+        calculateLogics:[CalculateLogicType]
+        forms:[RiskAssessmentFormType]
+    }
+    
+    type RiskAssessmentCategoryInput {
+        ${commonAssessmentCategoryTypes}
+    }
+
+    input IRiskAssessmentForm {
+         ${commonRiskAssessmentFormParams}
+        calculateLogics:[ICalculateLogic]
+
+    }
+
+    input ICalculateLogic {
+        ${commonCalculateLogicParams}
+    }
+
+    type CalculateLogicType {
+        ${commonCalculateLogicParams}
+    }
+
+    type RiskAssessmentFormType {
+        ${commonRiskAssessmentFormParams}
+        calculateLogics:[CalculateLogicType]
     }
 
     input RiskAssessmentConfigInput {
         ${configParams}
     }
-
-    input CalculateLogicInput {
-        _id: String,
-        name: String,
-        value: Int
-        value2:Int
-        logic: String
-        color: String
-    }
-    type CalculateLogicType {
-        _id: String,
-        name: String,
-        value: Int
-        value2:Int
-        logic: String,
-        color: String
-    }
-
-    type RiskAssessmentCategoryInput {
-        ${commonAssessmentCategoryTypes}
-    }
-
-    type RiskAssessment {
-        _id: String
-        name: String
-        description: String
-        categoryId: String
-        status: String
-        statusColor: String
-        createdAt:Date
-        resultScore:Int
-        category:RiskAssessmentCategoryInput
-        calculateMethod:String
-        calculateLogics:[CalculateLogicType]
-    }
-    type list {
-        list: [RiskAssessment]
-        totalCount: Int
-    }
-
+    
     type RiskAssessmentConfigs {
         ${configParams},
         board:JSON,
@@ -88,20 +82,27 @@ export const types = `
         field:JSON
         riskAssessment:JSON
     }
+
+    type list {
+        list: [RiskAssessmentType]
+        totalCount: Int
+    }
+
 `;
 
 export const queries = `
     riskAssessments (categoryId:String,ignoreIds:[String],${commonPaginateTypes}):list
-    riskAssessmentDetail(_id: String,fieldsSkip:JSON): RiskAssessment
+    riskAssessmentDetail(_id: String,fieldsSkip:JSON): RiskAssessmentType
     riskAssessmentConfigs (${configParamsDef},${commonPaginateTypes}):[RiskAssessmentConfigs]
     riskAssessmentConfigsTotalCount(${configParamsDef},${commonPaginateTypes}):Int
 `;
 
 export const mutations = `
-    addRiskAssesment (${commonRiskAssessmentTypes}${commonTypes},calculateLogics:[CalculateLogicInput]):JSON
+    addRiskAssesment (${commonRiskAssessmentTypes}${commonTypes},forms:[IRiskAssessmentForm]):JSON
     removeRiskAssessment (_ids:[String]):JSON
-    updateRiskAssessment (_id:String,doc:RiskAssessmentInput):JSON
+    updateRiskAssessment (doc:IRiskAssessment):JSON
     addRiskAssesmentConfig (${configParams}):JSON
     updateRiskAssessmentConfig(configId:String,doc:RiskAssessmentConfigInput):JSON
     removeRiskAssessmentConfigs(configIds:[String]):JSON
+    removeUnusedRiskAssessmentForm(formIds:[String]):JSON
 `;

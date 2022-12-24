@@ -1,6 +1,6 @@
 const addAssessmentCategory = `
-    mutation AddAssessmentCategory($formId: String, $name: String, $parentId: String,$code: String,$type: String) {
-        addAssessmentCategory( formId: $formId, name: $name, parentId: $parentId,code: $code,type: $type)
+    mutation AddAssessmentCategory($name: String, $parentId: String,$code: String,$type: String) {
+        addAssessmentCategory( name: $name, parentId: $parentId,code: $code,type: $type)
     }
 `;
 
@@ -11,8 +11,8 @@ const removeAssessmentCategory = `
 `;
 
 const editAssessmentCategory = `
-    mutation EditAssessmentCategory($_id:String,$code: String, $formId: String, $name: String, $parentId: String,$type: String) {
-        editAssessmentCategory(_id:$_id,code: $code, formId: $formId, name: $name, parentId: $parentId,type: $type)
+    mutation EditAssessmentCategory($_id:String,$code: String, $name: String, $parentId: String,$type: String) {
+        editAssessmentCategory(_id:$_id,code: $code, name: $name, parentId: $parentId,type: $type)
     }
 `;
 

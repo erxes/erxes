@@ -1,11 +1,12 @@
 import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
-import { Button } from '@erxes/ui/src';
+import { Button, Step, Steps } from '@erxes/ui/src';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import __ from 'lodash';
 import React from 'react';
+import { Padding } from '../../styles';
 
 type Props = {
-  fields: any;
+  forms: any[];
   submissions: any;
   formId: string;
   formSubmissionsSave: (doc: any) => any;
@@ -38,8 +39,7 @@ class SubmissionsComponent extends React.Component<Props, State> {
     });
   }
 
-  renderForm() {
-    const { fields } = this.props;
+  renderForm(fields) {
     const { submissions } = this.state;
 
     const handleChange = field => {
@@ -60,11 +60,19 @@ class SubmissionsComponent extends React.Component<Props, State> {
   }
 
   render() {
-    const { closeModal, isSubmitted } = this.props;
+    const { closeModal, isSubmitted, forms } = this.props;
 
     return (
-      <div>
-        {this.renderForm()}
+      <>
+        <Steps>
+          {Object.values(forms || {}).map(form => (
+            <Step key={form.formId} title={form.formTitle}>
+              <Padding horizontal vertical>
+                {this.renderForm(form.fields)}
+              </Padding>
+            </Step>
+          ))}
+        </Steps>
         {!isSubmitted && (
           <ModalFooter>
             <Button btnStyle="simple" onClick={closeModal}>
@@ -75,7 +83,7 @@ class SubmissionsComponent extends React.Component<Props, State> {
             </Button>
           </ModalFooter>
         )}
-      </div>
+      </>
     );
   }
 }

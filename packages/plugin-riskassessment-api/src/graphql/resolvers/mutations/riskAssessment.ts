@@ -18,11 +18,21 @@ const RiskAssessmentMutations = {
 
   async updateRiskAssessment(
     _root,
-    params: { _id: string; doc: IRiskAssessmentField },
+    params: { doc: IRiskAssessmentField },
     { models }: IContext
   ) {
+    console.log({ params });
+
     const result = await models.RiskAssessment.riskAssessmentUpdate(params);
     return result;
+  },
+
+  async removeUnusedRiskAssessmentForm(
+    _root,
+    { formIds },
+    { models }: IContext
+  ) {
+    return await models.RiskAssessment.removeUnusedRiskAssessmentForm(formIds);
   },
 
   async addRiskAssesmentConfig(_root, params, { models }: IContext) {

@@ -12,7 +12,6 @@ export interface IRiskAssessmentDocument extends Document {
 export interface IRiskAssessmentCategoryDocument extends Document {
   _id: String;
   name: String;
-  formId: String;
   parentId: String;
   order: String;
   code: String;
@@ -31,7 +30,6 @@ export interface IRiskAssessmentsConfigDocument extends Document {
 export const riskAssessmentCategorySchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Category Name' }),
-  formId: field({ type: String, label: 'Category Form Id' }),
   parentId: field({ type: String, label: 'Category Parent Name' }),
   order: field({ type: String, label: 'Category Order' }),
   code: field({ type: String, label: 'Category Code' }),
@@ -47,16 +45,36 @@ const calculateLogicsSchema = new Schema({
   color: field({ type: String, label: 'Logic Status Color' })
 });
 
+const riskAssessmentFormsSchema = new Schema({
+  _id: field({ pkey: true }),
+  formId: field({ type: String, name: 'Form ID' }),
+  calculateMethod: field({ type: String, label: 'Calculate Method' }),
+  percentWeight: field({ type: Number, label: 'Percent Weight' }),
+  calculateLogics: field({
+    type: [calculateLogicsSchema],
+    label: 'Calculate Logics'
+  })
+});
+
 export const riskAssessmentSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Name' }),
   description: field({ type: String, label: 'Description' }),
   createdAt: field({ type: Date, default: Date.now, label: 'Created At' }),
   categoryId: field({ type: String, label: 'Risk Assessment Category Id' }),
-  calculateMethod: field({ type: String, label: 'Calculate Method' }),
+  calculateMethod: field({
+    type: String,
+    optional: true,
+    label: 'Calculate Method'
+  }),
   calculateLogics: field({
     type: [calculateLogicsSchema],
+    optinal: true,
     label: 'Calculate Logics'
+  }),
+  forms: field({
+    type: [riskAssessmentFormsSchema],
+    label: 'Risk Assessment Forms'
   })
 });
 

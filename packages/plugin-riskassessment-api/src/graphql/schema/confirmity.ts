@@ -23,7 +23,7 @@ export const types = `
         status: String,
     }
     type RiskConformityFormDetailType {
-        fields:JSON,
+        forms:JSON,
         submissions:JSON,
         formId: String
     }
@@ -47,7 +47,7 @@ export const queries = `
     riskConformitiesTotalCount(${conformityParams}): Int
     riskConformityDetails(cardId:String) :[RiskConformity]
     riskConformitySubmissions(cardId:String,cardType:String) :JSON
-    riskConformityFormDetail(cardId:String,userId: String,riskAssessmentId:String) :RiskConformityFormDetailType
+    riskConformityFormDetail(cardId:String,cardType:String,userId: String,riskAssessmentId:String) :RiskConformityFormDetailType
 `;
 
 export const mutations = `

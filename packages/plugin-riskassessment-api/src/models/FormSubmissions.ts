@@ -6,8 +6,10 @@ import {
   sendFormsMessage
 } from '../messageBroker';
 import {
+  calculateFormResponses,
   calculateRiskAssessment,
   checkAllUsersSubmitted,
+  getFieldsGroupByForm,
   getFormId
 } from '../utils';
 import { IRiskFormSubmissionParams } from './definitions/common';
@@ -55,7 +57,7 @@ export const loadRiskFormSubmissions = (model: IModels, subdomain: string) => {
 
       const filter = generateFields(params);
 
-      const formId = await getFormId(model, cardId, cardType);
+      // const formId = await getFormId(model, cardId, cardType);
       const conformity = await model.RiskConformity.findOne({
         cardId,
         cardType
@@ -67,73 +69,173 @@ export const loadRiskFormSubmissions = (model: IModels, subdomain: string) => {
 
       const { riskAssessmentId, resultScore } = conformity;
 
-      const { calculateMethod } = await model.RiskAssessment.findOne({
+      const { calculateMethod, forms } = await model.RiskAssessment.findOne({
         _id: riskAssessmentId
       }).lean();
 
-      const newSubmission: any = [];
-      let sumNumber = 0;
+      if (forms.length === 1 && !calculateMethod) {
+        const fields = await getFieldsGroupByForm({
+          subdomain,
+          formId: forms[0].formId
+        });
 
-      if (calculateMethod === 'Multiply') {
-        sumNumber = 1;
+        const { submissions, sumNumber } = await calculateFormResponses({
+          responses: formSubmissions,
+          fields,
+          calculateMethod: forms[0].calculateMethod,
+          filter
+        });
+        await model.RiskConformity.findOneAndUpdate(
+          { riskAssessmentId, cardId, cardType },
+          { $set: { resultScore: resultScore + sumNumber } },
+          { new: true }
+        );
+        await model.RiksFormSubmissions.insertMany(submissions);
       }
 
-      const fields = await sendFormsMessage({
-        subdomain,
-        action: 'fields.find',
-        data: { query: { contentType: 'form', contentTypeId: formId } },
-        isRPC: true,
-        defaultValue: []
-      });
+      if (forms.length > 1) {
+        const newSubmissions: any = [];
+        let totalScore = 0;
+        let totalPercent = 0;
 
-      for (const [key, value] of Object.entries(formSubmissions)) {
-        const { optionsValues } = fields.find(field => field._id === key);
-        if (optionsValues) {
-          const optValues = optionsValues
-            .split('\n')
-            .map(item => {
-              if (item.match(/=/g)) {
-                const label = item?.substring(0, item.indexOf('='));
-                const value = parseInt(
-                  item.substring(item?.indexOf('=') + 1, item.length)
-                );
-                if (!Number.isNaN(value)) {
-                  return { label, value };
-                }
-              }
-            }, [])
-            .filter(item => item);
-          const fieldValue = optValues.find(option => option.label === value);
-          switch (calculateMethod) {
-            case 'Multiply':
-              sumNumber *= parseInt(fieldValue?.value || 0);
-              break;
-            case 'Addition':
-              sumNumber += parseInt(fieldValue?.value || 0);
-              break;
-          }
-
-          newSubmission.push({ ...filter, fieldId: key, value });
-        } else {
-          newSubmission.push({ ...filter, fieldId: key, value });
+        if (calculateMethod === 'Multiply') {
+          totalScore = 1;
         }
+
+        const fieldsGroupByForm = await getFieldsGroupByForm({
+          subdomain,
+          formIds: forms.map(form => form.formId)
+        });
+
+        for (const form of forms) {
+          const fieldsForm = fieldsGroupByForm.find(
+            field => field.formId === form.formId
+          );
+          if (fieldsForm) {
+            const { submissions, sumNumber } = await calculateFormResponses({
+              responses: formSubmissions,
+              fields: fieldsForm.fields,
+              calculateMethod: form.calculateMethod,
+              filter
+            });
+            console.log({ sumNumber });
+            newSubmissions.push(...submissions);
+            totalPercent += form.percentWeight;
+            const score = sumNumber * (form.percentWeight / 100);
+            switch (calculateMethod) {
+              case 'Multiply':
+                totalScore *= score;
+                break;
+              case 'Addition':
+                totalScore += score;
+                break;
+            }
+
+            await models?.RiskConformity.update(
+              { riskAssessmentId, cardId, cardType },
+              {
+                $addToSet: {
+                  forms: {
+                    $each: [
+                      {
+                        formId: form.formId
+                      }
+                    ]
+                  }
+                }
+              },
+              { new: true }
+            );
+            await models?.RiskConformity.updateOne(
+              {
+                riskAssessmentId,
+                cardId,
+                cardType,
+                'forms.formId': form.formId
+              },
+              { $inc: { 'forms.$.resultScore': sumNumber } }
+            );
+          }
+        }
+
+        await model.RiskConformity.findOneAndUpdate(
+          { riskAssessmentId, cardId, cardType },
+          {
+            $set: {
+              resultScore:
+                resultScore + totalScore / (!!totalPercent ? totalPercent : 1)
+            }
+          },
+          { new: true }
+        );
+        await model.RiksFormSubmissions.insertMany(newSubmissions);
       }
 
-      await model.RiskConformity.findOneAndUpdate(
-        { riskAssessmentId, cardId, cardType },
-        { $set: { resultScore: resultScore + sumNumber } },
-        { new: true }
-      );
-      await model.RiksFormSubmissions.insertMany(newSubmission);
+      // for (const [key, value] of Object.entries(formSubmissions)) {
+      //   const { optionsValues, contentTypeId } = fields.find(
+      //     field => field._id === key
+      //   );
+      //   if (optionsValues) {
+      //     const optValues = optionsValues
+      //       .split('\n')
+      //       .map(item => {
+      //         if (item.match(/=/g)) {
+      //           const label = item?.substring(0, item.indexOf('='));
+      //           const value = parseInt(
+      //             item.substring(item?.indexOf('=') + 1, item.length)
+      //           );
+      //           if (!Number.isNaN(value)) {
+      //             return { label, value };
+      //           }
+      //         }
+      //       }, [])
+      //       .filter(item => item);
+      //     console.log({ optValues });
+      //     const fieldValue = optValues.find(option => option.label === value);
+      //     console.log({ fieldValue });
+      //     switch (calculateMethod) {
+      //       case 'Multiply':
+      //         sumNumber *= parseInt(fieldValue?.value || 0);
+      //         break;
+      //       case 'Addition':
+      //         sumNumber += parseInt(fieldValue?.value || 0);
+      //         break;
+      //     }
+
+      //     newSubmission.push({
+      //       ...filter,
+      //       formId: contentTypeId,
+      //       fieldId: key,
+      //       value
+      //     });
+      //   } else {
+      //     newSubmission.push({
+      //       ...filter,
+      //       formId: contentTypeId,
+      //       fieldId: key,
+      //       value
+      //     });
+      //   }
+      // }
+
+      // await model.RiskConformity.findOneAndUpdate(
+      //   { riskAssessmentId, cardId, cardType },
+      //   { $set: { resultScore: resultScore + sumNumber } },
+      //   { new: true }
+      // );
+      // await model.RiksFormSubmissions.insertMany(newSubmission);
       if (await checkAllUsersSubmitted(subdomain, model, cardId, cardType)) {
         calculateRiskAssessment(model, cardId, cardType);
       }
       return {
-        cardId,
-        cardType,
-        riskAssessmentId,
-        resultScore: resultScore + sumNumber,
-        score: sumNumber
+        formFields: []
+        // cardId,
+        // cardType,
+        // riskAssessmentId,
+        // resultScore: resultScore + sumNumber,
+        // score: sumNumber
+        // resultScore: 0,
+        // score: 0
       };
     }
     public static async formSubmitHistory(

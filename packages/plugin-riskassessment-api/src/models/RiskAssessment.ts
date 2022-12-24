@@ -2,6 +2,7 @@ import { paginate } from '@erxes/api-utils/src';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
+import { sendFormsMessage } from '../messageBroker';
 import { validRiskAssessment } from '../utils';
 import { IRiskAssessmentField, PaginateField } from './definitions/common';
 import {
@@ -22,9 +23,11 @@ export interface IRiskAssessmentModel extends Model<IRiskAssessmentDocument> {
   ): Promise<IRiskAssessmentDocument>;
   riskAssesmentRemove(_ids: string[]): void;
   riskAssessmentUpdate(params: {
-    _id: string;
     doc: IRiskAssessmentField;
   }): Promise<IRiskAssessmentDocument>;
+  removeUnusedRiskAssessmentForm(
+    ids: string[]
+  ): Promise<IRiskAssessmentDocument>;
 }
 
 const statusColors = {
@@ -160,19 +163,21 @@ export const loadRiskAssessment = (model: IModels, subdomain: string) => {
 
     public static async riskAssessmentUpdate(params: {
       _id: string;
-      doc: IRiskAssessmentField;
+      doc: { _id: string } & IRiskAssessmentField;
     }) {
-      const { _id, doc } = params;
+      const { doc } = params;
 
-      if (!_id && !doc) {
+      if (!doc._id && !doc) {
         throw new Error('Not found risk assessment');
       }
 
-      const result = await model.RiskAssessment.findByIdAndUpdate(_id, doc);
-      if (!result) {
+      console.log({ doc });
+
+      try {
+        return await model.RiskAssessment.findByIdAndUpdate(doc._id, doc);
+      } catch (e) {
         throw new Error('Something went wrong');
       }
-      return result;
     }
 
     public static async riskAssessmentDetail(params: {
@@ -186,6 +191,21 @@ export const loadRiskAssessment = (model: IModels, subdomain: string) => {
       }
 
       return await model.RiskAssessment.findOne(filter).select(fieldsSkip);
+    }
+
+    public static async removeUnusedRiskAssessmentForm(ids: string[]) {
+      try {
+        await sendFormsMessage({
+          subdomain,
+          action: 'removeForm',
+          data: { $in: ids },
+          isRPC: true,
+          defaultValue: {}
+        });
+        return { status: 'removed' };
+      } catch (error) {
+        throw new Error(error.message);
+      }
     }
   }
   riskAssessmentSchema.loadClass(RiskAssessment);

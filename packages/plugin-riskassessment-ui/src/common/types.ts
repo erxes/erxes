@@ -21,13 +21,11 @@ export type RiskAssessmentsType = {
   categoryId: string;
   description: string;
   name: string;
-  status: string;
-  statusColor: string;
   createdAt?: string;
-  resultScore?: number;
   category?: RiskAssessmentCategory;
+  calculateLogics: [RiskCalculateLogicType];
   calculateMethod: string;
-  calculateLogics: RiskCalculateLogicType[];
+  forms: any[];
 };
 
 export type RiskAssessmentDetailQueryResponse = {
@@ -118,7 +116,7 @@ export type ICardRiskAssessmentDetailQueryResponse = {
 };
 
 type IFormDetailType = {
-  fields: any[];
+  forms: any[];
   submissions: {
     [key: string]: string;
   };

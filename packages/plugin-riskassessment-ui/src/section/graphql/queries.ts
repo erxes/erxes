@@ -3,7 +3,7 @@ import { riskConformityParams } from '../../common/graphql';
 const riskAssessments = `
   query RiskAssessments($categoryId: String,,$searchValue: String,$perPage: Int) {
     riskAssessments(categoryId: $categoryId ,perPage: $perPage,searchValue: $searchValue) {
-      list{_id,name,description,status,categoryId},totalCount
+      list{_id,name,description,categoryId},totalCount
     }
   }
   `;
@@ -40,7 +40,7 @@ const riskConformitySubmissions = `
 const riskConformityDetail = `
   query RiskConformityFormDetail($cardId: String,$userId: String,$riskAssessmentId: String,) {
     riskConformityFormDetail(cardId: $cardId, userId: $userId,riskAssessmentId: $riskAssessmentId){
-      fields
+      forms
       formId
       submissions
     }
