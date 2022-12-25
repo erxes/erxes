@@ -6,12 +6,11 @@ export default {
   'contacts:customer': ['create', 'update', 'remove']
 };
 
-export const afterMutationHandlers = async (subdomain, params) => {
+export const afterMutationHandlers = async params => {
   const { type, action } = params;
   const { primaryPhone } = params.object;
 
   const orchardCustomer = await getCustomer(primaryPhone);
-  console.log('ORCHARD CUSTOMER', orchardCustomer);
 
   try {
     if (type === 'contacts:customer') {

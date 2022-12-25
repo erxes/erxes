@@ -2,7 +2,12 @@ import { initBroker } from './messageBroker';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import afterMutations from './afterMutations';
-import { createCustomer, getCustomer } from './api/erxesApi';
+import {
+  createCustomer,
+  getCustomer,
+  getCustomerByCardCode,
+  updateCustomer
+} from './api/erxesApi';
 
 export let mainDb;
 export let debug;
@@ -25,8 +30,20 @@ export default {
     afterMutations
   },
 
-  getHandlers: [{ path: `/customer`, method: getCustomer }],
-  postHandlers: [{ path: `/customer`, method: createCustomer }],
+  getHandlers: [
+    {
+      path: `/customer`,
+      method: getCustomer
+    },
+    {
+      path: `/customerId`,
+      method: getCustomerByCardCode
+    }
+  ],
+  postHandlers: [
+    { path: `/customer`, method: createCustomer },
+    { path: `/customerUpdate`, method: updateCustomer }
+  ],
 
   apolloServerContext: async context => {
     return context;

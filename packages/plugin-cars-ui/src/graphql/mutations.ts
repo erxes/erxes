@@ -51,8 +51,8 @@ const carsAdd = `
 `;
 
 const carsEdit = `
-  mutation carsEdit($_id: String!, ${commonFields}) {
-    carsEdit(_id: $_id, ${commonVariables}) {
+  mutation carsEdit($_id: String!, $customerIds: [String], $companyIds: [String] ${commonFields}) {
+    carsEdit(_id: $_id, customerIds: $customerIds, companyIds: $companyIds, ${commonVariables}) {
       ownerId,
       description,
       plateNumber,
