@@ -8,7 +8,6 @@
     "start": "cd .erxes/dist/plugin-timeclock-api/.erxes && node src"
   },
   "dependencies": {
-    "mysql2": "^2.3.3",
-    "sequelize": "^6.27.0"
+    "mysql2": "^2.3.3"
   }
 }
