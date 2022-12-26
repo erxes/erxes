@@ -42,14 +42,6 @@ class AssignmentFormContainer extends React.Component<FinalProps> {
         }
       };
 
-      if (this.props.queryParams) {
-        values.segmentIds = this.props.queryParams.segmentIds
-          ? this.props.queryParams.segmentIds
-            ? JSON.parse(this.props.queryParams.segmentIds)
-            : []
-          : [];
-      }
-
       return (
         <ButtonMutate
           mutation={

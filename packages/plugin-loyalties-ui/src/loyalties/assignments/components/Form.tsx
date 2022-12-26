@@ -117,19 +117,6 @@ class AssignmentForm extends React.Component<Props, State> {
     }
   };
 
-  afterSave = response => {
-    const { history } = this.props;
-
-    const prevSegmentIds = router.getParam(history, 'segmentIds');
-
-    let arr: string[] = [];
-    if (prevSegmentIds) arr = JSON.parse(prevSegmentIds);
-    arr.push(response.data.segmentsAdd._id);
-    router.setParams(history, {
-      segmentIds: JSON.stringify(arr)
-    });
-  };
-
   renderContent = (formProps: IFormProps) => {
     const { assignment } = this.state;
     const { closeModal, renderButton } = this.props;

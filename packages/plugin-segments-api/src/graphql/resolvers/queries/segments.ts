@@ -130,9 +130,12 @@ const segmentQueries = {
     const selector: any = {
       ...commonQuerySelector,
       contentType: { $in: contentTypes },
-      name: { $exists: true },
-      _id: { $in: ids }
+      name: { $exists: true }
     };
+
+    if (ids) {
+      selector._id = { $in: ids };
+    }
 
     if (config) {
       for (const key of Object.keys(config)) {
