@@ -5,8 +5,7 @@ import {
 } from '../messageBroker';
 
 export const getCustomer = async (req, res, subdomain) => {
-  const phoneNumber = req.query.phone;
-
+  const phoneNumber = req.query.cellular;
   const customer = await sendContactsMessage({
     subdomain,
     action: 'customers.findOne',
@@ -24,7 +23,8 @@ export const getCustomer = async (req, res, subdomain) => {
     });
   }
   const customerId = customer._id;
-  const vehicle = await sendCarsMessage({
+
+  const carInfo = await sendCarsMessage({
     subdomain,
     action: 'vehicle.findOne',
     data: {
@@ -34,13 +34,16 @@ export const getCustomer = async (req, res, subdomain) => {
   });
 
   const customFields: any = {};
+  const vehicle: any = [];
 
   customFields.firstName = customer.firstName;
   customFields.lastName = customer.lastName;
   customFields.cellular = customer.primaryPhone;
   customFields.e_mail = customer.primaryEmail;
+  customFields.vehicle = vehicle;
 
   const fieldIds = (customer.customFieldsData || []).map(d => d.field);
+  console.log('++++++++++++++++');
 
   const fields = await sendCommonMessage({
     subdomain: 'os',
@@ -62,6 +65,21 @@ export const getCustomer = async (req, res, subdomain) => {
       customFields[field.code] = customFieldData.value;
     }
   }
+
+  vehicle.push({
+    vehCode: carInfo.plateNumber,
+    cardCode: customer.cardCode,
+    cardName: customer.firstName,
+    markDesc: '',
+    vehDesc: carInfo.description,
+    vehYear: carInfo.importYear,
+    maxKm: '',
+    maxTm: '',
+    kmUnit: '',
+    vehId: '',
+    createDate: '',
+    updateDate: ''
+  });
 
   return res.json(customFields);
 };
