@@ -151,6 +151,7 @@ class BasicInfo extends React.Component<Props> {
             <ModalTrigger
               title="Add Knowledge "
               trigger={<Icon icon="lightbulb-alt" />}
+              enforceFocus={false}
               content={addKnowledge}
               size="lg"
             />
