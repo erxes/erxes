@@ -7,7 +7,7 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { mutations, queries } from '../graphql';
 import {
   AssignmentCampaignDetailQueryResponse,
-  SegmentsDetailQueryResponse
+  SegmentsQueryResponse
 } from '../types';
 import { withProps } from '@erxes/ui/src/utils';
 import { VoucherCampaignQueryResponse } from '../../voucherCampaign/types';
@@ -22,20 +22,20 @@ type Props = {
 
 type FinalProps = {
   assignmentCampaignDetailQuery: AssignmentCampaignDetailQueryResponse;
-  segmentsDetailQuery: SegmentsDetailQueryResponse;
+  segmentsQuery: SegmentsQueryResponse;
   voucherCampaignsQuery: VoucherCampaignQueryResponse;
 } & Props;
 
 class AssignmentEditFormContainer extends React.Component<FinalProps> {
   render() {
     const {
-      segmentsDetailQuery,
+      segmentsQuery,
       voucherCampaignsQuery,
       assignmentCampaignDetailQuery
     } = this.props;
 
     if (
-      segmentsDetailQuery.loading ||
+      segmentsQuery.loading ||
       voucherCampaignsQuery.loading ||
       assignmentCampaignDetailQuery.loading
     ) {
@@ -89,7 +89,7 @@ class AssignmentEditFormContainer extends React.Component<FinalProps> {
       );
     };
 
-    const segmentDetails = segmentsDetailQuery.segmentsDetail || [];
+    const segments = segmentsQuery.segments || [];
     const voucherCampaigns = voucherCampaignsQuery.voucherCampaigns || [];
     const assignmentCampaign =
       assignmentCampaignDetailQuery.assignmentCampaignDetail || {};
@@ -97,7 +97,7 @@ class AssignmentEditFormContainer extends React.Component<FinalProps> {
     const updatedProps = {
       ...this.props,
       renderButton,
-      segmentDetails,
+      segments,
       voucherCampaigns,
       assignmentCampaign
     };
@@ -112,16 +112,17 @@ const getRefetchQueries = () => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, SegmentsDetailQueryResponse>(gql(queries.segmentsDetail), {
-      name: 'segmentsDetailQuery',
+    graphql<Props, SegmentsQueryResponse>(gql(queries.segments), {
+      name: 'segmentsQuery',
       options: ({ queryParams }) => ({
         variables: {
-          _ids:
+          ids:
             queryParams === undefined
               ? []
               : queryParams.segmentIds
               ? JSON.parse(queryParams.segmentIds)
-              : []
+              : [],
+          contentTypes: ['contacts:customer']
         }
       })
     }),

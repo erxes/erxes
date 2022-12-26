@@ -7,7 +7,7 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { mutations, queries } from '../graphql';
 import {
   AssignmentCampaignQueryResponse,
-  SegmentsDetailQueryResponse
+  SegmentsQueryResponse
 } from '../types';
 import { withProps } from '@erxes/ui/src/utils';
 import { VoucherCampaignQueryResponse } from '../../voucherCampaign/types';
@@ -22,15 +22,15 @@ type Props = {
 
 type FinalProps = {
   assignmentCampaignsQuery: AssignmentCampaignQueryResponse;
-  segmentsDetailQuery: SegmentsDetailQueryResponse;
+  segmentsQuery: SegmentsQueryResponse;
   voucherCampaignsQuery: VoucherCampaignQueryResponse;
 } & Props;
 
 class AssignmentCreateFormContainer extends React.Component<FinalProps> {
   render() {
-    const { segmentsDetailQuery, voucherCampaignsQuery } = this.props;
+    const { segmentsQuery, voucherCampaignsQuery } = this.props;
 
-    if (segmentsDetailQuery.loading || voucherCampaignsQuery.loading) {
+    if (segmentsQuery.loading || voucherCampaignsQuery.loading) {
       return <Spinner />;
     }
     const renderButton = ({
@@ -81,13 +81,13 @@ class AssignmentCreateFormContainer extends React.Component<FinalProps> {
       );
     };
 
-    const segmentDetails = segmentsDetailQuery.segmentsDetail || [];
+    const segments = segmentsQuery.segments || [];
     const voucherCampaigns = voucherCampaignsQuery.voucherCampaigns || [];
 
     const updatedProps = {
       ...this.props,
       renderButton,
-      segmentDetails,
+      segments,
       voucherCampaigns
     };
 
@@ -101,16 +101,17 @@ const getRefetchQueries = () => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, SegmentsDetailQueryResponse>(gql(queries.segmentsDetail), {
-      name: 'segmentsDetailQuery',
+    graphql<Props, SegmentsQueryResponse>(gql(queries.segments), {
+      name: 'segmentsQuery',
       options: ({ queryParams }) => ({
         variables: {
-          _ids:
+          ids:
             queryParams === undefined
               ? []
               : queryParams.segmentIds
               ? JSON.parse(queryParams.segmentIds)
-              : []
+              : [],
+          contentTypes: ['contacts:customer']
         }
       })
     }),

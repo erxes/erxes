@@ -39,7 +39,7 @@ import { Link } from 'react-router-dom';
 type Props = {
   assignmentCampaign: IAssignmentCampaign;
   voucherCampaigns: IVoucherCampaign[];
-  segmentDetails: ISegment[];
+  segments: ISegment[];
   queryParams: any;
   history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -136,8 +136,8 @@ class EditForm extends React.Component<Props, State> {
   };
 
   renderRow = () => {
-    const { segmentDetails, history } = this.props;
-    return segmentDetails.map(segment => (
+    const { segments, history } = this.props;
+    return segments.map(segment => (
       <Row key={segment._id} history={history} segment={segment} />
     ));
   };
@@ -245,7 +245,7 @@ class EditForm extends React.Component<Props, State> {
                 afterSave={this.afterSave}
               />
             </FormGroup>
-            {this.props.segmentDetails.length > 0 && (
+            {this.props.segments.length > 0 && (
               <Table hover={true} bordered={true}>
                 <thead>
                   <tr>

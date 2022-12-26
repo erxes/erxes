@@ -1,15 +1,13 @@
 import * as compose from 'lodash.flowright';
 import Form from '../components/Form';
 import React from 'react';
-import { ButtonMutate, Spinner } from '@erxes/ui/src/components';
+import { ButtonMutate } from '@erxes/ui/src/components';
 import { withProps } from '@erxes/ui/src/utils';
-import { IButtonMutateProps, IQueryParams } from '@erxes/ui/src/types';
-import { IAssignment, SegmentsDetailQueryResponse } from '../types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { IAssignment } from '../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { mutations, queries } from '../graphql';
 import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
 
 type Props = {
   assignment: IAssignment;
@@ -22,16 +20,11 @@ type Props = {
 type FinalProps = {
   usersQuery: UsersQueryResponse;
   currentUser: IUser;
-  segmentsDetailQuery: SegmentsDetailQueryResponse;
 } & Props;
 
-class AssignmentFromContainer extends React.Component<FinalProps> {
+class AssignmentFormContainer extends React.Component<FinalProps> {
   render() {
-    const { segmentsDetailQuery, history, queryParams } = this.props;
-
-    if (segmentsDetailQuery.loading) {
-      <Spinner />;
-    }
+    const { history, queryParams } = this.props;
 
     const renderButton = ({
       name,
@@ -74,12 +67,9 @@ class AssignmentFromContainer extends React.Component<FinalProps> {
       );
     };
 
-    const segmentsDetail = segmentsDetailQuery.segmentsDetail || [];
-
     const updatedProps = {
       ...this.props,
       renderButton,
-      segmentsDetail,
       history,
       queryParams
     };
@@ -98,20 +88,4 @@ const getRefetchQueries = () => {
   ];
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, SegmentsDetailQueryResponse>(gql(queries.segmentsDetail), {
-      name: 'segmentsDetailQuery',
-      options: ({ queryParams }) => ({
-        variables: {
-          _ids:
-            queryParams === undefined
-              ? []
-              : queryParams.segmentIds
-              ? JSON.parse(queryParams.segmentIds)
-              : []
-        }
-      })
-    })
-  )(AssignmentFromContainer)
-);
+export default withProps<Props>(compose()(AssignmentFormContainer));

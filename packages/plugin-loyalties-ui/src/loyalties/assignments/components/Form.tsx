@@ -16,8 +16,6 @@ import SelectCampaigns from '../../containers/SelectCampaigns';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import { __, router } from '@erxes/ui/src/utils';
 import { queries } from '../../../configs/assignmentCampaign/graphql';
-import { ISegment } from '@erxes/ui-segments/src/types';
-import Row from './SegmentRow';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -25,7 +23,6 @@ type Props = {
   closeModal: () => void;
   queryParams: any;
   history: any;
-  segmentsDetail: ISegment[];
 };
 
 type State = {
@@ -131,14 +128,6 @@ class AssignmentForm extends React.Component<Props, State> {
     router.setParams(history, {
       segmentIds: JSON.stringify(arr)
     });
-  };
-
-  renderRow = () => {
-    const { segmentsDetail, history, assignment } = this.props;
-
-    return segmentsDetail.map(segment => (
-      <Row key={segment._id} history={history} segment={segment} />
-    ));
   };
 
   renderContent = (formProps: IFormProps) => {

@@ -1,4 +1,3 @@
-import { ISegment } from '@erxes/ui-segments/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { ICommonDoc } from '../common/types';
 
@@ -46,10 +45,4 @@ export type AssignmentsQueryResponse = {
 export type DetailQueryResponse = {
   lotteryDetail: IAssignment;
   loading: boolean;
-};
-
-export type SegmentsDetailQueryResponse = {
-  segmentsDetail: ISegment[];
-  loading: boolean;
-  refetch: () => void;
 };

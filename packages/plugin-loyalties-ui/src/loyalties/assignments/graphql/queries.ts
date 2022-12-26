@@ -43,20 +43,8 @@ const assignmentDetail = `
   }
 `;
 
-const segmentsDetail = `
-  query segmentsDetail($_ids: [String]) {
-    segmentsDetail(_ids: $_ids) {
-      _id,
-      name,
-      color,
-      count
-    }
-  }
-`;
-
 export default {
   assignments,
   assignmentsMain,
-  assignmentDetail,
-  segmentsDetail
+  assignmentDetail
 };

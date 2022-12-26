@@ -120,13 +120,18 @@ const segmentQueries = {
    */
   segments(
     _root,
-    { contentTypes, config }: { contentTypes: string[]; config?: any },
+    {
+      contentTypes,
+      config,
+      ids
+    }: { contentTypes: string[]; config?: any; ids: string[] },
     { models, commonQuerySelector }: IContext
   ) {
     const selector: any = {
       ...commonQuerySelector,
       contentType: { $in: contentTypes },
-      name: { $exists: true }
+      name: { $exists: true },
+      _id: { $in: ids }
     };
 
     if (config) {
@@ -158,18 +163,6 @@ const segmentQueries = {
    */
   async segmentDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Segments.findOne({ _id });
-  },
-
-  async segmentsDetail(
-    _root,
-    { _ids }: { _ids: string[] },
-    { models }: IContext
-  ) {
-    return models.Segments.find({
-      _id: {
-        $in: _ids
-      }
-    });
   },
 
   /**
@@ -259,7 +252,6 @@ const segmentQueries = {
 
 requireLogin(segmentQueries, 'segmentsGetHeads');
 requireLogin(segmentQueries, 'segmentDetail');
-requireLogin(segmentQueries, 'segmentsDetail');
 requireLogin(segmentQueries, 'segmentsPreviewCount');
 requireLogin(segmentQueries, 'segmentsEvents');
 
