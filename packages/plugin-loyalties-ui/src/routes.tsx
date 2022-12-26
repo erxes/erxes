@@ -28,6 +28,24 @@ const DonateCampaigns = asyncComponent(() =>
   )
 );
 
+const AssignmentCampaigns = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "KnowledgeBase" */ './configs/assignmentCampaign/containers/List'
+  )
+);
+
+const AssignmentCampaignsCreate = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "KnowledgeBase" */ './configs/assignmentCampaign/containers/CreateForm'
+  )
+);
+
+const AssignmentCampaignsEdit = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "KnowledgeBase" */ './configs/assignmentCampaign/containers/EditForm'
+  )
+);
+
 const Vouchers = asyncComponent(() =>
   import(
     /* webpackChunkName: "KnowledgeBase" */ './loyalties/vouchers/containers/List'
@@ -63,6 +81,13 @@ const Award = asyncComponent(() =>
     /* webpackChunkName: "KnowledgeBase" */ './loyalties/lotteries/containers/Award'
   )
 );
+
+const Assignments = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "KnowledgeBase" */ './loyalties/assignments/containers/List'
+  )
+);
+
 const voucherCampaignList = ({ location, history }) => {
   return (
     <VoucherCampaigns
@@ -93,6 +118,33 @@ const spinCampaignList = ({ location, history }) => {
 const donateCampaignList = ({ location, history }) => {
   return (
     <DonateCampaigns
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const assignmentCampaignList = ({ location, history }) => {
+  return (
+    <AssignmentCampaigns
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const assignmentCampaignCreate = ({ location, history }) => {
+  return (
+    <AssignmentCampaignsCreate
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const assignmentCampaignEdit = ({ location, history }) => {
+  return (
+    <AssignmentCampaignsEdit
       queryParams={queryString.parse(location.search)}
       history={history}
     />
@@ -147,6 +199,15 @@ const scorelogs = ({ history, location }) => {
   );
 };
 
+const assignments = ({ location, history }) => {
+  return (
+    <Assignments
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
 const routes = () => {
   return (
     <>
@@ -175,6 +236,23 @@ const routes = () => {
         component={donateCampaignList}
       />
 
+      <Route
+        path="/erxes-plugin-loyalty/settings/assignment"
+        exact={true}
+        component={assignmentCampaignList}
+      />
+
+      <Route
+        path="/erxes-plugin-loyalty/settings/assignment/create"
+        exact={true}
+        component={assignmentCampaignCreate}
+      />
+
+      <Route
+        path="/erxes-plugin-loyalty/settings/assignment/edit"
+        component={assignmentCampaignEdit}
+      />
+
       <Route path="/lotteryAward" component={award} />
 
       <Route path="/vouchers" component={vouchers} />
@@ -184,7 +262,10 @@ const routes = () => {
       <Route path="/spins" component={spins} />
 
       <Route path="/donates" component={donates} />
+
       <Route path="/score" component={scorelogs} />
+
+      <Route path="/assignments" component={assignments} />
     </>
   );
 };
