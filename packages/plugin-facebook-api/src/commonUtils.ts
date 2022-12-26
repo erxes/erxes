@@ -121,9 +121,14 @@ export const getEnv = ({
  */
 export const generateAttachmentUrl = (urlOrName: string) => {
   const DOMAIN = getEnv({ name: 'DOMAIN' });
+  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
   if (urlOrName.startsWith('http')) {
     return urlOrName;
+  }
+
+  if (NODE_ENV === 'development') {
+    return `${DOMAIN}/pl:core/read-file?key=${urlOrName}`;
   }
 
   return `${DOMAIN}/gateway/pl:core/read-file?key=${urlOrName}`;
