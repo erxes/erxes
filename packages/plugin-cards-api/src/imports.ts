@@ -1,6 +1,6 @@
 import { generateModels } from './connectionResolver';
 import { IMPORT_EXPORT_TYPES } from './constants';
-import { sendFormsMessage } from './messageBroker';
+import { sendCoreMessage, sendFormsMessage } from './messageBroker';
 
 export default {
   importExportTypes: IMPORT_EXPORT_TYPES,
@@ -88,6 +88,20 @@ export default {
             });
 
             doc.labelIds = label ? [label._id] : '';
+
+            break;
+
+          case 'assignedUserEmail':
+            {
+              const assignedUser = await sendCoreMessage({
+                subdomain,
+                action: 'users.findOne',
+                data: { email: value },
+                isRPC: true
+              });
+
+              doc.assignedUserIds = assignedUser ? [assignedUser._id] : [];
+            }
 
             break;
 
