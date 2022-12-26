@@ -95,18 +95,6 @@ class CreateForm extends React.Component<Props, State> {
     });
   };
 
-  onChangeMultiCombo = (name: string, values) => {
-    let value = values;
-
-    if (Array.isArray(values)) {
-      value = values.map(el => el.value);
-    }
-
-    this.setState({
-      assignmentCampaign: { ...this.state.assignmentCampaign, [name]: value }
-    });
-  };
-
   onDateInputChange = (type: string, date) => {
     this.setState({
       assignmentCampaign: { ...this.state.assignmentCampaign, [type]: date }
