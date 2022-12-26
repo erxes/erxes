@@ -20,10 +20,12 @@ export default async function cpUserMiddleware(
 
   try {
     // verify user token and retrieve stored user information
-    const { userId }: any = jwt.verify(
+    const verifyResult: any = jwt.verify(
       token,
       process.env.JWT_TOKEN_SECRET || ''
     );
+
+    const { userId } = verifyResult;
 
     const userDoc = await models.ClientPortalUsers.findOne({ _id: userId });
 

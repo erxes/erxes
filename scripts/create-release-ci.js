@@ -54,15 +54,11 @@ var main = async () => {
 		{ name: 'automations', ui: true, api: true },
 		{ name: 'calendar', ui: true },
 		{ name: 'cards', ui: true, api: true },
-		{ name: 'chats', ui: true, api: true },
 		{ name: 'clientportal', ui: true, api: true },
 		{ name: 'contacts', ui: true, api: true },
 		{ name: 'dashboard', ui: true, api: true },
-		{ name: 'ebarimt', ui: true, api: true },
 		{ name: 'emailtemplates', ui: true, api: true },
 		{ name: 'engages', ui: true, api: true },
-		{ name: 'exm', ui: true, api: true },
-		{ name: 'exmfeed', ui: true, api: true },
 		{ name: 'forms', ui: true, api: true },
 		{ name: 'integrations', api: true },
 		{ name: 'internalnotes', api: true },
@@ -71,18 +67,11 @@ var main = async () => {
 		{ name: 'loyalties', ui: true, api: true },
 		{ name: 'notifications', ui: true, api: true },
 		{ name: 'webhooks', ui: true, api: true },
-		{ name: 'pos', ui: true, api: true },
 		{ name: 'products', ui: true, api: true },
-		{ name: 'qpay', ui: true, api: true },
-		{ name: 'reactions', api: true },
 		{ name: 'segments', ui: true, api: true },
-		{ name: 'syncerkhet', ui: true, api: true },
 		{ name: 'tags', ui: true, api: true },
-		{ name: 'salesplans', ui: true, api: true },
-		{ name: 'processes', ui: true, api: true },
-		{ name: 'inventories', ui: true, api: true },
-		{ name: 'posclient', api: true },
 		{ name: 'webbuilder', ui: true, api: true },
+  		{ name: 'documents', ui: true, api: true },
 	];
 
 	for (const plugin of plugins) {
@@ -92,12 +81,18 @@ var main = async () => {
 	}
 
 	for (const service of services) {
-		releaseYaml.jobs.release.steps.push({
-			name: `${service}`,
-			run: "echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin \n"
+		let run = "echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin \n"
 				+ `docker image pull erxes/${service}:dev \n`
 				+ `docker tag erxes/${service}:dev erxes/${service}:\${GITHUB_REF#refs/tags/} \n`
-				+ `docker push erxes/${service}:\${GITHUB_REF#refs/tags/} \n`
+				+ `docker push erxes/${service}:\${GITHUB_REF#refs/tags/} \n`;
+
+		if (service === 'erxes') {
+			run += `aws s3 cp s3://erxes-dev-plugins/locales.tar s3://erxes-release-plugins/\${GITHUB_REF#refs/tags/}/locales.tar \n`;
+		}
+
+		releaseYaml.jobs.release.steps.push({
+			name: `${service}`,
+			run
 		})
 	}
 

@@ -65,7 +65,10 @@ class EditProfile extends React.Component<Props, State> {
           workStartedDate: values.workStartedDate,
           location: values.location,
           description: values.description,
-          operatorPhone: values.operatorPhone
+          operatorPhone: values.operatorPhone,
+          firstName: values.firstName,
+          middleName: values.middleName,
+          lastName: values.lastName
         },
         links,
         password

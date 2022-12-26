@@ -28,6 +28,7 @@ type IProps = {
   boardId?: string;
   pipelineId?: string;
   stageId?: string;
+  parentId?: string;
   showSelect?: boolean;
   relType?: string;
   mailSubject?: string;
@@ -59,18 +60,21 @@ type FinalProps = {
 
 class AddFormContainer extends React.Component<FinalProps> {
   saveItem = (doc: IItemParams, callback: (item: IItem) => void) => {
+    const queryParams = new URLSearchParams(window.location.search);
+    const conversationId = queryParams.get('_id');
+
     const {
       addMutation,
       conversationConvertToCard,
       options,
       assignedUserIds,
-      sourceConversationId,
       description,
       attachments,
       relType,
       relTypeIds,
       editConformity,
-      bookingProductId
+      bookingProductId,
+      parentId
     } = this.props;
 
     doc.assignedUserIds = doc.assignedUserIds || assignedUserIds;
@@ -82,9 +86,10 @@ class AddFormContainer extends React.Component<FinalProps> {
     doc.proccessId = proccessId;
     doc.description = doc.description || description;
     doc.attachments = doc.attachments || attachments;
+    doc.parentId = parentId;
 
-    if (sourceConversationId) {
-      doc.sourceConversationIds = [sourceConversationId];
+    if (conversationId) {
+      doc.sourceConversationIds = [conversationId];
 
       conversationConvertToCard({
         variables: {
@@ -94,7 +99,7 @@ class AddFormContainer extends React.Component<FinalProps> {
           itemName: doc.name,
           stageId: doc.stageId,
           bookingProductId,
-          _id: sourceConversationId || ''
+          _id: conversationId || ''
         }
       })
         .then(({ data }) => {
