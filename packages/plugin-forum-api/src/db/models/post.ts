@@ -57,10 +57,8 @@ export interface IPost extends CommonPostFields {
   updatedById?: string;
   updatedByCpId?: string;
 
-  stateChangedAt: Date;
-  stateChangedUserType: UserTypes;
-  stateChangedById?: string;
-  stateChangedByCpId?: string;
+  lastPublishedAt?: Date | null;
+
   customIndexed: any;
 
   tagIds?: string[] | null;
@@ -89,16 +87,14 @@ const OMIT_FROM_INPUT = [
   'updatedById',
   'updatedByCpId',
 
-  'stateChangedUserType',
-  'stateChangedAt',
-  'stateChangedById',
-  'stateChangedByCpId',
+  'lastPublishedAt',
+
   'requiredLevel',
   'isPermissionRequired'
 ] as const;
 
 export type PostCreateInput = Omit<IPost, typeof OMIT_FROM_INPUT[number]>;
-export type PostPatchInput = Partial<Omit<PostCreateInput, 'state'>>;
+export type PostPatchInput = Partial<PostCreateInput>;
 
 export interface IPostModel extends Model<PostDocument> {
   findByIdOrThrow(_id: string): Promise<PostDocument>;
@@ -211,10 +207,7 @@ export const postSchema = new Schema<PostDocument>({
   updatedById: String,
   updatedByCpId: String,
 
-  stateChangedAt: { type: Date, required: true, default: () => new Date() },
-  stateChangedUserType: { type: String, required: true, enum: USER_TYPES },
-  stateChangedById: String,
-  stateChangedByCpId: String,
+  lastPublishedAt: Date,
 
   customIndexed: Schema.Types.Mixed,
 
@@ -223,8 +216,11 @@ export const postSchema = new Schema<PostDocument>({
 // used by client portal front-end
 postSchema.index({ state: 1, categoryApprovalState: 1, categoryId: 1 });
 // mostly used by update query of updateTrendScoreOfPublished
-postSchema.index({ stateChangedAt: 1, state: 1 });
+postSchema.index({ lastPublishedAt: 1, state: 1 });
+
 postSchema.index({ tagIds: 1, state: 1 });
+
+postSchema.index({ lastPublishedAt: -1 });
 
 postSchema.index({
   title: 'text',
@@ -251,6 +247,8 @@ export const generatePostModel = (
       // admin posts are always approved
       const categoryApprovalState: AdminApprovalStates = 'APPROVED';
 
+      let lastPublishedAt = input.state === 'PUBLISHED' ? new Date() : null;
+
       const res = await models.Post.create({
         ...input,
 
@@ -262,8 +260,7 @@ export const generatePostModel = (
         updatedUserType: USER_TYPES[0],
         updatedById: user._id,
 
-        stateChangedUserType: USER_TYPES[0],
-        stateChangedById: user._id
+        lastPublishedAt
       });
       if (res.state === 'PUBLISHED') {
         await notifyUsersPublishedPost(subdomain, models, res);
@@ -279,6 +276,18 @@ export const generatePostModel = (
 
       const originalState = post.state;
 
+      const update: Partial<Omit<IPost, '_id'>> = {
+        ...patch,
+        updatedUserType: USER_TYPES[0],
+        updatedById: user._id,
+        updatedAt: new Date()
+      };
+
+      if (originalState === 'DRAFT' && patch.state === 'PUBLISHED') {
+        update.lastPublishedAt = new Date();
+        update.viewCount = 0;
+      }
+
       _.assign(post, {
         ...patch,
         updatedUserType: USER_TYPES[0],
@@ -286,11 +295,12 @@ export const generatePostModel = (
         updatedAt: new Date()
       });
 
-      if (originalState === 'DRAFT' && post.state === 'PUBLISHED') {
+      await post.save();
+
+      if (originalState === 'DRAFT' && patch.state === 'PUBLISHED') {
         await notifyUsersPublishedPost(subdomain, models, post);
       }
 
-      await post.save();
       return post;
     }
 
@@ -436,6 +446,8 @@ export const generatePostModel = (
       input: PostCreateInput,
       cpUser?: ICpUser
     ): Promise<PostDocument> {
+      if (!cpUser) throw new LoginRequiredError();
+
       const category = await models.Category.findById(input.categoryId);
 
       await models.Category.ensureUserIsAllowed('WRITE_POST', category, cpUser);
@@ -444,7 +456,7 @@ export const generatePostModel = (
         ? 'PENDING'
         : 'APPROVED';
 
-      if (!cpUser) throw new LoginRequiredError();
+      const lastPublishedAt = input.state === 'PUBLISHED' ? new Date() : null;
 
       const res = await models.Post.create({
         ...input,
@@ -456,8 +468,7 @@ export const generatePostModel = (
         updatedUserType: USER_TYPES[1],
         updatedByCpId: cpUser.userId,
 
-        stateChangedUserType: USER_TYPES[1],
-        stateChangedByCpId: cpUser.userId
+        lastPublishedAt
       });
 
       if (res.state === 'PUBLISHED') {
@@ -487,13 +498,20 @@ export const generatePostModel = (
         ? 'PENDING'
         : 'APPROVED';
 
-      _.assign(post, {
+      const update: Partial<Omit<IPost, '_id'>> = {
         ...patch,
         categoryApprovalState,
         updatedUserType: USER_TYPES[1],
         updatedByCpId: cpUser.userId,
         updatedAt: new Date()
-      });
+      };
+
+      if (originalState === 'DRAFT' && update.state === 'PUBLISHED') {
+        update.lastPublishedAt = new Date();
+        update.viewCount = 0;
+      }
+
+      _.assign(post, update);
 
       if (originalState === 'DRAFT' && post.state === 'PUBLISHED') {
         await notifyUsersPublishedPost(subdomain, models, post);
@@ -549,12 +567,14 @@ export const generatePostModel = (
       const now = Date.now();
       await models.Post.find(
         { ...query, state: 'PUBLISHED' },
-        { viewCount: 1, stateChangedAt: 1, trendScore: 1 },
+        { viewCount: 1, lastPublishedAt: 1, trendScore: 1 },
         { readPreference: 'secondaryPreferred' }
       )
         .cursor()
         .eachAsync(async function updateTrendScores(post: PostDocument) {
-          const elapsedSeconds = (now - post.stateChangedAt.getTime()) / 1000;
+          if (!post.lastPublishedAt) return;
+
+          const elapsedSeconds = (now - post.lastPublishedAt.getTime()) / 1000;
           post.trendScore = post.viewCount / elapsedSeconds;
           await post.save();
         });
@@ -577,11 +597,13 @@ async function changeStateCommon(
 ) {
   const originalState = post.state;
   post.state = state;
-  post.stateChangedById = userId;
-  post.stateChangedUserType = userType;
 
   post.viewCount = 0;
-  post.stateChangedAt = new Date();
+
+  if (originalState === 'DRAFT' && state === 'PUBLISHED') {
+    post.lastPublishedAt = new Date();
+  }
+
   await post.save();
 
   if (originalState === 'DRAFT' && post.state === 'PUBLISHED') {

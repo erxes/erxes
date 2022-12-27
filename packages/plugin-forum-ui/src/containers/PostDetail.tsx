@@ -158,19 +158,6 @@ const PostDetail: React.FC = () => {
             </td>
           </tr>
           <tr>
-            <th>State changed at: </th>
-            <td>{forumPost.stateChangedAt}</td>
-            <th>State changed by: </th>
-            <td>
-              {postUsername({
-                post: forumPost,
-                typeKey: 'stateChangedUserType',
-                crmKey: 'stateChangedBy',
-                cpKey: 'stateChangedByCp'
-              })}
-            </td>
-          </tr>
-          <tr>
             <th>Title: </th>
             <td>{forumPost.title}</td>
           </tr>
@@ -203,7 +190,7 @@ const PostDetail: React.FC = () => {
         <button onClick={onClickDelete}>Delete</button>
       </div>
       <hr />
-      {forumPost.category.postsReqCrmApproval && (
+      {forumPost.category?.postsReqCrmApproval && (
         <>
           <div>
             <h5>Category approval: {forumPost.categoryApprovalState}</h5>
