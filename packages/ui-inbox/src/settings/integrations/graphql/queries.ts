@@ -211,6 +211,7 @@ const templateTotalCount = `
 const imapIntegrations = `
   query imapGetIntegrations {
     imapGetIntegrations {
+      mainUser
       user
       host
     }

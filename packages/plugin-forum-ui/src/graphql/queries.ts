@@ -131,18 +131,7 @@ export const FORUM_POSTS_QUERY = gql`
         username
       }
 
-      stateChangedUserType
-      stateChangedAt
-      stateChangedBy {
-        _id
-        username
-        email
-      }
-      stateChangedByCp {
-        _id
-        email
-        username
-      }
+      lastPublishedAt
     }
   }
 `;
@@ -171,7 +160,6 @@ export const FORUM_POST_DETAIL = gql`
       title
       createdAt
       updatedAt
-      stateChangedAt
       commentCount
 
       categoryApprovalState
@@ -205,17 +193,7 @@ export const FORUM_POST_DETAIL = gql`
         username
       }
 
-      stateChangedUserType
-      stateChangedBy {
-        _id
-        username
-        email
-      }
-      stateChangedByCp {
-        _id
-        email
-        username
-      }
+      lastPublishedAt
     }
   }
 `;
