@@ -1,14 +1,14 @@
-import Button from '@erxes/ui/src/components/Button';
 import CollapseContent from '@erxes/ui/src/components/CollapseContent';
 import React from 'react';
 import Table from '@erxes/ui/src/components/table';
 import { __ } from '@erxes/ui/src/utils';
-import { CustomSideContent, MenuFooter, SidebarFilters } from '../../styles';
+import { CustomSideContent } from '../../styles';
 import { IOverallWorkDet } from '../types';
 import { IQueryParams } from '@erxes/ui/src/types';
 import { SidebarList as List } from '@erxes/ui/src/layout';
 import { SidebarMainContent } from '@erxes/ui/src/layout/styles';
 import { Wrapper } from '@erxes/ui/src/layout';
+import { ScrolledContent } from '../../flow/styles';
 
 interface Props {
   overallWork?: IOverallWorkDet;
@@ -36,18 +36,16 @@ class DetailRightSidebar extends React.Component<Props, State> {
     if (!overallWork) {
       return (
         <CustomSideContent wide={true} hasBorder={true}>
-          <SidebarFilters>
-            <Section.Title>{__('Filters')}</Section.Title>
-          </SidebarFilters>
+          <Section.Title>{__('Informations')}</Section.Title>
         </CustomSideContent>
       );
     }
 
     return (
       <CustomSideContent wide={true} hasBorder={true}>
-        <SidebarFilters>
+        <ScrolledContent>
           <Section.Title>
-            {__('Filters')}
+            {__('Informations')}
             <Section.QuickButtons>.</Section.QuickButtons>
           </Section.Title>
           <SidebarMainContent>
@@ -136,18 +134,7 @@ class DetailRightSidebar extends React.Component<Props, State> {
               </CollapseContent>
             </List>
           </SidebarMainContent>
-          <MenuFooter>
-            <Button
-              block={true}
-              btnStyle="success"
-              uppercase={false}
-              onClick={() => {}}
-              icon="filter"
-            >
-              {__('Filter')}
-            </Button>
-          </MenuFooter>
-        </SidebarFilters>
+        </ScrolledContent>
       </CustomSideContent>
     );
   }

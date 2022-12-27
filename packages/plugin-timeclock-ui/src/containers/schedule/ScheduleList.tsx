@@ -3,35 +3,36 @@ import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import ScheduleList from '../components/schedule/ScheduleList';
+import ScheduleList from '../../components/schedule/ScheduleList';
 import {
   BranchesQueryResponse,
   IShift,
   ScheduleMutationResponse,
   ScheduleQueryResponse
-} from '../types';
-import { mutations, queries } from '../graphql';
-import { Alert } from '@erxes/ui/src/utils';
-import erxesQuery from '@erxes/ui/src/team/graphql/queries';
+} from '../../types';
+import { mutations, queries } from '../../graphql';
+import { Alert, confirm } from '@erxes/ui/src/utils';
+import { IBranch } from '@erxes/ui/src/team/types';
 
 type Props = {
-  searchValue: string;
   history: any;
   queryParams: any;
-  explanation: string;
-  userId: string;
-  userIds: string[];
-  reason: string;
-  startTime: Date;
-  endTime: Date;
-  scheduleId: string;
-  scheduleStatus: string;
-  shiftId: string;
-  shiftStatus: string;
-  requestedShifts: IShift[];
-  queryStartDate: Date;
-  queryEndDate: Date;
-  queryUserId: string;
+  userId?: string;
+  userIds?: string[];
+  scheduleId?: string;
+  scheduleStatus?: string;
+  shiftId?: string;
+  shiftStatus?: string;
+  requestedShifts?: IShift[];
+
+  branchesList: IBranch[];
+
+  queryStartDate: string;
+  queryEndDate: string;
+  queryUserIds: string[];
+  queryBranchIds: string[];
+  queryDepartmentIds: string[];
+  getActionBar: (actionBar: any) => void;
 };
 
 type FinalProps = {
@@ -42,20 +43,14 @@ type FinalProps = {
 
 const ListContainer = (props: FinalProps) => {
   const {
-    queryParams,
     sendScheduleReqMutation,
     submitShiftMutation,
     solveScheduleMutation,
     solveShiftMutation,
-    listScheduleQuery,
-    listBranchesQuery
+    removeScheduleMutation,
+    removeScheduleShiftMutation,
+    listScheduleQuery
   } = props;
-
-  const { userId } = queryParams;
-
-  // if (listScheduleQuery.loading) {
-  //   return <Spinner />;
-  // }
 
   const solveSchedule = (scheduleId: string, status: string) => {
     solveScheduleMutation({
@@ -109,6 +104,14 @@ const ListContainer = (props: FinalProps) => {
     }
   };
 
+  const removeScheduleShifts = (scheduleId, type) => {
+    confirm(`Are you sure to remove schedele ${type}`).then(() => {
+      (type === 'shift'
+        ? removeScheduleShiftMutation({ variables: { _id: scheduleId } })
+        : removeScheduleMutation({ variables: { _id: scheduleId } })
+      ).then(() => Alert.success(`Successfully removed schedule ${type}`));
+    });
+  };
   const updatedProps = {
     ...props,
     scheduleOfMembers: listScheduleQuery.schedules,
@@ -116,39 +119,33 @@ const ListContainer = (props: FinalProps) => {
     solveSchedule,
     solveShift,
     submitRequest,
-    submitShift
+    submitShift,
+    removeScheduleShifts
   };
-  return (
-    <ScheduleList {...updatedProps} branchesList={listBranchesQuery.branches} />
-  );
+  return <ScheduleList {...updatedProps} />;
 };
 
 export default withProps<Props>(
   compose(
-    graphql<Props, ScheduleQueryResponse, { userId: string }>(
-      gql(queries.listSchedule),
-      {
-        name: 'listScheduleQuery',
-        options: ({ queryUserId }) => ({
-          variables: {
-            // startDate: queryStartDate,
-            // endDate: queryEndDate,
-            userId: queryUserId
-          },
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
-    graphql<Props, BranchesQueryResponse, { searchValue: string }>(
-      gql(erxesQuery.branches),
-      {
-        name: 'listBranchesQuery',
-        options: ({ searchValue }) => ({
-          variables: { searchValue },
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
+    graphql<Props, ScheduleQueryResponse>(gql(queries.listSchedule), {
+      name: 'listScheduleQuery',
+      options: ({
+        queryStartDate,
+        queryEndDate,
+        queryUserIds,
+        queryDepartmentIds,
+        queryBranchIds
+      }) => ({
+        variables: {
+          startDate: queryStartDate,
+          endDate: queryEndDate,
+          userIds: queryUserIds,
+          departmentIds: queryDepartmentIds,
+          branchIds: queryBranchIds
+        },
+        fetchPolicy: 'network-only'
+      })
+    }),
     graphql<Props, ScheduleMutationResponse>(
       gql(mutations.sendScheduleRequest),
       {
@@ -192,6 +189,28 @@ export default withProps<Props>(
         },
         refetchQueries: ['listScheduleQuery']
       })
-    })
+    }),
+    graphql<Props, ScheduleMutationResponse>(gql(mutations.scheduleRemove), {
+      name: 'removeScheduleMutation',
+      options: ({ scheduleId }) => ({
+        variables: {
+          _id: scheduleId
+        },
+        refetchQueries: ['listScheduleQuery']
+      })
+    }),
+
+    graphql<Props, ScheduleMutationResponse>(
+      gql(mutations.scheduleShiftRemove),
+      {
+        name: 'removeScheduleShiftMutation',
+        options: ({ shiftId }) => ({
+          variables: {
+            _id: shiftId
+          },
+          refetchQueries: ['listScheduleQuery']
+        })
+      }
+    )
   )(ListContainer)
 );

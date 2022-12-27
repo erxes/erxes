@@ -105,12 +105,12 @@ export const types = `
 `;
 
 export const queries = `
-  timeclocks(startDate: Date, endDate: Date, userIds: [String]): [Timeclock]
-  absences(startDate: Date, endDate: Date, userId: String): [Absence]
+  timeclocks(startDate: Date, endDate: Date, userIds: [String], branchIds: [String], departmentIds: [String]): [Timeclock]
+  absences(startDate: Date, endDate: Date, userIds: [String], branchIds: [String], departmentIds: [String]): [Absence]
+  schedules(startDate: Date, endDate: Date, userIds: [String], branchIds: [String], departmentIds: [String]): [Schedule]
   absenceTypes:[AbsenceType]
   timeclockReports(departmentIds: [String], branchIds: [String], userIds: [String]): [Report]
   timeclockReportByUser(selectedUser: String): UserReport
-  schedules(startDate: Date, endDate: Date, userId: String): [Schedule]
   timeclockDetail(_id: String!): Timeclock
   absenceDetail(_id: String!): Absence
   scheduleDetail(_id: String!): Schedule
@@ -164,4 +164,6 @@ export const mutations = `
   holidayAdd(name: String, startDate: Date, endDate: Date): Absence
   holidayEdit(_id: String, name: String, startDate: Date, endDate: Date): Absence
   holidayRemove(_id: String): JSON
+  scheduleRemove(_id: String): JSON
+  scheduleShiftRemove(_id: String): JSON
 `;

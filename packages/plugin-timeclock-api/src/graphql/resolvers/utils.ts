@@ -172,7 +172,6 @@ export const returnReportByUserIds = async (
   //  calculate how many mins late per user
   reports.forEach((userReport, groupReportIdx) => {
     let totalMinsLatePerUser = 0;
-    console.log(userReport);
     userReport.scheduleReport.forEach((userSchedule, userReportIdx) => {
       if (
         userSchedule.recordedEnd &&

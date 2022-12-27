@@ -24,11 +24,13 @@ import { IProductsData } from '../../types';
 import { JOB_TYPE_CHOISES } from '../../constants';
 
 type Props = {
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  renderButton: (
+    props: IButtonMutateProps & { disabled: boolean }
+  ) => JSX.Element;
   closeModal: () => void;
   perform?: IPerform;
   overallWorkDetail: IOverallWorkDet;
-  max?: number;
+  max: number;
 };
 
 type State = {
@@ -42,6 +44,8 @@ type State = {
 };
 
 class Form extends React.Component<Props, State> {
+  private timer?: NodeJS.Timer;
+
   constructor(props) {
     super(props);
 
@@ -50,14 +54,18 @@ class Form extends React.Component<Props, State> {
     let endAt = new Date();
     const overCount = overallWorkDetail.count;
     let count = 1;
-    let inProducts = overallWorkDetail.needProductsData.map(np => ({
+    const needProducts = overallWorkDetail.needProductsData.map(np => ({
       ...np,
       quantity: np.quantity / overCount
     }));
-    let outProducts = overallWorkDetail.resultProductsData.map(rp => ({
+    const resultProducts = overallWorkDetail.resultProductsData.map(rp => ({
       ...rp,
       quantity: rp.quantity / overCount
     }));
+
+    let inProducts = needProducts;
+    let outProducts = resultProducts;
+
     if (perform) {
       startAt = perform.startAt;
       endAt = perform.endAt;
@@ -70,14 +78,8 @@ class Form extends React.Component<Props, State> {
       startAt,
       endAt,
       count,
-      needProducts: overallWorkDetail.needProductsData.map(np => ({
-        ...np,
-        quantity: np.quantity / overCount
-      })),
-      resultProducts: overallWorkDetail.resultProductsData.map(rp => ({
-        ...rp,
-        quantity: rp.quantity / overCount
-      })),
+      needProducts,
+      resultProducts,
       inProducts,
       outProducts
     };
@@ -89,6 +91,7 @@ class Form extends React.Component<Props, State> {
     resultProducts: IProductsData[];
   }) => {
     const { perform, overallWorkDetail } = this.props;
+
     const { key } = overallWorkDetail;
     const {
       type,
@@ -134,32 +137,7 @@ class Form extends React.Component<Props, State> {
     };
   };
 
-  renderView = (
-    name: string,
-    variable: number,
-    uom: string,
-    isEdit = false
-  ) => {
-    if (isEdit) {
-      return (
-        <li key={Math.random()}>
-          <FieldStyle>
-            {__(name)} /${uom}/
-          </FieldStyle>
-          <SidebarCounter>
-            <FormControl
-              name="count"
-              defaultValue={this.state.count * variable}
-              type="number"
-              autoFocus={true}
-              required={true}
-              onChange={this.onChange}
-            />
-          </SidebarCounter>
-        </li>
-      );
-    }
-
+  renderViewInfo = (name: string, variable: number, uom: string) => {
     return (
       <li key={Math.random()}>
         <FieldStyle>{__(name)}</FieldStyle>
@@ -170,7 +148,8 @@ class Form extends React.Component<Props, State> {
     );
   };
 
-  renderProducts = (name: string, products: any[], isEdit = false) => {
+  renderProductsInfo = (name: string, products: any[]) => {
+    const { count } = this.state;
     const result: React.ReactNode[] = [];
 
     result.push(
@@ -180,15 +159,13 @@ class Form extends React.Component<Props, State> {
       </li>
     );
 
-    const { count } = this.state;
-
     for (const product of products) {
       const { uom } = product;
       const productName = product.product ? product.product.name : 'not name';
       const uomCode = uom ? uom.code : 'not uom';
 
       result.push(
-        this.renderView(productName, product.quantity * count, uomCode, isEdit)
+        this.renderViewInfo(productName, product.quantity * count, uomCode)
       );
     }
 
@@ -200,7 +177,7 @@ class Form extends React.Component<Props, State> {
 
     return (
       <SidebarList className="no-link">
-        {this.renderProducts('NeedProducts', needProducts || [])}
+        {this.renderProductsInfo('Need Products', needProducts || [])}
       </SidebarList>
     );
   }
@@ -210,17 +187,95 @@ class Form extends React.Component<Props, State> {
 
     return (
       <SidebarList className="no-link">
-        {this.renderProducts('ResultProducts', resultProducts || [])}
+        {this.renderProductsInfo('Result Products', resultProducts || [])}
       </SidebarList>
     );
   }
+
+  renderView = (
+    name: string,
+    variable: number,
+    uom: string,
+    stateName: 'inProducts' | 'outProducts',
+    productId: string
+  ) => {
+    const onChangePerView = e => {
+      if (this.timer) {
+        clearTimeout(this.timer);
+      }
+
+      const inputVal = e.target.value;
+
+      this.timer = setTimeout(() => {
+        const productsData = (stateName === 'inProducts'
+          ? this.state.inProducts
+          : this.state.outProducts || []
+        ).map(pd =>
+          pd.productId === productId ? { ...pd, quantity: inputVal } : pd
+        );
+
+        this.setState({
+          [stateName]: productsData
+        } as any);
+      }, 500);
+    };
+
+    return (
+      <li key={Math.random()}>
+        <FieldStyle>
+          {__(name)} /${uom}/
+        </FieldStyle>
+        <SidebarCounter>
+          <FormControl
+            defaultValue={variable}
+            type="number"
+            required={true}
+            onChange={onChangePerView}
+          />
+        </SidebarCounter>
+      </li>
+    );
+  };
+
+  renderProducts = (
+    name: string,
+    productsData: any[],
+    stateName: 'inProducts' | 'outProducts'
+  ) => {
+    const result: React.ReactNode[] = [];
+
+    result.push(
+      <li key={Math.random()}>
+        <FieldStyle>{__(name)}</FieldStyle>
+        <SidebarCounter>{(productsData || []).length}</SidebarCounter>
+      </li>
+    );
+
+    for (const data of productsData) {
+      const { uom } = data;
+      const productName = data.product ? data.product.name : 'not name';
+      const uomCode = uom ? uom.code : 'not uom';
+
+      result.push(
+        this.renderView(
+          productName,
+          data.quantity,
+          uomCode,
+          stateName,
+          data.productId
+        )
+      );
+    }
+
+    return result;
+  };
 
   renderPerformIn() {
     const { inProducts } = this.state;
 
     return (
       <SidebarList className="no-link">
-        {this.renderProducts('InProducts', inProducts || [], true)}
+        {this.renderProducts('In Products', inProducts || [], 'inProducts')}
       </SidebarList>
     );
   }
@@ -230,16 +285,25 @@ class Form extends React.Component<Props, State> {
 
     return (
       <SidebarList className="no-link">
-        {this.renderProducts('OutProducts', outProducts || [], true)}
+        {this.renderProducts('Out Products', outProducts || [], 'outProducts')}
       </SidebarList>
     );
   }
 
-  onChange = e => {
+  onChangeCount = e => {
+    const { needProducts, resultProducts } = this.state;
     const count = Number(e.target.value);
 
     this.setState({
-      count
+      count,
+      inProducts: needProducts.map(np => ({
+        ...np,
+        quantity: np.quantity * count
+      })),
+      outProducts: resultProducts.map(rp => ({
+        ...rp,
+        quantity: rp.quantity * count
+      }))
     });
   };
 
@@ -297,10 +361,10 @@ class Form extends React.Component<Props, State> {
                 name="count"
                 defaultValue={count}
                 type="number"
-                max={max}
+                max={overallWorkDetail.type !== 'income' ? max : undefined}
                 autoFocus={true}
                 required={true}
-                onChange={this.onChange}
+                onChange={this.onChangeCount}
               />
             </FormGroup>
           </FormColumn>
@@ -398,7 +462,9 @@ class Form extends React.Component<Props, State> {
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: perform
+            object: perform,
+            disabled:
+              overallWorkDetail.type !== 'income' && max < this.state.count
           })}
         </ModalFooter>
       </>
