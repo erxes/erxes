@@ -86,7 +86,7 @@ const notificationMutations = {
       logger: true,
       debug: true,
       auth: {
-        user: integration.user,
+        user: integration.mainUser || integration.user,
         pass: integration.password
       }
     });
