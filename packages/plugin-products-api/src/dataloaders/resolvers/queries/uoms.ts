@@ -1,3 +1,4 @@
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 
 const uomQueries = {
@@ -18,9 +19,7 @@ const uomQueries = {
   }
 };
 
-// requireLogin(productQueries, 'productsTotalCount');
-// checkPermission(productQueries, 'products', 'showProducts', []);
-// checkPermission(productQueries, 'productCategories', 'showProducts', []);
-// checkPermission(productQueries, 'productCountByTags', 'showProducts', []);
+checkPermission(uomQueries, 'uoms', 'showProducts', []);
+checkPermission(uomQueries, 'uomsTotalCount', 'showProducts', []);
 
 export default uomQueries;
