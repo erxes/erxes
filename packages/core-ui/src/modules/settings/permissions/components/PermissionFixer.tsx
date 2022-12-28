@@ -2,6 +2,7 @@ import Button from 'modules/common/components/Button';
 import Info from 'modules/common/components/Info';
 import TextInfo from 'modules/common/components/TextInfo';
 import { ModalFooter } from 'modules/common/styles/main';
+import { Alert } from 'modules/common/utils';
 import React from 'react';
 
 type Props = {
@@ -42,13 +43,18 @@ export default class PermissionFixer extends React.Component<Props, State> {
     const { closeModal, fixPermissions } = this.props;
 
     const fix = () => {
-      fixPermissions().then(({ data }) => {
-        const messages = data && data.permissionsFix ? data.permissionsFix : [];
+      fixPermissions()
+        .then(({ data }) => {
+          const messages =
+            data && data.permissionsFix ? data.permissionsFix : [];
 
-        this.setState({
-          messages: messages.length > 0 ? messages : ['Everything was fine']
+          this.setState({
+            messages: messages.length > 0 ? messages : ['Everything was fine']
+          });
+        })
+        .catch(e => {
+          Alert.error(e.message);
         });
-      });
     };
 
     return (

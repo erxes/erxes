@@ -10,8 +10,7 @@ module.exports = {
       },
       {
         name: 'manageProducts',
-        description: 'Manage products',
-        use: ['showProducts']
+        description: 'Manage products'
       },
       {
         name: 'showProducts',
@@ -22,5 +21,5 @@ module.exports = {
         description: 'Merge products'
       }
     ]
-  },
-}
+  }
+};

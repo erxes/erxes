@@ -1,3 +1,4 @@
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 
 const configMutations = {
@@ -36,8 +37,6 @@ const configMutations = {
   }
 };
 
-// moduleCheckPermission(configMutations, 'manageGeneralSettings');
-// requireLogin(configMutations, 'configsActivateInstallation');
-// requireLogin(configMutations, 'configsManagePluginInstall');
+checkPermission(configMutations, 'productsConfigsUpdate', 'manageProducts');
 
 export default configMutations;
