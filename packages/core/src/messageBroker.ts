@@ -43,7 +43,7 @@ export const initBroker = async options => {
 
       await models.InstallationLogs.createLog({
         pluginName: name,
-        message: message
+        message
       });
 
       if (message === 'done') {
@@ -61,6 +61,15 @@ export const initBroker = async options => {
 
   consumeQueue('registerPermissions', async permissions => {
     await registerModule(permissions);
+  });
+
+  consumeRPCQueue('core:permissions.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Permissions.find(data).lean()
+    };
   });
 
   consumeQueue('core:sendMobileNotification', async ({ subdomain, data }) => {

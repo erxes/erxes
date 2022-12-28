@@ -30,6 +30,7 @@ const params = `
   perPage: Int,
   requireRead: Boolean,
   notifType: String
+  contentTypes: [String]
   title: String
   startDate: String
   endDate: String
