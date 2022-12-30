@@ -133,72 +133,6 @@ export const afterDealUpdate = async (subdomain, params) => {
     }
 
     if (stage.code && stage.code === 'advancePaid') {
-      const trip = await models.Trips.findOne({ dealId: deal._id });
-      const dealRoute = await models.DealRoutes.findOne({ dealId: deal._id });
-      const participant = await models.Participants.findOne({
-        dealId: deal._id,
-        status: 'won'
-      });
-
-      if (!trip && dealRoute && participant) {
-        const route = (await models.Routes.findOne({
-          _id: dealRoute.routeId
-        })) || { directionIds: [] };
-
-        const result: any = await models.Directions.aggregate([
-          { $match: { _id: { $in: route.directionIds } } },
-          {
-            $group: {
-              _id: null,
-              duration: {
-                $sum: '$duration'
-              }
-            }
-          },
-          {
-            $project: {
-              duration: '$duration'
-            }
-          }
-        ]);
-
-        if (!result || !result.length) {
-          return null;
-        }
-
-        const obj: any = result[0];
-
-        const estimatedCloseDate = moment(new Date())
-          .add(obj.duration, 'minutes')
-          .toDate();
-
-        const conformities = await sendCoreMessage({
-          subdomain,
-          action: 'conformities.getConformities',
-          data: {
-            mainType: 'deal',
-            mainTypeIds: [deal._id],
-            relTypes: ['customer']
-          },
-          isRPC: true,
-          defaultValue: []
-        });
-
-        if (dealRoute) {
-          await models.Trips.create({
-            dealIds: [deal._id],
-            driverId: participant.driverId,
-            carIds: participant.carIds,
-            routeId: dealRoute.routeId,
-            status: 'open',
-            routeReversed: dealRoute.reversed,
-            startedDate: new Date(),
-            customerIds: conformities.map(c => c.relTypeId),
-            estimatedCloseDate
-          });
-        }
-      }
-
       await notifyDealRelatedUsers(
         subdomain,
         process.env.MOBILE_CP_ID || '',
@@ -215,6 +149,73 @@ export const afterDealUpdate = async (subdomain, params) => {
       (stage.code && stage.code === 'start') ||
       stage.code === 'dispatchStarted'
     ) {
+      const trip = await models.Trips.findOne({ dealId: deal._id });
+      const dealRoute = await models.DealRoutes.findOne({ dealId: deal._id });
+      const participant = await models.Participants.findOne({
+        dealId: deal._id,
+        status: 'won'
+      });
+
+      let estimatedCloseDate: any = undefined;
+
+      if (!trip && participant) {
+        if (dealRoute) {
+          const route = (await models.Routes.findOne({
+            _id: dealRoute.routeId
+          })) || { directionIds: [] };
+
+          const result: any = await models.Directions.aggregate([
+            { $match: { _id: { $in: route.directionIds } } },
+            {
+              $group: {
+                _id: null,
+                duration: {
+                  $sum: '$duration'
+                }
+              }
+            },
+            {
+              $project: {
+                duration: '$duration'
+              }
+            }
+          ]);
+
+          if (!result || !result.length) {
+            return null;
+          }
+
+          const obj: any = result[0];
+          estimatedCloseDate = moment(new Date())
+            .add(obj.duration, 'minutes')
+            .toDate();
+        }
+
+        const conformities = await sendCoreMessage({
+          subdomain,
+          action: 'conformities.getConformities',
+          data: {
+            mainType: 'deal',
+            mainTypeIds: [deal._id],
+            relTypes: ['customer']
+          },
+          isRPC: true,
+          defaultValue: []
+        });
+
+        await models.Trips.create({
+          dealIds: [deal._id],
+          driverId: participant.driverId,
+          carIds: participant.carIds,
+          routeId: dealRoute && dealRoute.routeId,
+          status: 'open',
+          routeReversed: dealRoute && dealRoute.reversed,
+          startedDate: new Date(),
+          customerIds: conformities.map(c => c.relTypeId),
+          estimatedCloseDate
+        });
+      }
+
       await notifyDealRelatedUsers(
         subdomain,
         process.env.WEB_CP_ID || '',
