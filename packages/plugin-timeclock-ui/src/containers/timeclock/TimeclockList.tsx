@@ -7,7 +7,7 @@ import { TimeClockMutationResponse, TimeClockQueryResponse } from '../../types';
 import { queries } from '../../graphql';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-
+import { mutations } from '../../graphql';
 type Props = {
   queryParams: any;
   history: any;
@@ -27,16 +27,23 @@ type FinalProps = {
   TimeClockMutationResponse;
 
 const ListContainer = (props: FinalProps) => {
-  const { listTimeclocksQuery } = props;
+  const { listTimeclocksQuery, extractAllMySqlDataMutation } = props;
 
   if (listTimeclocksQuery.loading) {
     return <Spinner />;
   }
 
+  const extractAllMySqlData = () => {
+    extractAllMySqlDataMutation().then(() => {
+      listTimeclocksQuery.refetch();
+    });
+  };
+
   const updatedProps = {
     ...props,
     timeclocks: listTimeclocksQuery.timeclocks || [],
-    loading: listTimeclocksQuery.loading
+    loading: listTimeclocksQuery.loading,
+    extractAllMySqlData
   };
 
   return <List {...updatedProps} />;
@@ -62,6 +69,12 @@ export default withProps<Props>(
         },
         fetchPolicy: 'network-only'
       })
-    })
+    }),
+    graphql<Props, TimeClockMutationResponse>(
+      gql(mutations.extractAllDataFromMySQL),
+      {
+        name: 'extractAllMySqlDataMutation'
+      }
+    )
   )(ListContainer)
 );
