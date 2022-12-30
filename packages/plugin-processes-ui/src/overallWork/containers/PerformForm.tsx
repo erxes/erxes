@@ -19,7 +19,7 @@ type Props = {
   history: any;
   overallWorkDetail: IOverallWorkDet;
   perform?: IPerform;
-  max?: number;
+  max: number;
 };
 
 type FinalProps = {
@@ -30,7 +30,7 @@ class PerformFormContainer extends React.Component<FinalProps> {
   render() {
     const { overallWorkDetail, max, performDetailQuery } = this.props;
 
-    if (performDetailQuery.loading) {
+    if (performDetailQuery && performDetailQuery.loading) {
       return <Spinner />;
     }
 
@@ -38,8 +38,9 @@ class PerformFormContainer extends React.Component<FinalProps> {
       name,
       values,
       isSubmitted,
-      callback
-    }: IButtonMutateProps) => {
+      callback,
+      disabled
+    }: IButtonMutateProps & { disabled: boolean }) => {
       return (
         <ButtonMutate
           mutation={values._id ? mutations.performEdit : mutations.performAdd}
@@ -50,11 +51,12 @@ class PerformFormContainer extends React.Component<FinalProps> {
           type="submit"
           uppercase={false}
           successMessage={`You successfully added a ${name}`}
+          disabled={disabled}
         />
       );
     };
 
-    const perform = performDetailQuery.perform;
+    const perform = performDetailQuery && performDetailQuery.performDetail;
 
     const updatedProps = {
       ...this.props,
@@ -79,7 +81,8 @@ export default withProps<Props>(
       options: ({ perform }) => ({
         variables: { _id: perform?._id },
         fetchPolicy: 'network-only'
-      })
+      }),
+      skip: props => !props.perform || !props.perform._id
     })
   )(PerformFormContainer)
 );

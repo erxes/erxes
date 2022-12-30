@@ -12,9 +12,6 @@ const ForumPost: IObjectTypeResolver<IPost, IContext> = {
   async updatedBy({ updatedById }) {
     return updatedById && { __typename: 'User', _id: updatedById };
   },
-  async stateChangedBy({ stateChangedById }) {
-    return stateChangedById && { __typename: 'User', _id: stateChangedById };
-  },
   async createdByCp({ createdByCpId }) {
     return (
       createdByCpId && { __typename: 'ClientPortalUser', _id: createdByCpId }
@@ -23,14 +20,6 @@ const ForumPost: IObjectTypeResolver<IPost, IContext> = {
   async updatedByCp({ updatedByCpId }) {
     return (
       updatedByCpId && { __typename: 'ClientPortalUser', _id: updatedByCpId }
-    );
-  },
-  async stateChangedByCp({ stateChangedByCpId }) {
-    return (
-      stateChangedByCpId && {
-        __typename: 'ClientPortalUser',
-        _id: stateChangedByCpId
-      }
     );
   },
   async commentCount({ _id }, _, { models: { Comment } }) {

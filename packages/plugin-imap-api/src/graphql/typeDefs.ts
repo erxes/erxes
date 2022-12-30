@@ -12,6 +12,7 @@ const types = `
     host: String
     smtpHost: String
     smtpPort: String
+    mainUser: String
     user: String
     password: String
   }

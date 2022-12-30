@@ -173,6 +173,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
               history={history}
               queryParams={queryParams}
               removePerform={removePerform}
+              minPotentialCount={this.state.minPotentialCount}
             />
           ))}
         </tbody>

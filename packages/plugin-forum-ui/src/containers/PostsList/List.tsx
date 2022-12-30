@@ -50,8 +50,7 @@ const List: React.FC = () => {
           <tr>
             <th>Title</th>
             <th>State</th>
-            <th>State changed at</th>
-            <th>State changed by</th>
+            <th>Last published at</th>
             <th>Created At</th>
             <th>Created By</th>
             <th>Updated At</th>
@@ -69,15 +68,7 @@ const List: React.FC = () => {
                 <Link to={`/forums/posts/${p._id}`}>{p.title}</Link>
               </td>
               <td>{p.state}</td>
-              <td>{p.stateChangedAt}</td>
-              <td>
-                {postUsername({
-                  post: p,
-                  typeKey: 'stateChangedUserType',
-                  crmKey: 'stateChangedBy',
-                  cpKey: 'stateChangedByCp'
-                })}
-              </td>
+              <td>{p.lastPublishedAt}</td>
               <td>{p.createdAt}</td>
               <td>
                 {postUsername({

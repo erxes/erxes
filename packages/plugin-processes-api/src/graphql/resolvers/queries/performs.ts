@@ -16,7 +16,7 @@ interface IParam {
   inDepartmentId: string;
   outDepartmentId: string;
   productCategoryId: string;
-  productId: string;
+  productIds: string[];
   jobReferId: string;
 }
 
@@ -36,7 +36,7 @@ const generateFilter = async (
     type,
     jobReferId,
     productCategoryId,
-    productId
+    productIds
   } = params;
   const selector: any = { ...commonQuerySelector };
 
@@ -87,8 +87,8 @@ const generateFilter = async (
     selector.typeId = { $in: products.map(pr => pr._id) };
   }
 
-  if (productId) {
-    selector.typeId = productId;
+  if (productIds) {
+    selector.typeId = { $in: productIds };
   }
 
   if (jobReferId) {

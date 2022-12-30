@@ -46,16 +46,8 @@ export default function ForumPost({ isTagsEnabled }) {
 
     updatedByCpId: ID
     updatedByCp: ClientPortalUser
-
     
-    stateChangedUserType: ForumUserType!
-    stateChangedAt: Date!
-
-    stateChangedById: ID
-    stateChangedBy: User
-
-    stateChangedByCpId: ID
-    stateChangedByCp: ClientPortalUser
+    lastPublishedAt: Date
 
     categoryApprovalState: String!
     

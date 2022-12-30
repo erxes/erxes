@@ -1,6 +1,6 @@
 import { IEmailTemplate } from '../../../models/definitions/emailTemplates';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 
 const EMAIL_TEMPLATE = 'emailTemplate';
@@ -138,6 +138,30 @@ const emailTemplateMutations = {
   }
 };
 
-moduleCheckPermission(emailTemplateMutations, 'manageEmailTemplate');
+checkPermission(
+  emailTemplateMutations,
+  'emailTemplatesAdd',
+  'manageEmailTemplate'
+);
+checkPermission(
+  emailTemplateMutations,
+  'emailTemplatesEdit',
+  'manageEmailTemplate'
+);
+checkPermission(
+  emailTemplateMutations,
+  'emailTemplatesChangeStatus',
+  'manageEmailTemplate'
+);
+checkPermission(
+  emailTemplateMutations,
+  'emailTemplatesRemove',
+  'manageEmailTemplate'
+);
+checkPermission(
+  emailTemplateMutations,
+  'emailTemplatesDuplicate',
+  'manageEmailTemplate'
+);
 
 export default emailTemplateMutations;

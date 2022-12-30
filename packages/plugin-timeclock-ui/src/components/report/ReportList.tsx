@@ -1,8 +1,6 @@
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { menuTimeClock } from '../../menu';
 import { router, __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Table from '@erxes/ui/src/components/table';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
@@ -18,16 +16,18 @@ import {
   FilterItem,
   CustomRangeContainer
 } from '../../styles';
+import { IBranch } from '@erxes/ui/src/team/types';
 
 type Props = {
   queryParams: any;
   history: any;
-  branchesList: any;
+  branchesList: IBranch[];
   reports: IReport[];
+  getActionBar: (actionBar: any) => void;
 };
 
 function ReportList(props: Props) {
-  const { history, branchesList, reports } = props;
+  const { history, branchesList, reports, getActionBar } = props;
   const [selectedBranchId, setBranches] = useState(['']);
   const [selectedDeptId, setDepartments] = useState('');
   const [selectedType, setType] = useState('By Employee');
@@ -80,114 +80,27 @@ function ReportList(props: Props) {
             />
           </FormGroup>
         </FilterItem>
-        <FilterItem>
-          <CustomRangeContainer>
-            <DateControl
-              // value={new Date()}
-              required={false}
-              name="startDate"
-              // onChange={onSelectDateChange}
-              placeholder={'Starting date'}
-              dateFormat={'YYYY-MM-DD'}
-            />
-            <DateControl
-              // value={new Date()}
-              required={false}
-              name="startDate"
-              // onChange={onSelectDateChange}
-              placeholder={'Ending date'}
-              dateFormat={'YYYY-MM-DD'}
-            />
-            <Button btnStyle="primary">Filter</Button>
-          </CustomRangeContainer>
-        </FilterItem>
       </>
     );
   };
-  const renderFilter = () => {
-    const renderBranchOptions = (branches: any[]) => {
-      return branches.map(branch => ({
-        value: branch._id,
-        label: branch.title
-      }));
-    };
-
-    const onBranchSelect = selectedBranch => {
-      setBranches(selectedBranch);
-
-      const branchIds: any[] = [];
-      selectedBranch.map(branch => branchIds.push(branch.value));
-
-      router.setParams(history, {
-        branchIds: `${branchIds}`
-      });
-    };
-
-    const onDepartmentSelect = dept => {
-      setDepartments(dept);
-      const departmentIds: any[] = [];
-
-      dept.map(department => departmentIds.push(department));
-
-      router.setParams(history, {
-        departmentIds: `${departmentIds}`
-      });
-    };
-
+  const renderExportBtn = () => {
     return (
-      <FilterWrapper>
-        <FilterItem>
-          <SelectDepartments
-            isRequired={false}
-            defaultValue={selectedDeptId}
-            onChange={onDepartmentSelect}
-          />
-        </FilterItem>
-        <FilterItem>
-          <FormGroup>
-            <ControlLabel>Branches</ControlLabel>
-            <Row>
-              <Select
-                value={selectedBranchId}
-                onChange={onBranchSelect}
-                placeholder="Select branch"
-                multi={true}
-                options={branchesList && renderBranchOptions(branchesList)}
-              />
-            </Row>
-          </FormGroup>
-        </FilterItem>
-        <div style={{ justifySelf: 'end' }}>
-          <Button>Export</Button>
-        </div>
-      </FilterWrapper>
+      <div>
+        <Button>Export</Button>
+      </div>
     );
   };
 
   const actionBar = (
     <Wrapper.ActionBar
       left={renderSelectionBar()}
-      right={renderFilter()}
+      right={renderExportBtn()}
       hasFlex={true}
     />
   );
 
-  return (
-    <Wrapper
-      header={<Wrapper.Header title={__('Reports')} submenu={menuTimeClock} />}
-      actionBar={actionBar}
-      content={
-        <DataWithLoader
-          data={content}
-          loading={false}
-          emptyText={__('Theres no timeclock')}
-          emptyImage="/images/actions/8.svg"
-        />
-      }
-      transparent={false}
-      hasBorder={true}
-    />
-  );
+  getActionBar(actionBar);
+  return <>{content}</>;
 }
 
 export default ReportList;

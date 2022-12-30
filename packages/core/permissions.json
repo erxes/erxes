@@ -39,7 +39,7 @@
 		},
 		"integrations": {
 			"name": "integrations",
-			"description": "integrations",
+			"description": "Integrations",
 			"actions": [
 				{
 					"name": "integrationsAll",
@@ -225,6 +225,28 @@
 				{
 					"name": "exportChannels",
 					"description": "Export channels"
+				}
+			]
+		},
+		"scripts": {
+			"name": "scripts",
+			"description": "Scripts",
+			"actions": [
+				{
+					"name": "scriptsAll",
+					"description": "All",
+					"use": [
+						"showScripts",
+						"manageScripts"
+					]
+				},
+				{
+					"name": "manageScripts",
+					"description": "Manage scripts"
+				},
+				{
+					"name": "showScripts",
+					"description": "Show scripts"
 				}
 			]
 		}
@@ -854,10 +876,7 @@
 				},
 				{
 					"name": "manageProducts",
-					"description": "Manage products",
-					"use": [
-						"showProducts"
-					]
+					"description": "Manage products"
 				},
 				{
 					"name": "showProducts",
@@ -914,6 +933,30 @@
 				{
 					"name": "showSegments",
 					"description": "Show segments list"
+				}
+			]
+		}
+	},
+	{
+		"tags": {
+			"name": "tags",
+			"description": "Tags",
+			"actions": [
+				{
+					"name": "tagsAll",
+					"description": "All",
+					"use": [
+						"showTags",
+						"manageTags"
+					]
+				},
+				{
+					"name": "manageTags",
+					"description": "Manage tags"
+				},
+				{
+					"name": "showTags",
+					"description": "Show tags"
 				}
 			]
 		}
@@ -1195,6 +1238,100 @@
 		}
 	},
 	{
+		"webbuilder": {
+			"name": "webbuilder",
+			"description": "Webbuilder",
+			"actions": [
+				{
+					"name": "webbuilderAll",
+					"description": "All",
+					"use": [
+						"showWebbuilder",
+						"manageWebbuilder"
+					]
+				},
+				{
+					"name": "showWebbuilder",
+					"description": "Show webbuilder"
+				},
+				{
+					"name": "manageWebbuilder",
+					"description": "Manage webbuilder"
+				}
+			]
+		}
+	},
+	{
+		"payments": {
+			"name": "payments",
+			"description": "Payments",
+			"actions": [
+				{
+					"name": "paymentsAll",
+					"description": "All",
+					"use": [
+						"paymentAdd",
+						"paymentEdit",
+						"paymentRemove",
+						"showPayments"
+					]
+				},
+				{
+					"name": "paymentAdd",
+					"description": "Add payments"
+				},
+				{
+					"name": "paymentEdit",
+					"description": "Edit payments"
+				},
+				{
+					"name": "paymentRemove",
+					"description": "Remove payments"
+				},
+				{
+					"name": "showPayments",
+					"description": "Show payments"
+				}
+			]
+		},
+		"invoices": {
+			"name": "invoices",
+			"description": "Invoices",
+			"actions": [
+				{
+					"name": "invoicesAll",
+					"description": "All",
+					"use": [
+						"showInvoices"
+					]
+				},
+				{
+					"name": "showInvoices",
+					"description": "Show invoices"
+				}
+			]
+		}
+	},
+	{
+		"documents": {
+			"name": "documents",
+			"description": "Documents",
+			"actions": [
+				{
+					"name": "documentsAll",
+					"description": "All",
+					"use": [
+						"manageDocuments"
+					]
+				},
+				{
+					"name": "manageDocuments",
+					"description": "Manage documents"
+				}
+			]
+		}
+	},
+	{
 		"loyalties": {
 			"name": "loyalties",
 			"description": "Loyalties",
@@ -1214,6 +1351,30 @@
 				{
 					"name": "manageLoyalties",
 					"description": "Manage loyalties"
+				}
+			]
+		}
+	},
+	{
+		"webhooks": {
+			"name": "webhooks",
+			"description": "Webhooks",
+			"actions": [
+				{
+					"name": "webhooksAll",
+					"description": "All",
+					"use": [
+						"showWebhooks",
+						"manageWebhooks"
+					]
+				},
+				{
+					"name": "showWebhooks",
+					"description": "Show webhooks"
+				},
+				{
+					"name": "manageWebhooks",
+					"description": "Manage webhooks"
 				}
 			]
 		}

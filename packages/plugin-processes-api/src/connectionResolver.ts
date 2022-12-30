@@ -48,7 +48,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadFlowClass(models)
   );
   models.Processes = db.model<IProcessDocument, IProcessModel>(
-    'process',
+    'processes',
     loadProcessClass(models)
   );
   models.Works = db.model<IWorkDocument, IWorkModel>(
