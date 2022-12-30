@@ -56,7 +56,7 @@ export const afterDealCreate = async (subdomain, params) => {
     return;
   }
 
-  if (stage.code && stage.code === 'newOrder') {
+  if ((stage.code && stage.code === 'newOrder') || stage.code === 'dealsNew') {
     const drivers = await sendContactsMessage({
       subdomain,
       action: 'customers.find',
@@ -116,7 +116,10 @@ export const afterDealUpdate = async (subdomain, params) => {
   await notifyUnloadConfirmationFilesAttached(subdomain, deal, oldDeal);
 
   if (deal.stageId !== oldDeal.stageId) {
-    if (stage.code && stage.code === 'negotiationAccepted') {
+    if (
+      (stage.code && stage.code === 'negotiationAccepted') ||
+      stage.code === 'dealsNegotiated'
+    ) {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.WEB_CP_ID || '',
@@ -208,7 +211,10 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (stage.code && stage.code === 'start') {
+    if (
+      (stage.code && stage.code === 'start') ||
+      stage.code === 'dispatchStarted'
+    ) {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.WEB_CP_ID || '',
@@ -221,7 +227,10 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (stage.code && stage.code === 'ready') {
+    if (
+      (stage.code && stage.code === 'ready') ||
+      stage.code === 'dispatchReady'
+    ) {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.WEB_CP_ID || '',
@@ -234,7 +243,10 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (stage.code && stage.code === 'loadAccepted') {
+    if (
+      (stage.code && stage.code === 'loadAccepted') ||
+      stage.code === 'dispatchLoadAccepted'
+    ) {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.MOBILE_CP_ID || '',
@@ -247,7 +259,10 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (stage.code && stage.code === 'gone') {
+    if (
+      (stage.code && stage.code === 'gone') ||
+      stage.code === 'dispatchOngoing'
+    ) {
       await models.Trips.updateOne(
         { dealIds: deal._id },
         { $set: { status: 'ongoing' } }
@@ -265,7 +280,10 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (stage.code && stage.code === 'break') {
+    if (
+      (stage.code && stage.code === 'break') ||
+      stage.code === 'dispatchDelayed'
+    ) {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.WEB_CP_ID || '',
@@ -278,7 +296,10 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (stage.code && stage.code === 'discoveredBreak') {
+    if (
+      (stage.code && stage.code === 'discoveredBreak') ||
+      stage.code === 'dispatchSolved'
+    ) {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.WEB_CP_ID || '',
@@ -291,7 +312,10 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (stage.code && stage.code === 'end') {
+    if (
+      (stage.code && stage.code === 'end') ||
+      stage.code === 'dispatchArrived'
+    ) {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.WEB_CP_ID || '',
@@ -304,7 +328,10 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (stage.code && stage.code === 'unloadAccepted') {
+    if (
+      (stage.code && stage.code === 'unloadAccepted') ||
+      stage.code === 'dispatchUnloadConfirmed'
+    ) {
       await models.Trips.updateOne(
         { dealIds: deal._id },
         { $set: { status: 'closed' } }
@@ -321,7 +348,10 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (stage.code && stage.code === 'complete') {
+    if (
+      (stage.code && stage.code === 'complete') ||
+      stage.code === 'dispatchSuccess'
+    ) {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.MOBILE_CP_ID || '',
