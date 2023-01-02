@@ -1,4 +1,6 @@
 import * as crypto from 'crypto';
+import { getEnv } from './core';
+import { URL } from 'url';
 
 import { IEncryptionData } from './types';
 
@@ -94,11 +96,36 @@ export const pluralFormation = (type: string) => {
 };
 
 export const removeLastTrailingSlash = url => {
-  if (typeof url !== 'string') return url;
+  if (typeof url !== 'string') {
+    return url;
+  }
   return url.replace(/\/$/, '');
 };
 
 export const removeExtraSpaces = text => {
-  if (typeof text !== 'string') return;
+  if (typeof text !== 'string') {
+    return;
+  }
   return text.replace(/\s+/g, ' ').trim();
+};
+
+// check if valid url
+export const isValidURL = (url: string): boolean => {
+  try {
+    return Boolean(new URL(url));
+  } catch (e) {
+    return false;
+  }
+};
+
+export const readFileUrl = (value: string) => {
+  if (!value || isValidURL(value) || value.includes('/')) {
+    return value;
+  }
+
+  const DOMAIN = getEnv({
+    name: 'DOMAIN'
+  });
+
+  return `${DOMAIN}/gateway/read-file?key=${value}`;
 };
