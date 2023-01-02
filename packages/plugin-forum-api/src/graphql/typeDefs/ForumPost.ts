@@ -1,5 +1,6 @@
 export const translationAndPostCommonFields = `
   title: String
+  subTitle: String
   content: String
   description: String
   thumbnail: String

@@ -24,6 +24,7 @@ export type AdminApprovalStates = typeof ADMIN_APPROVAL_STATES[number];
 
 interface CommonPostFields {
   title?: string | null;
+  subTitle?: string | null;
   content?: string | null;
   description?: string | null;
   thumbnail?: string | null;
@@ -163,6 +164,7 @@ export interface IPostModel extends Model<PostDocument> {
 
 const common = {
   title: { type: String },
+  subTitle: String,
   content: { type: String },
   description: { type: String },
   thumbnail: String,
