@@ -89,6 +89,11 @@ const actionCreate = async ({ models, subdomain, action, execution }) => {
       }
     }
 
+    if (execution.triggerType === 'pos:posOrder') {
+      ownerType = 'customer';
+      ownerId = execution.target.customerId;
+    }
+
     if (!ownerType || !ownerId) {
       return { error: 'not found voucher owner' };
     }
