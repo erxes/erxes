@@ -20,7 +20,7 @@ export interface IParticipantDocument extends IParticipant, Document {
 export const participantSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    routeId: field({ type: String, label: 'Route Id', required: true }),
+    routeId: field({ type: String, label: 'Route Id', required: false }),
     dealId: field({ type: String, label: 'Deal Id', required: true }),
     carIds: field({ type: [String], label: 'Car Id', required: true }),
     driverId: field({ type: String, label: 'Driver Id', required: true }),

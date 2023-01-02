@@ -1,6 +1,7 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
 
 import { DealRoute } from './dealRoute';
+import { DealPlace } from './dealPlace';
 import { Direction } from './directions';
 import Mutation from './mutations';
 import Query from './queries';
@@ -18,6 +19,7 @@ const resolvers: any = async () => ({
   Route,
   Trip,
   DealRoute,
+  DealPlace,
 
   Mutation,
   Query
