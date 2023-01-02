@@ -28,6 +28,7 @@ interface CommonPostFields {
   description?: string | null;
   thumbnail?: string | null;
   custom: any;
+  thumbnailAlt?: string | null;
 }
 
 interface TranslationsFields extends CommonPostFields {
@@ -165,7 +166,8 @@ const common = {
   content: { type: String },
   description: { type: String },
   thumbnail: String,
-  custom: Schema.Types.Mixed
+  custom: Schema.Types.Mixed,
+  thumbnailAlt: String
 };
 
 export const postSchema = new Schema<PostDocument>({

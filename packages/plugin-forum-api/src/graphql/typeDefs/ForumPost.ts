@@ -3,6 +3,7 @@ export const translationAndPostCommonFields = `
   content: String
   description: String
   thumbnail: String
+  thumbnailAlt: String
   custom: JSON
 `;
 
