@@ -53,9 +53,10 @@ type Props = {
   contentType: string;
   refetchQueries?: any;
   btnSize?: string;
+  afterSave?: (response: any) => void;
 } & IRouterProps;
 
-function TemporarySegment({ history, contentType, btnSize }: Props) {
+function TemporarySegment({ history, contentType, btnSize, afterSave }: Props) {
   const [showDrawer, setShowDrawer] = useState(false);
   const [name, setName] = useState('');
 
@@ -75,9 +76,9 @@ function TemporarySegment({ history, contentType, btnSize }: Props) {
           }
         ]
       })
-      .then(() => {
+      .then(response => {
         Alert.success('Successfully added a segment');
-
+        afterSave?.(response);
         toggleDrawer();
         closeModal();
       });

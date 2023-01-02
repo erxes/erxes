@@ -7,10 +7,7 @@ import {
   resetConfigsCache,
   sendRequest
 } from '../../utils';
-import {
-  moduleCheckPermission,
-  requireLogin
-} from '@erxes/api-utils/src/permissions';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 
 const configMutations = {
   /**
@@ -124,8 +121,16 @@ const configMutations = {
   }
 };
 
-moduleCheckPermission(configMutations, 'manageGeneralSettings');
-requireLogin(configMutations, 'configsActivateInstallation');
-requireLogin(configMutations, 'configsManagePluginInstall');
+checkPermission(configMutations, 'configsUpdate', 'manageGeneralSettings');
+checkPermission(
+  configMutations,
+  'configsActivateInstallation',
+  'manageGeneralSettings'
+);
+checkPermission(
+  configMutations,
+  'configsManagePluginInstall',
+  'manageGeneralSettings'
+);
 
 export default configMutations;

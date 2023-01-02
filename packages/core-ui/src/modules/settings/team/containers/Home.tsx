@@ -15,7 +15,9 @@ type Props = {
 };
 
 function HomeContainer(props: Props) {
-  const usersGroupQuery = useQuery(gql(permissionQueries.usersGroups));
+  const usersGroupQuery = useQuery(gql(permissionQueries.usersGroups), {
+    fetchPolicy: 'network-only'
+  });
   const configsEnvQuery = useQuery(gql(generalQueries.configsGetEnv));
   const totalCountQuery = useQuery(gql(queries.usersTotalCount));
 

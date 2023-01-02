@@ -9,7 +9,8 @@ import VoucherCampaigns from './voucherCampaigns';
 import LoyaltyConfigQueries from './configs';
 import ScoreLogs from './scoreLogs';
 import Loyalties from './loyalties';
-
+import Assignments from './assignments';
+import AssignmentCampaigns from './assignmentCampaign';
 export {
   LoyaltyConfigQueries,
   Donates,
@@ -21,5 +22,7 @@ export {
   Vouchers,
   VoucherCampaigns,
   ScoreLogs,
-  Loyalties
+  Loyalties,
+  Assignments,
+  AssignmentCampaigns
 };
