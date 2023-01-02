@@ -39,6 +39,20 @@ const reportQueries = {
         _id: companyId
       }
     });
+  },
+
+  apexCompanies(_root) {
+    return sendCommonMessage({
+      subdomain: 'os',
+      serviceName: 'contacts',
+      action: 'companies.findActiveCompanies',
+      isRPC: true,
+      data: {
+        selector: {
+          tagIds: { $in: [process.env.PUBLIC_COMPANIES_TAG || ''] }
+        }
+      }
+    });
   }
 };
 
