@@ -80,8 +80,12 @@ export default {
     return entries[0];
   },
 
-  department(user: IUserDocument, _args, { models }: IContext) {
-    return models.Departments.findOne({ userIds: { $in: user._id } });
+  async departments(user: IUserDocument, _args, { models }: IContext) {
+    return models.Departments.find({ _id: { $in: user.departmentIds } });
+  },
+
+  async branches(user: IUserDocument, _args, { models }: IContext) {
+    return models.Branches.find({ _id: { $in: user.branchIds } });
   },
 
   async leaderBoardPosition(user: IUserDocument, _args, { models }: IContext) {

@@ -83,8 +83,14 @@ export const types = `
     }
 `;
 
+const commonParams = `
+    searchValue: String,
+    status:String,
+    withoutUserFilter:Boolean
+`;
+
 export const queries = `
-    departments(searchValue: String): [Department]
+    departments(${commonParams}): [Department]
     departmentDetail(_id: String!): Department
 
     noDepartmentUsers(excludeId: String): [User]
@@ -92,7 +98,7 @@ export const queries = `
     units(searchValue: String): [Unit]
     unitDetail(_id: String!): Unit
 
-    branches(searchValue: String): [Branch]
+    branches(${commonParams}): [Branch]
     branchDetail(_id: String!): Branch
 
     structureDetail: Structure

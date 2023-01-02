@@ -19,6 +19,10 @@ import {
 } from './definitions/users';
 import { IAppDocument } from './definitions/apps';
 import { saveValidatedToken } from '../../data/utils';
+import {
+  IUserMovementDocument,
+  userMovemmentSchema
+} from '@erxes/api-utils/src/definitions/users';
 
 const SALT_WORK_FACTOR = 10;
 
@@ -806,4 +810,79 @@ export const loadUserClass = (models: IModels) => {
   userSchema.loadClass(User);
 
   return userSchema;
+};
+
+type ICommonUserMovement = {
+  userIds: string[];
+  contentType: string;
+  contentTypeId: string;
+  createdBy: string;
+};
+
+export interface IUserMovemmentModel extends Model<IUserMovementDocument> {
+  manageUserMovemment(
+    params: ICommonUserMovement
+  ): Promise<IUserMovementDocument>;
+}
+
+export const loadUserMovemmentClass = (models: IModels) => {
+  class UserMovemment {
+    public static async manageUserMovemment(params: ICommonUserMovement) {
+      const { createdBy, userIds, contentType, contentTypeId } = params;
+      const fieldName = `${contentType}Ids`;
+      const unActiveUsers = await models.Users.find({
+        _id: {
+          $in: userIds
+        },
+        branchIds: { $nin: [contentTypeId] }
+      });
+
+      await models.Users.updateMany(
+        {
+          _id: { $nin: userIds },
+          [fieldName]: { $in: contentTypeId }
+        },
+        { $pull: { [fieldName]: contentTypeId } }
+      );
+
+      await models.Users.updateMany(
+        { _id: { $in: userIds } },
+        { $addToSet: { [fieldName]: contentTypeId } }
+      );
+
+      const userMovements = await models.UserMovements.find({
+        contentType,
+        contentTypeId
+      });
+
+      const unActiveUserIds = unActiveUsers
+        .map(user =>
+          userMovements.some(movement => movement.userId === user._id)
+            ? user._id
+            : undefined
+        )
+        .filter(movement => movement);
+      const newUserMovementIds = userIds
+        .map(userId =>
+          userMovements.some(userMovement => userMovement.userId === userId)
+            ? undefined
+            : userId
+        )
+        .filter(userId => userId);
+
+      const newUserMovements = [...newUserMovementIds, ...unActiveUserIds].map(
+        userMovementId => ({
+          userId: userMovementId,
+          contentType,
+          contentTypeId,
+          createdBy
+        })
+      );
+
+      await models.UserMovements.insertMany(newUserMovements);
+      return 'edited';
+    }
+  }
+  userMovemmentSchema.loadClass(UserMovemment);
+  return userMovemmentSchema;
 };

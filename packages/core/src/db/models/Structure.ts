@@ -1,3 +1,4 @@
+import { STRUCTURE_STATUSES } from '@erxes/api-utils/src/constants';
 import { Model } from 'mongoose';
 import { IModels } from '../../connectionResolver';
 import {
@@ -11,6 +12,7 @@ import {
   IStructureDocument
 } from './definitions/structures';
 import { IUserDocument } from './definitions/users';
+import { checkCodeDuplication, generateOrder } from './utils';
 
 export interface IStructureModel extends Model<IStructureDocument> {
   getStructure(doc: any): IStructureDocument;
@@ -124,9 +126,23 @@ export const loadDepartmentClass = (models: IModels) => {
      * Create an department
      */
     public static async createDepartment(doc: any, user: IUserDocument) {
+      await checkCodeDuplication(models.Departments, doc.code);
+
+      const parent = await models.Departments.findOne({
+        _id: doc.parentId
+      }).lean();
+
+      doc.order = generateOrder(doc, parent);
+
       const department = await models.Departments.create({
         ...doc,
         createdAt: new Date(),
+        createdBy: user._id
+      });
+      await models.UserMovements.manageUserMovemment({
+        userIds: department.userIds || [],
+        contentType: 'department',
+        contentTypeId: department._id,
         createdBy: user._id
       });
 
@@ -141,6 +157,12 @@ export const loadDepartmentClass = (models: IModels) => {
       doc: any,
       user: IUserDocument
     ) {
+      await models.UserMovements.manageUserMovemment({
+        userIds: doc.userIds || [],
+        contentType: 'department',
+        contentTypeId: _id,
+        createdBy: user._id
+      });
       await models.Departments.update(
         { _id },
         {
@@ -158,6 +180,18 @@ export const loadDepartmentClass = (models: IModels) => {
      */
     public static async removeDepartment(_id: string) {
       const department = await models.Departments.getDepartment({ _id });
+
+      const userMovement = await models.UserMovements.find({
+        contentType: 'branch',
+        contentTypeId: department._id
+      });
+
+      if (!!userMovement.length) {
+        return await models.Departments.updateOne(
+          { $or: [{ _id: department._id }, { parentId: department._id }] },
+          { status: STRUCTURE_STATUSES.DELETED }
+        );
+      }
 
       await models.Departments.deleteMany({ parentId: department._id });
 
@@ -262,9 +296,24 @@ export const loadBranchClass = (models: IModels) => {
      * Create a branch
      */
     public static async createBranch(doc: any, user: IUserDocument) {
+      await checkCodeDuplication(models.Branches, doc.code);
+
+      const parent = await models.Branches.findOne({
+        _id: doc.parentId
+      }).lean();
+
+      doc.order = generateOrder(doc, parent);
+
       const branch = await models.Branches.create({
         ...doc,
         createdAt: new Date(),
+        createdBy: user._id
+      });
+
+      await models.UserMovements.manageUserMovemment({
+        userIds: branch.userIds || [],
+        contentType: 'branch',
+        contentTypeId: branch._id,
         createdBy: user._id
       });
 
@@ -279,6 +328,12 @@ export const loadBranchClass = (models: IModels) => {
       doc: any,
       user: IUserDocument
     ) {
+      await models.UserMovements.manageUserMovemment({
+        userIds: doc.userIds || [],
+        contentType: 'branch',
+        contentTypeId: _id,
+        createdBy: user._id
+      });
       await models.Branches.update(
         { _id },
         {
@@ -296,6 +351,20 @@ export const loadBranchClass = (models: IModels) => {
      */
     public static async removeBranch(_id: string) {
       const branch = await models.Branches.getBranch({ _id });
+
+      const userMovement = await models.UserMovements.find({
+        contentType: 'branch',
+        contentTypeId: branch._id
+      });
+
+      if (!!userMovement.length) {
+        return await models.Branches.updateOne(
+          { $or: [{ _id: branch._id }, { parentId: branch._id }] },
+          { status: STRUCTURE_STATUSES.DELETED }
+        );
+      }
+
+      await models.Branches.deleteMany({ parentId: branch._id });
 
       return branch.remove();
     }

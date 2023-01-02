@@ -1,30 +1,65 @@
+import { STRUCTURE_STATUSES } from '@erxes/api-utils/src/constants';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../../connectionResolver';
+import { IContext, IModels } from '../../../connectionResolver';
+
+const generateFilters = async ({
+  models,
+  userId,
+  type,
+  params
+}: {
+  models: IModels;
+  userId: string;
+  type: string;
+  params: any;
+}) => {
+  const filter: any = { status: STRUCTURE_STATUSES.ACTIVE };
+
+  if (params.searchValue) {
+    const regexOption = {
+      $regex: `.*${params.searchValue.trim()}.*`,
+      $options: 'i'
+    };
+
+    filter.$or = [
+      {
+        title: regexOption
+      },
+      {
+        description: regexOption
+      }
+    ];
+  }
+
+  if (params.status) {
+    params.status = params.status;
+  }
+
+  if (!params.withoutUserFilter) {
+    const userDetail = await models.Users.findOne({ _id: userId });
+    if (type === 'branch') {
+      filter._id = { $in: userDetail?.branchIds || [] };
+    }
+    if (type === 'department') {
+      filter._id = { $in: userDetail?.departmentIds || [] };
+    }
+  }
+
+  return filter;
+};
 
 const structureQueries = {
-  departments(
+  async departments(
     _root,
-    { searchValue }: { searchValue?: string },
-    { models }: IContext
+    params: { searchValue?: string },
+    { models, user }: IContext
   ) {
-    const filter: { $or?: any[] } = {};
-
-    if (searchValue) {
-      const regexOption = {
-        $regex: `.*${searchValue.trim()}.*`,
-        $options: 'i'
-      };
-
-      filter.$or = [
-        {
-          title: regexOption
-        },
-        {
-          description: regexOption
-        }
-      ];
-    }
-
+    const filter = await generateFilters({
+      models,
+      userId: user._id,
+      type: 'department',
+      params
+    });
     return models.Departments.find(filter).sort({ title: 1 });
   },
 
@@ -62,29 +97,17 @@ const structureQueries = {
     return models.Units.getUnit({ _id });
   },
 
-  branches(
+  async branches(
     _root,
-    { searchValue }: { searchValue?: string },
-    { models }: IContext
+    params: { searchValue?: string },
+    { models, user }: IContext
   ) {
-    const filter: { parentId?: any; $or?: any[] } = {};
-
-    if (searchValue) {
-      const regexOption = {
-        $regex: `.*${searchValue.trim()}.*`,
-        $options: 'i'
-      };
-
-      filter.$or = [
-        {
-          title: regexOption
-        },
-        {
-          address: regexOption
-        }
-      ];
-    }
-
+    const filter = await generateFilters({
+      models,
+      userId: user._id,
+      type: 'branch',
+      params
+    });
     return models.Branches.find(filter).sort({ title: 1 });
   },
 
