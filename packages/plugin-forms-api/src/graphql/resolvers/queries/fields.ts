@@ -180,6 +180,16 @@ const fieldQueries = {
     }
 
     return [];
+  },
+
+  async fieldsGetDetail(_root, { _id, code }, { models }: IContext) {
+    let field = await models.Fields.findOne({ code });
+
+    if (!field) {
+      field = await models.Fields.findOne({ _id });
+    }
+
+    return field;
   }
 };
 
@@ -187,6 +197,7 @@ requireLogin(fieldQueries, 'fieldsCombinedByContentType');
 requireLogin(fieldQueries, 'fieldsDefaultColumnsConfig');
 
 checkPermission(fieldQueries, 'fields', 'showForms', []);
+checkPermission(fieldQueries, 'fieldsGetDetail', 'showForms', []);
 
 const fieldsGroupQueries = {
   /**
