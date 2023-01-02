@@ -4,8 +4,7 @@ import resolvers from './graphql/resolvers';
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
-import { connectToMysql } from '../cronjobs/timelock';
-import * as cors from 'cors';
+import cronjobs from './cronjobs/timelock';
 
 export let mainDb;
 export let debug;
@@ -23,6 +22,10 @@ export default {
     };
   },
 
+  meta: {
+    cronjobs
+  },
+
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
@@ -36,8 +39,6 @@ export default {
   onServerInit: async options => {
     mainDb = options.db;
     const app = options.app;
-
-    app.get('/mysql', connectToMysql);
 
     initBroker(options.messageBrokerClient);
 

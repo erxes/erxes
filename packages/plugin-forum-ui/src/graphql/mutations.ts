@@ -11,6 +11,7 @@ const forumCreateCategoryParamsCommon = `
   $postReadRequiresPermissionGroup: Boolean
   $postWriteRequiresPermissionGroup: Boolean
   $commentWriteRequiresPermissionGroup: Boolean
+  $order: Float
 `;
 
 const forumCreateCategoryArgsCommon = `
@@ -24,6 +25,7 @@ const forumCreateCategoryArgsCommon = `
   postReadRequiresPermissionGroup: $postReadRequiresPermissionGroup
   postWriteRequiresPermissionGroup: $postWriteRequiresPermissionGroup
   commentWriteRequiresPermissionGroup: $commentWriteRequiresPermissionGroup
+  order: $order
 `;
 
 export const UPDATE_CATEGORY = gql`

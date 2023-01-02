@@ -8,6 +8,11 @@ export interface ITimeclock {
   shiftActive: boolean;
   user: IUser;
   shiftEnd: Date;
+  employeeUserName: string;
+  employeeId: number;
+  deviceName: string;
+  deviceType: string;
+  branchName: string;
 }
 export interface IAbsence {
   _id: string;
@@ -129,6 +134,7 @@ export type MutationVariables = {
   userId: string;
   longitude: number;
   latitude: number;
+  deviceType?: string;
 };
 export type AbsenceMutationVariables = {
   _id?: string;
@@ -149,6 +155,7 @@ export type ScheduleMutationVariables = {
 export type TimeClockMutationResponse = {
   startTimeMutation: (params: { variables: MutationVariables }) => Promise<any>;
   stopTimeMutation: (params: { variables: MutationVariables }) => Promise<any>;
+  extractAllMySqlDataMutation: () => Promise<any>;
 };
 
 export type AbsenceMutationResponse = {

@@ -109,7 +109,7 @@ const posOrderItemSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     createdAt: field({ type: Date, label: 'Created at' }),
-    productId: field({ type: String, label: 'Product' }),
+    productId: field({ type: String, label: 'Product', esType: 'keyword' }),
     count: field({ type: Number, label: 'Count' }),
     unitPrice: field({ type: Number, label: 'Unit price' }),
     discountAmount: field({
@@ -143,12 +143,12 @@ export const posOrderSchema = schemaHooksWrapper(
     paidDate: field({ type: Date, label: 'Paid date' }),
     number: field({ type: String, label: 'Order number', index: true }),
     customerId: field({ type: String, label: 'Customer' }),
-    cardAmount: field({ type: Number }),
-    cashAmount: field({ type: Number }),
-    receivableAmount: field({ type: Number }),
-    mobileAmount: field({ type: Number }),
-    totalAmount: field({ type: Number }),
-    finalAmount: field({ type: Number }),
+    cardAmount: field({ type: Number, label: 'Card amount' }),
+    cashAmount: field({ type: Number, label: 'Cash amount' }),
+    receivableAmount: field({ type: Number, label: 'Receivable amount' }),
+    mobileAmount: field({ type: Number, label: 'Mobile amount' }),
+    totalAmount: field({ type: Number, label: 'Total amount' }),
+    finalAmount: field({ type: Number, label: 'finalAmount' }),
     shouldPrintEbarimt: field({
       type: Boolean,
       label: 'Should print ebarimt for this order'
@@ -171,7 +171,7 @@ export const posOrderSchema = schemaHooksWrapper(
       type: String,
       label: 'Previous bill id if it is changed'
     }),
-    type: field({ type: String }),
+    type: field({ type: String, label: 'Order type' }),
     userId: field({ type: String, label: 'Created user id' }),
 
     items: field({ type: [posOrderItemSchema], label: 'items' }),
@@ -190,7 +190,7 @@ export const posOrderSchema = schemaHooksWrapper(
       optional: true,
       label: 'Delivery Info, address, map, etc'
     }),
-    origin: field({ type: String, optional: true }),
+    origin: field({ type: String, optional: true, label: 'origin' }),
     taxInfo: field({ type: Object, optional: true })
   }),
   'erxes_posOrders'

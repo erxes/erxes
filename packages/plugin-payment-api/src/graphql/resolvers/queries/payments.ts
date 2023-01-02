@@ -40,7 +40,9 @@ const queries = {
       filter.status = args.status;
     }
 
-    return models.Payments.find(filter).sort({ type: 1 });
+    return models.Payments.find(filter)
+      .sort({ type: 1 })
+      .lean();
   },
 
   async paymentsTotalCount(

@@ -17,9 +17,15 @@ type Props = {
   startClockTime?: (userId: string) => void;
   loading: boolean;
   getActionBar: (actionBar: any) => void;
+  extractAllMySqlData: () => void;
 };
 
-function List({ timeclocks, startClockTime, getActionBar }: Props) {
+function List({
+  timeclocks,
+  startClockTime,
+  getActionBar,
+  extractAllMySqlData
+}: Props) {
   const trigger = (
     <Button id="btn1" btnStyle={'success'} icon="plus-circle">
       {`Start Shift`}
@@ -36,6 +42,7 @@ function List({ timeclocks, startClockTime, getActionBar }: Props) {
 
   const actionBarRight = (
     <>
+      <Button onClick={extractAllMySqlData}>Extract all data</Button>
       <ModalTrigger
         title={__('Start shift')}
         trigger={trigger}
@@ -59,6 +66,16 @@ function List({ timeclocks, startClockTime, getActionBar }: Props) {
     />
   );
 
+  const compareUserName = (a, b) => {
+    if (a.employeeUserName < b.employeeUserName) {
+      return -1;
+    }
+    if (a.employeeUserName > b.employeeUserName) {
+      return 1;
+    }
+    return 0;
+  };
+
   const content = (
     <Table>
       <thead>
@@ -67,11 +84,14 @@ function List({ timeclocks, startClockTime, getActionBar }: Props) {
           <th>{__('Shift date')}</th>
           <th>{__('Shift started')}</th>
           <th>{__('Shift ended')}</th>
+          <th>{__('Overnight')}</th>
+          <th>{__('Branch / Device name')}</th>
+          <th>{__('Device type')}</th>
           <th>{__('Status')}</th>
         </tr>
       </thead>
       <tbody>
-        {timeclocks.map(timeclock => {
+        {timeclocks.sort(compareUserName).map(timeclock => {
           return <Row key={timeclock._id} timeclock={timeclock} />;
         })}
       </tbody>
