@@ -41,7 +41,10 @@ const FormContainer = (props: Props) => {
         }
         refetchQueries={[
           {
-            query: gql(queries.departments)
+            query: gql(queries.departments),
+            variables: {
+              withoutUserFilter: true
+            }
           }
         ]}
         variables={values}

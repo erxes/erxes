@@ -93,6 +93,15 @@ export default function BranchForm(props: Props) {
           />
         </FormGroup>
         <FormGroup>
+          <ControlLabel required={true}>{__('Code')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            required={true}
+            name="code"
+            defaultValue={object.code}
+          />
+        </FormGroup>
+        <FormGroup>
           <ControlLabel>{__('Parent')}</ControlLabel>
           <Select
             placeholder={__('Choose parent')}

@@ -39,7 +39,10 @@ const FormContainer = (props: Props) => {
         mutation={object._id ? mutations.branchesEdit : mutations.branchesAdd}
         refetchQueries={[
           {
-            query: gql(queries.branches)
+            query: gql(queries.branches),
+            variables: {
+              withoutUserFilter: true
+            }
           }
         ]}
         variables={values}

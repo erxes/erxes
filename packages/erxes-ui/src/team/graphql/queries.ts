@@ -6,6 +6,18 @@ const nameFields = `
   lastName
 `;
 
+const commonStructureParamsDef = `
+    $searchValue: String,
+    $status:String,
+    $withoutUserFilter:Boolean
+`;
+
+const commonStructureParamsValue = `
+    searchValue:$searchValue
+    status:$status
+    withoutUserFilter:$withoutUserFilter
+`;
+
 const allUsers = `
   query allUsers($isActive: Boolean) {
     allUsers(isActive: $isActive) {
@@ -76,7 +88,7 @@ const users = `
   }
 `;
 
-const departmentField = `
+export const departmentField = `
   _id
   title
   description
@@ -109,8 +121,8 @@ const contactInfoFields = `
 `;
 
 const departments = `
-  query departments {
-    departments {
+  query departments(${commonStructureParamsDef}) {
+    departments(${commonStructureParamsValue}) {
       ${departmentField}
     }
   }
@@ -141,7 +153,7 @@ const units = `
   }
 `;
 
-const branchField = `
+export const branchField = `
   _id
   title
   address
@@ -161,8 +173,8 @@ const branchField = `
 `;
 
 const branches = `
-  query branches {
-    branches {
+  query branches(${commonStructureParamsDef}) {
+    branches (${commonStructureParamsValue}){
       ${branchField}
     }
   }

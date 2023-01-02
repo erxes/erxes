@@ -58,6 +58,8 @@ export interface IUser {
   isShowNotification?: boolean;
   score?: number;
   customFieldsData?: ICustomField[];
+  departmentIds?: string[];
+  branchIds?: string[];
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -69,6 +71,14 @@ export interface IUserDocument extends IUser, Document {
   appId?: string;
 }
 
+export interface IUserMovementDocument extends Document {
+  _id: string;
+  contentType: string;
+  contentTypeId: string;
+  userId: string;
+  createdAt: string;
+}
+
 // Mongoose schemas ===============================
 const emailSignatureSchema = new Schema(
   {
@@ -77,6 +87,16 @@ const emailSignatureSchema = new Schema(
   },
   { _id: false }
 );
+
+// User movement log
+export const userMovemmentSchema = new Schema({
+  _id: field({ pkey: true }),
+  contentType: field({ type: String, label: 'Content Type' }),
+  contentTypeId: field({ type: String, label: 'Content Type Id' }),
+  userId: field({ type: String, label: 'User Id' }),
+  createdBy: field({ type: String, label: 'Created By' }),
+  createdAt: field({ type: Date, label: 'Created At', default: new Date() })
+});
 
 // Detail schema
 const detailSchema = new Schema(
@@ -117,6 +137,8 @@ export const userSchema = schemaWrapper(
     registrationTokenExpires: field({ type: Date }),
     resetPasswordExpires: field({ type: Date }),
     isOwner: field({ type: Boolean, label: 'Is owner' }),
+    departmentIds: field({ type: [String], label: 'Department Ids' }),
+    branchIds: field({ type: [String], label: 'Branch Ids' }),
     email: field({
       type: String,
       unique: true,

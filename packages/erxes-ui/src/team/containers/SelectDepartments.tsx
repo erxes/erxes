@@ -18,7 +18,11 @@ export function generateUserOptions(array: IDepartment[] = []): IOption[] {
 
 export default (props: {
   queryParams?: IQueryParams;
-  filterParams?: { status: string };
+  filterParams?: {
+    status?: string;
+    searchValue?: string;
+    withoutUserFilter: boolean;
+  };
   label: string;
   onSelect: (value: string[] | string, name: string) => void;
   multi?: boolean;
