@@ -35,6 +35,8 @@ function List({ list, remove }: Props) {
     <Table>
       <thead>
         <tr>
+          <th>{__('type')}</th>
+          <th>{__('company')}</th>
           <th>{__('name')}</th>
           <th>{__('Actions')}</th>
         </tr>
@@ -43,6 +45,8 @@ function List({ list, remove }: Props) {
         {list.map(obj => {
           return (
             <tr>
+              <td>{obj.type}</td>
+              <td>{obj.company.primaryName}</td>
               <td>{obj.name}</td>
               <td>
                 <ActionButtons>
