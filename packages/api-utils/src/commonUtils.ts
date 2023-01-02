@@ -110,7 +110,7 @@ export const removeExtraSpaces = text => {
 };
 
 // check if valid url
-const isValidURL = (url: string): boolean => {
+export const isValidURL = (url: string): boolean => {
   try {
     return Boolean(new URL(url));
   } catch (e) {
