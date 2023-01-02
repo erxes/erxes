@@ -40,6 +40,7 @@ export const types = tagsEnabled => `
     tagIds: [String]
 
     customFieldsData: JSON
+    customFieldsDataByFieldCode: JSON
     trackedData: JSON
 
     customers: [Customer]
