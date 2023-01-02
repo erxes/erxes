@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { URL } from 'url';
+import { isValidURL } from './commonUtils';
 
 export interface IReplacer {
   key: string;
@@ -25,14 +25,6 @@ export interface ICustomerField {
   options?: string[];
   selectOptions?: Array<{ label: string; value: string }>;
 }
-
-const isValidURL = (url: string): boolean => {
-  try {
-    return Boolean(new URL(url));
-  } catch (e) {
-    return false;
-  }
-};
 
 export const getCustomerName = customer => {
   if (customer.firstName || customer.lastName) {
