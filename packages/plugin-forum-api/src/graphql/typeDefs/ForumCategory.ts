@@ -36,5 +36,7 @@ export default `
     ): [ForumPost!]
 
     permissionGroupCategoryPermits: [ForumPermissionGroupCategoryPermit!]
+
+    order: Float
   }
 `;
