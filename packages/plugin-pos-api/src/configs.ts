@@ -12,6 +12,9 @@ import {
   unfetchOrderInfo
 } from './routes';
 import afterMutations from './afterMutations';
+import automations from './automations';
+import forms from './forms';
+import segments from './segments';
 
 export let debug;
 export let graphqlPubsub;
@@ -54,6 +57,9 @@ export default {
     graphqlPubsub = options.pubsubClient;
   },
   meta: {
-    afterMutations
+    afterMutations,
+    automations,
+    forms,
+    segments
   }
 };

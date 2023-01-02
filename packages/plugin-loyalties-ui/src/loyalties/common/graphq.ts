@@ -6,7 +6,6 @@ export const commonFields = `
   ownerType
   ownerId
   voucherCampaignId
-
   owner
 `;
 

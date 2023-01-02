@@ -57,7 +57,7 @@ const qryParams = `
   inDepartmentId: String
   outDepartmentId: String
   productCategoryId: String
-  productId: String
+  productIds: [String]
   jobCategoryId: String
   jobReferId: String
 `;
@@ -67,7 +67,7 @@ const detailParamsDef = `
   endDate: Date
   type: String
   productCategoryId: String
-  productId: String
+  productIds: [String]
   jobReferId: String
   inBranchId: String
   outBranchId: String

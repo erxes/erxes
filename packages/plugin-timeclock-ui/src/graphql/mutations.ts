@@ -5,16 +5,16 @@ const clockRemove = `
   `;
 
 const clockStart = `
-  mutation timeclockStart($userId: String, $longitude: Float, $latitude: Float){
-    timeclockStart(userId: $userId, longitude: $longitude, latitude: $latitude){
+  mutation timeclockStart($userId: String, $longitude: Float, $latitude: Float, $deviceType: String){
+    timeclockStart(userId: $userId, longitude: $longitude, latitude: $latitude, deviceType: $deviceType){
       _id
     }
   }
 `;
 
 const clockStop = `
-  mutation timeclockStop( $userId: String, $_id: String, $longitude: Float, $latitude: Float){
-    timeclockStop(userId: $userId, _id: $_id, longitude: $longitude, latitude: $latitude){
+  mutation timeclockStop( $userId: String, $_id: String, $longitude: Float, $latitude: Float,$deviceType: String){
+    timeclockStop(userId: $userId, _id: $_id, longitude: $longitude, latitude: $latitude, deviceType : $deviceType){
       _id
     }
   }
@@ -122,6 +122,21 @@ const holidayRemove = `
   mutation holidayRemove($_id: String){
     holidayRemove(_id: $_id)
   }`;
+const scheduleRemove = `
+  mutation scheduleRemove($_id: String){
+    scheduleRemove(_id: $_id)
+  }`;
+const scheduleShiftRemove = `
+  mutation scheduleShiftRemove($_id: String){
+    scheduleShiftRemove(_id: $_id)
+  }`;
+
+const extractAllDataFromMySQL = `
+mutation extractAllDataFromMySQL{
+  extractAllDataFromMySQL{
+    _id
+  }
+}`;
 
 export default {
   sendScheduleRequest,
@@ -141,5 +156,8 @@ export default {
   payDateRemove,
   holidayAdd,
   holidayEdit,
-  holidayRemove
+  holidayRemove,
+  scheduleRemove,
+  scheduleShiftRemove,
+  extractAllDataFromMySQL
 };

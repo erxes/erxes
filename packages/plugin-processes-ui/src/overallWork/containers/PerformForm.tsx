@@ -30,7 +30,7 @@ class PerformFormContainer extends React.Component<FinalProps> {
   render() {
     const { overallWorkDetail, max, performDetailQuery } = this.props;
 
-    if (performDetailQuery.loading) {
+    if (performDetailQuery && performDetailQuery.loading) {
       return <Spinner />;
     }
 
@@ -56,7 +56,7 @@ class PerformFormContainer extends React.Component<FinalProps> {
       );
     };
 
-    const perform = performDetailQuery.performDetail;
+    const perform = performDetailQuery && performDetailQuery.performDetail;
 
     const updatedProps = {
       ...this.props,
@@ -81,7 +81,8 @@ export default withProps<Props>(
       options: ({ perform }) => ({
         variables: { _id: perform?._id },
         fetchPolicy: 'network-only'
-      })
+      }),
+      skip: props => !props.perform || !props.perform._id
     })
   )(PerformFormContainer)
 );

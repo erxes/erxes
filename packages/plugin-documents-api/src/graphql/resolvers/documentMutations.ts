@@ -1,4 +1,4 @@
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
 
 const documentMutations = {
@@ -19,6 +19,6 @@ const documentMutations = {
   }
 };
 
-moduleCheckPermission(documentMutations, 'manageDocuments');
+checkPermission(documentMutations, 'documentsSave', 'manageDocuments');
 
 export default documentMutations;

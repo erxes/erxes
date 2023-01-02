@@ -37,6 +37,8 @@ export interface ICategory {
   userLevelReqCommentWrite: WriteCpUserLevels;
 
   postsReqCrmApproval: boolean;
+
+  order?: number | null;
 }
 
 export type InputCategoryInsert = Omit<ICategory, '_id'>;
@@ -123,7 +125,9 @@ export const categorySchema = new Schema<CategoryDocument>({
 
   postReadRequiresPermissionGroup: Boolean,
   postWriteRequiresPermissionGroup: Boolean,
-  commentWriteRequiresPermissionGroup: Boolean
+  commentWriteRequiresPermissionGroup: Boolean,
+
+  order: Number
 });
 
 export const generateCategoryModel = (

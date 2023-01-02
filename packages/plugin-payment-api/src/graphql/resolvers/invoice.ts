@@ -24,7 +24,7 @@ export default {
   async payment(invoice: IInvoice, {}, { models }: IContext) {
     return (
       invoice.selectedPaymentId &&
-      models.Payments.findOne({ _id: invoice.selectedPaymentId })
+      (await models.Payments.findOne({ _id: invoice.selectedPaymentId }).lean())
     );
   },
 

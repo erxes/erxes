@@ -1,11 +1,9 @@
 import Button from '@erxes/ui/src/components/Button';
-import { menuTimeClock } from '../../menu';
 import { __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import Select from 'react-select-plus';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { Row, FilterItem } from '../../styles';
@@ -18,6 +16,7 @@ import Tip from '@erxes/ui/src/components/Tip';
 import ConfigForm from './ConfigForm';
 
 type Props = {
+  getActionBar: (actionBar: any) => void;
   absenceTypes?: IAbsenceType[];
   holidays?: IAbsence[];
   payDates: IPayDates[];
@@ -26,7 +25,6 @@ type Props = {
   removeAbsenceType: (absenceTypeId: string) => void;
   removeHoliday: (holidayId: string) => void;
   removePayDate: (payDateId: string) => void;
-  submitPayDatesConfig: (payDates: number[]) => void;
 };
 
 function ConfigList(props: Props) {
@@ -36,7 +34,8 @@ function ConfigList(props: Props) {
     holidays,
     removeAbsenceType,
     removeHoliday,
-    removePayDate
+    removePayDate,
+    getActionBar
   } = props;
   const [selectedType, setType] = useState('Absence types');
 
@@ -319,25 +318,8 @@ function ConfigList(props: Props) {
       </Table>
     );
   };
-
-  return (
-    <Wrapper
-      header={
-        <Wrapper.Header title={__('Timeclocks')} submenu={menuTimeClock} />
-      }
-      actionBar={actionBar}
-      content={
-        <DataWithLoader
-          data={content()}
-          loading={false}
-          emptyText={__('Theres no timeclock')}
-          emptyImage="/images/actions/8.svg"
-        />
-      }
-      transparent={true}
-      hasBorder={true}
-    />
-  );
+  getActionBar(actionBar);
+  return content();
 }
 
 export default ConfigList;
