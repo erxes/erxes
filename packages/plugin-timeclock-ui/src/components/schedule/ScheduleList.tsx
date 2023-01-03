@@ -1,11 +1,9 @@
 import Button from '@erxes/ui/src/components/Button';
-import { menuTimeClock } from '../../menu';
 import { router, __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Table from '@erxes/ui/src/components/table';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import DateRange from '../datepicker/DateRange';
@@ -23,18 +21,20 @@ import { Row } from '../../styles';
 import { IBranch } from '@erxes/ui/src/team/types';
 import { CustomRangeContainer } from '../../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
-import SideBarList from '../../containers/SideBarList';
 import Datetime from '@nateradebaugh/react-datetime';
+import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
   scheduleOfMembers: any;
   queryParams: any;
   history: any;
   branchesList: IBranch[];
+  getActionBar: (actionBar: any) => void;
   solveSchedule: (scheduleId: string, status: string) => void;
   solveShift: (shiftId: string, status: string) => void;
   submitRequest: (userId: string[], filledShifts: any) => void;
   submitShift: (userIds: string[], filledShifts: any) => void;
+  removeScheduleShifts: (_id: string, type: string) => void;
 };
 
 function ScheduleList(props: Props) {
@@ -46,6 +46,8 @@ function ScheduleList(props: Props) {
     scheduleOfMembers,
     solveSchedule,
     solveShift,
+    getActionBar,
+    removeScheduleShifts,
     branchesList
   } = props;
 
@@ -400,7 +402,6 @@ function ScheduleList(props: Props) {
           type="number"
           name="cycleNumber"
           placeholder="Please input number"
-          // onChange={setInputValue}
         />
         <Select
           value={contentType}
@@ -434,7 +435,6 @@ function ScheduleList(props: Props) {
     <>
       <CustomRangeContainer>
         <DateControl
-          // value={new Date()}
           required={false}
           name="startDate"
           onChange={onSelectDateChange}
@@ -464,6 +464,9 @@ function ScheduleList(props: Props) {
     }
   };
 
+  const removeSchedule = (_id: string, type: string) => {
+    removeScheduleShifts(_id, type);
+  };
   const adminConfigDefaultContent = ({ closeModal }) => {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -619,11 +622,25 @@ function ScheduleList(props: Props) {
             );
           })}
         </td>
+        <td>
+          {shifts.map(shift => {
+            return (
+              <CustomRow marginNum={4} key={shift._id}>
+                <Button
+                  size="small"
+                  btnStyle="link"
+                  onClick={() => removeSchedule(shift._id, 'shift')}
+                  icon="times-circle"
+                />
+              </CustomRow>
+            );
+          })}
+        </td>
       </>
     );
   };
   const ListScheduleContent = schedule => {
-    return (
+    return schedule.shifts.length > 0 ? (
       <tr>
         <td>
           <NameCard user={schedule.user} />
@@ -649,6 +666,15 @@ function ScheduleList(props: Props) {
             </>
           )}
         </td>
+        <td>
+          <Tip text={__('Delete')} placement="top">
+            <Button
+              btnStyle="link"
+              onClick={() => removeSchedule(schedule._id, '')}
+              icon="times-circle"
+            />
+          </Tip>
+        </td>
         {ListShiftContent(
           schedule.shifts.sort(
             (a, b) =>
@@ -657,6 +683,8 @@ function ScheduleList(props: Props) {
           )
         )}
       </tr>
+    ) : (
+      <></>
     );
   };
 
@@ -666,10 +694,11 @@ function ScheduleList(props: Props) {
         <tr>
           <th>{__('Team member')}</th>
           <th>{__('Schedule status')}</th>
+          <th>&nbsp;</th>
           <th>{__('Shift date')}</th>
           <th>{__('Shift start')}</th>
           <th>{__('Shift end')}</th>
-          <th>{__('Action')}</th>
+          <th colSpan={2}>{__('Action')}</th>
         </tr>
       </thead>
       <tbody>
@@ -681,25 +710,8 @@ function ScheduleList(props: Props) {
     </Table>
   );
 
-  return (
-    <Wrapper
-      header={
-        <Wrapper.Header title={__('Timeclocks')} submenu={menuTimeClock} />
-      }
-      actionBar={actionBar}
-      content={
-        <DataWithLoader
-          data={content}
-          loading={false}
-          emptyText={__('Theres no timeclock')}
-          emptyImage="/images/actions/8.svg"
-        />
-      }
-      transparent={true}
-      hasBorder={true}
-      leftSidebar={<SideBarList queryParams={queryParams} history={history} />}
-    />
-  );
+  getActionBar(actionBar);
+  return content;
 }
 
 export default ScheduleList;

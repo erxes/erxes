@@ -34,6 +34,7 @@ export const types = (tagsEnabled, inboxEnabled) => `
     location: JSON
     visitorContactInfo: JSON
     customFieldsData: JSON
+    customFieldsDataByFieldCode: JSON
     trackedData: JSON
     ownerId: String
     position: String

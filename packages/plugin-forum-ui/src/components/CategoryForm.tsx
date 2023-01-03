@@ -15,6 +15,7 @@ type Props = {
     postReadRequiresPermissionGroup?: boolean | null;
     postWriteRequiresPermissionGroup?: boolean | null;
     commentWriteRequiresPermissionGroup?: boolean | null;
+    order?: number | null;
   };
   onSubmit?: (val: any) => any;
   noParent?: boolean;
@@ -63,6 +64,7 @@ const CategoryForm: React.FC<Props> = ({
   const [code, setCode] = useState(category?.code || '');
   const [parentId, setParentId] = useState(category?.parentId || '');
   const [thumbnail, setThumbnail] = useState(category?.thumbnail || '');
+  const [order, setOrder] = useState(category?.order || 0);
 
   const [userLevelReqPostRead, setUserLevelReqPostRead] = useState(
     category?.userLevelReqPostRead || 'GUEST'
@@ -104,7 +106,8 @@ const CategoryForm: React.FC<Props> = ({
         postsReqCrmApproval,
         postReadRequiresPermissionGroup,
         postWriteRequiresPermissionGroup,
-        commentWriteRequiresPermissionGroup
+        commentWriteRequiresPermissionGroup,
+        order
       });
     }
   };
@@ -163,6 +166,20 @@ const CategoryForm: React.FC<Props> = ({
           }}
         />
       </label>
+
+      <br />
+
+      <label>
+        Order:
+        <input
+          type="number"
+          value={order}
+          onChange={e => {
+            setOrder(Number(e.target.value));
+          }}
+        />
+      </label>
+
       <br />
       <hr />
       <h3>User level based permissions</h3>

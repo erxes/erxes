@@ -1,6 +1,8 @@
 import { IModels } from '../../connectionResolver';
 import { sendCoreMessage } from '../../messageBroker';
+import { connectAndQueryFromMySql } from '../../utils';
 import { IUserReport } from '../../models/definitions/timeclock';
+import { getEnv } from '@erxes/api-utils/src';
 
 export const findDepartment = async (subdomain: string, target) => {
   const department = await sendCoreMessage({
@@ -172,7 +174,6 @@ export const returnReportByUserIds = async (
   //  calculate how many mins late per user
   reports.forEach((userReport, groupReportIdx) => {
     let totalMinsLatePerUser = 0;
-    console.log(userReport);
     userReport.scheduleReport.forEach((userSchedule, userReportIdx) => {
       if (
         userSchedule.recordedEnd &&
@@ -216,4 +217,11 @@ export const returnReportByUserIds = async (
     groupTotalMinsWorked,
     groupTotalMinsScheduled
   ];
+};
+
+export const connectAndImportFromMysql = async (subdomain: string) => {
+  const MYSQL_TABLE = getEnv({ name: 'MYSQL_TABLE' });
+  const query = 'select * from `' + MYSQL_TABLE + '` order by ID, authDateTime';
+
+  return await connectAndQueryFromMySql(subdomain, query);
 };

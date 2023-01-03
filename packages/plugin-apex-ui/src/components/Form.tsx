@@ -103,7 +103,8 @@ class Form extends React.Component<Props, State> {
             options={[
               { value: '', label: '' },
               { value: 'finance', label: 'Санхүүгийн байдлийн тайлан' },
-              { value: 'operation', label: 'Үйл ажиллагааний тайлан' }
+              { value: 'operation', label: 'Үйл ажиллагааний тайлан' },
+              { value: 'analysis', label: 'Анализ' }
             ]}
             value={selectedType}
             onChange={this.onChangeType}

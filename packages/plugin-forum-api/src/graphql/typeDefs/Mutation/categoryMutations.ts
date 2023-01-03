@@ -16,6 +16,8 @@ const commonParams = (isInsert = false): string => {
     postReadRequiresPermissionGroup: Boolean
     postWriteRequiresPermissionGroup: Boolean
     commentWriteRequiresPermissionGroup: Boolean
+
+    order: Float
   `;
 };
 

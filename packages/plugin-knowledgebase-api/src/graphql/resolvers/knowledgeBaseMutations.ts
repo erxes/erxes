@@ -1,4 +1,4 @@
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 
 import { ITopic } from '../../models/definitions/knowledgebase';
 import { IArticleCreate, ICategoryCreate } from '../../models/KnowledgeBase';
@@ -308,6 +308,52 @@ const knowledgeBaseMutations = {
   }
 };
 
-moduleCheckPermission(knowledgeBaseMutations, 'manageKnowledgeBase');
+checkPermission(
+  knowledgeBaseMutations,
+  'knowledgeBaseTopicsAdd',
+  'manageKnowledgeBase'
+);
+checkPermission(
+  knowledgeBaseMutations,
+  'knowledgeBaseTopicsEdit',
+  'manageKnowledgeBase'
+);
+checkPermission(
+  knowledgeBaseMutations,
+  'knowledgeBaseTopicsRemove',
+  'manageKnowledgeBase'
+);
+
+checkPermission(
+  knowledgeBaseMutations,
+  'knowledgeBaseCategoriesAdd',
+  'manageKnowledgeBase'
+);
+checkPermission(
+  knowledgeBaseMutations,
+  'knowledgeBaseCategoriesEdit',
+  'manageKnowledgeBase'
+);
+checkPermission(
+  knowledgeBaseMutations,
+  'knowledgeBaseCategoriesRemove',
+  'manageKnowledgeBase'
+);
+
+checkPermission(
+  knowledgeBaseMutations,
+  'knowledgeBaseArticlesAdd',
+  'manageKnowledgeBase'
+);
+checkPermission(
+  knowledgeBaseMutations,
+  'knowledgeBaseArticlesEdit',
+  'manageKnowledgeBase'
+);
+checkPermission(
+  knowledgeBaseMutations,
+  'knowledgeBaseArticlesRemove',
+  'manageKnowledgeBase'
+);
 
 export default knowledgeBaseMutations;

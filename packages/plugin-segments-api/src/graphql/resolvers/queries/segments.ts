@@ -120,7 +120,11 @@ const segmentQueries = {
    */
   segments(
     _root,
-    { contentTypes, config }: { contentTypes: string[]; config?: any },
+    {
+      contentTypes,
+      config,
+      ids
+    }: { contentTypes: string[]; config?: any; ids: string[] },
     { models, commonQuerySelector }: IContext
   ) {
     const selector: any = {
@@ -128,6 +132,10 @@ const segmentQueries = {
       contentType: { $in: contentTypes },
       name: { $exists: true }
     };
+
+    if (ids) {
+      selector._id = { $in: ids };
+    }
 
     if (config) {
       for (const key of Object.keys(config)) {

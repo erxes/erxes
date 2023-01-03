@@ -1,4 +1,4 @@
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 
 import { IUom, IUomDocument } from '../../../models/definitions/uoms';
 import {
@@ -97,6 +97,8 @@ const uomMutations = {
   }
 };
 
-// moduleCheckPermission(uomMutations, 'manageProducts');
+checkPermission(uomMutations, 'uomsAdd', 'manageProducts');
+checkPermission(uomMutations, 'uomsEdit', 'manageProducts');
+checkPermission(uomMutations, 'uomsRemove', 'manageProducts');
 
 export default uomMutations;

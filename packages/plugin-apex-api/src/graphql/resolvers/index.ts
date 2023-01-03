@@ -1,6 +1,6 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
 import ReportMutations from './reportMutations';
-import ReportQueries from './reportQueries';
+import Queries from './queries';
 import Report from './report';
 
 const resolvers: any = {
@@ -10,7 +10,7 @@ const resolvers: any = {
     ...ReportMutations
   },
   Query: {
-    ...ReportQueries
+    ...Queries
   }
 };
 

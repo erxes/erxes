@@ -3,35 +3,46 @@ import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
 import List from '../components/List';
-import { TimeClockMutationResponse, TimeClockQueryResponse } from '../types';
+import {
+  TimeClockMutationResponse,
+  TimeClockQueryResponse,
+  BranchesQueryResponse
+} from '../types';
 import { queries } from '../graphql';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { IUser } from '@erxes/ui/src/auth/types';
+import erxesQuery from '@erxes/ui/src/team/graphql/queries';
 
 type Props = {
   currentUser: IUser;
   queryParams: any;
+  searchValue: string;
+  route?: string;
   history: any;
   startTime: Date;
   stopTime: Date;
   timeId: string;
   userId: string;
+
   queryStartDate: string;
   queryEndDate: string;
   queryUserIds: string[];
+  queryBranchIds: string[];
+  queryDepartmentIds: string[];
+  searchFilter: string;
 };
 
 type FinalProps = {
-  listQuery: TimeClockQueryResponse;
+  listBranchesQuery: BranchesQueryResponse;
 } & Props &
   TimeClockMutationResponse;
 
 const ListContainer = (props: FinalProps) => {
-  const { listQuery, currentUser, queryUserIds } = props;
+  const { listBranchesQuery, currentUser, queryUserIds } = props;
 
-  if (listQuery.loading) {
+  if (listBranchesQuery.loading) {
     return <Spinner />;
   }
 
@@ -41,8 +52,8 @@ const ListContainer = (props: FinalProps) => {
     ...props,
     currentUserId,
     queryUserIds,
-    timeclocks: listQuery.timeclocks || [],
-    loading: listQuery.loading
+    branchesList: listBranchesQuery.branches || [],
+    loading: listBranchesQuery.loading
   };
 
   return <List {...updatedProps} />;
@@ -50,20 +61,15 @@ const ListContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<
-      Props,
-      TimeClockQueryResponse,
-      { startDate: string; endDate: string; userIds: string[] }
-    >(gql(queries.list), {
-      name: 'listQuery',
-      options: ({ queryStartDate, queryEndDate, queryUserIds }) => ({
-        variables: {
-          startDate: queryStartDate,
-          endDate: queryEndDate,
-          userIds: queryUserIds
-        },
-        fetchPolicy: 'network-only'
-      })
-    })
+    graphql<Props, BranchesQueryResponse, { searchValue: string }>(
+      gql(erxesQuery.branches),
+      {
+        name: 'listBranchesQuery',
+        options: ({ searchValue }) => ({
+          variables: { searchValue },
+          fetchPolicy: 'network-only'
+        })
+      }
+    )
   )(withCurrentUser(ListContainer))
 );

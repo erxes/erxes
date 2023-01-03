@@ -3,11 +3,14 @@ import { field } from './utils';
 
 export interface ITimeClock {
   userId?: string;
-  solved?: boolean;
-  status?: string;
+  employeeId?: number;
+  employeeUserName?: string;
   shiftStart: Date;
   shiftEnd?: Date;
   shiftActive?: boolean;
+  branchName?: string;
+  deviceName?: string;
+  deviceType?: string;
   longitude?: number;
   latitude?: number;
 }
@@ -92,6 +95,26 @@ export const timeSchema = new Schema({
     type: Boolean,
     label: 'Is shift started and active',
     default: false
+  }),
+  branchName: field({
+    type: String,
+    label: 'Name of branch where user clocked in / out'
+  }),
+  deviceName: field({
+    type: String,
+    label: 'Device name, which user used to clock in / out '
+  }),
+  employeeUserName: field({
+    type: String,
+    label: 'Employee user name, as saved on companys terminal'
+  }),
+  employeeId: field({
+    type: Number,
+    label: 'Employee id, custom field'
+  }),
+  deviceType: field({
+    type: String,
+    label: 'Which device used for clock in/out'
   })
 });
 

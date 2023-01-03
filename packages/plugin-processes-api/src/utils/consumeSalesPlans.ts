@@ -22,6 +22,19 @@ interface IListArgs {
   departmentId: string;
 }
 
+const remover = async (models, branchId, departmentId, productId, date) => {
+  const oldProcesses = await models.Processes.find({
+    branchId,
+    departmentId,
+    productId,
+    date
+  }).lean();
+
+  const oldProcessIds = oldProcesses.map(p => p._id);
+  await models.Works.deleteMany({ processId: { $in: oldProcessIds } });
+  await models.Processes.deleteMany({ _id: { $in: oldProcessIds } });
+};
+
 export class consumeSalesPlans {
   public models: IModels;
   public subdomain: string;
@@ -466,16 +479,13 @@ export class consumeSalesPlans {
       }
 
       const referInfos = await this.getReferInfos(flow);
-      const oldProcesses = await this.models.Processes.find({
-        branchId: this.branchId,
-        departmentId: this.departmentId,
+      await remover(
+        this.models,
+        this.branchId,
+        this.departmentId,
         productId,
-        date: this.date
-      }).lean();
-      const oldProcessIds = oldProcesses.map(p => p._id);
-      await this.models.Works.deleteMany({ processId: { $in: oldProcessIds } });
-      await this.models.Processes.deleteMany({ _id: { $in: oldProcessIds } });
-
+        this.date
+      );
       const process = await this.models.Processes.createProcess(
         await this.getProcessData(flow, this.date, productId, uomId, referInfos)
       );
@@ -535,3 +545,21 @@ export class consumeSalesPlans {
     return {};
   }
 }
+
+export const removeFromSalesPlans = async (
+  models: IModels,
+  dayPlans: any[]
+) => {
+  const result: string[] = [];
+  for (const dayPlan of dayPlans) {
+    await remover(
+      models,
+      dayPlan.branchId,
+      dayPlan.departmentId,
+      dayPlan.productId,
+      dayPlan.date
+    );
+    result.push(dayPlan._id);
+  }
+  return result;
+};

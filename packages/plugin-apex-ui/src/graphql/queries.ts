@@ -2,9 +2,13 @@ const reports = `
   query apexReports($page: Int, $perPage: Int) {
     apexReports(page: $page, perPage: $perPage) {
       _id
+      type
       name
       code
       createdAt
+      company {
+        primaryName
+      }
     }
   }
 `;

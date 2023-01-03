@@ -2,7 +2,10 @@ import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
 import { beforeResolverHandlers } from './beforeResolvers';
-import { consumeSalesPlans } from './utils/consumeSalesPlans';
+import {
+  consumeSalesPlans,
+  removeFromSalesPlans
+} from './utils/consumeSalesPlans';
 
 let client;
 
@@ -37,6 +40,17 @@ export const initBroker = async cl => {
       });
 
       await qb.run();
+    }
+  );
+
+  consumeRPCQueue(
+    'processes:removeWorks',
+    async ({ subdomain, data: { dayPlans } }) => {
+      const models = await generateModels(subdomain);
+      return {
+        status: 'success',
+        data: { removedIds: await removeFromSalesPlans(models, dayPlans) }
+      };
     }
   );
 
