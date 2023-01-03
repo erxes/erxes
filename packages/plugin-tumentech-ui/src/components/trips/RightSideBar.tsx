@@ -14,7 +14,7 @@ export default class RightSidebar extends React.Component<Props> {
 
     return (
       <Sidebar wide={true}>
-        <DealsSection deals={deals} />
+        <DealsSection deals={deals.map(d => d.deal)} />
       </Sidebar>
     );
   }
