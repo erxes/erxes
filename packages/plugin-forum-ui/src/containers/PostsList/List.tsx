@@ -27,7 +27,7 @@ const List: React.FC = () => {
     state,
     categoryApprovalState,
     categoryIncludeDescendants: !!categoryIncludeDescendants,
-    sort: { _id: -1 },
+    sort: { lastPublishedAt: -1 },
     limit,
     offset
   };
@@ -45,8 +45,6 @@ const List: React.FC = () => {
   if (postQuery.loading) return null;
   if (postQuery.error)
     return <pre>{JSON.stringify(postQuery.error, null, 2)}</pre>;
-
-  console.log(countQuery.data);
 
   return (
     <div>

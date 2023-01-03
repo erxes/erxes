@@ -101,7 +101,6 @@ export const notifyFollowedYou = async (
         }
       }
     });
-    console.log('sent followed you notification');
   } catch (e) {
     debugError(e);
   }
