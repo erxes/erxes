@@ -72,7 +72,11 @@ const notificationQueries = {
    */
   notificationCounts(
     _root,
-    { requireRead, notifType }: { requireRead: boolean; notifType: string },
+    {
+      requireRead,
+      notifType,
+      contentTypes
+    }: { requireRead: boolean; notifType: string; contentTypes: string },
     { user, models }: IContext
   ) {
     const selector: any = { receiver: user._id };
@@ -83,6 +87,10 @@ const notificationQueries = {
 
     if (notifType) {
       selector.notifType = notifType;
+    }
+
+    if (contentTypes) {
+      selector.contentType = { $in: contentTypes };
     }
 
     return models.Notifications.find(selector).countDocuments();

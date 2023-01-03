@@ -24,10 +24,12 @@ export type AdminApprovalStates = typeof ADMIN_APPROVAL_STATES[number];
 
 interface CommonPostFields {
   title?: string | null;
+  subTitle?: string | null;
   content?: string | null;
   description?: string | null;
   thumbnail?: string | null;
   custom: any;
+  thumbnailAlt?: string | null;
 }
 
 interface TranslationsFields extends CommonPostFields {
@@ -162,14 +164,16 @@ export interface IPostModel extends Model<PostDocument> {
 
 const common = {
   title: { type: String },
+  subTitle: String,
   content: { type: String },
   description: { type: String },
   thumbnail: String,
-  custom: Schema.Types.Mixed
+  custom: Schema.Types.Mixed,
+  thumbnailAlt: String
 };
 
 export const postSchema = new Schema<PostDocument>({
-  categoryId: { type: Types.ObjectId, index: true },
+  categoryId: { type: Types.ObjectId, index: true, sparse: true },
   categoryApprovalState: {
     type: String,
     required: true,
@@ -199,15 +203,15 @@ export const postSchema = new Schema<PostDocument>({
 
   createdAt: { type: Date, required: true, default: () => new Date() },
   createdUserType: { type: String, required: true, enum: USER_TYPES },
-  createdById: String,
-  createdByCpId: { type: String, index: true },
+  createdById: { type: String, index: true, sparse: true },
+  createdByCpId: { type: String, index: true, sparse: true },
 
   updatedAt: { type: Date, required: true, default: () => new Date() },
   updatedUserType: { type: String, required: true, enum: USER_TYPES },
   updatedById: String,
   updatedByCpId: String,
 
-  lastPublishedAt: Date,
+  lastPublishedAt: { type: Date, idnex: true, sparse: true },
 
   customIndexed: Schema.Types.Mixed,
 

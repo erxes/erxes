@@ -85,6 +85,10 @@ export default function CategoryDetail() {
               <img src={forumCategory.thumbnail} />
             </td>
           </tr>
+          <tr>
+            <td>Order:</td>
+            <td>{forumCategory.order}</td>
+          </tr>
         </tbody>
       </table>
 
