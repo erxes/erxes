@@ -79,8 +79,6 @@ const PostQueries: IObjectTypeResolver<any, IContext> = {
     const query: any = await buildPostsQuery(models, params, user);
     const { limit = 0, offset = 0, sort = {} } = params;
 
-    console.log(query);
-
     const res = await Post.find(query)
       .select('-content')
       .sort(sort)
@@ -90,10 +88,10 @@ const PostQueries: IObjectTypeResolver<any, IContext> = {
 
     return res;
   },
-  async forumPostsCount(_, params, { models }) {
+  async forumPostsCount(_, params, { models, user }) {
     const { Post } = models;
 
-    const query: any = await buildPostsQuery(models, params);
+    const query: any = await buildPostsQuery(models, params, user);
 
     return Post.find(query).countDocuments();
   }

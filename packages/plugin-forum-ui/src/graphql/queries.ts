@@ -259,6 +259,7 @@ export const PERMISSION_GROUP_QUERY = gql`
         firstName
         lastName
         username
+        type
       }
     }
   }

@@ -173,7 +173,7 @@ const common = {
 };
 
 export const postSchema = new Schema<PostDocument>({
-  categoryId: { type: Types.ObjectId, index: true },
+  categoryId: { type: Types.ObjectId, index: true, sparse: true },
   categoryApprovalState: {
     type: String,
     required: true,
@@ -203,15 +203,15 @@ export const postSchema = new Schema<PostDocument>({
 
   createdAt: { type: Date, required: true, default: () => new Date() },
   createdUserType: { type: String, required: true, enum: USER_TYPES },
-  createdById: String,
-  createdByCpId: { type: String, index: true },
+  createdById: { type: String, index: true, sparse: true },
+  createdByCpId: { type: String, index: true, sparse: true },
 
   updatedAt: { type: Date, required: true, default: () => new Date() },
   updatedUserType: { type: String, required: true, enum: USER_TYPES },
   updatedById: String,
   updatedByCpId: String,
 
-  lastPublishedAt: Date,
+  lastPublishedAt: { type: Date, idnex: true, sparse: true },
 
   customIndexed: Schema.Types.Mixed,
 
