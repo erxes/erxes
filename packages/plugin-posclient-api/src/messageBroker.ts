@@ -241,6 +241,29 @@ export const sendPricingMessage = async (
   return sendMessageWrapper('pricing', args);
 };
 
+export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessageWrapper('tags', args);
+};
+
+export const sendSegmentsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessageWrapper('segments', args);
+};
+
+export const fetchSegment = (
+  subdomain: string,
+  segmentId: string,
+  options?,
+  segmentData?: any
+) =>
+  sendSegmentsMessage({
+    subdomain,
+    action: 'fetchSegment',
+    data: { segmentId, options, segmentData },
+    isRPC: true
+  });
+
 export default function() {
   return client;
 }
