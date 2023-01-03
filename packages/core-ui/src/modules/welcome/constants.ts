@@ -11,11 +11,11 @@ export const STEPS = [
     description: 'Resources for developers'
   },
   {
-    title: 'Using Guide',
+    title: 'User Guide',
     key: 'usingGuide',
     image: '/images/usingGuide.png',
     description:
-      'Features guides for the core expes platform and native plugins'
+      'Feature guides for the core erxes platform and native plugins.'
   }
 ];
 
