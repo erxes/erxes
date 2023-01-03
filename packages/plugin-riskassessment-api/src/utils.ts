@@ -6,8 +6,8 @@ import {
 } from './messageBroker';
 
 export const validRiskAssessment = async params => {
-  if (!params.categoryId) {
-    throw new Error('Please select some category');
+  if (!params.categoryIds) {
+    throw new Error('Please select some categories');
   }
   if (await models?.RiskAssessment.findOne({ name: params.name })) {
     throw new Error(
@@ -70,59 +70,56 @@ export const calculateRiskAssessment = async (models, cardId, cardType) => {
     cardType
   }).lean();
 
-  const { calculateLogics, forms } = await models.RiskAssessment.findOne({
+  const { calculateLogics } = await models.RiskAssessment.findOne({
     _id: riskAssessmentId
   }).lean();
 
-  if (forms.length === 1) {
-    const [form] = forms;
-    for (const { name, value, value2, logic, color } of form.calculateLogics) {
-      let operator = logic.substring(1, 2);
-      if (operator === '≈') {
-        if (value < resultScore && resultScore < value2) {
-          return await models.RiskConformity.findOneAndUpdate(
-            { riskAssessmentId, cardId, cardType },
-            {
-              $set: {
-                status: name,
-                statusColor: color,
-                closedAt: Date.now()
-              }
-            },
-            { new: true }
-          );
-        }
-      }
-      if (['>', '<'].includes(operator)) {
-        operator += '=';
-        if (eval(resultScore + operator + value)) {
-          return await models.RiskConformity.findOneAndUpdate(
-            { riskAssessmentId, cardId, cardType },
-            {
-              $set: {
-                status: name,
-                statusColor: color,
-                closedAt: Date.now()
-              }
-            },
-            { new: true }
-          );
-        }
-      }
-
-      if (status === 'In Progress') {
+  for (const { name, value, value2, logic, color } of calculateLogics) {
+    let operator = logic.substring(1, 2);
+    if (operator === '≈') {
+      if (value < resultScore && resultScore < value2) {
         return await models.RiskConformity.findOneAndUpdate(
           { riskAssessmentId, cardId, cardType },
           {
             $set: {
-              status: 'No Result',
-              statusColor: '#888',
+              status: name,
+              statusColor: color,
               closedAt: Date.now()
             }
           },
           { new: true }
         );
       }
+    }
+    if (['>', '<'].includes(operator)) {
+      operator += '=';
+      if (eval(resultScore + operator + value)) {
+        return await models.RiskConformity.findOneAndUpdate(
+          { riskAssessmentId, cardId, cardType },
+          {
+            $set: {
+              status: name,
+              statusColor: color,
+              closedAt: Date.now()
+            }
+          },
+          { new: true }
+        );
+      }
+    }
+
+    if (status === 'In Progress') {
+      return await models.RiskConformity.findOneAndUpdate(
+        { riskAssessmentId, cardId, cardType },
+        {
+          $set: {
+            status: 'No Result',
+            statusColor: '#888',
+            closedAt: Date.now()
+          }
+        },
+        { new: true }
+      );
     }
   }
 };

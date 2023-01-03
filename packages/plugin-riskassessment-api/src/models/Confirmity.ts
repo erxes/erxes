@@ -1,6 +1,6 @@
 import { paginate } from '@erxes/api-utils/src';
 import { Model } from 'mongoose';
-import { IModels } from '../connectionResolver';
+import { IModels, models } from '../connectionResolver';
 import {
   sendCardsMessage,
   sendCoreMessage,
@@ -110,7 +110,15 @@ const generateFilter = params => {
 export const loadRiskConformity = (model: IModels, subdomain: string) => {
   class RiskConformity {
     public static async riskConformityAdd(params: IRiskConformityField) {
-      return model.RiskConformity.create({ ...params });
+      const riskAssessment = await model.RiskAssessment.findOne({
+        _id: params.riskAssessmentId
+      });
+
+      const forms = riskAssessment?.forms?.map(form => ({
+        formId: form.formId
+      }));
+
+      return model.RiskConformity.create({ ...params, forms });
     }
     public static async riskConformity(params: IRiskConformityParams) {
       const filter = generateFilter(params);

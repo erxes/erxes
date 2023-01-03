@@ -1,12 +1,32 @@
 import { Document, Schema } from 'mongoose';
 import { field } from './utils';
+
+type ICalculateLogics = {
+  _id: string;
+  name: string;
+  value: string;
+  value2?: string;
+  logic: string;
+  color: string;
+};
+
+type IRiskAssessmentForms = {
+  _id: string;
+  formId: string;
+  calculateMethod: string;
+  percentWeight?: number;
+  calculateLogics: ICalculateLogics[];
+};
 export interface IRiskAssessmentDocument extends Document {
   _id: string;
   createdAt: Date;
   name: String;
   description: String;
-  categoryId: String;
+  categoryIds: [String];
+  departmentIds: [String];
+  branchIds: [String];
   status: String;
+  forms?: IRiskAssessmentForms[];
 }
 
 export interface IRiskAssessmentCategoryDocument extends Document {
@@ -61,7 +81,9 @@ export const riskAssessmentSchema = new Schema({
   name: field({ type: String, label: 'Name' }),
   description: field({ type: String, label: 'Description' }),
   createdAt: field({ type: Date, default: Date.now, label: 'Created At' }),
-  categoryId: field({ type: String, label: 'Risk Assessment Category Id' }),
+  categoryIds: field({ type: [String], label: 'Risk Assessment Category Ids' }),
+  branchIds: field({ type: [String], label: ' BranchIDs' }),
+  departmentIds: field({ type: [String], label: 'DepartmentIDs' }),
   calculateMethod: field({
     type: String,
     optional: true,

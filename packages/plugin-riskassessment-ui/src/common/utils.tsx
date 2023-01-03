@@ -189,7 +189,7 @@ export class SelectWithRiskAssessment extends React.Component<
         query: gql(riskAssessmentQueries.list)
       })
       .then(({ data }) => {
-        let options = data?.riskAssessments?.list.map(riskAssessment => ({
+        let options = data?.riskAssessments?.map(riskAssessment => ({
           value: riskAssessment._id,
           label: riskAssessment.name
         }));

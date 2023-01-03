@@ -1,17 +1,19 @@
 const riskAssessmentParams = `
     $name: String!, 
-    $id: String, 
-    $categoryId: String, 
+    $categoryIds: [String],
+    $departmentIds: [String],
+    $branchIds: [String],
     $description: String, 
     $forms: [IRiskAssessmentForm],
     $calculateMethod:String,
-    $calculateLogics:[CalculateLogicType],
+    $calculateLogics:[ICalculateLogic],
 `;
 
 const riskAssessmentParamsDef = `
     name:$name,
-    id:$id,
-    categoryId:$categoryId,
+    categoryIds:$categoryIds,
+    departmentIds:$departmentIds,
+    branchIds:$branchIds,
     description:$description,
     forms:$forms,
     calculateMethod:$calculateMethod,

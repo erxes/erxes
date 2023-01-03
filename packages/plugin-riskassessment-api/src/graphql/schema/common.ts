@@ -17,7 +17,10 @@ export const commonRiskAssessmentTypes = `
     _id: String
     name: String!
     description: String
-    categoryId: String
+    categoryIds: [String]
+    branchIds:[String]
+    departmentIds:[String]
+    calculateMethod:String
 `;
 
 export const commonRiskConformityTypes = `
@@ -54,7 +57,9 @@ export const commonRiskAssessmentParams = `
         _id:String,
         name: String
         description: String
-        categoryId: String
+        categoryIds: [String]
+        branchIds: [String]
+        departmentIds: [String]
 `;
 
 export const commonCalculateLogicParams = `

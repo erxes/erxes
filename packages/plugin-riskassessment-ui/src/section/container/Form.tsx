@@ -137,8 +137,6 @@ class RiskAssessmentForm extends React.Component<FinalProps, State> {
     const { conformityDetail, riskAssessmentsQuery, closeModal } = this.props;
     const { perpage } = this.state;
 
-    const list = riskAssessmentsQuery.riskAssessments?.list || [];
-
     const selectedItems: any[] = [];
 
     if (riskAssessmentsQuery.loading || conformityDetail.loading) {
@@ -147,6 +145,10 @@ class RiskAssessmentForm extends React.Component<FinalProps, State> {
     for (const detail of conformityDetail?.riskConformityDetails) {
       selectedItems.push(detail.riskAssessment);
     }
+
+    console.log({ riskAssessmentsQuery });
+
+    const list = riskAssessmentsQuery.riskAssessments || [];
 
     return (
       <Chooser

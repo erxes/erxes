@@ -1,6 +1,12 @@
 import { Document, Schema } from 'mongoose';
 import { field } from './utils';
 
+type RiskConformityFormType = {
+  status: string;
+  statusColor: string;
+  resultScores: string;
+  formId: string;
+};
 export interface IRiskConformityDocument extends Document {
   _id: string;
   cardId: string;
@@ -9,6 +15,7 @@ export interface IRiskConformityDocument extends Document {
   status: string;
   statusColor: string;
   resultScore: string;
+  forms: RiskConformityFormType[];
 }
 
 export interface IRiskFormSubmissionDocument extends Document {

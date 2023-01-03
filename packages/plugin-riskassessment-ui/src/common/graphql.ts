@@ -18,14 +18,14 @@ export const commonPaginateValue = `
 `;
 
 export const riskAssessmentDef = `
-    $categoryId: String,
+    $categoryIds: String,
     $description: String,
     $name: String!,
     $calculateMethod: String,
 `;
 
 export const riskAssessmentValues = `
-    categoryId: $categoryId,
+    categoryIds: $categoryIds,
     description: $description,
     name: $name,
     calculateMethod: $calculateMethod
@@ -45,9 +45,11 @@ export const riskAssessmentParams = `
     _id,
     name,
     description,
-    categoryId,
+    categoryIds,
+    departmentIds,
+    branchIds,
     createdAt,
-    category{
+    categories{
         _id
         formId
         parentId

@@ -40,7 +40,7 @@ class RiskAssessmentSection extends React.Component<FinalProps> {
       cardType: this.props.mainType,
       conformity: lists?.riskConformity,
       refetch: lists?.refetch,
-      submissions: submissions.riskConformitySubmissions,
+      submissions: submissions.riskConformitySubmissions || [],
       refetchSubmissions: submissions.refetch
     };
 

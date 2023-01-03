@@ -41,7 +41,7 @@ export const types = `
     type RiskAssessmentType {
         ${commonRiskAssessmentParams}
         createdAt:Date
-        category:RiskAssessmentCategoryInput
+        categories:[RiskAssessmentCategoryInput]
         calculateMethod:String
         calculateLogics:[CalculateLogicType]
         forms:[RiskAssessmentFormType]
@@ -91,14 +91,15 @@ export const types = `
 `;
 
 export const queries = `
-    riskAssessments (categoryId:String,ignoreIds:[String],${commonPaginateTypes}):list
+    riskAssessments (categoryIds:[String],ignoreIds:[String],${commonPaginateTypes}):[RiskAssessmentType]
+    riskAssessmentsTotalCount(categoryIds:[String],ignoreIds:[String],${commonPaginateTypes}):Int
     riskAssessmentDetail(_id: String,fieldsSkip:JSON): RiskAssessmentType
     riskAssessmentConfigs (${configParamsDef},${commonPaginateTypes}):[RiskAssessmentConfigs]
     riskAssessmentConfigsTotalCount(${configParamsDef},${commonPaginateTypes}):Int
 `;
 
 export const mutations = `
-    addRiskAssesment (${commonRiskAssessmentTypes}${commonTypes},forms:[IRiskAssessmentForm]):JSON
+    addRiskAssesment (${commonRiskAssessmentTypes}${commonTypes},calculateLogics:[ICalculateLogic],forms:[IRiskAssessmentForm]):JSON
     removeRiskAssessment (_ids:[String]):JSON
     updateRiskAssessment (doc:IRiskAssessment):JSON
     addRiskAssesmentConfig (${configParams}):JSON

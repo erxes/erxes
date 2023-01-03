@@ -102,7 +102,7 @@ class ListComp extends React.Component<Props, IState> {
       autoOpenKey="showListFormModal"
       content={this.renderFormContent}
       dialogClassName="transform"
-      size="lg"
+      size="xl"
     />
   );
   handleRemoveBtn = () => {

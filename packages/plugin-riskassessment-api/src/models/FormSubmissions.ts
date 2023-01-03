@@ -118,7 +118,6 @@ export const loadRiskFormSubmissions = (model: IModels, subdomain: string) => {
               calculateMethod: form.calculateMethod,
               filter
             });
-            console.log({ sumNumber });
             newSubmissions.push(...submissions);
             totalPercent += form.percentWeight;
             const score = sumNumber * (form.percentWeight / 100);
@@ -130,22 +129,6 @@ export const loadRiskFormSubmissions = (model: IModels, subdomain: string) => {
                 totalScore += score;
                 break;
             }
-
-            await models?.RiskConformity.update(
-              { riskAssessmentId, cardId, cardType },
-              {
-                $addToSet: {
-                  forms: {
-                    $each: [
-                      {
-                        formId: form.formId
-                      }
-                    ]
-                  }
-                }
-              },
-              { new: true }
-            );
             await models?.RiskConformity.updateOne(
               {
                 riskAssessmentId,
@@ -158,12 +141,13 @@ export const loadRiskFormSubmissions = (model: IModels, subdomain: string) => {
           }
         }
 
+        const score = totalScore / (!!totalPercent ? totalPercent / 100 : 1);
+
         await model.RiskConformity.findOneAndUpdate(
           { riskAssessmentId, cardId, cardType },
           {
-            $set: {
-              resultScore:
-                resultScore + totalScore / (!!totalPercent ? totalPercent : 1)
+            $inc: {
+              resultScore: score
             }
           },
           { new: true }
@@ -255,12 +239,6 @@ export const loadRiskFormSubmissions = (model: IModels, subdomain: string) => {
         throw new Error('This risk assessment in progress');
       }
 
-      const formId = await getFormId(model, cardId, cardType);
-
-      if (!formId) {
-        throw new Error('Cannot find form of risk assessment');
-      }
-
       const card = await sendCardsMessage({
         subdomain,
         action: `${cardType}s.findOne`,
@@ -269,8 +247,17 @@ export const loadRiskFormSubmissions = (model: IModels, subdomain: string) => {
         defaultValue: {}
       });
 
+      const formIds = conformity.forms.map(form => form.formId);
+
       const submissions = await model.RiksFormSubmissions.aggregate([
-        { $match: { cardId, cardType, formId, riskAssessmentId } },
+        {
+          $match: {
+            cardId,
+            cardType,
+            formId: { $in: formIds },
+            riskAssessmentId
+          }
+        },
         {
           $group: {
             _id: '$userId',
@@ -288,7 +275,7 @@ export const loadRiskFormSubmissions = (model: IModels, subdomain: string) => {
             data: {
               query: {
                 contentType: 'form',
-                contentTypeId: formId,
+                contentTypeId: { $in: formIds },
                 _id: field.fieldId
               }
             },

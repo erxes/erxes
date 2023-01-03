@@ -31,20 +31,25 @@ import { mutations } from '../graphql';
 import { FormContainer, FormContent, Header } from '../styles';
 import FormItem from './FormItem';
 import gql from 'graphql-tag';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 
 type Props = {
   assessmentDetail?: RiskAssessmentsType;
   detailLoading?: boolean;
   renderButton?: (props: IButtonMutateProps) => JSX.Element;
-  categoryId?: string;
+  categoryIds?: string;
   fieldsSkip?: any;
 } & ICommonFormProps;
 
 type State = {
   riskAssessment: {
+    _id?: string;
     name?: string;
     description?: string;
-    categoryId?: string;
+    categoryIds?: string[];
+    departmentIds?: string[];
+    branchIds?: string[];
     forms: any[];
     calculateMethod?: string;
     calculateLogics?: RiskCalculateLogicType[];
@@ -59,7 +64,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
 
     this.state = {
       riskAssessment: props.assessmentDetail || {
-        categoryId: props.categoryId || ''
+        categoryIds: props.categoryIds || ''
       }
     };
 
@@ -82,19 +87,24 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         _id,
         name,
         description,
-        categoryId,
+        categoryIds,
+        branchIds,
+        departmentIds,
         forms,
         calculateLogics,
         calculateMethod
-      } = riskAssessment as RiskAssessmentsType;
+      } = riskAssessment;
       // if (fieldsSkip) {
       //   return {
       //     ...values,
       //     calculateMethod: riskAssessment.calculateMethod,
-      //     categoryId: riskAssessment.categoryId,
+      //     categoryIds: riskAssessment.categoryIds,
       //     calculateLogics: riskAssessment.calculateLogics
       //   };
       // }
+      calculateLogics?.forEach(logic => {
+        delete logic.__typename;
+      });
       return {
         // id: assessmentDetail._id,
         doc: {
@@ -102,7 +112,9 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
           _id,
           name,
           description,
-          categoryId,
+          categoryIds,
+          departmentIds,
+          branchIds,
           forms,
           calculateLogics,
           calculateMethod
@@ -371,9 +383,9 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
       }));
     };
 
-    const handleChangeCategory = value => {
+    const handleChangeSelection = (name, value) => {
       this.setState(prev => ({
-        riskAssessment: { ...prev.riskAssessment, categoryId: value }
+        riskAssessment: { ...prev.riskAssessment, [name]: value }
       }));
     };
 
@@ -434,17 +446,37 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Category')}</ControlLabel>
+          <ControlLabel>{__('Branches')}</ControlLabel>
+          <SelectBranches
+            name="branchIds"
+            label="Choose Branches"
+            multi={true}
+            initialValue={riskAssessment?.branchIds}
+            onSelect={value => handleChangeSelection('branchIds', value)}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Departments')}</ControlLabel>
+          <SelectDepartments
+            name="Departments"
+            label="Choose Departments"
+            multi={true}
+            initialValue={riskAssessment?.departmentIds}
+            onSelect={value => handleChangeSelection('departmentIds', value)}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Categories')}</ControlLabel>
           <SelectWithCategory
-            name="categoryId"
+            name="categoryIds"
             label="Choose Category"
-            multi={false}
-            initialValue={riskAssessment?.categoryId}
-            onSelect={handleChangeCategory}
+            multi={true}
+            initialValue={riskAssessment?.categoryIds}
+            onSelect={value => handleChangeSelection('categoryIds', value)}
           />
         </FormGroup>
         <FormContainer column gap style={{ padding: 10 }}>
-          {riskAssessment.forms.length > 1 &&
+          {riskAssessment?.forms?.length > 1 &&
             this.renderGeneralLogics(formProps)}
           <FormWrapper>
             <FormColumn>

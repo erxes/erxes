@@ -1,9 +1,9 @@
 import { riskConformityParams } from '../../common/graphql';
 
 const riskAssessments = `
-  query RiskAssessments($categoryId: String,,$searchValue: String,$perPage: Int) {
-    riskAssessments(categoryId: $categoryId ,perPage: $perPage,searchValue: $searchValue) {
-      list{_id,name,description,categoryId},totalCount
+  query RiskAssessments($categoryIds: [String],,$searchValue: String,$perPage: Int) {
+    riskAssessments(categoryIds: $categoryIds ,perPage: $perPage,searchValue: $searchValue) {
+      _id,name,description,categoryIds
     }
   }
   `;

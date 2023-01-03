@@ -6,8 +6,14 @@ import {
 } from '../common/graphql';
 
 const list = `
-query RiskAssessments($categoryId: String,$ignoreIds:[String],${commonPaginateDef}) {
-  riskAssessments(categoryId: $categoryId , ignoreIds:$ignoreIds,${commonPaginateValue}) {list{${riskAssessmentParams}},totalCount}
+query RiskAssessments($categoryIds: [String],$ignoreIds:[String],${commonPaginateDef}) {
+  riskAssessments(categoryIds: $categoryIds , ignoreIds:$ignoreIds,${commonPaginateValue}) {${riskAssessmentParams}}
+  }
+`;
+
+const totalCount = `
+query RiskAssessmentsTotalCount($categoryIds: [String],$ignoreIds:[String],${commonPaginateDef}) {
+  riskAssessmentsTotalCount(categoryIds: $categoryIds , ignoreIds:$ignoreIds,${commonPaginateValue}) 
   }
 `;
 
@@ -64,5 +70,6 @@ export default {
   list,
   listAssessmentCategories,
   assessmentDetail,
-  assessmentHistory
+  assessmentHistory,
+  totalCount
 };

@@ -14,6 +14,9 @@ export interface IRiskAssessmentModel extends Model<IRiskAssessmentDocument> {
   riskAssessments(
     params: { categoryId: string } & IRiskAssessmentField & PaginateField
   ): Promise<IRiskAssessmentDocument>;
+  riskAssessmentsTotalCount(
+    params: { categoryId: string } & IRiskAssessmentField & PaginateField
+  ): Promise<IRiskAssessmentDocument>;
   riskAssessmentDetail(params: {
     _id: string;
     fieldsSkip: any;
@@ -110,27 +113,23 @@ export const loadRiskAssessment = (model: IModels, subdomain: string) => {
       } & IRiskAssessmentField &
         PaginateField
     ) {
-      const lookup = {
-        $lookup: {
-          from: 'risk_assessment_categories',
-          localField: 'categoryId',
-          foreignField: '_id',
-          as: 'category'
-        }
-      };
       const filter = generateFilter(params);
+      const sort = generateOrderFilters(params);
+      return paginate(model.RiskAssessment.find(filter).sort(sort), params);
 
-      const match = { $match: filter };
-      const sort = { $sort: generateOrderFilters(params) };
-      const set = { $unwind: '$category' };
-      const list = paginate(
-        model.RiskAssessment.aggregate([match, lookup, set, sort]),
-        params
-      );
+      // const totalCount = model.RiskAssessment.find(filter).countDocuments();
 
-      const totalCount = model.RiskAssessment.find(filter).countDocuments();
-
-      return { list, totalCount };
+      // return { list, totalCount };
+    }
+    public static async riskAssessmentsTotalCount(
+      params: {
+        categoryId: string;
+        ignoreIds: string[];
+      } & IRiskAssessmentField &
+        PaginateField
+    ) {
+      const filter = generateFilter(params);
+      return await model.RiskAssessment.find(filter).countDocuments();
     }
 
     public static async riskAssesmentAdd(params: IRiskAssessmentField) {

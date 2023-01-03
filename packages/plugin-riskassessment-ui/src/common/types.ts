@@ -18,7 +18,9 @@ export type RiskCalculateLogicType = {
 
 export type RiskAssessmentsType = {
   _id: string;
-  categoryId: string;
+  categoryIds: string[];
+  branchIds?: string[];
+  departmentIds?: string[];
   description: string;
   name: string;
   createdAt?: string;
@@ -37,10 +39,12 @@ export type RiskAssessmentDetailQueryResponse = {
 export type RiskAssessmentsListQueryResponse = {
   loading: boolean;
   refetch: () => void;
-  riskAssessments: {
-    list: RiskAssessmentsType[];
-    totalCount: number;
-  };
+  riskAssessments: RiskAssessmentsType[];
+};
+export type RiskAssessmentsTotalCountQueryResponse = {
+  loading: boolean;
+  refetch: () => void;
+  riskAssessmentsTotalCount: number;
 };
 
 export type RiskAssessmentCategory = {
@@ -67,7 +71,6 @@ export interface ICommonListProps {
   remove: (_ids: string[]) => void;
   save: () => void;
   refetch: () => void;
-  totalCount: number;
   loading: boolean;
 }
 
@@ -102,10 +105,7 @@ export type IRiskSubmissionsQueryResponse = {
 };
 
 export type ICardRiskAssessmentsQueryResponse = {
-  riskAssessments: {
-    list: ICardRiskAssements[];
-    totalCount: number;
-  };
+  riskAssessments: ICardRiskAssements[];
   loading: boolean;
   refetch: (params: { searchValue: string; perPage: number }) => void;
 };

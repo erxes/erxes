@@ -25,7 +25,7 @@ export const types = `
     type RiskConformityFormDetailType {
         forms:JSON,
         submissions:JSON,
-        formId: String
+        formId: String,
     }
 `;
 

@@ -10,7 +10,8 @@ import { graphql } from 'react-apollo';
 import {
   ICommonListProps,
   RiskAssessmentsCategoriesQueryResponse,
-  RiskAssessmentsListQueryResponse
+  RiskAssessmentsListQueryResponse,
+  RiskAssessmentsTotalCountQueryResponse
 } from '../common/types';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
@@ -23,6 +24,7 @@ type Props = {
 type FinalProps = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   listQuery: RiskAssessmentsListQueryResponse;
+  totalCountQuery: RiskAssessmentsTotalCountQueryResponse;
   removeMutation: any;
   categories: RiskAssessmentsCategoriesQueryResponse;
 } & Props &
@@ -31,7 +33,7 @@ type FinalProps = {
   ICommonFormProps;
 class ListContainer extends React.Component<FinalProps> {
   render() {
-    const { removeMutation, listQuery } = this.props;
+    const { removeMutation, listQuery, totalCountQuery } = this.props;
 
     const { riskAssessments, loading } = listQuery;
 
@@ -81,10 +83,12 @@ class ListContainer extends React.Component<FinalProps> {
       );
     };
 
+    console.log({ totalCountQuery });
+
     const updatedProps = {
       ...this.props,
-      list: riskAssessments?.list,
-      totalCount: riskAssessments?.totalCount,
+      list: riskAssessments,
+      totalCount: totalCountQuery?.riskAssessmentsTotalCount || 0,
       refetch: listQuery.refetch,
       loading,
       remove,
@@ -113,6 +117,12 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.list), {
       name: 'listQuery',
+      options: ({ queryParams }) => ({
+        variables: generateParams({ queryParams })
+      })
+    }),
+    graphql<Props>(gql(queries.totalCount), {
+      name: 'totalCountQuery',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams })
       })

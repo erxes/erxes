@@ -37,6 +37,14 @@ const RiskAssessmentQueries = {
     return await models.RiskAssessment.riskAssessments(params);
   },
 
+  async riskAssessmentsTotalCount(
+    _root,
+    params: { categoryId: string } & IRiskAssessmentField & PaginateField,
+    { models }: IContext
+  ) {
+    return await models.RiskAssessment.riskAssessmentsTotalCount(params);
+  },
+
   async riskAssessmentDetail(
     _root,
     params: { _id: string; fieldsSkip: any },
