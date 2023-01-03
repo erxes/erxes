@@ -29,6 +29,7 @@ import {
 import { companySchema } from './models/definitions/companies';
 import { ICustomField, ILink } from '@erxes/api-utils/src/types';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
+import { customFieldsDataByFieldCode } from './coc/utils';
 
 const EXTEND_FIELDS = {
   CUSTOMER: [
@@ -41,7 +42,11 @@ const EXTEND_FIELDS = {
   ]
 };
 
-export const findCustomer = async ({ Customers }: IModels, doc) => {
+export const findCustomer = async (
+  { Customers }: IModels,
+  subdomain: string,
+  doc
+) => {
   let customer;
 
   if (doc.customerPrimaryEmail) {
@@ -74,10 +79,21 @@ export const findCustomer = async ({ Customers }: IModels, doc) => {
     customer = await Customers.findOne(doc).lean();
   }
 
+  if (customer) {
+    customer.customFieldsDataByFieldCode = customFieldsDataByFieldCode(
+      customer,
+      subdomain
+    );
+  }
+
   return customer;
 };
 
-export const findCompany = async ({ Companies }: IModels, doc) => {
+export const findCompany = async (
+  { Companies }: IModels,
+  subdomain: string,
+  doc
+) => {
   let company;
 
   if (doc.companyPrimaryName) {
@@ -135,6 +151,13 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
 
   if (!company) {
     company = await Companies.findOne(doc).lean();
+  }
+
+  if (company) {
+    company.customFieldsDataByFieldCode = customFieldsDataByFieldCode(
+      company,
+      subdomain
+    );
   }
 
   return company;
@@ -810,7 +833,7 @@ export const updateContactsField = async (
         companyId: ''
       };
     } else {
-      let customer = await findCustomer(models, {
+      let customer = await findCustomer(models, subdomain, {
         customerPrimaryEmail: customerDoc.email || '',
         customerPrimaryPhone: customerDoc.phone || ''
       });
@@ -849,7 +872,7 @@ export const updateContactsField = async (
       continue;
     }
 
-    let company = await findCompany(models, {
+    let company = await findCompany(models, subdomain, {
       companyPrimaryName: companyDoc.primaryName || '',
       companyPrimaryEmail: companyDoc.primaryEmail || '',
       companyPrimaryPhone: companyDoc.primaryPhone || ''
