@@ -80,7 +80,7 @@ export const findCustomer = async (
   }
 
   if (customer) {
-    customer.customFieldsDataByFieldCode = customFieldsDataByFieldCode(
+    customer.customFieldsDataByFieldCode = await customFieldsDataByFieldCode(
       customer,
       subdomain
     );
@@ -154,7 +154,7 @@ export const findCompany = async (
   }
 
   if (company) {
-    company.customFieldsDataByFieldCode = customFieldsDataByFieldCode(
+    company.customFieldsDataByFieldCode = await customFieldsDataByFieldCode(
       company,
       subdomain
     );
