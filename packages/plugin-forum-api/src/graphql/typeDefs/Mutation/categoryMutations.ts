@@ -7,6 +7,8 @@ const commonParams = (isInsert = false): string => {
     code: String
     thumbnail: String
 
+    description: String
+
     userLevelReqPostRead: String${requiredIf(isInsert)}
     userLevelReqPostWrite: String${requiredIf(isInsert)}
     userLevelReqCommentWrite: String${requiredIf(isInsert)}
@@ -16,6 +18,8 @@ const commonParams = (isInsert = false): string => {
     postReadRequiresPermissionGroup: Boolean
     postWriteRequiresPermissionGroup: Boolean
     commentWriteRequiresPermissionGroup: Boolean
+
+    order: Float
   `;
 };
 

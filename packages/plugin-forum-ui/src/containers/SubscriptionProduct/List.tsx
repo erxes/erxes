@@ -17,7 +17,7 @@ const List: FC = () => {
   const [userType, setUserType] = useSearchParam('userType');
   const { loading, error, data } = useQuery(FORUM_SUBSCRIPTION_PRODUCTS_QUERY, {
     variables: {
-      sort: { listOrder: -1 },
+      sort: { listOrder: 1 },
       userType
     },
     fetchPolicy: 'network-only'
