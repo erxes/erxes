@@ -172,20 +172,20 @@ export const loadConformityClass = (models: IModels, subdomain: string) => {
     }
 
     public static async filterConformity(doc: IConformityFilter) {
-      if (isUsingElk()) {
-        return conformityHelper({
-          doc,
-          getConformities: async data => {
-            return findElk(subdomain, {
-              ...getQueryConformities({
-                mainType: data.mainType,
-                relTypes: [data.relType],
-                mainTypeIds: data.mainTypeIds
-              })
-            });
-          }
-        });
-      }
+      // if (isUsingElk()) {
+      //   return conformityHelper({
+      //     doc,
+      //     getConformities: async data => {
+      //       return findElk(subdomain, {
+      //         ...getQueryConformities({
+      //           mainType: data.mainType,
+      //           relTypes: [data.relType],
+      //           mainTypeIds: data.mainTypeIds
+      //         })
+      //       });
+      //     }
+      //   });
+      // }
 
       return conformityHelper({
         doc,
@@ -204,9 +204,11 @@ export const loadConformityClass = (models: IModels, subdomain: string) => {
     }
 
     public static async getConformities(doc: IGetConformityBulk) {
-      if (isUsingElk()) {
-        return findElk(subdomain, { ...getQueryConformities({ ...doc }) });
-      }
+      // if (isUsingElk()) {
+      //   return findElk(subdomain, { ...getQueryConformities({ ...doc }) });
+      // }
+
+      console.log('getConformities', doc);
 
       return models.Conformities.aggregate([
         {
