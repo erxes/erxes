@@ -194,6 +194,7 @@ export const generatePollOptionModel = (
         throw new LoginRequiredError();
       }
       const doc = await models.PollOption.findOwnedByIdOrThrow(_id, cpUser);
+      await models.PollVote.deleteMany({ pollOptionId: doc._id });
       await doc.remove();
       return doc;
     }
@@ -205,6 +206,10 @@ export const generatePollOptionModel = (
         throw new LoginRequiredError();
       }
       await models.Post.findByIdOrThrowCp(postId, cpUser);
+      const optionToDelete = await models.PollOption.find({ postId });
+      await models.PollVote.deleteMany({
+        pollOptionId: { $in: optionToDelete.map(({ _id }) => _id) }
+      });
       await models.PollOption.deleteMany({ postId });
     }
     // </CLient portal>
@@ -261,6 +266,7 @@ export const generatePollOptionModel = (
       _id: string
     ): Promise<PollOptionDocument> {
       const doc = await models.PollOption.findByIdOrThrow(_id);
+      await models.PollVote.deleteMany({ optionId: doc._id });
       await doc.remove();
       return doc;
     }
@@ -268,6 +274,11 @@ export const generatePollOptionModel = (
       postId: string
     ): Promise<void> {
       await models.Post.findByIdOrThrow(postId);
+
+      const optionsToDelete = await models.PollOption.find({ postId }).lean();
+      const optionIds = optionsToDelete.map(({ _id }) => _id);
+
+      await models.PollVote.deleteMany({ optionId: { $in: optionIds } });
       await models.PollOption.deleteMany({ postId });
     }
     // </CRM>
@@ -308,7 +319,9 @@ export const generatePollOptionModel = (
 
       const optionsToDelete = await models.PollOption.find({
         postId,
-        _id: { $nin: optionsToUpdate.map(({ _id }) => Types.ObjectId(_id)) }
+        _id: {
+          $nin: optionsToUpdate.map(({ _id }) => Types.ObjectId(_id.toString()))
+        }
       }).lean();
 
       await models.PollOption.insertMany(optionsToInsert);
@@ -320,8 +333,16 @@ export const generatePollOptionModel = (
           }
         }))
       );
+
+      const idsToDelete = optionsToDelete.map(({ _id }) =>
+        Types.ObjectId(_id.toString())
+      );
+
+      await models.PollVote.deleteMany({
+        pollOptionId: { $in: idsToDelete }
+      });
       await models.PollOption.deleteMany({
-        _id: { $in: optionsToDelete.map(({ _id }) => _id) }
+        _id: { $in: idsToDelete }
       });
     }
   }
