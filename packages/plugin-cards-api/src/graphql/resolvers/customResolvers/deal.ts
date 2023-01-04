@@ -149,6 +149,7 @@ export default {
       isRPC: true,
       defaultValue: []
     });
+
     if (isSubscription) {
       return activeCustomers;
     }
