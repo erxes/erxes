@@ -440,7 +440,7 @@ export const generatePostModel = (
     ): Promise<PostDocument> {
       const post = await models.Post.findByIdOrThrow(_id);
 
-      if (post.createdByCpId !== cpUser.userId) {
+      if (!post.createdByCpId || post.createdByCpId !== cpUser?.userId) {
         throw new Error(`This post doesn't belong to the current user`);
       }
 
