@@ -14,6 +14,8 @@ const commonFields = `
   $vintageYear: Float,
   $importYear: Float,
   $attachment: AttachmentInput
+
+  $customFieldsData: JSON
 `;
 
 const commonVariables = `
@@ -32,6 +34,8 @@ const commonVariables = `
   vintageYear: $vintageYear,
   importYear: $importYear,
   attachment: $attachment,
+
+  customFieldsData: $customFieldsData,
 `;
 
 const carsAdd = `
