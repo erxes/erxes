@@ -50,6 +50,10 @@ const ForumPost: IObjectTypeResolver<IPost, IContext> = {
 
   async tags({ tagIds }) {
     return tagIds && tagIds.map(_id => ({ __typename: 'Tag', _id }));
+  },
+
+  async pollOptions({ _id }, _, { models: { PollOption } }) {
+    return PollOption.find({ postId: _id }).lean();
   }
 };
 

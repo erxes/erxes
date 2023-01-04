@@ -6,7 +6,7 @@ import * as _ from 'lodash';
 import { LoginRequiredError } from '../../customErrors';
 import { UserTypes } from '../../consts';
 
-interface PollOption {
+export interface PollOption {
   _id: any;
   postId: string;
   title: string;
@@ -266,7 +266,7 @@ export const generatePollOptionModel = (
       _id: string
     ): Promise<PollOptionDocument> {
       const doc = await models.PollOption.findByIdOrThrow(_id);
-      await models.PollVote.deleteMany({ optionId: doc._id });
+      await models.PollVote.deleteMany({ pollOptionId: doc._id });
       await doc.remove();
       return doc;
     }
@@ -278,7 +278,7 @@ export const generatePollOptionModel = (
       const optionsToDelete = await models.PollOption.find({ postId }).lean();
       const optionIds = optionsToDelete.map(({ _id }) => _id);
 
-      await models.PollVote.deleteMany({ optionId: { $in: optionIds } });
+      await models.PollVote.deleteMany({ pollOptionId: { $in: optionIds } });
       await models.PollOption.deleteMany({ postId });
     }
     // </CRM>

@@ -6,7 +6,7 @@ import * as _ from 'lodash';
 import { LoginRequiredError } from '../../customErrors';
 import { UserTypes } from '../../consts';
 
-interface PollVote {
+export interface PollVote {
   _id: any;
   pollOptionId: string;
   cpUserId: string;
