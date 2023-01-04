@@ -364,7 +364,7 @@ const orderMutations = {
     const order = await models.Orders.getOrder(_id);
 
     const amount = Number(
-      (cashAmount + receivableAmount + cardAmount).toFixed(2)
+      (cashAmount + receivableAmount + cardAmount + mobileAmount).toFixed(2)
     );
 
     checkOrderStatus(order);
