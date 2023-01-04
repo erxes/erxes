@@ -4,6 +4,7 @@ import { ICpUser } from '../../graphql';
 import { IModels } from './index';
 import * as _ from 'lodash';
 import { LoginRequiredError } from '../../customErrors';
+import { UserTypes } from '../../consts';
 
 interface PollOption {
   _id: any;
@@ -81,6 +82,13 @@ export interface PollOptionModel extends Model<PollOptionDocument> {
   deletePollOption(_id: string): Promise<PollOptionDocument>;
   deletePollOptionsByPostId(postId: string): Promise<void>;
   // </CRM>
+
+  handleChanges(
+    postId: string,
+    options: { _id?: string; title: string }[],
+    userType: UserTypes,
+    userId: string
+  ): Promise<void>;
 }
 
 export const generatePollOptionModel = (
@@ -263,6 +271,59 @@ export const generatePollOptionModel = (
       await models.PollOption.deleteMany({ postId });
     }
     // </CRM>
+
+    public static async handleChanges(
+      postId: string,
+      options: { _id?: string; title: string }[],
+      userType: UserTypes,
+      userId: string
+    ): Promise<void> {
+      const optionsToInsert: {
+        title: string;
+        postId: Types.ObjectId;
+        createdById?: string;
+        createdByCpId?: string;
+        createdAt: Date;
+      }[] = [];
+      const optionsToUpdate: { _id: string; title: string }[] = [];
+
+      for (const option of options) {
+        if (option._id) {
+          optionsToUpdate.push({
+            _id: option._id,
+            title: option.title
+          });
+        } else {
+          const optionToInsert = {
+            ...option,
+            postId: Types.ObjectId(postId.toString()),
+            createdAt: new Date()
+          };
+          optionToInsert[
+            userType === 'CRM' ? 'createdBy' : 'createdByCpId'
+          ] = userId;
+          optionsToInsert.push(optionToInsert);
+        }
+      }
+
+      const optionsToDelete = await models.PollOption.find({
+        postId,
+        _id: { $nin: optionsToUpdate.map(({ _id }) => Types.ObjectId(_id)) }
+      }).lean();
+
+      await models.PollOption.insertMany(optionsToInsert);
+      await models.PollOption.bulkWrite(
+        optionsToUpdate.map(({ _id, title }) => ({
+          updateOne: {
+            filter: { _id: Types.ObjectId(_id.toString()) },
+            update: { $set: { title } }
+          }
+        }))
+      );
+      await models.PollOption.deleteMany({
+        _id: { $in: optionsToDelete.map(({ _id }) => _id) }
+      });
+    }
   }
 
   pollOptionSchema.loadClass(PollOptionStatics);
