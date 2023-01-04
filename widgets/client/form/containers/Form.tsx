@@ -1,13 +1,13 @@
-import gql from "graphql-tag";
-import * as React from "react";
-import { ChildProps, graphql } from "react-apollo";
-import client from "../../apollo-client";
-import { IEmailParams, IIntegration } from "../../types";
-import DumbForm from "../components/Form";
-import { connection } from "../connection";
-import { formDetailQuery } from "../graphql";
-import { ICurrentStatus, IForm, IFormDoc } from "../types";
-import { AppConsumer } from "./AppContext";
+import gql from 'graphql-tag';
+import * as React from 'react';
+import { ChildProps, graphql } from 'react-apollo';
+
+import { IEmailParams, IIntegration } from '../../types';
+import DumbForm from '../components/Form';
+import { connection } from '../connection';
+import { formDetailQuery } from '../graphql';
+import { ICurrentStatus, IForm, IFormDoc } from '../types';
+import { AppConsumer } from './AppContext';
 
 const Form = (props: ChildProps<IProps, QueryResponse>) => {
   const data = props.data;

@@ -1,22 +1,20 @@
+import * as compose from 'lodash.flowright';
+
+import {
+  TypesMainQueryResponse,
+  TypesRemoveMutationResponse
+} from '../../types';
+import { mutations, queries } from '../../graphql';
+
+import List from '../../components/contentTypes/List';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import * as compose from 'lodash.flowright';
-import List from '../../components/contentTypes/List';
-import { queries, mutations } from '../../graphql';
-import React from 'react';
-import { Alert, confirm } from '@erxes/ui/src/utils';
-import {
-  TypesRemoveMutationResponse,
-  TypesMainQueryResponse
-} from '../../types';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
-  queryParams: any;
-  getActionBar: (actionBar: any) => void;
-  setCount: (count: number) => void;
-  selectedSite: string;
+  siteId: string;
+  handleItemSettings: (item: any, type: string) => void;
 };
 
 type FinalProps = {
@@ -34,23 +32,8 @@ function ContentTypesContainer(props: FinalProps) {
   const { list = [], totalCount } =
     typesMainQuery.webbuilderContentTypesMain || {};
 
-  const remove = (_id: string) => {
-    confirm().then(() => {
-      typesRemoveMutation({ variables: { _id } })
-        .then(() => {
-          Alert.success('Successfully removed a type');
-
-          typesMainQuery.refetch();
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    });
-  };
-
   const updatedProps = {
     ...props,
-    remove,
     contentTypes: list,
     contentTypesCount: totalCount
   };
@@ -61,22 +44,21 @@ function ContentTypesContainer(props: FinalProps) {
 export default compose(
   graphql<Props, TypesMainQueryResponse>(gql(queries.contentTypesMain), {
     name: 'typesMainQuery',
-    options: ({ queryParams, selectedSite }) => ({
+    options: ({ siteId }) => ({
       variables: {
-        ...generatePaginationParams(queryParams),
-        siteId: queryParams.siteId || selectedSite
+        siteId
       },
       fetchPolicy: 'network-only'
     })
   }),
   graphql<Props, TypesRemoveMutationResponse>(gql(mutations.typesRemove), {
     name: 'typesRemoveMutation',
-    options: ({ selectedSite }) => ({
+    options: ({ siteId }) => ({
       refetchQueries: [
         {
           query: gql(queries.contentTypes),
           variables: {
-            siteId: selectedSite
+            siteId
           }
         }
       ]

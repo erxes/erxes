@@ -11,20 +11,13 @@ import Select from 'react-select-plus';
 import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
 import {
   Amount,
-  ContentColumn,
-  ItemRow,
-  ItemText,
   Measure,
   ProductButton,
-  ProductItemContainer,
-  ProductSettings,
   VoucherCard,
   VoucherContainer
 } from '../../styles';
 import { IDeal, IDiscountValue, IProductData } from '../../types';
 import { selectConfigOptions } from '../../utils';
-import ProductRow from './ProductRow';
-import { Flex } from '@erxes/ui/src/styles/main';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
@@ -37,6 +30,7 @@ type Props = {
   productData: IProductData;
   removeProductItem?: (productId: string) => void;
   onChangeProductsData?: (productsData: IProductData[]) => void;
+  calculatePerProductAmount: (type: string, productData: IProductData) => void;
   updateTotal?: () => void;
   currentProduct?: string;
   dealQuery: IDeal;
@@ -97,33 +91,6 @@ class ProductItem extends React.Component<Props, State> {
     }));
   };
 
-  calculateAmount = (type: string, productData: IProductData) => {
-    const amount = productData.unitPrice * productData.quantity;
-
-    if (amount > 0) {
-      if (type === 'discount') {
-        productData.discountPercent = (productData.discount * 100) / amount;
-      } else {
-        productData.discount = (amount * productData.discountPercent) / 100;
-      }
-
-      productData.tax =
-        ((amount - productData.discount || 0) * productData.taxPercent) / 100;
-      productData.amount =
-        amount - (productData.discount || 0) + (productData.tax || 0);
-    } else {
-      productData.tax = 0;
-      productData.discount = 0;
-      productData.amount = 0;
-    }
-
-    const { updateTotal } = this.props;
-
-    if (updateTotal) {
-      updateTotal();
-    }
-  };
-
   onChangeCategory = (categoryId: string) => {
     this.setState({ categoryId });
   };
@@ -133,7 +100,11 @@ class ProductItem extends React.Component<Props, State> {
     value: string | boolean | IProduct | number,
     productId: string
   ) => {
-    const { productsData, onChangeProductsData } = this.props;
+    const {
+      productsData,
+      onChangeProductsData,
+      calculatePerProductAmount
+    } = this.props;
 
     if (productsData) {
       const productData = productsData.find(p => p._id === productId);
@@ -150,7 +121,7 @@ class ProductItem extends React.Component<Props, State> {
       }
 
       if (type !== 'uom' && productData) {
-        this.calculateAmount(type, productData);
+        calculatePerProductAmount(type, productData);
       }
 
       if (onChangeProductsData) {
@@ -281,7 +252,8 @@ class ProductItem extends React.Component<Props, State> {
       <ModalTrigger
         title="Choose product & service"
         trigger={this.renderProductServiceTrigger(productData.product)}
-        size="lg"
+        dialogClassName="modal-1400w"
+        size="xl"
         content={content}
       />
     );
@@ -372,8 +344,8 @@ class ProductItem extends React.Component<Props, State> {
       });
   };
 
-  renderForm = () => {
-    const { productData, uom, currencies } = this.props;
+  render() {
+    const { productData, uom, currencies, removeProductItem } = this.props;
 
     const selectOption = option => (
       <div className="simple-option">
@@ -381,198 +353,126 @@ class ProductItem extends React.Component<Props, State> {
       </div>
     );
 
-    if (
-      !productData.product ||
-      this.state.currentProduct === productData.product._id
-    ) {
-      return (
-        <ProductItemContainer key={productData._id}>
-          <Flex>
-            <ProductSettings>
-              <ItemRow>
-                <ItemText>{__('Tick paid or used')}:</ItemText>
-                <ContentColumn flex="3">
-                  <FormControl
-                    componentClass="checkbox"
-                    checked={productData.tickUsed}
-                    onChange={this.onTickUse}
-                  />
-                </ContentColumn>
-              </ItemRow>
-              <ItemRow>
-                <ItemText>{__('UOM')}:</ItemText>
-                <ContentColumn flex="3">
-                  <Select
-                    name="uom"
-                    placeholder={__('Choose')}
-                    value={productData.uom}
-                    onChange={this.uomOnChange}
-                    optionRenderer={selectOption}
-                    options={selectConfigOptions(uom, MEASUREMENTS)}
-                  />
-                </ContentColumn>
-              </ItemRow>
-              <ItemRow>
-                <ItemText>{__('Currency')}:</ItemText>
-                <ContentColumn flex="3">
-                  <Select
-                    name="currency"
-                    placeholder={__('Choose')}
-                    value={productData.currency}
-                    onChange={this.currencyOnChange}
-                    optionRenderer={selectOption}
-                    options={selectConfigOptions(currencies, CURRENCIES)}
-                  />
-                </ContentColumn>
-              </ItemRow>
-              <ItemRow>
-                <ItemText>{__('Assigned to')}:</ItemText>
-                <ContentColumn flex="3">
-                  <SelectTeamMembers
-                    label="Choose assigned user"
-                    name="assignedUserId"
-                    multi={false}
-                    customOption={{
-                      value: '',
-                      label: '-----------'
-                    }}
-                    initialValue={productData.assignUserId}
-                    onSelect={this.assignUserOnChange}
-                  />
-                </ContentColumn>
-              </ItemRow>
-            </ProductSettings>
-            <ContentColumn>
-              <ItemRow>
-                <ItemText>{__('Choose Product')}:</ItemText>
-                <ContentColumn flex="3">
-                  {this.renderProductModal(productData)}
-                </ContentColumn>
-              </ItemRow>
-              <ItemRow>
-                <ItemText>{__('Quantity')}:</ItemText>
-                <ContentColumn flex="3">
-                  <FormControl
-                    defaultValue={productData.quantity || 0}
-                    type="number"
-                    min={1}
-                    max={
-                      productData?.maxQuantity > 0
-                        ? productData?.maxQuantity
-                        : undefined
-                    }
-                    placeholder="0"
-                    name="quantity"
-                    onChange={this.onChange}
-                  />
-                </ContentColumn>
-              </ItemRow>
-              <ItemRow>
-                <ItemText>{__('Unit price')}:</ItemText>
-                <ContentColumn flex="3">
-                  <FormControl
-                    value={productData.unitPrice || ''}
-                    type="number"
-                    placeholder="0"
-                    name="unitPrice"
-                    onChange={this.onChange}
-                  />
-                </ContentColumn>
-              </ItemRow>
-              <ItemRow>
-                <ItemText>{__('Amount')}:</ItemText>
-                <ContentColumn flex="3">
-                  <Amount>
-                    {(
-                      productData.quantity * productData.unitPrice
-                    ).toLocaleString()}{' '}
-                    <b>{productData.currency}</b>
-                  </Amount>
-                </ContentColumn>
-              </ItemRow>
-              <ItemRow>
-                <ItemText>{__('Discount')}:</ItemText>
-                <ContentColumn flex="3">
-                  <Flex>
-                    <ContentColumn>
-                      <Flex>
-                        <FormControl
-                          value={productData.discountPercent || ''}
-                          type="number"
-                          min={0}
-                          max={100}
-                          placeholder="0"
-                          name="discountPercent"
-                          onChange={this.onChange}
-                        />
-                        <Measure>%</Measure>
-                      </Flex>
-                    </ContentColumn>
-                    <ContentColumn flex="2">
-                      <Flex>
-                        <FormControl
-                          value={productData.discount || ''}
-                          type="number"
-                          placeholder="0"
-                          name="discount"
-                          onChange={this.onChange}
-                        />
-                        <Measure>{productData.currency}</Measure>
-                      </Flex>
-                    </ContentColumn>
-                  </Flex>
-                </ContentColumn>
-              </ItemRow>
-
-              <ItemRow>
-                <ItemText>{__('Tax')}:</ItemText>
-                <ContentColumn flex="3">
-                  <Flex>
-                    <ContentColumn>
-                      <Flex>
-                        <FormControl
-                          defaultValue={productData.taxPercent || ''}
-                          type="number"
-                          min={0}
-                          max={100}
-                          placeholder="0"
-                          name="taxPercent"
-                          onChange={this.onChange}
-                        />
-                        <Measure>%</Measure>
-                      </Flex>
-                    </ContentColumn>
-                    <ContentColumn flex="2">
-                      <Amount>
-                        {(productData.tax || 0).toLocaleString()}{' '}
-                        <b>{productData.currency}</b>
-                      </Amount>
-                    </ContentColumn>
-                  </Flex>
-                </ContentColumn>
-              </ItemRow>
-            </ContentColumn>
-          </Flex>
-        </ProductItemContainer>
-      );
+    if (!productData.product) {
+      return null;
     }
 
-    return null;
-  };
-
-  render() {
-    const { productData } = this.props;
-
     return (
-      <ProductRow
-        key={productData._id}
-        onRemove={this.onClick}
-        activeProduct={this.state.currentProduct}
-        productData={productData}
-        changeCurrentProduct={this.changeCurrentProduct}
-      >
-        {this.renderForm()}
-      </ProductRow>
+      <tr key={productData._id}>
+        <td>{this.renderProductModal(productData)}</td>
+        <td>
+          <FormControl
+            defaultValue={productData.quantity || 0}
+            type="number"
+            min={1}
+            max={
+              productData?.maxQuantity > 0
+                ? productData?.maxQuantity
+                : undefined
+            }
+            placeholder="0"
+            name="quantity"
+            onChange={this.onChange}
+          />
+        </td>
+        <td>
+          <FormControl
+            value={productData.unitPrice || ''}
+            type="number"
+            placeholder="0"
+            name="unitPrice"
+            onChange={this.onChange}
+          />
+        </td>
+        <td>
+          <FormControl
+            value={productData.discountPercent || ''}
+            type="number"
+            min={0}
+            max={100}
+            placeholder="0"
+            name="discountPercent"
+            onChange={this.onChange}
+          />
+        </td>
+
+        <td>
+          <FormControl
+            value={productData.discount || ''}
+            type="number"
+            placeholder="0"
+            name="discount"
+            onChange={this.onChange}
+          />
+        </td>
+        <td>
+          <FormControl
+            defaultValue={productData.taxPercent || ''}
+            type="number"
+            min={0}
+            max={100}
+            placeholder="0"
+            name="taxPercent"
+            onChange={this.onChange}
+          />
+        </td>
+        <td>
+          <Amount>{(productData.tax || 0).toLocaleString()} </Amount>
+        </td>
+
+        <td>
+          <Amount>
+            {(productData.quantity * productData.unitPrice).toLocaleString()}{' '}
+          </Amount>
+        </td>
+
+        <td>
+          <Select
+            name="currency"
+            placeholder={__('Choose')}
+            value={productData.currency}
+            onChange={this.currencyOnChange}
+            optionRenderer={selectOption}
+            options={selectConfigOptions(currencies, CURRENCIES)}
+          />
+        </td>
+        <td>
+          <Select
+            name="uom"
+            placeholder={__('Choose')}
+            value={productData.uom}
+            onChange={this.uomOnChange}
+            optionRenderer={selectOption}
+            options={selectConfigOptions(uom, MEASUREMENTS)}
+          />
+        </td>
+        <td>
+          <FormControl
+            componentClass="checkbox"
+            checked={productData.tickUsed}
+            onChange={this.onTickUse}
+          />
+        </td>
+        <td>
+          <SelectTeamMembers
+            label="Choose assigned user"
+            name="assignedUserId"
+            multi={false}
+            customOption={{
+              value: '',
+              label: '-----------'
+            }}
+            initialValue={productData.assignUserId}
+            onSelect={this.assignUserOnChange}
+          />
+        </td>
+        <td>
+          <Icon
+            onClick={removeProductItem?.bind(this, productData._id)}
+            icon="times-circle"
+          />
+        </td>
+      </tr>
     );
   }
 }

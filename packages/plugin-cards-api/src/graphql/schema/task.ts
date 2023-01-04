@@ -33,6 +33,7 @@ const listQueryParams = `
     _ids: [String]
     pipelineId: String
     pipelineIds: [String]
+    parentId:String
     stageId: String
     customerIds: [String]
     companyIds: [String]

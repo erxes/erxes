@@ -7,6 +7,7 @@ import {
 const commonParams = `
   $companyIds: [String],
   $customerIds: [String],
+  $parentId: String,
   $assignedUserIds: [String],
   $closeDateType: String,
   $priority: [String],
@@ -26,6 +27,7 @@ const commonParams = `
 const commonParamDefs = `
   companyIds: $companyIds
   customerIds: $customerIds
+  parentId: $parentId
   assignedUserIds: $assignedUserIds
   closeDateType: $closeDateType
   priority: $priority

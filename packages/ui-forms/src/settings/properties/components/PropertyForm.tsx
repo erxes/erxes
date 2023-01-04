@@ -112,7 +112,13 @@ class PropertyForm extends React.Component<Props, State> {
       }
 
       if (objectListConfigs) {
-        doc.objectListConfigs = objectListConfigs;
+        doc.objectListConfigs = objectListConfigs.map(e => {
+          return {
+            key: e.key,
+            label: e.label,
+            type: e.type
+          };
+        });
       }
     }
 
@@ -158,7 +164,13 @@ class PropertyForm extends React.Component<Props, State> {
       type,
       options,
       locationOptions,
-      objectListConfigs,
+      objectListConfigs: objectListConfigs.map(e => {
+        return {
+          key: e.key,
+          label: e.label,
+          type: e.type
+        };
+      }),
       searchable,
       showInCard,
       logicAction,

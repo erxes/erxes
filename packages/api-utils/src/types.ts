@@ -1,23 +1,13 @@
 import { Document, Schema } from 'mongoose';
 
+import { IDetail, IDetailDocument } from './definitions/users';
+
 export interface IEmailSignature {
   brandId?: string;
   signature?: string;
 }
 
 export interface IEmailSignatureDocument extends IEmailSignature, Document {}
-
-export interface IDetail {
-  avatar?: string;
-  fullName?: string;
-  shortName?: string;
-  position?: string;
-  location?: string;
-  description?: string;
-  operatorPhone?: string;
-}
-
-export interface IDetailDocument extends IDetail, Document {}
 
 export interface ILink {
   [key: string]: string;
