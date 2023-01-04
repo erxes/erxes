@@ -4,6 +4,7 @@ import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
+import forms from './forms';
 
 export let debug;
 export let graphqlPubsub;
@@ -39,5 +40,5 @@ export default {
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
   },
-  meta: {}
+  meta: { forms }
 };
