@@ -1,4 +1,4 @@
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { putUpdateLog, putCreateLog, putDeleteLog } from '../../../logUtils';
 import { sendCoreMessage } from '../../../messageBroker';
@@ -99,6 +99,8 @@ const segmentMutations = {
   }
 };
 
-moduleCheckPermission(segmentMutations, 'manageSegments');
+checkPermission(segmentMutations, 'segmentsAdd', 'manageSegments');
+checkPermission(segmentMutations, 'segmentsEdit', 'manageSegments');
+checkPermission(segmentMutations, 'segmentsRemove', 'manageSegments');
 
 export default segmentMutations;

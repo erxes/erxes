@@ -84,7 +84,7 @@ class AddFormContainer extends React.Component<FinalProps> {
     doc.proccessId = proccessId;
     doc.description = doc.description || description;
     doc.attachments = doc.attachments || attachments;
-    doc.parentId = parentId
+    doc.parentId = parentId;
 
     if (sourceConversationId) {
       doc.sourceConversationIds = [sourceConversationId];

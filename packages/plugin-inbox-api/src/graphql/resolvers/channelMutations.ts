@@ -1,14 +1,11 @@
 import * as _ from 'underscore';
-import {
-  IChannel,
-  IChannelDocument
-} from '../../models/definitions/channels';
+import { IChannel, IChannelDocument } from '../../models/definitions/channels';
 
 import { MODULE_NAMES } from '../../constants';
 
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 
 import { checkUserIds } from '@erxes/api-utils/src';
 import { sendCoreMessage, sendNotificationsMessage } from '../../messageBroker';
@@ -53,14 +50,17 @@ export const sendChannelNotifications = async (
         (channel.memberIds || []).filter(id => id !== channel.userId)
     }
   });
-
 };
 
 const channelMutations = {
   /**
    * Create a new channel and send notifications to its members bar the creator
    */
-  async channelsAdd(_root, doc: IChannel, { user, models, subdomain }: IContext) {
+  async channelsAdd(
+    _root,
+    doc: IChannel,
+    { user, models, subdomain }: IContext
+  ) {
     const channel = await models.Channels.createChannel(doc, user._id);
 
     await sendChannelNotifications(subdomain, channel, 'invited', user);
@@ -77,7 +77,7 @@ const channelMutations = {
         user
       );
     } catch (e) {
-      console.log(e, 'eee')
+      console.log(e, 'eee');
     }
 
     return channel;
@@ -100,8 +100,20 @@ const channelMutations = {
 
     const updated = await models.Channels.updateChannel(_id, doc);
 
-    await sendChannelNotifications(subdomain, channel, 'invited', user, addedUserIds);
-    await sendChannelNotifications(subdomain, channel, 'removed', user, removedUserIds);
+    await sendChannelNotifications(
+      subdomain,
+      channel,
+      'invited',
+      user,
+      addedUserIds
+    );
+    await sendChannelNotifications(
+      subdomain,
+      channel,
+      'removed',
+      user,
+      removedUserIds
+    );
 
     await putUpdateLog(
       models,
@@ -135,7 +147,11 @@ const channelMutations = {
   /**
    * Remove a channel
    */
-  async channelsRemove(_root, { _id }: { _id: string }, { user, models, subdomain }: IContext) {
+  async channelsRemove(
+    _root,
+    { _id }: { _id: string },
+    { user, models, subdomain }: IContext
+  ) {
     const channel = await models.Channels.getChannel(_id);
 
     await models.Channels.removeChannel(_id);
@@ -153,6 +169,8 @@ const channelMutations = {
   }
 };
 
-moduleCheckPermission(channelMutations, 'manageChannels');
+checkPermission(channelMutations, 'channelsAdd', 'manageChannels');
+checkPermission(channelMutations, 'channelsEdit', 'manageChannels');
+checkPermission(channelMutations, 'channelsRemove', 'manageChannels');
 
 export default channelMutations;

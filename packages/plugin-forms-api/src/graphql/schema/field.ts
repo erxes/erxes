@@ -201,6 +201,7 @@ const fieldsGroupsCommonFields = `
 
 export const fieldsGroupsQueries = `
   fieldsGroups(contentType: String, isDefinedByErxes: Boolean, config: JSON): [FieldsGroup]
+  fieldsGetDetail(_id: String, code: String): Field
   getSystemFieldsGroup(contentType: String): FieldsGroup
 `;
 
