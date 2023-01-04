@@ -42,6 +42,7 @@ export const CATEGORY_DETAIL = gql`
       postWriteRequiresPermissionGroup
       commentWriteRequiresPermissionGroup
       order
+      description
       parent {
         _id
         name
