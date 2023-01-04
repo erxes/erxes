@@ -128,7 +128,9 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Stages.find(data).lean()
+      data: await models.Stages.find(data)
+        .sort({ order: 1 })
+        .lean()
     };
   });
 

@@ -16,6 +16,7 @@ type Props = {
     postWriteRequiresPermissionGroup?: boolean | null;
     commentWriteRequiresPermissionGroup?: boolean | null;
     order?: number | null;
+    description?: string | null;
   };
   onSubmit?: (val: any) => any;
   noParent?: boolean;
@@ -65,6 +66,7 @@ const CategoryForm: React.FC<Props> = ({
   const [parentId, setParentId] = useState(category?.parentId || '');
   const [thumbnail, setThumbnail] = useState(category?.thumbnail || '');
   const [order, setOrder] = useState(category?.order || 0);
+  const [description, setDescription] = useState(category?.description || '');
 
   const [userLevelReqPostRead, setUserLevelReqPostRead] = useState(
     category?.userLevelReqPostRead || 'GUEST'
@@ -107,7 +109,8 @@ const CategoryForm: React.FC<Props> = ({
         postReadRequiresPermissionGroup,
         postWriteRequiresPermissionGroup,
         commentWriteRequiresPermissionGroup,
-        order
+        order,
+        description
       });
     }
   };
@@ -166,6 +169,19 @@ const CategoryForm: React.FC<Props> = ({
           }}
         />
       </label>
+
+      <br />
+
+      <label htmlFor="forumCategoryDescription">Description:</label>
+      <textarea
+        id="forumCategoryDescription"
+        cols={100}
+        rows={5}
+        value={description}
+        onChange={e => {
+          setDescription(e.target.value);
+        }}
+      />
 
       <br />
 

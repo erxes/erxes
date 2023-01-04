@@ -15,6 +15,7 @@ const QUERY = gql`
       _id
       email
       username
+      type
     }
   }
 `;
@@ -54,7 +55,7 @@ const ChooseUsers: React.FC<Props> = ({ excludeIds, onChoose, show }) => {
   const clientPortalUsers = data.clientPortalUsers || [];
 
   return (
-    <Modal size={'sm'} show={show} enforceFocus centered>
+    <Modal size={'xl'} show={show} enforceFocus centered>
       <Modal.Body>
         <form onSubmit={search}>
           <input
@@ -70,27 +71,45 @@ const ChooseUsers: React.FC<Props> = ({ excludeIds, onChoose, show }) => {
 
         {!clientPortalUsers?.length && <div>Nothing to select</div>}
 
-        {clientPortalUsers.map(c => (
-          <div key={c._id}>
-            <input
-              id={c._id}
-              type="checkbox"
-              name="cpUserId"
-              value={c._id}
-              checked={!!checkedIds[c._id]}
-              onChange={e => {
-                const checked = e.target.checked;
-                setCheckedIds(prev => ({
-                  ...prev,
-                  [c._id]: checked
-                }));
-              }}
-            />{' '}
-            <label htmlFor={c._id}>
-              {c.email} {c.username}
-            </label>
-          </div>
-        ))}
+        {clientPortalUsers && (
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Email</th>
+                <th>Username</th>
+                <th>Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              {clientPortalUsers.map(c => (
+                <tr key={c._id}>
+                  <td>
+                    <input
+                      id={`check${c._id}`}
+                      type="checkbox"
+                      name="cpUserId"
+                      value={c._id}
+                      checked={!!checkedIds[c._id]}
+                      onChange={e => {
+                        const checked = e.target.checked;
+                        setCheckedIds(prev => ({
+                          ...prev,
+                          [c._id]: checked
+                        }));
+                      }}
+                    />
+                  </td>
+                  <td>
+                    <label htmlFor={`check${c._id}`}>{c.email}</label>
+                  </td>
+                  <td>{c.username}</td>
+                  <td>{c.type}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
 
         <button
           type="button"

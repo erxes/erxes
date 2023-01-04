@@ -42,6 +42,7 @@ export const CATEGORY_DETAIL = gql`
       postWriteRequiresPermissionGroup
       commentWriteRequiresPermissionGroup
       order
+      description
       parent {
         _id
         name
@@ -259,6 +260,7 @@ export const PERMISSION_GROUP_QUERY = gql`
         firstName
         lastName
         username
+        type
       }
     }
   }
