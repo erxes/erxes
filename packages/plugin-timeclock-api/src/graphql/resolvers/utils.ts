@@ -221,7 +221,6 @@ export const returnReportByUserIds = async (
 
 export const connectAndImportFromMysql = async (subdomain: string) => {
   const MYSQL_TABLE = getEnv({ name: 'MYSQL_TABLE' });
-  const query = 'select * from `' + MYSQL_TABLE + '` order by ID, authDateTime';
-
+  const query = 'select * from ' + MYSQL_TABLE + ' order by ID, authDateTime';
   return await connectAndQueryFromMySql(subdomain, query);
 };

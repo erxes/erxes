@@ -11,13 +11,13 @@ const connectAndImportFromMysql = async (subdomain: string) => {
   const YESTERDAY = NOW.add(-1, 'day');
 
   const query =
-    'SELECT * FROM `' +
+    'SELECT * FROM ' +
     MYSQL_TABLE +
-    '` WHERE authDateTime >= "' +
+    " WHERE authDateTime >= '" +
     YESTERDAY.format(format) +
-    '" AND authDateTime <= "' +
+    "' AND authDateTime < '" +
     NOW.format(format) +
-    '" ORDER by ID, authDateTime';
+    "' ORDER by ID, authDateTime";
 
   return await connectAndQueryFromMySql(subdomain, query);
 };

@@ -10,8 +10,12 @@ import {
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { IAbsence, IAbsenceType, IPayDates } from '../../types';
+import { IAbsence, IAbsenceType, IPayDates, ISchedule } from '../../types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import ScheduleConfig from './ScheduleDayToggleConfig';
+import Datetime from '@nateradebaugh/react-datetime';
+import Select from 'react-select-plus';
+import { Input } from '../../styles';
 
 type Props = {
   history?: any;
@@ -33,6 +37,16 @@ function ConfigForm(props: Props) {
   const [attachmentRequired, setAttachRequired] = useState(false);
   const [payPeriod, setPayPeriod] = useState('');
 
+  const [contentType, setContentType] = useState('');
+  const [configDays, setConfigDays] = useState<ISchedule>({
+    Monday: { display: true, shiftStart: undefined, shiftEnd: undefined },
+    Tuesday: { display: true },
+    Wednesday: { display: true },
+    Thursday: { display: true },
+    Friday: { display: true },
+    Saturday: { display: true },
+    Sunday: { display: true }
+  });
   const [holidayDates, setHolidayDates] = useState({
     startingDate: (holiday && holiday.startTime) || null,
     endingDate: (holiday && holiday.endTime) || null
@@ -125,6 +139,8 @@ function ConfigForm(props: Props) {
         return <Form renderContent={renderPayDateContent} />;
       case 'Holiday':
         return <Form renderContent={renderHolidayContent} />;
+      case 'Schedule':
+        return <Form renderContent={renderScheduleContent} />;
       // Absence
       default:
         return <Form renderContent={renderAbsenceContent} />;
@@ -210,7 +226,7 @@ function ConfigForm(props: Props) {
               <DateControl
                 value={payDates.date1}
                 required={false}
-                onChange={val => onConfigDateChange('date1', val)}
+                onChange={(val: any) => onConfigDateChange('date1', val)}
                 placeholder={'Enter date'}
                 dateFormat={'YYYY-MM-DD'}
               />
@@ -218,7 +234,7 @@ function ConfigForm(props: Props) {
                 <DateControl
                   value={payDates.date2}
                   required={false}
-                  onChange={val => onConfigDateChange('date2', val)}
+                  onChange={(val: any) => onConfigDateChange('date2', val)}
                   placeholder={'Enter date'}
                   dateFormat={'YYYY-MM-DD'}
                 />
@@ -238,6 +254,116 @@ function ConfigForm(props: Props) {
           })}
         </FlexCenter>
       </FlexColumn>
+    );
+  };
+
+  const onConfigDayStartTimeChange = (newTime: Date, dayName: string) => {
+    const newConfigDays = configDays;
+    newConfigDays[dayName].shiftStart = newTime;
+    setConfigDays({ ...newConfigDays });
+  };
+
+  const onConfigDayEndTimeChange = (newTime: Date, dayName: string) => {
+    configDays[dayName].shiftEnd = newTime;
+    setConfigDays({ ...configDays });
+  };
+
+  const onContentTypeSelect = contntType => {
+    localStorage.setItem('contentType', JSON.stringify(contntType));
+    const contType = JSON.parse(localStorage.getItem('contentType') || '[]')
+      .value;
+    setContentType(contType);
+  };
+
+  const toggleWeekDays = dayKey => {
+    const oldConfigBoolean = {
+      ...configDays[dayKey],
+      display: !configDays[dayKey].display
+    };
+    const newConfigDays = { ...configDays, [dayKey]: oldConfigBoolean };
+    setConfigDays(newConfigDays);
+  };
+
+  const renderWeekendSettings = () => {
+    return (
+      <>
+        {Object.keys(configDays).map(weekDay => (
+          <ScheduleConfig
+            key={weekDay}
+            weekDay={weekDay}
+            toggleWeekDays={toggleWeekDays}
+          />
+        ))}
+      </>
+    );
+  };
+
+  const renderConfigDays = () => {
+    return Object.keys(configDays).map(configDay => {
+      return (
+        <div
+          key={configDay}
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between'
+          }}
+        >
+          {configDays[configDay].display && (
+            <>
+              {configDay}
+              <div style={{ display: 'flex', flexDirection: 'row' }}>
+                <Datetime
+                  defaultValue={new Date()}
+                  dateFormat={false}
+                  timeFormat="hh:mm a"
+                  onChange={(val: any) =>
+                    onConfigDayStartTimeChange(val, configDay)
+                  }
+                />
+                <Datetime
+                  defaultValue={new Date()}
+                  dateFormat={false}
+                  timeFormat="hh:mm a"
+                  onChange={(val: any) =>
+                    onConfigDayEndTimeChange(val, configDay)
+                  }
+                />
+              </div>
+            </>
+          )}
+        </div>
+      );
+    });
+  };
+
+  const renderScheduleContent = (formProps: IFormProps) => {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <ControlLabel required={true}>
+          <strong>Name</strong>
+        </ControlLabel>
+        <FormControl
+          {...formProps}
+          name="holidayName"
+          defaultValue={holiday && holiday.holidayName}
+          required={true}
+          autoFocus={true}
+        />
+        <ControlLabel>
+          <strong>Set as Weekend</strong>
+        </ControlLabel>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between'
+          }}
+        >
+          {renderWeekendSettings()}
+        </div>
+        {renderConfigDays()}
+      </div>
     );
   };
 
