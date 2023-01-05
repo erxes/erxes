@@ -378,7 +378,7 @@ const carQueries = {
 
     const totalCount = await models.Topups.find(query).countDocuments();
 
-    const list = await paginate(models.Topups.find(query), { page, perPage });
+    const list = await paginate(models.Topups.find(query).sort({createdAt: -1}), { page, perPage });
 
     return { list, totalCount };
   }
