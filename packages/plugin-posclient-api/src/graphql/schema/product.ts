@@ -35,7 +35,7 @@ export const types = `
     createdAt: Date
     tagIds: [String]
     vendorId: String
-    attachmentMore: Attachment
+    attachmentMore: [Attachment]
     supply: String
     productCount: Int
     minimiumCount: Int
