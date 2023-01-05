@@ -33,7 +33,7 @@ export const types = `
     createdAt: Date
     tagIds: [String]
     vendorId: String
-    attachmentMore: Attachment
+    attachmentMore: [Attachment]
     category: PosProductCategory
     remainder: Int
   }
