@@ -85,6 +85,7 @@ export interface ICar extends ICarDoc {
   _id: string;
   owner: IUser;
   category?: ICarCategory;
+  customFieldsData: JSON;
 }
 
 // mutation types
