@@ -579,6 +579,25 @@ const tripFields = `
       totalDistance
       totalDuration
     }
+
+    directions {
+      _id
+      duration
+      placeIds
+      places {
+        _id
+        center
+        code
+        name
+        province
+      }
+      roadCode
+      roadConditions
+      routeCode
+      totalDistance
+
+      googleMapPath
+    }
   }
   routeId
   routeReversed
