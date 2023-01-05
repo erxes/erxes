@@ -43,8 +43,16 @@ const connectAndQueryFromMySql = async (subdomain: string, query: string) => {
 
   const sequelize = new Sequelize(MYSQL_DB, MYSQL_USERNAME, MYSQL_PASSWORD, {
     host: MYSQL_HOST,
+    port: 1433,
     dialect: 'mssql',
-    dialectOptions: { options: { useUTC: false } }
+    dialectOptions: {
+      options: {
+        useUTC: false,
+        cryptoCredentialsDetails: {
+          minVersion: 'TLSv1'
+        }
+      }
+    }
   });
   let returnData;
 
