@@ -41,7 +41,8 @@ const ListContainer = (props: FinalProps) => {
       variables: {
         userId: `${userId}`,
         longitude: long,
-        latitude: lat
+        latitude: lat,
+        deviceType: 'XOS'
       }
     })
       .then(() => {
@@ -56,7 +57,8 @@ const ListContainer = (props: FinalProps) => {
         _id: timeId,
         userId: `${userId}`,
         longitude: long,
-        latitude: lat
+        latitude: lat,
+        deviceType: 'XOS'
       }
     })
       .then(() => {

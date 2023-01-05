@@ -18,7 +18,7 @@ export const CATEGORIES_ALL = gql`
 
 export const CATEGORIES_BY_PARENT_IDS = gql`
   query ForumCategoriesByParentIds($parentId: [ID]) {
-    forumCategories(parentId: $parentId) {
+    forumCategories(parentId: $parentId, sort: { order: 1 }) {
       _id
       name
       thumbnail
@@ -41,6 +41,8 @@ export const CATEGORY_DETAIL = gql`
       postReadRequiresPermissionGroup
       postWriteRequiresPermissionGroup
       commentWriteRequiresPermissionGroup
+      order
+      description
       parent {
         _id
         name
@@ -164,6 +166,8 @@ export const FORUM_POST_DETAIL = gql`
 
       categoryApprovalState
 
+      description
+
       viewCount
 
       upVoteCount
@@ -194,6 +198,14 @@ export const FORUM_POST_DETAIL = gql`
       }
 
       lastPublishedAt
+
+      tagIds
+
+      tags {
+        _id
+        colorCode
+        name
+      }
     }
   }
 `;
@@ -258,6 +270,7 @@ export const PERMISSION_GROUP_QUERY = gql`
         firstName
         lastName
         username
+        type
       }
     }
   }

@@ -1,8 +1,10 @@
 export const translationAndPostCommonFields = `
   title: String
+  subTitle: String
   content: String
   description: String
   thumbnail: String
+  thumbnailAlt: String
   custom: JSON
 `;
 
@@ -66,6 +68,8 @@ export default function ForumPost({ isTagsEnabled }) {
     customIndexed: JSON
 
     tagIds: [ID!]
+
+    wordCount: Int
 
     ${isTagsEnabled ? 'tags: [Tag!]' : ''}
   }

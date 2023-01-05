@@ -14,6 +14,7 @@ import {
   LoginRequiredError
 } from '../../customErrors';
 import { notifyUsersPublishedPost } from './utils';
+import * as strip from 'strip';
 
 export const POST_STATES = ['DRAFT', 'PUBLISHED'] as const;
 
@@ -24,10 +25,12 @@ export type AdminApprovalStates = typeof ADMIN_APPROVAL_STATES[number];
 
 interface CommonPostFields {
   title?: string | null;
+  subTitle?: string | null;
   content?: string | null;
   description?: string | null;
   thumbnail?: string | null;
   custom: any;
+  thumbnailAlt?: string | null;
 }
 
 interface TranslationsFields extends CommonPostFields {
@@ -65,6 +68,8 @@ export interface IPost extends CommonPostFields {
 
   requiredLevel?: string | null;
   isPermissionRequired?: boolean | null;
+
+  wordCount?: number | null;
 }
 
 export type PostDocument = IPost & Document;
@@ -162,14 +167,16 @@ export interface IPostModel extends Model<PostDocument> {
 
 const common = {
   title: { type: String },
+  subTitle: String,
   content: { type: String },
   description: { type: String },
   thumbnail: String,
-  custom: Schema.Types.Mixed
+  custom: Schema.Types.Mixed,
+  thumbnailAlt: String
 };
 
 export const postSchema = new Schema<PostDocument>({
-  categoryId: { type: Types.ObjectId, index: true },
+  categoryId: { type: Types.ObjectId, index: true, sparse: true },
   categoryApprovalState: {
     type: String,
     required: true,
@@ -199,19 +206,20 @@ export const postSchema = new Schema<PostDocument>({
 
   createdAt: { type: Date, required: true, default: () => new Date() },
   createdUserType: { type: String, required: true, enum: USER_TYPES },
-  createdById: String,
-  createdByCpId: { type: String, index: true },
+  createdById: { type: String, index: true, sparse: true },
+  createdByCpId: { type: String, index: true, sparse: true },
 
   updatedAt: { type: Date, required: true, default: () => new Date() },
   updatedUserType: { type: String, required: true, enum: USER_TYPES },
   updatedById: String,
   updatedByCpId: String,
 
-  lastPublishedAt: Date,
+  lastPublishedAt: { type: Date, idnex: true, sparse: true },
 
   customIndexed: Schema.Types.Mixed,
 
-  tagIds: [String]
+  tagIds: [String],
+  wordCount: Number
 });
 // used by client portal front-end
 postSchema.index({ state: 1, categoryApprovalState: 1, categoryId: 1 });
@@ -226,6 +234,12 @@ postSchema.index({
   title: 'text',
   'translations.title': 'text'
 });
+
+const wordCountHtml = (html?: string | null): number => {
+  if (!html) return 0;
+  const text = strip(html || '');
+  return text.trim().split(/\s+/).length;
+};
 
 export const generatePostModel = (
   subdomain: string,
@@ -260,7 +274,8 @@ export const generatePostModel = (
         updatedUserType: USER_TYPES[0],
         updatedById: user._id,
 
-        lastPublishedAt
+        lastPublishedAt,
+        wordCount: wordCountHtml(input.content)
       });
       if (res.state === 'PUBLISHED') {
         await notifyUsersPublishedPost(subdomain, models, res);
@@ -283,17 +298,16 @@ export const generatePostModel = (
         updatedAt: new Date()
       };
 
+      if (update.content) {
+        update.wordCount = wordCountHtml(update.content);
+      }
+
       if (originalState === 'DRAFT' && patch.state === 'PUBLISHED') {
         update.lastPublishedAt = new Date();
         update.viewCount = 0;
       }
 
-      _.assign(post, {
-        ...patch,
-        updatedUserType: USER_TYPES[0],
-        updatedById: user._id,
-        updatedAt: new Date()
-      });
+      _.assign(post, update);
 
       await post.save();
 
@@ -468,7 +482,9 @@ export const generatePostModel = (
         updatedUserType: USER_TYPES[1],
         updatedByCpId: cpUser.userId,
 
-        lastPublishedAt
+        lastPublishedAt,
+
+        wordCount: wordCountHtml(input.content)
       });
 
       if (res.state === 'PUBLISHED') {
@@ -505,6 +521,10 @@ export const generatePostModel = (
         updatedByCpId: cpUser.userId,
         updatedAt: new Date()
       };
+
+      if (update.content) {
+        update.wordCount = wordCountHtml(update.content);
+      }
 
       if (originalState === 'DRAFT' && update.state === 'PUBLISHED') {
         update.lastPublishedAt = new Date();

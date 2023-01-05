@@ -15,6 +15,7 @@ const PermissionGroupUsersList: React.FC<Props> = ({ users, onRemove }) => {
           <tr>
             <th>email</th>
             <th>username</th>
+            <th>type</th>
             <th>First name</th>
             <th>Last name</th>
             <th></th>
@@ -25,6 +26,7 @@ const PermissionGroupUsersList: React.FC<Props> = ({ users, onRemove }) => {
             <tr key={user._id}>
               <td>{user.email}</td>
               <td>{user.username}</td>
+              <td>{user.type}</td>
               <td>{user.firstName}</td>
               <td>{user.lastName}</td>
               <td>

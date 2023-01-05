@@ -15,6 +15,7 @@ export type FollowTagDocument = IFollowTag & Document;
 
 export interface IFollowTagModel extends Model<FollowTagDocument> {
   follow(tagId: string, followerId: string): Promise<boolean>;
+  followMany(tagIds: string[], followerId: string): Promise<boolean>;
   unfollow(tagId: string, followerId: string): Promise<boolean>;
   getFollowerIds(
     tagId: string,
@@ -42,6 +43,22 @@ export const generateFollowTagModel = (
     ): Promise<boolean> {
       const doc = { tagId, followerId };
       await models.FollowTag.updateOne(doc, doc, { upsert: true });
+      return true;
+    }
+    public static async followMany(
+      tagIds: string[],
+      followerId: string
+    ): Promise<boolean> {
+      const docs = tagIds.map(tagId => ({ tagId, followerId }));
+      await models.FollowTag.bulkWrite(
+        docs.map(doc => ({
+          updateOne: {
+            filter: doc,
+            update: doc,
+            upsert: true
+          }
+        }))
+      );
       return true;
     }
     public static async unfollow(

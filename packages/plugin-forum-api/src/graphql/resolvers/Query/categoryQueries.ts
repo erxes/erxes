@@ -10,8 +10,10 @@ const CategoryQueries: IObjectTypeResolver<any, IContext> = {
 
     const fields = ['_id', 'parentId', 'code'];
 
+    const { sort = {}, ...args } = params;
+
     for (const field of fields) {
-      const param = params[field];
+      const param = args[field];
 
       if (param && param.length) {
         query[field] = { $in: param };
@@ -20,14 +22,16 @@ const CategoryQueries: IObjectTypeResolver<any, IContext> = {
 
     for (const field of fields) {
       const paramName = `not_${field}`;
-      const param = params[paramName];
+      const param = args[paramName];
 
       if (!param || !param?.length) continue;
 
       query[field] = { $nin: param };
     }
 
-    return Category.find(query).lean();
+    return Category.find(query)
+      .sort(sort)
+      .lean();
   },
   forumCategory: (_, { _id }, { models: { Category } }) => {
     return Category.findById(_id).lean();

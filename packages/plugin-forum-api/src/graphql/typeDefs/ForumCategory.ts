@@ -8,6 +8,8 @@ export default `
     code: String
     thumbnail: String
 
+    description: String
+
     parentId: ID
 
     parent: ForumCategory
@@ -36,5 +38,7 @@ export default `
     ): [ForumPost!]
 
     permissionGroupCategoryPermits: [ForumPermissionGroupCategoryPermit!]
+
+    order: Float
   }
 `;

@@ -6,6 +6,7 @@ import { COC_LEAD_STATUS_TYPES } from '../constants';
 import {
   fetchSegment,
   sendCoreMessage,
+  sendFormsMessage,
   sendInboxMessage,
   sendSegmentsMessage,
   sendTagsMessage
@@ -556,3 +557,40 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     };
   }
 }
+
+export const customFieldsDataByFieldCode = async (object, subdomain) => {
+  const customFieldsData =
+    object.customFieldsData && object.customFieldsData.toObject
+      ? object.customFieldsData.toObject()
+      : object.customFieldsData || [];
+
+  const fieldIds = customFieldsData.map(data => data.field);
+
+  const fields = await sendFormsMessage({
+    subdomain,
+    action: 'fields.find',
+    data: {
+      query: {
+        _id: { $in: fieldIds }
+      }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const fieldCodesById = {};
+
+  for (const field of fields) {
+    fieldCodesById[field._id] = field.code;
+  }
+
+  const results: any = {};
+
+  for (const data of customFieldsData) {
+    results[fieldCodesById[data.field]] = {
+      ...data
+    };
+  }
+
+  return results;
+};

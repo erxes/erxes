@@ -51,12 +51,27 @@ class Row extends React.Component<Props> {
       ? '-'
       : new Date(timeclock.shiftEnd).toLocaleTimeString();
 
+    const overNightShift =
+      timeclock.shiftEnd &&
+      new Date(timeclock.shiftEnd).toLocaleDateString() !==
+        new Date(timeclock.shiftStart).toLocaleDateString();
+
     return (
       <tr>
-        <td>{timeclock.user ? <NameCard user={timeclock.user} /> : '-'}</td>
+        <td>
+          {timeclock.user && timeclock.user.details
+            ? timeclock.user.details.fullName ||
+              `${timeclock.user.details.firstName} ${timeclock.user.details.lastName}`
+            : timeclock.employeeUserName || timeclock.employeeId}
+        </td>
         <td>{shiftDate}</td>
         <td>{shiftStartTime}</td>
         <td>{shiftEndTime}</td>
+        <td>{overNightShift ? 'O' : ''}</td>
+        <td>
+          {timeclock.branchName ? timeclock.branchName : timeclock.deviceName}
+        </td>
+        <td>{timeclock.deviceType && timeclock.deviceType}</td>
         <td>{this.shiftBtnTrigger(timeclock.shiftActive)}</td>
       </tr>
     );

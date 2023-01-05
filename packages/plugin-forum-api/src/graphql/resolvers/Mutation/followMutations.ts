@@ -15,6 +15,10 @@ const followMutations: IObjectTypeResolver<any, IContext> = {
     if (!cpUser) throw new LoginRequiredError();
     return await FollowTag.follow(tagId, cpUser?.userId);
   },
+  async forumFollowTags(_, { tagIds }, { models: { FollowTag }, cpUser }) {
+    if (!cpUser) throw new LoginRequiredError();
+    return await FollowTag.followMany(tagIds, cpUser?.userId);
+  },
   async forumUnfollowTag(_, { tagId }, { models: { FollowTag }, cpUser }) {
     if (!cpUser) throw new LoginRequiredError();
     return await FollowTag.unfollow(tagId, cpUser?.userId);

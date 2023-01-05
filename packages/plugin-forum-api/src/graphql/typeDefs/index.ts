@@ -91,10 +91,14 @@ export default async function genTypeDefs(serviceDiscovery) {
       forumIsSubscribed: Boolean!
 
       forumFollowerCpUsers(limit: Int, offset: Int): [ClientPortalUser!]
+      forumFollowerCount: Int!
+      forumIsFollowedByCurrentUser: Boolean!
+
       forumFollowingCpUsers(limit: Int, offset: Int): [ClientPortalUser!]
+
       forumPermissionGroups: [ForumPermissionGroup!]
 
-      forumCategoriesAllowedToPost: [ForumCategory!]
+      forumCategoriesAllowedToPost: [ForumCategory!]      
 
       ${isTagsEnabled ? 'forumFollowingTags: [Tag]' : ''}      
     }

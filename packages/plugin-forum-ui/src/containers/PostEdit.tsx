@@ -12,6 +12,8 @@ const PATCH_POST = gql`
     $content: String
     $thumbnail: String
     $title: String
+    $description: String
+    $tagIds: [ID!]
   ) {
     forumPatchPost(
       _id: $id
@@ -19,6 +21,8 @@ const PATCH_POST = gql`
       content: $content
       thumbnail: $thumbnail
       title: $title
+      description: $description
+      tagIds: $tagIds
     ) {
       _id
     }
@@ -56,6 +60,8 @@ const PostEdit: React.FC = () => {
       }
     });
   };
+
+  console.log(data?.forumPost);
 
   return (
     <div>
