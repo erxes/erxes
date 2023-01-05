@@ -118,21 +118,15 @@ function Header({
           <HeaderRight>
             <SupportMenus color={getConfigColor(config, 'headingColor')}>
               {currentUser ? (
-                <span title="Log out" onClick={() => logout()}>
+                <>
+
+                <>
                   <Icon icon="user" /> &nbsp;
                   {currentUser.type === 'company'
                     ? currentUser.companyName
                     : currentUser.firstName}
-                </span>
-              ) : (
-                renderAuth()
-              )}
-            </SupportMenus>
-          </HeaderRight>
+                </>
 
-          <HeaderLeft>
-            {currentUser ? (
-              <>
                 <Popup
                   trigger={
                     <span title="Notifications">
@@ -151,13 +145,24 @@ function Header({
                     config={config}
                   />
                 </Popup>
-                |
+                
                 <span title="Settings" onClick={() => setShowSettings(true)}>
                   <Icon icon="settings" />
                 </span>
-              </>
-            ) : null}
-          </HeaderLeft>
+
+                <span title="Log out" onClick={() => logout()}>
+                  <Icon icon="logout" />
+                </span>
+
+                </>
+                
+              ) : (
+                renderAuth()
+              )}
+              
+            </SupportMenus>
+          </HeaderRight>
+
         </HeaderTop>
         <HeaderTop>
           <HeaderLogo>
