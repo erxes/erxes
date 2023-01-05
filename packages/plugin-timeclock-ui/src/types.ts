@@ -78,6 +78,8 @@ export interface IShiftSchedule {
 export interface ISchedule {
   [key: string]: {
     display?: boolean;
+    overnightShift?: boolean;
+    shiftDate?: Date;
     shiftStart?: Date;
     shiftEnd?: Date;
   };

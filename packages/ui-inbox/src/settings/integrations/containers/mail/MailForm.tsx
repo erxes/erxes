@@ -37,6 +37,7 @@ type Props = {
   closeModal?: () => void;
   closeReply?: () => void;
   callback?: () => void;
+  queryParams?: any;
 };
 
 type FinalProps = {
@@ -254,12 +255,21 @@ export default withProps<Props>(
   compose(
     graphql<Props, any>(gql(queries.emailTemplates), {
       name: 'emailTemplatesQuery',
-      options: () => ({
-        variables: { page: 1 }
+      options: ({ queryParams }) => ({
+        variables: {
+          searchValue: queryParams.searchValue || ''
+        },
+        fetchPolicy: 'network-only'
       })
     }),
     graphql<Props, any>(gql(queries.templateTotalCount), {
-      name: 'emailTemplatesTotalCountQuery'
+      name: 'emailTemplatesTotalCountQuery',
+      options: ({ queryParams }) => ({
+        variables: {
+          searchValue: queryParams.searchValue || ''
+        },
+        fetchPolicy: 'network-only'
+      })
     })
   )(withCurrentUser(MailFormContainer))
 );

@@ -166,6 +166,8 @@ export const FORUM_POST_DETAIL = gql`
 
       categoryApprovalState
 
+      description
+
       viewCount
 
       upVoteCount

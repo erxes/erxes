@@ -19,7 +19,7 @@
     "erxes-telemetry": "^1.0.4",
     "express": "^4.17.2",
     "redis": "^2.8.0",
-    "validator": "^9.0.0",
+    "validator": "^13.5.2",
     "ws": "^8.8.1",
     "xss": "^1.0.6"
   },

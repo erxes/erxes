@@ -11,12 +11,14 @@ const MUTATION = gql`
     $content: String!
     $title: String!
     $thumbnail: String
+    $description: String
   ) {
     forumCreatePost(
       categoryId: $categoryId
       content: $content
       title: $title
       thumbnail: $thumbnail
+      description: $description
     ) {
       _id
     }

@@ -65,12 +65,18 @@ function ConfigList(props: Props) {
     );
   };
 
+  const scheduleConfigTrigger = (
+    <Button id="scheduleBtn" btnStyle="primary" icon="plus-circle">
+      Schedule
+    </Button>
+  );
+
   const absenceConfigTrigger = (
     <Button id="configBtn" btnStyle="primary" icon="plus-circle">
       Requests
     </Button>
   );
-  const scheduleConfigTrigger = (
+  const payPeriodConfigTrigger = (
     <Button
       id="configBtn"
       btnStyle="primary"
@@ -86,6 +92,17 @@ function ConfigList(props: Props) {
     </Button>
   );
 
+  const scheduleConfigContent = ({ closeModal }, absenceType) => {
+    return (
+      <ConfigForm
+        {...props}
+        absenceType={absenceType}
+        configType="Schedule"
+        closeModal={closeModal}
+      />
+    );
+  };
+
   const absenceConfigContent = ({ closeModal }, absenceType) => {
     return (
       <ConfigForm
@@ -97,7 +114,7 @@ function ConfigList(props: Props) {
     );
   };
 
-  const payDateContent = ({ closeModal }, payDate) => {
+  const payPeriodConfigContent = ({ closeModal }, payDate) => {
     return (
       <ConfigForm
         {...props}
@@ -122,19 +139,25 @@ function ConfigList(props: Props) {
   const actionBarRight = (
     <>
       <ModalTrigger
+        size="lg"
+        title={__('Schedule Config')}
+        trigger={scheduleConfigTrigger}
+        content={contentProps => scheduleConfigContent(contentProps, null)}
+      />
+      <ModalTrigger
         title={__('Requests Config')}
         trigger={absenceConfigTrigger}
-        content={contenProps => absenceConfigContent(contenProps, null)}
+        content={contentProps => absenceConfigContent(contentProps, null)}
       />
       <ModalTrigger
         title={__('Schedule Config')}
-        trigger={scheduleConfigTrigger}
-        content={contenProps => payDateContent(contenProps, null)}
+        trigger={payPeriodConfigTrigger}
+        content={contentProps => payPeriodConfigContent(contentProps, null)}
       />
       <ModalTrigger
         title={__('Holiday Config')}
         trigger={holidayConfigTrigger}
-        content={contenProps => holidayConfigContent(contenProps, null)}
+        content={contentProps => holidayConfigContent(contentProps, null)}
       />
     </>
   );
@@ -193,13 +216,13 @@ function ConfigList(props: Props) {
       case 'Holidays':
         return renderHolidaysContent();
       case 'Pay period':
-        return renderpayDateContent();
+        return renderpayPeriodConfigContent();
       default:
         return renderAbsenceTypesContent();
     }
   };
 
-  const renderpayDateContent = () => {
+  const renderpayPeriodConfigContent = () => {
     return (
       <Table>
         <thead>
@@ -217,8 +240,8 @@ function ConfigList(props: Props) {
                 <ModalTrigger
                   title="Edit Pay Dates"
                   trigger={editTrigger}
-                  content={contenProps =>
-                    payDateContent(contenProps, payDates[0])
+                  content={contentProps =>
+                    payPeriodConfigContent(contentProps, payDates[0])
                   }
                 />
                 {removeTrigger(payDates[0]._id, 'payDate')}
