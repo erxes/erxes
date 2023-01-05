@@ -198,6 +198,14 @@ export const FORUM_POST_DETAIL = gql`
       }
 
       lastPublishedAt
+
+      tagIds
+
+      tags {
+        _id
+        colorCode
+        name
+      }
     }
   }
 `;

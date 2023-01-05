@@ -189,6 +189,18 @@ const PostDetail: React.FC = () => {
             </td>
           </tr>
           <tr>
+            <th>Tags: </th>
+            <td>
+              <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                {forumPost.tags?.map(tag => (
+                  <div style={{ margin: 2 }} key={tag._id}>
+                    {tag.name}
+                  </div>
+                ))}
+              </div>
+            </td>
+          </tr>
+          <tr>
             <th>Up vote count:</th>
             <td>{forumPost.upVoteCount}</td>
             <th>Down vote count:</th>
