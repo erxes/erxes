@@ -9,6 +9,7 @@ const PostForm: React.FC<{ post?: any; onSubmit?: (any) => any }> = ({
   const [title, setTitle] = useState(post?.title || '');
   const [thumbnail, setThumbnail] = useState(post?.thumbnail || '');
   const [categoryId, setCategoryId] = useState(post?.categoryId || '');
+  const [description, setDescription] = useState(post?.description || '');
 
   const editorRef = useRef<any>(null);
   const preSubmit = e => {
@@ -19,7 +20,8 @@ const PostForm: React.FC<{ post?: any; onSubmit?: (any) => any }> = ({
         title,
         thumbnail,
         content,
-        categoryId
+        categoryId,
+        description
       });
     }
   };
@@ -48,6 +50,17 @@ const PostForm: React.FC<{ post?: any; onSubmit?: (any) => any }> = ({
         />
 
         <PostContentEditor editorRef={editorRef} data={post?.content} />
+
+        <label htmlFor="forumFormDescription">Description: </label>
+        <textarea
+          id="forumFormDescription"
+          value={description}
+          onChange={e => setDescription(e.target.value)}
+          cols={100}
+          rows={10}
+        />
+
+        <br />
 
         <button>Submit</button>
       </form>
