@@ -7,7 +7,7 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __, getEnv } from '@erxes/ui/src/utils';
 import React from 'react';
-import { IPaymentDocument, ISocialPayConfig } from 'types';
+import { IPaymentDocument, ISocialPayConfig } from '../../types';
 
 import { PAYMENT_KINDS } from '../constants';
 import { SettingsContent } from './styles';
@@ -63,7 +63,12 @@ class SocialPayConfigForm extends React.Component<Props, State> {
     this.setState({ [code]: e.target.value } as any);
   };
 
-  renderItem = (key: string, title: string, description?: string) => {
+  renderItem = (
+    key: string,
+    title: string,
+    description?: string,
+    isPassword?: boolean
+  ) => {
     const value =
       key === 'pushNotification'
         ? `${getEnv().REACT_APP_API_URL}/pl:payment/callback/socialPay`
@@ -78,6 +83,7 @@ class SocialPayConfigForm extends React.Component<Props, State> {
           onChange={this.onChangeConfig.bind(this, key)}
           value={value}
           disabled={key === 'pushNotification'}
+          type={isPassword ? 'password' : ''}
         />
       </FormGroup>
     );
@@ -99,7 +105,7 @@ class SocialPayConfigForm extends React.Component<Props, State> {
         <SettingsContent title={__('General settings')}>
           {this.renderItem('paymentName', 'Name')}
           {this.renderItem('inStoreSPTerminal', 'Terminal')}
-          {this.renderItem('inStoreSPKey', 'Key')}
+          {this.renderItem('inStoreSPKey', 'Key', '', true)}
           {this.renderItem(
             'pushNotification',
             'Notification URL',

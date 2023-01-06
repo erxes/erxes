@@ -31,6 +31,8 @@ export interface ICar {
   tagIds: string[];
   mergedIds: string[];
   attachment?: any;
+  customerIds?: string[];
+  companyIds?: string[];
 }
 
 export interface ICarDocument extends ICar, Document {
@@ -95,7 +97,11 @@ export const carSchema = schemaHooksWrapper(
       index: true
     }),
 
-    colorCode: field({ type: String, label: 'Color code', optional: true }),
+    colorCode: field({
+      type: String,
+      label: 'Color code',
+      optional: true
+    }),
 
     categoryId: field({ type: String, label: 'Category', index: true }),
 
@@ -152,7 +158,11 @@ export const carSchema = schemaHooksWrapper(
       index: true
     }),
 
-    description: field({ type: String, optional: true, label: 'Description' }),
+    description: field({
+      type: String,
+      optional: true,
+      label: 'Description'
+    }),
 
     tagIds: field({
       type: [String],
@@ -169,7 +179,9 @@ export const carSchema = schemaHooksWrapper(
 
     searchText: field({ type: String, optional: true, index: true }),
 
-    attachment: field({ type: attachmentSchema })
+    attachment: field({ type: attachmentSchema }),
+    customerIds: field({ type: [String], optional: true }),
+    companyIds: field({ type: [String], optional: true })
   }),
   'erxes_cars'
 );

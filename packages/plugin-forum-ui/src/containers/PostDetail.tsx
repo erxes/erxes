@@ -127,7 +127,11 @@ const PostDetail: React.FC = () => {
           </tr>
           <tr>
             <th>Thumbnail: </th>
-            <td>{forumPost.thumbnail && <img src={forumPost.thumbnail} />}</td>
+            <td>
+              {forumPost.thumbnail && (
+                <img src={forumPost.thumbnail} style={{ maxHeight: 200 }} />
+              )}
+            </td>
             <th>Thumbnail url:</th>
             <td>{forumPost.thumbnail}</td>
           </tr>
@@ -154,19 +158,6 @@ const PostDetail: React.FC = () => {
                 typeKey: 'updatedUserType',
                 crmKey: 'updatedBy',
                 cpKey: 'updatedByCp'
-              })}
-            </td>
-          </tr>
-          <tr>
-            <th>State changed at: </th>
-            <td>{forumPost.stateChangedAt}</td>
-            <th>State changed by: </th>
-            <td>
-              {postUsername({
-                post: forumPost,
-                typeKey: 'stateChangedUserType',
-                crmKey: 'stateChangedBy',
-                cpKey: 'stateChangedByCp'
               })}
             </td>
           </tr>
@@ -203,7 +194,7 @@ const PostDetail: React.FC = () => {
         <button onClick={onClickDelete}>Delete</button>
       </div>
       <hr />
-      {forumPost.category.postsReqCrmApproval && (
+      {forumPost.category?.postsReqCrmApproval && (
         <>
           <div>
             <h5>Category approval: {forumPost.categoryApprovalState}</h5>

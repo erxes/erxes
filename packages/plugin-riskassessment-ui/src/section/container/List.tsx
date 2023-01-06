@@ -6,7 +6,7 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import {
-  ICardRiskConfirmitiesQueryResponse,
+  ICardRiskConformitiesQueryResponse,
   IRiskSubmissionsQueryResponse
 } from '../../common/types';
 import SectionComponent from '../component/List';
@@ -18,7 +18,7 @@ type Props = {
 };
 
 type FinalProps = {
-  lists: ICardRiskConfirmitiesQueryResponse;
+  lists: ICardRiskConformitiesQueryResponse;
   submissions: IRiskSubmissionsQueryResponse;
 } & Props;
 
@@ -38,9 +38,9 @@ class RiskAssessmentSection extends React.Component<FinalProps> {
       ...this.props,
       cardId: this.props.mainTypeId,
       cardType: this.props.mainType,
-      list: lists?.riskConfirmities || [],
+      conformity: lists?.riskConformity,
       refetch: lists?.refetch,
-      submissions: submissions.riskConfirmitySubmissions,
+      submissions: submissions.riskConformitySubmissions,
       refetchSubmissions: submissions.refetch
     };
 
@@ -50,14 +50,14 @@ class RiskAssessmentSection extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.riskConfirmities), {
+    graphql<Props>(gql(queries.riskConformity), {
       name: 'lists',
       skip: ({ mainTypeId }) => !mainTypeId,
       options: ({ mainTypeId, mainType }) => ({
         variables: { cardId: mainTypeId, cardType: mainType }
       })
     }),
-    graphql<Props>(gql(queries.riskConfirmitySubmissions), {
+    graphql<Props>(gql(queries.riskConformitySubmissions), {
       name: 'submissions',
       skip: ({ mainTypeId }) => !mainTypeId,
       options: ({ mainTypeId, mainType }) => ({

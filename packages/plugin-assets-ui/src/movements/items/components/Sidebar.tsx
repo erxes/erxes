@@ -39,6 +39,7 @@ type State = {
   companyId?: string;
   customerId?: string;
   assetId?: string;
+  parentId?: string;
   createdAtFrom?: string;
   createdAtTo?: string;
 };
@@ -64,6 +65,7 @@ class Sidebar extends React.Component<Props, State> {
       companyId,
       customerId,
       assetId,
+      parentId,
       createdAtFrom,
       createdAtTo
     } = this.state;
@@ -214,6 +216,20 @@ class Sidebar extends React.Component<Props, State> {
               initialValue={assetId}
               onSelect={handleSelect}
               customOption={{ value: '', label: 'Choose Asset' }}
+            />
+          </FormGroup>
+          <FormGroup
+            label="Asset Parent"
+            field="parentId"
+            clearable={!!parentId}
+          >
+            <SelectWithAssets
+              label="Choose Parent"
+              name="parentId"
+              multi={false}
+              initialValue={parentId}
+              onSelect={handleSelect}
+              customOption={{ value: '*', label: 'Without Parent' }}
             />
           </FormGroup>
           <FormGroup

@@ -50,12 +50,16 @@ var command = async () => {
       _id: endDir.placeIds[endDir.placeIds.length - 1]
     });
 
-    const searchText = `${startPlace.name} ${endPlace.name}`;
-    const name = `${startPlace.name} - ${endPlace.name}`;
+    const placeName = `${startPlace.province}:${startPlace.name}`
+    const secondaryPlaceName = `${endPlace.province}:${endPlace.name}`
+
+    const searchText = `${placeName} ${secondaryPlaceName}`;
+    const name = `${placeName} - ${secondaryPlaceName}`;
+
 
     await Routes.updateOne(
       { _id: route._id },
-      { $set: { searchText, name } },
+      { $set: { searchText, name, placeName, secondaryPlaceName } },
     );
 
     await Routes.updateOne(

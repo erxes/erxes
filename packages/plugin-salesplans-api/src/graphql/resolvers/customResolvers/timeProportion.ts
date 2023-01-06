@@ -7,11 +7,11 @@ export default {
     return models.TimeProportions.findOne({ _id });
   },
 
-  async branch(
-    timeProp: ITimeProportion,
-    _,
-    { dataLoaders, subdomain }: IContext
-  ) {
+  async branch(timeProp: ITimeProportion, _, { subdomain }: IContext) {
+    if (!timeProp.branchId) {
+      return;
+    }
+
     return await sendCoreMessage({
       subdomain,
       action: 'branches.findOne',
@@ -20,11 +20,11 @@ export default {
     });
   },
 
-  async department(
-    timeProp: ITimeProportion,
-    _,
-    { dataLoaders, subdomain }: IContext
-  ) {
+  async department(timeProp: ITimeProportion, _, { subdomain }: IContext) {
+    if (!timeProp.departmentId) {
+      return;
+    }
+
     return await sendCoreMessage({
       subdomain,
       action: 'departments.findOne',
@@ -33,11 +33,11 @@ export default {
     });
   },
 
-  async productCategory(
-    timeProp: ITimeProportion,
-    _,
-    { dataLoaders, subdomain }: IContext
-  ) {
+  async productCategory(timeProp: ITimeProportion, _, { subdomain }: IContext) {
+    if (!timeProp.productCategoryId) {
+      return;
+    }
+
     return await sendProductsMessage({
       subdomain,
       action: 'categories.findOne',

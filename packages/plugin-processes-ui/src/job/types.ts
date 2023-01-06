@@ -37,10 +37,6 @@ export type JobReferDetailQueryResponse = {
   loading: boolean;
 };
 
-export type JobRefersAllQueryResponse = {
-  jobRefersAll: IJobRefer[];
-} & QueryResponse;
-
 export type JobRefersQueryResponse = {
   jobRefers: IJobRefer[];
   refetch: (variables?: {

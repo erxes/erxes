@@ -404,7 +404,7 @@ class ProductForm extends React.Component<Props, State> {
       const { tax, discount } = this.state;
       const currency = currencies ? currencies[0] : '';
 
-      const currentProductIds = productsData.map(p => p.productId);
+      const currentProductIds = productsData.map(p => p._id);
 
       for (const product of products) {
         if (currentProductIds.includes(product._id)) {

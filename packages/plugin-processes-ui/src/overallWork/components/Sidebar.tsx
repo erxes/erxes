@@ -59,7 +59,7 @@ class Sidebar extends React.Component<Props, State> {
           'endDate',
           'jobReferId',
           'jobCategoryId',
-          'productId',
+          'productIds',
           'productCategoryId',
           'inBranchId',
           'inDepartmentId',
@@ -81,6 +81,7 @@ class Sidebar extends React.Component<Props, State> {
 
   setFilter = (name, value) => {
     const { filterParams } = this.state;
+    console.log(name, value);
     this.setState({ filterParams: { ...filterParams, [name]: value } });
   };
 
@@ -175,14 +176,14 @@ class Sidebar extends React.Component<Props, State> {
           <ControlLabel>Product</ControlLabel>
           <SelectProducts
             label="Choose product"
-            name="productId"
-            initialValue={filterParams.productId || ''}
+            name="productIds"
+            initialValue={filterParams.productIds || []}
             customOption={{
               value: '',
               label: '...Clear product filter'
             }}
-            onSelect={productId => this.setFilter('productId', productId)}
-            multi={false}
+            onSelect={productIds => this.setFilter('productIds', productIds)}
+            multi={true}
           />
         </FormGroup>
       </>

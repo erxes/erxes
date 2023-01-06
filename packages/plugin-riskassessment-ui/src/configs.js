@@ -14,7 +14,7 @@ module.exports = {
   menus: [
     {
       text: 'Risk Assessments',
-      to: '/riskassessments',
+      to: '/settings/risk-assessments',
       image: '/images/icons/erxes-18.svg',
       location: 'settings',
       scope: 'riskassessment',

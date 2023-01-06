@@ -18,14 +18,25 @@ export const PAYMENTCONFIGS = [
     createModal: 'socialPay',
     createUrl: '/settings/payments/createSocialPay',
     category: 'Payment method'
+  },
+  {
+    name: 'Mon pay',
+    description: 'Monpay payment method',
+    isAvailable: true,
+    kind: 'monpay',
+    logo: '/images/payments/monpay.png',
+    createModal: 'monPay',
+    createUrl: '/settings/payments/createMonPay',
+    category: 'Payment method'
   }
 ];
 
 export const PAYMENT_KINDS = {
   QPAY: 'qpay',
   SOCIALPAY: 'socialPay',
+  MONPAY: 'monpay',
 
-  ALL: ['qpay', 'socialPay']
+  ALL: ['qpay', 'socialPay', 'monpay']
 };
 
 export const PAYMENT_STATUS = {

@@ -4,10 +4,11 @@ import * as mongoose from 'mongoose';
 
 import {
   IRiskAssessmentCategoryDocument,
+  IRiskAssessmentsConfigDocument,
   IRiskAssessmentDocument
 } from './models/definitions/riskassessment';
 import {
-  IRiskConfirmityDocument,
+  IRiskConformityDocument,
   IRiskFormSubmissionDocument
 } from './models/definitions/confimity';
 import {
@@ -22,13 +23,18 @@ import {
   IRiskAssessmentCategoryModel,
   loadAssessmentCategory
 } from './models/Category';
-import { IRiskConfirmityModel, loadRiskConfirmity } from './models/Confirmity';
+import { IRiskConformityModel, loadRiskConformity } from './models/Confirmity';
+import {
+  IRiskAssessmentsConfigModel,
+  loadRiskAssessmentConfig
+} from './models/Configs';
 
 export interface IModels {
   RiskAssessment: IRiskAssessmentModel;
   RiskAssessmentCategory: IRiskAssessmentCategoryModel;
-  RiskConfimity: IRiskConfirmityModel;
+  RiskConformity: IRiskConformityModel;
   RiksFormSubmissions: IRiskFormSubmissionModel;
+  RiskAssessmentConfigs: IRiskAssessmentsConfigModel;
 }
 
 export interface IContext extends IMainContext {
@@ -51,14 +57,18 @@ export const loadClasses = (
     IRiskAssessmentCategoryDocument,
     IRiskAssessmentCategoryModel
   >('risk_assessment_category', loadAssessmentCategory(models, subdomain));
-  models.RiskConfimity = db.model<
-    IRiskConfirmityDocument,
-    IRiskConfirmityModel
-  >('risk_assessment_confirmity', loadRiskConfirmity(models, subdomain));
+  models.RiskConformity = db.model<
+    IRiskConformityDocument,
+    IRiskConformityModel
+  >('risk_assessment_conformity', loadRiskConformity(models, subdomain));
   models.RiksFormSubmissions = db.model<
     IRiskFormSubmissionDocument,
     IRiskFormSubmissionModel
   >('risk_form_submissions', loadRiskFormSubmissions(models, subdomain));
+  models.RiskAssessmentConfigs = db.model<
+    IRiskAssessmentsConfigDocument,
+    IRiskAssessmentsConfigModel
+  >('risk_assessments_configs', loadRiskAssessmentConfig(models, subdomain));
 
   return models;
 };

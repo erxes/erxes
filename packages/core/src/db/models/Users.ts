@@ -8,7 +8,7 @@ import * as jwt from 'jsonwebtoken';
 import { Model } from 'mongoose';
 import * as sha256 from 'sha256';
 import { IModels } from '../../connectionResolver';
-import { userActionsMap } from '../../data/permissions/utils';
+import { userActionsMap } from '@erxes/api-utils/src/core';
 import { set } from '../../inmemoryStorage';
 import {
   IDetail,
@@ -343,7 +343,9 @@ export const loadUserClass = (models: IModels) => {
             registrationToken: undefined,
             username,
             details: {
-              fullName
+              fullName,
+              firstName: (fullName || '').split(' ')[0],
+              lastName: (fullName || '').split(' ')[1] || ''
             }
           }
         }
@@ -697,7 +699,20 @@ export const loadUserClass = (models: IModels) => {
       await this.generateUserCodeField();
 
       // put permission map in redis, so that other services can use it
-      const actionMap = await userActionsMap(models, user);
+      const userPermissions = await models.Permissions.find({
+        userId: user._id
+      });
+
+      const groupPermissions = await models.Permissions.find({
+        groupId: { $in: user.groupIds }
+      });
+
+      const actionMap = await userActionsMap(
+        userPermissions,
+        groupPermissions,
+        user
+      );
+
       set(`user_permissions_${user._id}`, JSON.stringify(actionMap));
 
       return {

@@ -8,6 +8,8 @@ import FormHistoryComponent from '../components/FormHistory';
 
 type Props = {
   riskAssessmentId: string;
+  cardId: string;
+  cardType: string;
 };
 
 type FinalProps = {
@@ -42,8 +44,8 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.assessmentHistory), {
       name: 'riskAssessmentHistory',
-      options: ({ riskAssessmentId }) => ({
-        variables: { riskAssessmentId }
+      options: props => ({
+        variables: { ...props }
       })
     })
   )(FormHistory)

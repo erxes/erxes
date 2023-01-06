@@ -11,6 +11,8 @@ export const types = `
     durationType: String,
     needProducts: JSON,
     resultProducts: JSON,
+    needProductsData: JSON,
+    resultProductsData: JSON,
   }
 
   input JobProductsInput {
@@ -37,8 +39,6 @@ export const queries = `
   jobRefers(page: Int, perPage: Int, ${qryParams}): [JobRefer]
   jobReferTotalCount(${qryParams}): Int
   jobReferDetail(_id: String!): JobRefer
-
-  jobRefersAll: [JobRefer]
 `;
 
 const jobReferParams = `

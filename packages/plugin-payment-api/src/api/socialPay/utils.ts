@@ -1,5 +1,6 @@
 import { sendRequest } from '@erxes/api-utils/src';
 import * as crypto from 'crypto';
+import * as QRCode from 'qrcode';
 
 import { IModels } from '../../connectionResolver';
 import {
@@ -103,7 +104,9 @@ export const createInvoice = async (
     }
 
     if (body.response.desc.includes('socialpay-payment')) {
-      return { text: body.response.desc };
+      const qrData = await QRCode.toDataURL(body.response.desc);
+
+      return { qrData };
     } else {
       return { text: 'Нэхэмжлэхийг SocialPay-руу илгээлээ.' };
     }

@@ -14,3 +14,15 @@ export interface ISocialPayInvoice {
   terminal: string;
   phone?: string;
 }
+
+export interface IMonpayInvoice {
+  amount: number;
+  generateUuid: boolean;
+  displayName: string;
+  callbackUrl: string;
+}
+
+export interface IMonpayConfig {
+  username: string;
+  accountId: string;
+}

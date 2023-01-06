@@ -162,13 +162,38 @@ const dayPlansMutations = {
       user
     );
   },
+
   dayPlansRemove: async (
     _root: any,
     { _ids }: { _ids: string[] },
-    { models }: IContext
+    { models, subdomain }: IContext
   ) => {
-    return await models.DayPlans.dayPlansRemove(_ids);
+    const dayPlans = await models.DayPlans.find({ _id: { $in: _ids } }).lean();
+    const newDayPlans = dayPlans.filter(dp => dp.statas === DAYPLAN_STATUS.NEW);
+    const otherDayPlans = dayPlans.filter(
+      dp => dp.statas !== DAYPLAN_STATUS.NEW
+    );
+    const removeResponse = await sendProcessesMessage({
+      subdomain,
+      action: 'removeWorks',
+      data: { dayPlans: otherDayPlans },
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    const removeIds = [
+      ...removeResponse.removedIds,
+      ...newDayPlans.map(ndp => ndp._id)
+    ];
+    const result = await models.DayPlans.dayPlansRemove(removeIds);
+    const notRemovedIds = _ids.filter(id => !removeIds.includes(id));
+    if (notRemovedIds.length) {
+      throw new Error(`count of not removed: ${notRemovedIds.length}`);
+    }
+
+    return result;
   },
+
   dayPlansConfirm: async (
     _root: any,
     doc: IDayPlanConfirmParams,
@@ -212,6 +237,7 @@ const dayPlansMutations = {
       { _id: { $in: dayPlans.map(d => d._id) } },
       { $set: { status: DAYPLAN_STATUS.SENT } }
     );
+
     return await models.DayPlans.find(filter).lean();
   }
 };

@@ -36,6 +36,7 @@ export type IPos = {
   createdAt: Date;
   productDetails?: string[];
   token: string;
+  erxesAppToken: string;
   adminIds: [string];
   cashierIds: [string];
   paymentIds: [string];

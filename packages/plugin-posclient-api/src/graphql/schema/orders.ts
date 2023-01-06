@@ -122,6 +122,7 @@ export const types = `
     isPackage: Boolean
     isTake: Boolean
     status: String
+    manufacturedDate: String
   }
 
   input OrderPaymentInput {

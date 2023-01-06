@@ -10,6 +10,8 @@ export const types = `
     _id: String!
     name: String
     code: String
+    placeName: String
+    secondaryPlaceName: String
     directionIds: [String]
     directions: [Direction]
     summary : Summary

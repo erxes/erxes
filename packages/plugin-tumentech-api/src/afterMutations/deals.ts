@@ -56,7 +56,7 @@ export const afterDealCreate = async (subdomain, params) => {
     return;
   }
 
-  if (stage.code && stage.code === 'newOrder') {
+  if ((stage.code && stage.code === 'newOrder') || stage.code === 'dealsNew') {
     const drivers = await sendContactsMessage({
       subdomain,
       action: 'customers.find',
@@ -116,7 +116,10 @@ export const afterDealUpdate = async (subdomain, params) => {
   await notifyUnloadConfirmationFilesAttached(subdomain, deal, oldDeal);
 
   if (deal.stageId !== oldDeal.stageId) {
-    if (stage.code && stage.code === 'negotiationAccepted') {
+    if (
+      (stage.code && stage.code === 'negotiationAccepted') ||
+      stage.code === 'dealsNegotiated'
+    ) {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.WEB_CP_ID || '',
@@ -130,6 +133,22 @@ export const afterDealUpdate = async (subdomain, params) => {
     }
 
     if (stage.code && stage.code === 'advancePaid') {
+      await notifyDealRelatedUsers(
+        subdomain,
+        process.env.MOBILE_CP_ID || '',
+        deal,
+        {
+          title: 'Урьдчилгаа төлөгдсөн байна',
+          content: `Таны ${deal.name} ажлын урьдчилгаа төлбөр төлөгдлөө!`,
+          isMobile: true
+        }
+      );
+    }
+
+    if (
+      (stage.code && stage.code === 'start') ||
+      stage.code === 'dispatchStarted'
+    ) {
       const trip = await models.Trips.findOne({ dealId: deal._id });
       const dealRoute = await models.DealRoutes.findOne({ dealId: deal._id });
       const participant = await models.Participants.findOne({
@@ -137,37 +156,40 @@ export const afterDealUpdate = async (subdomain, params) => {
         status: 'won'
       });
 
-      if (!trip && dealRoute && participant) {
-        const route = (await models.Routes.findOne({
-          _id: dealRoute.routeId
-        })) || { directionIds: [] };
+      let estimatedCloseDate: any = undefined;
 
-        const result: any = await models.Directions.aggregate([
-          { $match: { _id: { $in: route.directionIds } } },
-          {
-            $group: {
-              _id: null,
-              duration: {
-                $sum: '$duration'
+      if (!trip && participant) {
+        if (dealRoute) {
+          const route = (await models.Routes.findOne({
+            _id: dealRoute.routeId
+          })) || { directionIds: [] };
+
+          const result: any = await models.Directions.aggregate([
+            { $match: { _id: { $in: route.directionIds } } },
+            {
+              $group: {
+                _id: null,
+                duration: {
+                  $sum: '$duration'
+                }
+              }
+            },
+            {
+              $project: {
+                duration: '$duration'
               }
             }
-          },
-          {
-            $project: {
-              duration: '$duration'
-            }
+          ]);
+
+          if (!result || !result.length) {
+            return null;
           }
-        ]);
 
-        if (!result || !result.length) {
-          return null;
+          const obj: any = result[0];
+          estimatedCloseDate = moment(new Date())
+            .add(obj.duration, 'minutes')
+            .toDate();
         }
-
-        const obj: any = result[0];
-
-        const estimatedCloseDate = moment(new Date())
-          .add(obj.duration, 'minutes')
-          .toDate();
 
         const conformities = await sendCoreMessage({
           subdomain,
@@ -181,34 +203,19 @@ export const afterDealUpdate = async (subdomain, params) => {
           defaultValue: []
         });
 
-        if (dealRoute) {
-          await models.Trips.create({
-            dealIds: [deal._id],
-            driverId: participant.driverId,
-            carIds: participant.carIds,
-            routeId: dealRoute.routeId,
-            status: 'open',
-            routeReversed: dealRoute.reversed,
-            startedDate: new Date(),
-            customerIds: conformities.map(c => c.relTypeId),
-            estimatedCloseDate
-          });
-        }
+        await models.Trips.create({
+          dealIds: [deal._id],
+          driverId: participant.driverId,
+          carIds: participant.carIds,
+          routeId: dealRoute && dealRoute.routeId,
+          status: 'open',
+          routeReversed: dealRoute && dealRoute.reversed,
+          startedDate: new Date(),
+          customerIds: conformities.map(c => c.relTypeId),
+          estimatedCloseDate
+        });
       }
 
-      await notifyDealRelatedUsers(
-        subdomain,
-        process.env.MOBILE_CP_ID || '',
-        deal,
-        {
-          title: 'Урьдчилгаа төлөгдсөн байна',
-          content: `Таны ${deal.name} ажлын урьдчилгаа төлбөр төлөгдлөө!`,
-          isMobile: true
-        }
-      );
-    }
-
-    if (stage.code && stage.code === 'start') {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.WEB_CP_ID || '',
@@ -221,7 +228,10 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (stage.code && stage.code === 'ready') {
+    if (
+      (stage.code && stage.code === 'ready') ||
+      stage.code === 'dispatchReady'
+    ) {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.WEB_CP_ID || '',
@@ -234,7 +244,10 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (stage.code && stage.code === 'loadAccepted') {
+    if (
+      (stage.code && stage.code === 'loadAccepted') ||
+      stage.code === 'dispatchLoadAccepted'
+    ) {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.MOBILE_CP_ID || '',
@@ -247,7 +260,10 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (stage.code && stage.code === 'gone') {
+    if (
+      (stage.code && stage.code === 'gone') ||
+      stage.code === 'dispatchOngoing'
+    ) {
       await models.Trips.updateOne(
         { dealIds: deal._id },
         { $set: { status: 'ongoing' } }
@@ -265,7 +281,10 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (stage.code && stage.code === 'break') {
+    if (
+      (stage.code && stage.code === 'break') ||
+      stage.code === 'dispatchDelayed'
+    ) {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.WEB_CP_ID || '',
@@ -278,7 +297,10 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (stage.code && stage.code === 'discoveredBreak') {
+    if (
+      (stage.code && stage.code === 'discoveredBreak') ||
+      stage.code === 'dispatchSolved'
+    ) {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.WEB_CP_ID || '',
@@ -291,7 +313,10 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (stage.code && stage.code === 'end') {
+    if (
+      (stage.code && stage.code === 'end') ||
+      stage.code === 'dispatchArrived'
+    ) {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.WEB_CP_ID || '',
@@ -304,7 +329,10 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (stage.code && stage.code === 'unloadAccepted') {
+    if (
+      (stage.code && stage.code === 'unloadAccepted') ||
+      stage.code === 'dispatchUnloadConfirmed'
+    ) {
       await models.Trips.updateOne(
         { dealIds: deal._id },
         { $set: { status: 'closed' } }
@@ -321,7 +349,10 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (stage.code && stage.code === 'complete') {
+    if (
+      (stage.code && stage.code === 'complete') ||
+      stage.code === 'dispatchSuccess'
+    ) {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.MOBILE_CP_ID || '',

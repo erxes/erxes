@@ -141,7 +141,7 @@ export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
         });
         const riskAssessmentIds = riskAssessments.map(p => p._id);
         await models.RiskAssessment.deleteMany({ categoryId: _id });
-        await models.RiskConfimity.deleteMany({
+        await models.RiskConformity.deleteMany({
           riskAssessmentId: { $in: riskAssessmentIds }
         });
         await sendFormsMessage({

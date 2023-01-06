@@ -539,6 +539,18 @@ class GeneralStep extends React.Component<Props, State> {
             })}
 
             <Block>
+              <FormGroup>
+                <ControlLabel>Erxes App Token:</ControlLabel>
+                <FormControl
+                  id="erxesAppToken"
+                  type="text"
+                  value={pos.erxesAppToken || ''}
+                  onChange={this.onChangeInput}
+                />
+              </FormGroup>
+            </Block>
+
+            <Block>
               <BlockRow>
                 <FormGroup>
                   <ControlLabel>Is Online</ControlLabel>

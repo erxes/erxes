@@ -34,7 +34,14 @@ class Row extends React.Component<Props> {
     };
 
     const renderPluginItemName = data => {
-      const keys = ['title', 'name', 'text', 'content', 'description'];
+      const keys = [
+        'title',
+        'name',
+        'text',
+        'content',
+        'description',
+        'number'
+      ];
 
       for (const key of keys) {
         if (data[key]) {
@@ -58,7 +65,7 @@ class Row extends React.Component<Props> {
       pluginData
     } = invoice;
 
-    let labelStyle = 'error';
+    let labelStyle = 'danger';
 
     switch (status) {
       case 'paid':
@@ -68,7 +75,7 @@ class Row extends React.Component<Props> {
         labelStyle = 'warning';
         break;
       default:
-        labelStyle = 'error';
+        labelStyle = 'danger';
     }
 
     return (

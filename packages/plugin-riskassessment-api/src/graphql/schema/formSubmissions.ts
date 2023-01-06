@@ -26,7 +26,7 @@ export const types = `
     }
 `;
 export const queries = `
-    riskFormSubmitHistory (riskAssessmentId:String):RiskFormSubmission
+    riskFormSubmitHistory (cardId:String,cardType:String,riskAssessmentId:String):RiskFormSubmission
 `;
 export const mutations = `
     riskFormSaveSubmissions(${commonFormSubmissionsTypes}):JSON

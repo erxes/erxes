@@ -47,12 +47,26 @@ export const types = contactsAvailable => `
     attachmentMore: [Attachment]
     vendorId: String
     assetCount: Int
+    knowledgeData:JSON
 
     category: AssetCategory
     parent:Asset
     isRoot: Boolean
     childAssetCount:Int
     ${contactsAvailable ? 'vendor: Company' : ''}
+    }
+
+    input KnowledgeContent {
+      _id: String,
+      title: String,
+      content: String
+    }
+
+    input KnowledgeType {
+        _id: String,
+        name:String,
+        description: String,
+        contents:[KnowledgeContent]
     }
 
 `;
@@ -90,5 +104,8 @@ export const mutations = `
     assetsMerge(assetIds: [String], assetFields: JSON): Asset
     assetCategoryAdd(${assetCategoryParams}): AssetCategory
     assetCategoryEdit(_id: String!, ${assetCategoryParams}): AssetCategory
-    assetCategoryRemove(_id: String!): JSON
+    assetCategoryRemove(_id: String!): JSON,
+    addAssetKnowledge(assetId:String,knowledgeData:KnowledgeType):JSON
+    updateAssetKnowledge(assetId:String,knowledgeData:KnowledgeType):JSON
+    removeAssetKnowledge(assetId:String,knowledgeId:String):JSON
 `;

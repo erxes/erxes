@@ -1,6 +1,5 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { Router } from 'express';
-import * as QRCode from 'qrcode';
 
 import { PAYMENT_KINDS } from './constants';
 import { generateModels } from './connectionResolver';
@@ -14,9 +13,13 @@ router.post('/checkInvoice', async (req, res) => {
   const status = await redisUtils.getInvoiceStatus(invoiceId);
 
   if (status === 'paid') {
+    const subdomain = getSubdomain(req);
+    const models = await generateModels(subdomain);
+    const invoice = await models.Invoices.getInvoice({ _id: invoiceId });
+
     redisUtils.removeInvoice(invoiceId);
 
-    res.clearCookie('paymentData');
+    res.clearCookie(`paymentData_${invoice.contentTypeId}`);
   }
 
   return res.json({ status });
@@ -38,11 +41,13 @@ router.get('/gateway', async (req, res) => {
     filter._id = { $in: data.paymentIds };
   }
 
-  const payments = await models.Payments.find(filter).sort({
-    type: 1
-  });
+  const payments = await models.Payments.find(filter)
+    .sort({
+      type: 1
+    })
+    .lean();
 
-  let invoice = await models.Invoices.findOne({ _id: data._id });
+  let invoice = await models.Invoices.findOne({ _id: data._id }).lean();
 
   const prefix = subdomain === 'localhost' ? '' : `/gateway`;
   const domain = process.env.domain || 'http://localhost:3000';
@@ -86,21 +91,23 @@ router.post('/gateway', async (req, res) => {
     filter._id = { $in: data.paymentIds };
   }
 
-  const payments = await models.Payments.find(filter).sort({
-    type: 1
-  });
+  const payments = await models.Payments.find(filter)
+    .sort({
+      type: 1
+    })
+    .lean();
 
   const selectedPaymentId = req.body.selectedPaymentId;
 
   const paymentsModified = payments.map(p => {
     if (p._id === selectedPaymentId) {
       return {
-        ...(p.toJSON() as any),
+        ...p,
         selected: true
       };
     }
 
-    return p.toJSON();
+    return p;
   });
 
   let invoice = await models.Invoices.findOne({ _id: data._id });
@@ -108,7 +115,7 @@ router.post('/gateway', async (req, res) => {
   if (invoice && invoice.status === 'paid') {
     return res.render('index', {
       title: 'Payment gateway',
-      payments: payments,
+      payments: paymentsModified,
       invoiceData: data,
       invoice,
       prefix,
@@ -134,19 +141,11 @@ router.post('/gateway', async (req, res) => {
   }
 
   try {
-    const selectedPayment = paymentsModified.find(p => p.selected);
-
-    if (selectedPayment.kind === PAYMENT_KINDS.SOCIAL_PAY && !invoice.phone) {
-      invoice.apiResponse.socialPayQrCode = await QRCode.toDataURL(
-        invoice.apiResponse.text
-      );
-    }
-
     redisUtils.updateInvoiceStatus(invoice._id, 'pending');
 
     res.render('index', {
       title: 'Payment gateway',
-      payments,
+      payments: paymentsModified,
       invoiceData: data,
       invoice,
       prefix,
@@ -155,7 +154,7 @@ router.post('/gateway', async (req, res) => {
   } catch (e) {
     res.render('index', {
       title: 'Payment gateway',
-      payments,
+      payments: paymentsModified,
       invoiceData: data,
       error: e.message,
       prefix,

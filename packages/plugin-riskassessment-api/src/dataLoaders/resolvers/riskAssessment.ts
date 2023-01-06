@@ -6,15 +6,9 @@ export default {
     return models.RiskAssessment.findOne({ _id });
   },
 
-  async category(
-    riskAssessment: IRiskAssessmentDocument,
-    {},
-    { dataLoaders }: IContext
-  ) {
+  async category(riskAssessment: IRiskAssessmentDocument, {}, { dataLoaders }: IContext) {
     return (
-      (riskAssessment.categoryId &&
-        dataLoaders.categories.load(riskAssessment.categoryId)) ||
-      null
+      (riskAssessment.categoryId && dataLoaders.categories.load(riskAssessment.categoryId)) || null
     );
   }
 };

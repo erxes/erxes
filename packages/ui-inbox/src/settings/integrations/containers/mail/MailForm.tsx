@@ -101,9 +101,21 @@ class MailFormContainer extends React.Component<
             }
           })
           .then(({ data }) => {
+            const emails: string[] = [];
+
+            for (const integration of data.imapGetIntegrations || []) {
+              if (!emails.includes(integration.user)) {
+                emails.push(integration.user);
+              }
+
+              if (!emails.includes(integration.mainUser)) {
+                emails.push(integration.mainUser);
+              }
+            }
+
             this.setState({
               loadedEmails: true,
-              verifiedEmails: data.imapGetIntegrations.map(i => i.user)
+              verifiedEmails: emails
             });
           })
           .catch(() => {

@@ -5,6 +5,7 @@ import {
   ORDER_STATUSES
 } from '../../../models/definitions/constants';
 import { checkLoyalties } from '../../utils/loyalties';
+import { checkPricing } from '../../utils/pricing';
 import {
   checkOrderAmount,
   checkOrderStatus,
@@ -85,6 +86,7 @@ const orderMutations = {
     try {
       let preparedDoc = await prepareOrderDoc(doc, config, models);
       preparedDoc = await checkLoyalties(subdomain, preparedDoc);
+      preparedDoc = await checkPricing(subdomain, preparedDoc, config);
 
       const order = await models.Orders.createOrder({
         ...doc,
@@ -145,6 +147,7 @@ const orderMutations = {
 
     let preparedDoc = await prepareOrderDoc(doc, config, models);
     preparedDoc = await checkLoyalties(subdomain, preparedDoc);
+    preparedDoc = await checkPricing(subdomain, preparedDoc, config);
 
     preparedDoc.items = await reverseItemStatus(models, preparedDoc.items);
 
@@ -361,7 +364,7 @@ const orderMutations = {
     const order = await models.Orders.getOrder(_id);
 
     const amount = Number(
-      (cashAmount + receivableAmount + cardAmount).toFixed(2)
+      (cashAmount + receivableAmount + cardAmount + mobileAmount).toFixed(2)
     );
 
     checkOrderStatus(order);

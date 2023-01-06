@@ -6,10 +6,7 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import {
-  commonRefetchType,
-  RiskAssessmentsCategoriesQueryResponse
-} from '../../common/types';
+import { commonRefetchType, RiskAssessmentsCategoriesQueryResponse } from '../../common/types';
 import Form from '../components/Form';
 import { mutations, queries } from '../graphql';
 

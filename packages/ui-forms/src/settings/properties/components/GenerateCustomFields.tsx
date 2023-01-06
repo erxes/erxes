@@ -30,6 +30,7 @@ type State = {
 };
 
 class GenerateGroup extends React.Component<Props, State> {
+  s;
   constructor(props: Props) {
     super(props);
 
@@ -102,9 +103,28 @@ class GenerateGroup extends React.Component<Props, State> {
   };
 
   onChange = ({ _id, value }) => {
+    const { fields } = this.props.fieldGroup;
+
     const { data } = this.state;
 
-    this.setState({ data: { ...data, [_id]: value }, editing: true });
+    data[_id] = value;
+
+    // check nested logics and clear field value
+    for (const f of fields) {
+      const logics = f.logics || [];
+
+      if (!logics.length) {
+        continue;
+      }
+
+      if (logics.findIndex(l => l.fieldId && l.fieldId.includes(_id)) === -1) {
+        continue;
+      }
+
+      delete data[f._id];
+    }
+
+    this.setState({ data, editing: true });
   };
 
   renderButtons() {

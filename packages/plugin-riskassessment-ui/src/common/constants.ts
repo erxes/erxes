@@ -60,3 +60,24 @@ export const calculateMethods = [
     label: 'Multiply'
   }
 ];
+
+export const subMenu = [
+  { title: 'Risk assessments', link: '/settings/risk-assessments' },
+  { title: 'Configs', link: '/settings/risk-assessment-configs' },
+  { title: 'Submissions', link: '/settings/risk-assessment-submissions' }
+];
+
+export const cardTypes = [
+  {
+    value: '',
+    label: 'Choose Type'
+  },
+  {
+    value: 'task',
+    label: 'Task'
+  },
+  {
+    value: 'ticket',
+    label: 'Ticket'
+  }
+];

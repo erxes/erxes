@@ -1,4 +1,4 @@
-import { IRiskConfirmityDocument } from '../../models/definitions/confimity';
+import { IRiskConformityDocument } from '../../models/definitions/confimity';
 import { IContext } from '../../connectionResolver';
 
 export default {
@@ -7,7 +7,7 @@ export default {
   },
 
   async riskAssessment(
-    riskConfimity: IRiskConfirmityDocument,
+    riskConfimity: IRiskConformityDocument,
     {},
     { dataLoaders }: IContext
   ) {

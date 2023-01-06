@@ -6,7 +6,6 @@ export const commonPaginateDef = `
     $searchValue: String,
     $sortFromDate:String
     $sortToDate:String
-    $status:String
 `;
 export const commonPaginateValue = `
     page:$page
@@ -16,7 +15,6 @@ export const commonPaginateValue = `
     searchValue:$searchValue,
     sortFromDate:$sortFromDate
     sortToDate:$sortToDate
-    status:$status
 `;
 
 export const riskAssessmentDef = `
@@ -69,7 +67,7 @@ export const riskAssessmentParams = `
       }
 `;
 
-export const riskConfirmityParams = `
+export const riskConformityParams = `
     _id
     categoryId
     createdAt

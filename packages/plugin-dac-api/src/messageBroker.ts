@@ -10,9 +10,13 @@ export const initBroker = async cl => {
 
   const { consumeQueue } = client;
 
-  consumeQueue('dac:afterMutation', async ({ subdomain, data }) => {
-    await afterMutationHandlers(subdomain, data);
-    return;
+  consumeQueue('dac:afterMutation', async ({ data }) => {
+    try {
+      await afterMutationHandlers(data);
+      return;
+    } catch (e) {
+      console.log('Error in after mutation handler', e);
+    }
   });
 };
 
@@ -47,6 +51,15 @@ export const sendCommonMessage = async (
   return sendMessage({
     serviceDiscovery,
     client,
+    ...args
+  });
+};
+
+export const sendCarsMessage = (args: ISendMessageArgs) => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'cars',
     ...args
   });
 };

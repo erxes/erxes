@@ -6,6 +6,7 @@ import Flow from './customResolver/flow';
 import JobRefer from './customResolver/jobRefer';
 import Work from './customResolver/work';
 import OverallWork from './customResolver/overallWork';
+import OverallWorkDetail from './customResolver/overallWorkDetail';
 import Perform from './customResolver/perform';
 import {
   JobRefers as JobRefersMutations,
@@ -34,6 +35,7 @@ const resolvers: any = async () => ({
   JobRefer,
   Work,
   OverallWork,
+  OverallWorkDetail,
   Perform,
   Mutation: {
     ...JobRefersMutations,

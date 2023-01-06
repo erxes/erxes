@@ -1,13 +1,25 @@
 import { IProduct, IUom } from '@erxes/ui-products/src/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 
+export interface IProductsDataPerform {
+  _id: string;
+  productId: string;
+  uomId: string;
+  quantity: number;
+  totalCost: number;
+
+  product?: any;
+  uom?: IUom;
+}
+
 export interface IProductsData {
   _id: string;
   productId: string;
-  product?: any;
   quantity: number;
   uomId: string;
+
   proportion?: number;
+  product?: any;
   uom?: IUom;
 }
 

@@ -120,6 +120,9 @@ const statusMutationsOptions = ({ queryParams, message }) => {
         variables: {
           _id: message._id
         }
+      },
+      {
+        query: gql(queries.engageMessages)
       }
     ]
   };

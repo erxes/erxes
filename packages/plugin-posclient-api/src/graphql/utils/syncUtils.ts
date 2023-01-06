@@ -269,6 +269,7 @@ export const extractConfig = async (subdomain, doc) => {
     kioskExcludeProductIds: doc.kioskExcludeProductIds,
     deliveryConfig: doc.deliveryConfig,
     posId: doc._id,
+    erxesAppToken: doc.erxesAppToken,
     isOnline: doc.isOnline,
     onServer: doc.onServer,
     branchId: doc.branchId,
@@ -402,7 +403,7 @@ export const receivePosConfig = async (
   models: IModels,
   data
 ) => {
-  const { token, pos = {}, adminUsers = [], cashiers = [], qpayConfig } = data;
+  const { token, pos = {}, adminUsers = [], cashiers = [] } = data;
 
   let config: IConfigDocument | null = await models.Configs.findOne({
     token
@@ -424,7 +425,6 @@ export const receivePosConfig = async (
   await models.Configs.updateConfig(config._id, {
     ...config,
     ...(await extractConfig(subdomain, pos)),
-    qpayConfig,
     token
   });
 
