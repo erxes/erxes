@@ -104,7 +104,7 @@ export interface IDepartmentModel extends Model<IDepartmentDocument> {
     doc: any,
     user: IUserDocument
   ): IDepartmentDocument;
-  removeDepartment(_id: string): IDepartmentDocument;
+  removeDepartments(ids?: string[]): IDepartmentDocument;
 }
 
 export const loadDepartmentClass = (models: IModels) => {
@@ -178,24 +178,34 @@ export const loadDepartmentClass = (models: IModels) => {
     /*
      * Remove a department
      */
-    public static async removeDepartment(_id: string) {
-      const department = await models.Departments.getDepartment({ _id });
 
-      const userMovement = await models.UserMovements.find({
-        contentType: 'branch',
-        contentTypeId: department._id
+    public static async removeDepartments(ids: string[]) {
+      const departments = await models.Departments.find({ _id: { $in: ids } });
+
+      const departmentIds = departments.map(department => department._id);
+      const userMovements = await models.UserMovements.find({
+        contentType: 'department',
+        contentTypeId: { $in: departmentIds }
       });
 
-      if (!!userMovement.length) {
-        return await models.Departments.updateOne(
-          { $or: [{ _id: department._id }, { parentId: department._id }] },
-          { status: STRUCTURE_STATUSES.DELETED }
+      if (!!userMovements.length) {
+        return await models.Departments.updateMany(
+          {
+            $or: [
+              { _id: { $in: departmentIds } },
+              { parentId: { $in: departmentIds } }
+            ]
+          },
+          { $set: { status: STRUCTURE_STATUSES.DELETED } }
         );
       }
 
-      await models.Departments.deleteMany({ parentId: department._id });
-
-      return department.remove();
+      return await models.Departments.deleteMany({
+        $or: [
+          { _id: { $in: departmentIds } },
+          { parentId: { $in: departmentIds } }
+        ]
+      });
     }
   }
 
@@ -208,7 +218,7 @@ export interface IUnitModel extends Model<IUnitDocument> {
   getUnit(doc: any): IUnitDocument;
   createUnit(doc: any, user: IUserDocument): IUnitDocument;
   updateUnit(_id: string, doc: any, user: IUserDocument): IUnitDocument;
-  removeUnit(_id: string): IUnitDocument;
+  removeUnits(ids?: string[]): IUnitDocument;
 }
 
 export const loadUnitClass = (models: IModels) => {
@@ -258,10 +268,12 @@ export const loadUnitClass = (models: IModels) => {
     /*
      * Remove an unit
      */
-    public static async removeUnit(_id: string) {
-      const unit = await models.Units.getUnit({ _id });
+    public static async removeUnits(ids: string) {
+      const units = await models.Units.find({ _id: { $in: ids } });
 
-      return unit.remove();
+      const unitIds = units.map(unit => unit._id);
+
+      return await models.Units.deleteMany({ _id: { $in: unitIds } });
     }
   }
 
@@ -274,7 +286,7 @@ export interface IBranchModel extends Model<IBranchDocument> {
   getBranch(doc: any): IBranchDocument;
   createBranch(doc: any, user: IUserDocument): IBranchDocument;
   updateBranch(_id: string, doc: any, user: IUserDocument): IBranchDocument;
-  removeBranch(_id: string): IBranchDocument;
+  removeBranches(ids?: string[]): IBranchDocument;
 }
 
 export const loadBranchClass = (models: IModels) => {
@@ -349,24 +361,28 @@ export const loadBranchClass = (models: IModels) => {
     /*
      * Remove a branch
      */
-    public static async removeBranch(_id: string) {
-      const branch = await models.Branches.getBranch({ _id });
 
-      const userMovement = await models.UserMovements.find({
+    public static async removeBranches(ids: string[]) {
+      const branches = await models.Branches.find({ _id: { $in: ids } });
+
+      const branchIds = branches.map(branch => branch._id);
+      const userMovements = await models.UserMovements.find({
         contentType: 'branch',
-        contentTypeId: branch._id
+        contentTypeId: { $in: branchIds }
       });
 
-      if (!!userMovement.length) {
-        return await models.Branches.updateOne(
-          { $or: [{ _id: branch._id }, { parentId: branch._id }] },
-          { status: STRUCTURE_STATUSES.DELETED }
+      if (!!userMovements.length) {
+        return await models.Branches.updateMany(
+          {
+            $or: [{ _id: { $in: branchIds } }, { parentId: { $in: branchIds } }]
+          },
+          { $set: { status: STRUCTURE_STATUSES.DELETED } }
         );
       }
 
-      await models.Branches.deleteMany({ parentId: branch._id });
-
-      return branch.remove();
+      return await models.Branches.deleteMany({
+        $or: [{ _id: { $in: branchIds } }, { parentId: { $in: branchIds } }]
+      });
     }
   }
 

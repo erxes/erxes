@@ -43,7 +43,8 @@ const FormContainer = (props: Props) => {
           {
             query: gql(queries.departments),
             variables: {
-              withoutUserFilter: true
+              withoutUserFilter: true,
+              searchValue: undefined
             }
           }
         ]}

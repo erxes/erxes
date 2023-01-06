@@ -34,6 +34,7 @@ export const types = `
         supervisorId: String
         supervisor: User
         code: String
+        order:String
         parent: Department
         children: [Department]
         childCount: Int
@@ -62,6 +63,7 @@ export const types = `
         supervisorId: String
         supervisor: User
         code: String
+        order:String
         users: [User]
         userIds: [String]
         parent: Branch
@@ -159,13 +161,13 @@ export const mutations = `
 
     departmentsAdd(${commonDepartmentParams}): Department
     departmentsEdit(_id: String!, ${commonDepartmentParams}): Department
-    departmentsRemove(_id: String!): JSON
+    departmentsRemove(ids: [String!]): JSON
 
     unitsAdd(${commonUnitParams}): Unit
     unitsEdit(_id: String!, ${commonUnitParams}): Unit
-    unitsRemove(_id: String!): JSON
+    unitsRemove(ids:[String!]): JSON
 
     branchesAdd(${commonBranchParams}): Branch
     branchesEdit(_id: String!, ${commonBranchParams}): Branch
-    branchesRemove(_id: String!): JSON
+    branchesRemove(ids:[String!]): JSON
 `;

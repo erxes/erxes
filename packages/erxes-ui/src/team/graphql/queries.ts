@@ -94,7 +94,24 @@ export const departmentField = `
   description
   parentId
   code
+  order
   supervisorId
+  supervisor {
+          _id
+      username
+      email
+      status
+      isActive
+      groupIds
+      brandIds
+      score
+
+      details {
+        ${detailFields}
+      }
+
+      links
+  }
   userIds
   users {
     _id
@@ -133,7 +150,26 @@ const unitField = `
   title
   description
   departmentId
+  department {
+    ${departmentField}
+  }
   supervisorId
+  supervisor {
+      _id
+      username
+      email
+      status
+      isActive
+      groupIds
+      brandIds
+      score
+
+      details {
+        ${detailFields}
+      }
+
+      links
+  }
   code
   userIds
   users {
@@ -146,8 +182,8 @@ const unitField = `
 `;
 
 const units = `
-  query units {
-    units {
+  query units ($searchValue:String) {
+    units (searchValue:$searchValue) {
       ${unitField}
     }
   }
@@ -160,6 +196,7 @@ export const branchField = `
   parentId
   supervisorId
   code
+  order
   userIds
   users {
     _id
@@ -176,6 +213,7 @@ const branches = `
   query branches(${commonStructureParamsDef}) {
     branches (${commonStructureParamsValue}){
       ${branchField}
+        parent {${branchField}}
     }
   }
 `;

@@ -10,4 +10,11 @@ const menuContacts = [
   { title: 'Team members', link: '/settings/team' }
 ];
 
-export { menuContacts, menuInbox, menuDeal };
+const menuStructures = [
+  { title: 'Strucure', link: '/settings/structure' },
+  { title: 'Branches', link: '/settings/branches' },
+  { title: 'Departments', link: '/settings/departments' },
+  { title: 'Units', link: '/settings/units' }
+];
+
+export { menuContacts, menuInbox, menuDeal, menuStructures };

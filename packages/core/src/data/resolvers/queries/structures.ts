@@ -1,15 +1,16 @@
 import { STRUCTURE_STATUSES } from '@erxes/api-utils/src/constants';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { IUser } from '@erxes/api-utils/src/types';
 import { IContext, IModels } from '../../../connectionResolver';
 
 const generateFilters = async ({
   models,
-  userId,
+  user,
   type,
   params
 }: {
   models: IModels;
-  userId: string;
+  user: IUser;
   type: string;
   params: any;
 }) => {
@@ -36,13 +37,16 @@ const generateFilters = async ({
   }
 
   if (!params.withoutUserFilter) {
-    const userDetail = await models.Users.findOne({ _id: userId });
+    const userDetail = await models.Users.findOne({ _id: user });
     if (type === 'branch') {
       filter._id = { $in: userDetail?.branchIds || [] };
     }
     if (type === 'department') {
       filter._id = { $in: userDetail?.departmentIds || [] };
     }
+  }
+  if (filter._id && user.isOwner) {
+    delete filter._id;
   }
 
   return filter;
@@ -56,7 +60,7 @@ const structureQueries = {
   ) {
     const filter = await generateFilters({
       models,
-      userId: user._id,
+      user,
       type: 'department',
       params
     });
@@ -104,7 +108,7 @@ const structureQueries = {
   ) {
     const filter = await generateFilters({
       models,
-      userId: user._id,
+      user,
       type: 'branch',
       params
     });

@@ -71,7 +71,6 @@ export const departmentSchema = schemaWrapper(
     description: field({ type: String, optional: true }),
     supervisorId: field({ type: String, optional: true }),
     parentId: field({ type: String }),
-    userIds: field({ type: [String], label: 'Related users' }),
     order: field({ type: String, unique: true }),
     status: field({
       type: String,
@@ -116,7 +115,6 @@ export interface IBranchDocument extends IBranch, Document {
 export const branchSchema = schemaWrapper(
   new Schema({
     parentId: field({ type: String, optional: true }),
-    userIds: field({ type: [String], label: 'Related users' }),
     ...contactInfoSchema,
     ...commonSchemaFields,
     order: field({ type: String, unique: true }),

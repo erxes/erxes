@@ -87,12 +87,15 @@ interface IStructureCommon {
 
 export interface IDepartment extends IStructureCommon {
   description: string;
+  parentId?: string | null;
+  order: string;
   userIds: string[];
   users: IUser;
 }
 
 export interface IUnit extends IStructureCommon {
   departmentId: string;
+  department: IDepartment;
   description: string;
   userIds: string[];
   users: IUser;
@@ -108,7 +111,9 @@ interface IContactInfo {
 
 export interface IBranch extends IStructureCommon, IContactInfo {
   address: string;
-  parentId: string;
+  parentId: string | null;
+  parent: IBranch;
+  order: string;
   userIds: string[] | string;
   users: IUser[];
   radius: number;
