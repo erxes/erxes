@@ -169,9 +169,35 @@ const PostDetail: React.FC = () => {
             <th>Content: </th>
             <td>
               <div
-                style={{ border: '1px solid black', padding: 10 }}
+                style={{ border: '1px solid gray', padding: 10 }}
                 dangerouslySetInnerHTML={{ __html: forumPost.content }}
               ></div>
+            </td>
+          </tr>
+          <tr>
+            <th>Description: </th>
+            <td>
+              <p
+                style={{
+                  whiteSpace: 'pre-wrap',
+                  border: '1px solid gray',
+                  padding: 10
+                }}
+              >
+                {forumPost.description}
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <th>Tags: </th>
+            <td>
+              <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                {forumPost.tags?.map(tag => (
+                  <div style={{ margin: 2 }} key={tag._id}>
+                    {tag.name}
+                  </div>
+                ))}
+              </div>
             </td>
           </tr>
           <tr>

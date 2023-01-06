@@ -14,6 +14,7 @@ import {
   LoginRequiredError
 } from '../../customErrors';
 import { notifyUsersPublishedPost } from './utils';
+import * as strip from 'strip';
 
 export const POST_STATES = ['DRAFT', 'PUBLISHED'] as const;
 
@@ -67,6 +68,8 @@ export interface IPost extends CommonPostFields {
 
   requiredLevel?: string | null;
   isPermissionRequired?: boolean | null;
+
+  wordCount?: number | null;
 }
 
 export type PostDocument = IPost & Document;
@@ -215,7 +218,8 @@ export const postSchema = new Schema<PostDocument>({
 
   customIndexed: Schema.Types.Mixed,
 
-  tagIds: [String]
+  tagIds: [String],
+  wordCount: Number
 });
 // used by client portal front-end
 postSchema.index({ state: 1, categoryApprovalState: 1, categoryId: 1 });
@@ -230,6 +234,12 @@ postSchema.index({
   title: 'text',
   'translations.title': 'text'
 });
+
+const wordCountHtml = (html?: string | null): number => {
+  if (!html) return 0;
+  const text = strip(html || '');
+  return text.trim().split(/\s+/).length;
+};
 
 export const generatePostModel = (
   subdomain: string,
@@ -264,7 +274,8 @@ export const generatePostModel = (
         updatedUserType: USER_TYPES[0],
         updatedById: user._id,
 
-        lastPublishedAt
+        lastPublishedAt,
+        wordCount: wordCountHtml(input.content)
       });
       if (res.state === 'PUBLISHED') {
         await notifyUsersPublishedPost(subdomain, models, res);
@@ -287,17 +298,16 @@ export const generatePostModel = (
         updatedAt: new Date()
       };
 
+      if (update.content) {
+        update.wordCount = wordCountHtml(update.content);
+      }
+
       if (originalState === 'DRAFT' && patch.state === 'PUBLISHED') {
         update.lastPublishedAt = new Date();
         update.viewCount = 0;
       }
 
-      _.assign(post, {
-        ...patch,
-        updatedUserType: USER_TYPES[0],
-        updatedById: user._id,
-        updatedAt: new Date()
-      });
+      _.assign(post, update);
 
       await post.save();
 
@@ -472,7 +482,9 @@ export const generatePostModel = (
         updatedUserType: USER_TYPES[1],
         updatedByCpId: cpUser.userId,
 
-        lastPublishedAt
+        lastPublishedAt,
+
+        wordCount: wordCountHtml(input.content)
       });
 
       if (res.state === 'PUBLISHED') {
@@ -509,6 +521,10 @@ export const generatePostModel = (
         updatedByCpId: cpUser.userId,
         updatedAt: new Date()
       };
+
+      if (update.content) {
+        update.wordCount = wordCountHtml(update.content);
+      }
 
       if (originalState === 'DRAFT' && update.state === 'PUBLISHED') {
         update.lastPublishedAt = new Date();

@@ -72,7 +72,8 @@ const inventoryMutations = {
         const product = productByCode[resProd.code];
 
         if (
-          resProd.name === product.name &&
+          (resProd.name === product.name ||
+            resProd.nickname === product.name) &&
           resProd.unit_price === product.unitPrice &&
           resProd.barcodes === (product.barcodes || []).join(',')
         ) {

@@ -1,11 +1,10 @@
 import { generateModels, IModels } from './connectionResolver';
 import { sendCoreMessage, sendFormsMessage } from './messageBroker';
 import { ITimeClock, IUserReport } from './models/definitions/timeclock';
-import * as mysql from 'mysql2';
 import * as dayjs from 'dayjs';
 import { getEnv } from '@erxes/api-utils/src';
 import { IUserDocument } from '@erxes/api-utils/src/types';
-
+import { Sequelize, QueryTypes } from 'sequelize';
 const findUserByEmployeeId = async (subdomain: string, empId: number) => {
   const field = await sendFormsMessage({
     subdomain,
@@ -37,34 +36,45 @@ const findUserByEmployeeId = async (subdomain: string, empId: number) => {
 };
 
 const connectAndQueryFromMySql = async (subdomain: string, query: string) => {
-  const MYSQL_HOST = getEnv({ name: 'MYSQL_HOST ' });
+  const MYSQL_HOST = getEnv({ name: 'MYSQL_HOST' });
   const MYSQL_DB = getEnv({ name: 'MYSQL_DB' });
   const MYSQL_USERNAME = getEnv({ name: 'MYSQL_USERNAME' });
   const MYSQL_PASSWORD = getEnv({ name: 'MYSQL_PASSWORD' });
 
-  // create the connection to mySQL database
-  const connection = mysql.createConnection({
+  const sequelize = new Sequelize(MYSQL_DB, MYSQL_USERNAME, MYSQL_PASSWORD, {
     host: MYSQL_HOST,
-    user: MYSQL_USERNAME,
-    password: MYSQL_PASSWORD,
-    database: MYSQL_DB
-  });
-
-  connection.connect(err => {
-    if (err) {
-      console.error('error connecting: ' + err.stack);
-      return;
+    port: 1433,
+    dialect: 'mssql',
+    dialectOptions: {
+      options: {
+        useUTC: false,
+        cryptoCredentialsDetails: {
+          minVersion: 'TLSv1'
+        }
+      }
     }
   });
-
   let returnData;
-  connection.query(query, async (error, results) => {
-    if (error) {
-      throw new Error(`error: ${error}`);
-    }
 
-    returnData = await importDataAndCreateTimeclock(subdomain, results);
-  });
+  sequelize
+    .authenticate()
+    .then(async () => {
+      console.log('Connected to MSSQL');
+    })
+    .catch(err => {
+      console.error(err);
+      return err;
+    });
+  try {
+    const queryData = await sequelize.query(query, {
+      type: QueryTypes.SELECT
+    });
+
+    returnData = await importDataAndCreateTimeclock(subdomain, queryData);
+  } catch (err) {
+    console.error(err);
+    return err;
+  }
 
   return returnData;
 };
@@ -121,7 +131,7 @@ const createUserTimeclock = async (
   // find if there's any unfinished shift from previous timeclock data
   const unfinishedShifts = await models?.Timeclocks.find({
     shiftActive: true,
-    $or: [{ userId: user && user._id }, { employeeId: empId }]
+    employeeId: empId
   });
 
   for (const unfinishedShift of unfinishedShifts) {
@@ -150,8 +160,9 @@ const createUserTimeclock = async (
 
       await models.Timeclocks.updateTimeClock(unfinishedShift._id, {
         userId: user?._id,
+        employeeId: empId,
         shiftStart: unfinishedShift.shiftStart,
-        shiftEnd: new Date(empData[latestShiftIdx].authDateTime),
+        shiftEnd: dayjs(empData[latestShiftIdx].authDateTime).toDate(),
         shiftActive: false
       });
 
@@ -167,13 +178,13 @@ const createUserTimeclock = async (
     const getShiftEndIdx = empData.findIndex(
       row =>
         dayjs(row.authDateTime) > dayjs(currShiftStart).add(10, 'minute') &&
-        dayjs(row.authDateTime) < dayjs(currShiftStart).add(16, 'hour')
+        dayjs(row.authDateTime) <= dayjs(currShiftStart).add(16, 'hour')
     );
 
     // if no shift end is found, shift is stilll active
     if (getShiftEndIdx === -1) {
       const newTimeclock = {
-        shiftStart: new Date(currShiftStart),
+        shiftStart: dayjs(currShiftStart).toDate(),
         userId: user?._id,
         deviceName: empData[i].deviceName,
         employeeUserName: empName || undefined,
@@ -202,8 +213,8 @@ const createUserTimeclock = async (
     currShiftEnd = empData[i].authDateTime;
 
     const newTimeclockData = {
-      shiftStart: new Date(currShiftStart),
-      shiftEnd: new Date(currShiftEnd),
+      shiftStart: dayjs(currShiftStart).toDate(),
+      shiftEnd: dayjs(currShiftEnd).toDate(),
       userId: user?._id,
       deviceName: empData[getShiftEndIdx].deviceName || undefined,
       employeeUserName: empName || undefined,

@@ -1,13 +1,14 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
-import { withProps } from '@erxes/ui/src/utils';
+import { Alert, withProps } from '@erxes/ui/src/utils';
 import List from '../../components/timeclock/TimeclockList';
 import { TimeClockMutationResponse, TimeClockQueryResponse } from '../../types';
 import { queries } from '../../graphql';
-import React from 'react';
+import React, { useState } from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { mutations } from '../../graphql';
+
 type Props = {
   queryParams: any;
   history: any;
@@ -28,15 +29,21 @@ type FinalProps = {
 
 const ListContainer = (props: FinalProps) => {
   const { listTimeclocksQuery, extractAllMySqlDataMutation } = props;
+  const [loading, setLoading] = useState(false);
 
-  if (listTimeclocksQuery.loading) {
+  if (listTimeclocksQuery.loading || loading) {
     return <Spinner />;
   }
 
   const extractAllMySqlData = () => {
-    extractAllMySqlDataMutation().then(() => {
-      listTimeclocksQuery.refetch();
-    });
+    setLoading(true);
+    extractAllMySqlDataMutation()
+      .then(() => {
+        setLoading(false);
+        listTimeclocksQuery.refetch();
+        Alert.success('Successfully extracted data');
+      })
+      .catch(e => Alert.error(e.message));
   };
 
   const updatedProps = {
