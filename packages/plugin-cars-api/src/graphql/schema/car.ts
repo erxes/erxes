@@ -117,6 +117,7 @@ const commonFields = `
   vintageYear: Float
   importYear: Float
   attachment: AttachmentInput
+  customFieldsData: JSON
 `;
 
 const carCategoryParams = `
