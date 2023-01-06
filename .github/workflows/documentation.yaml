@@ -18,7 +18,7 @@ on:
 jobs:
   checks:
     if: github.event_name != 'push'
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v2
@@ -50,7 +50,7 @@ jobs:
 
   gh-release:
     if: github.event_name != 'pull_request'
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v2

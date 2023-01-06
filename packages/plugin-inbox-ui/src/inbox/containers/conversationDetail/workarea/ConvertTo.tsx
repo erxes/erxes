@@ -21,7 +21,8 @@ class ConvertToInfoContainer extends React.Component<FinalProps> {
   shouldComponentUpdate(nextProps: FinalProps) {
     if (
       nextProps.convertToInfoQuery.convertToInfo !==
-      this.props.convertToInfoQuery.convertToInfo
+        this.props.convertToInfoQuery.convertToInfo ||
+      this.props.conversation !== nextProps.conversation
     ) {
       return true;
     }

@@ -406,7 +406,11 @@ class ProductForm extends React.Component<Props, State> {
 
       const currentProductIds = productsData.map(p => p._id);
 
+      console.log('11111111111', currentProductIds);
+
       for (const product of products) {
+        console.log('22222222', product._id);
+
         if (currentProductIds.includes(product._id)) {
           continue;
         }
