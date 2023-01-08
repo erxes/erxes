@@ -791,6 +791,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   };
 
   render() {
+    console.log(this.state.config, '---------------------------');
     return (
       <SegmentWrapper>
         <CommonForm renderContent={this.renderForm} />
