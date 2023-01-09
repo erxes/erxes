@@ -296,4 +296,8 @@ export const DirectDetailItem = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0 1rem;
+
+  & p:last-child {
+    text-align: right;
+  }
 `;
