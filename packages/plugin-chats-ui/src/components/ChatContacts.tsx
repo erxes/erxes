@@ -158,7 +158,14 @@ const ChatContacts = (props: FinalProps) => {
               <Avatar user={user} size={36} />
             </ContactsGroupAvatar>
           )}
-          <ContactsItem isSeen={chat.isSeen}>
+          <ContactsItem
+            isSeen={
+              (chat.lastMessage && chat.lastMessage.createdUser._id) ===
+              currentUser._id
+                ? true
+                : chat.isSeen
+            }
+          >
             {chat.type === 'direct'
               ? user.details.fullName || user.email
               : chat.name}

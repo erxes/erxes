@@ -7,8 +7,11 @@ const chats = `
         type
         isSeen
         lastMessage {
-          createdAt
           content
+          createdAt
+          createdUser {
+            _id
+          }
           seenList {
             seenDate
             user {
