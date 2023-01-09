@@ -117,7 +117,7 @@ class MainList extends React.Component<Props, State> {
             onClick={handleSelect}
           />
         </td>
-        <td>{__(`${'---'.repeat(level)}  ${department.code}`)}</td>
+        <td>{__(`${'\u00A0 \u00A0 '.repeat(level)}  ${department.code}`)}</td>
         <td>{__(department.title)}</td>
         <td>{__(department?.supervisor?.email || '-')}</td>
       </tr>
