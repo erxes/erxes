@@ -1,43 +1,37 @@
 import React, { useState } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
-import queryString from 'query-string';
 // erxes
 import Button from '@erxes/ui/src/components/Button';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import * as router from '@erxes/ui/src/utils/router';
 
 type Props = {
+  chatId: string;
   closeModal: () => void;
+  addOrRemoveMember: (userIds: string[]) => void;
 };
 
-const CreateDirectChat = (props: Props) => {
-  const history = useHistory();
-  const location = useLocation();
-  const queryParams = queryString.parse(location.search);
-
-  const [userId, setUserId] = useState(queryParams.userId || '');
+const AddMember = (props: Props) => {
+  const [userIds, setUserIds] = useState<any>([]);
 
   const handleSubmit = () => {
-    router.removeParams(history, '_id', 'userIds');
-    router.setParams(history, { userId: userId });
+    console.log(userIds);
+    props.addOrRemoveMember(userIds);
 
-    setUserId('');
     props.closeModal();
+    setUserIds([]);
   };
 
   return (
     <>
-      <h3>Direct chat</h3>
+      <h3>Add member</h3>
       <SelectTeamMembers
         label={'Choose team member'}
         name="assignedUserId"
-        initialValue={userId}
-        onSelect={value => setUserId(value)}
-        multi={false}
+        initialValue={userIds}
+        onSelect={value => setUserIds(value)}
       />
       <br />
       <Button style={{ float: 'right' }} onClick={handleSubmit}>
-        Compose
+        Add
       </Button>
       <Button
         btnStyle="simple"
@@ -50,4 +44,4 @@ const CreateDirectChat = (props: Props) => {
   );
 };
 
-export default CreateDirectChat;
+export default AddMember;

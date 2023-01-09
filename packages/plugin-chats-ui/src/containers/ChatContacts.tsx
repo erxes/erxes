@@ -28,27 +28,18 @@ const ChatContactsContainer = (props: Props) => {
     }
   });
 
-  if (chats.loading) {
-    return <p>...</p>;
-  }
-
-  if (chats.error) {
-    return <p>{chats.error.message}</p>;
-  }
-
   const removeChat = (id: string) => {
     confirm()
       .then(() => {
         removeMutation({
-          variables: { id },
-          refetchQueries: [
-            {
-              query: gql(queries.chats)
-            }
-          ]
-        }).catch(error => {
-          Alert.error(error.message);
-        });
+          variables: { id }
+        })
+          .then(() => {
+            chats.refetch();
+          })
+          .catch(error => {
+            Alert.error(error.message);
+          });
       })
       .catch(error => {
         Alert.error(error.message);
@@ -57,17 +48,23 @@ const ChatContactsContainer = (props: Props) => {
 
   const markChatAsRead = (id: string) => {
     markAsReadMutation({
-      variables: { id },
-      refetchQueries: [
-        {
-          query: gql(queries.chats)
-        }
-      ]
-    }).catch(error => {
-      Alert.error(error.message);
-    });
+      variables: { id }
+    })
+      .then(() => {
+        chats.refetch();
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
   };
 
+  if (chats.loading) {
+    return <p>...</p>;
+  }
+
+  if (chats.error) {
+    return <p>{chats.error.message}</p>;
+  }
   return (
     <ChatContacts
       chats={chats.data.chats.list}

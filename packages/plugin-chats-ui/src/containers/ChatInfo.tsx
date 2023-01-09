@@ -1,11 +1,13 @@
 import React from 'react';
-import { useQuery } from 'react-apollo';
+import { useQuery, useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
 // erxes
+import Alert from '@erxes/ui/src/utils/Alert';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import confirm from '@erxes/ui/src/utils/confirmation/confirm';
 // local
 import ChatInfo from '../components/ChatInfo';
-import { queries } from '../graphql';
+import { queries, mutations } from '../graphql';
 
 type Props = {
   chatId: string;
@@ -14,20 +16,66 @@ type Props = {
 const ChatInfoContainer = (props: Props) => {
   const { chatId } = props;
 
-  const { loading, data, error } = useQuery(gql(queries.chatDetail), {
+  const [adminMutation] = useMutation(gql(mutations.makeOrRemoveAdminChat));
+  const [memberMutation] = useMutation(gql(mutations.addOrRemoveMemberChat));
+
+  const chatDetail = useQuery(gql(queries.chatDetail), {
     variables: { id: chatId }
   });
 
-  if (loading) {
+  const makeOrRemoveAdmin = (id: string) => {
+    confirm()
+      .then(() => {
+        adminMutation({
+          variables: { id: chatId, userId: id }
+        })
+          .then(() => {
+            chatDetail.refetch();
+          })
+          .catch(error => {
+            Alert.error(error.message);
+          });
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  };
+
+  const addOrRemoveMember = (type: string, userIds: string[]) => {
+    confirm()
+      .then(() => {
+        memberMutation({
+          variables: { id: chatId, type, userIds },
+          refetchQueries: [{ query: gql(queries.chatDetail) }]
+        })
+          .then(() => {
+            chatDetail.refetch();
+          })
+          .catch(error => {
+            Alert.error(error.message);
+          });
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  };
+
+  if (chatDetail.loading) {
     return <Spinner />;
   }
 
-  if (error) {
-    return <p>{error.message}</p>;
+  if (chatDetail.error) {
+    return <p>{chatDetail.error.message}</p>;
   }
 
-  if (data.chatDetail) {
-    return <ChatInfo chatDetail={data.chatDetail} />;
+  if (chatDetail.data.chatDetail) {
+    return (
+      <ChatInfo
+        chatDetail={chatDetail.data.chatDetail}
+        makeOrRemoveAdmin={makeOrRemoveAdmin}
+        addOrRemoveMember={addOrRemoveMember}
+      />
+    );
   }
 
   return <></>;

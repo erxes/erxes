@@ -48,7 +48,7 @@ export const Subtitle = styled.h5`
 `;
 
 // OptionMenu
-export const OptionsWrapper = styled.div`
+export const OptionsMenuWrapper = styled.div`
   position: absolute;
   z-index: 1001;
   display: none;
@@ -62,14 +62,14 @@ export const OptionsWrapper = styled.div`
   padding: 0.5em;
 `;
 
-export const OptionsList = styled.div`
+export const OptionsMenuList = styled.div`
   display: flex;
   justify-content: center;
   align-items: flex-top;
   flex-direction: column;
 `;
 
-export const OptionsItem = styled.button`
+export const OptionsMenuItem = styled.button`
   width: 100%;
   background-color: white;
   border: 0;
@@ -84,12 +84,12 @@ export const OptionsItem = styled.button`
   }
 `;
 
-export const OptionButton = styled.button`
+export const OptionsButton = styled.button`
   display: inline-block;
   color: white;
   background-color: ${colors.colorPrimary};
   margin-left: 10px;
-  padding: 0.1em 0.4em;
+  padding: 0.4em 0.7em;
   border-radius: 100%;
   border: 0;
   outline: 0;
@@ -101,6 +101,16 @@ export const OptionButton = styled.button`
     transition: 0.3s;
     cursor: pointer;
   }
+`;
+
+export const OptionsWrapper = styled.div`
+  z-index: 1000;
+  display: none;
+
+  position: absolute;
+  right: 1em;
+  top: 50%;
+  transform: translateY(-50%);
 `;
 
 // Chat Contacts
@@ -115,7 +125,6 @@ export const ContactsList = styled.ul`
   }
 
   li a {
-    position: relative;
     display: flex;
     align-items: center;
     padding: 10px;
@@ -150,16 +159,6 @@ export const ContactsItemPreview = styled.div`
   font-size: 12px;
 `;
 
-export const ContactsItemOptions = styled.div`
-  z-index: 1000;
-  display: none;
-
-  position: absolute;
-  right: 1em;
-  top: 50%;
-  transform: translateY(-50%);
-`;
-
 export const ContactsItemContent = styledTS<{ truncate?: boolean }>(
   styled.span
 )`
@@ -181,6 +180,10 @@ export const ParticipantList = styled.ul`
   list-style: none;
   margin: 0;
   padding-left: 0;
+
+  li {
+    position: relative;
+  }
 
   li a {
     display: flex;

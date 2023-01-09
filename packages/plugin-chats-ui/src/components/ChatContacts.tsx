@@ -4,9 +4,9 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 // erxes
 import Avatar from '@erxes/ui/src/components/nameCard/Avatar';
-import CommonSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import CommonSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { IUser } from '@erxes/ui/src/auth/types';
 // local
@@ -15,19 +15,19 @@ import CreateDirectChat from '../containers/CreateDirectChat';
 import {
   IconButton,
   Subtitle,
-  OptionButton,
-  OptionsWrapper,
-  OptionsList,
   SidebarWrapper,
   SidebarHeader,
   ContactsList,
   ContactsGroupAvatar,
   ContactsItem,
   ContactsItemPreview,
-  ContactsItemOptions,
   ContactsItemContent,
   ContactsItemDate,
-  OptionsItem
+  OptionsWrapper,
+  OptionsButton,
+  OptionsMenuList,
+  OptionsMenuItem,
+  OptionsMenuWrapper
 } from '../styles';
 
 type Props = {
@@ -182,14 +182,14 @@ const ChatContacts = (props: FinalProps) => {
             </ContactsItemPreview>
           </ContactsItem>
         </Link>
-        <ContactsItemOptions
+        <OptionsWrapper
           id={'option-' + chat._id}
           onClick={() => handleOptionsClick(chat._id, chat.isSeen)}
         >
-          <OptionButton>
-            <Icon icon="ellipsis-h" size={18} />
-          </OptionButton>
-        </ContactsItemOptions>
+          <OptionsButton>
+            <Icon icon="ellipsis-h" size={14} />
+          </OptionsButton>
+        </OptionsWrapper>
       </li>
     );
   };
@@ -208,25 +208,25 @@ const ChatContacts = (props: FinalProps) => {
           </ContactsList>
         </SidebarWrapper>
       </CommonSidebar>
-      <OptionsWrapper id="options-menu" innerRef={wrapperRef}>
-        <OptionsList>
-          <OptionsItem
+      <OptionsMenuWrapper id="options-menu" innerRef={wrapperRef}>
+        <OptionsMenuList>
+          <OptionsMenuItem
             onClick={() => {
               props.markChatAsRead(selectedChat), handleHideOptions();
             }}
           >
             {seenChat ? 'Mark as unread' : 'Mark as read'}
-          </OptionsItem>
-          <OptionsItem
+          </OptionsMenuItem>
+          <OptionsMenuItem
             onClick={() => {
               props.removeChat(selectedChat);
               handleHideOptions();
             }}
           >
             Delete Chat
-          </OptionsItem>
-        </OptionsList>
-      </OptionsWrapper>
+          </OptionsMenuItem>
+        </OptionsMenuList>
+      </OptionsMenuWrapper>
     </>
   );
 };

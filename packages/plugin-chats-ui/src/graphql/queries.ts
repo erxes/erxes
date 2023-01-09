@@ -72,6 +72,7 @@ const chatDetail = `
       participantUsers {
         _id
         email
+        isAdmin
         details {
           avatar
           description
