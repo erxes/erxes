@@ -27,16 +27,35 @@ export const types = `
     ${commonFieldDefs}
     type: String
     sku: String
+    barcodes: [String]
+    barcodeDescription: String
     unitPrice: Float
     categoryId: String
     customFieldsData: JSON
     createdAt: Date
     tagIds: [String]
     vendorId: String
-    attachmentMore: Attachment
+    attachmentMore: [Attachment]
+    supply: String
+    productCount: Int
+    minimiumCount: Int
+    uomId: String
+    subUoms: JSON
     category: PosProductCategory
     remainder: Int
   }
+`;
+
+const productsQueryParams = `
+  type: String,
+  categoryId: String,
+  searchValue: String,
+  tag: String,
+  page: Int,
+  perPage: Int ids: [String],
+  excludeIds: Boolean,
+  segment: String,
+  segmentData: String,
 `;
 
 export const queries = `
@@ -45,17 +64,12 @@ export const queries = `
   poscProductCategoryDetail(_id: String): PosProductCategory
 
   poscProducts(
-    type: String,
-    categoryId: String,
-    searchValue: String,
-    branchId: String,
+    ${productsQueryParams}
     page: Int,
     perPage: Int,
   ): [PoscProduct]
   poscProductsTotalCount(
-    type: String,
-    categoryId: String,
-    searchValue: String,
+    ${productsQueryParams}
   ): Int
   poscProductDetail(_id: String): PoscProduct
 `;

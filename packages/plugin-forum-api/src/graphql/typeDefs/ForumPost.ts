@@ -69,6 +69,8 @@ export default function ForumPost({ isTagsEnabled }) {
 
     tagIds: [ID!]
 
+    wordCount: Int
+
     ${isTagsEnabled ? 'tags: [Tag!]' : ''}
   }
 `;

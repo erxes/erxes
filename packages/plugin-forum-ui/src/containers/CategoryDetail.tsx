@@ -86,6 +86,16 @@ export default function CategoryDetail() {
             </td>
           </tr>
           <tr>
+            <td>Description:</td>
+            <td
+              style={{
+                whiteSpace: 'pre-wrap'
+              }}
+            >
+              {forumCategory.description}
+            </td>
+          </tr>
+          <tr>
             <td>Order:</td>
             <td>{forumCategory.order}</td>
           </tr>

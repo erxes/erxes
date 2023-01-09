@@ -1,11 +1,13 @@
 import React from 'react';
 import { useQuery, useSubscription } from 'react-apollo';
 import gql from 'graphql-tag';
+// erxes
 import Spinner from '@erxes/ui/src/components/Spinner';
-import MessageList from '../components/MessageList';
-import { queries, subscriptions } from '../graphql';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { IUser } from '@erxes/ui/src/auth/types';
+// local
+import { queries, subscriptions } from '../graphql';
+import ChatHistory from '../components/ChatHistory';
 
 type IProps = {
   chatId: string;
@@ -15,46 +17,40 @@ type FinalProps = {
   currentUser: IUser;
 } & IProps;
 
-function ListContainer({ chatId, currentUser }: FinalProps) {
+const ChatHistoryContainer = (props: FinalProps) => {
+  const { chatId, currentUser } = props;
+
   const chatMessagesQuery = useQuery(gql(queries.chatMessages), {
-    variables: {
-      chatId
-    }
+    variables: { chatId }
   });
 
-  const chatMessageSubscription = useSubscription(
-    gql(subscriptions.chatMessageInserted),
-    {
-      variables: {
-        chatId: chatId
-      }
+  useSubscription(gql(subscriptions.chatMessageInserted), {
+    variables: {
+      chatId: chatId
+    },
+    onSubscriptionData: () => {
+      chatMessagesQuery.refetch();
     }
-  );
-
-  if (chatMessageSubscription.data) {
-    chatMessagesQuery.refetch({ chatId });
-  }
+  });
 
   if (chatMessagesQuery.loading) {
     return <Spinner />;
   }
 
   if (chatMessagesQuery.error) {
-    return <div>{chatMessagesQuery.error.message}</div>;
+    return <p>{chatMessagesQuery.error.message}</p>;
   }
 
   return (
-    <MessageList
+    <ChatHistory
       messages={chatMessagesQuery.data.chatMessages.list}
       currentUser={currentUser}
     />
   );
-}
-
-const WithCurrentUser = withCurrentUser(ListContainer);
-
-const MessageListContainer = (props: IProps) => {
-  return <WithCurrentUser {...props} />;
 };
 
-export default MessageListContainer;
+const WithCurrentUser = withCurrentUser(ChatHistoryContainer);
+
+export default function(props: IProps) {
+  return <WithCurrentUser {...props} />;
+}

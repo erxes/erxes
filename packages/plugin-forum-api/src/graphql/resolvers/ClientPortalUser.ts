@@ -55,6 +55,22 @@ const ClientPortalUser: IObjectTypeResolver<
   async forumFollowingTags({ _id }, _, { models: { FollowTag } }) {
     const follows = await FollowTag.find({ followerId: _id }).lean();
     return follows.map(follow => ({ __typename: 'Tag', _id: follow.tagId }));
+  },
+
+  async forumFollowerCount({ _id }, _, { models: { FollowCpUser } }) {
+    return FollowCpUser.countDocuments({ followeeId: _id });
+  },
+  async forumIsFollowedByCurrentUser(
+    { _id },
+    _,
+    { models: { FollowCpUser }, cpUser }
+  ) {
+    if (!cpUser) return false;
+    const follow = await FollowCpUser.findOne({
+      followeeId: _id,
+      followerId: cpUser.userId
+    });
+    return !!follow;
   }
 };
 

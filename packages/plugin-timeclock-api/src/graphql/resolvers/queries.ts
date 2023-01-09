@@ -7,116 +7,14 @@ import {
   IReport,
   IUserReport
 } from '../../models/definitions/timeclock';
+import { generateFilter } from '../../utils';
+import { paginate } from '@erxes/api-utils/src';
 
 const timeclockQueries = {
-  async absences(
-    _root,
-    { startDate, endDate, userIds, branchIds, departmentIds },
-    { models, subdomain }: IContext
-  ) {
-    const totalUserIds: string[] = [];
-    let commonUser: boolean = false;
-    let dateGiven: boolean = false;
-    const absenceSelector: any = { status: { $ne: 'Holiday' } };
-
-    if (branchIds) {
-      for (const branchId of branchIds) {
-        const branch = await findBranch(subdomain, branchId);
-        if (userIds) {
-          commonUser = true;
-          for (const userId of userIds) {
-            if (branch.userIds.includes(userId)) {
-              totalUserIds.push(userId);
-            }
-          }
-        } else {
-          totalUserIds.push(...branch.userIds);
-        }
-      }
-    }
-    if (departmentIds) {
-      for (const deptId of departmentIds) {
-        const department = await findDepartment(subdomain, deptId);
-        if (userIds) {
-          commonUser = true;
-          for (const userId of userIds) {
-            if (department.userIds.includes(userId)) {
-              totalUserIds.push(userId);
-            }
-          }
-        } else {
-          totalUserIds.push(...department.userIds);
-        }
-      }
-    }
-
-    if (!commonUser && userIds) {
-      totalUserIds.push(...userIds);
-    }
-
-    const timeFields = [
-      {
-        startTime:
-          startDate && endDate
-            ? {
-                $gte: fixDate(startDate),
-                $lte: fixDate(endDate)
-              }
-            : startDate
-            ? {
-                $gte: fixDate(startDate)
-              }
-            : { $lte: fixDate(endDate) }
-      },
-      {
-        endTime:
-          startDate && endDate
-            ? {
-                $gte: fixDate(startDate),
-                $lte: fixDate(endDate)
-              }
-            : startDate
-            ? {
-                $gte: fixDate(startDate)
-              }
-            : { $lte: fixDate(endDate) }
-      }
-    ];
-
-    if (startDate || endDate) {
-      dateGiven = true;
-    }
-
-    let returnModel: any = [];
-
-    for (const userId of totalUserIds) {
-      returnModel.push(
-        ...(dateGiven
-          ? await models.Absences.find({
-              $and: [...timeFields, { userId: `${userId}` }, absenceSelector]
-            })
-          : await models.Absences.find({
-              userId: `${userId}`,
-              ...absenceSelector
-            }))
-      );
-    }
-
-    if (!departmentIds && !branchIds && !userIds) {
-      if (dateGiven) {
-        returnModel.push(
-          ...(await models.Absences.find({
-            $and: [...timeFields, absenceSelector]
-          }))
-        );
-      }
-      // if no filter is given, return everything
-      else {
-        returnModel = models.Absences.find(absenceSelector);
-      }
-    }
-
-    return returnModel;
+  async absences(_root, queryParams, { models, subdomain }: IContext) {
+    return models.Absences.find(
+      await generateFilter(queryParams, subdomain, 'absence')
+    );
   },
 
   absenceTypes(_root, {}, { models }: IContext) {
@@ -127,166 +25,40 @@ const timeclockQueries = {
     return models.Absences.find({ status: 'Holiday' });
   },
 
-  async timeclocks(
-    _root,
-    { startDate, endDate, userIds, branchIds, departmentIds },
-    { subdomain, models }: IContext
-  ) {
-    const totalUserIds: string[] = [];
-    let commonUser: boolean = false;
-    let dateGiven: boolean = false;
+  async timeclocksMain(_root, queryParams, { subdomain, models }: IContext) {
+    const selector = await generateFilter(queryParams, subdomain, 'timeclock');
+    const queryList = models.Timeclocks.find(selector);
 
-    if (branchIds) {
-      for (const branchId of branchIds) {
-        const branch = await findBranch(subdomain, branchId);
-        if (userIds) {
-          commonUser = true;
-          for (const userId of userIds) {
-            if (branch.userIds.includes(userId)) {
-              totalUserIds.push(userId);
-            }
-          }
-        } else {
-          totalUserIds.push(...branch.userIds);
-        }
-      }
-    }
-    if (departmentIds) {
-      for (const deptId of departmentIds) {
-        const department = await findDepartment(subdomain, deptId);
-        if (userIds) {
-          commonUser = true;
-          for (const userId of userIds) {
-            if (department.userIds.includes(userId)) {
-              totalUserIds.push(userId);
-            }
-          }
-        } else {
-          totalUserIds.push(...department.userIds);
-        }
-      }
-    }
+    const list = paginate(models.Timeclocks.find(selector), {
+      perPage: queryParams.perPage,
+      page: queryParams.page
+    });
 
-    if (!commonUser && userIds) {
-      totalUserIds.push(...userIds);
-    }
+    const totalCount = queryList.countDocuments();
+    return { list, totalCount };
+  },
+  async schedulesMain(_root, queryParams, { models, subdomain }: IContext) {
+    const selector = await generateFilter(queryParams, subdomain, 'schedule');
+    const totalCount = models.Schedules.find(selector).countDocuments();
 
-    const timeFields = [
-      {
-        shiftStart:
-          startDate && endDate
-            ? {
-                $gte: fixDate(startDate),
-                $lte: fixDate(endDate)
-              }
-            : startDate
-            ? {
-                $gte: fixDate(startDate)
-              }
-            : { $lte: fixDate(endDate) }
-      },
-      {
-        shiftEnd:
-          startDate && endDate
-            ? {
-                $gte: fixDate(startDate),
-                $lte: fixDate(endDate)
-              }
-            : startDate
-            ? {
-                $gte: fixDate(startDate)
-              }
-            : { $lte: fixDate(endDate) }
-      }
-    ];
+    const list = paginate(models.Schedules.find(selector), {
+      perPage: queryParams.perPage,
+      page: queryParams.page
+    });
 
-    if (startDate || endDate) {
-      dateGiven = true;
-    }
-
-    let returnModel: any = [];
-
-    for (const userId of totalUserIds) {
-      returnModel.push(
-        ...(dateGiven
-          ? await models.Timeclocks.find({
-              $and: [...timeFields, { userId: `${userId}` }]
-            })
-          : await models.Timeclocks.find({ userId: `${userId}` }))
-      );
-    }
-
-    if (!departmentIds && !branchIds && !userIds) {
-      if (dateGiven) {
-        returnModel.push(
-          ...(await models.Timeclocks.find({ $or: [...timeFields] }))
-        );
-      }
-      // if no filter is given, return everything
-      else {
-        returnModel = models.Timeclocks.find();
-      }
-    }
-
-    return returnModel;
+    return { list, totalCount };
   },
 
-  async schedules(
-    _root,
-    { userIds, departmentIds, branchIds },
-    { models, subdomain }: IContext
-  ) {
-    const totalUserIds: string[] = [];
-    let commonUser: boolean = false;
+  async requestsMain(_root, queryParams, { models, subdomain }: IContext) {
+    const selector = await generateFilter(queryParams, subdomain, 'absence');
+    const totalCount = models.Absences.find(selector).countDocuments();
 
-    if (branchIds) {
-      for (const branchId of branchIds) {
-        const branch = await findBranch(subdomain, branchId);
-        if (userIds) {
-          commonUser = true;
-          for (const userId of userIds) {
-            if (branch.userIds.includes(userId)) {
-              totalUserIds.push(userId);
-            }
-          }
-        } else {
-          totalUserIds.push(...branch.userIds);
-        }
-      }
-    }
-    if (departmentIds) {
-      for (const deptId of departmentIds) {
-        const department = await findDepartment(subdomain, deptId);
-        if (userIds) {
-          commonUser = true;
-          for (const userId of userIds) {
-            if (department.userIds.includes(userId)) {
-              totalUserIds.push(userId);
-            }
-          }
-        } else {
-          totalUserIds.push(...department.userIds);
-        }
-      }
-    }
+    const list = paginate(models.Absences.find(selector), {
+      perPage: queryParams.perPage,
+      page: queryParams.page
+    });
 
-    if (!commonUser && userIds) {
-      totalUserIds.push(...userIds);
-    }
-
-    let returnModel: any = [];
-
-    for (const userId of totalUserIds) {
-      returnModel.push(
-        ...(await models.Schedules.find({ userId: `${userId}` }))
-      );
-    }
-
-    if (!departmentIds && !branchIds && !userIds) {
-      returnModel = models.Schedules.find();
-    }
-
-    return returnModel;
+    return { list, totalCount };
   },
 
   payDates(_root, {}, { models }: IContext) {

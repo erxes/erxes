@@ -20,62 +20,91 @@ const attachmentFields = `
   duration
 `;
 
-const list = `
-  query listTimeclocksQuery($startDate: Date, $endDate: Date, $userIds: [String], $branchIds: [String], $departmentIds: [String]) {
-    timeclocks(startDate: $startDate, endDate: $endDate, userIds: $userIds, branchIds: $branchIds, departmentIds: $departmentIds) {
-      _id
-      shiftStart
-      shiftEnd
-      shiftActive
-      user {
-        ${userFields}
-      }
-      employeeUserName
-      branchName
-      employeeId
-      deviceName
-      deviceType
+const listParamsDef = `
+  $page: Int
+  $perPage: Int
+  $startDate: Date
+  $endDate: Date
+  $userIds: [String]
+  $branchIds: [String]
+  $departmentIds: [String]
+`;
+
+const listParamsValue = `
+  page: $page
+  perPage: $perPage
+  startDate: $startDate
+  endDate: $endDate
+  userIds: $userIds
+  branchIds: $branchIds
+  departmentIds: $departmentIds
+`;
+
+const listTimeclocksMain = `
+  query listTimeclocksQuery(${listParamsDef}) {
+    timeclocksMain(${listParamsValue}) {
+      list {
+            _id
+            shiftStart
+            shiftEnd
+            shiftActive
+            user {
+              ${userFields}
+            }
+            employeeUserName
+            branchName
+            employeeId
+            deviceName
+            deviceType
+        }
+        totalCount
   }
 }
 `;
-
-const listAbsence = `
-query listAbsenceQuery($startDate: Date, $endDate: Date, $userIds: [String], $branchIds: [String], $departmentIds: [String]){
-  absences(startDate: $startDate, endDate: $endDate, userIds: $userIds, branchIds: $branchIds, departmentIds: $departmentIds) {
-    _id
-    startTime
-    endTime
-    reason
-    explanation
-    solved
-    status
-    user {
-      ${userFields}
-    }
-    attachment{
-      ${attachmentFields}
-    }
+const listSchedulesMain = `
+  query listSchedulesMain(${listParamsDef}) {
+    schedulesMain(${listParamsValue}) {
+      list {
+          _id
+          shifts{
+            _id
+            shiftStart
+            shiftEnd
+            solved
+            status
+          }
+          solved
+          status
+          user {
+            ${userFields}
+          }
+        }
+        totalCount
   }
-}`;
-
-const listSchedule = `
-query listScheduleQuery($startDate: Date, $endDate: Date, $userIds: [String], $branchIds: [String], $departmentIds: [String]){
-  schedules(startDate: $startDate, endDate: $endDate, userIds: $userIds, branchIds: $branchIds, departmentIds: $departmentIds) {
-    _id
-    shifts{
-      _id
-      shiftStart
-      shiftEnd
-      solved
-      status
-    }
-    solved
-    status
-    user {
-      ${userFields}
-    }
+}
+`;
+const listRequestsMain = `
+  query listRequestsMain(${listParamsDef}) {
+    requestsMain(${listParamsValue}) {
+      list {
+          _id
+          startTime
+          endTime
+          reason
+          explanation
+          solved
+          status
+          user {
+            ${userFields}
+          }
+          attachment{
+            ${attachmentFields}
+          }
+        }
+        totalCount
   }
-}`;
+}
+`;
 
 const listBranches = `
   query listBranchesQuery($searchValue: String){
@@ -168,10 +197,10 @@ query holidays {
 export default {
   listReports,
   listReportByUser,
-  listSchedule,
   listBranches,
-  list,
-  listAbsence,
+  listTimeclocksMain,
+  listSchedulesMain,
+  listRequestsMain,
   listAbsenceTypes,
   listPayDates,
   listHolidays

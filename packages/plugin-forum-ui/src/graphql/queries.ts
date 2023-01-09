@@ -42,6 +42,7 @@ export const CATEGORY_DETAIL = gql`
       postWriteRequiresPermissionGroup
       commentWriteRequiresPermissionGroup
       order
+      description
       parent {
         _id
         name
@@ -165,6 +166,8 @@ export const FORUM_POST_DETAIL = gql`
 
       categoryApprovalState
 
+      description
+
       viewCount
 
       upVoteCount
@@ -195,6 +198,14 @@ export const FORUM_POST_DETAIL = gql`
       }
 
       lastPublishedAt
+
+      tagIds
+
+      tags {
+        _id
+        colorCode
+        name
+      }
     }
   }
 `;

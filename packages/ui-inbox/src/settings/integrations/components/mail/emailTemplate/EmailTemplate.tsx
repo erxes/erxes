@@ -17,18 +17,20 @@ import { PopoverLinkWrapper } from '../styles';
 import React from 'react';
 import { SearchInput } from '../../../styles';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
+import { __, router } from '@erxes/ui/src/utils';
+import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '@erxes/ui/src/types';
 
 type Props = {
   fetchMoreEmailTemplates: (page: number) => void;
   targets: Array<{ value: string; label: string }>;
   onSelect: (id: string) => void;
   totalCount?: number;
-};
+  history: any;
+} & IRouterProps;
 
 type State = {
   page: number;
-  searchValue: string;
 };
 
 class EmailTemplate extends React.Component<Props, State> {
@@ -38,14 +40,18 @@ class EmailTemplate extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      page: 1,
-      searchValue: ''
+      page: 1
     };
   }
 
   onSearch = e => {
-    const searchValue = e.target.value.toLowerCase();
-    this.setState({ searchValue });
+    const { history } = this.props;
+
+    const searchValue = e.target.value;
+
+    router.setParams(history, { searchValue });
+
+    this.setState({ page: 1 });
   };
 
   handleFetch = () => {
@@ -68,24 +74,14 @@ class EmailTemplate extends React.Component<Props, State> {
     this.overlayRef.hide();
   };
 
-  filterByValue(array, value) {
-    return array.filter(o =>
-      o.label.toLowerCase().includes(value.toLowerCase())
-    );
-  }
-
   renderContent() {
     const { targets = [] } = this.props;
-    const { searchValue } = this.state;
 
-    const filteredTargets =
-      searchValue === '' ? targets : this.filterByValue(targets, searchValue);
-
-    if (!filteredTargets || filteredTargets.length === 0) {
+    if (!targets || targets.length === 0) {
       return <EmptyState icon="clipboard-1" text="No templates" />;
     }
 
-    return filteredTargets.map(item => {
+    return targets.map(item => {
       const onClick = () => this.handleClick(item.value);
 
       return (
@@ -99,7 +95,7 @@ class EmailTemplate extends React.Component<Props, State> {
   renderLoadMore() {
     const { totalCount, targets } = this.props;
 
-    if (totalCount === targets.length - 1 || targets.length < 20) {
+    if (totalCount === targets.length || targets.length < 20) {
       return null;
     }
 
@@ -118,6 +114,8 @@ class EmailTemplate extends React.Component<Props, State> {
   }
 
   render() {
+    const { history } = this.props;
+
     const popover = (
       <Popover id="templates-popover">
         <Popover.Title as="h3">{__('Email Templates')}</Popover.Title>
@@ -129,6 +127,7 @@ class EmailTemplate extends React.Component<Props, State> {
                 type="text"
                 placeholder={__('Type to search')}
                 onChange={this.onSearch}
+                value={router.getParam(history, 'searchValue')}
               />
             </SearchInput>
             <PopoverList>
@@ -170,4 +169,4 @@ class EmailTemplate extends React.Component<Props, State> {
   }
 }
 
-export default EmailTemplate;
+export default withRouter(EmailTemplate);
