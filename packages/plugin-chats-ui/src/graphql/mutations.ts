@@ -14,7 +14,21 @@ const addChat = `
   }
 `;
 
+const removeChat = `
+  mutation chatRemove($id: String!) {
+    chatRemove(_id: $id)
+  }
+`;
+
+const markAsReadChat = `
+  mutation chatMarkAsRead($id: String!) {
+    chatMarkAsRead(_id: $id)
+  }
+`;
+
 export default {
   addChatMessage,
-  addChat
+  addChat,
+  removeChat,
+  markAsReadChat
 };

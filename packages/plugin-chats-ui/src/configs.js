@@ -12,7 +12,7 @@ module.exports = {
   menus: [
     {
       text: 'Chat',
-      url: '/erxes-plugin-chat/home',
+      url: '/erxes-plugin-chat',
       icon: 'icon-cog',
       location: 'mainNavigation',
       permission: 'showChats'
