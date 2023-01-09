@@ -216,6 +216,8 @@ export const ParticipantItemPreview = styled.div`
 export const ChatContentList = styled.ul`
   width: 100%;
   height: calc(100% - 180px);
+  display: flex;
+  flex-direction: column;
   background-color: #f9f9f9;
   border-radius: 10px;
   overflow-y: scroll;
@@ -231,6 +233,10 @@ export const ChatContentItem = styledTS<{ me: boolean }>(styled.li)`
   justify-content: ${props => (props.me ? 'flex-start' : 'flex-end')};
   flex-direction: ${props => (props.me ? 'row' : 'row-reverse')};
   margin-bottom: 10px;
+
+  &:first-child {
+    margin-top: auto;
+  }
 `;
 
 export const ChatContentDate = styled.span`
