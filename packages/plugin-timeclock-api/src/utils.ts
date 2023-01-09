@@ -2,9 +2,11 @@ import { generateModels, IModels } from './connectionResolver';
 import { sendCoreMessage, sendFormsMessage } from './messageBroker';
 import { ITimeClock, IUserReport } from './models/definitions/timeclock';
 import * as dayjs from 'dayjs';
-import { getEnv } from '@erxes/api-utils/src';
+import { fixDate, getEnv } from '@erxes/api-utils/src';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { Sequelize, QueryTypes } from 'sequelize';
+import { findBranch, findDepartment } from './graphql/resolvers/utils';
+
 const findUserByEmployeeId = async (subdomain: string, empId: number) => {
   const field = await sendFormsMessage({
     subdomain,
@@ -263,5 +265,141 @@ const checkTimeClockAlreadyExists = async (
 
   return alreadyExists;
 };
+const generateFilter = async (params, subdomain, type) => {
+  const branchIds = params.branchIds;
+  const departmentIds = params.departmentIds;
+  const userIds = params.userIds;
+  const startDate = params.startDate;
+  const endDate = params.endDate;
 
-export { connectAndQueryFromMySql };
+  const totalUserIds: string[] = [];
+  let commonUser: boolean = false;
+  let dateGiven: boolean = false;
+
+  let returnFilter = {};
+
+  if (branchIds) {
+    for (const branchId of branchIds) {
+      const branch = await findBranch(subdomain, branchId);
+      if (userIds) {
+        commonUser = true;
+        for (const userId of userIds) {
+          if (branch.userIds.includes(userId)) {
+            totalUserIds.push(userId);
+          }
+        }
+      } else {
+        totalUserIds.push(...branch.userIds);
+      }
+    }
+  }
+  if (departmentIds) {
+    for (const deptId of departmentIds) {
+      const department = await findDepartment(subdomain, deptId);
+      if (userIds) {
+        commonUser = true;
+        for (const userId of userIds) {
+          if (department.userIds.includes(userId)) {
+            totalUserIds.push(userId);
+          }
+        }
+      } else {
+        totalUserIds.push(...department.userIds);
+      }
+    }
+  }
+
+  if (!commonUser && userIds) {
+    totalUserIds.push(...userIds);
+  }
+
+  const timeFields =
+    type === 'schedule'
+      ? []
+      : type === 'timeclock'
+      ? [
+          {
+            shiftStart:
+              startDate && endDate
+                ? {
+                    $gte: fixDate(startDate),
+                    $lte: fixDate(endDate)
+                  }
+                : startDate
+                ? {
+                    $gte: fixDate(startDate)
+                  }
+                : { $lte: fixDate(endDate) }
+          },
+          {
+            shiftEnd:
+              startDate && endDate
+                ? {
+                    $gte: fixDate(startDate),
+                    $lte: fixDate(endDate)
+                  }
+                : startDate
+                ? {
+                    $gte: fixDate(startDate)
+                  }
+                : { $lte: fixDate(endDate) }
+          }
+        ]
+      : [
+          {
+            startTime:
+              startDate && endDate
+                ? {
+                    $gte: fixDate(startDate),
+                    $lte: fixDate(endDate)
+                  }
+                : startDate
+                ? {
+                    $gte: fixDate(startDate)
+                  }
+                : { $lte: fixDate(endDate) }
+          },
+          {
+            endTime:
+              startDate && endDate
+                ? {
+                    $gte: fixDate(startDate),
+                    $lte: fixDate(endDate)
+                  }
+                : startDate
+                ? {
+                    $gte: fixDate(startDate)
+                  }
+                : { $lte: fixDate(endDate) }
+          }
+        ];
+
+  if (startDate || endDate) {
+    dateGiven = true;
+  }
+
+  if (totalUserIds.length > 0) {
+    if (dateGiven) {
+      returnFilter = {
+        $and: [...timeFields, { userId: { $in: [...totalUserIds] } }]
+      };
+    } else {
+      returnFilter = { userId: { $in: [...totalUserIds] } };
+    }
+  }
+
+  if (
+    !departmentIds &&
+    !branchIds &&
+    !userIds &&
+    dateGiven &&
+    type !== 'schedule'
+  ) {
+    returnFilter = { $or: timeFields };
+  }
+
+  // if no param is given, return empty filter
+  return returnFilter;
+};
+
+export { connectAndQueryFromMySql, generateFilter };

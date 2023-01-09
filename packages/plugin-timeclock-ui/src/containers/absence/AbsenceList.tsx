@@ -13,6 +13,7 @@ import { mutations, queries } from '../../graphql';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert } from '@erxes/ui/src/utils';
 import { IAttachment } from '@erxes/ui/src/types';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 
 type Props = {
   history: any;
@@ -31,7 +32,10 @@ type Props = {
   queryUserIds: string[];
   queryBranchIds: string[];
   queryDepartmentIds: string[];
+  queryPage: number;
+  queryPerPage: number;
   getActionBar: (actionBar: any) => void;
+  getPagination: (pagination: any) => void;
 };
 
 type FinalProps = {
@@ -45,6 +49,7 @@ const ListContainer = (props: FinalProps) => {
     queryParams,
     sendAbsenceReqMutation,
     solveAbsenceMutation,
+    getPagination,
     listAbsenceQuery,
     listAbsenceTypesQuery
   } = props;
@@ -86,34 +91,42 @@ const ListContainer = (props: FinalProps) => {
     }
   };
 
+  const { list = [], totalCount = 0 } = listAbsenceQuery.requestsMain || {};
+
   const updatedProps = {
     ...props,
-    absences: listAbsenceQuery.absences || [],
+    absences: list,
     absenceTypes: listAbsenceTypesQuery.absenceTypes || [],
     loading: listAbsenceQuery.loading,
     solveAbsence,
     submitRequest
   };
+
+  getPagination(<Pagination count={totalCount} />);
   return <AbsenceList {...updatedProps} />;
 };
 
 export default withProps<Props>(
   compose(
-    graphql<Props, AbsenceQueryResponse>(gql(queries.listAbsence), {
+    graphql<Props, AbsenceQueryResponse>(gql(queries.listRequestsMain), {
       name: 'listAbsenceQuery',
       options: ({
         queryStartDate,
         queryEndDate,
         queryUserIds,
         queryDepartmentIds,
-        queryBranchIds
+        queryBranchIds,
+        queryPage,
+        queryPerPage
       }) => ({
         variables: {
           startDate: queryStartDate,
           endDate: queryEndDate,
           userIds: queryUserIds,
           departmentIds: queryDepartmentIds,
-          branchIds: queryBranchIds
+          branchIds: queryBranchIds,
+          page: queryPage,
+          perPage: queryPerPage
         },
         fetchPolicy: 'network-only'
       })
@@ -144,7 +157,7 @@ export default withProps<Props>(
           explanation: `${explanation}`,
           attachment: `${attachment}`
         },
-        refetchQueries: ['listAbsenceQuery']
+        refetchQueries: ['listRequestsMain']
       })
     }),
 
@@ -155,7 +168,7 @@ export default withProps<Props>(
           _id: absenceId,
           status: absenceStatus
         },
-        refetchQueries: ['listAbsenceQuery']
+        refetchQueries: ['listRequestsMain']
       })
     })
   )(ListContainer)

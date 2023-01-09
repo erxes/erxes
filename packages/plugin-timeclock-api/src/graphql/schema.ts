@@ -107,20 +107,21 @@ export const types = `
     payDates: [Int]
   }
 
-`;
-
-export const queries = `
-  timeclocks(startDate: Date, endDate: Date, userIds: [String], branchIds: [String], departmentIds: [String]): [Timeclock]
-  absences(startDate: Date, endDate: Date, userIds: [String], branchIds: [String], departmentIds: [String]): [Absence]
-  schedules(startDate: Date, endDate: Date, userIds: [String], branchIds: [String], departmentIds: [String]): [Schedule]
-  absenceTypes:[AbsenceType]
-  timeclockReports(departmentIds: [String], branchIds: [String], userIds: [String]): [Report]
-  timeclockReportByUser(selectedUser: String): UserReport
-  timeclockDetail(_id: String!): Timeclock
-  absenceDetail(_id: String!): Absence
-  scheduleDetail(_id: String!): Schedule
-  payDates: [PayDate]
-  holidays: [Absence]
+  type TimeClocksListResponse {
+    list: [Timeclock]
+    totalCount: Float
+  }
+  
+  type SchedulesListResponse {
+    list: [Schedule]
+    totalCount: Float
+  }
+  
+  type RequestsListResponse {
+    list: [Absence]
+    totalCount: Float
+  }
+  
 `;
 
 const params = `
@@ -129,6 +130,16 @@ const params = `
   longitude: Float
   latitude: Float
   deviceType: String
+`;
+
+const queryParams = `
+  page: Int
+  perPage: Int
+  startDate: Date 
+  endDate: Date
+  userIds: [String]
+  branchIds: [String]
+  departmentIds: [String]
 `;
 
 const absence_params = `
@@ -150,6 +161,21 @@ const schedule_params = `
     userId: String
     shifts: [ShiftsRequestInput]
   `;
+
+export const queries = `
+  timeclocksMain(${queryParams}): TimeClocksListResponse
+  schedulesMain(${queryParams}): SchedulesListResponse
+  requestsMain(${queryParams}): RequestsListResponse
+
+  absenceTypes:[AbsenceType]
+  timeclockReports(departmentIds: [String], branchIds: [String], userIds: [String]): [Report]
+  timeclockReportByUser(selectedUser: String): UserReport
+  timeclockDetail(_id: String!): Timeclock
+  absenceDetail(_id: String!): Absence
+  scheduleDetail(_id: String!): Schedule
+  payDates: [PayDate]
+  holidays: [Absence]
+`;
 
 export const mutations = `
   timeclockStart(${params}): Timeclock

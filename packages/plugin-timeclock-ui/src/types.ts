@@ -1,6 +1,6 @@
 import { IUser } from '@erxes/ui/src/auth/types';
-import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
-import { IAttachment } from '@erxes/ui/src/types';
+import { IBranch } from '@erxes/ui/src/team/types';
+import { IAttachment, QueryResponse } from '@erxes/ui/src/types';
 
 export interface ITimeclock {
   _id: string;
@@ -84,6 +84,9 @@ export interface ISchedule {
     shiftEnd?: Date;
   };
 }
+export type TimeClockMainQueryResponse = {
+  timeclocksMain: { list: ITimeclock[]; totalCount: number };
+} & QueryResponse;
 
 export type TimeClockQueryResponse = {
   timeclocks: ITimeclock[];
@@ -92,10 +95,8 @@ export type TimeClockQueryResponse = {
 };
 
 export type AbsenceQueryResponse = {
-  absences: IAbsence[];
-  refetch: () => void;
-  loading: boolean;
-};
+  requestsMain: { list: IAbsence[]; totalCount: number };
+} & QueryResponse;
 
 export type AbsenceTypeQueryResponse = {
   absenceTypes: IAbsenceType[];
@@ -114,10 +115,8 @@ export type HolidaysQueryResponse = {
   loading: boolean;
 };
 export type ScheduleQueryResponse = {
-  schedules: IShiftSchedule[];
-  refetch: () => void;
-  loading: boolean;
-};
+  schedulesMain: { list: IShiftSchedule[]; totalCount: number };
+} & QueryResponse;
 
 export type BranchesQueryResponse = {
   branches: IBranch[];

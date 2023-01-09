@@ -1,4 +1,5 @@
 import { __ } from '@erxes/ui/src/utils';
+import queryString from 'query-string';
 
 const menuTimeClock = (searchFilter: string) => {
   return [
