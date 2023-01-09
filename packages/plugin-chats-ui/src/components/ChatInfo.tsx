@@ -29,7 +29,7 @@ const ChatInfo = (props: FinalProps) => {
   const renderParticipants = (user: any) => {
     return (
       <li key={user._id}>
-        <Link key={user._id} to="#">
+        <Link key={user._id} to={`/erxes-plugin-chat?userId=${user._id}`}>
           <Avatar user={user} size={36} />
           <ParticipantItem>
             {user.details.fullName || user.email}

@@ -30,9 +30,13 @@ const CreateGroupChatContainer = (props: Props) => {
           query: gql(queries.chats)
         }
       ]
-    }).catch(error => {
-      Alert.error(error.message);
-    });
+    })
+      .then(() => {
+        props.closeModal();
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
   };
 
   return <CreateGroupChat {...props} startGroupChat={startGroupChat} />;
