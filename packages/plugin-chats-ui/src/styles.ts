@@ -8,6 +8,7 @@ export const SidebarWrapper = styled.div`
   padding: 0px 1em;
   overflow: hidden;
   overflow-y: auto;
+  border-radius: 10px;
 `;
 
 export const SidebarHeader = styled.div`
@@ -57,6 +58,7 @@ export const OptionsWrapper = styled.div`
   height: auto;
   background-color: white;
   box-shadow: 0px 0px 20px 3px rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
   padding: 0.5em;
 `;
 
@@ -72,6 +74,7 @@ export const OptionsItem = styled.button`
   background-color: white;
   border: 0;
   outline: 0;
+  border-radius: 10px;
   padding: 1em;
   text-align: left;
   cursor: pointer;
@@ -214,6 +217,7 @@ export const ChatContentList = styled.ul`
   width: 100%;
   height: calc(100% - 180px);
   background-color: #f9f9f9;
+  border-radius: 10px;
   overflow-y: scroll;
   list-style: none;
   padding: 20px 10px;
