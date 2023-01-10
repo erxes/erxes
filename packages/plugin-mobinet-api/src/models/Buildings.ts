@@ -22,7 +22,10 @@ export const loadBuildingClass = (models: IModels) => {
 
     public static async updateBuilding(_id: string, doc: IBuilding) {
       await models.Buildings.getBuilding({ _id });
-      await models.Buildings.updateOne({ _id }, { $set: { ...doc } });
+      await models.Buildings.updateOne(
+        { _id },
+        { $set: { ...doc, updatedAt: new Date() } }
+      );
 
       return models.Buildings.getBuilding({ _id });
     }

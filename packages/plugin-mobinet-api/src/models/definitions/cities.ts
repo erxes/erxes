@@ -33,8 +33,18 @@ export const citySchema = schemaHooksWrapper(
       required: false
     }),
 
-    createdAt: field({ type: Date, label: 'createdAt', required: true }),
-    updatedAt: field({ type: Date, label: 'updatedAt', required: true }),
+    createdAt: field({
+      type: Date,
+      label: 'createdAt',
+      required: true,
+      default: Date.now
+    }),
+    updatedAt: field({
+      type: Date,
+      label: 'updatedAt',
+      required: true,
+      default: Date.now
+    }),
 
     searchText: field({ type: String, optional: true, index: true })
   }),

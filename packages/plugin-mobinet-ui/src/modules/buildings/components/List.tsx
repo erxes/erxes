@@ -1,22 +1,26 @@
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { router, __ } from '@erxes/ui/src/utils/core';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import { LinkButton } from '@erxes/ui/src/styles/main';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { __, router } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import { submenu } from '../../../utils';
+import Dropdown from 'react-bootstrap/Dropdown';
+import { withRouter } from 'react-router-dom';
+
 import OSMBuildings from '../../../common/OSMBuildings';
+import { submenu } from '../../../utils';
 import BuildingForm from '../containers/Form';
-// import Sidebar from './Sidebar';
 import { IBuilding } from '../types';
 import Row from './Row';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import Icon from '@erxes/ui/src/components/Icon';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
 
+// import Sidebar from './Sidebar';
 type Props = {
   buildings: IBuilding[];
   totalCount: number;
@@ -38,18 +42,6 @@ const List = (props: Props) => {
     remove
   } = props;
 
-  const [isMap, setIsMap] = React.useState(
-    viewType && viewType.includes('map')
-  );
-
-  const onClickToggle = () => {
-    router.setParams(history, { viewType: isMap ? 'list' : 'map' });
-
-    !isMap && window.location.reload();
-
-    setIsMap(!isMap);
-  };
-
   const renderRow = () => {
     const { buildings } = props;
     return buildings.map(building => (
@@ -65,8 +57,8 @@ const List = (props: Props) => {
     </Button>
   );
 
-  const renderMap = () => {
-    if (!isMap) {
+  const render3dMap = () => {
+    if (viewType !== '3d') {
       return null;
     }
 
@@ -81,7 +73,7 @@ const List = (props: Props) => {
   };
 
   const renderList = () => {
-    if (isMap) {
+    if (viewType !== 'list') {
       return null;
     }
     return (
@@ -115,20 +107,47 @@ const List = (props: Props) => {
     />
   );
 
-  // const actionBar = (
-  //   <BarItems>
-  //     <Button btnStyle="simple" size="small" onClick={onClickToggle}>
-  //       <Icon icon={isMap ? 'list' : 'map'} />
-  //     </Button>
-  //     <Wrapper.ActionBar right={righActionBar} left={actionBarLeft} />
-  //   </BarItems>
-  // );
+  const renderViewChooser = () => {
+    const onFilterClick = e => {
+      const type = e.target.id;
+
+      router.setParams(history, { viewType: type });
+
+      if (type === '3d') {
+        window.location.reload();
+      }
+    };
+
+    const viewTypes = [
+      { title: 'List', value: 'list' },
+      { title: '2D map', value: '2d' },
+      { title: '3D map', value: '3d' }
+    ];
+
+    return (
+      <Dropdown>
+        <Dropdown.Toggle as={DropdownToggle} id="dropdown-buildingAction">
+          <Button btnStyle="primary" icon="list-ui-alt">
+            {viewTypes.find(type => type.value === viewType)?.title}
+            <Icon icon="angle-down" />
+          </Button>
+        </Dropdown.Toggle>
+        <Dropdown.Menu>
+          {viewTypes.map(type => (
+            <li key={type.value}>
+              <LinkButton id={type.value} onClick={onFilterClick}>
+                {__(type.title)}
+              </LinkButton>
+            </li>
+          ))}
+        </Dropdown.Menu>
+      </Dropdown>
+    );
+  };
 
   const actionBarRight = (
     <BarItems>
-      <Button btnStyle="simple" size="small" onClick={onClickToggle}>
-        <Icon icon={isMap ? 'list' : 'map'} />
-      </Button>
+      {renderViewChooser()}
 
       <ModalTrigger
         title={__('Add Building')}
@@ -146,7 +165,7 @@ const List = (props: Props) => {
   const content = (
     <>
       {renderList()}
-      {renderMap()}
+      {render3dMap()}
     </>
   );
 
@@ -183,7 +202,5 @@ const List = (props: Props) => {
     />
   );
 };
-
-// export default List;
 
 export default withRouter<Props>(List);

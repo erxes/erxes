@@ -14,7 +14,7 @@ import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { IMobinet, IType } from '../types';
 import Form from './Form';
-import OSMBuildings from '../common/OpenStreetMapBuildings';
+import OSMBuildings from '../common/OSMBuildings';
 import Row from './Row';
 import { submenu } from '../utils';
 

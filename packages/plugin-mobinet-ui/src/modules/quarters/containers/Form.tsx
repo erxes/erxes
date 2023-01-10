@@ -16,7 +16,7 @@ const QuarterFormContainer = (props: Props) => {
     callback,
     object
   }: IButtonMutateProps) => {
-    const mutation = object ? mutations.addMutation : mutations.editMutation;
+    const mutation = object ? mutations.editMutation : mutations.addMutation;
 
     return (
       <ButtonMutate

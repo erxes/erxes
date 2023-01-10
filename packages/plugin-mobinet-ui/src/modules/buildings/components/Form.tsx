@@ -19,14 +19,6 @@ type Props = {
 const BuildingForm = (props: Props) => {
   const { building } = props;
 
-  // const [name, setName] = useState<string>((building && building.name) || '');
-  // const [code, setCode] = useState<string>((building && building.code) || '');
-  // const [center, setCenter] = useState<ILocationOption>(
-  //   (building && building.center) || { lat: 0, lng: 0, description: 'description' }
-  // );
-  // const [iso, setIso] = useState<string>((building && building.iso) || '');
-  // const [stat, setStat] = useState<string>((building && building.stat) || '');
-
   const [quarterId, setQuarterId] = useState<string>('');
   const [cityId, setCityId] = useState<string>('');
   const [districtId, setDistrictId] = useState<string>('');
@@ -46,34 +38,12 @@ const BuildingForm = (props: Props) => {
       finalValues.name = buildingObject.name;
       finalValues.code = buildingObject.code;
       finalValues.center = buildingObject.center;
-      //   finalValues.iso = buildingObject.iso;
-      //   finalValues.stat = buildingObject.stat;
     }
 
     return {
       ...finalValues
     };
   };
-
-  // const onChangeProvince = option => {
-  //   const selected = PROVINCES.find(p => p.value === option.value);
-
-  //   if (!selected) {
-  //     return;
-  //   }
-
-  //   setZoom(10);
-  //   setCenter(selected.center);
-  //   setProvince(option.value);
-  // };
-
-  // const onChangeMarker = (option) => {
-  //   setCenter(option);
-  // };
-
-  // const onChangeLocationOption = (option) => {
-  //   setCenter(option);
-  // };
 
   const onChangeInput = e => {
     const { id, value } = e.target;
@@ -129,55 +99,6 @@ const BuildingForm = (props: Props) => {
           'string',
           building && building.name
         )}
-
-        {/* {renderInput(formProps, 'Iso', 'iso', 'string', building && building.iso)} */}
-        {/* {renderInput(formProps, 'Stat', 'stat', 'string', building && building.stat)} */}
-
-        {/* 
-        <FormGroup>
-          <ControlLabel>Name</ControlLabel>
-          <FormControl
-            {...formProps}
-            id="name"
-            name="name"
-            type="string"
-            required={true}
-            defaultValue={name}
-            onChange={onChangeInput}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Code</ControlLabel>
-          <FormControl
-            {...formProps}
-            id="code"
-            name="code"
-            type="string"
-            required={true}
-            defaultValue={code}
-            onChange={onChangeInput}
-          />
-        </FormGroup> */}
-
-        {/* <FormGroup>
-            <ControlLabel htmlFor="locationOptions">Location:</ControlLabel>
-            <Map
-              id={Math.random().toString(10)}
-              center={center}
-              zoom={zoom}
-              locationOptions={[]}
-              streetViewControl={false}
-              onChangeMarker={onChangeMarker}
-              mode="view"
-            />
-            <LocationOption
-              key={'location'}
-              option={center}
-              onChangeOption={onChangeLocationOption}
-              index={0}
-            />
-          </FormGroup> */}
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">

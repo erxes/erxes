@@ -20,6 +20,8 @@ export interface IBuilding {
     long: number;
   };
 
+  serviceStatus: 'active' | 'inactive' | 'inprogress';
+
   customerIds: string[];
 
   createdAt: Date;
@@ -66,6 +68,14 @@ export const buildingSchema = schemaHooksWrapper(
       required: false
     },
 
+    serviceStatus: field({
+      type: String,
+      enum: ['active', 'inactive', 'inprogress'],
+      label: 'serviceStatus',
+      required: true,
+      default: 'inactive',
+      index: true
+    }),
     customerIds: field({
       type: [String],
       label: 'customerIds',
@@ -76,7 +86,7 @@ export const buildingSchema = schemaHooksWrapper(
 
     searchText: field({ type: String, optional: true, index: true })
   }),
-  'mobinet_cities'
+  'mobinet_buildings'
 );
 
 buildingSchema.index({ location: '2dsphere' });

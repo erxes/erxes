@@ -1,8 +1,16 @@
-import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, useMap, Marker, Popup } from 'react-leaflet';
-import Leaflet from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
+import React, { useEffect, useState } from 'react';
+import {
+  MapContainer,
+  Marker,
+  Popup,
+  TileLayer,
+  useMap,
+  useMapEvents
+} from 'react-leaflet';
+
+// import Leaflet from 'leaflet';
 type Props = {
   id: string;
   width?: string;
@@ -16,21 +24,33 @@ type Props = {
   };
 
   onChangeCenter?: (position: any) => void;
+  onChangeZoom?: (zoomLevel: number) => void;
+};
 
-  // onDragEndCenter?: (e: any) => void;
+const MapComponent = (props: Props) => {
+  const map = useMap();
+
+  const mapEvents = useMapEvents({
+    zoomend: () => {
+      props.onChangeZoom && props.onChangeZoom(mapEvents.getZoom());
+    }
+  });
+
+  map.setView(props.center || [47.919481, 106.904299], props.zoom || 5);
+
+  return null;
 };
 
 const Map = (props: Props) => {
-  console.log('Map props = ', props.center);
-  const { id, zoom, width = '100%', height = '100%', center } = props;
+  const { id, zoom, width = '100%', height = '100%' } = props;
 
   const [markers, setMarkers] = React.useState<any[]>(props.markers || []);
+  const [center, setCenter] = useState(props.center || { lat: 0, lng: 0 });
 
   if (
     props.addMarkerOnCenter &&
     markers.findIndex(item => item.id === 'center') === -1
   ) {
-    console.log('push center');
     markers.push({
       position: center,
       draggable: true,
@@ -39,21 +59,28 @@ const Map = (props: Props) => {
     });
   }
 
+  useEffect(() => {
+    setCenter(props.center || { lat: 0, lng: 0 });
+
+    if (props.addMarkerOnCenter) {
+      const centerMarkerIndex = markers.findIndex(item => item.id === 'center');
+
+      if (centerMarkerIndex !== -1) {
+        markers[centerMarkerIndex].position = center;
+        setMarkers([...markers]);
+      }
+    }
+  }, [props.id, center, zoom, setCenter]);
+
   const eventHandlers = {
     dragend: e => {
-      console.log('dragend = ', e.target.getLatLng());
-
       const { lat, lng } = e.target.getLatLng();
 
       if (props.onChangeCenter) {
-        console.log('onChangeCenter', e.target.title);
         props.onChangeCenter({ lat, lng });
       }
-      // console.log('markers = ', e.target );
     }
   };
-
-  console.log('markers.length', markers.length);
 
   return (
     <MapContainer
@@ -63,6 +90,8 @@ const Map = (props: Props) => {
       style={{ height, width }}
       id={id}
     >
+      <MapComponent {...props} />
+
       {markers.map((marker, index) => (
         <Marker
           key={index}

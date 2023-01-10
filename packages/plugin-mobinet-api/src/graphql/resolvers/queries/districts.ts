@@ -28,10 +28,15 @@ const queries = {
       filter.cityId = cityId;
     }
 
-    return paginate(models.Districts.find(filter).lean(), {
-      page: page || 1,
-      perPage: perPage || 20
-    });
+    return paginate(
+      models.Districts.find(filter)
+        .sort({ updatedAt: -1 })
+        .lean(),
+      {
+        page: page || 1,
+        perPage: perPage || 20
+      }
+    );
   },
 
   districtList: async (

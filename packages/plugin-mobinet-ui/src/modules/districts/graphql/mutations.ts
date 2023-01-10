@@ -1,8 +1,8 @@
 const variables = `
     $cityId: String
-    $name: String
-    $code: String
-    $center: String
+    $name: String!
+    $code: String!
+    $center: JSON
 `;
 
 const fields = `
@@ -21,8 +21,8 @@ const addMutation = `
 `;
 
 const editMutation = `
-    mutation districtsEdit($_id: String, ${variables}) {
-        districtsEdit($_id: $_id, ${fields}) {
+    mutation districtsEdit($_id: String!, ${variables}) {
+        districtsEdit(_id: $_id, ${fields}) {
             _id
         }
     }

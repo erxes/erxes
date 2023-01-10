@@ -22,7 +22,10 @@ export const loadQuarterClass = (models: IModels) => {
 
     public static async updateQuarter(_id: string, doc: IQuarter) {
       await models.Quarters.getQuarter({ _id });
-      await models.Quarters.updateOne({ _id }, { $set: { ...doc } });
+      await models.Quarters.updateOne(
+        { _id },
+        { $set: { ...doc, updatedAt: new Date() } }
+      );
 
       return models.Quarters.getQuarter({ _id });
     }

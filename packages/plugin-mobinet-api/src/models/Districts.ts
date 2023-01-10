@@ -22,7 +22,10 @@ export const loadDistrictClass = (models: IModels) => {
 
     public static async updateDistrict(_id: string, doc: IDistrict) {
       await models.Districts.getDistrict({ _id });
-      await models.Districts.updateOne({ _id }, { $set: { ...doc } });
+      await models.Districts.updateOne(
+        { _id },
+        { $set: { ...doc, updatedAt: new Date() } }
+      );
 
       return models.Districts.getDistrict({ _id });
     }

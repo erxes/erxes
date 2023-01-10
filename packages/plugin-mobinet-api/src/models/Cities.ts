@@ -18,7 +18,10 @@ export const loadCityClass = (models: IModels) => {
 
     public static async updateCity(_id: string, doc: ICity) {
       await models.Cities.getCity({ _id });
-      await models.Cities.updateOne({ _id }, { $set: { ...doc } });
+      await models.Cities.updateOne(
+        { _id },
+        { $set: { ...doc, updatedAt: new Date() } }
+      );
 
       return models.Cities.getCity({ _id });
     }

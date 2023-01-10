@@ -41,10 +41,15 @@ const queries = {
     }
 
     return {
-      list: paginate(models.Buildings.find(filter).lean(), {
-        page: page || 1,
-        perPage: perPage || 20
-      }),
+      list: paginate(
+        models.Buildings.find(filter)
+          .sort({ updatedAt: -1 })
+          .lean(),
+        {
+          page: page || 1,
+          perPage: perPage || 20
+        }
+      ),
       totalCount: models.Buildings.find(filter).count()
     };
   },

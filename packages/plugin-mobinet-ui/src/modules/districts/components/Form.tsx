@@ -8,6 +8,7 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React, { useState } from 'react';
 
 import { IDistrict } from '../types';
+import SelectCity from '../../cities/containers/SelectCity';
 
 type Props = {
   district?: IDistrict;
@@ -18,13 +19,7 @@ type Props = {
 const DistrictForm = (props: Props) => {
   const { district } = props;
 
-  // const [name, setName] = useState<string>((district && district.name) || '');
-  // const [code, setCode] = useState<string>((district && district.code) || '');
-  // const [center, setCenter] = useState<ILocationOption>(
-  //   (district && district.center) || { lat: 0, lng: 0, description: 'description' }
-  // );
-  // const [iso, setIso] = useState<string>((district && district.iso) || '');
-  // const [stat, setStat] = useState<string>((district && district.stat) || '');
+  const [cityId, setCityId] = useState<string>(district ? district.cityId : '');
 
   const [districtObject, setDistrictObject] = useState<IDistrict | undefined>(
     district
@@ -40,35 +35,13 @@ const DistrictForm = (props: Props) => {
     if (districtObject) {
       finalValues.name = districtObject.name;
       finalValues.code = districtObject.code;
-      finalValues.center = districtObject.center;
-      //   finalValues.iso = districtObject.iso;
-      //   finalValues.stat = districtObject.stat;
+      finalValues.cityId = cityId;
     }
 
     return {
       ...finalValues
     };
   };
-
-  // const onChangeProvince = option => {
-  //   const selected = PROVINCES.find(p => p.value === option.value);
-
-  //   if (!selected) {
-  //     return;
-  //   }
-
-  //   setZoom(10);
-  //   setCenter(selected.center);
-  //   setProvince(option.value);
-  // };
-
-  // const onChangeMarker = (option) => {
-  //   setCenter(option);
-  // };
-
-  // const onChangeLocationOption = (option) => {
-  //   setCenter(option);
-  // };
 
   const onChangeInput = e => {
     const { id, value } = e.target;
@@ -102,6 +75,13 @@ const DistrictForm = (props: Props) => {
 
     return (
       <>
+        <SelectCity
+          defaultValue={cityId}
+          onChange={e => {
+            setCityId(e);
+          }}
+        />
+
         {renderInput(
           formProps,
           'Code',
@@ -116,66 +96,6 @@ const DistrictForm = (props: Props) => {
           'string',
           district && district.name
         )}
-
-        {/* {renderInput(formProps, 'Iso', 'iso', 'string', district && district.iso)} */}
-        {/* {renderInput(formProps, 'Stat', 'stat', 'string', district && district.stat)} */}
-
-        {/* <FormGroup>
-            <ControlLabel required={true}>Province</ControlLabel>
-            <Select
-              districtholder={__('Select a province')}
-              value={province}
-              onChange={onChangeProvince}
-              options={PROVINCES}
-              multi={false}
-              clearable={true}
-            />
-          </FormGroup> */}
-        {/* 
-        <FormGroup>
-          <ControlLabel>Name</ControlLabel>
-          <FormControl
-            {...formProps}
-            id="name"
-            name="name"
-            type="string"
-            required={true}
-            defaultValue={name}
-            onChange={onChangeInput}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Code</ControlLabel>
-          <FormControl
-            {...formProps}
-            id="code"
-            name="code"
-            type="string"
-            required={true}
-            defaultValue={code}
-            onChange={onChangeInput}
-          />
-        </FormGroup> */}
-
-        {/* <FormGroup>
-            <ControlLabel htmlFor="locationOptions">Location:</ControlLabel>
-            <Map
-              id={Math.random().toString(10)}
-              center={center}
-              zoom={zoom}
-              locationOptions={[]}
-              streetViewControl={false}
-              onChangeMarker={onChangeMarker}
-              mode="view"
-            />
-            <LocationOption
-              key={'location'}
-              option={center}
-              onChangeOption={onChangeLocationOption}
-              index={0}
-            />
-          </FormGroup> */}
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">

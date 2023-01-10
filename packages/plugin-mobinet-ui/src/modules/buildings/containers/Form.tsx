@@ -2,21 +2,21 @@ import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
 import gql from 'graphql-tag';
-import DistrictForm from '../components/Form';
+import BuildingForm from '../components/Form';
 import { mutations, queries } from '../graphql';
 
 type Props = {
   closeModal: () => void;
 };
 
-const DistrictFormContainer = (props: Props) => {
+const BuildingFormContainer = (props: Props) => {
   const renderButton = ({
     values,
     isSubmitted,
     callback,
     object
   }: IButtonMutateProps) => {
-    const mutation = object ? mutations.addMutation : mutations.editMutation;
+    const mutation = object ? mutations.editMutation : mutations.addMutation;
 
     return (
       <ButtonMutate
@@ -39,7 +39,7 @@ const DistrictFormContainer = (props: Props) => {
     renderButton
   };
 
-  return <DistrictForm {...updatedProps} />;
+  return <BuildingForm {...updatedProps} />;
 };
 
 const getRefetchQueries = () => {
@@ -51,4 +51,4 @@ const getRefetchQueries = () => {
   ];
 };
 
-export default DistrictFormContainer;
+export default BuildingFormContainer;

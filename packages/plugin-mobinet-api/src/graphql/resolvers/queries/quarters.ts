@@ -35,10 +35,15 @@ const queries = {
     }
 
     return {
-      list: paginate(models.Quarters.find(filter).lean(), {
-        page: page || 1,
-        perPage: perPage || 20
-      }),
+      list: paginate(
+        models.Quarters.find(filter)
+          .sort({ updatedAt: -1 })
+          .lean(),
+        {
+          page: page || 1,
+          perPage: perPage || 20
+        }
+      ),
       totalCount: models.Quarters.find(filter).count()
     };
   },

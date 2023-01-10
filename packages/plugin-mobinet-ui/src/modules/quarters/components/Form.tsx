@@ -8,6 +8,7 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React, { useState } from 'react';
 import SelectCity from '../../cities/containers/SelectCity';
 import SelectDistrict from '../../districts/containers/SelectDistrict';
+import { IDistrict } from '../../districts/types';
 
 import { IQuarter } from '../types';
 
@@ -20,16 +21,10 @@ type Props = {
 const QuarterForm = (props: Props) => {
   const { quarter } = props;
 
-  // const [name, setName] = useState<string>((quarter && quarter.name) || '');
-  // const [code, setCode] = useState<string>((quarter && quarter.code) || '');
-  // const [center, setCenter] = useState<ILocationOption>(
-  //   (quarter && quarter.center) || { lat: 0, lng: 0, description: 'description' }
-  // );
-  // const [iso, setIso] = useState<string>((quarter && quarter.iso) || '');
-  // const [stat, setStat] = useState<string>((quarter && quarter.stat) || '');
   const [cityId, setCityId] = useState<string>(
-    (quarter && quarter.cityId) || ''
+    (quarter && quarter.district && quarter.district.city._id) || ''
   );
+
   const [districtId, setDistrictId] = useState<string>(
     (quarter && quarter.districtId) || ''
   );
@@ -37,6 +32,8 @@ const QuarterForm = (props: Props) => {
   const [quarterObject, setQuarterObject] = useState<IQuarter | undefined>(
     quarter
   );
+
+  React.useEffect(() => {}, [setCityId, cityId, districtId]);
 
   const generateDoc = () => {
     const finalValues: any = {};
@@ -49,34 +46,13 @@ const QuarterForm = (props: Props) => {
       finalValues.name = quarterObject.name;
       finalValues.code = quarterObject.code;
       finalValues.center = quarterObject.center;
-      //   finalValues.iso = quarterObject.iso;
-      //   finalValues.stat = quarterObject.stat;
+      finalValues.districtId = districtId;
     }
 
     return {
       ...finalValues
     };
   };
-
-  // const onChangeProvince = option => {
-  //   const selected = PROVINCES.find(p => p.value === option.value);
-
-  //   if (!selected) {
-  //     return;
-  //   }
-
-  //   setZoom(10);
-  //   setCenter(selected.center);
-  //   setProvince(option.value);
-  // };
-
-  // const onChangeMarker = (option) => {
-  //   setCenter(option);
-  // };
-
-  // const onChangeLocationOption = (option) => {
-  //   setCenter(option);
-  // };
 
   const onChangeInput = e => {
     const { id, value } = e.target;
@@ -113,7 +89,9 @@ const QuarterForm = (props: Props) => {
         <SelectCity
           defaultValue={cityId}
           onChange={e => {
+            console.log('cityyyyyy ', e);
             setCityId(e);
+            setDistrictId('');
           }}
         />
 
@@ -141,66 +119,6 @@ const QuarterForm = (props: Props) => {
           'string',
           quarter && quarter.name
         )}
-
-        {/* {renderInput(formProps, 'Iso', 'iso', 'string', quarter && quarter.iso)} */}
-        {/* {renderInput(formProps, 'Stat', 'stat', 'string', quarter && quarter.stat)} */}
-
-        {/* <FormGroup>
-            <ControlLabel required={true}>Province</ControlLabel>
-            <Select
-              quarterholder={__('Select a province')}
-              value={province}
-              onChange={onChangeProvince}
-              options={PROVINCES}
-              multi={false}
-              clearable={true}
-            />
-          </FormGroup> */}
-        {/* 
-        <FormGroup>
-          <ControlLabel>Name</ControlLabel>
-          <FormControl
-            {...formProps}
-            id="name"
-            name="name"
-            type="string"
-            required={true}
-            defaultValue={name}
-            onChange={onChangeInput}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Code</ControlLabel>
-          <FormControl
-            {...formProps}
-            id="code"
-            name="code"
-            type="string"
-            required={true}
-            defaultValue={code}
-            onChange={onChangeInput}
-          />
-        </FormGroup> */}
-
-        {/* <FormGroup>
-            <ControlLabel htmlFor="locationOptions">Location:</ControlLabel>
-            <Map
-              id={Math.random().toString(10)}
-              center={center}
-              zoom={zoom}
-              locationOptions={[]}
-              streetViewControl={false}
-              onChangeMarker={onChangeMarker}
-              mode="view"
-            />
-            <LocationOption
-              key={'location'}
-              option={center}
-              onChangeOption={onChangeLocationOption}
-              index={0}
-            />
-          </FormGroup> */}
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">

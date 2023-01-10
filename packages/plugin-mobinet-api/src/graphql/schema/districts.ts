@@ -25,9 +25,9 @@ const mutationParams = `
 `;
 
 export const mutations = `
-  districtAdd(${mutationParams}): District
-  districtEdit(_id: String!, ${mutationParams}): District
-  districtRemove(_id: [String]): JSON
+  districtsAdd(${mutationParams}): District
+  districtsEdit(_id: String!, ${mutationParams}): District
+  districtsRemove(_id: [String]): JSON
 `;
 
 const qryParams = `

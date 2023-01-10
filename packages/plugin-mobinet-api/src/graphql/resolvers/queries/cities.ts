@@ -19,10 +19,15 @@ const citiesQuery = {
     }
 
     return {
-      list: paginate(models.Cities.find(filter).lean(), {
-        page: page || 1,
-        perPage: perPage || 20
-      }),
+      list: paginate(
+        models.Cities.find(filter)
+          .sort({ updatedAt: -1 })
+          .lean(),
+        {
+          page: page || 1,
+          perPage: perPage || 20
+        }
+      ),
       totalCount: models.Cities.find(filter).count()
     };
   },
