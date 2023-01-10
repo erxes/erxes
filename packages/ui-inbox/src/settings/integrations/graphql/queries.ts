@@ -193,8 +193,8 @@ const integrationsVideoCallUsageStatus = `
 `;
 
 const emailTemplates = `
-  query emailTemplates($page: Int, $perPage: Int) {
-    emailTemplates(page: $page, perPage: $perPage) {
+  query emailTemplates($page: Int, $perPage: Int, $searchValue: String) {
+    emailTemplates(page: $page, perPage: $perPage, searchValue: $searchValue) {
       _id
       name
       content
@@ -203,8 +203,8 @@ const emailTemplates = `
 `;
 
 const templateTotalCount = `
-  query emailTemplatesTotalCount {
-    emailTemplatesTotalCount
+  query emailTemplatesTotalCount($searchValue: String) {
+    emailTemplatesTotalCount(searchValue: $searchValue)
   }
 `;
 
