@@ -300,6 +300,7 @@ export const setProperty = async ({
         action: 'automations.receiveSetPropertyForwardTo',
         data: {
           target,
+          collectionType,
           setDoc,
           pushDoc
         }
