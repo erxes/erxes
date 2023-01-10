@@ -6,7 +6,6 @@ const loadMapScript = () => {
   // Go through existing script tags, and return osmbuildings tag when found.
   for (const script of scripts) {
     if (script.src.includes('osmb.js')) {
-      console.log('script found');
       return script;
     }
   }
@@ -19,22 +18,6 @@ const loadMapScript = () => {
   window.document.body.appendChild(osmScript);
 
   return osmScript;
-};
-
-const markerSvg =
-  'M32 62c0-17.1 16.3-25.2 17.8-39.7A18 18 0 1 0 14 20a18.1 18.1 0 0 0 .2 2.2C15.7 36.8 32 44.9 32 62z';
-
-const getIconAttributes = (marker: string, iconColor: string, pos?: any) => {
-  const anchor = pos || [33, 62];
-  return {
-    path: marker,
-    fillColor: iconColor,
-    fillOpacity: 0.9,
-    anchor,
-    strokeWeight: 0.8,
-    strokeColor: '#ffffff',
-    scale: 0.7
-  };
 };
 
 type Props = {
@@ -66,8 +49,6 @@ const Map = (props: Props) => {
 
   const renderMap = () => {
     const mapElement = document.getElementById(props.id);
-
-    console.log('mapElement: ', mapElement);
 
     if (!mapElement || !(window as any).OSMBuildings) {
       console.log('mapElement not found');
@@ -117,15 +98,7 @@ const Map = (props: Props) => {
       });
     });
 
-    map.on('pointerdown', e => {
-      console.log('e: ', map.getPosition());
-      const pos = map.getPosition();
-
-      map.addMarker(pos, '', {
-        url: 'https://www.svgrepo.com/show/38705/location-pin.svg',
-        color: '#ff0000'
-      });
-    });
+    map.addGeoJSON('http://localhost:3000/geojson/custom.json');
 
     map.appendTo(props.id);
 

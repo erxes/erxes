@@ -1,10 +1,16 @@
 import { QueryResponse } from '@erxes/ui/src/types';
 
+export interface IGeoData {
+  lat: number;
+  lng: number;
+  zoom: number;
+}
+
 export interface ICity {
   _id: string;
   code: string;
   name: string;
-  center: any;
+  geoData: IGeoData;
   iso: string;
   stat: string;
 }

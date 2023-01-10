@@ -5,7 +5,7 @@ export const types = `
     code: String
     iso: String
     stat: String
-    center: JSON
+    geoData: JSON
     createdAt: Date
     updatedAt: Date
   }
@@ -21,7 +21,7 @@ const mutationParams = `
     code: String!
     iso: String
     stat: String
-    center: JSON
+    geoData: JSON
 `;
 
 export const mutations = `

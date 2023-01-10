@@ -6,7 +6,7 @@ export interface ICity {
   code: string;
   iso: string;
   stat: string;
-  center: any;
+  geoData: any;
 
   createdAt: Date;
   updatedAt: Date;
@@ -27,11 +27,12 @@ export const citySchema = schemaHooksWrapper(
     name: field({ type: String, label: 'name', required: true }),
     iso: field({ type: String, label: 'iso', required: false }),
     stat: field({ type: String, label: 'stat', required: false }),
-    center: field({
+    geoData: field({
       type: Schema.Types.Mixed,
-      label: 'Center location',
+      label: 'Geo data',
       required: false
     }),
+
     createdAt: field({ type: Date, label: 'createdAt', required: true }),
     updatedAt: field({ type: Date, label: 'updatedAt', required: true }),
 

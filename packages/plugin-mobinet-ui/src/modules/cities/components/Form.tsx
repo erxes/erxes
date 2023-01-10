@@ -5,10 +5,10 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React, { useState } from 'react';
-import Map from '../../../common/OpenStreetMapBuildings';
+import React, { useState, useEffect } from 'react';
+import Map from '../../../common/OSMap';
 
-import { ICity } from '../types';
+import { ICity, IGeoData } from '../types';
 
 type Props = {
   city?: ICity;
@@ -18,16 +18,22 @@ type Props = {
 
 const CityForm = (props: Props) => {
   const { city } = props;
+  const geoData = (city && city.geoData) || {
+    lat: 47.919481,
+    lng: 106.904299,
+    zoom: 10
+  };
 
-  // const [name, setName] = useState<string>((city && city.name) || '');
-  // const [code, setCode] = useState<string>((city && city.code) || '');
-  // const [center, setCenter] = useState<ILocationOption>(
-  //   (city && city.center) || { lat: 0, lng: 0, description: 'description' }
-  // );
-  // const [iso, setIso] = useState<string>((city && city.iso) || '');
-  // const [stat, setStat] = useState<string>((city && city.stat) || '');
+  console.log('geoData', geoData);
 
   const [cityObject, setCityObject] = useState<ICity | undefined>(city);
+  const [lat, setLat] = useState<number>((geoData && geoData.lat) || 0);
+  const [lng, setLng] = useState<number>(geoData.lng);
+  const [zoom, setZoom] = useState<number>(geoData.zoom);
+
+  // useEffect(() => {
+  //   console.log('geoData', geoData);
+  // }, [geoData]);
 
   const generateDoc = () => {
     const finalValues: any = {};
@@ -39,7 +45,7 @@ const CityForm = (props: Props) => {
     if (cityObject) {
       finalValues.name = cityObject.name;
       finalValues.code = cityObject.code;
-      finalValues.center = cityObject.center;
+      finalValues.geoData = geoData;
       finalValues.iso = cityObject.iso;
       finalValues.stat = cityObject.stat;
     }
@@ -49,28 +55,31 @@ const CityForm = (props: Props) => {
     };
   };
 
-  // const onChangeProvince = option => {
-  //   const selected = PROVINCES.find(p => p.value === option.value);
-
-  //   if (!selected) {
-  //     return;
-  //   }
-
-  //   setZoom(10);
-  //   setCenter(selected.center);
-  //   setProvince(option.value);
-  // };
-
-  // const onChangeMarker = (option) => {
-  //   setCenter(option);
-  // };
-
-  // const onChangeLocationOption = (option) => {
-  //   setCenter(option);
-  // };
-
   const onChangeInput = e => {
     const { id, value } = e.target;
+
+    // if (['lat', 'lng', 'zoom'].includes(id)) {
+    //   const data: IGeoData = geoData || { lat: 0, lng: 0, zoom: 10 };
+
+    //   data[id] = Number(value);
+
+    //   return setGeoData(data);
+    // }
+
+    switch (id) {
+      case 'lat':
+        setLat(Number(value));
+        return;
+      case 'lng':
+        setLng(Number(value));
+        return;
+      case 'zoom':
+        setZoom(Number(value));
+        return;
+      default:
+        break;
+    }
+
     const obj: any = cityObject || {};
 
     obj[id] = value;
@@ -78,7 +87,16 @@ const CityForm = (props: Props) => {
     setCityObject(obj);
   };
 
+  const onChangeCenter = position => {
+    console.log(position);
+
+    // setGeoData(position);
+    setLat(position.lat);
+    setLng(position.lng);
+  };
+
   const renderInput = (formProps, title, name, type, value) => {
+    console.log('renderInput', name, value);
     return (
       <FormGroup>
         <ControlLabel>{title}</ControlLabel>
@@ -96,14 +114,18 @@ const CityForm = (props: Props) => {
   };
 
   const renderMap = () => {
+    console.log('renderMap');
     return (
       <FormGroup>
         <ControlLabel htmlFor="locationOptions">Location:</ControlLabel>
-        {/* <Map
+        <Map
           id={Math.random().toString(10)}
-          center={cityObject && cityObject.center}
-
-        /> */}
+          height={'300px'}
+          center={geoData}
+          zoom={geoData && geoData.zoom}
+          addMarkerOnCenter={true}
+          onChangeCenter={onChangeCenter}
+        />
       </FormGroup>
     );
   };
@@ -112,6 +134,8 @@ const CityForm = (props: Props) => {
     const { closeModal, renderButton } = props;
     const { isSubmitted } = formProps;
 
+    console.log('**********', geoData);
+
     return (
       <>
         {renderInput(formProps, 'Code', 'code', 'string', city && city.code)}
@@ -119,6 +143,29 @@ const CityForm = (props: Props) => {
 
         {renderInput(formProps, 'Iso', 'iso', 'string', city && city.iso)}
         {renderInput(formProps, 'Stat', 'stat', 'string', city && city.stat)}
+        {renderInput(
+          formProps,
+          'Latitude',
+          'lat',
+          'number',
+          (geoData && geoData.lat) || 0
+        )}
+        {renderInput(
+          formProps,
+          'Longitude',
+          'lng',
+          'number',
+          (geoData && geoData.lng) || 0
+        )}
+        {renderInput(
+          formProps,
+          'Zoom',
+          'zoom',
+          'number',
+          (geoData && geoData.zoom) || 10
+        )}
+
+        {renderMap()}
 
         {/* <FormGroup>
             <ControlLabel required={true}>Province</ControlLabel>

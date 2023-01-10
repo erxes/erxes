@@ -7,7 +7,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { router, __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { submenu } from '../../../utils';
-import OSMBuildings from '../../../common/OpenStreetMapBuildings';
+import OSMBuildings from '../../../common/OSMBuildings';
 import BuildingForm from '../containers/Form';
 // import Sidebar from './Sidebar';
 import { IBuilding } from '../types';

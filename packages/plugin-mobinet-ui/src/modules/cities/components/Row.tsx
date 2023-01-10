@@ -36,13 +36,7 @@ const Row = (props: Props) => {
 
   const formContent = props => <CityForm {...props} city={city} />;
 
-  const center = city.center || { lat: 0, lng: 0, description: 'description' };
-  // <th>{__('code')}</th>
-  // <th>{__('name')}</th>
-  // <th>{__('Latitude')}</th>
-  // <th>{__('Longitude')}</th>
-  // <th>{__('iso')}</th>
-  // <th>{__('stat')}</th>
+  const center = city.geoData || { lat: 0, lng: 0, zoom: 0 };
 
   return (
     <tr>

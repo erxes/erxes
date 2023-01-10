@@ -1,6 +1,6 @@
 const fields = `
     _id
-    center
+    geoData
     code
     createdAt
     iso
