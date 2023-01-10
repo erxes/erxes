@@ -1,3 +1,4 @@
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 
 const configMutations = {
@@ -16,16 +17,26 @@ const configMutations = {
       const doc = { code, value };
 
       await models.ProductsConfigs.createOrUpdateConfig(doc);
-
-      // resetConfigsCache();
     }
 
+    const { isRequireUOM, defaultUOM } = configsMap;
+
+    if (isRequireUOM && !defaultUOM) {
+      throw new Error('must fill default UOM');
+    }
+
+    if (isRequireUOM && defaultUOM) {
+      await models.Products.updateMany(
+        {
+          $or: [{ uomId: { $exists: false } }, { uomId: '' }]
+        },
+        { $set: { uomId: defaultUOM } }
+      );
+    }
     return ['success'];
   }
 };
 
-// moduleCheckPermission(configMutations, 'manageGeneralSettings');
-// requireLogin(configMutations, 'configsActivateInstallation');
-// requireLogin(configMutations, 'configsManagePluginInstall');
+checkPermission(configMutations, 'productsConfigsUpdate', 'manageProducts');
 
 export default configMutations;

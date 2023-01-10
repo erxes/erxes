@@ -22,7 +22,7 @@ type Props = {
   extraContent?: string;
   invoiceLink?: string;
 
-  onSubmit: (doc: IFormDoc, requiredPaymentAmount?:number ) => void;
+  onSubmit: (doc: IFormDoc, formCode: string, requiredPaymentAmount?:number) => void;
   onCreateNew: () => void;
   sendEmail: (params: IEmailParams) => void;
   setHeight?: () => void;
@@ -165,11 +165,7 @@ class Form extends React.Component<Props, State> {
       }
     }
 
-    this.props.onSubmit(doc, subTotal);
-
-    // if (subTotal > 0) {
-    //   this.props.onCallPayments(subTotal);
-    // }
+    this.props.onSubmit(doc, this.props.form.code, subTotal);
   };
 
   canChangePage = () => {

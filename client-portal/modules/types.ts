@@ -108,6 +108,10 @@ export interface INotifcationSettings {
   receiveBySms?: boolean;
 }
 
+export interface IErxesForm {
+  brandId: string;
+  formId: string;
+}
 export interface IUser {
   _id: string;
   firstName: string;
@@ -174,6 +178,7 @@ export interface IKbArticle extends ICommonFields {
   summary: string;
   content: string;
   status: string;
+  forms?: IErxesForm[];
   categoryId?: string;
   reactionChoices?: string[];
   createdUser: IUser;

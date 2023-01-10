@@ -104,7 +104,9 @@ export const consumeRPCQueue = async (queueName, callback) => {
     channel.consume(queueName, async msg => {
       if (msg !== null) {
         if (showInfoDebug()) {
-          debugInfo(`Received rpc queue message ${msg.content.toString()}`);
+          debugInfo(
+            `Received rpc ${queueName} queue message ${msg.content.toString()}`
+          );
         }
 
         let response;

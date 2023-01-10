@@ -32,17 +32,17 @@ const typeDefs = async serviceDiscovery => {
       scope: CacheControlScope
       inheritMaxAge: Boolean
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
-    
+
     ${types(tagsAvailable, contactsAvailable)}
     ${productConfigTypes}
     ${uomTypes}
-    
+
     extend type Query {
       ${queries}
       ${productConfigQueries}
       ${uomQueries}
     }
-    
+
     extend type Mutation {
       ${mutations}
       ${productConfigMutations}

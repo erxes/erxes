@@ -1,18 +1,20 @@
-import React, { useState } from "react";
-import classNames from "classnames";
-import { Container, Row, Col } from "react-bootstrap";
-import Scrollspy from "react-scrollspy";
-import Avatar from "../../common/Avatar";
 import {
   ArticleWrapper,
-  SidebarList,
   Feedback,
-  PageAnchor,
   Modal,
+  PageAnchor,
+  SidebarList,
 } from "./styles";
-import { Config, Topic, IKbCategory, IKbArticle } from "../../types";
+import { Col, Container, Row } from "react-bootstrap";
+import { Config, IKbArticle, IKbCategory, Topic } from "../../types";
+import React, { useState } from "react";
+
+import Avatar from "../../common/Avatar";
+import Script from "../../common/Script";
+import Scrollspy from "react-scrollspy";
 import SectionHeader from "../../common/SectionHeader";
 import SideBar from "./SideBar";
+import classNames from "classnames";
 import { getConfigColor } from "../../common/utils";
 
 type Props = {
@@ -157,6 +159,27 @@ function ArticleDetail({ loading, article, category, topic, config }: Props) {
     );
   };
 
+  const renderContent = () => {
+    const forms = article.forms || [];
+
+    return (
+      <p>
+        {forms.length !== 0 && (
+          <Script
+            messengerBrandCode={config.messengerBrandCode}
+            erxesForms={forms}
+          />
+        )}
+        <div
+          onClick={showImageModal}
+          dangerouslySetInnerHTML={{
+            __html: article.content,
+          }}
+        />
+      </p>
+    );
+  };
+
   return (
     <Container className="knowledge-base">
       <SectionHeader
@@ -183,14 +206,7 @@ function ArticleDetail({ loading, article, category, topic, config }: Props) {
 
             <div className="content" id="contentText">
               <p>{article.summary}</p>
-              <p>
-                <div
-                  onClick={showImageModal}
-                  dangerouslySetInnerHTML={{
-                    __html: article.content,
-                  }}
-                />
-              </p>
+              {renderContent()}
               <Modal onClick={handleModal} id="modal">
                 <span id="close">&times;</span>
                 <img id="modal-content" alt="modal" />

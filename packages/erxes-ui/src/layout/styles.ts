@@ -5,6 +5,10 @@ import styled, { css } from 'styled-components';
 import { TabContainer } from '@erxes/ui/src/components/tabs/styles';
 import styledTS from 'styled-components-ts';
 import { twinkling } from '../utils/animations';
+import { getThemeItem } from '../utils/core';
+
+const thBackground = getThemeItem('background');
+const thColor = getThemeItem('text_color');
 
 const FlexContent = styled.div`
   display: flex;
@@ -620,8 +624,11 @@ const AuthCustomDescription = styled.div`
 const AuthDescription = styled.div`
   width: 100%;
   height: 100%;
-  background: ${colors.colorPrimaryDark} url('/images/stars.png') repeat top
-    center;
+  background: ${
+    thBackground
+      ? thBackground
+      : `${colors.colorPrimaryDark} url('/images/stars.png') repeat top center;`
+  }
   position: relative;
   overflow: hidden;
   display: flex;
@@ -633,7 +640,11 @@ const AuthDescription = styled.div`
     position: absolute;
     width: 100%;
     height: 100%;
-    background: transparent url('/images/twinkling.png') repeat top center;
+    background: ${
+      thBackground
+        ? thBackground
+        : `transparent url('/images/twinkling.png') repeat top center`
+    }
     animation: ${twinkling} 200s linear infinite;
   }
 
@@ -653,7 +664,7 @@ const AuthDescription = styled.div`
     position: relative;
     font-weight: bold;
     font-size: 48px;
-    color: ${colors.colorWhite};
+    color: ${thColor || colors.colorWhite};
     margin: 0px;
 
     @media (max-width: 768px) {
@@ -666,7 +677,7 @@ const AuthDescription = styled.div`
     font-size: 28px;
     font-weight: 400;
     line-height: 1.5em;
-    color: ${colors.colorWhite};
+    color: ${thColor || colors.colorWhite};
 
     @media (max-width: 768px) {
       font-size: 16px;
@@ -675,7 +686,7 @@ const AuthDescription = styled.div`
 
   p {
     position: relative;
-    color: ${colors.colorWhite};
+    color: ${thColor || colors.colorWhite};
     margin-bottom: 50px;
     font-size: 20px;
     line-height: 1.8em;

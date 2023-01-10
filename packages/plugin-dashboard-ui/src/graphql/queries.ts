@@ -14,6 +14,7 @@ const listParamsDef = `
   $page: Int
   $perPage: Int
   $tag: String
+  $departmentId: String
   $ids: [String]
   $excludeIds: Boolean
   $searchValue: String
@@ -25,6 +26,7 @@ const listParamsValue = `
   page: $page
   perPage: $perPage
   tag: $tag
+  departmentId: $departmentId
   ids: $ids
   excludeIds: $excludeIds
   searchValue: $searchValue
@@ -46,6 +48,7 @@ const dashboards = `
       description
       visibility
       selectedMemberIds
+      departmentIds
       parentId
       order
       createdAt
@@ -77,6 +80,7 @@ export const dashboardsMain = `
         description
         visibility
         selectedMemberIds
+        departmentIds
         parentId
         order
         createdAt
@@ -132,6 +136,7 @@ const dashboardDetails = `
       description
       visibility
       selectedMemberIds
+      departmentIds
       parentId
       order
       createdAt

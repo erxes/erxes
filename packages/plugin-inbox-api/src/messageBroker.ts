@@ -193,6 +193,16 @@ export const initBroker = cl => {
     }
   );
 
+  consumeQueue(
+    'inbox:removeConversation',
+    async ({ subdomain, data: { _id } }) => {
+      const models = await generateModels(subdomain);
+
+      await models.ConversationMessages.deleteMany({ conversationId: _id });
+      return models.Conversations.deleteOne({ _id });
+    }
+  );
+
   consumeRPCQueue(
     'inbox:getConversations',
     async ({ subdomain, data: { query } }) => {

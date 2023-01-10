@@ -39,6 +39,7 @@ export interface IProduct {
   supply: string;
   productCount: number;
   minimiumCount: number;
+  quantity: number;
   category: IProductCategory;
   vendor?: ICompany;
 

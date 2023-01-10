@@ -144,6 +144,7 @@ const generateParams = ({ queryParams }) => {
     ids: queryParams.ids,
     searchValue: queryParams.searchValue,
     tag: queryParams.tag,
+    departmentId: queryParams.departmentId,
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)

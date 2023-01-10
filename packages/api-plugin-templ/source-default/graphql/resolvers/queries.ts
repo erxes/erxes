@@ -1,38 +1,31 @@
-import { IContext } from '../../connectionResolver';
+import { {Name}s, Types } from "../../models";
+import { IContext } from "@erxes/api-utils/src/types"
 
-const templateQueries = {
+const {name}Queries = {
   {name}s(
     _root,
     {
-      typeId,
-      searchValue,
-      {name}Ids
-    }: { typeId: string; searchValue?: string; {name}Ids?: string[] },
-    { models, commonQuerySelector }: IContext
+      typeId
+    },
+    _context: IContext
   ) {
-    const selector: any = { ...commonQuerySelector };
+
+    const selector: any = {};
+
     if (typeId) {
       selector.typeId = typeId;
     }
 
-    if (searchValue) {
-      selector.name = new RegExp(`.*${searchValue}.*`, 'i');
-    }
-    if ({name}Ids) {
-      selector._id = { $in: {name}Ids };
-    }
-
-    // return models.Templates.find({});
-    return models.Templates.find(selector).sort({ order: 1, name: 1 });
+    return {Name}s.find(selector).sort({ order: 1, name: 1 });
   },
 
-  {name}Types(_root, _args, { models }: IContext) {
-    return models.Types.find({});
+  {name}Types(_root, _args, _context: IContext) {
+    return Types.find({});
   },
 
-  {name}sTotalCount(_root, _args, { models }: IContext) {
-    return models.Templates.find({}).countDocuments();
+  {name}sTotalCount(_root, _args, _context: IContext) {
+    return {Name}s.find({}).countDocuments();
   }
 };
 
-export default templateQueries;
+export default {name}Queries;

@@ -1,17 +1,13 @@
 import { sendCommonMessage } from '../../../messageBroker';
 import { IContext } from '../../../connectionResolver';
 import {
-  checkPremiumService,
   getCoreDomain,
   initFirebase,
   registerOnboardHistory,
   resetConfigsCache,
   sendRequest
 } from '../../utils';
-import {
-  moduleCheckPermission,
-  requireLogin
-} from '@erxes/api-utils/src/permissions';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 
 const configMutations = {
   /**
@@ -20,14 +16,8 @@ const configMutations = {
   async configsUpdate(_root, { configsMap }, { user, models }: IContext) {
     const codes = Object.keys(configsMap);
 
-    const isThemeEnabled = await checkPremiumService('isThemeServiceEnabled');
-
     for (const code of codes) {
       if (!code) {
-        continue;
-      }
-
-      if (code.includes('THEME_') && !isThemeEnabled) {
         continue;
       }
 
@@ -131,8 +121,16 @@ const configMutations = {
   }
 };
 
-moduleCheckPermission(configMutations, 'manageGeneralSettings');
-requireLogin(configMutations, 'configsActivateInstallation');
-requireLogin(configMutations, 'configsManagePluginInstall');
+checkPermission(configMutations, 'configsUpdate', 'manageGeneralSettings');
+checkPermission(
+  configMutations,
+  'configsActivateInstallation',
+  'manageGeneralSettings'
+);
+checkPermission(
+  configMutations,
+  'configsManagePluginInstall',
+  'manageGeneralSettings'
+);
 
 export default configMutations;

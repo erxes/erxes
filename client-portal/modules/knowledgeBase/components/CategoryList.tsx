@@ -1,8 +1,9 @@
-import React from "react";
-import { Container, Row, Col, Card } from "react-bootstrap";
-import Link from "next/link";
 import { Avatars, CategoryListWrapper } from "./styles";
+import { Card, Col, Container, Row } from "react-bootstrap";
 import { Config, Topic } from "../../types";
+
+import Link from "next/link";
+import React from "react";
 import { getConfigColor } from "../../common/utils";
 
 type Props = {

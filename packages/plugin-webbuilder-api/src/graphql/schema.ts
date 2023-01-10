@@ -51,12 +51,14 @@ export const types = `
     _id: String!
     name: String
     html: String
+    image: String
   }
 
   type WebbuilderSite {
     _id: String!
     name: String
     domain: String
+    templateImage: String 
   }
 `;
 
@@ -108,7 +110,7 @@ export const mutations = `
   webbuilderEntriesRemove(_id: String!): JSON
 
   webbuilderTemplatesAdd(name: String, html: String): WebbuilderTemplate 
-  webbuilderTemplatesUse(_id: String!, name: String!): JSON
+  webbuilderTemplatesUse(_id: String!, name: String!): String
   webbuilderTemplatesRemove(_id: String!): JSON
   
   webbuilderSitesAdd(name: String domain: String): WebbuilderSite 

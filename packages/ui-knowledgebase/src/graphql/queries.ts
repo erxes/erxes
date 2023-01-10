@@ -140,6 +140,11 @@ const knowledgeBaseArticles = `
       createdDate
       modifiedBy
       modifiedDate
+
+      forms {
+        brandId
+        formId
+      }
     }
   }
 `;

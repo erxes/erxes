@@ -2,6 +2,7 @@ import { NOTIFICATION_MODULES } from '../../constants';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../connectionResolver';
+
 const notificationQueries = {
   /**
    * Notifications list
@@ -13,6 +14,7 @@ const notificationQueries = {
       title,
       limit,
       notifType,
+      contentTypes,
       startDate,
       endDate,
       ...params
@@ -20,13 +22,14 @@ const notificationQueries = {
       requireRead: boolean;
       title: string;
       limit: number;
+      contentTypes: string;
       notifType: string;
       page: number;
       perPage: number;
       startDate: string;
       endDate: string;
     },
-    { models, subdomain, user }: IContext
+    { models, user }: IContext
   ) {
     const sort = { date: -1 };
 
@@ -42,6 +45,10 @@ const notificationQueries = {
 
     if (notifType) {
       selector.notifType = notifType;
+    }
+
+    if (contentTypes) {
+      selector.contentType = { $in: contentTypes };
     }
 
     if (startDate && endDate) {
@@ -65,7 +72,11 @@ const notificationQueries = {
    */
   notificationCounts(
     _root,
-    { requireRead, notifType }: { requireRead: boolean; notifType: string },
+    {
+      requireRead,
+      notifType,
+      contentTypes
+    }: { requireRead: boolean; notifType: string; contentTypes: string },
     { user, models }: IContext
   ) {
     const selector: any = { receiver: user._id };
@@ -76,6 +87,10 @@ const notificationQueries = {
 
     if (notifType) {
       selector.notifType = notifType;
+    }
+
+    if (contentTypes) {
+      selector.contentType = { $in: contentTypes };
     }
 
     return models.Notifications.find(selector).countDocuments();

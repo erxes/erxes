@@ -36,7 +36,7 @@ export const initBroker = cl => {
 
     return {
       status: 'success',
-      data: await findCustomer(models, data)
+      data: await findCustomer(models, subdomain, data)
     };
   });
 
@@ -57,7 +57,7 @@ export const initBroker = cl => {
 
     return {
       status: 'success',
-      data: await findCompany(models, data)
+      data: await findCompany(models, subdomain, data)
     };
   });
 
@@ -90,6 +90,18 @@ export const initBroker = cl => {
       return {
         status: 'success',
         data: await models.Customers.findActiveCustomers(selector, fields)
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'contacts:companies.getCompanyName',
+    async ({ subdomain, data: { company } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Companies.getCompanyName(company)
       };
     }
   );

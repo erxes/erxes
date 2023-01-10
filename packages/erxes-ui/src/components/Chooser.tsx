@@ -120,7 +120,7 @@ class CommonChooser extends React.Component<Props, State> {
     };
 
     return (
-      <li key={data._id} onClick={onClick}>
+      <li key={Math.random()} onClick={onClick}>
         {this.props.renderName(data)}
         <Icon icon={icon} />
       </li>

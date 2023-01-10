@@ -41,7 +41,7 @@ export const receiveExportCreate = async (
   const workerPath = path.resolve(getWorkerFile());
 
   try {
-    await myWorker.createWorker(subdomain, workerPath, {
+    myWorker.createWorker(subdomain, workerPath, {
       contentType,
       exportHistoryId,
       columnsConfig,

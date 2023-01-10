@@ -68,6 +68,11 @@ export const types = ({ contacts }) => `
     customFieldsData:JSON
     submissions: [FormSubmission]
   }
+
+  input FormSubmissionInput {
+    _id: String!
+    value: JSON
+  }
 `;
 
 export const SubmissionFilter = `input SubmissionFilter {
@@ -95,6 +100,8 @@ const commonFormSubmissionFields = `
 const formSubmissionQueryParams = `
 tagId: String, 
 formId: String, 
+customerId: String,
+contentTypeIds: [String],
 filters: [SubmissionFilter]
 `;
 
@@ -103,10 +110,15 @@ export const queries = `
   forms: [Form]
   formSubmissions(${formSubmissionQueryParams}, page: Int, perPage: Int): [Submission]
   formSubmissionsTotalCount(${formSubmissionQueryParams}): Int
+
+  formSubmissionDetail(contentTypeId: String!): Submission
 `;
 
 export const mutations = `
   formsAdd(${commonFields}): Form
   formsEdit(_id: String!, ${commonFields} ): Form
   formSubmissionsSave(${commonFormSubmissionFields}): Boolean
+
+  formSubmissionsRemove(customerId: String!, contentTypeId: String!): JSON
+  formSubmissionsEdit(contentTypeId: String!, customerId: String!, submissions: [FormSubmissionInput]): Submission
 `;

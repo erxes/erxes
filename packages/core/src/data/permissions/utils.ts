@@ -1,7 +1,7 @@
 import { IModels } from '../../connectionResolver';
 import { IPermissionDocument } from '../../db/models/definitions/permissions';
-import { IUserDocument } from '../../db/models/definitions/users';
-import { get, set } from '../../inmemoryStorage';
+import { getKey } from '@erxes/api-utils/src';
+import { set } from '../../inmemoryStorage';
 import { moduleObjects } from './actions/permission';
 
 export interface IModuleMap {
@@ -81,73 +81,6 @@ export const registerModule = (modules: any): void => {
   }
 };
 
-export const can = async (
-  models: IModels,
-  action: string,
-  user: IUserDocument
-): Promise<boolean> => {
-  if (!user || !user._id) {
-    return false;
-  }
-
-  if (user.isOwner) {
-    return true;
-  }
-
-  const actionMap: IActionMap = await getUserActionsMap(models, user);
-
-  return actionMap[action] === true;
-};
-
-interface IActionMap {
-  [key: string]: boolean;
-}
-
-const getKey = (user: IUserDocument) => `user_permissions_${user._id}`;
-
-/*
- * Get given users permission map from inmemory storage or database
- */
-export const getUserActionsMap = async (
-  models: IModels,
-  user: IUserDocument
-): Promise<IActionMap> => {
-  const key = getKey(user);
-  const permissionCache = await get(key);
-
-  let actionMap: IActionMap;
-
-  if (permissionCache && permissionCache !== '{}') {
-    actionMap = JSON.parse(permissionCache);
-  } else {
-    actionMap = await userActionsMap(models, user);
-
-    set(key, JSON.stringify(actionMap));
-  }
-
-  return actionMap;
-};
-
-/*
- * Get allowed actions
- */
-export const getUserAllowedActions = async (
-  models: IModels,
-  user: IUserDocument
-): Promise<string[]> => {
-  const map = await getUserActionsMap(models, user);
-
-  const allowedActions: string[] = [];
-
-  for (const key of Object.keys(map)) {
-    if (map[key]) {
-      allowedActions.push(key);
-    }
-  }
-
-  return allowedActions;
-};
-
 /*
  * Reset permissions map for all users
  */
@@ -159,46 +92,6 @@ export const resetPermissionsCache = async (models: IModels) => {
 
     set(key, '');
   }
-};
-
-export const userActionsMap = async (
-  models: IModels,
-  user: IUserDocument
-): Promise<IActionMap> => {
-  const userPermissions = await models.Permissions.find({ userId: user._id });
-  const groupPermissions = await models.Permissions.find({
-    groupId: { $in: user.groupIds }
-  });
-
-  const totalPermissions: IPermissionDocument[] = [
-    ...userPermissions,
-    ...groupPermissions,
-    ...(user.customPermissions || [])
-  ];
-  const allowedActions: IActionMap = {};
-
-  const check = (name: string, allowed: boolean) => {
-    if (typeof allowedActions[name] === 'undefined') {
-      allowedActions[name] = allowed;
-    }
-
-    // if a specific permission is denied elsewhere, follow that rule
-    if (allowedActions[name] && !allowed) {
-      allowedActions[name] = false;
-    }
-  };
-
-  for (const { requiredActions, allowed, action } of totalPermissions) {
-    if (requiredActions.length > 0) {
-      for (const actionName of requiredActions) {
-        check(actionName, allowed);
-      }
-    } else {
-      check(action, allowed);
-    }
-  }
-
-  return allowedActions;
 };
 
 /**

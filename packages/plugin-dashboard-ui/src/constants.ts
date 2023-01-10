@@ -40,6 +40,11 @@ export const DATE_RANGES = [
     exceludedGranularities: ['Second', 'Minute', 'Hour', 'Day']
   },
   {
+    title: 'Date range',
+    value: 'Date range',
+    exceludedGranularities: ['Second', 'Minute', 'Hour', 'Day']
+  },
+  {
     value: 'Today',
     exceludedGranularities: [
       'Second',

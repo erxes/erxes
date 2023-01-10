@@ -1,4 +1,7 @@
-import { attachmentInput, attachmentType } from '@erxes/api-utils/src/commonTypeDefs';
+import {
+  attachmentInput,
+  attachmentType
+} from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = `
   ${attachmentType}
@@ -11,6 +14,16 @@ export const types = `
   extend type User @key(fields: "_id") {
         _id: String! @external
       }
+
+  type FormCode {
+    brandId: String
+    formId: String
+  }
+
+  input FormCodeInput {
+    brandId: String
+    formId: String
+  }
 
   type KnowledgeBaseArticle @key(fields: "_id") {
     _id: String!
@@ -30,6 +43,8 @@ export const types = `
     viewCount: Int
     attachments: [Attachment]
     image: Attachment
+
+    forms: [FormCode]
   }
 
   input KnowledgeBaseArticleDoc {
@@ -43,6 +58,8 @@ export const types = `
     categoryId: String
     image: AttachmentInput
     attachments: [AttachmentInput]
+
+    forms: [FormCodeInput]
   }
 
   type KnowledgeBaseCategory {

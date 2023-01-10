@@ -8,13 +8,13 @@ import dayjs from 'dayjs';
 import { CreatedDate } from '../../styles';
 
 type Props = {
+  createdAt?: string;
   confirmationUpdate?: boolean;
   renderButton?: (props: IButtonMutateProps) => JSX.Element;
   generateDoc: (values: any) => any;
   object?: any;
   name?: string;
   renderContent(formProps: IFormProps): any;
-  createdAt?: string;
 } & ICommonFormProps;
 
 class Form extends React.Component<Props, { isCanceled: boolean }> {

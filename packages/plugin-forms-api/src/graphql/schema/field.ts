@@ -88,9 +88,9 @@ export const fieldsTypes = ({ products }) => `
         ? `
         products: [Product]
       `
-        : `products: [JSON]`
+        : ''
     }
-
+    
     ${fieldCommonFields}
     logics: [Logic]
   }
@@ -126,6 +126,7 @@ export const fieldsTypes = ({ products }) => `
 
 export const fieldsQueries = `
   fieldsGetTypes: [JSON]
+  getFieldsInputTypes:[JSON]
   fields(contentType: String!, contentTypeId: String, isVisible: Boolean, searchable: Boolean, isVisibleToCreate: Boolean, pipelineId: String): [Field]
   fieldsCombinedByContentType(contentType: String!, usageType: String, excludedNames: [String], segmentId: String, config: JSON, onlyDates: Boolean): JSON
   fieldsDefaultColumnsConfig(contentType: String!): [ColumnConfigItem]
@@ -200,6 +201,7 @@ const fieldsGroupsCommonFields = `
 
 export const fieldsGroupsQueries = `
   fieldsGroups(contentType: String, isDefinedByErxes: Boolean, config: JSON): [FieldsGroup]
+  fieldsGetDetail(_id: String, code: String): Field
   getSystemFieldsGroup(contentType: String): FieldsGroup
 `;
 

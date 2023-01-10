@@ -102,7 +102,8 @@ export default {
 
           case 'barcodes':
             {
-              barcodes = value.split(',');
+              barcodes = value.replace(/\s/g, '').split(',');
+              barcodes = barcodes.filter(br => br);
             }
             break;
 

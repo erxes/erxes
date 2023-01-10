@@ -91,6 +91,8 @@ class Form extends React.Component<Props, State> {
           'Please add {{ link }} and {{ password }} to invitation mail content to send verification link and password'
         );
       }
+
+      formValues.mailConfig = mailConfig;
     }
 
     if (formValues.otpConfig) {
@@ -101,6 +103,8 @@ class Form extends React.Component<Props, State> {
           'Please add {{ code }} to OTP content to send verification code'
         );
       }
+
+      formValues.otpConfig = removeTypename(formValues.otpConfig);
     }
 
     this.props.handleUpdate(formValues);

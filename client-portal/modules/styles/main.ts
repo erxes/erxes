@@ -1,6 +1,7 @@
 import { colors, dimensions, typography } from "../styles";
-import { rgba } from "../styles/ecolor";
 import styled, { css } from "styled-components";
+
+import { rgba } from "../styles/ecolor";
 import styledTS from "styled-components-ts";
 
 const Header = styledTS<{
@@ -57,6 +58,7 @@ const HeaderTitle = styledTS<{ color?: string }>(styled.span)`
 
 const HeaderRight = styled.div`
   display: flex;
+  flex: 1;
   flex-direction: column;
 `;
 
@@ -78,9 +80,18 @@ const SupportMenus = styledTS<{ color?: string }>(styled.div)`
   }
 
   > button {
-    color: ${(props) =>
+    color: ${props =>
       props.color ? props.color : colors.colorWhite} !important;
   }
+
+  span {
+    margin-left: 10px;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
 `;
 
 const WebLink = styled.a`

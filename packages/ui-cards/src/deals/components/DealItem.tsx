@@ -1,19 +1,19 @@
-import { colors } from '@erxes/ui/src/styles';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
+import { PriceContainer, Right, Status } from '../../boards/styles/item';
+import { renderAmount, renderPriority } from '../../boards/utils';
 
 import Assignees from '../../boards/components/Assignees';
+import { Content } from '../../boards/styles/stage';
 import Details from '../../boards/components/Details';
 import DueDateLabel from '../../boards/components/DueDateLabel';
-import Labels from '../../boards/components/label/Labels';
-import ItemFooter from '../../boards/components/portable/ItemFooter';
 import EditForm from '../../boards/containers/editForm/EditForm';
-import { ItemContainer } from '../../boards/styles/common';
-import { PriceContainer, Right, Status } from '../../boards/styles/item';
-import { Content } from '../../boards/styles/stage';
-import { IOptions } from '../../boards/types';
-import { renderAmount, renderPriority } from '../../boards/utils';
 import { IDeal } from '../types';
+import { IOptions } from '../../boards/types';
+import { ItemContainer } from '../../boards/styles/common';
+import ItemFooter from '../../boards/components/portable/ItemFooter';
+import Labels from '../../boards/components/label/Labels';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils';
+import { colors } from '@erxes/ui/src/styles';
 
 type Props = {
   stageId?: string;
@@ -74,13 +74,20 @@ class DealItem extends React.PureComponent<Props> {
   renderContent() {
     const { item } = this.props;
 
+    const renderProduct = p => {
+      p.product.quantity = p.quantity;
+      p.product.uom = p.uom;
+
+      return p.product;
+    };
+
     const products = (item.products || [])
       .filter(p => p.tickUsed)
-      .map(p => p.product);
+      .map(p => renderProduct(p));
 
     const exProducts = (item.products || [])
       .filter(p => !p.tickUsed)
-      .map(p => p.product);
+      .map(p => renderProduct(p));
 
     const {
       customers,

@@ -4,7 +4,6 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import EngageSettingsContent from '../containers/EngageSettingsContent';
 import Header from '@erxes/ui-settings/src/general/components/Header';
-import Sidebar from '@erxes/ui-settings/src/general/containers/Sidebar';
 
 function EngageConfigs() {
   const breadcrumb = [
@@ -25,14 +24,6 @@ function EngageConfigs() {
       }
       actionBar={
         <Wrapper.ActionBar left={<Title>{__('Campaign config')}</Title>} />
-      }
-      leftSidebar={
-        <Sidebar
-          item={{
-            url: '/settings/campaign-configs',
-            text: 'Campaign config'
-          }}
-        />
       }
       content={<EngageSettingsContent />}
       transparent={true}

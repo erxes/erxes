@@ -78,11 +78,14 @@ export default commonListComposer<Props>({
       };
     }
   }),
-
   gqlTotalCountQuery: graphql(gql(queries.totalCount), {
-    name: 'totalCountQuery'
+    name: 'totalCountQuery',
+    options: ({ queryParams }: { queryParams: any }) => ({
+      variables: {
+        searchValue: queryParams.searchValue
+      }
+    })
   }),
-
   gqlAddMutation: graphql(gql(mutations.emailTemplatesAdd), {
     name: 'addMutation'
   }),

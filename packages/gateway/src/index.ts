@@ -84,7 +84,10 @@ const {
         let host;
 
         for (const service of services) {
-          if (req.path.includes(`/pl:${service}/`)) {
+          if (
+            req.path.includes(`/pl:${service}/`) ||
+            req.path.includes(`/pl-${service}/`)
+          ) {
             const foundService = await getService(service);
             host = foundService.address;
             break;
@@ -105,7 +108,9 @@ const {
         const services = await getServices();
 
         for (const service of services) {
-          newPath = newPath.replace(`/pl:${service}/`, '/');
+          newPath = newPath
+            .replace(`/pl:${service}/`, '/')
+            .replace(`/pl-${service}/`, '/');
         }
 
         return newPath;

@@ -89,6 +89,7 @@ program
   .command('up')
   .description('Run erxes using docker')
   .option('--uis', 'Download uis')
+  .option('--locales', 'Redownload the locales')
   .option('--fromInstaller', 'From installer')
   .action(up);
 

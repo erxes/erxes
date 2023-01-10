@@ -25,6 +25,9 @@ export interface IDetail {
   location?: string;
   description?: string;
   operatorPhone?: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
 }
 
 export interface IDetailDocument extends IDetail, Document {}
@@ -90,7 +93,10 @@ const detailSchema = new Schema(
       type: String,
       optional: true,
       label: 'Operator phone'
-    })
+    }),
+    firstName: field({ type: String, label: 'First name' }),
+    middleName: field({ type: String, label: 'Middle name' }),
+    lastName: field({ type: String, label: 'Last name' })
   },
   { _id: false }
 );

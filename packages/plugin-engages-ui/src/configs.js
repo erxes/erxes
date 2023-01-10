@@ -23,8 +23,8 @@ module.exports = {
       image: "/images/icons/erxes-08.svg",
       location: "settings",
       scope: "engages",
-      action: "",
-      permissions: [],
+      action: "engagesAll",
+      permissions: ["showEngagesMessages"],
     },
   ],
 };

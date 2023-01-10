@@ -10,6 +10,11 @@ interface ICommonFields {
   modifiedDate: Date;
 }
 
+interface IFormCodes {
+  brandId: string;
+  formId: string;
+}
+
 export interface IArticle {
   title?: string;
   summary?: string;
@@ -19,6 +24,8 @@ export interface IArticle {
   reactionCounts?: { [key: string]: number };
   categoryId?: string;
   topicId?: string;
+
+  forms?: IFormCodes[];
 }
 
 export interface IArticleDocument extends ICommonFields, IArticle, Document {
@@ -60,8 +67,16 @@ const commonFields = {
   createdDate: field({ type: Date, label: 'Created at' }),
   modifiedBy: field({ type: String, label: 'Modified by' }),
   modifiedDate: field({ type: Date, label: 'Modified at' }),
-  title: field({ type: String, label: 'Title' }),
+  title: field({ type: String, label: 'Title' })
 };
+
+const formcodesSchema = new Schema(
+  {
+    brandId: field({ type: String, label: 'Brand id' }),
+    formId: field({ type: String, label: 'Form id' })
+  },
+  { _id: false }
+);
 
 export const articleSchema = new Schema({
   _id: field({ pkey: true }),
@@ -71,24 +86,26 @@ export const articleSchema = new Schema({
     type: String,
     enum: PUBLISH_STATUSES.ALL,
     default: PUBLISH_STATUSES.DRAFT,
-    label: 'Status',
+    label: 'Status'
   }),
   reactionChoices: field({
     type: [String],
     default: [],
-    label: 'Reaction choices',
+    label: 'Reaction choices'
   }),
   viewCount: field({
     type: Number,
     default: 0,
-    label: 'Count how many times visitor viewed',
+    label: 'Count how many times visitor viewed'
   }),
   image: field({ type: attachmentSchema, label: 'Thumbnail image' }),
   attachments: field({ type: [attachmentSchema], label: 'Attachments' }),
   reactionCounts: field({ type: Object, label: 'Reaction counts' }),
   topicId: field({ type: String, optional: true, label: 'Topic' }),
   categoryId: field({ type: String, optional: true, label: 'Category' }),
-  ...commonFields,
+
+  forms: field({ type: [formcodesSchema], label: 'Forms' }),
+  ...commonFields
 });
 
 export const categorySchema = new Schema({
@@ -99,10 +116,10 @@ export const categorySchema = new Schema({
   parentCategoryId: field({
     type: String,
     optional: true,
-    label: 'Parent category',
+    label: 'Parent category'
   }),
   topicId: field({ type: String, optional: true, label: 'Topic' }),
-  ...commonFields,
+  ...commonFields
 });
 
 export const topicSchema = schemaWrapper(
@@ -114,22 +131,22 @@ export const topicSchema = schemaWrapper(
     categoryIds: field({
       type: [String],
       required: false,
-      label: 'Categories',
+      label: 'Categories'
     }),
 
     color: field({ type: String, optional: true, label: 'Color' }),
     backgroundImage: field({
       type: String,
       optional: true,
-      label: 'Background image',
+      label: 'Background image'
     }),
 
     languageCode: field({
       type: String,
       optional: true,
-      label: 'Language codes',
+      label: 'Language codes'
     }),
 
-    ...commonFields,
+    ...commonFields
   })
 );

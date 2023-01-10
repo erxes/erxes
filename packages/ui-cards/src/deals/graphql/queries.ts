@@ -1,3 +1,4 @@
+import { queries } from '@erxes/ui-products/src/graphql';
 import { commonFields, commonListFields } from '../../boards/graphql/mutations';
 import {
   conformityQueryFieldDefs,
@@ -14,11 +15,13 @@ const commonParams = `
   $priority: [String],
   $date: ItemDate,
   $pipelineId: String,
+  $parentId: String,
   $closeDateType: String,
   $sortField: String,
   $sortDirection: Int,
   $userIds: [String],
   $segment: String,
+  $segmentData:String,
   $assignedToMe: String,
   $startDate: String,
   $endDate: String,
@@ -36,11 +39,13 @@ const commonParamDefs = `
   search: $search,
   date: $date,
   pipelineId: $pipelineId,
+  parentId: $parentId,
   closeDateType: $closeDateType,
   sortField: $sortField,
   sortDirection: $sortDirection,
   userIds: $userIds,
   segment: $segment,
+  segmentData: $segmentData,
   assignedToMe: $assignedToMe,
   startDate: $startDate,
   endDate: $endDate,
@@ -190,11 +195,14 @@ const checkDiscount = `
   }
 `;
 
+const productCategories = queries.productCategories;
+
 export default {
   deals,
   dealsTotalCount,
   dealDetail,
   productDetail,
+  productCategories,
   dealsTotalAmounts,
   archivedDeals,
   archivedDealsCount,
