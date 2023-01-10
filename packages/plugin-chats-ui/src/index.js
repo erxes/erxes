@@ -1,22 +1,6 @@
-import React from 'react';
-import queryString from 'query-string';
-import Home from './containers/Home';
+import App from "./App";
+import "@erxes/ui/src/styles/global-styles.ts";
+import "erxes-icon/css/erxes.min.css";
+import "@erxes/ui/src/styles/style.min.css";
 
-const home = ({ location }) => {
-  return <Home queryParams={queryString.parse(location.search)} />;
-};
-
-export default () => ({
-  routes: [
-    {
-      path: '/home',
-      component: home,
-    },
-  ],
-  menu: {
-    label: 'Chat',
-    icon: 'icon-chat',
-    link: '/home',
-    permission: 'showChats',
-  },
-});
+export default App;

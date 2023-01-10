@@ -13,6 +13,7 @@ import {
 import { mutations, queries } from '../../graphql';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import { IBranch } from '@erxes/ui/src/team/types';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 
 type Props = {
   history: any;
@@ -32,11 +33,14 @@ type Props = {
   queryUserIds: string[];
   queryBranchIds: string[];
   queryDepartmentIds: string[];
+  queryPage: number;
+  queryPerPage: number;
   getActionBar: (actionBar: any) => void;
+  getPagination: (pagination: any) => void;
 };
 
 type FinalProps = {
-  listScheduleQuery: ScheduleQueryResponse;
+  listSchedulesMain: ScheduleQueryResponse;
   listBranchesQuery: BranchesQueryResponse;
 } & Props &
   ScheduleMutationResponse;
@@ -49,7 +53,8 @@ const ListContainer = (props: FinalProps) => {
     solveShiftMutation,
     removeScheduleMutation,
     removeScheduleShiftMutation,
-    listScheduleQuery
+    getPagination,
+    listSchedulesMain
   } = props;
 
   const solveSchedule = (scheduleId: string, status: string) => {
@@ -112,36 +117,45 @@ const ListContainer = (props: FinalProps) => {
       ).then(() => Alert.success(`Successfully removed schedule ${type}`));
     });
   };
+
+  const { list = [], totalCount = 0 } = listSchedulesMain.schedulesMain || [];
+
   const updatedProps = {
     ...props,
-    scheduleOfMembers: listScheduleQuery.schedules,
-    loading: listScheduleQuery.loading,
+    scheduleOfMembers: list,
+    loading: listSchedulesMain.loading,
     solveSchedule,
     solveShift,
     submitRequest,
     submitShift,
     removeScheduleShifts
   };
+
+  getPagination(<Pagination count={totalCount} />);
   return <ScheduleList {...updatedProps} />;
 };
 
 export default withProps<Props>(
   compose(
-    graphql<Props, ScheduleQueryResponse>(gql(queries.listSchedule), {
-      name: 'listScheduleQuery',
+    graphql<Props, ScheduleQueryResponse>(gql(queries.listSchedulesMain), {
+      name: 'listSchedulesMain',
       options: ({
         queryStartDate,
         queryEndDate,
         queryUserIds,
         queryDepartmentIds,
-        queryBranchIds
+        queryBranchIds,
+        queryPage,
+        queryPerPage
       }) => ({
         variables: {
           startDate: queryStartDate,
           endDate: queryEndDate,
           userIds: queryUserIds,
           departmentIds: queryDepartmentIds,
-          branchIds: queryBranchIds
+          branchIds: queryBranchIds,
+          page: queryPage,
+          perPage: queryPerPage
         },
         fetchPolicy: 'network-only'
       })
@@ -155,7 +169,7 @@ export default withProps<Props>(
             userId: `${userId}`,
             shifts: requestedShifts
           },
-          refetchQueries: ['listScheduleQuery']
+          refetchQueries: ['listSchedulesMain']
         })
       }
     ),
@@ -166,7 +180,7 @@ export default withProps<Props>(
           userIds: `${userIds}`,
           shifts: `${requestedShifts}`
         },
-        refetchQueries: ['listScheduleQuery']
+        refetchQueries: ['listSchedulesMain']
       })
     }),
     graphql<Props, ScheduleMutationResponse>(gql(mutations.solveSchedule), {
@@ -176,7 +190,7 @@ export default withProps<Props>(
           _id: scheduleId,
           status: scheduleStatus
         },
-        refetchQueries: ['listScheduleQuery']
+        refetchQueries: ['listSchedulesMain']
       })
     }),
 
@@ -187,7 +201,7 @@ export default withProps<Props>(
           _id: shiftId,
           status: shiftStatus
         },
-        refetchQueries: ['listScheduleQuery']
+        refetchQueries: ['listSchedulesMain']
       })
     }),
     graphql<Props, ScheduleMutationResponse>(gql(mutations.scheduleRemove), {
@@ -196,7 +210,7 @@ export default withProps<Props>(
         variables: {
           _id: scheduleId
         },
-        refetchQueries: ['listScheduleQuery']
+        refetchQueries: ['listSchedulesMain']
       })
     }),
 
@@ -208,7 +222,7 @@ export default withProps<Props>(
           variables: {
             _id: shiftId
           },
-          refetchQueries: ['listScheduleQuery']
+          refetchQueries: ['listSchedulesMain']
         })
       }
     )

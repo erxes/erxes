@@ -204,17 +204,17 @@ const configMutations = {
   },
 
   async deleteOrders(_root, _param, { models }: IContext) {
-    const orderFilter = {
-      synced: false,
-      status: ORDER_STATUSES.NEW
-    };
+    // const orderFilter = {
+    //   synced: false,
+    //   status: ORDER_STATUSES.NEW
+    // };
 
-    const count = await models.Orders.find({ ...orderFilter }).count();
+    // const count = await models.Orders.find({ ...orderFilter }).count();
 
-    await models.Orders.deleteMany({ ...orderFilter });
+    // await models.Orders.deleteMany({ ...orderFilter });
 
     return {
-      deletedCount: count
+      deletedCount: 0
     };
   },
 

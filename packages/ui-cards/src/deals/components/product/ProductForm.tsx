@@ -133,6 +133,7 @@ class ProductForm extends React.Component<Props, State> {
 
   renderTotal(totalKind, kindTxt) {
     const { productsData, onChangeProductsData } = this.props;
+
     return Object.keys(totalKind).map(currency => (
       <ProductTotal
         key={kindTxt.concat(currency)}
@@ -192,6 +193,7 @@ class ProductForm extends React.Component<Props, State> {
         <Table>
           <thead>
             <tr>
+              <th>{__('Type')}</th>
               <th>{__('Product / Service')}</th>
               <th style={{ width: '30px' }}>{__('Quantity')}</th>
               <th>{__('Unit price')}</th>
@@ -400,11 +402,11 @@ class ProductForm extends React.Component<Props, State> {
 
     const productOnChange = (products: IProduct[]) => {
       this.clearFilter();
-      const { productsData, onChangeProductsData, currencies } = this.props;
+      const { onChangeProductsData, currencies } = this.props;
       const { tax, discount } = this.state;
       const currency = currencies ? currencies[0] : '';
 
-      const currentProductIds = productsData.map(p => p._id);
+      const currentProductIds = productsData.map(p => p.productId);
 
       console.log('11111111111', currentProductIds);
 
@@ -427,8 +429,10 @@ class ProductForm extends React.Component<Props, State> {
           tickUsed: true,
           maxQuantity: 0,
           product,
-          ...product,
-          quantity: 1
+          quantity: 1,
+          productId: product._id,
+          unitPrice: product.unitPrice,
+          _id: product._id
         });
       }
 
