@@ -1,23 +1,22 @@
-import Button from "@erxes/ui/src/components/Button";
-import Tip from "@erxes/ui/src/components/Tip";
-import Icon from "@erxes/ui/src/components/Icon";
-import { FlexRightItem } from "@erxes/ui/src/layout";
-import PropertyCondition from "../../containers/form/PropertyCondition";
-import { IField, ISegmentCondition, ISegmentMap } from "../../types";
-import { __ } from "@erxes/ui/src/utils";
-import React from "react";
+import Button from '@erxes/ui/src/components/Button';
+import Tip from '@erxes/ui/src/components/Tip';
+import Icon from '@erxes/ui/src/components/Icon';
+import { FlexRightItem } from '@erxes/ui/src/layout';
+import PropertyCondition from '../../containers/form/PropertyCondition';
+import { IField, ISegmentCondition, ISegmentMap } from '../../types';
+import { __ } from '@erxes/ui/src/utils';
+import React from 'react';
 import {
   Condition,
   ConditionItem,
   ConjunctionButtons,
   ConjunctionButtonsVertical,
   FilterRow,
-  // ConditionRemove,
   ConditionGroup,
-  ButtonWrapper,
-} from "../styles";
-import PropertyDetail from "../../containers/preview/PropertyDetail";
-import EventDetail from "./EventDetail";
+  ButtonWrapper
+} from '../styles';
+import PropertyDetail from '../../containers/preview/PropertyDetail';
+import EventDetail from './EventDetail';
 
 type Props = {
   segment: ISegmentMap;
@@ -41,6 +40,7 @@ type Props = {
   chosenCondition?: ISegmentCondition;
   hideDetailForm: boolean;
   config?: any;
+  onChangeConfig: (config: any) => void;
 };
 
 type State = {};
@@ -62,7 +62,7 @@ class ConditionsList extends React.Component<Props, State> {
     return addNewEvent(segment.key);
   };
 
-  removeCondition = (condition) => {
+  removeCondition = condition => {
     const { removeCondition, segment } = this.props;
 
     return removeCondition(condition.key, segment.key);
@@ -78,7 +78,7 @@ class ConditionsList extends React.Component<Props, State> {
     const {
       conditionsConjunction,
       index,
-      changeConditionsConjunction,
+      changeConditionsConjunction
     } = this.props;
 
     if (index === 0) {
@@ -86,29 +86,29 @@ class ConditionsList extends React.Component<Props, State> {
     }
 
     const onClickAnd = () => {
-      changeConditionsConjunction("and");
+      changeConditionsConjunction('and');
     };
 
     const onClickOr = () => {
-      changeConditionsConjunction("or");
+      changeConditionsConjunction('or');
     };
 
-    let btnStyleAnd = "default";
-    let btnSyleOr = "simple";
+    let btnStyleAnd = 'default';
+    let btnSyleOr = 'simple';
 
-    if (conditionsConjunction === "or") {
-      btnStyleAnd = "simple";
-      btnSyleOr = "default";
+    if (conditionsConjunction === 'or') {
+      btnStyleAnd = 'simple';
+      btnSyleOr = 'default';
     }
 
     return (
       <ConjunctionButtons>
         <Button.Group hasGap={false}>
           <Button size="small" onClick={onClickAnd} btnStyle={btnStyleAnd}>
-            {__("And")}
+            {__('And')}
           </Button>
           <Button size="small" onClick={onClickOr} btnStyle={btnSyleOr}>
-            {__("Or")}
+            {__('Or')}
           </Button>
         </Button.Group>
       </ConjunctionButtons>
@@ -124,19 +124,19 @@ class ConditionsList extends React.Component<Props, State> {
     }
 
     const onClickAnd = () => {
-      changeSubSegmentConjunction(segment.key, "and");
+      changeSubSegmentConjunction(segment.key, 'and');
     };
 
     const onClickOr = () => {
-      changeSubSegmentConjunction(segment.key, "or");
+      changeSubSegmentConjunction(segment.key, 'or');
     };
 
-    let btnStyleAnd = "default";
-    let btnSyleOr = "simple";
+    let btnStyleAnd = 'default';
+    let btnSyleOr = 'simple';
 
-    if (conditionsConjunction === "or") {
-      btnStyleAnd = "simple";
-      btnSyleOr = "default";
+    if (conditionsConjunction === 'or') {
+      btnStyleAnd = 'simple';
+      btnSyleOr = 'default';
     }
 
     return (
@@ -163,7 +163,7 @@ class ConditionsList extends React.Component<Props, State> {
       useMargin = false;
     }
 
-    if (condition.type === "property") {
+    if (condition.type === 'property') {
       return (
         <ConditionItem useMargin={useMargin} key={Math.random()}>
           <FilterRow>
@@ -220,7 +220,7 @@ class ConditionsList extends React.Component<Props, State> {
 
         <Condition>
           {this.renderSubSegmentConjunction()}
-          {conditions.map((condition) => {
+          {conditions.map(condition => {
             return this.renderCondition(condition);
           })}
         </Condition>
@@ -247,7 +247,7 @@ class ConditionsList extends React.Component<Props, State> {
           ) : null}
         </ButtonWrapper>
 
-        <Tip text={"Delete"}>
+        <Tip text={'Delete'}>
           <Button
             btnStyle="simple"
             size="small"
