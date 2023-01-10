@@ -546,7 +546,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
     dockerComposeConfig.services.essyncer = {
       image: `erxes/essyncer:${image_tag}`,
       environment: {
-        ELASTICSEARCH_URL: `${config.db_server_address || (isSwarm ? 'erxes-dbs_elasticsearch' : 'elasticsearch')}:9200`,
+        ELASTICSEARCH_URL: `${configs.db_server_address || (isSwarm ? 'erxes-dbs_elasticsearch' : 'elasticsearch')}:9200`,
         MONGO_URL: `${mongoEnv(configs)}${(configs.essyncer || {})
           .mongoOptions || ''}`,
       },
