@@ -17,7 +17,7 @@ import ChildrenSectionComponent from '../../components/editForm/ChildrenSection'
 type Props = {
   type: string;
   parentId?: string;
-  itemId:string;
+  itemId: string;
   stageId: string;
   queryParams: IQueryParams;
   options: IOptions;
@@ -32,7 +32,14 @@ type FinalProps = {
 
 class ChildrenSection extends React.Component<FinalProps> {
   render() {
-    const { type, dealQueries, taskQueries, ticketQueries, parentId, options } = this.props;
+    const {
+      type,
+      dealQueries,
+      taskQueries,
+      ticketQueries,
+      parentId,
+      options
+    } = this.props;
 
     let children: any[] = [];
     let refetch;
@@ -53,7 +60,7 @@ class ChildrenSection extends React.Component<FinalProps> {
     const updatedProps = {
       ...this.props,
       children,
-      parentId:parentId||'',
+      parentId: parentId || '',
       options,
       refetch
     };
@@ -72,7 +79,7 @@ const commonFilter = ({
   options: IOptions;
 }) => ({
   variables: {
-    parentId:itemId,
+    parentId: itemId,
     ...getFilterParams(queryParams, options.getExtraParams),
     hasStartAndCloseDate: false
   }

@@ -183,8 +183,7 @@ export default class DealEditForm extends React.Component<Props, State> {
     );
   };
 
-
-  renderChildrenSection = () =>{
+  renderChildrenSection = () => {
     const { item, options } = this.props;
 
     const updatedProps = {
@@ -197,10 +196,8 @@ export default class DealEditForm extends React.Component<Props, State> {
       queryParams: queryString.parse(window.location.search) || {}
     };
 
-    return <ChildrenSection {...updatedProps} />
-
-  }
-
+    return <ChildrenSection {...updatedProps} />;
+  };
 
   renderItems = () => {
     const { item } = this.props;
