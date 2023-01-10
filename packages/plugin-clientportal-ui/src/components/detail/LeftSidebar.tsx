@@ -38,22 +38,24 @@ class LeftSidebar extends React.Component<Props> {
       <Sidebar wide={true}>
         <DetailInfo clientPortalUser={clientPortalUser} />
 
-        <Box
-          title={
-            clientPortalUser.type === 'customer'
-              ? 'Customer Detail'
-              : 'Company Detail'
-          }
-          name="showOthers"
-        >
-          <List>
-            <LinkButton onClick={onClick}>
-              {clientPortalUser.erxesCustomerId
-                ? this.renderCustomer()
-                : this.renderCompany()}
-            </LinkButton>
-          </List>
-        </Box>
+        {!clientPortalUser.customer && !clientPortalUser.company ? null : (
+          <Box
+            title={
+              clientPortalUser.type === 'customer'
+                ? 'Customer Detail'
+                : 'Company Detail'
+            }
+            name="showOthers"
+          >
+            <List>
+              <LinkButton onClick={onClick}>
+                {clientPortalUser.erxesCustomerId
+                  ? this.renderCustomer()
+                  : this.renderCompany()}
+              </LinkButton>
+            </List>
+          </Box>
+        )}
       </Sidebar>
     );
   }
