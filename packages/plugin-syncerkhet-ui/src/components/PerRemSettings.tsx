@@ -10,6 +10,7 @@ import { __ } from '@erxes/ui/src/utils';
 import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import React from 'react';
 import { IConfigsMap } from '../types';
+import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 
 type Props = {
   configsMap: IConfigsMap;
@@ -103,22 +104,24 @@ class PerSettings extends React.Component<Props, State> {
             autoFocus={true}
           />
         </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Destination Stage</ControlLabel>
-          <BoardSelectContainer
-            type="deal"
-            autoSelectStage={false}
-            boardId={config.boardId}
-            pipelineId={config.pipelineId}
-            onChangeBoard={this.onChangeBoard}
-            onChangePipeline={this.onChangePipeline}
-          />
-        </FormGroup>
-
-        {this.renderInput('account', 'account', '')}
-        {this.renderInput('location', 'location', '')}
-
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <BoardSelectContainer
+                type="deal"
+                autoSelectStage={false}
+                boardId={config.boardId}
+                pipelineId={config.pipelineId}
+                onChangeBoard={this.onChangeBoard}
+                onChangePipeline={this.onChangePipeline}
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            {this.renderInput('account', 'account', '')}
+            {this.renderInput('location', 'location', '')}
+          </FormColumn>
+        </FormWrapper>
         <ModalFooter>
           <Button
             btnStyle="simple"

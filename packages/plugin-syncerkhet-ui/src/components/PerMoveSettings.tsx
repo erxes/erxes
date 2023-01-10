@@ -1,3 +1,9 @@
+import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import client from '@erxes/ui/src/apolloClient';
+import gql from 'graphql-tag';
+import React from 'react';
+import Select from 'react-select-plus';
+import { __ } from '@erxes/ui/src/utils';
 import {
   Button,
   CollapseContent,
@@ -5,18 +11,12 @@ import {
   FormControl,
   FormGroup
 } from '@erxes/ui/src/components';
-import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import { __ } from '@erxes/ui/src/utils';
-import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
-import Select from 'react-select-plus';
-import React from 'react';
-import { IConfigsMap } from '../types';
-import { FieldsCombinedByType } from '../../../ui-forms/src/settings/properties/types';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
+import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
+import { IConfigsMap } from '../types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
+import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 
 type Props = {
   configsMap: IConfigsMap;
@@ -76,8 +76,8 @@ class PerSettings extends React.Component<Props, State> {
     const { config } = this.state;
     const key = config.stageId;
 
-    delete configsMap.ebarimtConfig[currentConfigKey];
-    configsMap.ebarimtConfig[key] = config;
+    delete configsMap.stageInMoveConfig[currentConfigKey];
+    configsMap.stageInMoveConfig[key] = config;
     this.props.save(configsMap);
   };
 
@@ -142,12 +142,144 @@ class PerSettings extends React.Component<Props, State> {
     );
   };
 
+  addCals = () => {
+    const { config } = this.state;
+    const { catAccLocMap = [] } = config;
+
+    catAccLocMap.push({
+      _id: Math.random().toString(),
+      category: '',
+      account: '',
+      location: '',
+      moveAccount: '',
+      moveLocation: ''
+    });
+
+    this.setState({ config: { ...config, catAccLocMap } });
+  };
+
+  renderCalsMap() {
+    const { config } = this.state;
+    const { catAccLocMap } = config;
+
+    const cals: React.ReactNode[] = [];
+    cals.push(
+      <FormWrapper>
+        <FormColumn>
+          <ControlLabel>Product Category</ControlLabel>
+        </FormColumn>
+        <FormColumn>
+          <ControlLabel>Main Account</ControlLabel>
+        </FormColumn>
+        <FormColumn>
+          <ControlLabel>Main Location</ControlLabel>
+        </FormColumn>
+        <FormColumn>
+          <ControlLabel>Move Account</ControlLabel>
+        </FormColumn>
+        <FormColumn>
+          <ControlLabel>Move Location</ControlLabel>
+        </FormColumn>
+        <FormColumn>
+          <Button btnStyle="link" icon="plus-circle" onClick={this.addCals}>
+            Add
+          </Button>
+        </FormColumn>
+      </FormWrapper>
+    );
+
+    const editMapping = (id, e) => {
+      const index = catAccLocMap.findIndex(i => i.id === id);
+
+      const name = e.target.name;
+      const value = e.target.value;
+      const item = {
+        ...(catAccLocMap.find(cal => cal.id === id) || {}),
+        [name]: value
+      };
+
+      if (index !== -1) {
+        catAccLocMap[index] = item;
+      } else {
+        catAccLocMap.push(item);
+      }
+
+      this.setState({ config: { ...config, catAccLocMap } });
+    };
+
+    const removeMapping = (_id: string) => {
+      const excluded = catAccLocMap.filter(m => m._id !== _id);
+
+      this.setState({ config: { ...config, catAccLocMap: excluded } });
+    };
+
+    for (const map of catAccLocMap || []) {
+      cals.push(
+        <FormWrapper key={map.id}>
+          <FormColumn>
+            <FormControl
+              defaultValue={map.category}
+              name="category"
+              onChange={editMapping.bind(this, map.id)}
+              required={true}
+              autoFocus={true}
+            />
+          </FormColumn>
+          <FormColumn>
+            <FormControl
+              defaultValue={map.account}
+              name="account"
+              onChange={editMapping.bind(this, map.id)}
+              required={true}
+              autoFocus={true}
+            />
+          </FormColumn>
+          <FormColumn>
+            <FormControl
+              defaultValue={map.location}
+              name="location"
+              onChange={editMapping.bind(this, map.id)}
+              required={true}
+              autoFocus={true}
+            />
+          </FormColumn>
+          <FormColumn>
+            <FormControl
+              defaultValue={map.moveAccount}
+              name="moveAccount"
+              onChange={editMapping.bind(this, map.id)}
+              required={true}
+              autoFocus={true}
+            />
+          </FormColumn>
+          <FormColumn>
+            <FormControl
+              defaultValue={map.moveLocation}
+              name="moveLocation"
+              onChange={editMapping.bind(this, map.id)}
+              required={true}
+              autoFocus={true}
+            />
+          </FormColumn>
+          <FormColumn>
+            <Button
+              btnStyle="link"
+              icon="trash"
+              onClick={() => removeMapping(map._id)}
+            />
+          </FormColumn>
+        </FormWrapper>
+      );
+    }
+    return cals;
+  }
+
   render() {
     const { config } = this.state;
     return (
       <CollapseContent
         title={__(config.title)}
-        open={this.props.currentConfigKey === 'newEbarimtConfig' ? true : false}
+        open={this.props.currentConfigKey === 'newMoveConfig' ? true : false}
       >
         <FormGroup>
           <ControlLabel>{'Title'}</ControlLabel>
@@ -172,6 +304,11 @@ class PerSettings extends React.Component<Props, State> {
                 onChangeStage={this.onChangeStage}
               />
             </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            {this.renderInput('userEmail', 'User Email', '')}
+            {this.renderInput('defaultCustomer', 'Default Customer', '')}
+
             <FormGroup>
               <ControlLabel>{__('Choose response field')}</ControlLabel>
               <Select
@@ -185,27 +322,9 @@ class PerSettings extends React.Component<Props, State> {
               />
             </FormGroup>
           </FormColumn>
-          <FormColumn>
-            {this.renderInput('userEmail', 'userEmail', '')}
-            {this.renderCheckbox('hasVat', 'hasVat', '')}
-            {this.renderCheckbox('hasCitytax', 'hasCitytax', '')}
-
-            <FormGroup>
-              <ControlLabel>{'defaultPay'}</ControlLabel>
-              <Select
-                value={config.defaultPay}
-                onChange={this.onChangeCombo}
-                clearable={false}
-                required={true}
-                options={[
-                  { value: 'debtAmount', label: 'debtAmount' },
-                  { value: 'cashAmount', label: 'cashAmount' },
-                  { value: 'cardAmount', label: 'cardAmount' }
-                ]}
-              />
-            </FormGroup>
-          </FormColumn>
         </FormWrapper>
+        {this.renderCalsMap()}
+
         <ModalFooter>
           <Button
             btnStyle="simple"
