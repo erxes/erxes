@@ -1,14 +1,18 @@
 import { IContext } from '../../../connectionResolver';
-import { ITransactionCreateParams } from '../../../models/definitions/transactions';
+import { ITransactionInput } from '../../../models/definitions/transactions';
 import { updateLiveRemainders } from './utils';
 
 const transactionMutations = {
   transactionAdd: async (
     _root: any,
-    params: ITransactionCreateParams,
-    { subdomain, models }: IContext
+    doc: ITransactionInput,
+    { subdomain, models, user }: IContext
   ) => {
-    return await models.Transactions.createTransaction(params);
+    return await models.Transactions.createTransaction({
+      ...doc,
+      createdAt: new Date(),
+      createdBy: user._id
+    });
   }
 };
 

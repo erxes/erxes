@@ -82,7 +82,7 @@ class Sidebar extends React.Component<Props> {
         <SidebarFilters>
           <List id="SettingsSidebar">
             <FormGroup>
-              <ControlLabel>{__(`Min Multiplier`)}</ControlLabel>
+              <ControlLabel>{__(`Min variable`)}</ControlLabel>
               <FormControl
                 name="minMultiplier"
                 type="number"
@@ -94,7 +94,7 @@ class Sidebar extends React.Component<Props> {
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel>{__(`Max Multiplier`)}</ControlLabel>
+              <ControlLabel>{__(`Max variable`)}</ControlLabel>
               <FormControl
                 name="maxMultiplier"
                 type="number"
