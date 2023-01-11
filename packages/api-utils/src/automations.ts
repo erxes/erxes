@@ -233,6 +233,7 @@ export const setProperty = async ({
   for (const relatedItem of relatedItems) {
     const setDoc = {};
     const pushDoc = {};
+    const servicesToForward: string[] = [];
 
     for (const rule of rules) {
       const value = await getPerValue({
@@ -243,6 +244,10 @@ export const setProperty = async ({
         target,
         getRelatedValue
       });
+
+      if (rule.forwardTo) {
+        servicesToForward.push(rule.forwardTo);
+      }
 
       if (
         !rule.field.includes('customFieldsData') &&
@@ -287,6 +292,20 @@ export const setProperty = async ({
       data: { selector: { _id: relatedItem._id }, modifier },
       isRPC: true
     });
+
+    for (const service of servicesToForward) {
+      await sendCommonMessage({
+        subdomain,
+        serviceName: service,
+        action: 'automations.receiveSetPropertyForwardTo',
+        data: {
+          target,
+          collectionType,
+          setDoc,
+          pushDoc
+        }
+      });
+    }
 
     if (response.error) {
       result.push(response);

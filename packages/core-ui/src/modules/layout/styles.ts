@@ -337,7 +337,7 @@ const NavImage = styledTS<{ navCollapse?: number }>(styled.img)`
       : props.navCollapse === 2
       ? dimensions.headerSpacing * 2 - 1
       : dimensions.headerSpacing * 3 + dimensions.unitSpacing}px !important;
-  margin: 5px;
+  padding: 5px;
 `;
 
 const BottomMenu = styled.div`

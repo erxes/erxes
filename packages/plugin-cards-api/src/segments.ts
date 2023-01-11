@@ -1,11 +1,12 @@
 import { fetchByQuery } from '@erxes/api-utils/src/elasticsearch';
 import { generateModels } from './connectionResolver';
-import { sendCoreMessage } from './messageBroker';
+import { sendCommonMessage, sendCoreMessage } from './messageBroker';
 import { generateConditionStageIds } from './utils';
 import {
   gatherAssociatedTypes,
   getEsIndexByContentType,
-  getName
+  getName,
+  getServiceName
 } from '@erxes/api-utils/src/segments';
 
 export default {
@@ -73,6 +74,20 @@ export default {
           mainTypeIds,
           relType: getName(mainType)
         },
+        isRPC: true
+      });
+    } else {
+      ids = await sendCommonMessage({
+        serviceName: getServiceName(propertyType),
+        subdomain,
+        action: 'segments.associationFilter',
+        data: {
+          mainType,
+          propertyType,
+          positiveQuery,
+          negativeQuery
+        },
+        defaultValue: [],
         isRPC: true
       });
     }

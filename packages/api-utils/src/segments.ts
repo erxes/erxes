@@ -15,6 +15,7 @@ export interface IDependentService {
 }
 
 export const getName = (type: string) => type.split(':')[1];
+export const getServiceName = (type: string) => type.split(':')[0];
 
 export const getEsIndexByContentType = async (contentType: string) => {
   const [serviceName, type] = contentType.split(':');
