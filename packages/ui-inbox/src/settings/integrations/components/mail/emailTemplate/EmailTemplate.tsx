@@ -18,8 +18,6 @@ import React from 'react';
 import { SearchInput } from '../../../styles';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __, router } from '@erxes/ui/src/utils';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
 
 type Props = {
   fetchMoreEmailTemplates: (page: number) => void;
@@ -27,7 +25,7 @@ type Props = {
   onSelect: (id: string) => void;
   totalCount?: number;
   history: any;
-} & IRouterProps;
+};
 
 type State = {
   page: number;
@@ -47,9 +45,9 @@ class EmailTemplate extends React.Component<Props, State> {
   onSearch = e => {
     const { history } = this.props;
 
-    const searchValue = e.target.value;
+    const emailTemplatesSearch = e.target.value;
 
-    router.setParams(history, { searchValue });
+    router.setParams(history, { emailTemplatesSearch });
 
     this.setState({ page: 1 });
   };
@@ -127,7 +125,7 @@ class EmailTemplate extends React.Component<Props, State> {
                 type="text"
                 placeholder={__('Type to search')}
                 onChange={this.onSearch}
-                value={router.getParam(history, 'searchValue')}
+                value={router.getParam(history, 'emailTemplatesSearch')}
               />
             </SearchInput>
             <PopoverList>
@@ -169,4 +167,4 @@ class EmailTemplate extends React.Component<Props, State> {
   }
 }
 
-export default withRouter(EmailTemplate);
+export default EmailTemplate;
