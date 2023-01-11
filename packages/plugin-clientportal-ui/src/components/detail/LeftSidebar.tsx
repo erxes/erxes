@@ -7,6 +7,7 @@ import React from 'react';
 import { List } from '../../styles';
 import { IClientPortalUser } from '../../types';
 import DetailInfo from './DetailInfo';
+import CustomFieldsSection from '../../containers/CustomFieldsSection';
 
 type Props = {
   clientPortalUser: IClientPortalUser;
@@ -56,6 +57,7 @@ class LeftSidebar extends React.Component<Props> {
             </List>
           </Box>
         )}
+        <CustomFieldsSection id={clientPortalUser._id} isDetail={true} />
       </Sidebar>
     );
   }
