@@ -367,6 +367,10 @@ export const ChatForm = styled.div`
     font-size: 10px;
     color: ${colors.textSecondary};
   }
+
+  & > p {
+    margin: 0;
+  }
 `;
 
 export const ChatReplyInfo = styled.div`

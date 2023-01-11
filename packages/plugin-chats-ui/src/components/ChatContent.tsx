@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 // erxes
 import PageContent from '@erxes/ui/src/layout/components/PageContent';
 // local
@@ -13,6 +13,8 @@ type Props = {
 const ChatContent = (props: Props) => {
   const { chatId } = props;
   const [reply, setReply] = useState<any>(null);
+
+  useEffect(() => setReply(null), [chatId]);
 
   return (
     <PageContent transparent={false} center={true}>

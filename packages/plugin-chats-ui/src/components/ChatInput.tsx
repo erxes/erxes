@@ -15,11 +15,23 @@ const ChatInput = (props: Props) => {
   const { reply } = props;
   const [message, setMessage] = useState<string>('');
 
-  const handleSendMessage = () => {
-    props.sendMessage(message);
+  const handleSendMessage = _message => {
+    props.sendMessage(_message);
+    props.setReply(null);
 
     setMessage('');
-    props.setReply(null);
+  };
+
+  const handleChange = (e: any) => {
+    setMessage(e.editor.getData());
+  };
+
+  const handleInstanceReady = ({ editor }) => {
+    editor.on('key', event => {
+      if (event.data.keyCode === 13) {
+        handleSendMessage(editor.getData());
+      }
+    });
   };
 
   return (
@@ -43,10 +55,11 @@ const ChatInput = (props: Props) => {
         </ChatReplyInfo>
       )}
       <EditorCK
-        name="message"
+        name="chat-message"
         content={message}
-        onChange={(e: any) => setMessage(e.editor.getData())}
+        onChange={handleChange}
         onCtrlEnter={handleSendMessage}
+        onInstanceReady={handleInstanceReady}
         toolbar={[
           {
             name: 'basicstyles',
@@ -67,7 +80,8 @@ const ChatInput = (props: Props) => {
         height={100}
         autoFocus
       />
-      <span>Control + Enter to send a message</span>
+
+      <span>Shift + Enter to add a new line</span>
     </ChatForm>
   );
 };
