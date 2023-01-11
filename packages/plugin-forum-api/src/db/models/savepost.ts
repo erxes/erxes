@@ -18,9 +18,9 @@ const OMIT_FROM_INPUT = ['_id', 'createdAt'] as const;
 export type SavePostInput = Omit<SavedPost, typeof OMIT_FROM_INPUT[number]>;
 
 export interface SavedPostModel extends Model<SavedPostDocument> {
-  savePost(postId: string, cpUser?: ICpUser): Promise<void>;
-  unsavePost(postId: string, cpUser?: ICpUser): Promise<void>;
-  deleteSavedPost(_id: string, cpUser?: ICpUser): Promise<SavedPost>;
+  savePost(postId: string, cpUser?: ICpUser): Promise<SavedPostDocument>;
+  unsavePost(postId: string, cpUser?: ICpUser): Promise<SavedPostDocument>;
+  deleteSavedPost(_id: string, cpUser?: ICpUser): Promise<SavedPostDocument>;
 }
 
 export const savedPostSchema = new Schema<SavedPostDocument>({
@@ -42,20 +42,33 @@ export const generateSavedPostModel = (
     public static async savePost(
       postId: string,
       cpUser?: ICpUser
-    ): Promise<void> {
+    ): Promise<SavedPostDocument> {
       if (!cpUser) throw new LoginRequiredError();
-      await models.SavedPost.updateOne(
-        { postId, cpUserId: cpUser.userId },
-        { postId, cpUserId: cpUser.userId, createdAt: new Date() },
-        { upsert: true }
-      );
+      const existing = await models.SavedPost.findOne({
+        postId,
+        cpUserId: cpUser.userId
+      }).lean();
+      if (existing) return existing;
+
+      const created = await models.SavedPost.create({
+        postId,
+        cpUserId: cpUser.userId
+      });
+      return created;
     }
     public static async unsavePost(
       postId: string,
       cpUser?: ICpUser
-    ): Promise<void> {
+    ): Promise<SavedPostDocument> {
       if (!cpUser) throw new LoginRequiredError();
-      await models.SavedPost.deleteMany({ postId, cpUserId: cpUser.userId });
+      const existing = await models.SavedPost.findOne({
+        postId,
+        cpUserId: cpUser.userId
+      });
+      if (!existing) throw new Error(`Saved post not found`);
+
+      await existing.remove();
+      return existing;
     }
     public static async deleteSavedPost(
       _id: string,
