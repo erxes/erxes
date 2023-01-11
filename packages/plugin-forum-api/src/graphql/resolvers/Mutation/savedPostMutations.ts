@@ -8,8 +8,8 @@ const savedPostMutations: IObjectTypeResolver<any, IContext> = {
   forumCpPostUnsave(_, { postId }, { models: { SavedPost }, cpUser }) {
     return SavedPost.unsavePost(postId, cpUser);
   },
-  forumCpSavedPostDelete(_, { postId }, { models: { SavedPost }, cpUser }) {
-    return SavedPost.deleteSavedPost(postId, cpUser);
+  forumCpSavedPostDelete(_, { _id }, { models: { SavedPost }, cpUser }) {
+    return SavedPost.deleteSavedPost(_id, cpUser);
   }
 };
 
