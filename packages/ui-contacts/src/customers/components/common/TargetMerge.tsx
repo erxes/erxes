@@ -90,7 +90,7 @@ class TargetMergeModal extends React.Component<Props, State> {
     return (
       <ModalTrigger
         title={__('Merge')}
-        trigger={<a href="#merge">{__('Merge')}</a>}
+        trigger={<a>{__('Merge')}</a>}
         size="lg"
         content={modalContent}
       />
