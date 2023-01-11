@@ -11,6 +11,7 @@ import { __ } from 'coreui/utils';
 import dayjs from 'dayjs';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { pluginsOfCompanySidebar } from 'coreui/pluginUtils';
+import ActionSection from '@erxes/ui-contacts/src/customers/containers/ActionSection';
 
 type Props = {
   company: ICompany;
@@ -35,7 +36,11 @@ export default class RightSidebar extends React.Component<Props> {
 
     return (
       <Sidebar>
-        <CustomerSection mainType="company" mainTypeId={company._id} />
+        <CustomerSection
+          mainType="company"
+          mainTypeId={company._id}
+          actionSection={ActionSection}
+        />
         {isEnabled('cards') && (
           <>
             <PortableDeals mainType="company" mainTypeId={company._id} />
