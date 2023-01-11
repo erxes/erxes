@@ -1,11 +1,11 @@
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { colors } from '@erxes/ui/src/styles';
+import { colors, dimensions } from '@erxes/ui/src/styles';
 
 export const SidebarWrapper = styled.div`
   height: calc(100% - 10px);
   background-color: ${colors.bgActive};
-  padding: 0px 1em;
+  padding: 0 1em;
   overflow: hidden;
   overflow-y: auto;
   border-radius: 10px;
@@ -20,14 +20,14 @@ export const SidebarHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0px 10px;
+  padding: 0 ${dimensions.unitSpacing}px;
 `;
 
 export const IconButton = styled.button`
   display: inline-block;
   background-color: ${colors.colorShadowGray};
-  margin-left: 10px;
-  padding: 10px 14px;
+  margin-left: ${dimensions.unitSpacing}px;
+  padding: ${dimensions.unitSpacing}px 14px;
   border-radius: 100%;
   border: 0;
   outline: 0;  
@@ -41,7 +41,7 @@ export const IconButton = styled.button`
 `;
 
 export const Subtitle = styled.h5`
-  padding: 0px 10px;
+  padding: 0 ${dimensions.unitSpacing}px;
   margin: 0;
   margin-bottom: 6px;
   color: ${colors.textSecondary};
@@ -57,8 +57,8 @@ export const OptionsMenuWrapper = styled.div`
   width: auto;
   height: auto;
   background-color: white;
-  box-shadow: 0px 0px 20px 3px rgba(0, 0, 0, 0.5);
-  border-radius: 10px;
+  box-shadow: 0 0 ${dimensions.unitSpacing}px 0 rgba(0, 0, 0, 0.2);
+  border-radius: ${dimensions.unitSpacing}px;
   padding: 0.5em;
 `;
 
@@ -74,7 +74,7 @@ export const OptionsMenuItem = styled.button`
   background-color: white;
   border: 0;
   outline: 0;
-  border-radius: 10px;
+  border-radius: ${dimensions.unitSpacing}px;
   padding: 1em;
   text-align: left;
   cursor: pointer;
@@ -88,7 +88,7 @@ export const OptionsButton = styled.button`
   display: inline-block;
   color: white;
   background-color: ${colors.colorPrimary};
-  margin-left: 10px;
+  margin-left: ${dimensions.unitSpacing}px;
   padding: 0.4em 0.7em;
   border-radius: 100%;
   border: 0;
@@ -113,7 +113,9 @@ export const OptionsWrapper = styled.div`
   transform: translateY(-50%);
 `;
 
-// Chat Contacts
+/**
+ * Chat Contacts
+ */
 export const ContactsList = styled.ul`
   max-height: 100%;
   list-style: none;
@@ -127,8 +129,8 @@ export const ContactsList = styled.ul`
   li a {
     display: flex;
     align-items: center;
-    padding: 10px;
-    border-radius: 10px;
+    padding: ${dimensions.unitSpacing}px;
+    border-radius: ${dimensions.unitSpacing}px;
     transition: 0.2s;
   }
 
@@ -140,7 +142,7 @@ export const ContactsList = styled.ul`
 
 export const ContactsItem = styledTS<{ isSeen?: boolean }>(styled.div)`
   width: 100%;
-  padding: 0px 10px;
+  padding: 0 ${dimensions.unitSpacing}px;
   margin: 0;
   color: ${colors.textPrimary};
   font-size: 14px;
@@ -149,7 +151,23 @@ export const ContactsItem = styledTS<{ isSeen?: boolean }>(styled.div)`
 `;
 
 export const ContactsGroupAvatar = styled.div`
-  width: auto;
+  position: relative;
+  min-width: 36px;
+  max-width: 36px;
+  height: 36px;
+
+  span:first-child {
+    position: absolute;
+    bottom: -2px;
+    left: -2px;
+    border: 2px solid ${colors.bgActive};
+    z-index: 1;
+  }
+  span:last-child {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
 `;
 
 export const ContactsItemPreview = styled.div`
@@ -159,14 +177,19 @@ export const ContactsItemPreview = styled.div`
   font-size: 12px;
 `;
 
-export const ContactsItemContent = styledTS<{ truncate?: boolean }>(
-  styled.span
-)`
-  width: auto;
-  white-space: nowrap;
+export const ContactsItemContent = styled.div`
+  max-width: 150px;
+  max-height: 1rem;
   overflow: hidden;
-  flex-grow: 0;
-  text-overflow: ${props => (props.truncate ? 'ellipsis' : 'initial')};
+
+  p {
+    margin: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    word-break: break-word;
+  }
 `;
 
 export const ContactsItemDate = styled.span`
@@ -174,7 +197,9 @@ export const ContactsItemDate = styled.span`
   text-align: right;
 `;
 
-// Participants
+/**
+ * Participants
+ */
 export const ParticipantList = styled.ul`
   max-height: 100%;
   list-style: none;
@@ -188,8 +213,8 @@ export const ParticipantList = styled.ul`
   li a {
     display: flex;
     align-items: center;
-    padding: 10px;
-    border-radius: 10px;
+    padding: ${dimensions.unitSpacing}px;
+    border-radius: ${dimensions.unitSpacing}px;
     transition: 0.2s;
   }
 
@@ -201,7 +226,7 @@ export const ParticipantList = styled.ul`
 
 export const ParticipantItem = styled.div`
   width: 100%;
-  padding: 0px 10px;
+  padding: 0 ${dimensions.unitSpacing}px;
   margin: 0;
   color: ${colors.textPrimary};
   font-size: 14px;
@@ -215,63 +240,160 @@ export const ParticipantItemPreview = styled.div`
   align-items: baseline;
 `;
 
-// Chat Content
-export const ChatContentList = styled.ul`
-  width: 100%;
-  height: calc(100% - 180px);
+/**
+ * Chat Content
+ */
+export const ChatContentBody = styled.div`
+  height: 100%;
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
+`;
+
+/**
+ * Message List
+ */
+export const MessageList = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column-reverse;
   background-color: #f9f9f9;
-  border-radius: 10px;
+  border-top-left-radius: ${dimensions.unitSpacing}px;
+  border-top-right-radius: ${dimensions.unitSpacing}px;
   overflow-y: scroll;
+  overflow-x: hidden;
   list-style: none;
-  padding: 20px 10px;
+  padding: 20px ${dimensions.unitSpacing}px;
   margin: 0;
 `;
 
-export const ChatContentItem = styledTS<{ me: boolean }>(styled.li)`
-  width: 100%;
+export const MessageItem = styledTS<{ me: boolean }>(styled.div)`
+  max-width: 100%;
   display: flex;
   align-items: flex-end;
   justify-content: ${props => (props.me ? 'flex-start' : 'flex-end')};
   flex-direction: ${props => (props.me ? 'row' : 'row-reverse')};
-  margin-bottom: 10px;
+  margin: ${dimensions.unitSpacing}px;
 
-  &:first-child {
+  &:last-child {
     margin-top: auto;
   }
 `;
 
-export const ChatContentDate = styled.span`
-  color: ${colors.textSecondary};
-  margin-bottom: 8px;
-`;
-
-export const ChatContentBody = styled.p`
+export const MessageWrapper = styledTS<{ me?: boolean }>(styled.div)`
   max-width: 560px;
-  word-wrap: break-word;
-  display: inline-block;
-  border-radius: 10px;
-  background-color: ${colors.bgGray};
-  padding: 8px;
-  margin: 0px 10px;
+  display: flex;
+  align-items: ${props => (props.me ? 'flex-end' : 'flex-start')};
+  justify-content: ${props => (props.me ? 'flex-end' : 'flex-start')};
+  flex-direction: column;
+  overflow: hidden;
+  margin: 0 ${dimensions.unitSpacing}px;
 `;
 
-export const ChatForm = styled.div`
-  max-height: 180px;
-  padding: 20px;
-  width: 100%;
-  position: absolute;
-  bottom: 0px;
+export const MessageReply = styled.div`
+  max-width: 100%;
+  display: inline-block;
 
-  textarea {
-    max-height: 80px;
-    border: 0;
-    overflow-y: auto;
+  font-size: 0.8em;
+  color: ${colors.textSecondary};
+  background-color: ${colors.bgUnread}
+  border-radius: ${dimensions.unitSpacing}px;
+  padding: 2px ${dimensions.unitSpacing}px 2px;
+  margin: 0;
+
+  div {
+    max-height: 1rem;
+    overflow: hidden;
+
+    p {
+      margin: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      word-wrap: break-word;
+      word-break: break-word;
+    }
   }
 `;
 
-// Direct Info
+export const MessageBody = styledTS<{ me?: boolean }>(styled.div)`
+  max-width: 560px;
+  display: flex;
+  justify-content: ${props => (props.me ? 'flex-end' : 'flex-start')};
+  flex-direction: ${props => (props.me ? 'row' : 'row-reverse')};
+`;
+
+export const MessageContent = styled.div`
+  max-width: 100% !important;
+  display: inline-block;
+  overflow: hidden;
+  word-wrap: break-word;
+  word-break: break-word;
+
+  border-radius: ${dimensions.unitSpacing}px;
+  background-color: ${colors.bgGray};
+  padding: 8px;
+  margin: 0;
+
+  p {
+    margin: 0;
+  }
+`;
+
+export const MessageAction = styled.button`
+  background: none;
+  display: inline-block;
+  visibility: hidden;
+  border-radius: 100%;
+  border: 0;
+  outline: 0;
+  cursor: pointer;
+  margin: auto ${dimensions.unitSpacing}px;
+
+  &:hover {
+    background-color: ${colors.bgGray};
+  }
+`;
+
+export const ChatForm = styled.div`
+  height: auto;
+  width: 100%;
+  bottom: 0;
+  margin-bottom: 10px;
+
+  & > span {
+    font-size: 10px;
+    color: ${colors.textSecondary};
+  }
+`;
+
+export const ChatReplyInfo = styled.div`
+  width: 100%;
+  display: block;
+  overflow: hidden;
+  font-size: ${dimensions.unitSpacing}px;
+  color: ${colors.textSecondary};
+  margin: 1em 0;
+
+  div {
+    max-width: 560px;
+    max-height: 1rem;
+
+    p {
+      margin: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      word-wrap: break-word;
+      word-break: break-word;
+    }
+  }
+`;
+
+/**
+ * Direct Info
+ */
 export const DirectWrapper = styled.div`
   display: flex;
   flex-direction: column;
