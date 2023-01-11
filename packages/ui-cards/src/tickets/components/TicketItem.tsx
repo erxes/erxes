@@ -13,6 +13,7 @@ import { Content } from '../../boards/styles/stage';
 import { IOptions } from '../../boards/types';
 import { renderPriority } from '../../boards/utils';
 import { ITicket } from '../types';
+import ItemArchivedStatus from '../../boards/components/portable/ItemArchivedStatus';
 
 type Props = {
   stageId?: string;
@@ -90,6 +91,10 @@ class TicketItem extends React.PureComponent<Props> {
       return (
         <>
           <ItemContainer onClick={onClick}>
+            <ItemArchivedStatus
+              status={item.status || 'active'}
+              skipContainer={false}
+            />
             <Content>{this.renderContent()}</Content>
           </ItemContainer>
           {this.renderForm()}

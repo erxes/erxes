@@ -45,6 +45,8 @@ ${
 
     notificationSettings: UserNotificationSettings
 
+    avatar: String
+
     ${
       isContactsEnabled
         ? `
@@ -109,6 +111,7 @@ const userParams = `
   customFieldsData: JSON,
   
   type: String,
+  avatar: String
 `;
 
 export const mutations = () => `
