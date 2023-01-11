@@ -175,8 +175,8 @@ export const generateCommonFilters = async (
 
   let filterIds: string[] = [];
 
-  if(parentId){
-    filter.parentId = parentId
+  if (parentId) {
+    filter.parentId = parentId;
   }
 
   if (assignedUserIds) {
@@ -784,6 +784,7 @@ export const getItemList = async (
         customFieldsData: 1,
         stageChangedDate: 1,
         tagIds: 1,
+        status: 1,
         ...(extraFields || {})
       }
     }

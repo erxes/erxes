@@ -132,4 +132,5 @@ export const commonListTypes = `
   stageChangedDate: Date
   tagIds: [String]
   customProperties: JSON
+  status: String
 `;
