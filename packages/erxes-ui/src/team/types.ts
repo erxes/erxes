@@ -134,3 +134,19 @@ export type BranchesQueryResponse = {
 export type DepartmentsQueryResponse = {
   departments: IDepartment[];
 } & QueryResponse;
+
+export type IUserMovement = {
+  _id: string;
+  contentType: string;
+  contentTypeId: string;
+  contentTypeDetail: IBranch | IDepartment;
+  createAt: string;
+  createdBy: string;
+  createdByDetail: IUser;
+  userId: string;
+  userDetail: IUser;
+};
+
+export type UserMovementsQueryResponse = {
+  userMovements: IUserMovement[];
+} & QueryResponse;

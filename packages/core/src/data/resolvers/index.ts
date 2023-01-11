@@ -12,6 +12,7 @@ import Department from './departments';
 import Unit from './units';
 import Branch from './branches';
 import App from './app';
+import UserMovement from './userMovements';
 
 const resolvers: any = {
   ...customScalars,
@@ -30,7 +31,8 @@ const resolvers: any = {
   Department,
   Unit,
   Branch,
-  App
+  App,
+  UserMovement
 };
 
 export default resolvers;

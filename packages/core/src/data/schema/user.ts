@@ -67,6 +67,18 @@ export const types = `
     score: Float
     leaderBoardPosition: Int
   }
+
+  type UserMovement {
+    _id: String
+    createdAt: Date
+    createdBy: String
+    createdByDetail:JSON
+    userId:String
+    userDetail:JSON
+    contentType:String
+    contentTypeId:String
+    contentTypeDetail:JSON
+  }
 `;
 
 const commonParams = `
@@ -77,6 +89,8 @@ const commonParams = `
   channelIds: [String],
   groupIds: [String]
   brandIds: [String]
+  branchIds: [String]
+  departmentIds: [String]
   customFieldsData: JSON
 `;
 
@@ -97,6 +111,7 @@ export const queries = `
   userDetail(_id: String): User
   usersTotalCount(${commonSelector}): Int
   currentUser: User
+  userMovements(userId: String!,contentType: String):[UserMovement]
 `;
 
 export const mutations = `

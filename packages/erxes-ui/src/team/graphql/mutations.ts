@@ -6,6 +6,8 @@ const commonParamsDef = `
   $channelIds: [String]
   $groupIds: [String]
   $brandIds: [String]
+  $departmentIds: [String]
+  $branchIds: [String]
   $customFieldsData: JSON
 `;
 
@@ -16,6 +18,8 @@ const commonParams = `
   links: $links,
   channelIds: $channelIds
   groupIds: $groupIds
+  branchIds: $branchIds
+  departmentIds: $departmentIds
   brandIds: $brandIds
   customFieldsData: $customFieldsData
 `;

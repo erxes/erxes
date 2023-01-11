@@ -139,7 +139,7 @@ export const loadDepartmentClass = (models: IModels) => {
         createdAt: new Date(),
         createdBy: user._id
       });
-      await models.UserMovements.manageUserMovemment({
+      await models.UserMovements.manageStructureUsersMovement({
         userIds: department.userIds || [],
         contentType: 'department',
         contentTypeId: department._id,
@@ -157,7 +157,7 @@ export const loadDepartmentClass = (models: IModels) => {
       doc: any,
       user: IUserDocument
     ) {
-      await models.UserMovements.manageUserMovemment({
+      await models.UserMovements.manageStructureUsersMovement({
         userIds: doc.userIds || [],
         contentType: 'department',
         contentTypeId: _id,
@@ -322,7 +322,7 @@ export const loadBranchClass = (models: IModels) => {
         createdBy: user._id
       });
 
-      await models.UserMovements.manageUserMovemment({
+      await models.UserMovements.manageStructureUsersMovement({
         userIds: branch.userIds || [],
         contentType: 'branch',
         contentTypeId: branch._id,
@@ -340,7 +340,7 @@ export const loadBranchClass = (models: IModels) => {
       doc: any,
       user: IUserDocument
     ) {
-      await models.UserMovements.manageUserMovemment({
+      await models.UserMovements.manageStructureUsersMovement({
         userIds: doc.userIds || [],
         contentType: 'branch',
         contentTypeId: _id,

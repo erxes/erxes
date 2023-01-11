@@ -180,6 +180,13 @@ const userQueries = {
     return user
       ? models.Users.findOne({ _id: user._id, isActive: { $ne: false } })
       : null;
+  },
+
+  /**
+   *  Get all user movements
+   */
+  async userMovements(_root, args, { models }: IContext) {
+    return await models.UserMovements.find(args);
   }
 };
 

@@ -77,6 +77,7 @@ export interface IUserMovementDocument extends Document {
   contentTypeId: string;
   userId: string;
   createdAt: string;
+  createdBy: string;
 }
 
 // Mongoose schemas ===============================

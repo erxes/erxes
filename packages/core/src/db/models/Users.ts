@@ -826,21 +826,72 @@ export const loadUserClass = (models: IModels) => {
 };
 
 type ICommonUserMovement = {
-  userIds: string[];
-  contentType: string;
-  contentTypeId: string;
-  createdBy: string;
+  userId?: string;
+  userIds?: string[];
+  contentType?: string;
+  contentTypeIds?: string[];
+  contentTypeId?: string;
+  createdBy?: string;
 };
 
 export interface IUserMovemmentModel extends Model<IUserMovementDocument> {
-  manageUserMovemment(
+  manageStructureUsersMovement(
+    params: ICommonUserMovement
+  ): Promise<IUserMovementDocument>;
+  manageUserMovement(
     params: ICommonUserMovement
   ): Promise<IUserMovementDocument>;
 }
 
 export const loadUserMovemmentClass = (models: IModels) => {
   class UserMovemment {
-    public static async manageUserMovemment(params: ICommonUserMovement) {
+    public static async manageUserMovement(params: ICommonUserMovement) {
+      const { userId } = params;
+
+      const user = await models.Users.findOne({ _id: userId });
+
+      const usedMovements = await models.UserMovements.find({
+        userId,
+        contentTypeId: {
+          $in: [...(user?.branchIds || []), ...(user?.departmentIds || [])]
+        }
+      });
+
+      const userMovementIds = usedMovements.map(
+        movement => movement.contentTypeId
+      );
+
+      const newBranches = (user?.branchIds || [])
+        .filter(branchId => !userMovementIds.includes(branchId))
+        .map(branchId => ({
+          userId,
+          contentType: 'branch',
+          contentTypeId: branchId,
+          createdBy: userId
+        }));
+
+      const newDepartments = (user?.departmentIds || [])
+        .filter(departmentId => !userMovementIds.includes(departmentId))
+        .map(branchId => ({
+          userId,
+          contentType: 'department',
+          contentTypeId: branchId,
+          createdBy: userId
+        }));
+
+      if (!newBranches.length && !newDepartments.length) {
+        return;
+      }
+
+      return await models.UserMovements.insertMany([
+        ...newBranches,
+        ...newDepartments
+      ]);
+    }
+
+    public static async manageStructureUsersMovement(
+      params: ICommonUserMovement
+    ) {
       const { createdBy, userIds, contentType, contentTypeId } = params;
       const fieldName = `${contentType}Ids`;
       const unActiveUsers = await models.Users.find({
@@ -875,7 +926,7 @@ export const loadUserMovemmentClass = (models: IModels) => {
             : undefined
         )
         .filter(movement => movement);
-      const newUserMovementIds = userIds
+      const newUserMovementIds = (userIds || [])
         .map(userId =>
           userMovements.some(userMovement => userMovement.userId === userId)
             ? undefined

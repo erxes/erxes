@@ -227,6 +227,8 @@ const userDetail = `
       isActive
       status
       groupIds
+      branchIds
+      departmentIds
 
       details {
         ${detailFields}
@@ -415,6 +417,22 @@ const fieldsGroups = `
   }
 `;
 
+const userMovements = `
+  query UserMovements($userId: String!, $contentType: String) {
+    userMovements(userId: $userId, contentType: $contentType) {
+      _id
+      contentType
+      contentTypeId
+      createdAt
+      createdBy
+      createdByDetail
+      userDetail
+      userId
+      contentTypeDetail
+    }
+  }
+`;
+
 export default {
   userSkills,
   userDetail,
@@ -433,5 +451,6 @@ export default {
   detailFields,
   channels: channelQueries.channels,
   skillTypes,
-  fieldsGroups
+  fieldsGroups,
+  userMovements
 };
