@@ -39,6 +39,12 @@ cube(`DealsProductsdata`, {
       sql: `${CUBE}.\`productsData.discount\``,
       type: `sum`,
       title: `Discount sum`
+    },
+
+    productQuantity: {
+      sql: `${CUBE}.\`productsData.quantity\``,
+      type: `sum`,
+      title: `Products quantity`
     }
   },
 
