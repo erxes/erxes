@@ -79,6 +79,7 @@ const Query = `
     forumPage(_id: ID!): ForumPage!
 
     forumCpMySavedPosts(limit: Int, offset: Int): [ForumSavedPost!]
+    forumCpMySavedPostsCount: Int
   }
 `;
 
