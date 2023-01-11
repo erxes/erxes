@@ -46,42 +46,23 @@ export const initBroker = async cl => {
     };
   });
 
-  consumeRPCQueue(
-    'loyalties:scoreLogs.create',
-    async ({
-      subdomain,
-      data: { ownerType, ownerId, changeScore, description, createdBy }
-    }) => {
+  consumeQueue(
+    'loyalties:automations.receiveSetPropertyForwardTo',
+    async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
-      const scoreLog = await models.ScoreLogs.changeScore({
-        ownerType,
-        ownerId,
-        changeScore,
-        description,
-        createdBy
+      const target = data.target;
+
+      const response = await models.ScoreLogs.create({
+        ownerId: target._id,
+        ownerType: data.collectionType,
+        changeScore: data.setDoc[Object.keys(data.setDoc)[0]],
+        createdAt: new Date(),
+        description: 'Via automation'
       });
 
       return {
-        status: 'success',
-        data: scoreLog
-      };
-    }
-  );
-
-  consumeRPCQueue(
-    'loyalties:vouchers.create',
-    async ({ subdomain, data: { ownerType, ownerId, voucherCampaignId } }) => {
-      const models = await generateModels(subdomain);
-
-      const voucher = await models.Vouchers.createVoucher({
-        campaignId: voucherCampaignId,
-        ownerType,
-        ownerId
-      });
-
-      return {
-        data: voucher,
+        data: response,
         status: 'success'
       };
     }
