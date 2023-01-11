@@ -77,6 +77,8 @@ const Query = `
     ): [ForumPage!]
 
     forumPage(_id: ID!): ForumPage!
+
+    forumCpMySavedPosts(limit: Int, offset: Int): [ForumSavedPost!]
   }
 `;
 
