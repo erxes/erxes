@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import calendar from 'dayjs/plugin/calendar';
 // erxes
+import Spinner from '@erxes/ui/src/components/Spinner';
 import Tip from '@erxes/ui/src/components/Tip';
 import Icon from '@erxes/ui/src/components/Icon';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import Avatar from '@erxes/ui/src/components/nameCard/Avatar';
 import { IUser } from '@erxes/ui/src/auth/types';
 // local
@@ -22,6 +22,7 @@ import {
 type Props = {
   messages: any[];
   latestMessages: any[];
+  isAllMessages: boolean;
   currentUser: IUser;
   setReply: (text: string) => void;
   loadEarlierMessage: () => void;
@@ -30,7 +31,7 @@ type Props = {
 const ChatHistory = (props: Props) => {
   dayjs.extend(relativeTime);
   dayjs.extend(calendar);
-  const { messages, latestMessages, currentUser } = props;
+  const { messages, latestMessages, isAllMessages, currentUser } = props;
 
   useEffect(() => {
     let element: HTMLElement | null = document.getElementById('message-list');
@@ -123,6 +124,13 @@ const ChatHistory = (props: Props) => {
     <MessageList id="message-list" onScroll={handleScroll}>
       {latestMessages.map(message => renderRow(message))}
       {messages.map(message => renderRow(message))}
+      {!isAllMessages ? (
+        <MessageItem me={true}>
+          <Spinner />
+        </MessageItem>
+      ) : (
+        ''
+      )}
     </MessageList>
   );
 };

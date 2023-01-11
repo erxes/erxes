@@ -270,6 +270,7 @@ export const MessageList = styled.div`
 
 export const MessageItem = styledTS<{ me: boolean }>(styled.div)`
   max-width: 100%;
+  position: relative;
   display: flex;
   align-items: flex-end;
   justify-content: ${props => (props.me ? 'flex-start' : 'flex-end')};

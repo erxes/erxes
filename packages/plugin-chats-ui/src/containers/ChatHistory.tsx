@@ -46,7 +46,7 @@ const ChatHistoryContainer = (props: FinalProps) => {
   });
 
   if (chatMessagesQuery.loading) {
-    return <Spinner />;
+    return <p>...</p>;
   }
 
   if (chatMessagesQuery.error) {
@@ -95,6 +95,7 @@ const ChatHistoryContainer = (props: FinalProps) => {
     <ChatHistory
       messages={chatMessages}
       latestMessages={latestMessages}
+      isAllMessages={chatMessages.length < (page + 1) * 20}
       currentUser={currentUser}
       setReply={setReply}
       loadEarlierMessage={loadEarlierMessage}
