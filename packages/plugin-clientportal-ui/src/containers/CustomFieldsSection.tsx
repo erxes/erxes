@@ -34,7 +34,6 @@ const CustomFieldsSection = (props: FinalProps) => {
     clientPortalUserDetailQuery,
     editMutation
   } = props;
-  console.log(props, 'ejj');
   if (
     fieldsGroupsQuery &&
     fieldsGroupsQuery.loading &&
