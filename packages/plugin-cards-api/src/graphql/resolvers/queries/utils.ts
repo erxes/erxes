@@ -175,8 +175,8 @@ export const generateCommonFilters = async (
 
   let filterIds: string[] = [];
 
-  if(parentId){
-    filter.parentId = parentId
+  if (parentId) {
+    filter.parentId = parentId;
   }
 
   if (assignedUserIds) {

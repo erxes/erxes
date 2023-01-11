@@ -111,19 +111,6 @@ class CreateForm extends React.Component<Props, State> {
     });
   };
 
-  afterSave = response => {
-    const { history } = this.props;
-
-    const prevSegmentIds = routerUtils.getParam(history, 'segmentIds');
-
-    let arr: string[] = [];
-    if (prevSegmentIds) arr = JSON.parse(prevSegmentIds);
-    arr.push(response.data.segmentsAdd._id);
-    routerUtils.setParams(history, {
-      segmentIds: JSON.stringify(arr)
-    });
-  };
-
   renderRow = () => {
     const { segments, history } = this.props;
     return segments.map(segment => (
@@ -142,6 +129,15 @@ class CreateForm extends React.Component<Props, State> {
         assignmentCampaign: {
           ...this.state.assignmentCampaign,
           voucherCampaignId: value
+        }
+      });
+    };
+
+    const onChangeSegments = values => {
+      this.setState({
+        assignmentCampaign: {
+          ...this.state.assignmentCampaign,
+          segmentIds: values.map(v => v.value)
         }
       });
     };
@@ -227,26 +223,18 @@ class CreateForm extends React.Component<Props, State> {
         {isEnabled('segments') && isEnabled('contacts') && (
           <>
             <FormGroup>
-              <ControlLabel>Customer Segment</ControlLabel>
-              <br />
-              <TemporarySegment
-                contentType={`contacts:customer`}
-                afterSave={this.afterSave}
+              <ControlLabel>Segments</ControlLabel>
+              <Select
+                options={this.props.segments.map(segment => ({
+                  label: `${segment.name}`,
+                  value: segment._id
+                }))}
+                value={this.state.assignmentCampaign.segmentIds}
+                multi={true}
+                name="segmentIds"
+                onChange={onChangeSegments}
               />
             </FormGroup>
-            {this.props.segments.length > 0 && (
-              <Table hover={true} bordered={true}>
-                <thead>
-                  <tr>
-                    <th>{__('Color')}</th>
-                    <th>{__('Name')}</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>{this.renderRow()}</tbody>
-              </Table>
-            )}
-            <br />
           </>
         )}
         <FormGroup>
