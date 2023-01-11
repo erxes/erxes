@@ -1,5 +1,5 @@
 import { sendCommonMessage, sendRPCMessage } from './messageBrokerErkhet';
-import { getPostData } from './utils/ebarimtData';
+import { getPostData, getMoveData } from './utils/ebarimtData';
 import {
   productToErkhet,
   productCategoryToErkhet
@@ -30,6 +30,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       }
 
       const configs = await getConfig(subdomain, 'ebarimtConfig', {});
+      const moveConfigs = await getConfig(subdomain, 'stageInMoveConfig');
       const returnConfigs = await getConfig(
         subdomain,
         'returnEbarimtConfig',
@@ -64,6 +65,61 @@ export const afterMutationHandlers = async (subdomain, params) => {
           payload: JSON.stringify(postData),
           thirdService: true
         });
+
+        return;
+      }
+
+      if (Object.keys(moveConfigs).includes(destinationStageId)) {
+        const moveConfig = {
+          ...moveConfigs[destinationStageId],
+          ...(await getConfig(subdomain, 'ERKHET', {}))
+        };
+
+        const postData = await getMoveData(subdomain, moveConfig, deal);
+
+        const response = await sendRPCMessage(
+          'rpc_queue:erxes-automation-erkhet',
+          {
+            action: 'get-response-inv-movement-info',
+            isJson: true,
+            isEbarimt: false,
+            payload: JSON.stringify(postData),
+            thirdService: true
+          }
+        );
+
+        if (response.message || response.error) {
+          const txt = JSON.stringify({
+            message: response.message,
+            error: response.error
+          });
+          if (moveConfig.responseField) {
+            await sendCardsMessage({
+              subdomain,
+              action: 'deals.updateOne',
+              data: {
+                selector: { _id: deal._id },
+                modifier: {
+                  $push: {
+                    customFieldsData: [
+                      {
+                        field: moveConfig.responseField.replace(
+                          'customFieldsData.',
+                          ''
+                        ),
+                        value: txt,
+                        stringValue: txt
+                      }
+                    ]
+                  }
+                }
+              },
+              isRPC: true
+            });
+          } else {
+            console.log(txt);
+          }
+        }
 
         return;
       }

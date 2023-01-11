@@ -91,6 +91,8 @@ export const basicFields = `
   lastSeenAt
   sessionCount
   isOnline
+
+  avatar
 `;
 
 export const clientPortalUserFields = `

@@ -75,7 +75,7 @@ export const getPostData = async (subdomain, config, deal, isNow = true) => {
         defaultValue: []
       });
 
-      customerCode = customers.length > 0 ? customers[0].code : '' || '';
+      customerCode = (customers.find(c => c.code) || {}).code || '';
     }
   }
 
@@ -191,4 +191,132 @@ export const getPostData = async (subdomain, config, deal, isNow = true) => {
     apiSecret: config.apiSecret,
     orderInfos: JSON.stringify(orderInfos)
   };
+};
+
+export const getMoveData = async (subdomain, config, deal, isNow = true) => {
+  let customerCode = '';
+
+  const companyIds = await sendCoreMessage({
+    subdomain,
+    action: 'conformities.savedConformity',
+    data: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['company'] },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  if (companyIds.length > 0) {
+    const companies = await sendContactsMessage({
+      subdomain,
+      action: 'companies.findActiveCompanies',
+      data: {
+        selector: { _id: { $in: companyIds } },
+        fields: { _id: 1, code: 1 }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    for (const company of companies) {
+      if (company.code) {
+        customerCode = company.code;
+        continue;
+      }
+    }
+  }
+
+  if (!customerCode) {
+    const customerIds = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.savedConformity',
+      data: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['customer'] },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    if (customerIds.length > 0) {
+      const customers = await sendContactsMessage({
+        subdomain,
+        action: 'customers.findActiveCustomers',
+        data: {
+          selector: { _id: { $in: customerIds } },
+          fields: { _id: 1, code: 1 }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+      customerCode = (customers.find(c => c.code) || {}).code || '';
+    }
+  }
+
+  if (!customerCode) {
+    customerCode = config.defaultCustomer;
+  }
+
+  const productsIds = deal.productsData.map(item => item.productId);
+
+  const products = await sendProductsMessage({
+    subdomain,
+    action: 'find',
+    data: {
+      query: { _id: { $in: productsIds } },
+      limit: deal.productsData.length
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const productCodeById = {};
+  for (const product of products) {
+    productCodeById[product._id] = product.code;
+  }
+
+  const details: any = [];
+
+  for (const productData of deal.productsData) {
+    // not tickUsed product not sent
+    if (!productData.tickUsed) {
+      continue;
+    }
+
+    // if wrong productId then not sent
+    if (!productCodeById[productData.productId]) {
+      continue;
+    }
+
+    details.push({
+      count: productData.quantity,
+      amount: productData.amount,
+      discount: productData.discount,
+      inventoryCode: productCodeById[productData.productId]
+    });
+  }
+
+  const orderInfos = [
+    {
+      date: isNow
+        ? new Date().toISOString().slice(0, 10)
+        : new Date(deal.stageChangedDate).toISOString().slice(0, 10),
+      orderId: deal._id,
+      number: deal.number || '',
+      customerCode,
+      description: deal.name,
+      details
+    }
+  ];
+
+  const sendConfig = {
+    defaultCustomer: config.defaultCustomer,
+    catAccLocMap: config.catAccLocMap
+  };
+
+  const postData = {
+    userEmail: config.userEmail,
+    token: config.apiToken,
+    apiKey: config.apiKey,
+    apiSecret: config.apiSecret,
+    config: JSON.stringify(sendConfig),
+    orderInfos: JSON.stringify(orderInfos)
+  };
+
+  return postData;
 };
