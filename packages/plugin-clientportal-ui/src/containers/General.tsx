@@ -13,6 +13,7 @@ import compose from 'lodash.flowright';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import knowledgeBaseQueries from '@erxes/ui-knowledgebase/src/graphql/queries';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   handleFormChange: (name: string, value: string) => void;
@@ -43,11 +44,17 @@ function GeneralContainer(props: Props) {
     }
   }, [props.taskPublicBoardId]);
 
-  if (knowledgeBaseTopicsQuery.loading || boardsQuery.loading) {
+  if (
+    (knowledgeBaseTopicsQuery && knowledgeBaseTopicsQuery.loading) ||
+    boardsQuery.loading
+  ) {
     return <Spinner />;
   }
 
-  const topics = knowledgeBaseTopicsQuery.knowledgeBaseTopics || [];
+  const topics =
+    (knowledgeBaseTopicsQuery &&
+      knowledgeBaseTopicsQuery.knowledgeBaseTopics) ||
+    [];
   const boards = boardsQuery.boards || [];
 
   const updatedProps = {
@@ -63,7 +70,8 @@ function GeneralContainer(props: Props) {
 
 export default compose(
   graphql(gql(knowledgeBaseQueries.knowledgeBaseTopics), {
-    name: 'knowledgeBaseTopicsQuery'
+    name: 'knowledgeBaseTopicsQuery',
+    skip: isEnabled('knowledgebase') ? false : true
   }),
   graphql(gql(boardQueries.boards), {
     name: 'boardsQuery',
