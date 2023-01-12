@@ -9,6 +9,7 @@ import permissionGroupMutations from './permissionGroup';
 import subscriptionProductMutations from './subscriptionProductMutations';
 import subscriptionOrderMutations from './subscriptionOrderMutations';
 import pageMutations from './pageMutations';
+import pollMutations from './pollMutations';
 
 const Mutation: IObjectTypeResolver<any, IContext> = {
   ...categoryMutations,
@@ -19,7 +20,8 @@ const Mutation: IObjectTypeResolver<any, IContext> = {
   ...permissionGroupMutations,
   ...subscriptionProductMutations,
   ...subscriptionOrderMutations,
-  ...pageMutations
+  ...pageMutations,
+  ...pollMutations
 };
 
 export default Mutation;

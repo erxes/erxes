@@ -20,7 +20,6 @@ import ForumSubscriptionOrder from './ForumSubscriptionOrder';
 import { SUBSCRIPTION_ORDER_STATES } from '../../db/models/subscription/subscriptionOrder';
 import ForumPage from './ForumPage';
 import ForumPollOption from './ForumPollOption';
-import ForumPollVote from './ForumPollVote';
 
 const Invoice = `
   extend type Invoice @key(fields: "_id") {
@@ -129,7 +128,6 @@ export default async function genTypeDefs(serviceDiscovery) {
     ${ForumPage}
 
     ${ForumPollOption}
-    ${ForumPollVote}
 
     ${Query}
     ${Mutation}

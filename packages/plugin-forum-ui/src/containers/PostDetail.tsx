@@ -203,7 +203,7 @@ const PostDetail: React.FC = () => {
               <tr>
                 <th>Poll type</th>
                 <td>
-                  {forumPost.isPollMultipleChoice
+                  {forumPost.isPollMultiChoice
                     ? 'Multiple choice'
                     : 'Single choice'}
                 </td>

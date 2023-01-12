@@ -14,8 +14,19 @@ const ForumPollOption: IObjectTypeResolver<PollOption, IContext> = {
     return createdById && { __typename: 'User', _id: createdById };
   },
 
-  async votes({ _id }, _, { models: { PollVote } }) {
-    return PollVote.find({ pollOptionId: _id }).lean();
+  async votes({ _id }, { limit = 0, offset = 0 }, { models: { PollVote } }) {
+    const votes = await PollVote.find({ pollOptionId: _id })
+      .limit(limit)
+      .skip(offset)
+      .lean();
+
+    return votes.map(vote => ({
+      __typename: 'ClientPortal',
+      _id: vote.cpUserId
+    }));
+  },
+  async voteCount({ _id }, _, { models: { PollVote } }) {
+    return PollVote.countDocuments({ pollOptionId: _id });
   }
 };
 

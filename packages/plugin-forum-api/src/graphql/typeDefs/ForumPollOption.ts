@@ -13,7 +13,8 @@ type ForumPollOption  @cacheControl(maxAge: 30) {
 
     createdAt: Date
 
-    votes: [ForumPollVote!]
+    votes(limit: Int, offset: Int): [ClientPortalUser]
+    voteCount: Int! @cacheControl(maxAge: 5)
 }
 
 input ForumPollOptionInput {

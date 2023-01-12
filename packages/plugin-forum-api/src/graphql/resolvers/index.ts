@@ -10,7 +10,6 @@ import ClientPortalUser from './ClientPortalUser';
 import ForumPermissionGroup from './ForumPermissionGroup';
 import ForumPermissionGroupCategoryPermit from './ForumPermissionGroupCategoryPermit';
 import ForumSubscriptionOrder from './ForumSubscriptionOrder';
-import ForumPollVote from './ForumPollVote';
 import ForumPollOption from './ForumPollOption';
 
 export default async function generateResolvers(
@@ -27,7 +26,6 @@ export default async function generateResolvers(
     ForumPermissionGroup,
     ForumPermissionGroupCategoryPermit,
     ForumSubscriptionOrder,
-    ForumPollVote,
     ForumPollOption
   };
 
