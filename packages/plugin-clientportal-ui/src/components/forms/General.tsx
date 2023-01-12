@@ -290,99 +290,102 @@ function General({
   };
 
   const renderFeatures = () => {
+    if (
+      !isEnabled('knowledgebase') &&
+      !isEnabled('cards') &&
+      !isEnabled('inbox')
+    ) {
+      return null;
+    }
     return (
-      (isEnabled('knowledgebase') ||
-        isEnabled('cards') ||
-        isEnabled('inbox')) && (
-        <Block>
-          <h4>{__('Features')}</h4>
-          {isEnabled('knowledgebase') &&
-            renderFeatureBlock(
-              'knowledgeBase',
-              <>
-                {renderControl({
-                  label: 'Knowledge Base Name',
-                  subtitle: 'Shown name on menu',
-                  formValueName: 'knowledgeBaseLabel',
-                  formValue: knowledgeBaseLabel,
-                  placeholder: 'Please enter a label for Knowledge base'
-                })}
-                <FormGroup>
-                  <ControlLabel required={true}>
-                    Knowledge base topic
-                  </ControlLabel>
-                  <p>{__('Knowledge base topic in Client Portal')}</p>
-                  <Select
-                    placeholder="Select a knowledge base topic"
-                    value={knowledgeBaseTopicId}
-                    options={generateOptions(topics, '_id', 'title')}
-                    onChange={handleSelectChange}
-                  />
-                </FormGroup>
-              </>,
-              'kbToggle',
-              kbToggle || false
-            )}
-          {isEnabled('cards') &&
-            renderFeatureBlock(
-              'publicTask',
-              renderTaskPipelines(),
-              'publicTaskToggle',
-              publicTaskToggle || false
-            )}
+      <Block>
+        <h4>{__('Features')}</h4>
+        {isEnabled('knowledgebase') &&
+          renderFeatureBlock(
+            'knowledgeBase',
+            <>
+              {renderControl({
+                label: 'Knowledge Base Name',
+                subtitle: 'Shown name on menu',
+                formValueName: 'knowledgeBaseLabel',
+                formValue: knowledgeBaseLabel,
+                placeholder: 'Please enter a label for Knowledge base'
+              })}
+              <FormGroup>
+                <ControlLabel required={true}>
+                  Knowledge base topic
+                </ControlLabel>
+                <p>{__('Knowledge base topic in Client Portal')}</p>
+                <Select
+                  placeholder="Select a knowledge base topic"
+                  value={knowledgeBaseTopicId}
+                  options={generateOptions(topics, '_id', 'title')}
+                  onChange={handleSelectChange}
+                />
+              </FormGroup>
+            </>,
+            'kbToggle',
+            kbToggle || false
+          )}
+        {isEnabled('cards') &&
+          renderFeatureBlock(
+            'publicTask',
+            renderTaskPipelines(),
+            'publicTaskToggle',
+            publicTaskToggle || false
+          )}
 
-          {isEnabled('cards') &&
-            renderFeatureBlock(
-              'tickets',
-              <>
-                {renderControl({
-                  label: 'Tickets',
-                  subtitle: 'Shown name on menu',
-                  formValueName: 'ticketLabel',
-                  formValue: ticketLabel,
-                  placeholder: 'Please enter a label for Ticket'
-                })}
-                {renderBoardSelect({
-                  type: 'ticket',
-                  stageId: ticketStageId,
-                  pipelineId: ticketPipelineId,
-                  boardId: ticketBoardId
-                })}
-              </>,
-              'ticketToggle',
-              ticketToggle || false
-            )}
+        {isEnabled('cards') &&
+          renderFeatureBlock(
+            'tickets',
+            <>
+              {renderControl({
+                label: 'Tickets',
+                subtitle: 'Shown name on menu',
+                formValueName: 'ticketLabel',
+                formValue: ticketLabel,
+                placeholder: 'Please enter a label for Ticket'
+              })}
+              {renderBoardSelect({
+                type: 'ticket',
+                stageId: ticketStageId,
+                pipelineId: ticketPipelineId,
+                boardId: ticketBoardId
+              })}
+            </>,
+            'ticketToggle',
+            ticketToggle || false
+          )}
 
-          {isEnabled('cards') &&
-            renderFeatureBlock(
-              'tasks',
-              <>
-                {renderControl({
-                  label: 'Tasks incoming pipeline',
-                  subtitle: 'Shown name on menu',
-                  formValueName: 'taskLabel',
-                  formValue: taskLabel,
-                  placeholder: 'Please enter a label for Task'
-                })}
-                {renderBoardSelect({
-                  type: 'task',
-                  stageId: taskStageId,
-                  pipelineId: taskPipelineId,
-                  boardId: taskBoardId
-                })}
-              </>,
-              'taskToggle',
-              taskToggle || false
-            )}
-          {isEnabled('inbox') &&
-            renderControl({
-              label: 'Messenger brand code',
-              subtitle: 'Brand code in messenger install script',
-              formValueName: 'messengerBrandCode',
-              formValue: messengerBrandCode
-            })}
-        </Block>
-      )
+        {isEnabled('cards') &&
+          renderFeatureBlock(
+            'tasks',
+            <>
+              {renderControl({
+                label: 'Tasks incoming pipeline',
+                subtitle: 'Shown name on menu',
+                formValueName: 'taskLabel',
+                formValue: taskLabel,
+                placeholder: 'Please enter a label for Task'
+              })}
+              {renderBoardSelect({
+                type: 'task',
+                stageId: taskStageId,
+                pipelineId: taskPipelineId,
+                boardId: taskBoardId
+              })}
+            </>,
+            'taskToggle',
+            taskToggle || false
+          )}
+        {isEnabled('inbox') &&
+          renderControl({
+            label: 'Messenger brand code',
+            subtitle: 'Brand code in messenger install script',
+            formValueName: 'messengerBrandCode',
+            formValue: messengerBrandCode
+          })}
+      </Block>
     );
   };
 
