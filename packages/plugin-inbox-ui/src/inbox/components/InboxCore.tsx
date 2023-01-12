@@ -32,13 +32,7 @@ class Inbox extends React.Component<Props> {
 
     const menuInbox = [{ title: 'Team Inbox', link: '/inbox/index' }];
 
-    const content = () => (
-      <MailForm
-        isReply={false}
-        clearOnSubmit={true}
-        queryParams={queryParams}
-      />
-    );
+    const content = () => <MailForm isReply={false} clearOnSubmit={true} />;
 
     const sendEmail = (
       <ModalTrigger
