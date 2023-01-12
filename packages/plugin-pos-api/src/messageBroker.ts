@@ -561,6 +561,16 @@ export const sendAutomationsMessage = async (
   });
 };
 
+export const sendCommonMessage = async (
+  args: ISendMessageArgs & { serviceName: string }
+): Promise<any> => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    ...args
+  });
+};
+
 export default function() {
   return client;
 }
