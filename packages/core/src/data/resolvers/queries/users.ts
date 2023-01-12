@@ -47,6 +47,7 @@ const queryBuilder = async (models: IModels, params: IListArgs) => {
   if (searchValue) {
     const fields = [
       { email: new RegExp(`.*${params.searchValue}.*`, 'i') },
+      { employeeId: new RegExp(`.*${params.searchValue}.*`, 'i') },
       { 'details.fullName': new RegExp(`.*${params.searchValue}.*`, 'i') },
       { 'details.position': new RegExp(`.*${params.searchValue}.*`, 'i') }
     ];
