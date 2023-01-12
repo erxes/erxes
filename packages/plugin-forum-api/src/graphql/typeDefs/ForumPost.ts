@@ -71,6 +71,8 @@ export default function ForumPost({ isTagsEnabled }) {
 
     pollOptions: [ForumPollOption!]
 
+    isPollMultiChoice: Boolean
+
     ${isTagsEnabled ? 'tags: [Tag!]' : ''}
   }
 `;

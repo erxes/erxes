@@ -9,6 +9,7 @@ const commonPostParams = (isInsert = false) => {
     customIndexed: JSON
     tagIds: [ID!]
     pollOptions: [ForumPollOptionInput!]
+    isPollMultiChoice: Boolean
   `;
 };
 

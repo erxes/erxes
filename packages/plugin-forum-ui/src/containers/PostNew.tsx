@@ -13,6 +13,7 @@ const MUTATION = gql`
     $thumbnail: String
     $description: String
     $pollOptions: [ForumPollOptionInput!]
+    $isPollMultiChoice: Boolean
   ) {
     forumCreatePost(
       categoryId: $categoryId
@@ -21,6 +22,7 @@ const MUTATION = gql`
       thumbnail: $thumbnail
       description: $description
       pollOptions: $pollOptions
+      isPollMultiChoice: $isPollMultiChoice
     ) {
       _id
     }

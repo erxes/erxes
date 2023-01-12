@@ -37,20 +37,32 @@ export const generatePollVoteModel = (
       if (!cpUser) throw new LoginRequiredError();
       const pollOption = await models.PollOption.findByIdOrThrow(pollOptionId);
 
-      const allOtherOptions = await models.PollOption.find({
-        _id: { $ne: pollOptionId },
-        postId: pollOption.postId
-      });
+      const post = await models.Post.findById(pollOption.postId);
 
-      // remove existing votes for other options
-      await models.PollVote.deleteMany({
-        _id: { $in: allOtherOptions.map(({ _id }) => _id) }
-      });
+      if (!post) {
+        throw new Error('Post not found');
+      }
 
       const doc = {
         pollOptionId,
         cpUserId: cpUser.userId
       };
+
+      if (post.isPollMultiChoice) {
+        await models.PollVote.update(doc, { $set: doc }, { upsert: true });
+        return true;
+      }
+
+      const allOtherOptions = await models.PollOption.find({
+        _id: { $ne: pollOptionId },
+        postId: pollOption.postId
+      });
+
+      // remove existing votes for other options by same user
+      await models.PollVote.deleteMany({
+        pollOptionId: { $in: allOtherOptions.map(({ _id }) => _id) },
+        cpUserId: cpUser.userId
+      });
 
       await models.PollVote.updateOne(
         doc,

@@ -11,6 +11,9 @@ const PostForm: React.FC<{ post?: any; onSubmit?: (any) => any }> = ({
   const [thumbnail, setThumbnail] = useState(post?.thumbnail || '');
   const [categoryId, setCategoryId] = useState(post?.categoryId || '');
   const [description, setDescription] = useState(post?.description || '');
+  const [isPollMultiChoice, setIsPollMultiChoice] = useState(
+    post?.isPollMultiChoice || false
+  );
   const [pollOptions, setPollOptions] = useState<any[]>([]);
 
   useEffect(() => {
@@ -41,7 +44,8 @@ const PostForm: React.FC<{ post?: any; onSubmit?: (any) => any }> = ({
         content,
         categoryId,
         description,
-        pollOptions: optionsCleaned
+        pollOptions: optionsCleaned,
+        isPollMultiChoice
       });
     }
   };
@@ -83,7 +87,17 @@ const PostForm: React.FC<{ post?: any; onSubmit?: (any) => any }> = ({
         <br />
 
         <div style={{ margin: 20, padding: 20 }}>
-          Poll options:
+          <h4>Poll:</h4>
+          <label>
+            Multiple choice{' '}
+            <input
+              type="checkbox"
+              checked={isPollMultiChoice}
+              onChange={e => setIsPollMultiChoice(e.target.checked)}
+            />
+          </label>
+          <br />
+          <h5>Options:</h5>
           <PollOptions
             options={pollOptions}
             onChange={(_id, title, order) => {

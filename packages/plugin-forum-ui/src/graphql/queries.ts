@@ -173,6 +173,8 @@ export const FORUM_POST_DETAIL = gql`
       upVoteCount
       downVoteCount
 
+      isPollMultiChoice
+
       createdUserType
       createdBy {
         _id

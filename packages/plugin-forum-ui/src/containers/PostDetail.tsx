@@ -189,16 +189,26 @@ const PostDetail: React.FC = () => {
             </td>
           </tr>
           {forumPost.pollOptions?.length && (
-            <tr>
-              <th>Poll options</th>
-              <td>
-                <ul>
-                  {forumPost.pollOptions?.map((option, index) => (
-                    <li key={option._id}>{option.title}</li>
-                  ))}
-                </ul>
-              </td>
-            </tr>
+            <>
+              <tr>
+                <th>Poll options</th>
+                <td>
+                  <ul>
+                    {forumPost.pollOptions?.map((option, index) => (
+                      <li key={option._id}>{option.title}</li>
+                    ))}
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <th>Poll type</th>
+                <td>
+                  {forumPost.isPollMultipleChoice
+                    ? 'Multiple choice'
+                    : 'Single choice'}
+                </td>
+              </tr>
+            </>
           )}
           <tr>
             <th>Up vote count:</th>
