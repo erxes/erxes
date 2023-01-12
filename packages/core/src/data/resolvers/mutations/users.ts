@@ -232,14 +232,18 @@ const userMutations = {
     const { _id, channelIds, ...doc } = args;
     const userOnDb = await models.Users.getUser(_id);
 
-    const updatedDoc = {
-      ...doc,
-      details: {
-        ...doc.details,
-        fullName: `${doc.details?.firstName || ''} ${doc.details?.lastName ||
-          ''}`
-      }
-    };
+    let updatedDoc = doc;
+
+    if (doc.details) {
+      updatedDoc = {
+        ...doc,
+        details: {
+          ...doc.details,
+          fullName: `${doc.details.firstName || ''} ${doc.details.lastName ||
+            ''}`
+        }
+      };
+    }
 
     const updatedUser = await models.Users.updateUser(_id, updatedDoc);
 

@@ -7,6 +7,7 @@ import CustomerSection from '@erxes/ui-contacts/src/customers/components/Custome
 import React from 'react';
 import { RightContent } from '../../styles/item';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import ActionSection from '@erxes/ui-contacts/src/customers/containers/ActionSection';
 
 type Props = {
   item: IItem;
@@ -44,7 +45,11 @@ class SidebarConformity extends React.Component<Props> {
         {isEnabled('contacts') && (
           <>
             <CompanySection mainType={options.type} mainTypeId={item._id} />
-            <CustomerSection mainType={options.type} mainTypeId={item._id} />
+            <CustomerSection
+              mainType={options.type}
+              mainTypeId={item._id}
+              actionSection={ActionSection}
+            />
           </>
         )}
 
