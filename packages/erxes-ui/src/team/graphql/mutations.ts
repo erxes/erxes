@@ -37,6 +37,7 @@ const usersEditProfile = `
     $details: UserDetails
     $links: JSON
     $password: String!
+    $employeeId: String
   ) {
     usersEditProfile(
       username: $username
@@ -44,6 +45,7 @@ const usersEditProfile = `
       details: $details
       links: $links
       password: $password
+      employeeId: $employeeId
     ) {
       _id
     }

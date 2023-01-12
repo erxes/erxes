@@ -381,14 +381,22 @@ export const loadUserClass = (models: IModels) => {
      */
     public static async editProfile(
       _id: string,
-      { username, email, details, links }: IEditProfile
+      { username, email, details, links, employeeId }: IEditProfile
     ) {
       // Checking duplicated email
       await this.checkDuplication({ email, idsToExclude: _id });
 
+      if (employeeId) {
+        // Checking employeeId duplication
+        await this.checkDuplication({
+          employeeId,
+          idsToExclude: _id
+        });
+      }
+
       await models.Users.updateOne(
         { _id },
-        { $set: { username, email, details, links } }
+        { $set: { username, email, details, links, employeeId } }
       );
 
       return models.Users.findOne({ _id });
