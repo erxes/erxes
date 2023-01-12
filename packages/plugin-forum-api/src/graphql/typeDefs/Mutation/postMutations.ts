@@ -1,5 +1,4 @@
 import { translationAndPostCommonFields } from '../ForumPost';
-import { requiredIf } from '../utils';
 
 const commonPostParams = (isInsert = false) => {
   return `
@@ -9,6 +8,7 @@ const commonPostParams = (isInsert = false) => {
     state: ForumPostState
     customIndexed: JSON
     tagIds: [ID!]
+    pollOptions: [PollOptionInput!]
   `;
 };
 

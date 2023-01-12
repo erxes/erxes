@@ -320,23 +320,25 @@ export const generatePollOptionModel = (
       const optionsToDelete = await models.PollOption.find({
         postId,
         _id: {
-          $nin: optionsToUpdate.map(({ _id }) => Types.ObjectId(_id.toString()))
+          $nin: optionsToUpdate.map(({ _id }) => _id)
         }
       }).lean();
 
-      await models.PollOption.insertMany(optionsToInsert);
-      await models.PollOption.bulkWrite(
-        optionsToUpdate.map(({ _id, title }) => ({
-          updateOne: {
-            filter: { _id: Types.ObjectId(_id.toString()) },
-            update: { $set: { title } }
-          }
-        }))
-      );
+      if (optionsToInsert.length) {
+        await models.PollOption.insertMany(optionsToInsert);
+      }
+      if (optionsToUpdate.length) {
+        await models.PollOption.bulkWrite(
+          optionsToUpdate.map(({ _id, title }) => ({
+            updateOne: {
+              filter: { _id },
+              update: { $set: { title } }
+            }
+          }))
+        );
+      }
 
-      const idsToDelete = optionsToDelete.map(({ _id }) =>
-        Types.ObjectId(_id.toString())
-      );
+      const idsToDelete = optionsToDelete.map(({ _id }) => _id);
 
       await models.PollVote.deleteMany({
         pollOptionId: { $in: idsToDelete }

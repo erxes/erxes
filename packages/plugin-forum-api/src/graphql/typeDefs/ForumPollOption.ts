@@ -14,6 +14,12 @@ type ForumPollOption  @cacheControl(maxAge: 30) {
 
     votes: [ForumPollVote!]
 }
+
+input PollOptionInput {
+    """ If _id is set, the poll option with the given _id will be updated. Otherwise, a new poll option will be created. """
+    _id: String
+    title: String!
+}
 `;
 
 export default ForumPollOption;
