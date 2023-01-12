@@ -282,7 +282,8 @@ export const initBroker = async cl => {
         order: newOrder
       },
       isRPC: true,
-      defaultValue: {}
+      defaultValue: {},
+      timeout: 50000
     });
 
     if (resp.message || resp.error) {
