@@ -13,6 +13,7 @@ export interface PollOption {
   createdByCpId?: string | null;
   createdById?: string | null;
   createdAt: Date;
+  order: number;
 }
 
 const pollOptionSchema = new Schema<PollOption>({
@@ -20,19 +21,11 @@ const pollOptionSchema = new Schema<PollOption>({
   title: { type: String, required: true },
   createdByCpId: String,
   createdById: String,
-  createdAt: { type: Date, default: () => new Date() }
+  createdAt: { type: Date, default: () => new Date() },
+  order: { type: Number, default: 0, required: true }
 });
 
 export type PollOptionDocument = PollOption & Document;
-
-const OMIT_FROM_INPUT = [
-  '_id',
-  'createdByCpId',
-  'createdById',
-  'createdAt'
-] as const;
-
-type CreateInput = Omit<PollOption, typeof OMIT_FROM_INPUT[number]>;
 
 export interface PollOptionModel extends Model<PollOptionDocument> {
   findOwnedByIdOrThrow(
@@ -40,48 +33,6 @@ export interface PollOptionModel extends Model<PollOptionDocument> {
     cpUser?: ICpUser
   ): Promise<PollOptionDocument>;
   findByIdOrThrow(_id: string): Promise<PollOptionDocument>;
-
-  // <CLient portal>
-  createPollOptionCp(
-    input: CreateInput,
-    cpUser?: ICpUser
-  ): Promise<PollOptionDocument>;
-  createPollOptionsCp(
-    titles: string[],
-    postId: string,
-    cpUser?: ICpUser
-  ): Promise<PollOptionDocument[]>;
-  updateTitleCp(
-    _id: string,
-    title: string,
-    cpUser?: ICpUser
-  ): Promise<PollOptionDocument>;
-  updateTitlesCp(
-    input: { _id: string; title: string }[],
-    cpUser?: ICpUser
-  ): Promise<void>;
-  deletePollOptionCp(
-    _id: string,
-    cpUser?: ICpUser
-  ): Promise<PollOptionDocument>;
-  deletePollOptionsByPostIdCp(postId: string, cpUser?: ICpUser): Promise<void>;
-  // </CLient portal>
-
-  // <CRM>
-  createPollOption(
-    input: CreateInput,
-    user: IUserDocument
-  ): Promise<PollOptionDocument>;
-  createPollOptions(
-    titles: string[],
-    postId: string,
-    user: IUserDocument
-  ): Promise<PollOptionDocument[]>;
-  updateTitle(_id: string, title: string): Promise<PollOptionDocument>;
-  updateTitles(input: { _id: string; title: string }[]): Promise<void>;
-  deletePollOption(_id: string): Promise<PollOptionDocument>;
-  deletePollOptionsByPostId(postId: string): Promise<void>;
-  // </CRM>
 
   handleChanges(
     postId: string,
@@ -120,172 +71,9 @@ export const generatePollOptionModel = (
       return doc;
     }
 
-    // <CLient portal>
-    public static async createPollOptionCp(
-      input: CreateInput,
-      cpUser?: ICpUser
-    ): Promise<PollOptionDocument> {
-      if (!cpUser) {
-        throw new LoginRequiredError();
-      }
-      await models.Post.findByIdOrThrowCp(input.postId, cpUser);
-      const doc = await models.PollOption.create({
-        ...input,
-        createdByCpId: cpUser.userId
-      });
-      return doc;
-    }
-    public static async createPollOptionsCp(
-      titles: string[],
-      postId: string,
-      cpUser?: ICpUser
-    ): Promise<PollOptionDocument[]> {
-      if (!cpUser) {
-        throw new LoginRequiredError();
-      }
-      await models.Post.findByIdOrThrowCp(postId, cpUser);
-      const docs = await models.PollOption.insertMany(
-        titles.map(title => ({
-          title,
-          postId,
-          createdByCpId: cpUser.userId
-        }))
-      );
-      return docs;
-    }
-    public static async updateTitleCp(
-      _id: string,
-      title: string,
-      cpUser?: ICpUser
-    ): Promise<PollOptionDocument> {
-      if (!cpUser) {
-        throw new LoginRequiredError();
-      }
-      const doc = await models.PollOption.findOwnedByIdOrThrow(_id, cpUser);
-      doc.title = title;
-      await doc.save();
-      return doc;
-    }
-    public static async updateTitlesCp(
-      input: { _id: string; title: string }[],
-      cpUser?: ICpUser
-    ): Promise<void> {
-      if (!cpUser) {
-        throw new LoginRequiredError();
-      }
-
-      await models.PollOption.bulkWrite(
-        input.map(({ _id, title }) => ({
-          updateOne: {
-            filter: {
-              _id: Types.ObjectId(_id.toString()),
-              createdByCpId: cpUser.userId
-            },
-            update: { $set: { title } }
-          }
-        }))
-      );
-    }
-    public static async deletePollOptionCp(
-      _id: string,
-      cpUser?: ICpUser
-    ): Promise<PollOptionDocument> {
-      if (!cpUser) {
-        throw new LoginRequiredError();
-      }
-      const doc = await models.PollOption.findOwnedByIdOrThrow(_id, cpUser);
-      await models.PollVote.deleteMany({ pollOptionId: doc._id });
-      await doc.remove();
-      return doc;
-    }
-    public static async deletePollOptionsByPostIdCp(
-      postId: string,
-      cpUser?: ICpUser
-    ): Promise<void> {
-      if (!cpUser) {
-        throw new LoginRequiredError();
-      }
-      await models.Post.findByIdOrThrowCp(postId, cpUser);
-      const optionToDelete = await models.PollOption.find({ postId });
-      await models.PollVote.deleteMany({
-        pollOptionId: { $in: optionToDelete.map(({ _id }) => _id) }
-      });
-      await models.PollOption.deleteMany({ postId });
-    }
-    // </CLient portal>
-
-    // <CRM>
-    public static async createPollOption(
-      input: CreateInput,
-      user: IUserDocument
-    ): Promise<PollOptionDocument> {
-      await models.Post.findByIdOrThrow(input.postId);
-      const doc = await models.PollOption.create({
-        ...input,
-        createdBy: user._id
-      });
-      return doc;
-    }
-    public static async createPollOptions(
-      titles: string[],
-      postId: string,
-      user: IUserDocument
-    ): Promise<PollOptionDocument[]> {
-      await models.Post.findByIdOrThrow(postId);
-      const docs = await models.PollOption.insertMany(
-        titles.map(title => ({
-          title,
-          postId,
-          createdBy: user._id
-        }))
-      );
-      return docs;
-    }
-    public static async updateTitle(
-      _id: string,
-      title: string
-    ): Promise<PollOptionDocument> {
-      const doc = await models.PollOption.findByIdOrThrow(_id);
-      doc.title = title;
-      await doc.save();
-      return doc;
-    }
-    public static async updateTitles(
-      input: { _id: string; title: string }[]
-    ): Promise<void> {
-      await models.PollOption.bulkWrite(
-        input.map(({ _id, title }) => ({
-          updateOne: {
-            filter: { _id: Types.ObjectId(_id.toString()) },
-            update: { $set: { title } }
-          }
-        }))
-      );
-    }
-    public static async deletePollOption(
-      _id: string
-    ): Promise<PollOptionDocument> {
-      const doc = await models.PollOption.findByIdOrThrow(_id);
-      await models.PollVote.deleteMany({ pollOptionId: doc._id });
-      await doc.remove();
-      return doc;
-    }
-    public static async deletePollOptionsByPostId(
-      postId: string
-    ): Promise<void> {
-      await models.Post.findByIdOrThrow(postId);
-
-      const optionsToDelete = await models.PollOption.find({ postId }).lean();
-      const optionIds = optionsToDelete.map(({ _id }) => _id);
-
-      await models.PollVote.deleteMany({ pollOptionId: { $in: optionIds } });
-      await models.PollOption.deleteMany({ postId });
-    }
-    // </CRM>
-
     public static async handleChanges(
       postId: string,
-      options: { _id?: string; title: string }[],
+      options: { _id?: string; title: string; order?: number }[],
       userType: UserTypes,
       userId: string
     ): Promise<void> {
@@ -295,18 +83,22 @@ export const generatePollOptionModel = (
         createdById?: string;
         createdByCpId?: string;
         createdAt: Date;
+        order?: number;
       }[] = [];
-      const optionsToUpdate: { _id: string; title: string }[] = [];
+      const patches: { _id: string; title: string; order?: number }[] = [];
 
       for (const option of options) {
-        if (option._id) {
-          optionsToUpdate.push({
-            _id: option._id,
-            title: option.title
+        const { _id, title, order } = option;
+        if (_id) {
+          patches.push({
+            _id,
+            title,
+            order
           });
         } else {
           const optionToInsert = {
-            ...option,
+            title,
+            order,
             postId: Types.ObjectId(postId.toString()),
             createdAt: new Date()
           };
@@ -320,19 +112,19 @@ export const generatePollOptionModel = (
       const optionsToDelete = await models.PollOption.find({
         postId,
         _id: {
-          $nin: optionsToUpdate.map(({ _id }) => _id)
+          $nin: patches.map(({ _id }) => _id)
         }
       }).lean();
 
       if (optionsToInsert.length) {
         await models.PollOption.insertMany(optionsToInsert);
       }
-      if (optionsToUpdate.length) {
+      if (patches.length) {
         await models.PollOption.bulkWrite(
-          optionsToUpdate.map(({ _id, title }) => ({
+          patches.map(({ _id, title, order }) => ({
             updateOne: {
               filter: { _id },
-              update: { $set: { title } }
+              update: { $set: { title, order } }
             }
           }))
         );
