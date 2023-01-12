@@ -61,7 +61,7 @@ const ChatInfoContainer = (props: Props) => {
   };
 
   if (chatDetail.loading) {
-    return <Spinner />;
+    return <p>...</p>;
   }
 
   if (chatDetail.error) {

@@ -35,6 +35,7 @@ export const types = () => `
     description: String
     fullName: String
     operatorPhone: String
+    position: String
   }
 
   type ChatUser {

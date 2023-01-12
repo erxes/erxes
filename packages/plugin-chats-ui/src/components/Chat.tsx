@@ -2,7 +2,7 @@ import React from 'react';
 // erxes
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 // local
-import ChatContent from '../containers/ChatContent';
+import ChatContent from '../components/ChatContent';
 import ChatInfo from '../containers/ChatInfo';
 import ChatContacts from '../containers/ChatContacts';
 

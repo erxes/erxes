@@ -2,6 +2,31 @@ const chatMessageInserted = `
   subscription chatMessageInserted($chatId: String!) {
     chatMessageInserted(chatId: $chatId) {
       _id
+      content
+      createdUser {
+        _id
+        email
+        details {
+          avatar
+          fullName
+        }
+      }
+      createdAt
+      relatedMessage {
+        _id
+        content
+        createdUser {
+          _id
+          email
+          details {
+            avatar
+            fullName
+          }
+        }
+      }
+      seenList {
+        lastSeenMessageId
+      }
     }
   }
 `;

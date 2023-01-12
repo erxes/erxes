@@ -72,8 +72,7 @@ const ChatInfo = (props: FinalProps) => {
             <br />
             <ParticipantItemPreview>
               {user.isAdmin ? 'Admin ' : ''}
-              {(user.details.description && '- ' + user.details.description) ||
-                ''}
+              {(user.details.position && '- ' + user.details.position) || ''}
             </ParticipantItemPreview>
           </ParticipantItem>
         </Link>
@@ -113,19 +112,19 @@ const ChatInfo = (props: FinalProps) => {
       <DirectWrapper>
         <Avatar user={user} size={64} />
         <h3>{user.details.fullName || user.email}</h3>
-        <span>{user.details.description || ''}</span>
+        <span>{user.details.position || '-'}</span>
         <hr />
         <DirectDetailItem>
           <p>Description</p>
-          <p>{user.details.description || ''}</p>
+          <p>{user.details.description || '-'}</p>
         </DirectDetailItem>
         <DirectDetailItem>
           <p>Email</p>
-          <p>{user.email || ''}</p>
+          <p>{user.email || '-'}</p>
         </DirectDetailItem>
         <DirectDetailItem>
           <p>Phone</p>
-          <p>{user.details.operatorPhone || ''}</p>
+          <p>{user.details.operatorPhone || '-'}</p>
         </DirectDetailItem>
       </DirectWrapper>
     );
