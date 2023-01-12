@@ -80,6 +80,11 @@ export default (props: IProps) =>
               variables.isSaved = false;
             }
 
+            // add archived items in contacts side bar
+            if (mainType === 'customer' || mainType === 'company') {
+              variables.noSkipArchive = true;
+            }
+
             return { variables };
           }
         }

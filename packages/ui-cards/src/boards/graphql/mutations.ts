@@ -91,6 +91,7 @@ export const commonListFields = `
   number
   tagIds
   customProperties
+  status
 `;
 
 export const commonFields = `
