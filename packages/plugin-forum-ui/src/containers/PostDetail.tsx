@@ -188,6 +188,28 @@ const PostDetail: React.FC = () => {
               </p>
             </td>
           </tr>
+          {forumPost.pollOptions?.length && (
+            <>
+              <tr>
+                <th>Poll options</th>
+                <td>
+                  <ul>
+                    {forumPost.pollOptions?.map((option, index) => (
+                      <li key={option._id}>{option.title}</li>
+                    ))}
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <th>Poll type</th>
+                <td>
+                  {forumPost.isPollMultiChoice
+                    ? 'Multiple choice'
+                    : 'Single choice'}
+                </td>
+              </tr>
+            </>
+          )}
           <tr>
             <th>Tags: </th>
             <td>

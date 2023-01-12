@@ -173,6 +173,8 @@ export const FORUM_POST_DETAIL = gql`
       upVoteCount
       downVoteCount
 
+      isPollMultiChoice
+
       createdUserType
       createdBy {
         _id
@@ -205,6 +207,12 @@ export const FORUM_POST_DETAIL = gql`
         _id
         colorCode
         name
+      }
+
+      pollOptions {
+        _id
+        title
+        order
       }
     }
   }

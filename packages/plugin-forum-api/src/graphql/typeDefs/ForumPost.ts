@@ -15,7 +15,7 @@ export default function ForumPost({ isTagsEnabled }) {
     ${translationAndPostCommonFields}
   }
 
-  type ForumPost @key(fields: "_id") {
+  type ForumPost @key(fields: "_id") @cacheControl(maxAge: 30) {
     _id: ID!
     state: ForumPostState
 
@@ -70,6 +70,9 @@ export default function ForumPost({ isTagsEnabled }) {
     tagIds: [ID!]
 
     wordCount: Int
+    pollOptions: [ForumPollOption!]
+
+    isPollMultiChoice: Boolean
 
     ${isTagsEnabled ? 'tags: [Tag!]' : ''}
   }
