@@ -10,14 +10,16 @@ import { BarItems } from '@erxes/ui/src/layout/styles';
 import { LinkButton } from '@erxes/ui/src/styles/main';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils/core';
-import React from 'react';
+import React, { useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { withRouter } from 'react-router-dom';
 
 import OSMBuildings from '../../../common/OSMBuildings';
+import { ICoordinates } from '../../../types';
 import { submenu } from '../../../utils';
 import BuildingForm from '../containers/Form';
 import { IBuilding } from '../types';
+import FilterMenu from './FilterMenu';
 import Row from './Row';
 
 // import Sidebar from './Sidebar';
@@ -42,6 +44,11 @@ const List = (props: Props) => {
     remove
   } = props;
 
+  const [center, setCenter] = useState<ICoordinates>({
+    lat: 47.918812,
+    lng: 106.9154893
+  });
+
   const renderRow = () => {
     const { buildings } = props;
     return buildings.map(building => (
@@ -57,6 +64,13 @@ const List = (props: Props) => {
     </Button>
   );
 
+  const onChangeCenter = (center: ICoordinates, bounds: ICoordinates[]) => {
+    console.log('center', center);
+    console.log('bounds', bounds);
+
+    setCenter(center);
+  };
+
   const render3dMap = () => {
     if (viewType !== '3d') {
       return null;
@@ -66,7 +80,8 @@ const List = (props: Props) => {
 
     const mapProps = {
       id: Math.random().toString(),
-      onClickBuilding
+      onClickBuilding,
+      onChangeCenter
     };
 
     return <OSMBuildings {...mapProps} />;
@@ -95,7 +110,7 @@ const List = (props: Props) => {
     );
   };
 
-  const formContent = props => <BuildingForm {...props} />;
+  const formContent = props => <BuildingForm {...props} center={center} />;
 
   const modalContent = () => (
     <ModalTrigger
@@ -148,6 +163,8 @@ const List = (props: Props) => {
   const actionBarRight = (
     <BarItems>
       {renderViewChooser()}
+
+      <FilterMenu />
 
       <ModalTrigger
         title={__('Add Building')}

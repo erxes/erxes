@@ -3173,11 +3173,16 @@
         this.cancelEvent(e);
     
         const pos = getEventXY(e);
-        this.emit('doubleclick', { x: pos.x, y: pos.y });
+        // this.emit('doubleclick', { x: pos.x, y: pos.y });
     
-        if (!this.isDisabled) {
-          APP.setZoom(APP.zoom + 1, e);
-        }
+        APP.view.Picking.getTarget(pos.x, pos.y, target => {
+          console.log('target ======= ',target)
+          this.emit('doubleclick', { features: target.features, marker: target.marker });
+        });
+
+        // if (!this.isDisabled) {
+          // APP.setZoom(APP.zoom + 1, e);
+        // }
       }
     
       onMouseDown (e) {

@@ -1,6 +1,6 @@
 const fields = `
     _id
-    geoData
+    center
     code
     createdAt
     iso
@@ -37,8 +37,18 @@ query Cities($searchValue: String) {
   }
 `;
 
+const cityByCoordinatesQuery = `
+query CityByCoordinates($lat: Float!, $lng: Float!) {
+  cityByCoordinates(lat: $lat, lng: $lng) {
+    _id
+    name
+  }
+}
+`;
+
 export default {
   listQuery,
   detailQuery,
-  citiesQuery
+  citiesQuery,
+  cityByCoordinatesQuery
 };

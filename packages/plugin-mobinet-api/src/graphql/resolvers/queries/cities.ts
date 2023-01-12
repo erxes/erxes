@@ -48,6 +48,24 @@ const citiesQuery = {
     }
 
     return models.Cities.find(filter).lean();
+  },
+
+  cityByCoordinates: async (
+    _root,
+    { lat, lng }: { lat: number; lng: number },
+    { models }: IContext
+  ) => {
+    return models.Cities.findOne({
+      center: {
+        $near: {
+          $geometry: {
+            type: 'Point',
+            coordinates: [lng, lat]
+          },
+          $maxDistance: 5000
+        }
+      }
+    }).lean();
   }
 };
 

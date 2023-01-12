@@ -20,25 +20,17 @@ type Props = {
 
 const CityForm = (props: Props) => {
   const { city } = props;
-  const geoData = (city && city.geoData) || {
-    lat: 47.919481,
-    lng: 106.904299,
-    zoom: 5
-  };
 
   const [cityObject, setCityObject] = useState<ICity | undefined>(city);
-  const [zoom, setZoom] = useState<number>(geoData.zoom || 10);
 
   const [center, setCenter] = useState(
-    (city && city.geoData) || {
+    (city && city.center) || {
       lat: 47.919481,
-      lng: 106.904299,
-      zoom: 5,
-      description: city ? city.name : 'description'
+      lng: 106.904299
     }
   );
 
-  useEffect(() => {}, [center, zoom]);
+  useEffect(() => {}, [center]);
 
   const generateDoc = () => {
     const finalValues: any = {};
@@ -50,7 +42,7 @@ const CityForm = (props: Props) => {
     if (cityObject) {
       finalValues.name = cityObject.name;
       finalValues.code = cityObject.code;
-      finalValues.geoData = { ...center, zoom };
+      finalValues.center = { ...center };
       finalValues.iso = cityObject.iso;
       finalValues.stat = cityObject.stat;
     }
@@ -63,10 +55,6 @@ const CityForm = (props: Props) => {
   const onChangeInput = e => {
     const { id, value } = e.target;
 
-    if (id === 'zoom') {
-      return setZoom(Number(value));
-    }
-
     const obj: any = cityObject || {};
 
     obj[id] = value;
@@ -76,10 +64,6 @@ const CityForm = (props: Props) => {
 
   const onChangeCenter = position => {
     setCenter(position);
-  };
-
-  const onChangeZoom = zoom => {
-    setZoom(Number(zoom));
   };
 
   const onChangeLocationOption = option => {
@@ -111,10 +95,9 @@ const CityForm = (props: Props) => {
           id={Math.random().toString(10)}
           height={'300px'}
           center={center}
-          zoom={zoom}
+          zoom={7}
           addMarkerOnCenter={true}
           onChangeCenter={onChangeCenter}
-          onChangeZoom={onChangeZoom}
         />
 
         <LocationOption
@@ -122,8 +105,8 @@ const CityForm = (props: Props) => {
           option={center}
           onChangeOption={onChangeLocationOption}
           index={0}
-        >
-          <ControlLabel htmlFor="zoom">{__('Zoom level')}:</ControlLabel>
+        />
+        {/* <ControlLabel htmlFor="zoom">{__('Zoom level')}:</ControlLabel>
           <FormControl
             id="zoom"
             defaultValue={zoom}
@@ -131,8 +114,8 @@ const CityForm = (props: Props) => {
             name="zoom"
             type="number"
             onChange={onChangeInput}
-          />
-        </LocationOption>
+          /> */}
+        {/* </LocationOption> */}
       </FormGroup>
     );
   };

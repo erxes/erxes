@@ -3,10 +3,15 @@ import { field, schemaHooksWrapper } from '../utils';
 
 export interface ICity {
   name: string;
+  nameEn: string;
   code: string;
   iso: string;
   stat: string;
-  geoData: any;
+  center: any;
+
+  boundingBox: number[];
+
+  geojson: any;
 
   createdAt: Date;
   updatedAt: Date;
@@ -25,13 +30,21 @@ export const citySchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     code: field({ type: String, label: 'code', required: false, unique: true }),
     name: field({ type: String, label: 'name', required: true }),
+    nameEn: field({ type: String, label: 'English name', required: false }),
     iso: field({ type: String, label: 'iso', required: false }),
     stat: field({ type: String, label: 'stat', required: false }),
-    geoData: field({
-      type: Schema.Types.Mixed,
-      label: 'Geo data',
+    center: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        optional: true
+      },
+      coordinates: {
+        type: [Number],
+        optional: true
+      },
       required: false
-    }),
+    },
 
     createdAt: field({
       type: Date,
@@ -46,7 +59,22 @@ export const citySchema = schemaHooksWrapper(
       default: Date.now
     }),
 
+    boundingBox: field({
+      type: [Number],
+      label: 'boundingBox',
+      required: false,
+      default: []
+    }),
+
+    geojson: field({
+      type: Schema.Types.Mixed,
+      label: 'Geo data',
+      required: false
+    }),
+
     searchText: field({ type: String, optional: true, index: true })
   }),
   'mobinet_cities'
 );
+
+citySchema.index({ center: '2dsphere' });

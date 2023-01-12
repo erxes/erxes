@@ -5,7 +5,7 @@ export const types = `
     code: String
     iso: String
     stat: String
-    geoData: JSON
+    center: JSON
     createdAt: Date
     updatedAt: Date
   }
@@ -21,7 +21,7 @@ const mutationParams = `
     code: String!
     iso: String
     stat: String
-    geoData: JSON
+    center: JSON
 `;
 
 export const mutations = `
@@ -40,4 +40,5 @@ export const queries = `
   cityList(${qryParams}): CityListResponse
   cities(searchValue: String): [City]
   cityDetail(_id: String!): City
+  cityByCoordinates(lat: Float!, lng: Float!): City
 `;

@@ -1,7 +1,7 @@
 const fields = `
   $code: String!
   $name: String!
-  $geoData: JSON
+  $center: JSON
   $iso: String
   $stat: String
 `;
@@ -9,7 +9,7 @@ const fields = `
 const variables = `
   code: $code
   name: $name
-  geoData: $geoData
+  center: $center
   iso: $iso
   stat: $stat
 `;

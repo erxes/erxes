@@ -9,6 +9,11 @@ export interface IMobinet {
   currentType?: IType;
 }
 
+export interface ICoordinates {
+  lat: number;
+  lng: number;
+}
+
 export interface IType {
   _id: string;
   name: string;

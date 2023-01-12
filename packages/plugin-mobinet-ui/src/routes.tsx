@@ -60,7 +60,7 @@ const buildingList = history => {
     <BuildingList
       queryParams={queryParams}
       history={history}
-      viewType={viewType}
+      viewType={viewType || 'list'}
     />
   );
 };
@@ -75,10 +75,10 @@ const mobinets = ({ location, history }) => {
 const routes = () => {
   return (
     <>
-      <Route path="/mobinet/building" component={buildingList} />
-      <Route path="/mobinet/city" component={cityList} />
-      <Route path="/mobinet/district" component={districtList} />
-      <Route path="/mobinet/quarter" component={quarterList} />
+      <Route path="/mobinet/building/list" component={buildingList} />
+      <Route path="/mobinet/city/list" component={cityList} />
+      <Route path="/mobinet/district/list" component={districtList} />
+      <Route path="/mobinet/quarter/list" component={quarterList} />
     </>
   );
 };

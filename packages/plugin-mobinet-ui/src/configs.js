@@ -13,7 +13,7 @@ module.exports = {
   menus: [
     {
       text: 'Mobinet',
-      url: '/mobinet/city',
+      url: '/mobinet/building/list?viewType=list',
       icon: 'icon-star',
       location: 'mainNavigation',
     },

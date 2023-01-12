@@ -13,11 +13,26 @@ export interface ICityModel extends Model<ICityDocument> {
 export const loadCityClass = (models: IModels) => {
   class City {
     public static async createCity(doc: ICity) {
+      if (doc.center) {
+        doc.center = {
+          type: 'Point',
+          coordinates: [doc.center.lng, doc.center.lat]
+        };
+      }
+
       return models.Cities.create(doc);
     }
 
     public static async updateCity(_id: string, doc: ICity) {
       await models.Cities.getCity({ _id });
+
+      if (doc.center) {
+        doc.center = {
+          type: 'Point',
+          coordinates: [doc.center.lng, doc.center.lat]
+        };
+      }
+
       await models.Cities.updateOne(
         { _id },
         { $set: { ...doc, updatedAt: new Date() } }

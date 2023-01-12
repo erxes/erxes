@@ -5,6 +5,7 @@ import queries from './queries';
 import { District } from './districts';
 import { Quarter } from './quarters';
 import { Building } from './buildings';
+import { City } from './cities';
 
 const resolvers: any = async _serviceDiscovery => ({
   ...customScalars,
@@ -12,6 +13,7 @@ const resolvers: any = async _serviceDiscovery => ({
   District,
   Quarter,
   Building,
+  City,
 
   Mutation: {
     ...mutations

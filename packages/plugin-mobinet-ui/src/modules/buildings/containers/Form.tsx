@@ -4,12 +4,33 @@ import React from 'react';
 import gql from 'graphql-tag';
 import BuildingForm from '../components/Form';
 import { mutations, queries } from '../graphql';
+import { queries as cityQueries } from '../../cities/graphql';
+import { IBuilding } from '../types';
+import { useQuery } from 'react-apollo';
+import { CityByCoordinateQueryResponse } from '../../cities/types';
+import { ICoordinates } from '../../../types';
 
 type Props = {
+  building?: IBuilding;
+  center?: ICoordinates;
   closeModal: () => void;
 };
 
 const BuildingFormContainer = (props: Props) => {
+  console.log('props', props);
+
+  const { data, loading, refetch } = useQuery<CityByCoordinateQueryResponse>(
+    gql(cityQueries.cityByCoordinatesQuery),
+    {
+      variables: {
+        ...props.center
+      },
+
+      skip: !props.center || props.building ? true : false,
+      fetchPolicy: 'network-only'
+    }
+  );
+
   const renderButton = ({
     values,
     isSubmitted,
@@ -36,6 +57,7 @@ const BuildingFormContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
+    city: data && data.cityByCoordinates,
     renderButton
   };
 

@@ -33,12 +33,12 @@ const SelectCustomers = asyncComponent(
 );
 
 type Props = {
-  onSearch: (search: string) => void;
-  onFilter: (filterParams: IQueryParams) => void;
-  onSelect: (values: string[] | string, key: string) => void;
-  queryParams: any;
-  isFiltered: boolean;
-  clearFilter: () => void;
+  onSearch?: (search: string) => void;
+  onFilter?: (filterParams: IQueryParams) => void;
+  onSelect?: (values: string[] | string, key: string) => void;
+  queryParams?: any;
+  isFiltered?: boolean;
+  clearFilter?: () => void;
 };
 
 type StringState = {
@@ -60,7 +60,7 @@ export default class RightMenu extends React.Component<Props, State> {
       currentTab: 'Filter',
       showMenu: false,
 
-      filterParams: this.props.queryParams
+      filterParams: this.props.queryParams || {}
     };
 
     this.setWrapperRef = this.setWrapperRef.bind(this);
@@ -68,7 +68,7 @@ export default class RightMenu extends React.Component<Props, State> {
 
   setFilter = () => {
     const { filterParams } = this.state;
-    this.props.onFilter(filterParams);
+    this.props.onFilter && this.props.onFilter(filterParams);
   };
 
   setWrapperRef(node) {
@@ -82,7 +82,7 @@ export default class RightMenu extends React.Component<Props, State> {
   onSearch = (e: React.KeyboardEvent<Element>) => {
     if (e.key === 'Enter') {
       const target = e.currentTarget as HTMLInputElement;
-      this.props.onSearch(target.value || '');
+      this.props.onSearch && this.props.onSearch(target.value || '');
     }
   };
 
@@ -100,22 +100,22 @@ export default class RightMenu extends React.Component<Props, State> {
     this.setState({ filterParams: { ...filterParams, [name]: value } });
   };
 
-  renderLink(label: string, key: string, value: string) {
-    const { onSelect, queryParams } = this.props;
+  // renderLink(label: string, key: string, value: string) {
+  //   const { onSelect, queryParams } = this.props;
 
-    const selected = queryParams[key] === value;
+  //   const selected = queryParams[key] === value;
 
-    const onClick = _e => {
-      onSelect(value, key);
-    };
+  //   const onClick = _e => {
+  //     onSelect && onSelect(value, key);
+  //   };
 
-    return (
-      <FilterButton selected={selected} onClick={onClick}>
-        {__(label)}
-        {selected && <Icon icon="check-1" size={14} />}
-      </FilterButton>
-    );
-  }
+  //   return (
+  //     <FilterButton selected={selected} onClick={onClick}>
+  //       {__(label)}
+  //       {selected && <Icon icon="check-1" size={14} />}
+  //     </FilterButton>
+  //   );
+  // }
 
   onChangeRangeFilter = (kind, date) => {
     const { filterParams } = this.state;
@@ -126,9 +126,9 @@ export default class RightMenu extends React.Component<Props, State> {
   renderSpecials() {
     return (
       <>
-        {this.renderLink('Only Today', 'paidDate', 'today')}
-        {this.renderLink('Only Me', 'userId', 'me')}
-        {this.renderLink('No Pos', 'userId', 'nothing')}
+        {/* {this.renderLink('Only Today', 'paidDate', 'today')} */}
+        {/* {this.renderLink('Only Me', 'userId', 'me')} */}
+        {/* {this.renderLink('No Pos', 'userId', 'nothing')} */}
       </>
     );
   }
@@ -185,7 +185,7 @@ export default class RightMenu extends React.Component<Props, State> {
       <FilterBox>
         <FormControl
           name={'search'}
-          defaultValue={filterParams.search}
+          defaultValue={filterParams.search || ''}
           placeholder={__('Number ...')}
           onKeyPress={this.onSearch}
           autoFocus={true}

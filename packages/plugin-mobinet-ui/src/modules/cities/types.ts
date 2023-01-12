@@ -1,16 +1,15 @@
 import { QueryResponse } from '@erxes/ui/src/types';
 
-export interface IGeoData {
+export interface ICenter {
   lat: number;
   lng: number;
-  zoom: number;
 }
 
 export interface ICity {
   _id: string;
   code: string;
   name: string;
-  geoData: IGeoData;
+  center: ICenter;
   iso: string;
   stat: string;
 }
@@ -27,6 +26,12 @@ export type CityListQueryResponse = {
 
 export type CitiesQueryResponse = {
   cities: ICity[];
+  loading: boolean;
+  refetch: () => void;
+} & QueryResponse;
+
+export type CityByCoordinateQueryResponse = {
+  cityByCoordinates: ICity;
   loading: boolean;
   refetch: () => void;
 } & QueryResponse;

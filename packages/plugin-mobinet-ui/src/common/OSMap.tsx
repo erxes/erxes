@@ -10,7 +10,8 @@ import {
   useMapEvents
 } from 'react-leaflet';
 
-// import Leaflet from 'leaflet';
+import Leaflet from 'leaflet';
+
 type Props = {
   id: string;
   width?: string;
@@ -82,6 +83,24 @@ const Map = (props: Props) => {
     }
   };
 
+  const markerHtmlStyles = `
+width: 30px;
+height: 30px;
+border-radius: 50% 50% 50% 0;
+background: #ff0000;
+position: absolute;
+transform: rotate(-45deg);
+left: 50%;
+top: 50%;
+margin: -20px 0 0 -20px;`;
+
+  const icon = Leaflet.divIcon({
+    className: 'my-custom-pin',
+    iconAnchor: [0, 24],
+    popupAnchor: [0, -36],
+    html: `<div style="${markerHtmlStyles}" />`
+  });
+
   return (
     <MapContainer
       center={center || [47.919481, 106.904299]}
@@ -94,6 +113,7 @@ const Map = (props: Props) => {
 
       {markers.map((marker, index) => (
         <Marker
+          icon={icon}
           key={index}
           position={marker.position}
           draggable={marker.draggable}

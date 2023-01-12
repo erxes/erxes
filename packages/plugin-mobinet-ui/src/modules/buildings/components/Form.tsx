@@ -5,27 +5,50 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SelectCity from '../../cities/containers/SelectCity';
+import { ICity } from '../../cities/types';
+import SelectDistrict from '../../districts/containers/SelectDistrict';
+import SelectQuarter from '../../quarters/containers/SelectQuarter';
 
 import { IBuilding } from '../types';
 
 type Props = {
+  city?: ICity;
   building?: IBuilding;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
 const BuildingForm = (props: Props) => {
+  console.log('props', props);
+
   const { building } = props;
 
   const [quarterId, setQuarterId] = useState<string>('');
-  const [cityId, setCityId] = useState<string>('');
+  const [cityId, setCityId] = useState<string | undefined>(
+    props.city && props.city._id
+    // ||
+    //   (building &&
+    //     building.quarter &&
+    //     building.quarter.district &&
+    //     building.quarter.district.cityId) ||
+    //   ''
+  );
+
+  console.log('cityId', cityId);
+
   const [districtId, setDistrictId] = useState<string>('');
 
   const [buildingObject, setBuildingObject] = useState<IBuilding | undefined>(
     building
   );
+
+  useEffect(() => {
+    if (props.city) {
+      setCityId(props.city._id);
+    }
+  }, [props.city, cityId]);
 
   const generateDoc = () => {
     const finalValues: any = {};
@@ -78,13 +101,36 @@ const BuildingForm = (props: Props) => {
     return (
       <>
         <SelectCity
-          multi={false}
-          defaultValue={[cityId]}
-          isRequired={true}
+          defaultValue={cityId}
           onChange={e => {
+            console.log('cityyyyyy ', e);
             setCityId(e);
+            setDistrictId('');
           }}
         />
+
+        {cityId && (
+          <SelectDistrict
+            cityId={cityId}
+            defaultValue={districtId}
+            onChange={e => {
+              console.log('districttttt ', e);
+              setDistrictId(e);
+            }}
+          />
+        )}
+
+        {districtId && (
+          <SelectQuarter
+            districtId={districtId}
+            defaultValue={quarterId}
+            onChange={e => {
+              console.log('quarterrrrr ', e);
+              setQuarterId(e);
+            }}
+          />
+        )}
+
         {renderInput(
           formProps,
           'Code',

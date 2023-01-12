@@ -15,7 +15,7 @@ export interface IBuilding {
     maxLong: number;
   };
 
-  center: {
+  location: {
     lat: number;
     long: number;
   };
@@ -55,7 +55,7 @@ export const buildingSchema = schemaHooksWrapper(
       label: 'bounds',
       required: false
     }),
-    center: {
+    location: {
       type: {
         type: String,
         enum: ['Point'],

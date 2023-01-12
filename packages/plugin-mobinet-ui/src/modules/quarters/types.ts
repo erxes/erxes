@@ -19,3 +19,9 @@ export type QuarterListQueryResponse = {
   loading: boolean;
   refetch: () => void;
 } & QueryResponse;
+
+export type QuartersQueryResponse = {
+  quarters: IQuarter[];
+  loading: boolean;
+  refetch: () => void;
+} & QueryResponse;

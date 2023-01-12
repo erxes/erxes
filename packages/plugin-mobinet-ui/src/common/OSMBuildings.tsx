@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { ICoordinates } from '../types';
 
 const loadMapScript = () => {
   const scripts: any = document.getElementsByTagName('script');
@@ -22,10 +23,9 @@ const loadMapScript = () => {
 
 type Props = {
   id: string;
-  center?: {
-    lat: number;
-    lng: number;
-  };
+  center?: ICoordinates;
+
+  onChangeCenter?: (center: ICoordinates, bounds: ICoordinates[]) => void;
   onClickBuilding: (e: any) => void;
 };
 
@@ -81,6 +81,10 @@ const Map = (props: Props) => {
       'http://{s}.data.osmbuildings.org/0.2/anonymous/tile/{z}/{x}/{y}.json'
     );
 
+    map.on('doubleclick', e => {
+      console.log('double click', e);
+    });
+
     map.on('pointerup', e => {
       if (!e.features) {
         map.highlight(() => {});
@@ -96,6 +100,17 @@ const Map = (props: Props) => {
           return '#ff0000';
         }
       });
+    });
+
+    map.on('change', e => {
+      const pos = map.getPosition();
+      const bounds = map.getBounds();
+
+      props.onChangeCenter &&
+        props.onChangeCenter(
+          { lat: pos.latitude, lng: pos.longitude },
+          bounds.map(bound => ({ lat: bound.latitude, lng: bound.longitude }))
+        );
     });
 
     map.addGeoJSON('http://localhost:3000/geojson/custom.json');
