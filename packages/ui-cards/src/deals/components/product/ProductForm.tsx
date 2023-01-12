@@ -120,7 +120,7 @@ class ProductForm extends React.Component<Props, State> {
   };
 
   onChangeVatPercent = e => {
-    this.setState({ vatPercent: e.currentTarget.value });
+    this.setState({ vatPercent: parseInt(e.currentTarget.value) });
   };
 
   applyVat = () => {
