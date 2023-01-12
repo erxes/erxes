@@ -10,6 +10,7 @@ import ClientPortalUser from './ClientPortalUser';
 import ForumPermissionGroup from './ForumPermissionGroup';
 import ForumPermissionGroupCategoryPermit from './ForumPermissionGroupCategoryPermit';
 import ForumSubscriptionOrder from './ForumSubscriptionOrder';
+import ForumSavedPost from './ForumSavedPost';
 
 export default async function generateResolvers(
   serviceDiscovery
@@ -24,7 +25,8 @@ export default async function generateResolvers(
     ClientPortalUser,
     ForumPermissionGroup,
     ForumPermissionGroupCategoryPermit,
-    ForumSubscriptionOrder
+    ForumSubscriptionOrder,
+    ForumSavedPost
   };
 
   return resolvers;

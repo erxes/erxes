@@ -8,6 +8,7 @@ import permissionGroupQueries from './permissionGroupQueries';
 import subscriptionProductQueries from './subscriptionProductQueries';
 import subscriptionOrderQueries from './subscriptionOrderQueries';
 import pageQueries from './pageQueries';
+import savedPostQueries from './savedPostQueries';
 
 const userLevelQueries: IObjectTypeResolver<any, IContext> = {
   forumUserLevelValues: () => {
@@ -23,7 +24,8 @@ const Query: IObjectTypeResolver<any, IContext> = {
   ...permissionGroupQueries,
   ...subscriptionProductQueries,
   ...subscriptionOrderQueries,
-  ...pageQueries
+  ...pageQueries,
+  ...savedPostQueries
 };
 
 export default Query;

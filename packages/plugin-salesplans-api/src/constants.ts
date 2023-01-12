@@ -12,7 +12,22 @@ export const DAYPLAN_STATUS = {
   SENT: 'sent',
   PENDING: 'pending',
   CONFIRMED: 'confirmed',
-  ALL: ['new', 'sent', 'pending', 'confirmed']
+  NOFLOW: 'noFlow',
+  SUCCESS: 'success',
+  NOTIMEFRAMES: 'noTimeFrames',
+  NOLATESTJOB: 'noLatestJob',
+  WRONGUOM: 'wrongUom',
+  ALL: [
+    'new',
+    'sent',
+    'pending',
+    'confirmed',
+    'noFlow',
+    'success',
+    'noTimeFrames',
+    'noLatestJob',
+    'wrongUom'
+  ]
 };
 
 export const MONTHS = [

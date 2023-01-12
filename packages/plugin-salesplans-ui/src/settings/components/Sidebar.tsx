@@ -36,8 +36,8 @@ class Sidebar extends React.Component<Props> {
     return (
       <Wrapper.Sidebar hasBorder>
         <List id="SettingsSidebar">
-          {this.renderListItem('/salesplans/labels', 'Manage label configs')}
-          {this.renderListItem('/salesplans/timeframes', 'Manage day configs')}
+          {this.renderListItem('/salesplans/labels', 'Manage Day tag')}
+          {this.renderListItem('/salesplans/timeframes', 'Manage Day interval')}
         </List>
         <Children {...this.props} />
       </Wrapper.Sidebar>

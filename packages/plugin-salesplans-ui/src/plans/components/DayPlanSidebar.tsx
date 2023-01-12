@@ -162,7 +162,7 @@ class Sidebar extends React.Component<Props> {
               <FormControl
                 name="filterStatus"
                 componentClass="select"
-                defaultValue={queryParams.filterStatus}
+                value={queryParams.filterStatus || ''}
                 required={false}
                 onChange={e =>
                   this.setFilter(
@@ -172,17 +172,23 @@ class Sidebar extends React.Component<Props> {
                 }
               >
                 <option key={''} value={''}>
-                  {' '}
-                  {'All status'}{' '}
+                  {'All status'}
                 </option>
-                <option key={'active'} value={'active'}>
-                  {' '}
-                  {'active'}{' '}
-                </option>
-                <option key={'archived'} value={'archived'}>
-                  {' '}
-                  {'archived'}{' '}
-                </option>
+                {[
+                  'new',
+                  'sent',
+                  'pending',
+                  'confirmed',
+                  'noFlow',
+                  'success',
+                  'noTimeFrames',
+                  'noLatestJob',
+                  'wrongUom'
+                ].map(opt => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
               </FormControl>
             </FormGroup>
           </List>

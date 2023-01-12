@@ -322,6 +322,7 @@ export const generatePostModel = (
       const post = await models.Post.findByIdOrThrow(_id);
       await post.remove();
       await models.Comment.deleteMany({ postId: _id });
+      await models.SavedPost.deleteMany({ postId: _id });
       return post;
     }
 
@@ -548,6 +549,7 @@ export const generatePostModel = (
       const post = await models.Post.findByIdOrThrowCp(_id, cpUser);
       await post.remove();
       await models.Comment.deleteMany({ postId: _id });
+      await models.SavedPost.deleteMany({ postId: _id });
       return post;
     }
 
