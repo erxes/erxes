@@ -45,7 +45,7 @@ class Form extends React.Component<Props, State> {
       this.setState({ formValues: nextProps.defaultConfigValues });
     }
   }
-  s;
+
   handleSubmit = e => {
     e.preventDefault();
     const { formValues } = this.state;

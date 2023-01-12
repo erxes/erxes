@@ -200,23 +200,30 @@ function General({
     };
 
     const handleSelectBoard = (option: ISelectedOption) => {
-      fetchPipelines(option.value);
-      handleFormChange('taskPublicBoardId', option.value);
+      const value = option ? option.value : '';
+
+      if (value) {
+        fetchPipelines(value);
+      }
+
+      handleFormChange('taskPublicBoardId', value);
     };
 
     const handleSelecPipeline = (option: ISelectedOption) => {
-      handleFormChange('taskPublicPipelineId', option.value);
+      const value = option ? option.value : '';
+
+      handleFormChange('taskPublicPipelineId', value);
     };
 
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>Task public board</ControlLabel>
+          <ControlLabel>Task public board</ControlLabel>
           <p>{__('Public task board')}</p>
           {renderSelect(boards, handleSelectBoard, taskPublicBoardId)}
         </FormGroup>
         <FormGroup>
-          <ControlLabel required={true}>Task public pipeline</ControlLabel>
+          <ControlLabel>Task public pipeline</ControlLabel>
           <p>{__('Public task pipeline')}</p>
           {renderSelect(pipelines, handleSelecPipeline, taskPublicPipelineId)}
         </FormGroup>
