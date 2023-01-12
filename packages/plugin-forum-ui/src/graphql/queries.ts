@@ -198,6 +198,12 @@ export const FORUM_POST_DETAIL = gql`
       }
 
       lastPublishedAt
+
+      pollOptions {
+        _id
+        title
+        order
+      }
     }
   }
 `;

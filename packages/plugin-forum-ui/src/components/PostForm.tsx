@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import PostContentEditor from './PostContentEditor';
 import CategorySelect from '../containers/CategorySelect';
 import PollOptions from './PollOptions';
@@ -11,31 +11,28 @@ const PostForm: React.FC<{ post?: any; onSubmit?: (any) => any }> = ({
   const [thumbnail, setThumbnail] = useState(post?.thumbnail || '');
   const [categoryId, setCategoryId] = useState(post?.categoryId || '');
   const [description, setDescription] = useState(post?.description || '');
+  const [pollOptions, setPollOptions] = useState<any[]>([]);
 
-  const initialPollOptionsById = {};
-  post?.pollOptions?.forEach(option => {
-    initialPollOptionsById[option._id] = option;
-  });
-
-  const [pollOptionsById, setPollOptionsById] = useState(
-    initialPollOptionsById
-  );
-
-  const pollOptions: any[] = Object.values(pollOptionsById);
-  pollOptions.sort((a: any, b: any) => a.order - b.order);
+  useEffect(() => {
+    const initialOptions = post?.pollOptions || [];
+    initialOptions.sort((a, b) => a.order - b.order);
+    setPollOptions(initialOptions);
+  }, []);
 
   const editorRef = useRef<any>(null);
   const preSubmit = e => {
     e.preventDefault();
     const content = editorRef.current?.editor?.getData();
 
-    const optionsCleaned = pollOptions.map(option => {
-      if (option.isNew) {
-        const { _id, ...rest } = option;
-        return rest;
-      } else {
-        return option;
+    const optionsCleaned = pollOptions.map(({ _id, isNew, title, order }) => {
+      const option: any = {
+        title,
+        order
+      };
+      if (!isNew) {
+        option._id = _id;
       }
+      return option;
     });
     if (onSubmit) {
       onSubmit({
@@ -90,14 +87,22 @@ const PostForm: React.FC<{ post?: any; onSubmit?: (any) => any }> = ({
           <PollOptions
             options={pollOptions}
             onChange={(_id, title, order) => {
-              setPollOptionsById(prev => ({
-                ...prev,
-                [_id]: {
-                  _id,
-                  title,
-                  order
-                }
-              }));
+              setPollOptions(prev => {
+                const next = prev.map(o => {
+                  if (o._id === _id) {
+                    return {
+                      ...o,
+                      title,
+                      order
+                    };
+                  } else {
+                    return o;
+                  }
+                });
+
+                next.sort((a, b) => a.order - b.order);
+                return next;
+              });
             }}
             onAdd={() => {
               const newPollOption = {
@@ -108,16 +113,12 @@ const PostForm: React.FC<{ post?: any; onSubmit?: (any) => any }> = ({
                 order: pollOptions[pollOptions.length - 1]?.order + 1 || 0,
                 isNew: true
               };
-              setPollOptionsById(prev => ({
-                ...prev,
-                [newPollOption._id]: newPollOption
-              }));
+              setPollOptions(prev =>
+                [...prev, newPollOption].sort((a, b) => a.order - b.order)
+              );
             }}
             onRemove={_id => {
-              setPollOptionsById((prev: any) => {
-                const { [_id]: _, ...rest } = prev;
-                return rest;
-              });
+              setPollOptions(prev => prev.filter(o => o._id !== _id));
             }}
           />
         </div>

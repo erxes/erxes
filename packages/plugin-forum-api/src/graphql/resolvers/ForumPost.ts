@@ -53,7 +53,9 @@ const ForumPost: IObjectTypeResolver<IPost, IContext> = {
   },
 
   async pollOptions({ _id }, _, { models: { PollOption } }) {
-    return PollOption.find({ postId: _id }).lean();
+    return PollOption.find({ postId: _id })
+      .sort({ order: 1 })
+      .lean();
   }
 };
 
