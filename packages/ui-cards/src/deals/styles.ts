@@ -61,10 +61,6 @@ const FooterInfo = styled.div`
     width: 50%;
     font-size: 14px;
   }
-
-  ${Input} {
-    direction: rtl;
-  }
 `;
 
 const FlexRowGap = styled.div`

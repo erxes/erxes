@@ -31,6 +31,21 @@ const TableWrapper = styled.div`
   }
 `;
 
+const ApplyVatWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
+
+  > div {
+    flex: inherit;
+  }
+
+  input {
+    width: 100px;
+  }
+`;
+
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
   saveProductsData: () => void;
@@ -51,6 +66,7 @@ type State = {
   total: { [currency: string]: number };
   tax: { [currency: string]: { value?: number; percent?: number } };
   discount: { [currency: string]: { value?: number; percent?: number } };
+  vatPercent: number;
   currentTab: string;
   changePayData: { [currency: string]: number };
   tempId: string;
@@ -67,6 +83,7 @@ class ProductForm extends React.Component<Props, State> {
       total: {},
       discount: {},
       tax: {},
+      vatPercent: 0,
       currentTab: 'products',
       changePayData: {},
       tempId: '',
@@ -102,18 +119,25 @@ class ProductForm extends React.Component<Props, State> {
     this.updateTotal(discountAdded);
   };
 
-  applyTax = () => {
-    const { productsData, onChangeProductsData } = this.props;
+  onChangeVatPercent = e => {
+    this.setState({ vatPercent: e.currentTarget.value });
+  };
 
-    const updatedData = productsData.map(p => ({
-      ...p,
-      isTaxApplied: true,
-      unitPrice: p.isTaxApplied
-        ? p.unitPrice
-        : parseFloat(
-            ((p.unitPrice * 100) / (100 + (p.taxPercent || 0))).toFixed(4)
-          )
-    }));
+  applyVat = () => {
+    const { productsData, onChangeProductsData } = this.props;
+    const { vatPercent } = this.state;
+
+    const updatedData = productsData.map(p => {
+      return {
+        ...p,
+        isVatApplied: true,
+        unitPrice: p.isVatApplied
+          ? p.unitPrice
+          : parseFloat(
+              ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4)
+            )
+      };
+    });
 
     onChangeProductsData(updatedData);
 
@@ -225,7 +249,7 @@ class ProductForm extends React.Component<Props, State> {
               <th>{__('Currency')}</th>
               <th>{__('UOM')}</th>
               <th>{__('Is tick used')}</th>
-              <th>{__('Is tax applied')}</th>
+              <th>{__('Is vat applied')}</th>
               <th>{__('Assigned to')}</th>
               <th />
             </tr>
@@ -438,6 +462,7 @@ class ProductForm extends React.Component<Props, State> {
           tax: 0,
           taxPercent: tax[currency] ? tax[currency].percent || 0 : 0,
           discount: 0,
+          vatPercent: 0,
           discountPercent: discount[currency]
             ? discount[currency].percent || 0
             : 0,
@@ -535,13 +560,21 @@ class ProductForm extends React.Component<Props, State> {
               <tr>
                 <td />
                 <td>
-                  <Button
-                    btnStyle="primary"
-                    icon="plus-circle"
-                    onClick={this.applyTax}
-                  >
-                    Apply tax
-                  </Button>
+                  <ApplyVatWrapper>
+                    <FormControl
+                      placeholder="Vat percent"
+                      type="number"
+                      onChange={this.onChangeVatPercent}
+                    />
+
+                    <Button
+                      btnStyle="primary"
+                      icon="plus-circle"
+                      onClick={this.applyVat}
+                    >
+                      Apply vat
+                    </Button>
+                  </ApplyVatWrapper>
                 </td>
               </tr>
             </tbody>

@@ -40,11 +40,12 @@ export interface IProductData {
   unitPrice: number;
   taxPercent: number;
   tax: number;
+  vatPercent: number;
   discountPercent: number;
   discount: number;
   amount: number;
   tickUsed?: boolean;
-  isTaxApplied?: boolean;
+  isVatApplied?: boolean;
   assignUserId?: string;
   maxQuantity: number;
 }

@@ -498,8 +498,8 @@ class ProductItem extends React.Component<Props, State> {
           <FormControl
             componentClass="checkbox"
             disabled={true}
-            value={productData.isTaxApplied}
-            checked={productData.isTaxApplied}
+            value={productData.isVatApplied}
+            checked={productData.isVatApplied}
           />
         </td>
         <td>

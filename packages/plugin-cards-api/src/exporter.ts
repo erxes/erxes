@@ -145,8 +145,8 @@ const fillDealProductValue = async (subdomain, column, item) => {
         value = productData.tickUsed;
         break;
 
-      case 'productsData.isTaxApplied':
-        value = productData.isTaxApplied;
+      case 'productsData.isVatApplied':
+        value = productData.isVatApplied;
         break;
 
       case 'productsData.maxQuantity':
