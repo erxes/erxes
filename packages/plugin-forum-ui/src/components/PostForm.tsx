@@ -28,13 +28,23 @@ const PostForm: React.FC<{ post?: any; onSubmit?: (any) => any }> = ({
   const preSubmit = e => {
     e.preventDefault();
     const content = editorRef.current?.editor?.getData();
+
+    const optionsCleaned = pollOptions.map(option => {
+      if (option.isNew) {
+        const { _id, ...rest } = option;
+        return rest;
+      } else {
+        return option;
+      }
+    });
     if (onSubmit) {
       onSubmit({
         title,
         thumbnail,
         content,
         categoryId,
-        description
+        description,
+        pollOptions: optionsCleaned
       });
     }
   };

@@ -8,7 +8,7 @@ const commonPostParams = (isInsert = false) => {
     state: ForumPostState
     customIndexed: JSON
     tagIds: [ID!]
-    pollOptions: [PollOptionInput!]
+    pollOptions: [ForumPollOptionInput!]
   `;
 };
 
