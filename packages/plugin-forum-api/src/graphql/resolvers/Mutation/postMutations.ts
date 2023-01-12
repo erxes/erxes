@@ -17,8 +17,8 @@ const crmPostMutations: IObjectTypeResolver<any, IContext> = {
     const { _id, ...patch } = args;
     return Post.patchPost(_id, patch, user);
   },
-  async forumDeletePost(_, { _id }, { models: { Post } }) {
-    return Post.deletePost(_id);
+  async forumDeletePost(_, { _id }, { models: { Post }, user }) {
+    return Post.deletePost(_id, user);
   },
   async forumPostDraft(_, { _id }, { models: { Post }, user }) {
     return Post.draft(_id, user);

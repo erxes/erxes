@@ -25,6 +25,8 @@ import {
 import { generatePageModel, IPageModel } from './page';
 import { generateFollowTagModel, IFollowTagModel } from './followTag';
 import { generateSavedPostModel, SavedPostModel } from './savepost';
+import { generatePollOptionModel, PollOptionModel } from './pollOption';
+import { generatePollVoteModel, PollVoteModel } from './pollVote';
 
 export interface IModels {
   Category: ICategoryModel;
@@ -44,6 +46,8 @@ export interface IModels {
   Page: IPageModel;
   FollowTag: IFollowTagModel;
   SavedPost: SavedPostModel;
+  PollOption: PollOptionModel;
+  PollVote: PollVoteModel;
 }
 
 export let models: IModels | null = null;
@@ -64,6 +68,8 @@ export const generateModels = createGenerateModels<IModels>(
     generatePageModel(subdomain, connection, models);
     generateFollowTagModel(subdomain, connection, models);
     generateSavedPostModel(subdomain, connection, models);
+    generatePollOptionModel(subdomain, connection, models);
+    generatePollVoteModel(subdomain, connection, models);
     return models;
   }
 );
