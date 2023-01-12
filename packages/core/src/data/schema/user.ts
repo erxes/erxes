@@ -11,6 +11,7 @@ const commonDetailFields = `
   firstName: String
   middleName: String
   lastName: String
+  employeeId: String
 `;
 
 export const types = `
@@ -63,6 +64,7 @@ export const types = `
     department: Department
     score: Float
     leaderBoardPosition: Int
+    employeeId: String
   }
 `;
 
@@ -75,6 +77,7 @@ const commonParams = `
   groupIds: [String]
   brandIds: [String]
   customFieldsData: JSON
+  employeeId: String
 `;
 
 const commonSelector = `

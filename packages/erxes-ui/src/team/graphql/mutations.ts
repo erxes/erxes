@@ -7,6 +7,7 @@ const commonParamsDef = `
   $groupIds: [String]
   $brandIds: [String]
   $customFieldsData: JSON
+  $employeeId: String
 `;
 
 const commonParams = `
@@ -18,6 +19,7 @@ const commonParams = `
   groupIds: $groupIds
   brandIds: $brandIds
   customFieldsData: $customFieldsData
+  employeeId: $employeeId
 `;
 
 const usersEdit = `
