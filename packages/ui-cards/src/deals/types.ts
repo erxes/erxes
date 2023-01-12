@@ -43,7 +43,8 @@ export interface IProductData {
   discountPercent: number;
   discount: number;
   amount: number;
-  tickUsed: boolean;
+  tickUsed?: boolean;
+  isTaxApplied?: boolean;
   assignUserId?: string;
   maxQuantity: number;
 }

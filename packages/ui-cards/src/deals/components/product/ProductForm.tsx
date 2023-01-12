@@ -96,8 +96,28 @@ class ProductForm extends React.Component<Props, State> {
     const discountAdded = productsData.map(p =>
       p.product?._id === id ? { ...p, discountPercent: discount } : p
     );
+
     onChangeProductsData(discountAdded);
+
     this.updateTotal(discountAdded);
+  };
+
+  applyTax = () => {
+    const { productsData, onChangeProductsData } = this.props;
+
+    const updatedData = productsData.map(p => ({
+      ...p,
+      isTaxApplied: true,
+      unitPrice: p.isTaxApplied
+        ? p.unitPrice
+        : parseFloat(
+            ((p.unitPrice * 100) / (100 + (p.taxPercent || 0))).toFixed(4)
+          )
+    }));
+
+    onChangeProductsData(updatedData);
+
+    this.updateTotal(updatedData);
   };
 
   updateTotal = (productsData = this.props.productsData) => {
@@ -204,7 +224,8 @@ class ProductForm extends React.Component<Props, State> {
               <th>{__('Amount')}</th>
               <th>{__('Currency')}</th>
               <th>{__('UOM')}</th>
-              <th>{__('Is used')}</th>
+              <th>{__('Is tick used')}</th>
+              <th>{__('Is tax applied')}</th>
               <th>{__('Assigned to')}</th>
               <th />
             </tr>
@@ -510,6 +531,19 @@ class ProductForm extends React.Component<Props, State> {
                 <td>{__('Total')}:</td>
                 <td>{this.renderTotal(total, 'total')}</td>
               </tr>
+
+              <tr>
+                <td />
+                <td>
+                  <Button
+                    btnStyle="primary"
+                    icon="plus-circle"
+                    onClick={this.applyTax}
+                  >
+                    Apply tax
+                  </Button>
+                </td>
+              </tr>
             </tbody>
           </table>
         </FooterInfo>
@@ -523,6 +557,7 @@ class ProductForm extends React.Component<Props, State> {
 
   render() {
     const { currentTab } = this.state;
+
     return (
       <>
         <Tabs grayBorder={true} full={true}>

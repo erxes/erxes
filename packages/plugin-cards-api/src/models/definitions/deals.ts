@@ -74,6 +74,7 @@ export interface IProductData extends Document {
   discount?: number;
   amount?: number;
   tickUsed?: boolean;
+  isTaxApplied?: boolean;
   assignUserId?: string;
 }
 
@@ -202,6 +203,7 @@ export const productDataSchema = new Schema(
     discount: field({ type: Number, label: 'Discount' }), // Discount
     amount: field({ type: Number, label: 'Amount' }), // Amount
     tickUsed: field({ type: Boolean, label: 'Tick used' }), // TickUsed
+    isTaxApplied: field({ type: Boolean, label: 'Is tax applied' }), // isTaxApplied
     assignUserId: field({ type: String, optional: true, esType: 'keyword' }) // AssignUserId
   },
   { _id: false }
