@@ -46,7 +46,7 @@ function GeneralContainer(props: Props) {
 
   if (
     (knowledgeBaseTopicsQuery && knowledgeBaseTopicsQuery.loading) ||
-    boardsQuery.loading
+    (boardsQuery && boardsQuery.loading)
   ) {
     return <Spinner />;
   }
@@ -55,7 +55,7 @@ function GeneralContainer(props: Props) {
     (knowledgeBaseTopicsQuery &&
       knowledgeBaseTopicsQuery.knowledgeBaseTopics) ||
     [];
-  const boards = boardsQuery.boards || [];
+  const boards = (boardsQuery && boardsQuery.boards) || [];
 
   const updatedProps = {
     ...props,
@@ -77,6 +77,7 @@ export default compose(
     name: 'boardsQuery',
     options: () => ({
       variables: { type: 'task' }
-    })
+    }),
+    skip: isEnabled('cards') ? false : true
   })
 )(GeneralContainer);
