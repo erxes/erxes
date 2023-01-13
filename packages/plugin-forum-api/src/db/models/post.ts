@@ -102,6 +102,7 @@ const OMIT_FROM_INPUT = [
 interface PollOptionInput {
   _id?: string;
   title: string;
+  order: number;
 }
 
 export type PostCreateInput = Omit<IPost, typeof OMIT_FROM_INPUT[number]> & {
@@ -304,7 +305,7 @@ export const generatePostModel = (
       if (pollOptions?.length) {
         await models.PollOption.handleChanges(
           res._id,
-          pollOptions,
+          pollOptions.map(({ title, order }) => ({ title, order })),
           'CP',
           user._id
         );
@@ -539,7 +540,7 @@ export const generatePostModel = (
       if (pollOptions?.length) {
         await models.PollOption.handleChanges(
           res._id,
-          pollOptions,
+          pollOptions.map(({ title, order }) => ({ title, order })),
           'CP',
           cpUser.userId
         );
