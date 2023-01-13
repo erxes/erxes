@@ -283,13 +283,15 @@ const userMutations = {
       email,
       password,
       details,
-      links
+      links,
+      employeeId
     }: {
       username: string;
       email: string;
       password: string;
       details: IDetail;
       links: ILink;
+      employeeId: string;
     },
     { user, models, subdomain }: IContext
   ) {
@@ -312,7 +314,8 @@ const userMutations = {
         ...details,
         fullName: `${details.firstName || ''} ${details.lastName || ''}`
       },
-      links
+      links,
+      employeeId
     };
 
     const updatedUser = models.Users.editProfile(user._id, doc);
