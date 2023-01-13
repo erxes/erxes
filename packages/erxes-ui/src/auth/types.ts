@@ -57,6 +57,7 @@ export interface IUserDoc {
   configs?: any;
   configsConstants?: any;
   score?: number;
+  employeeId?: string;
 }
 
 export interface IUser extends IUserDoc {
