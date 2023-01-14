@@ -7,11 +7,29 @@ const Trip = {
     return Routes.findOne({ _id: trip.routeId });
   },
 
-  async deals(trip: ITripDocument, params, { subdomain }: IContext) {
+  async deals(trip: ITripDocument, params, { models, subdomain }: IContext) {
     const { customerId } = params;
 
     if (!customerId) {
-      return (trip.dealIds || []).map(_id => ({ __typename: 'Deal', _id }));
+      const deals = (trip.dealIds || []).map(_id => ({
+        __typename: 'Deal',
+        _id
+      }));
+
+      const result: any[] = [];
+
+      for (const deal of deals) {
+        const dealPlace = await models.DealPlaces.findOne({
+          dealId: deal._id
+        });
+
+        result.push({
+          deal,
+          dealPlace
+        });
+      }
+
+      return result;
     }
 
     const conformities = await sendCoreMessage({
@@ -30,9 +48,24 @@ const Trip = {
       return [];
     }
 
-    return conformities
+    const deals = conformities
       .filter(c => c.relTypeId === customerId)
       .map(c => ({ __typename: 'Deal', _id: c.mainTypeId }));
+
+    const result: any[] = [];
+
+    for (const deal of deals) {
+      const dealPlace = await models.DealPlaces.findOne({
+        dealId: deal._id
+      });
+
+      result.push({
+        deal,
+        dealPlace
+      });
+    }
+
+    return result;
   },
 
   async driver(trip: ITripDocument, _params) {

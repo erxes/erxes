@@ -183,6 +183,8 @@ type Participant @key(fields: "_id") @cacheControl(maxAge: 3) {
   carIds : [String]
   status: String!
 
+  phone: String
+
   createdAt: Date
   detail: JSON
 
@@ -190,6 +192,24 @@ type Participant @key(fields: "_id") @cacheControl(maxAge: 3) {
   route: Route
   ${cards ? `deal: Deal` : ''}
   ${contacts ? `driver: Customer` : ''}
+}
+
+type CustomerAccount @key(fields: "_id") @cacheControl(maxAge: 3) {
+  _id: String!
+  balance: Float
+  customerId: String
+}
+
+type Topup @key(fields: "_id") @cacheControl(maxAge: 3) {
+  _id: String!
+  customerId: String
+  amount: Float
+  createdAt: Date
+}
+
+type TopupListResponse {
+  list: [Topup],
+  totalCount: Int,
 }
 
 input ParticipantsRemove {
@@ -251,6 +271,10 @@ export const queries = `
   participantsTotalCount(driverId: String, dealId: String, status: String): Int
 
   gererateRandomName(modelName: String!, prefix: String!, numberOfDigits: Int): String
+
+  getAccount: CustomerAccount
+
+  topupHistory(page: Int, perPage: Int, customerId: String): TopupListResponse
 `;
 
 const tumentechCommonFields = `
@@ -371,6 +395,10 @@ export const mutations = `
   participantsAdd(${participantParams}): Participant
   participantsEdit(_id: String! status:String ${participantParams}): Participant
   participantsRemove(_id: String): JSON
-  participantsRemoveFromDeal(dealId: String!, tripIds: [String]): JSON
+  participantsRemoveFromDeal(dealId: String!, customerIds: [String]): JSON
   selectWinner(dealId: String!, driverId: String!): Participant
+
+  topupAccount(invoiceId: String): CustomerAccount
+
+  revealPhone(driverId: String, carId: String, dealId: String): String
 `;

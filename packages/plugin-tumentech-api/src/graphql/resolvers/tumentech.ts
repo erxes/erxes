@@ -116,6 +116,24 @@ const Participant = {
     return (
       participant.dealId && { __typename: 'Deal', _id: participant.dealId }
     );
+  },
+
+  phone: async (
+    participant: IParticipantDocument,
+    {},
+    { models, cpUser }: IContext
+  ) => {
+    const history = await models.PurchaseHistories.findOne({
+      driverId: participant.driverId,
+      dealId: participant.dealId,
+      cpUserId: cpUser.userId
+    }).lean();
+
+    if (!history) {
+      return 'hidden';
+    }
+
+    return history.phone;
   }
 };
 

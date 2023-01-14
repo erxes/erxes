@@ -30,7 +30,7 @@ const List = (props: Props) => {
     <Table whiteSpace="nowrap" hover={true}>
       <thead>
         <tr>
-          <th>{__('Route name')}</th>
+          <th>{__('Trip name')}</th>
           <th>{__('Status')}</th>
           <th>{__('Driver')}</th>
           <th>{__('Vehicles')}</th>
