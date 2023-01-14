@@ -127,7 +127,11 @@ const PostDetail: React.FC = () => {
           </tr>
           <tr>
             <th>Thumbnail: </th>
-            <td>{forumPost.thumbnail && <img src={forumPost.thumbnail} />}</td>
+            <td>
+              {forumPost.thumbnail && (
+                <img src={forumPost.thumbnail} style={{ maxHeight: 200 }} />
+              )}
+            </td>
             <th>Thumbnail url:</th>
             <td>{forumPost.thumbnail}</td>
           </tr>
