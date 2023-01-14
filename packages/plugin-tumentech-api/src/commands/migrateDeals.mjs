@@ -53,7 +53,7 @@ var command = async () => {
   const stages = await Stages.find({ code: { $in: stageCodes } }).toArray();
 
   for (var stage of stages) {
-    await Deals.remove({ stageId: stage._id });
+    await Deals.deleteMany({ stageId: stage._id });
   }
 
   console.log(`Process finished at: ${new Date()}`);
