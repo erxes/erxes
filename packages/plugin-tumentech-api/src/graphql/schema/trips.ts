@@ -11,6 +11,11 @@ input TrackingItemInput {
   trackedDate: Date
 }
 
+type TumentechDeal {
+  deal: Deal
+  dealPlace: DealPlace
+}
+
 input LocationInput {
   lat: Float
   lng: Float
@@ -35,7 +40,7 @@ input LocationInput {
     ${
       cards
         ? `
-          deals(customerId: String): [Deal]
+          deals(customerId: String): [TumentechDeal]
         `
         : ''
     }

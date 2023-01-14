@@ -504,7 +504,7 @@ export type ITrip = {
   statusInfo: any;
   route: IRoute;
   driver: ICustomer;
-  deals: IDeal[];
+  deals: { deal: IDeal; dealPlace: IDealPlace }[];
   cars: ICar[];
   trackingData: ITrackingData[];
 };
