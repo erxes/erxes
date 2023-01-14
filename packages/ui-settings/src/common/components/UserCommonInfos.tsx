@@ -142,6 +142,16 @@ class UserCommonInfos extends React.PureComponent<Props> {
                 />
               </FormGroup>
               <FormGroup>
+                <ControlLabel>Employee Id</ControlLabel>
+                <FormControl
+                  type="number"
+                  min={0}
+                  name="employeeId"
+                  defaultValue={user.employeeId}
+                  {...formProps}
+                />
+              </FormGroup>
+              <FormGroup>
                 <ControlLabel>Birthdate</ControlLabel>
                 <FormControl
                   type="date"

@@ -10,6 +10,7 @@ import subscriptionProductMutations from './subscriptionProductMutations';
 import subscriptionOrderMutations from './subscriptionOrderMutations';
 import pageMutations from './pageMutations';
 import savedPostMutations from './savedPostMutations';
+import pollMutations from './pollMutations';
 
 const Mutation: IObjectTypeResolver<any, IContext> = {
   ...categoryMutations,
@@ -21,7 +22,8 @@ const Mutation: IObjectTypeResolver<any, IContext> = {
   ...subscriptionProductMutations,
   ...subscriptionOrderMutations,
   ...pageMutations,
-  ...savedPostMutations
+  ...savedPostMutations,
+  ...pollMutations
 };
 
 export default Mutation;

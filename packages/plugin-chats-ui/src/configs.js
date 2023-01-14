@@ -13,7 +13,7 @@ module.exports = {
     {
       text: 'Chat',
       url: '/erxes-plugin-chat',
-      icon: 'icon-cog',
+      icon: 'icon-chat-1',
       location: 'mainNavigation',
       permission: 'showChats'
     }

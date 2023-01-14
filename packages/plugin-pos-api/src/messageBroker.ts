@@ -282,7 +282,8 @@ export const initBroker = async cl => {
         order: newOrder
       },
       isRPC: true,
-      defaultValue: {}
+      defaultValue: {},
+      timeout: 50000
     });
 
     if (resp.message || resp.error) {
@@ -557,6 +558,16 @@ export const sendAutomationsMessage = async (
     client,
     serviceDiscovery,
     serviceName: 'automations',
+    ...args
+  });
+};
+
+export const sendCommonMessage = async (
+  args: ISendMessageArgs & { serviceName: string }
+): Promise<any> => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
     ...args
   });
 };

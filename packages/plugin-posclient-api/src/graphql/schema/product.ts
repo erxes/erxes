@@ -53,6 +53,8 @@ const productsQueryParams = `
   tag: String,
   page: Int,
   perPage: Int ids: [String],
+  sortField: String,
+  sortDirection: Int,
   excludeIds: Boolean,
   segment: String,
   segmentData: String,

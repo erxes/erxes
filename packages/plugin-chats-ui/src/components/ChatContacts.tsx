@@ -11,7 +11,7 @@ import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { IUser } from '@erxes/ui/src/auth/types';
 // local
 import CreateGroupChat from '../containers/CreateGroupChat';
-import CreateDirectChat from '../containers/CreateDirectChat';
+import CreateDirectChat from '../components/CreateDirectChat';
 import {
   IconButton,
   Subtitle,
@@ -155,7 +155,8 @@ const ChatContacts = (props: FinalProps) => {
             <Avatar user={user} size={36} />
           ) : (
             <ContactsGroupAvatar>
-              <Avatar user={user} size={36} />
+              <Avatar user={users[1]} size={24} />
+              <Avatar user={users[2]} size={24} />
             </ContactsGroupAvatar>
           )}
           <ContactsItem
@@ -171,9 +172,11 @@ const ChatContacts = (props: FinalProps) => {
               : chat.name}
             <br />
             <ContactsItemPreview>
-              <ContactsItemContent truncate={true}>
-                {(chat.lastMessage && chat.lastMessage.content) || ''}
-              </ContactsItemContent>
+              <ContactsItemContent
+                dangerouslySetInnerHTML={{
+                  __html: (chat.lastMessage && chat.lastMessage.content) || ''
+                }}
+              />
               <ContactsItemDate>
                 {chat.lastMessage &&
                   chat.lastMessage.createdAt &&

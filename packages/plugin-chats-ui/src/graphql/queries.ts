@@ -38,6 +38,7 @@ const chats = `
             avatar
             description
             fullName
+            position
             operatorPhone
           }
         }
@@ -78,6 +79,7 @@ const chatDetail = `
           description
           fullName
           operatorPhone
+          position
         }
       }
     }
@@ -95,9 +97,22 @@ const chatMessages = `
           email
           details {
             avatar
+            fullName
           }
         }
         createdAt
+        relatedMessage {
+          _id
+          content
+          createdUser {
+            _id
+            email
+            details {
+              avatar
+              fullName
+            }
+          }
+        }
         seenList {
           lastSeenMessageId
         }

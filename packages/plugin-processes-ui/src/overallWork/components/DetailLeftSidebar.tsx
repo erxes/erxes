@@ -139,7 +139,7 @@ class DetailLeftSidebar extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel>Product Category</ControlLabel>
+          <ControlLabel>{__('Product Category')}</ControlLabel>
           <SelectProductCategory
             label="Choose product category"
             name="productCategoryId"
@@ -155,7 +155,7 @@ class DetailLeftSidebar extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>Product</ControlLabel>
+          <ControlLabel>{__('Product')}</ControlLabel>
           <SelectProducts
             label="Choose product"
             name="productIds"
@@ -211,7 +211,7 @@ class DetailLeftSidebar extends React.Component<Props, State> {
               </FormGroup>
               {this.renderSpec()}
               <FormGroup>
-                <ControlLabel>In Branch</ControlLabel>
+                <ControlLabel>{__('In Branch')}</ControlLabel>
                 <SelectBranches
                   label="Choose branch"
                   name="inBranchId"
@@ -225,7 +225,7 @@ class DetailLeftSidebar extends React.Component<Props, State> {
                 />
               </FormGroup>
               <FormGroup>
-                <ControlLabel>In Department</ControlLabel>
+                <ControlLabel>{__('In Department')}</ControlLabel>
                 <SelectDepartments
                   label="Choose department"
                   name="inDepartmentId"
@@ -241,7 +241,7 @@ class DetailLeftSidebar extends React.Component<Props, State> {
                 />
               </FormGroup>
               <FormGroup>
-                <ControlLabel>Out Branch</ControlLabel>
+                <ControlLabel>{__('Out Branch')}</ControlLabel>
                 <SelectBranches
                   label="Choose branch"
                   name="outBranchId"
@@ -255,7 +255,7 @@ class DetailLeftSidebar extends React.Component<Props, State> {
                 />
               </FormGroup>
               <FormGroup>
-                <ControlLabel>Out Department</ControlLabel>
+                <ControlLabel>{__('Out Department')}</ControlLabel>
                 <SelectDepartments
                   label="Choose department"
                   name="outDepartmentId"
