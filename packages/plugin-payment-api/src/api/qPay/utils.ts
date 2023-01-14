@@ -89,8 +89,6 @@ export const createInvoice = async (
       callback_url: `${MAIN_API_DOMAIN}/pl:payment/callback/${PAYMENT_KINDS.QPAY}?identifier=${invoice.identifier}`
     };
 
-    console.log('data', data);
-
     const requestOptions = {
       url: `${QPAY_ENDPOINT}${QPAY_ACTIONS.INVOICE}`,
       method: 'POST',
@@ -130,8 +128,7 @@ export const getInvoice = async (
     };
 
     try {
-      // return sendRequest(requestOptions);
-      return { invoice_status: 'CLOSED' };
+      return sendRequest(requestOptions);
     } catch (e) {
       throw new Error(e.message);
     }
