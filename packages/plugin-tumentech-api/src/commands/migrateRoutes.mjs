@@ -50,12 +50,32 @@ var command = async () => {
       _id: endDir.placeIds[endDir.placeIds.length - 1]
     });
 
-    const placeName = `${startPlace.province} : ${startPlace.name}`
-    const secondaryPlaceName = `${endPlace.province} : ${endPlace.name}`
+    let placeName = `${startPlace.province} : ${startPlace.name}`
+    let secondaryPlaceName = `${endPlace.province} : ${endPlace.name}`
+
+    if (startPlace.province === 'ulaanbaatar') {
+      placeName = startPlace.name;
+    }
+
+    if (endPlace.province === 'ulaanbaatar') {
+      secondaryPlaceName = endPlace.name;
+    }
+
+    if (startPlace.province === 'tuv') {
+      placeName = `Төв : ${startPlace.name}`
+      await Places.updateOne({_id: startPlace._id}, {$set: {province: 'Төв'}})
+    }
+    
+    if (endPlace.province === 'tuv') {
+      secondaryPlaceName = `Төв : ${endPlace.name}`
+      await Places.updateOne({_id: endPlace._id}, {$set: {province: 'Төв'}})
+    }
 
     const searchText = `${placeName} ${secondaryPlaceName}`;
     const name = `${placeName} - ${secondaryPlaceName}`;
 
+    // console.log(searchText);
+    console.log(name);
 
     await Routes.updateOne(
       { _id: route._id },
