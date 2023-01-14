@@ -36,7 +36,7 @@ var command = async () => {
         province: columns[0],
         code: columns[1],
         name: columns[2],
-        center: {lat: columns[3], lng: columns[4], description: columns[5]},
+        center: {lat: Number(columns[3]), lng: Number(columns[4]), description: columns[5]},
     };
   });
 
