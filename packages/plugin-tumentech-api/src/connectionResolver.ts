@@ -1,3 +1,7 @@
+import {
+  IPurchaseHistoryModel,
+  loadPurchaseHistoryClass
+} from './models/CustomerPurchaseHistory';
 import { ITopupDocument } from './models/definitions/topup';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import * as mongoose from 'mongoose';
@@ -36,6 +40,7 @@ import {
   loadCarCategoryClass,
   loadCarsClass
 } from './models/Tumentech';
+import { IPurchaseHistoryDocument } from './models/definitions/customerPurchaseHistory';
 
 export interface IModels {
   Cars: ICarModel;
@@ -50,6 +55,7 @@ export interface IModels {
   DealRoutes: IDealRouteModel;
   CustomerAccounts: ICustomerAccountModel;
   Topups: ITopupModel;
+  PurchaseHistories: IPurchaseHistoryModel;
 }
 
 export interface IContext extends IMainContext {
@@ -134,6 +140,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'tumentech_topups',
     loadTopupClass(models)
   );
+
+  models.PurchaseHistories = db.model<
+    IPurchaseHistoryDocument,
+    IPurchaseHistoryModel
+  >('tumentech_purchase_histories', loadPurchaseHistoryClass(models));
 
   return models;
 };

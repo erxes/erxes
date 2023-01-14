@@ -50,8 +50,8 @@ var command = async () => {
       _id: endDir.placeIds[endDir.placeIds.length - 1]
     });
 
-    const placeName = `${startPlace.province}:${startPlace.name}`
-    const secondaryPlaceName = `${endPlace.province}:${endPlace.name}`
+    const placeName = `${startPlace.province} : ${startPlace.name}`
+    const secondaryPlaceName = `${endPlace.province} : ${endPlace.name}`
 
     const searchText = `${placeName} ${secondaryPlaceName}`;
     const name = `${placeName} - ${secondaryPlaceName}`;

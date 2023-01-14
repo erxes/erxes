@@ -290,7 +290,11 @@ const carMutations = {
 
   revealPhone: async (
     _root,
-    { driverId, carId }: { driverId: string; carId: string },
+    {
+      driverId,
+      carId,
+      dealId
+    }: { driverId: string; carId: string; dealId: string },
     { models, cpUser, subdomain }: IContext
   ) => {
     const user = await sendClientPortalMessage({
@@ -349,11 +353,14 @@ const carMutations = {
       throw new Error('Customer not found');
     }
 
-    if (
-      account.purchases.findIndex(
-        p => p.carId === carId && p.driverId === driverId
-      ) > -1
-    ) {
+    const history = await models.PurchaseHistories.findOne({
+      cpUserId: user._id,
+      driverId,
+      carId: car._id,
+      dealId
+    });
+
+    if (history) {
       return customer.primaryPhone;
     }
 
@@ -378,20 +385,24 @@ const carMutations = {
     }
 
     if (account.balance < amount) {
-      throw new Error('Insufficient balance');
+      throw new Error('Дансны үлдэгдэл хүрэлцэхгүй байна');
     }
 
     account.balance -= amount;
-    account.purchases.push({
-      amount,
-      carId: car._id,
-      driverId
-    });
 
     await models.CustomerAccounts.updateOne(
       { _id: account._id },
-      { $set: { balance: account.balance, purchases: account.purchases } }
+      { $set: { balance: account.balance } }
     );
+
+    await models.PurchaseHistories.createHistory({
+      carId: car._id,
+      driverId,
+      dealId,
+      amount,
+      cpUserId: user._id,
+      phone: customer.primaryPhone
+    });
 
     return customer.primaryPhone;
   }

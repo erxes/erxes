@@ -15,7 +15,7 @@ export default async function cpUserMiddleware(
   try {
     // verify user token and retrieve stored user information
     const cpUser: any = jwt.verify(token, process.env.JWT_TOKEN_SECRET || '');
-
+    console.log(cpUser);
     if (!cpUser) {
       return next();
     }

@@ -7,15 +7,8 @@ export interface ICustomerAccount {
   balance: number;
 }
 
-export interface IPurchase {
-  driverId: string;
-  carId: string;
-  amount: number;
-}
-
 export interface ICustomerAccountDocument extends ICustomerAccount, Document {
   _id: string;
-  purchases: IPurchase[];
 }
 
 export const purchaseSchema = new Schema(
@@ -30,8 +23,7 @@ export const customerAccountSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     customerId: field({ type: String, label: 'Customer Id', required: true }),
-    balance: field({ type: Number, label: 'Amount', required: true }),
-    purchases: field({ type: [purchaseSchema], default: [] })
+    balance: field({ type: Number, label: 'Amount', required: true })
   }),
   'cutomer_accounts'
 );

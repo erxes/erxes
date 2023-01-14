@@ -183,6 +183,8 @@ type Participant @key(fields: "_id") @cacheControl(maxAge: 3) {
   carIds : [String]
   status: String!
 
+  phone: String
+
   createdAt: Date
   detail: JSON
 
@@ -393,10 +395,10 @@ export const mutations = `
   participantsAdd(${participantParams}): Participant
   participantsEdit(_id: String! status:String ${participantParams}): Participant
   participantsRemove(_id: String): JSON
-  participantsRemoveFromDeal(dealId: String!, tripIds: [String]): JSON
+  participantsRemoveFromDeal(dealId: String!, customerIds: [String]): JSON
   selectWinner(dealId: String!, driverId: String!): Participant
 
   topupAccount(invoiceId: String): CustomerAccount
 
-  revealPhone(driverId: String, carId: String): String
+  revealPhone(driverId: String, carId: String, dealId: String): String
 `;
