@@ -37,6 +37,17 @@ query Districts($cityId: String, $page: Int, $perPage: Int, $searchValue: String
   districts(cityId: $cityId page: $page perPage: $perPage searchValue: $searchValue) {
     _id
     name
+    center
+  }
+}
+`;
+
+const districtByCoordinatesQuery = `
+query districtByCoordinates($lat: Float!, $lng: Float!) {
+  districtByCoordinates(lat: $lat, lng: $lng) {
+    _id
+    name
+    center
   }
 }
 `;
@@ -44,5 +55,6 @@ query Districts($cityId: String, $page: Int, $perPage: Int, $searchValue: String
 export default {
   listQuery,
   detailQuery,
-  districtsQuery
+  districtsQuery,
+  districtByCoordinatesQuery
 };

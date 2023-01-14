@@ -84,6 +84,8 @@ const List = (props: Props) => {
       onChangeCenter
     };
 
+    console.log('mapProps', mapProps);
+
     return <OSMBuildings {...mapProps} />;
   };
 
@@ -129,7 +131,7 @@ const List = (props: Props) => {
       router.setParams(history, { viewType: type });
 
       if (type === '3d') {
-        window.location.reload();
+        // window.location.reload();
       }
     };
 

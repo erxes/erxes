@@ -5,6 +5,7 @@ import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import Select from 'react-select-plus';
 import styled from 'styled-components';
+import { ICoordinates } from '../../../types';
 
 import { IDistrict } from '../types';
 
@@ -34,7 +35,7 @@ type Props = {
   description?: string;
   defaultValue?: string[] | string;
   multi?: boolean;
-  onChange: (value) => void;
+  onChange: (value: any, center?: ICoordinates) => void;
 };
 
 class SelectDistrict extends React.Component<Props, {}> {
@@ -53,7 +54,12 @@ class SelectDistrict extends React.Component<Props, {}> {
     const { onChange, multi } = this.props;
 
     if (!multi) {
-      return onChange(values ? values.value : '');
+      const dist =
+        values && this.props.districts.find(d => d._id === values.value);
+
+      console.log('distcit ****************', dist);
+
+      return onChange(values ? values.value : '', dist && dist.center);
     }
 
     onChange(values.map(item => item.value) || []);

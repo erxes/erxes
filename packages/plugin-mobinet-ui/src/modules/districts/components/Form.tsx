@@ -1,3 +1,4 @@
+import LocationOption from '@erxes/ui-forms/src/settings/properties/components/LocationOption';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Form from '@erxes/ui/src/components/form/Form';
@@ -7,8 +8,9 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React, { useState } from 'react';
 
-import { IDistrict } from '../types';
+import Map from '../../../common/OSMap';
 import SelectCity from '../../cities/containers/SelectCity';
+import { IDistrict } from '../types';
 
 type Props = {
   district?: IDistrict;
@@ -25,6 +27,13 @@ const DistrictForm = (props: Props) => {
     district
   );
 
+  const [center, setCenter] = useState(
+    (district && district.center) || {
+      lat: 47.919481,
+      lng: 106.904299
+    }
+  );
+
   const generateDoc = () => {
     const finalValues: any = {};
 
@@ -36,6 +45,7 @@ const DistrictForm = (props: Props) => {
       finalValues.name = districtObject.name;
       finalValues.code = districtObject.code;
       finalValues.cityId = cityId;
+      finalValues.center = { ...center };
     }
 
     return {
@@ -52,6 +62,14 @@ const DistrictForm = (props: Props) => {
     setDistrictObject(obj);
   };
 
+  const onChangeCenter = position => {
+    setCenter(position);
+  };
+
+  const onChangeLocationOption = option => {
+    setCenter(option);
+  };
+
   const renderInput = (formProps, title, name, type, value) => {
     return (
       <FormGroup>
@@ -65,6 +83,39 @@ const DistrictForm = (props: Props) => {
           defaultValue={value}
           onChange={onChangeInput}
         />
+      </FormGroup>
+    );
+  };
+
+  const renderMap = () => {
+    return (
+      <FormGroup>
+        <ControlLabel htmlFor="locationOptions">Location:</ControlLabel>
+        <Map
+          id={Math.random().toString(10)}
+          height={'300px'}
+          center={center}
+          zoom={10}
+          addMarkerOnCenter={true}
+          onChangeCenter={onChangeCenter}
+        />
+
+        <LocationOption
+          key={'location'}
+          option={center}
+          onChangeOption={onChangeLocationOption}
+          index={0}
+        />
+        {/* <ControlLabel htmlFor="zoom">{__('Zoom level')}:</ControlLabel>
+          <FormControl
+            id="zoom"
+            defaultValue={zoom}
+            value={zoom}
+            name="zoom"
+            type="number"
+            onChange={onChangeInput}
+          /> */}
+        {/* </LocationOption> */}
       </FormGroup>
     );
   };
@@ -96,6 +147,8 @@ const DistrictForm = (props: Props) => {
           'string',
           district && district.name
         )}
+
+        {renderMap()}
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">

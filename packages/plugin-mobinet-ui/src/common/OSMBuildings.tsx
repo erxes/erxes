@@ -23,6 +23,8 @@ const loadMapScript = () => {
 
 type Props = {
   id: string;
+  width?: string;
+  height?: string;
   center?: ICoordinates;
 
   onChangeCenter?: (center: ICoordinates, bounds: ICoordinates[]) => void;
@@ -30,24 +32,50 @@ type Props = {
 };
 
 const Map = (props: Props) => {
+  console.log('props', props);
+
+  const { center } = props;
   const mapScript = loadMapScript();
   const mapRef = React.useRef(null);
 
+  // console.log('center', center && {latitude: center.lat, longitude: center.lng} || { latitude: 47.918812, longitude: 106.9154893 });
+  console.log('props.id', props.id);
   useEffect(() => {
-    renderMap();
+    if (mapScript) {
+      renderMap();
+    }
+
+    // 0.0722562821874293
+
+    // if (mapRef.current, center) {
+    //   const map = (mapRef.current as any);
+    //   if (!map) {
+    //     return;
+    //   }
+
+    //   // map.setPosition(center && {latitude: center.lat, longitude: center.lng} || { latitude: 47.918812, longitude: 106.9154893 });
+    //   return;
+    // }
 
     return () => {
       if (mapRef.current) {
         (mapRef.current as any).destroy();
       }
+
+      mapRef.current = null;
+
+      mapScript.removeEventListener('load', renderMap);
+      mapScript.remove();
     };
-  }, []);
+  }, [mapScript]);
 
   mapScript.addEventListener('load', () => {
+    console.log('loaddddddddddddddddd');
     renderMap();
   });
 
   const renderMap = () => {
+    console.log('renderMap');
     const mapElement = document.getElementById(props.id);
 
     if (!mapElement || !(window as any).OSMBuildings) {
@@ -55,13 +83,18 @@ const Map = (props: Props) => {
       return;
     }
 
+    console.log('map refffff ', mapRef.current);
+
     const map = new (window as any).OSMBuildings({
       container: props.id,
-      position: props.center || { latitude: 47.918812, longitude: 106.9154893 },
-      state: false,
+      position: (center && { latitude: center.lat, longitude: center.lng }) || {
+        latitude: 47.918812,
+        longitude: 106.9154893
+      },
+      state: true,
       tilt: 60,
       zoom: 16,
-      fastMode: false,
+      fastMode: true,
       minZoom: 10,
       maxZoom: 30,
       style: 'object',
@@ -120,7 +153,12 @@ const Map = (props: Props) => {
     mapRef.current = map;
   };
 
-  return <div id={props.id} style={{ width: '100%', height: '100%' }} />;
+  return (
+    <div
+      id={props.id}
+      style={{ width: props.width || '100%', height: props.height || '100%' }}
+    />
+  );
 };
 
 export default Map;

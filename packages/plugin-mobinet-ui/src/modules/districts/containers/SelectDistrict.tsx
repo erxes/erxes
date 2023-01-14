@@ -2,6 +2,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import gql from 'graphql-tag';
 import React from 'react';
 import { useQuery } from 'react-apollo';
+import { ICoordinates } from '../../../types';
 
 import SelectDistrict from '../components/SelectDistrict';
 import { queries } from '../graphql';
@@ -13,7 +14,7 @@ type Props = {
   description?: string;
   cityId?: string;
   multi?: boolean;
-  onChange: (value) => void;
+  onChange: (value: any, center?: ICoordinates) => void;
 };
 
 const SelectDistrictsContainer = (props: Props) => {

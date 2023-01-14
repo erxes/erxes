@@ -9,20 +9,22 @@ import React, { useState, useEffect } from 'react';
 import SelectCity from '../../cities/containers/SelectCity';
 import { ICity } from '../../cities/types';
 import SelectDistrict from '../../districts/containers/SelectDistrict';
+import { IDistrict } from '../../districts/types';
 import SelectQuarter from '../../quarters/containers/SelectQuarter';
-
+import OSMBuildings from '../../../common/OSMBuildings';
 import { IBuilding } from '../types';
+import { ICoordinates } from '../../../types';
 
 type Props = {
+  osmbId?: string;
   city?: ICity;
+  district?: IDistrict;
   building?: IBuilding;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
 const BuildingForm = (props: Props) => {
-  console.log('props', props);
-
   const { building } = props;
 
   const [quarterId, setQuarterId] = useState<string>('');
@@ -36,7 +38,10 @@ const BuildingForm = (props: Props) => {
     //   ''
   );
 
-  console.log('cityId', cityId);
+  const [center, setCenter] = useState<ICoordinates>({
+    lat: 47.918812,
+    lng: 106.9154893
+  });
 
   const [districtId, setDistrictId] = useState<string>('');
 
@@ -45,10 +50,18 @@ const BuildingForm = (props: Props) => {
   );
 
   useEffect(() => {
-    if (props.city) {
+    if (props.city && !cityId) {
       setCityId(props.city._id);
     }
-  }, [props.city, cityId]);
+
+    if (props.district && !districtId) {
+      setDistrictId(props.district._id);
+      setCenter(props.district.center);
+    }
+
+    if (districtId) {
+    }
+  }, [props.city, cityId, props.district, districtId, center]);
 
   const generateDoc = () => {
     const finalValues: any = {};
@@ -77,6 +90,21 @@ const BuildingForm = (props: Props) => {
     setBuildingObject(obj);
   };
 
+  const onChangeCenter = (center: ICoordinates, bounds: ICoordinates[]) => {
+    console.log('center', center);
+    console.log('bounds', bounds);
+
+    setCenter(center);
+  };
+
+  const onChangeDistrict = (districtId, center?: ICoordinates) => {
+    setDistrictId(districtId);
+
+    if (center) {
+      setCenter(center);
+    }
+  };
+
   const renderInput = (formProps, title, name, type, value) => {
     return (
       <FormGroup>
@@ -92,6 +120,24 @@ const BuildingForm = (props: Props) => {
         />
       </FormGroup>
     );
+  };
+
+  const render3dMap = () => {
+    if (!districtId && !cityId) {
+      return null;
+    }
+
+    const onClickBuilding = e => {};
+
+    const mapProps = {
+      id: Math.random().toString(),
+      onClickBuilding,
+      onChangeCenter,
+      center,
+      height: '300px'
+    };
+
+    return <OSMBuildings {...mapProps} />;
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -113,10 +159,7 @@ const BuildingForm = (props: Props) => {
           <SelectDistrict
             cityId={cityId}
             defaultValue={districtId}
-            onChange={e => {
-              console.log('districttttt ', e);
-              setDistrictId(e);
-            }}
+            onChange={onChangeDistrict}
           />
         )}
 
@@ -145,6 +188,8 @@ const BuildingForm = (props: Props) => {
           'string',
           building && building.name
         )}
+
+        {render3dMap()}
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">

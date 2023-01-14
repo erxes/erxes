@@ -3,9 +3,14 @@ import { field, schemaHooksWrapper } from '../utils';
 
 export interface IDistrict {
   name: string;
+  nameEn: string;
   code: string;
   cityId: string;
   center: any;
+
+  boundingBox: number[];
+
+  geojson: any;
 
   createdAt: Date;
   updatedAt: Date;
@@ -24,12 +29,20 @@ export const districtSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     code: field({ type: String, label: 'code', required: false }),
     name: field({ type: String, label: 'name', required: true }),
+    nameEn: field({ type: String, label: 'English name', required: false }),
     cityId: field({ type: String, label: 'city', required: false }),
-    center: field({
-      type: Schema.Types.Mixed,
-      label: 'Center location',
+    center: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        optional: true
+      },
+      coordinates: {
+        type: [Number],
+        optional: true
+      },
       required: false
-    }),
+    },
     createdAt: field({
       type: Date,
       label: 'createdAt',
@@ -43,7 +56,22 @@ export const districtSchema = schemaHooksWrapper(
       default: Date.now
     }),
 
+    boundingBox: field({
+      type: [Number],
+      label: 'boundingBox',
+      required: false,
+      default: []
+    }),
+
+    geojson: field({
+      type: Schema.Types.Mixed,
+      label: 'Geo data',
+      required: false
+    }),
+
     searchText: field({ type: String, optional: true, index: true })
   }),
   'mobinet_districts'
 );
+
+districtSchema.index({ center: '2dsphere' });

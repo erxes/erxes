@@ -56,13 +56,12 @@ const citiesQuery = {
     { models }: IContext
   ) => {
     return models.Cities.findOne({
-      center: {
-        $near: {
+      geojson: {
+        $geoIntersects: {
           $geometry: {
             type: 'Point',
             coordinates: [lng, lat]
-          },
-          $maxDistance: 5000
+          }
         }
       }
     }).lean();

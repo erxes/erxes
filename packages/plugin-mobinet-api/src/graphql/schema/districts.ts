@@ -41,4 +41,5 @@ export const queries = `
   districtList(${qryParams}): DistrictListResponse
   districts(${qryParams}): [District]
   districtDetail(_id: String!): District
+  districtByCoordinates(lat: Float!, lng: Float!): District
 `;

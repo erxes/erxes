@@ -79,6 +79,23 @@ const queries = {
     { models }: IContext
   ) => {
     return models.Districts.getDistrict(_id);
+  },
+
+  districtByCoordinates: async (
+    _root,
+    { lat, lng }: { lat: number; lng: number },
+    { models }: IContext
+  ) => {
+    return models.Districts.findOne({
+      geojson: {
+        $geoIntersects: {
+          $geometry: {
+            type: 'Point',
+            coordinates: [lng, lat]
+          }
+        }
+      }
+    }).lean();
   }
 };
 
