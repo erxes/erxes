@@ -355,11 +355,6 @@ const carQueries = {
     });
 
     if (!account) {
-      console.log('creating account', {
-        customerId: user.erxesCustomerId,
-        balance: 200000
-      });
-
       account = await models.CustomerAccounts.create({
         customerId: user.erxesCustomerId,
         balance: 200000
@@ -378,7 +373,10 @@ const carQueries = {
 
     const totalCount = await models.Topups.find(query).countDocuments();
 
-    const list = await paginate(models.Topups.find(query).sort({createdAt: -1}), { page, perPage });
+    const list = await paginate(
+      models.Topups.find(query).sort({ createdAt: -1 }),
+      { page, perPage }
+    );
 
     return { list, totalCount };
   }
