@@ -7,6 +7,7 @@ const commonParamsDef = `
   $groupIds: [String]
   $brandIds: [String]
   $customFieldsData: JSON
+  $employeeId: String
 `;
 
 const commonParams = `
@@ -18,6 +19,7 @@ const commonParams = `
   groupIds: $groupIds
   brandIds: $brandIds
   customFieldsData: $customFieldsData
+  employeeId: $employeeId
 `;
 
 const usersEdit = `
@@ -35,6 +37,7 @@ const usersEditProfile = `
     $details: UserDetails
     $links: JSON
     $password: String!
+    $employeeId: String
   ) {
     usersEditProfile(
       username: $username
@@ -42,6 +45,7 @@ const usersEditProfile = `
       details: $details
       links: $links
       password: $password
+      employeeId: $employeeId
     ) {
       _id
     }

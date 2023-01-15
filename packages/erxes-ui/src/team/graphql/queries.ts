@@ -72,6 +72,7 @@ const users = `
       }
 
       links
+      employeeId
     }
   }
 `;
@@ -186,6 +187,7 @@ const userDetail = `
       getNotificationByEmail
       customFieldsData
       score
+      employeeId
     }
   }
 `;

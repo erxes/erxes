@@ -156,6 +156,7 @@ class UserList extends React.Component<FinalProps, States> {
             </TextInfo>
           </td>
           <td>{object.email}</td>
+          <td>{object.employeeId || '-'}</td>
           <td>
             <Toggle
               defaultChecked={object.isActive}
@@ -192,6 +193,9 @@ class UserList extends React.Component<FinalProps, States> {
               </th>
               <th>
                 <ControlLabel>{__('Email')}</ControlLabel>
+              </th>
+              <th>
+                <ControlLabel>{__('Employee Id')}</ControlLabel>
               </th>
               <th>
                 <ControlLabel>{__('Status')}</ControlLabel>
