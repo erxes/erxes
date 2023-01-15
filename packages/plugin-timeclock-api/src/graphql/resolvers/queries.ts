@@ -29,10 +29,13 @@ const timeclockQueries = {
     const selector = await generateFilter(queryParams, subdomain, 'timeclock');
     const queryList = models.Timeclocks.find(selector);
 
-    const list = paginate(models.Timeclocks.find(selector), {
-      perPage: queryParams.perPage,
-      page: queryParams.page
-    });
+    const list = paginate(
+      models.Timeclocks.find(selector).sort({ userId: 1, employeeId: 1 }),
+      {
+        perPage: queryParams.perPage,
+        page: queryParams.page
+      }
+    );
 
     const totalCount = queryList.countDocuments();
     return { list, totalCount };
@@ -41,7 +44,7 @@ const timeclockQueries = {
     const selector = await generateFilter(queryParams, subdomain, 'schedule');
     const totalCount = models.Schedules.find(selector).countDocuments();
 
-    const list = paginate(models.Schedules.find(selector), {
+    const list = paginate(models.Schedules.find(selector).sort({ userId: 1 }), {
       perPage: queryParams.perPage,
       page: queryParams.page
     });
@@ -49,11 +52,15 @@ const timeclockQueries = {
     return { list, totalCount };
   },
 
+  async scheduleConfigs(_root, {}, { models, subdomain }: IContext) {
+    return models.ScheduleConfigs.find();
+  },
+
   async requestsMain(_root, queryParams, { models, subdomain }: IContext) {
     const selector = await generateFilter(queryParams, subdomain, 'absence');
     const totalCount = models.Absences.find(selector).countDocuments();
 
-    const list = paginate(models.Absences.find(selector), {
+    const list = paginate(models.Absences.find(selector).sort({ userId: 1 }), {
       perPage: queryParams.perPage,
       page: queryParams.page
     });

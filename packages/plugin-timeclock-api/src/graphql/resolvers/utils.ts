@@ -37,6 +37,33 @@ export const findBranches = async (subdomain: string, userId: string) => {
   return branches;
 };
 
+export const createScheduleShiftsByUserIds = async (
+  userIds: string[],
+  shifts,
+  models: IModels
+) => {
+  let schedule;
+  userIds.forEach(async userId => {
+    schedule = await models.Schedules.createSchedule({
+      userId: `${userId}`,
+      solved: true,
+      status: 'Approved'
+    });
+
+    shifts.forEach(shift => {
+      models.Shifts.createShift({
+        scheduleId: schedule._id,
+        shiftStart: shift.shiftStart,
+        shiftEnd: shift.shiftEnd,
+        solved: true,
+        status: 'Approved'
+      });
+    });
+  });
+
+  return schedule;
+};
+
 export const returnReportByUserIds = async (
   models: IModels,
   selectedUserIds: string[]

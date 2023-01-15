@@ -7,7 +7,14 @@ import {
   ITimeClock,
   IAbsenceType
 } from '../../models/definitions/timeclock';
-import { connectAndImportFromMysql, findBranches } from './utils';
+import {
+  connectAndImportFromMysql,
+  createScheduleShiftsByUserIds,
+  findBranch,
+  findBranches,
+  findDepartment
+} from './utils';
+import dayjs = require('dayjs');
 
 interface ITimeClockEdit extends ITimeClock {
   _id: string;
@@ -324,28 +331,37 @@ const timeclockMutations = {
     return schedule;
   },
 
-  async submitShift(_root, { userIds, shifts }, { models }: IContext) {
-    let schedule;
+  async submitSchedule(
+    _root,
+    { branchIds, departmentIds, userIds, shifts },
+    { subdomain, models }: IContext
+  ) {
+    if (userIds.length) {
+      return createScheduleShiftsByUserIds(userIds, shifts, models);
+    }
 
-    userIds.map(async userId => {
-      schedule = await models.Schedules.createSchedule({
-        userId: `${userId}`,
-        solved: true,
-        status: 'Approved'
-      });
+    const concatBranchDept: string[] = [];
 
-      shifts.map(shift => {
-        models.Shifts.createShift({
-          scheduleId: schedule._id,
-          shiftStart: shift.shiftStart,
-          shiftEnd: shift.shiftEnd,
-          solved: true,
-          status: 'Approved'
-        });
-      });
+    if (branchIds) {
+      for (const branchId of branchIds) {
+        const branch = await findBranch(subdomain, branchId);
+        concatBranchDept.push(...branch.userIds);
+      }
+    }
+    if (departmentIds) {
+      for (const deptId of departmentIds) {
+        const department = await findDepartment(subdomain, deptId);
+        concatBranchDept.push(...department.userIds);
+      }
+    }
+
+    // prevent creating double schedule for common users
+    const sorted = concatBranchDept.sort();
+    const unionOfUserIds = sorted.filter((value, pos) => {
+      return concatBranchDept.indexOf(value) === pos;
     });
 
-    return schedule;
+    return createScheduleShiftsByUserIds(unionOfUserIds, shifts, models);
   },
 
   scheduleRemove(_root, { _id }, { models }: IContext) {
@@ -403,6 +419,87 @@ const timeclockMutations = {
 
   holidayRemove(_root, { _id }, { models }: IContext) {
     return models.Absences.removeAbsence(_id);
+  },
+
+  async scheduleConfigAdd(
+    _root,
+    { scheduleName, scheduleConfig, configShiftStart, configShiftEnd },
+    { models }: IContext
+  ) {
+    const newScheduleConfig = await models.ScheduleConfigs.createScheduleConfig(
+      {
+        scheduleName: `${scheduleName}`,
+        shiftStart: configShiftStart,
+        shiftEnd: configShiftEnd
+      }
+    );
+
+    const timeFormat = 'HH:mm';
+
+    scheduleConfig.forEach(async scheduleShift => {
+      await models.Shifts.createShift({
+        scheduleConfigId: newScheduleConfig._id,
+        configShiftStart: dayjs(scheduleShift.shiftStart).format(timeFormat),
+        configShiftEnd: dayjs(scheduleShift.shiftEnd).format(timeFormat),
+        configName: scheduleShift.configName,
+        overnightShift: scheduleShift.overnightShift
+      });
+    });
+
+    return newScheduleConfig;
+  },
+
+  async scheduleConfigRemove(_root, { _id }, { models }: IContext) {
+    const scheduleConfig = await models.ScheduleConfigs.getScheduleConfig(_id);
+
+    await models.ScheduleConfigs.deleteMany({
+      scheduleConfigId: scheduleConfig._id
+    });
+
+    return models.ScheduleConfigs.removeScheduleConfig(_id);
+  },
+
+  async scheduleConfigEdit(
+    _root,
+    {
+      _id,
+      scheduleName,
+      scheduleConfig,
+      configShiftStart,
+      configShiftEnd,
+      doc
+    },
+    { models }: IContext
+  ) {
+    const newScheduleConfig = await models.ScheduleConfigs.updateScheduleConfig(
+      _id,
+      {
+        scheduleName: `${scheduleName}`,
+        shiftEnd: configShiftEnd,
+        shiftStart: configShiftStart,
+        ...doc
+      }
+    );
+
+    const timeFormat = 'HH:mm';
+
+    scheduleConfig.forEach(async scheduleShift => {
+      const selector = {
+        $and: [
+          { scheduleConfigId: _id },
+          { configName: scheduleShift.configName }
+        ]
+      };
+
+      const updated = await models.Shifts.updateOne(selector, {
+        configShiftStart: dayjs(scheduleShift.shiftStart).format(timeFormat),
+        configShiftEnd: dayjs(scheduleShift.shiftEnd).format(timeFormat),
+        overnightShift: scheduleShift.overnightShift,
+        ...scheduleShift
+      });
+    });
+
+    return newScheduleConfig;
   },
 
   async extractAllDataFromMySQL(_root, {}, { subdomain }: IContext) {

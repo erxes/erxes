@@ -5,25 +5,31 @@ import {
   CustomRangeContainer,
   FlexRow,
   FlexColumn,
+  FlexColumnMargined,
   FlexCenter
 } from '../../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { IAbsence, IAbsenceType, IPayDates, ISchedule } from '../../types';
+import {
+  IAbsence,
+  IAbsenceType,
+  IPayDates,
+  ISchedule,
+  IScheduleConfig
+} from '../../types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import ScheduleConfig from './ScheduleDayToggleConfig';
-import Datetime from '@nateradebaugh/react-datetime';
-import Select from 'react-select-plus';
-import { Input } from '../../styles';
+import DatePicker from '../datepicker/DateTimePicker';
+import { compareStartAndEndTime } from '../../utils';
+import dayjs from 'dayjs';
 
 type Props = {
   history?: any;
   configType: string;
   absenceType?: IAbsenceType;
+  scheduleConfig?: IScheduleConfig;
   holiday?: IAbsence;
   payDate?: IPayDates;
-  absenceTypes?: IAbsenceType[];
   loading?: boolean;
   afterSave?: () => void;
   closeModal: () => void;
@@ -31,22 +37,63 @@ type Props = {
 };
 
 function ConfigForm(props: Props) {
-  const { renderButton, history } = props;
+  const { renderButton, history, scheduleConfig } = props;
   const { absenceType, holiday, payDate } = props;
   const [explanationRequired, setExplRequired] = useState(false);
   const [attachmentRequired, setAttachRequired] = useState(false);
   const [payPeriod, setPayPeriod] = useState('');
 
-  const [contentType, setContentType] = useState('');
-  const [configDays, setConfigDays] = useState<ISchedule>({
-    Monday: { display: true, shiftStart: undefined, shiftEnd: undefined },
-    Tuesday: { display: true },
-    Wednesday: { display: true },
-    Thursday: { display: true },
-    Friday: { display: true },
-    Saturday: { display: true },
-    Sunday: { display: true }
+  const defaultStartTime = new Date(
+    new Date().toLocaleDateString() + ' 08:30:00'
+  );
+
+  const defaultEndTime = new Date(
+    new Date().toLocaleDateString() + ' 17:00:00'
+  );
+
+  const shiftStartTime = new Date(
+    new Date().toLocaleDateString() +
+      ' ' +
+      (scheduleConfig ? scheduleConfig.shiftStart : '08:30:00')
+  );
+  const shiftEndTime = new Date(
+    new Date().toLocaleDateString() +
+      ' ' +
+      (scheduleConfig ? scheduleConfig.shiftEnd : '17:00:00')
+  );
+
+  const configDaysTime: ISchedule = {
+    configTime: {
+      shiftStart: shiftStartTime,
+      shiftEnd: shiftEndTime
+    },
+    validCheckIn: {
+      shiftStart: defaultStartTime,
+      shiftEnd: defaultEndTime
+    },
+    validCheckout: {
+      shiftStart: defaultStartTime,
+      shiftEnd: defaultEndTime
+    },
+    overtime: {
+      shiftStart: defaultStartTime,
+      shiftEnd: defaultEndTime
+    }
+  };
+
+  scheduleConfig?.configDays.forEach(configDay => {
+    configDaysTime[configDay.configName].shiftStart = new Date(
+      new Date().toLocaleDateString() + ' ' + configDay.configShiftStart
+    );
+    configDaysTime[configDay.configName].shiftEnd = new Date(
+      new Date().toLocaleDateString() + ' ' + configDay.configShiftEnd
+    );
   });
+
+  const [configDays, setConfigDays] = useState<ISchedule>({
+    ...configDaysTime
+  });
+
   const [holidayDates, setHolidayDates] = useState({
     startingDate: (holiday && holiday.startTime) || null,
     endingDate: (holiday && holiday.endTime) || null
@@ -86,9 +133,10 @@ function ConfigForm(props: Props) {
       holidayName?: string;
       startDate?: Date;
       endDate?: Date;
-      absenceName: string;
-      explRequired: boolean;
-      attachRequired: boolean;
+      absenceName?: string;
+      scheduleName?: string;
+      explRequired?: boolean;
+      attachRequired?: boolean;
     },
     name: string
   ) => {
@@ -129,6 +177,41 @@ function ConfigForm(props: Props) {
               ? Object.values(payDates).map(date => date.getDate())
               : [payDates.date1.getDate()]
         };
+
+      case 'schedule':
+        const returnVariables: {
+          _id?: string;
+          scheduleName?: string;
+          configShiftStart?: string;
+          configShiftEnd?: string;
+          scheduleConfig: any[];
+        } = {
+          scheduleName: values.scheduleName,
+          scheduleConfig: []
+        };
+        if (scheduleConfig) {
+          returnVariables._id = scheduleConfig._id;
+        }
+        const timeFormat = 'HH:mm';
+
+        Object.keys(configDays).forEach(day_key => {
+          if (day_key.toLocaleLowerCase() !== 'configtime') {
+            returnVariables.scheduleConfig.push({
+              configName: day_key,
+              shiftStart: configDays[day_key].shiftStart,
+              shiftEnd: configDays[day_key].shiftEnd,
+              overnightShift: configDays[day_key].overnightShift
+            });
+          } else {
+            returnVariables.configShiftStart = dayjs(
+              configDays[day_key].shiftStart
+            ).format(timeFormat);
+            returnVariables.configShiftEnd = dayjs(
+              configDays[day_key].shiftEnd
+            ).format(timeFormat);
+          }
+        });
+        return returnVariables;
     }
   };
 
@@ -151,7 +234,7 @@ function ConfigForm(props: Props) {
     const { values, isSubmitted } = formProps;
 
     return (
-      <FlexColumn>
+      <FlexColumn marginNum={20}>
         <ControlLabel required={true}>Name</ControlLabel>
         <FormControl
           {...formProps}
@@ -194,7 +277,7 @@ function ConfigForm(props: Props) {
   const renderPayDateContent = (formProps: IFormProps) => {
     const { isSubmitted, values } = formProps;
     return (
-      <FlexColumn>
+      <FlexColumn marginNum={10}>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <ControlLabel>Pay period</ControlLabel>
           <div
@@ -257,120 +340,132 @@ function ConfigForm(props: Props) {
     );
   };
 
-  const onConfigDayStartTimeChange = (newTime: Date, dayName: string) => {
-    const newConfigDays = configDays;
-    newConfigDays[dayName].shiftStart = newTime;
-    setConfigDays({ ...newConfigDays });
+  const onStartTimeChange = (day_key, time_val) => {
+    const newShift = configDays[day_key];
+    const [
+      getCorrectStartTime,
+      getCorrectEndTime,
+      overnight
+    ] = compareStartAndEndTime(configDays, day_key, time_val, null);
+
+    newShift.shiftStart = getCorrectStartTime;
+    newShift.overnightShift = overnight;
+    newShift.shiftEnd = getCorrectEndTime;
+
+    const newconfigDays = { ...configDays, [day_key]: newShift };
+    setConfigDays(newconfigDays);
   };
 
-  const onConfigDayEndTimeChange = (newTime: Date, dayName: string) => {
-    configDays[dayName].shiftEnd = newTime;
-    setConfigDays({ ...configDays });
+  const onEndTimeChange = (day_key, time_val) => {
+    const newShift = configDays[day_key];
+    const [
+      getCorrectStartTime,
+      getCorrectEndTime,
+      overnight
+    ] = compareStartAndEndTime(configDays, day_key, null, time_val);
+
+    newShift.shiftStart = getCorrectStartTime;
+    newShift.overnightShift = overnight;
+    newShift.shiftEnd = getCorrectEndTime;
+
+    const newconfigDays = { ...configDays, [day_key]: newShift };
+    setConfigDays(newconfigDays);
   };
 
-  const onContentTypeSelect = contntType => {
-    localStorage.setItem('contentType', JSON.stringify(contntType));
-    const contType = JSON.parse(localStorage.getItem('contentType') || '[]')
-      .value;
-    setContentType(contType);
-  };
-
-  const toggleWeekDays = dayKey => {
-    const oldConfigBoolean = {
-      ...configDays[dayKey],
-      display: !configDays[dayKey].display
-    };
-    const newConfigDays = { ...configDays, [dayKey]: oldConfigBoolean };
-    setConfigDays(newConfigDays);
-  };
-
-  const renderWeekendSettings = () => {
+  const renderConfigTime = () => {
     return (
       <>
-        {Object.keys(configDays).map(weekDay => (
-          <ScheduleConfig
-            key={weekDay}
-            weekDay={weekDay}
-            toggleWeekDays={toggleWeekDays}
+        <FlexRow>
+          <ControlLabel>Check in / Check out</ControlLabel>
+          <DatePicker
+            curr_day_key={'configTime'}
+            startDate={configDays.configTime.shiftStart}
+            startTime_value={configDays.configTime.shiftStart}
+            endTime_value={configDays.configTime.shiftEnd}
+            overnightShift={configDays.configTime.overnightShift}
+            changeEndTime={onEndTimeChange}
+            changeStartTime={onStartTimeChange}
+            timeOnly={true}
           />
-        ))}
+        </FlexRow>
+        <FlexRow>
+          <ControlLabel>Valid Check-In</ControlLabel>
+          <DatePicker
+            curr_day_key={'validCheckIn'}
+            startDate={configDays.validCheckIn.shiftStart}
+            startTime_value={configDays.validCheckIn.shiftStart}
+            endTime_value={configDays.validCheckIn.shiftEnd}
+            overnightShift={configDays.validCheckIn.overnightShift}
+            changeEndTime={onEndTimeChange}
+            changeStartTime={onStartTimeChange}
+            timeOnly={true}
+          />
+        </FlexRow>
+        <FlexRow>
+          <ControlLabel>Valid Check-Out</ControlLabel>
+          <DatePicker
+            curr_day_key={'validCheckout'}
+            startDate={configDays.validCheckout.shiftStart}
+            startTime_value={configDays.validCheckout.shiftStart}
+            endTime_value={configDays.validCheckout.shiftEnd}
+            overnightShift={configDays.validCheckout.overnightShift}
+            changeEndTime={onEndTimeChange}
+            changeStartTime={onStartTimeChange}
+            timeOnly={true}
+          />
+        </FlexRow>
+        <FlexRow>
+          <ControlLabel>Overtime</ControlLabel>
+          <DatePicker
+            curr_day_key={'overtime'}
+            startDate={configDays.overtime.shiftStart}
+            startTime_value={configDays.overtime.shiftStart}
+            endTime_value={configDays.overtime.shiftEnd}
+            changeEndTime={onEndTimeChange}
+            changeStartTime={onStartTimeChange}
+            timeOnly={true}
+          />
+        </FlexRow>
       </>
     );
   };
 
-  const renderConfigDays = () => {
-    return Object.keys(configDays).map(configDay => {
-      return (
-        <div
-          key={configDay}
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between'
-          }}
-        >
-          {configDays[configDay].display && (
-            <>
-              {configDay}
-              <div style={{ display: 'flex', flexDirection: 'row' }}>
-                <Datetime
-                  defaultValue={new Date()}
-                  dateFormat={false}
-                  timeFormat="hh:mm a"
-                  onChange={(val: any) =>
-                    onConfigDayStartTimeChange(val, configDay)
-                  }
-                />
-                <Datetime
-                  defaultValue={new Date()}
-                  dateFormat={false}
-                  timeFormat="hh:mm a"
-                  onChange={(val: any) =>
-                    onConfigDayEndTimeChange(val, configDay)
-                  }
-                />
-              </div>
-            </>
-          )}
-        </div>
-      );
-    });
-  };
-
   const renderScheduleContent = (formProps: IFormProps) => {
+    const { values, isSubmitted } = formProps;
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <FlexColumn marginNum={20}>
         <ControlLabel required={true}>
           <strong>Name</strong>
         </ControlLabel>
         <FormControl
           {...formProps}
-          name="holidayName"
-          defaultValue={holiday && holiday.holidayName}
+          defaultValue={scheduleConfig?.scheduleName}
+          name="scheduleName"
           required={true}
           autoFocus={true}
         />
-        <ControlLabel>
-          <strong>Set as Weekend</strong>
-        </ControlLabel>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between'
-          }}
-        >
-          {renderWeekendSettings()}
-        </div>
-        {renderConfigDays()}
-      </div>
+
+        <FlexColumnMargined marginNum={10}>
+          {renderConfigTime()}
+        </FlexColumnMargined>
+
+        <FlexCenter style={{ marginTop: '10px' }}>
+          {renderButton({
+            name: 'schedule',
+            values: generateDoc(values, 'schedule'),
+            isSubmitted,
+            callback: closeModal || afterSave,
+            object: scheduleConfig || null
+          })}
+        </FlexCenter>
+      </FlexColumn>
     );
   };
 
   const renderHolidayContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
     return (
-      <FlexColumn>
+      <FlexColumn marginNum={20}>
         <ControlLabel required={true}>Holiday Name</ControlLabel>
         <FormControl
           {...formProps}

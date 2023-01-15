@@ -10,17 +10,24 @@ import { CustomRow } from '../../styles';
 import { IBranch } from '@erxes/ui/src/team/types';
 import Tip from '@erxes/ui/src/components/Tip';
 import ScheduleForm from './ScheduleForm';
+import { IScheduleConfig } from '../../types';
 
 type Props = {
   scheduleOfMembers: any;
   queryParams: any;
   history: any;
   branchesList: IBranch[];
+  scheduleConfigs: IScheduleConfig[];
   getActionBar: (actionBar: any) => void;
   solveSchedule: (scheduleId: string, status: string) => void;
   solveShift: (shiftId: string, status: string) => void;
   submitRequest: (userId: string[], filledShifts: any) => void;
-  submitShift: (userIds: string[], filledShifts: any) => void;
+  submitSchedule: (
+    branchIds: string[],
+    departmentIds: string[],
+    userIds: string[],
+    filledShifts: any
+  ) => void;
   removeScheduleShifts: (_id: string, type: string) => void;
 };
 
@@ -35,7 +42,7 @@ function ScheduleList(props: Props) {
 
   const trigger = (
     <Button btnStyle="success" icon="plus-circle">
-      Create Request
+      Create Request - Per Employee
     </Button>
   );
 
@@ -193,7 +200,9 @@ function ScheduleList(props: Props) {
     return schedule.shifts.length > 0 ? (
       <tr>
         <td>
-          <NameCard user={schedule.user} />
+          {schedule.user && schedule.user.details.fullName.length > 1
+            ? schedule.user.details.fullName
+            : schedule.user.email}
         </td>
         <td>
           {schedule.solved ? (
