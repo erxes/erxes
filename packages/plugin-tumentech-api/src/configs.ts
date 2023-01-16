@@ -28,6 +28,8 @@ export default {
     };
   },
 
+  hasSubscriptions: true,
+
   meta: {
     segments,
     forms,

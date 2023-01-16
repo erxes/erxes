@@ -3,6 +3,7 @@ import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
 import {
+  sendCardsMessage,
   sendClientPortalMessage,
   sendCommonMessage,
   sendContactsMessage,
@@ -403,6 +404,42 @@ const carMutations = {
       cpUserId: user._id,
       phone: customer.primaryPhone
     });
+
+    const receiver = await sendClientPortalMessage({
+      subdomain,
+      action: 'clientPortalUsers.findOne',
+      data: {
+        erxesCustomerId: driverId,
+        clientPortalId: process.env.MOBILE_CP_ID || ''
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const deal = await sendCardsMessage({
+      subdomain,
+      action: 'deals.findOne',
+      data: {
+        _id: dealId
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    if (deal && receiver) {
+      sendClientPortalMessage({
+        subdomain,
+        action: 'sendNotification',
+        data: {
+          title: 'Мэдэгдэл',
+          content: `Таны ${deal.name} дугаартай ажилд илгээсэн үнийн саналыг хүлээн авч таны мэдээллийг хүлээн авлаа.`,
+          receivers: [cpUser._id],
+          notifType: 'system',
+          link: '',
+          isMobile: true
+        }
+      });
+    }
 
     return customer.primaryPhone;
   }
