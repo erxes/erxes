@@ -1,10 +1,10 @@
 import { gql } from 'apollo-server-express';
 
 import {
-  types as discountTypes,
-  queries as discountQueries,
-  mutations as discountMutations
-} from './schema/discount';
+  types as pricingPlanTypes,
+  queries as pricingPlanQueries,
+  mutations as pricingPlanMutations
+} from './schema/pricingPlan';
 
 const typeDefs = async _serviceDiscovery => {
   return gql`
@@ -22,14 +22,14 @@ const typeDefs = async _serviceDiscovery => {
       inheritMaxAge: Boolean
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
 
-    ${discountTypes()}
+    ${pricingPlanTypes()}
     
     extend type Query {
-      ${discountQueries}
+      ${pricingPlanQueries}
     }
     
     extend type Mutation {
-      ${discountMutations}
+      ${pricingPlanMutations}
     }
   `;
 };

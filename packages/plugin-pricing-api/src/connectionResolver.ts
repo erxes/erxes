@@ -1,11 +1,11 @@
 import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
-import { IDiscountModel, loadDiscountClass } from './models/Discount';
-import { IDiscountDocument } from './models/definitions/discount';
+import { IPricingPlanModel, loadPricingPlanClass } from './models/PricingPlan';
+import { IPricingPlanDocument } from './models/definitions/pricingPlan';
 
 export interface IModels {
-  Discounts: IDiscountModel;
+  PricingPlans: IPricingPlanModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -17,9 +17,9 @@ export let models: IModels | null = null;
 export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
-  models.Discounts = db.model<IDiscountDocument, IDiscountModel>(
+  models.PricingPlans = db.model<IPricingPlanDocument, IPricingPlanModel>(
     'pricing',
-    loadDiscountClass(models)
+    loadPricingPlanClass(models)
   );
 
   return models;

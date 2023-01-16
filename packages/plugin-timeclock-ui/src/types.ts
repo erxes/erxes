@@ -75,9 +75,22 @@ export interface IShiftSchedule {
   user: IUser;
 }
 
+export interface IScheduleConfig {
+  _id: string;
+  scheduleName?: string;
+  shiftStart: string;
+  shiftEnd: string;
+  configDays: IScheduleConfigDays[];
+}
+
+export interface IScheduleConfigDays {
+  configName: string;
+  configShiftStart?: string;
+  configShiftEnd?: string;
+  overnightShift?: boolean;
+}
 export interface ISchedule {
   [key: string]: {
-    display?: boolean;
     overnightShift?: boolean;
     shiftDate?: Date;
     shiftStart?: Date;
@@ -114,6 +127,13 @@ export type HolidaysQueryResponse = {
   refetch: () => void;
   loading: boolean;
 };
+
+export type ScheduleConfigQueryResponse = {
+  scheduleConfigs: IScheduleConfig[];
+  refetch: () => void;
+  loading: boolean;
+};
+
 export type ScheduleQueryResponse = {
   schedulesMain: { list: IShiftSchedule[]; totalCount: number };
 } & QueryResponse;
@@ -227,6 +247,12 @@ export type ConfigMutationResponse = {
       _id: string;
     };
   }) => Promise<any>;
+
+  removeScheduleConfigMutation: (params: {
+    variables: {
+      _id: string;
+    };
+  }) => Promise<any>;
 };
 
 export type ScheduleMutationResponse = {
@@ -234,8 +260,13 @@ export type ScheduleMutationResponse = {
     variables: ScheduleMutationVariables;
   }) => Promise<any>;
 
-  submitShiftMutation: (params: {
-    variables: { userIds: string[]; shifts: IShift[] };
+  submitScheduleMutation: (params: {
+    variables: {
+      branchIds: string[];
+      departmentIds: string[];
+      userIds: string[];
+      shifts: IShift[];
+    };
   }) => Promise<any>;
 
   solveScheduleMutation: (params: {

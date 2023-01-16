@@ -70,7 +70,11 @@ function AbsenceList(props: Props) {
 
     return (
       <tr>
-        <td>{<NameCard user={absence.user} /> || '-'}</td>
+        <td>
+          {absence.user && absence.user.details.fullName.length > 1
+            ? absence.user.details.fullName
+            : absence.user.email}
+        </td>
         <td>{startingTime + ', ' + startingDate || '-'}</td>
         <td>{endingTime + ', ' + endingDate || '-'}</td>
         <td>{absence.reason || '-'}</td>

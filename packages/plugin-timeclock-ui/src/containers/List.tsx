@@ -3,13 +3,19 @@ import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
 import List from '../components/List';
-import { TimeClockMutationResponse, BranchesQueryResponse } from '../types';
+import {
+  TimeClockMutationResponse,
+  BranchesQueryResponse,
+  PayDatesQueryResponse,
+  ScheduleConfigQueryResponse
+} from '../types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { IUser } from '@erxes/ui/src/auth/types';
 import erxesQuery from '@erxes/ui/src/team/graphql/queries';
 import { removeParams } from '@erxes/ui/src/utils/router';
+import { queries } from '../graphql';
 
 type Props = {
   currentUser: IUser;
@@ -34,6 +40,7 @@ type Props = {
 
 type FinalProps = {
   listBranchesQuery: BranchesQueryResponse;
+  listScheduleConfigsQuery: ScheduleConfigQueryResponse;
 } & Props &
   TimeClockMutationResponse;
 
@@ -46,6 +53,7 @@ class ListContainer extends React.Component<FinalProps> {
   render() {
     const {
       listBranchesQuery,
+      listScheduleConfigsQuery,
       currentUser,
       queryUserIds,
       history
@@ -61,6 +69,7 @@ class ListContainer extends React.Component<FinalProps> {
       ...this.props,
       currentUserId,
       queryUserIds,
+      scheduleConfigs: listScheduleConfigsQuery.scheduleConfigs || [],
       branchesList: listBranchesQuery.branches || [],
       loading: listBranchesQuery.loading
     };
@@ -79,6 +88,12 @@ export default withProps<Props>(
           fetchPolicy: 'network-only'
         })
       }
-    )
+    ),
+    graphql<Props, PayDatesQueryResponse>(gql(queries.listScheduleConfig), {
+      name: 'listScheduleConfigsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    })
   )(withCurrentUser(ListContainer))
 );

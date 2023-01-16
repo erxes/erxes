@@ -15,6 +15,7 @@ type Props = {
   departmentIds?: string[];
   branchIds?: string[];
   getActionBar: (actionBar: any) => void;
+  showSideBar: (sideBar: boolean) => void;
   branchesList: IBranch[];
 };
 
@@ -28,7 +29,8 @@ const ListContainer = (props: FinalProps) => {
     listBranchesQuery,
     listReportsQuery,
     queryParams,
-    getActionBar
+    getActionBar,
+    showSideBar
   } = props;
   const { branchId, deptId } = queryParams;
 
@@ -40,6 +42,7 @@ const ListContainer = (props: FinalProps) => {
     branchId,
     deptId
   };
+  showSideBar(true);
   return <ReportList {...updatedProps} />;
 };
 

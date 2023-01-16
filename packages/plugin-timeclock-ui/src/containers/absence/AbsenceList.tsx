@@ -36,6 +36,7 @@ type Props = {
   queryPerPage: number;
   getActionBar: (actionBar: any) => void;
   getPagination: (pagination: any) => void;
+  showSideBar: (sideBar: boolean) => void;
 };
 
 type FinalProps = {
@@ -50,6 +51,7 @@ const ListContainer = (props: FinalProps) => {
     sendAbsenceReqMutation,
     solveAbsenceMutation,
     getPagination,
+    showSideBar,
     listAbsenceQuery,
     listAbsenceTypesQuery
   } = props;
@@ -102,6 +104,7 @@ const ListContainer = (props: FinalProps) => {
     submitRequest
   };
 
+  showSideBar(true);
   getPagination(<Pagination count={totalCount} />);
   return <AbsenceList {...updatedProps} />;
 };

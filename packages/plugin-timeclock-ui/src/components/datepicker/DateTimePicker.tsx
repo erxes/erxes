@@ -10,10 +10,11 @@ type Props = {
   endTime_value?: Date;
   curr_day_key: string;
   overnightShift?: boolean;
-  changeDate: (day_key: string, time: Date) => void;
+  changeDate?: (day_key: string, time: Date) => void;
   changeStartTime: (day_key: string, time: Date) => void;
   changeEndTime: (day_key: string, time: Date) => void;
-  removeDate: (day_key: string) => void;
+  removeDate?: (day_key: string) => void;
+  timeOnly?: boolean;
 };
 
 const DatePicker = (props: Props) => {
@@ -22,6 +23,7 @@ const DatePicker = (props: Props) => {
     changeEndTime,
     changeStartTime,
     removeDate,
+    timeOnly,
     curr_day_key,
     startDate,
     overnightShift,
@@ -30,7 +32,9 @@ const DatePicker = (props: Props) => {
   } = props;
 
   const onDateChange = val => {
-    changeDate(curr_day_key, val);
+    if (changeDate) {
+      changeDate(curr_day_key, val);
+    }
   };
 
   const onStartTimeChange = val => {
@@ -42,7 +46,9 @@ const DatePicker = (props: Props) => {
   };
 
   const onDeleteDate = () => {
-    removeDate(curr_day_key);
+    if (removeDate) {
+      removeDate(curr_day_key);
+    }
   };
 
   const onTimeChange = (input: any, type: string) => {
@@ -81,7 +87,13 @@ const DatePicker = (props: Props) => {
       }}
       key={curr_day_key}
     >
-      <Datetime value={startDate} timeFormat={false} onChange={onDateChange} />
+      {!timeOnly && (
+        <Datetime
+          value={startDate}
+          timeFormat={false}
+          onChange={onDateChange}
+        />
+      )}
       <Datetime
         value={startTime_value}
         dateFormat={false}
@@ -98,9 +110,11 @@ const DatePicker = (props: Props) => {
         onChange={val => onTimeChange(val, 'end')}
       />
       {overnightShift ? 'Overnight' : ''}
-      <Tip text="Delete" placement="top">
-        <Button btnStyle="link" onClick={onDeleteDate} icon="times-circle" />
-      </Tip>
+      {!timeOnly && (
+        <Tip text="Delete" placement="top">
+          <Button btnStyle="link" onClick={onDeleteDate} icon="times-circle" />
+        </Tip>
+      )}
     </div>
   );
 };
