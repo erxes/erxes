@@ -158,34 +158,20 @@ export const loadDepartmentClass = (models: IModels) => {
       doc: any,
       user: IUserDocument
     ) {
-      const department = await this.getDepartment({ _id });
+      const department = await models.Departments.getDepartment({ _id });
       if (department?.code !== doc.code) {
         await checkCodeDuplication(models.Departments, doc.code);
       }
 
-      const parent = await this.getDepartment({ _id: doc.parentId });
+      const parent = await models.Departments.findOne({
+        _id: doc.parentId
+      });
 
       if (parent && parent?.parentId === _id) {
         throw new Error('Cannot change a department');
       }
 
       doc.order = parent ? `${parent.order}${doc.code}/` : `${doc.code}/`;
-
-      await models.UserMovements.manageStructureUsersMovement({
-        userIds: doc.userIds || [],
-        contentType: 'department',
-        contentTypeId: _id,
-        createdBy: user._id
-      });
-      await models.Departments.update(
-        { _id },
-        {
-          ...doc,
-          updatedAt: new Date(),
-          updatedBy: user._id
-        }
-      );
-
       const children = await models.Departments.find({
         order: { $regex: new RegExp(department.order, 'i') }
       });
@@ -204,6 +190,22 @@ export const loadDepartmentClass = (models: IModels) => {
           }
         );
       }
+
+      await models.UserMovements.manageStructureUsersMovement({
+        userIds: doc.userIds || [],
+        contentType: 'department',
+        contentTypeId: _id,
+        createdBy: user._id
+      });
+      await models.Departments.update(
+        { _id },
+        {
+          ...doc,
+          updatedAt: new Date(),
+          updatedBy: user._id
+        }
+      );
+
       return models.Departments.findOne({ _id });
     }
 
@@ -386,22 +388,6 @@ export const loadBranchClass = (models: IModels) => {
 
       doc.order = parent ? `${parent.order}${doc.code}/` : `${doc.code}/`;
 
-      await models.UserMovements.manageStructureUsersMovement({
-        userIds: doc.userIds || [],
-        contentType: 'branch',
-        contentTypeId: _id,
-        createdBy: user._id
-      });
-
-      await models.Branches.update(
-        { _id },
-        {
-          ...doc,
-          updatedAt: new Date(),
-          updatedBy: user._id
-        }
-      );
-
       const children = await models.Branches.find({
         order: { $regex: new RegExp(branch.order, 'i') }
       });
@@ -420,6 +406,21 @@ export const loadBranchClass = (models: IModels) => {
           }
         );
       }
+      await models.UserMovements.manageStructureUsersMovement({
+        userIds: doc.userIds || [],
+        contentType: 'branch',
+        contentTypeId: _id,
+        createdBy: user._id
+      });
+
+      await models.Branches.update(
+        { _id },
+        {
+          ...doc,
+          updatedAt: new Date(),
+          updatedBy: user._id
+        }
+      );
 
       return models.Branches.findOne({ _id });
     }
