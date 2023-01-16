@@ -22,7 +22,6 @@ interface IUserMovementDocument extends Document {
   isActive: boolean;
 }
 
-// User movement log
 const userMovemmentSchema = new Schema({
   _id: field({ pkey: true }),
   contentType: field({ type: String, label: 'Content Type' }),
