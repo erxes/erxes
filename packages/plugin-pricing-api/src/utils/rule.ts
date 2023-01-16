@@ -1,4 +1,5 @@
 import * as dayjs from 'dayjs';
+import { CalculatedRule } from '../types';
 
 /**
  * Calculation of discount amount by type
@@ -112,17 +113,13 @@ export const checkRepeatRule = (plan: any): boolean => {
 export const calculatePriceRule = (
   plan: any,
   item: any,
-  totalAmount: number
-): {
-  passed: boolean;
-  type: string;
-  value: number;
-  bonusProduct: string;
-} => {
+  totalAmount: number,
+  defaultValue: number
+): CalculatedRule => {
   let passed: boolean = false;
   let type: string = '';
   let value: number = 0;
-  let bonusProduct: string = '';
+  let bonusProducts: string[] = [];
 
   if (!plan.isPriceEnabled) passed = true;
   if (plan.isPriceEnabled && plan.priceRules && plan.priceRules.length !== 0)
@@ -133,20 +130,21 @@ export const calculatePriceRule = (
       if (rulePassed) passed = true;
       if (!rulePassed) continue;
 
-      if (rule.discountType === 'default') continue;
-
-      if (rule.discountType === 'bonus') {
+      if (rule.discountType === 'bonus' && rule.discountBonusProduct) {
         type = rule.discountType;
-        bonusProduct = rule.discountBonusProduct;
+        bonusProducts.push(rule.discountBonusProduct);
         continue;
       }
 
       // Checks fixed, sub, and percentage
-      let calculatedValue: number = calculateDiscountValue(
-        rule.discountType,
-        rule.discountValue,
-        item.price
-      );
+      let calculatedValue: number =
+        rule.discountType === 'default'
+          ? defaultValue
+          : calculateDiscountValue(
+              rule.discountType,
+              rule.discountValue,
+              item.price
+            );
 
       // Checks if value is lower than past calculated price, override it
       if (calculatedValue > value) {
@@ -159,23 +157,19 @@ export const calculatePriceRule = (
     passed,
     type,
     value,
-    bonusProduct
+    bonusProducts
   };
 };
 
 export const calculateQuantityRule = (
   plan: any,
-  item: any
-): {
-  passed: boolean;
-  type: string;
-  value: number;
-  bonusProduct: string;
-} => {
+  item: any,
+  defaultValue: number
+): CalculatedRule => {
   let passed: boolean = false;
   let type: string = '';
   let value: number = 0;
-  let bonusProduct: string = '';
+  let bonusProducts: string[] = [];
 
   // Check quantity rules
   if (!plan.isQuantityEnabled) passed = true;
@@ -191,28 +185,40 @@ export const calculateQuantityRule = (
       if (rulePassed) passed = true;
       if (!rulePassed) continue;
 
-      if (rule.discountType === 'default') continue;
-
       if (rule.discountType === 'bonus') {
         type = rule.discountType;
-        bonusProduct = rule.discountBonusProduct;
+        bonusProducts.push(rule.discountBonusProduct);
+
+        if (rule.type === 'every') {
+          let discountQuantity = Math.floor(item.quantity / rule.value);
+
+          if (bonusProducts.length !== 0) {
+            for (let i = 0; i < discountQuantity - 1; i++)
+              bonusProducts.push(rule.discountBonusProduct);
+          }
+        }
         continue;
       }
 
-      let calculatedValue: number = calculateDiscountValue(
-        rule.discountType,
-        rule.discountValue,
-        item.price
-      );
+      let calculatedValue: number =
+        rule.discountType === 'default'
+          ? defaultValue
+          : calculateDiscountValue(
+              rule.discountType,
+              rule.discountValue,
+              item.price
+            );
 
       // Calculate remainder product's price
       if (rule.type === 'every') {
         let discountQuantity =
           Math.floor(item.quantity / rule.value) * rule.value;
-        if (discountQuantity >= rule.value)
+
+        if (discountQuantity >= rule.value) {
           calculatedValue = Math.floor(
             (calculatedValue * discountQuantity) / item.quantity
           );
+        }
       }
 
       // Checks if value is lower than past calculated price, override it
@@ -226,24 +232,20 @@ export const calculateQuantityRule = (
     passed,
     type,
     value,
-    bonusProduct
+    bonusProducts
   };
 };
 
 export const calculateExpiryRule = (
   plan: any,
-  item: any
-): {
-  passed: boolean;
-  type: string;
-  value: number;
-  bonusProduct: string;
-} => {
+  item: any,
+  defaultValue: number
+): CalculatedRule => {
   const now = dayjs(new Date());
   let passed: boolean = false;
   let type: string = '';
   let value: number = 0;
-  let bonusProduct: string = '';
+  let bonusProducts: string[] = [];
 
   // Check expiry rule
   if (!plan.isExpiryEnabled) passed = true;
@@ -259,19 +261,20 @@ export const calculateExpiryRule = (
       if (rulePassed) passed = true;
       if (!rulePassed) continue;
 
-      if (rule.discountType === 'default') continue;
-
       if (rule.discountType === 'bonus') {
         type = rule.discountType;
-        bonusProduct = rule.discountBonusProduct;
+        bonusProducts.push(rule.discountBonusProduct);
         continue;
       }
 
-      let calculatedValue: number = calculateDiscountValue(
-        rule.discountType,
-        rule.discountValue,
-        item.price
-      );
+      let calculatedValue: number =
+        rule.discountType === 'default'
+          ? defaultValue
+          : calculateDiscountValue(
+              rule.discountType,
+              rule.discountValue,
+              item.price
+            );
 
       // Checks if value is lower than past calculated price, override it
       if (calculatedValue > value) {
@@ -284,6 +287,6 @@ export const calculateExpiryRule = (
     passed,
     type,
     value,
-    bonusProduct
+    bonusProducts
   };
 };

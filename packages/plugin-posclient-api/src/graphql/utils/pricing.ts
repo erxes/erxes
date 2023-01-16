@@ -39,8 +39,6 @@ export const checkPricing = async (
     const discount = pricing[item.productId];
 
     if (discount) {
-      if (discount.type.length === 0) continue;
-
       if (discount.bonusProducts.length !== 0) {
         for (const bonusProduct of discount.bonusProducts) {
           if (bonusProductsToAdd[bonusProduct]) {
@@ -52,18 +50,14 @@ export const checkPricing = async (
           }
         }
       }
-
-      switch (discount.type) {
-        case 'percentage':
-          item.discountPercent = parseFloat(
-            ((discount.value / item.unitPrice) * 100).toFixed(2)
-          );
-          item.unitPrice -= discount.value;
-          break;
-        default:
-          item.discountAmount = discount.value;
-          item.unitPrice -= discount.value;
-          break;
+      if (discount.type === 'percentage') {
+        item.discountPercent = parseFloat(
+          ((discount.value / item.unitPrice) * 100).toFixed(2)
+        );
+        item.unitPrice -= discount.value;
+      } else {
+        item.discountAmount = discount.value;
+        item.unitPrice -= discount.value;
       }
     }
   }
