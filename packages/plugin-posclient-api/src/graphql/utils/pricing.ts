@@ -41,16 +41,19 @@ export const checkPricing = async (
     if (discount) {
       if (discount.type.length === 0) continue;
 
-      switch (discount.type) {
-        case 'bonus': {
-          if (bonusProductsToAdd[discount.bonusProduct])
-            bonusProductsToAdd[discount.bonusProduct].count += 1;
-          else
-            bonusProductsToAdd[discount.bonusProduct] = {
+      if (discount.bonusProducts.length !== 0) {
+        for (const bonusProduct of discount.bonusProducts) {
+          if (bonusProductsToAdd[bonusProduct]) {
+            bonusProductsToAdd[bonusProduct].count += 1;
+          } else {
+            bonusProductsToAdd[bonusProduct] = {
               count: 1
             };
-          break;
+          }
         }
+      }
+
+      switch (discount.type) {
         case 'percentage':
           item.discountPercent = parseFloat(
             ((discount.value / item.unitPrice) * 100).toFixed(2)
@@ -80,9 +83,12 @@ export const checkPricing = async (
       doc.items.push(bonusProduct);
     } else {
       const item = doc.items[orderIndex];
+
       item.bonusCount = bonusProductsToAdd[bonusProductId].count;
-      if ((item.bonusCount || 0) > item.count)
+
+      if ((item.bonusCount || 0) > item.count) {
         item.count = item.bonusCount || 0;
+      }
       item.unitPrice = Math.floor(
         (item.unitPrice * (item.count - (item.bonusCount || 0))) / item.count
       );
