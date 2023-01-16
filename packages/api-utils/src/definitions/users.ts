@@ -71,15 +71,6 @@ export interface IUserDocument extends IUser, Document {
   appId?: string;
 }
 
-export interface IUserMovementDocument extends Document {
-  _id: string;
-  contentType: string;
-  contentTypeId: string;
-  userId: string;
-  createdAt: string;
-  createdBy: string;
-}
-
 // Mongoose schemas ===============================
 const emailSignatureSchema = new Schema(
   {
@@ -88,16 +79,6 @@ const emailSignatureSchema = new Schema(
   },
   { _id: false }
 );
-
-// User movement log
-export const userMovemmentSchema = new Schema({
-  _id: field({ pkey: true }),
-  contentType: field({ type: String, label: 'Content Type' }),
-  contentTypeId: field({ type: String, label: 'Content Type Id' }),
-  userId: field({ type: String, label: 'User Id' }),
-  createdBy: field({ type: String, label: 'Created By' }),
-  createdAt: field({ type: Date, label: 'Created At', default: new Date() })
-});
 
 // Detail schema
 const detailSchema = new Schema(

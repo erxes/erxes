@@ -18,39 +18,58 @@ let Branches: Collection<any>;
 let Departments: Collection<any>;
 let UserMovements: Collection<any>;
 
-const generateOrder = async (model: Collection<any>, res: any) => {
-  let parentId = res.parentId;
+const codes: string[] = [];
 
-  let order = '';
-
-  order = res.code
-    ? res.code.includes('/')
-      ? res.code
-      : `${res.code}/`
-    : `${res.title}/`;
-
-  while (true) {
-    if (!parentId) {
-      break;
+const uniqueCode = (code, counter) => {
+  if (codes.includes(code)) {
+    counter += 1;
+    if (codes.includes(`${code}${counter}`)) {
+      return uniqueCode(code, counter);
     }
-    const parent = await model.findOne({ _id: parentId });
-    if (!parent) {
-      break;
-    }
-
-    if (parent.order) {
-      order = `${parent.order}${order}`;
-      break;
-    }
-    order = parent.code ? `${parent.code}${order}` : `${parent.title}${order}`;
-
-    if (!parent.parentId) {
-      break;
-    }
-
-    parentId = parent.parentId;
+    return `${code}${counter}`;
   }
-  return order;
+  codes.push(code);
+  return code;
+};
+
+const generateOrder = async (models, items: any[], parent?: any) => {
+  for (const item of items) {
+    const { _id, userIds, createdAt, createdBy } = item;
+    const newUserMovemment: any[] = [];
+    for (const userId of userIds || []) {
+      newUserMovemment.push({
+        contentType: models.type,
+        contentTypeId: _id,
+        userId: userId,
+        createdAt,
+        createdBy,
+        isActive: true
+      });
+    }
+    if (!!newUserMovemment.length) {
+      UserMovements.insertMany(newUserMovemment);
+      Users.updateMany(
+        { _id: { $in: userIds || [] } },
+        { $addToSet: { [`${models.type}Ids`]: _id } }
+      );
+    }
+
+    let code = item.code || item.title;
+
+    let parentOrder = parent ? parent.order : '';
+    code = uniqueCode(code, 0);
+
+    await models.collection.updateOne(
+      { _id },
+      { ...item, code, order: `${parentOrder}${code}/` }
+    );
+
+    const child = await models.collection.find({ parentId: _id }).toArray();
+
+    if (child.length) {
+      await generateOrder(models, child, item);
+    }
+  }
 };
 
 const command = async () => {
@@ -63,7 +82,7 @@ const command = async () => {
   UserMovements = db.collection('user_movements');
   Users = db.collection('users');
 
-  const models = [
+  const modelsMap = [
     {
       type: 'branch',
       collection: Branches
@@ -75,31 +94,14 @@ const command = async () => {
   ];
 
   try {
-    for (let model of models) {
+    for (let models of modelsMap) {
       try {
-        await model.collection.find({}).forEach(async res => {
-          const { _id, userIds, createdAt, createdBy } = res;
-          const newUserMovemment: any[] = [];
-          for (const userId of userIds || []) {
-            newUserMovemment.push({
-              contentType: model.type,
-              contentTypeId: _id,
-              userId: userId,
-              createdAt,
-              createdBy
-            });
-          }
-          if (!!newUserMovemment.length) {
-            UserMovements.insertMany(newUserMovemment);
-            Users.updateMany(
-              { _id: { $in: userIds || [] } },
-              { $addToSet: { [`${model.type}Ids`]: _id } }
-            );
-          }
-
-          const order = await generateOrder(model.collection, res);
-          model.collection.updateOne({ _id }, { $set: { ...res, order } });
-        });
+        const roots = await models.collection
+          .find({
+            parentId: { $in: ['', null, undefined] }
+          })
+          .toArray();
+        await generateOrder(models, roots);
       } catch (e) {
         console.log(`Error occurred: ${e.message}`);
       }

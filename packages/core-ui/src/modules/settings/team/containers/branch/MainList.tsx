@@ -4,11 +4,12 @@ import { withProps } from '@erxes/ui/src/utils/core';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { queries, mutations } from '@erxes/ui/src/team/graphql';
-import { BranchesQueryResponse } from '@erxes/ui/src/team/types';
+import { BranchesMainQueryResponse } from '@erxes/ui/src/team/types';
 import { EmptyState } from '@erxes/ui/src';
 import MainListCompoenent from '../../components/branch/MainList';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import client from '@erxes/ui/src/apolloClient';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
   queryParams: any;
@@ -16,7 +17,7 @@ type Props = {
 };
 
 type FinalProps = {
-  listQuery: BranchesQueryResponse;
+  listQuery: BranchesMainQueryResponse;
 } & Props;
 
 class MainList extends React.Component<FinalProps> {
@@ -66,12 +67,13 @@ class MainList extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.branches), {
+    graphql<Props>(gql(queries.branchesMain), {
       name: 'listQuery',
       options: ({ queryParams }) => ({
         variables: {
           searchValue: queryParams.searchValue,
-          withoutUserFilter: true
+          withoutUserFilter: true,
+          ...generatePaginationParams(queryParams || {})
         }
       })
     })

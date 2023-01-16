@@ -1,4 +1,4 @@
-import { IUserMovementDocument } from '@erxes/api-utils/src/definitions/users';
+import { IUserMovementDocument } from '../../db/models/definitions/users';
 import { IContext } from '../../connectionResolver';
 
 export default {

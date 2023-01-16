@@ -1,6 +1,5 @@
 import * as faker from 'faker';
 import * as Random from 'meteor-random';
-import { IBranch, IDepartment, IUnit } from './definitions/structures';
 
 export const getUniqueValue = async (
   collection: any,
@@ -21,15 +20,6 @@ export const getUniqueValue = async (
   }
 
   return uniqueValue;
-};
-
-export const generateOrder = (
-  doc: IBranch | IDepartment | IUnit,
-  parent?: IBranch | IDepartment | IUnit
-) => {
-  const order = parent ? `${parent.order}${doc.code}/` : `${doc.code}/`;
-
-  return order;
 };
 
 export const checkCodeDuplication = async (collection, code: string) => {

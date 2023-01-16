@@ -60,7 +60,7 @@ import {
   loadInstallationLogClass
 } from './db/models/InstallationLog';
 import { IInstallationLogDocument } from './db/models/definitions/installationLogs';
-import { IUserMovementDocument } from '@erxes/api-utils/src/definitions/users';
+import { IUserMovementDocument } from './db/models/definitions/users';
 
 export interface IModels {
   Users: IUserModel;

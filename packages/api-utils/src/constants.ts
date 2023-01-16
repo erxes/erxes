@@ -190,8 +190,3 @@ export const USER_ROLES = {
   USER: 'user',
   ALL: ['system', 'user']
 };
-
-export const STRUCTURE_STATUSES = {
-  ACTIVE: 'active',
-  DELETED: 'deleted'
-};

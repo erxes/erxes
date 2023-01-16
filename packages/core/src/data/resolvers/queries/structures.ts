@@ -1,4 +1,5 @@
-import { STRUCTURE_STATUSES } from '@erxes/api-utils/src/constants';
+import { paginate } from '@erxes/api-utils/src';
+import { STRUCTURE_STATUSES } from '../../../constants';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IUser } from '@erxes/api-utils/src/types';
 import { IContext, IModels } from '../../../connectionResolver';
@@ -39,14 +40,30 @@ const generateFilters = async ({
   if (!params.withoutUserFilter) {
     const userDetail = await models.Users.findOne({ _id: user });
     if (type === 'branch') {
-      filter._id = { $in: userDetail?.branchIds || [] };
+      const branches = await models.Branches.find({
+        _id: { $in: userDetail?.branchIds }
+      });
+
+      const branchOrders = branches.map(
+        branch => new RegExp(branch.order, 'i')
+      );
+
+      filter.order = { $in: branchOrders };
     }
     if (type === 'department') {
-      filter._id = { $in: userDetail?.departmentIds || [] };
+      const departments = await models.Departments.find({
+        _id: { $in: userDetail?.departmentIds }
+      });
+
+      const departmentOrders = departments.map(
+        department => new RegExp(department.order, 'i')
+      );
+
+      filter.order = { $in: departmentOrders };
     }
   }
-  if (filter._id && user.isOwner) {
-    delete filter._id;
+  if (filter.order && user.isOwner) {
+    delete filter.order;
   }
 
   return filter;
@@ -64,7 +81,27 @@ const structureQueries = {
       type: 'department',
       params
     });
-    return models.Departments.find(filter).sort({ title: 1 });
+    return models.Departments.find(filter).sort({ order: 1 });
+  },
+
+  async departmentsMain(
+    _root,
+    params: { searchValue?: string; perPage: number; page: number },
+    { models, user }: IContext
+  ) {
+    const filter = await generateFilters({
+      models,
+      user,
+      type: 'department',
+      params
+    });
+    const list = paginate(
+      models.Departments.find(filter).sort({ order: 1 }),
+      params
+    );
+    const totalCount = models.Departments.find(filter).countDocuments();
+
+    return { list, totalCount };
   },
 
   departmentDetail(_root, { _id }, { models }: IContext) {
@@ -112,7 +149,27 @@ const structureQueries = {
       type: 'branch',
       params
     });
-    return models.Branches.find(filter).sort({ title: 1 });
+    return models.Branches.find(filter).sort({ order: 1 });
+  },
+
+  async branchesMain(
+    _root,
+    params: { searchValue?: string; perPage: number; page: number },
+    { models, user }: IContext
+  ) {
+    const filter = await generateFilters({
+      models,
+      user,
+      type: 'branch',
+      params
+    });
+    const list = paginate(
+      models.Branches.find(filter).sort({ order: 1 }),
+      params
+    );
+    const totalCount = models.Branches.find(filter).countDocuments();
+
+    return { list, totalCount };
   },
 
   branchDetail(_root, { _id }, { models }: IContext) {
@@ -151,12 +208,14 @@ const structureQueries = {
 checkPermission(structureQueries, 'structureDetail', 'showStructure');
 
 checkPermission(structureQueries, 'departments', 'showDepartment');
+checkPermission(structureQueries, 'departmentsMain', 'showDepartment');
 checkPermission(structureQueries, 'departmentDetail', 'showDepartment');
 
 checkPermission(structureQueries, 'units', 'showUnit');
 checkPermission(structureQueries, 'unitDetail', 'showUnit');
 
 checkPermission(structureQueries, 'branches', 'showBranch');
+checkPermission(structureQueries, 'branchesMain', 'showBranch');
 checkPermission(structureQueries, 'branchDetail', 'showBranch');
 
 export default structureQueries;

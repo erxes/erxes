@@ -83,9 +83,22 @@ export const types = `
         longitude: String
         latitude: String
     }
+
+    type BranchListQueryResponse {
+        list:[Branch]
+        totalCount: Int
+    }
+
+    type DepartmentListQueryResponse {
+        list:[Department]
+        totalCount: Int
+    }
+
 `;
 
 const commonParams = `
+    perPage:Int
+    page:Int
     searchValue: String,
     status:String,
     withoutUserFilter:Boolean
@@ -93,6 +106,7 @@ const commonParams = `
 
 export const queries = `
     departments(${commonParams}): [Department]
+    departmentsMain(${commonParams}):DepartmentListQueryResponse
     departmentDetail(_id: String!): Department
 
     noDepartmentUsers(excludeId: String): [User]
@@ -101,6 +115,7 @@ export const queries = `
     unitDetail(_id: String!): Unit
 
     branches(${commonParams}): [Branch]
+    branchesMain(${commonParams}): BranchListQueryResponse
     branchDetail(_id: String!): Branch
 
     structureDetail: Structure

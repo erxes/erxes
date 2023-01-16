@@ -245,7 +245,7 @@ const userMutations = {
 
     if (args.departmentIds || args.branchIds) {
       await models.UserMovements.manageUserMovement({
-        userId: user._id
+        user: updatedUser
       });
     }
 

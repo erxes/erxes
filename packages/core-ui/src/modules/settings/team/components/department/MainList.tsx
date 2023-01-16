@@ -13,14 +13,17 @@ import {
   generateTree
 } from '@erxes/ui/src';
 import {
-  DepartmentsQueryResponse,
+  DepartmentsMainQueryResponse,
   IDepartment
 } from '@erxes/ui/src/team/types';
 import React from 'react';
 import SettingsSideBar from '../common/SettingsSideBar';
 import Form from '../../containers/department/Form';
+import { queries } from '@erxes/ui/src/team/graphql';
+import gql from 'graphql-tag';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 type Props = {
-  listQuery: DepartmentsQueryResponse;
+  listQuery: DepartmentsMainQueryResponse;
   queryParams: any;
   history: any;
   deleteDepartments: (ids: string[], callback: () => void) => void;
@@ -41,10 +44,26 @@ class MainList extends React.Component<Props, State> {
     };
   }
 
+  refetchQueries = () => [
+    {
+      query: gql(queries.departmentsMain),
+      variables: {
+        withoutUserFilter: true,
+        searchValue: undefined,
+        ...generatePaginationParams(this.props.queryParams || {})
+      }
+    }
+  ];
+
   renderForm() {
     const trigger = <Button btnStyle="success">{__('Add Department')}</Button>;
 
-    const content = ({ closeModal }) => <Form closeModal={closeModal} />;
+    const content = ({ closeModal }) => (
+      <Form
+        closeModal={closeModal}
+        additionalRefetchQueries={this.refetchQueries()}
+      />
+    );
 
     return (
       <ModalTrigger
@@ -128,7 +147,11 @@ class MainList extends React.Component<Props, State> {
         key={department._id}
         title="Edit Department"
         content={({ closeModal }) => (
-          <Form department={department} closeModal={closeModal} />
+          <Form
+            department={department}
+            additionalRefetchQueries={this.refetchQueries()}
+            closeModal={closeModal}
+          />
         )}
         trigger={trigger}
       />
@@ -137,7 +160,7 @@ class MainList extends React.Component<Props, State> {
 
   renderContent() {
     const { listQuery } = this.props;
-    const departments = listQuery.departments || [];
+    const departments = listQuery.departmentsMain?.list || [];
     const { selectedItems } = this.state;
 
     const handleSelectAll = () => {
@@ -200,7 +223,7 @@ class MainList extends React.Component<Props, State> {
         {this.renderSearch()}
         {!!selectedItems.length && (
           <Button btnStyle="danger" onClick={remove}>
-            {__('Remove')}
+            {__(`Remove ${selectedItems.length}`)}
           </Button>
         )}
         {this.renderForm()}
@@ -231,14 +254,16 @@ class MainList extends React.Component<Props, State> {
         content={
           <DataWithLoader
             loading={listQuery.loading}
-            count={listQuery.departments?.length || 0}
+            count={listQuery.departmentsMain?.totalCount || 0}
             data={this.renderContent()}
             emptyImage="/images/actions/5.svg"
             emptyText="No Branches"
           />
         }
         leftSidebar={<SettingsSideBar />}
-        footer={<Pagination count={listQuery.departments?.length || 0} />}
+        footer={
+          <Pagination count={listQuery.departmentsMain?.totalCount || 0} />
+        }
       />
     );
   }

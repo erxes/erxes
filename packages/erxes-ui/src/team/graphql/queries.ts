@@ -7,12 +7,16 @@ const nameFields = `
 `;
 
 const commonStructureParamsDef = `
+    $perPage: Int,
+    $page: Int 
     $searchValue: String,
     $status:String,
     $withoutUserFilter:Boolean
 `;
 
 const commonStructureParamsValue = `
+    perPage: $perPage,
+    page: $page 
     searchValue:$searchValue
     status:$status
     withoutUserFilter:$withoutUserFilter
@@ -145,6 +149,17 @@ const departments = `
   }
 `;
 
+const departmentsMain = `
+  query departmentsMain(${commonStructureParamsDef}) {
+    departmentsMain(${commonStructureParamsValue}) {
+      list {
+        ${departmentField}
+      }
+      totalCount
+    }
+  }
+`;
+
 const unitField = `
   _id
   title
@@ -214,6 +229,18 @@ const branches = `
     branches (${commonStructureParamsValue}){
       ${branchField}
         parent {${branchField}}
+    }
+  }
+`;
+
+const branchesMain = `
+  query branchesMain(${commonStructureParamsDef}) {
+    branchesMain (${commonStructureParamsValue}){
+      list {
+        ${branchField}
+        parent {${branchField}}
+      }
+      totalCount
     }
   }
 `;
@@ -429,6 +456,7 @@ const userMovements = `
       userDetail
       userId
       contentTypeDetail
+      status
     }
   }
 `;
@@ -442,11 +470,13 @@ export default {
   allUsers,
   structureDetail,
   departments,
+  departmentsMain,
   departmentDetail,
   units,
   unitDetail,
   noDepartmentUsers,
   branches,
+  branchesMain,
   branchDetail,
   detailFields,
   channels: channelQueries.channels,

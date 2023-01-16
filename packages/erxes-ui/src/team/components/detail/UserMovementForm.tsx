@@ -47,23 +47,31 @@ class UserMovementForm extends React.Component<Props> {
       userDetail,
       contentTypeDetail,
       createdAt,
-      contentType
+      contentType,
+      status
     } = movement;
+
+    const { color, label, label2, icon } = {
+      color: status === 'removed' ? colors.colorCoreRed : colors.colorCoreGreen,
+      label: status === 'removed' ? 'Removed:' : 'Moved:',
+      label2: status === 'removed' ? 'From' : 'To',
+      icon: status === 'removed' ? 'user-minus' : 'user-plus'
+    };
 
     return (
       <ActivityRow key={_id}>
-        <ActivityIcon color={colors.colorPrimary}>
-          <Icon icon="user-6" />
+        <ActivityIcon color={color}>
+          <Icon icon={icon} />
         </ActivityIcon>
         <FlexCenterContent>
           <ContentBox>
             <Row gap={25}>
               <NameCard user={createdByDetail} />
-              {__('Moved:')}
+              {__(label)}
               <Row gap={15}>
                 <NameCard user={userDetail} />
                 <Row gap={5}>
-                  {__('To')}
+                  {__(label2)}
                   <Icon icon="rightarrow" />
                 </Row>
                 <StructureCard>

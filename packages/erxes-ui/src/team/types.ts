@@ -135,6 +135,20 @@ export type DepartmentsQueryResponse = {
   departments: IDepartment[];
 } & QueryResponse;
 
+export type DepartmentsMainQueryResponse = {
+  departmentsMain: {
+    list: IDepartment[];
+    totalCount: number;
+  };
+} & QueryResponse;
+
+export type BranchesMainQueryResponse = {
+  branchesMain: {
+    list: IDepartment[];
+    totalCount: number;
+  };
+} & QueryResponse;
+
 export type IUserMovement = {
   _id: string;
   contentType: string;

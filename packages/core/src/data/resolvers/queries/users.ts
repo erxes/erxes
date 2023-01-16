@@ -186,7 +186,7 @@ const userQueries = {
    *  Get all user movements
    */
   async userMovements(_root, args, { models }: IContext) {
-    return await models.UserMovements.find(args);
+    return await models.UserMovements.find(args).sort({ createdAt: -1 });
   }
 };
 

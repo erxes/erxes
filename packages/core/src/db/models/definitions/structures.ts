@@ -1,7 +1,7 @@
 import { Document, Schema } from 'mongoose';
 import { ILink, attachmentSchema } from '@erxes/api-utils/src/types';
 import { field, schemaWrapper } from './utils';
-import { STRUCTURE_STATUSES } from '@erxes/api-utils/src/constants';
+import { STRUCTURE_STATUSES } from '../../../constants';
 
 const commonSchemaFields = {
   _id: field({ pkey: true }),

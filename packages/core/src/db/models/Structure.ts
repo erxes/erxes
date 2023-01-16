@@ -1,4 +1,4 @@
-import { STRUCTURE_STATUSES } from '@erxes/api-utils/src/constants';
+import { STRUCTURE_STATUSES } from '../../constants';
 import { Model } from 'mongoose';
 import { IModels } from '../../connectionResolver';
 import {
@@ -12,7 +12,7 @@ import {
   IStructureDocument
 } from './definitions/structures';
 import { IUserDocument } from './definitions/users';
-import { checkCodeDuplication, generateOrder } from './utils';
+import { checkCodeDuplication } from './utils';
 
 export interface IStructureModel extends Model<IStructureDocument> {
   getStructure(doc: any): IStructureDocument;
@@ -132,7 +132,7 @@ export const loadDepartmentClass = (models: IModels) => {
         _id: doc.parentId
       }).lean();
 
-      doc.order = generateOrder(doc, parent);
+      doc.order = parent ? `${parent.order}${doc.code}/` : `${doc.code}/`;
 
       const department = await models.Departments.create({
         ...doc,
@@ -152,11 +152,25 @@ export const loadDepartmentClass = (models: IModels) => {
     /*
      * Update a department
      */
+
     public static async updateDepartment(
       _id: string,
       doc: any,
       user: IUserDocument
     ) {
+      const department = await this.getDepartment({ _id });
+      if (department?.code !== doc.code) {
+        await checkCodeDuplication(models.Departments, doc.code);
+      }
+
+      const parent = await this.getDepartment({ _id: doc.parentId });
+
+      if (parent && parent?.parentId === _id) {
+        throw new Error('Cannot change a department');
+      }
+
+      doc.order = parent ? `${parent.order}${doc.code}/` : `${doc.code}/`;
+
       await models.UserMovements.manageStructureUsersMovement({
         userIds: doc.userIds || [],
         contentType: 'department',
@@ -172,6 +186,24 @@ export const loadDepartmentClass = (models: IModels) => {
         }
       );
 
+      const children = await models.Departments.find({
+        order: { $regex: new RegExp(department.order, 'i') }
+      });
+
+      for (const child of children) {
+        let order = child.order;
+
+        order = order.replace(department.order, doc.order);
+
+        await models.Departments.updateOne(
+          {
+            _id: child._id
+          },
+          {
+            $set: { order }
+          }
+        );
+      }
       return models.Departments.findOne({ _id });
     }
 
@@ -314,7 +346,7 @@ export const loadBranchClass = (models: IModels) => {
         _id: doc.parentId
       }).lean();
 
-      doc.order = generateOrder(doc, parent);
+      doc.order = parent ? `${parent.order}${doc.code}/` : `${doc.code}/`;
 
       const branch = await models.Branches.create({
         ...doc,
@@ -340,12 +372,27 @@ export const loadBranchClass = (models: IModels) => {
       doc: any,
       user: IUserDocument
     ) {
+      const branch = await models.Branches.getBranch({ _id });
+
+      if (branch?.code !== doc.code) {
+        await checkCodeDuplication(models.Branches, doc.code);
+      }
+
+      const parent = await models.Branches.findOne({ _id: doc.parentId });
+
+      if (parent && parent?.parentId === _id) {
+        throw new Error('Cannot change a branch');
+      }
+
+      doc.order = parent ? `${parent.order}${doc.code}/` : `${doc.code}/`;
+
       await models.UserMovements.manageStructureUsersMovement({
         userIds: doc.userIds || [],
         contentType: 'branch',
         contentTypeId: _id,
         createdBy: user._id
       });
+
       await models.Branches.update(
         { _id },
         {
@@ -354,6 +401,25 @@ export const loadBranchClass = (models: IModels) => {
           updatedBy: user._id
         }
       );
+
+      const children = await models.Branches.find({
+        order: { $regex: new RegExp(branch.order, 'i') }
+      });
+
+      for (const child of children) {
+        let order = child.order;
+
+        order = order.replace(branch.order, doc.order);
+
+        await models.Branches.updateOne(
+          {
+            _id: child._id
+          },
+          {
+            $set: { order }
+          }
+        );
+      }
 
       return models.Branches.findOne({ _id });
     }

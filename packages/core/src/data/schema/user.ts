@@ -78,6 +78,7 @@ export const types = `
     contentType:String
     contentTypeId:String
     contentTypeDetail:JSON
+    status:String
   }
 `;
 

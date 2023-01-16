@@ -10,6 +10,7 @@ import { __ } from 'modules/common/utils';
 import { IDepartment } from '@erxes/ui/src/team/types';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { generateTree } from '../../utils';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -43,9 +44,9 @@ export default function DepartmentForm(props: Props) {
     };
   };
 
-  const onChangeParent = (parent: any) => {
-    if (parent) {
-      setParentId(parent.value);
+  const onChangeParent = (value: any) => {
+    if (value) {
+      setParentId(value);
     } else {
       setParentId(null);
     }
@@ -100,16 +101,14 @@ export default function DepartmentForm(props: Props) {
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Parent')}</ControlLabel>
-          <Select
-            placeholder={__('Choose parent')}
-            value={parentId}
-            clearable={true}
-            onChange={onChangeParent}
-            options={generateTree(departments, null, (node, level) => ({
-              value: node._id,
-              label: `${'---'.repeat(level)} ${node.title}`
-            }))}
+          <SelectDepartments
+            label="Choose parent"
+            name="parentId"
+            onSelect={onChangeParent}
+            initialValue={parentId}
+            multi={false}
           />
+          {/* /> */}
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Team Members')}</ControlLabel>

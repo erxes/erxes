@@ -12,6 +12,7 @@ import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 type Props = {
   branch?: IBranch;
   closeModal: () => void;
+  additionalRefetchQueries?: any[];
 };
 
 const FormContainer = (props: Props) => {
@@ -44,7 +45,8 @@ const FormContainer = (props: Props) => {
               withoutUserFilter: true,
               searchValue: undefined
             }
-          }
+          },
+          ...(props.additionalRefetchQueries || [])
         ]}
         variables={values}
         isSubmitted={isSubmitted}

@@ -11,14 +11,17 @@ import {
   router,
   __
 } from '@erxes/ui/src';
-import { BranchesQueryResponse, IBranch } from '@erxes/ui/src/team/types';
+import { BranchesMainQueryResponse, IBranch } from '@erxes/ui/src/team/types';
 import React from 'react';
 import SettingsSideBar from '../common/SettingsSideBar';
 import Form from '../../containers/branch/Form';
 import { generateTree } from '../../utils';
+import { queries } from '@erxes/ui/src/team/graphql';
+import gql from 'graphql-tag';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
-  listQuery: BranchesQueryResponse;
+  listQuery: BranchesMainQueryResponse;
   deleteBranches: (ids: string[], callback: () => void) => void;
   queryParams: any;
   history: any;
@@ -40,10 +43,26 @@ class MainList extends React.Component<Props, State> {
     };
   }
 
+  refetchQueries = () => [
+    {
+      query: gql(queries.branchesMain),
+      variables: {
+        withoutUserFilter: true,
+        searchValue: undefined,
+        ...generatePaginationParams(this.props.queryParams || {})
+      }
+    }
+  ];
+
   renderForm() {
     const trigger = <Button btnStyle="success">{__('Add Branch')}</Button>;
 
-    const content = ({ closeModal }) => <Form closeModal={closeModal} />;
+    const content = ({ closeModal }) => (
+      <Form
+        closeModal={closeModal}
+        additionalRefetchQueries={this.refetchQueries()}
+      />
+    );
 
     return (
       <ModalTrigger title="Add Branch" content={content} trigger={trigger} />
@@ -122,7 +141,11 @@ class MainList extends React.Component<Props, State> {
         key={branch._id}
         title="Edit Branch"
         content={({ closeModal }) => (
-          <Form branch={branch} closeModal={closeModal} />
+          <Form
+            branch={branch}
+            closeModal={closeModal}
+            additionalRefetchQueries={this.refetchQueries()}
+          />
         )}
         trigger={trigger}
       />
@@ -131,7 +154,7 @@ class MainList extends React.Component<Props, State> {
 
   renderContent() {
     const { listQuery } = this.props;
-    const branches = listQuery.branches || [];
+    const branches = listQuery?.branchesMain?.list || [];
 
     const { selectedItems } = this.state;
 
@@ -198,7 +221,7 @@ class MainList extends React.Component<Props, State> {
         {this.renderSearch()}
         {!!selectedItems.length && (
           <Button btnStyle="danger" onClick={remove}>
-            {__('Remove')}
+            {__(`Remove ${selectedItems.length}`)}
           </Button>
         )}
         {this.renderForm()}
@@ -229,14 +252,14 @@ class MainList extends React.Component<Props, State> {
         content={
           <DataWithLoader
             loading={listQuery.loading}
-            count={listQuery.branches?.length || 0}
+            count={listQuery.branchesMain?.totalCount || 0}
             data={this.renderContent()}
             emptyImage="/images/actions/5.svg"
             emptyText="No Branches"
           />
         }
         leftSidebar={<SettingsSideBar />}
-        footer={<Pagination count={listQuery.branches?.length || 0} />}
+        footer={<Pagination count={listQuery.branchesMain?.totalCount || 0} />}
       />
     );
   }
