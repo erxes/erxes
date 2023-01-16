@@ -109,11 +109,14 @@ class ProductTotal extends React.Component<Props, State> {
     return (
       <Flex>
         <FormControl
-          value={parseFloat((totalKind.percent || 0).toFixed(3))}
+          value={
+            totalKind.percent
+              ? parseFloat((totalKind.percent || 0).toFixed(3))
+              : undefined
+          }
           type="number"
           min={0}
           max={100}
-          placeholder="0"
           name={kindTxt}
           onChange={this.onChangePercent}
         />

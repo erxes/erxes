@@ -60,6 +60,7 @@ export interface IUser {
   customFieldsData?: ICustomField[];
   departmentIds?: string[];
   branchIds?: string[];
+  employeeId?: string;
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -197,6 +198,7 @@ export const userSchema = schemaWrapper(
       type: String,
       label: 'Linked app id',
       optional: true
-    })
+    }),
+    employeeId: field({ type: String, unique: true, optional: true })
   })
 );

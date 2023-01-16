@@ -32,6 +32,7 @@ interface IEditProfile {
   email?: string;
   details?: IDetail;
   links?: ILink;
+  employeeId?: string;
 }
 
 interface IUpdateUser extends IEditProfile {
@@ -72,6 +73,7 @@ export interface IUserModel extends Model<IUserDocument> {
     email?: string;
     idsToExclude?: string | string[];
     emails?: string[];
+    employeeId?: string;
   }): never;
   getSecret(): string;
   generateToken(): { token: string; expires: Date };
@@ -138,9 +140,11 @@ export const loadUserClass = (models: IModels) => {
      */
     public static async checkDuplication({
       email,
+      employeeId,
       idsToExclude
     }: {
       email?: string;
+      employeeId?: string;
       idsToExclude?: string;
     }) {
       const query: { [key: string]: any } = {};
@@ -158,6 +162,16 @@ export const loadUserClass = (models: IModels) => {
         // Checking if duplicated
         if (previousEntry.length > 0) {
           throw new Error('Duplicated email');
+        }
+      }
+
+      // Checking employeeId
+      if (employeeId) {
+        previousEntry = await models.Users.findOne({ ...query, employeeId });
+
+        // Checking if duplicated
+        if (previousEntry) {
+          throw new Error('Duplicated Employee Id');
         }
       }
     }
@@ -226,6 +240,14 @@ export const loadUserClass = (models: IModels) => {
         // if there is no password specified then leave password field alone
       } else {
         delete doc.password;
+      }
+
+      if (doc.employeeId) {
+        // Checking employeeId duplication
+        await this.checkDuplication({
+          employeeId: doc.employeeId,
+          idsToExclude: _id
+        });
       }
 
       await models.Users.updateOne({ _id }, { $set: doc });
@@ -364,14 +386,22 @@ export const loadUserClass = (models: IModels) => {
      */
     public static async editProfile(
       _id: string,
-      { username, email, details, links }: IEditProfile
+      { username, email, details, links, employeeId }: IEditProfile
     ) {
       // Checking duplicated email
       await this.checkDuplication({ email, idsToExclude: _id });
 
+      if (employeeId) {
+        // Checking employeeId duplication
+        await this.checkDuplication({
+          employeeId,
+          idsToExclude: _id
+        });
+      }
+
       await models.Users.updateOne(
         { _id },
-        { $set: { username, email, details, links } }
+        { $set: { username, email, details, links, employeeId } }
       );
 
       return models.Users.findOne({ _id });

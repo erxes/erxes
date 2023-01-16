@@ -11,6 +11,7 @@ const commonDetailFields = `
   firstName: String
   middleName: String
   lastName: String
+  employeeId: String
 `;
 
 export const types = `
@@ -66,6 +67,7 @@ export const types = `
     branches: [Branch]
     score: Float
     leaderBoardPosition: Int
+    employeeId: String
   }
 
   type UserMovement {
@@ -93,6 +95,7 @@ const commonParams = `
   branchIds: [String]
   departmentIds: [String]
   customFieldsData: JSON
+  employeeId: String
 `;
 
 const commonSelector = `
@@ -128,6 +131,7 @@ export const mutations = `
     details: UserDetails,
     links: JSON
     password: String!
+    employeeId: String
   ): User
   usersEdit(_id: String!, ${commonParams}): User
   usersChangePassword(currentPassword: String!, newPassword: String!): User
