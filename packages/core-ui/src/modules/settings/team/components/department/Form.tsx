@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Select from 'react-select-plus';
 import { FormControl, FormGroup } from '@erxes/ui/src/components/form';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import Form from '@erxes/ui/src/components/form/Form';
@@ -9,7 +8,6 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from 'modules/common/utils';
 import { IDepartment } from '@erxes/ui/src/team/types';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { generateTree } from '../../utils';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 
 type Props = {
@@ -20,7 +18,7 @@ type Props = {
 };
 
 export default function DepartmentForm(props: Props) {
-  const { closeModal, renderButton, departments } = props;
+  const { closeModal, renderButton } = props;
   const object = props.department || ({} as any);
 
   const [userIds, setUserIds] = useState(
