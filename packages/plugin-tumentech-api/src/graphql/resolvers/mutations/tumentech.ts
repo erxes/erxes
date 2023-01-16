@@ -262,7 +262,7 @@ const carMutations = {
       subdomain: subdomain,
       action: 'clientPortalUsers.findOne',
       data: {
-        _id: cpUser._id
+        _id: cpUser.userId
       },
       isRPC: true,
       defaultValue: undefined
@@ -301,7 +301,7 @@ const carMutations = {
       subdomain: subdomain,
       action: 'clientPortalUsers.findOne',
       data: {
-        _id: cpUser._id
+        _id: cpUser.userId
       },
       isRPC: true,
       defaultValue: undefined
