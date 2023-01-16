@@ -340,7 +340,7 @@ const carQueries = {
       subdomain,
       action: 'clientPortalUsers.findOne',
       data: {
-        _id: cpUser._id
+        _id: cpUser.userId
       },
       isRPC: true,
       defaultValue: null
