@@ -9,6 +9,7 @@ import {
   calculateExpiryRule
 } from './rule';
 import { getAllowedProducts } from './product';
+import { Plan, CalculatedRule, OrderItem } from '../types';
 
 export const checkPricing = async (
   models: IModels,
@@ -16,17 +17,17 @@ export const checkPricing = async (
   totalAmount: number,
   departmentId: string,
   branchId: string,
-  orderItems: any
+  orderItems: OrderItem[]
 ) => {
   const now = dayjs(new Date());
   const nowISO = now.toISOString();
-  const productIds = orderItems.map(p => p.productId);
-  const result: any = {};
+  const productIds: string[] = orderItems.map(p => p.productId);
+  const result: object = {};
 
-  let allowedProductIds: any = [];
+  let allowedProductIds: string[] = [];
 
   // Finding valid discounts
-  const conditions: any = {
+  const conditions: object = {
     status: 'active',
     $and: [
       {
@@ -83,8 +84,7 @@ export const checkPricing = async (
       }
     ]
   };
-
-  const sortArgs: any = {
+  const sortArgs: object = {
     isPriority: 1,
     value: 1
   };
@@ -100,7 +100,9 @@ export const checkPricing = async (
     }
   }
 
-  const plans: any = await models.PricingPlans.find(conditions).sort(sortArgs);
+  const plans: Plan[] = await models.PricingPlans.find(conditions).sort(
+    sortArgs
+  );
 
   if (plans.length === 0) {
     return;
@@ -140,47 +142,64 @@ export const checkPricing = async (
       );
 
       // Check price rules
-      const priceRule: any = calculatePriceRule(plan, item, totalAmount);
+      const priceRule: CalculatedRule = calculatePriceRule(
+        plan,
+        item,
+        totalAmount,
+        defaultValue
+      );
 
       // Check quantity rule
-      const quantityRule: any = calculateQuantityRule(plan, item);
+      const quantityRule: CalculatedRule = calculateQuantityRule(
+        plan,
+        item,
+        defaultValue
+      );
 
       // Check expiry rule
-      const expiryRule: any = calculateExpiryRule(plan, item);
+      const expiryRule: CalculatedRule = calculateExpiryRule(
+        plan,
+        item,
+        defaultValue
+      );
 
       // Checks if all rules are passed!
       if (priceRule.passed && quantityRule.passed && expiryRule.passed) {
         // Bonus product will always be prioritized
-        if (priceRule.type === 'bonus' && priceRule.bonusProduct) {
-          bonusProducts = [priceRule.bonusProduct];
-        }
-        if (quantityRule.type === 'bonus' && quantityRule.bonusProduct) {
-          bonusProducts = [quantityRule.bonusProduct];
-        }
-        if (expiryRule.type === 'bonus' && expiryRule.bonusProduct) {
-          bonusProducts = [expiryRule.bonusProduct];
+        if (
+          (priceRule.type === 'bonus' &&
+            priceRule.bonusProducts.length !== 0) ||
+          (quantityRule.type === 'bonus' &&
+            quantityRule.bonusProducts.length !== 0) ||
+          (expiryRule.type === 'bonus' && expiryRule.bonusProducts.length !== 0)
+        ) {
+          type = 'bonus';
+          bonusProducts = [
+            ...priceRule.bonusProducts,
+            ...quantityRule.bonusProducts,
+            ...expiryRule.bonusProducts
+          ];
+          value = 0;
         }
 
         // Prioritize highest value between rules
-        if (
-          priceRule.value > quantityRule.value &&
-          priceRule.value > expiryRule.value &&
-          priceRule.type !== 'bonus'
-        ) {
-          type = priceRule.type;
-          value = priceRule.value;
-        } else if (
-          quantityRule.value > priceRule.value &&
-          quantityRule.value > expiryRule.value &&
-          quantityRule.type !== 'bonus'
-        ) {
-          type = quantityRule.type;
-          value = quantityRule.value;
-        } else if (expiryRule.type !== 'bonus') {
-          type = expiryRule.type;
-          value = expiryRule.value;
+        let rules = [priceRule, quantityRule, expiryRule];
+        let maxValueRule = rules.reduce((prev, current) => {
+          if (prev.value > current.value && prev.type !== 'bonus') {
+            return prev;
+          } else if (current.type !== 'bonus') {
+            return current;
+          }
+          return prev;
+        });
+        if (maxValueRule.type.length !== 0) {
+          type = maxValueRule.type;
+          value = maxValueRule.value;
         }
 
+        console.log(type, value, bonusProducts);
+
+        // If none of the rules are applied. Apply default
         if (type.length === 0) {
           type = plan.type;
           value = defaultValue;
@@ -204,9 +223,10 @@ export const checkPricing = async (
           }
         }
 
-        result[item.productId].bonusProducts = result[
-          item.productId
-        ].bonusProducts.concat(bonusProducts || []);
+        result[item.productId].bonusProducts = [
+          ...result[item.productId].bonusProducts,
+          ...bonusProducts
+        ];
 
         appliedBundleItems.push(item);
       }
