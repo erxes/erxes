@@ -19,6 +19,11 @@ import {
 } from './definitions/users';
 import { IAppDocument } from './definitions/apps';
 import { saveValidatedToken } from '../../data/utils';
+import {
+  IUserMovementDocument,
+  userMovemmentSchema
+} from './definitions/users';
+import { USER_MOVEMENT_STATUSES } from '../../constants';
 
 const SALT_WORK_FACTOR = 10;
 
@@ -849,4 +854,160 @@ export const loadUserClass = (models: IModels) => {
   userSchema.loadClass(User);
 
   return userSchema;
+};
+
+type ICommonUserMovement = {
+  userId?: string;
+  user?: IUserDocument;
+  userIds?: string[];
+  contentType?: string;
+  contentTypeIds?: string[];
+  contentTypeId?: string;
+  createdBy?: string;
+};
+
+export interface IUserMovemmentModel extends Model<IUserMovementDocument> {
+  manageStructureUsersMovement(
+    params: ICommonUserMovement
+  ): Promise<IUserMovementDocument>;
+  manageUserMovement(
+    params: ICommonUserMovement
+  ): Promise<IUserMovementDocument>;
+}
+
+export const loadUserMovemmentClass = (models: IModels) => {
+  class UserMovemment {
+    public static async manageUserMovement(params: ICommonUserMovement) {
+      const user = params.user as IUserDocument;
+
+      for (const contentType of ['department', 'branch']) {
+        const contentTypeIds = user[`${contentType}Ids`] || [];
+
+        const removed = (
+          await models.UserMovements.find({
+            userId: user._id,
+            contentType,
+            contentTypeId: { $nin: contentTypeIds },
+            status: USER_MOVEMENT_STATUSES.CREATED,
+            isActive: true
+          })
+        ).map(movement => ({
+          userId: user._id,
+          contentType,
+          contentTypeId: movement.contentTypeId,
+          createdBy: user._id,
+          status: USER_MOVEMENT_STATUSES.REMOVED,
+          isActive: false
+        }));
+
+        if (!!removed.length) await models.UserMovements.insertMany(removed);
+
+        await models.UserMovements.updateMany(
+          {
+            contentType,
+            contentTypeId: { $in: contentTypeIds },
+            userId: user._id,
+            isActive: true,
+            status: { $ne: USER_MOVEMENT_STATUSES.REMOVED }
+          },
+          { $set: { isActive: false } }
+        );
+
+        for (const contentTypeId of contentTypeIds) {
+          const movement = await models.UserMovements.findOne({
+            contentType,
+            contentTypeId,
+            userId: user._id
+          }).sort({ createdAt: -1 });
+
+          if (
+            !movement ||
+            movement?.status === USER_MOVEMENT_STATUSES.REMOVED
+          ) {
+            await models.UserMovements.create({
+              contentType,
+              contentTypeId,
+              userId: user._id,
+              createdBy: user._id,
+              isActive: true
+            });
+          }
+        }
+      }
+    }
+
+    public static async manageStructureUsersMovement(
+      params: ICommonUserMovement
+    ) {
+      const { createdBy, userIds, contentType, contentTypeId } = params;
+      const fieldName = `${contentType}Ids`;
+      await models.Users.updateMany(
+        {
+          _id: { $nin: userIds },
+          [fieldName]: { $in: [contentTypeId] }
+        },
+        { $pull: { [fieldName]: contentTypeId } }
+      );
+
+      await models.Users.updateMany(
+        { _id: { $in: userIds } },
+        { $addToSet: { [fieldName]: contentTypeId } }
+      );
+
+      const userMovements = await models.UserMovements.find({
+        contentType,
+        contentTypeId,
+        isActive: true
+      });
+
+      const removedFromContentType = userMovements
+        .filter(
+          movement =>
+            !userIds?.some(userId => userId === movement.userId) && movement
+        )
+        .map(({ createdBy, contentType, contentTypeId, userId }) => ({
+          createdBy,
+          contentType,
+          contentTypeId,
+          userId,
+          status: USER_MOVEMENT_STATUSES.REMOVED,
+          isActive: false
+        }));
+
+      await models.UserMovements.insertMany([...removedFromContentType]);
+
+      await models.UserMovements.updateOne(
+        {
+          contentType,
+          contentTypeId,
+          userId: { $in: userIds },
+          status: { $ne: USER_MOVEMENT_STATUSES.REMOVED },
+          isActive: true
+        },
+        { $set: { isActive: false } }
+      );
+
+      for (const userId of userIds || []) {
+        const movement = await models.UserMovements.findOne({
+          contentType,
+          contentTypeId,
+          userId
+        }).sort({ createdAt: -1 });
+
+        if (!movement || movement?.status === USER_MOVEMENT_STATUSES.REMOVED) {
+          await models.UserMovements.create({
+            contentType,
+            contentTypeId,
+            userId,
+            createdBy,
+            isActive: true
+          });
+        }
+      }
+
+      return 'edited';
+    }
+  }
+  userMovemmentSchema.loadClass(UserMovemment);
+  return userMovemmentSchema;
 };

@@ -61,10 +61,26 @@ export const types = `
     configs: JSON
     configsConstants: [JSON]
     onboardingHistory: OnboardingHistory
-    department: Department
+    departmentIds: [String]
+    departments: [Department]
+    branchIds: [String]
+    branches: [Branch]
     score: Float
     leaderBoardPosition: Int
     employeeId: String
+  }
+
+  type UserMovement {
+    _id: String
+    createdAt: Date
+    createdBy: String
+    createdByDetail:JSON
+    userId:String
+    userDetail:JSON
+    contentType:String
+    contentTypeId:String
+    contentTypeDetail:JSON
+    status:String
   }
 `;
 
@@ -76,6 +92,8 @@ const commonParams = `
   channelIds: [String],
   groupIds: [String]
   brandIds: [String]
+  branchIds: [String]
+  departmentIds: [String]
   customFieldsData: JSON
   employeeId: String
 `;
@@ -97,6 +115,7 @@ export const queries = `
   userDetail(_id: String): User
   usersTotalCount(${commonSelector}): Int
   currentUser: User
+  userMovements(userId: String!,contentType: String):[UserMovement]
 `;
 
 export const mutations = `

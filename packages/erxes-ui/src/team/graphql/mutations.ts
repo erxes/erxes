@@ -6,6 +6,8 @@ const commonParamsDef = `
   $channelIds: [String]
   $groupIds: [String]
   $brandIds: [String]
+  $departmentIds: [String]
+  $branchIds: [String]
   $customFieldsData: JSON
   $employeeId: String
 `;
@@ -17,6 +19,8 @@ const commonParams = `
   links: $links,
   channelIds: $channelIds
   groupIds: $groupIds
+  branchIds: $branchIds
+  departmentIds: $departmentIds
   brandIds: $brandIds
   customFieldsData: $customFieldsData
   employeeId: $employeeId
@@ -183,8 +187,8 @@ const departmentsEdit = `
 `;
 
 const departmentsRemove = `
-  mutation departmentsRemove($_id: String!) {
-    departmentsRemove(_id: $_id)
+  mutation departmentsRemove($ids: [String!]) {
+    departmentsRemove(ids: $ids)
   }
 `;
 
@@ -223,8 +227,8 @@ const unitsEdit = `
 `;
 
 const unitsRemove = `
-  mutation unitsRemove($_id: String!) {
-    unitsRemove(_id: $_id)
+  mutation unitsRemove($ids: [String!]) {
+    unitsRemove(ids: $ids)
   }
 `;
 
@@ -267,8 +271,8 @@ const branchesEdit = `
 `;
 
 const branchesRemove = `
-  mutation branchesRemove($_id: String!) {
-    branchesRemove(_id: $_id)
+  mutation branchesRemove($ids: [String!]) {
+    branchesRemove(ids: $ids)
   }
 `;
 
