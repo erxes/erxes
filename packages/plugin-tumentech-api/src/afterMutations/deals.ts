@@ -16,6 +16,10 @@ import {
 export const afterDealCreate = async (subdomain, params) => {
   const deal = params.object;
 
+  if (deal.description.includes('test')) {
+    return;
+  }
+
   const stage = await sendCardsMessage({
     subdomain,
     action: 'stages.findOne',
@@ -52,11 +56,7 @@ export const afterDealCreate = async (subdomain, params) => {
 
   const customerIds = conformities.map(c => c.relTypeId);
 
-  console.log('testerIds', testerIds);
-  console.log('customerIds', customerIds);
-
   if (testerIds.some(testerId => customerIds.includes(testerId))) {
-    console.log('wont notify');
     return;
   }
 
@@ -104,6 +104,10 @@ export const afterDealCreate = async (subdomain, params) => {
 export const afterDealUpdate = async (subdomain, params) => {
   const deal = params.updatedDocument;
   const oldDeal = params.object;
+
+  if (oldDeal.description.includes('test')) {
+    return;
+  }
 
   const stage = await sendCardsMessage({
     subdomain,
