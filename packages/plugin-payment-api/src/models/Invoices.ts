@@ -1,4 +1,4 @@
-import { PAYMENT_KINDS } from './../constants';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 import { Model } from 'mongoose';
 
 import { IModels } from '../connectionResolver';
@@ -62,6 +62,10 @@ export const loadInvoiceClass = (models: IModels) => {
         return invoice;
       } catch (e) {
         await models.Invoices.deleteOne({ _id: invoice._id });
+
+        debugError(
+          `Failed to create invoice with type ${invoice.paymentKind}. Error message: ${e.message}`
+        );
         throw new Error(e.message);
       }
     }
