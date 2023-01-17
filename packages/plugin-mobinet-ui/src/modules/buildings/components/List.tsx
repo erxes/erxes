@@ -15,6 +15,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import { withRouter } from 'react-router-dom';
 
 import OSMBuildings from '../../../common/OSMBuildings';
+import OSMap from '../../../common/OSMap';
 import { ICoordinates } from '../../../types';
 import { submenu } from '../../../utils';
 import BuildingForm from '../containers/Form';
@@ -89,6 +90,24 @@ const List = (props: Props) => {
     return <OSMBuildings {...mapProps} />;
   };
 
+  const render2dMap = () => {
+    if (viewType !== '2d') {
+      return null;
+    }
+
+    return (
+      <OSMap
+        id={Math.random().toString(10)}
+        width={'100%'}
+        height={'100%'}
+        center={center}
+        zoom={16}
+        addMarkerOnCenter={false}
+        // onChangeCenter={onChangeCenter}
+      />
+    );
+  };
+
   const renderList = () => {
     if (viewType !== 'list') {
       return null;
@@ -131,7 +150,7 @@ const List = (props: Props) => {
       router.setParams(history, { viewType: type });
 
       if (type === '3d') {
-        // window.location.reload();
+        window.location.reload();
       }
     };
 
@@ -185,6 +204,7 @@ const List = (props: Props) => {
     <>
       {renderList()}
       {render3dMap()}
+      {render2dMap()}
     </>
   );
 
