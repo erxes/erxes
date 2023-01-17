@@ -26,6 +26,7 @@ type Props = {
   queryPage: number;
   queryPerPage: number;
 
+  showSideBar: (sideBar: boolean) => void;
   getActionBar: (actionBar: any) => void;
   getPagination: (pagination: any) => void;
 };
@@ -39,7 +40,8 @@ const ListContainer = (props: FinalProps) => {
   const {
     timeclocksMainQuery,
     getPagination,
-    extractAllMySqlDataMutation
+    extractAllMySqlDataMutation,
+    showSideBar
   } = props;
   const [loading, setLoading] = useState(false);
 
@@ -71,7 +73,7 @@ const ListContainer = (props: FinalProps) => {
     loading: timeclocksMainQuery.loading || loading,
     extractAllMySqlData
   };
-
+  showSideBar(true);
   getPagination(<Pagination count={totalCount} />);
   return <List {...updatedProps} />;
 };

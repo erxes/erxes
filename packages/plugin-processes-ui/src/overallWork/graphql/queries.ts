@@ -23,6 +23,7 @@ const listParamsDef = `
   $outDepartmentId: String
   $productCategoryId: String
   $productIds: [String]
+  $vendorIds: [String]
   $jobCategoryId: String
   $jobReferId: String
 `;
@@ -38,6 +39,7 @@ const listParamsValue = `
   outDepartmentId: $outDepartmentId
   productCategoryId: $productCategoryId
   productIds: $productIds
+  vendorIds: $vendorIds
   jobCategoryId: $jobCategoryId
   jobReferId: $jobReferId
 `;

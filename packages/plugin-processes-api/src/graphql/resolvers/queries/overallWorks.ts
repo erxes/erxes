@@ -20,6 +20,7 @@ interface IParam {
   outDepartmentId: string;
   productCategoryId: string;
   productIds: string[];
+  vendorIds: string[];
   jobCategoryId: string;
   jobReferId: string;
 }
@@ -42,7 +43,8 @@ const generateFilter = async (
     jobReferId,
     jobCategoryId,
     productCategoryId,
-    productIds
+    productIds,
+    vendorIds
   } = params;
   const selector: any = { ...commonQuerySelector };
 
@@ -79,6 +81,8 @@ const generateFilter = async (
     selector.inDepartmentId = inDepartmentId;
   }
 
+  let filterProductIds: string[] = [];
+  let hasFilterProductIds: boolean = false;
   if (productCategoryId) {
     const limit = await sendProductsMessage({
       subdomain,
@@ -94,11 +98,40 @@ const generateFilter = async (
       isRPC: true
     });
 
-    selector.typeId = { $in: products.map(pr => pr._id) };
+    filterProductIds = products.map(pr => pr._id);
+    hasFilterProductIds = true;
+  }
+
+  if (vendorIds) {
+    const limit = await sendProductsMessage({
+      subdomain,
+      action: 'count',
+      data: { query: { vendorId: { $in: vendorIds } } },
+      isRPC: true
+    });
+
+    const products = await sendProductsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        limit,
+        query: { vendorId: { $in: vendorIds } },
+        fields: { _id: 1 }
+      },
+      isRPC: true
+    });
+
+    filterProductIds = filterProductIds.concat(products.map(pr => pr._id));
+    hasFilterProductIds = true;
   }
 
   if (productIds) {
-    selector.typeId = { $in: productIds };
+    filterProductIds = filterProductIds.concat(productIds);
+    hasFilterProductIds = true;
+  }
+
+  if (hasFilterProductIds) {
+    selector.typeId = { $in: filterProductIds };
   }
 
   if (jobCategoryId) {

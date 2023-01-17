@@ -164,11 +164,21 @@ const FlexRow = styled.div`
   justify-content: space-between;
 `;
 
-const FlexColumn = styled.div`
+const FlexColumn = styledTS<{
+  marginNum: number;
+}>(styled.div)`
   display: flex;
-  flex: 1;
   flex-direction: column;
-  gap: 10px;
+  gap:${props => props.marginNum}px;
+`;
+
+const FlexColumnMargined = styledTS<{
+  marginNum: number;
+}>(styled.div)`
+  display: flex;
+  flex-direction: column;
+  gap: ${props => props.marginNum}px
+  margin-top:${props => props.marginNum * 2}px;
 `;
 
 const DateName = styled.div`
@@ -187,6 +197,7 @@ export {
   Input,
   FlexRow,
   FlexColumn,
+  FlexColumnMargined,
   DateName,
   CustomRangeContainer,
   SidebarHeader,
