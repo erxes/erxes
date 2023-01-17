@@ -106,7 +106,7 @@ margin: -20px 0 0 -20px;`;
       center={center || [47.919481, 106.904299]}
       zoom={zoom || 10}
       zoomControl={true}
-      style={{ height, width }}
+      style={{ height, width, zIndex: 0 }}
       id={id}
     >
       <MapComponent {...props} />
