@@ -80,7 +80,7 @@ const PostQueries: IObjectTypeResolver<any, IContext> = {
     const { limit = 0, offset = 0, sort = {} } = params;
 
     const res = await Post.find(query)
-      .select('-content')
+      .select('-content -translations.content')
       .sort(sort)
       .skip(offset)
       .limit(limit)
