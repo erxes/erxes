@@ -44,7 +44,7 @@ const LeftSideBar = (props: Props) => {
   };
 
   const removePageParams = () => {
-    router.removeParams(history, 'page');
+    router.removeParams(history, 'page', 'perPage');
   };
 
   const renderBranchOptions = (branches: any[]) => {

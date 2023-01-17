@@ -47,6 +47,7 @@ export interface ISchedule {
   userId?: string;
   status?: string;
   solved?: boolean;
+  scheduleConfigId?: string;
 }
 
 export interface IScheduleDocument extends ISchedule, Document {
@@ -121,7 +122,7 @@ export const timeSchema = new Schema({
     label: 'Employee user name, as saved on companys terminal'
   }),
   employeeId: field({
-    type: Number,
+    type: String,
     label: 'Employee id, custom field'
   }),
   deviceType: field({
@@ -174,6 +175,10 @@ export const scheduleSchema = new Schema({
   status: field({
     type: String,
     label: 'Status of schedule request, whether approved or rejected'
+  }),
+  scheduleConfigId: field({
+    type: String,
+    label: 'Schedule Config id used for reports'
   })
 });
 
@@ -250,12 +255,18 @@ export interface IScheduleReport {
 export interface IUserReport {
   userId?: string;
   scheduleReport: IScheduleReport[];
+  totalMinsWorked?: number;
   totalMinsWorkedToday?: number;
-  totalMinsScheduledToday?: number;
   totalMinsWorkedThisMonth?: number;
+  totalDaysWorkedThisMonth?: number;
+  totalMinsScheduled?: number;
+  totalMinsScheduledToday?: number;
   totalMinsScheduledThisMonth?: number;
+  totalDaysScheduledThisMonth?: number;
+  totalMinsLate?: number;
   totalMinsLateToday?: number;
   totalMinsLateThisMonth?: number;
+  totalAbsenceMins?: number;
   totalMinsAbsenceThisMonth?: number;
 }
 
@@ -271,13 +282,4 @@ export interface IReport {
   groupTotalMinsLate?: number;
   groupTotalAbsenceMins?: number;
   groupTotalMinsScheduled?: number;
-}
-
-export interface IUserReport {
-  userId?: string;
-  scheduleReport: IScheduleReport[];
-  totalMinsWorked?: number;
-  totalMinsLate?: number;
-  totalAbsenceMins?: number;
-  totalMinsScheduled?: number;
 }

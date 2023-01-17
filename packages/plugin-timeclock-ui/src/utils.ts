@@ -6,13 +6,18 @@ const timeFormat = 'HH:mm';
 export const compareStartAndEndTime = (
   scheduleDates: ISchedule,
   day_key,
-  newShiftStart,
-  newShiftEnd
+  newShiftStart?,
+  newShiftEnd?,
+  shiftDate?
 ) => {
   const currShift = scheduleDates[day_key];
-  const currShiftDate = currShift.shiftDate
-    ? currShift.shiftDate.toLocaleDateString()
-    : currShift.shiftStart?.toLocaleDateString();
+  const currShiftDate = shiftDate
+    ? shiftDate
+    : currShift
+    ? currShift.shiftDate
+      ? currShift.shiftDate.toLocaleDateString()
+      : currShift.shiftStart?.toLocaleDateString()
+    : newShiftStart.toLocaleDateString();
 
   const currShiftEnd = newShiftEnd ? newShiftEnd : currShift.shiftEnd;
   const currShiftStart = newShiftStart ? newShiftStart : currShift.shiftStart;
