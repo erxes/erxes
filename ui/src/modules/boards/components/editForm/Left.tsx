@@ -101,7 +101,7 @@ const Description = (props: DescProps) => {
             onClick={toggleEdit}
             dangerouslySetInnerHTML={{
               __html: item.description
-                ? xss(item.description)
+                ? xss(item.description.includes("<a href=") ? item.description.replace("<a href=", "<a target='_blank' href=") : item.description)
                 : `${__('Add a more detailed description')}...`
             }}
           />
