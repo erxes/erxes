@@ -6,6 +6,7 @@ import React from 'react';
 import ScheduleList from '../../components/schedule/ScheduleList';
 import {
   BranchesQueryResponse,
+  IScheduleConfig,
   IShift,
   ScheduleMutationResponse,
   ScheduleQueryResponse
@@ -25,6 +26,7 @@ type Props = {
   shiftId?: string;
   shiftStatus?: string;
   requestedShifts?: IShift[];
+  scheduleConfigs: IScheduleConfig[];
 
   branchesList: IBranch[];
 
@@ -36,6 +38,7 @@ type Props = {
   queryPage: number;
   queryPerPage: number;
   getActionBar: (actionBar: any) => void;
+  showSideBar: (sideBar: boolean) => void;
   getPagination: (pagination: any) => void;
 };
 
@@ -48,12 +51,13 @@ type FinalProps = {
 const ListContainer = (props: FinalProps) => {
   const {
     sendScheduleReqMutation,
-    submitShiftMutation,
+    submitScheduleMutation,
     solveScheduleMutation,
     solveShiftMutation,
     removeScheduleMutation,
     removeScheduleShiftMutation,
     getPagination,
+    showSideBar,
     listSchedulesMain
   } = props;
 
@@ -73,40 +77,32 @@ const ListContainer = (props: FinalProps) => {
     selectedUserIds: string[],
     requestedShifts: IShift[]
   ) => {
-    if (selectedUserIds[0] === '') {
-      Alert.error('User was not given');
-    } else if (requestedShifts.length === 0) {
-      Alert.error('No shifts were given');
-    } else {
-      sendScheduleReqMutation({
-        variables: {
-          userId: `${selectedUserIds}`,
-          shifts: requestedShifts
-        }
-      })
-        .then(() => Alert.success('Successfully sent a schedule request'))
-        .catch(err => Alert.error(err.message));
-    }
+    sendScheduleReqMutation({
+      variables: {
+        userId: `${selectedUserIds}`,
+        shifts: requestedShifts
+      }
+    })
+      .then(() => Alert.success('Successfully sent a schedule request'))
+      .catch(err => Alert.error(err.message));
   };
 
-  const submitShift = (
+  const submitSchedule = (
+    selectedBranchIds: string[],
+    selectedDeptIds: string[],
     selectedUserIds: string[],
     requestedShifts: IShift[]
   ) => {
-    if (selectedUserIds[0] === '') {
-      Alert.error('User was not given');
-    } else if (requestedShifts.length === 0) {
-      Alert.error('No shifts were given');
-    } else {
-      submitShiftMutation({
-        variables: {
-          userIds: selectedUserIds,
-          shifts: requestedShifts
-        }
-      })
-        .then(() => Alert.success('Successfully sent a schedule request'))
-        .catch(err => Alert.error(err.message));
-    }
+    submitScheduleMutation({
+      variables: {
+        branchIds: selectedBranchIds,
+        departmentIds: selectedDeptIds,
+        userIds: selectedUserIds,
+        shifts: requestedShifts
+      }
+    })
+      .then(() => Alert.success('Successfully sent a schedule request'))
+      .catch(err => Alert.error(err.message));
   };
 
   const removeScheduleShifts = (scheduleId, type) => {
@@ -127,10 +123,11 @@ const ListContainer = (props: FinalProps) => {
     solveSchedule,
     solveShift,
     submitRequest,
-    submitShift,
+    submitSchedule,
     removeScheduleShifts
   };
 
+  showSideBar(true);
   getPagination(<Pagination count={totalCount} />);
   return <ScheduleList {...updatedProps} />;
 };
@@ -173,8 +170,8 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, ScheduleMutationResponse>(gql(mutations.submitShift), {
-      name: 'submitShiftMutation',
+    graphql<Props, ScheduleMutationResponse>(gql(mutations.submitSchedule), {
+      name: 'submitScheduleMutation',
       options: ({ userIds, requestedShifts }) => ({
         variables: {
           userIds: `${userIds}`,

@@ -72,6 +72,13 @@ class DetailLeftSidebar extends React.Component<Props, State> {
     return false;
   };
 
+  gotoBack = () => {
+    this.props.history.push(
+      `/processes/overallWorks?${queryString.stringify({
+        ...this.props.queryParams
+      })}`
+    );
+  };
   clearFilter = () => {
     const params = generateQueryParams(this.props.history);
     router.removeParams(this.props.history, ...Object.keys(params));
@@ -181,6 +188,11 @@ class DetailLeftSidebar extends React.Component<Props, State> {
           <Section.Title>
             {__('Filters')}
             <Section.QuickButtons>
+              <a href="#gotoBack" tabIndex={0} onClick={this.gotoBack}>
+                <Tip text={__('GoTo overall works')} placement="bottom">
+                  <Icon icon="left-arrow-to-left" />
+                </Tip>
+              </a>
               {this.isFiltered() && (
                 <a href="#cancel" tabIndex={0} onClick={this.clearFilter}>
                   <Tip text={__('Clear filter')} placement="bottom">

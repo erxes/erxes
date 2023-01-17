@@ -9,7 +9,8 @@ import {
   AbsenceTypeQueryResponse,
   ConfigMutationResponse,
   PayDatesQueryResponse,
-  HolidaysQueryResponse
+  HolidaysQueryResponse,
+  ScheduleConfigQueryResponse
 } from '../../types';
 import { mutations, queries } from '../../graphql';
 import { Alert, confirm } from '@erxes/ui/src/utils';
@@ -18,6 +19,7 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 
 type Props = {
   getActionBar: (actionBar: any) => void;
+  showSideBar: (sideBar: boolean) => void;
   history: any;
   queryParams: any;
   absenceTypeId?: string;
@@ -31,12 +33,14 @@ type Props = {
   absenceId?: string;
   absenceStatus?: string;
   payDates?: number[];
+  scheduleConfigId?: string;
 };
 
 type FinalProps = {
   listAbsenceTypesQuery: AbsenceTypeQueryResponse;
   listPayDatesQuery: PayDatesQueryResponse;
   listHolidaysQuery: HolidaysQueryResponse;
+  listScheduleConfigsQuery: ScheduleConfigQueryResponse;
 } & Props &
   ConfigMutationResponse;
 
@@ -45,9 +49,12 @@ const ListContainer = (props: FinalProps) => {
     removeAbsenceTypeMutation,
     removePayDateMutation,
     removeHolidayMutation,
+    removeScheduleConfigMutation,
+    showSideBar,
     listAbsenceTypesQuery,
     listPayDatesQuery,
-    listHolidaysQuery
+    listHolidaysQuery,
+    listScheduleConfigsQuery
   } = props;
 
   const renderButton = ({
@@ -70,6 +77,12 @@ const ListContainer = (props: FinalProps) => {
       mutation = object ? mutations.payDateEdit : mutations.payDateAdd;
     }
 
+    if (name === 'schedule') {
+      mutation = object
+        ? mutations.scheduleConfigEdit
+        : mutations.scheduleConfigAdd;
+    }
+
     return (
       <ButtonMutate
         mutation={mutation}
@@ -84,6 +97,9 @@ const ListContainer = (props: FinalProps) => {
           },
           {
             query: gql(queries.listPayDates)
+          },
+          {
+            query: gql(queries.listScheduleConfig)
           }
         ]}
         isSubmitted={isSubmitted}
@@ -101,7 +117,7 @@ const ListContainer = (props: FinalProps) => {
       removeAbsenceTypeMutation({ variables: { _id: absenceId } })
         .then(() => Alert.success('Successfully removed an absence type'))
         .catch(err => {
-          throw new Error(err);
+          Alert.error(err);
         });
     });
   };
@@ -111,7 +127,7 @@ const ListContainer = (props: FinalProps) => {
       removeHolidayMutation({ variables: { _id: `${_id}` } })
         .then(() => Alert.success('Successfully removed holiday'))
         .catch(err => {
-          throw new Error(err);
+          Alert.error(err);
         });
     });
   };
@@ -121,21 +137,34 @@ const ListContainer = (props: FinalProps) => {
       removePayDateMutation({ variables: { _id: `${_id}` } })
         .then(() => Alert.success('Successfully removed payDate'))
         .catch(err => {
-          throw new Error(err);
+          Alert.error(err);
+        });
+    });
+  };
+
+  const removeScheduleConfig = (_id: string) => {
+    confirm('Are you sure to remove this schedule config').then(() => {
+      removeScheduleConfigMutation({ variables: { _id: `${_id}` } })
+        .then(() => Alert.success('Successfully removed schedule config'))
+        .catch(err => {
+          Alert.error(err);
         });
     });
   };
 
   const updatedProps = {
     ...props,
+    scheduleConfigs: listScheduleConfigsQuery.scheduleConfigs,
     holidays: listHolidaysQuery.holidays,
     absenceTypes: listAbsenceTypesQuery.absenceTypes,
     payDates: listPayDatesQuery.payDates || [],
     removeAbsenceType,
     removeHoliday,
     removePayDate,
+    removeScheduleConfig,
     renderButton
   };
+  showSideBar(false);
   return <ConfigList {...updatedProps} />;
 };
 
@@ -155,6 +184,12 @@ export default withProps<Props>(
     }),
     graphql<Props, PayDatesQueryResponse>(gql(queries.listHolidays), {
       name: 'listHolidaysQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<Props, PayDatesQueryResponse>(gql(queries.listScheduleConfig), {
+      name: 'listScheduleConfigsQuery',
       options: () => ({
         fetchPolicy: 'network-only'
       })
@@ -188,6 +223,19 @@ export default withProps<Props>(
         },
         refetchQueries: ['payDates']
       })
-    })
+    }),
+
+    graphql<Props, ConfigMutationResponse>(
+      gql(mutations.scheduleConfigRemove),
+      {
+        name: 'removeScheduleConfigMutation',
+        options: ({ scheduleConfigId }) => ({
+          variables: {
+            _id: scheduleConfigId
+          },
+          refetchQueries: ['scheduleConfigs']
+        })
+      }
+    )
   )(ListContainer)
 );

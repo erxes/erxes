@@ -53,9 +53,9 @@ const sendScheduleRequest = `
     }
   }`;
 
-const submitShift = `
-  mutation submitShift($userIds: [String], $shifts: [ShiftsRequestInput]){
-    submitShift(userIds: $userIds, shifts: $shifts){
+const submitSchedule = `
+  mutation submitSchedule($branchIds: [String], $departmentIds: [String],$userIds: [String], $shifts: [ShiftsRequestInput]){
+    submitSchedule(branchIds: $branchIds, departmentIds:$departmentIds, userIds: $userIds, shifts: $shifts){
       _id
     }
   }`;
@@ -131,6 +131,21 @@ const scheduleShiftRemove = `
     scheduleShiftRemove(_id: $_id)
   }`;
 
+const scheduleConfigAdd = `mutation scheduleConfigAdd($scheduleName: String, $configShiftStart: String, $configShiftEnd: String, $scheduleConfig: [ShiftsRequestInput]){
+  scheduleConfigAdd(scheduleName: $scheduleName, configShiftStart:$configShiftStart, configShiftEnd: $configShiftEnd, scheduleConfig : $scheduleConfig){
+    _id
+  }
+}`;
+const scheduleConfigEdit = `mutation scheduleConfigEdit($_id: String, $scheduleName: String, $configShiftStart: String, $configShiftEnd: String, $scheduleConfig: [ShiftsRequestInput]){
+  scheduleConfigEdit(_id: $_id, scheduleName: $scheduleName,configShiftStart:$configShiftStart, configShiftEnd: $configShiftEnd, scheduleConfig : $scheduleConfig){
+    _id
+  }
+}`;
+
+const scheduleConfigRemove = `mutation scheduleConfigRemove($_id: String){
+  scheduleConfigRemove(_id: $_id)
+}`;
+
 const extractAllDataFromMySQL = `
 mutation extractAllDataFromMySQL{
   extractAllDataFromMySQL{
@@ -140,7 +155,7 @@ mutation extractAllDataFromMySQL{
 
 export default {
   sendScheduleRequest,
-  submitShift,
+  submitSchedule,
   sendAbsenceRequest,
   absenceTypeAdd,
   absenceTypeEdit,
@@ -159,5 +174,8 @@ export default {
   holidayRemove,
   scheduleRemove,
   scheduleShiftRemove,
+  scheduleConfigAdd,
+  scheduleConfigEdit,
+  scheduleConfigRemove,
   extractAllDataFromMySQL
 };
