@@ -3,7 +3,11 @@ import { paginate } from 'erxes-api-utils';
 
 import { countByCars } from '../../../carUtils';
 import { IContext } from '../../../connectionResolver';
-import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
+import {
+  sendClientPortalMessage,
+  sendCoreMessage,
+  sendProductsMessage
+} from '../../../messageBroker';
 import { generateRandomString, getFullDate, getTomorrow } from '../../../utils';
 import { Builder, IListArgs } from './carQueryBuilder';
 
@@ -325,6 +329,56 @@ const carQueries = {
     { subdomain }
   ) => {
     return generateRandomString(subdomain, modelName, prefix, numberOfDigits);
+  },
+
+  getAccount: async (_root, {}, { models, cpUser, subdomain }: IContext) => {
+    if (!cpUser) {
+      throw new Error('login required');
+    }
+
+    const user = await sendClientPortalMessage({
+      subdomain,
+      action: 'clientPortalUsers.findOne',
+      data: {
+        _id: cpUser.userId
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    if (!user) {
+      throw new Error('user not found');
+    }
+
+    let account = await models.CustomerAccounts.findOne({
+      customerId: user.erxesCustomerId
+    });
+
+    if (!account) {
+      account = await models.CustomerAccounts.create({
+        customerId: user.erxesCustomerId,
+        balance: 200000
+      });
+    }
+
+    return account;
+  },
+
+  topupHistory: async (
+    _root,
+    { customerId, page, perPage },
+    { models }: IContext
+  ) => {
+    const query = { customerId };
+
+    const totalCount = await models.Topups.find(query).countDocuments();
+
+    const list = await paginate(
+      models.Topups.find(query).sort({ createdAt: -1 }),
+      { page, perPage }
+    );
+
+    return { list, totalCount };
   }
 };
 

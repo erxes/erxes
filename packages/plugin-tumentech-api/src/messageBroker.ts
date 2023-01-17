@@ -2,17 +2,24 @@ import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
 import { afterMutationHandlers } from './afterMutations';
 import { serviceDiscovery } from './configs';
+import { generateModels } from './connectionResolver';
 
 let client;
 
 export const initBroker = async cl => {
   client = cl;
 
-  const { consumeQueue } = client;
+  const { consumeQueue, consumeRPCQueue } = client;
 
   consumeQueue('tumentech:afterMutation', async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
     return;
+  });
+
+  consumeRPCQueue('tumentech:topups.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return { status: 'success', data: await models.Topups.findOne(data) };
   });
 };
 

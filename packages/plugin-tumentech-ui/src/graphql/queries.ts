@@ -562,76 +562,116 @@ query routeDetail($_id: String!) {
 }
 `;
 
+const tripFields = `
+  _id
+  carIds
+  closedDate
+  createdAt
+  dealIds
+  driverId
+  estimatedCloseDate
+  route {
+    _id
+    code
+    name
+    summary {
+      placeNames
+      totalDistance
+      totalDuration
+    }
+
+    directions {
+      _id
+      duration
+      placeIds
+      places {
+        _id
+        center
+        code
+        name
+        province
+      }
+      roadCode
+      roadConditions
+      routeCode
+      totalDistance
+
+      googleMapPath
+    }
+  }
+  routeId
+  routeReversed
+  startedDate
+  status
+  statusInfo
+  driver {
+    _id
+    avatar
+    firstName
+    primaryPhone
+  }
+  deals {
+    deal{
+    _id
+    customers {
+      _id
+      firstName
+      primaryEmail
+      primaryPhone
+      avatar
+    }
+    name
+    stageId
+    stage {
+      _id
+      name
+    }
+    pipeline {
+      name
+      _id
+    }
+    boardId
+    amount
+    companies {
+      _id
+      avatar
+      primaryName
+      primaryEmail
+      primaryPhone
+    }
+  }
+  dealPlace {
+    dealId
+    endPlace {
+      _id
+      center
+      name
+      province
+    }
+    startPlace {
+      _id
+      center
+      name
+      province
+    }
+  }
+}
+  cars {
+    _id
+    carModel
+    category {
+      _id
+      name
+    }
+    plateNumber
+  }
+  `;
+
 const trips = `
 query trips($status: String) {
   trips(status: $status) {
     list {
-      _id
-      carIds
-      closedDate
-      createdAt
-      dealIds
-      driverId
-      estimatedCloseDate
-      route {
-        _id
-        code
-        name
-        summary {
-          placeNames
-          totalDistance
-          totalDuration
-        }
-      }
-      routeId
-      routeReversed
-      startedDate
-      status
-      statusInfo
-      driver {
-        _id
-        avatar
-        firstName
-        primaryPhone
-      }
-      deals {
-        _id
-        customers {
-          _id
-          firstName
-          primaryEmail
-          primaryPhone
-          avatar
-        }
-        name
-        stageId
-        stage {
-          _id
-          name
-        }
-        pipeline {
-          name
-          _id
-        }
-        boardId
-        amount
-        companies {
-          _id
-          avatar
-          primaryName
-          primaryEmail
-          primaryPhone
-        }
-      }
-      cars {
-        _id
-        carModel
-        category {
-          _id
-          name
-        }
-        plateNumber
-      }
+      ${tripFields}
     }
     totalCount
   }
@@ -641,85 +681,8 @@ query trips($status: String) {
 const tripDetail = `
 query tripDetail($_id: String!) {
   tripDetail(_id: $_id) {
-    _id
-    cars {
-      _id
-      carModel
-      category {
-        _id
-        name
-      }
-      carCategoryId
-      description
-    }
-    carIds
-    closedDate
-    createdAt
-    dealIds
-    deals {
-      _id
-      name
-      customFieldsData
-      customers {
-        _id
-        firstName
-        lastName
-        primaryEmail
-        primaryPhone
-      }
-      companies {
-        _id
-        primaryEmail
-        primaryName
-        primaryPhone
-      }
-    }
-    driver {
-      _id
-      avatar
-      email
-      firstName
-      lastName
-      phone
-      primaryEmail
-      primaryPhone
-      tagIds
-    }
-    driverId
-    estimatedCloseDate
-    route {
-      _id
-      code
-      directionIds
-      directions {
-        _id
-        duration
-        googleMapPath
-        placeIds
-        places {
-          _id
-          center
-          code
-          name
-          province
-        }
-        roadCode
-        roadConditions
-        routeCode
-        totalDistance
-      }
-      name
-      summary {
-        placeNames
-        totalDistance
-        totalDuration
-      }
-    }
-    routeId
-    routeReversed
-    startedDate
-    status
-    statusInfo
+    ${tripFields}
+    
     trackingData {
       lat
       lng

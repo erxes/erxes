@@ -1,5 +1,6 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as cookieParser from 'cookie-parser';
+import cpUserMiddleware from './middlewares/cpUserMiddleware';
 
 import afterMutations from './afterMutations';
 import { generateModels } from './connectionResolver';
@@ -27,6 +28,8 @@ export default {
     };
   },
 
+  hasSubscriptions: true,
+
   meta: {
     segments,
     forms,
@@ -45,7 +48,7 @@ export default {
 
     return context;
   },
-  middlewares: [cookieParser()],
+  middlewares: [cookieParser(), cpUserMiddleware],
   onServerInit: async options => {
     mainDb = options.db;
 
