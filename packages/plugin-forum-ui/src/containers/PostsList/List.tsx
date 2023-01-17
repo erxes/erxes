@@ -27,7 +27,7 @@ const List: React.FC = () => {
     state,
     categoryApprovalState,
     categoryIncludeDescendants: !!categoryIncludeDescendants,
-    sort: { lastPublishedAt: -1 },
+    sort: { _id: -1, lastPublishedAt: -1 },
     limit,
     offset
   };
