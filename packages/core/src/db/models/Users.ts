@@ -900,7 +900,21 @@ export const loadUserMovemmentClass = (models: IModels) => {
           isActive: false
         }));
 
-        if (!!removed.length) await models.UserMovements.insertMany(removed);
+        if (!!removed.length) {
+          await models.UserMovements.updateMany(
+            {
+              userId: user._id,
+              contentType,
+              contentTypeId: { $in: contentTypeIds },
+              status: USER_MOVEMENT_STATUSES.CREATED,
+              isActive: true
+            },
+            {
+              $set: { isActive: false }
+            }
+          );
+          await models.UserMovements.insertMany(removed);
+        }
 
         await models.UserMovements.updateMany(
           {
