@@ -28,18 +28,18 @@ import {
   Box as FormTriggerBtn,
   Typography,
   FormContent
-} from '../styles';
+} from '../../styles';
 import CreateForm from '@erxes/ui-forms/src/forms/containers/CreateForm';
 import EditForm from '@erxes/ui-forms/src/forms/containers/EditForm';
 import client from '@erxes/ui/src/apolloClient';
-import { mutations } from '../categories/graphql';
+import { mutations } from '../../categories/graphql';
 import gql from 'graphql-tag';
 import Select from 'react-select-plus';
-import { calculateMethods, COLORS } from '../common/constants';
+import { calculateMethods, COLORS } from '../../common/constants';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
-import { RiskCalculateLogicType } from '../common/types';
+import { RiskCalculateLogicType } from '../../common/types';
 
 type Props = {
   formId?: string;

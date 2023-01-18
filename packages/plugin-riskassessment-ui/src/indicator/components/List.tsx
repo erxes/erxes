@@ -11,17 +11,17 @@ import {
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import _loadash from 'lodash';
 import React from 'react';
-import AssessmentCategories from '../categories/container/List';
-import { ICommonListProps, RiskAssessmentsType } from '../common/types';
-import { DefaultWrapper } from '../common/utils';
+import AssessmentCategories from '../../categories/container/List';
+import { ICommonListProps, RiskIndicatorsType } from '../../common/types';
+import { DefaultWrapper } from '../../common/utils';
 import Form from '../containers/Form';
 import TableRow from './Row';
-import { subMenu } from '../common/constants';
+import { subMenu } from '../../common/constants';
 
 type Props = {
   queryParams: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  list: RiskAssessmentsType[];
+  list: RiskIndicatorsType[];
   totalCount: number;
   refetch: ({
     perPage,
@@ -90,13 +90,13 @@ class ListComp extends React.Component<Props, IState> {
 
   rightActionBarTrigger = (
     <Button btnStyle="success" icon="plus-circle">
-      Add Risk Assessment
+      {__('Add Risk Indicator')}
     </Button>
   );
 
   rightActionBar = (
     <ModalTrigger
-      title="Add Risk Assessment"
+      title="Add Risk Indicator"
       enforceFocus={false}
       trigger={this.rightActionBarTrigger}
       autoOpenKey="showListFormModal"
@@ -140,7 +140,7 @@ class ListComp extends React.Component<Props, IState> {
     );
   };
 
-  renderContent = (list: RiskAssessmentsType[]) => {
+  renderContent = (list: RiskIndicatorsType[]) => {
     const { selectedValue } = this.state;
     return (
       <Table>
@@ -199,15 +199,15 @@ class ListComp extends React.Component<Props, IState> {
 
     const leftActionBar = (
       <HeaderDescription
-        title="Risk Assessments"
-        icon="/images/actions/25.svg"
+        title="Risk Indicators"
+        icon="/images/actions/26.svg"
         description=""
       />
     );
 
     const updatedProps = {
       ...this.props,
-      title: 'Assessment List',
+      title: 'Indicator List',
       rightActionBar: rightActionBar,
       leftActionBar,
       content: this.renderContent(list),

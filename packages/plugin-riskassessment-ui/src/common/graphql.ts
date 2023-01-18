@@ -17,14 +17,14 @@ export const commonPaginateValue = `
     sortToDate:$sortToDate
 `;
 
-export const riskAssessmentDef = `
+export const riskIndicatorDef = `
     $categoryIds: String,
     $description: String,
     $name: String!,
     $calculateMethod: String,
 `;
 
-export const riskAssessmentValues = `
+export const riskIndicatorValues = `
     categoryIds: $categoryIds,
     description: $description,
     name: $name,
@@ -41,7 +41,7 @@ order
 type
 `;
 
-export const riskAssessmentParams = `
+export const riskIndicatorParams = `
     _id,
     name,
     description,

@@ -1,7 +1,7 @@
 import { checkPermission, paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import {
-  IRiskAssessmentField,
+  IRiskIndicatorsField,
   PaginateField
 } from '../../../models/definitions/common';
 
@@ -28,53 +28,53 @@ const generateConfigFilter = params => {
   return filter;
 };
 
-const RiskAssessmentQueries = {
-  async riskAssessments(
+const RiskIndicatorQueries = {
+  async riskIndicators(
     _root,
-    params: { categoryId: string } & IRiskAssessmentField & PaginateField,
+    params: { categoryId: string } & IRiskIndicatorsField & PaginateField,
     { models }: IContext
   ) {
-    return await models.RiskAssessment.riskAssessments(params);
+    return await models.RiskIndicators.riskIndicators(params);
   },
 
-  async riskAssessmentsTotalCount(
+  async riskIndicatorsTotalCount(
     _root,
-    params: { categoryId: string } & IRiskAssessmentField & PaginateField,
+    params: { categoryId: string } & IRiskIndicatorsField & PaginateField,
     { models }: IContext
   ) {
-    return await models.RiskAssessment.riskAssessmentsTotalCount(params);
+    return await models.RiskIndicators.riskIndicatorsTotalCount(params);
   },
 
-  async riskAssessmentDetail(
+  async riskIndicatorDetail(
     _root,
     params: { _id: string; fieldsSkip: any },
     { models }: IContext
   ) {
-    return await models.RiskAssessment.riskAssessmentDetail(params);
+    return await models.RiskIndicators.riskIndicatorDetail(params);
   },
 
-  async riskAssessmentConfigs(_root, params, { models }: IContext) {
+  async riskIndicatorConfigs(_root, params, { models }: IContext) {
     const filter = generateConfigFilter(params);
 
     return await paginate(
-      models.RiskAssessmentConfigs.find(filter).sort({
+      models.RiskIndicatorConfigs.find(filter).sort({
         [params.sortField]: params.sortDirection
       }),
       params
     );
   },
-  async riskAssessmentConfigsTotalCount(_root, params, { models }: IContext) {
+  async riskIndicatorConfigsTotalCount(_root, params, { models }: IContext) {
     const filter = generateConfigFilter(params);
 
-    return await models.RiskAssessmentConfigs.find(filter).countDocuments();
+    return await models.RiskIndicatorConfigs.find(filter).countDocuments();
   }
 };
 
-// checkPermission(RiskAssessmentQueries, 'riskAssessments', 'showRiskAssessment');
+// checkPermission(RiskIndicatorQueries, 'riskIndicators', 'showRiskIndicator');
 // checkPermission(
-//   RiskAssessmentQueries,
-//   'riskAssessmentDetail',
-//   'showRiskAssessment'
+//   RiskIndicatorQueries,
+//   'riskIndicatorDetail',
+//   'showRiskIndicator'
 // );
 
-export default RiskAssessmentQueries;
+export default RiskIndicatorQueries;

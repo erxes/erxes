@@ -11,15 +11,13 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import gql from 'graphql-tag';
 import moment from 'moment';
 import React from 'react';
-import { RiskAssessmentsType } from '../common/types';
+import { RiskIndicatorsType } from '../../common/types';
 import { default as Form, default as FormContainer } from '../containers/Form';
 import { generateParams } from '../containers/List';
 import { mutations, queries } from '../graphql';
-import { Badge } from '../styles';
-import FormHistory from '../containers/FormHistory';
 
 type IProps = {
-  object: RiskAssessmentsType;
+  object: RiskIndicatorsType;
   selectedValue: string[];
   onchange: (id: string) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -59,7 +57,7 @@ class TableRow extends React.Component<IProps> {
         ];
         return (
           <ButtonMutate
-            mutation={mutations.riskAssessmentAdd}
+            mutation={mutations.riskIndicatorAdd}
             variables={values}
             isSubmitted={isSubmitted}
             refetchQueries={refetchQueries}

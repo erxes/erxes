@@ -2,18 +2,18 @@ import {
   commonPaginateDef,
   commonPaginateValue,
   riskAssessmentCategoryParams,
-  riskAssessmentParams
-} from '../common/graphql';
+  riskIndicatorParams
+} from '../../common/graphql';
 
 const list = `
-query RiskAssessments($categoryIds: [String],$ignoreIds:[String],${commonPaginateDef}) {
-  riskAssessments(categoryIds: $categoryIds , ignoreIds:$ignoreIds,${commonPaginateValue}) {${riskAssessmentParams}}
+query RiskIndicators($categoryIds: [String],$ignoreIds:[String],${commonPaginateDef}) {
+  riskIndicators(categoryIds: $categoryIds , ignoreIds:$ignoreIds,${commonPaginateValue}) {${riskIndicatorParams}}
   }
 `;
 
 const totalCount = `
-query RiskAssessmentsTotalCount($categoryIds: [String],$ignoreIds:[String],${commonPaginateDef}) {
-  riskAssessmentsTotalCount(categoryIds: $categoryIds , ignoreIds:$ignoreIds,${commonPaginateValue}) 
+query RiskIndicatorsTotalCount($categoryIds: [String],$ignoreIds:[String],${commonPaginateDef}) {
+  riskIndicatorsTotalCount(categoryIds: $categoryIds , ignoreIds:$ignoreIds,${commonPaginateValue}) 
   }
 `;
 
@@ -25,10 +25,14 @@ const listAssessmentCategories = `
   }
 `;
 
-const assessmentDetail = `
-query RiskAssessmentDetail($id: String, $fieldsSkip: JSON) {
-  riskAssessmentDetail(_id: $id, fieldsSkip: $fieldsSkip) {
-      ${riskAssessmentParams}
+const indicatorDetail = `
+query RiskIndicatorDetail($id: String, $fieldsSkip: JSON) {
+  riskIndicatorDetail(_id: $id, fieldsSkip: $fieldsSkip) {
+      ${riskIndicatorParams}
+      customScoreField {
+        label
+        percentWeigth
+      }
       calculateMethod
       calculateLogics {
       _id
@@ -69,7 +73,7 @@ query RiskFormSubmitHistory($cardId:String,$cardType:String,$riskAssessmentId: S
 export default {
   list,
   listAssessmentCategories,
-  assessmentDetail,
+  indicatorDetail,
   assessmentHistory,
   totalCount
 };

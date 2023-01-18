@@ -1,4 +1,15 @@
-import { Alert, ButtonMutate, Chooser, Spinner } from '@erxes/ui/src';
+import {
+  Alert,
+  ButtonMutate,
+  Chooser,
+  ControlLabel,
+  FormGroup,
+  Spinner,
+  __
+} from '@erxes/ui/src';
+import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { isEnabled, withProps } from '@erxes/ui/src/utils/core';
 import gql from 'graphql-tag';
@@ -9,9 +20,10 @@ import {
   ICardRiskAssessmentDetailQueryResponse,
   ICardRiskAssessmentsQueryResponse
 } from '../../common/types';
-import AddRiskAssessmentForm from '../../containers/Form';
-import { mutations as riskAssessmentMutattions } from '../../graphql';
+import AddRiskAssessmentForm from '../../indicator/containers/Form';
+import { mutations as riskIndicatorMutattions } from '../../indicator/graphql';
 import { mutations, queries } from '../graphql';
+import { FormContainer, FormContent } from '../../styles';
 
 type Props = {
   closeModal: () => void;
@@ -22,7 +34,7 @@ type Props = {
 };
 
 type FinalProps = {
-  riskAssessmentsQuery: ICardRiskAssessmentsQueryResponse;
+  riskIndicatorsQuery: ICardRiskAssessmentsQueryResponse;
   conformityDetail: ICardRiskAssessmentDetailQueryResponse;
   addConformity: any;
   editconformity: any;
@@ -31,6 +43,8 @@ type FinalProps = {
 
 type State = {
   perpage: number;
+  branchIds: string[];
+  departmentIds: string[];
 };
 
 class RiskAssessmentForm extends React.Component<FinalProps, State> {
@@ -38,7 +52,9 @@ class RiskAssessmentForm extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      perpage: 5
+      perpage: 5,
+      branchIds: [],
+      departmentIds: []
     };
 
     this.handleSelect = this.handleSelect.bind(this);
@@ -56,7 +72,7 @@ class RiskAssessmentForm extends React.Component<FinalProps, State> {
     }: IButtonMutateProps) => {
       return (
         <ButtonMutate
-          mutation={riskAssessmentMutattions.riskAssessmentAdd}
+          mutation={riskIndicatorMutattions.riskIndicatorAdd}
           variables={values}
           callback={callback}
           refetchQueries={refetchQueries}
@@ -76,7 +92,7 @@ class RiskAssessmentForm extends React.Component<FinalProps, State> {
     );
   }
 
-  handleSelect = item => {
+  handleSelect = items => {
     const {
       id,
       refetch,
@@ -87,7 +103,7 @@ class RiskAssessmentForm extends React.Component<FinalProps, State> {
       refetchSubmissions
     } = this.props;
 
-    if (item.length === 0) {
+    if (items.length === 0) {
       return removeConformity({ variables: { cardId: id } })
         .then(() => {
           refetch();
@@ -98,12 +114,12 @@ class RiskAssessmentForm extends React.Component<FinalProps, State> {
 
     const variables = {
       cardId: id,
-      riskAssessmentId: item[0]._id
+      riskIndicatorIds: items.map(item => item._id)
     };
 
     if (
-      conformityDetail.riskConformityDetails &&
-      conformityDetail.riskConformityDetails.length > 0
+      conformityDetail.riskConformityDetail.riskIndicators &&
+      !!conformityDetail.riskConformityDetail.riskIndicatorIds.length
     ) {
       return editconformity({ variables })
         .then(() => {
@@ -127,43 +143,74 @@ class RiskAssessmentForm extends React.Component<FinalProps, State> {
     }
 
     this.setState({ perpage: this.state.perpage + 5 }, () =>
-      this.props.riskAssessmentsQuery.refetch({
+      this.props.riskIndicatorsQuery.refetch({
         searchValue: value,
         perPage: this.state.perpage
       })
     );
   };
-  render() {
-    const { conformityDetail, riskAssessmentsQuery, closeModal } = this.props;
+
+  renderChooser() {
+    const { conformityDetail, riskIndicatorsQuery, closeModal } = this.props;
     const { perpage } = this.state;
+
+    const { riskConformityDetail } = conformityDetail;
+
+    if (riskIndicatorsQuery.loading || conformityDetail.loading) {
+      return <Spinner objective />;
+    }
 
     const selectedItems: any[] = [];
 
-    if (riskAssessmentsQuery.loading || conformityDetail.loading) {
-      return <Spinner objective />;
-    }
-    for (const detail of conformityDetail?.riskConformityDetails) {
-      selectedItems.push(detail.riskAssessment);
+    for (const riskIndicator of riskConformityDetail?.riskIndicators || []) {
+      selectedItems.push(riskIndicator.detail);
     }
 
-    console.log({ riskAssessmentsQuery });
+    const updateProps = {
+      title: 'Risk Assessment Indicators',
+      datas: riskIndicatorsQuery.riskIndicators || [],
+      data: { name: 'name', datas: selectedItems },
+      search: this.search,
+      clearState: () => this.search('', true),
+      renderName: category => category.name,
+      renderForm: this.renderAddForm,
+      onSelect: this.handleSelect,
+      closeModal: () => closeModal(),
+      perPage: perpage
+    };
+    return <Chooser {...updateProps} />;
+  }
+  render() {
+    const { departmentIds, branchIds } = this.state;
 
-    const list = riskAssessmentsQuery.riskAssessments || [];
+    const handleSelect = (name, value) => {
+      this.setState({ [name]: value } as Pick<State, keyof State>);
+    };
 
     return (
-      <Chooser
-        title="Risk Assessment Forms"
-        datas={list}
-        data={{ name: 'name', datas: selectedItems }}
-        search={this.search}
-        clearState={() => this.search('', true)}
-        renderName={category => category.name}
-        renderForm={this.renderAddForm}
-        onSelect={this.handleSelect}
-        closeModal={() => closeModal()}
-        perPage={perpage}
-        limit={1}
-      />
+      <FormContainer column gap>
+        <FormContent>
+          <FormGroup>
+            <ControlLabel>{__('Branches')}</ControlLabel>
+            <SelectBranches
+              name="branchIds"
+              label="Select Branches"
+              initialValue={branchIds}
+              onSelect={value => handleSelect('branchIds', value)}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('Department')}</ControlLabel>
+            <SelectDepartments
+              name="departmentIds"
+              label="Select Departments"
+              initialValue={departmentIds}
+              onSelect={value => handleSelect('departmentIds', value)}
+            />
+          </FormGroup>
+        </FormContent>
+        <FormContent>{this.renderChooser()}</FormContent>
+      </FormContainer>
     );
   }
 }
@@ -171,11 +218,11 @@ class RiskAssessmentForm extends React.Component<FinalProps, State> {
 const refetchQueries = ({ id }) => ({
   refetchQueries: [
     {
-      query: gql(queries.riskConformityDetails),
+      query: gql(queries.riskConformityDetail),
       variables: { cardId: id }
     },
     {
-      query: gql(queries.riskConformityDetails)
+      query: gql(queries.riskConformityDetail)
     }
   ]
 });
@@ -184,8 +231,8 @@ export default withProps<Props>(
   compose(
     //Query
 
-    graphql<Props>(gql(queries.riskAssessments), {
-      name: 'riskAssessmentsQuery',
+    graphql<Props>(gql(queries.riskIndicators), {
+      name: 'riskIndicatorsQuery',
       skip: ({ id }) => !id,
       options: ({}) => ({
         variables: {
@@ -195,7 +242,7 @@ export default withProps<Props>(
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<Props>(gql(queries.riskConformityDetails), {
+    graphql<Props>(gql(queries.riskConformityDetail), {
       name: 'conformityDetail',
       options: ({ id }) => ({ variables: { cardId: id } }),
       skip: ({ id }) => !isEnabled('riskassessment') || !id

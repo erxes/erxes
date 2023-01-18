@@ -13,7 +13,7 @@ export const commonPaginateTypes = `
     sortToDate: String
 `;
 
-export const commonRiskAssessmentTypes = `
+export const commonRiskIndicatorTypes = `
     _id: String
     name: String!
     description: String
@@ -21,12 +21,13 @@ export const commonRiskAssessmentTypes = `
     branchIds:[String]
     departmentIds:[String]
     calculateMethod:String
+    customScoreField: JSON
 `;
 
 export const commonRiskConformityTypes = `
     _id: String!,
     cardId: String!,
-    riskAssessmentId: String!,
+    riskIndicatorId: String!,
 `;
 
 export const commonAssessmentCategoryTypes = `
@@ -42,18 +43,18 @@ export const commonFormSubmissionsTypes = `
     formId: String,
     userId: String,
     fieldId: String,
-    riskAssessmentId: String,
+    riskIndicatorId: String,
     formSubmissions:JSON
 `;
 
-export const commonRiskAssessmentFormParams = `
+export const commonRiskIndicatorFormParams = `
         _id:String,
         formId:String,
         calculateMethod:String,
         percentWeight:Int,
 `;
 
-export const commonRiskAssessmentParams = `
+export const commonRiskIndicatorParams = `
         _id:String,
         name: String
         description: String

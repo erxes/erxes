@@ -2,9 +2,9 @@ import {
   commonAssessmentCategoryTypes,
   commonCalculateLogicParams,
   commonPaginateTypes,
-  commonRiskAssessmentFormParams,
-  commonRiskAssessmentParams,
-  commonRiskAssessmentTypes,
+  commonRiskIndicatorFormParams,
+  commonRiskIndicatorParams,
+  commonRiskIndicatorTypes,
   commonTypes
 } from './common';
 
@@ -18,7 +18,7 @@ const configParams = `
     createdAt:Date,
     modifiedAt:Date,
     configs:JSON,
-    riskAssessmentId:String
+    riskIndicatorId:String
 
 `;
 
@@ -31,30 +31,42 @@ customFieldId:String
 `;
 
 export const types = `
-    input IRiskAssessment {
-        ${commonRiskAssessmentParams}
+    input IRiskIndicator {
+        ${commonRiskIndicatorParams}
+        customScoreField:ICustomScoreField
         calculateMethod:String
         calculateLogics:[ICalculateLogic]
-        forms:[IRiskAssessmentForm]
+        forms:[IRiskIndicatorForm]
     }
 
-    type RiskAssessmentType {
-        ${commonRiskAssessmentParams}
+    type RiskIndicatorType {
+        ${commonRiskIndicatorParams}
         createdAt:Date
-        categories:[RiskAssessmentCategoryInput]
+        categories:[RiskIndicatorCategoryInput]
+        customScoreField:CustomScoreFieldType
         calculateMethod:String
         calculateLogics:[CalculateLogicType]
-        forms:[RiskAssessmentFormType]
+        forms:[RiskIndicatorFormType]
     }
     
-    type RiskAssessmentCategoryInput {
+    type RiskIndicatorCategoryInput {
         ${commonAssessmentCategoryTypes}
     }
 
-    input IRiskAssessmentForm {
-         ${commonRiskAssessmentFormParams}
+    input IRiskIndicatorForm {
+         ${commonRiskIndicatorFormParams}
         calculateLogics:[ICalculateLogic]
 
+    }
+
+    input ICustomScoreField {
+        label:String
+        percentWeigth:Int
+    }
+
+    type CustomScoreFieldType {
+        label:String
+        percentWeigth:Int
     }
 
     input ICalculateLogic {
@@ -65,45 +77,50 @@ export const types = `
         ${commonCalculateLogicParams}
     }
 
-    type RiskAssessmentFormType {
-        ${commonRiskAssessmentFormParams}
+    type RiskIndicatorFormType {
+        ${commonRiskIndicatorFormParams}
         calculateLogics:[CalculateLogicType]
     }
 
-    input RiskAssessmentConfigInput {
+    input RiskIndicatorConfigInput {
         ${configParams}
     }
     
-    type RiskAssessmentConfigs {
+    type RiskIndicatorConfigs {
         ${configParams},
         board:JSON,
         pipeline:JSON,
         stage:JSON,
         field:JSON
-        riskAssessment:JSON
+        riskIndicator:JSON
     }
 
     type list {
-        list: [RiskAssessmentType]
+        list: [RiskIndicatorType]
         totalCount: Int
     }
 
 `;
 
 export const queries = `
-    riskAssessments (categoryIds:[String],ignoreIds:[String],${commonPaginateTypes}):[RiskAssessmentType]
-    riskAssessmentsTotalCount(categoryIds:[String],ignoreIds:[String],${commonPaginateTypes}):Int
-    riskAssessmentDetail(_id: String,fieldsSkip:JSON): RiskAssessmentType
-    riskAssessmentConfigs (${configParamsDef},${commonPaginateTypes}):[RiskAssessmentConfigs]
-    riskAssessmentConfigsTotalCount(${configParamsDef},${commonPaginateTypes}):Int
+    riskIndicators (categoryIds:[String],ignoreIds:[String],${commonPaginateTypes}):[RiskIndicatorType]
+    riskIndicatorsTotalCount(categoryIds:[String],ignoreIds:[String],${commonPaginateTypes}):Int
+    riskIndicatorDetail(_id: String,fieldsSkip:JSON): RiskIndicatorType
+    riskIndicatorConfigs (${configParamsDef},${commonPaginateTypes}):[RiskIndicatorConfigs]
+    riskIndicatorConfigsTotalCount(${configParamsDef},${commonPaginateTypes}):Int
 `;
 
 export const mutations = `
-    addRiskAssesment (${commonRiskAssessmentTypes}${commonTypes},calculateLogics:[ICalculateLogic],forms:[IRiskAssessmentForm]):JSON
-    removeRiskAssessment (_ids:[String]):JSON
-    updateRiskAssessment (doc:IRiskAssessment):JSON
-    addRiskAssesmentConfig (${configParams}):JSON
-    updateRiskAssessmentConfig(configId:String,doc:RiskAssessmentConfigInput):JSON
-    removeRiskAssessmentConfigs(configIds:[String]):JSON
-    removeUnusedRiskAssessmentForm(formIds:[String]):JSON
+    addRiskIndicator (
+        ${commonRiskIndicatorTypes}
+        ${commonTypes},
+        customScoreField:ICustomScoreField,
+        calculateLogics:[ICalculateLogic],
+        forms:[IRiskIndicatorForm]): JSON
+    removeRiskIndicator (_ids:[String]):JSON
+    updateRiskIndicator (doc:IRiskIndicator):JSON
+    addRiskIndicatorConfig (${configParams}):JSON
+    updateRiskIndicatorConfig(configId:String,doc:RiskIndicatorConfigInput):JSON
+    removeRiskIndicatorConfigs(configIds:[String]):JSON
+    removeUnusedRiskIndicatorForm(formIds:[String]):JSON
 `;

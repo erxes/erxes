@@ -1,74 +1,68 @@
 import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
-import { IRiskAssessmentField } from '../../../models/definitions/common';
+import { IRiskIndicatorsField } from '../../../models/definitions/common';
 
-const RiskAssessmentMutations = {
-  async addRiskAssesment(
+const RiskIndicatorsMutations = {
+  async addRiskIndicator(
     _root,
-    params: IRiskAssessmentField,
+    params: IRiskIndicatorsField,
     { models }: IContext
   ) {
-    const result = await models.RiskAssessment.riskAssesmentAdd(params);
+    const result = await models.RiskIndicators.riskIndicatorAdd(params);
     return result;
   },
-  async removeRiskAssessment(_root, { _ids }, { models }: IContext) {
-    const result = await models.RiskAssessment.riskAssesmentRemove(_ids);
+  async removeRiskIndicators(_root, { _ids }, { models }: IContext) {
+    const result = await models.RiskIndicators.riskIndicatorRemove(_ids);
     return result;
   },
 
-  async updateRiskAssessment(
+  async updateRiskIndicator(
     _root,
-    params: { doc: IRiskAssessmentField },
+    params: { doc: IRiskIndicatorsField },
     { models }: IContext
   ) {
-    console.log({ params });
-
-    const result = await models.RiskAssessment.riskAssessmentUpdate(params);
+    const result = await models.RiskIndicators.riskIndicatorUpdate(params);
     return result;
   },
 
-  async removeUnusedRiskAssessmentForm(
+  async removeUnusedRiskIndicatorForm(
     _root,
     { formIds },
     { models }: IContext
   ) {
-    return await models.RiskAssessment.removeUnusedRiskAssessmentForm(formIds);
+    return await models.RiskIndicators.removeUnusedRiskIndicatorForm(formIds);
   },
 
-  async addRiskAssesmentConfig(_root, params, { models }: IContext) {
-    return await models.RiskAssessmentConfigs.addConfig(params);
+  async addRiskIndicatorConfig(_root, params, { models }: IContext) {
+    return await models.RiskIndicatorConfigs.addConfig(params);
   },
-  async updateRiskAssessmentConfig(
+  async updateRiskIndicatorConfig(
     _root,
     { configId, doc },
     { models }: IContext
   ) {
-    return await models.RiskAssessmentConfigs.updateConfig(configId, doc);
+    return await models.RiskIndicatorConfigs.updateConfig(configId, doc);
   },
 
-  async removeRiskAssessmentConfigs(
-    _root,
-    { configIds },
-    { models }: IContext
-  ) {
-    return await models.RiskAssessmentConfigs.removeConfigs(configIds);
+  async removeRiskIndicatorConfigs(_root, { configIds }, { models }: IContext) {
+    return await models.RiskIndicatorConfigs.removeConfigs(configIds);
   }
 };
 
 checkPermission(
-  RiskAssessmentMutations,
+  RiskIndicatorsMutations,
   'addRiskAssesment',
-  'manageRiskAssessment'
+  'manageRiskIndicators'
 );
 checkPermission(
-  RiskAssessmentMutations,
-  'removeRiskAssessment',
-  'manageRiskAssessment'
+  RiskIndicatorsMutations,
+  'removeRiskIndicators',
+  'manageRiskIndicators'
 );
 checkPermission(
-  RiskAssessmentMutations,
-  'updateRiskAssessment',
-  'manageRiskAssessment'
+  RiskIndicatorsMutations,
+  'updateRiskIndicators',
+  'manageRiskIndicators'
 );
 
-export default RiskAssessmentMutations;
+export default RiskIndicatorsMutations;

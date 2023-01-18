@@ -27,14 +27,14 @@ export interface IRiskConformityModel extends Model<IRiskConformityDocument> {
   riskConformitySubmissions(params: {
     cardId: string;
   }): Promise<IRiskConformityDocument>;
-  riskConformityDetails(
+  riskConformityDetail(
     params: IRiskConformityParams
   ): Promise<IRiskConformityDocument>;
   riskConformityAdd(
     params: IRiskConformityField
   ): Promise<IRiskConformityDocument>;
   riskConformityUpdate(
-    params: IRiskConformityParams
+    params: IRiskConformityField
   ): Promise<IRiskConformityDocument>;
   riskConformityRemove(cardId: string): Promise<IRiskConformityDocument>;
   riskConformityFormDetail(params): any;
@@ -107,22 +107,35 @@ const generateFilter = params => {
   return filter;
 };
 
-export const loadRiskConformity = (model: IModels, subdomain: string) => {
+export const loadRiskConformity = (models: IModels, subdomain: string) => {
   class RiskConformity {
     public static async riskConformityAdd(params: IRiskConformityField) {
-      const riskAssessment = await model.RiskAssessment.findOne({
-        _id: params.riskAssessmentId
+      const { cardId, cardType } = params;
+      const riskAssessment = await models.RiskAssessments.addRiskAssessment(
+        params
+      );
+
+      const conformity = await models.RiskConformity.create({
+        cardId,
+        cardType,
+        riskAssessmentId: riskAssessment?._id
       });
-
-      const forms = riskAssessment?.forms?.map(form => ({
-        formId: form.formId
-      }));
-
-      return model.RiskConformity.create({ ...params, forms });
+      return conformity;
     }
     public static async riskConformity(params: IRiskConformityParams) {
       const filter = generateFilter(params);
-      return await model.RiskConformity.findOne(filter);
+      const conformity = await models.RiskConformity.findOne(filter);
+      const riskAssessment = await models.RiskAssessments.findOne({
+        _id: conformity?.riskAssessmentId
+      });
+
+      return {
+        _id: conformity?._id,
+        cardId: conformity?.cardId,
+        cardType: conformity?.cardType,
+        riskAssessmentId: conformity?.riskAssessmentId,
+        riskIndicatorIds: riskAssessment?.indicatorIds
+      };
     }
 
     public static async riskConformities(params) {
@@ -132,32 +145,50 @@ export const loadRiskConformity = (model: IModels, subdomain: string) => {
         ? { [params.sortField]: params.sortDirection }
         : { createdAt: -1 };
 
-      return await model.RiskConformity.find(filter).sort(sort);
+      return await models.RiskConformity.find(filter).sort(sort);
     }
 
     public static async riskConformitiesTotalCount(params) {
       const filter = generateFilter(params);
 
-      return await model.RiskConformity.find(filter).countDocuments();
+      return await models.RiskConformity.find(filter).countDocuments();
     }
 
-    public static async riskConformityDetails(params) {
-      const filter = generateFilter(params);
+    public static async riskConformityDetail(params) {
+      const { cardId } = params;
 
-      return paginate(model.RiskConformity.find(filter), params);
+      let conformity = await models.RiskConformity.findOne({ cardId }).sort({
+        createdAt: 1
+      });
+
+      console.log({ conformity });
+
+      const riskAssessment = await models.RiskAssessments.findOne({
+        _id: conformity?.riskAssessmentId
+      });
+
+      console.log(riskAssessment);
+
+      return {
+        _id: conformity?._id,
+        cardId: conformity?.cardId,
+        cardType: conformity?.cardType,
+        riskAssessmentId: conformity?.riskAssessmentId,
+        riskIndicatorIds: riskAssessment?.indicatorIds
+      };
     }
 
     public static async riskConformityUpdate(params: IRiskConformityParams) {
-      const { cardId, riskAssessmentId, cardType } = params;
+      const { cardId, riskIndicatorIds, cardType } = params;
 
-      if (!riskAssessmentId) {
-        throw new Error('riskAssessmentId is required');
+      if (!riskIndicatorIds && !riskIndicatorIds?.length) {
+        throw new Error('riskIndicatorId is required');
       }
       if (!cardId) {
         throw new Error('cardId is required');
       }
 
-      const confimity = await model.RiskConformity.findOne({
+      const confimity = await models.RiskConformity.findOne({
         cardId,
         cardType
       }).lean();
@@ -166,9 +197,23 @@ export const loadRiskConformity = (model: IModels, subdomain: string) => {
         throw new Error('Confimity not found');
       }
 
-      return await model.RiskConformity.findOneAndUpdate(
+      const riskAssessment = await models.RiskAssessments.findOne({
+        _id: confimity.riskAssessmentId
+      });
+
+      await models.RiskAssessmentIndicatorForms.find({
+        assessmentId: riskAssessment?._id,
+        indicatorId: { $nin: riskIndicatorIds }
+      });
+
+      await models.RiskAssessmentIndicators.deleteMany({
+        assessmentId: riskAssessment?._id,
+        indicatorId: { $nin: riskIndicatorIds }
+      });
+
+      return await models.RiskConformity.findOneAndUpdate(
         { _id: confimity._id },
-        { ...confimity, riskAssessmentId },
+        { ...confimity, riskIndicatorIds },
         { new: true }
       );
     }
@@ -178,7 +223,7 @@ export const loadRiskConformity = (model: IModels, subdomain: string) => {
         throw new Error('cardId is required');
       }
 
-      await model.RiskConformity.deleteOne({ cardId });
+      await models.RiskConformity.deleteOne({ cardId });
       return 'success';
     }
 
@@ -189,22 +234,27 @@ export const loadRiskConformity = (model: IModels, subdomain: string) => {
         throw new Error('card Id is required');
       }
 
-      if (!(await model.RiskConformity.findOne({ cardId: cardId, cardType }))) {
+      if (
+        !(await models.RiskConformity.findOne({ cardId: cardId, cardType }))
+      ) {
         throw new Error('Not found selected risk assessment in card');
       }
 
-      const { riskAssessmentId, status } = await model.RiskConformity.findOne({
+      const {
+        riskAssessmentId,
+        status,
+        formIds
+      } = await models.RiskConformity.findOne({
         cardId: cardId,
         cardType
       }).lean();
 
       const assignedUsers = await this.getAsssignedUsers(cardId, cardType);
-      const formId = await this.getFormId(cardId);
 
       for (const usr of assignedUsers) {
-        const submissions = await model.RiksFormSubmissions.find({
+        const submissions = await models.RiksFormSubmissions.find({
           cardId: cardId,
-          formId,
+          formId: { $in: formIds },
           userId: usr._id,
           riskAssessmentId
         });
@@ -215,11 +265,11 @@ export const loadRiskConformity = (model: IModels, subdomain: string) => {
 
       if (status !== 'In Progress') {
         const assignedUserIds = assignedUsers.map(user => user._id);
-        const submittedUsers = await model.RiksFormSubmissions.find({
+        const submittedUsers = await models.RiksFormSubmissions.find({
           userId: { $in: assignedUserIds },
           riskAssessmentId,
           cardId: cardId,
-          formId
+          formId: { $in: formIds }
         });
         const submittedUsersIds = [
           ...new Set(submittedUsers.map(user => user.userId))
@@ -233,13 +283,13 @@ export const loadRiskConformity = (model: IModels, subdomain: string) => {
     }
 
     public static async riskConformityFormDetail(params) {
-      const { cardId, userId, riskAssessmentId } = params;
+      const { cardId, userId, riskIndicatorId } = params;
 
       if (!cardId) {
         throw new Error('Card ID is required');
       }
-      const { categoryId, forms } = await model.RiskAssessment.findOne({
-        _id: riskAssessmentId
+      const { categoryId, forms } = await models.RiskIndicators.findOne({
+        _id: riskIndicatorId
       }).lean();
 
       const formIds = forms.map(form => form.formId);
@@ -283,7 +333,7 @@ export const loadRiskConformity = (model: IModels, subdomain: string) => {
           });
         }
       }
-      const submissions = await model.RiksFormSubmissions.find({
+      const submissions = await models.RiksFormSubmissions.find({
         cardId,
         formId: { $in: formIds },
         userId
@@ -332,14 +382,14 @@ export const loadRiskConformity = (model: IModels, subdomain: string) => {
     }
 
     static async getFormId(cardId: string) {
-      const { riskAssessmentId } = await model.RiskConformity.findOne({
+      const { riskAssessmentId } = await models.RiskConformity.findOne({
         cardId
       }).lean();
-      const { categoryId } = await model.RiskAssessment.findOne({
+      const { categoryId } = await models.RiskIndicators.findOne({
         _id: riskAssessmentId
       }).lean();
 
-      const { formId } = await model.RiskAssessmentCategory.findOne({
+      const { formId } = await models.RiskAssessmentCategory.findOne({
         _id: categoryId
       }).lean();
       return formId;

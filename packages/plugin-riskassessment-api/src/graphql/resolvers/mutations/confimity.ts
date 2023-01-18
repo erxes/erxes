@@ -26,20 +26,20 @@ const RiskConfimityMutations = {
   }
 };
 
-checkPermission(
-  RiskConfimityMutations,
-  'addRiskConformity',
-  'manageRiskAssessment'
-);
-checkPermission(
-  RiskConfimityMutations,
-  'updateRiskConformity',
-  'manageRiskAssessment'
-);
-checkPermission(
-  RiskConfimityMutations,
-  'removeRiskConformity',
-  'manageRiskAssessment'
-);
+// checkPermission(
+//   RiskConfimityMutations,
+//   'addRiskConformity',
+//   'manageRiskAssessment'
+// );
+// checkPermission(
+//   RiskConfimityMutations,
+//   'updateRiskConformity',
+//   'manageRiskAssessment'
+// );
+// checkPermission(
+//   RiskConfimityMutations,
+//   'removeRiskConformity',
+//   'manageRiskAssessment'
+// );
 
 export default RiskConfimityMutations;

@@ -7,7 +7,7 @@ import { Padding } from '../../styles';
 
 type Props = {
   forms: any[];
-  submissions: any;
+  submissions: any[];
   formId: string;
   formSubmissionsSave: (doc: any) => any;
   closeModal: () => void;
@@ -15,14 +15,14 @@ type Props = {
 };
 
 type State = {
-  submissions: object;
+  submissions: any[];
 };
 class SubmissionsComponent extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
     this.state = {
-      submissions: this.props.submissions || {}
+      submissions: []
     };
 
     this.handleSumbmissionForm = this.handleSumbmissionForm.bind(this);
@@ -39,15 +39,31 @@ class SubmissionsComponent extends React.Component<Props, State> {
     });
   }
 
-  renderForm(fields) {
+  renderForm(form) {
     const { submissions } = this.state;
 
+    console.log({ submissions });
     const handleChange = field => {
-      submissions[field._id] = field.value;
-      this.setState({ submissions });
+      // submissions[field._id] = field.value;
+      // // const form = submissions.find(({ formId }) => formId === form.formId);
+      // // if (form) {
+      // //   form.fields[field._id] = field.value
+      // //   return this.setState({ submissions: submissions.map((submission)=>submission.formId === form.formId ?form:submission)})
+      // // }
+
+      const newSubmissions = submissions.map(submission =>
+        submission.formId === form.formId
+          ? { fields: { ...submission.fields, [field._id]: field.value } }
+          : { formId: form.formId, fields: { [field._id]: field.value } }
+      );
+      console.log({ newSubmissions });
+
+      this.setState({ submissions: newSubmissions });
     };
 
-    return fields.map(field => (
+    console.log(form);
+
+    return form.fields.map(field => (
       <GenerateField
         isEditing={true}
         defaultValue={submissions[field._id]}
@@ -68,7 +84,7 @@ class SubmissionsComponent extends React.Component<Props, State> {
           {Object.values(forms || {}).map(form => (
             <Step key={form.formId} title={form.formTitle}>
               <Padding horizontal vertical>
-                {this.renderForm(form.fields)}
+                {this.renderForm(form)}
               </Padding>
             </Step>
           ))}

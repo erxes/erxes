@@ -7,13 +7,13 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { RiskAssessmentDetailQueryResponse } from '../common/types';
+import { RiskIndicatortDetailQueryResponse } from '../../common/types';
 import FormCompnent from '../components/Form';
 import { queries } from '../graphql';
 
 type Props = {
   asssessmentId?: string;
-  assessmentDetail?: RiskAssessmentDetailQueryResponse;
+  indicatorDetail?: RiskIndicatortDetailQueryResponse;
   fieldsSkip?: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
@@ -30,15 +30,15 @@ class FormContainer extends React.Component<FinalProps> {
   }
 
   render() {
-    const { assessmentDetail } = this.props;
+    const { indicatorDetail } = this.props;
 
     const updatedProps = {
       ...this.props,
-      assessmentDetail: assessmentDetail?.riskAssessmentDetail,
-      detailLoading: assessmentDetail?.loading
+      indicatorDetail: indicatorDetail?.riskIndicatorDetail,
+      detailLoading: indicatorDetail?.loading
     };
 
-    if (assessmentDetail?.loading) {
+    if (indicatorDetail?.loading) {
       return <Spinner />;
     }
 
@@ -48,8 +48,8 @@ class FormContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.assessmentDetail), {
-      name: 'assessmentDetail',
+    graphql<Props>(gql(queries.indicatorDetail), {
+      name: 'indicatorDetail',
       skip: ({ asssessmentId }) => !asssessmentId,
       options: ({ asssessmentId, fieldsSkip }) => ({
         variables: { id: asssessmentId, fieldsSkip }

@@ -2,7 +2,7 @@ import { commonPaginateDef, commonPaginateValue } from '../../common/graphql';
 
 const paramsDef = `
   ${commonPaginateDef},
-  $riskAssessmentId:String,
+  $riskIndicatorId:String,
   $cardType: String,
   $createdFrom: String,
   $createdTo: String,
@@ -12,7 +12,7 @@ const paramsDef = `
 
 const paramsValue = `
   ${commonPaginateValue},
-  riskAssessmentId:$riskAssessmentId,
+  riskIndicatorId:$riskIndicatorId,
   cardType:$cardType,
   createdFrom:$createdFrom
   createdTo:$createdTo
@@ -27,8 +27,8 @@ query RiskConformities (${paramsDef},$status:String) {
     cardId
     cardType
     resultScore
-    riskAssessment
-    riskAssessmentId
+    riskIndicator
+    riskIndicatorId
     status
     statusColor
     createdAt

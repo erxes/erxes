@@ -13,7 +13,7 @@ import {
   HeaderDescription
 } from '@erxes/ui/src';
 import React from 'react';
-import { DefaultWrapper, SelectWithRiskAssessment } from '../../common/utils';
+import { DefaultWrapper, SelectWithRiskIndicator } from '../../common/utils';
 import {
   cardTypes,
   statusColorConstant,
@@ -67,7 +67,10 @@ class List extends React.Component<Props> {
           <tr>
             <th>{__('Card type')}</th>
             <th>{__('Card Name')}</th>
-            <th>{__('Risk Assessment')}</th>
+            <th>{__('Risk Indicators')}</th>
+            <th>{__('Branches')}</th>
+            <th>{__('Departments')}</th>
+            <th>{__('Opearations')}</th>
             <th>{__('Status')}</th>
             <th>{__('Result Score')}</th>
             <th>
@@ -157,7 +160,7 @@ class List extends React.Component<Props> {
             field={'riskAssessmentId'}
             clearable={!!queryParams.riskAssessmentId}
           >
-            <SelectWithRiskAssessment
+            <SelectWithRiskIndicator
               name="riskAssessmentId"
               label="Select risk assessment"
               initialValue={queryParams?.riskAssessmentId}
@@ -243,8 +246,8 @@ class List extends React.Component<Props> {
 
     const leftActionBar = (
       <HeaderDescription
-        title="Form Submissions"
-        icon="/images/actions/25.svg"
+        title="Risk Assessments"
+        icon="/images/actions/13.svg"
         description=""
       />
     );

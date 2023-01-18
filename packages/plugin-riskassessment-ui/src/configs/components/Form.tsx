@@ -14,7 +14,7 @@ import {
 import { cardTypes } from '../../common/constants';
 import {
   SelectCustomFields,
-  SelectWithRiskAssessment
+  SelectWithRiskIndicator
 } from '../../common/utils';
 import { Features, ListItem, Block, Header, FormContainer } from '../../styles';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
@@ -38,7 +38,7 @@ type State = {
   stageId: string;
   customFieldId: string;
   configs: any[];
-  riskAssessmentId: string;
+  riskIndicatorId: string;
   isOpenSelectionCustomField: boolean;
 };
 
@@ -59,7 +59,7 @@ class Form extends React.Component<Props, State> {
       customFieldId: props?.config?.customFieldId || null,
       configs: props?.config?.configs || [],
       isOpenSelectionCustomField,
-      riskAssessmentId: props?.config?.riskAssessmentId || ''
+      riskIndicatorId: props?.config?.riskIndicatorId || ''
     };
 
     this.renderForm = this.renderForm.bind(this);
@@ -74,7 +74,7 @@ class Form extends React.Component<Props, State> {
       stageId,
       customFieldId,
       configs,
-      riskAssessmentId
+      riskIndicatorId
     } = this.state;
 
     const doc = {
@@ -84,7 +84,7 @@ class Form extends React.Component<Props, State> {
       stageId,
       customFieldId,
       configs,
-      riskAssessmentId
+      riskIndicatorId
     };
 
     if (config) {
@@ -108,7 +108,7 @@ class Form extends React.Component<Props, State> {
     const onChangeConfig = (config, field) => {
       const updatedFieldConfig = configs.map(fieldConfig =>
         fieldConfig.value === field.value
-          ? { ...fieldConfig, riskAssessmentId: config.value }
+          ? { ...fieldConfig, riskIndicatorId: config.value }
           : fieldConfig
       );
 
@@ -132,13 +132,13 @@ class Form extends React.Component<Props, State> {
           configs.map((field, i) => (
             <ListItem key={i}>
               <ControlLabel>{field.label}</ControlLabel>
-              <SelectWithRiskAssessment
+              <SelectWithRiskIndicator
                 name="riskAssessment"
                 label="Select risk assessment"
-                initialValue={field.riskAssessmentId}
+                initialValue={field.riskIndicatorId}
                 onSelect={e => onChangeConfig(e, field)}
                 ignoreIds={configs
-                  .map(config => config.riskAssessmentId)
+                  .map(config => config.riskIndicatorId)
                   .filter(id => id)}
               />
             </ListItem>
@@ -158,7 +158,7 @@ class Form extends React.Component<Props, State> {
       stageId,
       customFieldId,
       configs,
-      riskAssessmentId,
+      riskIndicatorId,
       isOpenSelectionCustomField
     } = this.state;
     const { renderButton, closeModal } = this.props;
@@ -183,11 +183,11 @@ class Form extends React.Component<Props, State> {
       this.setState({
         isOpenSelectionCustomField: isOpen,
         configs: [],
-        riskAssessmentId: ''
+        riskIndicatorId: ''
       });
     };
     const onChangeSelectedRiskAssessment = e => {
-      this.setState({ riskAssessmentId: e?.value });
+      this.setState({ riskIndicatorId: e?.value });
     };
     return (
       <>
@@ -232,10 +232,10 @@ class Form extends React.Component<Props, State> {
             ) : (
               <FormGroup>
                 <ControlLabel>{__('Select risk assessment')}</ControlLabel>
-                <SelectWithRiskAssessment
-                  name="riskAssessment"
-                  label="Select risk assessment"
-                  initialValue={riskAssessmentId}
+                <SelectWithRiskIndicator
+                  name="riskIndicator"
+                  label="Select risk indicator"
+                  initialValue={riskIndicatorId}
                   onSelect={onChangeSelectedRiskAssessment}
                 />
               </FormGroup>
@@ -247,7 +247,7 @@ class Form extends React.Component<Props, State> {
             Cancel
           </Button>
           {renderButton({
-            text: 'Risk assessment config',
+            text: 'Risk Indicators config',
             values: this.generateDoc(),
             callback: closeModal,
             isSubmitted,

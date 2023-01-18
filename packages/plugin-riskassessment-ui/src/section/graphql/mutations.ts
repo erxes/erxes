@@ -1,6 +1,6 @@
 const conformityRiskAssessment = `
-  mutation AddRiskConformity( $riskAssessmentId: String!, $cardId: String!,$cardType: String) {
-    addRiskConformity( riskAssessmentId: $riskAssessmentId, cardId: $cardId,cardType: $cardType) {
+  mutation AddRiskConformity( $riskIndicatorIds: [String!], $cardId: String!,$cardType: String) {
+    addRiskConformity( riskIndicatorIds: $riskIndicatorIds, cardId: $cardId,cardType: $cardType) {
       cardId
       _id
       riskAssessmentId
@@ -8,12 +8,12 @@ const conformityRiskAssessment = `
   }
 `;
 const editConformityRiskAssessment = `
-  mutation UpdateRiskConformity($cardId: String,$cardType:String, $riskAssessmentId: String) {
-    updateRiskConformity(cardId: $cardId,cardType:$cardType, riskAssessmentId: $riskAssessmentId) {
+  mutation UpdateRiskConformity($cardId: String,$cardType:String, $riskIndicatorIds: [String]) {
+    updateRiskConformity(cardId: $cardId,cardType:$cardType, riskIndicatorIds: $riskIndicatorIds) {
       _id
       cardId
       cardType
-      riskAssessmentId
+      riskIndicatorIds
     }
   }
 `;

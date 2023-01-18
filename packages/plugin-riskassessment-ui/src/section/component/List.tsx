@@ -9,9 +9,9 @@ import {
   Tip
 } from '@erxes/ui/src/components';
 import React from 'react';
-import { ICardRiskAssements, RiskAssessmentsType } from '../../common/types';
+import { ICardRiskAssements, RiskIndicatorsType } from '../../common/types';
 import { ColorBox, ProductName } from '../../styles';
-import RiskAssessmentChooser from '../container/Form';
+import RiskAssessmentChooser from '../container/Chooser';
 import Submissions from '../container/Submissions';
 type Props = {
   conformity: ICardRiskAssements;
@@ -28,13 +28,13 @@ function RiskAssessmentSection(props: Props) {
 
   const renderChooserModal = (
     trigger: React.ReactNode,
-    riskAssessmentId?: string
+    riskIndicatorId?: string
   ) => {
     const content = ({ closeModal }) => {
       const updateProps = {
         ...props,
         closeModal,
-        riskAssessmentId
+        riskIndicatorId
       };
 
       return <RiskAssessmentChooser {...updateProps} />;
@@ -50,7 +50,7 @@ function RiskAssessmentSection(props: Props) {
     );
   };
 
-  const renderItem = (item: RiskAssessmentsType, statusColor) => {
+  const renderItem = (item: RiskIndicatorsType, statusColor) => {
     return (
       <ProductName>
         {item && item?.name}
@@ -62,11 +62,11 @@ function RiskAssessmentSection(props: Props) {
   const renderSubmissionForm = ({
     isSubmitted,
     email,
-    riskAssessmentId
+    riskIndicatorId
   }: {
     isSubmitted?: boolean;
     email: string;
-    riskAssessmentId?: string;
+    riskIndicatorId?: string;
   }) => {
     if (currentUser.email !== email) {
       if (isSubmitted) {
@@ -78,15 +78,15 @@ function RiskAssessmentSection(props: Props) {
           </Button>
         );
       }
-      if (conformity?.status === 'In Progress') {
-        return (
-          <Button btnStyle="link">
-            <Tip text="In Progress" placement="bottom">
-              <Icon icon="loading" />
-            </Tip>
-          </Button>
-        );
-      }
+      // if (conformity?.status === 'In Progress') {
+      //   return (
+      //     <Button btnStyle="link">
+      //       <Tip text="In Progress" placement="bottom">
+      //         <Icon icon="loading" />
+      //       </Tip>
+      //     </Button>
+      //   );
+      // }
     }
 
     const trigger = (
@@ -107,7 +107,7 @@ function RiskAssessmentSection(props: Props) {
         currentUserId: props.currentUser._id,
         closeModal: closeModal,
         refetch: props.refetch,
-        riskAssessmentId: riskAssessmentId,
+        riskIndicatorId: riskIndicatorId,
         refetchSubmissions: props.refetchSubmissions,
         isSubmitted: isSubmitted
       };
@@ -132,18 +132,28 @@ function RiskAssessmentSection(props: Props) {
       return <EmptyState icon="folder-2" text={`No risk assessment`} />;
     }
 
-    return (
-      <div>
-        {
-          <SectionBodyItem key={conformity?.riskAssessmentId}>
-            {renderChooserModal(
-              renderItem(conformity?.riskAssessment, conformity?.statusColor),
-              conformity?.riskAssessmentId
-            )}
-          </SectionBodyItem>
-        }
-      </div>
-    );
+    const { riskIndicators } = conformity;
+
+    // return (
+    //   <div>
+    //     {
+    //       <SectionBodyItem key={conformity?.riskIndicatorId}>
+    //         {renderChooserModal(
+    //           renderItem(conformity?.riskIndicator, conformity?.statusColor),
+    //           conformity?.riskIndicatorId
+    //         )}
+    //       </SectionBodyItem>
+    //     }
+    //   </div>
+    // );
+    return riskIndicators.map(riskIndicator => (
+      <SectionBodyItem key={riskIndicator._id}>
+        {renderChooserModal(
+          renderItem(riskIndicator.detail, riskIndicator.statusColor),
+          riskIndicator._id
+        )}
+      </SectionBodyItem>
+    ));
   };
 
   const renderAssignedUserList = () => {
@@ -163,7 +173,7 @@ function RiskAssessmentSection(props: Props) {
           {renderSubmissionForm({
             isSubmitted: user.isSubmittedRiskAssessmentForm,
             email: user.email,
-            riskAssessmentId: conformity?.riskAssessmentId
+            riskIndicatorId: ''
           })}
         </ProductName>
       </SectionBodyItem>
@@ -173,7 +183,7 @@ function RiskAssessmentSection(props: Props) {
   return (
     <>
       <Box
-        name="riskAssessment"
+        name="riskIndicator"
         title={__('Risk Assessment')}
         extraButtons={renderChooserModal(
           <button>

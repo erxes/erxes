@@ -1,12 +1,30 @@
 import { IRiskConformityDocument } from '../../models/definitions/confimity';
-import { IContext } from '../../connectionResolver';
+import { IContext, models } from '../../connectionResolver';
 import { sendCardsMessage } from '../../messageBroker';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
-    return models.RiskAssessment.findOne({ _id });
+    return models.RiskConformity.findOne({ _id });
   },
 
+  async riskIndicators({ riskIndicatorIds }: IRiskConformityDocument) {
+    const indicators = await models?.RiskIndicators.find({
+      _id: { $in: riskIndicatorIds }
+    });
+
+    const riskIndicators = await models?.RiskAssessmentIndicators.find({
+      indicatorId: { $in: riskIndicatorIds }
+    }).lean();
+
+    for (const riskIndicator of riskIndicators || []) {
+      const indicator = indicators?.find(
+        indicator => indicator.id === riskIndicator.indicatorId
+      );
+      riskIndicator.detail = indicator;
+    }
+
+    return riskIndicators;
+  },
   async riskAssessment(
     riskConformity: IRiskConformityDocument,
     {},
@@ -14,7 +32,7 @@ export default {
   ) {
     return (
       (riskConformity.riskAssessmentId &&
-        dataLoaders.riskAssessment.load(riskConformity.riskAssessmentId)) ||
+        dataLoaders.riskAssessments.load(riskConformity.riskAssessmentId)) ||
       null
     );
   },

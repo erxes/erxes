@@ -112,14 +112,14 @@ export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
       }).lean();
 
       try {
-        const riskAssessments = await models.RiskAssessment.find({
-          categoryId: { $in: _id }
-        });
-        const riskAssessmentIds = riskAssessments.map(p => p._id);
-        await models.RiskAssessment.deleteMany({ categoryId: _id });
-        await models.RiskConformity.deleteMany({
-          riskAssessmentId: { $in: riskAssessmentIds }
-        });
+        // const riskAssessments = await models.RiskAssessment.find({
+        //   categoryId: { $in: _id }
+        // });
+        // const riskAssessmentIds = riskAssessments.map(p => p._id);
+        // await models.RiskAssessment.deleteMany({ categoryId: _id });
+        // await models.RiskConformity.deleteMany({
+        //   riskAssessmentId: { $in: riskAssessmentIds }
+        // });
         return await models.RiskAssessmentCategory.findByIdAndDelete(
           params._id
         );

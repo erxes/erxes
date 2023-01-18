@@ -16,7 +16,7 @@ export type RiskCalculateLogicType = {
   __typename?: string;
 };
 
-export type RiskAssessmentsType = {
+export type RiskIndicatorsType = {
   _id: string;
   categoryIds: string[];
   branchIds?: string[];
@@ -28,23 +28,24 @@ export type RiskAssessmentsType = {
   calculateLogics: [RiskCalculateLogicType];
   calculateMethod: string;
   forms: any[];
+  customScoreField?: object;
 };
 
-export type RiskAssessmentDetailQueryResponse = {
-  riskAssessmentDetail: RiskAssessmentsType;
+export type RiskIndicatortDetailQueryResponse = {
+  riskIndicatorDetail: RiskIndicatorsType;
   loading: boolean;
   refetch: () => void;
 };
 
-export type RiskAssessmentsListQueryResponse = {
+export type RiskIndicatorsListQueryResponse = {
   loading: boolean;
   refetch: () => void;
-  riskAssessments: RiskAssessmentsType[];
+  riskIndicators: RiskIndicatorsType[];
 };
-export type RiskAssessmentsTotalCountQueryResponse = {
+export type RiskIndicatorsTotalCountQueryResponse = {
   loading: boolean;
   refetch: () => void;
-  riskAssessmentsTotalCount: number;
+  riskIndicatorsTotalCount: number;
 };
 
 export type RiskAssessmentCategory = {
@@ -57,6 +58,17 @@ export type RiskAssessmentCategory = {
   parent?: RiskAssessmentCategory;
   formName?: string;
   type: string;
+};
+
+export type OperationTypes = {
+  _id: string;
+  name: string;
+  parentId: string;
+  code?: string;
+  order: string;
+  parent?: RiskAssessmentCategory;
+  createdAt?: string;
+  modifiedAt?: string;
 };
 
 export type RiskAssessmentsCategoriesQueryResponse = {
@@ -82,14 +94,20 @@ export type CustomFormGroupProps = {
   spaceBetween?: boolean;
 };
 
-export interface ICardRiskAssements {
+interface RiskAssessmentIndicatorType {
   _id: string;
-  cardId: string;
-  riskAssessmentId: string;
   status: string;
   statusColor: string;
-  resultScore: string;
-  riskAssessment: RiskAssessmentsType;
+  resultScore: number;
+  detail: RiskIndicatorsType;
+}
+
+export interface ICardRiskAssements {
+  _id: string;
+  cardType: string;
+  cardId: string;
+  riskIndicatorIds: string;
+  riskIndicators: RiskAssessmentIndicatorType[];
 }
 
 export type ICardRiskConformitiesQueryResponse = {
@@ -105,12 +123,12 @@ export type IRiskSubmissionsQueryResponse = {
 };
 
 export type ICardRiskAssessmentsQueryResponse = {
-  riskAssessments: ICardRiskAssements[];
+  riskIndicators: ICardRiskAssements[];
   loading: boolean;
   refetch: (params: { searchValue: string; perPage: number }) => void;
 };
 export type ICardRiskAssessmentDetailQueryResponse = {
-  riskConformityDetails: ICardRiskAssements[];
+  riskConformityDetail: ICardRiskAssements;
   loading: boolean;
   refetch: () => void;
 };

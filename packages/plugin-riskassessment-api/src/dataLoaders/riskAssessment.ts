@@ -2,9 +2,9 @@ import * as DataLoader from 'dataloader';
 import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
 
-export default function generateDataLoaderRiskAssessment(models: IModels) {
+export default function generateDataLoaderRiskAssessments(models: IModels) {
   return new DataLoader<string, any>(async (ids: readonly string[]) => {
-    const result: any[] = await models.RiskAssessment.find({
+    const result: any[] = await models.RiskAssessments.find({
       _id: { $in: ids }
     }).lean();
     const resultById = _.indexBy(result, '_id');

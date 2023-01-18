@@ -5,17 +5,23 @@ import {
   sendFormsMessage
 } from './messageBroker';
 
-export const validRiskAssessment = async params => {
+export const validRiskIndicators = async params => {
   if (!params.categoryIds) {
     throw new Error('Please select some categories');
   }
-  if (await models?.RiskAssessment.findOne({ name: params.name })) {
+  if (await models?.RiskIndicators.findOne({ name: params.name })) {
     throw new Error(
       'This risk assessment is already in use. Please type another name'
     );
   }
 
-  const { forms } = params;
+  const { forms, customScoreField } = params;
+
+  let percentWeight = 0;
+
+  if (customScoreField) {
+    percentWeight += customScoreField;
+  }
 
   if (!forms.length) {
     throw new Error('Please add a form to the risk assessment');
@@ -31,6 +37,8 @@ export const validRiskAssessment = async params => {
     if (!form.percentWeight) {
       throw new Error('Provide a percent weigth on form');
     }
+
+    percentWeight += form.percentWeight;
 
     const { calculateLogics } = form;
 
@@ -57,6 +65,10 @@ export const validRiskAssessment = async params => {
         );
       }
     }
+  }
+
+  if (percentWeight > 100) {
+    throw new Error(`all percentages must add up to 100`);
   }
 };
 
@@ -128,18 +140,17 @@ export const checkAllUsersSubmitted = async (
   subdomain,
   model,
   cardId: string,
-  cardType: string
+  cardType: string,
+  formIds: string[]
 ) => {
   let result = false;
 
   const assignedUsers = await getAsssignedUsers(subdomain, cardId, cardType);
 
-  const formId = await getFormId(model, cardId, cardType);
-
   const assignedUserIds = assignedUsers.map(usr => usr._id);
   const submissions = await model.RiksFormSubmissions.find({
     cardId,
-    formId,
+    formId: { $in: formIds },
     userId: { $in: assignedUserIds }
   }).lean();
 

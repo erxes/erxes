@@ -24,12 +24,14 @@ const RiskConformityQuries = {
   ) {
     return await models.RiskConformity.riskConformitiesTotalCount(params);
   },
-  async riskConformityDetails(
+  async riskConformityDetail(
     _root,
     params: IRiskConformityParams,
     { models }: IContext
   ) {
-    return await models.RiskConformity.riskConformityDetails(params);
+    const resu = await models.RiskConformity.riskConformityDetail(params);
+    console.log({ resu });
+    return resu;
   },
   async riskConformitySubmissions(
     _root,

@@ -1,8 +1,8 @@
 import { riskConformityParams } from '../../common/graphql';
 
-const riskAssessments = `
-  query RiskAssessments($categoryIds: [String],,$searchValue: String,$perPage: Int) {
-    riskAssessments(categoryIds: $categoryIds ,perPage: $perPage,searchValue: $searchValue) {
+const riskIndicators = `
+  query RiskIndicators($categoryIds: [String],,$searchValue: String,$perPage: Int) {
+    riskIndicators(categoryIds: $categoryIds ,perPage: $perPage,searchValue: $searchValue) {
       _id,name,description,categoryIds
     }
   }
@@ -12,22 +12,23 @@ const riskConformity = `
     riskConformity(cardId: $cardId) {
       _id
       cardId
+      riskIndicatorIds
+      riskIndicators
       riskAssessmentId
-      riskAssessment
-      status
-      statusColor
-      resultScore
+      riskAssessmentId
     }
   }
 `;
 
-const riskConformityDetails = `
-  query RiskConformityDetails($cardId: String) {
-    riskConformityDetails(cardId: $cardId){
+const riskConformityDetail = `
+  query RiskConformityDetail($cardId: String) {
+    riskConformityDetail(cardId: $cardId){
       _id
       cardId
       riskAssessmentId
       riskAssessment
+      riskIndicatorIds
+      riskIndicators
     } 
   }`;
 
@@ -37,7 +38,7 @@ const riskConformitySubmissions = `
   }
 `;
 
-const riskConformityDetail = `
+const riskConformityFormDetail = `
   query RiskConformityFormDetail($cardId: String,$userId: String,$riskAssessmentId: String,) {
     riskConformityFormDetail(cardId: $cardId, userId: $userId,riskAssessmentId: $riskAssessmentId){
       forms
@@ -48,9 +49,9 @@ const riskConformityDetail = `
 `;
 
 export default {
-  riskAssessments,
+  riskIndicators,
   riskConformity,
-  riskConformityDetails,
+  riskConformityDetail,
   riskConformitySubmissions,
-  riskConformityDetail
+  riskConformityFormDetail
 };

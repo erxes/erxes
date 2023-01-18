@@ -21,6 +21,12 @@ import {
   types as RiskConfirmityTypes
 } from './schema/confirmity';
 
+import {
+  mutations as OpearionMutations,
+  queries as OpearionQueries,
+  types as OpearionTypes
+} from './schema/operations';
+
 const typeDefs = async _serviceDiscovery => {
   return gql`
     scalar JSON
@@ -30,19 +36,22 @@ const typeDefs = async _serviceDiscovery => {
     ${RiskAssessmentCategoryTypes}
     ${RiskConfirmityTypes}
     ${formSubmissionsTypes}
+    ${OpearionTypes}
     
     extend type Query {
       ${RiskAssessmentQueries}
       ${RiskAssessmentCategoryQueries}
       ${RiskConfirmityQueries}
       ${formSubmissionsQueries}
+      ${OpearionQueries}
     }
     
     extend type Mutation {
       ${RiskAssessmentMutations}
       ${RiskAssessmentCategoryMutations}
       ${RiskConfirmityMutations}
-      ${formSubmissionsMutations}
+      ${formSubmissionsMutations},
+      ${OpearionMutations}
     }
   `;
 };

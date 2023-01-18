@@ -11,12 +11,14 @@ import {
 import { IOption, IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
 import { queries as categoryQueries } from '../categories/graphql';
-import { queries as riskAssessmentQueries } from '../graphql';
+import { queries as riskIndicatorQueries } from '../indicator/graphql';
+import { queries as operationQueries } from '../operations/graphql';
 import { FormGroupRow } from '../styles';
 import {
   CustomFormGroupProps,
+  OperationTypes,
   RiskAssessmentCategory,
-  RiskAssessmentsType
+  RiskIndicatorsType
 } from './types';
 import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
@@ -63,7 +65,7 @@ export const DefaultWrapper = ({
           data={content}
           count={totalCount}
           emptyImage="/images/actions/5.svg"
-          emptyText={__('No data of risk assessment')}
+          emptyText={__('No data')}
         />
       }
       leftSidebar={sidebar}
@@ -159,7 +161,7 @@ export const SelectWithCategory = ({
   );
 };
 
-type SelectRiskAssessmentProps = {
+type SelectRiskIndicatorProps = {
   queryParams?: IQueryParams;
   label: string;
   onSelect: (value: string[] | string, name: string) => void;
@@ -170,12 +172,12 @@ type SelectRiskAssessmentProps = {
   ignoreIds?: string[];
 };
 
-type SelectRiskAssessmentState = {
+type SelectRiskIndicatorState = {
   options: any[];
 };
-export class SelectWithRiskAssessment extends React.Component<
-  SelectRiskAssessmentProps,
-  SelectRiskAssessmentState
+export class SelectWithRiskIndicator extends React.Component<
+  SelectRiskIndicatorProps,
+  SelectRiskIndicatorState
 > {
   constructor(props) {
     super(props);
@@ -186,12 +188,12 @@ export class SelectWithRiskAssessment extends React.Component<
 
     client
       .query({
-        query: gql(riskAssessmentQueries.list)
+        query: gql(riskIndicatorQueries.list)
       })
       .then(({ data }) => {
-        let options = data?.riskAssessments?.map(riskAssessment => ({
-          value: riskAssessment._id,
-          label: riskAssessment.name
+        let options = data?.riskIndicators?.map(riskIndicator => ({
+          value: riskIndicator._id,
+          label: riskIndicator.name
         }));
 
         this.setState({ options });
@@ -306,3 +308,67 @@ export const SelectCustomFields = withProps<SelectCustomFieldProps>(
     )
   )(SelectCustomFieldsComponent)
 );
+
+export const SelectOperation = ({
+  label,
+  name,
+  queryParams,
+  initialValue,
+  multi,
+  customOption,
+  skip,
+  operation,
+  onSelect
+}: {
+  queryParams?: IQueryParams;
+  label: string;
+  onSelect: (value: string[] | string, name: string) => void;
+  multi?: boolean;
+  customOption?: IOption;
+  initialValue?: string | string[];
+  name: string;
+  skip?: string[];
+  operation?: OperationTypes;
+}) => {
+  const defaultValue = queryParams ? queryParams[name] : initialValue;
+
+  const generateOptions = (array: OperationTypes[] = []): IOption[] => {
+    let list: any[] = [];
+    if (operation) {
+      array = array.filter(item => !item?.order?.includes(operation?.order));
+    }
+    for (const item of array) {
+      const operation = item || ({} as OperationTypes);
+      const order = operation.order;
+      const foundedString = order?.match(/[/]/gi);
+
+      let space = '';
+      if (foundedString) {
+        space = '\u00A0 \u00A0 '.repeat(foundedString.length);
+      }
+
+      list.push({ label: `${space} ${operation.name}`, value: operation._id });
+    }
+
+    if (skip) {
+      list = list.filter(item => item.value !== skip);
+    }
+    return list;
+  };
+
+  return (
+    <SelectWithSearch
+      label={label}
+      queryName="operations"
+      name={name}
+      initialValue={defaultValue}
+      generateOptions={generateOptions}
+      onSelect={onSelect}
+      customQuery={operationQueries.operations}
+      customOption={
+        customOption ? customOption : { value: '', label: 'Choose a Operation' }
+      }
+      multi={multi}
+    />
+  );
+};

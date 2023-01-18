@@ -2,7 +2,7 @@ import { Button, Tip, Icon, ModalTrigger, __ } from '@erxes/ui/src';
 import moment from 'moment';
 import React from 'react';
 import { Badge } from '../../styles';
-import FormHistory from '../../containers/FormHistory';
+import FormHistory from '../../indicator/containers/FormHistory';
 
 type Props = {
   item: any;
@@ -49,6 +49,9 @@ class Row extends React.Component<Props> {
       <tr>
         <td>{__(item.cardType)}</td>
         <td>{__(item?.card?.name)}</td>
+        <td>{__(item?.riskAssessment?.name)}</td>
+        <td>{__(item?.riskAssessment?.name)}</td>
+        <td>{__(item?.riskAssessment?.name)}</td>
         <td>{__(item?.riskAssessment?.name)}</td>
         <td>
           <Badge color={item.statusColor}>{__(item.status)}</Badge>

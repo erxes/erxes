@@ -10,9 +10,9 @@ import { graphql } from 'react-apollo';
 import {
   ICommonListProps,
   RiskAssessmentsCategoriesQueryResponse,
-  RiskAssessmentsListQueryResponse,
-  RiskAssessmentsTotalCountQueryResponse
-} from '../common/types';
+  RiskIndicatorsListQueryResponse,
+  RiskIndicatorsTotalCountQueryResponse
+} from '../../common/types';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 
@@ -23,8 +23,8 @@ type Props = {
 
 type FinalProps = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  listQuery: RiskAssessmentsListQueryResponse;
-  totalCountQuery: RiskAssessmentsTotalCountQueryResponse;
+  listQuery: RiskIndicatorsListQueryResponse;
+  totalCountQuery: RiskIndicatorsTotalCountQueryResponse;
   removeMutation: any;
   categories: RiskAssessmentsCategoriesQueryResponse;
 } & Props &
@@ -35,7 +35,7 @@ class ListContainer extends React.Component<FinalProps> {
   render() {
     const { removeMutation, listQuery, totalCountQuery } = this.props;
 
-    const { riskAssessments, loading } = listQuery;
+    const { riskIndicators, loading } = listQuery;
 
     const remove = (_ids: string[]) => {
       confirm('Are you sure?').then(() => {
@@ -64,10 +64,10 @@ class ListContainer extends React.Component<FinalProps> {
           callback();
         }
       };
-      let mutation = mutations.riskAssessmentAdd;
+      let mutation = mutations.riskIndicatorAdd;
       let successAction = 'added';
       if (object) {
-        mutation = mutations.riskAssessmentUpdate;
+        mutation = mutations.riskIndicatorUpdate;
         successAction = 'updated';
       }
       return (
@@ -87,8 +87,8 @@ class ListContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      list: riskAssessments,
-      totalCount: totalCountQuery?.riskAssessmentsTotalCount || 0,
+      list: riskIndicators,
+      totalCount: totalCountQuery?.riskIndicatorsTotalCount || 0,
       refetch: listQuery.refetch,
       loading,
       remove,
@@ -127,13 +127,13 @@ export default withProps<Props>(
         variables: generateParams({ queryParams })
       })
     }),
-    graphql(gql(mutations.riskAssessmentAdd), {
+    graphql(gql(mutations.riskIndicatorAdd), {
       name: 'addMutation'
     }),
-    graphql(gql(mutations.riskAssesmentRemove), {
+    graphql(gql(mutations.riskIndicatorRemove), {
       name: 'removeMutation'
     }),
-    graphql(gql(mutations.riskAssessmentUpdate), {
+    graphql(gql(mutations.riskIndicatorUpdate), {
       name: 'editMutation'
     })
   )(ListContainer)

@@ -11,7 +11,7 @@ import {
 } from '@erxes/ui/src';
 import { Flex } from '@erxes/ui/src/styles/main';
 import React from 'react';
-import { Divider, FormContainer, Padding, TriggerTabs } from '../styles';
+import { Divider, FormContainer, Padding, TriggerTabs } from '../../styles';
 
 type Props = {
   detail: any;
