@@ -129,6 +129,12 @@ const yearPlansCount = `
   }
 `;
 
+const yearPlansSum = `
+  query yearPlansSum($year: Int, ${filterDefs}) {
+    yearPlansSum(year: $year, ${filterValues})
+  }
+`;
+
 const dayPlans = `
   query dayPlans($date: Date, ${filterDefs} ${paginateDefs}) {
     dayPlans(date: $date, ${filterValues} ${paginateValues}) {
@@ -143,9 +149,17 @@ const dayPlansCount = `
   }
 `;
 
+const dayPlansSum = `
+  query dayPlansSum($date: Date, ${filterDefs}) {
+    dayPlansSum(date: $date, ${filterValues})
+  }
+`;
+
 export default {
   yearPlans,
   yearPlansCount,
+  yearPlansSum,
   dayPlans,
-  dayPlansCount
+  dayPlansCount,
+  dayPlansSum
 };

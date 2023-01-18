@@ -12,7 +12,12 @@ export default {
     return models.Tasks.findOne({ _id });
   },
 
-  async companies(task: ITaskDocument, _args, { subdomain }: IContext) {
+  async companies(
+    task: ITaskDocument,
+    _args,
+    { subdomain }: IContext,
+    { isSubscription }
+  ) {
     const companyIds = await sendCoreMessage({
       subdomain,
       action: 'conformities.savedConformity',
@@ -33,6 +38,10 @@ export default {
       defaultValue: []
     });
 
+    if (isSubscription) {
+      return activeCompanies;
+    }
+
     return (activeCompanies || []).map(({ _id }) => ({
       __typename: 'Company',
       _id
@@ -47,7 +56,12 @@ export default {
     return { __typename: 'User', _id: task.userId };
   },
 
-  async customers(task: ITaskDocument, _args, { subdomain }: IContext) {
+  async customers(
+    task: ITaskDocument,
+    _args,
+    { subdomain }: IContext,
+    { isSubscription }
+  ) {
     const customerIds = await sendCoreMessage({
       subdomain,
       action: 'conformities.savedConformity',
@@ -72,13 +86,35 @@ export default {
       defaultValue: []
     });
 
+    if (isSubscription) {
+      return customers;
+    }
+
     return (customers || []).map(({ _id }) => ({
       __typename: 'Customer',
       _id
     }));
   },
 
-  assignedUsers(task: ITaskDocument) {
+  assignedUsers(
+    task: ITaskDocument,
+    _args,
+    { subdomain }: IContext,
+    { isSubscription }
+  ) {
+    if (isSubscription && task.assignedUserIds?.length) {
+      return sendCoreMessage({
+        subdomain,
+        action: 'users.find',
+        data: {
+          query: {
+            _id: { $in: task.assignedUserIds }
+          }
+        },
+        isRPC: true
+      });
+    }
+
     return (task.assignedUserIds || [])
       .filter(e => e)
       .map(_id => ({

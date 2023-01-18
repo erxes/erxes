@@ -3,6 +3,8 @@ import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 import { IProduct } from '@erxes/ui-products/src/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 import { IJobRefer } from '../job/types';
+import { IProductsData, IProductsDataPerform } from '../types';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 export interface IOverallWorkKey {
   type: string;
@@ -38,18 +40,20 @@ export type IOverallWorkDet = {
 } & IOverallWork;
 
 export type IPerform = {
-  _id: string;
+  _id?: string;
   overallWorkId: string;
   overallWorkKey: IOverallWorkKey;
   type: string;
   typeId: string;
-  count: string;
+  count: number;
   status: string;
   startAt: Date;
   endAt: Date;
   dueAt: Date;
-  needProducts: any[];
-  resultProducts: any[];
+  needProducts: IProductsData[];
+  resultProducts: IProductsData[];
+  inProducts: IProductsDataPerform[];
+  outProducts: IProductsDataPerform[];
   inDepartmentId?: string;
   inBranchId?: string;
   outDepartmentId?: string;
@@ -59,6 +63,13 @@ export type IPerform = {
   inBranch?: IBranch;
   outDepartment?: IDepartment;
   outBranch?: IBranch;
+
+  createdAt?: Date;
+  createdBy?: string;
+  modifiedAt?: Date;
+  modifiedBy?: string;
+  createdUser?: IUser;
+  modifiedUser?: IUser;
 };
 
 export type OverallWorksQueryResponse = {
@@ -81,7 +92,13 @@ export type OverallWorkDetailQueryResponse = {
 };
 
 export type PerformsQueryResponse = {
-  performs: IOverallWorkDet;
+  performs: IPerform[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type PerformDetailQueryResponse = {
+  performDetail: IPerform;
   loading: boolean;
   refetch: () => void;
 };

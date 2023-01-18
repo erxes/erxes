@@ -80,6 +80,7 @@ class Row extends React.Component<Props> {
             <ModalTrigger
               title="Edit basic info"
               trigger={<Icon icon="edit" />}
+              enforceFocus={false}
               size="lg"
               content={content}
             />

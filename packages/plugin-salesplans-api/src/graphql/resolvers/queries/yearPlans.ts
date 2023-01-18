@@ -1,9 +1,10 @@
-import {
-  moduleRequireLogin,
-  moduleCheckPermission
-} from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../../connectionResolver';
 import { escapeRegExp, paginate } from '@erxes/api-utils/src/core';
+import { IContext } from '../../../connectionResolver';
+import {
+  moduleCheckPermission,
+  moduleRequireLogin
+} from '@erxes/api-utils/src/permissions';
+import { MONTHS } from '../../../constants';
 import { sendProductsMessage } from '../../../messageBroker';
 
 interface IListArgs {
@@ -127,6 +128,26 @@ const labelsQueries = {
   ) => {
     const filter = await getGenerateFilter(subdomain, params);
     return await models.YearPlans.find(filter).count();
+  },
+
+  yearPlansSum: async (
+    _root: any,
+    params: IListArgs,
+    { models, subdomain }: IContext
+  ) => {
+    const filter = await getGenerateFilter(subdomain, params);
+
+    const plans = await models.YearPlans.find(filter, { values: 1 }).lean();
+
+    const result: { [key: string]: number } = {};
+    MONTHS.map(m => (result[m] = 0));
+
+    for (const plan of plans) {
+      for (const month of MONTHS) {
+        result[month] += Number(plan.values[month]);
+      }
+    }
+    return result;
   }
 };
 

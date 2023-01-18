@@ -103,7 +103,7 @@ class TimeProportion extends React.Component<Props, State> {
     };
     const manageConfigTrigger = (
       <Button type="button" icon="processor" size="small" uppercase={false}>
-        Manage Day Configs
+        {__('Manage Day interval')}
       </Button>
     );
 
@@ -117,7 +117,7 @@ class TimeProportion extends React.Component<Props, State> {
       <BarItems>
         <ModalTrigger
           size="lg"
-          title={'Manage Day Configs'}
+          title={__('Manage Day interval')}
           autoOpenKey="showSLManageDayConfigs"
           trigger={manageConfigTrigger}
           content={manageConfigContent}

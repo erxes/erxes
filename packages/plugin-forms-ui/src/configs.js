@@ -8,7 +8,7 @@ module.exports = {
     './importExportUploadForm': './src/components/ColumnChooser',
     './fieldPreview': './src/components/FieldsPreview',
     './formPreview': './src/containers/FieldForm',
-    './contactDetailLeftSidebar': './src/containers/CustomFieldsSection',
+    './contactDetailLeftSidebar': './src/containers/CustomFieldsSection'
   },
   routes: {
     url: 'http://localhost:3005/remoteEntry.js',
@@ -27,8 +27,8 @@ module.exports = {
       image: '/images/icons/erxes-01.svg',
       location: 'settings',
       scope: 'forms',
-      action: '',
-      permissions: []
+      action: 'formsAll',
+      permissions: ['showForms', 'manageForms']
     }
   ]
 };

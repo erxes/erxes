@@ -39,7 +39,7 @@ const commonEnvs = configs => {
     REDIS_PORT: db_server_address ? REDIS_PORT : 6379,
     REDIS_PASSWORD: redis.password || '',
     RABBITMQ_HOST: rabbitmq_host,
-    ELASTICSEARCH_URL: `${db_server_address || (isSwarm ? 'erxes-dbs_elasticsearch' : 'elasticsearch')}:9200`,
+    ELASTICSEARCH_URL: `http://${db_server_address || (isSwarm ? 'erxes-dbs_elasticsearch' : 'elasticsearch')}:9200`,
     ENABLED_SERVICES_PATH: '/data/enabled-services.js',
     MESSAGE_BROKER_PREFIX: rabbitmq.prefix || '',
   };
@@ -546,7 +546,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
     dockerComposeConfig.services.essyncer = {
       image: `erxes/essyncer:${image_tag}`,
       environment: {
-        ELASTICSEARCH_URL: `http://${configs.db_server_address}:9200`,
+        ELASTICSEARCH_URL: `http://${configs.db_server_address || (isSwarm ? 'erxes-dbs_elasticsearch' : 'elasticsearch')}:9200`,
         MONGO_URL: `${mongoEnv(configs)}${(configs.essyncer || {})
           .mongoOptions || ''}`,
       },

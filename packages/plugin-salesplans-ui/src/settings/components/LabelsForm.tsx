@@ -259,10 +259,12 @@ class Form extends React.Component<Props, State> {
 
           <FormWrapper>
             <FormColumn>
-              <ControlLabel required={true}>Product Category</ControlLabel>
+              <ControlLabel required={true}>
+                {__('Product Category')}
+              </ControlLabel>
             </FormColumn>
             <FormColumn>
-              <ControlLabel required={true}>Multiplier</ControlLabel>
+              <ControlLabel required={true}>{__('Multiplier')}</ControlLabel>
             </FormColumn>
             <Button btnStyle="simple" icon="add" onClick={this.onAddRule}>
               {__('Add level')}

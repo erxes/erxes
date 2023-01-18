@@ -1,5 +1,5 @@
-import discountMutations from './discount';
+import pricingPlanMutations from './pricingPlan';
 
 export default {
-  ...discountMutations
+  ...pricingPlanMutations
 };

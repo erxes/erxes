@@ -72,6 +72,7 @@ const users = `
       }
 
       links
+      employeeId
     }
   }
 `;
@@ -186,6 +187,7 @@ const userDetail = `
       getNotificationByEmail
       customFieldsData
       score
+      employeeId
     }
   }
 `;
@@ -307,6 +309,12 @@ const commonFields = `
   type
   text
 
+  logicAction
+  logics {
+    fieldId
+    logicOperator
+    logicValue
+  }
   canHide
   validation
   options
@@ -341,6 +349,12 @@ const fieldsGroups = `
       name
       ${genericFields}
       config
+      logicAction
+      logics {
+        fieldId
+        logicOperator
+        logicValue
+      }
       lastUpdatedUser {
         details {
           fullName

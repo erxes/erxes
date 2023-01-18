@@ -24,10 +24,6 @@ export interface IJob {
   description: string;
 }
 
-export interface IJobDocument extends IJob {
-  jobRefer: IJobRefer;
-}
-
 export interface IFlow {
   name: string;
   categoryId?: string;
@@ -35,7 +31,7 @@ export interface IFlow {
   status: string;
   isSub: boolean;
   flowValidation: string;
-  jobs?: IJobDocument[];
+  jobs?: IJob[];
 }
 
 export interface IFlowDocument extends IFlow, Document {

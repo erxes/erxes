@@ -9,13 +9,15 @@ export default {
 
   async flow(work: IWorkDocument, {}, { models }: IContext) {
     const { flowId } = work;
-    const flow = await models.Flows.findOne({ _id: flowId });
-
-    return { name: flow?.name || '', status: flow?.status };
+    return await models.Flows.findOne({ _id: flowId }).lean();
   },
 
   async inBranch(work: IWorkDocument, {}, { subdomain }: IContext) {
     const { inBranchId } = work;
+
+    if (!inBranchId) {
+      return;
+    }
 
     return await sendCoreMessage({
       subdomain,
@@ -27,6 +29,11 @@ export default {
 
   async outBranch(work: IWorkDocument, {}, { subdomain }: IContext) {
     const { outBranchId } = work;
+
+    if (!outBranchId) {
+      return;
+    }
+
     return await sendCoreMessage({
       subdomain,
       action: 'branches.findOne',
@@ -38,6 +45,10 @@ export default {
   async inDepartment(work: IWorkDocument, {}, { subdomain }: IContext) {
     const { inDepartmentId } = work;
 
+    if (!inDepartmentId) {
+      return;
+    }
+
     return await sendCoreMessage({
       subdomain,
       action: 'departments.findOne',
@@ -48,6 +59,10 @@ export default {
 
   async outDepartment(work: IWorkDocument, {}, { subdomain }: IContext) {
     const { outDepartmentId } = work;
+
+    if (!outDepartmentId) {
+      return;
+    }
 
     return await sendCoreMessage({
       subdomain,

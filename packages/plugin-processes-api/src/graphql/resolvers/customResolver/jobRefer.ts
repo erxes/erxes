@@ -4,7 +4,7 @@ import { getProductAndUoms } from './utils';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
-    return models.JobRefers.findOne({ _id });
+    return models.JobRefers.findOne({ _id }).lean();
   },
 
   async needProducts(jobRefer: IJobReferDocument, {}, { subdomain }: IContext) {
@@ -15,7 +15,7 @@ export default {
       needProducts
     );
 
-    for (const need of needProducts) {
+    for (let need of needProducts) {
       need.product = productById[need.productId] || {};
       need.uom = uomById[need.uomId] || {};
     }

@@ -18,7 +18,8 @@ export const DISCOUNT_TYPES = {
 export const APPLY_TYPES = {
   PRODUCT: 'product',
   CATEGORY: 'category',
-  ALL: ['product', 'category']
+  BUNDLE: 'bundle',
+  ALL: ['product', 'category', 'bundle']
 };
 
 export const RULE_TYPES = {

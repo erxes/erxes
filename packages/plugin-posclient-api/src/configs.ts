@@ -10,6 +10,7 @@ import posUserMiddleware from './userMiddleware';
 import posConfigMiddleware from './configMiddleware';
 import * as dotenv from 'dotenv';
 import { loadSubscriptions } from './subscriptions';
+import { PubSub } from 'graphql-subscriptions';
 
 export let debug;
 export let graphqlPubsub;
@@ -100,3 +101,9 @@ export default {
     debug = options.debug;
   }
 };
+
+setTimeout(() => {
+  if (process.env.SKIP_REDIS && !graphqlPubsub) {
+    graphqlPubsub = new PubSub();
+  }
+}, 10000);

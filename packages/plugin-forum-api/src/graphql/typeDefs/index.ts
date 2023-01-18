@@ -19,6 +19,8 @@ import ForumSubscriptionProduct from './ForumSubscriptionProduct';
 import ForumSubscriptionOrder from './ForumSubscriptionOrder';
 import { SUBSCRIPTION_ORDER_STATES } from '../../db/models/subscription/subscriptionOrder';
 import ForumPage from './ForumPage';
+import ForumSavedPost from './ForumSavedPost';
+import ForumPollOption from './ForumPollOption';
 
 const Invoice = `
   extend type Invoice @key(fields: "_id") {
@@ -40,6 +42,17 @@ export default async function genTypeDefs(serviceDiscovery) {
   return gql`
     scalar JSON
     scalar Date
+
+    enum CacheControlScope {
+      PUBLIC
+      PRIVATE
+    }
+
+    directive @cacheControl(
+      maxAge: Int
+      scope: CacheControlScope
+      inheritMaxAge: Boolean
+    ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
 
     enum ForumPostState {
       ${POST_STATES.join('\n')}
@@ -91,10 +104,14 @@ export default async function genTypeDefs(serviceDiscovery) {
       forumIsSubscribed: Boolean!
 
       forumFollowerCpUsers(limit: Int, offset: Int): [ClientPortalUser!]
+      forumFollowerCount: Int!
+      forumIsFollowedByCurrentUser: Boolean!
+
       forumFollowingCpUsers(limit: Int, offset: Int): [ClientPortalUser!]
+
       forumPermissionGroups: [ForumPermissionGroup!]
 
-      forumCategoriesAllowedToPost: [ForumCategory!]
+      forumCategoriesAllowedToPost: [ForumCategory!]      
 
       ${isTagsEnabled ? 'forumFollowingTags: [Tag]' : ''}      
     }
@@ -110,6 +127,9 @@ export default async function genTypeDefs(serviceDiscovery) {
     ${ForumSubscriptionOrder({ isPaymentEnabled })}
 
     ${ForumPage}
+
+    ${ForumSavedPost}
+    ${ForumPollOption}
 
     ${Query}
     ${Mutation}

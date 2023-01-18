@@ -11,17 +11,19 @@ export type RepeatValue = {
   value: string;
 };
 
-export type DiscountData = {
+export type PricingPlan = {
   name: string;
   status: 'active' | 'archive' | 'draft' | 'completed';
-  value: number;
   type: 'fixed' | 'subtraction' | 'percentage' | 'bonus';
+  value: number;
   bonusProduct?: string;
+  isPriority: boolean;
 
-  applyType: 'category' | 'product';
+  applyType: 'category' | 'product' | 'bundle';
 
   products: string[];
   productsExcluded: string[];
+  productsBundle: string[];
   categories: string[];
   categoriesExcluded: string[];
 

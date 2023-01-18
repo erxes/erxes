@@ -3,6 +3,7 @@ import { MONTH_NUMBERS } from '../../../constants';
 import { sendProductsMessage } from '../../../messageBroker';
 import { ILabelDocument } from '../../../models/definitions/labels';
 import { IDayLabelDocument } from '../../../models/definitions/dayLabels';
+import { getPureDate } from '@erxes/api-utils/src/core';
 
 const getParentsOrders = order => {
   const orders: string[] = [];
@@ -331,7 +332,9 @@ export const getDayPlanValues = async ({
     return { planCount: 0, values: [] };
   }
 
-  const month = date.getMonth() + 1;
+  const pureDate = getPureDate(date, -1);
+
+  const month = pureDate.getMonth() + 1;
   const key = MONTH_NUMBERS[month];
 
   const monthPlanCount = Number(yearPlan.values[key]) || 0;
@@ -340,8 +343,8 @@ export const getDayPlanValues = async ({
     product,
     parentIdsByProductId,
     publicLabels,
-    date.getFullYear(),
-    date.getMonth() + 1
+    pureDate.getFullYear(),
+    pureDate.getMonth() + 1
   );
 
   const dayPlanCount = monthPlanCount / daysInMonth;

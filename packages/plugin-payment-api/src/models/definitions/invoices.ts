@@ -74,11 +74,3 @@ export const invoiceSchema = schemaHooksWrapper(
   }),
   'erxes_invoices'
 );
-
-invoiceSchema.index(
-  { createdAt: 1 },
-  {
-    expireAfterSeconds: 24 * 60 * 60,
-    partialFilterExpression: { status: PAYMENT_STATUS.PENDING }
-  }
-);

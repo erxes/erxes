@@ -51,7 +51,7 @@ class ProductFormContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return ['dayPlans', 'dayPlansCount'];
+  return ['dayPlans', 'dayPlansCount', 'dayPlansSum'];
 };
 
 export default withProps<Props>(compose()(ProductFormContainer));

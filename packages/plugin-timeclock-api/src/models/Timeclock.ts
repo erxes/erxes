@@ -19,7 +19,10 @@ import {
   IAbsenceTypeDocument,
   IAbsenceType,
   IPayDateDocument,
-  payDateSchema
+  payDateSchema,
+  IScheduleConfigDocument,
+  IScheduleConfig,
+  scheduleConfigSchema
 } from './definitions/timeclock';
 
 export interface ITimeModel extends Model<ITimeClockDocument> {
@@ -275,4 +278,51 @@ export const loadPayDateClass = (models: IModels) => {
   payDateSchema.loadClass(PayDate);
 
   return payDateSchema;
+};
+export interface IScheduleConfigModel extends Model<IScheduleConfigDocument> {
+  getScheduleConfig(_id: string): Promise<IScheduleConfigDocument>;
+  createScheduleConfig(doc: IScheduleConfig): Promise<IScheduleConfigDocument>;
+  updateScheduleConfig(
+    _id: string,
+    doc: IScheduleConfig
+  ): Promise<IScheduleConfigDocument>;
+  removeScheduleConfig(_id: string): void;
+}
+
+export const loadScheduleConfigClass = (models: IModels) => {
+  // tslint:disable-next-line:max-classes-per-file
+  class ScheduleConfig {
+    // get
+    public static async getScheduleConfig(_id: string) {
+      const scheduleConfig = await models.ScheduleConfigs.findOne({ _id });
+      if (!ScheduleConfig) {
+        throw new Error('ScheduleConfig not found');
+      }
+      return scheduleConfig;
+    }
+    // create
+    public static async createScheduleConfig(doc: IScheduleConfig) {
+      return models.ScheduleConfigs.create({
+        ...doc
+      });
+    }
+    // update
+    public static async updateScheduleConfig(
+      _id: string,
+      doc: IScheduleConfig
+    ) {
+      await models.ScheduleConfigs.updateOne(
+        { _id },
+        { $set: { ...doc } }
+      ).then(err => console.error(err));
+    }
+    // remove
+    public static async removeScheduleConfig(_id: string) {
+      return models.ScheduleConfigs.deleteOne({ _id });
+    }
+  }
+
+  scheduleConfigSchema.loadClass(ScheduleConfig);
+
+  return scheduleConfigSchema;
 };

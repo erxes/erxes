@@ -1,4 +1,4 @@
-import { paginate } from '@erxes/api-utils/src/core';
+import { escapeRegExp, paginate } from '@erxes/api-utils/src/core';
 import { IContext } from '../../../connectionResolver';
 
 interface IParam {
@@ -18,7 +18,16 @@ const generateFilter = (params: IParam, commonQuerySelector) => {
   }
 
   if (searchValue) {
-    selector.name = new RegExp(`.*${searchValue}.*`, 'i');
+    const fields = [
+      {
+        name: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
+      },
+      {
+        code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
+      }
+    ];
+
+    selector.$or = fields;
   }
 
   if (types) {
@@ -53,10 +62,6 @@ const jobReferQueries = {
     );
   },
 
-  jobRefersAll(_root, _params: IParam, { models }: IContext) {
-    return models.JobRefers.find({});
-  },
-
   jobReferTotalCount(
     _root,
     params: IParam,
@@ -71,7 +76,7 @@ const jobReferQueries = {
    * Get one jobRefer
    */
   jobReferDetail(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.JobRefers.findOne({ _id });
+    return models.JobRefers.findOne({ _id }).lean();
   }
 };
 

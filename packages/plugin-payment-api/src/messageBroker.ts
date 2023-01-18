@@ -1,10 +1,22 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
+import { generateModels } from './connectionResolver';
 
 let client;
 
 export const initBroker = async cl => {
   client = cl;
+
+  const { consumeQueue, consumeRPCQueue } = client;
+
+  consumeRPCQueue('payment:invoices.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Invoices.findOne(data)
+    };
+  });
 };
 
 export const sendContactsMessage = async (

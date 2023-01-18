@@ -9,6 +9,7 @@ import { getGqlString, getRefetchQueries } from '../containers/utils';
 import { mutations } from '../graphql';
 import { ByKindTotalCount } from '../types';
 import { PAYMENT_KINDS, PAYMENTCONFIGS } from './constants';
+import MonpayForm from './form/MonpayForm';
 import QpayForm from './form/QpayForm';
 import SocialPayForm from './form/SocialPayForm';
 import { Box, PaymentItem, Ribbon, Type } from './styles';
@@ -78,6 +79,11 @@ function renderCreate(kind: string) {
     case PAYMENT_KINDS.SOCIALPAY:
       formContent = props => (
         <SocialPayForm {...props} renderButton={renderButton} />
+      );
+      break;
+    case PAYMENT_KINDS.MONPAY:
+      formContent = props => (
+        <MonpayForm {...props} renderButton={renderButton} />
       );
       break;
     default:

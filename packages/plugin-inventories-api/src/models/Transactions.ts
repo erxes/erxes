@@ -3,16 +3,18 @@ import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
 import { sendProductsMessage } from '../messageBroker';
 import {
-  ITransactionCreateParams,
   ITransactionDocument,
+  ITransactionInput,
   transactionSchema
 } from './definitions/transactions';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(_id: string): Promise<ITransactionDocument>;
   getTransactionDetail(subdomain: string, _id: string): Promise<JSON>;
-  createTransaction(
-    params: ITransactionCreateParams
+  createTransaction(doc: ITransactionInput): Promise<ITransactionDocument>;
+  updateTransaction(
+    _id: string,
+    doc: ITransactionInput
   ): Promise<ITransactionDocument>;
 }
 
@@ -76,19 +78,14 @@ export const loadTransactionClass = (models: IModels) => {
      * @param params New data to create
      * @returns Created response
      */
-    public static async createTransaction(params: ITransactionCreateParams) {
-      const {
-        departmentId,
-        branchId,
-        status,
-        contentType,
-        contentId,
-        products
-      } = params;
+    public static async createTransaction(doc: ITransactionInput) {
+      const { status, contentType, contentId, items } = doc;
+
+      if (!items || !items.length) {
+        throw new Error('has not items');
+      }
 
       const transaction = await models.Transactions.create({
-        departmentId,
-        branchId,
         status,
         contentType,
         contentId,
@@ -97,14 +94,15 @@ export const loadTransactionClass = (models: IModels) => {
 
       const bulkOps: any[] = [];
 
-      for await (const item of products) {
+      for await (const item of items) {
         const filter: any = { productId: item.productId };
-        if (departmentId) filter.departmentId = departmentId;
-        if (branchId) filter.branchId = branchId;
 
-        const remainder: any = await models.Remainders.findOne(filter);
-
-        if (!remainder) return new Error('Remainder not found!');
+        const remainder: any = (await models.Remainders.findOne(
+          filter
+        ).lean()) || {
+          productId: item.productId,
+          count: 0
+        };
 
         const safeRemainderItem: any[] = await models.SafeRemainderItems.find(
           filter
@@ -117,9 +115,13 @@ export const loadTransactionClass = (models: IModels) => {
           $set: { preCount: remainder.count + item.count }
         });
 
-        const result = await models.Remainders.updateRemainder(remainder._id, {
-          count: remainder.count + item.count
-        });
+        const result = await models.Remainders.updateOne(
+          remainder._id,
+          {
+            count: remainder.count + item.count
+          },
+          { upsert: true }
+        );
 
         if (!result) return new Error('Remainder update failed!');
 
@@ -127,7 +129,7 @@ export const loadTransactionClass = (models: IModels) => {
           transactionId: transaction._id,
           productId: item.productId,
           count: item.count,
-          uomId: item.uomId,
+
           isDebit: item.isDebit,
 
           modifiedAt: new Date()

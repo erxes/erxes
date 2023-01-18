@@ -1,3 +1,4 @@
+import { userActionsMap } from './core';
 import { sendRPCMessage } from './messageBroker';
 import redis from './redis';
 
@@ -74,18 +75,44 @@ export const permissionWrapper = (
 };
 
 export const getUserActionsMap = async (
+  subdomain: string,
   user: IUser
-): Promise<IActionMap | null> => {
+): Promise<IActionMap> => {
   const key = getKey(user);
-  const actionMapJson = await redis.get(key);
+  const permissionCache = await redis.get(key);
 
-  if (!actionMapJson) {
-    return null;
+  let actionMap: IActionMap;
+
+  if (permissionCache && permissionCache !== '{}') {
+    actionMap = JSON.parse(permissionCache);
+  } else {
+    const userPermissions = await sendRPCMessage('core:permissions.find', {
+      subdomain,
+      data: {
+        userId: user._id
+      }
+    });
+
+    const groupPermissions = await sendRPCMessage('core:permissions.find', {
+      subdomain,
+      data: {
+        groupId: { $in: user.groupIds }
+      }
+    });
+
+    actionMap = await userActionsMap(userPermissions, groupPermissions, user);
+
+    redis.set(key, JSON.stringify(actionMap));
   }
-  return JSON.parse(actionMapJson);
+
+  return actionMap;
 };
 
-export const can = async (action: string, user?: IUser): Promise<boolean> => {
+export const can = async (
+  subdomain: string,
+  action: string,
+  user?: IUser
+): Promise<boolean> => {
   if (!user || !user._id) {
     return false;
   }
@@ -94,13 +121,33 @@ export const can = async (action: string, user?: IUser): Promise<boolean> => {
     return true;
   }
 
-  const actionMap = await getUserActionsMap(user);
+  const actionMap = await getUserActionsMap(subdomain, user);
 
   if (!actionMap) {
     return false;
   }
 
   return actionMap[action] === true;
+};
+
+/*
+ * Get allowed actions
+ */
+export const getUserAllowedActions = async (
+  subdomain: string,
+  user: any
+): Promise<string[]> => {
+  const map = await getUserActionsMap(subdomain, user);
+
+  const allowedActions: string[] = [];
+
+  for (const key of Object.keys(map)) {
+    if (map[key]) {
+      allowedActions.push(key);
+    }
+  }
+
+  return allowedActions;
 };
 
 export const checkPermission = async (
@@ -114,14 +161,14 @@ export const checkPermission = async (
   cls[methodName] = async (
     root: any,
     args: any,
-    context: { user?: IUser; [x: string]: any },
+    context: { user?: IUser; [x: string]: any; subdomain: string },
     info: any
   ) => {
-    const { user } = context;
+    const { user, subdomain } = context;
 
     checkLogin(user);
 
-    const allowed = await can(actionName, user);
+    const allowed = await can(subdomain, actionName, user);
 
     if (!allowed) {
       if (defaultValue) {

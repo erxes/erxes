@@ -43,10 +43,6 @@ export interface IJob {
   icon?: string;
 }
 
-export interface IJobDocument extends IJob {
-  jobRefer: IJobRefer;
-}
-
 export interface IFlow {
   name: string;
   categoryId?: string;

@@ -1,6 +1,6 @@
 import Button from '@erxes/ui/src/components/Button';
 import { Alert } from '@erxes/ui/src/utils';
-import { removeTypename } from '@erxes/ui/src/utils/core';
+import { isEnabled, removeTypename } from '@erxes/ui/src/utils/core';
 import React from 'react';
 
 import { CONFIG_TYPES } from '../constants';
@@ -45,7 +45,7 @@ class Form extends React.Component<Props, State> {
       this.setState({ formValues: nextProps.defaultConfigValues });
     }
   }
-  s;
+
   handleSubmit = e => {
     e.preventDefault();
     const { formValues } = this.state;
@@ -62,15 +62,15 @@ class Form extends React.Component<Props, State> {
       return Alert.error('Please enter a valid domain');
     }
 
-    if (!formValues.knowledgeBaseTopicId) {
+    if (!formValues.knowledgeBaseTopicId && isEnabled('knowledgebase')) {
       return Alert.error('Please choose a Knowledge base topic');
     }
 
-    if (!formValues.taskPublicBoardId) {
+    if (!formValues.taskPublicBoardId && isEnabled('cards')) {
       return Alert.error('Please select a public task board first');
     }
 
-    if (!formValues.taskPublicPipelineId) {
+    if (!formValues.taskPublicPipelineId && isEnabled('cards')) {
       return Alert.error('Please select a public task pipeline');
     }
 

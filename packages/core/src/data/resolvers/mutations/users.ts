@@ -232,7 +232,20 @@ const userMutations = {
     const { _id, channelIds, ...doc } = args;
     const userOnDb = await models.Users.getUser(_id);
 
-    const updatedUser = await models.Users.updateUser(_id, doc);
+    let updatedDoc = doc;
+
+    if (doc.details) {
+      updatedDoc = {
+        ...doc,
+        details: {
+          ...doc.details,
+          fullName: `${doc.details.firstName || ''} ${doc.details.lastName ||
+            ''}`
+        }
+      };
+    }
+
+    const updatedUser = await models.Users.updateUser(_id, updatedDoc);
 
     if (channelIds) {
       await sendInboxMessage({
@@ -251,7 +264,7 @@ const userMutations = {
         type: 'user',
         description: 'edit profile',
         object: userOnDb,
-        newData: doc,
+        newData: updatedDoc,
         updatedDocument: updatedUser
       },
       user
@@ -270,13 +283,15 @@ const userMutations = {
       email,
       password,
       details,
-      links
+      links,
+      employeeId
     }: {
       username: string;
       email: string;
       password: string;
       details: IDetail;
       links: ILink;
+      employeeId: string;
     },
     { user, models, subdomain }: IContext
   ) {
@@ -295,9 +310,14 @@ const userMutations = {
     const doc = {
       username,
       email,
-      details,
-      links
+      details: {
+        ...details,
+        fullName: `${details.firstName || ''} ${details.lastName || ''}`
+      },
+      links,
+      employeeId
     };
+
     const updatedUser = models.Users.editProfile(user._id, doc);
 
     await putUpdateLog(

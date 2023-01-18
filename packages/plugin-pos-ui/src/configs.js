@@ -1,9 +1,9 @@
 module.exports = {
   name: "pos",
+  scope: "pos",
   port: 3016,
   exposes: {
     "./routes": "./src/routes.tsx",
-
   },
   routes: {
     url: "http://localhost:3016/remoteEntry.js",

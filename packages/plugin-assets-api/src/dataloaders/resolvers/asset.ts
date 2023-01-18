@@ -24,10 +24,10 @@ export default {
   },
 
   async childAssetCount(asset: IAssetDocument, {}, { models }: IContext) {
-    let filter:string|object = { $regex: new RegExp(asset.order)}
+    let filter: string | object = { $regex: new RegExp(asset.order) };
 
-    if(asset.order.match(/\\/)){
-      filter = asset.order
+    if (asset.order.match(/\\/)) {
+      filter = asset.order;
     }
 
     const asset_ids = await models.Assets.find({ order: filter }, { _id: 1 });
