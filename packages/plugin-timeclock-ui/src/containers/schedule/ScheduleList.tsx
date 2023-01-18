@@ -75,12 +75,14 @@ const ListContainer = (props: FinalProps) => {
 
   const submitRequest = (
     selectedUserIds: string[],
-    requestedShifts: IShift[]
+    requestedShifts: IShift[],
+    selectedScheduleConfigId?: string
   ) => {
     sendScheduleReqMutation({
       variables: {
         userId: `${selectedUserIds}`,
-        shifts: requestedShifts
+        shifts: requestedShifts,
+        scheduleConfigId: selectedScheduleConfigId
       }
     })
       .then(() => Alert.success('Successfully sent a schedule request'))
@@ -91,14 +93,16 @@ const ListContainer = (props: FinalProps) => {
     selectedBranchIds: string[],
     selectedDeptIds: string[],
     selectedUserIds: string[],
-    requestedShifts: IShift[]
+    requestedShifts: IShift[],
+    selectedScheduleConfigId?: string
   ) => {
     submitScheduleMutation({
       variables: {
         branchIds: selectedBranchIds,
         departmentIds: selectedDeptIds,
         userIds: selectedUserIds,
-        shifts: requestedShifts
+        shifts: requestedShifts,
+        scheduleConfigId: selectedScheduleConfigId
       }
     })
       .then(() => Alert.success('Successfully sent a schedule request'))

@@ -11,6 +11,7 @@ import Datetime from '@nateradebaugh/react-datetime';
 type Props = {
   startDate: Date;
   endDate: Date;
+  showTime?: boolean;
   onChangeStart: (startDate: Date) => void;
   onChangeEnd: (endDate: Date) => void;
   onSaveButton: () => void;
@@ -20,6 +21,7 @@ const DateRange = (props: Props) => {
   const {
     startDate,
     endDate,
+    showTime,
     onChangeEnd,
     onChangeStart,
     onSaveButton
@@ -53,6 +55,7 @@ const DateRange = (props: Props) => {
             <Datetime
               {...props}
               input={false}
+              timeFormat={showTime}
               value={startDate}
               onChange={onDateStartChange}
             />
@@ -62,6 +65,7 @@ const DateRange = (props: Props) => {
             <DateName>End Date</DateName>
             <Datetime
               {...props}
+              timeFormat={showTime}
               input={false}
               value={endDate}
               onChange={onDateEndChange}
