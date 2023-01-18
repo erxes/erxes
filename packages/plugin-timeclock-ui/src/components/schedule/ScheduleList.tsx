@@ -21,12 +21,17 @@ type Props = {
   getActionBar: (actionBar: any) => void;
   solveSchedule: (scheduleId: string, status: string) => void;
   solveShift: (shiftId: string, status: string) => void;
-  submitRequest: (userId: string[], filledShifts: any) => void;
+  submitRequest: (
+    userId: any,
+    filledShifts: any,
+    selectedScheduleConfigId?: string
+  ) => void;
   submitSchedule: (
-    branchIds: string[],
-    departmentIds: string[],
-    userIds: string[],
-    filledShifts: any
+    branchIds: any,
+    departmentIds: any,
+    userIds: any,
+    filledShifts: any,
+    selectedScheduleConfigId?: string
   ) => void;
   removeScheduleShifts: (_id: string, type: string) => void;
 };
@@ -200,7 +205,7 @@ function ScheduleList(props: Props) {
     return schedule.shifts.length > 0 ? (
       <tr>
         <td>
-          {schedule.user && schedule.user.details.fullName.length > 1
+          {schedule.user && schedule.user.details.fullName
             ? schedule.user.details.fullName
             : schedule.user.email}
         </td>
@@ -258,7 +263,8 @@ function ScheduleList(props: Props) {
           <th>{__('Shift start')}</th>
           <th>{__('Shift end')}</th>
           <th>{__('Overnight')}</th>
-          <th colSpan={2}>{__('Action')}</th>
+          <th>{__('Shift Status')}</th>
+          <th>{__('Action')}</th>
         </tr>
       </thead>
       <tbody>

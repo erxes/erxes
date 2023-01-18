@@ -6,17 +6,23 @@ import React from 'react';
 import ReportList from '../../components/report/ReportList';
 import { queries } from '../../graphql';
 import { BranchesQueryResponse, ReportsQueryResponse } from '../../types';
-import { IBranch } from '@erxes/ui/src/team/types';
 
 type Props = {
   history: any;
   queryParams: any;
   searchValue?: string;
-  departmentIds?: string[];
-  branchIds?: string[];
+
+  queryStartDate: string;
+  queryEndDate: string;
+  queryUserIds: string[];
+  queryDepartmentIds: string[];
+  queryBranchIds: string[];
+  queryPage: number;
+  queryPerPage: number;
+  reportType?: string;
+
   getActionBar: (actionBar: any) => void;
   showSideBar: (sideBar: boolean) => void;
-  branchesList: IBranch[];
 };
 
 type FinalProps = {
@@ -25,19 +31,12 @@ type FinalProps = {
 } & Props;
 
 const ListContainer = (props: FinalProps) => {
-  const {
-    listBranchesQuery,
-    listReportsQuery,
-    queryParams,
-    getActionBar,
-    showSideBar
-  } = props;
+  const { listReportsQuery, queryParams, getActionBar, showSideBar } = props;
   const { branchId, deptId } = queryParams;
 
   const updatedProps = {
     ...props,
     getActionBar,
-    branchesList: listBranchesQuery.branches || [],
     reports: listReportsQuery.timeclockReports || [],
     branchId,
     deptId
@@ -50,10 +49,25 @@ export default withProps<Props>(
   compose(
     graphql<Props, ReportsQueryResponse>(gql(queries.listReports), {
       name: 'listReportsQuery',
-      options: ({ departmentIds, branchIds }) => ({
+      options: ({
+        queryStartDate,
+        queryEndDate,
+        queryUserIds,
+        queryDepartmentIds,
+        queryBranchIds,
+        queryPage,
+        queryPerPage,
+        reportType
+      }) => ({
         variables: {
-          departmentIds,
-          branchIds
+          startDate: queryStartDate,
+          endDate: queryEndDate,
+          userIds: queryUserIds,
+          departmentIds: queryDepartmentIds,
+          branchIds: queryBranchIds,
+          page: queryPage,
+          perPage: queryPerPage,
+          reportType
         },
         fetchPolicy: 'network-only'
       })

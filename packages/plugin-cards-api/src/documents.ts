@@ -279,7 +279,7 @@ export default {
       'service'
     );
     const totalAmount = productsTotalAmount + servicesTotalAmount;
-    const totalAmountVat = (totalAmount * 10) / 100;
+    const totalAmountVat = (totalAmount * 10) / 110;
     const totalAmountWithoutVat = totalAmount - totalAmountVat;
 
     replacedContent = replacedContent.replace(

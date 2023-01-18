@@ -58,6 +58,7 @@ function List(props: Props) {
         setModalComponent(
           <ReportList
             {...props}
+            reportType={queryParams.reportType}
             showSideBar={setShowSideBar}
             getActionBar={setRightActionBar}
             queryParams={queryParams}
