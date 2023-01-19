@@ -83,7 +83,6 @@ const participantMutations = {
         });
 
         if (!customer) {
-          console.log('customer not found');
           continue;
         }
 
@@ -99,7 +98,6 @@ const participantMutations = {
         });
 
         if (!orderUser) {
-          console.log('orderUser not found');
           continue;
         }
 
@@ -171,13 +169,12 @@ const participantMutations = {
       return null;
     }
 
-    console.log('sending notification to mobile app ', cpUser._id);
     sendClientPortalMessage({
       subdomain,
       action: 'sendNotification',
       data: {
         title: 'Үнийн санал илгээсэн танд баярлалаа.',
-        content: `${deal.name} дугаартай тээврийн ажилд өөр тээвэрчин сонгогдсон байна.`,
+        content: `${deal.name} дугаартай тээврийн ажилд таны мэдээлэл шалгуур хангасангүй.`,
         receivers: [cpUser._id],
         notifType: 'system',
         link: '',

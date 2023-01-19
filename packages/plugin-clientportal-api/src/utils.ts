@@ -276,10 +276,6 @@ export const sendNotification = async (
       }
     }
 
-    console.log('deviceTokens', deviceTokens);
-    console.log('title', title);
-    console.log('content', content);
-
     sendCoreMessage({
       subdomain: subdomain,
       action: 'sendMobileNotification',
