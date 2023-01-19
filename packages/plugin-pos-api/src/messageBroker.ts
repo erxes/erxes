@@ -478,6 +478,17 @@ export const sendLoyaltiesMessage = async (
   });
 };
 
+export const sendPricingMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'pricing',
+    ...args
+  });
+};
+
 export const sendContactsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {

@@ -47,9 +47,13 @@ const clientPortalUserMutations = {
   async clientPortalUsersEdit(
     _root,
     { _id, ...doc }: IClientPortalUserEdit,
-    { models }: IContext
+    { models, subdomain }: IContext
   ) {
-    const updated = await models.ClientPortalUsers.updateUser(_id, doc);
+    const updated = await models.ClientPortalUsers.updateUser(
+      subdomain,
+      _id,
+      doc
+    );
 
     return updated;
   },

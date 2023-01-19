@@ -9,26 +9,10 @@ const List = asyncComponent(() =>
 
 const mainContent = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
-  const {
-    startDate,
-    endDate,
-    userIds,
-    departmentIds,
-    branchIds,
-    page,
-    perPage
-  } = queryParams;
   const routePath = location.pathname.split('/').slice(-1)[0];
 
   return (
     <List
-      queryStartDate={startDate || null}
-      queryEndDate={endDate || null}
-      queryUserIds={userIds || null}
-      queryDepartmentIds={departmentIds || null}
-      queryBranchIds={branchIds || null}
-      queryPage={parseInt(page, 10)}
-      queryPerPage={parseInt(perPage, 10)}
       searchFilter={location.search}
       history={history}
       queryParams={queryParams}

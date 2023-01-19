@@ -25,7 +25,7 @@ type Props = {
   toggleAll: (targets: any[], containerId: string) => void;
   unSyncedDealIds: string[];
   syncedDealInfos: any;
-  toSyncDeals: (dealIds: string[]) => void;
+  toSyncDeals: (dealIds: string[], configStageId: string) => void;
 };
 
 type State = {
@@ -51,12 +51,17 @@ class CheckSyncedDeals extends React.Component<Props, State> {
     const {
       deals,
       history,
+      queryParams,
       toggleBulk,
       bulk,
       unSyncedDealIds,
       toSyncDeals,
       syncedDealInfos
     } = this.props;
+
+    const toSync = dealIds => {
+      toSyncDeals(dealIds, queryParams.configStageId);
+    };
 
     return deals.map(deal => (
       <Row
@@ -66,7 +71,7 @@ class CheckSyncedDeals extends React.Component<Props, State> {
         toggleBulk={toggleBulk}
         isChecked={bulk.includes(deal)}
         isUnsynced={unSyncedDealIds.includes(deal._id)}
-        toSync={toSyncDeals}
+        toSync={toSync}
         syncedInfo={syncedDealInfos[deal._id] || {}}
       />
     ));
@@ -154,7 +159,7 @@ class CheckSyncedDeals extends React.Component<Props, State> {
     const onClickSync = () =>
       confirm()
         .then(() => {
-          toSyncDeals(unSyncedDealIds);
+          toSyncDeals(unSyncedDealIds, queryParams.configStageId);
         })
         .catch(error => {
           Alert.error(error.message);

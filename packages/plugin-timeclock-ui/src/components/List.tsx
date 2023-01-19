@@ -21,14 +21,6 @@ type Props = {
   loading: boolean;
   branchesList: IBranch[];
   scheduleConfigs: IScheduleConfig[];
-
-  queryStartDate: string;
-  queryEndDate: string;
-  queryUserIds: string[];
-  queryBranchIds: string[];
-  queryDepartmentIds: string[];
-  queryPage: number;
-  queryPerPage: number;
   searchFilter: string;
 };
 

@@ -14,6 +14,7 @@ export const checkPricing = async (
       subdomain,
       action: 'checkPricing',
       data: {
+        prioritizeRule: 'exclude',
         totalAmount: doc.totalAmount,
         departmentId: config.departmentId,
         branchId: config.branchId,

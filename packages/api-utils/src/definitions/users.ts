@@ -58,6 +58,8 @@ export interface IUser {
   isShowNotification?: boolean;
   score?: number;
   customFieldsData?: ICustomField[];
+  departmentIds?: string[];
+  branchIds?: string[];
   employeeId?: string;
 }
 
@@ -118,6 +120,8 @@ export const userSchema = schemaWrapper(
     registrationTokenExpires: field({ type: Date }),
     resetPasswordExpires: field({ type: Date }),
     isOwner: field({ type: Boolean, label: 'Is owner' }),
+    departmentIds: field({ type: [String], label: 'Department Ids' }),
+    branchIds: field({ type: [String], label: 'Branch Ids' }),
     email: field({
       type: String,
       unique: true,

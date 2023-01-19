@@ -15,7 +15,7 @@ export default function ForumPost({ isTagsEnabled }) {
     ${translationAndPostCommonFields}
   }
 
-  type ForumPost @key(fields: "_id") @cacheControl(maxAge: 30) {
+  type ForumPost @key(fields: "_id") {
     _id: ID!
     state: ForumPostState
 

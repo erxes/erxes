@@ -6,19 +6,13 @@ import React from 'react';
 import ReportList from '../../components/report/ReportList';
 import { queries } from '../../graphql';
 import { BranchesQueryResponse, ReportsQueryResponse } from '../../types';
+import { generateParams } from '../../utils';
 
 type Props = {
   history: any;
   queryParams: any;
   searchValue?: string;
 
-  queryStartDate: string;
-  queryEndDate: string;
-  queryUserIds: string[];
-  queryDepartmentIds: string[];
-  queryBranchIds: string[];
-  queryPage: number;
-  queryPerPage: number;
   reportType?: string;
 
   getActionBar: (actionBar: any) => void;
@@ -49,24 +43,9 @@ export default withProps<Props>(
   compose(
     graphql<Props, ReportsQueryResponse>(gql(queries.listReports), {
       name: 'listReportsQuery',
-      options: ({
-        queryStartDate,
-        queryEndDate,
-        queryUserIds,
-        queryDepartmentIds,
-        queryBranchIds,
-        queryPage,
-        queryPerPage,
-        reportType
-      }) => ({
+      options: ({ queryParams, reportType }) => ({
         variables: {
-          startDate: queryStartDate,
-          endDate: queryEndDate,
-          userIds: queryUserIds,
-          departmentIds: queryDepartmentIds,
-          branchIds: queryBranchIds,
-          page: queryPage,
-          perPage: queryPerPage,
+          ...generateParams(queryParams),
           reportType
         },
         fetchPolicy: 'network-only'

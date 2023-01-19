@@ -61,7 +61,7 @@ const PostQueries: IObjectTypeResolver<any, IContext> = {
     const requirement = await Category.isUserAllowedToRead(post, cpUser);
 
     if (requirement) {
-      post.content = '';
+      // post.content = '';
       post.requiredLevel = requirement.requiredLevel;
       post.isPermissionRequired = requirement.isPermissionGroupRequired;
     }
@@ -80,7 +80,7 @@ const PostQueries: IObjectTypeResolver<any, IContext> = {
     const { limit = 0, offset = 0, sort = {} } = params;
 
     const res = await Post.find(query)
-      .select('-content -translations.content')
+      // .select('-content -translations.content')
       .sort(sort)
       .skip(offset)
       .limit(limit)
