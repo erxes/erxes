@@ -85,7 +85,7 @@ export default {
     i18n.configure({
       locales: ['en', 'mn'],
       queryParameter: 'lang',
-      directory: __dirname + '/localizations',
+      directory: __dirname + '/locales',
       defaultLocale: 'en'
     });
 
