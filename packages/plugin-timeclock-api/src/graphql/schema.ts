@@ -19,7 +19,7 @@ export const types = `
     employeeUserName: String
     branchName: String
     deviceName: String
-    employeeId: Int
+    employeeId: String
     deviceType: String
   }
 
@@ -67,6 +67,7 @@ export const types = `
     shifts: [ShiftsRequest]
     solved: Boolean
     status: String
+    scheduleConfigId: String
   }
 
   type ScheduleReport{
@@ -88,9 +89,11 @@ export const types = `
     totalMinsWorked: Int
     totalMinsWorkedToday: Int
     totalMinsWorkedThisMonth: Int
+    totalDaysWorkedThisMonth:Int
     totalMinsScheduled: Int
     totalMinsScheduledToday: Int
     totalMinsScheduledThisMonth: Int
+    totalDaysScheduledThisMonth: Int
     totalMinsLateToday: Int
     totalMinsLateThisMonth: Int
     totalMinsAbsenceThisMonth: Int
@@ -184,7 +187,7 @@ export const queries = `
   requestsMain(${queryParams}): RequestsListResponse
 
   absenceTypes:[AbsenceType]
-  timeclockReports(departmentIds: [String], branchIds: [String], userIds: [String]): [Report]
+  timeclockReports(${queryParams}): [Report]
   timeclockReportByUser(selectedUser: String): UserReport
   timeclockDetail(_id: String!): Timeclock
   absenceDetail(_id: String!): Absence
@@ -202,8 +205,8 @@ export const mutations = `
   absenceTypeAdd(${absenceType_params}): AbsenceType
   absenceTypeEdit(_id: String, ${absenceType_params}): AbsenceType
   sendAbsenceRequest(${absence_params}): Absence
-  sendScheduleRequest(userId: String, shifts: [ShiftsRequestInput]): Schedule
-  submitSchedule(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftsRequestInput]): Schedule
+  sendScheduleRequest(userId: String, shifts: [ShiftsRequestInput], scheduleConfigId: String): Schedule
+  submitSchedule(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftsRequestInput], scheduleConfigId: String): Schedule
   solveAbsenceRequest(_id: String, status: String): Absence
   solveScheduleRequest(_id: String, status: String): Schedule
   solveShiftRequest(_id: String, status: String): ShiftsRequest
@@ -218,5 +221,5 @@ export const mutations = `
   holidayRemove(_id: String): JSON
   scheduleRemove(_id: String): JSON
   scheduleShiftRemove(_id: String): JSON
-  extractAllDataFromMySQL: [Timeclock]
+  extractAllDataFromMySQL(startDate: String, endDate: String): [Timeclock]
 `;

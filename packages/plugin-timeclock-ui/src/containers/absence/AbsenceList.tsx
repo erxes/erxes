@@ -14,6 +14,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert } from '@erxes/ui/src/utils';
 import { IAttachment } from '@erxes/ui/src/types';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import { generateParams } from '../../utils';
 
 type Props = {
   history: any;
@@ -27,13 +28,6 @@ type Props = {
   absenceStatus?: string;
   attachment?: IAttachment;
 
-  queryStartDate: string;
-  queryEndDate: string;
-  queryUserIds: string[];
-  queryBranchIds: string[];
-  queryDepartmentIds: string[];
-  queryPage: number;
-  queryPerPage: number;
   getActionBar: (actionBar: any) => void;
   getPagination: (pagination: any) => void;
   showSideBar: (sideBar: boolean) => void;
@@ -113,24 +107,8 @@ export default withProps<Props>(
   compose(
     graphql<Props, AbsenceQueryResponse>(gql(queries.listRequestsMain), {
       name: 'listAbsenceQuery',
-      options: ({
-        queryStartDate,
-        queryEndDate,
-        queryUserIds,
-        queryDepartmentIds,
-        queryBranchIds,
-        queryPage,
-        queryPerPage
-      }) => ({
-        variables: {
-          startDate: queryStartDate,
-          endDate: queryEndDate,
-          userIds: queryUserIds,
-          departmentIds: queryDepartmentIds,
-          branchIds: queryBranchIds,
-          page: queryPage,
-          perPage: queryPerPage
-        },
+      options: ({ queryParams }) => ({
+        variables: generateParams(queryParams),
         fetchPolicy: 'network-only'
       })
     }),

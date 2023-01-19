@@ -18,8 +18,8 @@ const toCheckSynced = `
 `;
 
 const toSyncDeals = `
-  mutation toSyncDeals($dealIds: [String]) {
-    toSyncDeals(dealIds: $dealIds)
+  mutation toSyncDeals($dealIds: [String], $configStageId: String) {
+    toSyncDeals(dealIds: $dealIds, configStageId: $configStageId)
   }
 `;
 

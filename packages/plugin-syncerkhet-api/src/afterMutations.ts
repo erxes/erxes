@@ -30,7 +30,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       }
 
       const configs = await getConfig(subdomain, 'ebarimtConfig', {});
-      const moveConfigs = await getConfig(subdomain, 'stageInMoveConfig');
+      const moveConfigs = await getConfig(subdomain, 'stageInMoveConfig', {});
       const returnConfigs = await getConfig(
         subdomain,
         'returnEbarimtConfig',

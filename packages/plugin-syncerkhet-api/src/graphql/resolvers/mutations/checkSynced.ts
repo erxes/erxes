@@ -47,7 +47,7 @@ const checkSyncedMutations = {
 
   async toSyncDeals(
     _root,
-    { dealIds }: { dealIds: string[] },
+    { dealIds, configStageId }: { dealIds: string[]; configStageId: string },
     { subdomain }: IContext
   ) {
     const result: { skipped: string[]; error: string[]; success: string[] } = {
@@ -67,13 +67,14 @@ const checkSyncedMutations = {
     });
 
     for (const deal of deals) {
-      if (!Object.keys(configs).includes(deal.stageId)) {
+      const syncedStageId = configStageId || deal.stageId;
+      if (!Object.keys(configs).includes(syncedStageId)) {
         result.skipped.push(deal._id);
         continue;
       }
 
       const config = {
-        ...configs[deal.stageId],
+        ...configs[syncedStageId],
         ...mainConfig
       };
       const postData = await getPostData(subdomain, config, deal, false);

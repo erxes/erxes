@@ -27,14 +27,6 @@ type Props = {
   stopTime: Date;
   timeId: string;
   userId: string;
-
-  queryStartDate: string;
-  queryEndDate: string;
-  queryUserIds: string[];
-  queryBranchIds: string[];
-  queryDepartmentIds: string[];
-  queryPage: number;
-  queryPerPage: number;
   searchFilter: string;
 };
 
@@ -54,9 +46,7 @@ class ListContainer extends React.Component<FinalProps> {
     const {
       listBranchesQuery,
       listScheduleConfigsQuery,
-      currentUser,
-      queryUserIds,
-      history
+      currentUser
     } = this.props;
 
     if (listBranchesQuery.loading) {
@@ -68,7 +58,6 @@ class ListContainer extends React.Component<FinalProps> {
     const updatedProps = {
       ...this.props,
       currentUserId,
-      queryUserIds,
       scheduleConfigs: listScheduleConfigsQuery.scheduleConfigs || [],
       branchesList: listBranchesQuery.branches || [],
       loading: listBranchesQuery.loading

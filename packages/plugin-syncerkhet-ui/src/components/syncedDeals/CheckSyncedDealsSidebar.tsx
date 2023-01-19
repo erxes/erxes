@@ -20,6 +20,7 @@ interface State {
   boardId: string;
   pipelineId: string;
   stageId: string;
+  configStageId: string;
   stageChangedStartDate: Date;
   stageChangedEndDate: Date;
   userId: string;
@@ -35,6 +36,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
       boardId: queryParams.boardId,
       pipelineId: queryParams.pipelineId,
       stageId: queryParams.stageId,
+      configStageId: queryParams.configStageId,
       stageChangedStartDate: queryParams.stageChangedStartDate,
       stageChangedEndDate: queryParams.stageChangedEndDate
     };
@@ -58,6 +60,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
       boardId,
       pipelineId,
       stageId,
+      configStageId,
       userId,
       stageChangedStartDate,
       stageChangedEndDate
@@ -68,6 +71,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
       boardId,
       pipelineId,
       stageId,
+      configStageId,
       userId,
       stageChangedStartDate,
       stageChangedEndDate
@@ -121,7 +125,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
   }
 
   render() {
-    const { boardId, pipelineId, stageId, userId } = this.state;
+    const { boardId, pipelineId, stageId, userId, configStageId } = this.state;
 
     const onChangeBoard = (boardId: string) => {
       this.setState({ boardId });
@@ -135,6 +139,10 @@ class CheckerSidebar extends React.Component<IProps, State> {
       this.setState({ stageId });
     };
 
+    const onChangeConfigStage = (stageId: string) => {
+      this.setState({ configStageId: stageId });
+    };
+
     const onUserChange = userId => {
       this.setState({ userId });
     };
@@ -146,7 +154,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
             <Section.Title>{__('Filters')}</Section.Title>
 
             <FormGroup>
-              <ControlLabel>Choose Stage</ControlLabel>
+              <ControlLabel>Choose Filter Stage</ControlLabel>
               <BoardSelectContainer
                 type="deal"
                 autoSelectStage={false}
@@ -173,6 +181,19 @@ class CheckerSidebar extends React.Component<IProps, State> {
             {this.renderRange('stageChanged')}
           </Section>
 
+          <FormGroup>
+            <ControlLabel>Choose Get Config Stage</ControlLabel>
+            <BoardSelectContainer
+              type="deal"
+              autoSelectStage={false}
+              boardId={boardId || ''}
+              pipelineId={pipelineId || ''}
+              stageId={configStageId || stageId || ''}
+              onChangeBoard={onChangeBoard}
+              onChangePipeline={onChangePipeline}
+              onChangeStage={onChangeConfigStage}
+            />
+          </FormGroup>
           <Button onClick={this.onFilter}>Filter</Button>
         </Sidebar>
       </Wrapper.Sidebar>

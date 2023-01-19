@@ -71,7 +71,7 @@ function AbsenceList(props: Props) {
     return (
       <tr>
         <td>
-          {absence.user && absence.user.details.fullName.length > 1
+          {absence.user && absence.user.details.fullName
             ? absence.user.details.fullName
             : absence.user.email}
         </td>

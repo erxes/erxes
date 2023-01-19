@@ -1,3 +1,4 @@
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import dayjs from 'dayjs';
 import { ISchedule } from './types';
 
@@ -6,13 +7,18 @@ const timeFormat = 'HH:mm';
 export const compareStartAndEndTime = (
   scheduleDates: ISchedule,
   day_key,
-  newShiftStart,
-  newShiftEnd
+  newShiftStart?,
+  newShiftEnd?,
+  shiftDate?
 ) => {
   const currShift = scheduleDates[day_key];
-  const currShiftDate = currShift.shiftDate
-    ? currShift.shiftDate.toLocaleDateString()
-    : currShift.shiftStart?.toLocaleDateString();
+  const currShiftDate = shiftDate
+    ? shiftDate
+    : currShift
+    ? currShift.shiftDate
+      ? currShift.shiftDate.toLocaleDateString()
+      : currShift.shiftStart?.toLocaleDateString()
+    : newShiftStart.toLocaleDateString();
 
   const currShiftEnd = newShiftEnd ? newShiftEnd : currShift.shiftEnd;
   const currShiftStart = newShiftStart ? newShiftStart : currShift.shiftStart;
@@ -46,3 +52,12 @@ export const compareStartAndEndTime = (
 
   return [correctShiftStart, correctShiftEnd, overnightShift];
 };
+
+export const generateParams = queryParams => ({
+  ...generatePaginationParams(queryParams || {}),
+  startDate: queryParams.startDate,
+  endDate: queryParams.endDate,
+  userIds: queryParams.userIds,
+  departmentIds: queryParams.departmentIds,
+  branchIds: queryParams.branchIds
+});
