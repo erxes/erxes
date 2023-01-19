@@ -1,48 +1,38 @@
 import { generateModels, IModels } from './connectionResolver';
-import { sendCoreMessage, sendFormsMessage } from './messageBroker';
-import { ITimeClock, IUserReport } from './models/definitions/timeclock';
+import { sendCoreMessage } from './messageBroker';
+import { ITimeClock } from './models/definitions/timeclock';
 import * as dayjs from 'dayjs';
 import { fixDate, getEnv } from '@erxes/api-utils/src';
-import { IUserDocument } from '@erxes/api-utils/src/types';
 import { Sequelize, QueryTypes } from 'sequelize';
 import { findBranch, findDepartment } from './graphql/resolvers/utils';
+import report from './graphql/resolvers/report';
 
-const findUserByEmployeeId = async (subdomain: string, empId: number) => {
-  const field = await sendFormsMessage({
+const findAllTeamMembersWithEmpId = async (subdomain: string) => {
+  const users = await sendCoreMessage({
     subdomain,
-    action: 'fields.findOne',
+    action: 'users.find',
     data: {
-      query: {
-        code: 'employeeId'
-      }
+      query: { employeeId: { $exists: true } }
     },
-    isRPC: true
+    isRPC: true,
+    defaultValue: []
   });
 
-  let user: IUserDocument;
-
-  if (field) {
-    user = await sendCoreMessage({
-      subdomain,
-      action: 'users.findOne',
-      data: {
-        customFieldsData: { $elemMatch: { field: field._id, value: empId } }
-      },
-      isRPC: true
-    });
-
-    return user;
-  } else {
-    return null;
-  }
+  return users;
 };
 
-const connectAndQueryFromMySql = async (subdomain: string, query: string) => {
+const connectAndQueryFromMySql = async (
+  subdomain: string,
+  startDate: string,
+  endDate: string
+) => {
   const MYSQL_HOST = getEnv({ name: 'MYSQL_HOST' });
   const MYSQL_DB = getEnv({ name: 'MYSQL_DB' });
   const MYSQL_USERNAME = getEnv({ name: 'MYSQL_USERNAME' });
   const MYSQL_PASSWORD = getEnv({ name: 'MYSQL_PASSWORD' });
+  const MYSQL_TABLE = getEnv({ name: 'MYSQL_TABLE' });
 
+  // create connection
   const sequelize = new Sequelize(MYSQL_DB, MYSQL_USERNAME, MYSQL_PASSWORD, {
     host: MYSQL_HOST,
     port: 1433,
@@ -56,6 +46,10 @@ const connectAndQueryFromMySql = async (subdomain: string, query: string) => {
       }
     }
   });
+
+  // find team members with employee Id
+  const teamMembers = await findAllTeamMembersWithEmpId(subdomain);
+
   let returnData;
 
   sequelize
@@ -67,12 +61,32 @@ const connectAndQueryFromMySql = async (subdomain: string, query: string) => {
       console.error(err);
       return err;
     });
+
+  // query by employee Id
   try {
+    const teamMembersObject = {};
+    const teamEmployeeIds: string[] = [];
+
+    for (const teamMember of teamMembers) {
+      if (!teamMember.employeeId) {
+        continue;
+      }
+
+      teamMembersObject[teamMember.employeeId] = teamMember._id;
+      teamEmployeeIds.push(teamMember.employeeId);
+    }
+
+    const query = `SELECT * FROM ${MYSQL_TABLE} WHERE authDateTime >= '${startDate}' AND authDateTime <= '${endDate}' AND ISNUMERIC(ID)=1 AND ID IN (${teamEmployeeIds}) ORDER BY ID, authDateTime`;
+
     const queryData = await sequelize.query(query, {
       type: QueryTypes.SELECT
     });
 
-    returnData = await importDataAndCreateTimeclock(subdomain, queryData);
+    returnData = await importDataAndCreateTimeclock(
+      subdomain,
+      queryData,
+      teamMembersObject
+    );
   } catch (err) {
     console.error(err);
     return err;
@@ -83,7 +97,8 @@ const connectAndQueryFromMySql = async (subdomain: string, query: string) => {
 
 const importDataAndCreateTimeclock = async (
   subdomain: string,
-  queryData: any
+  queryData: any,
+  teamMembersObj: any
 ) => {
   const returnData: ITimeClock[] = [];
   const models: IModels = await generateModels(subdomain);
@@ -97,38 +112,32 @@ const importDataAndCreateTimeclock = async (
     } else {
       currentEmpId = empId;
 
-      // if given employee id is number, extract all employee timeclock data
+      // if given employee id is number, extract all timeclock data of an employee
       const empIdNumber = parseInt(empId, 10);
       if (empIdNumber) {
         currentEmpData = queryData.filter(row => row.ID === currentEmpId);
-
         returnData.push(
           ...(await createUserTimeclock(
-            subdomain,
             models,
+            currentEmpData,
             empIdNumber,
-            queryRow.employeeName,
-            currentEmpData
+            teamMembersObj
           ))
         );
       }
     }
   }
 
-  await models.Timeclocks.insertMany(returnData);
-
-  return models.Timeclocks.find();
+  return await models.Timeclocks.insertMany(returnData);
 };
 
 const createUserTimeclock = async (
-  subdomain: string,
   models: IModels,
+  empData: any,
   empId: number,
-  empName: string,
-  empData: any
+  teamMembersObj: any
 ) => {
   const returnUserData: ITimeClock[] = [];
-  const user = await findUserByEmployeeId(subdomain, empId);
 
   // find if there's any unfinished shift from previous timeclock data
   const unfinishedShifts = await models?.Timeclocks.find({
@@ -161,7 +170,7 @@ const createUserTimeclock = async (
       const latestShiftIdx = empData.length - 1 - findLatestShiftEndIdx;
 
       await models.Timeclocks.updateTimeClock(unfinishedShift._id, {
-        userId: user?._id,
+        userId: teamMembersObj[empId],
         employeeId: empId,
         shiftStart: unfinishedShift.shiftStart,
         shiftEnd: dayjs(empData[latestShiftIdx].authDateTime).toDate(),
@@ -187,10 +196,9 @@ const createUserTimeclock = async (
     if (getShiftEndIdx === -1) {
       const newTimeclock = {
         shiftStart: dayjs(currShiftStart).toDate(),
-        userId: user?._id,
-        deviceName: empData[i].deviceName,
-        employeeUserName: empName || undefined,
+        userId: teamMembersObj[empId],
         employeeId: empId,
+        deviceName: empData[i].deviceName,
         shiftActive: true,
         deviceType: 'faceTerminal'
       };
@@ -217,9 +225,8 @@ const createUserTimeclock = async (
     const newTimeclockData = {
       shiftStart: dayjs(currShiftStart).toDate(),
       shiftEnd: dayjs(currShiftEnd).toDate(),
-      userId: user?._id,
       deviceName: empData[getShiftEndIdx].deviceName || undefined,
-      employeeUserName: empName || undefined,
+      userId: teamMembersObj[empId],
       employeeId: empId,
       shiftActive: false,
       deviceType: 'faceTerminal'
@@ -272,46 +279,15 @@ const generateFilter = async (params, subdomain, type) => {
   const startDate = params.startDate;
   const endDate = params.endDate;
 
-  const totalUserIds: string[] = [];
-  let commonUser: boolean = false;
-  let dateGiven: boolean = false;
+  const totalUserIds: string[] = await generateCommonUserIds(
+    subdomain,
+    userIds,
+    branchIds,
+    departmentIds
+  );
 
   let returnFilter = {};
-
-  if (branchIds) {
-    for (const branchId of branchIds) {
-      const branch = await findBranch(subdomain, branchId);
-      if (userIds) {
-        commonUser = true;
-        for (const userId of userIds) {
-          if (branch.userIds.includes(userId)) {
-            totalUserIds.push(userId);
-          }
-        }
-      } else {
-        totalUserIds.push(...branch.userIds);
-      }
-    }
-  }
-  if (departmentIds) {
-    for (const deptId of departmentIds) {
-      const department = await findDepartment(subdomain, deptId);
-      if (userIds) {
-        commonUser = true;
-        for (const userId of userIds) {
-          if (department.userIds.includes(userId)) {
-            totalUserIds.push(userId);
-          }
-        }
-      } else {
-        totalUserIds.push(...department.userIds);
-      }
-    }
-  }
-
-  if (!commonUser && userIds) {
-    totalUserIds.push(...userIds);
-  }
+  let dateGiven: boolean = false;
 
   const timeFields =
     type === 'schedule'
@@ -402,4 +378,56 @@ const generateFilter = async (params, subdomain, type) => {
   return returnFilter;
 };
 
-export { connectAndQueryFromMySql, generateFilter };
+const generateCommonUserIds = async (
+  subdomain: string,
+  userIds: string[],
+  branchIds?: string[],
+  departmentIds?: string[]
+) => {
+  const totalUserIds: string[] = [];
+  let commonUser: boolean = false;
+
+  if (branchIds) {
+    for (const branchId of branchIds) {
+      const branch = await findBranch(subdomain, branchId);
+      if (userIds) {
+        commonUser = true;
+        for (const userId of userIds) {
+          if (branch.userIds.includes(userId)) {
+            totalUserIds.push(userId);
+          }
+        }
+      } else {
+        totalUserIds.push(...branch.userIds);
+      }
+    }
+  }
+  if (departmentIds) {
+    for (const deptId of departmentIds) {
+      const department = await findDepartment(subdomain, deptId);
+      if (userIds) {
+        commonUser = true;
+        for (const userId of userIds) {
+          if (department.userIds.includes(userId)) {
+            totalUserIds.push(userId);
+          }
+        }
+      } else {
+        totalUserIds.push(...department.userIds);
+      }
+    }
+  }
+
+  if (!commonUser && userIds) {
+    totalUserIds.push(...userIds);
+  }
+
+  return totalUserIds;
+};
+
+export {
+  connectAndQueryFromMySql,
+  generateFilter,
+  generateCommonUserIds,
+  findAllTeamMembersWithEmpId
+};

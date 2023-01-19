@@ -1,5 +1,9 @@
 import { generateModels, IModels } from './connectionResolver';
-import { sendPosclientMessage, sendProductsMessage } from './messageBroker';
+import {
+  sendPosclientMessage,
+  sendPricingMessage,
+  sendProductsMessage
+} from './messageBroker';
 import { IPosDocument } from './models/definitions/pos';
 import { getChildCategories } from './utils';
 
@@ -136,7 +140,31 @@ export const afterMutationHandlers = async (subdomain, params) => {
   if (type === 'products:product') {
     for (const pos of poss) {
       if (await isInProduct(subdomain, models, pos, params.object._id)) {
-        await handler(subdomain, params, action, 'product', pos);
+        const pricing = await sendPricingMessage({
+          subdomain,
+          action: 'checkPricing',
+          data: {
+            prioritizeRule: 'only',
+            totalAmount: 0,
+            departmentId: pos.departmentId,
+            branchId: pos.branchId,
+            products: [...params]
+          },
+          isRPC: true,
+          defaultValue: {}
+        });
+
+        const discount = pricing[params._id] || {};
+
+        if (Object.keys(discount).length) {
+          if (discount.type === 'percentage') {
+            params.unitPrice -= discount.value;
+          } else {
+            params.unitPrice -= discount.value;
+          }
+        }
+
+        await handler(subdomain, { ...params }, action, 'product', pos);
       }
     }
     return;

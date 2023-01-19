@@ -36,7 +36,9 @@ export type CheckSyncedMutationResponse = {
 };
 
 export type ToSyncDealsMutationResponse = {
-  toSyncDeals: (mutation: { variables: { dealIds: string[] } }) => Promise<any>;
+  toSyncDeals: (mutation: {
+    variables: { dealIds: string[]; configStageId: string };
+  }) => Promise<any>;
 };
 
 export type ToCheckProductsMutationResponse = {

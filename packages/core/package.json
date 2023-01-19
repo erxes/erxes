@@ -33,6 +33,7 @@
     "migrateFields": "node_modules/.bin/ts-node src/commands/migrateFields.ts",
     "migrateProductCategoriesOrders": "node_modules/.bin/ts-node src/commands/migrateProductCategoriesOrders.ts",
     "migrateClientPortalUsers": "node_modules/.bin/ts-node src/commands/migrateClientPortalUsers.ts",
+    "migrateUserMovements": "node_modules/.bin/ts-node src/commands/migrateUserMovements.ts",
     "updateUserNames": "node_modules/.bin/ts-node src/commands/updateUserNames.ts"
   },
   "dependencies": {

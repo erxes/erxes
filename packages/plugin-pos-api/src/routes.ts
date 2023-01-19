@@ -1,12 +1,13 @@
-import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels, IModels } from './connectionResolver';
+import { getChildCategories, getConfig } from './utils';
+import { getSubdomain } from '@erxes/api-utils/src/core';
+import { IPosDocument } from './models/definitions/pos';
 import {
   sendCoreMessage,
   sendEbarimtMessage,
+  sendPricingMessage,
   sendProductsMessage
 } from './messageBroker';
-import { IPosDocument } from './models/definitions/pos';
-import { getChildCategories, getConfig } from './utils';
 
 export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   const data: any = { pos };
@@ -108,6 +109,34 @@ export const getProductsData = async (
         isRPC: true,
         defaultValue: []
       });
+
+      const pricing = await sendPricingMessage({
+        subdomain,
+        action: 'checkPricing',
+        data: {
+          prioritizeRule: 'only',
+          totalAmount: 0,
+          departmentId: pos.departmentId,
+          branchId: pos.branchId,
+          products
+        },
+        isRPC: true,
+        defaultValue: {}
+      });
+
+      for (const product of products) {
+        const discount = pricing[product._id] || {};
+
+        if (!Object.keys(discount).length) {
+          continue;
+        }
+
+        if (discount.type === 'percentage') {
+          product.unitPrice -= discount.value;
+        } else {
+          product.unitPrice -= discount.value;
+        }
+      }
 
       categories.push({
         _id: category._id,

@@ -2,13 +2,13 @@ const userFields = `
   _id
   username
   email
+  employeeId
   details {
     avatar
     fullName
-  }
-  department{
-    _id
-    title
+    firstName
+    lastName
+    position
   }
 `;
 
@@ -73,6 +73,7 @@ const listSchedulesMain = `
             solved
             status
           }
+          scheduleConfigId
           solved
           status
           user {
@@ -116,8 +117,8 @@ const listBranches = `
 `;
 
 const listReports = `
-  query listReportsQuery($departmentIds: [String], $branchIds: [String]){
-    timeclockReports(departmentIds:$departmentIds, branchIds: $branchIds){
+  query listReportsQuery(${listParamsDef}){
+    timeclockReports(${listParamsValue}){
       groupTitle
       groupReport{
         user {
@@ -136,6 +137,13 @@ const listReports = `
         totalAbsenceMins
         totalMinsWorked
         totalMinsScheduled
+
+        totalMinsWorkedThisMonth
+        totalDaysWorkedThisMonth
+
+        totalMinsScheduledThisMonth
+        totalDaysScheduledThisMonth
+    
       }
       groupTotalMinsLate
       groupTotalAbsenceMins

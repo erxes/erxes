@@ -13,18 +13,13 @@ import React, { useState } from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { mutations } from '../../graphql';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import dayjs from 'dayjs';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { generateParams } from '../../utils';
 
 type Props = {
   queryParams: any;
   history: any;
-
-  queryStartDate: string;
-  queryEndDate: string;
-  queryUserIds: string[];
-  queryDepartmentIds: string[];
-  queryBranchIds: string[];
-  queryPage: number;
-  queryPerPage: number;
 
   showSideBar: (sideBar: boolean) => void;
   getActionBar: (actionBar: any) => void;
@@ -43,15 +38,22 @@ const ListContainer = (props: FinalProps) => {
     extractAllMySqlDataMutation,
     showSideBar
   } = props;
+
+  const dateFormat = 'YYYY-MM-DD';
   const [loading, setLoading] = useState(false);
 
   if (timeclocksMainQuery.loading || loading) {
     return <Spinner />;
   }
 
-  const extractAllMySqlData = () => {
+  const extractAllMySqlData = (start: Date, end: Date) => {
     setLoading(true);
-    extractAllMySqlDataMutation()
+    extractAllMySqlDataMutation({
+      variables: {
+        startDate: dayjs(start).format(dateFormat),
+        endDate: dayjs(end).format(dateFormat)
+      }
+    })
       .then(() => {
         setLoading(false);
         timeclocksMainQuery.refetch();
@@ -82,24 +84,8 @@ export default withProps<Props>(
   compose(
     graphql<Props, TimeClockQueryResponse>(gql(queries.listTimeclocksMain), {
       name: 'timeclocksMainQuery',
-      options: ({
-        queryStartDate,
-        queryEndDate,
-        queryUserIds,
-        queryDepartmentIds,
-        queryBranchIds,
-        queryPage,
-        queryPerPage
-      }) => ({
-        variables: {
-          startDate: queryStartDate,
-          endDate: queryEndDate,
-          userIds: queryUserIds,
-          departmentIds: queryDepartmentIds,
-          branchIds: queryBranchIds,
-          page: queryPage,
-          perPage: queryPerPage
-        },
+      options: ({ queryParams }) => ({
+        variables: generateParams(queryParams),
         fetchPolicy: 'network-only'
       })
     }),

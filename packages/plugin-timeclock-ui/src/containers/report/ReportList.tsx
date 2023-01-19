@@ -6,17 +6,17 @@ import React from 'react';
 import ReportList from '../../components/report/ReportList';
 import { queries } from '../../graphql';
 import { BranchesQueryResponse, ReportsQueryResponse } from '../../types';
-import { IBranch } from '@erxes/ui/src/team/types';
+import { generateParams } from '../../utils';
 
 type Props = {
   history: any;
   queryParams: any;
   searchValue?: string;
-  departmentIds?: string[];
-  branchIds?: string[];
+
+  reportType?: string;
+
   getActionBar: (actionBar: any) => void;
   showSideBar: (sideBar: boolean) => void;
-  branchesList: IBranch[];
 };
 
 type FinalProps = {
@@ -25,19 +25,12 @@ type FinalProps = {
 } & Props;
 
 const ListContainer = (props: FinalProps) => {
-  const {
-    listBranchesQuery,
-    listReportsQuery,
-    queryParams,
-    getActionBar,
-    showSideBar
-  } = props;
+  const { listReportsQuery, queryParams, getActionBar, showSideBar } = props;
   const { branchId, deptId } = queryParams;
 
   const updatedProps = {
     ...props,
     getActionBar,
-    branchesList: listBranchesQuery.branches || [],
     reports: listReportsQuery.timeclockReports || [],
     branchId,
     deptId
@@ -50,10 +43,10 @@ export default withProps<Props>(
   compose(
     graphql<Props, ReportsQueryResponse>(gql(queries.listReports), {
       name: 'listReportsQuery',
-      options: ({ departmentIds, branchIds }) => ({
+      options: ({ queryParams, reportType }) => ({
         variables: {
-          departmentIds,
-          branchIds
+          ...generateParams(queryParams),
+          reportType
         },
         fetchPolicy: 'network-only'
       })

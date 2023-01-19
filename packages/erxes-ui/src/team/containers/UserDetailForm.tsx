@@ -152,7 +152,8 @@ const UserDetailFormContainer = (props: Props & FinalProps) => {
     totalConversationCount: totalCount,
     channels: channelsQuery.channels || [],
     skills: skillsQuery.skills || [],
-    excludeUserSkill
+    excludeUserSkill,
+    renderButton
   };
 
   return <UserDetailForm {...updatedProps} />;

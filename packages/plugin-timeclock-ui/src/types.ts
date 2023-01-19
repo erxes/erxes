@@ -44,9 +44,19 @@ export interface IReport {
 export interface IUserReport {
   user: IUser;
   scheduleReport: IScheduleReport[];
-  totalMinsLate?: number;
-  totalAbsenceMins?: number;
   totalMinsWorked?: number;
+  totalMinsWorkedToday?: number;
+  totalMinsWorkedThisMonth?: number;
+  totalDaysWorkedThisMonth?: number;
+  totalMinsScheduled?: number;
+  totalMinsScheduledToday?: number;
+  totalMinsScheduledThisMonth?: number;
+  totalDaysScheduledThisMonth?: number;
+  totalMinsLate?: number;
+  totalMinsLateToday?: number;
+  totalMinsLateThisMonth?: number;
+  totalAbsenceMins?: number;
+  totalMinsAbsenceThisMonth?: number;
 }
 
 export interface IScheduleReport {
@@ -169,14 +179,20 @@ export type AbsenceMutationVariables = {
 
 export type ScheduleMutationVariables = {
   _id?: string;
-  userId: string;
+  userId?: string;
   shifts: IShift[];
+  branchIds?: string[];
+  departmentIds?: string[];
+  userIds?: string[];
+  scheduleConfigId?: string;
 };
 
 export type TimeClockMutationResponse = {
   startTimeMutation: (params: { variables: MutationVariables }) => Promise<any>;
   stopTimeMutation: (params: { variables: MutationVariables }) => Promise<any>;
-  extractAllMySqlDataMutation: () => Promise<any>;
+  extractAllMySqlDataMutation: (params: {
+    variables: { startDate: string; endDate: string };
+  }) => Promise<any>;
 };
 
 export type AbsenceMutationResponse = {
@@ -261,12 +277,7 @@ export type ScheduleMutationResponse = {
   }) => Promise<any>;
 
   submitScheduleMutation: (params: {
-    variables: {
-      branchIds: string[];
-      departmentIds: string[];
-      userIds: string[];
-      shifts: IShift[];
-    };
+    variables: ScheduleMutationVariables;
   }) => Promise<any>;
 
   solveScheduleMutation: (params: {
