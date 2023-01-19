@@ -83,6 +83,7 @@ const participantMutations = {
         });
 
         if (!customer) {
+          console.log('customer not found');
           continue;
         }
 
@@ -98,6 +99,7 @@ const participantMutations = {
         });
 
         if (!orderUser) {
+          console.log('orderUser not found');
           continue;
         }
 
@@ -169,6 +171,7 @@ const participantMutations = {
       return null;
     }
 
+    console.log('sending notification to mobile app ', cpUser._id);
     sendClientPortalMessage({
       subdomain,
       action: 'sendNotification',
