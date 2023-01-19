@@ -33,6 +33,7 @@ ${
     ownerId: String,
     links: JSON,
     customFieldsData: JSON,
+    customFieldsDataByFieldCode: JSON,
     password: String
     isEmailVerified: Boolean
     isPhoneVerified: Boolean

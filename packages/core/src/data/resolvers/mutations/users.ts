@@ -247,6 +247,12 @@ const userMutations = {
 
     const updatedUser = await models.Users.updateUser(_id, updatedDoc);
 
+    if (args.departmentIds || args.branchIds) {
+      await models.UserMovements.manageUserMovement({
+        user: updatedUser
+      });
+    }
+
     if (channelIds) {
       await sendInboxMessage({
         subdomain,

@@ -71,4 +71,16 @@ const UserHeader = styled.div`
   padding: 10px 0;
 `;
 
-export { List, SkillList, MailBox, NameContainer, Name, UserHeader };
+const BoxWrapper = styled.div`
+  margin: 25px;
+`;
+
+export {
+  List,
+  SkillList,
+  MailBox,
+  NameContainer,
+  Name,
+  UserHeader,
+  BoxWrapper
+};

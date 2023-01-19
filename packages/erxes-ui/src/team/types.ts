@@ -87,12 +87,15 @@ interface IStructureCommon {
 
 export interface IDepartment extends IStructureCommon {
   description: string;
+  parentId?: string | null;
+  order: string;
   userIds: string[];
   users: IUser;
 }
 
 export interface IUnit extends IStructureCommon {
   departmentId: string;
+  department: IDepartment;
   description: string;
   userIds: string[];
   users: IUser;
@@ -108,7 +111,9 @@ interface IContactInfo {
 
 export interface IBranch extends IStructureCommon, IContactInfo {
   address: string;
-  parentId: string;
+  parentId: string | null;
+  parent: IBranch;
+  order: string;
   userIds: string[] | string;
   users: IUser[];
   radius: number;
@@ -128,4 +133,34 @@ export type BranchesQueryResponse = {
 
 export type DepartmentsQueryResponse = {
   departments: IDepartment[];
+} & QueryResponse;
+
+export type DepartmentsMainQueryResponse = {
+  departmentsMain: {
+    list: IDepartment[];
+    totalCount: number;
+  };
+} & QueryResponse;
+
+export type BranchesMainQueryResponse = {
+  branchesMain: {
+    list: IDepartment[];
+    totalCount: number;
+  };
+} & QueryResponse;
+
+export type IUserMovement = {
+  _id: string;
+  contentType: string;
+  contentTypeId: string;
+  contentTypeDetail: IBranch | IDepartment;
+  createAt: string;
+  createdBy: string;
+  createdByDetail: IUser;
+  userId: string;
+  userDetail: IUser;
+};
+
+export type UserMovementsQueryResponse = {
+  userMovements: IUserMovement[];
 } & QueryResponse;
