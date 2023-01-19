@@ -18,7 +18,7 @@ export default function ItemContainer(props: Props) {
 
   const deleteBranch = (_id: string, callback: () => void) => {
     confirm().then(() => {
-      deleteMutation({ variables: { _id } })
+      deleteMutation({ variables: { ids: [_id] } })
         .then(() => {
           callback();
 
