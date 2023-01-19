@@ -71,7 +71,6 @@ const connectAndQueryFromMySql = async (
       if (!teamMember.employeeId) {
         continue;
       }
-
       teamMembersObject[teamMember.employeeId] = teamMember._id;
       teamEmployeeIds.push(teamMember.employeeId);
     }
