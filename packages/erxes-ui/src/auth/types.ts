@@ -57,6 +57,7 @@ export interface IUserDoc {
   configs?: any;
   configsConstants?: any;
   score?: number;
+  employeeId?: string;
 }
 
 export interface IUser extends IUserDoc {
@@ -64,6 +65,8 @@ export interface IUser extends IUserDoc {
   brands?: IBrand[];
   emailSignatures?: IEmailSignature[];
   onboardingHistory?: IOnboardingHistory;
+  branchIds: string[];
+  departmentIds: string[];
   customFieldsData?: {
     [key: string]: any;
   };

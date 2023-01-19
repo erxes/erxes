@@ -495,6 +495,14 @@ class ProductItem extends React.Component<Props, State> {
           />
         </td>
         <td>
+          <FormControl
+            componentClass="checkbox"
+            disabled={true}
+            value={productData.isVatApplied}
+            checked={productData.isVatApplied}
+          />
+        </td>
+        <td>
           <SelectTeamMembers
             label="Choose assigned user"
             name="assignedUserId"

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Select from 'react-select-plus';
 import { FormControl, FormGroup } from '@erxes/ui/src/components/form';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import Form from '@erxes/ui/src/components/form/Form';
@@ -9,7 +8,7 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from 'modules/common/utils';
 import { IDepartment } from '@erxes/ui/src/team/types';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { generateTree } from '../../utils';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -19,7 +18,7 @@ type Props = {
 };
 
 export default function DepartmentForm(props: Props) {
-  const { closeModal, renderButton, departments } = props;
+  const { closeModal, renderButton } = props;
   const object = props.department || ({} as any);
 
   const [userIds, setUserIds] = useState(
@@ -43,9 +42,9 @@ export default function DepartmentForm(props: Props) {
     };
   };
 
-  const onChangeParent = (parent: any) => {
-    if (parent) {
-      setParentId(parent.value);
+  const onChangeParent = (value: any) => {
+    if (value) {
+      setParentId(value);
     } else {
       setParentId(null);
     }
@@ -100,16 +99,14 @@ export default function DepartmentForm(props: Props) {
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Parent')}</ControlLabel>
-          <Select
-            placeholder={__('Choose parent')}
-            value={parentId}
-            clearable={true}
-            onChange={onChangeParent}
-            options={generateTree(departments, null, (node, level) => ({
-              value: node._id,
-              label: `${'---'.repeat(level)} ${node.title}`
-            }))}
+          <SelectDepartments
+            label="Choose parent"
+            name="parentId"
+            onSelect={onChangeParent}
+            initialValue={parentId}
+            multi={false}
           />
+          {/* /> */}
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Team Members')}</ControlLabel>

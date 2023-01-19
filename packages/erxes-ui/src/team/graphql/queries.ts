@@ -6,6 +6,22 @@ const nameFields = `
   lastName
 `;
 
+const commonStructureParamsDef = `
+    $perPage: Int,
+    $page: Int 
+    $searchValue: String,
+    $status:String,
+    $withoutUserFilter:Boolean
+`;
+
+const commonStructureParamsValue = `
+    perPage: $perPage,
+    page: $page 
+    searchValue:$searchValue
+    status:$status
+    withoutUserFilter:$withoutUserFilter
+`;
+
 const allUsers = `
   query allUsers($isActive: Boolean) {
     allUsers(isActive: $isActive) {
@@ -72,17 +88,35 @@ const users = `
       }
 
       links
+      employeeId
     }
   }
 `;
 
-const departmentField = `
+export const departmentField = `
   _id
   title
   description
   parentId
   code
+  order
   supervisorId
+  supervisor {
+          _id
+      username
+      email
+      status
+      isActive
+      groupIds
+      brandIds
+      score
+
+      details {
+        ${detailFields}
+      }
+
+      links
+  }
   userIds
   users {
     _id
@@ -109,9 +143,20 @@ const contactInfoFields = `
 `;
 
 const departments = `
-  query departments {
-    departments {
+  query departments(${commonStructureParamsDef}) {
+    departments(${commonStructureParamsValue}) {
       ${departmentField}
+    }
+  }
+`;
+
+const departmentsMain = `
+  query departmentsMain(${commonStructureParamsDef}) {
+    departmentsMain(${commonStructureParamsValue}) {
+      list {
+        ${departmentField}
+      }
+      totalCount
     }
   }
 `;
@@ -121,7 +166,26 @@ const unitField = `
   title
   description
   departmentId
+  department {
+    ${departmentField}
+  }
   supervisorId
+  supervisor {
+      _id
+      username
+      email
+      status
+      isActive
+      groupIds
+      brandIds
+      score
+
+      details {
+        ${detailFields}
+      }
+
+      links
+  }
   code
   userIds
   users {
@@ -134,20 +198,21 @@ const unitField = `
 `;
 
 const units = `
-  query units {
-    units {
+  query units ($searchValue:String) {
+    units (searchValue:$searchValue) {
       ${unitField}
     }
   }
 `;
 
-const branchField = `
+export const branchField = `
   _id
   title
   address
   parentId
   supervisorId
   code
+  order
   userIds
   users {
     _id
@@ -161,9 +226,22 @@ const branchField = `
 `;
 
 const branches = `
-  query branches {
-    branches {
+  query branches(${commonStructureParamsDef}) {
+    branches (${commonStructureParamsValue}){
       ${branchField}
+        parent {${branchField}}
+    }
+  }
+`;
+
+const branchesMain = `
+  query branchesMain(${commonStructureParamsDef}) {
+    branchesMain (${commonStructureParamsValue}){
+      list {
+        ${branchField}
+        parent {${branchField}}
+      }
+      totalCount
     }
   }
 `;
@@ -177,6 +255,8 @@ const userDetail = `
       isActive
       status
       groupIds
+      branchIds
+      departmentIds
 
       details {
         ${detailFields}
@@ -186,6 +266,7 @@ const userDetail = `
       getNotificationByEmail
       customFieldsData
       score
+      employeeId
     }
   }
 `;
@@ -365,6 +446,23 @@ const fieldsGroups = `
   }
 `;
 
+const userMovements = `
+  query UserMovements($userId: String!, $contentType: String) {
+    userMovements(userId: $userId, contentType: $contentType) {
+      _id
+      contentType
+      contentTypeId
+      createdAt
+      createdBy
+      createdByDetail
+      userDetail
+      userId
+      contentTypeDetail
+      status
+    }
+  }
+`;
+
 export default {
   userSkills,
   userDetail,
@@ -374,14 +472,17 @@ export default {
   allUsers,
   structureDetail,
   departments,
+  departmentsMain,
   departmentDetail,
   units,
   unitDetail,
   noDepartmentUsers,
   branches,
+  branchesMain,
   branchDetail,
   detailFields,
   channels: channelQueries.channels,
   skillTypes,
-  fieldsGroups
+  fieldsGroups,
+  userMovements
 };
