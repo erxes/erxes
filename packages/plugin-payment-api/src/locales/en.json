@@ -1,0 +1,10 @@
+{
+  "Payment": "Payment",
+  "Select your payment method": "Select your payment method",
+  "Invoice information": "Information of Invoice",
+  "Amount": "Amount",
+  "Description": "Description",
+  "Select bank": "Select bank",
+  "Status": "Status",
+  "pending": "pending"
+}

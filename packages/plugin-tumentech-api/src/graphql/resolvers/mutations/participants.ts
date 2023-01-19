@@ -39,7 +39,7 @@ const participantMutations = {
         action: 'sendNotification',
         data: {
           title: 'Үнийн санал илгээсэн танд баярлалаа.',
-          content: 'Таны үнийн саналыг амжилттай илгээгдлээ!',
+          content: 'Таны үнийн санал амжилттай илгээгдлээ!',
           receivers: [cpUser._id],
           notifType: 'system',
           link: '',
