@@ -10,10 +10,6 @@ const userFields = `
     lastName
     position
   }
-  department{
-    _id
-    title
-  }
 `;
 
 const attachmentFields = `

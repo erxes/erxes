@@ -1,3 +1,4 @@
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import dayjs from 'dayjs';
 import { ISchedule } from './types';
 
@@ -51,3 +52,12 @@ export const compareStartAndEndTime = (
 
   return [correctShiftStart, correctShiftEnd, overnightShift];
 };
+
+export const generateParams = queryParams => ({
+  ...generatePaginationParams(queryParams || {}),
+  startDate: queryParams.startDate,
+  endDate: queryParams.endDate,
+  userIds: queryParams.userIds,
+  departmentIds: queryParams.departmentIds,
+  branchIds: queryParams.branchIds
+});
