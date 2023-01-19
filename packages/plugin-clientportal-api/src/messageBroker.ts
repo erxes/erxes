@@ -123,6 +123,16 @@ export const sendKbMessage = async (args: ISendMessageArgs): Promise<any> => {
   });
 };
 
+export const sendCommonMessage = async (
+  args: ISendMessageArgs & { serviceName: string }
+) => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    ...args
+  });
+};
+
 export default function() {
   return client;
 }
