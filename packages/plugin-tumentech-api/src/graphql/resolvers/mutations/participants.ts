@@ -22,6 +22,14 @@ const participantMutations = {
       docModifier(doc)
     );
 
+    if (!participant) {
+      return null;
+    }
+
+    graphqlPubsub.publish('participantsChanged', {
+      participantsChanged: participant
+    });
+
     const cpUser = await sendClientPortalMessage({
       subdomain,
       action: 'clientPortalUsers.findOne',
@@ -116,12 +124,6 @@ const participantMutations = {
       }
     }
 
-    graphqlPubsub.publish('participantsChanged', {
-      participantsChanged: {
-        dealId: participant.dealId
-      }
-    });
-
     return participant;
   },
 
@@ -154,6 +156,10 @@ const participantMutations = {
       isRPC: true,
       defaultValue: []
     });
+
+    if (!cpUser) {
+      return models.Participants.removeParticipant(_id);
+    }
 
     const deal = await sendCardsMessage({
       subdomain,

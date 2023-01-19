@@ -8,11 +8,11 @@ module.exports = {
   `,
   generateResolvers: (graphqlPubsub) => {
     return {
-        participantsChanged: {
+      participantsChanged: {
         subscribe: withFilter(
           () => graphqlPubsub.asyncIterator('participantsChanged'),
           (payload, variables) => {
-            return payload.dealId === variables.dealId;
+            return payload.participantsChanged.dealId === variables.dealId;
           }
         ),
       },
