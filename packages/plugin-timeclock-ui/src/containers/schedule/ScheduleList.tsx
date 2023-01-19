@@ -15,6 +15,7 @@ import { mutations, queries } from '../../graphql';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import { IBranch } from '@erxes/ui/src/team/types';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import { generateParams } from '../../utils';
 
 type Props = {
   history: any;
@@ -29,14 +30,6 @@ type Props = {
   scheduleConfigs: IScheduleConfig[];
 
   branchesList: IBranch[];
-
-  queryStartDate: string;
-  queryEndDate: string;
-  queryUserIds: string[];
-  queryBranchIds: string[];
-  queryDepartmentIds: string[];
-  queryPage: number;
-  queryPerPage: number;
   getActionBar: (actionBar: any) => void;
   showSideBar: (sideBar: boolean) => void;
   getPagination: (pagination: any) => void;
@@ -140,24 +133,8 @@ export default withProps<Props>(
   compose(
     graphql<Props, ScheduleQueryResponse>(gql(queries.listSchedulesMain), {
       name: 'listSchedulesMain',
-      options: ({
-        queryStartDate,
-        queryEndDate,
-        queryUserIds,
-        queryDepartmentIds,
-        queryBranchIds,
-        queryPage,
-        queryPerPage
-      }) => ({
-        variables: {
-          startDate: queryStartDate,
-          endDate: queryEndDate,
-          userIds: queryUserIds,
-          departmentIds: queryDepartmentIds,
-          branchIds: queryBranchIds,
-          page: queryPage,
-          perPage: queryPerPage
-        },
+      options: ({ queryParams }) => ({
+        variables: generateParams(queryParams),
         fetchPolicy: 'network-only'
       })
     }),

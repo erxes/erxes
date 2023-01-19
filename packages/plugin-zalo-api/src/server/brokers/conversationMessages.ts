@@ -1,199 +1,199 @@
-import * as strip from 'strip';
-import axios from 'axios';
-import * as request from 'request-promise';
-import { generateModels } from '../../models';
-import { debug } from '../../configs';
-import { userIds } from '../middlewares/userMiddleware';
+import * as strip from "strip";
+import axios from "axios";
+import * as request from "request-promise";
+import { generateModels } from "../../models";
+import { debug } from "../../configs";
+import { userIds } from "../middlewares/userMiddleware";
 import {
-  createOrUpdateConversation,
-  createOrUpdateCustomer,
-  isFollowedUser
-} from '../controllers';
-import { zaloSend } from '../../zalo';
-import { generateAttachmentUrl } from '../../utils';
+    createOrUpdateConversation,
+    createOrUpdateCustomer,
+    isFollowedUser,
+} from "../controllers";
+import { zaloSend } from "../../zalo";
+import { generateAttachmentUrl } from "../../utils";
 
 export const conversationMessagesBroker = ({
-  consumeRPCQueue,
-  consumeQueue
+    consumeRPCQueue,
+    consumeQueue,
 }) => {
-  consumeRPCQueue(
-    'zalo:conversationMessages.find',
-    async ({ subdomain, data }) => {
-      const models = await generateModels(subdomain);
+    consumeRPCQueue(
+        "zalo:conversationMessages.find",
+        async ({ subdomain, data }) => {
+            const models = await generateModels(subdomain);
 
-      debug.error(`zalo:conversationMessages.find: ${JSON.stringify(data)}`);
-
-      return {
-        status: 'success',
-        data: await models.ConversationMessages.find(data).lean()
-      };
-    }
-  );
-
-  consumeRPCQueue(
-    'zalo:api_to_integrations',
-
-    async ({ subdomain, data }) => {
-      const models = await generateModels(subdomain);
-
-      const { action, type, payload } = data;
-      const doc = JSON.parse(payload || '{}');
-
-      let response: any = null;
-
-      console.log('data from response form:', data);
-
-      if (type !== 'zalo') {
-        return {
-          status: 'success',
-          errorMessage: 'Wrong kind'
-        };
-      }
-      try {
-        const {
-          integrationId,
-          conversationId,
-          content = '',
-          attachments = [],
-          extraInfo
-        } = doc;
-
-        const conversation = await models.Conversations.getConversation({
-          erxesApiId: conversationId
-        });
-
-        const { recipientId, senderId } = conversation;
-
-        const conversationMessage = await models.ConversationMessages.findOne({
-          conversationId: conversation?._id
-        });
-
-        console.log('on try: ');
-
-        let recipient: { [key: string]: any } = {
-          message_id: conversationMessage?.mid
-        };
-        let message: { [key: string]: any } = {
-          text: strip(content)
-        };
-
-        // check if user isFollower
-        // const isFollower = await isFollowedUser(senderId, { models, oa_id: recipientId })
-        // console.log('isFollower', isFollower);
-
-        // if( isFollower ) {
-        //     recipient = {
-        //         user_id: senderId,
-        //     }
-        // } else {
-
-        //     recipient = {
-        //         message_id: conversationMessage?.mid
-        //     }
-        // }
-
-        if (attachments?.length) {
-          console.log('attachments: ', attachments?.[0]);
-
-          let element = attachments?.[0];
-          let type = element.type?.startsWith('image') ? 'template' : 'file';
-          let template_type = element.type?.startsWith('image')
-            ? 'media'
-            : 'file';
-          message = {
-            text: strip(content),
-            attachment: {
-              type,
-              payload: {
-                template_type
-              }
-            }
-          };
-
-          let attachmentUrl = generateAttachmentUrl(element.url);
-          let file = await axios
-            .get(attachmentUrl, { responseType: 'stream' })
-            .then(res => res.data);
-
-          let uploadedFile = await zaloSend(
-            'upload/image',
-            { file },
-            {
-              models,
-              oa_id: recipientId,
-              headers: {
-                'Content-Type': 'multipart/form-data'
-              }
-            }
-          );
-
-          console.log('uploadedFile', uploadedFile);
-
-          if (template_type === 'media' && uploadedFile?.error === 0) {
-            message.attachment.payload.elements = [
-              {
-                media_type: 'image',
-                ...uploadedFile?.data
-              }
-            ];
-          }
+            return {
+                status: "success",
+                data: await models.ConversationMessages.find(data).lean(),
+            };
         }
+    );
 
-        console.log('start messageSent:');
+    consumeRPCQueue(
+        "zalo:api_to_integrations",
 
-        const messageSent = await zaloSend(
-          'message',
-          {
-            recipient,
-            message
-          },
-          { models, oa_id: recipientId }
-        );
+        async ({ subdomain, data }) => {
+            const models = await generateModels(subdomain);
 
-        console.log('recipient', recipient);
-        console.log('message', message);
-        console.log('messageSent', messageSent);
+            const { action, type, payload } = data;
+            const doc = JSON.parse(payload || "{}");
 
-        const localMessage = await models.ConversationMessages.addMessage(
-          {
-            ...doc,
-            content: strip(content),
-            // inbox conv id comes, so override
-            conversationId: conversation._id,
-            mid: messageSent?.data?.message_id
-          },
-          doc.userId
-        );
+            let response: any = null;
 
-        response = {
-          data: localMessage.toObject()
-        };
+            if (type !== "zalo") {
+                return {
+                    status: "success",
+                    errorMessage: "Wrong kind",
+                };
+            }
+            try {
+                const {
+                    integrationId,
+                    conversationId,
+                    content = "",
+                    attachments = [],
+                    extraInfo,
+                } = doc;
 
-        response.status = 'success';
-      } catch (e) {
-        response = {
-          status: 'error',
-          errorMessage: e.message
-        };
-      }
+                const conversation = await models.Conversations.getConversation(
+                    {
+                        erxesApiId: conversationId,
+                    }
+                );
 
-      return response;
-    }
-  );
+                const {
+                    recipientId,
+                    senderId,
+                    zaloConversationId,
+                } = conversation;
 
-  consumeQueue('zalo:notification', async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
+                const conversationMessage = await models.ConversationMessages.findOne(
+                    {
+                        conversationId: conversation?._id,
+                    }
+                );
 
-    const { payload, type } = data;
+                let recipient: { [key: string]: any } = {
+                    message_id: conversationMessage?.mid,
+                };
+                let message: { [key: string]: any } = {
+                    text: strip(content),
+                };
 
-    console.log('zalo:notification', data);
+                // anonymous user id has a-f character. user has number only
+                let isAnonymousUser = !Number(senderId);
 
-    switch (type) {
-      case 'addUserId':
-        userIds.push(payload._id);
-        break;
-      default:
-        break;
-    }
-  });
+                // check if user isFollower
+                // const isFollower = await isFollowedUser(senderId, { models, oa_id: recipientId })
+                // console.log('isFollower', isFollower);
+
+                if (isAnonymousUser) {
+                    recipient = {
+                        anonymous_id: senderId,
+                        conversation_id: zaloConversationId,
+                    };
+                }
+
+                if (attachments?.length) {
+                    console.log("attachments: ", attachments?.[0]);
+
+                    let element = attachments?.[0];
+                    let type = element.type?.startsWith("image")
+                        ? "template"
+                        : "file";
+                    let template_type = element.type?.startsWith("image")
+                        ? "media"
+                        : "file";
+                    message = {
+                        text: strip(content),
+                        attachment: {
+                            type,
+                            payload: {
+                                template_type,
+                            },
+                        },
+                    };
+
+                    let attachmentUrl = generateAttachmentUrl(element.url);
+                    let file = await axios
+                        .get(attachmentUrl, { responseType: "stream" })
+                        .then((res) => res.data);
+
+                    let uploadedFile = await zaloSend(
+                        "upload/image",
+                        { file },
+                        {
+                            models,
+                            oa_id: recipientId,
+                            headers: {
+                                "Content-Type": "multipart/form-data",
+                            },
+                        }
+                    );
+
+                    console.log("uploadedFile", uploadedFile);
+
+                    if (
+                        template_type === "media" &&
+                        uploadedFile?.error === 0
+                    ) {
+                        message.attachment.payload.elements = [
+                            {
+                                media_type: "image",
+                                ...uploadedFile?.data,
+                            },
+                        ];
+                    }
+                }
+
+                console.log("start messageSent:");
+
+                const messageSent = await zaloSend(
+                    "message",
+                    {
+                        recipient,
+                        message,
+                    },
+                    { models, oa_id: recipientId }
+                );
+
+                const localMessage = await models.ConversationMessages.addMessage(
+                    {
+                        ...doc,
+                        content: strip(content),
+                        // inbox conv id comes, so override
+                        conversationId: conversation._id,
+                        mid: messageSent?.data?.message_id,
+                    },
+                    doc.userId
+                );
+
+                response = {
+                    data: localMessage.toObject(),
+                };
+
+                response.status = "success";
+            } catch (e) {
+                response = {
+                    status: "error",
+                    errorMessage: e.message,
+                };
+            }
+
+            return response;
+        }
+    );
+
+    consumeQueue("zalo:notification", async ({ subdomain, data }) => {
+        const models = await generateModels(subdomain);
+
+        const { payload, type } = data;
+
+        switch (type) {
+            case "addUserId":
+                userIds.push(payload._id);
+                break;
+            default:
+                break;
+        }
+    });
 };

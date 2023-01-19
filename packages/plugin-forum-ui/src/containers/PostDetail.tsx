@@ -242,20 +242,16 @@ const PostDetail: React.FC = () => {
         <button onClick={onClickDelete}>Delete</button>
       </div>
       <hr />
-      {forumPost.category?.postsReqCrmApproval && (
-        <>
-          <div>
-            <h5>Category approval: {forumPost.categoryApprovalState}</h5>
-            <button type="button" onClick={onApproveClick}>
-              Approve
-            </button>
-            <button type="button" onClick={onDenyClick}>
-              Deny
-            </button>
-          </div>
-          <hr />
-        </>
-      )}
+      <div>
+        <h5>Category approval: {forumPost.categoryApprovalState}</h5>
+        <button type="button" onClick={onApproveClick}>
+          Approve
+        </button>
+        <button type="button" onClick={onDenyClick}>
+          Deny
+        </button>
+      </div>
+      <hr />
 
       <h1>View count: {forumPost.viewCount}</h1>
       <h1>Comments: {forumPost.commentCount}</h1>

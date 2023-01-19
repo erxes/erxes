@@ -65,11 +65,15 @@ const connectAndQueryFromMySql = async (
   // query by employee Id
   try {
     const teamMembersObject = {};
-    teamMembers.forEach(teamMember => {
-      teamMembersObject[teamMember.employeeId] = teamMember._id;
-    });
+    const teamEmployeeIds: string[] = [];
 
-    const teamEmployeeIds = Object.keys(teamMembersObject).join(',');
+    for (const teamMember of teamMembers) {
+      if (!teamMember.employeeId) {
+        continue;
+      }
+      teamMembersObject[teamMember.employeeId] = teamMember._id;
+      teamEmployeeIds.push(teamMember.employeeId);
+    }
 
     const query = `SELECT * FROM ${MYSQL_TABLE} WHERE authDateTime >= '${startDate}' AND authDateTime <= '${endDate}' AND ISNUMERIC(ID)=1 AND ID IN (${teamEmployeeIds}) ORDER BY ID, authDateTime`;
 

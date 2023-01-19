@@ -66,14 +66,6 @@ class Form extends React.Component<Props, State> {
       return Alert.error('Please choose a Knowledge base topic');
     }
 
-    if (!formValues.taskPublicBoardId && isEnabled('cards')) {
-      return Alert.error('Please select a public task board first');
-    }
-
-    if (!formValues.taskPublicPipelineId && isEnabled('cards')) {
-      return Alert.error('Please select a public task pipeline');
-    }
-
     delete (formValues.styles || ({} as any)).__typename;
 
     if (formValues.mailConfig) {

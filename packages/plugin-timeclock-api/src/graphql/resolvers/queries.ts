@@ -28,7 +28,11 @@ const timeclockQueries = {
     const queryList = models.Timeclocks.find(selector);
 
     const list = paginate(
-      models.Timeclocks.find(selector).sort({ userId: 1, employeeId: 1 }),
+      models.Timeclocks.find(selector).sort({
+        userId: 1,
+        shiftStart: 1,
+        shfitEnd: 1
+      }),
       {
         perPage: queryParams.perPage,
         page: queryParams.page
@@ -58,10 +62,13 @@ const timeclockQueries = {
     const selector = await generateFilter(queryParams, subdomain, 'absence');
     const totalCount = models.Absences.find(selector).countDocuments();
 
-    const list = paginate(models.Absences.find(selector).sort({ userId: 1 }), {
-      perPage: queryParams.perPage,
-      page: queryParams.page
-    });
+    const list = paginate(
+      models.Absences.find(selector).sort({ userId: 1, startTime: 1 }),
+      {
+        perPage: queryParams.perPage,
+        page: queryParams.page
+      }
+    );
 
     return { list, totalCount };
   },
@@ -121,7 +128,7 @@ const timeclockQueries = {
       const userBranches = await findBranches(subdomain, teamMemberId);
 
       finalReport.push({
-        groupTitle: userBranches[0].title,
+        groupTitle: userBranches.length && userBranches[0].title,
         groupReport: [userReport]
       });
     }

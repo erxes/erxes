@@ -2,9 +2,9 @@ extends layout
 
 block layout-content
     .my-layout
-        .header Payment method
+        .header #{__('Payment')}
         .paymentContainer
-            h3 Choose payment method
+            h3 #{__('Select your payment method')}
             div.View.paymentMethod
                 each val in payments
                     form(method="post")
@@ -13,20 +13,20 @@ block layout-content
                             div.Payment__logo( class=`payments ${val.selected === true && 'active'}`)
                                 img(src=`${domain}/images/payments/${val.kind}.png`)
                                 .uppercase  !{val.name}
-            h3 Information of invoice
+            h3 #{__('Invoice information')}
             .flex#info
                 .info
-                    .label(htmlFor="amount") Amount
+                    .label(htmlFor="amount") #{__('Amount')}
                         strong
                             p  #{invoiceData.amount}
                     if invoiceData.description
-                        .label Description
+                        .label #{__('Description')}
                             strong
                                 p  #{invoiceData.description}
                 if invoice
                     .qr
                         .isMobile#isMobile
-                            .label Choose your bank
+                            .label #{__('Select bank')}
                             .border
                                 if invoice.apiResponse.qrData
                                     each url in (invoice.apiResponse.urls || [])
@@ -34,8 +34,8 @@ block layout-content
                                             img(src=url.logo class="urlLogo")
                                 if invoice.apiResponse.socialPayQrCode
                                     img(src=`${invoice.apiResponse.socialPayQrCode}`)
-                                .label.status status:
-                                    |  #{invoice.status}
+                                .label.status #{__('Status')}:
+                                    |  #{__(invoice.status)}
                             if invoice.status === 'paid'
                                 script.
                                     const message = {
@@ -65,8 +65,8 @@ block layout-content
                                         img(src=invoice.apiResponse.qrData)
                                     if invoice.apiResponse.socialPayQrCode
                                         img(src=`${invoice.apiResponse.socialPayQrCode}`)
-                                    .label.status status:
-                                        |  #{invoice.status}
+                                    .label.status #{__('Status')}:
+                                        |  #{__(invoice.status)}
                             if invoice.status === 'paid'
                                 script.
                                     const message = {

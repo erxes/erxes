@@ -36,9 +36,11 @@ const structuresMutations = {
     return department;
   },
 
-  async departmentsRemove(_root, { _id }, { models }: IContext) {
-    const deleteResponse = await models.Departments.removeDepartment(_id);
-
+  async departmentsRemove(_root, { ids }, { models }: IContext) {
+    if (!ids.length) {
+      throw new Error('You must specify at least one department id to remove');
+    }
+    const deleteResponse = models.Departments.removeDepartments(ids);
     return deleteResponse;
   },
 
@@ -54,8 +56,11 @@ const structuresMutations = {
     return unit;
   },
 
-  async unitsRemove(_root, { _id }, { models }: IContext) {
-    const deleteResponse = await models.Units.removeUnit(_id);
+  async unitsRemove(_root, { ids }, { models }: IContext) {
+    if (!ids.length) {
+      throw new Error('You must specify at least one department id to remove');
+    }
+    const deleteResponse = await models.Units.removeUnits(ids);
 
     return deleteResponse;
   },
@@ -72,9 +77,11 @@ const structuresMutations = {
     return branch;
   },
 
-  async branchesRemove(_root, { _id }, { models }: IContext) {
-    const deleteResponse = await models.Branches.removeBranch(_id);
-
+  async branchesRemove(_root, { ids }, { models }: IContext) {
+    if (!ids.length) {
+      throw new Error('You must specify at least one branch id to remove');
+    }
+    const deleteResponse = await models.Branches.removeBranches(ids);
     return deleteResponse;
   }
 };

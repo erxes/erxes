@@ -128,7 +128,7 @@ class ProductForm extends React.Component<Props, State> {
     const { vatPercent } = this.state;
 
     const updatedData = productsData.map(p => {
-      return {
+      const pData = {
         ...p,
         isVatApplied: true,
         unitPrice: p.isVatApplied
@@ -137,6 +137,10 @@ class ProductForm extends React.Component<Props, State> {
               ((p.unitPrice * 100) / (100 + (vatPercent || 0))).toFixed(4)
             )
       };
+
+      this.calculatePerProductAmount('', pData, false);
+
+      return pData;
     });
 
     onChangeProductsData(updatedData);
@@ -419,7 +423,11 @@ class ProductForm extends React.Component<Props, State> {
     this.setState({ categoryId });
   };
 
-  calculatePerProductAmount = (type: string, productData: IProductData) => {
+  calculatePerProductAmount = (
+    type: string,
+    productData: IProductData,
+    callUpdateTotal = true
+  ) => {
     const amount = productData.unitPrice * productData.quantity;
 
     if (amount > 0) {
@@ -439,7 +447,9 @@ class ProductForm extends React.Component<Props, State> {
       productData.amount = 0;
     }
 
-    this.updateTotal();
+    if (callUpdateTotal) {
+      this.updateTotal();
+    }
   };
 
   renderBulkProductChooser() {

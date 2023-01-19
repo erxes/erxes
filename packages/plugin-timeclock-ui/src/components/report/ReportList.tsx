@@ -15,13 +15,12 @@ type Props = {
   history: any;
   reports: IReport[];
   getActionBar: (actionBar: any) => void;
+  exportReport: () => void;
 };
 
 function ReportList(props: Props) {
-  const { history, reports, getActionBar } = props;
-  const [selectedType, setType] = useState(
-    localStorage.getItem('displayType') || ''
-  );
+  const { history, reports, queryParams, getActionBar, exportReport } = props;
+  const [selectedType, setType] = useState(queryParams.reportType);
   const content = (
     <Table>
       <thead>
@@ -77,7 +76,7 @@ function ReportList(props: Props) {
   const renderExportBtn = () => {
     return (
       <div>
-        <Button>Export</Button>
+        <Button onClick={exportReport}>Export</Button>
       </div>
     );
   };
