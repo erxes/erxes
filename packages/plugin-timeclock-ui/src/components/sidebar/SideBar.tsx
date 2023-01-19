@@ -48,11 +48,13 @@ const LeftSideBar = (props: Props) => {
   };
 
   const setParams = (key: string, value: any) => {
-    router.setParams(history, {
-      [key]: value
-    });
+    if (value) {
+      router.setParams(history, {
+        [key]: value
+      });
 
-    removePageParams();
+      removePageParams();
+    }
   };
 
   const renderBranchOptions = (branches: any[]) => {
@@ -89,7 +91,6 @@ const LeftSideBar = (props: Props) => {
 
   const onStartDateChange = date => {
     setStartDate(date);
-
     setParams('startDate', date);
   };
 
