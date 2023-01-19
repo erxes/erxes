@@ -2,7 +2,6 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { Router } from 'express';
 import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
-import { PAYMENT_KINDS } from './constants';
 import { generateModels } from './connectionResolver';
 import redisUtils from './redisUtils';
 
@@ -72,7 +71,7 @@ router.get('/gateway', async (req, res) => {
     title: 'Payment gateway',
     payments,
     invoiceData: data,
-    domain: process.env.DOMAIN || 'http://localhost:3000',
+    domain,
     prefix: subdomain === 'localhost' ? '' : `/gateway`
   });
 });
