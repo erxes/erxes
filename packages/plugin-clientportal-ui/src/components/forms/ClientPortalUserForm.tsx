@@ -1,3 +1,4 @@
+import AvatarUpload from '@erxes/ui/src/components/AvatarUpload';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Button from '@erxes/ui/src/components/Button';
 import CollapseContent from '@erxes/ui/src/components/CollapseContent';
@@ -103,6 +104,10 @@ class CustomerForm extends React.Component<Props, State> {
     this.setState(e.target.value);
   };
 
+  onAvatarUpload = url => {
+    this.setState({ avatar: url });
+  };
+
   renderSelectOptions() {
     return USER_LOGIN_TYPES.map(e => {
       return (
@@ -131,6 +136,16 @@ class CustomerForm extends React.Component<Props, State> {
         compact={true}
         open={true}
       >
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <AvatarUpload
+                avatar={clientPortalUser.avatar}
+                onAvatarUpload={this.onAvatarUpload}
+              />
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
         <FormWrapper>
           <FormColumn>
             <FormGroup>

@@ -8,7 +8,7 @@ import * as sha256 from 'sha256';
 import { createJwtToken } from '../auth/authUtils';
 import { IModels } from '../connectionResolver';
 import { IVerificationParams } from '../graphql/resolvers/mutations/clientPortalUser';
-import { sendCoreMessage } from '../messageBroker';
+import { sendCommonMessage, sendCoreMessage } from '../messageBroker';
 import { generateRandomPassword, sendSms } from '../utils';
 import { IClientPortalDocument, IOTPConfig } from './definitions/clientPortal';
 import {
@@ -45,7 +45,11 @@ export interface IUserModel extends Model<IUserDocument> {
   invite(subdomain: string, doc: IUser): Promise<IUserDocument>;
   getUser(doc: any): Promise<IUserDocument>;
   createUser(subdomain: string, doc: IUser): Promise<IUserDocument>;
-  updateUser(_id: string, doc: IUser): Promise<IUserDocument>;
+  updateUser(
+    subdomain: string,
+    _id: string,
+    doc: IUser
+  ): Promise<IUserDocument>;
   removeUser(_ids: string[]): Promise<{ n: number; ok: number }>;
   checkPassword(password: string): void;
   getSecret(): string;
@@ -203,6 +207,17 @@ export const loadClientPortalUserClass = (models: IModels) => {
         document.isPhoneVerified = true;
       }
 
+      if (doc.customFieldsData) {
+        // clean custom field values
+        doc.customFieldsData = await sendCommonMessage({
+          serviceName: 'forms',
+          subdomain,
+          action: 'fields.prepareCustomFieldsData',
+          data: doc.customFieldsData,
+          isRPC: true
+        });
+      }
+
       const user = await handleContacts({
         subdomain,
         models,
@@ -268,7 +283,18 @@ export const loadClientPortalUserClass = (models: IModels) => {
       return user;
     }
 
-    public static async updateUser(_id, doc: IUser) {
+    public static async updateUser(subdomain, _id, doc: IUser) {
+      if (doc.customFieldsData) {
+        // clean custom field values
+        doc.customFieldsData = await sendCommonMessage({
+          serviceName: 'forms',
+          subdomain,
+          action: 'fields.prepareCustomFieldsData',
+          data: doc.customFieldsData,
+          isRPC: true
+        });
+      }
+
       await models.ClientPortalUsers.updateOne(
         { _id },
         { $set: { ...doc, modifiedAt: new Date() } }
