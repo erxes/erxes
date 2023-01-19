@@ -41,6 +41,7 @@ export interface IUser {
   sessionCount: number;
   notificationSettings: INotifcationSettings;
   avatar?: string;
+  customFieldsData?: any;
 }
 
 export interface IUserDocument extends IUser, Document {
