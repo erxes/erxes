@@ -7,12 +7,12 @@ import { IProductsData, IProductsDataPerform } from '../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 export interface IOverallWorkKey {
-  type: string;
   typeId: string;
   inBranchId: string;
   inDepartmentId: string;
   outBranchId: string;
   outDepartmentId: string;
+  type?: string;
 }
 export interface IOverallWork {
   _id: string;

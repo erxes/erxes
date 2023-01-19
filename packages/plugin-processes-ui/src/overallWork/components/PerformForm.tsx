@@ -290,6 +290,16 @@ class Form extends React.Component<Props, State> {
     );
   }
 
+  renderPerformIncome() {
+    const { outProducts } = this.state;
+
+    return (
+      <SidebarList className="no-link">
+        {this.renderProducts('Out Products', outProducts || [], 'outProducts')}
+      </SidebarList>
+    );
+  }
+
   onChangeCount = e => {
     const { needProducts, resultProducts } = this.state;
     const count = Number(e.target.value);
@@ -321,6 +331,42 @@ class Form extends React.Component<Props, State> {
     }
 
     return `${obj.code} - ${obj.title}`;
+  }
+
+  renderPerformDetails() {
+    const { overallWorkDetail } = this.props;
+    const { type } = overallWorkDetail;
+
+    if (type === 'income') {
+      return (
+        <>
+          <FormColumn>{this.renderPerformIncome()}</FormColumn>
+        </>
+      );
+    }
+    if (type === 'outlet') {
+      return (
+        <>
+          <FormColumn>{this.renderPerformIn()}</FormColumn>
+        </>
+      );
+    }
+
+    if (type === 'outlet') {
+      return (
+        <>
+          <FormColumn>{this.renderPerformIn()}</FormColumn>
+          <FormColumn>{this.renderPerformOut()}</FormColumn>
+        </>
+      );
+    }
+
+    return (
+      <>
+        <FormColumn>{this.renderPerformIn()}</FormColumn>
+        <FormColumn>{this.renderPerformOut()}</FormColumn>
+      </>
+    );
   }
 
   renderContent = (formProps: IFormProps) => {
@@ -441,10 +487,7 @@ class Form extends React.Component<Props, State> {
         </Box>
 
         <Box title={'Perform Details:'}>
-          <FormWrapper>
-            <FormColumn>{this.renderPerformIn()}</FormColumn>
-            <FormColumn>{this.renderPerformOut()}</FormColumn>
-          </FormWrapper>
+          <FormWrapper>{this.renderPerformDetails()}</FormWrapper>
         </Box>
 
         <ModalFooter>

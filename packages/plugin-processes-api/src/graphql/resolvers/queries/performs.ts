@@ -16,6 +16,7 @@ interface IParam {
   inDepartmentId: string;
   outDepartmentId: string;
   productCategoryId: string;
+  vendorIds: string[];
   productIds: string[];
   jobReferId: string;
 }
@@ -36,6 +37,7 @@ const generateFilter = async (
     type,
     jobReferId,
     productCategoryId,
+    vendorIds,
     productIds
   } = params;
   const selector: any = { ...commonQuerySelector };
@@ -69,6 +71,8 @@ const generateFilter = async (
     selector.inDepartmentId = inDepartmentId;
   }
 
+  let filterProductIds: string[] = [];
+  let hasFilterProductIds: boolean = false;
   if (productCategoryId) {
     const limit = await sendProductsMessage({
       subdomain,
@@ -84,11 +88,43 @@ const generateFilter = async (
       isRPC: true
     });
 
-    selector.typeId = { $in: products.map(pr => pr._id) };
+    filterProductIds = products.map(pr => pr._id);
+    hasFilterProductIds = true;
+  }
+
+  if (vendorIds) {
+    const limit = await sendProductsMessage({
+      subdomain,
+      action: 'count',
+      data: { query: { vendorId: { $in: vendorIds } } },
+      isRPC: true
+    });
+
+    const products = await sendProductsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        limit,
+        query: { vendorId: { $in: vendorIds } },
+        fields: { _id: 1 }
+      },
+      isRPC: true
+    });
+
+    filterProductIds = filterProductIds.concat(products.map(pr => pr._id));
+    hasFilterProductIds = true;
   }
 
   if (productIds) {
-    selector.typeId = { $in: productIds };
+    filterProductIds = filterProductIds.concat(productIds);
+    hasFilterProductIds = true;
+  }
+
+  if (hasFilterProductIds) {
+    selector.$or = [
+      { 'inProducts.productId': { $in: filterProductIds } },
+      { 'outProducts.productId': { $in: filterProductIds } }
+    ];
   }
 
   if (jobReferId) {
@@ -113,6 +149,7 @@ const performQueries = {
       commonQuerySelector
     );
 
+    console.log('ssssssssssssssssss', selector);
     return paginate(models.Performs.find(selector).lean(), { ...params });
   },
 
