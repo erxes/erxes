@@ -15,7 +15,7 @@ const generateFilters = async ({
   type: string;
   params: any;
 }) => {
-  const filter: any = { status: STRUCTURE_STATUSES.ACTIVE };
+  const filter: any = { status: { $ne: STRUCTURE_STATUSES.DELETED } };
 
   if (params.searchValue) {
     const regexOption = {
@@ -93,7 +93,7 @@ const structureQueries = {
       models,
       user,
       type: 'department',
-      params
+      params: { ...params, withoutUserFilter: true }
     });
     const list = paginate(
       models.Departments.find(filter).sort({ order: 1 }),
@@ -161,7 +161,7 @@ const structureQueries = {
       models,
       user,
       type: 'branch',
-      params
+      params: { ...params, withoutUserFilter: true }
     });
     const list = paginate(
       models.Branches.find(filter).sort({ order: 1 }),

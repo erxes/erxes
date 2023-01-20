@@ -62,7 +62,7 @@ const generateOrder = async (models, items: any[], parent?: any) => {
 
     await models.collection.updateOne(
       { _id },
-      { ...item, code, order: `${parentOrder}${code}/` }
+      { ...item, code, order: `${parentOrder}${code}/`, status: 'active' }
     );
 
     const child = await models.collection.find({ parentId: _id }).toArray();
