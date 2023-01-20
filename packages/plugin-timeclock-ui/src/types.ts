@@ -155,7 +155,7 @@ export type BranchesQueryResponse = {
 };
 
 export type ReportsQueryResponse = {
-  timeclockReports: IReport[];
+  timeclockReports: { list: IReport[]; totalCount: number };
   refetch: () => void;
   loading: boolean;
 };

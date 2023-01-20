@@ -145,6 +145,11 @@ export const types = `
     list: [Absence]
     totalCount: Float
   }
+
+  type ReportsListResponse {
+    list: [Report]
+    totalCount: Float
+  }
   
 `;
 
@@ -187,7 +192,7 @@ export const queries = `
   requestsMain(${queryParams}): RequestsListResponse
 
   absenceTypes:[AbsenceType]
-  timeclockReports(${queryParams}): [Report]
+  timeclockReports(${queryParams}): ReportsListResponse
   timeclockReportByUser(selectedUser: String): UserReport
   timeclockDetail(_id: String!): Timeclock
   absenceDetail(_id: String!): Absence

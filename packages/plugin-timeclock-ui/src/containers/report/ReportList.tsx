@@ -48,7 +48,7 @@ const ListContainer = (props: FinalProps) => {
     ...props,
     getActionBar,
     exportReport,
-    reports: listReportsQuery.timeclockReports || [],
+    reports: listReportsQuery.timeclockReports.list || [],
     branchId,
     deptId
   };
