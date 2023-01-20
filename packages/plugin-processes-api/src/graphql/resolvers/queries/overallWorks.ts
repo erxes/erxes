@@ -391,15 +391,15 @@ const overallWorkQueries = {
             $concat: [
               '$_id.type',
               '_',
-              '$_id.typeId',
-              '_',
               '$_id.inBranchId',
               '_',
               '$_id.inDepartmentId',
               '_',
               '$_id.outBranchId',
               '_',
-              '$_id.outDepartmentId'
+              '$_id.outDepartmentId',
+              '_',
+              '$_id.typeId'
             ]
           },
           key: '$_id',

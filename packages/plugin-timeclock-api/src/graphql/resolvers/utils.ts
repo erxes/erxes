@@ -281,6 +281,12 @@ export const timeclockReportByUser = async (
           $gte: fixDate(startTime),
           $lte: fixDate(endTime)
         }
+      },
+      {
+        shiftEnd: {
+          $gte: fixDate(startTime),
+          $lte: fixDate(endTime)
+        }
       }
     ]
   });
