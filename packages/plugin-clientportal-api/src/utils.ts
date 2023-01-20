@@ -311,7 +311,7 @@ export const sendNotification = async (
       }
     }
 
-    const expiredToken = [''];
+    const expiredTokens = [''];
     for (const token of deviceTokens) {
       try {
         await transporter.send({
@@ -321,16 +321,14 @@ export const sendNotification = async (
         });
       } catch (e) {
         debugError(`Error occurred during firebase send: ${e.message}`);
-        expiredToken.push(token);
+        expiredTokens.push(token);
       }
     }
 
-    if (expiredToken.length > 0 && receivers) {
+    if (expiredTokens.length > 0) {
       await models.ClientPortalUsers.updateMany(
-        {
-          _id: { $in: receivers }
-        },
-        { $pull: { deviceTokens: { $in: expiredToken } } }
+        {},
+        { $pull: { deviceTokens: { $in: expiredTokens } } }
       );
     }
   }
