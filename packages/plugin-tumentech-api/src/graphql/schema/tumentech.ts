@@ -400,5 +400,5 @@ export const mutations = `
 
   revealPhone(driverId: String, carId: String, dealId: String): String
 
-  gererateRandomName(modelName: String!, prefix: String!, numberOfDigits: Int): String
+  generateRandomName(modelName: String!, prefix: String!, numberOfDigits: Int): String
 `;

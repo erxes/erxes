@@ -445,7 +445,7 @@ const carMutations = {
     return customer.primaryPhone;
   },
 
-  gererateRandomName: async (
+  generateRandomName: async (
     _root,
     { modelName, prefix, numberOfDigits },
     { subdomain }
