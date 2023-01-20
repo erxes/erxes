@@ -90,6 +90,7 @@ export interface IDepartment extends IStructureCommon {
   parentId?: string | null;
   order: string;
   userIds: string[];
+  userCount: number;
   users: IUser;
 }
 
@@ -115,6 +116,7 @@ export interface IBranch extends IStructureCommon, IContactInfo {
   parent: IBranch;
   order: string;
   userIds: string[] | string;
+  userCount: number;
   users: IUser[];
   radius: number;
 }

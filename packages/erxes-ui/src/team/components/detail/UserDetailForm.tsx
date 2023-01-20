@@ -146,6 +146,7 @@ function UserDetails({
               name={`${key}Ids`}
               initialValue={ids}
               onSelect={value => handleChange(value)}
+              filterParams={{ withoutUserFilter: true }}
             />
           </FormGroup>
           {isChanged && (

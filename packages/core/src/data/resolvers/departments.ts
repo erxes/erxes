@@ -25,7 +25,7 @@ export default {
 
   userCount(department: IDepartmentDocument, _args, { models }: IContext) {
     return models.Users.countDocuments({
-      _id: { $in: department.userIds || [] },
+      departmentIds: { $in: department._id || [] },
       isActive: true
     });
   },
