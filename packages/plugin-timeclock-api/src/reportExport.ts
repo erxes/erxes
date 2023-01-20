@@ -1,19 +1,10 @@
-import { IColumnLabel } from '@erxes/api-utils/src';
 import * as moment from 'moment';
 import * as xlsxPopulate from 'xlsx-populate';
 import { IModels } from './connectionResolver';
 import { PRELIMINARY_REPORT_COLUMNS } from './constants';
-import {
-  findBranches,
-  timeclockReportByUser,
-  timeclockReportPreliminary
-} from './graphql/resolvers/utils';
+import { timeclockReportPreliminary } from './graphql/resolvers/utils';
 import { IUserReport } from './models/definitions/timeclock';
-import {
-  createTeamMembersObject,
-  findAllTeamMembersWithEmpId,
-  generateCommonUserIds
-} from './utils';
+import { createTeamMembersObject, generateCommonUserIds } from './utils';
 /**
  * Creates blank workbook
  */
@@ -68,7 +59,9 @@ export const buildFile = async (
   const table_headers = PRELIMINARY_REPORT_COLUMNS;
 
   const teamMembersObject = await createTeamMembersObject(subdomain);
+
   const teamMemberIds = Object.keys(teamMembersObject);
+
   const teamMemberIdsFromFilter = await generateCommonUserIds(
     subdomain,
     userIds,
@@ -84,7 +77,6 @@ export const buildFile = async (
 
   const startRowIdx = 2;
   const endRowIdx = teamMemberIds.length + 1;
-  const membersData: any = [];
 
   const reportPreliminary: any = await timeclockReportPreliminary(
     subdomain,
@@ -98,6 +90,7 @@ export const buildFile = async (
   const extractValuesFromEmpReportObjects = (empReports: IUserReport[]) => {
     const extractValuesIntoArr: any[][] = [];
     let rowNum = 1;
+
     for (const empReport of empReports) {
       extractValuesIntoArr.push([rowNum, ...Object.values(empReport)]);
       rowNum += 1;
