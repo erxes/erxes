@@ -106,7 +106,7 @@ export const buildFile = async (
   addIntoSheet(extractAllData, startRowIdx, endRowIdx);
 
   return {
-    name: `${reportType}-report-${moment().format('YYYY-MM-DD')}`,
+    name: `report-${moment().format('YYYY-MM-DD')}`,
     response: await generateXlsx(workbook)
   };
 };

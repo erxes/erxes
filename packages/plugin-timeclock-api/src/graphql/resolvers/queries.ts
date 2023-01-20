@@ -8,6 +8,9 @@ import {
 import { paginate } from '@erxes/api-utils/src';
 import { IReport } from '../../models/definitions/timeclock';
 
+const paginateArray = (array, perPage = 20, page = 1) =>
+  array.slice((page - 1) * perPage, page * perPage);
+
 const timeclockQueries = {
   async absences(_root, queryParams, { models, subdomain }: IContext) {
     return models.Absences.find(
@@ -100,7 +103,7 @@ const timeclockQueries = {
 
   async timeclockReports(
     _root,
-    { userIds, branchIds, departmentIds, startDate, endDate, reportType },
+    { userIds, branchIds, departmentIds, startDate, endDate, page, perPage },
     { subdomain }: IContext
   ) {
     const teamMemberIdsFromFilter = await generateCommonUserIds(
@@ -128,7 +131,7 @@ const timeclockQueries = {
 
     const reportPreliminary: any = await timeclockReportPreliminary(
       subdomain,
-      totalTeamMemberIds,
+      paginateArray(totalTeamMemberIds, perPage, page),
       startDate,
       endDate
     );
@@ -141,7 +144,7 @@ const timeclockQueries = {
 
     return {
       list: returnReport,
-      totalCount: returnReport.length
+      totalCount: totalTeamMemberIds.length
     };
   }
 };

@@ -54,6 +54,7 @@ function List(props: Props) {
             showSideBar={setShowSideBar}
             getActionBar={setRightActionBar}
             queryParams={queryParams}
+            getPagination={setPagination}
             history={history}
           />
         );
