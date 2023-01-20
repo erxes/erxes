@@ -938,7 +938,7 @@ export const sendMobileNotification = async (
   //       ))
   //     );
   //   }
-
+  const expiredToken = [''];
   if (tokens.length > 0) {
     // send notification
     for (const token of tokens) {
@@ -950,7 +950,18 @@ export const sendMobileNotification = async (
         });
       } catch (e) {
         debugError(`Error occurred during firebase send: ${e.message}`);
+        expiredToken.push(token);
       }
+    }
+
+    if (expiredToken.length > 0 && receivers) {
+      await models.Users.updateMany(
+        {
+          _id: { $in: receivers },
+          role: { $ne: USER_ROLES.SYSTEM }
+        },
+        { $pull: { deviceTokens: { $in: expiredToken } } }
+      );
     }
   }
 };

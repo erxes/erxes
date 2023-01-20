@@ -7,6 +7,7 @@ import { graphqlPubsub } from './configs';
 import { generateModels, IModels } from './connectionResolver';
 import { sendCoreMessage, sendCommonMessage } from './messageBroker';
 
+import * as admin from 'firebase-admin';
 export const getConfig = async (
   code: string,
   subdomain: string,
@@ -172,6 +173,36 @@ export const generateRandomPassword = (len: number = 10) => {
   return shuffle(password);
 };
 
+export const initFirebase = async (subdomain: string): Promise<void> => {
+  const config = await sendCoreMessage({
+    subdomain,
+    action: 'configs.findOne',
+    data: {
+      query: {
+        code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON'
+      }
+    },
+    isRPC: true,
+    defaultValue: null
+  });
+
+  if (!config) {
+    return;
+  }
+
+  const codeString = config.value || 'value';
+
+  if (codeString[0] === '{' && codeString[codeString.length - 1] === '}') {
+    const serviceAccount = JSON.parse(codeString);
+
+    if (serviceAccount.private_key) {
+      await admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+      });
+    }
+  }
+};
+
 interface ISendNotification {
   receivers: string[];
   title: string;
@@ -268,6 +299,10 @@ export const sendNotification = async (
   });
 
   if (isMobile) {
+    if (!admin.apps.length) {
+      await initFirebase(subdomain);
+    }
+    const transporter = admin.messaging();
     const deviceTokens: string[] = [];
 
     for (const recipient of recipients) {
@@ -276,15 +311,28 @@ export const sendNotification = async (
       }
     }
 
-    sendCoreMessage({
-      subdomain: subdomain,
-      action: 'sendMobileNotification',
-      data: {
-        title,
-        body: content,
-        deviceTokens: [...Array.from(new Set(deviceTokens))]
+    const expiredToken = [''];
+    for (const token of deviceTokens) {
+      try {
+        await transporter.send({
+          token,
+          notification: { title, body: content },
+          data: eventData || {}
+        });
+      } catch (e) {
+        debugError(`Error occurred during firebase send: ${e.message}`);
+        expiredToken.push(token);
       }
-    });
+    }
+
+    if (expiredToken.length > 0 && receivers) {
+      await models.ClientPortalUsers.updateMany(
+        {
+          _id: { $in: receivers }
+        },
+        { $pull: { deviceTokens: { $in: expiredToken } } }
+      );
+    }
   }
 };
 
