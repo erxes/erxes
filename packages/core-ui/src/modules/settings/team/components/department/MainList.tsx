@@ -139,6 +139,7 @@ class MainList extends React.Component<Props, State> {
         <td>{__(`${'\u00A0 \u00A0 '.repeat(level)}  ${department.code}`)}</td>
         <td>{__(department.title)}</td>
         <td>{__(department?.supervisor?.email || '-')}</td>
+        <td>{department.userCount}</td>
       </tr>
     );
 
@@ -196,6 +197,7 @@ class MainList extends React.Component<Props, State> {
             <th>{__('Code')}</th>
             <th>{__('Title')}</th>
             <th>{__('Supervisor')}</th>
+            <th>{__('User Count')}</th>
           </tr>
         </thead>
         <tbody>
