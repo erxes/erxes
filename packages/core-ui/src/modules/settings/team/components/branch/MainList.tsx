@@ -134,6 +134,7 @@ class MainList extends React.Component<Props, State> {
         <td>{__(branch.title)}</td>
         <td>{branch?.parent?.title || ''}</td>
         <td>{__(branch.address)}</td>
+        <td>{branch.userCount}</td>
       </tr>
     );
     return (
@@ -192,6 +193,7 @@ class MainList extends React.Component<Props, State> {
             <th>{__('Title')}</th>
             <th>{__('Parent')}</th>
             <th>{__('Address')}</th>
+            <th>{__('User Count')}</th>
           </tr>
         </thead>
         <tbody>
