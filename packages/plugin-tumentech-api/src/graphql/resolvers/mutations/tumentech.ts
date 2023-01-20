@@ -10,6 +10,7 @@ import {
   sendCoreMessage
 } from '../../../messageBroker';
 import { ICarDocument } from '../../../models/definitions/tumentech';
+import { generateRandomString } from '../../../utils';
 import { ICarCategoryDocument } from './../../../models/definitions/tumentech';
 
 const carMutations = {
@@ -442,6 +443,14 @@ const carMutations = {
     }
 
     return customer.primaryPhone;
+  },
+
+  gererateRandomName: async (
+    _root,
+    { modelName, prefix, numberOfDigits },
+    { subdomain }
+  ) => {
+    return generateRandomString(subdomain, modelName, prefix, numberOfDigits);
   }
 };
 

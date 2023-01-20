@@ -323,14 +323,6 @@ const carQueries = {
     return models.CarCategories.findOne({ _id });
   },
 
-  gererateRandomName: async (
-    _root,
-    { modelName, prefix, numberOfDigits },
-    { subdomain }
-  ) => {
-    return generateRandomString(subdomain, modelName, prefix, numberOfDigits);
-  },
-
   getAccount: async (_root, {}, { models, cpUser, subdomain }: IContext) => {
     if (!cpUser) {
       throw new Error('login required');
