@@ -81,8 +81,11 @@ const generateOrder = async (models, items: any[], parent?: any) => {
 };
 
 const command = async () => {
+  console.log(`start.... ${MONGO_URL}`);
+
   await client.connect();
 
+  console.log('connected...');
   db = client.db() as Db;
 
   Branches = db.collection('branches');
@@ -101,10 +104,9 @@ const command = async () => {
     }
   ];
 
-  console.log('start...............');
   try {
     for (let models of modelsMap) {
-      console.log(`${models.type}.......`);
+      console.log(`${models.type} .......`);
       try {
         const roots = await models.collection
           .find({
