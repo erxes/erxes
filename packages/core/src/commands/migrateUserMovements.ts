@@ -33,6 +33,7 @@ const uniqueCode = (code, counter) => {
 };
 
 const generateOrder = async (models, items: any[], parent?: any) => {
+  console.log(`${items.length}, ${parent ? parent.order : ''}...`);
   for (const item of items) {
     const { _id, userIds, createdAt, createdBy } = item;
     const newUserMovemment: any[] = [];
@@ -93,8 +94,10 @@ const command = async () => {
     }
   ];
 
+  console.log('start...............');
   try {
     for (let models of modelsMap) {
+      console.log(`${models.type}.......`);
       try {
         const roots = await models.collection
           .find({
