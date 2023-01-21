@@ -76,7 +76,9 @@ export const handleFacebookMessage = async (models: IModels, msg) => {
         }
       }
 
-      for (const message of generateAttachmentMessages(attachments)) {
+      const generatedAttachments = generateAttachmentMessages(attachments);
+
+      for (const message of generatedAttachments) {
         try {
           await sendReply(
             models,

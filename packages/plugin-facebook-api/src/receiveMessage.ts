@@ -17,7 +17,7 @@ const receiveMessage = async (
     sender,
     timestamp,
     text,
-    attachments,
+    attachments = [],
     message
   } = activity.channelData as IChannelData;
 
@@ -67,6 +67,13 @@ const receiveMessage = async (
     }
   }
 
+  const formattedAttachments = (attachments || [])
+    .filter(att => att.type !== 'fallback')
+    .map(att => ({
+      type: att.type,
+      url: att.payload ? att.payload.url : ''
+    }));
+
   // save on api
   try {
     const apiConversationResponse = await sendInboxMessage({
@@ -78,12 +85,7 @@ const receiveMessage = async (
           customerId: customer.erxesApiId,
           integrationId: integration.erxesApiId,
           content: text || '',
-          attachments: (attachments || [])
-            .filter(att => att.type !== 'fallback')
-            .map(att => ({
-              type: att.type,
-              url: att.payload ? att.payload.url : ''
-            })),
+          attachments: formattedAttachments,
           conversationId: conversation.erxesApiId
         })
       },
@@ -110,7 +112,8 @@ const receiveMessage = async (
         mid: message.mid,
         createdAt: timestamp,
         content: text,
-        customerId: customer.erxesApiId
+        customerId: customer.erxesApiId,
+        attachments: formattedAttachments
       });
 
       graphqlPubsub.publish('conversationClientMessageInserted', {
