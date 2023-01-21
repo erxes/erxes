@@ -21,6 +21,7 @@ import { SUBSCRIPTION_ORDER_STATES } from '../../db/models/subscription/subscrip
 import ForumPage from './ForumPage';
 import ForumSavedPost from './ForumSavedPost';
 import ForumPollOption from './ForumPollOption';
+import ForumUserStatistics from './ForumUserStatistics';
 
 const Invoice = `
   extend type Invoice @key(fields: "_id") {
@@ -130,6 +131,8 @@ export default async function genTypeDefs(serviceDiscovery) {
 
     ${ForumSavedPost}
     ${ForumPollOption}
+
+    ${ForumUserStatistics}
 
     ${Query}
     ${Mutation}
