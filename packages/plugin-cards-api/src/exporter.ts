@@ -132,6 +132,27 @@ const fillDealProductValue = async (subdomain, column, item) => {
       case 'productsData.taxPercent':
         value = productData.taxPercent;
         break;
+
+      case 'productsData.quantity':
+        value = productData.quantity;
+        break;
+
+      case 'productsData.unitPrice':
+        value = productData.unitPrice;
+        break;
+
+      case 'productsData.tickUsed':
+        value = productData.tickUsed;
+        break;
+
+      case 'productsData.isVatApplied':
+        value = productData.isVatApplied;
+        break;
+
+      case 'productsData.maxQuantity':
+        console.log('productData.maxQuantity', productData.maxQuantity);
+        value = productData.maxQuantity;
+        break;
     }
   }
 

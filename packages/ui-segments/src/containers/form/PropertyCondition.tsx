@@ -1,12 +1,12 @@
-import client from "@erxes/ui/src/apolloClient";
-import gql from "graphql-tag";
+import client from '@erxes/ui/src/apolloClient';
+import gql from 'graphql-tag';
 
-import { queries } from "../../graphql";
+import { queries } from '../../graphql';
 
-import React from "react";
-import PropertyCondition from "../../components/form/PropertyCondition";
+import React from 'react';
+import PropertyCondition from '../../components/form/PropertyCondition';
 
-import { ISegmentCondition, ISegmentMap } from "../../types";
+import { ISegmentCondition, ISegmentMap } from '../../types';
 
 type Props = {
   segment: ISegmentMap;
@@ -20,6 +20,7 @@ type Props = {
     conjunction: string
   ) => void;
   config?: any;
+  onChangeConfig?: (config: any) => void;
 };
 
 export default class PropertyConditionContainer extends React.Component<
@@ -30,7 +31,7 @@ export default class PropertyConditionContainer extends React.Component<
     super(props);
 
     this.state = {
-      associationTypes: [],
+      associationTypes: []
     };
   }
 
@@ -45,12 +46,12 @@ export default class PropertyConditionContainer extends React.Component<
       .query({
         query: gql(queries.getAssociationTypes),
         variables: {
-          contentType: type,
-        },
+          contentType: type
+        }
       })
       .then(({ data }) => {
         this.setState({
-          associationTypes: data.segmentsGetAssociationTypes,
+          associationTypes: data.segmentsGetAssociationTypes
         });
       });
   };
@@ -60,7 +61,7 @@ export default class PropertyConditionContainer extends React.Component<
 
     const updatedProps = {
       ...this.props,
-      associationTypes,
+      associationTypes
     };
 
     return <PropertyCondition {...updatedProps} />;

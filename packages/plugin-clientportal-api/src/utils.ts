@@ -5,7 +5,7 @@ import { sendRequest } from '@erxes/api-utils/src/requests';
 import { IUserDocument } from './../../api-utils/src/types';
 import { graphqlPubsub } from './configs';
 import { generateModels, IModels } from './connectionResolver';
-import { sendCoreMessage } from './messageBroker';
+import { sendCoreMessage, sendCommonMessage } from './messageBroker';
 
 export const getConfig = async (
   code: string,
@@ -286,4 +286,42 @@ export const sendNotification = async (
       }
     });
   }
+};
+
+export const customFieldsDataByFieldCode = async (object, subdomain) => {
+  const customFieldsData =
+    object.customFieldsData && object.customFieldsData.toObject
+      ? object.customFieldsData.toObject()
+      : object.customFieldsData || [];
+
+  const fieldIds = customFieldsData.map(data => data.field);
+
+  const fields = await sendCommonMessage({
+    serviceName: 'forms',
+    subdomain,
+    action: 'fields.find',
+    data: {
+      query: {
+        _id: { $in: fieldIds }
+      }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const fieldCodesById = {};
+
+  for (const field of fields) {
+    fieldCodesById[field._id] = field.code;
+  }
+
+  const results: any = {};
+
+  for (const data of customFieldsData) {
+    results[fieldCodesById[data.field]] = {
+      ...data
+    };
+  }
+
+  return results;
 };

@@ -2,7 +2,7 @@ import { IBrand } from '../../../db/models/definitions/brands';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { MODULE_NAMES } from '../../constants';
 import { IContext } from '../../../connectionResolver';
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 
 interface IBrandsEdit extends IBrand {
   _id: string;
@@ -75,6 +75,8 @@ const brandMutations = {
   }
 };
 
-moduleCheckPermission(brandMutations, 'manageBrands');
+checkPermission(brandMutations, 'brandsAdd', 'manageBrands');
+checkPermission(brandMutations, 'brandsEdit', 'manageBrands');
+checkPermission(brandMutations, 'brandsRemove', 'manageBrands');
 
 export default brandMutations;

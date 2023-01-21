@@ -1,6 +1,7 @@
 module.exports = {
   name: "logs",
   port: 3040,
+  scope: 'logs',
   exposes: { 
     "./routes": "./src/routes.tsx", 
     './contactDetailContent': './src/logs/Activities.tsx' 

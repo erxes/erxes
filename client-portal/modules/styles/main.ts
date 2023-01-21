@@ -80,9 +80,18 @@ const SupportMenus = styledTS<{ color?: string }>(styled.div)`
   }
 
   > button {
-    color: ${(props) =>
+    color: ${props =>
       props.color ? props.color : colors.colorWhite} !important;
   }
+
+  span {
+    margin-left: 10px;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
 `;
 
 const WebLink = styled.a`

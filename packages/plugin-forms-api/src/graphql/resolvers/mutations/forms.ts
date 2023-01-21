@@ -1,4 +1,4 @@
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { sendInboxMessage } from '../../../messageBroker';
 import { IForm } from '../../../models/definitions/forms';
@@ -132,6 +132,10 @@ const formMutations = {
   }
 };
 
-moduleCheckPermission(formMutations, 'manageForms');
+checkPermission(formMutations, 'formsAdd', 'manageForms');
+checkPermission(formMutations, 'formsEdit', 'manageForms');
+checkPermission(formMutations, 'formSubmissionsSave', 'manageForms');
+checkPermission(formMutations, 'formSubmissionsEdit', 'manageForms');
+checkPermission(formMutations, 'formSubmissionsRemove', 'manageForms');
 
 export default formMutations;

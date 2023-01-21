@@ -88,6 +88,7 @@ const commonUserFields = `
   $ownerId: String,
   $links: JSON,
   $customFieldsData: JSON,
+  $avatar: String
 `;
 
 const commonUserVariables = `
@@ -104,6 +105,7 @@ const commonUserVariables = `
   ownerId: $ownerId,
   links: $links,
   customFieldsData: $customFieldsData
+  avatar: $avatar
 `;
 
 const clientPortalUsersInvite = `

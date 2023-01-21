@@ -6,16 +6,26 @@ export default {
     return models.Departments.findOne({ _id });
   },
 
-  users(department: IDepartmentDocument, _args, { models }: IContext) {
+  async users(department: IDepartmentDocument, _args, { models }: IContext) {
     return models.Users.findUsers({
-      _id: { $in: department.userIds || [] },
+      departmentIds: { $in: department._id },
       isActive: true
     });
   },
 
+  async userIds(branch: IDepartmentDocument, _args, { models }: IContext) {
+    const departmentUsers = await models.Users.findUsers({
+      departmentIds: { $in: branch._id },
+      isActive: true
+    });
+
+    const userIds = departmentUsers.map(user => user._id);
+    return userIds;
+  },
+
   userCount(department: IDepartmentDocument, _args, { models }: IContext) {
     return models.Users.countDocuments({
-      _id: { $in: department.userIds || [] },
+      departmentIds: { $in: department._id || [] },
       isActive: true
     });
   },
