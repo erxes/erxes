@@ -302,6 +302,6 @@ export type DmQueryItem = {
 };
 
 export type DmConfig = {
-  messagesQueries: DmQueryItem[];
-  countQueries: DmQueryItem[];
+  messagesQuery: DmQueryItem;
+  countQuery: DmQueryItem;
 };

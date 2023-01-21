@@ -116,8 +116,10 @@ const receiveMessage = async (
         attachments: formattedAttachments
       });
 
-      graphqlPubsub.publish('conversationClientMessageInserted', {
-        conversationClientMessageInserted: {
+      await sendInboxMessage({
+        subdomain,
+        action: 'conversationClientMessageInserted',
+        data: {
           ...created.toObject(),
           conversationId: conversation.erxesApiId
         }
