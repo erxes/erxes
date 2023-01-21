@@ -118,7 +118,11 @@ export const getProductsData = async (
           totalAmount: 0,
           departmentId: pos.departmentId,
           branchId: pos.branchId,
-          products
+          products: products.map(p => ({
+            productId: p._id,
+            quantity: 1,
+            price: p.unitPrice
+          }))
         },
         isRPC: true,
         defaultValue: {}
@@ -131,10 +135,9 @@ export const getProductsData = async (
           continue;
         }
 
-        if (discount.type === 'percentage') {
-          product.unitPrice -= discount.value;
-        } else {
-          product.unitPrice -= discount.value;
+        product.unitPrice -= discount.value;
+        if (product.unitPrice < 0) {
+          product.unitPrice = 0;
         }
       }
 

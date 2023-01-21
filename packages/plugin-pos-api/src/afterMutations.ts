@@ -140,6 +140,8 @@ export const afterMutationHandlers = async (subdomain, params) => {
   if (type === 'products:product') {
     for (const pos of poss) {
       if (await isInProduct(subdomain, models, pos, params.object._id)) {
+        const item = params.updatedDocument || params.object;
+
         const pricing = await sendPricingMessage({
           subdomain,
           action: 'checkPricing',
@@ -148,19 +150,30 @@ export const afterMutationHandlers = async (subdomain, params) => {
             totalAmount: 0,
             departmentId: pos.departmentId,
             branchId: pos.branchId,
-            products: [...params.object]
+            products: [
+              {
+                productId: item._id,
+                quantity: 1,
+                price: item.unitPrice
+              }
+            ]
           },
           isRPC: true,
           defaultValue: {}
         });
 
-        const discount = pricing[params._id] || {};
+        const discount = pricing[item._id] || {};
 
         if (Object.keys(discount).length) {
-          if (discount.type === 'percentage') {
-            params.object.unitPrice -= discount.value;
+          let unitPrice = (item.unitPrice -= discount.value);
+          if (unitPrice < 0) {
+            unitPrice = 0;
+          }
+
+          if (params.updatedDocument) {
+            params.updatedDocument.unitPrice = unitPrice;
           } else {
-            params.object.unitPrice -= discount.value;
+            params.object.unitPrice = unitPrice;
           }
         }
 
