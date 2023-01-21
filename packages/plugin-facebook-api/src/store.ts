@@ -179,7 +179,7 @@ export const getOrCreateComment = async (
   userId: string,
   verb: string
 ) => {
-  const comment = await models.Comments.findOne({
+  let comment = await models.Comments.findOne({
     commentId: commentParams.comment_id
   });
 
@@ -199,29 +199,24 @@ export const getOrCreateComment = async (
       { commentId: doc.commentId },
       { $set: { ...doc } }
     );
+  }
 
-    return sendInboxMessage({
+  if (!comment) {
+    comment = await models.Comments.create(doc);
+  }
+
+  const post = await models.Posts.findOne({ postId: comment.postId });
+
+  if (post) {
+    sendInboxMessage({
       subdomain,
       action: 'integrationsNotification',
       data: {
-        action: 'external-integration-entry-added'
+        action: 'external-integration-entry-added',
+        conversationId: post.erxesApiId
       }
     });
   }
-
-  if (comment) {
-    return comment;
-  }
-
-  await models.Comments.create(doc);
-
-  sendInboxMessage({
-    subdomain,
-    action: 'integrationsNotification',
-    data: {
-      action: 'external-integration-entry-added'
-    }
-  });
 };
 
 export const getOrCreateCustomer = async (

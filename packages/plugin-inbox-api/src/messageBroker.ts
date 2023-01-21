@@ -87,9 +87,12 @@ export const initBroker = cl => {
     async ({ subdomain, data }) => await receiveRpcMessage(subdomain, data)
   );
 
-  consumeQueue('inbox:integrationsNotification', async ({ data }) => {
-    await receiveIntegrationsNotification(data);
-  });
+  consumeQueue(
+    'inbox:integrationsNotification',
+    async ({ subdomain, data }) => {
+      await receiveIntegrationsNotification(subdomain, data);
+    }
+  );
 
   consumeRPCQueue(
     'inbox:integrations.find',

@@ -7,6 +7,7 @@ import {
 } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import { IConversationDocument } from './models/definitions/conversations';
+import { pConversationClientMessageInserted } from './graphql/resolvers/widgetMutations';
 
 const sendError = message => ({
   status: 'error',
@@ -202,11 +203,18 @@ export const receiveRpcMessage = async (subdomain, data) => {
 /*
  * Integrations api notification
  */
-export const receiveIntegrationsNotification = async msg => {
-  const { action } = msg;
+export const receiveIntegrationsNotification = async (subdomain, msg) => {
+  const { action, conversationId } = msg;
+
+  const models = await generateModels(subdomain);
 
   if (action === 'external-integration-entry-added') {
     graphqlPubsub.publish('conversationExternalIntegrationMessageInserted', {});
+
+    if (conversationId) {
+      await models.Conversations.reopen(conversationId);
+      await pConversationClientMessageInserted(models, { conversationId });
+    }
 
     return sendSuccess({ status: 'ok' });
   }
