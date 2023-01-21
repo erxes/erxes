@@ -148,7 +148,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
             totalAmount: 0,
             departmentId: pos.departmentId,
             branchId: pos.branchId,
-            products: [...params]
+            products: [...params.object]
           },
           isRPC: true,
           defaultValue: {}
@@ -158,9 +158,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
         if (Object.keys(discount).length) {
           if (discount.type === 'percentage') {
-            params.unitPrice -= discount.value;
+            params.object.unitPrice -= discount.value;
           } else {
-            params.unitPrice -= discount.value;
+            params.object.unitPrice -= discount.value;
           }
         }
 
