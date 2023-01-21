@@ -1,10 +1,10 @@
-import { IColumnLabel } from '@erxes/api-utils/src';
 import * as moment from 'moment';
 import * as xlsxPopulate from 'xlsx-populate';
 import { IModels } from './connectionResolver';
 import { PRELIMINARY_REPORT_COLUMNS } from './constants';
-import { findBranches, timeclockReportByUser } from './graphql/resolvers/utils';
-import { findAllTeamMembersWithEmpId, generateCommonUserIds } from './utils';
+import { timeclockReportPreliminary } from './graphql/resolvers/utils';
+import { IUserReport } from './models/definitions/timeclock';
+import { createTeamMembersObject, generateCommonUserIds } from './utils';
 /**
  * Creates blank workbook
  */
@@ -47,29 +47,21 @@ export const buildFile = async (
 
   const { workbook, sheet } = await createXlsFile();
 
-  const addRow = async (values: string[][], rowIndex: number) => {
-    const r = sheet.range(`A${rowIndex}:I${rowIndex}`);
+  const addIntoSheet = async (
+    values: string[][],
+    rowStartIdx: number,
+    rowEndIdx: number
+  ) => {
+    const r = sheet.range(`A${rowStartIdx}:I${rowEndIdx}`);
     r.value(values);
   };
 
   const table_headers = PRELIMINARY_REPORT_COLUMNS;
-  const teamMembersWithEmpId = await findAllTeamMembersWithEmpId(subdomain);
-  const teamMembersObject = {};
-  const teamEmployeeIds: string[] = [];
 
-  for (const teamMember of teamMembersWithEmpId) {
-    if (!teamMember.employeeId) {
-      continue;
-    }
+  const teamMembersObject = await createTeamMembersObject(subdomain);
 
-    teamMembersObject[teamMember._id] = {
-      employeeId: teamMember.employeeId,
-      firstName: teamMember.details.firstName,
-      lastName: teamMember.details.lastName,
-      postion: teamMember.details.postion
-    };
-    teamEmployeeIds.push(teamMember._id);
-  }
+  const teamMemberIds = Object.keys(teamMembersObject);
+
   const teamMemberIdsFromFilter = await generateCommonUserIds(
     subdomain,
     userIds,
@@ -79,43 +71,42 @@ export const buildFile = async (
 
   const totalTeamMemberIds = teamMemberIdsFromFilter.length
     ? teamMemberIdsFromFilter
-    : teamEmployeeIds;
+    : teamMemberIds;
 
-  addRow([table_headers], 1);
+  addIntoSheet([table_headers], 1, 1);
 
-  let rowIdx = 2;
+  const startRowIdx = 2;
+  const endRowIdx = teamMemberIds.length + 1;
 
-  const addUserInfoToRow = async (teamMemberId: string) => {
-    const userReport = await timeclockReportByUser(
-      teamMemberId,
-      subdomain,
-      startDate,
-      endDate
-    );
-    const userBranches = await findBranches(subdomain, teamMemberId);
+  const reportPreliminary: any = await timeclockReportPreliminary(
+    subdomain,
+    totalTeamMemberIds,
+    startDate,
+    endDate,
+    teamMembersObject,
+    'xlsx'
+  );
 
-    const memberValues = [
-      (rowIdx - 1).toString(),
-      teamMembersObject[teamMemberId].employeeId || '',
-      teamMembersObject[teamMemberId].lastName || '',
-      teamMembersObject[teamMemberId].firstName || '',
-      userBranches.length ? userBranches[0].title : '',
-      teamMembersObject[teamMemberId].postion || '',
-      userReport.totalDaysScheduledThisMonth?.toString() || '',
-      userReport.totalDaysWorkedThisMonth?.toString() || ''
-    ];
+  const extractValuesFromEmpReportObjects = (empReports: IUserReport[]) => {
+    const extractValuesIntoArr: any[][] = [];
+    let rowNum = 1;
 
-    await addRow([memberValues], rowIdx);
-    rowIdx += 1;
+    for (const empReport of empReports) {
+      extractValuesIntoArr.push([rowNum, ...Object.values(empReport)]);
+      rowNum += 1;
+    }
+
+    return extractValuesIntoArr;
   };
 
-  // tslint:disable-next-line:prefer-for-of
-  for (const teamMemberId of totalTeamMemberIds) {
-    await addUserInfoToRow(teamMemberId);
-  }
+  const extractAllData = extractValuesFromEmpReportObjects(
+    Object.values(reportPreliminary)
+  );
+
+  addIntoSheet(extractAllData, startRowIdx, endRowIdx);
 
   return {
-    name: `${reportType}-report-${moment().format('YYYY-MM-DD')}`,
+    name: `report-${moment().format('YYYY-MM-DD')}`,
     response: await generateXlsx(workbook)
   };
 };

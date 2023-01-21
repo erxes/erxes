@@ -12,12 +12,19 @@ export const initBroker = async cl => {
 
   consumeRPCQueue('pricing:checkPricing', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
-    const { totalAmount, departmentId, branchId, products } = data;
+    const {
+      prioritizeRule,
+      totalAmount,
+      departmentId,
+      branchId,
+      products
+    } = data;
     return {
       data:
         (await checkPricing(
           models,
           subdomain,
+          prioritizeRule,
           totalAmount,
           departmentId,
           branchId,

@@ -270,14 +270,26 @@ export interface IUserReport {
   totalMinsAbsenceThisMonth?: number;
 }
 
+export interface IUserExportReport {
+  firstName?: string;
+  lastName?: string;
+  branchName?: string;
+  position?: string;
+  totalDaysWorkedThisMonth?: number;
+  totalDaysScheduledThisMonth?: number;
+}
+export interface IUsersReport {
+  [userId: string]: IUserExportReport;
+}
+
 export interface IGroup {
   userIds: string[];
   title: string;
 }
 
 export interface IReport {
-  groupTitle: string;
-  groupReport: IUserReport[];
+  groupTitle?: string;
+  groupReport?: IUserReport[];
   groupTotalMinsWorked?: number;
   groupTotalMinsLate?: number;
   groupTotalAbsenceMins?: number;

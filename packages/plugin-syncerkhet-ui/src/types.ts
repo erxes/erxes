@@ -37,7 +37,7 @@ export type CheckSyncedMutationResponse = {
 
 export type ToSyncDealsMutationResponse = {
   toSyncDeals: (mutation: {
-    variables: { dealIds: string[]; configStageId: string };
+    variables: { dealIds: string[]; configStageId: string; dateType: string };
   }) => Promise<any>;
 };
 

@@ -33,6 +33,7 @@ const uniqueCode = (code, counter) => {
 };
 
 const generateOrder = async (models, items: any[], parent?: any) => {
+  console.log(`${items.length}, ${parent ? parent.order : ''}...`);
   for (const item of items) {
     const { _id, userIds, createdAt, createdBy } = item;
     const newUserMovemment: any[] = [];
@@ -61,7 +62,14 @@ const generateOrder = async (models, items: any[], parent?: any) => {
 
     await models.collection.updateOne(
       { _id },
-      { ...item, code, order: `${parentOrder}${code}/` }
+      {
+        $set: {
+          ...item,
+          code,
+          order: `${parentOrder}${code}/`,
+          status: 'active'
+        }
+      }
     );
 
     const child = await models.collection.find({ parentId: _id }).toArray();
@@ -73,8 +81,11 @@ const generateOrder = async (models, items: any[], parent?: any) => {
 };
 
 const command = async () => {
+  console.log(`start.... ${MONGO_URL}`);
+
   await client.connect();
 
+  console.log('connected...');
   db = client.db() as Db;
 
   Branches = db.collection('branches');
@@ -95,6 +106,7 @@ const command = async () => {
 
   try {
     for (let models of modelsMap) {
+      console.log(`${models.type} .......`);
       try {
         const roots = await models.collection
           .find({

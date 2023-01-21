@@ -12,7 +12,7 @@ export const validConfigMsg = async config => {
   return '';
 };
 
-export const getPostData = async (subdomain, config, deal, isNow = true) => {
+export const getPostData = async (subdomain, config, deal, dateType = '') => {
   let billType = 1;
   let customerCode = '';
 
@@ -167,11 +167,40 @@ export const getPostData = async (subdomain, config, deal, isNow = true) => {
       (payments[config.defaultPay] || 0) + sumSaleAmount;
   }
 
+  let date = new Date().toISOString().slice(0, 10);
+  let checkDate = false;
+
+  switch (dateType) {
+    case 'lastMove':
+      date = new Date(deal.stageChangedDate).toISOString().slice(0, 10);
+      break;
+    case 'created':
+      date = new Date(deal.createdAt).toISOString().slice(0, 10);
+      break;
+    case 'closeOrCreated':
+      date = new Date(deal.closeDate || deal.createdAt)
+        .toISOString()
+        .slice(0, 10);
+      break;
+    case 'closeOrMove':
+      date = new Date(deal.closeDate || deal.stageChangedDate)
+        .toISOString()
+        .slice(0, 10);
+      break;
+    case 'firstOrMove':
+      date = new Date(deal.stageChangedDate).toISOString().slice(0, 10);
+      checkDate = true;
+      break;
+    case 'firstOrCreated':
+      date = new Date(deal.createdAt).toISOString().slice(0, 10);
+      checkDate = true;
+      break;
+  }
+
   const orderInfos = [
     {
-      date: isNow
-        ? new Date().toISOString().slice(0, 10)
-        : new Date(deal.stageChangedDate).toISOString().slice(0, 10),
+      date,
+      checkDate,
       orderId: deal._id,
       number: deal.number || '',
       hasVat: config.hasVat || false,

@@ -1,7 +1,7 @@
 import { fixDate } from '@erxes/api-utils/src';
 import { generateModels, IModels } from '../../connectionResolver';
 import { sendCoreMessage } from '../../messageBroker';
-import { IUserReport } from '../../models/definitions/timeclock';
+import { IUserReport, IUsersReport } from '../../models/definitions/timeclock';
 
 export const findDepartment = async (subdomain: string, target) => {
   const department = await sendCoreMessage({
@@ -465,4 +465,126 @@ export const timeclockReportByUser = async (
   report.totalMinsLateThisMonth = totalMinsLatePerUser;
 
   return report;
+};
+
+export const timeclockReportPreliminary = async (
+  subdomain: string,
+  userIds: string[],
+  startDate?: string,
+  endDate?: string,
+  teamMembersObj?: any,
+  reportType?: string
+) => {
+  const models = await generateModels(subdomain);
+
+  const usersReport: IUsersReport = {};
+  const shiftsOfSchedule: any = [];
+
+  const NOW = new Date();
+  // get 1st of this month
+  const startOfThisMonth = new Date(NOW.getFullYear(), NOW.getMonth(), 1);
+  // get 1st of the next Month
+  const startOfNextMonth = new Date(NOW.getFullYear(), NOW.getMonth() + 1, 1);
+
+  const startTime = startDate ? startDate : startOfThisMonth;
+  const endTime = endDate ? endDate : startOfNextMonth;
+
+  // get the schedule data of this month
+  const schedules = await models.Schedules.find({
+    userId: { $in: userIds }
+  }).sort({
+    userId: 1
+  });
+  const timeclocks = await models.Timeclocks.find({
+    $and: [
+      { userId: { $in: userIds } },
+      {
+        shiftStart: {
+          $gte: fixDate(startTime),
+          $lte: fixDate(endTime)
+        }
+      },
+      {
+        shiftEnd: {
+          $gte: fixDate(startTime),
+          $lte: fixDate(endTime)
+        }
+      }
+    ]
+  }).sort({ userId: 1 });
+
+  for (const { _id } of schedules) {
+    shiftsOfSchedule.push(
+      ...(await models.Shifts.find({
+        $and: [
+          { scheduleId: _id },
+          { status: 'Approved' },
+          {
+            shiftStart: {
+              $gte: fixDate(startTime),
+              $lte: fixDate(endTime)
+            }
+          }
+        ]
+      }))
+    );
+  }
+
+  userIds.forEach(async currUserId => {
+    // assign team member info from teamMembersObj
+
+    if (reportType === 'xlsx') {
+      usersReport[currUserId] = { ...teamMembersObj[currUserId] };
+    }
+
+    const currUserTimeclocks = timeclocks.filter(
+      timeclock => timeclock.userId === currUserId
+    );
+
+    const currUserSchedules = schedules.filter(
+      schedule => schedule.userId === currUserId
+    );
+
+    // get shifts of schedule
+    let currUserScheduleShifts;
+    currUserSchedules.forEach(async userSchedule => {
+      currUserScheduleShifts = shiftsOfSchedule.filter(
+        scheduleShift => scheduleShift.scheduleId === userSchedule._id
+      );
+    });
+
+    let totalDaysWorkedThisMonthPerUser = 0;
+    let totalDaysScheduledThisMonthPerUser = 0;
+
+    if (currUserTimeclocks) {
+      totalDaysWorkedThisMonthPerUser = new Set(
+        currUserTimeclocks.map(shift =>
+          new Date(shift.shiftStart).toLocaleDateString()
+        )
+      ).size;
+    }
+    if (currUserScheduleShifts) {
+      totalDaysScheduledThisMonthPerUser = new Set(
+        currUserScheduleShifts.map(shiftOfSchedule =>
+          new Date(shiftOfSchedule.shiftStart).toLocaleDateString()
+        )
+      ).size;
+    }
+
+    if (reportType === 'xlsx') {
+      usersReport[
+        currUserId
+      ].totalDaysScheduledThisMonth = totalDaysScheduledThisMonthPerUser;
+      usersReport[
+        currUserId
+      ].totalDaysWorkedThisMonth = totalDaysWorkedThisMonthPerUser;
+    } else {
+      usersReport[currUserId] = {
+        totalDaysScheduledThisMonth: totalDaysScheduledThisMonthPerUser,
+        totalDaysWorkedThisMonth: totalDaysWorkedThisMonthPerUser
+      };
+    }
+  });
+
+  return usersReport;
 };

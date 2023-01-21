@@ -149,7 +149,6 @@ const performQueries = {
       commonQuerySelector
     );
 
-    console.log('ssssssssssssssssss', selector);
     return paginate(models.Performs.find(selector).lean(), { ...params });
   },
 
