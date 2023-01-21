@@ -51,14 +51,14 @@ class Home extends React.Component<Props, State> {
     const { integrations, searchValue } = this.state;
     const { totalCount, queryParams, customLink } = this.props;
 
-    const list = [] as any;
+    const datas = [] as any;
     const rows = [...integrations];
 
-    for (const row of rows) {
-      list.push(
+    while (rows.length > 0) {
+      datas.push(
         <Row
-          key={row.kind}
-          integrations={rows.splice(0, 5)}
+          key={rows.length}
+          integrations={rows.splice(0, 4)}
           totalCount={totalCount}
           customLink={customLink}
           queryParams={queryParams}
@@ -66,7 +66,7 @@ class Home extends React.Component<Props, State> {
       );
     }
 
-    if (list.length === 0) {
+    if (datas.length === 0) {
       return (
         <FullHeight>
           <EmptyState
@@ -77,7 +77,7 @@ class Home extends React.Component<Props, State> {
       );
     }
 
-    return list;
+    return datas;
   }
 
   render() {
