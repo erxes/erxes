@@ -1,9 +1,10 @@
 import React from 'react';
 import { useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
+// erxes
 import { Alert } from '@erxes/ui/src/utils';
-
-import ChatInput from '../components/ChatInput';
+// local
+import EditorComponent from '../components/Editor';
 import { mutations, queries } from '../graphql';
 
 type Props = {
@@ -12,26 +13,27 @@ type Props = {
   setReply: (message: any) => void;
 };
 
-const ChatInputContainer = (props: Props) => {
+const EditorContainer = (props: Props) => {
   const { chatId, reply } = props;
-  const [addMutation] = useMutation(gql(mutations.addChatMessage));
+  const [addMutation] = useMutation(gql(mutations.chatMessageAdd));
 
-  const sendMessage = (content: string) => {
+  const sendMessage = (content: string, _attachments: any[]) => {
     if (!content) {
       return;
     }
 
     const relatedId = (reply && reply._id) || null;
+    const attachments = _attachments || null;
 
     addMutation({
-      variables: { content, chatId, relatedId },
+      variables: { content, chatId, relatedId, attachments },
       refetchQueries: [{ query: gql(queries.chats) }]
     }).catch(error => {
       Alert.error(error.message);
     });
   };
 
-  return <ChatInput {...props} sendMessage={sendMessage} />;
+  return <EditorComponent {...props} sendMessage={sendMessage} />;
 };
 
-export default ChatInputContainer;
+export default EditorContainer;
