@@ -237,7 +237,7 @@ export const postSchema = new Schema<PostDocument>({
   updatedById: String,
   updatedByCpId: String,
 
-  lastPublishedAt: { type: Date, idnex: true, sparse: true },
+  lastPublishedAt: { type: Date, index: true, sparse: true },
 
   customIndexed: Schema.Types.Mixed,
 
