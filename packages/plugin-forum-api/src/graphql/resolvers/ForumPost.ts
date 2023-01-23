@@ -22,8 +22,8 @@ const ForumPost: IObjectTypeResolver<IPost, IContext> = {
       updatedByCpId && { __typename: 'ClientPortalUser', _id: updatedByCpId }
     );
   },
-  async commentCount({ _id }, _, { models: { Comment } }) {
-    return (await Comment.countDocuments({ postId: _id })) || 0;
+  async commentCount({ _id, commentCount }, _, { models: { Comment } }) {
+    return commentCount || 0;
   },
 
   async upVoteCount({ _id }, _, { models: { PostUpVote } }) {

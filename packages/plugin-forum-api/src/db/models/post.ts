@@ -74,6 +74,8 @@ export interface IPost extends CommonPostFields {
 
   isFeaturedByAdmin?: boolean | null;
   isFeaturedByUser?: boolean | null;
+
+  commentCount?: number | null;
 }
 
 export type PostDocument = IPost & Document;
@@ -99,7 +101,8 @@ const OMIT_FROM_INPUT = [
   'lastPublishedAt',
 
   'requiredLevel',
-  'isPermissionRequired'
+  'isPermissionRequired',
+  'commentCount'
 ] as const;
 
 interface PollOptionInput {
@@ -243,7 +246,8 @@ export const postSchema = new Schema<PostDocument>({
   isPollMultiChoice: Boolean,
 
   isFeaturedByAdmin: { type: Boolean, index: true, sparse: true },
-  isFeaturedByUser: { type: Boolean, index: true, sparse: true }
+  isFeaturedByUser: { type: Boolean, index: true, sparse: true },
+  commentCount: { type: Number, default: 0, index: true }
 });
 // used by client portal front-end
 postSchema.index({ state: 1, categoryApprovalState: 1, categoryId: 1 });
