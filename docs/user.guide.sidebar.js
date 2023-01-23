@@ -94,7 +94,8 @@ module.exports = {
             'user-guide/products/knowledgebase',
             'user-guide/products/sentimental',
             'user-guide/products/webbuilder',
-            'user-guide/products/script-install'
+            'user-guide/products/script-install',
+            'user-guide/products/exm'
           ]
         },
         {
@@ -130,9 +131,10 @@ module.exports = {
             'user-guide/teams/marketing',
             'user-guide/teams/sales',
             'user-guide/teams/support',
-            'user-guide/teams/hr',
+            'user-guide/teams/banking',
             'user-guide/teams/pm',
-            'user-guide/teams/rm'
+            'user-guide/teams/rm',
+            'user-guide/teams/hr'
           ]
         }
       ]

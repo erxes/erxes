@@ -1,4 +1,4 @@
 ---
 id: hr
-title: Banking & Finance
+title: HR
 ---
