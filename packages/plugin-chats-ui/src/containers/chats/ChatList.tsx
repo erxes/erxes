@@ -9,8 +9,10 @@ import Component from '../../components/chats/ChatList';
 import { queries, subscriptions } from '../../graphql';
 
 type Props = {
-  chatId: string;
+  chatId?: string;
   hasOptions?: boolean;
+  isWidget?: boolean;
+  handleClickItem?: (chatId: string) => void;
 };
 
 type FinalProps = {

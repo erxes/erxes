@@ -1,33 +1,55 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 // erxes
 import Icon from '@erxes/ui/src/components/Icon';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 // local
-import ChatList from './chats/ChatList';
+import ChatList from '../containers/chats/ChatList';
+import WidgetChatWindow from '../containers/WidgetChatWindow';
 import {
-  NavButton,
-  NavPopoverWrapper,
-  NavPopoverSeeAll,
-  TestElement
+  WidgetButton,
+  WidgetPopoverWrapper,
+  WidgetPopoverSeeAll,
+  WidgetChatWrapper
 } from '../styles';
 
-type Props = {
-  chats: any;
-};
+const LOCALSTORAGE_KEY = 'erxes_active_chats';
 
-const Widget = (props: Props) => {
-  const { chats } = props;
+const Widget = () => {
+  const [activeChatIds, setActiveChatIds] = useState<any[]>(
+    JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY) || '[]')
+  );
+
+  const handleActive = (_chatId: string) => {
+    if (checkActive(_chatId)) {
+      updateActive(activeChatIds.filter(c => c !== _chatId));
+    } else {
+      updateActive([...activeChatIds, _chatId]);
+    }
+  };
+
+  const updateActive = (_chats: any[]) => {
+    setActiveChatIds(_chats);
+
+    localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(_chats));
+  };
+
+  const checkActive = (_chatId: string) => {
+    return activeChatIds.indexOf(_chatId) !== -1;
+  };
 
   const popoverChat = (
     <Popover id="chat-popover">
       <Popover.Content>
-        <NavPopoverWrapper>
-          <ChatList chats={chats} />
-        </NavPopoverWrapper>
-        <NavPopoverSeeAll>
+        <WidgetPopoverWrapper>
+          <ChatList
+            isWidget
+            handleClickItem={_chatId => handleActive(_chatId)}
+          />
+        </WidgetPopoverWrapper>
+        <WidgetPopoverSeeAll>
           <Link to="/erxes-plugin-chat">See all</Link>
-        </NavPopoverSeeAll>
+        </WidgetPopoverSeeAll>
       </Popover.Content>
     </Popover>
   );
@@ -40,11 +62,19 @@ const Widget = (props: Props) => {
         placement="bottom"
         overlay={popoverChat}
       >
-        <NavButton>
+        <WidgetButton>
           <Icon icon="chat-1" size={20} />
-        </NavButton>
+        </WidgetButton>
       </OverlayTrigger>
-      <TestElement>asd</TestElement>
+      <WidgetChatWrapper>
+        {activeChatIds.map(c => (
+          <WidgetChatWindow
+            key={c._id}
+            chatId={c}
+            handleActive={handleActive}
+          />
+        ))}
+      </WidgetChatWrapper>
     </>
   );
 };

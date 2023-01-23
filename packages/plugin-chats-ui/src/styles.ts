@@ -6,14 +6,6 @@ import { darken, rgba } from '@erxes/ui/src/styles/ecolor';
 /**
  * Global - START
  */
-export const TestElement = styled.div`
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  width: 200px;
-  background-color: white;
-`;
-
 export const PageContentWrapper = styled.div`
   height: 100%;
   display: flex;
@@ -24,7 +16,6 @@ export const PageContentWrapper = styled.div`
 export const SidebarWrapper = styled.div`
   height: calc(100% - 10px);
   background-color: ${colors.bgActive};
-  padding: 0 1em;
   overflow: hidden;
   overflow-y: auto;
   border-radius: 5px;
@@ -39,7 +30,7 @@ export const SidebarHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 ${dimensions.unitSpacing}px;
+  padding: 0 ${dimensions.coreSpacing}px;
 `;
 
 export const IconButton = styled.button`
@@ -60,18 +51,18 @@ export const IconButton = styled.button`
 `;
 
 export const Title = styled.h5`
-  padding: 0 ${dimensions.unitSpacing}px;
   margin: 0;
   margin-bottom: 6px;
+  padding: 0 ${dimensions.coreSpacing}px;
   color: ${colors.textSecondary};
 `;
 
 export const ChatActions = styled.div`
-  z-index: 1000;
+  z-index: 100;
   visibility: hidden;
 
   position: absolute;
-  right: 1em;
+  right: ${dimensions.coreSpacing}px;
   top: 50%;
   transform: translateY(-50%);
 `;
@@ -99,9 +90,9 @@ export const ChatActionItem = styled.button`
  */
 
 /**
- * TopNavigation - START
+ * Widget - START
  */
-export const NavButton = styled.div`
+export const WidgetButton = styled.div`
   cursor: pointer;
   text-align: center;
   width: 100%;
@@ -120,13 +111,13 @@ export const NavButton = styled.div`
   }
 `;
 
-export const NavPopoverWrapper = styled.div`
+export const WidgetPopoverWrapper = styled.div`
   max-height: 500px !important;
   position: relative;
-  padding: ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px;
+  padding: ${dimensions.coreSpacing}px 0;
 `;
 
-export const NavPopoverSeeAll = styled.div`
+export const WidgetPopoverSeeAll = styled.div`
   position: absolute;
   bottom: 0;
   width: 100%;
@@ -139,8 +130,63 @@ export const NavPopoverSeeAll = styled.div`
     text-align: center;
   }
 `;
+
+export const WidgetChatWrapper = styled.div`
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-content: flex-end;
+`;
+
+export const WidgetChatWindowWrapper = styled.div`
+  position: relative;
+  width: 350px;
+  height: 400px;
+  margin: 0 ${dimensions.coreSpacing / 2}px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  overflow: hidden;
+
+  -webkit-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.5);
+  box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.5);
+`;
+
+export const WidgetChatWindowHeader = styled.div`
+  width: 100%;
+  height: 75px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f9f9f9;
+  padding: 0 ${dimensions.unitSpacing}px;
+  border-bottom: 2px solid ${colors.borderPrimary};
+
+  i {
+    cursor: pointer;
+    margin: 0 ${dimensions.unitSpacing}px;
+  }
+  div {
+    display: flex;
+    align-items: center;
+
+    p {
+      display: inline-block;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      margin: 0;
+      margin-left: ${dimensions.unitSpacing}px;
+    }
+  }
+`;
 /**
- * TopNavigation - END
+ * Widget - END
  */
 
 /**
@@ -150,24 +196,32 @@ export const ChatListWrapper = styled.div`
   max-height: 100%;
   padding-left: 0;
   margin: 0;
-  margin-bottom: 10px;
+  margin-bottom: 0.5em;
 `;
 
-export const ChatItemWrapper = styledTS<{ active?: boolean }>(styled.div)`
+export const ChatItemWrapper = styledTS<{
+  active?: boolean;
+  isWidget?: boolean;
+}>(styled.div)`
   position: relative;
+  display: flex;
+  align-items: center;
   background-color: ${props => (props.active ? colors.bgGray : 'initial')};
-  border-radius: 5px;
-  padding: ${dimensions.unitSpacing}px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  border-bottom: ${props =>
+    props.isWidget && `1px solid ${colors.borderPrimary}`};
   transition: 0.2s;
-  
-  &:hover {
-    background-color: ${colors.bgGray};
-    transition: 0.2s;
+
+  &:first-child {
+    border-top: ${props =>
+      props.isWidget && `1px solid ${colors.borderPrimary}`};
   }
-  
-  a {
-    display: flex;
-    align-items: center;
+
+  &:hover {
+    background-color: ${props =>
+      props.isWidget ? colors.bgLight : colors.bgGray};
+    cursor: pointer;
+    transition: 0.2s;
   }
 `;
 
@@ -193,7 +247,7 @@ export const ChatGroupAvatar = styled.div`
 
 export const ChatWrapper = styledTS<{ isSeen?: boolean }>(styled.div)`
   width: 100%;
-  padding: 0 ${dimensions.unitSpacing}px;
+  padding-left: ${dimensions.unitSpacing}px;
   margin: 0;
   color: ${colors.textPrimary};
   font-size: 14px !important;
@@ -277,8 +331,7 @@ export const ParticipantItemWrapper = styled.div`
   a {
     display: flex;
     align-items: center;
-    padding: ${dimensions.unitSpacing}px;
-    border-radius: 5px;
+    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
     transition: 0.2s;
   }
 
@@ -339,7 +392,7 @@ export const UserDetailsItem = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
-  padding: 0 1rem;
+  padding: 0 ${dimensions.coreSpacing}px;
 
   & p:last-child {
     text-align: right;
@@ -358,12 +411,12 @@ export const MessageListWrapper = styled.div`
   display: flex;
   flex-direction: column-reverse;
   background-color: #f9f9f9;
-  border-top-left-radius: ${dimensions.unitSpacing}px;
-  border-top-right-radius: ${dimensions.unitSpacing}px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
   overflow-y: scroll;
   overflow-x: hidden;
   list-style: none;
-  padding: 20px ${dimensions.unitSpacing}px;
+  padding: 0;
   margin: 0;
 `;
 
@@ -388,7 +441,8 @@ export const MessageWrapper = styledTS<{ me?: boolean }>(styled.div)`
   justify-content: ${props => (props.me ? 'flex-end' : 'flex-start')};
   flex-direction: column;
   overflow: hidden;
-  margin: 0 ${dimensions.unitSpacing}px;
+  margin: 0;
+  margin-left: ${props => (!props.me ? dimensions.unitSpacing : 0)}px;
 `;
 
 export const MessageReply = styled.div`
@@ -416,6 +470,7 @@ export const MessageBody = styledTS<{ me?: boolean }>(styled.div)`
   max-width: 560px;
   display: flex;
   justify-content: ${props => (props.me ? 'flex-end' : 'flex-start')};
+  align-items: ${props => (props.me ? 'flex-end' : 'flex-start')}
   flex-direction: ${props => (props.me ? 'row' : 'row-reverse')};
 `;
 
@@ -465,31 +520,43 @@ export const ChatEditor = styled.div`
   width: 100%;
   bottom: 0;
   margin-bottom: 10px;
+`;
 
-  & > span {
-    font-size: 10px;
-    color: ${colors.textSecondary};
+export const ChatEditorWidget = styled.div`
+  width: 100%;
+  background-color: #f9f9f9;
+  padding: ${dimensions.unitSpacing}px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  label {
+    margin: 0 10px;
+    display: block;
+
+    &:hover {
+      cursor: pointer;
+      color: ${darken(colors.colorCoreGray, 30)};
+    }
   }
 
-  & > p {
+  i {
     margin: 0;
   }
 
-  .cke {
+  input[type='text'] {
+    display: inline-block;
+    background-color: ${colors.bgActive};
+    border-radius: ${dimensions.coreSpacing}px;
+    padding: ${dimensions.unitSpacing}px;
     border: 0;
+
+    &:hover {
+      border: 0;
+    }
   }
 
-  .cke_toolgroup {
-    border: 0;
-  }
-
-  .cke_top {
-    border: 0;
-    background-color: white;
-    background-image: none !important;
-  }
-
-  .cke_bottom {
+  input[type='file'] {
     display: none;
   }
 `;
@@ -548,7 +615,9 @@ export const AttachmentIndicator = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  margin: 0 15px 10px 15px;
+  justify-content: flex-start;
+  align-items: center;
+  margin: ${dimensions.unitSpacing}px 0;
   color: ${rgba(colors.colorWhite, 0.7)};
 `;
 
@@ -556,10 +625,14 @@ export const Attachment = styled.div`
   display: flex;
   max-width: 250px;
   padding: 5px;
-  margin: 0 0 5px 5px;
+  margin: 0 5px;
   font-size: 12px;
   background-color: ${colors.colorSecondary};
   align-items: center;
+
+  &:first-child {
+    margin-left: 0px;
+  }
 
   > div {
     margin-right: 8px;

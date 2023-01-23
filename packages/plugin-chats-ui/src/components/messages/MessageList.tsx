@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 // erxes
-import { IUser } from '@erxes/ui/src/auth/types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 // local
 import MessageItem from './MessageItem';
@@ -10,35 +9,36 @@ type Props = {
   messages: any[];
   latestMessages: any[];
   isAllMessages: boolean;
-  currentUser: IUser;
   setReply: (text: string) => void;
   loadEarlierMessage: () => void;
 };
 
 const MessageList = (props: Props) => {
-  const { messages, latestMessages, isAllMessages, currentUser } = props;
+  const { messages, latestMessages, isAllMessages } = props;
+  const messageListRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    let element: HTMLElement | null = document.getElementById('message-list');
+    if (messageListRef && messageListRef.current) {
+      let element = messageListRef.current;
 
-    if (element) {
-      element.scrollTop = 0;
+      if (element) {
+        element.scrollTop = 0;
+      }
     }
   }, [latestMessages]);
 
   const handleScroll = () => {
-    const element: HTMLElement | null = document.getElementById('message-list');
+    if (messageListRef && messageListRef.current) {
+      let element = messageListRef.current;
 
-    if (
-      element &&
-      element.scrollTop === element.clientHeight - element.scrollHeight
-    ) {
-      props.loadEarlierMessage();
+      if (element.scrollTop === element.clientHeight - element.scrollHeight) {
+        props.loadEarlierMessage();
+      }
     }
   };
 
   return (
-    <MessageListWrapper id="message-list" onScroll={handleScroll}>
+    <MessageListWrapper innerRef={messageListRef} onScroll={handleScroll}>
       {latestMessages.map(m => (
         <MessageItem key={m._id} message={m} setReply={props.setReply} />
       ))}

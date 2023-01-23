@@ -14,21 +14,20 @@ type Props = {
   setReply: (message: any) => void;
 };
 
-type FinalProps = {
-  currentUser: IUser;
-} & Props;
-
-const MessageListContainer = (props: FinalProps) => {
-  const { chatId, currentUser } = props;
+const MessageListContainer = (props: Props) => {
+  const { chatId } = props;
 
   const [page, setPage] = useState<number>(0);
   const [latestMessages, setLatestMessages] = useState<any[]>([]);
-  const chatMessagesQuery = useQuery(gql(queries.chatMessages), {
-    variables: { chatId, skip: 0 }
-  });
+  const { loading, error, data, refetch, fetchMore } = useQuery(
+    gql(queries.chatMessages),
+    {
+      variables: { chatId, skip: 0 }
+    }
+  );
 
   useEffect(() => {
-    chatMessagesQuery.refetch();
+    refetch();
     setLatestMessages([]);
     setPage(0);
   }, [chatId]);
@@ -55,7 +54,7 @@ const MessageListContainer = (props: FinalProps) => {
     const skip: number =
       nextPage * 20 + (latestMessages && latestMessages.length);
 
-    chatMessagesQuery.fetchMore({
+    fetchMore({
       variables: {
         chatId,
         skip
@@ -80,31 +79,25 @@ const MessageListContainer = (props: FinalProps) => {
     });
   };
 
-  if (chatMessagesQuery.loading) {
+  if (loading) {
     return <Spinner />;
   }
 
-  if (chatMessagesQuery.error) {
-    return <p>{chatMessagesQuery.error.message}</p>;
+  if (error) {
+    return <p>{error.message}</p>;
   }
 
-  const chatMessages =
-    (chatMessagesQuery.data && chatMessagesQuery.data.chatMessages.list) || [];
+  const chatMessages = (data && data.chatMessages.list) || [];
 
   return (
     <Component
       messages={chatMessages}
       latestMessages={latestMessages}
       isAllMessages={chatMessages.length < (page + 1) * 20}
-      currentUser={currentUser}
       setReply={props.setReply}
       loadEarlierMessage={loadEarlierMessage}
     />
   );
 };
 
-const WithCurrentUser = withCurrentUser(MessageListContainer);
-
-export default (props: Props) => {
-  return <WithCurrentUser {...props} />;
-};
+export default MessageListContainer;

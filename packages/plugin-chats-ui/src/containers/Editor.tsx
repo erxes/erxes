@@ -9,6 +9,7 @@ import { mutations, queries } from '../graphql';
 
 type Props = {
   chatId: string;
+  type?: string;
   reply?: any;
   setReply: (message: any) => void;
 };

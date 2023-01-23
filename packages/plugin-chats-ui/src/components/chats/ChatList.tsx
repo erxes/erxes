@@ -7,12 +7,16 @@ type Props = {
   chats: any[];
   chatId?: string;
   hasOptions?: boolean;
+  isWidget?: boolean;
+  handleClickItem?: (chatId: string) => void;
 };
 
+const LOCALSTORAGE_KEY = 'erxes_pinned_chats';
+
 const ChatList = (props: Props) => {
-  const { chats, chatId, hasOptions } = props;
+  const { chats, chatId, hasOptions, isWidget } = props;
   const [pinnedChatIds, setPinnedChatIds] = useState<any[]>(
-    JSON.parse(localStorage.getItem('erxes_pinned_chats') || '[]')
+    JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY) || '[]')
   );
 
   const handlePin = (_chatId: string) => {
@@ -26,7 +30,7 @@ const ChatList = (props: Props) => {
   const updatePinned = (_chats: any[]) => {
     setPinnedChatIds(_chats);
 
-    localStorage.setItem('erxes_pinned_chats', JSON.stringify(_chats));
+    localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(_chats));
   };
 
   const checkPinned = (_chatId: string) => {
@@ -46,9 +50,11 @@ const ChatList = (props: Props) => {
                     key={c._id}
                     chat={c}
                     active={c._id === chatId}
+                    isPinned={true}
+                    isWidget={isWidget}
                     hasOptions={hasOptions}
                     handlePin={handlePin}
-                    isPinned={true}
+                    handleClickItem={props.handleClickItem}
                   />
                 )
             )}
@@ -69,9 +75,11 @@ const ChatList = (props: Props) => {
                 key={c._id}
                 chat={c}
                 active={c._id === chatId}
-                hasOptions={hasOptions}
                 isPinned={false}
+                isWidget={isWidget}
+                hasOptions={hasOptions}
                 handlePin={handlePin}
+                handleClickItem={props.handleClickItem}
               />
             )
         )}

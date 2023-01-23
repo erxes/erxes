@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { convertFromHTML } from 'draft-js';
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
@@ -31,34 +31,35 @@ type FinalProps = {
 
 const MessageItem = (props: FinalProps) => {
   const { message, currentUser } = props;
+  const actionRef = useRef<HTMLElement>(null);
 
   const isMe = currentUser._id === message.createdUser._id;
   const draftContent =
     message.relatedMessage && convertFromHTML(message.relatedMessage.content);
 
   const handleMouseEnter = () => {
-    let element: HTMLElement | null = document.getElementById(
-      'action-' + message._id
-    );
+    if (actionRef && actionRef.current) {
+      let element = actionRef.current;
 
-    if (element && element.style) {
-      element.style.visibility = 'visible';
+      if (element && element.style) {
+        element.style.visibility = 'visible';
+      }
     }
   };
 
   const handleMouseLeave = () => {
-    let element: HTMLElement | null = document.getElementById(
-      'action-' + message._id
-    );
+    if (actionRef && actionRef.current) {
+      let element = actionRef.current;
 
-    if (element && element.style) {
-      element.style.visibility = 'hidden';
+      if (element && element.style) {
+        element.style.visibility = 'hidden';
+      }
     }
   };
 
   const renderAttachments = () => {
     return (message.attachments || []).map(attachment => (
-      <Attachment attachment={attachment || {}} />
+      <Attachment key={attachment._id} attachment={attachment || {}} />
     ));
   };
 
@@ -85,7 +86,7 @@ const MessageItem = (props: FinalProps) => {
           <Tip placement="top" text="Reply">
             <MessageOption
               onClick={() => props.setReply(message)}
-              id={`action-${message._id}`}
+              innerRef={actionRef}
             >
               <Icon icon="reply" color="secondary" />
             </MessageOption>
@@ -102,7 +103,7 @@ const MessageItem = (props: FinalProps) => {
         </MessageBody>
         {renderAttachments()}
       </MessageWrapper>
-      <Avatar user={isMe ? currentUser : message.createdUser} size={36} />
+      {!isMe && <Avatar user={message.createdUser} size={36} />}
     </MessageItemWrapper>
   );
 };

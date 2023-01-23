@@ -14,8 +14,10 @@ type Props = {
   chat: any;
   active: boolean;
   isPinned: boolean;
+  isWidget?: boolean;
   hasOptions?: boolean;
   handlePin: (chatId: string) => void;
+  handleClickItem?: (chatId: string) => void;
 };
 
 const ChatItemContainer = (props: Props) => {
