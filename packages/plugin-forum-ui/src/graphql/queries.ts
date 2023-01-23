@@ -214,6 +214,9 @@ export const FORUM_POST_DETAIL = gql`
         title
         order
       }
+
+      isFeaturedByAdmin
+      isFeaturedByUser
     }
   }
 `;

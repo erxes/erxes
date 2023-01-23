@@ -72,6 +72,9 @@ const postMutations = `
     lang: ID!
   ): Boolean
 
+  forumPostSetFeatured(_id: ID!, featured: Boolean!): Boolean
+  forumPostSetFeaturedCp(_id: ID!, featured: Boolean!): Boolean
+
 `;
 
 export default postMutations;

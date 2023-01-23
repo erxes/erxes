@@ -46,6 +46,12 @@ const MUT_DENY = gql`
   }
 `;
 
+const MUT_FEATURED_TOGGLE = gql`
+  mutation ForumPostSetFeatured($id: ID!, $featured: Boolean!) {
+    forumPostSetFeatured(_id: $id, featured: $featured)
+  }
+`;
+
 const PostDetail: React.FC = () => {
   const history = useHistory();
   const { postId } = useParams();
@@ -82,6 +88,10 @@ const PostDetail: React.FC = () => {
   const [mutDeny] = useMutation(MUT_DENY, {
     variables: { _id: postId },
     refetchQueries: POST_REFETCH_AFTER_EDIT
+  });
+
+  const [mutSetFeatured] = useMutation(MUT_FEATURED_TOGGLE, {
+    refetchQueries: ['ForumPostDetail']
   });
 
   if (loading) return null;
@@ -227,6 +237,31 @@ const PostDetail: React.FC = () => {
             <td>{forumPost.upVoteCount}</td>
             <th>Down vote count:</th>
             <td>{forumPost.downVoteCount}</td>
+          </tr>
+
+          <tr>
+            <th>Featured by admin: </th>
+            <td>
+              {forumPost.isFeaturedByAdmin ? 'Yes' : 'No'}&nbsp;{' '}
+              <button
+                type="button"
+                onClick={async () => {
+                  console.log('before');
+                  await mutSetFeatured({
+                    variables: {
+                      id: postId,
+                      featured: !forumPost.isFeaturedByAdmin
+                    }
+                  });
+
+                  console.log('after');
+                }}
+              >
+                {forumPost.isFeaturedByAdmin ? 'Unfeature' : 'Feature'}
+              </button>
+            </td>
+            <th>Featured by user: </th>
+            <td>{forumPost.isFeaturedByUser ? 'Yes' : 'No'}</td>
           </tr>
         </tbody>
       </table>

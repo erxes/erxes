@@ -71,6 +71,9 @@ export interface IPost extends CommonPostFields {
 
   wordCount?: number | null;
   isPollMultiChoice?: boolean | null;
+
+  isFeaturedByAdmin?: boolean | null;
+  isFeaturedByUser?: boolean | null;
 }
 
 export type PostDocument = IPost & Document;
@@ -113,6 +116,13 @@ export type PostPatchInput = Partial<PostCreateInput>;
 
 export interface IPostModel extends Model<PostDocument> {
   findByIdOrThrow(_id: string): Promise<PostDocument>;
+
+  setFeaturedByAdmin(_id: string, isFeatured: boolean): Promise<boolean>;
+  setFeaturedByUser(
+    _id: string,
+    isFeatured: boolean,
+    cpUser?: ICpUser | null
+  ): Promise<boolean>;
 
   createPost(c: PostCreateInput, user: IUserDocument): Promise<PostDocument>;
   patchPost(
@@ -230,7 +240,10 @@ export const postSchema = new Schema<PostDocument>({
 
   tagIds: [String],
   wordCount: Number,
-  isPollMultiChoice: Boolean
+  isPollMultiChoice: Boolean,
+
+  isFeaturedByAdmin: { type: Boolean, default: false, index: true },
+  isFeaturedByUser: { type: Boolean, default: false, index: true }
 });
 // used by client portal front-end
 postSchema.index({ state: 1, categoryApprovalState: 1, categoryId: 1 });
@@ -276,6 +289,34 @@ export const generatePostModel = (
       }
       return post;
     }
+
+    public static async setFeaturedByAdmin(
+      _id: string,
+      isFeatured: boolean
+    ): Promise<boolean> {
+      const post = await models.Post.findByIdAndUpdate(
+        _id,
+        { isFeaturedByAdmin: isFeatured },
+        { new: true }
+      );
+      return !!post;
+    }
+    public static async setFeaturedByUser(
+      _id: string,
+      isFeatured: boolean,
+      cpUser?: ICpUser | null
+    ): Promise<boolean> {
+      if (!cpUser) throw new LoginRequiredError();
+
+      const post = await models.Post.findOneAndUpdate(
+        { _id, createdByCpId: cpUser.userId },
+        { isFeaturedByUser: isFeatured },
+        { new: true }
+      );
+
+      return !!post;
+    }
+
     public static async createPost(
       input: PostCreateInput,
       user: IUserDocument
@@ -654,7 +695,6 @@ export const generatePostModel = (
     }
 
     public static async updateTrendScoreOfPublished(query = {}) {
-      const now = Date.now();
       await models.Post.find(
         { ...query, state: 'PUBLISHED' },
         { viewCount: 1, lastPublishedAt: 1, trendScore: 1 },
@@ -663,6 +703,7 @@ export const generatePostModel = (
         .cursor()
         .eachAsync(async function updateTrendScores(post: PostDocument) {
           if (!post.lastPublishedAt) return;
+          const now = Date.now();
 
           const elapsedSeconds = (now - post.lastPublishedAt.getTime()) / 1000;
           post.trendScore = post.viewCount / elapsedSeconds;

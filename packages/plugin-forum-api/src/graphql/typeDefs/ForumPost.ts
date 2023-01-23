@@ -77,6 +77,9 @@ export default function ForumPost({ isTagsEnabled }) {
 
     hasCurrentUserSavedIt: Boolean!
 
+    isFeaturedByAdmin: Boolean
+    isFeaturedByUser: Boolean
+
     ${isTagsEnabled ? 'tags: [Tag!]' : ''}
   }
 `;
