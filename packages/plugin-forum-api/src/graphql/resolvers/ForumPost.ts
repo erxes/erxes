@@ -64,6 +64,19 @@ const ForumPost: IObjectTypeResolver<IPost, IContext> = {
       .lean();
     const pollOptionIds = pollOptions.map(o => o._id);
     return PollVote.countDocuments({ pollOptionId: { $in: pollOptionIds } });
+  },
+
+  async hasCurrentUserSavedIt({ _id }, _, { models: { SavedPost }, cpUser }) {
+    if (!cpUser) {
+      return false;
+    }
+
+    const savedPost = await SavedPost.findOne({
+      cpUserId: cpUser.userId,
+      postId: _id
+    });
+
+    return !!savedPost;
   }
 };
 
