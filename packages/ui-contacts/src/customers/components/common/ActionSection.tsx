@@ -141,7 +141,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
       <li>
         <ModalTrigger
           title="Edit basic info"
-          trigger={<a href="#edit">{__('Edit')}</a>}
+          trigger={<a>{__('Edit')}</a>}
           size="lg"
           content={cocType === 'company' ? companyForm : customerForm}
         />
@@ -202,7 +202,7 @@ class ActionSection extends React.Component<Props, { customerState: string }> {
     return (
       <ModalTrigger
         title={__('Change state')}
-        trigger={<a href="#changeState">{__('Change state')}</a>}
+        trigger={<a>{__('Change state')}</a>}
         content={modalContent}
         hideHeader={true}
         centered={true}

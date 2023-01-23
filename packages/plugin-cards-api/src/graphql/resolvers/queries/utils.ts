@@ -784,6 +784,7 @@ export const getItemList = async (
         customFieldsData: 1,
         stageChangedDate: 1,
         tagIds: 1,
+        status: 1,
         ...(extraFields || {})
       }
     }

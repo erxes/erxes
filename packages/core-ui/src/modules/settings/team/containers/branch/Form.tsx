@@ -12,6 +12,7 @@ import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 type Props = {
   branch?: IBranch;
   closeModal: () => void;
+  additionalRefetchQueries?: any[];
 };
 
 const FormContainer = (props: Props) => {
@@ -39,8 +40,13 @@ const FormContainer = (props: Props) => {
         mutation={object._id ? mutations.branchesEdit : mutations.branchesAdd}
         refetchQueries={[
           {
-            query: gql(queries.branches)
-          }
+            query: gql(queries.branches),
+            variables: {
+              withoutUserFilter: true,
+              searchValue: undefined
+            }
+          },
+          ...(props.additionalRefetchQueries || [])
         ]}
         variables={values}
         isSubmitted={isSubmitted}

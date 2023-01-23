@@ -7,8 +7,7 @@ import {
   ShowReplies,
   ShowReplyButtonWrapper,
   SpaceBetweenRow,
-  ToolBar,
-  Uploading
+  ToolBar
 } from './styles';
 import { FlexRow, Subject } from './styles';
 import { IEmail, IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
@@ -65,6 +64,7 @@ type Props = {
     callback: () => void;
   }) => void;
   verifiedEmails: string[];
+  history: any;
 };
 
 type State = {
@@ -593,7 +593,8 @@ class MailForm extends React.Component<Props, State> {
       emailTemplates,
       toggleReply,
       totalCount,
-      fetchMoreEmailTemplates
+      fetchMoreEmailTemplates,
+      history
     } = this.props;
 
     const onSubmitResolve = e => this.onSubmit(e, true);
@@ -621,12 +622,12 @@ class MailForm extends React.Component<Props, State> {
               icon: 'trash-alt',
               onClick: toggleReply
             })}
-
             <EmailTemplate
               onSelect={this.templateChange}
               totalCount={totalCount}
               fetchMoreEmailTemplates={fetchMoreEmailTemplates}
               targets={generateEmailTemplateParams(emailTemplates || [])}
+              history={history}
             />
           </ToolBar>
           <div>
