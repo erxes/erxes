@@ -55,6 +55,11 @@ export default async function genTypeDefs(serviceDiscovery) {
       inheritMaxAge: Boolean
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
 
+    enum ForumCpUserType {
+      customer 
+      company
+    }
+
     enum ForumPostState {
       ${POST_STATES.join('\n')}
     }
