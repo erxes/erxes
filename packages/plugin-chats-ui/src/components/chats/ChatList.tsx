@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
+// erxes
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IUser } from '@erxes/ui/src/auth/types';
 // local
 import ChatItem from '../../containers/chats/ChatItem';
-import { Title, ChatListWrapper } from '../../styles';
+import { Title, ChatListSearch, ChatListWrapper } from '../../styles';
 
 type Props = {
   chats: any[];
+  currentUser: IUser;
   chatId?: string;
   hasOptions?: boolean;
   isWidget?: boolean;
@@ -14,7 +18,9 @@ type Props = {
 const LOCALSTORAGE_KEY = 'erxes_pinned_chats';
 
 const ChatList = (props: Props) => {
-  const { chats, chatId, hasOptions, isWidget } = props;
+  const { chats, currentUser, chatId, hasOptions, isWidget } = props;
+  const [searchValue, setSearchValue] = useState<string>('');
+  const [filteredChats, setFilteredChats] = useState<any[]>([]);
   const [pinnedChatIds, setPinnedChatIds] = useState<any[]>(
     JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY) || '[]')
   );
@@ -35,6 +41,28 @@ const ChatList = (props: Props) => {
 
   const checkPinned = (_chatId: string) => {
     return pinnedChatIds.indexOf(_chatId) !== -1;
+  };
+
+  const handleSearch = (event: any) => {
+    setSearchValue(event.target.value);
+    setFilteredChats(
+      chats.filter(item => {
+        let name = '';
+
+        if (item.type == 'direct') {
+          const users: any[] = item.participantUsers || [];
+          const user: any =
+            users.length > 1
+              ? users.filter(u => u._id !== currentUser._id)[0]
+              : users[0];
+          name = user.details.fullName || user.email;
+        } else {
+          name = item.name;
+        }
+
+        return name.toLowerCase().includes(searchValue.toLowerCase());
+      })
+    );
   };
 
   const renderPinnedChats = () => {
@@ -87,10 +115,39 @@ const ChatList = (props: Props) => {
     </>
   );
 
+  const renderFilteredChats = () => {
+    return filteredChats.map(c => (
+      <ChatItem
+        key={c._id}
+        chat={c}
+        active={c._id === chatId}
+        isPinned={checkPinned(c._id)}
+        isWidget={isWidget}
+        hasOptions={hasOptions}
+        handlePin={handlePin}
+        handleClickItem={props.handleClickItem}
+      />
+    ));
+  };
+
   return (
     <React.Fragment>
-      {renderPinnedChats()}
-      {renderChats()}
+      <ChatListSearch>
+        <FormControl
+          type="text"
+          placeholder="Search Chat"
+          round
+          onChange={handleSearch}
+        />
+      </ChatListSearch>
+      {searchValue.length === 0 ? (
+        <>
+          {renderPinnedChats()}
+          {renderChats()}
+        </>
+      ) : (
+        renderFilteredChats()
+      )}
     </React.Fragment>
   );
 };

@@ -143,17 +143,17 @@ export const WidgetChatWrapper = styled.div`
 export const WidgetChatWindowWrapper = styled.div`
   position: relative;
   width: 350px;
-  height: 400px;
+  max-height: 400px;
   margin: 0 ${dimensions.coreSpacing / 2}px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-end;
+  align-items: flex-end;
   border-radius: 5px;
   overflow: hidden;
 
   -webkit-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.5);
-  -moz-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0.5);
   box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.5);
 `;
 
@@ -192,6 +192,15 @@ export const WidgetChatWindowHeader = styled.div`
 /**
  * Chats - START
  */
+export const ChatListSearch = styled.div`
+  padding: 0 ${dimensions.coreSpacing}px;
+  margin-bottom: ${dimensions.coreSpacing}px;
+
+  input {
+    background-color: white;
+  }
+`;
+
 export const ChatListWrapper = styled.div`
   max-height: 100%;
   padding-left: 0;
@@ -375,7 +384,7 @@ export const UserDetailsWrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin: 3em 0;
+  padding: 3em ${dimensions.coreSpacing}px;
 
   h3,
   span {
@@ -392,7 +401,6 @@ export const UserDetailsItem = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
-  padding: 0 ${dimensions.coreSpacing}px;
 
   & p:last-child {
     text-align: right;
@@ -542,18 +550,6 @@ export const ChatEditorWidget = styled.div`
 
   i {
     margin: 0;
-  }
-
-  input[type='text'] {
-    display: inline-block;
-    background-color: ${colors.bgActive};
-    border-radius: ${dimensions.coreSpacing}px;
-    padding: ${dimensions.unitSpacing}px;
-    border: 0;
-
-    &:hover {
-      border: 0;
-    }
   }
 
   input[type='file'] {

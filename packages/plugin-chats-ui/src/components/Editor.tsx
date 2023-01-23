@@ -182,21 +182,24 @@ const Editor = (props: Props) => {
           <FormControl
             autoFocus
             autoComplete="false"
+            round
             type="text"
             placeholder="Aa"
             onChange={(event: any) => setMessage(event.target.value)}
             value={message}
             onKeyDown={handleKeyDown}
           />
-          <Tip text={'Attach file'}>
+          <Tip placement="top" text={'Attach file'}>
             <label>
               <Icon icon="paperclip" size={18} />
               <input type="file" onChange={handleFileInput} multiple={true} />
             </label>
           </Tip>
-          <Button btnStyle="default" onClick={handleSendMessage}>
-            <Icon icon="send" />
-          </Button>
+          <Tip placement="top" text={'Send'}>
+            <Button btnStyle="default" onClick={handleSendMessage}>
+              <Icon icon="send" />
+            </Button>
+          </Tip>
         </ChatEditorWidget>
       </>
     );

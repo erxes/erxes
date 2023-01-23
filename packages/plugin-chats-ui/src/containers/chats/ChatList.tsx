@@ -38,7 +38,9 @@ const ChatListContainer = (props: FinalProps) => {
     return <p>{error.message}</p>;
   }
 
-  return <Component {...props} chats={data.chats.list} />;
+  return (
+    <Component {...props} chats={data.chats.list} currentUser={currentUser} />
+  );
 };
 
 const WithCurrentUser = withCurrentUser(ChatListContainer);
