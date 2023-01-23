@@ -26,6 +26,36 @@ export const calculateDiscountValue = (
 };
 
 /**
+ * Adjust price
+ * @param price Price to calculate
+ * @param type Math type to adjust
+ * @param position Position
+ * @returns Calculated Number
+ */
+export const calculatePriceAdjust = (
+  price: number,
+  discountValue: number,
+  type: string,
+  factor: number
+): number => {
+  const factorPow = Math.pow(10, factor);
+  let priceToAdjust = price - discountValue;
+
+  switch (type) {
+    case 'round':
+      return price - Math.round(priceToAdjust / factorPow) * factorPow;
+    case 'floor':
+      return price - Math.floor(priceToAdjust / factorPow) * factorPow;
+    case 'ceil':
+      return price - Math.ceil(priceToAdjust / factorPow) * factorPow;
+    case 'endsWith9':
+      return price - Math.floor(priceToAdjust / factorPow) * factorPow + 1;
+    default:
+      return price - priceToAdjust;
+  }
+};
+
+/**
  * Check if rule is passes or not
  * @param rule
  * @param checkValue
@@ -146,6 +176,13 @@ export const calculatePriceRule = (
               item.price
             );
 
+      calculatedValue = calculatePriceAdjust(
+        item.price,
+        calculatedValue,
+        rule.priceAdjustType,
+        rule.priceAdjustFactor
+      );
+
       // Checks if value is lower than past calculated price, override it
       if (calculatedValue > value) {
         type = rule.discountType;
@@ -221,6 +258,13 @@ export const calculateQuantityRule = (
         }
       }
 
+      calculatedValue = calculatePriceAdjust(
+        item.price,
+        calculatedValue,
+        rule.priceAdjustType,
+        rule.priceAdjustFactor
+      );
+
       // Checks if value is lower than past calculated price, override it
       if (calculatedValue > value) {
         type = rule.discountType;
@@ -275,6 +319,13 @@ export const calculateExpiryRule = (
               rule.discountValue,
               item.price
             );
+
+      calculatedValue = calculatePriceAdjust(
+        item.price,
+        calculatedValue,
+        rule.priceAdjustType,
+        rule.priceAdjustFactor
+      );
 
       // Checks if value is lower than past calculated price, override it
       if (calculatedValue > value) {

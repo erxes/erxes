@@ -6,7 +6,8 @@ import {
   calculatePriceRule,
   calculateQuantityRule,
   calculateDiscountValue,
-  calculateExpiryRule
+  calculateExpiryRule,
+  calculatePriceAdjust
 } from './rule';
 import { getAllowedProducts } from './product';
 import { Plan, CalculatedRule, OrderItem } from '../types';
@@ -143,10 +144,17 @@ export const checkPricing = async (
       let value: number = 0;
       let bonusProducts: any = [];
 
-      const defaultValue: number = calculateDiscountValue(
+      let defaultValue: number = calculateDiscountValue(
         plan.type,
         plan.value,
         item.price
+      );
+
+      defaultValue = calculatePriceAdjust(
+        item.price,
+        defaultValue,
+        plan.priceAdjustType,
+        plan.priceAdjustFactor
       );
 
       // Check price rules

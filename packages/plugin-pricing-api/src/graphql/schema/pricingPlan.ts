@@ -17,6 +17,8 @@ export const types = () => `
     discountType: String,
     discountValue: Float,
     discountBonusProduct: String,
+    priceAdjustType: String,
+    priceAdjustFactor: Int
   }
 
   type PriceRule {
@@ -25,6 +27,8 @@ export const types = () => `
     discountType: String,
     discountValue: Float,
     discountBonusProduct: String,
+    priceAdjustType: String,
+    priceAdjustFactor: Int
   }
 
   type ExpiryRule {
@@ -33,6 +37,8 @@ export const types = () => `
     discountType: String,
     discountValue: Float,
     discountBonusProduct: String,
+    priceAdjustType: String,
+    priceAdjustFactor: Int
   }
 
   type RepeatValue {
@@ -56,6 +62,8 @@ export const types = () => `
     status: String,
     type: String,
     value: Float,
+    priceAdjustType: String,
+    priceAdjustFactor: Int,
     bonusProduct: String,
     isPriority: Boolean,
 
@@ -105,6 +113,8 @@ export const types = () => `
     discountType: String,
     discountValue: Float,
     discountBonusProduct: String,
+    priceAdjustType: String,
+    priceAdjustFactor: Int
   }
 
   input PriceRuleInput {
@@ -113,6 +123,8 @@ export const types = () => `
     discountType: String,
     discountValue: Float,
     discountBonusProduct: String,
+    priceAdjustType: String,
+    priceAdjustFactor: Int
   }
 
   input ExpiryRuleInput {
@@ -121,6 +133,8 @@ export const types = () => `
     discountType: String,
     discountValue: Float,
     discountBonusProduct: String,
+    priceAdjustType: String,
+    priceAdjustFactor: Int
   }
 
   input RepeatValueInput {
@@ -144,6 +158,8 @@ export const types = () => `
     status: String,
     type: String,
     value: Float,
+    priceAdjustType: String,
+    priceAdjustFactor: Int,
     bonusProduct: String,
     isPriority: Boolean,
 
@@ -186,6 +202,8 @@ export const types = () => `
     status: String,
     type: String,
     value: Float,
+    priceAdjustType: String,
+    priceAdjustFactor: Int,
     bonusProduct: String,
     isPriority: Boolean,
 
