@@ -242,8 +242,8 @@ export const postSchema = new Schema<PostDocument>({
   wordCount: Number,
   isPollMultiChoice: Boolean,
 
-  isFeaturedByAdmin: { type: Boolean, default: false, index: true },
-  isFeaturedByUser: { type: Boolean, default: false, index: true }
+  isFeaturedByAdmin: { type: Boolean, index: true, sparse: true },
+  isFeaturedByUser: { type: Boolean, index: true, sparse: true }
 });
 // used by client portal front-end
 postSchema.index({ state: 1, categoryApprovalState: 1, categoryId: 1 });
@@ -294,11 +294,15 @@ export const generatePostModel = (
       _id: string,
       isFeatured: boolean
     ): Promise<boolean> {
-      const post = await models.Post.findByIdAndUpdate(
-        _id,
-        { isFeaturedByAdmin: isFeatured },
-        { new: true }
-      );
+      let update: any;
+      if (isFeatured) {
+        update = { isFeaturedByAdmin: isFeatured };
+      } else {
+        update = { $unset: { isFeaturedByAdmin: 1 } };
+      }
+      const post = await models.Post.findByIdAndUpdate(_id, update, {
+        new: true
+      });
       return !!post;
     }
     public static async setFeaturedByUser(
@@ -308,9 +312,17 @@ export const generatePostModel = (
     ): Promise<boolean> {
       if (!cpUser) throw new LoginRequiredError();
 
+      let update: any;
+
+      if (isFeatured) {
+        update = { isFeaturedByUser: isFeatured };
+      } else {
+        update = { $unset: { isFeaturedByUser: 1 } };
+      }
+
       const post = await models.Post.findOneAndUpdate(
         { _id, createdByCpId: cpUser.userId },
-        { isFeaturedByUser: isFeatured },
+        update,
         { new: true }
       );
 
