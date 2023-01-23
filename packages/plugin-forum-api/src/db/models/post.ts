@@ -76,6 +76,7 @@ export interface IPost extends CommonPostFields {
   isFeaturedByUser?: boolean | null;
 
   commentCount?: number | null;
+  pollEndDate?: Date | null;
 }
 
 export type PostDocument = IPost & Document;
@@ -244,6 +245,7 @@ export const postSchema = new Schema<PostDocument>({
   tagIds: [String],
   wordCount: Number,
   isPollMultiChoice: Boolean,
+  pollEndDate: Date,
 
   isFeaturedByAdmin: { type: Boolean, index: true, sparse: true },
   isFeaturedByUser: { type: Boolean, index: true, sparse: true },

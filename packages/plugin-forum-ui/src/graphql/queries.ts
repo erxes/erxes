@@ -174,6 +174,7 @@ export const FORUM_POST_DETAIL = gql`
       downVoteCount
 
       isPollMultiChoice
+      pollEndDate
 
       createdUserType
       createdBy {

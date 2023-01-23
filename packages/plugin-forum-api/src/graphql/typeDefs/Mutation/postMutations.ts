@@ -10,6 +10,7 @@ const commonPostParams = (isInsert = false) => {
     tagIds: [ID!]
     pollOptions: [ForumPollOptionInput!]
     isPollMultiChoice: Boolean
+    pollEndDate: Date
   `;
 };
 

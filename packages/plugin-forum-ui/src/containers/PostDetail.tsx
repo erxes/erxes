@@ -218,6 +218,12 @@ const PostDetail: React.FC = () => {
                     : 'Single choice'}
                 </td>
               </tr>
+              {forumPost.pollEndDate && (
+                <tr>
+                  <th>Poll end date:</th>
+                  <td>{forumPost.pollEndDate}</td>
+                </tr>
+              )}
             </>
           )}
           <tr>

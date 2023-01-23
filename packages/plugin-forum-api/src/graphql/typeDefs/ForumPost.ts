@@ -74,6 +74,7 @@ export default function ForumPost({ isTagsEnabled }) {
     pollVoteCount: Int @cacheControl(maxAge: 5)
 
     isPollMultiChoice: Boolean
+    pollEndDate: Date
 
     hasCurrentUserSavedIt: Boolean!
 
