@@ -17,8 +17,8 @@ module.exports = {
       image: '/images/icons/erxes-11.svg',
       location: 'settings',
       scope: 'webhooks',
-      action: '',
-      permissions: []
+      action: 'webhooksAll',
+      permissions: ["showWebhooks"]
     }
   ]
 };

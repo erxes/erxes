@@ -21,6 +21,7 @@ import SelectJobCategory from '../../job/containers/category/SelectJobCategory';
 import SelectJobRefer from '../../job/containers/refer/SelectJobRefer';
 import { JOB_TYPE_CHOISES } from '../../constants';
 import Button from '@erxes/ui/src/components/Button';
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 
 interface Props {
   history: any;
@@ -59,7 +60,7 @@ class Sidebar extends React.Component<Props, State> {
           'endDate',
           'jobReferId',
           'jobCategoryId',
-          'productId',
+          'productIds',
           'productCategoryId',
           'inBranchId',
           'inDepartmentId',
@@ -81,6 +82,7 @@ class Sidebar extends React.Component<Props, State> {
 
   setFilter = (name, value) => {
     const { filterParams } = this.state;
+    console.log(name, value);
     this.setState({ filterParams: { ...filterParams, [name]: value } });
   };
 
@@ -175,14 +177,28 @@ class Sidebar extends React.Component<Props, State> {
           <ControlLabel>Product</ControlLabel>
           <SelectProducts
             label="Choose product"
-            name="productId"
-            initialValue={filterParams.productId || ''}
+            name="productIds"
+            initialValue={filterParams.productIds || []}
             customOption={{
               value: '',
               label: '...Clear product filter'
             }}
-            onSelect={productId => this.setFilter('productId', productId)}
-            multi={false}
+            onSelect={productIds => this.setFilter('productIds', productIds)}
+            multi={true}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Vendor</ControlLabel>
+          <SelectCompanies
+            label="Choose vendor"
+            name="vendorIds"
+            initialValue={filterParams.vendorIds || []}
+            customOption={{
+              value: '',
+              label: '...Clear product filter'
+            }}
+            onSelect={vendorIds => this.setFilter('vendorIds', vendorIds)}
+            multi={true}
           />
         </FormGroup>
       </>

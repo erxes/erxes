@@ -19,6 +19,10 @@ interface IAttachment {
   size: number;
 }
 
+export interface ISubUom {
+  uomId: string;
+  ratio: number;
+}
 interface IProductCommonFields {
   name: string;
   code: string;
@@ -30,6 +34,8 @@ export interface IProduct extends IProductCommonFields {
   categoryId?: string;
   type?: string;
   sku?: string;
+  barcodes?: string[];
+  barcodeDescription?: string;
   unitPrice?: number;
   customFieldsData?: ICustomField[];
   tagIds?: string[];
@@ -38,6 +44,8 @@ export interface IProduct extends IProductCommonFields {
   vendorCode?: string;
   mergedIds?: string[];
   attachmentMore?: IAttachment[];
+  uomId?: string;
+  subUoms?: ISubUom[];
 }
 
 export interface IProductDocument extends IProduct, Document {

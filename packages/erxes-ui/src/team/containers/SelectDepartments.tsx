@@ -3,22 +3,33 @@ import { IOption, IQueryParams } from '../../types';
 import React from 'react';
 import { queries } from '../graphql';
 import { IDepartment } from '@erxes/ui/src/team/types';
+import { generateTree } from '../../utils';
 
 // get user options for react-select-plus
 export function generateUserOptions(array: IDepartment[] = []): IOption[] {
-  return array.map(item => {
-    const department = item || ({} as IDepartment);
+  const generateList = () => {
+    const list = array.map(item => {
+      if (!array.find(dep => dep._id === item.parentId)) {
+        item.parentId = null;
+      }
+      return item;
+    });
+    return list;
+  };
 
-    return {
-      value: department._id,
-      label: `${department.title} (${department.code})`
-    };
-  });
+  return generateTree(generateList(), null, (node, level) => ({
+    value: node._id,
+    label: `${'\u00A0 \u00A0 '.repeat(level)} ${node.title}`
+  }));
 }
 
 export default (props: {
   queryParams?: IQueryParams;
-  filterParams?: { status: string };
+  filterParams?: {
+    status?: string;
+    searchValue?: string;
+    withoutUserFilter: boolean;
+  };
   label: string;
   onSelect: (value: string[] | string, name: string) => void;
   multi?: boolean;

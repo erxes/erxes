@@ -65,7 +65,7 @@ class Row extends React.Component<Props> {
       pluginData
     } = invoice;
 
-    let labelStyle = 'error';
+    let labelStyle = 'danger';
 
     switch (status) {
       case 'paid':
@@ -75,7 +75,7 @@ class Row extends React.Component<Props> {
         labelStyle = 'warning';
         break;
       default:
-        labelStyle = 'error';
+        labelStyle = 'danger';
     }
 
     return (

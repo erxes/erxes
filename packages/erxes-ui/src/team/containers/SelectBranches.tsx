@@ -3,22 +3,33 @@ import { IOption, IQueryParams } from '../../types';
 import React from 'react';
 import { queries } from '../graphql';
 import { IBranch } from '@erxes/ui/src/team/types';
+import { generateTree } from '../../utils';
 
 // get user options for react-select-plus
-export function generateUserOptions(array: IBranch[] = []): IOption[] {
-  return array.map(item => {
-    const branch = item || ({} as IBranch);
+export function generateBranchOptions(array: IBranch[] = []): IOption[] {
+  const generateList = () => {
+    const list = array.map(item => {
+      if (!array.find(dep => dep._id === item.parentId)) {
+        item.parentId = null;
+      }
+      return item;
+    });
+    return list;
+  };
 
-    return {
-      value: branch._id,
-      label: `${branch.title} (${branch.code})`
-    };
-  });
+  return generateTree(generateList(), null, (node, level) => ({
+    value: node._id,
+    label: `${'\u00A0 \u00A0 '.repeat(level)} ${node.title}`
+  }));
 }
 
 export default (props: {
   queryParams?: IQueryParams;
-  filterParams?: { status: string };
+  filterParams?: {
+    status?: string;
+    searchValue?: string;
+    withoutUserFilter?: boolean;
+  };
   label: string;
   onSelect: (value: string[] | string, name: string) => void;
   multi?: boolean;
@@ -45,7 +56,7 @@ export default (props: {
       name={name}
       filterParams={filterParams}
       initialValue={defaultValue}
-      generateOptions={generateUserOptions}
+      generateOptions={generateBranchOptions}
       onSelect={onSelect}
       customQuery={queries.branches}
       customOption={customOption}

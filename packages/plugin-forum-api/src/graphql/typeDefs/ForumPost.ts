@@ -1,8 +1,10 @@
 export const translationAndPostCommonFields = `
   title: String
+  subTitle: String
   content: String
   description: String
   thumbnail: String
+  thumbnailAlt: String
   custom: JSON
 `;
 
@@ -46,16 +48,8 @@ export default function ForumPost({ isTagsEnabled }) {
 
     updatedByCpId: ID
     updatedByCp: ClientPortalUser
-
     
-    stateChangedUserType: ForumUserType!
-    stateChangedAt: Date!
-
-    stateChangedById: ID
-    stateChangedBy: User
-
-    stateChangedByCpId: ID
-    stateChangedByCp: ClientPortalUser
+    lastPublishedAt: Date
 
     categoryApprovalState: String!
     
@@ -74,6 +68,12 @@ export default function ForumPost({ isTagsEnabled }) {
     customIndexed: JSON
 
     tagIds: [ID!]
+
+    wordCount: Int
+    pollOptions: [ForumPollOption!]
+    pollVoteCount: Int @cacheControl(maxAge: 5)
+
+    isPollMultiChoice: Boolean
 
     ${isTagsEnabled ? 'tags: [Tag!]' : ''}
   }

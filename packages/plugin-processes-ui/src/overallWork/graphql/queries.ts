@@ -22,7 +22,8 @@ const listParamsDef = `
   $inDepartmentId: String
   $outDepartmentId: String
   $productCategoryId: String
-  $productId: String
+  $productIds: [String]
+  $vendorIds: [String]
   $jobCategoryId: String
   $jobReferId: String
 `;
@@ -37,7 +38,8 @@ const listParamsValue = `
   inDepartmentId: $inDepartmentId
   outDepartmentId: $outDepartmentId
   productCategoryId: $productCategoryId
-  productId: $productId
+  productIds: $productIds
+  vendorIds: $vendorIds
   jobCategoryId: $jobCategoryId
   jobReferId: $jobReferId
 `;
@@ -50,7 +52,7 @@ const detailParamsDef = `
   $outBranchId: String
   $inDepartmentId: String
   $outDepartmentId: String
-  $productId: String
+  $productIds: [String]
   $productCategoryId: String
   $jobReferId: String
 `;
@@ -63,7 +65,7 @@ const detailParamsValue = `
   outBranchId: $outBranchId
   inDepartmentId: $inDepartmentId
   outDepartmentId: $outDepartmentId
-  productId: $productId
+  productIds: $productIds
   productCategoryId: $productCategoryId
   jobReferId: $jobReferId
 `;
@@ -185,7 +187,7 @@ export const performFields = `
   inDepartmentId
   outBranchId
   outDepartmentId
- 
+
   createdAt
   createdBy
   modifiedAt

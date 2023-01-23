@@ -12,6 +12,7 @@ import { PriceContainer, Right } from '../../boards/styles/item';
 import { Content } from '../../boards/styles/stage';
 import { IItem, IOptions } from '../../boards/types';
 import { renderPriority } from '../../boards/utils';
+import ItemArchivedStatus from '../../boards/components/portable/ItemArchivedStatus';
 
 type Props = {
   stageId?: string;
@@ -89,6 +90,10 @@ class TaskItem extends React.PureComponent<Props> {
       return (
         <>
           <ItemContainer onClick={onClick}>
+            <ItemArchivedStatus
+              status={item.status || 'active'}
+              skipContainer={false}
+            />
             <Content>{this.renderContent()}</Content>
           </ItemContainer>
           {this.renderForm()}

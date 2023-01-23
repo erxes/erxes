@@ -50,7 +50,7 @@ const qryParams = `
   inDepartmentId: String
   outDepartmentId: String
   productCategoryId: String
-  productId: String
+  productIds: [String]
   jobCategoryId: String
   jobReferId: String
 `;

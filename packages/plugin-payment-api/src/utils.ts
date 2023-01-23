@@ -130,13 +130,13 @@ export const createNewInvoice = async (
     switch (payment.kind) {
       case PAYMENT_KINDS.QPAY:
         // create qpay invoice
-        return qPayUtils.createInvoice(invoice, payment);
+        return await qPayUtils.createInvoice(invoice, payment);
       case PAYMENT_KINDS.SOCIAL_PAY:
         // create socialpay invoice
-        return socialPayUtils.createInvoice(invoice, payment);
+        return await socialPayUtils.createInvoice(invoice, payment);
       case PAYMENT_KINDS.MONPAY:
         // create monpay invoice
-        return monpayUtils.createInvoice(invoice, payment);
+        return await monpayUtils.createInvoice(invoice, payment);
       default:
         break;
     }

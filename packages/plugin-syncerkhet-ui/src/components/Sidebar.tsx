@@ -25,7 +25,7 @@ class Sidebar extends React.Component {
 
   render() {
     return (
-      <LeftSidebar header={<SidebarHeader />} hasBorder={true} noMargin>
+      <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
         <List id="SettingsSidebar">
           {this.renderListItem(
             '/erxes-plugin-sync-erkhet/settings/general',
@@ -42,6 +42,10 @@ class Sidebar extends React.Component {
           {this.renderListItem(
             '/erxes-plugin-sync-erkhet/settings/pipeline',
             'Pipeline remiainder config'
+          )}
+          {this.renderListItem(
+            '/erxes-plugin-sync-erkhet/settings/move-stage',
+            'Stage in Erkhet movement config'
           )}
         </List>
       </LeftSidebar>

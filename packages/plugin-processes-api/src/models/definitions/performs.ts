@@ -1,6 +1,7 @@
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 import { IProductsData, productsDataSchema } from './jobs';
+import { JOB_TYPES } from './constants';
 
 export interface IPerform {
   overallWorkId: string;
@@ -38,6 +39,12 @@ export const performSchema = schemaHooksWrapper(
     dueDate: field({ type: Date, optional: true, label: 'Due at' }),
     endAt: field({ type: Date, optional: true, label: 'End at' }),
     count: field({ type: Number, label: 'Count' }),
+    type: field({
+      type: String,
+      enum: JOB_TYPES.ALL,
+      label: 'Type'
+    }),
+    typeId: field({ type: String, label: 'jobId' }), // jobReferId || productId || ~subFlowId
     inBranchId: field({ type: String, optional: true, label: 'in Branch' }),
     inDepartmentId: field({
       type: String,

@@ -4,6 +4,7 @@ import { useQuery } from 'react-apollo';
 import { FORUM_POSTS_COUNT, FORUM_POSTS_QUERY } from '../../graphql/queries';
 import { Link } from 'react-router-dom';
 import { postUsername } from '../../utils';
+import Paging from './Paging';
 
 const List: React.FC = () => {
   const [categoryId] = useSearchParam('categoryId');
@@ -14,15 +15,21 @@ const List: React.FC = () => {
 
   const [categoryApprovalState] = useSearchParam('categoryApprovalState');
 
-  const [perPage] = useSearchParam('perPage');
-  const [page] = useSearchParam('page');
+  const [strLimit] = useSearchParam('limit');
+  const [strPageIndex, setPageIndex] = useSearchParam('pageIndex');
+
+  const limit = Number(strLimit || 20);
+  const pageIndex = Number(strPageIndex || 0);
+  const offset = limit * pageIndex;
 
   const variables = {
     categoryId,
     state,
     categoryApprovalState,
     categoryIncludeDescendants: !!categoryIncludeDescendants,
-    sort: { _id: -1 }
+    sort: { _id: -1, lastPublishedAt: -1 },
+    limit,
+    offset
   };
 
   const postQuery = useQuery(FORUM_POSTS_QUERY, {
@@ -50,8 +57,7 @@ const List: React.FC = () => {
           <tr>
             <th>Title</th>
             <th>State</th>
-            <th>State changed at</th>
-            <th>State changed by</th>
+            <th>Last published at</th>
             <th>Created At</th>
             <th>Created By</th>
             <th>Updated At</th>
@@ -69,15 +75,7 @@ const List: React.FC = () => {
                 <Link to={`/forums/posts/${p._id}`}>{p.title}</Link>
               </td>
               <td>{p.state}</td>
-              <td>{p.stateChangedAt}</td>
-              <td>
-                {postUsername({
-                  post: p,
-                  typeKey: 'stateChangedUserType',
-                  crmKey: 'stateChangedBy',
-                  cpKey: 'stateChangedByCp'
-                })}
-              </td>
+              <td>{p.lastPublishedAt}</td>
               <td>{p.createdAt}</td>
               <td>
                 {postUsername({
@@ -104,6 +102,16 @@ const List: React.FC = () => {
           ))}
         </tbody>
       </table>
+
+      {!countQuery.loading && !countQuery.error && (
+        <Paging
+          buttons={11}
+          currentPageIndex={pageIndex}
+          limit={limit}
+          totalItems={Number(countQuery.data?.forumPostsCount || 0)}
+          goToPageIndex={pageIndex => setPageIndex(pageIndex.toString())}
+        />
+      )}
     </div>
   );
 };

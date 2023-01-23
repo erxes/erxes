@@ -15,6 +15,9 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { queries as messageQueries } from '@erxes/ui-inbox/src/inbox/graphql';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
+import queryString from 'query-string';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   detailQuery?: any;
@@ -37,7 +40,8 @@ type Props = {
   closeModal?: () => void;
   closeReply?: () => void;
   callback?: () => void;
-};
+  queryParams?: any;
+} & IRouterProps;
 
 type FinalProps = {
   currentUser: IUser;
@@ -250,16 +254,36 @@ class MailFormContainer extends React.Component<
   }
 }
 
-export default withProps<Props>(
+const WithMailForm = withProps<Props>(
   compose(
     graphql<Props, any>(gql(queries.emailTemplates), {
       name: 'emailTemplatesQuery',
-      options: () => ({
-        variables: { page: 1 }
+      options: ({ queryParams }) => ({
+        variables: {
+          searchValue: queryParams.emailTemplatesSearch || ''
+        },
+        fetchPolicy: 'network-only'
       })
     }),
     graphql<Props, any>(gql(queries.templateTotalCount), {
-      name: 'emailTemplatesTotalCountQuery'
+      name: 'emailTemplatesTotalCountQuery',
+      options: ({ queryParams }) => ({
+        variables: {
+          searchValue: queryParams.emailTemplatesSearch || ''
+        },
+        fetchPolicy: 'network-only'
+      })
     })
   )(withCurrentUser(MailFormContainer))
 );
+
+const WithQueryParams = (props: Props) => {
+  const { location } = props;
+  const queryParams = queryString.parse(location.search);
+
+  const extendedProps = { ...props, queryParams };
+
+  return <WithMailForm {...extendedProps} />;
+};
+
+export default withRouter<Props>(WithQueryParams);

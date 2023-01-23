@@ -47,6 +47,7 @@ const queryBuilder = async (models: IModels, params: IListArgs) => {
   if (searchValue) {
     const fields = [
       { email: new RegExp(`.*${params.searchValue}.*`, 'i') },
+      { employeeId: new RegExp(`.*${params.searchValue}.*`, 'i') },
       { 'details.fullName': new RegExp(`.*${params.searchValue}.*`, 'i') },
       { 'details.position': new RegExp(`.*${params.searchValue}.*`, 'i') }
     ];
@@ -180,6 +181,13 @@ const userQueries = {
     return user
       ? models.Users.findOne({ _id: user._id, isActive: { $ne: false } })
       : null;
+  },
+
+  /**
+   *  Get all user movements
+   */
+  async userMovements(_root, args, { models }: IContext) {
+    return await models.UserMovements.find(args).sort({ createdAt: -1 });
   }
 };
 

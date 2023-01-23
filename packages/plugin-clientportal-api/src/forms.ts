@@ -1,3 +1,4 @@
+import { CLIENTPORTALUSER_BASIC_INFO } from './constants';
 import { generateFields } from './utils';
 
 export default {
@@ -20,7 +21,21 @@ export default {
         name: 'companyRegistrationNumber',
         label: 'Company registration number',
         order: 7
+      },
+      {
+        name: 'avatar',
+        label: 'Avatar',
+        order: 8
       }
     ]
-  }
+  },
+  systemFields: ({ data: { groupId } }) =>
+    CLIENTPORTALUSER_BASIC_INFO.ALL.map(e => ({
+      text: e.label,
+      type: e.field,
+      groupId,
+      contentType: `clientportal:user`,
+      isDefinedByErxes: true
+    })),
+  systemFieldsAvailable: true
 };

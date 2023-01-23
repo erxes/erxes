@@ -49,10 +49,10 @@ export default {
       canHide: false,
       isDefinedByErxes: true
     })),
-    extraFieldTypes: [
-      {
-        value: 'asset',
-        label: 'Asset',
-     },
-    ],
+  extraFieldTypes: [
+    {
+      value: 'asset',
+      label: 'Asset'
+    }
+  ]
 };

@@ -2,6 +2,7 @@ import { Sidebar } from '@erxes/ui/src';
 import React from 'react';
 
 import BasicInfo from '../../containers/detail/BasicInfo';
+import CustomFieldsSection from '../../containers/detail/CustomFieldsSection';
 import { ICar } from '../../types';
 
 type Props = {
@@ -15,6 +16,7 @@ class LeftSidebar extends React.Component<Props> {
     return (
       <Sidebar wide={true}>
         <BasicInfo car={car} />
+        <CustomFieldsSection id={car._id} isDetail />
       </Sidebar>
     );
   }

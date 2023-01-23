@@ -12,9 +12,6 @@ const ForumPost: IObjectTypeResolver<IPost, IContext> = {
   async updatedBy({ updatedById }) {
     return updatedById && { __typename: 'User', _id: updatedById };
   },
-  async stateChangedBy({ stateChangedById }) {
-    return stateChangedById && { __typename: 'User', _id: stateChangedById };
-  },
   async createdByCp({ createdByCpId }) {
     return (
       createdByCpId && { __typename: 'ClientPortalUser', _id: createdByCpId }
@@ -23,14 +20,6 @@ const ForumPost: IObjectTypeResolver<IPost, IContext> = {
   async updatedByCp({ updatedByCpId }) {
     return (
       updatedByCpId && { __typename: 'ClientPortalUser', _id: updatedByCpId }
-    );
-  },
-  async stateChangedByCp({ stateChangedByCpId }) {
-    return (
-      stateChangedByCpId && {
-        __typename: 'ClientPortalUser',
-        _id: stateChangedByCpId
-      }
     );
   },
   async commentCount({ _id }, _, { models: { Comment } }) {
@@ -61,6 +50,20 @@ const ForumPost: IObjectTypeResolver<IPost, IContext> = {
 
   async tags({ tagIds }) {
     return tagIds && tagIds.map(_id => ({ __typename: 'Tag', _id }));
+  },
+
+  async pollOptions({ _id }, _, { models: { PollOption } }) {
+    return PollOption.find({ postId: _id })
+      .sort({ order: 1 })
+      .lean();
+  },
+
+  async pollVoteCount({ _id }, _, { models: { PollVote, PollOption } }) {
+    const pollOptions = await PollOption.find({ postId: _id })
+      .select('_id')
+      .lean();
+    const pollOptionIds = pollOptions.map(o => o._id);
+    return PollVote.countDocuments({ pollOptionId: { $in: pollOptionIds } });
   }
 };
 

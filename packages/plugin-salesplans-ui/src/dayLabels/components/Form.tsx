@@ -71,10 +71,23 @@ class Form extends React.Component<Props, State> {
     const { dayLabelParams } = this.state;
 
     const strVal = moment(value).format('YYYY/MM/DD');
+
+    if (strVal === 'Invalid date') {
+      return;
+    }
+
     if (!(dayLabelParams.dates || []).includes(strVal)) {
       (dayLabelParams.dates || []).push(strVal);
     }
 
+    this.setState({
+      dayLabelParams: { ...dayLabelParams }
+    });
+  };
+
+  removeDate = (date, e) => {
+    const { dayLabelParams } = this.state;
+    dayLabelParams.dates = (dayLabelParams.dates || []).filter(d => d !== date);
     this.setState({
       dayLabelParams: { ...dayLabelParams }
     });
@@ -94,7 +107,7 @@ class Form extends React.Component<Props, State> {
       <>
         <ScrollWrapper>
           {(dayLabelParams.dates || []).map(d => (
-            <span key={Math.random()}>
+            <span key={Math.random()} onClick={this.removeDate.bind(this, d)}>
               <Label children={d} />
               &nbsp;
             </span>
@@ -105,7 +118,7 @@ class Form extends React.Component<Props, State> {
               <DateControl
                 name="createdAtFrom"
                 placeholder="Choose date"
-                value={
+                defaultValue={
                   dayLabelParams.dates && dayLabelParams.dates.length
                     ? dayLabelParams.dates[dayLabelParams.dates.length - 1]
                     : new Date()

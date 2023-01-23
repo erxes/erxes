@@ -3,65 +3,84 @@ import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
 import List from '../components/List';
-import { TimeClockMutationResponse, TimeClockQueryResponse } from '../types';
-import { queries } from '../graphql';
+import {
+  TimeClockMutationResponse,
+  BranchesQueryResponse,
+  PayDatesQueryResponse,
+  ScheduleConfigQueryResponse
+} from '../types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { IUser } from '@erxes/ui/src/auth/types';
+import erxesQuery from '@erxes/ui/src/team/graphql/queries';
+import { removeParams } from '@erxes/ui/src/utils/router';
+import { queries } from '../graphql';
 
 type Props = {
   currentUser: IUser;
   queryParams: any;
+  searchValue: string;
+  route?: string;
   history: any;
   startTime: Date;
   stopTime: Date;
   timeId: string;
   userId: string;
-  queryStartDate: string;
-  queryEndDate: string;
-  queryUserIds: string[];
+  searchFilter: string;
 };
 
 type FinalProps = {
-  listQuery: TimeClockQueryResponse;
+  listBranchesQuery: BranchesQueryResponse;
+  listScheduleConfigsQuery: ScheduleConfigQueryResponse;
 } & Props &
   TimeClockMutationResponse;
 
-const ListContainer = (props: FinalProps) => {
-  const { listQuery, currentUser, queryUserIds } = props;
-
-  if (listQuery.loading) {
-    return <Spinner />;
+class ListContainer extends React.Component<FinalProps> {
+  componentDidUpdate(prevProps): void {
+    if (prevProps.route !== this.props.route) {
+      removeParams(this.props.history, 'page', 'perPage');
+    }
   }
+  render() {
+    const {
+      listBranchesQuery,
+      listScheduleConfigsQuery,
+      currentUser
+    } = this.props;
 
-  const currentUserId = currentUser._id;
+    if (listBranchesQuery.loading) {
+      return <Spinner />;
+    }
 
-  const updatedProps = {
-    ...props,
-    currentUserId,
-    queryUserIds,
-    timeclocks: listQuery.timeclocks || [],
-    loading: listQuery.loading
-  };
+    const currentUserId = currentUser._id;
 
-  return <List {...updatedProps} />;
-};
+    const updatedProps = {
+      ...this.props,
+      currentUserId,
+      scheduleConfigs: listScheduleConfigsQuery.scheduleConfigs || [],
+      branchesList: listBranchesQuery.branches || [],
+      loading: listBranchesQuery.loading
+    };
+    return <List {...updatedProps} />;
+  }
+}
 
 export default withProps<Props>(
   compose(
-    graphql<
-      Props,
-      TimeClockQueryResponse,
-      { startDate: string; endDate: string; userIds: string[] }
-    >(gql(queries.list), {
-      name: 'listQuery',
-      options: ({ queryStartDate, queryEndDate, queryUserIds }) => ({
-        variables: {
-          startDate: queryStartDate,
-          endDate: queryEndDate,
-          userIds: queryUserIds
-        },
+    graphql<Props, BranchesQueryResponse, { searchValue: string }>(
+      gql(erxesQuery.branches),
+      {
+        name: 'listBranchesQuery',
+        options: ({ searchValue }) => ({
+          variables: { searchValue },
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<Props, PayDatesQueryResponse>(gql(queries.listScheduleConfig), {
+      name: 'listScheduleConfigsQuery',
+      options: () => ({
         fetchPolicy: 'network-only'
       })
     })

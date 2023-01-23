@@ -1,7 +1,15 @@
 import CreateForm from '@erxes/ui-forms/src/forms/containers/CreateForm';
 import EditForm from '@erxes/ui-forms/src/forms/containers/EditForm';
 import { ShowPreview } from '@erxes/ui-forms/src/forms/styles';
-import { Button, colors, FormControl, Icon, ModalTrigger, Spinner, confirm } from '@erxes/ui/src';
+import {
+  Button,
+  colors,
+  FormControl,
+  Icon,
+  ModalTrigger,
+  Spinner,
+  confirm
+} from '@erxes/ui/src';
 import { __ } from '@erxes/ui/src/';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IField } from '@erxes/ui/src/types';
@@ -58,7 +66,9 @@ class Form extends React.Component<IProps, IState> {
     const { detail } = this.props;
 
     if (formId && !detail) {
-      confirm(`Are you sure you want to close.Your created form won't save`).then(() => {
+      confirm(
+        `Are you sure you want to close.Your created form won't save`
+      ).then(() => {
         client.mutate({
           mutation: gql(mutations.removeUnsavedRiskAssessmentCategoryForm),
           variables: { formId }
@@ -145,7 +155,12 @@ class Form extends React.Component<IProps, IState> {
                   Cancel
                 </Button>
 
-                <Button btnStyle="success" type="button" icon="cancel-1" onClick={handleSaveForm}>
+                <Button
+                  btnStyle="success"
+                  type="button"
+                  icon="cancel-1"
+                  onClick={handleSaveForm}
+                >
                   Save
                 </Button>
               </ModalFooter>

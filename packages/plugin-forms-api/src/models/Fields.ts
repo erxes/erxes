@@ -1,7 +1,7 @@
 import { IOrderInput, updateOrder } from '@erxes/api-utils/src/commonUtils';
 import { ILocationOption } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
-import * as validator from 'validator';
+import validator from 'validator';
 
 import { serviceDiscovery } from '../configs';
 import { IModels } from '../connectionResolver';

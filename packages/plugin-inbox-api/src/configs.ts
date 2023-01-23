@@ -83,7 +83,7 @@ export default {
       '/events-receive',
       routeErrorHandling(
         async (req, res) => {
-          const { name, customerId, attributes } = req.body;
+          const { name, triggerAutomation, customerId, attributes } = req.body;
           const subdomain = getSubdomain(req);
 
           const response =
@@ -91,6 +91,7 @@ export default {
               ? await trackViewPageEvent(subdomain, { customerId, attributes })
               : await trackCustomEvent(subdomain, {
                   name,
+                  triggerAutomation,
                   customerId,
                   attributes
                 });

@@ -27,13 +27,13 @@ export const loadPaymentClass = (models: IModels) => {
     public static async updatePayment(_id: string, doc: IPayment) {
       await models.Payments.updateOne({ _id }, { $set: { ...doc } });
 
-      const updated = await models.Payments.findOne({ _id });
+      const updated = await models.Payments.findOne({ _id }).lean();
 
       return updated;
     }
 
     public static async getPayment(_id: string) {
-      const payment = await models.Payments.findOne({ _id });
+      const payment = await models.Payments.findOne({ _id }).lean();
 
       if (!payment) {
         throw new Error('Payment not found');

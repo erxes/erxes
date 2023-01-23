@@ -106,7 +106,6 @@ const saveMessages = async (
       msg.to.value[0] &&
       msg.to.value[0].address !== integration.user
     ) {
-      console.log('ignoring ', msg.to, integration.user);
       continue;
     }
 

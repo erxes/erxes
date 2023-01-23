@@ -166,7 +166,11 @@ const sendMessageWrapper = async (
 ): Promise<any> => {
   const { SKIP_REDIS } = process.env;
   if (SKIP_REDIS) {
-    const { action, isRPC } = args;
+    const { action, isRPC, defaultValue } = args;
+
+    if (!client) {
+      return defaultValue;
+    }
 
     // check connected gateway on server and check some plugins isAvailable
     if (isRPC) {
@@ -184,7 +188,7 @@ const sendMessageWrapper = async (
       );
 
       if (!response) {
-        return args.defaultValue;
+        return defaultValue;
       }
     }
 
@@ -236,6 +240,29 @@ export const sendPricingMessage = async (
 ): Promise<any> => {
   return sendMessageWrapper('pricing', args);
 };
+
+export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessageWrapper('tags', args);
+};
+
+export const sendSegmentsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessageWrapper('segments', args);
+};
+
+export const fetchSegment = (
+  subdomain: string,
+  segmentId: string,
+  options?,
+  segmentData?: any
+) =>
+  sendSegmentsMessage({
+    subdomain,
+    action: 'fetchSegment',
+    data: { segmentId, options, segmentData },
+    isRPC: true
+  });
 
 export default function() {
   return client;

@@ -1,4 +1,4 @@
-import { paginate } from '@erxes/api-utils/src/core';
+import { escapeRegExp, paginate } from '@erxes/api-utils/src/core';
 import { IContext } from '../../../connectionResolver';
 
 interface IParam {
@@ -18,7 +18,16 @@ const generateFilter = (params: IParam, commonQuerySelector) => {
   }
 
   if (searchValue) {
-    selector.name = new RegExp(`.*${searchValue}.*`, 'i');
+    const fields = [
+      {
+        name: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
+      },
+      {
+        code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
+      }
+    ];
+
+    selector.$or = fields;
   }
 
   if (types) {

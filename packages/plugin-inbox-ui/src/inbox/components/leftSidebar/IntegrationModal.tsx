@@ -106,18 +106,6 @@ export const IntegrationModal = ({ trigger }: Props) => {
             </p>
           </Box>
         </Link>
-        <Link to="#" />
-        <Link to="/settings/integrations/createGmail">
-          <Box>
-            <img src="/images/integrations/gmail.png" alt="Gmail" />
-            <span>{__('Gmail')}</span>
-            <p>
-              {__(
-                'Connect your Gmail to start receiving emails in your team inbox'
-              )}
-            </p>
-          </Box>
-        </Link>
         <Link to="/settings/integrations" className="other">
           {__('See all Integration')} &raquo;
         </Link>
