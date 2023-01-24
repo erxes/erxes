@@ -29,6 +29,12 @@ const PostForm: React.FC<{ post?: any; onSubmit?: (any) => any }> = ({
     post?.isPollMultiChoice || false
   );
   const [pollOptions, setPollOptions] = useState<any[]>([]);
+  const [pollHasEndDate, setPollHasEndDate] = useState(!!post?.pollEndDate);
+  const [pollEndDate, setPollEndDate] = useState(
+    post?.pollEndDate
+      ? new Date(post.pollEndDate).toISOString().slice(0, 19)
+      : null
+  );
 
   useEffect(() => {
     const initialOptions = post?.pollOptions || [];
@@ -69,7 +75,8 @@ const PostForm: React.FC<{ post?: any; onSubmit?: (any) => any }> = ({
           .filter(([_, checked]) => checked)
           .map(([id]) => id),
         pollOptions: optionsCleaned,
-        isPollMultiChoice
+        isPollMultiChoice,
+        pollEndDate: pollHasEndDate ? pollEndDate : null
       });
     }
   };
@@ -151,6 +158,32 @@ const PostForm: React.FC<{ post?: any; onSubmit?: (any) => any }> = ({
               onChange={e => setIsPollMultiChoice(e.target.checked)}
             />
           </label>
+          <br />
+          <label>
+            Has end date:{' '}
+            <input
+              type="checkbox"
+              checked={pollHasEndDate}
+              onChange={e => {
+                setPollHasEndDate(e.target.checked);
+              }}
+            />
+          </label>
+          {pollHasEndDate && (
+            <>
+              <br />
+              <label>
+                End date:{' '}
+                <input
+                  type="datetime-local"
+                  value={pollEndDate || ''}
+                  onChange={e => {
+                    setPollEndDate(e.target.value);
+                  }}
+                />
+              </label>
+            </>
+          )}
           <br />
           <h5>Options:</h5>
           <PollOptions

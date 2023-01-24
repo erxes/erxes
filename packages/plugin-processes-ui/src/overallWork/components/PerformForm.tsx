@@ -22,6 +22,7 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { IOverallWorkDet, IPerform } from '../types';
 import { IProductsData } from '../../types';
 import { JOB_TYPE_CHOISES } from '../../constants';
+import PerformDetail from './PerformDetail';
 
 type Props = {
   renderButton: (
@@ -44,8 +45,6 @@ type State = {
 };
 
 class Form extends React.Component<Props, State> {
-  private timer?: NodeJS.Timer;
-
   constructor(props) {
     super(props);
 
@@ -192,51 +191,6 @@ class Form extends React.Component<Props, State> {
     );
   }
 
-  renderView = (
-    name: string,
-    variable: number,
-    uom: string,
-    stateName: 'inProducts' | 'outProducts',
-    productId: string
-  ) => {
-    const onChangePerView = e => {
-      if (this.timer) {
-        clearTimeout(this.timer);
-      }
-
-      const inputVal = e.target.value;
-
-      this.timer = setTimeout(() => {
-        const productsData = (stateName === 'inProducts'
-          ? this.state.inProducts
-          : this.state.outProducts || []
-        ).map(pd =>
-          pd.productId === productId ? { ...pd, quantity: inputVal } : pd
-        );
-
-        this.setState({
-          [stateName]: productsData
-        } as any);
-      }, 500);
-    };
-
-    return (
-      <li key={Math.random()}>
-        <FieldStyle>
-          {__(name)} /${uom}/
-        </FieldStyle>
-        <SidebarCounter>
-          <FormControl
-            defaultValue={variable}
-            type="number"
-            required={true}
-            onChange={onChangePerView}
-          />
-        </SidebarCounter>
-      </li>
-    );
-  };
-
   renderProducts = (
     name: string,
     productsData: any[],
@@ -251,23 +205,40 @@ class Form extends React.Component<Props, State> {
       </li>
     );
 
-    for (const data of productsData) {
-      const { uom } = data;
-      const productName = data.product ? data.product.name : 'not name';
-      const uomCode = uom ? uom.code : 'not uom';
-
-      result.push(
-        this.renderView(
-          productName,
-          data.quantity,
-          uomCode,
-          stateName,
-          data.productId
-        )
+    return productsData.map(pd => {
+      return (
+        <PerformDetail
+          key={pd._id}
+          productData={pd}
+          productsData={productsData}
+          stateName={stateName}
+          onChangeState={this.setState}
+        />
       );
-    }
+    });
+  };
 
-    return result;
+  renderProductsIncome = (productsData: any[]) => {
+    const result: React.ReactNode[] = [];
+
+    result.push(
+      <li key={Math.random()}>
+        <FieldStyle>{__('Out Products')}</FieldStyle>
+        <SidebarCounter>{(productsData || []).length}</SidebarCounter>
+      </li>
+    );
+
+    return productsData.map(pd => {
+      return (
+        <PerformDetail
+          key={pd._id}
+          productData={pd}
+          productsData={productsData}
+          stateName={'outProducts'}
+          onChangeState={this.setState}
+        />
+      );
+    });
   };
 
   renderPerformIn() {
@@ -295,7 +266,7 @@ class Form extends React.Component<Props, State> {
 
     return (
       <SidebarList className="no-link">
-        {this.renderProducts('Out Products', outProducts || [], 'outProducts')}
+        {this.renderProductsIncome(outProducts || [])}
       </SidebarList>
     );
   }

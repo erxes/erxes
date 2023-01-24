@@ -16,6 +16,7 @@ import PageNew from '../containers/Pages/New';
 import PageDetail from '../containers/Pages/Detail';
 import PageEdit from '../containers/Pages/Edit';
 import SubscriptionProductEdit from '../containers/SubscriptionProduct/Edit';
+import ExtendSubscription from '../containers/ExtendSubscription';
 
 function Layout() {
   const { path, url } = useRouteMatch();
@@ -45,6 +46,9 @@ function Layout() {
           <Link to={'/forums/subscription-products'}>
             Subscription Products
           </Link>
+        </li>
+        <li>
+          <Link to={'/forums/extend-subscription'}>Extend Subscription</Link>
         </li>
       </ul>
 
@@ -118,6 +122,10 @@ function Layout() {
 
           <Route exact path={`/forums/pages/:id/edit`}>
             <PageEdit />
+          </Route>
+
+          <Route exact path={`/forums/extend-subscription`}>
+            <ExtendSubscription />
           </Route>
         </Switch>
       </div>

@@ -16,6 +16,12 @@ const userLevelQueries: IObjectTypeResolver<any, IContext> = {
   }
 };
 
+const statisticsQueries: IObjectTypeResolver<any, IContext> = {
+  forumUserStatistics(_, { _id }) {
+    return { _id };
+  }
+};
+
 const Query: IObjectTypeResolver<any, IContext> = {
   ...categoryQueries,
   ...postQueries,
@@ -25,7 +31,8 @@ const Query: IObjectTypeResolver<any, IContext> = {
   ...subscriptionProductQueries,
   ...subscriptionOrderQueries,
   ...pageQueries,
-  ...savedPostQueries
+  ...savedPostQueries,
+  ...statisticsQueries
 };
 
 export default Query;

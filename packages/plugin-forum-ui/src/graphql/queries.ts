@@ -174,6 +174,7 @@ export const FORUM_POST_DETAIL = gql`
       downVoteCount
 
       isPollMultiChoice
+      pollEndDate
 
       createdUserType
       createdBy {
@@ -214,6 +215,9 @@ export const FORUM_POST_DETAIL = gql`
         title
         order
       }
+
+      isFeaturedByAdmin
+      isFeaturedByUser
     }
   }
 `;

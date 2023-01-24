@@ -4,15 +4,15 @@ import gql from 'graphql-tag';
 // erxes
 import { Alert } from '@erxes/ui/src/utils';
 // local
-import CreateGroupChat from '../components/CreateGroupChat';
-import { mutations, queries } from '../graphql';
+import Component from '../../components/modals/CreateGroupChat';
+import { mutations, queries } from '../../graphql';
 
 type Props = {
   closeModal: () => void;
 };
 
 const CreateGroupChatContainer = (props: Props) => {
-  const [addChatMutation] = useMutation(gql(mutations.addChat));
+  const [chatAddMutation] = useMutation(gql(mutations.chatAdd));
 
   const startGroupChat = (name: string, userIds: string[]) => {
     if (!name) {
@@ -23,7 +23,7 @@ const CreateGroupChatContainer = (props: Props) => {
       return Alert.error('Select users!');
     }
 
-    addChatMutation({
+    chatAddMutation({
       variables: { name, type: 'group', participantIds: userIds || [] },
       refetchQueries: [
         {
@@ -39,7 +39,7 @@ const CreateGroupChatContainer = (props: Props) => {
       });
   };
 
-  return <CreateGroupChat {...props} startGroupChat={startGroupChat} />;
+  return <Component {...props} startGroupChat={startGroupChat} />;
 };
 
 export default CreateGroupChatContainer;

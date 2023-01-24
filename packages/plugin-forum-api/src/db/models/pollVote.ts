@@ -43,6 +43,13 @@ export const generatePollVoteModel = (
         throw new Error('Post not found');
       }
 
+      if (
+        post.pollEndDate &&
+        new Date(post.pollEndDate).getTime() < new Date().getTime()
+      ) {
+        throw new Error('Poll is closed');
+      }
+
       const doc = {
         pollOptionId,
         cpUserId: cpUser.userId
@@ -81,6 +88,21 @@ export const generatePollVoteModel = (
       cpUser?: ICpUser
     ): Promise<boolean> {
       if (!cpUser) throw new LoginRequiredError();
+
+      const pollOption = await models.PollOption.findByIdOrThrow(pollOptionId);
+
+      const post = await models.Post.findById(pollOption.postId);
+
+      if (!post) {
+        throw new Error('Post not found');
+      }
+
+      if (
+        post.pollEndDate &&
+        new Date(post.pollEndDate).getTime() < new Date().getTime()
+      ) {
+        throw new Error('Poll is closed');
+      }
 
       await models.PollVote.deleteMany({
         pollOptionId,

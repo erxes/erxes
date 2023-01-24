@@ -80,6 +80,9 @@ const Query = `
 
     forumCpMySavedPosts(limit: Int, offset: Int): [ForumSavedPost!]
     forumCpMySavedPostsCount: Int
+
+
+    forumUserStatistics(_id: ID!): ForumUserStatistics
   }
 `;
 

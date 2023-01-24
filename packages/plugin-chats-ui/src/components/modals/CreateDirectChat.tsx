@@ -1,56 +1,43 @@
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import queryString from 'query-string';
 // erxes
 import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import * as router from '@erxes/ui/src/utils/router';
 
 type Props = {
   closeModal: () => void;
-  startGroupChat: (name: string, userIds: string[]) => void;
 };
 
-const CreateGroupChat = (props: Props) => {
+const CreateDirectChat = (props: Props) => {
+  const history = useHistory();
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  const [userIds, setUserIds] = useState(queryParams.userIds || []);
-  const [name, setName] = useState('');
+  const [userId, setUserId] = useState(queryParams.userId || '');
 
   const handleSubmit = () => {
-    props.startGroupChat(name, userIds);
+    router.removeParams(history, 'id', 'userIds');
+    router.setParams(history, { userId: userId });
 
-    router.removeParams(history, 'userIds');
-
+    setUserId('');
     props.closeModal();
-    setUserIds([]);
-    setName('');
-  };
-
-  const handleUserChange = _userIds => {
-    setUserIds(_userIds);
   };
 
   return (
     <>
-      <h3>Create a group chat</h3>
-      <FormControl
-        placeholder="Name"
-        value={name}
-        onChange={(e: any) => setName(e.target.value)}
-      />
-      <br />
+      <h3>Direct chat</h3>
       <SelectTeamMembers
         label={'Choose team member'}
-        name="assignedUserIds"
-        initialValue={userIds}
-        onSelect={handleUserChange}
+        name="assignedUserId"
+        initialValue={userId}
+        onSelect={value => setUserId(value)}
+        multi={false}
       />
       <br />
       <Button style={{ float: 'right' }} onClick={handleSubmit}>
-        Create
+        Compose
       </Button>
       <Button
         btnStyle="simple"
@@ -63,4 +50,4 @@ const CreateGroupChat = (props: Props) => {
   );
 };
 
-export default CreateGroupChat;
+export default CreateDirectChat;

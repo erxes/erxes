@@ -71,6 +71,12 @@ export interface IPost extends CommonPostFields {
 
   wordCount?: number | null;
   isPollMultiChoice?: boolean | null;
+
+  isFeaturedByAdmin?: boolean | null;
+  isFeaturedByUser?: boolean | null;
+
+  commentCount?: number | null;
+  pollEndDate?: Date | null;
 }
 
 export type PostDocument = IPost & Document;
@@ -96,7 +102,8 @@ const OMIT_FROM_INPUT = [
   'lastPublishedAt',
 
   'requiredLevel',
-  'isPermissionRequired'
+  'isPermissionRequired',
+  'commentCount'
 ] as const;
 
 interface PollOptionInput {
@@ -113,6 +120,13 @@ export type PostPatchInput = Partial<PostCreateInput>;
 
 export interface IPostModel extends Model<PostDocument> {
   findByIdOrThrow(_id: string): Promise<PostDocument>;
+
+  setFeaturedByAdmin(_id: string, isFeatured: boolean): Promise<boolean>;
+  setFeaturedByUser(
+    _id: string,
+    isFeatured: boolean,
+    cpUser?: ICpUser | null
+  ): Promise<boolean>;
 
   createPost(c: PostCreateInput, user: IUserDocument): Promise<PostDocument>;
   patchPost(
@@ -224,13 +238,18 @@ export const postSchema = new Schema<PostDocument>({
   updatedById: String,
   updatedByCpId: String,
 
-  lastPublishedAt: { type: Date, idnex: true, sparse: true },
+  lastPublishedAt: { type: Date, index: true, sparse: true },
 
   customIndexed: Schema.Types.Mixed,
 
   tagIds: [String],
   wordCount: Number,
-  isPollMultiChoice: Boolean
+  isPollMultiChoice: Boolean,
+  pollEndDate: Date,
+
+  isFeaturedByAdmin: { type: Boolean, index: true, sparse: true },
+  isFeaturedByUser: { type: Boolean, index: true, sparse: true },
+  commentCount: { type: Number, default: 0, index: true }
 });
 // used by client portal front-end
 postSchema.index({ state: 1, categoryApprovalState: 1, categoryId: 1 });
@@ -276,6 +295,46 @@ export const generatePostModel = (
       }
       return post;
     }
+
+    public static async setFeaturedByAdmin(
+      _id: string,
+      isFeatured: boolean
+    ): Promise<boolean> {
+      let update: any;
+      if (isFeatured) {
+        update = { isFeaturedByAdmin: isFeatured };
+      } else {
+        update = { $unset: { isFeaturedByAdmin: 1 } };
+      }
+      const post = await models.Post.findByIdAndUpdate(_id, update, {
+        new: true
+      });
+      return !!post;
+    }
+    public static async setFeaturedByUser(
+      _id: string,
+      isFeatured: boolean,
+      cpUser?: ICpUser | null
+    ): Promise<boolean> {
+      if (!cpUser) throw new LoginRequiredError();
+
+      let update: any;
+
+      if (isFeatured) {
+        update = { isFeaturedByUser: isFeatured };
+      } else {
+        update = { $unset: { isFeaturedByUser: 1 } };
+      }
+
+      const post = await models.Post.findOneAndUpdate(
+        { _id, createdByCpId: cpUser.userId },
+        update,
+        { new: true }
+      );
+
+      return !!post;
+    }
+
     public static async createPost(
       input: PostCreateInput,
       user: IUserDocument
@@ -654,7 +713,6 @@ export const generatePostModel = (
     }
 
     public static async updateTrendScoreOfPublished(query = {}) {
-      const now = Date.now();
       await models.Post.find(
         { ...query, state: 'PUBLISHED' },
         { viewCount: 1, lastPublishedAt: 1, trendScore: 1 },
@@ -663,6 +721,7 @@ export const generatePostModel = (
         .cursor()
         .eachAsync(async function updateTrendScores(post: PostDocument) {
           if (!post.lastPublishedAt) return;
+          const now = Date.now();
 
           const elapsedSeconds = (now - post.lastPublishedAt.getTime()) / 1000;
           post.trendScore = post.viewCount / elapsedSeconds;
