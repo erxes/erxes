@@ -85,6 +85,7 @@ const Query = `
     forumUserStatistics(_id: ID!): ForumUserStatistics
 
     forumLastPublishedFollowingUsers(categoryId: ID, limit: Int, offset: Int): [ClientPortalUser]
+    forumMostPublishedUsers(categoryId: ID, limit: Int, offset: Int): [ClientPortalUser]
   }
 `;
 

@@ -140,6 +140,54 @@ const PostQueries: IObjectTypeResolver<any, IContext> = {
       __typename: 'ClientPortalUser',
       _id: r.createdByCpId
     }));
+  },
+  async forumMostPublishedUsers(
+    _,
+    { limit = 0, offset = 0, categoryId },
+    { models: { Post } }
+  ) {
+    const query: any = {
+      state: 'PUBLISHED',
+      categoryApprovalState: 'APPROVED',
+      $and: [
+        {
+          createdByCpId: { $ne: null }
+        },
+        {
+          createdByCpId: { $ne: '' }
+        }
+      ]
+    };
+
+    if (categoryId) {
+      query.categoryId = Types.ObjectId(categoryId);
+    }
+
+    const aggregationStates: any[] = [
+      { $match: query },
+      { $sort: { lastPublishedAt: -1 } },
+      {
+        $group: {
+          _id: '$createdByCpId',
+          count: {
+            $sum: 1
+          }
+        }
+      },
+      { $sort: { count: -1 } },
+      { $skip: offset }
+    ];
+
+    if (limit > 0) {
+      aggregationStates.push({ $limit: limit });
+    }
+
+    const result = await Post.aggregate(aggregationStates);
+
+    return result.map(r => ({
+      __typename: 'ClientPortalUser',
+      _id: r._id
+    }));
   }
 };
 
