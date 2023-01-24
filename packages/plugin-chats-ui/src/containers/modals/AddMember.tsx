@@ -4,8 +4,8 @@ import gql from 'graphql-tag';
 // erxes
 import { Alert } from '@erxes/ui/src/utils';
 // local
-import AddMember from '../components/AddMember';
-import { queries, mutations } from '../graphql';
+import Component from '../../components/modals/AddMember';
+import { queries, mutations } from '../../graphql';
 
 type Props = {
   chatId: string;
@@ -14,7 +14,7 @@ type Props = {
 
 const AddMemberContainer = (props: Props) => {
   const { chatId } = props;
-  const [memberMutation] = useMutation(gql(mutations.addOrRemoveMemberChat));
+  const [memberMutation] = useMutation(gql(mutations.chatAddOrRemoveMember));
 
   const addOrRemoveMember = (userIds: string[]) => {
     if (userIds.length === 0) {
@@ -33,7 +33,7 @@ const AddMemberContainer = (props: Props) => {
       });
   };
 
-  return <AddMember {...props} addOrRemoveMember={addOrRemoveMember} />;
+  return <Component {...props} addOrRemoveMember={addOrRemoveMember} />;
 };
 
 export default AddMemberContainer;
