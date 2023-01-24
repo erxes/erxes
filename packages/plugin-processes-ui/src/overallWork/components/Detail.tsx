@@ -210,7 +210,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
     const actionBarRight = (
       <BarItems>
         <ModalTrigger
-          title="Add Performance"
+          title={__('Add Performance')}
           size="xl"
           trigger={trigger}
           autoOpenKey="showProductModal"
