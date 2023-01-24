@@ -73,7 +73,14 @@ const chatDetail = `
       participantUsers {
         _id
         email
+        employeeId
         isAdmin
+        departments {
+          title
+        },
+        branches {
+          title
+        },
         details {
           avatar
           description
@@ -92,6 +99,7 @@ const chatMessages = `
       list {
         _id
         content
+        attachments
         createdUser {
           _id
           email

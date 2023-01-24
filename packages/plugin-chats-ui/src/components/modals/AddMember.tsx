@@ -13,10 +13,9 @@ const AddMember = (props: Props) => {
   const [userIds, setUserIds] = useState<any>([]);
 
   const handleSubmit = () => {
-    console.log(userIds);
     props.addOrRemoveMember(userIds);
-
     props.closeModal();
+
     setUserIds([]);
   };
 
