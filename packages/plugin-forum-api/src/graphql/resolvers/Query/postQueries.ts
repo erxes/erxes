@@ -3,6 +3,7 @@ import { IObjectTypeResolver } from '@graphql-tools/utils';
 import { IModels } from '../../../db/models';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { LoginRequiredError } from '../../../customErrors';
+import { Types } from 'mongoose';
 
 export const buildPostsQuery = async (
   { Category }: IModels,
@@ -114,7 +115,7 @@ const PostQueries: IObjectTypeResolver<any, IContext> = {
     };
 
     if (categoryId) {
-      query.categoryId = categoryId;
+      query.categoryId = Types.ObjectId(categoryId);
     }
 
     const aggregationStates: any[] = [
