@@ -56,6 +56,7 @@ const generateOrder = async (models, items: any[], parent?: any) => {
     }
 
     let code = item.code || item.title;
+    code = code.trim().replace(/\//g, '');
 
     let parentOrder = parent ? parent.order : '';
     code = uniqueCode(code, 0);

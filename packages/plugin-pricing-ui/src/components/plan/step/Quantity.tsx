@@ -96,6 +96,62 @@ export default function Quantity(props: Props) {
           />
         </td>
         <td>
+          <FormGroup>
+            <FormControl
+              name="priceAdjustType"
+              componentClass="select"
+              options={[
+                {
+                  label: 'None',
+                  value: 'none'
+                },
+                {
+                  label: 'Default',
+                  value: 'default'
+                },
+                {
+                  label: 'Round',
+                  value: 'round'
+                },
+                {
+                  label: 'Floor',
+                  value: 'floor'
+                },
+                {
+                  label: 'Ceil',
+                  value: 'ceil'
+                },
+                {
+                  label: 'Ends With 9',
+                  value: 'endsWith9'
+                }
+              ]}
+              onChange={(e: any) =>
+                handleChange(index, 'priceAdjustType', e.target.value)
+              }
+              defaultValue={item.priceAdjustType}
+            />
+          </FormGroup>
+        </td>
+        <td>
+          <FormGroup>
+            <FormControl
+              type="number"
+              name="value"
+              placeholder="0"
+              required={true}
+              onChange={(e: any) =>
+                handleChange(
+                  index,
+                  'priceAdjustFactor',
+                  parseFloat(e.target.value)
+                )
+              }
+              defaultValue={item.priceAdjustFactor}
+            />
+          </FormGroup>
+        </td>
+        <td>
           <Tip text={__('Delete')} placement="bottom">
             <Button
               btnStyle="danger"
@@ -120,6 +176,8 @@ export default function Quantity(props: Props) {
                 <th>{__('Rule value')}</th>
                 <th>{__('Discount type')}</th>
                 <th>{__('Discount value')}</th>
+                <th>{__('Price adjust type')}</th>
+                <th>{__('Price adjust factor')}</th>
                 <th>{__('Actions')}</th>
               </tr>
             </thead>

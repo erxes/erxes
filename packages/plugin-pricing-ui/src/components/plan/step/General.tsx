@@ -134,56 +134,113 @@ export default function General(props: Props) {
     </FormGroup>
   );
 
-  const renderDateRanger = () => {
-    return (
-      <>
-        <FormGroup>
-          <FormControl
-            componentClass="checkbox"
-            name="startDate"
-            checked={formValues.isStartDateEnabled}
-            onChange={(event: any) =>
-              handleState('isStartDateEnabled', event.target.checked)
-            }
-          />
-          <FormLabel>{__('Start Date')}</FormLabel>
-          <DateContainer>
-            <Datetime
-              inputProps={{ placeholder: __('Select Date') }}
-              dateFormat="MM/DD/YYYY"
-              closeOnSelect={true}
-              timeFormat={true}
-              utc={true}
-              value={formValues.startDate || undefined}
-              onChange={(date: any) => handleState('startDate', date)}
+  const renderPriceAdjust = () => {
+    if (formValues.type !== 'bonus')
+      return (
+        <>
+          <FormGroup>
+            <FormLabel>{__('Price adjust type')}</FormLabel>
+            <FormControl
+              name="priceAdjustType"
+              componentClass="select"
+              options={[
+                {
+                  label: 'None',
+                  value: 'none'
+                },
+                {
+                  label: 'Round',
+                  value: 'round'
+                },
+                {
+                  label: 'Floor',
+                  value: 'floor'
+                },
+                {
+                  label: 'Ceil',
+                  value: 'ceil'
+                },
+                {
+                  label: 'Truncate',
+                  value: 'truncate'
+                },
+                {
+                  label: 'Ends With 9',
+                  value: 'endsWith9'
+                }
+              ]}
+              onChange={(e: any) =>
+                handleState('priceAdjustType', e.target.value)
+              }
+              defaultValue={formValues.priceAdjustType}
             />
-          </DateContainer>
-        </FormGroup>
-        <FormGroup>
-          <FormControl
-            componentClass="checkbox"
-            name="endDate"
-            checked={formValues.isEndDateEnabled}
-            onChange={(event: any) =>
-              handleState('isEndDateEnabled', event.target.checked)
-            }
-          />
-          <FormLabel>{__('End Date')}</FormLabel>
-          <DateContainer>
-            <Datetime
-              inputProps={{ placeholder: __('Select Date') }}
-              dateFormat="MM/DD/YYYY"
-              closeOnSelect={true}
-              timeFormat={true}
-              utc={true}
-              value={formValues.endDate || undefined}
-              onChange={(date: any) => handleState('endDate', date)}
+          </FormGroup>
+          <FormGroup>
+            <FormLabel>{__('Price adjust factor')}</FormLabel>
+            <FormControl
+              type="number"
+              name="value"
+              placeholder="0"
+              required={true}
+              onChange={(e: any) =>
+                handleState('priceAdjustFactor', parseFloat(e.target.value))
+              }
+              defaultValue={formValues.priceAdjustFactor}
             />
-          </DateContainer>
-        </FormGroup>
-      </>
-    );
+          </FormGroup>
+        </>
+      );
+    else return;
   };
+
+  const renderDateRanger = () => (
+    <>
+      <FormGroup>
+        <FormControl
+          componentClass="checkbox"
+          name="startDate"
+          checked={formValues.isStartDateEnabled}
+          onChange={(event: any) =>
+            handleState('isStartDateEnabled', event.target.checked)
+          }
+        />
+        <FormLabel>{__('Start Date')}</FormLabel>
+        <DateContainer>
+          <Datetime
+            inputProps={{ placeholder: __('Select Date') }}
+            dateFormat="MM/DD/YYYY"
+            closeOnSelect={true}
+            timeFormat={true}
+            utc={true}
+            value={formValues.startDate || undefined}
+            onChange={(date: any) => handleState('startDate', date)}
+          />
+        </DateContainer>
+      </FormGroup>
+      <FormGroup>
+        <FormControl
+          componentClass="checkbox"
+          name="endDate"
+          checked={formValues.isEndDateEnabled}
+          onChange={(event: any) =>
+            handleState('isEndDateEnabled', event.target.checked)
+          }
+        />
+        <FormLabel>{__('End Date')}</FormLabel>
+        <DateContainer>
+          <Datetime
+            inputProps={{ placeholder: __('Select Date') }}
+            dateFormat="MM/DD/YYYY"
+            closeOnSelect={true}
+            timeFormat={true}
+            utc={true}
+            value={formValues.endDate || undefined}
+            onChange={(date: any) => handleState('endDate', date)}
+          />
+        </DateContainer>
+      </FormGroup>
+    </>
+  );
 
   return (
     <FlexItem>
@@ -252,6 +309,7 @@ export default function General(props: Props) {
               }
               isLabelOn={true}
             />
+            {renderPriceAdjust()}
             {renderDateRanger()}
           </FormColumn>
           <FormColumn>
