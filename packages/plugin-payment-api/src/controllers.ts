@@ -1,7 +1,7 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { Router } from 'express';
+import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
-import { PAYMENT_KINDS } from './constants';
 import { generateModels } from './connectionResolver';
 import redisUtils from './redisUtils';
 
@@ -52,6 +52,10 @@ router.get('/gateway', async (req, res) => {
   const prefix = subdomain === 'localhost' ? '' : `/gateway`;
   const domain = process.env.domain || 'http://localhost:3000';
 
+  debugInfo(
+    `in gateway path-: subdomain: ${subdomain}, prefix: ${prefix}, domain: ${domain}`
+  );
+
   if (invoice && invoice.status === 'paid') {
     return res.render('index', {
       title: 'Payment gateway',
@@ -67,7 +71,7 @@ router.get('/gateway', async (req, res) => {
     title: 'Payment gateway',
     payments,
     invoiceData: data,
-    domain: process.env.DOMAIN || 'http://localhost:3000',
+    domain,
     prefix: subdomain === 'localhost' ? '' : `/gateway`
   });
 });

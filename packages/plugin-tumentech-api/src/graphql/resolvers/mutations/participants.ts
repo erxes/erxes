@@ -22,6 +22,14 @@ const participantMutations = {
       docModifier(doc)
     );
 
+    if (!participant) {
+      return null;
+    }
+
+    graphqlPubsub.publish('participantsChanged', {
+      participantsChanged: participant
+    });
+
     const cpUser = await sendClientPortalMessage({
       subdomain,
       action: 'clientPortalUsers.findOne',
@@ -39,7 +47,7 @@ const participantMutations = {
         action: 'sendNotification',
         data: {
           title: 'Үнийн санал илгээсэн танд баярлалаа.',
-          content: 'Таны үнийн саналыг амжилттай илгээгдлээ!',
+          content: 'Таны үнийн санал амжилттай илгээгдлээ!',
           receivers: [cpUser._id],
           notifType: 'system',
           link: '',
@@ -116,12 +124,6 @@ const participantMutations = {
       }
     }
 
-    graphqlPubsub.publish('participantsChanged', {
-      participantsChanged: {
-        dealId: participant.dealId
-      }
-    });
-
     return participant;
   },
 
@@ -155,6 +157,10 @@ const participantMutations = {
       defaultValue: []
     });
 
+    if (!cpUser) {
+      return models.Participants.removeParticipant(_id);
+    }
+
     const deal = await sendCardsMessage({
       subdomain,
       action: 'deals.findOne',
@@ -174,7 +180,7 @@ const participantMutations = {
       action: 'sendNotification',
       data: {
         title: 'Үнийн санал илгээсэн танд баярлалаа.',
-        content: `${deal.name} дугаартай тээврийн ажилд өөр тээвэрчин сонгогдсон байна.`,
+        content: `${deal.name} дугаартай тээврийн ажилд таны мэдээлэл шалгуур хангасангүй.`,
         receivers: [cpUser._id],
         notifType: 'system',
         link: '',

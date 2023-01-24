@@ -10,6 +10,7 @@ import {
   sendCoreMessage
 } from '../../../messageBroker';
 import { ICarDocument } from '../../../models/definitions/tumentech';
+import { generateRandomString } from '../../../utils';
 import { ICarCategoryDocument } from './../../../models/definitions/tumentech';
 
 const carMutations = {
@@ -413,7 +414,7 @@ const carMutations = {
         clientPortalId: process.env.MOBILE_CP_ID || ''
       },
       isRPC: true,
-      defaultValue: []
+      defaultValue: null
     });
 
     const deal = await sendCardsMessage({
@@ -432,8 +433,8 @@ const carMutations = {
         action: 'sendNotification',
         data: {
           title: 'Мэдэгдэл',
-          content: `Таны ${deal.name} дугаартай ажилд илгээсэн үнийн саналыг хүлээн авч таны мэдээллийг хүлээн авлаа.`,
-          receivers: [cpUser._id],
+          content: `Таны ${deal.name} дугаартай ажилд илгээсэн таны мэдээлэлтэй танилцлаа, бид тантай эргэн холбогдох болно.`,
+          receivers: [receiver._id],
           notifType: 'system',
           link: '',
           isMobile: true
@@ -442,6 +443,14 @@ const carMutations = {
     }
 
     return customer.primaryPhone;
+  },
+
+  generateRandomName: async (
+    _root,
+    { modelName, prefix, numberOfDigits },
+    { subdomain }
+  ) => {
+    return generateRandomString(subdomain, modelName, prefix, numberOfDigits);
   }
 };
 

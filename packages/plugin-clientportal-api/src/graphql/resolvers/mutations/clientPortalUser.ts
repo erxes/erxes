@@ -47,9 +47,13 @@ const clientPortalUserMutations = {
   async clientPortalUsersEdit(
     _root,
     { _id, ...doc }: IClientPortalUserEdit,
-    { models }: IContext
+    { models, subdomain }: IContext
   ) {
-    const updated = await models.ClientPortalUsers.updateUser(_id, doc);
+    const updated = await models.ClientPortalUsers.updateUser(
+      subdomain,
+      _id,
+      doc
+    );
 
     return updated;
   },
@@ -135,7 +139,7 @@ const clientPortalUserMutations = {
   clientPortalLogin: async (
     _root,
     args: ILoginParams,
-    { models, res }: IContext
+    { models, requestInfo, res }: IContext
   ) => {
     const { token } = await models.ClientPortalUsers.login(args);
 
@@ -157,7 +161,11 @@ const clientPortalUserMutations = {
   /*
    * Logout
    */
-  async clientPortalLogout(_root, _args, { res, cpUser, models }: IContext) {
+  async clientPortalLogout(
+    _root,
+    _args,
+    { requestInfo, res, cpUser, models }: IContext
+  ) {
     const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
     const options: any = {

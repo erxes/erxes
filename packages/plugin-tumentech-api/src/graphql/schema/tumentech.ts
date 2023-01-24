@@ -270,8 +270,6 @@ export const queries = `
   participantDetail(_id: String!): Participant
   participantsTotalCount(driverId: String, dealId: String, status: String): Int
 
-  gererateRandomName(modelName: String!, prefix: String!, numberOfDigits: Int): String
-
   getAccount: CustomerAccount
 
   topupHistory(page: Int, perPage: Int, customerId: String): TopupListResponse
@@ -401,4 +399,6 @@ export const mutations = `
   topupAccount(invoiceId: String): CustomerAccount
 
   revealPhone(driverId: String, carId: String, dealId: String): String
+
+  generateRandomName(modelName: String!, prefix: String!, numberOfDigits: Int): String
 `;
