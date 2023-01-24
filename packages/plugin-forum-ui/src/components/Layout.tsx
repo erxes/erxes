@@ -1,6 +1,5 @@
 import React from 'react';
-import { Switch, Route, Link, useRouteMatch } from 'react-router-dom';
-import LayoutCategories from './LayoutCategories';
+import { Switch, Route, useRouteMatch } from 'react-router-dom';
 import PostsList from '../containers/PostsList';
 import PostDetail from '../containers/PostDetail';
 import PostNew from '../containers/PostNew';
@@ -16,112 +15,83 @@ import PageNew from '../containers/Pages/New';
 import PageDetail from '../containers/Pages/Detail';
 import PageEdit from '../containers/Pages/Edit';
 import SubscriptionProductEdit from '../containers/SubscriptionProduct/Edit';
+import CategoriesList from '../containers/Categories/CategoriesList';
 
 function Layout() {
   const { path, url } = useRouteMatch();
 
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'fit-content(20%) 1fr',
-        overflow: 'scroll'
-      }}
-    >
-      <ul style={{ listStyle: 'none' }}>
-        <li>
-          <Link to={`/forums/categories`}>Categories</Link>
-        </li>
-        <li>
-          <Link to={`/forums/posts`}>Posts</Link>
-        </li>
-        <li>
-          <Link to={`/forums/pages`}>Pages</Link>
-        </li>
-        <li>
-          <Link to={'/forums/permission-groups'}>Permission Groups</Link>
-        </li>
-        <li>
-          <Link to={'/forums/subscription-products'}>
-            Subscription Products
-          </Link>
-        </li>
-      </ul>
+    <Switch>
+      <Route exact={true} path={'/forums'}>
+        <h1>Dashboard</h1>
+      </Route>
+      <Route path={`/forums/categories`}>
+        <CategoriesList />
+      </Route>
 
-      <div style={{ marginLeft: 50 }}>
-        <Switch>
-          <Route exact path={'/forums'}>
-            <h1>Dashboard</h1>
-          </Route>
-          <Route path={`/forums/categories`}>
-            <LayoutCategories />
-          </Route>
+      <Route exact={true} path={`/forums/posts/new`}>
+        <PostNew />
+      </Route>
 
-          <Route exact path={`/forums/posts/new`}>
-            <PostNew />
-          </Route>
+      <Route exact={true} path={`/forums/posts/:postId`}>
+        <PostDetail />
+      </Route>
 
-          <Route exact path={`/forums/posts/:postId`}>
-            <PostDetail />
-          </Route>
+      <Route exact={true} path={`/forums/posts/:postId/edit`}>
+        <PostEdit />
+      </Route>
 
-          <Route exact path={`/forums/posts/:postId/edit`}>
-            <PostEdit />
-          </Route>
+      <Route path={`/forums/posts`}>
+        <PostsList />
+      </Route>
 
-          <Route path={`/forums/posts`}>
-            <PostsList />
-          </Route>
+      <Route exact={true} path={'/forums/permission-groups'}>
+        <PermissionGroupList />
+      </Route>
 
-          <Route exact path={'/forums/permission-groups'}>
-            <PermissionGroupList />
-          </Route>
+      <Route exact={true} path={'/forums/permission-groups/new'}>
+        <PermissionGroupNew />
+      </Route>
 
-          <Route exact path={'/forums/permission-groups/new'}>
-            <PermissionGroupNew />
-          </Route>
+      <Route
+        exact={true}
+        path={'/forums/permission-groups/:permissionGroupId/edit'}
+      >
+        <PermissionGroupEdit />
+      </Route>
 
-          <Route
-            exact
-            path={'/forums/permission-groups/:permissionGroupId/edit'}
-          >
-            <PermissionGroupEdit />
-          </Route>
+      <Route exact={true} path={'/forums/permission-groups/:permissionGroupId'}>
+        <PermissionGroupDetail />
+      </Route>
 
-          <Route exact path={'/forums/permission-groups/:permissionGroupId'}>
-            <PermissionGroupDetail />
-          </Route>
+      <Route exact={true} path={'/forums/subscription-products/'}>
+        <SubscriptionProductHome />
+      </Route>
 
-          <Route exact path={'/forums/subscription-products/'}>
-            <SubscriptionProductHome />
-          </Route>
+      <Route exact={true} path={'/forums/subscription-products/new'}>
+        <SubscriptionProductNew />
+      </Route>
 
-          <Route exact path={'/forums/subscription-products/new'}>
-            <SubscriptionProductNew />
-          </Route>
+      <Route exact={true} path={'/forums/subscription-products/:id/edit'}>
+        <SubscriptionProductEdit />
+      </Route>
 
-          <Route exact path={'/forums/subscription-products/:id/edit'}>
-            <SubscriptionProductEdit />
-          </Route>
+      <Route exact={true} path={`/forums/pages`}>
+        <PagesList />
+      </Route>
 
-          <Route exact path={`/forums/pages`}>
-            <PagesList />
-          </Route>
+      <Route exact={true} path={`/forums/pages/new`}>
+        <PageNew />
+      </Route>
 
-          <Route exact path={`/forums/pages/new`}>
-            <PageNew />
-          </Route>
+      <Route exact={true} path={`/forums/pages/:id`}>
+        <PageDetail />
+      </Route>
 
-          <Route exact path={`/forums/pages/:id`}>
-            <PageDetail />
-          </Route>
-
-          <Route exact path={`/forums/pages/:id/edit`}>
-            <PageEdit />
-          </Route>
-        </Switch>
-      </div>
-    </div>
+      <Route exact={true} path={`/forums/pages/:id/edit`}>
+        <PageEdit />
+      </Route>
+    </Switch>
   );
 }
 

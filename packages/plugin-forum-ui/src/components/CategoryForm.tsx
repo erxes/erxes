@@ -117,7 +117,7 @@ const CategoryForm: React.FC<Props> = ({
           type="text"
           value={name}
           onChange={e => setName(e.target.value)}
-          required
+          required={true}
         />
       </label>
       <br />

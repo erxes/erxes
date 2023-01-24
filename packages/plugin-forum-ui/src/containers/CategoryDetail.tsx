@@ -31,8 +31,12 @@ export default function CategoryDetail() {
     refetchQueries: allCategoryQueries
   });
 
-  if (loading) return null;
-  if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;
+  if (loading) {
+    return null;
+  }
+  if (error) {
+    return <pre>{JSON.stringify(error, null, 2)}</pre>;
+  }
 
   const { forumCategory } = data;
 
@@ -102,7 +106,7 @@ export default function CategoryDetail() {
         <CategoryForm
           key={'addsub' + forumCategory._id}
           onSubmit={onAddSubCategory}
-          noParent
+          noParent={true}
         />
       </div>
 

@@ -22,6 +22,12 @@ export const CATEGORIES_BY_PARENT_IDS = gql`
       _id
       name
       thumbnail
+      code
+      postsCount
+      parentId
+      ancestors {
+        _id
+      }
     }
   }
 `;

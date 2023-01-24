@@ -32,7 +32,7 @@ const CategoryNew: React.FC = () => {
   return (
     <div>
       <h2>Create new root category</h2>
-      <CategoryForm noParent onSubmit={onSubmit} />
+      <CategoryForm noParent={true} onSubmit={onSubmit} />
     </div>
   );
 };

@@ -14,10 +14,19 @@ module.exports = {
   menus: [
     {
       text: 'Forums',
-      url: '/forums',
+      url: '/forums/posts',
       icon: 'icon-idea',
       location: 'mainNavigation',
       // scope: 'forum'
-    }
+    },
+    {
+      text: 'Categories',
+      to: '/forums/categories',
+      image: '/images/icons/erxes-18.svg',
+      location: 'settings',
+      scope: 'forum',
+      action: '',
+      permissions: [],
+    },
   ]
 };
