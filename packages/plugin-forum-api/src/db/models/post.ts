@@ -273,11 +273,12 @@ postSchema.index(
   },
   { sparse: true }
 );
-// for displaying user's published posts
+// for displaying user's published posts, or sent for approval posts
 postSchema.index(
   {
     createdByCpId: 1,
-    state: 1
+    state: 1,
+    categoryApprovalState: 1
   },
   { sparse: true }
 );
