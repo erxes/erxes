@@ -118,6 +118,7 @@ export const departmentField = `
       links
   }
   userIds
+  userCount
   users {
     _id
     details {
@@ -214,6 +215,7 @@ export const branchField = `
   code
   order
   userIds
+  userCount
   users {
     _id
     details {

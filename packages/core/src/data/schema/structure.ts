@@ -66,6 +66,7 @@ export const types = `
         order:String
         users: [User]
         userIds: [String]
+        userCount: Int
         parent: Branch
         children: [Branch]
 
