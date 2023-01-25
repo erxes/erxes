@@ -1,8 +1,8 @@
-import * as dotenv from 'dotenv';
+const dotenv = require("dotenv");
 
 dotenv.config();
 
-import { Collection, Db, MongoClient } from 'mongodb';
+const { Collection, Db, MongoClient } = require("mongodb");
 
 const { MONGO_URL } = process.env;
 
@@ -10,14 +10,14 @@ if (!MONGO_URL) {
   throw new Error(`Environment variable MONGO_URL not set.`);
 }
 
-const client = new MongoClient(MONGO_URL);
+const client = new MongoClient(MONGO_URL, { useUnifiedTopology: true });
 
 const main = async () => {
   await client.connect();
 
   const db = client.db();
-  const Comment = await db.collection('forum_comments');
-  const Post = await db.collection('forum_posts');
+  const Comment = await db.collection("forum_comments");
+  const Post = await db.collection("forum_posts");
 
   const postsCursor = Post.find({}).project({ _id: 1 });
 
