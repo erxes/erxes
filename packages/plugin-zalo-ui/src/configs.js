@@ -15,86 +15,82 @@ module.exports = {
   inboxIntegrationSettings: './inboxIntegrationSettings',
   inboxConversationDetail: './inboxConversationDetail',
   inboxDirectMessage: {
-    messagesQueries: [
-      {
-        query: `
-          query zaloConversationMessages(
-            $conversationId: String!
-            $skip: Int
-            $limit: Int
-            $getFirst: Boolean
+    messagesQuery: {
+      query: `
+        query zaloConversationMessages(
+          $conversationId: String!
+          $skip: Int
+          $limit: Int
+          $getFirst: Boolean
+        ) {
+          zaloConversationMessages(
+            conversationId: $conversationId,
+            skip: $skip,
+            limit: $limit,
+            getFirst: $getFirst
           ) {
-            zaloConversationMessages(
-              conversationId: $conversationId,
-              skip: $skip,
-              limit: $limit,
-              getFirst: $getFirst
-            ) {
+            _id
+            content
+            conversationId
+            customerId
+            userId
+            createdAt
+            isCustomerRead
+            
+            attachments {
+              thumbnail
+              type
+              url
+              name
+              description
+              duration
+              coordinates
+            }
+
+            user {
               _id
-              content
-              conversationId
-              customerId
-              userId
-              createdAt
-              isCustomerRead
-              
-              attachments {
-                thumbnail
-                type
-                url
-                name
-                description
-                duration
-                coordinates
-              }
-
-              user {
-                _id
-                username
-                details {
-                  avatar
-                  fullName
-                  position
-                }
-              }
-
-              customer {
-                _id
+              username
+              details {
                 avatar
-                firstName
-                middleName
-                lastName
-                primaryEmail
-                primaryPhone
-                state
-
-                companies {
-                  _id
-                  primaryName
-                  website
-                }
-
-                customFieldsData
-                tagIds
+                fullName
+                position
               }
             }
+
+            customer {
+              _id
+              avatar
+              firstName
+              middleName
+              lastName
+              primaryEmail
+              primaryPhone
+              state
+
+              companies {
+                _id
+                primaryName
+                website
+              }
+
+              customFieldsData
+              tagIds
+            }
           }
-        `,
-        name: 'zaloConversationMessages',
-        integrationKind: 'zalo'
-      },
-    ],
-    countQueries: [
-      {
-        query: `
-          query zaloConversationMessagesCount($conversationId: String!) {
-            zaloConversationMessagesCount(conversationId: $conversationId)
-          }
-        `,
-        name: 'zaloConversationMessagesCount',
-        integrationKind: 'zalo'
-      },
-    ],
+        }
+      `,
+      name: 'zaloConversationMessages',
+      integrationKind: 'zalo'
+    },
+    countQuery: {
+      query: `
+        query zaloConversationMessagesCount($conversationId: String!) {
+          zaloConversationMessagesCount(conversationId: $conversationId)
+        }
+      `,
+      name: 'zaloConversationMessagesCount',
+      integrationKind: 'zalo'
+    },
   },
   inboxIntegrations: [
     {
