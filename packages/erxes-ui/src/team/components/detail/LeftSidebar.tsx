@@ -154,8 +154,10 @@ function LeftSidebar({
         <Section.QuickButtons>
           <ModalTrigger
             title="Properties"
-            trigger={<Button btnStyle="simple" size="small" icon="cog" />}
-            size="lg"
+            trigger={
+              <Icon icon="expand-arrows-alt" style={{ cursor: 'pointer' }} />
+            }
+            size="xl"
             content={content}
           />
         </Section.QuickButtons>

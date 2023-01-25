@@ -18,8 +18,6 @@ import {
 } from '@erxes/ui-inbox/src/inbox/styles';
 
 import Button from '@erxes/ui/src/components/Button';
-import { FacebookTaggedMessage } from './styles';
-import FacebookTaggedMessageModal from './facebook/FacebookTaggedMessageModal';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IAttachmentPreview } from '@erxes/ui/src/types';
 import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
@@ -34,7 +32,11 @@ import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import Tip from '@erxes/ui/src/components/Tip';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { deleteHandler } from '@erxes/ui/src/utils/uploadHandler';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import {
+  getPluginConfig,
+  isEnabled,
+  loadDynamicComponent
+} from '@erxes/ui/src/utils/core';
 
 const Editor = asyncComponent(
   () => import(/* webpackChunkName: "Editor-in-Inbox" */ './Editor'),
@@ -63,7 +65,6 @@ type Props = {
 
 type State = {
   isInactive: boolean;
-  isFacebookTaggedMessage: boolean;
   isInternal: boolean;
   sending: boolean;
   attachments: any[];
@@ -72,15 +73,15 @@ type State = {
   mentionedUserIds: string[];
   editorKey: string;
   loading: object;
-  facebookMessageTag: string;
+  extraInfo?: any;
 };
+
 class RespondBox extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
     this.state = {
       isInactive: !this.checkIsActive(props.conversation),
-      isFacebookTaggedMessage: props.conversation.isFacebookTaggedMessage,
       editorKey: 'editor',
       isInternal: props.showInternal || false,
       sending: false,
@@ -88,8 +89,7 @@ class RespondBox extends React.Component<Props, State> {
       responseTemplate: '',
       content: '',
       mentionedUserIds: [],
-      loading: {},
-      facebookMessageTag: ''
+      loading: {}
     };
   }
   isContentWritten() {
@@ -118,9 +118,7 @@ class RespondBox extends React.Component<Props, State> {
   componentWillReceiveProps(nextProps) {
     if (this.props.conversation.customer !== nextProps.conversation.customer) {
       this.setState({
-        isInactive: !this.checkIsActive(nextProps.conversation),
-        isFacebookTaggedMessage: nextProps.conversation.isFacebookTaggedMessage,
-        facebookMessageTag: ''
+        isInactive: !this.checkIsActive(nextProps.conversation)
       });
     }
 
@@ -166,15 +164,11 @@ class RespondBox extends React.Component<Props, State> {
       return conversation.customer && conversation.customer.isOnline;
     }
 
-    if (conversation.integration.kind === 'facebook-messenger') {
-      return !conversation.isFacebookTaggedMessage;
-    }
-
     return true;
   }
 
   hideMask = () => {
-    this.setState({ isInactive: false, isFacebookTaggedMessage: false });
+    this.setState({ isInactive: false });
 
     const element = document.querySelector('.DraftEditor-root') as HTMLElement;
 
@@ -298,13 +292,13 @@ class RespondBox extends React.Component<Props, State> {
       attachments,
       content,
       mentionedUserIds,
-      facebookMessageTag
+      extraInfo
     } = this.state;
 
     const message = {
       conversationId: conversation._id,
       content: this.cleanText(content) || ' ',
-      facebookMessageTag,
+      extraInfo,
       contentType: 'text',
       internal: isInternal,
       attachments,
@@ -384,33 +378,6 @@ class RespondBox extends React.Component<Props, State> {
           {__(
             'Customer is offline Click to hide and send messages and they will receive them the next time they are online'
           )}
-        </Mask>
-      );
-    }
-
-    return null;
-  }
-
-  renderFacebookTagMessage() {
-    const selectTag = value => {
-      this.setState({ facebookMessageTag: value });
-    };
-
-    if (this.state.isFacebookTaggedMessage) {
-      return (
-        <Mask id="mask">
-          <div>
-            {__(
-              'Your last interaction with this contact was more than 24 hours ago. Only Tagged Messages are allowed outside the standard messaging window'
-            )}
-            <FacebookTaggedMessage>
-              <FacebookTaggedMessageModal
-                tag={this.state.facebookMessageTag}
-                selectTag={selectTag}
-                hideMask={this.hideMask}
-              />
-            </FacebookTaggedMessage>
-          </div>
         </Mask>
       );
     }
@@ -546,16 +513,46 @@ class RespondBox extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { isInternal, isInactive, isFacebookTaggedMessage } = this.state;
+    const { conversation } = this.props;
+    const { isInternal, isInactive, extraInfo } = this.state;
+
+    const setExtraInfo = value => {
+      this.setState({ extraInfo: value });
+    };
+
+    const { integration } = conversation;
+
+    const integrations = getPluginConfig({
+      pluginName: integration.kind.split('-')[0],
+      configName: 'inboxIntegrations'
+    });
+
+    let dynamicComponent = null;
+
+    if (integrations && integrations.length > 0) {
+      const entry = integrations.find(s => s.kind === integration.kind);
+
+      if (entry && entry.components && entry.components.length > 0) {
+        const name = entry.components.find(
+          el => el === 'inboxConversationDetailRespondBoxMask'
+        );
+
+        if (name) {
+          dynamicComponent = loadDynamicComponent(name, {
+            hideMask: this.hideMask,
+            extraInfo,
+            setExtraInfo,
+            conversationId: conversation._id
+          });
+        }
+      }
+    }
 
     return (
       <MaskWrapper>
         {this.renderMask()}
-        {this.renderFacebookTagMessage()}
-        <RespondBoxStyled
-          isInternal={isInternal}
-          isInactive={isInactive || isFacebookTaggedMessage}
-        >
+        {dynamicComponent}
+        <RespondBoxStyled isInternal={isInternal} isInactive={isInactive}>
           {this.renderBody()}
         </RespondBoxStyled>
       </MaskWrapper>
