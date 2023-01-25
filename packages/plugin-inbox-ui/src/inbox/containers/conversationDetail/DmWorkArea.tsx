@@ -197,12 +197,7 @@ class WorkArea extends React.Component<FinalProps, State> {
     optimisticResponse: any;
     callback?: (e?) => void;
   }) => {
-    const {
-      addMessageMutation,
-      currentId,
-      dmConfig,
-      currentConversation
-    } = this.props;
+    const { addMessageMutation, currentId, dmConfig } = this.props;
 
     // immediate ui update =======
     let update;
@@ -210,13 +205,17 @@ class WorkArea extends React.Component<FinalProps, State> {
     if (optimisticResponse) {
       update = (proxy, { data: { conversationMessageAdd } }) => {
         const message = conversationMessageAdd;
-        const { integration } = currentConversation;
-        let query = queries.conversationMessages;
+
+        let messagesQuery = queries.conversationMessages;
+
+        if (dmConfig) {
+          messagesQuery = getQueryString('messagesQuery', dmConfig);
+        }
 
         // trying to read query by initial variables. Because currenty it is apollo bug.
         // https://github.com/apollographql/apollo-client/issues/2499
         const selector = {
-          query: gql(getQueryString('messagesQuery', dmConfig)),
+          query: gql(messagesQuery),
           variables: {
             conversationId: currentId,
             limit: initialLimit,

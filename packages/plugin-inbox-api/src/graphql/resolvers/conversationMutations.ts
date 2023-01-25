@@ -69,16 +69,14 @@ interface IConversationConvert {
 const sendConversationToServices = async (
   subdomain: string,
   integration: IIntegrationDocument,
+  serviceName: string,
   payload: object
 ) => {
-  const serviceName = integration.kind.split('-')[0];
-  const serviceRunning = await isServiceRunning(serviceName);
-
   try {
     return sendCommonMessage({
       subdomain,
       isRPC: true,
-      serviceName: serviceRunning ? serviceName : 'integrations',
+      serviceName,
       action: 'api_to_integrations',
       data: {
         action: `reply-${integration.kind.split('-')[1]}`,
@@ -335,24 +333,30 @@ const conversationMutations = {
       });
     }
 
-    const payload = {
-      integrationId: integration._id,
-      conversationId: conversation._id,
-      content: doc.content,
-      attachments: doc.attachments || [],
-      extraInfo: doc.extraInfo,
-      userId: user._id
-    };
+    const serviceName = integration.kind.split('-')[0];
+    const serviceRunning = await isServiceRunning(serviceName);
 
-    const response = await sendConversationToServices(
-      subdomain,
-      integration,
-      payload
-    );
+    if (serviceRunning) {
+      const payload = {
+        integrationId: integration._id,
+        conversationId: conversation._id,
+        content: doc.content,
+        attachments: doc.attachments || [],
+        extraInfo: doc.extraInfo,
+        userId: user._id
+      };
 
-    // if the service runs separately & returns data, then don't save message inside inbox
-    if (response && response.data) {
-      return { ...response.data };
+      const response = await sendConversationToServices(
+        subdomain,
+        integration,
+        serviceName,
+        payload
+      );
+
+      // if the service runs separately & returns data, then don't save message inside inbox
+      if (response && response.data) {
+        return { ...response.data };
+      }
     }
 
     const message = await models.ConversationMessages.addMessage(doc, user._id);
