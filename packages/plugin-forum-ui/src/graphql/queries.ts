@@ -12,6 +12,10 @@ export const CATEGORIES_ALL = gql`
     forumCategories {
       _id
       name
+
+      parent {
+        name
+      }
     }
   }
 `;
