@@ -265,7 +265,7 @@ export const mutations = `
   integrationsEditCommonFields(_id: String!, name: String!, brandId: String!, channelIds: [String], data: JSON): Integration
 
   integrationsRemove(_id: String!): JSON
-  integrationsRemoveAccount(_id: String!): JSON
+  integrationsRemoveAccount(_id: String!, kind: String): JSON
 
   integrationsArchive(_id: String!, status: Boolean!): Integration
 

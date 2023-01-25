@@ -1,10 +1,20 @@
-import { ICustomer } from '../../models/definitions/customers';
-import { sendCoreMessage, sendIntegrationsMessage } from '../../messageBroker';
+import * as _ from 'underscore';
+
+import {
+  ICustomer,
+  ICustomerDocument
+} from '../../models/definitions/customers';
+import {
+  sendCoreMessage,
+  sendIntegrationsMessage,
+  sendCommonMessage
+} from '../../messageBroker';
 import { COC_LIFECYCLE_STATE_TYPES, MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { validateBulk } from '../../verifierUtils';
 import { IContext } from '../../connectionResolver';
+import { serviceDiscovery } from '../../configs';
 
 interface ICustomersEdit extends ICustomer {
   _id: string;
@@ -167,20 +177,19 @@ const customerMutations = {
     { customerIds }: { customerIds: string[] },
     { user, models, subdomain }: IContext
   ) {
-    const customers = await models.Customers.find({
+    const customers: ICustomerDocument[] = await models.Customers.find({
       _id: { $in: customerIds }
     }).lean();
 
     await models.Customers.removeCustomers(customerIds);
 
-    await sendIntegrationsMessage({
+    const commonParams = (ids: string[]) => ({
       subdomain,
       action: 'notification',
-      data: {
-        type: 'removeCustomers',
-        customerIds
-      }
+      data: { type: 'removeCustomers', customerIds: ids }
     });
+
+    await sendIntegrationsMessage({ ...commonParams(customerIds) });
 
     for (const customer of customers) {
       await putDeleteLog(
@@ -189,17 +198,42 @@ const customerMutations = {
         { type: MODULE_NAMES.CUSTOMER, object: customer },
         user
       );
+    }
 
-      if (customer.mergedIds) {
-        await sendIntegrationsMessage({
-          subdomain,
-          action: 'notification',
-          data: {
-            type: 'removeCustomers',
-            customerIds: customer.mergedIds
-          }
-        });
+    const services = await serviceDiscovery.getServices();
+    let relatedIntegrationIds: string[] = [];
+    let mergedIds: string[] = [];
+
+    customers.forEach(c => {
+      if (c.relatedIntegrationIds && c.relatedIntegrationIds.length > 0) {
+        relatedIntegrationIds = relatedIntegrationIds.concat(
+          c.relatedIntegrationIds
+        );
       }
+      if (c.mergedIds && c.mergedIds.length > 0) {
+        mergedIds = mergedIds.concat(c.mergedIds);
+      }
+    });
+
+    relatedIntegrationIds = _.uniq(relatedIntegrationIds);
+    mergedIds = _.uniq(mergedIds);
+
+    const integrations = await sendIntegrationsMessage({
+      subdomain,
+      action: 'integrations.find',
+      isRPC: true,
+      data: { query: { _id: { $in: relatedIntegrationIds } } },
+      defaultValue: []
+    });
+
+    // find related integration of the customer & delete where it's linked
+    for (const integration of integrations) {
+      const kind = (integration.kind || '').split('-')[0];
+
+      await sendCommonMessage({
+        serviceName: services.includes(kind) ? kind : 'integrations',
+        ...commonParams([...customerIds, ...mergedIds])
+      });
     }
 
     return customerIds;

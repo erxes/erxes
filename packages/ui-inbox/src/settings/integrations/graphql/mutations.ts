@@ -140,8 +140,8 @@ const messengerAppSave = `
 `;
 
 const removeAccount = `
-  mutation integrationsRemoveAccount($_id: String!) {
-    integrationsRemoveAccount(_id: $_id)
+  mutation integrationsRemoveAccount($_id: String!, $kind: String) {
+    integrationsRemoveAccount(_id: $_id, kind: $kind)
   }
 `;
 

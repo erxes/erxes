@@ -1,11 +1,5 @@
 import { IModels } from './connectionResolver';
-import { debugCallPro, debugError, debugFacebook } from './debuggers';
-import {
-  getPageAccessToken,
-  refreshPageAccesToken,
-  subscribePage,
-  unsubscribePage
-} from './facebook/utils';
+import { debugCallPro, debugError } from './debuggers';
 import { getEnv, resetConfigsCache, sendRequest } from './utils';
 
 export const removeIntegration = async (
@@ -23,59 +17,8 @@ export const removeIntegration = async (
   // Remove endpoint
   let integrationRemoveBy;
 
-  const { _id, kind, accountId, erxesApiId } = integration;
-
-  const account = await models.Accounts.findOne({ _id: accountId });
-
+  const { _id, kind, erxesApiId } = integration;
   const selector = { integrationId: _id };
-
-  if (kind.includes('facebook')) {
-    debugFacebook('Removing  entries');
-
-    if (!account) {
-      throw new Error('Account not found');
-    }
-
-    for (const pageId of integration.facebookPageIds || []) {
-      let pageTokenResponse;
-
-      try {
-        pageTokenResponse = await getPageAccessToken(pageId, account.token);
-      } catch (e) {
-        debugError(
-          `Error ocurred while trying to get page access token with ${e.message}`
-        );
-      }
-
-      await models.FbPosts.deleteMany({ recipientId: pageId });
-      await models.FbComments.deleteMany({ recipientId: pageId });
-
-      try {
-        await unsubscribePage(pageId, pageTokenResponse);
-      } catch (e) {
-        debugError(
-          `Error occured while trying to unsubscribe page pageId: ${pageId}`
-        );
-      }
-    }
-
-    integrationRemoveBy = { fbPageIds: integration.facebookPageIds };
-
-    const conversationIds = await models.FbConversations.find(
-      selector
-    ).distinct('_id');
-
-    await models.FbCustomers.deleteMany({
-      integrationId: integrationErxesApiId
-    });
-
-    await models.FbConversations.deleteMany(selector);
-    await models.FbConversationMessages.deleteMany({
-      conversationId: { $in: conversationIds }
-    });
-
-    await models.Integrations.deleteOne({ _id });
-  }
 
   if (kind === 'callpro') {
     debugCallPro('Removing callpro entries');
@@ -160,43 +103,10 @@ export const repairIntegrations = async (
     throw new Error('Integration not found');
   }
 
-  for (const pageId of integration.facebookPageIds || []) {
-    const pageTokens = await refreshPageAccesToken(models, pageId, integration);
-
-    await subscribePage(pageId, pageTokens[pageId]);
-
-    await models.Integrations.remove({
-      erxesApiId: { $ne: integrationId },
-      facebookPageIds: pageId,
-      kind: integration.kind
-    });
-  }
-
   await models.Integrations.updateOne(
     { erxesApiId: integrationId },
     { $set: { healthStatus: 'healthy', error: '' } }
   );
-
-  const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
-
-  if (ENDPOINT_URL) {
-    // send domain to core endpoints
-    try {
-      await sendRequest({
-        url: `${ENDPOINT_URL}/update-endpoint`,
-        method: 'POST',
-        body: {
-          domain: `${DOMAIN}/gateway/pl:integrations`,
-          facebookPageIds: integration.facebookPageIds,
-          fbPageIds: integration.facebookPageIds
-        }
-      });
-    } catch (e) {
-      await models.Integrations.deleteOne({ _id: integration._id });
-      throw e;
-    }
-  }
 
   return true;
 };
@@ -205,7 +115,6 @@ export const removeCustomers = async (models: IModels, params) => {
   const { customerIds } = params;
   const selector = { erxesApiId: { $in: customerIds } };
 
-  await models.FbCustomers.deleteMany(selector);
   await models.CallProCustomers.deleteMany(selector);
 };
 
