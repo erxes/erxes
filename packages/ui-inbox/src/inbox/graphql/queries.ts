@@ -391,45 +391,6 @@ const generateCustomerDetailQuery = params => {
   `;
 };
 
-const integrationsConversationFbComments = `
-  query integrationsConversationFbComments($postId: String!,$isResolved: Boolean, $commentId: String, $senderId: String, $skip: Int, $limit: Int) {
-    integrationsConversationFbComments(postId: $postId,isResolved:$isResolved, limit: $limit, commentId: $commentId, senderId: $senderId, skip: $skip) {
-      conversationId
-      commentId
-      postId
-      recipientId
-      senderId
-      attachments
-      content
-      erxesApiId
-      timestamp
-      parentId
-      commentCount
-      isResolved
-      permalink_url
-      ${
-        isEnabled('contacts')
-          ? `
-      customer {
-        _id
-        visitorContactInfo
-        avatar
-        firstName
-        lastName
-        middleName
-      }`
-          : ``
-      }
-    }
-  }
-`;
-
-export const integrationsConversationFbCommentsCount = `
-  query integrationsConversationFbCommentsCount($postId: String!, $isResolved: Boolean) {
-    integrationsConversationFbCommentsCount(postId: $postId, isResolved:$isResolved) 
-  }
-`;
-
 export default {
   conversationList,
   sidebarConversations,
@@ -451,7 +412,5 @@ export default {
   lastConversation,
   channelsByMembers,
   generateCustomerDetailQuery,
-  convertToInfo,
-  integrationsConversationFbComments,
-  integrationsConversationFbCommentsCount
+  convertToInfo
 };
