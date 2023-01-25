@@ -15,42 +15,42 @@ const client = new MongoClient(MONGO_URL);
 const integrationsClient = new MongoClient(INTEGRATIONS_MONGO_URL);
 const fbClient = new MongoClient(FB_MONGO_URL);
 
-let db: Db;
-let intDb: Db;
-let fbDb: Db;
+let db;
+let intDb;
+let fbDb;
 
 // inbox
-let InboxConversations: Collection<any>;
-let InboxConversationMessages: Collection<any>;
-let InboxIntegrations: Collection<any>;
+let InboxConversations;
+let InboxConversationMessages;
+let InboxIntegrations;
 
 // fb
-let FbConversationMessages: Collection<any>;
-let FbIntegrations: Collection<any>;
-let FbConversations: Collection<any>;
-let FbAccounts: Collection<any>;
-let FbCustomers: Collection<any>;
-let FbPosts: Collection<any>;
-let FbComments: Collection<any>;
-let FbConfigs: Collection<any>;
+let FbConversationMessages;
+let FbIntegrations;
+let FbConversations;
+let FbAccounts;
+let FbCustomers;
+let FbPosts;
+let FbComments;
+let FbConfigs;
 
 // integrations-api
-let IntConversations: Collection<any>;
-let IntConversationMessages: Collection<any>;
-let IntIntegrations: Collection<any>;
-let IntAccounts: Collection<any>;
-let IntCustomers: Collection<any>;
-let IntPosts: Collection<any>;
-let IntComments: Collection<any>;
-let IntConfigs: Collection<any>;
+let IntConversations;
+let IntConversationMessages;
+let IntIntegrations;
+let IntAccounts;
+let IntCustomers;
+let IntPosts;
+let IntComments;
+let IntConfigs;
 
 const FB_MSNGR = 'facebook-messenger';
 const FB_POST = 'facebook-post';
 
 const checkAndInsert = async (
-  list: any[],
-  collection: Collection<any>,
-  isConvMsg?: boolean
+  list,
+  collection,
+  isConvMsg
 ) => {
   for (const item of list) {
     let exists = await collection.findOne({ _id: item._id });
@@ -72,13 +72,13 @@ const checkAndInsert = async (
 const command = async () => {
   try {
     await client.connect();
-    db = client.db() as Db;
+    db = client.db();
 
     await integrationsClient.connect();
-    intDb = integrationsClient.db() as Db;
+    intDb = integrationsClient.db();
 
     await fbClient.connect();
-    fbDb = fbClient.db() as Db;
+    fbDb = fbClient.db();
 
     // inbox
     InboxIntegrations = db.collection('integrations');
@@ -177,7 +177,7 @@ const command = async () => {
 
             // merge inbox conv msgs with fb conv msgs since it's a duplicate
             if (exists) {
-              const updateDoc: any = { ...exists, ...doc };
+              const updateDoc = { ...exists, ...doc };
 
               delete updateDoc._id;
 
