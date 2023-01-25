@@ -50,6 +50,11 @@ export type IPerform = {
   startAt: Date;
   endAt: Date;
   dueAt: Date;
+  description?: string;
+  appendix?: string;
+  assignedUserIds: string[];
+  customerId?: string;
+  companyId?: string;
   needProducts: IProductsData[];
   resultProducts: IProductsData[];
   inProducts: IProductsDataPerform[];

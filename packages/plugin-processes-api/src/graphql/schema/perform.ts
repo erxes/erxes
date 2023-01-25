@@ -10,6 +10,11 @@ export const types = `
     dueDate: Date
     endAt: Date
     count: Float
+    description: String
+    appendix: String
+    assignedUserIds: [String]
+    customerId: String
+    companyId: String
     inBranchId: String
     inDepartmentId: String
     outBranchId: String
@@ -69,6 +74,11 @@ const performParams = `
   dueDate: Date
   endAt: Date
   count: Float
+  description: String
+  appendix: String
+  assignedUserIds: [String]
+  customerId: String
+  companyId: String
   inBranchId: String
   inDepartmentId: String
   outBranchId: String
