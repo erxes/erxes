@@ -17,6 +17,14 @@ export interface IBuildingModel extends Model<IBuildingDocument> {
 export const loadBuildingClass = (models: IModels) => {
   class Building {
     public static async createBuilding(doc: IBuilding) {
+      if (doc.location) {
+        const { lng, lat } = doc.location;
+        (doc as any).location = {
+          type: 'Point',
+          coordinates: [lng, lat]
+        };
+      }
+
       return models.Buildings.create(doc);
     }
 

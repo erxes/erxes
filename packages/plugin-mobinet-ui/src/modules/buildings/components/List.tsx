@@ -13,13 +13,14 @@ import { __, router } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { withRouter } from 'react-router-dom';
+import Modal from 'react-bootstrap/Modal';
 
 import OSMBuildings from '../../../common/OSMBuildings';
 import OSMap from '../../../common/OSMap';
 import { ICoordinates } from '../../../types';
 import { submenu } from '../../../utils';
 import BuildingForm from '../containers/Form';
-import { IBuilding } from '../types';
+import { IBuilding, IOSMBuilding } from '../types';
 import FilterMenu from './FilterMenu';
 import Row from './Row';
 
@@ -30,6 +31,7 @@ type Props = {
   queryParams: any;
   loading: boolean;
   viewType: string;
+  getBuildingsWithingBounds: (bounds: ICoordinates[]) => void;
   remove: (buildingId: string) => void;
   refetch?: () => void;
 } & IRouterProps;
@@ -50,6 +52,16 @@ const List = (props: Props) => {
     lng: 106.9154893
   });
 
+  const [currentOsmBuilding, setCurrentOsmBuilding] = useState<
+    IOSMBuilding | undefined
+  >(undefined);
+  const [currentBuilding, setCurrentBuilding] = useState<IBuilding | undefined>(
+    undefined
+  );
+  const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
+
+  React.useEffect(() => {}, [props.buildings, isFormOpen]);
+
   const renderRow = () => {
     const { buildings } = props;
     return buildings.map(building => (
@@ -59,16 +71,10 @@ const List = (props: Props) => {
 
   queryParams.loadingMainQuery = loading;
 
-  const trigger = (
-    <Button btnStyle="success" size="small" icon="plus-circle">
-      Add building
-    </Button>
-  );
-
   const onChangeCenter = (center: ICoordinates, bounds: ICoordinates[]) => {
-    console.log('center', center);
-    console.log('bounds', bounds);
+    bounds.push(bounds[0]);
 
+    props.getBuildingsWithingBounds(bounds);
     setCenter(center);
   };
 
@@ -77,15 +83,41 @@ const List = (props: Props) => {
       return null;
     }
 
-    const onClickBuilding = e => {};
+    const onChange = e => {
+      const buildingId = e.id;
 
-    const mapProps = {
-      id: Math.random().toString(),
-      onClickBuilding,
-      onChangeCenter
+      if (!buildingId) {
+        setIsFormOpen(false);
+        return;
+      }
+
+      setCurrentOsmBuilding(e);
+
+      const index = props.buildings.findIndex(b => b.osmbId === buildingId);
+
+      if (index !== -1) {
+        setCurrentBuilding(props.buildings[index]);
+      }
+
+      setIsFormOpen(true);
     };
 
-    console.log('mapProps', mapProps);
+    const onload = (bounds: ICoordinates[]) => {
+      bounds.push(bounds[0]);
+      props.getBuildingsWithingBounds(bounds);
+    };
+
+    const mapProps = {
+      id: 'mapOnList',
+      onChange,
+      onChangeCenter,
+      onload,
+      center,
+      mode: 'single',
+      selectedValues: props.buildings.map(b => b.osmbId)
+    };
+
+    // console.log('OSMBuildings', mapProps);
 
     return <OSMBuildings {...mapProps} />;
   };
@@ -131,27 +163,45 @@ const List = (props: Props) => {
     );
   };
 
-  const formContent = props => <BuildingForm {...props} center={center} />;
-
-  const modalContent = () => (
-    <ModalTrigger
-      size="lg"
-      title="building"
-      autoOpenKey="showAppAddModal"
-      trigger={trigger}
-      content={formContent}
+  const formContent = props => (
+    <BuildingForm
+      {...props}
+      center={center}
+      osmBuilding={currentOsmBuilding}
+      building={currentBuilding}
     />
   );
+
+  const renderModal = () => {
+    if (!isFormOpen) {
+      return null;
+    }
+
+    return (
+      <Modal
+        show={true}
+        size="xl"
+        onHide={() => setIsFormOpen(false)}
+        animation={false}
+        enforceFocus={false}
+      >
+        <Modal.Header closeButton={true}>
+          <Modal.Title>
+            {currentBuilding ? __('Edit building') : __('Add building')}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body id="ModalBody" className="md-padding">
+          {formContent({ closeModal: () => setIsFormOpen(false) })}
+        </Modal.Body>
+      </Modal>
+    );
+  };
 
   const renderViewChooser = () => {
     const onFilterClick = e => {
       const type = e.target.id;
 
       router.setParams(history, { viewType: type });
-
-      if (type === '3d') {
-        window.location.reload();
-      }
     };
 
     const viewTypes = [
@@ -181,14 +231,19 @@ const List = (props: Props) => {
     );
   };
 
+  const trigger = (
+    <Button btnStyle="success" size="small" icon="plus-circle">
+      Add building
+    </Button>
+  );
+
   const actionBarRight = (
     <BarItems>
       {renderViewChooser()}
-
       <FilterMenu />
-
       <ModalTrigger
-        title={__('Add Building')}
+        size="xl"
+        title={currentBuilding ? __('Edit building') : __('Add building')}
         trigger={trigger}
         content={formContent}
         enforceFocus={false}
@@ -205,40 +260,43 @@ const List = (props: Props) => {
       {renderList()}
       {render3dMap()}
       {render2dMap()}
+      {renderModal()}
     </>
   );
 
   return (
-    <Wrapper
-      header={
-        <Wrapper.Header
-          title={__('Buildings')}
-          queryParams={queryParams}
-          submenu={submenu}
-        />
-      }
-      actionBar={actionBar}
-      footer={<Pagination count={totalCount} />}
-      //   leftSidebar={<Sidebar loadingMainQuery={loading}/>}
-      content={
-        <DataWithLoader
-          data={content}
-          loading={loading}
-          count={1}
-          emptyContent={
-            <h3
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}
-            >
-              no data
-            </h3>
-          }
-        />
-      }
-    />
+    <>
+      <Wrapper
+        header={
+          <Wrapper.Header
+            title={__('Buildings')}
+            queryParams={queryParams}
+            submenu={submenu}
+          />
+        }
+        actionBar={actionBar}
+        footer={<Pagination count={totalCount} />}
+        //   leftSidebar={<Sidebar loadingMainQuery={loading}/>}
+        content={
+          <DataWithLoader
+            data={content}
+            loading={loading}
+            count={1}
+            emptyContent={
+              <h3
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}
+              >
+                no data
+              </h3>
+            }
+          />
+        }
+      />
+    </>
   );
 };
 

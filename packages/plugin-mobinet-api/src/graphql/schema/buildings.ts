@@ -20,7 +20,7 @@ ${
     code: String
     description: String
     quarterId: String
-    center: JSON
+    location: JSON
 
     osmbId: String
     bounds: JSON
@@ -53,7 +53,7 @@ const mutationParams = `
     quarterId: String
     osmbId: String
     customerIds: [String]
-    center: JSON
+    location: JSON
     bounds: JSON
     type: String
 `;
@@ -79,5 +79,6 @@ const qryParams = `
 export const queries = `
   buildingList(${qryParams}): BuildingListResponse
   buildings(${qryParams}): [Building]
+  buildingsByBounds(bounds: JSON): [Building]
   buildingDetail(_id: String!): Building
 `;

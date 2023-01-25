@@ -55,13 +55,13 @@ const BuildingFormContainer = (props: Props) => {
         mutation={mutation}
         variables={values}
         callback={callback}
-        refetchQueries={getRefetchQueries()}
+        // refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
         type="submit"
         icon="check-circle"
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
-        } a district`}
+        } a building`}
       />
     );
   };

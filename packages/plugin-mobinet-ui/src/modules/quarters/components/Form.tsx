@@ -89,7 +89,6 @@ const QuarterForm = (props: Props) => {
         <SelectCity
           defaultValue={cityId}
           onChange={e => {
-            console.log('cityyyyyy ', e);
             setCityId(e);
             setDistrictId('');
           }}

@@ -1,7 +1,7 @@
 const fields = `
 _id
 bounds
-center
+location
 code
 customerIds
 customers {
@@ -49,7 +49,16 @@ query BuildingDetail($_id: String!) {
 }
 `;
 
+const buildingsByBoundsQuery = `
+query BuildingsByBounds($bounds: JSON) {
+  buildingsByBounds(bounds: $bounds) {
+    ${fields}
+  }
+}
+`;
+
 export default {
   listQuery,
-  detailQuery
+  detailQuery,
+  buildingsByBoundsQuery
 };

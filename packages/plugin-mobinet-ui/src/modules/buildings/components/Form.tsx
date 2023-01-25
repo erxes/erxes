@@ -12,11 +12,12 @@ import SelectDistrict from '../../districts/containers/SelectDistrict';
 import { IDistrict } from '../../districts/types';
 import SelectQuarter from '../../quarters/containers/SelectQuarter';
 import OSMBuildings from '../../../common/OSMBuildings';
-import { IBuilding } from '../types';
+import { IBuilding, IOSMBuilding } from '../types';
 import { ICoordinates } from '../../../types';
+import { findCenter } from '../../../utils';
 
 type Props = {
-  osmbId?: string;
+  osmBuilding?: IOSMBuilding;
   city?: ICity;
   district?: IDistrict;
   building?: IBuilding;
@@ -27,6 +28,7 @@ type Props = {
 const BuildingForm = (props: Props) => {
   const { building } = props;
 
+  const [osmBuilding, setOsmBuilding] = useState(props.osmBuilding);
   const [quarterId, setQuarterId] = useState<string>('');
   const [cityId, setCityId] = useState<string | undefined>(
     props.city && props.city._id
@@ -38,10 +40,28 @@ const BuildingForm = (props: Props) => {
     //   ''
   );
 
-  const [center, setCenter] = useState<ICoordinates>({
-    lat: 47.918812,
-    lng: 106.9154893
-  });
+  const generateCoordinates = data => {
+    const { min, max } = data;
+
+    return [
+      {
+        lat: min[1],
+        lng: min[0]
+      },
+      {
+        lat: max[1],
+        lng: max[0]
+      }
+    ];
+  };
+
+  const [center, setCenter] = useState<ICoordinates>(
+    (props.osmBuilding &&
+      findCenter(generateCoordinates(props.osmBuilding.properties.bounds))) || {
+      lat: 47.918812,
+      lng: 106.9154893
+    }
+  );
 
   const [districtId, setDistrictId] = useState<string>('');
 
@@ -59,9 +79,19 @@ const BuildingForm = (props: Props) => {
       setCenter(props.district.center);
     }
 
-    if (districtId) {
+    if (props.osmBuilding) {
+      setCenter(
+        findCenter(generateCoordinates(props.osmBuilding.properties.bounds))
+      );
     }
-  }, [props.city, cityId, props.district, districtId, center]);
+  }, [
+    props.city,
+    cityId,
+    props.district,
+    districtId,
+    osmBuilding,
+    buildingObject
+  ]);
 
   const generateDoc = () => {
     const finalValues: any = {};
@@ -73,7 +103,13 @@ const BuildingForm = (props: Props) => {
     if (buildingObject) {
       finalValues.name = buildingObject.name;
       finalValues.code = buildingObject.code;
-      finalValues.center = buildingObject.center;
+      finalValues.quarterId = quarterId;
+      finalValues.osmbId = osmBuilding && osmBuilding.id;
+      finalValues.location =
+        osmBuilding &&
+        findCenter(generateCoordinates(osmBuilding.properties.bounds));
+
+      // finalValues.center = buildingObject.center;
     }
 
     return {
@@ -91,9 +127,6 @@ const BuildingForm = (props: Props) => {
   };
 
   const onChangeCenter = (center: ICoordinates, bounds: ICoordinates[]) => {
-    console.log('center', center);
-    console.log('bounds', bounds);
-
     setCenter(center);
   };
 
@@ -103,6 +136,18 @@ const BuildingForm = (props: Props) => {
     if (center) {
       setCenter(center);
     }
+  };
+
+  const onChangeBuilding = e => {
+    if (e.properties && e.properties.name) {
+      const obj: any = buildingObject || {};
+
+      obj.name = e.properties.name;
+
+      setBuildingObject(obj);
+    }
+
+    setOsmBuilding(e);
   };
 
   const renderInput = (formProps, title, name, type, value) => {
@@ -127,14 +172,16 @@ const BuildingForm = (props: Props) => {
       return null;
     }
 
-    const onClickBuilding = e => {};
+    const selectedValues = osmBuilding ? [osmBuilding.id] : [];
 
     const mapProps = {
-      id: Math.random().toString(),
-      onClickBuilding,
+      id: 'mapOnForm',
+      onChange: onChangeBuilding,
       onChangeCenter,
       center,
-      height: '300px'
+      height: '300px',
+      selectedValues
+      // onLoadCallback: onMapLoad,
     };
 
     return <OSMBuildings {...mapProps} />;
@@ -149,7 +196,6 @@ const BuildingForm = (props: Props) => {
         <SelectCity
           defaultValue={cityId}
           onChange={e => {
-            console.log('cityyyyyy ', e);
             setCityId(e);
             setDistrictId('');
           }}
@@ -168,7 +214,6 @@ const BuildingForm = (props: Props) => {
             districtId={districtId}
             defaultValue={quarterId}
             onChange={e => {
-              console.log('quarterrrrr ', e);
               setQuarterId(e);
             }}
           />
@@ -179,14 +224,14 @@ const BuildingForm = (props: Props) => {
           'Code',
           'code',
           'string',
-          building && building.code
+          buildingObject && buildingObject.code
         )}
         {renderInput(
           formProps,
           'Name',
           'name',
           'string',
-          building && building.name
+          buildingObject && buildingObject.name
         )}
 
         {render3dMap()}

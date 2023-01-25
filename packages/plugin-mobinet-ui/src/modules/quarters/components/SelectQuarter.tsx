@@ -61,7 +61,6 @@ class SelectDistrict extends React.Component<Props, {}> {
 
   render() {
     const { quarters, defaultValue } = this.props;
-    console.log('quarters', quarters);
     return (
       <FormGroup>
         <ControlLabel required={this.props.isRequired}>Quarters</ControlLabel>

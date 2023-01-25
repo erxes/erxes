@@ -2,7 +2,7 @@ const variables = `
     $code: String!
     $name: String!
     $bounds: JSON
-    $center: JSON
+    $location: JSON
     $customerIds: [String]
     $description: String
     $osmbId: String
@@ -14,7 +14,7 @@ const fields = `
     code: $code
     name: $name
     bounds: $bounds
-    center: $center
+    location: $location
     customerIds: $customerIds
     description: $description
     osmbId: $osmbId
@@ -23,11 +23,11 @@ const fields = `
 `;
 
 const addMutation = `
-mutation BuildingsAdd({${variables}}}) {
-    buildingsAdd(${fields}) {
-      _id
-    }
+mutation BuildingsAdd(${variables}) {
+  buildingsAdd(${fields}) {
+    _id
   }
+}
 `;
 
 const editMutation = `

@@ -17,7 +17,7 @@ export interface IBuilding {
 
   location: {
     lat: number;
-    long: number;
+    lng: number;
   };
 
   serviceStatus: 'active' | 'inactive' | 'inprogress';

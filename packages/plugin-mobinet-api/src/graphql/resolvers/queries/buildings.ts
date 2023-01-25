@@ -103,6 +103,20 @@ const queries = {
     { models }: IContext
   ) => {
     return models.Buildings.getBuilding(_id);
+  },
+
+  buildingsByBounds: async (
+    _root,
+    { bounds }: { bounds: any },
+    { models }: IContext
+  ) => {
+    console.log(bounds);
+
+    return models.Buildings.find({
+      location: {
+        $geoWithin: { $polygon: bounds }
+      }
+    }).lean();
   }
 };
 
