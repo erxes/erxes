@@ -1,6 +1,7 @@
 import { ASSET_STATUSES } from '../../common/constant/asset';
 import { IAssetDocument } from '../../common/types/asset';
 import { IContext } from '../../connectionResolver';
+import { sendKbMessage } from '../../messageBroker';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
@@ -40,5 +41,18 @@ export default {
 
   vendor(asset: IAssetDocument, _, { dataLoaders }: IContext) {
     return (asset.vendorId && dataLoaders.company.load(asset.vendorId)) || null;
+  },
+
+  knowledgeData(asset: IAssetDocument, _, { subdomain }: IContext) {
+    return sendKbMessage({
+      subdomain,
+      action: 'articles.find',
+      data: {
+        query: {
+          _id: { $in: asset.kbArticleIds || [] }
+        }
+      },
+      isRPC: true
+    });
   }
 };

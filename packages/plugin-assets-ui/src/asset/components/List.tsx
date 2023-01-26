@@ -23,6 +23,7 @@ import MergeAsset from './Merge';
 import { breadcrumb } from '../../common/constant';
 import { Title } from '@erxes/ui/src/styles/main';
 import { ContainerBox } from '../../style';
+import AssignArticles from '../containers/AssignArticles';
 
 type Props = {
   assets: IAsset[];
@@ -33,6 +34,10 @@ type Props = {
   bulk: any[];
   emptyBulk: () => void;
   remove: (doc: { assetIds: string[] }, emptyBulk: () => void) => void;
+  assignKbArticles: (
+    doc: { assetIds: string[] },
+    emptyBulk: () => void
+  ) => void;
   toggleBulk: () => void;
   toggleAll: (targets: IAsset[], containerId: string) => void;
   loading: boolean;
@@ -92,6 +97,7 @@ class List extends React.Component<Props, State> {
       />
     ));
   }
+
   onChange = () => {
     const { toggleAll, assets } = this.props;
     toggleAll(assets, 'assets');
@@ -126,6 +132,7 @@ class List extends React.Component<Props, State> {
 
   assetsMerge = props => {
     const { bulk, mergeAssets, mergeAssetLoading } = this.props;
+
     return (
       <MergeAsset
         {...props}
@@ -134,6 +141,12 @@ class List extends React.Component<Props, State> {
         mergeAssetLoading={mergeAssetLoading}
       />
     );
+  };
+
+  assignArticles = props => {
+    const { bulk, assignKbArticles } = this.props;
+
+    return <AssignArticles {...props} objects={bulk} save={assignKbArticles} />;
   };
 
   search = e => {
@@ -151,12 +164,14 @@ class List extends React.Component<Props, State> {
       router.setParams(history, { searchValue });
     }, 500);
   };
+
   moveCursorAtTheEnd(e) {
     const tmpValue = e.target.value;
 
     e.target.value = '';
     e.target.value = tmpValue;
   }
+
   removeAssets = assets => {
     const assetIds: string[] = [];
 
@@ -167,10 +182,19 @@ class List extends React.Component<Props, State> {
     this.props.remove({ assetIds }, this.props.emptyBulk);
   };
 
+  assignKbArticles = assets => {
+    const assetIds: string[] = [];
+
+    assets.forEach(asset => {
+      assetIds.push(asset._id);
+    });
+
+    this.props.assignKbArticles({ assetIds }, this.props.emptyBulk);
+  };
+
   render() {
     const {
       bulk,
-      emptyBulk,
       queryParams,
       assetsCount,
       currentCategory,
@@ -188,11 +212,13 @@ class List extends React.Component<Props, State> {
           autoFocus={true}
           onFocus={this.moveCursorAtTheEnd}
         />
+
         <Link to="/settings/importHistories?type=asset">
           <Button btnStyle="simple" icon="arrow-from-right">
             {__('Import items')}
           </Button>
         </Link>
+
         {this.renderRightActionBar}
       </BarItems>
     );
@@ -214,6 +240,12 @@ class List extends React.Component<Props, State> {
         </Button>
       );
 
+      const assignButton = (
+        <Button btnStyle="primary" size="small" icon="merge">
+          Assign knowledgebase articles
+        </Button>
+      );
+
       rightActionBar = (
         <BarItems>
           {bulk.length === 2 && (
@@ -225,6 +257,7 @@ class List extends React.Component<Props, State> {
               content={this.assetsMerge}
             />
           )}
+
           <Button
             btnStyle="danger"
             size="small"
@@ -233,6 +266,14 @@ class List extends React.Component<Props, State> {
           >
             Remove
           </Button>
+
+          <ModalTrigger
+            title="Assign knowledgebase articles"
+            size="lg"
+            dialogClassName="modal-1000w"
+            trigger={assignButton}
+            content={this.assignArticles}
+          />
         </BarItems>
       );
     }
