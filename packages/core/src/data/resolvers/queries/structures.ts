@@ -101,7 +101,13 @@ const structureQueries = {
     );
     const totalCount = models.Departments.find(filter).countDocuments();
 
-    return { list, totalCount };
+    const totalUsersCount = await models.Users.countDocuments({
+      ...filter,
+      'departmentIds.0': { $exists: true },
+      isActive: true
+    });
+
+    return { list, totalCount, totalUsersCount };
   },
 
   departmentDetail(_root, { _id }, { models }: IContext) {
@@ -132,6 +138,43 @@ const structureQueries = {
     }
 
     return models.Units.find(filter).sort({ title: 1 });
+  },
+
+  async unitsMain(
+    _root,
+    params: { searchValue?: string; perPage: number; page: number },
+    { models }: IContext
+  ) {
+    const filter: { $or?: any[] } = {};
+
+    if (params.searchValue) {
+      const regexOption = {
+        $regex: `.*${params.searchValue.trim()}.*`,
+        $options: 'i'
+      };
+
+      filter.$or = [
+        {
+          title: regexOption
+        },
+        {
+          description: regexOption
+        }
+      ];
+    }
+    const list = paginate(
+      models.Units.find(filter).sort({ createdAt: -1 }),
+      params
+    );
+    const totalCount = models.Units.find(filter).countDocuments();
+
+    const unitUserIds = (await models.Units.find(filter))
+      .map(user => user.userIds)
+      .flat();
+
+    const totalUsersCount = [...new Set(unitUserIds)].length;
+
+    return { list, totalCount, totalUsersCount };
   },
 
   unitDetail(_root, { _id }, { models }: IContext) {
@@ -168,8 +211,13 @@ const structureQueries = {
       params
     );
     const totalCount = models.Branches.find(filter).countDocuments();
+    const totalUsersCount = await models.Users.countDocuments({
+      ...filter,
+      'branchIds.0': { $exists: true },
+      isActive: true
+    });
 
-    return { list, totalCount };
+    return { list, totalCount, totalUsersCount };
   },
 
   branchDetail(_root, { _id }, { models }: IContext) {
