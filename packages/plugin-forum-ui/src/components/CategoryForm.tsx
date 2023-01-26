@@ -126,7 +126,6 @@ const CategoryForm: React.FC<Props> = ({
         <FormGroup>
           <ControlLabel>Parent Category</ControlLabel>
           <CategoryParentSelect
-            // name="parentId"
             value={parentId}
             parentFor={Object.keys(category).length !== 0 ? category._id : null}
             onChange={setParentId}

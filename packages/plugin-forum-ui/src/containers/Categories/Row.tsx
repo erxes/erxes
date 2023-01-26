@@ -40,6 +40,15 @@ export default function CategoryNavItem({ category }) {
       });
   };
 
+  const getRefetchQueries = (_id: string) => {
+    return [
+      {
+        query: gql(queries.categoriesByParentIds),
+        variables: { _id }
+      }
+    ];
+  };
+
   const renderButton = ({
     values,
     isSubmitted,
@@ -51,6 +60,7 @@ export default function CategoryNavItem({ category }) {
         mutation={object ? mutations.updateCategory : mutations.createCategory}
         variables={values}
         callback={callback}
+        refetchQueries={getRefetchQueries(object._id)}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
