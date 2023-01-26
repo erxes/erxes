@@ -13,5 +13,5 @@ export const queries = `
 
 export const mutations = `
   integrationsUpdateConfigs(configsMap: JSON!): JSON
-  integrationsRepair(_id: String!): JSON
+
 `;

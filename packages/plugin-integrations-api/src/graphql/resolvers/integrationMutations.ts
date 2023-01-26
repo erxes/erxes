@@ -6,15 +6,6 @@ const integrationMutations = {
     await updateIntegrationConfigs(models, configsMap);
 
     return { status: 'ok' };
-  },
-  async integrationsRepair(
-    _root,
-    { _id }: { _id: string },
-    { models }: IContext
-  ) {
-    await repairIntegrations(models, _id);
-
-    return 'success';
   }
 };
 

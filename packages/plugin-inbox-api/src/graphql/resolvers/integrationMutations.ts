@@ -418,6 +418,31 @@ const integrationMutations = {
     }
   },
 
+  async integrationsRepair(
+    _root,
+    { _id, kind }: { _id: string; kind: string },
+    { subdomain }: IContext
+  ) {
+    try {
+      const response = await sendCommonMessage({
+        serviceName:
+          kind && (await isServiceRunning(kind)) ? kind : 'integrations',
+        subdomain,
+        action: 'api_to_integrations',
+        data: {
+          action: 'repair-integrations',
+          _id
+        },
+        isRPC: true
+      });
+
+      return response;
+    } catch (e) {
+      debug.error(e);
+      throw e;
+    }
+  },
+
   async integrationsArchive(
     _root,
     { _id, status }: IArchiveParams,
