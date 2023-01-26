@@ -1,4 +1,4 @@
-import { IBuildingModel, loadBuildingClass } from './models/Buildings';
+import { IBuildingModel, IBuildingToContactModel, loadBuildingClass, loadBuildingToContactClass } from './models/Buildings';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 import * as mongoose from 'mongoose';
@@ -10,12 +10,14 @@ import { IQuarterDocument } from './models/definitions/quarters';
 import { IDistrictModel, loadDistrictClass } from './models/Districts';
 import { IQuarterModel, loadQuarterClass } from './models/Quarter';
 import { IBuildingDocument } from './models/definitions/buildings';
+import { IBuildingToContactDocument } from './models/definitions/buildingToContact';
 
 export interface IModels {
   Cities: ICityModel;
   Districts: IDistrictModel;
   Quarters: IQuarterModel;
   Buildings: IBuildingModel;
+  BuildingToContacts: IBuildingToContactModel;
 }
 
 export interface IContext extends IMainContext {
@@ -46,6 +48,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Buildings = db.model<IBuildingDocument, IBuildingModel>(
     'mobinet_buildings',
     loadBuildingClass(models)
+  );
+
+  models.BuildingToContacts = db.model<IBuildingToContactDocument, IBuildingToContactModel>(
+    'mobinet_building_to_contact',
+    loadBuildingToContactClass(models)
   );
 
   return models;

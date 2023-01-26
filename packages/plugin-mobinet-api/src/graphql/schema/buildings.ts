@@ -45,9 +45,13 @@ enum ServiceStatus {
       contacts
         ? `
           customers: [Customer]
+          companies: [Company]
           `
         : ''
     }
+
+    customersCount: Int
+    companiesCount: Int
   }
 
   type BuildingListResponse {
@@ -73,6 +77,11 @@ export const mutations = `
   buildingsAdd(${mutationParams}): Building
   buildingsEdit(_id: String!, ${mutationParams}): Building
   buildingsRemove(_id: [String]): JSON
+  buildingsAddCustomers(_id: String!, customerIds: [String]): Building
+  buildingsAddCompanies(_id: String!, companyIds: [String]): Building
+
+  buildingsRemoveCustomers(_id: String!, customerIds: [String]): Building
+  buildingsRemoveCompanies(_id: String!, companyIds: [String]): Building
 `;
 
 const qryParams = `
