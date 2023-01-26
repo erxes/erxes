@@ -1,6 +1,6 @@
-import { setProperty } from "@erxes/api-utils/src/automations";
-import { generateModels, IModels } from "./connectionResolver";
-import { sendCommonMessage, sendCoreMessage } from "./messageBroker";
+import { setProperty } from '@erxes/api-utils/src/automations';
+import { generateModels, IModels } from './connectionResolver';
+import { sendCommonMessage, sendCoreMessage } from './messageBroker';
 
 const getRelatedValue = async (
   models: IModels,
@@ -10,27 +10,27 @@ const getRelatedValue = async (
 ) => {
   if (
     [
-      "userId",
-      "assignedUserId",
-      "closedUserId",
-      "ownerId",
-      "createdBy",
+      'userId',
+      'assignedUserId',
+      'closedUserId',
+      'ownerId',
+      'createdBy'
     ].includes(targetKey)
   ) {
     const user = await sendCoreMessage({
       subdomain,
-      action: "users.findOne",
+      action: 'users.findOne',
       data: { _id: target[targetKey] },
-      isRPC: true,
+      isRPC: true
     });
 
     return (
-      (user && ((user.detail && user.detail.fullName) || user.email)) || ""
+      (user && ((user.detail && user.detail.fullName) || user.email)) || ''
     );
   }
 
   if (
-    ["participatedUserIds", "assignedUserIds", "watchedUserIds"].includes(
+    ['participatedUserIds', 'assignedUserIds', 'watchedUserIds'].includes(
       targetKey
     )
   ) {
@@ -46,43 +46,137 @@ const getRelatedValue = async (
     });
 
     return (
-      users.map(
-        (user) => (user.detail && user.detail.fullName) || user.email
-      ) || []
-    ).join(", ");
+      users.map(user => (user.detail && user.detail.fullName) || user.email) ||
+      []
+    ).join(', ');
   }
 
-  if (targetKey === "tagIds") {
+  if (targetKey === 'tagIds') {
     const tags = await sendCommonMessage({
       subdomain,
-      serviceName: "tags",
-      action: "find",
-      data: { _id: { $in: target[targetKey] } },
+      serviceName: 'tags',
+      action: 'find',
+      data: { _id: { $in: target[targetKey] } }
     });
 
-    return (tags.map((tag) => tag.name) || []).join(", ");
+    return (tags.map(tag => tag.name) || []).join(', ');
   }
 
   return false;
 };
 
+// find trigger related module items
+const getItems = async (
+  subdomain: string,
+  module: string,
+  execution: any,
+  triggerType: string
+) => {
+  const { target } = execution;
+
+  if (module === triggerType) {
+    return [target];
+  }
+
+  const models = await generateModels(subdomain);
+
+  let model: any = models.Customers;
+
+  if (module.includes('company')) {
+    model = models.Companies;
+  }
+
+  const [moduleService] = module.split(':');
+  const [triggerService] = triggerType.split(':');
+
+  if (moduleService === triggerService) {
+    const relTypeIds = await sendCommonMessage({
+      subdomain,
+      serviceName: 'core',
+      action: 'conformities.savedConformity',
+      data: {
+        mainType: triggerType.split(':')[1],
+        mainTypeId: target._id,
+        relTypes: [module.split(':')[1]]
+      },
+      isRPC: true
+    });
+
+    return model.find({ _id: { $in: relTypeIds } });
+  }
+
+  // send message to trigger service to get related value
+  const filter = await sendCommonMessage({
+    subdomain,
+    serviceName: triggerService,
+    action: 'getModuleRelation',
+    data: {
+      module,
+      triggerType,
+      target
+    },
+    isRPC: true,
+    defaultValue: null
+  });
+
+  return filter ? model.find(filter) : [];
+};
+
 export default {
   receiveActions: async ({
     subdomain,
-    data: { action, execution, triggerType, actionType },
+    data: { action, execution, triggerType, actionType }
   }) => {
     const models = await generateModels(subdomain);
 
-    if (actionType === "set-property") {
+    if (actionType === 'set-property') {
+      const { module, rules } = action.config;
+
+      const relatedItems = await getItems(
+        subdomain,
+        module,
+        execution,
+        triggerType
+      );
+
       return setProperty({
         models,
         subdomain,
         getRelatedValue,
-        action,
+        module: module.includes('lead') ? 'contacts:customer' : module,
+        rules,
         execution,
-        triggerType,
         sendCommonMessage,
+        relatedItems
       });
     }
   },
+  constants: {
+    triggers: [
+      {
+        type: 'contacts:customer',
+        img: 'automation2.svg',
+        icon: 'users-alt',
+        label: 'Customer',
+        description:
+          'Start with a blank workflow that enralls and is triggered off Customers'
+      },
+      {
+        type: 'contacts:lead',
+        img: 'automation2.svg',
+        icon: 'users-alt',
+        label: 'Lead',
+        description:
+          'Start with a blank workflow that enralls and is triggered off Leads'
+      },
+      {
+        type: 'contacts:company',
+        img: 'automation2.svg',
+        icon: 'university',
+        label: 'Company',
+        description:
+          'Start with a blank workflow that enralls and is triggered off company'
+      }
+    ]
+  }
 };

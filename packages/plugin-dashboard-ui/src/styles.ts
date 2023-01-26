@@ -7,6 +7,7 @@ import { ActionButtons } from '@erxes/ui-settings/src/styles';
 import { Contents, FlexContent } from '@erxes/ui/src/layout/styles';
 import { RightMenuContainer } from '@erxes/ui-cards/src/boards/styles/rightMenu';
 import RGL, { WidthProvider } from 'react-grid-layout';
+import { lighten } from '@erxes/ui/src/styles/ecolor';
 const ReactGridLayout = WidthProvider(RGL);
 
 const Header = styled(PageHeader)`
@@ -447,6 +448,69 @@ const ChartTitle = styled.div`
   }
 `;
 
+const MenuFooter = styled.footer`
+  padding: 10px 20px;
+`;
+
+const SideList = styledTS<{
+  isActive?: boolean;
+  level?: number;
+}>(styled(SidebarListItem))`
+  white-space: normal !important;
+  border: 0;
+  padding-left: ${props => `${(props.level || 0) * 30 + 20}px !important`};
+
+  > span {
+    width: 90%;
+    display: flex;
+    color: ${props => props.isActive && colors.colorPrimary};
+
+    &:hover {
+      color: ${props => !props.isActive && lighten(colors.textPrimary, 40)};
+    }
+
+    > i {
+      margin-right: 5px;
+      color: ${props =>
+        props.isActive
+          ? colors.colorPrimary
+          : !props.level || props.level === 0
+          ? colors.colorCoreBlue
+          : colors.colorCoreGreen};
+    }
+  }
+
+  &:hover {
+    background: ${props => !props.isActive && colors.bgLight};
+  }
+`;
+
+const CustomRangeContainer = styled.div`
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-end;
+
+  > div {
+    flex: 1;
+    margin-right: 8px;
+
+    input[type='text'] {
+      border: none;
+      width: 100%;
+      height: 34px;
+      padding: 5px 0;
+      color: #444;
+      border-bottom: 1px solid;
+      border-color: #ddd;
+      background: none;
+      border-radius: 0;
+      box-shadow: none;
+      font-size: 13px;
+    }
+  }
+`;
+
 export {
   ChartTitle,
   ChartTable,
@@ -471,5 +535,8 @@ export {
   EmptyContent,
   FormChart,
   FormContainer,
-  SelectChartType
+  SelectChartType,
+  MenuFooter,
+  SideList,
+  CustomRangeContainer
 };

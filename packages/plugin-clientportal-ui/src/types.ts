@@ -6,6 +6,8 @@ export type OTPConfig = {
   content: string;
   smsTransporterType?: '' | 'messagePro';
   codeLength: number;
+  loginWithOTP: boolean;
+  expireAfter: number;
 };
 
 export type MailConfig = {
@@ -39,6 +41,9 @@ export interface IClientPortalUserDoc {
   lastSeenAt: Date;
   sessionCount: number;
   isOnline: boolean;
+
+  customFieldsData: JSON;
+  avatar: string;
 }
 
 export interface IClientPortalUser extends IClientPortalUserDoc {

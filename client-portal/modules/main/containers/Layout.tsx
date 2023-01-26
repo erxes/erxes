@@ -1,10 +1,12 @@
-import React from "react";
-import Head from "next/head";
-import DumbLayout from "../components/Layout";
+import "erxes-icon/css/erxes.min.css";
+
 import AppProvider, { AppConsumer } from "../../appContext";
+
+import DumbLayout from "../components/Layout";
+import Head from "next/head";
+import React from "react";
 import { Store } from "../../types";
 import { readFile } from "../../common/utils";
-import "erxes-icon/css/erxes.min.css";
 
 type Props = {
   children: (values: any) => JSX.Element;

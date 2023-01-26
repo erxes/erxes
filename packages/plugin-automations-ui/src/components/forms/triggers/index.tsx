@@ -1,4 +1,4 @@
-import { IAction } from '../../../types';
+import { IAction } from '@erxes/ui-automations/src/types';
 import React from 'react';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import Button from '@erxes/ui/src/components/Button';

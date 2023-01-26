@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "uuid-by-string": "^3.0.5",
-    "erxes-inmemory-storage": "^1.0.20",
     "xlsx-populate": "^1.20.1"
   }
 }

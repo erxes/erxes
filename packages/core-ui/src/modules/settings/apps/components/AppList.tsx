@@ -1,17 +1,17 @@
-import React from 'react';
-import styled from 'styled-components';
+import { IApp, IAppParams } from '../types';
 
+import AppForm from './AppForm';
+import AppRow from './AppRow';
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import EmptyState from 'modules/common/components/EmptyState';
-import Wrapper from 'modules/layout/components/Wrapper';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
+import React from 'react';
 import Table from 'modules/common/components/table';
+import Wrapper from 'modules/layout/components/Wrapper';
 import { __ } from 'modules/common/utils';
-import AppRow from './AppRow';
-import AppForm from './AppForm';
-import { IApp, IAppParams } from '../types';
+import styled from 'styled-components';
 
 // due to token column containing too long value
 const FixedTable = styled(Table)`
@@ -141,7 +141,7 @@ export default class AppList extends React.Component<Props> {
             emptyImage="/images/actions/21.svg"
           />
         }
-        hasBorder
+        hasBorder={true}
       />
     );
   }

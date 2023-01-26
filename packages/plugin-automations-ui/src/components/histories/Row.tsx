@@ -1,13 +1,11 @@
 import dayjs from 'dayjs';
-import {
-  IAutomationHistory,
-  IAutomationHistoryAction
-} from '../../types';
-import { __, renderFullName } from 'coreui/utils';
+import { IAutomationHistory, IAutomationHistoryAction } from '../../types';
+import { __ } from 'coreui/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Label from '@erxes/ui/src/components/Label';
+import { renderDynamicComponent } from '../../utils';
 
 type Props = {
   history: IAutomationHistory;
@@ -31,45 +29,20 @@ class HistoryRow extends React.Component<Props, State> {
   generateName = () => {
     const { triggerType, target } = this.props.history;
 
-    switch (triggerType) {
-      case 'visitor':
-      case 'lead':
-      case 'customer': {
-        return (
-          <Link target="_blank" to={`/contacts/details/${target._id}`}>
-            {renderFullName(target)}
-          </Link>
-        );
-      }
+    const Component = renderDynamicComponent(
+      {
+        target,
+        triggerType,
+        componentType: 'historyName'
+      },
+      triggerType
+    );
 
-      case 'company': {
-        return (
-          <Link target="_blank" to={`/companies/details/${target._id}`}>
-            {target.name}
-          </Link>
-        );
-      }
-
-      case 'deal':
-      case 'task':
-      case 'ticket': {
-        return target.name;
-      }
-
-      case 'conversation': {
-        let title: string = target.content || 'Conversation';
-        title = title.length > 100 ? `${title.substring(0, 200)}...` : title;
-        return (
-          <Link target="_blank" to={`/inbox/index?_id=${target._id}`}>
-            {title}
-          </Link>
-        );
-      }
-
-      default: {
-        return '';
-      }
+    if (Component) {
+      return Component;
     }
+
+    return '';
   };
 
   generateActionResult = (action: IAutomationHistoryAction) => {
@@ -83,20 +56,6 @@ class HistoryRow extends React.Component<Props, State> {
       return result.error;
     }
 
-    if (
-      ['cards:task.create', 'cards:deal.create', 'cards:ticket.create'].includes(action.actionType)
-    ) {
-      const type = action.actionType.substr(6).toLowerCase();
-      return (
-        <Link
-          target="_blank"
-          to={`/${type}/board?_id=${result.boardId}&itemId=${result.itemId}&key=&pipelineId=${result.pipelineId}`}
-        >
-          {`Created ${type}: ${result.name}`}
-        </Link>
-      );
-    }
-
     if (action.actionType === 'setProperty') {
       return `Update for ${(result.result || []).length} ${
         result.module
@@ -107,6 +66,19 @@ class HistoryRow extends React.Component<Props, State> {
 
     if (action.actionType === 'if') {
       return `Condition: ${result.condition}`;
+    }
+
+    const Component = renderDynamicComponent(
+      {
+        action,
+        result: action.result,
+        componentType: 'historyActionResult'
+      },
+      action.actionType
+    );
+
+    if (Component) {
+      return Component;
     }
 
     return JSON.stringify(result);
@@ -145,7 +117,7 @@ class HistoryRow extends React.Component<Props, State> {
           <tr key={action.actionId}>
             <td>{}</td>
             <td>{dayjs(action.createdAt).format('lll')}</td>
-            <td>{actionsByType[action.actionType]}</td>
+            <td>{__(actionsByType[action.actionType])}</td>
             <td colSpan={2}>{this.generateActionResult(action)}</td>
           </tr>
         ))}

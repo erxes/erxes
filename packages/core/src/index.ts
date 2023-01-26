@@ -50,6 +50,7 @@ import forms from './forms';
 import { generateModels } from './connectionResolver';
 import { authCookieOptions, getSubdomain } from '@erxes/api-utils/src/core';
 import segments from './segments';
+import automations from './automations';
 import { moduleObjects } from './data/permissions/actions/permission';
 
 const {
@@ -301,6 +302,7 @@ httpServer.listen(PORT, async () => {
       logs: { providesActivityLog: true, consumers: logs },
       forms,
       segments,
+      automations,
       permissions: moduleObjects
     }
   });

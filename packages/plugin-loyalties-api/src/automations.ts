@@ -2,6 +2,24 @@ import { generateModels, IModels } from './connectionResolver';
 import { sendContactsMessage, sendCoreMessage } from './messageBroker';
 
 export default {
+  constants: {
+    actions: [
+      {
+        type: 'loyalties:voucher.create',
+        icon: 'file-plus',
+        label: 'Create voucher',
+        description: 'Create voucher',
+        isAvailable: true
+      },
+      {
+        type: 'loyalties:scoreLog.create',
+        icon: 'file-plus',
+        label: 'Change Score',
+        description: 'Change Score',
+        isAvailable: true
+      }
+    ]
+  },
   receiveActions: async ({
     subdomain,
     data: { action, execution, actionType }
@@ -69,6 +87,11 @@ const actionCreate = async ({ models, subdomain, action, execution }) => {
           ownerId = customers[0]._id;
         }
       }
+    }
+
+    if (execution.triggerType === 'pos:posOrder') {
+      ownerType = 'customer';
+      ownerId = execution.target.customerId;
     }
 
     if (!ownerType || !ownerId) {

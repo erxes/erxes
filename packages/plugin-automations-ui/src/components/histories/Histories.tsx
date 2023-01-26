@@ -1,27 +1,28 @@
-import { ACTIONS, TRIGGERS } from '../../constants';
 import Table from '@erxes/ui/src/components/table';
 import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import { IAutomationHistory } from '../../types';
+import { IAutomationHistory, ITrigger } from '../../types';
 import Row from './Row';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 
 type Props = {
   histories: IAutomationHistory[];
+  triggersConst: ITrigger[];
+  actionsConst: any[];
 };
 
 class Histories extends React.Component<Props> {
   render() {
-    const { histories } = this.props;
+    const { histories, triggersConst, actionsConst } = this.props;
 
     const triggersByType = {};
-    TRIGGERS.forEach(t => {
+    triggersConst.forEach(t => {
       triggersByType[t.type] = `${t.label} based`;
     });
 
     const actionsByType = {};
-    ACTIONS.forEach(a => {
+    actionsConst.forEach(a => {
       actionsByType[a.type] = a.label;
     });
 

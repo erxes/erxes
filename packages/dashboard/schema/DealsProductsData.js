@@ -4,18 +4,6 @@ cube(`DealsProductsdata`, {
   sql: `SELECT * FROM ${tableSchema()}.\`deals_productsData\``,
 
   joins: {
-    Deals: {
-      sql: `${CUBE}._id = ${Deals}._id`,
-      relationship: `belongsTo`
-    },
-    Stages: {
-      sql: `${Deals}.stageId = ${Stages}._id`,
-      relationship: `belongsTo`
-    },
-    Pipelines: {
-      sql: `${Stages}.pipelineId = ${Pipelines}._id`,
-      relationship: `belongsTo`
-    },
     Products: {
       sql: `${CUBE}.\`productsData.productId\` = ${Products}._id`,
       relationship: `belongsTo`
@@ -45,6 +33,12 @@ cube(`DealsProductsdata`, {
       sql: `${CUBE}.\`productsData.quantity\``,
       type: `sum`,
       title: `Products quantity`
+    },
+    
+    unitprice: {
+      sql: `${Products}.\`unitPrice\``,
+      type: `sum`,
+      title: `Unit Price sum`
     }
   },
 
@@ -54,7 +48,7 @@ cube(`DealsProductsdata`, {
       type: `string`,
       primaryKey: true
     },
-    // .\`productsData.productId\`
+
     productsdataProduct: {
       sql: `${Products}.name`,
       type: `string`,

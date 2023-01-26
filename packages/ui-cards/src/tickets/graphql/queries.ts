@@ -1,11 +1,12 @@
-import { commonFields, commonListFields } from "../../boards/graphql/mutations";
+import { commonFields, commonListFields } from '../../boards/graphql/mutations';
 import {
   conformityQueryFieldDefs,
-  conformityQueryFields,
-} from "../../conformity/graphql/queries";
+  conformityQueryFields
+} from '../../conformity/graphql/queries';
 
 const commonParams = `
   $companyIds: [String],
+  $parentId: String,
   $customerIds: [String],
   $assignedUserIds: [String],
   $closeDateType: String,
@@ -16,15 +17,18 @@ const commonParams = `
   $sortDirection: Int,
   $userIds: [String],
   $segment: String,
+  $segmentData:String,
   $assignedToMe: String,
   $startDate: String,
   $endDate: String,
+  $noSkipArchive: Boolean,
   ${conformityQueryFields}
 `;
 
 const commonParamDefs = `
   companyIds: $companyIds,
   customerIds: $customerIds,
+  parentId: $parentId,
   assignedUserIds: $assignedUserIds,
   closeDateType: $closeDateType,
   priority: $priority,
@@ -34,9 +38,11 @@ const commonParamDefs = `
   sortDirection: $sortDirection,
   userIds: $userIds,
   segment: $segment,
+  segmentData: $segmentData,
   assignedToMe: $assignedToMe,
   startDate: $startDate,
   endDate: $endDate,
+  noSkipArchive: $noSkipArchive,
   ${conformityQueryFieldDefs}
 `;
 
@@ -157,5 +163,5 @@ export default {
   ticketsTotalCount,
   ticketDetail,
   archivedTickets,
-  archivedTicketsCount,
+  archivedTicketsCount
 };

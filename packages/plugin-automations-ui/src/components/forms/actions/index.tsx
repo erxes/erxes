@@ -1,30 +1,56 @@
-import { ACTIONS } from '../../../constants';
-import BoardItemForm from '../../../containers/forms/actions/subForms/BoardItemForm';
 import IfForm from '../../../containers/forms/actions/subForms/IfForm';
 import SetProperty from '../../../containers/forms/actions/subForms/SetProperty';
-import { IAction } from '../../../types';
+import { IAction } from '@erxes/ui-automations/src/types';
 import Button from '@erxes/ui/src/components/Button';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import Common from './Common';
+import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 import CustomCode from './subForms/CustomCode';
 import Delay from './subForms/Delay';
-import LoyaltyForm from '../../../containers/forms/actions/subForms/LoyaltyForm';
-import ChangeScore from './subForms/ChangeScore';
+import { renderDynamicComponent } from '../../../utils';
 
 type Props = {
   onSave: () => void;
   closeModal: () => void;
   activeAction: IAction;
   addAction: (action: IAction, actionId?: string, config?: any) => void;
+  actionsConst: any[];
+  propertyTypesConst: any[];
 };
 
+const renderExtraContent = props => {
+  const {
+    activeAction: { type }
+  } = props;
+
+  const response = {
+    default: <DefaultForm {...props} />,
+    delay: <Delay {...props} />,
+    setProperty: <SetProperty {...props} />,
+    if: <IfForm {...props} />,
+    customCode: <CustomCode {...props} />
+  };
+
+  const Component = renderDynamicComponent(
+    {
+      ...props,
+      componentType: 'actionForm'
+    },
+    type
+  );
+
+  if (Component) {
+    response[type] = Component;
+  }
+
+  return response;
+};
 class DefaultForm extends React.Component<Props> {
   render() {
-    const { activeAction, onSave, closeModal } = this.props;
+    const { activeAction, onSave, closeModal, actionsConst } = this.props;
 
-    const currentAction = ACTIONS.find(
+    const currentAction = actionsConst.find(
       action => action.type === activeAction.type && action.component
     );
 
@@ -57,13 +83,4 @@ class DefaultForm extends React.Component<Props> {
   }
 }
 
-export const ActionForms = {
-  default: DefaultForm,
-  delay: Delay,
-  setProperty: SetProperty,
-  if: IfForm,
-  boardItem: BoardItemForm,
-  customCode: CustomCode,
-  voucher: LoyaltyForm,
-  changeScore: ChangeScore
-};
+export const ActionForms = renderExtraContent;

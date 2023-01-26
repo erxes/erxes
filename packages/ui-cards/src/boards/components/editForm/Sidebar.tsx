@@ -23,11 +23,12 @@ type Props = {
     }: { _id: string; status: string; timeSpent: number; startDate?: string },
     callback?: () => void
   ) => void;
+  childrenSection: () => any;
 };
 
 class Sidebar extends React.Component<Props> {
   render() {
-    const { item, saveItem, sidebar } = this.props;
+    const { item, saveItem, sidebar, childrenSection } = this.props;
 
     const userOnChange = usrs => saveItem({ assignedUserIds: usrs });
     const assignedUserIds = (item.assignedUsers || []).map(user => user._id);
@@ -43,10 +44,10 @@ class Sidebar extends React.Component<Props> {
             onSelect={userOnChange}
           />
         </FormGroup>
-
         {isEnabled('products') && sidebar && sidebar(saveItem)}
 
         <SidebarConformity {...this.props} />
+        {childrenSection()}
       </RightContent>
     );
   }

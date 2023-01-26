@@ -1,7 +1,7 @@
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import * as _ from 'underscore';
 import { generateModels } from './connectionResolver';
-import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
+import { IMPORT_EXPORT_TYPES } from './constants';
 import { clearEmptyValues, generatePronoun } from './importUtils';
 import {
   sendCoreMessage,
@@ -10,8 +10,7 @@ import {
 } from './messageBroker';
 
 export default {
-  importTypes: IMPORT_TYPES,
-  exportTypes: EXPORT_TYPES,
+  importExportTypes: IMPORT_EXPORT_TYPES,
   insertImportItems: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -442,7 +441,9 @@ export default {
                 subdomain,
                 action: 'fields.prepareCustomFieldsData',
                 data: doc.customFieldsData,
-                isRPC: true
+                isRPC: true,
+                defaultValue: doc.customFieldsData,
+                timeout: 60 * 1000 // 1 minute
               });
             }
             break;

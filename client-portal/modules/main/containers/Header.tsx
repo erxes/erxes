@@ -1,8 +1,9 @@
-import { gql, useMutation } from "@apollo/client";
-import React from "react";
-import { mutations } from "../../user/graphql";
-import Header from "../components/Header";
-import { Config, IUser } from "../../types";
+import { gql, useMutation } from '@apollo/client';
+import React from 'react';
+
+import { Config, IUser } from '../../types';
+import { mutations } from '../../user/graphql';
+import Header from '../components/Header';
 
 type Props = {
   config: Config;
@@ -10,6 +11,7 @@ type Props = {
   headerHtml?: string;
   headingSpacing?: boolean;
   headerBottomComponent?: React.ReactNode;
+  notificationsCount: number;
 };
 
 function HeaderContainer(props: Props) {
@@ -20,7 +22,7 @@ function HeaderContainer(props: Props) {
   }
 
   if (data) {
-    window.location.href = "/";
+    window.location.href = '/';
   }
 
   const updatedProps = {

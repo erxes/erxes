@@ -84,6 +84,10 @@ export const articleDetailQuery = `
       summary
       content
       status
+      forms {
+        brandId
+        formId
+      }
       reactionChoices
       reactionCounts
       createdBy

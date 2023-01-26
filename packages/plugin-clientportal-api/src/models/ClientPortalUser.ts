@@ -8,11 +8,12 @@ import * as sha256 from 'sha256';
 import { createJwtToken } from '../auth/authUtils';
 import { IModels } from '../connectionResolver';
 import { IVerificationParams } from '../graphql/resolvers/mutations/clientPortalUser';
-import { sendCoreMessage } from '../messageBroker';
+import { sendCommonMessage, sendCoreMessage } from '../messageBroker';
 import { generateRandomPassword, sendSms } from '../utils';
 import { IClientPortalDocument, IOTPConfig } from './definitions/clientPortal';
 import {
   clientPortalUserSchema,
+  INotifcationSettings,
   IUser,
   IUserDocument
 } from './definitions/clientPortalUser';
@@ -44,7 +45,11 @@ export interface IUserModel extends Model<IUserDocument> {
   invite(subdomain: string, doc: IUser): Promise<IUserDocument>;
   getUser(doc: any): Promise<IUserDocument>;
   createUser(subdomain: string, doc: IUser): Promise<IUserDocument>;
-  updateUser(_id: string, doc: IUser): Promise<IUserDocument>;
+  updateUser(
+    subdomain: string,
+    _id: string,
+    doc: IUser
+  ): Promise<IUserDocument>;
   removeUser(_ids: string[]): Promise<{ n: number; ok: number }>;
   checkPassword(password: string): void;
   getSecret(): string;
@@ -99,10 +104,20 @@ export interface IUserModel extends Model<IUserDocument> {
     code: string;
     password: string;
   }): string;
-  verifyUser(args: IVerificationParams): string;
+  verifyUser(args: IVerificationParams): Promise<IUserDocument>;
   verifyUsers(userids: string[], type: string): Promise<IUserDocument>;
   confirmInvitation(params: IConfirmParams): Promise<IUserDocument>;
   updateSession(_id: string): Promise<IUserDocument>;
+  updateNotificationSettings(
+    _id: string,
+    doc: INotifcationSettings
+  ): Promise<IUserDocument>;
+  loginWithPhone(
+    subdomain: string,
+    clientPortal: IClientPortalDocument,
+    phone: string,
+    deviceToken?: string
+  ): Promise<{ userId: string; phoneCode: string }>;
 }
 
 export const loadClientPortalUserClass = (models: IModels) => {
@@ -192,6 +207,17 @@ export const loadClientPortalUserClass = (models: IModels) => {
         document.isPhoneVerified = true;
       }
 
+      if (doc.customFieldsData) {
+        // clean custom field values
+        doc.customFieldsData = await sendCommonMessage({
+          serviceName: 'forms',
+          subdomain,
+          action: 'fields.prepareCustomFieldsData',
+          data: doc.customFieldsData,
+          isRPC: true
+        });
+      }
+
       const user = await handleContacts({
         subdomain,
         models,
@@ -257,7 +283,18 @@ export const loadClientPortalUserClass = (models: IModels) => {
       return user;
     }
 
-    public static async updateUser(_id, doc: IUser) {
+    public static async updateUser(subdomain, _id, doc: IUser) {
+      if (doc.customFieldsData) {
+        // clean custom field values
+        doc.customFieldsData = await sendCommonMessage({
+          serviceName: 'forms',
+          subdomain,
+          action: 'fields.prepareCustomFieldsData',
+          data: doc.customFieldsData,
+          isRPC: true
+        });
+      }
+
       await models.ClientPortalUsers.updateOne(
         { _id },
         { $set: { ...doc, modifiedAt: new Date() } }
@@ -546,16 +583,18 @@ export const loadClientPortalUserClass = (models: IModels) => {
       clientPortalId,
       phone,
       email,
+      expireAfter,
       isRessetting
     }: {
       codeLength: number;
       clientPortalId: string;
       phone?: string;
       email?: string;
+      expireAfter?: number;
       isRessetting?: boolean;
     }) {
       const code = this.generateVerificationCode(codeLength);
-      const codeExpires = Date.now() + 60000 * 5;
+      const codeExpires = Date.now() + 60000 * (expireAfter || 5);
 
       let query: any = {};
       let userFindQuery: any = {};
@@ -647,7 +686,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
       await putActivityLog(user);
 
-      return 'verified';
+      return user;
     }
 
     public static async login({
@@ -701,7 +740,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
       this.updateSession(user._id);
 
-      return createJwtToken({ userId: user._id });
+      return createJwtToken({ userId: user._id, type: user.type });
     }
 
     public static async invite(
@@ -862,6 +901,85 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
       // updated customer
       return models.ClientPortalUsers.findOne({ _id });
+    }
+
+    /*
+     *Update notification settings
+     */
+    public static async updateNotificationSettings(
+      _id: string,
+      doc: INotifcationSettings
+    ): Promise<IUser> {
+      const user = await models.ClientPortalUsers.findOne({ _id });
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      await models.ClientPortalUsers.updateOne(
+        { _id },
+        {
+          $set: {
+            notificationSettings: { ...doc }
+          }
+        }
+      );
+
+      return models.ClientPortalUsers.getUser({ _id });
+    }
+
+    /*
+     * login with phone
+     */
+    public static async loginWithPhone(
+      subdomain: string,
+      clientPortal: IClientPortalDocument,
+      phone: string,
+      deviceToken?: string
+    ) {
+      let user = await models.ClientPortalUsers.findOne({
+        phone,
+        clientPortalId: clientPortal._id
+      });
+
+      if (!user) {
+        user = await handleContacts({
+          subdomain,
+          models,
+          clientPortalId: clientPortal._id,
+          document: { phone }
+        });
+      }
+
+      if (!user) {
+        throw new Error('Can not create user');
+      }
+
+      if (deviceToken) {
+        const deviceTokens: string[] = user.deviceTokens || [];
+
+        if (!deviceTokens.includes(deviceToken)) {
+          deviceTokens.push(deviceToken);
+
+          await user.update({ $set: { deviceTokens } });
+        }
+      }
+
+      this.updateSession(user._id);
+
+      const config = clientPortal.otpConfig || {
+        codeLength: 4,
+        expireAfter: 1
+      };
+
+      const phoneCode = await this.imposeVerificationCode({
+        clientPortalId: clientPortal._id,
+        codeLength: config.codeLength,
+        phone: user.phone,
+        expireAfter: config.expireAfter
+      });
+
+      return { userId: user._id, phoneCode };
     }
   }
 

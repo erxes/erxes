@@ -88,6 +88,11 @@ export const types = ({ tags }) => `
     month: Int
     year: Int
   }
+
+  input Interval {
+    startTime: Date
+    endTime: Date
+  }
 `;
 
 const stageParams = `
@@ -126,6 +131,7 @@ export const queries = `
   cardsFields: JSON
   boardContentTypeDetail(contentType: String, contentId: String): JSON
   boardLogs(action: String, content:JSON, contentId: String, contentType: String): JSON
+  checkFreeTimes(pipelineId: String, intervals: [Interval]): JSON
 `;
 
 const commonParams = `

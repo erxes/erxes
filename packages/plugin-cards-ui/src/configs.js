@@ -9,6 +9,7 @@ module.exports = {
     './propertyGroupForm': './src/propertyGroupForm.tsx',
     './segmentForm': './src/segmentForm.tsx',
     './activityLog': './src/activityLogs/activityLog.tsx',
+    './automation': './src/automations/automation.tsx',
     './contactDetailRightSidebar': './src/RightSidebar.tsx'
   },
   routes: {
@@ -19,6 +20,7 @@ module.exports = {
   propertyGroupForm: './propertyGroupForm',
   segmentForm: './segmentForm',
   activityLog: './activityLog',
+  automation: './automation',
   contactDetailRightSidebar: './contactDetailRightSidebar',
   menus: [
     {

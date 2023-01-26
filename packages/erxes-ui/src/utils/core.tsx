@@ -119,6 +119,21 @@ export class RenderDynamicComponent extends React.Component<
   }
 }
 
+export const getPluginConfig = ({ pluginName, configName }) => {
+  const plugins: any[] = (window as any).plugins || [];
+
+  let result;
+
+  for (const plugin of plugins) {
+    if (plugin.name === pluginName && plugin[configName]) {
+      result = plugin[configName];
+      break;
+    }
+  }
+
+  return result;
+};
+
 export const renderFullName = data => {
   if (data.firstName || data.lastName || data.middleName || data.primaryPhone) {
     return (
@@ -295,9 +310,9 @@ export const getUserAvatar = (user: IUserDoc) => {
     return '';
   }
 
-  const { details = {} } = user;
+  const details = user.details;
 
-  if (!details.avatar) {
+  if (!details || !details.avatar) {
     return '/images/avatar-colored.svg';
   }
 
@@ -644,4 +659,13 @@ export const publicUrl = path => {
   }
 
   return `${prefix}${path}`;
+};
+
+export const getThemeItem = code => {
+  const configs = JSON.parse(
+    localStorage.getItem('erxes_theme_configs') || '[]'
+  );
+  const config = configs.find(c => c.code === `THEME_${code.toUpperCase()}`);
+
+  return config ? config.value : '';
 };

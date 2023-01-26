@@ -20,16 +20,16 @@ const routes = () => {
   return (
     <React.Fragment>
       <Route
-        key="/settings/installer/details/:id"
+        key="/marketplace/details/:id"
         exact={true}
-        path="/settings/installer/details/:id"
+        path="/marketplace/details/:id"
         component={detail}
       />
 
       <Route
-        path="/settings/installer"
+        path="/marketplace"
         exact={true}
-        key="/settings/installer"
+        key="/marketplace"
         component={Store}
       />
     </React.Fragment>

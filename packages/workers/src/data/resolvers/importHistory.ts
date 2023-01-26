@@ -1,8 +1,12 @@
 import { IImportHistoryDocument } from 'src/db/models/definitions/importHistory';
 
 export default {
-  user(_history: IImportHistoryDocument) {
-    return '123213';
-    // getDocument('users', { _id: history.userId });
+  user(history: IImportHistoryDocument) {
+    return (
+      history.userId && {
+        __typename: 'User',
+        _id: history.userId
+      }
+    );
   }
 };

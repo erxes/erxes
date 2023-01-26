@@ -26,7 +26,7 @@ export default class NavigationList extends React.Component<Props, State> {
       showMenu: false,
       clickedMenu: '',
       pinnedPlugins: JSON.parse(localStorage.getItem('pinnedPlugins') || '[]'),
-      countOfPinnedPlugins: window.innerHeight > 900 ? 8 : 5
+      countOfPinnedPlugins: window.innerHeight > 900 ? 7 : 5
     };
   }
 
@@ -66,13 +66,14 @@ export default class NavigationList extends React.Component<Props, State> {
 
       return <Redirect to={`/welcome`} />;
     };
+
     return (
       <>
         <Route exact={true} path="/" key="root" render={index} />
         <Nav id="navigation">
-          {plugins.map((plugin: any, index: number) => (
+          {plugins.map((plugin: any, i: number) => (
             <NavigationItem
-              key={index}
+              key={i}
               plugin={plugin}
               navCollapse={navCollapse}
               showMenu={showMenu}

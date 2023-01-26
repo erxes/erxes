@@ -61,16 +61,14 @@ export const join = async ({
   port,
   dbConnectionString,
   hasSubscriptions = false,
-  importTypes,
-  exportTypes,
+  importExportTypes,
   meta
 }: {
   name: string;
   port: string;
   dbConnectionString: string;
   hasSubscriptions?: boolean;
-  importTypes?: any;
-  exportTypes?: any;
+  importExportTypes?: any;
   meta?: any;
 }) => {
   await redis.set(
@@ -79,8 +77,7 @@ export const join = async ({
     JSON.stringify({
       dbConnectionString,
       hasSubscriptions,
-      importTypes,
-      exportTypes,
+      importExportTypes,
       meta
     })
   );

@@ -26,6 +26,7 @@ import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext, IModels } from '../../connectionResolver';
+import { isServiceRunning } from '../../utils';
 
 interface IEditIntegration extends IIntegration {
   _id: string;
@@ -219,7 +220,7 @@ const integrationMutations = {
   },
 
   /**
-   * Create external integrations like twitter, facebook, gmail etc ...
+   * Create external integrations like twitter, gmail etc ...
    */
   async integrationsCreateExternalIntegration(
     _root,
@@ -254,48 +255,23 @@ const integrationMutations = {
       );
     }
 
-    let kind = doc.kind;
-
-    if (kind.includes('facebook')) {
-      kind = 'facebook';
-    }
+    const kind = doc.kind.split('-')[0];
 
     try {
       if ('webhook' !== kind) {
-        let brokerDoc: any = {
-          accountId: doc.accountId,
-          kind: doc.kind,
-          integrationId: integration._id
-        };
-
-        let serviceName;
-
-        if (
-          [
-            'facebook-messenger',
-            'facebook-post',
-            'callpro',
-            'webhook'
-          ].includes(kind)
-        ) {
-          serviceName = 'integrations';
-          brokerDoc.data = data ? JSON.stringify(data) : '';
-        } else {
-          serviceName = kind;
-          brokerDoc = {
-            ...brokerDoc,
-            ...data
-          };
-        }
-
         await sendCommonMessage({
-          serviceName,
+          serviceName: (await isServiceRunning(kind)) ? kind : 'integrations',
           subdomain,
           action: 'createIntegration',
           data: {
             kind,
             integrationId: integration._id,
-            doc: brokerDoc
+            doc: {
+              accountId: doc.accountId,
+              kind: doc.kind,
+              integrationId: integration._id,
+              data: data ? JSON.stringify(data) : ''
+            }
           },
           isRPC: true
         });
@@ -380,43 +356,34 @@ const integrationMutations = {
     const integration = await models.Integrations.getIntegration({ _id });
 
     try {
-      if (
-        ['facebook-messenger', 'facebook-post', 'callpro', 'webhook'].includes(
-          integration.kind
-        )
-      ) {
-        await sendIntegrationsMessage({
-          subdomain,
-          action: 'removeIntegrations',
-          data: {
-            integrationId: _id
-          },
-          isRPC: true
-        });
-      } else {
-        await sendCommonMessage({
-          serviceName: integration.kind,
-          subdomain,
-          action: 'removeIntegration',
-          data: {
-            integrationId: _id
-          },
-          isRPC: true
-        });
-      }
-
-      await putDeleteLog(
-        models,
+      const kind = integration.kind.split('-')[0];
+      const commonParams = {
         subdomain,
-        { type: MODULE_NAMES.INTEGRATION, object: integration },
-        user
-      );
+        data: { integrationId: _id },
+        isRPC: true,
+        action: 'removeIntegrations'
+      };
 
-      return models.Integrations.removeIntegration(_id);
+      if (await isServiceRunning(kind)) {
+        await sendCommonMessage({ serviceName: kind, ...commonParams });
+      } else {
+        await sendIntegrationsMessage({ ...commonParams });
+      }
     } catch (e) {
-      debug.error(e);
-      throw e;
+      if (e.message !== 'Integration not found') {
+        debug.error(e);
+        throw e;
+      }
     }
+
+    await putDeleteLog(
+      models,
+      subdomain,
+      { type: MODULE_NAMES.INTEGRATION, object: integration },
+      user
+    );
+
+    return models.Integrations.removeIntegration(_id);
   },
 
   /**
@@ -424,11 +391,13 @@ const integrationMutations = {
    */
   async integrationsRemoveAccount(
     _root,
-    { _id }: { _id: string },
+    { _id, kind }: { _id: string; kind?: string },
     { models, subdomain }: IContext
   ) {
     try {
-      const { erxesApiIds } = await sendIntegrationsMessage({
+      const { erxesApiIds } = await sendCommonMessage({
+        serviceName:
+          kind && (await isServiceRunning(kind)) ? kind : 'integrations',
         subdomain,
         action: 'api_to_integrations',
         data: {
@@ -443,6 +412,33 @@ const integrationMutations = {
       }
 
       return 'success';
+    } catch (e) {
+      debug.error(e);
+      throw e;
+    }
+  },
+
+  async integrationsRepair(
+    _root,
+    { _id, kind }: { _id: string; kind: string },
+    { subdomain }: IContext
+  ) {
+    try {
+      const response = await sendCommonMessage({
+        serviceName:
+          kind && (await isServiceRunning(kind))
+            ? kind.split('-')[0]
+            : 'integrations',
+        subdomain,
+        action: 'api_to_integrations',
+        data: {
+          action: 'repair-integrations',
+          _id
+        },
+        isRPC: true
+      });
+
+      return response;
     } catch (e) {
       debug.error(e);
       throw e;

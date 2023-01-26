@@ -2,16 +2,15 @@ import customScalars from '@erxes/api-utils/src/customScalars';
 
 import mutations from './mutations';
 import queries from './queries';
-import { IContext } from '../../connectionResolver';
-import { ITemplateDocument } from '../../models/definitions/template';
+import { Types } from '../../models';
 
 const {Name} = {
-  currentType({name}: ITemplateDocument, _args, { models }: IContext) {
-    return models.Types.findOne({ _id: {name}.typeId });
+  currentType({name}, _args) {
+    return Types.findOne({ _id: {name}.typeId });
   }
 };
 
-const resolvers: any = async serviceDiscovery => ({
+const resolvers: any = async (_serviceDiscovery) => ({
   ...customScalars,
   {Name},
   Mutation: {

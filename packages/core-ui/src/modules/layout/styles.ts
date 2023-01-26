@@ -25,10 +25,10 @@ import { Modal } from 'react-bootstrap';
 import { twinkling } from 'modules/common/utils/animations';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { getThemeItem } from 'utils';
 
 import { colors, dimensions } from '../common/styles';
 import { rgba } from '../common/styles/color';
+import { getThemeItem } from '@erxes/ui/src/utils/core';
 
 const thBackground = getThemeItem('background');
 const thColor = getThemeItem('text_color');
@@ -337,7 +337,7 @@ const NavImage = styledTS<{ navCollapse?: number }>(styled.img)`
       : props.navCollapse === 2
       ? dimensions.headerSpacing * 2 - 1
       : dimensions.headerSpacing * 3 + dimensions.unitSpacing}px !important;
-  margin: 5px;
+  padding: 5px;
 `;
 
 const BottomMenu = styled.div`

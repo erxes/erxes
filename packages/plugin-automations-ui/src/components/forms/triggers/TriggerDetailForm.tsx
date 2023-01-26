@@ -1,8 +1,9 @@
 import React from 'react';
 import { ITrigger } from '../../../types';
 import SegmentsForm from '@erxes/ui-segments/src/containers/form/SegmentsForm';
-import { Description, TriggerTabs, ScrolledContent } from '../../../styles';
-import { __ } from '@erxes/ui/src/utils/core';
+import { Description, TriggerTabs } from '../../../styles';
+import { ScrolledContent } from '@erxes/ui-automations/src/styles';
+import { __ } from 'coreui/utils';
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 import ReEnrollmentContainer from '../../../containers/forms/triggers/ReEnrollment';
 

@@ -41,7 +41,7 @@ type Props = {
   queryParams: IQueryParams;
   changeRedirectType?: (type: string) => void;
   changeVerificationStatus?: (isEmail: boolean) => void;
-  fieldsVisibility: (key: string) => any; //check - IFieldsVisibility
+  fieldsVisibility: (key: string) => any; // check - IFieldsVisibility
 };
 
 type State = {
@@ -70,7 +70,9 @@ class CustomerForm extends React.Component<Props, State> {
       hasAuthority: customer.hasAuthority || 'No',
       users: [],
       birthDate: customer.birthDate,
-      avatar: customer.avatar
+      avatar: customer.avatar,
+      primaryEmail: customer.primaryEmail,
+      primaryPhone: customer.primaryPhone
     };
   }
 
@@ -157,7 +159,7 @@ class CustomerForm extends React.Component<Props, State> {
       name = 'owner';
     }
 
-    if (!visibility[name]) {
+    if (!visibility[name] && type !== 'link') {
       return null;
     }
 
@@ -246,12 +248,16 @@ class CustomerForm extends React.Component<Props, State> {
     const { customer } = this.props;
     const links = (customer ? customer.links : {}) || {};
 
-    return this.renderFormGroup(link.label, {
-      ...formProps,
-      name: link.value,
-      defaultValue: links[link.value] || '',
-      type: 'url'
-    });
+    return this.renderFormGroup(
+      link.label,
+      {
+        ...formProps,
+        name: link.value,
+        defaultValue: links[link.value] || '',
+        type: 'url'
+      },
+      'link'
+    );
   }
 
   renderContent = (formProps: IFormProps) => {
@@ -487,7 +493,7 @@ class CustomerForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: customer.state || 'customer',
+            passedName: customer.state || 'customer',
             values: this.generateDoc(values),
             isSubmitted,
             object: this.props.customer,

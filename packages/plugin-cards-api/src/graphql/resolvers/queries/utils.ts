@@ -138,6 +138,7 @@ export const generateCommonFilters = async (
     pipelineId,
     pipelineIds,
     stageId,
+    parentId,
     search,
     closeDateType,
     assignedUserIds,
@@ -154,6 +155,7 @@ export const generateCommonFilters = async (
     userIds,
     tagIds,
     segment,
+    segmentData,
     assignedToMe,
     startDate,
     endDate,
@@ -169,9 +171,13 @@ export const generateCommonFilters = async (
 
   const filter: any = noSkipArchive
     ? {}
-    : { status: { $ne: BOARD_STATUSES.ARCHIVED } };
+    : { status: { $ne: BOARD_STATUSES.ARCHIVED }, parentId: undefined };
 
   let filterIds: string[] = [];
+
+  if (parentId) {
+    filter.parentId = parentId;
+  }
 
   if (assignedUserIds) {
     // Filter by assigned to no one
@@ -328,7 +334,6 @@ export const generateCommonFilters = async (
 
   if (pipelineId) {
     const pipeline = await models.Pipelines.getPipeline(pipelineId);
-
     if (
       (pipeline.isCheckUser || pipeline.isCheckDepartment) &&
       !(pipeline.excludeCheckUserIds || []).includes(currentUserId)
@@ -336,19 +341,24 @@ export const generateCommonFilters = async (
       let includeCheckUserIds: string[] = [];
 
       if (pipeline.isCheckDepartment) {
-        const departments = await sendCoreMessage({
+        const user = await sendCoreMessage({
           subdomain,
-          action: 'departments.find',
+          action: 'users.findOne',
           data: {
-            userIds: { $in: [currentUserId] }
+            _id: currentUserId
           },
           isRPC: true
         });
 
-        for (const department of departments) {
-          includeCheckUserIds = includeCheckUserIds.concat(
-            department.userIds || []
-          );
+        const userDepartmentIds = user?.departmentIds || [];
+        const pipelineDepartmentIds = pipeline.departmentIds || [];
+
+        if (
+          !!pipelineDepartmentIds.filter(departmentId =>
+            userDepartmentIds.includes(departmentId)
+          ).length
+        ) {
+          includeCheckUserIds = includeCheckUserIds.concat(user._id || []);
         }
       }
 
@@ -373,6 +383,12 @@ export const generateCommonFilters = async (
 
   if (assignedToMe) {
     filter.assignedUserIds = { $in: [currentUserId] };
+  }
+
+  if (segmentData) {
+    const segment = JSON.parse(segmentData);
+    const itemIds = await fetchSegment(subdomain, '', {}, segment);
+    filter._id = { $in: itemIds };
   }
 
   if (segment) {
@@ -772,6 +788,7 @@ export const getItemList = async (
         customFieldsData: 1,
         stageChangedDate: 1,
         tagIds: 1,
+        status: 1,
         ...(extraFields || {})
       }
     }
@@ -781,7 +798,15 @@ export const getItemList = async (
     pipelines.splice(3, 0, { $limit: limit });
   }
 
+  if (serverTiming) {
+    serverTiming.startTime('getItemsPipelineAggregate');
+  }
+
   const list = await collection.aggregate(pipelines);
+
+  if (serverTiming) {
+    serverTiming.endTime('getItemsPipelineAggregate');
+  }
 
   const ids = list.map(item => item._id);
 
@@ -965,6 +990,10 @@ export const getItemList = async (
     serverTiming.endTime('getItemsNotifications');
   }
 
+  if (serverTiming) {
+    serverTiming.startTime('getItemsFields');
+  }
+
   const fields = await sendFormsMessage({
     subdomain,
     action: 'fields.find',
@@ -977,6 +1006,10 @@ export const getItemList = async (
     isRPC: true,
     defaultValue: []
   });
+
+  if (serverTiming) {
+    serverTiming.endTime('getItemsFields');
+  }
 
   for (const item of list) {
     if (

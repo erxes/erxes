@@ -9,8 +9,8 @@ type Props = {
 };
 
 const clientPortalTickets = `
-  query clientPortalTickets($email: String!) {
-    clientPortalTickets(email: $email) {
+  query clientPortalTickets {
+    clientPortalTickets {
       _id
       name
       description
@@ -23,7 +23,6 @@ const clientPortalTickets = `
 
 function TicketContainer({ currentUser, ...props }: Props) {
   const { loading, data = {} as any } = useQuery(gql(clientPortalTickets), {
-    variables: { email: (currentUser || {}).email },
     skip: !currentUser,
   });
 

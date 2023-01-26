@@ -22,6 +22,7 @@ import search from './search';
 import widgetsMiddleware from './middlewares/widgetsMiddleware';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
+import automations from './automations';
 import cronjobs from './cronjobs/conversations';
 
 export let mainDb;
@@ -49,6 +50,7 @@ export default {
     search,
     logs: { providesActivityLog: true, consumers: logs },
     webhooks,
+    automations,
     cronjobs,
     // for fixing permissions
     permissions
@@ -81,7 +83,7 @@ export default {
       '/events-receive',
       routeErrorHandling(
         async (req, res) => {
-          const { name, customerId, attributes } = req.body;
+          const { name, triggerAutomation, customerId, attributes } = req.body;
           const subdomain = getSubdomain(req);
 
           const response =
@@ -89,6 +91,7 @@ export default {
               ? await trackViewPageEvent(subdomain, { customerId, attributes })
               : await trackCustomEvent(subdomain, {
                   name,
+                  triggerAutomation,
                   customerId,
                   attributes
                 });

@@ -1,15 +1,17 @@
-import Box from '@erxes/ui/src/components/Box';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
-import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
-import { IProduct } from '@erxes/ui-products/src/types';
-import React from 'react';
-import ProductForm from '../containers/product/ProductForm';
 import { CustomField, ProductName } from '../styles';
 import { IDeal, IPaymentsData, IProductData } from '../types';
+
+import Box from '@erxes/ui/src/components/Box';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { IProduct } from '@erxes/ui-products/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import ProductForm from '../containers/product/ProductForm';
+import { Quantity } from '../../boards/styles/stage';
+import React from 'react';
+import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   productsData: IProductData[];
@@ -72,18 +74,30 @@ function ProductSection({
     return (
       <ModalTrigger
         title="Manage Product & Service"
-        size="lg"
-        dialogClassName="modal-1000w"
+        size="xl"
+        dialogClassName="wide-modal extra-wide-modal"
         trigger={trigger}
         content={contentWithId(productId)}
       />
     );
   };
 
-  const renderProductName = (productName: string, productId: string) => {
+  const renderProductItem = (
+    productName: string,
+    quantity: number,
+    uom: string,
+    productId: string
+  ) => {
     return renderProductFormModal(
       <ProductName>
-        {productName}
+        <div>
+          {productName}
+          {quantity && (
+            <Quantity>
+              ({quantity} {uom ? uom : 'PC'})
+            </Quantity>
+          )}
+        </div>
         <Icon icon="pen-1" />
       </ProductName>,
       productId
@@ -94,12 +108,22 @@ function ProductSection({
     if (product.customFieldsData) {
       return (
         <Tip text={tipItems(product)} placement="bottom">
-          {renderProductName(product.name, product._id)}
+          {renderProductItem(
+            product.name,
+            product.quantity,
+            product.uom,
+            product._id
+          )}
         </Tip>
       );
     }
 
-    return renderProductName(product.name, product._id);
+    return renderProductItem(
+      product.name,
+      product.quantity,
+      product.uom,
+      product._id
+    );
   };
 
   return (

@@ -21,7 +21,8 @@ import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Link } from 'react-router-dom';
 import xss from 'xss';
-import { ProductContent } from '../../../styles';
+import { ProductBarcodeContent, ProductContent } from '../../../styles';
+import { isValidBarcode } from '../../../utils';
 
 type Props = {
   product: IProduct;
@@ -47,6 +48,26 @@ class BasicInfo extends React.Component<Props> {
           <SidebarCounter>{vendor.primaryName || ''}</SidebarCounter>
         </Link>
       </li>
+    );
+  };
+
+  renderBarcodes = barcodes => {
+    return (
+      <>
+        <li>
+          <FieldStyle>{__(`Barcodes`)}</FieldStyle>
+        </li>
+        {(barcodes || []).map((item: string, iteration: number) => (
+          <ProductBarcodeContent key={iteration} isValid={isValidBarcode(item)}>
+            <Link
+              to={`/settings/barcode-generator/${this.props.product._id}?barcode=${item}`}
+            >
+              <Icon icon="print" />
+              {item}
+            </Link>
+          </ProductBarcodeContent>
+        ))}
+      </>
     );
   };
 
@@ -114,6 +135,7 @@ class BasicInfo extends React.Component<Props> {
       minimiumCount,
       unitPrice,
       sku,
+      barcodes,
       attachment,
       vendor,
       description
@@ -140,6 +162,7 @@ class BasicInfo extends React.Component<Props> {
           {this.renderView('Category', category ? category.name : '')}
           {this.renderView('Unit price', (unitPrice || 0).toLocaleString())}
           {this.renderView('Sku', sku)}
+          {this.renderBarcodes(barcodes)}
           {this.renderVendor(vendor)}
           {this.renderView('Supply', supply)}
           {this.renderView('Product count', productCount)}

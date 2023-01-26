@@ -192,15 +192,6 @@ export const loadClass = (models: IModels, subdomain: string) => {
       return models.Integrations.aggregate([
         { $match: query },
         {
-          $lookup: {
-            from: 'forms',
-            localField: 'formId',
-            foreignField: '_id',
-            as: 'form'
-          }
-        },
-        { $unwind: '$form' },
-        {
           $project: {
             isActive: 1,
             name: 1,
@@ -340,7 +331,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
     }
 
     /**
-     * Create external integrations like facebook, twitter integration
+     * Create external integrations like twitter
      */
     public static createExternalIntegration(
       doc: IExternalIntegrationParams,

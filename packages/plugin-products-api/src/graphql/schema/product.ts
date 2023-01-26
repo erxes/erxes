@@ -10,20 +10,20 @@ export const types = (tagsAvailable, contactsAvailable) => `
   ${
     tagsAvailable
       ? `
-      extend type Tag @key(fields: "_id") {
-        _id: String! @external
-      }
-    `
+        extend type Tag @key(fields: "_id") {
+          _id: String! @external
+        }
+      `
       : ''
   }
 
   ${
     contactsAvailable
       ? `
-      extend type Company @key(fields: "_id") {
-        _id: String! @external
-      }
-    `
+        extend type Company @key(fields: "_id") {
+          _id: String! @external
+        }
+      `
       : ''
   }
 
@@ -47,6 +47,8 @@ export const types = (tagsAvailable, contactsAvailable) => `
     type: String
     description: String
     sku: String
+    barcodes: [String]
+    barcodeDescription: String
     unitPrice: Float
     categoryId: String
     customFieldsData: JSON
@@ -74,6 +76,8 @@ const productParams = `
   type: String,
   description: String,
   sku: String,
+  barcodes: [String],
+  barcodeDescription: String,
   unitPrice: Float,
   code: String,
   customFieldsData: JSON,
@@ -83,9 +87,8 @@ const productParams = `
   productCount: Int,
   minimiumCount: Int,
   vendorId: String,
-
   uomId: String,
-  subUoms: JSON
+  subUoms: JSON,
 `;
 
 const productCategoryParams = `
@@ -97,23 +100,31 @@ const productCategoryParams = `
   status: String
 `;
 
+const productsQueryParams = `
+  type: String,
+  categoryId: String,
+  searchValue: String,
+  tag: String,
+  page: Int,
+  perPage: Int ids: [String],
+  excludeIds: Boolean,
+  pipelineId: String,
+  boardId: String,
+  segment: String,
+  segmentData: String,
+`;
+
 export const queries = `
   productCategories(parentId: String, searchValue: String, status: String): [ProductCategory]
   productCategoriesTotalCount: Int
   productCategoryDetail(_id: String): ProductCategory
-
   products(
-    type: String,
-    categoryId: String,
-    searchValue: String,
-    tag: String,
-    page: Int,
-    perPage: Int ids: [String],
-    excludeIds: Boolean,
-    pipelineId: String,
-    boardId: String
+    ${productsQueryParams},
+    perPage: Int,
+    page: Int
   ): [Product]
-  productsTotalCount(type: String): Int
+  productsTotalCount(${productsQueryParams}): Int
+  productsGroupCounts(only: String): JSON
   productDetail(_id: String): Product
   productCountByTags: JSON
 `;

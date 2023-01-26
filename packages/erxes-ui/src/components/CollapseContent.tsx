@@ -107,6 +107,7 @@ type Props = {
   onClick?: () => void;
   imageBackground?: string;
   id?: string;
+  full?: boolean;
 };
 
 function CollapseContent(props: Props) {
@@ -145,7 +146,9 @@ function CollapseContent(props: Props) {
       </Title>
       <Collapse in={open}>
         <div>
-          <Content full={hasImage}>{props.children}</Content>
+          <Content full={hasImage || props.full || false}>
+            {props.children}
+          </Content>
         </div>
       </Collapse>
     </Container>

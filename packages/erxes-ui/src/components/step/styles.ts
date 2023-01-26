@@ -293,6 +293,8 @@ const FlexItem = styledTS<{
   h?: string;
   direction?: string;
   slimmer?: boolean;
+  thinner?: boolean;
+  vh?: number;
 }>(styled.div)`
   display: flex;
   height: 100%;
@@ -300,13 +302,21 @@ const FlexItem = styledTS<{
     !props.slimmer && `1px solid ${colors.borderPrimary}`};
   flex: ${props => (props.count ? props.count : 1)};
   ${props => {
-    if (props.overflow) {
+    if (props.vh) {
       return `
-        overflow: ${props.overflow};
+        max-height: ${props.vh}vh;
       `;
     }
     return null;
   }};
+   ${props => {
+     if (props.overflow) {
+       return `
+        overflow: ${props.overflow};
+      `;
+     }
+     return null;
+   }};
   ${props => {
     if (props.v) {
       return `
@@ -335,6 +345,15 @@ const FlexItem = styledTS<{
     if (props.slimmer) {
       return `
         width: 50%;
+        margin: 0 auto;
+      `;
+    }
+    return null;
+  }};
+  ${props => {
+    if (props.thinner) {
+      return `
+        width: 60%;
         margin: 0 auto;
       `;
     }

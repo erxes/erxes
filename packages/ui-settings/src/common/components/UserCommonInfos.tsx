@@ -53,20 +53,20 @@ class UserCommonInfos extends React.PureComponent<Props> {
           <FormWrapper>
             <FormColumn>
               <FormGroup>
-                <ControlLabel>Full name</ControlLabel>
+                <ControlLabel>First name</ControlLabel>
                 <FormControl
                   type="text"
-                  name="fullName"
-                  defaultValue={details.fullName || ''}
+                  name="firstName"
+                  defaultValue={details.firstName || ''}
                   {...formProps}
                 />
               </FormGroup>
               <FormGroup>
-                <ControlLabel>Short name</ControlLabel>
+                <ControlLabel>Last name</ControlLabel>
                 <FormControl
                   type="text"
-                  name="shortName"
-                  defaultValue={details.shortName || ''}
+                  name="lastName"
+                  defaultValue={details.lastName || ''}
                   {...formProps}
                 />
               </FormGroup>
@@ -91,29 +91,6 @@ class UserCommonInfos extends React.PureComponent<Props> {
                   {...formProps}
                 />
               </FormGroup>
-            </FormColumn>
-            <FormColumn>
-              <FormGroup>
-                <ControlLabel required={true}>Username</ControlLabel>
-                <FormControl
-                  type="text"
-                  name="username"
-                  defaultValue={user.username}
-                  required={true}
-                  {...formProps}
-                />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>Birthdate</ControlLabel>
-                <FormControl
-                  type="date"
-                  name="birthDate"
-                  defaultValue={dayjs(details.birthDate || new Date()).format(
-                    'YYYY-MM-DD'
-                  )}
-                  {...formProps}
-                />
-              </FormGroup>
               <FormGroup>
                 <ControlLabel>Position</ControlLabel>
                 <FormControl
@@ -131,6 +108,57 @@ class UserCommonInfos extends React.PureComponent<Props> {
                   defaultValue={dayjs(
                     details.workStartedDate || new Date()
                   ).format('YYYY-MM-DD')}
+                  {...formProps}
+                />
+              </FormGroup>
+            </FormColumn>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel>Middle name</ControlLabel>
+                <FormControl
+                  type="text"
+                  name="middleName"
+                  defaultValue={details.middleName || ''}
+                  {...formProps}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Short name</ControlLabel>
+                <FormControl
+                  type="text"
+                  name="shortName"
+                  defaultValue={details.shortName || ''}
+                  {...formProps}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel required={true}>Username</ControlLabel>
+                <FormControl
+                  type="text"
+                  name="username"
+                  defaultValue={user.username}
+                  required={true}
+                  {...formProps}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Employee Id</ControlLabel>
+                <FormControl
+                  type="number"
+                  min={0}
+                  name="employeeId"
+                  defaultValue={user.employeeId}
+                  {...formProps}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>Birthdate</ControlLabel>
+                <FormControl
+                  type="date"
+                  name="birthDate"
+                  defaultValue={dayjs(details.birthDate || new Date()).format(
+                    'YYYY-MM-DD'
+                  )}
                   {...formProps}
                 />
               </FormGroup>

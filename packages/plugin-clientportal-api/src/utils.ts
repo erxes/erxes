@@ -1,8 +1,11 @@
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import { sendRequest } from '@erxes/api-utils/src/requests';
-import { generateModels } from './connectionResolver';
-import { sendCoreMessage } from './messageBroker';
+
+import { IUserDocument } from './../../api-utils/src/types';
+import { graphqlPubsub } from './configs';
+import { generateModels, IModels } from './connectionResolver';
+import { sendCoreMessage, sendCommonMessage } from './messageBroker';
 
 export const getConfig = async (
   code: string,
@@ -167,4 +170,158 @@ export const generateRandomPassword = (len: number = 10) => {
   password += pick(password, numbers, 3, 3);
 
   return shuffle(password);
+};
+
+interface ISendNotification {
+  receivers: string[];
+  title: string;
+  content: string;
+  notifType: 'system' | 'engage';
+  link: string;
+  createdUser?: IUserDocument;
+  isMobile?: boolean;
+  eventData?: any | null;
+}
+
+export const sendNotification = async (
+  models: IModels,
+  subdomain: string,
+  doc: ISendNotification
+) => {
+  const {
+    createdUser,
+    receivers,
+    title,
+    content,
+    notifType,
+    isMobile,
+    eventData
+  } = doc;
+
+  let link = doc.link;
+
+  // remove duplicated ids
+  const receiverIds = [...Array.from(new Set(receivers))];
+
+  // collecting emails
+  const recipients = await models.ClientPortalUsers.find({
+    _id: { $in: receiverIds }
+  }).lean();
+
+  // collect recipient emails
+  const toEmails: string[] = [];
+
+  for (const recipient of recipients) {
+    if (
+      recipient.notificationSettings &&
+      recipient.notificationSettings.receiveByEmail &&
+      recipient.email
+    ) {
+      toEmails.push(recipient.email);
+    }
+
+    const notification = await models.ClientPortalNotifications.createNotification(
+      {
+        title,
+        content,
+        link,
+        receiver: recipient._id,
+        notifType,
+        clientPortalId: recipient.clientPortalId,
+        eventData
+      },
+      createdUser && createdUser._id
+    );
+
+    graphqlPubsub.publish('clientPortalNotificationInserted', {
+      clientPortalNotificationInserted: {
+        _id: notification._id,
+        userId: recipient._id,
+        title: notification.title,
+        content: notification.content,
+        link: notification.link,
+        eventData
+      }
+    });
+  }
+
+  sendCoreMessage({
+    subdomain,
+    action: 'sendEmail',
+    data: {
+      toEmails,
+      title: 'Notification',
+      template: {
+        name: 'notification',
+        data: {
+          notification: { ...doc, link }
+        }
+      },
+      modifier: (data: any, email: string) => {
+        const user = recipients.find(item => item.email === email);
+
+        if (user) {
+          data.uid = user._id;
+        }
+      }
+    }
+  });
+
+  if (isMobile) {
+    const deviceTokens: string[] = [];
+
+    for (const recipient of recipients) {
+      if (recipient.deviceTokens) {
+        deviceTokens.push(...recipient.deviceTokens);
+      }
+    }
+
+    sendCoreMessage({
+      subdomain: subdomain,
+      action: 'sendMobileNotification',
+      data: {
+        title,
+        body: content,
+        deviceTokens: [...Array.from(new Set(deviceTokens))]
+      }
+    });
+  }
+};
+
+export const customFieldsDataByFieldCode = async (object, subdomain) => {
+  const customFieldsData =
+    object.customFieldsData && object.customFieldsData.toObject
+      ? object.customFieldsData.toObject()
+      : object.customFieldsData || [];
+
+  const fieldIds = customFieldsData.map(data => data.field);
+
+  const fields = await sendCommonMessage({
+    serviceName: 'forms',
+    subdomain,
+    action: 'fields.find',
+    data: {
+      query: {
+        _id: { $in: fieldIds }
+      }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const fieldCodesById = {};
+
+  for (const field of fields) {
+    fieldCodesById[field._id] = field.code;
+  }
+
+  const results: any = {};
+
+  for (const data of customFieldsData) {
+    results[fieldCodesById[data.field]] = {
+      ...data
+    };
+  }
+
+  return results;
 };

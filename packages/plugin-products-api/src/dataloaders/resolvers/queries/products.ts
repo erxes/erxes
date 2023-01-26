@@ -7,6 +7,7 @@ import { PRODUCT_STATUSES } from '../../../models/definitions/products';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { IContext } from '../../../connectionResolver';
 import messageBroker, { sendTagsMessage } from '../../../messageBroker';
+import { Builder, countBySegment, countByTag, IListArgs } from '../../../utils';
 
 const productQueries = {
   /**
@@ -23,6 +24,8 @@ const productQueries = {
       excludeIds,
       pipelineId,
       boardId,
+      segment,
+      segmentData,
       ...pagintationArgs
     }: {
       ids: string[];
@@ -35,6 +38,8 @@ const productQueries = {
       perPage: number;
       pipelineId: string;
       boardId: string;
+      segment: string;
+      segmentData: string;
     },
     { commonQuerySelector, models, subdomain, user }: IContext
   ) {
@@ -83,10 +88,27 @@ const productQueries = {
         {
           name: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
         },
-        { code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] } }
+        {
+          code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
+        },
+        {
+          barcodes: {
+            $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
+          }
+        }
       ];
 
       filter.$or = fields;
+    }
+
+    if (segment || segmentData) {
+      const qb = new Builder(models, subdomain, { segment, segmentData }, {});
+
+      await qb.buildAllQueries();
+
+      const { list } = await qb.runQueries();
+
+      filter._id = { $in: list.map(l => l._id) };
     }
 
     return afterQueryWrapper(
@@ -101,6 +123,8 @@ const productQueries = {
         excludeIds,
         pipelineId,
         boardId,
+        segment,
+        segmentData,
         ...pagintationArgs
       },
       await paginate(
@@ -114,13 +138,18 @@ const productQueries = {
     );
   },
 
-  /**
-   * Get all products count. We will use it in pager
-   */
-  productsTotalCount(
+  async productsTotalCount(
     _root,
-    { type }: { type: string },
-    { commonQuerySelector, models }: IContext
+    {
+      type,
+      segment,
+      segmentData
+    }: {
+      type: string;
+      segment: string;
+      segmentData: string;
+    },
+    { commonQuerySelector, subdomain, models }: IContext
   ) {
     const filter: any = commonQuerySelector;
 
@@ -130,7 +159,54 @@ const productQueries = {
       filter.type = type;
     }
 
+    if (segment || segmentData) {
+      const qb = new Builder(models, subdomain, { segment, segmentData }, {});
+
+      await qb.buildAllQueries();
+
+      const { list } = await qb.runQueries();
+
+      filter._id = { $in: list.map(l => l._id) };
+    }
+
     return models.Products.find(filter).countDocuments();
+  },
+
+  /**
+   * Group product counts by segment or tag
+   */
+  async productsGroupCounts(
+    _root,
+    params,
+    { commonQuerySelector, commonQuerySelectorElk, models, subdomain }: IContext
+  ) {
+    const counts = {
+      bySegment: {},
+      byTag: {}
+    };
+
+    const { only } = params;
+
+    const qb = new Builder(models, subdomain, params, {
+      commonQuerySelector,
+      commonQuerySelectorElk
+    });
+
+    switch (only) {
+      case 'byTag':
+        counts.byTag = await countByTag(subdomain, 'products:product', qb);
+        break;
+
+      case 'bySegment':
+        counts.bySegment = await countBySegment(
+          subdomain,
+          'products:product',
+          qb
+        );
+        break;
+    }
+
+    return counts;
   },
 
   productCategories(

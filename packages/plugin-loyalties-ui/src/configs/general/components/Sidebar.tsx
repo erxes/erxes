@@ -42,6 +42,10 @@ class Sidebar extends React.Component {
             '/erxes-plugin-loyalty/settings/donate',
             'Donate'
           )}
+          {this.renderListItem(
+            '/erxes-plugin-loyalty/settings/assignment',
+            'Assignment'
+          )}
         </List>
       </LeftSidebar>
     );

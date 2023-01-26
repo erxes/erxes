@@ -8,6 +8,7 @@ import { queries } from '../graphql';
 import {
   AutomationHistoriesQueryResponse,
   IAutomation,
+  ITrigger,
   RemoveMutationResponse
 } from '../types';
 
@@ -22,6 +23,8 @@ type Props = {
     beginDate?: Date;
     endDate?: Date;
   };
+  triggersConst: ITrigger[];
+  actionsConst: any[];
 };
 
 type FinalProps = {
@@ -30,7 +33,7 @@ type FinalProps = {
   RemoveMutationResponse;
 
 function HistoriesContainer(props: FinalProps) {
-  const { automationHistoriesQuery } = props;
+  const { automationHistoriesQuery, triggersConst, actionsConst } = props;
 
   if (automationHistoriesQuery.loading) {
     return null;
@@ -38,7 +41,13 @@ function HistoriesContainer(props: FinalProps) {
 
   const histories = automationHistoriesQuery.automationHistories || [];
 
-  return <Histories histories={histories} />;
+  return (
+    <Histories
+      histories={histories}
+      triggersConst={triggersConst}
+      actionsConst={actionsConst}
+    />
+  );
 }
 
 export default withProps<Props>(

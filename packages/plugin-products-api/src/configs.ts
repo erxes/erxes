@@ -11,6 +11,10 @@ import forms from './forms';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import imports from './imports';
+import exporter from './exporter';
+import segments from './segments';
+import search from './search';
+import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 
 export let debug;
 export let mainDb;
@@ -47,7 +51,10 @@ export default {
     internalNotes,
     forms,
     imports,
-    permissions
+    exporter,
+    permissions,
+    segments,
+    search
   },
 
   onServerInit: async options => {

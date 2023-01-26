@@ -264,7 +264,6 @@ export interface IIntegration {
   formId: string;
   languageCode?: string;
   createUrl: string;
-  createModal: string;
   messengerData?: IMessengerData;
   form: IForm;
   uiOptions?: IUiOptions;
@@ -304,6 +303,8 @@ export type IntegrationMutationVariables = {
   brandId: string;
   name: string;
   channelIds?: string[];
+  visibility?: string;
+  departmentIds?: string[];
   data?: any;
 };
 
@@ -336,8 +337,14 @@ export type LeadIntegrationDetailQueryResponse = {
   integrationDetail: ILeadIntegration;
 } & QueryResponse;
 
-export type SendSmsMutationResponse = ({
-  variables: SendSmsMutationVariables
+export type SendSmsMutationVariables = {
+  integrationId: string;
+  content: string;
+  to: string;
+};
+
+export type SendSmsMutationResponse = (params: {
+  variables: SendSmsMutationVariables;
 }) => Promise<any>;
 
 type By = { [key: string]: number };

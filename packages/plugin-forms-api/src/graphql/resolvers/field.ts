@@ -59,9 +59,10 @@ export const field = {
       defaultValue: []
     });
 
-    return (products || []).map(({ _id }) => ({
-      __typename: 'Product',
-      _id
+    return products.map(product => ({
+      _id: product._id,
+      name: product.name,
+      unitPrice: product.unitPrice
     }));
   }
 };

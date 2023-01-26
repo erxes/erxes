@@ -12,7 +12,7 @@ module.exports = {
   menus: [
     {
       text: 'Web builder',
-      url: '/webbuilder/pages',
+      url: '/webbuilder',
       icon: 'icon-window-grid',
       location: 'mainNavigation',
       permission: 'showWebbuilder'

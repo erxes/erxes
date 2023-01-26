@@ -1,32 +1,32 @@
 import * as strip from 'strip';
 import * as _ from 'underscore';
 
-import { MESSAGE_TYPES } from '../../models/definitions/constants';
+import {
+  checkPermission,
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 
+import { MESSAGE_TYPES } from '../../models/definitions/constants';
 import { IMessageDocument } from '../../models/definitions/conversationMessages';
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { AUTO_BOT_MESSAGES } from '../../models/definitions/constants';
-import { debug } from '../../configs';
+import { debug, graphqlPubsub } from '../../configs';
 import {
   sendContactsMessage,
   sendCardsMessage,
   sendCoreMessage,
   sendIntegrationsMessage,
   sendNotificationsMessage,
-  sendToWebhook
+  sendToWebhook,
+  sendCommonMessage
 } from '../../messageBroker';
-import { graphqlPubsub } from '../../configs';
-
 import { putUpdateLog } from '../../logUtils';
-
-import {
-  checkPermission,
-  requireLogin
-} from '@erxes/api-utils/src/permissions';
 import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
 import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
-import { IUserDocument } from '@erxes/api-utils/src/types';
 import { IContext, IModels } from '../../connectionResolver';
+import { isServiceRunning } from '../../utils';
+import { IIntegrationDocument } from '../../models/definitions/integrations';
 
 export interface IConversationMessageAdd {
   conversationId: string;
@@ -34,13 +34,8 @@ export interface IConversationMessageAdd {
   mentionedUserIds?: string[];
   internal?: boolean;
   attachments?: any;
-  facebookMessageTag?: string;
-}
-
-interface IReplyFacebookComment {
-  conversationId: string;
-  commentId: string;
-  content: string;
+  userId?: string;
+  extraInfo?: any;
 }
 
 interface IAttachment {
@@ -50,6 +45,7 @@ interface IAttachment {
   size?: number;
   duration?: number;
 }
+
 interface IConversationConvert {
   _id: string;
   type: string;
@@ -70,67 +66,28 @@ interface IConversationConvert {
 /**
  *  Send conversation to integrations
  */
-
-const sendConversationToIntegrations = async (
+const sendConversationToServices = async (
   subdomain: string,
-  type: string,
-  integrationId: string,
-  conversationId: string,
-  requestName: string,
-  doc: IConversationMessageAdd,
-  action?: string,
-  facebookMessageTag?: string
+  integration: IIntegrationDocument,
+  serviceName: string,
+  payload: object
 ) => {
-  if (type === 'facebook') {
-    const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
-
-    const images: string[] = (doc.content.match(regex) || []).map(m =>
-      m.replace(regex, '$1')
-    );
-
-    images.forEach(img => {
-      doc.attachments.push({ type: 'image', url: img });
-    });
-
-    const content = strip(doc.content);
-
-    try {
-      await sendIntegrationsMessage({
-        subdomain,
-        action: 'api_to_integrations',
-        data: {
-          action,
-          type,
-          payload: JSON.stringify({
-            integrationId,
-            conversationId,
-            content: content.replace(/&amp;/g, '&'),
-            attachments: doc.attachments || [],
-            tag: facebookMessageTag
-          })
-        },
-        isRPC: true
-      });
-    } catch (e) {
-      throw new Error(
-        `Your message not sent Error: ${e.message}. Go to integrations list and fix it`
-      );
-    }
-  }
-
-  if (requestName) {
-    return sendIntegrationsMessage({
+  try {
+    return sendCommonMessage({
       subdomain,
-      action: 'reply',
+      isRPC: true,
+      serviceName,
+      action: 'api_to_integrations',
       data: {
-        conversationId,
-        integrationId,
-        content: strip(doc.content),
-        attachments: doc.attachments || [],
-        requestName
-      },
-      isRPC: true
+        action: `reply-${integration.kind.split('-')[1]}`,
+        type: serviceName,
+        payload: JSON.stringify(payload)
+      }
     });
+  } catch (e) {
+    throw new Error(
+      `Your message not sent Error: ${e.message}. Go to integrations list and fix it`
+    );
   }
 };
 
@@ -210,7 +167,7 @@ export const publishMessage = async (
   }
 };
 
-const sendNotifications = async (
+export const sendNotifications = async (
   subdomain: string,
   {
     user,
@@ -245,18 +202,24 @@ const sendNotifications = async (
       case 'conversationAddMessage':
         doc.action = `sent you a message`;
         doc.receivers = conversationNotifReceivers(conversation, user._id);
+
         break;
       case 'conversationAssigneeChange':
         doc.action = 'has assigned you to conversation ';
+
         break;
       case 'unassign':
         doc.notifType = 'conversationAssigneeChange';
         doc.action = 'has removed you from conversation';
+
         break;
       case 'conversationStateChange':
         doc.action = `changed conversation status to ${(
           conversation.status || ''
         ).toUpperCase()}`;
+
+        break;
+      default:
         break;
     }
 
@@ -342,9 +305,6 @@ const conversationMutations = {
     }
 
     const kind = integration.kind;
-    const integrationId = integration.id;
-    const conversationId = conversation.id;
-    const facebookMessageTag = doc.facebookMessageTag;
 
     const customer = await sendContactsMessage({
       subdomain,
@@ -373,43 +333,33 @@ const conversationMutations = {
       });
     }
 
-    const requestName = '';
-    let type;
-    let action;
+    const serviceName = integration.kind.split('-')[0];
+    const serviceRunning = await isServiceRunning(serviceName);
 
-    if (kind === 'facebook-post') {
-      type = 'facebook';
-      action = 'reply-post';
+    if (serviceRunning) {
+      const payload = {
+        integrationId: integration._id,
+        conversationId: conversation._id,
+        content: doc.content,
+        attachments: doc.attachments || [],
+        extraInfo: doc.extraInfo,
+        userId: user._id
+      };
 
-      return sendConversationToIntegrations(
+      const response = await sendConversationToServices(
         subdomain,
-        type,
-        integrationId,
-        conversationId,
-        requestName,
-        doc,
-        action
+        integration,
+        serviceName,
+        payload
       );
+
+      // if the service runs separately & returns data, then don't save message inside inbox
+      if (response && response.data) {
+        return { ...response.data };
+      }
     }
 
     const message = await models.ConversationMessages.addMessage(doc, user._id);
-
-    // send reply to facebook
-    if (kind === 'facebook-messenger') {
-      type = 'facebook';
-      action = 'reply-messenger';
-    }
-
-    await sendConversationToIntegrations(
-      subdomain,
-      type,
-      integrationId,
-      conversationId,
-      requestName,
-      doc,
-      action,
-      facebookMessageTag
-    );
 
     const dbMessage = await models.ConversationMessages.getMessage(message._id);
 
@@ -426,65 +376,6 @@ const conversationMutations = {
     publishMessage(models, dbMessage, conversation.customerId);
 
     return dbMessage;
-  },
-
-  async conversationsReplyFacebookComment(
-    _root,
-    doc: IReplyFacebookComment,
-    { user, models, subdomain }: IContext
-  ) {
-    const conversation = await models.Conversations.getConversation(
-      doc.conversationId
-    );
-    const integration = await models.Integrations.getIntegration({
-      _id: conversation.integrationId
-    });
-
-    await sendNotifications(subdomain, {
-      user,
-      conversations: [conversation],
-      type: 'conversationStateChange',
-      mobile: true,
-      messageContent: doc.content
-    });
-
-    const requestName = 'replyFacebookPost';
-    const integrationId = integration.id;
-    const conversationId = doc.commentId;
-    const type = 'facebook';
-    const action = 'reply-post';
-
-    await sendConversationToIntegrations(
-      subdomain,
-      type,
-      integrationId,
-      conversationId,
-      requestName,
-      doc,
-      action
-    );
-  },
-
-  async conversationsChangeStatusFacebookComment(
-    _root,
-    doc: IReplyFacebookComment,
-    { subdomain }: IContext
-  ) {
-    const requestName = 'replyFacebookPost';
-    const type = 'facebook';
-    const action = 'change-status-comment';
-    const conversationId = doc.commentId;
-    doc.content = '';
-
-    return sendConversationToIntegrations(
-      subdomain,
-      type,
-      '',
-      conversationId,
-      requestName,
-      doc,
-      action
-    );
   },
 
   /**

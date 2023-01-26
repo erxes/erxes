@@ -41,6 +41,7 @@ const TagFilterContainer = (props: {
 };
 
 type WrapperProps = {
+  abortController?: any;
   type: string;
   loadingMainQuery: boolean;
 };
@@ -52,19 +53,25 @@ export default withProps<WrapperProps>(
       {
         name: 'customersCountQuery',
         skip: ({ loadingMainQuery }) => loadingMainQuery,
-        options: ({ type }) => ({
-          variables: { type, only: 'byTag' }
+        options: ({ type, abortController }) => ({
+          variables: { type, only: 'byTag' },
+          context: {
+            fetchOptions: { signal: abortController && abortController.signal }
+          }
         })
       }
     ),
-    graphql<{ loadingMainQuery: boolean }, TagsQueryResponse, { type: string }>(
+    graphql<WrapperProps, TagsQueryResponse, { type: string }>(
       gql(tagQueries.tags),
       {
         name: 'tagsQuery',
         skip: ({ loadingMainQuery }) => loadingMainQuery,
-        options: () => ({
+        options: ({ abortController }) => ({
           variables: {
             type: TAG_TYPES.CUSTOMER
+          },
+          context: {
+            fetchOptions: { signal: abortController && abortController.signal }
           }
         })
       }

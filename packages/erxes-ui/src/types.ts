@@ -141,6 +141,7 @@ export type IOption = {
 
 export type IButtonMutateProps = {
   passedName?: string;
+  name?: string;
   values: any;
   isSubmitted: boolean;
   confirmationUpdate?: boolean;
@@ -184,7 +185,7 @@ export type IEditorProps = {
 
 export type QueryResponse = {
   loading: boolean;
-  refetch: () => Promise<any>;
+  refetch: (variables?: any) => Promise<any>;
   error?: string;
 };
 

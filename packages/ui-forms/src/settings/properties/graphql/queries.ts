@@ -76,6 +76,12 @@ const fieldsGetTypes = `
   }
 `;
 
+const getFieldsInputTypes = `
+  query getFieldsInputTypes {
+    getFieldsInputTypes
+  }  
+`;
+
 const fieldsGroups = `
   query fieldsGroups($contentType: String!, $isDefinedByErxes: Boolean, $config: JSON) {
     fieldsGroups(contentType: $contentType, isDefinedByErxes: $isDefinedByErxes, config: $config) {
@@ -170,6 +176,7 @@ query fieldsCombinedByContentType($contentType: String!) {
 export default {
   fieldsGroups,
   fieldsGetTypes,
+  getFieldsInputTypes,
   fields,
   getSystemFieldsGroup,
   inboxFields,

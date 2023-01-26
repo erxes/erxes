@@ -8,10 +8,6 @@ type Props = {
   booking: IBookingData | null;
   goToCategory: (categoryId: string) => void;
   goToProduct: (productId: string) => void;
-  invoiceResponse?: any;
-  invoiceType?: string;
-  lastMessageId?: string;
-  onCancelOrder: (customerId: string, messageId: string) => void;
 };
 
 function BookingContainer(props: Props) {
@@ -30,10 +26,6 @@ const WithContext = () => {
         getBooking,
         goToCategory,
         goToProduct,
-        cancelOrder,
-        invoiceResponse,
-        invoiceType,
-        lastMessageId
       }) => {
         const booking = getBooking();
         return (
@@ -42,10 +34,6 @@ const WithContext = () => {
             booking={booking}
             goToCategory={goToCategory}
             goToProduct={goToProduct}
-            onCancelOrder={cancelOrder}
-            invoiceResponse={invoiceResponse}
-            invoiceType={invoiceType}
-            lastMessageId={lastMessageId}
           />
         );
       }}

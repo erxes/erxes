@@ -5,6 +5,7 @@ module.exports = {
   exposes: {
     './routes': './src/routes.tsx',
     './activityLog': './src/activityLogs/activityLog.tsx',
+    './automation': './src/automations/automation.tsx',
     './contactDetailHeader': './src/customers/containers/LeadState'
   },
   routes: {
@@ -13,6 +14,7 @@ module.exports = {
     module: './routes'
   },
   activityLog: './activityLog',
+  automation: './automation',
   contactDetailHeader: './contactDetailHeader',
   menus: [
     {

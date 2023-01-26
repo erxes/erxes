@@ -1,72 +1,62 @@
-import Button from '@erxes/ui/src/components/Button';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Table from '@erxes/ui/src/components/table';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Flex } from '@erxes/ui/src/styles/main';
-import Row from './Row';
+import 'grapesjs/dist/css/grapes.min.css';
+
+import { ContentTypeItem } from './styles';
+import { FlexCenter } from '@erxes/ui/src/styles/main';
 import { IContentTypeDoc } from '../../types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { List } from '../pages/styles';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
-  queryParams: any;
   contentTypes: IContentTypeDoc[];
-  remove: (contentTypeId: string) => void;
-  getActionBar: (actionBar: any) => void;
-  setCount: (count: number) => void;
   contentTypesCount: number;
+  handleItemSettings: (item: any, type: string) => void;
 };
 
-class ContentTypes extends React.Component<Props, {}> {
-  renderRow() {
-    const { contentTypes, remove } = this.props;
-
-    return contentTypes.map(contentType => (
-      <Row key={contentType._id} contentType={contentType} remove={remove} />
-    ));
-  }
-
+class ContentTypesList extends React.Component<Props> {
   render() {
-    const { getActionBar, setCount, contentTypesCount } = this.props;
+    const { contentTypes = [], handleItemSettings } = this.props;
 
-    const actionBarRight = (
-      <Flex>
-        <Link to="contenttypes/create">
-          <Button btnStyle="success" size="small" icon="plus-circle">
-            Add Content Type
-          </Button>
-        </Link>
-      </Flex>
+    return (
+      <List>
+        {contentTypes.map(type => (
+          <li key={type._id}>
+            <a>
+              <FlexCenter>
+                <Icon icon="layers" />
+                <ContentTypeItem
+                  onClick={() => handleItemSettings(type, 'entries')}
+                >
+                  {type.displayName}
+                  <i>
+                    ({type.entries.length || 0} {__('items')})
+                  </i>
+                </ContentTypeItem>
+              </FlexCenter>
+            </a>
+            <Icon
+              icon="settings"
+              onClick={() => handleItemSettings(type, 'contenttype')}
+            />
+          </li>
+        ))}
+        <li
+          onClick={() =>
+            handleItemSettings(
+              { displayName: '', code: '', fields: [] },
+              'contenttype'
+            )
+          }
+        >
+          <div className="link">
+            <Icon icon="plus-1" /> &nbsp;
+            {__('Create content type')}
+          </div>
+        </li>
+      </List>
     );
-
-    getActionBar(actionBarRight);
-    setCount(contentTypesCount);
-
-    let content = (
-      <Table whiteSpace="nowrap" hover={true}>
-        <thead>
-          <tr>
-            <th>Display name</th>
-            <th>Code</th>
-            <th>Site</th>
-            <th>{'Actions'}</th>
-          </tr>
-        </thead>
-        <tbody>{this.renderRow()}</tbody>
-      </Table>
-    );
-
-    if (contentTypesCount < 1) {
-      content = (
-        <EmptyState
-          image="/images/actions/8.svg"
-          text="No Content types"
-          size="small"
-        />
-      );
-    }
-
-    return <>{content}</>;
   }
 }
 
-export default ContentTypes;
+export default ContentTypesList;

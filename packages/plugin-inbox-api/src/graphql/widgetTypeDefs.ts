@@ -64,11 +64,9 @@ export const types = ({ products, forms, knowledgeBase }) => `
   type SaveFormResponse {
     status: String!
     errors: [Error]
-    messageId: String
+    conversationId: String
     customerId: String
     userId: String
-    invoiceType: String
-    invoiceResponse: String
   }
 
   type Error {

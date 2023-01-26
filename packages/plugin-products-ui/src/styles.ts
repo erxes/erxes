@@ -1,5 +1,7 @@
-import { colors, dimensions } from '@erxes/ui/src/styles';
+import { colors, dimensions, typography } from '@erxes/ui/src/styles';
+import { lighten } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const InfoDetail = styled.p`
   margin: 0;
@@ -38,10 +40,45 @@ const ProductContent = styled.div`
   }
 `;
 
-export const ContentBox = styled.div`
+const ContentBox = styled.div`
   padding: ${dimensions.coreSpacing}px;
   max-width: 640px;
   margin: 0 auto;
 `;
 
-export { InfoDetail, ProductContent };
+const ProductBarcodeContent = styledTS<{ isValid?: boolean }>(styled.div)`
+  a {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    
+    color: ${props =>
+      props.isValid ? colors.colorCoreGreen : colors.colorCoreGray} !important;
+  }
+
+  a:hover {
+    color: ${props =>
+      props.isValid ? colors.colorCoreGreen : lighten(colors.textPrimary, 40)};
+  }
+`;
+
+const BarcodeContentWrapper = styled.div`
+  width: 0px;
+  height: 0px;
+  position: absolute;
+  display: none;
+  pointer-events: none;
+`;
+
+const SidebarContent = styled.div`
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+`;
+
+export {
+  InfoDetail,
+  ProductContent,
+  ContentBox,
+  ProductBarcodeContent,
+  BarcodeContentWrapper,
+  SidebarContent
+};

@@ -4,8 +4,8 @@ import { getLocalStorageItem, initStorage } from "../common";
 import { setLocale } from "../utils";
 import widgetConnect from "../widgetConnect";
 import { connection } from "./connection";
-import { formConnectMutation } from "./graphql";
-import { IConnectResponse } from "./types";
+import { formConnectMutation,enabledServicesQuery } from "./graphql";
+import { EnabledServices, IConnectResponse } from "./types";
 import asyncComponent from "../AsyncComponent";
 
 const App = asyncComponent(() =>
@@ -24,6 +24,16 @@ widgetConnect({
     connection.hasPopupHandlers = hasPopupHandlers;
 
     initStorage(storage);
+
+    client.query({
+      query: gql(enabledServicesQuery),
+      fetchPolicy: "network-only"
+    }).then((res: any) => {
+      if (res.data.enabledServices) {
+        const { enabledServices } = res.data as EnabledServices;
+        connection.enabledServices = enabledServices;
+      }
+    });
 
     // call connect mutation
     return client

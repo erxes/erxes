@@ -12,6 +12,7 @@ import {
   CenterContent,
   MobileRecommend
 } from '../styles';
+import { getThemeItem } from '../../utils/core';
 
 type Props = {
   content: React.ReactNode;
@@ -65,11 +66,17 @@ class AuthLayout extends React.Component<Props, {}> {
 
     return (
       <AuthDescription>
-        <h1>{__('Grow your business better and faster')}</h1>
+        <h1>
+          {getThemeItem('motto') || __('Grow your business better and faster')}
+        </h1>
         <h2>
-          {__('Single ')}
-          <b>{__('experience operating system (XOS)')}</b>
-          {__(' to align your entire business')}
+          {getThemeItem('login_page_description') || (
+            <>
+              {__('Single ')}
+              <b>{__('experience operating system (XOS)')}</b>
+              {__(' to align your entire business')}
+            </>
+          )}
         </h2>
       </AuthDescription>
     );

@@ -50,7 +50,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
     const { redirectType } = this.state;
 
     const renderButton = ({
-      name,
+      passedName,
       values,
       isSubmitted,
       object,
@@ -92,7 +92,7 @@ class CustomerFormContainer extends React.Component<FinalProps, State> {
           uppercase={false}
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
-          } a ${name}`}
+          } a ${passedName}`}
         />
       );
     };

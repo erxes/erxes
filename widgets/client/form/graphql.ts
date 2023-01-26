@@ -1,4 +1,4 @@
-export const formDetailQuery = `
+export const formDetailQuery = (isProductsEnabled: boolean) => `
   query formDetail($_id: String!) {
     formDetail(_id: $_id) {
       title
@@ -39,10 +39,16 @@ export const formDetailQuery = `
           logicOperator
           logicValue
         }
-        products{
-          _id
-          name
-          unitPrice
+        ${
+          isProductsEnabled
+            ? `
+            products {
+              _id
+              name
+              unitPrice
+            }
+          `
+            : ''
         }
       }
     }
@@ -71,15 +77,13 @@ export const saveFormMutation = `
   mutation widgetsSaveLead($integrationId: String!, $formId: String!, $submissions: [FieldValueInput], $browserInfo: JSON!, $cachedCustomerId: String, $userId: String) {
     widgetsSaveLead(integrationId: $integrationId, formId: $formId, submissions: $submissions, browserInfo: $browserInfo, cachedCustomerId: $cachedCustomerId, userId: $userId) {
       status
-      messageId
+      conversationId
       customerId
       errors {
         fieldId
         code
         text
       }
-      invoiceResponse
-      invoiceType
     }
   }
 `;
@@ -96,14 +100,42 @@ export const increaseViewCountMutation = `
   }
 `;
 
-export const cancelOrderMutation = `
-  mutation widgetsCancelOrder($customerId: String!, $messageId: String!) {
-    widgetsCancelOrder(customerId: $customerId, messageId: $messageId)
-  }
-`;
+export const generateInvoiceUrl = `
+mutation generateInvoiceUrl(
+  $amount: Float!
+  $companyId: String
+  $contentType: String
+  $contentTypeId: String
+  $customerId: String
+  $description: String
+  $redirectUri: String
+  $phone: String
+  $paymentIds: [String]
+) {
+  generateInvoiceUrl(
+    amount: $amount
+    companyId: $companyId
+    contentType: $contentType
+    contentTypeId: $contentTypeId
+    customerId: $customerId
+    description: $description
+    redirectUri: $redirectUri
+    phone: $phone
+    paymentIds: $paymentIds
+  )
+}
+`
 
-export const formInvoiceUpdated = `
-  subscription formInvoiceUpdated($messageId: String) {
-    formInvoiceUpdated(messageId: $messageId) 
+export const enabledServicesQuery = `
+query enabledServices {
+  enabledServices
+}
+`
+
+export const getPaymentMethods = `
+query GetPaymentConfig($contentType: String!, $contentTypeId: String!) {
+  getPaymentConfig(contentType: $contentType, contentTypeId: $contentTypeId) {
+    paymentIds
   }
-`;
+}
+`

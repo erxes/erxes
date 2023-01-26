@@ -1,12 +1,13 @@
 const fs = require('fs');
 const fse = require('fs-extra');
 const yaml = require('yaml');
-const { log, sleep, execCommand, filePath, execCurl } = require('../utils');
+const { log, execCommand, filePath, execCurl } = require('../utils');
 
 require('dotenv').config();
 
 const {
   DEPLOYMENT_METHOD,
+  SERVICE_INTERNAL_PORT = 80,
   GATEWAY_PORT = 3300,
   UI_PORT = 3000,
   MONGO_PORT = 27017,
@@ -38,7 +39,7 @@ const commonEnvs = configs => {
     REDIS_PORT: db_server_address ? REDIS_PORT : 6379,
     REDIS_PASSWORD: redis.password || '',
     RABBITMQ_HOST: rabbitmq_host,
-    ELASTICSEARCH_URL: `${db_server_address || (isSwarm ? 'erxes-dbs_elasticsearch' : 'elasticsearch')}:9200`,
+    ELASTICSEARCH_URL: `http://${db_server_address || (isSwarm ? 'erxes-dbs_elasticsearch' : 'elasticsearch')}:9200`,
     ENABLED_SERVICES_PATH: '/data/enabled-services.js',
     MESSAGE_BROKER_PREFIX: rabbitmq.prefix || '',
   };
@@ -69,8 +70,13 @@ const mongoEnv = (configs, plugin) => {
 };
 
 const healthcheck = {
-  test: ['CMD', 'curl', '-i', 'http://localhost:80/health'],
+  test: ['CMD', 'curl', '-i', `http://localhost:${SERVICE_INTERNAL_PORT}/health`],
+  interval: '1s',
+  start_period: '5s'
 };
+
+const generateLBaddress = (address) => 
+  `${address}${ SERVICE_INTERNAL_PORT !== 80 ? `:${SERVICE_INTERNAL_PORT}` : ''}`
 
 const generatePluginBlock = (configs, plugin) => {
   const api_mongo_url = mongoEnv(configs, {});
@@ -92,10 +98,10 @@ const generatePluginBlock = (configs, plugin) => {
     image: `${registry}erxes/plugin-${plugin.name}-api:${image_tag}`,
     environment: {
       SERVICE_NAME: plugin.name,
-      PORT: plugin.port || 80,
+      PORT: plugin.port || SERVICE_INTERNAL_PORT || 80,
       API_MONGO_URL: api_mongo_url,
       MONGO_URL: mongo_url,
-      LOAD_BALANCER_ADDRESS: `http://plugin_${plugin.name}_api`,
+      LOAD_BALANCER_ADDRESS: generateLBaddress(`http://plugin_${plugin.name}_api`),
       ...commonEnvs(configs),
       ...(plugin.extra_env || {}),
     },
@@ -113,8 +119,9 @@ const generatePluginBlock = (configs, plugin) => {
   return conf;
 };
 
-const syncUI = async ({ name, ui_location }) => {
+const syncUI = async ({ name, image_tag, ui_location }) => {
   const configs = await fse.readJSON(filePath('configs.json'));
+  const tag = image_tag || configs.image_tag
 
   const plName = `plugin-${name}-ui`;
 
@@ -131,13 +138,13 @@ const syncUI = async ({ name, ui_location }) => {
 
     let s3_location = '';
 
-    if (!configs.image_tag) {
+    if (!tag) {
       s3_location = `https://erxes-plugins.s3.us-west-2.amazonaws.com/uis/${plName}`;
     } else {
-      if (configs.image_tag === 'dev') {
+      if (tag === 'dev') {
         s3_location = `https://erxes-dev-plugins.s3.us-west-2.amazonaws.com/uis/${plName}`;
       } else {
-        s3_location = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/uis/${plName}/${configs.image_tag}`;
+        s3_location = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/uis/${plName}/${tag}`;
       }
     }
 
@@ -151,6 +158,61 @@ const syncUI = async ({ name, ui_location }) => {
 
   log(`Removing build.tar ......`);
   await execCommand(`rm plugin-uis/${plName}/build.tar`);
+};
+
+const updateLocales = async () => {
+  const configs = await fse.readJSON(filePath('configs.json'));
+  const tag = configs.image_tag || 'dev';
+
+  let s3_location = '';
+
+  if (tag === 'dev') {
+    s3_location = `https://erxes-dev-plugins.s3.us-west-2.amazonaws.com`;
+  } else {
+    s3_location = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/${tag}`;
+  }
+
+  log(`Downloading locales from ${s3_location}`);
+
+  await execCurl(`${s3_location}/locales.tar`, `locales.tar`);
+
+  log(`Extracting build ......`);
+
+  if (!(await fse.exists(filePath('locales')))) {
+    await execCommand('mkdir locales');
+  }
+
+  await execCommand(
+    `tar -xf locales.tar --directory=locales`
+  );
+
+  log(`Removing locales.tar ......`);
+  await execCommand(`rm locales.tar`);
+
+  const plugins = configs.plugins || [];
+
+  for (const plugin of plugins) {
+    const localesPath = `plugin-uis/plugin-${plugin.name}-ui/locales`;
+
+    if (!(await fse.exists(filePath(localesPath)))) {
+      continue;
+    }
+
+    const files = await fse.readdir(localesPath);
+
+    for (const file of files) {
+      if (!(await fse.exists(filePath(`locales/${file}`)))) {
+        continue;
+      }
+
+      const globalFile = await fse.readJSON(filePath(`locales/${file}`));
+      const localFile = await fse.readJSON(filePath(`${localesPath}/${file}`));
+
+      const combined = { ...globalFile, ...localFile };
+
+      await fse.writeJSON(filePath(filePath(`locales/${file}`)), combined);
+    }
+  }
 };
 
 const generateNetworks = (configs) => {
@@ -330,7 +392,7 @@ const deployDbs = async () => {
   );
 };
 
-const up = async ({ uis, fromInstaller }) => {
+const up = async ({ uis, downloadLocales, fromInstaller }) => {
   await cleaning();
 
   const configs = await fse.readJSON(filePath('configs.json'));
@@ -382,15 +444,17 @@ const up = async ({ uis, fromInstaller }) => {
           REACT_APP_API_URL: gateway_url,
           REACT_APP_DASHBOARD_URL: dashboard_domain,
           REACT_APP_API_SUBSCRIPTION_URL: subscription_url,
+          NGINX_PORT: (configs.coreui || {}).NGINX_PORT || SERVICE_INTERNAL_PORT,
           NGINX_HOST,
           NODE_ENV: 'production',
           REACT_APP_FILE_UPLOAD_MAX_SIZE: 524288000,
           ...((configs.coreui || {}).extra_env || {}),
         },
-        ports: [`${UI_PORT}:80`],
+        ports: [`${UI_PORT}:${SERVICE_INTERNAL_PORT}`],
         volumes: [
           './plugins.js:/usr/share/nginx/html/js/plugins.js',
           './plugin-uis:/usr/share/nginx/html/js/plugins',
+          './locales:/usr/share/nginx/html/locales',
         ],
         networks: ['erxes'],
       },
@@ -398,10 +462,10 @@ const up = async ({ uis, fromInstaller }) => {
         image: `erxes/core:${image_tag}`,
         environment: {
           SERVICE_NAME: 'core-api',
-          PORT: '80',
+          PORT: SERVICE_INTERNAL_PORT,
           CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || '',
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
-          LOAD_BALANCER_ADDRESS: 'http://plugin_core_api',
+          LOAD_BALANCER_ADDRESS: generateLBaddress('http://plugin_core_api'),
           MONGO_URL: mongoEnv(configs),
           EMAIL_VERIFIER_ENDPOINT:
             configs.email_verifier_endpoint ||
@@ -422,8 +486,8 @@ const up = async ({ uis, fromInstaller }) => {
         image: `erxes/gateway:${image_tag}`,
         environment: {
           SERVICE_NAME: 'gateway',
-          PORT: '80',
-          LOAD_BALANCER_ADDRESS: 'http://gateway',
+          PORT: SERVICE_INTERNAL_PORT,
+          LOAD_BALANCER_ADDRESS: generateLBaddress('http://gateway'),
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
           CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || '',
           MONGO_URL: mongoEnv(configs),
@@ -433,7 +497,7 @@ const up = async ({ uis, fromInstaller }) => {
         volumes: ['./enabled-services.js:/data/enabled-services.js'],
         healthcheck,
         extra_hosts,
-        ports: [`${GATEWAY_PORT}:80`],
+        ports: [`${GATEWAY_PORT}:${SERVICE_INTERNAL_PORT}`],
         networks: ['erxes'],
       },
       crons: {
@@ -449,9 +513,9 @@ const up = async ({ uis, fromInstaller }) => {
         image: `erxes/workers:${image_tag}`,
         environment: {
           SERVICE_NAME: 'workers',
-          PORT: '80',
+          PORT: SERVICE_INTERNAL_PORT,
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
-          LOAD_BALANCER_ADDRESS: 'http://plugin_workers_api',
+          LOAD_BALANCER_ADDRESS: generateLBaddress('http://plugin_workers_api'),
           MONGO_URL: mongoEnv(configs),
           ...commonEnvs(configs),
           ...((configs.workers || {}).extra_env || {}),
@@ -482,7 +546,7 @@ const up = async ({ uis, fromInstaller }) => {
     dockerComposeConfig.services.essyncer = {
       image: `erxes/essyncer:${image_tag}`,
       environment: {
-        ELASTICSEARCH_URL: `http://${configs.db_server_address}:9200`,
+        ELASTICSEARCH_URL: `http://${configs.db_server_address || (isSwarm ? 'erxes-dbs_elasticsearch' : 'elasticsearch')}:9200`,
         MONGO_URL: `${mongoEnv(configs)}${(configs.essyncer || {})
           .mongoOptions || ''}`,
       },
@@ -509,9 +573,9 @@ const up = async ({ uis, fromInstaller }) => {
   if (dashboard) {
     dockerComposeConfig.services.dashboard = {
       image: `erxes/dashboard:${dashboard.image_tag || image_tag}`,
-      ports: ['4300:80'],
+      ports: [`4300:${SERVICE_INTERNAL_PORT}`],
       environment: {
-        PORT: '80',
+        PORT: SERVICE_INTERNAL_PORT,
         CUBEJS_DB_TYPE: 'mongobi',
         CUBEJS_DB_HOST: `${dashboard.dashboard_db_host || 'mongosqld'}`,
         CUBEJS_DB_PORT: `${dashboard.dashboard_db_port || '3307'}`,
@@ -535,9 +599,15 @@ const up = async ({ uis, fromInstaller }) => {
     await execCommand(`cd installer && npm install`);
 
     if (!fromInstaller) {
+      let host = RABBITMQ_HOST;
+
+      if (!configs.db_server_address) {
+        host = host.replace('erxes-dbs_rabbitmq', '127.0.0.1');
+      }
+
       await execCommand(`cd installer && npm run pm2 delete all`, true);
       await execCommand(
-        `cd installer && RABBITMQ_HOST=${RABBITMQ_HOST} npm run pm2 start index.js`
+        `cd installer && RABBITMQ_HOST=${host} npm run pm2 start index.js`
       );
     }
   }
@@ -571,6 +641,10 @@ const up = async ({ uis, fromInstaller }) => {
     for (const key of Object.keys(privatePluginsMap)) {
       pluginsMap[key] = privatePluginsMap[key];
     }
+  }
+
+  if (downloadLocales) {
+    updateLocales();
   }
 
   const enabledPlugins = ["'workers'"];
@@ -865,7 +939,7 @@ const restart = async name => {
   await execCommand(`docker service update --force erxes_plugin_${name}_api`);
 };
 
-module.exports.manageInstallation = async program => {
+module.exports.installerUpdateConfigs = async () => {
   const type = process.argv[3];
   const name = process.argv[4];
 
@@ -886,41 +960,18 @@ module.exports.manageInstallation = async program => {
   log('Updating configs.json ....');
 
   await fse.writeJSON(filePath('configs.json'), configs);
+};
 
-  if (type === 'install') {
-    log('Running up ....');
-    await up({ fromInstaller: true });
+module.exports.removeService = async () => {
+  const name = process.argv[3];
 
-    log('Syncing ui ....');
+  log(`Removing ${name} service ....`);
 
-    await syncUI({ name });
-
-    await restart('coreui');
-
-    log('Waiting for 30 seconds ....');
-    await sleep(30000);
-    await restart('gateway');
-  }
-
-  if (type === 'uninstall') {
-    log('Running up ....');
-    await up({ fromInstaller: true });
-
-    log(`Removing ${name} service ....`);
-    await execCommand(`docker service rm erxes_plugin_${name}_api`, true);
-
-    await restart('coreui');
-    await restart('gateway');
-  }
-
-  if (type === 'update') {
-    log('Update ....');
-    await update({ serviceNames: name, uis: true });
-  }
+  await execCommand(`docker service rm ${name}`, true);
 };
 
 module.exports.up = program => {
-  return up({ uis: program.uis });
+  return up({ uis: program.uis, fromInstaller: program.fromInstaller, downloadLocales: program.locales });
 };
 
 const dumpDb = async program => {
@@ -1075,4 +1126,11 @@ module.exports.update = program => {
 module.exports.restart = () => {
   const name = process.argv[3];
   return restart(name);
+};
+
+module.exports.syncui = () => {
+  const name = process.argv[3];
+  const ui_location = process.argv[4];
+
+  return syncUI({ name, ui_location });
 };

@@ -150,6 +150,8 @@ export default withProps<Props>(
             tag: queryParams.tag,
             searchValue: queryParams.searchValue,
             type: queryParams.type,
+            segment: queryParams.segment,
+            segmentData: queryParams.segmentData,
             ...generatePaginationParams(queryParams)
           },
           fetchPolicy: 'network-only'
@@ -158,7 +160,11 @@ export default withProps<Props>(
     ),
     graphql<Props, ProductsCountQueryResponse>(gql(queries.productsCount), {
       name: 'productsCountQuery',
-      options: () => ({
+      options: ({ queryParams }) => ({
+        variables: {
+          segment: queryParams.segment,
+          segmentData: queryParams.segmentData
+        },
         fetchPolicy: 'network-only'
       })
     }),

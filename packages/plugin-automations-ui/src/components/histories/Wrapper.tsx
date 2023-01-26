@@ -2,9 +2,8 @@ import Datetime from '@nateradebaugh/react-datetime';
 import dayjs from 'dayjs';
 import Button from '@erxes/ui/src/components/Button';
 import React from 'react';
-import { TRIGGERS } from '../../constants';
 import Histories from '../../containers/Histories';
-import { IAutomation } from '../../types';
+import { IAutomation, ITrigger } from '../../types';
 import { HistoriesWrapper, FilterWrapper, FilterDateItem } from './styles';
 import { __ } from '@erxes/ui/src/utils/core';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -12,6 +11,8 @@ import Select from 'react-select-plus';
 
 type Props = {
   automation: IAutomation;
+  triggersConst: ITrigger[];
+  actionsConst: any[];
 };
 
 type State = {
@@ -97,7 +98,7 @@ class HistoriesHeader extends React.Component<Props, State> {
   };
 
   render() {
-    const { automation } = this.props;
+    const { automation, triggersConst } = this.props;
     const { status, triggerId, triggerType, filterParams } = this.state;
 
     return (
@@ -145,7 +146,7 @@ class HistoriesHeader extends React.Component<Props, State> {
                 placeholder={__('Filter by Trigger Type')}
                 value={triggerType}
                 options={[
-                  ...TRIGGERS.map(t => ({ value: t.type, label: t.label }))
+                  ...triggersConst.map(t => ({ value: t.type, label: t.label }))
                 ]}
                 onChange={this.onSelect.bind(this, 'triggerType')}
               />

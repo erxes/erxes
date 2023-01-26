@@ -1,4 +1,5 @@
 import React from 'react';
+import Spinner from 'modules/common/components/Spinner';
 import Store from '../components/Store';
 
 type Props = {};
@@ -35,7 +36,7 @@ class StoreContainer extends React.Component<Props, State> {
 
   render() {
     if (!this.state.plugins || this.state.plugins.length === 0) {
-      return null;
+      return <Spinner objective={true} />;
     }
 
     return <Store plugins={this.state.plugins} />;

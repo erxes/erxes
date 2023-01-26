@@ -22,7 +22,7 @@ app.prepare().then(() => {
   });
 
   // Get current port.
-  const port = process.env.PORT || 4300;
+  const port = process.env.PORT || 4200;
 
   // Error check.
   server.listen(port, (err) => {

@@ -4,13 +4,17 @@ import Button from "../../common/Button";
 import TaskForm from "../containers/Form";
 import { HeaderWrapper, SearchContainer } from "../../styles/main";
 import Icon from "../../common/Icon";
+import { IUser } from "../../types";
 
-type Props = {};
+type Props = {
+  currentUser: IUser;
+};
 
 type State = {
   searchValue: string;
   focused: boolean;
   show: boolean;
+  
 };
 
 export default class TaskHeader extends React.Component<Props, State> {

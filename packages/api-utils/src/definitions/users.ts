@@ -25,6 +25,9 @@ export interface IDetail {
   location?: string;
   description?: string;
   operatorPhone?: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
 }
 
 export interface IDetailDocument extends IDetail, Document {}
@@ -55,6 +58,9 @@ export interface IUser {
   isShowNotification?: boolean;
   score?: number;
   customFieldsData?: ICustomField[];
+  departmentIds?: string[];
+  branchIds?: string[];
+  employeeId?: string;
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -90,7 +96,10 @@ const detailSchema = new Schema(
       type: String,
       optional: true,
       label: 'Operator phone'
-    })
+    }),
+    firstName: field({ type: String, label: 'First name' }),
+    middleName: field({ type: String, label: 'Middle name' }),
+    lastName: field({ type: String, label: 'Last name' })
   },
   { _id: false }
 );
@@ -111,6 +120,8 @@ export const userSchema = schemaWrapper(
     registrationTokenExpires: field({ type: Date }),
     resetPasswordExpires: field({ type: Date }),
     isOwner: field({ type: Boolean, label: 'Is owner' }),
+    departmentIds: field({ type: [String], label: 'Department Ids' }),
+    branchIds: field({ type: [String], label: 'Branch Ids' }),
     email: field({
       type: String,
       unique: true,
@@ -187,6 +198,12 @@ export const userSchema = schemaWrapper(
       type: String,
       label: 'Linked app id',
       optional: true
+    }),
+    employeeId: field({
+      type: String,
+      unique: true,
+      optional: true,
+      sparse: true
     })
   })
 );

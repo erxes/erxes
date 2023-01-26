@@ -1,16 +1,18 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import ArticleForm from '../../components/article/ArticleForm';
-import { mutations, queries } from '@erxes/ui-knowledgebase/src/graphql';
+
 import {
   IArticle,
   TopicsQueryResponse
 } from '@erxes/ui-knowledgebase/src/types';
+import { mutations, queries } from '@erxes/ui-knowledgebase/src/graphql';
+
+import ArticleForm from '../../components/article/ArticleForm';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import React from 'react';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 
 type Props = {
   article: IArticle;
@@ -34,7 +36,7 @@ const ArticleContainer = (props: FinalProps) => {
   } = props;
 
   const renderButton = ({
-    name,
+    passedName: name,
     values,
     isSubmitted,
     callback,

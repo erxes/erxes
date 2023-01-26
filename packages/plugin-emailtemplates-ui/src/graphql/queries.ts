@@ -20,8 +20,8 @@ const emailTemplates = `
 `;
 
 const totalCount = `
-  query emailTemplatesTotalCount {
-    emailTemplatesTotalCount
+  query emailTemplatesTotalCount($searchValue: String) {
+    emailTemplatesTotalCount(searchValue: $searchValue)
   }
 `;
 

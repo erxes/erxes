@@ -170,7 +170,7 @@ function Entry({
   totalCount,
   customLink
 }: Props) {
-  const { kind, isAvailable, createUrl, createModal } = integration;
+  const { kind, isAvailable, createUrl } = integration;
 
   const handleLink = () => {
     return customLink && customLink(kind, createUrl);
@@ -211,7 +211,7 @@ function Entry({
         )}
       </Box>
       {renderCustomLink(isAvailable)}
-      {renderCreate(createUrl, createModal, isAvailable)}
+      {renderCreate(createUrl, kind, isAvailable)}
     </IntegrationItem>
   );
 }

@@ -1,19 +1,6 @@
 import { QueryResponse, MutationVariables, Counts } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
-
-export type IAction = {
-  id: string;
-  type: string;
-  icon?: string;
-  label?: string;
-  description?: string;
-  nextActionId?: string;
-  isAvailable?: boolean;
-  style?: any;
-  config?: any;
-
-  count?: number;
-};
+import { IAction } from '@erxes/ui-automations/src/types';
 
 export type ITrigger = {
   id: string;
@@ -161,4 +148,15 @@ export type AutomationsCount = {
 
 export type CountQueryResponse = {
   automationsTotalCount: AutomationsCount;
+} & QueryResponse;
+
+export type AutomationConstants = {
+  triggersConst: ITrigger[];
+  triggerTypesConst: string[];
+  actionsConst: any[];
+  propertyTypesConst: any[];
+};
+
+export type AutomationConstantsQueryResponse = {
+  automationConstants: AutomationConstants;
 } & QueryResponse;

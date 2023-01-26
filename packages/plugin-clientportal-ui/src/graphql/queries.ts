@@ -55,6 +55,8 @@ export const commonFields = `
     smsTransporterType
     content
     codeLength
+    loginWithOTP
+    expireAfter
   }
 
   mailConfig {
@@ -89,6 +91,8 @@ export const basicFields = `
   lastSeenAt
   sessionCount
   isOnline
+
+  avatar
 `;
 
 export const clientPortalUserFields = `

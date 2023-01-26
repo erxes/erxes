@@ -20,12 +20,6 @@ const EditMessenger = asyncComponent(() =>
   )
 );
 
-const CreateFacebook = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings CreateFacebook" */ './containers/facebook/Form'
-  )
-);
-
 const IntegrationConfigs = asyncComponent(() =>
   import(
     /* webpackChunkName: "Integration configs" */ '../integrationsConfig/containers/IntegrationConfigs'
@@ -34,16 +28,6 @@ const IntegrationConfigs = asyncComponent(() =>
 
 const createMessenger = ({ location }) => {
   return <CreateMessenger queryParams={queryString.parse(location.search)} />;
-};
-
-const createFacebook = ({ location, history }) => {
-  const queryParams = queryString.parse(location.search);
-
-  const callBack = () => {
-    history.push('/settings/integrations/');
-  };
-
-  return <CreateFacebook callBack={callBack} kind={queryParams.kind} />;
 };
 
 const editMessenger = ({ match }) => {
@@ -72,13 +56,6 @@ const routes = () => (
       exact={true}
       path="/settings/integrations/editMessenger/:_id"
       component={editMessenger}
-    />
-
-    <Route
-      key="/settings/integrations/createFacebook"
-      exact={true}
-      path="/settings/integrations/createFacebook"
-      component={createFacebook}
     />
 
     <Route

@@ -11,6 +11,7 @@ type Props = {
   currentUser: IUser;
   headerBottomComponent?: React.ReactNode;
   headingSpacing?: boolean;
+  notificationsCount: number;
 };
 
 function Layout({
@@ -20,6 +21,7 @@ function Layout({
   currentUser,
   headingSpacing,
   headerBottomComponent,
+  notificationsCount
 }: Props) {
   return (
     <>
@@ -29,6 +31,7 @@ function Layout({
         headingSpacing={headingSpacing}
         headerHtml={config.headerHtml}
         headerBottomComponent={headerBottomComponent}
+        notificationsCount={notificationsCount || 0}
       />
 
       <MainContent

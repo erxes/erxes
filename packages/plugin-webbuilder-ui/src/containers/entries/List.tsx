@@ -1,22 +1,24 @@
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
-import React from 'react';
 import * as compose from 'lodash.flowright';
-import List from '../../components/entries/List';
-import { queries, mutations } from '../../graphql';
+
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import {
   EntriesMainQueryResponse,
   EntriesRemoveMutationResponse,
+  IContentType,
   TypeDetailQueryResponse
 } from '../../types';
+import { mutations, queries } from '../../graphql';
+
+import List from '../../components/entries/List';
+import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 
 type Props = {
+  contentType: IContentType;
   queryParams: any;
-  getActionBar: (actionBar: any) => void;
-  setCount: (count: number) => void;
 };
 
 type FinalProps = {
@@ -26,13 +28,9 @@ type FinalProps = {
   EntriesRemoveMutationResponse;
 
 function ListContainer(props: FinalProps) {
-  const {
-    entriesMainQuery,
-    contentTypeDetailQuery,
-    entriesRemoveMutation
-  } = props;
+  const { entriesMainQuery, contentType, entriesRemoveMutation } = props;
 
-  if (contentTypeDetailQuery.loading) {
+  if (entriesMainQuery.loading) {
     return <Spinner objective={true} />;
   }
 
@@ -52,7 +50,6 @@ function ListContainer(props: FinalProps) {
 
   const { list = [], totalCount = 0 } =
     entriesMainQuery.webbuilderEntriesMain || {};
-  const contentType = contentTypeDetailQuery.webbuilderContentTypeDetail || {};
 
   const updatedProps = {
     ...props,
@@ -69,20 +66,12 @@ function ListContainer(props: FinalProps) {
 export default compose(
   graphql<Props, EntriesMainQueryResponse>(gql(queries.entriesMain), {
     name: 'entriesMainQuery',
-    options: ({ queryParams }) => ({
+    options: ({ contentType, queryParams }) => ({
       variables: {
-        contentTypeId: queryParams.contentTypeId || '',
+        contentTypeId: contentType._id || '',
         ...generatePaginationParams(queryParams)
       },
       fetchPolicy: 'network-only'
-    })
-  }),
-  graphql<Props, TypeDetailQueryResponse>(gql(queries.contentTypeDetail), {
-    name: 'contentTypeDetailQuery',
-    options: ({ queryParams }) => ({
-      variables: {
-        _id: queryParams.contentTypeId || ''
-      }
     })
   }),
   graphql<{}, EntriesRemoveMutationResponse>(gql(mutations.entriesRemove), {

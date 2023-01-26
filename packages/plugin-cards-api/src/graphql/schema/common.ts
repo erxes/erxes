@@ -81,6 +81,7 @@ export const commonTypes = `
 `;
 
 export const commonMutationParams = `
+  parentId:String,
   proccessId: String,
   aboveItemId: String,
   stageId: String,
@@ -131,4 +132,5 @@ export const commonListTypes = `
   stageChangedDate: Date
   tagIds: [String]
   customProperties: JSON
+  status: String
 `;

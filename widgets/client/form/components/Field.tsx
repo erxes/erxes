@@ -19,6 +19,7 @@ import Map from "./Map";
 import Marker from "./Marker";
 import ObjectList from "./ObjectList";
 import { __ } from "../../utils";
+import { connection } from "../connection";
 import uploadHandler from "../../uploadHandler";
 
 type Props = {
@@ -450,7 +451,7 @@ export default class Field extends React.Component<Props, State> {
         <option>-</option>
         {products.map(({ _id, name, unitPrice }) => (
           <option key={_id} value={_id}>
-            {`${name} - ${unitPrice.toLocaleString()}`}
+            {`${name} - ${unitPrice || ""} `}
           </option>
         ))}
       </select>
@@ -499,13 +500,15 @@ export default class Field extends React.Component<Props, State> {
 
     if (validation === "date") {
       return (
-        <div className="date-input">{this.renderDatepicker(field._id)}</div>
+        <div className="date-input">{this.renderDatepicker(field._id)} </div>
       );
     }
 
     if (validation === "datetime") {
       return (
-        <div className="date-input">{this.renderDateTimepicker(field._id)}</div>
+        <div className="date-input">
+          {this.renderDateTimepicker(field._id)}{" "}
+        </div>
       );
     }
 
@@ -654,6 +657,10 @@ export default class Field extends React.Component<Props, State> {
         return this.renderMap(field, value);
 
       case "productCategory":
+        if (!connection.enabledServices.products) {
+          return null;
+        }
+
         return this.renderProduct(field);
 
       case "objectList":

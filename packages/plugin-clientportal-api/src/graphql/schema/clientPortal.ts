@@ -36,6 +36,8 @@ ${
     content: String
     codeLength: Int
     smsTransporterType: String
+    loginWithOTP: Boolean
+    expireAfter: Int
   }
 
   type MailConfig {
@@ -48,6 +50,8 @@ ${
     content: String
     codeLength: Int
     smsTransporterType: String
+    loginWithOTP: Boolean
+    expireAfter: Int
   }
 
   input MailConfigInput {
@@ -143,7 +147,7 @@ export const queries = (cardAvailable, kbAvailable) => `
       ? `
     clientPortalGetTaskStages: [Stage]
     clientPortalGetTasks(stageId: String!): [Task]
-    clientPortalTickets(email: String!): [Ticket]
+    clientPortalTickets: [Ticket]
     clientPortalTicket(_id: String!): Ticket
    `
       : ''
@@ -205,9 +209,8 @@ export const mutations = cardAvailable => `
         stageId: String!
         subject: String!
         description: String
-        email: String!
-        priority: String
-      ): Ticket
+        priority: String,
+      ): JSON
      `
       : ''
   }

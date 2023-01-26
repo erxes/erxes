@@ -99,6 +99,124 @@ const getRelatedValue = async (
   return false;
 };
 
+// module related services
+const relatedServices = (
+  subdomain: string,
+  triggerCollectionType: string,
+  moduleCollectionType: string,
+  target: any
+) => [
+  {
+    name: 'contacts',
+    filter: async () => {
+      if (target.isFormSubmission) {
+        return { sourceConversationIds: { $in: [target.conversationId] } };
+      }
+
+      const relTypeIds = await sendCommonMessage({
+        subdomain,
+        serviceName: 'core',
+        action: 'conformities.savedConformity',
+        data: {
+          mainType: triggerCollectionType,
+          mainTypeId: target._id,
+          relTypes: [moduleCollectionType]
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      if (!relTypeIds.length) {
+        return;
+      }
+
+      return { _id: { $in: relTypeIds } };
+    }
+  },
+  {
+    name: 'inbox',
+    filter: async () => ({
+      sourceConversationIds: { $in: [target._id] }
+    })
+  }
+];
+
+// find trigger related module items
+const getItems = async (
+  subdomain: string,
+  module: string,
+  execution: any,
+  triggerType: string
+) => {
+  const { target } = execution;
+
+  if (module === triggerType) {
+    return [target];
+  }
+
+  const [moduleService, moduleCollectionType] = module.split(':');
+  const [triggerService, triggerCollectionType] = triggerType.split(':');
+
+  const models = await generateModels(subdomain);
+
+  let model: any;
+
+  switch (moduleCollectionType) {
+    case 'task':
+      model = models.Tasks;
+      break;
+    case 'ticket':
+      model = models.Tickets;
+      break;
+    default:
+      model = models.Deals;
+  }
+
+  if (moduleService === triggerService) {
+    const relTypeIds = await sendCommonMessage({
+      subdomain,
+      serviceName: 'core',
+      action: 'conformities.savedConformity',
+      data: {
+        mainType: triggerCollectionType,
+        mainTypeId: target._id,
+        relTypes: [moduleCollectionType]
+      },
+      isRPC: true
+    });
+
+    return model.find({ _id: { $in: relTypeIds } });
+  }
+
+  // search trigger service relation from relatedServices
+  const relatedService = relatedServices(
+    subdomain,
+    triggerCollectionType,
+    moduleCollectionType,
+    target
+  ).find(service => service.name === triggerService);
+
+  let filter: any = await relatedService?.filter();
+
+  if (!relatedService) {
+    // send message to trigger service to get related value
+    filter = await sendCommonMessage({
+      subdomain,
+      serviceName: triggerService,
+      action: 'getModuleRelation',
+      data: {
+        module,
+        triggerType,
+        target
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+  }
+
+  return filter ? await model.find(filter) : [];
+};
+
 export default {
   receiveActions: async ({
     subdomain,
@@ -116,15 +234,76 @@ export default {
       });
     }
 
+    const { module, rules } = action.config;
+
+    const relatedItems = await getItems(
+      subdomain,
+      module,
+      execution,
+      triggerType
+    );
+
     return setProperty({
       models,
       subdomain,
       getRelatedValue,
-      action,
+      module,
+      rules,
       execution,
-      triggerType,
+      relatedItems,
       sendCommonMessage
     });
+  },
+  constants: {
+    triggers: [
+      {
+        type: 'cards:task',
+        img: 'automation3.svg',
+        icon: 'file-plus-alt',
+        label: 'Task',
+        description:
+          'Start with a blank workflow that enralls and is triggered off task'
+      },
+      {
+        type: 'cards:ticket',
+        img: 'automation3.svg',
+        icon: 'file-plus',
+        label: 'Ticket',
+        description:
+          'Start with a blank workflow that enralls and is triggered off ticket'
+      },
+      {
+        type: 'cards:deal',
+        img: 'automation3.svg',
+        icon: 'piggy-bank',
+        label: 'Sales pipeline',
+        description:
+          'Start with a blank workflow that enralls and is triggered off sales pipeline item'
+      }
+    ],
+    actions: [
+      {
+        type: 'cards:task.create',
+        icon: 'file-plus-alt',
+        label: 'Create task',
+        description: 'Create task',
+        isAvailable: true
+      },
+      {
+        type: 'cards:deal.create',
+        icon: 'piggy-bank',
+        label: 'Create deal',
+        description: 'Create deal',
+        isAvailable: true
+      },
+      {
+        type: 'cards:ticket.create',
+        icon: 'file-plus',
+        label: 'Create ticket',
+        description: 'Create ticket',
+        isAvailable: true
+      }
+    ]
   }
 };
 
@@ -229,7 +408,13 @@ const actionCreate = async ({
       });
     }
 
-    return item;
+    return {
+      name: item.name,
+      itemId: item._id,
+      stageId: item.stageId,
+      pipelineId: newData.pipelineId,
+      boardId: newData.boardId
+    };
   } catch (e) {
     return { error: e.message };
   }

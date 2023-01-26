@@ -13,6 +13,8 @@ import {
   RemoveDashboardItemMutationResponse,
   RemoveDashboardItemMutationVariables
 } from '../../types';
+import { DepartmentsQueryResponse } from '@erxes/ui/src/team/types';
+import { queries as teamQueries } from '@erxes/ui/src/team/graphql';
 
 import Dashboard from '../../components/dashboard/Dashboard';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -28,6 +30,7 @@ type Props = {
 type FinalProps = {
   dashboardItemsQuery: DashboardItemsQueryResponse;
   dashboardDetailsQuery: DashboardDetailsQueryResponse;
+  departmentsQuery: DepartmentsQueryResponse;
 } & Props &
   EditDashboardItemMutationResponse &
   RemoveDashboardItemMutationResponse &
@@ -44,10 +47,15 @@ class DashboardContainer extends React.Component<FinalProps, {}> {
       queryParams,
       dashboardDetailsQuery,
       history,
-      editDashboardMutation
+      editDashboardMutation,
+      departmentsQuery
     } = this.props;
 
-    if (dashboardItemsQuery.loading || dashboardDetailsQuery.loading) {
+    if (
+      dashboardItemsQuery.loading ||
+      dashboardDetailsQuery.loading ||
+      departmentsQuery.loading
+    ) {
       return <Spinner objective={true} />;
     }
 
@@ -97,6 +105,7 @@ class DashboardContainer extends React.Component<FinalProps, {}> {
     };
 
     const dashboard = dashboardDetailsQuery.dashboardDetails || {};
+    const departments = departmentsQuery.departments || [];
 
     return (
       <Dashboard
@@ -108,6 +117,7 @@ class DashboardContainer extends React.Component<FinalProps, {}> {
         dashboardId={id}
         history={history}
         save={save}
+        departments={departments}
       />
     );
   }
@@ -138,6 +148,9 @@ export default compose(
       })
     }
   ),
+  graphql<{}, DepartmentsQueryResponse>(gql(teamQueries.departments), {
+    name: 'departmentsQuery'
+  }),
   graphql<
     Props,
     RemoveDashboardItemMutationResponse,

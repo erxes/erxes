@@ -132,7 +132,7 @@ class Settings extends React.PureComponent {
             {this.renderBox(
               'Import & Export',
               '/images/icons/erxes-22.svg',
-              '/settings/importHistories',
+              '/settings/selectMenu',
               'importHistoriesAll',
               ['importHistories', 'removeImportHistories', 'importXlsFile']
             )}
@@ -142,6 +142,13 @@ class Settings extends React.PureComponent {
               '/settings/apps',
               '',
               []
+            )}
+            {this.renderBox(
+              'Structure',
+              '/images/icons/erxes-23.svg',
+              '/settings/structure',
+              'usersAll',
+              teamPermissions
             )}
           </div>
         </Row>

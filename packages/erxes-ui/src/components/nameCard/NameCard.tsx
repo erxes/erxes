@@ -51,7 +51,10 @@ class NameCard extends React.Component<Props> {
     }
 
     if (user.details) {
-      return user.details.fullName;
+      return (
+        user.details.fullName ||
+        `${user.details.firstName} ${user.details.lastName}`
+      );
     }
 
     if (user.username) {

@@ -7,6 +7,13 @@ import {
 } from './models/DonateCampaigns';
 import { IDonateDocument } from './models/definitions/donates';
 import { IDonateModel, loadDonateClass } from './models/Donates';
+import {
+  IAssignmentCampaignModel,
+  loadAssignmentCampaignClass
+} from './models/AssignmentCampaigns';
+import { IAssignmentModel, loadAssignmentClass } from './models/Assignments';
+import { IAssignmentCampaignDocument } from './models/definitions/assignmentCampaigns';
+import { IAssignmentDocument } from './models/definitions/assignments';
 import { ILotteryCampaignDocument } from './models/definitions/lotteryCampaigns';
 import {
   ILotteryCampaignModel,
@@ -38,6 +45,8 @@ export interface IModels {
   LoyaltyConfigs: ILoyaltyConfigModel;
   DonateCampaigns: IDonateCampaignModel;
   Donates: IDonateModel;
+  AssignmentCampaigns: IAssignmentCampaignModel;
+  Assignments: IAssignmentModel;
   VoucherCampaigns: IVoucherCampaignModel;
   Vouchers: IVoucherModel;
   SpinCampaigns: ISpinCampaignModel;
@@ -94,6 +103,14 @@ export const loadClasses = (
   models.Vouchers = db.model<IVoucherDocument, IVoucherModel>(
     'vouchers',
     loadVoucherClass(models, subdomain)
+  );
+  models.AssignmentCampaigns = db.model<
+    IAssignmentCampaignDocument,
+    IAssignmentCampaignModel
+  >('assignment_campaigns', loadAssignmentCampaignClass(models, subdomain));
+  models.Assignments = db.model<IAssignmentDocument, IAssignmentModel>(
+    'assignments',
+    loadAssignmentClass(models, subdomain)
   );
   models.ScoreLogs = db.model<IScoreLogDocument, IScoreLogModel>(
     'score_logs',

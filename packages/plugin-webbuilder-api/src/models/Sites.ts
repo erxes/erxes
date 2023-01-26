@@ -33,30 +33,7 @@ export const loadSiteClass = (models: IModels) => {
       }
     }
 
-    public static async createSite(
-      doc,
-      userId: string,
-      fromTemplate?: boolean
-    ) {
-      // creating a site using a template
-      if (fromTemplate) {
-        doc.name = doc.name + '1';
-
-        try {
-          await models.Sites.create({
-            ...doc,
-            createdAt: new Date(),
-            createdBy: userId
-          });
-        } catch ({ message }) {
-          if (message.includes(`E11000 duplicate key error`)) {
-            await this.createSite(doc, userId, true);
-          }
-        }
-
-        return doc.name;
-      }
-
+    public static async createSite(doc, userId: string) {
       await this.checkDuplication(doc);
 
       return models.Sites.create({

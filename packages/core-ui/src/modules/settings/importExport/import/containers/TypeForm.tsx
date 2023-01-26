@@ -6,7 +6,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { IImportHistoryContentType } from '../../types';
 import TypeForm from '../components/TypeForm';
-import { mutations, queries } from '../graphql';
+import { queries } from '../../common/graphql';
 
 type Props = {
   onChangeContentType: (value: IImportHistoryContentType) => void;
@@ -17,18 +17,18 @@ type Props = {
 type State = {};
 
 type FinalProps = {
-  importHistoryGetTypes: any;
+  historyGetTypes: any;
 } & Props;
 
 class FormContainer extends React.Component<FinalProps, State> {
   render() {
-    const { importHistoryGetTypes } = this.props;
+    const { historyGetTypes } = this.props;
 
-    if (importHistoryGetTypes.loading) {
+    if (historyGetTypes.loading) {
       return <Spinner />;
     }
 
-    const typeOptions = importHistoryGetTypes.importHistoryGetTypes || [];
+    const typeOptions = historyGetTypes.historyGetTypes || [];
 
     return (
       <TypeForm
@@ -43,11 +43,8 @@ class FormContainer extends React.Component<FinalProps, State> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(mutations.importHistoriesCreate), {
-      name: 'importHistoriesCreate'
-    }),
-    graphql<Props>(gql(queries.importHistoryGetTypes), {
-      name: 'importHistoryGetTypes'
+    graphql<Props>(gql(queries.historyGetTypes), {
+      name: 'historyGetTypes'
     })
   )(FormContainer)
 );

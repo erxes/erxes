@@ -14,6 +14,13 @@ export type IProductCategory = IProductCategoryC & {};
 
 export type IUom = IUomC & {};
 
+export type Counts = {
+  [key: string]: number;
+};
+type ProductCounts = {
+  bySegment: Counts;
+  byTag: Counts;
+};
 // query types
 
 export type ProductsQueryResponse = {
@@ -22,6 +29,10 @@ export type ProductsQueryResponse = {
 
 export type ProductsCountQueryResponse = {
   productsTotalCount: number;
+} & QueryResponse;
+
+export type ProductsGroupCountsQueryResponse = {
+  productsGroupsCounts: ProductCounts;
 } & QueryResponse;
 
 export type ProductCategoriesCountQueryResponse = {
@@ -123,6 +134,30 @@ export type IProductsConfig = {
   _id: string;
   code: string;
   value: any;
+};
+
+export type BarcodeConfig = {
+  row: number;
+  column: number;
+  width: number;
+  height: number;
+  margin: number;
+  isDate: boolean;
+  date: number;
+  isProductName: boolean;
+  productNameFontSize: number;
+  isPrice: boolean;
+  priceFontSize: number;
+
+  isBarcode: boolean;
+  isBarcodeDescription: boolean;
+  barWidth: number;
+  barHeight: number;
+  barcodeFontSize: number;
+  barcodeDescriptionFontSize: number;
+
+  isQrcode: boolean;
+  qrSize: number;
 };
 
 // query types

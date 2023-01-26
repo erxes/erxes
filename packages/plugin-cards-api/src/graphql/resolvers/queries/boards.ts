@@ -10,11 +10,17 @@ import {
   fetchSegment,
   sendCoreMessage,
   sendFormsMessage,
-  sendSegmentsMessage
+  sendSegmentsMessage,
+  sendTagsMessage
 } from '../../../messageBroker';
 import { IContext } from '../../../connectionResolver';
 import { getContentTypeDetail } from '../../../utils';
 import { IUserDocument } from '@erxes/api-utils/src/types';
+
+export interface IIntervals {
+  startTime: string;
+  endTime: string;
+}
 
 export interface IDate {
   month: number;
@@ -45,6 +51,7 @@ export interface IListParams extends IConformityQueryParams {
   labelIds?: string[];
   userIds?: string[];
   segment?: string;
+  segmentData?: string;
   stageChangedStartDate?: Date;
   stageChangedEndDate?: Date;
   noSkipArchive?: boolean;
@@ -208,17 +215,17 @@ const boardQueries = {
           };
 
     if (!user.isOwner && !isAll) {
-      const departments = await sendCoreMessage({
+      const userDetail = await sendCoreMessage({
         subdomain,
-        action: 'departments.find',
+        action: 'users.find',
         data: {
-          userIds: { $in: [user._id] }
+          _id: user._id
         },
         isRPC: true,
         defaultValue: []
       });
 
-      const departmentIds = departments.map(d => d._id);
+      const departmentIds = userDetail?.departmentIds || [];
 
       if (Object.keys(query) && departmentIds.length > 0) {
         query.$or.push({
@@ -369,18 +376,17 @@ const boardQueries = {
         }
       ];
 
-      const departments = await sendCoreMessage({
+      const userDetail = await sendCoreMessage({
         subdomain,
-        action: 'departments.find',
+        action: 'users.findOne',
         data: {
-          userIds: { $in: [user._id] }
+          _id: user._id
         },
         isRPC: true,
         defaultValue: []
       });
 
-      const departmentIds = departments.map(d => d._id);
-
+      const departmentIds = userDetail?.departmentIds || [];
       if (departmentIds.length > 0) {
         filter.$or.push({
           $and: [
@@ -805,6 +811,87 @@ const boardQueries = {
     }
 
     return result;
+  },
+
+  async checkFreeTimes(
+    _root,
+    { pipelineId, intervals },
+    { models, subdomain }: IContext
+  ) {
+    if (!intervals.length) {
+      return [];
+    }
+
+    const timezone = Number(process.env.TIMEZONE || 0) * 1000 * 60 * 60;
+
+    const pipeline = await models.Pipelines.getPipeline(pipelineId);
+
+    const latestStartDate = new Date(
+      intervals[0].startTime.getTime() - timezone
+    );
+
+    const latestEndDate = new Date(
+      intervals[intervals.length - 1].endTime.getTime() - timezone
+    );
+
+    const { collection } = getCollection(models, pipeline.type);
+
+    if (!pipeline.tagId) {
+      return intervals;
+    }
+
+    const tags = await sendTagsMessage({
+      subdomain,
+      action: 'withChilds',
+      data: {
+        query: {
+          _id: pipeline.tagId
+        },
+        fields: {
+          _id: 1
+        }
+      },
+      isRPC: true
+    });
+
+    const stages = await models.Stages.find({ pipelineId });
+
+    const stageIds = stages.map(stage => stage._id);
+
+    const items = await collection.find(
+      {
+        status: { $ne: 'archived' },
+        stageId: { $in: stageIds },
+        startDate: {
+          $lte: latestEndDate
+        },
+        closeDate: {
+          $gte: latestStartDate
+        },
+        tagIds: { $in: tags.map(t => t._id) }
+      },
+      { startDate: 1, closeDate: 1, tagIds: 1 }
+    );
+
+    for (const interval of intervals) {
+      const startDate = new Date(interval.startTime.getTime() - timezone);
+
+      const endDate = new Date(interval.endTime.getTime() - timezone);
+
+      const checkingItems = items.filter(
+        item => item.startDate < endDate && item.closeDate > startDate
+      );
+
+      let checkedTagIds: string[] = [];
+
+      for (const item of checkingItems) {
+        checkedTagIds = checkedTagIds.concat(item.tagIds);
+      }
+
+      interval.freeTags = tags.filter(t => !checkedTagIds.includes(t._id));
+    }
+
+    return intervals;
   }
 };
 

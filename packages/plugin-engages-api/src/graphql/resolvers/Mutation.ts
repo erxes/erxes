@@ -51,7 +51,7 @@ const engageMutations = {
     doc: IEngageMessage,
     { user, docModifier, models, subdomain }: IContext
   ) {
-    checkCampaignDoc(doc);
+    await checkCampaignDoc(models, subdomain, doc);
 
     // fromUserId is not required in sms engage, so set it here
     if (!doc.fromUserId) {
@@ -98,7 +98,7 @@ const engageMutations = {
     { _id, ...doc }: IEngageMessageEdit,
     { models, subdomain, user }: IContext
   ) {
-    checkCampaignDoc(doc);
+    await checkCampaignDoc(models, subdomain, doc);
 
     const engageMessage = await models.EngageMessages.getEngageMessage(_id);
     const updated = await models.EngageMessages.updateEngageMessage(_id, doc);
@@ -152,7 +152,7 @@ const engageMutations = {
   async engageMessageSetLive(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models, subdomain }: IContext
   ) {
     const campaign = await models.EngageMessages.getEngageMessage(_id);
 
@@ -160,7 +160,7 @@ const engageMutations = {
       throw new Error('Campaign is already live');
     }
 
-    checkCampaignDoc(campaign);
+    await checkCampaignDoc(models, subdomain, campaign);
 
     return models.EngageMessages.engageMessageSetLive(_id);
   },
@@ -181,6 +181,9 @@ const engageMutations = {
     { models, subdomain, user }: IContext
   ) {
     const draftCampaign = await models.EngageMessages.getEngageMessage(_id);
+
+    await checkCampaignDoc(models, subdomain, draftCampaign);
+
     const live = await models.EngageMessages.engageMessageSetLive(_id);
 
     await send(models, subdomain, live);

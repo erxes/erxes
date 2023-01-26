@@ -1,10 +1,10 @@
-import T from "i18n-react";
+import T from 'i18n-react';
 
 export const __ = (key, options) => {
   const translation = T.translate(key, options);
 
   if (!translation) {
-    return "";
+    return '';
   }
 
   return translation.toString();
@@ -23,7 +23,7 @@ export const setLocale = (currentLanguage, callback) => {
 };
 
 export const prefixer = (url) => {
-  if (process.env.NODE_ENV !== "production") {
+  if (process.env.NODE_ENV !== 'production') {
     return url;
   }
 
@@ -39,6 +39,6 @@ export const regex = (content) => {
 };
 
 export const getLangParam = () =>
-  typeof window !== "undefined" && window.location.href.indexOf("=mn") > -1
-    ? "mn"
-    : "en";
+  typeof window !== 'undefined' && window.location.href.indexOf('=mn') > -1
+    ? 'mn'
+    : 'en';

@@ -53,7 +53,7 @@ interface IWidgetEmailParams {
   attachments?: IAttachment[];
 }
 
-const pConversationClientMessageInserted = async (models, message) => {
+export const pConversationClientMessageInserted = async (models, message) => {
   const conversation = await models.Conversations.findOne(
     {
       _id: message.conversationId
@@ -307,7 +307,7 @@ const createFormConversation = async (
     const submissionValues = {};
 
     for (const submit of submissions) {
-      submissionValues[submit.formFieldId] = submit.value;
+      submissionValues[submit._id] = submit.value;
     }
 
     sendAutomationsMessage({
@@ -330,7 +330,7 @@ const createFormConversation = async (
 
   return {
     status: 'ok',
-    messageId: message._id,
+    conversationId: conversation._id,
     customerId: cachedCustomer._id
   };
 };
@@ -581,18 +581,6 @@ const widgetMutations = {
       });
     }
 
-    // customer automation trigger =========
-    if (customer) {
-      sendAutomationsMessage({
-        subdomain,
-        action: 'trigger',
-        data: {
-          type: `contacts:${customer.state}`,
-          targets: [customer]
-        }
-      });
-    }
-
     // get or create company
     if (companyData && companyData.name) {
       let company = await sendContactsMessage({
@@ -637,18 +625,6 @@ const widgetMutations = {
             scopeBrandIds: [brand._id]
           },
           isRPC: true
-        });
-      }
-
-      // company automation trigger =========
-      if (company) {
-        sendAutomationsMessage({
-          subdomain,
-          action: 'trigger',
-          data: {
-            type: `contacts:company`,
-            targets: [company]
-          }
         });
       }
 

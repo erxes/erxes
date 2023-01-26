@@ -1,3 +1,9 @@
+import { jsPlumb } from 'jsplumb';
+import jquery from 'jquery';
+import RTG from 'react-transition-group';
+import React from 'react';
+import { AutomationConstants } from '../../types';
+import { IAction } from '@erxes/ui-automations/src/types';
 import {
   ActionBarButtonsWrapper,
   AutomationFormContainer,
@@ -6,15 +12,15 @@ import {
   CenterBar,
   Container,
   RightDrawerContainer,
-  ScrolledContent,
   Title,
   ToggleWrapper,
   ZoomActions,
   ZoomIcon
 } from '../../styles';
+import { ScrolledContent } from '@erxes/ui-automations/src/styles';
 import { Alert, __ } from 'coreui/utils';
 import { BarItems, HeightedWrapper } from '@erxes/ui/src/layout/styles';
-import { IAction, IAutomation, IAutomationNote, ITrigger } from '../../types';
+import { IAutomation, IAutomationNote, ITrigger } from '../../types';
 import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 import {
   connection,
@@ -30,6 +36,7 @@ import {
   yesEndPoint
 } from '../../utils';
 
+import TemplateForm from '../../containers/forms/TemplateForm';
 import ActionDetailForm from './actions/ActionDetailForm';
 import ActionsForm from '../../containers/forms/actions/ActionsForm';
 import Button from '@erxes/ui/src/components/Button';
@@ -43,16 +50,10 @@ import { Link } from 'react-router-dom';
 import Modal from 'react-bootstrap/Modal';
 import NoteFormContainer from '../../containers/forms/NoteForm';
 import PageContent from '@erxes/ui/src/layout/components/PageContent';
-import RTG from 'react-transition-group';
-import React from 'react';
-import { TRIGGER_TYPES } from '../../constants';
-import TemplateForm from '../../containers/forms/TemplateForm';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import TriggerDetailForm from './triggers/TriggerDetailForm';
 import TriggerForm from '../../containers/forms/triggers/TriggerForm';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import jquery from 'jquery';
-import { jsPlumb } from 'jsplumb';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -65,6 +66,7 @@ type Props = {
   id: string;
   history: any;
   queryParams: any;
+  constants: AutomationConstants;
 };
 
 type State = {
@@ -536,7 +538,11 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   renderCount(item: ITrigger | IAction) {
-    if (item.count && TRIGGER_TYPES.includes(item.type)) {
+    const {
+      constants: { triggerTypesConst }
+    } = this.props;
+
+    if (item.count && triggerTypesConst.includes(item.type)) {
       return `(${item.count})`;
     }
 
@@ -588,7 +594,7 @@ class AutomationForm extends React.Component<Props, State> {
       if (instance.getSelector(`#${idElm}`).length > 0) {
         instance.draggable(instance.getSelector(`#${idElm}`), {
           cursor: 'move',
-          stop: function(params) {
+          stop(params) {
             item.style = jquery(`#${idElm}`).attr('style');
           }
         });
@@ -615,7 +621,7 @@ class AutomationForm extends React.Component<Props, State> {
 
       instance.draggable(instance.getSelector(`#${idElm}`), {
         cursor: 'move',
-        stop: function(params) {
+        stop(params) {
           item.style = jquery(`#${idElm}`).attr('style');
         }
       });
@@ -734,6 +740,10 @@ class AutomationForm extends React.Component<Props, State> {
       selectedContentId
     } = this.state;
 
+    const {
+      constants: { triggersConst, actionsConst, propertyTypesConst }
+    } = this.props;
+
     const onBack = () => this.setState({ showTrigger: false });
     const onBackAction = () => this.setState({ showAction: false });
 
@@ -756,7 +766,12 @@ class AutomationForm extends React.Component<Props, State> {
         );
       }
 
-      return <TriggerForm onClickTrigger={this.onClickTrigger} />;
+      return (
+        <TriggerForm
+          triggersConst={triggersConst}
+          onClickTrigger={this.onClickTrigger}
+        />
+      );
     }
 
     if (currentTab === 'actions') {
@@ -773,12 +788,19 @@ class AutomationForm extends React.Component<Props, State> {
               addAction={this.addAction}
               closeModal={onBackAction}
               triggerType={getTriggerType(actions, triggers, activeAction.id)}
+              actionsConst={actionsConst}
+              propertyTypesConst={propertyTypesConst}
             />
           </>
         );
       }
 
-      return <ActionsForm onClickAction={this.onClickAction} />;
+      return (
+        <ActionsForm
+          actionsConst={actionsConst}
+          onClickAction={this.onClickAction}
+        />
+      );
     }
 
     return null;
@@ -825,14 +847,23 @@ class AutomationForm extends React.Component<Props, State> {
       );
     }
 
-    const { automation } = this.props;
+    const {
+      automation,
+      constants: { triggersConst, actionsConst }
+    } = this.props;
 
     if (!this.state.isActionTab) {
       if (!automation) {
         return <div />;
       }
 
-      return <Histories automation={automation} />;
+      return (
+        <Histories
+          automation={automation}
+          triggersConst={triggersConst}
+          actionsConst={actionsConst}
+        />
+      );
     }
 
     return (

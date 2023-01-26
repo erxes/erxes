@@ -31,12 +31,45 @@ export const initBroker = async options => {
   // do not receive messages in crons worker
   const { consumeQueue, consumeRPCQueue } = client;
 
+  consumeQueue(
+    'core:manage-installation-notification',
+    async ({ subdomain, type, name, message }) => {
+      const models = await generateModels(subdomain);
+
+      if (type === 'uninstall' && message === 'done') {
+        await models.InstallationLogs.remove({ pluginName: name });
+        return;
+      }
+
+      await models.InstallationLogs.createLog({
+        pluginName: name,
+        message
+      });
+
+      if (message === 'done') {
+        await models.InstallationLogs.remove({
+          pluginName: name,
+          message: { $ne: 'done' }
+        });
+      }
+    }
+  );
+
   consumeQueue('core:runCrons', async () => {
     console.log('Running crons ........');
   });
 
   consumeQueue('registerPermissions', async permissions => {
     await registerModule(permissions);
+  });
+
+  consumeRPCQueue('core:permissions.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Permissions.find(data).lean()
+    };
   });
 
   consumeQueue('core:sendMobileNotification', async ({ subdomain, data }) => {
