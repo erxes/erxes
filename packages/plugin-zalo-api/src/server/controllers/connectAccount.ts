@@ -31,7 +31,7 @@ export const connectAccount = async (req, res) => {
   const conf = {
     app_id: ZALO_APP_ID,
     secret_key: ZALO_APP_SECRET_KEY,
-    redirect_uri: `${DOMAIN}/pl-zalo/login`
+    redirect_uri: `${DOMAIN}/gateway/pl-zalo/login`
   };
 
   const authUrl = `https://oauth.zaloapp.com/v4/oa/permission?app_id=${
