@@ -182,7 +182,6 @@ export const repairIntegrations = async (
         }
       });
     } catch (e) {
-      await models.Integrations.deleteOne({ _id: integration._id });
       throw e;
     }
   }

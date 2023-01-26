@@ -1,5 +1,5 @@
 import { IContext } from '../../connectionResolver';
-import { repairIntegrations, updateIntegrationConfigs } from '../../helpers';
+import { updateIntegrationConfigs } from '../../helpers';
 
 const integrationMutations = {
   async integrationsUpdateConfigs(_root, { configsMap }, { models }: IContext) {

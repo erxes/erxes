@@ -426,7 +426,9 @@ const integrationMutations = {
     try {
       const response = await sendCommonMessage({
         serviceName:
-          kind && (await isServiceRunning(kind)) ? kind : 'integrations',
+          kind && (await isServiceRunning(kind))
+            ? kind.split('-')[0]
+            : 'integrations',
         subdomain,
         action: 'api_to_integrations',
         data: {
