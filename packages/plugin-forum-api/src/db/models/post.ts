@@ -200,12 +200,11 @@ const common = {
 };
 
 export const postSchema = new Schema<PostDocument>({
-  categoryId: { type: Types.ObjectId, index: true, sparse: true },
+  categoryId: Types.ObjectId,
   categoryApprovalState: {
     type: String,
     required: true,
-    enum: ADMIN_APPROVAL_STATES,
-    index: true
+    enum: ADMIN_APPROVAL_STATES
   },
   state: {
     type: String,
@@ -231,7 +230,7 @@ export const postSchema = new Schema<PostDocument>({
   createdAt: { type: Date, required: true, default: () => new Date() },
   createdUserType: { type: String, required: true, enum: USER_TYPES },
   createdById: { type: String, index: true, sparse: true },
-  createdByCpId: { type: String, index: true, sparse: true },
+  createdByCpId: { type: String },
 
   updatedAt: { type: Date, required: true, default: () => new Date() },
   updatedUserType: { type: String, required: true, enum: USER_TYPES },
@@ -264,6 +263,25 @@ postSchema.index({
   title: 'text',
   'translations.title': 'text'
 });
+
+// for displaying posts in category page
+postSchema.index(
+  {
+    categoryId: 1,
+    categoryApprovalState: 1,
+    state: 1
+  },
+  { sparse: true }
+);
+// for displaying user's published posts, or sent for approval posts
+postSchema.index(
+  {
+    createdByCpId: 1,
+    state: 1,
+    categoryApprovalState: 1
+  },
+  { sparse: true }
+);
 
 const wordCountHtml = (html?: string | null): number => {
   if (!html) return 0;

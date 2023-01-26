@@ -141,16 +141,36 @@ function LeftSidebar({
     );
   }
 
+  function renderForms() {
+    const content = () =>
+      loadDynamicComponent('contactDetailLeftSidebar', {
+        user: user,
+        isDetail: true
+      });
+
+    return (
+      <Section>
+        <Title>{__('Properties')}</Title>
+        <Section.QuickButtons>
+          <ModalTrigger
+            title="Properties"
+            trigger={
+              <Icon icon="expand-arrows-alt" style={{ cursor: 'pointer' }} />
+            }
+            size="xl"
+            content={content}
+          />
+        </Section.QuickButtons>
+      </Section>
+    );
+  }
+
   return (
     <Sidebar wide={true}>
       {renderUserInfo()}
       {isEnabled('inbox') && renderChannels()}
       {isEnabled('inbox') && renderSkills()}
-      {isEnabled('forms') &&
-        loadDynamicComponent('contactDetailLeftSidebar', {
-          user: user,
-          isDetail: true
-        })}
+      {isEnabled('forms') && renderForms()}
     </Sidebar>
   );
 }
