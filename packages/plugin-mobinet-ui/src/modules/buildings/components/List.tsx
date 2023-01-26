@@ -52,6 +52,8 @@ const List = (props: Props) => {
     lng: 106.9154893
   });
 
+  const [map, setMap] = useState<any>(null);
+
   const [currentOsmBuilding, setCurrentOsmBuilding] = useState<
     IOSMBuilding | undefined
   >(undefined);
@@ -60,7 +62,17 @@ const List = (props: Props) => {
   );
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
 
-  React.useEffect(() => {}, [props.buildings, isFormOpen]);
+  React.useEffect(() => {
+    if (buildings.length > 0 && map) {
+      map.highlight(feature => {
+        const foundBuilding = buildings.find(b => b.osmbId === feature.id);
+
+        if (foundBuilding) {
+          return foundBuilding.color;
+        }
+      });
+    }
+  }, [props.buildings, isFormOpen, map]);
 
   const renderRow = () => {
     const { buildings } = props;
@@ -102,9 +114,11 @@ const List = (props: Props) => {
       setIsFormOpen(true);
     };
 
-    const onload = (bounds: ICoordinates[]) => {
+    const onload = (bounds: ICoordinates[], mapRef) => {
       bounds.push(bounds[0]);
       props.getBuildingsWithingBounds(bounds);
+
+      setMap(mapRef.current);
     };
 
     const mapProps = {
@@ -113,11 +127,8 @@ const List = (props: Props) => {
       onChangeCenter,
       onload,
       center,
-      mode: 'single',
       selectedValues: props.buildings.map(b => b.osmbId)
     };
-
-    // console.log('OSMBuildings', mapProps);
 
     return <OSMBuildings {...mapProps} />;
   };
@@ -177,11 +188,17 @@ const List = (props: Props) => {
       return null;
     }
 
+    const onHide = () => {
+      setCurrentOsmBuilding(undefined);
+      setCurrentBuilding(undefined);
+      setIsFormOpen(false);
+    };
+
     return (
       <Modal
         show={true}
         size="xl"
-        onHide={() => setIsFormOpen(false)}
+        onHide={onHide}
         animation={false}
         enforceFocus={false}
       >

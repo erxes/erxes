@@ -7,13 +7,14 @@ import gql from 'graphql-tag';
 import SelectCity from '../components/SelectCity';
 import { queries } from '../graphql';
 import { CitiesQueryResponse } from '../types';
+import { ICoordinates } from '../../../types';
 
 type Props = {
   defaultValue: string[] | string;
   isRequired?: boolean;
   description?: string;
   multi?: boolean;
-  onChange: (value: string[]) => void;
+  onChange: (value: string[], center?: ICoordinates) => void;
 };
 
 type FinalProps = {

@@ -14,7 +14,7 @@ import SelectQuarter from '../../quarters/containers/SelectQuarter';
 import OSMBuildings from '../../../common/OSMBuildings';
 import { IBuilding, IOSMBuilding } from '../types';
 import { ICoordinates } from '../../../types';
-import { findCenter } from '../../../utils';
+import { findCenter, getBuildingColor } from '../../../utils';
 
 type Props = {
   osmBuilding?: IOSMBuilding;
@@ -39,6 +39,8 @@ const BuildingForm = (props: Props) => {
     //     building.quarter.district.cityId) ||
     //   ''
   );
+
+  const [map, setMap] = useState<any>(null);
 
   const generateCoordinates = data => {
     const { min, max } = data;
@@ -79,10 +81,27 @@ const BuildingForm = (props: Props) => {
       setCenter(props.district.center);
     }
 
-    if (props.osmBuilding) {
-      setCenter(
-        findCenter(generateCoordinates(props.osmBuilding.properties.bounds))
-      );
+    if (osmBuilding) {
+      const obj: any = buildingObject || {};
+
+      obj.osmbId = osmBuilding.id;
+      obj.code = osmBuilding.id;
+      obj.name = osmBuilding.properties.name;
+
+      setBuildingObject(obj);
+
+      setCenter(findCenter(generateCoordinates(osmBuilding.properties.bounds)));
+    }
+
+    if (buildingObject && map) {
+      console.log('highlight', buildingObject);
+
+      map.highlight(feature => {
+        if (feature.id === buildingObject.osmbId) {
+          console.log('highlight', buildingObject.serviceStatus);
+          return getBuildingColor(buildingObject.serviceStatus);
+        }
+      });
     }
   }, [
     props.city,
@@ -90,7 +109,8 @@ const BuildingForm = (props: Props) => {
     props.district,
     districtId,
     osmBuilding,
-    buildingObject
+    buildingObject,
+    map
   ]);
 
   const generateDoc = () => {
@@ -109,7 +129,7 @@ const BuildingForm = (props: Props) => {
         osmBuilding &&
         findCenter(generateCoordinates(osmBuilding.properties.bounds));
 
-      // finalValues.center = buildingObject.center;
+      finalValues.serviceStatus = buildingObject.serviceStatus;
     }
 
     return {
@@ -135,14 +155,31 @@ const BuildingForm = (props: Props) => {
 
     if (center) {
       setCenter(center);
+
+      if (map) {
+        map.setPosition({ latitude: center.lat, longitude: center.lng });
+      }
+    }
+  };
+
+  const onChangeCity = (cityId, center?: ICoordinates) => {
+    setCityId(cityId);
+
+    if (center) {
+      setCenter(center);
+
+      if (map) {
+        map.setPosition({ latitude: center.lat, longitude: center.lng });
+      }
     }
   };
 
   const onChangeBuilding = e => {
-    if (e.properties && e.properties.name) {
+    if (e.properties) {
       const obj: any = buildingObject || {};
 
-      obj.name = e.properties.name;
+      obj.name = e.properties.name || '';
+      obj.osmbId = e.id;
 
       setBuildingObject(obj);
     }
@@ -160,6 +197,7 @@ const BuildingForm = (props: Props) => {
           name={name}
           type={type}
           required={true}
+          value={value}
           defaultValue={value}
           onChange={onChangeInput}
         />
@@ -174,14 +212,18 @@ const BuildingForm = (props: Props) => {
 
     const selectedValues = osmBuilding ? [osmBuilding.id] : [];
 
+    const onload = (_bounds, mapRef) => {
+      setMap(mapRef.current);
+    };
+
     const mapProps = {
       id: 'mapOnForm',
       onChange: onChangeBuilding,
       onChangeCenter,
       center,
       height: '300px',
-      selectedValues
-      // onLoadCallback: onMapLoad,
+      selectedValues,
+      onload
     };
 
     return <OSMBuildings {...mapProps} />;
@@ -193,13 +235,7 @@ const BuildingForm = (props: Props) => {
 
     return (
       <>
-        <SelectCity
-          defaultValue={cityId}
-          onChange={e => {
-            setCityId(e);
-            setDistrictId('');
-          }}
-        />
+        <SelectCity defaultValue={cityId} onChange={onChangeCity} />
 
         {cityId && (
           <SelectDistrict
@@ -233,6 +269,23 @@ const BuildingForm = (props: Props) => {
           'string',
           buildingObject && buildingObject.name
         )}
+
+        <FormGroup>
+          <ControlLabel>Service status</ControlLabel>
+          <FormControl
+            id={'serviceStatus'}
+            defaultValue={building ? building.serviceStatus : 'inactive'}
+            componentClass="select"
+            name="serviceStatus"
+            onChange={onChangeInput}
+          >
+            {['inactive', 'active', 'inprogress'].map((p, index) => (
+              <option key={index} value={p}>
+                {p}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
 
         {render3dMap()}
 

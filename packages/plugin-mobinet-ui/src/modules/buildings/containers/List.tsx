@@ -53,7 +53,8 @@ export default function BuildingContainer(props: Props) {
   const getBuildingsWithingBounds = (bounds: ICoordinates[]) => {
     fetchBuildingsWithingBounds({
       variables: {
-        bounds: bounds.map(b => [b.lng, b.lat])
+        bounds: bounds.map(b => [b.lng, b.lat]),
+        serviceStatuses: ['active', 'inprogress']
       }
     });
   };

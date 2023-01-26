@@ -18,6 +18,8 @@ export interface IBuilding {
   _id: string;
   code: string;
   name: string;
+  serviceStatus: string;
+  color: string;
   bounds: any;
   center: any;
   customerIds: string[];

@@ -28,3 +28,14 @@ export const findCenter = (coordinates: ICoordinates[]) => {
 
   return { lat: lat, lng: lng };
 };
+
+export const getBuildingColor = (serviceStatus: string) => {
+  switch (serviceStatus) {
+    case 'active':
+      return '#006400';
+    case 'inprogress':
+      return '#ffff00';
+    default:
+      return '#ff0000';
+  }
+};

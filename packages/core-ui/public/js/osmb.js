@@ -2431,8 +2431,6 @@
         this.canvas.width = this.width = this.domNode.offsetWidth*devicePixelRatio;
         this.canvas.height = this.height = this.domNode.offsetHeight*devicePixelRatio;
         
-        console.log('this container ',this.container)
-
         this.container.appendChild(this.canvas);
     
         this.glx = new GLX(this.canvas, options.fastMode);

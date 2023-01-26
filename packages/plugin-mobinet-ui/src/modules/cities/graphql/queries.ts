@@ -33,6 +33,7 @@ query Cities($searchValue: String) {
     cities(searchValue: $searchValue) {
       _id
       name
+      center
     }
   }
 `;

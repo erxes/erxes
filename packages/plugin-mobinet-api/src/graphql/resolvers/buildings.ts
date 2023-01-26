@@ -17,6 +17,17 @@ const Building = {
       lat: building.location.coordinates[1],
       lng: building.location.coordinates[0]
     };
+  },
+
+  async color(building, _params, _context) {
+    switch (building.serviceStatus) {
+      case 'active':
+        return '#006400';
+      case 'inprogress':
+        return '#ffff00';
+      default:
+        return '#ff0000';
+    }
   }
 };
 

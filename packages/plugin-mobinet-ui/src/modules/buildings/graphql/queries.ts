@@ -3,6 +3,8 @@ _id
 bounds
 location
 code
+serviceStatus
+color
 customerIds
 customers {
   _id
@@ -50,8 +52,8 @@ query BuildingDetail($_id: String!) {
 `;
 
 const buildingsByBoundsQuery = `
-query BuildingsByBounds($bounds: JSON) {
-  buildingsByBounds(bounds: $bounds) {
+query BuildingsByBounds($bounds: JSON, $serviceStatuses: [ServiceStatus]) {
+  buildingsByBounds(bounds: $bounds, serviceStatuses: $serviceStatuses) {
     ${fields}
   }
 }

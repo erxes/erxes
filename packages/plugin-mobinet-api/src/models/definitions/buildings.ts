@@ -1,6 +1,11 @@
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from '../utils';
 
+export enum ServiceStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  INPROGRESS = 'inprogress'
+}
 export interface IBuilding {
   name: string;
   code: string;
@@ -20,7 +25,7 @@ export interface IBuilding {
     lng: number;
   };
 
-  serviceStatus: 'active' | 'inactive' | 'inprogress';
+  serviceStatus: ServiceStatus;
 
   customerIds: string[];
 

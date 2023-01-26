@@ -8,6 +8,7 @@ const variables = `
     $osmbId: String
     $quarterId: String
     $type: String
+    $serviceStatus: ServiceStatus
 `;
 
 const fields = `
@@ -20,6 +21,7 @@ const fields = `
     osmbId: $osmbId
     quarterId: $quarterId
     type: $type
+    serviceStatus: $serviceStatus
 `;
 
 const addMutation = `

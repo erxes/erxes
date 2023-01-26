@@ -14,6 +14,12 @@ ${
     : ''
 }
 
+enum ServiceStatus {
+  active
+  inactive
+  inprogress
+}
+
   type Building @key(fields: "_id") @cacheControl(maxAge: 3){
     _id: String
     name: String
@@ -21,6 +27,10 @@ ${
     description: String
     quarterId: String
     location: JSON
+
+    serviceStatus: ServiceStatus
+
+    color: String
 
     osmbId: String
     bounds: JSON
@@ -56,6 +66,7 @@ const mutationParams = `
     location: JSON
     bounds: JSON
     type: String
+    serviceStatus: ServiceStatus
 `;
 
 export const mutations = `
@@ -79,6 +90,6 @@ const qryParams = `
 export const queries = `
   buildingList(${qryParams}): BuildingListResponse
   buildings(${qryParams}): [Building]
-  buildingsByBounds(bounds: JSON): [Building]
+  buildingsByBounds(bounds: JSON, serviceStatuses: [ServiceStatus]): [Building]
   buildingDetail(_id: String!): Building
 `;

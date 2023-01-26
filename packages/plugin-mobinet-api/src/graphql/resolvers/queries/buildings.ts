@@ -1,6 +1,7 @@
 import { paginate } from '@erxes/api-utils/src';
 
 import { IContext } from '../../../connectionResolver';
+import { ServiceStatus } from '../../../models/definitions/buildings';
 
 const queries = {
   buildingList: async (
@@ -107,16 +108,25 @@ const queries = {
 
   buildingsByBounds: async (
     _root,
-    { bounds }: { bounds: any },
+    {
+      bounds,
+      serviceStatuses
+    }: { bounds: any; serviceStatuses: [ServiceStatus] },
     { models }: IContext
   ) => {
     console.log(bounds);
 
-    return models.Buildings.find({
+    const qry: any = {
       location: {
         $geoWithin: { $polygon: bounds }
       }
-    }).lean();
+    };
+
+    if (serviceStatuses) {
+      qry.serviceStatus = { $in: serviceStatuses };
+    }
+
+    return models.Buildings.find(qry).lean();
   }
 };
 

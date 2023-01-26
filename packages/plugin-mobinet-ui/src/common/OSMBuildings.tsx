@@ -1,36 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { ICoordinates } from '../types';
-import useScript from './useScript';
 
 type Props = {
   id: string;
   width?: string;
   height?: string;
   center?: ICoordinates;
-  selectedValues?: string[];
-  mode?: string;
 
   onChangeCenter?: (center: ICoordinates, bounds: ICoordinates[]) => void;
   onChange: (data: any) => void;
-  onload?: (bounds: ICoordinates[]) => void;
+  onload?: (bounds: ICoordinates[], mapRef: any) => void;
 };
 
 const Map = (props: Props) => {
   const [center, setCenter] = useState<ICoordinates | undefined>(props.center);
-  const [selectedValues, setSelectedValues] = useState<string[]>(
-    props.selectedValues || []
-  );
-  const [mode] = useState<'single' | 'multiple'>(
-    (props.mode as any) || 'single'
-  );
-
-  console.log('selectedValues', props.selectedValues);
 
   const mapRef = React.useRef(null);
 
   let timer: any = null;
 
   useEffect(() => {
+    const scripts = document.getElementsByTagName('script');
+
+    for (const s of scripts) {
+      if (s.id === props.id) {
+        renderMap();
+        return;
+      }
+    }
+
     const script: any = document.createElement('script');
     script.src = 'http://localhost:3000/js/osmb.js';
     script.async = true;
@@ -51,7 +49,7 @@ const Map = (props: Props) => {
       (window as any).OSMBuildings = null;
       mapRef.current = null;
     };
-  }, [setSelectedValues, props.id]);
+  }, [props.id]);
 
   const renderMap = () => {
     const mapElement = document.getElementById(props.id);
@@ -59,8 +57,6 @@ const Map = (props: Props) => {
     if (!mapElement || !(window as any).OSMBuildings) {
       return;
     }
-
-    console.log('renderMap');
 
     const map = new (window as any).OSMBuildings({
       container: props.id,
@@ -73,7 +69,7 @@ const Map = (props: Props) => {
       zoom: 16,
       fastMode: true,
       minZoom: 10,
-      maxZoom: 30,
+      // maxZoom: 30,
       style: 'object',
       attribution:
         '© Data <a href="https://openstreetmap.org/copyright/">OpenStreetMap</a> © 3D <a href="https://osmbuildings.org/copyright/">OSM Buildings</a>'
@@ -93,28 +89,13 @@ const Map = (props: Props) => {
     });
 
     map.on('pointerup', e => {
-      if (!e.features) {
+      if (!e.features || e.features.length === 0) {
         return;
       }
 
-      if (e.features.length === 0) {
-        return;
-      }
+      console.log('selected feature ', e.features[0]);
 
-      const building = e.features[0];
-
-      if (mode === 'single') {
-        setSelectedValues([building.id]);
-
-        const featureIdList = e.features.map(feature => feature.id);
-
-        map.highlight(feature => {
-          if (featureIdList.indexOf(feature.id) > -1) {
-            props.onChange(feature);
-            return '#ff0000';
-          }
-        });
-      }
+      props.onChange(e.features[0]);
     });
 
     map.on('change', _e => {
@@ -152,13 +133,16 @@ const Map = (props: Props) => {
 
     map.addGeoJSON('http://localhost:3000/geojson/custom.json');
 
-    if (selectedValues && selectedValues.length > 0) {
-      map.highlight(feature => {
-        if (selectedValues && selectedValues.indexOf(feature.id) > -1) {
-          return '#ff0000';
-        }
-      });
-    }
+    // if (props.selectedValues && props.selectedValues.length > 0) {
+    //   map.highlight((feature) => {
+    //     if (
+    //       props.selectedValues &&
+    //       props.selectedValues.indexOf(feature.id) > -1
+    //     ) {
+    //       return '#ff0000';
+    //     }
+    //   });
+    // }
 
     map.appendTo(props.id);
 
@@ -171,7 +155,8 @@ const Map = (props: Props) => {
             lat: bound.latitude,
             lng: bound.longitude
           };
-        })
+        }),
+        mapRef
       );
   };
 
