@@ -1,18 +1,10 @@
-const fields = `
+const commonfields = `
 _id
 bounds
 location
 code
 serviceStatus
 color
-customerIds
-customers {
-  _id
-  firstName
-  lastName
-  primaryEmail
-  primaryPhone
-}
 description
 name
 osmbId
@@ -36,7 +28,7 @@ const listQuery = `
 query BuildingList($cityId: String, $customerIds: [String], $districtId: String, $osmbId: String, $page: Int, $perPage: Int, $quarterId: String, $searchValue: String, $type: String) {
     buildingList(cityId: $cityId, customerIds: $customerIds, districtId: $districtId, osmbId: $osmbId, page: $page, perPage: $perPage, quarterId: $quarterId, searchValue: $searchValue, type: $type) {
       list {
-        ${fields}
+        ${commonfields}
       }
         totalCount
     }
@@ -46,7 +38,15 @@ query BuildingList($cityId: String, $customerIds: [String], $districtId: String,
 const detailQuery = `
 query BuildingDetail($_id: String!) {
     buildingDetail(_id: $_id) {
-        ${fields}
+        ${commonfields}
+        customerIds
+        customers {
+          _id
+          firstName
+          lastName
+          primaryEmail
+          primaryPhone
+        }
     }
 }
 `;
@@ -54,7 +54,10 @@ query BuildingDetail($_id: String!) {
 const buildingsByBoundsQuery = `
 query BuildingsByBounds($bounds: JSON, $serviceStatuses: [ServiceStatus]) {
   buildingsByBounds(bounds: $bounds, serviceStatuses: $serviceStatuses) {
-    ${fields}
+    _id
+    serviceStatus
+    color
+    osmbId
   }
 }
 `;

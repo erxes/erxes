@@ -3,8 +3,9 @@ import { ICoordinates } from '../types';
 
 type Props = {
   id: string;
-  width?: string;
-  height?: string;
+  // width?: string;
+  // height?: string;
+  style?: any;
   center?: ICoordinates;
 
   onChangeCenter?: (center: ICoordinates, bounds: ICoordinates[]) => void;
@@ -163,7 +164,7 @@ const Map = (props: Props) => {
   return (
     <div
       id={props.id}
-      style={{ width: props.width || '100%', height: props.height || '100%' }}
+      style={props.style || { width: '100%', height: '100%' }}
     />
   );
 };

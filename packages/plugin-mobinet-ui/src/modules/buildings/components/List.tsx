@@ -37,15 +37,7 @@ type Props = {
 } & IRouterProps;
 
 const List = (props: Props) => {
-  const {
-    totalCount,
-    queryParams,
-    loading,
-    buildings,
-    history,
-    viewType,
-    remove
-  } = props;
+  const { totalCount, queryParams, loading, history, viewType, remove } = props;
 
   const [center, setCenter] = useState<ICoordinates>({
     lat: 47.918812,
@@ -53,6 +45,9 @@ const List = (props: Props) => {
   });
 
   const [map, setMap] = useState<any>(null);
+  const [buildings, setBuildings] = useState<IBuilding[]>(
+    props.buildings || []
+  );
 
   const [currentOsmBuilding, setCurrentOsmBuilding] = useState<
     IOSMBuilding | undefined
@@ -63,6 +58,11 @@ const List = (props: Props) => {
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
 
   React.useEffect(() => {
+    if (props.buildings) {
+      console.log('buildings changed  ', props.buildings);
+      setBuildings(props.buildings);
+    }
+
     if (buildings.length > 0 && map) {
       map.highlight(feature => {
         const foundBuilding = buildings.find(b => b.osmbId === feature.id);
@@ -72,7 +72,19 @@ const List = (props: Props) => {
         }
       });
     }
-  }, [props.buildings, isFormOpen, map]);
+
+    if (currentOsmBuilding) {
+      const foundBuilding = buildings.find(
+        b => b.osmbId === currentOsmBuilding.id
+      );
+
+      if (foundBuilding) {
+        return history.push(`/mobinet/building/details/${foundBuilding._id}`);
+      }
+    }
+
+    console.log('currentBuilding', currentBuilding);
+  }, [map, props.buildings, buildings, isFormOpen, currentOsmBuilding]);
 
   const renderRow = () => {
     const { buildings } = props;
@@ -90,29 +102,23 @@ const List = (props: Props) => {
     setCenter(center);
   };
 
+  const onChangeBuilding = e => {
+    const buildingId = e.id;
+
+    if (!buildingId) {
+      setIsFormOpen(false);
+      return;
+    }
+
+    setCurrentOsmBuilding(e);
+
+    setIsFormOpen(true);
+  };
+
   const render3dMap = () => {
     if (viewType !== '3d') {
       return null;
     }
-
-    const onChange = e => {
-      const buildingId = e.id;
-
-      if (!buildingId) {
-        setIsFormOpen(false);
-        return;
-      }
-
-      setCurrentOsmBuilding(e);
-
-      const index = props.buildings.findIndex(b => b.osmbId === buildingId);
-
-      if (index !== -1) {
-        setCurrentBuilding(props.buildings[index]);
-      }
-
-      setIsFormOpen(true);
-    };
 
     const onload = (bounds: ICoordinates[], mapRef) => {
       bounds.push(bounds[0]);
@@ -123,11 +129,10 @@ const List = (props: Props) => {
 
     const mapProps = {
       id: 'mapOnList',
-      onChange,
+      onChange: onChangeBuilding,
       onChangeCenter,
       onload,
-      center,
-      selectedValues: props.buildings.map(b => b.osmbId)
+      center
     };
 
     return <OSMBuildings {...mapProps} />;

@@ -103,7 +103,7 @@ const queries = {
     { _id }: { _id: string },
     { models }: IContext
   ) => {
-    return models.Buildings.getBuilding(_id);
+    return models.Buildings.getBuilding({ _id });
   },
 
   buildingsByBounds: async (

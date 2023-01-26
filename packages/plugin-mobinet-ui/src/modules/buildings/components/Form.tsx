@@ -221,7 +221,7 @@ const BuildingForm = (props: Props) => {
       onChange: onChangeBuilding,
       onChangeCenter,
       center,
-      height: '300px',
+      style: { height: '300px', width: '100%' },
       selectedValues,
       onload
     };

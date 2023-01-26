@@ -3,10 +3,6 @@ import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-const List = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Mobinet" */ './containers/List')
-);
-
 const CityList = asyncComponent(() =>
   import(/* webpackChunkName: "CityList" */ './modules/cities/containers/List')
 );
@@ -26,6 +22,12 @@ const QuarterList = asyncComponent(() =>
 const BuildingList = asyncComponent(() =>
   import(
     /* webpackChunkName: "CityList" */ './modules/buildings/containers/List'
+  )
+);
+
+const BuildingDetail = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "BuildingDetail" */ './modules/buildings/containers/Detail'
   )
 );
 
@@ -65,11 +67,10 @@ const buildingList = history => {
   );
 };
 
-const mobinets = ({ location, history }) => {
-  const queryParams = queryString.parse(location.search);
-  const { type, viewType } = queryParams;
+const buildingDetail = ({ match }) => {
+  const id = match.params.id;
 
-  return <List typeId={type} history={history} viewType={viewType} />;
+  return <BuildingDetail id={id} />;
 };
 
 const routes = () => {
@@ -79,6 +80,12 @@ const routes = () => {
       <Route path="/mobinet/city/list" component={cityList} />
       <Route path="/mobinet/district/list" component={districtList} />
       <Route path="/mobinet/quarter/list" component={quarterList} />
+      <Route
+        key="/mobinet/building/details/:id"
+        exact={true}
+        path="/mobinet/building/details/:id"
+        component={buildingDetail}
+      />
     </>
   );
 };
