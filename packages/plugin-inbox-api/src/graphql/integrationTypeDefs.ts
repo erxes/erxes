@@ -266,6 +266,7 @@ export const mutations = `
 
   integrationsRemove(_id: String!): JSON
   integrationsRemoveAccount(_id: String!, kind: String): JSON
+  integrationsRepair(_id: String!, kind: String!): JSON
 
   integrationsArchive(_id: String!, status: Boolean!): Integration
 
