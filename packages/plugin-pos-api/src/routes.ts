@@ -96,6 +96,20 @@ export const getProductsData = async (
     const categories: any[] = [];
 
     for (const category of productCategories) {
+      const limit = await sendProductsMessage({
+        subdomain,
+        action: 'count',
+        data: {
+          query: {
+            status: { $ne: 'deleted' },
+            categoryId: category._id,
+            _id: { $nin: group.excludedProductIds }
+          }
+        },
+        isRPC: true,
+        defaultValue: 0
+      });
+
       const products = await sendProductsMessage({
         subdomain,
         action: 'find',
@@ -104,7 +118,8 @@ export const getProductsData = async (
             status: { $ne: 'deleted' },
             categoryId: category._id,
             _id: { $nin: group.excludedProductIds }
-          }
+          },
+          limit
         },
         isRPC: true,
         defaultValue: []
