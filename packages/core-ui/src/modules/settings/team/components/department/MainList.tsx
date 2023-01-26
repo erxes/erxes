@@ -22,6 +22,7 @@ import Form from '../../containers/department/Form';
 import { queries } from '@erxes/ui/src/team/graphql';
 import gql from 'graphql-tag';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { DescriptionContentRow } from '../common/DescriptionContentRow';
 type Props = {
   listQuery: DepartmentsMainQueryResponse;
   queryParams: any;
@@ -197,7 +198,7 @@ class MainList extends React.Component<Props, State> {
             <th>{__('Code')}</th>
             <th>{__('Title')}</th>
             <th>{__('Supervisor')}</th>
-            <th>{__('User Count')}</th>
+            <th>{__('Team member count')}</th>
           </tr>
         </thead>
         <tbody>
@@ -211,6 +212,8 @@ class MainList extends React.Component<Props, State> {
 
   render() {
     const { listQuery, deleteDepartments } = this.props;
+
+    const { totalCount, totalUsersCount } = listQuery.departmentsMain;
 
     const { selectedItems } = this.state;
 
@@ -237,6 +240,11 @@ class MainList extends React.Component<Props, State> {
         title="Departments"
         icon="/images/actions/21.svg"
         description=""
+        renderExtra={DescriptionContentRow({
+          label: 'departments',
+          totalCount: totalCount,
+          teamMembersCount: totalUsersCount
+        })}
       />
     );
     return (
@@ -256,16 +264,14 @@ class MainList extends React.Component<Props, State> {
         content={
           <DataWithLoader
             loading={listQuery.loading}
-            count={listQuery.departmentsMain?.totalCount || 0}
+            count={totalCount || 0}
             data={this.renderContent()}
             emptyImage="/images/actions/5.svg"
             emptyText="No Branches"
           />
         }
         leftSidebar={<SettingsSideBar />}
-        footer={
-          <Pagination count={listQuery.departmentsMain?.totalCount || 0} />
-        }
+        footer={<Pagination count={totalCount || 0} />}
       />
     );
   }

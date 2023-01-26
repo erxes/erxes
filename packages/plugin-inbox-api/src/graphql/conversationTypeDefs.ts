@@ -3,7 +3,7 @@ import {
   attachmentType
 } from '@erxes/api-utils/src/commonTypeDefs';
 
-export const types = ({ tags, forms }) => `
+export const types = ({ tags, forms, contacts }) => `
   ${attachmentType}
   ${attachmentInput}
 
@@ -30,15 +30,6 @@ export const types = ({ tags, forms }) => `
     _id: String! @external
   }
 
-  type ConversationFacebookData {
-    kind: String
-    senderName: String
-    senderId: String
-    recipientId: String
-    postId: String
-    pageId: String
-  }
-
   type Conversation {
     _id: String!
     content: String
@@ -58,19 +49,16 @@ export const types = ({ tags, forms }) => `
     operatorStatus: String
 
     messages: [ConversationMessage]
-    facebookPost: FacebookPost
     callProAudio: String
     
-    ${tags ? `tags: [Tag]` : ''}
-
-    customer: Customer
+    ${tags ? 'tags: [Tag]' : ''}
+    ${contacts ? 'customer: Customer' : ''}
     integration: Integration
     user: User
     assignedUser: User
     participatedUsers: [User]
     participatorCount: Int
     videoCallData: VideoCallData
-    isFacebookTaggedMessage: Boolean
     customFieldsData: JSON
 
     bookingProductId: String
@@ -108,34 +96,7 @@ export const types = ({ tags, forms }) => `
     videoCallData: VideoCallData
     contentType: String
     bookingWidgetData: JSON
-  }
-
-  type FacebookPost {
-    postId: String
-    recipientId: String
-    senderId: String
-    content:String
-    erxesApiId: String
-    attachments: [String]
-    timestamp: Date
-    permalink_url: String
-  }
-
-  type FacebookComment {
-    conversationId: String
-    commentId: String
-    postId: String
-    parentId: String
-    recipientId:String
-    senderId: String
-    permalink_url: String
-    attachments: [String]
-    content: String
-    erxesApiId: String
-    timestamp: Date
-    customer: Customer
-    commentCount: Int
-    isResolved: Boolean
+    mid: String
   }
 
   type Email {
@@ -291,10 +252,8 @@ export const mutations = `
     internal: Boolean,
     attachments: [AttachmentInput],
     contentType: String
-    facebookMessageTag: String
+    extraInfo: JSON
   ): ConversationMessage
-  conversationsReplyFacebookComment(conversationId: String, commentId: String, content: String): FacebookComment
-  conversationsChangeStatusFacebookComment(commentId: String): FacebookComment
   conversationsAssign(conversationIds: [String]!, assignedUserId: String): [Conversation]
   conversationsUnassign(_ids: [String]!): [Conversation]
   conversationsChangeStatus(_ids: [String]!, status: String!): [Conversation]

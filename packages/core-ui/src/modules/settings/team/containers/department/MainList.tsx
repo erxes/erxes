@@ -5,7 +5,7 @@ import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { queries, mutations } from '@erxes/ui/src/team/graphql';
 import { DepartmentsMainQueryResponse } from '@erxes/ui/src/team/types';
-import { EmptyState } from '@erxes/ui/src';
+import { EmptyState, Spinner } from '@erxes/ui/src';
 import MainListCompoenent from '../../components/department/MainList';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import client from '@erxes/ui/src/apolloClient';
@@ -26,6 +26,10 @@ class MainList extends React.Component<FinalProps> {
 
   render() {
     const { listQuery } = this.props;
+
+    if (listQuery.loading) {
+      return <Spinner />;
+    }
 
     if (listQuery.error) {
       return (
