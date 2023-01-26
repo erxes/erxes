@@ -31,7 +31,7 @@ type Props = {
   _id?: string;
   integration: IIntegration;
   archive: (id: string, status: boolean) => void;
-  repair: (id: string) => void;
+  repair: (id: string, kind: string) => void;
   removeIntegration: (integration: IIntegration) => void;
   disableAction?: boolean;
   editIntegration: (
@@ -246,7 +246,7 @@ class IntegrationListItem extends React.Component<Props, State> {
       return null;
     }
 
-    const onClick = () => repair(integration._id);
+    const onClick = () => repair(integration._id, integration.kind);
 
     if (
       integration.healthStatus &&

@@ -1,11 +1,6 @@
 import * as dotenv from 'dotenv';
 
-import {
-  removeAccount,
-  removeCustomers,
-  removeIntegration,
-  repairIntegrations
-} from './helpers';
+import { removeAccount, removeCustomers, removeIntegration } from './helpers';
 
 import { userIds } from './userMiddleware';
 import { getConfig } from './utils';
@@ -65,10 +60,6 @@ export const initBroker = async cl => {
               integrations: await models.Integrations.find({ kind: 'telnyx' })
             }
           };
-        }
-
-        if (action === 'repair-integrations') {
-          response = { data: await repairIntegrations(models, data._id) };
         }
 
         if (action === 'getConfigs') {

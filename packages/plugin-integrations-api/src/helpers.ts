@@ -91,26 +91,6 @@ export const removeAccount = async (
   return { erxesApiIds };
 };
 
-export const repairIntegrations = async (
-  models: IModels,
-  integrationId: string
-): Promise<true | Error> => {
-  const integration = await models.Integrations.findOne({
-    erxesApiId: integrationId
-  });
-
-  if (!integration) {
-    throw new Error('Integration not found');
-  }
-
-  await models.Integrations.updateOne(
-    { erxesApiId: integrationId },
-    { $set: { healthStatus: 'healthy', error: '' } }
-  );
-
-  return true;
-};
-
 export const removeCustomers = async (models: IModels, params) => {
   const { customerIds } = params;
   const selector = { erxesApiId: { $in: customerIds } };
