@@ -161,7 +161,7 @@ const integrationsArchive = `
 
 const integrationsRepair = `
   mutation integrationsRepair($_id: String!, $kind: String!) {
-    integrationsRepair(_id: $_id, $kind: kind) 
+    integrationsRepair(_id: $_id, kind: $kind) 
   }
 `;
 
