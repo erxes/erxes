@@ -254,8 +254,6 @@ const boardQueries = {
       );
     }
 
-    console.log(query, 'kkkk');
-
     return Pipelines.find(query)
       .sort({ order: 1, createdAt: -1 })
       .lean();
