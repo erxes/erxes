@@ -98,7 +98,6 @@ export const FORUM_POSTS_QUERY = gql`
     forumPosts(${forumPostsArg}) {
       
       _id
-      content
       title
       state
       thumbnail
