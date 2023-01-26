@@ -420,7 +420,7 @@ export const generatePostModel = (
         update.viewCount = 0;
       }
 
-      _.assign(post, update);
+      _.merge(post, update);
 
       await post.save();
 
@@ -669,7 +669,7 @@ export const generatePostModel = (
         update.viewCount = 0;
       }
 
-      _.assign(post, update);
+      _.merge(post, update);
       await post.save();
 
       if (pollOptions !== undefined) {
