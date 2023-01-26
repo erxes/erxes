@@ -64,7 +64,7 @@ export const generatePageModel = (
       patch: PagePatchInput
     ): Promise<PageDocument> {
       const page = await models.Page.findByIdOrThrow(_id);
-      _.assign(page, patch);
+      _.merge(page, patch);
       await page.save();
       return page;
     }
