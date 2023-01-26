@@ -1,16 +1,16 @@
 import React from 'react';
 import { useMutation } from 'react-apollo';
-import { DELETE_CATEGORY } from '../graphql/mutations';
 import { useHistory } from 'react-router-dom';
-import { allCategoryQueries } from '../graphql/queries';
+import { mutations, queries } from '../graphql';
+import gql from 'graphql-tag';
 
 const CategoryDelete: React.FC<{ _id: string; onDelete?: () => any }> = ({
   _id,
   onDelete
 }) => {
-  const [deleteCategoryMutation] = useMutation(DELETE_CATEGORY, {
+  const [deleteCategoryMutation] = useMutation(gql(mutations.deleteCategory), {
     onError: e => alert(JSON.stringify(e, null, 2)),
-    refetchQueries: allCategoryQueries
+    refetchQueries: queries.allCategoryQueries
   });
 
   const onClickDelete = async () => {
@@ -19,7 +19,7 @@ const CategoryDelete: React.FC<{ _id: string; onDelete?: () => any }> = ({
     try {
       await deleteCategoryMutation({
         variables: { id: _id },
-        refetchQueries: allCategoryQueries
+        refetchQueries: queries.allCategoryQueries
       });
       if (onDelete) onDelete();
     } catch (e) {}

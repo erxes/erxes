@@ -1,12 +1,16 @@
 import React from 'react';
 import { useQuery } from 'react-apollo';
 import { Link } from 'react-router-dom';
-import { CATEGORIES_BY_PARENT_IDS } from '../graphql/queries';
+import { queries } from '../graphql';
+import gql from 'graphql-tag';
 
 export default function CategoryNavItem({ category }) {
-  const { data, loading, error } = useQuery(CATEGORIES_BY_PARENT_IDS, {
-    variables: { parentId: [category._id] }
-  });
+  const { data, loading, error } = useQuery(
+    gql(queries.categoriesByParentIds),
+    {
+      variables: { parentId: [category._id] }
+    }
+  );
 
   if (loading) return null;
 

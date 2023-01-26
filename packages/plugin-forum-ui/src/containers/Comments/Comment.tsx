@@ -1,22 +1,22 @@
 import React, { useState } from 'react';
 import CommentForm from './CommentForm';
 import { useQuery, useMutation } from 'react-apollo';
-import { FORUM_COMMENTS } from '../../graphql/queries';
-import { DELETE_COMMENT } from '../../graphql/mutations';
+import { mutations, queries } from '../../graphql';
+import gql from 'graphql-tag';
 
 const Comment: React.FC<{ comment: any; onDeleted?: (string) => any }> = ({
   comment,
   onDeleted
 }) => {
   const [showReplyForm, setShowReplyForm] = useState(false);
-  const repliesQuery = useQuery(FORUM_COMMENTS, {
+  const repliesQuery = useQuery(gql(queries.forumComments), {
     variables: {
       replyToId: [comment._id],
       sort: { _id: -1 }
     }
   });
 
-  const [deleteMut] = useMutation(DELETE_COMMENT, {
+  const [deleteMut] = useMutation(gql(mutations.deleteComment), {
     variables: {
       _id: comment._id
     },
@@ -28,10 +28,13 @@ const Comment: React.FC<{ comment: any; onDeleted?: (string) => any }> = ({
       !confirm(
         `Are you sure you want to delete this comment: "${comment.content}"`
       )
-    )
-      return;
+    ) {
+      return null;
+    }
     await deleteMut();
-    if (onDeleted) onDeleted(comment._id);
+    if (onDeleted) {
+      onDeleted(comment._id);
+    }
   };
 
   const createdByDisplayName =

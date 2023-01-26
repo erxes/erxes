@@ -1,18 +1,26 @@
 import React from 'react';
 import { useQuery } from 'react-apollo';
 import CategoryFilterItem from './CategoryFilterItem';
-import { CATEGORIES_BY_PARENT_IDS } from '../../graphql/queries';
+import { queries } from '../../graphql';
+import gql from 'graphql-tag';
 import { useSearchParam } from '../../hooks';
 
 export default function CategoriesFilter() {
-  const { data, loading, error } = useQuery(CATEGORIES_BY_PARENT_IDS, {
-    variables: { parentId: [null] }
-  });
+  const { data, loading, error } = useQuery(
+    gql(queries.categoriesByParentIds),
+    {
+      variables: { parentId: [null] }
+    }
+  );
   const [_categoryId, setCategoryId] = useSearchParam('categoryId');
 
-  if (loading) return null;
+  if (loading) {
+    return null;
+  }
 
-  if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;
+  if (error) {
+    return <pre>{JSON.stringify(error, null, 2)}</pre>;
+  }
 
   const forumCategories = data.forumCategories || [];
 

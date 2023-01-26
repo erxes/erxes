@@ -1,11 +1,7 @@
-import React, { useState } from 'react';
-import { useParams, Link, useHistory } from 'react-router-dom';
+import React from 'react';
+import { useParams, useHistory } from 'react-router-dom';
 import { useQuery, useMutation } from 'react-apollo';
-import {
-  FORUM_POST_DETAIL,
-  PERMISSION_GROUP_QUERY,
-  POST_REFETCH_AFTER_EDIT
-} from '../../../graphql/queries';
+import { queries } from '../../../graphql';
 import gql from 'graphql-tag';
 import Permission from './Permission';
 import AddUsersButton from './AddUsersButton';
@@ -29,7 +25,7 @@ const PermissionGroupDetail: React.FC = () => {
   const history = useHistory();
   const { permissionGroupId } = useParams();
 
-  const { data, loading, error } = useQuery(PERMISSION_GROUP_QUERY, {
+  const { data, loading, error } = useQuery(gql(queries.permissionGroupQuery), {
     variables: { _id: permissionGroupId },
     fetchPolicy: 'network-only'
   });
@@ -52,13 +48,19 @@ const PermissionGroupDetail: React.FC = () => {
   });
 
   const onClickDelete = async () => {
-    if (!confirm('Do you want to delete this permission group?')) return;
+    if (!confirm('Do you want to delete this permission group?')) {
+      return null;
+    }
     await mutDelete();
   };
 
-  if (loading) return null;
+  if (loading) {
+    return null;
+  }
 
-  if (error) return <pre>{error.message}</pre>;
+  if (error) {
+    return <pre>{error.message}</pre>;
+  }
 
   const { forumPermissionGroup } = data;
 
@@ -97,7 +99,9 @@ const PermissionGroupDetail: React.FC = () => {
       <UsersList
         users={forumPermissionGroup.users || []}
         onRemove={async cpUserId => {
-          if (!confirm('Do you want to remove this user?')) return;
+          if (!confirm('Do you want to remove this user?')) {
+            return null;
+          }
           alert(cpUserId);
           await mutRemoveUser({
             variables: {

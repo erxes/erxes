@@ -1,9 +1,5 @@
 import React from 'react';
 import { useQuery, useMutation } from 'react-apollo';
-import {
-  PERMISSION_GROUP_QUERY,
-  PERMISSION_GROUP_REFETCH
-} from '../../graphql/queries';
 import Form from '../../components/SubscriptionProductForm';
 import { useParams, useHistory } from 'react-router-dom';
 import gql from 'graphql-tag';

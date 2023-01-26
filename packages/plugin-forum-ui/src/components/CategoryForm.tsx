@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
 import CategoryParentSelect from '../containers/CategoryParentSelect';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import Button from '@erxes/ui/src/components/Button';
 
 type Props = {
   category?: {
@@ -16,48 +23,14 @@ type Props = {
     postWriteRequiresPermissionGroup?: boolean | null;
     commentWriteRequiresPermissionGroup?: boolean | null;
   };
-  onSubmit?: (val: any) => any;
-  noParent?: boolean;
-};
-
-/*
-  userLevelReqPostRead: ReadCpUserLevels;
-  userLevelReqPostWrite: WriteCpUserLevels;
-
-  // userLevelReqCommentRead: ReadCpUserLevels;
-  userLevelReqCommentWrite: WriteCpUserLevels;
-
-  postsReqCrmApproval: boolean;*/
-
-const READ_CP_USER_LEVELS = {
-  GUEST: 0,
-  REGISTERED: 1,
-  SUBSCRIBED: 2,
-  NO_ONE: 999
-} as const;
-
-const WRITE_CP_USER_LEVELS = {
-  REGISTERED: 1,
-  SUBSCRIBED: 2,
-  NO_ONE: 999
-} as const;
-
-const dictToOptions = (dict: object) => {
-  return (
-    <>
-      {Object.entries(dict).map(entry => (
-        <option key={entry[1]} value={entry[1]}>
-          {entry[0]}
-        </option>
-      ))}
-    </>
-  );
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  closeModal?: () => void;
 };
 
 const CategoryForm: React.FC<Props> = ({
-  category,
-  noParent = false,
-  onSubmit
+  category = {} as any,
+  renderButton,
+  closeModal
 }) => {
   const [name, setName] = useState(category?.name || '');
   const [code, setCode] = useState(category?.code || '');
@@ -90,229 +63,117 @@ const CategoryForm: React.FC<Props> = ({
     setCommentWriteRequiresPermissionGroup
   ] = useState(category?.commentWriteRequiresPermissionGroup || false);
 
-  const _onSubmit = e => {
-    e.preventDefault();
-    if (onSubmit) {
-      onSubmit({
-        name,
-        code: code || null,
-        parentId: parentId || null,
-        thumbnail: thumbnail || null,
-        userLevelReqPostRead,
-        userLevelReqPostWrite,
-        userLevelReqCommentWrite,
-        postsReqCrmApproval,
-        postReadRequiresPermissionGroup,
-        postWriteRequiresPermissionGroup,
-        commentWriteRequiresPermissionGroup
-      });
+  const generateDoc = (values: {
+    _id?: string;
+    name: string;
+    code?: string;
+    parentId?: string;
+    thumbnail?: string;
+    // userLevelReqPostRead?: string;
+    // userLevelReqPostWrite?: string;
+    // userLevelReqCommentWrite?: string;
+    postsReqCrmApproval?: boolean;
+    // postReadRequiresPermissionGroup?: boolean;
+    // postWriteRequiresPermissionGroup?: boolean;
+    // commentWriteRequiresPermissionGroup?: boolean;
+  }) => {
+    const finalValues = values;
+
+    if (category) {
+      finalValues._id = category._id;
     }
+
+    return {
+      ...values,
+      _id: finalValues._id,
+      name: finalValues.name,
+      code: finalValues.code || null,
+      parentId: parentId || null,
+      thumbnail: finalValues.thumbnail || null,
+      userLevelReqPostRead: 'GUEST',
+      userLevelReqPostWrite: 'REGISTERED',
+      userLevelReqCommentWrite: 'REGISTERED',
+      postsReqCrmApproval: postsReqCrmApproval || false,
+      postReadRequiresPermissionGroup: false,
+      postWriteRequiresPermissionGroup: false,
+      commentWriteRequiresPermissionGroup: false
+    };
   };
 
-  return (
-    <form onSubmit={_onSubmit}>
-      <label>
-        Name:{' '}
-        <input
-          type="text"
-          value={name}
-          onChange={e => setName(e.target.value)}
-          required={true}
-        />
-      </label>
-      <br />
-      <label>
-        Code:{' '}
-        <input
-          type="text"
-          value={code}
-          onChange={e => setCode(e.target.value)}
-        />
-      </label>
-      <br />
-      {!noParent && (
-        <>
-          <label>
-            Parent category:
-            <CategoryParentSelect
-              value={parentId}
-              parentFor={category?._id}
-              onChange={setParentId}
-            />
-          </label>
-          <br />
-        </>
-      )}
+  const renderContent = (formProps: IFormProps) => {
+    const { values, isSubmitted } = formProps;
 
-      <label>
-        Thumbnail url:
-        <input
-          type="text"
-          value={thumbnail}
-          onChange={e => setThumbnail(e.target.value)}
-        />
-      </label>
-      <br />
-      <label>
-        Posts in this category require admin approval
-        <input
-          type="checkbox"
-          checked={postsReqCrmApproval}
-          onChange={e => {
-            setPostsReqCrmApproval(e.target.checked);
-          }}
-        />
-      </label>
-      <br />
-      <hr />
-      <h3>User level based permissions</h3>
+    return (
+      <>
+        <FormGroup>
+          <ControlLabel required={true}>Name</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="name"
+            defaultValue={category.name}
+            required={true}
+            autoFocus={true}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Code</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="code"
+            defaultValue={category.code}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Parent Category</ControlLabel>
+          <CategoryParentSelect
+            // name="parentId"
+            value={parentId}
+            parentFor={Object.keys(category).length !== 0 ? category._id : null}
+            onChange={setParentId}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Thumbnail url</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="thumbnail"
+            defaultValue={category.thumbnail}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>
+            Posts in this category require admin approval
+          </ControlLabel>
+          <FormControl
+            {...formProps}
+            name="postsReqCrmApproval"
+            className="toggle-message"
+            componentClass="checkbox"
+            checked={postsReqCrmApproval}
+            onChange={() => {
+              setPostsReqCrmApproval(!postsReqCrmApproval);
+            }}
+          />
+        </FormGroup>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-        <div style={{ border: '1px solid black', padding: 20 }}>
-          <h4>Post</h4>
+        <ModalFooter id={'AddTagButtons'}>
+          <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
+            Cancel
+          </Button>
 
-          <table>
-            <tbody>
-              <tr>
-                <td>Read:</td>
-                <td>
-                  <select
-                    name="userLevelReqPostRead"
-                    value={userLevelReqPostRead}
-                    onChange={e => {
-                      const val = e.target.value;
-                      if (val === 'GUEST') {
-                        setPostReadRequiresPermissionGroup(false);
-                      }
-                      setUserLevelReqPostRead(val);
-                    }}
-                  >
-                    {Object.keys(READ_CP_USER_LEVELS).map(enumVal => (
-                      <option key={enumVal} value={enumVal}>
-                        {enumVal}
-                      </option>
-                    ))}
-                  </select>
-                  <label style={{ marginLeft: 5 }}>
-                    Also requires permission group{' '}
-                    <input
-                      disabled={userLevelReqPostRead === 'GUEST'}
-                      type="checkbox"
-                      checked={postReadRequiresPermissionGroup}
-                      onChange={e => {
-                        setPostReadRequiresPermissionGroup(e.target.checked);
-                      }}
-                    />
-                  </label>
-                </td>
-              </tr>
-              <tr>
-                <td>Write:</td>
-                <td>
-                  <select
-                    name="userLevelReqPostWrite"
-                    value={userLevelReqPostWrite}
-                    onChange={e => {
-                      const val = e.target.value;
+          {renderButton({
+            name: 'category',
+            values: generateDoc(values),
+            isSubmitted,
+            callback: closeModal,
+            object: category
+          })}
+        </ModalFooter>
+      </>
+    );
+  };
 
-                      if (val === 'GUEST') {
-                        setPostWriteRequiresPermissionGroup(false);
-                      }
-
-                      setUserLevelReqPostWrite(val);
-                    }}
-                  >
-                    {Object.keys(WRITE_CP_USER_LEVELS).map(enumVal => (
-                      <option key={enumVal} value={enumVal}>
-                        {enumVal}
-                      </option>
-                    ))}
-                  </select>
-
-                  <label style={{ marginLeft: 5 }}>
-                    Also requires permission group{' '}
-                    <input
-                      disabled={userLevelReqPostWrite === 'GUEST'}
-                      type="checkbox"
-                      checked={postWriteRequiresPermissionGroup}
-                      onChange={e => {
-                        setPostWriteRequiresPermissionGroup(e.target.checked);
-                      }}
-                    />
-                  </label>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div style={{ border: '1px solid black', marginLeft: 20, padding: 20 }}>
-          <h4>Comment</h4>
-
-          <table>
-            <tbody>
-              <tr>
-                <td>Read:</td>
-                <td>Guest</td>
-              </tr>
-              <tr>
-                <td>Write:</td>
-                <td>
-                  <select
-                    name="userLevelReqCommentWrite"
-                    value={userLevelReqCommentWrite}
-                    onChange={e => {
-                      const val = e.target.value;
-                      if (val === 'GUEST') {
-                        setCommentWriteRequiresPermissionGroup(false);
-                      }
-                      setUserLevelReqCommentWrite(val);
-                    }}
-                  >
-                    {Object.keys(WRITE_CP_USER_LEVELS).map(enumVal => (
-                      <option key={enumVal} value={enumVal}>
-                        {enumVal}
-                      </option>
-                    ))}
-                  </select>
-                  <label style={{ marginLeft: 5 }}>
-                    Also requires permission group{' '}
-                    <input
-                      disabled={userLevelReqCommentWrite === 'GUEST'}
-                      type="checkbox"
-                      checked={commentWriteRequiresPermissionGroup}
-                      onChange={e => {
-                        setCommentWriteRequiresPermissionGroup(
-                          e.target.checked
-                        );
-                      }}
-                    />
-                  </label>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div style={{ color: '#004691', marginLeft: 20, padding: 20 }}>
-          If "Also requires permission group" is <b>checked</b>, <b>both 2</b>{' '}
-          conditions are required for a user to be able to perform the action.
-          <br />
-          If "Also requires permission group" is <b>unchecked</b>, only{' '}
-          <b>one</b> of 2 conditions is required for a user to be able to
-          perform the action.
-          <div style={{ border: '1px solid #004691', margin: 10, padding: 10 }}>
-            <h5>Conditions:</h5>
-            <ol>
-              <li>User level is high enough</li>
-              <li>User is in a permission group that permits the action </li>
-            </ol>
-          </div>
-        </div>
-      </div>
-
-      <input type="submit" value="Submit" />
-    </form>
-  );
+  return <Form renderContent={renderContent} />;
 };
 
 export default CategoryForm;

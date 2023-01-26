@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import { useParams, Link, useHistory } from 'react-router-dom';
 import { useQuery, useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
-import { PAGE_DETAIL, PAGE_REFETCH } from '../../graphql/queries';
+import { queries } from '../../graphql';
 
 const DELETE = gql`
   mutation ForumDeletePage($id: ID!) {
@@ -15,7 +15,7 @@ const DELETE = gql`
 const PageDetail: FC = () => {
   const history = useHistory();
   const { id } = useParams();
-  const { data, loading, error } = useQuery(PAGE_DETAIL, {
+  const { data, loading, error } = useQuery(gql(queries.pageDetail), {
     fetchPolicy: 'network-only',
     variables: {
       id
@@ -24,7 +24,7 @@ const PageDetail: FC = () => {
 
   const [mutDelete] = useMutation(DELETE, {
     variables: { id },
-    refetchQueries: PAGE_REFETCH
+    refetchQueries: queries.pageRefetch
   });
 
   const onDelete = async () => {
@@ -32,8 +32,12 @@ const PageDetail: FC = () => {
     history.replace('/forums/pages');
   };
 
-  if (loading) return null;
-  if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;
+  if (loading) {
+    return null;
+  }
+  if (error) {
+    return <pre>{JSON.stringify(error, null, 2)}</pre>;
+  }
   const { forumPage } = data;
 
   return (

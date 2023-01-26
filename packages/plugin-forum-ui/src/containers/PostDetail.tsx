@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, Link, useHistory } from 'react-router-dom';
 import { useQuery, useMutation } from 'react-apollo';
-import { FORUM_POST_DETAIL, POST_REFETCH_AFTER_EDIT } from '../graphql/queries';
+import { queries } from '../graphql';
 import gql from 'graphql-tag';
 import Comments from './Comments';
 import { postUsername } from '../utils';
@@ -49,7 +49,7 @@ const MUT_DENY = gql`
 const PostDetail: React.FC = () => {
   const history = useHistory();
   const { postId } = useParams();
-  const { data, loading, error } = useQuery(FORUM_POST_DETAIL, {
+  const { data, loading, error } = useQuery(gql(queries.forumPostDetail), {
     variables: { _id: postId },
     fetchPolicy: 'network-only'
   });
@@ -66,22 +66,22 @@ const PostDetail: React.FC = () => {
 
   const [mutDraft] = useMutation(MUT_DRAFT, {
     variables: { _id: postId },
-    refetchQueries: POST_REFETCH_AFTER_EDIT
+    refetchQueries: queries.postRefetchAfterEdit
   });
 
   const [mutPublish] = useMutation(MUT_PUBLISH, {
     variables: { _id: postId },
-    refetchQueries: POST_REFETCH_AFTER_EDIT
+    refetchQueries: queries.postRefetchAfterEdit
   });
 
   const [mutApprove] = useMutation(MUT_APPROVE, {
     variables: { _id: postId },
-    refetchQueries: POST_REFETCH_AFTER_EDIT
+    refetchQueries: queries.postRefetchAfterEdit
   });
 
   const [mutDeny] = useMutation(MUT_DENY, {
     variables: { _id: postId },
-    refetchQueries: POST_REFETCH_AFTER_EDIT
+    refetchQueries: queries.postRefetchAfterEdit
   });
 
   if (loading) return null;

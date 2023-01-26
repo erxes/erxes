@@ -1,40 +1,23 @@
 import React from 'react';
-import { CATEGORIES_BY_PARENT_IDS } from '../../graphql/queries';
 import Row from '../../components/categories/Row';
 import { useQuery, useMutation } from 'react-apollo';
-import { allCategoryQueries } from '../../graphql/queries';
-import {
-  UPDATE_CATEGORY,
-  CREATE_CATEGORY,
-  DELETE_CATEGORY
-} from '../../graphql/mutations';
 import { Alert, confirm } from '@erxes/ui/src/utils';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { mutations, queries } from '../../graphql';
+import gql from 'graphql-tag';
 
 export default function CategoryNavItem({ category }) {
-  const { data, loading, error } = useQuery(CATEGORIES_BY_PARENT_IDS, {
-    variables: { parentId: [category._id] }
-  });
+  const { data, loading, error } = useQuery(
+    gql(queries.categoriesByParentIds),
+    {
+      variables: { parentId: [category._id] }
+    }
+  );
 
-  const [updateCategory] = useMutation(UPDATE_CATEGORY, {
-    // onCompleted: () => alert('updated'),
-    onError: e => {
-      console.error(e);
-      alert(JSON.stringify(e, null, 2));
-    },
-    refetchQueries: allCategoryQueries
-  });
-
-  const [addSubCategory] = useMutation(CREATE_CATEGORY, {
-    onError: e => {
-      console.error(e);
-      alert(JSON.stringify(e, null, 2));
-    },
-    refetchQueries: allCategoryQueries
-  });
-
-  const [deleteCategoryMutation] = useMutation(DELETE_CATEGORY, {
+  const [deleteCategoryMutation] = useMutation(gql(mutations.deleteCategory), {
     onError: e => alert(JSON.stringify(e, null, 2)),
-    refetchQueries: allCategoryQueries
+    refetchQueries: queries.allCategoryQueries
   });
 
   const onDeleteCat = () => {
@@ -42,7 +25,7 @@ export default function CategoryNavItem({ category }) {
       .then(() => {
         deleteCategoryMutation({
           variables: { id: category._id },
-          refetchQueries: allCategoryQueries
+          refetchQueries: queries.allCategoryQueries
         })
           .then(() => {
             Alert.success('You successfully deleted a category');
@@ -57,22 +40,24 @@ export default function CategoryNavItem({ category }) {
       });
   };
 
-  const onSubmitUpdate = v => {
-    updateCategory({
-      variables: {
-        ...v,
-        id: category._id
-      }
-    });
-  };
-
-  const onAddSubCategory = v => {
-    addSubCategory({
-      variables: {
-        ...v,
-        parentId: category._id
-      }
-    });
+  const renderButton = ({
+    values,
+    isSubmitted,
+    callback,
+    object
+  }: IButtonMutateProps) => {
+    return (
+      <ButtonMutate
+        mutation={object ? mutations.updateCategory : mutations.createCategory}
+        variables={values}
+        callback={callback}
+        isSubmitted={isSubmitted}
+        type="submit"
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } a category`}
+      />
+    );
   };
 
   if (loading) {
@@ -89,10 +74,9 @@ export default function CategoryNavItem({ category }) {
     <>
       <Row
         parentCategory={category}
-        onAddSubCategory={onAddSubCategory}
-        onSubmitUpdate={onSubmitUpdate}
         onDelete={onDeleteCat}
         categories={subCategories}
+        renderButton={renderButton}
       />
     </>
   );

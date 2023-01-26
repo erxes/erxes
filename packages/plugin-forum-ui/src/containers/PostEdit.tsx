@@ -1,8 +1,8 @@
 import React from 'react';
 import { useQuery, useMutation } from 'react-apollo';
-import { FORUM_POST_DETAIL, POST_REFETCH_AFTER_EDIT } from '../graphql/queries';
 import PostForm from '../components/PostForm';
 import { useParams, useHistory } from 'react-router-dom';
+import { queries } from '../graphql';
 import gql from 'graphql-tag';
 
 const PATCH_POST = gql`
@@ -29,7 +29,7 @@ const PostEdit: React.FC = () => {
   const { postId } = useParams();
   const history = useHistory();
 
-  const { data, loading, error } = useQuery(FORUM_POST_DETAIL, {
+  const { data, loading, error } = useQuery(gql(queries.forumPostDetail), {
     variables: {
       _id: postId
     }
@@ -42,7 +42,7 @@ const PostEdit: React.FC = () => {
     onError: e => {
       alert(JSON.stringify(e, null, 2));
     },
-    refetchQueries: POST_REFETCH_AFTER_EDIT
+    refetchQueries: queries.postRefetchAfterEdit
   });
 
   if (loading) return null;

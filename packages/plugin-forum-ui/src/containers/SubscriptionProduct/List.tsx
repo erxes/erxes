@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { useQuery, useMutation } from 'react-apollo';
-import { FORUM_SUBSCRIPTION_PRODUCTS_QUERY } from '../../graphql/queries';
+import { queries } from '../../graphql';
 import gql from 'graphql-tag';
 import { useSearchParam } from '../../hooks';
 import { Link } from 'react-router-dom';
@@ -15,20 +15,27 @@ const DELETE = gql`
 
 const List: FC = () => {
   const [userType, setUserType] = useSearchParam('userType');
-  const { loading, error, data } = useQuery(FORUM_SUBSCRIPTION_PRODUCTS_QUERY, {
-    variables: {
-      sort: { listOrder: -1 },
-      userType
-    },
-    fetchPolicy: 'network-only'
-  });
+  const { loading, error, data } = useQuery(
+    gql(queries.forumSubscriptionProductsQuery),
+    {
+      variables: {
+        sort: { listOrder: -1 },
+        userType
+      },
+      fetchPolicy: 'network-only'
+    }
+  );
 
   const [mutDelete] = useMutation(DELETE, {
     refetchQueries: ['ForumSubscriptionProducts']
   });
 
-  if (loading) return null;
-  if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;
+  if (loading) {
+    return null;
+  }
+  if (error) {
+    return <pre>{JSON.stringify(error, null, 2)}</pre>;
+  }
 
   return (
     <div>

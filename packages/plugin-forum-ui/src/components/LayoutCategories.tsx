@@ -5,15 +5,20 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { __ } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Table from '@erxes/ui/src/components/table';
-import Row from '../containers/Categories/Row';
+import Row from '../containers/categories/Row';
 import CategoryForm from './CategoryForm';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { Title } from '@erxes/ui-settings/src/styles';
 
 type Props = {
-  forumCategories: [];
-  onSubmit?: (val: any) => any;
+  forumCategories: any;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
-export default function LayoutCategories({ forumCategories, onSubmit }: Props) {
+export default function LayoutCategories({
+  forumCategories,
+  renderButton
+}: Props) {
   const breadcrumb = [
     { title: __('Settings'), link: '/settings' },
     { title: __('Categories'), link: '/forums/categories' }
@@ -21,17 +26,17 @@ export default function LayoutCategories({ forumCategories, onSubmit }: Props) {
 
   const trigger = (
     <Button id={'AddCategoryButton'} btnStyle="success" icon="plus-circle">
-      Add Root Category
+      Add Category
     </Button>
   );
 
-  const modalContent = () => (
-    <CategoryForm noParent={true} onSubmit={onSubmit} />
+  const modalContent = props => (
+    <CategoryForm {...props} renderButton={renderButton} />
   );
 
   const actionBarRight = (
     <ModalTrigger
-      title={__('Add root category')}
+      title={__('Add category')}
       autoOpenKey={`showForumCategoriesModal`}
       trigger={trigger}
       content={modalContent}
@@ -40,7 +45,10 @@ export default function LayoutCategories({ forumCategories, onSubmit }: Props) {
   );
 
   const actionBar = (
-    <Wrapper.ActionBar left={'Categories'} right={actionBarRight} />
+    <Wrapper.ActionBar
+      left={<Title capitalize={true}>{__('Categories')}</Title>}
+      right={actionBarRight}
+    />
   );
 
   const content = (
@@ -54,8 +62,8 @@ export default function LayoutCategories({ forumCategories, onSubmit }: Props) {
         </tr>
       </thead>
       <tbody id={'ForumCategoriesList'}>
-        {forumCategories.map(cat => {
-          return <Row key={cat} category={cat} />;
+        {forumCategories.map((cat: any) => {
+          return <Row key={cat._id} category={cat} />;
         })}
       </tbody>
     </Table>
@@ -72,7 +80,7 @@ export default function LayoutCategories({ forumCategories, onSubmit }: Props) {
           data={content}
           loading={false}
           count={forumCategories.length}
-          emptyText={__('There is no tag') + '.'}
+          emptyText={__('There is no categories') + '.'}
           emptyImage="/images/actions/8.svg"
         />
       }

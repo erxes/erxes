@@ -2,33 +2,33 @@ import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation } from 'react-apollo';
 import CategoryForm from '../components/CategoryForm';
-import { allCategoryQueries, CATEGORY_DETAIL } from '../graphql/queries';
-import { UPDATE_CATEGORY, CREATE_CATEGORY } from '../graphql/mutations';
 import CategoryDelete from './CategoryDelete';
 import { useHistory } from 'react-router-dom';
+import { mutations, queries } from '../graphql';
+import gql from 'graphql-tag';
 
 export default function CategoryDetail() {
   const { categoryId } = useParams();
-  const { data, loading, error } = useQuery(CATEGORY_DETAIL, {
+  const { data, loading, error } = useQuery(gql(queries.categoryDetail), {
     variables: { id: categoryId }
   });
   const history = useHistory();
 
-  const [updateCategory] = useMutation(UPDATE_CATEGORY, {
+  const [updateCategory] = useMutation(gql(mutations.updateCategory), {
     // onCompleted: () => alert('updated'),
     onError: e => {
       console.error(e);
       alert(JSON.stringify(e, null, 2));
     },
-    refetchQueries: allCategoryQueries
+    refetchQueries: queries.allCategoryQueries
   });
 
-  const [addSubCategory] = useMutation(CREATE_CATEGORY, {
+  const [addSubCategory] = useMutation(gql(mutations.createCategory), {
     onError: e => {
       console.error(e);
       alert(JSON.stringify(e, null, 2));
     },
-    refetchQueries: allCategoryQueries
+    refetchQueries: queries.allCategoryQueries
   });
 
   if (loading) {

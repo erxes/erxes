@@ -2,15 +2,19 @@ import React from 'react';
 import CommentForm from './CommentForm';
 import Comment from './Comment';
 import { useQuery } from 'react-apollo';
-import { FORUM_COMMENTS } from '../../graphql/queries';
+import { queries } from '../../graphql';
+import gql from 'graphql-tag';
 
 const Comments: React.FC<{ postId: string }> = ({ postId }) => {
-  const { data, loading, error, refetch } = useQuery(FORUM_COMMENTS, {
-    variables: {
-      postId: [postId],
-      replyToId: [null]
+  const { data, loading, error, refetch } = useQuery(
+    gql(queries.forumComments),
+    {
+      variables: {
+        postId: [postId],
+        replyToId: [null]
+      }
     }
-  });
+  );
 
   return (
     <div>

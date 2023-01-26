@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useCallback, FC } from 'react';
+import React, { useState, useEffect, FC } from 'react';
 import gql from 'graphql-tag';
-import { useMutation, useQuery } from 'react-apollo';
-import { FORUM_SUBSCRIPTION_PRODUCTS_QUERY } from '../../../graphql/queries';
+import { useMutation } from 'react-apollo';
 import CpLogin from './CpLogin';
 import CurrentUser from './CurrentUser';
 import ChooseProduct from './ChooseProduct';
@@ -72,7 +71,9 @@ const PaymentTest: FC = () => {
   });
 
   const onClickPay = async () => {
-    if (!currentUser) return alert('Login first');
+    if (!currentUser) {
+      return alert('Login first');
+    }
 
     try {
       const createOrderRes = await mutCreateOrder({

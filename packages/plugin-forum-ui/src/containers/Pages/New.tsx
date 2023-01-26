@@ -4,7 +4,7 @@ import gql from 'graphql-tag';
 import { useMutation } from 'react-apollo';
 
 import { useHistory } from 'react-router-dom';
-import { PAGE_REFETCH } from '../../graphql/queries';
+import { queries } from '../../graphql';
 
 const CREATE = gql`
   mutation ForumCreatePage(
@@ -35,7 +35,7 @@ const CREATE = gql`
 const NewPage: FC = () => {
   const history = useHistory();
   const [mutCreate] = useMutation(CREATE, {
-    refetchQueries: PAGE_REFETCH
+    refetchQueries: queries.pageRefetch
   });
 
   const onSubmit = async variables => {

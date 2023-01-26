@@ -3,7 +3,7 @@ import PermissionGroupForm from '../../components/PermissionGroupForm';
 import gql from 'graphql-tag';
 import { useMutation } from 'react-apollo';
 import { useHistory } from 'react-router-dom';
-import { PERMISSION_GROUP_REFETCH } from '../../graphql/queries';
+import { queries } from '../../graphql';
 
 const MUTATION = gql`
   mutation ForumPermissionGroupCreate($name: String!) {
@@ -15,7 +15,7 @@ const MUTATION = gql`
 
 const NewPost: React.FC = () => {
   const [mutation] = useMutation(MUTATION, {
-    refetchQueries: PERMISSION_GROUP_REFETCH,
+    refetchQueries: queries.permissionGroupRefetch,
     onError: e => alert(JSON.stringify(e, null, 2))
   });
 

@@ -1,13 +1,11 @@
-import gql from 'graphql-tag';
-
-export const allCategoryQueries = [
+const allCategoryQueries = [
   'ForumCategoriesByParentIds',
   'ForumCategoryDetail',
   'ForumCategoryPossibleParents',
   'allCategories'
 ];
 
-export const CATEGORIES_ALL = gql`
+const categoriesAll = `
   query allCategories {
     forumCategories {
       _id
@@ -16,7 +14,7 @@ export const CATEGORIES_ALL = gql`
   }
 `;
 
-export const CATEGORIES_BY_PARENT_IDS = gql`
+const categoriesByParentIds = `
   query ForumCategoriesByParentIds($parentId: [ID]) {
     forumCategories(parentId: $parentId) {
       _id
@@ -24,6 +22,7 @@ export const CATEGORIES_BY_PARENT_IDS = gql`
       thumbnail
       code
       postsCount
+      postsReqCrmApproval
       parentId
       ancestors {
         _id
@@ -32,7 +31,7 @@ export const CATEGORIES_BY_PARENT_IDS = gql`
   }
 `;
 
-export const CATEGORY_DETAIL = gql`
+const categoryDetail = `
   query ForumCategoryDetail($id: ID!) {
     forumCategory(_id: $id) {
       _id
@@ -55,9 +54,9 @@ export const CATEGORY_DETAIL = gql`
   }
 `;
 
-export const CATEGORY_POSSIBLE_PARENTS = gql`
-  query ForumCategoryPossibleParents($id: ID) {
-    forumCategoryPossibleParents(_id: $id) {
+const categoryPossibleParents = `
+  query ForumCategoryPossibleParents($_id: ID) {
+    forumCategoryPossibleParents(_id: $_id) {
       _id
       name
     }
@@ -86,14 +85,11 @@ const forumPostsArg = `
   categoryApprovalState: $categoryApprovalState
 `;
 
-export const POST_REFETCH_AFTER_CREATE_DELETE = [
-  'ForumPostsQuery',
-  'ForumPostsCount'
-];
+const postRefetchAfterCreateDelete = ['ForumPostsQuery', 'ForumPostsCount'];
 
-export const POST_REFETCH_AFTER_EDIT = ['ForumPostsQuery', 'ForumPostDetail'];
+const postRefetchAfterEdit = ['ForumPostsQuery', 'ForumPostDetail'];
 
-export const FORUM_POSTS_QUERY = gql`
+const forumPostsQuery = `
   query ForumPostsQuery(${forumPostsParam}) {
     forumPosts(${forumPostsArg}) {
       
@@ -153,13 +149,13 @@ export const FORUM_POSTS_QUERY = gql`
   }
 `;
 
-export const FORUM_POSTS_COUNT = gql`
+const forumPostsCount = `
   query ForumPostsCount(${forumPostsParam}) {
     forumPostsCount(${forumPostsArg})
   }
 `;
 
-export const FORUM_POST_DETAIL = gql`
+const forumPostDetail = `
   query ForumPostDetail($_id: ID!) {
     forumPost(_id: $_id) {
       _id
@@ -226,7 +222,7 @@ export const FORUM_POST_DETAIL = gql`
   }
 `;
 
-export const FORUM_COMMENTS = gql`
+const forumComments = `
   query ForumComments(
     $id: [ID!]
     $limit: Int
@@ -265,7 +261,7 @@ export const FORUM_COMMENTS = gql`
   }
 `;
 
-export const PERMISSION_GROUPS_QUERY = gql`
+const permissionGroupsQuery = `
   query ForumPermissionGroups {
     forumPermissionGroups {
       _id
@@ -273,7 +269,7 @@ export const PERMISSION_GROUPS_QUERY = gql`
     }
   }
 `;
-export const PERMISSION_GROUP_QUERY = gql`
+const permissionGroupQuery = `
   query ForumPermissionGroup($_id: ID!) {
     forumPermissionGroup(_id: $_id) {
       _id
@@ -291,12 +287,12 @@ export const PERMISSION_GROUP_QUERY = gql`
   }
 `;
 
-export const PERMISSION_GROUP_REFETCH = [
+const permissionGroupRefetch = [
   'ForumPermissionGroups',
   'ForumPermissionGroup'
 ];
 
-export const FORUM_SUBSCRIPTION_PRODUCTS_QUERY = gql`
+const forumSubscriptionProductsQuery = `
   query ForumSubscriptionProducts($sort: JSON, $userType: String) {
     forumSubscriptionProducts(sort: $sort, userType: $userType) {
       _id
@@ -311,7 +307,7 @@ export const FORUM_SUBSCRIPTION_PRODUCTS_QUERY = gql`
   }
 `;
 
-export const PAGE_DETAIL = gql`
+const pageDetail = `
   query ForumPage($id: ID!) {
     forumPage(_id: $id) {
       _id
@@ -327,4 +323,24 @@ export const PAGE_DETAIL = gql`
   }
 `;
 
-export const PAGE_REFETCH = ['ForumPages', 'ForumPage'];
+const pageRefetch = ['ForumPages', 'ForumPage'];
+
+export default {
+  allCategoryQueries,
+  categoriesAll,
+  categoriesByParentIds,
+  categoryDetail,
+  categoryPossibleParents,
+  postRefetchAfterCreateDelete,
+  postRefetchAfterEdit,
+  forumPostsQuery,
+  forumPostsCount,
+  forumPostDetail,
+  forumComments,
+  permissionGroupsQuery,
+  permissionGroupQuery,
+  permissionGroupRefetch,
+  forumSubscriptionProductsQuery,
+  pageDetail,
+  pageRefetch
+};

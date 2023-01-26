@@ -9,7 +9,8 @@ import { __ } from 'coreui/utils';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import CategoryForm from '../../components/CategoryForm';
-import RowContainer from '../../containers/Categories/Row';
+import RowContainer from '../../containers/categories/Row';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 
 export const TdWrapper = styledTS<{ space: number }>(styled.td)`
   padding: ${props => props.space * 3};
@@ -18,9 +19,8 @@ export const TdWrapper = styledTS<{ space: number }>(styled.td)`
 type Props = {
   categories: ICategory[];
   parentCategory: ICategory;
-  onSubmitUpdate?: (val: any) => any;
   onDelete?: (val: any) => any;
-  onAddSubCategory?: (val: any) => any;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 type State = {
@@ -35,13 +35,7 @@ class Row extends React.Component<Props, State> {
   }
 
   render() {
-    const {
-      categories,
-      parentCategory,
-      onAddSubCategory,
-      onSubmitUpdate,
-      onDelete
-    } = this.props;
+    const { categories, parentCategory, onDelete, renderButton } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -51,29 +45,12 @@ class Row extends React.Component<Props, State> {
       </Button>
     );
 
-    const addTrigger = (
-      <Button btnStyle="link">
-        <Tip text={__('Add')} placement="top">
-          <Icon icon="plus" />
-        </Tip>
-      </Button>
-    );
-
     const content = props => (
-      <>
-        <CategoryForm
-          key={props._id}
-          category={props}
-          onSubmit={onSubmitUpdate}
-        />
-      </>
-    );
-
-    const addSubCategory = props => (
       <CategoryForm
-        key={'addsub' + props._id}
-        onSubmit={onAddSubCategory}
-        noParent={true}
+        {...props}
+        key={parentCategory._id}
+        category={parentCategory}
+        renderButton={renderButton}
       />
     );
 
@@ -97,13 +74,7 @@ class Row extends React.Component<Props, State> {
               <ModalTrigger
                 title="Edit Category"
                 trigger={editTrigger}
-                content={() => content(parentCategory)}
-              />
-
-              <ModalTrigger
-                title="Add Sub Category"
-                trigger={addTrigger}
-                content={addSubCategory}
+                content={content}
               />
 
               <Tip text={__('Delete')} placement="top">
@@ -116,8 +87,8 @@ class Row extends React.Component<Props, State> {
             </ActionButtons>
           </td>
         </tr>
-        {categories.map(cat => {
-          return <RowContainer category={cat} key={Math.random()} />;
+        {categories.map((cat: any, index: number) => {
+          return <RowContainer category={cat} key={index} />;
         })}
       </>
     );

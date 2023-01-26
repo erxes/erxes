@@ -1,7 +1,8 @@
 import React from 'react';
 import { useSearchParam } from '../../hooks';
 import { useQuery } from 'react-apollo';
-import { FORUM_POSTS_COUNT, FORUM_POSTS_QUERY } from '../../graphql/queries';
+import { queries } from '../../graphql';
+import gql from 'graphql-tag';
 import { Link } from 'react-router-dom';
 import { postUsername } from '../../utils';
 
@@ -25,20 +26,22 @@ const List: React.FC = () => {
     sort: { _id: -1 }
   };
 
-  const postQuery = useQuery(FORUM_POSTS_QUERY, {
+  const postQuery = useQuery(gql(queries.forumPostsQuery), {
     variables,
     fetchPolicy: 'network-only'
   });
 
-  const countQuery = useQuery(FORUM_POSTS_COUNT, {
+  const countQuery = useQuery(gql(queries.forumPostsCount), {
     variables,
     fetchPolicy: 'network-only'
   });
 
-  if (postQuery.loading) return null;
-  if (postQuery.error)
+  if (postQuery.loading) {
+    return null;
+  }
+  if (postQuery.error) {
     return <pre>{JSON.stringify(postQuery.error, null, 2)}</pre>;
-
+  }
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>

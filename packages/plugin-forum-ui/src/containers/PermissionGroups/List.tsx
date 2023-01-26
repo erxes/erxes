@@ -1,15 +1,23 @@
 import React from 'react';
 import { useQuery } from 'react-apollo';
-import { PERMISSION_GROUPS_QUERY } from '../../graphql/queries';
+import { queries } from '../../graphql';
+import gql from 'graphql-tag';
 import { Link } from 'react-router-dom';
 
 const List: React.FC = () => {
-  const { data, loading, error } = useQuery(PERMISSION_GROUPS_QUERY, {
-    fetchPolicy: 'network-only'
-  });
+  const { data, loading, error } = useQuery(
+    gql(queries.permissionGroupsQuery),
+    {
+      fetchPolicy: 'network-only'
+    }
+  );
 
-  if (loading) return null;
-  if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;
+  if (loading) {
+    return null;
+  }
+  if (error) {
+    return <pre>{JSON.stringify(error, null, 2)}</pre>;
+  }
 
   const { forumPermissionGroups } = data;
 

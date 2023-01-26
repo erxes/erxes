@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useMutation } from 'react-apollo';
-import { CREATE_COMMENT } from '../../graphql/mutations';
+import { mutations } from '../../graphql';
+import gql from 'graphql-tag';
 
 const CommentForm: React.FC<{
   replyToId?: string;
@@ -8,7 +9,7 @@ const CommentForm: React.FC<{
   onCommentCreated?: () => any;
 }> = ({ replyToId, postId, onCommentCreated }) => {
   const [content, setContent] = useState('');
-  const [createComment] = useMutation(CREATE_COMMENT, {
+  const [createComment] = useMutation(gql(mutations.createComment), {
     onCompleted: () => {
       setContent('');
       if (onCommentCreated) {

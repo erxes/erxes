@@ -2,8 +2,8 @@ import React from 'react';
 import PostForm from '../components/PostForm';
 import gql from 'graphql-tag';
 import { useMutation } from 'react-apollo';
-import { POST_REFETCH_AFTER_CREATE_DELETE } from '../graphql/queries';
 import { useHistory } from 'react-router-dom';
+import { queries } from '../graphql';
 
 const MUTATION = gql`
   mutation ForumCreatePost(
@@ -25,7 +25,7 @@ const MUTATION = gql`
 
 const NewPost: React.FC = () => {
   const [mutation] = useMutation(MUTATION, {
-    refetchQueries: POST_REFETCH_AFTER_CREATE_DELETE,
+    refetchQueries: queries.postRefetchAfterCreateDelete,
     onError: e => alert(JSON.stringify(e, null, 2))
   });
 

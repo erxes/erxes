@@ -1,5 +1,3 @@
-import gql from 'graphql-tag';
-
 const forumCreateCategoryParamsCommon = `
   $name: String!
   $code: String
@@ -26,14 +24,14 @@ const forumCreateCategoryArgsCommon = `
   commentWriteRequiresPermissionGroup: $commentWriteRequiresPermissionGroup
 `;
 
-export const UPDATE_CATEGORY = gql`
+const updateCategory = `
   mutation ForumPatchCategory(
-    $id: ID!
+    $_id: ID!
     $parentId: String
     ${forumCreateCategoryParamsCommon}
   ) {
     forumPatchCategory(
-      _id: $id
+      _id: $_id
       parentId: $parentId
       ${forumCreateCategoryArgsCommon}
     ) {
@@ -42,7 +40,7 @@ export const UPDATE_CATEGORY = gql`
   }
 `;
 
-export const CREATE_CATEGORY = gql`
+const createCategory = `
   mutation ForumCreateCategory(
     $parentId: String
     ${forumCreateCategoryParamsCommon}
@@ -56,7 +54,7 @@ export const CREATE_CATEGORY = gql`
   }
 `;
 
-export const DELETE_CATEGORY = gql`
+const deleteCategory = `
   mutation ForumDeleteCategory($id: ID!) {
     forumDeleteCategory(_id: $id) {
       _id
@@ -64,7 +62,7 @@ export const DELETE_CATEGORY = gql`
   }
 `;
 
-export const CREATE_ROOT_CATEGORY = gql`
+const createRootCategory = `
   mutation ForumCreateRootCategory(
     ${forumCreateCategoryParamsCommon}
   ) {
@@ -76,7 +74,7 @@ export const CREATE_ROOT_CATEGORY = gql`
   }
 `;
 
-export const CREATE_COMMENT = gql`
+const createComment = `
   mutation ForumCreateComment($content: String!, $replyToId: ID, $postId: ID!) {
     forumCreateComment(
       content: $content
@@ -88,10 +86,19 @@ export const CREATE_COMMENT = gql`
   }
 `;
 
-export const DELETE_COMMENT = gql`
+const deleteComment = `
   mutation ForumDeleteComment($_id: ID!) {
     forumDeleteComment(_id: $_id) {
       _id
     }
   }
 `;
+
+export default {
+  updateCategory,
+  createCategory,
+  deleteCategory,
+  createRootCategory,
+  createComment,
+  deleteComment
+};

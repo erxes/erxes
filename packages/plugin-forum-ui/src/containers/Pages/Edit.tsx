@@ -3,8 +3,7 @@ import { useParams, useHistory } from 'react-router-dom';
 import PageForm from '../../components/PageForm';
 import gql from 'graphql-tag';
 import { useMutation, useQuery } from 'react-apollo';
-import { PAGE_REFETCH } from '../../graphql/queries';
-import { PAGE_DETAIL } from '../../graphql/queries';
+import { queries } from '../../graphql';
 
 const UPDATE = gql`
   mutation ForumPatchPage(
@@ -38,18 +37,22 @@ const EditPage: FC = () => {
   const { id } = useParams();
   const history = useHistory();
   const [mutUpdate] = useMutation(UPDATE, {
-    refetchQueries: PAGE_REFETCH
+    refetchQueries: queries.pageRefetch
   });
 
-  const { data, loading, error } = useQuery(PAGE_DETAIL, {
+  const { data, loading, error } = useQuery(gql(queries.pageDetail), {
     fetchPolicy: 'network-only',
     variables: {
       id
     }
   });
 
-  if (loading) return null;
-  if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;
+  if (loading) {
+    return null;
+  }
+  if (error) {
+    return <pre>{JSON.stringify(error, null, 2)}</pre>;
+  }
 
   const { forumPage } = data;
 
