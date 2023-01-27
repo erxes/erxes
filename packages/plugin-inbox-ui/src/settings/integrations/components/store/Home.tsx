@@ -28,13 +28,18 @@ class Home extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const integrationPlugins = (window as any).plugins
-      .filter(plugin => plugin.inboxIntegration)
-      .map(plugin => plugin.inboxIntegration);
+    let integrations = [...INTEGRATIONS];
+    const pluginsWithIntegrations = (window as any).plugins.filter(
+      plugin => plugin.inboxIntegrations
+    );
+
+    for (const p of pluginsWithIntegrations) {
+      integrations = integrations.concat(p.inboxIntegrations);
+    }
 
     this.state = {
       searchValue: '',
-      integrations: [...INTEGRATIONS, ...integrationPlugins]
+      integrations
     };
   }
 
@@ -103,7 +108,7 @@ class Home extends React.Component<Props, State> {
           </Content>
         }
         transparent={true}
-        hasBorder
+        hasBorder={true}
       />
     );
   }

@@ -334,7 +334,6 @@ export const generateCommonFilters = async (
 
   if (pipelineId) {
     const pipeline = await models.Pipelines.getPipeline(pipelineId);
-
     if (
       (pipeline.isCheckUser || pipeline.isCheckDepartment) &&
       !(pipeline.excludeCheckUserIds || []).includes(currentUserId)
@@ -342,19 +341,24 @@ export const generateCommonFilters = async (
       let includeCheckUserIds: string[] = [];
 
       if (pipeline.isCheckDepartment) {
-        const departments = await sendCoreMessage({
+        const user = await sendCoreMessage({
           subdomain,
-          action: 'departments.find',
+          action: 'users.findOne',
           data: {
-            userIds: { $in: [currentUserId] }
+            _id: currentUserId
           },
           isRPC: true
         });
 
-        for (const department of departments) {
-          includeCheckUserIds = includeCheckUserIds.concat(
-            department.userIds || []
-          );
+        const userDepartmentIds = user?.departmentIds || [];
+        const pipelineDepartmentIds = pipeline.departmentIds || [];
+
+        if (
+          !!pipelineDepartmentIds.filter(departmentId =>
+            userDepartmentIds.includes(departmentId)
+          ).length
+        ) {
+          includeCheckUserIds = includeCheckUserIds.concat(user._id || []);
         }
       }
 
