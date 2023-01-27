@@ -8,15 +8,16 @@ export interface IBuildingToContactDocument extends Document {
 }
 
 export const buildingToContactSchema = schemaHooksWrapper(
-  new Schema(
-    {
-      buildingId: field({ type: String, required: true }),
-      contactId: field({ type: String, required: true}),
-      contactType: field({ type: String, required: true}),
-    },
-    { _id: false }
-  ),
+  new Schema({
+    _id: field({ pkey: true }),
+    buildingId: field({ type: String, required: true }),
+    contactId: field({ type: String, required: true }),
+    contactType: field({ type: String, required: true })
+  }),
   'mobinet_building_to_contact'
 );
 
-buildingToContactSchema.index({ buildingId: 1, contactId: 1, contactType: 1 }, { unique: true });
+buildingToContactSchema.index(
+  { buildingId: 1, contactId: 1, contactType: 1 },
+  { unique: true }
+);

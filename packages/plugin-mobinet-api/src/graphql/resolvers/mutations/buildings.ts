@@ -1,8 +1,10 @@
 import { IContext } from '../../../connectionResolver';
+import { sendCommonMessage } from '../../../messageBroker';
 import {
   IBuilding,
   IBuildingEdit
 } from '../../../models/definitions/buildings';
+import { findCenter } from '../utils';
 
 const mutations = {
   buildingsAdd: async (_root, doc: IBuilding, { models }: IContext) => {
@@ -122,6 +124,85 @@ const mutations = {
     });
 
     return models.Buildings.getBuilding({ _id });
+  },
+
+  buildingsSubmitServiceRequest: async (
+    _root,
+    { _id, buildingData, ticketData, quarterId },
+    { models, subdomain, cpUser }: IContext
+  ) => {
+    // const user = await sendCommonMessage({
+    //   serviceName: 'clientportal',
+    //   subdomain: subdomain,
+    //   action: 'clientPortalUsers.findOne',
+    //   data: {
+    //     _id: cpUser.userId,
+    //   },
+    //   isRPC: true,
+    //   defaultValue: undefined,
+    // });
+
+    // if (!user) {
+    //   throw new Error('User not found');
+    // }
+
+    const user = { erxesCustomerId: 'hTqM74dJPreqy4K5t' };
+
+    let building = await models.Buildings.findOne({
+      $or: [{ _id }, { osmbId: buildingData.id }]
+    });
+
+    if (!building) {
+      const { min, max } = buildingData.properties.bounds;
+
+      const bounds = [
+        { lat: min[1], lng: min[0] },
+        { lat: max[1], lng: max[0] }
+      ];
+
+      const location = findCenter(bounds);
+
+      building = await models.Buildings.create({
+        osmbId: buildingData.id,
+        location: {
+          type: 'Point',
+          coordinates: [location.lng, location.lat]
+        },
+        serviceStatus: 'inactive',
+        name: buildingData.properties.name,
+        quarterId
+      });
+    }
+
+    const ticket = await sendCommonMessage({
+      serviceName: 'cards',
+      subdomain: subdomain,
+      action: 'tickets.create',
+      data: {
+        ...ticketData,
+        createdAt: new Date(),
+        name: `Сүлжээ тавиулах хүсэлт: ${building.name}`,
+        customerId: user.erxesCustomerId
+      },
+      isRPC: true,
+      defaultValue: undefined
+    });
+
+    if (!ticket) {
+      throw new Error('Ticket creation failed');
+    }
+
+    building.serviceRequestTicketIds.push(ticket._id);
+
+    await building.save();
+
+    await models.BuildingToContacts.createDoc({
+      buildingId: building._id,
+      contactId: user.erxesCustomerId,
+      contactType: 'customer'
+    });
+
+    return building;
   }
 };
 

@@ -1,9 +1,11 @@
-import typeDefs from './graphql/typeDefs';
-import resolvers from './graphql/resolvers';
-import { generateModels } from './connectionResolver';
-
-import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import * as cookieParser from 'cookie-parser';
+
+import { generateModels } from './connectionResolver';
+import resolvers from './graphql/resolvers';
+import typeDefs from './graphql/typeDefs';
+import { initBroker } from './messageBroker';
+import cpUserMiddleware from './middlewares/cpUserMiddleware';
 
 export let mainDb;
 export let debug;
@@ -28,6 +30,8 @@ export default {
     context.models = await generateModels(subdomain);
     return context;
   },
+
+  middlewares: [cookieParser(), cpUserMiddleware],
 
   onServerInit: async options => {
     mainDb = options.db;

@@ -52,17 +52,11 @@ const Row = (props: Props) => {
 
   const formContent = props => <BuildingForm {...props} building={building} />;
 
-  const center = building.center || {
+  const center = building.location || {
     lat: 0,
     lng: 0,
     description: 'description'
   };
-  // <th>{__('code')}</th>
-  // <th>{__('name')}</th>
-  // <th>{__('Latitude')}</th>
-  // <th>{__('Longitude')}</th>
-  // <th>{__('iso')}</th>
-  // <th>{__('stat')}</th>
 
   const cityName =
     (building.quarter &&
@@ -107,10 +101,6 @@ const Row = (props: Props) => {
       <td key={Math.random()}>
         <RowTitle>{quarterName}</RowTitle>
       </td>
-
-      {/*<td key={Math.random()}>
-        <RowTitle>{building.stat || '-'}</RowTitle>
-      </td> */}
 
       <td>
         <ActionButtons>

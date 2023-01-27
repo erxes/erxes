@@ -29,6 +29,9 @@ export interface IBuilding {
 
   customerIds: string[];
 
+  serviceRequestTicketIds: string[];
+  regularTicketIds: string[];
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -86,6 +89,19 @@ export const buildingSchema = schemaHooksWrapper(
       label: 'customerIds',
       required: false
     }),
+
+    serviceRequestTicketIds: field({
+      type: [String],
+      label: 'Service Request Ticket Ids',
+      required: false
+    }),
+
+    regularTicketIds: field({
+      type: [String],
+      label: 'Regular Ticket Ids',
+      required: false
+    }),
+
     createdAt: field({ type: Date, label: 'createdAt', default: Date.now }),
     updatedAt: field({ type: Date, label: 'updatedAt', default: Date.now }),
 

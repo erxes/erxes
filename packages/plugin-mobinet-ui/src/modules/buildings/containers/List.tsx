@@ -44,17 +44,17 @@ export default function BuildingContainer(props: Props) {
   // );
 
   const [
-    fetchBuildingsWithingBounds,
+    fetchBuildingsWithinBounds,
     { data: buildingsByBoundsData }
   ] = useLazyQuery<BuildingsByBoundsQueryResponse>(
     gql(queries.buildingsByBoundsQuery)
   );
 
   const getBuildingsWithingBounds = (bounds: ICoordinates[]) => {
-    fetchBuildingsWithingBounds({
+    fetchBuildingsWithinBounds({
       variables: {
-        bounds: bounds.map(b => [b.lng, b.lat]),
-        serviceStatuses: ['active', 'inprogress']
+        bounds: bounds.map(b => [b.lng, b.lat])
+        // serviceStatuses: ['active', 'inprogress']
       }
     });
   };

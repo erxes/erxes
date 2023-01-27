@@ -3,43 +3,33 @@ import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { ServiceStatus } from '../../../models/definitions/buildings';
 
+const buildQuery = (params: any) => {
+  const { searchValue, cityId, districtId, quarterId, customQuery } = params;
+  const filter: any = {};
+
+  if (searchValue) {
+    filter.searchText = { $in: [new RegExp(`.*${searchValue}.*`, 'i')] };
+  }
+
+  if (cityId) {
+    filter.cityId = cityId;
+  }
+
+  if (districtId) {
+    filter.districtId = districtId;
+  }
+
+  if (quarterId) {
+    filter.quarterId = quarterId;
+  }
+
+  return { ...filter, ...customQuery };
+};
+
 const queries = {
-  buildingList: async (
-    _root,
-    {
-      searchValue,
-      cityId,
-      districtId,
-      quarterId,
-      page,
-      perPage
-    }: {
-      searchValue?: string;
-      page?: number;
-      perPage?: number;
-      cityId?: string;
-      districtId?: string;
-      quarterId?: string;
-    },
-    { models }: IContext
-  ) => {
-    const filter: any = {};
-
-    if (searchValue) {
-      filter.searchText = { $in: [new RegExp(`.*${searchValue}.*`, 'i')] };
-    }
-
-    if (cityId) {
-      filter.cityId = cityId;
-    }
-
-    if (districtId) {
-      filter.districtId = districtId;
-    }
-
-    if (quarterId) {
-      filter.quarterId = quarterId;
-    }
+  buildingList: async (_root, params, { models }: IContext) => {
+    const filter: any = buildQuery(params);
+    const { page, perPage } = params;
 
     return {
       list: paginate(
@@ -55,42 +45,9 @@ const queries = {
     };
   },
 
-  buildings: async (
-    _root,
-    {
-      searchValue,
-      cityId,
-      districtId,
-      quarterId,
-      page,
-      perPage
-    }: {
-      searchValue?: string;
-      page?: number;
-      perPage?: number;
-      cityId?: string;
-      districtId?: string;
-      quarterId?: string;
-    },
-    { models }: IContext
-  ) => {
-    const filter: any = {};
-
-    if (searchValue) {
-      filter.searchText = { $in: [new RegExp(`.*${searchValue}.*`, 'i')] };
-    }
-
-    if (cityId) {
-      filter.cityId = cityId;
-    }
-
-    if (districtId) {
-      filter.districtId = districtId;
-    }
-
-    if (quarterId) {
-      filter.quarterId = quarterId;
-    }
+  buildings: async (_root, params, { models }: IContext) => {
+    const filter: any = buildQuery(params);
+    const { page, perPage } = params;
 
     return paginate(models.Buildings.find(filter).lean(), {
       page: page || 1,

@@ -4,6 +4,7 @@ module.exports = {
   scope: 'mobinet',
   exposes: {
     './routes': './src/routes.tsx',
+    './buildingsSection': './src/common/routes/Buildings.tsx'
   },
   routes: {
     url: 'http://localhost:3029/remoteEntry.js',
@@ -18,4 +19,12 @@ module.exports = {
       location: 'mainNavigation',
     },
   ],
+
+  ticketRightSidebarSection: [
+    {
+      text: "buildingsSection",
+      component: "./buildingsSection",
+      scope: "mobinet"
+    }
+  ]
 };

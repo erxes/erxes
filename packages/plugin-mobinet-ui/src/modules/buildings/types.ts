@@ -22,7 +22,7 @@ export interface IBuilding {
   serviceStatus: string;
   color: string;
   bounds: any;
-  center: any;
+  location: any;
   customerIds: string[];
   customers: ICustomer[];
   companies: ICompany[];

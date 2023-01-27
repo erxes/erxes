@@ -1,4 +1,9 @@
-import { IBuildingModel, IBuildingToContactModel, loadBuildingClass, loadBuildingToContactClass } from './models/Buildings';
+import {
+  IBuildingModel,
+  IBuildingToContactModel,
+  loadBuildingClass,
+  loadBuildingToContactClass
+} from './models/Buildings';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 import * as mongoose from 'mongoose';
@@ -23,6 +28,7 @@ export interface IModels {
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
+  cpUser: any;
 }
 
 export let models: IModels | null = null;
@@ -50,10 +56,10 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadBuildingClass(models)
   );
 
-  models.BuildingToContacts = db.model<IBuildingToContactDocument, IBuildingToContactModel>(
-    'mobinet_building_to_contact',
-    loadBuildingToContactClass(models)
-  );
+  models.BuildingToContacts = db.model<
+    IBuildingToContactDocument,
+    IBuildingToContactModel
+  >('mobinet_building_to_contact', loadBuildingToContactClass(models));
 
   return models;
 };

@@ -4,12 +4,12 @@ import { IModels } from '../connectionResolver';
 import {
   IBuilding,
   IBuildingDocument,
-  buildingSchema,
+  buildingSchema
 } from './definitions/buildings';
 
 import {
   IBuildingToContactDocument,
-  buildingToContactSchema,
+  buildingToContactSchema
 } from './definitions/buildingToContact';
 
 export interface IBuildingModel extends Model<IBuildingDocument> {
@@ -26,7 +26,7 @@ export const loadBuildingClass = (models: IModels) => {
         const { lng, lat } = doc.location;
         (doc as any).location = {
           type: 'Point',
-          coordinates: [lng, lat],
+          coordinates: [lng, lat]
         };
       }
 
@@ -67,9 +67,7 @@ export const loadBuildingClass = (models: IModels) => {
 
 export interface IBuildingToContactModel
   extends Model<IBuildingToContactDocument> {
-  createDoc(
-    doc: IBuildingToContactDocument
-  ): Promise<IBuildingToContactDocument>;
+  createDoc(doc): Promise<IBuildingToContactDocument>;
   removeDoc(doc: IBuildingToContactDocument): void;
 }
 
@@ -79,7 +77,7 @@ export const loadBuildingToContactClass = (models: IModels) => {
       const existingDoc = await models.BuildingToContacts.findOne({ ...doc });
 
       if (existingDoc) {
-        throw new Error('Building to contact relation already exists');
+        return existingDoc;
       }
 
       return models.BuildingToContacts.create(doc);

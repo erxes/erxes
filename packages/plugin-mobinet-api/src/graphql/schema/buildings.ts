@@ -58,6 +58,11 @@ enum ServiceStatus {
     list: [Building],
     totalCount: Int
   }
+
+  input OSMBuilding {
+    id: String
+    properties: JSON
+  }
 `;
 
 const mutationParams = `
@@ -82,6 +87,7 @@ export const mutations = `
 
   buildingsRemoveCustomers(_id: String!, customerIds: [String]): Building
   buildingsRemoveCompanies(_id: String!, companyIds: [String]): Building
+  buildingsSubmitServiceRequest(_id: String, buildingData: OSMBuilding, quarterId: String!, ticketData: JSON): Building
 `;
 
 const qryParams = `
@@ -94,6 +100,7 @@ const qryParams = `
     cityId: String
     page: Int
     perPage: Int
+    customQuery: JSON
 `;
 
 export const queries = `
