@@ -60,7 +60,7 @@ export const generatePermissionGroupModel = (
       patch: PermissionGroupPatchInput
     ): Promise<PermissionGroupDocument> {
       const doc = await models.PermissionGroup.findByIdOrThrow(_id);
-      _.assign(doc, patch);
+      _.merge(doc, patch);
       await doc.save();
       return doc;
     }

@@ -54,7 +54,7 @@ interface IWidgetEmailParams {
   attachments?: IAttachment[];
 }
 
-const pConversationClientMessageInserted = async (models, message) => {
+export const pConversationClientMessageInserted = async (models, message) => {
   const conversation = await models.Conversations.findOne(
     {
       _id: message.conversationId

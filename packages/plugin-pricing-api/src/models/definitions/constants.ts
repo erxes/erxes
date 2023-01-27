@@ -15,6 +15,16 @@ export const DISCOUNT_TYPES = {
   ALL: ['default', 'fixed', 'subtraction', 'percentage', 'bonus']
 };
 
+export const PRICE_ADJUST_TYPES = {
+  NONE: 'none',
+  DEFAULT: 'default',
+  ROUND: 'round',
+  FLOOR: 'floor',
+  CEIL: 'ceil',
+  ENDSWITH9: 'endsWith9',
+  ALL: ['none', 'default', 'round', 'floor', 'ceil', 'endsWith9']
+};
+
 export const APPLY_TYPES = {
   PRODUCT: 'product',
   CATEGORY: 'category',

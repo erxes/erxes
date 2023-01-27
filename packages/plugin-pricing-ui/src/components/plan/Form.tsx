@@ -34,6 +34,8 @@ export default function Form(props: Props) {
     status: data.status || 'active', // "active", "archive", "draft", "completed"
     type: data.type || 'fixed', // "fixed", "subtraction", "percentage", "bonus"
     value: data.value || 0,
+    priceAdjustType: data.priceAdjustType || 'none',
+    priceAdjustFactor: data.priceAdjustFactor || 0,
     bonusProduct: data.bonusProduct || null,
     isPriority: data.isPriority || false,
 

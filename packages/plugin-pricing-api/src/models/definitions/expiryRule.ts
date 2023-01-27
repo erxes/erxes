@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
 import { field } from './utils';
-import { RULE_TYPES, EXPIRY_TYPES, DISCOUNT_TYPES } from './constants';
+import { EXPIRY_TYPES, DISCOUNT_TYPES, PRICE_ADJUST_TYPES } from './constants';
 
 export interface IExpiryRule {
   type: string;
@@ -8,6 +8,14 @@ export interface IExpiryRule {
   discountType: string;
   discountValue: number;
   discountBonusProduct: string;
+  priceAdjustType:
+    | 'none'
+    | 'default'
+    | 'round'
+    | 'floor'
+    | 'ceil'
+    | 'endsWith9';
+  priceAdjustFactor: number;
 }
 
 export const expiryRuleSchema = new Schema({
@@ -20,5 +28,11 @@ export const expiryRuleSchema = new Schema({
     default: DISCOUNT_TYPES.DEFAULT
   }),
   discountValue: field({ type: Number }),
-  discountBonusProduct: field({ type: String })
+  discountBonusProduct: field({ type: String }),
+  priceAdjustType: field({
+    type: String,
+    enum: PRICE_ADJUST_TYPES.ALL,
+    default: PRICE_ADJUST_TYPES.NONE
+  }),
+  priceAdjustFactor: field({ type: Number })
 });

@@ -71,6 +71,12 @@ export interface IPost extends CommonPostFields {
 
   wordCount?: number | null;
   isPollMultiChoice?: boolean | null;
+
+  isFeaturedByAdmin?: boolean | null;
+  isFeaturedByUser?: boolean | null;
+
+  commentCount?: number | null;
+  pollEndDate?: Date | null;
 }
 
 export type PostDocument = IPost & Document;
@@ -96,7 +102,8 @@ const OMIT_FROM_INPUT = [
   'lastPublishedAt',
 
   'requiredLevel',
-  'isPermissionRequired'
+  'isPermissionRequired',
+  'commentCount'
 ] as const;
 
 interface PollOptionInput {
@@ -113,6 +120,13 @@ export type PostPatchInput = Partial<PostCreateInput>;
 
 export interface IPostModel extends Model<PostDocument> {
   findByIdOrThrow(_id: string): Promise<PostDocument>;
+
+  setFeaturedByAdmin(_id: string, isFeatured: boolean): Promise<boolean>;
+  setFeaturedByUser(
+    _id: string,
+    isFeatured: boolean,
+    cpUser?: ICpUser | null
+  ): Promise<boolean>;
 
   createPost(c: PostCreateInput, user: IUserDocument): Promise<PostDocument>;
   patchPost(
@@ -186,12 +200,11 @@ const common = {
 };
 
 export const postSchema = new Schema<PostDocument>({
-  categoryId: { type: Types.ObjectId, index: true, sparse: true },
+  categoryId: Types.ObjectId,
   categoryApprovalState: {
     type: String,
     required: true,
-    enum: ADMIN_APPROVAL_STATES,
-    index: true
+    enum: ADMIN_APPROVAL_STATES
   },
   state: {
     type: String,
@@ -217,20 +230,25 @@ export const postSchema = new Schema<PostDocument>({
   createdAt: { type: Date, required: true, default: () => new Date() },
   createdUserType: { type: String, required: true, enum: USER_TYPES },
   createdById: { type: String, index: true, sparse: true },
-  createdByCpId: { type: String, index: true, sparse: true },
+  createdByCpId: { type: String },
 
   updatedAt: { type: Date, required: true, default: () => new Date() },
   updatedUserType: { type: String, required: true, enum: USER_TYPES },
   updatedById: String,
   updatedByCpId: String,
 
-  lastPublishedAt: { type: Date, idnex: true, sparse: true },
+  lastPublishedAt: { type: Date, index: true, sparse: true },
 
   customIndexed: Schema.Types.Mixed,
 
   tagIds: [String],
   wordCount: Number,
-  isPollMultiChoice: Boolean
+  isPollMultiChoice: Boolean,
+  pollEndDate: Date,
+
+  isFeaturedByAdmin: { type: Boolean, index: true, sparse: true },
+  isFeaturedByUser: { type: Boolean, index: true, sparse: true },
+  commentCount: { type: Number, default: 0, index: true }
 });
 // used by client portal front-end
 postSchema.index({ state: 1, categoryApprovalState: 1, categoryId: 1 });
@@ -245,6 +263,25 @@ postSchema.index({
   title: 'text',
   'translations.title': 'text'
 });
+
+// for displaying posts in category page
+postSchema.index(
+  {
+    categoryId: 1,
+    categoryApprovalState: 1,
+    state: 1
+  },
+  { sparse: true }
+);
+// for displaying user's published posts, or sent for approval posts
+postSchema.index(
+  {
+    createdByCpId: 1,
+    state: 1,
+    categoryApprovalState: 1
+  },
+  { sparse: true }
+);
 
 const wordCountHtml = (html?: string | null): number => {
   if (!html) return 0;
@@ -276,6 +313,46 @@ export const generatePostModel = (
       }
       return post;
     }
+
+    public static async setFeaturedByAdmin(
+      _id: string,
+      isFeatured: boolean
+    ): Promise<boolean> {
+      let update: any;
+      if (isFeatured) {
+        update = { isFeaturedByAdmin: isFeatured };
+      } else {
+        update = { $unset: { isFeaturedByAdmin: 1 } };
+      }
+      const post = await models.Post.findByIdAndUpdate(_id, update, {
+        new: true
+      });
+      return !!post;
+    }
+    public static async setFeaturedByUser(
+      _id: string,
+      isFeatured: boolean,
+      cpUser?: ICpUser | null
+    ): Promise<boolean> {
+      if (!cpUser) throw new LoginRequiredError();
+
+      let update: any;
+
+      if (isFeatured) {
+        update = { isFeaturedByUser: isFeatured };
+      } else {
+        update = { $unset: { isFeaturedByUser: 1 } };
+      }
+
+      const post = await models.Post.findOneAndUpdate(
+        { _id, createdByCpId: cpUser.userId },
+        update,
+        { new: true }
+      );
+
+      return !!post;
+    }
+
     public static async createPost(
       input: PostCreateInput,
       user: IUserDocument
@@ -343,7 +420,7 @@ export const generatePostModel = (
         update.viewCount = 0;
       }
 
-      _.assign(post, update);
+      _.merge(post, update);
 
       await post.save();
 
@@ -592,7 +669,7 @@ export const generatePostModel = (
         update.viewCount = 0;
       }
 
-      _.assign(post, update);
+      _.merge(post, update);
       await post.save();
 
       if (pollOptions !== undefined) {
@@ -654,7 +731,6 @@ export const generatePostModel = (
     }
 
     public static async updateTrendScoreOfPublished(query = {}) {
-      const now = Date.now();
       await models.Post.find(
         { ...query, state: 'PUBLISHED' },
         { viewCount: 1, lastPublishedAt: 1, trendScore: 1 },
@@ -663,6 +739,7 @@ export const generatePostModel = (
         .cursor()
         .eachAsync(async function updateTrendScores(post: PostDocument) {
           if (!post.lastPublishedAt) return;
+          const now = Date.now();
 
           const elapsedSeconds = (now - post.lastPublishedAt.getTime()) / 1000;
           post.trendScore = post.viewCount / elapsedSeconds;

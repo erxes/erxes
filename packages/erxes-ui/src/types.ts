@@ -186,7 +186,7 @@ export type IEditorProps = {
 
 export type QueryResponse = {
   loading: boolean;
-  refetch: () => Promise<any>;
+  refetch: (variables?: any) => Promise<any>;
   error?: string;
 };
 

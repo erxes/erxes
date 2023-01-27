@@ -131,6 +131,7 @@ export const itemsAdd = async (
   }
 
   const item = await createModel(extendedDoc);
+  const stage = await models.Stages.getStage(item.stageId);
 
   await createConformity(subdomain, {
     mainType: type,
@@ -140,11 +141,13 @@ export const itemsAdd = async (
   });
 
   if (user) {
+    const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+
     sendNotifications(models, subdomain, {
       item,
       user,
       type: `${type}Add`,
-      action: `invited you to the ${type}`,
+      action: `invited you to the ${pipeline.name}`,
       content: `'${item.name}'.`,
       contentType: type
     });
@@ -160,8 +163,6 @@ export const itemsAdd = async (
       user
     );
   }
-
-  const stage = await models.Stages.getStage(item.stageId);
 
   graphqlPubsub.publish('pipelinesChanged', {
     pipelinesChanged: {

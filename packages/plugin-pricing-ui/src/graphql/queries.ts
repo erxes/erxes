@@ -30,6 +30,8 @@ const pricingPlanDetail = `
       status
       type
       value
+      priceAdjustType
+      priceAdjustFactor
       bonusProduct
       isPriority
 
@@ -60,6 +62,8 @@ const pricingPlanDetail = `
         discountType
         discountValue
         discountBonusProduct
+        priceAdjustType
+        priceAdjustFactor
       }
 
       isPriceEnabled
@@ -69,6 +73,8 @@ const pricingPlanDetail = `
         discountType
         discountValue
         discountBonusProduct
+        priceAdjustType
+        priceAdjustFactor
       }
 
       isExpiryEnabled
@@ -78,6 +84,8 @@ const pricingPlanDetail = `
         discountType
         discountValue
         discountBonusProduct
+        priceAdjustType
+        priceAdjustFactor
       }
 
       isRepeatEnabled

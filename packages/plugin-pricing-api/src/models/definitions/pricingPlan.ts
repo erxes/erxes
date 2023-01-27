@@ -1,6 +1,11 @@
 import { Document, Schema } from 'mongoose';
 import { field } from './utils';
-import { STATUS_TYPES, DISCOUNT_TYPES, APPLY_TYPES } from './constants';
+import {
+  STATUS_TYPES,
+  DISCOUNT_TYPES,
+  APPLY_TYPES,
+  PRICE_ADJUST_TYPES
+} from './constants';
 import { IPriceRule, priceRuleSchema } from './priceRule';
 import { IQuantityRule, quantityRuleSchema } from './quantityRule';
 import { IExpiryRule, expiryRuleSchema } from './expiryRule';
@@ -11,6 +16,8 @@ export interface IPricingPlan {
   status: string;
   type: string;
   value: number;
+  priceAdjustType: 'none' | 'round' | 'floor' | 'ceil' | 'endsWith9';
+  priceAdjustFactor: number;
   bonusProduct?: string;
   isPriority: boolean;
 
@@ -68,7 +75,6 @@ export const pricingPlanSchema = new Schema({
     default: STATUS_TYPES.ACTIVE,
     label: 'Status'
   }),
-
   type: field({
     type: String,
     enum: DISCOUNT_TYPES.ALL,
@@ -78,6 +84,16 @@ export const pricingPlanSchema = new Schema({
   value: field({
     type: Number,
     label: 'Amount Value'
+  }),
+  priceAdjustType: field({
+    type: String,
+    enum: PRICE_ADJUST_TYPES.ALL,
+    default: PRICE_ADJUST_TYPES.NONE,
+    label: 'Price Adjust Type'
+  }),
+  priceAdjustFactor: field({
+    type: Number,
+    label: 'Price Adjust Position'
   }),
   bonusProduct: field({
     type: String,

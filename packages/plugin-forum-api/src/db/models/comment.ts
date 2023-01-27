@@ -109,6 +109,10 @@ export const generateCommentModel = (
         updatedById: user._id,
         updatedUserType: USER_TYPES[0]
       });
+      await models.Post.updateOne(
+        { _id: c.postId },
+        { $inc: { commentCount: 1 } }
+      );
       return res;
     }
     public static async updateComment(
@@ -127,30 +131,7 @@ export const generateCommentModel = (
     public static async deleteComment(_id: string): Promise<CommentDocument> {
       const deletedComment = await models.Comment.findByIdOrThrow(_id);
 
-      const idsToDelete = [_id];
-      let findRepliesOf = [_id];
-
-      while (findRepliesOf?.length) {
-        const replies = await models.Comment.find({
-          replyToId: { $in: findRepliesOf }
-        }).lean();
-        const replyIds = replies.map(reply => reply._id);
-        idsToDelete.push(...replyIds);
-        findRepliesOf = replyIds;
-      }
-
-      const oidsToDelete = idsToDelete.map(Types.ObjectId);
-
-      const res = await models.Comment.deleteMany({
-        _id: { $in: oidsToDelete }
-      });
-
-      await models.CommentDownVote.deleteMany({
-        contentId: { $in: oidsToDelete }
-      });
-      await models.CommentUpVote.deleteMany({
-        contentId: { $in: oidsToDelete }
-      });
+      deleteCommentCommon(models, deletedComment);
 
       return deletedComment;
     }
@@ -187,6 +168,12 @@ export const generateCommentModel = (
         updatedByCpId: cpUser.userId,
         updatedUserType: USER_TYPES[1]
       });
+
+      await models.Post.updateOne(
+        { _id: c.postId },
+        { $inc: { commentCount: 1 } }
+      );
+
       return res;
     }
     public static async updateCommentCp(
@@ -215,7 +202,7 @@ export const generateCommentModel = (
         cpUser
       );
 
-      await models.Comment.deleteComment(_id);
+      deleteCommentCommon(models, deletedComment);
 
       return deletedComment;
     }
@@ -228,3 +215,38 @@ export const generateCommentModel = (
     commentSchema
   );
 };
+
+async function deleteCommentCommon(
+  models: IModels,
+  commentToDelete: CommentDocument
+) {
+  const idsToDelete = [commentToDelete._id];
+  let findRepliesOf = [commentToDelete._id];
+
+  while (findRepliesOf?.length) {
+    const replies = await models.Comment.find({
+      replyToId: { $in: findRepliesOf }
+    })
+      .select('_id')
+      .lean();
+    const replyIds = replies.map(reply => reply._id);
+    idsToDelete.push(...replyIds);
+    findRepliesOf = replyIds;
+  }
+
+  await models.Comment.deleteMany({
+    _id: { $in: idsToDelete }
+  });
+
+  await models.CommentDownVote.deleteMany({
+    contentId: { $in: idsToDelete }
+  });
+  await models.CommentUpVote.deleteMany({
+    contentId: { $in: idsToDelete }
+  });
+
+  await models.Post.updateOne(
+    { _id: commentToDelete.postId },
+    { $inc: { commentCount: -idsToDelete.length } }
+  );
+}

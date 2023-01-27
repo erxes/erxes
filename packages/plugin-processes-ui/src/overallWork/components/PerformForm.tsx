@@ -5,6 +5,9 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import PerformDetail from './PerformDetail';
+import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 import {
@@ -20,14 +23,19 @@ import {
 } from '@erxes/ui/src/layout/styles';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { IOverallWorkDet, IPerform } from '../types';
+import { IProduct, IUom } from '@erxes/ui-products/src/types';
 import { IProductsData } from '../../types';
-import { JOB_TYPE_CHOISES } from '../../constants';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { AddTrigger } from '../../styles';
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 
 type Props = {
   renderButton: (
     props: IButtonMutateProps & { disabled: boolean }
   ) => JSX.Element;
   closeModal: () => void;
+  allUoms: IUom[];
   perform?: IPerform;
   overallWorkDetail: IOverallWorkDet;
   max: number;
@@ -35,17 +43,21 @@ type Props = {
 
 type State = {
   count: number;
+  description: string;
+  appendix: string;
+  assignedUserIds: string[];
+  customerId: string;
+  companyId: string;
   startAt: Date;
   endAt: Date;
   needProducts: IProductsData[];
   resultProducts: IProductsData[];
   inProducts: IProductsData[];
   outProducts: IProductsData[];
+  categoryId: string;
 };
 
 class Form extends React.Component<Props, State> {
-  private timer?: NodeJS.Timer;
-
   constructor(props) {
     super(props);
 
@@ -78,10 +90,16 @@ class Form extends React.Component<Props, State> {
       startAt,
       endAt,
       count,
+      description: perform?.description || '',
+      appendix: perform?.appendix || '',
+      assignedUserIds: perform?.assignedUserIds || [],
+      customerId: perform?.customerId || '',
+      companyId: perform?.companyId || '',
       needProducts,
       resultProducts,
       inProducts,
-      outProducts
+      outProducts,
+      categoryId: ''
     };
   }
 
@@ -106,6 +124,11 @@ class Form extends React.Component<Props, State> {
       count,
       startAt,
       endAt,
+      description,
+      appendix,
+      assignedUserIds,
+      customerId,
+      companyId,
       inProducts,
       outProducts,
       needProducts,
@@ -130,6 +153,11 @@ class Form extends React.Component<Props, State> {
       outBranchId,
       outDepartmentId,
       count,
+      description,
+      appendix,
+      assignedUserIds,
+      customerId,
+      companyId,
       inProducts,
       outProducts,
       needProducts,
@@ -192,82 +220,154 @@ class Form extends React.Component<Props, State> {
     );
   }
 
-  renderView = (
-    name: string,
-    variable: number,
-    uom: string,
-    stateName: 'inProducts' | 'outProducts',
-    productId: string
-  ) => {
-    const onChangePerView = e => {
-      if (this.timer) {
-        clearTimeout(this.timer);
+  renderBulkProductChooser(
+    productsData: any[],
+    stateName: 'inProducts' | 'outProducts'
+  ) {
+    const productOnChange = (products: IProduct[]) => {
+      const currentProductIds = productsData.map(p => p.productId);
+
+      for (const product of products) {
+        if (currentProductIds.includes(product._id)) {
+          continue;
+        }
+
+        productsData.push({
+          _id: Math.random(),
+          quantity: 1,
+          uomId: product.uomId,
+          productId: product._id,
+          product: product,
+          uom: product.uom
+        });
       }
 
-      const inputVal = e.target.value;
-
-      this.timer = setTimeout(() => {
-        const productsData = (stateName === 'inProducts'
-          ? this.state.inProducts
-          : this.state.outProducts || []
-        ).map(pd =>
-          pd.productId === productId ? { ...pd, quantity: inputVal } : pd
-        );
-
-        this.setState({
-          [stateName]: productsData
-        } as any);
-      }, 500);
+      const chosenProductIds = products.map(p => p._id);
+      this.setState({
+        [stateName]: productsData.filter(pd =>
+          chosenProductIds.includes(pd.productId)
+        )
+      } as any);
     };
 
-    return (
-      <li key={Math.random()}>
-        <FieldStyle>
-          {__(name)} /${uom}/
-        </FieldStyle>
-        <SidebarCounter>
-          <FormControl
-            defaultValue={variable}
-            type="number"
-            required={true}
-            onChange={onChangePerView}
-          />
-        </SidebarCounter>
-      </li>
+    const content = props => (
+      <ProductChooser
+        {...props}
+        onSelect={productOnChange}
+        onChangeCategory={categoryId => this.setState({ categoryId })}
+        categoryId={this.state.categoryId}
+        data={{
+          name: 'Product',
+          products: productsData.filter(p => p.product).map(p => p.product)
+        }}
+      />
     );
+
+    const trigger = (
+      <AddTrigger>
+        <Button btnStyle="primary" icon="plus-circle">
+          Add Product / Service
+        </Button>
+      </AddTrigger>
+    );
+
+    return (
+      <ModalTrigger
+        title="Choose product & service"
+        trigger={trigger}
+        dialogClassName="modal-1400w"
+        size="xl"
+        content={content}
+      />
+    );
+  }
+
+  onChangePerView = (values: any) => {
+    this.setState({
+      ...values
+    } as any);
   };
 
   renderProducts = (
-    name: string,
+    title: string,
     productsData: any[],
     stateName: 'inProducts' | 'outProducts'
   ) => {
-    const result: React.ReactNode[] = [];
+    const { allUoms } = this.props;
 
-    result.push(
-      <li key={Math.random()}>
-        <FieldStyle>{__(name)}</FieldStyle>
-        <SidebarCounter>{(productsData || []).length}</SidebarCounter>
-      </li>
+    return (
+      <>
+        <li key={Math.random()}>
+          <FieldStyle>
+            {__(title)} {(productsData || []).length}
+          </FieldStyle>
+          <SidebarCounter>
+            <FormWrapper>
+              <FormColumn>
+                <FormControl value={__('UOM')} />
+              </FormColumn>
+              <FormColumn>
+                <FormControl value={__('Quantity')} />
+              </FormColumn>
+            </FormWrapper>
+          </SidebarCounter>
+        </li>
+        {productsData.map(pd => {
+          return (
+            <PerformDetail
+              key={pd._id}
+              allUoms={allUoms}
+              productData={pd}
+              productsData={productsData}
+              stateName={stateName}
+              onChangeState={this.onChangePerView}
+            />
+          );
+        })}
+        {this.renderBulkProductChooser(productsData, stateName)}
+      </>
     );
+  };
 
-    for (const data of productsData) {
-      const { uom } = data;
-      const productName = data.product ? data.product.name : 'not name';
-      const uomCode = uom ? uom.code : 'not uom';
+  renderProductsIncome = (productsData: any[]) => {
+    const { allUoms } = this.props;
 
-      result.push(
-        this.renderView(
-          productName,
-          data.quantity,
-          uomCode,
-          stateName,
-          data.productId
-        )
-      );
-    }
-
-    return result;
+    return (
+      <>
+        <li key={Math.random()}>
+          <FieldStyle>
+            {__('Out Products')} {(productsData || []).length}
+          </FieldStyle>
+          <SidebarCounter>
+            <FormWrapper>
+              <FormColumn>
+                <FormControl value={__('UOM')} />
+              </FormColumn>
+              <FormColumn>
+                <FormControl value={__('Quantity')} />
+              </FormColumn>
+              <FormColumn>
+                <FormControl value={__('Amount')} />
+              </FormColumn>
+            </FormWrapper>
+          </SidebarCounter>
+        </li>
+        {productsData.map(pd => {
+          return (
+            <PerformDetail
+              key={pd._id}
+              allUoms={allUoms}
+              productData={pd}
+              productsData={productsData}
+              stateName={'outProducts'}
+              hasCost={true}
+              onChangeState={this.onChangePerView}
+            />
+          );
+        })}
+        {this.renderBulkProductChooser(productsData, 'outProducts')}
+      </>
+    );
   };
 
   renderPerformIn() {
@@ -295,7 +395,7 @@ class Form extends React.Component<Props, State> {
 
     return (
       <SidebarList className="no-link">
-        {this.renderProducts('Out Products', outProducts || [], 'outProducts')}
+        {this.renderProductsIncome(outProducts || [])}
       </SidebarList>
     );
   }
@@ -315,6 +415,12 @@ class Form extends React.Component<Props, State> {
         quantity: rp.quantity * count
       }))
     });
+  };
+
+  onChangeInput = e => {
+    const name = e.target.name;
+    const value = e.target.value;
+    this.setState({ [name]: value } as any);
   };
 
   renderLabel = (max?: number) => {
@@ -369,6 +475,121 @@ class Form extends React.Component<Props, State> {
     );
   }
 
+  renderInLoc() {
+    const { overallWorkDetail } = this.props;
+    return (
+      <FormColumn>
+        <FormGroup>
+          <ControlLabel>
+            {__(`In Branch`)}: {this.renderLoc(overallWorkDetail.inBranch)}
+          </ControlLabel>
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>
+            {__(`In Department`)}:{' '}
+            {this.renderLoc(overallWorkDetail.inDepartment)}
+          </ControlLabel>
+        </FormGroup>
+      </FormColumn>
+    );
+  }
+
+  renderOutLoc() {
+    const { overallWorkDetail } = this.props;
+    return (
+      <FormColumn>
+        <FormGroup>
+          <ControlLabel>
+            {__(`Out Branch`)}: {this.renderLoc(overallWorkDetail.outBranch)}
+          </ControlLabel>
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>
+            {__(`Out Department`)}:{' '}
+            {this.renderLoc(overallWorkDetail.outDepartment)}
+          </ControlLabel>
+        </FormGroup>
+      </FormColumn>
+    );
+  }
+
+  renderLocations() {
+    const { overallWorkDetail } = this.props;
+    const { type } = overallWorkDetail;
+
+    if (type === 'income') {
+      return <FormWrapper>{this.renderOutLoc()}</FormWrapper>;
+    }
+    if (type === 'outlet') {
+      return <FormWrapper>{this.renderInLoc()}</FormWrapper>;
+    }
+
+    if (type === 'outlet') {
+      return (
+        <FormWrapper>
+          {this.renderInLoc()}
+          {this.renderOutLoc()}
+        </FormWrapper>
+      );
+    }
+
+    return (
+      <FormWrapper>
+        {this.renderInLoc()}
+        {this.renderOutLoc()}
+      </FormWrapper>
+    );
+  }
+
+  renderCOC() {
+    const { overallWorkDetail, perform } = this.props;
+    const { type } = overallWorkDetail;
+
+    if (['income', 'outlet'].includes(type)) {
+      return (
+        <>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel>{__('Company')}</ControlLabel>
+              <SelectCompanies
+                label={__('Choose company')}
+                name="companyId"
+                initialValue={perform ? perform.companyId : '' || ''}
+                onSelect={companyId =>
+                  this.setState({ companyId: companyId as string })
+                }
+                customOption={{
+                  value: '',
+                  label: 'No company'
+                }}
+                multi={false}
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel>{__('Customer')}</ControlLabel>
+              <SelectCustomers
+                label={__('Choose company')}
+                name="customerId"
+                initialValue={perform ? perform.customerId : '' || ''}
+                onSelect={customerId =>
+                  this.setState({ customerId: customerId as string })
+                }
+                customOption={{
+                  value: '',
+                  label: 'No customer'
+                }}
+                multi={false}
+              />
+            </FormGroup>
+          </FormColumn>
+        </>
+      );
+    }
+    return;
+  }
+
   renderContent = (formProps: IFormProps) => {
     const {
       closeModal,
@@ -378,10 +599,11 @@ class Form extends React.Component<Props, State> {
       perform
     } = this.props;
     const { values, isSubmitted } = formProps;
-    const { count, startAt, endAt } = this.state;
+    const { count, startAt, endAt, description, appendix } = this.state;
 
     return (
       <>
+        <ControlLabel>Type: {overallWorkDetail.type} </ControlLabel>
         <FormWrapper>
           <FormColumn>
             <FormGroup>
@@ -431,53 +653,44 @@ class Form extends React.Component<Props, State> {
           </FormColumn>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>Type</ControlLabel>
-              <FormControl
-                name="type"
-                componentClass="select"
-                value={overallWorkDetail.type}
-                required={false}
-              >
-                <option value="">All type</option>
-                {Object.keys(JOB_TYPE_CHOISES).map(jt => (
-                  <option value={jt} key={Math.random()}>
-                    {JOB_TYPE_CHOISES[jt]}
-                  </option>
-                ))}
-              </FormControl>
+              <ControlLabel>{__('Assegned To')}</ControlLabel>
+              <SelectTeamMembers
+                label={__('Choose team member')}
+                name="assignedUserIds"
+                initialValue={perform ? perform.assignedUserIds : [] || []}
+                onSelect={userIds =>
+                  this.setState({ assignedUserIds: userIds as string[] })
+                }
+                multi={true}
+              />
             </FormGroup>
           </FormColumn>
         </FormWrapper>
         <FormWrapper>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>
-                {__(`In Branch`)}: {this.renderLoc(overallWorkDetail.inBranch)}
-              </ControlLabel>
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>
-                {__(`In Department`)}:{' '}
-                {this.renderLoc(overallWorkDetail.inDepartment)}
-              </ControlLabel>
+              <ControlLabel required={true}>{__('Description')}</ControlLabel>
+              <FormControl
+                name="description"
+                defaultValue={description}
+                onChange={this.onChangeInput}
+              />
             </FormGroup>
           </FormColumn>
-
           <FormColumn>
             <FormGroup>
-              <ControlLabel>
-                {__(`Out Branch`)}:{' '}
-                {this.renderLoc(overallWorkDetail.outBranch)}
-              </ControlLabel>
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>
-                {__(`Out Department`)}:{' '}
-                {this.renderLoc(overallWorkDetail.outDepartment)}
-              </ControlLabel>
+              <ControlLabel required={true}>{__('Appendix')}</ControlLabel>
+              <FormControl
+                name="appendix"
+                defaultValue={appendix}
+                onChange={this.onChangeInput}
+              />
             </FormGroup>
           </FormColumn>
+          {this.renderCOC()}
         </FormWrapper>
+
+        {this.renderLocations()}
 
         <Box title={'Plan Details:'}>
           <FormWrapper>

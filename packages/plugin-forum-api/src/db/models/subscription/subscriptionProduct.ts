@@ -104,7 +104,7 @@ export const generateSubscriptionProductModel = (
       input: SubscriptionProductPatch
     ): Promise<SubscriptionProductDocument> {
       const product = await models.SubscriptionProduct.findByIdOrThrow(_id);
-      _.assign(product, input);
+      _.merge(product, input);
       await product.save();
       return product;
     }
