@@ -3,6 +3,8 @@ id: exm
 title: EXM
 ---
 
+## Employee Experience Management
+
 A well-functioning HR system is crucial for attracting, retaining and developing the right talent, and aligning employees with company goals and values. Clear communication and effective management of HR processes is essential for maintaining smooth operations and creating a positive work environment.
 
 At the same time employee retention is a major concern for companies, keeping employees engaged and committed by ensuring they understand the company’s vision, goals and getting regular updates on where the company is heading can help retain employees longer. 
