@@ -4,8 +4,8 @@ import { withProps } from '@erxes/ui/src/utils/core';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { queries, mutations } from '@erxes/ui/src/team/graphql';
-import { UnitsQueryResponse } from '@erxes/ui/src/team/types';
-import { EmptyState } from '@erxes/ui/src';
+import { UnitsMainQueryResponse } from '@erxes/ui/src/team/types';
+import { EmptyState, Spinner } from '@erxes/ui/src';
 import MainListCompoenent from '../../components/unit/MainList';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import client from '@erxes/ui/src/apolloClient';
@@ -15,7 +15,7 @@ type Props = {
 };
 
 type FinalProps = {
-  listQuery: UnitsQueryResponse;
+  listQuery: UnitsMainQueryResponse;
 } & Props;
 
 class MainList extends React.Component<FinalProps> {
@@ -25,6 +25,10 @@ class MainList extends React.Component<FinalProps> {
 
   render() {
     const { listQuery } = this.props;
+
+    if (listQuery.loading) {
+      return <Spinner />;
+    }
 
     if (listQuery.error) {
       return (
@@ -63,7 +67,7 @@ class MainList extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.units), {
+    graphql<Props>(gql(queries.unitsMain), {
       name: 'listQuery',
       options: ({ queryParams }) => ({
         variables: {
