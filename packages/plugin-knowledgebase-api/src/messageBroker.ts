@@ -54,7 +54,7 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.KnowledgeBaseCategories.find(query).lean()
+        data: await models.KnowledgeBaseCategories.findOne(query).lean()
       };
     }
   );
