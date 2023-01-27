@@ -1,4 +1,3 @@
-import { Actions, HeaderContent, TemplateBox } from './styles';
 import {
   Content,
   FilterContainer,
@@ -9,33 +8,30 @@ import {
   SitePreview,
   Tag
 } from '../sites/styles';
-import { ModalFooter, Title } from '@erxes/ui/src/styles/main';
-import React, { useState } from 'react';
 import { __, getEnv } from '@erxes/ui/src/utils/core';
 
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
 import { CATEGORIES } from '../../constants';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
+import { HeaderContent } from './styles';
 import { ITemplateDoc } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import React from 'react';
+import TemplateForm from '../../containers/templates/TemplateForm';
+import { Title } from '@erxes/ui/src/styles/main';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 
 type Props = {
   templates: ITemplateDoc[];
   templatesCount: number;
-  use: (_id: string, name: string) => void;
 };
 
 function List(props: Props) {
-  const [name, setName] = useState('');
-
-  const { templates, templatesCount, use } = props;
+  const { templates, templatesCount } = props;
 
   const renderDemoAction = (template: ITemplateDoc) => {
     const { REACT_APP_API_URL } = getEnv();
@@ -62,41 +58,14 @@ function List(props: Props) {
 
   const renderUseAction = template => {
     const trigger = <Button btnStyle="white">{__('Use')}</Button>;
+    const site = localStorage.getItem('webbuilderSiteId') || '';
 
     const content = ({ closeModal }) => (
-      <>
-        <FormGroup>
-          <ControlLabel required={true}>Your WebSite Name</ControlLabel>
-
-          <FormControl
-            name="name"
-            autoFocus={true}
-            defaultValue={name}
-            required={true}
-            onChange={(e: any) => setName(e.target.value)}
-          />
-        </FormGroup>
-
-        <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={closeModal}
-            icon="times-circle"
-            uppercase={false}
-          >
-            Cancel
-          </Button>
-
-          <Button
-            btnStyle="success"
-            icon="plus-circle"
-            onClick={() => use(template._id, name)}
-            uppercase={false}
-          >
-            Create
-          </Button>
-        </ModalFooter>
-      </>
+      <TemplateForm
+        closeModal={closeModal}
+        currentTemplateId={template._id}
+        selectedSite={site}
+      />
     );
 
     return (

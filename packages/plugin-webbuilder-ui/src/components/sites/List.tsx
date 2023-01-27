@@ -24,13 +24,29 @@ type Props = {
   queryParams: any;
 };
 
-class SiteList extends React.Component<Props, {}> {
+type State = {
+  currentSite: any;
+};
+
+class SiteList extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      currentSite: null
+    };
+  }
+
   showSite = (site: ISiteDoc) => {
     const { REACT_APP_API_URL } = getEnv();
 
     const url = `${REACT_APP_API_URL}/pl:webbuilder/${site.name}`;
 
     window.open(`${url}`, '_blank');
+  };
+
+  onEdit = (currentSite: ISiteDoc) => {
+    this.setState({ currentSite });
   };
 
   renderList(site: ISiteDoc) {
@@ -51,6 +67,13 @@ class SiteList extends React.Component<Props, {}> {
               icon="eye"
             >
               {__('View site')}
+            </Button>
+            <Button
+              btnStyle="white"
+              onClick={() => this.onEdit(site)}
+              icon="edit"
+            >
+              {__('Edit site')}
             </Button>
           </PreviewContent>
         </SitePreview>

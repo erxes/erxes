@@ -17,37 +17,19 @@ import { graphql } from 'react-apollo';
 
 type Props = {
   queryParams: any;
-  selectedSite: string;
 };
 
 type FinalProps = {
   templatesQuery: TemplatesQueryResponse;
   templatesCountQuery: TemplatesTotalCountQueryResponse;
-} & Props &
-  TemplatesUseMutationResponse;
+} & Props;
 
 function ListContainer(props: FinalProps) {
-  const { templatesQuery, templatesCountQuery, templatesUse } = props;
+  const { templatesQuery, templatesCountQuery } = props;
 
   if (templatesQuery.loading || templatesCountQuery.loading) {
     return <Spinner objective={true} />;
   }
-
-  const use = (_id: string, name: string) => {
-    templatesUse({ variables: { _id, name } })
-      .then(res => {
-        const {
-          data: { webbuilderTemplatesUse }
-        } = res;
-
-        Alert.success('Successfully created a website');
-
-        window.location.href = `/webbuilder/sites/edit/${webbuilderTemplatesUse}`;
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
 
   const templates = templatesQuery.webbuilderTemplates || [];
   const templatesCount = templatesCountQuery.webbuilderTemplatesTotalCount || 0;
@@ -55,29 +37,13 @@ function ListContainer(props: FinalProps) {
   const updatedProps = {
     ...props,
     templates,
-    templatesCount,
-    use
+    templatesCount
   };
 
   return <List {...updatedProps} />;
 }
 
 export default compose(
-  graphql<Props, TemplatesUseMutationResponse>(gql(mutations.templatesUse), {
-    name: 'templatesUse',
-    options: ({ selectedSite }) => ({
-      refetchQueries: [
-        { query: gql(queries.sites), variables: { fromSelect: true } },
-        { query: gql(queries.sitesTotalCount) },
-        {
-          query: gql(queries.contentTypes),
-          variables: {
-            siteId: selectedSite
-          }
-        }
-      ]
-    })
-  }),
   graphql<Props, TemplatesQueryResponse>(gql(queries.templates), {
     name: 'templatesQuery',
     options: ({ queryParams }) => ({
