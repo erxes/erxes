@@ -18,6 +18,7 @@ type Props = {
 type State = {
   topicsToShow: string[];
   selectedArticleIds: string[];
+  action: string;
 };
 
 class AssignArticles extends React.Component<Props, State> {
@@ -25,6 +26,7 @@ class AssignArticles extends React.Component<Props, State> {
     super(props);
 
     this.state = {
+      action: 'add',
       topicsToShow: [],
       selectedArticleIds: []
     };
@@ -33,18 +35,23 @@ class AssignArticles extends React.Component<Props, State> {
   save = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { selectedArticleIds } = this.state;
+    const { selectedArticleIds, action } = this.state;
     const { objects } = this.props;
 
     this.props.save({
       ids: objects.map(asset => asset._id),
       data: {
+        action,
         articleIds: selectedArticleIds
       },
       callback: () => {
         this.props.closeModal();
       }
     });
+  };
+
+  onChangeAction = e => {
+    this.setState({ action: e.currentTarget.value });
   };
 
   renderCategories(topic) {
@@ -123,6 +130,7 @@ class AssignArticles extends React.Component<Props, State> {
 
   render() {
     const { closeModal } = this.props;
+    const { action } = this.state;
 
     return (
       <form onSubmit={this.save}>
@@ -133,6 +141,11 @@ class AssignArticles extends React.Component<Props, State> {
         </Columns>
 
         <ModalFooter>
+          <select onChange={this.onChangeAction} value={action}>
+            <option value="add">Add</option>
+            <option value="subtract">Subtract</option>
+          </select>
+
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
             Cancel
           </Button>
