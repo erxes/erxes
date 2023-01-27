@@ -140,8 +140,8 @@ const messengerAppSave = `
 `;
 
 const removeAccount = `
-  mutation integrationsRemoveAccount($_id: String!) {
-    integrationsRemoveAccount(_id: $_id)
+  mutation integrationsRemoveAccount($_id: String!, $kind: String) {
+    integrationsRemoveAccount(_id: $_id, kind: $kind)
   }
 `;
 
@@ -160,8 +160,8 @@ const integrationsArchive = `
 `;
 
 const integrationsRepair = `
-  mutation integrationsRepair($_id: String!) {
-    integrationsRepair(_id: $_id) 
+  mutation integrationsRepair($_id: String!, $kind: String!) {
+    integrationsRepair(_id: $_id, kind: $kind) 
   }
 `;
 

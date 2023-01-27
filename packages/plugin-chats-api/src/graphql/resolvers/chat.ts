@@ -58,9 +58,33 @@ const Chat = {
       isRPC: true
     });
 
-    return users.map(user => ({
+    return users.map(async user => ({
       ...user,
-      isAdmin: (chat.adminIds || []).includes(user._id)
+      isAdmin: (chat.adminIds || []).includes(user._id),
+      departments:
+        users.length <= 2
+          ? await sendCoreMessage({
+              subdomain,
+              action: 'departments.find',
+              data: {
+                userIds: { $in: [user._id] || [] }
+              },
+              isRPC: true
+            })
+          : [],
+      branches:
+        users.length <= 2
+          ? await sendCoreMessage({
+              subdomain,
+              action: 'branches.find',
+              data: {
+                query: {
+                  userIds: { $in: [user._id] || [] }
+                }
+              },
+              isRPC: true
+            })
+          : []
     }));
   }
 };

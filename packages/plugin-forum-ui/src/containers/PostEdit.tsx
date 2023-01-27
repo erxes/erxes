@@ -16,6 +16,7 @@ const PATCH_POST = gql`
     $tagIds: [ID!]
     $pollOptions: [ForumPollOptionInput!]
     $isPollMultiChoice: Boolean
+    $pollEndDate: Date
   ) {
     forumPatchPost(
       _id: $id
@@ -27,6 +28,7 @@ const PATCH_POST = gql`
       tagIds: $tagIds
       pollOptions: $pollOptions
       isPollMultiChoice: $isPollMultiChoice
+      pollEndDate: $pollEndDate
     ) {
       _id
     }
@@ -63,8 +65,6 @@ const PostEdit: React.FC = () => {
         id: postId
       }
     });
-
-    console.log(variables);
   };
 
   console.log(data?.forumPost);

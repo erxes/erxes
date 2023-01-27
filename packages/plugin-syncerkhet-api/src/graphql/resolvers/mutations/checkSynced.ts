@@ -47,7 +47,11 @@ const checkSyncedMutations = {
 
   async toSyncDeals(
     _root,
-    { dealIds, configStageId }: { dealIds: string[]; configStageId: string },
+    {
+      dealIds,
+      configStageId,
+      dateType
+    }: { dealIds: string[]; configStageId: string; dateType: string },
     { subdomain }: IContext
   ) {
     const result: { skipped: string[]; error: string[]; success: string[] } = {
@@ -77,7 +81,8 @@ const checkSyncedMutations = {
         ...configs[syncedStageId],
         ...mainConfig
       };
-      const postData = await getPostData(subdomain, config, deal, false);
+
+      const postData = await getPostData(subdomain, config, deal, dateType);
 
       const response = await sendRPCMessage(
         'rpc_queue:erxes-automation-erkhet',

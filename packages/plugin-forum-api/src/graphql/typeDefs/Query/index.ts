@@ -80,6 +80,12 @@ const Query = `
 
     forumCpMySavedPosts(limit: Int, offset: Int): [ForumSavedPost!]
     forumCpMySavedPostsCount: Int
+
+
+    forumUserStatistics(_id: ID!): ForumUserStatistics
+
+    forumLastPublishedFollowingUsers(categoryId: ID, limit: Int, offset: Int): [ClientPortalUser]
+    forumMostPublishedUsers(categoryId: ID, limit: Int, offset: Int): [ClientPortalUser] @cacheControl(maxAge: 600)
   }
 `;
 

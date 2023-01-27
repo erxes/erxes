@@ -59,6 +59,11 @@ const crmPostMutations: IObjectTypeResolver<any, IContext> = {
   async forumPostRemoveTranslation(_, { _id, lang }, { models: { Post } }) {
     await Post.removeTranslation(_id, lang);
     return true;
+  },
+
+  async forumPostSetFeatured(_, { _id, featured }, { models: { Post } }) {
+    console.log({ _id, featured });
+    return Post.setFeaturedByAdmin(_id, featured);
   }
 };
 
@@ -106,6 +111,14 @@ const cpPostMutations: IObjectTypeResolver<any, IContext> = {
   ) {
     await Post.removeTranslation(_id, lang, true, cpUser);
     return true;
+  },
+
+  async forumPostSetFeaturedCp(
+    _,
+    { _id, featured },
+    { models: { Post }, cpUser }
+  ) {
+    return Post.setFeaturedByUser(_id, featured, cpUser);
   }
 };
 

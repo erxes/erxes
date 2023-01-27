@@ -17,7 +17,7 @@ type Props = {
   integrations: IIntegration[];
   removeIntegration: (integration: IIntegration, callback?: any) => void;
   archive: (id: string, status: boolean) => void;
-  repair: (id: string) => void;
+  repair: (id: string, kind: string) => void;
   kind?: string | null;
   editIntegration: (
     id: string,

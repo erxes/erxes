@@ -183,6 +183,11 @@ export const performFields = `
   dueDate
   endAt
   count
+  description
+  appendix
+  assignedUserIds
+  customerId
+  companyId
   inBranchId
   inDepartmentId
   outBranchId

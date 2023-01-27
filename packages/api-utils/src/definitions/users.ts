@@ -199,6 +199,11 @@ export const userSchema = schemaWrapper(
       label: 'Linked app id',
       optional: true
     }),
-    employeeId: field({ type: String, unique: true, optional: true })
+    employeeId: field({
+      type: String,
+      unique: true,
+      optional: true,
+      sparse: true
+    })
   })
 );

@@ -3,6 +3,8 @@ export type Plan = {
   status: string;
   type: string;
   value: number;
+  priceAdjustType: 'none' | 'round' | 'floor' | 'ceil' | 'endsWith9';
+  priceAdjustFactor: number;
   bonusProduct?: string;
   isPriority: boolean;
 
@@ -48,6 +50,14 @@ export type CommonRule = {
   discountType: string;
   discountValue: number;
   discountBonusProduct: string;
+  priceAdjustType:
+    | 'none'
+    | 'default'
+    | 'round'
+    | 'floor'
+    | 'ceil'
+    | 'endsWith9';
+  priceAdjustFactor: number;
 };
 
 export type RepeatValue = {

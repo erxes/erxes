@@ -91,7 +91,8 @@ const configMutations = {
       url: `${address}/pos-sync-config`,
       method: 'get',
       headers: { 'POS-TOKEN': config.token || '' },
-      body: { token, type }
+      body: { token, type },
+      timeout: 300000
     });
 
     if (!response) {

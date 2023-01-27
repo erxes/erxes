@@ -61,6 +61,9 @@ export const types = `
     configs: JSON
     configsConstants: [JSON]
     onboardingHistory: OnboardingHistory
+
+    department: Department
+
     departmentIds: [String]
     departments: [Department]
     branchIds: [String]

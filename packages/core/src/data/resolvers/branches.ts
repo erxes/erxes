@@ -33,5 +33,11 @@ export default {
 
     const userIds = branchUsers.map(user => user._id);
     return userIds;
+  },
+  async userCount(branch: IBranchDocument, _args, { models }: IContext) {
+    return await models.Users.countDocuments({
+      branchIds: { $in: branch._id },
+      isActive: true
+    });
   }
 };

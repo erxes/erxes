@@ -9,6 +9,7 @@ import { queries } from '../../graphql';
 import { BranchesQueryResponse, ReportsQueryResponse } from '../../types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { generateParams } from '../../utils';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 
 type Props = {
   history: any;
@@ -19,6 +20,7 @@ type Props = {
 
   getActionBar: (actionBar: any) => void;
   showSideBar: (sideBar: boolean) => void;
+  getPagination: (pagination: any) => void;
 };
 
 type FinalProps = {
@@ -27,7 +29,13 @@ type FinalProps = {
 } & Props;
 
 const ListContainer = (props: FinalProps) => {
-  const { listReportsQuery, queryParams, getActionBar, showSideBar } = props;
+  const {
+    listReportsQuery,
+    queryParams,
+    getActionBar,
+    showSideBar,
+    getPagination
+  } = props;
   const { branchId, deptId } = queryParams;
 
   if (listReportsQuery.loading) {
@@ -44,11 +52,16 @@ const ListContainer = (props: FinalProps) => {
     );
   };
 
+  const { list = [], totalCount = 0 } = listReportsQuery.timeclockReports;
+
+  getPagination(<Pagination count={totalCount} />);
+
   const updatedProps = {
     ...props,
     getActionBar,
     exportReport,
-    reports: listReportsQuery.timeclockReports || [],
+    reports: list,
+    totalCount,
     branchId,
     deptId
   };

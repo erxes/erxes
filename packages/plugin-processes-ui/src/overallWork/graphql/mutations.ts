@@ -8,6 +8,11 @@ const addParamDefs = `
   $dueDate: Date
   $endAt: Date
   $count: Float
+  $description: String
+  $appendix: String
+  $assignedUserIds: [String]
+  $customerId: String
+  $companyId: String
   $inBranchId: String
   $inDepartmentId: String
   $outBranchId: String
@@ -26,6 +31,11 @@ const addParams = `
   dueDate: $dueDate
   endAt: $endAt
   count: $count
+  description: $description
+  appendix: $appendix
+  assignedUserIds: $assignedUserIds
+  customerId: $customerId
+  companyId: $companyId
   inBranchId: $inBranchId
   inDepartmentId: $inDepartmentId
   outBranchId: $outBranchId

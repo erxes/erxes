@@ -4,8 +4,11 @@ import { ITimeClock } from './models/definitions/timeclock';
 import * as dayjs from 'dayjs';
 import { fixDate, getEnv } from '@erxes/api-utils/src';
 import { Sequelize, QueryTypes } from 'sequelize';
-import { findBranch, findDepartment } from './graphql/resolvers/utils';
-import report from './graphql/resolvers/report';
+import {
+  findBranch,
+  findBranches,
+  findDepartment
+} from './graphql/resolvers/utils';
 
 const findAllTeamMembersWithEmpId = async (subdomain: string) => {
   const users = await sendCoreMessage({
@@ -401,6 +404,7 @@ const generateCommonUserIds = async (
       }
     }
   }
+
   if (departmentIds) {
     for (const deptId of departmentIds) {
       const department = await findDepartment(subdomain, deptId);
@@ -424,9 +428,31 @@ const generateCommonUserIds = async (
   return totalUserIds;
 };
 
+const createTeamMembersObject = async (subdomain: string) => {
+  const teamMembersWithEmpId = await findAllTeamMembersWithEmpId(subdomain);
+
+  const teamMembersObject = {};
+
+  for (const teamMember of teamMembersWithEmpId) {
+    if (!teamMember.employeeId) {
+      continue;
+    }
+
+    teamMembersObject[teamMember._id] = {
+      employeeId: teamMember.employeeId,
+      firstName: teamMember.details.firstName,
+      lastName: teamMember.details.lastName,
+      position: teamMember.details.position
+    };
+  }
+
+  return teamMembersObject;
+};
+
 export {
   connectAndQueryFromMySql,
   generateFilter,
   generateCommonUserIds,
-  findAllTeamMembersWithEmpId
+  findAllTeamMembersWithEmpId,
+  createTeamMembersObject
 };

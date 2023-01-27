@@ -57,6 +57,8 @@ export interface IUserDoc {
   configs?: any;
   configsConstants?: any;
   score?: number;
+  branchIds: string[];
+  departmentIds: string[];
   employeeId?: string;
 }
 

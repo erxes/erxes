@@ -7,13 +7,13 @@ type Props = {
   report: IReport;
 };
 
-const ReportRow = (userReport: IUserReport, groupTitle: string) => {
+const ReportRow = (userReport: IUserReport) => {
   return (
     <tr key={Math.random()}>
       <td>{userReport.user.employeeId}</td>
       <td>{userReport.user.details?.lastName || '-'}</td>
       <td>{userReport.user.details?.firstName || '-'}</td>
-      <td>{groupTitle || '-'}</td>
+      <td>{'-'}</td>
       <td>{userReport.user.details?.position || '-'}</td>
       <td>{userReport.totalDaysScheduledThisMonth}</td>
       <td>{userReport.totalDaysWorkedThisMonth}</td>
@@ -25,11 +25,7 @@ const ReportRow = (userReport: IUserReport, groupTitle: string) => {
 const ReportList = (props: Props) => {
   const { report, displayType } = props;
   return (
-    <tbody>
-      {report.groupReport.map(userReport =>
-        ReportRow(userReport, report.groupTitle)
-      )}
-    </tbody>
+    <tbody>{report.groupReport.map(userReport => ReportRow(userReport))}</tbody>
   );
 };
 

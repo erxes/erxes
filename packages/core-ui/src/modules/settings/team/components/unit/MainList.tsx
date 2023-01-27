@@ -11,13 +11,14 @@ import {
   ModalTrigger,
   HeaderDescription
 } from '@erxes/ui/src';
-import { IUnit, UnitsQueryResponse } from '@erxes/ui/src/team/types';
+import { IUnit, UnitsMainQueryResponse } from '@erxes/ui/src/team/types';
 import React from 'react';
 import SettingsSideBar from '../common/SettingsSideBar';
 import Form from '../../containers/unit/Form';
+import { DescriptionContentRow } from '../common/DescriptionContentRow';
 
 type Props = {
-  listQuery: UnitsQueryResponse;
+  listQuery: UnitsMainQueryResponse;
   deleteUnits: (ids: string[], callback: () => void) => void;
   queryParams: any;
   history: any;
@@ -115,6 +116,7 @@ class MainList extends React.Component<Props, State> {
         <td>{__(unit.title)}</td>
         <td>{__(unit?.supervisor?.email)}</td>
         <td>{__(unit?.department?.title || '')}</td>
+        <td>{unit.userIds?.length || 0}</td>
       </tr>
     );
 
@@ -133,7 +135,7 @@ class MainList extends React.Component<Props, State> {
   renderContent() {
     const { listQuery } = this.props;
 
-    const units = listQuery.units || [];
+    const units = listQuery.unitsMain.list || [];
 
     const { selectedItems } = this.state;
 
@@ -161,6 +163,7 @@ class MainList extends React.Component<Props, State> {
             <th>{__('Title')}</th>
             <th>{__('Supervisor')}</th>
             <th>{__('Department')}</th>
+            <th>{__('Team member count')}</th>
           </tr>
         </thead>
         <tbody>{(units || []).map(unit => this.renderRow(unit))}</tbody>
@@ -169,6 +172,9 @@ class MainList extends React.Component<Props, State> {
   }
   render() {
     const { listQuery, deleteUnits } = this.props;
+
+    const { totalCount, totalUsersCount } = listQuery.unitsMain;
+
     const { selectedItems } = this.state;
 
     const remove = () => {
@@ -192,6 +198,11 @@ class MainList extends React.Component<Props, State> {
         title="Units"
         icon="/images/actions/21.svg"
         description=""
+        renderExtra={DescriptionContentRow({
+          label: 'units',
+          totalCount: totalCount,
+          teamMembersCount: totalUsersCount
+        })}
       />
     );
 
@@ -212,14 +223,14 @@ class MainList extends React.Component<Props, State> {
         content={
           <DataWithLoader
             loading={listQuery.loading}
-            count={listQuery.units?.length || 0}
+            count={totalCount}
             data={this.renderContent()}
             emptyImage="/images/actions/25.svg"
             emptyText="No Units"
           />
         }
         leftSidebar={<SettingsSideBar />}
-        footer={<Pagination count={listQuery.units?.length || 0} />}
+        footer={<Pagination count={totalCount} />}
       />
     );
   }

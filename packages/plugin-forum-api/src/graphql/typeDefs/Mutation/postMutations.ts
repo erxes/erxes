@@ -10,6 +10,7 @@ const commonPostParams = (isInsert = false) => {
     tagIds: [ID!]
     pollOptions: [ForumPollOptionInput!]
     isPollMultiChoice: Boolean
+    pollEndDate: Date
   `;
 };
 
@@ -71,6 +72,9 @@ const postMutations = `
     _id: ID!
     lang: ID!
   ): Boolean
+
+  forumPostSetFeatured(_id: ID!, featured: Boolean!): Boolean
+  forumPostSetFeaturedCp(_id: ID!, featured: Boolean!): Boolean
 
 `;
 

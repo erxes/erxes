@@ -90,6 +90,7 @@ export interface IDepartment extends IStructureCommon {
   parentId?: string | null;
   order: string;
   userIds: string[];
+  userCount: number;
   users: IUser;
 }
 
@@ -115,6 +116,7 @@ export interface IBranch extends IStructureCommon, IContactInfo {
   parent: IBranch;
   order: string;
   userIds: string[] | string;
+  userCount: number;
   users: IUser[];
   radius: number;
 }
@@ -139,6 +141,7 @@ export type DepartmentsMainQueryResponse = {
   departmentsMain: {
     list: IDepartment[];
     totalCount: number;
+    totalUsersCount: number;
   };
 } & QueryResponse;
 
@@ -146,6 +149,14 @@ export type BranchesMainQueryResponse = {
   branchesMain: {
     list: IDepartment[];
     totalCount: number;
+    totalUsersCount: number;
+  };
+} & QueryResponse;
+export type UnitsMainQueryResponse = {
+  unitsMain: {
+    list: IUnit[];
+    totalCount: number;
+    totalUsersCount: number;
   };
 } & QueryResponse;
 

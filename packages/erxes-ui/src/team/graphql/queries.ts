@@ -11,7 +11,6 @@ const commonStructureParamsDef = `
     $page: Int 
     $searchValue: String,
     $status:String,
-    $withoutUserFilter:Boolean
 `;
 
 const commonStructureParamsValue = `
@@ -19,7 +18,6 @@ const commonStructureParamsValue = `
     page: $page 
     searchValue:$searchValue
     status:$status
-    withoutUserFilter:$withoutUserFilter
 `;
 
 const allUsers = `
@@ -118,6 +116,7 @@ export const departmentField = `
       links
   }
   userIds
+  userCount
   users {
     _id
     details {
@@ -143,20 +142,21 @@ const contactInfoFields = `
 `;
 
 const departments = `
-  query departments(${commonStructureParamsDef}) {
-    departments(${commonStructureParamsValue}) {
+  query departments(${commonStructureParamsDef},$withoutUserFilter:Boolean) {
+    departments(${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter) {
       ${departmentField}
     }
   }
 `;
 
 const departmentsMain = `
-  query departmentsMain(${commonStructureParamsDef}) {
-    departmentsMain(${commonStructureParamsValue}) {
+  query departmentsMain(${commonStructureParamsDef},$withoutUserFilter:Boolean) {
+    departmentsMain(${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter) {
       list {
         ${departmentField}
       }
       totalCount
+      totalUsersCount
     }
   }
 `;
@@ -197,6 +197,17 @@ const unitField = `
   }
 `;
 
+const unitsMain = `
+  query unitsMain(${commonStructureParamsDef}) {
+    unitsMain(${commonStructureParamsValue}) {
+      list {
+        ${unitField}
+      }
+      totalCount
+      totalUsersCount
+    }
+  }
+`;
 const units = `
   query units ($searchValue:String) {
     units (searchValue:$searchValue) {
@@ -214,6 +225,7 @@ export const branchField = `
   code
   order
   userIds
+  userCount
   users {
     _id
     details {
@@ -226,8 +238,8 @@ export const branchField = `
 `;
 
 const branches = `
-  query branches(${commonStructureParamsDef}) {
-    branches (${commonStructureParamsValue}){
+  query branches(${commonStructureParamsDef},$withoutUserFilter:Boolean) {
+    branches (${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter){
       ${branchField}
         parent {${branchField}}
     }
@@ -235,13 +247,14 @@ const branches = `
 `;
 
 const branchesMain = `
-  query branchesMain(${commonStructureParamsDef}) {
-    branchesMain (${commonStructureParamsValue}){
+  query branchesMain(${commonStructureParamsDef},$withoutUserFilter:Boolean) {
+    branchesMain (${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter){
       list {
         ${branchField}
         parent {${branchField}}
       }
       totalCount
+      totalUsersCount
     }
   }
 `;
@@ -475,6 +488,7 @@ export default {
   departmentsMain,
   departmentDetail,
   units,
+  unitsMain,
   unitDetail,
   noDepartmentUsers,
   branches,

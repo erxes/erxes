@@ -8,6 +8,7 @@ import React from 'react';
 import { Sidebar, Wrapper } from '@erxes/ui/src/layout';
 import { __, router } from '@erxes/ui/src/utils';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import FormControl from '@erxes/ui/src/components/form/Control';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -24,6 +25,7 @@ interface State {
   stageChangedStartDate: Date;
   stageChangedEndDate: Date;
   userId: string;
+  dateType: string;
 }
 
 class CheckerSidebar extends React.Component<IProps, State> {
@@ -38,7 +40,8 @@ class CheckerSidebar extends React.Component<IProps, State> {
       stageId: queryParams.stageId,
       configStageId: queryParams.configStageId,
       stageChangedStartDate: queryParams.stageChangedStartDate,
-      stageChangedEndDate: queryParams.stageChangedEndDate
+      stageChangedEndDate: queryParams.stageChangedEndDate,
+      dateType: queryParams.dateType
     };
   }
 
@@ -63,7 +66,8 @@ class CheckerSidebar extends React.Component<IProps, State> {
       configStageId,
       userId,
       stageChangedStartDate,
-      stageChangedEndDate
+      stageChangedEndDate,
+      dateType
     } = this.state;
 
     router.setParams(this.props.history, {
@@ -74,7 +78,8 @@ class CheckerSidebar extends React.Component<IProps, State> {
       configStageId,
       userId,
       stageChangedStartDate,
-      stageChangedEndDate
+      stageChangedEndDate,
+      dateType
     });
   };
 
@@ -125,7 +130,14 @@ class CheckerSidebar extends React.Component<IProps, State> {
   }
 
   render() {
-    const { boardId, pipelineId, stageId, userId, configStageId } = this.state;
+    const {
+      boardId,
+      pipelineId,
+      stageId,
+      userId,
+      configStageId,
+      dateType
+    } = this.state;
 
     const onChangeBoard = (boardId: string) => {
       this.setState({ boardId });
@@ -145,6 +157,12 @@ class CheckerSidebar extends React.Component<IProps, State> {
 
     const onUserChange = userId => {
       this.setState({ userId });
+    };
+
+    const onChangeType = (e: React.FormEvent<HTMLElement>) => {
+      this.setState({
+        dateType: (e.currentTarget as HTMLInputElement).value
+      });
     };
 
     return (
@@ -179,21 +197,46 @@ class CheckerSidebar extends React.Component<IProps, State> {
             </FormGroup>
 
             {this.renderRange('stageChanged')}
+            <FormGroup>
+              <ControlLabel>Choose Get Config Stage</ControlLabel>
+              <BoardSelectContainer
+                type="deal"
+                autoSelectStage={false}
+                boardId={boardId || ''}
+                pipelineId={pipelineId || ''}
+                stageId={configStageId || stageId || ''}
+                onChangeBoard={onChangeBoard}
+                onChangePipeline={onChangePipeline}
+                onChangeStage={onChangeConfigStage}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Date type</ControlLabel>
+              <FormControl
+                componentClass="select"
+                value={dateType}
+                name="dateType"
+                onChange={onChangeType}
+              >
+                <option value={''}>Now</option>
+                <option value={'lastMove'}>Last move at</option>
+                <option value={'created'}>Created At</option>
+                <option value={'closeOrCreated'}>
+                  Close date or created at
+                </option>
+                <option value={'closeOrMove'}>
+                  Close date or last move at
+                </option>
+                <option value={'firstOrMove'}>
+                  First synced or last move at
+                </option>
+                <option value={'firstOrCreated'}>
+                  First synced or created at
+                </option>
+              </FormControl>
+            </FormGroup>
           </Section>
 
-          <FormGroup>
-            <ControlLabel>Choose Get Config Stage</ControlLabel>
-            <BoardSelectContainer
-              type="deal"
-              autoSelectStage={false}
-              boardId={boardId || ''}
-              pipelineId={pipelineId || ''}
-              stageId={configStageId || stageId || ''}
-              onChangeBoard={onChangeBoard}
-              onChangePipeline={onChangePipeline}
-              onChangeStage={onChangeConfigStage}
-            />
-          </FormGroup>
           <Button onClick={this.onFilter}>Filter</Button>
         </Sidebar>
       </Wrapper.Sidebar>

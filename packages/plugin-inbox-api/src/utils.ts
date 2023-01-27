@@ -2,14 +2,15 @@ import { serviceDiscovery } from './configs';
 
 export const getIntegrationMeta = async () => {
   const serviceNames = await serviceDiscovery.getServices();
-  const metas: any = [];
+  let metas: any = [];
 
   for (const serviceName of serviceNames) {
     const service = await serviceDiscovery.getService(serviceName, true);
-    const inboxIntegration = (service.config.meta || {}).inboxIntegration;
+    const inboxIntegrations =
+      (service.config.meta || {}).inboxIntegrations || [];
 
-    if (inboxIntegration) {
-      metas.push(inboxIntegration);
+    if (inboxIntegrations && inboxIntegrations.length > 0) {
+      metas = metas.concat(inboxIntegrations);
     }
   }
 
@@ -24,8 +25,6 @@ export const getIntegrationsKinds = async () => {
     lead: 'Popups & forms',
     webhook: 'Webhook',
     booking: 'Booking',
-    'facebook-post': 'Facebook post',
-    'facebook-messenger': 'Facebook messenger',
     callpro: 'Callpro'
   };
 
@@ -34,4 +33,15 @@ export const getIntegrationsKinds = async () => {
   }
 
   return response;
+};
+
+export const isServiceRunning = async (
+  integrationKind: string
+): Promise<boolean> => {
+  const serviceNames = await serviceDiscovery.getServices();
+
+  // some kinds are separated by -
+  return (
+    integrationKind && serviceNames.includes(integrationKind.split('-')[0])
+  );
 };

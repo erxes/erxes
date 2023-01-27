@@ -76,27 +76,6 @@ class IntegrationConfigs extends React.Component<Props, State> {
 
     return (
       <ContentBox id={'IntegrationSettingsMenu'}>
-        <CollapseContent title="Facebook">
-          <Info>
-            <a
-              target="_blank"
-              href="https://docs.erxes.io/docs/user-guide/xos/system-configuration#facebook"
-              rel="noopener noreferrer"
-            >
-              {__('Learn how to set Facebook Integration Variables')}
-            </a>
-          </Info>
-          {this.renderItem('FACEBOOK_APP_ID')}
-          {this.renderItem('FACEBOOK_APP_SECRET')}
-          {this.renderItem('FACEBOOK_VERIFY_TOKEN')}
-          {this.renderItem(
-            'FACEBOOK_PERMISSIONS',
-            '',
-            '',
-            'pages_messaging,pages_manage_ads,pages_manage_engagement,pages_manage_metadata,pages_read_user_content'
-          )}
-        </CollapseContent>
-
         <CollapseContent title="Twitter">
           <Info>
             <a
@@ -240,7 +219,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           />
         }
         content={this.renderContent()}
-        hasBorder
+        hasBorder={true}
       />
     );
   }

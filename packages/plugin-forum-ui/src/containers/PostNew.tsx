@@ -15,6 +15,7 @@ const MUTATION = gql`
     $tagIds: [ID!]
     $pollOptions: [ForumPollOptionInput!]
     $isPollMultiChoice: Boolean
+    $pollEndDate: Date
   ) {
     forumCreatePost(
       categoryId: $categoryId
@@ -25,6 +26,7 @@ const MUTATION = gql`
       tagIds: $tagIds
       pollOptions: $pollOptions
       isPollMultiChoice: $isPollMultiChoice
+      pollEndDate: $pollEndDate
     ) {
       _id
     }
