@@ -1,3 +1,4 @@
+import { ICompany } from '@erxes/ui-contacts/src/companies/types';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 
@@ -24,6 +25,7 @@ export interface IBuilding {
   center: any;
   customerIds: string[];
   customers: ICustomer[];
+  companies: ICompany[];
   description: string;
   osmbId: string;
   quarterId: string;

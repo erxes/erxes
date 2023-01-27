@@ -121,7 +121,7 @@ export class RenderDynamicComponent extends React.Component<
 }
 
 export const renderFullName = data => {
-  if (data.firstName || data.lastName || data.middleName || data.primaryPhone || data.primaryName) {
+  if (data.firstName || data.lastName || data.middleName || data.primaryPhone) {
     return (
       (data.firstName || '') +
       ' ' +

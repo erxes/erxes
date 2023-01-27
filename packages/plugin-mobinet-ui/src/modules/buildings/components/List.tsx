@@ -89,7 +89,12 @@ const List = (props: Props) => {
   const renderRow = () => {
     const { buildings } = props;
     return buildings.map(building => (
-      <Row key={building._id} building={building} remove={remove} />
+      <Row
+        key={building._id}
+        building={building}
+        remove={remove}
+        history={props.history}
+      />
     ));
   };
 

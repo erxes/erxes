@@ -39,11 +39,16 @@ const detailQuery = `
 query BuildingDetail($_id: String!) {
     buildingDetail(_id: $_id) {
         ${commonfields}
-        customerIds
         customers {
           _id
           firstName
           lastName
+          primaryEmail
+          primaryPhone
+        }
+        companies {
+          _id
+          primaryName
           primaryEmail
           primaryPhone
         }

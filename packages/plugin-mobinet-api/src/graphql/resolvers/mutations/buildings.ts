@@ -25,7 +25,26 @@ const mutations = {
   ) => {
     const building = await models.Buildings.getBuilding({ _id });
 
-    const buildingToContact = customerIds.map(customerId => ({
+    const existingCustomerIds = await models.BuildingToContacts.find({
+      buildingId: building._id,
+      contactType: 'customer'
+    }).distinct('contactId');
+
+    const newCustomerIds = customerIds.filter(
+      customerId => !existingCustomerIds.includes(customerId)
+    );
+
+    const removedCustomerIds = existingCustomerIds.filter(
+      customerId => !customerIds.includes(customerId)
+    );
+
+    await models.BuildingToContacts.deleteMany({
+      buildingId: building._id,
+      contactId: { $in: removedCustomerIds },
+      contactType: 'customer'
+    });
+
+    const buildingToContact = newCustomerIds.map(customerId => ({
       buildingId: building._id,
       contactId: customerId,
       contactType: 'customer'
@@ -59,7 +78,26 @@ const mutations = {
   ) => {
     const building = await models.Buildings.getBuilding({ _id });
 
-    const buildingToContact = companyIds.map(companyId => ({
+    const existingCompanyIds = await models.BuildingToContacts.find({
+      buildingId: building._id,
+      contactType: 'company'
+    }).distinct('contactId');
+
+    const newCompanyIds = companyIds.filter(
+      companyId => !existingCompanyIds.includes(companyId)
+    );
+
+    const removedCompanyIds = existingCompanyIds.filter(
+      companyId => !companyIds.includes(companyId)
+    );
+
+    await models.BuildingToContacts.deleteMany({
+      buildingId: building._id,
+      contactId: { $in: removedCompanyIds },
+      contactType: 'company'
+    });
+
+    const buildingToContact = newCompanyIds.map(companyId => ({
       buildingId: building._id,
       contactId: companyId,
       contactType: 'company'

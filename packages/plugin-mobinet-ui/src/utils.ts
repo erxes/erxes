@@ -39,3 +39,26 @@ export const getBuildingColor = (serviceStatus: string) => {
       return '#ff0000';
   }
 };
+
+export const renderCompanyName = data => {
+  if (data.primaryName || data.primaryPhone || data.primaryEmail) {
+    console.log('data.primaryName', data.primaryName);
+    return (
+      (data.primaryName || '') +
+      ' ' +
+      (data.primaryEmail || '') +
+      ' ' +
+      (data.primaryPhone || '')
+    );
+  }
+
+  if (data.primaryEmail || data.primaryPhone) {
+    return data.primaryEmail || data.primaryPhone;
+  }
+
+  if (data.emails && data.emails.length > 0) {
+    return data.emails[0] || 'Unknown';
+  }
+
+  return 'Unknown';
+};

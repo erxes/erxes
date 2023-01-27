@@ -10,6 +10,7 @@ import BuildingForm from '../containers/Form';
 import { IBuilding } from '../types';
 
 type Props = {
+  history: any;
   building: IBuilding;
   remove: (buildingId: string) => void;
 };
@@ -29,6 +30,21 @@ const Row = (props: Props) => {
           btnStyle="link"
           onClick={onClick}
           icon="times-circle"
+        />
+      </Tip>
+    );
+  };
+
+  const renderEditAction = () => {
+    return (
+      <Tip text={__('Edit')} placement="top">
+        <Button
+          id="buildingEdit"
+          btnStyle="link"
+          icon="edit"
+          onClick={() => {
+            props.history.push(`/mobinet/building/details/${building._id}`);
+          }}
         />
       </Tip>
     );
@@ -98,12 +114,7 @@ const Row = (props: Props) => {
 
       <td>
         <ActionButtons>
-          <ModalTrigger
-            title={'Edit building'}
-            trigger={<Button btnStyle="link" icon="edit-3" />}
-            content={formContent}
-            size={'lg'}
-          />
+          {renderEditAction()}
           {renderRemoveAction()}
         </ActionButtons>
       </td>

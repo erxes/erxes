@@ -10,6 +10,7 @@ import { ButtonRelated } from '@erxes/ui/src/styles/main';
 import { renderFullName } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { renderCompanyName } from '../../../../../utils';
 
 import ContactChooser from '../../../containers/ContactChooser';
 import { IBuilding } from '../../../types';
@@ -17,19 +18,20 @@ import { IBuilding } from '../../../types';
 type Props = {
   building: IBuilding;
   collapseCallback?: () => void;
-  onSelectCustomers: (datas: any) => void;
+  onSelectCompanies: (datas: any) => void;
 };
 
-const CustomerSection = (props: Props) => {
-  const { building, collapseCallback, onSelectCustomers } = props;
-  const { customers } = building;
+const CompanySection = (props: Props) => {
+  const { building, collapseCallback, onSelectCompanies } = props;
+  const { companies } = building;
   const renderCustomerChooser = props => {
     return (
       <ContactChooser
         {...props}
-        onSelect={onSelectCustomers}
+        onSelect={onSelectCompanies}
         building={building}
-        contacts={customers}
+        contacts={companies}
+        contactType="companies"
       />
     );
   };
@@ -38,9 +40,9 @@ const CustomerSection = (props: Props) => {
     return (
       <ContactChooser
         {...props}
-        contactType="customer"
+        contactType="companies"
         data={{
-          name: 'Related customers',
+          name: 'Related companies',
           customers: [],
           isRelated: true
         }}
@@ -56,13 +58,13 @@ const CustomerSection = (props: Props) => {
 
   const relCustomerTrigger = (
     <ButtonRelated>
-      <span>{__('See related customers..')}</span>
+      <span>{__('See related companies..')}</span>
     </ButtonRelated>
   );
 
   const quickButtons = (
     <ModalTrigger
-      title="Add customer"
+      title="Add company"
       trigger={customerTrigger}
       size="lg"
       content={renderCustomerChooser}
@@ -71,7 +73,7 @@ const CustomerSection = (props: Props) => {
 
   const relQuickButtons = (
     <ModalTrigger
-      title="Add related customer"
+      title="Add related company"
       trigger={relCustomerTrigger}
       size="lg"
       content={renderRelatedCustomerChooser}
@@ -80,15 +82,15 @@ const CustomerSection = (props: Props) => {
 
   const content = (
     <>
-      {customers.map((customer, index) => (
+      {companies.map((company, index) => (
         <SectionBodyItem key={index}>
-          <Link to={`/contacts/details/${customer._id}`}>
-            <span>{renderFullName(customer)}</span>
+          <Link to={`/companies/details/${company._id}`}>
+            <span>{renderCompanyName(company)}</span>
           </Link>
         </SectionBodyItem>
       ))}
-      {customers.length === 0 && (
-        <EmptyState icon="building" text="No customers" />
+      {companies.length === 0 && (
+        <EmptyState icon="building" text="No companies" />
       )}
       {relQuickButtons}
     </>
@@ -96,8 +98,8 @@ const CustomerSection = (props: Props) => {
 
   return (
     <Box
-      title={__('Customers')}
-      name="showCustomers"
+      title={__('Companies')}
+      name="showCompanies"
       extraButtons={quickButtons}
       isOpen={true}
       callback={collapseCallback}
@@ -107,4 +109,4 @@ const CustomerSection = (props: Props) => {
   );
 };
 
-export default CustomerSection;
+export default CompanySection;

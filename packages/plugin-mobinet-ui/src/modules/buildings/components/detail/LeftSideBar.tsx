@@ -2,7 +2,7 @@ import { Sidebar } from '@erxes/ui/src';
 import React from 'react';
 
 import { IBuilding } from '../../types';
-import InfoSection from './sections/InfoSection';
+import AddressSection from './sections/AddressSection';
 
 type Props = {
   building: IBuilding;
@@ -14,7 +14,7 @@ export default class LeftSidebar extends React.Component<Props> {
 
     return (
       <Sidebar wide={true}>
-        <InfoSection building={this.props.building} />
+        <AddressSection building={this.props.building} />
       </Sidebar>
     );
   }

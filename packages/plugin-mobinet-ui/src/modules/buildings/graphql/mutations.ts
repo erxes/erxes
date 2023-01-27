@@ -46,8 +46,26 @@ mutation BuildingsRemove($_ids: [String]) {
 }
 `;
 
+const buildingsAddCustomersMutation = `
+mutation BuildingsAddCustomers($_id: String!, $customerIds: [String]) {
+  buildingsAddCustomers(_id: $_id, customerIds: $customerIds) {
+    _id
+  }
+}
+`;
+
+const buildingsAddCompaniesMutation = `
+mutation BuildingsAddCompanies($_id: String!, $companyIds: [String]) {
+  buildingsAddCompanies(_id: $_id, companyIds: $companyIds) {
+    _id
+  }
+}
+`;
+
 export default {
   addMutation,
   editMutation,
-  removeMutation
+  removeMutation,
+  buildingsAddCustomersMutation,
+  buildingsAddCompaniesMutation
 };
