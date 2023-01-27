@@ -104,10 +104,8 @@ const CartesianChart = ({
   children,
   ChartComponent,
   height,
-  dateType,
-  measureType
+  dateType
 }) => {
-  console.log(resultSet.chartPivot());
   return (
     <ResponsiveContainer width="100%" height={height}>
       <ChartComponent margin={{ left: -10 }} data={resultSet.chartPivot()}>
@@ -132,13 +130,12 @@ const CartesianChart = ({
 };
 
 const TypeToChartComponent = {
-  line: ({ resultSet, height, dateType, measureType }) => (
+  line: ({ resultSet, height, dateType }) => (
     <CartesianChart
       resultSet={resultSet}
       height={height}
       ChartComponent={LineChart}
       dateType={dateType}
-      measureType={measureType}
     >
       {resultSet.seriesNames().map((series, i) => (
         <Line
@@ -151,14 +148,13 @@ const TypeToChartComponent = {
     </CartesianChart>
   ),
 
-  bar: ({ resultSet, height, dateType, measureType }) => {
+  bar: ({ resultSet, height, dateType }) => {
     return (
       <CartesianChart
         resultSet={resultSet}
         height={height}
         ChartComponent={BarChart}
         dateType={dateType}
-        measureType={measureType}
       >
         {resultSet.seriesNames().map((series, i) => (
           <Bar
@@ -172,14 +168,13 @@ const TypeToChartComponent = {
       </CartesianChart>
     );
   },
-  area: ({ resultSet, height, dateType, measureType }) => {
+  area: ({ resultSet, height, dateType }) => {
     return (
       <CartesianChart
         resultSet={resultSet}
         height={height}
         dateType={dateType}
         ChartComponent={AreaChart}
-        measureType={measureType}
       >
         {resultSet.seriesNames().map((series, i) => (
           <Area
@@ -304,21 +299,10 @@ const TypeToMemoChartComponent = Object.keys(TypeToChartComponent)
   }))
   .reduce((a, b) => ({ ...a, ...b }));
 
-const renderChart = Component => ({
-  resultSet,
-  dateType,
-  error,
-  height,
-  measureType
-}) => {
+const renderChart = Component => ({ resultSet, dateType, error, height }) => {
   return (
     (resultSet && (
-      <Component
-        height={height}
-        resultSet={resultSet}
-        dateType={dateType}
-        measureType={measureType}
-      />
+      <Component height={height} resultSet={resultSet} dateType={dateType} />
     )) ||
     (error && error.toString()) || (
       <EmptyContent>
@@ -359,8 +343,6 @@ const ChartRenderer = (props: Props) => {
       dateType = timeDimensions[0].granularity;
     }
 
-    const measureType = measures[0];
-
     resultSet.seriesNames().map(s => {
       result = resultSet.totalRow();
 
@@ -380,8 +362,7 @@ const ChartRenderer = (props: Props) => {
     return renderChart(component)({
       height: chartHeight,
       ...renderProps,
-      dateType,
-      measureType
+      dateType
     });
   }
 
