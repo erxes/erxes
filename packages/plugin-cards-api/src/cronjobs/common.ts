@@ -6,7 +6,7 @@ import { sendCoreMessage, sendNotificationsMessage } from '../messageBroker';
  * Send notification Deals, Tasks and Tickets dueDate
  */
 export const sendNotifications = async (subdomain: string) => {
-  const models = await generateModels(subdomain)
+  const models = await generateModels(subdomain);
 
   const now = new Date();
   const collections = {
@@ -28,7 +28,9 @@ export const sendNotifications = async (subdomain: string) => {
 
     for (const object of objects) {
       const stage = await models.Stages.getStage(object.stageId || '');
-      const pipeline = await models.Pipelines.getPipeline(stage.pipelineId || '');
+      const pipeline = await models.Pipelines.getPipeline(
+        stage.pipelineId || ''
+      );
 
       const user = await sendCoreMessage({
         subdomain,
@@ -39,7 +41,6 @@ export const sendNotifications = async (subdomain: string) => {
         isRPC: true
       });
 
-
       if (!user) {
         return;
       }
@@ -47,7 +48,6 @@ export const sendNotifications = async (subdomain: string) => {
       const diffMinute = Math.floor(
         (object.closeDate.getTime() - now.getTime()) / 60000
       );
-
 
       if (Math.abs(diffMinute - (object.reminderMinute || 0)) < 5) {
         const content = `${object.name} ${type} is due in upcoming`;
@@ -74,22 +74,7 @@ export const sendNotifications = async (subdomain: string) => {
 };
 
 export default {
-  sendNotifications
+  handle10MinutelyJob: async ({ subdomain }) => {
+    await sendNotifications(subdomain);
+  }
 };
-
-/**
- * *    *    *    *    *    *
- * ┬    ┬    ┬    ┬    ┬    ┬
- * │    │    │    │    │    |
- * │    │    │    │    │    └ day of week (0 - 7) (0 or 7 is Sun)
- * │    │    │    │    └───── month (1 - 12)
- * │    │    │    └────────── day of month (1 - 31)
- * │    │    └─────────────── hour (0 - 23)
- * │    └──────────────────── minute (0 - 59)
- * └───────────────────────── second (0 - 59, OPTIONAL)
- */
-
-// // every 5 minutes
-// schedule.scheduleJob('*/5 * * * *', () => {
-//   sendNotifications();
-// });
