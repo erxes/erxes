@@ -2,6 +2,8 @@ import { authCookieOptions, getEnv } from '@erxes/api-utils/src/core';
 
 import { createJwtToken } from '../../../auth/authUtils';
 import { IContext } from '../../../connectionResolver';
+import { MODULE_NAMES } from '../../../constants';
+import { putCreateLog, putUpdateLog, putDeleteLog } from '../../../logUtils';
 import { sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
 import { IUser } from '../../../models/definitions/clientPortalUser';
@@ -54,6 +56,21 @@ const clientPortalUserMutations = {
       _id,
       doc
     );
+    const user = await models.ClientPortalUsers.findOne({
+      _id: updated._id
+    });
+
+    await putUpdateLog(
+      models,
+      subdomain,
+      {
+        type: MODULE_NAMES.CUSTOMER,
+        object: user,
+        newData: doc,
+        updatedDocument: updated
+      },
+      user
+    );
 
     return updated;
   },
@@ -65,11 +82,24 @@ const clientPortalUserMutations = {
   async clientPortalUsersRemove(
     _root,
     { clientPortalUserIds }: { clientPortalUserIds: string[] },
-    { models }: IContext
+    { cpUser, models, subdomain }: IContext
   ) {
     const response = await models.ClientPortalUsers.removeUser(
       clientPortalUserIds
     );
+
+    const customers = await models.ClientPortalUsers.find({
+      _id: { $in: clientPortalUserIds }
+    });
+
+    for (const customer of customers) {
+      await putDeleteLog(
+        models,
+        subdomain,
+        { type: MODULE_NAMES.CUSTOMER, object: customer },
+        cpUser
+      );
+    }
 
     return response;
   },
@@ -282,10 +312,34 @@ const clientPortalUserMutations = {
   },
 
   clientPortalUsersInvite: async (_root, args: IUser, context: IContext) => {
-    const { models, subdomain } = context;
+    const { models, subdomain, docModifier } = context;
+
+    const modifiedDoc = docModifier(args);
 
     const user = await models.ClientPortalUsers.invite(subdomain, {
       ...args
+    });
+
+    await putCreateLog(
+      models,
+      subdomain,
+      {
+        type: MODULE_NAMES.CUSTOMER,
+        newData: modifiedDoc,
+        object: user
+      },
+      user
+    );
+
+    const userState = 'customer';
+
+    sendCoreMessage({
+      subdomain,
+      action: 'registerOnboardHistory',
+      data: {
+        type: `${userState}Create`,
+        user
+      }
     });
 
     return user;

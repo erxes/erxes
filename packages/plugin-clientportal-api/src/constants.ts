@@ -1,3 +1,4 @@
+import { clientPortalUserSchema } from './models/definitions/clientPortalUser';
 export const CLIENTPORTALUSER_BASIC_INFO = {
   avatar: 'Avatar',
   firstName: 'firstName',
@@ -57,3 +58,14 @@ export const CLIENTPORTALUSER_BASIC_INFO = {
     { field: 'isEmailVerified', label: 'isEmailVerified', canHide: true }
   ]
 };
+
+export const MODULE_NAMES = {
+  CUSTOMER: 'customer'
+};
+
+export const LOG_MAPPINGS = [
+  {
+    name: MODULE_NAMES.CUSTOMER,
+    schemas: [clientPortalUserSchema]
+  }
+];

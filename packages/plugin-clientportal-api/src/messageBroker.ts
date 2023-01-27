@@ -2,7 +2,7 @@ import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { afterMutationHandlers } from './afterMutations';
 
 import { serviceDiscovery } from './configs';
-import { generateModels, IModels } from './connectionResolver';
+import { generateModels } from './connectionResolver';
 import { sendNotification } from './utils';
 
 let client;
@@ -77,9 +77,13 @@ export const initBroker = async cl => {
   });
 
   consumeQueue('clientportal:afterMutation', async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
-
-    return afterMutationHandlers(models, subdomain, data);
+    try {
+      const models = await generateModels(subdomain);
+      await afterMutationHandlers(models, subdomain, data);
+      return;
+    } catch (e) {
+      console.log('Error in after mutation handler', e);
+    }
   });
 };
 
