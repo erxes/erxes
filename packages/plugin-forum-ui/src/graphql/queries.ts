@@ -10,6 +10,7 @@ const categoriesAll = `
     forumCategories {
       _id
       name
+      parentId
     }
   }
 `;

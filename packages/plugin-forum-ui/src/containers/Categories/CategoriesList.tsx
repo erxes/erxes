@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
-import LayoutCategories from '../../components/LayoutCategories';
+import CategoriesList from '../../components/categories/CategoriesList';
 import { mutations, queries } from '../../graphql';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
@@ -58,7 +58,7 @@ export default function CategoriesNav() {
   };
 
   return (
-    <LayoutCategories
+    <CategoriesList
       renderButton={renderButton}
       forumCategories={forumCategories}
     />

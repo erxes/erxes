@@ -5,6 +5,8 @@ import { queries } from '../../graphql';
 import gql from 'graphql-tag';
 import { Link } from 'react-router-dom';
 import { postUsername } from '../../utils';
+import PostsList from '../../components/posts/PostsList';
+import queryString from 'query-string';
 
 const List: React.FC = () => {
   const [categoryId] = useSearchParam('categoryId');
@@ -12,6 +14,8 @@ const List: React.FC = () => {
   const [categoryIncludeDescendants] = useSearchParam(
     'categoryIncludeDescendants'
   );
+
+  const queryParams = queryString.parse(location.search);
 
   const [categoryApprovalState] = useSearchParam('categoryApprovalState');
 
@@ -43,71 +47,7 @@ const List: React.FC = () => {
     return <pre>{JSON.stringify(postQuery.error, null, 2)}</pre>;
   }
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <h5>Total: {countQuery.data?.forumPostsCount || 0}</h5>
-      </div>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>State</th>
-            <th>State changed at</th>
-            <th>State changed by</th>
-            <th>Created At</th>
-            <th>Created By</th>
-            <th>Updated At</th>
-            <th>Updated By</th>
-            <th>Comment(s) count</th>
-            <th>Up vote count</th>
-            <th>Down vote count</th>
-            <th>View count</th>
-          </tr>
-        </thead>
-        <tbody>
-          {postQuery.data.forumPosts.map(p => (
-            <tr key={p._id}>
-              <td>
-                <Link to={`/forums/posts/${p._id}`}>{p.title}</Link>
-              </td>
-              <td>{p.state}</td>
-              <td>{p.stateChangedAt}</td>
-              <td>
-                {postUsername({
-                  post: p,
-                  typeKey: 'stateChangedUserType',
-                  crmKey: 'stateChangedBy',
-                  cpKey: 'stateChangedByCp'
-                })}
-              </td>
-              <td>{p.createdAt}</td>
-              <td>
-                {postUsername({
-                  post: p,
-                  typeKey: 'createdUserType',
-                  crmKey: 'createdBy',
-                  cpKey: 'createdByCp'
-                })}
-              </td>
-              <td>{p.updatedAt}</td>
-              <td>
-                {postUsername({
-                  post: p,
-                  typeKey: 'updatedUserType',
-                  crmKey: 'updatedBy',
-                  cpKey: 'updatedByCp'
-                })}
-              </td>
-              <td style={{ textAlign: 'right' }}>{p.commentCount}</td>
-              <td style={{ textAlign: 'right' }}>{p.upVoteCount}</td>
-              <td style={{ textAlign: 'right' }}>{p.downVoteCount}</td>
-              <td style={{ textAlign: 'right' }}>{p.viewCount}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <PostsList queryParams={queryParams} posts={postQuery.data.forumPosts} />
   );
 };
 

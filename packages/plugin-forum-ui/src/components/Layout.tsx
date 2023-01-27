@@ -1,6 +1,6 @@
 import React from 'react';
 import { Switch, Route, useRouteMatch } from 'react-router-dom';
-import PostsList from '../containers/PostsList';
+// import PostsList from '../containers/PostsList';
 import PostDetail from '../containers/PostDetail';
 import PostNew from '../containers/PostNew';
 import PostEdit from '../containers/PostEdit';
@@ -16,10 +16,9 @@ import PageDetail from '../containers/Pages/Detail';
 import PageEdit from '../containers/Pages/Edit';
 import SubscriptionProductEdit from '../containers/SubscriptionProduct/Edit';
 import CategoriesList from '../containers/Categories/CategoriesList';
+import List from '../containers/PostsList/List';
 
 function Layout() {
-  const { path, url } = useRouteMatch();
-
   return (
     <Switch>
       <Route exact={true} path={'/forums'}>
@@ -42,7 +41,7 @@ function Layout() {
       </Route>
 
       <Route path={`/forums/posts`}>
-        <PostsList />
+        <List />
       </Route>
 
       <Route exact={true} path={'/forums/permission-groups'}>
