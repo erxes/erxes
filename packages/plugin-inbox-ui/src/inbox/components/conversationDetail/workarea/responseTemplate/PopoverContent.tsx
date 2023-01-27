@@ -85,14 +85,14 @@ class PopoverContent extends React.Component<Props, State> {
     const { responseTemplates } = this.props;
     const { searchValue, brandId } = this.state;
 
-    const filteredTargets1 =
+    const filteredByBrandIdTargets =
       brandId === ''
         ? responseTemplates
         : this.filterByBrandId(responseTemplates, brandId);
     const filteredTargets =
       searchValue === ''
-        ? filteredTargets1
-        : this.filterByValue(filteredTargets1, searchValue);
+        ? filteredByBrandIdTargets
+        : this.filterByValue(filteredByBrandIdTargets, searchValue);
 
     if (filteredTargets.length === 0) {
       return <EmptyState icon="clipboard-1" text="No templates" />;
