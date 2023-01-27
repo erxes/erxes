@@ -16,7 +16,7 @@ erxes EXM (Employee Experience Management) system designed to make the HR activi
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/HR+database.png" width="80%" alt="HR Database" ></img>
 </div>
 
-✷ This is a comprehensive and centralized system designed to efficiently manage and organize all human resource information within an organization. This system is designed to streamline HR processes by consolidating employee information such as 
+⭐ This is a comprehensive and centralized system designed to efficiently manage and organize all human resource information within an organization. This system is designed to streamline HR processes by consolidating employee information such as 
 
 - contact details, 
 - employment agreements, 
@@ -40,7 +40,7 @@ A “Knowledge” plugin offers new employees easy access to company information
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/Templates+of+documentation.png" width="80%" alt="Template of HR documentation" ></img>
 </div>
 
-✷ The pre-made templates will simplify the document generation process where  once key information is input into the template, the EXM system facilitates the automatic generation of various HR documents, such as employment agreements and statements of work. This automation not only eliminates the potential for manual errors, but also saves valuable time for HR professionals.
+⭐ The pre-made templates will simplify the document generation process where  once key information is input into the template, the EXM system facilitates the automatic generation of various HR documents, such as employment agreements and statements of work. This automation not only eliminates the potential for manual errors, but also saves valuable time for HR professionals.
 
 ### Fully customizable recruitment pipeline
 <div align="center">
