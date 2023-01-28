@@ -24,7 +24,6 @@ import { IBuilding, IOSMBuilding } from '../types';
 import FilterMenu from './FilterMenu';
 import Row from './Row';
 
-// import Sidebar from './Sidebar';
 type Props = {
   buildings: IBuilding[];
   totalCount: number;
@@ -82,8 +81,6 @@ const List = (props: Props) => {
         return history.push(`/mobinet/building/details/${foundBuilding._id}`);
       }
     }
-
-    console.log('currentBuilding', currentBuilding);
   }, [map, props.buildings, buildings, isFormOpen, currentOsmBuilding]);
 
   const renderRow = () => {
@@ -176,6 +173,8 @@ const List = (props: Props) => {
             <th>{__('city')}</th>
             <th>{__('district')}</th>
             <th>{__('quarter')}</th>
+            <th>{__('request count')}</th>
+            <th>{__('ticket count')}</th>
             <th>{__('Action')}</th>
           </tr>
         </thead>

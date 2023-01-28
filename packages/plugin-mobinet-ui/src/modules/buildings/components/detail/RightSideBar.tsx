@@ -2,8 +2,8 @@ import { Sidebar } from '@erxes/ui/src';
 import React from 'react';
 import { IBuilding } from '../../types';
 import CompanySection from './sections/CompanySection';
-
-// import DealsSection from './sections/DealsSection';
+import PortableItems from '@erxes/ui-cards/src/boards/components/portable/Items';
+import options from '@erxes/ui-cards/src/tickets/options';
 
 import CustomerSection from './sections/CustomerSection';
 
@@ -22,15 +22,35 @@ export default class RightSidebar extends React.Component<Props> {
   };
 
   render() {
+    const { building } = this.props;
+    const ticketIds = building.ticketIds || [];
+
+    let title = 'Tickets';
+
+    if (ticketIds.length > 0) {
+      title += ` (${ticketIds.length})`;
+    }
+
     return (
       <Sidebar wide={true}>
         <CustomerSection
-          building={this.props.building}
+          building={building}
           onSelectCustomers={this.onSelectCustomers}
         />
         <CompanySection
-          building={this.props.building}
+          building={building}
           onSelectCompanies={this.onSelectCompanies}
+        />
+
+        <PortableItems
+          data={{
+            options: { ...options, title },
+            hideExtraButton: true
+          }}
+          items={building.tickets}
+          onChangeItem={() => {
+            console.log('onChangeItem');
+          }}
         />
       </Sidebar>
     );

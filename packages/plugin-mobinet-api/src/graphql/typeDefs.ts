@@ -22,10 +22,9 @@ import {
 } from './schema/quarters';
 
 const typeDefs = async serviceDiscovery => {
-  const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
-
   const isEnabled = {
-    contacts: isContactsEnabled
+    contacts: await serviceDiscovery.isEnabled('contacts'),
+    cards: await serviceDiscovery.isEnabled('cards')
   };
 
   return gql`

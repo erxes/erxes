@@ -55,6 +55,8 @@ query BuildingList(${commonParamsDef}) {
     buildingList(${commonParams}) {
       list {
         ${commonfields}
+        installationRequestIds
+        ticketIds
       }
         totalCount
     }
@@ -85,6 +87,23 @@ query BuildingDetail($_id: String!) {
           primaryName
           primaryEmail
           primaryPhone
+        }
+
+        installationRequestIds
+        ticketIds
+
+        installationRequests {
+          _id
+          name
+          description
+          createdAt
+        }
+
+        tickets {
+          _id
+          name
+          description
+          createdAt
         }
     }
 }

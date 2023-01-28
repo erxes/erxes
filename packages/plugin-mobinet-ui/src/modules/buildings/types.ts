@@ -1,3 +1,4 @@
+import { ITicket } from '@erxes/ui-cards/src/tickets/types';
 import { ICompany } from '@erxes/ui-contacts/src/companies/types';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { QueryResponse } from '@erxes/ui/src/types';
@@ -31,6 +32,16 @@ export interface IBuilding {
   quarterId: string;
   quarter: IQuarter;
   type: string;
+
+  installationRequestIds: string[];
+  ticketIds: string[];
+
+  installationRequests: ITicket[];
+  tickets: ITicket[];
+
+  suhId: string;
+
+  suh: ICompany;
 }
 
 export type BuildingListQueryResponse = {

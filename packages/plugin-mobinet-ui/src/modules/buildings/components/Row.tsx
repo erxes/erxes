@@ -72,6 +72,9 @@ const Row = (props: Props) => {
 
   const quarterName = (building.quarter && building.quarter.name) || '-';
 
+  const installationRequestIds = building.installationRequestIds || [];
+  const ticketIds = building.ticketIds || [];
+
   return (
     <tr>
       <td key={Math.random()}>
@@ -100,6 +103,14 @@ const Row = (props: Props) => {
 
       <td key={Math.random()}>
         <RowTitle>{quarterName}</RowTitle>
+      </td>
+
+      <td key={Math.random()}>
+        <RowTitle>{installationRequestIds.length}</RowTitle>
+      </td>
+
+      <td key={Math.random()}>
+        <RowTitle>{ticketIds.length}</RowTitle>
       </td>
 
       <td>

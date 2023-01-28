@@ -27,10 +27,10 @@ export interface IBuilding {
 
   serviceStatus: ServiceStatus;
 
-  customerIds: string[];
+  suhId: string[];
 
-  serviceRequestTicketIds: string[];
-  regularTicketIds: string[];
+  installationRequestIds: string[];
+  ticketIds: string[];
 
   createdAt: Date;
   updatedAt: Date;
@@ -84,21 +84,21 @@ export const buildingSchema = schemaHooksWrapper(
       default: 'inactive',
       index: true
     }),
-    customerIds: field({
-      type: [String],
-      label: 'customerIds',
+    suhId: field({
+      type: String,
+      label: 'СӨХ',
       required: false
     }),
 
-    serviceRequestTicketIds: field({
+    installationRequestIds: field({
       type: [String],
       label: 'Service Request Ticket Ids',
       required: false
     }),
 
-    regularTicketIds: field({
+    ticketIds: field({
       type: [String],
-      label: 'Regular Ticket Ids',
+      label: 'Ticket Ids',
       required: false
     }),
 

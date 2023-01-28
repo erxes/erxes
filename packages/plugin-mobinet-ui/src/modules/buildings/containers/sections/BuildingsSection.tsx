@@ -15,7 +15,7 @@ const Container = (props: Props) => {
   const { ticketId } = props;
 
   const { data, loading } = useQuery(gql(queries.buildingsQuery), {
-    variables: { customQuery: { serviceRequestTicketIds: ticketId } },
+    variables: { customQuery: { installationRequestIds: ticketId } },
     fetchPolicy: 'network-only'
   });
 

@@ -4,29 +4,9 @@ import { IOption } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import Select from 'react-select-plus';
-import styled from 'styled-components';
 
+import { LeftContent, Row } from '../../../styles';
 import { IQuarter } from '../types';
-
-const LeftContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-`;
-
-const Row = styled.div`
-  display: flex;
-
-  .Select {
-    flex: 1;
-  }
-
-  button {
-    flex-shrink: 0;
-    margin-left: 10px;
-    align-self: baseline;
-  }
-`;
 
 type Props = {
   quarters: IQuarter[];

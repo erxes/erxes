@@ -192,7 +192,7 @@ const mutations = {
       throw new Error('Ticket creation failed');
     }
 
-    building.serviceRequestTicketIds.push(ticket._id);
+    building.installationRequestIds.push(ticket._id);
 
     await building.save();
 

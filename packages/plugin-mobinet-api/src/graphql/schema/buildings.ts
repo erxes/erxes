@@ -1,4 +1,4 @@
-export const types = ({ contacts }) => `
+export const types = ({ contacts, cards }) => `
 
 ${
   contacts
@@ -8,6 +8,16 @@ ${
         }
   
         extend type Company @key(fields: "_id") {
+          _id: String! @external
+        }
+        `
+    : ''
+}
+
+${
+  cards
+    ? `
+        extend type Ticket @key(fields: "_id") {
           _id: String! @external
         }
         `
@@ -50,8 +60,24 @@ enum ServiceStatus {
         : ''
     }
 
+    suhId: String
+
+    suh: Company
+
     customersCount: Int
     companiesCount: Int
+
+    installationRequestIds: [String]
+    ticketIds: [String]
+
+    ${
+      cards
+        ? `
+          installationRequests: [Ticket]
+          tickets: [Ticket]
+          `
+        : ''
+    }
   }
 
   type BuildingListResponse {
@@ -76,6 +102,7 @@ const mutationParams = `
     bounds: JSON
     type: String
     serviceStatus: ServiceStatus
+    suhId: String
 `;
 
 export const mutations = `

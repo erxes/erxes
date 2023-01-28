@@ -15,6 +15,8 @@ import OSMBuildings from '../../../common/OSMBuildings';
 import { IBuilding, IOSMBuilding } from '../types';
 import { ICoordinates } from '../../../types';
 import { findCenter, getBuildingColor } from '../../../utils';
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import { getEnv } from '@erxes/ui/src/utils/core';
 
 type Props = {
   osmBuilding?: IOSMBuilding;
@@ -22,11 +24,16 @@ type Props = {
   district?: IDistrict;
   building?: IBuilding;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  xp;
   closeModal: () => void;
 };
 
 const BuildingForm = (props: Props) => {
   const { building } = props;
+
+  const { SUH_TAG } = getEnv();
+
+  console.log('************', SUH_TAG);
 
   const [osmBuilding, setOsmBuilding] = useState(props.osmBuilding);
   const [quarterId, setQuarterId] = useState<string>('');
@@ -269,6 +276,23 @@ const BuildingForm = (props: Props) => {
           'string',
           buildingObject && buildingObject.name
         )}
+
+        <FormGroup>
+          <ControlLabel>СӨХ</ControlLabel>
+          <SelectCompanies
+            label="СӨХ"
+            name="suhId"
+            initialValue={building && building.suhId}
+            onSelect={e => {
+              const obj: any = buildingObject || {};
+              obj.suhId = e;
+
+              setBuildingObject(obj);
+            }}
+            multi={false}
+            filterParams={{ tag: 'HovpPzg2bfxCoNc4F' }}
+          />
+        </FormGroup>
 
         <FormGroup>
           <ControlLabel>Service status</ControlLabel>
