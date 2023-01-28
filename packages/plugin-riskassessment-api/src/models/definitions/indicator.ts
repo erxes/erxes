@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+import { commonAssessmentSchema } from './riskassessment';
 import { field } from './utils';
 
 type ICalculateLogics = {
@@ -26,6 +27,9 @@ export interface IRiskIndicatorsDocument extends Document {
   departmentIds: [String];
   branchIds: [String];
   status: String;
+  calculateLogics?: ICalculateLogics[];
+  calculateMethod?: string;
+  customScoreField: { label: string; percentWeight: number }[];
   forms?: IIndicatorForms[];
 }
 
@@ -39,7 +43,23 @@ export interface IRiskIndicatorsConfigsDocument extends Document {
   riskIndicatorId?: String;
 }
 
-const calculateLogicsSchema = new Schema({
+export interface IIndicatorsGroupDocument extends Document {
+  indicatorIds: string[];
+  percentWeight?: number;
+  calculateLogics: ICalculateLogics[];
+  calculateMethod: string;
+}
+
+export interface IIndicatorsGroupsDocument extends Document {
+  _id: string;
+  code: string;
+  order: string;
+  calculateMethod: string;
+  calculateLogics: ICalculateLogics[];
+  groups: IIndicatorsGroupDocument[];
+}
+
+export const calculateMethodsSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Logic Name' }),
   value: field({ type: Number, label: 'Logic Value' }),
@@ -52,17 +72,18 @@ const riskIndicatorFormsSchema = new Schema({
   _id: field({ pkey: true }),
   formId: field({ type: String, name: 'Form ID' }),
   calculateMethod: field({ type: String, label: 'Calculate Method' }),
-  percentWeight: field({ type: Number, label: 'Percent Weight' }),
   calculateLogics: field({
-    type: [calculateLogicsSchema],
-    label: 'Calculate Logics'
-  })
+    type: [calculateMethodsSchema],
+    label: 'calculate logic',
+    optional: true
+  }),
+  percentWeight: field({ type: Number, label: 'Percent Weight' })
 });
 
 const customScoreField = new Schema(
   {
     label: field({ type: String, label: 'Custom Score Field Label' }),
-    percentWeigth: field({
+    percentWeight: field({
       type: Number,
       label: 'Custom Score Field Percent Weigth'
     })
@@ -75,7 +96,8 @@ export const riskIndicatorSchema = new Schema({
   name: field({ type: String, label: 'Name' }),
   description: field({ type: String, label: 'Description' }),
   createdAt: field({ type: Date, default: Date.now, label: 'Created At' }),
-  categoryIds: field({ type: [String], label: 'Risk Assessment Category Ids' }),
+  categoryId: field({ type: String, label: 'CategoryId' }),
+  operationIds: field({ type: [String], label: 'OperationIDs' }),
   branchIds: field({ type: [String], label: ' BranchIDs' }),
   departmentIds: field({ type: [String], label: 'DepartmentIDs' }),
   customScoreField: { type: customScoreField, label: 'Custom Score Field' },
@@ -85,7 +107,7 @@ export const riskIndicatorSchema = new Schema({
     label: 'Calculate Method'
   }),
   calculateLogics: field({
-    type: [calculateLogicsSchema],
+    type: [calculateMethodsSchema],
     optinal: true,
     label: 'Calculate Logics'
   }),
@@ -123,4 +145,32 @@ export const riskIndicatorConfigsSchema = new Schema({
   }),
   createdAt: field({ type: Date, label: 'Created At', default: new Date() }),
   modifiedAt: field({ type: Date, label: 'Modified At', default: new Date() })
+});
+
+const indicatorGroupsSchema = new Schema({
+  _id: field({ pkey: true }),
+  indicatorIds: field({ type: [String], label: 'IndicatorIds' }),
+  percentWeight: field({
+    type: Number,
+    label: 'Percent Weight',
+    optional: true
+  }),
+  calculateLogics: field({
+    type: [calculateMethodsSchema],
+    labels: 'indicator groups calculate methods'
+  })
+});
+
+export const riskIndicatorGroupSchema = new Schema({
+  _id: field({ pkey: true }),
+  name: field({ type: String, label: 'Name' }),
+  description: field({ type: String, label: 'Description' }),
+  calculateMethod: field({ type: String, label: 'Calculate Method' }),
+  calculateLogics: field({
+    type: [calculateMethodsSchema],
+    label: 'Calculate Logics'
+  }),
+  groups: field({ type: [indicatorGroupsSchema], label: 'indicators groups' }),
+  createdAt: field({ type: Date, label: 'Created At', default: Date.now }),
+  modifiedAt: field({ type: Date, label: 'Modified At' })
 });

@@ -55,18 +55,18 @@ export const types = `
 
     input IRiskIndicatorForm {
          ${commonRiskIndicatorFormParams}
-        calculateLogics:[ICalculateLogic]
+         calculateLogics:[ICalculateLogic]
 
     }
 
     input ICustomScoreField {
         label:String
-        percentWeigth:Int
+        percentWeight:Int
     }
 
     type CustomScoreFieldType {
         label:String
-        percentWeigth:Int
+        percentWeight:Int
     }
 
     input ICalculateLogic {
@@ -100,14 +100,44 @@ export const types = `
         totalCount: Int
     }
 
+    input IIndicatorGroups {
+        _id:String,
+        indicatorIds:[String]
+        calculateLogics:[ICalculateLogic]
+        calculateMethod:String
+        percentWeight:String
+    }
+
+`;
+
+const commonIndicatorParams = `
+    categoryIds:[String],
+    ignoreIds:[String],
+    branchIds:[String],
+    departmentIds:[String],
+    operationIds:[String],
+    ${commonPaginateTypes}
 `;
 
 export const queries = `
-    riskIndicators (categoryIds:[String],ignoreIds:[String],${commonPaginateTypes}):[RiskIndicatorType]
-    riskIndicatorsTotalCount(categoryIds:[String],ignoreIds:[String],${commonPaginateTypes}):Int
+    riskIndicators (${commonIndicatorParams}):[RiskIndicatorType]
+    riskIndicatorsTotalCount(${commonIndicatorParams}):Int
+
+    riskIndicatorsGroups:JSON
+    riskIndicatorsGroupsTotalCount:Int
+
     riskIndicatorDetail(_id: String,fieldsSkip:JSON): RiskIndicatorType
     riskIndicatorConfigs (${configParamsDef},${commonPaginateTypes}):[RiskIndicatorConfigs]
     riskIndicatorConfigsTotalCount(${configParamsDef},${commonPaginateTypes}):Int
+`;
+
+const commonIndicatorGroupsParams = `
+    _id:String,
+    name:String,
+    description:String,
+    calculateMethod:String,
+    calculateLogics:[ICalculateLogic]
+    groups:[IIndicatorGroups]
 `;
 
 export const mutations = `
@@ -117,8 +147,20 @@ export const mutations = `
         customScoreField:ICustomScoreField,
         calculateLogics:[ICalculateLogic],
         forms:[IRiskIndicatorForm]): JSON
-    removeRiskIndicator (_ids:[String]):JSON
-    updateRiskIndicator (doc:IRiskIndicator):JSON
+    removeRiskIndicators (_ids:[String]):JSON
+    updateRiskIndicator (
+        _id:String,
+        ${commonRiskIndicatorTypes}
+        ${commonTypes},
+        customScoreField:ICustomScoreField,
+        calculateLogics:[ICalculateLogic],
+        forms:[IRiskIndicatorForm]):JSON
+
+    addRiskIndicatorsGroups(${commonIndicatorGroupsParams}):JSON
+    updateRiskIndicatorsGroups(${commonIndicatorGroupsParams}):JSON
+    removeRiskIndicatorsGroups (ids:[String]):JSON
+
+    
     addRiskIndicatorConfig (${configParams}):JSON
     updateRiskIndicatorConfig(configId:String,doc:RiskIndicatorConfigInput):JSON
     removeRiskIndicatorConfigs(configIds:[String]):JSON

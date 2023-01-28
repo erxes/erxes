@@ -5,15 +5,31 @@ import {
   riskIndicatorParams
 } from '../../common/graphql';
 
+const commonFilterParams = `
+  $branchIds:[String]
+  $departmentIds:[String]
+  $operationIds:[String]
+  $categoryIds: [String]
+  $ignoreIds:[String]
+`;
+
+const commonFilterParamsDef = `
+  branchIds:$branchIds
+  departmentIds:$departmentIds
+  operationIds:$operationIds
+  categoryIds: $categoryIds ,
+  ignoreIds:$ignoreIds
+`;
+
 const list = `
-query RiskIndicators($categoryIds: [String],$ignoreIds:[String],${commonPaginateDef}) {
-  riskIndicators(categoryIds: $categoryIds , ignoreIds:$ignoreIds,${commonPaginateValue}) {${riskIndicatorParams}}
+query RiskIndicators(${commonFilterParams},${commonPaginateDef}) {
+  riskIndicators(${commonFilterParamsDef},${commonPaginateValue}) {${riskIndicatorParams}}
   }
 `;
 
 const totalCount = `
-query RiskIndicatorsTotalCount($categoryIds: [String],$ignoreIds:[String],${commonPaginateDef}) {
-  riskIndicatorsTotalCount(categoryIds: $categoryIds , ignoreIds:$ignoreIds,${commonPaginateValue}) 
+query RiskIndicatorsTotalCount(${commonFilterParams},${commonPaginateDef}) {
+  riskIndicatorsTotalCount(${commonFilterParamsDef},${commonPaginateValue}) 
   }
 `;
 
@@ -31,7 +47,7 @@ query RiskIndicatorDetail($id: String, $fieldsSkip: JSON) {
       ${riskIndicatorParams}
       customScoreField {
         label
-        percentWeigth
+        percentWeight
       }
       calculateMethod
       calculateLogics {

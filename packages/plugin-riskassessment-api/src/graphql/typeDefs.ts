@@ -9,7 +9,7 @@ import {
   mutations as RiskAssessmentMutations,
   queries as RiskAssessmentQueries,
   types as RiskAssessmentTypes
-} from './schema/riskassessment';
+} from './schema/riskIndicator';
 import {
   mutations as RiskAssessmentCategoryMutations,
   queries as RiskAssessmentCategoryQueries,
@@ -26,6 +26,11 @@ import {
   queries as OpearionQueries,
   types as OpearionTypes
 } from './schema/operations';
+import {
+  mutations as RiskAsessmentMutations,
+  queries as RiskAsessmentQueries,
+  types as RiskAsessmentTypes
+} from './schema/riskAssessment';
 
 const typeDefs = async _serviceDiscovery => {
   return gql`
@@ -37,6 +42,7 @@ const typeDefs = async _serviceDiscovery => {
     ${RiskConfirmityTypes}
     ${formSubmissionsTypes}
     ${OpearionTypes}
+    ${RiskAsessmentTypes}
     
     extend type Query {
       ${RiskAssessmentQueries}
@@ -44,6 +50,7 @@ const typeDefs = async _serviceDiscovery => {
       ${RiskConfirmityQueries}
       ${formSubmissionsQueries}
       ${OpearionQueries}
+      ${RiskAsessmentQueries}
     }
     
     extend type Mutation {
@@ -52,6 +59,7 @@ const typeDefs = async _serviceDiscovery => {
       ${RiskConfirmityMutations}
       ${formSubmissionsMutations},
       ${OpearionMutations}
+      ${RiskAsessmentMutations}
     }
   `;
 };

@@ -1,25 +1,32 @@
 import {
+  Button,
   ControlLabel,
   DataWithLoader,
+  FilterByParams,
+  FormControl,
+  FormGroup,
   Icon,
   Pagination,
   SelectWithSearch,
   Spinner,
+  Tip,
   Wrapper,
   __
 } from '@erxes/ui/src';
-import { IOption, IQueryParams } from '@erxes/ui/src/types';
+import { IFormProps, IOption, IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
 import { queries as categoryQueries } from '../categories/graphql';
 import { queries as riskIndicatorQueries } from '../indicator/graphql';
 import { queries as operationQueries } from '../operations/graphql';
-import { FormGroupRow } from '../styles';
+import { FormContainer, FormGroupRow } from '../styles';
+import { CustomFormGroupProps } from './types';
+import { OperationTypes } from '../operations/common/types';
 import {
-  CustomFormGroupProps,
-  OperationTypes,
-  RiskAssessmentCategory,
-  RiskIndicatorsType
-} from './types';
+  RiskIndicatorsType,
+  CategoryTypes,
+  RiskIndicatorsListQueryResponse,
+  RiskCalculateLogicType
+} from '../indicator/common/types';
 import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
 import gql from 'graphql-tag';
@@ -28,6 +35,16 @@ import client from '@erxes/ui/src/apolloClient';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';
+import { calculateMethods, COLORS } from './constants';
+import {
+  ColorPick,
+  ColorPicker,
+  FormColumn,
+  FormWrapper
+} from '@erxes/ui/src/styles/main';
+import Popover from 'react-bootstrap/Popover';
+import TwitterPicker from 'react-color/lib/Twitter';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 
 export const DefaultWrapper = ({
   title,
@@ -121,12 +138,10 @@ export const SelectWithCategory = ({
 }) => {
   const defaultValue = queryParams ? queryParams[name] : initialValue;
 
-  const generateCategoryOptions = (
-    array: RiskAssessmentCategory[] = []
-  ): IOption[] => {
+  const generateCategoryOptions = (array: CategoryTypes[] = []): IOption[] => {
     let list: any[] = [];
     for (const item of array) {
-      const category = item || ({} as RiskAssessmentCategory);
+      const category = item || ({} as CategoryTypes);
       const order = category.order;
       const foundedString = order?.match(/[/]/gi);
 
@@ -160,8 +175,17 @@ export const SelectWithCategory = ({
     />
   );
 };
-
-type SelectRiskIndicatorProps = {
+export function SelectRiskIndicator({
+  label,
+  name,
+  queryParams,
+  initialValue,
+  multi,
+  customOption,
+  ignoreIds,
+  onSelect,
+  filterParams
+}: {
   queryParams?: IQueryParams;
   label: string;
   onSelect: (value: string[] | string, name: string) => void;
@@ -170,55 +194,43 @@ type SelectRiskIndicatorProps = {
   initialValue?: string | string[];
   name: string;
   ignoreIds?: string[];
-};
+  filterParams?: {
+    branchIds?: string[];
+    departmentIds?: string[];
+    operationIds?: string[];
+  };
+}) {
+  function generetaOption(array: RiskIndicatorsType[] = []): IOption[] {
+    let list: any[] = [];
 
-type SelectRiskIndicatorState = {
-  options: any[];
-};
-export class SelectWithRiskIndicator extends React.Component<
-  SelectRiskIndicatorProps,
-  SelectRiskIndicatorState
-> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      options: []
-    };
-
-    client
-      .query({
-        query: gql(riskIndicatorQueries.list)
-      })
-      .then(({ data }) => {
-        let options = data?.riskIndicators?.map(riskIndicator => ({
-          value: riskIndicator._id,
-          label: riskIndicator.name
-        }));
-
-        this.setState({ options });
-      });
-  }
-
-  render() {
-    const { label, multi, initialValue, onSelect, ignoreIds } = this.props;
-    let { options } = this.state;
+    list = array.map(item => ({ value: item._id, label: item.name }));
 
     if (ignoreIds) {
-      const ids = ignoreIds.filter(id => id !== initialValue);
-      options = options.filter(option => !ids.includes(option.value));
+      list = list.filter(item => !ignoreIds.includes(item.value));
+      console.log(list);
     }
 
-    return (
-      <Select
-        placeholder={__(label)}
-        options={options}
-        multi={multi}
-        value={initialValue}
-        onChange={onSelect}
-      />
-    );
+    return list;
   }
+
+  return (
+    <SelectWithSearch
+      label={label}
+      queryName="riskIndicators"
+      name={name}
+      initialValue={initialValue}
+      generateOptions={generetaOption}
+      onSelect={onSelect}
+      customQuery={riskIndicatorQueries.list}
+      filterParams={filterParams}
+      customOption={
+        customOption || !multi
+          ? { value: '', label: 'Choose a Indicator' }
+          : undefined
+      }
+      multi={multi}
+    />
+  );
 }
 
 type SelectCustomFieldProps = {
@@ -334,9 +346,6 @@ export const SelectOperation = ({
 
   const generateOptions = (array: OperationTypes[] = []): IOption[] => {
     let list: any[] = [];
-    if (operation) {
-      array = array.filter(item => !item?.order?.includes(operation?.order));
-    }
     for (const item of array) {
       const operation = item || ({} as OperationTypes);
       const order = operation.order;
@@ -372,3 +381,206 @@ export const SelectOperation = ({
     />
   );
 };
+
+type Props = {
+  formProps?: IFormProps;
+  onChange: ({ calculateLogics, calculateMethod }) => void;
+  calculateLogics: RiskCalculateLogicType[];
+  calculateMethod: string;
+};
+
+type State = {
+  calculateMethod: string;
+  calculateLogics: RiskCalculateLogicType[];
+};
+
+export class CommonCalculateFields extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      calculateLogics: props.calculateLogics || [],
+      calculateMethod: props.calculateMethod || ''
+    };
+  }
+
+  componentDidUpdate(prevProps, prevState: Readonly<State>): void {
+    if (JSON.stringify(this.state) !== JSON.stringify(prevState)) {
+      this.props.onChange({ ...this.state });
+    }
+  }
+
+  renderLogicRow(
+    { _id, name, logic, value, value2, color }: RiskCalculateLogicType,
+    formProps?: IFormProps
+  ) {
+    const onChange = (field, value) => {
+      const { calculateLogics } = this.state;
+      this.setState({
+        calculateLogics: calculateLogics.map(logic =>
+          logic._id === _id ? { ...logic, [field]: value } : logic
+        )
+      });
+    };
+
+    const onChangeColor = hex => {
+      onChange('color', hex);
+    };
+    const onChangeRow = e => {
+      const { name, value } = e.currentTarget as HTMLInputElement;
+
+      onChange(
+        name,
+        ['value', 'value2'].includes(name) ? parseInt(value) : value
+      );
+    };
+
+    const handleRemoveRow = () => {
+      const { calculateLogics } = this.state;
+      this.setState({
+        calculateLogics: calculateLogics.filter(logic => logic._id !== _id)
+      });
+    };
+
+    const renderColorSelect = selectedColor => {
+      const popoverBottom = (
+        <Popover id="color-picker">
+          <TwitterPicker
+            width="266px"
+            triangle="hide"
+            color={selectedColor}
+            onChange={e => onChangeColor(e.hex)}
+            colors={COLORS}
+          />
+        </Popover>
+      );
+
+      return (
+        <OverlayTrigger
+          trigger="click"
+          rootClose={true}
+          placement="bottom-start"
+          overlay={popoverBottom}
+        >
+          <ColorPick>
+            <ColorPicker style={{ backgroundColor: selectedColor }} />
+          </ColorPick>
+        </OverlayTrigger>
+      );
+    };
+
+    return (
+      <FormWrapper style={{ margin: '5px 0' }} key={_id}>
+        <FormColumn>
+          <FormControl
+            {...formProps}
+            name="name"
+            type="text"
+            defaultValue={name}
+            onChange={onChangeRow}
+            required
+          />
+        </FormColumn>
+        <FormColumn>
+          <FormControl
+            name="logic"
+            {...formProps}
+            componentClass="select"
+            required
+            defaultValue={logic}
+            onChange={onChangeRow}
+          >
+            <option />
+            {['(>) greater than', '(<) lower than', '(≈) between'].map(
+              value => (
+                <option value={value} key={value}>
+                  {value}
+                </option>
+              )
+            )}
+          </FormControl>
+        </FormColumn>
+        <FormColumn>
+          <FormContainer row gap align="center">
+            <FormControl
+              {...formProps}
+              name="value"
+              type="number"
+              defaultValue={value}
+              onChange={onChangeRow}
+              required
+            />
+            {logic === '(≈) between' && (
+              <>
+                <span>-</span>
+                <FormControl
+                  {...formProps}
+                  name="value2"
+                  type="number"
+                  defaultValue={value2}
+                  onChange={onChangeRow}
+                  required
+                />
+              </>
+            )}
+          </FormContainer>
+        </FormColumn>
+        <FormColumn>{renderColorSelect(color)}</FormColumn>
+        <Tip text="Remove Row" placement="bottom">
+          <Button
+            btnStyle="danger"
+            icon="times"
+            onClick={handleRemoveRow}
+            style={{ marginLeft: '10px' }}
+          />
+        </Tip>
+      </FormWrapper>
+    );
+  }
+
+  render() {
+    const { calculateMethod, calculateLogics } = this.state;
+    const { formProps } = this.props;
+
+    const handleAddLevel = () => {
+      const variables = {
+        _id: Math.random().toString(),
+        name: '',
+        value: 0,
+        logic: ''
+      };
+
+      this.setState({ calculateLogics: [...calculateLogics, variables] });
+    };
+
+    const handleCalculateMethod = ({ value }) => {
+      this.setState({ calculateMethod: value });
+    };
+
+    return (
+      <>
+        <FormGroup>
+          <ControlLabel>{__('Calculate Methods')}</ControlLabel>
+          <Select
+            placeholder={__('Select Calculate Method')}
+            value={calculateMethod}
+            options={calculateMethods}
+            multi={false}
+            onChange={handleCalculateMethod}
+          />
+        </FormGroup>
+        <FormWrapper>
+          {['Name', 'Logic', 'Value', 'Status Color'].map(head => (
+            <FormColumn key={head}>
+              <ControlLabel required>{head}</ControlLabel>
+            </FormColumn>
+          ))}
+          <Tip text="Add Level" placement="bottom">
+            <Button btnStyle="default" icon="add" onClick={handleAddLevel} />
+          </Tip>
+        </FormWrapper>
+        {calculateLogics.map(logic => this.renderLogicRow(logic, formProps))}
+      </>
+    );
+  }
+}

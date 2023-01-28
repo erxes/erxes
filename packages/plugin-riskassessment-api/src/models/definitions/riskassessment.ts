@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+import { calculateMethodsSchema } from './indicator';
 import { field } from './utils';
 
 export interface IRiskAssessmentCategoryDocument extends Document {
@@ -21,11 +22,12 @@ export interface IRiskAssessmentsDocument
   extends AssessmentCommonTypes,
     Document {
   _id: string;
-  indicatorIds: string[];
+  indicatorId: string[];
+  groupId: string;
   branchIds: string[];
   departmentIds: string[];
-  operationId: string[];
-  formIds: string[];
+  operationIds: string[];
+  indicatorGroups: any[];
 }
 
 export interface IRiskAssessmentIndicator
@@ -33,6 +35,9 @@ export interface IRiskAssessmentIndicator
     Document {
   assetId: string;
   indicatorId: string;
+  status: string;
+  statusColor: string;
+  resultScore: number;
 }
 
 export interface IRiskAssessmentIndicatorsDocument
@@ -40,18 +45,7 @@ export interface IRiskAssessmentIndicatorsDocument
   _id: string;
 }
 
-interface IRiskAssessmentIndicatorForms
-  extends AssessmentCommonTypes,
-    Document {
-  assetId: string;
-  indicatorId: string;
-}
-export interface IRiskAssessmentIndicatorFormsDocument
-  extends IRiskAssessmentIndicatorForms {
-  _id: string;
-}
-
-const commonAssessmentSchema = {
+export const commonAssessmentSchema = {
   _id: field({ pkey: true }),
   status: field({ type: String, label: 'Status', default: 'In Progress' }),
   statusColor: field({
@@ -73,24 +67,26 @@ export const riskAssessmentCategorySchema = new Schema({
   type: field({ type: String, label: 'Category Type' })
 });
 
-export const riskAssessmentIndicatorFormsSchema = new Schema({
-  assessmentId: field({ type: String, label: 'Risk Assessment Id' }),
-  indicatorId: field({ type: String, label: 'Risk Indicator Id' }),
-  formId: field({ type: String, label: 'Risk Assessment Indicator Form Id' }),
-  ...commonAssessmentSchema
-});
-
 export const riskAssessmentIndicatorsSchema = new Schema({
   assessmentId: field({ type: String, label: 'Risk assessment Id' }),
   indicatorId: field({ type: String, label: 'Risk indicator Id' }),
   ...commonAssessmentSchema
 });
 
+export const riskAssessmentIndicatorsGroupsSchema = new Schema({
+  assessmentId: field({ type: String, label: 'Risk assessment Id' }),
+  groupId: field({ type: String, label: 'Risk indicator Id' }),
+  ...commonAssessmentSchema
+});
+
 export const riskAssessmentsSchema = new Schema({
-  indicatorIds: field({
-    type: [String],
-    label: 'Answer Risk indicator Ids'
+  cardId: field({ type: String, label: 'Card Id' }),
+  cardType: field({ type: String, label: 'Card Type' }),
+  indicatorId: field({
+    type: String,
+    label: 'Risk indicator Id'
   }),
+  groupId: field({ type: String, label: 'Indicator Group Id' }),
   branchIds: field({ type: [String], label: 'Branch ids ' }),
   departmentIds: field({ type: [String], label: 'Department ids ' }),
   operationIds: field({ type: [String], label: 'Operation Ids' }),

@@ -8,7 +8,7 @@ import { graphql } from 'react-apollo';
 import {
   ICardRiskConformitiesQueryResponse,
   IRiskSubmissionsQueryResponse
-} from '../../common/types';
+} from '../common/types';
 import SectionComponent from '../component/List';
 import { queries } from '../graphql';
 type Props = {

@@ -9,7 +9,11 @@ export const types = `
         closedAt: Date,
         riskAssessmentId: String,
         riskAssessment: JSON
-        riskIndicatorIds:[String]
+        riskIndicatorId:String
+        groupId:String
+        branchIds:[String]
+        departmentIds:[String]
+        operationIds:[String]
         riskIndicators:JSON
         card:JSON
     }
@@ -22,7 +26,10 @@ export const types = `
         status: String,
     }
     type RiskConformityFormDetailType {
-        forms:JSON,
+        indicatorId: String
+        indicator:RiskIndicatorType,
+        indicators:[RiskIndicatorType],
+        fields:JSON,
         submissions:JSON,
         formId: String,
     }
@@ -46,11 +53,21 @@ export const queries = `
     riskConformitiesTotalCount(${conformityParams}): Int
     riskConformityDetail(cardId:String) :RiskConformity
     riskConformitySubmissions(cardId:String,cardType:String) :JSON
-    riskConformityFormDetail(cardId:String,cardType:String,userId: String,riskIndicatorId:String) :RiskConformityFormDetailType
+    riskConformityFormDetail(cardId:String,cardType:String,userId: String,riskAssessmentId:String,riskIndicatorId:String,customScore:Int) :RiskConformityFormDetailType
+`;
+
+const commonConformityParams = `
+    cardId: String,
+    cardType:String,
+    groupId:String
+    indicatorId: String
+    operationIds:[String]
+    branchIds:[String]
+    departmentIds:[String]
 `;
 
 export const mutations = `
-    addRiskConformity (cardId: String,cardType:String,riskIndicatorIds: [String]):RiskConformity
-    updateRiskConformity (cardId: String,cardType:String,riskIndicatorIds: [String]):RiskConformity
+    addRiskConformity (${commonConformityParams}):RiskConformity
+    updateRiskConformity (${commonConformityParams}):RiskConformity
     removeRiskConformity (cardId: String,cardType:String):String
 `;

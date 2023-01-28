@@ -13,6 +13,7 @@ type IRiskIndicatorCalculateLogicsField = {
   logic: string;
 };
 export interface IRiskIndicatorsField {
+  _id?: string;
   name?: string;
   description?: string;
   createdAt?: string;
@@ -20,6 +21,9 @@ export interface IRiskIndicatorsField {
   status?: string;
   calculateMethod?: string;
   calculateLogics?: IRiskIndicatorCalculateLogicsField[];
+  branchIds?: string[];
+  departmentIds?: string[];
+  operationIds?: string[];
 }
 
 export interface IRiskAssessmentCategoryField extends PaginateField {
@@ -37,20 +41,23 @@ export interface IRiskConformityField {
   boardId: string;
   pipelineId: string;
   cardType: string;
-  riskIndicatorIds: string[];
+  indicatorIds: string[];
+  groupId: string;
 }
 
 export interface IRiskConformityParams {
   cardId: string;
   cardType: string;
-  riskIndicatorIds?: string;
+  indicatorId?: string;
+  groupId?: string;
 }
 
 export interface IRiskFormSubmissionParams {
   cardId: string;
   cardType: string;
   userId: string;
-  formId: string;
+  indicatorId: string;
+  customScore: number;
   formSubmissions: {
     [key: string]: string;
   };

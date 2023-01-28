@@ -29,6 +29,9 @@ const generateConfigFilter = params => {
 };
 
 const RiskIndicatorQueries = {
+  /**
+   * Indicator Queries
+   */
   async riskIndicators(
     _root,
     params: { categoryId: string } & IRiskIndicatorsField & PaginateField,
@@ -52,6 +55,21 @@ const RiskIndicatorQueries = {
   ) {
     return await models.RiskIndicators.riskIndicatorDetail(params);
   },
+
+  /**
+   * Groups Queries
+   */
+
+  async riskIndicatorsGroups(_root, params, { models }: IContext) {
+    return paginate(models.IndicatorsGroups.find(), params);
+  },
+  async riskIndicatorsGroupsTotalCount(_root, params, { models }: IContext) {
+    return await models.IndicatorsGroups.countDocuments();
+  },
+
+  /**
+   * Config Queries
+   */
 
   async riskIndicatorConfigs(_root, params, { models }: IContext) {
     const filter = generateConfigFilter(params);

@@ -1,14 +1,16 @@
 import * as DataLoader from 'dataloader';
 import { IModels } from '../connectionResolver';
 
-import categories from './category';
-import riskIndicator from './riskIndicator';
-import user from './user';
-import board from './board';
-import pipeline from './pipeline';
-import stage from './stage';
-import field from './field';
-import riskAssessments from './riskAssessment';
+import {
+  generateDataLoaderCategories as categories,
+  generateDataLoaderRiskIndicator as riskIndicator,
+  generateDataLoaderUser as user,
+  generateDataLoaderBoards as board,
+  generateDataLoaderPipelines as pipeline,
+  generateDataLoaderStages as stage,
+  generateDataLoaderField as field,
+  generateDataLoaderRiskAssessments as riskAssessments
+} from './generateDataLoaders';
 
 export interface IDataLoaders {
   riskIndicator: DataLoader<string, any>;

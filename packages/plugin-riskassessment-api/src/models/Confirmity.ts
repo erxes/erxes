@@ -125,6 +125,7 @@ export const loadRiskConformity = (models: IModels, subdomain: string) => {
     public static async riskConformity(params: IRiskConformityParams) {
       const filter = generateFilter(params);
       const conformity = await models.RiskConformity.findOne(filter);
+      console.log({ filter, conformity });
       const riskAssessment = await models.RiskAssessments.findOne({
         _id: conformity?.riskAssessmentId
       });
@@ -133,8 +134,7 @@ export const loadRiskConformity = (models: IModels, subdomain: string) => {
         _id: conformity?._id,
         cardId: conformity?.cardId,
         cardType: conformity?.cardType,
-        riskAssessmentId: conformity?.riskAssessmentId,
-        riskIndicatorIds: riskAssessment?.indicatorIds
+        riskAssessmentId: riskAssessment?._id
       };
     }
 
@@ -157,63 +157,92 @@ export const loadRiskConformity = (models: IModels, subdomain: string) => {
     public static async riskConformityDetail(params) {
       const { cardId } = params;
 
-      let conformity = await models.RiskConformity.findOne({ cardId }).sort({
-        createdAt: 1
-      });
-
-      console.log({ conformity });
+      let conformity = await models.RiskConformity.findOne({ cardId });
+      if (!conformity) {
+        return;
+      }
 
       const riskAssessment = await models.RiskAssessments.findOne({
         _id: conformity?.riskAssessmentId
-      });
+      }).lean();
 
-      console.log(riskAssessment);
+      if (!riskAssessment) return;
+
+      const {
+        indicatorIds,
+        groupIds,
+        operationIds,
+        branchIds,
+        departmentIds
+      } = riskAssessment;
 
       return {
         _id: conformity?._id,
         cardId: conformity?.cardId,
         cardType: conformity?.cardType,
         riskAssessmentId: conformity?.riskAssessmentId,
-        riskIndicatorIds: riskAssessment?.indicatorIds
+        riskIndicatorIds: indicatorIds,
+        groupIds,
+        operationIds,
+        branchIds,
+        departmentIds
       };
     }
 
     public static async riskConformityUpdate(params: IRiskConformityParams) {
-      const { cardId, riskIndicatorIds, cardType } = params;
+      const { cardId, groupId, cardType, indicatorId, ...doc } = params;
 
-      if (!riskIndicatorIds && !riskIndicatorIds?.length) {
-        throw new Error('riskIndicatorId is required');
+      if (!params.indicatorId?.length && !params.groupId) {
+        throw new Error('GroupId or IndicatorId must  be specified');
       }
-      if (!cardId) {
-        throw new Error('cardId is required');
-      }
-
-      const confimity = await models.RiskConformity.findOne({
+      const conformity = await models.RiskConformity.findOne({
         cardId,
         cardType
       }).lean();
 
-      if (!confimity) {
+      if (!conformity) {
         throw new Error('Confimity not found');
       }
 
       const riskAssessment = await models.RiskAssessments.findOne({
-        _id: confimity.riskAssessmentId
+        _id: conformity.riskAssessmentId
       });
+      if (indicatorId) {
+        await models.RiskAssessmentIndicators.deleteMany({
+          assessmentId: conformity.riskAssessmentId
+        });
+      }
 
-      await models.RiskAssessmentIndicatorForms.find({
-        assessmentId: riskAssessment?._id,
-        indicatorId: { $nin: riskIndicatorIds }
-      });
+      let indicatorIds: any[] = [];
+
+      if (params.groupId) {
+        const indicatorsGroups = await models.IndicatorsGroups.find({
+          _id: params.groupId
+        });
+
+        let groupIndicatorIds: string[] = [];
+
+        for (const { groups } of indicatorsGroups) {
+          for (const group of groups) {
+            groupIndicatorIds = [...groupIndicatorIds, ...group?.indicatorIds];
+          }
+        }
+        indicatorIds = groupIndicatorIds;
+      }
 
       await models.RiskAssessmentIndicators.deleteMany({
         assessmentId: riskAssessment?._id,
-        indicatorId: { $nin: riskIndicatorIds }
+        indicatorId: { $nin: indicatorIds }
       });
 
+      await models.RiskAssessments.updateOne(
+        { _id: riskAssessment?._id },
+        { indicatorId, groupId, ...doc }
+      );
+
       return await models.RiskConformity.findOneAndUpdate(
-        { _id: confimity._id },
-        { ...confimity, riskIndicatorIds },
+        { _id: conformity._id },
+        { ...conformity },
         { new: true }
       );
     }
@@ -223,31 +252,38 @@ export const loadRiskConformity = (models: IModels, subdomain: string) => {
         throw new Error('cardId is required');
       }
 
-      await models.RiskConformity.deleteOne({ cardId });
-      return 'success';
+      return await models.RiskConformity.deleteOne({ cardId });
     }
 
     public static async riskConformitySubmissions(params) {
       const { cardId, cardType } = params;
 
-      if (!cardId) {
-        throw new Error('card Id is required');
-      }
-
-      if (
-        !(await models.RiskConformity.findOne({ cardId: cardId, cardType }))
-      ) {
-        throw new Error('Not found selected risk assessment in card');
-      }
-
-      const {
-        riskAssessmentId,
-        status,
-        formIds
-      } = await models.RiskConformity.findOne({
-        cardId: cardId,
+      const conformity = await models.RiskConformity.findOne({
+        cardId,
         cardType
-      }).lean();
+      });
+
+      if (!conformity) {
+        throw new Error('Not found confirmity');
+      }
+
+      const { riskAssessmentId } = conformity;
+
+      const riskAssessment = await models.RiskAssessments.findOne({
+        _id: riskAssessmentId
+      });
+
+      const riskIndicatorIds = (
+        await models.RiskAssessmentIndicators.find({
+          assessmentId: riskAssessmentId
+        })
+      ).map(indicator => indicator.indicatorId);
+
+      const formIds = (
+        await models.RiskIndicators.find({ _id: { $in: riskIndicatorIds } })
+      )
+        .map(indicator => indicator.forms?.map(form => form.formId))
+        .flat();
 
       const assignedUsers = await this.getAsssignedUsers(cardId, cardType);
 
@@ -263,7 +299,7 @@ export const loadRiskConformity = (models: IModels, subdomain: string) => {
         }
       }
 
-      if (status !== 'In Progress') {
+      if (riskAssessment?.status !== 'In Progress') {
         const assignedUserIds = assignedUsers.map(user => user._id);
         const submittedUsers = await models.RiksFormSubmissions.find({
           userId: { $in: assignedUserIds },
@@ -283,23 +319,25 @@ export const loadRiskConformity = (models: IModels, subdomain: string) => {
     }
 
     public static async riskConformityFormDetail(params) {
-      const { cardId, userId, riskIndicatorId } = params;
+      const { cardId, userId, riskAssessmentId } = params;
+      const riskIndicatorIds = (
+        await models.RiskAssessmentIndicators.find({
+          assessmentId: riskAssessmentId
+        })
+      ).map(indicator => indicator.indicatorId);
 
-      if (!cardId) {
-        throw new Error('Card ID is required');
+      const indicatorId = params.indicatorId || riskIndicatorIds[0];
+      const indicator = await models.RiskIndicators.findOne({
+        _id: indicatorId
+      });
+
+      if (!indicator) {
+        throw new Error('Something went wrong');
       }
-      const { categoryId, forms } = await models.RiskIndicators.findOne({
-        _id: riskIndicatorId
-      }).lean();
 
-      const formIds = forms.map(form => form.formId);
-      // if (!formId) {
-      //   throw new Error('Form ID is required');
-      // }
+      const formIds = indicator.forms?.map(form => form.formId);
 
       const query = { contentType: 'form', contentTypeId: { $in: formIds } };
-      const editedsubmissions = {};
-      let submissionForms: any[] = [];
 
       const fields = await sendFormsMessage({
         subdomain,
@@ -309,46 +347,27 @@ export const loadRiskConformity = (models: IModels, subdomain: string) => {
         defaultValue: []
       });
 
-      for (const field of fields) {
-        // editedFields[field.contentTypeId] = field;
-        if (submissionForms.find(form => form.formId === field.contentTypeId)) {
-          submissionForms = submissionForms.map(form =>
-            form.formId === field.contentTypeId
-              ? { ...form, fields: [...form.fields, field] }
-              : form
-          );
-        } else {
-          const { title } = await sendFormsMessage({
-            subdomain,
-            action: 'findOne',
-            data: { _id: field.contentTypeId },
-            isRPC: true,
-            defaultValue: {}
-          });
+      const editedsubmissions = {};
 
-          submissionForms.push({
-            formId: field.contentTypeId,
-            formTitle: title || '',
-            fields: [field]
-          });
-        }
-      }
       const submissions = await models.RiksFormSubmissions.find({
         cardId,
         formId: { $in: formIds },
         userId
       }).lean();
 
-      console.log({ submissions });
-
       for (const submission of submissions) {
         editedsubmissions[submission.fieldId] = submission.value;
       }
 
+      const indicators = await models.RiskIndicators.find({
+        _id: { $in: riskIndicatorIds }
+      });
+
       return {
-        forms: submissionForms,
-        submissions: editedsubmissions,
-        formId: ''
+        indicatorId: indicator._id,
+        indicators,
+        fields,
+        submissions: editedsubmissions
       };
     }
 

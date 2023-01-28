@@ -1,15 +1,22 @@
-const conformityRiskAssessment = `
-  mutation AddRiskConformity( $riskIndicatorIds: [String!], $cardId: String!,$cardType: String) {
-    addRiskConformity( riskIndicatorIds: $riskIndicatorIds, cardId: $cardId,cardType: $cardType) {
+import {
+  commonConformityParams,
+  commonConformityParamsDef,
+  commonFormSaveParams,
+  commonFormSaveParamsDef
+} from '../common/graphql';
+
+const addConformity = `
+  mutation AddRiskConformity(${commonConformityParams}) {
+    addRiskConformity(${commonConformityParamsDef}) {
       cardId
       _id
       riskAssessmentId
     }
   }
 `;
-const editConformityRiskAssessment = `
-  mutation UpdateRiskConformity($cardId: String,$cardType:String, $riskIndicatorIds: [String]) {
-    updateRiskConformity(cardId: $cardId,cardType:$cardType, riskIndicatorIds: $riskIndicatorIds) {
+const editConformity = `
+  mutation UpdateRiskConformity(${commonConformityParams}) {
+    updateRiskConformity(${commonConformityParamsDef}) {
       _id
       cardId
       cardType
@@ -18,21 +25,21 @@ const editConformityRiskAssessment = `
   }
 `;
 
-const removeConformityRiskAssessment = `
+const removeConformity = `
   mutation RemoveRiskConformity($cardId: String,$cardType:String) {
     removeRiskConformity(cardId: $cardId,cardType:$cardType) 
   }
 `;
 
 const riskFormSaveSubmission = `
-  mutation RiskFormSaveSubmissions($cardId: String,$cardType:String, $fieldId: String, $formId: String, $formSubmissions: JSON, $userId: String,$riskAssessmentId:String) {
-    riskFormSaveSubmissions(cardId: $cardId,cardType:$cardType ,fieldId: $fieldId, formId: $formId, formSubmissions: $formSubmissions, userId: $userId,riskAssessmentId: $riskAssessmentId)
+  mutation RiskFormSaveSubmissions(${commonFormSaveParams}) {
+    riskFormSaveSubmissions(${commonFormSaveParamsDef})
   }
 `;
 
 export default {
-  conformityRiskAssessment,
-  editConformityRiskAssessment,
-  removeConformityRiskAssessment,
+  addConformity,
+  editConformity,
+  removeConformity,
   riskFormSaveSubmission
 };

@@ -30,7 +30,6 @@ const RiskConformityQuries = {
     { models }: IContext
   ) {
     const resu = await models.RiskConformity.riskConformityDetail(params);
-    console.log({ resu });
     return resu;
   },
   async riskConformitySubmissions(

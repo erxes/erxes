@@ -45,10 +45,15 @@ export const riskIndicatorParams = `
     _id,
     name,
     description,
-    categoryIds,
+    categoryId,
+    operationIds
     departmentIds,
     branchIds,
     createdAt,
+    customScoreField {
+        label,
+        percentWeight
+    }
     categories{
         _id
         formId
@@ -58,16 +63,15 @@ export const riskIndicatorParams = `
       forms {
         _id
         calculateMethod
+        calculateLogics {
+            _id
+            name
+            value
+            logic
+            color
+        }
         formId
         percentWeight
-        calculateLogics {
-          _id
-          color
-          logic
-          name
-          value
-          value2
-        }
       }
 `;
 

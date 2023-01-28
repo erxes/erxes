@@ -6,13 +6,14 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { queries } from '../graphql';
 import ListComponent from '../components/List';
+import { Spinner } from '@erxes/ui/src';
 type Props = {
   queryParams: any;
   history: any;
 } & IRouterProps;
 
 type FinalProps = {
-  conformities: any;
+  listQuery: any;
   totalCount: any;
 } & Props;
 
@@ -23,13 +24,17 @@ class List extends React.Component<FinalProps, State> {
     super(props);
   }
   render() {
-    const { conformities, totalCount, queryParams, history } = this.props;
+    const { listQuery, totalCount, queryParams, history } = this.props;
+
+    if (listQuery.loading) {
+      return <Spinner />;
+    }
 
     const updatedProps = {
       queryParams,
       history,
-      list: conformities?.riskConformities || [],
-      totalCount: totalCount?.riskConformitiesTotalCount
+      list: listQuery?.riskAssessments || [],
+      totalCount: totalCount?.riskAssessmentsTotalCount
     };
 
     return <ListComponent {...updatedProps} />;
@@ -52,8 +57,8 @@ export const generateParams = ({ queryParams }) => ({
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.conformities), {
-      name: 'conformities',
+    graphql<Props>(gql(queries.riskAssessments), {
+      name: 'listQuery',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams })
       })

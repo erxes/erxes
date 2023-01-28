@@ -46,45 +46,45 @@ export const afterMutationHandlers = async (subdomain, params) => {
       cardType: type.replace('cards:', '')
     } as IRiskConformityField;
 
-    for (const data of customFieldsData) {
-      const config = await models.RiskIndicatorConfigs.findOne({
-        $or: [
-          { ...commonFilter, stageId, customFieldId: data.field },
-          { ...commonFilter, stageId: '', customFieldId: data.field }
-        ]
-      })
-        .sort({ createdAt: -1 })
-        .limit(1);
-      if (config) {
-        const customField = config.configs.find(
-          item => item.value === data.value
-        );
-        if (customField) {
-          const addedConformity = await models.RiskConformity.riskConformityAdd(
-            { ...conformity, riskIndicatorIds: [customField.riskIndicatorId] }
-          );
-          addedConformities.push(addedConformity);
-        }
-      }
-    }
+    // for (const data of customFieldsData) {
+    //   const config = await models.RiskIndicatorConfigs.findOne({
+    //     $or: [
+    //       { ...commonFilter, stageId, customFieldId: data.field },
+    //       { ...commonFilter, stageId: '', customFieldId: data.field }
+    //     ]
+    //   })
+    //     .sort({ createdAt: -1 })
+    //     .limit(1);
+    //   if (config) {
+    //     const customField = config.configs.find(
+    //       item => item.value === data.value
+    //     );
+    //     if (customField) {
+    //       const addedConformity = await models.RiskConformity.riskConformityAdd(
+    //         { ...conformity, riskIndicatorIds: [customField.riskIndicatorId] }
+    //       );
+    //       addedConformities.push(addedConformity);
+    //     }
+    //   }
+    // }
 
-    if (!addedConformities.length) {
-      const filter = { ...commonFilter, customFieldId: null, configs: [] };
+    // if (!addedConformities.length) {
+    //   const filter = { ...commonFilter, customFieldId: null, configs: [] };
 
-      const config = await models.RiskIndicatorConfigs.findOne({
-        $or: [
-          { ...filter, stageId },
-          { ...filter, stageId: '' }
-        ]
-      })
-        .sort({ createdAt: -1 })
-        .limit(1);
-      if (config?.riskIndicatorId) {
-        await models.RiskConformity.riskConformityAdd({
-          ...conformity,
-          riskIndicatorIds: [String(config?.riskIndicatorId)]
-        });
-      }
-    }
+    //   const config = await models.RiskIndicatorConfigs.findOne({
+    //     $or: [
+    //       { ...filter, stageId },
+    //       { ...filter, stageId: '' }
+    //     ]
+    //   })
+    //     .sort({ createdAt: -1 })
+    //     .limit(1);
+    //   if (config?.riskIndicatorId) {
+    //     await models.RiskConformity.riskConformityAdd({
+    //       ...conformity,
+    //       riskIndicatorIds: [String(config?.riskIndicatorId)]
+    //     });
+    //   }
+    // }
   }
 };

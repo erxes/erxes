@@ -6,7 +6,7 @@ import {
 } from './messageBroker';
 
 export const validRiskIndicators = async params => {
-  if (!params.categoryIds) {
+  if (!params.categoryId) {
     throw new Error('Please select some categories');
   }
   if (await models?.RiskIndicators.findOne({ name: params.name })) {
@@ -34,41 +34,44 @@ export const validRiskIndicators = async params => {
     if (!form.calculateMethod) {
       throw new Error('Provide a calculate method on form');
     }
-    if (!form.percentWeight) {
-      throw new Error('Provide a percent weigth on form');
+    if (forms.length > 1) {
+      if (!form.percentWeight) {
+        throw new Error('Provide a percent weigth on form');
+      }
     }
 
     percentWeight += form.percentWeight;
-
-    const { calculateLogics } = form;
-
-    if (!calculateLogics || !calculateLogics.length) {
-      throw new Error(
-        'You must specify at least one logics to calculate the form'
-      );
-    }
-
-    for (const logic of calculateLogics) {
-      if (!logic.logic) {
-        throw new Error(
-          `${logic.name} calculate logic should not be empty.Please select a logic`
-        );
-      }
-      if (!logic.color) {
-        throw new Error(
-          `${logic.name} calculate status color should not be empty.Please select some color`
-        );
-      }
-      if (!logic.value || logic.value === 0) {
-        throw new Error(
-          `${logic.name} calculate value should be greather than zero`
-        );
-      }
-    }
   }
 
-  if (percentWeight > 100) {
-    throw new Error(`all percentages must add up to 100`);
+  if (forms.length > 1) {
+    if (percentWeight > 100) {
+      throw new Error(`all percentages must add up to 100`);
+    }
+  }
+};
+
+export const validateCalculateMethods = async params => {
+  if (!params.calculateMethod) {
+    throw new Error(
+      'You must specify calculate method of general configuration'
+    );
+  }
+  if (!params.calculateLogics.length) {
+    throw new Error('You must specify at least one calculate logic');
+  }
+  for (const calculateLogic of params.calculateLogics || []) {
+    if (!calculateLogic.logic) {
+      throw new Error('You must specify calculate logic ');
+    }
+    if (!calculateLogic.name) {
+      throw new Error('You must specify calculate name ');
+    }
+    if (!calculateLogic.value) {
+      throw new Error('You must specify calculate value ');
+    }
+    if (!calculateLogic.color) {
+      throw new Error('You must specify calculate status color ');
+    }
   }
 };
 
@@ -321,4 +324,94 @@ export const getFieldsGroupByForm = async ({
   }
 
   return submissionForms;
+};
+
+export const riskAssessmentIndicator = async ({
+  models,
+  subdomain,
+  cardId,
+  cardType,
+  riskAssessmentId,
+  riskIndicatorId
+}) => {
+  const assignedUserIds = (
+    await getAsssignedUsers(subdomain, cardId, cardType)
+  ).map(user => user._id);
+
+  const submissions = await models.RiksFormSubmissions.find({
+    cardId,
+    riskAssessmentId,
+    riskIndicatorId,
+    userId: { $in: assignedUserIds }
+  });
+
+  let submittedUsers: any = {};
+
+  for (const submission of submissions) {
+    submittedUsers[submission.userId] = submission;
+  }
+
+  return Object.keys(submittedUsers).length === assignedUserIds.length;
+};
+
+export const checkEveryUserSubmitted = {
+  riskAssessmentIndicator: riskAssessmentIndicator
+};
+
+export const calculateResult = async ({
+  collection,
+  calculateLogics,
+  resultScore,
+  filter
+}) => {
+  for (const { name, value, value2, logic, color } of calculateLogics || []) {
+    let operator = logic.substring(1, 2);
+    if (operator === '≈') {
+      if (value < resultScore && resultScore < value2) {
+        return await collection.findOneAndUpdate(
+          { ...filter },
+          {
+            $set: {
+              status: name,
+              statusColor: color,
+              closedAt: Date.now()
+            }
+          },
+          { new: true }
+        );
+      }
+    }
+    if (['>', '<'].includes(operator)) {
+      operator += '=';
+      if (eval(resultScore + operator + value)) {
+        return await collection.findOneAndUpdate(
+          { ...filter },
+          {
+            $set: {
+              status: name,
+              statusColor: color,
+              closedAt: Date.now()
+            }
+          },
+          { new: true }
+        );
+      }
+    }
+
+    const doc = await collection.findOne({ ...filter });
+
+    if ((await doc.status) === 'In Progress') {
+      return await collection.findOneAndUpdate(
+        { ...filter },
+        {
+          $set: {
+            status: 'No Result',
+            statusColor: '#888',
+            closedAt: Date.now()
+          }
+        },
+        { new: true }
+      );
+    }
+  }
 };

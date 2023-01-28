@@ -27,7 +27,8 @@ import {
   PreviewWrapper,
   Box as FormTriggerBtn,
   Typography,
-  FormContent
+  FormContent,
+  RemoveRow
 } from '../../styles';
 import CreateForm from '@erxes/ui-forms/src/forms/containers/CreateForm';
 import EditForm from '@erxes/ui-forms/src/forms/containers/EditForm';
@@ -39,7 +40,7 @@ import { calculateMethods, COLORS } from '../../common/constants';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
-import { RiskCalculateLogicType } from '../../common/types';
+import { RiskCalculateLogicType } from '../common/types';
 
 type Props = {
   formId?: string;
@@ -47,6 +48,7 @@ type Props = {
   handleChange: (doc) => void;
   totalFormsCount: number;
   max: number;
+  remove: (id: string) => void;
 };
 
 type State = {
@@ -83,7 +85,7 @@ class Item extends React.Component<Props, State> {
   };
 
   renderFormContent = ({ closeModal }) => {
-    const { formId } = this.props;
+    const { doc } = this.props;
 
     const formPreview = (previewRenderer, fields: IField[]) => {
       const handleSaveForm = () => {
@@ -144,10 +146,10 @@ class Item extends React.Component<Props, State> {
       isReadyToSave: this.state.isReadyToSave,
       hideOptionalFields: false
     };
-    if (formId) {
+    if (doc.formId) {
       return (
         <ContentWrapper>
-          <EditForm {...formProps} formId={formId} />
+          <EditForm {...formProps} formId={doc.formId} />
         </ContentWrapper>
       );
     }
@@ -178,12 +180,6 @@ class Item extends React.Component<Props, State> {
               }
             : logic
         );
-      //   this.setState(prev => ({
-      //     doc: {
-      //       ...prev.doc,
-      //       calculateLogics: newVariables
-      //     }
-      //   }));
       handleChange({ ...doc, calculateLogics: newVariables });
     };
 
@@ -192,12 +188,6 @@ class Item extends React.Component<Props, State> {
       const removedLogicRows =
         doc.calculateLogics &&
         doc?.calculateLogics.filter(logic => logic._id !== _id);
-      //   this.setState(prev => ({
-      //     doc: {
-      //       ...prev.doc,
-      //       calculateLogics: removedLogicRows
-      //     }
-      //   }));
       handleChange({
         ...doc,
         calculateLogics: removedLogicRows
@@ -211,12 +201,6 @@ class Item extends React.Component<Props, State> {
         doc.calculateLogics.map(logic =>
           logic._id === _id ? { ...logic, color: hex } : logic
         );
-      //   this.setState(prev => ({
-      //     doc: {
-      //       ...prev.doc,
-      //       calculateLogics: newVariables
-      //     }
-      //   }));
       handleChange({
         ...doc,
         calculateLogics: newVariables
@@ -369,10 +353,30 @@ class Item extends React.Component<Props, State> {
       handleChange({ ...doc, percentWeight: parseInt(value) });
     };
 
+    const removeRow = id => {
+      const { doc, remove } = this.props;
+
+      if (doc.formId) {
+        return confirm(
+          'Are you sure.If you remove this row you will lose created form data'
+        ).then(() => {
+          client.mutate({
+            mutation: gql(mutations.removeUnsavedRiskAssessmentCategoryForm),
+            variables: { formId: doc.formId }
+          });
+        });
+      }
+
+      remove(id);
+    };
+
     const content = formProps => (
-      <>
-        {max}
-        <FormContainer></FormContainer>
+      <div key={doc._id}>
+        {totalFormsCount > 1 && (
+          <RemoveRow onClick={removeRow.bind(this, doc._id)}>
+            <Icon icon="times-circle" />
+          </RemoveRow>
+        )}
         <FormWrapper>
           <FormColumn>
             <FormGroup>
@@ -393,7 +397,6 @@ class Item extends React.Component<Props, State> {
                 type="number"
                 name="percentWeight"
                 value={doc?.percentWeight}
-                // max={!!max ? doc?.percentWeight + max : doc?.percentWeight}
                 max={50}
                 maxLength={50}
                 min={0}
@@ -410,18 +413,26 @@ class Item extends React.Component<Props, State> {
             trigger={formTrigger}
           />
         </FormWrapper>
-        <FormWrapper>
-          {['Name', 'Logic', 'Value', 'Status Color'].map(head => (
-            <FormColumn key={head}>
-              <ControlLabel required>{head}</ControlLabel>
-            </FormColumn>
-          ))}
-          <Tip text="Add Level" placement="bottom">
-            <Button btnStyle="default" icon="add" onClick={handleAddLevel} />
-          </Tip>
-        </FormWrapper>
-        {this.renderLogics(formProps)}
-      </>
+        {totalFormsCount === 1 && (
+          <>
+            <FormWrapper>
+              {['Name', 'Logic', 'Value', 'Status Color'].map(head => (
+                <FormColumn key={head}>
+                  <ControlLabel required>{head}</ControlLabel>
+                </FormColumn>
+              ))}
+              <Tip text="Add Level" placement="bottom">
+                <Button
+                  btnStyle="default"
+                  icon="add"
+                  onClick={handleAddLevel}
+                />
+              </Tip>
+            </FormWrapper>
+            {this.renderLogics(formProps)}
+          </>
+        )}
+      </div>
     );
 
     return <CommonForm renderContent={content} />;

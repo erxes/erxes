@@ -13,7 +13,7 @@ import {
   HeaderDescription
 } from '@erxes/ui/src';
 import React from 'react';
-import { DefaultWrapper, SelectWithRiskIndicator } from '../../common/utils';
+import { DefaultWrapper, SelectRiskIndicator } from '../../common/utils';
 import {
   cardTypes,
   statusColorConstant,
@@ -160,7 +160,7 @@ class List extends React.Component<Props> {
             field={'riskAssessmentId'}
             clearable={!!queryParams.riskAssessmentId}
           >
-            <SelectWithRiskIndicator
+            <SelectRiskIndicator
               name="riskAssessmentId"
               label="Select risk assessment"
               initialValue={queryParams?.riskAssessmentId}

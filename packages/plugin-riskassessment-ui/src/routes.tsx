@@ -24,6 +24,11 @@ const Operations = asyncComponent(() =>
     /* webpackChunkName: "List - Operations" */ './operations/containers/List'
   )
 );
+const Groups = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "List - Groups" */ './indicator/groups/containers/List'
+  )
+);
 
 const riskIndicators = ({ history, location }) => {
   return (
@@ -60,6 +65,12 @@ const operations = props => {
   );
 };
 
+const groups = props => {
+  return (
+    <Groups {...props} queryParams={queryString.parse(props.location.search)} />
+  );
+};
+
 const routes = () => {
   return (
     <>
@@ -69,6 +80,7 @@ const routes = () => {
         exact
         component={configs}
       />
+      <Route path="/settings/risk-indicators-groups" exact component={groups} />
       <Route
         path="/settings/risk-assessments"
         exact

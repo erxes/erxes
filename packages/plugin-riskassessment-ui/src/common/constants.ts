@@ -63,6 +63,7 @@ export const calculateMethods = [
 
 export const subMenu = [
   { title: 'Indicators', link: '/settings/risk-indicators' },
+  { title: 'Groups', link: '/settings/risk-indicators-groups' },
   { title: 'Assessments', link: '/settings/risk-assessments' },
   { title: 'Operations', link: '/settings/operations' },
   { title: 'Configs', link: '/settings/risk-indicators-configs' }

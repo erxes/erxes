@@ -17,7 +17,8 @@ export const commonRiskIndicatorTypes = `
     _id: String
     name: String!
     description: String
-    categoryIds: [String]
+    categoryId: String
+    operationIds: [String]
     branchIds:[String]
     departmentIds:[String]
     calculateMethod:String
@@ -40,10 +41,10 @@ export const commonAssessmentCategoryTypes = `
 export const commonFormSubmissionsTypes = `
     cardId: String,
     cardType: String,
-    formId: String,
     userId: String,
     fieldId: String,
-    riskIndicatorId: String,
+    indicatorId: String,
+    customScore:Int,
     formSubmissions:JSON
 `;
 
@@ -58,7 +59,8 @@ export const commonRiskIndicatorParams = `
         _id:String,
         name: String
         description: String
-        categoryIds: [String]
+        categoryId: String
+        operationIds:[String]
         branchIds: [String]
         departmentIds: [String]
 `;

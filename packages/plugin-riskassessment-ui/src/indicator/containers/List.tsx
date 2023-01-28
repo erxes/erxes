@@ -7,12 +7,12 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
+import { ICommonListProps } from '../../common/types';
 import {
-  ICommonListProps,
   RiskAssessmentsCategoriesQueryResponse,
   RiskIndicatorsListQueryResponse,
   RiskIndicatorsTotalCountQueryResponse
-} from '../../common/types';
+} from '../common/types';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 
@@ -28,8 +28,8 @@ type FinalProps = {
   removeMutation: any;
   categories: RiskAssessmentsCategoriesQueryResponse;
 } & Props &
-  IRouterProps &
   ICommonListProps &
+  IRouterProps &
   ICommonFormProps;
 class ListContainer extends React.Component<FinalProps> {
   render() {
@@ -82,8 +82,6 @@ class ListContainer extends React.Component<FinalProps> {
         />
       );
     };
-
-    console.log({ totalCountQuery });
 
     const updatedProps = {
       ...this.props,

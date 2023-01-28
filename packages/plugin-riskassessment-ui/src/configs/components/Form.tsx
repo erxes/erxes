@@ -12,10 +12,7 @@ import {
   Toggle
 } from '@erxes/ui/src';
 import { cardTypes } from '../../common/constants';
-import {
-  SelectCustomFields,
-  SelectWithRiskIndicator
-} from '../../common/utils';
+import { SelectCustomFields, SelectRiskIndicator } from '../../common/utils';
 import { Features, ListItem, Block, Header, FormContainer } from '../../styles';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import {
@@ -132,7 +129,7 @@ class Form extends React.Component<Props, State> {
           configs.map((field, i) => (
             <ListItem key={i}>
               <ControlLabel>{field.label}</ControlLabel>
-              <SelectWithRiskIndicator
+              <SelectRiskIndicator
                 name="riskAssessment"
                 label="Select risk assessment"
                 initialValue={field.riskIndicatorId}
@@ -232,7 +229,7 @@ class Form extends React.Component<Props, State> {
             ) : (
               <FormGroup>
                 <ControlLabel>{__('Select risk assessment')}</ControlLabel>
-                <SelectWithRiskIndicator
+                <SelectRiskIndicator
                   name="riskIndicator"
                   label="Select risk indicator"
                   initialValue={riskIndicatorId}

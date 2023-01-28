@@ -5,6 +5,7 @@ import {
   confirm,
   EmptyState,
   FormGroup,
+  Icon,
   Spinner,
   Tip,
   Toggle,
@@ -17,7 +18,8 @@ import {
   ColorPick,
   ColorPicker,
   FormColumn,
-  FormWrapper
+  FormWrapper,
+  LinkButton
 } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
@@ -26,8 +28,8 @@ import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
 import Select from 'react-select-plus';
 import { calculateMethods, COLORS } from '../../common/constants';
-import { RiskIndicatorsType, RiskCalculateLogicType } from '../../common/types';
-import { SelectWithCategory } from '../../common/utils';
+import { RiskIndicatorsType, RiskCalculateLogicType } from '../common/types';
+import { SelectOperation, SelectWithCategory } from '../../common/utils';
 import { mutations } from '../graphql';
 import { FormContainer, FormContent, Header } from '../../styles';
 import FormItem from './FormItem';
@@ -47,7 +49,8 @@ type IRiskIndicatorsStateType = {
   _id?: string;
   name?: string;
   description?: string;
-  categoryIds?: string[];
+  categoryId?: string;
+  operationIds?: string[];
   departmentIds?: string[];
   branchIds?: string[];
   forms: any[];
@@ -69,7 +72,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
 
     this.state = {
       riskIndicator: props.indicatorDetail || {
-        categoryIds: props.categoryIds || ''
+        categoryId: props.categoryId || ''
       },
       withCustomScore: props.indicatorDetail?.customScoreField ? true : false
     };
@@ -79,48 +82,24 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
 
   generateDoc(values) {
     const { riskIndicator } = this.state;
-    const { indicatorDetail, fieldsSkip } = this.props;
-    if (indicatorDetail) {
-      delete values.logic;
-      delete values.value;
-      delete values.value2;
-      riskIndicator.forms?.forEach(formData => {
-        delete formData.__typename;
-        formData.calculateLogics.forEach(logic => delete logic.__typename);
-      });
 
-      const {
-        _id,
-        name,
-        description,
-        categoryIds,
-        branchIds,
-        departmentIds,
-        forms,
-        calculateLogics,
-        calculateMethod,
-        customScoreField
-      } = riskIndicator;
+    delete values.logic;
+    delete values.value;
+    delete values.value2;
 
-      calculateLogics?.forEach(logic => {
-        delete logic.__typename;
-      });
-      return {
-        doc: {
-          ...values,
-          _id,
-          name,
-          description,
-          categoryIds,
-          departmentIds,
-          branchIds,
-          forms,
-          calculateLogics,
-          calculateMethod,
-          customScoreField
-        }
-      };
-    }
+    delete riskIndicator?.customScoreField?.__typename;
+
+    riskIndicator.forms?.forEach(formData => {
+      delete formData.__typename;
+      (formData.calculateLogics || []).forEach(
+        logic => delete logic.__typename
+      );
+    });
+
+    riskIndicator?.calculateLogics?.forEach(logic => {
+      delete logic.__typename;
+    });
+
     return { ...values, ...riskIndicator };
   }
 
@@ -332,7 +311,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
           ...riskIndicator,
           customScoreField: {
             ...riskIndicator.customScoreField,
-            [name]: name === 'percentWeigth' ? Number(value) : value
+            [name]: name === 'percentWeight' ? Number(value) : value
           }
         }
       }));
@@ -370,9 +349,9 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
               <FormGroup>
                 <FormControl
                   type="number"
-                  name="percentWeigth"
+                  name="percentWeight"
                   placeholder="Percent weight"
-                  value={customScoreField?.percentWeigth}
+                  value={customScoreField?.percentWeight}
                   onChange={handleCustomScoreField}
                 />
               </FormGroup>
@@ -411,7 +390,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
       return <EmptyState text="No Forms" icon="file-question" />;
     }
 
-    const handleChangeFormData = doc => {
+    const handleChange = doc => {
       const { riskIndicator } = this.state;
 
       const updatedForms = (riskIndicator?.forms || []).map(formData =>
@@ -423,16 +402,23 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
       }));
     };
 
+    const removeRow = (id: string) => {
+      const { riskIndicator } = this.state;
+
+      riskIndicator.forms = riskIndicator.forms.filter(form => form._id !== id);
+
+      this.setState({ riskIndicator });
+    };
+
     return (riskIndicator?.forms || []).map(form => (
-      <>
-        <FormItem
-          key={form.id}
-          doc={form}
-          handleChange={handleChangeFormData}
-          totalFormsCount={riskIndicator?.forms.length}
-          max={100}
-        />
-      </>
+      <FormItem
+        key={form.id}
+        doc={form}
+        handleChange={handleChange}
+        remove={removeRow}
+        totalFormsCount={riskIndicator?.forms.length}
+        max={100}
+      />
     ));
   }
 
@@ -459,6 +445,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     const addForm = () => {
       this.setState(prev => ({
         riskIndicator: {
+          ...prev.riskIndicator,
           forms: [
             ...(prev?.riskIndicator?.forms || []),
             { _id: String(Math.random()) }
@@ -466,28 +453,6 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         }
       }));
     };
-
-    const getMaxValuePercentWeight = () => {
-      const { riskIndicator } = this.state;
-
-      const { forms } = riskIndicator;
-
-      const percentWeights = forms
-        .map(form => form.percentWeight)
-        .filter(item => item);
-      if (percentWeights.length === 1) {
-        return 100 - percentWeights[0];
-      }
-      if (percentWeights.length > 1) {
-        const total = percentWeights.reduce((prev, curr) => prev + curr);
-        if (100 - total < 0) {
-          return 0;
-        }
-        return 100 - total;
-      }
-      return 100;
-    };
-
     return (
       <>
         <FormGroup>
@@ -512,46 +477,48 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             onChange={handleState}
           />
         </FormGroup>
-        <FormWrapper>
-          <FormColumn>
-            <FormGroup>
-              <ControlLabel>{__('Branches')}</ControlLabel>
-              <SelectBranches
-                name="branchIds"
-                label="Choose Branches"
-                multi={true}
-                initialValue={riskIndicator?.branchIds}
-                onSelect={value => handleChangeSelection('branchIds', value)}
-              />
-            </FormGroup>
-          </FormColumn>
-          <FormColumn>
-            <FormGroup>
-              <ControlLabel>{__('Departments')}</ControlLabel>
-              <SelectDepartments
-                name="Departments"
-                label="Choose Departments"
-                multi={true}
-                initialValue={riskIndicator?.departmentIds}
-                onSelect={value =>
-                  handleChangeSelection('departmentIds', value)
-                }
-              />
-            </FormGroup>
-          </FormColumn>
-          <FormColumn>
-            <FormGroup>
-              <ControlLabel>{__('Categories')}</ControlLabel>
-              <SelectWithCategory
-                name="categoryIds"
-                label="Choose Category"
-                multi={true}
-                initialValue={riskIndicator?.categoryIds}
-                onSelect={value => handleChangeSelection('categoryIds', value)}
-              />
-            </FormGroup>
-          </FormColumn>
-        </FormWrapper>
+        <FormGroup>
+          <ControlLabel>{__('Category')}</ControlLabel>
+          <SelectWithCategory
+            name="categoryId"
+            label="Choose Category"
+            multi={false}
+            initialValue={riskIndicator?.categoryId}
+            onSelect={value => handleChangeSelection('categoryId', value)}
+          />
+        </FormGroup>
+        <FormContainer row flex gap>
+          <FormGroup>
+            <ControlLabel>{__('Branches')}</ControlLabel>
+            <SelectBranches
+              name="branchIds"
+              label="Choose Branches"
+              multi={true}
+              initialValue={riskIndicator?.branchIds}
+              onSelect={value => handleChangeSelection('branchIds', value)}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('Departments')}</ControlLabel>
+            <SelectDepartments
+              name="Departments"
+              label="Choose Departments"
+              multi={true}
+              initialValue={riskIndicator?.departmentIds}
+              onSelect={value => handleChangeSelection('departmentIds', value)}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('Operations')}</ControlLabel>
+            <SelectOperation
+              name="operationIds"
+              label="Choose Operations"
+              multi={true}
+              initialValue={riskIndicator?.operationIds}
+              onSelect={value => handleChangeSelection('operationIds', value)}
+            />
+          </FormGroup>
+        </FormContainer>
 
         <FormContainer column gap style={{ padding: 10 }}>
           {this.renderGeneralLogics(formProps)}
@@ -559,11 +526,13 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             <FormColumn>
               <Header>{__('Forms')}</Header>
             </FormColumn>
+          </FormWrapper>
+          {this.renderForms()}
+          <div style={{ textAlign: 'center' }}>
             <Button icon="plus-1" onClick={addForm}>
               {__('Add Form')}
             </Button>
-          </FormWrapper>
-          {this.renderForms()}
+          </div>
         </FormContainer>
       </>
     );

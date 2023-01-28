@@ -8,14 +8,19 @@ import { mutations, queries } from '../graphql';
 import { Spinner, confirm, Alert } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { generateParams, refetchQueries } from '../common/utils';
+import {
+  OperationsQueryResponse,
+  OperationsTotalCountQueryResponse,
+  RemoveOperationsMutationResponse
+} from '../common/types';
 type Props = {
   queryParams: any;
 } & IRouterProps;
 
 type FinalProps = {
-  listQuery: any;
-  totalCountQuery: any;
-  removeOperations: any;
+  listQuery: OperationsQueryResponse;
+  totalCountQuery: OperationsTotalCountQueryResponse;
+  removeOperations: (params: { variables: { ids: string[] } }) => any;
 } & Props;
 
 class List extends React.Component<FinalProps> {
@@ -65,11 +70,14 @@ export default withProps<Props>(
         variables: generateParams(queryParams)
       })
     }),
-    graphql<Props>(gql(mutations.removeOperations), {
-      name: 'removeOperations',
-      options: ({ queryParams }) => ({
-        refetchQueries: refetchQueries(queryParams)
-      })
-    })
+    graphql<Props, RemoveOperationsMutationResponse>(
+      gql(mutations.removeOperations),
+      {
+        name: 'removeOperations',
+        options: ({ queryParams }) => ({
+          refetchQueries: refetchQueries(queryParams)
+        })
+      }
+    )
   )(List)
 );

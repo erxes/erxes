@@ -1,7 +1,8 @@
 const riskIndicatorParams = `
     $name: String!, 
     $description: String, 
-    $categoryIds: [String],
+    $categoryId: String,
+    $operationIds:[String]
     $departmentIds: [String],
     $branchIds: [String],
     $calculateMethod:String,
@@ -13,7 +14,8 @@ const riskIndicatorParams = `
 const riskIndicatorParamsDef = `
     name:$name,
     description:$description,
-    categoryIds:$categoryIds,
+    categoryId:$categoryId,
+    operationIds: $operationIds,
     departmentIds:$departmentIds,
     branchIds:$branchIds,
     calculateMethod:$calculateMethod,
@@ -29,14 +31,14 @@ mutation AddRiskIndicator(${riskIndicatorParams}) {
 `;
 
 const riskIndicatorRemove = `
-  mutation RemoveRiskIndicator($_ids:[String]){
-    removeRiskIndicator(_ids: $_ids)
+  mutation RemoveRiskIndicators($_ids:[String]){
+    removeRiskIndicators(_ids: $_ids)
   }
 `;
 
 const riskIndicatorUpdate = `
-  mutation UpdateRiskIndicator($doc:IRiskIndicator){
-    updateRiskIndicator(doc:$doc)
+  mutation UpdateRiskIndicator($_id:String, ${riskIndicatorParams}){
+    updateRiskIndicator(_id:$_id,${riskIndicatorParamsDef})
   }
 `;
 

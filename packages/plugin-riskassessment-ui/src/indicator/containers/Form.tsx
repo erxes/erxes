@@ -7,7 +7,7 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { RiskIndicatortDetailQueryResponse } from '../../common/types';
+import { RiskIndicatortDetailQueryResponse } from '../common/types';
 import FormCompnent from '../components/Form';
 import { queries } from '../graphql';
 

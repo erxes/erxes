@@ -1,9 +1,27 @@
 import { riskConformityParams } from '../../common/graphql';
 
+const commonIndicatorParams = `
+  $departmentIds:[String]
+  $branchIds:[String]
+  $operationIds:[String],
+  $categoryIds: [String],
+  $searchValue: String,
+  $perPage: Int
+`;
+
+const commonIndicatorParamsDef = `
+  categoryIds: $categoryIds ,
+  perPage: $perPage,
+  searchValue: $searchValue,
+  branchIds: $branchIds,
+  departmentIds: $departmentIds
+  operationIds: $operationIds
+`;
+
 const riskIndicators = `
-  query RiskIndicators($categoryIds: [String],,$searchValue: String,$perPage: Int) {
-    riskIndicators(categoryIds: $categoryIds ,perPage: $perPage,searchValue: $searchValue) {
-      _id,name,description,categoryIds
+  query RiskIndicators(${commonIndicatorParams}) {
+    riskIndicators(${commonIndicatorParamsDef}) {
+      _id,name,description,categoryId
     }
   }
   `;
@@ -12,10 +30,8 @@ const riskConformity = `
     riskConformity(cardId: $cardId) {
       _id
       cardId
-      riskIndicatorIds
-      riskIndicators
       riskAssessmentId
-      riskAssessmentId
+      riskAssessment
     }
   }
 `;
@@ -27,8 +43,12 @@ const riskConformityDetail = `
       cardId
       riskAssessmentId
       riskAssessment
-      riskIndicatorIds
+      riskIndicatorId
+      groupId
       riskIndicators
+      operationIds
+      branchIds
+      departmentIds
     } 
   }`;
 
@@ -39,11 +59,21 @@ const riskConformitySubmissions = `
 `;
 
 const riskConformityFormDetail = `
-  query RiskConformityFormDetail($cardId: String,$userId: String,$riskAssessmentId: String,) {
-    riskConformityFormDetail(cardId: $cardId, userId: $userId,riskAssessmentId: $riskAssessmentId){
-      forms
-      formId
+  query RiskConformityFormDetail($cardId: String,$userId: String,$riskAssessmentId: String,$riskIndicatorId:String) {
+    riskConformityFormDetail(cardId: $cardId, userId: $userId,riskAssessmentId: $riskAssessmentId,riskIndicatorId: $riskIndicatorId){
+      fields
+      indicatorId
+      indicator {
+        customScoreField {
+          label
+          percentWeight
+        }
+      }
       submissions
+      indicators {
+        _id
+        name
+      }
     }
   }
 `;

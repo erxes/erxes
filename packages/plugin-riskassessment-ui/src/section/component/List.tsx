@@ -9,12 +9,13 @@ import {
   Tip
 } from '@erxes/ui/src/components';
 import React from 'react';
-import { ICardRiskAssements, RiskIndicatorsType } from '../../common/types';
+import { IConformityDetail } from '../common/types';
+import { RiskIndicatorsType } from '../../indicator/common/types';
 import { ColorBox, ProductName } from '../../styles';
-import RiskAssessmentChooser from '../container/Chooser';
-import Submissions from '../container/Submissions';
+import RiskAssessmentChooser from '../container/Form';
+import SubmitForm from '../container/SubmitForm';
 type Props = {
-  conformity: ICardRiskAssements;
+  conformity: IConformityDetail;
   refetch: () => void;
   refetchSubmissions: () => void;
   submissions: any[];
@@ -26,15 +27,14 @@ type Props = {
 function RiskAssessmentSection(props: Props) {
   const { conformity, submissions, currentUser } = props;
 
-  const renderChooserModal = (
-    trigger: React.ReactNode,
-    riskIndicatorId?: string
-  ) => {
+  const renderChooserModal = (trigger: React.ReactNode) => {
+    const { cardId } = props;
     const content = ({ closeModal }) => {
       const updateProps = {
         ...props,
         closeModal,
-        riskIndicatorId
+        cardId,
+        id: cardId
       };
 
       return <RiskAssessmentChooser {...updateProps} />;
@@ -42,7 +42,7 @@ function RiskAssessmentSection(props: Props) {
 
     return (
       <ModalTrigger
-        size="lg"
+        size="xl"
         trigger={trigger}
         content={content}
         title="Risk Assessment"
@@ -50,10 +50,10 @@ function RiskAssessmentSection(props: Props) {
     );
   };
 
-  const renderItem = (item: RiskIndicatorsType, statusColor) => {
+  const renderItem = (title, statusColor) => {
     return (
       <ProductName>
-        {item && item?.name}
+        {title && title}
         <ColorBox color={statusColor && statusColor} />
       </ProductName>
     );
@@ -78,15 +78,6 @@ function RiskAssessmentSection(props: Props) {
           </Button>
         );
       }
-      // if (conformity?.status === 'In Progress') {
-      //   return (
-      //     <Button btnStyle="link">
-      //       <Tip text="In Progress" placement="bottom">
-      //         <Icon icon="loading" />
-      //       </Tip>
-      //     </Button>
-      //   );
-      // }
     }
 
     const trigger = (
@@ -109,10 +100,11 @@ function RiskAssessmentSection(props: Props) {
         refetch: props.refetch,
         riskIndicatorId: riskIndicatorId,
         refetchSubmissions: props.refetchSubmissions,
+        riskAssessmentId: conformity.riskAssessmentId,
         isSubmitted: isSubmitted
       };
 
-      return <Submissions {...updateProps} />;
+      return <SubmitForm {...updateProps} />;
     };
 
     return (
@@ -128,32 +120,22 @@ function RiskAssessmentSection(props: Props) {
   };
 
   const renderRiskAssessmentList = () => {
-    if (!conformity) {
+    if (!conformity?.riskAssessment) {
       return <EmptyState icon="folder-2" text={`No risk assessment`} />;
     }
+    const { riskAssessment, cardId } = conformity;
 
-    const { riskIndicators } = conformity;
-
-    // return (
-    //   <div>
-    //     {
-    //       <SectionBodyItem key={conformity?.riskIndicatorId}>
-    //         {renderChooserModal(
-    //           renderItem(conformity?.riskIndicator, conformity?.statusColor),
-    //           conformity?.riskIndicatorId
-    //         )}
-    //       </SectionBodyItem>
-    //     }
-    //   </div>
-    // );
-    return riskIndicators.map(riskIndicator => (
-      <SectionBodyItem key={riskIndicator._id}>
-        {renderChooserModal(
-          renderItem(riskIndicator.detail, riskIndicator.statusColor),
-          riskIndicator._id
-        )}
-      </SectionBodyItem>
-    ));
+    return (
+      <div>
+        {
+          <SectionBodyItem key={conformity?._id}>
+            {renderChooserModal(
+              renderItem(riskAssessment?.status, riskAssessment?.statusColor)
+            )}
+          </SectionBodyItem>
+        }
+      </div>
+    );
   };
 
   const renderAssignedUserList = () => {

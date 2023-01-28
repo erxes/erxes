@@ -1,12 +1,14 @@
 import { paginate } from '@erxes/api-utils/src';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { Model } from 'mongoose';
-import { IModels } from '../connectionResolver';
+import { IModels, models } from '../connectionResolver';
 import { sendFormsMessage } from '../messageBroker';
-import { validRiskIndicators } from '../utils';
+import { validateCalculateMethods, validRiskIndicators } from '../utils';
 import { IRiskIndicatorsField, PaginateField } from './definitions/common';
 import {
+  IIndicatorsGroupsDocument,
   IRiskIndicatorsDocument,
+  riskIndicatorGroupSchema,
   riskIndicatorSchema
 } from './definitions/indicator';
 
@@ -25,9 +27,10 @@ export interface IRiskIndicatorsModel extends Model<IRiskIndicatorsDocument> {
     params: IRiskIndicatorsField
   ): Promise<IRiskIndicatorsDocument>;
   riskIndicatorRemove(_ids: string[]): void;
-  riskIndicatorUpdate(params: {
-    doc: IRiskIndicatorsField;
-  }): Promise<IRiskIndicatorsDocument>;
+  riskIndicatorUpdate(
+    _id?: string,
+    doc?: IRiskIndicatorsField
+  ): Promise<IRiskIndicatorsDocument>;
   removeUnusedRiskIndicatorForm(
     ids: string[]
   ): Promise<IRiskIndicatorsDocument>;
@@ -89,6 +92,16 @@ const generateFilter = (
     filter._id = { $nin: params.ignoreIds };
   }
 
+  if (params?.branchIds?.length) {
+    filter.branchIds = { $in: params.branchIds };
+  }
+  if (params?.departmentIds?.length) {
+    filter.departmentIds = { $in: params.departmentIds };
+  }
+  if (params?.operationIds?.length) {
+    filter.operationIds = { $in: params.operationIds };
+  }
+
   return filter;
 };
 
@@ -139,37 +152,36 @@ export const loadRiskIndicators = (model: IModels, subdomain: string) => {
     }
 
     public static async riskIndicatorRemove(_ids: string[]) {
+      console.log({ _ids });
       if (!_ids) {
         throw new Error('Please select a list of risk assessment IDs');
       }
       try {
-        await model.RiskConformity.deleteMany({
-          riskIndicatorId: { $in: _ids }
-        });
-        await model.RiksFormSubmissions.deleteMany({
-          riskIndicatorId: { $in: _ids }
-        });
-        await model.RiskIndicators.deleteMany({ _id: { $in: _ids } });
-        return true;
+        // await model.RiskConformity.deleteMany({
+        //   riskIndicatorId: { $in: _ids }
+        // });
+        // await model.RiksFormSubmissions.deleteMany({
+        //   riskIndicatorId: { $in: _ids }
+        // });
+        console.log({ _ids });
+        return await model.RiskIndicators.deleteMany({ _id: { $in: _ids } });
       } catch (e) {
         throw new Error(e.message);
       }
     }
 
-    public static async riskIndicatorUpdate(params: {
-      _id: string;
-      doc: { _id: string } & IRiskIndicatorsField;
-    }) {
-      const { doc } = params;
-
-      if (!doc._id && !doc) {
+    public static async riskIndicatorUpdate(
+      _id: string,
+      doc: IRiskIndicatorsField
+    ) {
+      if (!_id && !doc) {
         throw new Error('Not found risk assessment');
       }
 
       console.log({ doc });
 
       try {
-        return await model.RiskIndicators.findByIdAndUpdate(doc._id, doc);
+        return await model.RiskIndicators.findByIdAndUpdate(_id, doc);
       } catch (e) {
         throw new Error('Something went wrong');
       }
@@ -205,4 +217,54 @@ export const loadRiskIndicators = (model: IModels, subdomain: string) => {
   }
   riskIndicatorSchema.loadClass(RiskIndicatorClass);
   return riskIndicatorSchema;
+};
+
+export interface IIndicatorsGroupsModel
+  extends Model<IIndicatorsGroupsDocument> {
+  addGroup(doc: any): Promise<any>;
+  updateGroup(_id: string, doc: any): Promise<any>;
+  removeGroups(ids: string[]): Promise<any>;
+}
+
+export const loadIndicatorsGroups = (models: IModels, subdomain: string) => {
+  class IndicatorsGroupsClass {
+    public static async addGroup(doc) {
+      await this.validateIndicatorsGroups(doc);
+
+      return await models.IndicatorsGroups.create({ ...doc });
+    }
+    public static async updateGroup(_id: string, doc: any) {
+      const group = await models.IndicatorsGroups.findOne({ _id });
+      if (!group) {
+        throw new Error('Indicators groups not found');
+      }
+      await validateCalculateMethods(doc);
+      return await models.IndicatorsGroups.updateOne(
+        { _id },
+        { $set: { ...doc } }
+      );
+    }
+    public static async removeGroups(ids: string[]) {
+      return await models.IndicatorsGroups.deleteMany(ids);
+    }
+    static async validateIndicatorsGroups(params) {
+      if ((params.groups || []).length > 1) {
+        for (const group of params.groups) {
+          if (!group.percentWeight) {
+            throw new Error('Group must provide a percent weight');
+          }
+        }
+        await validateCalculateMethods(params);
+      }
+      for (const group of params.groups || []) {
+        if (!(group.indicatorIds || []).length) {
+          throw new Error('You should select some indicator each group');
+        }
+        await validateCalculateMethods(group);
+      }
+    }
+  }
+
+  riskIndicatorGroupSchema.loadClass(IndicatorsGroupsClass);
+  return riskIndicatorGroupSchema;
 };

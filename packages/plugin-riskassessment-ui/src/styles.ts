@@ -96,9 +96,13 @@ export const FormContainer = styledTS<{
   gapBetween?: number;
   align?: string;
   justifyCenter?: boolean;
+  flex?: boolean;
+  justify?: string;
+  padding?: string;
 }>(styled.div)`
   display: flex;
   flex-wrap: wrap;
+  padding:${({ padding }) => (padding ? padding : '')};
   flex-direction: ${({ row }) => row && 'row'} ${({ column }) =>
   column && 'column'};
   justify-content: ${({ spaceBetween }) =>
@@ -108,6 +112,13 @@ export const FormContainer = styledTS<{
   gap: ${({ gapBetween }) => (gapBetween ? `${gapBetween}px` : '')};
   place-items:${({ align }) => (align ? align : '')};
   justify-content:${({ justifyCenter }) => (justifyCenter ? 'center' : '')}; 
+  justify-content:${({ justify }) => (justify ? justify : '')}; 
+  ${({ flex }) =>
+    flex
+      ? `div {
+    flex:1
+  }`
+      : ''}
 `;
 
 export const BoxItem = styled.div`
@@ -375,4 +386,13 @@ export const FormContent = styled.div`
   padding: 10px;
   border-radius: 5px;
   box-shadow: 0 0 5px 0 rgba(221, 221, 221, 0.7);
+`;
+
+export const RemoveRow = styled.div`
+  color: ${colors.colorCoreRed};
+  text-align: end;
+
+  &:hover {
+    cursor: pointer;
+  }
 `;
