@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ContentState, EditorState, getDefaultKeyBinding } from 'draft-js';
 // erxes
 import Alert from '@erxes/ui/src/utils/Alert';
@@ -28,18 +28,24 @@ import {
 
 type Props = {
   type?: string;
+  reply?: any;
   setReply: (message: any) => void;
   sendMessage: (message: string, attachments: any[]) => void;
 };
 
 const Editor = (props: Props) => {
-  const { type } = props;
+  const { type, reply } = props;
   const [loading, setLoading] = useState<object>({});
   const [attachments, setAttachments] = useState<any>([]);
   const [message, setMessage] = useState<string>('');
   const [editorState, setEditorState] = useState<any>(() =>
     EditorState.createEmpty()
   );
+  const editorRef = useRef<any>(null);
+
+  useEffect(() => {
+    editorRef.current.focus();
+  }, [reply]);
 
   const handleSendMessage = () => {
     if (type === 'widget') {
@@ -209,6 +215,7 @@ const Editor = (props: Props) => {
         {renderIndicator()}
         <ChatEditor>
           <ErxesEditor
+            ref={editorRef}
             editorState={editorState}
             onChange={setEditorState}
             integrationKind={''}
