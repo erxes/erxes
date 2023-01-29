@@ -59,7 +59,7 @@ const MessageItem = (props: FinalProps) => {
 
   const renderAttachments = () => {
     return (message.attachments || []).map(attachment => (
-      <Attachment key={attachment._id} attachment={attachment || {}} />
+      <Attachment key={attachment._id} attachment={attachment || {}} simple />
     ));
   };
 
