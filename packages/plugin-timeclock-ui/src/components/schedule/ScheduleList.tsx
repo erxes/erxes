@@ -1,16 +1,17 @@
 import Button from '@erxes/ui/src/components/Button';
 import { __ } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
+import React from 'react';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Table from '@erxes/ui/src/components/table';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import { CustomRow } from '../../styles';
 
 import { IBranch } from '@erxes/ui/src/team/types';
 import Tip from '@erxes/ui/src/components/Tip';
 import ScheduleForm from './ScheduleForm';
 import { IScheduleConfig } from '../../types';
+import dayjs from 'dayjs';
+import { dateFormat } from '../../constants';
 
 type Props = {
   scheduleOfMembers: any;
@@ -125,7 +126,9 @@ function ScheduleList(props: Props) {
           {shifts.map(shift => {
             return (
               <CustomRow key={shift.shiftEnd} marginNum={10}>
-                {new Date(shift.shiftStart).toDateString()}
+                {new Date(shift.shiftStart).toDateString().split(' ')[0] +
+                  '\t' +
+                  dayjs(shift.shiftStart).format(dateFormat)}
               </CustomRow>
             );
           })}
@@ -205,7 +208,9 @@ function ScheduleList(props: Props) {
     return schedule.shifts.length > 0 ? (
       <tr>
         <td>
-          {schedule.user && schedule.user.details.fullName
+          {schedule.user &&
+          schedule.user.details &&
+          schedule.user.details.fullName
             ? schedule.user.details.fullName
             : schedule.user.email}
         </td>
@@ -239,13 +244,7 @@ function ScheduleList(props: Props) {
             />
           </Tip>
         </td>
-        {ListShiftContent(
-          schedule.shifts.sort(
-            (a, b) =>
-              new Date(a.shiftStart).getTime() -
-              new Date(b.shiftStart).getTime()
-          )
-        )}
+        {ListShiftContent(schedule.shifts)}
       </tr>
     ) : (
       <></>

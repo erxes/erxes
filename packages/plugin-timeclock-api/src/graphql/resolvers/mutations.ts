@@ -170,19 +170,8 @@ const timeclockMutations = {
 
     return updated;
   },
-  absenceTypeAdd(
-    _root,
-    { name, explRequired, attachRequired },
-    { models }: IContext
-  ) {
-    const explanationReqd: boolean = explRequired;
-    const attachReqd: boolean = attachRequired;
-
-    return models.AbsenceTypes.createAbsenceType({
-      name: `${name}`,
-      explRequired: explanationReqd,
-      attachRequired: attachReqd
-    });
+  absenceTypeAdd(_root, doc, { models }: IContext) {
+    return models.AbsenceTypes.createAbsenceType(doc);
   },
 
   absenceTypeRemove(_root, { _id }, { models }: IContext) {
@@ -217,22 +206,21 @@ const timeclockMutations = {
     { _id, status, ...doc }: IAbsenceEdit,
     { models }: IContext
   ) {
-    const absence = models.Absences.getAbsence(_id);
+    const shiftRequest = await models.Absences.getAbsence(_id);
     let updated = models.Absences.updateAbsence(_id, {
       status: `${status}`,
       solved: true,
       ...doc
     });
 
-    const shiftRequest = await absence;
+    const findAbsenceType = await models.AbsenceTypes.getAbsenceType(
+      shiftRequest.absenceTypeId || ''
+    );
 
     // if request is shift request
-    if (
-      shiftRequest.reason &&
-      shiftRequest.reason.toLocaleLowerCase() === 'shift request'
-    ) {
+    if (findAbsenceType && findAbsenceType.shiftRequest) {
       updated = models.Absences.updateAbsence(_id, {
-        status: `Shift / ${status}`,
+        status: `Shift request / ${status}`,
         ...doc
       });
       // if shift request is approved
@@ -255,7 +243,8 @@ const timeclockMutations = {
           userId: shiftRequest.userId,
           shiftStart: shiftRequest.startTime,
           shiftEnd: shiftRequest.endTime,
-          shiftActive: false
+          shiftActive: false,
+          deviceType: 'Shift request'
         });
       }
     }
@@ -364,7 +353,12 @@ const timeclockMutations = {
       return concatBranchDept.indexOf(value) === pos;
     });
 
-    return createScheduleShiftsByUserIds(unionOfUserIds, shifts, models);
+    return createScheduleShiftsByUserIds(
+      unionOfUserIds,
+      shifts,
+      models,
+      scheduleConfigId
+    );
   },
 
   scheduleRemove(_root, { _id }, { models }: IContext) {
