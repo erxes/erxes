@@ -58,7 +58,7 @@ export const Title = styled.h5`
 `;
 
 export const ChatActions = styled.div`
-  z-index: 100;
+  z-index: 1;
   visibility: hidden;
 
   position: absolute;
@@ -115,6 +115,7 @@ export const WidgetPopoverWrapper = styled.div`
   max-height: 500px !important;
   position: relative;
   padding: ${dimensions.coreSpacing}px 0;
+  overflow-y: scroll;
 `;
 
 export const WidgetPopoverSeeAll = styled.div`
@@ -123,6 +124,8 @@ export const WidgetPopoverSeeAll = styled.div`
   width: 100%;
   border-top: 1px solid ${colors.borderPrimary};
   height: 30px;
+  background-color: white;
+  z-index: 1;
 
   a {
     padding: 5px ${dimensions.coreSpacing}px;
