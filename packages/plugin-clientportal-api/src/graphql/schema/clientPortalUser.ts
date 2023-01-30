@@ -14,7 +14,7 @@ ${
     : ''
 }
 
-  type ClientPortalUser {
+  type ClientPortalUser @key(fields: "_id") {
     _id: String!
     createdAt: Date
     modifiedAt: Date
