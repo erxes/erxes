@@ -1,33 +1,33 @@
 import * as compose from 'lodash.flowright';
 
 import {
-  TemplatesQueryResponse,
-  TemplatesTotalCountQueryResponse,
+  ISite,
+  ISiteDoc,
+  SitesEditMutationResponse,
   TemplatesUseMutationResponse
 } from '../../types';
 import { mutations, queries } from '../../graphql';
 
 import { Alert } from '@erxes/ui/src/utils';
-import List from '../../components/templates/List';
 import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import TemplateForm from '../../components/templates/TemplateForm';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 
 type Props = {
   currentTemplateId?: string;
   closeModal: () => void;
-  selectedSite: string;
+  selectedSite: ISiteDoc;
 };
 
-type FinalProps = {} & Props & TemplatesUseMutationResponse;
+type FinalProps = {} & Props &
+  TemplatesUseMutationResponse &
+  SitesEditMutationResponse;
 
 function TemplateFormContainer(props: FinalProps) {
-  const { templatesUse } = props;
+  const { templatesUse, sitesEditMutation, closeModal } = props;
 
-  const use = (_id: string, name: string) => {
+  const useTemplate = (_id: string, name: string) => {
     templatesUse({ variables: { _id, name } })
       .then(res => {
         const {
@@ -42,9 +42,22 @@ function TemplateFormContainer(props: FinalProps) {
         Alert.error(e.message);
       });
   };
+
+  const saveSite = (_id: string, args: ISite) => {
+    sitesEditMutation({ variables: { _id, ...args } })
+      .then(res => {
+        Alert.success('Successfully saved a website');
+        closeModal();
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
+
   const updatedProps = {
     ...props,
-    use
+    useTemplate,
+    saveSite
   };
 
   return <TemplateForm {...updatedProps} />;
@@ -63,6 +76,15 @@ export default compose(
             siteId: selectedSite
           }
         }
+      ]
+    })
+  }),
+  graphql<Props, SitesEditMutationResponse>(gql(mutations.sitesEdit), {
+    name: 'sitesEditMutation',
+    options: () => ({
+      refetchQueries: [
+        { query: gql(queries.sites), variables: { fromSelect: true } },
+        { query: gql(queries.sitesTotalCount) }
       ]
     })
   })

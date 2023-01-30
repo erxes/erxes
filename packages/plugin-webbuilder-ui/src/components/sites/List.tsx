@@ -11,7 +11,9 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import { ISiteDoc } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
+import TemplateForm from '../../containers/templates/TemplateForm';
 import { __ } from '@erxes/ui/src/utils';
 import { getEnv } from '@erxes/ui/src/utils/core';
 
@@ -45,13 +47,27 @@ class SiteList extends React.Component<Props, State> {
     window.open(`${url}`, '_blank');
   };
 
-  onEdit = (currentSite: ISiteDoc) => {
-    this.setState({ currentSite });
+  renderEditAction = (site: ISiteDoc) => {
+    const trigger = (
+      <Button btnStyle="white" icon="edit">
+        {__('Edit site')}
+      </Button>
+    );
+
+    const content = ({ closeModal }) => (
+      <TemplateForm closeModal={closeModal} selectedSite={site} />
+    );
+
+    return (
+      <ModalTrigger
+        title="Edit your site"
+        trigger={trigger}
+        content={content}
+      />
+    );
   };
 
   renderList(site: ISiteDoc) {
-    const { remove } = this.props;
-
     return (
       <SiteBox key={site._id} nowrap={true}>
         <SitePreview>
@@ -68,13 +84,7 @@ class SiteList extends React.Component<Props, State> {
             >
               {__('View site')}
             </Button>
-            <Button
-              btnStyle="white"
-              onClick={() => this.onEdit(site)}
-              icon="edit"
-            >
-              {__('Edit site')}
-            </Button>
+            {this.renderEditAction(site)}
           </PreviewContent>
         </SitePreview>
         <Content>
@@ -92,7 +102,7 @@ class SiteList extends React.Component<Props, State> {
                   <Icon icon="edit-3" /> {__('Editor')}
                 </li>
               </a>
-              <li key="delete" onClick={() => remove(site._id)}>
+              <li key="delete" onClick={() => this.props.remove(site._id)}>
                 <Icon icon="trash-alt" size={14} /> {__('Delete')}
               </li>
             </Dropdown.Menu>

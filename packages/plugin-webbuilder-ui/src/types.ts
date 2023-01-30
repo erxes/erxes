@@ -61,7 +61,7 @@ export interface ITemplateDoc extends ITemplate {
 export interface ISite {
   name: string;
   domain: string;
-  templateImage: string;
+  templateImage?: string;
 }
 
 export interface ISiteDoc extends ISite {
