@@ -143,22 +143,22 @@ function ScheduleForm(props: Props) {
     const oldShiftEnd = newShift.shiftEnd;
     const oldShiftStart = newShift.shiftStart;
 
+    const newDateKey = selectedDate.toLocaleDateString();
+
     const newShiftStart = dayjs(
-      selectedDate.toLocaleDateString() +
-        ' ' +
-        dayjs(oldShiftStart).format(timeFormat)
+      newDateKey + ' ' + dayjs(oldShiftStart).format(timeFormat)
     ).toDate();
     const newShiftEnd = dayjs(
-      selectedDate.toLocaleDateString() +
-        ' ' +
-        dayjs(oldShiftEnd).format(timeFormat)
+      newDateKey + ' ' + dayjs(oldShiftEnd).format(timeFormat)
     ).toDate();
 
     newShift.shiftDate = selectedDate;
     newShift.shiftStart = newShiftStart;
     newShift.shiftEnd = newShiftEnd;
 
-    const newScheduleDates = { ...scheduleDates, [day_key]: newShift };
+    delete scheduleDates[day_key];
+    const newScheduleDates = { ...scheduleDates, [newDateKey]: newShift };
+
     setScheduleDates(newScheduleDates);
   };
 
@@ -272,10 +272,6 @@ function ScheduleForm(props: Props) {
       new Date(getLatestDayKey + ' ' + defaultStartTime),
       new Date(getLatestDayKey + ' ' + defaultEndTime)
     );
-    // : [
-    //     new Date(getLatestDayKey + ' ' + defaultStartTime),
-    //     new Date(getLatestDayKey + ' ' + defaultEndTime)
-    //   ];
     dates[getLatestDayKey] = {
       shiftDate: new Date(getLatestDayKey),
       shiftStart: getCorrectShiftStart,
