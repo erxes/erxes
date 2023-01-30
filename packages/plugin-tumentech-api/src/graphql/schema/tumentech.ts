@@ -205,6 +205,8 @@ type Topup @key(fields: "_id") @cacheControl(maxAge: 3) {
   customerId: String
   amount: Float
   createdAt: Date
+
+  customer: Customer
 }
 
 type TopupListResponse {
@@ -399,6 +401,8 @@ export const mutations = `
   selectWinner(dealId: String!, driverId: String!): Participant
 
   topupAccount(invoiceId: String): JSON
+
+  manualTopup(customerId: String!, amount: Float!): JSON
 
   revealPhone(driverId: String, carId: String, dealId: String): String
 

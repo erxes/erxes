@@ -41,6 +41,10 @@ const TripDetail = asyncComponent(() =>
   import(/* webpackChunkName: "TripDetail" */ './containers/trips/Detail')
 );
 
+const TopupList = asyncComponent(() =>
+  import(/* webpackChunkName: "TopupList" */ './containers/topup/List')
+);
+
 const placeList = history => {
   const { location } = history;
   const queryParams = queryString.parse(location.search);
@@ -99,6 +103,15 @@ const productdetails = ({ match }) => {
 const product = ({ location, history }) => {
   return (
     <ProductList
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const topupList = ({ location, history }) => {
+  return (
+    <TopupList
       queryParams={queryString.parse(location.search)}
       history={history}
     />
@@ -164,6 +177,13 @@ const routes = () => {
         exact={true}
         path="/erxes-plugin-tumentech/trips/detail/:id"
         component={tripDetail}
+      />
+
+      <Route
+        key="erxes-plugin-tumentech/topup"
+        exact={true}
+        path="/erxes-plugin-tumentech/topup"
+        component={topupList}
       />
     </React.Fragment>
   );
