@@ -162,7 +162,12 @@ export const putCreateLog = async (
   return commonPutCreateLog(
     subdomain,
     messageBroker(),
-    { ...params, extraDesc, description, type: `core:${params.type}` },
+    {
+      ...params,
+      extraDesc,
+      description: description || params.description || '',
+      type: `core:${params.type}`
+    },
     user
   );
 };
@@ -187,7 +192,12 @@ export const putUpdateLog = async (
   return commonPutUpdateLog(
     subdomain,
     messageBroker(),
-    { ...params, type: `core:${params.type}`, extraDesc, description },
+    {
+      ...params,
+      type: `core:${params.type}`,
+      extraDesc,
+      description: description || params.description || ''
+    },
     user
   );
 };
