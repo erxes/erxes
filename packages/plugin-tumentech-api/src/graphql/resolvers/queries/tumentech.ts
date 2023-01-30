@@ -9,7 +9,7 @@ import {
   sendCoreMessage,
   sendProductsMessage
 } from '../../../messageBroker';
-import { generateRandomString, getFullDate, getTomorrow } from '../../../utils';
+import { getFullDate, getTomorrow } from '../../../utils';
 import { Builder, IListArgs } from './carQueryBuilder';
 
 const generateFilter = async (params, commonQuerySelector, subdomain) => {
@@ -468,8 +468,8 @@ const carQueries = {
       vatPercent: 10,
       cityTaxPercent: 0,
       defaultGSCode: '6601200',
-      // companyRD: string 6906192   0000038 0000040 0000039
-      companyRD: '0000038'
+      companyRD: '6906192' // production companyRD
+      // companyRD: '0000038' // test companyRD
     };
 
     const ebarimtData = await sendCommonMessage({
