@@ -326,6 +326,22 @@ const pageDetail = `
 
 const pageRefetch = ['ForumPages', 'ForumPage'];
 
+const pages = `
+query ForumPages($sort: JSON) {
+  forumPages(sort: $sort) {
+    _id
+    code
+    content
+    custom
+    customIndexed
+    description
+    listOrder
+    thumbnail
+    title
+  }
+}
+`;
+
 export default {
   allCategoryQueries,
   categoriesAll,
@@ -343,5 +359,6 @@ export default {
   permissionGroupRefetch,
   forumSubscriptionProductsQuery,
   pageDetail,
-  pageRefetch
+  pageRefetch,
+  pages
 };

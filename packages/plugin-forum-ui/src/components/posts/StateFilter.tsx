@@ -24,7 +24,6 @@ function StatusFilter({ history, counts, emptyText }: IProps) {
   const data = (
     <SidebarList>
       {stateFilters.map((state, index) => {
-        console.log('state', state.key);
         const onClick = () => {
           router.setParams(history, { state: state.key });
           router.removeParams(history, 'page');

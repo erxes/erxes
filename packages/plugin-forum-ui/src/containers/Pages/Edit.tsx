@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import PageForm from '../../components/PageForm';
+import PageForm from '../../components/pages/PageForm';
 import gql from 'graphql-tag';
 import { useMutation, useQuery } from 'react-apollo';
 import { queries } from '../../graphql';

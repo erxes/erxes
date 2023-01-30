@@ -65,3 +65,38 @@ export interface IPost {
     username?: string;
   };
 }
+
+export interface IPage {
+  _id: string;
+  code?: string;
+  content?: string;
+  custom?: JSON;
+  customIndexed?: JSON;
+  description?: string;
+  listOrder?: number;
+  thumbnail?: string;
+  title?: string;
+}
+
+/* queries */
+
+export type PagesQueryResponse = {
+  pages: IPage[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type PostsQueryResponse = {
+  pages: IPost[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type PageDetailQueryResponse = {
+  forumPage: IPage;
+  loading: boolean;
+};
+
+export type RemoveMutationResponse = {
+  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
+};

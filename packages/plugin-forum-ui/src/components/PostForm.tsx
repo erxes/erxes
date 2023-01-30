@@ -1,58 +1,156 @@
-import React, { useState, useRef } from 'react';
-import PostContentEditor from './PostContentEditor';
+import React from 'react';
 import CategorySelect from '../containers/CategorySelect';
+import { IPost } from '../types';
+import EditorCK from '@erxes/ui/src/components/EditorCK';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import Button from '@erxes/ui/src/components/Button';
 
-const PostForm: React.FC<{ post?: any; onSubmit?: (any) => any }> = ({
-  post,
-  onSubmit
-}) => {
-  const [title, setTitle] = useState(post?.title || '');
-  const [thumbnail, setThumbnail] = useState(post?.thumbnail || '');
-  const [categoryId, setCategoryId] = useState(post?.categoryId || '');
+type Props = {
+  post?: IPost;
+  closeModal: () => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
+};
 
-  const editorRef = useRef<any>(null);
-  const preSubmit = e => {
-    e.preventDefault();
-    const content = editorRef.current?.editor?.getData();
-    if (onSubmit) {
-      onSubmit({
-        title,
-        thumbnail,
-        content,
-        categoryId
-      });
+type State = {
+  content: string;
+  title: string;
+  categoryId: string;
+};
+
+class PostForm extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+
+    const post = props.post || ({ content: '' } as any);
+
+    this.state = {
+      content: post.content,
+      title: post.title,
+      categoryId: post.categoryId
+    };
+  }
+
+  generateDoc = (values: {
+    _id?: string;
+    title: string;
+    thumbnail: string;
+  }) => {
+    const { post } = this.props;
+    const finalValues = values;
+
+    if (post) {
+      finalValues._id = post._id;
     }
+
+    return {
+      _id: finalValues._id,
+      title: finalValues.title,
+      content: this.state.content,
+      thumbnail: finalValues.thumbnail,
+      categoryId: this.state.categoryId
+    };
   };
 
-  return (
-    <div>
-      <form onSubmit={preSubmit}>
-        <label>
-          Category:
-          <CategorySelect value={categoryId} onChange={setCategoryId} />
-        </label>
+  onChange = e => {
+    this.setState({ content: e.editor.getData() });
+  };
 
-        <input
-          value={title}
-          placeholder="Title of your post"
-          type="text"
-          name="title"
-          onChange={e => setTitle(e.target.value)}
+  renderCategories() {
+    const { categoryId } = this.state;
+
+    return (
+      <FormGroup>
+        <ControlLabel required={true}>Choose the category</ControlLabel>
+        <br />
+        <CategorySelect
+          value={categoryId}
+          onChange={e => {
+            this.setState({ categoryId: e });
+          }}
         />
-        <input
-          value={thumbnail}
-          placeholder="Thumbnail url of your post"
-          type="text"
-          name="thumbnail"
-          onChange={e => setThumbnail(e.target.value)}
-        />
+      </FormGroup>
+    );
+  }
 
-        <PostContentEditor editorRef={editorRef} data={post?.content} />
+  renderContent = (formProps: IFormProps) => {
+    const { post, renderButton, closeModal } = this.props;
+    const { content } = this.state;
 
-        <button>Submit</button>
-      </form>
-    </div>
-  );
-};
+    const { isSubmitted, values } = formProps;
+
+    const object = post || ({} as any);
+
+    return (
+      <>
+        <FormGroup>
+          <ControlLabel required={true}>{__('Title')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="title"
+            defaultValue={object.title}
+            required={true}
+            autoFocus={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>{__('Thumbnail')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="thumbnail"
+            defaultValue={object.thumbnail}
+          />
+        </FormGroup>
+
+        <FlexContent>
+          <FlexItem count={3} hasSpace={true}>
+            {this.renderCategories()}
+          </FlexItem>
+        </FlexContent>
+
+        <FormGroup>
+          <ControlLabel required={true}>{__('Content')}</ControlLabel>
+          <EditorCK
+            content={content}
+            onChange={this.onChange}
+            isSubmitted={isSubmitted}
+            height={300}
+            name={`knowledgeBase_${post ? post._id : 'create'}`}
+          />
+        </FormGroup>
+
+        <ModalFooter>
+          <Button
+            btnStyle="simple"
+            type="button"
+            onClick={this.props.closeModal}
+            icon="times-circle"
+          >
+            {__('Cancel')}
+          </Button>
+
+          {renderButton({
+            passedName: 'article',
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: closeModal,
+            object: post
+          })}
+        </ModalFooter>
+      </>
+    );
+  };
+
+  render() {
+    return <Form renderContent={this.renderContent} />;
+  }
+}
 
 export default PostForm;

@@ -83,9 +83,9 @@ function Layout() {
         <PageNew />
       </Route>
 
-      <Route exact={true} path={`/forums/pages/:id`}>
+      {/* <Route exact={true} path={`/forums/pages/:id`}>
         <PageDetail />
-      </Route>
+      </Route> */}
 
       <Route exact={true} path={`/forums/pages/:id/edit`}>
         <PageEdit />

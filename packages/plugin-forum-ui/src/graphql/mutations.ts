@@ -94,11 +94,125 @@ const deleteComment = `
   }
 `;
 
+const createPost = `
+  mutation ForumCreatePost(
+    $categoryId: ID!
+    $content: String!
+    $title: String!
+    $thumbnail: String
+  ) {
+    forumCreatePost(
+      categoryId: $categoryId
+      content: $content
+      title: $title
+      thumbnail: $thumbnail
+    ) {
+      _id
+    }
+  }
+`;
+
+const editPost = `
+  mutation ForumPatchPost(
+    $_id: ID!
+    $categoryId: ID!
+    $content: String
+    $thumbnail: String
+    $title: String
+  ) {
+    forumPatchPost(
+      _id: $_id
+      categoryId: $categoryId
+      content: $content
+      thumbnail: $thumbnail
+      title: $title
+    ) {
+      _id
+    }
+  }
+`;
+
+const editPage = `
+mutation ForumPatchPage(
+  $_id: ID!
+  $code: String
+  $content: String
+  $custom: JSON
+  $customIndexed: JSON
+  $description: String
+  $listOrder: Float
+  $thumbnail: String
+  $title: String
+) {
+  forumPatchPage(
+    _id: $_id
+    code: $code
+    content: $content
+    custom: $custom
+    customIndexed: $customIndexed
+    description: $description
+    listOrder: $listOrder
+    thumbnail: $thumbnail
+    title: $title
+  ) {
+    _id
+  }
+}
+`;
+
+const createPage = `
+mutation ForumCreatePage(
+  $code: String
+  $content: String
+  $custom: JSON
+  $customIndexed: JSON
+  $description: String
+  $listOrder: Float
+  $thumbnail: String
+  $title: String
+) {
+  forumCreatePage(
+    code: $code
+    content: $content
+    custom: $custom
+    customIndexed: $customIndexed
+    description: $description
+    listOrder: $listOrder
+    thumbnail: $thumbnail
+    title: $title
+  ) {
+    _id
+  }
+}
+`;
+
+const deletePost = `
+mutation ForumDeletePost($_id: ID!) {
+  forumDeletePost(_id: $_id) {
+    _id
+  }
+}
+`;
+
+const deletePage = `
+mutation ForumDeletePage($_id: ID!) {
+  forumDeletePage(_id: $_id) {
+    _id
+  }
+}
+`;
+
 export default {
   updateCategory,
   createCategory,
   deleteCategory,
   createRootCategory,
   createComment,
-  deleteComment
+  deleteComment,
+  createPost,
+  editPost,
+  editPage,
+  createPage,
+  deletePost,
+  deletePage
 };

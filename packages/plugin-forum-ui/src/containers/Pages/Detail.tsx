@@ -1,88 +1,51 @@
-import React, { FC } from 'react';
-import { useParams, Link, useHistory } from 'react-router-dom';
-import { useQuery, useMutation } from 'react-apollo';
+import React from 'react';
 import gql from 'graphql-tag';
-import { queries } from '../../graphql';
+import { mutations, queries } from '../../graphql';
+import { PageDetailQueryResponse } from '../../types';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import Detail from '../../components/pages/PageDetail';
+import { withProps } from '@erxes/ui/src/utils';
+import * as compose from 'lodash.flowright';
+import { graphql } from 'react-apollo';
 
-const DELETE = gql`
-  mutation ForumDeletePage($id: ID!) {
-    forumDeletePage(_id: $id) {
-      _id
-    }
-  }
-`;
-
-const PageDetail: FC = () => {
-  const history = useHistory();
-  const { id } = useParams();
-  const { data, loading, error } = useQuery(gql(queries.pageDetail), {
-    fetchPolicy: 'network-only',
-    variables: {
-      id
-    }
-  });
-
-  const [mutDelete] = useMutation(DELETE, {
-    variables: { id },
-    refetchQueries: queries.pageRefetch
-  });
-
-  const onDelete = async () => {
-    await mutDelete();
-    history.replace('/forums/pages');
-  };
-
-  if (loading) {
-    return null;
-  }
-  if (error) {
-    return <pre>{JSON.stringify(error, null, 2)}</pre>;
-  }
-  const { forumPage } = data;
-
-  return (
-    <div>
-      <h1> Page details</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>Code</th>
-            <th>Title</th>
-            <th>Thumbnail</th>
-            <th>List order</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{forumPage.code}</td>
-            <td>{forumPage.title}</td>
-            <td>
-              {forumPage.thumbnail && (
-                <img src={forumPage.thumbnail} alt="thumbnail" />
-              )}
-            </td>
-            <td>{forumPage.listOrder}</td>
-          </tr>
-        </tbody>
-      </table>
-      <h3>Content:</h3>
-      <div dangerouslySetInnerHTML={{ __html: forumPage.content }} />
-
-      <h3>Description: </h3>
-      <div style={{ whiteSpace: 'pre-wrap' }}>{forumPage.description}</div>
-
-      <h1>Actions</h1>
-
-      <div>
-        <Link to={`/forums/pages/${forumPage._id}/edit`}>Edit</Link>
-        <br />
-        <button type="button" onClick={onDelete}>
-          {' '}
-          Delete
-        </button>
-      </div>
-    </div>
-  );
+type Props = {
+  id: string;
 };
 
-export default PageDetail;
+type FinalProps = {
+  pageDetailQuery: PageDetailQueryResponse;
+} & Props;
+
+function PageDetail(props: FinalProps) {
+  const { pageDetailQuery } = props;
+
+  if (pageDetailQuery.loading) {
+    return <Spinner objective={true} />;
+  }
+
+  if (!pageDetailQuery.forumPage) {
+    return <EmptyState text="Page not found" image="/images/actions/17.svg" />;
+  }
+
+  const updatedProps = {
+    ...props,
+    page: pageDetailQuery.forumPage || ({} as any)
+  };
+
+  return <Detail {...updatedProps} />;
+}
+
+export default withProps<Props>(
+  compose(
+    graphql<Props>(gql(queries.pageDetail), {
+      name: 'pageDetailQuery',
+      options: ({ id }) => ({
+        variables: {
+          id
+        },
+        fetchPolicy: 'network-only'
+      })
+    })
+  )(PageDetail)
+);

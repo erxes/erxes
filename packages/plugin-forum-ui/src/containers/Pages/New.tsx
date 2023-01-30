@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import PageForm from '../../components/PageForm';
+import PageForm from '../../components/pages/PageForm';
 import gql from 'graphql-tag';
 import { useMutation } from 'react-apollo';
 

@@ -1,26 +1,26 @@
-import React, { FC } from 'react';
+import React from 'react';
 import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Link } from 'react-router-dom';
+import PageList from '../../components/pages/PageList';
+import queryString from 'query-string';
+import Bulk from '@erxes/ui/src/components/Bulk';
+import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '@erxes/ui/src/types';
+import * as compose from 'lodash.flowright';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { queries, mutations } from '../../graphql';
+import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import { RemoveMutationResponse, PagesQueryResponse } from '../../types';
+import { graphql } from 'react-apollo';
 
-const PAGES = gql`
-  query ForumPages($sort: JSON) {
-    forumPages(sort: $sort) {
-      _id
-      code
-      content
-      custom
-      customIndexed
-      description
-      listOrder
-      thumbnail
-      title
-    }
-  }
-`;
+type FinalProps = {
+  pagesQuery: PagesQueryResponse;
+} & RemoveMutationResponse &
+  IRouterProps;
 
-const PagesList: FC = () => {
-  const { data, loading, error } = useQuery(PAGES, {
+function PagesList({ history, removeMutation, pagesQuery }: FinalProps) {
+  const { data, loading, error } = useQuery(gql(queries.pages), {
     fetchPolicy: 'network-only',
     variables: {
       sort: {
@@ -30,44 +30,93 @@ const PagesList: FC = () => {
     }
   });
 
-  if (loading) return null;
-  if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;
+  if (loading) {
+    return null;
+  }
+  if (error) {
+    return <pre>{JSON.stringify(error, null, 2)}</pre>;
+  }
 
-  return (
-    <div>
-      <div>
-        <Link to="/forums/pages/new">New Page</Link>
-      </div>
-      <h1>Pages List</h1>
+  const queryParams = queryString.parse(location.search);
 
-      <table>
-        <thead>
-          <tr>
-            <th>Code</th>
-            <th>Title</th>
-            <th>Thumbnail</th>
-            <th>List order</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.forumPages.map((page: any) => (
-            <tr key={page._id}>
-              <td>{page.code}</td>
-              <td>{page.title}</td>
-              <td>
-                {page.thumbnail && <img src={page.thumbnail} alt="thumbnail" />}
-              </td>
-              <td>{page.listOrder}</td>
-              <td>
-                <Link to={`/forums/pages/${page._id}`}>Details</Link>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+  const remove = pageId => {
+    confirm(`This action will remove the page. Are you sure?`)
+      .then(() => {
+        removeMutation({ variables: { _id: pageId } })
+          .then(() => {
+            Alert.success('You successfully deleted a page');
+            pagesQuery.refetch();
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          });
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
+
+  const renderButton = ({
+    passedName: name,
+    values,
+    isSubmitted,
+    callback,
+    object
+  }: IButtonMutateProps) => {
+    return (
+      <ButtonMutate
+        mutation={object ? mutations.editPage : mutations.createPage}
+        variables={values}
+        callback={callback}
+        refetchQueries={getRefetchQueries()}
+        type="submit"
+        isSubmitted={isSubmitted}
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } an ${name}`}
+      />
+    );
+  };
+
+  const content = props => {
+    return (
+      <PageList
+        {...props}
+        queryParams={queryParams}
+        renderButton={renderButton}
+        pages={data.forumPages}
+        history={history}
+        remove={remove}
+      />
+    );
+  };
+  return <Bulk content={content} />;
+}
+
+const getRefetchQueries = () => {
+  return [
+    {
+      query: gql(queries.pages)
+    }
+  ];
 };
 
-export default PagesList;
+export default withProps<{}>(
+  compose(
+    graphql<PagesQueryResponse>(gql(queries.pages), {
+      name: 'pagesQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<RemoveMutationResponse, { _id: string }>(
+      gql(mutations.deletePage),
+      {
+        name: 'removeMutation',
+        options: () => ({
+          refetchQueries: queries.pageRefetch
+        })
+      }
+    )
+  )(withRouter<FinalProps>(PagesList))
+);

@@ -6,20 +6,22 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
-import { IPost } from '../../types';
-import PostForm from '../PostForm';
+import { IPage } from '../../types';
+import PageForm from './PageForm';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { Link } from 'react-router-dom';
 
 type Props = {
-  post: IPost;
-  remove: (postId: string) => void;
+  page: IPage;
+  history: any;
+  remove: (pageId: string) => void;
   isChecked?: boolean;
   toggleBulk: (target: any, toAdd: boolean) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 class Row extends React.Component<Props> {
-  renderEditAction(post) {
+  renderEditAction(page) {
     const trigger = (
       <Button btnStyle="link">
         <Tip text={__('Edit')} placement="top">
@@ -29,12 +31,12 @@ class Row extends React.Component<Props> {
     );
 
     const content = props => (
-      <PostForm {...props} renderButton={this.props.renderButton} post={post} />
+      <PageForm {...props} renderButton={this.props.renderButton} page={page} />
     );
 
     return (
       <ModalTrigger
-        title={`Edit Post`}
+        title={`Edit Page`}
         size="lg"
         trigger={trigger}
         content={content}
@@ -43,14 +45,14 @@ class Row extends React.Component<Props> {
   }
 
   renderRemoveAction() {
-    const { post, remove } = this.props;
+    const { page, remove } = this.props;
 
-    const onClick = () => remove(post._id);
+    const onClick = () => remove(page._id);
 
     return (
       <Tip text={__('Delete')} placement="top">
         <Button
-          id="postDelete"
+          id="pageDelete"
           btnStyle="link"
           onClick={onClick}
           icon="times-circle"
@@ -60,17 +62,22 @@ class Row extends React.Component<Props> {
   }
 
   render() {
-    const { post, isChecked, toggleBulk } = this.props;
+    const { page, isChecked, toggleBulk, history } = this.props;
 
     const onChange = e => {
       if (toggleBulk) {
-        toggleBulk(post, e.target.checked);
+        toggleBulk(page, e.target.checked);
       }
     };
 
     const onClick = e => {
       e.stopPropagation();
     };
+
+    // const onTdClick = () => {
+    //   console.log("clicked");
+    //   <Link to={`/forum/pages/${page._id}`}/>;
+    // };
 
     return (
       <tr>
@@ -81,21 +88,14 @@ class Row extends React.Component<Props> {
             onChange={onChange}
           />
         </td>
-        <td>{post.title}</td>
-        <td>{post.state}</td>
-        <td>{post.stateChangedAt}</td>
-        <td>{post.stateChangedBy.username}</td>
-        <td>{post.createdAt}</td>
-        <td>{post.createdBy.username}</td>
-        <td>{post.updatedAt}</td>
-        <td>{post.updatedBy.username}</td>
-        <td>{post.commentCount}</td>
-        <td>{post.upVoteCount}</td>
-        <td>{post.downVoteCount}</td>
-        <td>{post.viewCount}</td>
+        <td>
+          <Link to={`/forum/pages/${page._id}`}>{page.title}</Link>
+        </td>
+        <td>{page.code}</td>
+        <td>{page.listOrder}</td>
         <td>
           <ActionButtons>
-            {this.renderEditAction(post)}
+            {this.renderEditAction(page)}
             {this.renderRemoveAction()}
           </ActionButtons>
         </td>

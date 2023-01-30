@@ -5,56 +5,56 @@ import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import React from 'react';
 import Row from './Row';
-import Sidebar from './Sidebar';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils';
-import { IPost } from '../../types';
-import { IntegrationsCount } from '@erxes/ui-leads/src/types';
+import { IPage } from '../../types';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import PostForm from '../../components/PostForm';
+import PageForm from './PageForm';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 
 type Props = {
-  posts: IPost[];
+  pages: IPage[];
   queryParams?: any;
   loading?: boolean;
-  remove?: (postId: string) => void;
+  remove?: (integrationId: string) => void;
+  refetch?: () => void;
   history?: any;
   bulk: any[];
   isAllSelected: boolean;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  toggleBulk: (target: IPost, toAdd: boolean) => void;
-  toggleAll: (targets: IPost[], containerId: string) => void;
+  toggleBulk: (target: IPage, toAdd: boolean) => void;
+  toggleAll: (targets: IPage[], containerId: string) => void;
 };
 
 class List extends React.Component<Props, {}> {
   renderRow() {
-    const { posts, remove, bulk, toggleBulk, renderButton } = this.props;
+    const { pages, remove, bulk, toggleBulk, renderButton } = this.props;
 
-    return posts.map(post => (
+    return pages.map(page => (
       <Row
-        key={post._id}
-        post={post}
-        isChecked={bulk.includes(post)}
+        key={page._id}
+        page={page}
+        isChecked={bulk.includes(page)}
         toggleBulk={toggleBulk}
         remove={remove}
         renderButton={renderButton}
+        history={history}
       />
     ));
   }
 
   renderForm = props => {
-    return <PostForm {...props} renderButton={this.props.renderButton} />;
+    return <PageForm {...props} renderButton={this.props.renderButton} />;
   };
 
   render() {
     const {
       queryParams,
       loading,
-      posts,
+      pages,
       isAllSelected,
       bulk,
       toggleAll
@@ -87,11 +87,11 @@ class List extends React.Component<Props, {}> {
 
     const actionBarRight = (
       <ModalTrigger
-        title="Create New Post"
+        title="Create New Page"
         size="lg"
         trigger={
           <Button btnStyle="success" size="small" icon="plus-circle">
-            Create New Post
+            Create New Page
           </Button>
         }
         content={this.renderForm}
@@ -99,7 +99,7 @@ class List extends React.Component<Props, {}> {
     );
 
     const onChange = () => {
-      toggleAll(posts, 'posts');
+      toggleAll(pages, 'pages');
     };
 
     const actionBar = (
@@ -120,48 +120,12 @@ class List extends React.Component<Props, {}> {
             <th>
               <SortHandler sortField={'title'} label={__('Title')} />
             </th>
-            <th>{__('State')}</th>
+            <th>{__('Code')}</th>
             <th>
               <SortHandler
-                sortField={'leadData.stateChangedAt'}
-                label={__('State changed at')}
+                sortField={'leadData.listOrder'}
+                label={__('List Order')}
               />
-            </th>
-            <th>{__('State changed by')}</th>
-            <th>
-              <SortHandler
-                sortField={'leadData.createdAt'}
-                label={__('Created At')}
-              />
-            </th>
-            <th>{__('Created by')}</th>
-            <th>
-              <SortHandler
-                sortField={'leadData.updatedAt'}
-                label={__('Updated At')}
-              />
-            </th>
-            <th>{__('Updated By')}</th>
-            <th>
-              <SortHandler
-                sortField={'leadData.commentCount'}
-                label={__('Comment(s) count')}
-              />
-            </th>
-            <th>
-              <SortHandler
-                sortField={'upVoteCount'}
-                label={__('Up vote count')}
-              />
-            </th>
-            <th>
-              <SortHandler
-                sortField={'downVoteCount'}
-                label={__('Down vote count')}
-              />
-            </th>
-            <th>
-              <SortHandler sortField={'viewCount'} label={__('View count')} />
             </th>
             <th>{__('Actions')}</th>
           </tr>
@@ -179,19 +143,18 @@ class List extends React.Component<Props, {}> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Posts')}
+            title={__('Pages')}
             queryParams={queryParams}
             submenu={submenu}
           />
         }
-        leftSidebar={<Sidebar counts={{} as IntegrationsCount} />}
         actionBar={actionBar}
-        footer={<Pagination count={posts.length} />}
+        footer={<Pagination count={pages.length} />}
         content={
           <DataWithLoader
             data={content}
             loading={loading}
-            count={posts.length}
+            count={pages.length}
             emptyContent={
               <EmptyContent
                 content={EMPTY_CONTENT_POPUPS}
