@@ -18,6 +18,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import { HeaderContent } from './styles';
 import { ITemplateDoc } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
+import { Label } from '@erxes/ui/src/components/form/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import React from 'react';
@@ -90,8 +91,9 @@ function List(props: Props) {
         <Content>
           <div>
             <b>{template.name}</b>
-            <span>Business</span>
+            <span>{__('Business')}</span>
           </div>
+          <Label>{__('Free')}</Label>
         </Content>
       </SiteBox>
     );
@@ -144,7 +146,18 @@ function List(props: Props) {
                 </Labels>
               </FilterContainer>
               <FlexWrap noPadding={true}>
-                {templates.map((template, index) => renderRow(template, index))}
+                {renderRow(
+                  {
+                    _id: '0',
+                    name: 'Blank Site',
+                    html: '',
+                    image: '/images/previews/blank.png'
+                  },
+                  0
+                )}
+                {templates.map((template, index) =>
+                  renderRow(template, index + 1)
+                )}
               </FlexWrap>
             </>
           }
