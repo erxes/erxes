@@ -493,7 +493,7 @@ const carQueries = {
 
     await models.Topups.updateOne(
       { _id: topup._id },
-      { $set: { ebarimtData } }
+      { $set: { ebarimtData: JSON.stringify(ebarimtData) } }
     );
 
     return ebarimtData;
