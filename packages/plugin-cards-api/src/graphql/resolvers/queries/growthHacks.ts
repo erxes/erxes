@@ -131,7 +131,7 @@ const growthHackQueries = {
   ) {
     const growthHack = await models.GrowthHacks.getGrowthHack(_id);
 
-    return checkItemPermByUser(models, user._id, growthHack);
+    return checkItemPermByUser(models, user, growthHack);
   }
 };
 
