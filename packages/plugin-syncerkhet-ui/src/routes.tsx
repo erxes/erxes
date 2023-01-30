@@ -57,23 +57,30 @@ const InventoryCategory = asyncComponent(() =>
 );
 
 const GeneralSetting = () => {
-  return <Settings component={GeneralSettings} />;
+  return <Settings component={GeneralSettings} configCode="ERKHET" />;
 };
 
 const StageSetting = () => {
-  return <Settings component={StageSettings} />;
+  return <Settings component={StageSettings} configCode="ebarimtConfig" />;
 };
 
 const StageMoveSetting = () => {
-  return <Settings component={StageMoveSettings} />;
+  return (
+    <Settings component={StageMoveSettings} configCode="stageInMoveConfig" />
+  );
 };
 
 const ReturnStageSetting = () => {
-  return <Settings component={ReturnStageSettings} />;
+  return (
+    <Settings
+      component={ReturnStageSettings}
+      configCode="returnEbarimtConfig"
+    />
+  );
 };
 
 const PipelineSetting = () => {
-  return <Settings component={PipelineSettings} />;
+  return <Settings component={PipelineSettings} configCode="remainderConfig" />;
 };
 
 const checkSyncedDealList = ({ location, history }) => {
