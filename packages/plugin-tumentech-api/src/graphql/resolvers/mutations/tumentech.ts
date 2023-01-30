@@ -278,16 +278,18 @@ const carMutations = {
       throw new Error('User data mismatch');
     }
 
-    await models.Topups.createTopup({
+    const topup = await models.Topups.createTopup({
       invoiceId,
       customerId: invoice.customerId,
       amount: invoice.amount
     });
 
-    return models.CustomerAccounts.addTopupAmount({
+    await models.CustomerAccounts.addTopupAmount({
       customerId: invoice.customerId,
       amount: invoice.amount
     });
+
+    return topup;
   },
 
   revealPhone: async (

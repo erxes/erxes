@@ -273,6 +273,8 @@ export const queries = `
   getAccount: CustomerAccount
 
   topupHistory(page: Int, perPage: Int, customerId: String): TopupListResponse
+
+  getEbarimt(topupId: String!, companyRegNumber: String, companyName: String): JSON
 `;
 
 const tumentechCommonFields = `
@@ -396,7 +398,7 @@ export const mutations = `
   participantsRemoveFromDeal(dealId: String!, customerIds: [String]): JSON
   selectWinner(dealId: String!, driverId: String!): Participant
 
-  topupAccount(invoiceId: String): CustomerAccount
+  topupAccount(invoiceId: String): JSON
 
   revealPhone(driverId: String, carId: String, dealId: String): String
 
