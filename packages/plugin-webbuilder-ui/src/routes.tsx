@@ -11,13 +11,13 @@ const SitesListContainer = asyncComponent(() =>
 
 const SiteForm = asyncComponent(() =>
   import(
-    /* webpackChunkName: "SiteForm - WebBuilders" */ './containers/sites/SiteForm'
+    /* webpackChunkName: "SiteForm - XBuilders" */ './containers/sites/SiteForm'
   )
 );
 
 const WebBuilderContainer = asyncComponent(() =>
   import(
-    /* webpackChunkName: "PageForm - WebBuilderContainer" */ './containers/Webbuilder'
+    /* webpackChunkName: "PageForm - XBuilderContainer" */ './containers/Webbuilder'
   )
 );
 
@@ -52,19 +52,19 @@ const routes = () => {
   return (
     <>
       <Route
-        path="/webbuilder"
+        path="/xbuilder"
         exact={true}
         component={webBuilderSitesContainer}
       />
 
       <Route
-        path="/webbuilder/sites/create"
+        path="/xbuilder/sites/create"
         exact={true}
         component={webBuilderSitesCreate}
       />
 
       <Route
-        path="/webbuilder/sites/edit/:_id"
+        path="/xbuilder/sites/edit/:_id"
         exact={true}
         component={webBuilderSitesEdit}
       />

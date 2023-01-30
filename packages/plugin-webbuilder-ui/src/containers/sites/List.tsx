@@ -36,7 +36,7 @@ function SitesContainer(props: FinalProps) {
 
   const remove = (_id: string) => {
     if (_id === selectedSite) {
-      localStorage.removeItem('webbuilderSiteId');
+      localStorage.removeItem('xbuilderSiteId');
     }
 
     const message = `This will permanently delete the current site. Are you absolutely sure?`;

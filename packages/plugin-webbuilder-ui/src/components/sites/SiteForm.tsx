@@ -388,10 +388,7 @@ class SiteForm extends React.Component<Props, State> {
   render() {
     const { name, settingsObject, showDarkMode } = this.state;
 
-    const breadcrumb = [
-      { title: 'Sites', link: '/webbuilder' },
-      { title: name }
-    ];
+    const breadcrumb = [{ title: 'Sites', link: '/xbuilder' }, { title: name }];
 
     return (
       <>

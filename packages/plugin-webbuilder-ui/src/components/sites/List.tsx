@@ -42,7 +42,7 @@ class SiteList extends React.Component<Props, State> {
   showSite = (site: ISiteDoc) => {
     const { REACT_APP_API_URL } = getEnv();
 
-    const url = `${REACT_APP_API_URL}/pl:webbuilder/${site.name}`;
+    const url = `${REACT_APP_API_URL}/pl:xbuilder/${site.name}`;
 
     window.open(`${url}`, '_blank');
   };
@@ -97,7 +97,7 @@ class SiteList extends React.Component<Props, State> {
               <Icon icon="ellipsis-h" size={18} />
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <a href={`/webbuilder/sites/edit/${site._id}`}>
+              <a href={`/xbuilder/sites/edit/${site._id}`}>
                 <li key="editor">
                   <Icon icon="edit-3" /> {__('Editor')}
                 </li>

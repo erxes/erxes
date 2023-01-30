@@ -27,7 +27,7 @@ class PageList extends React.Component<Props> {
                   ? 'active'
                   : ''
               }
-              href={`/webbuilder/sites/edit/${siteId}?pageId=${page._id}`}
+              href={`/xbuilder/sites/edit/${siteId}?pageId=${page._id}`}
             >
               <Icon icon="file-1" />
               {page.name}

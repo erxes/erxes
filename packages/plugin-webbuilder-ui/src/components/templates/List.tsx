@@ -36,7 +36,7 @@ function List(props: Props) {
   const renderDemoAction = (template: ITemplateDoc) => {
     const { REACT_APP_API_URL } = getEnv();
 
-    const url = `${REACT_APP_API_URL}/pl:webbuilder/demo/${template._id}`;
+    const url = `${REACT_APP_API_URL}/pl:xbuilder/demo/${template._id}`;
 
     const onClick = () => window.open(`${url}`, '_blank');
 
@@ -58,7 +58,7 @@ function List(props: Props) {
 
   const renderUseAction = template => {
     const trigger = <Button btnStyle="white">{__('Use')}</Button>;
-    const site = localStorage.getItem('webbuilderSiteId') || '';
+    const site = localStorage.getItem('xbuilderSiteId') || '';
 
     const content = ({ closeModal }) => (
       <TemplateForm
@@ -120,9 +120,9 @@ function List(props: Props) {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Webbuilder Workspace')}
+          title={__('X Builder Workspace')}
           breadcrumb={[
-            { title: 'Webbuilder', link: '/webbuilder' },
+            { title: 'X Builder', link: '/xbuilder' },
             { title: __('New website') }
           ]}
         />
