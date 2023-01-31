@@ -10,6 +10,14 @@ export function generateProductOptions(array: IProduct[] = []): IOption[] {
   return array.map(item => {
     const product = item || ({} as IProduct);
 
+    if (product.code && product.subUoms?.length) {
+      return {
+        value: product._id,
+        label: `${product.code} - ${product.name} #${1 /
+          product.subUoms[0].ratio || 1}`
+      };
+    }
+
     return {
       value: product._id,
       label: `${product.code} - ${product.name}`
