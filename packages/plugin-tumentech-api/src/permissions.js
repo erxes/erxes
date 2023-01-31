@@ -18,5 +18,25 @@ module.exports = {
         },
       ],
     },
+
+    topups: {
+      name: "topups",
+      description: "Topups",
+      actions: [
+        {
+          name: "all",
+          description: "All",
+          use: ["showTopups", "manageTopups"],
+        },
+        {
+          name: "showTopups",
+          description: "Show topups",
+        },
+        {
+          name: "manageTopups",
+          description: "Manage topups",
+        },
+      ],
+    }
   };
   

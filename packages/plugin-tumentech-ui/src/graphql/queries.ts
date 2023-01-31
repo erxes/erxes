@@ -740,6 +740,27 @@ query GetDealRoute($dealId: String!) {
 }
 `;
 
+const topupList = `
+query TopupHistory($customerId: String, $page: Int, $perPage: Int) {
+  topupHistory(customerId: $customerId, page: $page, perPage: $perPage) {
+    list {
+      _id
+      amount
+      createdAt
+      customerId
+      customer {
+        _id
+        primaryEmail
+        primaryPhone
+        lastName
+        firstName
+      }
+    }
+    totalCount
+  }
+}
+`;
+
 export default {
   cars,
   carsMain,
@@ -774,5 +795,7 @@ export default {
 
   fieldsGroups,
 
-  dealRouteQuery
+  dealRouteQuery,
+
+  topupList
 };

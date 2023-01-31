@@ -240,56 +240,6 @@ const carMutations = {
     return carIds;
   },
 
-  topupAccount: async (
-    _root,
-    { invoiceId }: { invoiceId: string },
-    { models, cpUser, subdomain }: IContext
-  ) => {
-    const invoice = await sendCommonMessage({
-      subdomain: subdomain,
-      serviceName: 'payment',
-      action: 'invoices.findOne',
-      data: {
-        _id: invoiceId
-      },
-      isRPC: true,
-      defaultValue: undefined
-    });
-
-    if (!invoice) {
-      throw new Error('Invoice not found');
-    }
-
-    const user = await sendClientPortalMessage({
-      subdomain: subdomain,
-      action: 'clientPortalUsers.findOne',
-      data: {
-        _id: cpUser.userId
-      },
-      isRPC: true,
-      defaultValue: undefined
-    });
-
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    if (user.erxesCustomerId !== invoice.customerId) {
-      throw new Error('User data mismatch');
-    }
-
-    await models.Topups.createTopup({
-      invoiceId,
-      customerId: invoice.customerId,
-      amount: invoice.amount
-    });
-
-    return models.CustomerAccounts.addTopupAmount({
-      customerId: invoice.customerId,
-      amount: invoice.amount
-    });
-  },
-
   revealPhone: async (
     _root,
     {

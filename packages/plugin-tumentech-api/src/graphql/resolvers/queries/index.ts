@@ -4,6 +4,7 @@ import placesQuery from './places';
 import routesQuery from './routes';
 import tripsQuery from './trips';
 import tumentechQuery from './tumentech';
+import topupsQuery from './topups';
 
 export default {
   ...tumentechQuery,
@@ -11,5 +12,6 @@ export default {
   ...directionsQuery,
   ...routesQuery,
   ...placesQuery,
-  ...tripsQuery
+  ...tripsQuery,
+  ...topupsQuery
 };

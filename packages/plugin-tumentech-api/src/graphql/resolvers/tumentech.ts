@@ -5,6 +5,7 @@ import {
   ICarCategoryDocument,
   ICarDocument
 } from '../../models/definitions/tumentech';
+import { ITopupDocument } from './../../models/definitions/topup';
 
 const Cars = {
   category(car, _args, { models }) {
@@ -137,4 +138,15 @@ const Participant = {
   }
 };
 
-export { Cars, CarCategory, Participant };
+const Topup = {
+  customer: async (topup: ITopupDocument) => {
+    return (
+      topup.customerId && {
+        __typename: 'Customer',
+        _id: topup.customerId
+      }
+    );
+  }
+};
+
+export { Cars, CarCategory, Participant, Topup };
