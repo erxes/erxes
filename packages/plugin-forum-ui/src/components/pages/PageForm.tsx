@@ -139,7 +139,7 @@ class PageForm extends React.Component<Props, State> {
             onChange={this.onChange}
             isSubmitted={isSubmitted}
             height={300}
-            name={`knowledgeBase_${page ? page._id : 'create'}`}
+            name={`page_${page ? page._id : 'create'}`}
           />
         </FormGroup>
 

@@ -1,14 +1,29 @@
-import React, { useState } from 'react';
-import CommentForm from './CommentForm';
-import { useQuery, useMutation } from 'react-apollo';
+import React from 'react';
+import { useQuery } from 'react-apollo';
 import { mutations, queries } from '../../graphql';
 import gql from 'graphql-tag';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import CommentComponent from '../../components/comment/Comment';
+import { withRouter } from 'react-router-dom';
+import * as compose from 'lodash.flowright';
+import { graphql } from 'react-apollo';
+import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { RemoveMutationResponse } from '../../types';
 
-const Comment: React.FC<{ comment: any; onDeleted?: (string) => any }> = ({
+type Props = {
+  comment: any;
+  onDeleted?: (string) => any;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
+} & IRouterProps &
+  RemoveMutationResponse;
+
+const Comment: React.FC<Props> = ({
   comment,
-  onDeleted
-}) => {
-  const [showReplyForm, setShowReplyForm] = useState(false);
+  onDeleted,
+  renderButton,
+  removeMutation
+}: Props) => {
   const repliesQuery = useQuery(gql(queries.forumComments), {
     variables: {
       replyToId: [comment._id],
@@ -16,83 +31,41 @@ const Comment: React.FC<{ comment: any; onDeleted?: (string) => any }> = ({
     }
   });
 
-  const [deleteMut] = useMutation(gql(mutations.deleteComment), {
-    variables: {
-      _id: comment._id
-    },
-    refetchQueries: ['ForumPostDetail']
-  });
-
-  const onDelete = async () => {
+  const onDelete = async (item: any) => {
     if (
       !confirm(
-        `Are you sure you want to delete this comment: "${comment.content}"`
+        `Are you sure you want to delete this comment: "${item.content}"`
       )
     ) {
       return null;
     }
-    await deleteMut();
+
+    removeMutation({ variables: { _id: item._id } });
     if (onDeleted) {
-      onDeleted(comment._id);
+      onDeleted(item._id);
     }
   };
 
-  const createdByDisplayName =
-    comment.createdBy?.username ||
-    comment.createdBy?.email ||
-    comment.createdBy?._id ||
-    comment.createdByCp?.username ||
-    comment.createdByCp?.email ||
-    comment.createdByCp?._id;
-
   return (
-    <div style={{ border: '1px solid grey', padding: 10 }}>
-      <div>
-        <b>{createdByDisplayName}</b>{' '}
-        <span>
-          Up votes: {comment.upVoteCount}. Down votes {comment.downVoteCount}
-        </span>
-      </div>
-      <p style={{ whiteSpace: 'pre' }}>{comment.content}</p>
-      {showReplyForm && (
-        <button onClick={() => setShowReplyForm(false)}>Cancel</button>
-      )}
-      <button type="button" onClick={() => setShowReplyForm(true)}>
-        Reply
-      </button>
-      <button type="button" onClick={onDelete}>
-        Delete
-      </button>
-      <div style={{ marginLeft: 40 }}>
-        {showReplyForm && (
-          <CommentForm
-            key={'form' + comment._id}
-            replyToId={comment._id}
-            postId={comment.postId}
-            onCommentCreated={() => {
-              repliesQuery.refetch();
-              setShowReplyForm(false);
-            }}
-          />
-        )}
-
-        {!repliesQuery.loading &&
-          !repliesQuery.error &&
-          repliesQuery.data?.forumComments.length > 0 && (
-            <>
-              <p>Replies: {(repliesQuery.data?.forumComments || []).length}</p>
-              {(repliesQuery.data?.forumComments || []).map(r => (
-                <Comment
-                  comment={r}
-                  key={r._id}
-                  onDeleted={repliesQuery.refetch}
-                />
-              ))}
-            </>
-          )}
-      </div>
-    </div>
+    <CommentComponent
+      onDelete={onDelete}
+      comment={comment}
+      renderButton={renderButton}
+      replies={repliesQuery.data?.forumComments}
+    />
   );
 };
 
-export default Comment;
+export default withProps<{}>(
+  compose(
+    graphql<RemoveMutationResponse, { _id: string }>(
+      gql(mutations.deleteComment),
+      {
+        name: 'removeMutation',
+        options: () => ({
+          refetchQueries: ['ForumPostDetail']
+        })
+      }
+    )
+  )(withRouter<Props>(Comment))
+);

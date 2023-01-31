@@ -20,6 +20,7 @@ export interface IPost {
     postsReqCrmApproval: boolean;
   };
   categoryId: string;
+  description?: string;
   content?: string;
   state?: string;
   thumbnail?: string;
@@ -94,6 +95,11 @@ export type PostsQueryResponse = {
 
 export type PageDetailQueryResponse = {
   forumPage: IPage;
+  loading: boolean;
+};
+
+export type PostDetailQueryResponse = {
+  forumPost: IPost;
   loading: boolean;
 };
 

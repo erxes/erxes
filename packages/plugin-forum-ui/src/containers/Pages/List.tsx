@@ -40,16 +40,9 @@ function PagesList({ history, removeMutation, pagesQuery }: FinalProps) {
   const queryParams = queryString.parse(location.search);
 
   const remove = pageId => {
-    confirm(`This action will remove the page. Are you sure?`)
+    removeMutation({ variables: { _id: pageId } })
       .then(() => {
-        removeMutation({ variables: { _id: pageId } })
-          .then(() => {
-            Alert.success('You successfully deleted a page');
-            pagesQuery.refetch();
-          })
-          .catch(e => {
-            Alert.error(e.message);
-          });
+        pagesQuery.refetch();
       })
       .catch(e => {
         Alert.error(e.message);

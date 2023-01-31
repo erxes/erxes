@@ -1,5 +1,5 @@
 import React from 'react';
-import PostForm from '../components/PostForm';
+import PostForm from '../components/posts/PostForm';
 import gql from 'graphql-tag';
 import { useMutation } from 'react-apollo';
 import { useHistory } from 'react-router-dom';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuery, useMutation } from 'react-apollo';
-import PostForm from '../components/PostForm';
+import PostForm from '../components/posts/PostForm';
 import { useParams, useHistory } from 'react-router-dom';
 import { queries } from '../graphql';
 import gql from 'graphql-tag';

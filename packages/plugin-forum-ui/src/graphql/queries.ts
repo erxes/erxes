@@ -93,9 +93,9 @@ const postRefetchAfterEdit = ['ForumPostsQuery', 'ForumPostDetail'];
 const forumPostsQuery = `
   query ForumPostsQuery(${forumPostsParam}) {
     forumPosts(${forumPostsArg}) {
-      
       _id
       content
+      description
       title
       state
       thumbnail
@@ -168,6 +168,7 @@ const forumPostDetail = `
         postsReqCrmApproval
       }
       categoryId
+      description
       content
       state
       thumbnail
@@ -252,6 +253,10 @@ const forumComments = `
         _id
         username
         email
+        details {
+          avatar
+          fullName
+        }
       }
       createdByCp {
         _id

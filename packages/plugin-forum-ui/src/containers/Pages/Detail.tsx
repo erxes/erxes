@@ -1,6 +1,6 @@
 import React from 'react';
 import gql from 'graphql-tag';
-import { mutations, queries } from '../../graphql';
+import { queries } from '../../graphql';
 import { PageDetailQueryResponse } from '../../types';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Spinner from '@erxes/ui/src/components/Spinner';

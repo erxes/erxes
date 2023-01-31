@@ -1,228 +1,104 @@
 import React from 'react';
-import { useParams, Link, useHistory } from 'react-router-dom';
-import { useQuery, useMutation } from 'react-apollo';
-import { queries } from '../graphql';
+import { useMutation } from 'react-apollo';
+import { queries, mutations } from '../graphql';
 import gql from 'graphql-tag';
-import Comments from './Comments';
-import { postUsername } from '../utils';
+import { PostDetailQueryResponse } from '../types';
+import { withProps } from '@erxes/ui/src/utils';
+import * as compose from 'lodash.flowright';
+import { graphql } from 'react-apollo';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import Detail from '../components/posts/PostDetail';
 
-const DELETE_POST = gql`
-  mutation ForumDeletePost($_id: ID!) {
-    forumDeletePost(_id: $_id) {
-      _id
-    }
-  }
-`;
+type Props = {
+  _id: string;
+};
 
-const MUT_DRAFT = gql`
-  mutation ForumPostDraft($_id: ID!) {
-    forumPostDraft(_id: $_id) {
-      _id
-    }
-  }
-`;
+type FinalProps = {
+  postDetailQuery: PostDetailQueryResponse;
+} & Props;
 
-const MUT_PUBLISH = gql`
-  mutation ForumPostDraft($_id: ID!) {
-    forumPostPublish(_id: $_id) {
-      _id
-    }
-  }
-`;
+function PostDetail(props: FinalProps) {
+  const { postDetailQuery, _id } = props;
 
-const MUT_APPROVE = gql`
-  mutation ForumPostApprove($_id: ID!) {
-    forumPostApprove(_id: $_id) {
-      _id
-    }
-  }
-`;
-
-const MUT_DENY = gql`
-  mutation ForumPostDeny($_id: ID!) {
-    forumPostDeny(_id: $_id) {
-      _id
-    }
-  }
-`;
-
-const PostDetail: React.FC = () => {
-  const history = useHistory();
-  const { postId } = useParams();
-  const { data, loading, error } = useQuery(gql(queries.forumPostDetail), {
-    variables: { _id: postId },
-    fetchPolicy: 'network-only'
-  });
-
-  const [deleteMutation] = useMutation(DELETE_POST, {
-    variables: {
-      _id: postId
-    },
-    onCompleted: () => {
-      history.replace(`/forums/posts`);
-    },
-    onError: e => alert(e.message)
-  });
-
-  const [mutDraft] = useMutation(MUT_DRAFT, {
-    variables: { _id: postId },
+  const [mutDraft] = useMutation(gql(mutations.postDraft), {
+    variables: { _id },
     refetchQueries: queries.postRefetchAfterEdit
   });
 
-  const [mutPublish] = useMutation(MUT_PUBLISH, {
-    variables: { _id: postId },
+  const [mutPublish] = useMutation(gql(mutations.postPublish), {
+    variables: { _id },
     refetchQueries: queries.postRefetchAfterEdit
   });
 
-  const [mutApprove] = useMutation(MUT_APPROVE, {
-    variables: { _id: postId },
+  const [mutApprove] = useMutation(gql(mutations.postApprove), {
+    variables: { _id },
     refetchQueries: queries.postRefetchAfterEdit
   });
 
-  const [mutDeny] = useMutation(MUT_DENY, {
-    variables: { _id: postId },
+  const [mutDeny] = useMutation(gql(mutations.postDeny), {
+    variables: { _id },
     refetchQueries: queries.postRefetchAfterEdit
   });
 
-  if (loading) return null;
+  if (postDetailQuery.loading) {
+    return <Spinner objective={true} />;
+  }
 
-  if (error) return <pre>{error.message}</pre>;
-
-  const { forumPost } = data;
-
-  const onClickDelete = async () => {
-    if (!confirm('Are you sure you want to delete this post?')) return;
-    await deleteMutation();
-  };
+  if (!postDetailQuery.forumPost) {
+    return <EmptyState text="Post not found" image="/images/actions/17.svg" />;
+  }
 
   const onDraft = async () => {
-    if (!confirm('Are you sure you want to save as draft')) return;
+    if (!confirm('Are you sure you want to save as draft')) {
+      return;
+    }
     await mutDraft();
   };
 
   const onPublish = async () => {
-    if (!confirm('Are you sure you want to publish?')) return;
+    if (!confirm('Are you sure you want to publish?')) {
+      return;
+    }
     await mutPublish();
   };
 
   const onApproveClick = async () => {
-    if (!confirm('Are you sure you want to approve this post?')) return;
+    if (!confirm('Are you sure you want to approve this post?')) {
+      return;
+    }
     await mutApprove();
   };
 
   const onDenyClick = async () => {
-    if (!confirm('Are you sure you want to deny this post?')) return;
+    if (!confirm('Are you sure you want to deny this post?')) {
+      return;
+    }
     await mutDeny();
   };
 
-  return (
-    <div>
-      <table>
-        <tbody>
-          <tr>
-            <th>State: </th>
-            <td>{forumPost.state}</td>
-            <th>Category: </th>
-            <td>{forumPost.category?.name || 'no category'}</td>
-          </tr>
-          <tr>
-            <th>Thumbnail: </th>
-            <td>{forumPost.thumbnail && <img src={forumPost.thumbnail} />}</td>
-            <th>Thumbnail url:</th>
-            <td>{forumPost.thumbnail}</td>
-          </tr>
-          <tr>
-            <th>Created at: </th>
-            <td>{forumPost.createdAt}</td>
-            <th>Created by: </th>
-            <td>
-              {postUsername({
-                post: forumPost,
-                typeKey: 'createdUserType',
-                crmKey: 'createdBy',
-                cpKey: 'createdByCp'
-              })}
-            </td>
-          </tr>
-          <tr>
-            <th>Updated at: </th>
-            <td>{forumPost.updatedAt}</td>
-            <th>Updated by: </th>
-            <td>
-              {postUsername({
-                post: forumPost,
-                typeKey: 'updatedUserType',
-                crmKey: 'updatedBy',
-                cpKey: 'updatedByCp'
-              })}
-            </td>
-          </tr>
-          <tr>
-            <th>State changed at: </th>
-            <td>{forumPost.stateChangedAt}</td>
-            <th>State changed by: </th>
-            <td>
-              {postUsername({
-                post: forumPost,
-                typeKey: 'stateChangedUserType',
-                crmKey: 'stateChangedBy',
-                cpKey: 'stateChangedByCp'
-              })}
-            </td>
-          </tr>
-          <tr>
-            <th>Title: </th>
-            <td>{forumPost.title}</td>
-          </tr>
-          <tr>
-            <th>Content: </th>
-            <td>
-              <div
-                style={{ border: '1px solid black', padding: 10 }}
-                dangerouslySetInnerHTML={{ __html: forumPost.content }}
-              ></div>
-            </td>
-          </tr>
-          <tr>
-            <th>Up vote count:</th>
-            <td>{forumPost.upVoteCount}</td>
-            <th>Down vote count:</th>
-            <td>{forumPost.downVoteCount}</td>
-          </tr>
-        </tbody>
-      </table>
-      <hr />
-      <div>
-        {forumPost.state !== 'DRAFT' && (
-          <button onClick={onDraft}>Turn into a draft</button>
-        )}
-        {forumPost.state !== 'PUBLISHED' && (
-          <button onClick={onPublish}>Publish</button>
-        )}
-        <Link to={`/forums/posts/${postId}/edit`}>Edit</Link>
-        <button onClick={onClickDelete}>Delete</button>
-      </div>
-      <hr />
-      {forumPost.category.postsReqCrmApproval && (
-        <>
-          <div>
-            <h5>Category approval: {forumPost.categoryApprovalState}</h5>
-            <button type="button" onClick={onApproveClick}>
-              Approve
-            </button>
-            <button type="button" onClick={onDenyClick}>
-              Deny
-            </button>
-          </div>
-          <hr />
-        </>
-      )}
+  const updatedProps = {
+    ...props,
+    post: postDetailQuery.forumPost || ({} as any),
+    onDraft,
+    onPublish,
+    onApproveClick,
+    onDenyClick
+  };
 
-      <h1>View count: {forumPost.viewCount}</h1>
-      <h1>Comments: {forumPost.commentCount}</h1>
-      <Comments postId={postId} />
-    </div>
-  );
-};
+  return <Detail {...updatedProps} />;
+}
 
-export default PostDetail;
+export default withProps<Props>(
+  compose(
+    graphql<Props>(gql(queries.forumPostDetail), {
+      name: 'postDetailQuery',
+      options: ({ _id }) => ({
+        variables: {
+          _id
+        },
+        fetchPolicy: 'network-only'
+      })
+    })
+  )(PostDetail)
+);

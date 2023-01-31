@@ -14,14 +14,16 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import PageForm from './PageForm';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { Alert, confirm } from '@erxes/ui/src/utils';
 
 type Props = {
   pages: IPage[];
   queryParams?: any;
   loading?: boolean;
-  remove?: (integrationId: string) => void;
+  remove?: (pageId: string, emptyBulk: () => void) => void;
   refetch?: () => void;
   history?: any;
+  emptyBulk: () => void;
   bulk: any[];
   isAllSelected: boolean;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -31,7 +33,14 @@ type Props = {
 
 class List extends React.Component<Props, {}> {
   renderRow() {
-    const { pages, remove, bulk, toggleBulk, renderButton } = this.props;
+    const {
+      pages,
+      remove,
+      bulk,
+      toggleBulk,
+      renderButton,
+      emptyBulk
+    } = this.props;
 
     return pages.map(page => (
       <Row
@@ -40,6 +49,7 @@ class List extends React.Component<Props, {}> {
         isChecked={bulk.includes(page)}
         toggleBulk={toggleBulk}
         remove={remove}
+        emptyBulk={emptyBulk}
         renderButton={renderButton}
         history={history}
       />
@@ -57,7 +67,9 @@ class List extends React.Component<Props, {}> {
       pages,
       isAllSelected,
       bulk,
-      toggleAll
+      toggleAll,
+      remove,
+      emptyBulk
     } = this.props;
 
     let actionBarLeft: React.ReactNode;
@@ -65,13 +77,16 @@ class List extends React.Component<Props, {}> {
     queryParams.loadingMainQuery = loading;
 
     if (bulk.length > 0) {
-      const onClick = () => confirm('Are you sure? This cannot be undone.');
-      // .then(() => {
-      //     this.deletePost(bulk);
-      //   })
-      //   .catch(e => {
-      //     Alert.error(e.message);
-      //   });
+      const onClick = () => {
+        confirm('Are you sure? This cannot be undone.')
+          .then(() => {
+            bulk.map(item => remove(item._id, emptyBulk));
+            Alert.success('You successfully deleted a page');
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          });
+      };
 
       actionBarLeft = (
         <Button

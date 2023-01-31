@@ -7,14 +7,16 @@ import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { IPost } from '../../types';
-import PostForm from '../PostForm';
+import PostForm from './PostForm';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { Link } from 'react-router-dom';
 
 type Props = {
   post: IPost;
-  remove: (postId: string) => void;
+  remove: (postId: string, emptyBulk: () => void) => void;
   isChecked?: boolean;
   toggleBulk: (target: any, toAdd: boolean) => void;
+  emptyBulk: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
@@ -43,9 +45,9 @@ class Row extends React.Component<Props> {
   }
 
   renderRemoveAction() {
-    const { post, remove } = this.props;
+    const { post, remove, emptyBulk } = this.props;
 
-    const onClick = () => remove(post._id);
+    const onClick = () => remove(post._id, emptyBulk);
 
     return (
       <Tip text={__('Delete')} placement="top">
@@ -81,7 +83,9 @@ class Row extends React.Component<Props> {
             onChange={onChange}
           />
         </td>
-        <td>{post.title}</td>
+        <td>
+          <Link to={`/forums/posts/${post._id}`}>{post.title}</Link>
+        </td>
         <td>{post.state}</td>
         <td>{post.stateChangedAt}</td>
         <td>{post.stateChangedBy.username}</td>

@@ -11,7 +11,7 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import * as compose from 'lodash.flowright';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import { Alert, withProps } from '@erxes/ui/src/utils';
 import { RemoveMutationResponse, PostsQueryResponse } from '../../types';
 import { graphql } from 'react-apollo';
 
@@ -20,7 +20,7 @@ type FinalProps = {
 } & RemoveMutationResponse &
   IRouterProps;
 
-function List({ history, removeMutation, postsQuery }: FinalProps) {
+function List({ removeMutation, postsQuery }: FinalProps) {
   const [categoryId] = useSearchParam('categoryId');
   const [state] = useSearchParam('state');
   const [categoryIncludeDescendants] = useSearchParam(
@@ -59,17 +59,11 @@ function List({ history, removeMutation, postsQuery }: FinalProps) {
     return <pre>{JSON.stringify(postQuery.error, null, 2)}</pre>;
   }
 
-  const remove = pageId => {
-    confirm(`This action will remove the post. Are you sure?`)
+  const remove = (pageId, emptyBulk) => {
+    removeMutation({ variables: { _id: pageId } })
       .then(() => {
-        removeMutation({ variables: { _id: pageId } })
-          .then(() => {
-            Alert.success('You successfully deleted a post');
-            postsQuery.refetch();
-          })
-          .catch(e => {
-            Alert.error(e.message);
-          });
+        postsQuery.refetch();
+        emptyBulk();
       })
       .catch(e => {
         Alert.error(e.message);

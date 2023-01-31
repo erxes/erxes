@@ -14,7 +14,8 @@ import { Link } from 'react-router-dom';
 type Props = {
   page: IPage;
   history: any;
-  remove: (pageId: string) => void;
+  remove: (pageId: string, emptyBulk: () => void) => void;
+  emptyBulk: () => void;
   isChecked?: boolean;
   toggleBulk: (target: any, toAdd: boolean) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -45,9 +46,9 @@ class Row extends React.Component<Props> {
   }
 
   renderRemoveAction() {
-    const { page, remove } = this.props;
+    const { page, remove, emptyBulk } = this.props;
 
-    const onClick = () => remove(page._id);
+    const onClick = () => remove(page._id, emptyBulk);
 
     return (
       <Tip text={__('Delete')} placement="top">
@@ -62,7 +63,7 @@ class Row extends React.Component<Props> {
   }
 
   render() {
-    const { page, isChecked, toggleBulk, history } = this.props;
+    const { page, isChecked, toggleBulk } = this.props;
 
     const onChange = e => {
       if (toggleBulk) {
@@ -73,11 +74,6 @@ class Row extends React.Component<Props> {
     const onClick = e => {
       e.stopPropagation();
     };
-
-    // const onTdClick = () => {
-    //   console.log("clicked");
-    //   <Link to={`/forum/pages/${page._id}`}/>;
-    // };
 
     return (
       <tr>

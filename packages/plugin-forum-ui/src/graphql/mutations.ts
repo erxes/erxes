@@ -98,12 +98,14 @@ const createPost = `
   mutation ForumCreatePost(
     $categoryId: ID!
     $content: String!
+    $description: String
     $title: String!
     $thumbnail: String
   ) {
     forumCreatePost(
       categoryId: $categoryId
       content: $content
+      description: $description
       title: $title
       thumbnail: $thumbnail
     ) {
@@ -117,6 +119,7 @@ const editPost = `
     $_id: ID!
     $categoryId: ID!
     $content: String
+    $description: String
     $thumbnail: String
     $title: String
   ) {
@@ -124,6 +127,7 @@ const editPost = `
       _id: $_id
       categoryId: $categoryId
       content: $content
+      description: $description
       thumbnail: $thumbnail
       title: $title
     ) {
@@ -202,6 +206,38 @@ mutation ForumDeletePage($_id: ID!) {
 }
 `;
 
+const postDraft = `
+mutation ForumPostDraft($_id: ID!) {
+  forumPostDraft(_id: $_id) {
+    _id
+  }
+}
+`;
+
+const postPublish = `
+mutation ForumPostDraft($_id: ID!) {
+  forumPostPublish(_id: $_id) {
+    _id
+  }
+}
+`;
+
+const postApprove = `
+mutation ForumPostApprove($_id: ID!) {
+  forumPostApprove(_id: $_id) {
+    _id
+  }
+}
+`;
+
+const postDeny = `
+mutation ForumPostDeny($_id: ID!) {
+  forumPostDeny(_id: $_id) {
+    _id
+  }
+}
+`;
+
 export default {
   updateCategory,
   createCategory,
@@ -214,5 +250,9 @@ export default {
   editPage,
   createPage,
   deletePost,
-  deletePage
+  deletePage,
+  postDraft,
+  postPublish,
+  postApprove,
+  postDeny
 };

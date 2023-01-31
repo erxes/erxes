@@ -14,16 +14,18 @@ import { IPost } from '../../types';
 import { IntegrationsCount } from '@erxes/ui-leads/src/types';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import PostForm from '../../components/PostForm';
+import PostForm from '../../components/posts/PostForm';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { Alert, confirm } from '@erxes/ui/src/utils';
 
 type Props = {
   posts: IPost[];
   queryParams?: any;
   loading?: boolean;
-  remove?: (postId: string) => void;
+  remove?: (postId: string, emptyBulk: () => void) => void;
   history?: any;
   bulk: any[];
+  emptyBulk: () => void;
   isAllSelected: boolean;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   toggleBulk: (target: IPost, toAdd: boolean) => void;
@@ -32,7 +34,14 @@ type Props = {
 
 class List extends React.Component<Props, {}> {
   renderRow() {
-    const { posts, remove, bulk, toggleBulk, renderButton } = this.props;
+    const {
+      posts,
+      remove,
+      bulk,
+      toggleBulk,
+      renderButton,
+      emptyBulk
+    } = this.props;
 
     return posts.map(post => (
       <Row
@@ -41,6 +50,7 @@ class List extends React.Component<Props, {}> {
         isChecked={bulk.includes(post)}
         toggleBulk={toggleBulk}
         remove={remove}
+        emptyBulk={emptyBulk}
         renderButton={renderButton}
       />
     ));
@@ -57,7 +67,9 @@ class List extends React.Component<Props, {}> {
       posts,
       isAllSelected,
       bulk,
-      toggleAll
+      toggleAll,
+      remove,
+      emptyBulk
     } = this.props;
 
     let actionBarLeft: React.ReactNode;
@@ -65,13 +77,16 @@ class List extends React.Component<Props, {}> {
     queryParams.loadingMainQuery = loading;
 
     if (bulk.length > 0) {
-      const onClick = () => confirm('Are you sure? This cannot be undone.');
-      // .then(() => {
-      //     this.deletePost(bulk);
-      //   })
-      //   .catch(e => {
-      //     Alert.error(e.message);
-      //   });
+      const onClick = () => {
+        confirm('Are you sure? This cannot be undone.')
+          .then(() => {
+            bulk.map(item => remove(item._id, emptyBulk));
+            Alert.success('You successfully deleted a post');
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          });
+      };
 
       actionBarLeft = (
         <Button

@@ -1,6 +1,6 @@
 import React from 'react';
-import CategorySelect from '../containers/CategorySelect';
-import { IPost } from '../types';
+import CategorySelect from '../../containers/CategorySelect';
+import { IPost } from '../../types';
 import EditorCK from '@erxes/ui/src/components/EditorCK';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -41,6 +41,7 @@ class PostForm extends React.Component<Props, State> {
     _id?: string;
     title: string;
     thumbnail: string;
+    description?: string;
   }) => {
     const { post } = this.props;
     const finalValues = values;
@@ -54,7 +55,8 @@ class PostForm extends React.Component<Props, State> {
       title: finalValues.title,
       content: this.state.content,
       thumbnail: finalValues.thumbnail,
-      categoryId: this.state.categoryId
+      categoryId: this.state.categoryId,
+      description: finalValues.description
     };
   };
 
@@ -122,7 +124,17 @@ class PostForm extends React.Component<Props, State> {
             onChange={this.onChange}
             isSubmitted={isSubmitted}
             height={300}
-            name={`knowledgeBase_${post ? post._id : 'create'}`}
+            name={`post_${post ? post._id : 'create'}`}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>{__('Description')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="description"
+            componentClass="textarea"
+            defaultValue={object.description}
           />
         </FormGroup>
 
