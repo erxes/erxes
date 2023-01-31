@@ -1,5 +1,5 @@
-import discountQueries from './discount';
+import pricingPlanQueries from './pricingPlan';
 
 export default {
-  ...discountQueries
+  ...pricingPlanQueries
 };

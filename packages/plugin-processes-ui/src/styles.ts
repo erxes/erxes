@@ -196,3 +196,14 @@ export const CustomSideContent = styledTS<{
 }>(styled(SideContent))`
   width: ${props => (props.wide ? '550px' : '290px')};
 `;
+
+export const AddTrigger = styled.div`
+  display: block;
+  margin: ${dimensions.coreSpacing}px;
+  text-align: center;
+
+  button {
+    font-size: 11px;
+    padding-bottom: 7px;
+  }
+`;

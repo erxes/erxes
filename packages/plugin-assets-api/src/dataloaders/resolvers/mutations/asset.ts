@@ -7,6 +7,7 @@ import {
   putDeleteLog,
   putUpdateLog
 } from '../../../logUtils';
+import { generateCommonAssetFilter } from '../queries/asset';
 
 interface IAssetsEdit extends IAsset {
   _id: string;
@@ -87,6 +88,7 @@ const assetMutations = {
 
     return response;
   },
+
   async assetsMerge(
     _root,
     { assetIds, assetFields }: { assetIds: string[]; assetFields: IAsset },
@@ -95,28 +97,20 @@ const assetMutations = {
     return await models.Assets.mergeAssets(assetIds, { ...assetFields });
   },
 
-  async addAssetKnowledge(
-    _root,
-    { assetId, knowledgeData },
-    { models }: IContext
-  ) {
-    return await models.Assets.addKnowledge(assetId, knowledgeData);
-  },
+  async assetsAssignKbArticles(_root, args, { models }: IContext) {
+    const selector = await generateCommonAssetFilter(models, args);
 
-  async updateAssetKnowledge(
-    _root,
-    { assetId, knowledgeData },
-    { models }: IContext
-  ) {
-    return await models.Assets.updateKnowledge(assetId, knowledgeData);
-  },
+    const { articleIds, action } = args;
 
-  async removeAssetKnowledge(
-    _root,
-    { assetId, knowledgeId },
-    { models }: IContext
-  ) {
-    return await models.Assets.removeKnowledge(assetId, knowledgeId);
+    if (action === 'add') {
+      return await models.Assets.updateMany(selector, {
+        $push: { kbArticleIds: articleIds }
+      });
+    } else {
+      return await models.Assets.updateMany(selector, {
+        $pull: { kbArticleIds: { $in: articleIds } }
+      });
+    }
   }
 };
 
@@ -124,4 +118,10 @@ checkPermission(assetMutations, 'assetsAdd', 'manageAssets');
 checkPermission(assetMutations, 'assetsEdit', 'manageAssets');
 checkPermission(assetMutations, 'assetsRemove', 'manageAssets');
 checkPermission(assetMutations, 'assetsMerge', 'assetsMerge');
+checkPermission(
+  assetMutations,
+  'assetsAssignKbArticles',
+  'assetsAssignKbArticles'
+);
+
 export default assetMutations;

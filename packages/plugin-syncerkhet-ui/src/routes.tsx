@@ -5,63 +5,82 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 
 const GeneralSettings = asyncComponent(() =>
-  import(/* webpackChunkName: "KnowledgeBase" */ './components/GeneralSettings')
+  import(
+    /* webpackChunkName: "GeneralSettings" */ './components/GeneralSettings'
+  )
 );
 
 const StageSettings = asyncComponent(() =>
-  import(/* webpackChunkName: "KnowledgeBase" */ './components/StageSettings')
+  import(/* webpackChunkName: "StageSettings" */ './components/StageSettings')
+);
+
+const StageMoveSettings = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "StageSettings" */ './components/StageMoveSettings'
+  )
 );
 
 const ReturnStageSettings = asyncComponent(() =>
   import(
-    /* webpackChunkName: "KnowledgeBase" */ './components/ReturnStageSettings'
+    /* webpackChunkName: "ReturnStageSettings" */ './components/ReturnStageSettings'
   )
 );
 
 const PipelineSettings = asyncComponent(() =>
   import(
-    /* webpackChunkName: "KnowledgeBase" */ './components/PipelineSettings'
+    /* webpackChunkName: "PipelineSettings" */ './components/PipelineSettings'
   )
 );
 
 const CheckSyncedDeals = asyncComponent(() =>
   import(
-    /* webpackChunkName: "KnowledgeBase" */ './containers/CheckSyncedDeals'
+    /* webpackChunkName: "CheckSyncedDeals" */ './containers/CheckSyncedDeals'
   )
 );
 
 const CheckSyncedOrders = asyncComponent(() =>
   import(
-    /* webpackChunkName: "KnowledgeBase" */ './containers/CheckSyncedOrders'
+    /* webpackChunkName: "CheckSyncedOrders" */ './containers/CheckSyncedOrders'
   )
 );
 
 const InventoryProducts = asyncComponent(() =>
   import(
-    /* webpackChunkName: "KnowledgeBase" */ './containers/InventoryProducts'
+    /* webpackChunkName: "InventoryProducts" */ './containers/InventoryProducts'
   )
 );
 
 const InventoryCategory = asyncComponent(() =>
   import(
-    /* webpackChunkName: "KnowledgeBase" */ './containers/InventoryCategory'
+    /* webpackChunkName: "InventoryCategors" */ './containers/InventoryCategory'
   )
 );
 
 const GeneralSetting = () => {
-  return <Settings component={GeneralSettings} />;
+  return <Settings component={GeneralSettings} configCode="ERKHET" />;
 };
 
 const StageSetting = () => {
-  return <Settings component={StageSettings} />;
+  return <Settings component={StageSettings} configCode="ebarimtConfig" />;
+};
+
+const StageMoveSetting = () => {
+  return (
+    <Settings component={StageMoveSettings} configCode="stageInMoveConfig" />
+  );
 };
 
 const ReturnStageSetting = () => {
-  return <Settings component={ReturnStageSettings} />;
+  return (
+    <Settings
+      component={ReturnStageSettings}
+      configCode="returnEbarimtConfig"
+    />
+  );
 };
 
 const PipelineSetting = () => {
-  return <Settings component={PipelineSettings} />;
+  return <Settings component={PipelineSettings} configCode="remainderConfig" />;
 };
 
 const checkSyncedDealList = ({ location, history }) => {
@@ -114,6 +133,13 @@ const routes = () => {
         exact={true}
         path="/erxes-plugin-sync-erkhet/settings/stage"
         component={StageSetting}
+      />
+
+      <Route
+        key="/erxes-plugin-sync-erkhet/settings/move-stage"
+        exact={true}
+        path="/erxes-plugin-sync-erkhet/settings/move-stage"
+        component={StageMoveSetting}
       />
 
       <Route

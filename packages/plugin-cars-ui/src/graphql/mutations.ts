@@ -14,6 +14,8 @@ const commonFields = `
   $vintageYear: Float,
   $importYear: Float,
   $attachment: AttachmentInput
+
+  $customFieldsData: JSON
 `;
 
 const commonVariables = `
@@ -32,6 +34,8 @@ const commonVariables = `
   vintageYear: $vintageYear,
   importYear: $importYear,
   attachment: $attachment,
+
+  customFieldsData: $customFieldsData,
 `;
 
 const carsAdd = `
@@ -51,8 +55,8 @@ const carsAdd = `
 `;
 
 const carsEdit = `
-  mutation carsEdit($_id: String!, $customerIds: [String], $companyIds: [String] ${commonFields}) {
-    carsEdit(_id: $_id, customerIds: $customerIds, companyIds: $companyIds, ${commonVariables}) {
+  mutation carsEdit($_id: String!, ${commonFields}) {
+    carsEdit(_id: $_id, ${commonVariables}) {
       ownerId,
       description,
       plateNumber,

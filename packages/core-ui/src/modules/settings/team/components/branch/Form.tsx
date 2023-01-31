@@ -11,6 +11,7 @@ import { IBranch } from '@erxes/ui/src/team/types';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import ContactInfoForm from '../common/ContactInfoForm';
 import { generateTree } from '../../utils';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -55,9 +56,9 @@ export default function BranchForm(props: Props) {
     };
   };
 
-  const onChangeParent = (parent: any) => {
-    if (parent) {
-      setParentId(parent.value);
+  const onChangeParent = (value: any) => {
+    if (value) {
+      setParentId(value);
     } else {
       setParentId(null);
     }
@@ -93,16 +94,22 @@ export default function BranchForm(props: Props) {
           />
         </FormGroup>
         <FormGroup>
+          <ControlLabel required={true}>{__('Code')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            required={true}
+            name="code"
+            defaultValue={object.code}
+          />
+        </FormGroup>
+        <FormGroup>
           <ControlLabel>{__('Parent')}</ControlLabel>
-          <Select
-            placeholder={__('Choose parent')}
-            value={parentId}
-            clearable={true}
-            onChange={onChangeParent}
-            options={generateTree(branches, null, (node, level) => ({
-              value: node._id,
-              label: `${'---'.repeat(level)} ${node.title}`
-            }))}
+          <SelectBranches
+            label="Choose parent"
+            name="parentId"
+            initialValue={parentId || ''}
+            onSelect={onChangeParent}
+            multi={false}
           />
         </FormGroup>
         <FormGroup>

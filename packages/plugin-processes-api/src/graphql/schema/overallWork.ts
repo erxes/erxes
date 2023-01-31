@@ -58,6 +58,7 @@ const qryParams = `
   outDepartmentId: String
   productCategoryId: String
   productIds: [String]
+  vendorIds: [String]
   jobCategoryId: String
   jobReferId: String
 `;

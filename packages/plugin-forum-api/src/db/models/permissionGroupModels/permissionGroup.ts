@@ -59,9 +59,14 @@ export const generatePermissionGroupModel = (
       _id: string,
       patch: PermissionGroupPatchInput
     ): Promise<PermissionGroupDocument> {
-      const doc = await models.PermissionGroup.findByIdOrThrow(_id);
-      _.assign(doc, patch);
-      await doc.save();
+      const doc = await models.PermissionGroup.findByIdAndUpdate(
+        _id,
+        { $set: patch },
+        { new: true }
+      );
+      if (!doc) {
+        throw new Error(`Permission group with _id=${_id} doesn't exist`);
+      }
       return doc;
     }
 

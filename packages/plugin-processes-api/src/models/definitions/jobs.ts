@@ -41,6 +41,7 @@ export interface IProductsData {
   _id: string;
   productId: string;
   quantity: number;
+  amount?: number;
   uomId: string;
 
   product?: IProduct;
@@ -106,6 +107,7 @@ export const productsDataSchema = new Schema({
   _id: field({ pkey: true }),
   productId: field({ type: String, label: 'Product' }),
   quantity: field({ type: Number, label: 'Quantity' }),
+  amount: field({ type: Number, optional: true, label: 'Quantity' }),
   uomId: field({ type: String, label: 'UOM' }),
   proportion: field({ type: Number, optional: true }),
   branchId: field({ type: String, optional: true, label: 'Branch' }),

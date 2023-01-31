@@ -16,6 +16,7 @@ import { IConfigsMap } from '../types';
 import { FieldsCombinedByType } from '../../../ui-forms/src/settings/properties/types';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
+import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 
 type Props = {
   configsMap: IConfigsMap;
@@ -157,52 +158,54 @@ class PerSettings extends React.Component<Props, State> {
             autoFocus={true}
           />
         </FormGroup>
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <BoardSelectContainer
+                type="deal"
+                autoSelectStage={false}
+                boardId={config.boardId}
+                pipelineId={config.pipelineId}
+                stageId={config.stageId}
+                onChangeBoard={this.onChangeBoard}
+                onChangePipeline={this.onChangePipeline}
+                onChangeStage={this.onChangeStage}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__('Choose response field')}</ControlLabel>
+              <Select
+                name="responseField"
+                value={config.responseField}
+                onChange={this.onresponseCustomFieldChange}
+                options={(this.state.fieldsCombined || []).map(f => ({
+                  value: f.name,
+                  label: f.label
+                }))}
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            {this.renderInput('userEmail', 'userEmail', '')}
+            {this.renderCheckbox('hasVat', 'hasVat', '')}
+            {this.renderCheckbox('hasCitytax', 'hasCitytax', '')}
 
-        <FormGroup>
-          <ControlLabel>Destination Stage</ControlLabel>
-          <BoardSelectContainer
-            type="deal"
-            autoSelectStage={false}
-            boardId={config.boardId}
-            pipelineId={config.pipelineId}
-            stageId={config.stageId}
-            onChangeBoard={this.onChangeBoard}
-            onChangePipeline={this.onChangePipeline}
-            onChangeStage={this.onChangeStage}
-          />
-        </FormGroup>
-
-        {this.renderInput('userEmail', 'userEmail', '')}
-        {this.renderCheckbox('hasVat', 'hasVat', '')}
-        {this.renderCheckbox('hasCitytax', 'hasCitytax', '')}
-
-        <FormGroup>
-          <ControlLabel>{'defaultPay'}</ControlLabel>
-          <Select
-            value={config.defaultPay}
-            onChange={this.onChangeCombo}
-            clearable={false}
-            required={true}
-            options={[
-              { value: 'debtAmount', label: 'debtAmount' },
-              { value: 'cashAmount', label: 'cashAmount' },
-              { value: 'cardAmount', label: 'cardAmount' }
-            ]}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>{__('Choose response field')}</ControlLabel>
-          <Select
-            name="responseField"
-            value={config.responseField}
-            onChange={this.onresponseCustomFieldChange}
-            options={(this.state.fieldsCombined || []).map(f => ({
-              value: f.name,
-              label: f.label
-            }))}
-          />
-        </FormGroup>
+            <FormGroup>
+              <ControlLabel>{'defaultPay'}</ControlLabel>
+              <Select
+                value={config.defaultPay}
+                onChange={this.onChangeCombo}
+                clearable={false}
+                required={true}
+                options={[
+                  { value: 'debtAmount', label: 'debtAmount' },
+                  { value: 'cashAmount', label: 'cashAmount' },
+                  { value: 'cardAmount', label: 'cardAmount' }
+                ]}
+              />
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
         <ModalFooter>
           <Button
             btnStyle="simple"

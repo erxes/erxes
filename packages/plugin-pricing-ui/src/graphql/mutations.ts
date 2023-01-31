@@ -1,17 +1,21 @@
-const discountAdd = `
-  mutation DiscountAdd($doc: DiscountAddInput) {
-    discountAdd(doc: $doc) {
+const pricingPlanAdd = `
+  mutation PricingPlanAdd($doc: PricingPlanAddInput) {
+    pricingPlanAdd(doc: $doc) {
       _id
       name
       status
       type
       value
+      priceAdjustType
+      priceAdjustFactor
       bonusProduct
+      isPriority
 
       applyType
 
       products
       productsExcluded
+      productsBundle
       categories
       categoriesExcluded
 
@@ -34,6 +38,8 @@ const discountAdd = `
         discountType
         discountValue
         discountBonusProduct
+        priceAdjustType
+        priceAdjustFactor
       }
 
       isPriceEnabled
@@ -43,6 +49,8 @@ const discountAdd = `
         discountType
         discountValue
         discountBonusProduct
+        priceAdjustType
+        priceAdjustFactor
       }
 
       isExpiryEnabled
@@ -52,6 +60,8 @@ const discountAdd = `
         discountType
         discountValue
         discountBonusProduct
+        priceAdjustType
+        priceAdjustFactor
       }
 
       isRepeatEnabled
@@ -79,20 +89,24 @@ const discountAdd = `
   }
 `;
 
-const discountEdit = `
-  mutation DiscountEdit($doc: DiscountEditInput) {
-    discountEdit(doc: $doc) {
+const pricingPlanEdit = `
+  mutation PricingPlanEdit($doc: PricingPlanEditInput) {
+    pricingPlanEdit(doc: $doc) {
       _id
       name
       status
       type
       value
+      priceAdjustType
+      priceAdjustFactor
       bonusProduct
+      isPriority
 
       applyType
 
       products
       productsExcluded
+      productsBundle
       categories
       categoriesExcluded
 
@@ -115,6 +129,8 @@ const discountEdit = `
         discountType
         discountValue
         discountBonusProduct
+        priceAdjustType
+        priceAdjustFactor
       }
 
       isPriceEnabled
@@ -124,6 +140,8 @@ const discountEdit = `
         discountType
         discountValue
         discountBonusProduct
+        priceAdjustType
+        priceAdjustFactor
       }
 
       isExpiryEnabled
@@ -133,6 +151,8 @@ const discountEdit = `
         discountType
         discountValue
         discountBonusProduct
+        priceAdjustType
+        priceAdjustFactor
       }
 
       isRepeatEnabled
@@ -160,16 +180,16 @@ const discountEdit = `
   }
 `;
 
-const discountRemove = `
-  mutation DiscountRemove($id: String) {
-    discountRemove(id: $id) {
+const pricingPlanRemove = `
+  mutation PricingPlanRemove($id: String) {
+    pricingPlanRemove(id: $id) {
       _id
     }
   }
 `;
 
 export default {
-  discountAdd,
-  discountEdit,
-  discountRemove
+  pricingPlanAdd,
+  pricingPlanEdit,
+  pricingPlanRemove
 };

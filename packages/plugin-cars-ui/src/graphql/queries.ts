@@ -123,8 +123,6 @@ export const carDetail = `
   query carDetail($_id: String!) {
     carDetail(_id: $_id) {
       ${carFields}
-      customerIds
-      companyIds
       ${
         isEnabled('contacts')
           ? `
@@ -149,6 +147,7 @@ export const carDetail = `
         size
         type
       }
+      customFieldsData
     }
   }
 `;

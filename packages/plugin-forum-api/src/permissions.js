@@ -44,6 +44,7 @@ module.exports = {
           'forumDeletePost',
           'forumPostDraft',
           'forumPostPublish',
+          'forumPostSetFeatured',
         ]
       },
       {
@@ -65,6 +66,10 @@ module.exports = {
       {
         name: 'forumPostPublish',
         description: 'Publish forum posts'
+      },
+      {
+        name: 'forumPostSetFeatured',
+        description: 'Featured/unfeature forum posts'
       }
     ]
   },

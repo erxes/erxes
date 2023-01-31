@@ -145,6 +145,10 @@ const fillDealProductValue = async (subdomain, column, item) => {
         value = productData.tickUsed;
         break;
 
+      case 'productsData.isVatApplied':
+        value = productData.isVatApplied;
+        break;
+
       case 'productsData.maxQuantity':
         console.log('productData.maxQuantity', productData.maxQuantity);
         value = productData.maxQuantity;

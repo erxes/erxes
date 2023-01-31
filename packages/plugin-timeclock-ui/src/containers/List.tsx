@@ -5,15 +5,17 @@ import { withProps } from '@erxes/ui/src/utils';
 import List from '../components/List';
 import {
   TimeClockMutationResponse,
-  TimeClockQueryResponse,
-  BranchesQueryResponse
+  BranchesQueryResponse,
+  PayDatesQueryResponse,
+  ScheduleConfigQueryResponse
 } from '../types';
-import { queries } from '../graphql';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { IUser } from '@erxes/ui/src/auth/types';
 import erxesQuery from '@erxes/ui/src/team/graphql/queries';
+import { removeParams } from '@erxes/ui/src/utils/router';
+import { queries } from '../graphql';
 
 type Props = {
   currentUser: IUser;
@@ -25,39 +27,44 @@ type Props = {
   stopTime: Date;
   timeId: string;
   userId: string;
-
-  queryStartDate: string;
-  queryEndDate: string;
-  queryUserIds: string[];
-  queryBranchIds: string[];
-  queryDepartmentIds: string[];
   searchFilter: string;
 };
 
 type FinalProps = {
   listBranchesQuery: BranchesQueryResponse;
+  listScheduleConfigsQuery: ScheduleConfigQueryResponse;
 } & Props &
   TimeClockMutationResponse;
 
-const ListContainer = (props: FinalProps) => {
-  const { listBranchesQuery, currentUser, queryUserIds } = props;
-
-  if (listBranchesQuery.loading) {
-    return <Spinner />;
+class ListContainer extends React.Component<FinalProps> {
+  componentDidUpdate(prevProps): void {
+    if (prevProps.route !== this.props.route) {
+      removeParams(this.props.history, 'page', 'perPage');
+    }
   }
+  render() {
+    const {
+      listBranchesQuery,
+      listScheduleConfigsQuery,
+      currentUser
+    } = this.props;
 
-  const currentUserId = currentUser._id;
+    if (listBranchesQuery.loading) {
+      return <Spinner />;
+    }
 
-  const updatedProps = {
-    ...props,
-    currentUserId,
-    queryUserIds,
-    branchesList: listBranchesQuery.branches || [],
-    loading: listBranchesQuery.loading
-  };
+    const currentUserId = currentUser._id;
 
-  return <List {...updatedProps} />;
-};
+    const updatedProps = {
+      ...this.props,
+      currentUserId,
+      scheduleConfigs: listScheduleConfigsQuery.scheduleConfigs || [],
+      branchesList: listBranchesQuery.branches || [],
+      loading: listBranchesQuery.loading
+    };
+    return <List {...updatedProps} />;
+  }
+}
 
 export default withProps<Props>(
   compose(
@@ -70,6 +77,12 @@ export default withProps<Props>(
           fetchPolicy: 'network-only'
         })
       }
-    )
+    ),
+    graphql<Props, PayDatesQueryResponse>(gql(queries.listScheduleConfig), {
+      name: 'listScheduleConfigsQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    })
   )(withCurrentUser(ListContainer))
 );

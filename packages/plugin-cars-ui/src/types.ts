@@ -36,8 +36,6 @@ export interface ICarDoc {
   importYear?: number;
 
   attachment?: IAttachment;
-  customerIds?: string[];
-  companyIds?: string[];
 }
 
 export interface ICarCategory {
@@ -87,6 +85,7 @@ export interface ICar extends ICarDoc {
   _id: string;
   owner: IUser;
   category?: ICarCategory;
+  customFieldsData: JSON;
 }
 
 // mutation types

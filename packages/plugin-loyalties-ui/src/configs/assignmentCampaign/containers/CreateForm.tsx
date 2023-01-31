@@ -13,7 +13,6 @@ import { withProps } from '@erxes/ui/src/utils';
 import { VoucherCampaignQueryResponse } from '../../voucherCampaign/types';
 import { queries as voucherCampaignQueries } from '../../voucherCampaign/graphql';
 import CreateForm from '../components/CreateForm';
-import { Link } from 'react-router-dom';
 
 type Props = {
   history: any;
@@ -52,14 +51,6 @@ class AssignmentCreateFormContainer extends React.Component<FinalProps> {
         ? { ...attachment, __typename: undefined }
         : null;
       values.attachmentMore = attachmentMoreArray;
-
-      if (this.props.queryParams) {
-        values.segmentIds = this.props.queryParams.segmentIds
-          ? this.props.queryParams.segmentIds
-            ? JSON.parse(this.props.queryParams.segmentIds)
-            : []
-          : [];
-      }
 
       return (
         <ButtonMutate
@@ -103,15 +94,9 @@ export default withProps<Props>(
   compose(
     graphql<Props, SegmentsQueryResponse>(gql(queries.segments), {
       name: 'segmentsQuery',
-      options: ({ queryParams }) => ({
+      options: () => ({
         variables: {
-          ids:
-            queryParams === undefined
-              ? []
-              : queryParams.segmentIds
-              ? JSON.parse(queryParams.segmentIds)
-              : [],
-          contentTypes: ['contacts:customer']
+          contentTypes: ['contacts:customer', 'contacts:lead']
         }
       })
     }),

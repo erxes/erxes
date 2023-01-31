@@ -65,8 +65,7 @@ export const types = ({ contacts }) => `
     vintageYear: Float
     importYear: Float
     attachment: Attachment
-    customerIds: [String]
-    companyIds: [String]
+    customFieldsData: JSON
   }
   type CarsListResponse {
     list: [Car],
@@ -118,6 +117,7 @@ const commonFields = `
   vintageYear: Float
   importYear: Float
   attachment: AttachmentInput
+  customFieldsData: JSON
 `;
 
 const carCategoryParams = `
@@ -129,7 +129,7 @@ const carCategoryParams = `
 
 export const mutations = `
   carsAdd(${commonFields}): Car
-  carsEdit(_id: String!, customerIds: [String], companyIds: [String], ${commonFields}): Car
+  carsEdit(_id: String!, ${commonFields}, customFieldsData: JSON): Car
   carsRemove(carIds: [String]): [String]
   carsMerge(carIds: [String], carFields: JSON) : Car
   carCategoriesAdd(${carCategoryParams}): CarCategory

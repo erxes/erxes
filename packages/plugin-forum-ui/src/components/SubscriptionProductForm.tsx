@@ -14,7 +14,8 @@ type Props = {
   onSubmit?: (val: any) => any;
 };
 
-const timeDuractionUnits = ['days', 'weeks', 'months', 'years'];
+export const timeDuractionUnits = ['days', 'weeks', 'months', 'years'] as const;
+export type TimeDurationUnit = typeof timeDuractionUnits[number];
 
 const SubscriptionProductForm: React.FC<Props> = ({
   subscriptionProduct,

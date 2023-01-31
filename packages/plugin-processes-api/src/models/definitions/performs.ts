@@ -11,6 +11,11 @@ export interface IPerform {
   dueDate: Date;
   endAt: Date;
   count: number;
+  description?: string;
+  appendix?: string;
+  assignedUserIds: string[];
+  customerId?: string;
+  companyId?: string;
   inBranchId: string;
   inDepartmentId: string;
   outBranchId: string;
@@ -67,6 +72,15 @@ export const performSchema = schemaHooksWrapper(
       type: [productsDataSchema],
       label: 'Result products'
     }),
+    description: field({ type: String, optional: true, label: 'description' }),
+    appendix: field({ type: String, optional: true, label: 'appendix' }),
+    assignedUserIds: field({
+      type: [String],
+      optional: true,
+      label: 'assignedUserIds'
+    }),
+    customerId: field({ type: String, optional: true, label: 'customerId' }),
+    companyId: field({ type: String, optional: true, label: 'companyId' }),
     createdAt: field({
       type: Date,
       default: new Date(),

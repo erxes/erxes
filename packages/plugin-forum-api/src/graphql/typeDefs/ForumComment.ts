@@ -1,5 +1,5 @@
 export default `
-  type ForumComment @key(fields: "_id") {
+  type ForumComment @key(fields: "_id")  @cacheControl(maxAge: 30) {
     _id: ID!
     content: String!
 

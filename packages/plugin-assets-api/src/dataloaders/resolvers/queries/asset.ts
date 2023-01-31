@@ -4,13 +4,15 @@ import { ASSET_STATUSES } from '../../../common/constant/asset';
 import { IContext } from '../../../connectionResolver';
 import messageBroker from '../../../messageBroker';
 
-const generateCommonAssetFilter = async (
+export const generateCommonAssetFilter = async (
+  models,
   {
     categoryId,
     parentId,
     searchValue,
     ids,
     excludeIds,
+    withKnowledgebase,
     pipelineId,
     boardId,
     ignoreIds,
@@ -18,6 +20,7 @@ const generateCommonAssetFilter = async (
   }: {
     ids: string[];
     excludeIds: boolean;
+    withKnowledgebase: boolean;
     categoryId: string;
     parentId: string;
     searchValue: string;
@@ -26,10 +29,10 @@ const generateCommonAssetFilter = async (
     pipelineId: string;
     boardId: string;
     ignoreIds: string[];
-  },
-  models
+  }
 ) => {
   const filter: any = {};
+
   if (ignoreIds) {
     filter._id = { $nin: ignoreIds };
   }
@@ -76,6 +79,14 @@ const generateCommonAssetFilter = async (
 
     filter.$or = fields;
   }
+
+  if (withKnowledgebase) {
+    filter.$and = [
+      { kbArticleIds: { $exists: true } },
+      { 'kbArticleIds.0': { $exists: true } }
+    ];
+  }
+
   return filter;
 };
 
@@ -95,6 +106,7 @@ const assetQueries = {
     }: {
       ids: string[];
       excludeIds: boolean;
+      withKnowledgebase: boolean;
       categoryId: string;
       parentId: string;
       searchValue: string;
@@ -108,20 +120,17 @@ const assetQueries = {
   ) {
     let filter: any = commonQuerySelector;
 
-    filter = await generateCommonAssetFilter(
-      {
-        categoryId,
-        parentId,
-        searchValue,
-        ids,
-        excludeIds,
-        pipelineId,
-        boardId,
-        ignoreIds,
-        ...pagintationArgs
-      },
-      models
-    );
+    filter = await generateCommonAssetFilter(models, {
+      categoryId,
+      parentId,
+      searchValue,
+      ids,
+      excludeIds,
+      pipelineId,
+      boardId,
+      ignoreIds,
+      ...pagintationArgs
+    });
 
     filter.status = { $ne: ASSET_STATUSES.DELETED };
 
@@ -137,16 +146,20 @@ const assetQueries = {
         boardId,
         ...pagintationArgs
       },
+
       await paginate(
         models.Assets.find(filter)
           .sort({ order: 1 })
           .lean(),
         pagintationArgs
       ),
+
       messageBroker(),
+
       user
     );
   },
+
   async assetsTotalCount(
     _root,
     params,
@@ -154,11 +167,12 @@ const assetQueries = {
   ) {
     let filter: any = commonQuerySelector;
 
-    filter = await generateCommonAssetFilter(params, models);
+    filter = await generateCommonAssetFilter(models, params);
     filter.status = { $ne: ASSET_STATUSES.DELETED };
 
     return models.Assets.find(filter).countDocuments();
   },
+
   assetDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Assets.findOne({ _id }).lean();
   }

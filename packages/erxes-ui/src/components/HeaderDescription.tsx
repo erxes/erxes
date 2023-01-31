@@ -48,6 +48,7 @@ type Props = {
   icon: string;
   title: string;
   description: string;
+  renderExtra?: JSX.Element;
 };
 
 type State = {
@@ -71,7 +72,7 @@ class HeaderDescription extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { icon, title, description } = this.props;
+    const { icon, title, description, renderExtra } = this.props;
 
     return (
       <MainDescription expand={this.state.expand} onClick={this.onClick}>
@@ -81,6 +82,7 @@ class HeaderDescription extends React.PureComponent<Props, State> {
             <h4>{__(title)}</h4>
             {this.state.expand && __(description)}
           </span>
+          {this.state.expand && renderExtra && renderExtra}
         </Description>
         <Button btnStyle="link" onClick={this.onClick}>
           <Tip

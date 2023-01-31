@@ -49,8 +49,8 @@ const documentQueries = {
   }
 };
 
-checkPermission(documentQueries, 'documents', 'showDocuments', []);
-checkPermission(documentQueries, 'documents', 'showDocuments');
-checkPermission(documentQueries, 'documents', 'showDocuments');
+checkPermission(documentQueries, 'documents', 'manageDocuments', []);
+checkPermission(documentQueries, 'documents', 'manageDocuments');
+checkPermission(documentQueries, 'documents', 'manageDocuments');
 
 export default documentQueries;

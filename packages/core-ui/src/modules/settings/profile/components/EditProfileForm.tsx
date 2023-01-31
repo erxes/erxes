@@ -71,7 +71,8 @@ class EditProfile extends React.Component<Props, State> {
           lastName: values.lastName
         },
         links,
-        password
+        password,
+        employeeId: values.employeeId
       },
       this.closeAllModals
     );

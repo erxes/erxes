@@ -53,7 +53,8 @@ class Row extends React.Component<Props> {
       count,
       needProducts,
       resultProducts,
-      origin
+      origin,
+      type
     } = work;
 
     const content = props => <Form {...props} work={work} />;
@@ -75,7 +76,7 @@ class Row extends React.Component<Props> {
           {origin === 'handle' ? (
             <ActionButtons>
               <ModalTrigger
-                title="Edit perform"
+                title={__(`Edit perform`)}
                 trigger={
                   <Button btnStyle="link">
                     <Tip text={__('Edit')} placement="bottom">

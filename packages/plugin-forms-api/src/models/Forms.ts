@@ -1,6 +1,6 @@
 import * as Random from 'meteor-random';
-import { Model, model } from 'mongoose';
-import * as validator from 'validator';
+import { Model } from 'mongoose';
+import validator from 'validator';
 import { IModels } from '../connectionResolver';
 import {
   formSchema,
