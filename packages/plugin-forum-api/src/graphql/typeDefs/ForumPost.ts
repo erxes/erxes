@@ -81,6 +81,8 @@ export default function ForumPost({ isTagsEnabled }) {
     isFeaturedByAdmin: Boolean
     isFeaturedByUser: Boolean
 
+    quizzes: [ForumQuiz!]
+
     ${isTagsEnabled ? 'tags: [Tag!]' : ''}
   }
 `;
