@@ -9,6 +9,7 @@ import subscriptionProductQueries from './subscriptionProductQueries';
 import subscriptionOrderQueries from './subscriptionOrderQueries';
 import pageQueries from './pageQueries';
 import savedPostQueries from './savedPostQueries';
+import quizQueries from './quizQueries';
 
 const userLevelQueries: IObjectTypeResolver<any, IContext> = {
   forumUserLevelValues: () => {
@@ -32,7 +33,8 @@ const Query: IObjectTypeResolver<any, IContext> = {
   ...subscriptionOrderQueries,
   ...pageQueries,
   ...savedPostQueries,
-  ...statisticsQueries
+  ...statisticsQueries,
+  ...quizQueries
 };
 
 export default Query;

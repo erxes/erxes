@@ -219,6 +219,7 @@ export const generateCategoryModel = (
         await models.PermissionGroupCategoryPermit.deleteMany({
           categoryId: _id
         });
+        await models.Quiz.updateMany({ categoryId: _id }, { categoryId: null });
         await cat.remove();
 
         await session.commitTransaction();
