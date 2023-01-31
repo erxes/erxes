@@ -31,6 +31,7 @@ export interface IAbsenceType {
   name: string;
   explRequired: boolean;
   attachRequired: boolean;
+  shiftRequest: boolean;
 }
 
 export interface IReport {
@@ -155,7 +156,7 @@ export type BranchesQueryResponse = {
 };
 
 export type ReportsQueryResponse = {
-  timeclockReports: IReport[];
+  timeclockReports: { list: IReport[]; totalCount: number };
   refetch: () => void;
   loading: boolean;
 };
@@ -175,6 +176,7 @@ export type AbsenceMutationVariables = {
   reason: string;
   explanation?: string;
   attachment?: IAttachment;
+  absenceTypeId?: string;
 };
 
 export type ScheduleMutationVariables = {

@@ -12,7 +12,7 @@ export type IConfig = {
 
 // query types
 export type ConfigsQueryResponse = {
-  configs: IConfig[];
+  configsGetValue: IConfig;
   loading: boolean;
   refetch: () => void;
 };
@@ -37,7 +37,7 @@ export type CheckSyncedMutationResponse = {
 
 export type ToSyncDealsMutationResponse = {
   toSyncDeals: (mutation: {
-    variables: { dealIds: string[]; configStageId: string };
+    variables: { dealIds: string[]; configStageId: string; dateType: string };
   }) => Promise<any>;
 };
 

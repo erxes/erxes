@@ -25,7 +25,12 @@ type Props = {
   toggleAll: (targets: any[], containerId: string) => void;
   unSyncedDealIds: string[];
   syncedDealInfos: any;
-  toSyncDeals: (dealIds: string[], configStageId: string) => void;
+  toSyncDeals: (
+    dealIds: string[],
+    configStageId: string,
+    dateType: string
+  ) => void;
+  dateType: string;
 };
 
 type State = {
@@ -60,7 +65,7 @@ class CheckSyncedDeals extends React.Component<Props, State> {
     } = this.props;
 
     const toSync = dealIds => {
-      toSyncDeals(dealIds, queryParams.configStageId);
+      toSyncDeals(dealIds, queryParams.configStageId, queryParams.dateType);
     };
 
     return deals.map(deal => (
@@ -100,10 +105,9 @@ class CheckSyncedDeals extends React.Component<Props, State> {
       isAllSelected,
       bulk,
       unSyncedDealIds,
-      toSyncDeals,
-      syncedDealInfos
+      toSyncDeals
     } = this.props;
-    console.log(syncedDealInfos);
+
     const tablehead = [
       'deal name',
       'Amount',
@@ -159,7 +163,11 @@ class CheckSyncedDeals extends React.Component<Props, State> {
     const onClickSync = () =>
       confirm()
         .then(() => {
-          toSyncDeals(unSyncedDealIds, queryParams.configStageId);
+          toSyncDeals(
+            unSyncedDealIds,
+            queryParams.configStageId,
+            queryParams.dateType
+          );
         })
         .catch(error => {
           Alert.error(error.message);
@@ -214,8 +222,6 @@ class CheckSyncedDeals extends React.Component<Props, State> {
           <Wrapper.ActionBar
             left={<Title>Deals</Title>}
             right={actionBarRight}
-            // withMargin
-            // wide
             background="colorWhite"
           />
         }

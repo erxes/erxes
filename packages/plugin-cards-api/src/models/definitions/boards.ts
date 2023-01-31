@@ -199,7 +199,7 @@ export const commonItemFieldsSchema = {
   watchedUserIds: field({ type: [String], esType: 'keyword' }),
   labelIds: field({ type: [String], esType: 'keyword' }),
   attachments: field({ type: [attachmentSchema], label: 'Attachments' }),
-  stageId: field({ type: String, index: true }),
+  stageId: field({ type: String, index: true, label: 'Stage' }),
   initialStageId: field({
     type: String,
     optional: true

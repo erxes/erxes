@@ -96,6 +96,20 @@ export const getProductsData = async (
     const categories: any[] = [];
 
     for (const category of productCategories) {
+      const limit = await sendProductsMessage({
+        subdomain,
+        action: 'count',
+        data: {
+          query: {
+            status: { $ne: 'deleted' },
+            categoryId: category._id,
+            _id: { $nin: group.excludedProductIds }
+          }
+        },
+        isRPC: true,
+        defaultValue: 0
+      });
+
       const products = await sendProductsMessage({
         subdomain,
         action: 'find',
@@ -104,7 +118,8 @@ export const getProductsData = async (
             status: { $ne: 'deleted' },
             categoryId: category._id,
             _id: { $nin: group.excludedProductIds }
-          }
+          },
+          limit
         },
         isRPC: true,
         defaultValue: []
@@ -118,7 +133,11 @@ export const getProductsData = async (
           totalAmount: 0,
           departmentId: pos.departmentId,
           branchId: pos.branchId,
-          products
+          products: products.map(p => ({
+            productId: p._id,
+            quantity: 1,
+            price: p.unitPrice
+          }))
         },
         isRPC: true,
         defaultValue: {}
@@ -131,10 +150,9 @@ export const getProductsData = async (
           continue;
         }
 
-        if (discount.type === 'percentage') {
-          product.unitPrice -= discount.value;
-        } else {
-          product.unitPrice -= discount.value;
+        product.unitPrice -= discount.value;
+        if (product.unitPrice < 0) {
+          product.unitPrice = 0;
         }
       }
 

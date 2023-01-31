@@ -20,6 +20,10 @@ module.exports = {
       {
         name: 'assetsMerge',
         description: 'Merge assets'
+      },
+      {
+        name: 'assetsAssignKbArticles',
+        description: 'Assign knowledgebase articles'
       }
     ]
   }

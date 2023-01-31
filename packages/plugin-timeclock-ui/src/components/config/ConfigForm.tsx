@@ -39,8 +39,15 @@ type Props = {
 function ConfigForm(props: Props) {
   const { renderButton, history, scheduleConfig } = props;
   const { absenceType, holiday, payDate } = props;
-  const [explanationRequired, setExplRequired] = useState(false);
-  const [attachmentRequired, setAttachRequired] = useState(false);
+  const [isShiftRequest, setShiftRequest] = useState(
+    (absenceType && absenceType.shiftRequest) || false
+  );
+  const [explanationRequired, setExplRequired] = useState(
+    (absenceType && absenceType.explRequired) || false
+  );
+  const [attachmentRequired, setAttachRequired] = useState(
+    (absenceType && absenceType.attachRequired) || false
+  );
   const [payPeriod, setPayPeriod] = useState('');
 
   const defaultStartTime = new Date(
@@ -108,6 +115,9 @@ function ConfigForm(props: Props) {
   const togglePayPeriod = e => {
     setPayPeriod(e.target.value);
   };
+  const toggleShiftRequest = e => {
+    setShiftRequest(e.target.checked);
+  };
   const toggleExplRequired = e => {
     setExplRequired(e.target.checked);
   };
@@ -137,6 +147,7 @@ function ConfigForm(props: Props) {
       scheduleName?: string;
       explRequired?: boolean;
       attachRequired?: boolean;
+      shiftRequest?: boolean;
     },
     name: string
   ) => {
@@ -150,6 +161,7 @@ function ConfigForm(props: Props) {
           name: values.absenceName,
           explRequired: explanationRequired,
           attachRequired: attachmentRequired,
+          shiftRequest: isShiftRequest,
           _id: values._id
         };
 
@@ -243,6 +255,15 @@ function ConfigForm(props: Props) {
           required={true}
           autoFocus={true}
         />
+        <FlexRow>
+          <ControlLabel>Shift Request</ControlLabel>
+          <FormControl
+            name="shiftRequest"
+            componentClass="checkbox"
+            defaultChecked={absenceType?.shiftRequest}
+            onChange={toggleShiftRequest}
+          />
+        </FlexRow>
         <FlexRow>
           <ControlLabel>Explanation Required</ControlLabel>
           <FormControl

@@ -46,6 +46,12 @@ const MUT_DENY = gql`
   }
 `;
 
+const MUT_FEATURED_TOGGLE = gql`
+  mutation ForumPostSetFeatured($id: ID!, $featured: Boolean!) {
+    forumPostSetFeatured(_id: $id, featured: $featured)
+  }
+`;
+
 const PostDetail: React.FC = () => {
   const history = useHistory();
   const { postId } = useParams();
@@ -82,6 +88,10 @@ const PostDetail: React.FC = () => {
   const [mutDeny] = useMutation(MUT_DENY, {
     variables: { _id: postId },
     refetchQueries: POST_REFETCH_AFTER_EDIT
+  });
+
+  const [mutSetFeatured] = useMutation(MUT_FEATURED_TOGGLE, {
+    refetchQueries: ['ForumPostDetail']
   });
 
   if (loading) return null;
@@ -208,6 +218,12 @@ const PostDetail: React.FC = () => {
                     : 'Single choice'}
                 </td>
               </tr>
+              {forumPost.pollEndDate && (
+                <tr>
+                  <th>Poll end date:</th>
+                  <td>{forumPost.pollEndDate}</td>
+                </tr>
+              )}
             </>
           )}
           <tr>
@@ -227,6 +243,31 @@ const PostDetail: React.FC = () => {
             <td>{forumPost.upVoteCount}</td>
             <th>Down vote count:</th>
             <td>{forumPost.downVoteCount}</td>
+          </tr>
+
+          <tr>
+            <th>Featured by admin: </th>
+            <td>
+              {forumPost.isFeaturedByAdmin ? 'Yes' : 'No'}&nbsp;{' '}
+              <button
+                type="button"
+                onClick={async () => {
+                  console.log('before');
+                  await mutSetFeatured({
+                    variables: {
+                      id: postId,
+                      featured: !forumPost.isFeaturedByAdmin
+                    }
+                  });
+
+                  console.log('after');
+                }}
+              >
+                {forumPost.isFeaturedByAdmin ? 'Unfeature' : 'Feature'}
+              </button>
+            </td>
+            <th>Featured by user: </th>
+            <td>{forumPost.isFeaturedByUser ? 'Yes' : 'No'}</td>
           </tr>
         </tbody>
       </table>
@@ -252,6 +293,24 @@ const PostDetail: React.FC = () => {
         </button>
       </div>
       <hr />
+
+      <div>
+        {forumPost.quizzes && (
+          <div>
+            <h3>Related quizzes</h3>
+            <ul>
+              {forumPost.quizzes.map(quiz => (
+                <li key={quiz._id}>
+                  <Link to={`/forums/quizzes/${quiz._id}`}>{quiz.name}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <Link to={`/forums/quizzes/new?postId=${postId}`}>
+          Create related quiz
+        </Link>
+      </div>
 
       <h1>View count: {forumPost.viewCount}</h1>
       <h1>Comments: {forumPost.commentCount}</h1>

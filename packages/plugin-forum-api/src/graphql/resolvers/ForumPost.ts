@@ -3,6 +3,9 @@ import { IObjectTypeResolver } from '@graphql-tools/utils';
 import { IPost } from '../../db/models/post';
 
 const ForumPost: IObjectTypeResolver<IPost, IContext> = {
+  __resolveReference({ _id }, { models: { Post } }: IContext) {
+    return Post.findById({ _id });
+  },
   async category({ categoryId }, _, { models: { Category } }) {
     return categoryId && Category.findById(categoryId);
   },
@@ -22,8 +25,8 @@ const ForumPost: IObjectTypeResolver<IPost, IContext> = {
       updatedByCpId && { __typename: 'ClientPortalUser', _id: updatedByCpId }
     );
   },
-  async commentCount({ _id }, _, { models: { Comment } }) {
-    return (await Comment.countDocuments({ postId: _id })) || 0;
+  async commentCount({ _id, commentCount }, _, { models: { Comment } }) {
+    return commentCount || 0;
   },
 
   async upVoteCount({ _id }, _, { models: { PostUpVote } }) {
@@ -64,6 +67,29 @@ const ForumPost: IObjectTypeResolver<IPost, IContext> = {
       .lean();
     const pollOptionIds = pollOptions.map(o => o._id);
     return PollVote.countDocuments({ pollOptionId: { $in: pollOptionIds } });
+  },
+
+  async hasCurrentUserSavedIt({ _id }, _, { models: { SavedPost }, cpUser }) {
+    if (!cpUser) {
+      return false;
+    }
+
+    const savedPost = await SavedPost.findOne({
+      cpUserId: cpUser.userId,
+      postId: _id
+    });
+
+    return !!savedPost;
+  },
+
+  async quizzes({ _id }, _, { models: { Quiz }, user }) {
+    const query: any = { postId: _id };
+
+    if (!user) {
+      query.state = 'PUBLISHED';
+    }
+
+    return Quiz.find(query);
   }
 };
 

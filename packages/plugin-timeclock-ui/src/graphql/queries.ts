@@ -10,6 +10,12 @@ const userFields = `
     lastName
     position
   }
+  departments {
+    title
+  }
+  branches {
+    title
+  }
 `;
 
 const attachmentFields = `
@@ -119,36 +125,39 @@ const listBranches = `
 const listReports = `
   query listReportsQuery(${listParamsDef}){
     timeclockReports(${listParamsValue}){
-      groupTitle
-      groupReport{
-        user {
-          ${userFields}
-        }
-        scheduleReport {
-          date
-          scheduleStart
-          scheduleEnd
-          recordedStart
-          recordedEnd
-          minsLate
-          minsWorked
-        }
-        totalMinsLate
-        totalAbsenceMins
-        totalMinsWorked
-        totalMinsScheduled
+      list {
+              groupTitle
+            groupReport{
+              user {
+                ${userFields}
+              }
+              scheduleReport {
+                date
+                scheduleStart
+                scheduleEnd
+                recordedStart
+                recordedEnd
+                minsLate
+                minsWorked
+              }
+              totalMinsLate
+              totalAbsenceMins
+              totalMinsWorked
+              totalMinsScheduled
 
-        totalMinsWorkedThisMonth
-        totalDaysWorkedThisMonth
+              totalMinsWorkedThisMonth
+              totalDaysWorkedThisMonth
 
-        totalMinsScheduledThisMonth
-        totalDaysScheduledThisMonth
-    
-      }
-      groupTotalMinsLate
-      groupTotalAbsenceMins
-      groupTotalMinsWorked
-      groupTotalMinsScheduled
+              totalMinsScheduledThisMonth
+              totalDaysScheduledThisMonth
+          
+            }
+            groupTotalMinsLate
+            groupTotalAbsenceMins
+            groupTotalMinsWorked
+            groupTotalMinsScheduled
+          }
+          totalCount  
     }
   }`;
 
@@ -180,6 +189,7 @@ const listAbsenceTypes = `
       name
       explRequired
       attachRequired
+      shiftRequest
     }
   }
 `;

@@ -36,8 +36,31 @@ const assetCategoriesTotalCount = `
   }
 `;
 
+const knowledgeBaseTopics = `
+  query knowledgeBaseTopics {
+    knowledgeBaseTopics {
+      _id
+      title
+      categories {
+        _id
+        title
+      }
+    }
+  }
+`;
+const knowledgeBaseArticles = `
+  query knowledgeBaseArticles($categoryIds: [String]) {
+    knowledgeBaseArticles(categoryIds: $categoryIds) {
+      _id
+      title
+    }
+  }
+`;
+
 export default {
   assetCategory,
   assetCategoryDetail,
-  assetCategoriesTotalCount
+  assetCategoriesTotalCount,
+  knowledgeBaseArticles,
+  knowledgeBaseTopics
 };

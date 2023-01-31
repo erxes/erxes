@@ -120,6 +120,21 @@ export class RenderDynamicComponent extends React.Component<
   }
 }
 
+export const getPluginConfig = ({ pluginName, configName }) => {
+  const plugins: any[] = (window as any).plugins || [];
+
+  let result;
+
+  for (const plugin of plugins) {
+    if (plugin.name === pluginName && plugin[configName]) {
+      result = plugin[configName];
+      break;
+    }
+  }
+
+  return result;
+};
+
 export const renderFullName = data => {
   if (data.firstName || data.lastName || data.middleName || data.primaryPhone) {
     return (

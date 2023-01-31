@@ -15,32 +15,7 @@ export interface IAssetModel extends Model<IAssetDocument> {
   updateAsset(_id: string, doc: IAsset): Promise<IAssetDocument>;
   removeAssets(_ids: string[]): Promise<{ n: number; ok: number }>;
   mergeAssets(assetIds: string[], assetFields: IAsset): Promise<IAssetDocument>;
-  addKnowledge(assetId: string, doc: any): Promise<IAssetDocument>;
-  updateKnowledge(assetId: string, doc: any): Promise<IAssetDocument>;
-  removeKnowledge(assetId: string, knowledgeId: any): Promise<IAssetDocument>;
 }
-
-const knowledgeDataValidator = (assetId, doc) => {
-  if (!assetId) {
-    throw new Error('You cannot add knowledge  in asset without assetId');
-  }
-  if (!doc.name) {
-    throw new Error('You must provide a title');
-  }
-
-  if (!doc.contents.length) {
-    throw new Error('You must add at least one content');
-  }
-
-  for (const content of doc.contents || []) {
-    if (!content.title) {
-      throw new Error('You must provide a title of knowledge ');
-    }
-    if (!content.content) {
-      throw new Error('You must provide a content of knowledge ');
-    }
-  }
-};
 
 export const loadAssetClass = (models: IModels, subdomain: string) => {
   class Asset {
@@ -140,6 +115,7 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
 
       return models.Assets.findOne({ _id });
     }
+
     public static async removeAssets(_ids: string[]) {
       const dealAssetIds: string[] = [];
 
@@ -283,65 +259,6 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
       return asset;
     }
 
-    public static async addKnowledge(assetId, doc) {
-      try {
-        knowledgeDataValidator(assetId, doc);
-      } catch (e) {
-        throw new Error(e.message);
-      }
-
-      const asset = models.Assets.findOne({ _id: assetId });
-
-      if (!asset) {
-        throw new Error('Not found asset with id:' + assetId);
-      }
-      return await models.Assets.update(
-        { _id: assetId },
-        { $push: { knowledgeData: doc } }
-      );
-    }
-    public static async updateKnowledge(assetId, doc) {
-      try {
-        knowledgeDataValidator(assetId, doc);
-      } catch (e) {
-        throw new Error(e.message);
-      }
-
-      const asset = models.Assets.findOne({ _id: assetId });
-
-      if (!asset) {
-        throw new Error('Not found asset with id:' + assetId);
-      }
-
-      try {
-        await models.Assets.updateOne(
-          { _id: assetId, 'knowledgeData._id': doc._id },
-          {
-            $set: {
-              'knowledgeData.$': doc
-            }
-          }
-        );
-      } catch (e) {
-        throw new Error(e.message);
-      }
-      return 'updated';
-    }
-
-    public static async removeKnowledge(assetId: string, knowledgeId: any) {
-      if (!assetId) {
-        throw new Error('You cannot remove a knowledge  without assetId');
-      }
-      if (!knowledgeId) {
-        throw new Error('You cannot remove a knowledge  without knowledgeId');
-      }
-
-      return await models.Assets.updateOne(
-        { _id: assetId },
-        { $pull: { knowledgeData: { _id: knowledgeId } } }
-      );
-    }
-
     public static async generateOrder(parentAsset: IAsset, doc: IAsset) {
       const order = parentAsset
         ? `${parentAsset.order}/${doc.code}`
@@ -350,6 +267,8 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
       return order;
     }
   }
+
   assetSchema.loadClass(Asset);
+
   return assetSchema;
 };

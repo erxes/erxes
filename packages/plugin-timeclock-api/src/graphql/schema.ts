@@ -41,6 +41,7 @@ export const types = `
     name: String
     explRequired: Boolean
     attachRequired: Boolean
+    shiftRequest: Boolean
   }
 
   
@@ -145,6 +146,11 @@ export const types = `
     list: [Absence]
     totalCount: Float
   }
+
+  type ReportsListResponse {
+    list: [Report]
+    totalCount: Float
+  }
   
 `;
 
@@ -173,12 +179,14 @@ const absence_params = `
     reason: String
     explanation: String
     attachment: AttachmentInput
+    absenceTypeId: String
 `;
 
 const absenceType_params = `
     name: String
     explRequired: Boolean
     attachRequired: Boolean
+    shiftRequest: Boolean
 `;
 
 export const queries = `
@@ -187,7 +195,7 @@ export const queries = `
   requestsMain(${queryParams}): RequestsListResponse
 
   absenceTypes:[AbsenceType]
-  timeclockReports(${queryParams}): [Report]
+  timeclockReports(${queryParams}): ReportsListResponse
   timeclockReportByUser(selectedUser: String): UserReport
   timeclockDetail(_id: String!): Timeclock
   absenceDetail(_id: String!): Absence

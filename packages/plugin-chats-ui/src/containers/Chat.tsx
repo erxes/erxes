@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useQuery } from 'react-apollo';
 import queryString from 'query-string';
@@ -11,29 +11,29 @@ import { queries } from '../graphql';
 
 const ChatContainer = () => {
   const location = useLocation();
-  const { _id, userIds, userId } = queryString.parse(location.search);
+  const { id, userIds, userId } = queryString.parse(location.search);
 
-  if (!_id) {
+  if (!id && (userIds || userId)) {
     return <GetChatId userIds={userId ? [userId] : userIds} />;
   }
 
-  return <Chat chatId={_id} />;
+  return <Chat chatId={id || ''} />;
 };
 
 const GetChatId = (props: { userIds: string[] }) => {
-  const getChatIdByUserIds = useQuery(gql(queries.getChatIdByUserIds), {
+  const { loading, error, data } = useQuery(gql(queries.getChatIdByUserIds), {
     variables: { userIds: props.userIds }
   });
 
-  if (getChatIdByUserIds.loading) {
+  if (loading) {
     return <Spinner />;
   }
 
-  if (getChatIdByUserIds.error) {
-    return <div>{getChatIdByUserIds.error.message}</div>;
+  if (error) {
+    return <div>{error.message}</div>;
   }
 
-  return <Chat chatId={getChatIdByUserIds.data.getChatIdByUserIds} />;
+  return <Chat chatId={data.getChatIdByUserIds} />;
 };
 
 export default ChatContainer;

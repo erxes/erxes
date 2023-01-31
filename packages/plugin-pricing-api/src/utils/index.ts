@@ -6,7 +6,8 @@ import {
   calculatePriceRule,
   calculateQuantityRule,
   calculateDiscountValue,
-  calculateExpiryRule
+  calculateExpiryRule,
+  calculatePriceAdjust
 } from './rule';
 import { getAllowedProducts } from './product';
 import { Plan, CalculatedRule, OrderItem } from '../types';
@@ -14,6 +15,7 @@ import { Plan, CalculatedRule, OrderItem } from '../types';
 export const checkPricing = async (
   models: IModels,
   subdomain: string,
+  prioritizeRule: string,
   totalAmount: number,
   departmentId: string,
   branchId: string,
@@ -27,7 +29,7 @@ export const checkPricing = async (
   let allowedProductIds: string[] = [];
 
   // Finding valid discounts
-  const conditions: object = {
+  const conditions: any = {
     status: 'active',
     $and: [
       {
@@ -84,6 +86,13 @@ export const checkPricing = async (
       }
     ]
   };
+
+  if (prioritizeRule === 'only') {
+    conditions.isPriority = true;
+  } else if (prioritizeRule === 'exclude') {
+    conditions.isPriority = false;
+  }
+
   const sortArgs: object = {
     isPriority: 1,
     value: 1
@@ -135,10 +144,17 @@ export const checkPricing = async (
       let value: number = 0;
       let bonusProducts: any = [];
 
-      const defaultValue: number = calculateDiscountValue(
+      let defaultValue: number = calculateDiscountValue(
         plan.type,
         plan.value,
         item.price
+      );
+
+      defaultValue = calculatePriceAdjust(
+        item.price,
+        defaultValue,
+        plan.priceAdjustType,
+        plan.priceAdjustFactor
       );
 
       // Check price rules
@@ -192,12 +208,11 @@ export const checkPricing = async (
           }
           return prev;
         });
+
         if (maxValueRule.type.length !== 0) {
           type = maxValueRule.type;
           value = maxValueRule.value;
         }
-
-        console.log(type, value, bonusProducts);
 
         // If none of the rules are applied. Apply default
         if (type.length === 0) {
@@ -212,21 +227,28 @@ export const checkPricing = async (
         // Finalize values
         if (type !== 'bonus') {
           result[item.productId].type = type;
-        }
 
-        // Priority calculation
-        if (plan.isPriority) {
-          result[item.productId].value += value;
-        } else {
-          if (result[item.productId].value < value) {
-            result[item.productId].value = value;
+          // Priority calculation
+          if (plan.isPriority) {
+            result[item.productId].value += value;
+          } else {
+            if (result[item.productId].value < value) {
+              result[item.productId].value = value;
+            }
           }
         }
 
-        result[item.productId].bonusProducts = [
-          ...result[item.productId].bonusProducts,
-          ...bonusProducts
-        ];
+        if (type === 'bonus') {
+          // Priority calculation
+          if (plan.isPriority) {
+            result[item.productId].bonusProducts = [
+              ...result[item.productId].bonusProducts,
+              ...bonusProducts
+            ];
+          } else {
+            result[item.productId].bonusProducts = bonusProducts;
+          }
+        }
 
         appliedBundleItems.push(item);
       }

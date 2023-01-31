@@ -19,6 +19,7 @@ import { generateTree } from '../../utils';
 import { queries } from '@erxes/ui/src/team/graphql';
 import gql from 'graphql-tag';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { DescriptionContentRow } from '../common/DescriptionContentRow';
 
 type Props = {
   listQuery: BranchesMainQueryResponse;
@@ -133,7 +134,8 @@ class MainList extends React.Component<Props, State> {
         <td>{__(`${'\u00A0 \u00A0 '.repeat(level)}  ${branch.code}`)}</td>
         <td>{__(branch.title)}</td>
         <td>{branch?.parent?.title || ''}</td>
-        <td>{__(branch.address)}</td>
+        <td>{__(branch.address.replace(/\n/g, ''))}</td>
+        <td>{branch.userCount}</td>
       </tr>
     );
     return (
@@ -192,6 +194,7 @@ class MainList extends React.Component<Props, State> {
             <th>{__('Title')}</th>
             <th>{__('Parent')}</th>
             <th>{__('Address')}</th>
+            <th>{__('Team member count')}</th>
           </tr>
         </thead>
         <tbody>
@@ -209,6 +212,8 @@ class MainList extends React.Component<Props, State> {
 
   render() {
     const { listQuery, deleteBranches } = this.props;
+
+    const { totalCount, totalUsersCount } = listQuery.branchesMain;
 
     const { selectedItems } = this.state;
 
@@ -233,6 +238,11 @@ class MainList extends React.Component<Props, State> {
         title="Branches"
         icon="/images/actions/21.svg"
         description=""
+        renderExtra={DescriptionContentRow({
+          label: 'branches',
+          totalCount: totalCount,
+          teamMembersCount: totalUsersCount
+        })}
       />
     );
     return (
@@ -252,14 +262,14 @@ class MainList extends React.Component<Props, State> {
         content={
           <DataWithLoader
             loading={listQuery.loading}
-            count={listQuery.branchesMain?.totalCount || 0}
+            count={totalCount || 0}
             data={this.renderContent()}
             emptyImage="/images/actions/5.svg"
             emptyText="No Branches"
           />
         }
         leftSidebar={<SettingsSideBar />}
-        footer={<Pagination count={listQuery.branchesMain?.totalCount || 0} />}
+        footer={<Pagination count={totalCount || 0} />}
       />
     );
   }

@@ -16,6 +16,11 @@ import PageNew from '../containers/Pages/New';
 import PageDetail from '../containers/Pages/Detail';
 import PageEdit from '../containers/Pages/Edit';
 import SubscriptionProductEdit from '../containers/SubscriptionProduct/Edit';
+import ExtendSubscription from '../containers/ExtendSubscription';
+import QuizList from '../containers/Quiz/List';
+import QuizNew from '../containers/Quiz/New';
+import QuizDetail from '../containers/Quiz/Detail';
+import QuizEdit from '../containers/Quiz/Edit';
 
 function Layout() {
   const { path, url } = useRouteMatch();
@@ -35,6 +40,10 @@ function Layout() {
         <li>
           <Link to={`/forums/posts`}>Posts</Link>
         </li>
+
+        <li>
+          <Link to={`/forums/quizzes`}>Quizzes</Link>
+        </li>
         <li>
           <Link to={`/forums/pages`}>Pages</Link>
         </li>
@@ -45,6 +54,9 @@ function Layout() {
           <Link to={'/forums/subscription-products'}>
             Subscription Products
           </Link>
+        </li>
+        <li>
+          <Link to={'/forums/extend-subscription'}>Extend Subscription</Link>
         </li>
       </ul>
 
@@ -118,6 +130,25 @@ function Layout() {
 
           <Route exact path={`/forums/pages/:id/edit`}>
             <PageEdit />
+          </Route>
+
+          <Route exact path={`/forums/extend-subscription`}>
+            <ExtendSubscription />
+          </Route>
+
+          <Route exact path={`/forums/quizzes`}>
+            <QuizList />
+          </Route>
+          <Route exact path={`/forums/quizzes/new`}>
+            <QuizNew />
+          </Route>
+
+          <Route exact path={`/forums/quizzes/:quizId`}>
+            <QuizDetail />
+          </Route>
+
+          <Route exact path={`/forums/quizzes/:quizId/edit`}>
+            <QuizEdit />
           </Route>
         </Switch>
       </div>

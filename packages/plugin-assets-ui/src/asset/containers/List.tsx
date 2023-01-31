@@ -29,6 +29,7 @@ type FinalProps = {
   assetsCount: IAssetTotalCountQueryResponse;
   assetCategoryDetailQuery: IAssetCategoryDetailQueryResponse;
   assetDetailQuery: IAssetDetailQueryResponse;
+  assetsAssignKbArticles: any;
 } & Props &
   AssetRemoveMutationResponse &
   MergeMutationResponse;
@@ -59,6 +60,22 @@ class ListContainer extends React.Component<FinalProps> {
       })
       .catch(e => {
         Alert.error(e.message);
+      });
+  };
+
+  assignKbArticles = ({ ids, data, callback }) => {
+    const { queryParams, assetsAssignKbArticles } = this.props;
+
+    assetsAssignKbArticles({
+      variables: { ids, ...data, ...generateQueryParams(queryParams) }
+    })
+      .then(() => {
+        Alert.success('Success');
+        callback();
+      })
+      .catch(e => {
+        Alert.error(e.message);
+        callback();
       });
   };
 
@@ -104,6 +121,7 @@ class ListContainer extends React.Component<FinalProps> {
       assets: assets?.assets,
       assetsCount: assetsCount.assetsTotalCount,
       remove: this.remove,
+      assignKbArticles: this.assignKbArticles,
       mergeAssets: this.mergeAssets,
       loading: assets.loading,
       queryParams,
@@ -124,18 +142,22 @@ class ListContainer extends React.Component<FinalProps> {
   }
 }
 
+const generateQueryParams = queryParams => {
+  return {
+    categoryId: queryParams?.categoryId,
+    parentId: queryParams?.parentId,
+    searchValue: queryParams?.searchValue,
+    type: queryParams?.type,
+    ...generatePaginationParams(queryParams || {})
+  };
+};
+
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.assets), {
       name: 'assets',
       options: ({ queryParams }) => ({
-        variables: {
-          categoryId: queryParams?.categoryId,
-          parentId: queryParams?.parentId,
-          searchValue: queryParams?.searchValue,
-          type: queryParams?.type,
-          ...generatePaginationParams(queryParams || {})
-        },
+        variables: generateQueryParams(queryParams),
         fetchPolicy: 'network-only'
       })
     }),
@@ -171,8 +193,8 @@ export default withProps<Props>(
     graphql(gql(mutations.assetsMerge), {
       name: 'assetsMerge'
     }),
-    graphql(gql(mutations.assetsRemove), {
-      name: 'assetsRemove',
+    graphql(gql(mutations.assetsAssignKbArticles), {
+      name: 'assetsAssignKbArticles',
       options: () => ({
         refetchQueries: getRefetchQueries()
       })

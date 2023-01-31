@@ -346,6 +346,7 @@ function ConfigList(props: Props) {
         <thead>
           <tr>
             <th>Absence type</th>
+            <th>Shift Request</th>
             <th>Explanation required</th>
             <th>Attachment required</th>
             <th>Action</th>
@@ -357,6 +358,7 @@ function ConfigList(props: Props) {
               return (
                 <tr key={absenceType._id}>
                   <td>{absenceType.name}</td>
+                  <td>{absenceType.shiftRequest ? 'true' : 'false'}</td>
                   <td>{absenceType.explRequired ? 'true' : 'false'}</td>
                   <td>{absenceType.attachRequired ? 'true' : 'false'}</td>
                   <td>

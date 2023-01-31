@@ -16,22 +16,30 @@ type Props = {
   history: any;
   branchesList: IBranch[];
 };
+// get 1st of the next Month
+const NOW = new Date();
+const startOfNextMonth = new Date(NOW.getFullYear(), NOW.getMonth() + 1, 1);
+// get 1st of this month
+const startOfThisMonth = new Date(NOW.getFullYear(), NOW.getMonth(), 1);
 
 const LeftSideBar = (props: Props) => {
   const { history, branchesList, queryParams } = props;
-
   const [currUserIds, setUserIds] = useState(queryParams.userIds);
   const [selectedBranches, setBranches] = useState(queryParams.branchIds);
   const [deptIds, setDeptIds] = useState(queryParams.departmentIds);
-  const [startDate, setStartDate] = useState(queryParams.startDate);
-  const [endDate, setEndDate] = useState(queryParams.endDate);
+  const [startDate, setStartDate] = useState(
+    queryParams.startDate || startOfThisMonth
+  );
+  const [endDate, setEndDate] = useState(
+    queryParams.endDate || startOfNextMonth
+  );
 
   const cleanFilter = () => {
     onBranchSelect([]);
     onDepartmentSelect([]);
     onMemberSelect([]);
-    onStartDateChange(null);
-    onEndDateChange(null);
+    onStartDateChange(startOfThisMonth);
+    onEndDateChange(startOfNextMonth);
     router.removeParams(
       history,
       'userIds',
@@ -48,12 +56,21 @@ const LeftSideBar = (props: Props) => {
   };
 
   const setParams = (key: string, value: any) => {
-    router.setParams(history, {
-      [key]: value
-    });
+    if (value) {
+      router.setParams(history, {
+        [key]: value
+      });
 
-    removePageParams();
+      removePageParams();
+    }
   };
+
+  if (!queryParams.startDate) {
+    setParams('startDate', startOfThisMonth);
+  }
+  if (!queryParams.endDate) {
+    setParams('endDate', startOfNextMonth);
+  }
 
   const renderBranchOptions = (branches: any[]) => {
     return branches.map(branch => ({
@@ -89,7 +106,6 @@ const LeftSideBar = (props: Props) => {
 
   const onStartDateChange = date => {
     setStartDate(date);
-
     setParams('startDate', date);
   };
 

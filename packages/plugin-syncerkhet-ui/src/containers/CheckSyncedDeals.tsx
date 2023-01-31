@@ -80,10 +80,10 @@ class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
         });
     };
 
-    const toSyncDeals = (dealIds, configStageId) => {
+    const toSyncDeals = (dealIds, configStageId, dateType) => {
       this.props
         .toSyncDeals({
-          variables: { dealIds, configStageId }
+          variables: { dealIds, configStageId, dateType }
         })
         .then(response => {
           const { skipped, error, success } = response.data.toSyncDeals;

@@ -91,7 +91,7 @@ const orderMutations = {
       const order = await models.Orders.createOrder({
         ...doc,
         ...orderDoc,
-        totalAmount: preparedDoc.totalAmount,
+        totalAmount: getTotalAmount(preparedDoc.items),
         posToken: config.token,
         departmentId: config.departmentId,
         taxInfo: getTaxInfo(config)

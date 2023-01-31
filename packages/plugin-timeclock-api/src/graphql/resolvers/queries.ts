@@ -1,12 +1,15 @@
 import { IContext } from '../../connectionResolver';
-import { findBranches, timeclockReportByUser } from './utils';
-import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
+import { timeclockReportByUser, timeclockReportPreliminary } from './utils';
 import {
   findAllTeamMembersWithEmpId,
   generateCommonUserIds,
   generateFilter
 } from '../../utils';
 import { paginate } from '@erxes/api-utils/src';
+import { IReport } from '../../models/definitions/timeclock';
+
+const paginateArray = (array, perPage = 20, page = 1) =>
+  array.slice((page - 1) * perPage, page * perPage);
 
 const timeclockQueries = {
   async absences(_root, queryParams, { models, subdomain }: IContext) {
@@ -28,7 +31,9 @@ const timeclockQueries = {
     const queryList = models.Timeclocks.find(selector);
 
     const list = paginate(
-      models.Timeclocks.find(selector).sort({ userId: 1, employeeId: 1 }),
+      models.Timeclocks.find(selector).sort({
+        shiftStart: -1
+      }),
       {
         perPage: queryParams.perPage,
         page: queryParams.page
@@ -42,7 +47,7 @@ const timeclockQueries = {
     const selector = await generateFilter(queryParams, subdomain, 'schedule');
     const totalCount = models.Schedules.find(selector).countDocuments();
 
-    const list = paginate(models.Schedules.find(selector).sort({ userId: 1 }), {
+    const list = paginate(models.Schedules.find(selector), {
       perPage: queryParams.perPage,
       page: queryParams.page
     });
@@ -58,10 +63,13 @@ const timeclockQueries = {
     const selector = await generateFilter(queryParams, subdomain, 'absence');
     const totalCount = models.Absences.find(selector).countDocuments();
 
-    const list = paginate(models.Absences.find(selector).sort({ userId: 1 }), {
-      perPage: queryParams.perPage,
-      page: queryParams.page
-    });
+    const list = paginate(
+      models.Absences.find(selector).sort({ startTime: -1 }),
+      {
+        perPage: queryParams.perPage,
+        page: queryParams.page
+      }
+    );
 
     return { list, totalCount };
   },
@@ -93,13 +101,9 @@ const timeclockQueries = {
 
   async timeclockReports(
     _root,
-    { userIds, branchIds, departmentIds, startDate, endDate, reportType },
+    { userIds, branchIds, departmentIds, startDate, endDate, page, perPage },
     { subdomain }: IContext
   ) {
-    const finalReport: any = [];
-
-    const teamMembersWithEmpId = await findAllTeamMembersWithEmpId(subdomain);
-
     const teamMemberIdsFromFilter = await generateCommonUserIds(
       subdomain,
       userIds,
@@ -107,26 +111,39 @@ const timeclockQueries = {
       departmentIds
     );
 
+    const returnReport: IReport[] = [];
+
+    const teamMembersWithIds = await findAllTeamMembersWithEmpId(subdomain);
+    const teamMemberIds: string[] = [];
+
+    for (const teamMember of teamMembersWithIds) {
+      if (!teamMember.employeeId) {
+        continue;
+      }
+
+      teamMemberIds.push(teamMember._id);
+    }
     const totalTeamMemberIds = teamMemberIdsFromFilter.length
       ? teamMemberIdsFromFilter
-      : teamMembersWithEmpId.map(teamMember => teamMember._id);
+      : teamMemberIds;
 
-    for (const teamMemberId of totalTeamMemberIds) {
-      const userReport = await timeclockReportByUser(
-        teamMemberId,
-        subdomain,
-        startDate,
-        endDate
-      );
-      const userBranches = await findBranches(subdomain, teamMemberId);
+    const reportPreliminary: any = await timeclockReportPreliminary(
+      subdomain,
+      paginateArray(totalTeamMemberIds, perPage, page),
+      startDate,
+      endDate
+    );
 
-      finalReport.push({
-        groupTitle: userBranches[0].title,
-        groupReport: [userReport]
+    for (const userId of Object.keys(reportPreliminary)) {
+      returnReport.push({
+        groupReport: [{ userId: `${userId}`, ...reportPreliminary[userId] }]
       });
     }
 
-    return finalReport;
+    return {
+      list: returnReport,
+      totalCount: totalTeamMemberIds.length
+    };
   }
 };
 

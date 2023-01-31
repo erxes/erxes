@@ -21,22 +21,22 @@ const clockStop = `
 `;
 
 const sendAbsenceRequest = `
-  mutation sendAbsenceRequest($startTime: Date, $endTime: Date, $userId: String, $reason: String, $explanation: String, $attachment: AttachmentInput){
-    sendAbsenceRequest(startTime: $startTime, endTime: $endTime, userId: $userId, reason: $reason, explanation: $explanation, attachment: $attachment){
+  mutation sendAbsenceRequest($startTime: Date, $endTime: Date, $userId: String, $reason: String, $explanation: String, $attachment: AttachmentInput, $absenceTypeId: String){
+    sendAbsenceRequest(startTime: $startTime, endTime: $endTime, userId: $userId, reason: $reason, explanation: $explanation, attachment: $attachment, absenceTypeId: $absenceTypeId){
       _id
     }
   }`;
 
 const absenceTypeAdd = `
-  mutation absenceTypeAdd($name: String, $explRequired: Boolean, $attachRequired: Boolean){
-    absenceTypeAdd(name: $name, explRequired: $explRequired, attachRequired: $attachRequired){
+  mutation absenceTypeAdd($name: String, $explRequired: Boolean, $attachRequired: Boolean, $shiftRequest: Boolean){
+    absenceTypeAdd(name: $name, explRequired: $explRequired, attachRequired: $attachRequired, shiftRequest: $shiftRequest){
       _id
     }
   }`;
 
 const absenceTypeEdit = `
-  mutation absenceTypeEdit($_id: String, $name: String, $explRequired: Boolean, $attachRequired: Boolean){
-    absenceTypeEdit(_id: $_id, name: $name, explRequired: $explRequired, attachRequired: $attachRequired){
+  mutation absenceTypeEdit($_id: String, $name: String, $explRequired: Boolean, $attachRequired: Boolean, $shiftRequest: Boolean){
+    absenceTypeEdit(_id: $_id, name: $name, explRequired: $explRequired, attachRequired: $attachRequired, shiftRequest: $shiftRequest){
       _id
     }
   }`;
