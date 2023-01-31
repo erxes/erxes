@@ -32,9 +32,7 @@ const timeclockQueries = {
 
     const list = paginate(
       models.Timeclocks.find(selector).sort({
-        userId: 1,
-        shiftStart: 1,
-        shfitEnd: 1
+        shiftStart: -1
       }),
       {
         perPage: queryParams.perPage,
@@ -49,7 +47,7 @@ const timeclockQueries = {
     const selector = await generateFilter(queryParams, subdomain, 'schedule');
     const totalCount = models.Schedules.find(selector).countDocuments();
 
-    const list = paginate(models.Schedules.find(selector).sort({ userId: 1 }), {
+    const list = paginate(models.Schedules.find(selector), {
       perPage: queryParams.perPage,
       page: queryParams.page
     });
@@ -66,7 +64,7 @@ const timeclockQueries = {
     const totalCount = models.Absences.find(selector).countDocuments();
 
     const list = paginate(
-      models.Absences.find(selector).sort({ userId: 1, startTime: 1 }),
+      models.Absences.find(selector).sort({ startTime: -1 }),
       {
         perPage: queryParams.perPage,
         page: queryParams.page

@@ -26,7 +26,7 @@ const strip_html = (string: any) => {
     return;
   } else {
     const regex = /(&nbsp;|<([^>]+)>)/gi;
-    var result = string.replace(regex, '');
+    let result = string.replace(regex, '');
     result = result.replace(/&#[0-9][0-9][0-9][0-9];/gi, ' ');
     const cut = result.slice(0, 70);
     return cut;
@@ -57,7 +57,8 @@ const chatMutations = {
         body: doc.description,
         receivers: allParticipantIds,
         data: {
-          type: 'chats'
+          type: 'chats',
+          id: chat._id
         }
       }
     });
@@ -182,7 +183,8 @@ const chatMutations = {
         body: strip_html(args.content),
         receivers: recievers,
         data: {
-          type: 'chats'
+          type: 'chats',
+          id: chat._id
         }
       }
     });

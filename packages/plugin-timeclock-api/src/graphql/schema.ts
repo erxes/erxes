@@ -41,6 +41,7 @@ export const types = `
     name: String
     explRequired: Boolean
     attachRequired: Boolean
+    shiftRequest: Boolean
   }
 
   
@@ -178,12 +179,14 @@ const absence_params = `
     reason: String
     explanation: String
     attachment: AttachmentInput
+    absenceTypeId: String
 `;
 
 const absenceType_params = `
     name: String
     explRequired: Boolean
     attachRequired: Boolean
+    shiftRequest: Boolean
 `;
 
 export const queries = `

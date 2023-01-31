@@ -26,9 +26,7 @@ export default {
             ? {
                 $gte: fixDate(startDate)
               }
-            : { $lte: fixDate(endDate) }
-      },
-      {
+            : { $lte: fixDate(endDate) },
         shiftEnd:
           startDate && endDate
             ? {
@@ -48,17 +46,20 @@ export default {
     }
 
     let returnModel: any = [];
+
     if (dateGiven) {
       returnModel.push(
         ...(await models.Shifts.find({
           $and: [...timeFields, scheduleSelector]
-        }))
+        }).sort({ shiftStart: -1 }))
       );
     }
 
     // if no date filter is given, return everything
     else {
-      returnModel = models.Shifts.find(scheduleSelector);
+      returnModel = models.Shifts.find(scheduleSelector).sort({
+        shiftStart: -1
+      });
     }
 
     return returnModel;

@@ -189,6 +189,7 @@ const listAbsenceTypes = `
       name
       explRequired
       attachRequired
+      shiftRequest
     }
   }
 `;

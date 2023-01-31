@@ -28,11 +28,13 @@ export interface IAbsence {
   explanation?: string;
   status: string;
   solved?: boolean;
+  absenceTypeId?: string;
 }
 export interface IAbsenceType {
   name: string;
   explRequired: boolean;
   attachRequired: boolean;
+  shiftRequest: boolean;
 }
 
 export interface IAbsenceDocument extends IAbsence, Document {
@@ -141,6 +143,10 @@ export const absenceTypeSchema = new Schema({
   attachRequired: field({
     type: Boolean,
     label: 'whether absence type requires attachment'
+  }),
+  shiftRequest: field({
+    type: Boolean,
+    label: 'whether absence type is shift request'
   })
 });
 
@@ -161,6 +167,10 @@ export const absenceSchema = new Schema({
   status: field({
     type: String,
     label: 'Status of absence request, whether approved or rejected'
+  }),
+  absenceTypeId: field({
+    type: String,
+    label: 'id of an absence type'
   })
 });
 

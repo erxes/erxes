@@ -1,6 +1,7 @@
 import { Types } from 'mongoose';
 import { models } from './connectionResolver';
-export const generateFilter = async (params, type) => {
+import { sendCoreMessage } from './messageBroker';
+export const generateFilter = async (params, type, subdomain: string) => {
   let filter: any = {};
 
   if (params.movementId) {
@@ -9,6 +10,10 @@ export const generateFilter = async (params, type) => {
 
   if (params.assetId) {
     filter.assetId = params.assetId;
+  }
+
+  if (params.assetIds) {
+    filter.assetId = { $in: params.assetIds };
   }
 
   if (params.parentId) {
@@ -30,10 +35,52 @@ export const generateFilter = async (params, type) => {
   }
 
   if (params.branchId) {
-    filter.branchId = params.branchId;
+    const branch = await sendCoreMessage({
+      subdomain,
+      action: 'branches.findOne',
+      data: { _id: params.branchId },
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    if (branch) {
+      const branchIds = (
+        await sendCoreMessage({
+          subdomain,
+          action: 'branches.find',
+          data: { query: { order: { $regex: branch.order } } },
+          isRPC: true,
+          defaultValue: []
+        })
+      ).map(branch => branch._id);
+      filter.branchId = { $in: branchIds };
+    } else {
+      filter.branchId = params.branchId;
+    }
   }
 
   if (params.departmentId) {
+    const department = await sendCoreMessage({
+      subdomain,
+      action: 'departments.find',
+      data: { _id: params.departmentId },
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    if (department) {
+      const departmentIds = (
+        await sendCoreMessage({
+          subdomain,
+          action: 'departments.find',
+          data: { order: { $regex: department.order } }
+        })
+      ).map(department => department._id);
+      filter.departmentId = { $in: departmentIds };
+    } else {
+      filter.departmentId = params.departmentId;
+    }
+
     filter.departmentId = params.departmentId;
   }
   if (params.teamMemberId) {
