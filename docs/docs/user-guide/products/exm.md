@@ -77,7 +77,7 @@ The assets feature allows HR professionals to manage asset records, streamlining
 
 EXM is a comprehensive approach to employee experience management that addresses all aspects of the employee journey, from recruitment to retirement. With the help of EXM, companies can create an environment where employees feel valued, motivated, and connected to the company’s mission, leading to higher employee retention and overall organizational success.
 
-Happy work experience, happy life for everyone! 🤗
+Happy work experience, happy life for everyone! 🤗🤗
 
 Want to bring your HR system to the next level with EXM? Fill this form out and our sales team will contact you shortly.
 
