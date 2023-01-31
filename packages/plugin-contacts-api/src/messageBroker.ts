@@ -61,6 +61,15 @@ export const initBroker = cl => {
     };
   });
 
+  consumeRPCQueue('contacts:companies.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Companies.find(data).lean()
+    };
+  });
+
   consumeRPCQueue('contacts:customers.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
