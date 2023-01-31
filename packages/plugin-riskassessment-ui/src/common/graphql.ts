@@ -54,7 +54,7 @@ export const riskIndicatorParams = `
         label,
         percentWeight
     }
-    categories{
+    category{
         _id
         formId
         parentId

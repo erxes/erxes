@@ -6,14 +6,14 @@ export default {
     return models.RiskIndicators.findOne({ _id });
   },
 
-  async categories(
+  async category(
     riskIndicator: IRiskIndicatorsDocument,
     {},
     { dataLoaders }: IContext
   ) {
     return (
-      (riskIndicator.categoryIds &&
-        dataLoaders.categories.load(riskIndicator.categoryIds)) ||
+      (riskIndicator.categoryId &&
+        dataLoaders.categories.load(riskIndicator.categoryId)) ||
       null
     );
   }

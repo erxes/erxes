@@ -5,6 +5,7 @@ import * as compose from 'lodash.flowright';
 import { withProps } from '@erxes/ui/src/utils/core';
 import DetailComponent from '../components/Detail';
 import { queries } from '../graphql';
+import { Spinner } from '@erxes/ui/src';
 
 type Props = {
   riskAssessment: any;
@@ -22,9 +23,23 @@ class Detail extends React.Component<FinalProps> {
   render() {
     const { riskAssessment, detailQueryResponse } = this.props;
 
+    if (detailQueryResponse.loading) {
+      return <Spinner />;
+    }
+
+    const {
+      assignedUsers,
+      groupAssessment,
+      indicatorAssessment,
+      ...detail
+    } = detailQueryResponse?.riskAssessmentDetail;
+
     const updatedProps = {
       riskAssessment,
-      detail: detailQueryResponse.riskAssessmentDetail
+      detail,
+      assignedUsers,
+      groupAssessment,
+      indicatorAssessment
     };
 
     return <DetailComponent {...updatedProps} />;

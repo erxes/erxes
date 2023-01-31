@@ -3,7 +3,7 @@ import { IContext } from '../../../connectionResolver';
 import { statusColors } from '../../../constants';
 import { riskAssessment } from '../../../permissions';
 
-const generateFilter = params => {
+const generateFilter = async (params, models) => {
   let filter: any = {};
 
   if (params.searchValue) {
@@ -15,14 +15,29 @@ const generateFilter = params => {
   }
 
   if (params.branchIds) {
-    filter.branchIds = { $in: params.branchId };
+    filter.branchIds = { $in: params.branchIds };
   }
 
   if (params.departmentIds) {
     filter.departmentIds = { $in: params.departmentId };
   }
   if (params.riskIndicatorIds) {
-    filter.riskIndicatorIds = { $in: params.riskIndicatorIds };
+    const groupIds = (
+      await models.IndicatorsGroups.aggregate([
+        { $match: { 'groups.indicatorIds': { $in: params.riskIndicatorIds } } }
+      ])
+    ).map(group => group._id);
+
+    filter.indicatorId = { $in: params.riskIndicatorIds };
+
+    if (!!groupIds.length) {
+      delete filter.indicatorId;
+
+      filter.$or = [
+        { groupId: { $in: groupIds } },
+        { indicatorId: { $in: params.riskIndicatorIds } }
+      ];
+    }
   }
 
   if (params.createdAtFrom) {
@@ -47,14 +62,17 @@ const generateFilter = params => {
 
 const RiskAssessmentQueries = {
   async riskAssessments(_root, params, { models }: IContext) {
-    const filter = await generateFilter(params);
+    const filter = await generateFilter(params, models);
 
-    return paginate(models.RiskAssessments.find(filter), params);
+    return paginate(
+      models.RiskAssessments.find(filter).sort({ createdAt: -1 }),
+      params
+    );
   },
 
-  async riskAssessmentTotalCount(_root, params, { models }: IContext) {
-    const filter = await generateFilter(params);
-    return models.RiskAssessments.countDocuments(filter);
+  async riskAssessmentsTotalCount(_root, params, { models }: IContext) {
+    const filter = await generateFilter(params, models);
+    return await models.RiskAssessments.countDocuments(filter);
   },
   async riskAssessmentDetail(_root, { id }, { models }: IContext) {
     return models.RiskAssessments.riskAssessmentDetail(id);

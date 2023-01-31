@@ -22,6 +22,7 @@ const validDoc = doc => {
   }
 
   if (
+    !doc.indicatorsGroupId &&
     !doc.riskIndicatorId &&
     !doc.customFieldId &&
     !doc.configs.some(config => config.riskIndicatorId)

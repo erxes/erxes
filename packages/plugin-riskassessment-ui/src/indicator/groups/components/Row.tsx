@@ -1,4 +1,11 @@
-import { FormControl, ModalTrigger, __ } from '@erxes/ui/src';
+import {
+  Button,
+  FormControl,
+  Icon,
+  ModalTrigger,
+  Tip,
+  __
+} from '@erxes/ui/src';
 import React from 'react';
 import { IIndicatorsGroups } from '../common/types';
 import Form from '../containers/Form';
@@ -32,7 +39,7 @@ class Row extends React.Component<Props> {
         </td>
         <td>{__(indicatorsGroups.name)}</td>
         <td>{moment(indicatorsGroups.createdAt).format('lll')}</td>
-        <td></td>
+        <td>{moment(indicatorsGroups.modifiedAt).format('lll')} </td>
         <td></td>
       </tr>
     );

@@ -152,18 +152,10 @@ export const loadRiskIndicators = (model: IModels, subdomain: string) => {
     }
 
     public static async riskIndicatorRemove(_ids: string[]) {
-      console.log({ _ids });
       if (!_ids) {
         throw new Error('Please select a list of risk assessment IDs');
       }
       try {
-        // await model.RiskConformity.deleteMany({
-        //   riskIndicatorId: { $in: _ids }
-        // });
-        // await model.RiksFormSubmissions.deleteMany({
-        //   riskIndicatorId: { $in: _ids }
-        // });
-        console.log({ _ids });
         return await model.RiskIndicators.deleteMany({ _id: { $in: _ids } });
       } catch (e) {
         throw new Error(e.message);
@@ -177,8 +169,6 @@ export const loadRiskIndicators = (model: IModels, subdomain: string) => {
       if (!_id && !doc) {
         throw new Error('Not found risk assessment');
       }
-
-      console.log({ doc });
 
       try {
         return await model.RiskIndicators.findByIdAndUpdate(_id, doc);
@@ -241,7 +231,7 @@ export const loadIndicatorsGroups = (models: IModels, subdomain: string) => {
       await validateCalculateMethods(doc);
       return await models.IndicatorsGroups.updateOne(
         { _id },
-        { $set: { ...doc } }
+        { $set: { ...doc, modifiedAt: new Date() } }
       );
     }
     public static async removeGroups(ids: string[]) {

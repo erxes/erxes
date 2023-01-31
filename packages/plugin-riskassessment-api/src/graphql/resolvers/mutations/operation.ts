@@ -6,7 +6,6 @@ const operationMutations = {
   },
 
   async updateOperation(_root, { _id, ...doc }, { models }: IContext) {
-    console.log({ _id, doc });
     return await models.Operations.updateOperation(_id, doc);
   },
   async removeOperation(_root, { ids }, { models }: IContext) {

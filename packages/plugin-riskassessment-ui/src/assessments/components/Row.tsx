@@ -1,19 +1,7 @@
-import {
-  Button,
-  Tip,
-  Icon,
-  ModalTrigger,
-  __,
-  HelpPopover,
-  ControlLabel,
-  FormGroup,
-  Label
-} from '@erxes/ui/src';
+import { Button, Tip, Icon, ModalTrigger, __, Label } from '@erxes/ui/src';
 import moment from 'moment';
 import React from 'react';
-import { Badge } from '../../styles';
-import FormHistory from '../../indicator/containers/FormHistory';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import { Badge, FormContainer } from '../../styles';
 import { DetailPopOver } from '../common/utils';
 import Detail from '../containers/Detail';
 
@@ -37,10 +25,12 @@ class Row extends React.Component<Props> {
     }
 
     return (
-      <DetailPopOver title={title} icon="downarrow-2">
-        {(contents || []).map(item => (
-          <Label>{__(item[field])}</Label>
-        ))}
+      <DetailPopOver title={title} icon="downarrow-2" withoutPopoverTitle>
+        <FormContainer gapBetween={5}>
+          {(contents || []).map(item => (
+            <Label key={item._id}>{__(item[field])}</Label>
+          ))}
+        </FormContainer>
       </DetailPopOver>
     );
   }
@@ -50,12 +40,6 @@ class Row extends React.Component<Props> {
 
     const renderFormSubmitHistory = item => {
       const content = () => {
-        // const updatedProps = {
-        //   cardId: item.cardId || '',
-        //   cardType: item.cardType || '',
-        //   riskAssessmentId: item.riskAssessmentId || ''
-        // };
-
         return <Detail riskAssessment={item} />;
       };
 
@@ -79,8 +63,8 @@ class Row extends React.Component<Props> {
 
     return (
       <tr key={item._id}>
-        <td>{__(item?.conformityDetail?.cardType)}</td>
-        <td>{__(item?.conformityDetail?.cardName)}</td>
+        <td>{__(item?.cardType)}</td>
+        <td>{__(item?.card?.name)}</td>
         <td>{this.renderPopOver('Indicators', item?.riskIndicators)}</td>
         <td>{this.renderPopOver('Branches', item?.branches)}</td>
         <td>{this.renderPopOver('Departments', item?.departments)}</td>

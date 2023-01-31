@@ -1,4 +1,8 @@
 import { riskIndicatorParams } from '../../../common/graphql';
+import {
+  commonFormSaveParams,
+  commonFormSaveParamsDef
+} from '../../common/graphql';
 
 const commonParams = `
     $branchIds: [String],
@@ -33,7 +37,7 @@ const commonFields = `
     operations
     resultScore
     riskIndicatorId
-    riskIndicator {
+    riskIndicators {
       ${riskIndicatorParams}
     }
     status
@@ -64,4 +68,15 @@ mutation RemoveRiskAssessment($riskAssessmentId: String) {
 }
 `;
 
-export default { addRiskAssessment, editRiskAssessment, removeRiskAssessment };
+const riskFormSaveSubmission = `
+  mutation RiskFormSaveSubmissions(${commonFormSaveParams}) {
+    riskFormSaveSubmissions(${commonFormSaveParamsDef})
+  }
+`;
+
+export default {
+  addRiskAssessment,
+  editRiskAssessment,
+  removeRiskAssessment,
+  riskFormSaveSubmission
+};

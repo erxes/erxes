@@ -17,6 +17,7 @@ import { IFormProps, IOption, IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
 import { queries as categoryQueries } from '../categories/graphql';
 import { queries as riskIndicatorQueries } from '../indicator/graphql';
+import { queries as riskIndicatorsGroupQueries } from '../indicator/groups/graphql';
 import { queries as operationQueries } from '../operations/graphql';
 import { FormContainer, FormGroupRow } from '../styles';
 import { CustomFormGroupProps } from './types';
@@ -207,7 +208,6 @@ export function SelectRiskIndicator({
 
     if (ignoreIds) {
       list = list.filter(item => !ignoreIds.includes(item.value));
-      console.log(list);
     }
 
     return list;
@@ -226,6 +226,63 @@ export function SelectRiskIndicator({
       customOption={
         customOption || !multi
           ? { value: '', label: 'Choose a Indicator' }
+          : undefined
+      }
+      multi={multi}
+    />
+  );
+}
+
+export function SelectIndicatorGroups({
+  label,
+  name,
+  queryParams,
+  initialValue,
+  multi,
+  customOption,
+  ignoreIds,
+  onSelect,
+  filterParams
+}: {
+  queryParams?: IQueryParams;
+  label: string;
+  onSelect: (value: string[] | string, name: string) => void;
+  multi?: boolean;
+  customOption?: IOption;
+  initialValue?: string | string[];
+  name: string;
+  ignoreIds?: string[];
+  filterParams?: {
+    branchIds?: string[];
+    departmentIds?: string[];
+    operationIds?: string[];
+  };
+}) {
+  function generetaOption(array: RiskIndicatorsType[] = []): IOption[] {
+    let list: any[] = [];
+
+    list = array.map(item => ({ value: item._id, label: item.name }));
+
+    if (ignoreIds) {
+      list = list.filter(item => !ignoreIds.includes(item.value));
+    }
+
+    return list;
+  }
+
+  return (
+    <SelectWithSearch
+      label={label}
+      queryName="riskIndicatorsGroups"
+      name={name}
+      initialValue={initialValue}
+      generateOptions={generetaOption}
+      onSelect={onSelect}
+      customQuery={riskIndicatorsGroupQueries.list}
+      filterParams={filterParams}
+      customOption={
+        customOption || !multi
+          ? { value: '', label: 'Choose a Groups' }
           : undefined
       }
       multi={multi}

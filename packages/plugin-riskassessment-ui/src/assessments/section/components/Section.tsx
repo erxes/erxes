@@ -82,15 +82,18 @@ class Section extends React.Component<Props> {
 
   render() {
     const { riskAssessment } = this.props;
+
+    const extraButton = this.renderChooserModal(
+      <button>
+        <Icon icon="plus-circle" />
+      </button>
+    );
+
     return (
       <FormContainer column padding="0 0 10px 0">
         <Box
           title="Risk Assessment"
-          extraButtons={this.renderChooserModal(
-            <button>
-              <Icon icon="plus-circle" />
-            </button>
-          )}
+          extraButtons={!riskAssessment && extraButton}
         >
           {this.renderContent()}
         </Box>

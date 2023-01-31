@@ -36,7 +36,7 @@ export interface IRiskFormSubmissionModel
 const generateFields = params => {
   const filter: any = {};
   if (params.indicatorId) {
-    filter.riskIndicatorId = params.indicatorId;
+    filter.indicatorId = params.indicatorId;
   }
   if (params.userId) {
     filter.userId = params.userId;
@@ -47,6 +47,9 @@ const generateFields = params => {
   if (params.cardType) {
     filter.cardType = params.cardType;
   }
+  if (params.riskAssessmentId) {
+    filter.assessmentId = params.riskAssessmentId;
+  }
   return filter;
 };
 
@@ -54,6 +57,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
   class FormSubmissionsClass {
     public static async formSaveSubmission(params: IRiskFormSubmissionParams) {
       const {
+        riskAssessmentId,
         formSubmissions,
         cardId,
         cardType,
@@ -61,29 +65,19 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         customScore
       } = params;
 
-      const filter = generateFields(params);
-      console.log({ filter });
-
-      const conformity = await models.RiskConformity.findOne({
-        cardId,
-        cardType
-      }).lean();
-
-      if (!conformity) {
-        throw new Error(`Not selected some risk assessment on ${cardType}`);
-      }
+      let reponse: any = {};
 
       const riskAssessment = await models.RiskAssessments.findOne({
-        _id: conformity.riskAssessmentId
+        _id: riskAssessmentId
       });
 
       if (!riskAssessment) {
         throw new Error('Somethin went wrong');
       }
 
-      console.log({ params });
-
-      // const { resultScore } = riskAssessment;
+      /**
+       * Calculate the submitted indicator score of user
+       */
 
       const { forms, customScoreField } = await models.RiskIndicators.findOne({
         _id: indicatorId
@@ -93,9 +87,17 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
 
       if (customScoreField) {
         const percentWeight = customScoreField.percentWeight;
-        totalCount = customScore * (percentWeight / 100);
+        totalCount = (customScore || 0) * (percentWeight / 100);
         totalPercent += customScoreField.percentWeight / 100;
       }
+
+      const filter = generateFields(params);
+
+      await models.RiksFormSubmissions.create({
+        ...filter,
+        value: customScore,
+        contentType: 'customScore'
+      });
 
       for (const form of forms) {
         const fields = await sendFormsMessage({
@@ -108,17 +110,17 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
           defaultValue: []
         });
 
-        if (form.length === 1) {
+        if (forms.length === 1) {
           const { sumNumber, submissions } = await calculateFormResponses({
             responses: formSubmissions,
             fields,
             calculateMethod: form.calculateMethod,
-            filter: { ...filter, riskAssessmentId: conformity.riskAssessmentId }
+            filter: { ...filter, riskAssessmentId: riskAssessmentId }
           });
 
           await models.RiskAssessmentIndicators.updateOne(
-            { assessmentId: conformity.riskAssessmentId, indicatorId },
-            { $inc: { resultScore: sumNumber } }
+            { assessmentId: riskAssessmentId, indicatorId },
+            { $inc: { totalScore: sumNumber } }
           );
           await models.RiksFormSubmissions.insertMany(submissions);
         }
@@ -136,7 +138,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
             responses: responses,
             fields,
             calculateMethod: form.calculateMethod,
-            filter: { ...filter, riskAssessmentId: conformity.riskAssessmentId }
+            filter: { ...filter, riskAssessmentId: riskAssessmentId }
           });
           totalCount += sumNumber * (form.percentWeight / 100);
           totalPercent += form.percentWeight / 100;
@@ -146,113 +148,44 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       if (forms.length > 1) {
         totalCount = totalCount / totalPercent;
         await models.RiskAssessmentIndicators.updateOne(
-          { assessmentId: conformity.riskAssessmentId, indicatorId },
-          { $inc: { resultScore: totalCount } }
+          { assessmentId: riskAssessmentId, indicatorId },
+          { $inc: { totalScore: totalCount } }
         );
       }
 
+      /**
+       * calculate the risk assessment indicator if all assigned members submitted
+       */
+
       if (
-        await this.riskAssessmentIndicator({
+        await this.checkRiskAssessmentIndicator({
           cardId,
           cardType,
-          riskAssessmentId: conformity.riskAssessmentId,
-          riskIndicatorId: indicatorId
+          assessmentId: riskAssessmentId,
+          indicatorId: indicatorId
         })
       ) {
+        await this.calculateRiskIndicator({
+          assessmentId: riskAssessmentId,
+          indicatorId,
+          cardId,
+          cardType
+        });
       }
+
+      /**
+       * Calculate the risk assessment if all risk assessment indicators are calculated
+       */
 
       if (
-        await this.checkriskAssessment({
-          riskAssessmentId: conformity.riskAssessmentId
+        await this.checkRiskAssessment({
+          riskAssessmentId: riskAssessmentId
         })
       ) {
+        await this.calculateAssessment({ riskAssessmentId });
       }
     }
-    public static async formSubmitHistory(
-      cardId: string,
-      cardType: string,
-      riskAssessmentId: string
-    ) {
-      // const conformity = await models?.RiskConformity.findOne({
-      //   cardId,
-      //   cardType,
-      //   riskAssessmentId
-      // });
-      // if (!conformity) {
-      //   throw new Error('Cannot find risk assessment');
-      // }
-      // if (conformity?.status === 'In Progress') {
-      //   throw new Error('This risk assessment in progress');
-      // }
-
-      // const card = await sendCardsMessage({
-      //   subdomain,
-      //   action: `${cardType}s.findOne`,
-      //   data: { _id: cardId },
-      //   isRPC: true,
-      //   defaultValue: {}
-      // });
-
-      // const formIds = conformity.forms.map(form => form.formId);
-
-      // const submissions = await models.RiksFormSubmissions.aggregate([
-      //   {
-      //     $match: {
-      //       cardId,
-      //       cardType,
-      //       formId: { $in: formIds },
-      //       riskAssessmentId
-      //     }
-      //   },
-      //   {
-      //     $group: {
-      //       _id: '$userId',
-      //       fields: { $push: { fieldId: '$fieldId', value: '$value' } }
-      //     }
-      //   }
-      // ]);
-      // for (const submission of submissions) {
-      //   const fields: any[] = [];
-
-      //   for (const field of submission.fields) {
-      //     const fieldData = await sendFormsMessage({
-      //       subdomain,
-      //       action: 'fields.find',
-      //       data: {
-      //         query: {
-      //           contentType: 'form',
-      //           contentTypeId: { $in: formIds },
-      //           _id: field.fieldId
-      //         }
-      //       },
-      //       isRPC: true,
-      //       defaultValue: {}
-      //     });
-
-      //     let fieldOptionsValues: any[] = [];
-
-      //     const { optionsValues, options } = fieldData[0];
-
-      //     fieldOptionsValues = optionsValues?.split('\n');
-
-      //     if (!optionsValues) {
-      //       fieldOptionsValues = options.map(option => `${option}=NaN`);
-      //     }
-
-      //     fields.push({
-      //       ...field,
-      //       optionsValues: fieldOptionsValues,
-      //       text: fieldData[0]?.text,
-      //       description: fieldData[0]?.description
-      //     });
-      //   }
-      //   submission.fields = fields;
-      // }
-
-      // return { cardId, card, cardType, riskAssessmentId, users: submissions };
-      return { shit: '' };
-    }
-    static async checkriskAssessment({ riskAssessmentId }) {
+    static async checkRiskAssessment({ riskAssessmentId }) {
       const riskAssessment = await models.RiskAssessments.findOne({
         _id: riskAssessmentId
       });
@@ -279,11 +212,11 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       });
       return count === 0;
     }
-    static async riskAssessmentIndicator({
+    static async checkRiskAssessmentIndicator({
       cardId,
       cardType,
-      riskAssessmentId,
-      riskIndicatorId
+      assessmentId,
+      indicatorId
     }) {
       const assignedUserIds = (
         await getAsssignedUsers(subdomain, cardId, cardType)
@@ -291,8 +224,8 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
 
       const submissions = await models.RiksFormSubmissions.find({
         cardId,
-        riskAssessmentId,
-        riskIndicatorId,
+        assessmentId,
+        indicatorId,
         userId: { $in: assignedUserIds }
       });
 
@@ -301,38 +234,54 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       for (const submission of submissions) {
         submittedUsers[submission.userId] = submission;
       }
-
       return Object.keys(submittedUsers).length === assignedUserIds.length;
     }
-    static async calculateRiskIndicators({
+
+    static async calculateRiskIndicator({
+      assessmentId,
+      indicatorId,
       cardId,
-      cardType,
-      riskAssessmentId,
-      riskIndicatorId
+      cardType
     }) {
       const indicator = await models.RiskIndicators.findOne({
-        _id: riskIndicatorId
+        _id: indicatorId
       });
       if (!indicator) {
         return;
       }
-      const { forms, calculateLogics } = indicator;
+      let { calculateLogics, calculateMethod, forms } = indicator;
 
-      if ((forms || []).length > 1) {
-        const riskAssessmentIndicator = await models.RiskAssessmentIndicators.findOne(
-          { assessmentId: riskAssessmentId, indicatorId: riskIndicatorId }
-        );
-
-        await calculateResult({
-          collection: models.RiskIndicators,
-          calculateLogics,
-          resultScore: riskAssessmentIndicator?.resultScore,
-          filter: {
-            assessmentId: riskAssessmentId,
-            indicatorId: riskIndicatorId
-          }
-        });
+      if (forms?.length === 1) {
+        calculateLogics = forms[0].calculateLogics;
       }
+
+      const assignedUserIds = (
+        await getAsssignedUsers(subdomain, cardId, cardType)
+      ).map(user => user._id);
+
+      const riskAssessmentIndicator = await models.RiskAssessmentIndicators.findOne(
+        { assessmentId, indicatorId }
+      );
+
+      let resultScore = 0;
+
+      if (calculateMethod === 'Average') {
+        resultScore =
+          (riskAssessmentIndicator?.totalScore || 0) /
+          (assignedUserIds.length || 1);
+      } else {
+        resultScore = riskAssessmentIndicator?.totalScore || 0;
+      }
+
+      await calculateResult({
+        collection: models.RiskAssessmentIndicators,
+        calculateLogics,
+        resultScore,
+        filter: {
+          assessmentId,
+          indicatorId
+        }
+      });
     }
 
     static async calculateAssessment({ riskAssessmentId }) {
@@ -341,20 +290,29 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       });
 
       if (riskAssessment?.groupId) {
-        const indicatorsGroups = await models.IndicatorsGroups.findOne({
+        const indicatorsGroup = await models.IndicatorsGroups.findOne({
           _id: riskAssessment?.groupId
         });
 
-        if (!indicatorsGroups) {
-          return;
+        if (!indicatorsGroup) {
+          throw new Error('Invalid indicators group id');
         }
 
         const {
-          groups,
           _id,
+          groups,
           calculateLogics,
           calculateMethod
-        } = indicatorsGroups;
+        } = indicatorsGroup;
+
+        const assignedUsersCount = (
+          await getAsssignedUsers(
+            subdomain,
+            riskAssessment.cardId,
+            riskAssessment.cardType
+          )
+        ).length;
+
         for (const group of groups) {
           const { indicatorIds, calculateLogics, calculateMethod } = group;
           const riskAssessmentIndicators = await models.RiskAssessmentIndicators.find(
@@ -363,15 +321,20 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
               indicatorId: { $in: indicatorIds }
             }
           );
+
           let totalCount = calculateMethod === 'Multiply' ? 1 : 0;
 
           for (const riskAssessmentIndicator of riskAssessmentIndicators) {
             if (calculateMethod === 'Multiply') {
-              totalCount *= riskAssessmentIndicator.resultScore;
+              totalCount *= riskAssessmentIndicator.totalScore;
             }
             if (calculateMethod === 'Addition') {
-              totalCount += riskAssessmentIndicator.resultScore;
+              totalCount += riskAssessmentIndicator.totalScore;
             }
+          }
+
+          if (calculateMethod === 'Avarage') {
+            totalCount = totalCount / (indicatorIds.length || 1);
           }
 
           await calculateResult({
@@ -380,8 +343,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
             resultScore: totalCount,
             filter: {
               assessmentId: riskAssessmentId,
-              groupId: group._id,
-              parentId: _id
+              groupId: group._id
             }
           });
         }
@@ -389,20 +351,27 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         const groupIds = groups.map(group => group._id);
 
         const assessmentGroups = await models.RiskAssessmentGroups.find({
-          parentId: _id,
           assessmentId: riskAssessmentId,
           groupId: { $in: groupIds }
         });
 
         let totalCount = calculateMethod === 'Multiply' ? 1 : 0;
         for (const assessmentGroup of assessmentGroups) {
+          const percentWeight =
+            (groups.find(group => group._id === assessmentGroup.groupId) || {})
+              ?.percentWeight || 100;
+
           if (calculateMethod === 'Multiply') {
-            totalCount *= assessmentGroup.resultScore;
+            totalCount *= assessmentGroup.resultScore * (percentWeight / 100);
           }
           if (calculateMethod === 'Addition') {
-            totalCount += assessmentGroup.resultScore;
+            totalCount += assessmentGroup.resultScore * (percentWeight / 100);
           }
         }
+        if (calculateMethod === 'Avarege') {
+          totalCount = totalCount / (assignedUsersCount || 1);
+        }
+
         const groupResult = await calculateResult({
           collection: models.RiskAssessmentGroups,
           calculateLogics,
@@ -412,9 +381,11 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
 
         await models.RiskAssessments.findByIdAndUpdate(riskAssessmentId, {
           $set: {
-            resultScore: totalCount,
+            totalScore: totalCount,
+            resultScore: totalCount / (assignedUsersCount || 1),
             status: groupResult.status,
-            statusColor: groupResult.statusColor
+            statusColor: groupResult.statusColor,
+            closedAt: Date.now()
           }
         });
       } else {
@@ -425,22 +396,24 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
           return;
         }
         const { indicatorId } = riskAssessment;
-        const riskAssessmentIndicators = await models.RiskAssessmentIndicators.find(
+        const riskAssessmentIndicator = await models.RiskAssessmentIndicators.findOne(
           { assessmentId: riskAssessmentId, indicatorId: indicatorId }
         );
-        const length = riskAssessmentIndicators.length;
-        let totalCount = 0;
-
-        for (const riskAssessmentIndicator of riskAssessmentIndicators) {
-          totalCount += riskAssessmentIndicator.resultScore;
-        }
 
         await models.RiskAssessments.updateOne(
           { _id: riskAssessmentId },
-          { resultScore: totalCount }
+          {
+            resultScore: riskAssessmentIndicator?.resultScore,
+            totalScore: riskAssessmentIndicator?.totalScore,
+            status: riskAssessmentIndicator?.status,
+            statusColor: riskAssessmentIndicator?.statusColor,
+            closedAt: Date.now()
+          }
         );
       }
     }
+
+    static async calculateRiskAssessmentGroup() {}
   }
 
   riskConformityFormSubmissionSchema.loadClass(FormSubmissionsClass);

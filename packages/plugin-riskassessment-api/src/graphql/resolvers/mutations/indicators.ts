@@ -12,7 +12,6 @@ const RiskIndicatorsMutations = {
     return result;
   },
   async removeRiskIndicators(_root, { _ids }, { models }: IContext) {
-    console.log({ _ids });
     return await models.RiskIndicators.riskIndicatorRemove(_ids);
   },
 
@@ -34,7 +33,6 @@ const RiskIndicatorsMutations = {
   },
 
   async addRiskIndicatorsGroups(_root, params, { models }: IContext) {
-    console.log({ params });
     return await models.IndicatorsGroups.addGroup(params);
   },
   async updateRiskIndicatorsGroups(

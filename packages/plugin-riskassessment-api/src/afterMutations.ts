@@ -40,51 +40,56 @@ export const afterMutationHandlers = async (subdomain, params) => {
       pipelineId: stage.pipelineId
     };
 
-    const addedConformities: any[] = [];
+    const addedRiskAssessment: any[] = [];
     const conformity = {
       cardId: _id,
       cardType: type.replace('cards:', '')
     } as IRiskConformityField;
 
-    // for (const data of customFieldsData) {
-    //   const config = await models.RiskIndicatorConfigs.findOne({
-    //     $or: [
-    //       { ...commonFilter, stageId, customFieldId: data.field },
-    //       { ...commonFilter, stageId: '', customFieldId: data.field }
-    //     ]
-    //   })
-    //     .sort({ createdAt: -1 })
-    //     .limit(1);
-    //   if (config) {
-    //     const customField = config.configs.find(
-    //       item => item.value === data.value
-    //     );
-    //     if (customField) {
-    //       const addedConformity = await models.RiskConformity.riskConformityAdd(
-    //         { ...conformity, riskIndicatorIds: [customField.riskIndicatorId] }
-    //       );
-    //       addedConformities.push(addedConformity);
-    //     }
-    //   }
-    // }
+    for (const data of customFieldsData) {
+      const config = await models.RiskIndicatorConfigs.findOne({
+        $or: [
+          { ...commonFilter, stageId, customFieldId: data.field },
+          { ...commonFilter, stageId: '', customFieldId: data.field }
+        ]
+      })
+        .sort({ createdAt: -1 })
+        .limit(1);
+      if (config) {
+        const customField = config.configs.find(
+          item => item.value === data.value
+        );
+        if (customField) {
+          const addedConformity = await models.RiskAssessments.addRiskAssessment(
+            {
+              ...conformity,
+              indicatorId: customField.riskIndicatorId,
+              groupId: customField.indicatorsGroupId
+            }
+          );
+          addedRiskAssessment.push(addedConformity);
+        }
+      }
+    }
 
-    // if (!addedConformities.length) {
-    //   const filter = { ...commonFilter, customFieldId: null, configs: [] };
+    if (!addedRiskAssessment.length) {
+      const filter = { ...commonFilter, customFieldId: null, configs: [] };
 
-    //   const config = await models.RiskIndicatorConfigs.findOne({
-    //     $or: [
-    //       { ...filter, stageId },
-    //       { ...filter, stageId: '' }
-    //     ]
-    //   })
-    //     .sort({ createdAt: -1 })
-    //     .limit(1);
-    //   if (config?.riskIndicatorId) {
-    //     await models.RiskConformity.riskConformityAdd({
-    //       ...conformity,
-    //       riskIndicatorIds: [String(config?.riskIndicatorId)]
-    //     });
-    //   }
-    // }
+      const config = await models.RiskIndicatorConfigs.findOne({
+        $or: [
+          { ...filter, stageId },
+          { ...filter, stageId: '' }
+        ]
+      })
+        .sort({ createdAt: -1 })
+        .limit(1);
+      if (config?.riskIndicatorId || config?.indicatorsGroupId) {
+        await models.RiskAssessments.addRiskAssessment({
+          ...conformity,
+          indicatorId: config?.riskIndicatorId || undefined,
+          groupId: config?.indicatorsGroupId || undefined
+        });
+      }
+    }
   }
 };

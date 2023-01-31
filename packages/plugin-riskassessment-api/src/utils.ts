@@ -374,6 +374,7 @@ export const calculateResult = async ({
             $set: {
               status: name,
               statusColor: color,
+              resultScore,
               closedAt: Date.now()
             }
           },
@@ -390,6 +391,7 @@ export const calculateResult = async ({
             $set: {
               status: name,
               statusColor: color,
+              resultScore,
               closedAt: Date.now()
             }
           },
@@ -407,6 +409,7 @@ export const calculateResult = async ({
           $set: {
             status: 'No Result',
             statusColor: '#888',
+            resultScore,
             closedAt: Date.now()
           }
         },

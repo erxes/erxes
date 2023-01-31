@@ -1,15 +1,21 @@
 export const types = `
 
+    type CardType  {
+        _id: String,
+        name: String,
+    }
     type RiskAssessment {
         _id: String
         cardId:String
         cardType:String
+        card:CardType
         status: String
         statusColor: String
-        resultScore: Int
+        resultScore: String
         createdAt: Date
+        closedAt: Date
         riskIndicatorId:String
-        riskIndicator:RiskIndicatorType
+        riskIndicators:[RiskIndicatorType]
         branchIds:[String],
         branches: JSON
         departmentIds:[String],
@@ -71,7 +77,7 @@ const commonFormSubmitParams = `
 export const queries = `
     riskAssessments(${commonParams}):[RiskAssessment]
     riskAssessmentsTotalCount(${commonParams}):Int
-    riskAssessmentDetail(id:String):[RiskAssessmentDetail]
+    riskAssessmentDetail(id:String):JSON
     riskAssessmentFormSubmissionDetail(${commonFormSubmitParams}):JSON
     riskAssessment(cardId:String,cardType:String):JSON
     riskAssessmentAssignedMembers(cardId:String,cardType:String,riskAssessmentId:String):JSON

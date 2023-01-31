@@ -41,6 +41,7 @@ export const commonAssessmentCategoryTypes = `
 export const commonFormSubmissionsTypes = `
     cardId: String,
     cardType: String,
+    riskAssessmentId: String,
     userId: String,
     fieldId: String,
     indicatorId: String,

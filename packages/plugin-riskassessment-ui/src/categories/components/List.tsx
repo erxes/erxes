@@ -90,7 +90,7 @@ class AssessmentCategories extends React.Component<Props, State> {
     return (
       <ModalTrigger
         isAnimate
-        title="Add New Assessment Category"
+        title="Add New Indicators Category"
         content={content}
         trigger={trigger}
       />

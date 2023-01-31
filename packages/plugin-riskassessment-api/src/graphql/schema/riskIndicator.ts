@@ -19,6 +19,7 @@ const configParams = `
     modifiedAt:Date,
     configs:JSON,
     riskIndicatorId:String
+    indicatorsGroupId:String
 
 `;
 
@@ -42,14 +43,14 @@ export const types = `
     type RiskIndicatorType {
         ${commonRiskIndicatorParams}
         createdAt:Date
-        categories:[RiskIndicatorCategoryInput]
+        category:IRiskIndicatorCategory
         customScoreField:CustomScoreFieldType
         calculateMethod:String
         calculateLogics:[CalculateLogicType]
         forms:[RiskIndicatorFormType]
     }
     
-    type RiskIndicatorCategoryInput {
+    type IRiskIndicatorCategory {
         ${commonAssessmentCategoryTypes}
     }
 
@@ -105,13 +106,32 @@ export const types = `
         indicatorIds:[String]
         calculateLogics:[ICalculateLogic]
         calculateMethod:String
-        percentWeight:String
+        percentWeight:Int
+    }
+
+    type GroupsOfGroupTypes {
+        indicatorIds:[String]
+        calculateLogics:[CalculateLogicType]
+        _id:String
+        calculateMethod:String
+        percentWeight:Int
+    }
+
+    type IndicatorsGroupType {
+        _id:String,
+        name:String,
+        description:String
+        calculateMethod:String,
+        calculateLogics:[CalculateLogicType]
+        groups:[GroupsOfGroupTypes]
+        createdAt:Date
+        modifiedAt:Date
     }
 
 `;
 
 const commonIndicatorParams = `
-    categoryIds:[String],
+    categoryId:String,
     ignoreIds:[String],
     branchIds:[String],
     departmentIds:[String],
@@ -119,19 +139,25 @@ const commonIndicatorParams = `
     ${commonPaginateTypes}
 `;
 
+const commonIndicatorGroupsParams = `
+    searchValue:String,
+    perPage:Int
+    page:Int
+`;
+
 export const queries = `
     riskIndicators (${commonIndicatorParams}):[RiskIndicatorType]
     riskIndicatorsTotalCount(${commonIndicatorParams}):Int
 
-    riskIndicatorsGroups:JSON
-    riskIndicatorsGroupsTotalCount:Int
+    riskIndicatorsGroups(${commonIndicatorGroupsParams}):[IndicatorsGroupType]
+    riskIndicatorsGroupsTotalCount(${commonIndicatorGroupsParams}):Int
 
     riskIndicatorDetail(_id: String,fieldsSkip:JSON): RiskIndicatorType
     riskIndicatorConfigs (${configParamsDef},${commonPaginateTypes}):[RiskIndicatorConfigs]
     riskIndicatorConfigsTotalCount(${configParamsDef},${commonPaginateTypes}):Int
 `;
 
-const commonIndicatorGroupsParams = `
+const commonIndicatorGroupsMutationsParams = `
     _id:String,
     name:String,
     description:String,
@@ -156,8 +182,8 @@ export const mutations = `
         calculateLogics:[ICalculateLogic],
         forms:[IRiskIndicatorForm]):JSON
 
-    addRiskIndicatorsGroups(${commonIndicatorGroupsParams}):JSON
-    updateRiskIndicatorsGroups(${commonIndicatorGroupsParams}):JSON
+    addRiskIndicatorsGroups(${commonIndicatorGroupsMutationsParams}):JSON
+    updateRiskIndicatorsGroups(${commonIndicatorGroupsMutationsParams}):JSON
     removeRiskIndicatorsGroups (ids:[String]):JSON
 
     

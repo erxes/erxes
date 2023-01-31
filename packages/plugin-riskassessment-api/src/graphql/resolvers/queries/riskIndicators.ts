@@ -1,5 +1,5 @@
 import { checkPermission, paginate } from '@erxes/api-utils/src';
-import { IContext } from '../../../connectionResolver';
+import { IContext, models } from '../../../connectionResolver';
 import {
   IRiskIndicatorsField,
   PaginateField
@@ -23,6 +23,16 @@ const generateConfigFilter = params => {
   }
   if (params.customFieldId) {
     filter.customFieldId = params.customFieldId;
+  }
+
+  return filter;
+};
+
+const generateGroupsFilter = params => {
+  let filter: any = {};
+
+  if (params.searchValue) {
+    filter.name = { $regex: new RegExp(params.searchValue, 'i') };
   }
 
   return filter;
@@ -61,10 +71,16 @@ const RiskIndicatorQueries = {
    */
 
   async riskIndicatorsGroups(_root, params, { models }: IContext) {
-    return paginate(models.IndicatorsGroups.find(), params);
+    const filter = generateGroupsFilter(params);
+
+    return paginate(
+      models.IndicatorsGroups.find(filter).sort({ createdAt: -1 }),
+      params
+    );
   },
   async riskIndicatorsGroupsTotalCount(_root, params, { models }: IContext) {
-    return await models.IndicatorsGroups.countDocuments();
+    const filter = generateGroupsFilter(params);
+    return await models.IndicatorsGroups.countDocuments(filter);
   },
 
   /**
@@ -88,11 +104,11 @@ const RiskIndicatorQueries = {
   }
 };
 
-// checkPermission(RiskIndicatorQueries, 'riskIndicators', 'showRiskIndicator');
-// checkPermission(
-//   RiskIndicatorQueries,
-//   'riskIndicatorDetail',
-//   'showRiskIndicator'
-// );
+checkPermission(RiskIndicatorQueries, 'riskIndicators', 'showRiskIndicator');
+checkPermission(
+  RiskIndicatorQueries,
+  'riskIndicatorDetail',
+  'showRiskIndicator'
+);
 
 export default RiskIndicatorQueries;

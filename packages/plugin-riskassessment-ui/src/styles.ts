@@ -99,6 +99,7 @@ export const FormContainer = styledTS<{
   flex?: boolean;
   justify?: string;
   padding?: string;
+  placeContent?: string;
 }>(styled.div)`
   display: flex;
   flex-wrap: wrap;
@@ -113,6 +114,7 @@ export const FormContainer = styledTS<{
   place-items:${({ align }) => (align ? align : '')};
   justify-content:${({ justifyCenter }) => (justifyCenter ? 'center' : '')}; 
   justify-content:${({ justify }) => (justify ? justify : '')}; 
+  place-content:${({ placeContent }) => (placeContent ? placeContent : '')};
   ${({ flex }) =>
     flex
       ? `div {
@@ -394,5 +396,25 @@ export const RemoveRow = styled.div`
 
   &:hover {
     cursor: pointer;
+  }
+`;
+
+export const CardBox = styled.div`
+  text-align: center;
+`;
+
+export const TableRow = styled.tr`
+  th,
+  td {
+    text-align: center;
+  }
+
+  th:last-child {
+    border-right: none;
+    text-align: center;
+  }
+  ,
+  td:last-child {
+    text-align: -webkit-center;
   }
 `;

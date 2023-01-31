@@ -7,17 +7,15 @@ import {
   IRiskAssessmentCategoryDocument,
   IRiskAssessmentsDocument,
   IRiskAssessmentIndicatorsDocument,
-  riskAssessmentIndicatorsGroupsSchema
+  riskAssessmentIndicatorsGroupsSchema,
+  riskAssessmentIndicatorsSchema
 } from './models/definitions/riskassessment';
 import {
   IIndicatorsGroupsDocument,
   IRiskIndicatorsConfigsDocument,
   IRiskIndicatorsDocument
 } from './models/definitions/indicator';
-import {
-  IRiskConformityDocument,
-  IRiskFormSubmissionDocument
-} from './models/definitions/confimity';
+import { IRiskFormSubmissionDocument } from './models/definitions/confimity';
 import {
   IRiskFormSubmissionModel,
   loadRiskFormSubmissions
@@ -32,7 +30,6 @@ import {
   IRiskAssessmentCategoryModel,
   loadAssessmentCategory
 } from './models/Category';
-import { IRiskConformityModel, loadRiskConformity } from './models/Confirmity';
 import {
   IRiskIndicatorsConfigModel,
   loadRiskIndicatorConfig
@@ -52,7 +49,6 @@ export interface IModels {
   RiskAssessmentIndicators: IRiskAssessmentIndicatorsModel;
   RiskAssessmentGroups: Model<any>;
   RiskAssessmentCategory: IRiskAssessmentCategoryModel;
-  RiskConformity: IRiskConformityModel;
   RiksFormSubmissions: IRiskFormSubmissionModel;
   RiskIndicatorConfigs: IRiskIndicatorsConfigModel;
   Operations: IOperationsModel;
@@ -82,11 +78,6 @@ export const loadClasses = (
     IRiskAssessmentCategoryModel
   >('risk_assessment_category', loadAssessmentCategory(models, subdomain));
 
-  models.RiskConformity = db.model<
-    IRiskConformityDocument,
-    IRiskConformityModel
-  >('risk_assessment_conformity', loadRiskConformity(models, subdomain));
-
   models.RiskAssessments = db.model<
     IRiskAssessmentsDocument,
     IRiskAssessmentsModel
@@ -95,10 +86,7 @@ export const loadClasses = (
   models.RiskAssessmentIndicators = db.model<
     IRiskAssessmentIndicatorsDocument,
     IRiskAssessmentIndicatorsModel
-  >(
-    'risk_assessment_indicators',
-    loadRiskAssessmentIndicator(models, subdomain)
-  );
+  >('risk_assessment_indicators', riskAssessmentIndicatorsSchema);
   models.RiskAssessmentGroups = db.model<any, any>(
     'risk_assessment_groups',
     riskAssessmentIndicatorsGroupsSchema

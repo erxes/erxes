@@ -95,9 +95,7 @@ class Form extends React.Component<Props, State> {
 
     return (
       <FormContainer column gap>
-        <CollapseContent title="Configration">
-          {this.renderFilter()}
-        </CollapseContent>
+        {this.renderFilter()}
         <Chooser
           detail={riskAssessment}
           closeModal={closeModal}

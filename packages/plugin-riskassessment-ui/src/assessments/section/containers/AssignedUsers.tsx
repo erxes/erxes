@@ -26,7 +26,13 @@ class AssignedMembers extends React.Component<FinalProps> {
   }
 
   render() {
-    const { assignedMembersQueryResponse, currentUser } = this.props;
+    const {
+      assignedMembersQueryResponse,
+      currentUser,
+      cardId,
+      cardType,
+      riskAssessmentId
+    } = this.props;
 
     if (assignedMembersQueryResponse.loading) {
       return <Spinner />;
@@ -36,7 +42,10 @@ class AssignedMembers extends React.Component<FinalProps> {
 
     const updatedProps = {
       assignedMembers: riskAssessmentAssignedMembers,
-      currentUser
+      currentUser,
+      cardId,
+      cardType,
+      riskAssessmentId
     };
 
     return <AssignedMembersComponent {...updatedProps} />;
@@ -48,6 +57,7 @@ export default withProps(
     graphql<Props>(gql(queries.riskAssessmentAssignedMembers), {
       name: 'assignedMembersQueryResponse',
       options: props => ({
+        fetchPolicy: 'network-only',
         variables: { ...props }
       })
     })

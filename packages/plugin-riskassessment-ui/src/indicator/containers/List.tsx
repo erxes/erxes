@@ -100,9 +100,6 @@ class ListContainer extends React.Component<FinalProps> {
 export const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),
   ids: queryParams.ids,
-  campaignId: queryParams.campaignId,
-  ownerId: queryParams.ownerId,
-  ownerType: queryParams.ownerType,
   searchValue: queryParams.searchValue,
   sortField: queryParams.sortField,
   sortDirection: Number(queryParams.sortDirection) || undefined,

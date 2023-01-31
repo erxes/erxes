@@ -40,7 +40,7 @@ class TableRow extends React.Component<IProps> {
       const { queryParams } = this.props;
       const trigger = (
         <Button btnStyle="link" style={{ padding: '5px' }}>
-          <Tip text="Duplicate this risk assessment" placement="bottom">
+          <Tip text="Duplicate this risk indicator" placement="bottom">
             <Icon icon="copy" />
           </Tip>
         </Button>
@@ -62,7 +62,7 @@ class TableRow extends React.Component<IProps> {
             isSubmitted={isSubmitted}
             refetchQueries={refetchQueries}
             type="submit"
-            successMessage={`Risk Assessment successfully duplicated`}
+            successMessage={`Risk Indicator successfully duplicated`}
           />
         );
       };
@@ -81,7 +81,7 @@ class TableRow extends React.Component<IProps> {
         <ModalTrigger
           content={content}
           trigger={trigger}
-          title="Duplicate Risk Assessment"
+          title="Duplicate Risk Indicator"
           dialogClassName="transform"
           size="lg"
         />
@@ -120,7 +120,7 @@ class TableRow extends React.Component<IProps> {
 
     return (
       <ModalTrigger
-        title="Edit Risk Assessment"
+        title="Edit Risk Indicator"
         enforceFocus={false}
         trigger={trigger}
         autoOpenKey="showListFormModal"

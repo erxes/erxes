@@ -8,8 +8,11 @@ import { mutations, queries } from '../graphql';
 import { Alert, confirm, Spinner } from '@erxes/ui/src';
 import { IIndicatorsGroupsQueryResponse } from '../common/types';
 import ListComponent from '../components/List';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
-type Props = {} & IRouterProps;
+type Props = {
+  queryParams: any;
+} & IRouterProps;
 
 type FinalProps = {
   listQuery: IIndicatorsGroupsQueryResponse;
@@ -53,10 +56,18 @@ class List extends React.Component<FinalProps> {
   }
 }
 
+const generateParams = queryParams => ({
+  ...generatePaginationParams(queryParams || []),
+  searchValue: queryParams?.searchValue
+});
+
 export default withProps(
   compose(
     graphql<Props>(gql(queries.list), {
-      name: 'listQuery'
+      name: 'listQuery',
+      options: ({ queryParams }) => ({
+        variables: generateParams(queryParams)
+      })
     }),
     graphql<Props>(gql(mutations.removeGroups), {
       name: 'removeGroups'

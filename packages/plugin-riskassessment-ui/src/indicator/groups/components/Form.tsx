@@ -11,7 +11,7 @@ import {
 } from '@erxes/ui/src';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { FormContainer } from '../../../styles';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { CloseModal, ModalFooter } from '@erxes/ui/src/styles/main';
 import GroupingIndicators from './GroupingIndicators';
 
 type Props = {
@@ -37,7 +37,18 @@ class Form extends React.Component<Props, State> {
 
   generateDoc(values) {
     const { detail } = this.state;
-    console.log({ detail });
+
+    detail.calculateLogics.forEach(
+      calculateLogics => delete calculateLogics.__typename
+    );
+
+    detail.groups.forEach((group: any) => {
+      delete group.__typename;
+      (group?.calculateLogics || []).forEach(element => {
+        delete element.__typename;
+      });
+    });
+
     return { ...values, ...detail };
   }
 
@@ -47,15 +58,27 @@ class Form extends React.Component<Props, State> {
     const { values, isSubmitted } = formProps;
 
     const handleClose = () => {
-      // confirm(
-      //   'Are you sure you want to close.You will lose your filled data if you close the form '
-      // ).then(() => {
+      if (!this.props.detail && detail) {
+        return confirm(
+          'Are you sure you want to close.You will lose your filled data if you close the form '
+        ).then(() => {
+          this.props.closeModal();
+        });
+      }
       this.props.closeModal();
-      // });
     };
 
     const handleChange = doc => {
       this.setState({ detail: { ...this.props.detail, ...doc } });
+    };
+
+    const onChange = e => {
+      const { detail } = this.state;
+      const { name, value } = e.currentTarget as HTMLInputElement;
+
+      detail[name] = value;
+
+      this.setState({ detail });
     };
 
     return (
@@ -66,8 +89,9 @@ class Form extends React.Component<Props, State> {
             {...formProps}
             type="text"
             name="name"
-            value={detail?.name}
+            defaultValue={detail?.name}
             required
+            // onChange={onChange}
           />
         </FormGroup>
         <FormGroup>
@@ -76,8 +100,9 @@ class Form extends React.Component<Props, State> {
             {...formProps}
             componentClass="textarea"
             name="description"
-            value={detail?.name}
+            defaultValue={detail?.name}
             required
+            // onChange={onChange}
           />
         </FormGroup>
         <GroupingIndicators

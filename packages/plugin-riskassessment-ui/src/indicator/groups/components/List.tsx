@@ -16,6 +16,7 @@ import Form from '../containers/Form';
 import { subMenu } from '../../../common/constants';
 import Row from './Row';
 type Props = {
+  queryParams: any;
   list: IIndicatorsGroups[];
   totalCount: number;
   remove: (ids: string[]) => void;
@@ -32,7 +33,7 @@ class List extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      searchValue: '',
+      searchValue: props.queryParams.searchValue || '',
       selectedItems: []
     };
   }
@@ -122,7 +123,7 @@ class List extends React.Component<Props, State> {
             <th>{__('Name')}</th>
             <th>{__('Created At')}</th>
             <th>{__('Modified At')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__('')}</th>
           </tr>
         </thead>
         <tbody>

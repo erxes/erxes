@@ -34,6 +34,7 @@ query RiskIndicatorConfigs (${configParamsDef},${commonPaginateDef}) {
     modifiedAt
     riskIndicatorId
     riskIndicator
+    indicatorsGroupId
   }
 }
 `;

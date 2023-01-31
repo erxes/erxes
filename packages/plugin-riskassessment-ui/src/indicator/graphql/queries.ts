@@ -9,7 +9,7 @@ const commonFilterParams = `
   $branchIds:[String]
   $departmentIds:[String]
   $operationIds:[String]
-  $categoryIds: [String]
+  $categoryId: String
   $ignoreIds:[String]
 `;
 
@@ -17,7 +17,7 @@ const commonFilterParamsDef = `
   branchIds:$branchIds
   departmentIds:$departmentIds
   operationIds:$operationIds
-  categoryIds: $categoryIds ,
+  categoryId: $categoryId ,
   ignoreIds:$ignoreIds
 `;
 
@@ -62,34 +62,9 @@ query RiskIndicatorDetail($id: String, $fieldsSkip: JSON) {
   }
 `;
 
-const assessmentHistory = `
-query RiskFormSubmitHistory($cardId:String,$cardType:String,$riskAssessmentId: String) {
-  riskFormSubmitHistory(cardId:$cardId,cardType:$cardType,riskAssessmentId: $riskAssessmentId) {
-    cardId
-    cardType
-    card
-    formId
-    riskAssessment
-    riskAssessmentId
-    users {
-      _id
-      fields {
-        description
-        fieldId
-        optionsValues
-        text
-        value
-      }
-      user
-    }
-  }
-}
-`;
-
 export default {
   list,
   listAssessmentCategories,
   indicatorDetail,
-  assessmentHistory,
   totalCount
 };

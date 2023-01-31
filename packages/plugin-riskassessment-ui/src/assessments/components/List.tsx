@@ -13,7 +13,11 @@ import {
   HeaderDescription
 } from '@erxes/ui/src';
 import React from 'react';
-import { DefaultWrapper, SelectRiskIndicator } from '../../common/utils';
+import {
+  DefaultWrapper,
+  SelectOperation,
+  SelectRiskIndicator
+} from '../../common/utils';
 import {
   cardTypes,
   statusColorConstant,
@@ -34,6 +38,8 @@ import {
   Padding
 } from '../../styles';
 import Select from 'react-select-plus';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 type Props = {
   list: any[];
   totalCount: number;
@@ -96,8 +102,8 @@ class List extends React.Component<Props> {
   render() {
     const { totalCount, queryParams } = this.props;
 
-    const handleRiskAssessment = e => {
-      setParams(this.props.history, { riskAssessmentId: e.value });
+    const handleRiskIndicator = values => {
+      setParams(this.props.history, { riskIndicatorIds: values });
     };
     const selectStatus = color => {
       router.setParams(this.props.history, { status: color });
@@ -110,6 +116,9 @@ class List extends React.Component<Props> {
     };
     const onChangeCardType = e => {
       router.setParams(this.props.history, { cardType: e.value });
+    };
+    const handleSelectStructure = (values, name) => {
+      router.setParams(this.props.history, { [name]: [...values] });
     };
     const CustomForm = ({ children, label, field, clearable }: LayoutProps) => {
       const handleClearable = () => {
@@ -156,15 +165,55 @@ class List extends React.Component<Props> {
             />
           </CustomForm>
           <CustomForm
-            label="Risk Assessment"
-            field={'riskAssessmentId'}
-            clearable={!!queryParams.riskAssessmentId}
+            label="Risk Indicator"
+            field={'riskIndicatorIds'}
+            clearable={!!queryParams.riskIndicatorIds}
           >
             <SelectRiskIndicator
-              name="riskAssessmentId"
-              label="Select risk assessment"
-              initialValue={queryParams?.riskAssessmentId}
-              onSelect={handleRiskAssessment}
+              name="riskIndicatorIds"
+              label="Select risk indicators"
+              initialValue={queryParams?.riskIndicatorIds}
+              onSelect={handleRiskIndicator}
+              multi={true}
+            />
+          </CustomForm>
+          <CustomForm
+            label={'Branches'}
+            field={'branchIds'}
+            clearable={!!queryParams?.branchIds}
+          >
+            <SelectBranches
+              name="branchIds"
+              label="Select Branches"
+              initialValue={queryParams?.branchIds}
+              onSelect={handleSelectStructure}
+              multi={true}
+            />
+          </CustomForm>
+          <CustomForm
+            label={'Departments'}
+            field={'departmentIds'}
+            clearable={!!queryParams?.departmentIds}
+          >
+            <SelectDepartments
+              name="departmentIds"
+              label="Select Departments"
+              initialValue={queryParams?.departmentIds}
+              onSelect={handleSelectStructure}
+              multi={true}
+            />
+          </CustomForm>
+          <CustomForm
+            label={'Operations'}
+            field={'operationIds'}
+            clearable={!!queryParams?.operationIds}
+          >
+            <SelectOperation
+              name="operationIds"
+              label="Select Operations"
+              initialValue={queryParams?.operationIds}
+              onSelect={handleSelectStructure}
+              multi={true}
             />
           </CustomForm>
           <CustomForm
@@ -253,7 +302,7 @@ class List extends React.Component<Props> {
     );
 
     const updatedProps = {
-      title: 'Submissions',
+      title: 'Assessment',
       content: this.renderContent(),
       leftActionBar,
       subMenu,

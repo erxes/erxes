@@ -53,6 +53,7 @@ export interface IRiskConformityParams {
 }
 
 export interface IRiskFormSubmissionParams {
+  riskAssessmentId?: string;
   cardId: string;
   cardType: string;
   userId: string;

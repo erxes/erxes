@@ -12,6 +12,10 @@ const formSubmissionMutations = {
   }
 };
 
-// checkPermission(formSubmissionMutations, 'riskFormSaveSubmissions', 'manageRiskAssessment');
+checkPermission(
+  formSubmissionMutations,
+  'riskFormSaveSubmissions',
+  'manageRiskAssessment'
+);
 
 export default formSubmissionMutations;

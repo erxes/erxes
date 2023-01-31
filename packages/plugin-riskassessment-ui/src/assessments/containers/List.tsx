@@ -41,10 +41,20 @@ class List extends React.Component<FinalProps, State> {
   }
 }
 
+const generateParamsIds = ids => {
+  if (!ids?.length) {
+    return undefined;
+  }
+  if (typeof ids === 'string') {
+    return [ids];
+  }
+  return ids;
+};
+
 export const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),
   cardType: queryParams?.cardType,
-  riskAssessmentId: queryParams?.riskAssessmentId,
+  riskIndicatorIds: queryParams?.riskIndicatorIds,
   status: queryParams?.status,
   searchValue: queryParams?.searchValue,
   sortField: queryParams?.sortField,
@@ -52,7 +62,10 @@ export const generateParams = ({ queryParams }) => ({
   createdFrom: queryParams.createdFrom || undefined,
   createdTo: queryParams.createdTo || undefined,
   closedFrom: queryParams.closedFrom || undefined,
-  closedTo: queryParams.closedTo || undefined
+  closedTo: queryParams.closedTo || undefined,
+  branchIds: generateParamsIds(queryParams.branchIds),
+  departmentIds: generateParamsIds(queryParams.departmentIds),
+  operationIds: generateParamsIds(queryParams.operationIds)
 });
 
 export default withProps<Props>(

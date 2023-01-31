@@ -11,10 +11,14 @@ import {
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
 import { FormContainer, ProductName } from '../../../styles';
+import RiskAssessmentForm from '../containers/RiskAssessmentForm';
 
 type Props = {
   assignedMembers: any[];
   currentUser: IUser;
+  cardId: string;
+  cardType: string;
+  riskAssessmentId: string;
 };
 
 class AssignedMembers extends React.Component<Props> {
@@ -23,7 +27,7 @@ class AssignedMembers extends React.Component<Props> {
   }
 
   renderSubmitForm({ userId, submitStatus }) {
-    const { currentUser } = this.props;
+    const { currentUser, cardId, cardType, riskAssessmentId } = this.props;
     const renderStatusIcon = () => {
       if (currentUser._id === userId) {
         switch (submitStatus) {
@@ -52,10 +56,25 @@ class AssignedMembers extends React.Component<Props> {
 
     const trigger = <Button btnStyle="link">{renderStatusIcon()}</Button>;
 
-    const content = props => <div>dsa</div>;
+    const content = props => {
+      const updatedProps = {
+        ...props,
+        cardId,
+        cardType,
+        riskAssessmentId,
+        userId: currentUser._id
+      };
+
+      return <RiskAssessmentForm {...updatedProps} />;
+    };
 
     return (
-      <ModalTrigger content={content} trigger={trigger} title="Hello World" />
+      <ModalTrigger
+        content={content}
+        trigger={trigger}
+        title="Risk Indicators Submit Form"
+        size="xl"
+      />
     );
   }
 
@@ -63,7 +82,14 @@ class AssignedMembers extends React.Component<Props> {
     const { assignedMembers } = this.props;
 
     if (!assignedMembers.length) {
-      return <EmptyState text="No member assigned in risk assessment" />;
+      return (
+        <Box title="Risk Assessment Assigned Members">
+          <EmptyState
+            text="No member assigned in risk assessment"
+            icon="users"
+          />
+        </Box>
+      );
     }
 
     return (

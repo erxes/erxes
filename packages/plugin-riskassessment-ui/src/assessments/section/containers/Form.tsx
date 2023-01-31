@@ -5,7 +5,7 @@ import * as compose from 'lodash.flowright';
 import { withProps } from '@erxes/ui/src/utils/core';
 import FormComponent from '../components/Form';
 import { mutations, queries } from '../graphql';
-import { confirm } from '@erxes/ui/src';
+import { Alert, confirm } from '@erxes/ui/src';
 type Props = {
   closeModal: () => void;
   cardId: string;
@@ -34,6 +34,12 @@ class Form extends React.Component<FinalProps> {
     } = this.props;
 
     const handleSelect = (doc: any) => {
+      if (riskAssessment && riskAssessment.status !== 'In Progress') {
+        return Alert.error(
+          'You cannot change this risk assessment because it has already calculated'
+        );
+      }
+
       if (riskAssessment && (!doc.groupId || doc.indicatorId)) {
         return confirm().then(() => {
           removeRiskAssessment({

@@ -4,24 +4,20 @@ query RiskAssessment($cardId: String, $cardType: String) {
 }
 `;
 
-// const riskAssessmentDetail = `
-
-// `;
-
 const riskAssessmentAssignedMembers = `
-query Query($cardId: String, $cardType: String, $riskAssessmentId: String) {
+query RiskAssessmentAssignedMembers($cardId: String, $cardType: String, $riskAssessmentId: String) {
   riskAssessmentAssignedMembers(cardId: $cardId, cardType: $cardType, riskAssessmentId: $riskAssessmentId)
 }
 `;
 
 const riskAssessmentSubmitForm = `
-query Query($cardId: String, $cardType: String, $riskAssessmentId: String, $userId: String) {
+query RiskAssessmentSubmitForm($cardId: String, $cardType: String, $riskAssessmentId: String, $userId: String) {
   riskAssessmentSubmitForm(cardId: $cardId, cardType: $cardType, riskAssessmentId: $riskAssessmentId, userId: $userId)
 }
 `;
 
 const riskAssessmentIndicatorForm = `
-query Query($indicatorId: String, $riskAssessmentId: String, $userId: String) {
+query RiskAssessmentIndicatorForm($indicatorId: String, $riskAssessmentId: String, $userId: String) {
   riskAssessmentIndicatorForm(indicatorId: $indicatorId, riskAssessmentId: $riskAssessmentId, userId: $userId)
 }
 `;
@@ -30,13 +26,13 @@ const commonIndicatorParams = `
   $departmentIds:[String]
   $branchIds:[String]
   $operationIds:[String],
-  $categoryIds: [String],
+  $categoryId: String,
   $searchValue: String,
   $perPage: Int
 `;
 
 const commonIndicatorParamsDef = `
-  categoryIds: $categoryIds ,
+  categoryId: $categoryId ,
   perPage: $perPage,
   searchValue: $searchValue,
   branchIds: $branchIds,
@@ -55,7 +51,6 @@ const riskIndicators = `
 export default {
   riskAssessment,
   riskAssessmentAssignedMembers,
-  // riskAssessmentDetail,
   riskAssessmentSubmitForm,
   riskAssessmentIndicatorForm,
   riskIndicators

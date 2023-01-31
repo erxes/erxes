@@ -12,7 +12,11 @@ import {
   Toggle
 } from '@erxes/ui/src';
 import { cardTypes } from '../../common/constants';
-import { SelectCustomFields, SelectRiskIndicator } from '../../common/utils';
+import {
+  SelectCustomFields,
+  SelectIndicatorGroups,
+  SelectRiskIndicator
+} from '../../common/utils';
 import { Features, ListItem, Block, Header, FormContainer } from '../../styles';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import {
@@ -36,17 +40,27 @@ type State = {
   customFieldId: string;
   configs: any[];
   riskIndicatorId: string;
-  isOpenSelectionCustomField: boolean;
+  indicatorsGroupId: string;
+  useCustomFields: boolean;
+  useGroups: boolean;
 };
 
 class Form extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const isOpenSelectionCustomField =
-      !!props?.config?.configs.length && !!props?.config.pipelineId
-        ? true
-        : false;
+    const useCustomFields =
+      !!props?.config?.configs.length && !!props?.config.pipelineId;
+
+    let useGroups = false;
+    if (useCustomFields) {
+      useGroups = props?.config?.configs.every(
+        config => config.indicatorsGroupId
+      );
+    }
+    if (props.config.indicatorsGroupId) {
+      useGroups = true;
+    }
 
     this.state = {
       cardType: props?.config?.cardType || '',
@@ -55,8 +69,10 @@ class Form extends React.Component<Props, State> {
       stageId: props?.config?.stageId || '',
       customFieldId: props?.config?.customFieldId || null,
       configs: props?.config?.configs || [],
-      isOpenSelectionCustomField,
-      riskIndicatorId: props?.config?.riskIndicatorId || ''
+      useCustomFields,
+      useGroups,
+      riskIndicatorId: props?.config?.riskIndicatorId || '',
+      indicatorsGroupId: props?.config?.indicatorsGroupId || ''
     };
 
     this.renderForm = this.renderForm.bind(this);
@@ -71,7 +87,8 @@ class Form extends React.Component<Props, State> {
       stageId,
       customFieldId,
       configs,
-      riskIndicatorId
+      riskIndicatorId,
+      indicatorsGroupId
     } = this.state;
 
     const doc = {
@@ -81,7 +98,8 @@ class Form extends React.Component<Props, State> {
       stageId,
       customFieldId,
       configs,
-      riskIndicatorId
+      riskIndicatorId,
+      indicatorsGroupId
     };
 
     if (config) {
@@ -97,15 +115,16 @@ class Form extends React.Component<Props, State> {
       configs,
       boardId,
       pipelineId,
-      cardType
+      cardType,
+      useGroups
     } = this.state;
     const onChangeCustomFields = ({ value, _id }) => {
       this.setState({ customFieldId: _id, configs: value });
     };
-    const onChangeConfig = (config, field) => {
+    const onChangeConfig = (value, name, field) => {
       const updatedFieldConfig = configs.map(fieldConfig =>
         fieldConfig.value === field.value
-          ? { ...fieldConfig, riskIndicatorId: config.value }
+          ? { ...fieldConfig, [name]: value }
           : fieldConfig
       );
 
@@ -129,15 +148,25 @@ class Form extends React.Component<Props, State> {
           configs.map((field, i) => (
             <ListItem key={i}>
               <ControlLabel>{field.label}</ControlLabel>
-              <SelectRiskIndicator
-                name="riskAssessment"
-                label="Select risk assessment"
-                initialValue={field.riskIndicatorId}
-                onSelect={e => onChangeConfig(e, field)}
-                ignoreIds={configs
-                  .map(config => config.riskIndicatorId)
-                  .filter(id => id)}
-              />
+              {useGroups ? (
+                <SelectIndicatorGroups
+                  name="indicatorsGroupId"
+                  label="Select risk indicators group"
+                  initialValue={field.indicatorsGroupId}
+                  onSelect={(values, name) =>
+                    onChangeConfig(values, name, field)
+                  }
+                />
+              ) : (
+                <SelectRiskIndicator
+                  name="riskAssessment"
+                  label="Select risk indicators"
+                  initialValue={field.riskIndicatorId}
+                  onSelect={(values, name) =>
+                    onChangeConfig(values, name, field)
+                  }
+                />
+              )}
             </ListItem>
           ))
         ) : (
@@ -147,16 +176,57 @@ class Form extends React.Component<Props, State> {
     );
   }
 
+  renderConfigrationField() {
+    const {
+      useCustomFields,
+      useGroups,
+      riskIndicatorId,
+      indicatorsGroupId
+    } = this.state;
+
+    if (useCustomFields) {
+      return this.renderSelectionCustomField();
+    }
+
+    const handleChange = (values, name) => {
+      this.setState({ [name]: values } as Pick<State, keyof State>);
+    };
+
+    if (useGroups) {
+      return (
+        <FormGroup>
+          <ControlLabel>{'Selec Risk Indicators Group'}</ControlLabel>
+          <SelectIndicatorGroups
+            name="indicatorsGroupId"
+            label="Select risk indicators group"
+            initialValue={indicatorsGroupId}
+            onSelect={handleChange}
+          />
+        </FormGroup>
+      );
+    }
+
+    return (
+      <FormGroup>
+        <ControlLabel>{__('Select risk indicator')}</ControlLabel>
+        <SelectRiskIndicator
+          name="riskIndicatorId"
+          label="Select risk indicator"
+          initialValue={riskIndicatorId}
+          onSelect={handleChange}
+        />
+      </FormGroup>
+    );
+  }
+
   renderForm(formProps: IFormProps) {
     const {
       cardType,
       boardId,
       pipelineId,
       stageId,
-      customFieldId,
-      configs,
-      riskIndicatorId,
-      isOpenSelectionCustomField
+      useCustomFields,
+      useGroups
     } = this.state;
     const { renderButton, closeModal } = this.props;
     const { isSubmitted } = formProps;
@@ -175,16 +245,18 @@ class Form extends React.Component<Props, State> {
       this.setState({ stageId: e });
     };
 
-    const onChangeToggle = e => {
+    const toggleChange = e => {
+      const { name } = e.currentTarget as HTMLInputElement;
+      const { configs } = this.state;
+      const { config } = this.props;
+
       const isOpen = e.target.checked;
       this.setState({
-        isOpenSelectionCustomField: isOpen,
-        configs: [],
-        riskIndicatorId: ''
-      });
-    };
-    const onChangeSelectedRiskAssessment = e => {
-      this.setState({ riskIndicatorId: e?.value });
+        [name]: isOpen,
+        configs: name === 'useGroups' ? configs : [],
+        riskIndicatorId: config?.riskIndicatorId || '',
+        indicatorsGroupId: config?.indicatorsGroupId || ''
+      } as any);
     };
     return (
       <>
@@ -221,22 +293,20 @@ class Form extends React.Component<Props, State> {
               </FormColumn>
               <FormContainer row align="center" gap>
                 <ControlLabel>{__('User Custom field')}</ControlLabel>
-                <Toggle onChange={onChangeToggle} />
+                <Toggle
+                  name="useCustomFields"
+                  checked={useCustomFields}
+                  onChange={toggleChange}
+                />
+                <ControlLabel>{__('Use Groups')}</ControlLabel>
+                <Toggle
+                  name="useGroups"
+                  checked={useGroups}
+                  onChange={toggleChange}
+                />
               </FormContainer>
             </FormWrapper>
-            {isOpenSelectionCustomField ? (
-              this.renderSelectionCustomField()
-            ) : (
-              <FormGroup>
-                <ControlLabel>{__('Select risk assessment')}</ControlLabel>
-                <SelectRiskIndicator
-                  name="riskIndicator"
-                  label="Select risk indicator"
-                  initialValue={riskIndicatorId}
-                  onSelect={onChangeSelectedRiskAssessment}
-                />
-              </FormGroup>
-            )}
+            {this.renderConfigrationField()}
           </Block>
         </Features>
         <ModalFooter>

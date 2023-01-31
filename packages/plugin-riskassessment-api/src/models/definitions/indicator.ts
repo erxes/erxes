@@ -21,12 +21,13 @@ type IIndicatorForms = {
 export interface IRiskIndicatorsDocument extends Document {
   _id: string;
   createdAt: Date;
-  name: String;
-  description: String;
-  categoryIds: [String];
-  departmentIds: [String];
-  branchIds: [String];
-  status: String;
+  name: string;
+  description: string;
+  categoryId: [string];
+  departmentIds: [string];
+  branchIds: [string];
+  operationIds: [string];
+  status: string;
   calculateLogics?: ICalculateLogics[];
   calculateMethod?: string;
   customScoreField: { label: string; percentWeight: number }[];
@@ -34,13 +35,14 @@ export interface IRiskIndicatorsDocument extends Document {
 }
 
 export interface IRiskIndicatorsConfigsDocument extends Document {
-  _id: String;
-  boardId: String;
-  pipelineId: String;
-  stageId?: String;
-  customFieldId?: String;
+  _id: string;
+  boardId: string;
+  pipelineId: string;
+  stageId?: string;
+  customFieldId?: string;
   configs: any[];
-  riskIndicatorId?: String;
+  riskIndicatorId?: string;
+  indicatorsGroupId?: string;
 }
 
 export interface IIndicatorsGroupDocument extends Document {
@@ -123,7 +125,11 @@ const riskIndicatorConfigsFieldsSchema = new Schema({
   label: field({ type: String, label: 'Field Label' }),
   riskIndicatorId: field({
     type: String,
-    label: 'Field Config Risk assessment ID'
+    label: 'Field Config Risk indicator Id'
+  }),
+  indicatorsGroupId: field({
+    type: String,
+    label: 'Field Config Risk Indicators Group Id'
   })
 });
 
@@ -136,7 +142,12 @@ export const riskIndicatorConfigsSchema = new Schema({
   riskIndicatorId: field({
     type: String,
     optional: true,
-    label: 'Risk assessment ID'
+    label: 'Risk indicator id'
+  }),
+  indicatorsGroupId: field({
+    type: String,
+    optional: true,
+    label: 'Risk indicators group id'
   }),
   customFieldId: field({ type: String, label: 'Custom Field Id' }),
   configs: field({
@@ -155,6 +166,7 @@ const indicatorGroupsSchema = new Schema({
     label: 'Percent Weight',
     optional: true
   }),
+  calculateMethod: field({ type: String, labels: 'Calculate Method' }),
   calculateLogics: field({
     type: [calculateMethodsSchema],
     labels: 'indicator groups calculate methods'
@@ -172,5 +184,5 @@ export const riskIndicatorGroupSchema = new Schema({
   }),
   groups: field({ type: [indicatorGroupsSchema], label: 'indicators groups' }),
   createdAt: field({ type: Date, label: 'Created At', default: Date.now }),
-  modifiedAt: field({ type: Date, label: 'Modified At' })
+  modifiedAt: field({ type: Date, label: 'Modified At', default: Date.now })
 });

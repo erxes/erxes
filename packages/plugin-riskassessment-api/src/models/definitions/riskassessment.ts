@@ -28,6 +28,8 @@ export interface IRiskAssessmentsDocument
   departmentIds: string[];
   operationIds: string[];
   indicatorGroups: any[];
+  cardId: string;
+  cardType: string;
 }
 
 export interface IRiskAssessmentIndicator
@@ -38,6 +40,7 @@ export interface IRiskAssessmentIndicator
   status: string;
   statusColor: string;
   resultScore: number;
+  totalScore: number;
 }
 
 export interface IRiskAssessmentIndicatorsDocument
@@ -54,6 +57,7 @@ export const commonAssessmentSchema = {
     default: '#3B85F4'
   }),
   resultScore: field({ type: Number, label: 'Result Score', default: 0 }),
+  totalScore: field({ type: Number, label: 'Total Score', default: 0 }),
   createdAt: field({ type: Date, label: 'Created At', default: Date.now }),
   closedAt: field({ type: Date, optional: true, label: 'Closed At' })
 };

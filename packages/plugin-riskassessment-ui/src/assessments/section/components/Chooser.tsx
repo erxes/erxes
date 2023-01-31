@@ -48,7 +48,7 @@ export default function SelectIndicators(props: Props) {
   const [searchValue, setSearchValue] = useState('');
   const [useGroups, setUseGroups] = useState(false);
 
-  const { data, error, loading, refetch } = useQuery(
+  const { data, error, loading } = useQuery(
     gql(useGroups ? groupsQueries.list : queries.riskIndicators),
     {
       variables: { searchValue, perPage, ...props.filters }

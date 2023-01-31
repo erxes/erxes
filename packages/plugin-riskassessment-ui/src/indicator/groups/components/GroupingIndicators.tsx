@@ -74,12 +74,9 @@ export default class GroupingIndicators extends React.Component<Props, State> {
     };
 
     const onChangeCalculateField = values => {
-      console.log({ values, indicatorGroups });
       const updatedIndicatorGroups = indicatorGroups.map(indicator =>
         indicator._id === _id ? { ...indicator, ...values } : indicator
       );
-
-      console.log(updatedIndicatorGroups);
 
       this.setState({
         indicatorGroups: updatedIndicatorGroups
@@ -91,7 +88,7 @@ export default class GroupingIndicators extends React.Component<Props, State> {
       this.setState({
         indicatorGroups: indicatorGroups.map(indicator =>
           indicator._id === _id
-            ? { ...indicator, percentWeight: value }
+            ? { ...indicator, percentWeight: Number(value) }
             : indicator
         )
       });
