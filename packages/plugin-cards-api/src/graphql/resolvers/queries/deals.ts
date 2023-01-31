@@ -246,7 +246,7 @@ const dealQueries = {
   ) {
     const deal = await models.Deals.getDeal(_id);
 
-    return checkItemPermByUser(models, user._id, deal);
+    return checkItemPermByUser(models, user, deal);
   },
 
   async checkDiscount(
