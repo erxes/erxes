@@ -16,7 +16,7 @@ module.exports = {
   inboxIntegrationSettings: './inboxIntegrationSettings',
   inboxIntegrationForm: './inboxIntegrationForm',
   inboxConversationDetail: './inboxConversationDetail',
-  inboxIntegration: {
+  inboxIntegrations: [{
     name: 'IMAP',
     description:
       'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
@@ -25,8 +25,7 @@ module.exports = {
     kind: 'imap',
     logo: '/images/integrations/email.png',
     createModal: 'imap',
-    createUrl: '/settings/integrations/imap',
     category:
       'All integrations, For support teams, Marketing automation, Email marketing'
-  }
+  }]
 };

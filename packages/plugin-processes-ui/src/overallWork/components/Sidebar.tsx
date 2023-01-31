@@ -21,6 +21,7 @@ import SelectJobCategory from '../../job/containers/category/SelectJobCategory';
 import SelectJobRefer from '../../job/containers/refer/SelectJobRefer';
 import { JOB_TYPE_CHOISES } from '../../constants';
 import Button from '@erxes/ui/src/components/Button';
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 
 interface Props {
   history: any;
@@ -183,6 +184,20 @@ class Sidebar extends React.Component<Props, State> {
               label: '...Clear product filter'
             }}
             onSelect={productIds => this.setFilter('productIds', productIds)}
+            multi={true}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Vendor</ControlLabel>
+          <SelectCompanies
+            label="Choose vendor"
+            name="vendorIds"
+            initialValue={filterParams.vendorIds || []}
+            customOption={{
+              value: '',
+              label: '...Clear product filter'
+            }}
+            onSelect={vendorIds => this.setFilter('vendorIds', vendorIds)}
             multi={true}
           />
         </FormGroup>

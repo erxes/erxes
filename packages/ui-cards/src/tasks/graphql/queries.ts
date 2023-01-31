@@ -21,6 +21,7 @@ const commonParams = `
   $startDate: String,
   $endDate: String,
   $hasStartAndCloseDate: Boolean
+  $noSkipArchive: Boolean
   ${conformityQueryFields}
 `;
 
@@ -41,6 +42,7 @@ const commonParamDefs = `
   startDate: $startDate
   endDate: $endDate
   hasStartAndCloseDate: $hasStartAndCloseDate
+  noSkipArchive: $noSkipArchive
   ${conformityQueryFieldDefs}
 `;
 

@@ -11,12 +11,22 @@ const MUTATION = gql`
     $content: String!
     $title: String!
     $thumbnail: String
+    $description: String
+    $tagIds: [ID!]
+    $pollOptions: [ForumPollOptionInput!]
+    $isPollMultiChoice: Boolean
+    $pollEndDate: Date
   ) {
     forumCreatePost(
       categoryId: $categoryId
       content: $content
       title: $title
       thumbnail: $thumbnail
+      description: $description
+      tagIds: $tagIds
+      pollOptions: $pollOptions
+      isPollMultiChoice: $isPollMultiChoice
+      pollEndDate: $pollEndDate
     ) {
       _id
     }

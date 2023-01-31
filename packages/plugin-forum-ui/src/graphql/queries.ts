@@ -12,6 +12,10 @@ export const CATEGORIES_ALL = gql`
     forumCategories {
       _id
       name
+
+      parent {
+        name
+      }
     }
   }
 `;
@@ -94,7 +98,6 @@ export const FORUM_POSTS_QUERY = gql`
     forumPosts(${forumPostsArg}) {
       
       _id
-      content
       title
       state
       thumbnail
@@ -166,10 +169,15 @@ export const FORUM_POST_DETAIL = gql`
 
       categoryApprovalState
 
+      description
+
       viewCount
 
       upVoteCount
       downVoteCount
+
+      isPollMultiChoice
+      pollEndDate
 
       createdUserType
       createdBy {
@@ -196,6 +204,28 @@ export const FORUM_POST_DETAIL = gql`
       }
 
       lastPublishedAt
+
+      tagIds
+
+      tags {
+        _id
+        colorCode
+        name
+      }
+
+      pollOptions {
+        _id
+        title
+        order
+      }
+
+      quizzes {
+        _id
+        name
+      }
+
+      isFeaturedByAdmin
+      isFeaturedByUser
     }
   }
 `;

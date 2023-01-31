@@ -1,72 +1,91 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
-import { withProps } from '@erxes/ui/src/utils';
+import { Alert, withProps } from '@erxes/ui/src/utils';
 import List from '../../components/timeclock/TimeclockList';
-import { TimeClockMutationResponse, TimeClockQueryResponse } from '../../types';
+import {
+  TimeClockMainQueryResponse,
+  TimeClockMutationResponse,
+  TimeClockQueryResponse
+} from '../../types';
 import { queries } from '../../graphql';
-import React from 'react';
+import React, { useState } from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { mutations } from '../../graphql';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import dayjs from 'dayjs';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { generateParams } from '../../utils';
+
 type Props = {
   queryParams: any;
   history: any;
 
-  queryStartDate: string;
-  queryEndDate: string;
-  queryUserIds: string[];
-  queryDepartmentIds: string[];
-  queryBranchIds: string[];
-
+  showSideBar: (sideBar: boolean) => void;
   getActionBar: (actionBar: any) => void;
+  getPagination: (pagination: any) => void;
 };
 
 type FinalProps = {
-  listTimeclocksQuery: TimeClockQueryResponse;
+  timeclocksMainQuery: TimeClockMainQueryResponse;
 } & Props &
   TimeClockMutationResponse;
 
 const ListContainer = (props: FinalProps) => {
-  const { listTimeclocksQuery, extractAllMySqlDataMutation } = props;
+  const {
+    timeclocksMainQuery,
+    getPagination,
+    extractAllMySqlDataMutation,
+    showSideBar
+  } = props;
 
-  if (listTimeclocksQuery.loading) {
+  const dateFormat = 'YYYY-MM-DD';
+  const [loading, setLoading] = useState(false);
+
+  if (timeclocksMainQuery.loading || loading) {
     return <Spinner />;
   }
 
-  const extractAllMySqlData = () => {
-    extractAllMySqlDataMutation().then(() => {
-      listTimeclocksQuery.refetch();
-    });
+  const extractAllMySqlData = (start: Date, end: Date) => {
+    setLoading(true);
+    extractAllMySqlDataMutation({
+      variables: {
+        startDate: dayjs(start).format(dateFormat),
+        endDate: dayjs(end).format(dateFormat)
+      }
+    })
+      .then(() => {
+        setLoading(false);
+        timeclocksMainQuery.refetch();
+        Alert.success('Successfully extracted data');
+      })
+      .catch(e => {
+        setLoading(false);
+        Alert.error(e.message);
+      });
   };
+
+  const { list = [], totalCount = 0 } =
+    timeclocksMainQuery.timeclocksMain || {};
 
   const updatedProps = {
     ...props,
-    timeclocks: listTimeclocksQuery.timeclocks || [],
-    loading: listTimeclocksQuery.loading,
+    totalCount,
+    timeclocks: list,
+    loading: timeclocksMainQuery.loading || loading,
     extractAllMySqlData
   };
-
+  showSideBar(true);
+  getPagination(<Pagination count={totalCount} />);
   return <List {...updatedProps} />;
 };
 
 export default withProps<Props>(
   compose(
-    graphql<Props, TimeClockQueryResponse>(gql(queries.list), {
-      name: 'listTimeclocksQuery',
-      options: ({
-        queryStartDate,
-        queryEndDate,
-        queryUserIds,
-        queryDepartmentIds,
-        queryBranchIds
-      }) => ({
-        variables: {
-          startDate: queryStartDate,
-          endDate: queryEndDate,
-          userIds: queryUserIds,
-          departmentIds: queryDepartmentIds,
-          branchIds: queryBranchIds
-        },
+    graphql<Props, TimeClockQueryResponse>(gql(queries.listTimeclocksMain), {
+      name: 'timeclocksMainQuery',
+      options: ({ queryParams }) => ({
+        variables: generateParams(queryParams),
         fetchPolicy: 'network-only'
       })
     }),

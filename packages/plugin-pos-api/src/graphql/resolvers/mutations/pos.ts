@@ -157,7 +157,8 @@ const mutations = {
       data: {
         pos,
         order
-      }
+      },
+      timeout: 50000
     });
 
     return await models.PosOrders.findOne({ _id }).lean();

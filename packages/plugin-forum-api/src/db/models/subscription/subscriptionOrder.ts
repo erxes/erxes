@@ -9,6 +9,7 @@ import {
   SubscriptionProductUserTypes,
   SUBSCRIPTION_PRODUCT_USER_TYPES
 } from './subscriptionProduct';
+import { ForumClientPortalUserDocument } from '../forumClientPortalUser';
 
 export const SUBSCRIPTION_ORDER_STATES = [
   'PENDING',
@@ -60,6 +61,14 @@ export interface ISubscriptionOrderModel
     subscriptionOrderId: string,
     cpUser?: ICpUser | null
   ): Promise<boolean>;
+
+  manuallyExtendSubscription(
+    unit: TimeDurationUnit,
+    multiplier: number,
+    price: number,
+    userType: SubscriptionProductUserTypes,
+    cpUserId: string
+  ): Promise<SubscriptionOrderDocument>;
 }
 
 export const collectionName = 'forum_subscription_orders';
@@ -210,15 +219,14 @@ export const generateSubscriptionOrderModel = (
       const user = await models.ForumClientPortalUser.findByIdOrCreate(
         order.cpUserId
       );
-      const duration = moment.duration(order.multiplier, order.unit);
 
-      const extendFrom = user.subscriptionEndsAfter
-        ? moment(user.subscriptionEndsAfter)
-        : moment();
+      const newSubscriptionEndsAfter = await getExtendedSubscriptionDate(
+        user,
+        order.unit,
+        order.multiplier
+      );
 
-      extendFrom.add(duration);
-
-      user.subscriptionEndsAfter = extendFrom.toDate();
+      user.subscriptionEndsAfter = newSubscriptionEndsAfter.toDate();
       await user.save();
 
       order.invoiceId = invoiceId;
@@ -246,6 +254,40 @@ export const generateSubscriptionOrderModel = (
 
       return true;
     }
+
+    public static async manuallyExtendSubscription(
+      unit: TimeDurationUnit,
+      multiplier: number,
+      price: number,
+      userType: SubscriptionProductUserTypes,
+      cpUserId: string
+    ): Promise<SubscriptionOrderDocument> {
+      const user = await models.ForumClientPortalUser.findByIdOrCreate(
+        cpUserId
+      );
+
+      const subscriptionEndsAfter = await getExtendedSubscriptionDate(
+        user,
+        unit,
+        multiplier
+      );
+
+      user.subscriptionEndsAfter = subscriptionEndsAfter.toDate();
+      await user.save();
+
+      const doc = await models.SubscriptionOrder.create({
+        unit,
+        multiplier,
+        price,
+        userType,
+        cpUserId,
+        state: 'SUCCESS'
+      });
+
+      await doc.save();
+
+      return doc;
+    }
   }
   subscriptionOrderSchema.loadClass(SubscriptionOrderModel);
 
@@ -254,3 +296,25 @@ export const generateSubscriptionOrderModel = (
     ISubscriptionOrderModel
   >(collectionName, subscriptionOrderSchema);
 };
+
+async function getExtendedSubscriptionDate(
+  user: ForumClientPortalUserDocument,
+  unit: TimeDurationUnit,
+  multiplier: number
+): Promise<moment.Moment> {
+  const duration = moment.duration(multiplier, unit);
+
+  const extendFrom = (() => {
+    const now = new Date();
+    if (user.subscriptionEndsAfter) {
+      const endsAfter = new Date(user.subscriptionEndsAfter);
+      if (endsAfter.getTime() > now.getTime()) {
+        return moment(endsAfter);
+      }
+    }
+    return moment(now);
+  })();
+
+  extendFrom.add(duration);
+  return extendFrom;
+}

@@ -35,7 +35,7 @@ export const types = `
     createdAt: Date
     tagIds: [String]
     vendorId: String
-    attachmentMore: Attachment
+    attachmentMore: [Attachment]
     supply: String
     productCount: Int
     minimiumCount: Int
@@ -53,6 +53,8 @@ const productsQueryParams = `
   tag: String,
   page: Int,
   perPage: Int ids: [String],
+  sortField: String,
+  sortDirection: Int,
   excludeIds: Boolean,
   segment: String,
   segmentData: String,

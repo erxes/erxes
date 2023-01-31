@@ -1,11 +1,12 @@
-import FormControl from 'modules/common/components/form/Control';
+import { __, readFile } from 'modules/common/utils';
+
+import { AuthBox } from '../styles';
 import Form from 'modules/common/components/form/Form';
+import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { readFile, __ } from 'modules/common/utils';
-import React from 'react';
 import { Link } from 'react-router-dom';
-import { AuthBox } from '../styles';
+import React from 'react';
 import _ from 'lodash';
 import { getThemeItem } from '@erxes/ui/src/utils/core';
 
@@ -51,7 +52,7 @@ class SignIn extends React.Component<Props> {
   renderLogo() {
     const logo = '/images/logo-dark.png';
     const thLogo = getThemeItem('logo');
-    return thLogo ? readFile(thLogo) : `/images/${logo}`;
+    return thLogo ? readFile(thLogo) : logo;
   }
 
   render() {

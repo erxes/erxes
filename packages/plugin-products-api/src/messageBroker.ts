@@ -76,6 +76,13 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
       const category = await models.ProductCategories.findOne({ _id }).lean();
 
+      if (!category) {
+        return {
+          data: [],
+          status: 'success'
+        };
+      }
+
       return {
         data: await models.ProductCategories.find({
           order: { $regex: new RegExp(category.order) },

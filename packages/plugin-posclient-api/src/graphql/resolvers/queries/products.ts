@@ -20,6 +20,8 @@ interface IProductParams {
   boardId?: string;
   segment?: string;
   segmentData?: string;
+  sortField?: string;
+  sortDirection?: number;
   page?: number;
   perPage?: number;
 }
@@ -134,6 +136,8 @@ const productQueries = {
       boardId,
       segment,
       segmentData,
+      sortField,
+      sortDirection,
       ...paginationArgs
     }: IProductParams,
     { models, subdomain, config }: IContext
@@ -144,9 +148,15 @@ const productQueries = {
       searchValue
     });
 
+    let sortParams: any = { code: 1 };
+
+    if (sortField) {
+      sortParams = { [sortField]: sortDirection };
+    }
+
     const paginatedProducts = await paginate(
       models.Products.find(filter)
-        .sort('code')
+        .sort(sortParams)
         .lean(),
       paginationArgs
     );

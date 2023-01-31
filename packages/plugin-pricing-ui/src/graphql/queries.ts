@@ -1,6 +1,6 @@
-const discounts = `
-  query discounts($status: String) {
-    discounts(status: $status) {
+const pricingPlans = `
+  query PricingPlans($status: String) {
+    pricingPlans(status: $status) {
       _id
       name
       status
@@ -22,20 +22,24 @@ const discounts = `
   }
 `;
 
-const discountDetail = `
-  query DiscountDetail($id: String) {
-    discountDetail(id: $id) {
+const pricingPlanDetail = `
+  query PricingPlanDetail($id: String) {
+    pricingPlanDetail(id: $id) {
       _id
       name
       status
       type
       value
+      priceAdjustType
+      priceAdjustFactor
       bonusProduct
+      isPriority
 
       applyType
 
       products
       productsExcluded
+      productsBundle
       categories
       categoriesExcluded
 
@@ -58,6 +62,8 @@ const discountDetail = `
         discountType
         discountValue
         discountBonusProduct
+        priceAdjustType
+        priceAdjustFactor
       }
 
       isPriceEnabled
@@ -67,6 +73,8 @@ const discountDetail = `
         discountType
         discountValue
         discountBonusProduct
+        priceAdjustType
+        priceAdjustFactor
       }
 
       isExpiryEnabled
@@ -76,6 +84,8 @@ const discountDetail = `
         discountType
         discountValue
         discountBonusProduct
+        priceAdjustType
+        priceAdjustFactor
       }
 
       isRepeatEnabled
@@ -99,6 +109,6 @@ const discountDetail = `
 `;
 
 export default {
-  discounts,
-  discountDetail
+  pricingPlans,
+  pricingPlanDetail
 };

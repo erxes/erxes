@@ -509,6 +509,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
             chosenCondition={chosenCondition}
             hideDetailForm={hideDetailForm || false}
             config={config}
+            onChangeConfig={this.onChangeConfig}
           />
         );
       });
@@ -526,6 +527,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
           hideDetailForm={hideDetailForm || false}
           changeSubSegmentConjunction={this.changeSubSegmentConjunction}
           config={config}
+          onChangeConfig={this.onChangeConfig}
         />
       );
     }

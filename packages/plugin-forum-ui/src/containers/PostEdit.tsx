@@ -12,6 +12,11 @@ const PATCH_POST = gql`
     $content: String
     $thumbnail: String
     $title: String
+    $description: String
+    $tagIds: [ID!]
+    $pollOptions: [ForumPollOptionInput!]
+    $isPollMultiChoice: Boolean
+    $pollEndDate: Date
   ) {
     forumPatchPost(
       _id: $id
@@ -19,6 +24,11 @@ const PATCH_POST = gql`
       content: $content
       thumbnail: $thumbnail
       title: $title
+      description: $description
+      tagIds: $tagIds
+      pollOptions: $pollOptions
+      isPollMultiChoice: $isPollMultiChoice
+      pollEndDate: $pollEndDate
     ) {
       _id
     }
@@ -56,6 +66,8 @@ const PostEdit: React.FC = () => {
       }
     });
   };
+
+  console.log(data?.forumPost);
 
   return (
     <div>

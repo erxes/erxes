@@ -21,22 +21,22 @@ const clockStop = `
 `;
 
 const sendAbsenceRequest = `
-  mutation sendAbsenceRequest($startTime: Date, $endTime: Date, $userId: String, $reason: String, $explanation: String, $attachment: AttachmentInput){
-    sendAbsenceRequest(startTime: $startTime, endTime: $endTime, userId: $userId, reason: $reason, explanation: $explanation, attachment: $attachment){
+  mutation sendAbsenceRequest($startTime: Date, $endTime: Date, $userId: String, $reason: String, $explanation: String, $attachment: AttachmentInput, $absenceTypeId: String){
+    sendAbsenceRequest(startTime: $startTime, endTime: $endTime, userId: $userId, reason: $reason, explanation: $explanation, attachment: $attachment, absenceTypeId: $absenceTypeId){
       _id
     }
   }`;
 
 const absenceTypeAdd = `
-  mutation absenceTypeAdd($name: String, $explRequired: Boolean, $attachRequired: Boolean){
-    absenceTypeAdd(name: $name, explRequired: $explRequired, attachRequired: $attachRequired){
+  mutation absenceTypeAdd($name: String, $explRequired: Boolean, $attachRequired: Boolean, $shiftRequest: Boolean){
+    absenceTypeAdd(name: $name, explRequired: $explRequired, attachRequired: $attachRequired, shiftRequest: $shiftRequest){
       _id
     }
   }`;
 
 const absenceTypeEdit = `
-  mutation absenceTypeEdit($_id: String, $name: String, $explRequired: Boolean, $attachRequired: Boolean){
-    absenceTypeEdit(_id: $_id, name: $name, explRequired: $explRequired, attachRequired: $attachRequired){
+  mutation absenceTypeEdit($_id: String, $name: String, $explRequired: Boolean, $attachRequired: Boolean, $shiftRequest: Boolean){
+    absenceTypeEdit(_id: $_id, name: $name, explRequired: $explRequired, attachRequired: $attachRequired, shiftRequest: $shiftRequest){
       _id
     }
   }`;
@@ -47,15 +47,15 @@ const absenceTypeRemove = `
   }`;
 
 const sendScheduleRequest = `
-  mutation sendScheduleRequest($userId: String, $shifts: [ShiftsRequestInput]){
-    sendScheduleRequest(userId: $userId, shifts: $shifts){
+  mutation sendScheduleRequest($userId: String, $shifts: [ShiftsRequestInput], $scheduleConfigId: String){
+    sendScheduleRequest(userId: $userId, shifts: $shifts, scheduleConfigId: $scheduleConfigId){
       _id
     }
   }`;
 
-const submitShift = `
-  mutation submitShift($userIds: [String], $shifts: [ShiftsRequestInput]){
-    submitShift(userIds: $userIds, shifts: $shifts){
+const submitSchedule = `
+  mutation submitSchedule($branchIds: [String], $departmentIds: [String],$userIds: [String], $shifts: [ShiftsRequestInput], $scheduleConfigId: String){
+    submitSchedule(branchIds: $branchIds, departmentIds:$departmentIds, userIds: $userIds, shifts: $shifts, scheduleConfigId: $scheduleConfigId){
       _id
     }
   }`;
@@ -131,16 +131,31 @@ const scheduleShiftRemove = `
     scheduleShiftRemove(_id: $_id)
   }`;
 
+const scheduleConfigAdd = `mutation scheduleConfigAdd($scheduleName: String, $configShiftStart: String, $configShiftEnd: String, $scheduleConfig: [ShiftsRequestInput]){
+  scheduleConfigAdd(scheduleName: $scheduleName, configShiftStart:$configShiftStart, configShiftEnd: $configShiftEnd, scheduleConfig : $scheduleConfig){
+    _id
+  }
+}`;
+const scheduleConfigEdit = `mutation scheduleConfigEdit($_id: String, $scheduleName: String, $configShiftStart: String, $configShiftEnd: String, $scheduleConfig: [ShiftsRequestInput]){
+  scheduleConfigEdit(_id: $_id, scheduleName: $scheduleName,configShiftStart:$configShiftStart, configShiftEnd: $configShiftEnd, scheduleConfig : $scheduleConfig){
+    _id
+  }
+}`;
+
+const scheduleConfigRemove = `mutation scheduleConfigRemove($_id: String){
+  scheduleConfigRemove(_id: $_id)
+}`;
+
 const extractAllDataFromMySQL = `
-mutation extractAllDataFromMySQL{
-  extractAllDataFromMySQL{
+mutation extractAllDataFromMySQL($startDate: String, $endDate: String){
+  extractAllDataFromMySQL(startDate: $startDate, endDate: $endDate){
     _id
   }
 }`;
 
 export default {
   sendScheduleRequest,
-  submitShift,
+  submitSchedule,
   sendAbsenceRequest,
   absenceTypeAdd,
   absenceTypeEdit,
@@ -159,5 +174,8 @@ export default {
   holidayRemove,
   scheduleRemove,
   scheduleShiftRemove,
+  scheduleConfigAdd,
+  scheduleConfigEdit,
+  scheduleConfigRemove,
   extractAllDataFromMySQL
 };

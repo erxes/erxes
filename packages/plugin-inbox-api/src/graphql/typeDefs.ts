@@ -53,12 +53,14 @@ const typeDefs = async serviceDiscovery => {
   const isTagsEnabled = await serviceDiscovery.isEnabled('tags');
   const isFormsEnabled = await serviceDiscovery.isEnabled('forms');
   const isKbEnabled = await serviceDiscovery.isEnabled('knowledgebase');
+  const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
 
   const isEnabled = {
     products: isProductsEnabled,
     tags: isTagsEnabled,
     forms: isFormsEnabled,
-    knowledgeBase: isKbEnabled
+    knowledgeBase: isKbEnabled,
+    contacts: isContactsEnabled
   };
 
   return gql`

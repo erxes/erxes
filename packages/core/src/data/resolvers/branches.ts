@@ -6,9 +6,9 @@ export default {
     return models.Branches.findOne({ _id });
   },
 
-  users(branch: IBranchDocument, _args, { models }: IContext) {
+  async users(branch: IBranchDocument, _args, { models }: IContext) {
     return models.Users.findUsers({
-      _id: { $in: branch.userIds || [] },
+      branchIds: { $in: branch._id },
       isActive: true
     });
   },
@@ -23,5 +23,21 @@ export default {
 
   supervisor(branch: IBranchDocument, _args, { models }: IContext) {
     return models.Users.findOne({ _id: branch.supervisorId, isActive: true });
+  },
+
+  async userIds(branch: IBranchDocument, _args, { models }: IContext) {
+    const branchUsers = await models.Users.findUsers({
+      branchIds: { $in: branch._id },
+      isActive: true
+    });
+
+    const userIds = branchUsers.map(user => user._id);
+    return userIds;
+  },
+  async userCount(branch: IBranchDocument, _args, { models }: IContext) {
+    return await models.Users.countDocuments({
+      branchIds: { $in: branch._id },
+      isActive: true
+    });
   }
 };
