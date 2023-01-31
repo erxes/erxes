@@ -2,6 +2,7 @@ import 'grapesjs/dist/css/grapes.min.css';
 
 import { IPageDoc } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
+import { Link } from 'react-router-dom';
 import { List } from './styles';
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils/core';
@@ -21,17 +22,17 @@ class PageList extends React.Component<Props> {
       <List>
         {pages.map(page => (
           <li key={page._id}>
-            <a
+            <Link
               className={
                 queryParams.pageId && queryParams.pageId === page._id
                   ? 'active'
                   : ''
               }
-              href={`/xbuilder/sites/edit/${siteId}?pageId=${page._id}`}
+              to={`/xbuilder/sites/edit/${siteId}?pageId=${page._id}`}
             >
               <Icon icon="file-1" />
               {page.name}
-            </a>
+            </Link>
             <Icon
               icon="settings"
               onClick={() => handleItemSettings(page, 'page')}

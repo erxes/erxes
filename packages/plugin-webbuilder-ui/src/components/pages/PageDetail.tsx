@@ -56,7 +56,7 @@ type State = {
   type?: string;
 };
 
-class SiteForm extends React.Component<Props, State> {
+class PageDetail extends React.Component<Props, State> {
   grapes;
 
   constructor(props) {
@@ -414,4 +414,4 @@ class SiteForm extends React.Component<Props, State> {
   }
 }
 
-export default SiteForm;
+export default PageDetail;

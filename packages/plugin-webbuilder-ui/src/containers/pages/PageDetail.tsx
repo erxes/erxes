@@ -32,7 +32,7 @@ type FinalProps = Props & {
   PagesEditMutationResponse &
   PagesRemoveMutationResponse;
 
-const FormContainer = (props: FinalProps) => {
+const PageDetailContainer = (props: FinalProps) => {
   const { pageDetailQuery, history, pagesMainQuery, typesQuery } = props;
   console.log(pageDetailQuery && pageDetailQuery.loading);
   if (
@@ -169,4 +169,4 @@ export default compose(
       }
     })
   })
-)(withRouter(FormContainer));
+)(withRouter(PageDetailContainer));
