@@ -25,7 +25,7 @@ export default class RightSidebar extends React.Component<Props> {
     const { building } = this.props;
     const ticketIds = building.ticketIds || [];
 
-    let title = 'Tickets';
+    let title = 'Active tickets';
 
     if (ticketIds.length > 0) {
       title += ` (${ticketIds.length})`;

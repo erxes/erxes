@@ -70,6 +70,8 @@ const BuildingDetailContainer = (props: Props) => {
     return <Spinner objective={true} />;
   }
 
+  console.log('detailQry', detailQry.data);
+
   if (!detailQry.data.buildingDetail) {
     return (
       <EmptyState text="Building not found" image="/images/actions/17.svg" />

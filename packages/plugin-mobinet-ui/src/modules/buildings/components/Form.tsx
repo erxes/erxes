@@ -24,7 +24,6 @@ type Props = {
   district?: IDistrict;
   building?: IBuilding;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  xp;
   closeModal: () => void;
 };
 
@@ -36,8 +35,12 @@ const BuildingForm = (props: Props) => {
   console.log('************', building);
 
   const [osmBuilding, setOsmBuilding] = useState(props.osmBuilding);
-  const [quarterId, setQuarterId] = useState<string>(building && building.quarterId || '');
-  const [districtId, setDistrictId] = useState<string>(building && building.quarter.districtId || ''); 
+  const [quarterId, setQuarterId] = useState<string>(
+    (building && building.quarterId) || ''
+  );
+  const [districtId, setDistrictId] = useState<string>(
+    (building && building.quarter.districtId) || ''
+  );
   const [cityId, setCityId] = useState<string | undefined>(
     (props.city && props.city._id) ||
       (building &&
@@ -49,24 +52,25 @@ const BuildingForm = (props: Props) => {
 
   const [map, setMap] = useState<any>(null);
 
-  const generateCoordinates = (data) => {
+  const generateCoordinates = data => {
     const { min, max } = data;
 
     return [
       {
         lat: min[1],
-        lng: min[0],
+        lng: min[0]
       },
       {
         lat: max[1],
-        lng: max[0],
-      },
+        lng: max[0]
+      }
     ];
   };
 
   const [center, setCenter] = useState<ICoordinates>(
     (props.osmBuilding &&
-      findCenter(generateCoordinates(props.osmBuilding.properties.bounds))) || (building && building.location)
+      findCenter(generateCoordinates(props.osmBuilding.properties.bounds))) ||
+      (building && building.location)
   );
 
   const [buildingObject, setBuildingObject] = useState<IBuilding | undefined>(
@@ -98,7 +102,7 @@ const BuildingForm = (props: Props) => {
     if (buildingObject && map) {
       console.log('highlight', buildingObject);
 
-      map.highlight((feature) => {
+      map.highlight(feature => {
         if (feature.id === buildingObject.osmbId) {
           console.log('highlight', buildingObject.serviceStatus);
           return getBuildingColor(buildingObject.serviceStatus);
@@ -112,7 +116,7 @@ const BuildingForm = (props: Props) => {
     districtId,
     osmBuilding,
     buildingObject,
-    map,
+    map
   ]);
 
   const generateDoc = () => {
@@ -136,11 +140,11 @@ const BuildingForm = (props: Props) => {
     }
 
     return {
-      ...finalValues,
+      ...finalValues
     };
   };
 
-  const onChangeInput = (e) => {
+  const onChangeInput = e => {
     const { id, value } = e.target;
     const obj: any = buildingObject || {};
 
@@ -177,7 +181,7 @@ const BuildingForm = (props: Props) => {
     }
   };
 
-  const onChangeBuilding = (e) => {
+  const onChangeBuilding = e => {
     if (e.properties) {
       const obj: any = buildingObject || {};
 
@@ -213,7 +217,8 @@ const BuildingForm = (props: Props) => {
       return null;
     }
 
-    const selectedValues = osmBuilding && [osmBuilding.id] || (building && [building?.osmbId]);
+    const selectedValues =
+      (osmBuilding && [osmBuilding.id]) || (building && [building?.osmbId]);
 
     console.log('selectedValues', selectedValues);
 
@@ -228,7 +233,7 @@ const BuildingForm = (props: Props) => {
       center,
       style: { height: '300px', width: '100%' },
       selectedValues,
-      onload,
+      onload
     };
 
     return <OSMBuildings {...mapProps} />;
@@ -254,7 +259,7 @@ const BuildingForm = (props: Props) => {
           <SelectQuarter
             districtId={districtId}
             defaultValue={quarterId}
-            onChange={(e) => {
+            onChange={e => {
               setQuarterId(e);
             }}
           />
@@ -281,7 +286,7 @@ const BuildingForm = (props: Props) => {
             label="СӨХ"
             name="suhId"
             initialValue={building && building.suhId}
-            onSelect={(e) => {
+            onSelect={e => {
               const obj: any = buildingObject || {};
               obj.suhId = e;
 
@@ -321,7 +326,7 @@ const BuildingForm = (props: Props) => {
             values: generateDoc(),
             isSubmitted,
             callback: closeModal,
-            object: building,
+            object: building
           })}
         </ModalFooter>
       </>

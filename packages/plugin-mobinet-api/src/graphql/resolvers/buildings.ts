@@ -8,14 +8,14 @@ const Building = {
     { models: { Quarters } }: IContext
   ) {
     return Quarters.findOne({
-      _id: building.quarterId,
+      _id: building.quarterId
     }).lean();
   },
 
   async location(building, _params, _context) {
     return {
       lat: building.location.coordinates[1],
-      lng: building.location.coordinates[0],
+      lng: building.location.coordinates[0]
     };
   },
 
@@ -33,12 +33,12 @@ const Building = {
   async customers(building: IBuildingDocument, _args, { models }: IContext) {
     const customerIds = await models.BuildingToContacts.find({
       buildingId: building._id,
-      contactType: 'customer',
+      contactType: 'customer'
     }).distinct('contactId');
 
-    return customerIds.map((customerId) => ({
+    return customerIds.map(customerId => ({
       _id: customerId,
-      __typename: 'Customer',
+      __typename: 'Customer'
     }));
   },
 
@@ -49,19 +49,19 @@ const Building = {
   ) {
     return models.BuildingToContacts.countDocuments({
       buildingId: building._id,
-      contactType: 'customer',
+      contactType: 'customer'
     });
   },
 
   async companies(building: IBuildingDocument, _args, { models }: IContext) {
     const companyIds = await models.BuildingToContacts.find({
       buildingId: building._id,
-      contactType: 'company',
+      contactType: 'company'
     }).distinct('contactId');
 
-    return companyIds.map((companyId) => ({
+    return companyIds.map(companyId => ({
       _id: companyId,
-      __typename: 'Company',
+      __typename: 'Company'
     }));
   },
 
@@ -72,7 +72,7 @@ const Building = {
   ) {
     return models.BuildingToContacts.countDocuments({
       buildingId: building._id,
-      contactType: 'company',
+      contactType: 'company'
     });
   },
 
@@ -83,25 +83,29 @@ const Building = {
   ) {
     const installationRequestIds = building.installationRequestIds || [];
 
-    return installationRequestIds.map((installationRequestId) => ({
+    return installationRequestIds.map(installationRequestId => ({
       _id: installationRequestId,
-      __typename: 'Ticket',
+      __typename: 'Ticket'
     }));
   },
 
   async tickets(building: IBuildingDocument, _args, { models }: IContext) {
     const ticketIds = building.ticketIds || [];
 
-    return ticketIds.map((ticketId) => ({
+    return ticketIds.map(ticketId => ({
       _id: ticketId,
-      __typename: 'Ticket',
+      __typename: 'Ticket'
     }));
   },
 
   async suh(building: IBuildingDocument) {
+    if (!building.suhId) {
+      return null;
+    }
+
     return {
       _id: building.suhId,
-      __typename: 'Company',
+      __typename: 'Company'
     };
   },
 
@@ -112,15 +116,15 @@ const Building = {
   ) {
     const productPriceConfigs = building.productPriceConfigs || [];
 
-    return productPriceConfigs.map((productPriceConfig) => ({
+    return productPriceConfigs.map(productPriceConfig => ({
       productId: productPriceConfig.productId,
       price: productPriceConfig.price,
       product: {
         _id: productPriceConfig.productId,
-        __typename: 'Product',
-      },
+        __typename: 'Product'
+      }
     }));
-  },
+  }
 };
 
 export { Building };

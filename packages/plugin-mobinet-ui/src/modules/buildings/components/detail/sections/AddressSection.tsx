@@ -3,7 +3,7 @@ import {
   FieldStyle,
   Sidebar,
   SidebarCounter,
-  SidebarList,
+  SidebarList
 } from '@erxes/ui/src';
 import React from 'react';
 import OSMap from '../../../../../common/OSMap';
@@ -36,7 +36,7 @@ const IntoSection = (props: Props) => {
           {renderRow('Аймаг/Хот', building.quarter.district.city.name)}
           {renderRow('Сум/Дүүрэг', building.quarter.district.name)}
           {renderRow('Хороо/Баг', building.quarter.name)}
-          {renderRow('СӨХ', renderCompanyName(building.suh))}
+          {renderRow('СӨХ', building.suh && renderCompanyName(building.suh))}
         </SidebarList>
         <OSMap
           id={Math.random().toString(10)}
