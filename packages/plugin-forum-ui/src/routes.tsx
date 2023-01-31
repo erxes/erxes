@@ -1,9 +1,11 @@
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Redirect } from 'react-router-dom';
 
-const Layout = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Forums" */ './components/Layout')
+const Categories = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "List - Forums" */ './containers/Categories/CategoriesList'
+  )
 );
 
 const PageList = asyncComponent(() =>
@@ -24,11 +26,33 @@ const PostDetails = asyncComponent(() =>
   import(/* webpackChunkName: "CustomerDetails" */ './containers/PostDetail')
 );
 
-const layout = ({ history }) => {
-  return <Layout history={history} />;
+const PermissionGroups = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "CustomerDetails" */ './containers/PermissionGroups/List'
+  )
+);
+
+const PermissionGroupDetail = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "CustomerDetails" */ './containers/PermissionGroups/Detail'
+  )
+);
+
+const SubscriptionProducts = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "CustomerDetails" */ './containers/SubscriptionProduct'
+  )
+);
+
+const layout = () => {
+  const lastVisited = localStorage.getItem('erxes_forum_url') || 'posts';
+
+  return <Redirect to={`/forums/${lastVisited}`} />;
 };
 
 const pageList = () => {
+  localStorage.setItem('erxes_forum_url', 'pages');
+
   return <PageList />;
 };
 
@@ -39,6 +63,8 @@ const pageDetail = ({ match }) => {
 };
 
 const postList = () => {
+  localStorage.setItem('erxes_forum_url', 'posts');
+
   return <PostList />;
 };
 
@@ -48,10 +74,26 @@ const postDetail = ({ match }) => {
   return <PostDetails _id={id} />;
 };
 
+const permissionGroups = () => {
+  return <PermissionGroups />;
+};
+
+const categories = () => {
+  return <Categories />;
+};
+
+const permissionGroupDetail = () => {
+  return <PermissionGroupDetail />;
+};
+
+const subscriptionProducts = () => {
+  return <SubscriptionProducts />;
+};
+
 const routes = () => {
   return (
     <React.Fragment>
-      <Route path="/forums" component={layout} />
+      <Route path="/forums" exact={true} component={layout} />
 
       <Route
         key="/forums/pages"
@@ -79,6 +121,34 @@ const routes = () => {
         exact={true}
         path="/forums/posts/:id"
         component={postDetail}
+      />
+
+      <Route
+        key="/forums/categories"
+        exact={true}
+        path="/forums/categories"
+        component={categories}
+      />
+
+      <Route
+        key="/forums/permission-groups"
+        exact={true}
+        path="/forums/permission-groups"
+        component={permissionGroups}
+      />
+
+      <Route
+        key="/forums/permission-groups/:permissionGroupId"
+        exact={true}
+        path="/forums/permission-groups/:permissionGroupId"
+        component={permissionGroupDetail}
+      />
+
+      <Route
+        key="/forums/subscription-products"
+        exact={true}
+        path="/forums/subscription-products"
+        component={subscriptionProducts}
       />
     </React.Fragment>
   );

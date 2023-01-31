@@ -8,7 +8,7 @@ import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from 'coreui/utils';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import CategoryForm from '../../components/CategoryForm';
+import CategoryForm from './CategoryForm';
 import RowContainer from '../../containers/categories/Row';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 

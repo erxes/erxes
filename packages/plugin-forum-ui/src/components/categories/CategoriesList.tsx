@@ -6,7 +6,7 @@ import { __ } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Table from '@erxes/ui/src/components/table';
 import Row from '../../containers/categories/Row';
-import CategoryForm from '../CategoryForm';
+import CategoryForm from './CategoryForm';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { Title } from '@erxes/ui-settings/src/styles';
 

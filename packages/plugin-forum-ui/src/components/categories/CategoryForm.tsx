@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import CategoryParentSelect from '../containers/CategoryParentSelect';
+import CategoryParentSelect from '../../containers/CategoryParentSelect';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
