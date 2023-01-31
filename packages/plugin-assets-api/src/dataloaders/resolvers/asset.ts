@@ -43,8 +43,8 @@ export default {
     return (asset.vendorId && dataLoaders.company.load(asset.vendorId)) || null;
   },
 
-  knowledgeData(asset: IAssetDocument, _, { subdomain }: IContext) {
-    return sendKbMessage({
+  async knowledgeData(asset: IAssetDocument, _, { subdomain }: IContext) {
+    const articles = await sendKbMessage({
       subdomain,
       action: 'articles.find',
       data: {
@@ -54,5 +54,38 @@ export default {
       },
       isRPC: true
     });
+
+    const map = {};
+
+    for (const article of articles) {
+      if (!map[article.categoryId]) {
+        map[article.categoryId] = [];
+      }
+
+      map[article.categoryId].push(article);
+    }
+
+    const results: any[] = [];
+
+    for (const categoryId of Object.keys(map)) {
+      const category = await sendKbMessage({
+        subdomain,
+        action: 'categories.findOne',
+        data: {
+          query: {
+            _id: categoryId
+          }
+        },
+        isRPC: true
+      });
+
+      results.push({
+        title: category.title,
+        description: category.description,
+        contents: map[categoryId]
+      });
+    }
+
+    return results;
   }
 };

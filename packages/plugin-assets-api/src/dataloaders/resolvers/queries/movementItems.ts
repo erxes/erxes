@@ -3,8 +3,8 @@ import { IContext } from '../../../connectionResolver';
 import { generateFilter } from '../../../utils';
 
 const movementItemQueries = {
-  async assetMovementItems(_root, params, { models }: IContext) {
-    const filter = await generateFilter(params, 'movementItems');
+  async assetMovementItems(_root, params, { models, subdomain }: IContext) {
+    const filter = await generateFilter(params, 'movementItems', subdomain);
 
     return await paginate(
       models.MovementItems.find(filter).sort({ createdAt: -1 }),
@@ -12,8 +12,12 @@ const movementItemQueries = {
     );
   },
 
-  async assetMovementItemsTotalCount(_root, params, { models }: IContext) {
-    const filter = await generateFilter(params, 'movmentItems');
+  async assetMovementItemsTotalCount(
+    _root,
+    params,
+    { models, subdomain }: IContext
+  ) {
+    const filter = await generateFilter(params, 'movmentItems', subdomain);
 
     return models.MovementItems.find(filter).countDocuments();
   },

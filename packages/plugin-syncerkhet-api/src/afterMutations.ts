@@ -4,9 +4,8 @@ import {
   productToErkhet,
   productCategoryToErkhet
 } from './utils/productToErkhet';
-import { getConfig } from './utils/utils';
+import { getConfig, sendCardInfo } from './utils/utils';
 import { customerToErkhet, companyToErkhet } from './utils/customerToErkhet';
-import { sendCardsMessage } from './messageBroker';
 
 export default {
   'cards:deal': ['update'],
@@ -94,28 +93,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
             error: response.error
           });
           if (moveConfig.responseField) {
-            await sendCardsMessage({
-              subdomain,
-              action: 'deals.updateOne',
-              data: {
-                selector: { _id: deal._id },
-                modifier: {
-                  $push: {
-                    customFieldsData: [
-                      {
-                        field: moveConfig.responseField.replace(
-                          'customFieldsData.',
-                          ''
-                        ),
-                        value: txt,
-                        stringValue: txt
-                      }
-                    ]
-                  }
-                }
-              },
-              isRPC: true
-            });
+            await sendCardInfo(subdomain, deal, moveConfig, txt);
           } else {
             console.log(txt);
           }
@@ -151,28 +129,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           error: response.error
         });
         if (config.responseField) {
-          await sendCardsMessage({
-            subdomain,
-            action: 'deals.updateOne',
-            data: {
-              selector: { _id: deal._id },
-              modifier: {
-                $push: {
-                  customFieldsData: [
-                    {
-                      field: config.responseField.replace(
-                        'customFieldsData.',
-                        ''
-                      ),
-                      value: txt,
-                      stringValue: txt
-                    }
-                  ]
-                }
-              }
-            },
-            isRPC: true
-          });
+          await sendCardInfo(subdomain, deal, config, txt);
         } else {
           console.log(txt);
         }

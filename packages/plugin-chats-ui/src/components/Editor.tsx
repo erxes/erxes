@@ -1,19 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ContentState, EditorState, getDefaultKeyBinding } from 'draft-js';
 // erxes
 import Alert from '@erxes/ui/src/utils/Alert';
 import Button from '@erxes/ui/src/components/Button';
-import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Tip from '@erxes/ui/src/components/Tip';
 import Icon from '@erxes/ui/src/components/Icon';
+import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import { ErxesEditor, toHTML } from '@erxes/ui/src/components/editor/Editor';
 import {
   readFile,
   uploadHandler,
   uploadDeleteHandler
 } from '@erxes/ui/src/utils';
-import { IAttachmentPreview } from '@erxes/ui/src/types';
 // local
 import {
   ChatEditor,
@@ -28,18 +27,32 @@ import {
 
 type Props = {
   type?: string;
+  reply?: any;
   setReply: (message: any) => void;
   sendMessage: (message: string, attachments: any[]) => void;
 };
 
 const Editor = (props: Props) => {
-  const { type } = props;
+  const { type, reply } = props;
   const [loading, setLoading] = useState<object>({});
   const [attachments, setAttachments] = useState<any>([]);
   const [message, setMessage] = useState<string>('');
   const [editorState, setEditorState] = useState<any>(() =>
     EditorState.createEmpty()
   );
+  const editorRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (type === 'widget') {
+      const element = document.getElementById('chat-widget-form-control');
+
+      if (element) {
+        element.focus();
+      }
+    } else if (editorRef && editorRef.current) {
+      editorRef.current.focus();
+    }
+  }, [reply]);
 
   const handleSendMessage = () => {
     if (type === 'widget') {
@@ -183,7 +196,7 @@ const Editor = (props: Props) => {
             autoFocus
             autoComplete="false"
             round
-            type="text"
+            id="chat-widget-form-control"
             placeholder="Aa"
             onChange={(event: any) => setMessage(event.target.value)}
             value={message}
@@ -209,6 +222,7 @@ const Editor = (props: Props) => {
         {renderIndicator()}
         <ChatEditor>
           <ErxesEditor
+            ref={editorRef}
             editorState={editorState}
             onChange={setEditorState}
             integrationKind={''}

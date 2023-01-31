@@ -2,9 +2,10 @@ import React from 'react';
 import Button from '@erxes/ui/src/components/Button';
 import { ITimeclock } from '../../types';
 import { __ } from '@erxes/ui/src/utils';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import TimeForm from '../../containers/timeclock/TimeFormList';
+import dayjs from 'dayjs';
+import { dateFormat } from '../../constants';
 
 type Props = {
   timeclock: ITimeclock;
@@ -46,7 +47,10 @@ class Row extends React.Component<Props> {
   render() {
     const { timeclock } = this.props;
     const shiftStartTime = new Date(timeclock.shiftStart).toLocaleTimeString();
-    const shiftDate = new Date(timeclock.shiftStart).toDateString();
+    const shiftDate =
+      new Date(timeclock.shiftStart).toDateString().split(' ')[0] +
+      '\t' +
+      dayjs(timeclock.shiftStart).format(dateFormat);
     const shiftEndTime = timeclock.shiftActive
       ? '-'
       : new Date(timeclock.shiftEnd).toLocaleTimeString();

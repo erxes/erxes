@@ -58,6 +58,22 @@ export const zaloCreateIntegration = async (
       const firstName = src ? from_display_name : to_display_name;
       const avatar = src ? from_avatar : to_avatar;
       type = type === 'photo' ? 'image' : type.toLowerCase();
+      let msg_id = message_id;
+
+      if (!src) {
+        let findUserMessages = await zaloGet(
+          `conversation?data={"user_id": ${userId},"offset":0,"count":10}`,
+          { models, oa_id }
+        );
+
+        findUserMessages =
+          findUserMessages?.data?.length > 1
+            ? findUserMessages?.data?.filter(({ src }) => src === 1)
+            : [];
+        msg_id = findUserMessages?.[0]?.message_id;
+      }
+
+      console.log(recentMessage);
 
       const customer = await createOrUpdateCustomer(models, subdomain, {
         userId,
@@ -81,9 +97,13 @@ export const zaloCreateIntegration = async (
         type // text, image, sticker, GIF, location, voice, link, links,
       };
 
-      if (thumb) attachment.thumbnail = thumb;
-      if (url) attachment.url = url;
+      if (thumb || url) attachment.payload = {};
+
+      if (thumb) attachment.payload.thumbnail = thumb;
+      if (url) attachment.payload.url = url;
       if (location) attachment.coordinates = location;
+
+      console.log(attachment);
 
       await createOrUpdateConversation(models, subdomain, {
         integrationId: integration._id,
@@ -91,10 +111,11 @@ export const zaloCreateIntegration = async (
         oa_id,
         customerId: customer?.erxesApiId,
         integrationErxesApiId: integrationId,
+        isOASend: !src,
         message: {
           timestamp: time,
           text: message,
-          msg_id: message_id,
+          msg_id,
           attachments: convertAttachment([attachment])
         }
       });

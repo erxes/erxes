@@ -495,6 +495,7 @@ export const timeclockReportPreliminary = async (
   }).sort({
     userId: 1
   });
+
   const timeclocks = await models.Timeclocks.find({
     $and: [
       { userId: { $in: userIds } },
@@ -546,10 +547,12 @@ export const timeclockReportPreliminary = async (
     );
 
     // get shifts of schedule
-    let currUserScheduleShifts;
+    const currUserScheduleShifts: any = [];
     currUserSchedules.forEach(async userSchedule => {
-      currUserScheduleShifts = shiftsOfSchedule.filter(
-        scheduleShift => scheduleShift.scheduleId === userSchedule._id
+      currUserScheduleShifts.push(
+        ...shiftsOfSchedule.filter(
+          scheduleShift => scheduleShift.scheduleId === userSchedule._id
+        )
       );
     });
 
@@ -564,7 +567,7 @@ export const timeclockReportPreliminary = async (
       ).size;
     }
     if (currUserScheduleShifts) {
-      totalDaysScheduledThisMonthPerUser = new Set(
+      totalDaysScheduledThisMonthPerUser += new Set(
         currUserScheduleShifts.map(shiftOfSchedule =>
           new Date(shiftOfSchedule.shiftStart).toLocaleDateString()
         )

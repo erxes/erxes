@@ -31,6 +31,7 @@ export interface IAbsenceType {
   name: string;
   explRequired: boolean;
   attachRequired: boolean;
+  shiftRequest: boolean;
 }
 
 export interface IReport {
@@ -175,6 +176,7 @@ export type AbsenceMutationVariables = {
   reason: string;
   explanation?: string;
   attachment?: IAttachment;
+  absenceTypeId?: string;
 };
 
 export type ScheduleMutationVariables = {

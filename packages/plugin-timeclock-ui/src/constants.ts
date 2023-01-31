@@ -1,5 +1,4 @@
 import { __ } from '@erxes/ui/src/utils';
-import queryString from 'query-string';
 
 const menuTimeClock = (searchFilter: string) => {
   return [
@@ -10,4 +9,5 @@ const menuTimeClock = (searchFilter: string) => {
     { title: __('Configuration'), link: `/timeclocks/config${searchFilter}` }
   ];
 };
-export { menuTimeClock };
+const dateFormat = 'MM/DD/YYYY';
+export { menuTimeClock, dateFormat };
