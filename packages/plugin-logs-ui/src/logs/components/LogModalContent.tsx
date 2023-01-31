@@ -75,7 +75,7 @@ export default class LogModal extends React.Component<Props> {
     return <ul key="array" />;
   }
 
-  buildListFromObject(obj = {}): JSX.Element[] {
+  buildListFromObject(obj = {}, checkSchema = true): JSX.Element[] {
     const { schemaLabelMaps } = this.props;
 
     const flatObject: object = flattenObject(obj);
@@ -90,9 +90,16 @@ export default class LogModal extends React.Component<Props> {
 
     for (const name of names) {
       const field: any = flatObject[name];
-      const mappedItem: ILogDesc | undefined = schemaLabelMaps.find(
-        fn => fn.name === name
-      );
+      const mappedItem: ILogDesc | undefined = checkSchema
+        ? schemaLabelMaps.find(fn => fn.name === name)
+        : {
+            name,
+            label: name
+              .replace(/([A-Z])/g, match => ` ${match}`)
+              .toLowerCase()
+              .replace(/^./, match => match.toUpperCase())
+              .trim()
+          };
 
       if (!mappedItem) {
         continue;
@@ -136,7 +143,7 @@ export default class LogModal extends React.Component<Props> {
 
           list.push(item);
         } else {
-          const sub = this.buildListFromObject(field);
+          const sub = this.buildListFromObject(field, false);
 
           item = <li key={Math.random()}>{name}:</li>;
 

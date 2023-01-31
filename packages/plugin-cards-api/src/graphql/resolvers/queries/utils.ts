@@ -571,18 +571,51 @@ const dateSelector = (date: IDate) => {
   };
 };
 
+// comparing pipelines departmentIds and current user departmentIds
+const compareDepartmentIds = (
+  pipelineDepartmentIds: string[],
+  userDepartmentIds: string[]
+): boolean => {
+  if (!pipelineDepartmentIds.length || !userDepartmentIds.length) {
+    return false;
+  }
+
+  for (const uDepartmentId of userDepartmentIds) {
+    if (pipelineDepartmentIds.includes(uDepartmentId)) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
 export const checkItemPermByUser = async (
   models: IModels,
-  currentUserId: string,
+  user: any,
   item: IItemCommonFields
 ) => {
   const stage = await models.Stages.getStage(item.stageId);
 
-  const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+  const {
+    visibility,
+    memberIds,
+    departmentIds = [],
+    isCheckUser,
+    excludeCheckUserIds
+  } = await models.Pipelines.getPipeline(stage.pipelineId);
+
+  const userDepartmentIds = user.departmentIds || [];
+
+  // check permission on department
+  const hasUserInDepartment = compareDepartmentIds(
+    departmentIds,
+    userDepartmentIds
+  );
 
   if (
-    pipeline.visibility === 'private' &&
-    !(pipeline.memberIds || []).includes(currentUserId)
+    visibility === 'private' &&
+    !(memberIds || []).includes(user._id) &&
+    !hasUserInDepartment
   ) {
     throw new Error('You do not have permission to view.');
   }
@@ -591,11 +624,11 @@ export const checkItemPermByUser = async (
   // and current user nothing dominant users
   // current user hans't this carts assigned and created
   if (
-    pipeline.isCheckUser &&
-    !(pipeline.excludeCheckUserIds || []).includes(currentUserId) &&
+    isCheckUser &&
+    !(excludeCheckUserIds || []).includes(user._id) &&
     !(
-      (item.assignedUserIds || []).includes(currentUserId) ||
-      item.userId === currentUserId
+      (item.assignedUserIds || []).includes(user._id) ||
+      item.userId === user._id
     )
   ) {
     throw new Error('You do not have permission to view.');
