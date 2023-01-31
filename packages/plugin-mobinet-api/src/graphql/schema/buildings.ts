@@ -1,4 +1,4 @@
-export const types = ({ contacts, cards }) => `
+export const types = ({ contacts, cards, products }) => `
 
 ${
   contacts
@@ -12,6 +12,14 @@ ${
         }
         `
     : ''
+}
+
+${
+  products ? `
+    extend type Product @key(fields: "_id") {
+      _id: String! @external
+    }
+  ` : ''
 }
 
 ${
@@ -29,6 +37,19 @@ enum ServiceStatus {
   inactive
   inprogress
 }
+
+  type ProductPriceConfig {
+    productId: String
+    price: Float
+
+    product: Product
+  }
+
+  input ProductPriceConfigInput {
+    productId: String
+    price: Float
+  }
+
 
   type Building @key(fields: "_id") @cacheControl(maxAge: 3){
     _id: String
@@ -63,6 +84,10 @@ enum ServiceStatus {
     suhId: String
 
     suh: Company
+
+    productPriceConfigs: [ProductPriceConfig]
+
+
 
     customersCount: Int
     companiesCount: Int
@@ -111,6 +136,8 @@ export const mutations = `
   buildingsRemove(_id: [String]): JSON
   buildingsAddCustomers(_id: String!, customerIds: [String]): Building
   buildingsAddCompanies(_id: String!, companyIds: [String]): Building
+  buildingsEditProductPriceConfigs(_id: String!, productPriceConfigs: [ProductPriceConfigInput]): Building
+
 
   buildingsRemoveCustomers(_id: String!, customerIds: [String]): Building
   buildingsRemoveCompanies(_id: String!, companyIds: [String]): Building

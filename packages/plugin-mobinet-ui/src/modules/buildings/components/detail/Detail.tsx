@@ -29,24 +29,7 @@ const BuildingDetail = (props: Props) => {
   ];
 
   const content = (
-    // <Map
-    //   id={Math.random().toString(10)}
-    //   // center={route.directions[0].places[0].center}
-    //   center={{ lat: 47.919, lng: 106.917 }}
-    //   zoom={7}
-    //   locationOptions={[...new Set(locationOptions)]}
-    //   streetViewControl={false}
-    //   connectWithLines={true}
-    //   fullHeight={true}
-    //   trackingData={building.trackingData}
-    //   googleMapPath={
-    //     route &&
-    //     route.directions.map(
-    //       dir => (dir.googleMapPath && dir.googleMapPath) || ''
-    //     )
-    //   }
-    // />
-    <>content here</>
+    <></>
   );
 
   return (

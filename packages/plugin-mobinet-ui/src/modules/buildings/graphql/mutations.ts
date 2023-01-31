@@ -9,6 +9,7 @@ const variables = `
     $quarterId: String
     $type: String
     $serviceStatus: ServiceStatus
+    $suhId: String
 `;
 
 const fields = `
@@ -22,6 +23,7 @@ const fields = `
     quarterId: $quarterId
     type: $type
     serviceStatus: $serviceStatus
+    suhId: $suhId
 `;
 
 const addMutation = `
@@ -33,7 +35,7 @@ mutation BuildingsAdd(${variables}) {
 `;
 
 const editMutation = `
-mutation BuildingsEdit($_id: String, ${variables}) {
+mutation BuildingsEdit($_id: String!, ${variables}) {
     buildingsEdit(_id: $_id, ${fields}) {
         _id
     }

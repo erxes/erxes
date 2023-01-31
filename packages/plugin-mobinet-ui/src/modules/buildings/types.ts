@@ -1,3 +1,4 @@
+import { IProduct } from '@erxes/ui-products/src/types';
 import { ITicket } from '@erxes/ui-cards/src/tickets/types';
 import { ICompany } from '@erxes/ui-contacts/src/companies/types';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
@@ -14,6 +15,12 @@ export interface IOSMBuilding {
       max: [number, number];
     };
   };
+}
+
+export interface IProductPriceConfig {
+  productId: string;
+  price: number;
+  product: IProduct
 }
 
 export interface IBuilding {
@@ -38,6 +45,8 @@ export interface IBuilding {
 
   installationRequests: ITicket[];
   tickets: ITicket[];
+
+  productPriceConfigs: IProductPriceConfig[];
 
   suhId: string;
 

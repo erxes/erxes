@@ -8,12 +8,15 @@ color
 description
 name
 osmbId
+suhId
 quarter {
   _id
   name
+  districtId
   district {
     _id
     name
+    cityId
     city {
       _id
       name
@@ -87,6 +90,22 @@ query BuildingDetail($_id: String!) {
           primaryName
           primaryEmail
           primaryPhone
+        }
+
+        suh {
+          _id
+          primaryName
+          primaryEmail
+          primaryPhone
+        }
+
+        productPriceConfigs {
+          productId
+          price
+          product {
+            _id
+            name
+          }
         }
 
         installationRequestIds

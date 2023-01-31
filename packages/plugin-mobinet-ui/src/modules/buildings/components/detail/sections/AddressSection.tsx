@@ -3,9 +3,11 @@ import {
   FieldStyle,
   Sidebar,
   SidebarCounter,
-  SidebarList
+  SidebarList,
 } from '@erxes/ui/src';
 import React from 'react';
+import OSMap from '../../../../../common/OSMap';
+import { renderCompanyName } from '../../../../../utils';
 
 import { IBuilding } from '../../../types';
 
@@ -31,11 +33,19 @@ const IntoSection = (props: Props) => {
     <Sidebar.Section>
       <Section>
         <SidebarList className="no-link">
-          {/* {renderRow('Name', building.name)} */}
-          {renderRow('City', building.quarter.district.city.name)}
-          {renderRow('District', building.quarter.district.name)}
-          {renderRow('Quarter', building.quarter.name)}
+          {renderRow('Аймаг/Хот', building.quarter.district.city.name)}
+          {renderRow('Сум/Дүүрэг', building.quarter.district.name)}
+          {renderRow('Хороо/Баг', building.quarter.name)}
+          {renderRow('СӨХ', renderCompanyName(building.suh))}
         </SidebarList>
+        <OSMap
+          id={Math.random().toString(10)}
+          width={'100%'}
+          height={'250px'}
+          center={building.location}
+          zoom={16}
+          addMarkerOnCenter={true}
+        />
       </Section>
     </Sidebar.Section>
   );
