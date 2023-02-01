@@ -50,7 +50,7 @@
     "i18n-react": "^0.7.0",
     "isomorphic-unfetch": "^3.1.0",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.11.15",
+    "mongoose": "^5.13.15",
     "next-routes": "^1.4.2",
     "react": "17.0.1",
     "react-bootstrap": "^1.4.3",
