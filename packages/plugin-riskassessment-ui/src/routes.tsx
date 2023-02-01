@@ -1,7 +1,7 @@
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
-import queryString from 'query-string';
 
 const RiskIndicators = asyncComponent(() =>
   import(
