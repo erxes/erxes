@@ -194,7 +194,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
 
       return {
         sumNumber: resultSumNumber,
-        resultScore: assessmentIndicator.resultScore,
+        resultScore: assessmentIndicator?.resultScore || 0,
         cardId,
         cardType,
         riskAssessmentId
