@@ -19,7 +19,7 @@ import productsQueries from '@erxes/ui-products/src/graphql/queries';
 type Props = {
   closeModal: () => void;
   history: any;
-  overallWorkDetail: IOverallWorkDet;
+  overallWorkDetail?: IOverallWorkDet;
   perform?: IPerform;
   max: number;
 };

@@ -7,12 +7,12 @@ import { IProductsData, IProductsDataPerform } from '../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 export interface IOverallWorkKey {
-  typeId: string;
+  type: string;
   inBranchId: string;
   inDepartmentId: string;
   outBranchId: string;
   outDepartmentId: string;
-  type?: string;
+  typeId?: string;
 }
 export interface IOverallWork {
   _id: string;
@@ -22,8 +22,13 @@ export interface IOverallWork {
   count: number;
   needProducts: any;
   resultProducts: any;
+  jobReferId?: string;
   jobRefer?: IJobRefer;
   product?: IProduct;
+  inDepartmentId?: string;
+  inBranchId?: string;
+  outDepartmentId?: string;
+  outBranchId?: string;
   inDepartment?: IDepartment;
   inBranch?: IBranch;
   outDepartment?: IDepartment;
@@ -33,8 +38,8 @@ export interface IOverallWork {
 export type IOverallWorkDet = {
   startAt: Date;
   dueDate: Date;
-  interval: any;
-  intervalId: string;
+  interval?: any;
+  intervalId?: string;
   needProductsData: any;
   resultProductsData: any;
 } & IOverallWork;
