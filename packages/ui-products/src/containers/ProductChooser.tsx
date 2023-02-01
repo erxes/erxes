@@ -107,8 +107,12 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
       search: this.search,
       title: 'Product',
       renderName: (product: IProduct) => {
+        if (product.code && product.subUoms?.length) {
+          return `${product.code} - ${product.name} #${1 /
+            product.subUoms[0].ratio || 1}`;
+        }
         if (product.code) {
-          return product.code.concat(' - ', product.name);
+          return `${product.code} - ${product.name}`;
         }
 
         return product.name;
