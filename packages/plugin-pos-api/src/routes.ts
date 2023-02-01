@@ -110,7 +110,7 @@ export const getProductsData = async (
         defaultValue: 0
       });
 
-      const products = await sendProductsMessage({
+      const products: any[] = await sendProductsMessage({
         subdomain,
         action: 'find',
         data: {
@@ -124,6 +124,8 @@ export const getProductsData = async (
         isRPC: true,
         defaultValue: []
       });
+
+      console.log(category._id, limit, products.length);
 
       const pricing = await sendPricingMessage({
         subdomain,
