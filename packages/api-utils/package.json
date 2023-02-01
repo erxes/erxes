@@ -29,7 +29,7 @@
     "lodash": "^4.17.21",
     "meteor-random": "^0.0.3",
     "moment": "^2.18.1",
-    "mongoose": "5.7.5",
+    "mongoose": "5.13.15",
     "request": "^2.88.0",
     "requestify": "^0.2.5",
     "strip": "^3.0.0"
