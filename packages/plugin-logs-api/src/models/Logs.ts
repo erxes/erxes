@@ -48,7 +48,12 @@ export const schema = new Schema({
   ipAddress: field({ type: String, optional: true, label: 'IP address' }),
   objectId: field({ type: String, label: 'Collection row id' }),
   unicode: field({ type: String, label: 'Performer username' }),
-  description: field({ type: String, label: 'Description', optional: true, default: '' }),
+  description: field({
+    type: String,
+    label: 'Description',
+    optional: true,
+    default: ''
+  }),
   // restore db from these if disaster happens
   oldData: field({
     type: String,
@@ -75,7 +80,7 @@ export const schema = new Schema({
 export const loadLogClass = (models: IModels) => {
   class Log {
     public static createLog(doc: ILogDoc) {
-      const { object='{}', newData } = doc;
+      const { object = '{}', newData } = doc;
       const logDoc = { ...doc };
 
       let oldData;
@@ -96,6 +101,8 @@ export const loadLogClass = (models: IModels) => {
         logDoc.objectId = oldData._id;
       }
 
+      let checkUpdate = true;
+
       switch (doc.action) {
         case 'create':
           logDoc.addedData = JSON.stringify(parsedNewData);
@@ -114,6 +121,14 @@ export const loadLogClass = (models: IModels) => {
               logDoc.changedData = JSON.stringify(comparison.changed);
               logDoc.unchangedData = JSON.stringify(comparison.unchanged);
               logDoc.removedData = JSON.stringify(comparison.removed);
+
+              if (
+                logDoc.addedData === '{}' &&
+                logDoc.changedData === '{}' &&
+                logDoc.removedData === '{}'
+              ) {
+                checkUpdate = false;
+              }
             } catch (e) {
               debug.error(`object comparison error: ${e.message}`);
             }
@@ -126,6 +141,10 @@ export const loadLogClass = (models: IModels) => {
           break;
         default:
           break;
+      }
+
+      if (!checkUpdate) {
+        return;
       }
 
       return models.Logs.create(logDoc);
