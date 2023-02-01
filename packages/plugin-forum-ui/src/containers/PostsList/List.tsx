@@ -9,8 +9,6 @@ import Bulk from '@erxes/ui/src/components/Bulk';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import * as compose from 'lodash.flowright';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { RemoveMutationResponse, PostsQueryResponse } from '../../types';
 import { graphql } from 'react-apollo';
@@ -70,34 +68,11 @@ function List({ removeMutation, postsQuery }: FinalProps) {
       });
   };
 
-  const renderButton = ({
-    passedName: name,
-    values,
-    isSubmitted,
-    callback,
-    object
-  }: IButtonMutateProps) => {
-    return (
-      <ButtonMutate
-        mutation={object ? mutations.editPost : mutations.createPost}
-        variables={values}
-        callback={callback}
-        refetchQueries={getRefetchQueries()}
-        type="submit"
-        isSubmitted={isSubmitted}
-        successMessage={`You successfully ${
-          object ? 'updated' : 'added'
-        } an ${name}`}
-      />
-    );
-  };
-
   const content = props => {
     return (
       <PostsList
         {...props}
         queryParams={queryParams}
-        renderButton={renderButton}
         remove={remove}
         posts={postQuery.data.forumPosts}
       />
@@ -106,22 +81,8 @@ function List({ removeMutation, postsQuery }: FinalProps) {
   return <Bulk content={content} />;
 }
 
-const getRefetchQueries = () => {
-  return [
-    {
-      query: gql(queries.forumPostsQuery)
-    }
-  ];
-};
-
 export default withProps<{}>(
   compose(
-    graphql<PostsQueryResponse>(gql(queries.forumPostsQuery), {
-      name: 'postsQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    }),
     graphql<RemoveMutationResponse, { _id: string }>(
       gql(mutations.deletePost),
       {

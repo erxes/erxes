@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import CategoryParentSelect from '../../containers/CategoryParentSelect';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -7,22 +6,11 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import Button from '@erxes/ui/src/components/Button';
+import { ICategory } from '../../types';
 
 type Props = {
-  category?: {
-    _id: string;
-    name: string;
-    code?: string | null;
-    parentId?: string | null;
-    thumbnail?: string | null;
-    postsReqCrmApproval?: boolean | null;
-    userLevelReqPostRead?: string | null;
-    userLevelReqPostWrite?: string | null;
-    userLevelReqCommentWrite?: string | null;
-    postReadRequiresPermissionGroup?: boolean | null;
-    postWriteRequiresPermissionGroup?: boolean | null;
-    commentWriteRequiresPermissionGroup?: boolean | null;
-  };
+  category?: ICategory;
+  categories?: ICategory[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal?: () => void;
 };
@@ -30,7 +18,8 @@ type Props = {
 const CategoryForm: React.FC<Props> = ({
   category = {} as any,
   renderButton,
-  closeModal
+  closeModal,
+  categories
 }) => {
   const [name, setName] = useState(category?.name || '');
   const [code, setCode] = useState(category?.code || '');
@@ -88,7 +77,7 @@ const CategoryForm: React.FC<Props> = ({
       _id: finalValues._id,
       name: finalValues.name,
       code: finalValues.code || null,
-      parentId: parentId || null,
+      parentId: finalValues.parentId || null,
       thumbnail: finalValues.thumbnail || null,
       userLevelReqPostRead: 'GUEST',
       userLevelReqPostWrite: 'REGISTERED',
@@ -125,11 +114,22 @@ const CategoryForm: React.FC<Props> = ({
         </FormGroup>
         <FormGroup>
           <ControlLabel>Parent Category</ControlLabel>
-          <CategoryParentSelect
-            value={parentId}
-            parentFor={Object.keys(category).length !== 0 ? category._id : null}
-            onChange={setParentId}
-          />
+          <FormControl
+            {...formProps}
+            name="parentId"
+            componentClass="select"
+            defaultValue={parentId}
+          >
+            <option key="null" value="">
+              No parent (root category)
+            </option>
+            {categories &&
+              categories.map(p => (
+                <option key={p._id} value={p._id}>
+                  {p.name}
+                </option>
+              ))}
+          </FormControl>
         </FormGroup>
         <FormGroup>
           <ControlLabel>Thumbnail url</ControlLabel>

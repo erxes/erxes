@@ -5,8 +5,16 @@ export interface ICategory {
   order?: string;
   code: string;
   postsCount?: number;
-  thumbnail?: string;
   ancestors?: any;
+  parentId?: string | null;
+  thumbnail?: string | null;
+  postsReqCrmApproval?: boolean | null;
+  userLevelReqPostRead?: string | null;
+  userLevelReqPostWrite?: string | null;
+  userLevelReqCommentWrite?: string | null;
+  postReadRequiresPermissionGroup?: boolean | null;
+  postWriteRequiresPermissionGroup?: boolean | null;
+  commentWriteRequiresPermissionGroup?: boolean | null;
 }
 
 export interface IPost {

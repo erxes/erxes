@@ -49,27 +49,6 @@ export default function CategoryNavItem({ category }) {
     ];
   };
 
-  const renderButton = ({
-    values,
-    isSubmitted,
-    callback,
-    object
-  }: IButtonMutateProps) => {
-    return (
-      <ButtonMutate
-        mutation={object ? mutations.updateCategory : mutations.createCategory}
-        variables={values}
-        callback={callback}
-        refetchQueries={getRefetchQueries(object._id)}
-        isSubmitted={isSubmitted}
-        type="submit"
-        successMessage={`You successfully ${
-          object ? 'updated' : 'added'
-        } a category`}
-      />
-    );
-  };
-
   if (loading) {
     return null;
   }
@@ -86,7 +65,6 @@ export default function CategoryNavItem({ category }) {
         parentCategory={category}
         onDelete={onDeleteCat}
         categories={subCategories}
-        renderButton={renderButton}
       />
     </>
   );

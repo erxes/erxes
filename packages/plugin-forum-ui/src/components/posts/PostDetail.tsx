@@ -129,24 +129,6 @@ function PageDetail(props: Props) {
         </FlexContent>
       </Subject>
       <Subject>
-        <FlexRow>
-          <label>{__('Content')}</label>
-        </FlexRow>
-        <PreviewContent
-          isFullmessage={true}
-          showOverflow={true}
-          dangerouslySetInnerHTML={{
-            __html: post.content || ''
-          }}
-        />
-      </Subject>
-      <Subject>
-        <FlexRow>
-          <label>{__('Description')}</label>
-        </FlexRow>
-        <strong>{post.description}</strong>
-      </Subject>
-      <Subject>
         <FlexContent>
           <FlexItem>
             <FlexRow>
@@ -215,6 +197,24 @@ function PageDetail(props: Props) {
             </FlexRow>
           </FlexItem>
         </FlexContent>
+      </Subject>
+      <Subject>
+        <FlexRow>
+          <label>{__('Description')}</label>
+        </FlexRow>
+        <strong>{post.description}</strong>
+      </Subject>
+      <Subject>
+        <FlexRow>
+          <label>{__('Content')}</label>
+        </FlexRow>
+        <PreviewContent
+          isFullmessage={true}
+          showOverflow={true}
+          dangerouslySetInnerHTML={{
+            __html: post.content || ''
+          }}
+        />
       </Subject>
       <Comments postId={post._id} />
     </>

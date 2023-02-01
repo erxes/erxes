@@ -8,9 +8,8 @@ import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from 'coreui/utils';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import CategoryForm from './CategoryForm';
+import CategoryForm from '../../containers/categories/CategoryForm';
 import RowContainer from '../../containers/categories/Row';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
 
 export const TdWrapper = styledTS<{ space: number }>(styled.td)`
   padding: ${props => props.space * 3};
@@ -20,7 +19,6 @@ type Props = {
   categories: ICategory[];
   parentCategory: ICategory;
   onDelete?: (val: any) => any;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 type State = {
@@ -35,7 +33,7 @@ class Row extends React.Component<Props, State> {
   }
 
   render() {
-    const { categories, parentCategory, onDelete, renderButton } = this.props;
+    const { categories, parentCategory, onDelete } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -50,7 +48,6 @@ class Row extends React.Component<Props, State> {
         {...props}
         key={parentCategory._id}
         category={parentCategory}
-        renderButton={renderButton}
       />
     );
 

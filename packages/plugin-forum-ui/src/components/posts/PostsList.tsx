@@ -14,8 +14,7 @@ import { IPost } from '../../types';
 import { IntegrationsCount } from '@erxes/ui-leads/src/types';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import PostForm from '../../components/posts/PostForm';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+import PostForm from '../../containers/PostsList/PostForm';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 
 type Props = {
@@ -27,21 +26,13 @@ type Props = {
   bulk: any[];
   emptyBulk: () => void;
   isAllSelected: boolean;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
   toggleBulk: (target: IPost, toAdd: boolean) => void;
   toggleAll: (targets: IPost[], containerId: string) => void;
 };
 
 class List extends React.Component<Props, {}> {
   renderRow() {
-    const {
-      posts,
-      remove,
-      bulk,
-      toggleBulk,
-      renderButton,
-      emptyBulk
-    } = this.props;
+    const { posts, remove, bulk, toggleBulk, emptyBulk } = this.props;
 
     return posts.map(post => (
       <Row
@@ -51,13 +42,12 @@ class List extends React.Component<Props, {}> {
         toggleBulk={toggleBulk}
         remove={remove}
         emptyBulk={emptyBulk}
-        renderButton={renderButton}
       />
     ));
   }
 
   renderForm = props => {
-    return <PostForm {...props} renderButton={this.props.renderButton} />;
+    return <PostForm {...props} />;
   };
 
   render() {

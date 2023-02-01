@@ -46,6 +46,12 @@ function PageDetail(props: Props) {
       )}
       <Subject noBorder={true}>
         <FlexRow>
+          <label>{__('Description')}</label>
+        </FlexRow>
+        <strong>{page.description}</strong>
+      </Subject>
+      <Subject noBorder={true}>
+        <FlexRow>
           <label>{__('Content')}</label>
         </FlexRow>
         <PreviewContent
@@ -55,12 +61,6 @@ function PageDetail(props: Props) {
             __html: page.content || ''
           }}
         />
-      </Subject>
-      <Subject noBorder={true}>
-        <FlexRow>
-          <label>{__('Description')}</label>
-        </FlexRow>
-        <strong>{page.description}</strong>
       </Subject>
     </>
   );

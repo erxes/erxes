@@ -6,19 +6,14 @@ import { __ } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Table from '@erxes/ui/src/components/table';
 import Row from '../../containers/categories/Row';
-import CategoryForm from './CategoryForm';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+import CategoryForm from '../../containers/categories/CategoryForm';
 import { Title } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   forumCategories: any;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
-export default function LayoutCategories({
-  forumCategories,
-  renderButton
-}: Props) {
+export default function LayoutCategories({ forumCategories }: Props) {
   const breadcrumb = [
     { title: __('Settings'), link: '/settings' },
     { title: __('Categories'), link: '/forums/categories' }
@@ -30,9 +25,7 @@ export default function LayoutCategories({
     </Button>
   );
 
-  const modalContent = props => (
-    <CategoryForm {...props} renderButton={renderButton} />
-  );
+  const modalContent = props => <CategoryForm {...props} />;
 
   const actionBarRight = (
     <ModalTrigger

@@ -1,12 +1,10 @@
 import React from 'react';
-import CommentForm from '../../components/comment/CommentForm';
-import Comment from './Comment';
 import { useQuery } from 'react-apollo';
 import { queries, mutations } from '../../graphql';
 import gql from 'graphql-tag';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { CommentSection } from '../../styles';
+import CommentComponent from '../../components/comment';
 
 const Comments: React.FC<{ postId: string }> = ({ postId }) => {
   const { data, loading, error, refetch } = useQuery(
@@ -41,20 +39,14 @@ const Comments: React.FC<{ postId: string }> = ({ postId }) => {
   };
 
   return (
-    <CommentSection>
-      <CommentForm key={postId} postId={postId} renderButton={renderButton} />
-      {error && <pre>Error occured</pre>}
-      {!loading &&
-        !error &&
-        (data.forumComments || []).map(c => (
-          <Comment
-            renderButton={renderButton}
-            key={c._id}
-            comment={c}
-            onDeleted={refetch}
-          />
-        ))}
-    </CommentSection>
+    <CommentComponent
+      renderButton={renderButton}
+      data={data}
+      loading={loading}
+      refetch={refetch}
+      error={error}
+      postId={postId}
+    />
   );
 };
 

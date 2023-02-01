@@ -1,6 +1,5 @@
 import React from 'react';
-import CategorySelect from '../../containers/CategorySelect';
-import { IPost } from '../../types';
+import { IPost, ICategory } from '../../types';
 import EditorCK from '@erxes/ui/src/components/EditorCK';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -9,12 +8,12 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
 
 type Props = {
   post?: IPost;
   closeModal: () => void;
+  categories: ICategory[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
@@ -41,6 +40,7 @@ class PostForm extends React.Component<Props, State> {
     _id?: string;
     title: string;
     thumbnail: string;
+    categoryId?: string;
     description?: string;
   }) => {
     const { post } = this.props;
@@ -55,7 +55,7 @@ class PostForm extends React.Component<Props, State> {
       title: finalValues.title,
       content: this.state.content,
       thumbnail: finalValues.thumbnail,
-      categoryId: this.state.categoryId,
+      categoryId: finalValues.categoryId,
       description: finalValues.description
     };
   };
@@ -64,26 +64,9 @@ class PostForm extends React.Component<Props, State> {
     this.setState({ content: e.editor.getData() });
   };
 
-  renderCategories() {
-    const { categoryId } = this.state;
-
-    return (
-      <FormGroup>
-        <ControlLabel required={true}>Choose the category</ControlLabel>
-        <br />
-        <CategorySelect
-          value={categoryId}
-          onChange={e => {
-            this.setState({ categoryId: e });
-          }}
-        />
-      </FormGroup>
-    );
-  }
-
   renderContent = (formProps: IFormProps) => {
-    const { post, renderButton, closeModal } = this.props;
-    const { content } = this.state;
+    const { post, renderButton, closeModal, categories } = this.props;
+    const { content, categoryId } = this.state;
 
     const { isSubmitted, values } = formProps;
 
@@ -111,21 +94,25 @@ class PostForm extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <FlexContent>
-          <FlexItem count={3} hasSpace={true}>
-            {this.renderCategories()}
-          </FlexItem>
-        </FlexContent>
-
         <FormGroup>
-          <ControlLabel required={true}>{__('Content')}</ControlLabel>
-          <EditorCK
-            content={content}
-            onChange={this.onChange}
-            isSubmitted={isSubmitted}
-            height={300}
-            name={`post_${post ? post._id : 'create'}`}
-          />
+          <ControlLabel required={true}>Choose the category</ControlLabel>
+
+          <FormControl
+            {...formProps}
+            name="categoryId"
+            componentClass="select"
+            defaultValue={categoryId}
+          >
+            <option key="null" value="">
+              No category
+            </option>
+            {categories &&
+              categories.map(p => (
+                <option key={p._id} value={p._id}>
+                  {p.name}
+                </option>
+              ))}
+          </FormControl>
         </FormGroup>
 
         <FormGroup>
@@ -135,6 +122,17 @@ class PostForm extends React.Component<Props, State> {
             name="description"
             componentClass="textarea"
             defaultValue={object.description}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={true}>{__('Content')}</ControlLabel>
+          <EditorCK
+            content={content}
+            onChange={this.onChange}
+            isSubmitted={isSubmitted}
+            height={300}
+            name={`post_${post ? post._id : 'create'}`}
           />
         </FormGroup>
 

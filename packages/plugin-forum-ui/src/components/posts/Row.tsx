@@ -7,8 +7,7 @@ import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { IPost } from '../../types';
-import PostForm from './PostForm';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+import PostForm from '../../containers/PostsList/PostForm';
 import { Link } from 'react-router-dom';
 
 type Props = {
@@ -17,7 +16,6 @@ type Props = {
   isChecked?: boolean;
   toggleBulk: (target: any, toAdd: boolean) => void;
   emptyBulk: () => void;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 class Row extends React.Component<Props> {
@@ -30,9 +28,7 @@ class Row extends React.Component<Props> {
       </Button>
     );
 
-    const content = props => (
-      <PostForm {...props} renderButton={this.props.renderButton} post={post} />
-    );
+    const content = props => <PostForm {...props} post={post} />;
 
     return (
       <ModalTrigger
