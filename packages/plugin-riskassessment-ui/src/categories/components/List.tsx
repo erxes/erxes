@@ -23,7 +23,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { commonRefetchType } from '../../common/types';
 import { subOption } from '../../common/utils';
-import { Padding } from '../../styles';
+import { Padding, FormContainer as Container } from '../../styles';
 import FormContainer from '../container/Form';
 
 type Props = {
@@ -46,6 +46,7 @@ interface LayoutProps {
 
 type State = {
   searchValue: string;
+  isEnabledSearch: boolean;
   perPage: number;
   sortDirection: number;
   from: string;
@@ -65,6 +66,7 @@ class AssessmentCategories extends React.Component<Props, State> {
 
     this.state = {
       searchValue: '',
+      isEnabledSearch: false,
       perPage: 20,
       sortDirection: -1,
       from: generateQueryParamsDate(from),
@@ -88,7 +90,7 @@ class AssessmentCategories extends React.Component<Props, State> {
     return (
       <ModalTrigger
         isAnimate
-        title="Add New Assessment Category"
+        title="Add New Indicators Category"
         content={content}
         trigger={trigger}
       />
@@ -197,38 +199,48 @@ class AssessmentCategories extends React.Component<Props, State> {
   }
 
   renderCategories() {
+    const { isEnabledSearch } = this.state;
+
+    const extraButtons = (
+      <>
+        {this.props.queryParams.categoryId && (
+          <Button btnStyle="link" onClick={this.removeQueryParams}>
+            <Tip text="Clear Filter">
+              <Icon icon="cancel-1" />
+            </Tip>
+          </Button>
+        )}
+        <Button
+          btnStyle="link"
+          icon="search"
+          onClick={() =>
+            this.setState(prev => ({
+              ...prev,
+              isEnabledSearch: !prev.isEnabledSearch
+            }))
+          }
+        />
+      </>
+    );
+
     return (
       <Box
         name="categories"
         title={__('Categories')}
-        extraButtons={
-          this.props.queryParams.categoryId && (
-            <Button btnStyle="link" onClick={this.removeQueryParams}>
-              <Tip text="Clear Filter">
-                <Icon icon="cancel-1" />
-              </Tip>
-            </Button>
-          )
-        }
+        extraButtons={extraButtons}
       >
+        {isEnabledSearch && (
+          <Padding horizontal>
+            <FormControl
+              type="text"
+              placeholder="type a search"
+              value={this.state.searchValue}
+              onChange={this.handleSearch}
+            />
+          </Padding>
+        )}
         {this.renderCategoryList()}
       </Box>
-    );
-  }
-
-  renderCategoriesFilter() {
-    return (
-      <Padding horizontal vertical>
-        <FormGroup>
-          <ControlLabel>{__('Search Categories')}</ControlLabel>
-          <FormControl
-            type="text"
-            placeholder="type a search"
-            value={this.state.searchValue}
-            onChange={this.handleSearch}
-          />
-        </FormGroup>
-      </Padding>
     );
   }
 
@@ -242,7 +254,6 @@ class AssessmentCategories extends React.Component<Props, State> {
           noShadow
         >
           {this.rightActionBar}
-          {this.renderCategoriesFilter()}
           {this.renderCategories()}
         </Section>
       </Sidebar>

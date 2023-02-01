@@ -1,18 +1,40 @@
+const commonMutationParams = `
+  $boardId: String,
+  $configs: JSON,
+  $customFieldId: String,
+  $pipelineId: String,
+  $stageId: String,
+  $cardType: String,
+  $riskIndicatorId:String
+  $indicatorsGroupId:String
+`;
+
+const commonMutationParamsDef = `
+  boardId: $boardId, 
+  configs: $configs, 
+  customFieldId: $customFieldId, 
+  pipelineId: $pipelineId, 
+  stageId: $stageId, 
+  cardType: $cardType, 
+  riskIndicatorId: $riskIndicatorId,
+  indicatorsGroupId:$indicatorsGroupId
+`;
+
 const addConfig = `
-mutation AddRiskAssesmentConfig($boardId: String, $configs: JSON, $customFieldId: String, $pipelineId: String, $stageId: String, $cardType: String, $riskAssessmentId:String) {
-  addRiskAssesmentConfig(boardId: $boardId, configs: $configs, customFieldId: $customFieldId, pipelineId: $pipelineId, stageId: $stageId, cardType: $cardType, riskAssessmentId: $riskAssessmentId)
+mutation AddRiskIndicatorConfig(${commonMutationParams}) {
+  addRiskIndicatorConfig(${commonMutationParamsDef})
 }
 `;
 
 const updateConfig = `
-mutation UpdateRiskAssessmentConfig($configId: String, $doc: RiskAssessmentConfigInput) {
-  updateRiskAssessmentConfig(configId: $configId, doc: $doc)
+mutation UpdateRiskIndicatorConfig($configId: String, $doc: RiskIndicatorConfigInput) {
+  updateRiskIndicatorConfig(configId: $configId, doc: $doc)
 }
 `;
 
 const removeConfigs = `
-mutation RemoveRiskAssessmentConfigs($configIds: [String]) {
-  removeRiskAssessmentConfigs(configIds: $configIds)
+mutation RemoveRiskIndicatorConfigs($configIds: [String]) {
+  removeRiskIndicatorConfigs(configIds: $configIds)
 }
 `;
 
