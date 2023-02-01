@@ -1,3 +1,4 @@
+import { graphqlPubsub } from '../../../configs';
 import { IContext } from '../../../connectionResolver';
 import {
   sendCardsMessage,
@@ -21,6 +22,14 @@ const participantMutations = {
       docModifier(doc)
     );
 
+    if (!participant) {
+      return null;
+    }
+
+    graphqlPubsub.publish('participantsChanged', {
+      participantsChanged: participant
+    });
+
     const cpUser = await sendClientPortalMessage({
       subdomain,
       action: 'clientPortalUsers.findOne',
@@ -38,7 +47,7 @@ const participantMutations = {
         action: 'sendNotification',
         data: {
           title: 'Үнийн санал илгээсэн танд баярлалаа.',
-          content: 'Таны үнийн саналыг амжилттай хүлээн авлаа!',
+          content: 'Таны үнийн санал амжилттай илгээгдлээ!',
           receivers: [cpUser._id],
           notifType: 'system',
           link: '',
@@ -129,8 +138,56 @@ const participantMutations = {
   participantsRemove: async (
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models, subdomain }: IContext
   ) => {
+    const participant = await models.Participants.findOne({ _id });
+
+    if (!participant) {
+      return null;
+    }
+
+    const cpUser = await sendClientPortalMessage({
+      subdomain,
+      action: 'clientPortalUsers.findOne',
+      data: {
+        erxesCustomerId: participant.driverId,
+        clientPortalId: process.env.MOBILE_CP_ID || ''
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    if (!cpUser) {
+      return models.Participants.removeParticipant(_id);
+    }
+
+    const deal = await sendCardsMessage({
+      subdomain,
+      action: 'deals.findOne',
+      data: {
+        _id: participant.dealId
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    if (!deal) {
+      return null;
+    }
+
+    sendClientPortalMessage({
+      subdomain,
+      action: 'sendNotification',
+      data: {
+        title: 'Үнийн санал илгээсэн танд баярлалаа.',
+        content: `${deal.name} дугаартай тээврийн ажилд таны мэдээлэл шалгуур хангасангүй.`,
+        receivers: [cpUser._id],
+        notifType: 'system',
+        link: '',
+        isMobile: true
+      }
+    });
+
     return models.Participants.removeParticipant(_id);
   },
 

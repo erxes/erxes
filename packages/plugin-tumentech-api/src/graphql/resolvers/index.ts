@@ -7,7 +7,7 @@ import Mutation from './mutations';
 import Query from './queries';
 import { Route } from './routes';
 import { Trip } from './trips';
-import { CarCategory, Cars as Car, Participant } from './tumentech';
+import { CarCategory, Cars as Car, Participant, Topup } from './tumentech';
 
 const resolvers: any = async () => ({
   ...customScalars,
@@ -20,6 +20,7 @@ const resolvers: any = async () => ({
   Trip,
   DealRoute,
   DealPlace,
+  Topup,
 
   Mutation,
   Query

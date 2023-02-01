@@ -46,6 +46,12 @@ const MUT_DENY = gql`
   }
 `;
 
+const MUT_FEATURED_TOGGLE = gql`
+  mutation ForumPostSetFeatured($id: ID!, $featured: Boolean!) {
+    forumPostSetFeatured(_id: $id, featured: $featured)
+  }
+`;
+
 const PostDetail: React.FC = () => {
   const history = useHistory();
   const { postId } = useParams();
@@ -82,6 +88,10 @@ const PostDetail: React.FC = () => {
   const [mutDeny] = useMutation(MUT_DENY, {
     variables: { _id: postId },
     refetchQueries: POST_REFETCH_AFTER_EDIT
+  });
+
+  const [mutSetFeatured] = useMutation(MUT_FEATURED_TOGGLE, {
+    refetchQueries: ['ForumPostDetail']
   });
 
   if (loading) return null;
@@ -127,7 +137,11 @@ const PostDetail: React.FC = () => {
           </tr>
           <tr>
             <th>Thumbnail: </th>
-            <td>{forumPost.thumbnail && <img src={forumPost.thumbnail} />}</td>
+            <td>
+              {forumPost.thumbnail && (
+                <img src={forumPost.thumbnail} style={{ maxHeight: 200 }} />
+              )}
+            </td>
             <th>Thumbnail url:</th>
             <td>{forumPost.thumbnail}</td>
           </tr>
@@ -165,9 +179,63 @@ const PostDetail: React.FC = () => {
             <th>Content: </th>
             <td>
               <div
-                style={{ border: '1px solid black', padding: 10 }}
+                style={{ border: '1px solid gray', padding: 10 }}
                 dangerouslySetInnerHTML={{ __html: forumPost.content }}
               ></div>
+            </td>
+          </tr>
+          <tr>
+            <th>Description: </th>
+            <td>
+              <p
+                style={{
+                  whiteSpace: 'pre-wrap',
+                  border: '1px solid gray',
+                  padding: 10
+                }}
+              >
+                {forumPost.description}
+              </p>
+            </td>
+          </tr>
+          {forumPost.pollOptions?.length && (
+            <>
+              <tr>
+                <th>Poll options</th>
+                <td>
+                  <ul>
+                    {forumPost.pollOptions?.map((option, index) => (
+                      <li key={option._id}>{option.title}</li>
+                    ))}
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <th>Poll type</th>
+                <td>
+                  {forumPost.isPollMultiChoice
+                    ? 'Multiple choice'
+                    : 'Single choice'}
+                </td>
+              </tr>
+              {forumPost.pollEndDate && (
+                <tr>
+                  <th>Poll end date:</th>
+                  <td>{forumPost.pollEndDate}</td>
+                </tr>
+              )}
+            </>
+          )}
+          <tr>
+            <th>Tags: </th>
+            <td>
+              <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                {forumPost.tags?.map(tag => (
+                  <div style={{ margin: 2 }} key={tag._id}>
+                    {tag.name}
+                  </div>
+                ))}
+              </div>
             </td>
           </tr>
           <tr>
@@ -175,6 +243,31 @@ const PostDetail: React.FC = () => {
             <td>{forumPost.upVoteCount}</td>
             <th>Down vote count:</th>
             <td>{forumPost.downVoteCount}</td>
+          </tr>
+
+          <tr>
+            <th>Featured by admin: </th>
+            <td>
+              {forumPost.isFeaturedByAdmin ? 'Yes' : 'No'}&nbsp;{' '}
+              <button
+                type="button"
+                onClick={async () => {
+                  console.log('before');
+                  await mutSetFeatured({
+                    variables: {
+                      id: postId,
+                      featured: !forumPost.isFeaturedByAdmin
+                    }
+                  });
+
+                  console.log('after');
+                }}
+              >
+                {forumPost.isFeaturedByAdmin ? 'Unfeature' : 'Feature'}
+              </button>
+            </td>
+            <th>Featured by user: </th>
+            <td>{forumPost.isFeaturedByUser ? 'Yes' : 'No'}</td>
           </tr>
         </tbody>
       </table>
@@ -190,20 +283,34 @@ const PostDetail: React.FC = () => {
         <button onClick={onClickDelete}>Delete</button>
       </div>
       <hr />
-      {forumPost.category?.postsReqCrmApproval && (
-        <>
+      <div>
+        <h5>Category approval: {forumPost.categoryApprovalState}</h5>
+        <button type="button" onClick={onApproveClick}>
+          Approve
+        </button>
+        <button type="button" onClick={onDenyClick}>
+          Deny
+        </button>
+      </div>
+      <hr />
+
+      <div>
+        {forumPost.quizzes && (
           <div>
-            <h5>Category approval: {forumPost.categoryApprovalState}</h5>
-            <button type="button" onClick={onApproveClick}>
-              Approve
-            </button>
-            <button type="button" onClick={onDenyClick}>
-              Deny
-            </button>
+            <h3>Related quizzes</h3>
+            <ul>
+              {forumPost.quizzes.map(quiz => (
+                <li key={quiz._id}>
+                  <Link to={`/forums/quizzes/${quiz._id}`}>{quiz.name}</Link>
+                </li>
+              ))}
+            </ul>
           </div>
-          <hr />
-        </>
-      )}
+        )}
+        <Link to={`/forums/quizzes/new?postId=${postId}`}>
+          Create related quiz
+        </Link>
+      </div>
 
       <h1>View count: {forumPost.viewCount}</h1>
       <h1>Comments: {forumPost.commentCount}</h1>

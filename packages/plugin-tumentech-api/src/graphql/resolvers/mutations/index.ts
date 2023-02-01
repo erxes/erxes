@@ -5,6 +5,7 @@ import placeMutations from './places';
 import routeMutations from './routes';
 import tripMutations from './trips';
 import tumentechMutations from './tumentech';
+import topupMutations from './topup';
 
 export default {
   ...tumentechMutations,
@@ -13,5 +14,6 @@ export default {
   ...directionMutations,
   ...routeMutations,
   ...placeMutations,
-  ...tripMutations
+  ...tripMutations,
+  ...topupMutations
 };

@@ -100,7 +100,7 @@ class PerformRow extends React.Component<Props> {
         <td key={'actions'} onClick={onClick}>
           <ActionButtons>
             <ModalTrigger
-              title="Edit perform"
+              title={__(`Edit perform`)}
               trigger={
                 <Button btnStyle="link">
                   <Tip text={__('Edit')} placement="bottom">

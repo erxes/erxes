@@ -5,6 +5,7 @@ import {
   ICarCategoryDocument,
   ICarDocument
 } from '../../models/definitions/tumentech';
+import { ITopupDocument } from './../../models/definitions/topup';
 
 const Cars = {
   category(car, _args, { models }) {
@@ -116,7 +117,36 @@ const Participant = {
     return (
       participant.dealId && { __typename: 'Deal', _id: participant.dealId }
     );
+  },
+
+  phone: async (
+    participant: IParticipantDocument,
+    {},
+    { models, cpUser }: IContext
+  ) => {
+    const history = await models.PurchaseHistories.findOne({
+      driverId: participant.driverId,
+      dealId: participant.dealId,
+      cpUserId: cpUser.userId
+    }).lean();
+
+    if (!history) {
+      return 'hidden';
+    }
+
+    return history.phone;
   }
 };
 
-export { Cars, CarCategory, Participant };
+const Topup = {
+  customer: async (topup: ITopupDocument) => {
+    return (
+      topup.customerId && {
+        __typename: 'Customer',
+        _id: topup.customerId
+      }
+    );
+  }
+};
+
+export { Cars, CarCategory, Participant, Topup };

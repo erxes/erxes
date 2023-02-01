@@ -29,7 +29,7 @@ const ActivityLogs = asyncComponent(
 
 type Props = {
   car: ICar;
-  editCar: (values: any) => void;
+  currentUser: IUser;
 };
 
 class CarDetails extends React.Component<Props> {
@@ -74,7 +74,7 @@ class CarDetails extends React.Component<Props> {
       <Wrapper
         header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
         leftSidebar={<LeftSidebar {...this.props} />}
-        rightSidebar={<RightSidebar {...this.props} />}
+        rightSidebar={<RightSidebar car={car} />}
         content={this.renderContent(content)}
         transparent={true}
       />

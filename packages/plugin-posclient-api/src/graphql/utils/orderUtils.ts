@@ -128,7 +128,7 @@ export const cleanOrderItems = async (
 export const updateOrderItems = async (
   orderId: string,
   items: IOrderItemInput[],
-  models
+  models: IModels
 ) => {
   const oldItems = await models.OrderItems.find({
     _id: { $in: items.map(item => item._id) }

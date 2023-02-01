@@ -1,7 +1,7 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { Router } from 'express';
+import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
-import { PAYMENT_KINDS } from './constants';
 import { generateModels } from './connectionResolver';
 import redisUtils from './redisUtils';
 
@@ -50,7 +50,11 @@ router.get('/gateway', async (req, res) => {
   let invoice = await models.Invoices.findOne({ _id: data._id }).lean();
 
   const prefix = subdomain === 'localhost' ? '' : `/gateway`;
-  const domain = process.env.domain || 'http://localhost:3000';
+  const domain = process.env.DOMAIN || 'http://localhost:3000';
+
+  debugInfo(
+    `in gateway path-: subdomain: ${subdomain}, prefix: ${prefix}, domain: ${domain}`
+  );
 
   if (invoice && invoice.status === 'paid') {
     return res.render('index', {
@@ -67,7 +71,7 @@ router.get('/gateway', async (req, res) => {
     title: 'Payment gateway',
     payments,
     invoiceData: data,
-    domain: process.env.DOMAIN || 'http://localhost:3000',
+    domain,
     prefix: subdomain === 'localhost' ? '' : `/gateway`
   });
 });
@@ -83,7 +87,7 @@ router.post('/gateway', async (req, res) => {
   const models = await generateModels(subdomain);
 
   const prefix = subdomain === 'localhost' ? '' : `/gateway`;
-  const domain = process.env.domain || 'http://localhost:3000';
+  const domain = process.env.DOMAIN || 'http://localhost:3000';
 
   const filter: any = {};
 

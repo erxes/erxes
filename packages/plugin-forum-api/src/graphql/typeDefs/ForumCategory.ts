@@ -1,12 +1,14 @@
 import { commonPostsParams } from './Query';
 
 export default `
-  type ForumCategory @key(fields: "_id") {
+  type ForumCategory @key(fields: "_id")  @cacheControl(maxAge: 30) {
     _id: ID!
     name: String!
 
     code: String
     thumbnail: String
+
+    description: String
 
     parentId: ID
 

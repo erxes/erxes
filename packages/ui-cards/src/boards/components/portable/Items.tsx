@@ -11,6 +11,7 @@ import { IItem, IOptions } from '../../types';
 
 type IData = {
   options: IOptions;
+  hideExtraButton?: boolean;
 };
 
 type Props = {
@@ -142,7 +143,7 @@ class Items extends React.Component<Props, { openItemId?: string }> {
     );
 
     const boxProps = {
-      extraButtons: quickButtons,
+      extraButtons: !data.hideExtraButton && quickButtons,
       title: __(data.options.title),
       name: relType && `show${relType}`
     };

@@ -18,7 +18,8 @@ type Props = {
     userId: string,
     explanation: string,
     attachment: IAttachment,
-    dateRange: DateTimeRange
+    dateRange: DateTimeRange,
+    absenceTypeId: string
   ) => void;
   contentProps: any;
 };
@@ -30,8 +31,8 @@ type DateTimeRange = {
 
 export default (props: Props) => {
   const [dateRange, setDateRange] = useState<DateTimeRange>({
-    startTime: new Date(localStorage.getItem('dateRangeStart')),
-    endTime: new Date(localStorage.getItem('dateRangeEnd'))
+    startTime: new Date(localStorage.getItem('dateRangeStart') || ''),
+    endTime: new Date(localStorage.getItem('dateRangeEnd') || '')
   });
   const {
     absenceTypes,
@@ -40,29 +41,59 @@ export default (props: Props) => {
     contentProps,
     history
   } = props;
-  const [explanation, setTextReason] = useState('');
+  const [explanation, setExplanation] = useState('');
+
   const [attachment, setAttachment] = useState<IAttachment>({
     name: ' ',
     type: '',
     url: ''
   });
-  const [absenceIdx, setArrayIdx] = useState(0);
+  const checkAbsenceIdx = parseInt(
+    localStorage.getItem('absenceIdx') || '0',
+    10
+  );
+  const [absenceIdx, setAbsenceArrIdx] = useState(
+    checkAbsenceIdx < absenceTypes.length ? checkAbsenceIdx : 0
+  );
   const [userId, setUserId] = useState('');
 
+  const checkInput = selectedUser => {
+    if (selectedUser === '') {
+      Alert.error('No user was selected');
+    } else if (
+      absenceTypes[absenceIdx].attachRequired &&
+      attachment.url === ''
+    ) {
+      Alert.error('No attachment was uploaded');
+    } else if (absenceTypes[absenceIdx].explRequired && explanation === '') {
+      Alert.error('No explanation was given');
+    } else {
+      return true;
+    }
+  };
   const onSubmitClick = closeModal => {
-    submitRequest(userId, explanation, attachment, dateRange);
-    closeModal();
+    const validInput = checkInput(userId);
+    if (validInput) {
+      submitRequest(
+        userId,
+        explanation,
+        attachment,
+        dateRange,
+        absenceTypes[absenceIdx]._id
+      );
+      closeModal();
+    }
   };
 
   const setInputValue = e => {
-    setTextReason(e.target.value);
+    setExplanation(e.target.value);
   };
 
   const onUserSelect = usrId => {
     setUserId(usrId);
   };
   const onReasonSelect = reason => {
-    setArrayIdx(reason.arrayIdx);
+    setAbsenceArrIdx(reason.arrayIdx);
     router.setParams(history, { reason: `${reason.value}` });
   };
   const onChangeAttachment = (files: IAttachment[]) => {
@@ -108,7 +139,7 @@ export default (props: Props) => {
       <Select
         placeholder={__('Reason')}
         onChange={onReasonSelect}
-        value={router.getParam(history, 'reason') || ''}
+        value={absenceTypes.length > 0 && absenceTypes[absenceIdx].name}
         options={
           absenceTypes &&
           absenceTypes.map((absenceType, idx) => ({

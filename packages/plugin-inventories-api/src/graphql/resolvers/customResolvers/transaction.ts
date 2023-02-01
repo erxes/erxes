@@ -1,34 +1,7 @@
 import { IContext } from '../../../connectionResolver';
-import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
-import { ITransactionDocument } from '../../../models/definitions/transactions';
+import { sendProductsMessage } from '../../../messageBroker';
 
 export default {
-  async department(
-    transaction: ITransactionDocument,
-    _,
-    { subdomain }: IContext
-  ) {
-    return sendCoreMessage({
-      subdomain,
-      action: 'departments.findOne',
-      data: {
-        _id: transaction.departmentId
-      },
-      isRPC: true
-    });
-  },
-
-  async branch(transaction: ITransactionDocument, _, { subdomain }: IContext) {
-    return sendCoreMessage({
-      subdomain,
-      action: 'branches.findOne',
-      data: {
-        _id: transaction.branchId
-      },
-      isRPC: true
-    });
-  },
-
   async transactionItems_product(transaction: any, _, { subdomain }: IContext) {
     const result: any = [];
 

@@ -1,9 +1,19 @@
+import {
+  IPurchaseHistoryModel,
+  loadPurchaseHistoryClass
+} from './models/CustomerPurchaseHistory';
+import { ITopupDocument } from './models/definitions/topup';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import * as mongoose from 'mongoose';
 
 import { mainDb } from './configs';
+import {
+  ICustomerAccountModel,
+  loadCustomerAccountClass
+} from './models/CustomerAccount';
 import { IDealPlaceModel, loadDealPlaceClass } from './models/DealPlaces';
 import { IDealRouteModel, loadDealRouteClass } from './models/DealRoutes';
+import { ICustomerAccountDocument } from './models/definitions/customerAccount';
 import { IDealPlaceDocument } from './models/definitions/dealPlaces';
 import { IDealRouteDocument } from './models/definitions/dealRoutes';
 import { IDirectionDocument } from './models/definitions/directions';
@@ -21,6 +31,7 @@ import { IDirectionModel, loadDirectionClass } from './models/Directions';
 import { IParticipantModel, loadParticipantClass } from './models/Participants';
 import { IPlaceModel, loadPlaceClass } from './models/Places';
 import { IRouteModel, loadRouteClass } from './models/Routes';
+import { ITopupModel, loadTopupClass } from './models/Topup';
 import { ITripModel, loadTripClass } from './models/Trips';
 import {
   ICarCategoryModel,
@@ -29,6 +40,7 @@ import {
   loadCarCategoryClass,
   loadCarsClass
 } from './models/Tumentech';
+import { IPurchaseHistoryDocument } from './models/definitions/customerPurchaseHistory';
 
 export interface IModels {
   Cars: ICarModel;
@@ -41,11 +53,15 @@ export interface IModels {
   Trips: ITripModel;
   DealPlaces: IDealPlaceModel;
   DealRoutes: IDealRouteModel;
+  CustomerAccounts: ICustomerAccountModel;
+  Topups: ITopupModel;
+  PurchaseHistories: IPurchaseHistoryModel;
 }
 
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
+  cpUser: any;
 }
 
 export let models: IModels;
@@ -114,6 +130,21 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'deal_routes',
     loadDealRouteClass(models)
   );
+
+  models.CustomerAccounts = db.model<
+    ICustomerAccountDocument,
+    ICustomerAccountModel
+  >('customer_accounts', loadCustomerAccountClass(models));
+
+  models.Topups = db.model<ITopupDocument, ITopupModel>(
+    'tumentech_topups',
+    loadTopupClass(models)
+  );
+
+  models.PurchaseHistories = db.model<
+    IPurchaseHistoryDocument,
+    IPurchaseHistoryModel
+  >('tumentech_purchase_histories', loadPurchaseHistoryClass(models));
 
   return models;
 };

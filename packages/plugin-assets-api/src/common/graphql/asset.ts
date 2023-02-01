@@ -19,5 +19,5 @@ export const assetParams = `
   attachment: AttachmentInput,
   attachmentMore: [AttachmentInput],
   assetCount: Int,
-  vendorId: String,
+  vendorId: String
 `;

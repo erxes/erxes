@@ -1,0 +1,16 @@
+{
+  "name": "plugin-mobinet-ui",
+  "version": "1.0.0",
+  "scripts": {
+    "install-deps": "cd .erxes && yarn install",
+    "start": "cd .erxes && yarn start",
+    "build": "cd .erxes && yarn build"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.2",
+    "react-leaflet": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/leaflet": "^1.9.0"
+  }
+}

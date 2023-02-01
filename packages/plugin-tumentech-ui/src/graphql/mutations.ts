@@ -401,6 +401,12 @@ mutation setDealRoute(
 }
 `;
 
+const manualTopup = `
+mutation ManualTopup($amount: Float!, $customerId: String!) {
+  manualTopup(amount: $amount, customerId: $customerId)
+}
+`;
+
 export default {
   carsAdd,
   carsEdit,
@@ -433,5 +439,7 @@ export default {
 
   addRoute,
   editRoute,
-  removeRoute
+  removeRoute,
+
+  manualTopup
 };

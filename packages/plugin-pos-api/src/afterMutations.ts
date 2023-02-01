@@ -1,5 +1,9 @@
 import { generateModels, IModels } from './connectionResolver';
-import { sendPosclientMessage, sendProductsMessage } from './messageBroker';
+import {
+  sendPosclientMessage,
+  sendPricingMessage,
+  sendProductsMessage
+} from './messageBroker';
 import { IPosDocument } from './models/definitions/pos';
 import { getChildCategories } from './utils';
 
@@ -136,7 +140,44 @@ export const afterMutationHandlers = async (subdomain, params) => {
   if (type === 'products:product') {
     for (const pos of poss) {
       if (await isInProduct(subdomain, models, pos, params.object._id)) {
-        await handler(subdomain, params, action, 'product', pos);
+        const item = params.updatedDocument || params.object;
+
+        const pricing = await sendPricingMessage({
+          subdomain,
+          action: 'checkPricing',
+          data: {
+            prioritizeRule: 'only',
+            totalAmount: 0,
+            departmentId: pos.departmentId,
+            branchId: pos.branchId,
+            products: [
+              {
+                productId: item._id,
+                quantity: 1,
+                price: item.unitPrice
+              }
+            ]
+          },
+          isRPC: true,
+          defaultValue: {}
+        });
+
+        const discount = pricing[item._id] || {};
+
+        if (Object.keys(discount).length) {
+          let unitPrice = (item.unitPrice -= discount.value);
+          if (unitPrice < 0) {
+            unitPrice = 0;
+          }
+
+          if (params.updatedDocument) {
+            params.updatedDocument.unitPrice = unitPrice;
+          } else {
+            params.object.unitPrice = unitPrice;
+          }
+        }
+
+        await handler(subdomain, { ...params }, action, 'product', pos);
       }
     }
     return;

@@ -97,10 +97,16 @@ const tripsQuery = {
 
   tripByDealId: async (
     _root,
-    { dealId }: { dealId: string },
+    { dealId, customerId }: { dealId: string; customerId: string },
     { models }: IContext
   ) => {
-    return models.Trips.getTrip({ dealIds: dealId });
+    const filter: any = { dealIds: dealId };
+
+    if (customerId) {
+      filter.customerIds = customerId;
+    }
+
+    return models.Trips.getTrip(filter);
   }
 };
 

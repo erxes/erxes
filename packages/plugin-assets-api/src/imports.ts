@@ -71,7 +71,6 @@ export default {
               const parent = await models.Assets.findOne({
                 name: { $regex: new RegExp(`^${value}$`, 'i') }
               });
-
               doc.parentId = parent ? parent._id : '';
             }
             break;
@@ -85,8 +84,16 @@ export default {
 
         colIndex++;
       }
-    }
 
+      if (!doc.unitPrice) {
+        doc.unitPrice = 0;
+      }
+
+      const parent = await models.Assets.findOne({ _id: doc.parentId });
+      doc.order = parent ? `${parent.order}/${doc.code}` : `${doc.code}`;
+
+      bulkDoc.push(doc);
+    }
     return bulkDoc;
   }
 };

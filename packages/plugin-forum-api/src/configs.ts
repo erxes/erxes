@@ -12,6 +12,7 @@ import { generateModels } from './db/models';
 import { IContext } from './graphql';
 import cronjobs from './cronjobs';
 import tags from './tags';
+import { generateAllDataLoaders } from './graphql/dataloaders';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -52,6 +53,8 @@ export default {
     if (req.cpUser) {
       context.cpUser = req.cpUser;
     }
+
+    context.dataLoaders = generateAllDataLoaders(context.models, subdomain);
 
     return context;
   },

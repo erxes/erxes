@@ -63,9 +63,15 @@ export const generatePageModel = (
       _id: string,
       patch: PagePatchInput
     ): Promise<PageDocument> {
-      const page = await models.Page.findByIdOrThrow(_id);
-      _.assign(page, patch);
-      await page.save();
+      const page = await models.Page.findByIdAndUpdate(
+        _id,
+        { $set: patch },
+        { new: true }
+      );
+
+      if (!page) {
+        throw new Error(`Page with _id = ${_id} doesn't exist`);
+      }
       return page;
     }
     public static async deletePage(_id: string): Promise<PageDocument> {

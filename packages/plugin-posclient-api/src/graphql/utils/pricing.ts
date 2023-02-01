@@ -14,6 +14,7 @@ export const checkPricing = async (
       subdomain,
       action: 'checkPricing',
       data: {
+        prioritizeRule: 'exclude',
         totalAmount: doc.totalAmount,
         departmentId: config.departmentId,
         branchId: config.branchId,
@@ -39,28 +40,25 @@ export const checkPricing = async (
     const discount = pricing[item.productId];
 
     if (discount) {
-      if (discount.type.length === 0) continue;
-
-      switch (discount.type) {
-        case 'bonus': {
-          if (bonusProductsToAdd[discount.bonusProduct])
-            bonusProductsToAdd[discount.bonusProduct].count += 1;
-          else
-            bonusProductsToAdd[discount.bonusProduct] = {
+      if (discount.bonusProducts.length !== 0) {
+        for (const bonusProduct of discount.bonusProducts) {
+          if (bonusProductsToAdd[bonusProduct]) {
+            bonusProductsToAdd[bonusProduct].count += 1;
+          } else {
+            bonusProductsToAdd[bonusProduct] = {
               count: 1
             };
-          break;
+          }
         }
-        case 'percentage':
-          item.discountPercent = parseFloat(
-            ((discount.value / item.unitPrice) * 100).toFixed(2)
-          );
-          item.unitPrice -= discount.value;
-          break;
-        default:
-          item.discountAmount = discount.value;
-          item.unitPrice -= discount.value;
-          break;
+      }
+      if (discount.type === 'percentage') {
+        item.discountPercent = parseFloat(
+          ((discount.value / item.unitPrice) * 100).toFixed(2)
+        );
+        item.unitPrice -= discount.value;
+      } else {
+        item.discountAmount = discount.value;
+        item.unitPrice -= discount.value;
       }
     }
   }
@@ -80,9 +78,12 @@ export const checkPricing = async (
       doc.items.push(bonusProduct);
     } else {
       const item = doc.items[orderIndex];
+
       item.bonusCount = bonusProductsToAdd[bonusProductId].count;
-      if ((item.bonusCount || 0) > item.count)
+
+      if ((item.bonusCount || 0) > item.count) {
         item.count = item.bonusCount || 0;
+      }
       item.unitPrice = Math.floor(
         (item.unitPrice * (item.count - (item.bonusCount || 0))) / item.count
       );

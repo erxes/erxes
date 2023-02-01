@@ -21,6 +21,13 @@ module.exports = {
       icon: "icon-car",
       location: "mainNavigation",
       permission: "showCars"
+    },
+    {
+      text: 'Topup account',
+      url: '/erxes-plugin-tumentech/topup',
+      icon: 'icon-dollar-sign',
+      location: 'mainNavigation',
+      permission: ''
     }
   ],
   customerRightSidebarSection: [

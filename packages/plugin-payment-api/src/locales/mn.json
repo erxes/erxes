@@ -1,0 +1,10 @@
+{
+  "Payment": "Төлбөр",
+  "Select your payment method": "Төлбөрийн хэрэгсэлээ сонгоно уу",
+  "Invoice information": "нэхэмжлэхийн мэдээлэл",
+  "Amount": "Дүн",
+  "Description": "Гүйлгээний утга",
+  "Select bank": "Банк сонгоно уу",
+  "Status": "Tөлөв",
+  "pending": "хүлээгдэж байна"
+}

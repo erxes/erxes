@@ -29,6 +29,7 @@ export const types = contactsAvailable => `
         _id:String,
         assetName:String,
         assetId:String,
+        assetDetail:Asset
         sourceLocations:ItemSourceLocation,
         branchId:String,
         departmentId:String,

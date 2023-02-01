@@ -24,15 +24,20 @@ const PutResponses = asyncComponent(() =>
 );
 
 const GeneralSetting = () => {
-  return <Settings component={GeneralSettings} />;
+  return <Settings component={GeneralSettings} configCode="EBARIMT" />;
 };
 
 const StageSetting = () => {
-  return <Settings component={StageSettings} />;
+  return <Settings component={StageSettings} configCode="stageInEbarimt" />;
 };
 
 const ReturnStageSetting = () => {
-  return <Settings component={ReturnStageSettings} />;
+  return (
+    <Settings
+      component={ReturnStageSettings}
+      configCode="returnStageInEbarimt"
+    />
+  );
 };
 
 const PutResponsesComponent = ({ location, history }) => {

@@ -13,7 +13,7 @@ module.exports = {
   menus: [
     {
       text: "Pricing",
-      to: "/pricing/discounts",
+      to: "/pricing/plans",
       image: "/images/icons/erxes-06.svg",
       location: "settings",
       scope: "pricing",

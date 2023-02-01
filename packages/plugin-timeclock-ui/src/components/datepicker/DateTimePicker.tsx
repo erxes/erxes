@@ -2,15 +2,19 @@ import React from 'react';
 import Datetime from '@nateradebaugh/react-datetime';
 import Button from '@erxes/ui/src/components/Button';
 import Tip from '@erxes/ui/src/components/Tip';
+import dayjs from 'dayjs';
 
 type Props = {
-  startTime_value: Date;
-  endTime_value: Date;
+  startDate?: Date;
+  startTime_value?: Date;
+  endTime_value?: Date;
   curr_day_key: string;
-  changeDate: (day_key: string, time: Date) => void;
+  overnightShift?: boolean;
+  changeDate?: (day_key: string, time: Date) => void;
   changeStartTime: (day_key: string, time: Date) => void;
   changeEndTime: (day_key: string, time: Date) => void;
-  removeDate: (day_key: string) => void;
+  removeDate?: (day_key: string) => void;
+  timeOnly?: boolean;
 };
 
 const DatePicker = (props: Props) => {
@@ -19,13 +23,18 @@ const DatePicker = (props: Props) => {
     changeEndTime,
     changeStartTime,
     removeDate,
+    timeOnly,
     curr_day_key,
+    startDate,
+    overnightShift,
     startTime_value,
     endTime_value
   } = props;
 
   const onDateChange = val => {
-    changeDate(curr_day_key, val);
+    if (changeDate) {
+      changeDate(curr_day_key, val);
+    }
   };
 
   const onStartTimeChange = val => {
@@ -37,31 +46,75 @@ const DatePicker = (props: Props) => {
   };
 
   const onDeleteDate = () => {
-    removeDate(curr_day_key);
+    if (removeDate) {
+      removeDate(curr_day_key);
+    }
+  };
+
+  const onTimeChange = (input: any, type: string) => {
+    const getDate = startDate
+      ? startDate.toLocaleDateString()
+      : new Date().toLocaleDateString();
+    const validateInput = dayjs(getDate + ' ' + input).toDate();
+
+    if (
+      input instanceof Date &&
+      startDate?.getUTCFullYear() === input.getUTCFullYear()
+    ) {
+      if (type === 'start') {
+        onStartTimeChange(input);
+      } else {
+        onEndTimeChange(input);
+      }
+    }
+
+    if (!isNaN(validateInput.getTime())) {
+      if (type === 'start') {
+        onStartTimeChange(validateInput);
+      } else {
+        onEndTimeChange(validateInput);
+      }
+    }
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'row' }} key={curr_day_key}>
-      <Datetime
-        value={startTime_value}
-        timeFormat={false}
-        onChange={onDateChange}
-      />
+    <div
+      style={{
+        display: 'flex',
+        flex: 'row',
+        gap: '10px',
+        alignItems: 'center'
+      }}
+      key={curr_day_key}
+    >
+      {!timeOnly && (
+        <Datetime
+          value={startDate}
+          timeFormat={false}
+          onChange={onDateChange}
+        />
+      )}
       <Datetime
         value={startTime_value}
         dateFormat={false}
-        timeFormat="hh:mm a"
-        onChange={onStartTimeChange}
+        timeFormat="HH:mm"
+        timeConstraints={{
+          hours: { min: 0, max: 24, step: 1 }
+        }}
+        onChange={val => onTimeChange(val, 'start')}
       />
       <Datetime
         value={endTime_value}
         dateFormat={false}
-        timeFormat="hh:mm a"
-        onChange={onEndTimeChange}
+        timeFormat="HH:mm"
+        onChange={val => onTimeChange(val, 'end')}
       />
-      <Tip text="Delete" placement="top">
-        <Button btnStyle="link" onClick={onDeleteDate} icon="times-circle" />
-      </Tip>
+      {overnightShift ? 'Overnight' : ''}
+      {!timeOnly && (
+        <Tip text="Delete" placement="top">
+          <Button btnStyle="link" onClick={onDeleteDate} icon="times-circle" />
+        </Tip>
+      )}
     </div>
   );
 };

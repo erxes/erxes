@@ -21,8 +21,10 @@ type Props = {
   removeOption?: (index: number) => void;
 };
 
-function LocationOption(props: Props) {
+const LocationOption: React.FunctionComponent<Props> = props => {
   const { option, onChangeOption, removeOption, index } = props;
+
+  console.log('description', option.description);
 
   const onChangeDescription = e => {
     option.description = e.target.value;
@@ -71,10 +73,13 @@ function LocationOption(props: Props) {
             </ControlLabel>
             <FormControl
               defaultValue={option.description}
+              value={option.description}
               name="description"
               onChange={onChangeDescription}
             />
           </FormGroup>
+
+          {props.children}
         </Column>
         {removeOption && (
           <Button onClick={remove} btnStyle="danger" icon="times" />
@@ -82,6 +87,6 @@ function LocationOption(props: Props) {
       </LogicRow>
     </LogicItem>
   );
-}
+};
 
 export default LocationOption;

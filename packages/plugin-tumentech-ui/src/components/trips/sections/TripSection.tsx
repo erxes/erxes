@@ -26,18 +26,23 @@ const TripSection = (props: Props) => {
     );
   };
 
-  const duration = trip.route.summary.totalDuration;
+  const duration = trip.route ? trip.route.summary.totalDuration : undefined;
+
+  let durationText = 'NA';
+  if (duration) {
+    durationText = `${Math.floor(duration / 60)}H:${duration % 60}m`;
+  }
 
   return (
     <Sidebar.Section>
       <Section>
         <SidebarList className="no-link">
           {renderRow('Status', trip.status || 'open')}
+          {renderRow('Total duration', durationText)}
           {renderRow(
-            'Total duration',
-            `${Math.floor(duration / 60)}H:${duration % 60}m`
+            'Total distance',
+            `${trip.route ? trip.route.summary.totalDistance : 'null'} km`
           )}
-          {renderRow('Total distance', `${trip.route.summary.totalDistance}km`)}
           {renderRow('Created date', trip.createdAt)}
           {renderRow('Start date', trip.startedDate || 'NA')}
           {renderRow('ETA', trip.estimatedCloseDate || 'NA')}

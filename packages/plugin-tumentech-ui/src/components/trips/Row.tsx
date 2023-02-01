@@ -20,10 +20,20 @@ const Row = (props: Props) => {
     );
   };
 
+  let name = trip.route ? trip.route.name || '-' : '-';
+
+  for (const { dealPlace } of trip.deals) {
+    if (!dealPlace) {
+      continue;
+    }
+
+    name = `${dealPlace.startPlace.province}: ${dealPlace.startPlace.name} - ${dealPlace.endPlace.province}: ${dealPlace.endPlace.name}`;
+  }
+
   return (
     <tr id={trip._id} onClick={onClickRow}>
       <td key={Math.random()}>
-        <RowTitle>{trip.route.name || '-'}</RowTitle>
+        <RowTitle>{name}</RowTitle>
       </td>
 
       <td key={Math.random()}>

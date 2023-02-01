@@ -1,12 +1,8 @@
 // Settings
 
 const configs = `
-  query configs {
-    configs {
-      _id
-      code
-      value
-    }
+  query configsGetValue($code: String!) {
+    configsGetValue(code: $code)
   }
 `;
 

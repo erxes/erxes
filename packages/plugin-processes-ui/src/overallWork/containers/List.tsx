@@ -64,6 +64,7 @@ const generateParams = ({ queryParams }) => ({
   outDepartmentId: queryParams.outDepartmentId,
   productCategoryId: queryParams.productCategoryId,
   productIds: queryParams.productIds,
+  vendorIds: queryParams.vendorIds,
   jobCategoryId: queryParams.jobCategoryId,
   jobReferId: queryParams.jobReferId
 });

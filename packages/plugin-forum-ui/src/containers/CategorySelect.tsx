@@ -23,7 +23,7 @@ const CategorySelect: React.FC<{
       </option>
       {forumCategories.map(p => (
         <option key={p._id} value={p._id}>
-          {p.name}
+          {p.name} {p.parent ? '( ' + p.parent.name + ' )' : ''}
         </option>
       ))}
     </select>

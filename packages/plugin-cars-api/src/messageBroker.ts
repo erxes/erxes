@@ -6,17 +6,25 @@ let client;
 
 export const initBroker = async cl => {
   client = cl;
+};
 
-  const { consumeRPCQueue } = client;
+export const sendInboxMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'inbox',
+    ...args
+  });
+};
 
-  consumeRPCQueue('cars:vehicle.findOne', async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
-    const test = await models.Cars.findOne({ customerIds: data.customerIds });
-    console.log('test', test);
-    return {
-      status: 'success',
-      data: test
-    };
+export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'tags',
+    ...args
   });
 };
 
@@ -46,17 +54,6 @@ export const sendCommonMessage = async (
   return sendMessage({
     serviceDiscovery,
     client,
-    ...args
-  });
-};
-
-export const sendContactsMessage = async (
-  args: ISendMessageArgs
-): Promise<any> => {
-  return sendMessage({
-    client,
-    serviceDiscovery,
-    serviceName: 'contacts',
     ...args
   });
 };
