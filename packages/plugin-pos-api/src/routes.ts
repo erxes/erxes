@@ -145,6 +145,15 @@ export const getProductsData = async (
         defaultValue: {}
       });
 
+      console.log(
+        category._id,
+        limit,
+        products.length,
+        Object.keys(pricing).length
+      );
+      if (category._id === 'jCp9LqZ7dHtnY7mA2') {
+        console.log(pricing);
+      }
       for (const product of products) {
         const discount = pricing[product._id] || {};
 
