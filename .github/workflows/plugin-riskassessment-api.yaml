@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+      - updates-risk-assessment
     paths:
       - 'packages/api-utils/**'
       - 'packages/api-plugin-template.erxes/**'
@@ -54,9 +55,9 @@ jobs:
           cd dist/main/.erxes/src
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'  )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/updates-risk-assessment' )
         run: |
           cd dist/plugin-riskassessment-api/.erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/plugin-riskassessment-api:${GITHUB_REF#refs/heads/} -f Dockerfile .
-          docker push erxes/plugin-riskassessment-api:${GITHUB_REF#refs/heads/}
+          docker build -t erxes/plugin-riskassessment-api:temp_golomt -f Dockerfile .
+          docker push erxes/plugin-riskassessment-api:temp_golomt
