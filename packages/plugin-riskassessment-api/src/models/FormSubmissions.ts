@@ -65,8 +65,6 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         customScore
       } = params;
 
-      let reponse: any = {};
-
       const riskAssessment = await models.RiskAssessments.findOne({
         _id: riskAssessmentId
       });
@@ -84,6 +82,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       }).lean();
       let totalCount = 0;
       let totalPercent = 0;
+      let resultSumNumber = 0;
 
       if (customScoreField) {
         const percentWeight = customScoreField.percentWeight;
@@ -122,6 +121,9 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
             { assessmentId: riskAssessmentId, indicatorId },
             { $inc: { totalScore: sumNumber } }
           );
+
+          resultSumNumber = sumNumber;
+
           await models.RiksFormSubmissions.insertMany(submissions);
         }
 
@@ -140,6 +142,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
             calculateMethod: form.calculateMethod,
             filter: { ...filter, riskAssessmentId: riskAssessmentId }
           });
+          resultSumNumber = sumNumber;
           totalCount += sumNumber * (form.percentWeight / 100);
           totalPercent += form.percentWeight / 100;
           await models.RiksFormSubmissions.insertMany(submissions);
@@ -184,6 +187,18 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       ) {
         await this.calculateAssessment({ riskAssessmentId });
       }
+
+      const assessmentIndicator = await models.RiskAssessmentIndicators.findOne(
+        { assessmentId: riskAssessmentId, cardId, cardType, indicatorId }
+      );
+
+      return {
+        sumNumber: resultSumNumber,
+        resultScore: assessmentIndicator.resultScore,
+        cardId,
+        cardType,
+        riskAssessmentId
+      };
     }
     static async checkRiskAssessment({ riskAssessmentId }) {
       const riskAssessment = await models.RiskAssessments.findOne({
@@ -412,8 +427,6 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         );
       }
     }
-
-    static async calculateRiskAssessmentGroup() {}
   }
 
   riskConformityFormSubmissionSchema.loadClass(FormSubmissionsClass);

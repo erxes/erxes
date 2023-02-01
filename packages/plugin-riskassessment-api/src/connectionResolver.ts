@@ -36,9 +36,7 @@ import {
 } from './models/Configs';
 import {
   IRiskAssessmentsModel,
-  loadRiskAssessments,
-  IRiskAssessmentIndicatorsModel,
-  loadRiskAssessmentIndicator
+  loadRiskAssessments
 } from './models/RiskAssessment';
 import { IOperationsModel, loadOperations } from './models/Operations';
 import { IOperationsDocument } from './models/definitions/operations';
@@ -46,7 +44,7 @@ import { IOperationsDocument } from './models/definitions/operations';
 export interface IModels {
   RiskIndicators: IRiskIndicatorsModel;
   RiskAssessments: IRiskAssessmentsModel;
-  RiskAssessmentIndicators: IRiskAssessmentIndicatorsModel;
+  RiskAssessmentIndicators: Model<any>;
   RiskAssessmentGroups: Model<any>;
   RiskAssessmentCategory: IRiskAssessmentCategoryModel;
   RiksFormSubmissions: IRiskFormSubmissionModel;
@@ -85,7 +83,7 @@ export const loadClasses = (
 
   models.RiskAssessmentIndicators = db.model<
     IRiskAssessmentIndicatorsDocument,
-    IRiskAssessmentIndicatorsModel
+    any
   >('risk_assessment_indicators', riskAssessmentIndicatorsSchema);
   models.RiskAssessmentGroups = db.model<any, any>(
     'risk_assessment_groups',
