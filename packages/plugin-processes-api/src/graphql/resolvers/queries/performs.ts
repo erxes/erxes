@@ -92,7 +92,7 @@ const generateFilter = async (
     hasFilterProductIds = true;
   }
 
-  if (vendorIds) {
+  if (vendorIds && vendorIds.length) {
     const limit = await sendProductsMessage({
       subdomain,
       action: 'count',
@@ -115,7 +115,11 @@ const generateFilter = async (
     hasFilterProductIds = true;
   }
 
-  if (productIds) {
+  if (
+    productIds &&
+    productIds.length &&
+    productIds.filter(p => p !== '').length
+  ) {
     filterProductIds = filterProductIds.concat(productIds);
     hasFilterProductIds = true;
   }

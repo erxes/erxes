@@ -51,7 +51,7 @@ class PerformFormContainer extends React.Component<FinalProps> {
       isSubmitted,
       callback,
       disabled
-    }: IButtonMutateProps & { disabled: boolean }) => {
+    }: IButtonMutateProps & { disabled?: boolean }) => {
       return (
         <ButtonMutate
           mutation={values._id ? mutations.performEdit : mutations.performAdd}
