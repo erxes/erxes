@@ -131,22 +131,22 @@ const mutations = {
     { _id, buildingData, ticketData, quarterId },
     { models, subdomain, cpUser }: IContext
   ) => {
-    // const user = await sendCommonMessage({
-    //   serviceName: 'clientportal',
-    //   subdomain: subdomain,
-    //   action: 'clientPortalUsers.findOne',
-    //   data: {
-    //     _id: cpUser.userId,
-    //   },
-    //   isRPC: true,
-    //   defaultValue: undefined,
-    // });
+    const user = await sendCommonMessage({
+      serviceName: 'clientportal',
+      subdomain: subdomain,
+      action: 'clientPortalUsers.findOne',
+      data: {
+        _id: cpUser.userId
+      },
+      isRPC: true,
+      defaultValue: undefined
+    });
 
-    // if (!user) {
-    //   throw new Error('User not found');
-    // }
+    if (!user) {
+      throw new Error('login required');
+    }
 
-    const user = { erxesCustomerId: 'hTqM74dJPreqy4K5t' };
+    // const user = { erxesCustomerId: 'hTqM74dJPreqy4K5t' };
 
     let building = await models.Buildings.findOne({
       $or: [{ _id }, { osmbId: buildingData.id }]
