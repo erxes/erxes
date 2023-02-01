@@ -142,7 +142,6 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
             calculateMethod: form.calculateMethod,
             filter: { ...filter, riskAssessmentId: riskAssessmentId }
           });
-          resultSumNumber = sumNumber;
           totalCount += sumNumber * (form.percentWeight / 100);
           totalPercent += form.percentWeight / 100;
           await models.RiksFormSubmissions.insertMany(submissions);
@@ -150,6 +149,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       }
       if (forms.length > 1) {
         totalCount = totalCount / totalPercent;
+        resultSumNumber = totalCount;
         await models.RiskAssessmentIndicators.updateOne(
           { assessmentId: riskAssessmentId, indicatorId },
           { $inc: { totalScore: totalCount } }
@@ -189,7 +189,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       }
 
       const assessmentIndicator = await models.RiskAssessmentIndicators.findOne(
-        { assessmentId: riskAssessmentId, cardId, cardType, indicatorId }
+        { assessmentId: riskAssessmentId, indicatorId }
       );
 
       return {
