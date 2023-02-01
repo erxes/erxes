@@ -1,6 +1,6 @@
 import React from 'react';
 import CommentForm from '../../components/comment/CommentForm';
-import Comment from './Comment';
+import Comment from '../../containers/Comments/Comment';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { CommentSection } from '../../styles';
 
@@ -12,20 +12,33 @@ const CommentComponent: React.FC<{
   data: any;
   refetch: () => void;
 }> = ({ postId, renderButton, error, loading, data, refetch }) => {
+  const renderError = () => {
+    if (error) {
+      return <pre>Error occured</pre>;
+    }
+
+    return null;
+  };
+
+  const renderComment = () => {
+    if (!loading && !error) {
+      return (data.forumComments || []).map(c => (
+        <Comment
+          comment={c}
+          renderButton={renderButton}
+          key={c._id}
+          onDeleted={refetch}
+        />
+      ));
+    }
+
+    return null;
+  };
   return (
     <CommentSection>
       <CommentForm key={postId} postId={postId} renderButton={renderButton} />
-      {error && <pre>Error occured</pre>}
-      {!loading &&
-        !error &&
-        (data.forumComments || []).map(c => (
-          <Comment
-            renderButton={renderButton}
-            key={c._id}
-            comment={c}
-            onDelete={refetch}
-          />
-        ))}
+      {renderError()}
+      {renderComment()}
     </CommentSection>
   );
 };

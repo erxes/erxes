@@ -8,9 +8,10 @@ import Table from '@erxes/ui/src/components/table';
 import Row from '../../containers/categories/Row';
 import CategoryForm from '../../containers/categories/CategoryForm';
 import { Title } from '@erxes/ui-settings/src/styles';
+import { ICategory } from '../../types';
 
 type Props = {
-  forumCategories: any;
+  forumCategories: ICategory[];
 };
 
 export default function LayoutCategories({ forumCategories }: Props) {
@@ -55,7 +56,7 @@ export default function LayoutCategories({ forumCategories }: Props) {
         </tr>
       </thead>
       <tbody id={'ForumCategoriesList'}>
-        {forumCategories.map((cat: any) => {
+        {forumCategories.map((cat: ICategory) => {
           return <Row key={cat._id} category={cat} />;
         })}
       </tbody>

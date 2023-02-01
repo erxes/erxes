@@ -64,6 +64,24 @@ class PostForm extends React.Component<Props, State> {
     this.setState({ content: e.editor.getData() });
   };
 
+  renderOptions = () => {
+    const { categories } = this.props;
+
+    return (
+      <>
+        <option key="null" value="">
+          No category
+        </option>
+        {categories &&
+          categories.map(p => (
+            <option key={p._id} value={p._id}>
+              {p.name}
+            </option>
+          ))}
+      </>
+    );
+  };
+
   renderContent = (formProps: IFormProps) => {
     const { post, renderButton, closeModal, categories } = this.props;
     const { content, categoryId } = this.state;
@@ -103,15 +121,7 @@ class PostForm extends React.Component<Props, State> {
             componentClass="select"
             defaultValue={categoryId}
           >
-            <option key="null" value="">
-              No category
-            </option>
-            {categories &&
-              categories.map(p => (
-                <option key={p._id} value={p._id}>
-                  {p.name}
-                </option>
-              ))}
+            {this.renderOptions()}
           </FormControl>
         </FormGroup>
 

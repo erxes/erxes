@@ -7,12 +7,12 @@ import CommentComponent from '../../components/comment/Comment';
 import { withRouter } from 'react-router-dom';
 import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import { confirm, withProps } from '@erxes/ui/src/utils';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { RemoveMutationResponse } from '../../types';
+import { IComment, RemoveMutationResponse } from '../../types';
 
 type Props = {
-  comment: any;
+  comment: IComment;
   onDeleted?: (string) => any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 } & IRouterProps &

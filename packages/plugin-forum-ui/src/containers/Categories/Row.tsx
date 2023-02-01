@@ -2,10 +2,9 @@ import React from 'react';
 import Row from '../../components/categories/Row';
 import { useQuery, useMutation } from 'react-apollo';
 import { Alert, confirm } from '@erxes/ui/src/utils';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { mutations, queries } from '../../graphql';
 import gql from 'graphql-tag';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 export default function CategoryNavItem({ category }) {
   const { data, loading, error } = useQuery(
@@ -29,7 +28,6 @@ export default function CategoryNavItem({ category }) {
         })
           .then(() => {
             Alert.success('You successfully deleted a category');
-            // allCategoryQueries.refetch();
           })
           .catch(e => {
             Alert.error(e.message);
@@ -40,21 +38,12 @@ export default function CategoryNavItem({ category }) {
       });
   };
 
-  const getRefetchQueries = (_id: string) => {
-    return [
-      {
-        query: gql(queries.categoriesByParentIds),
-        variables: { _id }
-      }
-    ];
-  };
-
   if (loading) {
-    return null;
+    return <Spinner objective={true} />;
   }
 
   if (error) {
-    return <pre>{JSON.stringify(error, null, 2)}</pre>;
+    Alert.error(error.message);
   }
 
   const subCategories = data.forumCategories || [];

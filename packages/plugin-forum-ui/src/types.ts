@@ -5,7 +5,7 @@ export interface ICategory {
   order?: string;
   code: string;
   postsCount?: number;
-  ancestors?: any;
+  ancestors?: ICategory[];
   parentId?: string | null;
   thumbnail?: string | null;
   postsReqCrmApproval?: boolean | null;
@@ -85,6 +85,23 @@ export interface IPage {
   listOrder?: number;
   thumbnail?: string;
   title?: string;
+}
+
+export interface IComment {
+  _id: string;
+  createdBy?: {
+    _id?: string;
+    username?: string;
+    email?: string;
+  };
+  createdByCp?: {
+    _id?: string;
+    email?: string;
+    username?: string;
+  };
+  content: string;
+  replies?: IComment[];
+  postId: string;
 }
 
 /* queries */

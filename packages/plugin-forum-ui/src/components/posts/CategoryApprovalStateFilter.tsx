@@ -56,7 +56,7 @@ function CategoryApprovalStateFilter({ history, counts, emptyText }: IProps) {
 
   return (
     <Box
-      title={__('Filter by Category Approval State')}
+      title={__('Filter by Approval State')}
       collapsible={categoryApprovalStates.length > 5}
       name="showFilterBycategoryApprovalState"
     >

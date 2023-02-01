@@ -37,3 +37,11 @@ export const CommentForm = styledTS<{ isReply?: boolean }>(styled.div)`
 export const CommentSection = styled.div`
   margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px;
 `;
+
+export const Reply = styled.div`
+  margin-left: ${dimensions.coreSpacing * 2}px;
+`;
+
+export const Thumbnail = styled.img`
+  max-height: 400px;
+`;

@@ -29,9 +29,6 @@ function List({ removeMutation, postsQuery }: FinalProps) {
 
   const [categoryApprovalState] = useSearchParam('categoryApprovalState');
 
-  const [perPage] = useSearchParam('perPage');
-  const [page] = useSearchParam('page');
-
   const variables = {
     categoryId,
     state,
@@ -41,11 +38,6 @@ function List({ removeMutation, postsQuery }: FinalProps) {
   };
 
   const postQuery = useQuery(gql(queries.forumPostsQuery), {
-    variables,
-    fetchPolicy: 'network-only'
-  });
-
-  const countQuery = useQuery(gql(queries.forumPostsCount), {
     variables,
     fetchPolicy: 'network-only'
   });
@@ -78,6 +70,7 @@ function List({ removeMutation, postsQuery }: FinalProps) {
       />
     );
   };
+
   return <Bulk content={content} />;
 }
 

@@ -59,6 +59,21 @@ class Row extends React.Component<Props> {
 
   render() {
     const { post, isChecked, toggleBulk } = this.props;
+    const {
+      title,
+      _id,
+      state,
+      stateChangedAt,
+      stateChangedBy,
+      createdAt,
+      createdBy,
+      updatedAt,
+      updatedBy,
+      commentCount,
+      upVoteCount,
+      downVoteCount,
+      viewCount
+    } = post;
 
     const onChange = e => {
       if (toggleBulk) {
@@ -72,7 +87,7 @@ class Row extends React.Component<Props> {
 
     return (
       <tr>
-        <td id="customersCheckBox" style={{ width: '50px' }} onClick={onClick}>
+        <td id="customersCheckBox" onClick={onClick}>
           <FormControl
             checked={isChecked}
             componentClass="checkbox"
@@ -80,19 +95,19 @@ class Row extends React.Component<Props> {
           />
         </td>
         <td>
-          <Link to={`/forums/posts/${post._id}`}>{post.title}</Link>
+          <Link to={`/forums/posts/${_id}`}>{title}</Link>
         </td>
-        <td>{post.state}</td>
-        <td>{post.stateChangedAt}</td>
-        <td>{post.stateChangedBy.username}</td>
-        <td>{post.createdAt}</td>
-        <td>{post.createdBy.username}</td>
-        <td>{post.updatedAt}</td>
-        <td>{post.updatedBy.username}</td>
-        <td>{post.commentCount}</td>
-        <td>{post.upVoteCount}</td>
-        <td>{post.downVoteCount}</td>
-        <td>{post.viewCount}</td>
+        <td>{state}</td>
+        <td>{stateChangedAt}</td>
+        <td>{stateChangedBy.username}</td>
+        <td>{createdAt}</td>
+        <td>{createdBy.username}</td>
+        <td>{updatedAt}</td>
+        <td>{updatedBy.username}</td>
+        <td>{commentCount}</td>
+        <td>{upVoteCount}</td>
+        <td>{downVoteCount}</td>
+        <td>{viewCount}</td>
         <td>
           <ActionButtons>
             {this.renderEditAction(post)}

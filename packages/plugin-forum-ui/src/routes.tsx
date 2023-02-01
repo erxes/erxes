@@ -23,7 +23,9 @@ const PostList = asyncComponent(() =>
 );
 
 const PostDetails = asyncComponent(() =>
-  import(/* webpackChunkName: "CustomerDetails" */ './containers/PostDetail')
+  import(
+    /* webpackChunkName: "CustomerDetails" */ './containers/PostsList/PostDetail'
+  )
 );
 
 const PermissionGroups = asyncComponent(() =>

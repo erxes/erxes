@@ -13,6 +13,7 @@ import {
 import { PreviewContent } from '@erxes/ui-engage/src/styles';
 import { postUsername } from '../../utils';
 import Comments from '../../containers/Comments';
+import { Thumbnail } from '../../styles';
 
 type Props = {
   post: IPost;
@@ -24,6 +25,61 @@ type Props = {
 
 function PageDetail(props: Props) {
   const { post, onDraft, onPublish, onApproveClick, onDenyClick } = props;
+
+  const renderThumbnail = () => {
+    if (post.thumbnail) {
+      return (
+        <>
+          <Subject noBorder={true}>
+            <FlexRow>
+              <label>{__('Thumbnail')}</label>
+            </FlexRow>
+            <Thumbnail src={post.thumbnail} alt="thumbnail" />
+          </Subject>
+          <Subject noBorder={true}>
+            <FlexRow>
+              <label>{__('Thumbnail url')}</label>
+            </FlexRow>
+            <strong>{post.thumbnail}</strong>
+          </Subject>
+        </>
+      );
+    }
+
+    return null;
+  };
+
+  const renderPublishButton = () => {
+    if (post.state === 'DRAFT') {
+      return (
+        <Button onClick={onPublish} btnStyle="success" size="small">
+          Publish
+        </Button>
+      );
+    }
+
+    return (
+      <Button onClick={onDraft} btnStyle="simple" size="small">
+        Turn into a draft
+      </Button>
+    );
+  };
+
+  const renderApproveButton = () => {
+    if (post.categoryApprovalState === 'DENIED') {
+      return (
+        <Button btnStyle="success" size="small" onClick={onApproveClick}>
+          Approve
+        </Button>
+      );
+    }
+
+    return (
+      <Button btnStyle="warning" size="small" onClick={onDenyClick}>
+        Deny
+      </Button>
+    );
+  };
 
   const content = (
     <>
@@ -43,22 +99,7 @@ function PageDetail(props: Props) {
           </FlexItem>
         </FlexContent>
       </Subject>
-      {post.thumbnail && (
-        <>
-          <Subject noBorder={true}>
-            <FlexRow>
-              <label>{__('Thumbnail')}</label>
-            </FlexRow>
-            <img src={post.thumbnail} alt="thumbnail" />
-          </Subject>
-          <Subject noBorder={true}>
-            <FlexRow>
-              <label>{__('Thumbnail url')}</label>
-            </FlexRow>
-            <strong>{post.thumbnail}</strong>
-          </Subject>
-        </>
-      )}
+      {renderThumbnail()}
       <Subject>
         <FlexContent>
           <FlexItem>
@@ -166,34 +207,14 @@ function PageDetail(props: Props) {
             <FlexRow>
               <label>{__('State')}</label>
               <strong>{post.state}</strong>&nbsp;&nbsp;&nbsp;
-              {post.state !== 'DRAFT' ? (
-                <Button onClick={onDraft} btnStyle="simple" size="small">
-                  Turn into a draft
-                </Button>
-              ) : (
-                <Button onClick={onPublish} btnStyle="success" size="small">
-                  Publish
-                </Button>
-              )}
+              {renderPublishButton()}
             </FlexRow>
           </FlexItem>
           <FlexItem>
             <FlexRow>
               <label>{__('Category approval')}</label>
               <strong>{post.categoryApprovalState}</strong>&nbsp;&nbsp;&nbsp;
-              {post.categoryApprovalState === 'DENIED' ? (
-                <Button
-                  btnStyle="success"
-                  size="small"
-                  onClick={onApproveClick}
-                >
-                  Approve
-                </Button>
-              ) : (
-                <Button btnStyle="warning" size="small" onClick={onDenyClick}>
-                  Deny
-                </Button>
-              )}
+              {renderApproveButton()}
             </FlexRow>
           </FlexItem>
         </FlexContent>

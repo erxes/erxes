@@ -10,6 +10,7 @@ import {
   Subject
 } from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
 import { PreviewContent } from '@erxes/ui-engage/src/styles';
+import { Thumbnail } from '../../styles';
 
 type Props = {
   page: IPage;
@@ -17,6 +18,21 @@ type Props = {
 
 function PageDetail(props: Props) {
   const { page } = props;
+
+  const renderThumbnail = () => {
+    if (page.thumbnail) {
+      return (
+        <Subject noBorder={true}>
+          <FlexRow>
+            <label>{__('Thumbnail')}</label>
+          </FlexRow>
+          <Thumbnail src={page.thumbnail} alt="thumbnail" />
+        </Subject>
+      );
+    }
+
+    return null;
+  };
 
   const content = (
     <>
@@ -36,14 +52,7 @@ function PageDetail(props: Props) {
           </FlexItem>
         </FlexContent>
       </Subject>
-      {page.thumbnail && (
-        <Subject noBorder={true}>
-          <FlexRow>
-            <label>{__('Thumbnail')}</label>
-          </FlexRow>
-          <img src={page.thumbnail} alt="thumbnail" />
-        </Subject>
-      )}
+      {renderThumbnail()}
       <Subject noBorder={true}>
         <FlexRow>
           <label>{__('Description')}</label>

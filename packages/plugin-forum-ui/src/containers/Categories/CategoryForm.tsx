@@ -7,9 +7,10 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import * as compose from 'lodash.flowright';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { withProps } from '@erxes/ui/src/utils';
+import { Alert, withProps } from '@erxes/ui/src/utils';
 import CategoryForm from '../../components/categories/CategoryForm';
 import { ICategory } from '../../types';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   category?: ICategory;
@@ -27,11 +28,11 @@ function CategoryFormContainer({ closeModal, category }: Props) {
   );
 
   if (loading) {
-    return null;
+    return <Spinner objective={true} />;
   }
 
   if (error) {
-    return <pre>{JSON.stringify(data, null, 2)}</pre>;
+    Alert.error(error.message);
   }
 
   const { forumCategoryPossibleParents } = data;
@@ -75,14 +76,4 @@ function CategoryFormContainer({ closeModal, category }: Props) {
   );
 }
 
-const getRefetchQueries = () => {
-  return [
-    {
-      query: gql(queries.forumPostsQuery)
-    }
-  ];
-};
-
-export default withProps<{}>(
-  compose()(withRouter<Props>(CategoryFormContainer))
-);
+export default CategoryFormContainer;

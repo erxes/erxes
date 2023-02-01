@@ -10,6 +10,7 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import CategoryForm from '../../containers/categories/CategoryForm';
 import RowContainer from '../../containers/categories/Row';
+import Label from '@erxes/ui/src/components/Label';
 
 export const TdWrapper = styledTS<{ space: number }>(styled.td)`
   padding: ${props => props.space * 3};
@@ -34,6 +35,7 @@ class Row extends React.Component<Props, State> {
 
   render() {
     const { categories, parentCategory, onDelete } = this.props;
+    const { ancestors, name, code, postsCount, _id } = parentCategory;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -44,11 +46,7 @@ class Row extends React.Component<Props, State> {
     );
 
     const content = props => (
-      <CategoryForm
-        {...props}
-        key={parentCategory._id}
-        category={parentCategory}
-      />
+      <CategoryForm {...props} key={_id} category={parentCategory} />
     );
 
     return (
@@ -56,16 +54,16 @@ class Row extends React.Component<Props, State> {
         <tr>
           <td
             style={{
-              padding:
-                parentCategory.ancestors &&
-                `0 0 0 ${parentCategory.ancestors.length * 3}em`,
+              padding: ancestors && `0 0 0 ${ancestors.length * 3}em`,
               margin: 0
             }}
           >
-            {parentCategory.name}
+            {name}
           </td>
-          <td>{parentCategory.code}</td>
-          <td>{parentCategory.postsCount}</td>
+          <td>
+            <Label lblStyle="simple">{code}</Label>
+          </td>
+          <td>{postsCount}</td>
           <td>
             <ActionButtons>
               <ModalTrigger
@@ -84,7 +82,7 @@ class Row extends React.Component<Props, State> {
             </ActionButtons>
           </td>
         </tr>
-        {categories.map((cat: any, index: number) => {
+        {(categories || []).map((cat: ICategory, index: number) => {
           return <RowContainer category={cat} key={index} />;
         })}
       </>

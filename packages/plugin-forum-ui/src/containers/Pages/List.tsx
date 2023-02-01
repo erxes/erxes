@@ -10,9 +10,10 @@ import * as compose from 'lodash.flowright';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { queries, mutations } from '../../graphql';
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import { Alert, withProps } from '@erxes/ui/src/utils';
 import { RemoveMutationResponse, PagesQueryResponse } from '../../types';
 import { graphql } from 'react-apollo';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 type FinalProps = {
   pagesQuery: PagesQueryResponse;
@@ -31,10 +32,11 @@ function PagesList({ history, removeMutation, pagesQuery }: FinalProps) {
   });
 
   if (loading) {
-    return null;
+    return <Spinner objective={true} />;
   }
+
   if (error) {
-    return <pre>{JSON.stringify(error, null, 2)}</pre>;
+    Alert.error(error.message);
   }
 
   const queryParams = queryString.parse(location.search);

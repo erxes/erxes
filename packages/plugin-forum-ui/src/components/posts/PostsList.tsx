@@ -1,6 +1,6 @@
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { EMPTY_CONTENT_POPUPS } from '@erxes/ui-settings/src/constants';
+import { EMPTY_CONTENT_FORUMS } from '@erxes/ui-settings/src/constants';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import React from 'react';
@@ -199,7 +199,7 @@ class List extends React.Component<Props, {}> {
             count={posts.length}
             emptyContent={
               <EmptyContent
-                content={EMPTY_CONTENT_POPUPS}
+                content={EMPTY_CONTENT_FORUMS}
                 maxItemWidth="360px"
               />
             }
