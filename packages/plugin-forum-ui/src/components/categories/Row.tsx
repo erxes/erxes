@@ -69,6 +69,7 @@ class Row extends React.Component<Props, State> {
               <ModalTrigger
                 title="Edit Category"
                 trigger={editTrigger}
+                size="lg"
                 content={content}
               />
 

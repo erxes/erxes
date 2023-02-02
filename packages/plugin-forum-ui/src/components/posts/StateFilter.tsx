@@ -9,6 +9,7 @@ import {
 } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
+import { stateFilters } from '../../constants';
 
 interface IProps extends IRouterProps {
   counts: Counts;
@@ -16,11 +17,6 @@ interface IProps extends IRouterProps {
 }
 
 function StatusFilter({ history, counts, emptyText }: IProps) {
-  const stateFilters = [
-    { key: 'DRAFT', value: 'Draft' },
-    { key: 'PUBLISHED', value: 'Published' }
-  ];
-
   const data = (
     <SidebarList>
       {stateFilters.map((state, index) => {

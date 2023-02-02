@@ -9,6 +9,7 @@ import {
 } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
+import { categoryApprovalStates } from '../../constants';
 
 interface IProps extends IRouterProps {
   counts: Counts;
@@ -16,12 +17,6 @@ interface IProps extends IRouterProps {
 }
 
 function CategoryApprovalStateFilter({ history, counts, emptyText }: IProps) {
-  const categoryApprovalStates = [
-    { key: 'PENDING', value: 'Pending' },
-    { key: 'APPROVED', value: 'Approved' },
-    { key: 'DENIED', value: 'Denied' }
-  ];
-
   const data = (
     <SidebarList>
       {categoryApprovalStates.map((categoryApprovalState, index) => {

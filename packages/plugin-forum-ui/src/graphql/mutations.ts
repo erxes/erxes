@@ -238,6 +238,20 @@ mutation ForumPostDeny($_id: ID!) {
 }
 `;
 
+const addPermit = `
+mutation ForumPermissionGroupAddCategoryPermit(
+  $_id: ID!
+  $categoryIds: [ID!]!
+  $permission: ForumPermission!
+) {
+  forumPermissionGroupAddCategoryPermit(
+    _id: $_id
+    categoryIds: $categoryIds
+    permission: $permission
+  )
+}
+`;
+
 export default {
   updateCategory,
   createCategory,
@@ -254,5 +268,6 @@ export default {
   postDraft,
   postPublish,
   postApprove,
-  postDeny
+  postDeny,
+  addPermit
 };

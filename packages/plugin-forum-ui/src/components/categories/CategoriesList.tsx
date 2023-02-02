@@ -33,6 +33,7 @@ export default function LayoutCategories({ forumCategories }: Props) {
       title={__('Add category')}
       autoOpenKey={`showForumCategoriesModal`}
       trigger={trigger}
+      size="lg"
       content={modalContent}
       enforceFocus={false}
     />

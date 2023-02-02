@@ -23,7 +23,13 @@ const categoriesByParentIds = `
       thumbnail
       code
       postsCount
+      userLevelReqPostRead
+      userLevelReqPostWrite
+      userLevelReqCommentWrite
       postsReqCrmApproval
+      postReadRequiresPermissionGroup
+      postWriteRequiresPermissionGroup
+      commentWriteRequiresPermissionGroup
       parentId
       ancestors {
         _id
@@ -347,6 +353,29 @@ query ForumPages($sort: JSON) {
 }
 `;
 
+const permits = `
+query ForumPermissionGroupCategoryPermits(
+  $permissionGroupId: [ID!]
+  $permission: [ForumPermission!]
+  $categoryId: [ID!]
+) {
+  forumPermissionGroupCategoryPermits(
+    permissionGroupId: $permissionGroupId
+    permission: $permission
+    categoryId: $categoryId
+  ) {
+    _id
+    categoryId
+    permissionGroupId
+    permission
+    category {
+      _id
+      name
+    }
+  }
+}
+`;
+
 export default {
   allCategoryQueries,
   categoriesAll,
@@ -365,5 +394,6 @@ export default {
   forumSubscriptionProductsQuery,
   pageDetail,
   pageRefetch,
-  pages
+  pages,
+  permits
 };

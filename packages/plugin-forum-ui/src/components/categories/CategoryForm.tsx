@@ -7,6 +7,11 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import Button from '@erxes/ui/src/components/Button';
 import { ICategory } from '../../types';
+import { Divider, StepBody, StepHeader, StepItem } from '../../styles';
+import { __ } from '@erxes/ui/src/utils';
+import Info from '@erxes/ui/src/components/Info';
+import TextInfo from '@erxes/ui/src/components/TextInfo';
+import { READ_CP_USER_LEVELS, WRITE_CP_USER_LEVELS } from '../../constants';
 
 type Props = {
   category?: ICategory;
@@ -21,11 +26,6 @@ const CategoryForm: React.FC<Props> = ({
   closeModal,
   categories
 }) => {
-  const [name, setName] = useState(category?.name || '');
-  const [code, setCode] = useState(category?.code || '');
-  const [parentId, setParentId] = useState(category?.parentId || '');
-  const [thumbnail, setThumbnail] = useState(category?.thumbnail || '');
-
   const [userLevelReqPostRead, setUserLevelReqPostRead] = useState(
     category?.userLevelReqPostRead || 'GUEST'
   );
@@ -38,7 +38,7 @@ const CategoryForm: React.FC<Props> = ({
   const [postsReqCrmApproval, setPostsReqCrmApproval] = useState(
     category?.postsReqCrmApproval || false
   );
-
+  console.log('caeogry', category);
   const [
     postReadRequiresPermissionGroup,
     setPostReadRequiresPermissionGroup
@@ -58,18 +58,26 @@ const CategoryForm: React.FC<Props> = ({
     code?: string;
     parentId?: string;
     thumbnail?: string;
-    // userLevelReqPostRead?: string;
-    // userLevelReqPostWrite?: string;
-    // userLevelReqCommentWrite?: string;
-    postsReqCrmApproval?: boolean;
-    // postReadRequiresPermissionGroup?: boolean;
-    // postWriteRequiresPermissionGroup?: boolean;
-    // commentWriteRequiresPermissionGroup?: boolean;
+    userLevelReqPostRead?: string;
+    userLevelReqPostWrite?: string;
+    userLevelReqCommentWrite?: string;
   }) => {
     const finalValues = values;
 
     if (category) {
       finalValues._id = category._id;
+    }
+
+    if (finalValues.userLevelReqPostRead === 'GUEST') {
+      setPostReadRequiresPermissionGroup(false);
+    }
+
+    if (finalValues.userLevelReqCommentWrite === 'GUEST') {
+      setCommentWriteRequiresPermissionGroup(false);
+    }
+
+    if (finalValues.userLevelReqPostWrite === 'GUEST') {
+      setPostWriteRequiresPermissionGroup(false);
     }
 
     return {
@@ -79,13 +87,16 @@ const CategoryForm: React.FC<Props> = ({
       code: finalValues.code || null,
       parentId: finalValues.parentId || null,
       thumbnail: finalValues.thumbnail || null,
-      userLevelReqPostRead: 'GUEST',
-      userLevelReqPostWrite: 'REGISTERED',
-      userLevelReqCommentWrite: 'REGISTERED',
+      userLevelReqPostRead: finalValues.userLevelReqPostRead || 'GUEST',
+      userLevelReqPostWrite: finalValues.userLevelReqPostWrite || 'REGISTERED',
+      userLevelReqCommentWrite:
+        finalValues.userLevelReqCommentWrite || 'REGISTERED',
       postsReqCrmApproval: postsReqCrmApproval || false,
-      postReadRequiresPermissionGroup: false,
-      postWriteRequiresPermissionGroup: false,
-      commentWriteRequiresPermissionGroup: false
+      postReadRequiresPermissionGroup: postReadRequiresPermissionGroup || false,
+      postWriteRequiresPermissionGroup:
+        postWriteRequiresPermissionGroup || false,
+      commentWriteRequiresPermissionGroup:
+        commentWriteRequiresPermissionGroup || false
     };
   };
 
@@ -118,7 +129,7 @@ const CategoryForm: React.FC<Props> = ({
             {...formProps}
             name="parentId"
             componentClass="select"
-            defaultValue={parentId}
+            defaultValue={category.parentId || ''}
           >
             <option key="null" value="">
               No parent (root category)
@@ -154,6 +165,141 @@ const CategoryForm: React.FC<Props> = ({
             }}
           />
         </FormGroup>
+
+        <h3>User level based permissions</h3>
+
+        <StepItem>
+          <StepHeader>{__('Post')}</StepHeader>
+          <StepBody>
+            <FormGroup>
+              <ControlLabel>Read</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="userLevelReqPostRead"
+                defaultValue={userLevelReqPostRead}
+                componentClass="select"
+                onChange={e => setUserLevelReqPostRead(e)}
+              >
+                {Object.keys(READ_CP_USER_LEVELS).map(enumVal => (
+                  <option key={enumVal} value={enumVal}>
+                    {enumVal}
+                  </option>
+                ))}
+              </FormControl>
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Also requires permission group</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="postReadRequiresPermissionGroup"
+                className="toggle-message"
+                disabled={userLevelReqPostRead === 'GUEST'}
+                componentClass="checkbox"
+                checked={postReadRequiresPermissionGroup}
+                onChange={() => {
+                  setPostReadRequiresPermissionGroup(
+                    !postReadRequiresPermissionGroup
+                  );
+                }}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Write</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="userLevelReqPostWrite"
+                defaultValue={userLevelReqPostWrite}
+                componentClass="select"
+                onChange={e => setUserLevelReqPostWrite(e)}
+              >
+                {Object.keys(WRITE_CP_USER_LEVELS).map(enumVal => (
+                  <option key={enumVal} value={enumVal}>
+                    {enumVal}
+                  </option>
+                ))}
+              </FormControl>
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Also requires permission group</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="postWriteRequiresPermissionGroup"
+                className="toggle-message"
+                disabled={userLevelReqPostWrite === 'GUEST'}
+                componentClass="checkbox"
+                checked={postWriteRequiresPermissionGroup}
+                onChange={() => {
+                  setPostWriteRequiresPermissionGroup(
+                    !postWriteRequiresPermissionGroup
+                  );
+                }}
+              />
+            </FormGroup>
+          </StepBody>
+        </StepItem>
+
+        <StepItem>
+          <StepHeader>{__('Comment')}</StepHeader>
+          <StepBody>
+            <FormGroup>
+              <ControlLabel>Read</ControlLabel> Guest
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Write</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="userLevelReqCommentWrite"
+                defaultValue={userLevelReqCommentWrite}
+                componentClass="select"
+                onChange={e => setUserLevelReqCommentWrite(e)}
+              >
+                {Object.keys(WRITE_CP_USER_LEVELS).map(enumVal => (
+                  <option key={enumVal} value={enumVal}>
+                    {enumVal}
+                  </option>
+                ))}
+              </FormControl>
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Also requires permission group</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="commentWriteRequiresPermissionGroup"
+                className="toggle-message"
+                disabled={userLevelReqCommentWrite === 'GUEST'}
+                componentClass="checkbox"
+                checked={commentWriteRequiresPermissionGroup}
+                onChange={() => {
+                  setCommentWriteRequiresPermissionGroup(
+                    !commentWriteRequiresPermissionGroup
+                  );
+                }}
+              />
+            </FormGroup>
+          </StepBody>
+        </StepItem>
+
+        <Info>
+          <p>
+            If "Also requires permission group" is&nbsp;
+            <TextInfo textStyle="danger">checked, both 2</TextInfo>&nbsp;
+            conditions are required for a user to be able to perform the action.
+          </p>
+          <p>
+            If "Also requires permission group" is&nbsp;
+            <TextInfo textStyle="danger">unchecked</TextInfo>, only&nbsp;
+            <TextInfo textStyle="danger">one</TextInfo>&nbsp; of 2 conditions is
+            required for a user to be able to perform the action.
+          </p>
+          <Divider />
+          <p>
+            <b>Conditions:</b>
+            <ol>
+              <li>User level is high enough</li>
+              <li>User is in a permission group that permits the action</li>
+            </ol>
+          </p>
+        </Info>
 
         <ModalFooter id={'AddTagButtons'}>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">

@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import colors from '@erxes/ui/src/styles/colors';
 import { dimensions } from '@erxes/ui/src/styles';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 
 export const CommentContainer = styled.div`
   border: 1px solid ${colors.borderPrimary};
@@ -44,4 +45,39 @@ export const Reply = styled.div`
 
 export const Thumbnail = styled.img`
   max-height: 400px;
+`;
+
+export const StepItem = styled.div`
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 1px 5px 0;
+  border-radius: 2px;
+  margin-bottom: ${dimensions.unitSpacing}px;
+
+  &:last-of-type {
+    margin: 0;
+  }
+`;
+
+export const StepHeader = styled.div`
+  border-bottom: 1px solid ${colors.borderPrimary};
+  padding: 15px 30px;
+  position: relative;
+  background: ${colors.bgLight};
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  font-weight: 500;
+`;
+
+export const StepBody = styled.div`
+  padding: 20px 30px 30px 30px;
+  background: ${colors.colorWhite};
+
+  > div:last-of-type {
+    margin: 0;
+  }
+`;
+
+export const Divider = styled.div`
+  border-bottom: 1px dotted ${rgba(colors.colorPrimary, 0.5)};
+  padding-bottom: ${dimensions.unitSpacing}px;
+  margin: 0 0 ${dimensions.coreSpacing}px 0px;
 `;
