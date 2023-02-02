@@ -60,6 +60,11 @@ a:hover {
   opacity: 0.8;
 }
 
+.modal.show {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 .modal.in .modal-dialog {
   transform: none;
 }

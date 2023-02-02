@@ -3,7 +3,7 @@ import * as serverTiming from 'server-timing';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initBroker, sendSegmentsMessage } from './messageBroker';
+import { initBroker } from './messageBroker';
 import * as permissions from './permissions';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { buildFile } from './exporterByUrl';
@@ -20,6 +20,7 @@ import webhooks from './webhooks';
 import documents from './documents';
 import tags from './tags';
 import exporter from './exporter';
+import cronjobs from './cronjobs/common';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -41,6 +42,7 @@ export default {
   hasSubscriptions: true,
 
   meta: {
+    cronjobs,
     forms,
     logs: { providesActivityLog: true, consumers: logs },
     segments,

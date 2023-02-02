@@ -1,5 +1,6 @@
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
+import redis from '@erxes/api-utils/src/redis';
 import { sendRequest } from '@erxes/api-utils/src/requests';
 
 import { IUserDocument } from './../../api-utils/src/types';
@@ -324,4 +325,37 @@ export const customFieldsDataByFieldCode = async (object, subdomain) => {
   }
 
   return results;
+};
+
+export const sendAfterMutation = async (
+  subdomain: string,
+  type: string,
+  action: string,
+  object: any,
+  newData: any,
+  extraDesc: any
+) => {
+  const value = await redis.get('afterMutations');
+  const afterMutations = JSON.parse(value || '{}');
+
+  if (
+    afterMutations[type] &&
+    afterMutations[type][action] &&
+    afterMutations[type][action].length
+  ) {
+    for (const service of afterMutations[type][action]) {
+      sendCommonMessage({
+        serviceName: service,
+        subdomain,
+        action: 'afterMutation',
+        data: {
+          type,
+          action,
+          object,
+          newData,
+          extraDesc
+        }
+      });
+    }
+  }
 };
