@@ -102,7 +102,7 @@ export default class TicketHeader extends React.Component<Props, State> {
           </div>
         </HeaderWrapper>
         <Modal
-          content={() => <TicketForm />}
+          content={() => <TicketForm closeModal={this.showModal} />}
           onClose={this.showModal}
           isOpen={show}
         />
