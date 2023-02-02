@@ -17,15 +17,15 @@ export const commonPaginateValue = `
     sortToDate:$sortToDate
 `;
 
-export const riskAssessmentDef = `
-    $categoryId: String,
+export const riskIndicatorDef = `
+    $categoryIds: String,
     $description: String,
     $name: String!,
     $calculateMethod: String,
 `;
 
-export const riskAssessmentValues = `
-    categoryId: $categoryId,
+export const riskIndicatorValues = `
+    categoryIds: $categoryIds,
     description: $description,
     name: $name,
     calculateMethod: $calculateMethod
@@ -41,29 +41,37 @@ order
 type
 `;
 
-export const riskAssessmentParams = `
+export const riskIndicatorParams = `
     _id,
     name,
     description,
-    status,
-    statusColor,
     categoryId,
+    operationIds
+    departmentIds,
+    branchIds,
     createdAt,
-    resultScore,
+    customScoreField {
+        label,
+        percentWeight
+    }
     category{
         _id
         formId
         parentId
         name
     },
-    calculateMethod,
-    calculateLogics {
+      forms {
         _id
-        logic
-        name
-        value
-        value2
-        color
+        calculateMethod
+        calculateLogics {
+            _id
+            name
+            value
+            logic
+            color
+        }
+        formId
+        percentWeight
       }
 `;
 

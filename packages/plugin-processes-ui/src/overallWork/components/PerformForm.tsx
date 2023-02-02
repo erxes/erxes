@@ -1,3 +1,5 @@
+import client from '@erxes/ui/src/apolloClient';
+import gql from 'graphql-tag';
 import Box from '@erxes/ui/src/components/Box';
 import Button from '@erxes/ui/src/components/Button';
 import CommonForm from '@erxes/ui/src/components/form/Form';
@@ -9,7 +11,14 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import PerformDetail from './PerformDetail';
 import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
 import React from 'react';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import SelectJobRefer from '../../job/containers/refer/SelectJobRefer';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { __ } from '@erxes/ui/src/utils';
+import { AddTrigger } from '../../styles';
 import {
   DateContainer,
   FormColumn,
@@ -25,23 +34,23 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { IOverallWorkDet, IPerform } from '../types';
 import { IProduct, IUom } from '@erxes/ui-products/src/types';
 import { IProductsData } from '../../types';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { AddTrigger } from '../../styles';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
+import { JOB_TYPE_CHOISES } from '../../constants';
+import { queries } from '../../job/graphql';
+import Alert from '@erxes/ui/src/utils/Alert';
 
 type Props = {
   renderButton: (
-    props: IButtonMutateProps & { disabled: boolean }
+    props: IButtonMutateProps & { disabled?: boolean }
   ) => JSX.Element;
   closeModal: () => void;
   allUoms: IUom[];
   perform?: IPerform;
-  overallWorkDetail: IOverallWorkDet;
+  overallWorkDetail?: IOverallWorkDet;
   max: number;
 };
 
 type State = {
+  overallWorkDet: IOverallWorkDet;
   count: number;
   description: string;
   appendix: string;
@@ -64,13 +73,34 @@ class Form extends React.Component<Props, State> {
     const { overallWorkDetail, perform } = this.props;
     let startAt = new Date();
     let endAt = new Date();
-    const overCount = overallWorkDetail.count;
+
+    const overallWorkDet = overallWorkDetail || {
+      _id: '',
+      key: {
+        type: '',
+        inBranchId: '',
+        inDepartmentId: '',
+        outBranchId: '',
+        outDepartmentId: ''
+      },
+      startAt,
+      dueDate: endAt,
+      type: '',
+      workIds: [],
+      needProducts: [],
+      resultProducts: [],
+      count: 0,
+      needProductsData: [],
+      resultProductsData: []
+    };
+
+    const overCount = overallWorkDet.count;
     let count = 1;
-    const needProducts = overallWorkDetail.needProductsData.map(np => ({
+    const needProducts = overallWorkDet.needProductsData.map(np => ({
       ...np,
       quantity: np.quantity / overCount
     }));
-    const resultProducts = overallWorkDetail.resultProductsData.map(rp => ({
+    const resultProducts = overallWorkDet.resultProductsData.map(rp => ({
       ...rp,
       quantity: rp.quantity / overCount
     }));
@@ -87,6 +117,7 @@ class Form extends React.Component<Props, State> {
     }
 
     this.state = {
+      overallWorkDet,
       startAt,
       endAt,
       count,
@@ -108,9 +139,10 @@ class Form extends React.Component<Props, State> {
     needProducts: IProductsData[];
     resultProducts: IProductsData[];
   }) => {
-    const { perform, overallWorkDetail } = this.props;
+    const { perform } = this.props;
+    const { overallWorkDet } = this.state;
 
-    const { key } = overallWorkDetail;
+    const { key } = overallWorkDet;
     const {
       type,
       inBranchId,
@@ -142,7 +174,7 @@ class Form extends React.Component<Props, State> {
     return {
       ...(perform || {}),
       ...finalValues,
-      overallWorkId: overallWorkDetail._id,
+      overallWorkId: overallWorkDet._id,
       overallWorkKey: key,
       startAt,
       endAt,
@@ -440,8 +472,8 @@ class Form extends React.Component<Props, State> {
   }
 
   renderPerformDetails() {
-    const { overallWorkDetail } = this.props;
-    const { type } = overallWorkDetail;
+    const { overallWorkDet } = this.state;
+    const { type } = overallWorkDet;
 
     if (type === 'income') {
       return (
@@ -475,8 +507,55 @@ class Form extends React.Component<Props, State> {
     );
   }
 
+  setLocations = (name, value) => {
+    const { overallWorkDet } = this.state;
+    this.setState({
+      overallWorkDet: {
+        ...overallWorkDet,
+        key: { ...overallWorkDet.key, [name]: value }
+      }
+    });
+  };
+
   renderInLoc() {
     const { overallWorkDetail } = this.props;
+    const { overallWorkDet } = this.state;
+    if (!overallWorkDetail) {
+      return (
+        <FormColumn>
+          <FormGroup>
+            <ControlLabel>{__(`In Branch`)}</ControlLabel>
+            <SelectBranches
+              label="Choose branch"
+              name="inBranchId"
+              initialValue={overallWorkDet.inBranchId || ''}
+              customOption={{
+                value: '',
+                label: '...Clear branch filter'
+              }}
+              onSelect={branchId => this.setLocations('inBranchId', branchId)}
+              multi={false}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__(`In Department`)}</ControlLabel>
+            <SelectDepartments
+              label="Choose department"
+              name="inDepartmentId"
+              initialValue={overallWorkDet.inDepartmentId || ''}
+              customOption={{
+                value: '',
+                label: '...Clear department filter'
+              }}
+              onSelect={departmentId =>
+                this.setLocations('inDepartmentId', departmentId)
+              }
+              multi={false}
+            />
+          </FormGroup>
+        </FormColumn>
+      );
+    }
     return (
       <FormColumn>
         <FormGroup>
@@ -496,6 +575,44 @@ class Form extends React.Component<Props, State> {
 
   renderOutLoc() {
     const { overallWorkDetail } = this.props;
+    const { overallWorkDet } = this.state;
+    if (!overallWorkDetail) {
+      return (
+        <FormColumn>
+          <FormGroup>
+            <ControlLabel>{__(`Out Branch`)}</ControlLabel>
+            <SelectBranches
+              label="Choose branch"
+              name="outBranchId"
+              initialValue={overallWorkDet.outBranchId || ''}
+              customOption={{
+                value: '',
+                label: '...Clear branch filter'
+              }}
+              onSelect={branchId => this.setLocations('outBranchId', branchId)}
+              multi={false}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__(`Out Department`)}</ControlLabel>
+            <SelectDepartments
+              label="Choose department"
+              name="outDepartmentId"
+              initialValue={overallWorkDet.outDepartmentId || ''}
+              customOption={{
+                value: '',
+                label: '...Clear department filter'
+              }}
+              onSelect={departmentId =>
+                this.setLocations('outDepartmentId', departmentId)
+              }
+              multi={false}
+            />
+          </FormGroup>
+        </FormColumn>
+      );
+    }
+
     return (
       <FormColumn>
         <FormGroup>
@@ -514,23 +631,14 @@ class Form extends React.Component<Props, State> {
   }
 
   renderLocations() {
-    const { overallWorkDetail } = this.props;
-    const { type } = overallWorkDetail;
+    const { overallWorkDet } = this.state;
+    const { type } = overallWorkDet;
 
     if (type === 'income') {
       return <FormWrapper>{this.renderOutLoc()}</FormWrapper>;
     }
     if (type === 'outlet') {
       return <FormWrapper>{this.renderInLoc()}</FormWrapper>;
-    }
-
-    if (type === 'outlet') {
-      return (
-        <FormWrapper>
-          {this.renderInLoc()}
-          {this.renderOutLoc()}
-        </FormWrapper>
-      );
     }
 
     return (
@@ -541,9 +649,69 @@ class Form extends React.Component<Props, State> {
     );
   }
 
+  renderJobRefer() {
+    const { overallWorkDetail } = this.props;
+    const { overallWorkDet } = this.state;
+
+    if (overallWorkDetail) {
+      return <></>;
+    }
+
+    if (['income', 'outlet', 'move'].includes(overallWorkDet.type)) {
+      return <></>;
+    }
+
+    const setJobRefer = value => {
+      client
+        .query({
+          query: gql(queries.jobReferDetail),
+          fetchPolicy: 'network-only',
+          variables: { id: value }
+        })
+        .then(({ data }) => {
+          this.setState({
+            overallWorkDet: {
+              ...overallWorkDet,
+              key: { ...overallWorkDet.key, typeId: value },
+              jobReferId: value,
+              jobRefer: data.jobReferDetail,
+              needProducts: data.jobReferDetail.needProducts,
+              resultProducts: data.jobReferDetail.resultProducts
+            },
+            needProducts: data.jobReferDetail.needProducts,
+            resultProducts: data.jobReferDetail.resultProducts,
+            inProducts: data.jobReferDetail.needProducts,
+            outProducts: data.jobReferDetail.resultProducts
+          });
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
+    return (
+      <FormGroup>
+        <ControlLabel>Job Refer</ControlLabel>
+        <SelectJobRefer
+          label="Choose jobRefer"
+          name="jobReferId"
+          initialValue={overallWorkDet.jobReferId || ''}
+          customOption={{
+            value: '',
+            label: '...Clear jobRefer filter'
+          }}
+          filterParams={{ types: [overallWorkDet.type] }}
+          onSelect={jobReferId => setJobRefer(jobReferId)}
+          multi={false}
+        />
+      </FormGroup>
+    );
+  }
+
   renderCOC() {
-    const { overallWorkDetail, perform } = this.props;
-    const { type } = overallWorkDetail;
+    const { perform } = this.props;
+    const { overallWorkDet } = this.state;
+    const { type } = overallWorkDet;
 
     if (['income', 'outlet'].includes(type)) {
       return (
@@ -591,19 +759,53 @@ class Form extends React.Component<Props, State> {
   }
 
   renderContent = (formProps: IFormProps) => {
-    const {
-      closeModal,
-      renderButton,
-      max,
-      overallWorkDetail,
-      perform
-    } = this.props;
+    const { closeModal, renderButton, max, perform } = this.props;
+    const { overallWorkDet } = this.state;
     const { values, isSubmitted } = formProps;
     const { count, startAt, endAt, description, appendix } = this.state;
 
+    if (!overallWorkDet.type) {
+      const onchangeType = e => {
+        const value = e.target.value;
+        this.setState({
+          overallWorkDet: {
+            ...overallWorkDet,
+            type: value,
+            key: { ...overallWorkDet.key, type: value }
+          }
+        });
+      };
+      return (
+        <FormGroup>
+          <ControlLabel>Type</ControlLabel>
+          <FormControl
+            name="type"
+            componentClass="select"
+            value={''}
+            required={false}
+            onChange={onchangeType}
+          >
+            <option value="">Choose type</option>
+            {Object.keys(JOB_TYPE_CHOISES).map(jt => (
+              <option value={jt} key={Math.random()}>
+                {JOB_TYPE_CHOISES[jt]}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
+      );
+    }
+
     return (
       <>
-        <ControlLabel>Type: {overallWorkDetail.type} </ControlLabel>
+        <ControlLabel>Type: {overallWorkDet.type} </ControlLabel>
+        {overallWorkDet.jobRefer && (
+          <ControlLabel>
+            , Job Refer:{' '}
+            {`${overallWorkDet.jobRefer.code} - ${overallWorkDet.jobRefer.name}`}
+          </ControlLabel>
+        )}
+
         <FormWrapper>
           <FormColumn>
             <FormGroup>
@@ -629,7 +831,7 @@ class Form extends React.Component<Props, State> {
                 name="count"
                 defaultValue={count}
                 type="number"
-                max={overallWorkDetail.type !== 'income' ? max : undefined}
+                max={overallWorkDet.type !== 'income' ? max : undefined}
                 autoFocus={true}
                 required={true}
                 onChange={this.onChangeCount}
@@ -690,6 +892,7 @@ class Form extends React.Component<Props, State> {
           {this.renderCOC()}
         </FormWrapper>
 
+        {this.renderJobRefer()}
         {this.renderLocations()}
 
         <Box title={'Plan Details:'}>
@@ -719,8 +922,7 @@ class Form extends React.Component<Props, State> {
             isSubmitted,
             callback: closeModal,
             object: perform,
-            disabled:
-              overallWorkDetail.type !== 'income' && max < this.state.count
+            disabled: overallWorkDet.type !== 'income' && max < this.state.count
           })}
         </ModalFooter>
       </>

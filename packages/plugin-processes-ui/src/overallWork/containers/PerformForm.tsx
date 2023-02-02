@@ -19,7 +19,7 @@ import productsQueries from '@erxes/ui-products/src/graphql/queries';
 type Props = {
   closeModal: () => void;
   history: any;
-  overallWorkDetail: IOverallWorkDet;
+  overallWorkDetail?: IOverallWorkDet;
   perform?: IPerform;
   max: number;
 };
@@ -51,7 +51,7 @@ class PerformFormContainer extends React.Component<FinalProps> {
       isSubmitted,
       callback,
       disabled
-    }: IButtonMutateProps & { disabled: boolean }) => {
+    }: IButtonMutateProps & { disabled?: boolean }) => {
       return (
         <ButtonMutate
           mutation={values._id ? mutations.performEdit : mutations.performAdd}
