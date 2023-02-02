@@ -176,6 +176,7 @@ export const commonFields = `
   labelIds
   stage {
     probability
+    type
   }
   isWatched
   attachments {
