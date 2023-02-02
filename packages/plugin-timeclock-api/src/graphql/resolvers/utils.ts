@@ -1,7 +1,18 @@
 import { fixDate } from '@erxes/api-utils/src';
+import dayjs = require('dayjs');
 import { generateModels, IModels } from '../../connectionResolver';
 import { sendCoreMessage } from '../../messageBroker';
-import { IUserReport, IUsersReport } from '../../models/definitions/timeclock';
+import {
+  IScheduleDocument,
+  IShiftDocument,
+  IUserReport,
+  IUsersReport
+} from '../../models/definitions/timeclock';
+
+// milliseconds to hrs
+const MMSTOHRS = 3600000;
+// milliseconds to mins
+const MMSTOMINS = 60000;
 
 export const findDepartment = async (subdomain: string, target) => {
   const department = await sendCoreMessage({
@@ -470,24 +481,15 @@ export const timeclockReportByUser = async (
 export const timeclockReportPreliminary = async (
   subdomain: string,
   userIds: string[],
-  startDate?: string,
-  endDate?: string,
+  startDate: string,
+  endDate: string,
   teamMembersObj?: any,
-  reportType?: string
+  exportToXlsx?: boolean
 ) => {
   const models = await generateModels(subdomain);
 
   const usersReport: IUsersReport = {};
   const shiftsOfSchedule: any = [];
-
-  const NOW = new Date();
-  // get 1st of this month
-  const startOfThisMonth = new Date(NOW.getFullYear(), NOW.getMonth(), 1);
-  // get 1st of the next Month
-  const startOfNextMonth = new Date(NOW.getFullYear(), NOW.getMonth() + 1, 1);
-
-  const startTime = startDate ? startDate : startOfThisMonth;
-  const endTime = endDate ? endDate : startOfNextMonth;
 
   // get the schedule data of this month
   const schedules = await models.Schedules.find({
@@ -496,45 +498,45 @@ export const timeclockReportPreliminary = async (
     userId: 1
   });
 
+  const scheduleIds = schedules.map(schedule => schedule._id);
+
   const timeclocks = await models.Timeclocks.find({
     $and: [
       { userId: { $in: userIds } },
       {
         shiftStart: {
-          $gte: fixDate(startTime),
-          $lte: fixDate(endTime)
+          $gte: fixDate(startDate),
+          $lte: fixDate(endDate)
         }
       },
       {
         shiftEnd: {
-          $gte: fixDate(startTime),
-          $lte: fixDate(endTime)
+          $gte: fixDate(startDate),
+          $lte: fixDate(endDate)
         }
       }
     ]
   }).sort({ userId: 1 });
 
-  for (const { _id } of schedules) {
-    shiftsOfSchedule.push(
-      ...(await models.Shifts.find({
-        $and: [
-          { scheduleId: _id },
-          { status: 'Approved' },
-          {
-            shiftStart: {
-              $gte: fixDate(startTime),
-              $lte: fixDate(endTime)
-            }
+  shiftsOfSchedule.push(
+    ...(await models.Shifts.find({
+      $and: [
+        { scheduleId: { $in: scheduleIds } },
+        { status: 'Approved' },
+        {
+          shiftStart: {
+            $gte: fixDate(startDate),
+            $lte: fixDate(endDate)
           }
-        ]
-      }))
-    );
-  }
+        }
+      ]
+    }))
+  );
 
   userIds.forEach(async currUserId => {
     // assign team member info from teamMembersObj
 
-    if (reportType === 'xlsx') {
+    if (exportToXlsx) {
       usersReport[currUserId] = { ...teamMembersObj[currUserId] };
     }
 
@@ -556,38 +558,442 @@ export const timeclockReportPreliminary = async (
       );
     });
 
-    let totalDaysWorkedThisMonthPerUser = 0;
-    let totalDaysScheduledThisMonthPerUser = 0;
+    let totalDaysWorkedPerUser = 0;
+    let totalDaysScheduledPerUser = 0;
 
     if (currUserTimeclocks) {
-      totalDaysWorkedThisMonthPerUser = new Set(
+      totalDaysWorkedPerUser = new Set(
         currUserTimeclocks.map(shift =>
           new Date(shift.shiftStart).toLocaleDateString()
         )
       ).size;
     }
     if (currUserScheduleShifts) {
-      totalDaysScheduledThisMonthPerUser += new Set(
+      totalDaysScheduledPerUser += new Set(
         currUserScheduleShifts.map(shiftOfSchedule =>
           new Date(shiftOfSchedule.shiftStart).toLocaleDateString()
         )
       ).size;
     }
 
-    if (reportType === 'xlsx') {
-      usersReport[
-        currUserId
-      ].totalDaysScheduledThisMonth = totalDaysScheduledThisMonthPerUser;
-      usersReport[
-        currUserId
-      ].totalDaysWorkedThisMonth = totalDaysWorkedThisMonthPerUser;
+    if (exportToXlsx) {
+      usersReport[currUserId].totalDaysScheduled = totalDaysScheduledPerUser;
+      usersReport[currUserId].totalDaysWorked = totalDaysWorkedPerUser;
     } else {
       usersReport[currUserId] = {
-        totalDaysScheduledThisMonth: totalDaysScheduledThisMonthPerUser,
-        totalDaysWorkedThisMonth: totalDaysWorkedThisMonthPerUser
+        totalDaysScheduled: totalDaysScheduledPerUser,
+        totalDaysWorked: totalDaysWorkedPerUser
       };
     }
   });
 
   return usersReport;
+};
+
+export const timeclockReportFinal = async (
+  subdomain: string,
+  userIds: string[],
+  startDate?: string,
+  endDate?: string,
+  teamMembersObj?: any,
+  exportToXlsx?: boolean
+) => {
+  const models = await generateModels(subdomain);
+  const usersReport: IUsersReport = {};
+  const shiftsOfSchedule: any = [];
+
+  // get the schedule data of this month
+  const schedules = await models.Schedules.find({
+    userId: { $in: userIds }
+  }).sort({
+    userId: 1
+  });
+
+  const scheduleIds = schedules.map(schedule => schedule._id);
+
+  const timeclocks = await models.Timeclocks.find({
+    $and: [
+      { userId: { $in: userIds } },
+      {
+        shiftStart: {
+          $gte: fixDate(startDate),
+          $lte: fixDate(endDate)
+        }
+      },
+      {
+        shiftEnd: {
+          $gte: fixDate(startDate),
+          $lte: fixDate(endDate)
+        }
+      }
+    ]
+  }).sort({ userId: 1 });
+
+  shiftsOfSchedule.push(
+    ...(await models.Shifts.find({
+      $and: [
+        { scheduleId: { $in: scheduleIds } },
+        { status: 'Approved' },
+        {
+          shiftStart: {
+            $gte: fixDate(startDate),
+            $lte: fixDate(endDate)
+          }
+        }
+      ]
+    }))
+  );
+
+  const schedulesObj = createSchedulesObj(userIds, schedules, shiftsOfSchedule);
+
+  userIds.forEach(async currUserId => {
+    // assign team member info from teamMembersObj
+
+    if (exportToXlsx) {
+      usersReport[currUserId] = { ...teamMembersObj[currUserId] };
+    }
+
+    const currUserTimeclocks = timeclocks.filter(
+      timeclock => timeclock.userId === currUserId
+    );
+
+    const currUserSchedules = schedules.filter(
+      schedule => schedule.userId === currUserId
+    );
+
+    // get shifts of schedule
+    const currUserScheduleShifts: any = [];
+    currUserSchedules.forEach(userSchedule => {
+      currUserScheduleShifts.push(
+        ...shiftsOfSchedule.filter(
+          scheduleShift => scheduleShift.scheduleId === userSchedule._id
+        )
+      );
+    });
+
+    let totalDaysWorkedPerUser = 0;
+    let totalRegularHoursWorkedPerUser = 0;
+    let totalHoursWorkedPerUser = 0;
+
+    let totalDaysScheduledPerUser = 0;
+    let totalHoursScheduledPerUser = 0;
+
+    let totalHoursOvertimePerUser = 0;
+    let totalMinsLatePerUser = 0;
+    let totalHoursOvernightPerUser = 0;
+
+    if (currUserTimeclocks) {
+      totalDaysWorkedPerUser = new Set(
+        currUserTimeclocks.map(shift =>
+          new Date(shift.shiftStart).toLocaleDateString()
+        )
+      ).size;
+
+      currUserTimeclocks.forEach(currUserTimeclock => {
+        const shiftStart = currUserTimeclock.shiftStart;
+        const shiftEnd = currUserTimeclock.shiftEnd;
+        if (shiftStart && shiftEnd) {
+          // get time in hours
+          const totalHoursWorkedPerShift =
+            (shiftEnd.getTime() - shiftStart.getTime()) / MMSTOHRS;
+
+          // make sure shift end is later than shift start
+          if (totalHoursWorkedPerShift > 0) {
+            totalRegularHoursWorkedPerUser += totalHoursWorkedPerShift;
+          }
+
+          totalHoursOvernightPerUser += returnOvernightHours(
+            shiftStart,
+            shiftEnd
+          );
+
+          if (
+            currUserId in schedulesObj &&
+            shiftStart.toLocaleDateString() in schedulesObj[currUserId]
+          ) {
+            const getScheduleOfTheDay =
+              schedulesObj[currUserId][shiftStart.toLocaleDateString()];
+
+            const scheduleShiftStart = getScheduleOfTheDay.shiftStart;
+            const scheduleShiftEnd = getScheduleOfTheDay.shiftEnd;
+
+            const getScheduleDuration =
+              scheduleShiftEnd.getTime() - scheduleShiftStart.getTime();
+
+            const getTimeClockDuration =
+              shiftEnd.getTime() - shiftStart.getTime();
+
+            // get difference in schedule duration and time clock duration
+            const getShiftDurationDiff =
+              getTimeClockDuration - getScheduleDuration;
+
+            // if timeclock > schedule -- overtime, else -- late
+            if (getShiftDurationDiff > 0) {
+              totalHoursOvertimePerUser += getShiftDurationDiff / MMSTOHRS;
+            } else {
+              totalMinsLatePerUser +=
+                Math.abs(getShiftDurationDiff) / MMSTOMINS;
+            }
+          }
+        }
+      });
+
+      // deduct overtime from worked hours
+      totalRegularHoursWorkedPerUser -= totalHoursOvertimePerUser;
+      totalHoursWorkedPerUser =
+        totalRegularHoursWorkedPerUser + totalHoursOvertimePerUser;
+    }
+
+    if (currUserScheduleShifts) {
+      totalDaysScheduledPerUser += new Set(
+        currUserScheduleShifts.map(shiftOfSchedule =>
+          new Date(shiftOfSchedule.shiftStart).toLocaleDateString()
+        )
+      ).size;
+
+      currUserScheduleShifts.forEach(scheduledDay => {
+        const shiftStart = scheduledDay.shiftStart;
+        const shiftEnd = scheduledDay.shiftEnd;
+        // get time in hours
+        const totalHoursScheduledPerShift =
+          (shiftEnd.getTime() - shiftStart.getTime()) / MMSTOHRS;
+        // make sure shift end is later than shift start
+        if (totalHoursScheduledPerShift > 0) {
+          totalHoursScheduledPerUser += totalHoursScheduledPerShift;
+        }
+      });
+    }
+
+    usersReport[currUserId] = {
+      ...usersReport[currUserId],
+      totalDaysScheduled: totalDaysScheduledPerUser,
+      totalHoursScheduled: totalHoursScheduledPerUser.toFixed(2),
+      totalDaysWorked: totalDaysWorkedPerUser,
+      totalRegularHoursWorked: totalRegularHoursWorkedPerUser.toFixed(2),
+      totalHoursOvertime: totalHoursOvertimePerUser.toFixed(2),
+      totalHoursOvernight: totalHoursOvernightPerUser.toFixed(2),
+      totalHoursWorked: totalHoursWorkedPerUser.toFixed(2),
+      totalMinsLate: totalMinsLatePerUser.toFixed(2)
+    };
+  });
+
+  return usersReport;
+};
+
+export const timeclockReportPivot = async (
+  subdomain: string,
+  userIds: string[],
+  startDate?: string,
+  endDate?: string,
+  teamMembersObj?: any,
+  exportToXlsx?: boolean
+) => {
+  const models = await generateModels(subdomain);
+  const usersReport: IUserReport = { scheduleReport: [] };
+  const shiftsOfSchedule: any = [];
+
+  // get the schedule data of this month
+  const schedules = await models.Schedules.find({
+    userId: { $in: userIds }
+  }).sort({
+    userId: 1
+  });
+
+  const scheduleIds = schedules.map(schedule => schedule._id);
+
+  const timeclocks = await models.Timeclocks.find({
+    $and: [
+      { userId: { $in: userIds } },
+      {
+        shiftStart: {
+          $gte: fixDate(startDate),
+          $lte: fixDate(endDate)
+        }
+      },
+      {
+        shiftEnd: {
+          $gte: fixDate(startDate),
+          $lte: fixDate(endDate)
+        }
+      }
+    ]
+  }).sort({ userId: 1 });
+
+  shiftsOfSchedule.push(
+    ...(await models.Shifts.find({
+      $and: [
+        { scheduleId: { $in: scheduleIds } },
+        { status: 'Approved' },
+        {
+          shiftStart: {
+            $gte: fixDate(startDate),
+            $lte: fixDate(endDate)
+          }
+        }
+      ]
+    }))
+  );
+
+  const schedulesObj = createSchedulesObj(userIds, schedules, shiftsOfSchedule);
+
+  userIds.forEach(async currUserId => {
+    // assign team member info from teamMembersObj
+
+    if (exportToXlsx) {
+      usersReport[currUserId] = { ...teamMembersObj[currUserId] };
+    }
+
+    const currUserTimeclocks = timeclocks.filter(
+      timeclock => timeclock.userId === currUserId
+    );
+
+    const currUserSchedules = schedules.filter(
+      schedule => schedule.userId === currUserId
+    );
+
+    // get shifts of schedule
+    const currUserScheduleShifts: any = [];
+    currUserSchedules.forEach(userSchedule => {
+      currUserScheduleShifts.push(
+        ...shiftsOfSchedule.filter(
+          scheduleShift => scheduleShift.scheduleId === userSchedule._id
+        )
+      );
+    });
+
+    const totalShiftsOfUser: any = [];
+
+    if (currUserTimeclocks) {
+      currUserTimeclocks.forEach(currUserTimeclock => {
+        let totalHoursOvertimePerShift = 0;
+        let totalMinsLatePerShift = 0;
+        let totalHoursOvernightPerShift = 0;
+
+        const shiftStart = currUserTimeclock.shiftStart;
+        const shiftEnd = currUserTimeclock.shiftEnd;
+        if (shiftStart && shiftEnd) {
+          totalHoursOvernightPerShift = returnOvernightHours(
+            shiftStart,
+            shiftEnd
+          );
+
+          const scheduledDay = shiftStart.toLocaleDateString();
+          const getTimeClockDuration =
+            shiftEnd.getTime() - shiftStart.getTime();
+
+          let scheduleShiftStart;
+          let scheduleShiftEnd;
+          let getScheduleDuration: number = 0;
+          if (
+            currUserId in schedulesObj &&
+            scheduledDay in schedulesObj[currUserId]
+          ) {
+            const getScheduleOfTheDay = schedulesObj[currUserId][scheduledDay];
+
+            scheduleShiftStart = getScheduleOfTheDay.shiftStart;
+            scheduleShiftEnd = getScheduleOfTheDay.shiftEnd;
+
+            getScheduleDuration =
+              scheduleShiftEnd.getTime() - scheduleShiftStart.getTime();
+
+            // get difference in schedule duration and time clock duration
+            const getShiftDurationDiff =
+              getTimeClockDuration - getScheduleDuration;
+
+            // if timeclock > schedule --> overtime, else --> late
+            if (getShiftDurationDiff > 0) {
+              totalHoursOvertimePerShift = getShiftDurationDiff / MMSTOHRS;
+            } else {
+              totalMinsLatePerShift =
+                Math.abs(getShiftDurationDiff) / MMSTOMINS;
+            }
+          }
+
+          totalShiftsOfUser.push({
+            timeclockDate: scheduledDay,
+            timeclockStart: shiftStart,
+            timeclockEnd: shiftEnd,
+            timeclockDuration: (getTimeClockDuration / MMSTOHRS).toFixed(2),
+            deviceType: currUserTimeclock.deviceType,
+            deviceName: currUserTimeclock.deviceName,
+            scheduledStart: scheduleShiftStart,
+            scheduledEnd: scheduleShiftEnd,
+            scheduledDuration: (getScheduleDuration / MMSTOHRS).toFixed(2),
+            totalMinsLate: totalMinsLatePerShift.toFixed(2),
+            totalHoursOvertime: totalHoursOvertimePerShift.toFixed(2),
+            totalHoursOvernight: totalHoursOvernightPerShift.toFixed(2)
+          });
+        }
+      });
+    }
+
+    usersReport[currUserId] = {
+      ...usersReport[currUserId],
+      scheduleReport: totalShiftsOfUser.sort(
+        (a, b) =>
+          new Date(a.timeclockStart).getTime() -
+          new Date(b.timeclockStart).getTime()
+      )
+    };
+  });
+
+  return usersReport;
+};
+
+const returnOvernightHours = (shiftStart: Date, shiftEnd: Date) => {
+  // check whether shift is between 22:00 - 06:00, if so return how many hours is overnight
+  const shiftDay = shiftStart.toLocaleDateString();
+  const nextDay = dayjs(shiftDay)
+    .add(1, 'day')
+    .toDate();
+  const overnightStart = dayjs(shiftDay + ' ' + '22:00:00').toDate();
+  const overnightEnd = dayjs(nextDay + ' ' + '06:00:00').toDate();
+
+  let totalOvernightHours = 0;
+
+  // if shift end is less than 22:00 then no overnight time
+  if (shiftEnd > overnightStart) {
+    const getOvernightDuration =
+      (shiftEnd > overnightEnd ? overnightEnd.getTime() : shiftEnd.getTime()) -
+      (shiftStart < overnightStart
+        ? overnightStart.getTime()
+        : shiftStart.getTime());
+
+    totalOvernightHours += getOvernightDuration / MMSTOHRS;
+  }
+
+  return totalOvernightHours;
+};
+
+const createSchedulesObj = (
+  userIds: string[],
+  totalSchedules: IScheduleDocument[],
+  totalScheduleShifts: IShiftDocument[]
+) => {
+  const returnObject = {};
+
+  for (const userId of userIds) {
+    const currEmpSchedules = totalSchedules.filter(
+      schedule => schedule.userId === userId
+    );
+
+    if (currEmpSchedules.length) {
+      returnObject[userId] = {};
+    }
+    for (const empSchedule of currEmpSchedules) {
+      const currEmpScheduleShifts = totalScheduleShifts.filter(
+        scheduleShift => scheduleShift.scheduleId === empSchedule._id
+      );
+
+      currEmpScheduleShifts.forEach(currEmpScheduleShift => {
+        const date_key = currEmpScheduleShift.shiftStart?.toLocaleDateString();
+        returnObject[userId][date_key] = {
+          shiftStart: currEmpScheduleShift.shiftStart,
+          shiftEnd: currEmpScheduleShift.shiftEnd
+        };
+      });
+    }
+  }
+
+  return returnObject;
 };
