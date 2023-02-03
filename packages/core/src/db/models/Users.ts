@@ -624,7 +624,8 @@ export const loadUserClass = (models: IModels) => {
         groupIds: user.groupIds,
         brandIds: user.brandIds,
         username: user.username,
-        code: user.code
+        code: user.code,
+        departmentIds: user.departmentIds
       };
     }
 

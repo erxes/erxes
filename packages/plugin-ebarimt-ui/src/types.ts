@@ -10,7 +10,7 @@ export type IConfig = {
 
 // query types
 export type ConfigsQueryResponse = {
-  configs: IConfig[];
+  configsGetValue: IConfig;
   loading: boolean;
   refetch: () => void;
 };

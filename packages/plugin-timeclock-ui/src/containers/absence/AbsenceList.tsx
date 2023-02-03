@@ -67,7 +67,8 @@ const ListContainer = (props: FinalProps) => {
     usrId: string,
     expl: string,
     attchment: IAttachment,
-    dateRange
+    dateRange: any,
+    absenceTypeId: string
   ) => {
     if (!reason || !dateRange.startTime || !dateRange.endTime) {
       Alert.error('Please fill all the fields');
@@ -79,7 +80,8 @@ const ListContainer = (props: FinalProps) => {
           endTime: dateRange.endTime,
           reason: `${reason}`,
           explanation: expl.length > 0 ? expl : undefined,
-          attachment: attchment.url.length > 0 ? attchment : undefined
+          attachment: attchment.url.length > 0 ? attchment : undefined,
+          absenceTypeId: `${absenceTypeId}`
         }
       })
         .then(() => Alert.success('Successfully sent an absence request'))

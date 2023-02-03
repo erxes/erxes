@@ -7,6 +7,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 // local
 import MessageList from '../containers/messages/MessageList';
 import Editor from '../containers/Editor';
+import ReplyInfo from '../components/ReplyInfo';
 import {
   ChatGroupAvatar,
   WidgetChatWindowWrapper,
@@ -69,6 +70,7 @@ const WidgetChatWindow = (props: FinalProps) => {
         />
       </WidgetChatWindowHeader>
       <MessageList chatId={chat._id} setReply={setReply} />
+      <ReplyInfo reply={reply} setReply={setReply} />
       <Editor
         chatId={chat._id}
         type="widget"

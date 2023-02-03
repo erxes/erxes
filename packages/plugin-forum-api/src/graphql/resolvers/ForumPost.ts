@@ -3,6 +3,9 @@ import { IObjectTypeResolver } from '@graphql-tools/utils';
 import { IPost } from '../../db/models/post';
 
 const ForumPost: IObjectTypeResolver<IPost, IContext> = {
+  __resolveReference({ _id }, { models: { Post } }: IContext) {
+    return Post.findById({ _id });
+  },
   async category({ categoryId }, _, { models: { Category } }) {
     return categoryId && Category.findById(categoryId);
   },
@@ -77,6 +80,16 @@ const ForumPost: IObjectTypeResolver<IPost, IContext> = {
     });
 
     return !!savedPost;
+  },
+
+  async quizzes({ _id }, _, { models: { Quiz }, user }) {
+    const query: any = { postId: _id };
+
+    if (!user) {
+      query.state = 'PUBLISHED';
+    }
+
+    return Quiz.find(query);
   }
 };
 

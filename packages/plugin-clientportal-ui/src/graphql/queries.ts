@@ -207,6 +207,17 @@ const clientPortalUserDetail = `
   }
 `;
 
+const clientPortalComments = `
+  query clientPortalComments($typeId: String!, $type: String!) {
+    clientPortalComments(typeId: $typeId, type: $type) {
+      _id
+      content
+      createdAt
+      createdUser
+    }
+  }
+`;
+
 export default {
   getConfig,
   getConfigs,
@@ -215,5 +226,6 @@ export default {
   clientPortalUsers,
   clientPortalUsersMain,
   clientPortalUserDetail,
-  clientPortalUserCounts
+  clientPortalUserCounts,
+  clientPortalComments
 };

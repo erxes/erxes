@@ -18,7 +18,8 @@ type Props = {
     userId: string,
     explanation: string,
     attachment: IAttachment,
-    dateRange: DateTimeRange
+    dateRange: DateTimeRange,
+    absenceTypeId: string
   ) => void;
   contentProps: any;
 };
@@ -47,8 +48,12 @@ export default (props: Props) => {
     type: '',
     url: ''
   });
+  const checkAbsenceIdx = parseInt(
+    localStorage.getItem('absenceIdx') || '0',
+    10
+  );
   const [absenceIdx, setAbsenceArrIdx] = useState(
-    parseInt(localStorage.getItem('absenceIdx') || '0', 10)
+    checkAbsenceIdx < absenceTypes.length ? checkAbsenceIdx : 0
   );
   const [userId, setUserId] = useState('');
 
@@ -69,7 +74,13 @@ export default (props: Props) => {
   const onSubmitClick = closeModal => {
     const validInput = checkInput(userId);
     if (validInput) {
-      submitRequest(userId, explanation, attachment, dateRange);
+      submitRequest(
+        userId,
+        explanation,
+        attachment,
+        dateRange,
+        absenceTypes[absenceIdx]._id
+      );
       closeModal();
     }
   };
@@ -128,7 +139,7 @@ export default (props: Props) => {
       <Select
         placeholder={__('Reason')}
         onChange={onReasonSelect}
-        value={absenceTypes[absenceIdx].name}
+        value={absenceTypes.length > 0 && absenceTypes[absenceIdx].name}
         options={
           absenceTypes &&
           absenceTypes.map((absenceType, idx) => ({

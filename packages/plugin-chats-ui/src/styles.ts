@@ -58,7 +58,7 @@ export const Title = styled.h5`
 `;
 
 export const ChatActions = styled.div`
-  z-index: 100;
+  z-index: 1;
   visibility: hidden;
 
   position: absolute;
@@ -115,6 +115,7 @@ export const WidgetPopoverWrapper = styled.div`
   max-height: 500px !important;
   position: relative;
   padding: ${dimensions.coreSpacing}px 0;
+  overflow-y: scroll;
 `;
 
 export const WidgetPopoverSeeAll = styled.div`
@@ -123,6 +124,8 @@ export const WidgetPopoverSeeAll = styled.div`
   width: 100%;
   border-top: 1px solid ${colors.borderPrimary};
   height: 30px;
+  background-color: white;
+  z-index: 9999;
 
   a {
     padding: 5px ${dimensions.coreSpacing}px;
@@ -136,6 +139,7 @@ export const WidgetChatWrapper = styled.div`
   bottom: 0;
   right: 0;
   display: flex;
+  z-index: 9999;
   justify-content: flex-end;
   align-content: flex-end;
 `;
@@ -151,6 +155,7 @@ export const WidgetChatWindowWrapper = styled.div`
   align-items: flex-end;
   border-radius: 5px;
   overflow: hidden;
+  background-color: #f9f9f9;
 
   -webkit-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.5);
   -moz-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0.5);
@@ -245,7 +250,7 @@ export const ChatGroupAvatar = styled.div`
     bottom: -2px;
     left: -2px;
     border: 2px solid ${colors.bgActive};
-    z-index: 1;
+    z-index: 2;
   }
   span:last-child {
     position: absolute;
@@ -424,7 +429,7 @@ export const MessageListWrapper = styled.div`
   overflow-y: scroll;
   overflow-x: hidden;
   list-style: none;
-  padding: 0;
+  padding: 0 ${dimensions.unitSpacing}px;
   margin: 0;
 `;
 
@@ -435,7 +440,7 @@ export const MessageItemWrapper = styledTS<{ me?: boolean }>(styled.div)`
   align-items: flex-end;
   justify-content: ${props => (props.me ? 'flex-start' : 'flex-end')};
   flex-direction: ${props => (props.me ? 'row' : 'row-reverse')};
-  margin: ${dimensions.unitSpacing}px;
+  margin: 2px;
 
   &:last-child {
     margin-top: auto;
@@ -516,6 +521,19 @@ export const MessageOption = styled.button`
   }
 `;
 
+export const MessageAttachmentWrapper = styled.div`
+  max-width: 560px;
+  height: auto;
+  overflow: hidden;
+  position: relative;
+
+  & img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    right: 0;
+  }
+`;
 /**
  * Messages - END
  */
@@ -524,19 +542,13 @@ export const MessageOption = styled.button`
  * ChatEditor - START
  */
 export const ChatEditor = styled.div`
-  height: auto;
-  width: 100%;
-  bottom: 0;
-  margin-bottom: 10px;
-`;
-
-export const ChatEditorWidget = styled.div`
   width: 100%;
   background-color: #f9f9f9;
   padding: ${dimensions.unitSpacing}px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: ${dimensions.unitSpacing}px;
 
   label {
     margin: 0 10px;
@@ -557,44 +569,15 @@ export const ChatEditorWidget = styled.div`
   }
 `;
 
-export const ChatEditorActions = styled.div`
-  float: right;
-  padding: 0 20px 10px;
-  text-align: right;
-  position: relative;
-  color: ${colors.colorCoreGray};
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-
-  label {
-    margin: 0 10px 0 0;
-    display: block;
-
-    &:hover {
-      cursor: pointer;
-      color: ${darken(colors.colorCoreGray, 30)};
-    }
-  }
-
-  i {
-    margin: 0;
-  }
-
-  input[type='file'] {
-    display: none;
-  }
-`;
-
 export const ChatReplyInfo = styled.div`
-  max-width: 100%;
+  width: 100%;
   height: auto;
   display: block;
   overflow: hidden;
   font-size: ${dimensions.unitSpacing}px;
   color: ${colors.textSecondary};
   margin: 0;
-  padding 1em 0;
+  padding 1em;
 
   p {
     max-width: 560px;

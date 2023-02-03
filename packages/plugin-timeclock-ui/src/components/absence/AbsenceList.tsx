@@ -5,10 +5,11 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Table from '@erxes/ui/src/components/table';
 import { IAbsence, IAbsenceType } from '../../types';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import { IAttachment } from '@erxes/ui/src/types';
 import AbsenceForm from './AbsenceForm';
 import Attachment from '@erxes/ui/src/components/Attachment';
+import dayjs from 'dayjs';
+import { dateFormat } from '../../constants';
 
 type Props = {
   absences: IAbsence[];
@@ -22,7 +23,8 @@ type Props = {
     userId: string,
     explanation: string,
     attachment: IAttachment,
-    dateRange: any
+    dateRange: any,
+    absenceTypeId: string
   ) => void;
   getActionBar: (actionBar: any) => void;
 };
@@ -63,9 +65,16 @@ function AbsenceList(props: Props) {
   const ListAbsenceContent = absence => {
     const startTime = new Date(absence.startTime);
     const endTime = new Date(absence.endTime);
-    const startingDate = startTime.toDateString();
+    const startingDate =
+      new Date(startTime).toDateString().split(' ')[0] +
+      '\t' +
+      dayjs(startTime).format(dateFormat);
+
     const startingTime = startTime.toLocaleTimeString();
-    const endingDate = endTime.toDateString();
+    const endingDate =
+      new Date(endTime).toDateString().split(' ')[0] +
+      '\t' +
+      dayjs(endTime).format(dateFormat);
     const endingTime = endTime.toLocaleTimeString();
 
     return (
