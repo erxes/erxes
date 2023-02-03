@@ -7,6 +7,7 @@ const reports = `
       code
       createdAt
       company {
+        _id
         primaryName
       }
     }
@@ -46,6 +47,7 @@ const stories = `
       title
       createdAt
       company {
+        _id
         primaryName
       }
     }
