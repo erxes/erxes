@@ -28,10 +28,14 @@ const reportMutations = {
     return models.Stories.deleteOne({ _id });
   },
 
-  apexStoryRead(_root, { _id }, { models, cpUser }) {
-    console.log('Debug =========', cpUser);
+  async apexStoryRead(_root, { _id }, { models, cpUser }) {
+    const story = await models.Stories.findOne({ _id });
 
-    if (!cpUser) {
+    if (
+      !story ||
+      !cpUser ||
+      (story.readUserIds || []).includes(cpUser.userId)
+    ) {
       return;
     }
 
