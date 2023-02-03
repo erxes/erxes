@@ -12,7 +12,7 @@ const clientPortalCommentMutations = {
     }: { type: string; typeId: string; content: string; userType: string },
     { cpUser, user, models, subdomain }: IContext
   ) {
-    let userId = user._id;
+    let userId = '';
 
     if (userType === 'client') {
       if (!cpUser) {
@@ -27,7 +27,7 @@ const clientPortalCommentMutations = {
       typeId,
       content,
       userType,
-      userId
+      userId: userId || user._id
     });
 
     const relatedCard = await models.ClientPortalUserCards.findOne({

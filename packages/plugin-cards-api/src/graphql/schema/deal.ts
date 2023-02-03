@@ -86,7 +86,8 @@ const commonQueryParams = `
   stageChangedEndDate: Date
   noSkipArchive: Boolean
   tagIds: [String]
-  `;
+  number: String
+`;
 
 const listQueryParams = `
     initialStageId: String

@@ -205,7 +205,7 @@ function ScheduleList(props: Props) {
     );
   };
   const ListScheduleContent = schedule => {
-    return schedule.shifts.length > 0 ? (
+    return schedule.shifts.length ? (
       <tr>
         <td>
           {schedule.user &&
