@@ -110,6 +110,7 @@ class CheckSyncedDeals extends React.Component<Props, State> {
 
     const tablehead = [
       'deal name',
+      'deal number',
       'Amount',
       'created At',
       'modified At',
