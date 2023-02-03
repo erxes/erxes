@@ -14,7 +14,7 @@ ${
     : ''
 }
 
-  type ClientPortalUser {
+  type ClientPortalUser @key(fields: "_id") {
     _id: String!
     createdAt: Date
     modifiedAt: Date
@@ -33,6 +33,7 @@ ${
     ownerId: String,
     links: JSON,
     customFieldsData: JSON,
+    customFieldsDataByFieldCode: JSON,
     password: String
     isEmailVerified: Boolean
     isPhoneVerified: Boolean
@@ -44,6 +45,8 @@ ${
     clientPortal: ClientPortal
 
     notificationSettings: UserNotificationSettings
+
+    avatar: String
 
     ${
       isContactsEnabled
@@ -109,6 +112,7 @@ const userParams = `
   customFieldsData: JSON,
   
   type: String,
+  avatar: String
 `;
 
 export const mutations = () => `

@@ -303,6 +303,8 @@ export type IntegrationMutationVariables = {
   brandId: string;
   name: string;
   channelIds?: string[];
+  visibility?: string;
+  departmentIds?: string[];
   data?: any;
 };
 

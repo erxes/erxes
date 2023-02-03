@@ -65,7 +65,7 @@ const taskQueries = {
   ) {
     const task = await models.Tasks.getTask(_id);
 
-    return checkItemPermByUser(models, user._id, task);
+    return checkItemPermByUser(models, user, task);
   },
 
   async tasksAsLogs(

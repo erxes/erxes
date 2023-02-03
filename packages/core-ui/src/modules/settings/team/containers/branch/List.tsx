@@ -11,7 +11,9 @@ import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 import { MenuFooter } from 'modules/settings/styles';
 
 export default function ListContainer() {
-  const listQuery = useQuery(gql(queries.branches));
+  const listQuery = useQuery(gql(queries.branches), {
+    variables: { withoutUserFilter: true }
+  });
 
   if (listQuery.loading) {
     return <Spinner />;

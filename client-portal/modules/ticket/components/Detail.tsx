@@ -6,7 +6,6 @@ import {
   TicketContent,
   TicketComment,
   TicketDetailContent,
-  Description,
   CommentWrapper,
   CreatedUser,
   CommentContent
@@ -18,20 +17,15 @@ import dayjs from 'dayjs';
 import { FormWrapper } from '../../styles/main';
 import PriorityIndicator from '../../common/PriorityIndicator';
 import Icon from '../../common/Icon';
-import Uploader from '../../common/Uploader';
-import { IAttachment } from '../../common/types';
+import { readFile } from '../../../modules/common/utils';
 
 type Props = {
   item?: any;
+  comments?: any;
   currentUser: IUser;
   onClose: () => void;
-  handleSubmit: ({
-    content,
-    email
-  }: {
-    content: string;
-    email: string;
-  }) => void;
+  handleSubmit: ({ content }: { content: string }) => void;
+  handleRemoveComment: (commentId: string) => void;
 };
 
 export default class TicketDetail extends React.Component<
@@ -50,16 +44,14 @@ export default class TicketDetail extends React.Component<
     this.setState({ content: e.target.value });
   };
 
-  onChangeAttachment = (files: IAttachment[]) => console.log(files);
-
-  onEditComment = comment => {
-    this.setState({ content: comment.content });
-  };
-
-  createComment = (email: string) => {
-    this.props.handleSubmit({ content: this.state.content, email });
+  createComment = () => {
+    this.props.handleSubmit({ content: this.state.content });
 
     this.setState({ content: '' });
+  };
+
+  deleteComment = (commentId: string) => {
+    this.props.handleRemoveComment(commentId);
   };
 
   renderContent(label, text) {
@@ -86,64 +78,54 @@ export default class TicketDetail extends React.Component<
     );
   };
 
-  renderAttachments(item) {
-    return (
-      <TicketRow>
-        <TicketLabel>
-          {' '}
-          <Icon icon="paperclip" size={14} />
-          &nbsp; Attachments
-        </TicketLabel>
-        <TicketContent>
-          <Uploader defaultFileList={[]} onChange={this.onChangeAttachment} />
-        </TicketContent>
-      </TicketRow>
-    );
-  }
-
-  renderComments(item) {
-    const comments = item.comments || [];
-
+  renderComments(comments) {
     return (
       <CommentWrapper>
-        {comments.map(comment => (
-          <TicketComment key={comment._id}>
-            <CreatedUser>
-              <img
-                src="https://erxes.io/static/images/team/square/mungunshagai.jpg"
-                alt="profile"
-              />
-              <div>
-                <CommentContent>
-                  <h5>Anu-ujin Bat-Ulzii</h5>
-                  <div
-                    className="comment"
-                    dangerouslySetInnerHTML={{ __html: comment.content }}
-                  />
-                </CommentContent>
-                <span>
-                  Reported {dayjs(comment.createdAt).format('YYYY-MM-DD HH:mm')}
-                </span>
-              </div>
-              <div className="actions">
-                <span onClick={() => this.onEditComment(comment)}>Edit</span>
-                <span>Delete</span>
-              </div>
-            </CreatedUser>
-          </TicketComment>
-        ))}
+        {comments.map(comment => {
+          const { createdUser = {} } = comment;
+
+          return (
+            <TicketComment key={comment._id}>
+              <CreatedUser>
+                <img src={readFile(createdUser?.avatar)} alt="profile" />
+                <div>
+                  <CommentContent>
+                    <h5>{`${createdUser?.firstName} ${createdUser?.lastName}`}</h5>
+                    <div
+                      className="comment"
+                      dangerouslySetInnerHTML={{ __html: comment.content }}
+                    />
+                  </CommentContent>
+                  <span>
+                    Reported{' '}
+                    {dayjs(comment.createdAt).format('YYYY-MM-DD HH:mm')}
+                  </span>
+                </div>
+                {createdUser?._id === this.props.currentUser._id && (
+                  <div className="actions">
+                    <span onClick={() => this.deleteComment(comment._id)}>
+                      Delete
+                    </span>
+                  </div>
+                )}
+              </CreatedUser>
+            </TicketComment>
+          );
+        })}
       </CommentWrapper>
     );
   }
 
   render() {
     const currentUser = this.props.currentUser || ({} as IUser);
-    const { item, onClose } = this.props;
+    const { item, onClose, comments } = this.props;
     const email = currentUser.email;
 
     if (!item) {
       return null;
     }
+
+    const { stage } = item;
 
     const content = () => (
       <FormWrapper>
@@ -156,8 +138,7 @@ export default class TicketDetail extends React.Component<
             'Description',
             item.description
           )}
-          {this.renderAttachments(item)}
-
+          {this.renderRow('notes', 'Stage', stage.name)}
           <TicketRow>
             <TicketLabel>
               {' '}
@@ -182,7 +163,7 @@ export default class TicketDetail extends React.Component<
                   </Button>
                 </div>
               )}
-              {this.renderComments(item)}
+              {this.renderComments(comments)}
             </TicketContent>
           </TicketRow>
         </TicketDetailContent>

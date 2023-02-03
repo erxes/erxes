@@ -18,7 +18,7 @@ export const types = `
 
 export const queries = `
   emailTemplates(page: Int, perPage: Int, searchValue: String, status: String): [EmailTemplate]
-  emailTemplatesTotalCount: Int
+  emailTemplatesTotalCount(searchValue: String): Int
 `;
 
 export const mutations = `

@@ -61,14 +61,6 @@ class AssignmentEditFormContainer extends React.Component<FinalProps> {
         : null;
       values.attachmentMore = attachmentMoreArray;
 
-      if (this.props.queryParams) {
-        values.segmentIds = this.props.queryParams.segmentIds
-          ? this.props.queryParams.segmentIds
-            ? JSON.parse(this.props.queryParams.segmentIds)
-            : []
-          : [];
-      }
-
       return (
         <ButtonMutate
           mutation={
@@ -114,15 +106,9 @@ export default withProps<Props>(
   compose(
     graphql<Props, SegmentsQueryResponse>(gql(queries.segments), {
       name: 'segmentsQuery',
-      options: ({ queryParams }) => ({
+      options: () => ({
         variables: {
-          ids:
-            queryParams === undefined
-              ? []
-              : queryParams.segmentIds
-              ? JSON.parse(queryParams.segmentIds)
-              : [],
-          contentTypes: ['contacts:customer']
+          contentTypes: ['contacts:customer', 'contacts:lead']
         }
       })
     }),

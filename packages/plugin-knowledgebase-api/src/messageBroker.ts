@@ -46,6 +46,18 @@ export const initBroker = async cl => {
       };
     }
   );
+
+  consumeRPCQueue(
+    'knowledgebase:categories.findOne',
+    async ({ subdomain, data: { query } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.KnowledgeBaseCategories.findOne(query).lean()
+      };
+    }
+  );
 };
 
 export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
