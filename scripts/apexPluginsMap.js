@@ -75,6 +75,14 @@ module.exports = {
           scope: 'apex',
           permissions: ['manageApexReports'],
         },
+        {
+          text: 'Stories',
+          to: '/settings/apexstories',
+          image: '/images/icons/erxes-09.svg',
+          location: 'settings',
+          scope: 'apex',
+          permissions: ['manageApexReports'],
+        },
       ],
       url:
         'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-apex-ui/remoteEntry.js',
