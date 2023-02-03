@@ -8,6 +8,7 @@
     "start": "cd .erxes/dist/plugin-apex-api/.erxes && node src"
   },
   "dependencies": {
-    "cheerio": "^1.0.0-rc.12"
+    "cheerio": "^1.0.0-rc.12",
+    "jsonwebtoken": "^8.5.1"
   }
 }

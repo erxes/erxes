@@ -26,6 +26,17 @@ const reportMutations = {
 
   apexStoryRemove(_root, { _id }, { models }: IContext) {
     return models.Stories.deleteOne({ _id });
+  },
+
+  apexStoryRead(_root, { _id }, { models, cpUser }) {
+    if (!cpUser) {
+      return;
+    }
+
+    return models.Stories.update(
+      { _id },
+      { $push: { readUserIds: [cpUser.cpUserId] } }
+    );
   }
 };
 

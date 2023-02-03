@@ -57,6 +57,7 @@ const typeDefs = gql`
 
     apexStorySave(_id: String, title: String!, content: String, companyId: String!): ApexStory
     apexStoryRemove(_id: String!): JSON
+    apexStoryRead(_id: String!): JSON
   }
 `;
 

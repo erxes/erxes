@@ -8,6 +8,7 @@ interface IStory {
   title: string;
   content: string;
   companyId: string;
+  readUserIds: string[];
 }
 
 export interface IStoryDocument extends IStory, Document {
@@ -19,7 +20,8 @@ const storieschema = new Schema({
 
   title: { type: String },
   content: { type: String },
-  companyId: { type: String }
+  companyId: { type: String },
+  readUserIds: { type: [String] }
 });
 
 export interface IStoryModel extends Model<IStoryDocument> {
