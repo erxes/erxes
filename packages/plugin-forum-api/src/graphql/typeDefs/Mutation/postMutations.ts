@@ -17,10 +17,14 @@ const commonPostParams = (isInsert = false) => {
 const postMutations = `
   forumCreatePost(
     ${commonPostParams(true)}
+    createdAt: Date
+    lastPublishedAt: Date
   ): ForumPost!
   forumPatchPost(
     _id: ID!
     ${commonPostParams()}
+    createdAt: Date
+    lastPublishedAt: Date
     ): ForumPost!
   forumDeletePost(_id: ID!): ForumPost!
   forumPostDraft(_id: ID!): ForumPost!

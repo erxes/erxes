@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { ListHead, ListBody, ListRow, Label } from "../../styles/tickets";
-import Detail from "../containers/Detail";
-import { IUser } from "../../types";
-import dayjs from "dayjs";
-import PriorityIndicator from "../../common/PriorityIndicator";
+import { useRouter } from 'next/router';
+import React from 'react';
+import { ListHead, ListBody, ListRow, Label } from '../../styles/tickets';
+import Detail from '../containers/Detail';
+import { IUser } from '../../types';
+import dayjs from 'dayjs';
 
 type Props = {
   loading: boolean;
@@ -12,7 +12,8 @@ type Props = {
 };
 
 export default function Ticket({ tickets, currentUser }: Props) {
-  const [ticketId, setId] = useState(null);
+  const router = useRouter();
+  const { itemId } = router.query as { itemId: string };
 
   if (!tickets || tickets.length === 0) {
     return null;
@@ -23,36 +24,48 @@ export default function Ticket({ tickets, currentUser }: Props) {
       <ListHead className="head">
         <div>Subject</div>
         <div>Created date</div>
-        <div>Priority</div>
-        <div>Status</div>
+        <div>Stage</div>
+        <div>Labels</div>
       </ListHead>
       <ListBody>
-        {tickets.map((ticket) => (
-          <ListRow
-            key={ticket._id}
-            className="item"
-            // onClick={() => setId(ticket._id)}
-          >
-            <div className="base-color">{ticket.name}</div>
-            <div>{dayjs(ticket.createdAt).format("MMM D YYYY")}</div>
-            <div>
-              {<PriorityIndicator value={ticket.priority} />} {ticket.priority}
-            </div>
-            <div>
-              <Label
-                lblStyle={ticket.status === "active" ? "success" : "danger"}
-              >
-                {ticket.status}
-              </Label>
-            </div>
-          </ListRow>
-        ))}
+        {tickets.map(ticket => {
+          const { stage = {}, labels } = ticket;
+
+          return (
+            <ListRow
+              key={ticket._id}
+              className="item"
+              onClick={() => router.push(`/tickets?itemId=${ticket._id}`)}
+            >
+              <div className="base-color">{ticket.name}</div>
+
+              <div>{dayjs(ticket.createdAt).format('MMM D YYYY')}</div>
+
+              <div className="base-color">{stage.name}</div>
+
+              <div>
+                {(labels || []).map(label => (
+                  <Label
+                    key={label._id}
+                    lblStyle={'custom'}
+                    colorCode={label.colorCode}
+                  >
+                    {label.name}
+                  </Label>
+                ))}
+              </div>
+            </ListRow>
+          );
+        })}
       </ListBody>
-      <Detail
-        _id={ticketId}
-        onClose={() => setId(null)}
-        currentUser={currentUser}
-      />
+
+      {itemId && (
+        <Detail
+          _id={itemId}
+          onClose={() => router.push('/tickets')}
+          currentUser={currentUser}
+        />
+      )}
     </>
   );
 }

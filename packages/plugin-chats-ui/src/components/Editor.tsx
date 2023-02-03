@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ContentState, EditorState, getDefaultKeyBinding } from 'draft-js';
 // erxes
 import Alert from '@erxes/ui/src/utils/Alert';
 import Button from '@erxes/ui/src/components/Button';
@@ -7,7 +6,6 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import Tip from '@erxes/ui/src/components/Tip';
 import Icon from '@erxes/ui/src/components/Icon';
 import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
-import { ErxesEditor, toHTML } from '@erxes/ui/src/components/editor/Editor';
 import {
   readFile,
   uploadHandler,
@@ -16,8 +14,6 @@ import {
 // local
 import {
   ChatEditor,
-  ChatEditorWidget,
-  ChatEditorActions,
   Attachment,
   AttachmentIndicator,
   AttachmentThumb,
@@ -37,9 +33,6 @@ const Editor = (props: Props) => {
   const [loading, setLoading] = useState<object>({});
   const [attachments, setAttachments] = useState<any>([]);
   const [message, setMessage] = useState<string>('');
-  const [editorState, setEditorState] = useState<any>(() =>
-    EditorState.createEmpty()
-  );
   const editorRef = useRef<any>(null);
 
   useEffect(() => {
@@ -55,34 +48,10 @@ const Editor = (props: Props) => {
   }, [reply]);
 
   const handleSendMessage = () => {
-    if (type === 'widget') {
-      props.sendMessage(message, attachments);
-      props.setReply(null);
-      setMessage('');
-      setAttachments([]);
-    } else {
-      const contentState = editorState.getCurrentContent();
-
-      if (
-        contentState.hasText() &&
-        contentState
-          .getBlockMap()
-          .first()
-          .getText() !== ''
-      ) {
-        props.sendMessage(toHTML(editorState), attachments);
-        props.setReply(null);
-        setAttachments([]);
-
-        const newState = EditorState.push(
-          editorState,
-          ContentState.createFromText(''),
-          'insert-characters'
-        );
-
-        setEditorState(EditorState.moveFocusToEnd(newState));
-      }
-    }
+    props.sendMessage(message, attachments);
+    props.setReply(null);
+    setMessage('');
+    setAttachments([]);
   };
 
   const handleDeleteFile = (url: string) => {
@@ -135,15 +104,6 @@ const Editor = (props: Props) => {
     });
   };
 
-  const handleKeybind = (event: any) => {
-    if (event.keyCode === 13 && !event.shiftKey) {
-      handleSendMessage();
-      return null;
-    }
-
-    return getDefaultKeyBinding(event);
-  };
-
   const handleKeyDown = (event: any) => {
     if (event.keyCode === 13 && !event.shiftKey) {
       handleSendMessage();
@@ -187,62 +147,34 @@ const Editor = (props: Props) => {
     return null;
   };
 
-  if (type === 'widget') {
-    return (
-      <>
-        {renderIndicator()}
-        <ChatEditorWidget>
-          <FormControl
-            autoFocus
-            autoComplete="false"
-            round
-            id="chat-widget-form-control"
-            placeholder="Aa"
-            onChange={(event: any) => setMessage(event.target.value)}
-            value={message}
-            onKeyDown={handleKeyDown}
-          />
-          <Tip placement="top" text={'Attach file'}>
-            <label>
-              <Icon icon="paperclip" size={18} />
-              <input type="file" onChange={handleFileInput} multiple={true} />
-            </label>
-          </Tip>
-          <Tip placement="top" text={'Send'}>
-            <Button btnStyle="default" onClick={handleSendMessage}>
-              <Icon icon="send" />
-            </Button>
-          </Tip>
-        </ChatEditorWidget>
-      </>
-    );
-  } else {
-    return (
-      <>
-        {renderIndicator()}
-        <ChatEditor>
-          <ErxesEditor
-            ref={editorRef}
-            editorState={editorState}
-            onChange={setEditorState}
-            integrationKind={''}
-            keyBindingFn={handleKeybind}
-          />
-          <ChatEditorActions>
-            <Tip text={'Attach file'}>
-              <label>
-                <Icon icon="paperclip" />
-                <input type="file" onChange={handleFileInput} multiple={true} />
-              </label>
-            </Tip>
-            <Button onClick={handleSendMessage} style={{ float: 'right' }}>
-              Send
-            </Button>
-          </ChatEditorActions>
-        </ChatEditor>
-      </>
-    );
-  }
+  return (
+    <>
+      {renderIndicator()}
+      <ChatEditor>
+        <FormControl
+          autoFocus
+          autoComplete="false"
+          round
+          id="chat-widget-form-control"
+          placeholder="Aa"
+          onChange={(event: any) => setMessage(event.target.value)}
+          value={message}
+          onKeyDown={handleKeyDown}
+        />
+        <Tip placement="top" text={'Attach file'}>
+          <label>
+            <Icon icon="clip" size={18} />
+            <input type="file" onChange={handleFileInput} multiple={true} />
+          </label>
+        </Tip>
+        <Tip placement="top" text={'Send'}>
+          <label onClick={handleSendMessage}>
+            <Icon icon="send" size={18} />
+          </label>
+        </Tip>
+      </ChatEditor>
+    </>
+  );
 };
 
 export default Editor;
