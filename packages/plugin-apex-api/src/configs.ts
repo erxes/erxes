@@ -3,7 +3,7 @@ import resolvers from './graphql/resolvers';
 
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { initBroker, sendCommonMessage } from './messageBroker';
+import { initBroker } from './messageBroker';
 import * as permissions from './permissions';
 
 export let mainDb;

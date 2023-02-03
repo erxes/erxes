@@ -39,8 +39,38 @@ const companies = `
   }
 `;
 
+const stories = `
+  query apexStories($page: Int, $perPage: Int) {
+    apexStories(page: $page, perPage: $perPage) {
+      _id
+      title
+      createdAt
+      company {
+        primaryName
+      }
+    }
+  }
+`;
+
+const storiesDetail = `
+  query apexStoryDetail($_id: String!) {
+    apexStoryDetail(_id: $_id) {
+      _id
+      title
+      content
+      companyId
+      company {
+        _id
+        primaryName
+      }
+    }
+  }
+`;
+
 export default {
   reports,
   companies,
-  reportsDetail
+  reportsDetail,
+  stories,
+  storiesDetail
 };

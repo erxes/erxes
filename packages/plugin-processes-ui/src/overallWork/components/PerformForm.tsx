@@ -40,7 +40,7 @@ import Alert from '@erxes/ui/src/utils/Alert';
 
 type Props = {
   renderButton: (
-    props: IButtonMutateProps & { disabled: boolean }
+    props: IButtonMutateProps & { disabled?: boolean }
   ) => JSX.Element;
   closeModal: () => void;
   allUoms: IUom[];
@@ -507,14 +507,20 @@ class Form extends React.Component<Props, State> {
     );
   }
 
+  setLocations = (name, value) => {
+    const { overallWorkDet } = this.state;
+    this.setState({
+      overallWorkDet: {
+        ...overallWorkDet,
+        key: { ...overallWorkDet.key, [name]: value }
+      }
+    });
+  };
+
   renderInLoc() {
     const { overallWorkDetail } = this.props;
     const { overallWorkDet } = this.state;
     if (!overallWorkDetail) {
-      const setLoc = (name, value) => {
-        this.setState({ overallWorkDet: { ...overallWorkDet, [name]: value } });
-      };
-
       return (
         <FormColumn>
           <FormGroup>
@@ -527,7 +533,7 @@ class Form extends React.Component<Props, State> {
                 value: '',
                 label: '...Clear branch filter'
               }}
-              onSelect={branchId => setLoc('inBranchId', branchId)}
+              onSelect={branchId => this.setLocations('inBranchId', branchId)}
               multi={false}
             />
           </FormGroup>
@@ -541,7 +547,9 @@ class Form extends React.Component<Props, State> {
                 value: '',
                 label: '...Clear department filter'
               }}
-              onSelect={departmentId => setLoc('inDepartmentId', departmentId)}
+              onSelect={departmentId =>
+                this.setLocations('inDepartmentId', departmentId)
+              }
               multi={false}
             />
           </FormGroup>
@@ -569,10 +577,6 @@ class Form extends React.Component<Props, State> {
     const { overallWorkDetail } = this.props;
     const { overallWorkDet } = this.state;
     if (!overallWorkDetail) {
-      const setLoc = (name, value) => {
-        this.setState({ overallWorkDet: { ...overallWorkDet, [name]: value } });
-      };
-
       return (
         <FormColumn>
           <FormGroup>
@@ -585,7 +589,7 @@ class Form extends React.Component<Props, State> {
                 value: '',
                 label: '...Clear branch filter'
               }}
-              onSelect={branchId => setLoc('outBranchId', branchId)}
+              onSelect={branchId => this.setLocations('outBranchId', branchId)}
               multi={false}
             />
           </FormGroup>
@@ -599,7 +603,9 @@ class Form extends React.Component<Props, State> {
                 value: '',
                 label: '...Clear department filter'
               }}
-              onSelect={departmentId => setLoc('outDepartmentId', departmentId)}
+              onSelect={departmentId =>
+                this.setLocations('outDepartmentId', departmentId)
+              }
               multi={false}
             />
           </FormGroup>
@@ -666,6 +672,7 @@ class Form extends React.Component<Props, State> {
           this.setState({
             overallWorkDet: {
               ...overallWorkDet,
+              key: { ...overallWorkDet.key, typeId: value },
               jobReferId: value,
               jobRefer: data.jobReferDetail,
               needProducts: data.jobReferDetail.needProducts,
@@ -676,7 +683,6 @@ class Form extends React.Component<Props, State> {
             inProducts: data.jobReferDetail.needProducts,
             outProducts: data.jobReferDetail.resultProducts
           });
-          console.log(data.jobReferDetail);
         })
         .catch(e => {
           Alert.error(e.message);
@@ -760,8 +766,13 @@ class Form extends React.Component<Props, State> {
 
     if (!overallWorkDet.type) {
       const onchangeType = e => {
+        const value = e.target.value;
         this.setState({
-          overallWorkDet: { ...overallWorkDet, type: e.target.value }
+          overallWorkDet: {
+            ...overallWorkDet,
+            type: value,
+            key: { ...overallWorkDet.key, type: value }
+          }
         });
       };
       return (
@@ -788,6 +799,13 @@ class Form extends React.Component<Props, State> {
     return (
       <>
         <ControlLabel>Type: {overallWorkDet.type} </ControlLabel>
+        {overallWorkDet.jobRefer && (
+          <ControlLabel>
+            , Job Refer:{' '}
+            {`${overallWorkDet.jobRefer.code} - ${overallWorkDet.jobRefer.name}`}
+          </ControlLabel>
+        )}
+
         <FormWrapper>
           <FormColumn>
             <FormGroup>

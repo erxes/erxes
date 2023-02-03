@@ -19,5 +19,13 @@ module.exports = {
       scope: "apex",
       permissions: ['manageApexReports'],
     },
+    {
+      text: "Stories",
+      to: "/settings/apexstories",
+      image: "/images/icons/erxes-09.svg",
+      location: "settings",
+      scope: "apex",
+      permissions: ['manageApexReports'],
+    }
   ],
 };

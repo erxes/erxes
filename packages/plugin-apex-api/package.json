@@ -6,5 +6,8 @@
     "dev": "cd .erxes && yarn dev",
     "build": "cd .erxes && yarn build",
     "start": "cd .erxes/dist/plugin-apex-api/.erxes && node src"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.12"
   }
 }
