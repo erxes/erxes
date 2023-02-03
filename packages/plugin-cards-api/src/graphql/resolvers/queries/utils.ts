@@ -353,6 +353,20 @@ export const generateCommonFilters = async (
         const userDepartmentIds = user?.departmentIds || [];
         const pipelineDepartmentIds = pipeline.departmentIds || [];
 
+        const otherDepartmentUsers = await sendCoreMessage({
+          subdomain,
+          action: 'users.find',
+          data: {
+            query: { departmentIds: { $in: userDepartmentIds } }
+          },
+          isRPC: true,
+          defaultValue: []
+        });
+
+        for (const departmentUser of otherDepartmentUsers) {
+          includeCheckUserIds = [...includeCheckUserIds, departmentUser._id];
+        }
+
         if (
           !!pipelineDepartmentIds.filter(departmentId =>
             userDepartmentIds.includes(departmentId)
