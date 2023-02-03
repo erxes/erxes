@@ -250,7 +250,7 @@ export const ChatGroupAvatar = styled.div`
     bottom: -2px;
     left: -2px;
     border: 2px solid ${colors.bgActive};
-    z-index: 9999;
+    z-index: 2;
   }
   span:last-child {
     position: absolute;
@@ -429,7 +429,7 @@ export const MessageListWrapper = styled.div`
   overflow-y: scroll;
   overflow-x: hidden;
   list-style: none;
-  padding: 0;
+  padding: 0 ${dimensions.unitSpacing}px;
   margin: 0;
 `;
 
@@ -440,7 +440,7 @@ export const MessageItemWrapper = styledTS<{ me?: boolean }>(styled.div)`
   align-items: flex-end;
   justify-content: ${props => (props.me ? 'flex-start' : 'flex-end')};
   flex-direction: ${props => (props.me ? 'row' : 'row-reverse')};
-  margin: ${dimensions.unitSpacing}px;
+  margin: 2px;
 
   &:last-child {
     margin-top: auto;
@@ -522,17 +522,18 @@ export const MessageOption = styled.button`
 `;
 
 export const MessageAttachmentWrapper = styled.div`
-  max-width: 400px;
-  max-height: 200px;
+  max-width: 560px;
+  height: auto;
   overflow: hidden;
-  display: inline-block;
+  position: relative;
+
   & img {
     width: 100%;
-    height: 100%;
+    height: auto;
     object-fit: contain;
+    right: 0;
   }
 `;
-
 /**
  * Messages - END
  */
@@ -541,51 +542,16 @@ export const MessageAttachmentWrapper = styled.div`
  * ChatEditor - START
  */
 export const ChatEditor = styled.div`
-  height: auto;
-  width: 100%;
-  bottom: 0;
-  margin-bottom: 10px;
-`;
-
-export const ChatEditorWidget = styled.div`
   width: 100%;
   background-color: #f9f9f9;
   padding: ${dimensions.unitSpacing}px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: ${dimensions.unitSpacing}px;
 
   label {
     margin: 0 10px;
-    display: block;
-
-    &:hover {
-      cursor: pointer;
-      color: ${darken(colors.colorCoreGray, 30)};
-    }
-  }
-
-  i {
-    margin: 0;
-  }
-
-  input[type='file'] {
-    display: none;
-  }
-`;
-
-export const ChatEditorActions = styled.div`
-  float: right;
-  padding: 0 20px 10px;
-  text-align: right;
-  position: relative;
-  color: ${colors.colorCoreGray};
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-
-  label {
-    margin: 0 10px 0 0;
     display: block;
 
     &:hover {
