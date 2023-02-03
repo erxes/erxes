@@ -88,14 +88,12 @@ const OMIT_FROM_INPUT = [
   'trendScore',
 
   'createdUserType',
-  'createdAt',
   'createdById',
   'createdByCpId',
 
   'categoryApprovalState',
 
   'updatedUserType',
-  'updatedAt',
   'updatedById',
   'updatedByCpId',
 
@@ -170,10 +168,13 @@ export interface IPostModel extends Model<PostDocument> {
 
   /* <<< Client portal */
   findByIdOrThrowCp(_id: string, cpUser?: ICpUser): Promise<PostDocument>;
-  createPostCp(c: PostCreateInput, user?: ICpUser): Promise<PostDocument>;
+  createPostCp(
+    c: Omit<PostCreateInput, 'createdAt' | 'lastPublishedAt'>,
+    user?: ICpUser
+  ): Promise<PostDocument>;
   patchPostCp(
     _id: string,
-    c: PostPatchInput,
+    c: Omit<PostPatchInput, 'createdAt' | 'lastPublishedAt'>,
     user?: ICpUser
   ): Promise<PostDocument>;
   deletePostCp(_id: string, user?: ICpUser): Promise<PostDocument>;
@@ -589,7 +590,7 @@ export const generatePostModel = (
       return post;
     }
     public static async createPostCp(
-      input: PostCreateInput,
+      input: Omit<PostCreateInput, 'createdAt' | 'lastPublishedAt'>,
       cpUser?: ICpUser
     ): Promise<PostDocument> {
       if (!cpUser) throw new LoginRequiredError();
@@ -637,7 +638,7 @@ export const generatePostModel = (
     }
     public static async patchPostCp(
       _id: string,
-      input: PostPatchInput,
+      input: Omit<PostPatchInput, 'createdAt' | 'lastPublishedAt'>,
       cpUser?: ICpUser
     ): Promise<PostDocument> {
       if (!cpUser) throw new LoginRequiredError();
