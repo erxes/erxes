@@ -59,7 +59,12 @@ module.exports = {
     ui: {
       name: 'apex',
       scope: 'apex',
-      exposes: { './routes': './src/routes.tsx' },
+      exposes: {
+        './routes': './src/routes.tsx',
+        './clientPortalUserDetailAction':
+          './src/components/ClientPortalUserDetailAction.tsx',
+      },
+      clientPortalUserDetailAction: './clientPortalUserDetailAction',
       routes: {
         url:
           'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-apex-ui/remoteEntry.js',
