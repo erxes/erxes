@@ -162,7 +162,8 @@ export const generateCommonFilters = async (
     hasStartAndCloseDate,
     stageChangedStartDate,
     stageChangedEndDate,
-    noSkipArchive
+    noSkipArchive,
+    number
   } = args;
 
   const isListEmpty = value => {
@@ -406,6 +407,10 @@ export const generateCommonFilters = async (
   if (hasStartAndCloseDate) {
     filter.startDate = { $exists: true };
     filter.closeDate = { $exists: true };
+  }
+
+  if (number) {
+    filter.number = { $regex: `${number}`, $options: 'mui' };
   }
 
   return filter;
