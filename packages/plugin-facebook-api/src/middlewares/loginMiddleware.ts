@@ -42,7 +42,8 @@ const loginMiddleware = async (req, res) => {
     const authUrl = graph.getOauthUrl({
       client_id: conf.client_id,
       redirect_uri: conf.redirect_uri,
-      scope: conf.scope
+      scope: conf.scope,
+      state: DOMAIN
     });
 
     // checks whether a user denied the app facebook login/permissions
