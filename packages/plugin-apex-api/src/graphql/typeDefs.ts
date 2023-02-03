@@ -49,6 +49,7 @@ const typeDefs = gql`
 
     apexStories(${params}): [ApexStory]
     apexStoryDetail(_id: String): ApexStory
+    apexStoryIsReadByUser(_id: String): Boolean
   }
 
   extend type Mutation {

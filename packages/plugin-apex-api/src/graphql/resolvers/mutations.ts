@@ -29,13 +29,15 @@ const reportMutations = {
   },
 
   apexStoryRead(_root, { _id }, { models, cpUser }) {
+    console.log('Debug =========', cpUser);
+
     if (!cpUser) {
       return;
     }
 
     return models.Stories.update(
       { _id },
-      { $push: { readUserIds: [cpUser.cpUserId] } }
+      { $push: { readUserIds: [cpUser.userId] } }
     );
   }
 };

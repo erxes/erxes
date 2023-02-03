@@ -90,6 +90,16 @@ const reportQueries = {
     }
 
     return story;
+  },
+
+  async apexStoryIsReadByUser(_root, { _id }, { models, cpUser }) {
+    const story = await models.Stories.findOne({ _id });
+
+    if (!story) {
+      throw true;
+    }
+
+    return (story.readUserIds || []).includes(cpUser.userId);
   }
 };
 
