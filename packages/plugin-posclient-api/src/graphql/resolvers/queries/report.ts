@@ -25,7 +25,7 @@ const reportQueries = {
       _id: { $in: posUserIds }
     }).lean();
 
-    for (const user of users) {
+    for (const user of [...users, { _id: '' }]) {
       const ordersAmounts = await models.Orders.aggregate([
         { $match: { ...orderQuery, userId: user._id } },
         {
