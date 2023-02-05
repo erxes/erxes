@@ -42,8 +42,8 @@ class Sidebar extends React.Component<Props> {
         <FormGroup>
           <ControlLabel>Assigned to</ControlLabel>
           <SelectTeamMembers
-            label='Choose users'
-            name='assignedUserIds'
+            label="Choose users"
+            name="assignedUserIds"
             initialValue={assignedUserIds}
             onSelect={userOnChange}
           />
@@ -51,8 +51,8 @@ class Sidebar extends React.Component<Props> {
         <FormGroup>
           <ControlLabel>{__('Branches')}</ControlLabel>
           <SelectBranches
-            name='branchIds'
-            label='Choose branches'
+            name="branchIds"
+            label="Choose branches"
             initialValue={item?.branchIds}
             onSelect={onChangeStructure}
           />
@@ -60,8 +60,8 @@ class Sidebar extends React.Component<Props> {
         <FormGroup>
           <ControlLabel>{__('Departments')}</ControlLabel>
           <SelectDepartments
-            name='departmentIds'
-            label='Choose departments'
+            name="departmentIds"
+            label="Choose departments"
             onSelect={onChangeStructure}
             initialValue={item?.departmentIds}
           />
