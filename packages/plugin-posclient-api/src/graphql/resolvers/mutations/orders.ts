@@ -135,7 +135,7 @@ const orderMutations = {
   async ordersEdit(
     _root,
     doc: IOrderEditParams,
-    { config, models, subdomain }: IContext
+    { posUser, config, models, subdomain }: IContext
   ) {
     const order = await models.Orders.getOrder(doc._id);
 
@@ -171,6 +171,7 @@ const orderMutations = {
       deliveryInfo: doc.deliveryInfo,
       branchId: doc.branchId,
       customerId: doc.customerId,
+      userId: posUser ? posUser._id : '',
       type: doc.type,
       totalAmount: getTotalAmount(preparedDoc.items),
       billType: doc.billType || BILL_TYPES.CITIZEN,
