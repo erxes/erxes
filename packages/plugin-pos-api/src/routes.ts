@@ -110,7 +110,7 @@ export const getProductsData = async (
         defaultValue: 0
       });
 
-      const products = await sendProductsMessage({
+      const products: any[] = await sendProductsMessage({
         subdomain,
         action: 'find',
         data: {

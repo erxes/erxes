@@ -162,7 +162,8 @@ export const generateCommonFilters = async (
     hasStartAndCloseDate,
     stageChangedStartDate,
     stageChangedEndDate,
-    noSkipArchive
+    noSkipArchive,
+    number
   } = args;
 
   const isListEmpty = value => {
@@ -353,6 +354,20 @@ export const generateCommonFilters = async (
         const userDepartmentIds = user?.departmentIds || [];
         const pipelineDepartmentIds = pipeline.departmentIds || [];
 
+        const otherDepartmentUsers = await sendCoreMessage({
+          subdomain,
+          action: 'users.find',
+          data: {
+            query: { departmentIds: { $in: userDepartmentIds } }
+          },
+          isRPC: true,
+          defaultValue: []
+        });
+
+        for (const departmentUser of otherDepartmentUsers) {
+          includeCheckUserIds = [...includeCheckUserIds, departmentUser._id];
+        }
+
         if (
           !!pipelineDepartmentIds.filter(departmentId =>
             userDepartmentIds.includes(departmentId)
@@ -406,6 +421,10 @@ export const generateCommonFilters = async (
   if (hasStartAndCloseDate) {
     filter.startDate = { $exists: true };
     filter.closeDate = { $exists: true };
+  }
+
+  if (number) {
+    filter.number = { $regex: `${number}`, $options: 'mui' };
   }
 
   return filter;

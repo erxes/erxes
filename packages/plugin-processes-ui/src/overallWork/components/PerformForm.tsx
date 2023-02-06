@@ -1,12 +1,13 @@
-import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import Alert from '@erxes/ui/src/utils/Alert';
 import Box from '@erxes/ui/src/components/Box';
 import Button from '@erxes/ui/src/components/Button';
+import client from '@erxes/ui/src/apolloClient';
 import CommonForm from '@erxes/ui/src/components/form/Form';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
+import gql from 'graphql-tag';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import PerformDetail from './PerformDetail';
 import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
@@ -18,7 +19,7 @@ import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectJobRefer from '../../job/containers/refer/SelectJobRefer';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { __ } from '@erxes/ui/src/utils';
-import { AddTrigger } from '../../styles';
+import { AddTrigger, TableOver } from '../../styles';
 import {
   DateContainer,
   FormColumn,
@@ -36,11 +37,10 @@ import { IProduct, IUom } from '@erxes/ui-products/src/types';
 import { IProductsData } from '../../types';
 import { JOB_TYPE_CHOISES } from '../../constants';
 import { queries } from '../../job/graphql';
-import Alert from '@erxes/ui/src/utils/Alert';
 
 type Props = {
   renderButton: (
-    props: IButtonMutateProps & { disabled: boolean }
+    props: IButtonMutateProps & { disabled?: boolean }
   ) => JSX.Element;
   closeModal: () => void;
   allUoms: IUom[];
@@ -329,33 +329,32 @@ class Form extends React.Component<Props, State> {
 
     return (
       <>
-        <li key={Math.random()}>
-          <FieldStyle>
-            {__(title)} {(productsData || []).length}
-          </FieldStyle>
-          <SidebarCounter>
-            <FormWrapper>
-              <FormColumn>
-                <FormControl value={__('UOM')} />
-              </FormColumn>
-              <FormColumn>
-                <FormControl value={__('Quantity')} />
-              </FormColumn>
-            </FormWrapper>
-          </SidebarCounter>
-        </li>
-        {productsData.map(pd => {
-          return (
-            <PerformDetail
-              key={pd._id}
-              allUoms={allUoms}
-              productData={pd}
-              productsData={productsData}
-              stateName={stateName}
-              onChangeState={this.onChangePerView}
-            />
-          );
-        })}
+        <TableOver>
+          <thead>
+            <tr>
+              <th>
+                {__(title)} {(productsData || []).length}
+              </th>
+              <th>{__('UOM')}</th>
+              <th>{__('Quantity')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {productsData.map(pd => {
+              return (
+                <PerformDetail
+                  key={pd._id}
+                  allUoms={allUoms}
+                  productData={pd}
+                  productsData={productsData}
+                  stateName={stateName}
+                  onChangeState={this.onChangePerView}
+                />
+              );
+            })}
+          </tbody>
+        </TableOver>
+
         {this.renderBulkProductChooser(productsData, stateName)}
       </>
     );
@@ -366,37 +365,34 @@ class Form extends React.Component<Props, State> {
 
     return (
       <>
-        <li key={Math.random()}>
-          <FieldStyle>
-            {__('Out Products')} {(productsData || []).length}
-          </FieldStyle>
-          <SidebarCounter>
-            <FormWrapper>
-              <FormColumn>
-                <FormControl value={__('UOM')} />
-              </FormColumn>
-              <FormColumn>
-                <FormControl value={__('Quantity')} />
-              </FormColumn>
-              <FormColumn>
-                <FormControl value={__('Amount')} />
-              </FormColumn>
-            </FormWrapper>
-          </SidebarCounter>
-        </li>
-        {productsData.map(pd => {
-          return (
-            <PerformDetail
-              key={pd._id}
-              allUoms={allUoms}
-              productData={pd}
-              productsData={productsData}
-              stateName={'outProducts'}
-              hasCost={true}
-              onChangeState={this.onChangePerView}
-            />
-          );
-        })}
+        <TableOver>
+          <thead>
+            <tr>
+              <th>
+                {__('Out Products')} {(productsData || []).length}
+              </th>
+              <th>{__('UOM')}</th>
+              <th>{__('Quantity')}</th>
+              <th>{__('Amount')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {productsData.map(pd => {
+              return (
+                <PerformDetail
+                  key={pd._id}
+                  allUoms={allUoms}
+                  productData={pd}
+                  productsData={productsData}
+                  stateName={'outProducts'}
+                  hasCost={true}
+                  onChangeState={this.onChangePerView}
+                />
+              );
+            })}
+          </tbody>
+        </TableOver>
+
         {this.renderBulkProductChooser(productsData, 'outProducts')}
       </>
     );
@@ -430,45 +426,6 @@ class Form extends React.Component<Props, State> {
         {this.renderProductsIncome(outProducts || [])}
       </SidebarList>
     );
-  }
-
-  onChangeCount = e => {
-    const { needProducts, resultProducts } = this.state;
-    const count = Number(e.target.value);
-
-    this.setState({
-      count,
-      inProducts: needProducts.map(np => ({
-        ...np,
-        quantity: np.quantity * count
-      })),
-      outProducts: resultProducts.map(rp => ({
-        ...rp,
-        quantity: rp.quantity * count
-      }))
-    });
-  };
-
-  onChangeInput = e => {
-    const name = e.target.name;
-    const value = e.target.value;
-    this.setState({ [name]: value } as any);
-  };
-
-  renderLabel = (max?: number) => {
-    return max && max > 0 ? `Count /max: ${max}/` : `Count`;
-  };
-
-  onSelectDate = (value, name) => {
-    this.setState({ [name]: value } as any);
-  };
-
-  renderLoc(obj) {
-    if (!obj) {
-      return 'unknown';
-    }
-
-    return `${obj.code} - ${obj.title}`;
   }
 
   renderPerformDetails() {
@@ -507,14 +464,59 @@ class Form extends React.Component<Props, State> {
     );
   }
 
+  onChangeCount = e => {
+    const { needProducts, resultProducts } = this.state;
+    const count = Number(e.target.value);
+
+    this.setState({
+      count,
+      inProducts: needProducts.map(np => ({
+        ...np,
+        quantity: np.quantity * count
+      })),
+      outProducts: resultProducts.map(rp => ({
+        ...rp,
+        quantity: rp.quantity * count
+      }))
+    });
+  };
+
+  onChangeInput = e => {
+    const name = e.target.name;
+    const value = e.target.value;
+    this.setState({ [name]: value } as any);
+  };
+
+  renderLabel = (max?: number) => {
+    return max && max > 0 ? `Count /max: ${max}/` : `Count`;
+  };
+
+  onSelectDate = (value, name) => {
+    this.setState({ [name]: value } as any);
+  };
+
+  renderLocLabel(obj) {
+    if (!obj) {
+      return 'unknown';
+    }
+
+    return `${obj.code} - ${obj.title}`;
+  }
+
+  setLocations = (name, value) => {
+    const { overallWorkDet } = this.state;
+    this.setState({
+      overallWorkDet: {
+        ...overallWorkDet,
+        key: { ...overallWorkDet.key, [name]: value }
+      }
+    });
+  };
+
   renderInLoc() {
     const { overallWorkDetail } = this.props;
     const { overallWorkDet } = this.state;
     if (!overallWorkDetail) {
-      const setLoc = (name, value) => {
-        this.setState({ overallWorkDet: { ...overallWorkDet, [name]: value } });
-      };
-
       return (
         <FormColumn>
           <FormGroup>
@@ -527,7 +529,7 @@ class Form extends React.Component<Props, State> {
                 value: '',
                 label: '...Clear branch filter'
               }}
-              onSelect={branchId => setLoc('inBranchId', branchId)}
+              onSelect={branchId => this.setLocations('inBranchId', branchId)}
               multi={false}
             />
           </FormGroup>
@@ -541,7 +543,9 @@ class Form extends React.Component<Props, State> {
                 value: '',
                 label: '...Clear department filter'
               }}
-              onSelect={departmentId => setLoc('inDepartmentId', departmentId)}
+              onSelect={departmentId =>
+                this.setLocations('inDepartmentId', departmentId)
+              }
               multi={false}
             />
           </FormGroup>
@@ -552,13 +556,13 @@ class Form extends React.Component<Props, State> {
       <FormColumn>
         <FormGroup>
           <ControlLabel>
-            {__(`In Branch`)}: {this.renderLoc(overallWorkDetail.inBranch)}
+            {__(`In Branch`)}: {this.renderLocLabel(overallWorkDetail.inBranch)}
           </ControlLabel>
         </FormGroup>
         <FormGroup>
           <ControlLabel>
             {__(`In Department`)}:{' '}
-            {this.renderLoc(overallWorkDetail.inDepartment)}
+            {this.renderLocLabel(overallWorkDetail.inDepartment)}
           </ControlLabel>
         </FormGroup>
       </FormColumn>
@@ -569,10 +573,6 @@ class Form extends React.Component<Props, State> {
     const { overallWorkDetail } = this.props;
     const { overallWorkDet } = this.state;
     if (!overallWorkDetail) {
-      const setLoc = (name, value) => {
-        this.setState({ overallWorkDet: { ...overallWorkDet, [name]: value } });
-      };
-
       return (
         <FormColumn>
           <FormGroup>
@@ -585,7 +585,7 @@ class Form extends React.Component<Props, State> {
                 value: '',
                 label: '...Clear branch filter'
               }}
-              onSelect={branchId => setLoc('outBranchId', branchId)}
+              onSelect={branchId => this.setLocations('outBranchId', branchId)}
               multi={false}
             />
           </FormGroup>
@@ -599,7 +599,9 @@ class Form extends React.Component<Props, State> {
                 value: '',
                 label: '...Clear department filter'
               }}
-              onSelect={departmentId => setLoc('outDepartmentId', departmentId)}
+              onSelect={departmentId =>
+                this.setLocations('outDepartmentId', departmentId)
+              }
               multi={false}
             />
           </FormGroup>
@@ -611,13 +613,14 @@ class Form extends React.Component<Props, State> {
       <FormColumn>
         <FormGroup>
           <ControlLabel>
-            {__(`Out Branch`)}: {this.renderLoc(overallWorkDetail.outBranch)}
+            {__(`Out Branch`)}:{' '}
+            {this.renderLocLabel(overallWorkDetail.outBranch)}
           </ControlLabel>
         </FormGroup>
         <FormGroup>
           <ControlLabel>
             {__(`Out Department`)}:{' '}
-            {this.renderLoc(overallWorkDetail.outDepartment)}
+            {this.renderLocLabel(overallWorkDetail.outDepartment)}
           </ControlLabel>
         </FormGroup>
       </FormColumn>
@@ -666,6 +669,7 @@ class Form extends React.Component<Props, State> {
           this.setState({
             overallWorkDet: {
               ...overallWorkDet,
+              key: { ...overallWorkDet.key, typeId: value },
               jobReferId: value,
               jobRefer: data.jobReferDetail,
               needProducts: data.jobReferDetail.needProducts,
@@ -676,7 +680,6 @@ class Form extends React.Component<Props, State> {
             inProducts: data.jobReferDetail.needProducts,
             outProducts: data.jobReferDetail.resultProducts
           });
-          console.log(data.jobReferDetail);
         })
         .catch(e => {
           Alert.error(e.message);
@@ -760,8 +763,13 @@ class Form extends React.Component<Props, State> {
 
     if (!overallWorkDet.type) {
       const onchangeType = e => {
+        const value = e.target.value;
         this.setState({
-          overallWorkDet: { ...overallWorkDet, type: e.target.value }
+          overallWorkDet: {
+            ...overallWorkDet,
+            type: value,
+            key: { ...overallWorkDet.key, type: value }
+          }
         });
       };
       return (
@@ -788,6 +796,13 @@ class Form extends React.Component<Props, State> {
     return (
       <>
         <ControlLabel>Type: {overallWorkDet.type} </ControlLabel>
+        {overallWorkDet.jobRefer && (
+          <ControlLabel>
+            , Job Refer:{' '}
+            {`${overallWorkDet.jobRefer.code} - ${overallWorkDet.jobRefer.name}`}
+          </ControlLabel>
+        )}
+
         <FormWrapper>
           <FormColumn>
             <FormGroup>

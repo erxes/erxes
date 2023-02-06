@@ -93,14 +93,17 @@ class DetailLeftSidebar extends React.Component<Props, State> {
     const { filterParams } = this.state;
     const value = (e.currentTarget as HTMLInputElement).value;
 
+    const filters: IQueryParams = {
+      ...filterParams,
+      type: value
+    };
+
+    delete filters.jobReferId;
+    delete filters.productIds;
+    delete filters.productCategoryId;
+
     this.setState({
-      filterParams: {
-        ...filterParams,
-        jobReferId: '',
-        productIds: '',
-        productCategoryId: '',
-        type: value
-      }
+      filterParams: filters
     });
   };
 

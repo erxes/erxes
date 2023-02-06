@@ -22,12 +22,15 @@ import {
   ICPUserCardModel,
   loadUserCardClass
 } from './models/ClientPortalUserCard';
+import { ICommentModel, loadCommentClass } from './models/Comment';
+import { ICommentDocument } from './models/definitions/comment';
 
 export interface IModels {
   ClientPortals: IClientPortalModel;
   ClientPortalUsers: IUserModel;
   ClientPortalNotifications: ICPNotificationModel;
   ClientPortalUserCards: ICPUserCardModel;
+  Comments: ICommentModel;
 }
 
 export interface IContext extends IMainContext {
@@ -60,6 +63,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     ICPNotificationDocument,
     ICPNotificationModel
   >('client_portal_notifications', loadNotificationClass(models));
+
+  models.Comments = db.model<ICommentDocument, ICommentModel>(
+    'client_portal_comments',
+    loadCommentClass(models)
+  );
 
   return models;
 };

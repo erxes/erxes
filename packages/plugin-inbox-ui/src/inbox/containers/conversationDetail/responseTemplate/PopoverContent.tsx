@@ -88,16 +88,7 @@ const withQuery = () =>
       graphql<Props & { searchValue: string }, ResponseTemplatesQueryResponse>(
         gql(responseTemplateQuery.responseTemplates),
         {
-          name: 'responseTemplatesQuery',
-          options: ({ searchValue, brandId }) => {
-            return {
-              variables: {
-                perPage: 10,
-                searchValue,
-                brandId
-              }
-            };
-          }
+          name: 'responseTemplatesQueryAll'
         }
       ),
       graphql(gql(responseTemplateQuery.responseTemplatesTotalCount), {

@@ -19,6 +19,8 @@ const commonDealParams = `
   $noSkipArchive: Boolean
   $assignedUserIds: [String],
   $productIds: [String],
+  $search: String
+  $number: String
 `;
 
 const commonDealParamDefs = `
@@ -34,6 +36,8 @@ const commonDealParamDefs = `
   noSkipArchive: $noSkipArchive
   assignedUserIds: $assignedUserIds,
   productIds: $productIds,
+  search: $search,
+  number: $number,
 `;
 
 const commonOrderParams = `
