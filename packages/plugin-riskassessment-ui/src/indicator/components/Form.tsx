@@ -89,14 +89,14 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
 
     delete riskIndicator?.customScoreField?.__typename;
 
-    riskIndicator.forms?.forEach(formData => {
+    (riskIndicator.forms || []).forEach(formData => {
       delete formData.__typename;
       (formData.calculateLogics || []).forEach(
         logic => delete logic.__typename
       );
     });
 
-    riskIndicator?.calculateLogics?.forEach(logic => {
+    (riskIndicator?.calculateLogics || []).forEach(logic => {
       delete logic.__typename;
     });
 

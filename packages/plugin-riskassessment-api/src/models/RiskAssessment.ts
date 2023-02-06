@@ -526,19 +526,3 @@ export interface IRiskAssessmentIndicatorsModel
   addIndicator(): Promise<IRiskAssessmentIndicatorsDocument>;
   updateIndicator(): Promise<IRiskAssessmentIndicatorsDocument>;
 }
-
-export const loadRiskAssessmentIndicator = (
-  models: IModels,
-  subdomain: string
-) => {
-  class RiskAssessmentIndicator {
-    public static async addIndicator() {
-      return '';
-    }
-    public static async updateIndicator() {
-      return '';
-    }
-  }
-  riskAssessmentIndicatorsSchema.loadClass(RiskAssessmentIndicator);
-  return riskAssessmentIndicatorsSchema;
-};

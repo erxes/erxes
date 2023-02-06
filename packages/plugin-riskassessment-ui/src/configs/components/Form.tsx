@@ -58,7 +58,7 @@ class Form extends React.Component<Props, State> {
         config => config.indicatorsGroupId
       );
     }
-    if (props.config.indicatorsGroupId) {
+    if (props.config?.indicatorsGroupId) {
       useGroups = true;
     }
 
