@@ -2,7 +2,7 @@ import React from 'react';
 import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Spinner, confirm } from '@erxes/ui/src';
+import { Spinner, confirm, Alert } from '@erxes/ui/src';
 import { withProps } from '@erxes/ui/src/utils/core';
 import { mutations, queries } from '../graphql';
 import { RiskAssessmentIndicatorFormQueryResponse } from '../../common/types';
@@ -56,7 +56,7 @@ class RiskIndicatorForm extends React.Component<FinalProps> {
           cardId,
           cardType
         };
-        saveSubmission({ variables });
+        saveSubmission({ variables }).catch(err => Alert.error(err.message));
       });
     };
 
