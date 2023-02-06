@@ -78,19 +78,19 @@ export default {
     }
 
     replacedContent = replacedContent.replace(
-      `{{ createdAt }}`,
+      /{{ createdAt }}/g,
       item.createdAt.toLocaleDateString()
     );
 
     if (item.closeDate) {
       replacedContent = replacedContent.replace(
-        `{{ closeDate }}`,
+        /{{ closeDate }}/g,
         item.closeDate.toLocaleDateString()
       );
     }
 
     replacedContent = replacedContent.replace(
-      `{{ now }}`,
+      /{{ now }}/g,
       new Date().toLocaleDateString()
     );
 
@@ -105,7 +105,7 @@ export default {
     });
 
     replacedContent = replacedContent.replace(
-      '{{ assignedUsers }}',
+      /{{ assignedUsers }}/g,
       users
         .map(
           user =>
@@ -150,7 +150,7 @@ export default {
       }
 
       replacedContent = replacedContent.replace(
-        '{{ customers }}',
+        /{{ customers }}/g,
         customerRows.join(',')
       );
     }
@@ -191,7 +191,7 @@ export default {
       }
 
       replacedContent = replacedContent.replace(
-        '{{ companies }}',
+        /{{ companies }}/g,
         companyRows.join(',')
       );
     }
@@ -271,38 +271,41 @@ export default {
     };
 
     const productsTotalAmount = await replaceProducts(
-      '{{ productsInfo }}',
+      /{{ productsInfo }}/g,
       'product'
     );
     const servicesTotalAmount = await replaceProducts(
-      '{{ servicesInfo }}',
+      /{{ servicesInfo }}/g,
       'service'
     );
     const totalAmount = productsTotalAmount + servicesTotalAmount;
-    const totalAmountVat = (totalAmount * 10) / 100;
+    const totalAmountVat = (totalAmount * 10) / 110;
     const totalAmountWithoutVat = totalAmount - totalAmountVat;
 
     replacedContent = replacedContent.replace(
-      '{{ productTotalAmount }}',
+      /{{ productTotalAmount }}/g,
       toMoney(productsTotalAmount)
     );
     replacedContent = replacedContent.replace(
-      '{{ servicesTotalAmount }}',
+      /{{ servicesTotalAmount }}/g,
       toMoney(servicesTotalAmount)
     );
+
     replacedContent = replacedContent.replace(
-      '{{ totalAmount }}',
+      /{{ totalAmount }}/g,
       toMoney(totalAmount)
     );
+
     replacedContent = replacedContent.replace(
-      '{{ totalAmountVat }}',
+      /{{ totalAmountVat }}/g,
       toMoney(totalAmountVat)
     );
+
     replacedContent = replacedContent.replace(
-      '{{ totalAmountWithoutVat }}',
+      /{{ totalAmountWithoutVat }}/g,
       toMoney(totalAmountWithoutVat)
     );
 
-    return replacedContent;
+    return [replacedContent];
   }
 };
