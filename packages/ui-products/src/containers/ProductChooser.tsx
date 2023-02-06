@@ -108,8 +108,9 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
       title: 'Product',
       renderName: (product: IProduct) => {
         if (product.code && product.subUoms?.length) {
-          return `${product.code} - ${product.name} #${1 /
-            product.subUoms[0].ratio || 1}`;
+          return `${product.code} - ${product.name} ~${Math.round(
+            (1 / (product.subUoms[0].ratio || 1)) * 100
+          ) / 100}`;
         }
         if (product.code) {
           return `${product.code} - ${product.name}`;
@@ -132,6 +133,7 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
         {...updatedProps}
         renderFilter={this.renderProductCategoryChooser}
         handleExtra={this.renderDiscount}
+        modalSize="xl"
       />
     );
   }
