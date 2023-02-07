@@ -38,7 +38,7 @@ export default {
       selectOptions?: Array<{ label: string; value: string }>;
     }> = [];
 
-    if (usageType && usageType === 'import' && type === 'assets') {
+    if (usageType && usageType === 'import' && type === 'asset') {
       fields = ASSET_EXTEND_FIELDS;
     }
 
