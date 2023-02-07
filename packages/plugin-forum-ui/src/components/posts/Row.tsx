@@ -66,8 +66,7 @@ class Row extends React.Component<Props> {
       title,
       _id,
       state,
-      stateChangedAt,
-      stateChangedBy,
+      lastPublishedAt,
       createdAt,
       createdBy,
       updatedAt,
@@ -105,9 +104,8 @@ class Row extends React.Component<Props> {
         <td>{state}</td>
         <td>
           <Icon icon="calender" />{' '}
-          <DateWrapper>{dayjs(stateChangedAt).format('ll')}</DateWrapper>
+          <DateWrapper>{dayjs(lastPublishedAt).format('ll')}</DateWrapper>
         </td>
-        <td>{stateChangedBy.username}</td>
         <td>
           <Icon icon="calender" />{' '}
           <DateWrapper>{dayjs(createdAt).format('ll')}</DateWrapper>

@@ -41,6 +41,7 @@ export interface IPost {
   createdAt?: string;
   updatedAt?: string;
   stateChangedAt?: string;
+  lastPublishedAt?: string;
   commentCount?: number;
   categoryApprovalState?: string;
   viewCount?: number;

@@ -128,11 +128,10 @@ class List extends React.Component<Props, {}> {
             <th>{__('State')}</th>
             <th>
               <SortHandler
-                sortField={'stateChangedAt'}
-                label={__('State changed at')}
+                sortField={'lastPublishedAt'}
+                label={__('Last Published at')}
               />
             </th>
-            <th>{__('State changed by')}</th>
             <th>
               <SortHandler sortField={'createdAt'} label={__('Created At')} />
             </th>
