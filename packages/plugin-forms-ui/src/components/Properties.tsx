@@ -155,7 +155,7 @@ class Properties extends React.Component<
       size = 'lg';
     }
 
-    const addGroup = <Dropdown.Item>{__('Add group')}</Dropdown.Item>;
+    const addGroup = <Dropdown.Item>{__('Add Group')}</Dropdown.Item>;
     const addField = <Dropdown.Item>{__('Add Property')}</Dropdown.Item>;
 
     const groupContent = props => (
