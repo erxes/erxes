@@ -900,12 +900,17 @@ export const timeclockReportPivot = async (
             const getShiftDurationDiff =
               getTimeClockDuration - getScheduleDuration;
 
-            // if timeclock > schedule --> overtime, else --> late
+            // get difference in shift start and scheduled start
+            const getShiftStartDiff =
+              shiftStart.getTime() - scheduleShiftStart.getTime();
+
+            // if shift start is later than scheduled start --> late
+            if (getShiftStartDiff > 0) {
+              totalMinsLatePerShift = getShiftStartDiff / MMSTOMINS;
+            }
+            // if timeclock > schedule --> overtime
             if (getShiftDurationDiff > 0) {
               totalHoursOvertimePerShift = getShiftDurationDiff / MMSTOHRS;
-            } else {
-              totalMinsLatePerShift =
-                Math.abs(getShiftDurationDiff) / MMSTOMINS;
             }
           }
 
