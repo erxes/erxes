@@ -35,12 +35,6 @@ const PermissionGroups = asyncComponent(() =>
   )
 );
 
-const PermissionGroupDetail = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "CustomerDetails" */ './containers/PermissionGroups/Detail'
-  )
-);
-
 const SubscriptionProducts = asyncComponent(() =>
   import(
     /* webpackChunkName: "CustomerDetails" */ './containers/SubscriptionProduct/List'
@@ -101,10 +95,6 @@ const permissionGroups = ({ location, history }) => {
 
 const categories = () => {
   return <Categories />;
-};
-
-const permissionGroupDetail = () => {
-  return <PermissionGroupDetail />;
 };
 
 const subscriptionProducts = ({ location, history }) => {
@@ -182,13 +172,6 @@ const routes = () => {
         exact={true}
         path="/forums/permission-groups"
         component={permissionGroups}
-      />
-
-      <Route
-        key="/forums/permission-groups/:permissionGroupId"
-        exact={true}
-        path="/forums/permission-groups/:permissionGroupId"
-        component={permissionGroupDetail}
       />
 
       <Route

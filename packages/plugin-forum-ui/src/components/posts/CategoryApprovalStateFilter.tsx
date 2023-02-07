@@ -24,7 +24,7 @@ function CategoryApprovalStateFilter({ history, counts, emptyText }: IProps) {
           router.setParams(history, {
             categoryApprovalState: categoryApprovalState.key
           });
-          router.removeParams(history, 'page');
+          router.removeParams(history, 'categoryApprovalState');
         };
 
         return (

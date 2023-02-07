@@ -6,15 +6,9 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from 'coreui/utils';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
 import CategoryForm from '../../containers/categories/CategoryForm';
 import RowContainer from '../../containers/categories/Row';
 import Label from '@erxes/ui/src/components/Label';
-
-export const TdWrapper = styledTS<{ space: number }>(styled.td)`
-  padding: ${props => props.space * 3};
-`;
 
 type Props = {
   categories: ICategory[];

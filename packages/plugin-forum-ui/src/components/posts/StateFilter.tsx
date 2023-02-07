@@ -22,7 +22,7 @@ function StatusFilter({ history, counts, emptyText }: IProps) {
       {stateFilters.map((state, index) => {
         const onClick = () => {
           router.setParams(history, { state: state.key });
-          router.removeParams(history, 'page');
+          router.removeParams(history, 'state');
         };
 
         return (

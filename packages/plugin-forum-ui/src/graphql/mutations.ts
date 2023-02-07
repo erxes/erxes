@@ -310,6 +310,12 @@ const permissionGroupAddUsers = `
   }
 `;
 
+const permissionGroupSetUsers = `
+  mutation ForumPermissionGroupSetUsers($_id: ID!, $cpUserIds: [ID!]!) {
+    forumPermissionGroupSetUsers(_id: $_id, cpUserIds: $cpUserIds)
+  }
+`;
+
 const deleteSubscriptionProduct = `
 mutation ForumDeleteSubscriptionProduct($_id: ID!) {
   forumDeleteSubscriptionProduct(_id: $_id) {
@@ -411,6 +417,7 @@ export default {
   permissionGroupDelete,
   permissionUserRemove,
   permissionGroupAddUsers,
+  permissionGroupSetUsers,
   deleteSubscriptionProduct,
   updateProduct,
   createProduct,

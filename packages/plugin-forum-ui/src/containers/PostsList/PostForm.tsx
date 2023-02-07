@@ -2,19 +2,15 @@ import React from 'react';
 import { useQuery } from 'react-apollo';
 import { queries, mutations } from '../../graphql';
 import gql from 'graphql-tag';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import * as compose from 'lodash.flowright';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { withProps } from '@erxes/ui/src/utils';
 import { IPost } from '../../types';
 import PostForm from '../../components/posts/PostForm';
 
 type Props = {
   post?: IPost;
   closeModal: () => void;
-} & IRouterProps;
+};
 
 function PostFormContainer({ closeModal, post }: Props) {
   const { data } = useQuery(gql(queries.categoriesAll));
@@ -61,4 +57,4 @@ const getRefetchQueries = () => {
   ];
 };
 
-export default withProps<{}>(compose()(withRouter<Props>(PostFormContainer)));
+export default PostFormContainer;

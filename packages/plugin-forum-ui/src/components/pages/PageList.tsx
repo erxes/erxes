@@ -31,7 +31,7 @@ type Props = {
   toggleAll: (targets: IPage[], containerId: string) => void;
 };
 
-class List extends React.Component<Props, {}> {
+class List extends React.Component<Props> {
   renderRow() {
     const {
       pages,

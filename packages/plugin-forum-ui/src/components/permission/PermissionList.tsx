@@ -137,7 +137,7 @@ class PermissionList extends React.Component<Props> {
   }
 
   renderContent() {
-    const { isLoading, totalCount, permissions } = this.props;
+    const { isLoading, permissions } = this.props;
 
     return (
       <>

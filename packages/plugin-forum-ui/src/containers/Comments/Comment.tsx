@@ -15,15 +15,16 @@ type Props = {
   comment: IComment;
   onDeleted?: (string) => any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-} & IRouterProps &
-  RemoveMutationResponse;
+};
 
-const Comment: React.FC<Props> = ({
+type FinalProps = Props & RemoveMutationResponse;
+
+const Comment: React.FC<FinalProps> = ({
   comment,
   onDeleted,
   renderButton,
   removeMutation
-}: Props) => {
+}: FinalProps) => {
   const repliesQuery = useQuery(gql(queries.forumComments), {
     variables: {
       replyToId: [comment._id],
@@ -56,7 +57,7 @@ const Comment: React.FC<Props> = ({
   );
 };
 
-export default withProps<{}>(
+export default withProps<Props>(
   compose(
     graphql<RemoveMutationResponse, { _id: string }>(
       gql(mutations.deleteComment),
@@ -67,5 +68,5 @@ export default withProps<{}>(
         })
       }
     )
-  )(withRouter<Props>(Comment))
+  )(Comment)
 );

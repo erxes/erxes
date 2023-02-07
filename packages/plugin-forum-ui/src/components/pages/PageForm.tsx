@@ -39,7 +39,7 @@ class PageForm extends React.Component<Props, State> {
     title: string;
     thumbnail: string;
     code: string;
-    listOrder?: number;
+    listOrder?: string;
     description: string;
   }) => {
     const { page } = this.props;
@@ -55,7 +55,7 @@ class PageForm extends React.Component<Props, State> {
       content: this.state.content,
       thumbnail: finalValues.thumbnail,
       code: finalValues.code,
-      listOrder: finalValues.listOrder,
+      listOrder: parseInt(finalValues.listOrder, 10),
       description: finalValues.description
     };
   };

@@ -17,7 +17,7 @@ function CategoryFormContainer({ closeModal, group }: Props) {
     fetchPolicy: 'network-only'
   });
 
-  const [addMut] = useMutation(gql(mutations.permissionGroupAddUsers), {
+  const [addMut] = useMutation(gql(mutations.permissionGroupSetUsers), {
     refetchQueries: ['ForumPermissionGroup'],
     onError: e => console.error(e)
   });
@@ -27,29 +27,32 @@ function CategoryFormContainer({ closeModal, group }: Props) {
 
   const renderButton = ({ _id, name, ids, object }: any) => {
     if (object._id) {
-      console.log('update');
       update({
         variables: {
           name,
           _id
-        }
+        },
+        refetchQueries: ['forumPermissionGroups']
       })
-        .then(() => addMut({ variables: { _id, cpUserIds: ids } }))
+        .then(() =>
+          addMut({
+            variables: { _id, cpUserIds: ids },
+            refetchQueries: ['forumPermissionGroups']
+          })
+        )
         .catch(error => {
           Alert.error(error.message);
         });
     }
     if (!object._id) {
-      console.log('create');
       create({
-        variables: name
+        variables: { name }
       })
         .then(() => addMut({ variables: { _id, cpUserIds: ids } }))
         .catch(error => {
           Alert.error(error.message);
         });
     }
-    console.log('_id, name, ids, object', _id, name, ids, object);
   };
 
   return (

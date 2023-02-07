@@ -86,13 +86,7 @@ class GroupList extends React.Component<IProps> {
     return objects.map(object => (
       <SidebarItem key={object._id} isActive={this.isActive(object._id)}>
         <Link to={`?groupId=${object._id}`}>
-          <FieldStyle>
-            {object.name}
-            {/* <MemberAvatars
-              selectedMemberIds={object.memberIds || []}
-              allMembers={object.members || []}
-            /> */}
-          </FieldStyle>
+          <FieldStyle>{object.name}</FieldStyle>
         </Link>
         <ActionButtons>
           {this.renderEditAction(object)}

@@ -6,21 +6,14 @@ import gql from 'graphql-tag';
 import PostsList from '../../components/posts/PostsList';
 import queryString from 'query-string';
 import Bulk from '@erxes/ui/src/components/Bulk';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps } from '@erxes/ui/src/utils';
+import { Alert, withProps, confirm } from '@erxes/ui/src/utils';
 import { RemoveMutationResponse, PostsQueryResponse } from '../../types';
 import { graphql } from 'react-apollo';
-// import { FORUM_POSTS_COUNT, FORUM_POSTS_QUERY } from '../../graphql/queries';
-import { Link } from 'react-router-dom';
-import { postUsername } from '../../utils';
-import Paging from './Paging';
 
 type FinalProps = {
   postsQuery: PostsQueryResponse;
-} & RemoveMutationResponse &
-  IRouterProps;
+} & RemoveMutationResponse;
 
 function List({ removeMutation, postsQuery }: FinalProps) {
   const [categoryId] = useSearchParam('categoryId');
@@ -62,10 +55,15 @@ function List({ removeMutation, postsQuery }: FinalProps) {
   }
 
   const remove = (pageId, emptyBulk) => {
-    removeMutation({ variables: { _id: pageId } })
+    confirm(`Are you sure?`)
       .then(() => {
-        postsQuery.refetch();
-        emptyBulk();
+        removeMutation({ variables: { _id: pageId } })
+          .then(() => {
+            emptyBulk();
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          });
       })
       .catch(e => {
         Alert.error(e.message);
@@ -97,5 +95,5 @@ export default withProps<{}>(
         })
       }
     )
-  )(withRouter<FinalProps>(List))
+  )(List)
 );

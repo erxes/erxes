@@ -4,7 +4,6 @@ import colors from '@erxes/ui/src/styles/colors';
 import { dimensions } from '@erxes/ui/src/styles';
 import { rgba, lighten } from '@erxes/ui/src/styles/ecolor';
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
-import { SimpleButton } from '@erxes/ui/src/styles/main';
 
 export const CommentContainer = styled.div`
   border: 1px solid ${colors.borderPrimary};
@@ -160,5 +159,14 @@ export const Filter = styled.div`
 export const DetailLink = styled.div`
   a {
     color: ${colors.textPrimary};
+  }
+`;
+
+export const ModalFooter = styled.div`
+  display: flex;
+  justify-content: flex-end;
+
+  .submit {
+    width: fit-content;
   }
 `;

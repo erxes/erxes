@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { ModalFooter } from '../../styles';
 import Button from '@erxes/ui/src/components/Button';
 import { IUserGroupDocument } from '../../types';
 import Select from 'react-select-plus';
@@ -24,22 +24,22 @@ function PermissionGroupForm({
   const usersIds = permissionGroup.users.map(user => user._id);
   const [selectedUsers, setSelectedMembers] = useState(usersIds || []);
   const [name, setName] = useState(permissionGroup.name || '');
-  console.log('permissionGroup.users', permissionGroup.users, selectedUsers);
 
   const handleSubmit = e => {
     e.preventDefault();
-    console.log('name to render', name, selectedUsers);
+
     renderButton({
       _id: permissionGroup._id,
       name,
       ids: selectedUsers,
       object: permissionGroup
     });
+
+    closeModal();
   };
 
   const handleName = e => {
     setName(e.target.value);
-    console.log('name', name);
   };
 
   const onChange = members => {
@@ -68,24 +68,32 @@ function PermissionGroupForm({
         />
       </FormGroup>
 
-      <FormGroup>
-        <ControlLabel>Users</ControlLabel>
+      {permissionGroup._id && (
+        <FormGroup>
+          <ControlLabel>Users</ControlLabel>
 
-        <Select
-          placeholder={__('Choose users')}
-          options={renderOptions()}
-          value={selectedUsers}
-          onChange={onChange}
-          multi={true}
-        />
-      </FormGroup>
+          <Select
+            placeholder={__('Choose users')}
+            options={renderOptions()}
+            value={selectedUsers}
+            onChange={onChange}
+            multi={true}
+          />
+        </FormGroup>
+      )}
 
       <ModalFooter id={'AddPermissionButtons'}>
         <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
           Cancel
         </Button>
 
-        <Button btnStyle="success" type="submit" block={true}>
+        <Button
+          btnStyle="success"
+          className="submit"
+          icon="check-circle"
+          type="submit"
+          block={true}
+        >
           Save
         </Button>
       </ModalFooter>

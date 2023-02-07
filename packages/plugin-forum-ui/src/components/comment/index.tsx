@@ -3,6 +3,7 @@ import CommentForm from '../../components/comment/CommentForm';
 import Comment from '../../containers/Comments/Comment';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { CommentSection } from '../../styles';
+import { Alert } from '@erxes/ui/src/utils';
 
 const CommentComponent: React.FC<{
   postId: string;
@@ -14,7 +15,7 @@ const CommentComponent: React.FC<{
 }> = ({ postId, renderButton, error, loading, data, refetch }) => {
   const renderError = () => {
     if (error) {
-      return <pre>Error occured</pre>;
+      Alert.error(error.message);
     }
 
     return null;
