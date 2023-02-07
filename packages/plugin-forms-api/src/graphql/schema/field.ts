@@ -171,6 +171,7 @@ export const fieldsGroupsTypes = `
     contentType: String
     order: Int
     code: String
+    parentId: String
     description: String
     isVisible: Boolean
     isVisibleInDetail: Boolean
@@ -190,6 +191,7 @@ const fieldsGroupsCommonFields = `
   contentType: String
   order: Int
   description: String
+  parentId: String
   code: String
   isVisible: Boolean
   isVisibleInDetail: Boolean

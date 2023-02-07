@@ -4,6 +4,7 @@ const commonFields = `
   $order: Int,
   $description: String,
   $code: String,
+  $parentId: String,
   $isVisible: Boolean,
   $isVisibleInDetail: Boolean,
   $config: JSON,
@@ -17,6 +18,7 @@ const commonTypes = `
   order: $order,
   description: $description,
   code: $code,
+  parentId: $parentId,
   isVisible: $isVisible,
   isVisibleInDetail: $isVisibleInDetail,
   config: $config

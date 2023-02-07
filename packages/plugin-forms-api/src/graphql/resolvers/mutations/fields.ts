@@ -37,6 +37,8 @@ const fieldsGroupsHook = async (
 ): Promise<IFieldGroup> => {
   const services = await serviceDiscovery.getServices();
 
+  console.log(doc);
+
   for (const serviceName of services) {
     if (!(doc.contentType || '').includes(serviceName)) {
       continue;

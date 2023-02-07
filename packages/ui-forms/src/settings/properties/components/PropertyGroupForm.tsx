@@ -1,3 +1,4 @@
+import { Row } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import Button from '@erxes/ui/src/components/Button';
 import CollapseContent from '@erxes/ui/src/components/CollapseContent';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -20,6 +21,7 @@ import { IFieldGroup } from '../types';
 
 type Props = {
   group?: IFieldGroup;
+  groups: IFieldGroup[];
   type: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
@@ -179,7 +181,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
   }
 
   renderContent = (formProps: IFormProps) => {
-    const { group, closeModal, renderButton } = this.props;
+    const { group, groups, closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
 
     const object = group || ({} as IFieldGroup);
@@ -210,6 +212,30 @@ class PropertyGroupForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Code</ControlLabel>
           <FormControl {...formProps} name="code" defaultValue={object.code} />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Parent group:</ControlLabel>
+          <Row>
+            <FormControl
+              {...formProps}
+              name="parentId"
+              componentClass="select"
+              defaultValue={object.parentId || ''}
+              required={true}
+            >
+              <option value="" />
+              {groups
+                .filter(e => !e.isDefinedByErxes)
+                .map(group => {
+                  return (
+                    <option key={group._id} value={group._id}>
+                      {group.name}
+                    </option>
+                  );
+                })}
+            </FormControl>
+          </Row>
         </FormGroup>
 
         {this.renderFieldVisible()}

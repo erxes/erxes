@@ -15,12 +15,15 @@ declare const navigator: any;
 
 type Props = {
   isDetail: boolean;
+  customFieldsData: any;
   fieldGroup: IFieldGroup;
+  fieldsGroups: IFieldGroup[];
   fieldsCombined: IField[];
   loading?: boolean;
   object?: any;
   data: any;
-  save: (data: any, callback: (error: Error) => void) => void;
+  save: (data: { customFieldsData: any }, callback: () => any) => void;
+  saveGroup: (data: any, callback: (error: Error) => void) => void;
 };
 
 type State = {
@@ -83,9 +86,9 @@ class GenerateGroup extends React.Component<Props, State> {
 
   save = () => {
     const { data } = this.state;
-    const { save } = this.props;
+    const { saveGroup } = this.props;
 
-    save(data, error => {
+    saveGroup(data, error => {
       if (error) {
         return Alert.error(error.message);
       }
@@ -232,6 +235,108 @@ class GenerateGroup extends React.Component<Props, State> {
     );
   }
 
+  renderChildGroups = () => {
+    const {
+      fieldGroup,
+      fieldsGroups,
+      customFieldsData = [],
+      isDetail
+    } = this.props;
+
+    const childGroups = fieldsGroups.filter(
+      gro => gro.parentId === fieldGroup._id
+    );
+
+    const allFields = childGroups.flatMap(group => {
+      return group.fields;
+    });
+
+    const saveGroup = (groupData, callback) => {
+      const { customFieldsData, save } = this.props;
+
+      const prevData = {};
+      (customFieldsData || []).forEach(cd => (prevData[cd.field] = cd.value));
+
+      const updatedData = {
+        ...prevData,
+        ...(groupData || {})
+      };
+
+      save(
+        {
+          customFieldsData: Object.keys(updatedData).map(key => ({
+            field: key,
+            value: updatedData[key]
+          }))
+        },
+        callback
+      );
+    };
+
+    return childGroups.map(childFieldGroup => {
+      const data = {};
+
+      for (const customFieldData of customFieldsData || []) {
+        data[customFieldData.field] = customFieldData.value;
+      }
+
+      if (childFieldGroup.logics && childFieldGroup.logics.length > 0) {
+        const logics: LogicParams[] = childFieldGroup.logics.map(logic => {
+          let { fieldId = '' } = logic;
+
+          if (fieldId.includes('customFieldsData')) {
+            fieldId = fieldId.split('.')[1];
+            return {
+              fieldId,
+              operator: logic.logicOperator,
+              validation: allFields.find(e => e._id === fieldId)?.validation,
+              logicValue: logic.logicValue,
+              fieldValue: data[fieldId]
+            };
+          }
+
+          return {
+            fieldId,
+            operator: logic.logicOperator,
+            logicValue: logic.logicValue,
+            fieldValue: this.props.object[logic.fieldId || ''],
+            validation: allFields.find(e => e._id === fieldId)?.validation
+          };
+        });
+
+        const isLogicsFulfilled = checkLogic(logics);
+
+        if (fieldGroup.logicAction && fieldGroup.logicAction === 'show') {
+          if (!isLogicsFulfilled) {
+            return null;
+          }
+        }
+
+        if (fieldGroup.logicAction && fieldGroup.logicAction === 'hide') {
+          if (isLogicsFulfilled) {
+            return null;
+          }
+        }
+      }
+
+      return (
+        <GenerateGroup
+          isDetail={isDetail}
+          key={childFieldGroup._id}
+          loading={this.props.loading}
+          data={data}
+          fieldGroup={childFieldGroup}
+          fieldsGroups={fieldsGroups}
+          fieldsCombined={allFields}
+          customFieldsData={customFieldsData}
+          save={this.props.save}
+          saveGroup={saveGroup}
+          object={this.props.object}
+        />
+      );
+    });
+  };
+
   render() {
     const { fieldGroup, isDetail } = this.props;
     const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
@@ -244,6 +349,7 @@ class GenerateGroup extends React.Component<Props, State> {
       <Box title={fieldGroup.name} name="showCustomFields">
         {this.renderContent()}
         {this.renderButtons()}
+        {this.renderChildGroups()}
       </Box>
     );
   }
@@ -283,16 +389,18 @@ class GenerateGroups extends React.Component<GroupsProps> {
 
   render() {
     const { loading, fieldsGroups, customFieldsData, isDetail } = this.props;
+    const groups = fieldsGroups.filter(gro => !gro.parentId);
+    const groupsWithParents = fieldsGroups.filter(gro => !!gro.parentId);
 
-    if (!fieldsGroups || fieldsGroups.length === 0) {
+    if (!groups || groups.length === 0) {
       return null;
     }
 
-    const allFields = fieldsGroups.flatMap(group => {
+    const allFields = groups.flatMap(group => {
       return group.fields;
     });
 
-    return fieldsGroups.map(fieldGroup => {
+    return groups.map(fieldGroup => {
       const data = {};
 
       for (const customFieldData of customFieldsData || []) {
@@ -344,10 +452,13 @@ class GenerateGroups extends React.Component<GroupsProps> {
           key={fieldGroup._id}
           loading={loading}
           data={data}
+          customFieldsData={customFieldsData}
           fieldGroup={fieldGroup}
+          fieldsGroups={groupsWithParents}
           fieldsCombined={allFields}
           object={this.props.object}
-          save={this.saveGroup}
+          saveGroup={this.saveGroup}
+          save={this.props.save}
         />
       );
     });

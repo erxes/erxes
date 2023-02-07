@@ -39,13 +39,15 @@ const FieldType = styled.span`
   display: flex;
 `;
 
-const CollapseRow = styled.div`
+const CollapseRow = styledTS<{ isChild: boolean }>(styled.div)`
   font-size: ${coreSpace};
   position: relative;
   display: flex;
   overflow: hidden;
   justify-content: space-between;
-  padding: ${dimensions.coreSpacing}px;
+  padding: ${props =>
+    props.isChild ? dimensions.unitSpacing : dimensions.coreSpacing}px;
+  margin: 0px;
   background: ${colors.colorWhite};
 
   span {

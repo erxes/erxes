@@ -98,6 +98,7 @@ export interface IFieldDocument extends IField, Document {
 export interface IFieldGroup extends IVisibility {
   name?: string;
   contentType?: string;
+  parentId?: string;
   order?: number;
   isDefinedByErxes?: boolean;
   description?: string;
@@ -224,6 +225,10 @@ export const fieldSchema = schemaWrapper(
   })
 );
 
+// export const fieldSubGroupSchema = schemaWrapper(
+
+// )
+
 export const fieldGroupSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
@@ -240,6 +245,7 @@ export const fieldGroupSchema = schemaWrapper(
       label: 'Is defined by erxes'
     }),
     description: field({ type: String, label: 'Description' }),
+    parentId: field({ type: String, label: 'Parent Group ID' }),
     code: field({
       type: String,
       optional: true,
