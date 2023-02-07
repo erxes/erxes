@@ -8,7 +8,7 @@ import React from 'react';
 import Select from 'react-select-plus';
 import { mutations } from '../../graphql';
 import { DividerText, StepBody, StepHeader, StepItem } from '../../styles';
-// import { IActions, IModule } from '../../types';
+import { ICategory } from '../../types';
 import { correctValue, generateModuleParams } from '../../utils';
 import { PERMISSIONS } from '../../constants';
 
@@ -16,7 +16,7 @@ type Props = {
   groupId: string;
   refetchQueries: any;
   closeModal: () => void;
-  categoryList?: any;
+  categoryList?: ICategory[];
 };
 
 type State = {

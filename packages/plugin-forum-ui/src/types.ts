@@ -1,4 +1,3 @@
-import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
 import { timeDuractionUnits } from './constants';
 
 export type TimeDurationUnit = typeof timeDuractionUnits[number];
@@ -118,9 +117,11 @@ export interface IUserGroupDocument {
 }
 
 export interface IClientPortalUser {
-  _id: string;
+  _id?: string;
   avatar?: string;
   code?: string;
+  company?: string;
+  phone?: string;
   companyName?: string;
   firstName?: string;
   email?: string;
@@ -138,16 +139,22 @@ export interface IProduct {
   price: number;
   unit: string;
 }
+
+export interface IPermission {
+  _id: string;
+  category: {
+    name: string;
+  };
+  permission: string;
+  permissionGroup: {
+    name: string;
+    cpUserIds: string[];
+  };
+}
 /* queries */
 
 export type PagesQueryResponse = {
   pages: IPage[];
-  loading: boolean;
-  refetch: () => void;
-};
-
-export type PostsQueryResponse = {
-  pages: IPost[];
   loading: boolean;
   refetch: () => void;
 };

@@ -4,10 +4,10 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
-// import { IActions, IModule, IPermissionDocument } from '../types';
+import { IPermission } from '../../types';
 
 type Props = {
-  permissions: any;
+  permissions: IPermission[];
   removeItem?: (id: string) => void;
 };
 

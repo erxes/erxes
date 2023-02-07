@@ -1,22 +1,17 @@
 import Box from '@erxes/ui/src/components/Box';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { IRouterProps, Counts } from '@erxes/ui/src/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils';
-import {
-  FieldStyle,
-  SidebarCounter,
-  SidebarList
-} from '@erxes/ui/src/layout/styles';
+import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { stateFilters } from '../../constants';
 
 interface IProps extends IRouterProps {
-  counts: Counts;
   emptyText?: string;
 }
 
-function StatusFilter({ history, counts, emptyText }: IProps) {
+function StatusFilter({ history, emptyText }: IProps) {
   const data = (
     <SidebarList>
       {stateFilters.map((state, index) => {
@@ -36,7 +31,6 @@ function StatusFilter({ history, counts, emptyText }: IProps) {
               onClick={onClick}
             >
               <FieldStyle>{__(state.value)}</FieldStyle>
-              {/* <SidebarCounter>{counts[state.key]}</SidebarCounter> */}
             </a>
           </li>
         );

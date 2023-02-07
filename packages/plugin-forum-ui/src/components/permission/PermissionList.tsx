@@ -13,24 +13,22 @@ import {
   FilterItem,
   FilterWrapper
 } from '@erxes/ui-settings/src/permissions/styles';
-// import { IActions, IModule, IPermissionDocument } from '../../types';
-// import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
 import PermissionForm from './PermissionForm';
 import PermissionRow from './PermissionRow';
 import { correctValue, generatedList, generateModuleParams } from '../../utils';
 import { Title } from '@erxes/ui-settings/src/styles';
-import { IUserGroupDocument } from '../../types';
+import { IUserGroupDocument, IPermission, ICategory } from '../../types';
 import { PERMISSIONS } from '../../constants';
 
 type Props = {
   history: any;
   queryParams: any;
-  permissions: any;
+  permissions: IPermission[];
   isLoading?: boolean;
   totalCount?: number;
   currentGroupName?: string;
   permissionGroups?: IUserGroupDocument[];
-  categoryList?: any;
+  categoryList?: ICategory[];
 };
 
 class PermissionList extends React.Component<Props> {

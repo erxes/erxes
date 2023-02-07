@@ -8,14 +8,12 @@ import queryString from 'query-string';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps, confirm } from '@erxes/ui/src/utils';
-import { RemoveMutationResponse, PostsQueryResponse } from '../../types';
+import { RemoveMutationResponse } from '../../types';
 import { graphql } from 'react-apollo';
 
-type FinalProps = {
-  postsQuery: PostsQueryResponse;
-} & RemoveMutationResponse;
+type FinalProps = RemoveMutationResponse;
 
-function List({ removeMutation, postsQuery }: FinalProps) {
+function List({ removeMutation }: FinalProps) {
   const [categoryId] = useSearchParam('categoryId');
   const [state] = useSearchParam('state');
   const [categoryIncludeDescendants] = useSearchParam(

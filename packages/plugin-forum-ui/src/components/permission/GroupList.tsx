@@ -5,14 +5,11 @@ import { __, router } from '@erxes/ui/src/utils';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import GroupForm from '../../containers/PermissionGroups/PermissionGroupForm';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
 import { IUserGroupDocument } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
 import LoadMore from '@erxes/ui/src/components/LoadMore';
-import MemberAvatars from '@erxes/ui/src/components/MemberAvatars';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
@@ -25,12 +22,8 @@ const { Section } = Wrapper.Sidebar;
 
 interface IProps extends IRouterProps {
   queryParams?: any;
-  refetch?: any;
-  totalCount?: number;
-  loading?: boolean;
   objects: IUserGroupDocument[];
   remove?: (id: string) => void;
-  copyItem?: (id: string, key: string, list?: string[]) => void;
 }
 
 class GroupList extends React.Component<IProps> {
@@ -127,18 +120,18 @@ class GroupList extends React.Component<IProps> {
   }
 
   render() {
-    const { totalCount, loading } = this.props;
+    const { objects } = this.props;
 
     return (
       <Sidebar wide={true} header={this.renderSidebarHeader()} hasBorder={true}>
         <DataWithLoader
           data={this.renderContent()}
-          loading={loading}
-          count={totalCount}
+          loading={false}
+          count={objects.length}
           emptyText="There is no group"
           emptyImage="/images/actions/26.svg"
         />
-        <LoadMore all={totalCount} loading={loading} />
+        <LoadMore all={objects.length} loading={false} />
       </Sidebar>
     );
   }
