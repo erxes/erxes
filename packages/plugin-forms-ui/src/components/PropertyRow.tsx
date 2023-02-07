@@ -310,11 +310,12 @@ class PropertyRow extends React.Component<Props, State> {
   renderChildGroupsTable = () => {
     const { group } = this.props;
     const { groupsWithParents } = this.state;
+
     const childGroups = groupsWithParents.filter(
       item => item.parentId === group._id
     );
 
-    if (groupsWithParents.length === 0) {
+    if (childGroups.length === 0) {
       return null;
     }
 
