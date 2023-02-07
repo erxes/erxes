@@ -194,7 +194,7 @@ export const initBroker = async cl => {
       }
 
       return {
-        data: await models.Products.find(filter).countDocuments(),
+        data: await models.Products.find(filter).count(),
         status: 'success'
       };
     }
@@ -355,6 +355,7 @@ export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
     ...args
   });
 };
+
 export const sendSegmentsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
@@ -371,6 +372,16 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: 'core',
+    ...args
+  });
+};
+
+export const sendCommonMessage = async (
+  args: ISendMessageArgs & { serviceName: string }
+): Promise<any> => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
     ...args
   });
 };

@@ -9,7 +9,7 @@ import { createJwtToken } from '../auth/authUtils';
 import { IModels } from '../connectionResolver';
 import { IVerificationParams } from '../graphql/resolvers/mutations/clientPortalUser';
 import { sendCommonMessage, sendCoreMessage } from '../messageBroker';
-import { generateRandomPassword, sendSms } from '../utils';
+import { generateRandomPassword, sendAfterMutation, sendSms } from '../utils';
 import { IClientPortalDocument, IOTPConfig } from './definitions/clientPortal';
 import {
   clientPortalUserSchema,
@@ -50,7 +50,10 @@ export interface IUserModel extends Model<IUserDocument> {
     _id: string,
     doc: IUser
   ): Promise<IUserDocument>;
-  removeUser(_ids: string[]): Promise<{ n: number; ok: number }>;
+  removeUser(
+    subdomain: string,
+    _ids: string[]
+  ): Promise<{ n: number; ok: number }>;
   checkPassword(password: string): void;
   getSecret(): string;
   generateToken(): { token: string; expires: Date };
@@ -105,8 +108,15 @@ export interface IUserModel extends Model<IUserDocument> {
     password: string;
   }): string;
   verifyUser(args: IVerificationParams): Promise<IUserDocument>;
-  verifyUsers(userids: string[], type: string): Promise<IUserDocument>;
-  confirmInvitation(params: IConfirmParams): Promise<IUserDocument>;
+  verifyUsers(
+    subdomain: string,
+    userids: string[],
+    type: string
+  ): Promise<IUserDocument>;
+  confirmInvitation(
+    subdomain: string,
+    params: IConfirmParams
+  ): Promise<IUserDocument>;
   updateSession(_id: string): Promise<IUserDocument>;
   updateNotificationSettings(
     _id: string,
@@ -280,6 +290,15 @@ export const loadClientPortalUserClass = (models: IModels) => {
         );
       }
 
+      await sendAfterMutation(
+        subdomain,
+        'clientportal:user',
+        'create',
+        user,
+        user,
+        `User's profile has been created on ${clientPortal.name}`
+      );
+
       return user;
     }
 
@@ -306,8 +325,26 @@ export const loadClientPortalUserClass = (models: IModels) => {
     /**
      * Remove remove Client Portal Users
      */
-    public static async removeUser(clientPortalUserIds: string[]) {
+    public static async removeUser(
+      subdomain: string,
+      clientPortalUserIds: string[]
+    ) {
       // Removing every modules that associated with customer
+
+      const users = await models.ClientPortalUsers.find({
+        _id: { $in: clientPortalUserIds }
+      });
+
+      for (const user of users) {
+        await sendAfterMutation(
+          subdomain,
+          'clientportal:user',
+          'delete',
+          user,
+          user,
+          `User's profile has been removed`
+        );
+      }
 
       return models.ClientPortalUsers.deleteMany({
         _id: { $in: clientPortalUserIds }
@@ -798,20 +835,32 @@ export const loadClientPortalUserClass = (models: IModels) => {
         }
       });
 
+      await sendAfterMutation(
+        subdomain,
+        'clientportal:user',
+        'create',
+        user,
+        user,
+        `User's profile has been created on ${clientPortal.name}`
+      );
+
       return user;
     }
 
-    public static async confirmInvitation({
-      token,
-      password,
-      passwordConfirmation,
-      username
-    }: {
-      token: string;
-      password: string;
-      passwordConfirmation: string;
-      username?: string;
-    }) {
+    public static async confirmInvitation(
+      subdomain,
+      {
+        token,
+        password,
+        passwordConfirmation,
+        username
+      }: {
+        token: string;
+        password: string;
+        passwordConfirmation: string;
+        username?: string;
+      }
+    ) {
       const user = await models.ClientPortalUsers.findOne({
         registrationToken: token,
         registrationTokenExpires: {
@@ -845,12 +894,23 @@ export const loadClientPortalUserClass = (models: IModels) => {
         }
       );
 
-      await putActivityLog(user);
+      await sendAfterMutation(
+        subdomain,
+        'clientportal:user',
+        'create',
+        user,
+        user,
+        `User's profile has been created`
+      );
 
       return user;
     }
 
-    public static async verifyUsers(userIds: string[], type: string) {
+    public static async verifyUsers(
+      subdomain: string,
+      userIds: string[],
+      type: string
+    ) {
       const qryOption =
         type === 'phone' ? { phone: { $ne: null } } : { email: { $ne: null } };
 
@@ -877,6 +937,15 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
       for (const user of users) {
         await putActivityLog(user);
+
+        await sendAfterMutation(
+          subdomain,
+          'clientportal:user',
+          'create',
+          user,
+          user,
+          `User's profile has been created`
+        );
       }
 
       return users;

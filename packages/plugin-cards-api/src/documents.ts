@@ -306,6 +306,6 @@ export default {
       toMoney(totalAmountWithoutVat)
     );
 
-    return replacedContent;
+    return [replacedContent];
   }
 };

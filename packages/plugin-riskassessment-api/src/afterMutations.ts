@@ -40,14 +40,14 @@ export const afterMutationHandlers = async (subdomain, params) => {
       pipelineId: stage.pipelineId
     };
 
-    const addedConformities: any[] = [];
+    const addedRiskAssessment: any[] = [];
     const conformity = {
       cardId: _id,
       cardType: type.replace('cards:', '')
     } as IRiskConformityField;
 
     for (const data of customFieldsData) {
-      const config = await models.RiskAssessmentConfigs.findOne({
+      const config = await models.RiskIndicatorConfigs.findOne({
         $or: [
           { ...commonFilter, stageId, customFieldId: data.field },
           { ...commonFilter, stageId: '', customFieldId: data.field }
@@ -60,18 +60,22 @@ export const afterMutationHandlers = async (subdomain, params) => {
           item => item.value === data.value
         );
         if (customField) {
-          const addedConformity = await models.RiskConformity.riskConformityAdd(
-            { ...conformity, riskAssessmentId: customField.riskAssessmentId }
+          const addedConformity = await models.RiskAssessments.addRiskAssessment(
+            {
+              ...conformity,
+              indicatorId: customField.riskIndicatorId,
+              groupId: customField.indicatorsGroupId
+            }
           );
-          addedConformities.push(addedConformity);
+          addedRiskAssessment.push(addedConformity);
         }
       }
     }
 
-    if (!addedConformities.length) {
+    if (!addedRiskAssessment.length) {
       const filter = { ...commonFilter, customFieldId: null, configs: [] };
 
-      const config = await models.RiskAssessmentConfigs.findOne({
+      const config = await models.RiskIndicatorConfigs.findOne({
         $or: [
           { ...filter, stageId },
           { ...filter, stageId: '' }
@@ -79,10 +83,11 @@ export const afterMutationHandlers = async (subdomain, params) => {
       })
         .sort({ createdAt: -1 })
         .limit(1);
-      if (config?.riskAssessmentId) {
-        await models.RiskConformity.riskConformityAdd({
+      if (config?.riskIndicatorId || config?.indicatorsGroupId) {
+        await models.RiskAssessments.addRiskAssessment({
           ...conformity,
-          riskAssessmentId: String(config?.riskAssessmentId)
+          indicatorId: config?.riskIndicatorId || undefined,
+          groupId: config?.indicatorsGroupId || undefined
         });
       }
     }

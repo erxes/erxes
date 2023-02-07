@@ -1,8 +1,6 @@
 import FormControl from '@erxes/ui/src/components/form/Control';
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
-import { FieldStyle, SidebarCounter } from '@erxes/ui/src/layout/styles';
-import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 import { IUom } from '@erxes/ui-products/src/types';
 
 type Props = {
@@ -65,50 +63,46 @@ class PerformDetail extends React.Component<Props, State> {
     const beUomIds = [product.uomId, ...product.subUoms.map(su => su.uomId)];
 
     return (
-      <li key={Math.random()}>
-        <FieldStyle>{__(productName)}</FieldStyle>
-        <SidebarCounter>
-          <FormWrapper>
-            <FormColumn>
-              <FormControl
-                defaultValue={productData.uomId}
-                componentClass="select"
-                name="uomId"
-                options={[
-                  ...allUoms
-                    .filter(au => (beUomIds || []).includes(au._id))
-                    .map(u => ({
-                      value: u._id,
-                      label: `${u.code} - ${u.name}`
-                    }))
-                ]}
-                required={true}
-                onChange={this.onChange}
-              />
-            </FormColumn>
-            <FormColumn>
-              <FormControl
-                defaultValue={productData.quantity}
-                type="number"
-                name="quantity"
-                required={true}
-                onChange={this.onChange}
-              />
-            </FormColumn>
-            {hasCost && (
-              <FormColumn>
-                <FormControl
-                  defaultValue={productData.amount || 0}
-                  type="number"
-                  name="amount"
-                  required={true}
-                  onChange={this.onChange}
-                />
-              </FormColumn>
-            )}
-          </FormWrapper>
-        </SidebarCounter>
-      </li>
+      <tr>
+        <td>{__(productName)}</td>
+        <td>
+          <FormControl
+            defaultValue={productData.uomId}
+            componentClass="select"
+            name="uomId"
+            options={[
+              ...allUoms
+                .filter(au => (beUomIds || []).includes(au._id))
+                .map(u => ({
+                  value: u._id,
+                  label: `${u.code} - ${u.name}`
+                }))
+            ]}
+            required={true}
+            onChange={this.onChange}
+          />
+        </td>
+        <td>
+          <FormControl
+            defaultValue={productData.quantity}
+            type="number"
+            name="quantity"
+            required={true}
+            onChange={this.onChange}
+          />
+        </td>
+        {hasCost && (
+          <td>
+            <FormControl
+              defaultValue={productData.amount || 0}
+              type="number"
+              name="amount"
+              required={true}
+              onChange={this.onChange}
+            />
+          </td>
+        )}
+      </tr>
     );
   }
 }

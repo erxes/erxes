@@ -88,14 +88,12 @@ const OMIT_FROM_INPUT = [
   'trendScore',
 
   'createdUserType',
-  'createdAt',
   'createdById',
   'createdByCpId',
 
   'categoryApprovalState',
 
   'updatedUserType',
-  'updatedAt',
   'updatedById',
   'updatedByCpId',
 
@@ -170,10 +168,13 @@ export interface IPostModel extends Model<PostDocument> {
 
   /* <<< Client portal */
   findByIdOrThrowCp(_id: string, cpUser?: ICpUser): Promise<PostDocument>;
-  createPostCp(c: PostCreateInput, user?: ICpUser): Promise<PostDocument>;
+  createPostCp(
+    c: Omit<PostCreateInput, 'createdAt' | 'lastPublishedAt'>,
+    user?: ICpUser
+  ): Promise<PostDocument>;
   patchPostCp(
     _id: string,
-    c: PostPatchInput,
+    c: Omit<PostPatchInput, 'createdAt' | 'lastPublishedAt'>,
     user?: ICpUser
   ): Promise<PostDocument>;
   deletePostCp(_id: string, user?: ICpUser): Promise<PostDocument>;
@@ -241,7 +242,7 @@ export const postSchema = new Schema<PostDocument>({
 
   customIndexed: Schema.Types.Mixed,
 
-  tagIds: [String],
+  tagIds: [{ type: String, index: true, sparse: true }],
   wordCount: Number,
   isPollMultiChoice: Boolean,
   pollEndDate: Date,
@@ -297,6 +298,7 @@ async function cleanupAfterDelete(
   await models.Comment.deleteMany({ postId: _id });
   await models.PostUpVote.deleteMany({ contentId: _id });
   await models.PostDownVote.deleteMany({ contentId: _id });
+  await models.Quiz.updateMany({ postId: _id }, { $unset: { postId: 1 } });
   await models.PollOption.handleChanges(_id, [], userType, userId);
 }
 
@@ -420,9 +422,15 @@ export const generatePostModel = (
         update.viewCount = 0;
       }
 
-      _.merge(post, update);
+      const updatedPost = await models.Post.findOneAndUpdate(
+        { _id },
+        { $set: update },
+        { new: true }
+      );
 
-      await post.save();
+      if (!updatedPost) {
+        throw new Error(`Post with \`{ "_id" : "${_id}"}\` doesn't exist`);
+      }
 
       if (pollOptions !== undefined) {
         await models.PollOption.handleChanges(
@@ -437,7 +445,7 @@ export const generatePostModel = (
         await notifyUsersPublishedPost(subdomain, models, post);
       }
 
-      return post;
+      return updatedPost;
     }
 
     public static async deletePost(
@@ -582,7 +590,7 @@ export const generatePostModel = (
       return post;
     }
     public static async createPostCp(
-      input: PostCreateInput,
+      input: Omit<PostCreateInput, 'createdAt' | 'lastPublishedAt'>,
       cpUser?: ICpUser
     ): Promise<PostDocument> {
       if (!cpUser) throw new LoginRequiredError();
@@ -630,7 +638,7 @@ export const generatePostModel = (
     }
     public static async patchPostCp(
       _id: string,
-      input: PostPatchInput,
+      input: Omit<PostPatchInput, 'createdAt' | 'lastPublishedAt'>,
       cpUser?: ICpUser
     ): Promise<PostDocument> {
       if (!cpUser) throw new LoginRequiredError();
@@ -669,8 +677,15 @@ export const generatePostModel = (
         update.viewCount = 0;
       }
 
-      _.merge(post, update);
-      await post.save();
+      const updatedPost = await models.Post.findByIdAndUpdate(
+        _id,
+        { $set: update },
+        { new: true }
+      );
+
+      if (!updatedPost) {
+        throw new Error('Post not found');
+      }
 
       if (pollOptions !== undefined) {
         await models.PollOption.handleChanges(
@@ -684,7 +699,7 @@ export const generatePostModel = (
       if (originalState === 'DRAFT' && post.state === 'PUBLISHED') {
         await notifyUsersPublishedPost(subdomain, models, post);
       }
-      return post;
+      return updatedPost;
     }
 
     public static async deletePostCp(

@@ -38,6 +38,37 @@ export const productToErkhet = async (subdomain, params, action) => {
     isRPC: true
   });
 
+  let measureUnit = product.sku || 'ш';
+  let subMeasureUnit;
+  let ratioMeasureUnit;
+
+  if (product.uomId) {
+    const firstSubUom = product.subUoms.length && product.subUoms[0];
+
+    const uoms: any[] = await sendProductsMessage({
+      subdomain,
+      action: 'uoms.find',
+      data: { _id: { $in: [product.uomId, firstSubUom && firstSubUom.uomId] } },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    if (uoms.length) {
+      const uom = uoms.find(uom => uom._id === product.uomId);
+      if (uom) {
+        measureUnit = uom.code || measureUnit;
+      }
+
+      const subUom = uoms.find(
+        uom => uom._id === (firstSubUom ? firstSubUom.uomId : '')
+      );
+      if (subUom) {
+        subMeasureUnit = subUom.code;
+        ratioMeasureUnit = (firstSubUom && firstSubUom.ratio) || 1;
+      }
+    }
+  }
+
   const config = await getConfig(subdomain, 'ERKHET', {});
 
   const sendData = {
@@ -46,7 +77,9 @@ export const productToErkhet = async (subdomain, params, action) => {
     object: {
       code: product.code || '',
       name: product.name || '',
-      measureUnit: product.sku || 'ш',
+      measureUnit,
+      subMeasureUnit,
+      ratioMeasureUnit,
       barcodes: product.barcodes.join(','),
       unitPrice: product.unitPrice || 0,
       costAccount: config.costAccount,

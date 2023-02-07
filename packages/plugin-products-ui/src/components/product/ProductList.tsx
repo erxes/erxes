@@ -1,4 +1,10 @@
-import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
+import {
+  loadDynamicComponent,
+  Alert,
+  __,
+  confirm,
+  router
+} from '@erxes/ui/src/utils';
 import { Count, Title } from '@erxes/ui/src/styles/main';
 import { IProduct, IProductCategory } from '../../types';
 
@@ -248,6 +254,8 @@ class List extends React.Component<IProps, State> {
 
       actionBarRight = (
         <BarItems>
+          {loadDynamicComponent('productListAction', { bulk }, true)}
+
           {bulk.length === 2 && (
             <ModalTrigger
               title="Merge Product"

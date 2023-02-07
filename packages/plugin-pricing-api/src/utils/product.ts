@@ -52,12 +52,23 @@ export const getAllowedProducts = async (
       let allowedProductIds: string[] = [];
 
       if (!isFetchedCategories) {
+        const limit = await sendProductsMessage({
+          subdomain,
+          action: 'count',
+          data: {
+            query: { _id: { $in: productIds } }
+          },
+          isRPC: true,
+          defaultValue: []
+        });
+
         orderProducts = await sendProductsMessage({
           subdomain,
           action: 'find',
           data: {
             query: { _id: { $in: productIds } },
-            sort: { _id: 1, categoryId: 1 }
+            sort: { _id: 1, categoryId: 1 },
+            limit
           },
           isRPC: true,
           defaultValue: []

@@ -31,6 +31,7 @@ export interface IAbsenceType {
   name: string;
   explRequired: boolean;
   attachRequired: boolean;
+  shiftRequest: boolean;
 }
 
 export interface IReport {
@@ -44,14 +45,23 @@ export interface IReport {
 export interface IUserReport {
   user: IUser;
   scheduleReport: IScheduleReport[];
+
   totalMinsWorked?: number;
   totalMinsWorkedToday?: number;
   totalMinsWorkedThisMonth?: number;
-  totalDaysWorkedThisMonth?: number;
+  totalHoursWorked?: number;
+  totalDaysWorked?: number;
+  totalRegularHoursWorked?: number;
+
   totalMinsScheduled?: number;
+  totalHoursScheduled?: number;
   totalMinsScheduledToday?: number;
   totalMinsScheduledThisMonth?: number;
-  totalDaysScheduledThisMonth?: number;
+  totalDaysScheduled?: number;
+
+  totalHoursOvertime?: number;
+  totalHoursOvernight?: number;
+
   totalMinsLate?: number;
   totalMinsLateToday?: number;
   totalMinsLateThisMonth?: number;
@@ -60,13 +70,21 @@ export interface IUserReport {
 }
 
 export interface IScheduleReport {
-  date?: string;
-  scheduleStart?: Date;
-  scheduleEnd?: Date;
-  recordedStart?: Date;
-  recordedEnd?: Date;
-  minsLate?: number;
-  minsWorked?: number;
+  timeclockDate: string;
+  timeclockStart: Date;
+  timeclockEnd: Date;
+  timeclockDuration: number;
+
+  deviceName: string;
+  deviceType: string;
+
+  scheduledStart: Date;
+  scheduledEnd: Date;
+  scheduledDuration: number;
+
+  totalMinsLate: number;
+  totalHoursOvertime: number;
+  totalHoursOvernight: number;
 }
 export interface IPayDates {
   _id: string;
@@ -175,6 +193,7 @@ export type AbsenceMutationVariables = {
   reason: string;
   explanation?: string;
   attachment?: IAttachment;
+  absenceTypeId?: string;
 };
 
 export type ScheduleMutationVariables = {

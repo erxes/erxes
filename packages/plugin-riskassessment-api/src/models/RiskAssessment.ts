@@ -1,193 +1,528 @@
-import { paginate } from '@erxes/api-utils/src';
-import { escapeRegExp } from '@erxes/api-utils/src/core';
+import { field } from '@erxes/api-utils/src';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { validRiskAssessment } from '../utils';
-import { IRiskAssessmentField, PaginateField } from './definitions/common';
+import { sendCoreMessage, sendFormsMessage } from '../messageBroker';
+import { getAsssignedUsers } from '../utils';
 import {
-  IRiskAssessmentDocument,
-  riskAssessmentSchema
+  IRiskAssessmentsDocument,
+  IRiskAssessmentIndicatorsDocument,
+  riskAssessmentsSchema,
+  riskAssessmentIndicatorsSchema
 } from './definitions/riskassessment';
-
-export interface IRiskAssessmentModel extends Model<IRiskAssessmentDocument> {
-  riskAssessments(
-    params: { categoryId: string } & IRiskAssessmentField & PaginateField
-  ): Promise<IRiskAssessmentDocument>;
-  riskAssessmentDetail(params: {
-    _id: string;
-    fieldsSkip: any;
-  }): Promise<IRiskAssessmentDocument>;
-  riskAssesmentAdd(
-    params: IRiskAssessmentField
-  ): Promise<IRiskAssessmentDocument>;
-  riskAssesmentRemove(_ids: string[]): void;
-  riskAssessmentUpdate(params: {
-    _id: string;
-    doc: IRiskAssessmentField;
-  }): Promise<IRiskAssessmentDocument>;
+export interface IRiskAssessmentsModel extends Model<IRiskAssessmentsDocument> {
+  addRiskAssessment(params): Promise<IRiskAssessmentsDocument>;
+  riskAssessmentDetail(_id: string): Promise<any>;
+  riskAssessmentFormSubmissionDetail(parmas): Promise<any>;
+  editRiskAssessment(_id: string, doc: any): Promise<IRiskAssessmentsDocument>;
+  removeRiskAssessment(_id: string);
+  riskAssessmentAssignedMembers(
+    cardId: string,
+    cardType: string,
+    riskAssessmentId: string
+  ): Promise<IRiskAssessmentsDocument>;
+  riskAssessmentSubmitForm(
+    cardId: string,
+    cardType: string,
+    riskAssessmentId: string,
+    userId: string
+  ): Promise<IRiskAssessmentsDocument>;
+  riskAssessmentIndicatorForm(
+    riskAssessmentId: string,
+    indicatorId: string,
+    userId: string
+  ): Promise<IRiskAssessmentsDocument>;
 }
 
-const statusColors = {
-  Unacceptable: '#393c40',
-  Error: '#ea475d',
-  Warning: '#f7ce53',
-  Danger: '#ff6600',
-  Success: '#3ccc38',
-  In_Progress: '#3B85F4',
-  No_Result: '#888'
-};
-
-const generateFilter = (
-  params: {
-    _id?: string;
-    categoryId?: string;
-    ignoreIds?: string[];
-  } & IRiskAssessmentField &
-    PaginateField
-) => {
-  let filter: any = {};
-
-  if (params._id) {
-    filter._id = params._id;
-  }
-
-  if (params.categoryId) {
-    filter.categoryId = params.categoryId;
-  }
-
-  if (params.sortFromDate) {
-    if (parseInt(params.sortFromDate)) {
-      params.sortFromDate = new Date(parseInt(params.sortFromDate)).toString();
-    }
-    filter.createdAt = { $gte: new Date(params.sortFromDate) };
-  }
-
-  if (params.sortToDate) {
-    if (parseInt(params.sortToDate)) {
-      params.sortToDate = new Date(parseInt(params.sortToDate)).toString();
-    }
-    filter.createdAt = {
-      ...filter.createdAt,
-      $lte: new Date(params.sortToDate)
-    };
-  }
-
-  if (params.status) {
-    filter.statusColor = statusColors[params.status];
-  }
-  if (params.searchValue) {
-    filter.name = { $regex: new RegExp(escapeRegExp(params.searchValue), 'i') };
-  }
-
-  if (params.ignoreIds) {
-    filter._id = { $nin: params.ignoreIds };
-  }
-
-  return filter;
-};
-
-const generateOrderFilters = (params: IRiskAssessmentField & PaginateField) => {
-  const filter: any = {};
-
-  filter.createdAt = -1;
-
-  if (params.sortDirection) {
-    filter.createdAt = params.sortDirection;
-  }
-
-  return filter;
-};
-
-export const loadRiskAssessment = (model: IModels, subdomain: string) => {
+export const loadRiskAssessments = (models: IModels, subdomain: string) => {
   class RiskAssessment {
-    public static async riskAssessments(
-      params: {
-        categoryId: string;
-        ignoreIds: string[];
-      } & IRiskAssessmentField &
-        PaginateField
-    ) {
-      const lookup = {
-        $lookup: {
-          from: 'risk_assessment_categories',
-          localField: 'categoryId',
-          foreignField: '_id',
-          as: 'category'
-        }
-      };
-      const filter = generateFilter(params);
+    public static async addRiskAssessment(params) {
+      const { indicatorId, groupId } = params;
 
-      const match = { $match: filter };
-      const sort = { $sort: generateOrderFilters(params) };
-      const set = { $unwind: '$category' };
-      const list = paginate(
-        model.RiskAssessment.aggregate([match, lookup, set, sort]),
-        params
+      const riskAssessment = await models.RiskAssessments.create({ ...params });
+
+      let ids: string[] = [];
+
+      if (indicatorId) {
+        ids = [indicatorId];
+      }
+
+      if (groupId) {
+        const indicatorsGroups = await models.IndicatorsGroups.find({
+          _id: groupId
+        });
+        for (const { groups } of indicatorsGroups) {
+          for (const group of groups) {
+            ids = [...ids, ...group.indicatorIds];
+            await models.RiskAssessmentGroups.create({
+              assessmentId: riskAssessment._id,
+              groupId: group._id
+            });
+          }
+        }
+        await models.RiskAssessmentGroups.create({
+          assessmentId: riskAssessment._id,
+          groupId
+        });
+      }
+      const indicators = await models.RiskIndicators.find({
+        _id: { $in: ids }
+      });
+
+      for (const indicator of indicators)
+        [
+          await models.RiskAssessmentIndicators.create({
+            assessmentId: riskAssessment._id,
+            indicatorId: indicator._id
+          })
+        ];
+
+      return riskAssessment;
+    }
+
+    public static async editRiskAssessment(_id, doc) {
+      const riskAssessment = await models.RiskAssessments.findOne({ _id });
+
+      if (!riskAssessment) {
+        throw new Error('Could not find risk assessment');
+      }
+
+      const { indicatorId, groupId } = doc;
+
+      if (
+        groupId &&
+        groupId !== riskAssessment.groupId &&
+        !riskAssessment.indicatorId
+      ) {
+        const indicatorIds = await this.getGroupIndicatorIds(groupId);
+        const riskAssessmentIndicators = await models.RiskAssessmentIndicators.find(
+          { assessmentId: _id }
+        );
+
+        const removeIds = riskAssessmentIndicators
+          .filter(
+            assessmentIndicator =>
+              !indicatorIds.includes(assessmentIndicator.indicatorId)
+          )
+          .map(assessmentIndicator => assessmentIndicator._id);
+
+        const addItems = indicatorIds
+          .filter(indicatorId =>
+            riskAssessmentIndicators.some(
+              riskAssessmentIndicator =>
+                riskAssessmentIndicator.indicatorId !== indicatorId
+            )
+          )
+          .map(indicatorId => ({ assessmentId: _id, indicatorId }));
+
+        await models.RiskAssessmentIndicators.deleteMany({
+          _id: { $in: removeIds }
+        });
+
+        await models.RiskAssessmentIndicators.insertMany(addItems);
+      }
+
+      if (
+        indicatorId &&
+        !riskAssessment.groupId &&
+        indicatorId !== indicatorId
+      ) {
+        const riskAssessmentIndicator = await models.RiskAssessmentIndicators.findOne(
+          { assessmentId: _id, indicatorId }
+        );
+        riskAssessmentIndicator?.remove();
+        await models.RiskAssessmentIndicators.create({
+          assessmentId: _id,
+          indicatorId
+        });
+      }
+
+      return await models.RiskAssessments.updateOne(
+        { _id },
+        { $set: { ...doc } }
+      );
+    }
+
+    public static async removeRiskAssessment(_id) {
+      const riskAssessment = await models.RiskAssessments.findOne({ _id });
+
+      if (!riskAssessment) {
+        throw new Error('Could not find risk assessment');
+      }
+
+      if (riskAssessment.groupId) {
+        const indicatorIds = await this.getGroupIndicatorIds(
+          riskAssessment.groupId
+        );
+        await models.RiskAssessmentIndicators.deleteMany({
+          assessmentId: riskAssessment._id,
+          indicatorId: { $in: indicatorIds }
+        });
+      }
+
+      if (riskAssessment.indicatorId) {
+        await models.RiskAssessmentIndicators.deleteOne({
+          assessmentId: riskAssessment._id,
+          indicatorId: riskAssessment.indicatorId
+        });
+      }
+
+      return riskAssessment.remove();
+    }
+
+    public static async riskAssessmentAssignedMembers(
+      cardId,
+      cardType,
+      riskAssessmentId
+    ) {
+      const riskAssessment = await models.RiskAssessments.findOne({
+        _id: riskAssessmentId
+      });
+
+      if (!riskAssessment) {
+        throw new Error('Could not find risk assessment');
+      }
+
+      const riskAssessmentIndicatorIds = (
+        await models.RiskAssessmentIndicators.find({
+          assessmentId: riskAssessment._id
+        })
+      ).map(riskAssessmentIndicator => riskAssessmentIndicator.indicatorId);
+
+      let assignedUsers = await getAsssignedUsers(subdomain, cardId, cardType);
+
+      for (const assignedUser of assignedUsers) {
+        const submittedResults = await models.RiksFormSubmissions.aggregate([
+          {
+            $match: {
+              assessmentId: riskAssessment._id,
+              indicatorId: { $in: riskAssessmentIndicatorIds },
+              userId: assignedUser._id
+            }
+          },
+          {
+            $group: {
+              _id: '$indicatorId',
+              count: { $sum: 1 }
+            }
+          }
+        ]);
+
+        if (!submittedResults.length) {
+          assignedUser.submitStatus = 'pending';
+        }
+        if (submittedResults.length === riskAssessmentIndicatorIds.length) {
+          assignedUser.submitStatus = 'submitted';
+        }
+        if (
+          submittedResults.length >= 1 &&
+          submittedResults.length < riskAssessmentIndicatorIds.length
+        ) {
+          assignedUser.submitStatus = 'inProgress';
+        }
+      }
+
+      if (riskAssessment.status !== 'In Progress') {
+        assignedUsers = assignedUsers.filter(
+          user => user.submitStatus === 'submitted'
+        );
+      }
+
+      return assignedUsers;
+    }
+
+    public static async riskAssessmentSubmitForm(
+      cardId,
+      cardType,
+      riskAssessmentId,
+      userId
+    ) {
+      const riskAssessment = await models.RiskAssessments.findOne({
+        _id: riskAssessmentId,
+        cardId,
+        cardType
+      });
+
+      if (!riskAssessment) {
+        throw new Error('Could not find risk assessment');
+      }
+
+      const riskAssessmentIndicatorIds = (
+        await models.RiskAssessmentIndicators.find({
+          assessmentId: riskAssessment._id
+        })
+      ).map(riskAssessmentIndicator => riskAssessmentIndicator.indicatorId);
+
+      const indicators = await models.RiskIndicators.find({
+        _id: { $in: riskAssessmentIndicatorIds }
+      }).lean();
+
+      for (const indicator of indicators) {
+        const submitted = await models.RiksFormSubmissions.findOne({
+          assessmentId: riskAssessment._id,
+          indicatorId: indicator._id,
+          userId
+        });
+
+        if (submitted) {
+          indicator.submitted = true;
+        } else {
+          indicator.submitted = false;
+        }
+      }
+      return indicators;
+    }
+
+    public static async riskAssessmentIndicatorForm(
+      riskAssessmentId,
+      indicatorId,
+      userId
+    ) {
+      const riskAssessment = await models.RiskAssessments.findOne({
+        _id: riskAssessmentId
+      });
+      if (!riskAssessment) {
+        throw new Error('Could not find risk assessment');
+      }
+
+      const indicator = await models.RiskIndicators.findOne({
+        _id: indicatorId
+      });
+
+      if (!indicator) {
+        throw new Error('Cannot find indicator');
+      }
+
+      const { customScoreField, forms } = indicator.toObject();
+
+      const formIds = forms?.map(form => form.formId);
+
+      const query = { contentType: 'form', contentTypeId: { $in: formIds } };
+
+      const fields = await sendFormsMessage({
+        subdomain,
+        action: 'fields.find',
+        data: { query },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      const submittedFields = await models.RiksFormSubmissions.find({
+        assessmentId: riskAssessment._id,
+        indicatorId,
+        userId,
+        formId: { $in: formIds }
+      });
+
+      const customScore = await models.RiksFormSubmissions.findOne({
+        assessmentId: riskAssessment._id,
+        indicatorId,
+        userId,
+        contentType: 'customScore'
+      });
+
+      const editedSubmittedFields = {};
+
+      for (const submittedField of submittedFields) {
+        editedSubmittedFields[submittedField.fieldId] = submittedField.value;
+      }
+
+      return {
+        fields,
+        customScoreField: {
+          ...customScoreField,
+          value: customScore?.value
+        },
+        submittedFields: editedSubmittedFields
+      };
+    }
+
+    public static async riskAssessmentDetail(_id) {
+      const riskAssessment = await models.RiskAssessments.findOne({
+        _id
+      }).lean();
+
+      if (!riskAssessment) {
+        throw new Error('Cannot find assessment');
+      }
+
+      const { cardId, cardType, groupId, indicatorId } = riskAssessment;
+
+      const assignedUsers = await getAsssignedUsers(
+        subdomain,
+        cardId,
+        cardType
       );
 
-      const totalCount = model.RiskAssessment.find(filter).countDocuments();
+      const assessment: any = { ...riskAssessment, assignedUsers };
 
-      return { list, totalCount };
-    }
-
-    public static async riskAssesmentAdd(params: IRiskAssessmentField) {
-      try {
-        await validRiskAssessment(params);
-      } catch (e) {
-        throw new Error(e.message);
-      }
-
-      return model.RiskAssessment.create({ ...params });
-    }
-
-    public static async riskAssesmentRemove(_ids: string[]) {
-      if (!_ids) {
-        throw new Error('Please select a list of risk assessment IDs');
-      }
-      try {
-        await model.RiskConformity.deleteMany({
-          riskAssessmentId: { $in: _ids }
+      if (groupId) {
+        const indicatorsGroup = await models.IndicatorsGroups.findOne({
+          _id: groupId
         });
-        await model.RiksFormSubmissions.deleteMany({
-          riskAssessmentId: { $in: _ids }
+
+        const groupAssessments: any[] = [];
+
+        for (const group of indicatorsGroup?.groups || []) {
+          const groupAssessment = await models.RiskAssessmentGroups.findOne({
+            assessmentId: riskAssessment._id,
+            groupId: group._id
+          }).lean();
+
+          const indicatorsAssessments = await models.RiskAssessmentIndicators.find(
+            {
+              assessmentId: riskAssessment._id,
+              indicatorId: { $in: group.indicatorIds }
+            }
+          ).lean();
+
+          for (const indicatorAssessment of indicatorsAssessments) {
+            const indicator = await models.RiskIndicators.findOne({
+              _id: indicatorAssessment.indicatorId
+            });
+            indicatorAssessment.name = indicator?.name;
+            const submissions = await this.getIndicatorSubmissions({
+              riskAssessment,
+              cardId,
+              cardType,
+              indicatorId: indicatorAssessment.indicatorId,
+              subdomain
+            });
+            indicatorAssessment.submissions = submissions;
+          }
+          groupAssessment.indicatorsAssessments = indicatorsAssessments;
+          groupAssessments.push(groupAssessment);
+        }
+        assessment.groupAssessment = groupAssessments;
+      }
+      if (indicatorId) {
+        const indicatorAssessment = await models.RiskAssessmentIndicators.findOne(
+          { assessmentId: riskAssessment._id, indicatorId }
+        ).lean();
+
+        indicatorAssessment.submissions = await this.getIndicatorSubmissions({
+          cardId,
+          cardType,
+          riskAssessment,
+          indicatorId,
+          subdomain
         });
-        await model.RiskAssessment.deleteMany({ _id: { $in: _ids } });
-        return true;
-      } catch (e) {
-        throw new Error(e.message);
+
+        assessment.indicatorAssessment = indicatorAssessment;
+      }
+      return assessment;
+    }
+
+    public static async riskAssessmentFormSubmissionDetail(params) {
+      const { cardId, cardType, riskAssessmentId } = params;
+
+      const riskAssessment = await models.RiskAssessments.findOne({
+        _id: riskAssessmentId
+      });
+
+      if (!riskAssessment) {
+        throw new Error(`Could not find Risk Assessment`);
+      }
+
+      const { indicatorId, groupId } = riskAssessment;
+
+      if (groupId) {
+        let indicatorIds: string[] = [];
+
+        const indicatorGroup = await models.IndicatorsGroups.findOne({
+          _id: groupId
+        });
+
+        for (const group of indicatorGroup?.groups || []) {
+          indicatorIds = [...indicatorIds, ...group.indicatorIds];
+        }
+
+        const result = await models.RiksFormSubmissions.aggregate([
+          {
+            $match: {
+              cardId,
+              cardType,
+              assessmentId: riskAssessmentId,
+              indicatorId: { $in: indicatorIds }
+            }
+          },
+          {
+            $group: {
+              indicatorId: '$indicatorId',
+              fields: { $push: '$$ROOT' },
+              count: { $sum: 1 }
+            }
+          }
+        ]);
+        return;
       }
     }
 
-    public static async riskAssessmentUpdate(params: {
-      _id: string;
-      doc: IRiskAssessmentField;
-    }) {
-      const { _id, doc } = params;
-
-      if (!_id && !doc) {
-        throw new Error('Not found risk assessment');
+    static async getGroupIndicatorIds(groupId: string) {
+      let indicatorIds: string[] = [];
+      const indicatorsGroups = await models.IndicatorsGroups.find({
+        _id: groupId
+      });
+      for (const { groups } of indicatorsGroups) {
+        for (const group of groups) {
+          indicatorIds = [...indicatorIds, ...group.indicatorIds];
+        }
       }
 
-      const result = await model.RiskAssessment.findByIdAndUpdate(_id, doc);
-      if (!result) {
-        throw new Error('Something went wrong');
-      }
-      return result;
+      return indicatorIds;
     }
-
-    public static async riskAssessmentDetail(params: {
-      _id: string;
-      fieldsSkip: any;
+    static async getIndicatorSubmissions({
+      riskAssessment,
+      cardId,
+      cardType,
+      indicatorId,
+      subdomain
     }) {
-      const filter = generateFilter(params);
-      const { fieldsSkip } = params;
-      if (!filter._id) {
-        throw new Error('You must provide a _id parameter');
-      }
+      const submissions = await models.RiksFormSubmissions.aggregate([
+        {
+          $match: {
+            assessmentId: riskAssessment._id,
+            cardId,
+            cardType,
+            indicatorId
+          }
+        },
+        {
+          $group: {
+            _id: '$userId',
+            fields: { $push: '$$ROOT' },
+            count: { $sum: 1 }
+          }
+        }
+      ]);
 
-      return await model.RiskAssessment.findOne(filter).select(fieldsSkip);
+      for (const submission of submissions) {
+        for (const field of submission.fields) {
+          const fieldDetail = await sendFormsMessage({
+            subdomain,
+            action: 'fields.findOne',
+            data: {
+              query: { _id: field.fieldId }
+            },
+            isRPC: true,
+            defaultValue: {}
+          });
+
+          field.optionsValues = fieldDetail.optionsValues;
+          field.text =
+            field.contentType === 'customScore'
+              ? 'Custom Score'
+              : fieldDetail.text;
+        }
+      }
+      return submissions;
     }
   }
-  riskAssessmentSchema.loadClass(RiskAssessment);
-  return riskAssessmentSchema;
+  riskAssessmentsSchema.loadClass(RiskAssessment);
+  return riskAssessmentsSchema;
 };
+
+export interface IRiskAssessmentIndicatorsModel
+  extends Model<IRiskAssessmentIndicatorsDocument> {
+  addIndicator(): Promise<IRiskAssessmentIndicatorsDocument>;
+  updateIndicator(): Promise<IRiskAssessmentIndicatorsDocument>;
+}

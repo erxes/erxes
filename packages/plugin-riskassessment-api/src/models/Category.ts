@@ -97,30 +97,6 @@ export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
         category.parent = parent;
       }
 
-      const form = await sendFormsMessage({
-        subdomain,
-        action: 'findOne',
-        data: {
-          _id: category.formId
-        },
-        isRPC: true,
-        defaultValue: {}
-      });
-
-      if (form) {
-        const formfields = await sendFormsMessage({
-          subdomain,
-          action: 'fields.find',
-          data: {
-            contentId: form._id,
-            contentType: 'form'
-          },
-          isRPC: true,
-          defaultValue: []
-        });
-        category.formName = form.title;
-      }
-
       return category;
     };
 
@@ -131,28 +107,11 @@ export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
         throw new Error('Not found risk assessment category');
       }
 
-      const { _id, formId } = await models.RiskAssessmentCategory.findOne({
+      const { _id } = await models.RiskAssessmentCategory.findOne({
         _id: params._id
       }).lean();
 
       try {
-        const riskAssessments = await models.RiskAssessment.find({
-          categoryId: { $in: _id }
-        });
-        const riskAssessmentIds = riskAssessments.map(p => p._id);
-        await models.RiskAssessment.deleteMany({ categoryId: _id });
-        await models.RiskConformity.deleteMany({
-          riskAssessmentId: { $in: riskAssessmentIds }
-        });
-        await sendFormsMessage({
-          subdomain,
-          action: 'removeForm',
-          data: {
-            formId
-          },
-          isRPC: true,
-          defaultValue: []
-        });
         return await models.RiskAssessmentCategory.findByIdAndDelete(
           params._id
         );
@@ -224,10 +183,6 @@ export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
       params: IRiskAssessmentCategoryField,
       checkCode?: boolean
     ) {
-      if (!params.formId) {
-        return 'You must a build form';
-      }
-
       if (!params.name) {
         return 'You must a provide category name';
       }

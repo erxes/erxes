@@ -9,6 +9,7 @@ import subscriptionOrder from './subscriptionOrder';
 import page from './page';
 import savePost from './savedPostMutations';
 import pollMutations from './pollMutations';
+import quizMutations from './quizMutations';
 
 const Mutation = `
   extend type Mutation {
@@ -23,6 +24,7 @@ const Mutation = `
     ${pollMutations}
     ${page}
     ${savePost}
+    ${quizMutations}
   }
 `;
 

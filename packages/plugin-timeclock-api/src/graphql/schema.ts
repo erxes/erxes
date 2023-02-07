@@ -41,6 +41,7 @@ export const types = `
     name: String
     explRequired: Boolean
     attachRequired: Boolean
+    shiftRequest: Boolean
   }
 
   
@@ -71,34 +72,51 @@ export const types = `
   }
 
   type ScheduleReport{
-    date: String
-    scheduleStart: Date
-    scheduleEnd: Date
-    recordedStart: Date
-    recordedEnd: Date
-    minsLate: Int
-    minsWorked: Int
-    minsScheduled: Int
+    timeclockDate: String
+    timeclockStart: Date
+    timeclockEnd: Date
+    timeclockDuration: String
+
+    deviceName: String
+    deviceType: String
+
+    scheduledStart: Date
+    scheduledEnd: Date
+    scheduledDuration:String
+    
+    totalMinsLate: String
+    totalHoursOvertime: String
+    totalHoursOvernight: String
   }
 
   type UserReport{
     user: User
     scheduleReport: [ScheduleReport]
-    totalMinsLate: Int
+    totalMinsLate: Float
     totalAbsenceMins: Int
     totalMinsWorked: Int
     totalMinsWorkedToday: Int
     totalMinsWorkedThisMonth: Int
-    totalDaysWorkedThisMonth:Int
+    totalRegularHoursWorked: Float
+    totalHoursWorked: Float
+    totalDaysWorked:Int
+    
     totalMinsScheduled: Int
+    totalHoursScheduled: Float
+    totalDaysScheduled: Int
     totalMinsScheduledToday: Int
     totalMinsScheduledThisMonth: Int
-    totalDaysScheduledThisMonth: Int
+    
+    totalHoursOvertime: Float
+    totalHoursOvernight: Float
+
     totalMinsLateToday: Int
     totalMinsLateThisMonth: Int
     totalMinsAbsenceThisMonth: Int
+
   }
 
+  
   type Report {
     groupTitle: String
     groupReport: [UserReport]
@@ -169,6 +187,7 @@ const queryParams = `
   userIds: [String]
   branchIds: [String]
   departmentIds: [String]
+  reportType: String
 `;
 
 const absence_params = `
@@ -178,12 +197,14 @@ const absence_params = `
     reason: String
     explanation: String
     attachment: AttachmentInput
+    absenceTypeId: String
 `;
 
 const absenceType_params = `
     name: String
     explRequired: Boolean
     attachRequired: Boolean
+    shiftRequest: Boolean
 `;
 
 export const queries = `

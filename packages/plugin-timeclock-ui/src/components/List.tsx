@@ -1,4 +1,4 @@
-import { menuTimeClock } from '../menu';
+import { menuTimeClock } from '../constants';
 import { __ } from '@erxes/ui/src/utils';
 import React, { useState, useEffect } from 'react';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';

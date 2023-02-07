@@ -28,11 +28,13 @@ export interface IAbsence {
   explanation?: string;
   status: string;
   solved?: boolean;
+  absenceTypeId?: string;
 }
 export interface IAbsenceType {
   name: string;
   explRequired: boolean;
   attachRequired: boolean;
+  shiftRequest: boolean;
 }
 
 export interface IAbsenceDocument extends IAbsence, Document {
@@ -141,6 +143,10 @@ export const absenceTypeSchema = new Schema({
   attachRequired: field({
     type: Boolean,
     label: 'whether absence type requires attachment'
+  }),
+  shiftRequest: field({
+    type: Boolean,
+    label: 'whether absence type is shift request'
   })
 });
 
@@ -161,6 +167,10 @@ export const absenceSchema = new Schema({
   status: field({
     type: String,
     label: 'Status of absence request, whether approved or rejected'
+  }),
+  absenceTypeId: field({
+    type: String,
+    label: 'id of an absence type'
   })
 });
 
@@ -250,10 +260,27 @@ export interface IScheduleReport {
   minsLate?: number;
   minsWorked?: number;
   include?: boolean;
+
+  timeclockDate?: string;
+  timeclockStart?: Date;
+  timeclockEnd?: Date;
+  timeclockDuration?: string;
+  deviceType?: string;
+  deviceName?: string;
+  scheduledStart?: Date;
+  scheduledEnd?: Date;
+  scheduledDuration?: string;
+  totalMinsLate?: string;
+  totalHoursOvertime?: string;
+  totalHoursOvernight?: string;
 }
 
 export interface IUserReport {
   userId?: string;
+  employeeId?: string;
+  firstName?: string;
+  lastName?: string;
+  position?: string;
   scheduleReport: IScheduleReport[];
   totalMinsWorked?: number;
   totalMinsWorkedToday?: number;
@@ -275,9 +302,20 @@ export interface IUserExportReport {
   lastName?: string;
   branchName?: string;
   position?: string;
-  totalDaysWorkedThisMonth?: number;
-  totalDaysScheduledThisMonth?: number;
+  totalDaysWorked?: number;
+  totalHoursWorked?: string;
+  totalRegularHoursWorked?: string;
+
+  totalDaysScheduled?: number;
+  totalHoursScheduled?: string;
+
+  totalHoursOvertime?: string;
+  totalHoursOvernight?: string;
+  totalMinsLate?: string;
+
+  scheduleReport?: IScheduleReport[];
 }
+
 export interface IUsersReport {
   [userId: string]: IUserExportReport;
 }

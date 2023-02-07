@@ -15,7 +15,8 @@ import {
   MessageReply,
   MessageBody,
   MessageOption,
-  MessageContent
+  MessageContent,
+  MessageAttachmentWrapper
 } from '../../styles';
 
 dayjs.extend(calendar);
@@ -59,7 +60,7 @@ const MessageItem = (props: FinalProps) => {
 
   const renderAttachments = () => {
     return (message.attachments || []).map(attachment => (
-      <Attachment key={attachment._id} attachment={attachment || {}} />
+      <Attachment key={attachment._id} attachment={attachment || {}} simple />
     ));
   };
 
@@ -101,7 +102,9 @@ const MessageItem = (props: FinalProps) => {
             />
           </Tip>
         </MessageBody>
-        {renderAttachments()}
+        <MessageAttachmentWrapper>
+          {renderAttachments()}
+        </MessageAttachmentWrapper>
       </MessageWrapper>
       {!isMe && <Avatar user={message.createdUser} size={36} />}
     </MessageItemWrapper>

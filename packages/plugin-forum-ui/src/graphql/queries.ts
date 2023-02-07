@@ -219,6 +219,11 @@ export const FORUM_POST_DETAIL = gql`
         order
       }
 
+      quizzes {
+        _id
+        name
+      }
+
       isFeaturedByAdmin
       isFeaturedByUser
     }

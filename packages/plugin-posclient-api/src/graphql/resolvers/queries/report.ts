@@ -1,4 +1,3 @@
-import { ORDER_STATUSES } from '../../../models/definitions/constants';
 import { generateOrderNumber } from '../../utils/orderUtils';
 import { IContext } from '../../types';
 
@@ -19,7 +18,6 @@ const reportQueries = {
 
     const orderQuery = {
       paidDate: { $ne: null },
-      status: { $in: ORDER_STATUSES.FULL },
       number: { $regex: new RegExp(beginNumber) },
       posToken: config.token
     };
@@ -27,7 +25,7 @@ const reportQueries = {
       _id: { $in: posUserIds }
     }).lean();
 
-    for (const user of users) {
+    for (const user of [...users, { _id: '' }]) {
       const ordersAmounts = await models.Orders.aggregate([
         { $match: { ...orderQuery, userId: user._id } },
         {

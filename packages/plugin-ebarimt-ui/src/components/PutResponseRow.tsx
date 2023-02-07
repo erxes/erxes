@@ -43,6 +43,7 @@ class PutResponseRow extends React.Component<Props, {}> {
     return (
       <tr>
         <td key={'BillID'}>{putResponse.billId} </td>
+        <td key={'number'}>{putResponse.number} </td>
         <td key={'Date'}>{putResponse.date}</td>
         <td key={'success'}>{displayValue(putResponse, 'success')}</td>
         <td key={'billType'}>{displayValue(putResponse, 'billType')}</td>

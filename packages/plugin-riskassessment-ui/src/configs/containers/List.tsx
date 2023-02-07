@@ -39,8 +39,8 @@ class List extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      configs: configs?.riskAssessmentConfigs || [],
-      totalCount: configsTotalCount.riskAssessmentConfigsTotalCount || 0,
+      configs: configs?.riskIndicatorConfigs || [],
+      totalCount: configsTotalCount.riskIndicatorConfigsTotalCount || 0,
       remove
     };
 

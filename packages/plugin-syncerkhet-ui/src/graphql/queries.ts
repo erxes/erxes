@@ -1,12 +1,8 @@
 // Settings
 
 const configs = `
-  query configs {
-    configs {
-      _id
-      code
-      value
-    }
+  query configsGetValue($code: String!) {
+    configsGetValue(code: $code)
   }
 `;
 
@@ -23,6 +19,8 @@ const commonDealParams = `
   $noSkipArchive: Boolean
   $assignedUserIds: [String],
   $productIds: [String],
+  $search: String
+  $number: String
 `;
 
 const commonDealParamDefs = `
@@ -38,6 +36,8 @@ const commonDealParamDefs = `
   noSkipArchive: $noSkipArchive
   assignedUserIds: $assignedUserIds,
   productIds: $productIds,
+  search: $search,
+  number: $number,
 `;
 
 const commonOrderParams = `
