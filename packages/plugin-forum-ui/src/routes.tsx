@@ -1,6 +1,7 @@
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import React from 'react';
 import { Route, Redirect } from 'react-router-dom';
+import queryString from 'query-string';
 
 const Categories = asyncComponent(() =>
   import(
@@ -30,7 +31,7 @@ const PostDetails = asyncComponent(() =>
 
 const PermissionGroups = asyncComponent(() =>
   import(
-    /* webpackChunkName: "CustomerDetails" */ './containers/PermissionGroups/List'
+    /* webpackChunkName: "CustomerDetails" */ './containers/PermissionGroups/PermissionList'
   )
 );
 
@@ -42,7 +43,7 @@ const PermissionGroupDetail = asyncComponent(() =>
 
 const SubscriptionProducts = asyncComponent(() =>
   import(
-    /* webpackChunkName: "CustomerDetails" */ './containers/SubscriptionProduct'
+    /* webpackChunkName: "CustomerDetails" */ './containers/SubscriptionProduct/List'
   )
 );
 
@@ -76,8 +77,10 @@ const postDetail = ({ match }) => {
   return <PostDetails _id={id} />;
 };
 
-const permissionGroups = () => {
-  return <PermissionGroups />;
+const permissionGroups = ({ location, history }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <PermissionGroups queryParams={queryParams} history={history} />;
 };
 
 const categories = () => {
@@ -88,8 +91,10 @@ const permissionGroupDetail = () => {
   return <PermissionGroupDetail />;
 };
 
-const subscriptionProducts = () => {
-  return <SubscriptionProducts />;
+const subscriptionProducts = ({ location, history }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <SubscriptionProducts queryParams={queryParams} history={history} />;
 };
 
 const routes = () => {

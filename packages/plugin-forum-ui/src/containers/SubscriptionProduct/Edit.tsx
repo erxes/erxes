@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuery, useMutation } from 'react-apollo';
-import Form from '../../components/SubscriptionProductForm';
+import Form from '../../components/subscriptionProducts/SubscriptionProductForm';
 import { useParams, useHistory } from 'react-router-dom';
 import gql from 'graphql-tag';
 

@@ -2,7 +2,9 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import colors from '@erxes/ui/src/styles/colors';
 import { dimensions } from '@erxes/ui/src/styles';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
+import { rgba, lighten } from '@erxes/ui/src/styles/ecolor';
+import { ActionButtons } from '@erxes/ui-settings/src/styles';
+import { SimpleButton } from '@erxes/ui/src/styles/main';
 
 export const CommentContainer = styled.div`
   border: 1px solid ${colors.borderPrimary};
@@ -80,4 +82,83 @@ export const Divider = styled.div`
   border-bottom: 1px dotted ${rgba(colors.colorPrimary, 0.5)};
   padding-bottom: ${dimensions.unitSpacing}px;
   margin: 0 0 ${dimensions.coreSpacing}px 0px;
+`;
+
+export const DividerText = styled.span`
+  margin-bottom: ${dimensions.coreSpacing}px;
+  color: ${colors.colorCoreRed};
+  border: 1px solid ${colors.colorCoreRed};
+  border-radius: 2px;
+  padding: 3px 5px;
+  font-size: 8px;
+  display: inline-block;
+  font-weight: bold;
+  text-transform: uppercase;
+`;
+
+const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
+  position: relative;
+  background: ${props => props.isActive && rgba(colors.colorPrimary, 0.2)};
+  overflow: hidden;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  a {
+    white-space: normal;
+    flex: 1;
+    color: ${props => props.isActive && colors.colorPrimary};
+    font-weight: ${props => (props.isActive ? 600 : 500)};
+
+    border-bottom: 1px solid ${colors.borderPrimary};
+
+    margin: 0 20px;
+    padding: 10px 0;
+
+    &:hover {
+      background: none;
+      color: ${props => !props.isActive && lighten(colors.textPrimary, 40)};
+    }
+
+    &:focus {
+      text-decoration: none;
+    }
+
+    > span {
+      color: #666;
+      font-weight: normal;
+    }
+  }
+
+  &:last-child {
+    border: none;
+  }
+
+  &:hover {
+    cursor: pointer;
+    background: ${props => !props.isActive && colors.bgLight};
+
+    ${ActionButtons} {
+      width: 35px;
+    }
+  }
+`;
+
+export const SidebarItem = styled(SidebarListItem)`
+  &:hover {
+    ${ActionButtons} {
+      width: 75px;
+    }
+  }
+`;
+
+export const Filter = styled.div`
+  width: 130px;
+  margin-right: ${dimensions.unitSpacing}px;
+`;
+
+export const DetailLink = styled.div`
+  a {
+    color: ${colors.textPrimary};
+  }
 `;

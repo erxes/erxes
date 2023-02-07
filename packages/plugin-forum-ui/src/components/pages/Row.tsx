@@ -10,6 +10,7 @@ import { IPage } from '../../types';
 import PageForm from './PageForm';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { Link } from 'react-router-dom';
+import { DetailLink } from '../../styles';
 
 type Props = {
   page: IPage;
@@ -85,7 +86,9 @@ class Row extends React.Component<Props> {
           />
         </td>
         <td>
-          <Link to={`/forum/pages/${page._id}`}>{page.title}</Link>
+          <DetailLink>
+            <Link to={`/forum/pages/${page._id}`}>{page.title}</Link>
+          </DetailLink>
         </td>
         <td>{page.code}</td>
         <td>{page.listOrder}</td>

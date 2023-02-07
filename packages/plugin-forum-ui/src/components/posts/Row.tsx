@@ -9,6 +9,9 @@ import React from 'react';
 import { IPost } from '../../types';
 import PostForm from '../../containers/PostsList/PostForm';
 import { Link } from 'react-router-dom';
+import { DetailLink } from '../../styles';
+import { DateWrapper } from '@erxes/ui/src/styles/main';
+import dayjs from 'dayjs';
 
 type Props = {
   post: IPost;
@@ -95,19 +98,30 @@ class Row extends React.Component<Props> {
           />
         </td>
         <td>
-          <Link to={`/forums/posts/${_id}`}>{title}</Link>
+          <DetailLink>
+            <Link to={`/forums/posts/${_id}`}>{title}</Link>
+          </DetailLink>
         </td>
         <td>{state}</td>
-        <td>{stateChangedAt}</td>
+        <td>
+          <Icon icon="calender" />{' '}
+          <DateWrapper>{dayjs(stateChangedAt).format('ll')}</DateWrapper>
+        </td>
         <td>{stateChangedBy.username}</td>
-        <td>{createdAt}</td>
+        <td>
+          <Icon icon="calender" />{' '}
+          <DateWrapper>{dayjs(createdAt).format('ll')}</DateWrapper>
+        </td>
         <td>{createdBy.username}</td>
-        <td>{updatedAt}</td>
+        <td>
+          <Icon icon="calender" />{' '}
+          <DateWrapper>{dayjs(updatedAt).format('ll')}</DateWrapper>
+        </td>
         <td>{updatedBy.username}</td>
-        <td>{commentCount}</td>
-        <td>{upVoteCount}</td>
-        <td>{downVoteCount}</td>
-        <td>{viewCount}</td>
+        <td>{commentCount.toLocaleString()}</td>
+        <td>{upVoteCount.toLocaleString()}</td>
+        <td>{downVoteCount.toLocaleString()}</td>
+        <td>{viewCount.toLocaleString()}</td>
         <td>
           <ActionButtons>
             {this.renderEditAction(post)}

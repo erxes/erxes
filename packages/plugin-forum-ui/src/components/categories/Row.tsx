@@ -63,7 +63,7 @@ class Row extends React.Component<Props, State> {
           <td>
             <Label lblStyle="simple">{code}</Label>
           </td>
-          <td>{postsCount}</td>
+          <td>{postsCount.toLocaleString()}</td>
           <td>
             <ActionButtons>
               <ModalTrigger

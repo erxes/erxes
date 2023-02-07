@@ -1,3 +1,5 @@
+import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
+
 export interface ICategory {
   _id: string;
   type: string;
@@ -104,6 +106,33 @@ export interface IComment {
   postId: string;
 }
 
+export interface IUserGroupDocument {
+  _id?: string;
+  name?: string;
+  users?: IClientPortalUser[];
+}
+
+export interface IClientPortalUser {
+  _id: string;
+  avatar?: string;
+  code?: string;
+  companyName?: string;
+  firstName?: string;
+  email?: string;
+  username?: string;
+  lastName?: string;
+}
+
+export interface IProduct {
+  _id: string;
+  name?: string | null;
+  description?: string | null;
+  userType?: string | null;
+  listOrder: number;
+  multiplier: number;
+  price: number;
+  unit: string;
+}
 /* queries */
 
 export type PagesQueryResponse = {

@@ -252,6 +252,118 @@ mutation ForumPermissionGroupAddCategoryPermit(
 }
 `;
 
+const permissionGroupCreate = `
+mutation ForumPermissionGroupCreate($name: String!) {
+  forumPermissionGroupCreate(name: $name) {
+    _id
+    users {
+      _id
+      email
+      username
+      lastName
+      firstName
+      code
+      companyName
+    }
+  }
+}
+`;
+
+const permissionGroupPatch = `
+mutation ForumPermissionGroupPatch($_id: ID!, $name: String) {
+  forumPermissionGroupPatch(_id: $_id, name: $name) {
+    _id
+    users {
+      _id
+      email
+      username
+      lastName
+      firstName
+      code
+      companyName
+    }
+  }
+}
+`;
+
+const permissionGroupDelete = `
+mutation ForumPermissionGroupDelete($_id: ID!) {
+  forumPermissionGroupDelete(_id: $_id) {
+    _id
+  }
+}
+`;
+
+const permissionUserRemove = `
+mutation ForumPermissionGroupRemoveUser($_id: ID!, $cpUserId: ID!) {
+  forumPermissionGroupRemoveUser(_id: $_id, cpUserId: $cpUserId)
+}
+`;
+
+const permissionGroupAddUsers = `
+  mutation ForumPermissionGroupAddUsers($_id: ID!, $cpUserIds: [ID!]!) {
+    forumPermissionGroupAddUsers(_id: $_id, cpUserIds: $cpUserIds)
+  }
+`;
+
+const deleteSubscriptionProduct = `
+mutation ForumDeleteSubscriptionProduct($_id: ID!) {
+  forumDeleteSubscriptionProduct(_id: $_id) {
+    _id
+  }
+}
+`;
+
+const createProduct = `
+mutation ForumCreateSubscriptionProduct(
+  $multiplier: Float!
+  $price: Float!
+  $unit: ForumTimeDurationUnit!
+  $description: String
+  $listOrder: Float
+  $name: String
+  $userType: String
+) {
+  forumCreateSubscriptionProduct(
+    multiplier: $multiplier
+    price: $price
+    unit: $unit
+    description: $description
+    listOrder: $listOrder
+    name: $name
+    userType: $userType
+  ) {
+    _id
+  }
+}
+`;
+
+const updateProduct = `
+mutation ForumPatchSubscriptionProduct(
+  $_id: ID!
+  $description: String
+  $listOrder: Float
+  $multiplier: Float
+  $name: String
+  $price: Float
+  $unit: ForumTimeDurationUnit
+  $userType: String
+) {
+  forumPatchSubscriptionProduct(
+    _id: $_id
+    description: $description
+    listOrder: $listOrder
+    multiplier: $multiplier
+    name: $name
+    price: $price
+    unit: $unit
+    userType: $userType
+  ) {
+    _id
+  }
+}
+`;
+
 export default {
   updateCategory,
   createCategory,
@@ -269,5 +381,13 @@ export default {
   postPublish,
   postApprove,
   postDeny,
-  addPermit
+  addPermit,
+  permissionGroupCreate,
+  permissionGroupPatch,
+  permissionGroupDelete,
+  permissionUserRemove,
+  permissionGroupAddUsers,
+  deleteSubscriptionProduct,
+  updateProduct,
+  createProduct
 };

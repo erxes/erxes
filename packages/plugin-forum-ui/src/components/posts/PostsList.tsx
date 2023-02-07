@@ -128,28 +128,22 @@ class List extends React.Component<Props, {}> {
             <th>{__('State')}</th>
             <th>
               <SortHandler
-                sortField={'leadData.stateChangedAt'}
+                sortField={'stateChangedAt'}
                 label={__('State changed at')}
               />
             </th>
             <th>{__('State changed by')}</th>
             <th>
-              <SortHandler
-                sortField={'leadData.createdAt'}
-                label={__('Created At')}
-              />
+              <SortHandler sortField={'createdAt'} label={__('Created At')} />
             </th>
             <th>{__('Created by')}</th>
             <th>
-              <SortHandler
-                sortField={'leadData.updatedAt'}
-                label={__('Updated At')}
-              />
+              <SortHandler sortField={'updatedAt'} label={__('Updated At')} />
             </th>
             <th>{__('Updated By')}</th>
             <th>
               <SortHandler
-                sortField={'leadData.commentCount'}
+                sortField={'commentCount'}
                 label={__('Comment(s) count')}
               />
             </th>

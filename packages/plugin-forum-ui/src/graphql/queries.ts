@@ -278,9 +278,19 @@ const permissionGroupsQuery = `
     forumPermissionGroups {
       _id
       name
+      users {
+        _id
+        email
+        username
+        lastName
+        firstName
+        code
+        companyName
+      }
     }
   }
 `;
+
 const permissionGroupQuery = `
   query ForumPermissionGroup($_id: ID!) {
     forumPermissionGroup(_id: $_id) {
@@ -368,10 +378,43 @@ query ForumPermissionGroupCategoryPermits(
     categoryId
     permissionGroupId
     permission
+    permissionGroup {
+      name
+    }
     category {
       _id
       name
     }
+  }
+}
+`;
+
+const clientPortalUsers = `
+query ClientPortalUsers($ids: [String], $searchValue: String) {
+  clientPortalUsers(ids: $ids, excludeIds: true, searchValue: $searchValue) {
+    _id
+    code
+    companyName
+    company {
+      _id
+      avatar
+      businessType
+      code
+    }
+    firstName
+    email
+    lastName
+    phone
+    username
+  }
+}
+`;
+
+const categoryList = `
+query ForumCategories($not__id: [ID!]) {
+  forumCategories(not__id: $not__id) {
+    _id
+    name
   }
 }
 `;
@@ -382,12 +425,14 @@ export default {
   categoriesByParentIds,
   categoryDetail,
   categoryPossibleParents,
+  categoryList,
   postRefetchAfterCreateDelete,
   postRefetchAfterEdit,
   forumPostsQuery,
   forumPostsCount,
   forumPostDetail,
   forumComments,
+  permits,
   permissionGroupsQuery,
   permissionGroupQuery,
   permissionGroupRefetch,
@@ -395,5 +440,5 @@ export default {
   pageDetail,
   pageRefetch,
   pages,
-  permits
+  clientPortalUsers
 };

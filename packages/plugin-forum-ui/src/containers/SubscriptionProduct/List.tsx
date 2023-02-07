@@ -1,20 +1,27 @@
-import React, { FC } from 'react';
-import { useQuery, useMutation } from 'react-apollo';
-import { queries } from '../../graphql';
+import React from 'react';
+import { useQuery } from 'react-apollo';
+import { queries, mutations } from '../../graphql';
 import gql from 'graphql-tag';
-import { useSearchParam } from '../../hooks';
-import { Link } from 'react-router-dom';
+import ProductList from '../../components/subscriptionProducts/ProductList';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { Alert, withProps, confirm } from '@erxes/ui/src/utils';
+import { RemoveMutationResponse } from '../../types';
+import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '@erxes/ui/src/types';
+import * as compose from 'lodash.flowright';
+import { graphql } from 'react-apollo';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { IProduct } from '../../types';
 
-const DELETE = gql`
-  mutation ForumDeleteSubscriptionProduct($id: ID!) {
-    forumDeleteSubscriptionProduct(_id: $id) {
-      _id
-    }
-  }
-`;
+type FinalProps = {
+  queryParams: any;
+  history?: any;
+} & RemoveMutationResponse &
+  IRouterProps;
 
-const List: FC = () => {
-  const [userType, setUserType] = useSearchParam('userType');
+function List({ removeMutation, queryParams, history }: FinalProps) {
+  const userType = queryParams.userType || null;
   const { loading, error, data } = useQuery(
     gql(queries.forumSubscriptionProductsQuery),
     {
@@ -26,76 +33,70 @@ const List: FC = () => {
     }
   );
 
-  const [mutDelete] = useMutation(DELETE, {
-    refetchQueries: ['ForumSubscriptionProducts']
-  });
-
   if (loading) {
-    return null;
+    return <Spinner objective={true} />;
   }
   if (error) {
-    return <pre>{JSON.stringify(error, null, 2)}</pre>;
+    Alert.error(error.message);
   }
 
-  return (
-    <div>
-      <div>
-        User type:
-        <select
-          value={userType || ''}
-          onChange={e => setUserType(e.target.value)}
-        >
-          <option value="">All</option>
-          <option value="customer">Customer</option>
-          <option value="company">Company</option>
-        </select>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Multiplier</th>
-            <th>Unit</th>
-            <th>Price</th>
-            <th>User type</th>
-            <th>List order</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {data?.forumSubscriptionProducts.map((sp: any) => (
-            <tr key={sp._id}>
-              <td>{sp.name}</td>
-              <td>{sp.description}</td>
-              <td>{sp.multiplier}</td>
-              <td>{sp.unit}</td>
-              <td>{sp.price}</td>
-              <td>{sp.userType ? sp.userType : 'All'}</td>
-              <td>{sp.listOrder}</td>
-              <td>
-                <Link to={`/forums/subscription-products/${sp._id}/edit`}>
-                  Edit
-                </Link>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    await mutDelete({
-                      variables: {
-                        id: sp._id
-                      }
-                    });
-                  }}
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
+  const onDelete = (product: IProduct) => {
+    confirm(`This will permanently delete ${product.name}, are you sure?`)
+      .then(() => {
+        removeMutation({ variables: { _id: product._id } }).catch(e => {
+          Alert.error(e.message);
+        });
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
 
-export default List;
+  const renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    callback,
+    object
+  }: IButtonMutateProps) => {
+    return (
+      <ButtonMutate
+        mutation={
+          object._id ? mutations.updateProduct : mutations.createProduct
+        }
+        variables={values}
+        callback={callback}
+        refetchQueries={['ForumSubscriptionProducts']}
+        isSubmitted={isSubmitted}
+        type="submit"
+        successMessage={`You successfully ${
+          object._id ? 'updated' : 'added'
+        } a ${name}`}
+      />
+    );
+  };
+
+  return (
+    <ProductList
+      queryParams={queryParams}
+      onDelete={onDelete}
+      history={history}
+      renderButton={renderButton}
+      products={data?.forumSubscriptionProducts}
+    />
+  );
+}
+
+export default withProps<{}>(
+  compose(
+    graphql<RemoveMutationResponse, { _id: string }>(
+      gql(mutations.deleteSubscriptionProduct),
+      {
+        name: 'removeMutation',
+        options: () => ({
+          refetchQueries: ['ForumSubscriptionProducts']
+        })
+      }
+    )
+  )(withRouter<FinalProps>(List))
+);

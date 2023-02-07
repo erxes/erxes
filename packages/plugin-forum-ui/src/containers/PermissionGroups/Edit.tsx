@@ -1,17 +1,9 @@
 import React from 'react';
 import { useQuery, useMutation } from 'react-apollo';
-import { queries } from '../../graphql';
-import Form from '../../components/PermissionGroupForm';
+import { queries, mutations } from '../../graphql';
+import Form from '../../components/permission/PermissionGroupForm';
 import { useParams, useHistory } from 'react-router-dom';
 import gql from 'graphql-tag';
-
-const PATCH = gql`
-  mutation ForumPermissionGroupPatch($_id: ID!, $name: String) {
-    forumPermissionGroupPatch(_id: $_id, name: $name) {
-      _id
-    }
-  }
-`;
 
 const PermissionGroupEdit: React.FC = () => {
   const { permissionGroupId } = useParams();
@@ -23,7 +15,7 @@ const PermissionGroupEdit: React.FC = () => {
     }
   });
 
-  const [patchMut] = useMutation(PATCH, {
+  const [patchMut] = useMutation(gql(mutations.permissionGroupPatch), {
     onCompleted: () => {
       history.push(`/forums/permission-groups/${permissionGroupId}`);
     },
