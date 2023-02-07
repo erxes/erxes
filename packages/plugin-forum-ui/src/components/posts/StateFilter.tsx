@@ -17,7 +17,7 @@ function StatusFilter({ history, emptyText }: IProps) {
       {stateFilters.map((state, index) => {
         const onClick = () => {
           router.setParams(history, { state: state.key });
-          router.removeParams(history, 'state');
+          router.removeParams(history, 'page');
         };
 
         return (

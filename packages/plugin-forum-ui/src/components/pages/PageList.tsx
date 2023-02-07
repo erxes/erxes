@@ -103,6 +103,7 @@ class List extends React.Component<Props> {
     const actionBarRight = (
       <ModalTrigger
         title="Create New Page"
+        size="lg"
         trigger={
           <Button btnStyle="success" size="small" icon="plus-circle">
             Create New Page
