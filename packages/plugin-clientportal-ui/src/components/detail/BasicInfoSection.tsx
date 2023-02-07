@@ -14,6 +14,8 @@ import MailForm from '@erxes/ui-inbox/src/settings/integrations/containers/mail/
 import React from 'react';
 import SmsForm from '@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm';
 import { loadDynamicComponent, __ } from '@erxes/ui/src/utils';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import ExtendSubscription from '@erxes/ui-forum/src/containers/ExtendSubscriptionForm';
 
 type Props = {
   clientPortalUser: IClientPortalUser;
@@ -131,7 +133,7 @@ class BasicInfoSection extends React.Component<Props> {
   }
 
   renderDropdown() {
-    const { remove } = this.props;
+    const { remove, clientPortalUser } = this.props;
 
     const onClick = () =>
       confirm()
@@ -140,6 +142,12 @@ class BasicInfoSection extends React.Component<Props> {
           Alert.error(error.message);
         });
 
+    const extendSubscription = props => {
+      return (
+        <ExtendSubscription {...props} clientPortalUser={clientPortalUser} />
+      );
+    };
+
     return (
       <Dropdown>
         <Dropdown.Toggle as={DropdownToggle} id="dropdown-action">
@@ -147,6 +155,18 @@ class BasicInfoSection extends React.Component<Props> {
         </Dropdown.Toggle>
         <Dropdown.Menu>
           {this.renderEditButton()}
+          {isEnabled('forum') && (
+            <ModalTrigger
+              title="Extend Subscription"
+              trigger={
+                <li>
+                  <a href="#extend-subscription">{__('Extend Subscription')}</a>
+                </li>
+              }
+              size="lg"
+              content={extendSubscription}
+            />
+          )}
           <li>
             <a href="#delete" onClick={onClick}>
               {__('Delete')}

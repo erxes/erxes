@@ -1,10 +1,14 @@
 import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
+import { timeDuractionUnits } from './constants';
+
+export type TimeDurationUnit = typeof timeDuractionUnits[number];
 
 export interface ICategory {
   _id: string;
   type: string;
   name: string;
-  order?: string;
+  order?: number;
+  description?: string | null;
   code: string;
   postsCount?: number;
   ancestors?: ICategory[];

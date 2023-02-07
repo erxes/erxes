@@ -1,18 +1,22 @@
 import React from 'react';
 import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
-import { CATEGORIES_ALL } from '../graphql/queries';
+import categoriesAll from '../graphql/queries';
 
 const CategorySelect: React.FC<{
   value: string;
   onChange: (any) => any;
 }> = ({ value, onChange }) => {
-  const { data, loading, error } = useQuery(CATEGORIES_ALL, {
+  const { data, loading, error } = useQuery(gql(categoriesAll), {
     fetchPolicy: 'network-only'
   });
 
-  if (loading) return null;
-  if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;
+  if (loading) {
+    return null;
+  }
+  if (error) {
+    return <pre>{JSON.stringify(error, null, 2)}</pre>;
+  }
 
   const { forumCategories } = data;
 

@@ -47,6 +47,22 @@ const SubscriptionProducts = asyncComponent(() =>
   )
 );
 
+const QuizList = asyncComponent(() =>
+  import(/* webpackChunkName: "CustomerDetails" */ './containers/Quiz/List')
+);
+
+const QuizNew = asyncComponent(() =>
+  import(/* webpackChunkName: "CustomerDetails" */ './containers/Quiz/New')
+);
+
+const QuizDetail = asyncComponent(() =>
+  import(/* webpackChunkName: "CustomerDetails" */ './containers/Quiz/Detail')
+);
+
+const QuizEdit = asyncComponent(() =>
+  import(/* webpackChunkName: "CustomerDetails" */ './containers/Quiz/Edit')
+);
+
 const layout = () => {
   const lastVisited = localStorage.getItem('erxes_forum_url') || 'posts';
 
@@ -95,6 +111,30 @@ const subscriptionProducts = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
 
   return <SubscriptionProducts queryParams={queryParams} history={history} />;
+};
+
+const quiz = ({ location, history }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <QuizList />;
+};
+
+const quiznew = ({ location, history }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <QuizNew />;
+};
+
+const quizDetail = ({ location, history }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <QuizDetail />;
+};
+
+const quizEdit = ({ location, history }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <QuizEdit />;
 };
 
 const routes = () => {
@@ -156,6 +196,34 @@ const routes = () => {
         exact={true}
         path="/forums/subscription-products"
         component={subscriptionProducts}
+      />
+
+      <Route
+        key="/forums/quizzes"
+        exact={true}
+        path="/forums/quizzes"
+        component={quiz}
+      />
+
+      <Route
+        key="/forums/quizzes/new"
+        exact={true}
+        path="/forums/quizzes/new"
+        component={quiznew}
+      />
+
+      <Route
+        key="/forums/quizzes/:quizId"
+        exact={true}
+        path="/forums/quizzes/:quizId"
+        component={quizDetail}
+      />
+
+      <Route
+        key="/forums/quizzes/:quizId/edit"
+        exact={true}
+        path="/forums/quizzes/:quizId/edit"
+        component={quizEdit}
       />
     </React.Fragment>
   );

@@ -38,7 +38,7 @@ const CategoryForm: React.FC<Props> = ({
   const [postsReqCrmApproval, setPostsReqCrmApproval] = useState(
     category?.postsReqCrmApproval || false
   );
-  console.log('caeogry', category);
+
   const [
     postReadRequiresPermissionGroup,
     setPostReadRequiresPermissionGroup
@@ -58,6 +58,8 @@ const CategoryForm: React.FC<Props> = ({
     code?: string;
     parentId?: string;
     thumbnail?: string;
+    order?: string;
+    description?: string;
     userLevelReqPostRead?: string;
     userLevelReqPostWrite?: string;
     userLevelReqCommentWrite?: string;
@@ -85,6 +87,8 @@ const CategoryForm: React.FC<Props> = ({
       _id: finalValues._id,
       name: finalValues.name,
       code: finalValues.code || null,
+      order: parseInt(finalValues.order, 10),
+      description: finalValues.description,
       parentId: finalValues.parentId || null,
       thumbnail: finalValues.thumbnail || null,
       userLevelReqPostRead: finalValues.userLevelReqPostRead || 'GUEST',
@@ -116,11 +120,28 @@ const CategoryForm: React.FC<Props> = ({
           />
         </FormGroup>
         <FormGroup>
+          <ControlLabel>Description</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="description"
+            defaultValue={category.description}
+          />
+        </FormGroup>
+        <FormGroup>
           <ControlLabel>Code</ControlLabel>
           <FormControl
             {...formProps}
             name="code"
             defaultValue={category.code}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Order</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="order"
+            type="number"
+            defaultValue={category.order}
           />
         </FormGroup>
         <FormGroup>

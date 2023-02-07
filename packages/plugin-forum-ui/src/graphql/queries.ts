@@ -26,6 +26,8 @@ const categoriesByParentIds = `
       name
       thumbnail
       code
+      order
+      description
       postsCount
       userLevelReqPostRead
       userLevelReqPostWrite
@@ -431,6 +433,18 @@ query ForumCategories($not__id: [ID!]) {
 }
 `;
 
+const clientPortalUserDetail = `
+query ClientPortalUserDetail($id: String!) {
+  clientPortalUserDetail(_id: $id) {
+    _id
+    email
+    username
+    type
+    forumSubscriptionEndsAfter
+  }
+}
+`;
+
 export default {
   allCategoryQueries,
   categoriesAll,
@@ -452,5 +466,6 @@ export default {
   pageDetail,
   pageRefetch,
   pages,
-  clientPortalUsers
+  clientPortalUsers,
+  clientPortalUserDetail
 };

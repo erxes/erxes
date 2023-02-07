@@ -35,7 +35,15 @@ class Row extends React.Component<Props, State> {
 
   render() {
     const { categories, parentCategory, onDelete } = this.props;
-    const { ancestors, name, code, postsCount, _id } = parentCategory;
+    const {
+      ancestors,
+      name,
+      code,
+      postsCount,
+      _id,
+      description,
+      order
+    } = parentCategory;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -60,10 +68,12 @@ class Row extends React.Component<Props, State> {
           >
             {name}
           </td>
+          <td>{description}</td>
           <td>
             <Label lblStyle="simple">{code}</Label>
           </td>
           <td>{postsCount.toLocaleString()}</td>
+          <td>{order}</td>
           <td>
             <ActionButtons>
               <ModalTrigger

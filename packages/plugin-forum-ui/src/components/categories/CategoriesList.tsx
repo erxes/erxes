@@ -51,8 +51,10 @@ export default function LayoutCategories({ forumCategories }: Props) {
       <thead>
         <tr>
           <th>{__('Name')}</th>
+          <th>{__('Description')}</th>
           <th>{__('Code')}</th>
           <th>{__('Post Counts')}</th>
+          <th>{__('Order')}</th>
           <th>{__('Actions')}</th>
         </tr>
       </thead>
