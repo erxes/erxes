@@ -1,11 +1,12 @@
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
+import redis from '@erxes/api-utils/src/redis';
 import { sendRequest } from '@erxes/api-utils/src/requests';
 
 import { IUserDocument } from './../../api-utils/src/types';
 import { graphqlPubsub } from './configs';
 import { generateModels, IModels } from './connectionResolver';
-import { sendCoreMessage } from './messageBroker';
+import { sendCoreMessage, sendCommonMessage } from './messageBroker';
 
 export const getConfig = async (
   code: string,
@@ -285,5 +286,76 @@ export const sendNotification = async (
         deviceTokens: [...Array.from(new Set(deviceTokens))]
       }
     });
+  }
+};
+
+export const customFieldsDataByFieldCode = async (object, subdomain) => {
+  const customFieldsData =
+    object.customFieldsData && object.customFieldsData.toObject
+      ? object.customFieldsData.toObject()
+      : object.customFieldsData || [];
+
+  const fieldIds = customFieldsData.map(data => data.field);
+
+  const fields = await sendCommonMessage({
+    serviceName: 'forms',
+    subdomain,
+    action: 'fields.find',
+    data: {
+      query: {
+        _id: { $in: fieldIds }
+      }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const fieldCodesById = {};
+
+  for (const field of fields) {
+    fieldCodesById[field._id] = field.code;
+  }
+
+  const results: any = {};
+
+  for (const data of customFieldsData) {
+    results[fieldCodesById[data.field]] = {
+      ...data
+    };
+  }
+
+  return results;
+};
+
+export const sendAfterMutation = async (
+  subdomain: string,
+  type: string,
+  action: string,
+  object: any,
+  newData: any,
+  extraDesc: any
+) => {
+  const value = await redis.get('afterMutations');
+  const afterMutations = JSON.parse(value || '{}');
+
+  if (
+    afterMutations[type] &&
+    afterMutations[type][action] &&
+    afterMutations[type][action].length
+  ) {
+    for (const service of afterMutations[type][action]) {
+      sendCommonMessage({
+        serviceName: service,
+        subdomain,
+        action: 'afterMutation',
+        data: {
+          type,
+          action,
+          object,
+          newData,
+          extraDesc
+        }
+      });
+    }
   }
 };

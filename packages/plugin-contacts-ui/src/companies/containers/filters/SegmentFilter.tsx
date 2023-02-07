@@ -34,7 +34,7 @@ export default withProps<Props>(
         name: 'companyCountsQuery',
         skip: ({ loadingMainQuery }) => loadingMainQuery,
         options: ({ abortController }) => ({
-          variables: { only: 'bysegment' },
+          variables: { only: 'bySegment' },
           context: {
             fetchoptions: { signal: abortController && abortController.signal }
           }

@@ -4,7 +4,7 @@ import {
 } from '@erxes/api-utils/src/constants';
 import { IContext } from '../../connectionResolver';
 import { IUserDocument } from '../../db/models/definitions/users';
-import { getUserActionsMap } from '../permissions/utils';
+import { getUserActionsMap } from '@erxes/api-utils/src';
 import { getConfigs } from '../utils';
 
 export default {
@@ -31,8 +31,8 @@ export default {
     }).lean();
   },
 
-  async permissionActions(user: IUserDocument, _args, { models }: IContext) {
-    return getUserActionsMap(models, user);
+  async permissionActions(user: IUserDocument, _args, { subdomain }: IContext) {
+    return getUserActionsMap(subdomain, user);
   },
 
   async configs(_user, _args, { models }: IContext) {
@@ -80,8 +80,12 @@ export default {
     return entries[0];
   },
 
-  department(user: IUserDocument, _args, { models }: IContext) {
-    return models.Departments.findOne({ userIds: { $in: user._id } });
+  async departments(user: IUserDocument, _args, { models }: IContext) {
+    return models.Departments.find({ _id: { $in: user.departmentIds } });
+  },
+
+  async branches(user: IUserDocument, _args, { models }: IContext) {
+    return models.Branches.find({ _id: { $in: user.branchIds } });
   },
 
   async leaderBoardPosition(user: IUserDocument, _args, { models }: IContext) {

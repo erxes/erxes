@@ -1,4 +1,4 @@
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { putCreateLog } from '../../../logUtils';
 import {
@@ -323,7 +323,26 @@ const fieldsGroupsMutations = {
   }
 };
 
-moduleCheckPermission(fieldMutations, 'manageForms');
-moduleCheckPermission(fieldsGroupsMutations, 'manageForms');
+checkPermission(fieldMutations, 'fieldsAdd', 'manageForms');
+checkPermission(fieldMutations, 'fieldsBulkAddAndEdit', 'manageForms');
+checkPermission(fieldMutations, 'fieldsEdit', 'manageForms');
+checkPermission(fieldMutations, 'fieldsRemove', 'manageForms');
+checkPermission(fieldMutations, 'fieldsUpdateOrder', 'manageForms');
+checkPermission(fieldMutations, 'fieldsUpdateVisible', 'manageForms');
+checkPermission(fieldMutations, 'fieldsUpdateSystemFields', 'manageForms');
+
+checkPermission(fieldsGroupsMutations, 'fieldsGroupsAdd', 'manageForms');
+checkPermission(fieldsGroupsMutations, 'fieldsGroupsEdit', 'manageForms');
+checkPermission(fieldsGroupsMutations, 'fieldsGroupsRemove', 'manageForms');
+checkPermission(
+  fieldsGroupsMutations,
+  'fieldsGroupsUpdateVisible',
+  'manageForms'
+);
+checkPermission(
+  fieldsGroupsMutations,
+  'fieldsGroupsUpdateOrder',
+  'manageForms'
+);
 
 export { fieldsGroupsMutations, fieldMutations };

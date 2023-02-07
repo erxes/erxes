@@ -1,4 +1,5 @@
 import { assetParams, assetParamsDef } from '../../common/graphql/asset';
+import { listParamDefs, listParams } from './queries';
 
 const assetAdd = `
   mutation assetsAdd(${assetParamsDef}) {
@@ -30,22 +31,10 @@ const assetsRemove = `
   }
 `;
 
-const addKnowledge = `
-  mutation AddAssetKnowledge($assetId: String, $knowledgeData: KnowledgeType) {
-  addAssetKnowledge(assetId: $assetId, knowledgeData: $knowledgeData)
-}
-`;
-
-const updateKnowledge = `
-  mutation UpdateAssetKnowledge($assetId: String, $knowledgeData: KnowledgeType) {
-  updateAssetKnowledge(assetId: $assetId, knowledgeData: $knowledgeData)
-}
-`;
-
-const removeKnowledge = `
-  mutation RemoveAssetKnowledge($assetId: String, $knowledgeId: String) {
-  removeAssetKnowledge(assetId: $assetId, knowledgeId: $knowledgeId)
-}
+const assetsAssignKbArticles = `
+  mutation assetsAssignKbArticles(${listParamDefs}, $action: String, $articleIds: [String]) {
+    assetsAssignKbArticles(${listParams}, action: $action, articleIds: $articleIds)
+  }
 `;
 
 export default {
@@ -53,7 +42,5 @@ export default {
   assetEdit,
   assetsRemove,
   assetsMerge,
-  addKnowledge,
-  updateKnowledge,
-  removeKnowledge
+  assetsAssignKbArticles
 };

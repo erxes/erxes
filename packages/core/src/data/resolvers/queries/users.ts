@@ -47,6 +47,7 @@ const queryBuilder = async (models: IModels, params: IListArgs) => {
   if (searchValue) {
     const fields = [
       { email: new RegExp(`.*${params.searchValue}.*`, 'i') },
+      { employeeId: new RegExp(`.*${params.searchValue}.*`, 'i') },
       { 'details.fullName': new RegExp(`.*${params.searchValue}.*`, 'i') },
       { 'details.position': new RegExp(`.*${params.searchValue}.*`, 'i') }
     ];
@@ -74,10 +75,15 @@ const queryBuilder = async (models: IModels, params: IListArgs) => {
     selector.brandIds = { $in: brandIds };
   }
 
-  const getUserIds = obj => {
-    const userIds = obj.supervisorId
-      ? (obj.userIds || []).concat(obj.supervisorId)
-      : obj.userIds || [];
+  const getUserIds = async (contentType, contentTypeId, obj) => {
+    let userIds: string[] = [];
+    const users = await models.Users.find({
+      [`${contentType}Ids`]: contentTypeId
+    });
+
+    userIds = users.map(user => user._id);
+
+    userIds = obj.supervisorId ? userIds.concat(obj.supervisorId) : userIds;
 
     return { $in: userIds };
   };
@@ -87,19 +93,25 @@ const queryBuilder = async (models: IModels, params: IListArgs) => {
       _id: departmentId
     });
 
-    selector._id = getUserIds(department);
+    selector._id = await getUserIds('department', departmentId, department);
   }
 
   if (unitId) {
     const unit = await models.Units.getUnit({ _id: unitId });
 
-    selector._id = getUserIds(unit);
+    const userIds = unit.supervisorId
+      ? (unit.userIds || []).concat(unit.supervisorId)
+      : unit.userIds || [];
+
+    selector._id = { $in: userIds };
   }
 
   if (branchId) {
-    const branch = await models.Branches.getBranch({ _id: branchId });
+    const branch = await models.Branches.getBranch({
+      _id: branchId
+    });
 
-    selector._id = getUserIds(branch);
+    selector._id = await getUserIds('branch', branchId, branch);
   }
 
   return selector;
@@ -180,6 +192,13 @@ const userQueries = {
     return user
       ? models.Users.findOne({ _id: user._id, isActive: { $ne: false } })
       : null;
+  },
+
+  /**
+   *  Get all user movements
+   */
+  async userMovements(_root, args, { models }: IContext) {
+    return await models.UserMovements.find(args).sort({ createdAt: -1 });
   }
 };
 

@@ -11,6 +11,7 @@ import Datetime from '@nateradebaugh/react-datetime';
 type Props = {
   startDate: Date;
   endDate: Date;
+  showTime?: boolean;
   onChangeStart: (startDate: Date) => void;
   onChangeEnd: (endDate: Date) => void;
   onSaveButton: () => void;
@@ -20,20 +21,29 @@ const DateRange = (props: Props) => {
   const {
     startDate,
     endDate,
+    showTime,
     onChangeEnd,
     onChangeStart,
     onSaveButton
   } = props;
 
-  const onDateEndChange = (date: Date) => {
+  let overlayTrigger;
+  const closePopover = () => {
+    if (overlayTrigger) {
+      overlayTrigger.hide();
+    }
+  };
+
+  const onDateEndChange = date => {
     onChangeEnd(date);
   };
 
-  const onDateStartChange = (date: Date) => {
+  const onDateStartChange = date => {
     onChangeStart(date);
   };
   const onSaveDateButton = () => {
     onSaveButton();
+    closePopover();
   };
   const renderPopover = () => {
     return (
@@ -45,6 +55,7 @@ const DateRange = (props: Props) => {
             <Datetime
               {...props}
               input={false}
+              timeFormat={showTime}
               value={startDate}
               onChange={onDateStartChange}
             />
@@ -54,6 +65,7 @@ const DateRange = (props: Props) => {
             <DateName>End Date</DateName>
             <Datetime
               {...props}
+              timeFormat={showTime}
               input={false}
               value={endDate}
               onChange={onDateEndChange}
@@ -77,6 +89,7 @@ const DateRange = (props: Props) => {
 
   return (
     <OverlayTrigger
+      ref={overLay => (overlayTrigger = overLay)}
       trigger="click"
       placement="bottom-start"
       overlay={renderPopover()}

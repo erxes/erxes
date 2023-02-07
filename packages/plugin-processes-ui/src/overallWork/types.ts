@@ -8,11 +8,11 @@ import { IUser } from '@erxes/ui/src/auth/types';
 
 export interface IOverallWorkKey {
   type: string;
-  typeId: string;
   inBranchId: string;
   inDepartmentId: string;
   outBranchId: string;
   outDepartmentId: string;
+  typeId?: string;
 }
 export interface IOverallWork {
   _id: string;
@@ -22,8 +22,13 @@ export interface IOverallWork {
   count: number;
   needProducts: any;
   resultProducts: any;
+  jobReferId?: string;
   jobRefer?: IJobRefer;
   product?: IProduct;
+  inDepartmentId?: string;
+  inBranchId?: string;
+  outDepartmentId?: string;
+  outBranchId?: string;
   inDepartment?: IDepartment;
   inBranch?: IBranch;
   outDepartment?: IDepartment;
@@ -33,8 +38,8 @@ export interface IOverallWork {
 export type IOverallWorkDet = {
   startAt: Date;
   dueDate: Date;
-  interval: any;
-  intervalId: string;
+  interval?: any;
+  intervalId?: string;
   needProductsData: any;
   resultProductsData: any;
 } & IOverallWork;
@@ -50,6 +55,11 @@ export type IPerform = {
   startAt: Date;
   endAt: Date;
   dueAt: Date;
+  description?: string;
+  appendix?: string;
+  assignedUserIds: string[];
+  customerId?: string;
+  companyId?: string;
   needProducts: IProductsData[];
   resultProducts: IProductsData[];
   inProducts: IProductsDataPerform[];
@@ -98,7 +108,7 @@ export type PerformsQueryResponse = {
 };
 
 export type PerformDetailQueryResponse = {
-  perform: IPerform;
+  performDetail: IPerform;
   loading: boolean;
   refetch: () => void;
 };

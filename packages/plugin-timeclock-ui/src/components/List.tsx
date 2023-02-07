@@ -1,110 +1,133 @@
-import Button from '@erxes/ui/src/components/Button';
-import { ITimeclock } from '../types';
-import Row from './Row';
-import { menuTimeClock } from '../menu';
+import { menuTimeClock } from '../constants';
 import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import { Title } from '@erxes/ui-settings/src/styles';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React, { useState, useEffect } from 'react';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import Table from '@erxes/ui/src/components/table';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import SideBarList from '../containers/SideBarList';
-import TimeForm from '../containers/TimeFormList';
+import SideBarList from '../containers/sidebar/SideBarList';
+import ConfigList from '../containers/config/ConfigList';
+import TimeclockList from '../containers/timeclock/TimeclockList';
+import AbsenceList from '../containers/absence/AbsenceList';
+import ReportList from '../containers/report/ReportList';
+import ScheduleList from '../containers/schedule/ScheduleList';
+import { IBranch } from '@erxes/ui/src/team/types';
+import { IScheduleConfig } from '../types';
 
 type Props = {
   currentDate?: string;
-  currentUserId: string;
   queryParams: any;
   history: any;
+  route?: string;
   startTime?: Date;
-  timeclocks: ITimeclock[];
-  startClockTime?: (userId: string) => void;
   loading: boolean;
+  branchesList: IBranch[];
+  scheduleConfigs: IScheduleConfig[];
+  searchFilter: string;
 };
 
-function List({
-  timeclocks,
-  startClockTime,
-  currentUserId,
-  queryParams,
-  history,
-  loading
-}: Props) {
-  const trigger = (
-    <Button id="btn1" btnStyle={'success'} icon="plus-circle">
-      {`Start Shift`}
-    </Button>
-  );
+function List(props: Props) {
+  const { branchesList, queryParams, history, route, searchFilter } = props;
+  const [showSideBar, setShowSideBar] = useState(true);
+  const [rightActionBar, setRightActionBar] = useState(<div />);
+  const [Component, setModalComponent] = useState(<div />);
+  const [PaginationFooter, setPagination] = useState(<div />);
+  const [loading, setLoading] = useState(true);
 
-  const modalContent = props => (
-    <TimeForm
-      {...props}
-      currentUserId={currentUserId}
-      startClockTime={startClockTime}
-      timeclocks={timeclocks}
-    />
-  );
-
-  const actionBarRight = (
-    <>
-      <ModalTrigger
-        title={__('Start shift')}
-        trigger={trigger}
-        content={modalContent}
-      />
-    </>
-  );
-
-  const title = (
-    <Title capitalize={true}>
-      {__(new Date().toDateString().slice(0, -4))}
-    </Title>
-  );
-
-  const actionBar = (
-    <Wrapper.ActionBar
-      left={title}
-      right={actionBarRight}
-      hasFlex={true}
-      wideSpacing={true}
-    />
-  );
-
-  const content = (
-    <Table>
-      <thead>
-        <tr>
-          <th>{__('Team member')}</th>
-          <th>{__('Shift date')}</th>
-          <th>{__('Shift started')}</th>
-          <th>{__('Shift ended')}</th>
-          <th>{__('Status')}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {timeclocks.map(timeclock => {
-          return <Row key={timeclock._id} timeclock={timeclock} />;
-        })}
-      </tbody>
-    </Table>
-  );
+  useEffect(() => {
+    switch (route) {
+      case 'config':
+        setModalComponent(
+          <ConfigList
+            {...props}
+            showSideBar={setShowSideBar}
+            getActionBar={setRightActionBar}
+            queryParams={queryParams}
+            history={history}
+          />
+        );
+        setLoading(false);
+        break;
+      case 'report':
+        setModalComponent(
+          <ReportList
+            {...props}
+            reportType={queryParams.reportType}
+            showSideBar={setShowSideBar}
+            getActionBar={setRightActionBar}
+            queryParams={queryParams}
+            getPagination={setPagination}
+            history={history}
+          />
+        );
+        setLoading(false);
+        break;
+      case 'schedule':
+        setModalComponent(
+          <ScheduleList
+            {...props}
+            showSideBar={setShowSideBar}
+            getPagination={setPagination}
+            getActionBar={setRightActionBar}
+            queryParams={queryParams}
+            history={history}
+          />
+        );
+        setLoading(false);
+        break;
+      case 'requests':
+        setModalComponent(
+          <AbsenceList
+            {...props}
+            showSideBar={setShowSideBar}
+            getPagination={setPagination}
+            getActionBar={setRightActionBar}
+            queryParams={queryParams}
+            history={history}
+          />
+        );
+        setLoading(false);
+        break;
+      default:
+        setModalComponent(
+          <TimeclockList
+            {...props}
+            showSideBar={setShowSideBar}
+            getActionBar={setRightActionBar}
+            getPagination={setPagination}
+            history={history}
+            queryParams={queryParams}
+          />
+        );
+        setLoading(false);
+    }
+  }, [queryParams]);
 
   return (
     <Wrapper
       header={
-        <Wrapper.Header title={__('Timeclocks')} submenu={menuTimeClock} />
+        <Wrapper.Header
+          title={__('Timeclocks')}
+          submenu={menuTimeClock(searchFilter)}
+        />
       }
-      actionBar={actionBar}
+      actionBar={rightActionBar}
+      footer={PaginationFooter}
       content={
         <DataWithLoader
-          data={content}
+          data={Component}
           loading={loading}
           emptyText={__('Theres no timeclock')}
           emptyImage="/images/actions/8.svg"
         />
       }
-      leftSidebar={<SideBarList queryParams={queryParams} history={history} />}
+      leftSidebar={
+        showSideBar && (
+          <SideBarList
+            branchesList={branchesList}
+            queryParams={queryParams}
+            history={history}
+          />
+        )
+      }
       transparent={true}
       hasBorder={true}
     />

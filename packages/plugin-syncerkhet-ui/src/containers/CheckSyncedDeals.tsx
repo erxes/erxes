@@ -80,10 +80,10 @@ class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
         });
     };
 
-    const toSyncDeals = dealIds => {
+    const toSyncDeals = (dealIds, configStageId, dateType) => {
       this.props
         .toSyncDeals({
-          variables: { dealIds }
+          variables: { dealIds, configStageId, dateType }
         })
         .then(response => {
           const { skipped, error, success } = response.data.toSyncDeals;
@@ -139,6 +139,8 @@ const generateParams = ({ queryParams }) => {
     stageChangedStartDate: queryParams.stageChangedStartDate,
     stageChangedEndDate: queryParams.stageChangedEndDate,
     assignedUserIds: queryParams.userId && [queryParams.userId],
+    search: queryParams.search,
+    number: queryParams.number,
     sortField: queryParams.sortField,
     sortDirection: Number(queryParams.sortDirection) || undefined
   };

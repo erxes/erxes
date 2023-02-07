@@ -32,9 +32,9 @@ const clientPortalUserMutations = {
       passwordConfirmation?: string;
       username?: string;
     },
-    { models }: IContext
+    { models, subdomain }: IContext
   ) {
-    const user = await models.ClientPortalUsers.confirmInvitation({
+    const user = await models.ClientPortalUsers.confirmInvitation(subdomain, {
       token,
       password,
       passwordConfirmation,
@@ -47,9 +47,13 @@ const clientPortalUserMutations = {
   async clientPortalUsersEdit(
     _root,
     { _id, ...doc }: IClientPortalUserEdit,
-    { models }: IContext
+    { models, subdomain }: IContext
   ) {
-    const updated = await models.ClientPortalUsers.updateUser(_id, doc);
+    const updated = await models.ClientPortalUsers.updateUser(
+      subdomain,
+      _id,
+      doc
+    );
 
     return updated;
   },
@@ -61,9 +65,10 @@ const clientPortalUserMutations = {
   async clientPortalUsersRemove(
     _root,
     { clientPortalUserIds }: { clientPortalUserIds: string[] },
-    { models }: IContext
+    { models, subdomain }: IContext
   ) {
     const response = await models.ClientPortalUsers.removeUser(
+      subdomain,
       clientPortalUserIds
     );
 
@@ -124,9 +129,9 @@ const clientPortalUserMutations = {
     { userIds, type }: { userIds: string[]; type: string },
     context: IContext
   ) => {
-    const { models } = context;
+    const { models, subdomain } = context;
 
-    return models.ClientPortalUsers.verifyUsers(userIds, type);
+    return models.ClientPortalUsers.verifyUsers(subdomain, userIds, type);
   },
 
   /*

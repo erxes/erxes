@@ -9,7 +9,8 @@ import VoucherCampaigns from './voucherCampaigns';
 import Vouchers from './vouchers';
 import Loyalties from './loyalties';
 import ScoreLogs from './scoreLogs';
-
+import Assignments from './assignments';
+import AssignmentCampaigns from './assignmentCampaign';
 export {
   Configs,
   DonateCampaigns,
@@ -21,5 +22,7 @@ export {
   LotteryCampaigns,
   Lotteries,
   Loyalties,
-  ScoreLogs
+  ScoreLogs,
+  Assignments,
+  AssignmentCampaigns
 };

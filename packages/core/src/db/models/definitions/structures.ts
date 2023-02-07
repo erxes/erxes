@@ -1,9 +1,12 @@
 import { Document, Schema } from 'mongoose';
 import { ILink, attachmentSchema } from '@erxes/api-utils/src/types';
 import { field, schemaWrapper } from './utils';
+import { STRUCTURE_STATUSES } from '../../../constants';
 
 const commonSchemaFields = {
-  code: field({ type: String, optional: true }),
+  _id: field({ pkey: true }),
+  title: field({ type: String }),
+  code: field({ type: String, unique: true }),
   updatedBy: field({ type: String }),
   updatedAt: field({ type: Date }),
   createdBy: field({ type: String }),
@@ -29,10 +32,14 @@ const contactInfoSchema = {
   image: field({ type: attachmentSchema, optional: true })
 };
 
-export interface IStructure {
+interface ICommonTypes {
   title: string;
   description?: string;
   supervisorId?: string;
+  parentId?: string;
+  code: string;
+}
+export interface IStructure extends ICommonTypes {
   links?: ILink;
 }
 
@@ -42,8 +49,6 @@ export interface IStructureDocument extends IStructure, Document {
 
 export const structureSchema = schemaWrapper(
   new Schema({
-    _id: field({ pkey: true }),
-    title: field({ type: String }),
     description: field({ type: String, optional: true }),
     supervisorId: field({ type: String, optional: true }),
     ...contactInfoSchema,
@@ -51,12 +56,10 @@ export const structureSchema = schemaWrapper(
   })
 );
 
-export interface IDepartment {
-  title: string;
-  description?: string;
-  supervisorId?: string;
+export interface IDepartment extends ICommonTypes {
   parentId?: string;
   userIds?: string[];
+  order: string;
 }
 
 export interface IDepartmentDocument extends IDepartment, Document {
@@ -65,22 +68,23 @@ export interface IDepartmentDocument extends IDepartment, Document {
 
 export const departmentSchema = schemaWrapper(
   new Schema({
-    _id: field({ pkey: true }),
-    title: field({ type: String }),
     description: field({ type: String, optional: true }),
     supervisorId: field({ type: String, optional: true }),
     parentId: field({ type: String }),
-    userIds: field({ type: [String], label: 'Related users' }),
+    order: field({ type: String, unique: true }),
+    status: field({
+      type: String,
+      label: 'Status',
+      default: STRUCTURE_STATUSES.ACTIVE
+    }),
     ...commonSchemaFields
   })
 );
 
-export interface IUnit {
-  title: string;
-  description?: string;
-  supervisorId?: string;
+export interface IUnit extends ICommonTypes {
   departmentId?: string;
   userIds?: string[];
+  order: string;
 }
 
 export interface IUnitDocument extends IUnit, Document {
@@ -89,8 +93,6 @@ export interface IUnitDocument extends IUnit, Document {
 
 export const unitSchema = schemaWrapper(
   new Schema({
-    _id: field({ pkey: true }),
-    title: field({ type: String }),
     description: field({ type: String, optional: true }),
     departmentId: field({ type: String, optional: true }),
     supervisorId: field({ type: String, optional: true }),
@@ -99,13 +101,11 @@ export const unitSchema = schemaWrapper(
   })
 );
 
-export interface IBranch {
-  title: string;
+export interface IBranch extends ICommonTypes {
   address?: string;
-  supervisorId?: string;
-  parentId?: string;
   userIds?: string[];
   radius?: number;
+  order: string;
 }
 
 export interface IBranchDocument extends IBranch, Document {
@@ -114,12 +114,15 @@ export interface IBranchDocument extends IBranch, Document {
 
 export const branchSchema = schemaWrapper(
   new Schema({
-    _id: field({ pkey: true }),
-    title: field({ type: String }),
     parentId: field({ type: String, optional: true }),
-    userIds: field({ type: [String], label: 'Related users' }),
     ...contactInfoSchema,
     ...commonSchemaFields,
+    order: field({ type: String, unique: true }),
+    status: field({
+      type: String,
+      label: 'Status',
+      default: STRUCTURE_STATUSES.ACTIVE
+    }),
     radius: field({ type: Number, label: 'Coordinate radius /M/' })
   })
 );

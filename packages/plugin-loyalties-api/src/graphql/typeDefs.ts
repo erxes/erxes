@@ -58,6 +58,16 @@ import {
   queries as scoreLogQueries,
   types as scoreLogTypes
 } from './schema/scoreLog';
+import {
+  mutations as assignmentMutations,
+  queries as assignmentQueries,
+  types as assignmentTypes
+} from './schema/assignment';
+import {
+  mutations as assignmentCampaignMutations,
+  queries as assignmentCampaignQueries,
+  types as assignmentCampaignTypes
+} from './schema/assignmentCampaign';
 
 const typeDefs = async _serviceDiscovery => {
   return gql`
@@ -89,6 +99,8 @@ const typeDefs = async _serviceDiscovery => {
     ${loyaltyTypes}
     ${configTypes}
     ${scoreLogTypes}
+    ${assignmentTypes}
+    ${assignmentCampaignTypes}
 
     extend type Query {
       ${donateCampaignQueries}
@@ -102,6 +114,8 @@ const typeDefs = async _serviceDiscovery => {
       ${loyaltyQueries}
       ${configQueries}
       ${scoreLogQueries}
+      ${assignmentQueries}
+      ${assignmentCampaignQueries}
     }
 
     extend type Mutation {
@@ -116,6 +130,8 @@ const typeDefs = async _serviceDiscovery => {
       ${loyaltyMutations}
       ${configMutations}
       ${ScoreLogMutations}
+      ${assignmentMutations}
+      ${assignmentCampaignMutations}
     }
   `;
 };

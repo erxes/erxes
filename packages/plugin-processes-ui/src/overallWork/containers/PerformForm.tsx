@@ -13,24 +13,35 @@ import {
 } from '../types';
 import { mutations, queries } from '../graphql';
 import { withProps } from '@erxes/ui/src/utils';
+import { UomsQueryResponse } from '@erxes/ui-products/src/types';
+import productsQueries from '@erxes/ui-products/src/graphql/queries';
 
 type Props = {
   closeModal: () => void;
   history: any;
-  overallWorkDetail: IOverallWorkDet;
+  overallWorkDetail?: IOverallWorkDet;
   perform?: IPerform;
-  max?: number;
+  max: number;
 };
 
 type FinalProps = {
   performDetailQuery: PerformDetailQueryResponse;
+  uomsQuery: UomsQueryResponse;
 } & Props;
 
 class PerformFormContainer extends React.Component<FinalProps> {
   render() {
-    const { overallWorkDetail, max, performDetailQuery } = this.props;
+    const {
+      overallWorkDetail,
+      max,
+      performDetailQuery,
+      uomsQuery
+    } = this.props;
 
-    if (performDetailQuery.loading) {
+    if (
+      (performDetailQuery && performDetailQuery.loading) ||
+      uomsQuery.loading
+    ) {
       return <Spinner />;
     }
 
@@ -38,8 +49,9 @@ class PerformFormContainer extends React.Component<FinalProps> {
       name,
       values,
       isSubmitted,
-      callback
-    }: IButtonMutateProps) => {
+      callback,
+      disabled
+    }: IButtonMutateProps & { disabled?: boolean }) => {
       return (
         <ButtonMutate
           mutation={values._id ? mutations.performEdit : mutations.performAdd}
@@ -50,14 +62,17 @@ class PerformFormContainer extends React.Component<FinalProps> {
           type="submit"
           uppercase={false}
           successMessage={`You successfully added a ${name}`}
+          disabled={disabled}
         />
       );
     };
 
-    const perform = performDetailQuery.perform;
+    const perform = performDetailQuery && performDetailQuery.performDetail;
+    const allUoms = uomsQuery.uoms || [];
 
     const updatedProps = {
       ...this.props,
+      allUoms,
       perform,
       renderButton
     };
@@ -79,7 +94,11 @@ export default withProps<Props>(
       options: ({ perform }) => ({
         variables: { _id: perform?._id },
         fetchPolicy: 'network-only'
-      })
+      }),
+      skip: props => !props.perform || !props.perform._id
+    }),
+    graphql<Props, UomsQueryResponse>(gql(productsQueries.uoms), {
+      name: 'uomsQuery'
     })
   )(PerformFormContainer)
 );

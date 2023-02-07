@@ -41,6 +41,9 @@ export interface IClientPortalUserDoc {
   lastSeenAt: Date;
   sessionCount: number;
   isOnline: boolean;
+
+  customFieldsData: JSON;
+  avatar: string;
 }
 
 export interface IClientPortalUser extends IClientPortalUserDoc {

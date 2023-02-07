@@ -1,54 +1,127 @@
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { menuTimeClock } from '../../menu';
 import { router, __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Table from '@erxes/ui/src/components/table';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Select from 'react-select-plus';
-import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
 import Button from '@erxes/ui/src/components/Button';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
 import ReportRow from './ReportRow';
 import { IReport } from '../../types';
-import {
-  FilterWrapper,
-  Row,
-  FilterItem,
-  CustomRangeContainer
-} from '../../styles';
+import { FilterItem } from '../../styles';
 
 type Props = {
   queryParams: any;
   history: any;
-  branchesList: any;
   reports: IReport[];
+  getActionBar: (actionBar: any) => void;
+  exportReport: () => void;
 };
 
 function ReportList(props: Props) {
-  const { history, branchesList, reports } = props;
-  const [selectedBranchId, setBranches] = useState(['']);
-  const [selectedDeptId, setDepartments] = useState('');
-  const [selectedType, setType] = useState('By Employee');
+  const { history, reports, queryParams, getActionBar, exportReport } = props;
+  const [selectedType, setType] = useState(queryParams.reportType);
+
+  const renderTableHead = () => {
+    switch (selectedType) {
+      case 'Урьдчилсан':
+        return (
+          <tr>
+            <th>{__('Team member Id')}</th>
+            <th>{__('Last Name')}</th>
+            <th>{__('First Name')}</th>
+            <th>{__('Position')}</th>
+            <th>{__('Scheduled days')}</th>
+            <th>{__('Worked days')}</th>
+            <th>{__('Explanation')}</th>
+          </tr>
+        );
+      case 'Сүүлд':
+        return (
+          <>
+            <tr>
+              <th rowSpan={2}>{__('Team member Id')}</th>
+              <th rowSpan={2}>{__('Last Name')}</th>
+              <th rowSpan={2}>{__('First Name')}</th>
+              <th rowSpan={2}>{__('Position')}</th>
+              <th colSpan={2}>{__('Scheduled time')}</th>
+              <th colSpan={6} style={{ textAlign: 'center' }}>
+                {__('Timeclock info')}
+              </th>
+              <th colSpan={3} style={{ textAlign: 'center' }}>
+                {__('Absence info')}
+              </th>
+            </tr>
+            <tr>
+              <td>{__('Days')}</td>
+              <td>{__('Hours')}</td>
+              <td>{__('Worked days')}</td>
+              <td>{__('Worked hours')}</td>
+              <td>{__('Overtime')}</td>
+              <td>{__('Overnight')}</td>
+              <td>{__('Total')}</td>
+              <td>{__('Mins Late')}</td>
+              <td>{__('-')}</td>
+              <td>{__('-')}</td>
+              <td>{__('-')}</td>
+            </tr>
+          </>
+        );
+      case 'Pivot':
+        return (
+          <>
+            <tr>
+              <th
+                colSpan={4}
+                style={{ textAlign: 'center', border: '1px solid #EEE' }}
+              >
+                {__('General Information')}
+              </th>
+              <th>{__('Time')}</th>
+              <th
+                colSpan={3}
+                style={{ textAlign: 'center', border: '1px solid #EEE' }}
+              >
+                {__('Schedule')}
+              </th>
+              <th
+                colSpan={8}
+                style={{ textAlign: 'center', border: '1px solid #EEE' }}
+              >
+                {__('Performance')}
+              </th>
+            </tr>
+            <tr>
+              <td>{__('Team member Id')}</td>
+              <td>{__('Last Name')}</td>
+              <td>{__('First Name')}</td>
+              <td>{__('Position')}</td>
+              <td>{__('Date')}</td>
+              <td>{__('Planned Check In')}</td>
+              <td>{__('Planned Check Out')}</td>
+              <td>{__('Planned Duration')}</td>
+              <td>{__('Device type')}</td>
+              <td>{__('Check In')}</td>
+              <td>{__('Check Out')}</td>
+              <td>{__('Location')}</td>
+              <td>{__('Duration')}</td>
+              <td>{__('Overtime')}</td>
+              <td>{__('Overnight')}</td>
+              <td>{__('Mins Late')}</td>
+            </tr>
+          </>
+        );
+    }
+  };
+
   const content = (
     <Table>
-      <thead>
-        <tr>
-          <th>{__('Team member')}</th>
-          <th>{__('Shift date')}</th>
-          <th>{__('Shift duration')}</th>
-          <th>{__('Mins late')}</th>
-          <th>{__('Shifts total')}</th>
-          <th>{__('Total mins late')}</th>
-          <th>{__('Total mins absent')}</th>
-        </tr>
-      </thead>
+      <thead>{renderTableHead()}</thead>
       {reports &&
         reports.map(reportt => (
           <ReportRow
             key={Math.random()}
-            displayType={selectedType}
+            reportType={selectedType}
             report={reportt}
           />
         ))}
@@ -57,10 +130,8 @@ function ReportList(props: Props) {
 
   const renderSelectionBar = () => {
     const onTypeSelect = type => {
-      localStorage.setItem('displayType', JSON.stringify(type));
-      const selType = JSON.parse(localStorage.getItem('displayType') || '[]')
-        .value;
-      setType(selType);
+      router.setParams(history, { reportType: type.value });
+      setType(type.value);
     };
 
     return (
@@ -69,125 +140,38 @@ function ReportList(props: Props) {
           <FormGroup>
             <ControlLabel>Select type</ControlLabel>
             <Select
-              value={JSON.parse(localStorage.getItem('displayType') || '[]')}
+              value={selectedType}
               onChange={onTypeSelect}
               placeholder="Select type"
               multi={false}
-              options={['By Employee', 'By Group'].map(ipt => ({
+              options={['Урьдчилсан', 'Сүүлд', 'Pivot'].map(ipt => ({
                 value: ipt,
                 label: __(ipt)
               }))}
             />
           </FormGroup>
         </FilterItem>
-        <FilterItem>
-          <CustomRangeContainer>
-            <DateControl
-              // value={new Date()}
-              required={false}
-              name="startDate"
-              // onChange={onSelectDateChange}
-              placeholder={'Starting date'}
-              dateFormat={'YYYY-MM-DD'}
-            />
-            <DateControl
-              // value={new Date()}
-              required={false}
-              name="startDate"
-              // onChange={onSelectDateChange}
-              placeholder={'Ending date'}
-              dateFormat={'YYYY-MM-DD'}
-            />
-            <Button btnStyle="primary">Filter</Button>
-          </CustomRangeContainer>
-        </FilterItem>
       </>
     );
   };
-  const renderFilter = () => {
-    const renderBranchOptions = (branches: any[]) => {
-      return branches.map(branch => ({
-        value: branch._id,
-        label: branch.title
-      }));
-    };
-
-    const onBranchSelect = selectedBranch => {
-      setBranches(selectedBranch);
-
-      const branchIds: any[] = [];
-      selectedBranch.map(branch => branchIds.push(branch.value));
-
-      router.setParams(history, {
-        branchIds: `${branchIds}`
-      });
-    };
-
-    const onDepartmentSelect = dept => {
-      setDepartments(dept);
-      const departmentIds: any[] = [];
-
-      dept.map(department => departmentIds.push(department));
-
-      router.setParams(history, {
-        departmentIds: `${departmentIds}`
-      });
-    };
-
+  const renderExportBtn = () => {
     return (
-      <FilterWrapper>
-        <FilterItem>
-          <SelectDepartments
-            isRequired={false}
-            defaultValue={selectedDeptId}
-            onChange={onDepartmentSelect}
-          />
-        </FilterItem>
-        <FilterItem>
-          <FormGroup>
-            <ControlLabel>Branches</ControlLabel>
-            <Row>
-              <Select
-                value={selectedBranchId}
-                onChange={onBranchSelect}
-                placeholder="Select branch"
-                multi={true}
-                options={branchesList && renderBranchOptions(branchesList)}
-              />
-            </Row>
-          </FormGroup>
-        </FilterItem>
-        <div style={{ justifySelf: 'end' }}>
-          <Button>Export</Button>
-        </div>
-      </FilterWrapper>
+      <div>
+        <Button onClick={exportReport}>Export</Button>
+      </div>
     );
   };
 
   const actionBar = (
     <Wrapper.ActionBar
       left={renderSelectionBar()}
-      right={renderFilter()}
+      right={renderExportBtn()}
       hasFlex={true}
     />
   );
 
-  return (
-    <Wrapper
-      header={<Wrapper.Header title={__('Reports')} submenu={menuTimeClock} />}
-      actionBar={actionBar}
-      content={
-        <DataWithLoader
-          data={content}
-          loading={false}
-          emptyText={__('Theres no timeclock')}
-          emptyImage="/images/actions/8.svg"
-        />
-      }
-      transparent={false}
-      hasBorder={true}
-    />
-  );
+  getActionBar(actionBar);
+  return content;
 }
 
 export default ReportList;

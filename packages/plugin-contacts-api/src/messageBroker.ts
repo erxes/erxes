@@ -36,7 +36,7 @@ export const initBroker = cl => {
 
     return {
       status: 'success',
-      data: await findCustomer(models, data)
+      data: await findCustomer(models, subdomain, data)
     };
   });
 
@@ -57,7 +57,16 @@ export const initBroker = cl => {
 
     return {
       status: 'success',
-      data: await findCompany(models, data)
+      data: await findCompany(models, subdomain, data)
+    };
+  });
+
+  consumeRPCQueue('contacts:companies.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Companies.find(data).lean()
     };
   });
 

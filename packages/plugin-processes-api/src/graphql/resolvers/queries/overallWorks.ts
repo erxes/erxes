@@ -19,7 +19,8 @@ interface IParam {
   inDepartmentId: string;
   outDepartmentId: string;
   productCategoryId: string;
-  productId: string;
+  productIds: string[];
+  vendorIds: string[];
   jobCategoryId: string;
   jobReferId: string;
 }
@@ -42,7 +43,8 @@ const generateFilter = async (
     jobReferId,
     jobCategoryId,
     productCategoryId,
-    productId
+    productIds,
+    vendorIds
   } = params;
   const selector: any = { ...commonQuerySelector };
 
@@ -79,6 +81,8 @@ const generateFilter = async (
     selector.inDepartmentId = inDepartmentId;
   }
 
+  let filterProductIds: string[] = [];
+  let hasFilterProductIds: boolean = false;
   if (productCategoryId) {
     const limit = await sendProductsMessage({
       subdomain,
@@ -94,11 +98,40 @@ const generateFilter = async (
       isRPC: true
     });
 
-    selector.typeId = { $in: products.map(pr => pr._id) };
+    filterProductIds = products.map(pr => pr._id);
+    hasFilterProductIds = true;
   }
 
-  if (productId) {
-    selector.typeId = productId;
+  if (vendorIds) {
+    const limit = await sendProductsMessage({
+      subdomain,
+      action: 'count',
+      data: { query: { vendorId: { $in: vendorIds } } },
+      isRPC: true
+    });
+
+    const products = await sendProductsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        limit,
+        query: { vendorId: { $in: vendorIds } },
+        fields: { _id: 1 }
+      },
+      isRPC: true
+    });
+
+    filterProductIds = filterProductIds.concat(products.map(pr => pr._id));
+    hasFilterProductIds = true;
+  }
+
+  if (productIds) {
+    filterProductIds = filterProductIds.concat(productIds);
+    hasFilterProductIds = true;
+  }
+
+  if (hasFilterProductIds) {
+    selector.typeId = { $in: filterProductIds };
   }
 
   if (jobCategoryId) {
@@ -358,15 +391,15 @@ const overallWorkQueries = {
             $concat: [
               '$_id.type',
               '_',
-              '$_id.typeId',
-              '_',
               '$_id.inBranchId',
               '_',
               '$_id.inDepartmentId',
               '_',
               '$_id.outBranchId',
               '_',
-              '$_id.outDepartmentId'
+              '$_id.outDepartmentId',
+              '_',
+              '$_id.typeId'
             ]
           },
           key: '$_id',

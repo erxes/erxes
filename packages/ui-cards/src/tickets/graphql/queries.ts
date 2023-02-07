@@ -21,6 +21,7 @@ const commonParams = `
   $assignedToMe: String,
   $startDate: String,
   $endDate: String,
+  $noSkipArchive: Boolean,
   ${conformityQueryFields}
 `;
 
@@ -41,6 +42,7 @@ const commonParamDefs = `
   assignedToMe: $assignedToMe,
   startDate: $startDate,
   endDate: $endDate,
+  noSkipArchive: $noSkipArchive,
   ${conformityQueryFieldDefs}
 `;
 

@@ -1,4 +1,6 @@
 import { IContext } from '../../connectionResolver';
+import { IUser } from '../../models/definitions/clientPortalUser';
+import { customFieldsDataByFieldCode } from '../../utils';
 
 const ClientPortalUser = {
   __resolveReference: ({ _id }, { models }: IContext) => {
@@ -29,6 +31,10 @@ const ClientPortalUser = {
         _id: user.erxesCompanyId
       }
     );
+  },
+
+  customFieldsDataByFieldCode(company: IUser, _, { subdomain }: IContext) {
+    return customFieldsDataByFieldCode(company, subdomain);
   }
 };
 

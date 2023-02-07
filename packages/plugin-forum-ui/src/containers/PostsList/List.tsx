@@ -12,6 +12,10 @@ import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import { RemoveMutationResponse, PostsQueryResponse } from '../../types';
 import { graphql } from 'react-apollo';
+// import { FORUM_POSTS_COUNT, FORUM_POSTS_QUERY } from '../../graphql/queries';
+import { Link } from 'react-router-dom';
+import { postUsername } from '../../utils';
+import Paging from './Paging';
 
 type FinalProps = {
   postsQuery: PostsQueryResponse;
@@ -28,13 +32,21 @@ function List({ removeMutation, postsQuery }: FinalProps) {
   const queryParams = queryString.parse(location.search);
 
   const [categoryApprovalState] = useSearchParam('categoryApprovalState');
+  const [strLimit] = useSearchParam('limit');
+  const [strPageIndex, setPageIndex] = useSearchParam('pageIndex');
+
+  const limit = Number(strLimit || 20);
+  const pageIndex = Number(strPageIndex || 0);
+  const offset = limit * pageIndex;
 
   const variables = {
     categoryId,
     state,
     categoryApprovalState,
     categoryIncludeDescendants: !!categoryIncludeDescendants,
-    sort: { _id: -1 }
+    sort: { _id: -1, lastPublishedAt: -1 },
+    limit,
+    offset
   };
 
   const postQuery = useQuery(gql(queries.forumPostsQuery), {

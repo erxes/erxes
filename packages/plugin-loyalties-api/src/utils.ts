@@ -1,11 +1,33 @@
 import { IModels } from './connectionResolver';
-import { sendProductsMessage } from './messageBroker';
+import { sendProductsMessage, sendSegmentsMessage } from './messageBroker';
 import { VOUCHER_STATUS } from './models/definitions/constants';
 
 interface IProductD {
   productId: string;
   quantity: number;
 }
+
+const getChildCategories = async (subdomain: string, categoryIds) => {
+  let catIds: string[] = [];
+  for (const categoryId of categoryIds) {
+    if (catIds.includes(categoryId)) {
+      continue;
+    }
+
+    const childs = await sendProductsMessage({
+      subdomain,
+      action: 'categories.withChilds',
+      data: { _id: categoryId },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    catIds = catIds.concat((childs || []).map(ch => ch._id) || []);
+  }
+
+  return Array.from(new Set(catIds));
+};
+
 export const checkVouchersSale = async (
   models: IModels,
   subdomain: string,
@@ -51,6 +73,7 @@ export const checkVouchersSale = async (
     foreignField: '_id',
     as: 'campaign_doc'
   };
+
   const voucherFilter = { ownerType, ownerId, status: { $in: ['new'] } };
 
   const activeVouchers = await models.Vouchers.find(voucherFilter).lean();
@@ -105,7 +128,7 @@ export const checkVouchersSale = async (
   }
 
   // discount
-  const discountCampaign = await models.VoucherCampaigns.find({
+  const discountCampaigns = await models.VoucherCampaigns.find({
     ...campaignFilter,
     voucherType: { $in: ['discount'] }
   }).lean();
@@ -114,7 +137,7 @@ export const checkVouchersSale = async (
     {
       $match: {
         ...voucherFilter,
-        campaignId: { $in: discountCampaign.map(c => c._id) }
+        campaignId: { $in: discountCampaigns.map(c => c._id) }
       }
     },
     {
@@ -127,37 +150,61 @@ export const checkVouchersSale = async (
     }
   ]);
 
-  const productCatIds = discountCampaign.reduce(
+  const productCatIds = discountCampaigns.reduce(
     (catIds, c) => catIds.concat(c.productCategoryIds),
     []
   );
+
+  const categoryIdsByCampaignId = {};
+  let allCatIds: string[] = [];
+  for (const campaign of discountCampaigns) {
+    if (Object.keys(categoryIdsByCampaignId).includes(campaign._id)) {
+      categoryIdsByCampaignId[campaign._id] = [];
+    }
+    const catIds = await getChildCategories(subdomain, [
+      ...new Set(productCatIds)
+    ]);
+    categoryIdsByCampaignId[campaign._id] = catIds;
+    allCatIds = allCatIds.concat(catIds);
+  }
+
+  const limit = await sendProductsMessage({
+    subdomain,
+    action: 'count',
+    data: {
+      query: { categoryId: { $in: allCatIds } }
+    },
+    isRPC: true,
+    defaultValue: 0
+  });
 
   const catProducts = await sendProductsMessage({
     subdomain,
     action: 'find',
     data: {
-      query: { categoryId: { $in: [...new Set(productCatIds)] } },
-      sort: { _id: 1, categoryId: 1 }
+      query: { categoryId: { $in: allCatIds } },
+      sort: { _id: 1, categoryId: 1 },
+      limit
     },
     isRPC: true,
     defaultValue: []
   });
 
-  const productIdByCatId = {};
+  const productIdsByCatId = {};
   for (const pr of catProducts) {
-    if (!Object.keys(productIdByCatId).includes(pr.categoryId)) {
-      productIdByCatId[pr.categoryId] = [];
+    if (!Object.keys(productIdsByCatId).includes(pr.categoryId)) {
+      productIdsByCatId[pr.categoryId] = [];
     }
 
-    productIdByCatId[pr.categoryId].push(pr._id);
+    productIdsByCatId[pr.categoryId].push(pr._id);
   }
 
   for (const discountVoucher of discountVouchers) {
-    const catIds = discountVoucher.campaign.productCategoryIds;
+    const catIds = categoryIdsByCampaignId[discountVoucher.campaignId];
     let productIds = discountVoucher.campaign.productIds || [];
 
     for (const catId of catIds) {
-      productIds = productIds.concat(productIdByCatId[catId] || []);
+      productIds = productIds.concat(productIdsByCatId[catId] || []);
     }
 
     for (const productId of productsIds) {
@@ -230,3 +277,23 @@ export const confirmVoucherSale = async (
     }
   }
 };
+
+export const isInSegment = async (
+  subdomain: string,
+  segmentId: string,
+  targetId: string
+) => {
+  const response = await sendSegmentsMessage({
+    subdomain,
+    action: 'isInSegment',
+    data: { segmentId, idToCheck: targetId },
+    isRPC: true
+  });
+
+  return response;
+};
+
+export interface AssignmentCheckResponse {
+  segmentId: string;
+  isIn: boolean;
+}

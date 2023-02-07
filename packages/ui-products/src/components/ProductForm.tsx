@@ -149,18 +149,44 @@ class Form extends React.Component<Props, State> {
     );
   }
 
-  renderSubUoms(uoms) {
-    const subUoms = this.state.subUoms;
-    return subUoms.map(subUom => (
-      <>
-        <FormWrapper>
+  renderSubUoms() {
+    const { uoms } = this.props;
+    const { subUoms } = this.state;
+
+    return subUoms.map(subUom => {
+      const updateUoms = (key, value) => {
+        const { subUoms } = this.state;
+        subUom[key] = value;
+        this.setState({
+          subUoms: subUoms.map(su => (su._id === subUom._id ? subUom : su))
+        });
+      };
+
+      const onChangeUom = option => {
+        updateUoms('uomId', option.value);
+      };
+
+      const onChangeRatio = e => {
+        const name = e.currentTarget.name;
+        let value = e.currentTarget.value;
+        if (name === 'inverse') {
+          value = 1 / e.currentTarget.value || 1;
+        }
+        updateUoms('ratio', value);
+      };
+
+      return (
+        <FormWrapper key={subUom._id}>
           <FormColumn>
             <FormGroup>
               <ControlLabel>Sub UOM</ControlLabel>
               <Select
                 value={subUom.uomId}
-                onChange={this.updateUoms.bind(this, 'subUomId', subUom._id)}
-                options={uoms.map(e => ({ value: e._id, label: e.name }))}
+                onChange={onChangeUom}
+                options={(uoms || []).map(e => ({
+                  value: e._id,
+                  label: e.name
+                }))}
               />
             </FormGroup>
           </FormColumn>
@@ -169,22 +195,40 @@ class Form extends React.Component<Props, State> {
               <ControlLabel>Ratio</ControlLabel>
               <Row>
                 <FormControl
+                  name="ratio"
                   value={subUom.ratio}
-                  onChange={this.updateUoms.bind(this, 'ratio', subUom._id)}
+                  onChange={onChangeRatio}
                   type="number"
-                />
-                <Button
-                  btnStyle="simple"
-                  uppercase={false}
-                  icon="cancel-1"
-                  onClick={this.onClickMinusSub.bind(this, subUom._id)}
                 />
               </Row>
             </FormGroup>
           </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel>~Inverse Ratio</ControlLabel>
+              <Row>
+                <FormControl
+                  name="inverse"
+                  value={Math.round((1 / (subUom.ratio || 1)) * 100) / 100}
+                  onChange={onChangeRatio}
+                  type="number"
+                />
+              </Row>
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <Row>
+              <Button
+                btnStyle="simple"
+                uppercase={false}
+                icon="cancel-1"
+                onClick={this.onClickMinusSub.bind(this, subUom._id)}
+              />
+            </Row>
+          </FormColumn>
         </FormWrapper>
-      </>
-    ));
+      );
+    });
   }
 
   onComboEvent = (variable: string, e) => {
@@ -202,23 +246,6 @@ class Form extends React.Component<Props, State> {
     }
 
     this.setState({ [variable]: value } as any);
-  };
-
-  updateUoms = (type, id, e) => {
-    const { subUoms } = this.state;
-    const condition = type === 'ratio';
-    const value = condition ? e.target.value : e.value;
-
-    let chosen = subUoms.find(sub => sub._id === id);
-    const uomId = condition ? chosen.uomId : value;
-    const ratio = condition ? value : chosen.ratio;
-
-    chosen = { uomId, ratio, _id: id };
-
-    const others = subUoms.filter(sub => sub._id !== id);
-
-    others.push(chosen);
-    this.setState({ subUoms: others });
   };
 
   updateBarcodes = (barcode?: string) => {
@@ -240,15 +267,14 @@ class Form extends React.Component<Props, State> {
 
   onClickAddSub = () => {
     const subUoms = this.state.subUoms;
-    const count = subUoms.length;
 
-    subUoms.push({ uomId: '', ratio: 0, _id: count + 1 });
+    subUoms.push({ uomId: '', ratio: 0, _id: Math.random().toString() });
     this.setState({ subUoms });
   };
 
-  onClickMinusSub = counter => {
+  onClickMinusSub = id => {
     const subUoms = this.state.subUoms;
-    const filteredUoms = subUoms.filter(sub => sub._id !== counter);
+    const filteredUoms = subUoms.filter(sub => sub._id !== id);
 
     this.setState({ subUoms: filteredUoms });
   };
@@ -621,7 +647,7 @@ class Form extends React.Component<Props, State> {
                   </Row>
                 </FormGroup>
 
-                {this.renderSubUoms(uoms)}
+                {this.renderSubUoms()}
               </>
             )}
           </FormColumn>

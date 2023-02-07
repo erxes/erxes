@@ -114,7 +114,10 @@ class EbarimtConfig extends React.Component<Props, { config: any }> {
                   <FormControl
                     componentClass="select"
                     defaultValue={this.state.config.districtCode}
-                    options={DISTRICTS}
+                    options={[
+                      { value: '', label: 'Choose District' },
+                      ...DISTRICTS
+                    ]}
                     onChange={this.onChangeInput.bind(this, 'districtCode')}
                     required={true}
                   />

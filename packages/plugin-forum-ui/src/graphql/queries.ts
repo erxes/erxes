@@ -11,13 +11,17 @@ const categoriesAll = `
       _id
       name
       parentId
+
+      parent {
+        name
+      }
     }
   }
 `;
 
 const categoriesByParentIds = `
   query ForumCategoriesByParentIds($parentId: [ID]) {
-    forumCategories(parentId: $parentId) {
+    forumCategories(parentId: $parentId, sort: { order: 1 }) {
       _id
       name
       thumbnail
@@ -53,6 +57,8 @@ const categoryDetail = `
       postReadRequiresPermissionGroup
       postWriteRequiresPermissionGroup
       commentWriteRequiresPermissionGroup
+      order
+      description
       parent {
         _id
         name
@@ -140,18 +146,7 @@ const forumPostsQuery = `
         username
       }
 
-      stateChangedUserType
-      stateChangedAt
-      stateChangedBy {
-        _id
-        username
-        email
-      }
-      stateChangedByCp {
-        _id
-        email
-        username
-      }
+      lastPublishedAt
     }
   }
 `;
@@ -181,15 +176,19 @@ const forumPostDetail = `
       title
       createdAt
       updatedAt
-      stateChangedAt
       commentCount
 
       categoryApprovalState
+
+      description
 
       viewCount
 
       upVoteCount
       downVoteCount
+
+      isPollMultiChoice
+      pollEndDate
 
       createdUserType
       createdBy {
@@ -215,17 +214,29 @@ const forumPostDetail = `
         username
       }
 
-      stateChangedUserType
-      stateChangedBy {
+      lastPublishedAt
+
+      tagIds
+
+      tags {
         _id
-        username
-        email
+        colorCode
+        name
       }
-      stateChangedByCp {
+
+      pollOptions {
         _id
-        email
-        username
+        title
+        order
       }
+
+      quizzes {
+        _id
+        name
+      }
+
+      isFeaturedByAdmin
+      isFeaturedByUser
     }
   }
 `;
@@ -304,6 +315,7 @@ const permissionGroupQuery = `
         firstName
         lastName
         username
+        type
       }
     }
   }

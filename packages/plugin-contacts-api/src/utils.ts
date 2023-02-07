@@ -29,6 +29,7 @@ import {
 import { companySchema } from './models/definitions/companies';
 import { ICustomField, ILink } from '@erxes/api-utils/src/types';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
+import { customFieldsDataByFieldCode } from './coc/utils';
 
 const EXTEND_FIELDS = {
   CUSTOMER: [
@@ -41,11 +42,18 @@ const EXTEND_FIELDS = {
   ]
 };
 
-export const findCustomer = async ({ Customers }: IModels, doc) => {
+export const findCustomer = async (
+  { Customers }: IModels,
+  subdomain: string,
+  doc
+) => {
   let customer;
+
+  const defaultFilter = { status: { $ne: 'deleted' } };
 
   if (doc.customerPrimaryEmail) {
     customer = await Customers.findOne({
+      ...defaultFilter,
       $or: [
         { emails: { $in: [doc.customerPrimaryEmail] } },
         { primaryEmail: doc.customerPrimaryEmail }
@@ -55,6 +63,7 @@ export const findCustomer = async ({ Customers }: IModels, doc) => {
 
   if (!customer && doc.customerPrimaryPhone) {
     customer = await Customers.findOne({
+      ...defaultFilter,
       $or: [
         { phones: { $in: [doc.customerPrimaryPhone] } },
         { primaryPhone: doc.customerPrimaryPhone }
@@ -63,25 +72,45 @@ export const findCustomer = async ({ Customers }: IModels, doc) => {
   }
 
   if (!customer && doc.customerCode) {
-    customer = await Customers.findOne({ code: doc.customerCode }).lean();
+    customer = await Customers.findOne({
+      ...defaultFilter,
+      code: doc.customerCode
+    }).lean();
   }
 
   if (!customer && doc._id) {
-    customer = await Customers.findOne({ _id: doc._id }).lean();
+    customer = await Customers.findOne({
+      ...defaultFilter,
+      _id: doc._id
+    }).lean();
   }
 
   if (!customer) {
     customer = await Customers.findOne(doc).lean();
   }
 
+  if (customer) {
+    customer.customFieldsDataByFieldCode = await customFieldsDataByFieldCode(
+      customer,
+      subdomain
+    );
+  }
+
   return customer;
 };
 
-export const findCompany = async ({ Companies }: IModels, doc) => {
+export const findCompany = async (
+  { Companies }: IModels,
+  subdomain: string,
+  doc
+) => {
   let company;
+
+  const defaultFilter = { status: { $ne: 'deleted' } };
 
   if (doc.companyPrimaryName) {
     company = await Companies.findOne({
+      ...defaultFilter,
       $or: [
         { names: { $in: [doc.companyPrimaryName] } },
         { primaryName: doc.companyPrimaryName }
@@ -91,24 +120,28 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
 
   if (!company && doc.name) {
     company = await Companies.findOne({
+      ...defaultFilter,
       $or: [{ names: { $in: [doc.name] } }, { primaryName: doc.name }]
     }).lean();
   }
 
   if (!company && doc.email) {
     company = await Companies.findOne({
+      ...defaultFilter,
       $or: [{ emails: { $in: [doc.email] } }, { primaryEmail: doc.email }]
     }).lean();
   }
 
   if (!company && doc.phone) {
     company = await Companies.findOne({
+      ...defaultFilter,
       $or: [{ phones: { $in: [doc.phone] } }, { primaryPhone: doc.phone }]
     }).lean();
   }
 
   if (!company && doc.companyPrimaryEmail) {
     company = await Companies.findOne({
+      ...defaultFilter,
       $or: [
         { emails: { $in: [doc.companyPrimaryEmail] } },
         { primaryEmail: doc.companyPrimaryEmail }
@@ -118,6 +151,7 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
 
   if (!company && doc.companyPrimaryPhone) {
     company = await Companies.findOne({
+      ...defaultFilter,
       $or: [
         { phones: { $in: [doc.companyPrimaryPhone] } },
         { primaryPhone: doc.companyPrimaryPhone }
@@ -126,15 +160,28 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
   }
 
   if (!company && doc.companyCode) {
-    company = await Companies.findOne({ code: doc.companyCode }).lean();
+    company = await Companies.findOne({
+      ...defaultFilter,
+      code: doc.companyCode
+    }).lean();
   }
 
   if (!company && doc._id) {
-    company = await Companies.findOne({ _id: doc._id }).lean();
+    company = await Companies.findOne({
+      ...defaultFilter,
+      _id: doc._id
+    }).lean();
   }
 
   if (!company) {
     company = await Companies.findOne(doc).lean();
+  }
+
+  if (company) {
+    company.customFieldsDataByFieldCode = await customFieldsDataByFieldCode(
+      company,
+      subdomain
+    );
   }
 
   return company;
@@ -810,7 +857,7 @@ export const updateContactsField = async (
         companyId: ''
       };
     } else {
-      let customer = await findCustomer(models, {
+      let customer = await findCustomer(models, subdomain, {
         customerPrimaryEmail: customerDoc.email || '',
         customerPrimaryPhone: customerDoc.phone || ''
       });
@@ -849,7 +896,7 @@ export const updateContactsField = async (
       continue;
     }
 
-    let company = await findCompany(models, {
+    let company = await findCompany(models, subdomain, {
       companyPrimaryName: companyDoc.primaryName || '',
       companyPrimaryEmail: companyDoc.primaryEmail || '',
       companyPrimaryPhone: companyDoc.primaryPhone || ''

@@ -103,9 +103,14 @@ export const generateSubscriptionProductModel = (
       _id: string,
       input: SubscriptionProductPatch
     ): Promise<SubscriptionProductDocument> {
-      const product = await models.SubscriptionProduct.findByIdOrThrow(_id);
-      _.assign(product, input);
-      await product.save();
+      const product = await models.SubscriptionProduct.findByIdAndUpdate(
+        _id,
+        { $set: input },
+        { new: true }
+      );
+      if (!product) {
+        throw new Error('Subscription product not found');
+      }
       return product;
     }
 

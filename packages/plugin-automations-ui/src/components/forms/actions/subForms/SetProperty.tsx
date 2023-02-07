@@ -5,7 +5,7 @@ import { Alert, __ } from 'coreui/utils';
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
-import FormGroup from '@erxes/ui/src/components/form/Group';
+import { FormGroup, FormControl } from '@erxes/ui/src/components/form';
 import React from 'react';
 import Select from 'react-select-plus';
 
@@ -150,6 +150,17 @@ class SetProperty extends React.Component<Props, State> {
         );
       };
 
+      const onChangeForwardToValue = e => {
+        const value = e.currentTarget.value;
+
+        rule = { ...rule, forwardTo: value };
+
+        this.onChangeField(
+          'rules',
+          config.rules.map(r => (r.id === rule.id ? { ...rule } : r))
+        );
+      };
+
       return (
         <GroupWrapper key={rule.id}>
           <FormGroup>
@@ -192,6 +203,15 @@ class SetProperty extends React.Component<Props, State> {
             attrType={chosenField.type}
             options={chosenField.selectOptions}
           />
+
+          <FormGroup>
+            <ControlLabel>{__('Forward to')}</ControlLabel>
+
+            <FormControl
+              onChange={onChangeForwardToValue}
+              value={rule.forwardTo}
+            />
+          </FormGroup>
 
           <Tip text={'Delete'}>
             <Button

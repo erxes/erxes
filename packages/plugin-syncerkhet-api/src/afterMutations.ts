@@ -1,12 +1,11 @@
 import { sendCommonMessage, sendRPCMessage } from './messageBrokerErkhet';
-import { getPostData } from './utils/ebarimtData';
+import { getPostData, getMoveData } from './utils/ebarimtData';
 import {
   productToErkhet,
   productCategoryToErkhet
 } from './utils/productToErkhet';
-import { getConfig } from './utils/utils';
+import { getConfig, sendCardInfo } from './utils/utils';
 import { customerToErkhet, companyToErkhet } from './utils/customerToErkhet';
-import { sendCardsMessage } from './messageBroker';
 
 export default {
   'cards:deal': ['update'],
@@ -30,6 +29,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       }
 
       const configs = await getConfig(subdomain, 'ebarimtConfig', {});
+      const moveConfigs = await getConfig(subdomain, 'stageInMoveConfig', {});
       const returnConfigs = await getConfig(
         subdomain,
         'returnEbarimtConfig',
@@ -68,6 +68,40 @@ export const afterMutationHandlers = async (subdomain, params) => {
         return;
       }
 
+      if (Object.keys(moveConfigs).includes(destinationStageId)) {
+        const moveConfig = {
+          ...moveConfigs[destinationStageId],
+          ...(await getConfig(subdomain, 'ERKHET', {}))
+        };
+
+        const postData = await getMoveData(subdomain, moveConfig, deal);
+
+        const response = await sendRPCMessage(
+          'rpc_queue:erxes-automation-erkhet',
+          {
+            action: 'get-response-inv-movement-info',
+            isJson: true,
+            isEbarimt: false,
+            payload: JSON.stringify(postData),
+            thirdService: true
+          }
+        );
+
+        if (response.message || response.error) {
+          const txt = JSON.stringify({
+            message: response.message,
+            error: response.error
+          });
+          if (moveConfig.responseField) {
+            await sendCardInfo(subdomain, deal, moveConfig, txt);
+          } else {
+            console.log(txt);
+          }
+        }
+
+        return;
+      }
+
       if (!Object.keys(configs).includes(destinationStageId)) {
         return;
       }
@@ -95,28 +129,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
           error: response.error
         });
         if (config.responseField) {
-          await sendCardsMessage({
-            subdomain,
-            action: 'deals.updateOne',
-            data: {
-              selector: { _id: deal._id },
-              modifier: {
-                $push: {
-                  customFieldsData: [
-                    {
-                      field: config.responseField.replace(
-                        'customFieldsData.',
-                        ''
-                      ),
-                      value: txt,
-                      stringValue: txt
-                    }
-                  ]
-                }
-              }
-            },
-            isRPC: true
-          });
+          await sendCardInfo(subdomain, deal, config, txt);
         } else {
           console.log(txt);
         }

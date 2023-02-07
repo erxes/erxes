@@ -8,7 +8,7 @@ import * as jwt from 'jsonwebtoken';
 import { Model } from 'mongoose';
 import * as sha256 from 'sha256';
 import { IModels } from '../../connectionResolver';
-import { userActionsMap } from '../../data/permissions/utils';
+import { userActionsMap } from '@erxes/api-utils/src/core';
 import { set } from '../../inmemoryStorage';
 import {
   IDetail,
@@ -19,6 +19,11 @@ import {
 } from './definitions/users';
 import { IAppDocument } from './definitions/apps';
 import { saveValidatedToken } from '../../data/utils';
+import {
+  IUserMovementDocument,
+  userMovemmentSchema
+} from './definitions/users';
+import { USER_MOVEMENT_STATUSES } from '../../constants';
 
 const SALT_WORK_FACTOR = 10;
 
@@ -27,6 +32,7 @@ interface IEditProfile {
   email?: string;
   details?: IDetail;
   links?: ILink;
+  employeeId?: string;
 }
 
 interface IUpdateUser extends IEditProfile {
@@ -67,6 +73,7 @@ export interface IUserModel extends Model<IUserDocument> {
     email?: string;
     idsToExclude?: string | string[];
     emails?: string[];
+    employeeId?: string;
   }): never;
   getSecret(): string;
   generateToken(): { token: string; expires: Date };
@@ -133,9 +140,11 @@ export const loadUserClass = (models: IModels) => {
      */
     public static async checkDuplication({
       email,
+      employeeId,
       idsToExclude
     }: {
       email?: string;
+      employeeId?: string;
       idsToExclude?: string;
     }) {
       const query: { [key: string]: any } = {};
@@ -153,6 +162,16 @@ export const loadUserClass = (models: IModels) => {
         // Checking if duplicated
         if (previousEntry.length > 0) {
           throw new Error('Duplicated email');
+        }
+      }
+
+      // Checking employeeId
+      if (employeeId) {
+        previousEntry = await models.Users.findOne({ ...query, employeeId });
+
+        // Checking if duplicated
+        if (previousEntry) {
+          throw new Error('Duplicated Employee Id');
         }
       }
     }
@@ -221,6 +240,14 @@ export const loadUserClass = (models: IModels) => {
         // if there is no password specified then leave password field alone
       } else {
         delete doc.password;
+      }
+
+      if (doc.employeeId) {
+        // Checking employeeId duplication
+        await this.checkDuplication({
+          employeeId: doc.employeeId,
+          idsToExclude: _id
+        });
       }
 
       await models.Users.updateOne({ _id }, { $set: doc });
@@ -359,14 +386,22 @@ export const loadUserClass = (models: IModels) => {
      */
     public static async editProfile(
       _id: string,
-      { username, email, details, links }: IEditProfile
+      { username, email, details, links, employeeId }: IEditProfile
     ) {
       // Checking duplicated email
       await this.checkDuplication({ email, idsToExclude: _id });
 
+      if (employeeId) {
+        // Checking employeeId duplication
+        await this.checkDuplication({
+          employeeId,
+          idsToExclude: _id
+        });
+      }
+
       await models.Users.updateOne(
         { _id },
-        { $set: { username, email, details, links } }
+        { $set: { username, email, details, links, employeeId } }
       );
 
       return models.Users.findOne({ _id });
@@ -589,7 +624,8 @@ export const loadUserClass = (models: IModels) => {
         groupIds: user.groupIds,
         brandIds: user.brandIds,
         username: user.username,
-        code: user.code
+        code: user.code,
+        departmentIds: user.departmentIds
       };
     }
 
@@ -699,7 +735,20 @@ export const loadUserClass = (models: IModels) => {
       await this.generateUserCodeField();
 
       // put permission map in redis, so that other services can use it
-      const actionMap = await userActionsMap(models, user);
+      const userPermissions = await models.Permissions.find({
+        userId: user._id
+      });
+
+      const groupPermissions = await models.Permissions.find({
+        groupId: { $in: user.groupIds }
+      });
+
+      const actionMap = await userActionsMap(
+        userPermissions,
+        groupPermissions,
+        user
+      );
+
       set(`user_permissions_${user._id}`, JSON.stringify(actionMap));
 
       return {
@@ -806,4 +855,174 @@ export const loadUserClass = (models: IModels) => {
   userSchema.loadClass(User);
 
   return userSchema;
+};
+
+type ICommonUserMovement = {
+  userId?: string;
+  user?: IUserDocument;
+  userIds?: string[];
+  contentType?: string;
+  contentTypeIds?: string[];
+  contentTypeId?: string;
+  createdBy?: string;
+};
+
+export interface IUserMovemmentModel extends Model<IUserMovementDocument> {
+  manageStructureUsersMovement(
+    params: ICommonUserMovement
+  ): Promise<IUserMovementDocument>;
+  manageUserMovement(
+    params: ICommonUserMovement
+  ): Promise<IUserMovementDocument>;
+}
+
+export const loadUserMovemmentClass = (models: IModels) => {
+  class UserMovemment {
+    public static async manageUserMovement(params: ICommonUserMovement) {
+      const user = params.user as IUserDocument;
+
+      for (const contentType of ['department', 'branch']) {
+        const contentTypeIds = user[`${contentType}Ids`] || [];
+
+        const removed = (
+          await models.UserMovements.find({
+            userId: user._id,
+            contentType,
+            contentTypeId: { $nin: contentTypeIds },
+            status: USER_MOVEMENT_STATUSES.CREATED,
+            isActive: true
+          })
+        ).map(movement => ({
+          userId: user._id,
+          contentType,
+          contentTypeId: movement.contentTypeId,
+          createdBy: user._id,
+          status: USER_MOVEMENT_STATUSES.REMOVED,
+          isActive: false
+        }));
+
+        if (!!removed.length) {
+          await models.UserMovements.updateMany(
+            {
+              userId: user._id,
+              contentType,
+              contentTypeId: { $in: contentTypeIds },
+              status: USER_MOVEMENT_STATUSES.CREATED,
+              isActive: true
+            },
+            {
+              $set: { isActive: false }
+            }
+          );
+          await models.UserMovements.insertMany(removed);
+        }
+
+        await models.UserMovements.updateMany(
+          {
+            contentType,
+            contentTypeId: { $in: contentTypeIds },
+            userId: user._id,
+            isActive: true,
+            status: { $ne: USER_MOVEMENT_STATUSES.REMOVED }
+          },
+          { $set: { isActive: false } }
+        );
+
+        for (const contentTypeId of contentTypeIds) {
+          const movement = await models.UserMovements.findOne({
+            contentType,
+            contentTypeId,
+            userId: user._id
+          }).sort({ createdAt: -1 });
+
+          if (
+            !movement ||
+            movement?.status === USER_MOVEMENT_STATUSES.REMOVED
+          ) {
+            await models.UserMovements.create({
+              contentType,
+              contentTypeId,
+              userId: user._id,
+              createdBy: user._id,
+              isActive: true
+            });
+          }
+        }
+      }
+    }
+
+    public static async manageStructureUsersMovement(
+      params: ICommonUserMovement
+    ) {
+      const { createdBy, userIds, contentType, contentTypeId } = params;
+      const fieldName = `${contentType}Ids`;
+      await models.Users.updateMany(
+        {
+          _id: { $nin: userIds },
+          [fieldName]: { $in: [contentTypeId] }
+        },
+        { $pull: { [fieldName]: contentTypeId } }
+      );
+
+      await models.Users.updateMany(
+        { _id: { $in: userIds } },
+        { $addToSet: { [fieldName]: contentTypeId } }
+      );
+
+      const userMovements = await models.UserMovements.find({
+        contentType,
+        contentTypeId,
+        isActive: true
+      });
+
+      const removedFromContentType = userMovements
+        .filter(
+          movement =>
+            !userIds?.some(userId => userId === movement.userId) && movement
+        )
+        .map(({ createdBy, contentType, contentTypeId, userId }) => ({
+          createdBy,
+          contentType,
+          contentTypeId,
+          userId,
+          status: USER_MOVEMENT_STATUSES.REMOVED,
+          isActive: false
+        }));
+
+      await models.UserMovements.insertMany([...removedFromContentType]);
+
+      await models.UserMovements.updateOne(
+        {
+          contentType,
+          contentTypeId,
+          userId: { $in: userIds },
+          status: { $ne: USER_MOVEMENT_STATUSES.REMOVED },
+          isActive: true
+        },
+        { $set: { isActive: false } }
+      );
+
+      for (const userId of userIds || []) {
+        const movement = await models.UserMovements.findOne({
+          contentType,
+          contentTypeId,
+          userId
+        }).sort({ createdAt: -1 });
+
+        if (!movement || movement?.status === USER_MOVEMENT_STATUSES.REMOVED) {
+          await models.UserMovements.create({
+            contentType,
+            contentTypeId,
+            userId,
+            createdBy,
+            isActive: true
+          });
+        }
+      }
+
+      return 'edited';
+    }
+  }
+  userMovemmentSchema.loadClass(UserMovemment);
+  return userMovemmentSchema;
 };

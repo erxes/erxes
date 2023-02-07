@@ -111,6 +111,10 @@ const StructureList = styled(SidebarList)`
   }
 `;
 
+let DescriptionContent = styled.div`
+  text-align: center;
+`;
+
 export {
   FlexRow,
   ButtonContainer,
@@ -119,5 +123,6 @@ export {
   InviteOption,
   FormTable,
   SideList,
-  StructureList
+  StructureList,
+  DescriptionContent
 };

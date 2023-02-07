@@ -51,5 +51,8 @@ export default {
         dataLoaders.department.load(movement.departmentId)) ||
       null
     );
+  },
+  async assetDetail(movement: IMovementItemDocument, {}, { models }: IContext) {
+    return (await models.Assets.findOne({ _id: movement.assetId })) || null;
   }
 };

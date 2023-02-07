@@ -10,6 +10,12 @@ import ClientPortalUser from './ClientPortalUser';
 import ForumPermissionGroup from './ForumPermissionGroup';
 import ForumPermissionGroupCategoryPermit from './ForumPermissionGroupCategoryPermit';
 import ForumSubscriptionOrder from './ForumSubscriptionOrder';
+import ForumSavedPost from './ForumSavedPost';
+import ForumPollOption from './ForumPollOption';
+import ForumUserStatistics from './ForumUserStatistics';
+import ForumQuiz from './ForumQuiz';
+import ForumQuizQuestion from './ForumQuizQuestion';
+import ForumQuizChoice from './ForumQuizChoice';
 
 export default async function generateResolvers(
   serviceDiscovery
@@ -24,7 +30,13 @@ export default async function generateResolvers(
     ClientPortalUser,
     ForumPermissionGroup,
     ForumPermissionGroupCategoryPermit,
-    ForumSubscriptionOrder
+    ForumSubscriptionOrder,
+    ForumSavedPost,
+    ForumPollOption,
+    ForumUserStatistics,
+    ForumQuiz,
+    ForumQuizQuestion,
+    ForumQuizChoice
   };
 
   return resolvers;

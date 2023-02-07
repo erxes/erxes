@@ -17,6 +17,7 @@ type Props = {
   history: any;
   queryParams: any;
   removePerform: (_id: string) => void;
+  minPotentialCount: number;
 };
 
 class PerformRow extends React.Component<Props> {
@@ -72,7 +73,7 @@ class PerformRow extends React.Component<Props> {
   };
 
   render() {
-    const { perform } = this.props;
+    const { perform, minPotentialCount } = this.props;
     const onTrClick = () => {};
 
     const onClick = e => {
@@ -84,6 +85,7 @@ class PerformRow extends React.Component<Props> {
         {...props}
         perform={perform}
         overallWorkDetail={this.props.overallWork}
+        max={minPotentialCount}
       />
     );
 
@@ -98,7 +100,7 @@ class PerformRow extends React.Component<Props> {
         <td key={'actions'} onClick={onClick}>
           <ActionButtons>
             <ModalTrigger
-              title="Edit perform"
+              title={__(`Edit perform`)}
               trigger={
                 <Button btnStyle="link">
                   <Tip text={__('Edit')} placement="bottom">

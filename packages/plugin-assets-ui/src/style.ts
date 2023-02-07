@@ -243,22 +243,31 @@ export const MovementItemConfigContainer = styledTS<{ flex?: string }>(
   }
 `;
 
-export const KnowledgeCard = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 80px;
-  width: 80px;
-  border-radius: 5px;
-  background-color: rgba(10, 30, 65, 0.05);
-  text-align: center;
+export const KbTopics = styled.div`
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 5px 10px;
+  cursor: pointer;
+  border: 1px solid #dfdfdf;
+`;
+
+export const KbCategories = styled.div`
+  width: 100%;
   margin-top: 10px;
-  transition: background 0.3s ease;
-  word-break: break-word;
-  color: ${colors.textPrimary};
-  font-size: 13px;
-  color: ${colors.colorCoreGray};
-  &:hover {
-    background: rgba(10, 30, 65, 0.08);
+  margin-bottom: 10px;
+  padding: 5px 10px;
+  cursor: pointer;
+  border: 1px solid #dfdfdf;
+`;
+
+export const KbArticles = styled.div`
+  padding: 5px 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  border: 1px solid #dfdfdf;
+
+  input {
+    margin-right: 10px;
     cursor: pointer;
   }
 `;

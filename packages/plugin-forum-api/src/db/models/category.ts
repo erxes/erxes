@@ -25,7 +25,10 @@ export interface ICategory {
   code?: string | null;
   thumbnail?: string | null;
   parentId?: string | null;
+  description?: string | null;
 
+  // userLevelReqCommentRead: ReadCpUserLevels;
+  userLevelReqCommentWrite: WriteCpUserLevels;
   userLevelReqPostRead: ReadCpUserLevels;
   userLevelReqPostWrite: WriteCpUserLevels;
 
@@ -33,10 +36,9 @@ export interface ICategory {
   postWriteRequiresPermissionGroup?: boolean | null;
   commentWriteRequiresPermissionGroup?: boolean | null;
 
-  // userLevelReqCommentRead: ReadCpUserLevels;
-  userLevelReqCommentWrite: WriteCpUserLevels;
-
   postsReqCrmApproval: boolean;
+
+  order?: number | null;
 }
 
 export type InputCategoryInsert = Omit<ICategory, '_id'>;
@@ -93,6 +95,7 @@ export const categorySchema = new Schema<CategoryDocument>({
   },
   thumbnail: String,
   parentId: { type: Types.ObjectId, index: true },
+  description: String,
 
   userLevelReqPostRead: {
     type: String,
@@ -123,7 +126,9 @@ export const categorySchema = new Schema<CategoryDocument>({
 
   postReadRequiresPermissionGroup: Boolean,
   postWriteRequiresPermissionGroup: Boolean,
-  commentWriteRequiresPermissionGroup: Boolean
+  commentWriteRequiresPermissionGroup: Boolean,
+
+  order: Number
 });
 
 export const generateCategoryModel = (
@@ -214,6 +219,7 @@ export const generateCategoryModel = (
         await models.PermissionGroupCategoryPermit.deleteMany({
           categoryId: _id
         });
+        await models.Quiz.updateMany({ categoryId: _id }, { categoryId: null });
         await cat.remove();
 
         await session.commitTransaction();

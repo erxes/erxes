@@ -1,6 +1,6 @@
 const commonParamsDef = `
   $_id: String,
-  $contentType: String!,
+  $contentType: String,
   $name: String!,
   $content: String,
   $replacer: String,

@@ -131,7 +131,7 @@ function Welcome({ currentUser }: Props) {
         <Boxes>
           {renderDocContent(
             'Documentation',
-            'https://docs.erxes.io/docs/deployment/'
+            'https://docs.erxes.io/docs/category/deployment'
           )}
           {renderDocContent(
             "User's guide",
@@ -140,7 +140,10 @@ function Welcome({ currentUser }: Props) {
         </Boxes>
         <Boxes>
           {renderDocContent('Invest', 'https://erxes.io/invest')}
-          {renderDocContent('Service', 'https://www.erxes.io/service')}
+          {renderDocContent(
+            'Service',
+            'https://docs.erxes.io/docs/user-guide/services/intro-service'
+          )}
         </Boxes>
       </WidgetBackgrounds>
     );

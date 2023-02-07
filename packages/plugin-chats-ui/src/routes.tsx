@@ -1,11 +1,33 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import React from 'react';
 import { Route } from 'react-router-dom';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 
-const Home = asyncComponent(() =>
-  import(/* webpackChunkName: "Plugin chat" */ './containers/Home')
+const chat = asyncComponent(() =>
+  import(/* webpackChunkName: "Plugin chat" */ './containers/Chat')
 );
 
-const Chat = () => <Route path="/erxes-plugin-chat/home" component={Home} />;
+const widget = asyncComponent(() =>
+  import(/* webpackChunkName: "Plugin chat - Widget" */ './components/Widget')
+);
 
-export default Chat;
+const routes = () => {
+  return (
+    <React.Fragment>
+      <Route
+        exact={true}
+        path="/erxes-plugin-chat"
+        key="/erxes-plugin-chat"
+        component={chat}
+      />
+
+      <Route
+        exact={true}
+        path="/erxes-plugin-chat/widget"
+        key="/erxes-plugin-chat/widget"
+        component={widget}
+      />
+    </React.Fragment>
+  );
+};
+
+export default routes;

@@ -45,13 +45,13 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
   models.Transactions = db.model<ITransactionDocument, ITransactionModel>(
-    'transactions',
+    'inv_transactions',
     loadTransactionClass(models)
   );
   models.TransactionItems = db.model<
     ITransactionItemDocument,
     ITransactionItemModel
-  >('transaction_items', loadTransactionItemClass(models));
+  >('inv_transaction_items', loadTransactionItemClass(models));
   models.Remainders = db.model<IRemainderDocument, IRemainderModel>(
     'remainders',
     loadRemainderClass(models)

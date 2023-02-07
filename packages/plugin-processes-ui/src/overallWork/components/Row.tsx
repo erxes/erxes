@@ -34,7 +34,7 @@ class OverallWorkRow extends React.Component<Props> {
     const onTrClick = () => {
       let typeFilter: any = { jobReferId: work.key.typeId };
       if (!['job', 'end'].includes(work.type)) {
-        typeFilter = { productId: work.key.typeId };
+        typeFilter = { productIds: [work.key.typeId] };
       }
       work.type = history.push(
         `/processes/overallWorkDetail?${queryString.stringify({

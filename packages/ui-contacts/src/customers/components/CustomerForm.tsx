@@ -159,7 +159,7 @@ class CustomerForm extends React.Component<Props, State> {
       name = 'owner';
     }
 
-    if (!visibility[name]) {
+    if (!visibility[name] && type !== 'link') {
       return null;
     }
 
@@ -248,12 +248,16 @@ class CustomerForm extends React.Component<Props, State> {
     const { customer } = this.props;
     const links = (customer ? customer.links : {}) || {};
 
-    return this.renderFormGroup(link.label, {
-      ...formProps,
-      name: link.value,
-      defaultValue: links[link.value] || '',
-      type: 'url'
-    });
+    return this.renderFormGroup(
+      link.label,
+      {
+        ...formProps,
+        name: link.value,
+        defaultValue: links[link.value] || '',
+        type: 'url'
+      },
+      'link'
+    );
   }
 
   renderContent = (formProps: IFormProps) => {

@@ -1,6 +1,11 @@
 import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
-import { IUserModel, loadUserClass } from './db/models/Users';
+import {
+  IUserModel,
+  IUserMovemmentModel,
+  loadUserClass,
+  loadUserMovemmentClass
+} from './db/models/Users';
 import { IUserDocument } from './db/models/definitions/users';
 import { IBrandModel, loadBrandClass } from './db/models/Brands';
 import {
@@ -55,6 +60,7 @@ import {
   loadInstallationLogClass
 } from './db/models/InstallationLog';
 import { IInstallationLogDocument } from './db/models/definitions/installationLogs';
+import { IUserMovementDocument } from './db/models/definitions/users';
 
 export interface IModels {
   Users: IUserModel;
@@ -71,6 +77,7 @@ export interface IModels {
   Branches: IBranchModel;
   Apps: IAppModel;
   InstallationLogs: IInstallationLogModel;
+  UserMovements: IUserMovemmentModel;
 }
 
 export interface IContext extends IMainContext {
@@ -110,6 +117,11 @@ export const loadClasses = async (
   models.UsersGroups = db.model<IUserGroupDocument, IUserGroupModel>(
     'user_groups',
     loadUserGroupClass(models)
+  );
+
+  models.UserMovements = db.model<IUserMovementDocument, IUserMovemmentModel>(
+    'user_movements',
+    loadUserMovemmentClass(models)
   );
 
   models.RobotEntries = db.model<IRobotEntryDocument, IRobotEntryModel>(

@@ -1,4 +1,4 @@
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { WEBHOOK_STATUS } from '../../../models/definitions/constants';
 import { IWebhook } from '../../../models/definitions/webhooks';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
@@ -134,6 +134,8 @@ const webhookMutations = {
   }
 };
 
-moduleCheckPermission(webhookMutations, 'manageWebhooks');
+checkPermission(webhookMutations, 'webhooksAdd', 'manageWebhooks');
+checkPermission(webhookMutations, 'webhooksEdit', 'manageWebhooks');
+checkPermission(webhookMutations, 'webhooksRemove', 'manageWebhooks');
 
 export default webhookMutations;

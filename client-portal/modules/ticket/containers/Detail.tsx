@@ -1,7 +1,9 @@
-import { gql, useQuery, useMutation } from "@apollo/client";
-import React, { useContext } from "react";
-import Detail from "../components/Detail";
-import { IUser } from "../../types";
+import { gql, useQuery, useMutation } from '@apollo/client';
+import React from 'react';
+import Detail from '../components/Detail';
+import { IUser } from '../../types';
+import { queries, mutations } from '../graphql';
+import { confirm } from '../../utils';
 
 type Props = {
   _id?: string;
@@ -9,70 +11,76 @@ type Props = {
   onClose: () => void;
 };
 
-const clientPortalGetTicket = `
-  query clientPortalTicket($_id: String!) {
-    clientPortalTicket(_id: $_id) {
-      _id
-      name
-      description
-      modifiedAt
-      status
-      priority
-      createdAt
-
-      comments {
-        _id
-        title
-        content
-        userId
-        customerId
-        createdAt
-      }
-    }
-  }
-`;
-
-const createTicketComment = `
-  mutation createTicketComment(
-    $ticketId: String!
-    $content: String!
-    $email: String
-  ) {
-    createTicketComment(
-      ticketId: $ticketId
-      content: $content
-      email: $email
-    ) {
-      _id
-    }
-  }
-`;
-
 function DetailContainer({ _id, ...props }: Props) {
-  const { data = {} as any } = useQuery(gql(clientPortalGetTicket), {
-    variables: { _id },
-    skip: !_id,
+  const { data, loading: ticketQueryLoading } = useQuery(
+    gql(queries.clientPortalGetTicket),
+    {
+      variables: { _id },
+      skip: !_id
+    }
+  );
+
+  const { data: commentsQuery, loading: commentsQueryLoading } = useQuery(
+    gql(queries.clientPortalComments),
+    {
+      variables: { typeId: _id, type: 'ticket' },
+      skip: !_id
+    }
+  );
+
+  const [createComment] = useMutation(gql(mutations.clientPortalCommentsAdd), {
+    refetchQueries: [
+      {
+        query: gql(queries.clientPortalComments),
+        variables: { typeId: _id, type: 'ticket' }
+      }
+    ]
   });
 
-  const [createComment] = useMutation(gql(createTicketComment), {
-    refetchQueries: [{ query: gql(clientPortalGetTicket), variables: { _id } }],
-  });
+  const [deleteComment] = useMutation(
+    gql(mutations.clientPortalCommentsRemove),
+    {
+      refetchQueries: [
+        {
+          query: gql(queries.clientPortalComments),
+          variables: { typeId: _id, type: 'ticket' }
+        }
+      ]
+    }
+  );
 
-  const item = data.clientPortalTicket;
+  if (ticketQueryLoading || commentsQueryLoading) return null;
 
-  const handleSubmit = (values: { content: string; email: string }) => {
+  const item = data?.clientPortalTicket;
+  const comments = commentsQuery?.clientPortalComments || [];
+
+  const handleSubmit = (values: { content: string }) => {
     createComment({
       variables: {
         ...values,
-        ticketId: item._id,
-      },
+        typeId: item._id,
+        type: 'ticket',
+        userType: 'client'
+      }
     });
+  };
+
+  const handleRemoveComment = (commentId: string) => {
+    confirm().then(() =>
+      deleteComment({
+        variables: {
+          _id: commentId
+        }
+      })
+    );
   };
 
   const updatedProps = {
     ...props,
     item,
+    comments,
     handleSubmit,
+    handleRemoveComment
   };
 
   return <Detail {...updatedProps} />;

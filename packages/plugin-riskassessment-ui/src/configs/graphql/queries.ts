@@ -17,8 +17,8 @@ customFieldId:$customFieldId
 `;
 
 const configs = `
-query RiskAssessmentConfigs (${configParamsDef},${commonPaginateDef}) {
-  riskAssessmentConfigs (${configParamValue},${commonPaginateValue}) {
+query RiskIndicatorConfigs (${configParamsDef},${commonPaginateDef}) {
+  riskIndicatorConfigs (${configParamValue},${commonPaginateValue}) {
     _id
     board
     boardId
@@ -32,15 +32,16 @@ query RiskAssessmentConfigs (${configParamsDef},${commonPaginateDef}) {
     stageId
     createdAt
     modifiedAt
-    riskAssessmentId
-    riskAssessment
+    riskIndicatorId
+    riskIndicator
+    indicatorsGroupId
   }
 }
 `;
 
 const totalCount = `
-query RiskAssessmentConfigsTotalCount (${configParamsDef},${commonPaginateDef}) {
-  riskAssessmentConfigsTotalCount(${configParamValue},${commonPaginateValue})
+query RiskIndicatorConfigsTotalCount (${configParamsDef},${commonPaginateDef}) {
+  riskIndicatorConfigsTotalCount(${configParamValue},${commonPaginateValue})
 }
 `;
 

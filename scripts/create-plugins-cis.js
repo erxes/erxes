@@ -55,7 +55,9 @@ var plugins = [
   { name: 'forum', ui: true, api: true },
   { name: 'documents', ui: true, api: true },
   { name: 'pricing', ui: true, api: true },
-  { name: 'timeclock', ui: true, api: true }
+  { name: 'timeclock', ui: true, api: true },
+  { name: 'zalo', ui: true, api: true },
+  { name: 'facebook', ui: true, api: true }
 ];
 
 const pluginsMap = {};

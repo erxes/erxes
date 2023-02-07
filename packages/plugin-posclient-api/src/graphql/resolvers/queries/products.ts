@@ -6,12 +6,22 @@ import { PRODUCT_STATUSES } from '../../../models/definitions/constants';
 import { sendInventoriesMessage } from '../../../messageBroker';
 import { sendRequest } from '@erxes/api-utils/src/requests';
 import { debugError } from '@erxes/api-utils/src/debuggers';
+import { Builder } from '../../../utils';
 
 interface IProductParams {
+  ids?: string[];
+  excludeIds?: boolean;
   type?: string;
   categoryId?: string;
   searchValue?: string;
   branchId?: string;
+  tag?: string;
+  pipelineId?: string;
+  boardId?: string;
+  segment?: string;
+  segmentData?: string;
+  sortField?: string;
+  sortDirection?: number;
   page?: number;
   perPage?: number;
 }
@@ -23,9 +33,20 @@ interface ICategoryParams {
 }
 
 const generateFilter = async (
+  subdomain: string,
   models: IModels,
   token: string,
-  { type, categoryId, searchValue }: IProductParams
+  {
+    type,
+    categoryId,
+    searchValue,
+    tag,
+    ids,
+    excludeIds,
+    segment,
+    segmentData,
+    ...paginationArgs
+  }: IProductParams
 ) => {
   const filter: any = {
     status: { $ne: PRODUCT_STATUSES.DELETED },
@@ -49,6 +70,18 @@ const generateFilter = async (
     filter.categoryId = { $in: relatedCategoryIds };
   }
 
+  if (ids && ids.length > 0) {
+    filter._id = { [excludeIds ? '$nin' : '$in']: ids };
+    if (!paginationArgs.page && !paginationArgs.perPage) {
+      paginationArgs.page = 1;
+      paginationArgs.perPage = 100;
+    }
+  }
+
+  if (tag) {
+    filter.tagIds = { $in: [tag] };
+  }
+
   // search =========
   if (searchValue) {
     const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
@@ -59,11 +92,23 @@ const generateFilter = async (
       { barcodes: { $in: [searchValue] } }
     ];
   }
+
+  if (segment || segmentData) {
+    const qb = new Builder(models, subdomain, { segment, segmentData }, {});
+
+    await qb.buildAllQueries();
+
+    const { list } = await qb.runQueries();
+
+    filter._id = { $in: list.map(l => l._id) };
+  }
+
   return filter;
 };
 
 const generateFilterCat = ({ token, parentId, searchValue }) => {
   const filter: any = { tokens: { $in: [token] } };
+  filter.status = { $nin: ['disabled', 'archived'] };
 
   if (parentId) {
     filter.parentId = parentId;
@@ -84,19 +129,34 @@ const productQueries = {
       categoryId,
       branchId,
       searchValue,
+      tag,
+      ids,
+      excludeIds,
+      pipelineId,
+      boardId,
+      segment,
+      segmentData,
+      sortField,
+      sortDirection,
       ...paginationArgs
     }: IProductParams,
     { models, subdomain, config }: IContext
   ) {
-    let filter = await generateFilter(models, config.token, {
+    let filter = await generateFilter(subdomain, models, config.token, {
       type,
       categoryId,
       searchValue
     });
 
+    let sortParams: any = { code: 1 };
+
+    if (sortField) {
+      sortParams = { [sortField]: sortDirection };
+    }
+
     const paginatedProducts = await paginate(
       models.Products.find(filter)
-        .sort('code')
+        .sort(sortParams)
         .lean(),
       paginationArgs
     );
@@ -201,9 +261,9 @@ const productQueries = {
   async poscProductsTotalCount(
     _root,
     { type, categoryId, searchValue }: IProductParams,
-    { models, config }: IContext
+    { models, config, subdomain }: IContext
   ) {
-    const filter = await generateFilter(models, config.token, {
+    const filter = await generateFilter(subdomain, models, config.token, {
       type,
       categoryId,
       searchValue

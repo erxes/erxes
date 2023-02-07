@@ -48,7 +48,7 @@ export const getNumberFieldDefinition = (options: any) => {
     definition.min = 0;
   }
   if (discount === true) {
-    definition.min = 0;
+    definition.min = -100;
     definition.max = 100;
   }
 

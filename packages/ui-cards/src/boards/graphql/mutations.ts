@@ -91,6 +91,7 @@ export const commonListFields = `
   number
   tagIds
   customProperties
+  status
 `;
 
 export const commonFields = `
@@ -175,6 +176,7 @@ export const commonFields = `
   labelIds
   stage {
     probability
+    type
   }
   isWatched
   attachments {
