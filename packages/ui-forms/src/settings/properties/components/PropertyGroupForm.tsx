@@ -221,8 +221,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
               {...formProps}
               name="parentId"
               componentClass="select"
-              defaultValue={object.parentId || ''}
-              required={true}
+              defaultValue={object.parentId || null}
             >
               <option value="" />
               {groups
