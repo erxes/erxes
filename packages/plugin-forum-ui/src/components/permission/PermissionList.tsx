@@ -155,7 +155,7 @@ class PermissionList extends React.Component<Props> {
   }
 
   render() {
-    const { totalCount, queryParams, permissionGroups } = this.props;
+    const { queryParams, permissionGroups } = this.props;
 
     const breadcrumb = [
       { title: 'Settings', link: '/settings' },
@@ -177,7 +177,6 @@ class PermissionList extends React.Component<Props> {
             queryParams={queryParams}
           />
         }
-        footer={<Pagination count={totalCount} />}
         content={this.renderContent()}
         center={false}
         hasBorder={true}
