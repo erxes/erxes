@@ -1,17 +1,18 @@
+import { ActionBar, CommentContainer, Reply } from '../../styles';
 import React, { useState } from 'react';
+
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Button from '@erxes/ui/src/components/Button';
 import CommentForm from '../../components/comment/CommentForm';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { CommentContainer, ActionBar, Reply } from '../../styles';
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Tip from '@erxes/ui/src/components/Tip';
-import Button from '@erxes/ui/src/components/Button';
-import { __ } from '@erxes/ui/src/utils';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import { IComment } from '../../types';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils';
 
 const Comment: React.FC<{
   comment: IComment;
-  onDelete?: (string) => any;
+  onDelete: (item: IComment) => any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   replies?: IComment[];
 }> = ({ comment, onDelete, renderButton, replies }) => {

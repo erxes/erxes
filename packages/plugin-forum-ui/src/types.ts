@@ -204,6 +204,6 @@ export type PostDetailQueryResponse = {
 export type RemoveMutationResponse = {
   removeMutation: (params: {
     variables: { _id: string };
-    refetchQueries?: string[];
+    refetchQueries?: any;
   }) => Promise<any>;
 };

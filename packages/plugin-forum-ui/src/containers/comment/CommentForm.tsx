@@ -12,17 +12,7 @@ const CommentFormContainer: React.FC<{ postId: string }> = ({ postId }) => {
       <ButtonMutate
         mutation={mutations.createComment}
         variables={values}
-        refetchQueries={[
-          [
-            {
-              query: gql(queries.forumComments),
-              variables: {
-                replyToId: [values._id],
-                sort: { _id: -1 }
-              }
-            }
-          ]
-        ]}
+        refetchQueries={['ForumComments']}
         type="submit"
         isSubmitted={isSubmitted}
         icon="send"
