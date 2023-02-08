@@ -18,7 +18,11 @@ const Comments: React.FC<{ postId: string }> = ({ postId }) => {
     }
   );
 
-  const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
+  const renderButton = ({
+    values,
+    isSubmitted,
+    callback
+  }: IButtonMutateProps) => {
     return (
       <ButtonMutate
         mutation={mutations.createComment}
@@ -26,6 +30,7 @@ const Comments: React.FC<{ postId: string }> = ({ postId }) => {
         refetchQueries={['ForumComments']}
         type="submit"
         isSubmitted={isSubmitted}
+        callback={callback}
         icon="send"
         children=""
         successMessage="You successfully write a comment"
