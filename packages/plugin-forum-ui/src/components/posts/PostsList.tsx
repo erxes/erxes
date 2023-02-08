@@ -166,7 +166,8 @@ class List extends React.Component<Props, {}> {
 
     const submenu = [
       { title: 'Posts', link: '/forums/posts' },
-      { title: 'Pages', link: '/forums/pages' }
+      { title: 'Pages', link: '/forums/pages' },
+      { title: 'Quiz', link: '/forums/quizzes' }
     ];
 
     return (
