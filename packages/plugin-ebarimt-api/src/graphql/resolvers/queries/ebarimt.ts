@@ -109,7 +109,7 @@ const generateFilter = async (subdomain, params, commonQuerySelector) => {
     filter.createdAt = { $gte: startDate, $lte: endDate };
   }
 
-  if (params.isLast && params.isLast === '1') {
+  if (params.isLast) {
     filter.status = { $ne: 'inactive' };
   }
 
@@ -171,6 +171,40 @@ const queries = {
     }
 
     return Number((res[0] || {}).amount || 0);
+  },
+
+  putResponsesByDate: async (
+    _root,
+    params,
+    { commonQuerySelector, models, subdomain }: IContext
+  ) => {
+    const filter = await generateFilter(subdomain, params, commonQuerySelector);
+
+    const responses = await models.PutResponses.find(filter);
+
+    const result = {};
+    for (const res of responses) {
+      if (!res.date) {
+        continue;
+      }
+      const dateStr = res.date.substring(0, 10);
+      if (!Object.keys(result).includes(dateStr)) {
+        result[dateStr] = {
+          counter: 0,
+          cityTax: 0,
+          vat: 0,
+          amount: 0
+        };
+      }
+
+      result[dateStr].counter += 1;
+      result[dateStr].vat += Number(res.vat) || 0;
+      result[dateStr].cityTax += Number(res.cityTax) || 0;
+      result[dateStr].amount += Number(res.amount) || 0;
+    }
+
+    const dates = Object.keys(result).reverse();
+    return dates.map(date => ({ date, values: result[date] }));
   },
 
   getDealLink: async (_root, param, { subdomain }) => {

@@ -1,9 +1,4 @@
-import {
-  DataWithLoader,
-  Pagination,
-  SortHandler,
-  Table
-} from '@erxes/ui/src/components';
+import { DataWithLoader, Pagination, Table } from '@erxes/ui/src/components';
 import { router, __ } from '@erxes/ui/src/utils';
 import { Wrapper, BarItems } from '@erxes/ui/src/layout';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
@@ -12,8 +7,8 @@ import { withRouter } from 'react-router-dom';
 
 import { TableWrapper } from '../styles';
 import { IPutResponse } from '../types';
-import PutResponseRow from './PutResponseRow';
 import RightMenu from './RightMenu';
+import { displayValue } from './PutResponseRow';
 
 interface IProps extends IRouterProps {
   putResponses: IPutResponse[];
@@ -37,7 +32,7 @@ type State = {
   searchValue?: string;
 };
 
-class PutResponses extends React.Component<IProps, State> {
+class PutResponsesByDate extends React.Component<IProps, State> {
   private timer?: NodeJS.Timer = undefined;
 
   constructor(props) {
@@ -69,10 +64,23 @@ class PutResponses extends React.Component<IProps, State> {
     e.target.value = tmpValue;
   };
 
+  renderRow(putResponse, index) {
+    const { date, values } = putResponse;
+    return (
+      <tr>
+        <td>{index + 1} </td>
+        <td>{date} </td>
+        <td>{values.counter.toLocaleString()} </td>
+        <td>{values.cityTax.toLocaleString()} </td>
+        <td>{values.vat.toLocaleString()} </td>
+        <td>{values.amount.toLocaleString()} </td>
+      </tr>
+    );
+  }
+
   render() {
     const {
       putResponses,
-      history,
       loading,
       totalCount,
       sumAmount,
@@ -89,47 +97,18 @@ class PutResponses extends React.Component<IProps, State> {
         <Table whiteSpace="nowrap" bordered={true} hover={true}>
           <thead>
             <tr>
-              <th>
-                <SortHandler sortField={'billId'} label={__('BillID')} />
-              </th>
-              <th>
-                <SortHandler sortField={'number'} label={__('Number')} />
-              </th>
-              <th>
-                <SortHandler sortField={'date'} label={__('Date')} />
-              </th>
-              <th>
-                <SortHandler sortField={'success'} label={__('Success')} />
-              </th>
-              <th>
-                <SortHandler sortField={'billType'} label={__('Bill Type')} />
-              </th>
-              <th>
-                <SortHandler sortField={'taxType'} label={__('Tax Type')} />
-              </th>
-              <th>
-                <SortHandler sortField={'amount'} label={__('Amount')} />
-              </th>
-              <th>
-                <SortHandler sortField={'message'} label={__('Message')} />
-              </th>
-              <th>
-                <SortHandler
-                  sortField={'returnBillId'}
-                  label={__('Return BillID')}
-                />
-              </th>
-              <th>Үйлдлүүд</th>
+              <th>{__('№')}</th>
+              <th>{__('Date')}</th>
+              <th>{__('Count')}</th>
+              <th>{__('CityTax')}</th>
+              <th>{__('Vat')}</th>
+              <th>{__('Amount')}</th>
             </tr>
           </thead>
           <tbody id="putResponses">
-            {(putResponses || []).map(putResponse => (
-              <PutResponseRow
-                putResponse={putResponse}
-                key={putResponse._id}
-                history={history}
-              />
-            ))}
+            {(putResponses || []).map((putResponse, index) =>
+              this.renderRow(putResponse, index)
+            )}
           </tbody>
         </Table>
       </TableWrapper>
@@ -189,4 +168,4 @@ class PutResponses extends React.Component<IProps, State> {
   }
 }
 
-export default withRouter<IRouterProps>(PutResponses);
+export default withRouter<IRouterProps>(PutResponsesByDate);

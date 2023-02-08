@@ -311,7 +311,7 @@ export default class RightMenu extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{`on Last`}</ControlLabel>
+          <ControlLabel>{`On Last`}</ControlLabel>
           <FormControl
             name={'isLast'}
             componentClass="select"

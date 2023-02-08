@@ -21,6 +21,9 @@ export interface IPutResponse {
   customerName?: string;
   productsById?: any;
   details?: any[];
+  amount?: number;
+  cityTax?: number;
+  vat?: number;
   cashAmount?: number;
   nonCashAmount?: number;
   customerNo?: string;

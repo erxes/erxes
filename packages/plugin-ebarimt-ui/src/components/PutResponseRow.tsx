@@ -13,10 +13,10 @@ type Props = {
   history: any;
 };
 
-function displayValue(putResponse, name) {
+export const displayValue = (putResponse, name) => {
   const value = _.get(putResponse, name);
   return formatValue(value);
-}
+};
 
 class PutResponseRow extends React.Component<Props, {}> {
   render() {
