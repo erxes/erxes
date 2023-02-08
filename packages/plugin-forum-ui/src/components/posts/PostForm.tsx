@@ -9,9 +9,11 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Button from '@erxes/ui/src/components/Button';
+import Select from 'react-select-plus';
 
 type Props = {
   post?: IPost;
+  tags?: any;
   closeModal: () => void;
   categories: ICategory[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -21,6 +23,7 @@ type State = {
   content: string;
   title: string;
   categoryId: string;
+  selectedTags: string[];
 };
 
 class PostForm extends React.Component<Props, State> {
@@ -32,7 +35,8 @@ class PostForm extends React.Component<Props, State> {
     this.state = {
       content: post.content,
       title: post.title,
-      categoryId: post.categoryId
+      categoryId: post.categoryId,
+      selectedTags: post.tagIds || []
     };
   }
 
@@ -56,7 +60,8 @@ class PostForm extends React.Component<Props, State> {
       content: this.state.content,
       thumbnail: finalValues.thumbnail,
       categoryId: finalValues.categoryId,
-      description: finalValues.description
+      description: finalValues.description,
+      tagIds: this.state.selectedTags
     };
   };
 
@@ -83,12 +88,25 @@ class PostForm extends React.Component<Props, State> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const { post, renderButton, closeModal, categories } = this.props;
-    const { content, categoryId } = this.state;
+    const { post, renderButton, closeModal, tags } = this.props;
+    const { content, categoryId, selectedTags } = this.state;
 
     const { isSubmitted, values } = formProps;
 
     const object = post || ({} as any);
+
+    const renderTagOptions = () => {
+      return tags.map(tag => ({
+        value: tag._id,
+        label: tag.name,
+        _id: tag._id
+      }));
+    };
+
+    const onChange = members => {
+      const ids = members.map(m => m._id);
+      this.setState({ selectedTags: ids });
+    };
 
     return (
       <>
@@ -136,6 +154,17 @@ class PostForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
+          <ControlLabel>{__('Tags')}</ControlLabel>
+          <Select
+            placeholder={__('Choose tags')}
+            options={renderTagOptions()}
+            value={selectedTags}
+            onChange={onChange}
+            multi={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel required={true}>{__('Content')}</ControlLabel>
           <EditorCK
             content={content}
@@ -157,7 +186,7 @@ class PostForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            passedName: 'article',
+            passedName: 'post',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,

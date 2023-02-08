@@ -9,7 +9,7 @@ import { IPost } from '../../types';
 import { IntegrationsCount } from '@erxes/ui-leads/src/types';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import PostForm from '../../containers/PostsList/PostForm';
+import PostForm from '../../containers/posts/PostForm';
 import React from 'react';
 import Row from './Row';
 import Sidebar from './Sidebar';
@@ -183,7 +183,7 @@ class List extends React.Component<Props, {}> {
             submenu={submenu}
           />
         }
-        leftSidebar={<Sidebar counts={{} as IntegrationsCount} />}
+        leftSidebar={<Sidebar />}
         actionBar={actionBar}
         footer={<Pagination count={posts.length} />}
         content={

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { timeDuractionUnits } from '../../constants';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import ControlLabel from '@erxes/ui/src/components/form/Label';

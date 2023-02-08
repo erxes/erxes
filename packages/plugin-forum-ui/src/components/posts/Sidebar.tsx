@@ -2,24 +2,13 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import StateFilter from './StateFilter';
 import CategoryApprovalStateFilter from './CategoryApprovalStateFilter';
-import { Counts } from '@erxes/ui/src/types';
-import { ICategory } from '../../types';
-import CategoriesFilter from '../../containers/PostsList/CategoriesFilter';
+import CategoriesFilter from '../../containers/posts/CategoriesFilter';
 
-type Props = {
-  counts: {
-    byTag: Counts;
-    byBrand: Counts;
-    byStatus: Counts;
-  };
-  categories?: ICategory[];
-};
-
-function Sidebar({ counts, categories }: Props) {
+function Sidebar() {
   return (
     <Wrapper.Sidebar hasBorder={true}>
-      <StateFilter counts={counts.byStatus} />
-      <CategoryApprovalStateFilter counts={counts.byStatus} />
+      <StateFilter />
+      <CategoryApprovalStateFilter />
       <CategoriesFilter />
     </Wrapper.Sidebar>
   );

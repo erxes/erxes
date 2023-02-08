@@ -4,7 +4,7 @@ import { __, router } from '@erxes/ui/src/utils';
 
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import GroupForm from '../../containers/PermissionGroups/PermissionGroupForm';
+import GroupForm from '../../containers/permission/PermissionGroupForm';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { IUserGroupDocument } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';

@@ -7,7 +7,7 @@ import { IPost } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import PostForm from '../../containers/PostsList/PostForm';
+import PostForm from '../../containers/posts/PostForm';
 import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';

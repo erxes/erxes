@@ -118,6 +118,12 @@ const forumPostsQuery = `
       updatedAt
       commentCount
       categoryApprovalState
+      tagIds
+      pollOptions {
+        _id
+        title
+        order
+      }
 
       viewCount
 
@@ -445,6 +451,16 @@ query ClientPortalUserDetail($id: String!) {
 }
 `;
 
+const tags = `
+query Tags {
+  tags(type: "forum:post") {
+    _id
+    colorCode
+    name
+  }
+}
+`;
+
 export default {
   allCategoryQueries,
   categoriesAll,
@@ -467,5 +483,6 @@ export default {
   pageRefetch,
   pages,
   clientPortalUsers,
-  clientPortalUserDetail
+  clientPortalUserDetail,
+  tags
 };

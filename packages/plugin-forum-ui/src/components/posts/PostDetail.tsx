@@ -12,7 +12,7 @@ import {
 } from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
 import { PreviewContent } from '@erxes/ui-engage/src/styles';
 import { postUsername } from '../../utils';
-import Comments from '../../containers/Comments';
+import Comments from '../../containers/comment';
 import { Thumbnail } from '../../styles';
 
 type Props = {

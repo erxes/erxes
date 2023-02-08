@@ -1,6 +1,6 @@
 import React from 'react';
 import CommentForm from '../../components/comment/CommentForm';
-import Comment from '../../containers/Comments/Comment';
+import Comment from '../../containers/comment/Comment';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { CommentSection } from '../../styles';
 import { Alert } from '@erxes/ui/src/utils';
