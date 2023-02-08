@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FormControl } from '@erxes/ui/src/components/form';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import Form from '@erxes/ui/src/components/form/Form';
@@ -9,26 +9,32 @@ const CommentForm: React.FC<{
   postId: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 }> = ({ replyToId, postId, renderButton }) => {
-  const generateDoc = (values: { content: string }) => {
+  const [comment, setComment] = useState('');
+  const generateDoc = (values: { comment: string }) => {
     const finalValues = values;
 
     return {
       postId,
       replyToId,
-      content: finalValues.content
+      content: finalValues.comment
     };
+  };
+
+  const handleChange = e => {
+    e.preventDefault();
+
+    setComment(e.target.value);
   };
 
   const renderContent = (formProps: IFormProps) => {
     const { isSubmitted, values } = formProps;
-
     return (
       <Comment isReply={replyToId ? true : false}>
         <FormControl
           {...formProps}
-          defaultValue={''}
           placeholder="Write a comment"
-          name="content"
+          name="comment"
+          onChange={handleChange}
         />
         &nbsp;&nbsp;&nbsp;
         {renderButton({
