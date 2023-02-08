@@ -38,13 +38,11 @@ class CheckerSidebar extends React.Component<IProps, State> {
       createdEndDate: queryParams.createdEndDate
     };
   }
-  setFilter = (name, value) => {
-    router.setParams(this.props.history, { [name]: value });
-  };
 
   onFilter = () => {
     const {
       posToken,
+      search,
       paidStartDate,
       paidEndDate,
       createdStartDate,
@@ -54,6 +52,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
     router.setParams(this.props.history, {
       page: 1,
       posToken,
+      search,
       paidStartDate,
       paidEndDate,
       createdStartDate,
