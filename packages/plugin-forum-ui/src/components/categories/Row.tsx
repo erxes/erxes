@@ -1,14 +1,14 @@
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
+import CategoryForm from '../../containers/categories/CategoryForm';
 import { ICategory } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
+import Label from '@erxes/ui/src/components/Label';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
+import RowContainer from '../../containers/categories/Row';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from 'coreui/utils';
-import CategoryForm from '../../containers/categories/CategoryForm';
-import RowContainer from '../../containers/categories/Row';
-import Label from '@erxes/ui/src/components/Label';
 
 type Props = {
   categories: ICategory[];
@@ -66,7 +66,7 @@ class Row extends React.Component<Props, State> {
           <td>
             <Label lblStyle="simple">{code}</Label>
           </td>
-          <td>{postsCount.toLocaleString()}</td>
+          <td>{(postsCount || 0).toLocaleString()}</td>
           <td>{order}</td>
           <td>
             <ActionButtons>

@@ -2,12 +2,17 @@ import { Alert, confirm } from '@erxes/ui/src/utils';
 import { mutations, queries } from '../../graphql';
 import { useMutation, useQuery } from 'react-apollo';
 
+import { ICategory } from '../../types';
 import React from 'react';
 import Row from '../../components/categories/Row';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import gql from 'graphql-tag';
 
-export default function CategoryRow({ category }) {
+type Props = {
+  category: ICategory;
+};
+
+export default function RowContainer({ category }: Props) {
   const { data, loading, error } = useQuery(
     gql(queries.categoriesByParentIds),
     {
