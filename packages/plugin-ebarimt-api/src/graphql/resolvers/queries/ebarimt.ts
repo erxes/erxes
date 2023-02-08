@@ -109,6 +109,10 @@ const generateFilter = async (subdomain, params, commonQuerySelector) => {
     filter.createdAt = { $gte: startDate, $lte: endDate };
   }
 
+  if (params.isLast && params.isLast === '1') {
+    filter.status = { $ne: 'inactive' };
+  }
+
   return filter;
 };
 
@@ -120,7 +124,7 @@ export const sortBuilder = params => {
     return { [sortField]: sortDirection };
   }
 
-  return {};
+  return { createdAt: 1 };
 };
 
 const queries = {
@@ -130,29 +134,6 @@ const queries = {
     { commonQuerySelector, models, subdomain }: IContext
   ) => {
     const filter = await generateFilter(subdomain, params, commonQuerySelector);
-
-    if (params.isLast && params.isLast === '1') {
-      const { page = 0, perPage = 0 } = params || { ids: null };
-      const _page = Number(page || '1');
-      const _limit = Number(perPage || '20');
-
-      return models.PutResponses.aggregate([
-        { $match: filter },
-        { $sort: { createdAt: 1 } },
-        { $group: { _id: '$contentId', doc: { $last: '$$ROOT' } } },
-        {
-          $replaceRoot: {
-            newRoot: '$doc'
-          }
-        },
-        {
-          $skip: (_page - 1) * _limit
-        },
-        {
-          $limit: _limit
-        }
-      ]);
-    }
 
     return await paginate(
       models.PutResponses.find(filter).sort(sortBuilder(params)),
@@ -170,16 +151,6 @@ const queries = {
   ) => {
     const filter = await generateFilter(subdomain, params, commonQuerySelector);
 
-    if (params.isLast && params.isLast === '1') {
-      return (
-        await models.PutResponses.aggregate([
-          { $match: filter },
-          { $sort: { createdAt: 1 } },
-          { $group: { _id: '$contentId' } }
-        ])
-      ).length;
-    }
-
     return models.PutResponses.find(filter).countDocuments();
   },
 
@@ -189,23 +160,12 @@ const queries = {
     { commonQuerySelector, models, subdomain }
   ) => {
     const filter = await generateFilter(subdomain, params, commonQuerySelector);
-    let res: any[];
+    const res = await models.PutResponses.aggregate([
+      { $match: filter },
+      { $project: { _id: 1, amount: 1 } },
+      { $group: { _id: '', amount: { $sum: { $toDecimal: '$amount' } } } }
+    ]);
 
-    if (params.isLast && params.isLast === '1') {
-      res = await models.PutResponses.aggregate([
-        { $match: filter },
-        { $sort: { createdAt: 1 } },
-        { $group: { _id: '$contentId', amount: { $last: '$amount' } } },
-        { $project: { _id: 1, amount: 1 } },
-        { $group: { _id: '', amount: { $sum: { $toDecimal: '$amount' } } } }
-      ]);
-    } else {
-      res = await models.PutResponses.aggregate([
-        { $match: filter },
-        { $project: { _id: 1, amount: 1 } },
-        { $group: { _id: '', amount: { $sum: { $toDecimal: '$amount' } } } }
-      ]);
-    }
     if (!res || !res.length) {
       return 0;
     }
