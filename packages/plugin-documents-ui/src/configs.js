@@ -4,9 +4,11 @@ module.exports = {
   port: 3020,
   exposes: {
     "./routes": "./src/routes.tsx",
-    "./cardDetailAction": "./src/containers/CardDetailAction.tsx"
+    "./cardDetailAction": "./src/containers/CardDetailAction.tsx",
+    "./productListAction": "./src/containers/ProductListAction.tsx"
   },
   cardDetailAction: "./cardDetailAction",
+  productListAction: "./productListAction",
   routes: {
     url: "http://localhost:3020/remoteEntry.js",
     scope: "documents",

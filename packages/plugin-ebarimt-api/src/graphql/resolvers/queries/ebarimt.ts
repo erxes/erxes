@@ -9,7 +9,8 @@ const generateFilter = async (subdomain, params, commonQuerySelector) => {
   if (params.search) {
     filter.$or = [
       { billId: new RegExp(`.*${params.search}.*`, 'i') },
-      { returnBillId: new RegExp(`.*${params.search}.*`, 'i') }
+      { returnBillId: new RegExp(`.*${params.search}.*`, 'i') },
+      { number: new RegExp(`.*${params.search}.*`, 'i') }
     ];
   }
 

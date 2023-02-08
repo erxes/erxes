@@ -8,16 +8,21 @@ import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
 import Icon from '@erxes/ui/src/components/Icon';
+import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
+import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
+import { Link } from 'react-router-dom';
 
 type Props = {
+  queryParams: any;
   list: any[];
   remove: (_id: String) => void;
 };
 
-function List({ list, remove }: Props) {
+function List({ queryParams, list, remove }: Props) {
   const actionBarRight = (
     <Button
-      href="/settings/documents/create"
+      href={`/settings/documents/create?contentType=${queryParams.contentType}`}
       btnStyle="success"
       icon="plus-circle"
     >
@@ -74,6 +79,26 @@ function List({ list, remove }: Props) {
     { title: __('Documents'), link: '/documents' }
   ];
 
+  const sidebar = (
+    <LeftSidebar header={<SidebarHeader />} hasBorder>
+      <LeftSidebar.Header uppercase={true}>
+        {__('Document type')}
+      </LeftSidebar.Header>
+      <SidebarList noTextColor noBackground id={'DocumentsSidebar'}>
+        <li>
+          <Link to={`/settings/documents/?contentType=cards`}>
+            {__('Cards')}
+          </Link>
+        </li>
+        <li>
+          <Link to={`/settings/documents/?contentType=products`}>
+            {__('Products')}
+          </Link>
+        </li>
+      </SidebarList>
+    </LeftSidebar>
+  );
+
   return (
     <Wrapper
       header={
@@ -89,6 +114,7 @@ function List({ list, remove }: Props) {
           emptyImage="/images/actions/8.svg"
         />
       }
+      leftSidebar={sidebar}
       transparent={true}
       hasBorder
     />

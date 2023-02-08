@@ -93,6 +93,9 @@ class PutResponses extends React.Component<IProps, State> {
                 <SortHandler sortField={'billId'} label={__('BillID')} />
               </th>
               <th>
+                <SortHandler sortField={'number'} label={__('Number')} />
+              </th>
+              <th>
                 <SortHandler sortField={'date'} label={__('Date')} />
               </th>
               <th>
