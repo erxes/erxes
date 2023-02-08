@@ -1,9 +1,10 @@
-import React from 'react';
-import CommentForm from '../../components/comment/CommentForm';
-import { queries, mutations } from '../../graphql';
-import gql from 'graphql-tag';
+import { mutations, queries } from '../../graphql';
+
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import CommentForm from '../../components/comment/CommentForm';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
+import React from 'react';
+import gql from 'graphql-tag';
 
 const CommentFormContainer: React.FC<{ postId: string }> = ({ postId }) => {
   const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
@@ -12,12 +13,15 @@ const CommentFormContainer: React.FC<{ postId: string }> = ({ postId }) => {
         mutation={mutations.createComment}
         variables={values}
         refetchQueries={[
-          {
-            query: gql(queries.forumPostDetail),
-            variables: {
-              _id: postId
+          [
+            {
+              query: gql(queries.forumComments),
+              variables: {
+                replyToId: [values._id],
+                sort: { _id: -1 }
+              }
             }
-          }
+          ]
         ]}
         type="submit"
         isSubmitted={isSubmitted}

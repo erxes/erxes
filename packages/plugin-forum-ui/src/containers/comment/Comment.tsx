@@ -1,13 +1,15 @@
-import React from 'react';
-import { useQuery } from 'react-apollo';
-import { mutations, queries } from '../../graphql';
-import gql from 'graphql-tag';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import CommentComponent from '../../components/comment/Comment';
 import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
-import { confirm, withProps } from '@erxes/ui/src/utils';
+
+import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import { IComment, RemoveMutationResponse } from '../../types';
+import { mutations, queries } from '../../graphql';
+
+import CommentComponent from '../../components/comment/Comment';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import React from 'react';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { useQuery } from 'react-apollo';
 
 type Props = {
   comment: IComment;
@@ -39,7 +41,17 @@ const Comment: React.FC<FinalProps> = ({
       return null;
     }
 
-    removeMutation({ variables: { _id: item._id } });
+    removeMutation({
+      variables: { _id: item._id },
+      refetchQueries: queries.postRefetchAfterEdit
+    })
+      .then(() => {
+        Alert.success('You successfully deleted a comment.');
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+
     if (onDeleted) {
       onDeleted(item._id);
     }
