@@ -14,8 +14,10 @@ type Props = {
 
 function PostFormContainer({ closeModal, post }: Props) {
   const { data } = useQuery(gql(queries.categoriesAll));
+  const tagsQuery = useQuery(gql(queries.tags));
 
   const { forumCategories } = data;
+  const tags = tagsQuery.data?.tags || [];
 
   const renderButton = ({
     passedName: name,
@@ -42,6 +44,7 @@ function PostFormContainer({ closeModal, post }: Props) {
   return (
     <PostForm
       post={post}
+      tags={tags}
       categories={forumCategories}
       renderButton={renderButton}
       closeModal={closeModal}

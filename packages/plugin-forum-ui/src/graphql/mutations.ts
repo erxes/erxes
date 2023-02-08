@@ -126,6 +126,7 @@ const editPost = `
     $description: String
     $thumbnail: String
     $title: String
+    $tagIds: [ID!]
   ) {
     forumPatchPost(
       _id: $_id
@@ -134,6 +135,7 @@ const editPost = `
       description: $description
       thumbnail: $thumbnail
       title: $title
+      tagIds: $tagIds
     ) {
       _id
     }
