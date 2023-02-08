@@ -6,7 +6,6 @@ import { EMPTY_CONTENT_FORUMS } from '@erxes/ui-settings/src/constants';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IPost } from '../../types';
-import { IntegrationsCount } from '@erxes/ui-leads/src/types';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import PostForm from '../../containers/posts/PostForm';
@@ -46,10 +45,6 @@ class List extends React.Component<Props, {}> {
       />
     ));
   }
-
-  renderForm = props => {
-    return <PostForm {...props} />;
-  };
 
   render() {
     const {
@@ -100,7 +95,7 @@ class List extends React.Component<Props, {}> {
             Create New Post
           </Button>
         }
-        content={this.renderForm}
+        content={props => <PostForm {...props} />}
       />
     );
 

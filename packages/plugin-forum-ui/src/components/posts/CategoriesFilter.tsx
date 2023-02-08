@@ -2,8 +2,8 @@ import { __, router } from '@erxes/ui/src/utils/core';
 
 import Box from '@erxes/ui/src/components/Box';
 import FilterByParams from '@erxes/ui/src/components/FilterByParams';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { ICategory } from '../../types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
 import React from 'react';
@@ -31,7 +31,7 @@ function CountsByTag({ categories }: IProps) {
       )}
     </>
   );
-  console.log('categories', categories);
+
   return (
     <Box
       extraButtons={extraButtons}

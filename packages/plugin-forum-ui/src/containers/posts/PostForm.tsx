@@ -1,11 +1,12 @@
-import React from 'react';
-import { useQuery } from 'react-apollo';
-import { queries, mutations } from '../../graphql';
-import gql from 'graphql-tag';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { mutations, queries } from '../../graphql';
+
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IPost } from '../../types';
 import PostForm from '../../components/posts/PostForm';
+import React from 'react';
+import gql from 'graphql-tag';
+import { useQuery } from 'react-apollo';
 
 type Props = {
   post?: IPost;
@@ -53,11 +54,7 @@ function PostFormContainer({ closeModal, post }: Props) {
 }
 
 const getRefetchQueries = () => {
-  return [
-    {
-      query: gql(queries.forumPostsQuery)
-    }
-  ];
+  return ['forumPosts', 'forumPostsCount'];
 };
 
 export default PostFormContainer;

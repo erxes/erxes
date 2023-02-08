@@ -1,17 +1,18 @@
+import { Divider, StepBody, StepHeader, StepItem } from '../../styles';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { READ_CP_USER_LEVELS, WRITE_CP_USER_LEVELS } from '../../constants';
 import React, { useState } from 'react';
+
+import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import Button from '@erxes/ui/src/components/Button';
 import { ICategory } from '../../types';
-import { Divider, StepBody, StepHeader, StepItem } from '../../styles';
-import { __ } from '@erxes/ui/src/utils';
 import Info from '@erxes/ui/src/components/Info';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
-import { READ_CP_USER_LEVELS, WRITE_CP_USER_LEVELS } from '../../constants';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   category?: ICategory;
@@ -87,7 +88,7 @@ const CategoryForm: React.FC<Props> = ({
       _id: finalValues._id,
       name: finalValues.name,
       code: finalValues.code || null,
-      order: parseInt(finalValues.order, 10),
+      order: parseInt(finalValues.order || '', 10),
       description: finalValues.description,
       parentId: finalValues.parentId || null,
       thumbnail: finalValues.thumbnail || null,
