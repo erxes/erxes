@@ -34,6 +34,7 @@ const Comments: React.FC<{ postId: string }> = ({ postId }) => {
         isSubmitted={isSubmitted}
         icon="send"
         children=""
+        successMessage="You successfully write a comment"
       />
     );
   };

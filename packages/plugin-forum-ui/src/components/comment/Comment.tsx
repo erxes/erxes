@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import CommentForm from '../../components/comment/CommentForm';
+import CommentForm from './CommentForm';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { CommentContainer, ActionBar, Reply } from '../../styles';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
