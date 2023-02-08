@@ -178,6 +178,22 @@ const queries = {
     params,
     { commonQuerySelector, models, subdomain }: IContext
   ) => {
+    const { createdStartDate, createdEndDate, paidDate } = params;
+
+    if (!((createdStartDate && createdEndDate) || paidDate === 'today')) {
+      throw new Error('Please, Must choose date filters');
+    }
+
+    const csd = new Date(createdStartDate);
+    const ced = new Date(createdEndDate);
+    if (
+      ((ced ? ced.getTime() : 0) - (csd ? csd.getTime() : 0)) /
+        (1000 * 60 * 60 * 24) >
+      32
+    ) {
+      throw new Error('The date range exceeds one month');
+    }
+
     const filter = await generateFilter(subdomain, params, commonQuerySelector);
 
     const responses = await models.PutResponses.find(filter);

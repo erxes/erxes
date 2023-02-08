@@ -28,6 +28,7 @@ type Props = {
   queryParams: any;
   isFiltered: boolean;
   clearFilter: () => void;
+  showMenu?: boolean;
 };
 
 type StringState = {
@@ -47,7 +48,7 @@ export default class RightMenu extends React.Component<Props, State> {
 
     this.state = {
       currentTab: 'Filter',
-      showMenu: false,
+      showMenu: this.props.showMenu || false,
 
       filterParams: this.props.queryParams
     };

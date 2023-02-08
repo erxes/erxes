@@ -8,9 +8,10 @@ import { withRouter } from 'react-router-dom';
 import { TableWrapper } from '../styles';
 import { IPutResponse } from '../types';
 import RightMenu from './RightMenu';
-import { displayValue } from './PutResponseRow';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 
 interface IProps extends IRouterProps {
+  errorMsg: string;
   putResponses: IPutResponse[];
   loading: boolean;
   searchValue: string;
@@ -85,14 +86,21 @@ class PutResponsesByDate extends React.Component<IProps, State> {
       totalCount,
       sumAmount,
       queryParams,
-
+      errorMsg,
       onSearch,
       onFilter,
       onSelect,
       isFiltered,
       clearFilter
     } = this.props;
-    const mainContent = (
+
+    const mainContent = errorMsg ? (
+      <EmptyState
+        text={errorMsg.replace('GraphQL error: ', '')}
+        size="full"
+        image={'/images/actions/11.svg'}
+      />
+    ) : (
       <TableWrapper>
         <Table whiteSpace="nowrap" bordered={true} hover={true}>
           <thead>
@@ -120,7 +128,8 @@ class PutResponsesByDate extends React.Component<IProps, State> {
       onSearch,
       isFiltered,
       clearFilter,
-      queryParams
+      queryParams,
+      showMenu: errorMsg ? true : false
     };
 
     const actionBarRight = (

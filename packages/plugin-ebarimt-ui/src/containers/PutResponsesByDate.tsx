@@ -3,8 +3,8 @@ import gql from 'graphql-tag';
 import PutResponseByDate from '../components/PutResponsesByDate';
 import queryString from 'query-string';
 import React from 'react';
-import { Bulk, Spinner } from '@erxes/ui/src/components';
-import { router, withProps } from '@erxes/ui/src/utils';
+import { Spinner } from '@erxes/ui/src/components';
+import { Alert, router, withProps } from '@erxes/ui/src/utils';
 import { graphql } from 'react-apollo';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
 import {
@@ -113,6 +113,12 @@ class PutResponsesContainer extends React.Component<FinalProps, State> {
       return <Spinner />;
     }
 
+    let errorMsg: string = '';
+    if (putResponsesByDateQuery.error) {
+      errorMsg = putResponsesByDateQuery.error.message;
+      Alert.error(errorMsg);
+    }
+
     const searchValue = this.props.queryParams.searchValue || '';
     const putResponses = putResponsesByDateQuery.putResponsesByDate || [];
     const putResponsesCount = putResponsesCountQuery.putResponsesCount || 0;
@@ -120,6 +126,7 @@ class PutResponsesContainer extends React.Component<FinalProps, State> {
 
     const updatedProps = {
       ...this.props,
+      errorMsg,
       searchValue,
       putResponses,
       totalCount: putResponsesCount,
@@ -133,15 +140,7 @@ class PutResponsesContainer extends React.Component<FinalProps, State> {
       clearFilter: this.clearFilter
     };
 
-    const putResponsesList = props => {
-      return <PutResponseByDate {...updatedProps} {...props} />;
-    };
-
-    const refetch = () => {
-      this.props.putResponsesByDateQuery.refetch();
-    };
-
-    return <Bulk content={putResponsesList} refetch={refetch} />;
+    return <PutResponseByDate {...updatedProps} />;
   }
 }
 
