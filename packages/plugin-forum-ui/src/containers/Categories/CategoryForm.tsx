@@ -1,14 +1,15 @@
-import React from 'react';
-import { useQuery } from 'react-apollo';
-import { queries, mutations } from '../../graphql';
-import gql from 'graphql-tag';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { mutations, queries } from '../../graphql';
+
 import { Alert } from '@erxes/ui/src/utils';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import CategoryForm from '../../components/categories/CategoryForm';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { ICategory } from '../../types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import gql from 'graphql-tag';
+import { useQuery } from 'react-apollo';
 
 type Props = {
   category?: ICategory;
@@ -33,8 +34,6 @@ function CategoryFormContainer({ closeModal, category }: Props) {
     Alert.error(error.message);
   }
 
-  const { forumCategoryPossibleParents } = data;
-
   const renderButton = ({
     name,
     values,
@@ -52,7 +51,7 @@ function CategoryFormContainer({ closeModal, category }: Props) {
         refetchQueries={[
           {
             query: gql(queries.categoriesByParentIds),
-            variables: { parentId: [null] }
+            variables: { parentId: [values.parentId ? values.parentId : null] }
           }
         ]}
         isSubmitted={isSubmitted}
@@ -67,7 +66,7 @@ function CategoryFormContainer({ closeModal, category }: Props) {
   return (
     <CategoryForm
       category={category}
-      categories={forumCategoryPossibleParents}
+      categories={data.forumCategoryPossibleParents}
       renderButton={renderButton}
       closeModal={closeModal}
     />

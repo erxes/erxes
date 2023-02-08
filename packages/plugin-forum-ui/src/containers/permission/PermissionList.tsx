@@ -1,7 +1,8 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import React from 'react';
+
 import PermissionList from '../../components/permission/PermissionList';
+import React from 'react';
+import gql from 'graphql-tag';
 import { queries } from '../../graphql';
 import { useQuery } from 'react-apollo';
 
@@ -39,6 +40,16 @@ const List = (props: FinalProps) => {
     queryParams,
     history,
     permissions,
+    refetchQueries: [
+      {
+        query: gql(queries.permits),
+        variables: {
+          categoryId: queryParams.categoryId,
+          permission: queryParams.permission,
+          permissionGroupId: queryParams.permissionGroupId
+        }
+      }
+    ],
     categoryList: categoryList.data?.forumCategories || [],
     permissionGroups: permissionGroups.data?.forumPermissionGroups || []
   };

@@ -1,16 +1,17 @@
+import { Alert, __ } from '@erxes/ui/src/utils';
+import { DividerText, StepBody, StepHeader, StepItem } from '../../styles';
+import { correctValue, generateModuleParams } from '../../utils';
+
 import Button from '@erxes/ui/src/components/Button';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { ICategory } from '../../types';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __, Alert } from '@erxes/ui/src/utils';
+import { PERMISSIONS } from '../../constants';
 import React from 'react';
 import Select from 'react-select-plus';
 import { mutations } from '../../graphql';
-import { DividerText, StepBody, StepHeader, StepItem } from '../../styles';
-import { ICategory } from '../../types';
-import { correctValue, generateModuleParams } from '../../utils';
-import { PERMISSIONS } from '../../constants';
 
 type Props = {
   groupId: string;
@@ -123,7 +124,7 @@ class PermissionForm extends React.Component<Props, State> {
 
   render() {
     const { closeModal, refetchQueries } = this.props;
-
+    console.log(refetchQueries);
     return (
       <form onSubmit={this.save}>
         {this.renderContent()}

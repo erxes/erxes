@@ -1,23 +1,24 @@
+import { IClientPortalUser, IUserGroupDocument } from '../../types';
 import React, { useState } from 'react';
+
+import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { ModalFooter } from '../../styles';
-import Button from '@erxes/ui/src/components/Button';
-import { IUserGroupDocument, IClientPortalUser } from '../../types';
 import Select from 'react-select-plus';
 import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   permissionGroup?: IUserGroupDocument;
   allUsers?: IClientPortalUser[];
-  renderButton: (props: any) => void;
-  closeModal?: () => void;
+  onSave: (props: any) => void;
+  closeModal: () => void;
 };
 
 function PermissionGroupForm({
-  permissionGroup = { users: [] },
-  renderButton,
+  permissionGroup = { users: [] } as IUserGroupDocument,
+  onSave,
   closeModal,
   allUsers = [] as IClientPortalUser[]
 }: Props) {
@@ -28,7 +29,7 @@ function PermissionGroupForm({
   const handleSubmit = e => {
     e.preventDefault();
 
-    renderButton({
+    onSave({
       _id: permissionGroup._id,
       name,
       ids: selectedUsers,
