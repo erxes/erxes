@@ -122,6 +122,9 @@ class Row extends React.Component<Props> {
         <td>{(viewCount || 0).toLocaleString()}</td>
         <td>
           <ActionButtons>
+            <Link to={`/forums/posts/${_id}`}>
+              <Icon icon="eye" />
+            </Link>
             {this.renderEditAction(post)}
             {this.renderRemoveAction()}
           </ActionButtons>

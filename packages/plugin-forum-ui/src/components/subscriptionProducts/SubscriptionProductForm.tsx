@@ -86,7 +86,7 @@ const SubscriptionProductForm: React.FC<Props> = ({
             {...formProps}
             name="multiplier"
             type="number"
-            defaultValue={multiplier}
+            defaultValue={multiplier || 1}
           />
         </FormGroup>
         <FormGroup>
@@ -110,7 +110,7 @@ const SubscriptionProductForm: React.FC<Props> = ({
             {...formProps}
             name="price"
             type="number"
-            defaultValue={price}
+            defaultValue={price || 0}
           />
         </FormGroup>
         <FormGroup>
@@ -132,7 +132,7 @@ const SubscriptionProductForm: React.FC<Props> = ({
             {...formProps}
             name="listOrder"
             type="number"
-            defaultValue={listOrder}
+            defaultValue={listOrder || 0}
           />
         </FormGroup>
         <ModalFooter id={'AddProductButtons'}>
