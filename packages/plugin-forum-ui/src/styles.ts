@@ -146,7 +146,7 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
 export const SidebarItem = styled(SidebarListItem)`
   &:hover {
     ${ActionButtons} {
-      width: 75px;
+      width: 50px;
     }
   }
 `;

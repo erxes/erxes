@@ -4,7 +4,7 @@ import gql from 'graphql-tag';
 import GroupList from '../../components/permission/GroupList';
 import { RemoveMutationResponse } from '../../types';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { Alert, withProps } from '@erxes/ui/src/utils';
+import { Alert, withProps, confirm } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 import { IUserGroupDocument } from '../../types';
@@ -17,10 +17,12 @@ type Props = {
 type FinalProps = Props & RemoveMutationResponse & IRouterProps;
 
 function List({ queryParams, removeMutation, permissionGroups }: FinalProps) {
-  const remove = pageId => {
-    removeMutation({ variables: { _id: pageId } }).catch(e => {
-      Alert.error(e.message);
-    });
+  const remove = id => {
+    confirm('Are you sure?')
+      .then(() => removeMutation({ variables: { _id: id } }))
+      .catch(e => {
+        Alert.error(e.message);
+      });
   };
 
   return (
