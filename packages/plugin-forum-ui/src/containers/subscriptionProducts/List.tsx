@@ -1,18 +1,20 @@
-import React from 'react';
-import { useQuery } from 'react-apollo';
-import { queries, mutations } from '../../graphql';
-import gql from 'graphql-tag';
-import ProductList from '../../components/subscriptionProducts/ProductList';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { Alert, withProps, confirm } from '@erxes/ui/src/utils';
-import { RemoveMutationResponse } from '../../types';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
 import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+
+import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import { mutations, queries } from '../../graphql';
+
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IProduct } from '../../types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import ProductList from '../../components/subscriptionProducts/ProductList';
+import React from 'react';
+import { RemoveMutationResponse } from '../../types';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { useQuery } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
 
 type FinalProps = {
   queryParams: any;
@@ -36,6 +38,7 @@ function List({ removeMutation, queryParams, history }: FinalProps) {
   if (loading) {
     return <Spinner objective={true} />;
   }
+
   if (error) {
     Alert.error(error.message);
   }
@@ -66,7 +69,15 @@ function List({ removeMutation, queryParams, history }: FinalProps) {
         }
         variables={values}
         callback={callback}
-        refetchQueries={['ForumSubscriptionProducts']}
+        refetchQueries={[
+          {
+            query: gql(queries.forumSubscriptionProductsQuery),
+            variables: {
+              sort: { listOrder: -1 },
+              userType
+            }
+          }
+        ]}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
