@@ -8,7 +8,7 @@ import { IPermission } from '../../types';
 
 type Props = {
   permissions: IPermission[];
-  removeItem?: (id: string) => void;
+  removeItem?: (id: string, permission: string, categoryIds: string[]) => void;
 };
 
 class PermissionRow extends React.Component<Props> {
@@ -22,7 +22,12 @@ class PermissionRow extends React.Component<Props> {
         <td>
           <ActionButtons>
             <Tip text="Delete" placement="top">
-              <Button btnStyle="link" onClick={() => removeItem(item._id)}>
+              <Button
+                btnStyle="link"
+                onClick={() =>
+                  removeItem(item._id, item.permission, [item.category._id])
+                }
+              >
                 <Icon icon="times-circle" />
               </Button>
             </Tip>

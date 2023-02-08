@@ -1,6 +1,6 @@
 import * as compose from 'lodash.flowright';
 
-import { Alert, withProps } from '@erxes/ui/src/utils';
+import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import { PagesQueryResponse, RemoveMutationResponse } from '../../types';
 import { mutations, queries } from '../../graphql';
 
@@ -44,10 +44,16 @@ function PagesList({ history, removeMutation, pagesQuery }: FinalProps) {
   const queryParams = queryString.parse(location.search);
 
   const remove = pageId => {
-    removeMutation({ variables: { _id: pageId } })
-      .then(() => {
-        pagesQuery.refetch();
-      })
+    confirm('Are you sure?')
+      .then(() =>
+        removeMutation({ variables: { _id: pageId } })
+          .then(() => {
+            pagesQuery.refetch();
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          })
+      )
       .catch(e => {
         Alert.error(e.message);
       });

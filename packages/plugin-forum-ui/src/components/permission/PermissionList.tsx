@@ -13,7 +13,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { PERMISSIONS } from '../../constants';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import PermissionForm from './PermissionForm';
-import PermissionRow from './PermissionRow';
+import PermissionRow from '../../containers/permission/PermissionRow';
 import React from 'react';
 import Select from 'react-select-plus';
 import Table from '@erxes/ui/src/components/table';

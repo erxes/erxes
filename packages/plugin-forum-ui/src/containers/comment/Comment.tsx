@@ -33,24 +33,9 @@ const Comment: React.FC<FinalProps> = ({
   });
 
   const onDelete = async (item: any) => {
-    if (
-      !confirm(
-        `Are you sure you want to delete this comment: "${item.content}"`
-      )
-    ) {
-      return null;
-    }
-
-    removeMutation({
-      variables: { _id: item._id },
-      refetchQueries: queries.postRefetchAfterEdit
-    })
-      .then(() => {
-        Alert.success('You successfully deleted a comment.');
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
+    confirm(`Are you sure you want to delete this comment "${item.content}"`)
+      .then(() => removeMutation({ variables: { _id: item._id } }))
+      .catch(e => Alert.error(e.message));
 
     if (onDeleted) {
       onDeleted(item._id);
