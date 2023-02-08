@@ -32,7 +32,7 @@ function PostFormContainer({ closeModal, post }: Props) {
         mutation={object ? mutations.editPost : mutations.createPost}
         variables={values}
         callback={callback}
-        refetchQueries={getRefetchQueries()}
+        refetchQueries={queries.postRefetchAfterEdit}
         type="submit"
         isSubmitted={isSubmitted}
         successMessage={`You successfully ${

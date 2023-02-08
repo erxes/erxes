@@ -1,19 +1,20 @@
-import React from 'react';
-import { IPost } from '../../types';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import Button from '@erxes/ui/src/components/Button';
-import { Title } from '@erxes/ui-settings/src/styles';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 import {
   FlexRow,
   Subject
 } from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
-import { PreviewContent } from '@erxes/ui-engage/src/styles';
-import { postUsername } from '../../utils';
+
+import Button from '@erxes/ui/src/components/Button';
 import Comments from '../../containers/comment';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import { IPost } from '../../types';
+import { PreviewContent } from '@erxes/ui-engage/src/styles';
+import React from 'react';
 import { Thumbnail } from '../../styles';
+import { Title } from '@erxes/ui-settings/src/styles';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from '@erxes/ui/src/utils';
+import { postUsername } from '../../utils';
 
 type Props = {
   post: IPost;
@@ -237,13 +238,13 @@ function PageDetail(props: Props) {
           }}
         />
       </Subject>
-      <Comments postId={post._id} />
+      <Comments postId={post._id || ''} />
     </>
   );
 
   const breadcrumb = [
     { title: __('Forum Post'), link: '/forums/posts' },
-    { title: post.title }
+    { title: post.title || '' }
   ];
 
   return (

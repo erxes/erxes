@@ -1,19 +1,21 @@
-import React from 'react';
-import { useQuery } from 'react-apollo';
-import gql from 'graphql-tag';
-import PageList from '../../components/pages/PageList';
-import queryString from 'query-string';
-import Bulk from '@erxes/ui/src/components/Bulk';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
 import * as compose from 'lodash.flowright';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+
+import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import { PagesQueryResponse, RemoveMutationResponse } from '../../types';
+import { mutations, queries } from '../../graphql';
+
+import Bulk from '@erxes/ui/src/components/Bulk';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { queries, mutations } from '../../graphql';
-import { Alert, withProps, confirm } from '@erxes/ui/src/utils';
-import { RemoveMutationResponse, PagesQueryResponse } from '../../types';
-import { graphql } from 'react-apollo';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import PageList from '../../components/pages/PageList';
+import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import queryString from 'query-string';
+import { useQuery } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
 
 type FinalProps = {
   pagesQuery: PagesQueryResponse;
@@ -69,7 +71,7 @@ function PagesList({ history, removeMutation, pagesQuery }: FinalProps) {
         mutation={object ? mutations.editPage : mutations.createPage}
         variables={values}
         callback={callback}
-        refetchQueries={getRefetchQueries()}
+        refetchQueries={queries.pageRefetch}
         type="submit"
         isSubmitted={isSubmitted}
         successMessage={`You successfully ${
@@ -93,14 +95,6 @@ function PagesList({ history, removeMutation, pagesQuery }: FinalProps) {
   };
   return <Bulk content={content} />;
 }
-
-const getRefetchQueries = () => {
-  return [
-    {
-      query: gql(queries.pages)
-    }
-  ];
-};
 
 export default withProps<{}>(
   compose(

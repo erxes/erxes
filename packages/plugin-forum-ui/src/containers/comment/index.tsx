@@ -1,10 +1,11 @@
-import React from 'react';
-import { useQuery } from 'react-apollo';
-import { queries, mutations } from '../../graphql';
-import gql from 'graphql-tag';
+import { mutations, queries } from '../../graphql';
+
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
 import CommentComponent from '../../components/comment';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import React from 'react';
+import gql from 'graphql-tag';
+import { useQuery } from 'react-apollo';
 
 const Comments: React.FC<{ postId: string }> = ({ postId }) => {
   const { data, loading, error, refetch } = useQuery(
@@ -22,14 +23,7 @@ const Comments: React.FC<{ postId: string }> = ({ postId }) => {
       <ButtonMutate
         mutation={mutations.createComment}
         variables={values}
-        refetchQueries={[
-          {
-            query: gql(queries.forumPostDetail),
-            variables: {
-              _id: postId
-            }
-          }
-        ]}
+        refetchQueries={['ForumComments']}
         type="submit"
         isSubmitted={isSubmitted}
         icon="send"
