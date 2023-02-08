@@ -110,10 +110,10 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
         if (product.code && product.subUoms?.length) {
           return `${product.code} - ${product.name} ~${Math.round(
             (1 / (product.subUoms[0].ratio || 1)) * 100
-          ) / 100}`;
+          ) / 100} - ${product.unitPrice}`;
         }
         if (product.code) {
-          return `${product.code} - ${product.name}`;
+          return `${product.code} - ${product.name} - ${product.unitPrice}`;
         }
 
         return product.name;
