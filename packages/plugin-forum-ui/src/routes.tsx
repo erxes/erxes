@@ -18,26 +18,24 @@ const PageDetails = asyncComponent(() =>
 );
 
 const PostList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "CustomerDetails" */ './containers/PostsList/List'
-  )
+  import(/* webpackChunkName: "CustomerDetails" */ './containers/posts/List')
 );
 
 const PostDetails = asyncComponent(() =>
   import(
-    /* webpackChunkName: "CustomerDetails" */ './containers/PostsList/PostDetail'
+    /* webpackChunkName: "CustomerDetails" */ './containers/posts/PostDetail'
   )
 );
 
 const PermissionGroups = asyncComponent(() =>
   import(
-    /* webpackChunkName: "CustomerDetails" */ './containers/PermissionGroups/PermissionList'
+    /* webpackChunkName: "CustomerDetails" */ './containers/permission/PermissionList'
   )
 );
 
 const SubscriptionProducts = asyncComponent(() =>
   import(
-    /* webpackChunkName: "CustomerDetails" */ './containers/SubscriptionProduct/List'
+    /* webpackChunkName: "CustomerDetails" */ './containers/subscriptionProducts/List'
   )
 );
 

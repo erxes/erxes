@@ -11,10 +11,9 @@ import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   categories: ICategory[];
-  counts?: any;
 }
 
-function CountsByTag({ categories, counts }: IProps) {
+function CountsByTag({ categories }: IProps) {
   const onClick = () => {
     router.setParams(history, { categoryId: null });
   };
@@ -32,7 +31,7 @@ function CountsByTag({ categories, counts }: IProps) {
       )}
     </>
   );
-
+  console.log('categories', categories);
   return (
     <Box
       extraButtons={extraButtons}

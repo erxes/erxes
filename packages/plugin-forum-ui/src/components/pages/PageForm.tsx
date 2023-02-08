@@ -154,7 +154,7 @@ class PageForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            passedName: 'article',
+            passedName: 'page',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,

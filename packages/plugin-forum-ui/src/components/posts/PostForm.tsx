@@ -1,5 +1,5 @@
 import React from 'react';
-import { IPost, ICategory, IPollOption } from '../../types';
+import { IPost, ICategory } from '../../types';
 import EditorCK from '@erxes/ui/src/components/EditorCK';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -186,7 +186,7 @@ class PostForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            passedName: 'article',
+            passedName: 'post',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,

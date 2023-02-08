@@ -7,7 +7,7 @@ import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { IPost } from '../../types';
-import PostForm from '../../containers/PostsList/PostForm';
+import PostForm from '../../containers/posts/PostForm';
 import { Link } from 'react-router-dom';
 import { DetailLink } from '../../styles';
 import { DateWrapper } from '@erxes/ui/src/styles/main';

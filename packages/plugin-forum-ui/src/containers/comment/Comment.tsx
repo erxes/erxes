@@ -4,11 +4,9 @@ import { mutations, queries } from '../../graphql';
 import gql from 'graphql-tag';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import CommentComponent from '../../components/comment/Comment';
-import { withRouter } from 'react-router-dom';
 import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 import { confirm, withProps } from '@erxes/ui/src/utils';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { IComment, RemoveMutationResponse } from '../../types';
 
 type Props = {

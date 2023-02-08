@@ -14,7 +14,7 @@ import { IPost } from '../../types';
 import { IntegrationsCount } from '@erxes/ui-leads/src/types';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import PostForm from '../../containers/PostsList/PostForm';
+import PostForm from '../../containers/posts/PostForm';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 
 type Props = {

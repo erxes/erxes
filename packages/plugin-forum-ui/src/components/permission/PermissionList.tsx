@@ -8,7 +8,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import Select from 'react-select-plus';
 import { isObject } from 'util';
-import GroupList from '../../containers/PermissionGroups/GroupList';
+import GroupList from '../../containers/permission/GroupList';
 import {
   FilterItem,
   FilterWrapper
