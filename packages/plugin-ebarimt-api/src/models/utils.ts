@@ -1,7 +1,7 @@
 import { DISTRICTS } from './constants';
-import { sendRequest } from '@erxes/api-utils/src';
-import { IPutResponse } from './definitions/ebarimt';
 import { IModels } from '../connectionResolver';
+import { IPutResponseDocument } from './definitions/ebarimt';
+import { sendRequest } from '@erxes/api-utils/src';
 
 const format_number = (num: number) => {
   try {
@@ -31,7 +31,7 @@ export interface IPutDataArgs {
   returnBillId?: string;
 
   config: any;
-  models: any;
+  models: IModels;
   contentType: string;
   contentId: string;
 }
@@ -40,7 +40,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
   public districtCode!: string;
   public params: IListArgs;
   public transactionInfo: any;
-  public models: any;
+  public models: IModels;
   public vatPercent!: number;
   public cityTaxPercent!: number;
   public defaultGScode!: string;
@@ -56,7 +56,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
     this.defaultGScode = this.config.defaultGSCode || '';
   }
 
-  public async run(): Promise<IPutResponse> {
+  public async run(): Promise<IPutResponseDocument> {
     const url = this.config.ebarimtUrl || '';
     this.districtCode = DISTRICTS[this.config.districtName] || '';
     const rd = this.config.companyRD || '';
@@ -69,13 +69,19 @@ export class PutData<IListArgs extends IPutDataArgs> {
 
     this.transactionInfo = await this.generateTransactionInfo();
 
-    const prePutResponse = await this.models.PutResponses.putHistories({
+    const prePutResponse:
+      | IPutResponseDocument
+      | undefined = await this.models.PutResponses.putHistories({
       contentType,
       contentId
     });
 
     if (prePutResponse) {
       this.transactionInfo.returnBillId = prePutResponse.billId;
+      await this.models.PutResponses.updateOne(
+        { _id: prePutResponse._id },
+        { $set: { status: 'inactive' } }
+      );
     }
 
     const resObj = await this.models.PutResponses.createPutResponse({
@@ -114,7 +120,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
       customerName: this.params.customerName
     });
 
-    return this.models.PutResponses.findOne({ _id: resObj._id }).lean();
+    return this.models.PutResponses.findOne({ _id: resObj._id }).lean() as any;
   }
 
   private async generateStock(detail, vat, citytax) {
@@ -229,6 +235,10 @@ export const returnBill = async (models: IModels, doc, config) => {
     date: date
   };
 
+  await models.PutResponses.updateOne(
+    { _id: prePutResponse._id },
+    { $set: { status: 'inactive' } }
+  );
   const resObj = await models.PutResponses.createPutResponse({
     sendInfo: { ...data },
     contentId,
