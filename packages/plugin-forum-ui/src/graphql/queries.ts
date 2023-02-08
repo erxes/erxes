@@ -384,29 +384,29 @@ query ForumPages($sort: JSON) {
 `;
 
 const permits = `
-query ForumPermissionGroupCategoryPermits(
-  $permissionGroupId: [ID!]
-  $permission: [ForumPermission!]
-  $categoryId: [ID!]
-) {
-  forumPermissionGroupCategoryPermits(
-    permissionGroupId: $permissionGroupId
-    permission: $permission
-    categoryId: $categoryId
+  query ForumPermissionGroupCategoryPermits(
+    $permissionGroupId: [ID!]
+    $permission: [ForumPermission!]
+    $categoryId: [ID!]
   ) {
-    _id
-    categoryId
-    permissionGroupId
-    permission
-    permissionGroup {
-      name
-    }
-    category {
+    forumPermissionGroupCategoryPermits(
+      permissionGroupId: $permissionGroupId
+      permission: $permission
+      categoryId: $categoryId
+    ) {
       _id
-      name
+      categoryId
+      permissionGroupId
+      permission
+      permissionGroup {
+        name
+      }
+      category {
+        _id
+        name
+      }
     }
   }
-}
 `;
 
 const clientPortalUsers = `

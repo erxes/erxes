@@ -1,28 +1,30 @@
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Table from '@erxes/ui/src/components/table';
-import { __, router } from '@erxes/ui/src/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import React from 'react';
-import Select from 'react-select-plus';
-import { isObject } from 'util';
-import GroupList from '../../containers/permission/GroupList';
 import {
   FilterItem,
   FilterWrapper
 } from '@erxes/ui-settings/src/permissions/styles';
+import { ICategory, IPermission, IUserGroupDocument } from '../../types';
+import { __, router } from '@erxes/ui/src/utils';
+import { correctValue, generateModuleParams, generatedList } from '../../utils';
+
+import Button from '@erxes/ui/src/components/Button';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import GroupList from '../../containers/permission/GroupList';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { PERMISSIONS } from '../../constants';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import PermissionForm from './PermissionForm';
 import PermissionRow from './PermissionRow';
-import { correctValue, generatedList, generateModuleParams } from '../../utils';
+import React from 'react';
+import Select from 'react-select-plus';
+import Table from '@erxes/ui/src/components/table';
 import { Title } from '@erxes/ui-settings/src/styles';
-import { IUserGroupDocument, IPermission, ICategory } from '../../types';
-import { PERMISSIONS } from '../../constants';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { isObject } from 'util';
 
 type Props = {
   history: any;
   queryParams: any;
+  refetchQueries: any;
   permissions: IPermission[];
   isLoading?: boolean;
   totalCount?: number;
@@ -90,12 +92,13 @@ class PermissionList extends React.Component<Props> {
   }
 
   renderForm = props => {
-    const { categoryList, queryParams } = this.props;
+    const { categoryList, queryParams, refetchQueries } = this.props;
 
     const extendedProps = {
       ...props,
       groupId: queryParams.groupId,
-      categoryList
+      categoryList,
+      refetchQueries
     };
 
     return <PermissionForm {...extendedProps} />;
