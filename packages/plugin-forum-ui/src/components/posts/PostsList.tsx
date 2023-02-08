@@ -1,8 +1,15 @@
+import { Alert, confirm } from '@erxes/ui/src/utils';
+
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { EMPTY_CONTENT_FORUMS } from '@erxes/ui-settings/src/constants';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IPost } from '../../types';
+import { IntegrationsCount } from '@erxes/ui-leads/src/types';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import PostForm from '../../containers/PostsList/PostForm';
 import React from 'react';
 import Row from './Row';
 import Sidebar from './Sidebar';
@@ -10,18 +17,12 @@ import SortHandler from '@erxes/ui/src/components/SortHandler';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils';
-import { IPost } from '../../types';
-import { IntegrationsCount } from '@erxes/ui-leads/src/types';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import PostForm from '../../containers/PostsList/PostForm';
-import { Alert, confirm } from '@erxes/ui/src/utils';
 
 type Props = {
   posts: IPost[];
   queryParams?: any;
-  loading?: boolean;
-  remove?: (postId: string, emptyBulk: () => void) => void;
+  loading: boolean;
+  remove: (postId: string, emptyBulk: () => void) => void;
   history?: any;
   bulk: any[];
   emptyBulk: () => void;

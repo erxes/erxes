@@ -1,15 +1,17 @@
-import React from 'react';
-import { useSearchParam } from '../../hooks';
-import { useQuery } from 'react-apollo';
-import { queries, mutations } from '../../graphql';
-import gql from 'graphql-tag';
-import PostsList from '../../components/posts/PostsList';
-import queryString from 'query-string';
-import Bulk from '@erxes/ui/src/components/Bulk';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps, confirm } from '@erxes/ui/src/utils';
-import { RemoveMutationResponse } from '../../types';
+
+import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import { IPost, RemoveMutationResponse } from '../../types';
+import { mutations, queries } from '../../graphql';
+
+import Bulk from '@erxes/ui/src/components/Bulk';
+import PostsList from '../../components/posts/PostsList';
+import React from 'react';
+import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
+import queryString from 'query-string';
+import { useQuery } from 'react-apollo';
+import { useSearchParam } from '../../hooks';
 
 type FinalProps = RemoveMutationResponse;
 
@@ -52,7 +54,7 @@ function List({ removeMutation }: FinalProps) {
     return <pre>{JSON.stringify(postQuery.error, null, 2)}</pre>;
   }
 
-  const remove = (pageId, emptyBulk) => {
+  const remove = (pageId: string, emptyBulk: () => void) => {
     confirm(`Are you sure?`)
       .then(() => {
         removeMutation({ variables: { _id: pageId } })
@@ -74,7 +76,7 @@ function List({ removeMutation }: FinalProps) {
         {...props}
         queryParams={queryParams}
         remove={remove}
-        posts={postQuery.data.forumPosts}
+        posts={postQuery.data.forumPosts || ([] as IPost[])}
       />
     );
   };

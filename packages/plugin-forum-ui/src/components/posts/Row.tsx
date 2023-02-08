@@ -1,16 +1,16 @@
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
+import { DateWrapper } from '@erxes/ui/src/styles/main';
+import { DetailLink } from '../../styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
+import { IPost } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
+import { Link } from 'react-router-dom';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import PostForm from '../../containers/PostsList/PostForm';
+import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import { IPost } from '../../types';
-import PostForm from '../../containers/PostsList/PostForm';
-import { Link } from 'react-router-dom';
-import { DetailLink } from '../../styles';
-import { DateWrapper } from '@erxes/ui/src/styles/main';
 import dayjs from 'dayjs';
 
 type Props = {
@@ -46,7 +46,7 @@ class Row extends React.Component<Props> {
   renderRemoveAction() {
     const { post, remove, emptyBulk } = this.props;
 
-    const onClick = () => remove(post._id, emptyBulk);
+    const onClick = () => remove(post._id || '', emptyBulk);
 
     return (
       <Tip text={__('Delete')} placement="top">
@@ -110,16 +110,16 @@ class Row extends React.Component<Props> {
           <Icon icon="calender" />{' '}
           <DateWrapper>{dayjs(createdAt).format('ll')}</DateWrapper>
         </td>
-        <td>{createdBy.username}</td>
+        <td>{createdBy ? createdBy.username : ''}</td>
         <td>
           <Icon icon="calender" />{' '}
           <DateWrapper>{dayjs(updatedAt).format('ll')}</DateWrapper>
         </td>
-        <td>{updatedBy.username}</td>
-        <td>{commentCount.toLocaleString()}</td>
-        <td>{upVoteCount.toLocaleString()}</td>
-        <td>{downVoteCount.toLocaleString()}</td>
-        <td>{viewCount.toLocaleString()}</td>
+        <td>{updatedBy ? updatedBy.username : ''}</td>
+        <td>{(commentCount || 0).toLocaleString()}</td>
+        <td>{(upVoteCount || 0).toLocaleString()}</td>
+        <td>{(downVoteCount || 0).toLocaleString()}</td>
+        <td>{(viewCount || 0).toLocaleString()}</td>
         <td>
           <ActionButtons>
             {this.renderEditAction(post)}
