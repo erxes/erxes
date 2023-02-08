@@ -23,7 +23,7 @@ export const types = `
   type PosOrderItem {
     ${commonFields}
     productId: String!
-    count: Float!
+    count: Int!
     orderId: String!
     unitPrice: Float
     discountAmount: Float
