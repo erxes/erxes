@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSearchParam } from '../hooks';
 import { useQuery, useLazyQuery } from 'react-apollo';
 import gql from 'graphql-tag';
-import CategorySelect from '../containers/CategorySelect';
+// import CategorySelect from '../containers/CategorySelect';
 import CompanySelect from './CompanySelect';
 import { Link } from 'react-router-dom';
 
@@ -34,10 +34,15 @@ const ShowCompany: React.FC<{ companyId?: string }> = ({ companyId }) => {
     variables: { id: companyId }
   });
 
-  if (!companyId) return <span>No company</span>;
-
-  if (loading) return <span>Loading...</span>;
-  if (error) return <span>Error: {error.message}</span>;
+  if (!companyId) {
+    return <span>No company</span>;
+  }
+  if (loading) {
+    return <span>Loading...</span>;
+  }
+  if (error) {
+    return <span>Error: {error.message}</span>;
+  }
 
   const {
     companyDetail: { primaryEmail, primaryName }
@@ -86,10 +91,15 @@ const RelatedPost: React.FC<{ postId: string }> = ({ postId }) => {
   );
 
   let link: any = 'No post';
-  if (loading) link = 'Loading...';
-  if (error) link = `Error: ${error.message}`;
-  if (data)
+  if (loading) {
+    link = 'Loading...';
+  }
+  if (error) {
+    link = `Error: ${error.message}`;
+  }
+  if (data) {
     link = <Link to={`/forums/posts/${postId}`}>{data.forumPost.title}</Link>;
+  }
 
   return <div>Related post: {link}</div>;
 };
@@ -113,7 +123,9 @@ const SubscriptionProductForm: React.FC<Props> = ({ quiz, onSubmit }) => {
 
   const _onSubmit = e => {
     e.preventDefault();
-    if (!onSubmit) return;
+    if (!onSubmit) {
+      return;
+    }
     onSubmit({
       postId: postId || null,
       companyId: companyId || null,
@@ -149,7 +161,7 @@ const SubscriptionProductForm: React.FC<Props> = ({ quiz, onSubmit }) => {
       <br />
       <label>
         Category
-        <CategorySelect value={categoryId} onChange={setCategoryId} />
+        {/* <CategorySelect value={categoryId} onChange={setCategoryId} /> */}
       </label>
 
       <br />

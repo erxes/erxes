@@ -26,7 +26,7 @@ export const customerSchema = new Schema({
   profilePic: String,
   integrationId: String,
   isFollower: Boolean,
-  isAnonymous: Boolean,
+  isAnonymous: Boolean
 });
 
 export interface ICustomerModel extends Model<ICustomerDocument> {
