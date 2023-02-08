@@ -258,6 +258,20 @@ mutation ForumPermissionGroupAddCategoryPermit(
 }
 `;
 
+const removePermit = `
+mutation ForumPermissionGroupRemoveCategoryPermit(
+  $_id: ID!
+  $categoryIds: [ID!]!
+  $permission: ForumPermission!
+) {
+  forumPermissionGroupRemoveCategoryPermit(
+    _id: $_id
+    categoryIds: $categoryIds
+    permission: $permission
+  )
+}
+`;
+
 const permissionGroupCreate = `
 mutation ForumPermissionGroupCreate($name: String!) {
   forumPermissionGroupCreate(name: $name) {
@@ -396,6 +410,164 @@ mutation ForumManuallyExtendSubscription(
 }
 `;
 
+const deleteQuiz = `
+mutation ForumQuizDelete($id: ID!) {
+  forumQuizDelete(_id: $id) {
+    _id
+  }
+}
+`;
+
+const createQuiz = `
+mutation ForumQuizCreate(
+  $categoryId: ID
+  $companyId: ID
+  $description: String
+  $name: String
+  $postId: ID
+  $tagIds: [ID!]
+) {
+  forumQuizCreate(
+    categoryId: $categoryId
+    companyId: $companyId
+    description: $description
+    name: $name
+    postId: $postId
+    tagIds: $tagIds
+  ) {
+    _id
+  }
+}
+`;
+
+const updateQuiz = `
+mutation ForumQuizPatch(
+  $_id: ID!
+  $categoryId: ID
+  $companyId: ID
+  $description: String
+  $name: String
+  $postId: ID
+  $tagIds: [ID!]
+) {
+  forumQuizPatch(
+    _id: $_id
+    categoryId: $categoryId
+    companyId: $companyId
+    description: $description
+    name: $name
+    postId: $postId
+    tagIds: $tagIds
+  ) {
+    _id
+  }
+}
+`;
+
+const createQuizQuestion = `
+mutation ForumQuizQuestionCreate(
+  $isMultipleChoice: Boolean!
+  $listOrder: Float!
+  $quizId: ID!
+  $imageUrl: String
+  $text: String
+) {
+  forumQuizQuestionCreate(
+    isMultipleChoice: $isMultipleChoice
+    listOrder: $listOrder
+    quizId: $quizId
+    imageUrl: $imageUrl
+    text: $text
+  ) {
+    _id
+  }
+}
+`;
+
+const setQuizState = `
+mutation ForumQuizSetState($id: ID!, $state: ForumQuizState!) {
+  forumQuizSetState(_id: $id, state: $state)
+}
+`;
+
+const quizChoicePatch = `
+mutation ForumQuizChoicePatch(
+  $_id: ID!
+  $imageUrl: String
+  $isCorrect: Boolean
+  $listOrder: Float
+  $text: String
+) {
+  forumQuizChoicePatch(
+    _id: $_id
+    imageUrl: $imageUrl
+    isCorrect: $isCorrect
+    listOrder: $listOrder
+    text: $text
+  ) {
+    _id
+  }
+}
+`;
+
+const quizChoiceDelete = `
+mutation ForumQuizChoiceDelete($_id: ID!) {
+  forumQuizChoiceDelete(_id: $_id) {
+    _id
+  }
+}
+`;
+
+const quizQuestionPatch = `
+mutation ForumQuizQuestionPatch(
+  $_id: ID!
+  $imageUrl: String
+  $isMultipleChoice: Boolean
+  $listOrder: Float
+  $text: String
+) {
+  forumQuizQuestionPatch(
+    _id: $_id
+    imageUrl: $imageUrl
+    isMultipleChoice: $isMultipleChoice
+    listOrder: $listOrder
+    text: $text
+  ) {
+    _id
+  }
+}
+`;
+
+const createChoice = `
+mutation ForumQuizChoiceCreate(
+  $isCorrect: Boolean!
+  $listOrder: Float!
+  $questionId: ID!
+  $quizId: ID!
+  $imageUrl: String
+  $text: String
+) {
+  forumQuizChoiceCreate(
+    isCorrect: $isCorrect
+    listOrder: $listOrder
+    questionId: $questionId
+    quizId: $quizId
+    imageUrl: $imageUrl
+    text: $text
+  ) {
+    _id
+  }
+}
+`;
+
+const deleteQuizQuestion = `
+mutation ForumQuizQuestionDelete($id: ID!) {
+  forumQuizQuestionDelete(_id: $id) {
+    _id
+  }
+}
+`;
+
 export default {
   updateCategory,
   createCategory,
@@ -414,6 +586,7 @@ export default {
   postApprove,
   postDeny,
   addPermit,
+  removePermit,
   permissionGroupCreate,
   permissionGroupPatch,
   permissionGroupDelete,
@@ -423,5 +596,15 @@ export default {
   deleteSubscriptionProduct,
   updateProduct,
   createProduct,
-  extendSubscription
+  extendSubscription,
+  deleteQuiz,
+  createQuiz,
+  updateQuiz,
+  createQuizQuestion,
+  setQuizState,
+  quizChoicePatch,
+  quizChoiceDelete,
+  quizQuestionPatch,
+  createChoice,
+  deleteQuizQuestion
 };

@@ -10,7 +10,7 @@ import * as compose from 'lodash.flowright';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { queries, mutations } from '../../graphql';
-import { Alert, withProps } from '@erxes/ui/src/utils';
+import { Alert, withProps, confirm } from '@erxes/ui/src/utils';
 import { RemoveMutationResponse, PagesQueryResponse } from '../../types';
 import { graphql } from 'react-apollo';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -42,10 +42,16 @@ function PagesList({ history, removeMutation, pagesQuery }: FinalProps) {
   const queryParams = queryString.parse(location.search);
 
   const remove = pageId => {
-    removeMutation({ variables: { _id: pageId } })
-      .then(() => {
-        pagesQuery.refetch();
-      })
+    confirm('Are you sure?')
+      .then(() =>
+        removeMutation({ variables: { _id: pageId } })
+          .then(() => {
+            pagesQuery.refetch();
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          })
+      )
       .catch(e => {
         Alert.error(e.message);
       });

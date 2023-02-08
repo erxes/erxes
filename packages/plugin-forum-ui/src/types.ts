@@ -3,12 +3,12 @@ import { timeDuractionUnits } from './constants';
 export type TimeDurationUnit = typeof timeDuractionUnits[number];
 
 export interface ICategory {
-  _id: string;
-  type: string;
-  name: string;
+  _id?: string;
+  type?: string;
+  name?: string;
   order?: number;
   description?: string | null;
-  code: string;
+  code?: string;
   postsCount?: number;
   ancestors?: ICategory[];
   parentId?: string | null;
@@ -144,6 +144,7 @@ export interface IPermission {
   _id: string;
   category: {
     name: string;
+    _id: string;
   };
   permission: string;
   permissionGroup: {
@@ -151,6 +152,37 @@ export interface IPermission {
     cpUserIds: string[];
   };
 }
+
+export interface IQuiz {
+  _id?: string;
+  name?: string;
+  description?: string;
+  company?: {
+    _id?: string;
+    primaryName?: string;
+  };
+  post?: {
+    _id?: string;
+    title?: string;
+  };
+  category?: {
+    _id?: string;
+    name?: string;
+    parent?: {
+      _id?: string;
+      name?: string;
+    };
+  };
+  tagIds?: string[];
+}
+
+export interface ICompany {
+  _id?: string;
+  primaryEmail?: string;
+  primaryName?: string;
+  primaryPhone?: string;
+}
+
 /* queries */
 
 export type PagesQueryResponse = {

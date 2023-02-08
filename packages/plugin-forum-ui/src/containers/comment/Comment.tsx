@@ -6,7 +6,7 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import CommentComponent from '../../components/comment/Comment';
 import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
-import { confirm, withProps } from '@erxes/ui/src/utils';
+import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import { IComment, RemoveMutationResponse } from '../../types';
 
 type Props = {
@@ -31,15 +31,10 @@ const Comment: React.FC<FinalProps> = ({
   });
 
   const onDelete = async (item: any) => {
-    if (
-      !confirm(
-        `Are you sure you want to delete this comment: "${item.content}"`
-      )
-    ) {
-      return null;
-    }
+    confirm(`Are you sure you want to delete this comment "${item.content}"`)
+      .then(() => removeMutation({ variables: { _id: item._id } }))
+      .catch(e => Alert.error(e.message));
 
-    removeMutation({ variables: { _id: item._id } });
     if (onDeleted) {
       onDeleted(item._id);
     }

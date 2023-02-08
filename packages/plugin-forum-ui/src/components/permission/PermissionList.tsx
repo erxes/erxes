@@ -14,7 +14,7 @@ import {
   FilterWrapper
 } from '@erxes/ui-settings/src/permissions/styles';
 import PermissionForm from './PermissionForm';
-import PermissionRow from './PermissionRow';
+import PermissionRow from '../../containers/permission/PermissionRow';
 import { correctValue, generatedList, generateModuleParams } from '../../utils';
 import { Title } from '@erxes/ui-settings/src/styles';
 import { IUserGroupDocument, IPermission, ICategory } from '../../types';
