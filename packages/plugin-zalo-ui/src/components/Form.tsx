@@ -82,7 +82,9 @@ class Zalo extends React.Component<Props, State> {
                     <strong>{__('How can i get a Zalo OA')}</strong>
                     <br />
                     {__('For register an account, go to this link:')}
-                    <a href="https://oa.zalo.me/" target="_blank">https://oa.zalo.me/</a>
+                    <a href="https://oa.zalo.me/" target="_blank">
+                      https://oa.zalo.me/
+                    </a>
                   </Info>
                 </FormGroup>
 

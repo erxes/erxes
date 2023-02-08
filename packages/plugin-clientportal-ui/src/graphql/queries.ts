@@ -192,6 +192,7 @@ const clientPortalUserDetail = `
   query clientPortalUserDetail($_id: String!) {
     clientPortalUserDetail(_id: $_id) {
       ${clientPortalUserFields}
+      forumSubscriptionEndsAfter
       customer {
         firstName
         lastName
