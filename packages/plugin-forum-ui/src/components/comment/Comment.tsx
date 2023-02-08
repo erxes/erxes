@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
-import CommentForm from '../../components/comment/CommentForm';
+import CommentForm from './CommentForm';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IComment } from '../../types';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';

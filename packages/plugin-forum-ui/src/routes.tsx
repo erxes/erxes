@@ -56,14 +56,10 @@ const QuizEdit = asyncComponent(() =>
 );
 
 const layout = () => {
-  const lastVisited = localStorage.getItem('erxes_forum_url') || 'posts';
-
-  return <Redirect to={`/forums/${lastVisited}`} />;
+  return <Redirect to={`/forums/posts`} />;
 };
 
 const pageList = () => {
-  localStorage.setItem('erxes_forum_url', 'pages');
-
   return <PageList />;
 };
 
@@ -74,8 +70,6 @@ const pageDetail = ({ match }) => {
 };
 
 const postList = () => {
-  localStorage.setItem('erxes_forum_url', 'posts');
-
   return <PostList />;
 };
 
