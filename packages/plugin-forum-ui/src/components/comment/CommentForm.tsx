@@ -28,18 +28,21 @@ const CommentForm: React.FC<{
 
   const renderContent = (formProps: IFormProps) => {
     const { isSubmitted, values } = formProps;
+
     return (
       <Comment isReply={replyToId ? true : false}>
         <FormControl
           {...formProps}
           placeholder="Write a comment"
           name="comment"
+          value={comment}
           onChange={handleChange}
         />
         &nbsp;&nbsp;&nbsp;
         {renderButton({
           values: generateDoc(values),
-          isSubmitted
+          isSubmitted,
+          callback: () => setComment('')
         })}
       </Comment>
     );
