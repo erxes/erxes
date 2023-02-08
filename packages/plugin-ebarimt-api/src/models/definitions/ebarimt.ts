@@ -34,20 +34,22 @@ export interface IPutResponse {
   contentType: string;
   contentId: string;
   sendInfo?: any;
+  status?: string;
 }
 
 export interface IPutResponseDocument extends Document, IPutResponse {
   _id: string;
   createdAt: Date;
   modifiedAt: Date;
+  lottery?: string;
 }
 
 export const putResponseSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    createdAt: field({ type: Date, label: 'Created at' }),
+    createdAt: field({ type: Date, label: 'Created at', index: true }),
     modifiedAt: field({ type: Date, label: 'Modified at' }),
-    number: field({ type: String, label: 'Inner bill number' }),
+    number: field({ type: String, label: 'Inner bill number', index: true }),
 
     // Холбогдох обьект
     contentType: field({ type: String, label: 'Content Type' }),
@@ -108,7 +110,7 @@ export const putResponseSchema = schemaHooksWrapper(
     registerNo: field({ type: String, label: '' }),
     customerNo: field({ type: String, label: '' }),
     customerName: field({ type: String, label: '' }),
-
+    status: field({ type: String, optional: true }),
     posToken: field({ type: String, optional: true })
   }),
 
