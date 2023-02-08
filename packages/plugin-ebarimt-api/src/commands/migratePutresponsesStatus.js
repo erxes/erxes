@@ -1,8 +1,9 @@
-import * as dotenv from 'dotenv';
+const dotenv = require('dotenv');
+const { MongoClient } = require('mongodb');
+
 
 dotenv.config();
 
-import { Collection, Db, MongoClient } from 'mongodb';
 const { MONGO_URL } = process.env;
 
 if (!MONGO_URL) {
@@ -10,20 +11,14 @@ if (!MONGO_URL) {
 }
 
 const client = new MongoClient(MONGO_URL);
-
-let db: Db;
-
-let PutResponses: Collection<any>;
-
-const codes: string[] = [];
+let db;
 
 const command = async () => {
   console.log(`start.... ${MONGO_URL}`);
-
   await client.connect();
+  db = client.db();
 
   console.log('connected...');
-  db = client.db() as Db;
 
   PutResponses = db.collection('put_responses');
 
