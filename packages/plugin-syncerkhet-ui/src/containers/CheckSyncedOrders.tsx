@@ -138,6 +138,7 @@ const generateParams = ({ queryParams }) => {
     createdStartDate: queryParams.createdStartDate,
     createdEndDate: queryParams.createdEndDate,
     posToken: queryParams.posToken,
+    search: queryParams.search,
     sortField: queryParams.sortField,
     sortDirection: Number(queryParams.sortDirection) || undefined,
     page: queryParams.page ? parseInt(queryParams.page, 10) : 1,
