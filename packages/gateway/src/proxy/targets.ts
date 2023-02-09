@@ -19,7 +19,7 @@ async function getProxyTarget(name: string): Promise<ErxesProxyTarget> {
     name,
     address: service.address,
     config: service.config,
-    pathRegex: new RegExp(`^\\/pl(:|-)${name}`, 'i')
+    pathRegex: new RegExp(`^\\/pl(:|-)${name}(?=(\\b|\\/))`, 'i')
   };
 }
 

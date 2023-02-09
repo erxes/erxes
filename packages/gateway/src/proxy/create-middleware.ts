@@ -33,7 +33,8 @@ export default function createErxesProxyMiddleware(
     },
     pathRewrite: (path: string, req: RequestWithTargetExtra) => {
       if (!req.foundProxyTarget?.pathRegex) return path;
-      return path.replace(req.foundProxyTarget.pathRegex, '');
+      const newPath = path.replace(req.foundProxyTarget.pathRegex, '');
+      return newPath;
     },
     onProxyReq: (proxyReq, req: any) => {
       proxyReq.setHeader('hostname', req.hostname);
