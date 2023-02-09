@@ -124,7 +124,7 @@ class PermissionForm extends React.Component<Props, State> {
 
   render() {
     const { closeModal, refetchQueries } = this.props;
-    console.log(refetchQueries);
+
     return (
       <form onSubmit={this.save}>
         {this.renderContent()}

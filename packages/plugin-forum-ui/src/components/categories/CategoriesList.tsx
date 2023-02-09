@@ -1,20 +1,20 @@
-import React from 'react';
 import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { __ } from 'coreui/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import Table from '@erxes/ui/src/components/table';
-import Row from '../../containers/categories/Row';
 import CategoryForm from '../../containers/categories/CategoryForm';
-import { Title } from '@erxes/ui-settings/src/styles';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { ICategory } from '../../types';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import RowContainer from '../../containers/categories/Row';
+import Table from '@erxes/ui/src/components/table';
+import { Title } from '@erxes/ui-settings/src/styles';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from 'coreui/utils';
 
 type Props = {
   forumCategories: ICategory[];
 };
 
-export default function LayoutCategories({ forumCategories }: Props) {
+export default function CategoriesList({ forumCategories }: Props) {
   const breadcrumb = [
     { title: __('Settings'), link: '/settings' },
     { title: __('Categories'), link: '/forums/categories' }
@@ -60,7 +60,7 @@ export default function LayoutCategories({ forumCategories }: Props) {
       </thead>
       <tbody id={'ForumCategoriesList'}>
         {forumCategories.map((cat: ICategory) => {
-          return <Row key={cat._id} category={cat} />;
+          return <RowContainer key={cat._id} category={cat} />;
         })}
       </tbody>
     </Table>

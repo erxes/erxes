@@ -1,12 +1,18 @@
-import React from 'react';
-import Row from '../../components/categories/Row';
-import { useQuery, useMutation } from 'react-apollo';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import { mutations, queries } from '../../graphql';
-import gql from 'graphql-tag';
-import Spinner from '@erxes/ui/src/components/Spinner';
+import { useMutation, useQuery } from 'react-apollo';
 
-export default function CategoryNavItem({ category }) {
+import { ICategory } from '../../types';
+import React from 'react';
+import Row from '../../components/categories/Row';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import gql from 'graphql-tag';
+
+type Props = {
+  category: ICategory;
+};
+
+export default function RowContainer({ category }: Props) {
   const { data, loading, error } = useQuery(
     gql(queries.categoriesByParentIds),
     {
@@ -49,12 +55,10 @@ export default function CategoryNavItem({ category }) {
   const subCategories = data.forumCategories || [];
 
   return (
-    <>
-      <Row
-        parentCategory={category}
-        onDelete={onDeleteCat}
-        categories={subCategories}
-      />
-    </>
+    <Row
+      parentCategory={category}
+      onDelete={onDeleteCat}
+      categories={subCategories}
+    />
   );
 }

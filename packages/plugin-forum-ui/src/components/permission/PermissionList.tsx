@@ -11,7 +11,6 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import GroupList from '../../containers/permission/GroupList';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { PERMISSIONS } from '../../constants';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import PermissionForm from './PermissionForm';
 import PermissionRow from '../../containers/permission/PermissionRow';
 import React from 'react';
@@ -58,7 +57,7 @@ class PermissionList extends React.Component<Props> {
           <Select
             placeholder={__('Choose category')}
             value={queryParams.categoryId}
-            options={generateModuleParams(categoryList)}
+            options={generateModuleParams(categoryList || [])}
             onChange={this.setFilter.bind(this, 'categoryId')}
           />
         </FilterItem>
@@ -145,7 +144,7 @@ class PermissionList extends React.Component<Props> {
         {this.renderFilter()}
         <DataWithLoader
           data={this.renderData()}
-          loading={isLoading}
+          loading={isLoading || false}
           count={permissions.length}
           emptyText={__('There is no permissions in this group')}
           emptyImage="/images/actions/11.svg"
