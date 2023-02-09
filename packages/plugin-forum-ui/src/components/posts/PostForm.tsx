@@ -1,5 +1,5 @@
 import React from 'react';
-import { IPost, ICategory } from '../../types';
+import { IPost, ICategory, IPollOption } from '../../types';
 import EditorCK from '@erxes/ui/src/components/EditorCK';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -10,6 +10,10 @@ import { __ } from '@erxes/ui/src/utils';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Button from '@erxes/ui/src/components/Button';
 import Select from 'react-select-plus';
+import PollOptions from './PollOptions';
+import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
+import dayjs from 'dayjs';
 
 type Props = {
   post?: IPost;
@@ -24,6 +28,10 @@ type State = {
   title: string;
   categoryId: string;
   selectedTags: string[];
+  pollOptions: IPollOption[];
+  multipleChoice: boolean;
+  hasEndDate: boolean;
+  endDate: any;
 };
 
 class PostForm extends React.Component<Props, State> {
@@ -36,7 +44,11 @@ class PostForm extends React.Component<Props, State> {
       content: post.content,
       title: post.title,
       categoryId: post.categoryId,
-      selectedTags: post.tagIds || []
+      selectedTags: post.tagIds || [],
+      pollOptions: post.pollOptions || [],
+      multipleChoice: post.isPollMultiChoice || false,
+      hasEndDate: post.pollEndDate ? true : false,
+      endDate: post.pollEndDate || null
     };
   }
 
@@ -54,6 +66,17 @@ class PostForm extends React.Component<Props, State> {
       finalValues._id = post._id;
     }
 
+    const optionsCleaned = this.state.pollOptions.map(
+      ({ _id, title, order }) => {
+        const option: any = {
+          _id,
+          order,
+          title
+        };
+        return option;
+      }
+    );
+
     return {
       _id: finalValues._id,
       title: finalValues.title,
@@ -61,7 +84,10 @@ class PostForm extends React.Component<Props, State> {
       thumbnail: finalValues.thumbnail,
       categoryId: finalValues.categoryId,
       description: finalValues.description,
-      tagIds: this.state.selectedTags
+      tagIds: this.state.selectedTags,
+      pollEndDate: this.state.endDate,
+      isPollMultiChoice: this.state.multipleChoice,
+      pollOptions: optionsCleaned
     };
   };
 
@@ -87,9 +113,21 @@ class PostForm extends React.Component<Props, State> {
     );
   };
 
+  onChangeRangeFilter = date => {
+    const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
+    this.setState({ endDate: formattedDate });
+  };
+
   renderContent = (formProps: IFormProps) => {
     const { post, renderButton, closeModal, tags } = this.props;
-    const { content, categoryId, selectedTags } = this.state;
+    const {
+      content,
+      categoryId,
+      selectedTags,
+      pollOptions,
+      multipleChoice,
+      hasEndDate
+    } = this.state;
 
     const { isSubmitted, values } = formProps;
 
@@ -106,6 +144,10 @@ class PostForm extends React.Component<Props, State> {
     const onChange = members => {
       const ids = members.map(m => m._id);
       this.setState({ selectedTags: ids });
+    };
+
+    const changeOption = (ops: IPollOption[]) => {
+      this.setState({ pollOptions: ops });
     };
 
     return (
@@ -161,6 +203,59 @@ class PostForm extends React.Component<Props, State> {
             value={selectedTags}
             onChange={onChange}
             multi={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Poll</ControlLabel>
+          <FlexContent>
+            <FlexItem>
+              <FormGroup>
+                <ControlLabel>Multiple choice</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="multipleChoice"
+                  className="toggle-message"
+                  componentClass="checkbox"
+                  checked={multipleChoice}
+                  onChange={() => {
+                    this.setState({ multipleChoice: !multipleChoice });
+                  }}
+                />
+              </FormGroup>
+            </FlexItem>
+            <FlexItem>
+              <FormGroup>
+                <ControlLabel>Has end date</ControlLabel>
+                <FormControl
+                  {...formProps}
+                  name="hasEndDate"
+                  className="toggle-message"
+                  componentClass="checkbox"
+                  checked={hasEndDate}
+                  onChange={() => {
+                    this.setState({ hasEndDate: !hasEndDate });
+                  }}
+                />
+              </FormGroup>
+            </FlexItem>
+            {hasEndDate && (
+              <FlexItem>
+                <DateControl
+                  value={this.state.endDate}
+                  required={false}
+                  name="endDate"
+                  onChange={date => this.onChangeRangeFilter(date)}
+                  placeholder={'End date'}
+                  dateFormat={'YYYY-MM-DD'}
+                />
+              </FlexItem>
+            )}
+          </FlexContent>
+          <PollOptions
+            emptyMessage="There is no options"
+            onChangeOption={options => changeOption(options)}
+            options={pollOptions}
           />
         </FormGroup>
 
