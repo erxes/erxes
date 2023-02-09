@@ -182,6 +182,12 @@ export interface ICompany {
   primaryName?: string;
   primaryPhone?: string;
 }
+export interface IPollOption {
+  _id?: string;
+  title: string;
+  order: number;
+  isNew?: boolean;
+}
 
 /* queries */
 

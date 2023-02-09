@@ -124,6 +124,8 @@ const forumPostsQuery = `
         title
         order
       }
+      isPollMultiChoice
+      pollEndDate
 
       viewCount
 
@@ -236,11 +238,6 @@ const forumPostDetail = `
         _id
         title
         order
-      }
-
-      quizzes {
-        _id
-        name
       }
 
       isFeaturedByAdmin
@@ -461,6 +458,103 @@ query Tags {
 }
 `;
 
+const quizzesList = `
+query ForumQuizzes($limit: Int, $offset: Int, $sort: JSON) {
+  forumQuizzes(limit: $limit, offset: $offset, sort: $sort) {
+    tagIds
+    _id
+    name
+    description
+    company {
+      _id
+      primaryName
+    }
+    post {
+      _id
+      title
+    }
+    category {
+      _id
+      name
+      parent {
+        _id
+        name
+      }
+    }
+  }
+}
+`;
+
+const quizDetail = `
+query ForumQuiz($id: ID!) {
+  forumQuiz(_id: $id) {
+    _id
+    postId
+    companyId
+    tagIds
+    categoryId
+    name
+    description
+    isLocked
+    category {
+      _id
+      name
+    }
+    company {
+      _id
+      primaryEmail
+      primaryName
+      primaryPhone
+    }
+    post {
+      _id
+      title
+    }
+    questions {
+      _id
+    }
+    state
+    tags {
+      _id
+      name
+    }
+  }
+}
+`;
+
+const quizQuestion = `
+query ForumQuizQuestion($_id: ID!) {
+  forumQuizQuestion(_id: $_id) {
+    _id
+    choices {
+      _id
+      imageUrl
+      isCorrect
+      listOrder
+      questionId
+      quizId
+      text
+    }
+    imageUrl
+    isMultipleChoice
+    listOrder
+    quizId
+    text
+  }
+}
+`;
+
+const companiesList = `
+query Companies($page: Int, $perPage: Int, $searchValue: String) {
+  companies(page: $page, perPage: $perPage, searchValue: $searchValue) {
+    _id
+    primaryEmail
+    primaryName
+    primaryPhone
+  }
+}
+`;
+
 export default {
   allCategoryQueries,
   categoriesAll,
@@ -484,5 +578,9 @@ export default {
   pages,
   clientPortalUsers,
   clientPortalUserDetail,
-  tags
+  tags,
+  quizzesList,
+  quizDetail,
+  quizQuestion,
+  companiesList
 };
