@@ -10,6 +10,7 @@
   "dependencies": {
     "@apollo/federation": "^0.33.8",
     "@apollo/gateway": "^0.44.1",
+    "@apollo/rover": "^0.11.1",
     "apollo-server-core": "^3.6.1",
     "apollo-server-express": "^3.5.0",
     "cookie-parser": "^1.4.6",
@@ -29,7 +30,8 @@
     "lodash": "^4.17.21",
     "nodejs-file-downloader": "^4.9.2",
     "server-timing": "^3.3.2",
-    "ws": "^8.4.0"
+    "ws": "^8.4.0",
+    "node-fetch": "^3.3.0"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.2",

@@ -127,3 +127,5 @@ dist
 .pnp.*
 
 src/subscription/plugins/downloads
+
+src/router/temp
