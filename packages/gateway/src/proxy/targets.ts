@@ -106,10 +106,14 @@ export function proxyConfigByPath0(
 ): ProxyTargetByPath0 {
   const result: ProxyTargetByPath0 = {};
   for (const target of targets) {
-    const path01 = `pl:${target.name}`;
-    const path02 = `pl-${target.name}`;
-    result[path01] = target;
-    result[path02] = target;
+    if (target.name === 'router') {
+      result['graphql'] = target;
+    } else {
+      const path01 = `pl:${target.name}`;
+      const path02 = `pl-${target.name}`;
+      result[path01] = target;
+      result[path02] = target;
+    }
   }
   return result;
 }

@@ -10,29 +10,28 @@ if (process.env.ELASTIC_APM_HOST_NAME) {
   });
 }
 
-import { ApolloServer } from 'apollo-server-express';
-import { ApolloGateway } from '@apollo/gateway';
-import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
-import { createProxyMiddleware } from 'http-proxy-middleware';
-import * as ws from 'ws';
+// import { createProxyMiddleware } from 'http-proxy-middleware';
+// import * as ws from 'ws';
 import * as express from 'express';
 import * as http from 'http';
 import * as cookieParser from 'cookie-parser';
-import { loadSubscriptions } from './subscription';
-import { createGateway, IGatewayContext } from './gateway';
+// import { loadSubscriptions } from './subscription';
 import userMiddleware from './middlewares/userMiddleware';
 import pubsub from './subscription/pubsub';
 import {
   clearCache,
-  getService,
-  getServices,
-  redis,
-  setAfterMutations,
-  setBeforeResolvers,
-  setAfterQueries
+  // getService,
+  // getServices,
+  redis
+  // setAfterMutations,
+  // setBeforeResolvers,
+  // setAfterQueries
 } from './redis';
 import { initBroker } from './messageBroker';
 import * as cors from 'cors';
+import { retryGetProxyTargets, ErxesProxyTarget } from './proxy/targets';
+import createErxesProxyMiddleware from './proxy/create-middleware';
+import startRouter from './router/start';
 
 const {
   NODE_ENV,
@@ -40,7 +39,7 @@ const {
   WIDGETS_DOMAIN,
   CLIENT_PORTAL_DOMAINS,
   ALLOWED_ORIGINS,
-  PLUGINS_INTERNAL_PORT,
+  // PLUGINS_INTERNAL_PORT,
   PORT,
   RABBITMQ_HOST,
   MESSAGE_BROKER_PREFIX
@@ -69,54 +68,72 @@ const {
 
   app.use(cors(corsOptions));
 
-  app.use(
-    /\/((?!graphql).)*/,
-    createProxyMiddleware({
-      target:
-        NODE_ENV === 'production'
-          ? `http://plugin_core_api${
-              PLUGINS_INTERNAL_PORT ? `:${PLUGINS_INTERNAL_PORT}` : ''
-            }`
-          : 'http://localhost:3300',
-      router: async req => {
-        const services = await getServices();
+  // app.use(
+  //   /\/((?!graphql).)*/,
+  //   createProxyMiddleware({
+  //     target:
+  //       NODE_ENV === 'production'
+  //         ? `http://plugin_core_api${
+  //             PLUGINS_INTERNAL_PORT ? `:${PLUGINS_INTERNAL_PORT}` : ''
+  //           }`
+  //         : 'http://localhost:3300',
+  //     router: async req => {
+  //       const services = await getServices();
 
-        let host;
+  //       let host;
 
-        for (const service of services) {
-          if (
-            req.path.includes(`/pl:${service}/`) ||
-            req.path.includes(`/pl-${service}/`)
-          ) {
-            const foundService = await getService(service);
-            host = foundService.address;
-            break;
-          }
-        }
+  //       for (const service of services) {
+  //         if (
+  //           req.path.includes(`/pl:${service}/`) ||
+  //           req.path.includes(`/pl-${service}/`)
+  //         ) {
+  //           const foundService = await getService(service);
+  //           host = foundService.address;
+  //           break;
+  //         }
+  //       }
 
-        if (host) {
-          return host;
-        }
-      },
-      onProxyReq: (proxyReq, req: any) => {
-        proxyReq.setHeader('hostname', req.hostname);
-        proxyReq.setHeader('userid', req.user ? req.user._id : '');
-      },
-      pathRewrite: async path => {
-        let newPath = path;
+  //       if (host) {
+  //         return host;
+  //       }
+  //     },
+  //     onProxyReq: (proxyReq, req: any) => {
+  //       proxyReq.setHeader('hostname', req.hostname);
+  //       proxyReq.setHeader('userid', req.user ? req.user._id : '');
+  //     },
+  //     pathRewrite: async path => {
+  //       let newPath = path;
 
-        const services = await getServices();
+  //       const services = await getServices();
 
-        for (const service of services) {
-          newPath = newPath
-            .replace(`/pl:${service}/`, '/')
-            .replace(`/pl-${service}/`, '/');
-        }
+  //       for (const service of services) {
+  //         newPath = newPath
+  //           .replace(`/pl:${service}/`, '/')
+  //           .replace(`/pl-${service}/`, '/');
+  //       }
 
-        return newPath;
-      }
-    })
-  );
+  //       return newPath;
+  //     }
+  //   })
+  // );
+
+  const targets: ErxesProxyTarget[] = await retryGetProxyTargets();
+
+  const targetsWithRouter: ErxesProxyTarget[] = [
+    ...targets,
+    {
+      name: 'graphql',
+      address: 'http://localhost:50000',
+      pathRegex: /^\/graphql/i,
+      config: null
+    }
+  ];
+
+  app.use(createErxesProxyMiddleware(targetsWithRouter));
+
+  await startRouter(targets);
+
+  // console.log(targetsWithRouter);
 
   // for health check
   app.get('/health', async (_req, res) => {

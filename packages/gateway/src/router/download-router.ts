@@ -9,17 +9,16 @@ if (!fs.existsSync(dirTempPath)) {
 }
 const routerPath = path.resolve(dirTempPath, 'router');
 
-const main = async () => {
+const main = async (): Promise<string> => {
   if (fs.existsSync(routerPath)) {
-    return;
+    return routerPath;
   }
   const args = [
     '-c',
     `cd ${dirTempPath} && curl -sSL https://router.apollo.dev/download/nix/v1.10.2 | sh`
   ];
   spawnSync('sh', args, { stdio: 'inherit' });
+  return routerPath;
 };
-
-main();
 
 export default main;
