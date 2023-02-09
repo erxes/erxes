@@ -133,46 +133,46 @@ const {
     }
   });
 
-  const wsServer = new ws.Server({
-    server: httpServer,
-    path: '/graphql'
-  });
+  // const wsServer = new ws.Server({
+  //   server: httpServer,
+  //   path: '/graphql'
+  // });
 
-  const gateway: ApolloGateway = await createGateway();
+  // const gateway: ApolloGateway = await createGateway();
 
-  const apolloServer = new ApolloServer({
-    gateway,
-    introspection: true,
-    // for graceful shutdowns
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-    context: ({ res, req }: { res; req }): IGatewayContext => {
-      return { res, req };
-    }
-  });
+  // const apolloServer = new ApolloServer({
+  //   gateway,
+  //   introspection: true,
+  //   // for graceful shutdowns
+  //   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+  //   context: ({ res, req }: { res; req }): IGatewayContext => {
+  //     return { res, req };
+  //   }
+  // });
 
-  let subscriptionsLoaded = false;
-  gateway.onSchemaLoadOrUpdate(async ({ apiSchema }) => {
-    if (subscriptionsLoaded) {
-      return;
-    }
+  // let subscriptionsLoaded = false;
+  // gateway.onSchemaLoadOrUpdate(async ({ apiSchema }) => {
+  //   if (subscriptionsLoaded) {
+  //     return;
+  //   }
 
-    try {
-      await loadSubscriptions(apiSchema, wsServer);
-      subscriptionsLoaded = true;
-    } catch (e) {
-      console.error(e);
-    }
-  });
+  //   try {
+  //     await loadSubscriptions(apiSchema, wsServer);
+  //     subscriptionsLoaded = true;
+  //   } catch (e) {
+  //     console.error(e);
+  //   }
+  // });
 
-  try {
-    await apolloServer.start();
-  } catch (e) {
-    console.error(e);
-    console.error(
-      `Gateway might have started before enabled services are ready.`
-    );
-    process.exit(1);
-  }
+  // try {
+  //   await apolloServer.start();
+  // } catch (e) {
+  //   console.error(e);
+  //   console.error(
+  //     `Gateway might have started before enabled services are ready.`
+  //   );
+  //   process.exit(1);
+  // }
 
   app.use(
     express.json({
@@ -182,11 +182,11 @@ const {
 
   app.use(express.urlencoded({ limit: '15mb', extended: true }));
 
-  apolloServer.applyMiddleware({
-    app,
-    path: '/graphql',
-    cors: corsOptions
-  });
+  // apolloServer.applyMiddleware({
+  //   app,
+  //   path: '/graphql',
+  //   cors: corsOptions
+  // });
 
   const port = PORT || 4000;
 
@@ -194,13 +194,13 @@ const {
 
   await initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis });
 
-  await setBeforeResolvers();
-  await setAfterMutations();
-  await setAfterQueries();
+  // await setBeforeResolvers();
+  // await setAfterMutations();
+  // await setAfterQueries();
 
-  console.log(
-    `Erxes gateway ready at http://localhost:${port}${apolloServer.graphqlPath}`
-  );
+  // console.log(
+  //   `Erxes gateway ready at http://localhost:${port}${apolloServer.graphqlPath}`
+  // );
 })();
 
 (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
