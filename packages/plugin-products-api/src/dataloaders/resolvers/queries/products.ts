@@ -214,8 +214,9 @@ const productQueries = {
     {
       parentId,
       searchValue,
-      status
-    }: { parentId: string; searchValue: string; status: string },
+      status,
+      meta
+    }: { parentId: string; searchValue: string; status: string; meta: string },
     { commonQuerySelector, models }: IContext
   ) {
     const filter: any = commonQuerySelector;
@@ -232,6 +233,10 @@ const productQueries = {
 
     if (searchValue) {
       filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+    }
+
+    if (meta) {
+      filter.meta = meta;
     }
 
     return models.ProductCategories.find(filter)
