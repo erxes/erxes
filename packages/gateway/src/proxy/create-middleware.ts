@@ -3,6 +3,8 @@ import { createProxyMiddleware } from 'http-proxy-middleware';
 import { ErxesProxyTarget, proxyConfigByPath0 } from './targets';
 import { ServerOptions } from 'http-proxy';
 
+const { NODE_ENV, PLUGINS_INTERNAL_PORT } = process.env;
+
 type RequestWithTargetExtra = Request & {
   foundProxyTarget?: ErxesProxyTarget;
 };
@@ -12,9 +14,13 @@ export default function createErxesProxyMiddleware(
 ): RequestHandler {
   const lookup = proxyConfigByPath0(targets);
 
-  console.log(lookup);
-
   return createProxyMiddleware({
+    target:
+      NODE_ENV === 'production'
+        ? `http://plugin_core_api${
+            PLUGINS_INTERNAL_PORT ? `:${PLUGINS_INTERNAL_PORT}` : ''
+          }`
+        : 'http://localhost:3300',
     router: (req: RequestWithTargetExtra): ServerOptions['target'] => {
       const path0 = req.path.split('/').find(p => !!p);
       if (!path0) return;
@@ -26,6 +32,10 @@ export default function createErxesProxyMiddleware(
     pathRewrite: (path: string, req: RequestWithTargetExtra) => {
       if (!req.foundProxyTarget?.pathRegex) return path;
       return path.replace(req.foundProxyTarget.pathRegex, '');
+    },
+    onProxyReq: (proxyReq, req: any) => {
+      proxyReq.setHeader('hostname', req.hostname);
+      proxyReq.setHeader('userid', req.user ? req.user._id : '');
     }
   });
 }
