@@ -12,6 +12,8 @@ export default function createErxesProxyMiddleware(
 ): RequestHandler {
   const lookup = proxyConfigByPath0(targets);
 
+  console.log(lookup);
+
   return createProxyMiddleware({
     router: (req: RequestWithTargetExtra): ServerOptions['target'] => {
       const path0 = req.path.split('/').find(p => !!p);

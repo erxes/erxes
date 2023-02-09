@@ -119,7 +119,7 @@ const startRouter = async (
   proxyTargets: ErxesProxyTarget[],
   pollIntervalMs?: number
 ) => {
-  await createSupergraphConfig(proxyTargets.filter(t => t.name !== 'router'));
+  await createSupergraphConfig(proxyTargets.filter(t => t.name !== 'graphql'));
   await createRouterConfig();
   const routerPath = await downloadRouter();
 
