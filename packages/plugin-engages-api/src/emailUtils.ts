@@ -24,7 +24,7 @@ const prepareContentAndSubject = (
   let replacedSubject = subject;
 
   const DOMAIN = getEnv({ name: 'DOMAIN' });
-  const unsubscribeUrl = `${DOMAIN}/pl:core/unsubscribe/?cid=${customer._id}`;
+  const unsubscribeUrl = `${DOMAIN}/gateway/pl:core/unsubscribe/?cid=${customer._id}`;
 
   if (customer.replacers) {
     for (const replacer of customer.replacers) {

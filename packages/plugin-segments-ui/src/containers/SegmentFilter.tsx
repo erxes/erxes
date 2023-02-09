@@ -25,7 +25,7 @@ const SegmentFilterContainer = (props: Props & WrapperProps) => {
     bySegment: {}
   };
 
-  return <Segments contentType="user" counts={counts.bySegment || {}} />;
+  return <Segments contentType="core:user" counts={counts.bySegment || {}} />;
 };
 
 type WrapperProps = {
