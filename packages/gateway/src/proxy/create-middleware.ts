@@ -2,6 +2,8 @@ import { Request, RequestHandler } from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { ErxesProxyTarget, proxyConfigByPath0 } from './targets';
 import { ServerOptions } from 'http-proxy';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 const { NODE_ENV, PLUGINS_INTERNAL_PORT } = process.env;
 

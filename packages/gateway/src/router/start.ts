@@ -1,5 +1,4 @@
 import * as dotenv from 'dotenv';
-
 dotenv.config();
 
 import { spawn, execSync, exec as execCb } from 'child_process';
