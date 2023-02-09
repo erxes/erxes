@@ -249,6 +249,7 @@ export const fieldGroupSchema = schemaWrapper(
     }),
     // Id of user who updated the group
     lastUpdatedUserId: field({ type: String, label: 'Last updated by' }),
+    isMultiple: field({ type: Boolean, default: false, label: 'Is multple' }),
     isVisible: field({ type: Boolean, default: true, label: 'Is visible' }),
     isVisibleInDetail: field({
       type: Boolean,

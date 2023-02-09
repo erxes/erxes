@@ -173,6 +173,7 @@ export const fieldsGroupsTypes = `
     code: String
     parentId: String
     description: String
+    isMultiple: Boolean
     isVisible: Boolean
     isVisibleInDetail: Boolean
     isDefinedByErxes: Boolean
@@ -193,6 +194,7 @@ const fieldsGroupsCommonFields = `
   description: String
   parentId: String
   code: String
+  isMultiple: Boolean
   isVisible: Boolean
   isVisibleInDetail: Boolean
   config: JSON

@@ -440,6 +440,7 @@ const fieldsGroups = `
     fieldsGroups(contentType: $contentType, isDefinedByErxes: $isDefinedByErxes, config: $config) {
       name
       ${genericFields}
+      isMultiple
       parentId
       config
       logicAction

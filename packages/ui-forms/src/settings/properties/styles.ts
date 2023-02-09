@@ -186,6 +186,10 @@ const ObjectListItemContainer = styled.div`
   padding-bottom: 10px;
 `;
 
+const Divider = styled.hr`
+  border-top: 4px solid ${colors.borderDarker};
+`;
+
 export {
   PropertyList,
   DropIcon,
@@ -200,5 +204,6 @@ export {
   PropertyTableRow,
   RowField,
   FlexRow,
-  ObjectListItemContainer
+  ObjectListItemContainer,
+  Divider
 };

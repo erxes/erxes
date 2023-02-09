@@ -37,6 +37,7 @@ export interface IFieldGroup {
   description: string;
   code: string;
   parentId: string;
+  isMultiple: boolean;
   isVisible: boolean;
   isVisibleInDetail: boolean;
   isDefinedByErxes: boolean;
@@ -44,7 +45,6 @@ export interface IFieldGroup {
   lastUpdatedUserId: string;
   lastUpdatedUser: IUser;
   config: any;
-
   logics?: IFieldLogic[];
   logicAction?: string;
 }

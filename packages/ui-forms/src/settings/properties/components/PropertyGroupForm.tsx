@@ -28,6 +28,7 @@ type Props = {
 };
 
 type State = {
+  isMultiple: boolean;
   isVisible: boolean;
   isVisibleInDetail: boolean;
   config: any;
@@ -38,11 +39,13 @@ class PropertyGroupForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
+    let isMultiple = false;
     let isVisible = true;
     let isVisibleInDetail = true;
     let config = {};
 
     if (props.group) {
+      isMultiple = props.group.isMultiple;
       isVisible = props.group.isVisible;
       isVisibleInDetail = props.group.isVisibleInDetail;
       config = props.group.config;
@@ -50,6 +53,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
 
     this.state = {
       config,
+      isMultiple,
       isVisible,
       isVisibleInDetail,
       logics: props.group && props.group.logics ? props.group.logics : [],
@@ -77,12 +81,21 @@ class PropertyGroupForm extends React.Component<Props, State> {
     return {
       ...finalValues,
       contentType: type,
+      isMultiple: this.state.isMultiple,
       isVisible: this.state.isVisible,
       isVisibleInDetail: this.state.isVisibleInDetail,
       config,
       logicAction,
       logics
     };
+  };
+
+  multipleHandler = e => {
+    if (e.target.id === 'multiple') {
+      const isMultiple = e.target.checked;
+
+      return this.setState({ isMultiple });
+    }
   };
 
   visibleHandler = e => {
@@ -245,6 +258,21 @@ class PropertyGroupForm extends React.Component<Props, State> {
         ) : (
           <></>
         )}
+
+        <FormGroup>
+          <ControlLabel>Multiple</ControlLabel>
+          <div>
+            <Toggle
+              id="multiple"
+              checked={this.state.isMultiple}
+              onChange={this.multipleHandler}
+              icons={{
+                checked: <span>Checked</span>,
+                unchecked: <span>Unchecked</span>
+              }}
+            />
+          </div>
+        </FormGroup>
 
         <CollapseContent title={__('Logic')} compact={true}>
           <PropertyLogics
