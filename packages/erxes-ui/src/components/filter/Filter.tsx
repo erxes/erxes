@@ -116,6 +116,9 @@ function Filter({ queryParams = {}, history }: IProps) {
     <Filters>
       {renderFilterWithData('channelId', 'channel')}
       {renderFilterParam('status', false)}
+      {renderFilterParam('state', false)}
+      {renderFilterParam('categoryApprovalState', false)}
+      {renderFilterParam('categoryId', false)}
       {renderFilterParam('participating', true)}
       {renderFilterParam('unassigned', true)}
       {renderFilterParam('awaitingResponse', true, 'Awaiting Response')}

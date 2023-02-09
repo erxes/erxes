@@ -13,10 +13,10 @@ type Props = {
   history: any;
 };
 
-function displayValue(putResponse, name) {
+export const displayValue = (putResponse, name) => {
   const value = _.get(putResponse, name);
   return formatValue(value);
-}
+};
 
 class PutResponseRow extends React.Component<Props, {}> {
   render() {
@@ -43,6 +43,7 @@ class PutResponseRow extends React.Component<Props, {}> {
     return (
       <tr>
         <td key={'BillID'}>{putResponse.billId} </td>
+        <td key={'number'}>{putResponse.number} </td>
         <td key={'Date'}>{putResponse.date}</td>
         <td key={'success'}>{displayValue(putResponse, 'success')}</td>
         <td key={'billType'}>{displayValue(putResponse, 'billType')}</td>

@@ -21,6 +21,7 @@ interface State {
   paidEndDate: Date;
   createdStartDate: Date;
   createdEndDate: Date;
+  search: string;
 }
 
 class CheckerSidebar extends React.Component<IProps, State> {
@@ -30,19 +31,18 @@ class CheckerSidebar extends React.Component<IProps, State> {
     const { queryParams } = this.props;
     this.state = {
       posToken: queryParams.posToken,
+      search: queryParams.search,
       paidStartDate: queryParams.paidStartDate,
       paidEndDate: queryParams.paidEndDate,
       createdStartDate: queryParams.createdStartDate,
       createdEndDate: queryParams.createdEndDate
     };
   }
-  setFilter = (name, value) => {
-    router.setParams(this.props.history, { [name]: value });
-  };
 
   onFilter = () => {
     const {
       posToken,
+      search,
       paidStartDate,
       paidEndDate,
       createdStartDate,
@@ -52,6 +52,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
     router.setParams(this.props.history, {
       page: 1,
       posToken,
+      search,
       paidStartDate,
       paidEndDate,
       createdStartDate,
@@ -106,11 +107,18 @@ class CheckerSidebar extends React.Component<IProps, State> {
   }
 
   render() {
-    const { posToken } = this.state;
+    const { posToken, search } = this.state;
     const onChangePosToken = (e: any) => {
       const token = e.target?.value;
       this.setState({ posToken: token });
     };
+
+    const onChangeInput = (e: React.FormEvent<HTMLElement>) => {
+      const value = (e.currentTarget as HTMLInputElement).value;
+      const name = (e.currentTarget as HTMLInputElement).name;
+      this.setState({ [name]: value } as any);
+    };
+
     return (
       <Wrapper.Sidebar>
         <Sidebar>
@@ -123,6 +131,16 @@ class CheckerSidebar extends React.Component<IProps, State> {
                 placeholder={__('POS token')}
                 onChange={onChangePosToken}
                 defaultValue={posToken}
+                autoFocus={true}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Number</ControlLabel>
+              <FormControl
+                type="text"
+                name="search"
+                onChange={onChangeInput}
+                defaultValue={search}
                 autoFocus={true}
               />
             </FormGroup>

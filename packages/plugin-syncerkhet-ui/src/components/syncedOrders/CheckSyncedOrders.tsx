@@ -176,7 +176,7 @@ class CheckSyncedOrders extends React.Component<Props, State> {
             icon="sync"
             onClick={onClickSync}
           >
-            Sync all
+            {`Sync all (${unSyncedOrderIds.length})`}
           </Button>
         )}
       </BarItems>

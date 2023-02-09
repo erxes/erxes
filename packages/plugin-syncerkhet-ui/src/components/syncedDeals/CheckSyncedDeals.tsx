@@ -193,7 +193,7 @@ class CheckSyncedDeals extends React.Component<Props, State> {
             icon="sync"
             onClick={onClickSync}
           >
-            Sync all
+            {`Sync all (${unSyncedDealIds.length})`}
           </Button>
         )}
       </BarItems>
