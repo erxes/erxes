@@ -17,6 +17,10 @@ const generateFilters = async ({
 }) => {
   const filter: any = { status: { $ne: STRUCTURE_STATUSES.DELETED } };
 
+  if (params.ids) {
+    filter._id = { $in: params.ids };
+  }
+
   if (params.searchValue) {
     const regexOption = {
       $regex: `.*${params.searchValue.trim()}.*`,
@@ -34,7 +38,7 @@ const generateFilters = async ({
   }
 
   if (params.status) {
-    params.status = params.status;
+    filter.status = params.status;
   }
 
   if (!params.withoutUserFilter) {

@@ -81,6 +81,11 @@ export const IMPORT_EXPORT_TYPES = [
     contentType: 'asset',
     icon: 'piggy-bank',
     skipFilter: true
+  },
+  {
+    text: 'Assets Movement',
+    contentType: 'assets-movement',
+    icon: 'piggy-bank'
   }
 ];
 

@@ -1,20 +1,21 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import { Redirect, Route } from 'react-router-dom';
+
 import React from 'react';
-import { Route, Redirect } from 'react-router-dom';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 
 const Categories = asyncComponent(() =>
   import(
-    /* webpackChunkName: "List - Forums" */ './containers/Categories/CategoriesList'
+    /* webpackChunkName: "List - Forums" */ './containers/categories/CategoriesList'
   )
 );
 
 const PageList = asyncComponent(() =>
-  import(/* webpackChunkName: "CustomerDetails" */ './containers/Pages/List')
+  import(/* webpackChunkName: "CustomerDetails" */ './containers/pages/List')
 );
 
 const PageDetails = asyncComponent(() =>
-  import(/* webpackChunkName: "CustomerDetails" */ './containers/Pages/Detail')
+  import(/* webpackChunkName: "CustomerDetails" */ './containers/pages/Detail')
 );
 
 const PostList = asyncComponent(() =>
@@ -40,19 +41,19 @@ const SubscriptionProducts = asyncComponent(() =>
 );
 
 const QuizList = asyncComponent(() =>
-  import(/* webpackChunkName: "CustomerDetails" */ './containers/Quiz/List')
+  import(/* webpackChunkName: "CustomerDetails" */ './containers/quiz/List')
 );
 
 const QuizNew = asyncComponent(() =>
-  import(/* webpackChunkName: "CustomerDetails" */ './containers/Quiz/New')
+  import(/* webpackChunkName: "CustomerDetails" */ './containers/quiz/New')
 );
 
 const QuizDetail = asyncComponent(() =>
-  import(/* webpackChunkName: "CustomerDetails" */ './containers/Quiz/Detail')
+  import(/* webpackChunkName: "CustomerDetails" */ './containers/quiz/Detail')
 );
 
 const QuizEdit = asyncComponent(() =>
-  import(/* webpackChunkName: "CustomerDetails" */ './containers/Quiz/Edit')
+  import(/* webpackChunkName: "CustomerDetails" */ './containers/quiz/Edit')
 );
 
 const layout = () => {

@@ -2,7 +2,7 @@ import { mutations, queries } from '../../graphql';
 
 import { Alert } from '@erxes/ui/src/utils';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import CategoryForm from '../../components/categories/CategoryForm';
+import CategoryFormComponent from '../../components/categories/CategoryForm';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { ICategory } from '../../types';
 import { IRouterProps } from '@erxes/ui/src/types';
@@ -64,7 +64,7 @@ function CategoryFormContainer({ closeModal, category }: Props) {
   };
 
   return (
-    <CategoryForm
+    <CategoryFormComponent
       category={category}
       categories={data.forumCategoryPossibleParents}
       renderButton={renderButton}

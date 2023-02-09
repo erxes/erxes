@@ -1,5 +1,5 @@
 import Button from '@erxes/ui/src/components/Button';
-import CategoryForm from '../../containers/categories/CategoryForm';
+import CategoryFormContainer from '../../containers/categories/CategoryForm';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { ICategory } from '../../types';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
@@ -26,7 +26,7 @@ export default function CategoriesList({ forumCategories }: Props) {
     </Button>
   );
 
-  const modalContent = props => <CategoryForm {...props} />;
+  const modalContent = props => <CategoryFormContainer {...props} />;
 
   const actionBarRight = (
     <ModalTrigger

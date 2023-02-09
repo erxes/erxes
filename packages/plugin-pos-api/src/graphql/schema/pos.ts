@@ -222,6 +222,7 @@ const queryParams = `
   userId: String
   customerId: String
   posId: String
+  posToken: String
 `;
 
 export const queries = `
