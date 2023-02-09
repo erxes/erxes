@@ -73,7 +73,7 @@ async function retryEnsureGraphqlEndpointIsUp(target: ErxesProxyTarget) {
   const { name, address } = target;
   const endpoint = `${address}/graphql`;
   const intervalSeconds = 1;
-  const maxTries = 2;
+  const maxTries = 200;
   const totalWaitSeconds = intervalSeconds * maxTries;
   await retry({
     fn: () => ensureGraphqlEndpointIsUp(target),

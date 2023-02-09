@@ -22,16 +22,17 @@ import {
   clearCache,
   // getService,
   // getServices,
-  redis
-  // setAfterMutations,
-  // setBeforeResolvers,
-  // setAfterQueries
+  redis,
+  setAfterMutations,
+  setBeforeResolvers,
+  setAfterQueries
 } from './redis';
 import { initBroker } from './messageBroker';
 import * as cors from 'cors';
 import { retryGetProxyTargets, ErxesProxyTarget } from './proxy/targets';
 import createErxesProxyMiddleware from './proxy/create-middleware';
 import startRouter from './router/start';
+import { ChildProcess } from 'child_process';
 
 const {
   NODE_ENV,
@@ -44,6 +45,15 @@ const {
   RABBITMQ_HOST,
   MESSAGE_BROKER_PREFIX
 } = process.env;
+
+let routerProcess: ChildProcess | undefined = undefined;
+
+const stopRouter = () => {
+  if (!routerProcess) {
+    return;
+  }
+  routerProcess.kill('SIGTERM');
+};
 
 (async () => {
   await clearCache();
@@ -211,9 +221,9 @@ const {
 
   await initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis });
 
-  // await setBeforeResolvers();
-  // await setAfterMutations();
-  // await setAfterQueries();
+  await setBeforeResolvers();
+  await setAfterMutations();
+  await setAfterQueries();
 
   // console.log(
   //   `Erxes gateway ready at http://localhost:${port}${apolloServer.graphqlPath}`
@@ -225,7 +235,7 @@ const {
     if (NODE_ENV === 'development') {
       clearCache();
     }
-
+    stopRouter();
     process.exit(0);
   });
 });

@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import { spawn, execSync, exec as execCb } from 'child_process';
+import { spawn, execSync, exec as execCb, ChildProcess } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as yaml from 'yaml';
@@ -13,7 +13,8 @@ const {
   DOMAIN,
   WIDGETS_DOMAIN,
   CLIENT_PORTAL_DOMAINS,
-  ALLOWED_ORIGINS
+  ALLOWED_ORIGINS,
+  NODE_ENV
 } = process.env;
 
 const exec = promisify(execCb);
@@ -69,19 +70,20 @@ const createSupergraphConfig = (proxyTargets: ErxesProxyTarget[]) => {
 
 const createRouterConfig = () => {
   const rhaiPath = path.resolve(__dirname, 'rhai/main.rhai');
+
   const config = {
     rhai: {
       main: rhaiPath
     },
     cors: {
+      allow_credentials: true,
       origins: [
         DOMAIN ? DOMAIN : 'http://localhost:3000',
         WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
         ...(CLIENT_PORTAL_DOMAINS || '').split(','),
-        'https://studio.apollographql.com',
-        ...(ALLOWED_ORIGINS || '').split(',').map(c => c && RegExp(c))
+        'https://studio.apollographql.com'
       ].filter(x => typeof x === 'string'),
-      allow_credentials: true
+      match_origins: (ALLOWED_ORIGINS || '').split(',').filter(Boolean)
     },
     headers: {
       all: {
@@ -115,29 +117,31 @@ const supergraphCompose = async () => {
 };
 
 const startRouter = async (
-  proxyTargets: ErxesProxyTarget[],
-  pollIntervalMs?: number
-) => {
+  proxyTargets: ErxesProxyTarget[]
+): Promise<ChildProcess> => {
   await createSupergraphConfig(proxyTargets.filter(t => t.name !== 'graphql'));
   await createRouterConfig();
   const routerPath = await downloadRouter();
 
   await supergraphCompose();
-  if (pollIntervalMs && pollIntervalMs > 0) {
+  if (NODE_ENV === 'development') {
     setInterval(async () => {
       try {
         await supergraphCompose();
       } catch (e) {
         console.error(e.message);
       }
-    }, pollIntervalMs);
+    }, 6000);
   }
 
-  spawn(
+  const devOptions = ['--dev', '--hot-reload'];
+
+  const routerProcess = spawn(
     routerPath,
     [
-      '--dev',
-      '--hot-reload',
+      ...(NODE_ENV === 'development' ? devOptions : []),
+      '--log',
+      NODE_ENV === 'development' ? 'warn' : 'error',
       `--supergraph`,
       superGraphql,
       `--config`,
@@ -145,6 +149,8 @@ const startRouter = async (
     ],
     { stdio: 'inherit' }
   );
+
+  return routerProcess;
 };
 
 export default startRouter;
