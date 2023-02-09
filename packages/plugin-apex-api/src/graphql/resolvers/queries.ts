@@ -65,7 +65,7 @@ const reportQueries = {
   },
 
   apexStories(_root, { companyId, limit }, { models }: IContext) {
-    const sort = { date: -1 };
+    const sort = { createdAt: -1 };
 
     const selector: any = {};
 
