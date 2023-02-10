@@ -228,7 +228,7 @@ query holidays {
   }
 }`;
 
-const listScheduleConfig = `
+const listScheduleConfigs = `
   query scheduleConfigs {
     scheduleConfigs{
       _id
@@ -246,6 +246,17 @@ const listScheduleConfig = `
   }
 
 `;
+
+const listDeviceConfigs = `
+query deviceConfigs {
+  deviceConfigs {
+    _id 
+    deviceName
+    serialNo
+    extractRequired
+  }
+}`;
+
 export default {
   listReports,
   listReportByUser,
@@ -256,5 +267,6 @@ export default {
   listAbsenceTypes,
   listPayDates,
   listHolidays,
-  listScheduleConfig
+  listScheduleConfigs,
+  listDeviceConfigs
 };

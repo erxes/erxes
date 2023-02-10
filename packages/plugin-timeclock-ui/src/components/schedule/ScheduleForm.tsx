@@ -52,9 +52,7 @@ function ScheduleForm(props: Props) {
   } = props;
 
   const [selectedScheduleConfig, setScheduleConfig] = useState('');
-  const [dateKeyCounter, setKeyCounter] = useState('');
 
-  const timeFormat = 'HH:mm';
   const [defaultStartTime, setDefaultStartTime] = useState('08:30:00');
   const [defaultEndTime, setDefaultEndTime] = useState('17:00:00');
   const [dateRangeStart, setDateStart] = useState(new Date());
@@ -134,32 +132,22 @@ function ScheduleForm(props: Props) {
     setScheduleDates({
       ...scheduleDates
     });
-    setKeyCounter(Object.keys(scheduleDates).at(-1) || '');
   };
 
   const onDateChange = (day_key, selectedDate) => {
-    const newShift = scheduleDates[day_key];
-
-    const oldShiftEnd = newShift.shiftEnd;
-    const oldShiftStart = newShift.shiftStart;
-
     const newDateKey = selectedDate.toLocaleDateString();
 
-    const newShiftStart = dayjs(
-      newDateKey + ' ' + dayjs(oldShiftStart).format(timeFormat)
-    ).toDate();
-    const newShiftEnd = dayjs(
-      newDateKey + ' ' + dayjs(oldShiftEnd).format(timeFormat)
-    ).toDate();
+    if (newDateKey in scheduleDates) {
+      Alert.error('Schedule for a selected date already exists');
+      return;
+    }
+
+    const newShift = scheduleDates[day_key];
 
     newShift.shiftDate = selectedDate;
-    newShift.shiftStart = newShiftStart;
-    newShift.shiftEnd = newShiftEnd;
-
+    scheduleDates[newDateKey] = newShift;
     delete scheduleDates[day_key];
-    const newScheduleDates = { ...scheduleDates, [newDateKey]: newShift };
-
-    setScheduleDates(newScheduleDates);
+    setScheduleDates({ ...scheduleDates });
   };
 
   const onStartTimeChange = (day_key, time) => {
@@ -272,6 +260,7 @@ function ScheduleForm(props: Props) {
       new Date(getLatestDayKey + ' ' + defaultStartTime),
       new Date(getLatestDayKey + ' ' + defaultEndTime)
     );
+
     dates[getLatestDayKey] = {
       shiftDate: new Date(getLatestDayKey),
       shiftStart: getCorrectShiftStart,
@@ -282,7 +271,6 @@ function ScheduleForm(props: Props) {
     setScheduleDates({
       ...dates
     });
-    setKeyCounter(getLatestDayKey);
   };
 
   const renderWeekDays = () => {
@@ -466,8 +454,6 @@ function ScheduleForm(props: Props) {
         shiftEnd: correctShiftEnd,
         overnightShift: isOvernightShift
       };
-
-      setKeyCounter(eachDay);
     }
 
     const difference = Object.keys(newDatesByRange).filter(
@@ -523,7 +509,6 @@ function ScheduleForm(props: Props) {
       };
 
       setScheduleDates(newDates);
-      setKeyCounter(getDate);
     }
   };
 
