@@ -1,13 +1,13 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import { spawn, execSync, exec as execCb, ChildProcess } from 'child_process';
+import { spawn, spawnSync, ChildProcess } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as yaml from 'yaml';
-import { promisify } from 'util';
 import { ErxesProxyTarget } from 'src/proxy/targets';
-import downloadRouter from './download-router';
+import { dirTempPath, routerConfig, routerPath, supergraph } from './paths';
+import supergraphCompose from './supergraph-compose';
 
 const {
   DOMAIN,
@@ -17,55 +17,15 @@ const {
   NODE_ENV
 } = process.env;
 
-const exec = promisify(execCb);
-
-const superGraphConfig = path.resolve(__dirname, 'temp/supergraph.yaml');
-const superGraphql = path.resolve(__dirname, 'temp/supergraph.graphql');
-
-const routerConfig = path.resolve(__dirname, 'temp/router.yaml');
-
-const isSameFile = (path1: string, path2: string): boolean => {
-  const file1 = fs.readFileSync(path1);
-  const file2 = fs.readFileSync(path2);
-  return file1.equals(file2);
-};
-
-type SupergraphConfig = {
-  federation_version: number;
-  subgraphs: {
-    [name: string]: {
-      routing_url: string;
-      schema: {
-        subgraph_url: string;
-      };
-    };
-  };
-};
-
-const createSupergraphConfig = (proxyTargets: ErxesProxyTarget[]) => {
-  const superGraphConfigNext = superGraphConfig + '.next';
-  const config: SupergraphConfig = {
-    federation_version: 2,
-    subgraphs: {}
-  };
-
-  for (const { name, address } of proxyTargets) {
-    const endpoint = `${address}/graphql`;
-    config.subgraphs[name] = {
-      routing_url: endpoint,
-      schema: {
-        subgraph_url: endpoint
-      }
-    };
+const downloadRouter = async () => {
+  if (fs.existsSync(routerPath)) {
+    return routerPath;
   }
-  fs.writeFileSync(superGraphConfigNext, yaml.stringify(config));
-
-  if (
-    !fs.existsSync(superGraphConfig) ||
-    !isSameFile(superGraphConfig, superGraphConfigNext)
-  ) {
-    execSync(`cp ${superGraphConfigNext}  ${superGraphConfig}`);
-  }
+  const args = [
+    '-c',
+    `cd ${dirTempPath} && curl -sSL https://router.apollo.dev/download/nix/v1.10.2 | sh`
+  ];
+  spawnSync('sh', args, { stdio: 'inherit' });
 };
 
 const createRouterConfig = () => {
@@ -103,36 +63,12 @@ const createRouterConfig = () => {
   fs.writeFileSync(routerConfig, yaml.stringify(config));
 };
 
-const supergraphCompose = async () => {
-  const superGraphqlNext = superGraphql + '.next';
-  await exec(
-    `npx rover supergraph compose --config ${superGraphConfig} --output ${superGraphqlNext}`
-  );
-  if (
-    !fs.existsSync(superGraphql) ||
-    !isSameFile(superGraphql, superGraphqlNext)
-  ) {
-    execSync(`cp ${superGraphqlNext} ${superGraphql}`);
-  }
-};
-
 const startRouter = async (
   proxyTargets: ErxesProxyTarget[]
 ): Promise<ChildProcess> => {
-  await createSupergraphConfig(proxyTargets.filter(t => t.name !== 'graphql'));
+  await supergraphCompose(proxyTargets);
   await createRouterConfig();
-  const routerPath = await downloadRouter();
-
-  await supergraphCompose();
-  if (NODE_ENV === 'development') {
-    setInterval(async () => {
-      try {
-        await supergraphCompose();
-      } catch (e) {
-        console.error(e.message);
-      }
-    }, 6000);
-  }
+  downloadRouter();
 
   const devOptions = ['--dev', '--hot-reload'];
 
@@ -143,7 +79,7 @@ const startRouter = async (
       '--log',
       NODE_ENV === 'development' ? 'warn' : 'error',
       `--supergraph`,
-      superGraphql,
+      supergraph,
       `--config`,
       routerConfig
     ],

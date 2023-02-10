@@ -14,7 +14,17 @@ type RequestWithTargetExtra = Request & {
 export default function createErxesProxyMiddleware(
   targets: ErxesProxyTarget[]
 ): RequestHandler {
-  const lookup = proxyConfigByPath0(targets);
+  const targetsWithRouter: ErxesProxyTarget[] = [
+    ...targets,
+    {
+      name: 'graphql',
+      address: 'http://localhost:50000',
+      pathRegex: /^\/graphql/i,
+      config: null
+    }
+  ];
+
+  const lookup = proxyConfigByPath0(targetsWithRouter);
 
   return createProxyMiddleware({
     target:

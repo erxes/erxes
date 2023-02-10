@@ -1,6 +1,6 @@
 import * as apm from 'elastic-apm-node';
 import * as dotenv from 'dotenv';
-
+// import * as ws from 'ws';
 dotenv.config();
 
 if (process.env.ELASTIC_APM_HOST_NAME) {
@@ -10,7 +10,6 @@ if (process.env.ELASTIC_APM_HOST_NAME) {
   });
 }
 
-// import { createProxyMiddleware } from 'http-proxy-middleware';
 // import * as ws from 'ws';
 import * as express from 'express';
 import * as http from 'http';
@@ -20,8 +19,6 @@ import userMiddleware from './middlewares/userMiddleware';
 import pubsub from './subscription/pubsub';
 import {
   clearCache,
-  // getService,
-  // getServices,
   redis,
   setAfterMutations,
   setBeforeResolvers,
@@ -128,22 +125,9 @@ const stopRouter = () => {
   // );
 
   const targets: ErxesProxyTarget[] = await retryGetProxyTargets();
-
-  const targetsWithRouter: ErxesProxyTarget[] = [
-    ...targets,
-    {
-      name: 'graphql',
-      address: 'http://localhost:50000',
-      pathRegex: /^\/graphql/i,
-      config: null
-    }
-  ];
-
-  app.use(createErxesProxyMiddleware(targetsWithRouter));
-
   await startRouter(targets);
 
-  // console.log(targetsWithRouter);
+  app.use(createErxesProxyMiddleware(targets));
 
   // for health check
   app.get('/health', async (_req, res) => {
@@ -165,41 +149,7 @@ const stopRouter = () => {
   //   path: '/graphql'
   // });
 
-  // const gateway: ApolloGateway = await createGateway();
-
-  // const apolloServer = new ApolloServer({
-  //   gateway,
-  //   introspection: true,
-  //   // for graceful shutdowns
-  //   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-  //   context: ({ res, req }: { res; req }): IGatewayContext => {
-  //     return { res, req };
-  //   }
-  // });
-
-  // let subscriptionsLoaded = false;
-  // gateway.onSchemaLoadOrUpdate(async ({ apiSchema }) => {
-  //   if (subscriptionsLoaded) {
-  //     return;
-  //   }
-
-  //   try {
-  //     await loadSubscriptions(apiSchema, wsServer);
-  //     subscriptionsLoaded = true;
-  //   } catch (e) {
-  //     console.error(e);
-  //   }
-  // });
-
-  // try {
-  //   await apolloServer.start();
-  // } catch (e) {
-  //   console.error(e);
-  //   console.error(
-  //     `Gateway might have started before enabled services are ready.`
-  //   );
-  //   process.exit(1);
-  // }
+  // await loadSubscriptions({}, wsServer);
 
   app.use(
     express.json({
@@ -208,12 +158,6 @@ const stopRouter = () => {
   );
 
   app.use(express.urlencoded({ limit: '15mb', extended: true }));
-
-  // apolloServer.applyMiddleware({
-  //   app,
-  //   path: '/graphql',
-  //   cors: corsOptions
-  // });
 
   const port = PORT || 4000;
 
@@ -225,9 +169,7 @@ const stopRouter = () => {
   await setAfterMutations();
   await setAfterQueries();
 
-  // console.log(
-  //   `Erxes gateway ready at http://localhost:${port}${apolloServer.graphqlPath}`
-  // );
+  console.log(`Erxes gateway ready at http://localhost:${port}/graphql`);
 })();
 
 (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
