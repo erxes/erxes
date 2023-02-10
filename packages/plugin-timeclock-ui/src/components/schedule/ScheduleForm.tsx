@@ -142,12 +142,28 @@ function ScheduleForm(props: Props) {
       return;
     }
 
-    const newShift = scheduleDates[day_key];
+    const oldShift = scheduleDates[day_key];
+    const oldShiftStart = oldShift.shiftStart;
+    const oldShiftEnd = oldShift.shiftEnd;
 
-    newShift.shiftDate = selectedDate;
-    scheduleDates[newDateKey] = newShift;
+    const [getShiftStart, getShiftEnd, overnight] = compareStartAndEndTime(
+      scheduleDates,
+      day_key,
+      oldShiftStart,
+      oldShiftEnd,
+      newDateKey
+    );
+
+    const newShift = {
+      shiftDate: selectedDate,
+      shiftStart: getShiftStart,
+      shiftEnd: getShiftEnd,
+      overnightShift: overnight
+    };
+
     delete scheduleDates[day_key];
-    setScheduleDates({ ...scheduleDates });
+
+    setScheduleDates({ ...scheduleDates, [newDateKey]: newShift });
   };
 
   const onStartTimeChange = (day_key, time) => {
@@ -418,10 +434,6 @@ function ScheduleForm(props: Props) {
   };
 
   const onSaveDateRange = () => {
-    const format = 'YYYY-MM-DD HH:mm';
-    const formattedStartDate = dayjs(dateRangeStart).format(format);
-    const formattedEndDate = dayjs(dateRangeEnd).format(format);
-
     const totalDatesArray: string[] = [];
 
     let temp = dayjs(dateRangeStart);
@@ -464,7 +476,7 @@ function ScheduleForm(props: Props) {
       delete newDatesByRange[removeKey];
     }
 
-    setScheduleDates(newDatesByRange);
+    setScheduleDates({ ...newDatesByRange });
   };
 
   const adminConfigByDateRange = () => {
@@ -508,7 +520,7 @@ function ScheduleForm(props: Props) {
         overnightShift: isOvernightShift
       };
 
-      setScheduleDates(newDates);
+      setScheduleDates({ ...newDates });
     }
   };
 
