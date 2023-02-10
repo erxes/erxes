@@ -73,7 +73,7 @@ jobs:
           aws-region: us-west-2
 
       - name: Deploy
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/subform' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/subforms' )
         run: |
           tar -cf build.tar --directory=packages/plugin-forms-ui/.erxes/dist .
           cp build.tar packages/plugin-forms-ui/.erxes/dist
