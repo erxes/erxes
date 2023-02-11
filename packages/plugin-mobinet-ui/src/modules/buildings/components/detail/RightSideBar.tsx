@@ -1,28 +1,33 @@
-import { Sidebar } from '@erxes/ui/src';
+import Select from 'react-select-plus';
+import { ControlLabel, FormGroup, Sidebar, __ } from '@erxes/ui/src';
 import React from 'react';
 import { IBuilding } from '../../types';
 import CompanySection from './sections/CompanySection';
 import PortableItems from '@erxes/ui-cards/src/boards/components/portable/Items';
 import options from '@erxes/ui-cards/src/tickets/options';
-
 import CustomerSection from './sections/CustomerSection';
 
 type Props = {
   building: IBuilding;
-  onSelectContacts: (datas: any, type: string) => void;
+  assets: any[];
+  onUpdate: (data: any) => void;
 };
 
 export default class RightSidebar extends React.Component<Props> {
   onSelectCustomers = (datas: any) => {
-    this.props.onSelectContacts(datas, 'customer');
+    this.props.onUpdate({ customerIds: datas.map(d => d._id) });
   };
 
   onSelectCompanies = (datas: any) => {
-    this.props.onSelectContacts(datas, 'company');
+    this.props.onUpdate({ companyIds: datas.map(d => d._id) });
+  };
+
+  onChangeAssets = values => {
+    this.props.onUpdate({ assetIds: values.map(d => d.value) });
   };
 
   render() {
-    const { building } = this.props;
+    const { building, assets } = this.props;
     const ticketIds = building.ticketIds || [];
 
     let title = 'Active tickets';
@@ -33,6 +38,19 @@ export default class RightSidebar extends React.Component<Props> {
 
     return (
       <Sidebar wide={true}>
+        <FormGroup>
+          <ControlLabel>{__('Select assets')}</ControlLabel>
+
+          <Select
+            value={building.assetIds}
+            onChange={this.onChangeAssets}
+            multi={true}
+            options={assets.map(asset => {
+              return { value: asset._id, label: asset.name };
+            })}
+          />
+        </FormGroup>
+
         <CustomerSection
           building={building}
           onSelectCustomers={this.onSelectCustomers}

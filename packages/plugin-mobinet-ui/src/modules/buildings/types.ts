@@ -20,7 +20,7 @@ export interface IOSMBuilding {
 export interface IProductPriceConfig {
   productId: string;
   price: number;
-  product: IProduct
+  product: IProduct;
 }
 
 export interface IBuilding {
@@ -42,6 +42,7 @@ export interface IBuilding {
 
   installationRequestIds: string[];
   ticketIds: string[];
+  assetIds: string[];
 
   installationRequests: ITicket[];
   tickets: ITicket[];

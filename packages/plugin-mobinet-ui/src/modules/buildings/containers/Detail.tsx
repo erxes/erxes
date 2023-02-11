@@ -14,25 +14,7 @@ type Props = {
 const BuildingDetailContainer = (props: Props) => {
   const { id } = props;
 
-  const [manageCustomers] = useMutation(
-    gql(mutations.buildingsAddCustomersMutation),
-    {
-      variables: {
-        _id: id,
-        customerIds: []
-      }
-    }
-  );
-
-  const [manageCompanies] = useMutation(
-    gql(mutations.buildingsAddCompaniesMutation),
-    {
-      variables: {
-        _id: id,
-        companyIds: []
-      }
-    }
-  );
+  const [updateBuilding] = useMutation(gql(mutations.buildingsUpdate));
 
   const detailQry = useQuery(gql(queries.detailQuery), {
     variables: {
@@ -41,28 +23,19 @@ const BuildingDetailContainer = (props: Props) => {
     fetchPolicy: 'network-only'
   });
 
-  const onSelectContacts = (datas: any, type: string) => {
-    if (type === 'customer') {
-      manageCustomers({
-        variables: {
-          _id: id,
-          customerIds: datas.map((d: any) => d._id)
-        }
-      }).then(() => {
-        detailQry.refetch();
-      });
-    }
+  const assetsQuery: any = useQuery(gql(queries.assets), {
+    fetchPolicy: 'network-only'
+  });
 
-    if (type === 'company') {
-      manageCompanies({
-        variables: {
-          _id: id,
-          companyIds: datas.map((d: any) => d._id)
-        }
-      }).then(() => {
-        detailQry.refetch();
-      });
-    }
+  const onUpdate = (data: any) => {
+    updateBuilding({
+      variables: {
+        _id: id,
+        ...data
+      }
+    }).then(() => {
+      detailQry.refetch();
+    });
   };
 
   if (detailQry.loading) {
@@ -77,8 +50,9 @@ const BuildingDetailContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    onSelectContacts,
-    building: detailQry.data.buildingDetail || ({} as any)
+    onUpdate,
+    building: detailQry.data.buildingDetail || ({} as any),
+    assets: (assetsQuery.data || {}).assets || []
   };
 
   return <BuildingDetail {...updatedProps} />;

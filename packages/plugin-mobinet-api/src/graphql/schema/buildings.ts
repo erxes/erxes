@@ -15,11 +15,13 @@ ${
 }
 
 ${
-  products ? `
+  products
+    ? `
     extend type Product @key(fields: "_id") {
       _id: String! @external
     }
-  ` : ''
+  `
+    : ''
 }
 
 ${
@@ -87,13 +89,12 @@ enum ServiceStatus {
 
     productPriceConfigs: [ProductPriceConfig]
 
-
-
     customersCount: Int
     companiesCount: Int
 
     installationRequestIds: [String]
     ticketIds: [String]
+    assetIds: [String]
 
     ${
       cards
@@ -134,10 +135,8 @@ export const mutations = `
   buildingsAdd(${mutationParams}): Building
   buildingsEdit(_id: String!, ${mutationParams}): Building
   buildingsRemove(_id: [String]): JSON
-  buildingsAddCustomers(_id: String!, customerIds: [String]): Building
-  buildingsAddCompanies(_id: String!, companyIds: [String]): Building
+  buildingsUpdate(_id: String!, customerIds: [String], companyIds: [String], assetIds: [String]): Building
   buildingsEditProductPriceConfigs(_id: String!, productPriceConfigs: [ProductPriceConfigInput]): Building
-
 
   buildingsRemoveCustomers(_id: String!, customerIds: [String]): Building
   buildingsRemoveCompanies(_id: String!, companyIds: [String]): Building

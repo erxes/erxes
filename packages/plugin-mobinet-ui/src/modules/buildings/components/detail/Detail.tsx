@@ -8,15 +8,14 @@ import LeftSideBar from './LeftSideBar';
 import RightSidebar from './RightSideBar';
 import InfoSection from './sections/InfoSection';
 
-// import { BuildingTitle } from '../../styles';
-
 type Props = {
   building: IBuilding;
-  onSelectContacts: (datas: any, type: string) => void;
+  assets: any[];
+  onUpdate: (data: any) => void;
 };
 
 const BuildingDetail = (props: Props) => {
-  const { building } = props;
+  const { building, assets } = props;
 
   const name = building.name || '-';
 
@@ -28,9 +27,7 @@ const BuildingDetail = (props: Props) => {
     { title: name }
   ];
 
-  const content = (
-    <></>
-  );
+  const content = <></>;
 
   return (
     <Wrapper
@@ -48,7 +45,8 @@ const BuildingDetail = (props: Props) => {
       rightSidebar={
         <RightSidebar
           building={building}
-          onSelectContacts={props.onSelectContacts}
+          assets={assets}
+          onUpdate={props.onUpdate}
         />
       }
       content={content}

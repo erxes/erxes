@@ -110,6 +110,7 @@ query BuildingDetail($_id: String!) {
 
         installationRequestIds
         ticketIds
+        assetIds
 
         installationRequests {
           _id
@@ -129,19 +130,29 @@ query BuildingDetail($_id: String!) {
 `;
 
 const buildingsByBoundsQuery = `
-query BuildingsByBounds($bounds: JSON, $serviceStatuses: [ServiceStatus]) {
-  buildingsByBounds(bounds: $bounds, serviceStatuses: $serviceStatuses) {
-    _id
-    serviceStatus
-    color
-    osmbId
+  query BuildingsByBounds($bounds: JSON, $serviceStatuses: [ServiceStatus]) {
+    buildingsByBounds(bounds: $bounds, serviceStatuses: $serviceStatuses) {
+      _id
+      serviceStatus
+      color
+      osmbId
+    }
   }
-}
+`;
+
+const assets = `
+  query assets {
+    assets {
+      _id
+      name
+    }
+  }
 `;
 
 export default {
   listQuery,
   detailQuery,
   buildingsByBoundsQuery,
-  buildingsQuery
+  buildingsQuery,
+  assets
 };
