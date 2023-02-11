@@ -53,7 +53,7 @@ const createSupergraphConfig = (proxyTargets: ErxesProxyTarget[]) => {
 const supergraphComposeOnce = async () => {
   const superGraphqlNext = supergraphPath + '.next';
   execSync(
-    `yarn rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext}`,
+    `npx rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext}`,
     { stdio: 'ignore' }
   );
   if (
