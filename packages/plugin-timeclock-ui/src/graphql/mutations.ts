@@ -1,10 +1,10 @@
-const clockRemove = `
+const timeclockRemove = `
   mutation timeclockRemove($_id: String!){
     timeclockRemove(_id: $_id)
   }
   `;
 
-const clockStart = `
+const timeclockStart = `
   mutation timeclockStart($userId: String, $longitude: Float, $latitude: Float, $deviceType: String){
     timeclockStart(userId: $userId, longitude: $longitude, latitude: $latitude, deviceType: $deviceType){
       _id
@@ -12,7 +12,7 @@ const clockStart = `
   }
 `;
 
-const clockStop = `
+const timeclockStop = `
   mutation timeclockStop( $userId: String, $_id: String, $longitude: Float, $latitude: Float,$deviceType: String){
     timeclockStop(userId: $userId, _id: $_id, longitude: $longitude, latitude: $latitude, deviceType : $deviceType){
       _id
@@ -146,6 +146,22 @@ const scheduleConfigRemove = `mutation scheduleConfigRemove($_id: String){
   scheduleConfigRemove(_id: $_id)
 }`;
 
+const deviceConfigAdd = `mutation deviceConfigAdd($deviceName: String, $serialNo: String, $extractRequired: Boolean){
+  deviceConfigAdd(deviceName: $deviceName, serialNo: $serialNo, extractRequired: $extractRequired ){
+    _id
+  }
+}`;
+
+const deviceConfigEdit = `mutation deviceConfigEdit($_id: String, $deviceName: String, $serialNo: String, $extractRequired: Boolean){
+  deviceConfigEdit(_id: $_id, deviceName: $deviceName, serialNo: $serialNo, extractRequired: $extractRequired ){
+    _id
+  }
+}`;
+
+const deviceConfigRemove = `mutation deviceConfigRemove($_id: String){
+  deviceConfigRemove(_id: $_id)
+}`;
+
 const extractAllDataFromMySQL = `
 mutation extractAllDataFromMySQL($startDate: String, $endDate: String){
   extractAllDataFromMySQL(startDate: $startDate, endDate: $endDate){
@@ -163,9 +179,9 @@ export default {
   solveAbsence,
   solveSchedule,
   solveShift,
-  clockRemove,
-  clockStart,
-  clockStop,
+  timeclockRemove,
+  timeclockStart,
+  timeclockStop,
   payDateAdd,
   payDateEdit,
   payDateRemove,
@@ -177,5 +193,8 @@ export default {
   scheduleConfigAdd,
   scheduleConfigEdit,
   scheduleConfigRemove,
+  deviceConfigAdd,
+  deviceConfigEdit,
+  deviceConfigRemove,
   extractAllDataFromMySQL
 };

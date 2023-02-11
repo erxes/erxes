@@ -50,6 +50,7 @@ export interface IClientPortalUser extends IClientPortalUserDoc {
   _id: string;
   createdAt: Date;
   modifiedAt: Date;
+  forumSubscriptionEndsAfter?: string;
 }
 
 export type ClientPortalUsersQueryResponse = {

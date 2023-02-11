@@ -87,6 +87,12 @@ const putResponses = `
   }
 `;
 
+const putResponsesByDate = `
+  query putResponsesByDate(${listParamsDef}) {
+    putResponsesByDate(${listParamsValue})
+  }
+`;
+
 const putResponsesCount = `
   query putResponsesCount(${listParamsDef}) {
     putResponsesCount(${listParamsValue})
@@ -107,6 +113,7 @@ const getDealLink = `
 export default {
   configs,
   putResponses,
+  putResponsesByDate,
   putResponsesCount,
   putResponsesAmount,
   getDealLink

@@ -14,6 +14,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import {
   IAbsence,
   IAbsenceType,
+  IDeviceConfig,
   IPayDates,
   ISchedule,
   IScheduleConfig
@@ -28,6 +29,7 @@ type Props = {
   configType: string;
   absenceType?: IAbsenceType;
   scheduleConfig?: IScheduleConfig;
+  deviceConfig?: IDeviceConfig;
   holiday?: IAbsence;
   payDate?: IPayDates;
   loading?: boolean;
@@ -37,7 +39,7 @@ type Props = {
 };
 
 function ConfigForm(props: Props) {
-  const { renderButton, history, scheduleConfig } = props;
+  const { renderButton, history, scheduleConfig, deviceConfig } = props;
   const { absenceType, holiday, payDate } = props;
   const [isShiftRequest, setShiftRequest] = useState(
     (absenceType && absenceType.shiftRequest) || false
@@ -48,6 +50,11 @@ function ConfigForm(props: Props) {
   const [attachmentRequired, setAttachRequired] = useState(
     (absenceType && absenceType.attachRequired) || false
   );
+
+  const [deviceExtractRequired, setDeviceExtractRequired] = useState(
+    (deviceConfig && deviceConfig.extractRequired) || false
+  );
+
   const [payPeriod, setPayPeriod] = useState('');
 
   const defaultStartTime = new Date(
@@ -124,6 +131,9 @@ function ConfigForm(props: Props) {
   const toggleAttachRequired = e => {
     setAttachRequired(e.target.checked);
   };
+  const toggleDeviceExtractRequired = e => {
+    setDeviceExtractRequired(e.target.checked);
+  };
 
   const onConfigDateChange = (dateNum: string, newDate: Date) => {
     payDates[dateNum] = newDate;
@@ -148,6 +158,9 @@ function ConfigForm(props: Props) {
       explRequired?: boolean;
       attachRequired?: boolean;
       shiftRequest?: boolean;
+      deviceName?: string;
+      serialNo?: string;
+      extractRequired?: boolean;
     },
     name: string
   ) => {
@@ -224,6 +237,17 @@ function ConfigForm(props: Props) {
           }
         });
         return returnVariables;
+
+      case 'deviceConfig':
+        if (deviceConfig) {
+          values._id = deviceConfig._id;
+        }
+        return {
+          _id: values._id,
+          deviceName: values.deviceName,
+          serialNo: values.serialNo,
+          extractRequired: deviceExtractRequired
+        };
     }
   };
 
@@ -236,10 +260,57 @@ function ConfigForm(props: Props) {
         return <Form renderContent={renderHolidayContent} />;
       case 'Schedule':
         return <Form renderContent={renderScheduleContent} />;
+      case 'Devices':
+        return <Form renderContent={renderDevicesContent} />;
       // Absence
       default:
         return <Form renderContent={renderAbsenceContent} />;
     }
+  };
+
+  const renderDevicesContent = (formProps: IFormProps) => {
+    const { values, isSubmitted } = formProps;
+
+    return (
+      <FlexColumn marginNum={20}>
+        <ControlLabel required={true}>Device Name</ControlLabel>
+        <FormControl
+          {...formProps}
+          name="deviceName"
+          defaultValue={deviceConfig && deviceConfig.deviceName}
+          required={true}
+          autoFocus={true}
+        />
+
+        <ControlLabel required={true}>Serial No.</ControlLabel>
+        <FormControl
+          {...formProps}
+          name="serialNo"
+          defaultValue={deviceConfig && deviceConfig.serialNo}
+          required={true}
+        />
+
+        <FlexRow>
+          <ControlLabel>Extract from device</ControlLabel>
+          <FormControl
+            name="extractRequired"
+            defaultChecked={deviceExtractRequired}
+            componentClass="checkbox"
+            onChange={toggleDeviceExtractRequired}
+          />
+        </FlexRow>
+
+        <FlexCenter style={{ marginTop: '10px' }}>
+          {renderButton({
+            name: 'deviceConfig',
+            values: generateDoc(values, 'deviceConfig'),
+            isSubmitted,
+            callback: closeModal || afterSave,
+            object: deviceConfig || null
+          })}
+        </FlexCenter>
+      </FlexColumn>
+    );
   };
 
   const renderAbsenceContent = (formProps: IFormProps) => {
@@ -260,7 +331,7 @@ function ConfigForm(props: Props) {
           <FormControl
             name="shiftRequest"
             componentClass="checkbox"
-            defaultChecked={absenceType?.shiftRequest}
+            defaultChecked={isShiftRequest}
             onChange={toggleShiftRequest}
           />
         </FlexRow>
@@ -269,7 +340,7 @@ function ConfigForm(props: Props) {
           <FormControl
             name="explRequired"
             componentClass="checkbox"
-            defaultChecked={absenceType?.explRequired}
+            defaultChecked={explanationRequired}
             onChange={toggleExplRequired}
           />
         </FlexRow>
@@ -278,7 +349,7 @@ function ConfigForm(props: Props) {
           <FormControl
             name="attachRequired"
             componentClass="checkbox"
-            defaultChecked={absenceType?.attachRequired}
+            defaultChecked={attachmentRequired}
             onChange={toggleAttachRequired}
           />
         </FlexRow>
@@ -355,6 +426,79 @@ function ConfigForm(props: Props) {
             values: generateDoc(values, 'payDate'),
             callback: closeModal || afterSave,
             object: payDate || null
+          })}
+        </FlexCenter>
+      </FlexColumn>
+    );
+  };
+
+  const renderScheduleContent = (formProps: IFormProps) => {
+    const { values, isSubmitted } = formProps;
+    return (
+      <FlexColumn marginNum={20}>
+        <ControlLabel required={true}>
+          <strong>Name</strong>
+        </ControlLabel>
+        <FormControl
+          {...formProps}
+          defaultValue={scheduleConfig?.scheduleName}
+          name="scheduleName"
+          required={true}
+          autoFocus={true}
+        />
+
+        <FlexColumnMargined marginNum={10}>
+          {renderConfigTime()}
+        </FlexColumnMargined>
+
+        <FlexCenter style={{ marginTop: '10px' }}>
+          {renderButton({
+            name: 'schedule',
+            values: generateDoc(values, 'schedule'),
+            isSubmitted,
+            callback: closeModal || afterSave,
+            object: scheduleConfig || null
+          })}
+        </FlexCenter>
+      </FlexColumn>
+    );
+  };
+
+  const renderHolidayContent = (formProps: IFormProps) => {
+    const { values, isSubmitted } = formProps;
+    return (
+      <FlexColumn marginNum={20}>
+        <ControlLabel required={true}>Holiday Name</ControlLabel>
+        <FormControl
+          {...formProps}
+          name="holidayName"
+          defaultValue={holiday && holiday.holidayName}
+          required={true}
+          autoFocus={true}
+        />
+        <CustomRangeContainer>
+          <DateControl
+            value={holidayDates.startingDate}
+            required={false}
+            onChange={onHolidayStartDateChange}
+            placeholder={'Starting date'}
+            dateFormat={'YYYY-MM-DD'}
+          />
+          <DateControl
+            value={holidayDates.endingDate}
+            required={false}
+            onChange={onHolidayEndDateChange}
+            placeholder={'Ending date'}
+            dateFormat={'YYYY-MM-DD'}
+          />
+        </CustomRangeContainer>
+        <FlexCenter style={{ marginTop: '10px' }}>
+          {renderButton({
+            name: 'holiday',
+            values: generateDoc(values, 'holiday'),
+            isSubmitted,
+            callback: closeModal || afterSave,
+            object: holiday || null
           })}
         </FlexCenter>
       </FlexColumn>
@@ -451,78 +595,6 @@ function ConfigForm(props: Props) {
     );
   };
 
-  const renderScheduleContent = (formProps: IFormProps) => {
-    const { values, isSubmitted } = formProps;
-    return (
-      <FlexColumn marginNum={20}>
-        <ControlLabel required={true}>
-          <strong>Name</strong>
-        </ControlLabel>
-        <FormControl
-          {...formProps}
-          defaultValue={scheduleConfig?.scheduleName}
-          name="scheduleName"
-          required={true}
-          autoFocus={true}
-        />
-
-        <FlexColumnMargined marginNum={10}>
-          {renderConfigTime()}
-        </FlexColumnMargined>
-
-        <FlexCenter style={{ marginTop: '10px' }}>
-          {renderButton({
-            name: 'schedule',
-            values: generateDoc(values, 'schedule'),
-            isSubmitted,
-            callback: closeModal || afterSave,
-            object: scheduleConfig || null
-          })}
-        </FlexCenter>
-      </FlexColumn>
-    );
-  };
-
-  const renderHolidayContent = (formProps: IFormProps) => {
-    const { values, isSubmitted } = formProps;
-    return (
-      <FlexColumn marginNum={20}>
-        <ControlLabel required={true}>Holiday Name</ControlLabel>
-        <FormControl
-          {...formProps}
-          name="holidayName"
-          defaultValue={holiday && holiday.holidayName}
-          required={true}
-          autoFocus={true}
-        />
-        <CustomRangeContainer>
-          <DateControl
-            value={holidayDates.startingDate}
-            required={false}
-            onChange={onHolidayStartDateChange}
-            placeholder={'Starting date'}
-            dateFormat={'YYYY-MM-DD'}
-          />
-          <DateControl
-            value={holidayDates.endingDate}
-            required={false}
-            onChange={onHolidayEndDateChange}
-            placeholder={'Ending date'}
-            dateFormat={'YYYY-MM-DD'}
-          />
-        </CustomRangeContainer>
-        <FlexCenter style={{ marginTop: '10px' }}>
-          {renderButton({
-            name: 'holiday',
-            values: generateDoc(values, 'holiday'),
-            isSubmitted,
-            callback: closeModal || afterSave,
-            object: holiday || null
-          })}
-        </FlexCenter>
-      </FlexColumn>
-    );
-  };
   return renderConfigContent();
 }
 

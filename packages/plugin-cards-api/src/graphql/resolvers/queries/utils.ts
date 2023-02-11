@@ -163,7 +163,9 @@ export const generateCommonFilters = async (
     stageChangedStartDate,
     stageChangedEndDate,
     noSkipArchive,
-    number
+    number,
+    branchIds,
+    departmentIds
   } = args;
 
   const isListEmpty = value => {
@@ -185,6 +187,61 @@ export const generateCommonFilters = async (
     const notAssigned = isListEmpty(assignedUserIds);
 
     filter.assignedUserIds = notAssigned ? [] : contains(assignedUserIds);
+  }
+
+  if (branchIds) {
+    const branchOrders = (
+      await sendCoreMessage({
+        subdomain,
+        action: `branches.find`,
+        data: {
+          query: { _id: { $in: branchIds } }
+        },
+        isRPC: true,
+        defaultValue: []
+      })
+    ).map(item => item.order);
+
+    const ids = (
+      await sendCoreMessage({
+        subdomain,
+        action: `branches.find`,
+        data: {
+          query: { order: { $regex: branchOrders.join('|'), $options: 'i' } }
+        },
+        isRPC: true,
+        defaultValue: []
+      })
+    ).map(item => item._id);
+
+    filter.branchIds = { $in: ids };
+  }
+  if (departmentIds) {
+    const departmentOrders = (
+      await sendCoreMessage({
+        subdomain,
+        action: `departments.find`,
+        data: {
+          _id: { $in: departmentIds }
+        },
+        isRPC: true,
+        defaultValue: []
+      })
+    ).map(item => item.order);
+
+    const ids = (
+      await sendCoreMessage({
+        subdomain,
+        action: `departments.find`,
+        data: {
+          order: { $regex: departmentOrders.join('|'), $options: 'i' }
+        },
+        isRPC: true,
+        defaultValue: []
+      })
+    ).map(item => item._id);
+
+    filter.departmentIds = { $in: ids };
   }
 
   if (customerIds && type) {

@@ -212,6 +212,8 @@ export interface IItem {
   tags: ITag[];
   tagIds: string[];
   customProperties?: any;
+  departmentIds: string[];
+  branchIds: string[];
 }
 
 export interface IDraggableLocation {
@@ -392,6 +394,8 @@ export interface IFilterParams extends ISavedConformity {
   endDate?: string;
   pipelineId?: string;
   tagIds?: string[];
+  branchIds: string[];
+  departmentIds: string[];
 }
 
 export interface INonFilterParams {

@@ -100,9 +100,10 @@ function ReportList(props: Props) {
               <td>{__('Planned Check In')}</td>
               <td>{__('Planned Check Out')}</td>
               <td>{__('Planned Duration')}</td>
-              <td>{__('Device type')}</td>
               <td>{__('Check In')}</td>
+              <td>{__('In Device')}</td>
               <td>{__('Check Out')}</td>
+              <td>{__('Out Device')}</td>
               <td>{__('Location')}</td>
               <td>{__('Duration')}</td>
               <td>{__('Overtime')}</td>

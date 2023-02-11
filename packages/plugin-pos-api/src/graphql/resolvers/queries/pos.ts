@@ -61,7 +61,8 @@ const generateFilterPosQuery = async (
     paidDate,
     userId,
     customerId,
-    posId
+    posId,
+    posToken
   } = params;
 
   if (search) {
@@ -77,6 +78,11 @@ const generateFilterPosQuery = async (
 
   if (posId) {
     const pos = await models.Pos.findOne({ _id: posId }).lean();
+    query.posToken = pos.token;
+  }
+
+  if (posToken) {
+    const pos = await models.Pos.findOne({ token: posToken }).lean();
     query.posToken = pos.token;
   }
 
