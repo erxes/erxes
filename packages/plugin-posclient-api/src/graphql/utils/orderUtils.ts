@@ -6,7 +6,6 @@ import { IOrderItemDocument } from '../../models/definitions/orderItems';
 import { sendRequest } from '@erxes/api-utils/src/requests';
 import {
   DISTRICTS,
-  ORDER_STATUSES,
   BILL_TYPES,
   ORDER_TYPES,
   ORDER_ITEM_STATUSES
@@ -17,8 +16,6 @@ import {
   IEbarimtConfig
 } from '../../models/definitions/configs';
 import * as moment from 'moment';
-import { graphqlPubsub } from '../../configs';
-import { sendPosMessage } from '../../messageBroker';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 
 interface IDetailItem {
@@ -96,15 +93,18 @@ export const validateOrderPayment = (order: IOrder, doc: IPayment) => {
     throw new Error('Order has already been paid');
   }
   const {
-    cardAmount: paidCard = 0,
     cashAmount: paidCash = 0,
-    receivableAmount: paidReceivable = 0,
-    mobileAmount: paidMobile = 0
+    mobileAmount: paidMobile = 0,
+    paidAmounts
   } = order;
   const { cashAmount = 0 } = doc;
 
   const paidTotal = Number(
-    (paidCard + paidCash + paidReceivable + paidMobile).toFixed(2)
+    (
+      paidCash +
+      paidMobile +
+      (paidAmounts || []).reduce((sum, i) => Number(sum) + Number(i.amount), 0)
+    ).toFixed(2)
   );
   // only remainder cash amount will come
   const total = Number(cashAmount.toFixed(2));
@@ -379,169 +379,18 @@ export const checkOrderStatus = (order: IOrderDocument) => {
 };
 
 export const checkOrderAmount = (order: IOrderDocument, amount: number) => {
-  const {
-    cardAmount = 0,
-    cashAmount = 0,
-    receivableAmount = 0,
-    mobileAmount = 0
-  } = order;
+  const { cashAmount = 0, mobileAmount = 0, paidAmounts } = order;
 
-  const paidAmount = cardAmount + cashAmount + receivableAmount + mobileAmount;
+  const paidAmount =
+    cashAmount +
+    mobileAmount +
+    (paidAmounts || []).reduce((sum, i) => Number(sum) + Number(i.amount), 0);
 
   if (paidAmount + amount > order.totalAmount) {
     throw new Error('Amount exceeds total amount');
   }
 };
 
-export const checkUnpaidInvoices = async (orderId: string, models: IModels) => {
-  const invoices = await models.QPayInvoices.countDocuments({
-    senderInvoiceNo: orderId,
-    status: { $ne: 'PAID' }
-  });
-
-  if (invoices > 0) {
-    throw new Error('There are unpaid QPay invoices for this order');
-  }
-};
-
-// qpay нэхэмжлэх үүсгэхийн өмнө дуудна
-export const checkInvoiceAmount = async ({
-  order,
-  amount,
-  models
-}: {
-  order: IOrderDocument;
-  amount: number;
-  models: IModels;
-}) => {
-  const invoices = await models.QPayInvoices.find({
-    senderInvoiceNo: order._id
-  }).lean();
-
-  let total = 0;
-
-  for (const inv of invoices) {
-    total += Number(inv.amount || 0);
-  }
-
-  if (total + amount > order.totalAmount) {
-    throw new Error('Invoice amount exceeds order amount');
-  }
-
-  const paidAmount = models.Orders.getPaidAmount(order);
-
-  // үүсгэх гэж буй нэхэмжлэхийн дүн төлөх үлдэгдлээс ихгүй байх ёстой
-  if (paidAmount + amount > order.totalAmount) {
-    throw new Error('Invoice amount exceeds remainder amount');
-  }
-};
-
-export const commonCheckPayment = async (
-  subdomain,
-  models,
-  orderId,
-  config,
-  paidAmount
-) => {
-  let order = await models.Orders.getOrder(orderId);
-
-  await models.Orders.updateOne(
-    { _id: orderId },
-    {
-      $set: { mobileAmount: paidAmount }
-    }
-  );
-
-  order = await models.Orders.getOrder(orderId);
-
-  const doc = {
-    billType: order.billType || BILL_TYPES.CITIZEN,
-    registerNumber: order.registerNumber || '',
-    cashAmount: order.cashAmount || 0,
-    receivableAmount: order.receivableAmount || 0,
-    mobileAmount: order.mobileAmount,
-    cardAmount: order.cardAmount || 0
-  };
-
-  checkOrderStatus(order);
-
-  await checkUnpaidInvoices(orderId, models);
-
-  const items = await models.OrderItems.find({
-    orderId: order._id
-  }).lean();
-
-  await validateOrderPayment(order, doc);
-
-  const data = await prepareEbarimtData(
-    models,
-    order,
-    config.ebarimtConfig,
-    items,
-    doc.billType,
-    doc.registerNumber || order.registerNumber
-  );
-
-  const ebarimtConfig = {
-    ...config.ebarimtConfig,
-    districtName: getDistrictName(config.ebarimtConfig.districtCode)
-  };
-
-  try {
-    const response = await models.PutResponses.putData({
-      ...data,
-      config: ebarimtConfig,
-      models
-    });
-
-    if (response && response.success === 'true') {
-      const now = new Date();
-
-      await models.Orders.updateOne(
-        { _id: orderId },
-        {
-          $set: {
-            ...doc,
-            paidDate: now,
-            modifiedAt: now
-          }
-        }
-      );
-    }
-
-    order = await models.Orders.getOrder(orderId);
-    graphqlPubsub.publish('ordersOrdered', {
-      ordersOrdered: {
-        ...order,
-        _id: orderId,
-        status: order.status,
-        customerId: order.customerId
-      }
-    });
-
-    try {
-      await sendPosMessage({
-        subdomain,
-        action: 'createOrUpdateOrders',
-        data: {
-          action: 'makePayment',
-          posToken: order.posToken,
-          response,
-          order,
-          items
-        }
-      });
-    } catch (e) {
-      debugError(`Error occurred while sending data to erxes: ${e.message}`);
-    }
-
-    return response;
-  } catch (e) {
-    debugError(e);
-
-    return e;
-  }
-};
 export const reverseItemStatus = async (
   models: IModels,
   items: IOrderItemInput[]

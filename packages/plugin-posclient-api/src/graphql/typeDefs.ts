@@ -20,11 +20,6 @@ import {
   types as ConfigTypes
 } from './schema/configs';
 import {
-  mutations as PaymentMutations,
-  queries as PaymentQueries,
-  types as PaymentTypes
-} from './schema/payment';
-import {
   queries as ProductQueries,
   types as ProductTypes
 } from './schema/product';
@@ -46,7 +41,6 @@ const typeDefs = async () => {
     ${PosUserTypes}
     ${OrderTypes}
     ${ConfigTypes}
-    ${PaymentTypes}
     ${ReportTypes}
     ${BridgesTypes}
 
@@ -55,7 +49,6 @@ const typeDefs = async () => {
     ${ProductQueries}
     ${OrderQueries}
     ${ConfigQueries}
-    ${PaymentQueries}
     ${ReportQueries}
     ${BridgesQueries}
    }
@@ -64,7 +57,6 @@ const typeDefs = async () => {
     ${PosUserMutations}
     ${OrderMutations}
     ${ConfigMutations}
-    ${PaymentMutations}
     ${BridgesMutations}
    }
   `;

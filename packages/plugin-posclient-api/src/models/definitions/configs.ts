@@ -15,14 +15,6 @@ export interface IEbarimtConfig {
   footerText: string;
 }
 
-export interface IQPayConfig {
-  url: string;
-  callbackUrl?: string;
-  username: string;
-  password: string;
-  invoiceCode: string;
-}
-
 interface IConfigColors {
   [key: string]: string;
 }
@@ -39,11 +31,6 @@ interface IUIOptions {
   texts: IConfigColors;
 }
 
-interface ISyncInfo {
-  id: string;
-  date: Date;
-}
-
 interface ICatProd {
   _id: string;
   categoryId: string;
@@ -56,6 +43,8 @@ export interface IConfig {
   productDetails?: string[];
   adminIds: string[];
   cashierIds: string[];
+  paymentIds: string[];
+  paymentTypes: any[];
   beginNumber?: string;
   maxSkipNumber?: number;
   kitchenScreen?: any;
@@ -65,7 +54,6 @@ export interface IConfig {
   uiOptions: IUIOptions;
   ebarimtConfig?: IEbarimtConfig;
   erkhetConfig?: any;
-  qpayConfig?: IQPayConfig;
   catProdMappings?: ICatProd[];
   initialCategoryIds?: string[];
   kioskExcludeProductIds?: string[];
@@ -111,17 +99,6 @@ const ebarimtConfigSchema = new Schema(
   { _id: false }
 );
 
-const qpayConfigSchema = new Schema(
-  {
-    url: field({ type: String, label: 'QPay url' }),
-    callbackUrl: field({ type: String, optional: true, label: 'Callback url' }),
-    username: field({ type: String, label: 'QPay username' }),
-    password: field({ type: String, label: 'QPay password' }),
-    invoiceCode: field({ type: String, label: 'QPay invoice' })
-  },
-  { _id: false }
-);
-
 export const configSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Name' }),
@@ -132,6 +109,7 @@ export const configSchema = new Schema({
   adminIds: field({ type: [String] }),
   cashierIds: field({ type: [String] }),
   paymentIds: field({ type: [String] }),
+  paymentTypes: field({ type: [Object] }),
   beginNumber: field({ type: String, optional: true }),
   maxSkipNumber: field({ type: Number }),
   waitingScreen: field({ type: Object }),
@@ -142,7 +120,6 @@ export const configSchema = new Schema({
   uiOptions: field({ type: Object, label: 'Logo & color configs' }),
   ebarimtConfig: field({ type: ebarimtConfigSchema }),
   erkhetConfig: field({ type: Object }),
-  qpayConfig: field({ type: qpayConfigSchema }),
   catProdMappings: field({
     type: [Object],
     label: 'Product category mappings'

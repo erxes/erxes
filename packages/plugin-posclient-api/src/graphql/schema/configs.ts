@@ -25,14 +25,6 @@ export const types = `
     footerText: String
   }
 
-  type QPayConfig {
-    url: String
-    callbackUrl: String
-    username: String
-    password: String
-    invoiceCode: String
-  }
-
   type CatProd {
     _id: String
     categoryId: String
@@ -55,6 +47,7 @@ export const types = `
     adminIds: [String]
     cashierIds: [String]
     paymentIds: [String]
+    paymentTypes: [JSON]
     beginNumber: String
     maxSkipNumber: Int
     waitingScreen: JSON
@@ -64,7 +57,6 @@ export const types = `
     erxesAppToken: String
     uiOptions: UIOptions
     ebarimtConfig: EbarimtConfig
-    qpayConfig: QPayConfig
     catProdMappings: [CatProd]
     initialCategoryIds: [String]
     kioskExcludeProductIds: [String]
