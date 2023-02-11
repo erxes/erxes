@@ -37,6 +37,7 @@ export default class RightSidebar extends React.Component<Props> {
           building={building}
           onSelectCustomers={this.onSelectCustomers}
         />
+
         <CompanySection
           building={building}
           onSelectCompanies={this.onSelectCompanies}

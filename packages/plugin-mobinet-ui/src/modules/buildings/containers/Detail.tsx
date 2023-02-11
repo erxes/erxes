@@ -42,7 +42,6 @@ const BuildingDetailContainer = (props: Props) => {
   });
 
   const onSelectContacts = (datas: any, type: string) => {
-    console.log('onSelect', datas);
     if (type === 'customer') {
       manageCustomers({
         variables: {
@@ -69,8 +68,6 @@ const BuildingDetailContainer = (props: Props) => {
   if (detailQry.loading) {
     return <Spinner objective={true} />;
   }
-
-  console.log('detailQry', detailQry.data);
 
   if (!detailQry.data.buildingDetail) {
     return (
