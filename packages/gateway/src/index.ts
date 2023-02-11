@@ -30,6 +30,8 @@ import { retryGetProxyTargets, ErxesProxyTarget } from './proxy/targets';
 import createErxesProxyMiddleware from './proxy/create-middleware';
 import startRouter from './router/start';
 import { ChildProcess } from 'child_process';
+import { startSubscriptionServer } from './subscription';
+import { Disposable } from 'graphql-ws';
 
 const {
   NODE_ENV,
@@ -44,6 +46,7 @@ const {
 } = process.env;
 
 let routerProcess: ChildProcess | undefined = undefined;
+let subscriptionServer: Disposable | undefined = undefined;
 
 const stopRouter = () => {
   if (!routerProcess) {
@@ -144,13 +147,9 @@ const stopRouter = () => {
     }
   });
 
-  // const wsServer = new ws.Server({
-  //   server: httpServer,
-  //   path: '/graphql'
-  // });
+  subscriptionServer = await startSubscriptionServer(httpServer);
 
-  // await loadSubscriptions({}, wsServer);
-
+  // Why are we parsing the body twice? When we don't use the
   app.use(
     express.json({
       limit: '15mb'
@@ -176,6 +175,11 @@ const stopRouter = () => {
   process.on(sig, async () => {
     if (NODE_ENV === 'development') {
       clearCache();
+    }
+    if (subscriptionServer) {
+      try {
+        subscriptionServer.dispose();
+      } catch (e) {}
     }
     stopRouter();
     process.exit(0);

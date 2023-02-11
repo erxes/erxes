@@ -7,7 +7,10 @@ if (!fs.existsSync(dirTempPath)) {
   fs.mkdirSync(dirTempPath, { recursive: true });
 }
 
-export const supergraphConfig = path.resolve(dirTempPath, 'supergraph.yaml');
-export const supergraph = path.resolve(dirTempPath, 'supergraph.graphql');
-export const routerConfig = path.resolve(dirTempPath, 'router.yaml');
+export const supergraphConfigPath = path.resolve(
+  dirTempPath,
+  'supergraph.yaml'
+);
+export const supergraphPath = path.resolve(dirTempPath, 'supergraph.graphql');
+export const routerConfigPath = path.resolve(dirTempPath, 'router.yaml');
 export const routerPath = path.resolve(dirTempPath, 'router');

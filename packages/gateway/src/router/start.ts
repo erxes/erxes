@@ -6,7 +6,12 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as yaml from 'yaml';
 import { ErxesProxyTarget } from 'src/proxy/targets';
-import { dirTempPath, routerConfig, routerPath, supergraph } from './paths';
+import {
+  dirTempPath,
+  routerConfigPath,
+  routerPath,
+  supergraphPath
+} from './paths';
 import supergraphCompose from './supergraph-compose';
 
 const {
@@ -60,7 +65,7 @@ const createRouterConfig = () => {
       listen: '0.0.0.0:50000'
     }
   };
-  fs.writeFileSync(routerConfig, yaml.stringify(config));
+  fs.writeFileSync(routerConfigPath, yaml.stringify(config));
 };
 
 const startRouter = async (
@@ -79,9 +84,9 @@ const startRouter = async (
       '--log',
       NODE_ENV === 'development' ? 'warn' : 'error',
       `--supergraph`,
-      supergraph,
+      supergraphPath,
       `--config`,
-      routerConfig
+      routerConfigPath
     ],
     { stdio: 'inherit' }
   );

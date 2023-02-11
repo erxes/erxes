@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 import { ErxesProxyTarget } from 'src/proxy/targets';
-import { supergraphConfig, supergraph } from './paths';
+import { supergraphConfigPath, supergraphPath } from './paths';
 import * as fs from 'fs';
 import { execSync } from 'child_process';
 import isSameFile from '../util/is-same-file';
@@ -25,7 +25,7 @@ type SupergraphConfig = {
 };
 
 const createSupergraphConfig = (proxyTargets: ErxesProxyTarget[]) => {
-  const superGraphConfigNext = supergraphConfig + '.next';
+  const superGraphConfigNext = supergraphConfigPath + '.next';
   const config: SupergraphConfig = {
     federation_version: 2,
     subgraphs: {}
@@ -43,22 +43,25 @@ const createSupergraphConfig = (proxyTargets: ErxesProxyTarget[]) => {
   fs.writeFileSync(superGraphConfigNext, yaml.stringify(config));
 
   if (
-    !fs.existsSync(supergraphConfig) ||
-    !isSameFile(supergraphConfig, superGraphConfigNext)
+    !fs.existsSync(supergraphConfigPath) ||
+    !isSameFile(supergraphConfigPath, superGraphConfigNext)
   ) {
-    execSync(`cp ${superGraphConfigNext}  ${supergraphConfig}`);
+    execSync(`cp ${superGraphConfigNext}  ${supergraphConfigPath}`);
   }
 };
 
 const supergraphComposeOnce = async () => {
-  const superGraphqlNext = supergraph + '.next';
+  const superGraphqlNext = supergraphPath + '.next';
   execSync(
-    `yarn rover supergraph compose --config ${supergraphConfig} --output ${superGraphqlNext}`,
+    `yarn rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext}`,
     { stdio: 'ignore' }
   );
-  if (!fs.existsSync(supergraph) || !isSameFile(supergraph, superGraphqlNext)) {
-    execSync(`cp ${superGraphqlNext} ${supergraph}`);
-    console.log(`Supergraph Schema was printed to ${supergraph}`);
+  if (
+    !fs.existsSync(supergraphPath) ||
+    !isSameFile(supergraphPath, superGraphqlNext)
+  ) {
+    execSync(`cp ${superGraphqlNext} ${supergraphPath}`);
+    console.log(`Supergraph Schema was printed to ${supergraphPath}`);
   }
 };
 
