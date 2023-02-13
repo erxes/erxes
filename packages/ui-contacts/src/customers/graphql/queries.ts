@@ -40,10 +40,12 @@ const basicFields = `
 
   links
   ownerId
-  owner {
-    _id
-    details {
-      fullName
+  ... @defer {
+    owner {
+      _id
+      details {
+        fullName
+      }
     }
   }
 `;
