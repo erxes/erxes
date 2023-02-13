@@ -5,6 +5,7 @@ module.exports = {
   exposes: {
     './routes': './src/routes.tsx',
     './customerSidebar': './src/modules/contracts/containers/CustomerSideBar.tsx',
+    "./cardDetailAction": "./src/modules/contracts/containers/CardDetailAction.tsx",
     './buildingsSection': './src/common/routes/Buildings.tsx'
   },
   routes: {
@@ -28,6 +29,7 @@ module.exports = {
       scope: "mobinet"
     }
   ],
+  cardDetailAction: "./cardDetailAction",
   customerRightSidebarSection: [
     {
       text: 'customerSection',

@@ -7,6 +7,14 @@ const queries = {
     { models }: IContext
   ) => {
     return models.Contracts.find({ customerId });
+  },
+
+  mobiContractsGetByTicket: async (
+    _root,
+    { ticketId }: { ticketId: string },
+    { models }: IContext
+  ) => {
+    return models.Contracts.findOne({ ticketId });
   }
 };
 

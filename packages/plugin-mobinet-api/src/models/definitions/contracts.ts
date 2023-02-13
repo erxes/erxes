@@ -3,6 +3,7 @@ import { field } from '../utils';
 
 export interface IContract {
   createdAt: Date;
+  ticketId: string;
   customerId: string;
   buildingId: string;
   buildingAssetId: string;
@@ -20,6 +21,7 @@ export const contractSchema = new Schema({
     required: true,
     default: Date.now
   }),
+  ticketId: field({ type: String }),
   customerId: field({ type: String }),
   buildingId: field({ type: String }),
   documentId: field({ type: String }),

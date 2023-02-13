@@ -8,7 +8,7 @@ import {
 } from './definitions/contracts';
 
 export interface IContractModel extends Model<IContractDocument> {
-  createContract(doc: IContract): Promise<IContractDocument>;
+  createContract(doc): Promise<IContractDocument>;
   updateContract(_id: string, doc: IContract): void;
   getContract(doc: any): Promise<IContractDocument>;
   removeContract(_id: string): void;
@@ -16,7 +16,7 @@ export interface IContractModel extends Model<IContractDocument> {
 
 export const loadContractClass = (models: IModels) => {
   class Contract {
-    public static async createContract(doc: IContract) {
+    public static async createContract(doc) {
       return models.Contracts.create(doc);
     }
 

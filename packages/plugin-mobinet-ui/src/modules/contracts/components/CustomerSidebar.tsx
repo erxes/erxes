@@ -34,7 +34,7 @@ const List = styled(SidebarList)`
 class Sidebar extends React.Component<Props> {
   render() {
     return (
-      <Box title="Contacts" name="contacts">
+      <Box title="Contracts" name="contracts">
         <List>
           {this.props.contracts.map(contract => {
             const href = `${
