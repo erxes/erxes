@@ -15,7 +15,7 @@ const formSubmissionMutations = {
 checkPermission(
   formSubmissionMutations,
   'riskFormSaveSubmissions',
-  'manageRiskAssessment'
+  'showRiskAssessment'
 );
 
 export default formSubmissionMutations;

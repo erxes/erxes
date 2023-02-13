@@ -23,6 +23,7 @@ export const commonRiskIndicatorTypes = `
     departmentIds:[String]
     calculateMethod:String
     customScoreField: JSON
+    isWithDescription:Boolean
 `;
 
 export const commonRiskConformityTypes = `
@@ -36,17 +37,6 @@ export const commonAssessmentCategoryTypes = `
     name: String
     formId: String
     parentId: String
-`;
-
-export const commonFormSubmissionsTypes = `
-    cardId: String,
-    cardType: String,
-    riskAssessmentId: String,
-    userId: String,
-    fieldId: String,
-    indicatorId: String,
-    customScore:Int,
-    formSubmissions:JSON
 `;
 
 export const commonRiskIndicatorFormParams = `
