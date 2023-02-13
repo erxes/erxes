@@ -24,6 +24,7 @@ import Collapse from 'react-bootstrap/Collapse';
 
 type Props = {
   group: IFieldGroup;
+  groupsWithParents: IFieldGroup[];
   queryParams: any;
   removePropertyGroup: (data: { _id: string }) => any;
   removeProperty: (data: { _id: string }) => void;
@@ -38,31 +39,42 @@ type Props = {
     isRequired?: boolean;
   }) => void;
   updateFieldOrder: (fields: IField[]) => any;
+  updateGroupOrder: (groups: IFieldGroup[]) => void;
 };
 
 type State = {
   collapse: boolean;
   fields: IField[];
+  groupsWithParents: IFieldGroup[];
 };
 
 class PropertyRow extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    const { groupsWithParents = [] } = props;
     const { fields = [] } = props.group;
 
     this.state = {
-      collapse: true,
-      fields
+      collapse: props.group.parentId ? false : true,
+      fields,
+      groupsWithParents
     };
   }
 
   componentWillReceiveProps(nextProps) {
+    const { groupsWithParents = [] } = this.props;
     const { fields = [] } = this.props.group;
 
     if (fields !== nextProps.group.fields) {
       this.setState({
         fields: nextProps.group.fields
+      });
+    }
+
+    if (groupsWithParents !== nextProps.groupsWithParents) {
+      this.setState({
+        groupsWithParents: nextProps.groupsWithParents
       });
     }
   }
@@ -295,13 +307,76 @@ class PropertyRow extends React.Component<Props, State> {
     );
   };
 
+  renderChildGroupsTable = () => {
+    const { group } = this.props;
+    const { groupsWithParents } = this.state;
+
+    const childGroups = groupsWithParents.filter(
+      item => item.parentId === group._id
+    );
+
+    if (childGroups.length === 0) {
+      return null;
+    }
+
+    const onChangeFieldGroups = groupsWithParents => {
+      this.setState({ groupsWithParents }, () => {
+        this.props.updateGroupOrder(this.state.groupsWithParents);
+      });
+    };
+
+    const renderChildGroupRow = childGroup => {
+      const {
+        queryParams,
+        removePropertyGroup,
+        removeProperty,
+        updatePropertyVisible,
+        updatePropertyDetailVisible,
+        updatePropertySystemFields,
+        updateFieldOrder,
+        updateGroupOrder
+      } = this.props;
+
+      const fieldsGroupsWithParent = groupsWithParents.filter(
+        item => item.parentId === childGroup._id
+      );
+
+      return (
+        <PropertyRow
+          key={childGroup._id}
+          group={childGroup}
+          groupsWithParents={fieldsGroupsWithParent}
+          queryParams={queryParams}
+          removePropertyGroup={removePropertyGroup}
+          removeProperty={removeProperty}
+          updatePropertyVisible={updatePropertyVisible}
+          updatePropertyDetailVisible={updatePropertyDetailVisible}
+          updatePropertySystemFields={updatePropertySystemFields}
+          updateFieldOrder={updateFieldOrder}
+          updateGroupOrder={updateGroupOrder}
+        />
+      );
+    };
+
+    return (
+      <SortableList
+        fields={childGroups}
+        child={group => renderChildGroupRow(group)}
+        onChangeFields={onChangeFieldGroups}
+        isModal={true}
+        showDragHandler={false}
+        droppableId="property-group"
+      />
+    );
+  };
+
   render() {
     const { group, removePropertyGroup, queryParams } = this.props;
     const { fields = [] } = group;
 
     return (
       <li key={group._id}>
-        <CollapseRow>
+        <CollapseRow isChild={!!group.parentId}>
           <div style={{ flex: 1 }} onClick={this.handleCollapse}>
             <DropIcon isOpen={this.state.collapse} />
             {group.name}
@@ -320,7 +395,10 @@ class PropertyRow extends React.Component<Props, State> {
           )}
         </CollapseRow>
         <Collapse in={this.state.collapse}>
-          <div>{this.renderTable(fields, group.contentType)}</div>
+          <div>
+            {this.renderTable(fields, group.contentType)}
+            {this.renderChildGroupsTable()}
+          </div>
         </Collapse>
       </li>
     );
