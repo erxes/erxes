@@ -19,7 +19,8 @@ var plugins = [
   { name: 'rentpay', ui: true, api: true },
   { name: 'tumentech', ui: true, api: true },
   { name: 'priuscenter', ui: true, api: true },
-  { name: 'apex', ui: true, api: true }
+  { name: 'apex', ui: true, api: true },
+  { name: 'mobinet', ui: true, api: true }
 ];
 
 const pluginsMap = {};
