@@ -285,7 +285,7 @@ class GeneralSettings extends React.Component<Props, State> {
           </FormGroup>
           <FormGroup>
             <ControlLabel>
-              {__('team members who can access every branches')}
+              {__('Team members who can access every branches')}
             </ControlLabel>
             <SelectTeamMembers
               name="BRANCHES_MASTER_TEAM_MEMBERS_IDS"
