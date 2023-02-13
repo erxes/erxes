@@ -21,22 +21,6 @@ const generateFilters = async ({
     filter._id = { $in: params.ids };
   }
 
-  if (params.searchValue) {
-    const regexOption = {
-      $regex: `.*${params.searchValue.trim()}.*`,
-      $options: 'i'
-    };
-
-    filter.$or = [
-      {
-        title: regexOption
-      },
-      {
-        description: regexOption
-      }
-    ];
-  }
-
   if (params.status) {
     filter.status = params.status;
   }
@@ -83,6 +67,38 @@ const generateFilters = async ({
 
   if (filter.order && (user.isOwner || mastersStructure)) {
     delete filter.order;
+  }
+  if (params.searchValue) {
+    const regexOption = {
+      $regex: `.*${params.searchValue.trim()}.*`,
+      $options: 'i'
+    };
+
+    let structureFilter: any = {
+      $or: [
+        { title: regexOption },
+        { description: regexOption },
+        { code: regexOption }
+      ]
+    };
+
+    if (filter.order) {
+      structureFilter.order = filter.order;
+    }
+
+    if (type === 'department') {
+      const departmentOrders = (await models.Departments.find(structureFilter))
+        .map(department => department.code)
+        .join('|');
+      filter.order = { $regex: new RegExp(departmentOrders) };
+    }
+
+    if (type === 'branch') {
+      const branchOrders = (await models.Branches.find(structureFilter))
+        .map(department => department.code)
+        .join('|');
+      filter.order = { $regex: new RegExp(branchOrders, 'i') };
+    }
   }
 
   return filter;
