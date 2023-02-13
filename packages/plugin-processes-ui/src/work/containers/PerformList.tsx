@@ -1,8 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Bulk from '@erxes/ui/src/components/Bulk';
-import { withProps } from '@erxes/ui/src/utils';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { router, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import List from '../components/PerformList';
@@ -11,11 +10,12 @@ import {
   PerformsQueryResponse,
   PerformsCountQueryResponse
 } from '../../overallWork/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 
 type Props = {
   queryParams: any;
   history: any;
-};
+} & IRouterProps;
 
 type FinalProps = {
   performsQuery: PerformsQueryResponse;
@@ -37,15 +37,12 @@ class WorkListContainer extends React.Component<FinalProps> {
     const performs = performsQuery.performs || [];
     const performsCount = performsTotalCountQuery.performsCount || 0;
 
-    const searchValue = this.props.queryParams.searchValue || '';
-
     const updatedProps = {
       ...this.props,
       queryParams,
       performs,
       performsCount,
-      loading: performsQuery.loading,
-      searchValue
+      loading: performsQuery.loading
     };
 
     const performsList = props => {
@@ -61,15 +58,32 @@ class WorkListContainer extends React.Component<FinalProps> {
   }
 }
 
+const generateParams = ({ queryParams }) => ({
+  ...router.generatePaginationParams(queryParams || {}),
+  sortField: queryParams.sortField,
+  sortDirection: queryParams.sortDirection
+    ? parseInt(queryParams.sortDirection, 10)
+    : undefined,
+  type: queryParams.type,
+  startDate: queryParams.startDate,
+  endDate: queryParams.endDate,
+  inBranchId: queryParams.inBranchId,
+  inDepartmentId: queryParams.inDepartmentId,
+  outBranchId: queryParams.outBranchId,
+  outDepartmentId: queryParams.outDepartmentId,
+  productCategoryId: queryParams.productCategoryId,
+  productIds: queryParams.productIds,
+  vendorIds: queryParams.vendorIds,
+  jobCategoryId: queryParams.jobCategoryId,
+  jobReferId: queryParams.jobReferId
+});
+
 export default withProps<Props>(
   compose(
     graphql<Props, PerformsQueryResponse, {}>(gql(performQueries.performs), {
       name: 'performsQuery',
       options: ({ queryParams }) => ({
-        variables: {
-          searchValue: queryParams.searchValue,
-          ...generatePaginationParams(queryParams)
-        },
+        variables: generateParams({ queryParams }),
         fetchPolicy: 'network-only'
       })
     }),
@@ -78,9 +92,7 @@ export default withProps<Props>(
       {
         name: 'performsTotalCountQuery',
         options: ({ queryParams }) => ({
-          variables: {
-            searchValue: queryParams.searchValue
-          },
+          variables: generateParams({ queryParams }),
           fetchPolicy: 'network-only'
         })
       }

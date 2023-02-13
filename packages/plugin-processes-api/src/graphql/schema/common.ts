@@ -3,7 +3,7 @@ import {
   attachmentInput
 } from '@erxes/api-utils/src/commonTypeDefs';
 
-export const types = () => `
+export const types = contactsAvailable => `
   ${attachmentType}
   ${attachmentInput}
 
@@ -18,6 +18,21 @@ export const types = () => `
   extend type Product @key(fields: "_id") {
     _id: String! @external
   }
+
+  ${
+    contactsAvailable
+      ? `
+        extend type Customer @key(fields: "_id") {
+          _id: String! @external
+        }
+
+        extend type Company @key(fields: "_id") {
+          _id: String! @external
+        }
+      `
+      : ''
+  }
+
 
   extend type ProductCategory @key(fields: "_id") {
     _id: String! @external
