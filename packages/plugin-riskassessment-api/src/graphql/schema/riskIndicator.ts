@@ -48,6 +48,7 @@ export const types = `
         calculateMethod:String
         calculateLogics:[CalculateLogicType]
         forms:[RiskIndicatorFormType]
+        isWithDescription:Boolean
     }
     
     type IRiskIndicatorCategory {
@@ -103,6 +104,7 @@ export const types = `
 
     input IIndicatorGroups {
         _id:String,
+        name:String,
         indicatorIds:[String]
         calculateLogics:[ICalculateLogic]
         calculateMethod:String
@@ -110,9 +112,10 @@ export const types = `
     }
 
     type GroupsOfGroupTypes {
+        _id:String
+        name:String
         indicatorIds:[String]
         calculateLogics:[CalculateLogicType]
-        _id:String
         calculateMethod:String
         percentWeight:Int
     }

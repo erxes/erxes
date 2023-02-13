@@ -4,7 +4,7 @@ export const commonFormSaveParams = `
   $fieldId: String,
   $formSubmissions: JSON,
   $riskAssessmentId:String
-  $customScore:Int
+  $customScore:ICustomScore
   $userId: String,
   $indicatorId:String
 `;

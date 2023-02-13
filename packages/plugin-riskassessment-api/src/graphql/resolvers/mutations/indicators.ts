@@ -42,8 +42,8 @@ const RiskIndicatorsMutations = {
   ) {
     return await models.IndicatorsGroups.updateGroup(_id, doc);
   },
-  async removeRiskIndicatorsGroups(_root, params, { models }: IContext) {
-    return await models.IndicatorsGroups.removeGroups(params);
+  async removeRiskIndicatorsGroups(_root, { ids }, { models }: IContext) {
+    return await models.IndicatorsGroups.removeGroups(ids);
   },
 
   async addRiskIndicatorConfig(_root, params, { models }: IContext) {
@@ -66,17 +66,47 @@ const RiskIndicatorsMutations = {
 checkPermission(
   RiskIndicatorsMutations,
   'addRiskAssesment',
-  'manageRiskIndicators'
+  'manageRiskAssessment'
 );
 checkPermission(
   RiskIndicatorsMutations,
   'removeRiskIndicators',
-  'manageRiskIndicators'
+  'manageRiskAssessment'
 );
 checkPermission(
   RiskIndicatorsMutations,
   'updateRiskIndicators',
-  'manageRiskIndicators'
+  'manageRiskAssessment'
+);
+checkPermission(
+  RiskIndicatorsMutations,
+  'updateRiskIndicatorsGroups',
+  'manageRiskAssessment'
+);
+checkPermission(
+  RiskIndicatorsMutations,
+  'removeRiskIndicatorsGroups',
+  'manageRiskAssessment'
+);
+checkPermission(
+  RiskIndicatorsMutations,
+  'addRiskIndicatorsGroups',
+  'manageRiskAssessment'
 );
 
+checkPermission(
+  RiskIndicatorsMutations,
+  'addRiskIndicatorConfig',
+  'manageRiskAssessment'
+);
+checkPermission(
+  RiskIndicatorsMutations,
+  'updateRiskIndicatorConfig',
+  'manageRiskAssessment'
+);
+checkPermission(
+  RiskIndicatorsMutations,
+  'removeRiskIndicatorConfigs',
+  'manageRiskAssessment'
+);
 export default RiskIndicatorsMutations;

@@ -9,6 +9,7 @@ import { Alert, confirm, Spinner } from '@erxes/ui/src';
 import { IIndicatorsGroupsQueryResponse } from '../common/types';
 import ListComponent from '../components/List';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { generateParams, refetchQueries } from '../common/utilss';
 
 type Props = {
   queryParams: any;
@@ -25,7 +26,7 @@ class List extends React.Component<FinalProps> {
   }
 
   render() {
-    const { listQuery, removeGroups } = this.props;
+    const { listQuery, removeGroups, queryParams } = this.props;
 
     if (listQuery.loading) {
       return <Spinner />;
@@ -49,17 +50,13 @@ class List extends React.Component<FinalProps> {
       ...this.props,
       list: riskIndicatorsGroups,
       totalCount: riskIndicatorsGroupsTotalCount,
+      queryParams,
       remove
     };
 
     return <ListComponent {...updatedProps} />;
   }
 }
-
-const generateParams = queryParams => ({
-  ...generatePaginationParams(queryParams || []),
-  searchValue: queryParams?.searchValue
-});
 
 export default withProps(
   compose(
@@ -70,7 +67,10 @@ export default withProps(
       })
     }),
     graphql<Props>(gql(mutations.removeGroups), {
-      name: 'removeGroups'
+      name: 'removeGroups',
+      options: ({ queryParams }) => ({
+        refetchQueries: refetchQueries(queryParams)
+      })
     })
   )(List)
 );

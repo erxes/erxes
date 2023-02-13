@@ -12,6 +12,7 @@ type Props = {
   riskAssessmentId: string;
   userId: string;
   closeModal: () => void;
+  onlyPreview?: boolean;
 };
 
 type State = {
@@ -61,7 +62,8 @@ class RiskAssessmentForm extends React.Component<Props, State> {
       userId,
       cardId,
       cardType,
-      closeModal
+      closeModal,
+      onlyPreview
     } = this.props;
     const { indicatorId } = this.state;
 
@@ -71,7 +73,8 @@ class RiskAssessmentForm extends React.Component<Props, State> {
       indicatorId,
       cardId,
       cardType,
-      closeModal
+      closeModal,
+      onlyPreview
     };
 
     return <RiskIndicatorForm {...updatedProps} />;
