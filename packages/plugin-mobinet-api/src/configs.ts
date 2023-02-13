@@ -2,6 +2,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as cookieParser from 'cookie-parser';
 
 import { generateModels } from './connectionResolver';
+import documents from './documents';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
 import { initBroker } from './messageBroker';
@@ -14,6 +15,9 @@ export let serviceDiscovery;
 
 export default {
   name: 'mobinet',
+  meta: {
+    documents
+  },
   graphql: async sd => {
     serviceDiscovery = sd;
 

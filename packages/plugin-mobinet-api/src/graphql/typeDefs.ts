@@ -21,6 +21,12 @@ import {
   types as quarterTypes
 } from './schema/quarters';
 
+import {
+  queries as contractQueries,
+  mutations as contractMutations,
+  types as contractTypes
+} from './schema/contracts';
+
 const typeDefs = async serviceDiscovery => {
   const isEnabled = {
     contacts: await serviceDiscovery.isEnabled('contacts'),
@@ -47,12 +53,14 @@ const typeDefs = async serviceDiscovery => {
     ${quarterTypes}
     ${cityTypes}
     ${buildingTypes(isEnabled)}
+    ${contractTypes}
     
     extend type Query {
       ${districtQueries}
       ${cityQueries}
       ${quarterQueries}
       ${buildingQueries}
+      ${contractQueries}
     }
     
     extend type Mutation {
@@ -60,6 +68,7 @@ const typeDefs = async serviceDiscovery => {
       ${cityMutations}
       ${quarterMutations}
       ${buildingMutations}
+      ${contractMutations}
     }
   `;
 };

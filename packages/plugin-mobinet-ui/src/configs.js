@@ -4,6 +4,7 @@ module.exports = {
   scope: 'mobinet',
   exposes: {
     './routes': './src/routes.tsx',
+    './customerSidebar': './src/modules/contracts/containers/CustomerSideBar.tsx',
     './buildingsSection': './src/common/routes/Buildings.tsx'
   },
   routes: {
@@ -25,6 +26,13 @@ module.exports = {
       text: "buildingsSection",
       component: "./buildingsSection",
       scope: "mobinet"
+    }
+  ],
+  customerRightSidebarSection: [
+    {
+      text: 'customerSection',
+      component: './customerSidebar',
+      scope: 'mobinet'
     }
   ]
 };
