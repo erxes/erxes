@@ -105,6 +105,7 @@ const productCategories = `
       parentId
       description
       status
+      meta
       attachment {
         name
         url
