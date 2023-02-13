@@ -203,27 +203,24 @@ const configClientPortalQueries = {
   async clientPortalKnowledgeBaseArticles(
     _root,
     {
-      categoryIds,
-      searchValue
+      searchValue,
+      topicId
     }: {
       searchValue?: string;
-      categoryIds: string[];
+      topicId?: string;
     },
     { subdomain }: IContext
   ) {
     const selector: any = {};
 
-    if (searchValue && searchValue.trim()) {
-      selector.$or = [
-        { title: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
-        { content: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
-        { summary: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } }
-      ];
-    }
-
-    if (categoryIds && categoryIds.length > 0) {
-      selector.categoryId = { $in: categoryIds };
-    }
+    selector.$and = [
+      {
+        topicId: topicId
+      },
+      {
+        title: searchValue
+      }
+    ];
 
     return sendKbMessage({
       subdomain,
