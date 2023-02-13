@@ -64,7 +64,6 @@ const stopRouter = () => {
 
   app.use(userMiddleware);
 
-  // TODO: Find some solution so that we can stop forwarding /read-file, /initialSetup etc.
   const corsOptions = {
     credentials: true,
     origin: [
@@ -77,55 +76,6 @@ const stopRouter = () => {
   };
 
   app.use(cors(corsOptions));
-
-  // app.use(
-  //   /\/((?!graphql).)*/,
-  //   createProxyMiddleware({
-  //     target:
-  //       NODE_ENV === 'production'
-  //         ? `http://plugin_core_api${
-  //             PLUGINS_INTERNAL_PORT ? `:${PLUGINS_INTERNAL_PORT}` : ''
-  //           }`
-  //         : 'http://localhost:3300',
-  //     router: async req => {
-  //       const services = await getServices();
-
-  //       let host;
-
-  //       for (const service of services) {
-  //         if (
-  //           req.path.includes(`/pl:${service}/`) ||
-  //           req.path.includes(`/pl-${service}/`)
-  //         ) {
-  //           const foundService = await getService(service);
-  //           host = foundService.address;
-  //           break;
-  //         }
-  //       }
-
-  //       if (host) {
-  //         return host;
-  //       }
-  //     },
-  //     onProxyReq: (proxyReq, req: any) => {
-  //       proxyReq.setHeader('hostname', req.hostname);
-  //       proxyReq.setHeader('userid', req.user ? req.user._id : '');
-  //     },
-  //     pathRewrite: async path => {
-  //       let newPath = path;
-
-  //       const services = await getServices();
-
-  //       for (const service of services) {
-  //         newPath = newPath
-  //           .replace(`/pl:${service}/`, '/')
-  //           .replace(`/pl-${service}/`, '/');
-  //       }
-
-  //       return newPath;
-  //     }
-  //   })
-  // );
 
   const targets: ErxesProxyTarget[] = await retryGetProxyTargets();
   await apolloRouter(targets);

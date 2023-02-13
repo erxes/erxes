@@ -4,6 +4,7 @@ const { GatewayDataSource } = require('esm')(module)(
 
 import { DocumentNode, GraphQLResolveInfo } from 'graphql';
 import { merge } from 'lodash';
+import gql from 'graphql-tag';
 
 export default class ApolloRouterDataSource extends GatewayDataSource {
   constructor(apolloRouterUrl: string) {
@@ -21,8 +22,6 @@ export default class ApolloRouterDataSource extends GatewayDataSource {
     if (this.context.extra.request.headers.cookie) {
       request.headers.cookie = this.context.extra.request.headers.cookie;
     }
-
-    console.log(request);
   }
 
   public async queryAndMergeMissingData({
@@ -34,13 +33,9 @@ export default class ApolloRouterDataSource extends GatewayDataSource {
     payload: any;
     queryVariables: object;
     info: GraphQLResolveInfo;
-    buildQueryUsingSelections: (selections: any) => DocumentNode;
+    buildQueryUsingSelections: (selections: any) => string;
   }): Promise<any> {
     const selections = this.buildNonPayloadSelections(payload, info);
-
-    console.log('---------------selections------------------');
-    console.log(selections);
-    console.log('---------------selections------------------');
 
     // TODO: use info.fieldName instead of Object.values(payload)[0]
     const payloadData = Object.values(payload)[0];
@@ -50,9 +45,11 @@ export default class ApolloRouterDataSource extends GatewayDataSource {
     }
 
     const query = buildQueryUsingSelections(selections);
+    const documentNode: DocumentNode =
+      typeof query === 'string' ? gql(query) : query;
 
     try {
-      const response = await this.query(query, {
+      const response = await this.query(documentNode, {
         variables: queryVariables
       });
 

@@ -8,12 +8,8 @@
     "download:plugins": "yarn ts-node src/subscription/plugins/runDownloadPlugins.ts"
   },
   "dependencies": {
-    "@apollo/federation": "^0.33.8",
-    "@apollo/gateway": "^0.44.1",
     "@apollo/rover": "^0.11.1",
     "@graphql-tools/schema": "^9.0.16",
-    "apollo-server-core": "^3.6.1",
-    "apollo-server-express": "^3.5.0",
     "cookie-parser": "^1.4.6",
     "dotenv": "^10.0.0",
     "elastic-apm-node": "3.36.0",
@@ -25,6 +21,7 @@
     "graphql": "^15.8.0",
     "graphql-redis-subscriptions": "^2.4.2",
     "graphql-subscriptions": "^2.0.0",
+    "graphql-tag": "^2.12.6",
     "graphql-ws": "5.5.5",
     "http-proxy-middleware": "^2.0.1",
     "ioredis": "^4.28.2",
