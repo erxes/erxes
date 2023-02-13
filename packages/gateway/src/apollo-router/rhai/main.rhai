@@ -4,9 +4,10 @@ fn supergraph_service(service) {
       response.headers["set-cookie"] += response.context["set_cookie_headers"];
     }
 
-    if response.context["server_timing_headers"] != () && !response.context["server_timing_headers"].is_empty() {
-      response.headers["server-timing"] += response.context["server_timing_headers"];
-    }
+    // Somehow this is causing @defer not to work
+    // if response.context["server_timing_headers"] != () && !response.context["server_timing_headers"].is_empty() {
+    //   response.headers["server-timing"] += response.context["server_timing_headers"];
+    // }
   };
 
   service.map_response(add_cookies_to_response);
@@ -18,9 +19,10 @@ fn subgraph_service(service, subgraph) {
       response.context.set_cookie_headers = response.headers.values("set-cookie");
     }
 
-    if !response.headers.values("server-timing").is_empty() {
-      response.context.server_timing_headers = response.headers.values("server-timing");
-    }
+    // Somehow this is causing @defer not to work
+    // if !response.headers.values("server-timing").is_empty() {
+    //   response.context.server_timing_headers = response.headers.values("server-timing");
+    // }
   };
 
   service.map_response(store_cookies_from_subgraphs);
