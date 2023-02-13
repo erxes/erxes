@@ -1,7 +1,7 @@
 import { paginate } from '@erxes/api-utils/src';
 import { STRUCTURE_STATUSES } from '../../../constants';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { IUser } from '@erxes/api-utils/src/types';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 import { IContext, IModels } from '../../../connectionResolver';
 
 const generateFilters = async ({
@@ -11,11 +11,15 @@ const generateFilters = async ({
   params
 }: {
   models: IModels;
-  user: IUser;
+  user: IUserDocument;
   type: string;
   params: any;
 }) => {
   const filter: any = { status: { $ne: STRUCTURE_STATUSES.DELETED } };
+
+  if (params.ids) {
+    filter._id = { $in: params.ids };
+  }
 
   if (params.searchValue) {
     const regexOption = {
@@ -34,7 +38,7 @@ const generateFilters = async ({
   }
 
   if (params.status) {
-    params.status = params.status;
+    filter.status = params.status;
   }
 
   if (!params.withoutUserFilter) {
@@ -62,7 +66,22 @@ const generateFilters = async ({
       filter.order = { $in: departmentOrders };
     }
   }
-  if (filter.order && user.isOwner) {
+
+  let fieldName = '';
+
+  if (type === 'department') {
+    fieldName = 'DEPARTMENTS';
+  }
+  if (type === 'branch') {
+    fieldName = 'BRANCHES';
+  }
+
+  const mastersStructure = await models.Configs.findOne({
+    code: `${fieldName}_MASTER_TEAM_MEMBERS_IDS`,
+    value: { $in: [user._id] }
+  });
+
+  if (filter.order && (user.isOwner || mastersStructure)) {
     delete filter.order;
   }
 

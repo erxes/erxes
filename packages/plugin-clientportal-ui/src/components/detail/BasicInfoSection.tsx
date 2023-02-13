@@ -1,7 +1,6 @@
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import { confirm } from '@erxes/ui/src/utils';
 import Alert from '@erxes/ui/src/utils/Alert';
-import { __ } from '@erxes/ui/src/utils/core';
 import Button from '@erxes/ui/src/components/Button';
 import { ModalTrigger } from '@erxes/ui/src/components';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -14,6 +13,7 @@ import { MailBox } from '@erxes/ui-contacts/src/customers/styles';
 import MailForm from '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm';
 import React from 'react';
 import SmsForm from '@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm';
+import { loadDynamicComponent, __ } from '@erxes/ui/src/utils';
 
 type Props = {
   clientPortalUser: IClientPortalUser;
@@ -131,7 +131,7 @@ class BasicInfoSection extends React.Component<Props> {
   }
 
   renderDropdown() {
-    const { remove, clientPortalUser } = this.props;
+    const { remove } = this.props;
 
     const onClick = () =>
       confirm()
@@ -158,11 +158,20 @@ class BasicInfoSection extends React.Component<Props> {
   }
 
   render() {
+    const { clientPortalUser } = this.props;
+
     return (
-      <Actions>
-        {this.renderActions()}
-        {this.renderDropdown()}
-      </Actions>
+      <>
+        {loadDynamicComponent(
+          'clientPortalUserDetailAction',
+          { clientPortalUser },
+          true
+        )}
+        <Actions>
+          {this.renderActions()}
+          {this.renderDropdown()}
+        </Actions>
+      </>
     );
   }
 }
