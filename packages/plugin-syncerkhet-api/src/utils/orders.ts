@@ -87,17 +87,19 @@ export const getPostData = async (subdomain, pos, order) => {
     payments.cashAmount = order.cashAmount;
     sumSaleAmount -= order.cashAmount;
   }
-  if (order.receivableAmount) {
-    payments.debtAmount = order.receivableAmount;
-    sumSaleAmount -= order.receivableAmount;
-  }
-  if (order.cardAmount) {
-    payments.cardAmount = order.cardAmount;
-    sumSaleAmount -= order.cardAmount;
-  }
   if (order.mobileAmount) {
     payments.mobileAmount = order.mobileAmount;
     sumSaleAmount -= order.mobileAmount;
+  }
+
+  for (const paidAmount of order.paidAmounts || []) {
+    const erkhetType = pos.erkhetConfig[`_${paidAmount.type}`];
+    if (!erkhetType) {
+      continue;
+    }
+
+    payments[erkhetType] = (payments[erkhetType] || 0) + paidAmount.amount;
+    sumSaleAmount -= paidAmount.amount;
   }
 
   if (sumSaleAmount > 0.005) {

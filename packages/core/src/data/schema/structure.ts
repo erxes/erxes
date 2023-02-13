@@ -105,6 +105,7 @@ export const types = `
 `;
 
 const commonParams = `
+    ids:[String]
     perPage:Int
     page:Int
     searchValue: String,

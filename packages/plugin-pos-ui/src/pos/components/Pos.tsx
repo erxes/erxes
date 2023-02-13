@@ -142,6 +142,7 @@ class Pos extends React.Component<Props, State> {
       adminIds: pos.adminIds,
       cashierIds: pos.cashierIds,
       paymentIds: pos.paymentIds || [],
+      paymentTypes: pos.paymentTypes || [],
       kioskMachine: pos.kioskMachine,
       uiOptions,
       ebarimtConfig,

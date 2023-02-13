@@ -57,6 +57,8 @@ const commonFields = `
 const commonFieldsGroups = `
   name
   ${genericFields}
+  isMultiple
+  parentId
   config
 
   lastUpdatedUser {

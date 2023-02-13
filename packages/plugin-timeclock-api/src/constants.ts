@@ -41,9 +41,10 @@ export const PIVOT_REPORT_COLUMNS = [
   [
     ['Performance'],
     [
-      'Device',
       'Check In',
+      'In Device',
       'Check Out',
+      'Out Device',
       'Байршил',
       'Нийт ажилласан',
       'Илүү цаг',

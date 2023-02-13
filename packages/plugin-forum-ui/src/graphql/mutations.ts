@@ -105,6 +105,9 @@ const createPost = `
     $description: String
     $title: String!
     $thumbnail: String
+    $pollEndDate: Date
+    $pollOptions: [ForumPollOptionInput!]
+    $isPollMultiChoice: Boolean
   ) {
     forumCreatePost(
       categoryId: $categoryId
@@ -112,6 +115,9 @@ const createPost = `
       description: $description
       title: $title
       thumbnail: $thumbnail
+      pollEndDate: $pollEndDate
+      pollOptions: $pollOptions
+      isPollMultiChoice: $isPollMultiChoice
     ) {
       _id
     }
@@ -127,6 +133,9 @@ const editPost = `
     $thumbnail: String
     $title: String
     $tagIds: [ID!]
+    $pollEndDate: Date
+    $pollOptions: [ForumPollOptionInput!]
+    $isPollMultiChoice: Boolean
   ) {
     forumPatchPost(
       _id: $_id
@@ -136,6 +145,9 @@ const editPost = `
       thumbnail: $thumbnail
       title: $title
       tagIds: $tagIds
+      pollEndDate: $pollEndDate
+      pollOptions: $pollOptions
+      isPollMultiChoice: $isPollMultiChoice
     ) {
       _id
     }

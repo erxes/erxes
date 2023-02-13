@@ -1,10 +1,11 @@
-export const types = `
+export const types = contactsAvailable => `
 
   type Perform @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String
 
     overallWorkId: String
     overallWorkKey: OverallWorkKey
+    type: String
     status: String
     startAt: Date
     dueDate: Date
@@ -23,11 +24,22 @@ export const types = `
     resultProducts: JSON
     inProducts: JSON
     outProducts: JSON
+    inProductsLen: Int
+    outProductsLen: Int
 
     inBranch: Branch
     inDepartment: Department
     outBranch: Branch
     outDepartment: Department
+
+    ${
+      contactsAvailable
+        ? `
+          company: Company
+          customer: Customer
+        `
+        : ''
+    }
 
     createdAt: Date
     createdBy: String

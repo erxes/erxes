@@ -10,7 +10,7 @@ import Table from '@erxes/ui/src/components/table';
 import TimeForm from '../../containers/timeclock/TimeFormList';
 import { CustomRangeContainer, FlexCenter, FlexColumn } from '../../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
-import { ControlLabel, FormGroup } from '@erxes/ui/src/components/form';
+import { ControlLabel } from '@erxes/ui/src/components/form';
 
 type Props = {
   queryParams: any;
@@ -21,13 +21,15 @@ type Props = {
   loading: boolean;
   getActionBar: (actionBar: any) => void;
   extractAllMySqlData: (startDate: Date, endDate: Date) => void;
+  removeTimeclock: (_id: string) => void;
 };
 
 function List({
   timeclocks,
   startClockTime,
   getActionBar,
-  extractAllMySqlData
+  extractAllMySqlData,
+  removeTimeclock
 }: Props) {
   const trigger = (
     <Button btnStyle={'success'} icon="plus-circle">
@@ -136,17 +138,25 @@ function List({
         <tr>
           <th>{__('Team member')}</th>
           <th>{__('Shift date')}</th>
-          <th>{__('Shift started')}</th>
-          <th>{__('Shift ended')}</th>
+          <th>{__('Check In')}</th>
+          <th>{__('In Device')}</th>
+          <th>{__('Check Out')}</th>
+          <th>{__('Out Device')}</th>
           <th>{__('Overnight')}</th>
-          <th>{__('Branch / Device name')}</th>
-          <th>{__('Device type')}</th>
+          <th>{__('Location')}</th>
           <th>{__('Status')}</th>
+          <th>{__('Action')}</th>
         </tr>
       </thead>
       <tbody>
         {timeclocks.sort(compareUserName).map(timeclock => {
-          return <Row key={timeclock._id} timeclock={timeclock} />;
+          return (
+            <Row
+              key={timeclock._id}
+              timeclock={timeclock}
+              removeTimeclock={removeTimeclock}
+            />
+          );
         })}
       </tbody>
     </Table>

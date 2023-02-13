@@ -1,5 +1,5 @@
 import * as dayjs from 'dayjs';
-import { connectAndQueryFromMySql } from '../utils';
+import { connectAndQueryFromMsSql } from '../utils';
 
 const connectAndImportFromMysql = (subdomain: string) => {
   // get time data from yesterday till now
@@ -7,7 +7,7 @@ const connectAndImportFromMysql = (subdomain: string) => {
   const NOW = dayjs(Date.now());
   const YESTERDAY = NOW.add(-1, 'day');
 
-  return connectAndQueryFromMySql(
+  return connectAndQueryFromMsSql(
     subdomain,
     YESTERDAY.format(format),
     NOW.format(format)

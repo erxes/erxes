@@ -64,6 +64,8 @@ export type IPerform = {
   resultProducts: IProductsData[];
   inProducts: IProductsDataPerform[];
   outProducts: IProductsDataPerform[];
+  inProductsLen: number;
+  outProductsLen: number;
   inDepartmentId?: string;
   inBranchId?: string;
   outDepartmentId?: string;

@@ -4,7 +4,7 @@ import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { callBackQpay, posInitialSetup } from './routes';
+import { posInitialSetup } from './routes';
 import * as cookieParser from 'cookie-parser';
 import posUserMiddleware from './userMiddleware';
 import posConfigMiddleware from './configMiddleware';
@@ -30,15 +30,10 @@ export default {
   },
   hasSubscriptions: true,
   freeSubscriptions: loadSubscriptions,
-  postHandlers: [
-    { path: `/pl:posclient/callBackQpay`, method: callBackQpay },
-    { path: `/callBackQpay`, method: callBackQpay }
-  ],
+
   getHandlers: [
     { path: `/initial-setup`, method: posInitialSetup },
-    { path: `/pl:posclient/initial-setup`, method: posInitialSetup },
-    { path: `/pl:posclient/callBackQpay`, method: callBackQpay },
-    { path: `/callBackQpay`, method: callBackQpay }
+    { path: `/pl:posclient/initial-setup`, method: posInitialSetup }
   ],
 
   apolloServerContext: async (context, req, res) => {

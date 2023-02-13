@@ -14,6 +14,9 @@ export const commonPostsParams = `
   customQuery: JSON
 
   tagIds: [ID!]
+
+  isFeaturedByAdmin: Boolean
+  isFeaturedByUser: Boolean
 `;
 
 const forumPostsQueryParams = `

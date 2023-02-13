@@ -103,8 +103,8 @@ class ErkhetConfig extends React.Component<
     this.setState({ checkRemainder: val });
   };
 
-  onChangeSelect = value => {
-    this.onChangeConfig('defaultPay', value.value);
+  onChangeSelect = (key, option) => {
+    this.onChangeConfig(key, option.value);
   };
 
   renderInput = (
@@ -188,10 +188,32 @@ class ErkhetConfig extends React.Component<
     );
   }
 
+  renderSelectType(key, value) {
+    return (
+      <Select
+        key={Math.random()}
+        value={value || ''}
+        onChange={this.onChangeSelect.bind(this, key)}
+        clearable={false}
+        required={true}
+        options={[
+          { value: 'debtAmount', label: 'debt Amount' },
+          { value: 'cashAmount', label: 'cash Amount' },
+          { value: 'cardAmount', label: 'card Amount' },
+          { value: 'card2Amount', label: 'card2 Amount' },
+          { value: 'mobileAmount', label: 'mobile Amount' },
+          { value: 'debtBarterAmount', label: 'barter Amount' }
+        ]}
+      />
+    );
+  }
   renderOther() {
     if (!this.state.config.isSyncErkhet) {
       return <></>;
     }
+
+    const { pos } = this.props;
+    const { config } = this.state;
 
     return (
       <Block>
@@ -201,21 +223,18 @@ class ErkhetConfig extends React.Component<
           {this.renderInput('beginNumber', 'Begin bill number', '')}
           <FormGroup>
             <ControlLabel>{'defaultPay'}</ControlLabel>
-            <Select
-              value={this.state.config.defaultPay}
-              onChange={this.onChangeSelect}
-              clearable={false}
-              required={true}
-              options={[
-                { value: 'debtAmount', label: 'debtAmount' },
-                { value: 'cashAmount', label: 'cashAmount' },
-                { value: 'cardAmount', label: 'cardAmount' },
-                { value: 'mobileAmount', label: 'mobileAmount' }
-              ]}
-            />
+            {this.renderSelectType('defaultPay', config.defaultPay)}
           </FormGroup>
         </BlockRow>
         {this.renderAccLoc()}
+        <BlockRow>
+          {(pos.paymentTypes || []).map(pt => (
+            <FormGroup>
+              <ControlLabel>{pt.title}</ControlLabel>
+              {this.renderSelectType(`_${pt.type}`, config[`_${pt.type}`])}
+            </FormGroup>
+          ))}
+        </BlockRow>
       </Block>
     );
   }
