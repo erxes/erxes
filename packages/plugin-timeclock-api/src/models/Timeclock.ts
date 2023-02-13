@@ -22,7 +22,10 @@ import {
   payDateSchema,
   IScheduleConfigDocument,
   IScheduleConfig,
-  scheduleConfigSchema
+  scheduleConfigSchema,
+  IDeviceConfigDocument,
+  IDeviceConfig,
+  deviceConfigSchema
 } from './definitions/timeclock';
 
 export interface ITimeModel extends Model<ITimeClockDocument> {
@@ -295,7 +298,7 @@ export const loadScheduleConfigClass = (models: IModels) => {
     // get
     public static async getScheduleConfig(_id: string) {
       const scheduleConfig = await models.ScheduleConfigs.findOne({ _id });
-      if (!ScheduleConfig) {
+      if (!scheduleConfig) {
         throw new Error('ScheduleConfig not found');
       }
       return scheduleConfig;
@@ -325,4 +328,49 @@ export const loadScheduleConfigClass = (models: IModels) => {
   scheduleConfigSchema.loadClass(ScheduleConfig);
 
   return scheduleConfigSchema;
+};
+
+export interface IDeviceConfigModel extends Model<IDeviceConfigDocument> {
+  getDeviceConfig(_id: string): Promise<IDeviceConfigDocument>;
+  createDeviceConfig(doc: IDeviceConfig): Promise<IDeviceConfigDocument>;
+  updateDeviceConfig(
+    _id: string,
+    doc: IDeviceConfig
+  ): Promise<IDeviceConfigDocument>;
+  removeDeviceConfig(_id: string): void;
+}
+
+export const loadDeviceConfigClass = (models: IModels) => {
+  // tslint:disable-next-line:max-classes-per-file
+  class DeviceConfig {
+    // get
+    public static async getDeviceConfig(_id: string) {
+      const deviceConfig = await models.DeviceConfigs.findOne({ _id });
+      if (!deviceConfig) {
+        throw new Error('deviceConfig not found');
+      }
+      return deviceConfig;
+    }
+    // create
+    public static async createDeviceConfig(doc: IDeviceConfig) {
+      return models.DeviceConfigs.create({
+        ...doc
+      });
+    }
+    // update
+    public static async updateDeviceConfig(_id: string, doc: IDeviceConfig) {
+      await models.DeviceConfigs.updateOne(
+        { _id },
+        { $set: { ...doc } }
+      ).then(err => console.error(err));
+    }
+    // remove
+    public static async removeDeviceConfig(_id: string) {
+      return models.DeviceConfigs.deleteOne({ _id });
+    }
+  }
+
+  deviceConfigSchema.loadClass(DeviceConfig);
+
+  return deviceConfigSchema;
 };

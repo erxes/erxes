@@ -38,11 +38,11 @@ class Form extends React.Component<Props, State> {
   generateDoc(values) {
     const { detail } = this.state;
 
-    detail.calculateLogics.forEach(
+    (detail.calculateLogics || []).forEach(
       calculateLogics => delete calculateLogics.__typename
     );
 
-    detail.groups.forEach((group: any) => {
+    (detail.groups || []).forEach((group: any) => {
       delete group.__typename;
       (group?.calculateLogics || []).forEach(element => {
         delete element.__typename;

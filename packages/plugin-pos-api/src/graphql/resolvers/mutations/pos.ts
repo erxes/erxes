@@ -201,9 +201,10 @@ const mutations = {
 
     return await models.PosOrders.deleteOne({ _id });
   },
+
   posOrderChangePayments: async (
     _root,
-    { _id, receivableAmount, cashAmount, cardAmount, mobileAmount },
+    { _id, cashAmount, mobileAmount, paidAmounts },
     { models }
   ) => {
     const order = await models.PosOrders.findOne({ _id }).lean();
@@ -213,14 +214,19 @@ const mutations = {
 
     if (
       order.totalAmount !==
-      receivableAmount + cashAmount + cardAmount + mobileAmount
+      cashAmount +
+        mobileAmount +
+        (paidAmounts || []).reduce(
+          (sum, i) => Number(sum) + Number(i.amount),
+          0
+        )
     ) {
       throw new Error('not balanced');
     }
 
     await models.PosOrders.updateOne(
       { _id },
-      { $set: { cashAmount, receivableAmount, cardAmount, mobileAmount } }
+      { $set: { cashAmount, mobileAmount, paidAmounts } }
     );
     return models.PosOrders.findOne({ _id }).lean();
   }

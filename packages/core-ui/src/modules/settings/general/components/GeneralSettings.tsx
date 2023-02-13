@@ -33,6 +33,7 @@ import {
 import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
 import ActivateInstallation from './ActivateInstallation';
 import Header from '@erxes/ui-settings/src/general/components/Header';
+import { SelectTeamMembers } from '@erxes/ui/src';
 
 type Props = {
   currentLanguage: string;
@@ -280,6 +281,28 @@ class GeneralSettings extends React.Component<Props, State> {
               value={configsMap.dealUOM}
               onChange={this.onChangeMultiCombo.bind(this, 'dealUOM')}
               multi={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>
+              {__('Team members who can access every branches')}
+            </ControlLabel>
+            <SelectTeamMembers
+              name="BRANCHES_MASTER_TEAM_MEMBERS_IDS"
+              initialValue={configsMap.BRANCHES_MASTER_TEAM_MEMBERS_IDS}
+              label="Select team members"
+              onSelect={(values, name) => this.onChangeConfig(name, values)}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>
+              {__('Team members who can access every departments')}
+            </ControlLabel>
+            <SelectTeamMembers
+              name="DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS"
+              label="Select team members"
+              initialValue={configsMap.DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS}
+              onSelect={(values, name) => this.onChangeConfig(name, values)}
             />
           </FormGroup>
         </CollapseContent>

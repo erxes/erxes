@@ -122,10 +122,24 @@ export const generateFilter = async (params, type, subdomain: string) => {
 
   if (params.searchValue) {
     if (type === 'movement') {
-      filter._id = new RegExp(`.*${params.searchValue}.*`, 'i');
+      filter.$or = [
+        { _id: { $regex: new RegExp(`.*${params.searchValue}.*`, 'i') } },
+        {
+          description: { $regex: new RegExp(`.*${params.searchValue}.*`, 'i') }
+        }
+      ];
     }
     if (type === 'movementItems') {
-      filter.assetName = new RegExp(`.*${params.searchValue}.*`, 'i');
+      const assetIds = await models?.Assets.find({
+        $or: [
+          {
+            name: { $regex: new RegExp(`.*${params.searchValue}.*`, 'i') },
+            code: { $regex: new RegExp(`.*${params.searchValue}.*`, 'i') }
+          }
+        ]
+      });
+
+      filter.assetId = { $in: assetIds };
     }
   }
 

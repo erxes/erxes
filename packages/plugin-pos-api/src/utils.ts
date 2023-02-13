@@ -42,6 +42,10 @@ export const getTomorrow = (date: Date) => {
 export const getChildCategories = async (subdomain: string, categoryIds) => {
   let catIds: string[] = [];
   for (const categoryId of categoryIds) {
+    if (catIds.includes(categoryId)) {
+      continue;
+    }
+
     const childs = await sendProductsMessage({
       subdomain,
       action: 'categories.withChilds',

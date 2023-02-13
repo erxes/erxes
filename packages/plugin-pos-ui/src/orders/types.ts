@@ -1,4 +1,4 @@
-import { IOrdersSummary, QueryResponse } from '../types';
+import { QueryResponse } from '../types';
 import { IProduct, IProductCategory } from '@erxes/ui-products/src/types';
 
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
@@ -11,9 +11,8 @@ export type IOrder = {
   paidDate: Date;
   number: string;
   customerId: string;
-  cardAmount: number;
   cashAmount: number;
-  receivableAmount: number;
+  paidAmounts: any;
   mobileAmount: number;
   totalAmount: number;
   finalAmount: number;
@@ -60,7 +59,7 @@ export type ListQueryVariables = {
 };
 
 export type OrdersSummaryQueryResponse = {
-  posOrdersSummary: IOrdersSummary;
+  posOrdersSummary: any;
   loading: boolean;
   refetch: () => void;
 };
@@ -97,9 +96,8 @@ export type PosOrderChangePaymentsMutationResponse = {
     variables: {
       _id: string;
       cashAmount: number;
-      receivableAmount: number;
-      cardAmount: number;
       mobileAmount: number;
+      paidAmounts: any[];
     };
   }) => Promise<any>;
 };

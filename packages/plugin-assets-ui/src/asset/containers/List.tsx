@@ -193,6 +193,12 @@ export default withProps<Props>(
     graphql(gql(mutations.assetsMerge), {
       name: 'assetsMerge'
     }),
+    graphql(gql(mutations.assetsRemove), {
+      name: 'assetsRemove',
+      options: () => ({
+        refetchQueries: getRefetchQueries()
+      })
+    }),
     graphql(gql(mutations.assetsAssignKbArticles), {
       name: 'assetsAssignKbArticles',
       options: () => ({

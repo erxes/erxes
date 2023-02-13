@@ -87,6 +87,8 @@ const commonQueryParams = `
   noSkipArchive: Boolean
   tagIds: [String]
   number: String
+  branchIds: [String]
+  departmentIds: [String]
 `;
 
 const listQueryParams = `

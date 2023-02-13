@@ -93,6 +93,9 @@ class PutResponses extends React.Component<IProps, State> {
                 <SortHandler sortField={'billId'} label={__('BillID')} />
               </th>
               <th>
+                <SortHandler sortField={'number'} label={__('Number')} />
+              </th>
+              <th>
                 <SortHandler sortField={'date'} label={__('Date')} />
               </th>
               <th>
@@ -156,7 +159,10 @@ class PutResponses extends React.Component<IProps, State> {
       />
     );
 
-    const menuPos = [{ title: 'Put Response', link: '/put-responses' }];
+    const menuPos = [
+      { title: 'Put Response', link: '/put-responses' },
+      { title: 'By Date', link: '/put-responses-by-date' }
+    ];
 
     return (
       <Wrapper

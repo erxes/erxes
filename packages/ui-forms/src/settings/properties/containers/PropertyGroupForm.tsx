@@ -1,17 +1,25 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { graphql } from 'react-apollo';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { withProps } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import PropertyGroupForm from '../components/PropertyGroupForm';
 import { mutations, queries } from '../graphql';
+import { FieldsGroupsQueryResponse } from '../types';
 
 type Props = {
   queryParams: any;
   closeModal: () => void;
 };
 
-const PropertyGroupFormContainer = (props: Props) => {
-  const { queryParams } = props;
+type FinalProps = {
+  fieldsGroupsQuery: FieldsGroupsQueryResponse;
+} & Props;
+
+const PropertyGroupFormContainer = (props: FinalProps) => {
+  const { fieldsGroupsQuery, queryParams } = props;
   const { type } = queryParams;
 
   const renderButton = ({
@@ -44,6 +52,7 @@ const PropertyGroupFormContainer = (props: Props) => {
   const updatedProps = {
     ...props,
     type,
+    groups: fieldsGroupsQuery.fieldsGroups,
     renderButton,
     selectedItems: []
   };
@@ -60,4 +69,18 @@ const getRefetchQueries = queryParams => {
   ];
 };
 
-export default PropertyGroupFormContainer;
+export default withProps<Props>(
+  compose(
+    graphql<Props, FieldsGroupsQueryResponse, { contentType: string }>(
+      gql(queries.fieldsGroups),
+      {
+        name: 'fieldsGroupsQuery',
+        options: ({ queryParams }) => ({
+          variables: {
+            contentType: queryParams.type
+          }
+        })
+      }
+    )
+  )(PropertyGroupFormContainer)
+);
