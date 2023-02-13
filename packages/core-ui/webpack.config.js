@@ -38,7 +38,10 @@ const deps = require("./package.json").dependencies;
 const shared = {};
 
 for (const name of depNames) {
-  shared[name] = { eager: true, requiredVersion: deps[name], singleton: true };
+  shared[name] = { 
+    eager: true, 
+    requiredVersion: deps[name], 
+    singleton: true };
 }
 
 module.exports = (env, args) => {

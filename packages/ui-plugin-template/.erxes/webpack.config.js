@@ -29,7 +29,7 @@ const shared = {};
 for (const name of depNames) {
   shared[name] = {
     singleton: true,
-    requiredVersion: deps[name]
+    requiredVersion: deps[name] // ++++++++++++++ added this
   };
 }
 
