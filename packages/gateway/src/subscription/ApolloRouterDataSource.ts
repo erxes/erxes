@@ -5,9 +5,9 @@ const { GatewayDataSource } = require('esm')(module)(
 import { DocumentNode, GraphQLResolveInfo } from 'graphql';
 import { merge } from 'lodash';
 
-export default class ErxesGatewayDataSource extends GatewayDataSource {
-  constructor(gatewayUrl: string) {
-    super(gatewayUrl);
+export default class ApolloRouterDataSource extends GatewayDataSource {
+  constructor(apolloRouterUrl: string) {
+    super(apolloRouterUrl);
   }
 
   willSendRequest(request: any) {
@@ -21,6 +21,8 @@ export default class ErxesGatewayDataSource extends GatewayDataSource {
     if (this.context.extra.request.headers.cookie) {
       request.headers.cookie = this.context.extra.request.headers.cookie;
     }
+
+    console.log(request);
   }
 
   public async queryAndMergeMissingData({
@@ -36,6 +38,10 @@ export default class ErxesGatewayDataSource extends GatewayDataSource {
   }): Promise<any> {
     const selections = this.buildNonPayloadSelections(payload, info);
 
+    console.log('---------------selections------------------');
+    console.log(selections);
+    console.log('---------------selections------------------');
+
     // TODO: use info.fieldName instead of Object.values(payload)[0]
     const payloadData = Object.values(payload)[0];
 
@@ -49,6 +55,7 @@ export default class ErxesGatewayDataSource extends GatewayDataSource {
       const response = await this.query(query, {
         variables: queryVariables
       });
+
       if (response.data) {
         return merge(payloadData, Object.values(response.data)[0]);
       }

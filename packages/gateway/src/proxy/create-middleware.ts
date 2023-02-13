@@ -3,6 +3,7 @@ import { createProxyMiddleware } from 'http-proxy-middleware';
 import { ErxesProxyTarget, proxyConfigByPath0 } from './targets';
 import { ServerOptions } from 'http-proxy';
 import * as dotenv from 'dotenv';
+import { apolloRouterPort } from '../apollo-router';
 dotenv.config();
 
 const { NODE_ENV, PLUGINS_INTERNAL_PORT } = process.env;
@@ -18,7 +19,7 @@ export default function createErxesProxyMiddleware(
     ...targets,
     {
       name: 'graphql',
-      address: 'http://localhost:50000',
+      address: `http://localhost:${apolloRouterPort}`,
       pathRegex: /^\/graphql/i,
       config: null
     }

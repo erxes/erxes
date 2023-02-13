@@ -28,7 +28,7 @@ import { initBroker } from './messageBroker';
 import * as cors from 'cors';
 import { retryGetProxyTargets, ErxesProxyTarget } from './proxy/targets';
 import createErxesProxyMiddleware from './proxy/create-middleware';
-import startRouter from './router/start';
+import apolloRouter from './apollo-router';
 import { ChildProcess } from 'child_process';
 import { startSubscriptionServer } from './subscription';
 import { Disposable } from 'graphql-ws';
@@ -45,14 +45,14 @@ const {
   MESSAGE_BROKER_PREFIX
 } = process.env;
 
-let routerProcess: ChildProcess | undefined = undefined;
+let apolloRouterProcess: ChildProcess | undefined = undefined;
 let subscriptionServer: Disposable | undefined = undefined;
 
 const stopRouter = () => {
-  if (!routerProcess) {
+  if (!apolloRouterProcess) {
     return;
   }
-  routerProcess.kill('SIGTERM');
+  apolloRouterProcess.kill('SIGTERM');
 };
 
 (async () => {
@@ -128,7 +128,7 @@ const stopRouter = () => {
   // );
 
   const targets: ErxesProxyTarget[] = await retryGetProxyTargets();
-  await startRouter(targets);
+  await apolloRouter(targets);
 
   app.use(createErxesProxyMiddleware(targets));
 
@@ -149,7 +149,7 @@ const stopRouter = () => {
 
   subscriptionServer = await startSubscriptionServer(httpServer);
 
-  // Why are we parsing the body twice? When we don't use the
+  // Why are we parsing the body twice? When we don't use the body
   app.use(
     express.json({
       limit: '15mb'

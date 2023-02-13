@@ -13,13 +13,14 @@ import {
 } from 'graphql';
 import * as ws from 'ws';
 // import { GraphQLSchema } from "graphql";
-import GatewayDataSource from './GatewayDataSource';
+import ApolloRouterDataSource from './ApolloRouterDataSource';
 import { Disposable, SubscribeMessage } from 'graphql-ws';
 import genTypeDefsAndResolvers from './genTypeDefsAndResolvers';
 import * as http from 'http';
-import { supergraphPath } from '../router/paths';
+import { supergraphPath } from '../apollo-router/paths';
 import * as fs from 'fs';
 import { makeExecutableSchema } from '@graphql-tools/schema';
+import { apolloRouterPort } from '../apollo-router';
 
 let disposable: Disposable;
 
@@ -64,8 +65,8 @@ export async function startSubscriptionServer(
       subscribe,
       context: (ctx, _msg: SubscribeMessage, _args: ExecutionArgs) => {
         // Instantiate and initialize the GatewayDataSource subclass
-        const gatewayDataSource = new GatewayDataSource(
-          `http://localhost:${process.env.PORT}/graphql`
+        const gatewayDataSource = new ApolloRouterDataSource(
+          `http://localhost:${apolloRouterPort}`
         );
         gatewayDataSource.initialize({ context: ctx, cache: undefined });
 

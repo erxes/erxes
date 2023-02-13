@@ -128,4 +128,4 @@ dist
 
 src/subscription/plugins/downloads
 
-src/router/temp
+src/apollo-router/temp

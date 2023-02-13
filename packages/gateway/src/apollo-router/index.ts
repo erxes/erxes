@@ -19,8 +19,11 @@ const {
   WIDGETS_DOMAIN,
   CLIENT_PORTAL_DOMAINS,
   ALLOWED_ORIGINS,
-  NODE_ENV
+  NODE_ENV,
+  APOLLO_ROUTER_PORT
 } = process.env;
+
+export const apolloRouterPort = Number(APOLLO_ROUTER_PORT) || 50_000;
 
 const downloadRouter = async () => {
   if (fs.existsSync(routerPath)) {
@@ -62,7 +65,7 @@ const createRouterConfig = () => {
       }
     },
     supergraph: {
-      listen: '0.0.0.0:50000'
+      listen: `127.0.0.1:${apolloRouterPort}`
     }
   };
   fs.writeFileSync(routerConfigPath, yaml.stringify(config));
