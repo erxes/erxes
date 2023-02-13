@@ -62,10 +62,12 @@ export const customerFields = `
   ${
     isEnabled('tags')
       ? `
-      getTags {
-        _id
-        name
-        colorCode
+      ... @defer {
+        getTags {
+          _id
+          name
+          colorCode
+        }
       }
     `
       : ` `
