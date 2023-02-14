@@ -50,6 +50,7 @@ export const riskIndicatorParams = `
     departmentIds,
     branchIds,
     createdAt,
+    isWithDescription
     customScoreField {
         label,
         percentWeight

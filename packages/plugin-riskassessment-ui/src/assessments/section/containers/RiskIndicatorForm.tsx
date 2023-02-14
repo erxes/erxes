@@ -14,6 +14,7 @@ type Props = {
   cardId: string;
   cardType: string;
   closeModal: () => void;
+  onlyPreview?: boolean;
 };
 
 type FinalProps = {
@@ -26,7 +27,7 @@ class RiskIndicatorForm extends React.Component<FinalProps> {
     super(props);
   }
   render() {
-    const { indicatorFormQueryResponse, closeModal } = this.props;
+    const { indicatorFormQueryResponse, closeModal, onlyPreview } = this.props;
 
     if (indicatorFormQueryResponse.loading) {
       return <Spinner />;
@@ -64,8 +65,10 @@ class RiskIndicatorForm extends React.Component<FinalProps> {
       fields: riskAssessmentIndicatorForm?.fields,
       submittedFields: riskAssessmentIndicatorForm?.submittedFields,
       customScoreField: riskAssessmentIndicatorForm?.customScoreField,
+      withDescription: riskAssessmentIndicatorForm?.withDescription,
       submitForm,
-      closeModal
+      closeModal,
+      onlyPreview
     };
 
     return <IndicatorForm {...updatedProps} />;

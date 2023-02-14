@@ -77,7 +77,7 @@ class AssessmentCategories extends React.Component<Props, State> {
   addModal = () => {
     const trigger = (
       <Button block btnStyle="success">
-        Add New Assessment Category
+        Add New Indicator Category
       </Button>
     );
 
@@ -114,7 +114,7 @@ class AssessmentCategories extends React.Component<Props, State> {
   renderContent() {
     const { categories, queryParams } = this.props;
 
-    return categories.map(category => (
+    return (categories || []).map(category => (
       <SidebarListItem
         key={category._id}
         isActive={queryParams.categoryId === category._id}
@@ -154,7 +154,7 @@ class AssessmentCategories extends React.Component<Props, State> {
     return (
       <ModalTrigger
         isAnimate
-        title="Edit Assessment Category"
+        title="Edit Indicator Category"
         content={content}
         trigger={trigger}
       />

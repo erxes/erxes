@@ -59,6 +59,7 @@ type IRiskIndicatorsStateType = {
   createdAt?: string;
   category?: any;
   customScoreField?: any;
+  isWithDescription?: boolean;
 };
 
 type State = {
@@ -191,7 +192,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             {...formProps}
             name="name"
             type="text"
-            defaultValue={name}
+            value={name}
             onChange={handleRow}
             required
           />
@@ -202,7 +203,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             {...formProps}
             componentClass="select"
             required
-            defaultValue={logic}
+            value={logic}
             onChange={handleRow}
           >
             <option />
@@ -221,7 +222,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
               {...formProps}
               name="value"
               type="number"
-              defaultValue={value}
+              value={value}
               onChange={handleRow}
               required
             />
@@ -232,7 +233,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
                   {...formProps}
                   name="value2"
                   type="number"
-                  defaultValue={value2}
+                  value={value2}
                   onChange={handleRow}
                   required
                 />
@@ -453,6 +454,17 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         }
       }));
     };
+
+    const toggleWithDescription = () => {
+      this.setState(prev => ({
+        ...prev,
+        riskIndicator: {
+          ...prev.riskIndicator,
+          isWithDescription: !prev.riskIndicator?.isWithDescription
+        }
+      }));
+    };
+
     return (
       <>
         <FormGroup>
@@ -526,6 +538,15 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             <FormColumn>
               <Header>{__('Forms')}</Header>
             </FormColumn>
+            <FormGroup>
+              <ControlLabel>{__('use fields with description')}</ControlLabel>
+              <FormControl
+                name="isWithDescription"
+                componentClass="checkbox"
+                onChange={toggleWithDescription}
+                checked={riskIndicator?.isWithDescription}
+              />
+            </FormGroup>
           </FormWrapper>
           {this.renderForms()}
           <div style={{ textAlign: 'center' }}>

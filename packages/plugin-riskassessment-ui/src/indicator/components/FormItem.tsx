@@ -144,7 +144,7 @@ class Item extends React.Component<Props, State> {
       afterDbSave,
       type: 'risk-assessment',
       isReadyToSave: this.state.isReadyToSave,
-      hideOptionalFields: false
+      hideOptionalFields: true
     };
     if (doc.formId) {
       return (
@@ -405,9 +405,8 @@ class Item extends React.Component<Props, State> {
             </FormGroup>
           )}
           <ModalTrigger
-            isAnimate
-            title="Build New Form"
-            enforceFocus={false}
+            title={!!this.props.doc.formId ? 'Build New Form' : 'Edit Form'}
+            enforceFocus={true}
             size="xl"
             content={this.renderFormContent}
             trigger={formTrigger}

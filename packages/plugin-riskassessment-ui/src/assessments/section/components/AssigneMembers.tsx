@@ -62,7 +62,8 @@ class AssignedMembers extends React.Component<Props> {
         cardId,
         cardType,
         riskAssessmentId,
-        userId: currentUser._id
+        userId: currentUser._id,
+        onlyPreview: currentUser._id !== userId
       };
 
       return <RiskAssessmentForm {...updatedProps} />;
@@ -74,6 +75,7 @@ class AssignedMembers extends React.Component<Props> {
         trigger={trigger}
         title="Risk Indicators Submit Form"
         size="xl"
+        enforceFocus={false}
       />
     );
   }
