@@ -20,7 +20,7 @@ export function generateUserOptions(array: IUser[] = []): IOption[] {
 
 export default (props: {
   queryParams?: IQueryParams;
-  filterParams?: { status: string };
+  filterParams?: { ids?: string; status?: string };
   label: string;
   onSelect: (value: string[] | string, name: string) => void;
   multi?: boolean;

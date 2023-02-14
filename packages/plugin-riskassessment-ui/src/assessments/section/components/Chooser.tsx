@@ -2,10 +2,13 @@ import {
   Button,
   ButtonMutate,
   Chooser,
+  CollapseContent,
   ControlLabel,
   EmptyState,
   FormControl,
   FormGroup,
+  Label,
+  SelectTeamMembers,
   Spinner,
   Toggle,
   __
@@ -19,20 +22,27 @@ import RiskGroupsForm from '../../../indicator/groups/containers/Form';
 import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
 import { useState, useEffect, useRef } from 'react';
-import { DetailPopOver } from '../../../assessments/common/utils';
-import { FormContainer } from '../../../styles';
+import {
+  DetailPopOver,
+  SelectGroupsAssignedUsers
+} from '../../../assessments/common/utils';
+import { FormContainer, ListItem } from '../../../styles';
 import { queries as groupsQueries } from '../../../indicator/groups/graphql';
 
 type Props = {
   detail: any;
+  cardId: string;
+  cardType: string;
   refetchQueries: ({ id }: { id: string }) => any;
   closeModal: () => void;
   handleSelect: ({
     indicatorId,
-    groupId
+    groupId,
+    groupsAssignedUsers
   }: {
     indicatorId?: string;
     groupId?: string;
+    groupsAssignedUsers?: any[];
   }) => void;
 
   filters: {
@@ -47,7 +57,7 @@ export default function SelectIndicators(props: Props) {
   const [perPage, setPerPage] = useState(10);
   const [searchValue, setSearchValue] = useState('');
   const [useGroups, setUseGroups] = useState(false);
-
+  const [groupsAssignedUsers, setGroupsAssignedUsers] = useState<any[]>([]);
   const { data, error, loading } = useQuery(
     gql(useGroups ? groupsQueries.list : queries.riskIndicators),
     {
@@ -137,7 +147,7 @@ export default function SelectIndicators(props: Props) {
 
     const fieldName = useGroups ? 'groupId' : 'indicatorId';
 
-    handleSelect({ [fieldName]: selectedItemIds[0] });
+    handleSelect({ [fieldName]: selectedItemIds[0], groupsAssignedUsers });
   };
   function fethcDetail() {
     const { detail } = props;
@@ -155,6 +165,71 @@ export default function SelectIndicators(props: Props) {
     }
   }
 
+  const hadleExtraField = data => {
+    setSelectedItems([data]);
+  };
+
+  const renderExtraField = () => {
+    if (!useGroups || !selectedItems.length) {
+      return;
+    }
+
+    const { cardId, cardType } = props;
+
+    const handleSelect = (values, groupId) => {
+      if (groupsAssignedUsers.find(item => item.groupId === groupId)) {
+        return setGroupsAssignedUsers(
+          groupsAssignedUsers.map(item =>
+            item.groupId === groupId
+              ? { ...item, assignedUserIds: values }
+              : item
+          )
+        );
+      }
+      setGroupsAssignedUsers([
+        ...groupsAssignedUsers,
+        { groupId, assignedUserIds: values }
+      ]);
+    };
+
+    return (
+      <SelectGroupsAssignedUsers
+        cardId={cardId}
+        cardType={cardType}
+        selectedItems={selectedItems}
+        handleSelect={handleSelect}
+      />
+    );
+    // return (
+    //   <CollapseContent
+    //     title=""
+    //     beforeTitle={
+    //       <ControlLabel>
+    //         {'Split assigned team members to groups of indicators'}
+    //         <Label lblStyle="simple">{__('Optional')}</Label>
+    //       </ControlLabel>
+    //     }
+    //   >
+    //     {selectedItems.map(item =>
+    //       item.groups.map((group, index) => (
+    //         <ListItem key={index}>
+    //           <h5 style={{ marginBottom: 10 }}>
+    //             {group.name || `Group ${index + 1}`}
+    //           </h5>
+    //           <FormGroup>
+    //             <SelectTeamMembers
+    //               name="groupTeamMembers"
+    //               label="Assign Team Members"
+    //               onSelect={values => handleSelect(values, group._id)}
+    //             />
+    //           </FormGroup>
+    //         </ListItem>
+    //       ))
+    //     )}
+    //   </CollapseContent>
+    // );
+  };
+
   const updateProps = {
     title: `${useGroups ? 'Indicators Groups' : `Indicators`}`,
     datas: list || [],
@@ -167,7 +242,9 @@ export default function SelectIndicators(props: Props) {
     closeModal: () => closeModal(),
     perPage: perPage,
     renderFilter: renderFilters,
-    limit: 1
+    limit: 1,
+    renderExtra: renderExtraField,
+    handleExtra: hadleExtraField
   };
   return <Chooser {...updateProps} />;
 }

@@ -34,6 +34,11 @@ export const types = `
         indicatorId:String
     }
 
+    input GroupsAssignedUsers {
+        groupId:String
+        assignedUserIds:[String]
+    }
+
 `;
 
 const commonMutationParams = `
@@ -44,6 +49,7 @@ const commonMutationParams = `
     operationIds:[String]
     branchIds:[String]
     departmentIds:[String]
+    groupsAssignedUsers:[GroupsAssignedUsers]
 `;
 
 export const mutations = `

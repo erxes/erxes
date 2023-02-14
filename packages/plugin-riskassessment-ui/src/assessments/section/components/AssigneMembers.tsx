@@ -9,6 +9,7 @@ import {
   colors
 } from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
+import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 import React from 'react';
 import { FormContainer, ProductName } from '../../../styles';
 import RiskAssessmentForm from '../containers/RiskAssessmentForm';
@@ -96,17 +97,19 @@ class AssignedMembers extends React.Component<Props> {
 
     return (
       <Box title="Risk Assessment Assigned Members">
-        {assignedMembers.map(assignedMember => (
-          <SectionBodyItem key={assignedMember._id}>
-            <ProductName>
-              <NameCard user={assignedMember} />
-              {this.renderSubmitForm({
-                userId: assignedMember._id,
-                submitStatus: assignedMember?.submitStatus
-              })}
-            </ProductName>
-          </SectionBodyItem>
-        ))}
+        <ErrorBoundary>
+          {assignedMembers.map(assignedMember => (
+            <SectionBodyItem key={assignedMember._id}>
+              <ProductName>
+                <NameCard user={assignedMember} />
+                {this.renderSubmitForm({
+                  userId: assignedMember._id,
+                  submitStatus: assignedMember?.submitStatus
+                })}
+              </ProductName>
+            </SectionBodyItem>
+          ))}
+        </ErrorBoundary>
       </Box>
     );
   }

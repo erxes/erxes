@@ -36,7 +36,7 @@ export interface IRiskAssessmentsModel extends Model<IRiskAssessmentsDocument> {
 export const loadRiskAssessments = (models: IModels, subdomain: string) => {
   class RiskAssessment {
     public static async addRiskAssessment(params) {
-      const { indicatorId, groupId } = params;
+      const { indicatorId, groupId, groupsAssignedUsers } = params;
 
       const riskAssessment = await models.RiskAssessments.create({ ...params });
 
@@ -53,9 +53,13 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
         for (const { groups } of indicatorsGroups) {
           for (const group of groups) {
             ids = [...ids, ...group.indicatorIds];
+            const groupAssignedUsers = groupsAssignedUsers.find(
+              item => item.groupId === group._id
+            );
             await models.RiskAssessmentGroups.create({
               assessmentId: riskAssessment._id,
-              groupId: group._id
+              groupId: group._id,
+              assignedUserIds: groupAssignedUsers.assignedUserIds
             });
           }
         }

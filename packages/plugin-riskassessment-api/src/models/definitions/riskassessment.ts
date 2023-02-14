@@ -80,6 +80,11 @@ export const riskAssessmentIndicatorsSchema = new Schema({
 export const riskAssessmentIndicatorsGroupsSchema = new Schema({
   assessmentId: field({ type: String, label: 'Risk assessment Id' }),
   groupId: field({ type: String, label: 'Risk indicator Id' }),
+  assignedUserIds: field({
+    type: [String],
+    label: 'Assigned User Id',
+    optional: true
+  }),
   ...commonAssessmentSchema
 });
 

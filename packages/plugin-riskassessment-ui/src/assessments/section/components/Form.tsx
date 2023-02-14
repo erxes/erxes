@@ -9,6 +9,8 @@ import Chooser from './Chooser';
 
 type Props = {
   riskAssessment: any;
+  cardId: string;
+  cardType: string;
   closeModal: () => void;
   handleSelect: (doc: any) => void;
 };
@@ -80,7 +82,7 @@ class Form extends React.Component<Props, State> {
   };
 
   render() {
-    const { riskAssessment, closeModal } = this.props;
+    const { riskAssessment, cardId, cardType, closeModal } = this.props;
 
     const { branchIds, departmentIds, operationIds } = this.state;
 
@@ -93,16 +95,20 @@ class Form extends React.Component<Props, State> {
       });
     };
 
+    const updatedProps = {
+      cardId,
+      cardType,
+      detail: riskAssessment,
+      closeModal,
+      refetchQueries: () => [],
+      handleSelect,
+      filters: { branchIds, departmentIds, operationIds }
+    };
+
     return (
       <FormContainer column gap>
         {this.renderFilter()}
-        <Chooser
-          detail={riskAssessment}
-          closeModal={closeModal}
-          refetchQueries={() => []}
-          handleSelect={handleSelect}
-          filters={{ branchIds, departmentIds, operationIds }}
-        />
+        <Chooser {...updatedProps} />
       </FormContainer>
     );
   }
