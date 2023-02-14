@@ -4,7 +4,7 @@ module.exports = {
   scope: 'mobinet',
   exposes: {
     './routes': './src/routes.tsx',
-    './customerSidebar': './src/modules/contracts/containers/CustomerSideBar.tsx',
+    './customerSidebar': './src/modules/contracts/containers/CustomerSidebar.tsx',
     "./cardDetailAction": "./src/modules/contracts/containers/CardDetailAction.tsx",
     './buildingsSection': './src/common/routes/Buildings.tsx'
   },
