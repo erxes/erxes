@@ -234,10 +234,6 @@ const userMutations = {
 
     let updatedDoc = doc;
 
-    if (doc.employeeId === '') {
-      delete doc.employeeId;
-    }
-
     if (doc.details) {
       updatedDoc = {
         ...doc,
