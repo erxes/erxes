@@ -9,6 +9,7 @@ export interface IRiskFormSubmissionDocument extends Document {
   formId: string;
   fieldId: string;
   value: Number;
+  description: string;
 }
 
 export const riskConformityFormSubmissionSchema = new Schema({
@@ -25,5 +26,6 @@ export const riskConformityFormSubmissionSchema = new Schema({
   indicatorId: field({ type: String, label: 'risk indicator ID' }),
   assessmentId: field({ type: String, label: 'risk assessment ID' }),
   fieldId: field({ type: String, label: 'Form Field Id' }),
-  value: field({ type: String, lablel: 'Form Field Value' })
+  value: field({ type: String, lablel: 'Form Field Value' }),
+  description: field({ type: String, label: 'Description', optional: true })
 });
