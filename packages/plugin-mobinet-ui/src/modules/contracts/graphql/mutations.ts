@@ -1,6 +1,6 @@
 const contractsCreate = `
-  mutation mobiContractsCreate($ticketId: String!) {
-    mobiContractsCreate(ticketId: $ticketId) {
+  mutation mobiContractsCreate($ticketId: String!, $assetId: String!) {
+    mobiContractsCreate(ticketId: $ticketId, assetId: $assetId) {
       _id
     }
   }

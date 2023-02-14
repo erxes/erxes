@@ -1,4 +1,4 @@
-export const types = ({ contacts, cards, products }) => `
+export const types = ({ contacts, cards, products, assets }) => `
 
 ${
   contacts
@@ -28,6 +28,16 @@ ${
   cards
     ? `
         extend type Ticket @key(fields: "_id") {
+          _id: String! @external
+        }
+        `
+    : ''
+}
+
+${
+  assets
+    ? `
+        extend type Asset @key(fields: "_id") {
           _id: String! @external
         }
         `
@@ -95,6 +105,14 @@ enum ServiceStatus {
     installationRequestIds: [String]
     ticketIds: [String]
     assetIds: [String]
+
+    ${
+      assets
+        ? `
+          assets: [Asset]
+          `
+        : ''
+    }
 
     ${
       cards

@@ -13,9 +13,9 @@ export const types = `
 
 export const queries = `
   mobiContracts(customerId: String): [MobiContract]
-  mobiContractsGetByTicket(ticketId: String!): MobiContract
+  mobiContractsGetByTicket(ticketId: String!): JSON
 `;
 
 export const mutations = `
-  mobiContractsCreate(ticketId: String!): MobiContract
+  mobiContractsCreate(ticketId: String!, assetId: String!): MobiContract
 `;

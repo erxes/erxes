@@ -124,6 +124,15 @@ const Building = {
         __typename: 'Product'
       }
     }));
+  },
+
+  async assets(building: IBuildingDocument, _args: IContext) {
+    const assetIds = building.assetIds || [];
+
+    return assetIds.map(_id => ({
+      _id,
+      __typename: 'Asset'
+    }));
   }
 };
 

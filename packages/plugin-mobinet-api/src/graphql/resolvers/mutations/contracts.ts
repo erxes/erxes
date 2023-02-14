@@ -1,10 +1,11 @@
 import { IContext } from '../../../connectionResolver';
 import { sendCommonMessage } from '../../../messageBroker';
+import { extractCustomFields } from '../utils';
 
 const mutations = {
   mobiContractsCreate: async (
     _root,
-    { ticketId }: { ticketId: string },
+    { ticketId, assetId }: { ticketId: string; assetId: string },
     { subdomain, models }: IContext
   ) => {
     const contract = await models.Contracts.findOne({ ticketId });
@@ -27,42 +28,12 @@ const mutations = {
       throw new Error('Ticket is required');
     }
 
-    let buildingId;
-    let customerId;
-    let productIds;
-    let documentId;
-
-    const cd = ticket.customFieldsData || [];
-
-    for (const item of cd) {
-      const field = await sendCommonMessage({
-        subdomain,
-        serviceName: 'forms',
-        isRPC: true,
-        action: 'fields.findOne',
-        data: { query: { _id: item.field } }
-      });
-
-      if (field.code === 'buildingId') {
-        buildingId = item.value;
-        continue;
-      }
-
-      if (field.code === 'customerId') {
-        customerId = item.value;
-        continue;
-      }
-
-      if (field.code === 'productIds') {
-        productIds = item.value;
-        continue;
-      }
-
-      if (field.code === 'documentId') {
-        documentId = item.value;
-        continue;
-      }
-    }
+    const {
+      buildingId,
+      customerId,
+      productIds,
+      documentId
+    } = await extractCustomFields({ subdomain, ticket });
 
     if (!buildingId || !customerId || !productIds || !documentId) {
       throw new Error('In complete custom fields data');
@@ -87,6 +58,7 @@ const mutations = {
       buildingId,
       customerId,
       productIds,
+      buildingAssetId: assetId,
       documentId: document._id
     });
   }

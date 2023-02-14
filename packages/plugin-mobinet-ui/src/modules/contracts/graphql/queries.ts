@@ -13,14 +13,7 @@ const list = `
 
 const getByTicket = `
     query mobiContractsGetByTicket($ticketId: String!) {
-      mobiContractsGetByTicket(ticketId: $ticketId) {
-        _id
-        customerId
-        documentId
-        building {
-          name
-        }
-      }
+      mobiContractsGetByTicket(ticketId: $ticketId)
     }
 `;
 
