@@ -63,6 +63,14 @@ const queries = {
     return models.Buildings.getBuilding({ _id });
   },
 
+  buildingGet: async (
+    _root,
+    { osmbId }: { osmbId: string },
+    { models }: IContext
+  ) => {
+    return models.Buildings.getBuilding({ osmbId });
+  },
+
   buildingsByBounds: async (
     _root,
     {
@@ -71,8 +79,6 @@ const queries = {
     }: { bounds: any; serviceStatuses: [ServiceStatus] },
     { models }: IContext
   ) => {
-    console.log(bounds);
-
     const qry: any = {
       location: {
         $geoWithin: { $polygon: bounds }

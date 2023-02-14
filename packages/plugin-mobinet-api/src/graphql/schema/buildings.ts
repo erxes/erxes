@@ -161,4 +161,5 @@ export const queries = `
   buildings(${qryParams}): [Building]
   buildingsByBounds(bounds: JSON, serviceStatuses: [ServiceStatus]): [Building]
   buildingDetail(_id: String!): Building
+  buildingGet(osmbId: String): Building
 `;
