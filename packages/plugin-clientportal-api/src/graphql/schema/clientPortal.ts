@@ -211,6 +211,8 @@ export const mutations = cardAvailable => `
         description: String
         priority: String,
       ): JSON
+      clientPortalCommentsAdd(type: String!, typeId: String!, content: String! userType: String!): ClientPortalComment
+      clientPortalCommentsRemove(_id: String!): String
      `
       : ''
   }

@@ -122,7 +122,7 @@ class EmailTemplateList extends React.Component<Props> {
   searchHandler = event => {
     const { history } = this.props;
 
-    router.setParams(history, { searchValue: event.target.value });
+    router.setParams(history, { page: 1, searchValue: event.target.value });
   };
 
   renderContent = () => {
