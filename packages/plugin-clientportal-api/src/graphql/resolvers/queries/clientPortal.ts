@@ -222,7 +222,7 @@ const configClientPortalQueries = {
       }
     ];
 
-    return sendKbMessage({
+    return await sendKbMessage({
       subdomain,
       action: 'articles.find',
       data: {

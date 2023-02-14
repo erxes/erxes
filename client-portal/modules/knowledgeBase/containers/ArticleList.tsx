@@ -12,8 +12,8 @@ type Props = {
 function ArticleListContainer(props: Props) {
   const { loading, data = {} as any } = useQuery(gql(articlesQuery), {
     variables: {
-      searchValue: props.searchValue || '',
-      topicId: props.topicId || ''
+      topicId: props.topicId || '',
+      searchValue: props.searchValue || ''
     }
   });
 
