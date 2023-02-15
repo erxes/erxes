@@ -51,7 +51,7 @@ class Row extends React.Component<Props> {
 
     const {
       assetId,
-      assetName,
+      assetDetail,
       movementId,
       branch,
       department,
@@ -71,7 +71,7 @@ class Row extends React.Component<Props> {
 
     return (
       <tr>
-        <td>{assetName}</td>
+        <td>{assetDetail?.name}</td>
         <td>{(branch && branch?.title) || '-'}</td>
         <td>{(department && department.title) || '-'}</td>
         <td>{(teamMember && teamMember?.details?.fullName) || '-'}</td>

@@ -5,16 +5,18 @@ import {
   ISchedule,
   IShift,
   ITimeClock,
-  IAbsenceType
+  IAbsenceType,
+  IDeviceConfig,
+  IDeviceConfigDocument
 } from '../../models/definitions/timeclock';
 import {
   createScheduleShiftsByUserIds,
-  findBranch,
   findBranches,
-  findDepartment
+  findBranchUsers,
+  findDepartmentUsers
 } from './utils';
 import dayjs = require('dayjs');
-import { connectAndQueryFromMySql } from '../../utils';
+import { connectAndQueryFromMsSql } from '../../utils';
 
 interface ITimeClockEdit extends ITimeClock {
   _id: string;
@@ -161,7 +163,7 @@ const timeclockMutations = {
       updated = await models.Timeclocks.updateTimeClock(_id, {
         shiftEnd: new Date(),
         shiftActive: false,
-        deviceType: getShiftStartDeviceType + ' + ' + deviceType,
+        deviceType: getShiftStartDeviceType + ' x ' + deviceType,
         ...doc
       });
     } else {
@@ -335,16 +337,19 @@ const timeclockMutations = {
     const concatBranchDept: string[] = [];
 
     if (branchIds) {
-      for (const branchId of branchIds) {
-        const branch = await findBranch(subdomain, branchId);
-        concatBranchDept.push(...branch.userIds);
-      }
+      const branchUsers = await findBranchUsers(subdomain, branchIds);
+      const branchUserIds = branchUsers.map(branchUser => branchUser._id);
+      concatBranchDept.push(...branchUserIds);
     }
     if (departmentIds) {
-      for (const deptId of departmentIds) {
-        const department = await findDepartment(subdomain, deptId);
-        concatBranchDept.push(...department.userIds);
-      }
+      const departmentUsers = await findDepartmentUsers(
+        subdomain,
+        departmentIds
+      );
+      const departmentUserIds = departmentUsers.map(
+        departmentUser => departmentUser._id
+      );
+      concatBranchDept.push(...departmentUserIds);
     }
 
     // prevent creating double schedule for common users
@@ -499,12 +504,32 @@ const timeclockMutations = {
     return newScheduleConfig;
   },
 
+  async deviceConfigAdd(_root, doc: IDeviceConfig, { models }: IContext) {
+    return await models.DeviceConfigs.createDeviceConfig(doc);
+  },
+
+  async deviceConfigEdit(
+    _root,
+    { _id, ...doc }: IDeviceConfigDocument,
+    { models }: IContext
+  ) {
+    await models.DeviceConfigs.updateDeviceConfig(_id, doc);
+  },
+
+  async deviceConfigRemove(
+    _root,
+    { _id }: IDeviceConfigDocument,
+    { models }: IContext
+  ) {
+    return models.DeviceConfigs.removeDeviceConfig(_id);
+  },
+
   async extractAllDataFromMySQL(
     _root,
     { startDate, endDate },
     { subdomain }: IContext
   ) {
-    return await connectAndQueryFromMySql(subdomain, startDate, endDate);
+    return await connectAndQueryFromMsSql(subdomain, startDate, endDate);
   }
 };
 

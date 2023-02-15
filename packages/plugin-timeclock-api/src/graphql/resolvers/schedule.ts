@@ -1,6 +1,7 @@
 import { IContext } from '../../connectionResolver';
 import { IScheduleDocument } from '../../models/definitions/timeclock';
 import { fixDate } from '@erxes/api-utils/src';
+import { customFixDate } from '../../utils';
 
 export default {
   async shifts(
@@ -20,24 +21,24 @@ export default {
           startDate && endDate
             ? {
                 $gte: fixDate(startDate),
-                $lte: fixDate(endDate)
+                $lte: customFixDate(endDate)
               }
             : startDate
             ? {
                 $gte: fixDate(startDate)
               }
-            : { $lte: fixDate(endDate) },
+            : { $lte: customFixDate(endDate) },
         shiftEnd:
           startDate && endDate
             ? {
                 $gte: fixDate(startDate),
-                $lte: fixDate(endDate)
+                $lte: customFixDate(endDate)
               }
             : startDate
             ? {
                 $gte: fixDate(startDate)
               }
-            : { $lte: fixDate(endDate) }
+            : { $lte: customFixDate(endDate) }
       }
     ];
 

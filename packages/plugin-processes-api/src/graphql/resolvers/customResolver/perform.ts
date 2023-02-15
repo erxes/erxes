@@ -1,6 +1,6 @@
 import { IPerformDocument } from '../../../models/definitions/performs';
 import { IContext } from '../../../connectionResolver';
-import { sendCoreMessage } from '../../../messageBroker';
+import { sendContactsMessage, sendCoreMessage } from '../../../messageBroker';
 import { getProductAndUoms } from './utils';
 
 export default {
@@ -127,5 +127,40 @@ export default {
       },
       isRPC: true
     });
+  },
+
+  async customer(perform: IPerformDocument, _, { subdomain }: IContext) {
+    if (!perform.customerId) {
+      return;
+    }
+
+    return sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: { _id: perform.customerId },
+      isRPC: true,
+      defaultValue: {}
+    });
+  },
+
+  async company(perform: IPerformDocument, _, { subdomain }: IContext) {
+    if (!perform.companyId) {
+      return;
+    }
+
+    return sendContactsMessage({
+      subdomain,
+      action: 'companies.findOne',
+      data: { _id: perform.companyId },
+      isRPC: true,
+      defaultValue: {}
+    });
+  },
+
+  inProductsLen(perform: IPerformDocument, _, {}) {
+    return (perform.inProducts || []).length;
+  },
+  outProductsLen(perform: IPerformDocument, _, {}) {
+    return (perform.outProducts || []).length;
   }
 };

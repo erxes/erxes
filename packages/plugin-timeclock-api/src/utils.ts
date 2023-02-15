@@ -11,7 +11,17 @@ import { Sequelize, QueryTypes } from 'sequelize';
 
 const dateFormat = 'YYYY-MM-DD';
 const timeFormat = 'HH:mm';
-import { findBranch, findDepartment } from './graphql/resolvers/utils';
+import {
+  findBranchUsers,
+  findDepartmentUsers
+} from './graphql/resolvers/utils';
+
+const customFixDate = (date?: Date) => {
+  // get date, return date with 23:59:59
+  const getDate = new Date(date || '').toLocaleDateString();
+  const returnDate = new Date(getDate + ' 23:59:59');
+  return returnDate;
+};
 
 const findAllTeamMembersWithEmpId = async (subdomain: string) => {
   const users = await sendCoreMessage({
@@ -27,7 +37,7 @@ const findAllTeamMembersWithEmpId = async (subdomain: string) => {
   return users;
 };
 
-const connectAndQueryFromMySql = async (
+const connectAndQueryFromMsSql = async (
   subdomain: string,
   startDate: string,
   endDate: string
@@ -85,8 +95,16 @@ const connectAndQueryFromMySql = async (
       teamEmployeeIds.push(teamMember.employeeId);
       teamMemberIds.push(teamMember._id);
     }
+    const devicesList = await models.DeviceConfigs.find({
+      serialNo: { $exists: true },
+      extractRequired: true
+    });
 
-    const query = `SELECT * FROM ${MYSQL_TABLE} WHERE authDateTime >= '${startDate}' AND authDateTime <= '${endDate}' AND ISNUMERIC(ID)=1 AND ID IN (${teamEmployeeIds}) ORDER BY ID, authDateTime`;
+    const deviceSerialNumbers = devicesList.map(device => device.serialNo);
+
+    const query = `SELECT * FROM ${MYSQL_TABLE} WHERE authDateTime >= '${startDate}' AND authDateTime <= '${endDate}' AND ISNUMERIC(ID)=1 AND ID IN (${teamEmployeeIds}) AND deviceSerialNo IN (${deviceSerialNumbers.map(
+      serialNo => `'${serialNo}'`
+    )}) ORDER BY ID, authDateTime`;
 
     const queryData = await sequelize.query(query, {
       type: QueryTypes.SELECT
@@ -658,26 +676,26 @@ const generateFilter = async (params: any, subdomain: string, type: string) => {
               startDate && endDate
                 ? {
                     $gte: fixDate(startDate),
-                    $lte: fixDate(endDate)
+                    $lte: customFixDate(endDate)
                   }
                 : startDate
                 ? {
                     $gte: fixDate(startDate)
                   }
-                : { $lte: fixDate(endDate) }
+                : { $lte: customFixDate(endDate) }
           },
           {
             shiftEnd:
               startDate && endDate
                 ? {
                     $gte: fixDate(startDate),
-                    $lte: fixDate(endDate)
+                    $lte: customFixDate(endDate)
                   }
                 : startDate
                 ? {
                     $gte: fixDate(startDate)
                   }
-                : { $lte: fixDate(endDate) }
+                : { $lte: customFixDate(endDate) }
           }
         ]
       : [
@@ -686,26 +704,26 @@ const generateFilter = async (params: any, subdomain: string, type: string) => {
               startDate && endDate
                 ? {
                     $gte: fixDate(startDate),
-                    $lte: fixDate(endDate)
+                    $lte: customFixDate(endDate)
                   }
                 : startDate
                 ? {
                     $gte: fixDate(startDate)
                   }
-                : { $lte: fixDate(endDate) }
+                : { $lte: customFixDate(endDate) }
           },
           {
             endTime:
               startDate && endDate
                 ? {
                     $gte: fixDate(startDate),
-                    $lte: fixDate(endDate)
+                    $lte: customFixDate(endDate)
                   }
                 : startDate
                 ? {
                     $gte: fixDate(startDate)
                   }
-                : { $lte: fixDate(endDate) }
+                : { $lte: customFixDate(endDate) }
           }
         ];
 
@@ -753,34 +771,37 @@ const generateCommonUserIds = async (
   let commonUser: boolean = false;
 
   if (branchIds) {
-    for (const branchId of branchIds) {
-      const branch = await findBranch(subdomain, branchId);
-      if (userIds) {
-        commonUser = true;
-        for (const userId of userIds) {
-          if (branch.userIds.includes(userId)) {
-            totalUserIds.push(userId);
-          }
+    const branchUsers = await findBranchUsers(subdomain, branchIds);
+    const branchUserIds = branchUsers.map(branchUser => branchUser._id);
+
+    if (userIds) {
+      commonUser = true;
+      for (const userId of userIds) {
+        if (branchUserIds.includes(userId)) {
+          totalUserIds.push(userId);
         }
-      } else {
-        totalUserIds.push(...branch.userIds);
       }
+    } else {
+      totalUserIds.push(...branchUserIds);
     }
   }
 
   if (departmentIds) {
-    for (const deptId of departmentIds) {
-      const department = await findDepartment(subdomain, deptId);
-      if (userIds) {
-        commonUser = true;
-        for (const userId of userIds) {
-          if (department.userIds.includes(userId)) {
-            totalUserIds.push(userId);
-          }
+    const departmentUsers = await findDepartmentUsers(subdomain, departmentIds);
+
+    const departmentUserIds = departmentUsers.map(
+      departmentUser => departmentUser._id
+    );
+
+    if (userIds) {
+      commonUser = true;
+      for (const userId of userIds) {
+        if (departmentUserIds.includes(userId)) {
+          totalUserIds.push(userId);
         }
-      } else {
-        totalUserIds.push(...department.userIds);
       }
+    } else {
+      totalUserIds.push(...departmentUserIds);
     }
   }
 
@@ -803,8 +824,8 @@ const createTeamMembersObject = async (subdomain: string) => {
 
     teamMembersObject[teamMember._id] = {
       employeeId: teamMember.employeeId,
-      firstName: teamMember.details.firstName,
       lastName: teamMember.details.lastName,
+      firstName: teamMember.details.firstName,
       position: teamMember.details.position
     };
   }
@@ -813,9 +834,10 @@ const createTeamMembersObject = async (subdomain: string) => {
 };
 
 export {
-  connectAndQueryFromMySql,
+  connectAndQueryFromMsSql,
   generateFilter,
   generateCommonUserIds,
   findAllTeamMembersWithEmpId,
-  createTeamMembersObject
+  createTeamMembersObject,
+  customFixDate
 };

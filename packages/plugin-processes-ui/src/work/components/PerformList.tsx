@@ -1,11 +1,14 @@
+import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import FormControl from '@erxes/ui/src/components/form/Control';
+import Form from '../../overallWork/containers/PerformForm';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import PerformSidebar from './PerformSidebar';
 import React from 'react';
 import Row from './PerformRow';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __, router } from '@erxes/ui/src/utils';
+import { __ } from '@erxes/ui/src/utils';
 import {
   BarItems,
   FieldStyle,
@@ -22,22 +25,17 @@ interface IProps extends IRouterProps {
   performs: IPerform[];
   performsCount: number;
   loading: boolean;
-  searchValue: string;
 }
 
 type State = {
-  searchValue?: string;
   overallWorkPercent: number;
 };
 
 class List extends React.Component<IProps, State> {
-  private timer?: NodeJS.Timer;
-
   constructor(props) {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue,
       overallWorkPercent: 0
     };
   }
@@ -84,46 +82,30 @@ class List extends React.Component<IProps, State> {
   renderCount = performsCount => {
     return (
       <Count>
-        {performsCount} work{performsCount > 1 && 's'}
+        {performsCount} performance{performsCount > 1 && 's'}
       </Count>
     );
   };
 
-  search = e => {
-    if (this.timer) {
-      clearTimeout(this.timer);
-    }
-
-    const { history } = this.props;
-    const searchValue = e.target.value;
-
-    this.setState({ searchValue });
-
-    this.timer = setTimeout(() => {
-      router.removeParams(history, 'page');
-      router.setParams(history, { searchValue });
-    }, 500);
-  };
-
-  moveCursorAtTheEnd(e) {
-    const tmpValue = e.target.value;
-
-    e.target.value = '';
-    e.target.value = tmpValue;
-  }
-
   render() {
-    const { performsCount, loading } = this.props;
+    const { performsCount, loading, queryParams, history } = this.props;
+
+    const trigger = (
+      <Button btnStyle="success" icon="plus-circle">
+        {__('Add performance')}
+      </Button>
+    );
+
+    const modalContent = props => <Form {...props} />;
 
     const actionBarRight = (
       <BarItems>
-        <FormControl
-          type="text"
-          placeholder={__('Type to search')}
-          onChange={this.search}
-          value={this.state.searchValue}
-          autoFocus={true}
-          onFocus={this.moveCursorAtTheEnd}
+        <ModalTrigger
+          title={__('Add Performance')}
+          size="xl"
+          trigger={trigger}
+          autoOpenKey="showProductModal"
+          content={modalContent}
         />
       </BarItems>
     );
@@ -134,12 +116,19 @@ class List extends React.Component<IProps, State> {
         <Table hover={true}>
           <thead>
             <tr>
-              <th>{__('OverallWork')}</th>
-              <th>{__('Status')}</th>
-              <th>{__('Count')}</th>
-              <th>{__('Need products')}</th>
-              <th>{__('Result products')}</th>
+              <th>{__('Work')}</th>
+              <th>{__('Type')}</th>
               <th>{__('StartAt')}</th>
+              <th>{__('EndAt')}</th>
+              <th>{__('Count')}</th>
+              <th>{__('In products')}</th>
+              <th>{__('Out products')}</th>
+              <th>{__('In Branch')}</th>
+              <th>{__('In Department')}</th>
+              <th>{__('Out Branch')}</th>
+              <th>{__('Out Department')}</th>
+
+              <th>{__('Status')}</th>
             </tr>
           </thead>
           <tbody>{this.renderRow()}</tbody>
@@ -147,12 +136,13 @@ class List extends React.Component<IProps, State> {
       </>
     );
 
-    //
-
     return (
       <Wrapper
         header={<Wrapper.Header title={__('Work')} submenu={menuNavs} />}
         actionBar={<Wrapper.ActionBar right={actionBarRight} />}
+        leftSidebar={
+          <PerformSidebar queryParams={queryParams} history={history} />
+        }
         footer={<Pagination count={performsCount || 0} />}
         content={
           <DataWithLoader

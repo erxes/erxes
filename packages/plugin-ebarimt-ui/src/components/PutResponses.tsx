@@ -159,7 +159,10 @@ class PutResponses extends React.Component<IProps, State> {
       />
     );
 
-    const menuPos = [{ title: 'Put Response', link: '/put-responses' }];
+    const menuPos = [
+      { title: 'Put Response', link: '/put-responses' },
+      { title: 'By Date', link: '/put-responses-by-date' }
+    ];
 
     return (
       <Wrapper

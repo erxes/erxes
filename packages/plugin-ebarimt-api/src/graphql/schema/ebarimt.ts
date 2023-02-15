@@ -63,6 +63,7 @@ const queryParams = `
 
 export const queries = `
   putResponses(${queryParams}): [PutResponse]
+  putResponsesByDate(${queryParams}): JSON
   putResponsesCount(${queryParams}): Int
   putResponsesAmount(${queryParams}): Float
   getDealLink(_id: String): String

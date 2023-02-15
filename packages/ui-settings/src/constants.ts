@@ -160,6 +160,27 @@ export const EMPTY_CONTENT_POPUPS = {
   ]
 };
 
+export const EMPTY_CONTENT_FORUMS = {
+  title: __('Getting Started with erxes forums'),
+  description: __(
+    'Never miss a potential lead by capturing them with a forums'
+  ),
+  steps: [
+    {
+      title: __('Create Posts'),
+      description: __('Fill out the details and create your post'),
+      url: '/forums/posts',
+      urlText: 'Create Posts'
+    },
+    {
+      title: __('Create Pages'),
+      description: __('Fill out the details and create your page'),
+      url: '/forums/pages',
+      urlText: 'Create Pages'
+    }
+  ]
+};
+
 export const EMPTY_CONTENT_ENGAGE = {
   title: __('Getting Started with Campaigns'),
   description:

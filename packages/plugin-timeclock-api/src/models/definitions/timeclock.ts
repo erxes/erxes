@@ -90,6 +90,16 @@ export interface IScheduleConfigDocument extends IScheduleConfig, Document {
   _id: string;
 }
 
+export interface IDeviceConfig {
+  deviceName?: string;
+  serialNo?: string;
+  extractRequired?: boolean;
+}
+
+export interface IDeviceConfigDocument extends IDeviceConfig, Document {
+  _id: string;
+}
+
 export const attachmentSchema = new Schema(
   {
     name: field({ type: String }),
@@ -247,6 +257,16 @@ export const scheduleConfigSchema = new Schema({
   shiftEnd: field({
     type: String,
     label: 'ending time of shift'
+  })
+});
+
+export const deviceConfigSchema = new Schema({
+  _id: field({ pkey: true }),
+  deviceName: field({ type: String, label: 'Name of the device' }),
+  serialNo: field({ type: String, label: 'Serial number of the device' }),
+  extractRequired: field({
+    type: Boolean,
+    label: 'whether extract from the device'
   })
 });
 

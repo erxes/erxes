@@ -15,7 +15,6 @@ export const sourceLocationsShema = new Schema(
 export const movementItemsSchema = schemaWrapper(
   new Schema({
     assetId: field({ type: String, label: 'Asset Id' }),
-    assetName: field({ type: String, label: 'Asset Name' }),
     createdAt: field({ type: Date, label: 'Created At', default: Date.now }),
     branchId: field({ type: String, optional: true, label: 'Branch Id' }),
     departmentId: field({
