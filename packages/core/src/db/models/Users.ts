@@ -250,7 +250,14 @@ export const loadUserClass = (models: IModels) => {
         });
       }
 
-      await models.Users.updateOne({ _id }, { $set: doc });
+      let operations: any = { $set: doc };
+
+      if (['', undefined, null].includes(doc.employeeId)) {
+        delete operations.$set.employeeId;
+        operations.$unset = { employeeId: 1 };
+      }
+
+      await models.Users.updateOne({ _id }, operations);
 
       return models.Users.findOne({ _id });
     }
