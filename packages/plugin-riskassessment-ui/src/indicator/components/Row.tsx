@@ -83,6 +83,7 @@ class TableRow extends React.Component<IProps> {
           trigger={trigger}
           title="Duplicate Risk Indicator"
           dialogClassName="transform"
+          enforceFocus={false}
           size="lg"
         />
       );
@@ -123,9 +124,7 @@ class TableRow extends React.Component<IProps> {
         title="Edit Risk Indicator"
         enforceFocus={false}
         trigger={trigger}
-        autoOpenKey="showListFormModal"
         content={contentForm}
-        dialogClassName="transform"
         size="lg"
       />
     );

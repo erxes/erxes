@@ -39,7 +39,6 @@ const configMutations = {
           adminUsers = [],
           cashiers = [],
           productGroups = [],
-          qpayConfig,
           slots = []
         } = response;
 
@@ -47,7 +46,6 @@ const configMutations = {
 
         await models.Configs.updateConfig(config._id, {
           ...(await extractConfig(subdomain, pos)),
-          qpayConfig,
           token
         });
 
@@ -105,13 +103,11 @@ const configMutations = {
           pos = {},
           adminUsers = [],
           cashiers = [],
-          slots = [],
-          qpayConfig
+          slots = []
         } = response;
 
         await models.Configs.updateConfig(config._id, {
           ...(await extractConfig(subdomain, pos)),
-          qpayConfig,
           token: config.token
         });
 

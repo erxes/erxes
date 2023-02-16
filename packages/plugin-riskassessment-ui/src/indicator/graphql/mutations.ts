@@ -9,6 +9,7 @@ const riskIndicatorParams = `
     $calculateLogics:[ICalculateLogic],
     $customScoreField:ICustomScoreField
     $forms: [IRiskIndicatorForm],
+    $isWithDescription:Boolean
 `;
 
 const riskIndicatorParamsDef = `
@@ -22,6 +23,7 @@ const riskIndicatorParamsDef = `
     calculateLogics:$calculateLogics,
     customScoreField:$customScoreField,
     forms:$forms,
+    isWithDescription:$isWithDescription
 `;
 
 const riskIndicatorAdd = `

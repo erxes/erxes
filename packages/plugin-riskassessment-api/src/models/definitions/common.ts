@@ -58,9 +58,9 @@ export interface IRiskFormSubmissionParams {
   cardType: string;
   userId: string;
   indicatorId: string;
-  customScore: number;
+  customScore: { value: number; description: string };
   formSubmissions: {
-    [key: string]: string;
+    [key: string]: { value: number; description: string };
   };
 }
 

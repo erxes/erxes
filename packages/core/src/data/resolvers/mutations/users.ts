@@ -404,16 +404,20 @@ const userMutations = {
       }
 
       if (entry.branchId) {
-        await models.Branches.updateOne(
-          { _id: entry.branchId },
-          { $push: { userIds: createdUser?._id } }
+        await models.Users.updateOne(
+          { _id: createdUser?._id },
+          {
+            $addToSet: { branchIds: entry.branchId }
+          }
         );
       }
 
       if (entry.departmentId) {
-        await models.Departments.updateOne(
-          { _id: entry.departmentId },
-          { $push: { userIds: createdUser?._id } }
+        await models.Users.updateOne(
+          { _id: createdUser?._id },
+          {
+            $addToSet: { departmentIds: entry.departmentId }
+          }
         );
       }
 

@@ -11,19 +11,29 @@ const orderFields = `
   number: String
 `;
 
+const PaidAmountDefs = `
+  _id: String
+  type: String
+  amount: Float
+  info: JSON
+`;
+
 const paymentInputDefs = `
   cashAmount: Float
-  receivableAmount: Float
   billType: String
   registerNumber: String
   mobileAmount: Float
-  cardAmount: Float
 `;
+
 export const types = `
+  type PaidAmount {
+    ${PaidAmountDefs}
+  }
+
   type PosOrderItem {
     ${commonFields}
     productId: String!
-    count: Int!
+    count: Float!
     orderId: String!
     unitPrice: Float
     discountAmount: Float
@@ -77,6 +87,7 @@ export const types = `
     ${commonFields}
     ${orderFields}
     ${paymentInputDefs}
+    paidAmounts: [PaidAmount]
 
     paidDate: Date
     modifiedAt: Date

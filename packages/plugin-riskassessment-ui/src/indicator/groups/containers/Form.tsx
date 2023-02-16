@@ -13,6 +13,7 @@ import { refetchQueries } from '../common/utilss';
 type Props = {
   detail: IIndicatorsGroups;
   closeModal: () => void;
+  queryParams: any;
 };
 
 type FinalProps = {} & Props;
@@ -20,6 +21,7 @@ type FinalProps = {} & Props;
 class Form extends React.Component<FinalProps> {
   constructor(props) {
     super(props);
+    this.renderButton = this.renderButton.bind(this);
   }
 
   renderButton({
@@ -29,12 +31,14 @@ class Form extends React.Component<FinalProps> {
     callback,
     object
   }: IButtonMutateProps) {
+    const { queryParams } = this.props;
+
     return (
       <ButtonMutate
         mutation={object ? mutations.updateGroups : mutations.addGroups}
         variables={values}
         callback={callback}
-        refetchQueries={refetchQueries()}
+        refetchQueries={refetchQueries(queryParams || {})}
         isSubmitted={isSubmitted}
         type="submit"
         uppercase={false}

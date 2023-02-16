@@ -114,12 +114,14 @@ class Form extends React.Component<Props, State> {
           }}
         />
         <ModalFooter>
-          <Button btnStyle="simple">{__('Cancel')}</Button>
+          <Button btnStyle="simple" onClick={handleClose}>
+            {__('Cancel')}
+          </Button>
           {this.props.renderButton({
             text: 'Indicators Groups',
             values: this.generateDoc(values),
             isSubmitted,
-            callback: handleClose,
+            callback: () => this.props.closeModal(),
             object: this.props.detail
           })}
         </ModalFooter>

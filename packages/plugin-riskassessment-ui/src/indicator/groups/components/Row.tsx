@@ -14,6 +14,7 @@ type Props = {
   indicatorsGroups: IIndicatorsGroups;
   selectedItems: string[];
   selectItem: (id) => void;
+  queryParams: any;
 };
 
 class Row extends React.Component<Props> {
@@ -22,7 +23,12 @@ class Row extends React.Component<Props> {
   }
 
   render() {
-    const { indicatorsGroups, selectItem, selectedItems } = this.props;
+    const {
+      indicatorsGroups,
+      selectItem,
+      selectedItems,
+      queryParams
+    } = this.props;
 
     const onClick = e => {
       e.stopPropagation();
@@ -44,11 +50,14 @@ class Row extends React.Component<Props> {
       </tr>
     );
 
-    const content = props => <Form {...props} detail={indicatorsGroups} />;
+    const content = props => (
+      <Form {...props} detail={indicatorsGroups} queryParams={queryParams} />
+    );
 
     return (
       <ModalTrigger
         trigger={trigger}
+        enforceFocus={false}
         content={content}
         title="Edit Indicators Groups"
         size="xl"

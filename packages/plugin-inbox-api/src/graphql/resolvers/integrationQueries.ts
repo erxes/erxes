@@ -218,7 +218,7 @@ const integrationQueries = {
       subdomain,
       action: 'find',
       data: {
-        type: 'integration'
+        type: 'inbox:integration'
       },
       isRPC: true,
       defaultValue: []

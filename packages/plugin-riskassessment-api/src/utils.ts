@@ -222,6 +222,11 @@ export const calculateFormResponses = async ({
   fields,
   calculateMethod,
   filter
+}: {
+  responses: { [key: string]: { value: number; description: string } };
+  fields: any[];
+  calculateMethod: string;
+  filter: any;
 }) => {
   let sumNumber = 0;
   const submissions: any = [];
@@ -230,7 +235,7 @@ export const calculateFormResponses = async ({
     sumNumber = 1;
   }
 
-  for (const [key, value] of Object.entries(responses)) {
+  for (const [key, response] of Object.entries(responses)) {
     const field = fields.find(field => field._id === key);
 
     if (field?.optionsValues) {
@@ -248,7 +253,9 @@ export const calculateFormResponses = async ({
           }
         }, [])
         .filter(item => item);
-      const fieldValue = optValues.find(option => option.label === value);
+      const fieldValue = optValues.find(
+        option => option.label === response.value
+      );
       switch (calculateMethod) {
         case 'Multiply':
           sumNumber *= parseInt(fieldValue?.value || 0);
@@ -259,16 +266,16 @@ export const calculateFormResponses = async ({
       }
       submissions.push({
         ...filter,
+        ...response,
         formId: field?.contentTypeId,
-        fieldId: key,
-        value
+        fieldId: key
       });
     } else {
       submissions.push({
         ...filter,
+        ...response,
         formId: field?.contentTypeId,
-        fieldId: key,
-        value
+        fieldId: key
       });
     }
   }

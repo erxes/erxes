@@ -1,6 +1,9 @@
 import React from 'react';
 import { IReport, IUserReport } from '../../types';
 import { __ } from '@erxes/ui/src/utils';
+import dayjs from 'dayjs';
+import { timeFormat } from '../../constants';
+import { returnDeviceTypes } from '../../utils';
 
 type Props = {
   reportType: string;
@@ -54,13 +57,7 @@ const ReportRow = (userReport: IUserReport, reportType: string) => {
           <td>{userReport.user.details?.position || '-'}</td>
 
           {userReport.scheduleReport &&
-            renderScheduleShiftsOfReport(
-              userReport.scheduleReport.sort(
-                (a, b) =>
-                  new Date(a.timeclockStart).getTime() -
-                  new Date(b.timeclockEnd).getTime()
-              )
-            )}
+            renderScheduleShiftsOfReport(userReport.scheduleReport)}
         </tr>
       );
   }
@@ -113,15 +110,8 @@ const renderScheduleShiftsOfReport = scheduleReport => {
         <td>
           {scheduleReport.map(schedule => {
             return (
-              <div key={schedule.timeclockDate}> {schedule.deviceType}</div>
-            );
-          })}
-        </td>
-        <td>
-          {scheduleReport.map(schedule => {
-            return (
               <div key={schedule.timeclockDate}>
-                {new Date(schedule.timeclockStart).toTimeString().split(' ')[0]}
+                {dayjs(schedule.timeclockStart).format(timeFormat)}
               </div>
             );
           })}
@@ -130,7 +120,25 @@ const renderScheduleShiftsOfReport = scheduleReport => {
           {scheduleReport.map(schedule => {
             return (
               <div key={schedule.timeclockDate}>
-                {new Date(schedule.timeclockEnd).toTimeString().split(' ')[0]}
+                {returnDeviceTypes(schedule.deviceType)[0] || '-'}
+              </div>
+            );
+          })}
+        </td>
+        <td>
+          {scheduleReport.map(schedule => {
+            return (
+              <div key={schedule.timeclockDate}>
+                {dayjs(schedule.timeclockEnd).format(timeFormat)}
+              </div>
+            );
+          })}
+        </td>
+        <td>
+          {scheduleReport.map(schedule => {
+            return (
+              <div key={schedule.timeclockDate}>
+                {returnDeviceTypes(schedule.deviceType)[1] || '-'}
               </div>
             );
           })}

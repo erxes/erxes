@@ -60,8 +60,12 @@ const timeclockQueries = {
     return { list, totalCount };
   },
 
-  async scheduleConfigs(_root, {}, { models, subdomain }: IContext) {
+  scheduleConfigs(_root, {}, { models }: IContext) {
     return models.ScheduleConfigs.find();
+  },
+
+  deviceConfigs(_root, {}, { models }: IContext) {
+    return models.DeviceConfigs.find();
   },
 
   async requestsMain(_root, queryParams, { models, subdomain }: IContext) {
@@ -118,6 +122,10 @@ const timeclockQueries = {
     },
     { subdomain }: IContext
   ) {
+    let filterGiven = false;
+    if (userIds || branchIds || departmentIds) {
+      filterGiven = true;
+    }
     const teamMemberIdsFromFilter = await generateCommonUserIds(
       subdomain,
       userIds,
@@ -137,9 +145,10 @@ const timeclockQueries = {
 
       teamMemberIds.push(teamMember._id);
     }
-    const totalTeamMemberIds = teamMemberIdsFromFilter.length
-      ? teamMemberIdsFromFilter
-      : teamMemberIds;
+    const totalTeamMemberIds =
+      teamMemberIdsFromFilter.length || filterGiven
+        ? teamMemberIdsFromFilter
+        : teamMemberIds;
 
     switch (reportType) {
       case 'Урьдчилсан' || 'Preliminary':

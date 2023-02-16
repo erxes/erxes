@@ -104,11 +104,36 @@ const RiskIndicatorQueries = {
   }
 };
 
-checkPermission(RiskIndicatorQueries, 'riskIndicators', 'showRiskIndicator');
+checkPermission(RiskIndicatorQueries, 'riskIndicators', 'manageRiskAssessment');
 checkPermission(
   RiskIndicatorQueries,
   'riskIndicatorDetail',
-  'showRiskIndicator'
+  'manageRiskAssessment'
+);
+checkPermission(
+  RiskIndicatorQueries,
+  'riskIndicatorsTotalCount',
+  'manageRiskAssessment'
+);
+checkPermission(
+  RiskIndicatorQueries,
+  'riskIndicatorsGroups',
+  'manageRiskAssessment'
+);
+checkPermission(
+  RiskIndicatorQueries,
+  'riskIndicatorsGroupsTotalCount',
+  'manageRiskAssessment'
+);
+checkPermission(
+  RiskIndicatorQueries,
+  'riskIndicatorConfigs',
+  'manageRiskAssessment'
+);
+checkPermission(
+  RiskIndicatorQueries,
+  'riskIndicatorConfigsTotalCount',
+  'manageRiskAssessment'
 );
 
 export default RiskIndicatorQueries;

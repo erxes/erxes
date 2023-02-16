@@ -6,13 +6,13 @@ import {
   schemaHooksWrapper
 } from './utils';
 import { IOrderItemDocument } from './orderItems';
-import { IQpayInvoiceDocument } from './qpayInvoices';
 import { ORDER_STATUSES, ORDER_TYPES } from './constants';
 
-interface ICardPayment {
-  _id: string;
+export interface IPaidAmount {
+  _id?: string;
+  type: string;
   amount: number;
-  cardInfo: any;
+  info?: any;
 }
 
 export interface IOrder {
@@ -23,10 +23,9 @@ export interface IOrder {
   paidDate?: Date;
   number?: string;
   customerId?: string;
-  cardAmount?: number;
   cashAmount?: number;
-  receivableAmount?: number;
   mobileAmount?: number;
+  paidAmounts?: IPaidAmount[];
   totalAmount: number;
   finalAmount?: number;
   shouldPrintEbarimt?: boolean;
@@ -39,11 +38,7 @@ export interface IOrder {
   branchId?: string;
   departmentId?: string;
   synced?: boolean;
-  cardPaymentInfo?: string;
   origin?: string;
-
-  // split payment info
-  cardPayments?: ICardPayment[];
   posToken?: string;
   deliveryInfo?: any;
 
@@ -54,25 +49,20 @@ export interface IOrder {
 
 const commonAttributes = { positive: true, default: 0 };
 
-// @ts-ignore
-const cardPaymentSchema = schemaHooksWrapper(
-  new Schema({
-    _id: field({ pkey: true }),
-    amount: getNumberFieldDefinition({
-      ...commonAttributes,
-      label: 'Paid amount'
-    }),
-    // @ts-ignore
-    cardInfo: { type: Object, label: 'Card info' }
-  }),
-  'erxes_cardPayment'
-);
-
 export interface IOrderDocument extends Document, IOrder {
   _id: string;
   items: IOrderItemDocument[];
-  qpayInvoices?: IQpayInvoiceDocument[];
 }
+
+const paidAmountSchema = new Schema({
+  _id: field({ pkey: true }),
+  type: field({ type: String }),
+  amount: getNumberFieldDefinition({
+    ...commonAttributes,
+    label: 'Paid amount'
+  }),
+  info: field({ type: Object })
+});
 
 export const orderSchema = schemaHooksWrapper(
   new Schema({
@@ -93,15 +83,7 @@ export const orderSchema = schemaHooksWrapper(
       index: true
     }),
     customerId: field({ type: String, optional: true, label: 'Customer' }),
-    cardAmount: getNumberFieldDefinition({
-      ...commonAttributes,
-      label: 'Card amount'
-    }),
     cashAmount: getNumberFieldDefinition({
-      ...commonAttributes,
-      label: 'Cash amount'
-    }),
-    receivableAmount: getNumberFieldDefinition({
       ...commonAttributes,
       label: 'Cash amount'
     }),
@@ -109,6 +91,7 @@ export const orderSchema = schemaHooksWrapper(
       ...commonAttributes,
       label: 'Mobile amount'
     }),
+    paidAmounts: field({ type: [paidAmountSchema], label: 'Paid amounts' }),
     totalAmount: getNumberFieldDefinition({
       ...commonAttributes,
       label: 'Total amount before tax'
@@ -158,15 +141,6 @@ export const orderSchema = schemaHooksWrapper(
       type: Boolean,
       default: false,
       label: 'synced on erxes'
-    }),
-    // rm this filed after a migration
-    cardPaymentInfo: field({
-      type: String,
-      label: 'Bank card transaction info'
-    }),
-    cardPayments: field({
-      type: [cardPaymentSchema],
-      label: 'List of card payment info'
     }),
     posToken: field({
       type: String,

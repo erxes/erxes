@@ -14,6 +14,7 @@ type Props = {
   riskAssessmentId: string;
   userId: string;
   closeModal: () => void;
+  onlyPreview?: boolean;
 };
 
 type FinalProps = {
@@ -32,7 +33,8 @@ class RiskAssessmentForm extends React.Component<FinalProps> {
       userId,
       cardId,
       cardType,
-      closeModal
+      closeModal,
+      onlyPreview
     } = this.props;
 
     if (formDetailQueryResponse.loading) {
@@ -47,7 +49,8 @@ class RiskAssessmentForm extends React.Component<FinalProps> {
       userId,
       cardId,
       cardType,
-      closeModal
+      closeModal,
+      onlyPreview
     };
 
     return <RiskAssessmentFormComponent {...updatedProps} />;

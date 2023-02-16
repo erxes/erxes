@@ -3,6 +3,7 @@ import JobRoutes from './job/routes';
 import FlowRoutes from './flow/routes';
 import WorkRoutes from './work/routes';
 import OverallWorkRoutes from './overallWork/routes';
+import PerformRoutes from './performs/routes';
 
 const routes = () => {
   return (
@@ -11,6 +12,7 @@ const routes = () => {
       <FlowRoutes />
       <WorkRoutes />
       <OverallWorkRoutes />
+      <PerformRoutes />
     </React.Fragment>
   );
 };

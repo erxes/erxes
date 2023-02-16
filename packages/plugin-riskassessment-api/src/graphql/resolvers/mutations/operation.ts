@@ -1,3 +1,4 @@
+import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 
 const operationMutations = {
@@ -13,4 +14,7 @@ const operationMutations = {
   }
 };
 
+checkPermission(operationMutations, 'addOperation', 'manageRiskAssessment');
+checkPermission(operationMutations, 'updateOperation', 'manageRiskAssessment');
+checkPermission(operationMutations, 'removeOperation', 'manageRiskAssessment');
 export default operationMutations;

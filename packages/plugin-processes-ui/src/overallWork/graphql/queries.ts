@@ -1,3 +1,5 @@
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
 const paginateDefs = `
   $page: Int
   $perPage: Int
@@ -178,6 +180,7 @@ export const performFields = `
     type
     typeId
   }
+  type
   status
   startAt
   dueDate
@@ -193,24 +196,9 @@ export const performFields = `
   outBranchId
   outDepartmentId
 
-  createdAt
-  createdBy
-  modifiedAt
-  modifiedBy
-  createdUser {
-    ${userFields}
-  }
-  modifiedUser {
-    ${userFields}
-  }
-`;
+  inProductsLen
+  outProductsLen
 
-const performDetailFields = `
-  ${performFields}
-  needProducts
-  resultProducts
-  inProducts
-  outProducts
   inDepartment {
     _id
     code
@@ -236,35 +224,41 @@ const performDetailFields = `
     parentId
   }
 
-`;
-
-const performs = `
-  query performs(${detailParamsDef}, ${paginateDefs}) {
-    performs(${detailParamsValue}, ${paginateParams}) {
-      ${performFields}
-    }
+  createdAt
+  createdBy
+  modifiedAt
+  modifiedBy
+  createdUser {
+    ${userFields}
   }
-`;
-
-const performsCount = `
-  query performsCount(${detailParamsDef}) {
-    performsCount(${detailParamsValue})
+  modifiedUser {
+    ${userFields}
   }
-`;
-
-const performDetail = `
-  query performDetail($_id: String) {
-    performDetail(_id: $_id) {
-      ${performDetailFields}
-    }
+  ${
+    isEnabled('contacts')
+      ? `
+          customer {
+            _id
+            firstName
+            lastName
+            middleName
+            primaryEmail
+            primaryPhone
+          }
+          company {
+            _id
+            primaryEmail
+            primaryName
+            primaryPhone
+          }
+        `
+      : ``
   }
+
 `;
 
 export default {
   overallWorks,
   overallWorksCount,
-  overallWorkDetail,
-  performs,
-  performsCount,
-  performDetail
+  overallWorkDetail
 };

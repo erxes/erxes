@@ -37,6 +37,7 @@ export interface ITopic {
   modifiedBy: string;
   modifiedDate: Date;
   parentCategories: ICategory[];
+  notificationSegmentId: string;
 }
 
 export interface ICategory {

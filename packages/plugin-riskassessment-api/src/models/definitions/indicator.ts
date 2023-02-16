@@ -32,6 +32,7 @@ export interface IRiskIndicatorsDocument extends Document {
   calculateMethod?: string;
   customScoreField: { label: string; percentWeight: number }[];
   forms?: IIndicatorForms[];
+  isWithDescription?: boolean;
 }
 
 export interface IRiskIndicatorsConfigsDocument extends Document {
@@ -116,7 +117,8 @@ export const riskIndicatorSchema = new Schema({
   forms: field({
     type: [riskIndicatorFormsSchema],
     label: 'Risk Assessment Forms'
-  })
+  }),
+  isWithDescription: field({ type: Boolean, label: 'Is With Description' })
 });
 
 const riskIndicatorConfigsFieldsSchema = new Schema({
@@ -160,6 +162,7 @@ export const riskIndicatorConfigsSchema = new Schema({
 
 const indicatorGroupsSchema = new Schema({
   _id: field({ pkey: true }),
+  name: field({ type: String, label: 'Name' }),
   indicatorIds: field({ type: [String], label: 'IndicatorIds' }),
   percentWeight: field({
     type: Number,
