@@ -12,7 +12,6 @@ import {
   IUser
 } from '../../../db/models/definitions/users';
 import {
-  sendFormsMessage,
   sendInboxMessage,
   sendIntegrationsMessage
 } from '../../../messageBroker';
@@ -234,12 +233,10 @@ const userMutations = {
     const userOnDb = await models.Users.getUser(_id);
 
     // clean custom field values
-    doc.customFieldsData = await sendFormsMessage({
-      subdomain,
-      action: 'fields.prepareCustomFieldsData',
-      data: doc.customFieldsData,
-      isRPC: true
-    });
+    doc.customFieldsData = (doc.customFieldsData || []).map(cd => ({
+      ...cd,
+      stringValue: cd.value ? cd.value.toString() : ''
+    }));
 
     let updatedDoc = doc;
 
