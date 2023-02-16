@@ -524,6 +524,17 @@ export const sendInboxMessage = (args: ISendMessageArgs): Promise<any> => {
   });
 };
 
+export const sendFormsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'forms',
+    ...args
+  });
+};
+
 export default function() {
   return client;
 }
