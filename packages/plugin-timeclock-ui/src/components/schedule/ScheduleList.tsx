@@ -11,7 +11,7 @@ import Tip from '@erxes/ui/src/components/Tip';
 import ScheduleForm from './ScheduleForm';
 import { IScheduleConfig } from '../../types';
 import dayjs from 'dayjs';
-import { dateFormat } from '../../constants';
+import { dateFormat, timeFormat } from '../../constants';
 
 type Props = {
   scheduleOfMembers: any;
@@ -137,7 +137,7 @@ function ScheduleList(props: Props) {
           {shifts.map(shift => {
             return (
               <CustomRow key={shift.shiftEnd} marginNum={10}>
-                {new Date(shift.shiftStart).toLocaleTimeString()}
+                {dayjs(shift.shiftStart).format(timeFormat)}
               </CustomRow>
             );
           })}
@@ -146,7 +146,7 @@ function ScheduleList(props: Props) {
           {shifts.map(shift => {
             return (
               <CustomRow key={shift.shiftEnd} marginNum={10}>
-                {new Date(shift.shiftEnd).toLocaleTimeString()}
+                {dayjs(shift.shiftEnd).format(timeFormat)}
               </CustomRow>
             );
           })}
@@ -205,7 +205,7 @@ function ScheduleList(props: Props) {
     );
   };
   const ListScheduleContent = schedule => {
-    return schedule.shifts.length > 0 ? (
+    return schedule.shifts.length ? (
       <tr>
         <td>
           {schedule.user &&

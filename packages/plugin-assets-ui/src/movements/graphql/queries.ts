@@ -32,8 +32,11 @@ query AssetMovement($_id: String) {
     description
     items {
         _id,
-        assetName,
         assetId,
+        assetDetail {
+          _id,
+          name
+        }
         ${commonItemFields}
         createdAt
         sourceLocations {

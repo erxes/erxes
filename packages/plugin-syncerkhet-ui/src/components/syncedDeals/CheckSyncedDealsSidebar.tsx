@@ -26,6 +26,8 @@ interface State {
   stageChangedEndDate: Date;
   userId: string;
   dateType: string;
+  search: string;
+  number: string;
 }
 
 class CheckerSidebar extends React.Component<IProps, State> {
@@ -41,7 +43,9 @@ class CheckerSidebar extends React.Component<IProps, State> {
       configStageId: queryParams.configStageId,
       stageChangedStartDate: queryParams.stageChangedStartDate,
       stageChangedEndDate: queryParams.stageChangedEndDate,
-      dateType: queryParams.dateType
+      dateType: queryParams.dateType,
+      search: queryParams.search,
+      number: queryParams.number
     };
   }
 
@@ -67,7 +71,9 @@ class CheckerSidebar extends React.Component<IProps, State> {
       userId,
       stageChangedStartDate,
       stageChangedEndDate,
-      dateType
+      dateType,
+      search,
+      number
     } = this.state;
 
     router.setParams(this.props.history, {
@@ -79,7 +85,9 @@ class CheckerSidebar extends React.Component<IProps, State> {
       userId,
       stageChangedStartDate,
       stageChangedEndDate,
-      dateType
+      dateType,
+      search,
+      number
     });
   };
 
@@ -136,7 +144,9 @@ class CheckerSidebar extends React.Component<IProps, State> {
       stageId,
       userId,
       configStageId,
-      dateType
+      dateType,
+      search,
+      number
     } = this.state;
 
     const onChangeBoard = (boardId: string) => {
@@ -163,6 +173,12 @@ class CheckerSidebar extends React.Component<IProps, State> {
       this.setState({
         dateType: (e.currentTarget as HTMLInputElement).value
       });
+    };
+
+    const onChangeInput = (e: React.FormEvent<HTMLElement>) => {
+      const value = (e.currentTarget as HTMLInputElement).value;
+      const name = (e.currentTarget as HTMLInputElement).name;
+      this.setState({ [name]: value } as any);
     };
 
     return (
@@ -193,6 +209,26 @@ class CheckerSidebar extends React.Component<IProps, State> {
                 initialValue={userId || ''}
                 onSelect={onUserChange}
                 multi={false}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Deal search</ControlLabel>
+              <FormControl
+                type="text"
+                name="search"
+                onChange={onChangeInput}
+                defaultValue={search}
+                autoFocus={true}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Number</ControlLabel>
+              <FormControl
+                type="text"
+                name="number"
+                onChange={onChangeInput}
+                defaultValue={number}
+                autoFocus={true}
               />
             </FormGroup>
 

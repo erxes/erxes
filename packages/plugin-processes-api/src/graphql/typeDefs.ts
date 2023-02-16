@@ -43,7 +43,9 @@ import {
 
 import { types as commonTypes } from './schema/common';
 
-const typeDefs = async _serviceDiscovery => {
+const typeDefs = async serviceDiscovery => {
+  const contactsAvailable = await serviceDiscovery.isEnabled('contacts');
+
   return gql`
     scalar JSON
     scalar Date
@@ -59,14 +61,14 @@ const typeDefs = async _serviceDiscovery => {
       inheritMaxAge: Boolean
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
 
-    ${commonTypes()}
+    ${commonTypes(contactsAvailable)}
     ${jobReferTypes}
     ${jobCategoryTypes}
     ${flowTypes}
     ${flowCategoryTypes}
     ${workTypes}
     ${overallWorkTypes}
-    ${performTypes}
+    ${performTypes(contactsAvailable)}
 
     extend type Query {
       ${jobReferQueries}

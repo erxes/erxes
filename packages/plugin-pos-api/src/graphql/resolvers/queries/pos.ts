@@ -61,7 +61,8 @@ const generateFilterPosQuery = async (
     paidDate,
     userId,
     customerId,
-    posId
+    posId,
+    posToken
   } = params;
 
   if (search) {
@@ -77,6 +78,11 @@ const generateFilterPosQuery = async (
 
   if (posId) {
     const pos = await models.Pos.findOne({ _id: posId }).lean();
+    query.posToken = pos.token;
+  }
+
+  if (posToken) {
+    const pos = await models.Pos.findOne({ token: posToken }).lean();
     query.posToken = pos.token;
   }
 
@@ -142,7 +148,7 @@ const queries = {
   },
 
   posDetail: async (_root, { _id }, { models }) => {
-    return await models.Pos.getPos({ _id });
+    return await models.Pos.getPos({ $or: [{ _id }, { token: _id }] });
   },
 
   ecommerceGetBranches: async (
@@ -251,9 +257,7 @@ const queries = {
       { $match: { ...query } },
       {
         $project: {
-          cardAmount: '$cardAmount',
           cashAmount: '$cashAmount',
-          receivableAmount: '$receivableAmount',
           mobileAmount: '$mobileAmount',
           totalAmount: '$totalAmount',
           finalAmount: '$finalAmount '
@@ -262,22 +266,67 @@ const queries = {
       {
         $group: {
           _id: '',
-          cardAmount: { $sum: '$cardAmount' },
           cashAmount: { $sum: '$cashAmount' },
-          receivableAmount: { $sum: '$receivableAmount' },
           mobileAmount: { $sum: '$mobileAmount' },
-          totalAmount: { $sum: '$totalAmount' },
-          finalAmount: { $sum: '$finalAmount ' }
+          totalAmount: { $sum: '$totalAmount' }
         }
       }
     ]);
 
-    if (!res.length) {
-      return {};
+    const ordersAmount = res.length ? res[0] : {};
+
+    const otherAmounts = await models.PosOrders.aggregate([
+      { $match: { ...query } },
+      { $unwind: '$paidAmounts' },
+      {
+        $project: {
+          type: '$paidAmounts.type',
+          amount: '$paidAmounts.amount',
+          token: '$posToken'
+        }
+      },
+      {
+        $lookup: {
+          from: 'pos',
+          let: { letToken: '$token', letType: '$type' },
+          pipeline: [
+            {
+              $match: { $expr: { $eq: ['$token', '$$letToken'] } }
+            },
+            {
+              $unwind: '$paymentTypes'
+            },
+            {
+              $project: {
+                type: '$paymentTypes.type',
+                title: '$paymentTypes.title'
+              }
+            },
+            {
+              $match: { $expr: { $eq: ['$type', '$$letType'] } }
+            }
+          ],
+          as: 'paymentInfo'
+        }
+      },
+      {
+        $unwind: { path: '$paymentInfo', preserveNullAndEmptyArrays: true }
+      },
+      {
+        $group: {
+          _id: { type: '$type', title: '$paymentInfo.title' },
+          amount: { $sum: '$amount' }
+        }
+      }
+    ]);
+
+    for (const amount of otherAmounts) {
+      const key = amount._id.title || amount._id.type;
+      ordersAmount[key] = (ordersAmount[key] || 0) + amount.amount;
     }
 
     return {
-      ...res[0],
+      ...ordersAmount,
       count: await models.PosOrders.find(query).countDocuments()
     };
   },

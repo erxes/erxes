@@ -110,6 +110,7 @@ class CheckSyncedDeals extends React.Component<Props, State> {
 
     const tablehead = [
       'deal name',
+      'deal number',
       'Amount',
       'created At',
       'modified At',
@@ -192,7 +193,7 @@ class CheckSyncedDeals extends React.Component<Props, State> {
             icon="sync"
             onClick={onClickSync}
           >
-            Sync all
+            {`Sync all (${unSyncedDealIds.length})`}
           </Button>
         )}
       </BarItems>

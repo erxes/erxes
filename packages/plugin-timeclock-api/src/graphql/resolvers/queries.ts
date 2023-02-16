@@ -1,5 +1,10 @@
 import { IContext } from '../../connectionResolver';
-import { timeclockReportByUser, timeclockReportPreliminary } from './utils';
+import {
+  timeclockReportByUser,
+  timeclockReportFinal,
+  timeclockReportPivot,
+  timeclockReportPreliminary
+} from './utils';
 import {
   findAllTeamMembersWithEmpId,
   generateCommonUserIds,
@@ -55,8 +60,12 @@ const timeclockQueries = {
     return { list, totalCount };
   },
 
-  async scheduleConfigs(_root, {}, { models, subdomain }: IContext) {
+  scheduleConfigs(_root, {}, { models }: IContext) {
     return models.ScheduleConfigs.find();
+  },
+
+  deviceConfigs(_root, {}, { models }: IContext) {
+    return models.DeviceConfigs.find();
   },
 
   async requestsMain(_root, queryParams, { models, subdomain }: IContext) {
@@ -101,9 +110,22 @@ const timeclockQueries = {
 
   async timeclockReports(
     _root,
-    { userIds, branchIds, departmentIds, startDate, endDate, page, perPage },
+    {
+      userIds,
+      branchIds,
+      departmentIds,
+      startDate,
+      endDate,
+      page,
+      perPage,
+      reportType
+    },
     { subdomain }: IContext
   ) {
+    let filterGiven = false;
+    if (userIds || branchIds || departmentIds) {
+      filterGiven = true;
+    }
     const teamMemberIdsFromFilter = await generateCommonUserIds(
       subdomain,
       userIds,
@@ -123,21 +145,59 @@ const timeclockQueries = {
 
       teamMemberIds.push(teamMember._id);
     }
-    const totalTeamMemberIds = teamMemberIdsFromFilter.length
-      ? teamMemberIdsFromFilter
-      : teamMemberIds;
+    const totalTeamMemberIds =
+      teamMemberIdsFromFilter.length || filterGiven
+        ? teamMemberIdsFromFilter
+        : teamMemberIds;
 
-    const reportPreliminary: any = await timeclockReportPreliminary(
-      subdomain,
-      paginateArray(totalTeamMemberIds, perPage, page),
-      startDate,
-      endDate
-    );
+    switch (reportType) {
+      case 'Урьдчилсан' || 'Preliminary':
+        const reportPreliminary: any = await timeclockReportPreliminary(
+          subdomain,
+          paginateArray(totalTeamMemberIds, perPage, page),
+          startDate,
+          endDate,
+          false
+        );
 
-    for (const userId of Object.keys(reportPreliminary)) {
-      returnReport.push({
-        groupReport: [{ userId: `${userId}`, ...reportPreliminary[userId] }]
-      });
+        for (const userId of Object.keys(reportPreliminary)) {
+          returnReport.push({
+            groupReport: [{ userId: `${userId}`, ...reportPreliminary[userId] }]
+          });
+        }
+
+        break;
+      case 'Сүүлд' || 'Final':
+        const reportFinal: any = await timeclockReportFinal(
+          subdomain,
+          paginateArray(totalTeamMemberIds, perPage, page),
+          startDate,
+          endDate,
+          false
+        );
+        for (const userId of Object.keys(reportFinal)) {
+          returnReport.push({
+            groupReport: [{ userId: `${userId}`, ...reportFinal[userId] }]
+          });
+        }
+        break;
+      case 'Pivot':
+        const reportPivot: any = await timeclockReportPivot(
+          subdomain,
+          paginateArray(totalTeamMemberIds, perPage, page),
+          startDate,
+          endDate,
+          false
+        );
+
+        for (const userId of Object.keys(reportPivot)) {
+          if (userId !== 'scheduleReport') {
+            returnReport.push({
+              groupReport: [{ userId: `${userId}`, ...reportPivot[userId] }]
+            });
+          }
+        }
+        break;
     }
 
     return {

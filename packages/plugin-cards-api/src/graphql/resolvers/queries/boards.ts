@@ -56,6 +56,7 @@ export interface IListParams extends IConformityQueryParams {
   stageChangedEndDate?: Date;
   noSkipArchive?: boolean;
   tagIds?: string[];
+  number?: string;
 }
 
 const boardQueries = {

@@ -1,7 +1,6 @@
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import { confirm } from '@erxes/ui/src/utils';
 import Alert from '@erxes/ui/src/utils/Alert';
-import { __ } from '@erxes/ui/src/utils/core';
 import Button from '@erxes/ui/src/components/Button';
 import { ModalTrigger } from '@erxes/ui/src/components';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -14,6 +13,9 @@ import { MailBox } from '@erxes/ui-contacts/src/customers/styles';
 import MailForm from '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm';
 import React from 'react';
 import SmsForm from '@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm';
+import { loadDynamicComponent, __ } from '@erxes/ui/src/utils';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import ExtendSubscription from '@erxes/ui-forum/src/containers/ExtendSubscriptionForm';
 
 type Props = {
   clientPortalUser: IClientPortalUser;
@@ -140,6 +142,12 @@ class BasicInfoSection extends React.Component<Props> {
           Alert.error(error.message);
         });
 
+    const extendSubscription = props => {
+      return (
+        <ExtendSubscription {...props} clientPortalUser={clientPortalUser} />
+      );
+    };
+
     return (
       <Dropdown>
         <Dropdown.Toggle as={DropdownToggle} id="dropdown-action">
@@ -147,6 +155,18 @@ class BasicInfoSection extends React.Component<Props> {
         </Dropdown.Toggle>
         <Dropdown.Menu>
           {this.renderEditButton()}
+          {isEnabled('forum') && (
+            <ModalTrigger
+              title="Extend Subscription"
+              trigger={
+                <li>
+                  <a href="#extend-subscription">{__('Extend Subscription')}</a>
+                </li>
+              }
+              size="lg"
+              content={extendSubscription}
+            />
+          )}
           <li>
             <a href="#delete" onClick={onClick}>
               {__('Delete')}
@@ -158,11 +178,20 @@ class BasicInfoSection extends React.Component<Props> {
   }
 
   render() {
+    const { clientPortalUser } = this.props;
+
     return (
-      <Actions>
-        {this.renderActions()}
-        {this.renderDropdown()}
-      </Actions>
+      <>
+        {loadDynamicComponent(
+          'clientPortalUserDetailAction',
+          { clientPortalUser },
+          true
+        )}
+        <Actions>
+          {this.renderActions()}
+          {this.renderDropdown()}
+        </Actions>
+      </>
     );
   }
 }

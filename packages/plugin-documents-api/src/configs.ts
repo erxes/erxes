@@ -35,7 +35,7 @@ export default {
     {
       path: '/print',
       method: async (req, res, next) => {
-        const { _id, stageId, itemId } = req.query;
+        const { _id, copies, width } = req.query;
         const subdomain = getSubdomain(req);
         const models = await generateModels(subdomain);
         const document = await models.Documents.findOne({ _id });
@@ -54,27 +54,57 @@ export default {
           return next(new Error('Permission denied'));
         }
 
-        let replacedContent = await sendCommonMessage({
+        let replacedContents = await sendCommonMessage({
           subdomain,
           serviceName: document.contentType,
           action: 'documents.replaceContent',
           isRPC: true,
           data: {
-            stageId,
-            itemId,
+            ...(req.query || {}),
             content: document.content
           }
         });
 
+        let results: string = '';
+
         const replacers = (document.replacer || '').split('\n');
 
-        for (const replacer of replacers) {
-          const [key, value] = replacer.split(',');
+        for (let replacedContent of replacedContents) {
+          for (const replacer of replacers) {
+            const [key, value] = replacer.split(',');
 
-          if (key) {
-            const regex = new RegExp(key, 'g');
-            replacedContent = replacedContent.replace(regex, value);
+            if (key) {
+              const regex = new RegExp(key, 'g');
+              replacedContent = replacedContent.replace(regex, value);
+            }
           }
+
+          if (copies) {
+            results = `
+             ${results}
+              <div style="margin-right: 20px; margin-bottom: 20px;width: ${width}px;float: left;">
+                ${replacedContent}
+              </div>
+            `;
+          } else {
+            results = results + replacedContent;
+          }
+        }
+
+        let multipliedResults: string[] = [];
+
+        if (copies) {
+          let i = 0;
+          while (i < copies) {
+            i++;
+            multipliedResults.push(`
+              <div style="margin-right: 20px; margin-bottom: 20px;float: left;">
+              ${results}
+              </div>
+            `);
+          }
+        } else {
+          multipliedResults = [results];
         }
 
         const style = `
@@ -113,7 +143,7 @@ export default {
           </style>
       `;
 
-        return res.send(replacedContent + style);
+        return res.send(multipliedResults + style);
       }
     }
   ],

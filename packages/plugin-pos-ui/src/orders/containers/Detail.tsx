@@ -1,13 +1,15 @@
 import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
 import Detail from '../components/Detail';
+import gql from 'graphql-tag';
 import React from 'react';
+import { Alert } from '@erxes/ui/src/utils';
 import { graphql } from 'react-apollo';
 import { IOrder, PosOrderChangePaymentsMutationResponse } from '../types';
+import { mutations, queries } from '../graphql';
 import { OrderDetailQueryResponse } from '../types';
-import { queries, mutations } from '../graphql';
+import { PosDetailQueryResponse } from '../../types';
+import { queries as posQueries } from '../../pos/graphql';
 import { Spinner, withProps } from '@erxes/ui/src';
-import { Alert } from '@erxes/ui/src/utils';
 
 type Props = {
   order: IOrder;
@@ -15,6 +17,7 @@ type Props = {
 
 type FinalProps = {
   orderDetailQuery: OrderDetailQueryResponse;
+  posDetailQuery: PosDetailQueryResponse;
 } & Props &
   PosOrderChangePaymentsMutationResponse;
 
@@ -27,22 +30,15 @@ class OrdersDetailContainer extends React.Component<FinalProps> {
     };
   }
 
-  onChangePayments = (
-    orderId,
-    cashAmount,
-    receivableAmount,
-    cardAmount,
-    mobileAmount
-  ) => {
+  onChangePayments = (orderId, cashAmount, mobileAmount, paidAmounts) => {
     const { posOrderChangePayments } = this.props;
 
     posOrderChangePayments({
       variables: {
         _id: orderId,
         cashAmount,
-        receivableAmount,
-        cardAmount,
-        mobileAmount
+        mobileAmount,
+        paidAmounts
       }
     })
       .then(() => {
@@ -54,17 +50,19 @@ class OrdersDetailContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { orderDetailQuery } = this.props;
+    const { orderDetailQuery, posDetailQuery } = this.props;
 
-    if (orderDetailQuery.loading) {
+    if (orderDetailQuery.loading || posDetailQuery.loading) {
       return <Spinner />;
     }
 
     const order = orderDetailQuery.posOrderDetail;
+    const pos = posDetailQuery.posDetail;
 
     const updatedProps = {
       ...this.props,
       onChangePayments: this.onChangePayments,
+      pos,
       order
     };
 
@@ -86,15 +84,22 @@ export default withProps<Props>(
         })
       }
     ),
+    graphql<Props, PosDetailQueryResponse, {}>(gql(posQueries.posDetail), {
+      name: 'posDetailQuery',
+      options: props => ({
+        variables: {
+          _id: props.order.posToken
+        }
+      })
+    }),
     graphql<
       Props,
       PosOrderChangePaymentsMutationResponse,
       {
         _id: string;
         cashAmount: number;
-        receivableAmount: number;
-        cardAmount: number;
         mobileAmount: number;
+        paidAmounts: any;
       }
     >(gql(mutations.posOrderChangePayments), {
       name: 'posOrderChangePayments',

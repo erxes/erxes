@@ -1,3 +1,4 @@
+import { Row } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import Button from '@erxes/ui/src/components/Button';
 import CollapseContent from '@erxes/ui/src/components/CollapseContent';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -20,12 +21,14 @@ import { IFieldGroup } from '../types';
 
 type Props = {
   group?: IFieldGroup;
+  groups: IFieldGroup[];
   type: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
 type State = {
+  isMultiple: boolean;
   isVisible: boolean;
   isVisibleInDetail: boolean;
   config: any;
@@ -36,11 +39,13 @@ class PropertyGroupForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
+    let isMultiple = false;
     let isVisible = true;
     let isVisibleInDetail = true;
     let config = {};
 
     if (props.group) {
+      isMultiple = props.group.isMultiple;
       isVisible = props.group.isVisible;
       isVisibleInDetail = props.group.isVisibleInDetail;
       config = props.group.config;
@@ -48,6 +53,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
 
     this.state = {
       config,
+      isMultiple,
       isVisible,
       isVisibleInDetail,
       logics: props.group && props.group.logics ? props.group.logics : [],
@@ -75,12 +81,21 @@ class PropertyGroupForm extends React.Component<Props, State> {
     return {
       ...finalValues,
       contentType: type,
+      isMultiple: this.state.isMultiple,
       isVisible: this.state.isVisible,
       isVisibleInDetail: this.state.isVisibleInDetail,
       config,
       logicAction,
       logics
     };
+  };
+
+  multipleHandler = e => {
+    if (e.target.id === 'multiple') {
+      const isMultiple = e.target.checked;
+
+      return this.setState({ isMultiple });
+    }
   };
 
   visibleHandler = e => {
@@ -179,7 +194,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
   }
 
   renderContent = (formProps: IFormProps) => {
-    const { group, closeModal, renderButton } = this.props;
+    const { group, groups, closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
 
     const object = group || ({} as IFieldGroup);
@@ -212,6 +227,29 @@ class PropertyGroupForm extends React.Component<Props, State> {
           <FormControl {...formProps} name="code" defaultValue={object.code} />
         </FormGroup>
 
+        <FormGroup>
+          <ControlLabel>Parent group:</ControlLabel>
+          <Row>
+            <FormControl
+              {...formProps}
+              name="parentId"
+              componentClass="select"
+              defaultValue={object.parentId || null}
+            >
+              <option value="" />
+              {groups
+                .filter(e => !e.isDefinedByErxes)
+                .map(group => {
+                  return (
+                    <option key={group._id} value={group._id}>
+                      {group.name}
+                    </option>
+                  );
+                })}
+            </FormControl>
+          </Row>
+        </FormGroup>
+
         {this.renderFieldVisible()}
         {this.renderExtraContent()}
 
@@ -220,6 +258,21 @@ class PropertyGroupForm extends React.Component<Props, State> {
         ) : (
           <></>
         )}
+
+        <FormGroup>
+          <ControlLabel>Multiple</ControlLabel>
+          <div>
+            <Toggle
+              id="multiple"
+              checked={this.state.isMultiple}
+              onChange={this.multipleHandler}
+              icons={{
+                checked: <span>Checked</span>,
+                unchecked: <span>Unchecked</span>
+              }}
+            />
+          </div>
+        </FormGroup>
 
         <CollapseContent title={__('Logic')} compact={true}>
           <PropertyLogics

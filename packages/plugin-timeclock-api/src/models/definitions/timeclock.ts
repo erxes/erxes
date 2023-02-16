@@ -90,6 +90,16 @@ export interface IScheduleConfigDocument extends IScheduleConfig, Document {
   _id: string;
 }
 
+export interface IDeviceConfig {
+  deviceName?: string;
+  serialNo?: string;
+  extractRequired?: boolean;
+}
+
+export interface IDeviceConfigDocument extends IDeviceConfig, Document {
+  _id: string;
+}
+
 export const attachmentSchema = new Schema(
   {
     name: field({ type: String }),
@@ -250,6 +260,16 @@ export const scheduleConfigSchema = new Schema({
   })
 });
 
+export const deviceConfigSchema = new Schema({
+  _id: field({ pkey: true }),
+  deviceName: field({ type: String, label: 'Name of the device' }),
+  serialNo: field({ type: String, label: 'Serial number of the device' }),
+  extractRequired: field({
+    type: Boolean,
+    label: 'whether extract from the device'
+  })
+});
+
 // common types
 export interface IScheduleReport {
   date?: string;
@@ -260,10 +280,27 @@ export interface IScheduleReport {
   minsLate?: number;
   minsWorked?: number;
   include?: boolean;
+
+  timeclockDate?: string;
+  timeclockStart?: Date;
+  timeclockEnd?: Date;
+  timeclockDuration?: string;
+  deviceType?: string;
+  deviceName?: string;
+  scheduledStart?: Date;
+  scheduledEnd?: Date;
+  scheduledDuration?: string;
+  totalMinsLate?: string;
+  totalHoursOvertime?: string;
+  totalHoursOvernight?: string;
 }
 
 export interface IUserReport {
   userId?: string;
+  employeeId?: string;
+  firstName?: string;
+  lastName?: string;
+  position?: string;
   scheduleReport: IScheduleReport[];
   totalMinsWorked?: number;
   totalMinsWorkedToday?: number;
@@ -285,9 +322,20 @@ export interface IUserExportReport {
   lastName?: string;
   branchName?: string;
   position?: string;
-  totalDaysWorkedThisMonth?: number;
-  totalDaysScheduledThisMonth?: number;
+  totalDaysWorked?: number;
+  totalHoursWorked?: string;
+  totalRegularHoursWorked?: string;
+
+  totalDaysScheduled?: number;
+  totalHoursScheduled?: string;
+
+  totalHoursOvertime?: string;
+  totalHoursOvernight?: string;
+  totalMinsLate?: string;
+
+  scheduleReport?: IScheduleReport[];
 }
+
 export interface IUsersReport {
   [userId: string]: IUserExportReport;
 }

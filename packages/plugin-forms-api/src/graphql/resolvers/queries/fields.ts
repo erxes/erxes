@@ -56,7 +56,7 @@ const fieldQueries = {
       { value: 'check', label: 'Checkbox' },
       { value: 'radio', label: 'Radio button' },
       { value: 'file', label: 'File' },
-      { value: 'customer', label: 'customer' },
+      { value: 'customer', label: 'Customer' },
       { value: 'product', label: 'Product' },
       { value: 'branch', label: 'Branch' },
       { value: 'department', label: 'Department' },

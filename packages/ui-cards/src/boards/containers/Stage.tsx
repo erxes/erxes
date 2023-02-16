@@ -243,6 +243,8 @@ const getFilterParams = (
     customerIds: queryParams.customerIds,
     companyIds: queryParams.companyIds,
     assignedUserIds: queryParams.assignedUserIds,
+    branchIds: queryParams.branchIds,
+    departmentIds: queryParams.departmentIds,
     closeDateType: queryParams.closeDateType,
     labelIds: queryParams.labelIds,
     userIds: queryParams.userIds,

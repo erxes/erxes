@@ -72,34 +72,51 @@ export const types = `
   }
 
   type ScheduleReport{
-    date: String
-    scheduleStart: Date
-    scheduleEnd: Date
-    recordedStart: Date
-    recordedEnd: Date
-    minsLate: Int
-    minsWorked: Int
-    minsScheduled: Int
+    timeclockDate: String
+    timeclockStart: Date
+    timeclockEnd: Date
+    timeclockDuration: String
+
+    deviceName: String
+    deviceType: String
+
+    scheduledStart: Date
+    scheduledEnd: Date
+    scheduledDuration:String
+    
+    totalMinsLate: String
+    totalHoursOvertime: String
+    totalHoursOvernight: String
   }
 
   type UserReport{
     user: User
     scheduleReport: [ScheduleReport]
-    totalMinsLate: Int
+    totalMinsLate: Float
     totalAbsenceMins: Int
     totalMinsWorked: Int
     totalMinsWorkedToday: Int
     totalMinsWorkedThisMonth: Int
-    totalDaysWorkedThisMonth:Int
+    totalRegularHoursWorked: Float
+    totalHoursWorked: Float
+    totalDaysWorked:Int
+    
     totalMinsScheduled: Int
+    totalHoursScheduled: Float
+    totalDaysScheduled: Int
     totalMinsScheduledToday: Int
     totalMinsScheduledThisMonth: Int
-    totalDaysScheduledThisMonth: Int
+    
+    totalHoursOvertime: Float
+    totalHoursOvernight: Float
+
     totalMinsLateToday: Int
     totalMinsLateThisMonth: Int
     totalMinsAbsenceThisMonth: Int
+
   }
 
+  
   type Report {
     groupTitle: String
     groupReport: [UserReport]
@@ -130,6 +147,13 @@ export const types = `
     scheduleConfigId: String
     configShiftStart: String
     configShiftEnd: String
+  }
+
+  type DeviceConfig{
+    _id: String!
+    deviceName: String
+    serialNo: String
+    extractRequired: Boolean
   }
 
   type TimeClocksListResponse {
@@ -170,6 +194,7 @@ const queryParams = `
   userIds: [String]
   branchIds: [String]
   departmentIds: [String]
+  reportType: String
 `;
 
 const absence_params = `
@@ -195,12 +220,16 @@ export const queries = `
   requestsMain(${queryParams}): RequestsListResponse
 
   absenceTypes:[AbsenceType]
+  
   timeclockReports(${queryParams}): ReportsListResponse
   timeclockReportByUser(selectedUser: String): UserReport
   timeclockDetail(_id: String!): Timeclock
+  
   absenceDetail(_id: String!): Absence
   scheduleDetail(_id: String!): Schedule
   scheduleConfigs: [ScheduleConfig]
+  
+  deviceConfigs:[DeviceConfig]
   payDates: [PayDate]
   holidays: [Absence]
 `;
@@ -208,7 +237,7 @@ export const queries = `
 export const mutations = `
   timeclockStart(${params}): Timeclock
   timeclockStop(${params}): Timeclock
-  timeclockRemove(_id : String): Timeclock
+  timeclockRemove(_id : String): JSON
   absenceTypeRemove(_id: String): JSON
   absenceTypeAdd(${absenceType_params}): AbsenceType
   absenceTypeEdit(_id: String, ${absenceType_params}): AbsenceType
@@ -229,5 +258,8 @@ export const mutations = `
   holidayRemove(_id: String): JSON
   scheduleRemove(_id: String): JSON
   scheduleShiftRemove(_id: String): JSON
+  deviceConfigAdd(deviceName: String, serialNo: String,extractRequired: Boolean): DeviceConfig
+  deviceConfigEdit(_id: String, deviceName: String, serialNo: String,extractRequired: Boolean): DeviceConfig
+  deviceConfigRemove(_id: String): JSON
   extractAllDataFromMySQL(startDate: String, endDate: String): [Timeclock]
 `;

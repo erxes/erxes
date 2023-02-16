@@ -25,7 +25,7 @@ const reportQueries = {
       _id: { $in: posUserIds }
     }).lean();
 
-    for (const user of users) {
+    for (const user of [...users, { _id: '' }]) {
       const ordersAmounts = await models.Orders.aggregate([
         { $match: { ...orderQuery, userId: user._id } },
         {
@@ -48,6 +48,30 @@ const reportQueries = {
           }
         }
       ]);
+
+      const ordersAmount = ordersAmounts.length ? ordersAmounts[0] : {};
+
+      const otherAmounts = await models.Orders.aggregate([
+        { $match: { ...orderQuery, userId: user._id } },
+        { $unwind: '$paidAmounts' },
+        {
+          $project: {
+            type: '$paidAmounts.type',
+            amount: '$paidAmounts.amount'
+          }
+        },
+        {
+          $group: {
+            _id: '$type',
+            amount: { $sum: '$amount' }
+          }
+        }
+      ]);
+
+      for (const amount of otherAmounts) {
+        ordersAmount[amount._id] =
+          (ordersAmount[amount._id] || 0) + amount.amount;
+      }
 
       const orders = await models.Orders.find({
         ...orderQuery,
@@ -121,7 +145,7 @@ const reportQueries = {
 
       report[user._id] = {
         user,
-        ordersAmounts: { ...(ordersAmounts || [{}])[0], count: orders.length },
+        ordersAmounts: { ...ordersAmount, count: orders.length },
         items
       };
     }

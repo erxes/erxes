@@ -97,7 +97,6 @@ class Form extends React.Component<Props, State> {
     const items = variables.map(
       ({
         assetId,
-        assetName,
         branchId,
         departmentId,
         customerId,
@@ -105,7 +104,6 @@ class Form extends React.Component<Props, State> {
         teamMemberId
       }) => ({
         assetId,
-        assetName,
         branchId,
         departmentId,
         customerId,

@@ -1,33 +1,21 @@
-import { commonFormSubmissionsTypes } from './common';
-
 export const types = `
-    type FormSubmissionFieldType{
-        fieldId: String
-        value: String
-        optionsValues:[String]
-        text: String
-        description: String
-    }
-
-    type FormSubmissionUserType {
-        _id:String
-        user:JSON
-        fields:[FormSubmissionFieldType]
-    }
-
-    type RiskFormSubmission {
-        cardId:String
-        cardType:String
-        card:JSON
-        riskAssessmentId:String
-        riskAssessment:JSON
-        formId:String
-        users:[FormSubmissionUserType]
+    input ICustomScore {
+        value:Int
+        description:String
     }
 `;
-export const queries = `
-    riskFormSubmitHistory (cardId:String,cardType:String,riskAssessmentId:String):RiskFormSubmission
+
+const commonFormSubmissionsTypes = `
+    cardId: String,
+    cardType: String,
+    riskAssessmentId: String,
+    userId: String,
+    fieldId: String,
+    indicatorId: String,
+    customScore:ICustomScore,
+    formSubmissions:JSON
 `;
+
 export const mutations = `
     riskFormSaveSubmissions(${commonFormSubmissionsTypes}):JSON
 `;

@@ -8,6 +8,7 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
+  Icon,
   ModalTrigger,
   Toggle
 } from '@erxes/ui/src';
@@ -24,6 +25,25 @@ import {
 } from '../../../styles';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
+import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
+import { PAYMENT_TYPE_ICONS } from '../../../constants';
+import Select from 'react-select-plus';
+import styled from 'styled-components';
+
+export const SelectValue = styled.div`
+  display: flex;
+  justify-content: left;
+  align-items: baseline;
+  margin-left: -7px;
+  padding-left: 25px;
+`;
+
+const content = (option): React.ReactNode => (
+  <>
+    <Icon icon={option.avatar} />
+    &nbsp;&nbsp;{option.label}
+  </>
+);
 
 type Props = {
   onChange: (name: 'pos' | 'slots', value: any) => void;
@@ -463,6 +483,107 @@ class GeneralStep extends React.Component<Props, State> {
     );
   }
 
+  onClickAddPayments = () => {
+    const { pos, onChange } = this.props;
+
+    if (!pos.paymentTypes) {
+      pos.paymentTypes = [];
+    }
+
+    pos.paymentTypes.push({
+      _id: Math.random().toString(),
+      type: '',
+      title: '',
+      icon: ''
+    });
+
+    onChange('pos', pos);
+  };
+
+  selectItemRenderer = (option): React.ReactNode => {
+    return <SelectValue>{content(option)}</SelectValue>;
+  };
+  renderPaymentType(paymentType: any) {
+    const { pos, onChange } = this.props;
+
+    const editPayment = (name, value) => {
+      pos.paymentTypes = (pos.paymentTypes || []).map(p =>
+        p._id === paymentType._id ? { ...p, [name]: value } : p
+      );
+      onChange('pos', pos);
+    };
+
+    const onChangeInput = e => {
+      const name = e.target.name;
+      const value = e.target.value;
+      editPayment(name, value);
+    };
+
+    const onChangeSelect = option => {
+      console.log(option);
+      editPayment('icon', option.value);
+    };
+
+    const removePayment = () => {
+      pos.paymentTypes =
+        (pos.paymentTypes || []).filter(m => m._id !== paymentType._id) || [];
+      onChange('pos', pos);
+    };
+
+    return (
+      <div key={paymentType._id}>
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <FormControl
+                name="type"
+                maxLength={10}
+                defaultValue={paymentType.type || ''}
+                onChange={onChangeInput}
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <FormControl
+                name="title"
+                type="text"
+                defaultValue={paymentType.title || ''}
+                onChange={onChangeInput}
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <Select
+                name="icon"
+                componentClass="select"
+                optionRenderer={this.selectItemRenderer}
+                valueRenderer={this.selectItemRenderer}
+                value={paymentType.icon || ''}
+                onChange={onChangeSelect}
+                options={PAYMENT_TYPE_ICONS.map(icon => ({
+                  value: icon,
+                  label: icon,
+                  avatar: `${icon}`
+                }))}
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <Button
+                btnStyle="danger"
+                icon="trash"
+                onClick={() => removePayment()}
+              />
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
+      </div>
+    );
+  }
+
   render() {
     const { pos, envs } = this.props;
 
@@ -548,6 +669,42 @@ class GeneralStep extends React.Component<Props, State> {
                   onChange={this.onChangeInput}
                 />
               </FormGroup>
+            </Block>
+
+            <Block>
+              <h4>{__('Other payments')}</h4>
+              <FormGroup>
+                <div key={Math.random()}>
+                  <FormWrapper>
+                    <FormColumn>
+                      <FormGroup>
+                        <ControlLabel>Type</ControlLabel>
+                      </FormGroup>
+                    </FormColumn>
+                    <FormColumn>
+                      <FormGroup>
+                        <ControlLabel>Title</ControlLabel>
+                      </FormGroup>
+                    </FormColumn>
+                    <FormColumn>
+                      <FormGroup>
+                        <ControlLabel>Icon</ControlLabel>
+                      </FormGroup>
+                    </FormColumn>
+                    <FormColumn></FormColumn>
+                  </FormWrapper>
+                </div>
+                {(pos.paymentTypes || []).map(item =>
+                  this.renderPaymentType(item)
+                )}
+              </FormGroup>
+              <Button
+                btnStyle="primary"
+                icon="plus-circle"
+                onClick={this.onClickAddPayments}
+              >
+                Add payment
+              </Button>
             </Block>
 
             <Block>

@@ -34,6 +34,7 @@ const listParamsDef = `
   $userIds: [String]
   $branchIds: [String]
   $departmentIds: [String]
+  $reportType: String
 `;
 
 const listParamsValue = `
@@ -44,6 +45,7 @@ const listParamsValue = `
   userIds: $userIds
   branchIds: $branchIds
   departmentIds: $departmentIds
+  reportType: $reportType
 `;
 
 const listTimeclocksMain = `
@@ -132,25 +134,38 @@ const listReports = `
                 ${userFields}
               }
               scheduleReport {
-                date
-                scheduleStart
-                scheduleEnd
-                recordedStart
-                recordedEnd
-                minsLate
-                minsWorked
+                timeclockDate
+                timeclockStart
+                timeclockEnd
+                timeclockDuration
+            
+                deviceName
+                deviceType
+            
+                scheduledStart
+                scheduledEnd
+                scheduledDuration
+                
+                totalMinsLate
+                totalHoursOvertime
+                totalHoursOvernight
               }
               totalMinsLate
               totalAbsenceMins
               totalMinsWorked
               totalMinsScheduled
 
+              totalRegularHoursWorked
+              totalHoursWorked
               totalMinsWorkedThisMonth
-              totalDaysWorkedThisMonth
+              totalDaysWorked
 
+              totalHoursOvertime
+              totalHoursOvernight
+            
               totalMinsScheduledThisMonth
-              totalDaysScheduledThisMonth
-          
+              totalDaysScheduled
+              totalHoursScheduled
             }
             groupTotalMinsLate
             groupTotalAbsenceMins
@@ -213,7 +228,7 @@ query holidays {
   }
 }`;
 
-const listScheduleConfig = `
+const listScheduleConfigs = `
   query scheduleConfigs {
     scheduleConfigs{
       _id
@@ -231,6 +246,17 @@ const listScheduleConfig = `
   }
 
 `;
+
+const listDeviceConfigs = `
+query deviceConfigs {
+  deviceConfigs {
+    _id 
+    deviceName
+    serialNo
+    extractRequired
+  }
+}`;
+
 export default {
   listReports,
   listReportByUser,
@@ -241,5 +267,6 @@ export default {
   listAbsenceTypes,
   listPayDates,
   listHolidays,
-  listScheduleConfig
+  listScheduleConfigs,
+  listDeviceConfigs
 };

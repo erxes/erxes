@@ -24,6 +24,7 @@ export type CommonProps = {
   onSelect: (datas: any[]) => void;
   renderExtra?: () => any;
   handleExtra?: (data: any) => void;
+  modalSize?: 'sm' | 'lg' | 'xl';
 };
 
 type Props = {
@@ -176,7 +177,7 @@ class CommonChooser extends React.Component<Props, State> {
   }
 
   render() {
-    const { renderForm, title, data, closeModal } = this.props;
+    const { renderForm, title, data, closeModal, modalSize } = this.props;
     const selectedDatas = this.state.datas;
 
     const addTrigger = (
@@ -214,7 +215,7 @@ class CommonChooser extends React.Component<Props, State> {
               <ModalTrigger
                 title={`New ${title}`}
                 trigger={addTrigger}
-                size="lg"
+                size={modalSize || 'lg'}
                 content={renderForm}
               />
             )}

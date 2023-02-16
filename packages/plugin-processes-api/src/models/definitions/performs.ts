@@ -4,7 +4,7 @@ import { IProductsData, productsDataSchema } from './jobs';
 import { JOB_TYPES } from './constants';
 
 export interface IPerform {
-  overallWorkId: string;
+  overallWorkId?: string;
   overallWorkKey: any;
   status: string;
   startAt: Date;
@@ -16,14 +16,15 @@ export interface IPerform {
   assignedUserIds: string[];
   customerId?: string;
   companyId?: string;
-  inBranchId: string;
-  inDepartmentId: string;
-  outBranchId: string;
-  outDepartmentId: string;
+  inBranchId?: string;
+  inDepartmentId?: string;
+  outBranchId?: string;
+  outDepartmentId?: string;
   needProducts: IProductsData[];
   resultProducts: IProductsData[];
   inProducts: IProductsData[];
   outProducts: IProductsData[];
+  series?: string;
 }
 
 export interface IPerformDocument extends IPerform, Document {
@@ -37,7 +38,11 @@ export interface IPerformDocument extends IPerform, Document {
 export const performSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    overallWorkId: field({ type: String, label: 'overall work id' }),
+    overallWorkId: field({
+      type: String,
+      optional: true,
+      label: 'overall work id'
+    }),
     overallWorkKey: field({ type: Object, label: 'overall work key' }),
     status: field({ type: String, label: 'Status' }),
     startAt: field({ type: Date, optional: true, label: 'Start at' }),
@@ -92,7 +97,13 @@ export const performSchema = schemaHooksWrapper(
       default: new Date(),
       label: 'Modified date'
     }),
-    modifiedBy: field({ type: String, label: 'Modified User' })
+    modifiedBy: field({ type: String, label: 'Modified User' }),
+
+    series: field({
+      type: String,
+      label: 'series',
+      unique: true
+    })
   }),
   'erxes_performs'
 );

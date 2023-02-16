@@ -70,18 +70,35 @@ class PopoverContent extends React.Component<Props, State> {
     const { value } = e.currentTarget as HTMLInputElement;
 
     this.setState(({ [type]: value } as unknown) as Pick<State, keyof State>);
-
-    this.props.onSearchChange(type, value);
   };
+
+  filterByValue(array, value) {
+    return array.filter(o =>
+      o.name.toLowerCase().includes(value.toLowerCase())
+    );
+  }
+  filterByBrandId(array, value) {
+    return array.filter(o => o.brandId === value);
+  }
 
   renderItems() {
     const { responseTemplates } = this.props;
+    const { searchValue, brandId } = this.state;
 
-    if (responseTemplates.length === 0) {
+    const filteredByBrandIdTargets =
+      brandId === ''
+        ? responseTemplates
+        : this.filterByBrandId(responseTemplates, brandId);
+    const filteredTargets =
+      searchValue === ''
+        ? filteredByBrandIdTargets
+        : this.filterByValue(filteredByBrandIdTargets, searchValue);
+
+    if (filteredTargets.length === 0) {
       return <EmptyState icon="clipboard-1" text="No templates" />;
     }
 
-    return responseTemplates.map(item => {
+    return filteredTargets.map(item => {
       const onClick = () => this.onSelect(item._id);
 
       return (

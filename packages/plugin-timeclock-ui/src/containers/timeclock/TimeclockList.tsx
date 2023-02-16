@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
-import { Alert, withProps } from '@erxes/ui/src/utils';
+import { Alert, withProps, confirm } from '@erxes/ui/src/utils';
 import List from '../../components/timeclock/TimeclockList';
 import {
   TimeClockMainQueryResponse,
@@ -14,12 +14,13 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { mutations } from '../../graphql';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import dayjs from 'dayjs';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import { generateParams } from '../../utils';
 
 type Props = {
   queryParams: any;
   history: any;
+
+  timeclockId: string;
 
   showSideBar: (sideBar: boolean) => void;
   getActionBar: (actionBar: any) => void;
@@ -36,7 +37,8 @@ const ListContainer = (props: FinalProps) => {
     timeclocksMainQuery,
     getPagination,
     extractAllMySqlDataMutation,
-    showSideBar
+    showSideBar,
+    timeclockRemove
   } = props;
 
   const dateFormat = 'YYYY-MM-DD';
@@ -45,6 +47,14 @@ const ListContainer = (props: FinalProps) => {
   if (timeclocksMainQuery.loading || loading) {
     return <Spinner />;
   }
+
+  const removeTimeclock = (timeclockId: string) => {
+    confirm('Are you sure to remove this timeclock?').then(() => {
+      timeclockRemove({ variables: { _id: timeclockId } }).then(() => {
+        Alert.success('Successfully removed timeclock');
+      });
+    });
+  };
 
   const extractAllMySqlData = (start: Date, end: Date) => {
     setLoading(true);
@@ -73,6 +83,7 @@ const ListContainer = (props: FinalProps) => {
     totalCount,
     timeclocks: list,
     loading: timeclocksMainQuery.loading || loading,
+    removeTimeclock,
     extractAllMySqlData
   };
   showSideBar(true);
@@ -94,6 +105,15 @@ export default withProps<Props>(
       {
         name: 'extractAllMySqlDataMutation'
       }
-    )
+    ),
+    graphql<Props, TimeClockMutationResponse>(gql(mutations.timeclockRemove), {
+      name: 'timeclockRemove',
+      options: ({ timeclockId }) => ({
+        variables: {
+          _id: timeclockId
+        },
+        refetchQueries: ['listTimeclocksQuery']
+      })
+    })
   )(ListContainer)
 );

@@ -156,7 +156,7 @@ export type IMovementType = {
 export type IMovementItem = {
   _id?: string;
   assetId: string;
-  assetName?: string;
+  assetDetail?: IAsset;
   branchId?: string;
   departmentId?: string;
   teamMemberId?: string;

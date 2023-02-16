@@ -19,6 +19,8 @@ const commonDealParams = `
   $noSkipArchive: Boolean
   $assignedUserIds: [String],
   $productIds: [String],
+  $search: String
+  $number: String
 `;
 
 const commonDealParamDefs = `
@@ -34,6 +36,8 @@ const commonDealParamDefs = `
   noSkipArchive: $noSkipArchive
   assignedUserIds: $assignedUserIds,
   productIds: $productIds,
+  search: $search,
+  number: $number,
 `;
 
 const commonOrderParams = `
@@ -41,6 +45,8 @@ const commonOrderParams = `
   $perPage: Int,
   $sortField: String,
   $sortDirection: Int,
+  $posToken: String,
+  $search: String,
   $paidStartDate: Date
   $paidEndDate: Date
   $createdStartDate: Date
@@ -52,36 +58,12 @@ const commonOrderParamDefs = `
   perPage: $perPage,
   sortField: $sortField
   sortDirection: $sortDirection
+  posToken: $posToken
+  search: $search
   createdStartDate: $createdStartDate
   createdEndDate: $createdEndDate
   paidStartDate: $paidStartDate
   paidEndDate: $paidEndDate
-`;
-
-const commonProductParams = `
-  $type: String,
-  $categoryId: String,
-  $searchValue: String,
-  $tag: String,
-  $page: Int,
-  $perPage: Int,
-  $ids: [String],
-  $excludeIds: Boolean,
-  $pipelineId: String,
-  $boardId: String
-`;
-
-const commonProductParamsDefs = `
-  type: $type,
-  categoryId: $categoryId,
-  searchValue: $searchValue,
-  tag: $tag,
-  page: $page,
-  perPage: $perPage,
-  ids: $ids,
-  excludeIds: $excludeIds,
-  pipelineId: $pipelineId,
-  boardId: $boardId
 `;
 
 const checkSyncDeals = `

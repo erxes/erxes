@@ -93,14 +93,17 @@ class DetailLeftSidebar extends React.Component<Props, State> {
     const { filterParams } = this.state;
     const value = (e.currentTarget as HTMLInputElement).value;
 
+    const filters: IQueryParams = {
+      ...filterParams,
+      type: value
+    };
+
+    delete filters.jobReferId;
+    delete filters.productIds;
+    delete filters.productCategoryId;
+
     this.setState({
-      filterParams: {
-        ...filterParams,
-        jobReferId: '',
-        productIds: '',
-        productCategoryId: '',
-        type: value
-      }
+      filterParams: filters
     });
   };
 
@@ -122,24 +125,45 @@ class DetailLeftSidebar extends React.Component<Props, State> {
       return '';
     }
 
-    if (['end', 'job'].includes(filterParams.type)) {
+    if (filterParams.type === 'job') {
       return (
-        <>
-          <FormGroup>
-            <ControlLabel>Job Refer</ControlLabel>
-            <SelectJobRefer
-              label="Choose jobRefer"
-              name="jobReferId"
-              initialValue={filterParams.jobReferId || ''}
-              customOption={{
-                value: '',
-                label: '...Clear jobRefer filter'
-              }}
-              onSelect={jobReferId => this.setFilter('jobReferId', jobReferId)}
-              multi={false}
-            />
-          </FormGroup>
-        </>
+        <FormGroup>
+          <ControlLabel>Job Refer</ControlLabel>
+          <SelectJobRefer
+            key={'JobReferJob'}
+            label="Choose jobRefer"
+            name="jobReferId"
+            initialValue={filterParams.jobReferId || ''}
+            customOption={{
+              value: '',
+              label: '...Clear jobRefer filter'
+            }}
+            onSelect={jobReferId => this.setFilter('jobReferId', jobReferId)}
+            filterParams={{ types: ['job'] }}
+            multi={false}
+          />
+        </FormGroup>
+      );
+    }
+
+    if (filterParams.type === 'end') {
+      return (
+        <FormGroup>
+          <ControlLabel>Job Refer</ControlLabel>
+          <SelectJobRefer
+            key={'JobReferEnd'}
+            label="Choose jobRefer"
+            name="jobReferId"
+            initialValue={filterParams.jobReferId || ''}
+            customOption={{
+              value: '',
+              label: '...Clear jobRefer filter'
+            }}
+            onSelect={jobReferId => this.setFilter('jobReferId', jobReferId)}
+            filterParams={{ types: ['end'] }}
+            multi={false}
+          />
+        </FormGroup>
       );
     }
 
