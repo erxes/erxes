@@ -9,20 +9,22 @@ import PostsList from '../../components/posts/PostsList';
 import React from 'react';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import queryString from 'query-string';
 import { useQuery } from 'react-apollo';
 import { useSearchParam } from '../../hooks';
 
-type FinalProps = RemoveMutationResponse;
+type Props = {
+  queryParams: any;
+  history: any;
+};
 
-function List({ removeMutation }: FinalProps) {
+type FinalProps = Props & RemoveMutationResponse;
+
+function List({ removeMutation, queryParams, history }: FinalProps) {
   const [categoryId] = useSearchParam('categoryId');
   const [state] = useSearchParam('state');
   const [categoryIncludeDescendants] = useSearchParam(
     'categoryIncludeDescendants'
   );
-
-  const queryParams = queryString.parse(location.search);
 
   const [categoryApprovalState] = useSearchParam('categoryApprovalState');
   const [strLimit] = useSearchParam('limit');
@@ -70,13 +72,21 @@ function List({ removeMutation }: FinalProps) {
       });
   };
 
+  const posts = postQuery.data.forumPosts || ([] as IPost[]);
+  let filteredPosts;
+
+  if (queryParams.search) {
+    filteredPosts = posts.filter(p => p.title.includes(queryParams.search));
+  }
+
   const content = props => {
     return (
       <PostsList
         {...props}
         queryParams={queryParams}
+        history={history}
         remove={remove}
-        posts={postQuery.data.forumPosts || ([] as IPost[])}
+        posts={queryParams.search ? filteredPosts : posts}
       />
     );
   };

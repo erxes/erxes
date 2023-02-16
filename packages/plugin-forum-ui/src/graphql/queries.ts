@@ -13,6 +13,7 @@ const categoriesAll = `
       parentId
 
       parent {
+        _id
         name
       }
     }
@@ -486,8 +487,8 @@ query ForumQuizzes($limit: Int, $offset: Int, $sort: JSON) {
 `;
 
 const quizDetail = `
-query ForumQuiz($id: ID!) {
-  forumQuiz(_id: $id) {
+query ForumQuiz($_id: ID!) {
+  forumQuiz(_id: $_id) {
     _id
     postId
     companyId

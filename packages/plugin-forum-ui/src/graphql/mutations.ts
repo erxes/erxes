@@ -497,8 +497,8 @@ mutation ForumQuizQuestionCreate(
 `;
 
 const setQuizState = `
-mutation ForumQuizSetState($id: ID!, $state: ForumQuizState!) {
-  forumQuizSetState(_id: $id, state: $state)
+mutation ForumQuizSetState($_id: ID!, $state: ForumQuizState!) {
+  forumQuizSetState(_id: $_id, state: $state)
 }
 `;
 

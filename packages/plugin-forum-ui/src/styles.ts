@@ -170,3 +170,22 @@ export const ModalFooter = styled.div`
     width: fit-content;
   }
 `;
+
+export const MarginAuto = styled.div`
+  display: flex;
+  margin: auto;
+`;
+
+export const ChoiceList = styled.div`
+  display: flex;
+  padding: ${dimensions.unitSpacing}px;
+  border-bottom: 1px solid ${colors.borderPrimary};
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background-color: ${colors.bgActive};
+  }
+`;

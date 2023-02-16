@@ -160,6 +160,8 @@ export interface IQuiz {
   company?: {
     _id?: string;
     primaryName?: string;
+    primaryEmail?: string;
+    primaryPhone?: string;
   };
   post?: {
     _id?: string;
@@ -174,6 +176,16 @@ export interface IQuiz {
     };
   };
   tagIds?: string[];
+  state?: string;
+  isLocked?: string;
+  categoryId?: string;
+  companyId?: string;
+  postId?: string;
+  questions?: [
+    {
+      _id?: string;
+    }
+  ];
 }
 
 export interface ICompany {
@@ -187,6 +199,26 @@ export interface IPollOption {
   title: string;
   order: number;
   isNew?: boolean;
+}
+
+export interface IQuestion {
+  _id?: string;
+  text?: string | null;
+  imageUrl?: string | null;
+  isMultipleChoice?: boolean;
+  listOrder?: number;
+}
+
+export interface IChoiceEditable {
+  imageUrl?: string;
+  isCorrect: boolean;
+  listOrder: number;
+  text?: string;
+}
+
+export interface IChoice extends IChoiceEditable {
+  _id: string;
+  questionId: string;
 }
 
 /* queries */

@@ -13,16 +13,27 @@ import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import queryString from 'query-string';
 import { useQuery } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
+import { IPage } from '../../types';
+
+type Props = {
+  queryParams: any;
+  history: any;
+};
 
 type FinalProps = {
   pagesQuery: PagesQueryResponse;
-} & RemoveMutationResponse &
+} & Props &
+  RemoveMutationResponse &
   IRouterProps;
 
-function PagesList({ history, removeMutation, pagesQuery }: FinalProps) {
+function PagesList({
+  history,
+  removeMutation,
+  pagesQuery,
+  queryParams
+}: FinalProps) {
   const { data, loading, error } = useQuery(gql(queries.pages), {
     fetchPolicy: 'network-only',
     variables: {
@@ -40,8 +51,6 @@ function PagesList({ history, removeMutation, pagesQuery }: FinalProps) {
   if (error) {
     Alert.error(error.message);
   }
-
-  const queryParams = queryString.parse(location.search);
 
   const remove = pageId => {
     confirm('Are you sure?')
@@ -81,13 +90,20 @@ function PagesList({ history, removeMutation, pagesQuery }: FinalProps) {
     );
   };
 
+  const pages = data.forumPages || ([] as IPage[]);
+  let filteredPages;
+
+  if (queryParams.search) {
+    filteredPages = pages.filter(p => p.title.includes(queryParams.search));
+  }
+
   const content = props => {
     return (
       <PageList
         {...props}
         queryParams={queryParams}
         renderButton={renderButton}
-        pages={data.forumPages}
+        pages={queryParams.search ? filteredPages : pages}
         history={history}
         remove={remove}
       />
