@@ -22,7 +22,6 @@ export default {
       resolvers
     };
   },
-  hasSubscriptions: true,
   segment: {},
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
