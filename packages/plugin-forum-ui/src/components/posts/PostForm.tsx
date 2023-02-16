@@ -14,6 +14,7 @@ import PollOptions from './PollOptions';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import dayjs from 'dayjs';
+import Uploader from '@erxes/ui/src/components/Uploader';
 
 type Props = {
   post?: IPost;
@@ -32,6 +33,8 @@ type State = {
   multipleChoice: boolean;
   hasEndDate: boolean;
   endDate: any;
+  thumbnail: any;
+  createdAt: any;
 };
 
 class PostForm extends React.Component<Props, State> {
@@ -48,7 +51,9 @@ class PostForm extends React.Component<Props, State> {
       pollOptions: post.pollOptions || [],
       multipleChoice: post.isPollMultiChoice || false,
       hasEndDate: post.pollEndDate ? true : false,
-      endDate: post.pollEndDate || null
+      endDate: post.pollEndDate || null,
+      createdAt: post.createdAt || new Date(),
+      thumbnail: null
     };
   }
 
@@ -87,7 +92,8 @@ class PostForm extends React.Component<Props, State> {
       tagIds: this.state.selectedTags,
       pollEndDate: this.state.endDate,
       isPollMultiChoice: this.state.multipleChoice,
-      pollOptions: optionsCleaned
+      pollOptions: optionsCleaned,
+      createdAt: this.state.createdAt
     };
   };
 
@@ -113,9 +119,13 @@ class PostForm extends React.Component<Props, State> {
     );
   };
 
-  onChangeRangeFilter = date => {
+  onChangeRangeFilter = (date, key: string) => {
     const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
-    this.setState({ endDate: formattedDate });
+    this.setState({ ...this.state, [key]: formattedDate });
+  };
+
+  onChangeThumbnail = attachment => {
+    this.setState({ thumbnail: attachment });
   };
 
   renderContent = (formProps: IFormProps) => {
@@ -164,12 +174,36 @@ class PostForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__('Thumbnail')}</ControlLabel>
+          <ControlLabel>{__('Thumbnail URL')}</ControlLabel>
           <FormControl
             {...formProps}
             name="thumbnail"
             defaultValue={object.thumbnail}
           />
+        </FormGroup>
+
+        <FormGroup>
+          <FlexContent>
+            <FlexItem>
+              <ControlLabel>{__('Thumbnail')}</ControlLabel>
+              <Uploader
+                defaultFileList={[]}
+                onChange={this.onChangeThumbnail}
+                single={true}
+              />
+            </FlexItem>
+            <FlexItem>
+              <ControlLabel>{__('Created At')}</ControlLabel>
+              <DateControl
+                value={this.state.createdAt}
+                required={false}
+                name="createdAt"
+                onChange={date => this.onChangeRangeFilter(date, 'createdAt')}
+                placeholder={'End date'}
+                dateFormat={'YYYY-MM-DD'}
+              />
+            </FlexItem>
+          </FlexContent>
         </FormGroup>
 
         <FormGroup>
@@ -245,7 +279,7 @@ class PostForm extends React.Component<Props, State> {
                   value={this.state.endDate}
                   required={false}
                   name="endDate"
-                  onChange={date => this.onChangeRangeFilter(date)}
+                  onChange={date => this.onChangeRangeFilter(date, 'endDate')}
                   placeholder={'End date'}
                   dateFormat={'YYYY-MM-DD'}
                 />

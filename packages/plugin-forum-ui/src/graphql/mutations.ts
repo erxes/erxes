@@ -108,6 +108,7 @@ const createPost = `
     $pollEndDate: Date
     $pollOptions: [ForumPollOptionInput!]
     $isPollMultiChoice: Boolean
+    $createdAt: Date
   ) {
     forumCreatePost(
       categoryId: $categoryId
@@ -118,6 +119,7 @@ const createPost = `
       pollEndDate: $pollEndDate
       pollOptions: $pollOptions
       isPollMultiChoice: $isPollMultiChoice
+      createdAt: $createdAt
     ) {
       _id
     }
@@ -136,6 +138,7 @@ const editPost = `
     $pollEndDate: Date
     $pollOptions: [ForumPollOptionInput!]
     $isPollMultiChoice: Boolean
+    $createdAt: Date
   ) {
     forumPatchPost(
       _id: $_id
@@ -148,6 +151,7 @@ const editPost = `
       pollEndDate: $pollEndDate
       pollOptions: $pollOptions
       isPollMultiChoice: $isPollMultiChoice
+      createdAt: $createdAt
     ) {
       _id
     }
