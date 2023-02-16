@@ -308,6 +308,37 @@ const conversationMutations = {
 
     // do not send internal message to third service integrations
     if (doc.internal) {
+      if (integration.kind === 'facebook-messenger') {
+        const serviceName = integration.kind.split('-')[0];
+        const serviceRunning = await isServiceRunning(serviceName);
+
+        if (serviceRunning && integration.kind === 'facebook-messenger') {
+          const payload = {
+            integrationId: integration._id,
+            conversationId: conversation._id,
+            content: doc.content,
+            internal: doc.internal,
+            attachments: doc.attachments || [],
+            extraInfo: doc.extraInfo,
+            userId: user._id
+          };
+
+          const response = await sendConversationToServices(
+            subdomain,
+            integration,
+            serviceName,
+            payload
+          );
+
+          // if the service runs separately & returns data, then don't save message inside inbox
+          if (response && response.data) {
+            publishMessage(models, response.data);
+
+            return response.data;
+          }
+        }
+      }
+
       const messageObj = await models.ConversationMessages.addMessage(
         doc,
         user._id
@@ -356,6 +387,7 @@ const conversationMutations = {
         integrationId: integration._id,
         conversationId: conversation._id,
         content: doc.content,
+        internal: doc.internal,
         attachments: doc.attachments || [],
         extraInfo: doc.extraInfo,
         userId: user._id
