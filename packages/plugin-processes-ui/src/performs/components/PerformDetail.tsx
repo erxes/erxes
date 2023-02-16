@@ -95,8 +95,8 @@ class PerformDetail extends React.Component<Props, State> {
       return (
         <>
           <SelectSeries
-            label={'kiosk'}
-            name="kioskExcludeProductIds"
+            label={'Series'}
+            name="seriesReader"
             initialValue={productData.series}
             filterParams={{ productId: productData.productId }}
             onSelect={onChangeSeries}

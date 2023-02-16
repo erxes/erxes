@@ -181,19 +181,21 @@ const performQueries = {
       productId,
       ids,
       excludeIds,
+      selfSeries,
       ...paginationArgs
     }: {
-      search: string;
-      productId: string;
-      ids: string[];
-      excludeIds: boolean;
-      page: number;
-      perPage: number;
+      search?: string;
+      selfSeries?: string;
+      productId?: string;
+      ids?: string[];
+      excludeIds?: boolean;
+      page?: number;
+      perPage?: number;
     },
     { models }: IContext
   ) {
     const filter: any = {
-      $and: [{ series: { $nin: ['', undefined, null, 0] } }]
+      $and: [{ series: { $nin: ['', undefined, null, 0, selfSeries] } }]
     };
 
     if (ids && ids.length > 0) {
@@ -221,10 +223,16 @@ const performQueries = {
       { ...paginationArgs }
     );
 
-    return performs.map(p => ({
-      _id: p.series,
-      series: p.series,
-      performId: p._id
+    const series = performs.map(p => p.series);
+
+    let notPerformSeries: string[] = [];
+    if (ids && ids.length && !excludeIds) {
+      notPerformSeries = ids.filter(id => !series.includes(id));
+    }
+
+    return series.concat(notPerformSeries).map(ser => ({
+      _id: ser,
+      series: ser
     }));
   }
 };
