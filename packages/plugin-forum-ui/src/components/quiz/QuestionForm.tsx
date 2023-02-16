@@ -29,8 +29,7 @@ const QuizQuestionForm: React.FC<Props> = ({
   choice,
   questionId
 }) => {
-  const [image, setImage] = React.useState({} as any);
-  const [imageUrl, setImageUrl] = React.useState(question?.imageUrl || '');
+  const [image, setImage] = React.useState({ url: question?.imageUrl } as any);
   const [isMultipleChoice, setIsMultipleChoice] = React.useState(
     question?.isMultipleChoice || false
   );
@@ -55,7 +54,7 @@ const QuizQuestionForm: React.FC<Props> = ({
     return {
       _id: finalValues._id,
       text: finalValues.text,
-      imageUrl,
+      imageUrl: image.url,
       isMultipleChoice,
       listOrder: parseInt(finalValues.listOrder, 10),
       quizId,
@@ -94,15 +93,8 @@ const QuizQuestionForm: React.FC<Props> = ({
             defaultFileList={[]}
             onChange={onChangeAttachment}
             single={true}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Image Url</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="imageUrl"
-            defaultValue={object.imageUrl || ''}
+            text="Upload an image"
+            icon="upload-6"
           />
         </FormGroup>
 

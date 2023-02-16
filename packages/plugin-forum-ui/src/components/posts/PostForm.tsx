@@ -5,7 +5,11 @@ import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import {
+  IAttachment,
+  IButtonMutateProps,
+  IFormProps
+} from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Button from '@erxes/ui/src/components/Button';
@@ -53,14 +57,13 @@ class PostForm extends React.Component<Props, State> {
       hasEndDate: post.pollEndDate ? true : false,
       endDate: post.pollEndDate || null,
       createdAt: post.createdAt || new Date(),
-      thumbnail: null
+      thumbnail: {} as IAttachment
     };
   }
 
   generateDoc = (values: {
     _id?: string;
     title: string;
-    thumbnail: string;
     categoryId?: string;
     description?: string;
   }) => {
@@ -86,7 +89,7 @@ class PostForm extends React.Component<Props, State> {
       _id: finalValues._id,
       title: finalValues.title,
       content: this.state.content,
-      thumbnail: finalValues.thumbnail,
+      thumbnail: this.state.thumbnail.url || '',
       categoryId: finalValues.categoryId,
       description: finalValues.description,
       tagIds: this.state.selectedTags,
@@ -174,15 +177,6 @@ class PostForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__('Thumbnail URL')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="thumbnail"
-            defaultValue={object.thumbnail}
-          />
-        </FormGroup>
-
-        <FormGroup>
           <FlexContent>
             <FlexItem>
               <ControlLabel>{__('Thumbnail')}</ControlLabel>
@@ -192,6 +186,7 @@ class PostForm extends React.Component<Props, State> {
                 single={true}
               />
             </FlexItem>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <FlexItem>
               <ControlLabel>{__('Created At')}</ControlLabel>
               <DateControl
