@@ -149,6 +149,7 @@ export const productCategorySchema = schemaHooksWrapper(
     name: field({ type: String, label: 'Name' }),
     code: field({ type: String, label: 'Code' }),
     description: field({ type: String, optional: true, label: 'Description' }),
+    meta: field({ type: String, optional: true, label: 'Meta' }),
     attachment: field({ type: attachmentSchema }),
     status: field({
       type: String,
