@@ -182,14 +182,10 @@ const configClientPortalQueries = {
     });
   },
 
-  async clientPortalTicket(
-    _root,
-    { _id }: { _id: string },
-    { subdomain }: IContext
-  ) {
+  clientPortalTicket(_root, { _id }: { _id: string }, { subdomain }: IContext) {
     return sendCardsMessage({
       subdomain,
-      action: 'tickets.find',
+      action: 'tickets.findOne',
       data: {
         _id
       },

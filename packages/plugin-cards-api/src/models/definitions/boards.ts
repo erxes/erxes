@@ -254,6 +254,18 @@ export const commonItemFieldsSchema = {
     optional: true,
     index: true,
     label: 'Tags'
+  }),
+  branchIds: field({
+    type: [String],
+    optional: true,
+    index: true,
+    label: 'Tags'
+  }),
+  departmentIds: field({
+    type: [String],
+    optional: true,
+    index: true,
+    label: 'Tags'
   })
 };
 
