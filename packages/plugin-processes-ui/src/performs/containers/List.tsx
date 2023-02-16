@@ -1,15 +1,16 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Bulk from '@erxes/ui/src/components/Bulk';
-import { router, withProps } from '@erxes/ui/src/utils';
+import { Alert, router, withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import List from '../components/PerformList';
-import { queries as performQueries } from '../../overallWork/graphql';
+import List from '../components/List';
+import { mutations, queries } from '../graphql';
 import {
   PerformsQueryResponse,
-  PerformsCountQueryResponse
-} from '../../overallWork/types';
+  PerformsCountQueryResponse,
+  PerformRemoveMutationResponse
+} from '../types';
 import { IRouterProps } from '@erxes/ui/src/types';
 
 type Props = {
@@ -20,7 +21,8 @@ type Props = {
 type FinalProps = {
   performsQuery: PerformsQueryResponse;
   performsTotalCountQuery: PerformsCountQueryResponse;
-} & Props;
+} & Props &
+  PerformRemoveMutationResponse;
 
 class WorkListContainer extends React.Component<FinalProps> {
   constructor(props) {
@@ -28,7 +30,12 @@ class WorkListContainer extends React.Component<FinalProps> {
   }
 
   render() {
-    const { performsQuery, performsTotalCountQuery, queryParams } = this.props;
+    const {
+      performsQuery,
+      performsTotalCountQuery,
+      queryParams,
+      performRemove
+    } = this.props;
 
     if (performsQuery.loading || performsTotalCountQuery.loading) {
       return false;
@@ -37,11 +44,24 @@ class WorkListContainer extends React.Component<FinalProps> {
     const performs = performsQuery.performs || [];
     const performsCount = performsTotalCountQuery.performsCount || 0;
 
+    const removePerform = (_id: string) => {
+      performRemove({
+        variables: { _id }
+      })
+        .then(() => {
+          Alert.success('You successfully deleted a performance');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
     const updatedProps = {
       ...this.props,
       queryParams,
       performs,
       performsCount,
+      removePerform,
       loading: performsQuery.loading
     };
 
@@ -80,21 +100,27 @@ const generateParams = ({ queryParams }) => ({
 
 export default withProps<Props>(
   compose(
-    graphql<Props, PerformsQueryResponse, {}>(gql(performQueries.performs), {
+    graphql<Props, PerformsQueryResponse, {}>(gql(queries.performs), {
       name: 'performsQuery',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<Props, PerformsCountQueryResponse, {}>(
-      gql(performQueries.performsCount),
+    graphql<Props, PerformsCountQueryResponse, {}>(gql(queries.performsCount), {
+      name: 'performsTotalCountQuery',
+      options: ({ queryParams }) => ({
+        variables: generateParams({ queryParams }),
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<Props, PerformRemoveMutationResponse, { performId: string }>(
+      gql(mutations.performRemove),
       {
-        name: 'performsTotalCountQuery',
-        options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
+        name: 'performRemove',
+        options: {
+          refetchQueries: ['performs', 'overallWorkDetail', 'performsCount']
+        }
       }
     )
   )(WorkListContainer)

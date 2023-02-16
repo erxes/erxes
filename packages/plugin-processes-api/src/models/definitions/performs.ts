@@ -24,6 +24,7 @@ export interface IPerform {
   resultProducts: IProductsData[];
   inProducts: IProductsData[];
   outProducts: IProductsData[];
+  series?: string;
 }
 
 export interface IPerformDocument extends IPerform, Document {
@@ -96,7 +97,13 @@ export const performSchema = schemaHooksWrapper(
       default: new Date(),
       label: 'Modified date'
     }),
-    modifiedBy: field({ type: String, label: 'Modified User' })
+    modifiedBy: field({ type: String, label: 'Modified User' }),
+
+    series: field({
+      type: String,
+      label: 'series',
+      unique: true
+    })
   }),
   'erxes_performs'
 );

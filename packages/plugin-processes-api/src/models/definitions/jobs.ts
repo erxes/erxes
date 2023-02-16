@@ -43,6 +43,7 @@ export interface IProductsData {
   quantity: number;
   amount?: number;
   uomId: string;
+  series?: string[];
 
   product?: IProduct;
   uom?: IUom;
@@ -111,7 +112,8 @@ export const productsDataSchema = new Schema({
   uomId: field({ type: String, label: 'UOM' }),
   proportion: field({ type: Number, optional: true }),
   branchId: field({ type: String, optional: true, label: 'Branch' }),
-  departmentId: field({ type: String, optional: true, label: 'Department' })
+  departmentId: field({ type: String, optional: true, label: 'Department' }),
+  series: field({ type: [String], optional: true, label: 'Series' })
 });
 
 export const jobReferSchema = schemaHooksWrapper(

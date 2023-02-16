@@ -13,7 +13,8 @@ import {
   createScheduleShiftsByUserIds,
   findBranches,
   findBranchUsers,
-  findDepartmentUsers
+  findDepartmentUsers,
+  findUser
 } from './utils';
 import dayjs = require('dayjs');
 import { connectAndQueryFromMsSql } from '../../utils';
@@ -58,8 +59,13 @@ const timeclockMutations = {
 
     let insideCoordinate = false;
     let getBranchName;
+
+    const getUserId = userId || user._id;
+
     const EARTH_RADIUS = 6378.14;
-    const branches = await findBranches(subdomain, user._id);
+
+    const userInfo = await findUser(subdomain, getUserId);
+    const branches = await findBranches(subdomain, userInfo.branchIds);
 
     for (const branch of branches) {
       // convert into radians
@@ -124,8 +130,12 @@ const timeclockMutations = {
 
     let insideCoordinate = false;
 
+    const getUserId = userId || user._id;
+
     const EARTH_RADIUS = 6378.14;
-    const branches = await findBranches(subdomain, user._id);
+
+    const userInfo = await findUser(subdomain, getUserId);
+    const branches = await findBranches(subdomain, userInfo.branchIds);
 
     for (const branch of branches) {
       // convert into radians
