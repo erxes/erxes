@@ -23,8 +23,6 @@ import {
 } from './models/Products';
 import { IPutResponseDocument } from './models/definitions/putResponses';
 import { IPutResponseModel, loadPutResponseClass } from './models/PutResponses';
-import { IQpayInvoiceDocument } from './models/definitions/qpayInvoices';
-import { IQpayInvoiceModel, loadQPayInvoiceClass } from './models/QPayInvoices';
 
 export interface IModels {
   Configs: IConfigModel;
@@ -33,7 +31,6 @@ export interface IModels {
   Products: IProductModel;
   ProductCategories: IProductCategoryModel;
   PutResponses: IPutResponseModel;
-  QPayInvoices: IQpayInvoiceModel;
   PosUsers: IPosUserModel;
   PosSlots: IPosSlotModel;
 }
@@ -80,10 +77,6 @@ export const loadClasses = (
   models.PutResponses = db.model<IPutResponseDocument, IPutResponseModel>(
     'posclient_put_responses',
     loadPutResponseClass(models)
-  );
-  models.QPayInvoices = db.model<IQpayInvoiceDocument, IQpayInvoiceModel>(
-    'posclient_qpay_invoices',
-    loadQPayInvoiceClass(models)
   );
   models.PosSlots = db.model<IPosSlotDocument, IPosSlotModel>(
     'posclient_slots',

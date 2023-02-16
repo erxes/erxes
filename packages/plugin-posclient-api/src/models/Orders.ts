@@ -36,10 +36,12 @@ export const loadOrderClass = models => {
 
     public static getPaidAmount(order: IOrderDocument) {
       return (
-        (order.cardAmount || 0) +
         (order.cashAmount || 0) +
-        (order.receivableAmount || 0) +
-        (order.mobileAmount || 0)
+        (order.mobileAmount || 0) +
+        (order.paidAmounts || []).reduce(
+          (sum, i) => Number(sum) + Number(i.amount),
+          0
+        )
       );
     }
   }

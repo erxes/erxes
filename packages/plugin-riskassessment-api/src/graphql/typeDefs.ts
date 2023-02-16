@@ -1,6 +1,9 @@
 import { gql } from 'apollo-server-express';
 
-import { mutations as formSubmissionsMutations } from './schema/formSubmissions';
+import {
+  types as formSubmissionsType,
+  mutations as formSubmissionsMutations
+} from './schema/formSubmissions';
 import {
   mutations as RiskAssessmentMutations,
   queries as RiskAssessmentQueries,
@@ -32,6 +35,7 @@ const typeDefs = async _serviceDiscovery => {
     ${RiskAssessmentCategoryTypes}
     ${OpearionTypes}
     ${RiskAsessmentTypes}
+    ${formSubmissionsType}
     
     extend type Query {
       ${RiskAssessmentQueries}

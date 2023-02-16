@@ -22,7 +22,7 @@ const formSubmissionQueries = {
 
 checkPermission(
   formSubmissionQueries,
-  'formSubmissionQueries',
+  'riskFormSubmitHistory',
   'showRiskAssessment'
 );
 

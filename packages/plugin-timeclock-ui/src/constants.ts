@@ -10,4 +10,6 @@ const menuTimeClock = (searchFilter: string) => {
   ];
 };
 const dateFormat = 'MM/DD/YYYY';
-export { menuTimeClock, dateFormat };
+const timeFormat = 'HH:mm';
+
+export { menuTimeClock, dateFormat, timeFormat };

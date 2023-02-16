@@ -224,21 +224,41 @@ class Form extends React.Component<Props, State> {
 
       return (
         <>
-          <FormGroup>
-            <ControlLabel>Job Refer</ControlLabel>
-            <SelectJobRefer
-              label="Choose jobRefer"
-              name="jobReferId"
-              initialValue={workInfo.typeId || ''}
-              customOption={{
-                value: '',
-                label: '...Clear jobRefer filter'
-              }}
-              onSelect={onSelectJobRefer}
-              multi={false}
-              filterParams={{ types: [workInfo.type] }}
-            />
-          </FormGroup>
+          {(workInfo.type === 'end' && (
+            <FormGroup>
+              <ControlLabel>Job Refer</ControlLabel>
+              <SelectJobRefer
+                key={'jobReferEnds'}
+                label="Choose jobRefer"
+                name="jobReferId"
+                initialValue={workInfo.typeId || ''}
+                customOption={{
+                  value: '',
+                  label: '...Clear jobRefer filter'
+                }}
+                onSelect={onSelectJobRefer}
+                filterParams={{ types: ['end'] }}
+                multi={false}
+              />
+            </FormGroup>
+          )) || (
+            <FormGroup>
+              <ControlLabel>Job Refer</ControlLabel>
+              <SelectJobRefer
+                key={'jobReferJobs'}
+                label="Choose jobRefer"
+                name="jobReferId"
+                initialValue={workInfo.typeId || ''}
+                customOption={{
+                  value: '',
+                  label: '...Clear jobRefer filter'
+                }}
+                onSelect={onSelectJobRefer}
+                filterParams={{ types: ['job'] }}
+                multi={false}
+              />
+            </FormGroup>
+          )}
         </>
       );
     }

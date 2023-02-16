@@ -43,6 +43,7 @@ export type RiskAssessmentSubmitFormQueryResponse = {
 type IndicatorFormType = {
   fields: IField[];
   customScoreField: { label: string; percentWeight: number };
+  withDescription: boolean;
   submittedFields: any[];
 };
 

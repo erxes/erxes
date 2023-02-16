@@ -85,11 +85,18 @@ class Orders extends React.Component<IProps, {}> {
       </BarItems>
     );
 
+    const staticKeys = ['count', 'totalAmount', 'cashAmount', 'mobileAmount'];
+    const otherPayTitles = (Object.keys(summary) || [])
+      .filter(a => !['_id'].includes(a))
+      .filter(a => !staticKeys.includes(a))
+      .sort();
+
     const header = (
       <HeaderDescription
         icon="/images/actions/26.svg"
-        title={__('Summary')}
+        title=""
         summary={summary}
+        staticKeys={staticKeys}
         actionBar={actionBarRight}
       />
     );
@@ -113,22 +120,13 @@ class Orders extends React.Component<IProps, {}> {
               </th>
               <th>
                 <SortHandler
-                  sortField={'receivableAmount'}
-                  label={__('Receivable Amount')}
-                />
-              </th>
-              <th>
-                <SortHandler
-                  sortField={'cardAmount'}
-                  label={__('Card Amount')}
-                />
-              </th>
-              <th>
-                <SortHandler
                   sortField={'mobileAmount'}
                   label={__('Mobile Amount')}
                 />
               </th>
+              {otherPayTitles.map(key => (
+                <th key={Math.random()}>{__(key)}</th>
+              ))}
               <th>
                 <SortHandler sortField={'totalAmount'} label={__('Amount')} />
               </th>
@@ -150,6 +148,7 @@ class Orders extends React.Component<IProps, {}> {
                 order={order}
                 key={order._id}
                 history={history}
+                otherPayTitles={otherPayTitles}
                 onSyncErkhet={onSyncErkhet}
                 onReturnBill={onReturnBill}
               />

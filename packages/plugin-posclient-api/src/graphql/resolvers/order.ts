@@ -30,13 +30,5 @@ export default {
     })
       .sort({ createdAt: -1 })
       .lean();
-  },
-  qpayInvoice(order: IOrderDocument, {}, { models }: IContext) {
-    return models.QPayInvoices.findOne({ senderInvoiceNo: order._id }).lean();
-  },
-  qpayInvoices(order: IOrderDocument, {}, { models }: IContext) {
-    return models.QPayInvoices.find({ senderInvoiceNo: order._id })
-      .sort({ createdAt: -1 })
-      .lean();
   }
 };
