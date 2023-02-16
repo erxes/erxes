@@ -7,13 +7,15 @@ import { articlesQuery } from '../graphql/queries';
 type Props = {
   searchValue?: any;
   topicId?: string;
+  categoryId?: string;
 };
 
 function ArticleListContainer(props: Props) {
   const { loading, data = {} as any } = useQuery(gql(articlesQuery), {
     variables: {
       topicId: props.topicId || '',
-      searchValue: props.searchValue || ''
+      searchValue: props.searchValue || '',
+      categoryIds: props.categoryId && [props.categoryId]
     }
   });
 

@@ -106,8 +106,8 @@ export const articleDetailQuery = `
 `;
 
 export const articlesQuery = `
-  query knowledgeBaseArticles($topicId: String, $searchValue: String) {
-    clientPortalKnowledgeBaseArticles(topicId: $topicId, searchValue: $searchValue) {
+  query knowledgeBaseArticles($topicId: String, $searchValue: String, $categoryIds: [String]) {
+    clientPortalKnowledgeBaseArticles(topicId: $topicId, searchValue: $searchValue, categoryIds: $categoryIds) {
       _id
       title
       summary

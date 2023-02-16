@@ -204,25 +204,33 @@ const configClientPortalQueries = {
     _root,
     {
       searchValue,
-      topicId
+      topicId,
+      categoryIds
     }: {
       searchValue?: string;
       topicId?: string;
+      categoryIds: string[];
     },
     { subdomain }: IContext
   ) {
     const selector: any = {};
 
-    selector.$and = [
-      {
-        topicId: topicId
-      },
-      {
-        title: searchValue
-      }
-    ];
+    if (searchValue && searchValue.trim() && topicId && topicId.trim()) {
+      selector.$and = [
+        {
+          topicId: topicId
+        },
+        {
+          title: searchValue
+        }
+      ];
+    }
 
-    return await sendKbMessage({
+    if (categoryIds && categoryIds.length > 0) {
+      selector.categoryId = { $in: categoryIds };
+    }
+
+    return sendKbMessage({
       subdomain,
       action: 'articles.find',
       data: {
