@@ -162,7 +162,10 @@ export const generateCommonFilters = async (
     hasStartAndCloseDate,
     stageChangedStartDate,
     stageChangedEndDate,
-    noSkipArchive
+    noSkipArchive,
+    number,
+    branchIds,
+    departmentIds
   } = args;
 
   const isListEmpty = value => {
@@ -184,6 +187,61 @@ export const generateCommonFilters = async (
     const notAssigned = isListEmpty(assignedUserIds);
 
     filter.assignedUserIds = notAssigned ? [] : contains(assignedUserIds);
+  }
+
+  if (branchIds) {
+    const branchOrders = (
+      await sendCoreMessage({
+        subdomain,
+        action: `branches.find`,
+        data: {
+          query: { _id: { $in: branchIds } }
+        },
+        isRPC: true,
+        defaultValue: []
+      })
+    ).map(item => item.order);
+
+    const ids = (
+      await sendCoreMessage({
+        subdomain,
+        action: `branches.find`,
+        data: {
+          query: { order: { $regex: branchOrders.join('|'), $options: 'i' } }
+        },
+        isRPC: true,
+        defaultValue: []
+      })
+    ).map(item => item._id);
+
+    filter.branchIds = { $in: ids };
+  }
+  if (departmentIds) {
+    const departmentOrders = (
+      await sendCoreMessage({
+        subdomain,
+        action: `departments.find`,
+        data: {
+          _id: { $in: departmentIds }
+        },
+        isRPC: true,
+        defaultValue: []
+      })
+    ).map(item => item.order);
+
+    const ids = (
+      await sendCoreMessage({
+        subdomain,
+        action: `departments.find`,
+        data: {
+          order: { $regex: departmentOrders.join('|'), $options: 'i' }
+        },
+        isRPC: true,
+        defaultValue: []
+      })
+    ).map(item => item._id);
+
+    filter.departmentIds = { $in: ids };
   }
 
   if (customerIds && type) {
@@ -353,6 +411,20 @@ export const generateCommonFilters = async (
         const userDepartmentIds = user?.departmentIds || [];
         const pipelineDepartmentIds = pipeline.departmentIds || [];
 
+        const otherDepartmentUsers = await sendCoreMessage({
+          subdomain,
+          action: 'users.find',
+          data: {
+            query: { departmentIds: { $in: userDepartmentIds } }
+          },
+          isRPC: true,
+          defaultValue: []
+        });
+
+        for (const departmentUser of otherDepartmentUsers) {
+          includeCheckUserIds = [...includeCheckUserIds, departmentUser._id];
+        }
+
         if (
           !!pipelineDepartmentIds.filter(departmentId =>
             userDepartmentIds.includes(departmentId)
@@ -406,6 +478,10 @@ export const generateCommonFilters = async (
   if (hasStartAndCloseDate) {
     filter.startDate = { $exists: true };
     filter.closeDate = { $exists: true };
+  }
+
+  if (number) {
+    filter.number = { $regex: `${number}`, $options: 'mui' };
   }
 
   return filter;
