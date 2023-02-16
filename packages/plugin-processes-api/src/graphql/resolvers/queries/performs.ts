@@ -172,6 +172,60 @@ const performQueries = {
 
   performDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Performs.getPerform(_id);
+  },
+
+  async series(
+    _root,
+    {
+      search,
+      productId,
+      ids,
+      excludeIds,
+      ...paginationArgs
+    }: {
+      search: string;
+      productId: string;
+      ids: string[];
+      excludeIds: boolean;
+      page: number;
+      perPage: number;
+    },
+    { models }: IContext
+  ) {
+    const filter: any = {
+      $and: [{ series: { $nin: ['', undefined, null, 0] } }]
+    };
+
+    if (ids && ids.length > 0) {
+      filter.$and.push({
+        series: { [excludeIds ? '$nin' : '$in']: ids }
+      });
+      if (!paginationArgs.page && !paginationArgs.perPage) {
+        paginationArgs.page = 1;
+        paginationArgs.perPage = 100;
+      }
+    }
+
+    if (productId) {
+      filter.$and.push({ ['outProducts.productId']: { $in: [productId] } });
+    }
+
+    if (search) {
+      filter.$and.push({ series: { $regex: new RegExp(search) } });
+    }
+
+    const performs = await paginate(
+      models.Performs.find(filter, { series: 1 })
+        .sort({ series: -1 })
+        .lean(),
+      { ...paginationArgs }
+    );
+
+    return performs.map(p => ({
+      _id: p.series,
+      series: p.series,
+      performId: p._id
+    }));
   }
 };
 
