@@ -78,7 +78,7 @@ class Row extends React.Component<Props> {
 
     return (
       <tr>
-        <td id="customersCheckBox" onClick={onClick}>
+        <td id="pagesCheckBox" onClick={onClick}>
           <FormControl
             checked={isChecked}
             componentClass="checkbox"

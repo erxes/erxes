@@ -67,13 +67,49 @@ const QuizQuestionForm: React.FC<Props> = ({
     setImage({ attachment });
   };
 
+  const checkboxOptions = props => {
+    if (type === 'choice') {
+      return (
+        <FormGroup>
+          <ControlLabel>Is correct</ControlLabel>
+          <FormControl
+            {...props}
+            name="isMultipleChoice"
+            className="toggle-message"
+            componentClass="checkbox"
+            checked={isCorrect}
+            onChange={() => {
+              setIsCorrect(!isCorrect);
+            }}
+          />
+        </FormGroup>
+      );
+    }
+
+    return (
+      <FormGroup>
+        <ControlLabel>Multiple Choice</ControlLabel>
+        <FormControl
+          {...props}
+          name="isMultipleChoice"
+          className="toggle-message"
+          componentClass="checkbox"
+          checked={isMultipleChoice}
+          onChange={() => {
+            setIsMultipleChoice(!isMultipleChoice);
+          }}
+        />
+      </FormGroup>
+    );
+  };
+
   const renderContent = (formProps: IFormProps) => {
     const { isSubmitted, values } = formProps;
 
-    let object = question || ({} as any);
+    let object = question || ({} as IQuestion);
 
     if (type === 'choice') {
-      object = choice || ({} as any);
+      object = choice || ({} as IChoice);
     }
 
     return (
@@ -98,35 +134,7 @@ const QuizQuestionForm: React.FC<Props> = ({
           />
         </FormGroup>
 
-        {type === 'choice' ? (
-          <FormGroup>
-            <ControlLabel>Is correct</ControlLabel>
-            <FormControl
-              {...formProps}
-              name="isMultipleChoice"
-              className="toggle-message"
-              componentClass="checkbox"
-              checked={isCorrect}
-              onChange={() => {
-                setIsCorrect(!isCorrect);
-              }}
-            />
-          </FormGroup>
-        ) : (
-          <FormGroup>
-            <ControlLabel>Multiple Choice</ControlLabel>
-            <FormControl
-              {...formProps}
-              name="isMultipleChoice"
-              className="toggle-message"
-              componentClass="checkbox"
-              checked={isMultipleChoice}
-              onChange={() => {
-                setIsMultipleChoice(!isMultipleChoice);
-              }}
-            />
-          </FormGroup>
-        )}
+        {checkboxOptions({ ...formProps })}
 
         <FormGroup>
           <ControlLabel>{__('List Order')}</ControlLabel>

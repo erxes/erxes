@@ -1,5 +1,5 @@
 import React from 'react';
-import { IQuiz, ICategory, ICompany } from '../../types';
+import { IQuiz, ICategory, ICompany, ITag } from '../../types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
@@ -18,13 +18,14 @@ import { MarginAuto } from '../../styles';
 
 type Props = {
   quiz?: IQuiz;
-  tags?: any;
+  tags?: ITag[];
   companies: ICompany[];
   closeModal: () => void;
   categories: ICategory[];
   refetch: any;
   changeState: (state: string, id?: string) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  onDelete?: (_id: string) => void;
 };
 
 type State = {
@@ -32,7 +33,7 @@ type State = {
   state: string;
 };
 
-class PageForm extends React.Component<Props, State> {
+class QuizForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -110,8 +111,65 @@ class PageForm extends React.Component<Props, State> {
     <QuestionForm {...props} quizId={this.props.quiz._id} />
   );
 
+  renderQuestionList = () => {
+    const { quiz, onDelete } = this.props;
+
+    if ((quiz.questions?.length || 0) > 0) {
+      return quiz.questions.map((q, i) => (
+        <QuestionList key={q._id} _id={q._id} index={i} onDelete={onDelete} />
+      ));
+    }
+
+    return 'No questions';
+  };
+
+  renderDetail = object => {
+    if (object._id) {
+      return (
+        <>
+          <FormGroup>
+            <ControlLabel>{__('State')}</ControlLabel>
+            <FormControl
+              componentClass="select"
+              name="state"
+              onChange={this.onStatusChange}
+              value={this.state.state}
+            >
+              {quizState.map(p => (
+                <option key={p.value} value={p.value}>
+                  {p.label}
+                </option>
+              ))}
+            </FormControl>
+          </FormGroup>
+          <FlexContent>
+            <FlexItem count={4}>
+              <h3>Questions</h3>
+            </FlexItem>
+            <MarginAuto>
+              <FlexItem count={1.05}>
+                <ModalTrigger
+                  trigger={
+                    <Button btnStyle="success" icon="plus-circle">
+                      Add Questions
+                    </Button>
+                  }
+                  content={this.renderQuestionForm}
+                  title="Add Qustions"
+                />
+              </FlexItem>
+            </MarginAuto>
+          </FlexContent>
+          {this.renderQuestionList()}
+        </>
+      );
+    }
+
+    return null;
+  };
+
   renderContent = (formProps: IFormProps) => {
-    const { quiz, renderButton, closeModal, refetch } = this.props;
+    const { quiz, renderButton, closeModal, onDelete } = this.props;
 
     const { isSubmitted, values } = formProps;
 
@@ -169,55 +227,7 @@ class PageForm extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        {object._id && (
-          <>
-            <FormGroup>
-              <ControlLabel>{__('State')}</ControlLabel>
-              <FormControl
-                componentClass="select"
-                name="state"
-                onChange={this.onStatusChange}
-                value={this.state.state}
-              >
-                {quizState.map(p => (
-                  <option key={p.value} value={p.value}>
-                    {p.label}
-                  </option>
-                ))}
-              </FormControl>
-            </FormGroup>
-            <FlexContent>
-              <FlexItem count={4}>
-                <h3>Questions</h3>
-              </FlexItem>
-              <MarginAuto>
-                <FlexItem count={1.05}>
-                  <ModalTrigger
-                    trigger={
-                      <Button btnStyle="success" icon="plus-circle">
-                        Add Questions
-                      </Button>
-                    }
-                    content={this.renderQuestionForm}
-                    title="Add Qustions"
-                  />
-                </FlexItem>
-              </MarginAuto>
-            </FlexContent>
-            {(quiz.questions?.length || 0) > 0 ? (
-              quiz.questions.map((q, i) => (
-                <QuestionList
-                  key={q._id}
-                  _id={q._id}
-                  index={i}
-                  quizRefetch={refetch}
-                />
-              ))
-            ) : (
-              <div>No questions</div>
-            )}
-          </>
-        )}
+        {this.renderDetail(object)}
 
         <ModalFooter>
           <Button
@@ -246,4 +256,4 @@ class PageForm extends React.Component<Props, State> {
   }
 }
 
-export default PageForm;
+export default QuizForm;

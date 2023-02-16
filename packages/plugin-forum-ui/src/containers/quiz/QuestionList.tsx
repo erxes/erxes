@@ -1,18 +1,18 @@
 import React from 'react';
 import gql from 'graphql-tag';
-import { useQuery, useMutation } from 'react-apollo';
-import { queries, mutations } from '../../graphql';
+import { useQuery } from 'react-apollo';
+import { queries } from '../../graphql';
 import List from '../../components/quiz/QuestionList';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { __, Alert, confirm } from '@erxes/ui/src/utils';
+import { __, Alert } from '@erxes/ui/src/utils';
 
 type Props = {
   _id?: string;
   index?: number;
-  quizRefetch?: () => any;
+  onDelete?: (_id: string) => void;
 };
 
-const QuestionList = ({ _id, index, quizRefetch }: Props) => {
+const QuestionList = ({ _id, index, onDelete }: Props) => {
   const { data, loading, error, refetch } = useQuery(
     gql(queries.quizQuestion),
     {
@@ -21,10 +21,6 @@ const QuestionList = ({ _id, index, quizRefetch }: Props) => {
       }
     }
   );
-
-  const [deleteQuestion] = useMutation(gql(mutations.deleteQuizQuestion), {
-    onCompleted: refetch
-  });
 
   if (loading) {
     return <Spinner objective={true} />;
@@ -35,22 +31,11 @@ const QuestionList = ({ _id, index, quizRefetch }: Props) => {
 
   const question = data.forumQuizQuestion;
 
-  const onDeleteQuestion = async () => {
-    confirm('Are you sure you want to delete this question?').then(() =>
-      deleteQuestion({
-        variables: {
-          id: _id
-        },
-        refetchQueries: ['ForumQuiz']
-      })
-    );
-  };
-
   return (
     <List
       quizId={_id}
       index={index}
-      onDeleteQuestion={onDeleteQuestion}
+      onDeleteQuestion={onDelete}
       question={question}
     />
   );

@@ -577,11 +577,17 @@ mutation ForumQuizChoiceCreate(
 `;
 
 const deleteQuizQuestion = `
-mutation ForumQuizQuestionDelete($id: ID!) {
-  forumQuizQuestionDelete(_id: $id) {
+mutation ForumQuizQuestionDelete($_id: ID!) {
+  forumQuizQuestionDelete(_id: $_id) {
     _id
   }
 }
+`;
+
+const featuredToggle = `
+  mutation ForumPostSetFeatured($id: ID!, $featured: Boolean!) {
+    forumPostSetFeatured(_id: $id, featured: $featured)
+  }
 `;
 
 export default {
@@ -622,5 +628,6 @@ export default {
   quizChoiceDelete,
   quizQuestionPatch,
   createChoice,
-  deleteQuizQuestion
+  deleteQuizQuestion,
+  featuredToggle
 };

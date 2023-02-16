@@ -8,7 +8,7 @@ import QuestionForm from '../../containers/quiz/QuestionForm';
 import { IChoice } from '../../types';
 import { __ } from '@erxes/ui/src/utils';
 import { FlexItem } from '@erxes/ui/src/layout/styles';
-import { MarginAuto, ChoiceList } from '../../styles';
+import { MarginAuto, ChoiceList, ChoiseTitle } from '../../styles';
 
 type Props = {
   index?: number;
@@ -25,9 +25,10 @@ const ChoiceDetail = ({ choice, index, onDelete, quizId }: Props) => {
   return (
     <ChoiceList>
       <FlexItem>
-        {choice.isCorrect ? ' ✓ ' : '   '}
-        {index != null && `${index + 1}. `}
-        {choice.text}
+        <ChoiseTitle isCorrect={choice.isCorrect}>
+          {index != null && `${index + 1}. `}
+          {choice.text}
+        </ChoiseTitle>
       </FlexItem>
       <MarginAuto>
         <FlexItem count={1.05}>

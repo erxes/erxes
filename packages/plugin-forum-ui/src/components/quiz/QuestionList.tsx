@@ -9,12 +9,13 @@ import { __ } from '@erxes/ui/src/utils';
 import QuestionForm from '../../containers/quiz/QuestionForm';
 import { StepBody, StepHeader, StepItem, MarginAuto } from '../../styles';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import { IQuestion } from '../../types';
 
 const QuestionList: React.FC<{
-  question?: any;
+  question?: IQuestion;
   index?: number;
   quizId: string;
-  onDeleteQuestion?: () => any;
+  onDeleteQuestion?: (_id: string) => void;
 }> = ({ question, index, onDeleteQuestion, quizId }) => {
   const renderQuestionForm = props => (
     <QuestionForm {...props} question={question} quizId={quizId} />
@@ -28,6 +29,16 @@ const QuestionList: React.FC<{
       quizId={quizId}
     />
   );
+
+  const renderChoises = () => {
+    if (question.choices?.length) {
+      return question.choices.map((c, i) => (
+        <Choice key={c._id} choice={c} index={i} quizId={quizId} />
+      ));
+    }
+
+    return 'No choices';
+  };
 
   return (
     <StepItem>
@@ -66,10 +77,10 @@ const QuestionList: React.FC<{
 
                 <Tip text={__('Delete')} placement="top">
                   <Button
-                    id="choiceDelete"
+                    id="questionDelete"
                     btnStyle="link"
                     icon="times-circle"
-                    onClick={onDeleteQuestion}
+                    onClick={() => onDeleteQuestion(quizId)}
                   />
                 </Tip>
               </ActionButtons>
@@ -78,13 +89,7 @@ const QuestionList: React.FC<{
         </FlexContent>
       </StepHeader>
 
-      <StepBody>
-        {question.choices?.length
-          ? question.choices.map((c, i) => (
-              <Choice key={c._id} choice={c} index={i} quizId={quizId} />
-            ))
-          : 'No choices'}
-      </StepBody>
+      <StepBody>{renderChoises()}</StepBody>
     </StepItem>
   );
 };

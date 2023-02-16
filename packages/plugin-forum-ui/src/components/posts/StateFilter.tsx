@@ -11,7 +11,7 @@ interface IProps extends IRouterProps {
   emptyText?: string;
 }
 
-function StatusFilter({ history, emptyText }: IProps) {
+function StateFilter({ history, emptyText }: IProps) {
   const data = (
     <SidebarList>
       {stateFilters.map((state, index) => {
@@ -57,4 +57,4 @@ function StatusFilter({ history, emptyText }: IProps) {
   );
 }
 
-export default withRouter<IProps>(StatusFilter);
+export default withRouter<IProps>(StateFilter);

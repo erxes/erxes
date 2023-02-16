@@ -151,10 +151,7 @@ class List extends React.Component<Props> {
             </th>
             <th>{__('Code')}</th>
             <th>
-              <SortHandler
-                sortField={'leadData.listOrder'}
-                label={__('List Order')}
-              />
+              <SortHandler sortField={'listOrder'} label={__('List Order')} />
             </th>
             <th>{__('Actions')}</th>
           </tr>

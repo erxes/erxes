@@ -189,3 +189,62 @@ export const ChoiceList = styled.div`
     background-color: ${colors.bgActive};
   }
 `;
+
+export const ChoiseTitle = styledTS<{ isCorrect?: boolean }>(styled.div)`
+  ${props =>
+    props.isCorrect &&
+    `
+    &:after {
+      content: '✓';
+      background-color: #3CCC38;
+      border-radius: 50%;
+      color: #fff;
+      height: 20px;
+      justify-content: center;
+      align-items: center;
+      width: 20px;
+      display: inline-flex;
+      margin-left: 10px;
+    }
+  `}
+`;
+
+export const List = styled.ul`
+  list-style: none;
+  padding: 0;
+
+  button {
+    margin-top: 10px;
+  }
+
+  li {
+    position: relative;
+    margin-bottom: 5px;
+    background-color: ${colors.colorWhite};
+    border: 1px solid ${colors.borderPrimary};
+    padding: 5px 10px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    border: none;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  input.editInput {
+    border: none;
+    outline: none;
+  }
+
+  input.editInput:focus {
+    outline: none;
+  }
+`;
+
+export const Actions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+`;

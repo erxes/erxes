@@ -13,7 +13,7 @@ interface IProps extends IRouterProps {
   categories: ICategory[];
 }
 
-function CountsByTag({ categories }: IProps) {
+function CategoryFilter({ categories }: IProps) {
   const onClick = () => {
     router.setParams(history, { categoryId: null });
   };
@@ -50,4 +50,4 @@ function CountsByTag({ categories }: IProps) {
   );
 }
 
-export default withRouter<IProps>(CountsByTag);
+export default withRouter<IProps>(CategoryFilter);

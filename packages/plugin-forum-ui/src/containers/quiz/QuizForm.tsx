@@ -6,7 +6,7 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IQuiz } from '../../types';
 import QuizForm from '../../components/quiz/QuizForm';
-import { Alert } from '@erxes/ui/src/utils';
+import { Alert, confirm } from '@erxes/ui/src/utils';
 import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
@@ -31,6 +31,8 @@ function QuizFormContainer({ closeModal, quiz }: Props) {
 
   const [mutSetState] = useMutation(gql(mutations.setQuizState));
 
+  const [deleteQuestion] = useMutation(gql(mutations.deleteQuizQuestion));
+
   const forumCategories = categoriesQuery.data?.forumCategories || [];
   const tags = tagsQuery.data?.tags || [];
   const companies = companiesQuery.data?.companies || [];
@@ -39,7 +41,7 @@ function QuizFormContainer({ closeModal, quiz }: Props) {
   const changeState = (state: string, _id?: string) => {
     mutSetState({
       variables: { _id, state },
-      refetchQueries: [{ query: gql(queries.quizzesList) }]
+      refetchQueries: [{ query: gql(queries.postRefetchAfterEdit) }]
     }).catch(error => {
       Alert.error(error.message);
     });
@@ -77,6 +79,17 @@ function QuizFormContainer({ closeModal, quiz }: Props) {
     );
   };
 
+  const onDeleteQuestion = async (_id: string) => {
+    confirm('Are you sure you want to delete this question?').then(() =>
+      deleteQuestion({
+        variables: {
+          _id
+        },
+        refetchQueries: ['ForumQuiz']
+      })
+    );
+  };
+
   return (
     <QuizForm
       quiz={detail}
@@ -87,6 +100,7 @@ function QuizFormContainer({ closeModal, quiz }: Props) {
       closeModal={closeModal}
       changeState={changeState}
       refetch={detailQuery.refetch}
+      onDelete={onDeleteQuestion}
     />
   );
 }

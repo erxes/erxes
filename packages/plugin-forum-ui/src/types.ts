@@ -32,6 +32,20 @@ export interface IPost {
     thumbnail: string;
     postsReqCrmApproval: boolean;
   };
+  tagIds?: string[];
+  isFeaturedByAdmin?: boolean;
+  isFeaturedByUser?: boolean;
+  pollOptions?: [
+    {
+      _id: string;
+      order: number;
+      title: string;
+      postId: string;
+      voteCount: number;
+    }
+  ];
+  isPollMultiChoice?: boolean;
+  pollEndDate?: string;
   categoryId: string;
   description?: string;
   content?: string;
@@ -207,6 +221,17 @@ export interface IQuestion {
   imageUrl?: string | null;
   isMultipleChoice?: boolean;
   listOrder?: number;
+  choices?: [
+    {
+      _id: string;
+      imageUrl?: string;
+      isCorrect: boolean;
+      questionId: string;
+      listOrder: number;
+      quizId: string;
+      text?: string;
+    }
+  ];
 }
 
 export interface IChoiceEditable {
@@ -219,6 +244,19 @@ export interface IChoiceEditable {
 export interface IChoice extends IChoiceEditable {
   _id: string;
   questionId: string;
+}
+
+export interface ITag {
+  _id: string;
+  colorCode?: string;
+  createdAt?: string;
+  name?: string;
+  order?: string;
+  objectCount?: number;
+  parentId?: string;
+  relatedIds?: string[];
+  totalObjectCount?: number;
+  type?: string;
 }
 
 /* queries */

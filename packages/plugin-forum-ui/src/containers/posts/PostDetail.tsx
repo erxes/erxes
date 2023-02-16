@@ -2,7 +2,7 @@ import React from 'react';
 import { useMutation } from 'react-apollo';
 import { queries, mutations } from '../../graphql';
 import gql from 'graphql-tag';
-import { PostDetailQueryResponse } from '../../types';
+import { IPost, PostDetailQueryResponse } from '../../types';
 import { withProps, confirm } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
@@ -41,6 +41,10 @@ function PostDetail(props: FinalProps) {
     refetchQueries: queries.postRefetchAfterEdit
   });
 
+  const [mutSetFeatured] = useMutation(gql(mutations.featuredToggle), {
+    refetchQueries: ['ForumPostDetail']
+  });
+
   if (postDetailQuery.loading) {
     return <Spinner objective={true} />;
   }
@@ -67,13 +71,29 @@ function PostDetail(props: FinalProps) {
     confirm('Are you sure you want to deny this post?').then(() => mutDeny());
   };
 
+  const onFeature = (postId: string, forumPost: IPost) => {
+    confirm(
+      `Are you sure you want to ${
+        forumPost.isFeaturedByAdmin ? 'unfeature' : 'feature'
+      } this post?`
+    ).then(() =>
+      mutSetFeatured({
+        variables: {
+          id: postId,
+          featured: !forumPost.isFeaturedByAdmin
+        }
+      })
+    );
+  };
+
   const updatedProps = {
     ...props,
-    post: postDetailQuery.forumPost || ({} as any),
+    post: postDetailQuery.forumPost || ({} as IPost),
     onDraft,
     onPublish,
     onApproveClick,
-    onDenyClick
+    onDenyClick,
+    onFeature
   };
 
   return <Detail {...updatedProps} />;

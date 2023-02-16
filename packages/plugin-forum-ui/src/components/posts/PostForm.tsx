@@ -19,10 +19,11 @@ import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import dayjs from 'dayjs';
 import Uploader from '@erxes/ui/src/components/Uploader';
+import { ITag } from '../../types';
 
 type Props = {
   post?: IPost;
-  tags?: any;
+  tags?: ITag[];
   closeModal: () => void;
   categories: ICategory[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -33,19 +34,19 @@ type State = {
   title: string;
   categoryId: string;
   selectedTags: string[];
-  pollOptions: IPollOption[];
+  pollOptions: any;
   multipleChoice: boolean;
   hasEndDate: boolean;
-  endDate: any;
+  endDate: string;
   thumbnail: any;
-  createdAt: any;
+  createdAt: string;
 };
 
 class PostForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const post = props.post || ({ content: '' } as any);
+    const post = props.post || ({} as IPost);
 
     this.state = {
       content: post.content,
@@ -56,7 +57,7 @@ class PostForm extends React.Component<Props, State> {
       multipleChoice: post.isPollMultiChoice || false,
       hasEndDate: post.pollEndDate ? true : false,
       endDate: post.pollEndDate || null,
-      createdAt: post.createdAt || new Date(),
+      createdAt: post.createdAt || new Date().toString(),
       thumbnail: {} as IAttachment
     };
   }
@@ -76,7 +77,7 @@ class PostForm extends React.Component<Props, State> {
 
     const optionsCleaned = this.state.pollOptions.map(
       ({ _id, title, order }) => {
-        const option: any = {
+        const option = {
           _id,
           order,
           title
@@ -144,7 +145,7 @@ class PostForm extends React.Component<Props, State> {
 
     const { isSubmitted, values } = formProps;
 
-    const object = post || ({} as any);
+    const object = post || ({} as IPost);
 
     const renderTagOptions = () => {
       return tags.map(tag => ({

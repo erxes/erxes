@@ -22,10 +22,18 @@ type Props = {
   onApproveClick: () => void;
   onDenyClick: () => void;
   onPublish: () => void;
+  onFeature: (postId: string, forumPost: IPost) => void;
 };
 
-function PageDetail(props: Props) {
-  const { post, onDraft, onPublish, onApproveClick, onDenyClick } = props;
+function PostDetail(props: Props) {
+  const {
+    post,
+    onDraft,
+    onPublish,
+    onApproveClick,
+    onDenyClick,
+    onFeature
+  } = props;
 
   const renderThumbnail = () => {
     if (post.thumbnail) {
@@ -64,6 +72,38 @@ function PageDetail(props: Props) {
         Turn into a draft
       </Button>
     );
+  };
+
+  const renderFeatureButton = () => {
+    if (post.isFeaturedByAdmin === (false || null)) {
+      return (
+        <Button
+          onClick={() => onFeature(post._id, post)}
+          btnStyle="success"
+          size="small"
+        >
+          Feature
+        </Button>
+      );
+    }
+
+    return (
+      <Button
+        onClick={() => onFeature(post._id, post)}
+        btnStyle="simple"
+        size="small"
+      >
+        Unfeature
+      </Button>
+    );
+  };
+
+  const pollType = () => {
+    if (post.isPollMultiChoice) {
+      return 'Multiple choice';
+    }
+
+    return 'Single choice';
   };
 
   const renderApproveButton = () => {
@@ -221,6 +261,50 @@ function PageDetail(props: Props) {
         </FlexContent>
       </Subject>
       <Subject>
+        <FlexContent>
+          <FlexItem>
+            <FlexRow>
+              <label>{__('Featured by admin')}</label>
+              <strong>{post.isFeaturedByAdmin ? 'Yes' : 'No'}</strong>
+              &nbsp;&nbsp;&nbsp;
+              {renderFeatureButton()}
+            </FlexRow>
+          </FlexItem>
+          <FlexItem>
+            <FlexRow>
+              <label>{__('Featured by user')}</label>
+              <strong>{post.isFeaturedByUser || 'No'}</strong>&nbsp;&nbsp;&nbsp;
+            </FlexRow>
+          </FlexItem>
+        </FlexContent>
+      </Subject>
+      <Subject>
+        <FlexContent>
+          <FlexItem>
+            <FlexRow>
+              <label>{__('Poll type')}</label>
+              <strong>{pollType()}</strong>&nbsp;&nbsp;&nbsp;
+            </FlexRow>
+          </FlexItem>
+          <FlexItem>
+            <FlexRow>
+              <label>{__('Poll end date')}</label>
+              <strong>{post.pollEndDate || 'No date'}</strong>&nbsp;&nbsp;&nbsp;
+            </FlexRow>
+          </FlexItem>
+        </FlexContent>
+      </Subject>
+      <Subject>
+        <FlexRow>
+          <label>{__('Poll options')}</label>
+        </FlexRow>
+        <ul>
+          {post.pollOptions.map(op => (
+            <li key={op._id}>{op.title}</li>
+          ))}
+        </ul>
+      </Subject>
+      <Subject>
         <FlexRow>
           <label>{__('Description')}</label>
         </FlexRow>
@@ -262,4 +346,4 @@ function PageDetail(props: Props) {
   );
 }
 
-export default PageDetail;
+export default PostDetail;

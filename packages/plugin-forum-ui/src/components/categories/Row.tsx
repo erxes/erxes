@@ -13,7 +13,7 @@ import { __ } from 'coreui/utils';
 type Props = {
   categories: ICategory[];
   parentCategory: ICategory;
-  onDelete?: (val: any) => any;
+  onDelete?: () => void;
 };
 
 type State = {
