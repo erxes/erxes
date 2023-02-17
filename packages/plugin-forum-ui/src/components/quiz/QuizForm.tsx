@@ -1,5 +1,5 @@
 import React from 'react';
-import { IQuiz, ICategory, ICompany, ITag, IPost } from '../../types';
+import { IQuiz, ICategory, ICompany, ITag } from '../../types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
@@ -19,7 +19,6 @@ import { MarginAuto } from '../../styles';
 type Props = {
   quiz?: IQuiz;
   tags?: ITag[];
-  posts?: IPost[];
   companies: ICompany[];
   closeModal: () => void;
   categories: ICategory[];
@@ -53,7 +52,6 @@ class QuizForm extends React.Component<Props, State> {
     companyId: string;
     description: string;
     state: string;
-    post?: string;
   }) => {
     const { quiz } = this.props;
     const finalValues = values;
@@ -69,9 +67,7 @@ class QuizForm extends React.Component<Props, State> {
       companyId: finalValues.companyId,
       tagIds: this.state.selectedTags,
       description: finalValues.description,
-      state: this.state.state,
-      postId: finalValues.post,
-      post: this.props.posts.filter(post => post._id === finalValues.post)
+      state: this.state.state
     };
   };
 
@@ -89,35 +85,6 @@ class QuizForm extends React.Component<Props, State> {
           ))}
       </>
     );
-  };
-
-  renderPostChooser = props => {
-    const { posts, quiz } = this.props;
-
-    if (posts) {
-      return (
-        <FormGroup>
-          <ControlLabel required={true}>Choose Post</ControlLabel>
-          <FormControl
-            {...props}
-            componentClass="select"
-            name="post"
-            defaultValue={quiz.post?._id || ''}
-          >
-            <option key="null" value="">
-              Choose Post
-            </option>
-            {posts.map(post => (
-              <option key={post._id} value={post._id}>
-                {post.title}
-              </option>
-            ))}
-          </FormControl>
-        </FormGroup>
-      );
-    }
-
-    return null;
   };
 
   renderTagOptions = () => {
@@ -202,7 +169,7 @@ class QuizForm extends React.Component<Props, State> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const { quiz, renderButton, closeModal, posts } = this.props;
+    const { quiz, renderButton, closeModal } = this.props;
 
     const { isSubmitted, values } = formProps;
 
@@ -259,8 +226,6 @@ class QuizForm extends React.Component<Props, State> {
             multi={true}
           />
         </FormGroup>
-
-        {this.renderPostChooser({ ...formProps })}
 
         {this.renderDetail(object)}
 
