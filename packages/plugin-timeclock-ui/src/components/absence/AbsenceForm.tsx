@@ -16,6 +16,7 @@ type Props = {
   queryParams: any;
   submitRequest: (
     userId: string,
+    reason: string,
     explanation: string,
     attachment: IAttachment,
     dateRange: DateTimeRange,
@@ -76,6 +77,7 @@ export default (props: Props) => {
     if (validInput) {
       submitRequest(
         userId,
+        absenceTypes[absenceIdx].name,
         explanation,
         attachment,
         dateRange,
@@ -92,10 +94,11 @@ export default (props: Props) => {
   const onUserSelect = usrId => {
     setUserId(usrId);
   };
+
   const onReasonSelect = reason => {
     setAbsenceArrIdx(reason.arrayIdx);
-    router.setParams(history, { reason: `${reason.value}` });
   };
+
   const onChangeAttachment = (files: IAttachment[]) => {
     setAttachment(files[0]);
   };

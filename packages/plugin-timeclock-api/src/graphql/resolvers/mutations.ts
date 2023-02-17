@@ -17,7 +17,10 @@ import {
   findUser
 } from './utils';
 import dayjs = require('dayjs');
-import { connectAndQueryFromMsSql } from '../../utils';
+import {
+  connectAndQueryFromMsSql,
+  connectAndQueryTimeLogsFromMsSql
+} from '../../utils';
 
 interface ITimeClockEdit extends ITimeClock {
   _id: string;
@@ -124,13 +127,14 @@ const timeclockMutations = {
     if (!timeclock) {
       throw new Error('time clock not found');
     }
+
+    const getUserId = userId || user._id;
+
     // convert long, lat into radians
     const longRad = (Math.PI * longitude) / 180;
     const latRad = (latitude * Math.PI) / 180;
 
     let insideCoordinate = false;
-
-    const getUserId = userId || user._id;
 
     const EARTH_RADIUS = 6378.14;
 
@@ -203,6 +207,14 @@ const timeclockMutations = {
    */
   async timeclockRemove(_root, { _id }, { models }: IContext) {
     return models.Timeclocks.removeTimeClock(_id);
+  },
+
+  async timeclockEdit(
+    _root,
+    { _id, ...doc }: ITimeClockEdit,
+    { models }: IContext
+  ) {
+    return models.Timeclocks.updateTimeClock(_id, doc);
   },
 
   async sendAbsenceRequest(
@@ -534,12 +546,24 @@ const timeclockMutations = {
     return models.DeviceConfigs.removeDeviceConfig(_id);
   },
 
-  async extractAllDataFromMySQL(
+  async extractAllDataFromMsSQL(
     _root,
     { startDate, endDate },
     { subdomain }: IContext
   ) {
     return await connectAndQueryFromMsSql(subdomain, startDate, endDate);
+  },
+
+  async extractTimeLogsFromMsSQL(
+    _root,
+    { startDate, endDate },
+    { subdomain }: IContext
+  ) {
+    return await connectAndQueryTimeLogsFromMsSql(
+      subdomain,
+      startDate,
+      endDate
+    );
   }
 };
 
