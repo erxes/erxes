@@ -14,7 +14,6 @@ import {
 import { mutations, queries } from '../../graphql';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import { IBranch } from '@erxes/ui/src/team/types';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import { generateParams } from '../../utils';
 
 type Props = {
@@ -30,6 +29,7 @@ type Props = {
   scheduleConfigs: IScheduleConfig[];
 
   branchesList: IBranch[];
+
   getActionBar: (actionBar: any) => void;
   showSideBar: (sideBar: boolean) => void;
   getPagination: (pagination: any) => void;
@@ -49,8 +49,6 @@ const ListContainer = (props: FinalProps) => {
     solveShiftMutation,
     removeScheduleMutation,
     removeScheduleShiftMutation,
-    getPagination,
-    showSideBar,
     listSchedulesMain
   } = props;
 
@@ -116,6 +114,7 @@ const ListContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     scheduleOfMembers: list,
+    totalCount,
     loading: listSchedulesMain.loading,
     solveSchedule,
     solveShift,
@@ -124,8 +123,6 @@ const ListContainer = (props: FinalProps) => {
     removeScheduleShifts
   };
 
-  showSideBar(true);
-  getPagination(<Pagination count={totalCount} />);
   return <ScheduleList {...updatedProps} />;
 };
 
