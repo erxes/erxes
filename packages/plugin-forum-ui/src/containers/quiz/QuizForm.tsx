@@ -29,6 +29,8 @@ function QuizFormContainer({ closeModal, quiz }: Props) {
     variables: { _id: quiz ? quiz._id : '' }
   });
 
+  const postsQuery = useQuery(gql(queries.forumPostsQuery));
+
   const [mutSetState] = useMutation(gql(mutations.setQuizState));
 
   const [deleteQuestion] = useMutation(gql(mutations.deleteQuizQuestion));
@@ -37,21 +39,20 @@ function QuizFormContainer({ closeModal, quiz }: Props) {
   const tags = tagsQuery.data?.tags || [];
   const companies = companiesQuery.data?.companies || [];
   const detail = detailQuery.data?.forumQuiz || {};
+  const posts = postsQuery.data?.forumPosts || [];
 
-  const changeState = (state: string, _id?: string) => {
-    mutSetState({
-      variables: { _id, state },
-      refetchQueries: [{ query: gql(queries.postRefetchAfterEdit) }]
-    }).catch(error => {
-      Alert.error(error.message);
-    });
+  const changeState = async (state: string, _id: string) => {
+    mutSetState({ variables: { _id, state } }).catch(e =>
+      Alert.error(e.message)
+    );
   };
 
   const loading =
     categoriesQuery.loading ||
     detailQuery.loading ||
     tagsQuery.loading ||
-    companiesQuery.loading;
+    companiesQuery.loading ||
+    postsQuery.loading;
 
   if (loading) {
     return <Spinner objective={true} />;
@@ -101,6 +102,7 @@ function QuizFormContainer({ closeModal, quiz }: Props) {
       changeState={changeState}
       refetch={detailQuery.refetch}
       onDelete={onDeleteQuestion}
+      posts={posts}
     />
   );
 }

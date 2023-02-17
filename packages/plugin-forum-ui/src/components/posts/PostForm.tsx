@@ -1,5 +1,5 @@
 import React from 'react';
-import { IPost, ICategory, IPollOption } from '../../types';
+import { IPost, ICategory, IPollOption, ITag } from '../../types';
 import EditorCK from '@erxes/ui/src/components/EditorCK';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -19,7 +19,7 @@ import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import dayjs from 'dayjs';
 import Uploader from '@erxes/ui/src/components/Uploader';
-import { ITag } from '../../types';
+import { CustomRangeContainer } from '../../styles';
 
 type Props = {
   post?: IPost;
@@ -187,17 +187,18 @@ class PostForm extends React.Component<Props, State> {
                 single={true}
               />
             </FlexItem>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <FlexItem>
-              <ControlLabel>{__('Created At')}</ControlLabel>
-              <DateControl
-                value={this.state.createdAt}
-                required={false}
-                name="createdAt"
-                onChange={date => this.onChangeRangeFilter(date, 'createdAt')}
-                placeholder={'End date'}
-                dateFormat={'YYYY-MM-DD'}
-              />
+              <CustomRangeContainer>
+                <ControlLabel>{__('Created At')}</ControlLabel>
+                <DateControl
+                  value={this.state.createdAt}
+                  required={false}
+                  name="createdAt"
+                  onChange={date => this.onChangeRangeFilter(date, 'createdAt')}
+                  placeholder={'End date'}
+                  dateFormat={'YYYY-MM-DD'}
+                />
+              </CustomRangeContainer>
             </FlexItem>
           </FlexContent>
         </FormGroup>
@@ -271,14 +272,16 @@ class PostForm extends React.Component<Props, State> {
             </FlexItem>
             {hasEndDate && (
               <FlexItem>
-                <DateControl
-                  value={this.state.endDate}
-                  required={false}
-                  name="endDate"
-                  onChange={date => this.onChangeRangeFilter(date, 'endDate')}
-                  placeholder={'End date'}
-                  dateFormat={'YYYY-MM-DD'}
-                />
+                <CustomRangeContainer>
+                  <DateControl
+                    value={this.state.endDate}
+                    required={false}
+                    name="endDate"
+                    onChange={date => this.onChangeRangeFilter(date, 'endDate')}
+                    placeholder={'End date'}
+                    dateFormat={'YYYY-MM-DD'}
+                  />
+                </CustomRangeContainer>
               </FlexItem>
             )}
           </FlexContent>

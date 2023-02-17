@@ -52,20 +52,31 @@ function PagesList({
     Alert.error(error.message);
   }
 
-  const remove = pageId => {
-    confirm('Are you sure?')
-      .then(() =>
-        removeMutation({ variables: { _id: pageId } })
-          .then(() => {
-            pagesQuery.refetch();
-          })
-          .catch(e => {
-            Alert.error(e.message);
-          })
-      )
-      .catch(e => {
-        Alert.error(e.message);
-      });
+  const remove = (pageId: string, emptyBulk?: () => void) => {
+    if (emptyBulk) {
+      removeMutation({ variables: { _id: pageId } })
+        .then(() => {
+          pagesQuery.refetch();
+          emptyBulk();
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    } else {
+      confirm('Are you sure?')
+        .then(() =>
+          removeMutation({ variables: { _id: pageId } })
+            .then(() => {
+              pagesQuery.refetch();
+            })
+            .catch(e => {
+              Alert.error(e.message);
+            })
+        )
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    }
   };
 
   const renderButton = ({

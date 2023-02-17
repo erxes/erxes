@@ -28,10 +28,9 @@ function List({ removeMutation, queryParams, history }: FinalProps) {
 
   const [categoryApprovalState] = useSearchParam('categoryApprovalState');
   const [strLimit] = useSearchParam('limit');
-  const [strPageIndex, setPageIndex] = useSearchParam('pageIndex');
 
   const limit = Number(strLimit || 20);
-  const pageIndex = Number(strPageIndex || 0);
+  const pageIndex = Number(queryParams.pageIndex || 0);
   const offset = limit * pageIndex;
 
   const variables = {
@@ -56,20 +55,26 @@ function List({ removeMutation, queryParams, history }: FinalProps) {
     return <pre>{JSON.stringify(postQuery.error, null, 2)}</pre>;
   }
 
-  const remove = (pageId: string, emptyBulk: () => void) => {
-    confirm(`Are you sure?`)
-      .then(() => {
-        removeMutation({ variables: { _id: pageId } })
-          .then(() => {
-            emptyBulk();
-          })
-          .catch(e => {
+  const remove = (pageId: string, emptyBulk?: () => void) => {
+    if (emptyBulk) {
+      removeMutation({ variables: { _id: pageId } })
+        .then(() => {
+          emptyBulk();
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    } else {
+      confirm(`Are you sure?`)
+        .then(() => {
+          removeMutation({ variables: { _id: pageId } }).catch(e => {
             Alert.error(e.message);
           });
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    }
   };
 
   const posts = postQuery.data.forumPosts || ([] as IPost[]);

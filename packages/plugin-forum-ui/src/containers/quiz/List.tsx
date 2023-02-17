@@ -22,10 +22,18 @@ const QuizList = () => {
     refetchQueries: ['ForumQuizzes']
   });
 
-  const deleteQuiz = async (id: string) => {
-    confirm('Are you sure?')
-      .then(() => mutDelete({ variables: { id } }))
-      .catch(e => Alert.error(e.message));
+  const deleteQuiz = async (id: string, emptyBulk?: () => void) => {
+    if (emptyBulk) {
+      mutDelete({ variables: { id } })
+        .then(() => emptyBulk())
+        .catch(e => Alert.error(e.message));
+    } else {
+      confirm('Are you sure?')
+        .then(() =>
+          mutDelete({ variables: { id } }).catch(e => Alert.error(e.message))
+        )
+        .catch(e => Alert.error(e.message));
+    }
   };
 
   if (loading) {

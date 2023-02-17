@@ -15,6 +15,7 @@ import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils';
 import { postUsername } from '../../utils';
+import dayjs from 'dayjs';
 
 type Props = {
   post: IPost;
@@ -75,25 +76,16 @@ function PostDetail(props: Props) {
   };
 
   const renderFeatureButton = () => {
-    if (post.isFeaturedByAdmin === (false || null)) {
-      return (
-        <Button
-          onClick={() => onFeature(post._id, post)}
-          btnStyle="success"
-          size="small"
-        >
-          Feature
-        </Button>
-      );
-    }
+    const btnStyle = post.isFeaturedByAdmin ? 'simple' : 'success';
+    const text = post.isFeaturedByAdmin ? 'Unfeature' : 'Feature';
 
     return (
       <Button
         onClick={() => onFeature(post._id, post)}
-        btnStyle="simple"
+        btnStyle={btnStyle}
         size="small"
       >
-        Unfeature
+        {text}
       </Button>
     );
   };
@@ -146,7 +138,7 @@ function PostDetail(props: Props) {
           <FlexItem>
             <FlexRow>
               <label>{__('Created at')}</label>
-              <strong>{post.createdAt}</strong>
+              <strong>{dayjs(post.createdAt).format('lll')}</strong>
             </FlexRow>
           </FlexItem>
           <FlexItem>
@@ -169,7 +161,7 @@ function PostDetail(props: Props) {
           <FlexItem>
             <FlexRow>
               <label>{__('Updated at')}</label>
-              <strong>{post.updatedAt}</strong>
+              <strong>{dayjs(post.updatedAt).format('lll')}</strong>
             </FlexRow>
           </FlexItem>
           <FlexItem>
@@ -192,7 +184,7 @@ function PostDetail(props: Props) {
           <FlexItem>
             <FlexRow>
               <label>{__('State changed at')}</label>
-              <strong>{post.stateChangedAt}</strong>
+              <strong>{dayjs(post.stateChangedAt).format('lll')}</strong>
             </FlexRow>
           </FlexItem>
           <FlexItem>
@@ -289,7 +281,10 @@ function PostDetail(props: Props) {
           <FlexItem>
             <FlexRow>
               <label>{__('Poll end date')}</label>
-              <strong>{post.pollEndDate || 'No date'}</strong>&nbsp;&nbsp;&nbsp;
+              <strong>
+                {dayjs(post.pollEndDate).format('lll') || 'No date'}
+              </strong>
+              &nbsp;&nbsp;&nbsp;
             </FlexRow>
           </FlexItem>
         </FlexContent>

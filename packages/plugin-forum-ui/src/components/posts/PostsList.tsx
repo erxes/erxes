@@ -22,7 +22,7 @@ type Props = {
   posts: IPost[];
   queryParams?: any;
   loading: boolean;
-  remove: (postId: string, emptyBulk: () => void) => void;
+  remove: (postId: string, emptyBulk?: () => void) => void;
   history?: any;
   bulk: any[];
   emptyBulk: () => void;
@@ -33,7 +33,7 @@ type Props = {
 
 class List extends React.Component<Props, {}> {
   renderRow() {
-    const { posts, remove, bulk, toggleBulk, emptyBulk } = this.props;
+    const { posts, remove, bulk, toggleBulk } = this.props;
 
     return posts.map(post => (
       <Row
@@ -42,7 +42,6 @@ class List extends React.Component<Props, {}> {
         isChecked={bulk.includes(post)}
         toggleBulk={toggleBulk}
         remove={remove}
-        emptyBulk={emptyBulk}
       />
     ));
   }

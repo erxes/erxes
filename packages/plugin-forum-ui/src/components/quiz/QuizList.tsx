@@ -39,7 +39,6 @@ class List extends React.Component<Props> {
         isChecked={bulk.includes(quiz)}
         toggleBulk={toggleBulk}
         remove={remove}
-        emptyBulk={emptyBulk}
         history={history}
       />
     ));
@@ -126,6 +125,7 @@ class List extends React.Component<Props> {
               <SortHandler sortField={'company'} label={__('Company')} />
             </th>
             <th>{__('Post')}</th>
+            <th>{__('State')}</th>
             <th>{__('Category')}</th>
             <th>{__('Actions')}</th>
           </tr>

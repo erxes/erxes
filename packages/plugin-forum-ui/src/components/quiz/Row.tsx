@@ -8,12 +8,12 @@ import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { IQuiz } from '../../types';
 import QuizForm from '../../containers/quiz/QuizForm';
+import { PostTitle } from '../../styles';
 
 type Props = {
   quiz: IQuiz;
   history: any;
-  remove: (pageId: string, emptyBulk: () => void) => void;
-  emptyBulk: () => void;
+  remove: (pageId: string, emptyBulk?: () => void) => void;
   isChecked?: boolean;
   toggleBulk: (target: any, toAdd: boolean) => void;
 };
@@ -41,9 +41,9 @@ class Row extends React.Component<Props> {
   }
 
   renderRemoveAction() {
-    const { quiz, remove, emptyBulk } = this.props;
+    const { quiz, remove } = this.props;
 
-    const onClick = () => remove(quiz._id, emptyBulk);
+    const onClick = () => remove(quiz._id);
 
     return (
       <Tip text={__('Delete')} placement="top">
@@ -86,7 +86,10 @@ class Row extends React.Component<Props> {
             ? quiz.company.primaryName
             : ''}
         </td>
-        <td>{quiz.post ? quiz.post.title : ''}</td>
+        <td>
+          <PostTitle>{quiz.post ? quiz.post.title : ''}</PostTitle>
+        </td>
+        <td>{quiz.state}</td>
         <td>{quiz.category ? quiz.category.name : ''}</td>
         <td>
           <ActionButtons>

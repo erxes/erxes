@@ -466,6 +466,7 @@ query ForumQuizzes($limit: Int, $offset: Int, $sort: JSON) {
     _id
     name
     description
+    state
     company {
       _id
       primaryName

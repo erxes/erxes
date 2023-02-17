@@ -15,8 +15,7 @@ import { DetailLink } from '../../styles';
 type Props = {
   page: IPage;
   history: any;
-  remove: (pageId: string, emptyBulk: () => void) => void;
-  emptyBulk: () => void;
+  remove: (pageId: string, emptyBulk?: () => void) => void;
   isChecked?: boolean;
   toggleBulk: (target: any, toAdd: boolean) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -47,9 +46,9 @@ class Row extends React.Component<Props> {
   }
 
   renderRemoveAction() {
-    const { page, remove, emptyBulk } = this.props;
+    const { page, remove } = this.props;
 
-    const onClick = () => remove(page._id, emptyBulk);
+    const onClick = () => remove(page._id);
 
     return (
       <Tip text={__('Delete')} placement="top">

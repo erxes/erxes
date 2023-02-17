@@ -20,7 +20,7 @@ type Props = {
   pages: IPage[];
   queryParams?: any;
   loading?: boolean;
-  remove?: (pageId: string, emptyBulk: () => void) => void;
+  remove?: (pageId: string, emptyBulk?: () => void) => void;
   refetch?: () => void;
   history?: any;
   emptyBulk: () => void;
@@ -33,14 +33,7 @@ type Props = {
 
 class List extends React.Component<Props> {
   renderRow() {
-    const {
-      pages,
-      remove,
-      bulk,
-      toggleBulk,
-      renderButton,
-      emptyBulk
-    } = this.props;
+    const { pages, remove, bulk, toggleBulk, renderButton } = this.props;
 
     return pages.map(page => (
       <Row
@@ -49,7 +42,6 @@ class List extends React.Component<Props> {
         isChecked={bulk.includes(page)}
         toggleBulk={toggleBulk}
         remove={remove}
-        emptyBulk={emptyBulk}
         renderButton={renderButton}
         history={history}
       />
