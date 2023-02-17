@@ -37,7 +37,6 @@ var plugins = [
   { name: 'webhooks', ui: true, api: true },
   { name: 'pos', ui: true, api: true },
   { name: 'products', ui: true, api: true },
-  { name: 'qpay', ui: true, api: true },
   { name: 'reactions', api: true },
   { name: 'segments', ui: true, api: true },
   { name: 'syncerkhet', ui: true, api: true },

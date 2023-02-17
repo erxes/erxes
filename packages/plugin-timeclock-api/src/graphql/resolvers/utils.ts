@@ -15,17 +15,29 @@ const MMSTOHRS = 3600000;
 // milliseconds to mins
 const MMSTOMINS = 60000;
 
-export const findBranches = async (subdomain: string, userId: string) => {
+export const findBranches = async (subdomain: string, branchIds: string[]) => {
   const branches = await sendCoreMessage({
     subdomain,
     action: 'branches.find',
-    data: { query: { userIds: userId } },
+    data: { query: { _id: { $in: branchIds } } },
     isRPC: true
   });
 
   return branches;
 };
 
+export const findUser = async (subdomain: string, userId: string) => {
+  const user = await sendCoreMessage({
+    subdomain,
+    action: 'users.findOne',
+    data: {
+      _id: userId
+    },
+    isRPC: true
+  });
+
+  return user;
+};
 export const findBranchUsers = async (
   subdomain: string,
   branchIds: string[]

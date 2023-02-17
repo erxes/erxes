@@ -9,6 +9,7 @@ import TimeclockList from '../containers/timeclock/TimeclockList';
 import AbsenceList from '../containers/absence/AbsenceList';
 import ReportList from '../containers/report/ReportList';
 import ScheduleList from '../containers/schedule/ScheduleList';
+import LogsList from '../containers/logs/LogsList';
 import { IBranch } from '@erxes/ui/src/team/types';
 import { IScheduleConfig } from '../types';
 
@@ -86,6 +87,19 @@ function List(props: Props) {
         );
         setLoading(false);
         break;
+      case 'logs':
+        setModalComponent(
+          <LogsList
+            {...props}
+            showSideBar={setShowSideBar}
+            getPagination={setPagination}
+            getActionBar={setRightActionBar}
+            queryParams={queryParams}
+            history={history}
+          />
+        );
+        setLoading(false);
+        break;
       default:
         setModalComponent(
           <TimeclockList
@@ -93,6 +107,7 @@ function List(props: Props) {
             showSideBar={setShowSideBar}
             getActionBar={setRightActionBar}
             getPagination={setPagination}
+            timeclockUser={queryParams.timeclockUser}
             history={history}
             queryParams={queryParams}
           />

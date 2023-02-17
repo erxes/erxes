@@ -32,11 +32,13 @@ import {
   SidebarList
 } from '@erxes/ui/src/layout/styles';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { IOverallWorkDet, IPerform } from '../types';
+import { IPerform } from '../types';
 import { IProduct, IUom } from '@erxes/ui-products/src/types';
 import { IProductsData } from '../../types';
 import { JOB_TYPE_CHOISES } from '../../constants';
 import { queries } from '../../job/graphql';
+import { IOverallWorkDet } from '../../overallWork/types';
+import SeriesPrint from '../containers/SeriesPrint';
 
 type Props = {
   renderButton: (
@@ -64,6 +66,7 @@ type State = {
   inProducts: IProductsData[];
   outProducts: IProductsData[];
   categoryId: string;
+  btnDisabled: boolean;
 };
 
 class Form extends React.Component<Props, State> {
@@ -74,25 +77,42 @@ class Form extends React.Component<Props, State> {
     let startAt = new Date();
     let endAt = new Date();
 
-    const overallWorkDet = overallWorkDetail || {
-      _id: '',
-      key: {
+    const overallWorkDet = overallWorkDetail ||
+      (perform && {
+        ...perform,
+        _id: '',
+        key: perform.overallWorkKey,
+        startAt: perform.startAt,
+        jobReferId: perform.overallWorkKey.typeId || perform.typeId || '',
+        dueDate: perform.endAt,
+        type: perform.type,
+        assignedUserIds: perform.assignedUserIds,
+        needProducts: perform.needProducts,
+        resultProducts: perform.resultProducts,
+        count: perform.count,
+        needProductsData: perform.needProducts,
+        resultProductsData: perform.resultProducts,
+        workIds: []
+      }) || {
+        _id: '',
+        key: {
+          type: '',
+          inBranchId: '',
+          inDepartmentId: '',
+          outBranchId: '',
+          outDepartmentId: ''
+        },
+        startAt,
+        dueDate: endAt,
         type: '',
-        inBranchId: '',
-        inDepartmentId: '',
-        outBranchId: '',
-        outDepartmentId: ''
-      },
-      startAt,
-      dueDate: endAt,
-      type: '',
-      workIds: [],
-      needProducts: [],
-      resultProducts: [],
-      count: 0,
-      needProductsData: [],
-      resultProductsData: []
-    };
+        assignedUserIds: [],
+        needProducts: [],
+        resultProducts: [],
+        count: 0,
+        needProductsData: [],
+        resultProductsData: [],
+        workIds: []
+      };
 
     const overCount = overallWorkDet.count;
     let count = 1;
@@ -130,8 +150,13 @@ class Form extends React.Component<Props, State> {
       resultProducts,
       inProducts,
       outProducts,
-      categoryId: ''
+      categoryId: '',
+      btnDisabled: true
     };
+  }
+
+  componentDidMount() {
+    this.setState({ btnDisabled: !this.checkValidation() });
   }
 
   generateDoc = (values: {
@@ -191,10 +216,58 @@ class Form extends React.Component<Props, State> {
       customerId,
       companyId,
       inProducts,
-      outProducts,
+      outProducts: type === 'move' ? inProducts : outProducts,
       needProducts,
-      resultProducts
+      resultProducts: type === 'move' ? needProducts : resultProducts
     };
+  };
+
+  checkValidation = () => {
+    const { max } = this.props;
+    const { overallWorkDet, inProducts, outProducts } = this.state;
+
+    if (
+      overallWorkDet.type === 'income' &&
+      (!overallWorkDet.outBranchId ||
+        !overallWorkDet.outDepartmentId ||
+        !outProducts.length)
+    ) {
+      return false;
+    }
+    if (
+      overallWorkDet.type === 'outlet' &&
+      (!overallWorkDet.inBranchId ||
+        !overallWorkDet.inDepartmentId ||
+        !inProducts.length)
+    ) {
+      return false;
+    }
+    if (overallWorkDet.type === 'move' && !inProducts.length) {
+      return false;
+    }
+    if (
+      ['job', 'end', 'move'].includes(overallWorkDet.type) &&
+      (!overallWorkDet.inBranchId ||
+        !overallWorkDet.inDepartmentId ||
+        !overallWorkDet.outBranchId ||
+        !overallWorkDet.outDepartmentId)
+    ) {
+      return false;
+    }
+    if (
+      ['job', 'end'].includes(overallWorkDet.type) &&
+      !overallWorkDet.jobReferId
+    ) {
+      return false;
+    }
+    if (overallWorkDet.type !== 'income' && max < this.state.count) {
+      return false;
+    }
+    return true;
+  };
+
+  setStateWrapper = state => {
+    this.setState({ ...state, btnDisabled: !this.checkValidation() });
   };
 
   renderViewInfo = (name: string, variable: number, uom: string) => {
@@ -275,7 +348,7 @@ class Form extends React.Component<Props, State> {
       }
 
       const chosenProductIds = products.map(p => p._id);
-      this.setState({
+      this.setStateWrapper({
         [stateName]: productsData.filter(pd =>
           chosenProductIds.includes(pd.productId)
         )
@@ -286,7 +359,7 @@ class Form extends React.Component<Props, State> {
       <ProductChooser
         {...props}
         onSelect={productOnChange}
-        onChangeCategory={categoryId => this.setState({ categoryId })}
+        onChangeCategory={categoryId => this.setStateWrapper({ categoryId })}
         categoryId={this.state.categoryId}
         data={{
           name: 'Product',
@@ -315,7 +388,7 @@ class Form extends React.Component<Props, State> {
   }
 
   onChangePerView = (values: any) => {
-    this.setState({
+    this.setStateWrapper({
       ...values
     } as any);
   };
@@ -337,6 +410,7 @@ class Form extends React.Component<Props, State> {
               </th>
               <th>{__('UOM')}</th>
               <th>{__('Quantity')}</th>
+              <th>{__('Actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -349,6 +423,7 @@ class Form extends React.Component<Props, State> {
                   productsData={productsData}
                   stateName={stateName}
                   onChangeState={this.onChangePerView}
+                  isReadSeries={stateName === 'inProducts'}
                 />
               );
             })}
@@ -439,19 +514,11 @@ class Form extends React.Component<Props, State> {
         </>
       );
     }
-    if (type === 'outlet') {
-      return (
-        <>
-          <FormColumn>{this.renderPerformIn()}</FormColumn>
-        </>
-      );
-    }
 
-    if (type === 'outlet') {
+    if (type === 'outlet' || type === 'move') {
       return (
         <>
           <FormColumn>{this.renderPerformIn()}</FormColumn>
-          <FormColumn>{this.renderPerformOut()}</FormColumn>
         </>
       );
     }
@@ -468,7 +535,7 @@ class Form extends React.Component<Props, State> {
     const { needProducts, resultProducts } = this.state;
     const count = Number(e.target.value);
 
-    this.setState({
+    this.setStateWrapper({
       count,
       inProducts: needProducts.map(np => ({
         ...np,
@@ -484,7 +551,7 @@ class Form extends React.Component<Props, State> {
   onChangeInput = e => {
     const name = e.target.name;
     const value = e.target.value;
-    this.setState({ [name]: value } as any);
+    this.setStateWrapper({ [name]: value } as any);
   };
 
   renderLabel = (max?: number) => {
@@ -492,7 +559,7 @@ class Form extends React.Component<Props, State> {
   };
 
   onSelectDate = (value, name) => {
-    this.setState({ [name]: value } as any);
+    this.setStateWrapper({ [name]: value } as any);
   };
 
   renderLocLabel(obj) {
@@ -505,7 +572,7 @@ class Form extends React.Component<Props, State> {
 
   setLocations = (name, value) => {
     const { overallWorkDet } = this.state;
-    this.setState({
+    this.setStateWrapper({
       overallWorkDet: {
         ...overallWorkDet,
         key: { ...overallWorkDet.key, [name]: value }
@@ -666,7 +733,7 @@ class Form extends React.Component<Props, State> {
           variables: { id: value }
         })
         .then(({ data }) => {
-          this.setState({
+          this.setStateWrapper({
             overallWorkDet: {
               ...overallWorkDet,
               key: { ...overallWorkDet.key, typeId: value },
@@ -721,7 +788,7 @@ class Form extends React.Component<Props, State> {
                 name="companyId"
                 initialValue={perform ? perform.companyId : '' || ''}
                 onSelect={companyId =>
-                  this.setState({ companyId: companyId as string })
+                  this.setStateWrapper({ companyId: companyId as string })
                 }
                 customOption={{
                   value: '',
@@ -739,7 +806,7 @@ class Form extends React.Component<Props, State> {
                 name="customerId"
                 initialValue={perform ? perform.customerId : '' || ''}
                 onSelect={customerId =>
-                  this.setState({ customerId: customerId as string })
+                  this.setStateWrapper({ customerId: customerId as string })
                 }
                 customOption={{
                   value: '',
@@ -755,16 +822,54 @@ class Form extends React.Component<Props, State> {
     return;
   }
 
+  printSeries = () => {
+    const { perform } = this.props;
+
+    if (!perform || !perform._id) {
+      return;
+    }
+    window.open(`/processes/seriesNumberPrint/${perform._id}`);
+  };
+
+  renderPrintBtn() {
+    const { perform } = this.props;
+    if (!perform || !perform._id || !perform.series) {
+      return <></>;
+    }
+    const trigger = (
+      <Button
+        btnStyle="simple"
+        onClick={this.printSeries}
+        icon="print"
+        uppercase={false}
+      >
+        Print
+      </Button>
+    );
+
+    const modalContent = props => <SeriesPrint {...props} id={perform._id} />;
+
+    return (
+      <ModalTrigger
+        title={__('Print performance series')}
+        size="xl"
+        trigger={trigger}
+        autoOpenKey="showPrintSeriesModal"
+        content={modalContent}
+      />
+    );
+  }
+
   renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton, max, perform } = this.props;
-    const { overallWorkDet } = this.state;
+    const { overallWorkDet, btnDisabled } = this.state;
     const { values, isSubmitted } = formProps;
     const { count, startAt, endAt, description, appendix } = this.state;
 
     if (!overallWorkDet.type) {
       const onchangeType = e => {
         const value = e.target.value;
-        this.setState({
+        this.setStateWrapper({
           overallWorkDet: {
             ...overallWorkDet,
             type: value,
@@ -858,7 +963,7 @@ class Form extends React.Component<Props, State> {
                 name="assignedUserIds"
                 initialValue={perform ? perform.assignedUserIds : [] || []}
                 onSelect={userIds =>
-                  this.setState({ assignedUserIds: userIds as string[] })
+                  this.setStateWrapper({ assignedUserIds: userIds as string[] })
                 }
                 multi={true}
               />
@@ -904,6 +1009,7 @@ class Form extends React.Component<Props, State> {
         </Box>
 
         <ModalFooter>
+          {this.renderPrintBtn()}
           <Button
             btnStyle="simple"
             onClick={closeModal}
@@ -917,9 +1023,9 @@ class Form extends React.Component<Props, State> {
             name: 'Performance',
             values: this.generateDoc(values),
             isSubmitted,
-            callback: closeModal,
+            // callback: closeModal,
             object: perform,
-            disabled: overallWorkDet.type !== 'income' && max < this.state.count
+            disabled: btnDisabled
           })}
         </ModalFooter>
       </>

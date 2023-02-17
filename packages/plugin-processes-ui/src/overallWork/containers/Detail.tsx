@@ -5,13 +5,17 @@ import React from 'react';
 import { Alert, Spinner, withProps } from '@erxes/ui/src';
 import { graphql } from 'react-apollo';
 import { IRouterProps } from '@erxes/ui/src/types';
+import { OverallWorkDetailQueryResponse } from '../types';
 import {
-  OverallWorkDetailQueryResponse,
   PerformRemoveMutationResponse,
   PerformsCountQueryResponse,
   PerformsQueryResponse
-} from '../types';
-import { mutations, queries } from '../graphql';
+} from '../../performs/types';
+import { queries } from '../graphql';
+import {
+  mutations as performMutations,
+  queries as performQueries
+} from '../../performs/graphql';
 import { withRouter } from 'react-router-dom';
 import { router } from '@erxes/ui/src/utils';
 
@@ -113,18 +117,21 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<{ queryParams }, PerformsQueryResponse, {}>(gql(queries.performs), {
-      name: 'performsQuery',
-      options: ({ queryParams }) => ({
-        variables: {
-          ...generateParams({ queryParams }),
-          ...router.generatePaginationParams(queryParams || {})
-        },
-        fetchPolicy: 'network-only'
-      })
-    }),
+    graphql<{ queryParams }, PerformsQueryResponse, {}>(
+      gql(performQueries.performs),
+      {
+        name: 'performsQuery',
+        options: ({ queryParams }) => ({
+          variables: {
+            ...generateParams({ queryParams }),
+            ...router.generatePaginationParams(queryParams || {})
+          },
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
     graphql<{ queryParams }, PerformsCountQueryResponse, {}>(
-      gql(queries.performsCount),
+      gql(performQueries.performsCount),
       {
         name: 'performsCountQuery',
         options: ({ queryParams }) => ({
@@ -134,7 +141,7 @@ export default withProps<Props>(
       }
     ),
     graphql<Props, PerformRemoveMutationResponse, { performId: string }>(
-      gql(mutations.performRemove),
+      gql(performMutations.performRemove),
       {
         name: 'performRemove',
         options: {

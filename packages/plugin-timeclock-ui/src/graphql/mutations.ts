@@ -1,3 +1,10 @@
+const timeclockEdit = `
+  mutation timeclockEdit($_id: String!, $shiftStart: Date, $shiftEnd: Date, $shiftActive: Boolean){
+    timeclockEdit(_id: $_id, shiftStart: $shiftStart, shiftEnd: $shiftEnd, shiftActive: $shiftActive){
+      _id
+    }
+  }
+  `;
 const timeclockRemove = `
   mutation timeclockRemove($_id: String!){
     timeclockRemove(_id: $_id)
@@ -162,9 +169,16 @@ const deviceConfigRemove = `mutation deviceConfigRemove($_id: String){
   deviceConfigRemove(_id: $_id)
 }`;
 
-const extractAllDataFromMySQL = `
-mutation extractAllDataFromMySQL($startDate: String, $endDate: String){
-  extractAllDataFromMySQL(startDate: $startDate, endDate: $endDate){
+const extractAllDataFromMsSQL = `
+mutation extractAllDataFromMsSQL($startDate: String, $endDate: String){
+  extractAllDataFromMsSQL(startDate: $startDate, endDate: $endDate){
+    _id
+  }
+}`;
+
+const extractTimeLogsFromMsSql = `
+mutation extractTimeLogsFromMsSQL($startDate: String, $endDate: String){
+  extractTimeLogsFromMsSQL(startDate: $startDate, endDate: $endDate){
     _id
   }
 }`;
@@ -179,6 +193,7 @@ export default {
   solveAbsence,
   solveSchedule,
   solveShift,
+  timeclockEdit,
   timeclockRemove,
   timeclockStart,
   timeclockStop,
@@ -196,5 +211,6 @@ export default {
   deviceConfigAdd,
   deviceConfigEdit,
   deviceConfigRemove,
-  extractAllDataFromMySQL
+  extractAllDataFromMsSQL,
+  extractTimeLogsFromMsSql
 };
