@@ -80,9 +80,11 @@ function AbsenceList(props: Props) {
     return (
       <tr>
         <td>
-          {absence.user && absence.user.details.fullName
+          {absence.user
             ? absence.user.details.fullName
-            : absence.user.email}
+              ? absence.user.details.fullName
+              : absence.user.email
+            : '-'}
         </td>
         <td>{startingDate || '-'}</td>
         <td>{startingTime || '-'}</td>
