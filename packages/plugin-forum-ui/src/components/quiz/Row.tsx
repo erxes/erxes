@@ -86,9 +86,6 @@ class Row extends React.Component<Props> {
             ? quiz.company.primaryName
             : ''}
         </td>
-        <td>
-          <PostTitle>{quiz.post ? quiz.post.title : ''}</PostTitle>
-        </td>
         <td>{quiz.state}</td>
         <td>{quiz.category ? quiz.category.name : ''}</td>
         <td>

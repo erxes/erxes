@@ -124,7 +124,6 @@ class List extends React.Component<Props> {
             <th>
               <SortHandler sortField={'company'} label={__('Company')} />
             </th>
-            <th>{__('Post')}</th>
             <th>{__('State')}</th>
             <th>{__('Category')}</th>
             <th>{__('Actions')}</th>
