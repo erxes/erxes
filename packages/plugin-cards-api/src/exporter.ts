@@ -238,7 +238,7 @@ const fillValue = async (
         subdomain,
         action: `branches.find`,
         data: {
-          query: { _id: { $in: item.branchIds } }
+          query: { _id: { $in: item.branchIds || [] } }
         },
         isRPC: true,
         defaultValue: []
@@ -253,7 +253,7 @@ const fillValue = async (
         subdomain,
         action: 'departments.find',
         data: {
-          query: { _id: { $in: item.departmentIds } }
+          query: { _id: { $in: item.departmentIds || [] } }
         },
         isRPC: true,
         defaultValue: []
