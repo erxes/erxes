@@ -218,11 +218,13 @@ const configClientPortalQueries = {
     if (searchValue && searchValue.trim() && topicId && topicId.trim()) {
       selector.$and = [
         {
-          topicId: topicId
+          $or: [
+            { title: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
+            { content: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
+            { summary: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } }
+          ]
         },
-        {
-          title: searchValue
-        }
+        { topicId: topicId }
       ];
     }
 
