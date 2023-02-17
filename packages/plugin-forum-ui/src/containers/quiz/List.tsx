@@ -23,15 +23,21 @@ const QuizList = () => {
   });
 
   const deleteQuiz = async (id: string, emptyBulk?: () => void) => {
-    if (emptyBulk) {
+    const deleteFunction = (afterSuccess?: any) => {
       mutDelete({ variables: { id } })
-        .then(() => emptyBulk())
-        .catch(e => Alert.error(e.message));
+        .then(() => {
+          afterSuccess ? afterSuccess() : console.log('success');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
+    if (emptyBulk) {
+      deleteFunction(emptyBulk);
     } else {
       confirm('Are you sure?')
-        .then(() =>
-          mutDelete({ variables: { id } }).catch(e => Alert.error(e.message))
-        )
+        .then(() => deleteFunction(emptyBulk))
         .catch(e => Alert.error(e.message));
     }
   };

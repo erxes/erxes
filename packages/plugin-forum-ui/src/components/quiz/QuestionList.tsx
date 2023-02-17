@@ -31,7 +31,7 @@ const QuestionList: React.FC<{
   );
 
   const renderChoises = () => {
-    if (question.choices?.length) {
+    if (question.choices?.length > 0) {
       return question.choices.map((c, i) => (
         <Choice key={c._id} choice={c} index={i} quizId={quizId} />
       ));

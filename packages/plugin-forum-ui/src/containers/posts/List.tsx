@@ -55,21 +55,23 @@ function List({ removeMutation, queryParams, history }: FinalProps) {
     return <pre>{JSON.stringify(postQuery.error, null, 2)}</pre>;
   }
 
-  const remove = (pageId: string, emptyBulk?: () => void) => {
-    if (emptyBulk) {
-      removeMutation({ variables: { _id: pageId } })
+  const remove = (postId: string, emptyBulk?: () => void) => {
+    const deleteFunction = (afterSuccess?: any) => {
+      removeMutation({ variables: { _id: postId } })
         .then(() => {
-          emptyBulk();
+          afterSuccess ? afterSuccess() : console.log('success');
         })
         .catch(e => {
           Alert.error(e.message);
         });
+    };
+
+    if (emptyBulk) {
+      deleteFunction(emptyBulk);
     } else {
       confirm(`Are you sure?`)
         .then(() => {
-          removeMutation({ variables: { _id: pageId } }).catch(e => {
-            Alert.error(e.message);
-          });
+          deleteFunction();
         })
         .catch(e => {
           Alert.error(e.message);

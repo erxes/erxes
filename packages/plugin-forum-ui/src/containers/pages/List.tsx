@@ -53,26 +53,22 @@ function PagesList({
   }
 
   const remove = (pageId: string, emptyBulk?: () => void) => {
-    if (emptyBulk) {
+    const deleteFunction = (afterSuccess?: any) => {
       removeMutation({ variables: { _id: pageId } })
         .then(() => {
           pagesQuery.refetch();
-          emptyBulk();
+          afterSuccess ? afterSuccess() : console.log('success');
         })
         .catch(e => {
           Alert.error(e.message);
         });
+    };
+
+    if (emptyBulk) {
+      deleteFunction(emptyBulk);
     } else {
       confirm('Are you sure?')
-        .then(() =>
-          removeMutation({ variables: { _id: pageId } })
-            .then(() => {
-              pagesQuery.refetch();
-            })
-            .catch(e => {
-              Alert.error(e.message);
-            })
-        )
+        .then(() => deleteFunction(emptyBulk))
         .catch(e => {
           Alert.error(e.message);
         });
