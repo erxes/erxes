@@ -15,6 +15,7 @@ import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils';
 import { postUsername } from '../../utils';
+import dayjs from 'dayjs';
 
 type Props = {
   post: IPost;
@@ -22,10 +23,18 @@ type Props = {
   onApproveClick: () => void;
   onDenyClick: () => void;
   onPublish: () => void;
+  onFeature: (postId: string, forumPost: IPost) => void;
 };
 
-function PageDetail(props: Props) {
-  const { post, onDraft, onPublish, onApproveClick, onDenyClick } = props;
+function PostDetail(props: Props) {
+  const {
+    post,
+    onDraft,
+    onPublish,
+    onApproveClick,
+    onDenyClick,
+    onFeature
+  } = props;
 
   const renderThumbnail = () => {
     if (post.thumbnail) {
@@ -64,6 +73,29 @@ function PageDetail(props: Props) {
         Turn into a draft
       </Button>
     );
+  };
+
+  const renderFeatureButton = () => {
+    const btnStyle = post.isFeaturedByAdmin ? 'simple' : 'success';
+    const text = post.isFeaturedByAdmin ? 'Unfeature' : 'Feature';
+
+    return (
+      <Button
+        onClick={() => onFeature(post._id, post)}
+        btnStyle={btnStyle}
+        size="small"
+      >
+        {text}
+      </Button>
+    );
+  };
+
+  const pollType = () => {
+    if (post.isPollMultiChoice) {
+      return 'Multiple choice';
+    }
+
+    return 'Single choice';
   };
 
   const renderApproveButton = () => {
@@ -106,7 +138,7 @@ function PageDetail(props: Props) {
           <FlexItem>
             <FlexRow>
               <label>{__('Created at')}</label>
-              <strong>{post.createdAt}</strong>
+              <strong>{dayjs(post.createdAt).format('lll')}</strong>
             </FlexRow>
           </FlexItem>
           <FlexItem>
@@ -129,7 +161,7 @@ function PageDetail(props: Props) {
           <FlexItem>
             <FlexRow>
               <label>{__('Updated at')}</label>
-              <strong>{post.updatedAt}</strong>
+              <strong>{dayjs(post.updatedAt).format('lll')}</strong>
             </FlexRow>
           </FlexItem>
           <FlexItem>
@@ -152,7 +184,7 @@ function PageDetail(props: Props) {
           <FlexItem>
             <FlexRow>
               <label>{__('State changed at')}</label>
-              <strong>{post.stateChangedAt}</strong>
+              <strong>{dayjs(post.stateChangedAt).format('lll')}</strong>
             </FlexRow>
           </FlexItem>
           <FlexItem>
@@ -221,6 +253,53 @@ function PageDetail(props: Props) {
         </FlexContent>
       </Subject>
       <Subject>
+        <FlexContent>
+          <FlexItem>
+            <FlexRow>
+              <label>{__('Featured by admin')}</label>
+              <strong>{post.isFeaturedByAdmin ? 'Yes' : 'No'}</strong>
+              &nbsp;&nbsp;&nbsp;
+              {renderFeatureButton()}
+            </FlexRow>
+          </FlexItem>
+          <FlexItem>
+            <FlexRow>
+              <label>{__('Featured by user')}</label>
+              <strong>{post.isFeaturedByUser || 'No'}</strong>&nbsp;&nbsp;&nbsp;
+            </FlexRow>
+          </FlexItem>
+        </FlexContent>
+      </Subject>
+      <Subject>
+        <FlexContent>
+          <FlexItem>
+            <FlexRow>
+              <label>{__('Poll type')}</label>
+              <strong>{pollType()}</strong>&nbsp;&nbsp;&nbsp;
+            </FlexRow>
+          </FlexItem>
+          <FlexItem>
+            <FlexRow>
+              <label>{__('Poll end date')}</label>
+              <strong>
+                {dayjs(post.pollEndDate).format('lll') || 'No date'}
+              </strong>
+              &nbsp;&nbsp;&nbsp;
+            </FlexRow>
+          </FlexItem>
+        </FlexContent>
+      </Subject>
+      <Subject>
+        <FlexRow>
+          <label>{__('Poll options')}</label>
+        </FlexRow>
+        <ul>
+          {post.pollOptions.map(op => (
+            <li key={op._id}>{op.title}</li>
+          ))}
+        </ul>
+      </Subject>
+      <Subject>
         <FlexRow>
           <label>{__('Description')}</label>
         </FlexRow>
@@ -262,4 +341,4 @@ function PageDetail(props: Props) {
   );
 }
 
-export default PageDetail;
+export default PostDetail;

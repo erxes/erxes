@@ -9,27 +9,28 @@ import PostsList from '../../components/posts/PostsList';
 import React from 'react';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import queryString from 'query-string';
 import { useQuery } from 'react-apollo';
 import { useSearchParam } from '../../hooks';
 
-type FinalProps = RemoveMutationResponse;
+type Props = {
+  queryParams: any;
+  history: any;
+};
 
-function List({ removeMutation }: FinalProps) {
+type FinalProps = Props & RemoveMutationResponse;
+
+function List({ removeMutation, queryParams, history }: FinalProps) {
   const [categoryId] = useSearchParam('categoryId');
   const [state] = useSearchParam('state');
   const [categoryIncludeDescendants] = useSearchParam(
     'categoryIncludeDescendants'
   );
 
-  const queryParams = queryString.parse(location.search);
-
   const [categoryApprovalState] = useSearchParam('categoryApprovalState');
   const [strLimit] = useSearchParam('limit');
-  const [strPageIndex, setPageIndex] = useSearchParam('pageIndex');
 
   const limit = Number(strLimit || 20);
-  const pageIndex = Number(strPageIndex || 0);
+  const pageIndex = Number(queryParams.pageIndex || 0);
   const offset = limit * pageIndex;
 
   const variables = {
@@ -54,29 +55,45 @@ function List({ removeMutation }: FinalProps) {
     return <pre>{JSON.stringify(postQuery.error, null, 2)}</pre>;
   }
 
-  const remove = (pageId: string, emptyBulk: () => void) => {
-    confirm(`Are you sure?`)
-      .then(() => {
-        removeMutation({ variables: { _id: pageId } })
-          .then(() => {
-            emptyBulk();
-          })
-          .catch(e => {
-            Alert.error(e.message);
-          });
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
+  const remove = (postId: string, emptyBulk?: () => void) => {
+    const deleteFunction = (afterSuccess?: any) => {
+      removeMutation({ variables: { _id: postId } })
+        .then(() => {
+          afterSuccess ? afterSuccess() : console.log('success');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
+    if (emptyBulk) {
+      deleteFunction(emptyBulk);
+    } else {
+      confirm(`Are you sure?`)
+        .then(() => {
+          deleteFunction();
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    }
   };
+
+  const posts = postQuery.data.forumPosts || ([] as IPost[]);
+  let filteredPosts;
+
+  if (queryParams.search) {
+    filteredPosts = posts.filter(p => p.title.includes(queryParams.search));
+  }
 
   const content = props => {
     return (
       <PostsList
         {...props}
         queryParams={queryParams}
+        history={history}
         remove={remove}
-        posts={postQuery.data.forumPosts || ([] as IPost[])}
+        posts={queryParams.search ? filteredPosts : posts}
       />
     );
   };

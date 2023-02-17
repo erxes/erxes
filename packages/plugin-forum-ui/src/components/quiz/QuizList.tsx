@@ -8,67 +8,55 @@ import Row from './Row';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { IPage } from '../../types';
+import { __ } from '@erxes/ui/src/utils';
+import { IQuiz } from '../../types';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import PageForm from './PageForm';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { Alert, confirm, __, router as routerUtils } from '@erxes/ui/src/utils';
-import { Flex } from '@erxes/ui/src/styles/main';
+import QuizForm from '../../containers/quiz/QuizForm';
+import { Alert, confirm } from '@erxes/ui/src/utils';
 
 type Props = {
-  pages: IPage[];
-  queryParams?: any;
+  quizzes: IQuiz[];
   loading?: boolean;
-  remove?: (pageId: string, emptyBulk?: () => void) => void;
+  remove?: (id: string, emptyBulk: () => void) => void;
   refetch?: () => void;
   history?: any;
   emptyBulk: () => void;
   bulk: any[];
   isAllSelected: boolean;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
-  toggleBulk: (target: IPage, toAdd: boolean) => void;
-  toggleAll: (targets: IPage[], containerId: string) => void;
+  toggleBulk: (target: IQuiz, toAdd: boolean) => void;
+  toggleAll: (targets: IQuiz[], containerId: string) => void;
 };
 
 class List extends React.Component<Props> {
   renderRow() {
-    const { pages, remove, bulk, toggleBulk, renderButton } = this.props;
+    const { quizzes, remove, bulk, toggleBulk, emptyBulk } = this.props;
 
-    return pages.map(page => (
+    return quizzes.map(quiz => (
       <Row
-        key={page._id}
-        page={page}
-        isChecked={bulk.includes(page)}
+        key={quiz._id}
+        quiz={quiz}
+        isChecked={bulk.includes(quiz)}
         toggleBulk={toggleBulk}
         remove={remove}
-        renderButton={renderButton}
         history={history}
       />
     ));
   }
 
   renderForm = props => {
-    return <PageForm {...props} renderButton={this.props.renderButton} />;
-  };
-
-  searchHandler = event => {
-    const { history } = this.props;
-
-    routerUtils.setParams(history, { search: event.target.value });
+    return <QuizForm {...props} />;
   };
 
   render() {
     const {
-      queryParams,
       loading,
-      pages,
+      quizzes,
       isAllSelected,
       bulk,
       toggleAll,
       remove,
-      emptyBulk,
-      history
+      emptyBulk
     } = this.props;
 
     let actionBarLeft: React.ReactNode;
@@ -78,7 +66,7 @@ class List extends React.Component<Props> {
         confirm('Are you sure? This cannot be undone.')
           .then(() => {
             bulk.map(item => remove(item._id, emptyBulk));
-            Alert.success('You successfully deleted a page');
+            Alert.success('You successfully deleted a quiz');
           })
           .catch(e => {
             Alert.error(e.message);
@@ -98,29 +86,20 @@ class List extends React.Component<Props> {
     }
 
     const actionBarRight = (
-      <Flex>
-        <FormControl
-          type="text"
-          placeholder={__('Type to search')}
-          onChange={this.searchHandler}
-          value={routerUtils.getParam(history, 'search')}
-        />
-        &nbsp;&nbsp;
-        <ModalTrigger
-          title="Create New Page"
-          size="lg"
-          trigger={
-            <Button btnStyle="success" size="small" icon="plus-circle">
-              Create New Page
-            </Button>
-          }
-          content={this.renderForm}
-        />
-      </Flex>
+      <ModalTrigger
+        title="Create New Quiz"
+        size="lg"
+        trigger={
+          <Button btnStyle="success" size="small" icon="plus-circle">
+            Create New Quiz
+          </Button>
+        }
+        content={this.renderForm}
+      />
     );
 
     const onChange = () => {
-      toggleAll(pages, 'pages');
+      toggleAll(quizzes, 'quizzes');
     };
 
     const actionBar = (
@@ -139,12 +118,14 @@ class List extends React.Component<Props> {
               />
             </th>
             <th>
-              <SortHandler sortField={'title'} label={__('Title')} />
+              <SortHandler sortField={'name'} label={__('Name')} />
             </th>
-            <th>{__('Code')}</th>
+            <th>{__('Description')}</th>
             <th>
-              <SortHandler sortField={'listOrder'} label={__('List Order')} />
+              <SortHandler sortField={'company'} label={__('Company')} />
             </th>
+            <th>{__('State')}</th>
+            <th>{__('Category')}</th>
             <th>{__('Actions')}</th>
           </tr>
         </thead>
@@ -160,20 +141,14 @@ class List extends React.Component<Props> {
 
     return (
       <Wrapper
-        header={
-          <Wrapper.Header
-            title={__('Pages')}
-            queryParams={queryParams}
-            submenu={submenu}
-          />
-        }
+        header={<Wrapper.Header title={__('Quiz')} submenu={submenu} />}
         actionBar={actionBar}
-        footer={<Pagination count={pages.length} />}
+        footer={<Pagination count={quizzes.length} />}
         content={
           <DataWithLoader
             data={content}
             loading={loading}
-            count={pages.length}
+            count={quizzes.length}
             emptyContent={
               <EmptyContent
                 content={EMPTY_CONTENT_FORUMS}

@@ -6,23 +6,20 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
-import { IPage } from '../../types';
-import PageForm from './PageForm';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { Link } from 'react-router-dom';
-import { DetailLink } from '../../styles';
+import { IQuiz } from '../../types';
+import QuizForm from '../../containers/quiz/QuizForm';
+import { PostTitle } from '../../styles';
 
 type Props = {
-  page: IPage;
+  quiz: IQuiz;
   history: any;
   remove: (pageId: string, emptyBulk?: () => void) => void;
   isChecked?: boolean;
   toggleBulk: (target: any, toAdd: boolean) => void;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 class Row extends React.Component<Props> {
-  renderEditAction(page) {
+  renderEditAction(quiz) {
     const trigger = (
       <Button btnStyle="link">
         <Tip text={__('Edit')} placement="top">
@@ -31,13 +28,11 @@ class Row extends React.Component<Props> {
       </Button>
     );
 
-    const content = props => (
-      <PageForm {...props} renderButton={this.props.renderButton} page={page} />
-    );
+    const content = props => <QuizForm {...props} quiz={quiz} />;
 
     return (
       <ModalTrigger
-        title={`Edit Page`}
+        title={`Edit Quiz`}
         size="lg"
         trigger={trigger}
         content={content}
@@ -46,14 +41,14 @@ class Row extends React.Component<Props> {
   }
 
   renderRemoveAction() {
-    const { page, remove } = this.props;
+    const { quiz, remove } = this.props;
 
-    const onClick = () => remove(page._id);
+    const onClick = () => remove(quiz._id);
 
     return (
       <Tip text={__('Delete')} placement="top">
         <Button
-          id="pageDelete"
+          id="quizDelete"
           btnStyle="link"
           onClick={onClick}
           icon="times-circle"
@@ -63,11 +58,11 @@ class Row extends React.Component<Props> {
   }
 
   render() {
-    const { page, isChecked, toggleBulk } = this.props;
+    const { quiz, isChecked, toggleBulk } = this.props;
 
     const onChange = e => {
       if (toggleBulk) {
-        toggleBulk(page, e.target.checked);
+        toggleBulk(quiz, e.target.checked);
       }
     };
 
@@ -77,23 +72,25 @@ class Row extends React.Component<Props> {
 
     return (
       <tr>
-        <td id="pagesCheckBox" onClick={onClick}>
+        <td id="quizCheckBox" onClick={onClick}>
           <FormControl
             checked={isChecked}
             componentClass="checkbox"
             onChange={onChange}
           />
         </td>
+        <td>{quiz.name}</td>
+        <td>{quiz.description}</td>
         <td>
-          <DetailLink>
-            <Link to={`/forum/pages/${page._id}`}>{page.title}</Link>
-          </DetailLink>
+          {quiz.company && quiz.company.primaryName
+            ? quiz.company.primaryName
+            : ''}
         </td>
-        <td>{page.code}</td>
-        <td>{page.listOrder}</td>
+        <td>{quiz.state}</td>
+        <td>{quiz.category ? quiz.category.name : ''}</td>
         <td>
           <ActionButtons>
-            {this.renderEditAction(page)}
+            {this.renderEditAction(quiz)}
             {this.renderRemoveAction()}
           </ActionButtons>
         </td>
