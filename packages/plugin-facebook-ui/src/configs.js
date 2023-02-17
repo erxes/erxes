@@ -91,7 +91,7 @@ module.exports = {
         `,
       name: 'facebookConversationMessagesCount',
       integrationKind: 'facebook-messenger',
-    }
+    },
   },
   inboxIntegrations: [
     {
