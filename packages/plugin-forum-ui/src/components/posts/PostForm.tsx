@@ -128,8 +128,7 @@ class PostForm extends React.Component<Props, State> {
     this.setState({ ...this.state, [key]: formattedDate });
   };
 
-  onChangeThumbnail = attachment => {
-    this.setState({ thumbnail: attachment });
+  onChangeThumbnail = attachment => this.setState({ thumbnail: attachment });
 
   renderContent = (formProps: IFormProps) => {
     const { post, renderButton, closeModal, tags } = this.props;
