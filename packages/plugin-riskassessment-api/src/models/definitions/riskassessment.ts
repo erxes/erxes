@@ -30,6 +30,7 @@ export interface IRiskAssessmentsDocument
   indicatorGroups: any[];
   cardId: string;
   cardType: string;
+  isSplittedUsers: boolean;
 }
 
 export interface IRiskAssessmentIndicator
@@ -96,6 +97,7 @@ export const riskAssessmentsSchema = new Schema({
     label: 'Risk indicator Id'
   }),
   groupId: field({ type: String, label: 'Indicator Group Id' }),
+  isSplittedUsers: field({ type: Boolean, label: 'Is Splitted Team Members' }),
   branchIds: field({ type: [String], label: 'Branch ids ' }),
   departmentIds: field({ type: [String], label: 'Department ids ' }),
   operationIds: field({ type: [String], label: 'Operation Ids' }),

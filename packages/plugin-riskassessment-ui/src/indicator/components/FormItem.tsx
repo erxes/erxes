@@ -406,7 +406,7 @@ class Item extends React.Component<Props, State> {
           )}
           <ModalTrigger
             title={!!this.props.doc.formId ? 'Build New Form' : 'Edit Form'}
-            enforceFocus={true}
+            enforceFocus={false}
             size="xl"
             content={this.renderFormContent}
             trigger={formTrigger}

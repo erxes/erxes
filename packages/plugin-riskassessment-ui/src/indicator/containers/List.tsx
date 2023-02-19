@@ -13,6 +13,7 @@ import {
   RiskIndicatorsListQueryResponse,
   RiskIndicatorsTotalCountQueryResponse
 } from '../common/types';
+import { generateParams } from '../common/utils';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 
@@ -22,7 +23,6 @@ type Props = {
 };
 
 type FinalProps = {
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
   listQuery: RiskIndicatorsListQueryResponse;
   totalCountQuery: RiskIndicatorsTotalCountQueryResponse;
   removeMutation: any;
@@ -50,63 +50,18 @@ class ListContainer extends React.Component<FinalProps> {
       });
     };
 
-    const renderButton = ({
-      name,
-      values,
-      isSubmitted,
-      callback,
-      confirmationUpdate,
-      object
-    }: IButtonMutateProps) => {
-      const afterMutate = () => {
-        listQuery.refetch();
-        if (callback) {
-          callback();
-        }
-      };
-      let mutation = mutations.riskIndicatorAdd;
-      let successAction = 'added';
-      if (object) {
-        mutation = mutations.riskIndicatorUpdate;
-        successAction = 'updated';
-      }
-      return (
-        <ButtonMutate
-          mutation={mutation}
-          variables={values}
-          callback={afterMutate}
-          isSubmitted={isSubmitted}
-          type="submit"
-          confirmationUpdate={confirmationUpdate}
-          successMessage={`You successfully ${successAction} a ${name}`}
-        />
-      );
-    };
-
     const updatedProps = {
       ...this.props,
       list: riskIndicators,
       totalCount: totalCountQuery?.riskIndicatorsTotalCount || 0,
       refetch: listQuery.refetch,
       loading,
-      remove,
-      renderButton
+      remove
     };
 
     return <List {...updatedProps} />;
   }
 }
-
-export const generateParams = ({ queryParams }) => ({
-  ...router.generatePaginationParams(queryParams || {}),
-  ids: queryParams.ids,
-  searchValue: queryParams.searchValue,
-  sortField: queryParams.sortField,
-  sortDirection: Number(queryParams.sortDirection) || undefined,
-  sortFromDate: queryParams.from || undefined,
-  sortToDate: queryParams.to || undefined,
-  categoryId: queryParams.categoryId
-});
 
 export default withProps<Props>(
   compose(

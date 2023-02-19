@@ -89,4 +89,5 @@ export const queries = `
     riskAssessmentAssignedMembers(cardId:String,cardType:String,riskAssessmentId:String):JSON
     riskAssessmentSubmitForm(cardId:String,cardType:String,riskAssessmentId:String,userId:String):JSON
     riskAssessmentIndicatorForm(riskAssessmentId:String,indicatorId:String,userId:String):JSON
+    riskAssessmentGroups(riskAssessmentId:String,groupIds:[String] ):JSON
 `;

@@ -2,6 +2,7 @@ import { checkPermission, paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { statusColors } from '../../../constants';
 import { riskAssessment } from '../../../permissions';
+import { RiskAssessmentGroupParams } from '../types';
 
 const generateFilter = async (params, models) => {
   let filter: any = {};
@@ -83,6 +84,22 @@ const RiskAssessmentQueries = {
       cardType
     });
   },
+
+  async riskAssessmentGroups(
+    _root,
+    { riskAssessmentId, groupIds }: RiskAssessmentGroupParams,
+    { models }: IContext
+  ) {
+    if (!groupIds.length) {
+      throw new Error('Please provide some group id');
+    }
+
+    return await models.RiskAssessmentGroups.find({
+      assessmentId: riskAssessmentId,
+      groupId: { $in: groupIds }
+    });
+  },
+
   async riskAssessmentAssignedMembers(
     _root,
     { cardId, cardType, riskAssessmentId },

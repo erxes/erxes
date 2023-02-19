@@ -175,6 +175,11 @@ export const getAsssignedUsers = async (
   cardType: string
 ) => {
   let assignedUsers;
+
+  if (!cardId && !cardType) {
+    return 'Something went wrong trying to get assigned users of card';
+  }
+
   const card = await sendCardsMessage({
     subdomain,
     action: `${cardType}s.findOne`,

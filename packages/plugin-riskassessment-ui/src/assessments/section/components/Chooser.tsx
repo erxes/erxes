@@ -1,14 +1,9 @@
 import {
-  Button,
   ButtonMutate,
   Chooser,
-  CollapseContent,
   ControlLabel,
   EmptyState,
-  FormControl,
   FormGroup,
-  Label,
-  SelectTeamMembers,
   Spinner,
   Toggle,
   __
@@ -21,12 +16,9 @@ import RiskIndicatorForm from '../../../indicator/containers/Form';
 import RiskGroupsForm from '../../../indicator/groups/containers/Form';
 import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
-import { useState, useEffect, useRef } from 'react';
-import {
-  DetailPopOver,
-  SelectGroupsAssignedUsers
-} from '../../../assessments/common/utils';
-import { FormContainer, ListItem } from '../../../styles';
+import { useState, useEffect } from 'react';
+import { DetailPopOver } from '../../../assessments/common/utils';
+import { SelectGroupsAssignedUsers } from '../common/utils';
 import { queries as groupsQueries } from '../../../indicator/groups/graphql';
 
 type Props = {
@@ -58,6 +50,7 @@ export default function SelectIndicators(props: Props) {
   const [searchValue, setSearchValue] = useState('');
   const [useGroups, setUseGroups] = useState(false);
   const [groupsAssignedUsers, setGroupsAssignedUsers] = useState<any[]>([]);
+  const [isSplittedUsers, setSplitUsers] = useState(false);
   const { data, error, loading } = useQuery(
     gql(useGroups ? groupsQueries.list : queries.riskIndicators),
     {
@@ -119,7 +112,12 @@ export default function SelectIndicators(props: Props) {
   const renderFilters = () => {
     const toggleGrouping = () => {
       setUseGroups(useGroups => !useGroups);
+      setSplitUsers(false);
       setSelectedItems([]);
+    };
+
+    const toggleSplitAssignedUsers = () => {
+      setSplitUsers(isSplittedUsers => !isSplittedUsers);
     };
 
     return (
@@ -128,6 +126,17 @@ export default function SelectIndicators(props: Props) {
           <ControlLabel>{__('Use groups of indicators')}</ControlLabel>
           <Toggle onChange={toggleGrouping} checked={useGroups} />
         </FormGroup>
+        {useGroups && (
+          <FormGroup>
+            <ControlLabel>
+              {__('Split assigned team members to groups of indicators')}
+            </ControlLabel>
+            <Toggle
+              onChange={toggleSplitAssignedUsers}
+              checked={isSplittedUsers}
+            />
+          </FormGroup>
+        )}
       </DetailPopOver>
     );
   };
@@ -153,7 +162,7 @@ export default function SelectIndicators(props: Props) {
     const { detail } = props;
     if (detail.groupId) {
       setUseGroups(true);
-
+      if (detail.isSplittedUsers) setSplitUsers(true);
       setSelectedItems(
         (list || []).filter(item => detail.groupId === item._id)
       );
@@ -170,64 +179,29 @@ export default function SelectIndicators(props: Props) {
   };
 
   const renderExtraField = () => {
-    if (!useGroups || !selectedItems.length) {
+    if (!useGroups || !selectedItems.length || !isSplittedUsers) {
       return;
     }
 
-    const { cardId, cardType } = props;
+    const { cardId, cardType, detail } = props;
 
-    const handleSelect = (values, groupId) => {
-      if (groupsAssignedUsers.find(item => item.groupId === groupId)) {
-        return setGroupsAssignedUsers(
-          groupsAssignedUsers.map(item =>
-            item.groupId === groupId
-              ? { ...item, assignedUserIds: values }
-              : item
-          )
-        );
-      }
-      setGroupsAssignedUsers([
-        ...groupsAssignedUsers,
-        { groupId, assignedUserIds: values }
-      ]);
+    const handleSelect = (
+      groupsAssignedUsers: { groupId: string; assignedUserIds: string[] }[]
+    ) => {
+      setGroupsAssignedUsers(groupsAssignedUsers);
     };
+
+    const groups = selectedItems[0].groups || [];
 
     return (
       <SelectGroupsAssignedUsers
         cardId={cardId}
         cardType={cardType}
-        selectedItems={selectedItems}
+        groups={groups}
         handleSelect={handleSelect}
+        riskAssessmentId={detail?._id}
       />
     );
-    // return (
-    //   <CollapseContent
-    //     title=""
-    //     beforeTitle={
-    //       <ControlLabel>
-    //         {'Split assigned team members to groups of indicators'}
-    //         <Label lblStyle="simple">{__('Optional')}</Label>
-    //       </ControlLabel>
-    //     }
-    //   >
-    //     {selectedItems.map(item =>
-    //       item.groups.map((group, index) => (
-    //         <ListItem key={index}>
-    //           <h5 style={{ marginBottom: 10 }}>
-    //             {group.name || `Group ${index + 1}`}
-    //           </h5>
-    //           <FormGroup>
-    //             <SelectTeamMembers
-    //               name="groupTeamMembers"
-    //               label="Assign Team Members"
-    //               onSelect={values => handleSelect(values, group._id)}
-    //             />
-    //           </FormGroup>
-    //         </ListItem>
-    //       ))
-    //     )}
-    //   </CollapseContent>
-    // );
   };
 
   const updateProps = {

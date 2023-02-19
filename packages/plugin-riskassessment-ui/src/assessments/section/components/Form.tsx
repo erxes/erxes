@@ -1,4 +1,4 @@
-import { CollapseContent, FormGroup, ControlLabel, __ } from '@erxes/ui/src';
+import { FormGroup, ControlLabel, __ } from '@erxes/ui/src';
 import React from 'react';
 import { RiskCalculateLogicType } from '../../../indicator/common/types';
 import { FormContainer } from '../../../styles';
@@ -6,9 +6,10 @@ import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import { SelectOperation } from '../../../common/utils';
 import Chooser from './Chooser';
+import { RiskAssessmentTypes } from '../../common/types';
 
 type Props = {
-  riskAssessment: any;
+  riskAssessment: RiskAssessmentTypes;
   cardId: string;
   cardType: string;
   closeModal: () => void;

@@ -12,10 +12,11 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 import React from 'react';
 import { FormContainer, ProductName } from '../../../styles';
+import { RiskAssessmentAssignedMembers } from '../../common/types';
 import RiskAssessmentForm from '../containers/RiskAssessmentForm';
 
 type Props = {
-  assignedMembers: any[];
+  assignedMembers: RiskAssessmentAssignedMembers[];
   currentUser: IUser;
   cardId: string;
   cardType: string;
