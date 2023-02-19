@@ -356,7 +356,7 @@ module.exports.startServices = async configs => {
         REDIS_URL: `redis://${REDIS_HOST}:${REDIS_PORT ||
           6379}?password=${REDIS_PASSWORD || ''}`,
         REDIS_PASSWORD: REDIS_PASSWORD,
-        REDIS_DB: REDIS_DB
+        REDIS_DB: REDIS_DB || 0
       }
     });
 

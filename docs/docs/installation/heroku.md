@@ -54,6 +54,7 @@ RABBITMQ_HOST = RABBITMQ_HOST # we will update it later on
 REDIS_HOST = REDIS_HOST # we will update it later on
 REDIS_PASSWORD = REDIS_PASS # we will update it later on
 REDIS_PORT = 28229 # update it later on
+REDIS_DB = 0 # update it later on
 JWT_TOKEN_SECRET: "replact it with your token"
 LOGS_API_DOMAIN = "update it when you install logger app"
 INTEGRATIONS_API_DOMAIN = "update it when you install integrations app"
@@ -71,7 +72,7 @@ Copy MONGO_URI's value and paste it into MONGO_URL.
 
 Copy RABBITMQ_URL's value and paste into RABBITMQ_HOST.
 
-Update REDIS_HOST, REDIS_PASSWORD, and REDIS_PORT values using REDIS_URL's value.
+Update REDIS_HOST, REDIS_PASSWORD, REDIS_PORT and REDIS_DB values using REDIS_URL's value.
 
 Please now go to Resources tab as you will need to start `cronjob` and `worker` processes.
 Start `cronjob` and `worker`.
@@ -152,6 +153,7 @@ RABBITMQ_HOST = copy and paste from erxes-api RABBITMQ_HOST config var
 REDIS_HOST = copy and paste from erxes-api REDIS_HOST config var
 REDIS_PASSWORD = copy and paste from erxes-api REDIS_PASSWORD config var
 REDIS_PORT = copy and paste from erxes-api REDIS_PORT config var
+REDIS_db = copy and paste from erxes-api REDIS_db config var
 ```
 
 [![Deploy Widgets](https://www.herokucdn.com/deploy/button.svg#heroku 'Deploy erxes integrations')](https://heroku.com/deploy?template=https://github.com/erxes/erxes-integrations/tree/develop)
