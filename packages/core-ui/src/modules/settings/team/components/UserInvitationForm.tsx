@@ -208,6 +208,17 @@ class UserInvitationForm extends React.Component<Props, State> {
     });
   }
 
+  generateDepartmentOptions(
+    array: Array<{ _id: string; name?: string; title?: string }>
+  ): IOption[] {
+    return array.map(item => {
+      return {
+        value: item._id,
+        label: item.name || item.title || ''
+      };
+    });
+  }
+
   generateGroupsChoices = () => {
     return this.props.usersGroups.map(group => ({
       value: group._id,
@@ -320,13 +331,8 @@ class UserInvitationForm extends React.Component<Props, State> {
                 <td>
                   <Select
                     value={entries[i].departmentId}
-                    options={generateTree(
-                      this.props.departments,
-                      null,
-                      (node, level) => ({
-                        value: node._id,
-                        label: `${'---'.repeat(level)} ${node.title}`
-                      })
+                    options={this.generateDepartmentOptions(
+                      this.props.departments
                     )}
                     onChange={this.onChange.bind(this, i, 'departmentId')}
                     placeholder={__('Choose department ...')}
