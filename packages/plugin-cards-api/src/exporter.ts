@@ -232,6 +232,37 @@ const fillValue = async (
       value = labels.map(label => label.name).join(', ');
 
       break;
+
+    case 'branchIds':
+      const branches = await sendCoreMessage({
+        subdomain,
+        action: `branches.find`,
+        data: {
+          query: { _id: { $in: item.branchIds || [] } }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      value = branches.map(branch => branch.title).join(', ');
+
+      break;
+
+    case 'departmentIds':
+      const departments = await sendCoreMessage({
+        subdomain,
+        action: 'departments.find',
+        data: {
+          query: { _id: { $in: item.departmentIds || [] } }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      value = departments.map(department => department.title).join(', ');
+
+      break;
+
     case 'stageId':
       const stage: IStageDocument | null = await models.Stages.findOne({
         _id: item.stageId

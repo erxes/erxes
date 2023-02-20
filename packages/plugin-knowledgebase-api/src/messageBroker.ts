@@ -69,6 +69,17 @@ export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
   });
 };
 
+export const sendSegmentsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'segments',
+    ...args
+  });
+};
+
 export default function() {
   return client;
 }
