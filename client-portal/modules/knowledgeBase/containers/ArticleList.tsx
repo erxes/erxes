@@ -1,8 +1,8 @@
-import { gql, useQuery } from '@apollo/client';
-import React from 'react';
-import Spinner from '../../common/Spinner';
-import ArticleList from '../components/ArticleList';
-import { articlesQuery } from '../graphql/queries';
+import { gql, useQuery } from "@apollo/client";
+import React from "react";
+import Spinner from "../../common/Spinner";
+import ArticleList from "../components/ArticleList";
+import { articlesQuery } from "../graphql/queries";
 
 type Props = {
   searchValue?: any;
@@ -28,7 +28,7 @@ function ArticleListContainer(props: Props) {
   const updatedProps = {
     ...props,
     loading,
-    articles
+    articles,
   };
 
   const renderSearchResult = () => {
