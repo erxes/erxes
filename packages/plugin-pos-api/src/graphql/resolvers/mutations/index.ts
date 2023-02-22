@@ -1,3 +1,4 @@
 import Pos from './pos';
+import PosOrders from './orders';
 
-export default { ...Pos };
+export default { ...Pos, ...PosOrders };

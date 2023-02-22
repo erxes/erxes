@@ -20,7 +20,7 @@ export const initBroker = async cl => {
   consumeQueue('pos:createOrUpdateOrders', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const { action, posToken, response, order, items } = data;
+    const { action, posToken, responses, order, items } = data;
     const pos = await models.Pos.findOne({ token: posToken }).lean();
 
     // ====== if (action === 'statusToDone')
@@ -140,13 +140,15 @@ export const initBroker = async cl => {
     }
 
     // ====== if (action === 'makePayment')
-    if (response && response._id) {
-      await sendEbarimtMessage({
-        subdomain,
-        action: 'putresponses.createOrUpdate',
-        data: { _id: response._id, doc: { ...response, posToken } },
-        isRPC: true
-      });
+    for (const response of responses) {
+      if (response && response._id) {
+        await sendEbarimtMessage({
+          subdomain,
+          action: 'putresponses.createOrUpdate',
+          data: { _id: response._id, doc: { ...response, posToken } },
+          isRPC: true
+        });
+      }
     }
 
     await models.PosOrders.updateOne(
@@ -250,7 +252,7 @@ export const initBroker = async cl => {
       data: {
         status: 'ok',
         posToken,
-        responseId: response && response._id,
+        responseIds: (responses || []).map(resp => resp._id),
         orderId: order._id
       },
       pos

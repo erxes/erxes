@@ -76,14 +76,14 @@ export const initBroker = async cl => {
     `posclient:updateSynced${channelToken}`,
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
-      const { responseId, orderId } = data;
+      const { responseIds, orderId } = data;
 
       await models.Orders.updateOne(
         { _id: orderId },
         { $set: { synced: true } }
       );
-      await models.PutResponses.updateOne(
-        { _id: responseId },
+      await models.PutResponses.updateMany(
+        { _id: { $in: responseIds } },
         { $set: { synced: true } }
       );
     }
