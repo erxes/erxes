@@ -61,7 +61,8 @@ export const types = `
     createdAt: Date
     isCustomerRead: Boolean
     mid: String
-
+    internal: Boolean
+    
     customer: Customer
     user: User
   }
