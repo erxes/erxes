@@ -102,10 +102,9 @@ class Detail extends React.Component<Props, State> {
     return fields.map(field => (
       <CollapseContent
         key={field.fieldId}
-        beforeTitle={
-          <ControlLabel>{`${field?.text}: ${field?.value}`}</ControlLabel>
-        }
-        title=""
+        // beforeTitle={<ControlLabel>{}</ControlLabel>}
+        title={`${field?.text}: ${field?.value}`}
+        description={field.description}
         compact
       >
         {(field?.optionsValues?.split('\n') || []).map(value => (

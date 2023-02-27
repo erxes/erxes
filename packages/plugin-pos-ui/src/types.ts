@@ -39,7 +39,8 @@ export type IPos = {
   erxesAppToken: string;
   adminIds: [string];
   cashierIds: [string];
-  paymentIds: [string];
+  paymentIds: string[];
+  paymentTypes: any[];
   user: IUser;
   isOnline: boolean;
   onServer: boolean;
@@ -182,13 +183,3 @@ export interface IProductShema {
 export type SchemaLabelsQueryResponse = {
   getDbSchemaLabels: IProductShema[];
 } & QueryResponse;
-
-export interface IOrdersSummary {
-  cardAmount: number;
-  cashAmount: number;
-  receivableAmount: number;
-  mobileAmount: number;
-  totalAmount: number;
-  finalAmount: number;
-  count: number;
-}

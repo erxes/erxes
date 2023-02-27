@@ -7,16 +7,17 @@ import React from 'react';
 import { formatValue } from '@erxes/ui/src/utils';
 import { IPutResponse } from '../types';
 import Response from './Response';
+import PerResponse from './PerResponse';
 
 type Props = {
   putResponse: IPutResponse;
   history: any;
 };
 
-function displayValue(putResponse, name) {
+export const displayValue = (putResponse, name) => {
   const value = _.get(putResponse, name);
   return formatValue(value);
-}
+};
 
 class PutResponseRow extends React.Component<Props, {}> {
   render() {
@@ -34,10 +35,11 @@ class PutResponseRow extends React.Component<Props, {}> {
     };
 
     const onPrint = () => {
-      const printContent = Response(putResponse);
+      const printContent = PerResponse(putResponse);
+      const printMianContent = Response(printContent);
       const myWindow =
         window.open(`__`, '_blank', 'width=800, height=800') || ({} as any);
-      myWindow.document.write(printContent);
+      myWindow.document.write(printMianContent);
     };
 
     return (

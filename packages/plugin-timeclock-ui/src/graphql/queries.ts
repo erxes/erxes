@@ -48,6 +48,21 @@ const listParamsValue = `
   reportType: $reportType
 `;
 
+const listTimelogsMain = `
+query timelogsMain(${listParamsDef}){
+  timelogsMain(${listParamsValue}){
+    list{
+      _id
+      user {
+        ${userFields}
+      }
+      timelog
+      deviceName
+    }
+    totalCount
+  }
+}`;
+
 const listTimeclocksMain = `
   query listTimeclocksQuery(${listParamsDef}) {
     timeclocksMain(${listParamsValue}) {
@@ -228,7 +243,7 @@ query holidays {
   }
 }`;
 
-const listScheduleConfig = `
+const listScheduleConfigs = `
   query scheduleConfigs {
     scheduleConfigs{
       _id
@@ -246,15 +261,39 @@ const listScheduleConfig = `
   }
 
 `;
+
+const listDeviceConfigs = `
+query deviceConfigs {
+  deviceConfigs {
+    _id 
+    deviceName
+    serialNo
+    extractRequired
+  }
+}`;
+
+const listTimeLogsPerUser = `
+  query timeLogsPerUser($userId: String, $startDate: String, $endDate: String){
+    timeLogsPerUser(userId: $userId, startDate: $startDate, endDate: $endDate){
+      _id
+      timelog
+      deviceSerialNo
+    }
+  }
+`;
+
 export default {
   listReports,
   listReportByUser,
   listBranches,
   listTimeclocksMain,
+  listTimelogsMain,
+  listTimeLogsPerUser,
   listSchedulesMain,
   listRequestsMain,
   listAbsenceTypes,
   listPayDates,
   listHolidays,
-  listScheduleConfig
+  listScheduleConfigs,
+  listDeviceConfigs
 };

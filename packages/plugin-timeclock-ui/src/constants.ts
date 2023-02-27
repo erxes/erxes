@@ -3,6 +3,7 @@ import { __ } from '@erxes/ui/src/utils';
 const menuTimeClock = (searchFilter: string) => {
   return [
     { title: __('Timeclocks'), link: `/timeclocks${searchFilter}` },
+    { title: __('Time logs'), link: `/timeclocks/logs${searchFilter}` },
     { title: __('Requests'), link: `/timeclocks/requests${searchFilter}` },
     { title: __('Schedule'), link: `/timeclocks/schedule${searchFilter}` },
     { title: __('Report'), link: `/timeclocks/report${searchFilter}` },
@@ -10,4 +11,7 @@ const menuTimeClock = (searchFilter: string) => {
   ];
 };
 const dateFormat = 'MM/DD/YYYY';
-export { menuTimeClock, dateFormat };
+const timeFormat = 'HH:mm';
+const dateAndTimeFormat = 'MM/DD/YYYY HH:mm';
+
+export { menuTimeClock, dateFormat, timeFormat, dateAndTimeFormat };

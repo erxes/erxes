@@ -57,14 +57,17 @@ export default {
 
   async card(riskAssessment, {}, { subdomain }: IContext) {
     const { cardId, cardType } = riskAssessment;
-    return await sendCardsMessage({
-      subdomain,
-      action: `${cardType}s.findOne`,
-      data: {
-        _id: cardId
-      },
-      isRPC: true,
-      defaultValue: {}
-    });
+    if (cardId && cardType) {
+      return await sendCardsMessage({
+        subdomain,
+        action: `${cardType}s.findOne`,
+        data: {
+          _id: cardId
+        },
+        isRPC: true,
+        defaultValue: {}
+      });
+    }
+    return null;
   }
 };

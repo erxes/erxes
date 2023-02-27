@@ -235,7 +235,7 @@ export const loadIndicatorsGroups = (models: IModels, subdomain: string) => {
       );
     }
     public static async removeGroups(ids: string[]) {
-      return await models.IndicatorsGroups.deleteMany(ids);
+      return await models.IndicatorsGroups.deleteMany({ _id: { $in: ids } });
     }
     static async validateIndicatorsGroups(params) {
       if ((params.groups || []).length > 1) {

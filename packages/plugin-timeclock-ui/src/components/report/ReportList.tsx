@@ -9,17 +9,32 @@ import Button from '@erxes/ui/src/components/Button';
 import ReportRow from './ReportRow';
 import { IReport } from '../../types';
 import { FilterItem } from '../../styles';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 
 type Props = {
   queryParams: any;
   history: any;
   reports: IReport[];
+  totalCount: number;
+
+  showSideBar: (sideBar: boolean) => void;
   getActionBar: (actionBar: any) => void;
+  getPagination: (pagination: any) => void;
+
   exportReport: () => void;
 };
 
 function ReportList(props: Props) {
-  const { history, reports, queryParams, getActionBar, exportReport } = props;
+  const {
+    history,
+    reports,
+    queryParams,
+    totalCount,
+    getActionBar,
+    getPagination,
+    exportReport,
+    showSideBar
+  } = props;
   const [selectedType, setType] = useState(queryParams.reportType);
 
   const renderTableHead = () => {
@@ -100,9 +115,10 @@ function ReportList(props: Props) {
               <td>{__('Planned Check In')}</td>
               <td>{__('Planned Check Out')}</td>
               <td>{__('Planned Duration')}</td>
-              <td>{__('Device type')}</td>
               <td>{__('Check In')}</td>
+              <td>{__('In Device')}</td>
               <td>{__('Check Out')}</td>
+              <td>{__('Out Device')}</td>
               <td>{__('Location')}</td>
               <td>{__('Duration')}</td>
               <td>{__('Overtime')}</td>
@@ -170,7 +186,10 @@ function ReportList(props: Props) {
     />
   );
 
+  getPagination(<Pagination count={totalCount} />);
+  showSideBar(true);
   getActionBar(actionBar);
+
   return content;
 }
 

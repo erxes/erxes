@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
-import { Alert, withProps } from '@erxes/ui/src/utils';
+import { Alert, withProps, confirm } from '@erxes/ui/src/utils';
 import List from '../../components/timeclock/TimeclockList';
 import {
   TimeClockMainQueryResponse,
@@ -12,14 +12,15 @@ import { queries } from '../../graphql';
 import React, { useState } from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { mutations } from '../../graphql';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import dayjs from 'dayjs';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import { generateParams } from '../../utils';
 
 type Props = {
   queryParams: any;
   history: any;
+  timeclockUser?: string;
+
+  timeclockId?: string;
 
   showSideBar: (sideBar: boolean) => void;
   getActionBar: (actionBar: any) => void;
@@ -34,9 +35,8 @@ type FinalProps = {
 const ListContainer = (props: FinalProps) => {
   const {
     timeclocksMainQuery,
-    getPagination,
-    extractAllMySqlDataMutation,
-    showSideBar
+    extractAllMsSqlDataMutation,
+    timeclockRemove
   } = props;
 
   const dateFormat = 'YYYY-MM-DD';
@@ -46,9 +46,17 @@ const ListContainer = (props: FinalProps) => {
     return <Spinner />;
   }
 
-  const extractAllMySqlData = (start: Date, end: Date) => {
+  const removeTimeclock = (timeclockId: string) => {
+    confirm('Are you sure to remove this timeclock?').then(() => {
+      timeclockRemove({ variables: { _id: timeclockId } }).then(() => {
+        Alert.success('Successfully removed timeclock');
+      });
+    });
+  };
+
+  const extractAllMsSqlData = (start: Date, end: Date) => {
     setLoading(true);
-    extractAllMySqlDataMutation({
+    extractAllMsSqlDataMutation({
       variables: {
         startDate: dayjs(start).format(dateFormat),
         endDate: dayjs(end).format(dateFormat)
@@ -73,10 +81,10 @@ const ListContainer = (props: FinalProps) => {
     totalCount,
     timeclocks: list,
     loading: timeclocksMainQuery.loading || loading,
-    extractAllMySqlData
+    removeTimeclock,
+    extractAllMsSqlData
   };
-  showSideBar(true);
-  getPagination(<Pagination count={totalCount} />);
+
   return <List {...updatedProps} />;
 };
 
@@ -90,10 +98,19 @@ export default withProps<Props>(
       })
     }),
     graphql<Props, TimeClockMutationResponse>(
-      gql(mutations.extractAllDataFromMySQL),
+      gql(mutations.extractAllDataFromMsSQL),
       {
-        name: 'extractAllMySqlDataMutation'
+        name: 'extractAllMsSqlDataMutation'
       }
-    )
+    ),
+    graphql<Props, TimeClockMutationResponse>(gql(mutations.timeclockRemove), {
+      name: 'timeclockRemove',
+      options: ({ timeclockId }) => ({
+        variables: {
+          _id: timeclockId
+        },
+        refetchQueries: ['listTimeclocksQuery']
+      })
+    })
   )(ListContainer)
 );

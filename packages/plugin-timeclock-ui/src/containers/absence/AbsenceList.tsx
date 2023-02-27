@@ -13,7 +13,6 @@ import { mutations, queries } from '../../graphql';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert } from '@erxes/ui/src/utils';
 import { IAttachment } from '@erxes/ui/src/types';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import { generateParams } from '../../utils';
 
 type Props = {
@@ -44,12 +43,9 @@ const ListContainer = (props: FinalProps) => {
     queryParams,
     sendAbsenceReqMutation,
     solveAbsenceMutation,
-    getPagination,
-    showSideBar,
     listAbsenceQuery,
     listAbsenceTypesQuery
   } = props;
-  const { reason } = queryParams;
 
   if (listAbsenceQuery.loading) {
     return <Spinner />;
@@ -65,6 +61,7 @@ const ListContainer = (props: FinalProps) => {
 
   const submitRequest = (
     usrId: string,
+    reason: string,
     expl: string,
     attchment: IAttachment,
     dateRange: any,
@@ -93,6 +90,7 @@ const ListContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
+    totalCount,
     absences: list,
     absenceTypes: listAbsenceTypesQuery.absenceTypes || [],
     loading: listAbsenceQuery.loading,
@@ -100,8 +98,6 @@ const ListContainer = (props: FinalProps) => {
     submitRequest
   };
 
-  showSideBar(true);
-  getPagination(<Pagination count={totalCount} />);
   return <AbsenceList {...updatedProps} />;
 };
 

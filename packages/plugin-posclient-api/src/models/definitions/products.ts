@@ -46,6 +46,8 @@ export interface IProduct extends IProductCommonFields {
   attachmentMore?: IAttachment[];
   uomId?: string;
   subUoms?: ISubUom[];
+  taxType?: string;
+  taxCode?: string;
 }
 
 export interface IProductDocument extends IProduct, Document {
@@ -137,7 +139,9 @@ export const productSchema = schemaWrapper(
     vendorId: field({ type: String, optional: true, label: 'Vendor' }),
     mergedIds: field({ type: [String], optional: true }),
     attachmentMore: field({ type: [attachmentSchema] }),
-    tokens: field({ type: [String] })
+    tokens: field({ type: [String] }),
+    taxType: field({ type: String, optional: true, label: 'VAT type' }),
+    taxCode: field({ type: String, optional: true, label: '' })
   })
 );
 

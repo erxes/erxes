@@ -26,6 +26,7 @@ const list = `
             }
             groups {
                 _id
+                name
                 calculateMethod
                 percentWeight
                 indicatorIds

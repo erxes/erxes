@@ -1,3 +1,4 @@
+import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 
 const RiskAssessmentMutations = {
@@ -16,4 +17,19 @@ const RiskAssessmentMutations = {
   }
 };
 
+checkPermission(
+  RiskAssessmentMutations,
+  'addRiskAssessment',
+  'manageRiskAssessment'
+);
+checkPermission(
+  RiskAssessmentMutations,
+  'editRiskAssessment',
+  'manageRiskAssessment'
+);
+checkPermission(
+  RiskAssessmentMutations,
+  'removeRiskAssessment',
+  'manageRiskAssessment'
+);
 export default RiskAssessmentMutations;

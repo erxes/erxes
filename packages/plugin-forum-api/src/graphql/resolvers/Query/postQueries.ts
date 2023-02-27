@@ -29,6 +29,14 @@ export const buildPostsQuery = async (
     }
   }
 
+  for (const field of ['isFeaturedByAdmin', 'isFeaturedByUser']) {
+    const param = params[field];
+
+    if (param !== undefined && param !== null) {
+      query[field] = param === true ? { $eq: true } : { $ne: true };
+    }
+  }
+
   if (params.categoryId) {
     if (params.categoryIncludeDescendants) {
       const descendants =

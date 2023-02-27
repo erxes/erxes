@@ -84,19 +84,18 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       let totalPercent = 0;
       let resultSumNumber = 0;
 
+      const filter = generateFields(params);
       if (customScoreField) {
         const percentWeight = customScoreField.percentWeight;
-        totalCount = (customScore || 0) * (percentWeight / 100);
+        totalCount = (customScore.value || 0) * (percentWeight / 100);
         totalPercent += customScoreField.percentWeight / 100;
+
+        await models.RiksFormSubmissions.create({
+          ...filter,
+          ...customScore,
+          contentType: 'customScore'
+        });
       }
-
-      const filter = generateFields(params);
-
-      await models.RiksFormSubmissions.create({
-        ...filter,
-        value: customScore,
-        contentType: 'customScore'
-      });
 
       for (const form of forms) {
         const fields = await sendFormsMessage({

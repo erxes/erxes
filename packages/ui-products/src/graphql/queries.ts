@@ -52,6 +52,8 @@ const productFields = `
     name
   }
   subUoms
+  taxType
+  taxCode
 `;
 
 const products = `

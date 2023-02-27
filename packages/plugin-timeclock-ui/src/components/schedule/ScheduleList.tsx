@@ -11,7 +11,8 @@ import Tip from '@erxes/ui/src/components/Tip';
 import ScheduleForm from './ScheduleForm';
 import { IScheduleConfig } from '../../types';
 import dayjs from 'dayjs';
-import { dateFormat } from '../../constants';
+import { dateFormat, timeFormat } from '../../constants';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 
 type Props = {
   scheduleOfMembers: any;
@@ -19,7 +20,7 @@ type Props = {
   history: any;
   branchesList: IBranch[];
   scheduleConfigs: IScheduleConfig[];
-  getActionBar: (actionBar: any) => void;
+  totalCount: number;
   solveSchedule: (scheduleId: string, status: string) => void;
   solveShift: (shiftId: string, status: string) => void;
   submitRequest: (
@@ -35,15 +36,22 @@ type Props = {
     selectedScheduleConfigId?: string
   ) => void;
   removeScheduleShifts: (_id: string, type: string) => void;
+
+  getActionBar: (actionBar: any) => void;
+  showSideBar: (sideBar: boolean) => void;
+  getPagination: (pagination: any) => void;
 };
 
 function ScheduleList(props: Props) {
   const {
     scheduleOfMembers,
+    totalCount,
     solveSchedule,
     solveShift,
+    removeScheduleShifts,
     getActionBar,
-    removeScheduleShifts
+    showSideBar,
+    getPagination
   } = props;
 
   const trigger = (
@@ -137,7 +145,7 @@ function ScheduleList(props: Props) {
           {shifts.map(shift => {
             return (
               <CustomRow key={shift.shiftEnd} marginNum={10}>
-                {new Date(shift.shiftStart).toLocaleTimeString()}
+                {dayjs(shift.shiftStart).format(timeFormat)}
               </CustomRow>
             );
           })}
@@ -146,7 +154,7 @@ function ScheduleList(props: Props) {
           {shifts.map(shift => {
             return (
               <CustomRow key={shift.shiftEnd} marginNum={10}>
-                {new Date(shift.shiftEnd).toLocaleTimeString()}
+                {dayjs(shift.shiftEnd).format(timeFormat)}
               </CustomRow>
             );
           })}
@@ -276,6 +284,9 @@ function ScheduleList(props: Props) {
   );
 
   getActionBar(actionBar);
+  showSideBar(true);
+  getPagination(<Pagination count={totalCount} />);
+
   return content;
 }
 

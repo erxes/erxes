@@ -8,6 +8,7 @@ export const posCommonFields = `
   adminIds
   cashierIds
   paymentIds
+  paymentTypes
   user {
     _id
     details {

@@ -8,7 +8,7 @@ import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
 import {
   zaloCreateIntegration,
-  removeIntegration,
+  removeIntegration
   // repairIntegrations
 } from './helpers';
 
@@ -52,7 +52,7 @@ export const initBroker = async cl => {
     'zalo:removeIntegration',
     async ({ subdomain, data: { integrationId } }) => {
       const models = await generateModels(subdomain);
-      await removeIntegration(models, integrationId)
+      await removeIntegration(models, integrationId);
       // await Messages.remove({ inboxIntegrationId: integrationId });
       // await Customers.remove({ inboxIntegrationId: integrationId });
       // await Integrations.remove({ inboxId: integrationId });
