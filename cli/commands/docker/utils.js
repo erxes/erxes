@@ -656,7 +656,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         collections: [
           {
             name: 'users',
-            schema: '{}',
+            schema: '{"customFieldsData": <nested>}',
             script: '',
           },
           {
