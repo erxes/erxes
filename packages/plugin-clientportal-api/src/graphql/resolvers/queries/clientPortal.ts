@@ -203,13 +203,13 @@ const configClientPortalQueries = {
   async clientPortalKnowledgeBaseArticles(
     _root,
     {
+      categoryIds,
       searchValue,
-      topicId,
-      categoryIds
+      topicId
     }: {
       searchValue?: string;
-      topicId?: string;
       categoryIds: string[];
+      topicId?: string;
     },
     { subdomain }: IContext
   ) {
