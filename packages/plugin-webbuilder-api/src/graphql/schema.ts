@@ -1,4 +1,12 @@
+import {
+  attachmentInput,
+  attachmentType
+} from '@erxes/api-utils/src/commonTypeDefs';
+
 export const types = `
+  ${attachmentType}
+  ${attachmentInput}
+
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
@@ -58,7 +66,7 @@ export const types = `
     _id: String!
     name: String
     domain: String
-    templateImage: String 
+    coverImage: Attachment
   }
 `;
 
@@ -110,7 +118,7 @@ export const mutations = `
   webbuilderEntriesRemove(_id: String!): JSON
 
   webbuilderTemplatesAdd(name: String, html: String): WebbuilderTemplate 
-  webbuilderTemplatesUse(_id: String!, name: String!): String
+  webbuilderTemplatesUse(_id: String!, name: String!, coverImage: AttachmentInput): String
   webbuilderTemplatesRemove(_id: String!): JSON
   
   webbuilderSitesAdd(name: String domain: String): WebbuilderSite 

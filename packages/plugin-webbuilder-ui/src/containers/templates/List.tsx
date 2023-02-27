@@ -33,8 +33,14 @@ function ListContainer(props: FinalProps) {
     return <Spinner objective={true} />;
   }
 
-  const use = (_id: string, name: string) => {
-    templatesUse({ variables: { _id, name } })
+  const use = (_id: string, name: string, coverImage: any) => {
+    templatesUse({
+      variables: {
+        _id,
+        name,
+        coverImage
+      }
+    })
       .then(res => {
         const {
           data: { webbuilderTemplatesUse }

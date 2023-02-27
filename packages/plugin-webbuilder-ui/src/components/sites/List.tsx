@@ -12,7 +12,7 @@ import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import { ISiteDoc } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
+import { readFile, __ } from '@erxes/ui/src/utils';
 import { getEnv } from '@erxes/ui/src/utils/core';
 
 type Props = {
@@ -40,7 +40,9 @@ class SiteList extends React.Component<Props, {}> {
       <SiteBox key={site._id} nowrap={true}>
         <SitePreview>
           <img
-            src={site.templateImage || '/images/template-preview.png'}
+            src={
+              readFile(site.coverImage?.url) || '/images/template-preview.png'
+            }
             alt="site-img"
           />
 

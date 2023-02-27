@@ -25,15 +25,19 @@ import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { extractAttachment } from '@erxes/ui/src/utils';
+import { IAttachment } from '@erxes/ui/src/types';
 
 type Props = {
   templates: ITemplateDoc[];
   templatesCount: number;
-  use: (_id: string, name: string) => void;
+  use: (_id: string, name: string, coverImage: any) => void;
 };
 
 function List(props: Props) {
   const [name, setName] = useState('');
+  const [coverImage, setCoverImage] = useState({} as IAttachment);
 
   const { templates, templatesCount, use } = props;
 
@@ -77,6 +81,18 @@ function List(props: Props) {
           />
         </FormGroup>
 
+        <FormGroup>
+          <ControlLabel>Cover image</ControlLabel>
+
+          <Uploader
+            defaultFileList={coverImage.url ? [coverImage] : []}
+            onChange={attachment =>
+              attachment.length && setCoverImage(attachment[0])
+            }
+            single={true}
+          />
+        </FormGroup>
+
         <ModalFooter>
           <Button
             btnStyle="simple"
@@ -90,7 +106,7 @@ function List(props: Props) {
           <Button
             btnStyle="success"
             icon="plus-circle"
-            onClick={() => use(template._id, name)}
+            onClick={() => use(template._id, name, coverImage)}
             uppercase={false}
           >
             Create
@@ -114,7 +130,7 @@ function List(props: Props) {
         <SitePreview>
           <img src={template.image} alt="template-img" />
           <PreviewContent>
-            {renderDemoAction(template)}
+            {template.name !== 'Blank' && renderDemoAction(template)}
             {renderUseAction(template)}
           </PreviewContent>
         </SitePreview>

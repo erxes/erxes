@@ -88,13 +88,14 @@ const webbuilderMutations = {
 
   async webbuilderTemplatesUse(
     _root,
-    { _id, name }: { _id: string; name: string },
+    { _id, name, coverImage }: { _id: string; name: string; coverImage: any },
     { models, user }: IContext
   ) {
     const site = await models.Sites.createSite(
       {
         templateId: _id,
-        name
+        name,
+        coverImage
       },
       user._id
     );
