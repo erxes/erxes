@@ -140,8 +140,8 @@ const templateDetail = `
 `;
 
 const sites = `
-  query sites($page: Int, $perPage: Int, $fromSelect: Boolean) {
-    webbuilderSites(page: $page, perPage: $perPage, fromSelect: $fromSelect) {
+  query sites($page: Int, $perPage: Int, $searchValue: String, $fromSelect: Boolean) {
+    webbuilderSites(page: $page, perPage: $perPage, searchValue: $searchValue, fromSelect: $fromSelect) {
       _id
       name
       domain

@@ -1,4 +1,5 @@
 import { paginate } from '@erxes/api-utils/src';
+import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
 import { readHelpersData } from './utils';
@@ -134,15 +135,30 @@ const webbuilderQueries = {
     {
       page,
       perPage,
+      searchValue,
       fromSelect
-    }: { page: number; perPage: number; fromSelect: boolean },
+    }: {
+      page: number;
+      perPage: number;
+      searchValue: string;
+      fromSelect: boolean;
+    },
     { models }: IContext
   ) {
+    const filter: any = {};
+
     if (fromSelect) {
       return models.Sites.find().lean();
     }
 
-    return paginate(models.Sites.find({}).sort({ name: 1 }), { page, perPage });
+    if (searchValue) {
+      filter.name = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
+    }
+
+    return paginate(models.Sites.find(filter).sort({ name: 1 }), {
+      page,
+      perPage
+    });
   },
 
   webbuilderSitesTotalCount(_root, _args, { models }: IContext) {
