@@ -1,6 +1,7 @@
 import { IContext } from '../../connectionResolver';
 import { sendCoreMessage, sendEbarimtMessage } from '../../messageBroker';
-import { IPosDocument, IPosOrderDocument } from '../../models/definitions/pos';
+import { IPosDocument } from '../../models/definitions/pos';
+import { IPosOrderDocument } from '../../models/definitions/orders';
 
 const resolvers = {
   putResponses: async (order, {}, { subdomain }) => {

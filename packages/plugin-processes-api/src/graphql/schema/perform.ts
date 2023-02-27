@@ -6,6 +6,7 @@ export const types = contactsAvailable => `
     overallWorkId: String
     overallWorkKey: OverallWorkKey
     type: String
+    typeId: String
     status: String
     startAt: Date
     dueDate: Date
@@ -47,6 +48,7 @@ export const types = contactsAvailable => `
     modifiedBy: String
     createdUser: User
     modifiedUser: User
+    series: String
   }
 `;
 
@@ -76,6 +78,7 @@ export const queries = `
   performs(${paginateParams}, ${qryParams}): [Perform]
   performDetail(_id: String): Perform
   performsCount(${qryParams}): Int
+  series(search: String, productId: String, ids: [String], excludeIds: Boolean, page: Int, perPage: Int): [JSON]
 `;
 
 const performParams = `

@@ -17,11 +17,13 @@ import {
 } from '../../models/definitions/configs';
 import * as moment from 'moment';
 import { debugError } from '@erxes/api-utils/src/debuggers';
+import { isValidBarcode } from './otherUtils';
 
 interface IDetailItem {
   count: number;
   amount: number;
   inventoryCode: string;
+  barcode: string;
   productId: string;
 }
 
@@ -220,26 +222,50 @@ export const prepareEbarimtData = async (
   }
 
   const details: IDetailItem[] = [];
+  const detailsFree: IDetailItem[] = [];
+  const details0: IDetailItem[] = [];
+  let amountDefault = 0;
+  let amountFree = 0;
+  let amount0 = 0;
 
   for (const item of items) {
+    const product = productsById[item.productId];
+
     // if wrong productId then not sent
-    if (!productsById[item.productId]) {
+    if (!product) {
       continue;
     }
 
     const amount = (item.count || 0) * (item.unitPrice || 0);
 
-    details.push({
+    const stock = {
       count: item.count,
       amount,
-      inventoryCode: productsById[item.productId].code,
+      discount: item.discountAmount,
+      inventoryCode: product.code,
       productId: item.productId
-    });
+    };
+
+    if (product.taxType === '2') {
+      detailsFree.push({ ...stock, barcode: product.taxCode });
+      amountFree += amount;
+    } else if (product.taxType === '3' && billType === '3') {
+      details0.push({ ...stock, barcode: product.taxCode });
+      amount0 += amount;
+    } else {
+      let trueBarcode = '';
+      for (const barcode of product.barcodes) {
+        if (isValidBarcode(barcode)) {
+          trueBarcode = barcode;
+          continue;
+        }
+      }
+      details.push({ ...stock, barcode: trueBarcode });
+      amountDefault += amount;
+    }
   }
 
-  const cashAmount = order.totalAmount || 0;
-
-  const orderInfo = {
+  const commonOderInfo = {
     date: new Date().toISOString().slice(0, 10),
     orderId: order._id,
     number: order.number,
@@ -249,18 +275,67 @@ export const prepareEbarimtData = async (
     customerCode,
     customerName,
     description: order.number,
-    details,
-    cashAmount,
-    nonCashAmount: 0,
-    ebarimtResponse: {}
-  };
-
-  return {
-    ...orderInfo,
+    ebarimtResponse: {},
     productsById,
     contentType: 'pos',
     contentId: order._id
   };
+
+  const result: any[] = [];
+  let calcCashAmount = order.cashAmount || 0;
+  let cashAmount = 0;
+
+  if (detailsFree && detailsFree.length) {
+    if (calcCashAmount > amountFree) {
+      cashAmount = amountFree;
+      calcCashAmount -= amountFree;
+    } else {
+      cashAmount = calcCashAmount;
+      calcCashAmount = 0;
+    }
+    result.push({
+      ...commonOderInfo,
+      hasVat: false,
+      taxType: '2',
+      details: detailsFree,
+      cashAmount,
+      nonCashAmount: amountFree - cashAmount
+    });
+  }
+
+  if (details0 && details0.length) {
+    if (calcCashAmount > amount0) {
+      cashAmount = amount0;
+      calcCashAmount -= amount0;
+    } else {
+      cashAmount = calcCashAmount;
+      calcCashAmount = 0;
+    }
+    result.push({
+      ...commonOderInfo,
+      hasVat: false,
+      taxType: '3',
+      details: details0,
+      cashAmount,
+      nonCashAmount: amount0 - cashAmount
+    });
+  }
+
+  if (details && details.length) {
+    if (calcCashAmount > amountDefault) {
+      cashAmount = amountDefault;
+    } else {
+      cashAmount = calcCashAmount;
+    }
+    result.push({
+      ...commonOderInfo,
+      details,
+      cashAmount,
+      nonCashAmount: amountDefault - cashAmount
+    });
+  }
+
+  return result;
 };
 
 export const prepareOrderDoc = async (

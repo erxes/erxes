@@ -3,8 +3,6 @@ import {
   productGroupSchema,
   IPosDocument,
   IProductGroupDocument,
-  IPosOrderDocument,
-  posOrderSchema,
   IPos,
   posSlotSchema,
   IPosSlotDocument
@@ -143,16 +141,6 @@ export const loadProductGroupClass = (models, _subdomain) => {
   productGroupSchema.loadClass(ProductGroup);
 
   return productGroupSchema;
-};
-
-export interface IPosOrderModel extends Model<IPosOrderDocument> {}
-
-export const loadPosOrderClass = (_models, _subdomain) => {
-  class PosOrder {}
-
-  posOrderSchema.loadClass(PosOrder);
-
-  return posOrderSchema;
 };
 
 export interface IPosSlotModel extends Model<IPosSlotDocument> {}

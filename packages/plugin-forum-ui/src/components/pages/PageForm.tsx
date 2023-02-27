@@ -26,7 +26,7 @@ class PageForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const page = props.page || ({ content: '' } as any);
+    const page = props.page || ({} as IPage);
 
     this.state = {
       content: page.content,
@@ -70,7 +70,7 @@ class PageForm extends React.Component<Props, State> {
 
     const { isSubmitted, values } = formProps;
 
-    const object = page || ({} as any);
+    const object = page || ({} as IPage);
 
     return (
       <>

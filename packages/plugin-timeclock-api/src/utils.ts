@@ -3,7 +3,9 @@ import { sendCoreMessage } from './messageBroker';
 import {
   IScheduleDocument,
   ITimeClock,
-  ITimeClockDocument
+  ITimeClockDocument,
+  ITimeLog,
+  ITimeLogDocument
 } from './models/definitions/timeclock';
 import * as dayjs from 'dayjs';
 import { fixDate, getEnv } from '@erxes/api-utils/src';
@@ -23,30 +25,11 @@ const customFixDate = (date?: Date) => {
   return returnDate;
 };
 
-const findAllTeamMembersWithEmpId = async (subdomain: string) => {
-  const users = await sendCoreMessage({
-    subdomain,
-    action: 'users.find',
-    data: {
-      query: { employeeId: { $exists: true } }
-    },
-    isRPC: true,
-    defaultValue: []
-  });
-
-  return users;
-};
-
-const connectAndQueryFromMsSql = async (
-  subdomain: string,
-  startDate: string,
-  endDate: string
-) => {
+const createMsSqlConnection = () => {
   const MYSQL_HOST = getEnv({ name: 'MYSQL_HOST' });
   const MYSQL_DB = getEnv({ name: 'MYSQL_DB' });
   const MYSQL_USERNAME = getEnv({ name: 'MYSQL_USERNAME' });
   const MYSQL_PASSWORD = getEnv({ name: 'MYSQL_PASSWORD' });
-  const MYSQL_TABLE = getEnv({ name: 'MYSQL_TABLE' });
 
   // create connection
   const sequelize = new Sequelize(MYSQL_DB, MYSQL_USERNAME, MYSQL_PASSWORD, {
@@ -62,6 +45,148 @@ const connectAndQueryFromMsSql = async (
       }
     }
   });
+
+  return sequelize;
+};
+
+const findAllTeamMembersWithEmpId = async (subdomain: string) => {
+  const users = await sendCoreMessage({
+    subdomain,
+    action: 'users.find',
+    data: {
+      query: { employeeId: { $exists: true } }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  return users;
+};
+
+const returnNewTimeLogsFromEmpData = async (
+  empData: any[],
+  teamMembersObj: any,
+  existingTimeLogs: ITimeLogDocument[]
+) => {
+  const returnData: ITimeLog[] = [];
+
+  for (const empDataRow of empData) {
+    const currEmpEmpId = parseInt(empDataRow.ID, 10);
+    const currEmpUserId = teamMembersObj[currEmpEmpId];
+
+    const newTimeLog = {
+      userId: currEmpUserId,
+      timelog: new Date(empDataRow.authDateTime),
+      deviceSerialNo: empDataRow.deviceSerialNo && empDataRow.deviceSerialNo
+    };
+
+    const checkTimeLogAlreadyExists = existingTimeLogs.find(
+      existingTimeLog =>
+        existingTimeLog.userId === newTimeLog.userId &&
+        existingTimeLog.timelog === newTimeLog.timelog
+    );
+
+    if (!checkTimeLogAlreadyExists) {
+      returnData.push(newTimeLog);
+    }
+  }
+
+  return returnData;
+};
+
+const createTimelogs = async (
+  models: IModels,
+  startDate: string,
+  endDate: string,
+  queryData: any,
+  teamMembersObj: any
+) => {
+  const existingTimeLogs = await models.TimeLogs.find({
+    timelog: {
+      $gte: fixDate(startDate),
+      $lte: customFixDate(new Date(endDate))
+    }
+  });
+
+  const totalTimeLogs: ITimeLog[] = [];
+
+  let currentEmpId;
+  for (const queryRow of queryData) {
+    const currEmpId = queryRow.ID;
+
+    if (currEmpId === currentEmpId) {
+      continue;
+    }
+
+    const currEmpNumber = parseInt(currEmpId, 10);
+
+    if (currEmpNumber) {
+      currentEmpId = currEmpId;
+      const currEmpData = queryData.filter(row => row.ID === currEmpId);
+      totalTimeLogs.push(
+        ...(await returnNewTimeLogsFromEmpData(
+          currEmpData,
+          teamMembersObj,
+          existingTimeLogs
+        ))
+      );
+    }
+  }
+
+  return await models.TimeLogs.insertMany(totalTimeLogs);
+};
+
+const connectAndQueryTimeLogsFromMsSql = async (
+  subdomain: string,
+  startDate: string,
+  endDate: string
+) => {
+  const MYSQL_TABLE = getEnv({ name: 'MYSQL_TABLE' });
+  const sequelize = createMsSqlConnection();
+  const models = await generateModels(subdomain);
+
+  let returnData;
+
+  try {
+    const teamMembers = await findAllTeamMembersWithEmpId(subdomain);
+    const teamMembersObject = {};
+    const teamEmployeeIds: string[] = [];
+
+    for (const teamMember of teamMembers) {
+      if (!teamMember.employeeId) {
+        continue;
+      }
+      teamMembersObject[teamMember.employeeId] = teamMember._id;
+      teamEmployeeIds.push(teamMember.employeeId);
+    }
+
+    const query = `SELECT * FROM ${MYSQL_TABLE} WHERE authDateTime >= '${startDate}' AND authDateTime <= '${endDate}' AND ISNUMERIC(ID)=1 AND ID IN (${teamEmployeeIds}) ORDER BY ID, authDateTime`;
+
+    const queryData = await sequelize.query(query, {
+      type: QueryTypes.SELECT
+    });
+
+    returnData = await createTimelogs(
+      models,
+      startDate,
+      endDate,
+      queryData,
+      teamMembersObject
+    );
+  } catch (err) {
+    console.error(err);
+  }
+
+  return returnData;
+};
+
+const connectAndQueryFromMsSql = async (
+  subdomain: string,
+  startDate: string,
+  endDate: string
+) => {
+  const sequelize = createMsSqlConnection();
+  const MYSQL_TABLE = getEnv({ name: 'MYSQL_TABLE' });
 
   // find team members with employee Id
   const teamMembers = await findAllTeamMembersWithEmpId(subdomain);
@@ -159,10 +284,15 @@ const importDataAndCreateTimeclock = async (
       {
         shiftStart: {
           $gte: fixDate(startDate),
-          $lte: fixDate(endDate)
+          $lte: customFixDate(new Date(endDate))
         }
       },
-      { shiftEnd: { $gte: fixDate(startDate), $lte: fixDate(endDate) } }
+      {
+        shiftEnd: {
+          $gte: fixDate(startDate),
+          $lte: customFixDate(new Date(endDate))
+        }
+      }
     ]
   });
 
@@ -441,11 +571,11 @@ const createScheduleObjOfMembers = async (
       {
         shiftStart: {
           $gte: fixDate(startDate),
-          $lte: fixDate(endDate)
+          $lte: customFixDate(new Date(endDate))
         },
         shiftEnd: {
           $gte: fixDate(startDate),
-          $lte: fixDate(endDate)
+          $lte: customFixDate(new Date(endDate))
         }
       }
     ]
@@ -666,66 +796,7 @@ const generateFilter = async (params: any, subdomain: string, type: string) => {
   let returnFilter = {};
   let dateGiven: boolean = false;
 
-  const timeFields =
-    type === 'schedule'
-      ? []
-      : type === 'timeclock'
-      ? [
-          {
-            shiftStart:
-              startDate && endDate
-                ? {
-                    $gte: fixDate(startDate),
-                    $lte: customFixDate(endDate)
-                  }
-                : startDate
-                ? {
-                    $gte: fixDate(startDate)
-                  }
-                : { $lte: customFixDate(endDate) }
-          },
-          {
-            shiftEnd:
-              startDate && endDate
-                ? {
-                    $gte: fixDate(startDate),
-                    $lte: customFixDate(endDate)
-                  }
-                : startDate
-                ? {
-                    $gte: fixDate(startDate)
-                  }
-                : { $lte: customFixDate(endDate) }
-          }
-        ]
-      : [
-          {
-            startTime:
-              startDate && endDate
-                ? {
-                    $gte: fixDate(startDate),
-                    $lte: customFixDate(endDate)
-                  }
-                : startDate
-                ? {
-                    $gte: fixDate(startDate)
-                  }
-                : { $lte: customFixDate(endDate) }
-          },
-          {
-            endTime:
-              startDate && endDate
-                ? {
-                    $gte: fixDate(startDate),
-                    $lte: customFixDate(endDate)
-                  }
-                : startDate
-                ? {
-                    $gte: fixDate(startDate)
-                  }
-                : { $lte: customFixDate(endDate) }
-          }
-        ];
+  const timeFields = returnTimeFieldsFilter(type, params);
 
   if (startDate || endDate) {
     dateGiven = true;
@@ -759,6 +830,90 @@ const generateFilter = async (params: any, subdomain: string, type: string) => {
 
   // if no param is given, return empty filter
   return returnFilter;
+};
+
+const returnTimeFieldsFilter = (type: string, queryParams: any) => {
+  const startDate = queryParams.startDate;
+  const endDate = queryParams.endDate;
+
+  switch (type) {
+    case 'schedule':
+      return [];
+    case 'timeclock':
+      return [
+        {
+          shiftStart:
+            startDate && endDate
+              ? {
+                  $gte: fixDate(startDate),
+                  $lte: customFixDate(endDate)
+                }
+              : startDate
+              ? {
+                  $gte: fixDate(startDate)
+                }
+              : { $lte: customFixDate(endDate) }
+        },
+        {
+          shiftEnd:
+            startDate && endDate
+              ? {
+                  $gte: fixDate(startDate),
+                  $lte: customFixDate(endDate)
+                }
+              : startDate
+              ? {
+                  $gte: fixDate(startDate)
+                }
+              : { $lte: customFixDate(endDate) }
+        }
+      ];
+    case 'absence':
+      return [
+        {
+          startTime:
+            startDate && endDate
+              ? {
+                  $gte: fixDate(startDate),
+                  $lte: customFixDate(endDate)
+                }
+              : startDate
+              ? {
+                  $gte: fixDate(startDate)
+                }
+              : { $lte: customFixDate(endDate) }
+        },
+        {
+          endTime:
+            startDate && endDate
+              ? {
+                  $gte: fixDate(startDate),
+                  $lte: customFixDate(endDate)
+                }
+              : startDate
+              ? {
+                  $gte: fixDate(startDate)
+                }
+              : { $lte: customFixDate(endDate) }
+        }
+      ];
+    case 'timelog':
+      return [
+        {
+          timelog:
+            startDate && endDate
+              ? {
+                  $gte: fixDate(startDate),
+                  $lte: customFixDate(endDate)
+                }
+              : startDate
+              ? {
+                  $gte: fixDate(startDate)
+                }
+              : { $lte: customFixDate(endDate) }
+        }
+      ];
+  }
 };
 
 const generateCommonUserIds = async (
@@ -835,6 +990,7 @@ const createTeamMembersObject = async (subdomain: string) => {
 
 export {
   connectAndQueryFromMsSql,
+  connectAndQueryTimeLogsFromMsSql,
   generateFilter,
   generateCommonUserIds,
   findAllTeamMembersWithEmpId,
