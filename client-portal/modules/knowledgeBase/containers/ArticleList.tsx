@@ -13,10 +13,10 @@ type Props = {
 function ArticleListContainer(props: Props) {
   const { loading, data = {} as any } = useQuery(gql(articlesQuery), {
     variables: {
-      searchValue: props.searchValue || '',
+      searchValue: props.searchValue || "",
       categoryIds: props.categoryId && [props.categoryId],
-      topicId: props.topicId || ''
-    }
+      topicId: props.topicId || ""
+    },
   });
 
   if (loading) {
@@ -28,7 +28,7 @@ function ArticleListContainer(props: Props) {
   const updatedProps = {
     ...props,
     loading,
-    articles
+    articles,
   };
 
   const renderSearchResult = () => {
