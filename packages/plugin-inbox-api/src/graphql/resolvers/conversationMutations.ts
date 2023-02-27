@@ -306,50 +306,6 @@ const conversationMutations = {
       messageContent: doc.content
     });
 
-    // do not send internal message to third service integrations
-    if (doc.internal) {
-      if (integration.kind === 'facebook-messenger') {
-        const serviceName = integration.kind.split('-')[0];
-        const serviceRunning = await isServiceRunning(serviceName);
-
-        if (serviceRunning && integration.kind === 'facebook-messenger') {
-          const payload = {
-            integrationId: integration._id,
-            conversationId: conversation._id,
-            content: doc.content,
-            internal: doc.internal,
-            attachments: doc.attachments || [],
-            extraInfo: doc.extraInfo,
-            userId: user._id
-          };
-
-          const response = await sendConversationToServices(
-            subdomain,
-            integration,
-            serviceName,
-            payload
-          );
-
-          // if the service runs separately & returns data, then don't save message inside inbox
-          if (response && response.data) {
-            publishMessage(models, response.data);
-
-            return response.data;
-          }
-        }
-      }
-
-      const messageObj = await models.ConversationMessages.addMessage(
-        doc,
-        user._id
-      );
-
-      // publish new message to conversation detail
-      publishMessage(models, messageObj);
-
-      return messageObj;
-    }
-
     const kind = integration.kind;
 
     const customer = await sendContactsMessage({
@@ -365,7 +321,7 @@ const conversationMutations = {
     // customer's email
     const email = customer ? customer.primaryEmail : '';
 
-    if (kind === 'lead' && email) {
+    if (!doc.internal && kind === 'lead' && email) {
       await sendCoreMessage({
         subdomain,
         action: 'sendEmail',
@@ -404,6 +360,19 @@ const conversationMutations = {
       if (response && response.data) {
         return { ...response.data };
       }
+    }
+
+    // do not send internal message to third service integrations
+    if (doc.internal) {
+      const messageObj = await models.ConversationMessages.addMessage(
+        doc,
+        user._id
+      );
+
+      // publish new message to conversation detail
+      publishMessage(models, messageObj);
+
+      return messageObj;
     }
 
     const message = await models.ConversationMessages.addMessage(doc, user._id);
