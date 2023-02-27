@@ -898,6 +898,8 @@ export const getItemList = async (
         stageChangedDate: 1,
         tagIds: 1,
         status: 1,
+        branchIds: 1,
+        departmentIds: 1,
         ...(extraFields || {})
       }
     }
@@ -1120,6 +1122,17 @@ export const getItemList = async (
     serverTiming.endTime('getItemsFields');
   }
 
+  const getItemsStructure = async (field, query) => {
+    const items = await sendCoreMessage({
+      subdomain,
+      action: `${field}.find`,
+      data: { ...query },
+      isRPC: true,
+      defaultValue: []
+    });
+    return items;
+  };
+
   for (const item of list) {
     if (
       item.customFieldsData &&
@@ -1143,8 +1156,16 @@ export const getItemList = async (
 
     const notification = notifications.find(n => n.contentTypeId === item._id);
 
+    const branches = await getItemsStructure('branches', {
+      query: { _id: { $in: [...new Set(item.branchIds)] } }
+    });
+    const departments = await getItemsStructure('departments', {
+      _id: { $in: [...new Set(item.departmentIds)] }
+    });
     updatedList.push({
       ...item,
+      branches,
+      departments,
       isWatched: (item.watchedUserIds || []).includes(user._id),
       hasNotified: notification ? false : true,
       customers: getCocsByItemId(item._id, customerIdsByItemId, customers),

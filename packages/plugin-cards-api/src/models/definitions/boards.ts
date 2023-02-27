@@ -53,6 +53,8 @@ export interface IItemCommonFields {
   number?: string;
   data?: any;
   tagIds?: string[];
+  branchIds?: string[];
+  departmentIds?: string[];
 }
 
 export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
