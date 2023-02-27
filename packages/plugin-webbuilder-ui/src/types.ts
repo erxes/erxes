@@ -52,6 +52,7 @@ export interface ITemplate {
   name: string;
   html: string;
   image: string;
+  categories: string;
 }
 
 export interface ITemplateDoc extends ITemplate {

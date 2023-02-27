@@ -1,4 +1,4 @@
-import { Actions, HeaderContent, TemplateBox } from './styles';
+import { HeaderContent } from './styles';
 import {
   Content,
   FilterContainer,
@@ -26,7 +26,6 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Uploader from '@erxes/ui/src/components/Uploader';
-import { extractAttachment } from '@erxes/ui/src/utils';
 import { IAttachment } from '@erxes/ui/src/types';
 
 type Props = {
@@ -38,6 +37,7 @@ type Props = {
 function List(props: Props) {
   const [name, setName] = useState('');
   const [coverImage, setCoverImage] = useState({} as IAttachment);
+  const [category, setCategory] = useState('');
 
   const { templates, templatesCount, use } = props;
 
@@ -55,9 +55,27 @@ function List(props: Props) {
     );
   };
 
+  const filterTemplates = () => {
+    if (!category) {
+      return templates;
+    }
+
+    return templates.filter(template =>
+      (template.categories || '').includes(category)
+    );
+  };
+
+  const onClickCategory = (value: any) => {
+    setCategory(value);
+  };
+
   const renderCategories = (cat: any, index: number) => {
     return (
-      <Tag key={index}>
+      <Tag
+        key={index}
+        isActive={category === cat.value}
+        onClick={() => onClickCategory(cat.value)}
+      >
         {cat.icon} &nbsp;
         {cat.label}
       </Tag>
@@ -183,7 +201,10 @@ function List(props: Props) {
             <>
               <FilterContainer>
                 <Labels>
-                  <Tag isActive={true}>
+                  <Tag
+                    isActive={!category}
+                    onClick={() => onClickCategory(null)}
+                  >
                     <Icon icon="menu-2" />
                     &nbsp; {__('All')}
                   </Tag>
@@ -191,7 +212,9 @@ function List(props: Props) {
                 </Labels>
               </FilterContainer>
               <FlexWrap noPadding={true}>
-                {templates.map((template, index) => renderRow(template, index))}
+                {filterTemplates().map((template, index) =>
+                  renderRow(template, index)
+                )}
               </FlexWrap>
             </>
           }

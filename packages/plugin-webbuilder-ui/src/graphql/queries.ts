@@ -120,6 +120,7 @@ const templates = `
       name
       html
       image
+      categories
     } 
   }
 `;

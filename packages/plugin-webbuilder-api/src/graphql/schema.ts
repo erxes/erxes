@@ -60,6 +60,7 @@ export const types = `
     name: String
     html: String
     image: String
+    categories: String
   }
 
   type WebbuilderSite {
