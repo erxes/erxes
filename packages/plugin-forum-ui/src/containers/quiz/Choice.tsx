@@ -1,95 +1,35 @@
-import React, { FC, useEffect, useState } from 'react';
+import React from 'react';
 import { useMutation } from 'react-apollo';
 import gql from 'graphql-tag';
-import QuizChoiceForm, {
-  ChoiceEditable,
-  Choice
-} from '../../components/QuizChoiceForm';
-
-const MUT_PATCH = gql`
-  mutation ForumQuizChoicePatch(
-    $_id: ID!
-    $imageUrl: String
-    $isCorrect: Boolean
-    $listOrder: Float
-    $text: String
-  ) {
-    forumQuizChoicePatch(
-      _id: $_id
-      imageUrl: $imageUrl
-      isCorrect: $isCorrect
-      listOrder: $listOrder
-      text: $text
-    ) {
-      _id
-    }
-  }
-`;
-
-const MUT_DEL = gql`
-  mutation ForumQuizChoiceDelete($_id: ID!) {
-    forumQuizChoiceDelete(_id: $_id) {
-      _id
-    }
-  }
-`;
+import ChoiceDetail from '../../components/quiz/ChoiceDetail';
+import { mutations } from '../../graphql';
+import { confirm } from '@erxes/ui/src/utils';
+import { IChoice } from '../../types';
 
 type Props = {
-  choice: Choice;
-  refetch?(): any;
+  choice: IChoice;
   index?: number;
+  quizId: string;
 };
 
-const ChoiceDetail: FC<Props> = ({ choice, refetch, index }) => {
-  const { _id, questionId, ...editable } = choice;
-  const [isEditing, setIsEditing] = useState(false);
-  const [mutPatch] = useMutation(MUT_PATCH, {
-    onCompleted: refetch || (() => {})
-  });
-  const [mutDel] = useMutation(MUT_DEL, {
-    onCompleted: refetch || (() => {})
-  });
+const Choice = ({ choice, index, quizId }: Props) => {
+  const { _id } = choice;
+  const [mutDel] = useMutation(gql(mutations.quizChoiceDelete));
 
-  const onEditSubmit = async variables => {
-    await mutPatch({
-      variables: {
-        ...variables,
-        _id
-      }
-    });
-    setIsEditing(false);
+  const onDelete = () => {
+    confirm('Are you sure you want to delete this choice?').then(() =>
+      mutDel({ variables: { _id }, refetchQueries: ['ForumQuizQuestion'] })
+    );
   };
 
   return (
-    <tr>
-      <td>{choice.isCorrect && ' ✓ '}</td>
-      <td>{index != null && `${index + 1}. `}</td>
-      <td>{choice.text}</td>
-      <td>
-        <button type="button" onClick={() => setIsEditing(true)}>
-          Edit
-        </button>
-
-        <button
-          type="button"
-          onClick={async () => {
-            if (!confirm('Are you sure you want to delete this choice?'))
-              return;
-            await mutDel({ variables: { _id } });
-          }}
-        >
-          Delete
-        </button>
-
-        <QuizChoiceForm
-          show={isEditing}
-          choice={editable}
-          onSubmit={onEditSubmit}
-          onCancel={() => setIsEditing(false)}
-        />
-      </td>
-    </tr>
+    <ChoiceDetail
+      quizId={quizId}
+      index={index}
+      choice={choice}
+      onDelete={onDelete}
+    />
   );
 };
 
-export default ChoiceDetail;
+export default Choice;

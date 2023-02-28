@@ -1,21 +1,27 @@
 import Button from '@erxes/ui/src/components/Button';
-import { Alert, router, __ } from '@erxes/ui/src/utils';
+import { Alert, __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import Select from 'react-select-plus';
 import { FormControl } from '@erxes/ui/src/components/form';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { IAbsenceType } from '../../types';
 import Uploader from '@erxes/ui/src/components/Uploader';
-import { FlexCenter } from '../../styles';
+import { CustomRangeContainer, FlexCenter, FlexColumn } from '../../styles';
 import { IAttachment } from '@erxes/ui/src/types';
 import DateRange from '../datepicker/DateRange';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
 
 type Props = {
   absenceTypes: IAbsenceType[];
   history: any;
   queryParams: any;
+
+  submitCheckInOut: (type: string, userId: string, dateVal: Date) => void;
+  checkInOutRequest?: boolean;
+
   submitRequest: (
     userId: string,
+    reason: string,
     explanation: string,
     attachment: IAttachment,
     dateRange: DateTimeRange,
@@ -30,31 +36,41 @@ type DateTimeRange = {
 };
 
 export default (props: Props) => {
-  const [dateRange, setDateRange] = useState<DateTimeRange>({
-    startTime: new Date(localStorage.getItem('dateRangeStart') || ''),
-    endTime: new Date(localStorage.getItem('dateRangeEnd') || '')
-  });
   const {
     absenceTypes,
     queryParams,
     submitRequest,
     contentProps,
-    history
+    checkInOutRequest,
+    submitCheckInOut
   } = props;
-  const [explanation, setExplanation] = useState('');
 
+  const { closeModal } = contentProps;
+
+  const [dateRange, setDateRange] = useState<DateTimeRange>({
+    startTime: new Date(localStorage.getItem('dateRangeStart') || ''),
+    endTime: new Date(localStorage.getItem('dateRangeEnd') || '')
+  });
+
+  const [checkInOutType, setCheckInOutType] = useState('Check in');
+  const [checkInOutDate, setCheckInOutDate] = useState(new Date());
+
+  const [explanation, setExplanation] = useState('');
   const [attachment, setAttachment] = useState<IAttachment>({
     name: ' ',
     type: '',
     url: ''
   });
+
   const checkAbsenceIdx = parseInt(
     localStorage.getItem('absenceIdx') || '0',
     10
   );
+
   const [absenceIdx, setAbsenceArrIdx] = useState(
     checkAbsenceIdx < absenceTypes.length ? checkAbsenceIdx : 0
   );
+
   const [userId, setUserId] = useState('');
 
   const checkInput = selectedUser => {
@@ -71,11 +87,12 @@ export default (props: Props) => {
       return true;
     }
   };
-  const onSubmitClick = closeModal => {
+  const onSubmitClick = () => {
     const validInput = checkInput(userId);
     if (validInput) {
       submitRequest(
         userId,
+        absenceTypes[absenceIdx].name,
         explanation,
         attachment,
         dateRange,
@@ -92,10 +109,11 @@ export default (props: Props) => {
   const onUserSelect = usrId => {
     setUserId(usrId);
   };
+
   const onReasonSelect = reason => {
     setAbsenceArrIdx(reason.arrayIdx);
-    router.setParams(history, { reason: `${reason.value}` });
   };
+
   const onChangeAttachment = (files: IAttachment[]) => {
     setAttachment(files[0]);
   };
@@ -112,15 +130,66 @@ export default (props: Props) => {
     setDateRange({ ...newRange });
   };
 
+  const onCheckInDateChange = date => {
+    setCheckInOutDate(date);
+  };
+
   const onSaveDateRange = () => {
     localStorage.setItem('dateRangeStart', dateRange.startTime.toISOString());
     localStorage.setItem('dateRangeEnd', dateRange.endTime.toISOString());
     Alert.success('succesfully saved');
   };
 
+  const onSubmitCheckInOut = () => {
+    submitCheckInOut(checkInOutType, userId, checkInOutDate);
+    closeModal();
+  };
+
+  if (checkInOutRequest) {
+    return (
+      <FlexColumn marginNum={10}>
+        <Select
+          value={checkInOutType}
+          onChange={e => setCheckInOutType(e.value)}
+          options={['Check in', 'Check out'].map(ipt => ({
+            value: ipt,
+            label: ipt
+          }))}
+        />
+
+        <SelectTeamMembers
+          queryParams={queryParams}
+          label={'Team member'}
+          onSelect={onUserSelect}
+          multi={false}
+          name="userId"
+        />
+
+        <CustomRangeContainer>
+          <DateControl
+            required={false}
+            value={checkInOutDate}
+            timeFormat={true}
+            name="startDate"
+            placeholder={'Starting date'}
+            dateFormat={'YYYY-MM-DD'}
+            onChange={val => onCheckInDateChange(val)}
+          />
+        </CustomRangeContainer>
+
+        <FlexCenter>
+          <Button btnStyle="primary" onClick={onSubmitCheckInOut}>
+            Submit
+          </Button>
+        </FlexCenter>
+      </FlexColumn>
+    );
+  }
+
   return (
-    <div style={{ flex: 'column', justifyContent: 'space-around' }}>
+    <FlexColumn marginNum={10}>
       <DateRange
+        showTime={absenceTypes[absenceIdx].requestTimeType === 'by hour'}
         startDate={dateRange.startTime}
         endDate={dateRange.endTime}
         onChangeEnd={onDateRangeEndChange}
@@ -173,13 +242,10 @@ export default (props: Props) => {
         <></>
       )}
       <FlexCenter>
-        <Button
-          style={{ marginTop: 10 }}
-          onClick={() => onSubmitClick(contentProps.closeModal)}
-        >
+        <Button style={{ marginTop: 10 }} onClick={onSubmitClick}>
           {'Submit'}
         </Button>
       </FlexCenter>
-    </div>
+    </FlexColumn>
   );
 };

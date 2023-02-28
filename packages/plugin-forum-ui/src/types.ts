@@ -32,6 +32,20 @@ export interface IPost {
     thumbnail: string;
     postsReqCrmApproval: boolean;
   };
+  tagIds?: string[];
+  isFeaturedByAdmin?: boolean;
+  isFeaturedByUser?: boolean;
+  pollOptions?: [
+    {
+      _id: string;
+      order: number;
+      title: string;
+      postId: string;
+      voteCount: number;
+    }
+  ];
+  isPollMultiChoice?: boolean;
+  pollEndDate?: string;
   categoryId: string;
   description?: string;
   content?: string;
@@ -160,6 +174,8 @@ export interface IQuiz {
   company?: {
     _id?: string;
     primaryName?: string;
+    primaryEmail?: string;
+    primaryPhone?: string;
   };
   post?: {
     _id?: string;
@@ -174,6 +190,16 @@ export interface IQuiz {
     };
   };
   tagIds?: string[];
+  state?: string;
+  isLocked?: string;
+  categoryId?: string;
+  companyId?: string;
+  postId?: string;
+  questions?: [
+    {
+      _id?: string;
+    }
+  ];
 }
 
 export interface ICompany {
@@ -187,6 +213,50 @@ export interface IPollOption {
   title: string;
   order: number;
   isNew?: boolean;
+}
+
+export interface IQuestion {
+  _id?: string;
+  text?: string | null;
+  imageUrl?: string | null;
+  isMultipleChoice?: boolean;
+  listOrder?: number;
+  choices?: [
+    {
+      _id: string;
+      imageUrl?: string;
+      isCorrect: boolean;
+      questionId: string;
+      listOrder: number;
+      quizId: string;
+      text?: string;
+    }
+  ];
+}
+
+export interface IChoiceEditable {
+  imageUrl?: string;
+  isCorrect: boolean;
+  listOrder: number;
+  text?: string;
+}
+
+export interface IChoice extends IChoiceEditable {
+  _id: string;
+  questionId: string;
+}
+
+export interface ITag {
+  _id: string;
+  colorCode?: string;
+  createdAt?: string;
+  name?: string;
+  order?: string;
+  objectCount?: number;
+  parentId?: string;
+  relatedIds?: string[];
+  totalObjectCount?: number;
+  type?: string;
 }
 
 /* queries */

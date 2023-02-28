@@ -40,10 +40,9 @@ export const orderFields = `
   paidDate
   number
   customerId
-  cardAmount
   cashAmount
-  receivableAmount
   mobileAmount
+  paidAmounts
   totalAmount
   finalAmount
   shouldPrintEbarimt

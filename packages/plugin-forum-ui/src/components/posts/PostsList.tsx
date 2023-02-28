@@ -15,13 +15,14 @@ import Sidebar from './Sidebar';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils';
+import { __, router as routerUtils } from '@erxes/ui/src/utils';
+import { Flex } from '@erxes/ui/src/styles/main';
 
 type Props = {
   posts: IPost[];
   queryParams?: any;
   loading: boolean;
-  remove: (postId: string, emptyBulk: () => void) => void;
+  remove: (postId: string, emptyBulk?: () => void) => void;
   history?: any;
   bulk: any[];
   emptyBulk: () => void;
@@ -32,7 +33,7 @@ type Props = {
 
 class List extends React.Component<Props, {}> {
   renderRow() {
-    const { posts, remove, bulk, toggleBulk, emptyBulk } = this.props;
+    const { posts, remove, bulk, toggleBulk } = this.props;
 
     return posts.map(post => (
       <Row
@@ -41,10 +42,15 @@ class List extends React.Component<Props, {}> {
         isChecked={bulk.includes(post)}
         toggleBulk={toggleBulk}
         remove={remove}
-        emptyBulk={emptyBulk}
       />
     ));
   }
+
+  searchHandler = event => {
+    const { history } = this.props;
+
+    routerUtils.setParams(history, { search: event.target.value });
+  };
 
   render() {
     const {
@@ -55,12 +61,11 @@ class List extends React.Component<Props, {}> {
       bulk,
       toggleAll,
       remove,
-      emptyBulk
+      emptyBulk,
+      history
     } = this.props;
 
     let actionBarLeft: React.ReactNode;
-
-    queryParams.loadingMainQuery = loading;
 
     if (bulk.length > 0) {
       const onClick = () => {
@@ -87,16 +92,25 @@ class List extends React.Component<Props, {}> {
     }
 
     const actionBarRight = (
-      <ModalTrigger
-        title="Create New Post"
-        size="lg"
-        trigger={
-          <Button btnStyle="success" size="small" icon="plus-circle">
-            Create New Post
-          </Button>
-        }
-        content={props => <PostForm {...props} />}
-      />
+      <Flex>
+        <FormControl
+          type="text"
+          placeholder={__('Type to search')}
+          onChange={this.searchHandler}
+          value={routerUtils.getParam(history, 'search')}
+        />
+        &nbsp;&nbsp;
+        <ModalTrigger
+          title="Create New Post"
+          size="lg"
+          trigger={
+            <Button btnStyle="success" size="small" icon="plus-circle">
+              Create New Post
+            </Button>
+          }
+          content={props => <PostForm {...props} />}
+        />
+      </Flex>
     );
 
     const onChange = () => {

@@ -135,20 +135,45 @@ class Sidebar extends React.Component<Props, State> {
               multi={false}
             />
           </FormGroup>
-          <FormGroup>
-            <ControlLabel>Job Refer</ControlLabel>
-            <SelectJobRefer
-              label="Choose jobRefer"
-              name="jobReferId"
-              initialValue={filterParams.jobReferId || ''}
-              customOption={{
-                value: '',
-                label: '...Clear jobRefer filter'
-              }}
-              onSelect={jobReferId => this.setFilter('jobReferId', jobReferId)}
-              multi={false}
-            />
-          </FormGroup>
+          {(filterParams.type === 'end' && (
+            <FormGroup>
+              <ControlLabel>Job Refer</ControlLabel>
+              <SelectJobRefer
+                key={'jobReferEnds'}
+                label="Choose jobRefer"
+                name="jobReferId"
+                initialValue={filterParams.jobReferId || ''}
+                customOption={{
+                  value: '',
+                  label: '...Clear jobRefer filter'
+                }}
+                onSelect={jobReferId =>
+                  this.setFilter('jobReferId', jobReferId)
+                }
+                filterParams={{ types: ['end'] }}
+                multi={false}
+              />
+            </FormGroup>
+          )) || (
+            <FormGroup>
+              <ControlLabel>Job Refer</ControlLabel>
+              <SelectJobRefer
+                key={'jobReferJobs'}
+                label="Choose jobRefer"
+                name="jobReferId"
+                initialValue={filterParams.jobReferId || ''}
+                customOption={{
+                  value: '',
+                  label: '...Clear jobRefer filter'
+                }}
+                onSelect={jobReferId =>
+                  this.setFilter('jobReferId', jobReferId)
+                }
+                filterParams={{ types: ['job'] }}
+                multi={false}
+              />
+            </FormGroup>
+          )}
         </>
       );
     }

@@ -170,3 +170,111 @@ export const ModalFooter = styled.div`
     width: fit-content;
   }
 `;
+
+export const MarginAuto = styled.div`
+  display: flex;
+  margin: auto;
+`;
+
+export const ChoiceList = styled.div`
+  display: flex;
+  padding: ${dimensions.unitSpacing}px;
+  border-bottom: 1px solid ${colors.borderPrimary};
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background-color: ${colors.bgActive};
+  }
+`;
+
+export const ChoiseTitle = styledTS<{ isCorrect?: boolean }>(styled.div)`
+  ${props =>
+    props.isCorrect &&
+    `
+    &:after {
+      content: '✓';
+      background-color: #3CCC38;
+      border-radius: 50%;
+      color: #fff;
+      height: 20px;
+      justify-content: center;
+      align-items: center;
+      width: 20px;
+      display: inline-flex;
+      margin-left: 10px;
+    }
+  `}
+`;
+
+export const List = styled.ul`
+  list-style: none;
+  padding: 0;
+
+  button {
+    margin-top: 10px;
+  }
+
+  li {
+    position: relative;
+    margin-bottom: 5px;
+    background-color: ${colors.colorWhite};
+    border: 1px solid ${colors.borderPrimary};
+    padding: 5px 10px;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    border: none;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  input.editInput {
+    border: none;
+    outline: none;
+  }
+
+  input.editInput:focus {
+    outline: none;
+  }
+`;
+
+export const Actions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+`;
+
+export const CustomRangeContainer = styled.div`
+  margin-left: 20px;
+
+  > div {
+    flex: 1;
+    margin-right: 8px;
+
+    input[type='text'] {
+      border: none;
+      width: 100%;
+      height: 34px;
+      padding: 5px 0;
+      color: #444;
+      border-bottom: 1px solid;
+      border-color: #ddd;
+      background: none;
+      border-radius: 0;
+      box-shadow: none;
+      font-size: 13px;
+    }
+  }
+`;
+
+export const PostTitle = styled.p`
+  max-width: 500px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;

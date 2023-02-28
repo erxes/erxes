@@ -43,12 +43,15 @@ class List extends React.Component<Props, State> {
       <Button btnStyle="success">{__('Add Grouping Indicators')}</Button>
     );
 
-    const content = props => <Form {...props} />;
+    const content = props => (
+      <Form queryParams={this.props.queryParams} {...props} />
+    );
 
     return (
       <ModalTrigger
         trigger={trigger}
         content={content}
+        enforceFocus={false}
         title="Add Grouping Indicators"
         size="xl"
       />
@@ -93,7 +96,7 @@ class List extends React.Component<Props, State> {
   };
 
   renderContent() {
-    const { list } = this.props;
+    const { list, queryParams } = this.props;
     const { selectedItems } = this.state;
 
     const selectAll = () => {
@@ -132,6 +135,7 @@ class List extends React.Component<Props, State> {
               indicatorsGroups={item}
               selectedItems={selectedItems}
               selectItem={selectItem}
+              queryParams={queryParams}
             />
           ))}
         </tbody>

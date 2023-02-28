@@ -15,14 +15,23 @@ export interface IPutResponseModel extends Model<IPutResponseDocument> {
   returnBill(
     doc: { contentType: string; contentId: string },
     config: IPutResponseConfig
-  ): Promise<IPutResponseDocument>;
+  ): Promise<IPutResponseDocument[]>;
+  putHistory({
+    contentType,
+    contentId,
+    taxType
+  }: {
+    contentType: string;
+    contentId: string;
+    taxType?: string;
+  }): Promise<IPutResponseDocument>;
   putHistories({
     contentType,
     contentId
   }: {
     contentType: string;
     contentId: string;
-  }): Promise<IPutResponseDocument>;
+  }): Promise<IPutResponseDocument[]>;
   createPutResponse(doc: IPutResponse): Promise<IPutResponseDocument>;
   updatePutResponse(
     _id: string,
@@ -41,6 +50,34 @@ export const loadPutResponseClass = models => {
       return returnBill(models, doc, config);
     }
 
+    public static async putHistory({
+      contentType,
+      contentId,
+      taxType
+    }: {
+      contentType: string;
+      contentId: string;
+      taxType?: string;
+    }) {
+      let taxTypeFilter: any = {
+        taxType: { $nin: ['2', '3'] }
+      };
+      if (['2', '3'].includes(taxType || '')) {
+        taxTypeFilter = { taxType };
+      }
+
+      return await models.PutResponses.findOne({
+        contentId,
+        contentType,
+        status: { $ne: 'inactive' },
+        success: true,
+        billId: { $nin: ['', null, undefined, 0] },
+        ...taxTypeFilter
+      })
+        .sort({ createdAt: -1 })
+        .lean();
+    }
+
     public static async putHistories({
       contentType,
       contentId
@@ -48,20 +85,15 @@ export const loadPutResponseClass = models => {
       contentType: string;
       contentId: string;
     }) {
-      const putResponse = await models.PutResponses.findOne({
-        contentType,
+      return await models.PutResponses.find({
         contentId,
-        success: true
+        contentType,
+        status: { $ne: 'inactive' },
+        success: true,
+        billId: { $nin: ['', null, undefined, 0] }
       })
         .sort({ createdAt: -1 })
         .lean();
-      if (!putResponse) {
-        return;
-      }
-      if (!putResponse.billId) {
-        return;
-      }
-      return putResponse;
     }
 
     /**

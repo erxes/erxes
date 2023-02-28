@@ -12,7 +12,7 @@ import { __ } from '@erxes/ui/src/utils';
 
 const Comment: React.FC<{
   comment: IComment;
-  onDelete: (item: IComment) => any;
+  onDelete: (item: IComment) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   replies?: IComment[];
 }> = ({ comment, onDelete, renderButton, replies }) => {
@@ -23,7 +23,7 @@ const Comment: React.FC<{
       return (
         <Tip text={__('Cancel')} placement="top">
           <Button
-            id="pageDelete"
+            id="commentDelete"
             btnStyle="link"
             onClick={() => setShowReplyForm(false)}
             icon="times-circle"
@@ -73,7 +73,7 @@ const Comment: React.FC<{
           {renderCancelButton()}
           <Tip text={__('Reply')} placement="top">
             <Button
-              id="pageDelete"
+              id="commentReply"
               btnStyle="link"
               onClick={() => setShowReplyForm(true)}
               icon="reply"
@@ -81,7 +81,7 @@ const Comment: React.FC<{
           </Tip>
           <Tip text={__('Delete')} placement="top">
             <Button
-              id="pageDelete"
+              id="commentDelete"
               btnStyle="link"
               onClick={() => onDelete(comment)}
               icon="trash-alt"

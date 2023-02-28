@@ -49,7 +49,14 @@ export default class GroupingIndicators extends React.Component<Props, State> {
   }
 
   renderItem(
-    { _id, indicatorIds, calculateLogics, calculateMethod, percentWeight },
+    {
+      _id,
+      name,
+      indicatorIds,
+      calculateLogics,
+      calculateMethod,
+      percentWeight
+    },
     length,
     ignoreIds
   ) {
@@ -93,6 +100,14 @@ export default class GroupingIndicators extends React.Component<Props, State> {
         )
       });
     };
+    const handleChangeGroupName = e => {
+      const { value } = e.currentTarget as HTMLInputElement;
+      this.setState({
+        indicatorGroups: indicatorGroups.map(indicator =>
+          indicator._id === _id ? { ...indicator, name: value } : indicator
+        )
+      });
+    };
     return (
       <ListItem key={_id}>
         {length > 1 && (
@@ -102,6 +117,15 @@ export default class GroupingIndicators extends React.Component<Props, State> {
         )}
         <Padding vertical horizontal>
           <FormContainer column gap>
+            <FormGroup>
+              <ControlLabel>{__('Name')}</ControlLabel>
+              <FormControl
+                name="groupName"
+                type="text"
+                defaultValue={name}
+                onChange={handleChangeGroupName}
+              />
+            </FormGroup>
             <FormContainer row gap>
               <div style={{ flex: 1 }}>
                 <FormGroup>

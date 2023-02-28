@@ -323,15 +323,19 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
       const editedSubmittedFields = {};
 
       for (const submittedField of submittedFields) {
-        editedSubmittedFields[submittedField.fieldId] = submittedField.value;
+        editedSubmittedFields[submittedField.fieldId] = {
+          value: submittedField.value,
+          description: submittedField.description
+        };
       }
-
       return {
         fields,
         customScoreField: {
           ...customScoreField,
-          value: customScore?.value
+          value: customScore?.value,
+          description: customScore?.description
         },
+        withDescription: indicator.isWithDescription,
         submittedFields: editedSubmittedFields
       };
     }

@@ -1,11 +1,15 @@
 import React from 'react';
-import { IPost, ICategory, IPollOption } from '../../types';
+import { IPost, ICategory, IPollOption, ITag } from '../../types';
 import EditorCK from '@erxes/ui/src/components/EditorCK';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import {
+  IAttachment,
+  IButtonMutateProps,
+  IFormProps
+} from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Button from '@erxes/ui/src/components/Button';
@@ -14,10 +18,12 @@ import PollOptions from './PollOptions';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import dayjs from 'dayjs';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { CustomRangeContainer } from '../../styles';
 
 type Props = {
   post?: IPost;
-  tags?: any;
+  tags?: ITag[];
   closeModal: () => void;
   categories: ICategory[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -28,17 +34,19 @@ type State = {
   title: string;
   categoryId: string;
   selectedTags: string[];
-  pollOptions: IPollOption[];
+  pollOptions: any;
   multipleChoice: boolean;
   hasEndDate: boolean;
-  endDate: any;
+  endDate: string;
+  thumbnail: any;
+  createdAt: string;
 };
 
 class PostForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const post = props.post || ({ content: '' } as any);
+    const post = props.post || ({} as IPost);
 
     this.state = {
       content: post.content,
@@ -48,14 +56,15 @@ class PostForm extends React.Component<Props, State> {
       pollOptions: post.pollOptions || [],
       multipleChoice: post.isPollMultiChoice || false,
       hasEndDate: post.pollEndDate ? true : false,
-      endDate: post.pollEndDate || null
+      endDate: post.pollEndDate || null,
+      createdAt: post.createdAt || new Date().toString(),
+      thumbnail: {} as IAttachment
     };
   }
 
   generateDoc = (values: {
     _id?: string;
     title: string;
-    thumbnail: string;
     categoryId?: string;
     description?: string;
   }) => {
@@ -68,7 +77,7 @@ class PostForm extends React.Component<Props, State> {
 
     const optionsCleaned = this.state.pollOptions.map(
       ({ _id, title, order }) => {
-        const option: any = {
+        const option = {
           _id,
           order,
           title
@@ -81,13 +90,14 @@ class PostForm extends React.Component<Props, State> {
       _id: finalValues._id,
       title: finalValues.title,
       content: this.state.content,
-      thumbnail: finalValues.thumbnail,
+      thumbnail: this.state.thumbnail.url || '',
       categoryId: finalValues.categoryId,
       description: finalValues.description,
       tagIds: this.state.selectedTags,
       pollEndDate: this.state.endDate,
       isPollMultiChoice: this.state.multipleChoice,
-      pollOptions: optionsCleaned
+      pollOptions: optionsCleaned,
+      createdAt: this.state.createdAt
     };
   };
 
@@ -113,10 +123,12 @@ class PostForm extends React.Component<Props, State> {
     );
   };
 
-  onChangeRangeFilter = date => {
+  onChangeRangeFilter = (date, key: string) => {
     const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
-    this.setState({ endDate: formattedDate });
+    this.setState({ ...this.state, [key]: formattedDate });
   };
+
+  onChangeThumbnail = attachment => this.setState({ thumbnail: attachment });
 
   renderContent = (formProps: IFormProps) => {
     const { post, renderButton, closeModal, tags } = this.props;
@@ -131,7 +143,7 @@ class PostForm extends React.Component<Props, State> {
 
     const { isSubmitted, values } = formProps;
 
-    const object = post || ({} as any);
+    const object = post || ({} as IPost);
 
     const renderTagOptions = () => {
       return tags.map(tag => ({
@@ -164,12 +176,29 @@ class PostForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__('Thumbnail')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="thumbnail"
-            defaultValue={object.thumbnail}
-          />
+          <FlexContent>
+            <FlexItem>
+              <ControlLabel>{__('Thumbnail')}</ControlLabel>
+              <Uploader
+                defaultFileList={[]}
+                onChange={this.onChangeThumbnail}
+                single={true}
+              />
+            </FlexItem>
+            <FlexItem>
+              <CustomRangeContainer>
+                <ControlLabel>{__('Created At')}</ControlLabel>
+                <DateControl
+                  value={this.state.createdAt}
+                  required={false}
+                  name="createdAt"
+                  onChange={date => this.onChangeRangeFilter(date, 'createdAt')}
+                  placeholder={'End date'}
+                  dateFormat={'YYYY-MM-DD'}
+                />
+              </CustomRangeContainer>
+            </FlexItem>
+          </FlexContent>
         </FormGroup>
 
         <FormGroup>
@@ -241,14 +270,16 @@ class PostForm extends React.Component<Props, State> {
             </FlexItem>
             {hasEndDate && (
               <FlexItem>
-                <DateControl
-                  value={this.state.endDate}
-                  required={false}
-                  name="endDate"
-                  onChange={date => this.onChangeRangeFilter(date)}
-                  placeholder={'End date'}
-                  dateFormat={'YYYY-MM-DD'}
-                />
+                <CustomRangeContainer>
+                  <DateControl
+                    value={this.state.endDate}
+                    required={false}
+                    name="endDate"
+                    onChange={date => this.onChangeRangeFilter(date, 'endDate')}
+                    placeholder={'End date'}
+                    dateFormat={'YYYY-MM-DD'}
+                  />
+                </CustomRangeContainer>
               </FlexItem>
             )}
           </FlexContent>

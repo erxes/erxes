@@ -1,4 +1,4 @@
-import { paginate } from '@erxes/api-utils/src';
+import { checkPermission, paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { statusColors } from '../../../constants';
 import { riskAssessment } from '../../../permissions';
@@ -118,5 +118,33 @@ const RiskAssessmentQueries = {
     );
   }
 };
+
+checkPermission(RiskAssessmentQueries, 'riskAssessments', 'showRiskAssessment');
+checkPermission(
+  RiskAssessmentQueries,
+  'riskAssessmentsTotalCount',
+  'showRiskAssessment'
+);
+checkPermission(
+  RiskAssessmentQueries,
+  'riskAssessmentDetail',
+  'showRiskAssessment'
+);
+checkPermission(RiskAssessmentQueries, 'riskAssessment', 'showRiskAssessment');
+checkPermission(
+  RiskAssessmentQueries,
+  'riskAssessmentAssignedMembers',
+  'showRiskAssessment'
+);
+checkPermission(
+  RiskAssessmentQueries,
+  'riskAssessmentSubmitForm',
+  'showRiskAssessment'
+);
+checkPermission(
+  RiskAssessmentQueries,
+  'riskAssessmentIndicatorForm',
+  'showRiskAssessment'
+);
 
 export default RiskAssessmentQueries;

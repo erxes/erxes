@@ -64,6 +64,8 @@ export interface IProduct {
 
   uomId?: string;
   subUoms?: ISubUom[];
+  taxType?: string;
+  taxCode?: string;
 }
 
 export interface IProductDocument extends IProduct, Document {
@@ -176,7 +178,9 @@ export const productSchema = schemaWrapper(
       type: [subUomSchema],
       optional: true,
       label: 'Sum unit of measurements'
-    })
+    }),
+    taxType: field({ type: String, optional: true, label: 'VAT type' }),
+    taxCode: field({ type: String, optional: true, label: '' })
   })
 );
 
