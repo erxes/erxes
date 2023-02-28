@@ -29,10 +29,9 @@ export interface IPutResponse {
   customerNo?: string;
   registerNo?: string;
 
-  transaction?;
-  records?;
   taxType?: string;
   returnBillId?: string;
+  stocks?: any[];
 
   contentType: string;
   contentId: string;
@@ -56,7 +55,7 @@ export const putResponseSchema = schemaHooksWrapper(
 
     // Холбогдох обьект
     contentType: field({ type: String, label: 'Content Type' }),
-    contentId: field({ type: String, label: 'Content' }),
+    contentId: field({ type: String, label: 'Content', index: true }),
 
     // Баримтыг бүртгэх процесс амжилттай болсон тухай илтгэнэ
     success: field({ type: String, label: 'success status' }),

@@ -23,7 +23,7 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
-export default function LayoutCategories({
+export default function ProductList({
   products,
   onDelete,
   renderButton,
@@ -95,7 +95,7 @@ export default function LayoutCategories({
           <th>{__('Actions')}</th>
         </tr>
       </thead>
-      <tbody id={'ForumCategoriesList'}>
+      <tbody id={'ProductList'}>
         {products.map((product: any) => {
           return (
             <Row

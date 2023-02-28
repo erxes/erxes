@@ -19,6 +19,16 @@ export interface ITimeClockDocument extends ITimeClock, Document {
   _id: string;
 }
 
+export interface ITimeLog {
+  userId?: string;
+  timelog?: Date;
+  deviceSerialNo?: string;
+}
+
+export interface ITimeLogDocument extends ITimeLog, Document {
+  _id: string;
+}
+
 export interface IAbsence {
   holidayName?: string;
   userId?: string;
@@ -110,6 +120,17 @@ export const attachmentSchema = new Schema(
   },
   { _id: false }
 );
+
+export const timeLogSchema = new Schema({
+  _id: field({ pkey: true }),
+  userId: field({ type: String, label: 'User' }),
+  deviceSerialNo: field({
+    type: String,
+    label: 'Terminal device serial number',
+    optional: true
+  }),
+  timelog: field({ type: Date, label: 'Shift starting time' })
+});
 
 export const timeSchema = new Schema({
   _id: field({ pkey: true }),

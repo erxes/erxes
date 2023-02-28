@@ -18,9 +18,7 @@ function PermissionGroupFormContainer({ closeModal, group }: Props) {
     fetchPolicy: 'network-only'
   });
 
-  const [addMut] = useMutation(gql(mutations.permissionGroupSetUsers), {
-    onError: e => console.error(e)
-  });
+  const [addMut] = useMutation(gql(mutations.permissionGroupSetUsers));
 
   const [update] = useMutation(gql(mutations.permissionGroupPatch));
   const [create] = useMutation(gql(mutations.permissionGroupCreate));

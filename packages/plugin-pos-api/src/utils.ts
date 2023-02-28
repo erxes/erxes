@@ -1,5 +1,5 @@
 import { generateModels, IModels } from './connectionResolver';
-import { IPosOrder } from './models/definitions/pos';
+import { IPosOrder } from './models/definitions/orders';
 import {
   sendCoreMessage,
   sendLoyaltiesMessage,

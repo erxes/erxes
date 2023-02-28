@@ -6,62 +6,50 @@ import queryString from 'query-string';
 
 const Categories = asyncComponent(() =>
   import(
-    /* webpackChunkName: "List - Forums" */ './containers/categories/CategoriesList'
+    /* webpackChunkName: "List - Categories" */ './containers/categories/CategoriesList'
   )
 );
 
 const PageList = asyncComponent(() =>
-  import(/* webpackChunkName: "CustomerDetails" */ './containers/pages/List')
+  import(/* webpackChunkName: "List - Page" */ './containers/pages/List')
 );
 
 const PageDetails = asyncComponent(() =>
-  import(/* webpackChunkName: "CustomerDetails" */ './containers/pages/Detail')
+  import(/* webpackChunkName: "PageDetails" */ './containers/pages/Detail')
 );
 
 const PostList = asyncComponent(() =>
-  import(/* webpackChunkName: "CustomerDetails" */ './containers/posts/List')
+  import(/* webpackChunkName: "List - Post" */ './containers/posts/List')
 );
 
 const PostDetails = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "CustomerDetails" */ './containers/posts/PostDetail'
-  )
+  import(/* webpackChunkName: "PostDetails" */ './containers/posts/PostDetail')
 );
 
 const PermissionGroups = asyncComponent(() =>
   import(
-    /* webpackChunkName: "CustomerDetails" */ './containers/permission/PermissionList'
+    /* webpackChunkName: "Setting - Permission Groups" */ './containers/permission/PermissionList'
   )
 );
 
 const SubscriptionProducts = asyncComponent(() =>
   import(
-    /* webpackChunkName: "CustomerDetails" */ './containers/subscriptionProducts/List'
+    /* webpackChunkName: "Settings List - Subscription Product" */ './containers/subscriptionProducts/List'
   )
 );
 
 const QuizList = asyncComponent(() =>
-  import(/* webpackChunkName: "CustomerDetails" */ './containers/quiz/List')
-);
-
-const QuizNew = asyncComponent(() =>
-  import(/* webpackChunkName: "CustomerDetails" */ './containers/quiz/New')
-);
-
-const QuizDetail = asyncComponent(() =>
-  import(/* webpackChunkName: "CustomerDetails" */ './containers/quiz/Detail')
-);
-
-const QuizEdit = asyncComponent(() =>
-  import(/* webpackChunkName: "CustomerDetails" */ './containers/quiz/Edit')
+  import(/* webpackChunkName: "List - Quiz" */ './containers/quiz/List')
 );
 
 const layout = () => {
   return <Redirect to={`/forums/posts`} />;
 };
 
-const pageList = () => {
-  return <PageList />;
+const pageList = ({ location, history }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <PageList queryParams={queryParams} history={history} />;
 };
 
 const pageDetail = ({ match }) => {
@@ -70,8 +58,10 @@ const pageDetail = ({ match }) => {
   return <PageDetails id={id} />;
 };
 
-const postList = () => {
-  return <PostList />;
+const postList = ({ location, history }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <PostList queryParams={queryParams} history={history} />;
 };
 
 const postDetail = ({ match }) => {
@@ -100,24 +90,6 @@ const quiz = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
 
   return <QuizList />;
-};
-
-const quiznew = ({ location, history }) => {
-  const queryParams = queryString.parse(location.search);
-
-  return <QuizNew />;
-};
-
-const quizDetail = ({ location, history }) => {
-  const queryParams = queryString.parse(location.search);
-
-  return <QuizDetail />;
-};
-
-const quizEdit = ({ location, history }) => {
-  const queryParams = queryString.parse(location.search);
-
-  return <QuizEdit />;
 };
 
 const routes = () => {
@@ -179,27 +151,6 @@ const routes = () => {
         exact={true}
         path="/forums/quizzes"
         component={quiz}
-      />
-
-      <Route
-        key="/forums/quizzes/new"
-        exact={true}
-        path="/forums/quizzes/new"
-        component={quiznew}
-      />
-
-      <Route
-        key="/forums/quizzes/:quizId"
-        exact={true}
-        path="/forums/quizzes/:quizId"
-        component={quizDetail}
-      />
-
-      <Route
-        key="/forums/quizzes/:quizId/edit"
-        exact={true}
-        path="/forums/quizzes/:quizId/edit"
-        component={quizEdit}
       />
     </React.Fragment>
   );

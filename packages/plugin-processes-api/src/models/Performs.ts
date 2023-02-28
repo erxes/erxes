@@ -80,7 +80,7 @@ export const loadPerformClass = (models: IModels) => {
       len?: number
     ) {
       const oldPerform = perform || (await models.Performs.getPerform(_id));
-      let series = '';
+      let series = oldPerform.series;
       if (doc.endAt && !oldPerform.series) {
         const dateStr = `${moment(doc.endAt).format('YYYYMMDD HHmmss SSS')}`;
         series = `${dateStr}${
