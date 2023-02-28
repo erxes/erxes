@@ -58,7 +58,7 @@ class PostForm extends React.Component<Props, State> {
       hasEndDate: post.pollEndDate ? true : false,
       endDate: post.pollEndDate || null,
       createdAt: post.createdAt || new Date().toString(),
-      thumbnail: {} as IAttachment
+      thumbnail: [] as IAttachment[]
     };
   }
 
@@ -90,7 +90,10 @@ class PostForm extends React.Component<Props, State> {
       _id: finalValues._id,
       title: finalValues.title,
       content: this.state.content,
-      thumbnail: this.state.thumbnail.url || '',
+      thumbnail:
+        'https://office.erxes.io/gateway/read-file?key=' +
+          this.state.thumbnail[0]?.url || '',
+      thumbnailAlt: this.state.thumbnail[0]?.name || '',
       categoryId: finalValues.categoryId,
       description: finalValues.description,
       tagIds: this.state.selectedTags,
@@ -180,7 +183,17 @@ class PostForm extends React.Component<Props, State> {
             <FlexItem>
               <ControlLabel>{__('Thumbnail')}</ControlLabel>
               <Uploader
-                defaultFileList={[]}
+                defaultFileList={
+                  Object.keys(object).length !== 0
+                    ? [
+                        {
+                          url: object.thumbnail,
+                          name: object.thumbnailAlt,
+                          type: 'image/jpeg'
+                        }
+                      ]
+                    : []
+                }
                 onChange={this.onChangeThumbnail}
                 single={true}
               />

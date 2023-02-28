@@ -1,5 +1,9 @@
 import React from 'react';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import {
+  IButtonMutateProps,
+  IFormProps,
+  IAttachment
+} from '@erxes/ui/src/types';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
@@ -29,7 +33,24 @@ const QuizQuestionForm: React.FC<Props> = ({
   choice,
   questionId
 }) => {
-  const [image, setImage] = React.useState({ url: question?.imageUrl } as any);
+  const defaultFile = question
+    ? [
+        {
+          url: question.imageUrl,
+          name: 'Question image',
+          type: 'image/jpeg'
+        }
+      ]
+    : choice
+    ? [
+        {
+          url: choice.imageUrl,
+          name: 'Choice image',
+          type: 'image/jpeg'
+        }
+      ]
+    : [];
+  const [image, setImage] = React.useState(defaultFile as IAttachment[]);
   const [isMultipleChoice, setIsMultipleChoice] = React.useState(
     question?.isMultipleChoice || false
   );
@@ -54,7 +75,8 @@ const QuizQuestionForm: React.FC<Props> = ({
     return {
       _id: finalValues._id,
       text: finalValues.text,
-      imageUrl: image.url,
+      imageUrl:
+        'https://office.erxes.io/gateway/read-file?key=' + image[0]?.url || '',
       isMultipleChoice,
       listOrder: parseInt(finalValues.listOrder, 10),
       quizId,
@@ -63,9 +85,7 @@ const QuizQuestionForm: React.FC<Props> = ({
     };
   };
 
-  const onChangeAttachment = attachment => {
-    setImage({ attachment });
-  };
+  const onChangeAttachment = attachment => setImage(attachment);
 
   const checkboxOptions = props => {
     if (type === 'choice') {
@@ -126,11 +146,9 @@ const QuizQuestionForm: React.FC<Props> = ({
         <FormGroup>
           <ControlLabel>Image</ControlLabel>
           <Uploader
-            defaultFileList={[]}
+            defaultFileList={defaultFile}
             onChange={onChangeAttachment}
             single={true}
-            text="Upload an image"
-            icon="upload-6"
           />
         </FormGroup>
 
