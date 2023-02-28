@@ -13,6 +13,7 @@ import Button from '@erxes/ui/src/components/Button';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IQuestion, IChoice } from '../../types';
+import { readFile } from '@erxes/ui/src/utils';
 
 type Props = {
   question?: IQuestion;
@@ -75,8 +76,7 @@ const QuizQuestionForm: React.FC<Props> = ({
     return {
       _id: finalValues._id,
       text: finalValues.text,
-      imageUrl:
-        'https://office.erxes.io/gateway/read-file?key=' + image[0]?.url || '',
+      imageUrl: readFile(image[0]?.url) || '',
       isMultipleChoice,
       listOrder: parseInt(finalValues.listOrder, 10),
       quizId,

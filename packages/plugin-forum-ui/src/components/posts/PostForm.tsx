@@ -20,6 +20,7 @@ import DateControl from '@erxes/ui/src/components/form/DateControl';
 import dayjs from 'dayjs';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import { CustomRangeContainer } from '../../styles';
+import { readFile } from '@erxes/ui/src/utils';
 
 type Props = {
   post?: IPost;
@@ -90,9 +91,7 @@ class PostForm extends React.Component<Props, State> {
       _id: finalValues._id,
       title: finalValues.title,
       content: this.state.content,
-      thumbnail:
-        'https://office.erxes.io/gateway/read-file?key=' +
-          this.state.thumbnail[0]?.url || '',
+      thumbnail: readFile(this.state.thumbnail[0]?.url) || '',
       thumbnailAlt: this.state.thumbnail[0]?.name || '',
       categoryId: finalValues.categoryId,
       description: finalValues.description,
