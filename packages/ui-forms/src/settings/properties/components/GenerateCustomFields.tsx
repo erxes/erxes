@@ -484,7 +484,13 @@ class GenerateGroups extends React.Component<GroupsProps> {
   };
 
   render() {
-    const { loading, fieldsGroups, customFieldsData, isDetail } = this.props;
+    const {
+      loading,
+      fieldsGroups = [],
+      customFieldsData,
+      isDetail
+    } = this.props;
+
     const groups = fieldsGroups.filter(gro => !gro.parentId);
     const groupsWithParents = fieldsGroups.filter(gro => !!gro.parentId);
 
