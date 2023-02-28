@@ -5,7 +5,7 @@ import * as compose from 'lodash.flowright';
 import ListComponent from '../components/List';
 import { withProps } from '@erxes/ui/src/utils/core';
 import { mutations, queries } from '../graphql';
-import { Spinner, confirm, Alert } from '@erxes/ui/src';
+import { Spinner, confirm, Alert, EmptyState } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { generateParams, refetchQueries } from '../common/utils';
 import {
@@ -33,6 +33,10 @@ class List extends React.Component<FinalProps> {
 
     if (listQuery.loading) {
       return <Spinner />;
+    }
+
+    if (listQuery.error) {
+      return <EmptyState icon="info-circle" text={listQuery.error} />;
     }
 
     const remove = (ids: string[]) => {

@@ -71,6 +71,8 @@ const commonParams = `
     operationIds:[String]
     perPage:Int
     page:Int
+    sortField:String
+    sortDirection:Int
 `;
 
 const commonFormSubmitParams = `

@@ -1,7 +1,7 @@
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { ButtonMutate } from '@erxes/ui/src';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { Alert, confirm, router } from '@erxes/ui/src/utils';
+import { EmptyState } from '@erxes/ui/src';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { Alert, confirm } from '@erxes/ui/src/utils';
 import { withProps } from '@erxes/ui/src/utils/core';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
@@ -35,7 +35,11 @@ class ListContainer extends React.Component<FinalProps> {
   render() {
     const { removeMutation, listQuery, totalCountQuery } = this.props;
 
-    const { riskIndicators, loading } = listQuery;
+    const { riskIndicators, loading, error } = listQuery;
+
+    if (error) {
+      return <EmptyState icon="info-circle" text={error} />;
+    }
 
     const remove = (_ids: string[]) => {
       confirm('Are you sure?').then(() => {
