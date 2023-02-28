@@ -61,6 +61,8 @@ const stages = `
       probability
       visibility
       memberIds
+      canMoveMemberIds
+      canEditMemberIds
       departmentIds
       pipelineId
       formId
