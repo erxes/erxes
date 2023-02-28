@@ -91,11 +91,15 @@ export default class ConversationDetail extends React.Component<Props> {
           const key = 'inboxConversationDetail';
 
           if (entry && entry.components && entry.components.includes(key)) {
-            content = loadDynamicComponent(key, {
-              ...this.props,
-              conversation: currentConversation,
-              pluginName: kind
-            });
+            content = loadDynamicComponent(
+              key,
+              {
+                ...this.props,
+                conversation: currentConversation
+              },
+              false,
+              kind
+            );
           }
         }
 
