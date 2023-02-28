@@ -36,7 +36,9 @@ type Props = {
 
 function List(props: Props) {
   const [name, setName] = useState('');
-  const [coverImage, setCoverImage] = useState({} as IAttachment);
+  const [coverImage, setCoverImage] = useState<IAttachment | undefined>(
+    undefined
+  );
   const [category, setCategory] = useState('');
 
   const { templates, templatesCount, use } = props;
@@ -67,6 +69,16 @@ function List(props: Props) {
 
   const onClickCategory = (value: any) => {
     setCategory(value);
+  };
+
+  const onChangeCoverImage = (attachment: IAttachment[]) => {
+    if (attachment.length) {
+      setCoverImage(attachment[0]);
+
+      return;
+    }
+
+    setCoverImage(undefined);
   };
 
   const renderCategories = (cat: any, index: number) => {
@@ -103,10 +115,8 @@ function List(props: Props) {
           <ControlLabel>Cover image</ControlLabel>
 
           <Uploader
-            defaultFileList={coverImage.url ? [coverImage] : []}
-            onChange={attachment =>
-              attachment.length && setCoverImage(attachment[0])
-            }
+            defaultFileList={coverImage ? [coverImage] : []}
+            onChange={onChangeCoverImage}
             single={true}
           />
         </FormGroup>
