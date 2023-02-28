@@ -53,6 +53,7 @@ export const types = (tagsAvailable, contactsAvailable) => `
     unitPrice: Float
     categoryId: String
     customFieldsData: JSON
+    customFieldsDataByFieldCode: JSON
     createdAt: Date
     ${tagsAvailable ? `getTags: [Tag]` : ''}
     tagIds: [String]

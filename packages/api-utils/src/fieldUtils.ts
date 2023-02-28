@@ -28,3 +28,50 @@ export const generateFieldsFromSchema = async (
 
   return fields;
 };
+
+export const customFieldsDataByFieldCode = async (
+  object,
+  subdomain,
+  sendMessage
+) => {
+  console.log(sendMessage);
+  const customFieldsData =
+    object.customFieldsData && object.customFieldsData.toObject
+      ? object.customFieldsData.toObject()
+      : object.customFieldsData || [];
+
+  const fieldIds = customFieldsData.map(data => data.field);
+
+  const fields = await sendMessage({
+    serviceName: 'forms',
+    subdomain,
+    action: 'fields.find',
+    data: {
+      query: {
+        _id: { $in: fieldIds }
+      }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const fieldCodesById = {};
+
+  for (const field of fields) {
+    fieldCodesById[field._id] = {
+      code: field.code,
+      text: field.text
+    };
+  }
+
+  const results: any = {};
+
+  for (const data of customFieldsData) {
+    results[fieldCodesById[data.field].code] = {
+      ...data,
+      text: fieldCodesById[data.field].text
+    };
+  }
+
+  return results;
+};
