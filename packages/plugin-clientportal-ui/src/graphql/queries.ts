@@ -64,6 +64,8 @@ export const commonFields = `
     invitationContent
     registrationContent
   }
+
+  requireManualVerification
 `;
 
 export const basicFields = `
@@ -166,6 +168,7 @@ const clientPortalUsers = `
       ${clientPortalUserFields}
       isPhoneVerified
       isEmailVerified
+      isManuallyVerified
     }
   }
 `;

@@ -37,6 +37,7 @@ ${
     password: String
     isEmailVerified: Boolean
     isPhoneVerified: Boolean
+    isManuallyVerified: Boolean
 
     isOnline: Boolean
     lastSeenAt: Date
@@ -131,4 +132,5 @@ export const mutations = () => `
   clientPortalResetPasswordWithCode(phone: String!, code: String!, password: String!): String
   clientPortalResetPassword(token: String!, newPassword: String!): JSON
   clientPortalUserChangePassword(currentPassword: String!, newPassword: String!): ClientPortalUser
+  clientPortalUsersSendVerificationRequest(userId: String!, attachmentUrl: String!, description: String): String
 `;

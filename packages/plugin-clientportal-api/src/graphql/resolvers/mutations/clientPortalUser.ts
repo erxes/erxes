@@ -1,3 +1,6 @@
+import { sendCommonMessage } from './../../../messageBroker';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+
 import { authCookieOptions, getEnv } from '@erxes/api-utils/src/core';
 
 import { createJwtToken } from '../../../auth/authUtils';
@@ -328,6 +331,51 @@ const clientPortalUserMutations = {
     }
 
     return { userId, message: 'Sms sent' };
+  },
+
+  clientPortalUsersSendVerificationRequest: async (
+    _root,
+    args: { userId: string; attachmentUrl: string; description: string },
+    { models, subdomain }: IContext
+  ) => {
+    const { userId, attachmentUrl, description } = args;
+
+    const user = await models.ClientPortalUsers.getUser({ _id: userId });
+
+    if (
+      user.verificationRequest &&
+      user.verificationRequest.status === 'approved'
+    ) {
+      throw new Error('User already verified');
+    }
+
+    const verificationRequest = {
+      attachmentUrl,
+      description,
+      status: 'pending'
+    };
+
+    await models.ClientPortalUsers.updateOne(
+      { _id: userId },
+      { $set: { verificationRequest } }
+    );
+
+    await sendCommonMessage({
+      serviceName: 'notifications',
+      subdomain,
+      action: 'send',
+      data: {
+        contentType: 'clientPortalUser',
+        contentTypeId: userId,
+        notifType: 'plugin',
+        title: `Clientportal user verifcation request`,
+        action: 'new clientportal user wants to be verified',
+        content: `new clientportal user wants to be verified`,
+        link: `/settings/client-portal/users/details/${userId}`
+      }
+    });
+
+    return 'Verification request sent';
   }
 };
 

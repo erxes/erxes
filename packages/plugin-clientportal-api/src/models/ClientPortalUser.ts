@@ -753,6 +753,16 @@ export const loadClientPortalUserClass = (models: IModels) => {
         throw new Error('User is not verified');
       }
 
+      const cp = await models.ClientPortals.getConfig(clientPortalId);
+
+      if (
+        cp.requireManualVerification &&
+        (!user.verificationRequest ||
+          user.verificationRequest.status !== 'approved')
+      ) {
+        throw new Error('User is not verified');
+      }
+
       const valid = await this.comparePassword(password, user.password);
 
       if (!valid) {

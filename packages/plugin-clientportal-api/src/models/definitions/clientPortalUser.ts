@@ -42,6 +42,14 @@ export interface IUser {
   notificationSettings: INotifcationSettings;
   avatar?: string;
   customFieldsData?: any;
+
+  // verification for company
+  verificationRequest?: {
+    status: string;
+    attachmentUrl: string;
+    description?: string;
+    verifiedBy?: string;
+  };
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -213,6 +221,17 @@ export const clientPortalUserSchema = new Schema({
     default: {}
   }),
   avatar: field({ type: String, label: 'Avatar' }),
+
+  // manual verification
+  verificationRequest: field({
+    type: {
+      status: { type: String, default: 'pending' },
+      attachmentUrl: { type: String },
+      description: { type: String, optional: true },
+      verifiedBy: { type: String, optional: true }
+    },
+    optional: true
+  }),
 
   customFieldsData: field({
     type: [customFieldSchema],

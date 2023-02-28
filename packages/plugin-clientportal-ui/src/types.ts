@@ -111,6 +111,7 @@ export type ClientPortalConfig = {
   taskToggle?: boolean;
   otpConfig?: OTPConfig;
   mailConfig?: MailConfig;
+  requireManualVerification?: boolean;
 };
 
 export type Styles = {

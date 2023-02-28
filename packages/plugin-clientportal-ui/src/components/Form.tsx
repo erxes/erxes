@@ -122,7 +122,7 @@ class Form extends React.Component<Props, State> {
         return <General {...commonProps} />;
       case CONFIG_TYPES.APPEARANCE.VALUE:
         return <Appearance {...commonProps} />;
-      case CONFIG_TYPES.CUSTOM.VALUE:
+      case CONFIG_TYPES.AUTH.VALUE:
         return <Config {...commonProps} />;
       default:
         return null;

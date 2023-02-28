@@ -32,6 +32,7 @@ function General({
   otpConfig,
   mailConfig,
   name,
+  requireManualVerification,
   handleFormChange
 }: Props) {
   const [otpEnabled, setOtpEnabled] = useState<boolean>(
@@ -41,6 +42,10 @@ function General({
   const [mailEnabled, setMailEnabled] = useState<boolean>(
     mailConfig ? true : false
   );
+
+  const [manualVerificationEnabled, setManualVerificationEnabled] = useState<
+    boolean
+  >(requireManualVerification ? true : false);
 
   const onChangeToggle = (name: string, value: boolean) => {
     if (name === 'otpEnabled') {
@@ -65,6 +70,12 @@ function General({
       if (!value) {
         handleFormChange('mailConfig', null);
       }
+    }
+
+    if (name === 'manualVerificationEnabled') {
+      setManualVerificationEnabled(value);
+
+      handleFormChange('requireManualVerification', value);
     }
   };
 
@@ -374,6 +385,31 @@ function General({
           formValueName: 'googleCredentials',
           formValue: googleCredentials
         })}
+      </CollapseContent>
+
+      <CollapseContent
+        title={__('Company verification')}
+        compact={true}
+        open={false}
+      >
+        <ToggleWrap>
+          <FormGroup>
+            <ControlLabel>Enable company verification</ControlLabel>
+            <Toggle
+              checked={manualVerificationEnabled}
+              onChange={() =>
+                onChangeToggle(
+                  'manualVerificationEnabled',
+                  !manualVerificationEnabled
+                )
+              }
+              icons={{
+                checked: <span>Yes</span>,
+                unchecked: <span>No</span>
+              }}
+            />
+          </FormGroup>
+        </ToggleWrap>
       </CollapseContent>
     </>
   );

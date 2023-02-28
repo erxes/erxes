@@ -91,6 +91,7 @@ ${
   
     otpConfig: OTPConfig
     mailConfig: MailConfig
+    requireManualVerification: Boolean
 
     kbToggle: Boolean,
     publicTaskToggle: Boolean,
@@ -197,6 +198,7 @@ export const mutations = cardAvailable => `
 
     otpConfig: OTPConfigInput
     mailConfig: MailConfigInput
+    requireManualVerification: Boolean
   ): ClientPortal
 
   clientPortalRemove (_id: String!): JSON
