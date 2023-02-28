@@ -1,6 +1,9 @@
 import { paginate } from '@erxes/api-utils/src';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
-import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
+import {
+  moduleRequireLogin,
+  checkPermission
+} from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
 import { readHelpersData } from './utils';
 
@@ -167,5 +170,42 @@ const webbuilderQueries = {
 };
 
 moduleRequireLogin(webbuilderQueries);
+
+checkPermission(webbuilderQueries, 'webbuilderPagesMain', 'showWebbuilder');
+checkPermission(webbuilderQueries, 'webbuilderPageDetail', 'showWebbuilder');
+
+checkPermission(webbuilderQueries, 'webbuilderContentTypes', 'showWebbuilder');
+checkPermission(
+  webbuilderQueries,
+  'webbuilderContentTypesMain',
+  'showWebbuilder'
+);
+checkPermission(
+  webbuilderQueries,
+  'webbuilderContentTypeDetail',
+  'showWebbuilder'
+);
+
+checkPermission(webbuilderQueries, 'webbuilderEntriesMain', 'showWebbuilder');
+checkPermission(webbuilderQueries, 'webbuilderEntryDetail', 'showWebbuilder');
+
+checkPermission(webbuilderQueries, 'webbuilderTemplates', 'showWebbuilder');
+checkPermission(
+  webbuilderQueries,
+  'webbuilderTemplatesTotalCount',
+  'showWebbuilder'
+);
+checkPermission(
+  webbuilderQueries,
+  'webbuilderTemplateDetail',
+  'showWebbuilder'
+);
+
+checkPermission(webbuilderQueries, 'webbuilderSites', 'showWebbuilder');
+checkPermission(
+  webbuilderQueries,
+  'webbuilderSitesTotalCount',
+  'showWebbuilder'
+);
 
 export default webbuilderQueries;
