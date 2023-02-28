@@ -88,7 +88,8 @@ export default compose(
     name: 'templatesQuery',
     options: ({ queryParams }) => ({
       variables: {
-        ...generatePaginationParams(queryParams)
+        ...generatePaginationParams(queryParams),
+        searchValue: queryParams.searchValue || ''
       },
       fetchPolicy: 'network-only'
     })

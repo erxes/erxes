@@ -28,7 +28,7 @@ function WebBuilder(props: Props) {
 
   const search = (e: any) => {
     if (timer) {
-      clearTimeout(this.timer);
+      clearTimeout(timer);
     }
 
     const { history } = props;

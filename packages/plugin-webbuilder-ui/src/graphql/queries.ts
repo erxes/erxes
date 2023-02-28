@@ -114,8 +114,8 @@ const entryDetail = `
 `;
 
 const templates = `
-  query templates($page: Int, $perPage: Int) {
-    webbuilderTemplates(page: $page, perPage: $perPage) {
+  query templates($page: Int, $perPage: Int, $searchValue: String) {
+    webbuilderTemplates(page: $page, perPage: $perPage, searchValue: $searchValue) {
       _id
       name
       html

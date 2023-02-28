@@ -117,8 +117,8 @@ const webbuilderQueries = {
     return models.Entries.findOne({ _id });
   },
 
-  async webbuilderTemplates(_root, _args) {
-    return readHelpersData('templates');
+  async webbuilderTemplates(_root, { searchValue }: { searchValue: string }) {
+    return readHelpersData('templates', `searchValue=${searchValue}`);
   },
 
   webbuilderTemplatesTotalCount(_root, _args, { models }: IContext) {

@@ -11,7 +11,7 @@ import {
 } from '../sites/styles';
 import { ModalFooter, Title } from '@erxes/ui/src/styles/main';
 import React, { useState } from 'react';
-import { __, getEnv } from '@erxes/ui/src/utils/core';
+import { __, getEnv, router } from '@erxes/ui/src/utils/core';
 
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
@@ -27,21 +27,28 @@ import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import { IAttachment } from '@erxes/ui/src/types';
+import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '@erxes/ui/src/types';
 
 type Props = {
   templates: ITemplateDoc[];
   templatesCount: number;
   use: (_id: string, name: string, coverImage: any) => void;
-};
+  queryParams: any;
+} & IRouterProps;
 
 function List(props: Props) {
+  let timer;
+
   const [name, setName] = useState('');
   const [coverImage, setCoverImage] = useState<IAttachment | undefined>(
     undefined
   );
   const [category, setCategory] = useState('');
 
-  const { templates, templatesCount, use } = props;
+  const { templates, templatesCount, use, queryParams } = props;
+
+  const [search, setSearch] = useState(queryParams.searchValue);
 
   const renderDemoAction = (template: ITemplateDoc) => {
     const { REACT_APP_API_URL } = getEnv();
@@ -181,12 +188,31 @@ function List(props: Props) {
     </HeaderContent>
   );
 
+  const onSearchTemplate = (e: any) => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+
+    const { history } = props;
+
+    const value = e.target.value;
+
+    setSearch(value);
+
+    timer = setTimeout(() => {
+      router.removeParams(history, 'page');
+      router.setParams(history, { searchValue: value });
+    }, 500);
+  };
+
   const actionBarRight = (
     <BarItems>
       <FormControl
         type="text"
         placeholder={__('Search templates')}
         autoFocus={true}
+        onChange={onSearchTemplate}
+        defaultValue={search}
       />
     </BarItems>
   );
@@ -240,4 +266,4 @@ function List(props: Props) {
   );
 }
 
-export default List;
+export default withRouter<Props>(List);

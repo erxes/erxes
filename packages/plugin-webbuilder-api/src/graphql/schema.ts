@@ -82,7 +82,7 @@ export const queries = `
   webbuilderEntriesMain(contentTypeId: String! page: Int perPage: Int): WebbuilderEntriesList
   webbuilderEntryDetail(_id: String!): WebbuilderEntry
 
-  webbuilderTemplates(page: Int, perPage: Int): [WebbuilderTemplate]
+  webbuilderTemplates(page: Int, perPage: Int, searchValue: String): [WebbuilderTemplate]
   webbuilderTemplatesTotalCount: Int
   webbuilderTemplateDetail(_id: String!): WebbuilderTemplate
 
