@@ -17,6 +17,12 @@ const FilterWrapper = styled.div`
   }
 `;
 
+const ConfigFormWrapper = styled.div`
+  label > span:before {
+    border-radius: 0;
+  }
+`;
+
 const SidebarHeader = styledTS<{
   spaceBottom?: boolean;
   uppercase?: boolean;
@@ -217,5 +223,6 @@ export {
   SidebarHeader,
   CustomRow,
   FlexRowEven,
-  ToggleDisplay
+  ToggleDisplay,
+  ConfigFormWrapper
 };
