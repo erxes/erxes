@@ -11,25 +11,34 @@ import TimeForm from '../../containers/timeclock/TimeFormList';
 import { CustomRangeContainer, FlexCenter, FlexColumn } from '../../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import { ControlLabel } from '@erxes/ui/src/components/form';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 
 type Props = {
   queryParams: any;
   history: any;
   startTime?: Date;
   timeclocks: ITimeclock[];
-  startClockTime?: (userId: string) => void;
   loading: boolean;
-  getActionBar: (actionBar: any) => void;
-  extractAllMySqlData: (startDate: Date, endDate: Date) => void;
+  totalCount: number;
+
+  startClockTime?: (userId: string) => void;
+  extractAllMsSqlData: (startDate: Date, endDate: Date) => void;
   removeTimeclock: (_id: string) => void;
+
+  getActionBar: (actionBar: any) => void;
+  showSideBar: (sideBar: boolean) => void;
+  getPagination: (pagination: any) => void;
 };
 
 function List({
   timeclocks,
+  totalCount,
   startClockTime,
+  extractAllMsSqlData,
+  removeTimeclock,
   getActionBar,
-  extractAllMySqlData,
-  removeTimeclock
+  showSideBar,
+  getPagination
 }: Props) {
   const trigger = (
     <Button btnStyle={'success'} icon="plus-circle">
@@ -85,7 +94,7 @@ function List({
         />
       </CustomRangeContainer>
       <FlexCenter>
-        <Button onClick={() => extractAllMySqlData(startDate, endDate)}>
+        <Button onClick={() => extractAllMsSqlData(startDate, endDate)}>
           Extract all data
         </Button>
       </FlexCenter>
@@ -163,6 +172,9 @@ function List({
   );
 
   getActionBar(actionBar);
+  showSideBar(true);
+  getPagination(<Pagination count={totalCount} />);
+
   return content;
 }
 

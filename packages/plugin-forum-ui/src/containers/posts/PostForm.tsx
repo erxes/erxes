@@ -53,8 +53,4 @@ function PostFormContainer({ closeModal, post }: Props) {
   );
 }
 
-const getRefetchQueries = () => {
-  return ['forumPosts', 'forumPostsCount'];
-};
-
 export default PostFormContainer;

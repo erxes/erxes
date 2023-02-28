@@ -23,6 +23,8 @@ import ConfigForm from './ConfigForm';
 
 type Props = {
   getActionBar: (actionBar: any) => void;
+  showSideBar: (sideBar: boolean) => void;
+
   absenceTypes?: IAbsenceType[];
   holidays?: IAbsence[];
   payDates: IPayDates[];
@@ -49,7 +51,8 @@ function ConfigList(props: Props) {
     removePayDate,
     getActionBar,
     removeScheduleConfig,
-    removeDeviceConfig
+    removeDeviceConfig,
+    showSideBar
   } = props;
 
   const [selectedType, setType] = useState(
@@ -501,6 +504,8 @@ function ConfigList(props: Props) {
       </Table>
     );
   };
+
+  showSideBar(false);
   getActionBar(actionBar);
   return content();
 }

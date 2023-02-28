@@ -85,7 +85,9 @@ export const productToErkhet = async (subdomain, params, action) => {
       costAccount: config.costAccount,
       saleAccount: config.saleAccount,
       categoryCode: productCategory ? productCategory.code : '',
-      defaultCategory: config.productCategoryCode
+      defaultCategory: config.productCategoryCode,
+      taxType: product.taxType,
+      taxCode: product.taxCode
     }
   };
 

@@ -1,6 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
-import { colors } from '@erxes/ui/src/styles';
 import Alert from '@erxes/ui/src/utils/Alert';
 import { __ } from '@erxes/ui/src/utils/core';
 import Button from '@erxes/ui/src/components/Button';
@@ -9,46 +7,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import SortableList from '@erxes/ui/src/components/SortableList';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 import { IPollOption } from '../../types';
-
-const List = styled.ul`
-  list-style: none;
-  padding: 0;
-
-  button {
-    margin-top: 10px;
-  }
-
-  li {
-    position: relative;
-    margin-bottom: 5px;
-    background-color: ${colors.colorWhite};
-    border: 1px solid ${colors.borderPrimary};
-    padding: 5px 10px;
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    border: none;
-
-    &:hover {
-      cursor: pointer;
-    }
-  }
-
-  input.editInput {
-    border: none;
-    outline: none;
-  }
-
-  input.editInput:focus {
-    outline: none;
-  }
-`;
-
-const Actions = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 10px;
-`;
+import { List, Actions } from '../../styles';
 
 type Props = {
   options?: IPollOption[];
@@ -165,7 +124,7 @@ class PollOptions extends React.Component<Props, State> {
     );
   };
 
-  showEditForm = (option: { text: string; _id: string; order: any }) => {
+  showEditForm = (option: { text: string; _id: string; order: string }) => {
     this.setState({
       editing: true,
       editedIdx: option._id,
@@ -271,52 +230,39 @@ class PollOptions extends React.Component<Props, State> {
     );
   };
 
+  renderTitle = (option: IPollOption, type: string) => {
+    const value = type === 'title' ? option.title : option.order;
+
+    if (this.state.editing && this.state.editedIdx === option._id) {
+      return (
+        <input
+          className="editInput"
+          onChange={e => this.handleEditOption(e, type)}
+          value={value}
+          onBlur={e => {
+            e.preventDefault();
+            this.saveEditedOption(e.currentTarget.value);
+          }}
+          onKeyPress={e => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              this.saveEditedOption(e.currentTarget.value);
+            }
+          }}
+        />
+      );
+    }
+
+    return value;
+  };
+
   renderOption = (option: IPollOption) => {
     return (
       <li key={option._id} onDoubleClick={this.showEditForm.bind(this, option)}>
         <FlexContent>
-          <FlexItem count={4}>
-            {this.state.editing && this.state.editedIdx === option._id ? (
-              <input
-                className="editInput"
-                onChange={e => this.handleEditOption(e, 'title')}
-                value={option.title}
-                onBlur={e => {
-                  e.preventDefault();
-                  this.saveEditedOption(e.currentTarget.value);
-                }}
-                onKeyPress={e => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    this.saveEditedOption(e.currentTarget.value);
-                  }
-                }}
-              />
-            ) : (
-              option.title
-            )}
-          </FlexItem>
+          <FlexItem count={4}>{this.renderTitle(option, 'title')}</FlexItem>
           <FlexItem hasSpace={true} count={4}>
-            {this.state.editing && this.state.editedIdx === option._id ? (
-              <input
-                className="editInput"
-                onChange={e => this.handleEditOption(e, 'order')}
-                value={option.order}
-                type="number"
-                onBlur={e => {
-                  e.preventDefault();
-                  this.saveEditedOption(e.currentTarget.value);
-                }}
-                onKeyPress={e => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    this.saveEditedOption(e.currentTarget.value);
-                  }
-                }}
-              />
-            ) : (
-              option.order
-            )}
+            {this.renderTitle(option, 'order')}
           </FlexItem>
         </FlexContent>
         <Icon
