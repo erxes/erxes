@@ -15,7 +15,7 @@ function CategoriesContainer() {
       return (
         <ArticleListContainer
           searchValue={searchValue}
-          topicId={props.topic?._id}
+          topicId={props.topic._id}
         />
       );
     }

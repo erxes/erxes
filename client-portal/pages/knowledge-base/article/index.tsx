@@ -15,7 +15,7 @@ export default function Category() {
       return (
         <ArticleListContainer
           searchValue={searchValue}
-          topicId={props.config?.knowledgeBaseTopicId}
+          topicId={props.topic._id}
         />
       );
     }
