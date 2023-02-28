@@ -19,6 +19,7 @@ type Props = {
   sites: ISiteDoc[];
   getActionBar: (actionBar: any) => void;
   remove: (_id: string) => void;
+  duplicate: (_id: string) => void;
   setCount: (count: number) => void;
   sitesCount: number;
   queryParams: any;
@@ -34,7 +35,7 @@ class SiteList extends React.Component<Props, {}> {
   };
 
   renderList(site: ISiteDoc) {
-    const { remove } = this.props;
+    const { remove, duplicate } = this.props;
 
     return (
       <SiteBox key={site._id} nowrap={true}>
@@ -71,6 +72,9 @@ class SiteList extends React.Component<Props, {}> {
                   <Icon icon="edit-3" /> {__('Editor')}
                 </li>
               </a>
+              <li key="duplicate" onClick={() => duplicate(site._id)}>
+                <Icon icon="copy" /> {__('Duplicate')}
+              </li>
               <li key="delete" onClick={() => remove(site._id)}>
                 <Icon icon="trash-alt" size={14} /> {__('Delete')}
               </li>

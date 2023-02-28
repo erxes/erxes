@@ -120,6 +120,14 @@ const sitesRemove = `
   }
 `;
 
+const sitesDuplicate = `
+  mutation sitesDuplicate($_id: String!) {
+    webbuilderSitesDuplicate(_id: $_id) {
+      _id
+    }
+  }
+`;
+
 export default {
   add,
   edit,
@@ -133,5 +141,6 @@ export default {
   templatesUse,
   sitesAdd,
   sitesEdit,
-  sitesRemove
+  sitesRemove,
+  sitesDuplicate
 };

@@ -193,3 +193,7 @@ export type SitesEditMutationResponse = {
 export type SitesRemoveMutationResponse = {
   sitesRemoveMutation: (doc: { variables: { _id: string } }) => Promise<any>;
 };
+
+export type SitesDuplicateMutationResponse = {
+  sitesDuplicateMutation: (doc: { variables: { _id: string } }) => Promise<any>;
+};

@@ -174,6 +174,14 @@ const webbuilderMutations = {
     { models }: IContext
   ) {
     return models.Sites.removeSite(_id);
+  },
+
+  async webbuilderSitesDuplicate(
+    _root,
+    { _id }: { _id: string },
+    { models, user }: IContext
+  ) {
+    return models.Sites.duplicateSite(_id, user._id);
   }
 };
 
@@ -240,6 +248,11 @@ checkPermission(webbuilderMutations, 'webbuilderSitesEdit', 'manageWebbuilder');
 checkPermission(
   webbuilderMutations,
   'webbuilderSitesRemove',
+  'manageWebbuilder'
+);
+checkPermission(
+  webbuilderMutations,
+  'webbuilderSitesDuplicate',
   'manageWebbuilder'
 );
 

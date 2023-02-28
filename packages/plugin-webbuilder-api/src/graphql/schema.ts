@@ -125,4 +125,5 @@ export const mutations = `
   webbuilderSitesAdd(name: String domain: String): WebbuilderSite 
   webbuilderSitesEdit(_id: String! name: String domain: String): WebbuilderSite 
   webbuilderSitesRemove(_id: String!): JSON 
+  webbuilderSitesDuplicate(_id: String!): WebbuilderSite
 `;
