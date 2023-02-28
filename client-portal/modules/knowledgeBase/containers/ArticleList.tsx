@@ -7,6 +7,7 @@ import { articlesQuery } from "../graphql/queries";
 type Props = {
   searchValue?: any;
   categoryId?: string;
+  topicId?: string;
 };
 
 function ArticleListContainer(props: Props) {
@@ -14,6 +15,7 @@ function ArticleListContainer(props: Props) {
     variables: {
       searchValue: props.searchValue || "",
       categoryIds: props.categoryId && [props.categoryId],
+      topicId: props.topicId || ""
     },
   });
 
