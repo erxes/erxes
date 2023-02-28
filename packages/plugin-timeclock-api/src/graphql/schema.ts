@@ -50,6 +50,10 @@ export const types = `
     explRequired: Boolean
     attachRequired: Boolean
     shiftRequest: Boolean
+
+    requestType: String
+    requestTimeType: String
+    requestHoursPerDay: Float
   }
 
   
@@ -225,6 +229,11 @@ const absenceType_params = `
     explRequired: Boolean
     attachRequired: Boolean
     shiftRequest: Boolean
+
+    requestType: String
+    requestTimeType: String
+    requestHoursPerDay: Float
+  
 `;
 
 export const queries = `
@@ -260,6 +269,8 @@ export const mutations = `
   absenceTypeAdd(${absenceType_params}): AbsenceType
   absenceTypeEdit(_id: String, ${absenceType_params}): AbsenceType
   sendAbsenceRequest(${absence_params}): Absence
+  
+  submitCheckInOutRequest(checkType: String,userId: String, checkTime: Date, absenceTypeId: String): AbsenceType
   
   sendScheduleRequest(userId: String, shifts: [ShiftsRequestInput], scheduleConfigId: String): Schedule
   submitSchedule(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftsRequestInput], scheduleConfigId: String): Schedule

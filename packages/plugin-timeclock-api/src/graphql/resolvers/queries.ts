@@ -71,7 +71,9 @@ const timeclockQueries = {
       }
     };
 
-    return models.TimeLogs.find({ $and: [{ userId: `${userId}` }, timeField] });
+    return models.TimeLogs.find({
+      $and: [{ userId }, timeField]
+    }).sort({ timelog: 1 });
   },
 
   async schedulesMain(_root, queryParams, { models, subdomain }: IContext) {
@@ -188,7 +190,7 @@ const timeclockQueries = {
 
         for (const userId of Object.keys(reportPreliminary)) {
           returnReport.push({
-            groupReport: [{ userId: `${userId}`, ...reportPreliminary[userId] }]
+            groupReport: [{ userId, ...reportPreliminary[userId] }]
           });
         }
 
@@ -203,7 +205,7 @@ const timeclockQueries = {
         );
         for (const userId of Object.keys(reportFinal)) {
           returnReport.push({
-            groupReport: [{ userId: `${userId}`, ...reportFinal[userId] }]
+            groupReport: [{ userId, ...reportFinal[userId] }]
           });
         }
         break;
@@ -219,7 +221,7 @@ const timeclockQueries = {
         for (const userId of Object.keys(reportPivot)) {
           if (userId !== 'scheduleReport') {
             returnReport.push({
-              groupReport: [{ userId: `${userId}`, ...reportPivot[userId] }]
+              groupReport: [{ userId, ...reportPivot[userId] }]
             });
           }
         }
