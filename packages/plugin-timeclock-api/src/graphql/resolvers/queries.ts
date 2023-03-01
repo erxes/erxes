@@ -49,6 +49,20 @@ const timeclockQueries = {
     return { list, totalCount };
   },
 
+  async timeclockActivePerUser(_root, { userId }, { user, models }: IContext) {
+    const getUserId = userId || user._id;
+
+    // return the latest started active shift
+    const getActiveTimeclock = await models.Timeclocks.find({
+      userId: getUserId,
+      shiftActive: true
+    })
+      .sort({ shiftStart: 1 })
+      .limit(1);
+
+    return getActiveTimeclock.pop();
+  },
+
   async timelogsMain(_root, queryParams, { subdomain, models }: IContext) {
     const selector = await generateFilter(queryParams, subdomain, 'timelog');
     const queryList = models.TimeLogs.find(selector);
