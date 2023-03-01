@@ -49,7 +49,7 @@ class Form extends React.Component<Props, State> {
       });
     });
 
-    return { ...values, ...detail };
+    return { ...detail, ...values };
   }
 
   renderContent(formProps: IFormProps) {

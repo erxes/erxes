@@ -91,7 +91,7 @@ class List extends React.Component<Props> {
           </tr>
         </thead>
         <tbody>
-          {list.map(item => (
+          {(list || []).map(item => (
             <Row item={item} key={item._id} />
           ))}
         </tbody>
