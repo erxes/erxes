@@ -1,4 +1,11 @@
+import {
+  attachmentInput,
+  attachmentType
+} from '@erxes/api-utils/src/commonTypeDefs';
+
 export const types = (isContactsEnabled: boolean) => `
+${attachmentType}
+${attachmentInput}
 
 ${
   isContactsEnabled
@@ -12,6 +19,13 @@ ${
       }
       `
     : ''
+}
+
+type VerificationRequest {
+  status: String
+  attachments: [Attachment]
+  description: String
+  verifiedBy: String
 }
 
   type ClientPortalUser @key(fields: "_id") {
@@ -48,6 +62,8 @@ ${
 
     avatar: String
 
+    verificationRequest: VerificationRequest
+
     ${
       isContactsEnabled
         ? `
@@ -61,6 +77,12 @@ ${
   type clientPortalUsersListResponse {
     list: [ClientPortalUser],
     totalCount: Float,
+  }
+
+  enum ClientPortalUserVerificationStatus {
+    verified
+    notVerified
+    pending
   }
 `;
 
@@ -131,4 +153,6 @@ export const mutations = () => `
   clientPortalResetPasswordWithCode(phone: String!, code: String!, password: String!): String
   clientPortalResetPassword(token: String!, newPassword: String!): JSON
   clientPortalUserChangePassword(currentPassword: String!, newPassword: String!): ClientPortalUser
+  clientPortalUsersSendVerificationRequest(userId: String!, attachments: [AttachmentInput]!, description: String): String
+  clientPortalUsersChangeVerificationStatus(userId: String!, status: ClientPortalUserVerificationStatus!): String
 `;

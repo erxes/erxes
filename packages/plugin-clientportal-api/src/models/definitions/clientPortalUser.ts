@@ -1,3 +1,4 @@
+import { IAttachment } from '@erxes/api-utils/src/types';
 import { Document, Schema } from 'mongoose';
 
 import { USER_LOGIN_TYPES } from './constants';
@@ -42,6 +43,14 @@ export interface IUser {
   notificationSettings: INotifcationSettings;
   avatar?: string;
   customFieldsData?: any;
+
+  // verification for company
+  verificationRequest?: {
+    status: string;
+    attachments: IAttachment[];
+    description?: string;
+    verifiedBy?: string;
+  };
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -213,6 +222,17 @@ export const clientPortalUserSchema = new Schema({
     default: {}
   }),
   avatar: field({ type: String, label: 'Avatar' }),
+
+  // manual verification
+  verificationRequest: field({
+    type: {
+      status: { type: String, default: 'notVerified' },
+      attachments: { type: Object, optional: false },
+      description: { type: String, optional: true },
+      verifiedBy: { type: String, optional: true }
+    },
+    optional: true
+  }),
 
   customFieldsData: field({
     type: [customFieldSchema],
