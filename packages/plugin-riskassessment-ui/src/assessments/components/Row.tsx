@@ -62,7 +62,7 @@ class Row extends React.Component<Props> {
     };
 
     return (
-      <tr key={item._id}>
+      <tr key={item?._id}>
         <td>{__(item?.cardType)}</td>
         <td>{__(item?.card?.name)}</td>
         <td>{this.renderPopOver('Indicators', item?.riskIndicators)}</td>
