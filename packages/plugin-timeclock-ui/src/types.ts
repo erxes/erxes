@@ -39,6 +39,10 @@ export interface IAbsenceType {
   explRequired: boolean;
   attachRequired: boolean;
   shiftRequest: boolean;
+
+  requestType: string;
+  requestTimeType: string;
+  requestHoursPerDay?: number;
 }
 
 export interface IReport {
@@ -248,6 +252,14 @@ export type AbsenceMutationResponse = {
 
   solveAbsenceMutation: (params: {
     variables: { _id: string; status: string };
+  }) => Promise<any>;
+
+  submitCheckInOutRequestMutation: (params: {
+    variables: {
+      checkType: string;
+      userId: string;
+      checkTime: Date;
+    };
   }) => Promise<any>;
 };
 

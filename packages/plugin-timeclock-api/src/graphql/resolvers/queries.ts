@@ -49,6 +49,20 @@ const timeclockQueries = {
     return { list, totalCount };
   },
 
+  async timeclockActivePerUser(_root, { userId }, { user, models }: IContext) {
+    const getUserId = userId || user._id;
+
+    // return the latest started active shift
+    const getActiveTimeclock = await models.Timeclocks.find({
+      userId: getUserId,
+      shiftActive: true
+    })
+      .sort({ shiftStart: 1 })
+      .limit(1);
+
+    return getActiveTimeclock.pop();
+  },
+
   async timelogsMain(_root, queryParams, { subdomain, models }: IContext) {
     const selector = await generateFilter(queryParams, subdomain, 'timelog');
     const queryList = models.TimeLogs.find(selector);
@@ -71,7 +85,9 @@ const timeclockQueries = {
       }
     };
 
-    return models.TimeLogs.find({ $and: [{ userId: `${userId}` }, timeField] });
+    return models.TimeLogs.find({
+      $and: [{ userId }, timeField]
+    }).sort({ timelog: 1 });
   },
 
   async schedulesMain(_root, queryParams, { models, subdomain }: IContext) {
@@ -188,7 +204,7 @@ const timeclockQueries = {
 
         for (const userId of Object.keys(reportPreliminary)) {
           returnReport.push({
-            groupReport: [{ userId: `${userId}`, ...reportPreliminary[userId] }]
+            groupReport: [{ userId, ...reportPreliminary[userId] }]
           });
         }
 
@@ -203,7 +219,7 @@ const timeclockQueries = {
         );
         for (const userId of Object.keys(reportFinal)) {
           returnReport.push({
-            groupReport: [{ userId: `${userId}`, ...reportFinal[userId] }]
+            groupReport: [{ userId, ...reportFinal[userId] }]
           });
         }
         break;
@@ -219,7 +235,7 @@ const timeclockQueries = {
         for (const userId of Object.keys(reportPivot)) {
           if (userId !== 'scheduleReport') {
             returnReport.push({
-              groupReport: [{ userId: `${userId}`, ...reportPivot[userId] }]
+              groupReport: [{ userId, ...reportPivot[userId] }]
             });
           }
         }
