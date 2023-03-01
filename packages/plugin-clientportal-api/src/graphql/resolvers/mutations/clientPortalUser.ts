@@ -1,8 +1,5 @@
-import { IAttachment } from '@erxes/ui/src/types';
-import { sendCommonMessage } from './../../../messageBroker';
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
-
 import { authCookieOptions, getEnv } from '@erxes/api-utils/src/core';
+import { IAttachment } from '@erxes/api-utils/src/types';
 
 import { createJwtToken } from '../../../auth/authUtils';
 import { IContext } from '../../../connectionResolver';
@@ -10,6 +7,7 @@ import { sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
 import { IUser } from '../../../models/definitions/clientPortalUser';
 import { sendSms } from '../../../utils';
+import { sendCommonMessage } from './../../../messageBroker';
 
 export interface IVerificationParams {
   userId: string;
