@@ -205,8 +205,8 @@ mutation extractTimeLogsFromMsSQL($startDate: String, $endDate: String){
 }`;
 
 const submitCheckInOutRequest = `
-mutation submitCheckInOutRequest($checkType: String, $userId: String, $checkTime: Date, $absenceTypeId: String){
-  submitCheckInOutRequest(checkType: $checkType, userId: $userId, checkTime: $checkTime, absenceTypeId: $absenceTypeId){
+mutation submitCheckInOutRequest($checkType: String, $userId: String, $checkTime: Date){
+  submitCheckInOutRequest(checkType: $checkType, userId: $userId, checkTime: $checkTime){
     _id
   }
 }`;
