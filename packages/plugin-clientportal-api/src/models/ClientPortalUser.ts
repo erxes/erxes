@@ -758,7 +758,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
       if (
         cp.manualVerificationConfig &&
         (!user.verificationRequest ||
-          user.verificationRequest.status !== 'approved')
+          user.verificationRequest.status !== 'verified')
       ) {
         throw new Error('User is not verified');
       }
