@@ -57,20 +57,20 @@ export const validateCalculateMethods = async params => {
     );
   }
   if (!params.calculateLogics.length) {
-    throw new Error('You must specify at least one calculate logic');
+    throw new Error('You must specify at least one metric');
   }
   for (const calculateLogic of params.calculateLogics || []) {
     if (!calculateLogic.logic) {
-      throw new Error('You must specify calculate logic ');
+      throw new Error('You must specify metric logic');
     }
     if (!calculateLogic.name) {
-      throw new Error('You must specify calculate name ');
+      throw new Error('You must specify metric name');
     }
     if (!calculateLogic.value) {
-      throw new Error('You must specify calculate value ');
+      throw new Error('You must specify metric value ');
     }
     if (!calculateLogic.color) {
-      throw new Error('You must specify calculate status color ');
+      throw new Error('You must specify metric status color ');
     }
   }
 };
@@ -175,6 +175,11 @@ export const getAsssignedUsers = async (
   cardType: string
 ) => {
   let assignedUsers;
+
+  if (!cardId && !cardType) {
+    return 'Something went wrong trying to get assigned users of card';
+  }
+
   const card = await sendCardsMessage({
     subdomain,
     action: `${cardType}s.findOne`,

@@ -1,14 +1,10 @@
 import { checkPermission, paginate } from '@erxes/api-utils/src';
-import { IContext } from '../../../connectionResolver';
+import { IContext, IModels } from '../../../connectionResolver';
 import { statusColors } from '../../../constants';
-import { riskAssessment } from '../../../permissions';
+import { RiskAssessmentGroupParams } from '../types';
 
-const generateFilter = async (params, models) => {
+const generateFilter = async (params, models: IModels) => {
   let filter: any = {};
-
-  if (params.searchValue) {
-    filter.name = { $regex: new RegExp(params.searchValue, 'i') };
-  }
 
   if (params.operationIds) {
     filter.operationIds = { $in: params.operationIds };
@@ -60,14 +56,24 @@ const generateFilter = async (params, models) => {
   return filter;
 };
 
+const generateSort = (sortField, sortDirection) => {
+  let sort: any = { createdAt: -1 };
+
+  if (sortField && sortDirection) {
+    sort = {};
+    sort = { [sortField]: sortDirection };
+  }
+  return sort;
+};
+
 const RiskAssessmentQueries = {
   async riskAssessments(_root, params, { models }: IContext) {
     const filter = await generateFilter(params, models);
 
-    return paginate(
-      models.RiskAssessments.find(filter).sort({ createdAt: -1 }),
-      params
-    );
+    const { sortField, sortDirection } = params;
+    const sort = generateSort(sortField, sortDirection);
+
+    return paginate(models.RiskAssessments.find(filter).sort(sort), params);
   },
 
   async riskAssessmentsTotalCount(_root, params, { models }: IContext) {
@@ -83,6 +89,22 @@ const RiskAssessmentQueries = {
       cardType
     });
   },
+
+  async riskAssessmentGroups(
+    _root,
+    { riskAssessmentId, groupIds }: RiskAssessmentGroupParams,
+    { models }: IContext
+  ) {
+    if (!groupIds.length) {
+      throw new Error('Please provide some group id');
+    }
+
+    return await models.RiskAssessmentGroups.find({
+      assessmentId: riskAssessmentId,
+      groupId: { $in: groupIds }
+    });
+  },
+
   async riskAssessmentAssignedMembers(
     _root,
     { cardId, cardType, riskAssessmentId },
