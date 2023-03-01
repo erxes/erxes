@@ -31,6 +31,8 @@ type Props = {
     absenceTypeId: string
   ) => void;
 
+  submitCheckInOut: (type: string, userId: string, dateVal: Date) => void;
+
   getActionBar: (actionBar: any) => void;
   getPagination: (pagination: any) => void;
   showSideBar: (sideBar: boolean) => void;
@@ -52,6 +54,11 @@ function AbsenceList(props: Props) {
     </Button>
   );
 
+  const checkInTrigger = (
+    <Button id="timeClockButton2" btnStyle="primary" icon="plus-circle">
+      Create Check In/Out Request
+    </Button>
+  );
   const modalContent = contentProps => {
     const updatedProps = {
       ...props,
@@ -60,12 +67,29 @@ function AbsenceList(props: Props) {
     return <AbsenceForm {...updatedProps} />;
   };
 
+  const checkInModalContent = contentProps => {
+    const updatedProps = {
+      ...props,
+      checkInOutRequest: true,
+      contentProps
+    };
+    return <AbsenceForm {...updatedProps} />;
+  };
+
   const actionBarRight = (
-    <ModalTrigger
-      title={__('Absence Config')}
-      trigger={trigger}
-      content={modalContent}
-    />
+    <>
+      <ModalTrigger
+        title={__('Create Request')}
+        trigger={trigger}
+        content={modalContent}
+      />
+
+      <ModalTrigger
+        title={__('Create Check In/Out Request')}
+        trigger={checkInTrigger}
+        content={checkInModalContent}
+      />
+    </>
   );
 
   const actionBar = (
@@ -79,12 +103,13 @@ function AbsenceList(props: Props) {
   const ListAbsenceContent = absence => {
     const startTime = new Date(absence.startTime);
     const endTime = new Date(absence.endTime);
+
     const startingDate =
       new Date(startTime).toDateString().split(' ')[0] +
       '\t' +
       dayjs(startTime).format(dateFormat);
-
     const startingTime = dayjs(startTime).format(timeFormat);
+
     const endingDate =
       new Date(endTime).toDateString().split(' ')[0] +
       '\t' +
@@ -102,10 +127,10 @@ function AbsenceList(props: Props) {
               : '-'
             : '-'}
         </td>
-        <td>{startingDate || '-'}</td>
-        <td>{startingTime || '-'}</td>
-        <td>{endingDate || '-'}</td>
-        <td>{endingTime || '-'}</td>
+        <td>{absence.startTime ? startingDate : '-'}</td>
+        <td>{absence.startTime ? startingTime : '-'}</td>
+        <td>{absence.endTime ? endingDate : '-'}</td>
+        <td>{absence.endTime ? endingTime : '-'}</td>
         <td>{absence.reason || '-'}</td>
         <td>{absence.explanation || '-'}</td>
         <td>

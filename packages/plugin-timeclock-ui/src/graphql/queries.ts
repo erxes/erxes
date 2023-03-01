@@ -220,6 +220,10 @@ const listAbsenceTypes = `
       explRequired
       attachRequired
       shiftRequest
+
+      requestType
+      requestTimeType
+      requestHoursPerDay
     }
   }
 `;

@@ -12,8 +12,8 @@ import Icon from '@erxes/ui/src/components/Icon';
 import TimelogForm from '../../containers/timeclock/TimelogForm';
 
 type Props = {
-  history: any;
-  timelogsPerUser: ITimelog[];
+  history?: any;
+  timelogsPerUser?: ITimelog[];
   timeclock: ITimeclock;
   removeTimeclock: (_id: string) => void;
 };
