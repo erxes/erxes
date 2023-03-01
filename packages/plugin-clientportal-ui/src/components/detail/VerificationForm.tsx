@@ -15,10 +15,13 @@ type Props = {
 
 const VerificationForm = (props: Props) => {
   const { clientPortalUser, closeModal, renderButton } = props;
-  const { verificationRequest } = clientPortalUser;
+
+  const [status, setStatus] = useState(
+    clientPortalUser.verificationRequest.status || 'notVerified'
+  );
 
   const renderFooter = (formProps: IFormProps) => {
-    const { values, isSubmitted } = formProps;
+    const { isSubmitted } = formProps;
 
     return (
       <ModalFooter>
@@ -33,7 +36,10 @@ const VerificationForm = (props: Props) => {
 
         {renderButton({
           name: 'clientPortalUser',
-          values: {},
+          values: {
+            userId: clientPortalUser._id,
+            status
+          },
           isSubmitted,
           callback: closeModal
         })}
@@ -42,19 +48,23 @@ const VerificationForm = (props: Props) => {
   };
 
   const renderContent = (formProps: IFormProps) => {
+    const onChange = e => {
+      setStatus(e.target.value);
+    };
+
     return (
       <>
         <FormGroup>
           <ControlLabel>Verification status</ControlLabel>
-
           <FormControl
-            type="select"
-            options={['not verified', 'verified']}
-            name="status"
-            value={verificationRequest.status}
-            autoFocus={true}
-            //   onChange={this.handleChange}
-          />
+            componentClass="select"
+            onChange={onChange}
+            defaultValue={status}
+          >
+            <option value="notVerified">not verified</option>
+            <option value="pending">pending</option>
+            <option value="verified">verified</option>
+          </FormControl>
         </FormGroup>
 
         {renderFooter({ ...formProps })}

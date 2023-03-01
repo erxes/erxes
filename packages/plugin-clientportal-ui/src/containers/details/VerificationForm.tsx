@@ -26,12 +26,13 @@ function FormContainer(props: Props) {
 
     return (
       <ButtonMutate
-        mutation={mutations.clientPortalUsersEdit}
+        mutation={mutations.changeVerificationStatus}
         variables={values}
         callback={callBackResponse}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully updated a clientportal user.`}
+        refetchQueries={['clientPortalUserDetail']}
       />
     );
   };

@@ -1,3 +1,4 @@
+import { IAttachment } from '@erxes/ui/src/types';
 import { sendCommonMessage } from './../../../messageBroker';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
@@ -335,10 +336,10 @@ const clientPortalUserMutations = {
 
   clientPortalUsersSendVerificationRequest: async (
     _root,
-    args: { userId: string; attachmentUrl: string; description: string },
+    args: { userId: string; attachments: IAttachment[]; description: string },
     { models, subdomain, user }: IContext
   ) => {
-    const { userId, attachmentUrl, description } = args;
+    const { userId, attachments, description } = args;
 
     const cpuser = await models.ClientPortalUsers.getUser({ _id: userId });
 
@@ -350,7 +351,7 @@ const clientPortalUserMutations = {
     }
 
     const verificationRequest = {
-      attachmentUrl,
+      attachments,
       description,
       status: 'pending'
     };
@@ -391,6 +392,47 @@ const clientPortalUserMutations = {
     });
 
     return 'Verification request sent';
+  },
+
+  clientPortalUsersChangeVerificationStatus: async (
+    _root,
+    args: { userId: string; status: string },
+    { models, user }: IContext
+  ) => {
+    if (!user) {
+      throw new Error('login required');
+    }
+
+    const { userId, status } = args;
+
+    const cpUser = await models.ClientPortalUsers.getUser({ _id: userId });
+
+    const { manualVerificationConfig } = await models.ClientPortals.getConfig(
+      cpUser.clientPortalId
+    );
+
+    if (
+      !manualVerificationConfig ||
+      !manualVerificationConfig.userIds.includes(user._id)
+    ) {
+      throw new Error('Permission denied');
+    }
+
+    const verificationRequest = cpUser.verificationRequest || {
+      attachments: [],
+      description: '',
+      status: 'notVerified',
+      verifiedBy: user._id
+    };
+
+    verificationRequest.status = status;
+
+    await models.ClientPortalUsers.updateOne(
+      { _id: userId },
+      { $set: { verificationRequest } }
+    );
+
+    return 'Verification status changed';
   }
 };
 

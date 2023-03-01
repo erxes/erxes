@@ -105,7 +105,12 @@ export const clientPortalUserFields = `
 
   verificationRequest {
     status
-    attachmentUrl
+    attachments{
+      name
+      url
+      size
+      type
+    }
     description
   }
 

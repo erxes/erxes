@@ -1,3 +1,4 @@
+import { IAttachment } from '@erxes/api-utils/src/types';
 import { Document, Schema } from 'mongoose';
 
 import { USER_LOGIN_TYPES } from './constants';
@@ -46,7 +47,7 @@ export interface IUser {
   // verification for company
   verificationRequest?: {
     status: string;
-    attachmentUrl: string;
+    attachments: IAttachment[];
     description?: string;
     verifiedBy?: string;
   };
@@ -225,8 +226,8 @@ export const clientPortalUserSchema = new Schema({
   // manual verification
   verificationRequest: field({
     type: {
-      status: { type: String, default: 'pending' },
-      attachmentUrl: { type: String },
+      status: { type: String, default: 'notVerified' },
+      attachments: { type: Object, optional: false },
       description: { type: String, optional: true },
       verifiedBy: { type: String, optional: true }
     },

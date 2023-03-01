@@ -176,6 +176,12 @@ const clientPortalCommentsRemove = `
   }
 `;
 
+const changeVerificationStatus = `
+mutation ClientPortalUsersChangeVerificationStatus($status: ClientPortalUserVerificationStatus!, $userId: String!) {
+  clientPortalUsersChangeVerificationStatus(status: $status, userId: $userId)
+}
+`;
+
 export default {
   createOrUpdateConfig,
   remove,
@@ -184,5 +190,6 @@ export default {
   clientPortalUsersRemove,
   verifyUsers,
   clientPortalCommentsAdd,
-  clientPortalCommentsRemove
+  clientPortalCommentsRemove,
+  changeVerificationStatus
 };

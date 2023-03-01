@@ -33,15 +33,29 @@ class LeftSidebar extends React.Component<Props> {
 
   renderVerificationSection() {
     const { clientPortalUser } = this.props;
-    const verificationStatus = clientPortalUser.verificationRequest
-      ? clientPortalUser.verificationRequest.status
-      : 'not verified';
+    const verificationRequest = clientPortalUser.verificationRequest;
+
+    let verificationStatus = 'notVerified';
+
+    switch (verificationRequest.status) {
+      case 'verified':
+        verificationStatus = 'verified';
+        break;
+      case 'pending':
+        verificationStatus = 'pending';
+        break;
+      case 'notVerified':
+        verificationStatus = 'not verified';
+        break;
+      default:
+        verificationStatus = 'not Verified';
+        break;
+    }
 
     const content = props => {
-      <VerificationForm
-        clientPortalUser={clientPortalUser}
-        closeModal={props.closeModal}
-      />;
+      return (
+        <VerificationForm {...props} clientPortalUser={clientPortalUser} />
+      );
     };
 
     const extraButtons = (
@@ -50,7 +64,7 @@ class LeftSidebar extends React.Component<Props> {
           title="Verification"
           trigger={
             <button>
-              <Icon icon="eye" />
+              <Icon icon="edit-3" />
             </button>
           }
           content={content}
