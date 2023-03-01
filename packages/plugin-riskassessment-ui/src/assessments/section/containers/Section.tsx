@@ -8,6 +8,7 @@ import { queries } from '../graphql';
 import { RiskAssessmentQueryResponse } from '../../common/types';
 import SectionComponent from '../components/Section';
 import { Spinner } from '@erxes/ui/src';
+import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 
 type Props = {
   queryParams: any;
@@ -38,7 +39,11 @@ class Section extends React.Component<FinalProps> {
       cardId: mainTypeId
     };
 
-    return <SectionComponent {...updatedProps} />;
+    return (
+      <ErrorBoundary>
+        <SectionComponent {...updatedProps} />
+      </ErrorBoundary>
+    );
   }
 }
 

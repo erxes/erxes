@@ -1,21 +1,20 @@
 import {
   CollapseContent,
-  ControlLabel,
-  Label,
+  colors,
+  Icon,
   NameCard,
   Table,
   Tabs,
   TabTitle,
   __
 } from '@erxes/ui/src';
-import { FlexRow } from '@erxes/ui/src/components/filterableList/styles';
 import React from 'react';
 import {
   CardBox,
   ColorBox,
   FormContainer,
   FormContent,
-  ListItem,
+  Divider,
   TableRow,
   TriggerTabs
 } from '../../styles';
@@ -49,6 +48,19 @@ class Detail extends React.Component<Props, State> {
   renderUsers() {
     const { assignedUsers } = this.props;
 
+    const renderStatus = submitStatus => {
+      switch (submitStatus) {
+        case 'inProgress':
+          return <Icon icon="loading" color={colors.colorCoreBlue} />;
+        case 'pending':
+          return <Icon icon="wallclock" color={colors.colorCoreOrange} />;
+        case 'submitted':
+          return <Icon icon="checked" color={colors.colorCoreGreen} />;
+        default:
+          return;
+      }
+    };
+
     return (
       <DetailPopOver
         withoutPopoverTitle
@@ -56,7 +68,13 @@ class Detail extends React.Component<Props, State> {
         icon="downarrow-2"
       >
         {assignedUsers.map(user => (
-          <NameCard user={user} />
+          <>
+            <FormContainer row spaceBetween>
+              <NameCard user={user} />
+              {renderStatus(user?.submitStatus || '')}
+            </FormContainer>
+            <Divider />
+          </>
         ))}
       </DetailPopOver>
     );

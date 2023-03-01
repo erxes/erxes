@@ -1,14 +1,20 @@
 import React from 'react';
-import { colors, Icon } from '@erxes/ui/src';
+import { Button, colors, EmptyState, Icon, Tip } from '@erxes/ui/src';
 import { FormContainer } from '../../../styles';
 import { DetailPopOver } from '../../common/utils';
 import { PopoverList } from '@erxes/ui/src/components/filterableList/styles';
 import RiskIndicatorForm from '../containers/RiskIndicatorForm';
+import { RiskIndicatorsType } from '../../../indicator/common/types';
+
+type IndicatorsTypes = {
+  _id: string;
+  submitted: boolean;
+} & RiskIndicatorsType;
 
 type Props = {
   cardId: string;
   cardType: string;
-  indicators: any[];
+  indicators: IndicatorsTypes[];
   riskAssessmentId: string;
   userId: string;
   closeModal: () => void;
@@ -38,7 +44,6 @@ class RiskAssessmentForm extends React.Component<Props, State> {
       indicatorId
     };
   }
-
   componentDidUpdate(prevProps) {
     if (
       JSON.stringify(prevProps.indicators) !==
@@ -80,14 +85,79 @@ class RiskAssessmentForm extends React.Component<Props, State> {
     return <RiskIndicatorForm {...updatedProps} />;
   }
 
-  render() {
-    const { indicators } = this.props;
+  renderIndicatorList(indicators) {
     const { indicatorId } = this.state;
 
     const handleSelect = id => {
       this.setState({ indicatorId: id });
     };
+    return indicators.map(indicator => (
+      <li
+        key={indicator._id}
+        onClick={handleSelect.bind(this, indicator._id)}
+        style={{
+          backgroundColor: indicator._id === indicatorId ? colors.bgGray : ''
+        }}
+      >
+        {indicator.group && <Icon icon="arrows-up-right" color="#3CCC38" />}
+        {indicator.submitted && <Icon icon="check-1" />}
+        {indicator.name}
+        <Button btnStyle="link" style={{ paddingRight: 0 }}>
+          <Icon icon="history-alt" />
+        </Button>
+      </li>
+    ));
+  }
 
+  renderGroupList(indicators) {
+    function getList(list: any[]) {
+      const result: any = {};
+      for (const item of list) {
+        const indicatorIds = item.group.indicatorIds;
+        const group = item.group;
+        const key = group._id;
+        if (indicatorIds.includes(item._id)) {
+          result[key] = {
+            _id: group._id,
+            name: group.name,
+            items: [...(result[key]?.items || []), item]
+          };
+        }
+      }
+      return result || {};
+    }
+
+    return Object.values(getList(indicators)).map(value => {
+      const group = value as any;
+      const indicators = group.items as IndicatorsTypes[];
+      return (
+        <li key={group._id}>
+          <span>{group.name}</span>
+          <div>{this.renderIndicatorList(indicators)}</div>
+        </li>
+      );
+    });
+  }
+
+  renderList() {
+    const { indicators } = this.props;
+
+    if (!indicators?.length) {
+      return;
+    }
+
+    if (indicators.some((indicator: any) => indicator.group)) {
+      return this.renderGroupList(indicators);
+    }
+    if (
+      indicators.length === 1 &&
+      indicators.every((indicator: any) => !indicator.group)
+    ) {
+      return this.renderIndicatorList(indicators);
+    }
+  }
+
+  render() {
     return (
       <div>
         <FormContainer justify="end">
@@ -96,21 +166,7 @@ class RiskAssessmentForm extends React.Component<Props, State> {
             icon="downarrow-2"
             withoutPopoverTitle
           >
-            <PopoverList>
-              {(indicators || []).map(indicator => (
-                <li
-                  key={indicator._id}
-                  onClick={handleSelect.bind(this, indicator._id)}
-                  style={{
-                    backgroundColor:
-                      indicator._id === indicatorId ? colors.bgGray : ''
-                  }}
-                >
-                  {indicator.submitted && <Icon icon="check-1" />}
-                  {indicator.name}
-                </li>
-              ))}
-            </PopoverList>
+            <PopoverList>{this.renderList()}</PopoverList>
           </DetailPopOver>
         </FormContainer>
         {this.renderForm()}

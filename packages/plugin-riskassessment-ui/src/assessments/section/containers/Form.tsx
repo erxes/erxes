@@ -26,11 +26,13 @@ class Form extends React.Component<FinalProps> {
 
   render() {
     const {
+      cardId,
+      cardType,
       riskAssessment,
-      closeModal,
-      removeRiskAssessment,
       addRiskAssessment,
-      editRiskAssessment
+      editRiskAssessment,
+      removeRiskAssessment,
+      closeModal
     } = this.props;
 
     const handleSelect = (doc: any) => {
@@ -55,6 +57,8 @@ class Form extends React.Component<FinalProps> {
     };
 
     const updatedProps = {
+      cardId,
+      cardType,
       riskAssessment,
       closeModal,
       handleSelect

@@ -108,7 +108,7 @@ export const types = `
         indicatorIds:[String]
         calculateLogics:[ICalculateLogic]
         calculateMethod:String
-        percentWeight:Int
+        percentWeight:Float
     }
 
     type GroupsOfGroupTypes {
@@ -117,7 +117,7 @@ export const types = `
         indicatorIds:[String]
         calculateLogics:[CalculateLogicType]
         calculateMethod:String
-        percentWeight:Int
+        percentWeight:Float
     }
 
     type IndicatorsGroupType {

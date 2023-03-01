@@ -13,6 +13,8 @@ const commonParams = `
   $riskIndicatorIds: [String],
   $searchValue: String,
   $status: String
+  $sortDirection:Int
+  $sortField:String
 `;
 
 const commonParamsDef = ` 
@@ -27,7 +29,9 @@ const commonParamsDef = `
   perPage: $perPage,
   riskIndicatorIds: $riskIndicatorIds,
   searchValue: $searchValue,
-  status: $status
+  status: $status,
+  sortDirection: $sortDirection
+  sortField: $sortField
  `;
 
 const commonField = `
