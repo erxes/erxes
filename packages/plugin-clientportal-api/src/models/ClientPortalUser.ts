@@ -756,7 +756,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
       const cp = await models.ClientPortals.getConfig(clientPortalId);
 
       if (
-        cp.requireManualVerification &&
+        cp.manualVerificationConfig &&
         (!user.verificationRequest ||
           user.verificationRequest.status !== 'approved')
       ) {

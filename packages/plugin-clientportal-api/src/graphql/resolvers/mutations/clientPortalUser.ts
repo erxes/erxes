@@ -336,15 +336,15 @@ const clientPortalUserMutations = {
   clientPortalUsersSendVerificationRequest: async (
     _root,
     args: { userId: string; attachmentUrl: string; description: string },
-    { models, subdomain }: IContext
+    { models, subdomain, user }: IContext
   ) => {
     const { userId, attachmentUrl, description } = args;
 
-    const user = await models.ClientPortalUsers.getUser({ _id: userId });
+    const cpuser = await models.ClientPortalUsers.getUser({ _id: userId });
 
     if (
-      user.verificationRequest &&
-      user.verificationRequest.status === 'approved'
+      cpuser.verificationRequest &&
+      cpuser.verificationRequest.status === 'approved'
     ) {
       throw new Error('User already verified');
     }
@@ -360,6 +360,18 @@ const clientPortalUserMutations = {
       { $set: { verificationRequest } }
     );
 
+    const createdBy = await sendCoreMessage({
+      subdomain,
+      action: 'users.findOne',
+      data: { role: 'system' },
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    const { manualVerificationConfig } = await models.ClientPortals.getConfig(
+      cpuser.clientPortalId
+    );
+
     await sendCommonMessage({
       serviceName: 'notifications',
       subdomain,
@@ -368,10 +380,13 @@ const clientPortalUserMutations = {
         contentType: 'clientPortalUser',
         contentTypeId: userId,
         notifType: 'plugin',
-        title: `Clientportal user verifcation request`,
-        action: 'new clientportal user wants to be verified',
-        content: `new clientportal user wants to be verified`,
-        link: `/settings/client-portal/users/details/${userId}`
+        title: `New clientportal user verification request`,
+        action: 'New clientportal user verification request',
+        content: `clientportal user wants to be verified`,
+        link: `/settings/client-portal/users/details/${userId}`,
+        createdUser: createdBy,
+        receivers:
+          (manualVerificationConfig && manualVerificationConfig.userIds) || []
       }
     });
 

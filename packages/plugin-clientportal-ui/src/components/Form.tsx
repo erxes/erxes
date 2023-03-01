@@ -99,6 +99,13 @@ class Form extends React.Component<Props, State> {
       formValues.otpConfig = removeTypename(formValues.otpConfig);
     }
 
+    if (
+      formValues.manualVerificationConfig &&
+      !formValues.manualVerificationConfig.userIds.length
+    ) {
+      return Alert.error('Please select at least one user who can verify');
+    }
+
     this.props.handleUpdate(formValues);
   };
 

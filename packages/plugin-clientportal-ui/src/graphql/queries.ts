@@ -65,7 +65,9 @@ export const commonFields = `
     registrationContent
   }
 
-  requireManualVerification
+  manualVerificationConfig {
+    userIds
+  }
 `;
 
 export const basicFields = `
@@ -100,6 +102,12 @@ export const basicFields = `
 export const clientPortalUserFields = `
   ${basicFields}
   createdAt
+
+  verificationRequest {
+    status
+    attachmentUrl
+    description
+  }
 
   customFieldsData
 `;
@@ -168,7 +176,6 @@ const clientPortalUsers = `
       ${clientPortalUserFields}
       isPhoneVerified
       isEmailVerified
-      isManuallyVerified
     }
   }
 `;

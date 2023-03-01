@@ -8,6 +8,7 @@ import { FlexContent } from '@erxes/ui/src/layout/styles';
 import { __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import Select from 'react-select-plus';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 
 import { CONFIGURATIONS } from '../../constants';
 import { ToggleWrap } from '../../styles';
@@ -32,7 +33,7 @@ function General({
   otpConfig,
   mailConfig,
   name,
-  requireManualVerification,
+  manualVerificationConfig,
   handleFormChange
 }: Props) {
   const [otpEnabled, setOtpEnabled] = useState<boolean>(
@@ -45,7 +46,17 @@ function General({
 
   const [manualVerificationEnabled, setManualVerificationEnabled] = useState<
     boolean
-  >(requireManualVerification ? true : false);
+  >(manualVerificationConfig ? true : false);
+
+  const [userIds] = useState<string[]>(
+    manualVerificationConfig ? manualVerificationConfig.userIds : []
+  );
+
+  const onSelectUsers = values => {
+    handleFormChange('manualVerificationConfig', {
+      userIds: values
+    });
+  };
 
   const onChangeToggle = (name: string, value: boolean) => {
     if (name === 'otpEnabled') {
@@ -75,7 +86,13 @@ function General({
     if (name === 'manualVerificationEnabled') {
       setManualVerificationEnabled(value);
 
-      handleFormChange('requireManualVerification', value);
+      if (!value) {
+        handleFormChange('manualVerificationConfig', null);
+      } else {
+        handleFormChange('manualVerificationConfig', {
+          userIds: []
+        });
+      }
     }
   };
 
@@ -388,13 +405,13 @@ function General({
       </CollapseContent>
 
       <CollapseContent
-        title={__('Company verification')}
+        title={__('Manual verification')}
         compact={true}
         open={false}
       >
         <ToggleWrap>
           <FormGroup>
-            <ControlLabel>Enable company verification</ControlLabel>
+            <ControlLabel>Enable</ControlLabel>
             <Toggle
               checked={manualVerificationEnabled}
               onChange={() =>
@@ -410,9 +427,25 @@ function General({
             />
           </FormGroup>
         </ToggleWrap>
+        {manualVerificationEnabled && (
+          <FormGroup>
+            <ControlLabel required={true}>{__('Team members')}</ControlLabel>
+
+            <p>{__('Select team members who can verify')}</p>
+            <SelectTeamMembers
+              label="Select team members"
+              name="userIds"
+              initialValue={userIds}
+              onSelect={onSelectUsers}
+              multi={true}
+            />
+          </FormGroup>
+        )}
       </CollapseContent>
     </>
   );
 }
+
+//
 
 export default General;

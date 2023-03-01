@@ -14,6 +14,13 @@ ${
     : ''
 }
 
+type VerificationRequest {
+  status: String
+  attachmentUrl: String
+  description: String
+  verifiedBy: String
+}
+
   type ClientPortalUser @key(fields: "_id") {
     _id: String!
     createdAt: Date
@@ -37,7 +44,6 @@ ${
     password: String
     isEmailVerified: Boolean
     isPhoneVerified: Boolean
-    isManuallyVerified: Boolean
 
     isOnline: Boolean
     lastSeenAt: Date
@@ -48,6 +54,8 @@ ${
     notificationSettings: UserNotificationSettings
 
     avatar: String
+
+    verificationRequest: VerificationRequest
 
     ${
       isContactsEnabled

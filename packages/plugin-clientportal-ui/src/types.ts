@@ -16,6 +16,17 @@ export type MailConfig = {
   invitationContent: string;
 };
 
+export type ManualVerificationConfig = {
+  userIds: string[];
+};
+
+export interface IVerificationRequest {
+  status: string;
+  attachmentUrl: string;
+  description: string;
+  verifiedBy: string;
+}
+
 export interface IClientPortalUserDoc {
   firstName: string;
   companyName: string;
@@ -44,6 +55,8 @@ export interface IClientPortalUserDoc {
 
   customFieldsData: JSON;
   avatar: string;
+
+  verificationRequest: IVerificationRequest;
 }
 
 export interface IClientPortalUser extends IClientPortalUserDoc {
@@ -111,7 +124,7 @@ export type ClientPortalConfig = {
   taskToggle?: boolean;
   otpConfig?: OTPConfig;
   mailConfig?: MailConfig;
-  requireManualVerification?: boolean;
+  manualVerificationConfig?: ManualVerificationConfig;
 };
 
 export type Styles = {

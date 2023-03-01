@@ -46,6 +46,10 @@ ${
     registrationContent : String
   }
 
+  type ManualVerificationConfig {
+    userIds: [String]
+  }
+
   input OTPConfigInput {
     content: String
     codeLength: Int
@@ -91,7 +95,7 @@ ${
   
     otpConfig: OTPConfig
     mailConfig: MailConfig
-    requireManualVerification: Boolean
+    manualVerificationConfig: ManualVerificationConfig
 
     kbToggle: Boolean,
     publicTaskToggle: Boolean,
@@ -198,7 +202,7 @@ export const mutations = cardAvailable => `
 
     otpConfig: OTPConfigInput
     mailConfig: MailConfigInput
-    requireManualVerification: Boolean
+    manualVerificationConfig: JSON
   ): ClientPortal
 
   clientPortalRemove (_id: String!): JSON

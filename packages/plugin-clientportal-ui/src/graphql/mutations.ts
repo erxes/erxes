@@ -34,7 +34,7 @@ const createOrUpdateConfig = `
     $taskToggle: Boolean
     $otpConfig: OTPConfigInput
     $mailConfig: MailConfigInput
-    $requireManualVerification: Boolean
+    $manualVerificationConfig: JSON
   ) {
     clientPortalConfigUpdate(
       _id: $_id,
@@ -69,7 +69,7 @@ const createOrUpdateConfig = `
       taskToggle: $taskToggle,
       otpConfig: $otpConfig
       mailConfig: $mailConfig
-      requireManualVerification: $requireManualVerification
+      manualVerificationConfig: $manualVerificationConfig
     ) {
       ${commonFields}
     }
