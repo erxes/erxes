@@ -93,7 +93,8 @@ export default class ConversationDetail extends React.Component<Props> {
           if (entry && entry.components && entry.components.includes(key)) {
             content = loadDynamicComponent(key, {
               ...this.props,
-              conversation: currentConversation
+              conversation: currentConversation,
+              pluginName: kind
             });
           }
         }
