@@ -249,6 +249,8 @@ export const queries = `
   timeclockReports(${queryParams}): ReportsListResponse
   timeclockReportByUser(selectedUser: String): UserReport
   timeclockDetail(_id: String!): Timeclock
+  
+  timeclockActivePerUser(userId: String): Timeclock
 
   absenceDetail(_id: String!): Absence
   scheduleDetail(_id: String!): Schedule
