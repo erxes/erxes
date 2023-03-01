@@ -275,7 +275,7 @@ export const itemsEdit = async (
     modifiedBy: user._id
   };
 
-  const stage = await models.Stages.getStage(doc.stageId);
+  const stage = await models.Stages.getStage(oldItem.stageId);
 
   const { canEditMemberIds } = stage;
 
