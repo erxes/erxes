@@ -34,6 +34,7 @@ const createOrUpdateConfig = `
     $taskToggle: Boolean
     $otpConfig: OTPConfigInput
     $mailConfig: MailConfigInput
+    $manualVerificationConfig: JSON
   ) {
     clientPortalConfigUpdate(
       _id: $_id,
@@ -68,6 +69,7 @@ const createOrUpdateConfig = `
       taskToggle: $taskToggle,
       otpConfig: $otpConfig
       mailConfig: $mailConfig
+      manualVerificationConfig: $manualVerificationConfig
     ) {
       ${commonFields}
     }
@@ -174,6 +176,12 @@ const clientPortalCommentsRemove = `
   }
 `;
 
+const changeVerificationStatus = `
+mutation ClientPortalUsersChangeVerificationStatus($status: ClientPortalUserVerificationStatus!, $userId: String!) {
+  clientPortalUsersChangeVerificationStatus(status: $status, userId: $userId)
+}
+`;
+
 export default {
   createOrUpdateConfig,
   remove,
@@ -182,5 +190,6 @@ export default {
   clientPortalUsersRemove,
   verifyUsers,
   clientPortalCommentsAdd,
-  clientPortalCommentsRemove
+  clientPortalCommentsRemove,
+  changeVerificationStatus
 };

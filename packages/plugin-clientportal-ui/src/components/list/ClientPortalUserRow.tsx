@@ -76,8 +76,26 @@ class Row extends React.Component<Props> {
       code,
       companyName,
       clientPortal,
-      type
+      type,
+      verificationRequest
     } = clientPortalUser;
+
+    let verificationStatus = 'notVerified';
+
+    switch (verificationRequest.status) {
+      case 'verified':
+        verificationStatus = 'verified';
+        break;
+      case 'pending':
+        verificationStatus = 'pending';
+        break;
+      case 'notVerified':
+        verificationStatus = 'not verified';
+        break;
+      default:
+        verificationStatus = 'not Verified';
+        break;
+    }
 
     const status = clientPortalUser.isOnline ? 'online' : 'offline';
 
@@ -92,6 +110,10 @@ class Row extends React.Component<Props> {
         </td>
         <td>{index.toString()}</td>
         <td>
+          {renderStatus(verificationStatus === 'verified')}
+          {verificationStatus}
+        </td>
+        <td>
           {renderStatus(clientPortalUser.isEmailVerified)}
           {email}
         </td>
@@ -103,6 +125,7 @@ class Row extends React.Component<Props> {
         <td>{code}</td>
         <td>{firstName || companyName}</td>
         <td>{lastName}</td>
+
         <td>{type}</td>
         <td>{clientPortal.name}</td>
         <td>
