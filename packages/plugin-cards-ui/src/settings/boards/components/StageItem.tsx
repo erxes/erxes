@@ -139,6 +139,20 @@ class StageItem extends React.Component<Props> {
 
         {this.renderSelectMembers()}
 
+        <SelectTeamMembers
+          label="Choose can move members"
+          name="canMoveMemberIds"
+          initialValue={stage.canMoveMemberIds}
+          onSelect={ids => onChange(stage._id, 'canMoveMemberIds', ids)}
+        />
+
+        <SelectTeamMembers
+          label="Choose can edit members"
+          name="canEditMemberIds"
+          initialValue={stage.canEditMemberIds}
+          onSelect={ids => onChange(stage._id, 'canEditMemberIds', ids)}
+        />
+
         <Button
           btnStyle="link"
           size="small"

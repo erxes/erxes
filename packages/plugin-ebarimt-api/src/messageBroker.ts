@@ -128,6 +128,22 @@ export const initBroker = async cl => {
   );
 
   consumeRPCQueue(
+    'ebarimt:putresponses.putHistory',
+    async ({ subdomain, data: { contentType, contentId, taxType } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.PutResponses.putHistory({
+          contentType,
+          contentId,
+          taxType
+        })
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'ebarimt:putresponses.putHistories',
     async ({ subdomain, data: { contentType, contentId } }) => {
       const models = await generateModels(subdomain);

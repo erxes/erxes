@@ -1,7 +1,7 @@
 import React from 'react';
 import gql from 'graphql-tag';
 import { queries } from '../../graphql';
-import { PageDetailQueryResponse } from '../../types';
+import { PageDetailQueryResponse, IPage } from '../../types';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import Detail from '../../components/pages/PageDetail';
@@ -30,7 +30,7 @@ function PageDetail(props: FinalProps) {
 
   const updatedProps = {
     ...props,
-    page: pageDetailQuery.forumPage || ({} as any)
+    page: pageDetailQuery.forumPage || ({} as IPage)
   };
 
   return <Detail {...updatedProps} />;

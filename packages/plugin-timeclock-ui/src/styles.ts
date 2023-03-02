@@ -17,6 +17,12 @@ const FilterWrapper = styled.div`
   }
 `;
 
+const ConfigFormWrapper = styled.div`
+  label > span:before {
+    border-radius: 0;
+  }
+`;
+
 const SidebarHeader = styledTS<{
   spaceBottom?: boolean;
   uppercase?: boolean;
@@ -164,6 +170,14 @@ const FlexRow = styled.div`
   justify-content: space-between;
 `;
 
+const FlexRowEven = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px
+  justify-content: space-even;
+`;
+
 const FlexColumn = styledTS<{
   marginNum: number;
 }>(styled.div)`
@@ -179,6 +193,12 @@ const FlexColumnMargined = styledTS<{
   flex-direction: column;
   gap: ${props => props.marginNum}px
   margin-top:${props => props.marginNum * 2}px;
+`;
+
+const ToggleDisplay = styledTS<{
+  display: boolean;
+}>(styled.div)`
+  display: ${props => (props.display ? 'inline' : 'none')};
 `;
 
 const DateName = styled.div`
@@ -201,5 +221,8 @@ export {
   DateName,
   CustomRangeContainer,
   SidebarHeader,
-  CustomRow
+  CustomRow,
+  FlexRowEven,
+  ToggleDisplay,
+  ConfigFormWrapper
 };

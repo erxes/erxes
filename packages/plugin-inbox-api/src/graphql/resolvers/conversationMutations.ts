@@ -306,19 +306,6 @@ const conversationMutations = {
       messageContent: doc.content
     });
 
-    // do not send internal message to third service integrations
-    if (doc.internal) {
-      const messageObj = await models.ConversationMessages.addMessage(
-        doc,
-        user._id
-      );
-
-      // publish new message to conversation detail
-      publishMessage(models, messageObj);
-
-      return messageObj;
-    }
-
     const kind = integration.kind;
 
     const customer = await sendContactsMessage({
@@ -334,7 +321,7 @@ const conversationMutations = {
     // customer's email
     const email = customer ? customer.primaryEmail : '';
 
-    if (kind === 'lead' && email) {
+    if (!doc.internal && kind === 'lead' && email) {
       await sendCoreMessage({
         subdomain,
         action: 'sendEmail',
@@ -356,6 +343,7 @@ const conversationMutations = {
         integrationId: integration._id,
         conversationId: conversation._id,
         content: doc.content,
+        internal: doc.internal,
         attachments: doc.attachments || [],
         extraInfo: doc.extraInfo,
         userId: user._id
@@ -372,6 +360,19 @@ const conversationMutations = {
       if (response && response.data) {
         return { ...response.data };
       }
+    }
+
+    // do not send internal message to third service integrations
+    if (doc.internal) {
+      const messageObj = await models.ConversationMessages.addMessage(
+        doc,
+        user._id
+      );
+
+      // publish new message to conversation detail
+      publishMessage(models, messageObj);
+
+      return messageObj;
     }
 
     const message = await models.ConversationMessages.addMessage(doc, user._id);

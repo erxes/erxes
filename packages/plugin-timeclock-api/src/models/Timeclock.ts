@@ -25,7 +25,10 @@ import {
   scheduleConfigSchema,
   IDeviceConfigDocument,
   IDeviceConfig,
-  deviceConfigSchema
+  deviceConfigSchema,
+  ITimeLogDocument,
+  ITimeLog,
+  timeLogSchema
 } from './definitions/timeclock';
 
 export interface ITimeModel extends Model<ITimeClockDocument> {
@@ -70,6 +73,49 @@ export const loadTimeClass = (models: IModels) => {
   timeSchema.loadClass(Time);
 
   return timeSchema;
+};
+export interface ITimeLogModel extends Model<ITimeLogDocument> {
+  getTimeLog(_id: string): Promise<ITimeLogDocument>;
+  createTimeLog(doc: ITimeLog): Promise<ITimeLogDocument>;
+  updateTimeLog(_id: string, doc: ITimeLog): Promise<ITimeLogDocument>;
+  removeTimeLog(_id: string): void;
+}
+
+export const loadTimeLogClass = (models: IModels) => {
+  class TimeLog {
+    // get
+    public static async getTimeLog(_id: string) {
+      const timelog = await models.TimeLogs.findOne({ _id });
+      if (!timelog) {
+        throw new Error('TimeLog not found');
+      }
+      return timelog;
+    }
+
+    // create
+    public static async createTimeLog(doc: ITimeLog) {
+      return models.TimeLogs.create({
+        ...doc
+      });
+    }
+
+    // update
+    public static async updateTimeLog(_id: string, doc: ITimeLog) {
+      await models.TimeLogs.updateOne({ _id }, { $set: { ...doc } }).then(err =>
+        console.error(err)
+      );
+    }
+
+    // remove
+    public static async removeTimeLog(_id: string) {
+      const timeLog = await models.TimeLogs.getTimeLog(_id);
+      return models.TimeLogs.deleteOne({ _id });
+    }
+  }
+
+  timeLogSchema.loadClass(TimeLog);
+
+  return timeLogSchema;
 };
 
 export interface IAbsenceModel extends Model<IAbsenceDocument> {
@@ -210,6 +256,7 @@ export interface IShiftModel extends Model<IShiftDocument> {
 }
 
 export const loadShiftClass = (models: IModels) => {
+  // tslint:disable-next-line:max-classes-per-file
   class Shift {
     // get
     public static async getShift(_id: string) {

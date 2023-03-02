@@ -13,7 +13,7 @@ import {
 } from '@erxes/ui/src/styles/main';
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
-import { FormContainer, Padding } from '../../../styles';
+import { Padding } from '../../../styles';
 import _loadash from 'lodash';
 import { DetailPopOver } from '../../common/utils';
 
@@ -127,7 +127,7 @@ class IndicatorForm extends React.Component<Props, State> {
       <>
         <Padding horizontal>
           {(fields || []).map(field => (
-            <FormWrapper>
+            <FormWrapper key={field._id}>
               <FormColumn>
                 <GenerateField
                   isEditing={true}

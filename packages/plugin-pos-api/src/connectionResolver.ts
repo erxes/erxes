@@ -1,23 +1,22 @@
 import * as mongoose from 'mongoose';
-import {
-  loadPosClass,
-  loadProductGroupClass,
-  IPosModel,
-  IProductGroupModel,
-  IPosOrderModel,
-  loadPosOrderClass,
-  IPosSlotModel,
-  loadPosSlotClass
-} from './models/Pos';
-
+import { createGenerateModels } from '@erxes/api-utils/src/core';
+import { IContext as IMainContext } from '@erxes/api-utils/src';
 import {
   IPosDocument,
-  IPosOrderDocument,
   IPosSlotDocument,
   IProductGroupDocument
 } from './models/definitions/pos';
-import { IContext as IMainContext } from '@erxes/api-utils/src';
-import { createGenerateModels } from '@erxes/api-utils/src/core';
+import {
+  IPosModel,
+  IPosSlotModel,
+  IProductGroupModel,
+  loadPosClass,
+  loadPosSlotClass,
+  loadProductGroupClass
+} from './models/Pos';
+import { IPosOrderModel, loadPosOrderClass } from './models/Orders';
+
+import { IPosOrderDocument } from './models/definitions/orders';
 
 export interface IModels {
   Pos: IPosModel;

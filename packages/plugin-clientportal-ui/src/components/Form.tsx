@@ -99,6 +99,13 @@ class Form extends React.Component<Props, State> {
       formValues.otpConfig = removeTypename(formValues.otpConfig);
     }
 
+    if (
+      formValues.manualVerificationConfig &&
+      !formValues.manualVerificationConfig.userIds.length
+    ) {
+      return Alert.error('Please select at least one user who can verify');
+    }
+
     this.props.handleUpdate(formValues);
   };
 
@@ -122,7 +129,7 @@ class Form extends React.Component<Props, State> {
         return <General {...commonProps} />;
       case CONFIG_TYPES.APPEARANCE.VALUE:
         return <Appearance {...commonProps} />;
-      case CONFIG_TYPES.CUSTOM.VALUE:
+      case CONFIG_TYPES.AUTH.VALUE:
         return <Config {...commonProps} />;
       default:
         return null;

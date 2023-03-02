@@ -32,8 +32,11 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
         ? productCategory.code
         : product.categoryCode,
       description: eval('`' + config.consumeDescription + '`'),
-      status: 'active'
+      status: 'active',
+      taxType: doc.vat_type || '',
+      taxCode: doc.vat_type_code || ''
     };
+    ``;
 
     const uoms = await sendProductsMessage({
       subdomain,

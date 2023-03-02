@@ -6,7 +6,7 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { queries } from '../graphql';
 import ListComponent from '../components/List';
-import { Spinner } from '@erxes/ui/src';
+import { EmptyState, Spinner } from '@erxes/ui/src';
 type Props = {
   queryParams: any;
   history: any;
@@ -28,6 +28,10 @@ class List extends React.Component<FinalProps, State> {
 
     if (listQuery.loading) {
       return <Spinner />;
+    }
+
+    if (listQuery.error) {
+      return <EmptyState text={listQuery.error} icon="info-circle" />;
     }
 
     const updatedProps = {

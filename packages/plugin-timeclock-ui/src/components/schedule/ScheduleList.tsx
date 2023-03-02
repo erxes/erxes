@@ -12,6 +12,7 @@ import ScheduleForm from './ScheduleForm';
 import { IScheduleConfig } from '../../types';
 import dayjs from 'dayjs';
 import { dateFormat, timeFormat } from '../../constants';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 
 type Props = {
   scheduleOfMembers: any;
@@ -19,7 +20,7 @@ type Props = {
   history: any;
   branchesList: IBranch[];
   scheduleConfigs: IScheduleConfig[];
-  getActionBar: (actionBar: any) => void;
+  totalCount: number;
   solveSchedule: (scheduleId: string, status: string) => void;
   solveShift: (shiftId: string, status: string) => void;
   submitRequest: (
@@ -35,15 +36,22 @@ type Props = {
     selectedScheduleConfigId?: string
   ) => void;
   removeScheduleShifts: (_id: string, type: string) => void;
+
+  getActionBar: (actionBar: any) => void;
+  showSideBar: (sideBar: boolean) => void;
+  getPagination: (pagination: any) => void;
 };
 
 function ScheduleList(props: Props) {
   const {
     scheduleOfMembers,
+    totalCount,
     solveSchedule,
     solveShift,
+    removeScheduleShifts,
     getActionBar,
-    removeScheduleShifts
+    showSideBar,
+    getPagination
   } = props;
 
   const trigger = (
@@ -276,6 +284,9 @@ function ScheduleList(props: Props) {
   );
 
   getActionBar(actionBar);
+  showSideBar(true);
+  getPagination(<Pagination count={totalCount} />);
+
   return content;
 }
 
