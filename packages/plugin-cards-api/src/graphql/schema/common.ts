@@ -137,4 +137,8 @@ export const commonListTypes = `
   tagIds: [String]
   customProperties: JSON
   status: String
+  branchIds: [String]
+  branches:[Branch]
+  departmentIds: [String]
+  departments:[Department]
 `;
