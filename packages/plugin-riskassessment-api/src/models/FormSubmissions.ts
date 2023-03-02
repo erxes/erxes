@@ -1,25 +1,17 @@
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import {
-  sendCardsMessage,
-  sendCoreMessage,
-  sendFormsMessage
-} from '../messageBroker';
+import { sendFormsMessage } from '../messageBroker';
 import {
   calculateFormResponses,
   calculateResult,
-  calculateRiskAssessment,
-  checkAllUsersSubmitted,
-  checkEveryUserSubmitted,
-  getAsssignedUsers,
-  getFieldsGroupByForm,
-  getFormId
+  getAsssignedUsers
 } from '../utils';
 import { IRiskFormSubmissionParams } from './definitions/common';
 import {
   IRiskFormSubmissionDocument,
   riskConformityFormSubmissionSchema
 } from './definitions/confimity';
+import { IRiskAssessmentsDocument } from './definitions/riskassessment';
 
 export interface IRiskFormSubmissionModel
   extends Model<IRiskFormSubmissionDocument> {
@@ -32,6 +24,15 @@ export interface IRiskFormSubmissionModel
     riskAssessmentId: string
   ): Promise<IRiskFormSubmissionDocument>;
 }
+
+type CommonTypes = {
+  cardId?: string;
+  cardType?: string;
+  assessmentId?: string;
+  indicatorId?: string;
+  userId?: string;
+  groupId?: string;
+};
 
 const generateFields = params => {
   const filter: any = {};
@@ -73,6 +74,8 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         throw new Error('Somethin went wrong');
       }
 
+      const { _id, groupId } = riskAssessment;
+
       /**
        * Calculate the submitted indicator score of user
        */
@@ -113,11 +116,11 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
             responses: formSubmissions,
             fields,
             calculateMethod: form.calculateMethod,
-            filter: { ...filter, riskAssessmentId: riskAssessmentId }
+            filter: { ...filter, riskAssessmentId: _id }
           });
 
           await models.RiskAssessmentIndicators.updateOne(
-            { assessmentId: riskAssessmentId, indicatorId },
+            { assessmentId: _id, indicatorId },
             { $inc: { totalScore: sumNumber } }
           );
 
@@ -139,9 +142,11 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
             responses: responses,
             fields,
             calculateMethod: form.calculateMethod,
-            filter: { ...filter, riskAssessmentId: riskAssessmentId }
+            filter: { ...filter, riskAssessmentId: _id }
           });
-          totalCount += sumNumber * (form.percentWeight / 100);
+          totalCount += Number(
+            (sumNumber * (form.percentWeight / 100)).toFixed(1)
+          );
           totalPercent += form.percentWeight / 100;
           await models.RiksFormSubmissions.insertMany(submissions);
         }
@@ -150,7 +155,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         totalCount = totalCount / totalPercent;
         resultSumNumber = totalCount;
         await models.RiskAssessmentIndicators.updateOne(
-          { assessmentId: riskAssessmentId, indicatorId },
+          { assessmentId: _id, indicatorId },
           { $inc: { totalScore: totalCount } }
         );
       }
@@ -163,15 +168,27 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         await this.checkRiskAssessmentIndicator({
           cardId,
           cardType,
-          assessmentId: riskAssessmentId,
-          indicatorId: indicatorId
+          assessmentId: _id,
+          indicatorId: indicatorId,
+          userId: filter.userId
         })
       ) {
         await this.calculateRiskIndicator({
-          assessmentId: riskAssessmentId,
+          assessmentId: _id,
           indicatorId,
           cardId,
           cardType
+        });
+      }
+
+      /**
+       * if selected some group in risk assessment check and calculate the risk assessment sub groups
+       */
+
+      if (groupId) {
+        await this.checkAndCalculateRiskAssessmentGroup({
+          assessmentId: _id,
+          groupId: groupId
         });
       }
 
@@ -181,14 +198,14 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
 
       if (
         await this.checkRiskAssessment({
-          riskAssessmentId: riskAssessmentId
+          assessmentId: _id
         })
       ) {
-        await this.calculateAssessment({ riskAssessmentId });
+        await this.calculateAssessment({ assessmentId: _id });
       }
 
       const assessmentIndicator = await models.RiskAssessmentIndicators.findOne(
-        { assessmentId: riskAssessmentId, indicatorId }
+        { assessmentId: _id, indicatorId }
       );
 
       return {
@@ -196,21 +213,24 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         resultScore: assessmentIndicator?.resultScore || 0,
         cardId,
         cardType,
-        riskAssessmentId
+        riskAssessmentId: _id
       };
     }
-    static async checkRiskAssessment({ riskAssessmentId }) {
+    static async checkRiskAssessment({ assessmentId }: CommonTypes) {
       const riskAssessment = await models.RiskAssessments.findOne({
-        _id: riskAssessmentId
+        _id: assessmentId
       });
       if (!riskAssessment) {
-        return;
+        return 'Cannot find risk assessment';
       }
+
+      const { _id, groupId } = riskAssessment;
+
       let indicatorIds: any[] = [];
 
-      if (!!riskAssessment.groupId) {
+      if (!!groupId) {
         const indicatorsGroups = await models.IndicatorsGroups.find({
-          _id: riskAssessment.groupId
+          _id: groupId
         });
 
         for (const { groups } of indicatorsGroups) {
@@ -220,7 +240,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         }
       }
       const count = await models.RiskAssessmentIndicators.countDocuments({
-        assessmentId: riskAssessment._id,
+        assessmentId: _id,
         indicatorId: { $in: indicatorIds },
         status: 'In Progress'
       });
@@ -230,11 +250,35 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       cardId,
       cardType,
       assessmentId,
-      indicatorId
-    }) {
-      const assignedUserIds = (
-        await getAsssignedUsers(subdomain, cardId, cardType)
+      indicatorId,
+      userId
+    }: CommonTypes) {
+      let assignedUserIds = (
+        await getAsssignedUsers(subdomain, cardId || '', cardType || '')
       ).map(user => user._id);
+
+      const riskAssessment = await models.RiskAssessments.findOne({
+        _id: assessmentId
+      });
+
+      const { isSplittedUsers } = riskAssessment as IRiskAssessmentsDocument;
+
+      if (isSplittedUsers) {
+        const riskAssessmentGroups = await models.RiskAssessmentGroups.find({
+          assessmentId: riskAssessment?._id,
+          assignedUserIds: { $in: [userId] }
+        });
+        const groupAssignedUserIds = riskAssessmentGroups.reduce(
+          (acc, item) => {
+            return [
+              ...(acc.assignedUserIds || []),
+              ...(item.assignedUserIds || [])
+            ];
+          },
+          {}
+        );
+        assignedUserIds = groupAssignedUserIds;
+      }
 
       const submissions = await models.RiksFormSubmissions.find({
         cardId,
@@ -251,17 +295,75 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       return Object.keys(submittedUsers).length === assignedUserIds.length;
     }
 
+    static async checkAndCalculateRiskAssessmentGroup({
+      assessmentId,
+      groupId
+    }: CommonTypes) {
+      const indicatorsGroup = await models.IndicatorsGroups.findOne({
+        _id: groupId
+      });
+
+      if (!indicatorsGroup) {
+        return 'Cannot find indicators group';
+      }
+
+      for (const group of indicatorsGroup?.groups || []) {
+        const { indicatorIds, calculateLogics, calculateMethod } = group;
+
+        const calculatedIndicators = await models.RiskAssessmentIndicators.find(
+          {
+            assessmentId,
+            indicatorId: { $in: indicatorIds },
+            status: { $ne: 'In Progress' }
+          }
+        );
+        if (calculatedIndicators.length === indicatorIds.length) {
+          const riskAssessmentIndicators = await models.RiskAssessmentIndicators.find(
+            {
+              assessmentId,
+              indicatorId: { $in: indicatorIds }
+            }
+          );
+
+          let totalCount = calculateMethod === 'Multiply' ? 1 : 0;
+
+          for (const riskAssessmentIndicator of riskAssessmentIndicators) {
+            if (calculateMethod === 'Multiply') {
+              totalCount *= riskAssessmentIndicator.totalScore;
+            }
+            if (calculateMethod === 'Addition') {
+              totalCount += riskAssessmentIndicator.totalScore;
+            }
+          }
+
+          if (calculateMethod === 'Avarage') {
+            totalCount = totalCount / (indicatorIds.length || 1);
+          }
+
+          await calculateResult({
+            collection: models.RiskAssessmentGroups,
+            calculateLogics,
+            resultScore: totalCount,
+            filter: {
+              assessmentId,
+              groupId: group._id
+            }
+          });
+        }
+      }
+    }
+
     static async calculateRiskIndicator({
       assessmentId,
       indicatorId,
       cardId,
       cardType
-    }) {
+    }: CommonTypes) {
       const indicator = await models.RiskIndicators.findOne({
         _id: indicatorId
       });
       if (!indicator) {
-        return;
+        return 'Cannot find indicator';
       }
       let { calculateLogics, calculateMethod, forms } = indicator;
 
@@ -270,7 +372,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       }
 
       const assignedUserIds = (
-        await getAsssignedUsers(subdomain, cardId, cardType)
+        await getAsssignedUsers(subdomain, cardId || '', cardType || '')
       ).map(user => user._id);
 
       const riskAssessmentIndicator = await models.RiskAssessmentIndicators.findOne(
@@ -298,14 +400,20 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       });
     }
 
-    static async calculateAssessment({ riskAssessmentId }) {
+    static async calculateAssessment({ assessmentId }: CommonTypes) {
       const riskAssessment = await models.RiskAssessments.findOne({
-        _id: riskAssessmentId
+        _id: assessmentId
       });
 
-      if (riskAssessment?.groupId) {
+      if (!riskAssessment) {
+        return 'Cannot find risk assessment';
+      }
+
+      const { groupId, cardId, cardType } = riskAssessment;
+
+      if (groupId) {
         const indicatorsGroup = await models.IndicatorsGroups.findOne({
-          _id: riskAssessment?.groupId
+          _id: groupId
         });
 
         if (!indicatorsGroup) {
@@ -320,52 +428,13 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         } = indicatorsGroup;
 
         const assignedUsersCount = (
-          await getAsssignedUsers(
-            subdomain,
-            riskAssessment.cardId,
-            riskAssessment.cardType
-          )
+          await getAsssignedUsers(subdomain, cardId, cardType)
         ).length;
-
-        for (const group of groups) {
-          const { indicatorIds, calculateLogics, calculateMethod } = group;
-          const riskAssessmentIndicators = await models.RiskAssessmentIndicators.find(
-            {
-              assessmentId: riskAssessmentId,
-              indicatorId: { $in: indicatorIds }
-            }
-          );
-
-          let totalCount = calculateMethod === 'Multiply' ? 1 : 0;
-
-          for (const riskAssessmentIndicator of riskAssessmentIndicators) {
-            if (calculateMethod === 'Multiply') {
-              totalCount *= riskAssessmentIndicator.totalScore;
-            }
-            if (calculateMethod === 'Addition') {
-              totalCount += riskAssessmentIndicator.totalScore;
-            }
-          }
-
-          if (calculateMethod === 'Avarage') {
-            totalCount = totalCount / (indicatorIds.length || 1);
-          }
-
-          await calculateResult({
-            collection: models.RiskAssessmentGroups,
-            calculateLogics,
-            resultScore: totalCount,
-            filter: {
-              assessmentId: riskAssessmentId,
-              groupId: group._id
-            }
-          });
-        }
 
         const groupIds = groups.map(group => group._id);
 
         const assessmentGroups = await models.RiskAssessmentGroups.find({
-          assessmentId: riskAssessmentId,
+          assessmentId: riskAssessment._id,
           groupId: { $in: groupIds }
         });
 
@@ -390,10 +459,10 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
           collection: models.RiskAssessmentGroups,
           calculateLogics,
           resultScore: totalCount,
-          filter: { groupId: _id, assessmentId: riskAssessmentId }
+          filter: { groupId: _id, assessmentId }
         });
 
-        await models.RiskAssessments.findByIdAndUpdate(riskAssessmentId, {
+        await models.RiskAssessments.findByIdAndUpdate(assessmentId, {
           $set: {
             totalScore: totalCount,
             resultScore: totalCount / (assignedUsersCount || 1),
@@ -404,18 +473,18 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         });
       } else {
         const riskAssessment = await models.RiskAssessments.findOne({
-          _id: riskAssessmentId
+          _id: assessmentId
         });
         if (!riskAssessment) {
           return;
         }
         const { indicatorId } = riskAssessment;
         const riskAssessmentIndicator = await models.RiskAssessmentIndicators.findOne(
-          { assessmentId: riskAssessmentId, indicatorId: indicatorId }
+          { assessmentId: assessmentId, indicatorId: indicatorId }
         );
 
         await models.RiskAssessments.updateOne(
-          { _id: riskAssessmentId },
+          { _id: assessmentId },
           {
             resultScore: riskAssessmentIndicator?.resultScore,
             totalScore: riskAssessmentIndicator?.totalScore,

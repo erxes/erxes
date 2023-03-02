@@ -27,7 +27,6 @@ const generateAssetsDocs = async (subdomain, result, properties) => {
     };
 
     let colIndex: number = 0;
-    let ratios = [];
 
     for (const property of properties) {
       const value = (fieldValue[colIndex] || '').toString();
@@ -82,7 +81,7 @@ const generateAssetsDocs = async (subdomain, result, properties) => {
 
 const generateAssetsMovementsDocs = async (subdomain, result, properties) => {
   const models = await generateModels(subdomain);
-  const bulkDoc: any = {};
+  const bulkDocs: any[] = [];
 
   const items: any[] = [];
 
@@ -94,14 +93,26 @@ const generateAssetsMovementsDocs = async (subdomain, result, properties) => {
     for (const property of properties) {
       const value = (fieldValue[colIndex] || '').toString();
       switch (property.name) {
+        case 'movedAt':
+          {
+            const movedAt = value ? new Date(value) : new Date();
+            item.movedAt = movedAt;
+          }
+          break;
+        case 'description':
+          {
+            item.description = value || '';
+          }
+          break;
         case 'assetName':
           {
             const code = (fieldValue[colIndex + 1] || '').toString();
             const asset = await models.Assets.findOne({
-              name: { $regex: new RegExp(`^${value}$`, 'i') },
-              code
+              $or: [
+                { name: { $regex: new RegExp(`^${value}$`, 'i') } },
+                { code }
+              ]
             });
-
             item.assetId = asset ? asset._id : '';
           }
           break;
@@ -112,8 +123,10 @@ const generateAssetsMovementsDocs = async (subdomain, result, properties) => {
               subdomain,
               action: 'branches.findOne',
               data: {
-                title: { $regex: `^${value}$`, $options: 'i' },
-                code
+                $or: [
+                  { title: { $regex: `^${value}$`, $options: 'i' } },
+                  { code }
+                ]
               },
               isRPC: true,
               defaultValue: {}
@@ -129,8 +142,10 @@ const generateAssetsMovementsDocs = async (subdomain, result, properties) => {
               subdomain,
               action: 'departments.findOne',
               data: {
-                title: { $regex: `^${value}$`, $options: 'i' },
-                code
+                $or: [
+                  { title: { $regex: `^${value}$`, $options: 'i' } },
+                  { code }
+                ]
               },
               isRPC: true,
               defaultValue: {}
@@ -189,24 +204,18 @@ const generateAssetsMovementsDocs = async (subdomain, result, properties) => {
     items.push(item);
   }
 
-  for (const property of properties) {
-    if (property.name === 'movedAt') {
-      const index = properties.indexOf(property);
-
-      const movedAt = result[0][index] || '';
-
-      bulkDoc.movedAt = new Date(movedAt);
-    }
-    if (property.name === 'description') {
-      const index = properties.indexOf(property);
-
-      bulkDoc.description = result[0][index] || '';
+  for (const item of items) {
+    const { movedAt, description, ...itemDoc } = item;
+    const doc = bulkDocs.find(
+      bulkDoc => bulkDoc.description === item.description
+    );
+    if (doc) {
+      doc.items = [...doc.items, { ...itemDoc }];
+    } else {
+      bulkDocs.push({ description, movedAt, items: [{ ...itemDoc }] });
     }
   }
-
-  bulkDoc.items = items;
-
-  return [bulkDoc];
+  return bulkDocs;
 };
 
 export default {
@@ -229,8 +238,12 @@ export default {
 
     if (contentType === 'assets-movement') {
       try {
-        const movement = await models.Movements.movementAdd(docs[0], user._id);
-        return { objects: [movement], updated: 0 };
+        const movements: any[] = [];
+        for (const doc of docs) {
+          const movement = await models.Movements.movementAdd(doc, user._id);
+          movements.push(movement);
+        }
+        return { objects: movements, updated: 0 };
       } catch (error) {
         return { error: error.message };
       }

@@ -2,7 +2,7 @@ import React from 'react';
 import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { Spinner, confirm, Alert } from '@erxes/ui/src';
+import { Spinner, confirm, Alert, EmptyState } from '@erxes/ui/src';
 import { withProps } from '@erxes/ui/src/utils/core';
 import { mutations, queries } from '../graphql';
 import { RiskAssessmentIndicatorFormQueryResponse } from '../../common/types';
@@ -44,13 +44,26 @@ class RiskIndicatorForm extends React.Component<FinalProps> {
     }
 
     if (error) {
-      return;
+      return <EmptyState text="" />;
     }
 
     const submitForm = doc => {
       const { saveSubmission, userId, cardId, cardType } = this.props;
 
-      confirm().then(() => {
+      let confirmText = 'Are you sure';
+
+      if (
+        doc.formSubmissions &&
+        riskAssessmentIndicatorForm?.withDescription &&
+        Object.values(doc.formSubmissions).some(
+          (submission: any) => !submission.description
+        )
+      ) {
+        confirmText =
+          'Are you sure submit without type some text on description to fields';
+      }
+
+      confirm(confirmText).then(() => {
         const variables = {
           ...doc,
           userId,
@@ -75,7 +88,13 @@ class RiskIndicatorForm extends React.Component<FinalProps> {
   }
 }
 
-const refetchQueries = ({ cardId, cardType, riskAssessmentId, userId }) => [
+const refetchQueries = ({
+  cardId,
+  cardType,
+  riskAssessmentId,
+  userId,
+  indicatorId
+}) => [
   {
     query: gql(queries.riskAssessment),
     variables: { cardId, cardType }
@@ -87,6 +106,10 @@ const refetchQueries = ({ cardId, cardType, riskAssessmentId, userId }) => [
   {
     query: gql(queries.riskAssessmentSubmitForm),
     variables: { cardId, cardType, riskAssessmentId, userId }
+  },
+  {
+    query: gql(queries.riskAssessmentIndicatorForm),
+    variables: { indicatorId, riskAssessmentId, userId }
   }
 ];
 
@@ -112,7 +135,8 @@ export default withProps(
           riskAssessmentId,
           cardId,
           cardType,
-          userId
+          userId,
+          indicatorId
         })
       })
     })

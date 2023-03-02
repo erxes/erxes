@@ -249,6 +249,8 @@ export const queries = `
   timeclockReports(${queryParams}): ReportsListResponse
   timeclockReportByUser(selectedUser: String): UserReport
   timeclockDetail(_id: String!): Timeclock
+  
+  timeclockActivePerUser(userId: String): Timeclock
 
   absenceDetail(_id: String!): Absence
   scheduleDetail(_id: String!): Schedule
@@ -270,7 +272,7 @@ export const mutations = `
   absenceTypeEdit(_id: String, ${absenceType_params}): AbsenceType
   sendAbsenceRequest(${absence_params}): Absence
   
-  submitCheckInOutRequest(checkType: String,userId: String, checkTime: Date, absenceTypeId: String): AbsenceType
+  submitCheckInOutRequest(checkType: String,userId: String, checkTime: Date): AbsenceType
   
   sendScheduleRequest(userId: String, shifts: [ShiftsRequestInput], scheduleConfigId: String): Schedule
   submitSchedule(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftsRequestInput], scheduleConfigId: String): Schedule

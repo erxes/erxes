@@ -228,7 +228,7 @@ export const loadIndicatorsGroups = (models: IModels, subdomain: string) => {
       if (!group) {
         throw new Error('Indicators groups not found');
       }
-      await validateCalculateMethods(doc);
+      await this.validateIndicatorsGroups(doc);
       return await models.IndicatorsGroups.updateOne(
         { _id },
         { $set: { ...doc, modifiedAt: new Date() } }
@@ -238,14 +238,22 @@ export const loadIndicatorsGroups = (models: IModels, subdomain: string) => {
       return await models.IndicatorsGroups.deleteMany({ _id: { $in: ids } });
     }
     static async validateIndicatorsGroups(params) {
+      let totalPercentWeight = 0;
+
       if ((params.groups || []).length > 1) {
         for (const group of params.groups) {
           if (!group.percentWeight) {
             throw new Error('Group must provide a percent weight');
           }
+          totalPercentWeight += group.percentWeight;
         }
         await validateCalculateMethods(params);
       }
+
+      if (totalPercentWeight > 100) {
+        throw new Error('Total percent weight must be lower than 100');
+      }
+
       for (const group of params.groups || []) {
         if (!(group.indicatorIds || []).length) {
           throw new Error('You should select some indicator each group');

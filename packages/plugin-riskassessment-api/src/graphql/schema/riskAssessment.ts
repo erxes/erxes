@@ -34,6 +34,11 @@ export const types = `
         indicatorId:String
     }
 
+    input GroupsAssignedUsers {
+        groupId:String
+        assignedUserIds:[String]
+    }
+
 `;
 
 const commonMutationParams = `
@@ -44,6 +49,7 @@ const commonMutationParams = `
     operationIds:[String]
     branchIds:[String]
     departmentIds:[String]
+    groupsAssignedUsers:[GroupsAssignedUsers]
 `;
 
 export const mutations = `
@@ -65,6 +71,8 @@ const commonParams = `
     operationIds:[String]
     perPage:Int
     page:Int
+    sortField:String
+    sortDirection:Int
 `;
 
 const commonFormSubmitParams = `
@@ -83,4 +91,5 @@ export const queries = `
     riskAssessmentAssignedMembers(cardId:String,cardType:String,riskAssessmentId:String):JSON
     riskAssessmentSubmitForm(cardId:String,cardType:String,riskAssessmentId:String,userId:String):JSON
     riskAssessmentIndicatorForm(riskAssessmentId:String,indicatorId:String,userId:String):JSON
+    riskAssessmentGroups(riskAssessmentId:String,groupIds:[String] ):JSON
 `;
