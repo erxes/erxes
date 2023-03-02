@@ -11,7 +11,7 @@ const searchBoardItems = async (
     subdomain,
     index,
     value,
-    fields: ['name', 'description']
+    fields: ['name', 'description', 'number']
   });
 
   const updatedItems: any = [];

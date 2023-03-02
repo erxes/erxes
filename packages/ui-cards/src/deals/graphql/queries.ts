@@ -27,6 +27,8 @@ const commonParams = `
   $endDate: String,
   $tagIds: [String],
   $noSkipArchive: Boolean
+  $branchIds:[String]
+  $departmentIds:[String]
   ${conformityQueryFields}
 `;
 
@@ -52,6 +54,8 @@ const commonParamDefs = `
   endDate: $endDate,
   tagIds: $tagIds,
   noSkipArchive: $noSkipArchive
+  branchIds: $branchIds,
+  departmentIds: $departmentIds,
   ${conformityQueryFieldDefs}
 `;
 

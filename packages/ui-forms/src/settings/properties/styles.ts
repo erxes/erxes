@@ -39,13 +39,15 @@ const FieldType = styled.span`
   display: flex;
 `;
 
-const CollapseRow = styled.div`
+const CollapseRow = styledTS<{ isChild: boolean }>(styled.div)`
   font-size: ${coreSpace};
   position: relative;
   display: flex;
   overflow: hidden;
   justify-content: space-between;
-  padding: ${dimensions.coreSpacing}px;
+  padding: ${props =>
+    props.isChild ? dimensions.unitSpacing : dimensions.coreSpacing}px;
+  margin: 0px;
   background: ${colors.colorWhite};
 
   span {
@@ -184,6 +186,10 @@ const ObjectListItemContainer = styled.div`
   padding-bottom: 10px;
 `;
 
+const Divider = styled.hr`
+  border-top: 4px solid ${colors.borderDarker};
+`;
+
 export {
   PropertyList,
   DropIcon,
@@ -198,5 +204,6 @@ export {
   PropertyTableRow,
   RowField,
   FlexRow,
-  ObjectListItemContainer
+  ObjectListItemContainer,
+  Divider
 };

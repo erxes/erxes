@@ -60,6 +60,14 @@ const typeDefs = async serviceDiscovery => {
       _id: String! @external
     }
   
+    extend type Branch @key(fields: "_id") {
+          _id: String! @external
+    }
+
+    extend type Department @key(fields: "_id") {
+          _id: String! @external
+    }
+
     ${
       contactsEnabled
         ? `

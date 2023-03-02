@@ -17,7 +17,6 @@ import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { InboxManagementActionConsumer } from '../../containers/InboxCore';
-import { IntegrationModal } from './IntegrationModal';
 import { PopoverButton } from '@erxes/ui-inbox/src/inbox/styles';
 import RTG from 'react-transition-group';
 import React from 'react';
@@ -283,7 +282,6 @@ class LeftSidebar extends React.Component<Props, State> {
               </FilterToggler>
             )}
           </ScrollContent>
-          <IntegrationModal />
         </SidebarContent>
       </RTG.CSSTransition>
     );
@@ -312,7 +310,7 @@ class LeftSidebar extends React.Component<Props, State> {
           wide={true}
           full={true}
           header={this.renderSidebarHeader()}
-          hasBorder
+          hasBorder={true}
         >
           <ConversationList
             currentUser={currentUser}

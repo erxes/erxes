@@ -1,7 +1,7 @@
 import { paginate } from '@erxes/api-utils/src';
 import { STRUCTURE_STATUSES } from '../../../constants';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { IUser } from '@erxes/api-utils/src/types';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 import { IContext, IModels } from '../../../connectionResolver';
 
 const generateFilters = async ({
@@ -11,30 +11,18 @@ const generateFilters = async ({
   params
 }: {
   models: IModels;
-  user: IUser;
+  user: IUserDocument;
   type: string;
   params: any;
 }) => {
   const filter: any = { status: { $ne: STRUCTURE_STATUSES.DELETED } };
 
-  if (params.searchValue) {
-    const regexOption = {
-      $regex: `.*${params.searchValue.trim()}.*`,
-      $options: 'i'
-    };
-
-    filter.$or = [
-      {
-        title: regexOption
-      },
-      {
-        description: regexOption
-      }
-    ];
+  if (params.ids) {
+    filter._id = { $in: params.ids };
   }
 
   if (params.status) {
-    params.status = params.status;
+    filter.status = params.status;
   }
 
   if (!params.withoutUserFilter) {
@@ -62,8 +50,55 @@ const generateFilters = async ({
       filter.order = { $in: departmentOrders };
     }
   }
-  if (filter.order && user.isOwner) {
+
+  let fieldName = '';
+
+  if (type === 'department') {
+    fieldName = 'DEPARTMENTS';
+  }
+  if (type === 'branch') {
+    fieldName = 'BRANCHES';
+  }
+
+  const mastersStructure = await models.Configs.findOne({
+    code: `${fieldName}_MASTER_TEAM_MEMBERS_IDS`,
+    value: { $in: [user._id] }
+  });
+
+  if (filter.order && (user.isOwner || mastersStructure)) {
     delete filter.order;
+  }
+  if (params.searchValue) {
+    const regexOption = {
+      $regex: `.*${params.searchValue.trim()}.*`,
+      $options: 'i'
+    };
+
+    let structureFilter: any = {
+      $or: [
+        { title: regexOption },
+        { description: regexOption },
+        { code: regexOption }
+      ]
+    };
+
+    if (filter.order) {
+      structureFilter.order = filter.order;
+    }
+
+    if (type === 'department') {
+      const departmentOrders = (await models.Departments.find(structureFilter))
+        .map(department => department.code)
+        .join('|');
+      filter.order = { $regex: new RegExp(departmentOrders) };
+    }
+
+    if (type === 'branch') {
+      const branchOrders = (await models.Branches.find(structureFilter))
+        .map(department => department.code)
+        .join('|');
+      filter.order = { $regex: new RegExp(branchOrders, 'i') };
+    }
   }
 
   return filter;
@@ -101,7 +136,13 @@ const structureQueries = {
     );
     const totalCount = models.Departments.find(filter).countDocuments();
 
-    return { list, totalCount };
+    const totalUsersCount = await models.Users.countDocuments({
+      ...filter,
+      'departmentIds.0': { $exists: true },
+      isActive: true
+    });
+
+    return { list, totalCount, totalUsersCount };
   },
 
   departmentDetail(_root, { _id }, { models }: IContext) {
@@ -132,6 +173,43 @@ const structureQueries = {
     }
 
     return models.Units.find(filter).sort({ title: 1 });
+  },
+
+  async unitsMain(
+    _root,
+    params: { searchValue?: string; perPage: number; page: number },
+    { models }: IContext
+  ) {
+    const filter: { $or?: any[] } = {};
+
+    if (params.searchValue) {
+      const regexOption = {
+        $regex: `.*${params.searchValue.trim()}.*`,
+        $options: 'i'
+      };
+
+      filter.$or = [
+        {
+          title: regexOption
+        },
+        {
+          description: regexOption
+        }
+      ];
+    }
+    const list = paginate(
+      models.Units.find(filter).sort({ createdAt: -1 }),
+      params
+    );
+    const totalCount = models.Units.find(filter).countDocuments();
+
+    const unitUserIds = (await models.Units.find(filter))
+      .map(user => user.userIds)
+      .flat();
+
+    const totalUsersCount = [...new Set(unitUserIds)].length;
+
+    return { list, totalCount, totalUsersCount };
   },
 
   unitDetail(_root, { _id }, { models }: IContext) {
@@ -168,8 +246,13 @@ const structureQueries = {
       params
     );
     const totalCount = models.Branches.find(filter).countDocuments();
+    const totalUsersCount = await models.Users.countDocuments({
+      ...filter,
+      'branchIds.0': { $exists: true },
+      isActive: true
+    });
 
-    return { list, totalCount };
+    return { list, totalCount, totalUsersCount };
   },
 
   branchDetail(_root, { _id }, { models }: IContext) {
