@@ -76,9 +76,12 @@ class Row extends React.Component<Props> {
       code,
       companyName,
       clientPortal,
-      type,
-      verificationRequest
+      type
     } = clientPortalUser;
+
+    const verificationRequest = clientPortalUser.verificationRequest || {
+      status: 'notVerified'
+    };
 
     let verificationStatus = 'notVerified';
 
