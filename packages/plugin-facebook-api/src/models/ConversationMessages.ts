@@ -39,7 +39,6 @@ export const loadConversationMessageClass = (models: IModels) => {
      */
     public static async createMessage(doc: IConversationMessage) {
       const message = await models.ConversationMessages.create({
-        internal: false,
         ...doc,
         createdAt: doc.createdAt || new Date()
       });

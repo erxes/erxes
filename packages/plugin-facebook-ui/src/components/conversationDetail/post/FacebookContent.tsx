@@ -35,6 +35,7 @@ export default class FacebookContent extends React.Component<Props, {}> {
           />
         );
       }
+
       if (link.includes('xx.fbcdn.net')) {
         return (
           <iframe
