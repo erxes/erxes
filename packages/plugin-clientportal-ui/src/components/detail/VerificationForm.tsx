@@ -17,7 +17,9 @@ const VerificationForm = (props: Props) => {
   const { clientPortalUser, closeModal, renderButton } = props;
 
   const [status, setStatus] = useState(
-    clientPortalUser.verificationRequest.status || 'notVerified'
+    clientPortalUser.verificationRequest
+      ? clientPortalUser.verificationRequest.status
+      : 'notVerified'
   );
 
   const renderFooter = (formProps: IFormProps) => {
