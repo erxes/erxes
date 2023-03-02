@@ -898,6 +898,8 @@ export const getItemList = async (
         stageChangedDate: 1,
         tagIds: 1,
         status: 1,
+        branchIds: 1,
+        departmentIds: 1,
         ...(extraFields || {})
       }
     }
