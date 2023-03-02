@@ -1,4 +1,9 @@
 import { IUser } from '@erxes/ui/src/auth/types';
+import { QueryResponse } from '@erxes/ui/src/types';
+
+export type ReportsQueryResponse = {
+  bichilTimeclockReport: { list: IReport[]; totalCount: number };
+} & QueryResponse;
 
 export interface IReport {
   groupTitle: string;
@@ -33,6 +38,10 @@ export interface IUserReport {
   totalMinsLateThisMonth?: number;
   totalAbsenceMins?: number;
   totalMinsAbsenceThisMonth?: number;
+
+  totalHoursShiftRequest?: number;
+  totalDays?: number;
+  totalWeekendDays?: number;
 }
 
 export interface IScheduleReport {

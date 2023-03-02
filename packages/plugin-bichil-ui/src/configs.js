@@ -4,14 +4,16 @@ module.exports = {
   scope: 'bichil',
   exposes: {
     './routes': './src/routes.tsx',
-    './bichilReportTableHeaders': './src/components/report/TableHeaders.tsx'
+    './bichilReportTable': './src/containers/report/ReportList.tsx',
+    './bichilExportReportBtn': './src/components/report/ExportBtn.tsx'
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
     scope: 'bichil',
     module: './routes'
   },
-  bichilReportTableHeaders: './bichilReportTableHeaders',
+  bichilReportTable: './bichilReportTable',
+  bichilExportReportBtn: './bichilExportReportBtn',
   menus: [
     {
       text: 'Bichils',

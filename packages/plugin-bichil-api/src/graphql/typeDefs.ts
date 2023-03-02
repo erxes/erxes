@@ -19,6 +19,11 @@ const types = `
   type BichilUserReport{
     user: User
     scheduleReport: [BichilScheduleReport]
+
+    totalDays: Float
+    totalWeekendDays: Float
+    totalHoursShiftRequest: Float
+    
     totalMinsLate: Float
     totalAbsenceMins: Int
     totalMinsWorked: Int
@@ -80,7 +85,7 @@ const queryParams = `
 `;
 
 const queries = `
-  bichilTimeclockReports(${queryParams}): BichilReportsListResponse
+  bichilTimeclockReport(${queryParams}): BichilReportsListResponse
 `;
 
 const typeDefs = async _serviceDiscovery => {

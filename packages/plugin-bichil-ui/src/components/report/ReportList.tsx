@@ -1,17 +1,17 @@
 import Table from '@erxes/ui/src/components/table';
 import React from 'react';
 import { IReport } from '../../types';
-import TableHeaders from './TableHeaders';
-import TableRow from './TableRow';
+import TableHeaders from './ReportTableHeaders';
+import TableRow from './ReportTableRow';
 type Props = {
   bichilReports: IReport[];
   reportType: string;
 };
-function TableBody(props: Props) {
+function ReportList(props: Props) {
   const { bichilReports, reportType } = props;
 
   const renderTableHead = () => {
-    return TableHeaders;
+    return <TableHeaders reportType={reportType} />;
   };
 
   return (
@@ -29,4 +29,4 @@ function TableBody(props: Props) {
   );
 }
 
-export default TableBody;
+export default ReportList;
