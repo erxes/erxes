@@ -16,3 +16,12 @@
     height: 100%;
   }
 }
+
+@media screen and (max-width: 600px) {
+  .flex-reverse {
+    flex-direction: column-reverse;
+  }
+  .amount{
+    margin-top: 20px;
+  }
+}
