@@ -6,14 +6,5 @@
   "Description": "Description",
   "Select bank": "Select bank",
   "Status": "Status",
-  "pending": "pending",
-  "Sta tus": "Sta tus",
-  "Invoice infomation": "Invoice infomation",
-  "Payment split method": "Payment split method",
-  "Digital wallet method": "Digital wallet method",
-  "Total number": "Total number",
-  "Payment method": "Payment method",
-  "Submit": "Submit",
-  "Insert phone number": "Insert phone number",
-  "Send": "Send"
+  "pending": "pending"
 }
