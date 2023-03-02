@@ -1,5 +1,9 @@
 import { paginate } from '@erxes/api-utils/src';
-import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
+import { escapeRegExp } from '@erxes/api-utils/src/core';
+import {
+  moduleRequireLogin,
+  checkPermission
+} from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
 import { readHelpersData } from './utils';
 
@@ -113,8 +117,8 @@ const webbuilderQueries = {
     return models.Entries.findOne({ _id });
   },
 
-  async webbuilderTemplates(_root, _args) {
-    return readHelpersData('templates');
+  async webbuilderTemplates(_root, { searchValue }: { searchValue: string }) {
+    return readHelpersData('templates', `searchValue=${searchValue}`);
   },
 
   webbuilderTemplatesTotalCount(_root, _args, { models }: IContext) {
@@ -134,15 +138,30 @@ const webbuilderQueries = {
     {
       page,
       perPage,
+      searchValue,
       fromSelect
-    }: { page: number; perPage: number; fromSelect: boolean },
+    }: {
+      page: number;
+      perPage: number;
+      searchValue: string;
+      fromSelect: boolean;
+    },
     { models }: IContext
   ) {
+    const filter: any = {};
+
     if (fromSelect) {
       return models.Sites.find().lean();
     }
 
-    return paginate(models.Sites.find({}).sort({ name: 1 }), { page, perPage });
+    if (searchValue) {
+      filter.name = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
+    }
+
+    return paginate(models.Sites.find(filter).sort({ name: 1 }), {
+      page,
+      perPage
+    });
   },
 
   webbuilderSitesTotalCount(_root, _args, { models }: IContext) {
@@ -151,5 +170,42 @@ const webbuilderQueries = {
 };
 
 moduleRequireLogin(webbuilderQueries);
+
+checkPermission(webbuilderQueries, 'webbuilderPagesMain', 'showWebbuilder');
+checkPermission(webbuilderQueries, 'webbuilderPageDetail', 'showWebbuilder');
+
+checkPermission(webbuilderQueries, 'webbuilderContentTypes', 'showWebbuilder');
+checkPermission(
+  webbuilderQueries,
+  'webbuilderContentTypesMain',
+  'showWebbuilder'
+);
+checkPermission(
+  webbuilderQueries,
+  'webbuilderContentTypeDetail',
+  'showWebbuilder'
+);
+
+checkPermission(webbuilderQueries, 'webbuilderEntriesMain', 'showWebbuilder');
+checkPermission(webbuilderQueries, 'webbuilderEntryDetail', 'showWebbuilder');
+
+checkPermission(webbuilderQueries, 'webbuilderTemplates', 'showWebbuilder');
+checkPermission(
+  webbuilderQueries,
+  'webbuilderTemplatesTotalCount',
+  'showWebbuilder'
+);
+checkPermission(
+  webbuilderQueries,
+  'webbuilderTemplateDetail',
+  'showWebbuilder'
+);
+
+checkPermission(webbuilderQueries, 'webbuilderSites', 'showWebbuilder');
+checkPermission(
+  webbuilderQueries,
+  'webbuilderSitesTotalCount',
+  'showWebbuilder'
+);
 
 export default webbuilderQueries;
