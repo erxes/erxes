@@ -1,19 +1,13 @@
 import { IContext } from '../../../connectionResolver';
-import { ITaskDocument } from '../../../models/definitions/tasks';
-import { ITicketDocument } from '../../../models/definitions/tickets';
-import { IDealDocument } from '../../../models/definitions/deals';
 import { sendCoreMessage } from '../../../messageBroker';
+import { IItemCommonFields } from '../../../models/definitions/boards';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
     return models.Tickets.findOne({ _id });
   },
 
-  branches(
-    item: ITicketDocument | ITaskDocument | IDealDocument,
-    args,
-    { subdomain }: IContext
-  ) {
+  branches(item: IItemCommonFields, args, { subdomain }: IContext) {
     return sendCoreMessage({
       subdomain,
       action: 'branches.find',
@@ -24,11 +18,7 @@ export default {
       defaultValue: []
     });
   },
-  departments(
-    item: ITicketDocument | ITaskDocument | IDealDocument,
-    args,
-    { subdomain }: IContext
-  ) {
+  departments(item: IItemCommonFields, args, { subdomain }: IContext) {
     return sendCoreMessage({
       subdomain,
       action: 'departments.find',

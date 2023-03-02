@@ -79,14 +79,6 @@ export const commonListFields = `
   name
   ${isEnabled('contacts') ? `companies` : ``}
   ${isEnabled('contacts') ? `customers` : ``}
-  branchIds
-  branches {
-    _id,title
-  }
-  departmentIds
-  departments {
-    _id,title
-  }
   assignedUsers
   labels
   stage
