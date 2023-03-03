@@ -10,8 +10,6 @@ type Props = {
 export default (props: Props) => {
   const { queryParams } = props;
 
-  console.log('ee', queryParams);
-
   const exportReport = () => {
     const stringified = queryString.stringify({
       ...queryParams

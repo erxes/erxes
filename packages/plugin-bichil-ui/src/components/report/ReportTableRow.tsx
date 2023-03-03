@@ -44,7 +44,6 @@ const ReportRow = (userReport: IUserReport, reportType: string) => {
           <td>{userReport.totalHoursShiftRequest}</td>
           <td>{userReport.totalHoursOvertime}</td>
 
-          <td>{userReport.totalHoursWorked}</td>
           <td>{userReport.totalMinsLate}</td>
         </tr>
       );

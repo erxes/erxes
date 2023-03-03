@@ -43,7 +43,6 @@ function TableHeaders(props: Props) {
             <td>{__('Worked hours')}</td>
             <td>{__('Shift request')}</td>
             <td>{__('Overtime')}</td>
-            <td>{__('Total')}</td>
             <td>{__('Mins Late')}</td>
           </tr>
         </>

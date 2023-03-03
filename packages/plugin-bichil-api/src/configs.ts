@@ -35,7 +35,6 @@ export default {
       '/bichil-report-export',
       routeErrorHandling(async (req: any, res) => {
         const { query } = req;
-        console.log(query);
 
         const subdomain = getSubdomain(req);
         const models = await generateModels(subdomain);

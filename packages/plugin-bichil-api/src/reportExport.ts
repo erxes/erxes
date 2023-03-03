@@ -54,10 +54,12 @@ const addIntoSheet = async (
   }
 
   if (merged) {
-    r.style({ horizontalAlignment: 'center', verticalAlignment: 'center' });
+    r.style({
+      horizontalAlignment: 'center',
+      verticalAlignment: 'center'
+    });
     r.merged(true);
     r.style('bold', true);
-    r.style('fill', 'fffe00');
     sheet.row(2).style('bold', true);
     if (reportType === 'Сүүлд' || 'Final') {
       sheet.column('E').width(50);
@@ -94,12 +96,17 @@ const prepareHeader = async (sheet: any, reportType: string) => {
       addIntoSheet([final_headers[0][0]], 'A1', 'E1', sheet, reportType, true);
       addIntoSheet([final_headers[0][1]], 'A2', 'E2', sheet, reportType);
 
-      addIntoSheet([final_headers[1][0]], 'F1', 'G1', sheet, reportType, true);
-      addIntoSheet([final_headers[1][1]], 'F2', 'G2', sheet, reportType);
-      addIntoSheet([final_headers[2][0]], 'H1', 'M1', sheet, reportType, true);
-      addIntoSheet([final_headers[2][1]], 'H2', 'M2', sheet, reportType);
-      addIntoSheet([final_headers[3][0]], 'N1', 'P1', sheet, reportType, true);
-      addIntoSheet([final_headers[3][1]], 'N2', 'P2', sheet, reportType);
+      addIntoSheet([final_headers[1][0]], 'F1', 'F2', sheet, reportType, true);
+      addIntoSheet([final_headers[1][1]], 'G1', 'G2', sheet, reportType, true);
+
+      addIntoSheet([final_headers[2][0]], 'H1', 'I1', sheet, reportType, true);
+      addIntoSheet([final_headers[2][1]], 'H2', 'I2', sheet, reportType);
+
+      addIntoSheet([final_headers[3][0]], 'J1', 'M1', sheet, reportType, true);
+      addIntoSheet([final_headers[3][1]], 'J2', 'M2', sheet, reportType);
+
+      addIntoSheet([final_headers[4][0]], 'N1', 'N1', sheet, reportType, true);
+      addIntoSheet([final_headers[4][1]], 'N2', 'N2', sheet, reportType);
       break;
 
     case 'Pivot':
@@ -156,8 +163,6 @@ const extractAndAddIntoSheet = (
       startRowIdx = 3;
       rowNum = 3;
       for (const empReport of empReports) {
-        console.log(Object.values(empReport));
-
         extractValuesIntoArr.push([rowNum - 2, ...Object.values(empReport)]);
         rowNum += 1;
       }
@@ -337,7 +342,7 @@ export const buildFile = async (
       );
       break;
     case 'Pivot':
-      report = await bichilTimeclockReportFinal(
+      report = await bichilTimeclockReportPivot(
         subdomain,
         totalTeamMemberIds,
         startDate,
@@ -357,7 +362,7 @@ export const buildFile = async (
   );
 
   return {
-    name: `Bichil-${reportType}-${startDateFormatted}-${endDateFormatted}`,
+    name: `${reportType}-${startDateFormatted}-${endDateFormatted}`,
     response: await generateXlsx(workbook)
   };
 };

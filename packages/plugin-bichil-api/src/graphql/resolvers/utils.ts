@@ -782,7 +782,6 @@ export const bichilTimeclockReportFinal = async (
     const currEmpShiftRequests = absencesObj[currUserId];
 
     if (currEmpShiftRequests) {
-      console.log('xoxox;', currEmpShiftRequests);
       for (const empShiftRequest of currEmpShiftRequests) {
         const getShiftRequestDuration = Math.abs(
           empShiftRequest.startTime.getTime() -
@@ -795,19 +794,21 @@ export const bichilTimeclockReportFinal = async (
 
     usersReport[currUserId] = {
       ...usersReport[currUserId],
+
       totalDays: totalDaysBetweenInterval,
       totalWeekendDays: totalWeekendDaysBetweenInterval,
 
       totalDaysScheduled: totalDaysScheduledPerUser,
       totalHoursScheduled: totalHoursScheduledPerUser.toFixed(2),
+
       totalDaysWorked: totalDaysWorkedPerUser,
       totalRegularHoursWorked: totalRegularHoursWorkedPerUser.toFixed(2),
-      totalHoursOvertime: totalHoursOvertimePerUser.toFixed(2),
-      totalHoursOvernight: totalHoursOvernightPerUser.toFixed(2),
-      totalHoursWorked: totalHoursWorkedPerUser.toFixed(2),
-      totalMinsLate: totalMinsLatePerUser.toFixed(2),
 
-      totalHoursShiftRequest: totalShiftRequestHours.toFixed(2)
+      totalHoursShiftRequest: totalShiftRequestHours.toFixed(2),
+
+      totalHoursOvertime: totalHoursOvertimePerUser.toFixed(2),
+
+      totalMinsLate: totalMinsLatePerUser.toFixed(2)
     };
   });
 

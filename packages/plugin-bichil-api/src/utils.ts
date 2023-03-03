@@ -150,20 +150,16 @@ export const generateCommonUserIds = async (
 };
 
 export const createTeamMembersObject = async (subdomain: string) => {
-  const teamMembersWithEmpId = await findAllTeamMembersWithEmpId(subdomain);
+  const teamMembers = await findAllTeamMembers(subdomain);
 
   const teamMembersObject = {};
 
-  for (const teamMember of teamMembersWithEmpId) {
-    if (!teamMember.employeeId) {
-      continue;
-    }
-
+  for (const teamMember of teamMembers) {
     teamMembersObject[teamMember._id] = {
       employeeId: teamMember.employeeId,
+      position: teamMember.details.position,
       lastName: teamMember.details.lastName,
-      firstName: teamMember.details.firstName,
-      position: teamMember.details.position
+      firstName: teamMember.details.firstName
     };
   }
 
