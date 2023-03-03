@@ -24,7 +24,7 @@ type FinalProps = {
 
 const ListContainer = (props: FinalProps) => {
   const { bichilTimeclockReportQuery, queryParams } = props;
-  const { branchId, deptId } = queryParams;
+  const { deptId, branchId } = queryParams;
 
   if (bichilTimeclockReportQuery.loading) {
     return <Spinner />;
