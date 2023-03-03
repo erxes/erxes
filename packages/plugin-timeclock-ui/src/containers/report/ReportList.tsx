@@ -1,4 +1,4 @@
-import { getEnv, withProps } from '@erxes/ui/src/utils/core';
+import { getEnv, isEnabled, withProps } from '@erxes/ui/src/utils/core';
 import queryString from 'query-string';
 import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
@@ -32,7 +32,7 @@ const ListContainer = (props: FinalProps) => {
   const { listReportsQuery, queryParams } = props;
   const { branchId, deptId } = queryParams;
 
-  if (listReportsQuery.loading) {
+  if (listReportsQuery && listReportsQuery.loading) {
     return <Spinner />;
   }
 
@@ -47,7 +47,8 @@ const ListContainer = (props: FinalProps) => {
     );
   };
 
-  const { list = [], totalCount = 0 } = listReportsQuery.timeclockReports;
+  const { list = [], totalCount = 0 } =
+    listReportsQuery?.timeclockReports || {};
 
   const updatedProps = {
     ...props,
@@ -65,6 +66,7 @@ export default withProps<Props>(
   compose(
     graphql<Props, ReportsQueryResponse>(gql(queries.listReports), {
       name: 'listReportsQuery',
+      skip: isEnabled('bichil') || false,
       options: ({ queryParams, reportType }) => ({
         variables: {
           ...generateParams(queryParams),
