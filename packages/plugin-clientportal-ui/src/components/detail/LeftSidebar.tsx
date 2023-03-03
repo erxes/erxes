@@ -33,7 +33,9 @@ class LeftSidebar extends React.Component<Props> {
 
   renderVerificationSection() {
     const { clientPortalUser } = this.props;
-    const verificationRequest = clientPortalUser.verificationRequest;
+    const verificationRequest = clientPortalUser.verificationRequest || {
+      status: 'notVerified'
+    };
 
     let verificationStatus = 'notVerified';
 

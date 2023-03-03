@@ -334,12 +334,39 @@ const clientPortalUserMutations = {
 
   clientPortalUsersSendVerificationRequest: async (
     _root,
-    args: { userId: string; attachments: IAttachment[]; description: string },
+    args: {
+      login: string;
+      password: string;
+      clientPortalId: string;
+      attachments: IAttachment[];
+      description: string;
+    },
     { models, subdomain, user }: IContext
   ) => {
-    const { userId, attachments, description } = args;
+    const { login, password, clientPortalId, attachments, description } = args;
 
-    const cpuser = await models.ClientPortalUsers.getUser({ _id: userId });
+    const cpuser = await models.ClientPortalUsers.findOne({
+      $or: [
+        { email: { $regex: new RegExp(`^${login}$`, 'i') } },
+        { username: { $regex: new RegExp(`^${login}$`, 'i') } },
+        { phone: { $regex: new RegExp(`^${login}$`, 'i') } }
+      ],
+      clientPortalId
+    });
+
+    if (!cpuser) {
+      throw new Error('User not found');
+    }
+
+    const valid = await models.ClientPortalUsers.comparePassword(
+      password,
+      user.password
+    );
+
+    if (!valid) {
+      // bad password
+      throw new Error('Invalid login');
+    }
 
     if (
       cpuser.verificationRequest &&
@@ -355,7 +382,7 @@ const clientPortalUserMutations = {
     };
 
     await models.ClientPortalUsers.updateOne(
-      { _id: userId },
+      { _id: cpuser._id },
       { $set: { verificationRequest } }
     );
 
@@ -377,12 +404,12 @@ const clientPortalUserMutations = {
       action: 'send',
       data: {
         contentType: 'clientPortalUser',
-        contentTypeId: userId,
+        contentTypeId: cpuser._id,
         notifType: 'plugin',
         title: `New clientportal user verification request`,
         action: 'New clientportal user verification request',
         content: `clientportal user wants to be verified`,
-        link: `/settings/client-portal/users/details/${userId}`,
+        link: `/settings/client-portal/users/details/${cpuser._id}`,
         createdUser: createdBy,
         receivers:
           (manualVerificationConfig && manualVerificationConfig.userIds) || []
