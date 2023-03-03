@@ -9,6 +9,7 @@ const typeDefs = gql`
     createdAt: Date
     createdUserId: String
     name: String!
+    parentId: String
   }
 
   type FileManagerFile {
@@ -25,12 +26,17 @@ const typeDefs = gql`
   }
 
   extend type Query {
-    filemanagerFolders: [FileManagerFolder]
+    filemanagerFolders(parentId: String): [FileManagerFolder]
     filemanagerFiles(folderId: String!): [FileManagerFile]
   }
 
   extend type Mutation {
-    filemanagerFolderSave(_id: String, name: String!): FileManagerFolder
+    filemanagerFolderSave(
+      _id: String
+      name: String!
+      parentId: String
+    ): FileManagerFolder
+
     filemanagerFolderRemove(_id: String!): JSON
 
     filemanagerFileCreate(
