@@ -6,5 +6,9 @@
     "dev": "cd .erxes && yarn dev",
     "build": "cd .erxes && yarn build",
     "start": "cd .erxes/dist/plugin-bichil-api/.erxes && node src"
+  },
+  "dependencies": {
+    "dayjs": "^1.11.7",
+    "xlsx-populate": "^1.21.0"
   }
 }
