@@ -1,4 +1,4 @@
-﻿html {
+html {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
     Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -466,7 +466,7 @@ span.red {
 .row {
   display: flex;
   flex-grow: 1;
-  background: pink;
+  flex-direction: column;
 }
 .col-1 {
   background: #add8e6;
@@ -477,10 +477,42 @@ span.red {
   width: 200px;
   order: -1;
 }
+.row .col:first-child {
+  padding: 0;
+}
+.row .col:last-child {
+  padding: 0;
+}
+.row .col.s12 {
+  width: 100%;
+  margin-left: auto;
+  left: auto;
+  right: auto;
+}
+.no-border {
+  border: none;
+}
+@media only screen and (min-width: 601px) {
+  .row .col.m6 {
+    width: 50%;
+    margin-left: auto;
+    left: auto;
+    right: auto;
+  }
+  .row {
+    flex-direction: row;
+  }
+  .row .col:first-child {
+    padding: 0 5px 0 15px;
+  }
+  .row .col:last-child {
+    padding: 0 15px 0 5px;
+  }
+}
 .my-layout {
   position: fixed;
   background: #fff;
-  width: 70%;
+  width: 830px;
   height: auto;
   max-height: 100vh;
   top: 50%;
@@ -497,26 +529,70 @@ span.red {
   width: 30%;
   margin-right: 30px;
 }
-.qr {
-  width: 70%;
-}
-.border {
-  border: 1.5px dotted rgba(217, 207, 207, 0.8);
-  margin-bottom: 10px;
-  padding: 20px;
-  border-radius: 5px;
+.amount {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
+  height: 100%;
+}
+.amount h4 {
+  font-weight: 500;
+  font-size: 18px;
+  color: #727272;
+}
+.amount h2 {
+  font-weight: 800;
+  font-size: 42px;
+  line-height: 10px;
+  color: #000;
+}
+.amount .warning {
+  background: #efefef;
+  border-radius: 8px;
+  color: #727272;
+  width: 80%;
+  padding: 15px;
+  margin-top: 25px;
+}
+.amount .warning p {
+  font-size: 7px;
+  margin: 0;
+  text-align: center;
+}
+.payment-name p {
+  color: #000;
+  font-weight: 800;
+  margin: 0;
+}
+.payment-name span {
+  color: #949494;
+  font-size: 12px;
+}
+.border {
+  border: 1.5px solid #e7e7e7;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  color: #000;
   margin-top: 10px;
+  overflow-y: hidden;
+  overflow-x: auto;
 }
 .border img {
   width: 250px;
 }
-.uppercase {
-  text-transform: uppercase;
-  font-size: 11px;
-  font-weight: 500;
+.send-button {
+  float: right;
+  background: #3ccc38;
+  border: none;
+  color: #fff;
+  border-radius: 5px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
 }
 .label {
   font-weight: 500;
@@ -540,80 +616,48 @@ span.red {
   display: flex;
 }
 .payments {
-  width: 130px;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
   transition: all ease 0.3s;
   border-radius: 8px;
-  height: 100px;
-  margin-right: 20px;
-  margin-bottom: 20px;
-  background: rgba(0, 0, 0, 0.03);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  color: #666;
+  margin-bottom: 10px;
+  border: 1.5px solid #e7e7e7;
+  color: #000;
   position: relative;
+  padding: 10px 15px;
 }
-.payments::after {
-  position: absolute;
-  top: 0;
-  right: 0;
+.payments.active {
+  border-color: #d0d0d0;
+  background-color: #d0d0d0;
+}
+.payments.active .payment-name span {
+  color: rgba(5, 5, 5, 0.95);
 }
 .payments img {
-  width: 70px;
-}
-.payments:last-child {
-  margin-right: 0;
+  width: 48px;
+  height: 48px;
 }
 .payments:hover {
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 }
-.active {
-  border: 1px solid #5b5cff;
-}
-.active::before {
-  background: #fff;
-  position: absolute;
-  top: -10px;
-  right: -8px;
-  height: 30px;
-  width: 30px;
-}
-.active::after {
-  content: '✓';
-  position: absolute;
-  top: -10px;
-  right: -8px;
-  font-size: 19px;
-  height: 23px;
-  width: 23px;
-  border-radius: 50%;
-  padding: 3px;
-  background: #5b5cff;
-  color: #fff;
-}
-.paymentMethod {
-  display: flex;
+.paymentMethod button {
   width: 100%;
-  justify-content: center;
-  flex-wrap: wrap;
+  padding: 0;
 }
 .paymentContainer {
   padding: 0 30px 20px;
-  color: #666;
-  text-transform: uppercase;
 }
 h3 {
-  font-size: 13px;
-  color: #666;
-  text-transform: uppercase;
+  font-size: 12px;
+  color: #8e8e8e;
   margin-top: 20px;
+  margin-bottom: 10px;
+  font-weight: 500;
 }
 .header {
   border-bottom: 1px solid #dee4e7;
   font-size: 20px;
-  color: #666;
+  color: #000;
   text-transform: uppercase;
   font-weight: 700;
   padding: 20px 30px;
@@ -659,6 +703,8 @@ h3 {
   padding: 7px;
   margin-right: 5px;
   margin-bottom: 5px;
+  height: 30px;
+  display: inline-flex;
 }
 @media screen and (max-width: 1000px) {
   .qr {
@@ -675,5 +721,17 @@ h3 {
   .my-layout {
     width: 100%;
     height: 100%;
+  }
+}
+@media screen and (max-width: 600px) {
+  .flex-reverse {
+    flex-direction: column-reverse;
+  }
+  .amount {
+    margin-top: 20px;
+  }
+  .row {
+    margin-left: 0;
+    margin-right: 0;
   }
 } /*# sourceMappingURL=style.min.css.map */

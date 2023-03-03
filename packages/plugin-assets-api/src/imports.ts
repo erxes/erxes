@@ -93,16 +93,6 @@ const generateAssetsMovementsDocs = async (subdomain, result, properties) => {
     for (const property of properties) {
       const value = (fieldValue[colIndex] || '').toString();
       switch (property.name) {
-        case 'assetName':
-          {
-            const code = (fieldValue[colIndex + 1] || '').toString();
-            const asset = await models.Assets.findOne({
-              name: { $regex: new RegExp(`^${value}$`, 'i') },
-              code
-            });
-            item.assetId = asset ? asset._id : '';
-          }
-          break;
         case 'movedAt':
           {
             const movedAt = value ? new Date(value) : new Date();
@@ -114,6 +104,18 @@ const generateAssetsMovementsDocs = async (subdomain, result, properties) => {
             item.description = value || '';
           }
           break;
+        case 'assetName':
+          {
+            const code = (fieldValue[colIndex + 1] || '').toString();
+            const asset = await models.Assets.findOne({
+              $or: [
+                { name: { $regex: new RegExp(`^${value}$`, 'i') } },
+                { code }
+              ]
+            });
+            item.assetId = asset ? asset._id : '';
+          }
+          break;
         case 'branchName':
           {
             const code = (fieldValue[colIndex + 1] || '').toString();
@@ -121,8 +123,10 @@ const generateAssetsMovementsDocs = async (subdomain, result, properties) => {
               subdomain,
               action: 'branches.findOne',
               data: {
-                title: { $regex: `^${value}$`, $options: 'i' },
-                code
+                $or: [
+                  { title: { $regex: `^${value}$`, $options: 'i' } },
+                  { code }
+                ]
               },
               isRPC: true,
               defaultValue: {}
@@ -138,8 +142,10 @@ const generateAssetsMovementsDocs = async (subdomain, result, properties) => {
               subdomain,
               action: 'departments.findOne',
               data: {
-                title: { $regex: `^${value}$`, $options: 'i' },
-                code
+                $or: [
+                  { title: { $regex: `^${value}$`, $options: 'i' } },
+                  { code }
+                ]
               },
               isRPC: true,
               defaultValue: {}
