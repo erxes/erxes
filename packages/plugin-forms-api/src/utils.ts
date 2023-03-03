@@ -207,17 +207,13 @@ export const formSubmissionsQuery = async (
 
   const integration = await sendInboxMessage({
     subdomain,
-    action: 'integrations.find',
-    data: {
-      query: {
-        integrationsSelector
-      }
-    },
+    action: 'integrations.findOne',
+    data: integrationsSelector,
     isRPC: true,
-    defaultValue: []
+    defaultValue: {}
   });
 
-  if (!integration) {
+  if (!integration._id) {
     return null;
   }
 

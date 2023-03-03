@@ -32,6 +32,8 @@ type FinalProps = {
 const FILTER_PARAMS = [
   'search',
   'userIds',
+  'branchIds',
+  'departmentIds',
   'priority',
   'assignedUserIds',
   'labelIds',

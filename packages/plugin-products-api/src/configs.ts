@@ -14,7 +14,7 @@ import imports from './imports';
 import exporter from './exporter';
 import segments from './segments';
 import search from './search';
-import { routeErrorHandling } from '@erxes/api-utils/src/requests';
+import documents from './documents';
 
 export let debug;
 export let mainDb;
@@ -54,6 +54,7 @@ export default {
     exporter,
     permissions,
     segments,
+    documents,
     search
   },
 

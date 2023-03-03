@@ -20,19 +20,26 @@ type Props = {
 } & IRouterProps;
 
 function WebBuilder(props: Props) {
-  const [searchValue, setSearchValue] = useState('');
+  let timer;
 
   const { loading, sitesCount, queryParams } = props;
 
+  const [searchValue, setSearchValue] = useState(queryParams.searchValue || '');
+
   const search = (e: any) => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+
     const { history } = props;
+
     const value = e.target.value;
 
     setSearchValue(value);
 
-    this.timer = setTimeout(() => {
+    timer = setTimeout(() => {
       router.removeParams(history, 'page');
-      router.setParams(history, { searchValue });
+      router.setParams(history, { searchValue: value });
     }, 500);
   };
 
