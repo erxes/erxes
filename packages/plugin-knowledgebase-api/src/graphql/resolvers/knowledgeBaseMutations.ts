@@ -170,8 +170,6 @@ const knowledgeBaseMutations = {
   ) {
     const kbCategory = await models.KnowledgeBaseCategories.getCategory(_id);
 
-    console.log({ id: kbCategory._id });
-
     await models.KnowledgeBaseCategories.updateMany(
       { parentCategoryId: { $in: [kbCategory._id] } },
       { $unset: { parentCategoryId: 1 } }
