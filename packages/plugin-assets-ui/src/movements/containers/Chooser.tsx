@@ -5,7 +5,7 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import AssetForm from '../../asset/containers/Form';
-import { queries } from '../../asset/graphql';
+import { queries } from '../graphql';
 import { IAsset, IAssetQueryResponse } from '../../common/types';
 type Props = {
   closeModal: () => void;
@@ -17,6 +17,7 @@ type Props = {
 
 type FinalProps = {
   assets: IAssetQueryResponse;
+  selectedAssets: IAssetQueryResponse;
 } & Props;
 
 type State = {
@@ -65,22 +66,21 @@ class AssetChooser extends React.Component<FinalProps, State> {
       assets,
       handleSelect,
       limit,
-      selectedAssetIds
+      selectedAssets
     } = this.props;
 
-    if (assets.loading) {
+    if (assets.loading && selectedAssets?.loading) {
       return <Spinner />;
     }
 
-    const selected = assets.assets.filter(asset =>
-      selectedAssetIds.includes(asset._id)
-    );
+    const listAssets = assets?.assets || [];
+    const selectedItems = selectedAssets?.assets || [];
 
     return (
       <Chooser
         title="Asset Chooser"
-        datas={assets.assets}
-        data={{ name: 'Asset', datas: selected }}
+        datas={[...listAssets, ...selectedItems]}
+        data={{ name: 'Asset', datas: selectedItems }}
         search={this.search}
         clearState={() => this.search('', true)}
         renderForm={this.assetAddForm}
@@ -98,11 +98,22 @@ export default withProps(
   compose(
     graphql<Props>(gql(queries.assets), {
       name: 'assets',
-      options: ({ ignoreIds }) => ({
+      options: ({ ignoreIds, selectedAssetIds }) => ({
         variables: {
           perPage: 20,
           searchValue: '',
-          ignoreIds
+          ignoreIds: [...(ignoreIds || []), ...(selectedAssetIds || [])]
+        },
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<Props>(gql(queries.assets), {
+      name: 'selectedAssets',
+      skip: ({ selectedAssetIds }) => !(selectedAssetIds || []).length,
+      options: ({ selectedAssetIds }) => ({
+        variables: {
+          perPage: selectedAssetIds.length || undefined,
+          ids: selectedAssetIds
         },
         fetchPolicy: 'network-only'
       })
