@@ -6,14 +6,14 @@ const nameFields = `
   lastName
 `;
 
-export const commonStructureParamsDef = `
+const commonStructureParamsDef = `
     $perPage: Int,
     $page: Int 
     $searchValue: String,
     $status:String,
 `;
 
-export const commonStructureParamsValue = `
+const commonStructureParamsValue = `
     perPage: $perPage,
     page: $page 
     searchValue:$searchValue

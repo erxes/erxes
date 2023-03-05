@@ -1,12 +1,9 @@
 import SelectWithSearch from '../../components/SelectWithSearch';
 import { IOption, IQueryParams } from '../../types';
 import React from 'react';
+import { queries } from '../graphql';
 import { IDepartment } from '@erxes/ui/src/team/types';
 import { generateTree } from '../../utils';
-import {
-  commonStructureParamsDef,
-  commonStructureParamsValue
-} from '../graphql/queries';
 
 // get user options for react-select-plus
 export function generateUserOptions(array: IDepartment[] = []): IOption[] {
@@ -25,14 +22,6 @@ export function generateUserOptions(array: IDepartment[] = []): IOption[] {
     label: `${'\u00A0 \u00A0 '.repeat(level)} ${node.title}`
   }));
 }
-
-const departmentsQuery = `
-  query branches(${commonStructureParamsDef},$withoutUserFilter:Boolean) {
-    branches (${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter){
-      _id,title
-    }
-  }
-`;
 
 export default (props: {
   queryParams?: IQueryParams;
@@ -69,7 +58,7 @@ export default (props: {
       initialValue={defaultValue}
       generateOptions={generateUserOptions}
       onSelect={onSelect}
-      customQuery={departmentsQuery}
+      customQuery={queries.departments}
       customOption={customOption}
       multi={multi}
     />
