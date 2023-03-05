@@ -27,9 +27,9 @@ export function generateUserOptions(array: IDepartment[] = []): IOption[] {
 }
 
 const departmentsQuery = `
-  query branches(${commonStructureParamsDef},$withoutUserFilter:Boolean) {
-    branches (${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter){
-      _id,title
+  query departments(${commonStructureParamsDef},$withoutUserFilter:Boolean) {
+    departments(${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter) {
+      _id,title,parentId
     }
   }
 `;
