@@ -29,7 +29,7 @@ const typeDefs = gql`
 
   extend type Query {
     filemanagerFolders(parentId: String): [FileManagerFolder]
-    filemanagerFiles(folderId: String!): [FileManagerFile]
+    filemanagerFiles(folderId: String!, search: String): [FileManagerFile]
   }
 
   extend type Mutation {

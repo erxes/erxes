@@ -26,10 +26,18 @@ const queries = {
 
   filemanagerFiles(
     _root,
-    { folderId }: { folderId: string },
+    { folderId, search }: { folderId: string; search?: string },
     { models }: IContext
   ) {
-    return models.Files.find({ folderId }).sort({ createdAt: -1 });
+    const selector: any = { folderId };
+
+    if (search) {
+      selector.$or = [
+        { name: { $regex: `.*${search.trim()}.*`, $options: 'i' } }
+      ];
+    }
+
+    return models.Files.find(selector).sort({ createdAt: -1 });
   }
 };
 
