@@ -9,8 +9,7 @@ const FolderItemRow = styledTS<{
   isChild: boolean | undefined;
 }>(styled.li)`
   position: relative;
-  background: ${props => (props.isActive ? colors.bgActive : colors.bgLight)};
-  border-bottom: 1px solid ${colors.borderPrimary};
+  background: ${props => props.isActive && colors.colorSecondary};
   display: flex;
   padding-right: 20px;
   overflow: hidden;
@@ -20,7 +19,8 @@ const FolderItemRow = styledTS<{
       props.isChild ? '10px 0 10px 55px' : '10px 0 10px 40px'};
     white-space: normal;
     display: block;
-    color: ${colors.textPrimary};
+    color: ${props =>
+      props.isActive ? colors.colorWhite : colors.textPrimary};
     position: relative;
     flex: 1;
     display: flex;
@@ -31,7 +31,8 @@ const FolderItemRow = styledTS<{
     
     > i {
       font-size: 18px;
-      color: ${colors.colorCoreGray};
+      color: ${props =>
+        props.isActive ? colors.colorWhite : colors.colorCoreGray};
       transition: all ease 0.3s;
       line-height: 20px;
     }
@@ -41,8 +42,13 @@ const FolderItemRow = styledTS<{
       padding-left: 5px;
     }
 
+    img {
+      width: 20px;
+      margin-right: 5px;
+    }
+
     &:focus {
-      color: inherit;
+      color: ${props => (props.isActive ? colors.colorWhite : 'inherit')};
       text-decoration: none;
     }
   }
@@ -53,7 +59,7 @@ const FolderItemRow = styledTS<{
 
   &:hover {
     background: ${props =>
-      props.isActive ? colors.bgActive : colors.colorWhite};
+      props.isActive ? colors.colorSecondary : colors.bgActive};
     
     a > i {
       display: none;
@@ -61,6 +67,10 @@ const FolderItemRow = styledTS<{
 
     ${ActionButtons} {
       width: 35px;
+
+      > button {
+        color: ${props => props.isActive && colors.colorWhite} !important;
+      }
     }
   }
 `;

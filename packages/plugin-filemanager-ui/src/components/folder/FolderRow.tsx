@@ -1,9 +1,7 @@
-import { ActionButtons, SidebarListItem } from '@erxes/ui-settings/src/styles';
-import { FolderItemRow, RowActions, SectionHead, SectionTitle } from './styles';
-
+import { ActionButtons } from '@erxes/ui-settings/src/styles';
 import Button from '@erxes/ui/src/components/Button';
 import FolderForm from '../../containers/folder/FolderForm';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { FolderItemRow } from './styles';
 import { IFolder } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
@@ -17,6 +15,7 @@ type Props = {
   filemanagerFolders: IFolder[];
   remove: (folderId: string) => void;
   queryParams: any;
+  isActive: boolean;
   isChild?: boolean;
   isParent?: boolean;
 };
@@ -44,12 +43,14 @@ class FolderRow extends React.Component<Props, {}> {
   };
 
   render() {
-    const { folder, isChild, isParent } = this.props;
+    const { folder, isActive, isChild, isParent } = this.props;
 
     return (
-      <FolderItemRow key={folder._id} isChild={isChild}>
+      <FolderItemRow key={folder._id} isChild={isChild} isActive={isActive}>
         <Link to={`?_id=${folder._id}`}>
-          <div>{folder.name}</div>
+          <div>
+            <img src="/images/folder.png" alt="folder" /> {folder.name}
+          </div>
           {isParent && <Icon icon="angle-down" />}
         </Link>
         <ActionButtons>

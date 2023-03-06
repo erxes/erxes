@@ -3,7 +3,6 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import FolderForm from '../../containers/folder/FolderForm';
 import FolderRow from './FolderRow';
 import { Header } from '@erxes/ui-settings/src/styles';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IFolder } from '../../types';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
@@ -34,6 +33,7 @@ class FolderList extends React.Component<Props, {}> {
     return (
       <FolderRow
         key={folder._id}
+        isActive={queryParams ? queryParams._id === folder._id : false}
         folder={folder}
         remove={remove}
         queryParams={queryParams}
