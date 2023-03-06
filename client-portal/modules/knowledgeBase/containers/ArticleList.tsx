@@ -13,7 +13,7 @@ function ArticleListContainer(props: Props) {
   const { loading, data = {} as any } = useQuery(gql(articlesQuery), {
     variables: {
       searchValue: props.searchValue || "",
-      categoryIds: props.categoryId && [props.categoryId]
+      categoryIds: props.categoryId && [props.categoryId],
     },
   });
 
