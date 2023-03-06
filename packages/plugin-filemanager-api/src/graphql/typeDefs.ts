@@ -10,6 +10,7 @@ const typeDefs = gql`
     createdUserId: String
     name: String!
     parentId: String
+    parent: FileManagerFolder
   }
 
   type FileManagerFile {
