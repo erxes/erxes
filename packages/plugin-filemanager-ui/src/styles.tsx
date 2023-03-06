@@ -1,7 +1,8 @@
-import { colors } from '@erxes/ui/src/styles';
+import { colors, dimensions } from '@erxes/ui/src/styles';
+
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
 
 export const ActionItem = styled.button`
   width: 100%;
@@ -15,6 +16,15 @@ export const ActionItem = styled.button`
   > i {
     color: ${colors.colorCoreGreen};
     float: right;
+  }
+`;
+
+export const ItemName = styled.div`
+  display: flex;
+
+  img {
+    width: ${dimensions.coreSpacing}px;
+    margin-right: ${dimensions.unitSpacing}px;
   }
 `;
 
