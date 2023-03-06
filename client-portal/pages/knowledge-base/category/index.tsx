@@ -1,23 +1,18 @@
-import { useRouter } from "next/router";
-import React from "react";
-import ArticleListContainer from "../../../modules/knowledgeBase/containers/ArticleList";
-import CategoryDetail from "../../../modules/knowledgeBase/containers/CategoryDetail";
-import Search from "../../../modules/main/components/Search";
-import Layout from "../../../modules/main/containers/Layout";
-import { Store } from "../../../modules/types";
+import { useRouter } from 'next/router';
+import React from 'react';
+import ArticleListContainer from '../../../modules/knowledgeBase/containers/ArticleList';
+import CategoryDetail from '../../../modules/knowledgeBase/containers/CategoryDetail';
+import Search from '../../../modules/main/components/Search';
+import Layout from '../../../modules/main/containers/Layout';
+import { Store } from '../../../modules/types';
 
 export default function Category() {
   const router = useRouter();
   const { searchValue } = router.query;
 
-  const renderContent = (props) => {
+  const renderContent = props => {
     if (searchValue) {
-      return (
-        <ArticleListContainer
-          searchValue={searchValue}
-          topicId={props.topic._id}
-        />
-      );
+      return <ArticleListContainer searchValue={searchValue} />;
     }
 
     return <CategoryDetail {...props} queryParams={router.query} />;

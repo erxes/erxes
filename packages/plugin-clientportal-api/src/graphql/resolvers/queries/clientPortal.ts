@@ -204,27 +204,20 @@ const configClientPortalQueries = {
     _root,
     {
       categoryIds,
-      searchValue,
-      topicId
+      searchValue
     }: {
       searchValue?: string;
       categoryIds: string[];
-      topicId?: string;
     },
     { subdomain }: IContext
   ) {
     const selector: any = {};
 
-    if (searchValue && searchValue.trim() && topicId && topicId.trim()) {
-      selector.$and = [
-        {
-          $or: [
-            { title: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
-            { content: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
-            { summary: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } }
-          ]
-        },
-        { topicId: topicId }
+    if (searchValue && searchValue.trim()) {
+      selector.$or = [
+        { title: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
+        { content: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } },
+        { summary: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } }
       ];
     }
 

@@ -157,7 +157,7 @@ export const queries = (cardAvailable, kbAvailable) => `
     kbAvailable
       ? `
     clientPortalKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
-    clientPortalKnowledgeBaseArticles(searchValue: String, categoryIds: [String], topicId: String): 
+    clientPortalKnowledgeBaseArticles(searchValue: String, categoryIds: [String]): 
 [KnowledgeBaseArticle]
    `
       : ''
