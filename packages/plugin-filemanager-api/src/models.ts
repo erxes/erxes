@@ -50,6 +50,7 @@ interface IFile {
   type: string;
   folderId?: string;
   url?: string;
+  info?: object;
   contentType?: string;
   contentTypeId?: string;
   documentId?: string;
@@ -66,6 +67,7 @@ const fileSchema = new Schema({
   type: { type: String },
   folderId: { type: String },
   url: { type: String },
+  info: { type: Object },
   contentType: { type: String },
   contentTypeId: { type: String },
   documentId: { type: String }
