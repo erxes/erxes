@@ -12,11 +12,10 @@ module.exports = {
   },
   menus: [
     {
-      text: "filemanager",
-      to: "/settings/filemanager",
-      image: "/images/icons/erxes-09.svg",
-      location: "settings",
-      scope: "filemanager",
-    },
+      text: "File Manager",
+      url: "/filemanager",
+      icon: 'icon-folder-1',
+      location: "mainNavigation",
+    }
   ],
 };

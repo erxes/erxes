@@ -1,12 +1,10 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import queryString from 'query-string';
 
 const FileManager = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings - File manager" */ './containers/FileManager'
-  )
+  import(/* webpackChunkName: "File Manager" */ './containers/FileManager')
 );
 
 const filemanager = ({ location, history }) => {
@@ -20,7 +18,12 @@ const filemanager = ({ location, history }) => {
 
 const routes = () => (
   <>
-    <Route path="/settings/filemanager/" exact={true} component={filemanager} />
+    <Route
+      key="/filemanager"
+      path="/filemanager"
+      exact={true}
+      component={filemanager}
+    />
   </>
 );
 
