@@ -26,7 +26,7 @@ export default {
     const results: string[] = [];
 
     for (const productId of JSON.parse(productIds || '[]')) {
-      const product = await models.Products.findOne({ _id: productId });
+      const product = await models.Products.findOne({ _id: productId }).lean();
 
       if (!product) {
         continue;
@@ -55,7 +55,7 @@ export default {
               {
                 productId: product._id,
                 quantity: 1,
-                price: product.unitPrice
+                price: mainPrice
               }
             ]
           },
@@ -97,7 +97,7 @@ export default {
 
       replacedContent = replacedContent.replace(
         '{{ price }}',
-        toMoney(product.unitPrice)
+        toMoney(mainPrice)
       );
 
       results.push(replacedContent);
