@@ -34,7 +34,7 @@ class BulkDocuments extends React.Component<Props, State> {
       loading: false,
       showPopup: false,
       copies: 1,
-      width: 400
+      width: 300
     };
   }
 
