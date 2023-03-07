@@ -1,14 +1,19 @@
-import gql from 'graphql-tag';
-import client from '@erxes/ui/src/apolloClient';
-import { getEnv, __ } from '@erxes/ui/src/utils';
-import { ActionButton, ActionItem } from '../styles';
-import React from 'react';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { queries } from '../graphql';
-import WithPermission from 'coreui/withPermission';
 import Button from '@erxes/ui/src/components/Button';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import client from '@erxes/ui/src/apolloClient';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import gql from 'graphql-tag';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import WithPermission from 'coreui/withPermission';
+import { __, getEnv } from '@erxes/ui/src/utils';
+import { ActionButton, ActionItem } from '../styles';
+import { queries } from '../graphql';
 
 type Props = {
   bulk: any[];
@@ -22,6 +27,8 @@ type State = {
   selectedDocumentId: String;
   copies: number;
   width: number;
+  branchId: string;
+  departmentId: string;
 };
 
 class BulkDocuments extends React.Component<Props, State> {
@@ -34,7 +41,10 @@ class BulkDocuments extends React.Component<Props, State> {
       loading: false,
       showPopup: false,
       copies: 1,
-      width: 300
+      width: 300,
+      branchId: localStorage.getItem('erxes_products_documents_branchId') || '',
+      departmentId:
+        localStorage.getItem('erxes_products_documents_departmentId') || ''
     };
   }
 
@@ -57,14 +67,20 @@ class BulkDocuments extends React.Component<Props, State> {
 
   print = () => {
     const { bulk } = this.props;
-    const { selectedDocumentId, copies, width } = this.state;
+    const {
+      selectedDocumentId,
+      copies,
+      width,
+      branchId,
+      departmentId
+    } = this.state;
 
     window.open(
       `${
         getEnv().REACT_APP_API_URL
       }/pl:documents/print?_id=${selectedDocumentId}&productIds=${JSON.stringify(
         bulk.map(b => b._id)
-      )}&copies=${copies}&width=${width}`
+      )}&copies=${copies}&width=${width}&branchId=${branchId}&departmentId=${departmentId}`
     );
   };
 
@@ -74,6 +90,12 @@ class BulkDocuments extends React.Component<Props, State> {
 
   onChange = (name, e) => {
     this.setState({ [name]: e.currentTarget.value } as any);
+  };
+
+  onChangeSelect = (name, value) => {
+    this.setState({ [name]: value } as any, () => {
+      localStorage.setItem(`erxes_products_documents_${name}`, value);
+    });
   };
 
   renderPopup() {
@@ -89,26 +111,53 @@ class BulkDocuments extends React.Component<Props, State> {
       return null;
     }
 
-    const content = () => {
+    const content = formProps => {
       const { copies, width } = this.state;
 
       return (
-        <div>
-          <p>
-            <p>Copies:</p>
-            <input
+        <>
+          <FormGroup>
+            <ControlLabel>Copies</ControlLabel>
+            <FormControl
+              {...formProps}
+              name="copies"
               value={copies}
               onChange={this.onChange.bind(this, 'copies')}
             />
-          </p>
-
-          <p>
-            <p>Width:</p>
-            <input value={width} onChange={this.onChange.bind(this, 'width')} />
-          </p>
-
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Width</ControlLabel>
+            <FormControl
+              {...formProps}
+              name="width"
+              value={width}
+              onChange={this.onChange.bind(this, 'width')}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Branch</ControlLabel>
+            <SelectBranches
+              label={__('Choose branch')}
+              name="branchId"
+              multi={false}
+              initialValue={this.state.branchId}
+              onSelect={branchId => this.onChangeSelect('branchId', branchId)}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>Department</ControlLabel>
+            <SelectDepartments
+              label={__('Choose branch')}
+              name="departmentId"
+              multi={false}
+              initialValue={this.state.departmentId}
+              onSelect={departmentId =>
+                this.onChangeSelect('departmentId', departmentId)
+              }
+            />
+          </FormGroup>
           <Button onClick={this.print}>Print</Button>
-        </div>
+        </>
       );
     };
 
