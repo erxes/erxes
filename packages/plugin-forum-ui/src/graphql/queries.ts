@@ -114,6 +114,7 @@ const forumPostsQuery = `
       title
       state
       thumbnail
+      thumbnailAlt
       categoryId
       createdAt
       updatedAt

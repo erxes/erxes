@@ -215,8 +215,8 @@ const connectAndQueryFromMsSql = async (
       if (!teamMember.employeeId) {
         continue;
       }
-      teamMembersObject[teamMember.employeeId] = teamMember._id;
       teamMembersObject[teamMember._id] = teamMember.employeeId;
+      teamMembersObject[teamMember.employeeId] = teamMember._id;
 
       teamEmployeeIds.push(teamMember.employeeId);
       teamMemberIds.push(teamMember._id);
