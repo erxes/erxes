@@ -170,6 +170,11 @@ const knowledgeBaseMutations = {
   ) {
     const kbCategory = await models.KnowledgeBaseCategories.getCategory(_id);
 
+    await models.KnowledgeBaseCategories.updateMany(
+      { parentCategoryId: { $in: [kbCategory._id] } },
+      { $unset: { parentCategoryId: 1 } }
+    );
+
     const removed = await models.KnowledgeBaseCategories.removeDoc(_id);
 
     await putDeleteLog(

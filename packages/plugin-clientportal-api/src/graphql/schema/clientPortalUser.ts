@@ -153,6 +153,6 @@ export const mutations = () => `
   clientPortalResetPasswordWithCode(phone: String!, code: String!, password: String!): String
   clientPortalResetPassword(token: String!, newPassword: String!): JSON
   clientPortalUserChangePassword(currentPassword: String!, newPassword: String!): ClientPortalUser
-  clientPortalUsersSendVerificationRequest(userId: String!, attachments: [AttachmentInput]!, description: String): String
+  clientPortalUsersSendVerificationRequest(login: String!, password: String!, clientPortalId: String!,  attachments: [AttachmentInput]!, description: String): String
   clientPortalUsersChangeVerificationStatus(userId: String!, status: ClientPortalUserVerificationStatus!): String
 `;

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { DateContainer } from '@erxes/ui/src/styles/main';
+import { DateContainer, SimpleButton } from '@erxes/ui/src/styles/main';
 import { colors, dimensions, typography } from '@erxes/ui/src/styles';
 
 const FilterWrapper = styled.div`
@@ -163,11 +163,21 @@ const SidebarActions = styled.div`
   }
 `;
 
+const ToggleButton = styled(SimpleButton)`
+  margin-left: -5px;
+  margin-right: 10px;
+`;
+
 const FlexRow = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+`;
+
+const InlineBlock = styled.div`
+  display: inline;
+  align-items: center;
 `;
 
 const FlexRowEven = styled.div`
@@ -224,5 +234,7 @@ export {
   CustomRow,
   FlexRowEven,
   ToggleDisplay,
-  ConfigFormWrapper
+  ConfigFormWrapper,
+  ToggleButton,
+  InlineBlock
 };

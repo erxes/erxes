@@ -561,7 +561,7 @@ span.red {
 .row {
     display: flex;
     flex-grow: 1;
-    background: pink;
+    flex-direction: column;
 }
 
 .col-1 {
@@ -575,10 +575,52 @@ span.red {
     order: -1;
 }
 
+.row .col {
+    &:first-child {
+        padding: 0;
+    }
+
+    &:last-child {
+        padding: 0;
+    }
+}
+
+.row .col.s12 {
+    width: 100%;
+    margin-left: auto;
+    left: auto;
+    right: auto;
+}
+
+.no-border {
+    border: none;
+}
+
+@media only screen and (min-width: 601px) {
+    .row .col.m6 {
+        width: 50%;
+        margin-left: auto;
+        left: auto;
+        right: auto;
+    }
+    .row {
+        flex-direction: row;
+    }
+    .row .col {
+        &:first-child {
+            padding: 0 5px 0 15px;
+        }
+    
+        &:last-child {
+            padding: 0 15px 0 5px;
+        }
+    }
+}
+
 .my-layout {
     position:fixed;
     background: white;
-    width: 70%;
+    width: 830px;
     height: auto;
     max-height: 100vh;
     top:50%;

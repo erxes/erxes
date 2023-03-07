@@ -1,25 +1,26 @@
-import React from 'react';
-import { IPost, ICategory, IPollOption, ITag } from '../../types';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps
 } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { ICategory, IPollOption, IPost, ITag } from '../../types';
+
 import Button from '@erxes/ui/src/components/Button';
-import Select from 'react-select-plus';
-import PollOptions from './PollOptions';
-import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import dayjs from 'dayjs';
-import Uploader from '@erxes/ui/src/components/Uploader';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { CustomRangeContainer } from '../../styles';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
+import EditorCK from '@erxes/ui/src/components/EditorCK';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import PollOptions from './PollOptions';
+import React from 'react';
+import Select from 'react-select-plus';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { __ } from '@erxes/ui/src/utils';
+import dayjs from 'dayjs';
 
 type Props = {
   post?: IPost;
@@ -30,14 +31,14 @@ type Props = {
 };
 
 type State = {
-  content: string;
-  title: string;
+  content?: string;
+  title?: string;
   categoryId: string;
   selectedTags: string[];
   pollOptions: any;
   multipleChoice: boolean;
   hasEndDate: boolean;
-  endDate: string;
+  endDate?: any;
   thumbnail: any;
   createdAt: string;
 };
@@ -49,8 +50,8 @@ class PostForm extends React.Component<Props, State> {
     const post = props.post || ({} as IPost);
 
     this.state = {
-      content: post.content,
-      title: post.title,
+      content: post.content || '',
+      title: post.title || '',
       categoryId: post.categoryId,
       selectedTags: post.tagIds || [],
       pollOptions: post.pollOptions || [],
@@ -58,7 +59,13 @@ class PostForm extends React.Component<Props, State> {
       hasEndDate: post.pollEndDate ? true : false,
       endDate: post.pollEndDate || null,
       createdAt: post.createdAt || new Date().toString(),
-      thumbnail: {} as IAttachment
+      thumbnail: post.thumbnail
+        ? {
+            name: post && post.thumbnailAlt ? post.thumbnailAlt : '',
+            type: 'image',
+            url: post.thumbnail
+          }
+        : ({} as IAttachment)
     };
   }
 
@@ -128,7 +135,14 @@ class PostForm extends React.Component<Props, State> {
     this.setState({ ...this.state, [key]: formattedDate });
   };
 
-  onChangeThumbnail = attachment => this.setState({ thumbnail: attachment });
+  onChangeThumbnail = attachment => {
+    return this.setState({
+      thumbnail:
+        attachment && attachment.length !== 0
+          ? attachment[0]
+          : ({} as IAttachment)
+    });
+  };
 
   renderContent = (formProps: IFormProps) => {
     const { post, renderButton, closeModal, tags } = this.props;
@@ -146,7 +160,7 @@ class PostForm extends React.Component<Props, State> {
     const object = post || ({} as IPost);
 
     const renderTagOptions = () => {
-      return tags.map(tag => ({
+      return (tags || []).map(tag => ({
         value: tag._id,
         label: tag.name,
         _id: tag._id
@@ -161,6 +175,11 @@ class PostForm extends React.Component<Props, State> {
     const changeOption = (ops: IPollOption[]) => {
       this.setState({ pollOptions: ops });
     };
+
+    const thumbnail =
+      Object.keys(this.state.thumbnail).length === 0
+        ? []
+        : [this.state.thumbnail];
 
     return (
       <>
@@ -180,7 +199,7 @@ class PostForm extends React.Component<Props, State> {
             <FlexItem>
               <ControlLabel>{__('Thumbnail')}</ControlLabel>
               <Uploader
-                defaultFileList={[]}
+                defaultFileList={thumbnail}
                 onChange={this.onChangeThumbnail}
                 single={true}
               />
@@ -285,7 +304,7 @@ class PostForm extends React.Component<Props, State> {
           </FlexContent>
           <PollOptions
             emptyMessage="There is no options"
-            onChangeOption={options => changeOption(options)}
+            onChangeOption={options => changeOption(options || [])}
             options={pollOptions}
           />
         </FormGroup>
@@ -293,7 +312,7 @@ class PostForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel required={true}>{__('Content')}</ControlLabel>
           <EditorCK
-            content={content}
+            content={content || ''}
             onChange={this.onChange}
             isSubmitted={isSubmitted}
             height={300}
