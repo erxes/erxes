@@ -34,7 +34,6 @@ export const customFieldsDataByFieldCode = async (
   subdomain,
   sendMessage
 ) => {
-  console.log(sendMessage);
   const customFieldsData =
     object.customFieldsData && object.customFieldsData.toObject
       ? object.customFieldsData.toObject()
