@@ -1,7 +1,7 @@
 import ImageWithPreview from '@erxes/ui/src/components/ImageWithPreview';
 import * as React from 'react';
 import xss from 'xss';
-import { ContentContainer } from './styles';
+import { ContentContainer, FacebookContentMessage } from './styles';
 
 type Props = {
   content: string;
@@ -79,14 +79,10 @@ export default class FacebookContent extends React.Component<Props, {}> {
 
     return (
       <React.Fragment>
+        <FacebookContentMessage>{content}</FacebookContentMessage>
         <ContentContainer isComment={true}>
           {this.renderFiles(attachments)}
         </ContentContainer>
-        <p
-          dangerouslySetInnerHTML={{
-            __html: xss(content)
-          }}
-        />
       </React.Fragment>
     );
   }

@@ -168,6 +168,10 @@ const FacebookTagText = styled.p`
   }
 `;
 
+const FacebookContentMessage = styled.div`
+  white-space: pre-wrap;
+`;
+
 export {
   User,
   ChildPost,
@@ -179,5 +183,6 @@ export {
   LeftAlign,
   DateTime,
   ShowMore,
-  FacebookTagText
+  FacebookTagText,
+  FacebookContentMessage
 };
