@@ -49,7 +49,7 @@ class BulkDocuments extends React.Component<Props, State> {
   }
 
   loadDocuments = () => {
-    this.setState({ loading: true });
+    this.setState({ loading: true, showPopup: false });
 
     client
       .mutate({
