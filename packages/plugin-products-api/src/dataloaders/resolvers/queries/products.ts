@@ -236,7 +236,11 @@ const productQueries = {
     }
 
     if (meta) {
-      filter.meta = meta;
+      if (!isNaN(parseFloat(meta))) {
+        filter.meta = { $lte: Number(meta) };
+      } else {
+        filter.meta = meta;
+      }
     }
 
     return models.ProductCategories.find(filter)
