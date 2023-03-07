@@ -25,7 +25,7 @@ function FileManager({
   const currentFolder = filemanagerFolders.find((folder: IFolder) =>
     queryParams && queryParams._id ? folder._id === queryParams._id : ''
   );
-  console.log(currentFolder);
+  console.log('curr:', currentFolder);
   const breadcrumb = [
     { title: __('Settings'), link: '/settings' },
     { title: __('File Manager'), link: '/documents' }

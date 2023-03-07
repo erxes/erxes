@@ -1,6 +1,6 @@
 const filemanagerFiles = `
-  query filemanagerFiles($folderId: String!) {
-    filemanagerFiles(folderId: $folderId) {
+  query filemanagerFiles($folderId: String!, $search: String) {
+    filemanagerFiles(folderId: $folderId, search: $search) {
       _id
       contentType
       contentTypeId
@@ -8,6 +8,7 @@ const filemanagerFiles = `
       createdUserId
       documentId
       folderId
+      info
       name
       type
       url
@@ -23,6 +24,12 @@ const filemanagerFolders = `
       createdUserId
       parentId
       name
+      parent {
+        _id
+        createdAt
+        name
+        parentId
+      }
     }
   }
 `;
