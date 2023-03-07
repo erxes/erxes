@@ -33,6 +33,7 @@ export const types = `
     unitPrice: Float
     categoryId: String
     customFieldsData: JSON
+    customFieldsDataByFieldCode: JSON
     createdAt: Date
     tagIds: [String]
     vendorId: String

@@ -118,7 +118,11 @@ const generateFilterCat = ({ token, parentId, searchValue, meta }) => {
   }
 
   if (meta) {
-    filter.meta = meta;
+    if (!isNaN(meta)) {
+      filter.meta = { $lte: Number(meta) };
+    } else {
+      filter.meta = meta;
+    }
   }
 
   if (searchValue) {
