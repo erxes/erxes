@@ -16,7 +16,7 @@ import { graphql } from 'react-apollo';
 
 type Props = {
   queryParams: any;
-  // currentCategoryId: string;
+  currentFolderId: string;
   // topicId: string;
 };
 
@@ -80,7 +80,12 @@ export default withProps<Props>(
     graphql<Props, FilemanagerFilesQueryResponse, {}>(
       gql(queries.filemanagerFiles),
       {
-        name: 'filemanagerFilesQuery'
+        name: 'filemanagerFilesQuery',
+        options: ({ currentFolderId }: { currentFolderId: string }) => ({
+          variables: {
+            folderId: currentFolderId || ''
+          }
+        })
       }
     ),
     graphql<Props, RemoveFileMutationResponse, { _id: string }>(
