@@ -20,7 +20,7 @@ type FinalProps = {} & Props & SaveFileMutationResponse;
 const FileFormContainer = (props: FinalProps) => {
   const { file, saveFileMutation } = props;
 
-  const saveSimpleFile = variables => {
+  const saveFile = variables => {
     saveFileMutation({
       variables
     })
@@ -36,7 +36,7 @@ const FileFormContainer = (props: FinalProps) => {
 
   const extendedProps = {
     ...props,
-    saveSimpleFile,
+    saveFile,
     file
     // currentCategoryId,
     // topics: topicsQuery.knowledgeBaseTopics || [],

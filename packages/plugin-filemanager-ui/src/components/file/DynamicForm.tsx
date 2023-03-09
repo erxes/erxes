@@ -17,22 +17,19 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import Select from 'react-select-plus';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import { __ } from 'coreui/utils';
 
 type Props = {
   file?: IFile;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  // renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
 type State = {
-  // content: string;
-  // reactionChoices: string[];
-  // topicId?: string;
-  // categoryId: string;
-  // attachments: IAttachment[];
-  // image: IAttachment | null;
+  users: string[];
+  selectedDocument: string[];
 };
 
 class DynamicForm extends React.Component<Props, State> {
@@ -45,6 +42,8 @@ class DynamicForm extends React.Component<Props, State> {
     // const image = article.image ? extractAttachment([article.image])[0] : null;
 
     this.state = {
+      users: [],
+      selectedDocument: []
       // content: article.content,
       // reactionChoices: article.reactionChoices || [],
       // topicId: article.topicId,
@@ -55,21 +54,21 @@ class DynamicForm extends React.Component<Props, State> {
     };
   }
 
-  componentDidUpdate(prevProps) {
-    // const { topics, currentCategoryId } = this.props;
-    // if (!this.state.topicId && topics && topics.length > 0) {
-    //   this.setState({ topicId: topics[0]._id, categoryId: currentCategoryId });
-    // }
-  }
+  // onChangeAttachments = (attachments: IAttachment[]) =>
+  //   this.setState({ attachments });
 
-  onChangeAttachments = (attachments: IAttachment[]) =>
-    this.setState({ attachments });
-
+  usersOnChange = users => {
+    this.setState({ users });
+  };
   // getFirstAttachment = () => {
   //   const { attachments } = this.state;
 
   //   return attachments.length > 0 ? attachments[0] : ({} as IAttachment);
   // };
+
+  onSave = () => {
+    console.log('hi');
+  };
 
   generateDoc = (values: {
     _id?: string;
@@ -116,7 +115,7 @@ class DynamicForm extends React.Component<Props, State> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const { file, renderButton, closeModal } = this.props;
+    const { file, closeModal } = this.props;
     // const { attachments, reactionChoices, content, image } = this.state;
     // const attachment = this.getFirstAttachment();
 
@@ -143,12 +142,34 @@ class DynamicForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
+          <ControlLabel>{__('Team member')}</ControlLabel>
+          <SelectTeamMembers
+            label={__('Choose team member')}
+            name="userId"
+            // initialValue={queryParams.userId}
+            onSelect={this.usersOnChange}
+            multi={false}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>{__('Document')}</ControlLabel>
+          {/* <Select
+            placeholder={__('Choose document')}
+            value={this.state.selectedDocument}
+            options={this.generateParams(groups)}
+            onChange={onChange}
+            multi={true}
+          /> */}
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel>{__('Attachment')}</ControlLabel>
-          <Uploader
+          {/* <Uploader
             defaultFileList={[]}
             onChange={this.onChangeAttachments}
             single={true}
-          />
+          /> */}
         </FormGroup>
 
         <ModalFooter>
@@ -161,13 +182,14 @@ class DynamicForm extends React.Component<Props, State> {
             {__('Cancel')}
           </Button>
 
-          {renderButton({
-            passedName: 'article',
-            values: this.generateDoc(values),
-            isSubmitted,
-            callback: closeModal,
-            object: file
-          })}
+          <Button
+            btnStyle="success"
+            type="button"
+            onClick={this.onSave}
+            icon="check-circle"
+          >
+            {__('Cancel')}
+          </Button>
         </ModalFooter>
       </>
     );

@@ -1,9 +1,11 @@
 import { ChooseBox, FileUpload, FlexContainer } from '../../styles';
 import React, { useState } from 'react';
 
+import DynamicForm from './DynamicForm';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IFile } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { __ } from 'coreui/utils';
 import { uploadHandler } from '@erxes/ui/src/utils';
@@ -11,7 +13,7 @@ import { uploadHandler } from '@erxes/ui/src/utils';
 type Props = {
   file?: IFile;
   queryParams: any;
-  saveSimpleFile: (attr: any) => void;
+  saveFile: (attr: any) => void;
   closeModal: () => void;
 };
 
@@ -20,7 +22,7 @@ function FileForm(props: Props) {
   const [filePreview, setFilePreview] = useState({} as any);
 
   const handleFile = (e: React.FormEvent<HTMLInputElement>) => {
-    const { queryParams, saveSimpleFile } = props;
+    const { queryParams, saveFile } = props;
     const imageFile = e.currentTarget.files;
 
     uploadHandler({
@@ -34,7 +36,7 @@ function FileForm(props: Props) {
         setFile(response);
         setFilePreview({ opacity: '1' });
 
-        saveSimpleFile({
+        saveFile({
           name: `Simple File - ${response}`,
           url: response,
           folderId: queryParams && queryParams._id ? queryParams._id : '',
@@ -51,6 +53,8 @@ function FileForm(props: Props) {
         <span>{__(title)}</span>
       </ChooseBox>
     );
+
+    const content = pros => <DynamicForm {...pros} />;
 
     if (type === 'simple') {
       const onChange = (e: React.FormEvent<HTMLInputElement>) => handleFile(e);
@@ -74,7 +78,19 @@ function FileForm(props: Props) {
       );
     }
 
-    return boxContent;
+    if (type === 'dynamic') {
+      return (
+        <ModalTrigger
+          title="Add File"
+          trigger={boxContent}
+          content={content}
+          centered={true}
+          enforceFocus={false}
+        />
+      );
+    }
+
+    return null;
   };
 
   return (
