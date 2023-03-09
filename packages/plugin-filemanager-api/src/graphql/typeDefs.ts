@@ -4,6 +4,11 @@ const typeDefs = gql`
   scalar JSON
   scalar Date
 
+  type FileManagerPermissionConfig {
+    userIds: [String]
+    unitId: String
+  }
+
   type FileManagerFolder {
     _id: String!
     createdAt: Date
@@ -11,6 +16,7 @@ const typeDefs = gql`
     name: String!
     parentId: String
     parent: FileManagerFolder
+    permissionConfig: FileManagerPermissionConfig
   }
 
   type FileManagerFile {
@@ -25,11 +31,22 @@ const typeDefs = gql`
     contentType: String
     contentTypeId: String
     documentId: String
+    permissionConfig: FileManagerPermissionConfig
+  }
+
+  type FileManagerLog {
+    _id: String!
+    createdAt: Date
+    contentType: String
+    contentTypeId: String
+    userId: String
+    description: String
   }
 
   extend type Query {
     filemanagerFolders(parentId: String): [FileManagerFolder]
     filemanagerFiles(folderId: String!, search: String): [FileManagerFile]
+    filemanagerLogs(contentTypeId: String!): [FileManagerLog]
   }
 
   extend type Mutation {
@@ -52,6 +69,13 @@ const typeDefs = gql`
     ): FileManagerFile
 
     filemanagerFileRemove(_id: String!): JSON
+
+    filemanagerChangePermission(
+      type: String!
+      _id: String!
+      userIds: [String]
+      unitId: String
+    ): JSON
   }
 `;
 

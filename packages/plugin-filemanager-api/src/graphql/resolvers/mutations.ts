@@ -1,30 +1,119 @@
-import { checkPermission } from '@erxes/api-utils/src/permissions';
+// import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
+import { sendCoreMessage } from '../../messageBroker';
 
 const mutations = {
-  filemanagerFolderSave(_root, args, { user, models }: IContext) {
+  async filemanagerFolderSave(_root, args, { user, models }: IContext) {
     const { _id, ...doc } = args;
 
-    return models.Folders.saveFolder({
+    const result = await models.Folders.saveFolder({
       _id,
       doc: { ...doc, createdUserId: user._id }
     });
+
+    await models.Logs.createLog({
+      contentType: 'folder',
+      contentTypeId: result._id,
+      userId: user._id,
+      description: 'Created'
+    });
+
+    return result;
   },
 
-  filemanagerFolderRemove(_root, { _id }, { models }: IContext) {
+  async filemanagerFolderRemove(_root, { _id }, { models, user }: IContext) {
+    const folder = await models.Folders.getFolder({ _id });
+
+    if (folder.createdUserId !== user._id) {
+      throw new Error('Access denied');
+    }
+
     return models.Folders.deleteOne({ _id });
   },
 
-  filemanagerFolderCreate(_root, doc, { models }: IContext) {
-    return models.Files.saveFile({ doc });
+  async filemanagerFileCreate(_root, doc, { models, user }: IContext) {
+    const result = await models.Files.saveFile({ doc });
+
+    await models.Logs.createLog({
+      contentType: 'file',
+      contentTypeId: result._id,
+      userId: user._id,
+      description: 'Created'
+    });
+
+    return result;
   },
 
-  filemanagerFileRemove(_root, { _id }, { models }: IContext) {
+  async filemanagerFileRemove(_root, { _id }, { models, user }: IContext) {
+    const file = await models.Files.getFile({ _id });
+
+    if (file.createdUserId !== user._id) {
+      throw new Error('Access denied');
+    }
+
     return models.Files.deleteOne({ _id });
+  },
+
+  async filemanagerChangePermission(
+    _root,
+    { type, _id, userIds, unitId },
+    { models, subdomain, user }: IContext
+  ) {
+    let collection: any = models.Folders;
+
+    if (type === 'file') {
+      collection = models.Files;
+    }
+
+    const object = await collection.findOne({ _id });
+
+    if (object.createdUserId !== user._id) {
+      throw new Error('Permission denied');
+    }
+
+    let sharedUserIds = userIds || [];
+
+    if (unitId) {
+      const unit = await sendCoreMessage({
+        subdomain,
+        action: 'units.findOne',
+        data: {
+          _id: unitId
+        },
+        isRPC: true
+      });
+
+      sharedUserIds = [...sharedUserIds, ...(unit.userIds || [])];
+    }
+
+    const sharedUsers = await sendCoreMessage({
+      subdomain,
+      action: 'users.find',
+      data: {
+        query: {
+          _id: { $in: sharedUserIds }
+        }
+      },
+      isRPC: true
+    });
+
+    await models.Logs.createLog({
+      contentType: type,
+      contentTypeId: _id,
+      userId: user._id,
+      description: `Shared with ${sharedUsers
+        .map(u => u.username || u.email)
+        .join(' ')}`
+    });
+
+    return collection.update(
+      { _id },
+      { $set: { permissionConfig: { userIds, unitId } } }
+    );
   }
 };
 
-checkPermission(mutations, 'filemanagerFolderSave', 'manageFilemanager');
-checkPermission(mutations, 'filemanagerFolderRemove', 'manageFilemanager');
+// checkPermission(mutations, 'filemanagerFolderSave', 'manageFilemanager');
+// checkPermission(mutations, 'filemanagerFolderRemove', 'manageFilemanager');
 
 export default mutations;
