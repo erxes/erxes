@@ -428,6 +428,15 @@ export const initBroker = async options => {
     };
   });
 
+  consumeRPCQueue('core:units.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Units.findOne(data).lean()
+    };
+  });
+
   consumeRPCQueue('core:getFileUploadConfigs', async ({ subdomain }) => {
     const models = await generateModels(subdomain);
 

@@ -1,14 +1,24 @@
 // import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
+import { sendCoreMessage } from '../../messageBroker';
 
 const mutations = {
-  filemanagerFolderSave(_root, args, { user, models }: IContext) {
+  async filemanagerFolderSave(_root, args, { user, models }: IContext) {
     const { _id, ...doc } = args;
 
-    return models.Folders.saveFolder({
+    const result = await models.Folders.saveFolder({
       _id,
       doc: { ...doc, createdUserId: user._id }
     });
+
+    await models.Logs.createLog({
+      contentType: 'folder',
+      contentTypeId: result._id,
+      userId: user._id,
+      description: 'Created'
+    });
+
+    return result;
   },
 
   async filemanagerFolderRemove(_root, { _id }, { models, user }: IContext) {
@@ -21,8 +31,17 @@ const mutations = {
     return models.Folders.deleteOne({ _id });
   },
 
-  filemanagerFolderCreate(_root, doc, { models }: IContext) {
-    return models.Files.saveFile({ doc });
+  async filemanagerFileCreate(_root, doc, { models, user }: IContext) {
+    const result = await models.Files.saveFile({ doc });
+
+    await models.Logs.createLog({
+      contentType: 'file',
+      contentTypeId: result._id,
+      userId: user._id,
+      description: 'Created'
+    });
+
+    return result;
   },
 
   async filemanagerFileRemove(_root, { _id }, { models, user }: IContext) {
@@ -38,7 +57,7 @@ const mutations = {
   async filemanagerChangePermission(
     _root,
     { type, _id, userIds, unitId },
-    { models, user }: IContext
+    { models, subdomain, user }: IContext
   ) {
     let collection: any = models.Folders;
 
@@ -51,6 +70,41 @@ const mutations = {
     if (object.createdUserId !== user._id) {
       throw new Error('Permission denied');
     }
+
+    let sharedUserIds = userIds || [];
+
+    if (unitId) {
+      const unit = await sendCoreMessage({
+        subdomain,
+        action: 'units.findOne',
+        data: {
+          _id: unitId
+        },
+        isRPC: true
+      });
+
+      sharedUserIds = [...sharedUserIds, ...(unit.userIds || [])];
+    }
+
+    const sharedUsers = await sendCoreMessage({
+      subdomain,
+      action: 'users.find',
+      data: {
+        query: {
+          _id: { $in: sharedUserIds }
+        }
+      },
+      isRPC: true
+    });
+
+    await models.Logs.createLog({
+      contentType: type,
+      contentTypeId: _id,
+      userId: user._id,
+      description: `Shared with ${sharedUsers
+        .map(u => u.username || u.email)
+        .join(' ')}`
+    });
 
     return collection.update(
       { _id },

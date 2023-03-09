@@ -5,7 +5,10 @@ import {
   IFolderDocument,
   IFileModel,
   IFileDocument,
-  loadFileClass
+  loadFileClass,
+  ILogModel,
+  ILogDocument,
+  loadLogClass
 } from './models';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
@@ -13,6 +16,7 @@ import { createGenerateModels } from '@erxes/api-utils/src/core';
 export interface IModels {
   Folders: IFolderModel;
   Files: IFileModel;
+  Logs: ILogModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -35,6 +39,11 @@ export const loadClasses = (
   models.Files = db.model<IFileDocument, IFileModel>(
     'filemanager_files',
     loadFileClass(models)
+  );
+
+  models.Logs = db.model<ILogDocument, ILogModel>(
+    'filemanager_logs',
+    loadLogClass(models)
   );
 
   return models;
