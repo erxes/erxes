@@ -74,7 +74,7 @@ const FileRow = ({
       <td style={{ paddingLeft: '0' }}>
         <ItemName>
           {item.info ? (
-            renderFileIcon(type)
+            renderFileIcon(name)
           ) : (
             <img src="/images/folder.png" alt="folderImg" />
           )}
@@ -85,7 +85,7 @@ const FileRow = ({
       <td>{size && `${Math.round(size / 1000)} Kb`}</td>
       <td>
         <ActionButtons>
-          {item.contentType && renderEditAction()}
+          {/* {item.contentType && renderEditAction()} */}
           <Tip text={__('Delete')} placement="bottom">
             <Button btnStyle="link" onClick={onRemove} icon="cancel-1" />
           </Tip>

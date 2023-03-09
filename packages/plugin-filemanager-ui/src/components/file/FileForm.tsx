@@ -101,8 +101,8 @@ function FileForm(props: Props) {
 
     return null;
   };
-
-  if (Object.keys(file).length !== 0) {
+  console.log(props.file);
+  if (Object.keys(props.file || {}).length !== 0) {
     return renderDynamicForm('file-check-alt', 'Dynamic file');
   }
 
