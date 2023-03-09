@@ -1,10 +1,9 @@
 import Button from '@erxes/ui/src/components/Button';
 import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
+import React, { useState } from 'react';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import Table from '@erxes/ui/src/components/table';
-import { CustomRow } from '../../styles';
+import { CustomRow, Margin, RowField } from '../../styles';
 
 import { IBranch } from '@erxes/ui/src/team/types';
 import Tip from '@erxes/ui/src/components/Tip';
@@ -13,6 +12,16 @@ import { IScheduleConfig } from '../../types';
 import dayjs from 'dayjs';
 import { dateFormat, timeFormat } from '../../constants';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import SortableList from '@erxes/ui/src/components/SortableList';
+import {
+  CollapseRow,
+  DropIcon,
+  PropertyListTable,
+  PropertyTableHeader,
+  PropertyTableRow
+} from '@erxes/ui-forms/src/settings/properties/styles';
+import Collapse from 'react-bootstrap/Collapse';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 
 type Props = {
   scheduleOfMembers: any;
@@ -129,8 +138,8 @@ function ScheduleList(props: Props) {
 
   const ListShiftContent = shifts => {
     return (
-      <>
-        <td>
+      <PropertyTableRow>
+        <RowField>
           {shifts.map(shift => {
             return (
               <CustomRow key={shift.shiftEnd} marginNum={10}>
@@ -140,8 +149,8 @@ function ScheduleList(props: Props) {
               </CustomRow>
             );
           })}
-        </td>
-        <td>
+        </RowField>
+        <RowField>
           {shifts.map(shift => {
             return (
               <CustomRow key={shift.shiftEnd} marginNum={10}>
@@ -149,8 +158,8 @@ function ScheduleList(props: Props) {
               </CustomRow>
             );
           })}
-        </td>
-        <td>
+        </RowField>
+        <RowField>
           {shifts.map(shift => {
             return (
               <CustomRow key={shift.shiftEnd} marginNum={10}>
@@ -158,8 +167,8 @@ function ScheduleList(props: Props) {
               </CustomRow>
             );
           })}
-        </td>
-        <td>
+        </RowField>
+        <RowField>
           {shifts.map(shift => {
             return (
               <CustomRow key={shift.shiftEnd} marginNum={10}>
@@ -170,8 +179,8 @@ function ScheduleList(props: Props) {
               </CustomRow>
             );
           })}
-        </td>
-        <td>
+        </RowField>
+        <RowField>
           {shifts.map(shift => {
             return shift.solved ? (
               <CustomRow marginNum={10}>{__(shift.status)}</CustomRow>
@@ -194,8 +203,8 @@ function ScheduleList(props: Props) {
               </CustomRow>
             );
           })}
-        </td>
-        <td>
+        </RowField>
+        <RowField>
           {shifts.map(shift => {
             return (
               <CustomRow marginNum={4} key={shift._id}>
@@ -208,21 +217,29 @@ function ScheduleList(props: Props) {
               </CustomRow>
             );
           })}
-        </td>
-      </>
+        </RowField>
+      </PropertyTableRow>
     );
   };
-  const ListScheduleContent = schedule => {
+
+  const content = schedule => {
+    const [collapse, setCollapse] = useState(false);
+
+    const handleCollapse = () => {
+      setCollapse(!collapse);
+    };
+
     return schedule.shifts.length ? (
-      <tr>
-        <td>
-          {schedule.user &&
-          schedule.user.details &&
-          schedule.user.details.fullName
-            ? schedule.user.details.fullName
-            : schedule.user.email}
-        </td>
-        <td>
+      <div key={schedule._id} style={{ flex: 1 }}>
+        <CollapseRow isChild={false}>
+          <div style={{ flex: 1 }} onClick={handleCollapse}>
+            <DropIcon isOpen={collapse} />
+            {schedule.user &&
+            schedule.user.details &&
+            schedule.user.details.fullName
+              ? schedule.user.details.fullName
+              : schedule.user.email}
+          </div>
           {schedule.solved ? (
             __(schedule.status)
           ) : (
@@ -242,8 +259,6 @@ function ScheduleList(props: Props) {
               </Button>
             </>
           )}
-        </td>
-        <td>
           <Tip text={__('Delete')} placement="top">
             <Button
               btnStyle="link"
@@ -251,43 +266,45 @@ function ScheduleList(props: Props) {
               icon="times-circle"
             />
           </Tip>
-        </td>
-        {ListShiftContent(schedule.shifts)}
-      </tr>
+        </CollapseRow>
+        <Collapse in={collapse}>
+          <Margin>
+            <PropertyListTable>
+              <PropertyTableHeader>
+                <ControlLabel>
+                  <b>{__('Shift date')}</b>
+                </ControlLabel>
+                <ControlLabel>{__('Shift start')}</ControlLabel>
+                <ControlLabel>{__('Shift end')}</ControlLabel>
+                <ControlLabel>{__('Overnight')}</ControlLabel>
+                <ControlLabel>{__('Shift Status')}</ControlLabel>
+                <ControlLabel>{__('Actions')}</ControlLabel>
+              </PropertyTableHeader>
+              {ListShiftContent(schedule.shifts)}
+            </PropertyListTable>
+          </Margin>
+        </Collapse>
+      </div>
     ) : (
       <></>
     );
   };
 
-  const content = (
-    <Table>
-      <thead>
-        <tr>
-          <th>{__('Team member')}</th>
-          <th>{__('Schedule status')}</th>
-          <th>&nbsp;</th>
-          <th>{__('Shift date')}</th>
-          <th>{__('Shift start')}</th>
-          <th>{__('Shift end')}</th>
-          <th>{__('Overnight')}</th>
-          <th>{__('Shift Status')}</th>
-          <th>{__('Action')}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {scheduleOfMembers &&
-          scheduleOfMembers.map(memberSchedule => {
-            return ListScheduleContent(memberSchedule);
-          })}
-      </tbody>
-    </Table>
-  );
-
   getActionBar(actionBar);
   showSideBar(true);
   getPagination(<Pagination count={totalCount} />);
 
-  return content;
+  return (
+    <SortableList
+      fields={scheduleOfMembers}
+      child={schedule => schedule.shifts.length > 0 && content(schedule)}
+      onChangeFields={() => ''}
+      isModal={true}
+      showDragHandler={false}
+      droppableId="schedule"
+      isDragDisabled={true}
+    />
+  );
 }
 
 export default ScheduleList;
