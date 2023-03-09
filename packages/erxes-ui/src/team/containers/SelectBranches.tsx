@@ -22,7 +22,7 @@ export function generateBranchOptions(array: IBranch[] = []): IOption[] {
 
   return generateTree(generateList(), null, (node, level) => ({
     value: node._id,
-    label: `${'\u00A0 \u00A0 '.repeat(level)} ${node.title}`
+    label: `${'\u00A0 \u00A0 '.repeat(level)} ${node.title} - ${node.title}`
   }));
 }
 
