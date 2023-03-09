@@ -29,7 +29,7 @@ class FolderList extends React.Component<Props, {}> {
     }, {});
   };
 
-  renderRow(folder: IFolder, isChild: boolean, isParent: boolean) {
+  renderRow(folder: IFolder, isChild: boolean) {
     const { remove, queryParams, setParentId, filemanagerFolders } = this.props;
 
     return (
@@ -40,7 +40,7 @@ class FolderList extends React.Component<Props, {}> {
         remove={remove}
         queryParams={queryParams}
         isChild={isChild}
-        isParent={isParent}
+        isParent={folder?.hasChild ? folder.hasChild : false}
         setParentId={setParentId}
         filemanagerFolders={filemanagerFolders}
       />
@@ -57,8 +57,8 @@ class FolderList extends React.Component<Props, {}> {
 
       return (
         <React.Fragment key={folder._id}>
-          {this.renderRow(folder, false, true)}
-          {childs.map(child => this.renderRow(child, true, false))}
+          {this.renderRow(folder, false)}
+          {childs.map(child => this.renderRow(child, true))}
         </React.Fragment>
       );
     });

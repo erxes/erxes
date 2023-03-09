@@ -4,6 +4,7 @@ import { MutationVariables, QueryResponse } from '@erxes/ui/src/types';
 export interface IFolder {
   _id: string;
   name: string;
+  hasChild?: boolean;
   createdAt?: Date;
   createdUserId?: string;
   parentId?: string;

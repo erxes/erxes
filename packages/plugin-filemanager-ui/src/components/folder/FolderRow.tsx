@@ -73,28 +73,35 @@ class FolderRow extends React.Component<Props, State> {
     const { folder, isActive, isChild, isParent } = this.props;
 
     return (
-      <FolderItemRow key={folder._id} isChild={isChild} isActive={isActive}>
-        {isParent && (
-          <span className="toggle-icon" onClick={this.onParentOpen}>
-            <Icon
-              icon={`angle-${
-                this.state.isParentOpen || isActive ? 'down' : 'right'
-              }`}
-              size={20}
-            />
-          </span>
-        )}
-        <Link to={`?_id=${folder._id}`}>
-          <div>
-            <img src="/images/folder.png" alt="folder" /> {folder.name}
-          </div>
-        </Link>
-        <ActionButtons>
-          {this.renderEditAction()}
-          <Tip text="Delete" placement="bottom">
-            <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
-          </Tip>
-        </ActionButtons>
+      <FolderItemRow
+        key={folder._id}
+        isChild={isChild}
+        isParent={isParent}
+        isActive={isActive}
+      >
+        <div>
+          {isParent && (
+            <span className="toggle-icon" onClick={this.onParentOpen}>
+              <Icon
+                icon={`angle-${
+                  this.state.isParentOpen || isActive ? 'down' : 'right'
+                }`}
+                size={20}
+              />
+            </span>
+          )}
+          <Link to={`?_id=${folder._id}`}>
+            <div>
+              <img src="/images/folder.png" alt="folder" /> {folder.name}
+            </div>
+          </Link>
+          <ActionButtons>
+            {this.renderEditAction()}
+            <Tip text="Delete" placement="bottom">
+              <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
+            </Tip>
+          </ActionButtons>
+        </div>
       </FolderItemRow>
     );
   }
