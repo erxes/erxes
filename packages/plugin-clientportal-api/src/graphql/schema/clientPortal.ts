@@ -76,6 +76,7 @@ ${
     knowledgeBaseLabel: String
     knowledgeBaseTopicId: String
     ticketLabel: String
+    dealLabel: String
     taskPublicBoardId: String
     taskPublicPipelineId: String
     taskLabel: String
@@ -85,6 +86,9 @@ ${
     ticketStageId: String
     ticketPipelineId: String
     ticketBoardId: String
+    dealStageId: String
+    dealPipelineId: String
+    dealBoardId: String
     googleCredentials: JSON
     styles: Styles
     mobileResponsive: Boolean
@@ -95,6 +99,7 @@ ${
     kbToggle: Boolean,
     publicTaskToggle: Boolean,
     ticketToggle: Boolean,
+    dealToggle: Boolean,
     taskToggle: Boolean,
   }
 
@@ -178,6 +183,7 @@ export const mutations = cardAvailable => `
     knowledgeBaseLabel: String
     knowledgeBaseTopicId: String
     ticketLabel: String
+    dealLabel: String
     taskLabel: String
     taskPublicBoardId: String
     taskPublicPipelineId: String
@@ -187,12 +193,16 @@ export const mutations = cardAvailable => `
     ticketStageId: String
     ticketPipelineId: String
     ticketBoardId: String
+    dealStageId: String
+    dealPipelineId: String
+    dealBoardId: String
     googleCredentials: JSON
     styles: StylesParams
     mobileResponsive: Boolean
     kbToggle: Boolean,
     publicTaskToggle: Boolean,
     ticketToggle: Boolean,
+    dealToggle: Boolean,
     taskToggle: Boolean,
 
     otpConfig: OTPConfigInput
@@ -210,6 +220,9 @@ export const mutations = cardAvailable => `
         subject: String!
         description: String
         priority: String,
+        parentId: String,
+        closeDate: Date
+        startDate: Date
       ): JSON
      `
       : ''
