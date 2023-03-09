@@ -1,14 +1,36 @@
 // import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../connectionResolver';
+import { sendCoreMessage } from '../../messageBroker';
+
+const permissionSelector = async ({ subdomain, user }) => {
+  const units = await sendCoreMessage({
+    subdomain,
+    action: 'units.find',
+    data: {
+      userIds: { $in: user._id }
+    },
+    isRPC: true
+  });
+
+  return [
+    { createdUserId: user._id },
+    { 'permissionConfig.userIds': { $in: [user._id] } },
+    { 'permissionConfig.unitId': { $in: units.map(u => u._id) } }
+  ];
+};
 
 const queries = {
-  filemanagerFolders(
+  async filemanagerFolders(
     _root,
     { limit, parentId }: { limit: number; parentId: string },
-    { models }: IContext
+    { models, subdomain, user }: IContext
   ) {
-    const selector: any = { parentId: '' };
+    const selector: any = {
+      parentId: '',
+      $or: await permissionSelector({ subdomain, user })
+    };
+
     const sort = { createdAt: -1 };
 
     if (parentId) {
@@ -24,17 +46,18 @@ const queries = {
     return paginate(models.Folders.find(selector), {}).sort(sort);
   },
 
-  filemanagerFiles(
+  async filemanagerFiles(
     _root,
     { folderId, search }: { folderId: string; search?: string },
-    { models }: IContext
+    { models, subdomain, user }: IContext
   ) {
-    const selector: any = { folderId };
+    const selector: any = {
+      folderId,
+      $or: await permissionSelector({ subdomain, user })
+    };
 
     if (search) {
-      selector.$or = [
-        { name: { $regex: `.*${search.trim()}.*`, $options: 'i' } }
-      ];
+      selector.name = { $regex: `.*${search.trim()}.*`, $options: 'i' };
     }
 
     return models.Files.find(selector).sort({ createdAt: -1 });
