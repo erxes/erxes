@@ -229,36 +229,39 @@ function ScheduleList(props: Props) {
       setCollapse(!collapse);
     };
 
+    const name =
+      schedule.user && schedule.user.details && schedule.user.details.fullName
+        ? schedule.user.details.fullName
+        : schedule.user.email;
+
+    const status = schedule.solved ? (
+      __(schedule.status)
+    ) : (
+      <>
+        <Button
+          disabled={schedule.solved}
+          btnStyle="success"
+          onClick={() => solveSchedule(schedule._id, 'Approved')}
+        >
+          Approve
+        </Button>
+        <Button
+          btnStyle="danger"
+          onClick={() => solveSchedule(schedule._id, 'Rejected')}
+        >
+          Reject
+        </Button>
+      </>
+    );
+
     return schedule.shifts.length ? (
       <div key={schedule._id} style={{ flex: 1 }}>
         <CollapseRow isChild={false}>
           <div style={{ flex: 1 }} onClick={handleCollapse}>
             <DropIcon isOpen={collapse} />
-            {schedule.user &&
-            schedule.user.details &&
-            schedule.user.details.fullName
-              ? schedule.user.details.fullName
-              : schedule.user.email}
+            {name}
           </div>
-          {schedule.solved ? (
-            __(schedule.status)
-          ) : (
-            <>
-              <Button
-                disabled={schedule.solved}
-                btnStyle="success"
-                onClick={() => solveSchedule(schedule._id, 'Approved')}
-              >
-                Approve
-              </Button>
-              <Button
-                btnStyle="danger"
-                onClick={() => solveSchedule(schedule._id, 'Rejected')}
-              >
-                Reject
-              </Button>
-            </>
-          )}
+          {status}
           <Tip text={__('Delete')} placement="top">
             <Button
               btnStyle="link"
