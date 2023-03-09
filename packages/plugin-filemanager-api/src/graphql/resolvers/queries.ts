@@ -100,6 +100,14 @@ const queries = {
     { models }: IContext
   ) {
     return models.Logs.find({ contentTypeId }).sort({ createdAt: -1 });
+  },
+
+  async filemanagerGetAckRequest(
+    _root,
+    { fileId }: { fileId: string },
+    { models, user }: IContext
+  ) {
+    return models.Requests.findOne({ fileId, toUserId: user._id });
   }
 };
 

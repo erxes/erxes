@@ -41,10 +41,22 @@ const typeDefs = gql`
     description: String
   }
 
+  type FileManagerRequest {
+    _id: String!
+    createdAt: Date
+    type: String
+    fileId: String
+    fromUserId: String
+    toUserId: String
+    status: String
+    description: String
+  }
+
   extend type Query {
     filemanagerFolders(parentId: String): [FileManagerFolder]
     filemanagerFiles(folderId: String!, search: String): [FileManagerFile]
     filemanagerLogs(contentTypeId: String!): [FileManagerLog]
+    filemanagerGetAckRequest(fileId: String!): FileManagerRequest
   }
 
   extend type Mutation {
@@ -75,6 +87,14 @@ const typeDefs = gql`
       userIds: [String]
       unitId: String
     ): JSON
+
+    filemanagerRequestAcks(
+      fileId: String!
+      toUserIds: [String]!
+      description: String
+    ): String
+
+    filemanagerAckRequest(_id: String!): JSON
   }
 `;
 
