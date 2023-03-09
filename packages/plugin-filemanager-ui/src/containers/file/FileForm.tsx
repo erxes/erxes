@@ -44,8 +44,6 @@ const FileFormContainer = (props: FinalProps) => {
     saveFile,
     file,
     documents
-    // currentCategoryId,
-    // topics: topicsQuery.knowledgeBaseTopics || [],
   };
 
   return <FileForm {...extendedProps} />;
@@ -54,13 +52,6 @@ const FileFormContainer = (props: FinalProps) => {
 export default compose(
   graphql<Props>(gql(queries.documents), {
     name: 'documentsListQuery'
-    // options: ({ queryParams }) => {
-    //   return {
-    //     variables: {
-    //       contentType: queryParams.contentType
-    //     }
-    //   };
-    // }
   }),
   graphql<Props, SaveFileMutationResponse, {}>(
     gql(mutations.filemanagerFileCreate),

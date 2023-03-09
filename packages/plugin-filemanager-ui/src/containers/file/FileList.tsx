@@ -42,7 +42,7 @@ const FileListContainer = (props: FinalProps) => {
         .then(() => {
           filemanagerFilesQuery.refetch();
 
-          Alert.success('You successfully deleted an article');
+          Alert.success('You successfully deleted an file');
         })
         .catch(error => {
           Alert.error(error.message);
@@ -87,15 +87,18 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, RemoveFileMutationResponse, { _id: string }>(
+    graphql<Props, RemoveFileMutationResponse, { folderId: string }>(
       gql(mutations.filemanagerFileRemove),
       {
         name: 'removeFileMutation',
-        options: () => {
+        options: ({ queryParams }: { queryParams: any }) => {
           return {
             refetchQueries: [
               {
-                query: gql(queries.filemanagerFiles)
+                query: gql(queries.filemanagerFiles),
+                variables: {
+                  folderId: queryParams._id ? queryParams._id : ''
+                }
               }
             ]
           };

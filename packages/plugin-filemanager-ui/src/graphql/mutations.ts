@@ -13,8 +13,8 @@ const filemanagerFolderRemove = `
 `;
 
 const filemanagerFileCreate = `
-  mutation filemanagerFileCreate($type: String!, $name: String!, $folderId: String!, $url: String, $contentType: String, $contentTypeId: String, $documentId: String) {
-    filemanagerFileCreate(type: $type, name: $name, folderId: $folderId, url: $url, contentType: $contentType, contentTypeId: $contentTypeId, documentId: $documentId) {
+  mutation filemanagerFileCreate($type: String!, $name: String!, $folderId: String!, $url: String, $contentType: String, $contentTypeId: String, $documentId: String, $info: JSON) {
+    filemanagerFileCreate(type: $type, name: $name, folderId: $folderId, url: $url, contentType: $contentType, contentTypeId: $contentTypeId, documentId: $documentId, info: $info) {
       _id
     }
   }
