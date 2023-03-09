@@ -61,6 +61,7 @@ const typeDefs = gql`
       type: String!
       folderId: String!
       url: String
+      info: JSON
       contentType: String
       contentTypeId: String
       documentId: String
