@@ -39,23 +39,24 @@ function FileForm(props: Props) {
         setFilePreview({ opacity: '1' });
 
         saveFile({
-          name: `Simple File - ${url}`,
+          name: fileInfo.name,
           url,
           folderId: queryParams && queryParams._id ? queryParams._id : '',
-          type: 'simple'
+          type: 'simple',
+          info: fileInfo
         });
       }
     });
   };
 
-  const renderBox = (title: string, type: string, icon: string) => {
-    const boxContent = (
-      <ChooseBox>
-        <Icon icon={icon} />
-        <span>{__(title)}</span>
-      </ChooseBox>
-    );
+  const boxContent = (icon: string, title: string) => (
+    <ChooseBox>
+      <Icon icon={icon} />
+      <span>{__(title)}</span>
+    </ChooseBox>
+  );
 
+  const renderDynamicForm = (icon, title) => {
     const content = pros => (
       <DynamicForm
         {...pros}
@@ -65,6 +66,18 @@ function FileForm(props: Props) {
       />
     );
 
+    return (
+      <ModalTrigger
+        title="Add File"
+        trigger={boxContent(icon, title)}
+        content={content}
+        centered={true}
+        enforceFocus={false}
+      />
+    );
+  };
+
+  const renderBox = (title: string, type: string, icon: string) => {
     if (type === 'simple') {
       const onChange = (e: React.FormEvent<HTMLInputElement>) => handleFile(e);
 
@@ -76,26 +89,22 @@ function FileForm(props: Props) {
         <FileUpload>
           <label htmlFor="file-upload">
             <input id="file-upload" type="file" onChange={onChange} />
-            {boxContent}
+            {boxContent(icon, title)}
           </label>
         </FileUpload>
       );
     }
 
     if (type === 'dynamic') {
-      return (
-        <ModalTrigger
-          title="Add File"
-          trigger={boxContent}
-          content={content}
-          centered={true}
-          enforceFocus={false}
-        />
-      );
+      return renderDynamicForm(icon, title);
     }
 
     return null;
   };
+
+  if (file) {
+    return renderDynamicForm('file-check-alt', 'Dynamic file');
+  }
 
   return (
     <FlexContainer>

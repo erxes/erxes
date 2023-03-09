@@ -32,6 +32,16 @@ export const FileUpload = styled.div`
   }
 `;
 
+export const IconWrapper = styledTS<{ color?: string }>(styled.div)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  i {
+    color: ${props => (props.color ? props.color : colors.colorSecondary)};
+  }
+`;
+
 export const ChooseBox = styled(BoxRoot)`
   width: 200px;
   padding: 30px;
@@ -52,6 +62,7 @@ export const ChooseBox = styled(BoxRoot)`
 
 export const ItemName = styled.div`
   display: flex;
+  align-items: center;
 
   img {
     width: ${dimensions.coreSpacing}px;

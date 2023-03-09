@@ -1,16 +1,35 @@
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Button from '@erxes/ui/src/components/Button';
+import FileFormContainer from '../../containers/file/FileForm';
 import FormControl from '@erxes/ui/src/components/form/Control';
+import Icon from '@erxes/ui/src/components/Icon';
 import { ItemName } from '../../styles';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from 'coreui/utils';
 import dayjs from 'dayjs';
+import { renderFileIcon } from '../../utils';
 
 type Props = {
   item: any;
+  queryParams: any;
+  remove: (fileId: string) => void;
+  isFolder?: boolean;
   isChecked?: boolean;
   toggleBulk?: (target: any, toAdd: boolean) => void;
 };
 
-const FileRow = ({ item, isChecked, toggleBulk }: Props) => {
+const FileRow = ({
+  item,
+  remove,
+  isChecked,
+  isFolder,
+  queryParams,
+  toggleBulk
+}: Props) => {
+  const { url, name, size, type } = item.info || ({} as any);
+
   const onChange = e => {
     if (toggleBulk) {
       toggleBulk(item, e.target.checked);
@@ -21,24 +40,57 @@ const FileRow = ({ item, isChecked, toggleBulk }: Props) => {
     e.stopPropagation();
   };
 
+  const onRemove = () => {
+    remove(item._id);
+  };
+
+  const renderEditAction = () => {
+    const editTrigger = (
+      <Button btnStyle="link">
+        <Tip text={__('Edit')} placement="bottom">
+          <Icon icon="edit" />
+        </Tip>
+      </Button>
+    );
+
+    const content = props => (
+      <FileFormContainer {...props} queryParams={queryParams} file={item} />
+    );
+
+    return (
+      <ModalTrigger title="Edit File" trigger={editTrigger} content={content} />
+    );
+  };
+
   return (
     <tr key={item._id} className="crow">
-      <td id="customersCheckBox" style={{ width: '50px' }} onClick={onClick}>
+      <td id="customersCheckBox" style={{ width: '20px' }} onClick={onClick}>
         <FormControl
           checked={isChecked}
           componentClass="checkbox"
           onChange={onChange}
         />
       </td>
-      <td>
+      <td style={{ paddingLeft: '0' }}>
         <ItemName>
-          <img src="/images/folder.png" alt="folderImg" />
-          {item.name}
+          {item.info ? (
+            renderFileIcon(type)
+          ) : (
+            <img src="/images/folder.png" alt="folderImg" />
+          )}
+          {isFolder || item.contentType ? item.name : name}
         </ItemName>
       </td>
       <td>{dayjs(item.createdAt).format('MMMM D, YYYY h:mm A')}</td>
-      <td>100 KB</td>
-      <td>action</td>
+      <td>{size && `${Math.round(size / 1000)} Kb`}</td>
+      <td>
+        <ActionButtons>
+          {item.contentType && renderEditAction()}
+          <Tip text={__('Delete')} placement="bottom">
+            <Button btnStyle="link" onClick={onRemove} icon="cancel-1" />
+          </Tip>
+        </ActionButtons>
+      </td>
     </tr>
   );
 };

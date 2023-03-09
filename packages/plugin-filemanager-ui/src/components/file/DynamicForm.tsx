@@ -48,15 +48,17 @@ class DynamicForm extends React.Component<Props, State> {
   onSave = values => {
     const { userId, selectedDocument, attachments } = this.state;
     const { queryParams } = this.props;
+    const attachment = attachments[0] || ({} as any);
 
     this.props.saveFile({
       name: values.name,
       type: 'dynamic',
-      url: attachments[0].url,
+      url: attachment.url,
       contentType: 'teamMember',
       contentTypeId: userId,
       documentId: selectedDocument.value,
-      folderId: queryParams && queryParams._id ? queryParams._id : ''
+      folderId: queryParams && queryParams._id ? queryParams._id : '',
+      info: attachment
     });
   };
 

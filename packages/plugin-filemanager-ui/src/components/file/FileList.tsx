@@ -19,7 +19,7 @@ type Props = {
   files: IFile[];
   folders: IFolder[];
   queryParams: any;
-  remove: (articleId: string) => void;
+  remove: (fileId: string) => void;
   loading: boolean;
 };
 
@@ -57,7 +57,7 @@ class FileList extends React.Component<Props> {
                   onChange={this.onChange}
                 />
               </th>
-              <th>
+              <th style={{ paddingLeft: '0' }}>
                 <ItemName>
                   <img src="/images/folder.png" alt="folderImg" />
                   {__('Name')}
@@ -77,11 +77,21 @@ class FileList extends React.Component<Props> {
           </thead>
           <tbody id="fileManagerfiles">
             <>
-              {folders.map((folder: IFolder) => (
-                <FileRow key={folder._id} item={folder} />
-              ))}
+              {/* {folders.map((folder: IFolder) => (
+                <FileRow
+                  key={folder._id}
+                  item={folder}
+                  queryParams={queryParams}
+                  isFolder={true}
+                />
+              ))} */}
               {files.map(file => (
-                <FileRow key={file._id} item={file} />
+                <FileRow
+                  key={file._id}
+                  item={file}
+                  queryParams={queryParams}
+                  remove={remove}
+                />
               ))}
             </>
           </tbody>
