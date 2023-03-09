@@ -22,12 +22,20 @@ export const ActionItem = styled.button`
 
 export const FlexContainer = styledTS<{ direction?: string }>(styled.div)`
   display: flex;
+  justify-content: space-between;
   flex-direction: ${props => props.direction};
 `;
 
+export const FileUpload = styled.div`
+  input {
+    display: none;
+  }
+`;
+
 export const ChooseBox = styled(BoxRoot)`
-  width: 320px;
+  width: 200px;
   padding: 30px;
+  margin: 0;
   background: ${colors.bgLight};
 
   i {
@@ -39,10 +47,6 @@ export const ChooseBox = styled(BoxRoot)`
     font-weight: 500;
     font-size: 14px;
     text-transform: capitalize;
-  }
-
-  &:last-of-type {
-    margin-right: 0;
   }
 `;
 
