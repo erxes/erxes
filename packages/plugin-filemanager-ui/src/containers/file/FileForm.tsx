@@ -1,62 +1,42 @@
 import * as compose from 'lodash.flowright';
 
-import { FilemanagerFilesQueryResponse, IFile } from '../../types';
+import { IFile, SaveFileMutationResponse } from '../../types';
 import { mutations, queries } from '../../graphql';
 
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { Alert } from '@erxes/ui/src/utils';
 import FileForm from '../../components/file/FileForm';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 
 type Props = {
   file?: IFile;
-  // currentCategoryId: string;
   queryParams: any;
-  // topicIds: string[];
   closeModal: () => void;
 };
 
-type FinalProps = {
-  // topicsQuery: TopicsQueryResponse;
-} & Props;
+type FinalProps = {} & Props & SaveFileMutationResponse;
 
 const FileFormContainer = (props: FinalProps) => {
-  const {
-    file,
-    queryParams
-    // topicIds,
-    // currentCategoryId,
-    // topicsQuery,
-  } = props;
+  const { file, saveFileMutation } = props;
 
-  const renderButton = ({
-    passedName: name,
-    values,
-    isSubmitted,
-    callback,
-    object
-  }: IButtonMutateProps) => {
-    return (
-      <ButtonMutate
-        mutation={mutations.filemanagerFileCreate}
-        variables={values}
-        callback={callback}
-        refetchQueries={getRefetchQueries()}
-        type="submit"
-        isSubmitted={isSubmitted}
-        successMessage={`You successfully ${
-          object ? 'updated' : 'added'
-        } an ${name}`}
-      />
-    );
+  const saveSimpleFile = variables => {
+    saveFileMutation({
+      variables
+    })
+      .then(() => {
+        Alert.success('You successfully add an file');
+
+        props.closeModal();
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
   };
 
   const extendedProps = {
     ...props,
-    renderButton,
+    saveSimpleFile,
     file
     // currentCategoryId,
     // topics: topicsQuery.knowledgeBaseTopics || [],
@@ -65,12 +45,23 @@ const FileFormContainer = (props: FinalProps) => {
   return <FileForm {...extendedProps} />;
 };
 
-const getRefetchQueries = () => {
-  return [
+export default compose(
+  graphql<Props, SaveFileMutationResponse, {}>(
+    gql(mutations.filemanagerFileCreate),
     {
-      query: gql(queries.filemanagerFiles)
+      name: 'saveFileMutation',
+      options: ({ queryParams }: { queryParams: any }) => {
+        return {
+          refetchQueries: [
+            {
+              query: gql(queries.filemanagerFiles),
+              variables: {
+                folderId: queryParams && queryParams._id ? queryParams._id : ''
+              }
+            }
+          ]
+        };
+      }
     }
-  ];
-};
-
-export default FileFormContainer;
+  )
+)(FileFormContainer);

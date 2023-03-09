@@ -1,4 +1,3 @@
-import { ChooseBox, FlexContainer } from '../styles';
 import React, { useState } from 'react';
 
 import { BarItems } from '@erxes/ui/src/layout';
@@ -6,13 +5,12 @@ import BreadCrumb from '@erxes/ui/src/components/breadcrumb/BreadCrumb';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
-import FileForm from '../containers/file/FileForm';
+import FileFormContainer from '../containers/file/FileForm';
 import FileList from '../containers/file/FileList';
 import FolderForm from '../containers/folder/FolderForm';
 import FolderList from '../containers/folder/FolderList';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IFolder } from '../types';
-import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
@@ -54,15 +52,6 @@ function FileManager({
     }
   ];
 
-  const renderBox = (title: string, type: string, icon: string) => {
-    return (
-      <ChooseBox>
-        <Icon icon={icon} />
-        <span>{__(title)}</span>
-      </ChooseBox>
-    );
-  };
-
   const trigger = (
     <Button btnStyle="success" icon="plus-circle" size="small">
       Add File
@@ -75,11 +64,8 @@ function FileManager({
     </Button>
   );
 
-  const content = () => (
-    <FlexContainer>
-      {renderBox('Upload File', 'simple', 'upload-6')}
-      {renderBox('Dynamic file', 'dynamic', 'file-check-alt')}
-    </FlexContainer>
+  const content = props => (
+    <FileFormContainer {...props} queryParams={queryParams} />
   );
 
   const folderContent = props => (
