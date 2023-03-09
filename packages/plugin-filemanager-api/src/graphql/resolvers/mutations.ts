@@ -6,6 +6,14 @@ const mutations = {
   async filemanagerFolderSave(_root, args, { user, models }: IContext) {
     const { _id, ...doc } = args;
 
+    if (doc.parentId) {
+      const parent = await models.Folders.getFolder({ _id: doc.parentId });
+
+      if (parent.createdUserId !== user._id) {
+        throw new Error('Permission denied');
+      }
+    }
+
     const result = await models.Folders.saveFolder({
       _id,
       doc: { ...doc, createdUserId: user._id }
