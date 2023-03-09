@@ -39,7 +39,7 @@ const FileRow = ({ item, isChecked, toggleBulk }: Props) => {
   };
 
   return (
-    <tr className="crow">
+    <tr key={item._id} className="crow">
       <td id="customersCheckBox" style={{ width: '50px' }} onClick={onClick}>
         <FormControl
           checked={isChecked}

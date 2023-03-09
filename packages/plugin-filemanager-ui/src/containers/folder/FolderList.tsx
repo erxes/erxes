@@ -1,7 +1,11 @@
 import * as compose from 'lodash.flowright';
 
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import { IFolder, RemoveFilemanagerFolderMutationResponse } from '../../types';
+import {
+  FilemanagerFoldersQueryResponse,
+  IFolder,
+  RemoveFilemanagerFolderMutationResponse
+} from '../../types';
 import { IRouterProps, MutationVariables } from '@erxes/ui/src/types';
 import { mutations, queries } from '../../graphql';
 
@@ -15,14 +19,20 @@ type Props = {
   queryParams: any;
   filemanagerFolders: IFolder[];
   loading: boolean;
+  parentFolderId: string;
+  setParentId: (id: string) => void;
 };
 
-type FinalProps = {} & Props &
+type FinalProps = {
+  filemanagerFoldersQuery: FilemanagerFoldersQueryResponse;
+} & Props &
   IRouterProps &
   RemoveFilemanagerFolderMutationResponse;
 
 const FolderListContainer = (props: FinalProps) => {
-  const { removeMutation, history } = props;
+  const { removeMutation, history, filemanagerFoldersQuery } = props;
+
+  const childrens = filemanagerFoldersQuery.filemanagerFolders || [];
 
   // remove action
   const remove = folderId => {
@@ -43,6 +53,7 @@ const FolderListContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
+    childrens,
     remove
   };
 
@@ -59,6 +70,18 @@ const getRefetchQueries = () => {
 
 export default withProps<Props>(
   compose(
+    graphql<Props, FilemanagerFoldersQueryResponse, { parentId: string }>(
+      gql(queries.filemanagerFolders),
+      {
+        name: 'filemanagerFoldersQuery',
+        options: ({ parentFolderId }: { parentFolderId: string }) => ({
+          variables: {
+            parentId: parentFolderId
+          },
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
     graphql<Props, RemoveFilemanagerFolderMutationResponse, MutationVariables>(
       gql(mutations.filemanagerFolderRemove),
       {

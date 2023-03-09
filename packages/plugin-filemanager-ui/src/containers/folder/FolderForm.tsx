@@ -13,7 +13,7 @@ import gql from 'graphql-tag';
 
 type Props = {
   folder?: IFolder;
-  filemanagerFolders: IFolder[];
+  queryParams: any;
   closeModal: () => void;
 };
 

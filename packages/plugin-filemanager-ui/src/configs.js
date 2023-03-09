@@ -1,12 +1,12 @@
 module.exports = {
   name: "filemanager",
   scope: "filemanager",
-  port: 3020,
+  port: 3060,
   exposes: {
-    "./routes": "./src/routes.tsx"
+    "./routes": "./src/routes.tsx",
   },
   routes: {
-    url: "http://localhost:3020/remoteEntry.js",
+    url: "http://localhost:3060/remoteEntry.js",
     scope: "filemanager",
     module: "./routes",
   },
@@ -14,8 +14,8 @@ module.exports = {
     {
       text: "File Manager",
       url: "/filemanager",
-      icon: 'icon-folder-1',
+      icon: "icon-folder-1",
       location: "mainNavigation",
-    }
+    },
   ],
 };

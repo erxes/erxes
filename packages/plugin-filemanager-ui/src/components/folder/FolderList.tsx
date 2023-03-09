@@ -10,10 +10,12 @@ import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 
 type Props = {
   filemanagerFolders: IFolder[];
+  childrens: IFolder[];
   remove: (folderId: string) => void;
   loading: boolean;
   queryParams: any;
   currentChannelId?: string;
+  setParentId: (id: string) => void;
 };
 
 class FolderList extends React.Component<Props, {}> {
@@ -27,8 +29,8 @@ class FolderList extends React.Component<Props, {}> {
     }, {});
   };
 
-  renderRow(folder: IFolder, isChild: boolean, isParent?: boolean) {
-    const { remove, queryParams, filemanagerFolders } = this.props;
+  renderRow(folder: IFolder, isChild: boolean, isParent: boolean) {
+    const { remove, queryParams, setParentId, filemanagerFolders } = this.props;
 
     return (
       <FolderRow
@@ -39,41 +41,38 @@ class FolderList extends React.Component<Props, {}> {
         queryParams={queryParams}
         isChild={isChild}
         isParent={isParent}
+        setParentId={setParentId}
         filemanagerFolders={filemanagerFolders}
       />
     );
   }
 
   renderItems = () => {
-    const { filemanagerFolders } = this.props;
+    const { filemanagerFolders, childrens } = this.props;
 
-    const subFields = filemanagerFolders.filter(f => f.parentId);
-    const parents = filemanagerFolders.filter(f => !f.parentId);
-    const groupByParent = this.groupByParent(subFields);
+    const groupByParent = this.groupByParent(childrens);
 
-    return parents.map((folder: IFolder) => {
-      const childrens = groupByParent[folder._id] || [];
-
+    return filemanagerFolders.map((folder: IFolder) => {
+      const childs = groupByParent[folder._id] || [];
+      console.log('childddd', childs);
       return (
         <React.Fragment key={folder._id}>
-          {this.renderRow(folder, false, childrens.length !== 0)}
-          {childrens.map(child => this.renderRow(child, true))}
+          {this.renderRow(folder, false, true)}
+          {childs.map(child => this.renderRow(child, true, false))}
         </React.Fragment>
       );
     });
   };
 
   renderSidebarHeader() {
-    const { filemanagerFolders } = this.props;
-
     const addFolder = (
       <Button btnStyle="success" block={true} icon="plus-circle">
-        Add New Folder
+        Add Root Folder
       </Button>
     );
 
     const content = props => (
-      <FolderForm {...props} filemanagerFolders={filemanagerFolders} />
+      <FolderForm {...props} queryParams={this.props.queryParams} />
     );
 
     return (

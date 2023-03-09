@@ -14,16 +14,37 @@ type Props = {
   folder: IFolder;
   filemanagerFolders: IFolder[];
   remove: (folderId: string) => void;
+  setParentId: (id: string) => void;
   queryParams: any;
   isActive: boolean;
   isChild?: boolean;
   isParent?: boolean;
 };
 
-class FolderRow extends React.Component<Props, {}> {
+type State = {
+  isParentOpen: boolean;
+};
+
+class FolderRow extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isParentOpen: props.isActive ? true : false
+    };
+  }
+
   remove = () => {
     const { remove, folder } = this.props;
     remove(folder._id);
+  };
+
+  onParentOpen = () => {
+    const { setParentId, folder } = this.props;
+
+    this.setState({ isParentOpen: !this.state.isParentOpen }, () => {
+      setParentId(folder._id);
+    });
   };
 
   renderEditAction = () => {
@@ -35,7 +56,13 @@ class FolderRow extends React.Component<Props, {}> {
       </Button>
     );
 
-    const content = props => <FolderForm {...props} {...this.props} />;
+    const content = props => (
+      <FolderForm
+        {...props}
+        folder={this.props.folder}
+        queryParams={this.props.queryParams}
+      />
+    );
 
     return (
       <ModalTrigger title="Edit" trigger={editTrigger} content={content} />
@@ -47,11 +74,20 @@ class FolderRow extends React.Component<Props, {}> {
 
     return (
       <FolderItemRow key={folder._id} isChild={isChild} isActive={isActive}>
+        {isParent && (
+          <span className="toggle-icon" onClick={this.onParentOpen}>
+            <Icon
+              icon={`angle-${
+                this.state.isParentOpen || isActive ? 'down' : 'right'
+              }`}
+              size={20}
+            />
+          </span>
+        )}
         <Link to={`?_id=${folder._id}`}>
           <div>
             <img src="/images/folder.png" alt="folder" /> {folder.name}
           </div>
-          {isParent && <Icon icon="angle-down" />}
         </Link>
         <ActionButtons>
           {this.renderEditAction()}

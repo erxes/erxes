@@ -1,5 +1,7 @@
 import * as compose from 'lodash.flowright';
 
+import { router as routerUtils, withProps } from '@erxes/ui/src/utils';
+
 import { AppConsumer } from 'coreui/appContext';
 import FileManager from '../components/FileManager';
 import { FilemanagerFoldersQueryResponse } from '../types';
@@ -8,7 +10,6 @@ import React from 'react';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { queries } from '../graphql';
-import { withProps } from '@erxes/ui/src/utils';
 import { withRouter } from 'react-router-dom';
 
 type Props = {
@@ -22,6 +23,32 @@ type FinalProps = {
   IRouterProps;
 
 class FileManagerContainer extends React.Component<FinalProps> {
+  componentWillReceiveProps(nextProps: FinalProps) {
+    const {
+      filemanagerFoldersQuery,
+      history,
+      queryParams: { _id }
+    } = nextProps;
+
+    if (!filemanagerFoldersQuery) {
+      return;
+    }
+
+    const { filemanagerFolders, loading } = filemanagerFoldersQuery;
+
+    const parents = filemanagerFolders.filter(f => !f.parentId);
+
+    if (!_id && parents.length !== 0 && !loading) {
+      routerUtils.setParams(
+        history,
+        {
+          _id: parents[0]._id
+        },
+        true
+      );
+    }
+  }
+
   render() {
     const { filemanagerFoldersQuery, history } = this.props;
 
@@ -39,7 +66,7 @@ class FileManagerContainer extends React.Component<FinalProps> {
 
 const WithProps = withProps<Props>(
   compose(
-    graphql<Props, FilemanagerFoldersQueryResponse, { perPage: number }>(
+    graphql<Props, FilemanagerFoldersQueryResponse, {}>(
       gql(queries.filemanagerFolders),
       {
         name: 'filemanagerFoldersQuery',

@@ -7,6 +7,7 @@ export interface IFolder {
   createdAt?: Date;
   createdUserId?: string;
   parentId?: string;
+  parent?: IFolder;
 }
 
 export interface IFile {

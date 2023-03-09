@@ -8,35 +8,22 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IFolder } from '../../types';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
-import Select from 'react-select-plus';
 import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   folder?: IFolder;
-  filemanagerFolders: IFolder[];
+  queryParams: any;
   closeModal: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
-type State = {
-  parentFolderId?: string;
-};
-
-class FolderForm extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      parentFolderId: props.folder ? props.folder.parentId : ''
-    };
-  }
-
+class FolderForm extends React.Component<Props> {
   generateDoc = (values: {
     _id?: string;
     name: string;
     description: string;
   }) => {
-    const { folder } = this.props;
+    const { folder, queryParams } = this.props;
     const finalValues = values;
 
     if (folder) {
@@ -45,27 +32,19 @@ class FolderForm extends React.Component<Props, State> {
 
     return {
       ...finalValues,
-      parentId: this.state.parentFolderId
+      parentId: folder
+        ? folder.parentId
+        : queryParams._id
+        ? queryParams._id
+        : ''
     };
   };
 
   renderContent = (formProps: IFormProps) => {
-    const { closeModal, folder, filemanagerFolders, renderButton } = this.props;
+    const { closeModal, folder, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
 
     const object = folder || ({} as IFolder);
-    const self = this;
-
-    const onGroupChange = option => {
-      const value = option ? option.value : '';
-
-      this.setState({ parentFolderId: value });
-    };
-
-    const options = filemanagerFolders.map(g => ({
-      value: g._id,
-      label: g.name
-    }));
 
     return (
       <>
@@ -80,19 +59,6 @@ class FolderForm extends React.Component<Props, State> {
             required={true}
           />
         </FormGroup>
-
-        {filemanagerFolders.length !== 0 && (
-          <FormGroup>
-            <ControlLabel>Parent Folder</ControlLabel>
-
-            <Select
-              placeholder={__('Choose parent folder')}
-              options={options}
-              value={this.state.parentFolderId}
-              onChange={opt => onGroupChange(opt)}
-            />
-          </FormGroup>
-        )}
 
         <ModalFooter>
           <Button
