@@ -178,16 +178,29 @@ cd cli
 yarn install
 ```
 
-14. Copy `configs.json.sample`, then convert it to `configs.json`.
+14. Copy `configs.json.sample`, then convert it to `configs.json` by below command.
 
 ```
 cp configs.json.sample configs.json
 ```
 
-15. Run following command to start your erxes project.
+15. Add `"ui": "local"` under every plugin names like shown in below, in `configs.json`.
+
+:::caution
+You do not have to add it under `logs` plugin since it has no ui.
+:::
 
 ```
-./bin/erxes.js dev
+ {
+    "name": "inbox",
+    "ui": "local"
+},
+```
+
+16. Run following command to start your erxes project.
+
+```
+./bin/erxes.js dev --deps
 ```
 
 **If your browser don't automatically jump to localhost:3000, you should check logs by using these commands.**
