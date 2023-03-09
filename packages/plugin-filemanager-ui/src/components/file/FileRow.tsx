@@ -9,6 +9,7 @@ import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from 'coreui/utils';
 import dayjs from 'dayjs';
+import { readFile } from '@erxes/ui/src/utils';
 import { renderFileIcon } from '../../utils';
 
 type Props = {
@@ -28,7 +29,7 @@ const FileRow = ({
   queryParams,
   toggleBulk
 }: Props) => {
-  const { url, name, size, type } = item.info || ({} as any);
+  const { name, size, type } = item.info || ({} as any);
 
   const onChange = e => {
     if (toggleBulk) {
@@ -61,7 +62,7 @@ const FileRow = ({
       <ModalTrigger title="Edit File" trigger={editTrigger} content={content} />
     );
   };
-
+  console.log(item);
   return (
     <tr key={item._id} className="crow">
       <td id="customersCheckBox" style={{ width: '20px' }} onClick={onClick}>
@@ -73,12 +74,17 @@ const FileRow = ({
       </td>
       <td style={{ paddingLeft: '0' }}>
         <ItemName>
-          {item.info ? (
-            renderFileIcon(name)
-          ) : (
-            <img src="/images/folder.png" alt="folderImg" />
-          )}
-          {isFolder || item.contentType ? item.name : name}
+          <a
+            rel="noopener noreferrer"
+            href={
+              item.type === 'dynamic'
+                ? `/filemanager/details/${item._id}`
+                : readFile(item.url)
+            }
+          >
+            {renderFileIcon(item.type === 'dynamic' ? 'aaa.dynamic' : name)}
+            {isFolder || item.contentType ? item.name : name}
+          </a>
         </ItemName>
       </td>
       <td>{dayjs(item.createdAt).format('MMMM D, YYYY h:mm A')}</td>
