@@ -2,7 +2,6 @@ import { ChooseBox, FileUpload, FlexContainer } from '../../styles';
 import React, { useState } from 'react';
 
 import DynamicForm from './DynamicForm';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IFile } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
@@ -13,6 +12,7 @@ import { uploadHandler } from '@erxes/ui/src/utils';
 type Props = {
   file?: IFile;
   queryParams: any;
+  documents: any;
   saveFile: (attr: any) => void;
   closeModal: () => void;
 };
@@ -54,7 +54,14 @@ function FileForm(props: Props) {
       </ChooseBox>
     );
 
-    const content = pros => <DynamicForm {...pros} />;
+    const content = pros => (
+      <DynamicForm
+        {...pros}
+        queryParams={props.queryParams}
+        documents={props.documents}
+        saveFile={props.saveFile}
+      />
+    );
 
     if (type === 'simple') {
       const onChange = (e: React.FormEvent<HTMLInputElement>) => handleFile(e);

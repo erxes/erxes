@@ -32,7 +32,7 @@ const FileListContainer = (props: FinalProps) => {
     removeFileMutation,
     queryParams
   } = props;
-  console.log(filemanagerFilesQuery);
+
   // remove action
   const remove = articleId => {
     confirm().then(() => {

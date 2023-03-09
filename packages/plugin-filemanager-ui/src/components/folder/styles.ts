@@ -28,7 +28,7 @@ const FolderItemRow = styledTS<{
   }
 
   a {
-    padding: ${props => (props.isChild ? '10px 0 10px 60px' : '5px 0')};
+    padding: ${props => (props.isChild ? '10px 0 10px 60px' : '10px 0')};
     white-space: normal;
     display: block;
     color: ${props =>
