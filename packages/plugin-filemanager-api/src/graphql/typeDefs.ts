@@ -13,6 +13,7 @@ const typeDefs = gql`
     parent: FileManagerFolder
     permissionUserIds: [String]
     permissionUnitId: String
+    hasChild: Boolean
   }
 
   type FileManagerFile {
