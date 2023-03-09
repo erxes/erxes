@@ -1,24 +1,7 @@
-import {
-  ArticleMeta,
-  ArticleTitle,
-  AuthorName,
-  ReactionCount,
-  ReactionCounts,
-  RowArticle
-} from './styles';
-import { __, getUserAvatar } from 'coreui/utils';
-
-import { ActionButtons } from '@erxes/ui-settings/src/styles';
-import Button from '@erxes/ui/src/components/Button';
-import { Column } from '@erxes/ui/src/styles/main';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { IArticle } from '@erxes/ui-knowledgeBase/src/types';
-import Icon from '@erxes/ui/src/components/Icon';
 import { ItemName } from '../../styles';
-import Label from '@erxes/ui/src/components/Label';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from 'coreui/utils';
 import dayjs from 'dayjs';
 
 type Props = {

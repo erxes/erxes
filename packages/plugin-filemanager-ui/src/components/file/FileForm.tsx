@@ -32,13 +32,15 @@ function FileForm(props: Props) {
         setFilePreview({ opacity: '0.9' });
       },
 
-      afterUpload: ({ response }) => {
-        setFile(response);
+      afterUpload: ({ response, fileInfo }) => {
+        const url = response.url ? response.url : response;
+
+        setFile(url);
         setFilePreview({ opacity: '1' });
 
         saveFile({
-          name: `Simple File - ${response}`,
-          url: response,
+          name: `Simple File - ${url}`,
+          url,
           folderId: queryParams && queryParams._id ? queryParams._id : '',
           type: 'simple'
         });
@@ -73,12 +75,7 @@ function FileForm(props: Props) {
       return (
         <FileUpload>
           <label htmlFor="file-upload">
-            <input
-              id="file-upload"
-              type="file"
-              onChange={onChange}
-              accept="image/x-png,image/jpeg"
-            />
+            <input id="file-upload" type="file" onChange={onChange} />
             {boxContent}
           </label>
         </FileUpload>
