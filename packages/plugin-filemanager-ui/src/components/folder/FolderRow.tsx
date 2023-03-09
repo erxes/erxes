@@ -56,7 +56,13 @@ class FolderRow extends React.Component<Props, State> {
       </Button>
     );
 
-    const content = props => <FolderForm {...props} {...this.props} />;
+    const content = props => (
+      <FolderForm
+        {...props}
+        folder={this.props.folder}
+        queryParams={this.props.queryParams}
+      />
+    );
 
     return (
       <ModalTrigger title="Edit" trigger={editTrigger} content={content} />

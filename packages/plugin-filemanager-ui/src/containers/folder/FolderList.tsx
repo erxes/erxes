@@ -50,7 +50,7 @@ const FolderListContainer = (props: FinalProps) => {
         });
     });
   };
-  // console.log("aaa", childrens);
+
   const updatedProps = {
     ...props,
     childrens,

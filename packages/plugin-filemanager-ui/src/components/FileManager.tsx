@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 
+import { BarItems } from '@erxes/ui/src/layout';
 import BreadCrumb from '@erxes/ui/src/components/breadcrumb/BreadCrumb';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FileForm from '../containers/file/FileForm';
 import FileList from '../containers/file/FileList';
+import FolderForm from '../containers/folder/FolderForm';
 import FolderList from '../containers/folder/FolderList';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import { IFolder } from '../types';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -23,13 +26,13 @@ function FileManager({
   filemanagerFolders,
   folderQueryLoading
 }: Props) {
-  const currentFolder =
-    !filemanagerFolders || filemanagerFolders.length !== 0
-      ? filemanagerFolders.find((folder: IFolder) =>
-          queryParams && queryParams._id ? folder._id === queryParams._id : ''
-        )
-      : ({} as any);
-
+  // const currentFolder =
+  //   !filemanagerFolders || filemanagerFolders.length !== 0
+  //     ? filemanagerFolders.find((folder: IFolder) =>
+  //         queryParams && queryParams._id ? folder._id === queryParams._id : ""
+  //       )
+  //     : ({} as any);
+  // console.log("cccc", currentFolder, queryParams._id, filemanagerFolders);
   const [parentId, setParentId] = useState(
     queryParams._id ? queryParams._id : ''
   );
@@ -40,28 +43,58 @@ function FileManager({
   ];
 
   const fileBreadcrumb = [
+    // {
+    //   title: __(`${currentFolder.name} `),
+    //   link: `/filemanager?_id=${currentFolder._id}`,
+    // },
     {
-      title: __(`${currentFolder.name} `),
-      link: `/filemanager?_id=${currentFolder._id}`
+      title: __(`Files`)
     }
   ];
 
   const trigger = (
-    <Button btnStyle="primary" icon="plus-circle">
+    <Button btnStyle="success" icon="plus-circle" size="small">
       Add File
     </Button>
   );
 
+  const folderTrigger = (
+    <Button btnStyle="primary" icon="plus-circle" size="small">
+      Add Sub Folder
+    </Button>
+  );
+
   const content = props => <FileForm {...props} queryParams={queryParams} />;
+  const folderContent = props => (
+    <FolderForm {...props} queryParams={queryParams} />
+  );
 
   const actionBarRight = (
-    <ModalTrigger
-      title="Add File"
-      trigger={trigger}
-      content={content}
-      centered={true}
-      enforceFocus={false}
-    />
+    <BarItems>
+      <FormControl
+        type="text"
+        placeholder={__('Type to search')}
+        // onChange={this.search}
+        // value={this.state.searchValue}
+        // onFocus={this.moveCursorAtTheEnd}
+      />
+
+      <ModalTrigger
+        title="Add Sub Folder"
+        trigger={folderTrigger}
+        content={folderContent}
+        centered={true}
+        enforceFocus={false}
+      />
+
+      <ModalTrigger
+        title="Add File"
+        trigger={trigger}
+        content={content}
+        centered={true}
+        enforceFocus={false}
+      />
+    </BarItems>
   );
 
   return (
@@ -89,7 +122,7 @@ function FileManager({
           data={
             <FileList
               queryParams={queryParams}
-              currentFolderId={currentFolder._id}
+              // currentFolderId={currentFolder._id}
             />
           }
           loading={false}

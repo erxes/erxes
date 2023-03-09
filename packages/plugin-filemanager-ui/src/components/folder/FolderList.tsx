@@ -54,7 +54,7 @@ class FolderList extends React.Component<Props, {}> {
 
     return filemanagerFolders.map((folder: IFolder) => {
       const childs = groupByParent[folder._id] || [];
-
+      console.log('childddd', childs);
       return (
         <React.Fragment key={folder._id}>
           {this.renderRow(folder, false, true)}
@@ -65,16 +65,14 @@ class FolderList extends React.Component<Props, {}> {
   };
 
   renderSidebarHeader() {
-    const { filemanagerFolders } = this.props;
-
     const addFolder = (
       <Button btnStyle="success" block={true} icon="plus-circle">
-        Add New Folder
+        Add Root Folder
       </Button>
     );
 
     const content = props => (
-      <FolderForm {...props} filemanagerFolders={filemanagerFolders} />
+      <FolderForm {...props} queryParams={this.props.queryParams} />
     );
 
     return (
