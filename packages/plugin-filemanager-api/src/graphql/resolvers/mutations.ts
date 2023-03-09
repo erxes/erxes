@@ -36,6 +36,20 @@ const mutations = {
       throw new Error('Access denied');
     }
 
+    const filesCount = await models.Files.find({ folderId: _id }).count();
+
+    if (filesCount > 0) {
+      throw new Error('This folder contains files');
+    }
+
+    const subFoldersCount = await models.Folders.find({
+      parentId: _id
+    }).count();
+
+    if (subFoldersCount > 0) {
+      throw new Error('This folder contains folders');
+    }
+
     return models.Folders.deleteOne({ _id });
   },
 
