@@ -35,6 +35,20 @@ const documentQueries = {
     { contentType },
     { subdomain }: IContext
   ) {
+    if (contentType === 'core:user') {
+      const fields = await sendCommonMessage({
+        subdomain,
+        serviceName: 'forms',
+        action: 'fields.fieldsCombinedByContentType',
+        isRPC: true,
+        data: {
+          contentType
+        }
+      });
+
+      return fields.map(f => ({ value: f.name, name: f.label }));
+    }
+
     return sendCommonMessage({
       subdomain,
       serviceName: contentType,
