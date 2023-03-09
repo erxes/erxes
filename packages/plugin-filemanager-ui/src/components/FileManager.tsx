@@ -22,18 +22,23 @@ function FileManager({
   filemanagerFolders,
   folderQueryLoading
 }: Props) {
-  const currentFolder = filemanagerFolders.find((folder: IFolder) =>
-    queryParams && queryParams._id ? folder._id === queryParams._id : ''
-  );
-  console.log('curr:', currentFolder);
+  const currentFolder =
+    !filemanagerFolders || filemanagerFolders.length !== 0
+      ? filemanagerFolders.find((folder: IFolder) =>
+          queryParams && queryParams._id ? folder._id === queryParams._id : ''
+        )
+      : ({} as any);
+
   const breadcrumb = [
     { title: __('Settings'), link: '/settings' },
-    { title: __('File Manager'), link: '/documents' }
+    { title: __('File Managers'), link: '/filemanager' }
   ];
 
   const fileBreadcrumb = [
-    { title: __('Settings'), link: '/settings' },
-    { title: __('File Manager'), link: '/documents' }
+    {
+      title: __(`${currentFolder.name} `),
+      link: `/filemanager?_id=${currentFolder._id}`
+    }
   ];
 
   const trigger = (
@@ -48,9 +53,8 @@ function FileManager({
     <ModalTrigger
       title="Add File"
       trigger={trigger}
-      size="lg"
-      autoOpenKey="showAddFileModal"
       content={content}
+      centered={true}
       enforceFocus={false}
     />
   );

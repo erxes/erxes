@@ -37,7 +37,7 @@ class FileManagerContainer extends React.Component<FinalProps> {
     const { filemanagerFolders, loading } = filemanagerFoldersQuery;
 
     const parents = filemanagerFolders.filter(f => !f.parentId);
-    console.log('bbb', parents);
+
     if (!_id && parents.length !== 0 && !loading) {
       routerUtils.setParams(
         history,
