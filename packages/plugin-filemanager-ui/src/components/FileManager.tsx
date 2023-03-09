@@ -1,3 +1,5 @@
+import React, { useState } from 'react';
+
 import BreadCrumb from '@erxes/ui/src/components/breadcrumb/BreadCrumb';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
@@ -7,7 +9,6 @@ import FileList from '../containers/file/FileList';
 import FolderList from '../containers/folder/FolderList';
 import { IFolder } from '../types';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
 
@@ -28,6 +29,10 @@ function FileManager({
           queryParams && queryParams._id ? folder._id === queryParams._id : ''
         )
       : ({} as any);
+
+  const [parentId, setParentId] = useState(
+    queryParams._id ? queryParams._id : ''
+  );
 
   const breadcrumb = [
     { title: __('Settings'), link: '/settings' },
@@ -67,6 +72,8 @@ function FileManager({
       leftSidebar={
         <FolderList
           queryParams={queryParams}
+          parentFolderId={parentId}
+          setParentId={setParentId}
           filemanagerFolders={filemanagerFolders}
           loading={folderQueryLoading}
         />

@@ -33,7 +33,7 @@ class FileManagerContainer extends React.Component<FinalProps> {
     if (!filemanagerFoldersQuery) {
       return;
     }
-    console.log(filemanagerFoldersQuery);
+
     const { filemanagerFolders, loading } = filemanagerFoldersQuery;
 
     const parents = filemanagerFolders.filter(f => !f.parentId);
@@ -66,7 +66,7 @@ class FileManagerContainer extends React.Component<FinalProps> {
 
 const WithProps = withProps<Props>(
   compose(
-    graphql<Props, FilemanagerFoldersQueryResponse, { perPage: number }>(
+    graphql<Props, FilemanagerFoldersQueryResponse, {}>(
       gql(queries.filemanagerFolders),
       {
         name: 'filemanagerFoldersQuery',

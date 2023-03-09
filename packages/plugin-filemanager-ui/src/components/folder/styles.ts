@@ -14,9 +14,21 @@ const FolderItemRow = styledTS<{
   padding-right: 20px;
   overflow: hidden;
 
+  .toggle-icon {
+    padding-left: 15px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    
+    > i {
+      color: ${props =>
+        props.isActive ? colors.colorWhite : colors.colorCoreGray};
+      transition: all ease 0.3s;
+    }
+  }
+
   a {
-    padding: ${props =>
-      props.isChild ? '10px 0 10px 55px' : '10px 0 10px 40px'};
+    padding: ${props => (props.isChild ? '10px 0 10px 60px' : '5px 0')};
     white-space: normal;
     display: block;
     color: ${props =>
@@ -24,18 +36,9 @@ const FolderItemRow = styledTS<{
     position: relative;
     flex: 1;
     display: flex;
-    justify-content: space-between;
     align-items: center;
     max-width: 100%;
     overflow: hidden;
-    
-    > i {
-      font-size: 18px;
-      color: ${props =>
-        props.isActive ? colors.colorWhite : colors.colorCoreGray};
-      transition: all ease 0.3s;
-      line-height: 20px;
-    }
 
     span {
       color: ${colors.colorCoreGray};
@@ -60,10 +63,6 @@ const FolderItemRow = styledTS<{
   &:hover {
     background: ${props =>
       props.isActive ? colors.colorSecondary : colors.bgActive};
-    
-    a > i {
-      display: none;
-    }
 
     ${ActionButtons} {
       width: 35px;
