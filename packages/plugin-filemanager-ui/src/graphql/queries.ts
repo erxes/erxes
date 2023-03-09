@@ -24,6 +24,7 @@ const filemanagerFolders = `
       createdUserId
       parentId
       name
+      hasChild
       parent {
         _id
         createdAt

@@ -6,13 +6,26 @@ import styledTS from 'styled-components-ts';
 
 const FolderItemRow = styledTS<{
   isActive?: boolean;
+  isParent?: boolean;
   isChild: boolean | undefined;
 }>(styled.li)`
   position: relative;
   background: ${props => props.isActive && colors.colorSecondary};
-  display: flex;
   padding-right: 20px;
   overflow: hidden;
+  list-style: none;
+
+  > div {
+    padding: ${props =>
+      props.isChild
+        ? props.isParent
+          ? '5px 0 5px 30px'
+          : '5px 0 5px 55px'
+        : props.isParent
+        ? '10px 0'
+        : '10px 0 10px 35px'};
+    display: flex;
+  }
 
   .toggle-icon {
     padding-left: 15px;
@@ -28,7 +41,6 @@ const FolderItemRow = styledTS<{
   }
 
   a {
-    padding: ${props => (props.isChild ? '10px 0 10px 60px' : '10px 0')};
     white-space: normal;
     display: block;
     color: ${props =>

@@ -101,12 +101,12 @@ class FileList extends React.Component<Props> {
   }
 
   render() {
-    const { files, folders, loading } = this.props;
+    const { files, loading } = this.props;
 
     return (
       <DataWithLoader
         loading={loading}
-        count={files.length || folders.length}
+        count={files.length}
         emptyContent={
           <EmptyState
             image="/images/actions/24.svg"
