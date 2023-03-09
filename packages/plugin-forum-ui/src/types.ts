@@ -51,6 +51,7 @@ export interface IPost {
   content?: string;
   state?: string;
   thumbnail?: string;
+  thumbnailAlt?: string;
   createdAt?: string;
   updatedAt?: string;
   stateChangedAt?: string;

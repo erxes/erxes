@@ -1,5 +1,5 @@
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { router, __ } from '@erxes/ui/src/utils';
+import { loadDynamicComponent, router, __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import Table from '@erxes/ui/src/components/table';
 import FormGroup from '@erxes/ui/src/components/form/Group';
@@ -8,8 +8,9 @@ import Select from 'react-select-plus';
 import Button from '@erxes/ui/src/components/Button';
 import ReportRow from './ReportRow';
 import { IReport } from '../../types';
-import { FilterItem } from '../../styles';
+import { FilterItem, FlexRow, InlineBlock, ToggleButton } from '../../styles';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import Icon from '@erxes/ui/src/components/Icon';
 
 type Props = {
   queryParams: any;
@@ -35,10 +36,20 @@ function ReportList(props: Props) {
     exportReport,
     showSideBar
   } = props;
-  const [selectedType, setType] = useState(queryParams.reportType);
+
+  const [reportType, setType] = useState(queryParams.reportType);
+  const [isSideBarOpen, setIsOpen] = useState(
+    localStorage.getItem('isSideBarOpen') === 'true' ? true : false
+  );
+
+  const onToggleSidebar = () => {
+    const toggleIsOpen = !isSideBarOpen;
+    setIsOpen(toggleIsOpen);
+    localStorage.setItem('isSideBarOpen', toggleIsOpen.toString());
+  };
 
   const renderTableHead = () => {
-    switch (selectedType) {
+    switch (reportType) {
       case 'Урьдчилсан':
         return (
           <tr>
@@ -130,19 +141,31 @@ function ReportList(props: Props) {
     }
   };
 
-  const content = (
-    <Table>
-      <thead>{renderTableHead()}</thead>
-      {reports &&
-        reports.map(reportt => (
-          <ReportRow
-            key={Math.random()}
-            reportType={selectedType}
-            report={reportt}
-          />
-        ))}
-    </Table>
-  );
+  const content = () => {
+    // custom report for bichil-globus
+    const bichilTable = loadDynamicComponent('bichilReportTable', {
+      reportType,
+      queryParams
+    });
+
+    if (bichilTable) {
+      return bichilTable;
+    }
+
+    return (
+      <Table>
+        <thead>{renderTableHead()}</thead>
+        {reports &&
+          reports.map(reportt => (
+            <ReportRow
+              key={Math.random()}
+              reportType={reportType}
+              report={reportt}
+            />
+          ))}
+      </Table>
+    );
+  };
 
   const renderSelectionBar = () => {
     const onTypeSelect = type => {
@@ -151,12 +174,19 @@ function ReportList(props: Props) {
     };
 
     return (
-      <>
+      <FlexRow>
+        <ToggleButton
+          id="btn-inbox-channel-visible"
+          isActive={isSideBarOpen}
+          onClick={onToggleSidebar}
+        >
+          <Icon icon="subject" />
+        </ToggleButton>
         <FilterItem>
           <FormGroup>
             <ControlLabel>Select type</ControlLabel>
             <Select
-              value={selectedType}
+              value={reportType}
               onChange={onTypeSelect}
               placeholder="Select type"
               multi={false}
@@ -167,10 +197,18 @@ function ReportList(props: Props) {
             />
           </FormGroup>
         </FilterItem>
-      </>
+      </FlexRow>
     );
   };
   const renderExportBtn = () => {
+    const bichilExportReportBtn = loadDynamicComponent(
+      'bichilExportReportBtn',
+      { queryParams }
+    );
+
+    if (bichilExportReportBtn) {
+      return bichilExportReportBtn;
+    }
     return (
       <div>
         <Button onClick={exportReport}>Export</Button>
@@ -187,10 +225,10 @@ function ReportList(props: Props) {
   );
 
   getPagination(<Pagination count={totalCount} />);
-  showSideBar(true);
+  showSideBar(isSideBarOpen);
   getActionBar(actionBar);
 
-  return content;
+  return content();
 }
 
 export default ReportList;

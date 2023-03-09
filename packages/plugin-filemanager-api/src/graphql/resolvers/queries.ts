@@ -8,7 +8,7 @@ const queries = {
     { limit, parentId }: { limit: number; parentId: string },
     { models }: IContext
   ) {
-    const selector: any = {};
+    const selector: any = { parentId: '' };
     const sort = { createdAt: -1 };
 
     if (parentId) {
