@@ -61,6 +61,14 @@ const queries = {
     }
 
     return models.Files.find(selector).sort({ createdAt: -1 });
+  },
+
+  async filemanagerLogs(
+    _root,
+    { contentTypeId }: { contentTypeId: string },
+    { models }: IContext
+  ) {
+    return models.Logs.find({ contentTypeId }).sort({ createdAt: -1 });
   }
 };
 

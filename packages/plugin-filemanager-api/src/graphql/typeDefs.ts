@@ -34,9 +34,19 @@ const typeDefs = gql`
     permissionConfig: FileManagerPermissionConfig
   }
 
+  type FileManagerLog {
+    _id: String!
+    createdAt: Date
+    contentType: String
+    contentTypeId: String
+    userId: String
+    description: String
+  }
+
   extend type Query {
     filemanagerFolders(parentId: String): [FileManagerFolder]
     filemanagerFiles(folderId: String!, search: String): [FileManagerFile]
+    filemanagerLogs(contentTypeId: String!): [FileManagerLog]
   }
 
   extend type Mutation {
