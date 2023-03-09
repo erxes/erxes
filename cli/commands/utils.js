@@ -554,7 +554,10 @@ const generateNginxConf = async ({
   `
   );
 };
-
+//creates Locales directory
+fs.mkdir('./locales', {recursive : true}, (err) => {
+  if (err) throw err;
+});
 module.exports.runCommand = runCommand;
 module.exports.downloadFile = downloadFile;
 module.exports.execCurl = execCurl;
