@@ -1,9 +1,10 @@
 import { ChooseBox, FileUpload, FlexContainer } from '../../styles';
 import React, { useState } from 'react';
 
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+import DynamicForm from './DynamicForm';
 import { IFile } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { __ } from 'coreui/utils';
 import { uploadHandler } from '@erxes/ui/src/utils';
@@ -11,7 +12,8 @@ import { uploadHandler } from '@erxes/ui/src/utils';
 type Props = {
   file?: IFile;
   queryParams: any;
-  saveSimpleFile: (attr: any) => void;
+  documents: any;
+  saveFile: (attr: any) => void;
   closeModal: () => void;
 };
 
@@ -20,7 +22,7 @@ function FileForm(props: Props) {
   const [filePreview, setFilePreview] = useState({} as any);
 
   const handleFile = (e: React.FormEvent<HTMLInputElement>) => {
-    const { queryParams, saveSimpleFile } = props;
+    const { queryParams, saveFile } = props;
     const imageFile = e.currentTarget.files;
 
     uploadHandler({
@@ -30,13 +32,15 @@ function FileForm(props: Props) {
         setFilePreview({ opacity: '0.9' });
       },
 
-      afterUpload: ({ response }) => {
-        setFile(response);
+      afterUpload: ({ response, fileInfo }) => {
+        const url = response.url ? response.url : response;
+
+        setFile(url);
         setFilePreview({ opacity: '1' });
 
-        saveSimpleFile({
-          name: `Simple File - ${response}`,
-          url: response,
+        saveFile({
+          name: `Simple File - ${url}`,
+          url,
           folderId: queryParams && queryParams._id ? queryParams._id : '',
           type: 'simple'
         });
@@ -52,6 +56,15 @@ function FileForm(props: Props) {
       </ChooseBox>
     );
 
+    const content = pros => (
+      <DynamicForm
+        {...pros}
+        queryParams={props.queryParams}
+        documents={props.documents}
+        saveFile={props.saveFile}
+      />
+    );
+
     if (type === 'simple') {
       const onChange = (e: React.FormEvent<HTMLInputElement>) => handleFile(e);
 
@@ -62,19 +75,26 @@ function FileForm(props: Props) {
       return (
         <FileUpload>
           <label htmlFor="file-upload">
-            <input
-              id="file-upload"
-              type="file"
-              onChange={onChange}
-              accept="image/x-png,image/jpeg"
-            />
+            <input id="file-upload" type="file" onChange={onChange} />
             {boxContent}
           </label>
         </FileUpload>
       );
     }
 
-    return boxContent;
+    if (type === 'dynamic') {
+      return (
+        <ModalTrigger
+          title="Add File"
+          trigger={boxContent}
+          content={content}
+          centered={true}
+          enforceFocus={false}
+        />
+      );
+    }
+
+    return null;
   };
 
   return (

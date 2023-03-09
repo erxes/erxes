@@ -15,12 +15,15 @@ type Props = {
   closeModal: () => void;
 };
 
-type FinalProps = {} & Props & SaveFileMutationResponse;
+type FinalProps = {
+  documentsListQuery: any;
+} & Props &
+  SaveFileMutationResponse;
 
 const FileFormContainer = (props: FinalProps) => {
-  const { file, saveFileMutation } = props;
+  const { file, documentsListQuery, saveFileMutation } = props;
 
-  const saveSimpleFile = variables => {
+  const saveFile = variables => {
     saveFileMutation({
       variables
     })
@@ -34,10 +37,13 @@ const FileFormContainer = (props: FinalProps) => {
       });
   };
 
+  const documents = documentsListQuery.documents || [];
+
   const extendedProps = {
     ...props,
-    saveSimpleFile,
-    file
+    saveFile,
+    file,
+    documents
     // currentCategoryId,
     // topics: topicsQuery.knowledgeBaseTopics || [],
   };
@@ -46,6 +52,16 @@ const FileFormContainer = (props: FinalProps) => {
 };
 
 export default compose(
+  graphql<Props>(gql(queries.documents), {
+    name: 'documentsListQuery'
+    // options: ({ queryParams }) => {
+    //   return {
+    //     variables: {
+    //       contentType: queryParams.contentType
+    //     }
+    //   };
+    // }
+  }),
   graphql<Props, SaveFileMutationResponse, {}>(
     gql(mutations.filemanagerFileCreate),
     {
