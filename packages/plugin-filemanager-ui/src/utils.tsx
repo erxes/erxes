@@ -4,8 +4,8 @@ import React from 'react';
 import { colors } from '@erxes/ui/src/styles';
 
 export const renderFileIcon = (url: string) => {
-  const fileExtension = url && url.split('/').pop();
-  console.log(url, fileExtension);
+  const fileExtension = url && url.split('.').pop();
+
   let filePreview;
   let color;
 
