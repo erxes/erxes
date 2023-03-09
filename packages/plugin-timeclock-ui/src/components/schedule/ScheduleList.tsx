@@ -137,102 +137,79 @@ function ScheduleList(props: Props) {
   };
 
   const ListShiftContent = shifts => {
-    return (
-      <PropertyTableRow>
+    return shifts.map(shift => (
+      <PropertyTableRow key="">
         <RowField>
-          {shifts.map(shift => {
-            return (
-              <CustomRow key={shift.shiftEnd} marginNum={10}>
-                {new Date(shift.shiftStart).toDateString().split(' ')[0] +
-                  '\t' +
-                  dayjs(shift.shiftStart).format(dateFormat)}
-              </CustomRow>
-            );
-          })}
+          <CustomRow key={shift.shiftEnd} marginNum={10}>
+            {new Date(shift.shiftStart).toDateString().split(' ')[0] +
+              '\t' +
+              dayjs(shift.shiftStart).format(dateFormat)}
+          </CustomRow>
         </RowField>
         <RowField>
-          {shifts.map(shift => {
-            return (
-              <CustomRow key={shift.shiftEnd} marginNum={10}>
-                {dayjs(shift.shiftStart).format(timeFormat)}
-              </CustomRow>
-            );
-          })}
+          <CustomRow key={shift.shiftEnd} marginNum={10}>
+            {dayjs(shift.shiftStart).format(timeFormat)}
+          </CustomRow>
         </RowField>
         <RowField>
-          {shifts.map(shift => {
-            return (
-              <CustomRow key={shift.shiftEnd} marginNum={10}>
-                {dayjs(shift.shiftEnd).format(timeFormat)}
-              </CustomRow>
-            );
-          })}
+          <CustomRow key={shift.shiftEnd} marginNum={10}>
+            {dayjs(shift.shiftEnd).format(timeFormat)}
+          </CustomRow>
         </RowField>
         <RowField>
-          {shifts.map(shift => {
-            return (
-              <CustomRow key={shift.shiftEnd} marginNum={10}>
-                {new Date(shift.shiftEnd).toLocaleDateString() !==
-                new Date(shift.shiftStart).toLocaleDateString()
-                  ? 'O'
-                  : '-'}
-              </CustomRow>
-            );
-          })}
+          <CustomRow key={shift.shiftEnd} marginNum={10}>
+            {new Date(shift.shiftEnd).toLocaleDateString() !==
+            new Date(shift.shiftStart).toLocaleDateString()
+              ? 'O'
+              : '-'}
+          </CustomRow>
         </RowField>
         <RowField>
-          {shifts.map(shift => {
-            return shift.solved ? (
-              <CustomRow marginNum={10}>{__(shift.status)}</CustomRow>
-            ) : (
-              <CustomRow marginNum={3}>
-                <Button
-                  size="small"
-                  btnStyle="success"
-                  onClick={() => solveShift(shift._id, 'Approved')}
-                >
-                  Approve
-                </Button>
-                <Button
-                  size="small"
-                  btnStyle="danger"
-                  onClick={() => solveShift(shift._id, 'Rejected')}
-                >
-                  Reject
-                </Button>
-              </CustomRow>
-            );
-          })}
+          {shift.solved ? (
+            <CustomRow marginNum={10}>{__(shift.status)}</CustomRow>
+          ) : (
+            <CustomRow marginNum={3}>
+              <Button
+                size="small"
+                btnStyle="success"
+                onClick={() => solveShift(shift._id, 'Approved')}
+              >
+                Approve
+              </Button>
+              <Button
+                size="small"
+                btnStyle="danger"
+                onClick={() => solveShift(shift._id, 'Rejected')}
+              >
+                Reject
+              </Button>
+            </CustomRow>
+          )}
         </RowField>
         <RowField>
-          {shifts.map(shift => {
-            return (
-              <CustomRow marginNum={4} key={shift._id}>
-                <Button
-                  size="small"
-                  btnStyle="link"
-                  onClick={() => removeSchedule(shift._id, 'shift')}
-                  icon="times-circle"
-                />
-              </CustomRow>
-            );
-          })}
+          <CustomRow marginNum={4} key={shift._id}>
+            <Button
+              size="small"
+              btnStyle="link"
+              onClick={() => removeSchedule(shift._id, 'shift')}
+              icon="times-circle"
+            />
+          </CustomRow>
         </RowField>
       </PropertyTableRow>
-    );
+    ));
   };
 
   const content = schedule => {
     const [collapse, setCollapse] = useState(false);
+    const { details, email } = schedule.user;
 
     const handleCollapse = () => {
       setCollapse(!collapse);
     };
 
     const name =
-      schedule.user && schedule.user.details && schedule.user.details.fullName
-        ? schedule.user.details.fullName
-        : schedule.user.email;
+      schedule.user && details && details.fullName ? details.fullName : email;
 
     const status = schedule.solved ? (
       __(schedule.status)
@@ -254,43 +231,45 @@ function ScheduleList(props: Props) {
       </>
     );
 
-    return schedule.shifts.length ? (
-      <div key={schedule._id} style={{ flex: 1 }}>
-        <CollapseRow isChild={false}>
-          <div style={{ flex: 1 }} onClick={handleCollapse}>
-            <DropIcon isOpen={collapse} />
-            {name}
-          </div>
-          {status}
-          <Tip text={__('Delete')} placement="top">
-            <Button
-              btnStyle="link"
-              onClick={() => removeSchedule(schedule._id, '')}
-              icon="times-circle"
-            />
-          </Tip>
-        </CollapseRow>
-        <Collapse in={collapse}>
-          <Margin>
-            <PropertyListTable>
-              <PropertyTableHeader>
-                <ControlLabel>
-                  <b>{__('Shift date')}</b>
-                </ControlLabel>
-                <ControlLabel>{__('Shift start')}</ControlLabel>
-                <ControlLabel>{__('Shift end')}</ControlLabel>
-                <ControlLabel>{__('Overnight')}</ControlLabel>
-                <ControlLabel>{__('Shift Status')}</ControlLabel>
-                <ControlLabel>{__('Actions')}</ControlLabel>
-              </PropertyTableHeader>
-              {ListShiftContent(schedule.shifts)}
-            </PropertyListTable>
-          </Margin>
-        </Collapse>
-      </div>
-    ) : (
-      <></>
-    );
+    if (schedule.shifts.length > 0) {
+      return (
+        <div key={schedule._id} style={{ flex: 1 }}>
+          <CollapseRow isChild={false}>
+            <div style={{ flex: 1 }} onClick={handleCollapse}>
+              <DropIcon isOpen={collapse} />
+              {name}
+            </div>
+            {status}
+            <Tip text={__('Delete')} placement="top">
+              <Button
+                btnStyle="link"
+                onClick={() => removeSchedule(schedule._id, '')}
+                icon="times-circle"
+              />
+            </Tip>
+          </CollapseRow>
+          <Collapse in={collapse}>
+            <Margin>
+              <PropertyListTable>
+                <PropertyTableHeader>
+                  <ControlLabel>
+                    <b>{__('Shift date')}</b>
+                  </ControlLabel>
+                  <ControlLabel>{__('Shift start')}</ControlLabel>
+                  <ControlLabel>{__('Shift end')}</ControlLabel>
+                  <ControlLabel>{__('Overnight')}</ControlLabel>
+                  <ControlLabel>{__('Shift Status')}</ControlLabel>
+                  <ControlLabel>{__('Actions')}</ControlLabel>
+                </PropertyTableHeader>
+                {ListShiftContent(schedule.shifts)}
+              </PropertyListTable>
+            </Margin>
+          </Collapse>
+        </div>
+      );
+    }
+
+    return null;
   };
 
   getActionBar(actionBar);
@@ -300,7 +279,7 @@ function ScheduleList(props: Props) {
   return (
     <SortableList
       fields={scheduleOfMembers}
-      child={schedule => schedule.shifts.length > 0 && content(schedule)}
+      child={schedule => content(schedule)}
       onChangeFields={() => ''}
       isModal={true}
       showDragHandler={false}
