@@ -53,7 +53,7 @@ export const renderFileIcon = (url: string) => {
       color = colors.colorCoreOrange;
       break;
     default:
-      filePreview = 'file2';
+      filePreview = 'file-alt';
   }
 
   return (

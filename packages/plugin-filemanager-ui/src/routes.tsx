@@ -7,6 +7,10 @@ const FileManager = asyncComponent(() =>
   import(/* webpackChunkName: "File Manager" */ './containers/FileManager')
 );
 
+const FileDetail = asyncComponent(() =>
+  import(/* webpackChunkName: "File Detail" */ './containers/file/Detail')
+);
+
 const filemanager = ({ location, history }) => {
   return (
     <FileManager
@@ -16,6 +20,10 @@ const filemanager = ({ location, history }) => {
   );
 };
 
+const detail = ({ match }) => {
+  return <FileDetail />;
+};
+
 const routes = () => (
   <>
     <Route
@@ -23,6 +31,13 @@ const routes = () => (
       path="/filemanager"
       exact={true}
       component={filemanager}
+    />
+
+    <Route
+      key="/filemanager/details/:id"
+      exact={true}
+      path="/filemanager/details/:id"
+      component={detail}
     />
   </>
 );

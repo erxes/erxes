@@ -61,8 +61,11 @@ export const ChooseBox = styled(BoxRoot)`
 `;
 
 export const ItemName = styled.div`
-  display: flex;
-  align-items: center;
+  a {
+    display: flex;
+    align-items: center;
+    color: ${colors.textPrimary};
+  }
 
   img {
     width: ${dimensions.coreSpacing}px;
