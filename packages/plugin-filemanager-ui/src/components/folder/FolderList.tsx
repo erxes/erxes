@@ -54,7 +54,7 @@ class FolderList extends React.Component<Props, {}> {
 
     return filemanagerFolders.map((folder: IFolder) => {
       const childs = groupByParent[folder._id] || [];
-      console.log('childddd', childs);
+
       return (
         <React.Fragment key={folder._id}>
           {this.renderRow(folder, false, true)}

@@ -1,5 +1,6 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
 
+import { BoxRoot } from '@erxes/ui/src/styles/main';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -16,6 +17,32 @@ export const ActionItem = styled.button`
   > i {
     color: ${colors.colorCoreGreen};
     float: right;
+  }
+`;
+
+export const FlexContainer = styledTS<{ direction?: string }>(styled.div)`
+  display: flex;
+  flex-direction: ${props => props.direction};
+`;
+
+export const ChooseBox = styled(BoxRoot)`
+  width: 320px;
+  padding: 30px;
+  background: ${colors.bgLight};
+
+  i {
+    font-size: 38px;
+    color: ${colors.colorSecondary};
+  }
+
+  span {
+    font-weight: 500;
+    font-size: 14px;
+    text-transform: capitalize;
+  }
+
+  &:last-of-type {
+    margin-right: 0;
   }
 `;
 
