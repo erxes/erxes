@@ -1,3 +1,4 @@
+import { ChooseBox, FlexContainer } from '../styles';
 import React, { useState } from 'react';
 
 import { BarItems } from '@erxes/ui/src/layout';
@@ -11,6 +12,7 @@ import FolderForm from '../containers/folder/FolderForm';
 import FolderList from '../containers/folder/FolderList';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IFolder } from '../types';
+import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
@@ -52,6 +54,15 @@ function FileManager({
     }
   ];
 
+  const renderBox = (title: string, type: string, icon: string) => {
+    return (
+      <ChooseBox>
+        <Icon icon={icon} />
+        <span>{__(title)}</span>
+      </ChooseBox>
+    );
+  };
+
   const trigger = (
     <Button btnStyle="success" icon="plus-circle" size="small">
       Add File
@@ -64,7 +75,13 @@ function FileManager({
     </Button>
   );
 
-  const content = props => <FileForm {...props} queryParams={queryParams} />;
+  const content = () => (
+    <FlexContainer>
+      {renderBox('Upload File', 'simple', 'upload-6')}
+      {renderBox('Dynamic file', 'dynamic', 'file-check-alt')}
+    </FlexContainer>
+  );
+
   const folderContent = props => (
     <FolderForm {...props} queryParams={queryParams} />
   );
@@ -90,6 +107,7 @@ function FileManager({
       <ModalTrigger
         title="Add File"
         trigger={trigger}
+        hideHeader={true}
         content={content}
         centered={true}
         enforceFocus={false}
