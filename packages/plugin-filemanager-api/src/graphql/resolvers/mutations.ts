@@ -40,7 +40,9 @@ const mutations = {
   },
 
   async filemanagerFileCreate(_root, doc, { models, user }: IContext) {
-    const result = await models.Files.saveFile({ doc });
+    const result = await models.Files.saveFile({
+      doc: { ...doc, createdUserId: user._id }
+    });
 
     await models.Logs.createLog({
       contentType: 'file',
