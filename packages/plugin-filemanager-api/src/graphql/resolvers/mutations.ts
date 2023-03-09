@@ -108,7 +108,7 @@ const mutations = {
 
     return collection.update(
       { _id },
-      { $set: { permissionConfig: { userIds, unitId } } }
+      { $set: { permissionUserIds: userIds, permissionUnitId: unitId } }
     );
   }
 };

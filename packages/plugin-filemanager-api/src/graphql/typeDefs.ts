@@ -4,11 +4,6 @@ const typeDefs = gql`
   scalar JSON
   scalar Date
 
-  type FileManagerPermissionConfig {
-    userIds: [String]
-    unitId: String
-  }
-
   type FileManagerFolder {
     _id: String!
     createdAt: Date
@@ -16,7 +11,8 @@ const typeDefs = gql`
     name: String!
     parentId: String
     parent: FileManagerFolder
-    permissionConfig: FileManagerPermissionConfig
+    permissionUserIds: [String]
+    permissionUnitId: String
   }
 
   type FileManagerFile {
@@ -31,7 +27,8 @@ const typeDefs = gql`
     contentType: String
     contentTypeId: String
     documentId: String
-    permissionConfig: FileManagerPermissionConfig
+    permissionUserIds: [String]
+    permissionUnitId: String
   }
 
   type FileManagerLog {

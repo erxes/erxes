@@ -2,26 +2,15 @@ import { Model } from 'mongoose';
 
 import { Document, Schema } from 'mongoose';
 
-interface IPermissionConfig {
-  userIds?: string[];
-  unitId: string;
-}
-
 interface IFolder {
   createdAt: Date;
   createdUserId: string;
   name: string;
   parentId: string;
-  permissionConfig: IPermissionConfig;
-}
 
-const permissionConfigSchema = new Schema(
-  {
-    userIds: { type: [String] },
-    unitId: { type: String }
-  },
-  { _id: false }
-);
+  permissionUserIds?: string[];
+  permissionUnitId?: string;
+}
 
 export interface IFolderDocument extends IFolder, Document {
   _id: string;
@@ -32,7 +21,9 @@ const folderSchema = new Schema({
   createdUserId: { type: String },
   name: { type: String },
   parentId: { type: String },
-  permissionConfig: { type: permissionConfigSchema }
+
+  permissionUserIds: { type: [String] },
+  permissionUnitId: { type: String }
 });
 
 export interface IFolderModel extends Model<IFolderDocument> {
@@ -81,6 +72,9 @@ interface IFile {
   contentType?: string;
   contentTypeId?: string;
   documentId?: string;
+
+  permissionUserIds?: string[];
+  permissionUnitId?: string;
 }
 
 export interface IFileDocument extends IFile, Document {
@@ -98,7 +92,9 @@ const fileSchema = new Schema({
   contentType: { type: String },
   contentTypeId: { type: String },
   documentId: { type: String },
-  permissionConfig: { type: permissionConfigSchema }
+
+  permissionUserIds: { type: [String] },
+  permissionUnitId: { type: String }
 });
 
 export interface IFileModel extends Model<IFileDocument> {

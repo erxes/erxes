@@ -3,32 +3,38 @@ import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../connectionResolver';
 import { sendCoreMessage } from '../../messageBroker';
 
-const permissionSelector = async ({ subdomain, user }) => {
-  const units = await sendCoreMessage({
-    subdomain,
-    action: 'units.find',
-    data: {
-      userIds: { $in: user._id }
-    },
-    isRPC: true
-  });
-
-  return [
-    { createdUserId: user._id },
-    { 'permissionConfig.userIds': { $in: [user._id] } },
-    { 'permissionConfig.unitId': { $in: units.map(u => u._id) } }
-  ];
-};
-
 const queries = {
   async filemanagerFolders(
     _root,
     { limit, parentId }: { limit: number; parentId: string },
     { models, subdomain, user }: IContext
   ) {
+    const units = await sendCoreMessage({
+      subdomain,
+      action: 'units.find',
+      data: {
+        userIds: { $in: user._id }
+      },
+      isRPC: true
+    });
+
+    const permissionSelector = [
+      { permissionUserIds: { $in: [user._id] } },
+      { permissionUnitId: { $in: units.map(u => u._id) } }
+    ];
+
+    const filesWithAccess = await models.Files.find(
+      { $or: permissionSelector },
+      { folderId: 1 }
+    );
+
     const selector: any = {
       parentId: '',
-      $or: await permissionSelector({ subdomain, user })
+      $or: [
+        { createdUserId: user._id },
+        ...permissionSelector,
+        { _id: filesWithAccess.map(file => file.folderId) }
+      ]
     };
 
     const sort = { createdAt: -1 };
@@ -51,13 +57,38 @@ const queries = {
     { folderId, search }: { folderId: string; search?: string },
     { models, subdomain, user }: IContext
   ) {
+    const units = await sendCoreMessage({
+      subdomain,
+      action: 'units.find',
+      data: {
+        userIds: { $in: user._id }
+      },
+      isRPC: true
+    });
+
+    const unitIds = units.map(u => u._id);
+
     const selector: any = {
-      folderId,
-      $or: await permissionSelector({ subdomain, user })
+      folderId
     };
 
     if (search) {
       selector.name = { $regex: `.*${search.trim()}.*`, $options: 'i' };
+    }
+
+    const folder = await models.Folders.getFolder({ _id: folderId });
+
+    if (
+      !(
+        unitIds.includes(folder.permissionUnitId) ||
+        (folder.permissionUserIds || []).includes(user._id)
+      )
+    ) {
+      selector.$or = [
+        { createdUserId: user._id },
+        { permissionUserIds: { $in: [user._id] } },
+        { permissionUnitId: { $in: units.map(u => u._id) } }
+      ];
     }
 
     return models.Files.find(selector).sort({ createdAt: -1 });
