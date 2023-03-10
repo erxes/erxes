@@ -94,12 +94,28 @@ const queries = {
     return models.Files.find(selector).sort({ createdAt: -1 });
   },
 
+  async filemanagerFileDetail(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
+    return models.Files.findOne({ _id });
+  },
+
   async filemanagerLogs(
     _root,
     { contentTypeId }: { contentTypeId: string },
     { models }: IContext
   ) {
     return models.Logs.find({ contentTypeId }).sort({ createdAt: -1 });
+  },
+
+  async filemanagerGetAckRequest(
+    _root,
+    { fileId }: { fileId: string },
+    { models, user }: IContext
+  ) {
+    return models.Requests.findOne({ fileId, toUserId: user._id });
   }
 };
 

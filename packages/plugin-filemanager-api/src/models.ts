@@ -169,3 +169,46 @@ export const loadLogClass = models => {
 
   return logSchema;
 };
+
+// =================== request ====================================
+interface IRequest {
+  type: string;
+  createdAt: Date;
+  fromUserId: string;
+  toUserId: string;
+  fileId: string;
+  status: string;
+  description: string;
+}
+
+export interface IRequestDocument extends IRequest, Document {
+  _id: string;
+}
+
+const requestSchema = new Schema({
+  type: { type: String },
+  createdAt: { type: Date },
+  fromUserId: { type: String },
+  toUserId: { type: String },
+  status: { type: String },
+  fileId: { type: String },
+  description: { type: String }
+});
+
+export interface IRequestModel extends Model<IRequestDocument> {
+  createRequest(doc): void;
+}
+
+export const loadRequestClass = models => {
+  class Request {
+    public static async createLog(doc) {
+      doc.createdAt = new Date();
+
+      return models.Requests.create(doc);
+    }
+  }
+
+  requestSchema.loadClass(Request);
+
+  return requestSchema;
+};

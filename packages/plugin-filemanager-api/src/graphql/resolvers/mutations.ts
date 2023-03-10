@@ -134,6 +134,44 @@ const mutations = {
       { _id },
       { $set: { permissionUserIds: userIds, permissionUnitId: unitId } }
     );
+  },
+
+  async filemanagerRequestAcks(
+    _root,
+    { fileId, toUserIds, description },
+    { user, models }: IContext
+  ) {
+    for (const userId of toUserIds) {
+      const request = await models.Requests.findOne({
+        fileId,
+        toUserId: userId
+      });
+
+      if (request) {
+        continue;
+      }
+
+      await models.Requests.createRequest({
+        type: 'ack',
+        fileId,
+        fromUserId: user._id,
+        toUserId: userId,
+        description,
+        status: 'requested'
+      });
+    }
+
+    return 'ok';
+  },
+
+  async filemanagerAckRequest(_root, { _id }, { user, models }: IContext) {
+    const request = await models.Requests.findOne({ _id });
+
+    if (request && request.toUserId !== user._id) {
+      throw new Error('Permission denied');
+    }
+
+    return models.Requests.update({ _id }, { $set: { status: 'acked' } });
   }
 };
 
