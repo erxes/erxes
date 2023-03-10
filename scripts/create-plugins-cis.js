@@ -56,7 +56,8 @@ var plugins = [
   { name: 'pricing', ui: true, api: true },
   { name: 'timeclock', ui: true, api: true },
   { name: 'zalo', ui: true, api: true },
-  { name: 'facebook', ui: true, api: true }
+  { name: 'facebook', ui: true, api: true },
+  { name: 'filemanager', ui: true, api: true }
 ];
 
 const pluginsMap = {};
