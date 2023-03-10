@@ -3,11 +3,13 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IFormProps } from '@erxes/ui/src/types';
+import Info from '@erxes/ui/src/components/Info';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import Select from 'react-select-plus';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { __ } from 'coreui/utils';
+import { renderUserFullName } from '@erxes/ui/src/utils';
 
 type Props = {
   units: any;
@@ -59,8 +61,17 @@ class ShareForm extends React.Component<Props, State> {
       this.setState({ selectedUnit });
     };
 
+    const { sharedUsers = [] } = this.props.item || {};
+
     return (
       <>
+        <Info>
+          Shared with {sharedUsers.length || 0} members: &nbsp;
+          {sharedUsers.map(user => (
+            <small key={user._id}>{renderUserFullName(user)}, &nbsp;</small>
+          ))}
+        </Info>
+
         <FormGroup>
           <ControlLabel>{__('Team members')}</ControlLabel>
           <SelectTeamMembers

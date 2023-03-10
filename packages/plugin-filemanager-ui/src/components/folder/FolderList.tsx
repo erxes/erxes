@@ -72,7 +72,7 @@ class FolderList extends React.Component<Props, {}> {
     );
 
     const content = props => (
-      <FolderForm {...props} queryParams={this.props.queryParams} />
+      <FolderForm {...props} queryParams={this.props.queryParams} root={true} />
     );
 
     return (

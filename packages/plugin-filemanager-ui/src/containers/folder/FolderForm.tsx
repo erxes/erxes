@@ -13,6 +13,7 @@ import gql from 'graphql-tag';
 
 type Props = {
   folder?: IFolder;
+  root?: boolean;
   queryParams: any;
   closeModal: () => void;
 };

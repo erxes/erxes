@@ -97,7 +97,11 @@ class FolderRow extends React.Component<Props, State> {
           </Link>
           <ActionButtons>
             {this.renderEditAction()}
-
+            <Tip text="Go to Detail" placement="bottom">
+              <Link to={`/filemanager/folder/details/${folder._id}`}>
+                <Button btnStyle="link" icon="arrow-to-right" />
+              </Link>
+            </Tip>
             <Tip text="Delete" placement="bottom">
               <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
             </Tip>

@@ -104,6 +104,17 @@ const filemanagerLogs = `
       contentTypeId
       createdAt
       userId
+      user {
+        _id
+        username
+        email
+        details {
+          firstName
+          lastName
+          fullName
+          avatar
+        }
+      }
       description
     }
   }

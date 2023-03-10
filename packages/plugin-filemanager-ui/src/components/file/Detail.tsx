@@ -1,3 +1,6 @@
+import { DetailHeader, DetailTitle, FilePreview } from './styles';
+
+import Attachment from '@erxes/ui/src/components/Attachment';
 import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import LogRow from './LogRow';
@@ -30,7 +33,7 @@ class FileDetail extends React.Component<Props> {
     history.push('/filemanager');
   };
 
-  renderObjects() {
+  renderContent() {
     const { logs } = this.props;
 
     if (!logs || logs.length === 0) {
@@ -42,22 +45,52 @@ class FileDetail extends React.Component<Props> {
       );
     }
 
-    return logs.map(log => <LogRow key={log._id} log={log} />);
+    return (
+      <>
+        <DetailHeader>Logs</DetailHeader>
+        <Table whiteSpace="wrap" hover={true} bordered={true} condensed={true}>
+          <thead>
+            <tr>
+              <th>{__('Date')}</th>
+              <th>{__('Created by')}</th>
+              <th>{__('Module')}</th>
+              <th>{__('Action')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {logs.map(log => (
+              <LogRow key={log._id} log={log} />
+            ))}
+          </tbody>
+        </Table>
+      </>
+    );
   }
 
-  renderContent() {
+  renderDetailInfo() {
+    const { item } = this.props;
+    const isFolder = item.folderId ? false : true;
+
+    if (isFolder) {
+      return (
+        <DetailTitle>
+          <img src="/images/folder.png" alt="folder" />
+          {__(item.name)}
+        </DetailTitle>
+      );
+    }
+
     return (
-      <Table whiteSpace="wrap" hover={true} bordered={true} condensed={true}>
-        <thead>
-          <tr>
-            <th>{__('Date')}</th>
-            <th>{__('Created by')}</th>
-            <th>{__('Module')}</th>
-            <th>{__('Action')}</th>
-          </tr>
-        </thead>
-        <tbody>{this.renderObjects()}</tbody>
-      </Table>
+      <FilePreview>
+        <Attachment
+          attachment={{
+            name: item.name,
+            size: item.info.size,
+            type: item.info.type,
+            url: item.url
+          }}
+        />
+      </FilePreview>
     );
   }
 
@@ -67,7 +100,8 @@ class FileDetail extends React.Component<Props> {
 
     const trigger = (
       <Button btnStyle="primary" icon="share-alt" type="button">
-        {__('Share')}
+        {__('Share')}{' '}
+        <small>(Shared with {item.sharedUsers.length || 0} members)</small>
       </Button>
     );
 
@@ -92,15 +126,17 @@ class FileDetail extends React.Component<Props> {
           enforceFocus={false}
         />
 
-        <a href={isDynamic ? '#' : readFile(item.url)}>
-          <Button
-            btnStyle="success"
-            type="button"
-            icon={isDynamic ? 'print' : 'download-1'}
-          >
-            {isDynamic ? __('Print') : __('Download')}
-          </Button>
-        </a>
+        {item.folderId && (
+          <a href={isDynamic ? '#' : readFile(item.url)}>
+            <Button
+              btnStyle="success"
+              type="button"
+              icon={isDynamic ? 'print' : 'download-1'}
+            >
+              {isDynamic ? __('Print') : __('Download')}
+            </Button>
+          </a>
+        )}
       </>
     );
 
@@ -116,11 +152,7 @@ class FileDetail extends React.Component<Props> {
         }
         actionBar={
           <Wrapper.ActionBar
-            left={
-              <>
-                <Title>{__(item.name)}</Title>
-              </>
-            }
+            left={this.renderDetailInfo()}
             right={actionButtons}
           />
         }
