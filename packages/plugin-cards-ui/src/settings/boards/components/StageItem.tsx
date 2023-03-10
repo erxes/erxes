@@ -31,7 +31,7 @@ class StageItem extends React.Component<Props> {
     return (
       <>
         <SelectTeamMembers
-          label="Choose members"
+          label="Members"
           name="memberIds"
           initialValue={memberIds}
           onSelect={ids => onChange(_id, 'memberIds', ids)}
@@ -53,7 +53,7 @@ class StageItem extends React.Component<Props> {
               (options || []).map(o => o.value)
             )
           }
-          placeholder={__('Choose department ...')}
+          placeholder={__('Department ...')}
           multi={true}
         />
       </>
@@ -140,14 +140,14 @@ class StageItem extends React.Component<Props> {
         {this.renderSelectMembers()}
 
         <SelectTeamMembers
-          label="Choose can move members"
+          label="Can move members"
           name="canMoveMemberIds"
           initialValue={stage.canMoveMemberIds}
           onSelect={ids => onChange(stage._id, 'canMoveMemberIds', ids)}
         />
 
         <SelectTeamMembers
-          label="Choose can edit members"
+          label="Can edit members"
           name="canEditMemberIds"
           initialValue={stage.canEditMemberIds}
           onSelect={ids => onChange(stage._id, 'canEditMemberIds', ids)}
