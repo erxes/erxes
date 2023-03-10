@@ -53,6 +53,8 @@ export interface IItemCommonFields {
   number?: string;
   data?: any;
   tagIds?: string[];
+  branchIds?: string[];
+  departmentIds?: string[];
 }
 
 export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
@@ -109,6 +111,8 @@ export interface IStage extends ICommonFields {
   pipelineId: string;
   visibility?: string;
   memberIds?: string[];
+  canMoveMemberIds?: string[];
+  canEditMemberIds?: string[];
   departmentIds?: string[];
   formId?: string;
   status?: string;
@@ -369,6 +373,8 @@ export const stageSchema = new Schema({
   }),
   age: field({ type: Number, optional: true, label: 'Age' }),
   memberIds: field({ type: [String], label: 'Members' }),
+  canMoveMemberIds: field({ type: [String], label: 'Can move members' }),
+  canEditMemberIds: field({ type: [String], label: 'Can edit members' }),
   departmentIds: field({ type: [String], label: 'Departments' }),
   ...commonFieldsSchema
 });

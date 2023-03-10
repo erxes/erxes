@@ -1,4 +1,5 @@
 import { authCookieOptions, getEnv } from '@erxes/api-utils/src/core';
+import { IAttachment } from '@erxes/api-utils/src/types';
 
 import { createJwtToken } from '../../../auth/authUtils';
 import { IContext } from '../../../connectionResolver';
@@ -6,6 +7,7 @@ import { sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
 import { IUser } from '../../../models/definitions/clientPortalUser';
 import { sendSms } from '../../../utils';
+import { sendCommonMessage } from './../../../messageBroker';
 
 export interface IVerificationParams {
   userId: string;
@@ -328,6 +330,134 @@ const clientPortalUserMutations = {
     }
 
     return { userId, message: 'Sms sent' };
+  },
+
+  clientPortalUsersSendVerificationRequest: async (
+    _root,
+    args: {
+      login: string;
+      password: string;
+      clientPortalId: string;
+      attachments: IAttachment[];
+      description: string;
+    },
+    { models, subdomain, user }: IContext
+  ) => {
+    const { login, password, clientPortalId, attachments, description } = args;
+
+    const cpuser = await models.ClientPortalUsers.findOne({
+      $or: [
+        { email: { $regex: new RegExp(`^${login}$`, 'i') } },
+        { username: { $regex: new RegExp(`^${login}$`, 'i') } },
+        { phone: { $regex: new RegExp(`^${login}$`, 'i') } }
+      ],
+      clientPortalId
+    });
+
+    if (!cpuser) {
+      throw new Error('User not found');
+    }
+
+    const valid = await models.ClientPortalUsers.comparePassword(
+      password,
+      user.password
+    );
+
+    if (!valid) {
+      // bad password
+      throw new Error('Invalid login');
+    }
+
+    if (
+      cpuser.verificationRequest &&
+      cpuser.verificationRequest.status === 'approved'
+    ) {
+      throw new Error('User already verified');
+    }
+
+    const verificationRequest = {
+      attachments,
+      description,
+      status: 'pending'
+    };
+
+    await models.ClientPortalUsers.updateOne(
+      { _id: cpuser._id },
+      { $set: { verificationRequest } }
+    );
+
+    const createdBy = await sendCoreMessage({
+      subdomain,
+      action: 'users.findOne',
+      data: { role: 'system' },
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    const { manualVerificationConfig } = await models.ClientPortals.getConfig(
+      cpuser.clientPortalId
+    );
+
+    await sendCommonMessage({
+      serviceName: 'notifications',
+      subdomain,
+      action: 'send',
+      data: {
+        contentType: 'clientPortalUser',
+        contentTypeId: cpuser._id,
+        notifType: 'plugin',
+        title: `New clientportal user verification request`,
+        action: 'New clientportal user verification request',
+        content: `clientportal user wants to be verified`,
+        link: `/settings/client-portal/users/details/${cpuser._id}`,
+        createdUser: createdBy,
+        receivers:
+          (manualVerificationConfig && manualVerificationConfig.userIds) || []
+      }
+    });
+
+    return 'Verification request sent';
+  },
+
+  clientPortalUsersChangeVerificationStatus: async (
+    _root,
+    args: { userId: string; status: string },
+    { models, user }: IContext
+  ) => {
+    if (!user) {
+      throw new Error('login required');
+    }
+
+    const { userId, status } = args;
+
+    const cpUser = await models.ClientPortalUsers.getUser({ _id: userId });
+
+    const { manualVerificationConfig } = await models.ClientPortals.getConfig(
+      cpUser.clientPortalId
+    );
+
+    if (
+      !manualVerificationConfig ||
+      !manualVerificationConfig.userIds.includes(user._id)
+    ) {
+      throw new Error('Permission denied');
+    }
+
+    const verificationRequest = cpUser.verificationRequest || {
+      attachments: [],
+      description: '',
+      status: 'notVerified',
+      verifiedBy: user._id
+    };
+
+    verificationRequest.status = status;
+
+    await models.ClientPortalUsers.updateOne(
+      { _id: userId },
+      { $set: { verificationRequest } }
+    );
+
+    return 'Verification status changed';
   }
 };
 

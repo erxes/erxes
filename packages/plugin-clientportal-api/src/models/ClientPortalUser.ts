@@ -420,14 +420,11 @@ export const loadClientPortalUserClass = (models: IModels) => {
       this.checkPassword(newPassword);
 
       // set new password
-      await models.ClientPortalUsers.findByIdAndUpdate(
-        { _id: user._id },
-        {
-          password: await this.generatePassword(newPassword),
-          resetPasswordToken: undefined,
-          resetPasswordExpires: undefined
-        }
-      );
+      await models.ClientPortalUsers.findByIdAndUpdate(user._id, {
+        password: await this.generatePassword(newPassword),
+        resetPasswordToken: undefined,
+        resetPasswordExpires: undefined
+      });
 
       return models.ClientPortalUsers.findOne({ _id: user._id });
     }
@@ -464,12 +461,9 @@ export const loadClientPortalUserClass = (models: IModels) => {
       }
 
       // set new password
-      await models.ClientPortalUsers.findByIdAndUpdate(
-        { _id: user._id },
-        {
-          password: await this.generatePassword(newPassword)
-        }
-      );
+      await models.ClientPortalUsers.findByIdAndUpdate(user._id, {
+        password: await this.generatePassword(newPassword)
+      });
 
       return models.ClientPortalUsers.findOne({ _id: user._id });
     }
@@ -500,13 +494,10 @@ export const loadClientPortalUserClass = (models: IModels) => {
         const token = buffer.toString('hex');
 
         // save token & expiration date
-        await models.ClientPortalUsers.findByIdAndUpdate(
-          { _id: user._id },
-          {
-            resetPasswordToken: token,
-            resetPasswordExpires: Date.now() + 86400000
-          }
-        );
+        await models.ClientPortalUsers.findByIdAndUpdate(user._id, {
+          resetPasswordToken: token,
+          resetPasswordExpires: Date.now() + 86400000
+        });
 
         return { token };
       }
@@ -549,13 +540,10 @@ export const loadClientPortalUserClass = (models: IModels) => {
       this.checkPassword(password);
 
       // set new password
-      await models.ClientPortalUsers.findByIdAndUpdate(
-        { _id: user._id },
-        {
-          isPhoneVerified: true,
-          password: await this.generatePassword(password)
-        }
-      );
+      await models.ClientPortalUsers.findByIdAndUpdate(user._id, {
+        isPhoneVerified: true,
+        password: await this.generatePassword(password)
+      });
 
       return 'success';
     }
@@ -753,6 +741,16 @@ export const loadClientPortalUserClass = (models: IModels) => {
         throw new Error('User is not verified');
       }
 
+      const cp = await models.ClientPortals.getConfig(clientPortalId);
+
+      if (
+        cp.manualVerificationConfig &&
+        (!user.verificationRequest ||
+          user.verificationRequest.status !== 'verified')
+      ) {
+        throw new Error('User is not verified');
+      }
+
       const valid = await this.comparePassword(password, user.password);
 
       if (!valid) {
@@ -872,7 +870,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
         throw new Error('Token is invalid or has expired');
       }
 
-      let doc: any = { isEmailVerified: true, registrationToken: undefined };
+      const doc: any = { isEmailVerified: true, registrationToken: undefined };
 
       if (password) {
         if (password !== passwordConfirmation) {

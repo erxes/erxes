@@ -142,6 +142,8 @@ export interface IStage {
   pipelineId: string;
   visibility: string;
   memberIds: string[];
+  canMoveMemberIds?: string[];
+  canEditMemberIds?: string[];
   departmentIds: string[];
   status: string;
   order: number;

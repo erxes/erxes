@@ -109,6 +109,7 @@ class List extends React.Component<Props, {}> {
             </Button>
           }
           content={props => <PostForm {...props} />}
+          enforceFocus={false}
         />
       </Flex>
     );

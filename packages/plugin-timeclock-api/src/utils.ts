@@ -1,6 +1,7 @@
 import { generateModels, IModels } from './connectionResolver';
 import { sendCoreMessage } from './messageBroker';
 import {
+  IDeviceConfigDocument,
   IScheduleDocument,
   ITimeClock,
   ITimeClockDocument,
@@ -214,8 +215,8 @@ const connectAndQueryFromMsSql = async (
       if (!teamMember.employeeId) {
         continue;
       }
-      teamMembersObject[teamMember.employeeId] = teamMember._id;
       teamMembersObject[teamMember._id] = teamMember.employeeId;
+      teamMembersObject[teamMember.employeeId] = teamMember._id;
 
       teamEmployeeIds.push(teamMember.employeeId);
       teamMemberIds.push(teamMember._id);
@@ -270,14 +271,6 @@ const importDataAndCreateTimeclock = async (
     endDate
   );
 
-  const newQueryData = await findAndUpdateUnfinishedShifts(
-    models,
-    teamMemberIds,
-    teamMembersObj,
-    queryData,
-    empSchedulesObj
-  );
-
   const existingTimeclocks = await models.Timeclocks.find({
     userId: { $in: teamMemberIds },
     $or: [
@@ -295,6 +288,25 @@ const importDataAndCreateTimeclock = async (
       }
     ]
   });
+
+  const devicesList: IDeviceConfigDocument[] = await models.DeviceConfigs.find({
+    serialNo: { $exists: true }
+  });
+
+  const devicesDictionary: any = {};
+
+  for (const device of devicesList) {
+    devicesDictionary[device.serialNo] = device.deviceName;
+  }
+
+  const newQueryData = await findAndUpdateUnfinishedShifts(
+    models,
+    teamMemberIds,
+    teamMembersObj,
+    queryData,
+    empSchedulesObj,
+    devicesDictionary
+  );
 
   for (const teamMemberId of Object.keys(empSchedulesObj)) {
     const currEmployeeId = teamMembersObj[teamMemberId];
@@ -317,7 +329,8 @@ const importDataAndCreateTimeclock = async (
         currEmployeeId,
         teamMembersObj,
         empSchedulesObj[teamMembersObj[currEmployeeId]],
-        existingTimeclocksOfEmployee
+        existingTimeclocksOfEmployee,
+        devicesDictionary
       ))
     );
   }
@@ -330,7 +343,8 @@ const createUserTimeclock = async (
   empId: number,
   teamMembersObj: any,
   empSchedulesObj: any,
-  existingTimeclocks: ITimeClockDocument[]
+  existingTimeclocks: ITimeClockDocument[],
+  devicesDictionary: any
 ) => {
   const returnUserData: ITimeClock[] = [];
 
@@ -353,7 +367,8 @@ const createUserTimeclock = async (
           shiftStartIdx,
           shiftEndReverseIdx,
           teamMembersObj[empId],
-          existingTimeclocks
+          existingTimeclocks,
+          devicesDictionary
         );
         if (newTime) {
           returnUserData.push(newTime);
@@ -375,7 +390,8 @@ const createUserTimeclock = async (
       getShiftStartIdx,
       getShiftEndReverseIdx,
       teamMembersObj[empId],
-      existingTimeclocks
+      existingTimeclocks,
+      devicesDictionary
     );
 
     if (newTimeclock) {
@@ -391,24 +407,30 @@ const createNewTimeClock = (
   getShiftStartIdx: number,
   getShiftEndReverseIdx: number,
   userId: string,
-  existingTimeclocks: any
+  existingTimeclocks: ITimeClockDocument[],
+  devicesDictionary: any
 ) => {
   if (getShiftStartIdx !== -1) {
     const getShiftStart = dayjs(
       empData[getShiftStartIdx].authDateTime
     ).toDate();
 
+    const getShiftEndIdx = empData.length - 1 - getShiftEndReverseIdx;
+    let getDeviceName;
+
     // if both shift start and end exist, shift is ended
     if (getShiftEndReverseIdx !== -1) {
-      const getShiftEndIdx = empData.length - 1 - getShiftEndReverseIdx;
+      const deviceSerialNo = empData[getShiftEndIdx].deviceSerialNo;
+      getDeviceName =
+        devicesDictionary[deviceSerialNo] || empData[getShiftEndIdx].deviceName;
       const getShiftEnd = dayjs(empData[getShiftEndIdx].authDateTime).toDate();
 
       const newTimeclock = {
         shiftStart: getShiftStart,
         shiftEnd: getShiftEnd,
         shiftActive: false,
-        userId: `${userId}`,
-        deviceName: empData[getShiftEndIdx].deviceName,
+        userId,
+        deviceName: getDeviceName,
         deviceType: 'faceTerminal'
       };
 
@@ -418,12 +440,16 @@ const createNewTimeClock = (
       return;
     }
 
+    const deviceSerial = empData[getShiftStartIdx].deviceSerialNo;
+    getDeviceName =
+      devicesDictionary[deviceSerial] || empData[getShiftStartIdx].deviceName;
+
     // else shift is still active
     const newTime = {
       shiftStart: getShiftStart,
       shiftActive: true,
-      userId: `${userId}`,
-      deviceName: empData[getShiftStartIdx].deviceName,
+      userId,
+      deviceName: getDeviceName,
       deviceType: 'faceTerminal'
     };
 
@@ -693,7 +719,8 @@ const findAndUpdateUnfinishedShifts = async (
   teamMemberIds: string[],
   teamMembersObj: any,
   empData: any,
-  empSchedulesObj: any
+  empSchedulesObj: any,
+  devicesDictionary: any
 ) => {
   const newEmpData = empData.slice();
 
@@ -737,12 +764,16 @@ const findAndUpdateUnfinishedShifts = async (
         newEmpData[getShiftEndIdx].authDateTime
       ).toDate();
 
+      const getDeviceName =
+        devicesDictionary[newEmpData[getShiftEndIdx].deviceSerialNo] ||
+        newEmpData[getShiftEndIdx].deviceName;
+
       const updateTimeClock = {
         shiftStart: unfinishedShift.shiftStart,
         shiftEnd: getShiftEnd,
         userId: teamMemberId,
         shiftActive: false,
-        deviceName: newEmpData[getShiftEndIdx].deviceName,
+        deviceName: getDeviceName,
         deviceType: unfinishedShift.deviceType + ' x faceTerminal'
       };
 

@@ -1,3 +1,24 @@
+const absenceTypeParams = `
+$name: String, 
+$explRequired: Boolean,
+$attachRequired: Boolean,
+$shiftRequest: Boolean,
+
+$requestType: String,
+$requestTimeType: String
+$requestHoursPerDay: Float
+`;
+
+const absenceTypeValues = `
+name: $name,
+explRequired: $explRequired,
+attachRequired: $attachRequired,
+shiftRequest: $shiftRequest,
+requestType: $requestType,
+requestTimeType: $requestTimeType,
+requestHoursPerDay: $requestHoursPerDay
+`;
+
 const timeclockEdit = `
   mutation timeclockEdit($_id: String!, $shiftStart: Date, $shiftEnd: Date, $shiftActive: Boolean){
     timeclockEdit(_id: $_id, shiftStart: $shiftStart, shiftEnd: $shiftEnd, shiftActive: $shiftActive){
@@ -35,15 +56,15 @@ const sendAbsenceRequest = `
   }`;
 
 const absenceTypeAdd = `
-  mutation absenceTypeAdd($name: String, $explRequired: Boolean, $attachRequired: Boolean, $shiftRequest: Boolean){
-    absenceTypeAdd(name: $name, explRequired: $explRequired, attachRequired: $attachRequired, shiftRequest: $shiftRequest){
+  mutation absenceTypeAdd(${absenceTypeParams}){
+    absenceTypeAdd(${absenceTypeValues}){
       _id
     }
   }`;
 
 const absenceTypeEdit = `
-  mutation absenceTypeEdit($_id: String, $name: String, $explRequired: Boolean, $attachRequired: Boolean, $shiftRequest: Boolean){
-    absenceTypeEdit(_id: $_id, name: $name, explRequired: $explRequired, attachRequired: $attachRequired, shiftRequest: $shiftRequest){
+  mutation absenceTypeEdit($_id: String, ${absenceTypeParams}){
+    absenceTypeEdit(_id: $_id, ${absenceTypeValues}){
       _id
     }
   }`;
@@ -183,6 +204,13 @@ mutation extractTimeLogsFromMsSQL($startDate: String, $endDate: String){
   }
 }`;
 
+const submitCheckInOutRequest = `
+mutation submitCheckInOutRequest($checkType: String, $userId: String, $checkTime: Date){
+  submitCheckInOutRequest(checkType: $checkType, userId: $userId, checkTime: $checkTime){
+    _id
+  }
+}`;
+
 export default {
   sendScheduleRequest,
   submitSchedule,
@@ -190,27 +218,36 @@ export default {
   absenceTypeAdd,
   absenceTypeEdit,
   absenceTypeRemove,
+
   solveAbsence,
   solveSchedule,
   solveShift,
+
   timeclockEdit,
   timeclockRemove,
   timeclockStart,
   timeclockStop,
+
   payDateAdd,
   payDateEdit,
   payDateRemove,
+
   holidayAdd,
   holidayEdit,
   holidayRemove,
+
   scheduleRemove,
   scheduleShiftRemove,
   scheduleConfigAdd,
   scheduleConfigEdit,
   scheduleConfigRemove,
+
   deviceConfigAdd,
   deviceConfigEdit,
   deviceConfigRemove,
+
+  submitCheckInOutRequest,
+
   extractAllDataFromMsSQL,
   extractTimeLogsFromMsSql
 };
