@@ -35,7 +35,7 @@ const ShareFormContainer = (props: FinalProps) => {
       variables
     })
       .then(() => {
-        Alert.success('You successfully shared an file');
+        Alert.success('You successfully shared');
 
         closeModal();
       })

@@ -29,20 +29,14 @@ function FileManager({
   filemanagerFolders,
   folderQueryLoading
 }: Props) {
-  console.log('cccc', currentFolder);
   const [parentId, setParentId] = useState(
     queryParams._id ? queryParams._id : ''
   );
 
-  const breadcrumb = [{ title: __('File Managers') }];
-
-  const fileBreadcrumb = [
-    // {
-    //   title: __(`${currentFolder.name} `),
-    //   link: `/filemanager?_id=${currentFolder._id}`,
-    // },
+  const breadcrumb = [
+    { title: __('File Managers') },
     {
-      title: __(`Files`)
+      title: __(`${currentFolder.name} `)
     }
   ];
 
@@ -59,12 +53,12 @@ function FileManager({
   );
 
   const shareTrigger = (
-    <Button btnStyle="primary" icon="share-alt" type="button">
-      {__('Share')}
+    <Button btnStyle="warning" icon="share-alt" size="small">
+      Share folder
     </Button>
   );
 
-  const shareContent = props => <ShareForm {...props} item={{}} />;
+  const shareContent = props => <ShareForm {...props} item={currentFolder} />;
 
   const content = props => (
     <FileFormContainer {...props} queryParams={queryParams} />
@@ -127,7 +121,15 @@ function FileManager({
       }
       actionBar={
         <Wrapper.ActionBar
-          left={<BreadCrumb breadcrumbs={fileBreadcrumb} />}
+          left={
+            <BreadCrumb
+              breadcrumbs={[
+                {
+                  title: __(currentFolder.name)
+                }
+              ]}
+            />
+          }
           right={actionBarRight}
         />
       }

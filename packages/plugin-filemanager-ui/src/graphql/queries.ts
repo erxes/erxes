@@ -51,6 +51,17 @@ const filemanagerFileDetail = `
       name
       type
       url
+      sharedUsers {
+        _id
+        username
+        email
+        details {
+          firstName
+          lastName
+          fullName
+          avatar
+        }
+      }
     }
   }
 `;
@@ -69,6 +80,17 @@ const filemanagerFolderDetail = `
         createdAt
         name
         parentId
+      }
+      sharedUsers {
+        _id
+        username
+        email
+        details {
+          firstName
+          lastName
+          fullName
+          avatar
+        }
       }
     }
   }

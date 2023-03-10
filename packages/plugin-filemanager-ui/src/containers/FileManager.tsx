@@ -32,11 +32,11 @@ class FileManagerContainer extends React.Component<FinalProps> {
       queryParams: { _id }
     } = nextProps;
 
-    if (!filemanagerFoldersQuery) {
+    if (!filemanagerFoldersQuery || filemanagerFoldersQuery.loading) {
       return;
     }
 
-    const { filemanagerFolders, loading } = filemanagerFoldersQuery;
+    const { filemanagerFolders = [], loading } = filemanagerFoldersQuery;
 
     const parents = filemanagerFolders.filter(f => !f.parentId);
 
