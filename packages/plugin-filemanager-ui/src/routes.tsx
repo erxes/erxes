@@ -20,8 +20,16 @@ const filemanager = ({ location, history }) => {
   );
 };
 
-const detail = ({ match }) => {
-  return <FileDetail />;
+const detail = ({ location, history, match }) => {
+  const fileId = match.params._id;
+
+  return (
+    <FileDetail
+      queryParams={queryString.parse(location.search)}
+      history={history}
+      fileId={fileId}
+    />
+  );
 };
 
 const routes = () => (
