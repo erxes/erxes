@@ -1,3 +1,5 @@
+import { DetailHeader, DetailTitle } from './styles';
+
 import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import LogRow from './LogRow';
@@ -43,21 +45,44 @@ class FileDetail extends React.Component<Props> {
     }
 
     return (
-      <Table whiteSpace="wrap" hover={true} bordered={true} condensed={true}>
-        <thead>
-          <tr>
-            <th>{__('Date')}</th>
-            <th>{__('Created by')}</th>
-            <th>{__('Module')}</th>
-            <th>{__('Action')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {logs.map(log => (
-            <LogRow key={log._id} log={log} />
-          ))}
-        </tbody>
-      </Table>
+      <>
+        <DetailHeader>Logs</DetailHeader>
+        <Table whiteSpace="wrap" hover={true} bordered={true} condensed={true}>
+          <thead>
+            <tr>
+              <th>{__('Date')}</th>
+              <th>{__('Created by')}</th>
+              <th>{__('Module')}</th>
+              <th>{__('Action')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {logs.map(log => (
+              <LogRow key={log._id} log={log} />
+            ))}
+          </tbody>
+        </Table>
+      </>
+    );
+  }
+
+  renderDetailInfo() {
+    const { item } = this.props;
+    const isFolder = item.folderId ? false : true;
+    console.log(item);
+    if (isFolder) {
+      return (
+        <DetailTitle>
+          <img src="/images/folder.png" alt="folder" />
+          {__(item.name)}
+        </DetailTitle>
+      );
+    }
+
+    return (
+      <>
+        <Title>{__(item.name)}</Title>
+      </>
     );
   }
 
@@ -119,11 +144,7 @@ class FileDetail extends React.Component<Props> {
         }
         actionBar={
           <Wrapper.ActionBar
-            left={
-              <>
-                <Title>{__(item.name)}</Title>
-              </>
-            }
+            left={this.renderDetailInfo()}
             right={actionButtons}
           />
         }

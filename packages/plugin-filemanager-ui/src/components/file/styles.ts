@@ -1,6 +1,7 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
 
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
+import { Title } from '@erxes/ui/src/styles/main';
 import styled from 'styled-components';
 
 const RowArticle = styled.div`
@@ -23,6 +24,17 @@ const RowArticle = styled.div`
       width: 35px;
     }
   }
+`;
+
+const DetailTitle = styled(Title)`
+  img {
+    height: 30px;
+    margin-right: ${dimensions.unitSpacing}px;
+  }
+`;
+
+const DetailHeader = styled.h4`
+  margin: 20px 20px 10px;
 `;
 
 const ArticleTitle = styled.h5`
@@ -127,5 +139,7 @@ export {
   ReactionItem,
   FillContent,
   FlexRow,
-  Forms
+  Forms,
+  DetailTitle,
+  DetailHeader
 };
