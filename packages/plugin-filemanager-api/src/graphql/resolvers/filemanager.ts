@@ -53,3 +53,14 @@ export const folder = {
 export const file = {
   sharedUsers
 };
+
+export const log = {
+  user(root) {
+    return (
+      root.userId && {
+        __typename: 'User',
+        _id: root.userId
+      }
+    );
+  }
+};
