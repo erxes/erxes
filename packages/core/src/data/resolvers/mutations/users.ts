@@ -233,10 +233,12 @@ const userMutations = {
     const userOnDb = await models.Users.getUser(_id);
 
     // clean custom field values
-    doc.customFieldsData = (doc.customFieldsData || []).map(cd => ({
-      ...cd,
-      stringValue: cd.value ? cd.value.toString() : ''
-    }));
+    if (doc.customFieldsData) {
+      doc.customFieldsData = doc.customFieldsData.map(cd => ({
+        ...cd,
+        stringValue: cd.value ? cd.value.toString() : ''
+      }));
+    }
 
     let updatedDoc = doc;
 
