@@ -120,7 +120,8 @@ function FileManager({
         />
       }
       actionBar={
-        Object.keys(currentFolder).length !== 0 && (
+        filemanagerFolders &&
+        filemanagerFolders.length !== 0 && (
           <Wrapper.ActionBar
             left={
               <BreadCrumb

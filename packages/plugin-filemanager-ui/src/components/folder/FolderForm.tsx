@@ -12,6 +12,7 @@ import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   folder?: IFolder;
+  root?: boolean;
   queryParams: any;
   closeModal: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -23,7 +24,7 @@ class FolderForm extends React.Component<Props> {
     name: string;
     description: string;
   }) => {
-    const { folder, queryParams } = this.props;
+    const { folder, queryParams, root } = this.props;
     const finalValues = values;
 
     if (folder) {
@@ -34,7 +35,7 @@ class FolderForm extends React.Component<Props> {
       ...finalValues,
       parentId: folder
         ? folder.parentId
-        : queryParams._id
+        : !root && queryParams._id
         ? queryParams._id
         : ''
     };
