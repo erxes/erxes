@@ -56,6 +56,7 @@ const typeDefs = gql`
     filemanagerFolders(parentId: String): [FileManagerFolder]
     filemanagerFiles(folderId: String!, search: String): [FileManagerFile]
     filemanagerFileDetail(_id: String!): FileManagerFile
+    filemanagerFolderDetail(_id: String!): FileManagerFolder
     filemanagerLogs(contentTypeId: String!): [FileManagerLog]
     filemanagerGetAckRequest(fileId: String!): FileManagerRequest
   }
