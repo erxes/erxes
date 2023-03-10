@@ -16,6 +16,7 @@ module.exports = {
       url: "/filemanager",
       icon: "icon-folder-1",
       location: "mainNavigation",
+      permissions: ['showFileManager'],
     },
   ],
 };
