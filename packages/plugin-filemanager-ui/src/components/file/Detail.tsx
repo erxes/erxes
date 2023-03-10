@@ -3,6 +3,7 @@ import { DetailHeader, DetailTitle, FilePreview } from './styles';
 import Attachment from '@erxes/ui/src/components/Attachment';
 import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Icon from '@erxes/ui/src/components/Icon';
 import LogRow from './LogRow';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
@@ -71,10 +72,16 @@ class FileDetail extends React.Component<Props> {
     const { item } = this.props;
     const isFolder = item.folderId ? false : true;
 
-    if (isFolder) {
+    if (isFolder || item.type === 'dynamic') {
       return (
         <DetailTitle>
-          <img src="/images/folder.png" alt="folder" />
+          {item.type === 'dynamic' ? (
+            <>
+              <Icon icon="file-alt" /> &nbsp;
+            </>
+          ) : (
+            <img src={'/images/folder.png'} alt="folder" />
+          )}
           {__(item.name)}
         </DetailTitle>
       );
@@ -85,8 +92,8 @@ class FileDetail extends React.Component<Props> {
         <Attachment
           attachment={{
             name: item.name,
-            size: item.info.size,
-            type: item.info.type,
+            size: item.info && item.info.size,
+            type: item.info && item.info.type,
             url: item.url
           }}
         />
