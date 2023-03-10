@@ -4,6 +4,10 @@ const typeDefs = gql`
   scalar JSON
   scalar Date
 
+  extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
+
   type FileManagerFolder {
     _id: String!
     createdAt: Date
@@ -14,6 +18,8 @@ const typeDefs = gql`
     permissionUserIds: [String]
     permissionUnitId: String
     hasChild: Boolean
+
+    sharedUsers: [User]
   }
 
   type FileManagerFile {
@@ -30,6 +36,8 @@ const typeDefs = gql`
     documentId: String
     permissionUserIds: [String]
     permissionUnitId: String
+
+    sharedUsers: [User]
   }
 
   type FileManagerLog {
