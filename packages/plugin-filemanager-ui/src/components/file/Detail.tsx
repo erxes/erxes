@@ -9,9 +9,8 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import ShareForm from '../../containers/ShareForm';
 import Table from '@erxes/ui/src/components/table';
-import { Title } from '@erxes/ui/src/styles/main';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from 'coreui/utils';
+import { getEnv, __ } from '@erxes/ui/src/utils';
 import { readFile } from '@erxes/ui/src/utils';
 
 type Props = {
@@ -33,6 +32,33 @@ class FileDetail extends React.Component<Props> {
 
     history.push('/filemanager');
   };
+
+  getPrintUrl = () => {
+    const { item } = this.props;
+
+    return `${getEnv().REACT_APP_API_URL}/pl:documents/print?_id=${
+      item.documentId
+    }&itemId=${item.contentTypeId}`;
+  };
+
+  renderDocumentPreview() {
+    const { item } = this.props;
+
+    if (item.type !== 'dynamic') {
+      return null;
+    }
+
+    return (
+      <div style={{ marginTop: '50px;', marginLeft: '20px' }}>
+        <h3>Preview</h3>
+
+        <iframe
+          src={this.getPrintUrl()}
+          style={{ width: '100%', border: 'none', height: '700px' }}
+        />
+      </div>
+    );
+  }
 
   renderContent() {
     const { logs } = this.props;
@@ -64,6 +90,8 @@ class FileDetail extends React.Component<Props> {
             ))}
           </tbody>
         </Table>
+
+        {this.renderDocumentPreview()}
       </>
     );
   }
@@ -138,6 +166,8 @@ class FileDetail extends React.Component<Props> {
             <Button
               btnStyle="success"
               type="button"
+              href={this.getPrintUrl()}
+              target="__blank"
               icon={isDynamic ? 'print' : 'download-1'}
             >
               {isDynamic ? __('Print') : __('Download')}
