@@ -67,7 +67,8 @@ class FileDetail extends React.Component<Props> {
 
     const trigger = (
       <Button btnStyle="primary" icon="share-alt" type="button">
-        {__('Share')}
+        {__('Share')}{' '}
+        <small>(Shared with {item.sharedUsers.length || 0} members)</small>
       </Button>
     );
 
@@ -92,15 +93,17 @@ class FileDetail extends React.Component<Props> {
           enforceFocus={false}
         />
 
-        <a href={isDynamic ? '#' : readFile(item.url)}>
-          <Button
-            btnStyle="success"
-            type="button"
-            icon={isDynamic ? 'print' : 'download-1'}
-          >
-            {isDynamic ? __('Print') : __('Download')}
-          </Button>
-        </a>
+        {item.folderId && (
+          <a href={isDynamic ? '#' : readFile(item.url)}>
+            <Button
+              btnStyle="success"
+              type="button"
+              icon={isDynamic ? 'print' : 'download-1'}
+            >
+              {isDynamic ? __('Print') : __('Download')}
+            </Button>
+          </a>
+        )}
       </>
     );
 

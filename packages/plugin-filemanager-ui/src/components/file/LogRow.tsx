@@ -1,11 +1,8 @@
 import * as React from 'react';
 
-import AsyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { __, renderUserFullName } from '@erxes/ui/src/utils';
+
 import TextInfo from '@erxes/ui/src/components/TextInfo';
-import { __ } from '@erxes/ui/src/utils';
 import dayjs from 'dayjs';
 
 type Props = {
@@ -34,7 +31,7 @@ class LogRow extends React.Component<Props> {
     return (
       <tr key={log._id}>
         <td>{dayjs(log.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
-        <td>{log.unicode}</td>
+        <td>{renderUserFullName(log.user)}</td>
         <td>{log.contentType}</td>
         <td>
           <TextInfo textStyle={actionClass}>{log.description}</TextInfo>
