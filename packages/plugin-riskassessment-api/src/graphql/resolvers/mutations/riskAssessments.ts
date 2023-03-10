@@ -5,6 +5,9 @@ const RiskAssessmentMutations = {
   async addRiskAssessment(_root, params, { models }: IContext) {
     return models.RiskAssessments.addRiskAssessment(params);
   },
+
+  async addBulkRiskAssessment(_root, params, { models }: IContext) {},
+
   async editRiskAssessment(_root, { _id, ...doc }, { models }: IContext) {
     return models.RiskAssessments.editRiskAssessment(_id, doc);
   },

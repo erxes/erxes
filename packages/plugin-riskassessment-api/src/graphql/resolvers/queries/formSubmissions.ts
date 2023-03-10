@@ -1,29 +1,40 @@
 import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { IRiskFormSubmissionParams } from '../../../models/definitions/common';
+import { getIndicatorSubmissions } from '../../../utils';
 
 const formSubmissionQueries = {
-  riskFormSubmitHistory(
+  async indicatorsAssessmentHistory(
     _root,
-    {
-      cardId,
-      cardType,
-      riskAssessmentId
-    }: { cardId: string; cardType: string; riskAssessmentId: string },
-    { models }: IContext
+    { indicatorId }: { indicatorId: string },
+    { models, subdomain }: IContext
   ) {
-    return models.RiksFormSubmissions.formSubmitHistory(
-      cardId,
-      cardType,
-      riskAssessmentId
-    );
+    const indicatorAssessments = await models.RiskAssessmentIndicators.find({
+      status: { $ne: 'In Progress' },
+      indicatorId
+    })
+      .sort({ closedAt: -1 })
+      .limit(5)
+      .lean();
+
+    for (const indicatorAssessment of indicatorAssessments) {
+      indicatorAssessment.submissions = await getIndicatorSubmissions({
+        models,
+        subdomain,
+        assessmentId: indicatorAssessment.assessmentId,
+        indicatorId: indicatorAssessment.indicatorId
+      });
+      console.log({ indicatorAssessment });
+    }
+
+    return indicatorAssessments;
   }
 };
 
-checkPermission(
-  formSubmissionQueries,
-  'riskFormSubmitHistory',
-  'showRiskAssessment'
-);
+// checkPermission(
+//   formSubmissionQueries,
+//   'indicatorsAssessmentHistory',
+//   'showRiskAssessment'
+// );
 
 export default formSubmissionQueries;

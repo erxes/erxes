@@ -7,6 +7,7 @@ export const commonPaginateDef = `
     $sortFromDate:String
     $sortToDate:String
 `;
+
 export const commonPaginateValue = `
     page:$page
     perPage:$perPage

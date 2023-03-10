@@ -378,7 +378,7 @@ export const SelectCustomFields = withProps<SelectCustomFieldProps>(
   )(SelectCustomFieldsComponent)
 );
 
-export const SelectOperation = ({
+export const SelectOperations = ({
   label,
   name,
   queryParams,

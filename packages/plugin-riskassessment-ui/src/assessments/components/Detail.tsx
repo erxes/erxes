@@ -34,6 +34,22 @@ type State = {
   currentIndicatorId: string;
   currentUserId: string;
 };
+
+export function renderSubmission(fields) {
+  return fields.map(field => (
+    <CollapseContent
+      key={field.fieldId}
+      title={`${field?.text}: ${field?.value}`}
+      description={field.description}
+      compact
+    >
+      {(field?.optionsValues?.split('\n') || []).map(value => (
+        <p key={Math.random()}>{__(value)}</p>
+      ))}
+    </CollapseContent>
+  ));
+}
+
 class Detail extends React.Component<Props, State> {
   constructor(props) {
     super(props);
@@ -116,21 +132,20 @@ class Detail extends React.Component<Props, State> {
     );
   }
 
-  renderSubmission(fields) {
-    return fields.map(field => (
-      <CollapseContent
-        key={field.fieldId}
-        // beforeTitle={<ControlLabel>{}</ControlLabel>}
-        title={`${field?.text}: ${field?.value}`}
-        description={field.description}
-        compact
-      >
-        {(field?.optionsValues?.split('\n') || []).map(value => (
-          <p key={Math.random()}>{__(value)}</p>
-        ))}
-      </CollapseContent>
-    ));
-  }
+  // renderSubmission(fields) {
+  //   return fields.map(field => (
+  //     <CollapseContent
+  //       key={field.fieldId}
+  //       title={`${field?.text}: ${field?.value}`}
+  //       description={field.description}
+  //       compact
+  //     >
+  //       {(field?.optionsValues?.split('\n') || []).map(value => (
+  //         <p key={Math.random()}>{__(value)}</p>
+  //       ))}
+  //     </CollapseContent>
+  //   ));
+  // }
 
   renderAssignedUsers = submissions => {
     const { assignedUsers } = this.props;
@@ -162,7 +177,7 @@ class Detail extends React.Component<Props, State> {
           </Tabs>
         </TriggerTabs>
         {currentUserId &&
-          this.renderSubmission(
+          renderSubmission(
             (submissions.find(({ _id }) => _id === currentUserId) || {})
               .fields || []
           )}

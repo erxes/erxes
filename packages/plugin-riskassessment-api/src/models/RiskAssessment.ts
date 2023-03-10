@@ -1,14 +1,16 @@
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { sendFormsMessage } from '../messageBroker';
+import { sendCardsMessage, sendFormsMessage } from '../messageBroker';
 import { getAsssignedUsers } from '../utils';
 import {
   IRiskAssessmentsDocument,
   IRiskAssessmentIndicatorsDocument,
   riskAssessmentsSchema
 } from './definitions/riskassessment';
+import { getIndicatorSubmissions } from '../utils';
 export interface IRiskAssessmentsModel extends Model<IRiskAssessmentsDocument> {
   addRiskAssessment(params): Promise<IRiskAssessmentsDocument>;
+  addBulkRiskAssessment(params): Promise<IRiskAssessmentsDocument>;
   riskAssessmentDetail(_id: string): Promise<any>;
   riskAssessmentFormSubmissionDetail(parmas): Promise<any>;
   editRiskAssessment(_id: string, doc: any): Promise<IRiskAssessmentsDocument>;
@@ -84,6 +86,28 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
         ];
 
       return riskAssessment;
+    }
+
+    public static async addBulkRiskAssessment(params) {
+      const { cardType, cardId, bulkList } = params;
+
+      for (const item of bulkList) {
+        const { branchIds, departmentIds, operationIds } = item;
+        if (!!operationIds?.length) {
+          const operations = await models.Operations.find({
+            _id: { $in: operationIds }
+          }).select('name');
+          for (const operation of operations) {
+            // const cardDetail = await sendCardsMessage({
+            //   subdomain,
+            //   action:'',
+            //   data:{},
+            //   isRPC:true,
+            //   defaultValue:{}
+            // })
+          }
+        }
+      }
     }
 
     public static async editRiskAssessment(_id, doc) {
@@ -486,8 +510,9 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
               _id: indicatorAssessment.indicatorId
             });
             indicatorAssessment.name = indicator?.name;
-            const submissions = await this.getIndicatorSubmissions({
-              riskAssessment,
+            const submissions = await getIndicatorSubmissions({
+              models,
+              assessmentId: riskAssessment._id,
               cardId,
               cardType,
               indicatorId: indicatorAssessment.indicatorId,
@@ -505,11 +530,12 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
           { assessmentId: riskAssessment._id, indicatorId }
         ).lean();
 
-        indicatorAssessment.submissions = await this.getIndicatorSubmissions({
+        indicatorAssessment.submissions = await getIndicatorSubmissions({
+          models,
+          assessmentId: riskAssessment._id,
           cardId,
           cardType,
-          riskAssessment,
-          indicatorId,
+          indicatorId: indicatorAssessment.indicatorId,
           subdomain
         });
 
@@ -614,52 +640,52 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
       );
     }
 
-    static async getIndicatorSubmissions({
-      riskAssessment,
-      cardId,
-      cardType,
-      indicatorId,
-      subdomain
-    }) {
-      const submissions = await models.RiksFormSubmissions.aggregate([
-        {
-          $match: {
-            assessmentId: riskAssessment._id,
-            cardId,
-            cardType,
-            indicatorId
-          }
-        },
-        {
-          $group: {
-            _id: '$userId',
-            fields: { $push: '$$ROOT' },
-            count: { $sum: 1 }
-          }
-        }
-      ]);
+    // static async getIndicatorSubmissions({
+    //   riskAssessment,
+    //   cardId,
+    //   cardType,
+    //   indicatorId,
+    //   subdomain
+    // }) {
+    //   const submissions = await models.RiksFormSubmissions.aggregate([
+    //     {
+    //       $match: {
+    //         assessmentId: riskAssessment._id,
+    //         cardId,
+    //         cardType,
+    //         indicatorId
+    //       }
+    //     },
+    //     {
+    //       $group: {
+    //         _id: '$userId',
+    //         fields: { $push: '$$ROOT' },
+    //         count: { $sum: 1 }
+    //       }
+    //     }
+    //   ]);
 
-      for (const submission of submissions) {
-        for (const field of submission.fields) {
-          const fieldDetail = await sendFormsMessage({
-            subdomain,
-            action: 'fields.findOne',
-            data: {
-              query: { _id: field.fieldId }
-            },
-            isRPC: true,
-            defaultValue: {}
-          });
+    //   for (const submission of submissions) {
+    //     for (const field of submission.fields) {
+    //       const fieldDetail = await sendFormsMessage({
+    //         subdomain,
+    //         action: 'fields.findOne',
+    //         data: {
+    //           query: { _id: field.fieldId }
+    //         },
+    //         isRPC: true,
+    //         defaultValue: {}
+    //       });
 
-          field.optionsValues = fieldDetail.optionsValues;
-          field.text =
-            field.contentType === 'customScore'
-              ? 'Custom Score'
-              : fieldDetail.text;
-        }
-      }
-      return submissions;
-    }
+    //       field.optionsValues = fieldDetail.optionsValues;
+    //       field.text =
+    //         field.contentType === 'customScore'
+    //           ? 'Custom Score'
+    //           : fieldDetail.text;
+    //     }
+    //   }
+    //   return submissions;
+    // }
   }
   riskAssessmentsSchema.loadClass(RiskAssessment);
   return riskAssessmentsSchema;

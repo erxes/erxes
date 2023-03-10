@@ -1,4 +1,4 @@
-import { models } from './connectionResolver';
+import { IModels, models } from './connectionResolver';
 import {
   sendCardsMessage,
   sendCoreMessage,
@@ -248,7 +248,7 @@ export const calculateFormResponses = async ({
         .split('\n')
         .map(item => {
           if (item.match(/=/g)) {
-            const label = item?.substring(0, item.indexOf('='));
+            const label = item?.substring(0, item.indexOf('=')).trim();
             const value = parseInt(
               item.substring(item?.indexOf('=') + 1, item.length)
             );
@@ -429,4 +429,58 @@ export const calculateResult = async ({
       );
     }
   }
+};
+
+export const getIndicatorSubmissions = async ({
+  models,
+  subdomain,
+  cardId,
+  cardType,
+  assessmentId,
+  indicatorId
+}: {
+  models: IModels;
+  subdomain;
+  cardId?: string;
+  cardType?: string;
+  assessmentId: string;
+  indicatorId: string;
+}) => {
+  let match: any = { assessmentId, indicatorId };
+
+  if (cardId && cardType) {
+    match = { ...match, cardType, cardId };
+  }
+
+  const submissions = await models.RiksFormSubmissions.aggregate([
+    {
+      $match: match
+    },
+    {
+      $group: {
+        _id: '$userId',
+        fields: { $push: '$$ROOT' },
+        count: { $sum: 1 }
+      }
+    }
+  ]);
+
+  for (const submission of submissions) {
+    for (const field of submission.fields) {
+      const fieldDetail = await sendFormsMessage({
+        subdomain,
+        action: 'fields.findOne',
+        data: {
+          query: { _id: field.fieldId }
+        },
+        isRPC: true,
+        defaultValue: {}
+      });
+
+      field.optionsValues = fieldDetail.optionsValues;
+      field.text =
+        field.contentType === 'customScore' ? 'Custom Score' : fieldDetail.text;
+    }
+  }
+  return submissions;
 };

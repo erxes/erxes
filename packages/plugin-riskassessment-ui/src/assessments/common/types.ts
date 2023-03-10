@@ -1,5 +1,6 @@
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IField, QueryResponse } from '@erxes/ui/src/types';
+import { IFormSubmissions } from '../../common/types';
 import { RiskIndicatorsType } from '../../indicator/common/types';
 
 export type RiskAssessmentTypes = {
@@ -22,6 +23,25 @@ export type RiskAssessmentTypes = {
   totalScore: string;
   createdAt: string;
   closedAt: string;
+};
+
+export type IndicatorSubmissions = {
+  _id: string;
+  user: IUser;
+  fields: IFormSubmissions[];
+};
+
+export type IndicatorAssessmentHistory = {
+  _id: string;
+  assessmentId: string;
+  closedAt: string;
+  createdAt: string;
+  indicatorId: string;
+  indicator: { _id: string; name: string };
+  resultScore: string;
+  status: string;
+  statusColor: string;
+  submissions: IndicatorSubmissions[];
 };
 
 export type RiskAssessmentAssignedMembers = {
@@ -51,4 +71,7 @@ type IndicatorFormType = {
 
 export type RiskAssessmentIndicatorFormQueryResponse = {
   riskAssessmentIndicatorForm: IndicatorFormType;
+} & QueryResponse;
+export type IndicatorAssessmentsQueryResponse = {
+  indicatorsAssessmentHistory: IndicatorAssessmentHistory[];
 } & QueryResponse;

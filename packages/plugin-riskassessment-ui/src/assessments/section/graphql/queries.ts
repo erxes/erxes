@@ -54,11 +54,43 @@ const riskIndicators = `
   }
   `;
 
+const indicatorAssessments = `
+  query IndicatorsAssessmentHistory($indicatorId: String) {
+  indicatorsAssessmentHistory(indicatorId: $indicatorId) {
+    _id
+    assessmentId
+    closedAt
+    createdAt
+    indicatorId
+    indicator{
+      _id,name
+    }
+    resultScore
+    status
+    statusColor
+    submissions {
+      _id
+      fields
+      user {
+        _id
+        details {
+          avatar
+          firstName
+          lastName
+        }
+        email
+      }
+    }
+  }
+}
+`;
+
 export default {
   riskAssessment,
   riskAssessmentGroups,
   riskAssessmentAssignedMembers,
   riskAssessmentSubmitForm,
   riskAssessmentIndicatorForm,
-  riskIndicators
+  riskIndicators,
+  indicatorAssessments
 };

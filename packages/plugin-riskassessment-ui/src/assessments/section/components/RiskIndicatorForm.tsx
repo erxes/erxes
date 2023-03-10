@@ -16,6 +16,7 @@ import React from 'react';
 import { Padding } from '../../../styles';
 import _loadash from 'lodash';
 import { DetailPopOver } from '../../common/utils';
+import IndicatorAssessmentHistory from '../containers/IndicatorAssessmentHistory';
 
 type Props = {
   fields: IField[];
@@ -25,6 +26,7 @@ type Props = {
   submitForm: (doc: any) => void;
   closeModal: () => void;
   onlyPreview?: boolean;
+  indicatorId: string;
 };
 
 type State = {
@@ -37,7 +39,7 @@ class IndicatorForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      submissions: {},
+      submissions: props?.submittedFields || {},
       customScore: {
         value: 0,
         description: ''
@@ -102,8 +104,11 @@ class IndicatorForm extends React.Component<Props, State> {
       submittedFields,
       customScoreField,
       closeModal,
-      onlyPreview
+      onlyPreview,
+      indicatorId
     } = this.props;
+
+    const { submissions } = this.state;
 
     const handleChange = field => {
       const { submissions } = this.state;
@@ -123,8 +128,16 @@ class IndicatorForm extends React.Component<Props, State> {
       }));
     };
 
+    const setHistory = submissions => {
+      this.setState({ submissions });
+    };
+
     return (
       <>
+        <IndicatorAssessmentHistory
+          indicatorId={indicatorId}
+          setHistory={setHistory}
+        />
         <Padding horizontal>
           {(fields || []).map(field => (
             <FormWrapper key={field._id}>
@@ -133,13 +146,13 @@ class IndicatorForm extends React.Component<Props, State> {
                   isEditing={true}
                   key={field._id}
                   field={field}
-                  defaultValue={submittedFields[field._id]?.value}
+                  defaultValue={submissions[field._id]?.value}
                   onValueChange={handleChange}
                   isPreview={true}
                 />
               </FormColumn>
               {this.renderDescriptionField(
-                submittedFields[field._id]?.description,
+                submissions[field._id]?.description || '',
                 field._id
               )}
             </FormWrapper>

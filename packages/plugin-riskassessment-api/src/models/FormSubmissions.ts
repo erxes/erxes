@@ -216,6 +216,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         riskAssessmentId: _id
       };
     }
+
     static async checkRiskAssessment({ assessmentId }: CommonTypes) {
       const riskAssessment = await models.RiskAssessments.findOne({
         _id: assessmentId

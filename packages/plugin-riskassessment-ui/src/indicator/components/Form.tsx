@@ -29,7 +29,7 @@ import TwitterPicker from 'react-color/lib/Twitter';
 import Select from 'react-select-plus';
 import { calculateMethods, COLORS } from '../../common/constants';
 import { RiskIndicatorsType, RiskCalculateLogicType } from '../common/types';
-import { SelectOperation, SelectWithCategory } from '../../common/utils';
+import { SelectOperations, SelectWithCategory } from '../../common/utils';
 import { mutations } from '../graphql';
 import { FormContainer, FormContent, Header } from '../../styles';
 import FormItem from './FormItem';
@@ -522,7 +522,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
           </FormGroup>
           <FormGroup>
             <ControlLabel>{__('Operations')}</ControlLabel>
-            <SelectOperation
+            <SelectOperations
               name="operationIds"
               label="Choose Operations"
               multi={true}

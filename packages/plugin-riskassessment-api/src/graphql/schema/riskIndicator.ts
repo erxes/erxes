@@ -32,7 +32,7 @@ customFieldId:String
 `;
 
 export const types = `
-    input IRiskIndicator {
+    input IRiskIndicator  {
         ${commonRiskIndicatorParams}
         customScoreField:ICustomScoreField
         calculateMethod:String

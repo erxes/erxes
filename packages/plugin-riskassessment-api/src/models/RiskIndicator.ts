@@ -51,6 +51,9 @@ const generateFilter = (
     _id?: string;
     categoryId?: string;
     ignoreIds?: string[];
+    branchId?: string;
+    departmentId?: string;
+    operationId?: string;
   } & IRiskIndicatorsField &
     PaginateField
 ) => {
@@ -92,14 +95,14 @@ const generateFilter = (
     filter._id = { $nin: params.ignoreIds };
   }
 
-  if (params?.branchIds?.length) {
-    filter.branchIds = { $in: params.branchIds };
+  if (params?.branchId) {
+    filter.branchIds = { $in: [params.branchId] };
   }
-  if (params?.departmentIds?.length) {
-    filter.departmentIds = { $in: params.departmentIds };
+  if (params?.departmentId) {
+    filter.departmentIds = { $in: [params.departmentId] };
   }
-  if (params?.operationIds?.length) {
-    filter.operationIds = { $in: params.operationIds };
+  if (params?.operationId) {
+    filter.operationIds = { $in: [params.operationId] };
   }
 
   return filter;

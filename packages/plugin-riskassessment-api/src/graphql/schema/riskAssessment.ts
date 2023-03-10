@@ -34,6 +34,27 @@ export const types = `
         indicatorId:String
     }
 
+    type IndicatorAssessment {
+        _id:String
+        status:String
+        statusColor:String
+        resultScore:String,
+        assessmentId:String
+        indicatorId:String
+
+        indicator:RiskIndicatorType
+
+        createdAt:Date
+        closedAt:Date
+        submissions:[IndicatorSubmissions]
+    }
+
+    type IndicatorSubmissions {
+        _id:String
+        user:User
+        fields:JSON
+    }
+
     input GroupsAssignedUsers {
         groupId:String
         assignedUserIds:[String]
@@ -54,6 +75,7 @@ const commonMutationParams = `
 
 export const mutations = `
     addRiskAssessment(${commonMutationParams}):RiskAssessment
+    addBulkRiskAssessment:[RiskAssessment]
     editRiskAssessment(_id:String,${commonMutationParams}):RiskAssessment
     removeRiskAssessment(riskAssessmentId:String):RiskAssessment
 `;
@@ -92,4 +114,5 @@ export const queries = `
     riskAssessmentSubmitForm(cardId:String,cardType:String,riskAssessmentId:String,userId:String):JSON
     riskAssessmentIndicatorForm(riskAssessmentId:String,indicatorId:String,userId:String):JSON
     riskAssessmentGroups(riskAssessmentId:String,groupIds:[String] ):JSON
+    indicatorsAssessmentHistory(indicatorId:String):[IndicatorAssessment]
 `;

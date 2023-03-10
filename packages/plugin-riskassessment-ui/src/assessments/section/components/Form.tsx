@@ -4,7 +4,7 @@ import { RiskCalculateLogicType } from '../../../indicator/common/types';
 import { FormContainer } from '../../../styles';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import { SelectOperation } from '../../../common/utils';
+import { SelectOperations } from '../../../common/utils';
 import Chooser from './Chooser';
 import { RiskAssessmentTypes } from '../../common/types';
 
@@ -18,9 +18,9 @@ type Props = {
 type State = {
   page: number;
   perPage: number;
-  branchIds: string[];
-  departmentIds: string[];
-  operationIds: string[];
+  branchId: string;
+  departmentId: string;
+  operationId: string;
   calculateLogics: RiskCalculateLogicType[];
   calculateMethod: string;
 };
@@ -33,16 +33,16 @@ class Form extends React.Component<Props, State> {
     this.state = {
       perPage: 10,
       page: 1,
-      branchIds: riskAssessment?.branchIds || [],
-      departmentIds: riskAssessment?.departmentIds || [],
-      operationIds: riskAssessment?.operationIds || [],
+      branchId: riskAssessment?.branchId || '',
+      departmentId: riskAssessment?.departmentId || '',
+      operationId: riskAssessment?.operationId || '',
       calculateLogics: [],
       calculateMethod: ''
     };
   }
 
   renderFilter = () => {
-    const { departmentIds, branchIds, operationIds } = this.state;
+    const { departmentId, branchId, operationId } = this.state;
     const handleSelect = (name, value) => {
       this.setState({ [name]: value } as Pick<State, keyof State>);
     };
@@ -52,29 +52,31 @@ class Form extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>{__('Branches')}</ControlLabel>
             <SelectBranches
-              name="branchIds"
+              name="branchId"
               label="Select Branches"
-              initialValue={branchIds}
-              onSelect={value => handleSelect('branchIds', value)}
+              initialValue={branchId}
+              onSelect={value => handleSelect('branchId', value)}
+              multi={false}
             />
           </FormGroup>
           <FormGroup>
             <ControlLabel>{__('Department')}</ControlLabel>
             <SelectDepartments
-              name="departmentIds"
+              name="departmentId"
               label="Select Departments"
-              initialValue={departmentIds}
-              onSelect={value => handleSelect('departmentIds', value)}
+              initialValue={departmentId}
+              onSelect={value => handleSelect('departmentId', value)}
+              multi={false}
             />
           </FormGroup>
           <FormGroup>
             <ControlLabel>{__('Operations')}</ControlLabel>
-            <SelectOperation
-              name="operationIds"
+            <SelectOperations
+              name="operationId"
               label="Select Operations"
-              initialValue={operationIds}
-              multi={true}
-              onSelect={value => handleSelect('operationIds', value)}
+              initialValue={operationId}
+              multi={false}
+              onSelect={value => handleSelect('operationId', value)}
             />
           </FormGroup>
         </FormContainer>
@@ -85,14 +87,14 @@ class Form extends React.Component<Props, State> {
   render() {
     const { riskAssessment, cardId, cardType, closeModal } = this.props;
 
-    const { branchIds, departmentIds, operationIds } = this.state;
+    const { branchId, departmentId, operationId } = this.state;
 
     const handleSelect = props => {
       this.props.handleSelect({
         ...props,
-        branchIds,
-        departmentIds,
-        operationIds
+        branchId,
+        departmentId,
+        operationId
       });
     };
 
@@ -103,7 +105,7 @@ class Form extends React.Component<Props, State> {
       closeModal,
       refetchQueries: () => [],
       handleSelect,
-      filters: { branchIds, departmentIds, operationIds }
+      filters: { branchId, departmentId, operationId }
     };
 
     return (

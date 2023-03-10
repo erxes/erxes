@@ -9,7 +9,7 @@ import {
   __
 } from '@erxes/ui/src';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { SelectOperation } from '../../common/utils';
+import { SelectOperations } from '../../common/utils';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 
 type Props = {
@@ -103,7 +103,7 @@ class Form extends React.Component<Props, State> {
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Parent')}</ControlLabel>
-          <SelectOperation
+          <SelectOperations
             name="parentId"
             label="Choose Operation"
             multi={false}

@@ -31,6 +31,10 @@ const typeDefs = async _serviceDiscovery => {
     scalar JSON
     scalar Date
 
+    extend type User @key(fields: "_id") {
+      _id: String! @external
+    }
+
     ${RiskAssessmentTypes}
     ${RiskAssessmentCategoryTypes}
     ${OpearionTypes}

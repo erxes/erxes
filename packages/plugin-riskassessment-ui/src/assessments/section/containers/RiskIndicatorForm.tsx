@@ -27,7 +27,12 @@ class RiskIndicatorForm extends React.Component<FinalProps> {
     super(props);
   }
   render() {
-    const { indicatorFormQueryResponse, closeModal, onlyPreview } = this.props;
+    const {
+      indicatorFormQueryResponse,
+      closeModal,
+      onlyPreview,
+      indicatorId
+    } = this.props;
 
     if (indicatorFormQueryResponse.loading) {
       return <Spinner />;
@@ -79,6 +84,7 @@ class RiskIndicatorForm extends React.Component<FinalProps> {
       submittedFields: riskAssessmentIndicatorForm?.submittedFields,
       customScoreField: riskAssessmentIndicatorForm?.customScoreField,
       withDescription: riskAssessmentIndicatorForm?.withDescription,
+      indicatorId,
       submitForm,
       closeModal,
       onlyPreview

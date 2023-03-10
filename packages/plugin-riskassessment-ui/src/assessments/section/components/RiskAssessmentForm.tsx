@@ -1,10 +1,18 @@
 import React from 'react';
-import { Button, colors, EmptyState, Icon, Tip } from '@erxes/ui/src';
+import {
+  Button,
+  colors,
+  EmptyState,
+  Icon,
+  ModalTrigger,
+  Tip
+} from '@erxes/ui/src';
 import { FormContainer } from '../../../styles';
 import { DetailPopOver } from '../../common/utils';
 import { PopoverList } from '@erxes/ui/src/components/filterableList/styles';
 import RiskIndicatorForm from '../containers/RiskIndicatorForm';
 import { RiskIndicatorsType } from '../../../indicator/common/types';
+import IndicatorAssessmentHistory from '../containers/IndicatorAssessmentHistory';
 
 type IndicatorsTypes = {
   _id: string;
@@ -102,9 +110,6 @@ class RiskAssessmentForm extends React.Component<Props, State> {
         {indicator.group && <Icon icon="arrows-up-right" color="#3CCC38" />}
         {indicator.submitted && <Icon icon="check-1" />}
         {indicator.name}
-        <Button btnStyle="link" style={{ paddingRight: 0 }}>
-          <Icon icon="history-alt" />
-        </Button>
       </li>
     ));
   }

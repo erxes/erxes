@@ -38,9 +38,9 @@ type Props = {
   }) => void;
 
   filters: {
-    branchIds: string[];
-    departmentIds: string[];
-    operationIds: string[];
+    branchId: string;
+    departmentId: string;
+    operationId: string;
   };
 };
 

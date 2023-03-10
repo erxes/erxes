@@ -1,4 +1,5 @@
 import {
+  BarItems,
   Box,
   EmptyState,
   Icon,
@@ -10,6 +11,7 @@ import { ColorBox, FormContainer, ProductName } from '../../../styles';
 import { RiskAssessmentTypes } from '../../common/types';
 import AssignedUsers from '../containers/AssignedUsers';
 import Form from '../containers/Form';
+import BulkAddForm from '../../components/Form';
 
 type Props = {
   riskAssessment: RiskAssessmentTypes;
@@ -44,6 +46,27 @@ class Section extends React.Component<Props> {
       />
     );
   };
+
+  renderBulkAdd() {
+    const { cardId, cardType } = this.props;
+    const trigger = (
+      <button>
+        <Icon icon="plus-circle" />
+      </button>
+    );
+    const content = props => (
+      <BulkAddForm {...{ ...props, cardId, cardType }} />
+    );
+
+    return (
+      <ModalTrigger
+        content={content}
+        trigger={trigger}
+        title={'Add Bulk Assessment by Structure'}
+        size="xl"
+      />
+    );
+  }
 
   renderAssignedUser = () => {
     const { riskAssessment, cardId, cardType } = this.props;
@@ -84,10 +107,15 @@ class Section extends React.Component<Props> {
   render() {
     const { riskAssessment } = this.props;
 
-    const extraButton = this.renderChooserModal(
-      <button>
-        <Icon icon="plus-circle" />
-      </button>
+    const extraButton = (
+      <BarItems>
+        {this.renderChooserModal(
+          <button>
+            <Icon icon="plus-circle" />
+          </button>
+        )}
+        {this.renderBulkAdd()}
+      </BarItems>
     );
 
     return (
