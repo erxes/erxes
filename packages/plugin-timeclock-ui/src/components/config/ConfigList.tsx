@@ -20,16 +20,24 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 
 import ConfigForm from './ConfigForm';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 
 type Props = {
   getActionBar: (actionBar: any) => void;
   showSideBar: (sideBar: boolean) => void;
+  getPagination: (pagination: any) => void;
 
   absenceTypes?: IAbsenceType[];
+
   holidays?: IAbsence[];
+
   payDates: IPayDates[];
+
   scheduleConfigs?: IScheduleConfig[];
+
   deviceConfigs?: IDeviceConfig[];
+  deviceConfigsTotalCount?: number;
+
   loading?: boolean;
   renderButton: (props: IButtonMutateProps) => void;
   removeAbsenceType: (absenceTypeId: string) => void;
@@ -46,13 +54,15 @@ function ConfigList(props: Props) {
     holidays,
     scheduleConfigs,
     deviceConfigs,
+    deviceConfigsTotalCount,
     removeAbsenceType,
     removeHoliday,
     removePayDate,
     getActionBar,
     removeScheduleConfig,
     removeDeviceConfig,
-    showSideBar
+    showSideBar,
+    getPagination
   } = props;
 
   const [selectedType, setType] = useState(
@@ -515,6 +525,8 @@ function ConfigList(props: Props) {
 
   showSideBar(false);
   getActionBar(actionBar);
+  getPagination(<Pagination count={deviceConfigsTotalCount} />);
+
   return content();
 }
 

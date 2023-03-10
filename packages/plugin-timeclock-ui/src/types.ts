@@ -181,7 +181,7 @@ export type ScheduleConfigQueryResponse = {
 } & QueryResponse;
 
 export type DeviceConfigsQueryResponse = {
-  deviceConfigs: IDeviceConfig[];
+  deviceConfigs: { list: IDeviceConfig[]; totalCount: number };
 } & QueryResponse;
 
 export type ScheduleQueryResponse = {

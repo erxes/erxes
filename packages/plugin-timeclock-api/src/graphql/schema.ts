@@ -192,6 +192,11 @@ export const types = `
     list: [Timelog]
     totalCount: Float
   }
+
+  type DeviceConfigsListResponse {
+    list: [DeviceConfig]
+    totalCount: Float
+  }
   
 `;
 
@@ -256,7 +261,8 @@ export const queries = `
   scheduleDetail(_id: String!): Schedule
   scheduleConfigs: [ScheduleConfig]
   
-  deviceConfigs:[DeviceConfig]
+  deviceConfigs(${queryParams}): DeviceConfigsListResponse
+  
   payDates: [PayDate]
   holidays: [Absence]
 `;

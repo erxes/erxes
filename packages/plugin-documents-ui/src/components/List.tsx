@@ -95,6 +95,11 @@ function List({ queryParams, list, remove }: Props) {
             {__('Products')}
           </Link>
         </li>
+        <li>
+          <Link to={`/settings/documents/?contentType=core:user`}>
+            {__('Team members')}
+          </Link>
+        </li>
       </SidebarList>
     </LeftSidebar>
   );

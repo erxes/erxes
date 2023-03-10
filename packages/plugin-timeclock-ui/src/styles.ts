@@ -205,6 +205,20 @@ const FlexColumnMargined = styledTS<{
   margin-top:${props => props.marginNum * 2}px;
 `;
 
+const FlexColumnCustom = styledTS<{
+  marginNum: number;
+}>(styled.div)`
+  display: flex;
+  flex-direction: column;
+  gap: ${props => props.marginNum}px
+  margin: 20px 20px
+
+  .kOAWdn {
+    margin-bottom: 0;
+  }
+
+  `;
+
 const ToggleDisplay = styledTS<{
   display: boolean;
 }>(styled.div)`
@@ -215,6 +229,24 @@ const DateName = styled.div`
   text-transform: uppercase;
   margin: ${dimensions.unitSpacing}px 0;
   text-align: center;
+`;
+
+const Margin = styled.div`
+  margin: 0 ${dimensions.coreSpacing}px;
+`;
+
+const RowField = styled.div`
+  width: 33%;
+  border-top: 1px solid ${colors.borderPrimary};
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  &:last-child {
+    width: 10%;
+    padding: 8px 20px 8px 0;
+    text-align: right;
+  }
 `;
 
 export {
@@ -228,6 +260,7 @@ export {
   FlexRow,
   FlexColumn,
   FlexColumnMargined,
+  FlexColumnCustom,
   DateName,
   CustomRangeContainer,
   SidebarHeader,
@@ -236,5 +269,7 @@ export {
   ToggleDisplay,
   ConfigFormWrapper,
   ToggleButton,
-  InlineBlock
+  InlineBlock,
+  Margin,
+  RowField
 };

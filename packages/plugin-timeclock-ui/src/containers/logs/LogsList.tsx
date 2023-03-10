@@ -83,7 +83,7 @@ const ListContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, ReportsQueryResponse>(gql(queries.listTimelogsMain), {
+    graphql<Props, ReportsQueryResponse>(gql(queries.timelogsMain), {
       name: 'listTimelogsQuery',
       options: ({ queryParams, reportType }) => ({
         variables: {
