@@ -3,7 +3,7 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import LogRow from './LogRow';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
-import ShareForm from '../../containers/file/ShareForm';
+import ShareForm from '../../containers/ShareForm';
 import Table from '@erxes/ui/src/components/table';
 import { Title } from '@erxes/ui/src/styles/main';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';

@@ -12,6 +12,7 @@ import FolderList from '../containers/folder/FolderList';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IFolder } from '../types';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import ShareForm from '../containers/ShareForm';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
 
@@ -61,6 +62,14 @@ function FileManager({
     </Button>
   );
 
+  const shareTrigger = (
+    <Button btnStyle="primary" icon="share-alt" type="button">
+      {__('Share')}
+    </Button>
+  );
+
+  const shareContent = props => <ShareForm {...props} item={item} />;
+
   const content = props => (
     <FileFormContainer {...props} queryParams={queryParams} />
   );
@@ -77,6 +86,14 @@ function FileManager({
         // onChange={this.search}
         // value={this.state.searchValue}
         // onFocus={this.moveCursorAtTheEnd}
+      />
+
+      <ModalTrigger
+        title="Share Folder"
+        trigger={shareTrigger}
+        content={shareContent}
+        centered={true}
+        enforceFocus={false}
       />
 
       <ModalTrigger
