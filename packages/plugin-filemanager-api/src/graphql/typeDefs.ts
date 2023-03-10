@@ -55,6 +55,7 @@ const typeDefs = gql`
   extend type Query {
     filemanagerFolders(parentId: String): [FileManagerFolder]
     filemanagerFiles(folderId: String!, search: String): [FileManagerFile]
+    filemanagerFileDetail(_id: String!): FileManagerFile
     filemanagerLogs(contentTypeId: String!): [FileManagerLog]
     filemanagerGetAckRequest(fileId: String!): FileManagerRequest
   }
