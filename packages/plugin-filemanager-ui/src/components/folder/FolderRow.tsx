@@ -79,9 +79,9 @@ class FolderRow extends React.Component<Props, State> {
         isParent={isParent}
         isActive={isActive}
       >
-        <div>
+        <div onClick={this.onParentOpen}>
           {isParent && (
-            <span className="toggle-icon" onClick={this.onParentOpen}>
+            <span className="toggle-icon">
               <Icon
                 icon={`angle-${
                   this.state.isParentOpen || isActive ? 'down' : 'right'
@@ -97,6 +97,7 @@ class FolderRow extends React.Component<Props, State> {
           </Link>
           <ActionButtons>
             {this.renderEditAction()}
+
             <Tip text="Delete" placement="bottom">
               <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
             </Tip>

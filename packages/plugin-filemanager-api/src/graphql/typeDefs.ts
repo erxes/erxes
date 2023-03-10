@@ -47,6 +47,7 @@ const typeDefs = gql`
     contentTypeId: String
     userId: String
     description: String
+    user: User
   }
 
   type FileManagerRequest {
