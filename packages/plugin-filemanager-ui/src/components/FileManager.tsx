@@ -36,7 +36,7 @@ function FileManager({
   const breadcrumb = [
     { title: __('File Managers') },
     {
-      title: __(`${currentFolder.name} `)
+      title: __(`${currentFolder.name || ''} `)
     }
   ];
 
@@ -120,18 +120,20 @@ function FileManager({
         />
       }
       actionBar={
-        <Wrapper.ActionBar
-          left={
-            <BreadCrumb
-              breadcrumbs={[
-                {
-                  title: __(currentFolder.name)
-                }
-              ]}
-            />
-          }
-          right={actionBarRight}
-        />
+        Object.keys(currentFolder).length !== 0 && (
+          <Wrapper.ActionBar
+            left={
+              <BreadCrumb
+                breadcrumbs={[
+                  {
+                    title: __(currentFolder.name)
+                  }
+                ]}
+              />
+            }
+            right={actionBarRight}
+          />
+        )
       }
       content={
         <DataWithLoader
