@@ -1,49 +1,68 @@
 import * as compose from 'lodash.flowright';
 
-import { IFile, SaveFileMutationResponse } from '../../types';
+import {
+  FilemanagerFilesQueryResponse,
+  IFile,
+  SaveFileMutationResponse
+} from '../../types';
 import { mutations, queries } from '../../graphql';
 
 import { Alert } from '@erxes/ui/src/utils';
 import FileDetail from '../../components/file/Detail';
+import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 
 type Props = {
-  file?: IFile;
   queryParams: any;
-  closeModal: () => void;
+  fileId: string;
 };
 
 type FinalProps = {
-  documentsListQuery: any;
+  filemanagerDetailQuery: any;
+  filemanagerLogsQuery: any;
 } & Props &
-  SaveFileMutationResponse;
+  IRouterProps;
 
 const FileDetailContainer = (props: FinalProps) => {
-  return <FileDetail />;
+  const { filemanagerDetailQuery, filemanagerLogsQuery } = props;
+
+  if (
+    (filemanagerDetailQuery && filemanagerDetailQuery.loading) ||
+    (filemanagerLogsQuery && filemanagerLogsQuery.loading)
+  ) {
+    return <Spinner objective={true} />;
+  }
+
+  const item = filemanagerDetailQuery.filemanagerFileDetail || ({} as any);
+  const logs = filemanagerLogsQuery.filemanagerLogs || ([] as any);
+
+  const extendedProps = {
+    ...props,
+    item,
+    logs
+  };
+
+  return <FileDetail {...extendedProps} />;
 };
 
 export default compose(
-  graphql<Props>(gql(queries.documents), {
-    name: 'documentsListQuery'
-  }),
-  graphql<Props, SaveFileMutationResponse, {}>(
-    gql(mutations.filemanagerFileCreate),
-    {
-      name: 'saveFileMutation',
-      options: ({ queryParams }: { queryParams: any }) => {
-        return {
-          refetchQueries: [
-            {
-              query: gql(queries.filemanagerFiles),
-              variables: {
-                folderId: queryParams && queryParams._id ? queryParams._id : ''
-              }
-            }
-          ]
-        };
+  graphql<Props>(gql(queries.filemanagerFileDetail), {
+    name: 'filemanagerDetailQuery',
+    options: ({ fileId }: { fileId: string }) => ({
+      variables: {
+        _id: fileId
       }
-    }
-  )
+    })
+  }),
+  graphql<Props>(gql(queries.filemanagerLogs), {
+    name: 'filemanagerLogsQuery',
+    options: ({ fileId }: { fileId: string }) => ({
+      variables: {
+        contentTypeId: fileId
+      }
+    })
+  })
 )(FileDetailContainer);

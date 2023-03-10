@@ -26,9 +26,16 @@ const filemanagerFileRemove = `
   }
 `;
 
+const filemanagerChangePermission = `
+  mutation filemanagerChangePermission($type: String!, $_id: String!, $userIds: [String], $unitId: String) {
+    filemanagerChangePermission(type: $type, _id: $_id, userIds: $userIds, unitId: $unitId)
+  }
+`;
+
 export default {
   filemanagerFolderSave,
   filemanagerFolderRemove,
   filemanagerFileCreate,
-  filemanagerFileRemove
+  filemanagerFileRemove,
+  filemanagerChangePermission
 };

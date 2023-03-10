@@ -37,10 +37,7 @@ function FileManager({
     queryParams._id ? queryParams._id : ''
   );
 
-  const breadcrumb = [
-    { title: __('Settings'), link: '/settings' },
-    { title: __('File Managers'), link: '/filemanager' }
-  ];
+  const breadcrumb = [{ title: __('File Managers') }];
 
   const fileBreadcrumb = [
     // {

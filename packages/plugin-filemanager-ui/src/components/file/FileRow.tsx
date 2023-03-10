@@ -62,7 +62,7 @@ const FileRow = ({
       <ModalTrigger title="Edit File" trigger={editTrigger} content={content} />
     );
   };
-  console.log(item);
+
   return (
     <tr key={item._id} className="crow">
       <td id="customersCheckBox" style={{ width: '20px' }} onClick={onClick}>
@@ -74,14 +74,7 @@ const FileRow = ({
       </td>
       <td style={{ paddingLeft: '0' }}>
         <ItemName>
-          <a
-            rel="noopener noreferrer"
-            href={
-              item.type === 'dynamic'
-                ? `/filemanager/details/${item._id}`
-                : readFile(item.url)
-            }
-          >
+          <a href={`/filemanager/details/${item._id}`}>
             {renderFileIcon(item.type === 'dynamic' ? 'aaa.dynamic' : name)}
             {isFolder || item.contentType ? item.name : name}
           </a>

@@ -58,10 +58,7 @@ class FileList extends React.Component<Props> {
                 />
               </th>
               <th style={{ paddingLeft: '0' }}>
-                <ItemName>
-                  <img src="/images/folder.png" alt="folderImg" />
-                  {__('Name')}
-                </ItemName>
+                <ItemName>{__('Name')}</ItemName>
               </th>
               <th>
                 <SortHandler

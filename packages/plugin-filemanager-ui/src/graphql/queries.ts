@@ -1,3 +1,5 @@
+import { unitField } from '@erxes/ui/src/team/graphql/queries';
+
 const filemanagerFiles = `
   query filemanagerFiles($folderId: String!, $search: String) {
     filemanagerFiles(folderId: $folderId, search: $search) {
@@ -35,6 +37,37 @@ const filemanagerFolders = `
   }
 `;
 
+const filemanagerFileDetail = `
+  query filemanagerFileDetail($_id: String!) {
+    filemanagerFileDetail(_id: $_id) {
+      _id
+      contentType
+      contentTypeId
+      createdAt
+      createdUserId
+      documentId
+      folderId
+      info
+      name
+      type
+      url
+    }
+  }
+`;
+
+const filemanagerLogs = `
+  query filemanagerLogs($contentTypeId: String!) {
+    filemanagerLogs(contentTypeId: $contentTypeId) {
+      _id
+      contentType
+      contentTypeId
+      createdAt
+      userId
+      description
+    }
+  }
+`;
+
 const documents = `
   query documents($page: Int, $perPage: Int, $contentType: String, $limit: Int) {
     documents(page: $page, perPage: $perPage, contentType: $contentType, limit: $limit) {
@@ -46,8 +79,19 @@ const documents = `
   }
 `;
 
+const units = `
+  query units ($searchValue:String) {
+    units (searchValue:$searchValue) {
+      ${unitField}
+    }
+  }
+`;
+
 export default {
   filemanagerFiles,
   filemanagerFolders,
-  documents
+  filemanagerLogs,
+  filemanagerFileDetail,
+  documents,
+  units
 };
