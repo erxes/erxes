@@ -18,22 +18,18 @@ import { __ } from 'coreui/utils';
 
 type Props = {
   queryParams: any;
+  currentFolder: IFolder;
   filemanagerFolders: IFolder[];
   folderQueryLoading: boolean;
 };
 
 function FileManager({
   queryParams,
+  currentFolder,
   filemanagerFolders,
   folderQueryLoading
 }: Props) {
-  // const currentFolder =
-  //   !filemanagerFolders || filemanagerFolders.length !== 0
-  //     ? filemanagerFolders.find((folder: IFolder) =>
-  //         queryParams && queryParams._id ? folder._id === queryParams._id : ""
-  //       )
-  //     : ({} as any);
-  // console.log("cccc", currentFolder, queryParams._id, filemanagerFolders);
+  console.log('cccc', currentFolder);
   const [parentId, setParentId] = useState(
     queryParams._id ? queryParams._id : ''
   );
@@ -68,7 +64,7 @@ function FileManager({
     </Button>
   );
 
-  const shareContent = props => <ShareForm {...props} item={item} />;
+  const shareContent = props => <ShareForm {...props} item={{}} />;
 
   const content = props => (
     <FileFormContainer {...props} queryParams={queryParams} />

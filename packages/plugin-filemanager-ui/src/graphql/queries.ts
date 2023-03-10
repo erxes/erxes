@@ -55,6 +55,25 @@ const filemanagerFileDetail = `
   }
 `;
 
+const filemanagerFolderDetail = `
+  query filemanagerFolderDetail($_id: String!) {
+    filemanagerFolderDetail(_id: $_id) {
+      _id
+      createdAt
+      createdUserId
+      parentId
+      name
+      hasChild
+      parent {
+        _id
+        createdAt
+        name
+        parentId
+      }
+    }
+  }
+`;
+
 const filemanagerLogs = `
   query filemanagerLogs($contentTypeId: String!) {
     filemanagerLogs(contentTypeId: $contentTypeId) {
@@ -92,6 +111,7 @@ export default {
   filemanagerFolders,
   filemanagerLogs,
   filemanagerFileDetail,
+  filemanagerFolderDetail,
   documents,
   units
 };
