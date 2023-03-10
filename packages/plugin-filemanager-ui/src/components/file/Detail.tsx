@@ -30,7 +30,7 @@ class FileDetail extends React.Component<Props> {
     history.push('/filemanager');
   };
 
-  renderObjects() {
+  renderContent() {
     const { logs } = this.props;
 
     if (!logs || logs.length === 0) {
@@ -42,10 +42,6 @@ class FileDetail extends React.Component<Props> {
       );
     }
 
-    return logs.map(log => <LogRow key={log._id} log={log} />);
-  }
-
-  renderContent() {
     return (
       <Table whiteSpace="wrap" hover={true} bordered={true} condensed={true}>
         <thead>
@@ -56,7 +52,11 @@ class FileDetail extends React.Component<Props> {
             <th>{__('Action')}</th>
           </tr>
         </thead>
-        <tbody>{this.renderObjects()}</tbody>
+        <tbody>
+          {logs.map(log => (
+            <LogRow key={log._id} log={log} />
+          ))}
+        </tbody>
       </Table>
     );
   }

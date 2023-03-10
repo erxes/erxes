@@ -19,12 +19,40 @@ const FolderItemRow = styledTS<{
     padding: ${props =>
       props.isChild
         ? props.isParent
-          ? '5px 0 5px 30px'
-          : '5px 0 5px 55px'
+          ? '8px 0 8px 30px'
+          : '8px 0 8px 55px'
         : props.isParent
         ? '10px 0'
         : '10px 0 10px 35px'};
     display: flex;
+
+    > a {
+      white-space: normal;
+      display: block;
+      color: ${props =>
+        props.isActive ? colors.colorWhite : colors.textPrimary};
+      position: relative;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      max-width: 100%;
+      overflow: hidden;
+  
+      span {
+        color: ${colors.colorCoreGray};
+        padding-left: 5px;
+      }
+  
+      img {
+        width: 20px;
+        margin-right: 5px;
+      }
+  
+      &:focus {
+        color: ${props => (props.isActive ? colors.colorWhite : 'inherit')};
+        text-decoration: none;
+      }
+    }
   }
 
   .toggle-icon {
@@ -40,34 +68,6 @@ const FolderItemRow = styledTS<{
     }
   }
 
-  a {
-    white-space: normal;
-    display: block;
-    color: ${props =>
-      props.isActive ? colors.colorWhite : colors.textPrimary};
-    position: relative;
-    flex: 1;
-    display: flex;
-    align-items: center;
-    max-width: 100%;
-    overflow: hidden;
-
-    span {
-      color: ${colors.colorCoreGray};
-      padding-left: 5px;
-    }
-
-    img {
-      width: 20px;
-      margin-right: 5px;
-    }
-
-    &:focus {
-      color: ${props => (props.isActive ? colors.colorWhite : 'inherit')};
-      text-decoration: none;
-    }
-  }
-
   &:last-child {
     border: none;
   }
@@ -77,7 +77,7 @@ const FolderItemRow = styledTS<{
       props.isActive ? colors.colorSecondary : colors.bgActive};
 
     ${ActionButtons} {
-      width: 35px;
+      width: 60px;
 
       > button {
         color: ${props => props.isActive && colors.colorWhite} !important;

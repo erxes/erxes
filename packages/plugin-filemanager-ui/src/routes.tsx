@@ -11,6 +11,10 @@ const FileDetail = asyncComponent(() =>
   import(/* webpackChunkName: "File Detail" */ './containers/file/Detail')
 );
 
+const FolderDetail = asyncComponent(() =>
+  import(/* webpackChunkName: "Folder Detail" */ './containers/folder/Detail')
+);
+
 const filemanager = ({ location, history }) => {
   return (
     <FileManager
@@ -32,6 +36,18 @@ const detail = ({ location, history, match }) => {
   );
 };
 
+const folderDetail = ({ location, history, match }) => {
+  const fileId = match.params.id;
+
+  return (
+    <FolderDetail
+      queryParams={queryString.parse(location.search)}
+      history={history}
+      fileId={fileId}
+    />
+  );
+};
+
 const routes = () => (
   <>
     <Route
@@ -46,6 +62,13 @@ const routes = () => (
       exact={true}
       path="/filemanager/details/:id"
       component={detail}
+    />
+
+    <Route
+      key="/filemanager/folder/details/:id"
+      exact={true}
+      path="/filemanager/folder/details/:id"
+      component={folderDetail}
     />
   </>
 );
