@@ -52,6 +52,14 @@ const queries = {
     return paginate(models.Folders.find(selector), {}).sort(sort);
   },
 
+  async filemanagerFolderDetail(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
+    return models.Folders.findOne({ _id });
+  },
+
   async filemanagerFiles(
     _root,
     { folderId, search }: { folderId: string; search?: string },
