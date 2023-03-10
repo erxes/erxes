@@ -18,7 +18,9 @@ import {
   IScheduleConfigModel,
   loadScheduleConfigClass,
   IDeviceConfigModel,
-  loadDeviceConfigClass
+  loadDeviceConfigClass,
+  ITimeLogModel,
+  loadTimeLogClass
 } from './models/Timeclock';
 import {
   IAbsenceDocument,
@@ -28,11 +30,13 @@ import {
   IScheduleConfigDocument,
   IScheduleDocument,
   IShiftDocument,
-  ITimeClockDocument
+  ITimeClockDocument,
+  ITimeLogDocument
 } from './models/definitions/timeclock';
 
 export interface IModels {
   Timeclocks: ITimeModel;
+  TimeLogs: ITimeLogModel;
   Absences: IAbsenceModel;
   AbsenceTypes: IAbsenceTypeModel;
   Schedules: IScheduleModel;
@@ -90,6 +94,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.DeviceConfigs = db.model<IDeviceConfigDocument, IDeviceConfigModel>(
     'timeclock_device_config',
     loadDeviceConfigClass(models)
+  );
+
+  models.TimeLogs = db.model<ITimeLogDocument, ITimeLogModel>(
+    'timeclock_time_log',
+    loadTimeLogClass(models)
   );
 
   return models;

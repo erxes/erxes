@@ -24,7 +24,8 @@ export type RiskAssessmentTypes = {
   closedAt: string;
 };
 
-type RiskAssessmentAssignedMembers = {
+export type RiskAssessmentAssignedMembers = {
+  _id: string;
   submitStatus: string;
 } & IUser;
 
@@ -37,7 +38,8 @@ export type RiskAssessmentAssignedMembersQueryResponse = {
 } & QueryResponse;
 
 export type RiskAssessmentSubmitFormQueryResponse = {
-  riskAssessmentSubmitForm: RiskIndicatorsType[];
+  riskAssessmentSubmitForm: RiskIndicatorsType &
+    { _id: string; submitted: boolean }[];
 } & QueryResponse;
 
 type IndicatorFormType = {

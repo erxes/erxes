@@ -1,4 +1,7 @@
-import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
+import {
+  moduleRequireLogin,
+  checkPermission
+} from '@erxes/api-utils/src/permissions';
 import { IPage } from '../../models/definitions/pages';
 import { IContentType } from '../../models/definitions/contentTypes';
 import { IEntry } from '../../models/definitions/entries';
@@ -88,13 +91,14 @@ const webbuilderMutations = {
 
   async webbuilderTemplatesUse(
     _root,
-    { _id, name }: { _id: string; name: string },
+    { _id, name, coverImage }: { _id: string; name: string; coverImage: any },
     { models, user }: IContext
   ) {
     const site = await models.Sites.createSite(
       {
         templateId: _id,
-        name
+        name,
+        coverImage
       },
       user._id
     );
@@ -170,9 +174,86 @@ const webbuilderMutations = {
     { models }: IContext
   ) {
     return models.Sites.removeSite(_id);
+  },
+
+  async webbuilderSitesDuplicate(
+    _root,
+    { _id }: { _id: string },
+    { models, user }: IContext
+  ) {
+    return models.Sites.duplicateSite(_id, user._id);
   }
 };
 
 moduleRequireLogin(webbuilderMutations);
+
+checkPermission(webbuilderMutations, 'webbuilderPagesAdd', 'manageWebbuilder');
+checkPermission(webbuilderMutations, 'webbuilderPagesEdit', 'manageWebbuilder');
+checkPermission(
+  webbuilderMutations,
+  'webbuilderPagesRemove',
+  'manageWebbuilder'
+);
+
+checkPermission(
+  webbuilderMutations,
+  'webbuilderContentTypesAdd',
+  'manageWebbuilder'
+);
+checkPermission(
+  webbuilderMutations,
+  'webbuilderContentTypesEdit',
+  'manageWebbuilder'
+);
+checkPermission(
+  webbuilderMutations,
+  'webbuilderContentTypesRemove',
+  'manageWebbuilder'
+);
+
+checkPermission(
+  webbuilderMutations,
+  'webbuilderEntriesAdd',
+  'manageWebbuilder'
+);
+checkPermission(
+  webbuilderMutations,
+  'webbuilderEntriesEdit',
+  'manageWebbuilder'
+);
+checkPermission(
+  webbuilderMutations,
+  'webbuilderEntriesRemove',
+  'manageWebbuilder'
+);
+
+checkPermission(
+  webbuilderMutations,
+  'webbuilderTemplatesAdd',
+  'manageWebbuilder'
+);
+checkPermission(
+  webbuilderMutations,
+  'webbuilderTemplatesUse',
+  'manageWebbuilder'
+);
+checkPermission(
+  webbuilderMutations,
+  'webbuilderTemplatesRemove',
+  'manageWebbuilder'
+);
+
+checkPermission(webbuilderMutations, 'webbuilderSitesAdd', 'manageWebbuilder');
+checkPermission(webbuilderMutations, 'webbuilderSitesEdit', 'manageWebbuilder');
+checkPermission(
+  webbuilderMutations,
+  'webbuilderSitesRemove',
+  'manageWebbuilder'
+);
+checkPermission(
+  webbuilderMutations,
+  'webbuilderSitesDuplicate',
+  'manageWebbuilder'
+);
 
 export default webbuilderMutations;

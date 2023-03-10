@@ -1,5 +1,5 @@
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { Spinner } from '@erxes/ui/src';
+import { ButtonMutate, Spinner } from '@erxes/ui/src';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils/core';
 import gql from 'graphql-tag';
@@ -8,14 +8,16 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { RiskIndicatortDetailQueryResponse } from '../common/types';
+import { refetchQueries } from '../common/utils';
 import FormCompnent from '../components/Form';
-import { queries } from '../graphql';
+import { mutations, queries } from '../graphql';
 
 type Props = {
   asssessmentId?: string;
   indicatorDetail?: RiskIndicatortDetailQueryResponse;
   fieldsSkip?: any;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  closeModal: () => void;
+  queryParams: any;
 };
 
 type FinalProps = {
@@ -30,12 +32,39 @@ class FormContainer extends React.Component<FinalProps> {
   }
 
   render() {
-    const { indicatorDetail } = this.props;
+    const { indicatorDetail, closeModal, queryParams } = this.props;
+    const renderButton = ({
+      name,
+      values,
+      isSubmitted,
+      confirmationUpdate,
+      object
+    }: IButtonMutateProps) => {
+      let mutation = mutations.riskIndicatorAdd;
+      let successAction = 'added';
+      if (object) {
+        mutation = mutations.riskIndicatorUpdate;
+        successAction = 'updated';
+      }
+      return (
+        <ButtonMutate
+          mutation={mutation}
+          variables={values}
+          callback={closeModal}
+          isSubmitted={isSubmitted}
+          refetchQueries={refetchQueries(queryParams)}
+          type="submit"
+          confirmationUpdate={confirmationUpdate}
+          successMessage={`You successfully ${successAction} a ${name}`}
+        />
+      );
+    };
 
     const updatedProps = {
       ...this.props,
       indicatorDetail: indicatorDetail?.riskIndicatorDetail,
-      detailLoading: indicatorDetail?.loading
+      detailLoading: indicatorDetail?.loading,
+      renderButton
     };
 
     if (indicatorDetail?.loading) {

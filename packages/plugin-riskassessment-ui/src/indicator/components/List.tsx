@@ -8,7 +8,7 @@ import {
   Table,
   __
 } from '@erxes/ui/src';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import _loadash from 'lodash';
 import React from 'react';
 import AssessmentCategories from '../../categories/container/List';
@@ -21,7 +21,6 @@ import { subMenu } from '../../common/constants';
 
 type Props = {
   queryParams: any;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
   list: RiskIndicatorsType[];
   totalCount: number;
   refetch: ({
@@ -75,18 +74,7 @@ class ListComp extends React.Component<Props, IState> {
   }
 
   renderForm = props => {
-    return (
-      <Form
-        {...props}
-        categoryId={this.props.queryParams.categoryId}
-        renderButton={this.props.renderButton}
-      />
-    );
-  };
-
-  renderFormContent = props => {
-    const save = this.props.save;
-    return this.renderForm({ ...props, save });
+    return <Form {...props} queryParams={this.props.queryParams} />;
   };
 
   rightActionBarTrigger = (
@@ -101,7 +89,7 @@ class ListComp extends React.Component<Props, IState> {
       enforceFocus={false}
       trigger={this.rightActionBarTrigger}
       autoOpenKey="showListFormModal"
-      content={this.renderFormContent}
+      content={this.renderForm}
       dialogClassName="transform"
       size="xl"
     />
@@ -176,7 +164,6 @@ class ListComp extends React.Component<Props, IState> {
                 object={item}
                 selectedValue={selectedValue}
                 onchange={this.selectValue}
-                renderButton={this.props.renderButton}
                 queryParams={this.props.queryParams}
               />
             );

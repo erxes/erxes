@@ -23,6 +23,8 @@ import ConfigForm from './ConfigForm';
 
 type Props = {
   getActionBar: (actionBar: any) => void;
+  showSideBar: (sideBar: boolean) => void;
+
   absenceTypes?: IAbsenceType[];
   holidays?: IAbsence[];
   payDates: IPayDates[];
@@ -49,7 +51,8 @@ function ConfigList(props: Props) {
     removePayDate,
     getActionBar,
     removeScheduleConfig,
-    removeDeviceConfig
+    removeDeviceConfig,
+    showSideBar
   } = props;
 
   const [selectedType, setType] = useState(
@@ -382,7 +385,9 @@ function ConfigList(props: Props) {
         <thead>
           <tr>
             <th>Absence type</th>
-            <th>Shift Request</th>
+            <th>Request type</th>
+            <th>Request time</th>
+            <th>Time period</th>
             <th>Explanation required</th>
             <th>Attachment required</th>
             <th>Action</th>
@@ -394,7 +399,13 @@ function ConfigList(props: Props) {
               return (
                 <tr key={absenceType._id}>
                   <td>{absenceType.name}</td>
-                  <td>{absenceType.shiftRequest ? 'true' : 'false'}</td>
+                  <td>{absenceType.requestType}</td>
+                  <td>{absenceType.requestTimeType}</td>
+                  <td>
+                    {absenceType.requestTimeType === 'by day'
+                      ? `${absenceType.requestHoursPerDay} hours`
+                      : ''}
+                  </td>
                   <td>{absenceType.explRequired ? 'true' : 'false'}</td>
                   <td>{absenceType.attachRequired ? 'true' : 'false'}</td>
                   <td>
@@ -501,6 +512,8 @@ function ConfigList(props: Props) {
       </Table>
     );
   };
+
+  showSideBar(false);
   getActionBar(actionBar);
   return content();
 }

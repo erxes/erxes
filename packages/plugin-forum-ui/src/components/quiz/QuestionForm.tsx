@@ -35,23 +35,19 @@ const QuizQuestionForm: React.FC<Props> = ({
   questionId
 }) => {
   const defaultFile = question
-    ? [
-        {
-          url: question.imageUrl,
-          name: 'Question image',
-          type: 'image/jpeg'
-        }
-      ]
+    ? {
+        url: question.imageUrl,
+        name: 'Question image',
+        type: 'image'
+      }
     : choice
-    ? [
-        {
-          url: choice.imageUrl,
-          name: 'Choice image',
-          type: 'image/jpeg'
-        }
-      ]
-    : [];
-  const [image, setImage] = React.useState(defaultFile as IAttachment[]);
+    ? {
+        url: choice.imageUrl,
+        name: 'Choice image',
+        type: 'image'
+      }
+    : ({} as IAttachment);
+  const [image, setImage] = React.useState(defaultFile);
   const [isMultipleChoice, setIsMultipleChoice] = React.useState(
     question?.isMultipleChoice || false
   );
@@ -76,7 +72,7 @@ const QuizQuestionForm: React.FC<Props> = ({
     return {
       _id: finalValues._id,
       text: finalValues.text,
-      imageUrl: readFile(image[0]?.url) || '',
+      imageUrl: readFile(image.url) || '',
       isMultipleChoice,
       listOrder: parseInt(finalValues.listOrder, 10),
       quizId,
@@ -85,7 +81,12 @@ const QuizQuestionForm: React.FC<Props> = ({
     };
   };
 
-  const onChangeAttachment = attachment => setImage(attachment);
+  const onChangeAttachment = attachment =>
+    setImage(
+      attachment && attachment.length !== 0
+        ? attachment[0]
+        : ({} as IAttachment)
+    );
 
   const checkboxOptions = props => {
     if (type === 'choice') {
@@ -132,6 +133,8 @@ const QuizQuestionForm: React.FC<Props> = ({
       object = choice || ({} as IChoice);
     }
 
+    const images = Object.keys(image).length === 0 ? [] : [image];
+
     return (
       <>
         <FormGroup>
@@ -146,7 +149,7 @@ const QuizQuestionForm: React.FC<Props> = ({
         <FormGroup>
           <ControlLabel>Image</ControlLabel>
           <Uploader
-            defaultFileList={defaultFile}
+            defaultFileList={images}
             onChange={onChangeAttachment}
             single={true}
           />

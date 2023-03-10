@@ -56,9 +56,11 @@ export default {
     context.config =
       req.posConfig && req.posConfig._id
         ? req.posConfig
-        : await models.Configs.findOne({})
-            .sort({ createdAt: 1 })
-            .lean();
+        : (models &&
+            (await models.Configs.findOne({})
+              .sort({ createdAt: 1 })
+              .lean())) ||
+          {};
 
     if (req.posUser) {
       context.posUser = req.posUser;

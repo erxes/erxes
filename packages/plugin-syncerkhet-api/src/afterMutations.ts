@@ -36,6 +36,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
         {}
       );
 
+      // return
       if (Object.keys(returnConfigs).includes(destinationStageId)) {
         const returnConfig = {
           ...returnConfigs[destinationStageId],
@@ -68,6 +69,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
         return;
       }
 
+      // move
       if (Object.keys(moveConfigs).includes(destinationStageId)) {
         const moveConfig = {
           ...moveConfigs[destinationStageId],
@@ -102,10 +104,12 @@ export const afterMutationHandlers = async (subdomain, params) => {
         return;
       }
 
+      // nothing
       if (!Object.keys(configs).includes(destinationStageId)) {
         return;
       }
 
+      // create sale
       const config = {
         ...configs[destinationStageId],
         ...(await getConfig(subdomain, 'ERKHET', {}))

@@ -85,6 +85,7 @@ export const types = `
     message: String
     getInformation: String
     returnBillId: String
+    stocks: JSON
   }
 
 

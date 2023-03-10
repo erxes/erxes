@@ -13,14 +13,13 @@ import moment from 'moment';
 import React from 'react';
 import { RiskIndicatorsType } from '../common/types';
 import { default as Form, default as FormContainer } from '../containers/Form';
-import { generateParams } from '../containers/List';
+import { generateParams } from '../common/utils';
 import { mutations, queries } from '../graphql';
 
 type IProps = {
   object: RiskIndicatorsType;
   selectedValue: string[];
   onchange: (id: string) => void;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
   queryParams: any;
 };
 
@@ -72,6 +71,7 @@ class TableRow extends React.Component<IProps> {
           ...props,
           asssessmentId: object._id,
           fieldsSkip: { description: 0, name: 0 },
+          queryParams,
           renderButton
         };
         return <FormContainer {...updatedProps} />;

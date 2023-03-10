@@ -232,6 +232,12 @@ const userMutations = {
     const { _id, channelIds, ...doc } = args;
     const userOnDb = await models.Users.getUser(_id);
 
+    // clean custom field values
+    doc.customFieldsData = (doc.customFieldsData || []).map(cd => ({
+      ...cd,
+      stringValue: cd.value ? cd.value.toString() : ''
+    }));
+
     let updatedDoc = doc;
 
     if (doc.details) {

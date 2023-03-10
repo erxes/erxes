@@ -572,6 +572,16 @@ class GeneralStep extends React.Component<Props, State> {
           </FormColumn>
           <FormColumn>
             <FormGroup>
+              <FormControl
+                name="config"
+                type="text"
+                defaultValue={paymentType.config || ''}
+                onChange={onChangeInput}
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
               <Button
                 btnStyle="danger"
                 icon="trash"
@@ -689,6 +699,11 @@ class GeneralStep extends React.Component<Props, State> {
                     <FormColumn>
                       <FormGroup>
                         <ControlLabel>Icon</ControlLabel>
+                      </FormGroup>
+                    </FormColumn>
+                    <FormColumn>
+                      <FormGroup>
+                        <ControlLabel>Config</ControlLabel>
                       </FormGroup>
                     </FormColumn>
                     <FormColumn></FormColumn>

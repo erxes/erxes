@@ -9,7 +9,7 @@ import {
   IFormProps
 } from '@erxes/ui/src/types';
 import { IConfigsMap, IProduct, IProductCategory, IUom } from '../types';
-import { PRODUCT_SUPPLY, TYPES } from '../constants';
+import { PRODUCT_SUPPLY, TAX_TYPES, TYPES } from '../constants';
 import { BarcodeContainer, BarcodeItem } from '../styles';
 import {
   extractAttachment,
@@ -52,6 +52,8 @@ type State = {
   description: string;
   uomId: string;
   subUoms: any[];
+  taxType: string;
+  taxCode: string;
 };
 
 class Form extends React.Component<Props, State> {
@@ -70,7 +72,9 @@ class Form extends React.Component<Props, State> {
       vendorId,
       description,
       uomId,
-      subUoms
+      subUoms,
+      taxType,
+      taxCode
     } = product;
 
     const defaultUom = props.configsMap.defaultUOM || '';
@@ -87,7 +91,9 @@ class Form extends React.Component<Props, State> {
       vendorId: vendorId ? vendorId : '',
       description: description ? description : '',
       uomId: uomId ? uomId : defaultUom,
-      subUoms: subUoms ? subUoms : []
+      subUoms: subUoms ? subUoms : [],
+      taxType,
+      taxCode
     };
   }
 
@@ -328,6 +334,12 @@ class Form extends React.Component<Props, State> {
     });
   };
 
+  onTaxChange = e => {
+    this.setState({
+      [e.target.name]: e.target.value
+    } as any);
+  };
+
   renderContent = (formProps: IFormProps) => {
     const {
       renderButton,
@@ -358,7 +370,9 @@ class Form extends React.Component<Props, State> {
       barcodeDescription,
       productCount,
       disabled,
-      minimiumCount
+      minimiumCount,
+      taxType,
+      taxCode
     } = this.state;
 
     const isUom = (configsMap || {}).isRequireUOM || false;
@@ -471,11 +485,50 @@ class Form extends React.Component<Props, State> {
                 min={0}
               />
             </FormGroup>
+            <FormGroup>
+              <ControlLabel>Vendor</ControlLabel>
+              <SelectCompanies
+                label="Choose an vendor"
+                name="vendorId"
+                customOption={{ value: '', label: 'No vendor chosen' }}
+                initialValue={vendorId}
+                onSelect={this.onComboEvent.bind(this, 'vendorId')}
+                multi={false}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Tax Type</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="taxType"
+                componentClass="select"
+                onChange={this.onTaxChange}
+                defaultValue={taxType}
+                options={[
+                  { value: '', label: 'default' },
+                  ...Object.keys(TAX_TYPES).map(type => ({
+                    value: type,
+                    label: TAX_TYPES[type].label
+                  }))
+                ]}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Tax Code</ControlLabel>
+
+              <FormControl
+                {...formProps}
+                name="taxCode"
+                componentClass="select"
+                onChange={this.onTaxChange}
+                defaultValue={taxCode}
+                options={(TAX_TYPES[taxType || ''] || {}).options || []}
+              />
+            </FormGroup>
           </FormColumn>
           <FormColumn>
             <FormGroup>
               <ControlLabel>Product supply</ControlLabel>
-
               <FormControl
                 {...formProps}
                 name="supply"
@@ -490,7 +543,6 @@ class Form extends React.Component<Props, State> {
               <FormColumn>
                 <FormGroup>
                   <ControlLabel>Product count</ControlLabel>
-
                   <FormControl
                     {...formProps}
                     name="productCount"
@@ -519,7 +571,6 @@ class Form extends React.Component<Props, State> {
 
             <FormGroup>
               <ControlLabel>Featured image</ControlLabel>
-
               <Uploader
                 defaultFileList={attachments}
                 onChange={this.onChangeAttachment}
@@ -530,7 +581,6 @@ class Form extends React.Component<Props, State> {
 
             <FormGroup>
               <ControlLabel>Secondary Images</ControlLabel>
-
               <Uploader
                 defaultFileList={attachmentsMore}
                 onChange={this.onChangeAttachmentMore}
@@ -596,18 +646,6 @@ class Form extends React.Component<Props, State> {
                     ]
                   }
                 ]}
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <ControlLabel>Vendor</ControlLabel>
-              <SelectCompanies
-                label="Choose an vendor"
-                name="vendorId"
-                customOption={{ value: '', label: 'No vendor chosen' }}
-                initialValue={vendorId}
-                onSelect={this.onComboEvent.bind(this, 'vendorId')}
-                multi={false}
               />
             </FormGroup>
 

@@ -1,4 +1,4 @@
-import { Actions, HeaderContent, TemplateBox } from './styles';
+import { HeaderContent } from './styles';
 import {
   Content,
   FilterContainer,
@@ -11,7 +11,7 @@ import {
 } from '../sites/styles';
 import { ModalFooter, Title } from '@erxes/ui/src/styles/main';
 import React, { useState } from 'react';
-import { __, getEnv } from '@erxes/ui/src/utils/core';
+import { __, getEnv, router } from '@erxes/ui/src/utils/core';
 
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
@@ -25,17 +25,30 @@ import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { IAttachment } from '@erxes/ui/src/types';
+import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '@erxes/ui/src/types';
 
 type Props = {
   templates: ITemplateDoc[];
   templatesCount: number;
-  use: (_id: string, name: string) => void;
-};
+  use: (_id: string, name: string, coverImage: any) => void;
+  queryParams: any;
+} & IRouterProps;
 
 function List(props: Props) {
-  const [name, setName] = useState('');
+  let timer;
 
-  const { templates, templatesCount, use } = props;
+  const [name, setName] = useState('');
+  const [coverImage, setCoverImage] = useState<IAttachment | undefined>(
+    undefined
+  );
+  const [category, setCategory] = useState('');
+
+  const { templates, templatesCount, use, queryParams } = props;
+
+  const [search, setSearch] = useState(queryParams.searchValue);
 
   const renderDemoAction = (template: ITemplateDoc) => {
     const { REACT_APP_API_URL } = getEnv();
@@ -51,9 +64,37 @@ function List(props: Props) {
     );
   };
 
+  const filterTemplates = () => {
+    if (!category) {
+      return templates;
+    }
+
+    return templates.filter(template =>
+      (template.categories || '').includes(category)
+    );
+  };
+
+  const onClickCategory = (value: any) => {
+    setCategory(value);
+  };
+
+  const onChangeCoverImage = (attachment: IAttachment[]) => {
+    if (attachment.length) {
+      setCoverImage(attachment[0]);
+
+      return;
+    }
+
+    setCoverImage(undefined);
+  };
+
   const renderCategories = (cat: any, index: number) => {
     return (
-      <Tag key={index}>
+      <Tag
+        key={index}
+        isActive={category === cat.value}
+        onClick={() => onClickCategory(cat.value)}
+      >
         {cat.icon} &nbsp;
         {cat.label}
       </Tag>
@@ -77,6 +118,16 @@ function List(props: Props) {
           />
         </FormGroup>
 
+        <FormGroup>
+          <ControlLabel>Cover image</ControlLabel>
+
+          <Uploader
+            defaultFileList={coverImage ? [coverImage] : []}
+            onChange={onChangeCoverImage}
+            single={true}
+          />
+        </FormGroup>
+
         <ModalFooter>
           <Button
             btnStyle="simple"
@@ -90,7 +141,7 @@ function List(props: Props) {
           <Button
             btnStyle="success"
             icon="plus-circle"
-            onClick={() => use(template._id, name)}
+            onClick={() => use(template._id, name, coverImage)}
             uppercase={false}
           >
             Create
@@ -114,7 +165,7 @@ function List(props: Props) {
         <SitePreview>
           <img src={template.image} alt="template-img" />
           <PreviewContent>
-            {renderDemoAction(template)}
+            {template.name !== 'Blank' && renderDemoAction(template)}
             {renderUseAction(template)}
           </PreviewContent>
         </SitePreview>
@@ -137,12 +188,31 @@ function List(props: Props) {
     </HeaderContent>
   );
 
+  const onSearchTemplate = (e: any) => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+
+    const { history } = props;
+
+    const value = e.target.value;
+
+    setSearch(value);
+
+    timer = setTimeout(() => {
+      router.removeParams(history, 'page');
+      router.setParams(history, { searchValue: value });
+    }, 500);
+  };
+
   const actionBarRight = (
     <BarItems>
       <FormControl
         type="text"
         placeholder={__('Search templates')}
         autoFocus={true}
+        onChange={onSearchTemplate}
+        defaultValue={search}
       />
     </BarItems>
   );
@@ -167,7 +237,10 @@ function List(props: Props) {
             <>
               <FilterContainer>
                 <Labels>
-                  <Tag isActive={true}>
+                  <Tag
+                    isActive={!category}
+                    onClick={() => onClickCategory(null)}
+                  >
                     <Icon icon="menu-2" />
                     &nbsp; {__('All')}
                   </Tag>
@@ -175,7 +248,9 @@ function List(props: Props) {
                 </Labels>
               </FilterContainer>
               <FlexWrap noPadding={true}>
-                {templates.map((template, index) => renderRow(template, index))}
+                {filterTemplates().map((template, index) =>
+                  renderRow(template, index)
+                )}
               </FlexWrap>
             </>
           }
@@ -191,4 +266,4 @@ function List(props: Props) {
   );
 }
 
-export default List;
+export default withRouter<Props>(List);

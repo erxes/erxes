@@ -279,32 +279,41 @@ const orderMutations = {
     }).lean();
 
     await validateOrderPayment(order, doc);
+    const now = new Date();
 
     const ebarimtConfig: any = config.ebarimtConfig;
 
-    const data = await prepareEbarimtData(
-      models,
-      order,
-      ebarimtConfig,
-      items,
-      doc.billType,
-      doc.registerNumber || order.registerNumber
-    );
-
-    ebarimtConfig.districtName = getDistrictName(
-      (config.ebarimtConfig && config.ebarimtConfig.districtCode) || ''
-    );
-
     try {
-      const response = await models.PutResponses.putData({
-        ...data,
-        config: ebarimtConfig,
-        models
-      });
+      const ebarimtResponses: any[] = [];
 
-      if (response && response.success === 'true') {
-        const now = new Date();
+      const ebarimtDatas = await prepareEbarimtData(
+        models,
+        order,
+        ebarimtConfig,
+        items,
+        doc.billType,
+        doc.registerNumber || order.registerNumber
+      );
 
+      ebarimtConfig.districtName = getDistrictName(
+        (config.ebarimtConfig && config.ebarimtConfig.districtCode) || ''
+      );
+
+      for (const data of ebarimtDatas) {
+        let response;
+
+        response = await models.PutResponses.putData({
+          ...data,
+          config: ebarimtConfig,
+          models
+        });
+        ebarimtResponses.push(response);
+      }
+
+      if (
+        ebarimtResponses.length &&
+        !ebarimtResponses.filter(er => er.success !== 'true').length
+      ) {
         await models.Orders.updateOne(
           { _id },
           {
@@ -318,6 +327,7 @@ const orderMutations = {
       }
 
       order = await models.Orders.getOrder(_id);
+
       graphqlPubsub.publish('ordersOrdered', {
         ordersOrdered: {
           ...order,
@@ -332,8 +342,9 @@ const orderMutations = {
           subdomain,
           action: 'createOrUpdateOrders',
           data: {
+            posToken: config.token,
             action: 'makePayment',
-            response,
+            responses: ebarimtResponses,
             order,
             items
           }
@@ -342,7 +353,7 @@ const orderMutations = {
         debugError(`Error occurred while sending data to erxes: ${e.message}`);
       }
 
-      return response;
+      return ebarimtResponses;
     } catch (e) {
       debugError(e);
 
@@ -435,12 +446,11 @@ const orderMutations = {
     const now = new Date();
 
     const ebarimtConfig: any = config.ebarimtConfig;
-
     try {
-      let response;
+      const ebarimtResponses: any[] = [];
 
       if (billType !== BILL_TYPES.INNER) {
-        const data = await prepareEbarimtData(
+        const ebarimtDatas = await prepareEbarimtData(
           models,
           order,
           ebarimtConfig,
@@ -453,16 +463,22 @@ const orderMutations = {
           (config.ebarimtConfig && config.ebarimtConfig.districtCode) || ''
         );
 
-        response = await models.PutResponses.putData({
-          ...data,
-          config: ebarimtConfig,
-          models
-        });
+        for (const data of ebarimtDatas) {
+          let response;
+
+          response = await models.PutResponses.putData({
+            ...data,
+            config: ebarimtConfig,
+            models
+          });
+          ebarimtResponses.push(response);
+        }
       }
 
       if (
         billType === BILL_TYPES.INNER ||
-        (response && response.success === 'true')
+        (ebarimtResponses.length &&
+          !ebarimtResponses.filter(er => er.success !== 'true').length)
       ) {
         await models.Orders.updateOne(
           { _id },
@@ -495,7 +511,7 @@ const orderMutations = {
           data: {
             posToken: config.token,
             action: 'makePayment',
-            response,
+            responses: ebarimtResponses,
             order,
             items
           }
@@ -504,7 +520,7 @@ const orderMutations = {
         debugError(`Error occurred while sending data to erxes: ${e.message}`);
       }
 
-      return response;
+      return ebarimtResponses;
     } catch (e) {
       debugError(e);
 

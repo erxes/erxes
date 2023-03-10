@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { DateContainer } from '@erxes/ui/src/styles/main';
+import { DateContainer, SimpleButton } from '@erxes/ui/src/styles/main';
 import { colors, dimensions, typography } from '@erxes/ui/src/styles';
 
 const FilterWrapper = styled.div`
@@ -14,6 +14,12 @@ const FilterWrapper = styled.div`
 
   strong {
     margin-right: 2 0px;
+  }
+`;
+
+const ConfigFormWrapper = styled.div`
+  label > span:before {
+    border-radius: 0;
   }
 `;
 
@@ -157,11 +163,29 @@ const SidebarActions = styled.div`
   }
 `;
 
+const ToggleButton = styled(SimpleButton)`
+  margin-left: -5px;
+  margin-right: 10px;
+`;
+
 const FlexRow = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+`;
+
+const InlineBlock = styled.div`
+  display: inline;
+  align-items: center;
+`;
+
+const FlexRowEven = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px
+  justify-content: space-even;
 `;
 
 const FlexColumn = styledTS<{
@@ -181,10 +205,34 @@ const FlexColumnMargined = styledTS<{
   margin-top:${props => props.marginNum * 2}px;
 `;
 
+const ToggleDisplay = styledTS<{
+  display: boolean;
+}>(styled.div)`
+  display: ${props => (props.display ? 'inline' : 'none')};
+`;
+
 const DateName = styled.div`
   text-transform: uppercase;
   margin: ${dimensions.unitSpacing}px 0;
   text-align: center;
+`;
+
+const Margin = styled.div`
+  margin: 0 ${dimensions.coreSpacing}px;
+`;
+
+const RowField = styled.div`
+  width: 33%;
+  border-top: 1px solid ${colors.borderPrimary};
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  &:last-child {
+    width: 10%;
+    padding: 8px 20px 8px 0;
+    text-align: right;
+  }
 `;
 
 export {
@@ -201,5 +249,12 @@ export {
   DateName,
   CustomRangeContainer,
   SidebarHeader,
-  CustomRow
+  CustomRow,
+  FlexRowEven,
+  ToggleDisplay,
+  ConfigFormWrapper,
+  ToggleButton,
+  InlineBlock,
+  Margin,
+  RowField
 };

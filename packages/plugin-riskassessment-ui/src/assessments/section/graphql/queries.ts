@@ -4,6 +4,12 @@ query RiskAssessment($cardId: String, $cardType: String) {
 }
 `;
 
+const riskAssessmentGroups = `
+  query RiskAssessmentGroups($groupIds: [String], $riskAssessmentId: String) {
+    riskAssessmentGroups(groupIds: $groupIds, riskAssessmentId: $riskAssessmentId)
+  }
+`;
+
 const riskAssessmentAssignedMembers = `
 query RiskAssessmentAssignedMembers($cardId: String, $cardType: String, $riskAssessmentId: String) {
   riskAssessmentAssignedMembers(cardId: $cardId, cardType: $cardType, riskAssessmentId: $riskAssessmentId)
@@ -50,6 +56,7 @@ const riskIndicators = `
 
 export default {
   riskAssessment,
+  riskAssessmentGroups,
   riskAssessmentAssignedMembers,
   riskAssessmentSubmitForm,
   riskAssessmentIndicatorForm,

@@ -1,4 +1,4 @@
-import { getEnv, withProps } from '@erxes/ui/src/utils/core';
+import { getEnv, isEnabled, withProps } from '@erxes/ui/src/utils/core';
 import queryString from 'query-string';
 import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
@@ -29,18 +29,13 @@ type FinalProps = {
 } & Props;
 
 const ListContainer = (props: FinalProps) => {
-  const {
-    listReportsQuery,
-    queryParams,
-    getActionBar,
-    showSideBar,
-    getPagination
-  } = props;
+  const { listReportsQuery, queryParams } = props;
   const { branchId, deptId } = queryParams;
 
-  if (listReportsQuery.loading) {
+  if (listReportsQuery && listReportsQuery.loading) {
     return <Spinner />;
   }
+
   const exportReport = () => {
     const stringified = queryString.stringify({
       ...queryParams
@@ -52,20 +47,18 @@ const ListContainer = (props: FinalProps) => {
     );
   };
 
-  const { list = [], totalCount = 0 } = listReportsQuery.timeclockReports;
-
-  getPagination(<Pagination count={totalCount} />);
+  const { list = [], totalCount = 0 } =
+    listReportsQuery?.timeclockReports || {};
 
   const updatedProps = {
     ...props,
-    getActionBar,
     exportReport,
     reports: list,
     totalCount,
     branchId,
     deptId
   };
-  showSideBar(true);
+
   return <ReportList {...updatedProps} />;
 };
 
@@ -73,6 +66,7 @@ export default withProps<Props>(
   compose(
     graphql<Props, ReportsQueryResponse>(gql(queries.listReports), {
       name: 'listReportsQuery',
+      skip: isEnabled('bichil') || false,
       options: ({ queryParams, reportType }) => ({
         variables: {
           ...generateParams(queryParams),

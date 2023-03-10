@@ -7,11 +7,12 @@ import {
 } from '@erxes/ui/src';
 import React from 'react';
 import { ColorBox, FormContainer, ProductName } from '../../../styles';
+import { RiskAssessmentTypes } from '../../common/types';
 import AssignedUsers from '../containers/AssignedUsers';
 import Form from '../containers/Form';
 
 type Props = {
-  riskAssessment: any;
+  riskAssessment: RiskAssessmentTypes;
   cardId: string;
   cardType: string;
 };
