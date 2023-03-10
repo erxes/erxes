@@ -1,16 +1,19 @@
 import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-// import EditorCK from "../containers/EditorCK";
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import LogRow from './LogRow';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
+import ShareForm from '../../containers/file/ShareForm';
+import Table from '@erxes/ui/src/components/table';
 import { Title } from '@erxes/ui/src/styles/main';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
+import { readFile } from '@erxes/ui/src/utils';
 
 type Props = {
   item: any;
   history: any;
+  logs: any;
 };
 class FileDetail extends React.Component<Props> {
   onContentChange = e => {
@@ -27,10 +30,48 @@ class FileDetail extends React.Component<Props> {
     history.push('/filemanager');
   };
 
+  renderObjects() {
+    const { logs } = this.props;
+
+    if (!logs || logs.length === 0) {
+      return (
+        <EmptyState
+          image="/images/actions/5.svg"
+          text="No file update at the moment!"
+        />
+      );
+    }
+
+    return logs.map(log => <LogRow key={log._id} log={log} />);
+  }
+
+  renderContent() {
+    return (
+      <Table whiteSpace="wrap" hover={true} bordered={true} condensed={true}>
+        <thead>
+          <tr>
+            <th>{__('Date')}</th>
+            <th>{__('Created by')}</th>
+            <th>{__('Module')}</th>
+            <th>{__('Action')}</th>
+          </tr>
+        </thead>
+        <tbody>{this.renderObjects()}</tbody>
+      </Table>
+    );
+  }
+
   render() {
     const { item } = this.props;
+    const isDynamic = item.type === 'dynamic';
 
-    const formContent = <div>content</div>;
+    const trigger = (
+      <Button btnStyle="primary" icon="share-alt" type="button">
+        {__('Share')}
+      </Button>
+    );
+
+    const content = props => <ShareForm {...props} item={item} />;
 
     const actionButtons = (
       <>
@@ -43,15 +84,29 @@ class FileDetail extends React.Component<Props> {
           {__('Back')}
         </Button>
 
-        <Button btnStyle="success" type="button">
-          {__('Download')}
-        </Button>
+        <ModalTrigger
+          title="Share File"
+          trigger={trigger}
+          content={content}
+          centered={true}
+          enforceFocus={false}
+        />
+
+        <a href={isDynamic ? '#' : readFile(item.url)}>
+          <Button
+            btnStyle="success"
+            type="button"
+            icon={isDynamic ? 'print' : 'download-1'}
+          >
+            {isDynamic ? __('Print') : __('Download')}
+          </Button>
+        </a>
       </>
     );
 
     const breadcrumb = [
-      { title: __('File manager'), link: '/filemanager' }
-      // { title: __("Documents"), link: "/documents" },
+      { title: __('File manager'), link: '/filemanager' },
+      { title: __(item.name) }
     ];
 
     return (
@@ -61,11 +116,15 @@ class FileDetail extends React.Component<Props> {
         }
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('File manager')}</Title>}
+            left={
+              <>
+                <Title>{__(item.name)}</Title>
+              </>
+            }
             right={actionButtons}
           />
         }
-        content={formContent}
+        content={this.renderContent()}
         transparent={true}
         hasBorder={true}
       />

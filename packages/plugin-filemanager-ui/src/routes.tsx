@@ -21,7 +21,7 @@ const filemanager = ({ location, history }) => {
 };
 
 const detail = ({ location, history, match }) => {
-  const fileId = match.params._id;
+  const fileId = match.params.id;
 
   return (
     <FileDetail
