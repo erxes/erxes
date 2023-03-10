@@ -1,17 +1,18 @@
-import { DetailHeader, DetailTitle, FilePreview } from './styles';
+import { DetailHeader, DetailTitle, FilePreview, FlexRow } from './styles';
+import { __, getEnv } from '@erxes/ui/src/utils';
+import { readFile, renderUserFullName } from '@erxes/ui/src/utils';
 
 import Attachment from '@erxes/ui/src/components/Attachment';
 import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
+import Label from '@erxes/ui/src/components/Label';
 import LogRow from './LogRow';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import ShareForm from '../../containers/ShareForm';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { getEnv, __ } from '@erxes/ui/src/utils';
-import { readFile } from '@erxes/ui/src/utils';
 
 type Props = {
   item: any;
@@ -96,28 +97,49 @@ class FileDetail extends React.Component<Props> {
     );
   }
 
+  renderSharedInfo() {
+    const { sharedUsers = [] } = this.props.item || {};
+
+    return (
+      <Label lblStyle="success" ignoreTrans={true}>
+        <>
+          Shared with {sharedUsers.length || 0} member
+          {sharedUsers.map(user => (
+            <React.Fragment key={user._id}>
+              {renderUserFullName(user)}, &nbsp;
+            </React.Fragment>
+          ))}
+        </>
+      </Label>
+    );
+  }
+
   renderDetailInfo() {
     const { item } = this.props;
     const isFolder = item.folderId ? false : true;
 
     if (isFolder || item.type === 'dynamic') {
       return (
-        <DetailTitle>
-          {item.type === 'dynamic' ? (
-            <>
-              <Icon icon="file-alt" /> &nbsp;
-            </>
-          ) : (
-            <img src={'/images/folder.png'} alt="folder" />
-          )}
-          {__(item.name)}
-        </DetailTitle>
+        <FlexRow>
+          <DetailTitle>
+            {item.type === 'dynamic' ? (
+              <>
+                <Icon icon="file-alt" /> &nbsp;
+              </>
+            ) : (
+              <img src={'/images/folder.png'} alt="folder" />
+            )}
+            {__(item.name)}
+          </DetailTitle>
+          {this.renderSharedInfo()}
+        </FlexRow>
       );
     }
 
     return (
       <FilePreview>
         <Attachment
+          large={true}
           attachment={{
             name: item.name,
             size: item.info && item.info.size,
@@ -125,6 +147,7 @@ class FileDetail extends React.Component<Props> {
             url: item.url
           }}
         />
+        {this.renderSharedInfo()}
       </FilePreview>
     );
   }
@@ -135,8 +158,7 @@ class FileDetail extends React.Component<Props> {
 
     const trigger = (
       <Button btnStyle="primary" icon="share-alt" type="button">
-        {__('Share')}{' '}
-        <small>(Shared with {item.sharedUsers.length || 0} members)</small>
+        {__('Share')}
       </Button>
     );
 

@@ -38,6 +38,8 @@ const DetailHeader = styled.h4`
 `;
 
 const FilePreview = styled.div`
+  display: flex;
+  align-items: center;
   padding: ${dimensions.coreSpacing}px 0;
 `;
 

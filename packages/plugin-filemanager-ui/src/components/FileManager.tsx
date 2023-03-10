@@ -11,6 +11,8 @@ import FolderForm from '../containers/folder/FolderForm';
 import FolderList from '../containers/folder/FolderList';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IFolder } from '../types';
+import Label from '@erxes/ui/src/components/Label';
+import { LeftActionbar } from '../styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import ShareForm from '../containers/ShareForm';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -68,6 +70,23 @@ function FileManager({
     <FolderForm {...props} queryParams={queryParams} />
   );
 
+  const actionBarLeft = (
+    <LeftActionbar>
+      <BreadCrumb
+        breadcrumbs={[
+          {
+            title: __(currentFolder.name)
+          }
+        ]}
+      />
+      {currentFolder.sharedUsers && currentFolder.sharedUsers.length !== 0 && (
+        <Label lblStyle="success" ignoreTrans={true}>
+          <>Shared {(currentFolder.sharedUsers || []).length} member</>
+        </Label>
+      )}
+    </LeftActionbar>
+  );
+
   const actionBarRight = (
     <BarItems>
       <FormControl
@@ -122,18 +141,7 @@ function FileManager({
       actionBar={
         filemanagerFolders &&
         filemanagerFolders.length !== 0 && (
-          <Wrapper.ActionBar
-            left={
-              <BreadCrumb
-                breadcrumbs={[
-                  {
-                    title: __(currentFolder.name)
-                  }
-                ]}
-              />
-            }
-            right={actionBarRight}
-          />
+          <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
         )
       }
       content={
