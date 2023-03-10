@@ -50,19 +50,16 @@ const ListContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, TimeLogsPerUserQueryResponse>(
-      gql(queries.listTimeLogsPerUser),
-      {
-        name: 'listTimeLogsPerUser',
-        options: ({ userId, startDate, endDate }) => ({
-          variables: {
-            userId: `${userId}`,
-            startDate: `${startDate}`,
-            endDate: `${endDate}`
-          }
-        })
-      }
-    ),
+    graphql<Props, TimeLogsPerUserQueryResponse>(gql(queries.timeLogsPerUser), {
+      name: 'listTimeLogsPerUser',
+      options: ({ userId, startDate, endDate }) => ({
+        variables: {
+          userId: `${userId}`,
+          startDate: `${startDate}`,
+          endDate: `${endDate}`
+        }
+      })
+    }),
 
     graphql<Props, TimeClockMutationResponse>(gql(mutations.timeclockEdit), {
       name: 'timeclockEditMutation',
@@ -78,7 +75,7 @@ export default withProps<Props>(
           shiftEnd: timeclockEnd,
           shiftActive: timeclockActive
         },
-        refetchQueries: ['listTimeclocksQuery']
+        refetchQueries: ['timeclocksMain']
       })
     })
   )(ListContainer)

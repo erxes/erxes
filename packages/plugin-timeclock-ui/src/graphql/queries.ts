@@ -48,23 +48,23 @@ const listParamsValue = `
   reportType: $reportType
 `;
 
-const listTimelogsMain = `
-query timelogsMain(${listParamsDef}){
-  timelogsMain(${listParamsValue}){
-    list{
-      _id
-      user {
-        ${userFields}
+const timelogsMain = `
+  query timelogsMain(${listParamsDef}){
+    timelogsMain(${listParamsValue}){
+      list{
+        _id
+        user {
+          ${userFields}
+        }
+        timelog
+        deviceName
       }
-      timelog
-      deviceName
+      totalCount
     }
-    totalCount
-  }
-}`;
+  }`;
 
-const listTimeclocksMain = `
-  query listTimeclocksQuery(${listParamsDef}) {
+const timeclocksMain = `
+  query timeclocksMain(${listParamsDef}) {
     timeclocksMain(${listParamsValue}) {
       list {
             _id
@@ -81,11 +81,11 @@ const listTimeclocksMain = `
             deviceType
         }
         totalCount
-  }
+    }
 }
 `;
-const listSchedulesMain = `
-  query listSchedulesMain(${listParamsDef}) {
+const schedulesMain = `
+  query schedulesMain(${listParamsDef}) {
     schedulesMain(${listParamsValue}) {
       list {
           _id
@@ -107,8 +107,8 @@ const listSchedulesMain = `
   }
 }
 `;
-const listRequestsMain = `
-  query listRequestsMain(${listParamsDef}) {
+const requestsMain = `
+  query requestsMain(${listParamsDef}) {
     requestsMain(${listParamsValue}) {
       list {
           _id
@@ -130,8 +130,8 @@ const listRequestsMain = `
 }
 `;
 
-const listBranches = `
-  query listBranchesQuery($searchValue: String){
+const branches = `
+  query branches($searchValue: String){
     branches(searchValue: $searchValue){
       _id
       title
@@ -139,8 +139,8 @@ const listBranches = `
   }
 `;
 
-const listReports = `
-  query listReportsQuery(${listParamsDef}){
+const timeclockReports = `
+  query timeclockReports(${listParamsDef}){
     timeclockReports(${listParamsValue}){
       list {
               groupTitle
@@ -191,28 +191,7 @@ const listReports = `
     }
   }`;
 
-const listReportByUser = `
-  query timeclockReportByUser($selectedUser: String){
-    timeclockReportByUser(selectedUser:$selectedUser){
-      user {
-        ${userFields}
-      }
-      scheduleReport {
-        date
-        scheduleStart
-        scheduleEnd
-        recordedStart
-        recordedEnd
-        minsLate
-        minsWorked
-      }
-      totalMinsLate
-      totalAbsenceMins
-      totalMinsWorked
-    }
-  }`;
-
-const listAbsenceTypes = `
+const absenceTypes = `
   query absenceTypes{
     absenceTypes{
       _id
@@ -228,7 +207,7 @@ const listAbsenceTypes = `
   }
 `;
 
-const listPayDates = `
+const payDates = `
   query payDates{
     payDates{
       _id
@@ -237,7 +216,7 @@ const listPayDates = `
   }
 `;
 
-const listHolidays = `
+const holidays = `
 query holidays {
   holidays {
     _id
@@ -247,7 +226,7 @@ query holidays {
   }
 }`;
 
-const listScheduleConfigs = `
+const scheduleConfigs = `
   query scheduleConfigs {
     scheduleConfigs{
       _id
@@ -266,17 +245,20 @@ const listScheduleConfigs = `
 
 `;
 
-const listDeviceConfigs = `
-query deviceConfigs {
-  deviceConfigs {
-    _id 
-    deviceName
-    serialNo
-    extractRequired
+const deviceConfigs = `
+query deviceConfigs (${listParamsDef}){
+  deviceConfigs(${listParamsValue}) {
+    list {
+      _id 
+      deviceName
+      serialNo
+      extractRequired
+    }
+    totalCount
   }
 }`;
 
-const listTimeLogsPerUser = `
+const timeLogsPerUser = `
   query timeLogsPerUser($userId: String, $startDate: String, $endDate: String){
     timeLogsPerUser(userId: $userId, startDate: $startDate, endDate: $endDate){
       _id
@@ -287,17 +269,20 @@ const listTimeLogsPerUser = `
 `;
 
 export default {
-  listReports,
-  listReportByUser,
-  listBranches,
-  listTimeclocksMain,
-  listTimelogsMain,
-  listTimeLogsPerUser,
-  listSchedulesMain,
-  listRequestsMain,
-  listAbsenceTypes,
-  listPayDates,
-  listHolidays,
-  listScheduleConfigs,
-  listDeviceConfigs
+  timeclockReports,
+  branches,
+
+  timeclocksMain,
+  timelogsMain,
+  timeLogsPerUser,
+
+  schedulesMain,
+  requestsMain,
+
+  absenceTypes,
+  payDates,
+  holidays,
+
+  scheduleConfigs,
+  deviceConfigs
 };
