@@ -51,6 +51,47 @@ const filemanagerFileDetail = `
       name
       type
       url
+      sharedUsers {
+        _id
+        username
+        email
+        details {
+          firstName
+          lastName
+          fullName
+          avatar
+        }
+      }
+    }
+  }
+`;
+
+const filemanagerFolderDetail = `
+  query filemanagerFolderDetail($_id: String!) {
+    filemanagerFolderDetail(_id: $_id) {
+      _id
+      createdAt
+      createdUserId
+      parentId
+      name
+      hasChild
+      parent {
+        _id
+        createdAt
+        name
+        parentId
+      }
+      sharedUsers {
+        _id
+        username
+        email
+        details {
+          firstName
+          lastName
+          fullName
+          avatar
+        }
+      }
     }
   }
 `;
@@ -92,6 +133,7 @@ export default {
   filemanagerFolders,
   filemanagerLogs,
   filemanagerFileDetail,
+  filemanagerFolderDetail,
   documents,
   units
 };

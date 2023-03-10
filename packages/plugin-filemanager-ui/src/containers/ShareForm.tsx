@@ -1,11 +1,11 @@
 import * as compose from 'lodash.flowright';
 
-import { mutations, queries } from '../../graphql';
+import { mutations, queries } from '../graphql';
 
 import { Alert } from '@erxes/ui/src/utils';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
-import ShareForm from '../../components/file/ShareForm';
+import ShareForm from '../components/ShareForm';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
@@ -35,7 +35,7 @@ const ShareFormContainer = (props: FinalProps) => {
       variables
     })
       .then(() => {
-        Alert.success('You successfully shared an file');
+        Alert.success('You successfully shared');
 
         closeModal();
       })

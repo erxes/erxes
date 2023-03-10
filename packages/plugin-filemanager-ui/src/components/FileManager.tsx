@@ -12,40 +12,31 @@ import FolderList from '../containers/folder/FolderList';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IFolder } from '../types';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import ShareForm from '../containers/ShareForm';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
 
 type Props = {
   queryParams: any;
+  currentFolder: IFolder;
   filemanagerFolders: IFolder[];
   folderQueryLoading: boolean;
 };
 
 function FileManager({
   queryParams,
+  currentFolder,
   filemanagerFolders,
   folderQueryLoading
 }: Props) {
-  // const currentFolder =
-  //   !filemanagerFolders || filemanagerFolders.length !== 0
-  //     ? filemanagerFolders.find((folder: IFolder) =>
-  //         queryParams && queryParams._id ? folder._id === queryParams._id : ""
-  //       )
-  //     : ({} as any);
-  // console.log("cccc", currentFolder, queryParams._id, filemanagerFolders);
   const [parentId, setParentId] = useState(
     queryParams._id ? queryParams._id : ''
   );
 
-  const breadcrumb = [{ title: __('File Managers') }];
-
-  const fileBreadcrumb = [
-    // {
-    //   title: __(`${currentFolder.name} `),
-    //   link: `/filemanager?_id=${currentFolder._id}`,
-    // },
+  const breadcrumb = [
+    { title: __('File Managers') },
     {
-      title: __(`Files`)
+      title: __(`${currentFolder.name} `)
     }
   ];
 
@@ -60,6 +51,14 @@ function FileManager({
       Add Sub Folder
     </Button>
   );
+
+  const shareTrigger = (
+    <Button btnStyle="warning" icon="share-alt" size="small">
+      Share folder
+    </Button>
+  );
+
+  const shareContent = props => <ShareForm {...props} item={currentFolder} />;
 
   const content = props => (
     <FileFormContainer {...props} queryParams={queryParams} />
@@ -77,6 +76,14 @@ function FileManager({
         // onChange={this.search}
         // value={this.state.searchValue}
         // onFocus={this.moveCursorAtTheEnd}
+      />
+
+      <ModalTrigger
+        title="Share Folder"
+        trigger={shareTrigger}
+        content={shareContent}
+        centered={true}
+        enforceFocus={false}
       />
 
       <ModalTrigger
@@ -114,7 +121,15 @@ function FileManager({
       }
       actionBar={
         <Wrapper.ActionBar
-          left={<BreadCrumb breadcrumbs={fileBreadcrumb} />}
+          left={
+            <BreadCrumb
+              breadcrumbs={[
+                {
+                  title: __(currentFolder.name)
+                }
+              ]}
+            />
+          }
           right={actionBarRight}
         />
       }

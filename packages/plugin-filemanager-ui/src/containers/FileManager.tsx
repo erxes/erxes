@@ -7,6 +7,7 @@ import FileManager from '../components/FileManager';
 import { FilemanagerFoldersQueryResponse } from '../types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { queries } from '../graphql';
@@ -19,6 +20,7 @@ type Props = {
 
 type FinalProps = {
   filemanagerFoldersQuery: FilemanagerFoldersQueryResponse;
+  filemanagerFolderDetailQuery: any;
 } & Props &
   IRouterProps;
 
@@ -30,11 +32,11 @@ class FileManagerContainer extends React.Component<FinalProps> {
       queryParams: { _id }
     } = nextProps;
 
-    if (!filemanagerFoldersQuery) {
+    if (!filemanagerFoldersQuery || filemanagerFoldersQuery.loading) {
       return;
     }
 
-    const { filemanagerFolders, loading } = filemanagerFoldersQuery;
+    const { filemanagerFolders = [], loading } = filemanagerFoldersQuery;
 
     const parents = filemanagerFolders.filter(f => !f.parentId);
 
@@ -50,12 +52,25 @@ class FileManagerContainer extends React.Component<FinalProps> {
   }
 
   render() {
-    const { filemanagerFoldersQuery, history } = this.props;
+    const {
+      filemanagerFoldersQuery,
+      filemanagerFolderDetailQuery
+    } = this.props;
+
+    if (
+      (filemanagerFoldersQuery && filemanagerFoldersQuery.loading) ||
+      (filemanagerFolderDetailQuery && filemanagerFolderDetailQuery.loading)
+    ) {
+      return <Spinner objective={true} />;
+    }
 
     const filemanagerFolders = filemanagerFoldersQuery.filemanagerFolders || [];
+    const currentFolder =
+      filemanagerFolderDetailQuery.filemanagerFolderDetail || ({} as any);
 
     const updatedProps = {
       ...this.props,
+      currentFolder,
       filemanagerFolders,
       folderQueryLoading: filemanagerFoldersQuery.loading
     };
@@ -74,7 +89,15 @@ const WithProps = withProps<Props>(
           fetchPolicy: 'network-only'
         })
       }
-    )
+    ),
+    graphql<Props>(gql(queries.filemanagerFolderDetail), {
+      name: 'filemanagerFolderDetailQuery',
+      options: ({ queryParams }: { queryParams: any }) => ({
+        variables: {
+          _id: queryParams && queryParams._id ? queryParams._id : ''
+        }
+      })
+    })
   )(withRouter<FinalProps>(FileManagerContainer))
 );
 
