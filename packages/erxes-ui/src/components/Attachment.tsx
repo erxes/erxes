@@ -1,12 +1,13 @@
-import Icon from './Icon';
-import React from 'react';
-import styled from 'styled-components';
-import { rgba } from '../styles/ecolor';
-import colors from '../styles/colors';
-import { IAttachment } from '../types';
 import { __, readFile } from '../utils/core';
+
 import AttachmentWithPreview from './AttachmentWithPreview';
+import { IAttachment } from '../types';
+import Icon from './Icon';
 import ImageWithPreview from './ImageWithPreview';
+import React from 'react';
+import colors from '../styles/colors';
+import { rgba } from '../styles/ecolor';
+import styled from 'styled-components';
 
 export const AttachmentWrapper = styled.div`
   border-radius: 4px;

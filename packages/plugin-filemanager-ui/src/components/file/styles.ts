@@ -37,6 +37,10 @@ const DetailHeader = styled.h4`
   margin: 20px 20px 10px;
 `;
 
+const FilePreview = styled.div`
+  padding: ${dimensions.coreSpacing}px 0;
+`;
+
 const ArticleTitle = styled.h5`
   font-weight: bold;
   font-size: 14px;
@@ -140,6 +144,7 @@ export {
   FillContent,
   FlexRow,
   Forms,
+  FilePreview,
   DetailTitle,
   DetailHeader
 };

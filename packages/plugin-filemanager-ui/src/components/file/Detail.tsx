@@ -1,5 +1,6 @@
-import { DetailHeader, DetailTitle } from './styles';
+import { DetailHeader, DetailTitle, FilePreview } from './styles';
 
+import Attachment from '@erxes/ui/src/components/Attachment';
 import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import LogRow from './LogRow';
@@ -69,7 +70,7 @@ class FileDetail extends React.Component<Props> {
   renderDetailInfo() {
     const { item } = this.props;
     const isFolder = item.folderId ? false : true;
-    console.log(item);
+
     if (isFolder) {
       return (
         <DetailTitle>
@@ -80,9 +81,16 @@ class FileDetail extends React.Component<Props> {
     }
 
     return (
-      <>
-        <Title>{__(item.name)}</Title>
-      </>
+      <FilePreview>
+        <Attachment
+          attachment={{
+            name: item.name,
+            size: item.info.size,
+            type: item.info.type,
+            url: item.url
+          }}
+        />
+      </FilePreview>
     );
   }
 
