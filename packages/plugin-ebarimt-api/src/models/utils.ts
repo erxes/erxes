@@ -236,7 +236,15 @@ export const returnBill = async (models: IModels, doc, config) => {
 
   const resultObjIds: string[] = [];
   for (const prePutResponse of prePutResponses) {
-    const rd = prePutResponse.registerNo;
+    let rd = prePutResponse.registerNo;
+    if (!rd) {
+      continue;
+    }
+
+    if (rd.length === 12) {
+      rd = rd.slice(-8);
+    }
+
     const date = prePutResponse.date;
 
     if (!prePutResponse.billId || !rd || !date) {
@@ -259,7 +267,6 @@ export const returnBill = async (models: IModels, doc, config) => {
       contentType,
       returnBillId: prePutResponse.billId
     });
-    console.log('qqqqqqqqqqqqqqqqq', resObj, url, data);
 
     const responseStr = await sendRequest({
       url: `${url}/returnBill?lib=${rd}`,
@@ -268,9 +275,7 @@ export const returnBill = async (models: IModels, doc, config) => {
       params: { ...data }
     });
 
-    console.log(responseStr, 'kkkkkkkkkkkkkkkkkkk');
     const response = JSON.parse(responseStr);
-    console.log(response, 'rrrrrrrrrrrrrrrrr');
     await models.PutResponses.updatePutResponse(resObj._id, {
       ...response
     });
