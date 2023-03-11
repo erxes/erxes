@@ -19,6 +19,17 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
+      - name: Use Node.js 14.18.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.18.x
+
+      - uses: actions/checkout@v2
+
+      - name: Build
+        run: |
+          ls
+
       - name: Configure AWS credentials
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' )
         uses: aws-actions/configure-aws-credentials@v1
@@ -31,6 +42,5 @@ jobs:
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' )
         run: |
           ls
-          ls scripts
           aws s3 sync scripts/pluginsMap.js s3://erxes-dev-plugins --delete
 
