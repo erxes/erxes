@@ -26,11 +26,6 @@ jobs:
 
       - uses: actions/checkout@v2
 
-      - name: Build
-        run: |
-          ls
-          ls scripts
-
       - name: Configure AWS credentials
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' )
         uses: aws-actions/configure-aws-credentials@v1
