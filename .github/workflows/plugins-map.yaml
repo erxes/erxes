@@ -30,5 +30,7 @@ jobs:
       - name: Deploy
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' )
         run: |
-          aws s3 sync scripts/pluginsMap.js s3://erxes-dev-plugins/pluginsMap.js --delete
+          ls
+          ls scripts
+          aws s3 sync scripts/pluginsMap.js s3://erxes-dev-plugins --delete
 
