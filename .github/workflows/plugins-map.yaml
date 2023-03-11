@@ -1,0 +1,34 @@
+name: PluginsMap CI
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - "scripts/pluginsMap.js"
+      - ".github/workflows/plugins-map.yaml"
+  pull_request:
+    branches:
+      - dev
+    paths:
+      - "scripts/pluginsMap.js"
+      - ".github/workflows/plugins-map.yaml"
+
+jobs:
+  ui:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Configure AWS credentials
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' )
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Deploy
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' )
+        run: |
+          aws s3 sync scripts/pluginsMap.js s3://erxes-dev-plugins/pluginsMap.js --delete
+
