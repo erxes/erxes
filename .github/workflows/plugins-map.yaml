@@ -29,6 +29,7 @@ jobs:
       - name: Build
         run: |
           ls
+          ls scripts
 
       - name: Configure AWS credentials
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' )
@@ -42,5 +43,5 @@ jobs:
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' )
         run: |
           ls
-          aws s3 sync scripts/pluginsMap.js s3://erxes-dev-plugins --delete
+          aws s3 sync scripts/pluginsMap.js s3://erxes-dev-plugins
 
