@@ -461,7 +461,10 @@ export const checkOrderAmount = (order: IOrderDocument, amount: number) => {
     mobileAmount +
     (paidAmounts || []).reduce((sum, i) => Number(sum) + Number(i.amount), 0);
 
-  if (paidAmount + amount > order.totalAmount) {
+  if (
+    paidAmount <= order.totalAmount &&
+    paidAmount + amount > order.totalAmount
+  ) {
     throw new Error('Amount exceeds total amount');
   }
 };
