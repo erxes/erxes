@@ -101,6 +101,17 @@ export const sendProductsMessage = async (
   });
 };
 
+export const sendSegmentsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'segments',
+    ...args
+  });
+};
+
 export default function() {
   return client;
 }
