@@ -259,7 +259,7 @@ export const returnBill = async (models: IModels, doc, config) => {
       contentType,
       returnBillId: prePutResponse.billId
     });
-    console.log('qqqqqqqqqqqqqqqqq', resObj);
+    console.log('qqqqqqqqqqqqqqqqq', resObj, url, data);
 
     const responseStr = await sendRequest({
       url: `${url}/returnBill?lib=${rd}`,
