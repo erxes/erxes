@@ -42,6 +42,7 @@ export const afterMutationHandlers = async (
           { ...deal, contentType: 'deal', contentId: deal._id },
           returnConfig
         );
+        console.log(returnResponses, 'dddddddddddddd');
 
         if (returnResponses.length) {
           try {
