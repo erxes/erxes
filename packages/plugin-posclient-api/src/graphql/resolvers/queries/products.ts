@@ -346,7 +346,7 @@ const productQueries = {
       data: {
         departmentId: config.departmentId,
         branchId: config.branchId,
-        product
+        products: [product]
       },
       isRPC: true,
       defaultValue: {}
