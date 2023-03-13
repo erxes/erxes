@@ -229,7 +229,6 @@ export default {
         productRows.push(
           `<tr>
             <td>${index}</td>
-            <td>${product.code || ''}</td>
             <td>${product.name}</td>
             <td>${pd.quantity}</td>
             <td>${toMoney(pd.unitPrice)}</td>
@@ -247,7 +246,6 @@ export default {
                 <thead>
                   <tr>
                     <th>№</th>
-                    <th>Code</th>
                     <th>${
                       type === 'product' ? 'Product name' : 'Service name'
                     }</th>
