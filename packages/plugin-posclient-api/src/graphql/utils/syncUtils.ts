@@ -165,7 +165,7 @@ export const importProducts = async (
           upsert: true;
         };
       }[] = [];
-
+      console.log(category.name, category.products.length, 'kkkkkkkkkk');
       for (const product of category.products) {
         bulkOps.push({
           updateOne: {
