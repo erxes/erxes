@@ -25,7 +25,11 @@ export default {
   },
 
   async childAssetCount(asset: IAssetDocument, {}, { models }: IContext) {
-    let filter: string | object = { $regex: new RegExp(asset.order) };
+    const order = asset.order.slice(-1)
+      ? asset.order.replace(/\\/g, '\\\\')
+      : asset.order;
+
+    let filter: string | object = { $regex: new RegExp(order) };
 
     if (asset.order.match(/\\/)) {
       filter = asset.order;
