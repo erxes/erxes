@@ -62,7 +62,7 @@ const StageItemContainer = styled.div`
   }
 
   .Select {
-    width: 200px;
+    width: 100px;
   }
 
   button {
