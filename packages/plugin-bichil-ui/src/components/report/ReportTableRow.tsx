@@ -29,22 +29,22 @@ const ReportRow = (userReport: IUserReport, reportType: string) => {
       return (
         <tr key={Math.random()}>
           <td>{userReport.user.employeeId}</td>
+          <td>{userReport.user.details?.position || '-'}</td>
           <td>{userReport.user.details?.lastName || '-'}</td>
           <td>{userReport.user.details?.firstName || '-'}</td>
-          <td>{userReport.user.details?.position || '-'}</td>
+
+          <td>{userReport.totalDays}</td>
+          <td>{userReport.totalWeekendDays}</td>
+
           <td>{userReport.totalDaysScheduled}</td>
           <td>{userReport.totalHoursScheduled}</td>
+
           <td>{userReport.totalDaysWorked}</td>
           <td>{userReport.totalRegularHoursWorked}</td>
+          <td>{userReport.totalHoursShiftRequest}</td>
           <td>{userReport.totalHoursOvertime}</td>
-          <td>{userReport.totalHoursOvernight}</td>
-          <td>{userReport.totalHoursWorked}</td>
-          <td>{userReport.totalMinsLate}</td>
-          <td>{'-'}</td>
 
-          <td>{'-'}</td>
-          <td>{'-'}</td>
-          <td>{'-'}</td>
+          <td>{userReport.totalMinsLate}</td>
         </tr>
       );
 
@@ -191,7 +191,6 @@ const renderScheduleShiftsOfReport = scheduleReport => {
 
 function TableRow(props: Props) {
   const { reportType, bichilReport } = props;
-
   return (
     <tbody>
       {bichilReport.groupReport.map(userReport =>
