@@ -160,13 +160,11 @@ export const getProductsData = async (
     for (const product of products) {
       const discount = pricing[product._id] || {};
 
-      if (!Object.keys(discount).length) {
-        continue;
-      }
-
-      product.unitPrice -= discount.value;
-      if (product.unitPrice < 0) {
-        product.unitPrice = 0;
+      if (Object.keys(discount).length) {
+        product.unitPrice -= discount.value;
+        if (product.unitPrice < 0) {
+          product.unitPrice = 0;
+        }
       }
 
       if (!Object.keys(productsByCatId).includes(product.categoryId)) {
