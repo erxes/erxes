@@ -31,6 +31,7 @@ type Props = {
   productsData?: IProductData[];
   productData: IProductData;
   removeProductItem?: (productId: string) => void;
+  duplicateProductItem?: (productId: string) => void;
   onChangeProductsData?: (productsData: IProductData[]) => void;
   calculatePerProductAmount: (type: string, productData: IProductData) => void;
   updateTotal?: () => void;
@@ -390,8 +391,10 @@ class ProductItem extends React.Component<Props, State> {
       productData,
       uom,
       currencies,
+      duplicateProductItem,
       removeProductItem
     } = this.props;
+
     const avStyle = { display: advancedView ? '' : 'none' };
 
     const selectOption = option => (
@@ -529,6 +532,12 @@ class ProductItem extends React.Component<Props, State> {
           <Icon
             onClick={removeProductItem?.bind(this, productData._id)}
             icon="times-circle"
+          />
+        </td>
+        <td>
+          <Icon
+            onClick={duplicateProductItem?.bind(this, productData._id)}
+            icon="copy-alt"
           />
         </td>
       </tr>

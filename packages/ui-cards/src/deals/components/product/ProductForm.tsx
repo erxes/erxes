@@ -98,6 +98,23 @@ class ProductForm extends React.Component<Props, State> {
     this.updateTotal();
   }
 
+  duplicateProductItem = _id => {
+    const { productsData, onChangeProductsData } = this.props;
+
+    const productData: any = productsData.find(p => p._id === _id);
+
+    productsData.push({
+      ...productData,
+      _id: Math.random().toString()
+    });
+
+    onChangeProductsData(productsData);
+
+    for (const productData of productsData) {
+      this.calculatePerProductAmount('discount', productData);
+    }
+  };
+
   removeProductItem = _id => {
     const { productsData, onChangeProductsData } = this.props;
 
@@ -260,6 +277,7 @@ class ProductForm extends React.Component<Props, State> {
               <th>{__('Is vat applied')}</th>
               <th>{__('Assigned to')}</th>
               <th />
+              <th />
             </tr>
           </thead>
           <tbody id="products">
@@ -268,6 +286,7 @@ class ProductForm extends React.Component<Props, State> {
                 key={productData._id}
                 advancedView={advancedView}
                 productData={productData}
+                duplicateProductItem={this.duplicateProductItem}
                 removeProductItem={this.removeProductItem}
                 productsData={productsData}
                 onChangeProductsData={onChangeProductsData}

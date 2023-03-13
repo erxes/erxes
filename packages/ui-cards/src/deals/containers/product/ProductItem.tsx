@@ -13,6 +13,7 @@ type Props = {
   currencies: string[];
   productsData?: IProductData[];
   productData: IProductData;
+  duplicateProductItem?: (productId: string) => void;
   removeProductItem?: (productId: string) => void;
   onChangeProductsData?: (productsData: IProductData[]) => void;
   calculatePerProductAmount: (type: string, productData: IProductData) => void;
