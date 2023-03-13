@@ -363,7 +363,7 @@ export const prepareOrderDoc = async (
   for (const item of items) {
     const fixedUnitPrice = Number(
       (
-        (productsOfId[item.productId] || {}).prices[config.token] ||
+        ((productsOfId[item.productId] || {}).prices || {})[config.token] ||
         item.unitPrice ||
         0
       ).toFixed(2)
@@ -409,7 +409,7 @@ export const prepareOrderDoc = async (
         const toAddItem = toAddProducts[addProduct._id];
 
         const fixedUnitPrice = Number(
-          (addProduct.prices[config.token] || 0).toFixed(2)
+          ((addProduct.prices || {})[config.token] || 0).toFixed(2)
         );
 
         items.push({

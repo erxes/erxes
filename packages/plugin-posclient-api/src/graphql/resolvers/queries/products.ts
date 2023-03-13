@@ -347,7 +347,9 @@ const productQueries = {
       data: {
         departmentId: config.departmentId,
         branchId: config.branchId,
-        products: [{ ...product, unitPrice: product.prices[config.token] }]
+        products: [
+          { ...product, unitPrice: (product.prices || {})[config.token] }
+        ]
       },
       isRPC: true,
       defaultValue: {}

@@ -139,7 +139,7 @@ const reportQueries = {
         items[category._id].products.push({
           name: product.name,
           code: product.code,
-          unitPrice: product.prices[config.token] || 0,
+          unitPrice: (product.prices || {})[config.token] || 0,
           count: groupedItem.count
         });
       }
