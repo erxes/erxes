@@ -3,6 +3,9 @@ import { sendCommonMessage } from './messageBroker';
 import { serviceDiscovery } from './configs';
 
 const toMoney = value => {
+  if (!value) {
+    return '-';
+  }
   return new Intl.NumberFormat().format(value);
 };
 
@@ -93,7 +96,7 @@ export default {
 
       replacedContent = replacedContent.replace(
         '{{ bulkQuantity }}',
-        value || ''
+        value || '-'
       );
       replacedContent = replacedContent.replace(
         '{{ bulkPrice }}',
