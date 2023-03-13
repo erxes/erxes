@@ -19,6 +19,7 @@ const commonPostAndCommentFields = `
   attachments
   timestamp
   permalink_url
+  content
 `;
 
 const facebookGetConfigs = `
