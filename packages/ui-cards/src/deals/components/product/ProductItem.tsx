@@ -532,7 +532,7 @@ class ProductItem extends React.Component<Props, State> {
             onSelect={this.assignUserOnChange}
           />
         </td>
-        <td>
+        <td style={avStyle}>
           <FormControl
             value={productData.globalUnitPrice || ''}
             type="number"
@@ -541,7 +541,7 @@ class ProductItem extends React.Component<Props, State> {
             onChange={this.onChange}
           />
         </td>
-        <td>
+        <td style={avStyle}>
           <FormControl
             value={productData.unitPricePercent || ''}
             type="number"

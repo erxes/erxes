@@ -228,9 +228,11 @@ class ProductForm extends React.Component<Props, State> {
     }
 
     const filterSearch = localStorage.getItem('dealProductFormSearch');
+
     const filterParentCategory = localStorage.getItem(
       'dealProductFormCategoryId'
     );
+
     const filterCategoryIds = JSON.parse(
       localStorage.getItem('dealProductFormCategoryIds') || '[]'
     );
@@ -276,8 +278,8 @@ class ProductForm extends React.Component<Props, State> {
               <th>{__('Is tick used')}</th>
               <th>{__('Is vat applied')}</th>
               <th>{__('Assigned to')}</th>
-              <th>{__('Unit price (global)')}</th>
-              <th>{__('Unit price percent')}</th>
+              <th style={avStyle}>{__('Unit price (global)')}</th>
+              <th style={avStyle}>{__('Unit price percent')}</th>
               <th />
               <th />
             </tr>
