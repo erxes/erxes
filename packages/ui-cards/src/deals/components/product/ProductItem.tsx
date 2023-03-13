@@ -79,6 +79,7 @@ class ProductItem extends React.Component<Props, State> {
     if (currencies.length > 0 && !productData.currency) {
       this.onChangeField('currency', currencies[0], productData._id);
     }
+
     if (isEnabled('loyalties') && productData.product) {
       this.changeDiscountPercent(productData);
       this.toggleVoucherCardChecBox();
@@ -99,7 +100,7 @@ class ProductItem extends React.Component<Props, State> {
   onChangeField = (
     type: string,
     value: string | boolean | IProduct | number,
-    productId: string
+    _id: string
   ) => {
     const {
       productsData,
@@ -108,7 +109,8 @@ class ProductItem extends React.Component<Props, State> {
     } = this.props;
 
     if (productsData) {
-      const productData = productsData.find(p => p._id === productId);
+      const productData = productsData.find(p => p._id === _id);
+
       if (productData) {
         if (type === 'product') {
           const product = value as IProduct;
@@ -333,9 +335,9 @@ class ProductItem extends React.Component<Props, State> {
     this.onChangeField('assignUserId', userId, this.props.productData._id);
   };
 
-  changeCurrentProduct = (productId: string) => {
+  changeCurrentProduct = (_id: string) => {
     this.setState({
-      currentProduct: this.state.currentProduct === productId ? '' : productId
+      currentProduct: this.state.currentProduct === _id ? '' : _id
     });
   };
 
@@ -347,7 +349,7 @@ class ProductItem extends React.Component<Props, State> {
       _id: dealQuery._id,
       products: [
         {
-          productId: product._id,
+          productId: product.productId,
           quantity
         }
       ]

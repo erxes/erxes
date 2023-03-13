@@ -97,10 +97,10 @@ class ProductForm extends React.Component<Props, State> {
     this.updateTotal();
   }
 
-  removeProductItem = productId => {
+  removeProductItem = _id => {
     const { productsData, onChangeProductsData } = this.props;
 
-    const removedProductsData = productsData.filter(p => p._id !== productId);
+    const removedProductsData = productsData.filter(p => p._id !== _id);
 
     onChangeProductsData(removedProductsData);
 
@@ -341,6 +341,7 @@ class ProductForm extends React.Component<Props, State> {
       Object.keys(changePayData).length > 0
     ) {
       let alertMsg = '';
+
       for (const key of Object.keys(changePayData)) {
         // warning greater pay
         if (changePayData[key] > 0) {
@@ -457,17 +458,13 @@ class ProductForm extends React.Component<Props, State> {
 
     const productOnChange = (products: IProduct[]) => {
       this.clearFilter();
+
       const { onChangeProductsData, currencies } = this.props;
+
       const { tax, discount } = this.state;
       const currency = currencies ? currencies[0] : '';
 
-      const currentProductIds = productsData.map(p => p.productId);
-
       for (const product of products) {
-        if (currentProductIds.includes(product._id)) {
-          continue;
-        }
-
         productsData.push({
           tax: 0,
           taxPercent: tax[currency] ? tax[currency].percent || 0 : 0,
@@ -484,7 +481,7 @@ class ProductForm extends React.Component<Props, State> {
           quantity: 1,
           productId: product._id,
           unitPrice: product.unitPrice,
-          _id: product._id
+          _id: Math.random().toString()
         });
       }
 
@@ -503,7 +500,7 @@ class ProductForm extends React.Component<Props, State> {
         categoryId={this.state.categoryId}
         data={{
           name: 'Product',
-          products: productsData.filter(p => p.product).map(p => p.product)
+          products: []
         }}
       />
     );
