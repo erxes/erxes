@@ -99,11 +99,7 @@ class ProductItem extends React.Component<Props, State> {
     this.setState({ categoryId });
   };
 
-  onChangeField = (
-    type: string,
-    value: string | boolean | IProduct | number,
-    _id: string
-  ) => {
+  onChangeField = (type: string, value, _id: string) => {
     const {
       productsData,
       onChangeProductsData,
@@ -120,6 +116,14 @@ class ProductItem extends React.Component<Props, State> {
           productData.unitPrice = product.unitPrice;
           productData.currency =
             productData.currency || this.props.currencies[0];
+        }
+
+        if (type === 'unitPricePercent') {
+          productData.unitPrice = (productData.globalUnitPrice * value) / 100;
+        }
+
+        if (type === 'globalUnitPrice') {
+          productData.unitPrice = (value * productData.unitPricePercent) / 100;
         }
 
         productData[type] = value;
@@ -526,6 +530,26 @@ class ProductItem extends React.Component<Props, State> {
             }}
             initialValue={productData.assignUserId}
             onSelect={this.assignUserOnChange}
+          />
+        </td>
+        <td>
+          <FormControl
+            value={productData.globalUnitPrice || ''}
+            type="number"
+            placeholder="0"
+            name="globalUnitPrice"
+            onChange={this.onChange}
+          />
+        </td>
+        <td>
+          <FormControl
+            value={productData.unitPricePercent || ''}
+            type="number"
+            min={0}
+            max={100}
+            placeholder="0"
+            name="unitPricePercent"
+            onChange={this.onChange}
           />
         </td>
         <td>

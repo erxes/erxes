@@ -276,6 +276,8 @@ class ProductForm extends React.Component<Props, State> {
               <th>{__('Is tick used')}</th>
               <th>{__('Is vat applied')}</th>
               <th>{__('Assigned to')}</th>
+              <th>{__('Unit price (global)')}</th>
+              <th>{__('Unit price percent')}</th>
               <th />
               <th />
             </tr>
@@ -505,6 +507,8 @@ class ProductForm extends React.Component<Props, State> {
           quantity: 1,
           productId: product._id,
           unitPrice: product.unitPrice,
+          globalUnitPrice: product.unitPrice,
+          unitPricePercent: 100,
           _id: Math.random().toString()
         });
       }
