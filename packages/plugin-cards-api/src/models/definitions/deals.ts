@@ -193,7 +193,7 @@ export const productCategorySchema = schemaWrapper(
 
 export const productDataSchema = new Schema(
   {
-    _id: field({ type: String }),
+    _id: field({ pkey: true }),
     productId: field({ type: String, esType: 'keyword' }), // Product
     uom: field({ type: String, esType: 'keyword' }), // Units of measurement
     currency: field({ type: String, esType: 'keyword' }), // Currency
