@@ -142,6 +142,7 @@ export const importProducts = async (
       : attachment;
   };
 
+  console.log(token, 'tttttttttttttt');
   for (const group of groups) {
     const categories = group.categories || [];
 
