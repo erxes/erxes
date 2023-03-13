@@ -154,7 +154,8 @@ export const getProductsData = async (
         }))
       },
       isRPC: true,
-      defaultValue: {}
+      defaultValue: {},
+      timeout: 50000
     });
 
     for (const product of products) {
