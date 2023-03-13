@@ -179,7 +179,8 @@ export const sendRPCMessage = async (
           clearInterval(interval);
 
           if (!msg) {
-            return reject(new Error('consumer cancelled by rabbitmq'));
+            channel.deleteQueue(q.queue).catch(() => {});
+            return resolve(message?.defaultValue);
           }
 
           if (msg.properties.correlationId === correlationId) {
