@@ -275,6 +275,18 @@ export const itemsEdit = async (
     modifiedBy: user._id
   };
 
+  const stage = await models.Stages.getStage(oldItem.stageId);
+
+  const { canEditMemberIds } = stage;
+
+  if (
+    canEditMemberIds &&
+    canEditMemberIds.length > 0 &&
+    !canEditMemberIds.includes(user._id)
+  ) {
+    throw new Error('Permission denied');
+  }
+
   if (extendedDoc.customFieldsData) {
     // clean custom field values
     extendedDoc.customFieldsData = await sendFormsMessage({
@@ -297,8 +309,6 @@ export const itemsEdit = async (
     type: `${type}Edit`,
     contentType: type
   };
-
-  const stage = await models.Stages.getStage(updatedItem.stageId);
 
   if (doc.status && oldItem.status && oldItem.status !== doc.status) {
     const activityAction = doc.status === 'active' ? 'activated' : 'archived';
@@ -523,6 +533,19 @@ const itemMover = async (
   return { content, action };
 };
 
+export const checkMovePermission = (
+  stage: IStageDocument,
+  user: IUserDocument
+) => {
+  if (
+    stage.canMoveMemberIds &&
+    stage.canMoveMemberIds.length > 0 &&
+    !stage.canMoveMemberIds.includes(user._id)
+  ) {
+    throw new Error('Permission denied');
+  }
+};
+
 export const itemsChange = async (
   models: IModels,
   subdomain: string,
@@ -532,6 +555,7 @@ export const itemsChange = async (
   modelUpdate: any
 ) => {
   const { collection } = getCollection(models, type);
+
   const {
     proccessId,
     itemId,
@@ -541,6 +565,7 @@ export const itemsChange = async (
   } = doc;
 
   const item = await getItem(models, type, { _id: itemId });
+  const stage = await models.Stages.getStage(item.stageId);
 
   const extendedDoc: IItemCommonFields = {
     modifiedAt: new Date(),
@@ -554,6 +579,12 @@ export const itemsChange = async (
   };
 
   if (item.stageId !== destinationStageId) {
+    checkMovePermission(stage, user);
+
+    const destinationStage = await models.Stages.getStage(destinationStageId);
+
+    checkMovePermission(destinationStage, user);
+
     extendedDoc.stageChangedDate = new Date();
   }
 
@@ -607,8 +638,6 @@ export const itemsChange = async (
   );
 
   // order notification
-  const stage = await models.Stages.getStage(item.stageId);
-
   const labels = await models.PipelineLabels.find({
     _id: {
       $in: item.labelIds

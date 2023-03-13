@@ -257,41 +257,8 @@ export const performFields = `
 
 `;
 
-const performDetailFields = `
-  ${performFields}
-  needProducts
-  resultProducts
-  inProducts
-  outProducts
-`;
-
-const performs = `
-  query performs(${detailParamsDef}, ${paginateDefs}) {
-    performs(${detailParamsValue}, ${paginateParams}) {
-      ${performFields}
-    }
-  }
-`;
-
-const performsCount = `
-  query performsCount(${detailParamsDef}) {
-    performsCount(${detailParamsValue})
-  }
-`;
-
-const performDetail = `
-  query performDetail($_id: String) {
-    performDetail(_id: $_id) {
-      ${performDetailFields}
-    }
-  }
-`;
-
 export default {
   overallWorks,
   overallWorksCount,
-  overallWorkDetail,
-  performs,
-  performsCount,
-  performDetail
+  overallWorkDetail
 };

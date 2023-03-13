@@ -1,0 +1,14 @@
+{
+  "name": "@erxes/plugin-bichil-api",
+  "version": "1.0.0",
+  "scripts": {
+    "install-deps": "cd .erxes && yarn install",
+    "dev": "cd .erxes && yarn dev",
+    "build": "cd .erxes && yarn build",
+    "start": "cd .erxes/dist/plugin-bichil-api/.erxes && node src"
+  },
+  "dependencies": {
+    "dayjs": "^1.11.7",
+    "xlsx-populate": "^1.21.0"
+  }
+}

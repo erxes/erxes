@@ -54,7 +54,6 @@ const ListContainer = (props: FinalProps) => {
     removeHolidayMutation,
     removeScheduleConfigMutation,
     removeDeviceConfigMutation,
-    showSideBar,
     listAbsenceTypesQuery,
     listPayDatesQuery,
     listHolidaysQuery,
@@ -190,7 +189,7 @@ const ListContainer = (props: FinalProps) => {
     renderButton,
     removeDeviceConfig
   };
-  showSideBar(false);
+
   return <ConfigList {...updatedProps} />;
 };
 

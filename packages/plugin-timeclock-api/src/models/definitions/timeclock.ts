@@ -19,19 +19,38 @@ export interface ITimeClockDocument extends ITimeClock, Document {
   _id: string;
 }
 
+export interface ITimeLog {
+  userId?: string;
+  timelog?: Date;
+  deviceSerialNo?: string;
+}
+
+export interface ITimeLogDocument extends ITimeLog, Document {
+  _id: string;
+}
+
 export interface IAbsence {
   holidayName?: string;
   userId?: string;
+
   startTime: Date;
   endTime?: Date;
+  checkTime?: Date;
+  checkInOutRequest?: boolean;
+
   reason?: string;
   explanation?: string;
-  status: string;
+  status?: string;
   solved?: boolean;
   absenceTypeId?: string;
 }
 export interface IAbsenceType {
   name: string;
+
+  requestType?: string;
+  requestTimeType?: string;
+  requestHoursPerDay?: number;
+
   explRequired: boolean;
   attachRequired: boolean;
   shiftRequest: boolean;
@@ -92,7 +111,7 @@ export interface IScheduleConfigDocument extends IScheduleConfig, Document {
 
 export interface IDeviceConfig {
   deviceName?: string;
-  serialNo?: string;
+  serialNo: string;
   extractRequired?: boolean;
 }
 
@@ -110,6 +129,17 @@ export const attachmentSchema = new Schema(
   },
   { _id: false }
 );
+
+export const timeLogSchema = new Schema({
+  _id: field({ pkey: true }),
+  userId: field({ type: String, label: 'User' }),
+  deviceSerialNo: field({
+    type: String,
+    label: 'Terminal device serial number',
+    optional: true
+  }),
+  timelog: field({ type: Date, label: 'Shift starting time' })
+});
 
 export const timeSchema = new Schema({
   _id: field({ pkey: true }),
@@ -146,6 +176,14 @@ export const timeSchema = new Schema({
 export const absenceTypeSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Absence type' }),
+
+  requestType: field({ type: String, label: 'Type of a request' }),
+  requestTimeType: field({ type: String, label: 'Either by day or by hours' }),
+  requestHoursPerDay: field({
+    type: Number,
+    label: 'Hours per day if requestTimeType is by day'
+  }),
+
   explRequired: field({
     type: Boolean,
     label: 'whether absence type requires explanation'
@@ -177,6 +215,10 @@ export const absenceSchema = new Schema({
   status: field({
     type: String,
     label: 'Status of absence request, whether approved or rejected'
+  }),
+  checkInOutRequest: field({
+    type: Boolean,
+    label: 'Whether request is check in/out request'
   }),
   absenceTypeId: field({
     type: String,

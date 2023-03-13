@@ -7,6 +7,7 @@ export interface IProductsDataPerform {
   uomId: string;
   quantity: number;
   totalCost: number;
+  series?: string[];
 
   product?: any;
   uom?: IUom;

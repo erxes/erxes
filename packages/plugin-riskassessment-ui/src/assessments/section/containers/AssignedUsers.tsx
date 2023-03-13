@@ -5,7 +5,7 @@ import * as compose from 'lodash.flowright';
 import { withProps } from '@erxes/ui/src/utils/core';
 import { queries } from '../graphql';
 import { RiskAssessmentAssignedMembersQueryResponse } from '../../common/types';
-import { Spinner, withCurrentUser } from '@erxes/ui/src';
+import { EmptyState, Spinner, withCurrentUser } from '@erxes/ui/src';
 import AssignedMembersComponent from '../components/AssigneMembers';
 import { IUser } from '@erxes/ui/src/auth/types';
 
@@ -36,6 +36,11 @@ class AssignedMembers extends React.Component<FinalProps> {
 
     if (assignedMembersQueryResponse.loading) {
       return <Spinner />;
+    }
+
+    if (assignedMembersQueryResponse.error) {
+      const { error } = assignedMembersQueryResponse;
+      return <EmptyState text={error} />;
     }
 
     const { riskAssessmentAssignedMembers } = assignedMembersQueryResponse;

@@ -12,6 +12,7 @@ const commonParams = `
     $departmentIds: [String],
     $indicatorId: String,
     $operationIds: [String]
+    $groupsAssignedUsers:[GroupsAssignedUsers]
 `;
 
 const commonParamsDef = `
@@ -22,6 +23,7 @@ const commonParamsDef = `
     departmentIds: $departmentIds,
     indicatorId: $indicatorId,
     operationIds: $operationIds
+    groupsAssignedUsers:$groupsAssignedUsers
 `;
 
 const commonFields = `

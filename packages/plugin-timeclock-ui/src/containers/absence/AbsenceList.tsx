@@ -13,7 +13,6 @@ import { mutations, queries } from '../../graphql';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert } from '@erxes/ui/src/utils';
 import { IAttachment } from '@erxes/ui/src/types';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import { generateParams } from '../../utils';
 
 type Props = {
@@ -27,6 +26,11 @@ type Props = {
   absenceId?: string;
   absenceStatus?: string;
   attachment?: IAttachment;
+
+  absenceTypeId?: string;
+
+  checkTime?: Date;
+  checkType?: string;
 
   getActionBar: (actionBar: any) => void;
   getPagination: (pagination: any) => void;
@@ -44,12 +48,12 @@ const ListContainer = (props: FinalProps) => {
     queryParams,
     sendAbsenceReqMutation,
     solveAbsenceMutation,
-    getPagination,
-    showSideBar,
+
+    submitCheckInOutRequestMutation,
+
     listAbsenceQuery,
     listAbsenceTypesQuery
   } = props;
-  const { reason } = queryParams;
 
   if (listAbsenceQuery.loading) {
     return <Spinner />;
@@ -65,6 +69,7 @@ const ListContainer = (props: FinalProps) => {
 
   const submitRequest = (
     usrId: string,
+    reason: string,
     expl: string,
     attchment: IAttachment,
     dateRange: any,
@@ -89,19 +94,31 @@ const ListContainer = (props: FinalProps) => {
     }
   };
 
+  const submitCheckInOut = (type: string, userId: string, dateVal: Date) => {
+    submitCheckInOutRequestMutation({
+      variables: {
+        checkType: type,
+        userId: `${userId}`,
+        checkTime: dateVal
+      }
+    })
+      .then(() => Alert.success(`Successfully sent ${type} request`))
+      .catch(err => Alert.error(err.message));
+  };
+
   const { list = [], totalCount = 0 } = listAbsenceQuery.requestsMain || {};
 
   const updatedProps = {
     ...props,
+    totalCount,
     absences: list,
     absenceTypes: listAbsenceTypesQuery.absenceTypes || [],
     loading: listAbsenceQuery.loading,
     solveAbsence,
-    submitRequest
+    submitRequest,
+    submitCheckInOut
   };
 
-  showSideBar(true);
-  getPagination(<Pagination count={totalCount} />);
   return <AbsenceList {...updatedProps} />;
 };
 
@@ -130,15 +147,17 @@ export default withProps<Props>(
         userId,
         reason,
         explanation,
-        attachment
+        attachment,
+        absenceTypeId
       }) => ({
         variables: {
-          startTime: `${startTime}`,
-          endTime: `${endTime}`,
-          userId: `${userId}`,
-          reason: `${reason}`,
-          explanation: `${explanation}`,
-          attachment: `${attachment}`
+          startTime,
+          endTime,
+          userId,
+          reason,
+          explanation,
+          attachment,
+          absenceTypeId
         },
         refetchQueries: ['listRequestsMain']
       })
@@ -153,6 +172,21 @@ export default withProps<Props>(
         },
         refetchQueries: ['listRequestsMain']
       })
-    })
+    }),
+
+    graphql<Props, AbsenceMutationResponse>(
+      gql(mutations.submitCheckInOutRequest),
+      {
+        name: 'submitCheckInOutRequestMutation',
+        options: ({ checkType, userId, checkTime }) => ({
+          variables: {
+            checkType,
+            userId,
+            checkTime
+          },
+          refetchQueries: ['listRequestsMain', 'listTimeclocksQuery']
+        })
+      }
+    )
   )(ListContainer)
 );

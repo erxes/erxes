@@ -13,7 +13,7 @@ import { useQuery } from 'react-apollo';
 
 type Props = {
   comment: IComment;
-  onDeleted?: (string) => any;
+  onDeleted?: (string) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 

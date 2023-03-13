@@ -22,7 +22,6 @@ export default {
       resolvers
     };
   },
-  hasSubscriptions: true,
   segment: {},
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
@@ -41,7 +40,7 @@ export default {
         const document = await models.Documents.findOne({ _id });
 
         if (!document) {
-          return res.send('Not found ');
+          return res.send('Not found');
         }
 
         const userId = req.headers.userid;

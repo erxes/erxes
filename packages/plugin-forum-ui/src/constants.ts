@@ -35,3 +35,9 @@ export const userTypes = [
   { value: 'customer', label: 'Customer' },
   { value: 'company', label: 'Company' }
 ];
+
+export const quizState = [
+  { value: 'DRAFT', label: 'DRAFT' },
+  { value: 'ARCHIVED', label: 'ARCHIVED' },
+  { value: 'PUBLISHED', label: 'PUBLISHED' }
+];

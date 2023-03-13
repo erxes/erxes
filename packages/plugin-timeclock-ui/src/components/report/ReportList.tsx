@@ -1,5 +1,5 @@
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { router, __ } from '@erxes/ui/src/utils';
+import { loadDynamicComponent, router, __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import Table from '@erxes/ui/src/components/table';
 import FormGroup from '@erxes/ui/src/components/form/Group';
@@ -9,21 +9,36 @@ import Button from '@erxes/ui/src/components/Button';
 import ReportRow from './ReportRow';
 import { IReport } from '../../types';
 import { FilterItem } from '../../styles';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 
 type Props = {
   queryParams: any;
   history: any;
   reports: IReport[];
+  totalCount: number;
+
+  showSideBar: (sideBar: boolean) => void;
   getActionBar: (actionBar: any) => void;
+  getPagination: (pagination: any) => void;
+
   exportReport: () => void;
 };
 
 function ReportList(props: Props) {
-  const { history, reports, queryParams, getActionBar, exportReport } = props;
-  const [selectedType, setType] = useState(queryParams.reportType);
+  const {
+    history,
+    reports,
+    queryParams,
+    totalCount,
+    getActionBar,
+    getPagination,
+    exportReport,
+    showSideBar
+  } = props;
+  const [reportType, setType] = useState(queryParams.reportType);
 
   const renderTableHead = () => {
-    switch (selectedType) {
+    switch (reportType) {
       case 'Урьдчилсан':
         return (
           <tr>
@@ -115,19 +130,31 @@ function ReportList(props: Props) {
     }
   };
 
-  const content = (
-    <Table>
-      <thead>{renderTableHead()}</thead>
-      {reports &&
-        reports.map(reportt => (
-          <ReportRow
-            key={Math.random()}
-            reportType={selectedType}
-            report={reportt}
-          />
-        ))}
-    </Table>
-  );
+  const content = () => {
+    // custom report for bichil-globus
+    const bichilTable = loadDynamicComponent('bichilReportTable', {
+      reportType,
+      queryParams
+    });
+
+    if (bichilTable) {
+      return bichilTable;
+    }
+
+    return (
+      <Table>
+        <thead>{renderTableHead()}</thead>
+        {reports &&
+          reports.map(reportt => (
+            <ReportRow
+              key={Math.random()}
+              reportType={reportType}
+              report={reportt}
+            />
+          ))}
+      </Table>
+    );
+  };
 
   const renderSelectionBar = () => {
     const onTypeSelect = type => {
@@ -141,7 +168,7 @@ function ReportList(props: Props) {
           <FormGroup>
             <ControlLabel>Select type</ControlLabel>
             <Select
-              value={selectedType}
+              value={reportType}
               onChange={onTypeSelect}
               placeholder="Select type"
               multi={false}
@@ -156,6 +183,14 @@ function ReportList(props: Props) {
     );
   };
   const renderExportBtn = () => {
+    const bichilExportReportBtn = loadDynamicComponent(
+      'bichilExportReportBtn',
+      { queryParams }
+    );
+
+    if (bichilExportReportBtn) {
+      return bichilExportReportBtn;
+    }
     return (
       <div>
         <Button onClick={exportReport}>Export</Button>
@@ -171,8 +206,11 @@ function ReportList(props: Props) {
     />
   );
 
+  getPagination(<Pagination count={totalCount} />);
+  showSideBar(true);
   getActionBar(actionBar);
-  return content;
+
+  return content();
 }
 
 export default ReportList;

@@ -6,11 +6,12 @@ import {
   timeclockReportPreliminary
 } from './utils';
 import {
+  customFixDate,
   findAllTeamMembersWithEmpId,
   generateCommonUserIds,
   generateFilter
 } from '../../utils';
-import { paginate } from '@erxes/api-utils/src';
+import { fixDate, paginate } from '@erxes/api-utils/src';
 import { IReport } from '../../models/definitions/timeclock';
 
 const paginateArray = (array, perPage = 20, page = 1) =>
@@ -33,7 +34,7 @@ const timeclockQueries = {
 
   async timeclocksMain(_root, queryParams, { subdomain, models }: IContext) {
     const selector = await generateFilter(queryParams, subdomain, 'timeclock');
-    const queryList = models.Timeclocks.find(selector);
+    const totalCount = models.Timeclocks.find(selector).countDocuments();
 
     const list = paginate(
       models.Timeclocks.find(selector).sort({
@@ -45,9 +46,50 @@ const timeclockQueries = {
       }
     );
 
-    const totalCount = queryList.countDocuments();
     return { list, totalCount };
   },
+
+  async timeclockActivePerUser(_root, { userId }, { user, models }: IContext) {
+    const getUserId = userId || user._id;
+
+    // return the latest started active shift
+    const getActiveTimeclock = await models.Timeclocks.find({
+      userId: getUserId,
+      shiftActive: true
+    })
+      .sort({ shiftStart: 1 })
+      .limit(1);
+
+    return getActiveTimeclock.pop();
+  },
+
+  async timelogsMain(_root, queryParams, { subdomain, models }: IContext) {
+    const selector = await generateFilter(queryParams, subdomain, 'timelog');
+    const queryList = models.TimeLogs.find(selector);
+
+    const list = paginate(
+      models.TimeLogs.find(selector).sort({ userId: 1, timelog: -1 }),
+      { perPage: queryParams.perPage, page: queryParams.page }
+    );
+
+    const totalCount = queryList.countDocuments();
+
+    return { list, totalCount };
+  },
+
+  timeLogsPerUser(_root, { userId, startDate, endDate }, { models }: IContext) {
+    const timeField = {
+      timelog: {
+        $gte: fixDate(startDate),
+        $lte: customFixDate(endDate)
+      }
+    };
+
+    return models.TimeLogs.find({
+      $and: [{ userId }, timeField]
+    }).sort({ timelog: 1 });
+  },
+
   async schedulesMain(_root, queryParams, { models, subdomain }: IContext) {
     const selector = await generateFilter(queryParams, subdomain, 'schedule');
     const totalCount = models.Schedules.find(selector).countDocuments();
@@ -162,7 +204,7 @@ const timeclockQueries = {
 
         for (const userId of Object.keys(reportPreliminary)) {
           returnReport.push({
-            groupReport: [{ userId: `${userId}`, ...reportPreliminary[userId] }]
+            groupReport: [{ userId, ...reportPreliminary[userId] }]
           });
         }
 
@@ -177,7 +219,7 @@ const timeclockQueries = {
         );
         for (const userId of Object.keys(reportFinal)) {
           returnReport.push({
-            groupReport: [{ userId: `${userId}`, ...reportFinal[userId] }]
+            groupReport: [{ userId, ...reportFinal[userId] }]
           });
         }
         break;
@@ -193,7 +235,7 @@ const timeclockQueries = {
         for (const userId of Object.keys(reportPivot)) {
           if (userId !== 'scheduleReport') {
             returnReport.push({
-              groupReport: [{ userId: `${userId}`, ...reportPivot[userId] }]
+              groupReport: [{ userId, ...reportPivot[userId] }]
             });
           }
         }
