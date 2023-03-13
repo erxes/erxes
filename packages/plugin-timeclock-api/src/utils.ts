@@ -824,46 +824,55 @@ const generateFilter = async (params: any, subdomain: string, type: string) => {
     departmentIds
   );
 
-  let returnFilter = {};
-  let dateGiven: boolean = false;
+  const models = await generateModels(subdomain);
+
+  const scheduleShiftSelector = {
+    shiftStart: {
+      $gte: fixDate(startDate),
+      $lte: customFixDate(endDate)
+    },
+    shiftEnd: {
+      $gte: fixDate(startDate),
+      $lte: customFixDate(endDate)
+    }
+  };
+
+  // check non empty schedule shifts for schedulesMainQuery
+  const scheduleShifts = await models.Shifts.find(scheduleShiftSelector);
+
+  const scheduleIds = new Set(
+    scheduleShifts.map(scheduleShift => scheduleShift.scheduleId)
+  );
+
+  let returnFilter: any = { _id: { $in: [...scheduleIds] } };
   let userIdsGiven: boolean = false;
   let commonUserFound: boolean = true;
 
   const timeFields = returnTimeFieldsFilter(type, params);
-
-  if (startDate || endDate) {
-    dateGiven = true;
-  }
 
   if (branchIds || departmentIds || userIds) {
     userIdsGiven = true;
   }
 
   if (totalUserIds.length > 0) {
-    if (dateGiven) {
-      returnFilter =
-        type === 'schedule'
-          ? { userId: { $in: [...totalUserIds] } }
-          : {
-              $and: [
-                { $or: timeFields },
-                { userId: { $in: [...totalUserIds] } }
-              ]
-            };
+    if (type === 'schedule') {
+      returnFilter = { ...returnFilter, userId: { $in: [...totalUserIds] } };
     } else {
-      returnFilter = { userId: { $in: [...totalUserIds] } };
+      returnFilter = {
+        $and: [{ $or: timeFields }, { userId: { $in: [...totalUserIds] } }]
+      };
     }
   }
 
-  if (!userIdsGiven && dateGiven && type !== 'schedule') {
+  if (!userIdsGiven && type !== 'schedule') {
     returnFilter = { $or: timeFields };
   }
 
+  // user Ids given but no related data was found
   if (userIdsGiven && !totalUserIds.length) {
     commonUserFound = false;
   }
 
-  // if no param is given, return empty filter
   return [returnFilter, commonUserFound];
 };
 

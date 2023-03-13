@@ -11,6 +11,7 @@ export const listParamDefs = `
     $pipelineId: String,
     $boardId: String,
     $ignoreIds: [String]
+    $irregular: Boolean
 `;
 
 export const listParams = `
@@ -24,6 +25,7 @@ export const listParams = `
       pipelineId: $pipelineId,
       boardId: $boardId,
       ignoreIds: $ignoreIds
+      irregular: $irregular
 `;
 
 const assets = `

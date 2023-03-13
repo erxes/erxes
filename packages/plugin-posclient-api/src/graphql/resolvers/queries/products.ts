@@ -340,17 +340,21 @@ const productQueries = {
     { models, subdomain, config }: IContext
   ) {
     const product = await models.Products.getProduct({ _id: productId });
+
     const d = await sendPricingMessage({
       subdomain,
       action: 'getQuanityRules',
       data: {
         departmentId: config.departmentId,
         branchId: config.branchId,
-        product
+        products: [
+          { ...product, unitPrice: (product.prices || {})[config.token] }
+        ]
       },
       isRPC: true,
       defaultValue: {}
     });
+
     return JSON.stringify(d);
   }
 };
