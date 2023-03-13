@@ -8,6 +8,7 @@ import { isEnabled, withProps } from '@erxes/ui/src/utils/core';
 import { mutations } from '../../graphql';
 
 type Props = {
+  advancedView?: boolean;
   uom: string[];
   currencies: string[];
   productsData?: IProductData[];

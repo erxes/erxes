@@ -73,6 +73,7 @@ type State = {
   categoryId?: string;
   filterProductSearch: string;
   filterProductCategoryId: string;
+  advancedView?: boolean;
 };
 
 class ProductForm extends React.Component<Props, State> {
@@ -236,6 +237,9 @@ class ProductForm extends React.Component<Props, State> {
       });
     }
 
+    const { advancedView } = this.state;
+    const avStyle = { display: advancedView ? '' : 'none' };
+
     return (
       <TableWrapper>
         <Table>
@@ -247,11 +251,11 @@ class ProductForm extends React.Component<Props, State> {
               <th>{__('Unit price')}</th>
               <th style={{ width: '90px' }}>{__('Discount %')}</th>
               <th>{__('Discount')}</th>
-              <th style={{ width: '50px' }}>{__('Tax %')}</th>
-              <th>{__('Tax')}</th>
+              <th style={avStyle}>{__('Tax %')}</th>
+              <th style={avStyle}>{__('Tax')}</th>
               <th>{__('Amount')}</th>
-              <th>{__('Currency')}</th>
-              <th>{__('UOM')}</th>
+              <th style={avStyle}>{__('Currency')}</th>
+              <th style={avStyle}>{__('UOM')}</th>
               <th>{__('Is tick used')}</th>
               <th>{__('Is vat applied')}</th>
               <th>{__('Assigned to')}</th>
@@ -262,6 +266,7 @@ class ProductForm extends React.Component<Props, State> {
             {filteredProductsData.map(productData => (
               <ProductItem
                 key={productData._id}
+                advancedView={advancedView}
                 productData={productData}
                 removeProductItem={this.removeProductItem}
                 productsData={productsData}
@@ -525,7 +530,7 @@ class ProductForm extends React.Component<Props, State> {
   }
 
   renderTabContent() {
-    const { total, tax, discount, currentTab } = this.state;
+    const { total, tax, discount, currentTab, advancedView } = this.state;
 
     if (currentTab === 'payments') {
       const { onChangePaymentsData } = this.props;
@@ -542,6 +547,8 @@ class ProductForm extends React.Component<Props, State> {
       );
     }
 
+    const avStyle = { display: advancedView ? 'inherit' : 'none' };
+
     return (
       <FormContainer>
         {this.renderProductFilter()}
@@ -551,11 +558,11 @@ class ProductForm extends React.Component<Props, State> {
         <FooterInfo>
           <table>
             <tbody>
-              <tr>
+              <tr style={avStyle}>
                 <td>{__('Discount')}:</td>
                 <td>{this.renderTotal(discount, 'discount')}</td>
               </tr>
-              <tr>
+              <tr style={avStyle}>
                 <td>{__('Tax')}:</td>
                 <td>{this.renderTotal(tax, 'tax')}</td>
               </tr>
@@ -595,8 +602,14 @@ class ProductForm extends React.Component<Props, State> {
     this.setState({ currentTab });
   };
 
+  toggleAdvancedView = () => {
+    const { advancedView } = this.state;
+
+    this.setState({ advancedView: !advancedView });
+  };
+
   render() {
-    const { currentTab } = this.state;
+    const { advancedView, currentTab } = this.state;
 
     return (
       <>
@@ -620,6 +633,14 @@ class ProductForm extends React.Component<Props, State> {
         {this.renderTabContent()}
 
         <ModalFooter>
+          <Button
+            btnStyle="primary"
+            icon="plus-circle"
+            onClick={this.toggleAdvancedView}
+          >
+            {advancedView ? 'Compact view' : 'Advanced view'}
+          </Button>
+
           <Button
             btnStyle="simple"
             onClick={this.props.closeModal}

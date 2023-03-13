@@ -25,6 +25,7 @@ import { queries } from '../../graphql';
 import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
+  advancedView?: boolean;
   uom: string[];
   currencies: string[];
   productsData?: IProductData[];
@@ -384,7 +385,14 @@ class ProductItem extends React.Component<Props, State> {
   };
 
   render() {
-    const { productData, uom, currencies, removeProductItem } = this.props;
+    const {
+      advancedView,
+      productData,
+      uom,
+      currencies,
+      removeProductItem
+    } = this.props;
+    const avStyle = { display: advancedView ? '' : 'none' };
 
     const selectOption = option => (
       <div className="simple-option">
@@ -445,7 +453,7 @@ class ProductItem extends React.Component<Props, State> {
             onChange={this.onChange}
           />
         </td>
-        <td>
+        <td style={avStyle}>
           <FormControl
             defaultValue={productData.taxPercent || ''}
             type="number"
@@ -456,7 +464,7 @@ class ProductItem extends React.Component<Props, State> {
             onChange={this.onChange}
           />
         </td>
-        <td>
+        <td style={avStyle}>
           <Amount>{(productData.tax || 0).toLocaleString()} </Amount>
         </td>
 
@@ -469,7 +477,7 @@ class ProductItem extends React.Component<Props, State> {
           </Amount>
         </td>
 
-        <td>
+        <td style={avStyle}>
           <Select
             name="currency"
             placeholder={__('Choose')}
@@ -479,7 +487,7 @@ class ProductItem extends React.Component<Props, State> {
             options={selectConfigOptions(currencies, CURRENCIES)}
           />
         </td>
-        <td>
+        <td style={avStyle}>
           <Select
             name="uom"
             placeholder={__('Choose')}
