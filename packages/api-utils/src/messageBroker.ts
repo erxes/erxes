@@ -162,6 +162,7 @@ export const sendRPCMessage = async (
     const correlationId = uuid();
 
     return channel.assertQueue('', { exclusive: true }).then(q => {
+      const timeoutMs = message.timeout || process.env.RPC_TIMEOUT || 10000;
       var interval = setInterval(() => {
         channel.deleteQueue(q.queue);
 
@@ -170,7 +171,7 @@ export const sendRPCMessage = async (
         debugError(`${queueName} ${JSON.stringify(message)} timedout`);
 
         return resolve(message.defaultValue);
-      }, message.timeout || process.env.RPC_TIMEOUT || 10000);
+      }, timeoutMs);
 
       channel.consume(
         q.queue,
@@ -210,7 +211,8 @@ export const sendRPCMessage = async (
 
       channel.sendToQueue(queueName, Buffer.from(JSON.stringify(message)), {
         correlationId,
-        replyTo: q.queue
+        replyTo: q.queue,
+        expiration: timeoutMs
       });
     });
   });
