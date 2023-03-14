@@ -11,6 +11,7 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { useQuery } from 'react-apollo';
 import { useSearchParam } from '../../hooks';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   queryParams: any;
@@ -49,10 +50,10 @@ function List({ removeMutation, queryParams, history }: FinalProps) {
   });
 
   if (postQuery.loading) {
-    return null;
+    return <Spinner objective={true} />;
   }
   if (postQuery.error) {
-    return <pre>{JSON.stringify(postQuery.error, null, 2)}</pre>;
+    Alert.error(postQuery.error.message);
   }
 
   const remove = (postId: string, emptyBulk?: () => void) => {
