@@ -19,7 +19,7 @@
     "style-loader": "^3.3.0",
     "typescript": "3.8.3",
     "watch-sync": "^0.3.1",
-    "webpack": "^5.57.1",
+    "webpack": "^5.76.0",
     "webpack-cli": "^4.9.0",
     "webpack-dev-server": "^4.3.1"
   },
