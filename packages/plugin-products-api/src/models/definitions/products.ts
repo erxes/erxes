@@ -78,6 +78,7 @@ export interface IProductCategory {
   code: string;
   order: string;
   description?: string;
+  meta?: string;
   parentId?: string;
   attachment?: any;
   status?: string;
@@ -192,6 +193,7 @@ export const productCategorySchema = schemaWrapper(
     order: field({ type: String, label: 'Order' }),
     parentId: field({ type: String, optional: true, label: 'Parent' }),
     description: field({ type: String, optional: true, label: 'Description' }),
+    meta: field({ type: String, optional: true, label: 'Meta' }),
     attachment: field({ type: attachmentSchema }),
     status: field({
       type: String,
