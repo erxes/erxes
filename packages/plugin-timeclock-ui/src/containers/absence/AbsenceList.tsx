@@ -124,7 +124,7 @@ const ListContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, AbsenceQueryResponse>(gql(queries.listRequestsMain), {
+    graphql<Props, AbsenceQueryResponse>(gql(queries.requestsMain), {
       name: 'listAbsenceQuery',
       options: ({ queryParams }) => ({
         variables: generateParams(queryParams),
@@ -132,7 +132,7 @@ export default withProps<Props>(
       })
     }),
 
-    graphql<Props, AbsenceTypeQueryResponse>(gql(queries.listAbsenceTypes), {
+    graphql<Props, AbsenceTypeQueryResponse>(gql(queries.absenceTypes), {
       name: 'listAbsenceTypesQuery',
       options: () => ({
         fetchPolicy: 'network-only'
@@ -159,7 +159,7 @@ export default withProps<Props>(
           attachment,
           absenceTypeId
         },
-        refetchQueries: ['listRequestsMain']
+        refetchQueries: ['requestsMain']
       })
     }),
 
@@ -170,7 +170,7 @@ export default withProps<Props>(
           _id: absenceId,
           status: absenceStatus
         },
-        refetchQueries: ['listRequestsMain']
+        refetchQueries: ['requestsMain']
       })
     }),
 
@@ -184,7 +184,7 @@ export default withProps<Props>(
             userId,
             checkTime
           },
-          refetchQueries: ['listRequestsMain', 'listTimeclocksQuery']
+          refetchQueries: ['requestsMain', 'timeclocksMain']
         })
       }
     )

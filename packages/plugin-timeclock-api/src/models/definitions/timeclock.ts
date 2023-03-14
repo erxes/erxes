@@ -141,7 +141,7 @@ export const timeLogSchema = new Schema({
   timelog: field({ type: Date, label: 'Shift starting time' })
 });
 
-export const timeSchema = new Schema({
+export const timeclockSchema = new Schema({
   _id: field({ pkey: true }),
   userId: field({ type: String, label: 'User' }),
   shiftStart: field({ type: Date, label: 'Shift starting time' }),
@@ -343,15 +343,19 @@ export interface IUserReport {
   firstName?: string;
   lastName?: string;
   position?: string;
+
   scheduleReport: IScheduleReport[];
+
   totalMinsWorked?: number;
   totalMinsWorkedToday?: number;
   totalMinsWorkedThisMonth?: number;
   totalDaysWorkedThisMonth?: number;
+
   totalMinsScheduled?: number;
   totalMinsScheduledToday?: number;
   totalMinsScheduledThisMonth?: number;
   totalDaysScheduledThisMonth?: number;
+
   totalMinsLate?: number;
   totalMinsLateToday?: number;
   totalMinsLateThisMonth?: number;

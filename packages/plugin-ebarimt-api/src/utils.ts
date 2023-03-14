@@ -157,7 +157,7 @@ const arrangeTaxType = async (deal, productsById, billType) => {
       amount0 += productData.amount;
     } else {
       let trueBarcode = '';
-      for (const barcode of product.barcodes) {
+      for (const barcode of product.barcodes || []) {
         if (isValidBarcode(barcode)) {
           trueBarcode = barcode;
           continue;

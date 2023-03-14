@@ -26,7 +26,10 @@ export default {
       { value: 'servicesTotalAmount', name: 'Services total amount' },
       { value: 'totalAmount', name: 'Total amount' },
       { value: 'totalAmountVat', name: 'Total amount vat' },
-      { value: 'totalAmountWithoutVat', name: 'Total amount without vat' }
+      { value: 'totalAmountWithoutVat', name: 'Total amount without vat' },
+      { value: 'discount', name: 'Discount' },
+      { value: 'paymentCash', name: 'Payment cash' },
+      { value: 'paymentNonCash', name: 'Payment non cash' }
     ];
   },
 
@@ -198,6 +201,7 @@ export default {
 
     const replaceProducts = async (key, type) => {
       let totalAmount = 0;
+      let discount = 0;
 
       const productsData = item.productsData || [];
 
@@ -225,11 +229,11 @@ export default {
         const tAmount = pd.quantity * pd.unitPrice;
 
         totalAmount += tAmount;
+        discount += pd.discount || 0;
 
         productRows.push(
           `<tr>
             <td>${index}</td>
-            <td>${product.code || ''}</td>
             <td>${product.name}</td>
             <td>${pd.quantity}</td>
             <td>${toMoney(pd.unitPrice)}</td>
@@ -247,7 +251,6 @@ export default {
                 <thead>
                   <tr>
                     <th>№</th>
-                    <th>Code</th>
                     <th>${
                       type === 'product' ? 'Product name' : 'Service name'
                     }</th>
@@ -267,17 +270,21 @@ export default {
           : ''
       );
 
-      return totalAmount;
+      return { totalAmount, discount };
     };
 
-    const productsTotalAmount = await replaceProducts(
+    const replaceProductsResult = await replaceProducts(
       /{{ productsInfo }}/g,
       'product'
     );
-    const servicesTotalAmount = await replaceProducts(
+    const productsTotalAmount = replaceProductsResult.totalAmount;
+
+    const replaceServicesResult = await replaceProducts(
       /{{ servicesInfo }}/g,
       'service'
     );
+    const servicesTotalAmount = replaceServicesResult.totalAmount;
+
     const totalAmount = productsTotalAmount + servicesTotalAmount;
     const totalAmountVat = (totalAmount * 10) / 110;
     const totalAmountWithoutVat = totalAmount - totalAmountVat;
@@ -286,6 +293,7 @@ export default {
       /{{ productTotalAmount }}/g,
       toMoney(productsTotalAmount)
     );
+
     replacedContent = replacedContent.replace(
       /{{ servicesTotalAmount }}/g,
       toMoney(servicesTotalAmount)
@@ -304,6 +312,23 @@ export default {
     replacedContent = replacedContent.replace(
       /{{ totalAmountWithoutVat }}/g,
       toMoney(totalAmountWithoutVat)
+    );
+
+    const cash = ((item.paymentsData || {}).cash || {}).amount || 0;
+
+    replacedContent = replacedContent.replace(
+      /{{ paymentCash }}/g,
+      toMoney(cash)
+    );
+
+    replacedContent = replacedContent.replace(
+      /{{ paymentNonCash }}/g,
+      toMoney(totalAmount - cash)
+    );
+
+    replacedContent = replacedContent.replace(
+      /{{ discount }}/g,
+      toMoney(replaceProductsResult.discount + replaceServicesResult.discount)
     );
 
     return [replacedContent];

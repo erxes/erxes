@@ -8,8 +8,9 @@ import Select from 'react-select-plus';
 import Button from '@erxes/ui/src/components/Button';
 import ReportRow from './ReportRow';
 import { IReport } from '../../types';
-import { FilterItem } from '../../styles';
+import { FilterItem, FlexRow, InlineBlock, ToggleButton } from '../../styles';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import Icon from '@erxes/ui/src/components/Icon';
 
 type Props = {
   queryParams: any;
@@ -35,7 +36,17 @@ function ReportList(props: Props) {
     exportReport,
     showSideBar
   } = props;
+
   const [reportType, setType] = useState(queryParams.reportType);
+  const [isSideBarOpen, setIsOpen] = useState(
+    localStorage.getItem('isSideBarOpen') === 'true' ? true : false
+  );
+
+  const onToggleSidebar = () => {
+    const toggleIsOpen = !isSideBarOpen;
+    setIsOpen(toggleIsOpen);
+    localStorage.setItem('isSideBarOpen', toggleIsOpen.toString());
+  };
 
   const renderTableHead = () => {
     switch (reportType) {
@@ -163,7 +174,14 @@ function ReportList(props: Props) {
     };
 
     return (
-      <>
+      <FlexRow>
+        <ToggleButton
+          id="btn-inbox-channel-visible"
+          isActive={isSideBarOpen}
+          onClick={onToggleSidebar}
+        >
+          <Icon icon="subject" />
+        </ToggleButton>
         <FilterItem>
           <FormGroup>
             <ControlLabel>Select type</ControlLabel>
@@ -179,7 +197,7 @@ function ReportList(props: Props) {
             />
           </FormGroup>
         </FilterItem>
-      </>
+      </FlexRow>
     );
   };
   const renderExportBtn = () => {
@@ -207,7 +225,7 @@ function ReportList(props: Props) {
   );
 
   getPagination(<Pagination count={totalCount} />);
-  showSideBar(true);
+  showSideBar(isSideBarOpen);
   getActionBar(actionBar);
 
   return content();

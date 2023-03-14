@@ -128,7 +128,7 @@ const ListContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, ScheduleQueryResponse>(gql(queries.listSchedulesMain), {
+    graphql<Props, ScheduleQueryResponse>(gql(queries.schedulesMain), {
       name: 'listSchedulesMain',
       options: ({ queryParams }) => ({
         variables: generateParams(queryParams),
@@ -144,7 +144,7 @@ export default withProps<Props>(
             userId: `${userId}`,
             shifts: requestedShifts
           },
-          refetchQueries: ['listSchedulesMain']
+          refetchQueries: ['schedulesMain']
         })
       }
     ),
@@ -155,7 +155,7 @@ export default withProps<Props>(
           userIds: `${userIds}`,
           shifts: `${requestedShifts}`
         },
-        refetchQueries: ['listSchedulesMain']
+        refetchQueries: ['schedulesMain']
       })
     }),
     graphql<Props, ScheduleMutationResponse>(gql(mutations.solveSchedule), {
@@ -165,7 +165,7 @@ export default withProps<Props>(
           _id: scheduleId,
           status: scheduleStatus
         },
-        refetchQueries: ['listSchedulesMain']
+        refetchQueries: ['schedulesMain']
       })
     }),
 
@@ -176,7 +176,7 @@ export default withProps<Props>(
           _id: shiftId,
           status: shiftStatus
         },
-        refetchQueries: ['listSchedulesMain']
+        refetchQueries: ['schedulesMain']
       })
     }),
     graphql<Props, ScheduleMutationResponse>(gql(mutations.scheduleRemove), {
@@ -185,7 +185,7 @@ export default withProps<Props>(
         variables: {
           _id: scheduleId
         },
-        refetchQueries: ['listSchedulesMain']
+        refetchQueries: ['schedulesMain']
       })
     }),
 
@@ -197,7 +197,7 @@ export default withProps<Props>(
           variables: {
             _id: shiftId
           },
-          refetchQueries: ['listSchedulesMain']
+          refetchQueries: ['schedulesMain']
         })
       }
     )

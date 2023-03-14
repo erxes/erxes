@@ -1,3 +1,8 @@
+export const SUB_MENUS = [
+  { title: 'Put Response', link: '/put-responses' },
+  { title: 'By Date', link: '/put-responses-by-date' }
+];
+
 export const KEY_LABELS = {
   companyName: 'company name',
   checkCompanyUrl: 'check Company url',

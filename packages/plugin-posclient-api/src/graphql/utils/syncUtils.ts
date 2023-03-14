@@ -172,6 +172,7 @@ export const importProducts = async (
             update: {
               $set: {
                 ...product,
+                [`prices.${token}`]: product.unitPrice,
                 sku: product.sku || 'ш',
                 attachment: attachmentUrlChanger(product.attachment),
                 attachmentMore: (product.attachmentMore || []).map(a =>

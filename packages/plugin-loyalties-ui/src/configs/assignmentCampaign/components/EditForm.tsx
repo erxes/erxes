@@ -23,9 +23,6 @@ import {
 import { IAssignmentCampaign } from '../types';
 import { extractAttachment, __ } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import { ISegment } from '@erxes/ui-segments/src/types';
-import * as routerUtils from '@erxes/ui/src/utils/router';
-import Row from './SegmentRow';
 import Select from 'react-select-plus';
 import { IVoucherCampaign } from '../../voucherCampaign/types';
 import { Wrapper } from '@erxes/ui/src/layout';
@@ -33,11 +30,11 @@ import { Title } from '@erxes/ui-settings/src/styles';
 import Sidebar from '../../general/components/Sidebar';
 import { FormFooter, SettingsContent } from '../../../styles';
 import { Link } from 'react-router-dom';
+import SelectSegments from '@erxes/ui-segments/src/containers/SelectSegments';
 
 type Props = {
   assignmentCampaign: IAssignmentCampaign;
   voucherCampaigns: IVoucherCampaign[];
-  segments: ISegment[];
   queryParams: any;
   history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -106,13 +103,6 @@ class EditForm extends React.Component<Props, State> {
     this.setState({
       assignmentCampaign: { ...this.state.assignmentCampaign, [name]: value }
     });
-  };
-
-  renderRow = () => {
-    const { segments, history } = this.props;
-    return segments.map(segment => (
-      <Row key={segment._id} history={history} segment={segment} />
-    ));
   };
 
   renderContent = (formProps: IFormProps) => {
@@ -221,15 +211,13 @@ class EditForm extends React.Component<Props, State> {
           <>
             <FormGroup>
               <ControlLabel>Segments</ControlLabel>
-              <Select
-                options={this.props.segments.map(segment => ({
-                  label: `${segment.name}`,
-                  value: segment._id
-                }))}
-                value={this.state.assignmentCampaign.segmentIds}
-                multi={true}
+              <SelectSegments
                 name="segmentIds"
-                onChange={onChangeSegments}
+                label="Choose segments"
+                initialValue={this.state.assignmentCampaign.segmentIds}
+                contentTypes={['contacts:customer', 'contacts:lead']}
+                multi={true}
+                onSelect={segmentIds => onChangeSegments(segmentIds)}
               />
             </FormGroup>
           </>
