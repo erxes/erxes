@@ -28,6 +28,7 @@ export interface IPricingPlan {
   productsBundle: string[];
   categories: string[];
   categoriesExcluded: string[];
+  segments: string[];
 
   isStartDateEnabled?: boolean;
   isEndDateEnabled?: boolean;
@@ -131,6 +132,10 @@ export const pricingPlanSchema = new Schema({
   categoriesExcluded: field({
     type: [String],
     label: 'Excluded Categories'
+  }),
+  segments: field({
+    type: [String],
+    label: 'Segment'
   }),
 
   isStartDateEnabled: field({

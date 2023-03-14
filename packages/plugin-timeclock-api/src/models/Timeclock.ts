@@ -10,7 +10,7 @@ import {
   IAbsenceDocument,
   IScheduleDocument,
   scheduleSchema,
-  timeSchema,
+  timeclockSchema,
   absenceSchema,
   absenceTypeSchema,
   scheduleShiftSchema,
@@ -70,9 +70,9 @@ export const loadTimeClass = (models: IModels) => {
     }
   }
 
-  timeSchema.loadClass(Time);
+  timeclockSchema.loadClass(Time);
 
-  return timeSchema;
+  return timeclockSchema;
 };
 export interface ITimeLogModel extends Model<ITimeLogDocument> {
   getTimeLog(_id: string): Promise<ITimeLogDocument>;

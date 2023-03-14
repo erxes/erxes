@@ -70,6 +70,7 @@ const searchParams = `
     pipelineId: String,
     boardId: String,
     ignoreIds:[String]
+    irregular: Boolean
 `;
 
 export const queries = `

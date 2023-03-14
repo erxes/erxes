@@ -46,6 +46,12 @@ export const ASSET_EXTEND_FIELDS = [
   },
   {
     _id: Math.random(),
+    name: 'parentCode',
+    label: 'Parent Code',
+    type: 'string'
+  },
+  {
+    _id: Math.random(),
     name: 'tag',
     label: 'Tag',
     type: 'string'

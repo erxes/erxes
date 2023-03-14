@@ -45,6 +45,7 @@ export default function Form(props: Props) {
     productsBundle: data.productsBundle || [],
     categories: data.categories || [],
     categoriesExcluded: data.categoriesExcluded || [],
+    segments: data.segments || [],
 
     isStartDateEnabled: data.isStartDateEnabled || false,
     isEndDateEnabled: data.isEndDateEnabled || false,

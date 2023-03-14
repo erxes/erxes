@@ -161,7 +161,7 @@ const departmentsMain = `
   }
 `;
 
-const unitField = `
+export const unitField = `
   _id
   title
   description

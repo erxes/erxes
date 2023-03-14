@@ -3,7 +3,10 @@ import { IContext } from '../../types';
 import { IModels } from '../../../connectionResolver';
 import { IProductCategoryDocument } from '../../../models/definitions/products';
 import { PRODUCT_STATUSES } from '../../../models/definitions/constants';
-import { sendInventoriesMessage } from '../../../messageBroker';
+import {
+  sendInventoriesMessage,
+  sendPricingMessage
+} from '../../../messageBroker';
 import { sendRequest } from '@erxes/api-utils/src/requests';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { Builder } from '../../../utils';
@@ -363,6 +366,30 @@ const productQueries = {
     { models }: IContext
   ) {
     return models.ProductCategories.findOne({ _id }).lean();
+  },
+
+  async getPriceInfo(
+    _root,
+    { productId }: { productId: string },
+    { models, subdomain, config }: IContext
+  ) {
+    const product = await models.Products.getProduct({ _id: productId });
+
+    const d = await sendPricingMessage({
+      subdomain,
+      action: 'getQuanityRules',
+      data: {
+        departmentId: config.departmentId,
+        branchId: config.branchId,
+        products: [
+          { ...product, unitPrice: (product.prices || {})[config.token] }
+        ]
+      },
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    return JSON.stringify(d);
   }
 };
 

@@ -1,21 +1,20 @@
-import React from 'react';
 import Datetime from '@nateradebaugh/react-datetime';
-// erxes
+import DiscountInput from '../form/DiscountInput';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import FormLabel from '@erxes/ui/src/components/form/Label';
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
+import React from 'react';
 import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
+import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
+import { __ } from '@erxes/ui/src/utils';
 import {
   DateContainer,
-  FormWrapper,
-  FormColumn
+  FormColumn,
+  FormWrapper
 } from '@erxes/ui/src/styles/main';
 import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
-import { __ } from '@erxes/ui/src/utils';
-// local
-import DiscountInput from '../form/DiscountInput';
 import { PricingPlan } from '../../../types';
+import SelectSegments from '@erxes/ui-segments/src/containers/SelectSegments';
 
 type Props = {
   formValues: PricingPlan;
@@ -75,6 +74,20 @@ export default function General(props: Props) {
               initialValue={formValues.products}
               onSelect={products => handleState('products', products)}
               multi={true}
+            />
+          </FormGroup>
+        );
+      case 'segment':
+        return (
+          <FormGroup>
+            <FormLabel>{__('Segment')}</FormLabel>
+            <SelectSegments
+              name="segments"
+              label="Choose segments"
+              contentTypes={['products:product']}
+              initialValue={formValues.segments}
+              multi={true}
+              onSelect={segmentIds => handleState('segments', segmentIds)}
             />
           </FormGroup>
         );
@@ -330,6 +343,14 @@ export default function General(props: Props) {
                 defaultChecked={formValues.applyType === 'product'}
               >
                 Specific Product
+              </FormControl>
+              <FormControl
+                componentClass="radio"
+                name="applyType"
+                onChange={() => handleState('applyType', 'segment')}
+                defaultChecked={formValues.applyType === 'segment'}
+              >
+                Specific Segment
               </FormControl>
               <FormControl
                 componentClass="radio"

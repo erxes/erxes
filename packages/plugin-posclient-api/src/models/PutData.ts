@@ -172,7 +172,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
       if (
         prePutResponse.amount === this.transactionInfo.amount &&
         prePutResponse.stocks &&
-          prePutResponse.stocks.length === this.transactionInfo.stocks.length &&
+        prePutResponse.stocks.length === this.transactionInfo.stocks.length &&
         (prePutResponse.taxType || '1') ===
           (this.transactionInfo.taxType || '1') &&
         (prePutResponse.billType || '1') ===

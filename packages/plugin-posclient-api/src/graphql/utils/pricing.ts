@@ -23,7 +23,7 @@ export const checkPricing = async (
             productId: i.productId,
             quantity: i.count,
             price: i.unitPrice,
-            manufacturedDate: '1670901' // i.manufacturedDate,
+            manufacturedDate: i.manufacturedDate
           }))
         ]
       },

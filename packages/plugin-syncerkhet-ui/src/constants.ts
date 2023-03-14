@@ -13,3 +13,10 @@ export const KEY_LABELS = {
   companyCategoryCode: 'company Category Code',
   getRemainderApiUrl: 'Get Remainder url'
 };
+
+export const menuSyncerkhet = [
+  { title: 'Check deals', link: '/check-synced-deals?dateType=firstOrMove' },
+  { title: 'Check orders', link: '/check-pos-orders' },
+  { title: 'Check Category', link: '/inventory-category' },
+  { title: 'Check Products', link: '/inventory-products' }
+];
