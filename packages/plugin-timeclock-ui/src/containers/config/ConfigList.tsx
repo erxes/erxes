@@ -17,6 +17,7 @@ import { mutations, queries } from '../../graphql';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { generateParams } from '../../utils';
 
 type Props = {
   getActionBar: (actionBar: any) => void;
@@ -233,7 +234,8 @@ export default withProps<Props>(
 
     graphql<Props, PayDatesQueryResponse>(gql(queries.deviceConfigs), {
       name: 'listDeviceConfigsQuery',
-      options: () => ({
+      options: ({ queryParams }) => ({
+        variables: generateParams(queryParams),
         fetchPolicy: 'network-only'
       })
     }),

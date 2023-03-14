@@ -13,57 +13,21 @@ export default {
     const { startDate, endDate } = variableValues;
 
     const scheduleSelector = { scheduleId: schedule._id };
-    let dateGiven: boolean = false;
 
-    const timeFields = [
-      {
-        shiftStart:
-          startDate && endDate
-            ? {
-                $gte: fixDate(startDate),
-                $lte: customFixDate(endDate)
-              }
-            : startDate
-            ? {
-                $gte: fixDate(startDate)
-              }
-            : { $lte: customFixDate(endDate) },
-        shiftEnd:
-          startDate && endDate
-            ? {
-                $gte: fixDate(startDate),
-                $lte: customFixDate(endDate)
-              }
-            : startDate
-            ? {
-                $gte: fixDate(startDate)
-              }
-            : { $lte: customFixDate(endDate) }
+    const timeFields = {
+      shiftStart: {
+        $gte: fixDate(startDate),
+        $lte: customFixDate(endDate)
+      },
+      shiftEnd: {
+        $gte: fixDate(startDate),
+        $lte: customFixDate(endDate)
       }
-    ];
+    };
 
-    if (startDate || endDate) {
-      dateGiven = true;
-    }
+    const selector = { ...timeFields, ...scheduleSelector };
 
-    let returnModel: any = [];
-
-    if (dateGiven) {
-      returnModel.push(
-        ...(await models.Shifts.find({
-          $and: [...timeFields, scheduleSelector]
-        }).sort({ shiftStart: -1 }))
-      );
-    }
-
-    // if no date filter is given, return everything
-    else {
-      returnModel = models.Shifts.find(scheduleSelector).sort({
-        shiftStart: -1
-      });
-    }
-
-    return returnModel;
+    return models.Shifts.find(selector).sort({ shiftStart: -1 });
   },
 
   user(schedule: IScheduleDocument) {

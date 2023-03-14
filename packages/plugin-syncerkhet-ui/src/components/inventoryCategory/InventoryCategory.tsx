@@ -3,9 +3,10 @@ import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { router, __ } from '@erxes/ui/src/utils/core';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import Row from './InventoryCategoryRow';
+import { menuSyncerkhet } from '../../constants';
 
 type Props = {
   loading: boolean;
@@ -20,13 +21,6 @@ type State = {
   openCollapse: Number;
   loading: boolean;
 };
-
-export const menuPos = [
-  { title: 'Check deals', link: '/check-synced-deals' },
-  { title: 'Check orders', link: '/check-pos-orders' },
-  { title: 'Check Category', link: '/inventory-category' },
-  { title: 'Check Products', link: '/inventory-products' }
-];
 
 class InventoryCategory extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -241,7 +235,7 @@ class InventoryCategory extends React.Component<Props, State> {
           <Wrapper.Header
             title={__(`Check category`)}
             queryParams={this.props.queryParams}
-            submenu={menuPos}
+            submenu={menuSyncerkhet}
           />
         }
         content={

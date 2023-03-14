@@ -28,6 +28,11 @@ interface IProductCommonFields {
   code: string;
   description?: string;
   attachment?: IAttachment;
+  tokens: string[];
+}
+
+export interface IPrice {
+  [token: string]: number;
 }
 
 export interface IProduct extends IProductCommonFields {
@@ -36,7 +41,7 @@ export interface IProduct extends IProductCommonFields {
   sku?: string;
   barcodes?: string[];
   barcodeDescription?: string;
-  unitPrice?: number;
+  prices: IPrice;
   customFieldsData?: ICustomField[];
   tagIds?: string[];
   status?: string;
@@ -117,10 +122,9 @@ export const productSchema = schemaWrapper(
       optional: true,
       label: 'Sum unit of measurements'
     }),
-    unitPrice: field({
-      type: Number,
-      optional: true,
-      label: 'Unit price'
+    prices: field({
+      type: Object,
+      label: 'Unit price by token'
     }),
     customFieldsData: field({
       type: [customFieldSchema],
