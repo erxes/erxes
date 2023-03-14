@@ -88,4 +88,5 @@ export const queries = `
     ${productsQueryParams}
   ): Int
   poscProductDetail(_id: String): PoscProduct
+  getPriceInfo(productId: String!): String
 `;

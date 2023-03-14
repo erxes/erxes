@@ -81,7 +81,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
       if (
         prePutResponse.amount === this.transactionInfo.amount &&
         prePutResponse.stocks &&
-          prePutResponse.stocks.length === this.transactionInfo.stocks.length &&
+        prePutResponse.stocks.length === this.transactionInfo.stocks.length &&
         (prePutResponse.taxType || '1') ===
           (this.transactionInfo.taxType || '1') &&
         (prePutResponse.billType || '1') ===
@@ -236,7 +236,15 @@ export const returnBill = async (models: IModels, doc, config) => {
 
   const resultObjIds: string[] = [];
   for (const prePutResponse of prePutResponses) {
-    const rd = prePutResponse.registerNo;
+    let rd = prePutResponse.registerNo;
+    if (!rd) {
+      continue;
+    }
+
+    if (rd.length === 12) {
+      rd = rd.slice(-8);
+    }
+
     const date = prePutResponse.date;
 
     if (!prePutResponse.billId || !rd || !date) {

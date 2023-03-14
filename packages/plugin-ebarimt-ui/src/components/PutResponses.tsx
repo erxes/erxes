@@ -14,6 +14,7 @@ import { TableWrapper } from '../styles';
 import { IPutResponse } from '../types';
 import PutResponseRow from './PutResponseRow';
 import RightMenu from './RightMenu';
+import { SUB_MENUS } from '../constants';
 
 interface IProps extends IRouterProps {
   putResponses: IPutResponse[];
@@ -159,18 +160,13 @@ class PutResponses extends React.Component<IProps, State> {
       />
     );
 
-    const menuPos = [
-      { title: 'Put Response', link: '/put-responses' },
-      { title: 'By Date', link: '/put-responses-by-date' }
-    ];
-
     return (
       <Wrapper
         header={
           <Wrapper.Header
             title={__(`Put Response`)}
             queryParams={queryParams}
-            submenu={menuPos}
+            submenu={SUB_MENUS}
           />
         }
         actionBar={actionBar}

@@ -1,10 +1,11 @@
+import { Image, PreviewWrapper } from './ImageWithPreview';
+import { __, readFile } from '../utils/core';
+
+import CommonPortal from './CommonPortal';
+import { IAttachment } from '../types';
+import Icon from './Icon';
 import React from 'react';
 import styled from 'styled-components';
-import { readFile, __ } from '../utils/core';
-import CommonPortal from './CommonPortal';
-import Icon from './Icon';
-import { IAttachment } from '../types';
-import { PreviewWrapper, Image } from './ImageWithPreview';
 
 const PreviewOverlay = styled.div`
   background-color: rgba(0, 0, 0, 0.5);

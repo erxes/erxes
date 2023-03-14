@@ -7,6 +7,7 @@ import { __, DataWithLoader, Pagination, Table } from '@erxes/ui/src';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import { BarItems, Wrapper } from '@erxes/ui/src/layout';
 import { Title } from '@erxes/ui/src/styles/main';
+import { menuSyncerkhet } from '../../constants';
 
 type Props = {
   totalCount: number;
@@ -31,13 +32,6 @@ type Props = {
 type State = {
   contentLoading: boolean;
 };
-
-export const menuPos = [
-  { title: 'Check deals', link: '/check-synced-deals' },
-  { title: 'Check orders', link: '/check-pos-orders' },
-  { title: 'Check Category', link: '/inventory-category' },
-  { title: 'Check Products', link: '/inventory-products' }
-];
 
 class CheckSyncedOrders extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -198,7 +192,7 @@ class CheckSyncedOrders extends React.Component<Props, State> {
           <Wrapper.Header
             title={__(`Check erkhet`)}
             queryParams={queryParams}
-            submenu={menuPos}
+            submenu={menuSyncerkhet}
           />
         }
         leftSidebar={sidebar}

@@ -19,6 +19,7 @@ on:
       - "packages/ui-settings/**"
       - "packages/ui-team/**"
       - "packages/ui-tags/**"
+      - "packages/ui-tags/**"
       - "packages/plugin-tags-ui/**"
       - ".github/workflows/plugin-tags-ui.yaml"
   pull_request:
@@ -38,6 +39,7 @@ on:
       - "packages/ui-segments/**"
       - "packages/ui-settings/**"
       - "packages/ui-team/**"
+      - "packages/ui-tags/**"
       - "packages/ui-tags/**"
       - "packages/plugin-tags-ui/**"
       - ".github/workflows/plugin-tags-ui.yaml"
