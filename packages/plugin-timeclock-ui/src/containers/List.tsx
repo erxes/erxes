@@ -78,7 +78,7 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, PayDatesQueryResponse>(gql(queries.listScheduleConfigs), {
+    graphql<Props, PayDatesQueryResponse>(gql(queries.scheduleConfigs), {
       name: 'listScheduleConfigsQuery',
       options: () => ({
         fetchPolicy: 'network-only'

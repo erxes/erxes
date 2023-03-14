@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { sendProductsMessage } from '../messageBroker';
+import { sendProductsMessage, sendSegmentsMessage } from '../messageBroker';
 
 /**
  * Get parent orders of products
@@ -42,6 +42,22 @@ export const getAllowedProducts = async (
 
     case 'product': {
       return _.intersection(productIds, plan.products);
+    }
+
+    case 'segment': {
+      let productIdsInSegments: string[] = [];
+      for (const segment of plan.segments) {
+        productIdsInSegments = productIdsInSegments.concat(
+          await sendSegmentsMessage({
+            subdomain,
+            action: 'fetchSegment',
+            data: { segmentId: segment },
+            isRPC: true,
+            defaultValue: []
+          })
+        );
+      }
+      return _.intersection(productIds, productIdsInSegments);
     }
 
     case 'category': {

@@ -50,8 +50,12 @@ const generateAssetsDocs = async (subdomain, result, properties) => {
           break;
         case 'parentName':
           {
+            const code = (fieldValue[colIndex + 1] || '').toString();
             const parent = await models.Assets.findOne({
-              name: { $regex: new RegExp(`^${value}$`, 'i') }
+              $or: [
+                { name: { $regex: new RegExp(`^${value}$`, 'i') } },
+                { code }
+              ]
             });
             doc.parentId = parent ? parent._id : '';
           }

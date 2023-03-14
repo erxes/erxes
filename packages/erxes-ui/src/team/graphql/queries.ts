@@ -6,14 +6,14 @@ const nameFields = `
   lastName
 `;
 
-const commonStructureParamsDef = `
+export const commonStructureParamsDef = `
     $perPage: Int,
     $page: Int 
     $searchValue: String,
     $status:String,
 `;
 
-const commonStructureParamsValue = `
+export const commonStructureParamsValue = `
     perPage: $perPage,
     page: $page 
     searchValue:$searchValue
@@ -161,7 +161,7 @@ const departmentsMain = `
   }
 `;
 
-const unitField = `
+export const unitField = `
   _id
   title
   description

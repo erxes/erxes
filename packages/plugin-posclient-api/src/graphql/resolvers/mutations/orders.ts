@@ -378,10 +378,10 @@ const orderMutations = {
   ) {
     const order = await models.Orders.getOrder(_id);
 
-    const amount = (paidAmounts || []).reduce(
-      (sum, i) => Number(sum) + Number(i.amount),
-      0
-    );
+    const amount =
+      (cashAmount || 0) +
+      (mobileAmount || 0) +
+      (paidAmounts || []).reduce((sum, i) => Number(sum) + Number(i.amount), 0);
 
     checkOrderStatus(order);
     checkOrderAmount(order, amount);

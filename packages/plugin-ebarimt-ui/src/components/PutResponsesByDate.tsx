@@ -9,6 +9,7 @@ import { TableWrapper } from '../styles';
 import { IPutResponse } from '../types';
 import RightMenu from './RightMenu';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { SUB_MENUS } from '../constants';
 
 interface IProps extends IRouterProps {
   errorMsg: string;
@@ -147,18 +148,13 @@ class PutResponsesByDate extends React.Component<IProps, State> {
       />
     );
 
-    const menuPos = [
-      { title: 'Put Response', link: '/put-responses' },
-      { title: 'By Date', link: '/put-responses-by-date' }
-    ];
-
     return (
       <Wrapper
         header={
           <Wrapper.Header
             title={__(`Put Response`)}
             queryParams={queryParams}
-            submenu={menuPos}
+            submenu={SUB_MENUS}
           />
         }
         actionBar={actionBar}

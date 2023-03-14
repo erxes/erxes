@@ -236,7 +236,15 @@ export const returnBill = async (models: IModels, doc, config) => {
 
   const resultObjIds: string[] = [];
   for (const prePutResponse of prePutResponses) {
-    const rd = prePutResponse.registerNo;
+    let rd = prePutResponse.registerNo;
+    if (!rd) {
+      continue;
+    }
+
+    if (rd.length === 12) {
+      rd = rd.slice(-8);
+    }
+
     const date = prePutResponse.date;
 
     if (!prePutResponse.billId || !rd || !date) {
