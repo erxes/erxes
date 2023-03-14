@@ -93,18 +93,6 @@ const integrationQueries = {
     };
 
     if (!user.isOwner) {
-      const departments = await sendCoreMessage({
-        subdomain,
-        action: 'departments.find',
-        data: {
-          userIds: { $in: [user._id] }
-        },
-        isRPC: true,
-        defaultValue: []
-      });
-
-      const departmentIds = departments.map(d => d._id);
-
       query = {
         ...query,
         $or: [
@@ -116,7 +104,7 @@ const integrationQueries = {
               {
                 $or: [
                   { createdUserId: user._id },
-                  { departmentIds: { $in: departmentIds } }
+                  { departmentIds: { $in: user?.departmentIds || [] } }
                 ]
               }
             ]
