@@ -45,7 +45,7 @@ const typeDefs = gql`
     apexReports(${params}): [ApexReport]
     apexReportDetail(_id: String, code: String): ApexReport
     apexCompanyDetail(companyId: String!): Company
-    apexCompanies: [Company]
+    apexCompanies(search: String): [Company]
 
     apexStories(${params}): [ApexStory]
     apexStoryDetail(_id: String): ApexStory

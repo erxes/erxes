@@ -50,7 +50,7 @@ const reportQueries = {
     });
   },
 
-  apexCompanies(_root) {
+  apexCompanies(_root, { search }) {
     return sendCommonMessage({
       subdomain: 'os',
       serviceName: 'contacts',
@@ -58,7 +58,8 @@ const reportQueries = {
       isRPC: true,
       data: {
         selector: {
-          tagIds: { $in: [process.env.PUBLIC_COMPANIES_TAG || ''] }
+          tagIds: { $in: [process.env.PUBLIC_COMPANIES_TAG || ''] },
+          $or: [{ primaryName: { $regex: new RegExp(`^${search}$`, 'i') } }]
         }
       }
     });
