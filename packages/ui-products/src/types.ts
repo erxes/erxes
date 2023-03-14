@@ -60,6 +60,7 @@ export interface IProductCategory {
   createdAt: Date;
   productCount: number;
   isRoot: boolean;
+  meta: string;
 }
 
 export type MutationVariables = {
