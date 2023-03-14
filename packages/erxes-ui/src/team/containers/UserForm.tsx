@@ -18,11 +18,18 @@ type Props = {
   channelsQuery: any; //check - ChannelsQueryResponse
   groupsQuery: any; //check - UsersGroupsQueryResponse
   getEnvQuery: any;
+  brandsQuery: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 const UserFormContainer = (props: Props & ICommonFormProps) => {
-  const { channelsQuery, getEnvQuery, groupsQuery, renderButton } = props;
+  const {
+    channelsQuery,
+    getEnvQuery,
+    groupsQuery,
+    brandsQuery,
+    renderButton
+  } = props;
 
   const config = getEnvQuery.configsGetEnv || {};
   const object = props.object || ({} as IUser);
@@ -33,9 +40,11 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
 
   const channels = channelsQuery ? channelsQuery.channels || [] : [];
   const groups = groupsQuery.usersGroups || [];
+  const brands = brandsQuery ? brandsQuery.brands || [] : [];
 
   let selectedChannels: any[] = []; //check - IChannel
   let selectedGroups: any[] = []; //check - IUserGroup
+  let selectedBrands: any[] = [];
 
   if (object._id) {
     selectedChannels = channels.filter(c =>
@@ -44,6 +53,9 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
     selectedGroups = groups.filter(g =>
       (object.groupIds || []).includes(g._id)
     );
+    selectedBrands = brands.filter(b =>
+      (b.memberIds || []).includes(object._id)
+    );
   }
 
   const updatedProps = {
@@ -51,6 +63,7 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
     showBrands: config.USE_BRAND_RESTRICTIONS === 'true',
     selectedChannels,
     selectedGroups,
+    selectedBrands,
     channels,
     groups,
     renderButton
@@ -77,6 +90,12 @@ export default withProps<ICommonFormProps>(
       //check - UsersGroupsQueryResponse
       name: 'groupsQuery',
       options: () => ({ fetchPolicy: 'network-only' })
+    }),
+    graphql<{}, any>(gql(queries.brands), {
+      //check - BrandsQueryResponse
+      name: 'brandsQuery',
+      options: () => ({ fetchPolicy: 'network-only' }),
+      skip: !isEnabled('inbox')
     })
   )(UserFormContainer)
 );
