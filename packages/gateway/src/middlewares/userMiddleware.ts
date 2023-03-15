@@ -111,6 +111,7 @@ export default async function userMiddleware(
 
             req.user = {
               _id: user._id || 'userId',
+              role: USER_ROLES.SYSTEM,
               customPermissions: permissions.map(p => ({
                 action: p.action,
                 allowed: p.allowed,

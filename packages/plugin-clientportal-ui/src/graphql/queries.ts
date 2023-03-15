@@ -64,6 +64,10 @@ export const commonFields = `
     invitationContent
     registrationContent
   }
+
+  manualVerificationConfig {
+    userIds
+  }
 `;
 
 export const basicFields = `
@@ -98,6 +102,17 @@ export const basicFields = `
 export const clientPortalUserFields = `
   ${basicFields}
   createdAt
+
+  verificationRequest {
+    status
+    attachments{
+      name
+      url
+      size
+      type
+    }
+    description
+  }
 
   customFieldsData
 `;

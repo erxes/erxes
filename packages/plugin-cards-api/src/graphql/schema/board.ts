@@ -50,6 +50,8 @@ export const types = ({ tags }) => `
     visibility: String
     code: String
     memberIds: [String]
+    canMoveMemberIds: [String]
+    canEditMemberIds: [String]
     members: [User]
     departmentIds: [String]
     probability: String

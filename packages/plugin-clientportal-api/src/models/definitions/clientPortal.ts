@@ -16,6 +16,10 @@ export interface IMailConfig {
   registrationContent: string;
 }
 
+export interface IManualVerificationConfig {
+  userIds: string[];
+}
+
 export interface IClientPortal {
   _id?: string;
   name?: string;
@@ -30,6 +34,8 @@ export interface IClientPortal {
 
   otpConfig?: IOTPConfig;
   mailConfig?: IMailConfig;
+  manualVerificationConfig?: IManualVerificationConfig;
+
   googleCredentials?: string;
 
   messengerBrandCode?: string;
@@ -137,6 +143,12 @@ export const clientPortalSchema = new Schema({
   mobileResponsive: field({ type: Boolean, optional: true }),
   otpConfig: field({ type: otpConfigSchema, optional: true }),
   mailConfig: field({ type: mailConfigSchema, optional: true }),
+  manualVerificationConfig: field({
+    type: {
+      userIds: field({ type: [String], required: true })
+    },
+    optional: true
+  }),
   googleCredentials: field({ type: Object, optional: true }),
 
   messengerBrandCode: field({ type: String, optional: true }),

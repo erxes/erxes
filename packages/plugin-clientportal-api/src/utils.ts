@@ -85,7 +85,7 @@ export const sendSms = async (
       );
 
       if (!MESSAGE_PRO_API_KEY || !MESSAGE_PRO_PHONE_NUMBER) {
-        throw new Error('messagin config not set properly');
+        throw new Error('messaging config not set properly');
       }
 
       try {

@@ -3,6 +3,9 @@ import { sendCommonMessage } from './messageBroker';
 import { serviceDiscovery } from './configs';
 
 const toMoney = value => {
+  if (!value) {
+    return '-';
+  }
   return new Intl.NumberFormat().format(value);
 };
 
@@ -17,50 +20,88 @@ export default {
     ];
   },
 
-  replaceContent: async ({ subdomain, data: { productIds, content } }) => {
+  replaceContent: async ({
+    subdomain,
+    data: { branchId, departmentId, productIds, content }
+  }) => {
     const models = await generateModels(subdomain);
 
     const results: string[] = [];
+    const productsIds = JSON.parse(productIds || '[]');
+    const products =
+      (await models.Products.find({ _id: { $in: productsIds } }).lean()) || [];
 
-    for (const productId of JSON.parse(productIds || '[]')) {
-      const product = await models.Products.findOne({ _id: productId });
+    const pricingAvailable = await serviceDiscovery.isEnabled('pricing');
+    let quantityRules = {};
 
-      if (!product) {
-        continue;
+    if (pricingAvailable) {
+      const pricing = await sendCommonMessage({
+        subdomain,
+        serviceName: 'pricing',
+        action: 'checkPricing',
+        data: {
+          prioritizeRule: 'only',
+          totalAmount: 0,
+          departmentId,
+          branchId,
+          products: products.map(pr => ({
+            productId: pr._id,
+            quantity: 1,
+            price: pr.unitPrice
+          }))
+        },
+        isRPC: true,
+        defaultValue: {}
+      });
+
+      for (const product of products) {
+        const discount = pricing[product._id] || {};
+
+        if (Object.keys(discount).length) {
+          let unitPrice = (product.unitPrice -= discount.value);
+          if (unitPrice < 0) {
+            unitPrice = 0;
+          }
+
+          product.unitPrice = unitPrice;
+        }
       }
+
+      quantityRules = await sendCommonMessage({
+        subdomain,
+        serviceName: 'pricing',
+        action: 'getQuanityRules',
+        isRPC: true,
+        defaultValue: [],
+        data: {
+          prioritizeRule: 'exclude',
+          products
+        }
+      });
+    }
+
+    for (const product of products) {
+      const qtyRule = quantityRules[product._id] || {};
+      const { value, price } = qtyRule;
 
       let replacedContent = content;
 
       replacedContent = replacedContent.replace('{{ name }}', product.name);
       replacedContent = replacedContent.replace('{{ code }}', product.code);
+
       replacedContent = replacedContent.replace(
         '{{ price }}',
         toMoney(product.unitPrice)
       );
 
-      const pricingAvailable = await serviceDiscovery.isEnabled('pricing');
-
-      if (pricingAvailable) {
-        const { value, price } = await sendCommonMessage({
-          subdomain,
-          serviceName: 'pricing',
-          action: 'getQuanityRules',
-          isRPC: true,
-          defaultValue: [],
-          data: {
-            product
-          }
-        });
-
-        replacedContent = replacedContent.replace(
-          '{{ bulkQuantity }}',
-          value || ''
-        );
-        replacedContent = replacedContent.replace(
-          '{{ bulkPrice }}',
-          toMoney(price)
-        );
-      }
+      replacedContent = replacedContent.replace(
+        '{{ bulkQuantity }}',
+        value || '-'
+      );
+      replacedContent = replacedContent.replace(
+        '{{ bulkPrice }}',
+        toMoney(price)
+      );
 
       results.push(replacedContent);
     }
