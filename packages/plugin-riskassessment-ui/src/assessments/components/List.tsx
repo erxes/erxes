@@ -1,18 +1,9 @@
-import {
-  SortHandler,
-  Table,
-  __,
-  HeaderDescription,
-  BarItems,
-  Button,
-  ModalTrigger
-} from '@erxes/ui/src';
+import { HeaderDescription, SortHandler, Table, __ } from '@erxes/ui/src';
 import React from 'react';
-import { DefaultWrapper } from '../../common/utils';
 import { subMenu } from '../../common/constants';
+import { DefaultWrapper } from '../../common/utils';
 import Row from './Row';
 import { SideBar } from './SideBar';
-import Form from './Form';
 type Props = {
   list: any[];
   totalCount: number;
@@ -34,10 +25,10 @@ class List extends React.Component<Props> {
           <tr>
             <th>{__('Card type')}</th>
             <th>{__('Card Name')}</th>
-            <th>{__('Risk Indicators')}</th>
-            <th>{__('Branches')}</th>
-            <th>{__('Departments')}</th>
-            <th>{__('Opearations')}</th>
+            <th>{__('Indicators')}</th>
+            <th>{__('Branch')}</th>
+            <th>{__('Department')}</th>
+            <th>{__('Opearation')}</th>
             <th>{__('Status')}</th>
             <th>{__('Result Score')}</th>
             <th>
@@ -65,7 +56,7 @@ class List extends React.Component<Props> {
 
     const leftActionBar = (
       <HeaderDescription
-        title="Risk Assessments"
+        title="Assessments"
         icon="/images/actions/13.svg"
         description=""
       />

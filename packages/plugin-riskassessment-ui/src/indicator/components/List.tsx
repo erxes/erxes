@@ -11,13 +11,13 @@ import {
 import { IRouterProps } from '@erxes/ui/src/types';
 import _loadash from 'lodash';
 import React from 'react';
-import AssessmentCategories from '../../categories/container/List';
+import { subMenu } from '../../common/constants';
 import { ICommonListProps } from '../../common/types';
-import { RiskIndicatorsType } from '../common/types';
 import { DefaultWrapper } from '../../common/utils';
+import { RiskIndicatorsType } from '../common/types';
 import Form from '../containers/Form';
 import TableRow from './Row';
-import { subMenu } from '../../common/constants';
+import SideBar from './SideBar';
 
 type Props = {
   queryParams: any;
@@ -200,11 +200,7 @@ class ListComp extends React.Component<Props, IState> {
       leftActionBar,
       content: this.renderContent(list),
       sidebar: (
-        <AssessmentCategories
-          {...this.props}
-          riskAssessmentsRefetch={refetch}
-          queryParams={queryParams}
-        />
+        <SideBar queryParams={queryParams} history={this.props.history} />
       ),
       subMenu
     };

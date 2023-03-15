@@ -1,5 +1,6 @@
 const commonParams = `
     $searchValue: String
+    $tagIds:[String]
     $perPage: Int
     $page: Int
 `;
@@ -8,6 +9,7 @@ const commonParamsDef = `
     searchValue: $searchValue
     perPage: $perPage
     page: $page
+    tagIds:$tagIds
 `;
 
 const list = `
@@ -16,6 +18,7 @@ const list = `
             _id,
             name,
             description,
+            tagIds
             calculateMethod,
             calculateLogics {
                 _id

@@ -1,18 +1,21 @@
 import {
-  EmptyState,
-  NameCard,
-  SectionBodyItem,
   Box,
-  Icon,
   Button,
+  colors,
+  EmptyState,
+  Icon,
   ModalTrigger,
-  colors
+  NameCard,
+  SectionBodyItem
 } from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 import React from 'react';
-import { FormContainer, ProductName } from '../../../styles';
-import { RiskAssessmentAssignedMembers } from '../../common/types';
+import { ProductName } from '../../../styles';
+import {
+  RiskAssessmentAssignedMembers,
+  RiskAssessmentTypes
+} from '../../common/types';
 import RiskAssessmentForm from '../containers/RiskAssessmentForm';
 
 type Props = {
@@ -20,7 +23,7 @@ type Props = {
   currentUser: IUser;
   cardId: string;
   cardType: string;
-  riskAssessmentId: string;
+  riskAssessments: RiskAssessmentTypes[];
 };
 
 class AssignedMembers extends React.Component<Props> {
@@ -29,7 +32,7 @@ class AssignedMembers extends React.Component<Props> {
   }
 
   renderSubmitForm({ userId, submitStatus }) {
-    const { currentUser, cardId, cardType, riskAssessmentId } = this.props;
+    const { currentUser, cardId, cardType, riskAssessments } = this.props;
     const renderStatusIcon = () => {
       if (currentUser._id === userId) {
         switch (submitStatus) {
@@ -63,7 +66,7 @@ class AssignedMembers extends React.Component<Props> {
         ...props,
         cardId,
         cardType,
-        riskAssessmentId,
+        riskAssessmentId: riskAssessments[0]._id,
         userId: currentUser._id,
         onlyPreview: currentUser._id !== userId
       };

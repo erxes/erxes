@@ -1,6 +1,7 @@
 const commonParams = `
   $name:String
   $description:String
+  $tagIds:[String]
   $calculateMethod:String
   $calculateLogics:[ICalculateLogic]
   $groups:[IIndicatorGroups]
@@ -9,6 +10,7 @@ const commonParams = `
 const commonParamsDef = `
   name:$name
   description:$description
+  tagIds:$tagIds
   calculateMethod:$calculateMethod
   calculateLogics:$calculateLogics
   groups:$groups

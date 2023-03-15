@@ -12,8 +12,8 @@ export default {
     { dataLoaders }: IContext
   ) {
     return (
-      (riskIndicator.categoryId &&
-        dataLoaders.categories.load(riskIndicator.categoryId)) ||
+      (riskIndicator.tagIds &&
+        dataLoaders.categories.load(riskIndicator.tagIds)) ||
       null
     );
   }

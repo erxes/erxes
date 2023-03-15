@@ -9,7 +9,7 @@ const commonFilterParams = `
   $branchIds:[String]
   $departmentIds:[String]
   $operationIds:[String]
-  $categoryId: String
+  $tagIds: [String]
   $ignoreIds:[String]
 `;
 
@@ -17,7 +17,7 @@ const commonFilterParamsDef = `
   branchIds:$branchIds
   departmentIds:$departmentIds
   operationIds:$operationIds
-  categoryId: $categoryId ,
+  tagIds: $tagIds ,
   ignoreIds:$ignoreIds
 `;
 

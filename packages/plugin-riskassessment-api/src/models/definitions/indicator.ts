@@ -23,7 +23,7 @@ export interface IRiskIndicatorsDocument extends Document {
   createdAt: Date;
   name: string;
   description: string;
-  categoryId: [string];
+  tagIds: [string];
   departmentIds: [string];
   branchIds: [string];
   operationIds: [string];
@@ -99,7 +99,7 @@ export const riskIndicatorSchema = new Schema({
   name: field({ type: String, label: 'Name' }),
   description: field({ type: String, label: 'Description' }),
   createdAt: field({ type: Date, default: Date.now, label: 'Created At' }),
-  categoryId: field({ type: String, label: 'CategoryId' }),
+  tagIds: field({ type: [String], label: 'Tag Ids' }),
   operationIds: field({ type: [String], label: 'OperationIDs' }),
   branchIds: field({ type: [String], label: ' BranchIDs' }),
   departmentIds: field({ type: [String], label: 'DepartmentIDs' }),
@@ -180,6 +180,7 @@ export const riskIndicatorGroupSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Name' }),
   description: field({ type: String, label: 'Description' }),
+  tagIds: field({ type: [String], label: 'Tag Ids' }),
   calculateMethod: field({ type: String, label: 'Calculate Method' }),
   calculateLogics: field({
     type: [calculateMethodsSchema],

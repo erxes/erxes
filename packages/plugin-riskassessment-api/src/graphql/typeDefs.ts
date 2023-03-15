@@ -33,6 +33,15 @@ const typeDefs = async _serviceDiscovery => {
 
     extend type User @key(fields: "_id") {
       _id: String! @external
+      submitStatus:String
+    }
+
+    extend type Branch @key(fields: "_id") {
+          _id: String! @external
+    }
+
+    extend type Department @key(fields: "_id") {
+          _id: String! @external
     }
 
     ${RiskAssessmentTypes}

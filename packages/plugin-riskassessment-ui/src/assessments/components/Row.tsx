@@ -1,4 +1,12 @@
-import { Button, Tip, Icon, ModalTrigger, __, Label } from '@erxes/ui/src';
+import {
+  Button,
+  Tip,
+  Icon,
+  ModalTrigger,
+  __,
+  Label,
+  ControlLabel
+} from '@erxes/ui/src';
 import moment from 'moment';
 import React from 'react';
 import { Badge, FormContainer } from '../../styles';
@@ -14,22 +22,16 @@ class Row extends React.Component<Props> {
     super(props);
   }
 
-  renderPopOver(title, contents) {
-    let field = '';
-
-    if (['Branches', 'Departments'].includes(title)) {
-      field = 'title';
-    }
-    if (['Operations', 'Indicators'].includes(title)) {
-      field = 'name';
-    }
-
+  renderPopOver(title, contents, group) {
     return (
       <DetailPopOver title={title} icon="downarrow-2" withoutPopoverTitle>
-        <FormContainer gapBetween={5}>
-          {(contents || []).map(item => (
-            <Label key={item._id}>{__(item[field])}</Label>
-          ))}
+        <FormContainer column>
+          <ControlLabel>{`Group Name: ${group?.name || ''}`}</ControlLabel>
+          <FormContainer gapBetween={5}>
+            {(contents || []).map(item => (
+              <Label key={item._id}>{__(item['name'])}</Label>
+            ))}
+          </FormContainer>
         </FormContainer>
       </DetailPopOver>
     );
@@ -65,10 +67,12 @@ class Row extends React.Component<Props> {
       <tr key={item?._id}>
         <td>{__(item?.cardType)}</td>
         <td>{__(item?.card?.name)}</td>
-        <td>{this.renderPopOver('Indicators', item?.riskIndicators)}</td>
-        <td>{this.renderPopOver('Branches', item?.branches)}</td>
-        <td>{this.renderPopOver('Departments', item?.departments)}</td>
-        <td>{this.renderPopOver('Operations', item?.operations)}</td>
+        <td>
+          {this.renderPopOver('Indicators', item?.riskIndicators, item.group)}
+        </td>
+        <td>{item?.branch?.title || '-'}</td>
+        <td>{item?.department?.title || '-'}</td>
+        <td>{item?.operation?.name || '-'}</td>
         <td>
           <Badge color={item.statusColor}>{__(item.status)}</Badge>
         </td>

@@ -17,7 +17,7 @@ export interface IRiskIndicatorsField {
   name?: string;
   description?: string;
   createdAt?: string;
-  categoryId?: string;
+  tagIDs?: string[];
   status?: string;
   calculateMethod?: string;
   calculateLogics?: IRiskIndicatorCalculateLogicsField[];
@@ -54,6 +54,9 @@ export interface IRiskConformityParams {
 
 export interface IRiskFormSubmissionParams {
   riskAssessmentId?: string;
+  branchId?: string;
+  departmentId?: string;
+  operationId?: string;
   cardId: string;
   cardType: string;
   userId: string;

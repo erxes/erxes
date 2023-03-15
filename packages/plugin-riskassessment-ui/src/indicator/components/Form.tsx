@@ -5,7 +5,6 @@ import {
   confirm,
   EmptyState,
   FormGroup,
-  Icon,
   Spinner,
   Tip,
   Toggle,
@@ -18,24 +17,24 @@ import {
   ColorPick,
   ColorPicker,
   FormColumn,
-  FormWrapper,
-  LinkButton
+  FormWrapper
 } from '@erxes/ui/src/styles/main';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import gql from 'graphql-tag';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
 import Select from 'react-select-plus';
 import { calculateMethods, COLORS } from '../../common/constants';
-import { RiskIndicatorsType, RiskCalculateLogicType } from '../common/types';
-import { SelectOperations, SelectWithCategory } from '../../common/utils';
-import { mutations } from '../graphql';
+import { SelectOperations } from '../../common/utils';
 import { FormContainer, FormContent, Header } from '../../styles';
+import { RiskCalculateLogicType, RiskIndicatorsType } from '../common/types';
+import { SelectTags } from '../common/utils';
+import { mutations } from '../graphql';
 import FormItem from './FormItem';
-import gql from 'graphql-tag';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 
 type Props = {
   indicatorDetail?: RiskIndicatorsType;
@@ -60,6 +59,7 @@ type IRiskIndicatorsStateType = {
   category?: any;
   customScoreField?: any;
   isWithDescription?: boolean;
+  tagIds: string;
 };
 
 type State = {
@@ -437,7 +437,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
       }));
     };
 
-    const handleChangeSelection = (name, value) => {
+    const handleChangeSelection = (value, name) => {
       this.setState(prev => ({
         riskIndicator: { ...prev.riskIndicator, [name]: value }
       }));
@@ -490,13 +490,13 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Category')}</ControlLabel>
-          <SelectWithCategory
-            name="categoryId"
-            label="Choose Category"
-            multi={false}
-            initialValue={riskIndicator?.categoryId}
-            onSelect={value => handleChangeSelection('categoryId', value)}
+          <ControlLabel>{__('Tags')}</ControlLabel>
+          <SelectTags
+            name="tagIds"
+            label="Choose Tags"
+            initialValue={riskIndicator.tagIds}
+            onSelect={handleChangeSelection}
+            multi
           />
         </FormGroup>
         <FormContainer row flex gap>
@@ -507,7 +507,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
               label="Choose Branches"
               multi={true}
               initialValue={riskIndicator?.branchIds}
-              onSelect={value => handleChangeSelection('branchIds', value)}
+              onSelect={handleChangeSelection}
             />
           </FormGroup>
           <FormGroup>
@@ -517,7 +517,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
               label="Choose Departments"
               multi={true}
               initialValue={riskIndicator?.departmentIds}
-              onSelect={value => handleChangeSelection('departmentIds', value)}
+              onSelect={handleChangeSelection}
             />
           </FormGroup>
           <FormGroup>
@@ -527,7 +527,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
               label="Choose Operations"
               multi={true}
               initialValue={riskIndicator?.operationIds}
-              onSelect={value => handleChangeSelection('operationIds', value)}
+              onSelect={handleChangeSelection}
             />
           </FormGroup>
         </FormContainer>

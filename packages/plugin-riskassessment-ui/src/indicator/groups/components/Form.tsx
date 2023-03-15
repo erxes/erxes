@@ -1,5 +1,3 @@
-import React from 'react';
-import { IIndicatorsGroups } from '../common/types';
 import {
   Button,
   confirm,
@@ -9,9 +7,12 @@ import {
   FormGroup,
   __
 } from '@erxes/ui/src';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import React from 'react';
 import { FormContainer } from '../../../styles';
-import { CloseModal, ModalFooter } from '@erxes/ui/src/styles/main';
+import { SelectTags } from '../../common/utils';
+import { IIndicatorsGroups } from '../common/types';
 import GroupingIndicators from './GroupingIndicators';
 
 type Props = {
@@ -72,13 +73,8 @@ class Form extends React.Component<Props, State> {
       this.setState({ detail: { ...this.props.detail, ...doc } });
     };
 
-    const onChange = e => {
-      const { detail } = this.state;
-      const { name, value } = e.currentTarget as HTMLInputElement;
-
-      detail[name] = value;
-
-      this.setState({ detail });
+    const handleSelect = (values, name) => {
+      this.setState(prev => ({ detail: { ...prev.detail, [name]: values } }));
     };
 
     return (
@@ -91,7 +87,6 @@ class Form extends React.Component<Props, State> {
             name="name"
             defaultValue={detail?.name}
             required
-            // onChange={onChange}
           />
         </FormGroup>
         <FormGroup>
@@ -102,7 +97,16 @@ class Form extends React.Component<Props, State> {
             name="description"
             defaultValue={detail?.name}
             required
-            // onChange={onChange}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Tag')}</ControlLabel>
+          <SelectTags
+            name="tagIds"
+            label="Choose Tag"
+            initialValue={detail.tagIds}
+            onSelect={handleSelect}
+            multi
           />
         </FormGroup>
         <GroupingIndicators

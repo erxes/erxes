@@ -1,12 +1,12 @@
-import React from 'react';
-import { graphql } from 'react-apollo';
+import { Spinner } from '@erxes/ui/src';
+import { withProps } from '@erxes/ui/src/utils/core';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { queries } from '../graphql';
+import React from 'react';
+import { graphql } from 'react-apollo';
 import { RiskAssessmentSubmitFormQueryResponse } from '../../common/types';
-import { Spinner } from '@erxes/ui/src';
 import RiskAssessmentFormComponent from '../components/RiskAssessmentForm';
+import { queries } from '../graphql';
 
 type Props = {
   cardId: string;

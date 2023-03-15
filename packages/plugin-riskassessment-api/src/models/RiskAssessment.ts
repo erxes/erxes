@@ -17,8 +17,7 @@ export interface IRiskAssessmentsModel extends Model<IRiskAssessmentsDocument> {
   removeRiskAssessment(_id: string);
   riskAssessmentAssignedMembers(
     cardId: string,
-    cardType: string,
-    riskAssessmentId: string
+    cardType: string
   ): Promise<IRiskAssessmentsDocument>;
   riskAssessmentSubmitForm(
     cardId: string,
@@ -89,23 +88,33 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
     }
 
     public static async addBulkRiskAssessment(params) {
-      const { cardType, cardId, bulkList } = params;
+      const { cardType, cardId, bulkItems } = params;
 
-      for (const item of bulkList) {
-        const { branchIds, departmentIds, operationIds } = item;
-        if (!!operationIds?.length) {
-          const operations = await models.Operations.find({
-            _id: { $in: operationIds }
-          }).select('name');
-          for (const operation of operations) {
-            // const cardDetail = await sendCardsMessage({
-            //   subdomain,
-            //   action:'',
-            //   data:{},
-            //   isRPC:true,
-            //   defaultValue:{}
-            // })
+      let doc = { cardId, cardType };
+
+      const createByIds = async (ids: string, fieldName: string, groupId) => {
+        if (!!ids.length) {
+          for (const id of ids) {
+            {
+              await this.addRiskAssessment({
+                ...doc,
+                [fieldName]: id,
+                groupId
+              });
+            }
           }
+        }
+      };
+
+      for (const item of bulkItems) {
+        const { branchIds, departmentIds, operationIds, groupId } = item;
+        const IdsMap = [
+          { key: 'branchId', ids: branchIds },
+          { key: 'departmentId', ids: departmentIds },
+          { key: 'operationId', ids: operationIds }
+        ];
+        for (const { ids, key } of IdsMap) {
+          createByIds(ids, key, groupId);
         }
       }
     }
@@ -224,48 +233,53 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
       return riskAssessment.remove();
     }
 
-    public static async riskAssessmentAssignedMembers(
-      cardId,
-      cardType,
-      riskAssessmentId
-    ) {
-      const riskAssessment = await models.RiskAssessments.findOne({
-        _id: riskAssessmentId
+    public static async riskAssessmentAssignedMembers(cardId, cardType) {
+      const riskAssessments = await models.RiskAssessments.find({
+        cardId,
+        cardType
       });
 
-      if (!riskAssessment) {
+      if (!riskAssessments.length) {
         throw new Error('Could not find risk assessment');
       }
 
+      const riskAssessmentIds = riskAssessments.map(
+        riskAssessment => riskAssessment._id
+      );
+
       let riskAssessmentIndicatorIds = (
         await models.RiskAssessmentIndicators.find({
-          assessmentId: riskAssessment._id
+          assessmentId: { $in: riskAssessmentIds }
         })
       ).map(riskAssessmentIndicator => riskAssessmentIndicator.indicatorId);
 
       let assignedUsers = await getAsssignedUsers(subdomain, cardId, cardType);
 
       for (const assignedUser of assignedUsers) {
-        if (riskAssessment.isSplittedUsers) {
-          let indicatorIds: string[] = [];
-          const riskAssessmentGroups = await models.RiskAssessmentGroups.find({
-            assessmentId: riskAssessment._id,
-            assignedUserIds: { $in: [assignedUser._id] }
-          });
-
-          for (const riskAssessmentGroup of riskAssessmentGroups) {
-            const groupIndicatorIds = await this.getGroupIndicatorIds(
-              riskAssessmentGroup.groupId
+        for (const riskAssessment of riskAssessments) {
+          if (riskAssessment.isSplittedUsers) {
+            let indicatorIds: string[] = [];
+            const riskAssessmentGroups = await models.RiskAssessmentGroups.find(
+              {
+                assessmentId: riskAssessment._id,
+                assignedUserIds: { $in: [assignedUser._id] }
+              }
             );
-            indicatorIds = [...indicatorIds, ...groupIndicatorIds];
-          }
 
-          riskAssessmentIndicatorIds = indicatorIds;
+            for (const riskAssessmentGroup of riskAssessmentGroups) {
+              const groupIndicatorIds = await this.getGroupIndicatorIds(
+                riskAssessmentGroup.groupId
+              );
+              indicatorIds = [...indicatorIds, ...groupIndicatorIds];
+            }
+
+            riskAssessmentIndicatorIds = indicatorIds;
+          }
         }
         const submittedResults = await models.RiksFormSubmissions.aggregate([
           {
             $match: {
-              assessmentId: riskAssessment._id,
+              assessmentId: { $in: riskAssessmentIds },
               indicatorId: { $in: riskAssessmentIndicatorIds },
               userId: assignedUser._id
             }
@@ -300,7 +314,9 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
         }
       }
 
-      if (riskAssessment.status !== 'In Progress') {
+      if (
+        riskAssessments.every(assessment => assessment.status !== 'In Progress')
+      ) {
         assignedUsers = assignedUsers.filter(
           user => user.submitStatus === 'submitted'
         );
@@ -479,8 +495,7 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
 
       const assignedUsers = await models.RiskAssessments.riskAssessmentAssignedMembers(
         cardId,
-        cardType,
-        riskAssessment._id
+        cardType
       );
 
       const assessment: any = { ...riskAssessment, assignedUsers };

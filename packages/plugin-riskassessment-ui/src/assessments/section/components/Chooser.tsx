@@ -9,17 +9,16 @@ import {
   __
 } from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { mutations as riskIndicatorMutattions } from '../../../indicator/graphql';
-import { queries } from '../graphql';
-import RiskIndicatorForm from '../../../indicator/containers/Form';
-import RiskGroupsForm from '../../../indicator/groups/containers/Form';
-import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
-import { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useQuery } from 'react-apollo';
 import { DetailPopOver } from '../../../assessments/common/utils';
-import { SelectGroupsAssignedUsers } from '../common/utils';
+import RiskIndicatorForm from '../../../indicator/containers/Form';
+import { mutations as riskIndicatorMutattions } from '../../../indicator/graphql';
+import RiskGroupsForm from '../../../indicator/groups/containers/Form';
 import { queries as groupsQueries } from '../../../indicator/groups/graphql';
+import { SelectGroupsAssignedUsers } from '../common/utils';
+import { queries } from '../graphql';
 
 type Props = {
   detail: any;

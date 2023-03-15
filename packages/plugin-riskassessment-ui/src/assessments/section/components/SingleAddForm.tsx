@@ -1,12 +1,12 @@
-import { FormGroup, ControlLabel, __ } from '@erxes/ui/src';
-import React from 'react';
-import { RiskCalculateLogicType } from '../../../indicator/common/types';
-import { FormContainer } from '../../../styles';
+import { ControlLabel, FormControl, FormGroup, __ } from '@erxes/ui/src';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import React from 'react';
 import { SelectOperations } from '../../../common/utils';
-import Chooser from './Chooser';
+import { FormContainer } from '../../../styles';
 import { RiskAssessmentTypes } from '../../common/types';
+import BulkAddForm from '../containers/BulkAddForm';
+import Chooser from './Chooser';
 
 type Props = {
   riskAssessment: RiskAssessmentTypes;
@@ -21,8 +21,7 @@ type State = {
   branchId: string;
   departmentId: string;
   operationId: string;
-  calculateLogics: RiskCalculateLogicType[];
-  calculateMethod: string;
+  useBulkCreate: boolean;
 };
 
 class Form extends React.Component<Props, State> {
@@ -36,47 +35,47 @@ class Form extends React.Component<Props, State> {
       branchId: riskAssessment?.branchId || '',
       departmentId: riskAssessment?.departmentId || '',
       operationId: riskAssessment?.operationId || '',
-      calculateLogics: [],
-      calculateMethod: ''
+      useBulkCreate: false
     };
   }
 
   renderFilter = () => {
     const { departmentId, branchId, operationId } = this.state;
-    const handleSelect = (name, value) => {
+    const handleSelect = (value, name) => {
       this.setState({ [name]: value } as Pick<State, keyof State>);
     };
+
     return (
       <>
         <FormContainer row gap flex>
           <FormGroup>
-            <ControlLabel>{__('Branches')}</ControlLabel>
+            <ControlLabel>{__('Branch')}</ControlLabel>
             <SelectBranches
-              name="branchId"
-              label="Select Branches"
+              name={'branchId'}
+              label={`Select Branch`}
               initialValue={branchId}
-              onSelect={value => handleSelect('branchId', value)}
+              onSelect={handleSelect}
               multi={false}
             />
           </FormGroup>
           <FormGroup>
             <ControlLabel>{__('Department')}</ControlLabel>
             <SelectDepartments
-              name="departmentId"
-              label="Select Departments"
+              name={'departmentId'}
+              label={`Select Department`}
               initialValue={departmentId}
-              onSelect={value => handleSelect('departmentId', value)}
+              onSelect={handleSelect}
               multi={false}
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Operations')}</ControlLabel>
+            <ControlLabel>{__('Operation')}</ControlLabel>
             <SelectOperations
-              name="operationId"
-              label="Select Operations"
+              name={'operationId'}
+              label={`Select Operation`}
               initialValue={operationId}
               multi={false}
-              onSelect={value => handleSelect('operationId', value)}
+              onSelect={handleSelect}
             />
           </FormGroup>
         </FormContainer>
@@ -84,9 +83,8 @@ class Form extends React.Component<Props, State> {
     );
   };
 
-  render() {
+  renderSingleAssessment() {
     const { riskAssessment, cardId, cardType, closeModal } = this.props;
-
     const { branchId, departmentId, operationId } = this.state;
 
     const handleSelect = props => {
@@ -109,9 +107,55 @@ class Form extends React.Component<Props, State> {
     };
 
     return (
-      <FormContainer column gap>
+      <>
         {this.renderFilter()}
         <Chooser {...updatedProps} />
+      </>
+    );
+  }
+
+  renderBulkAssessment() {
+    const { cardId, cardType, closeModal } = this.props;
+
+    const updatedProps = {
+      closeModal,
+      cardId,
+      cardType
+    };
+    return <BulkAddForm {...updatedProps} />;
+  }
+
+  render() {
+    const { useBulkCreate } = this.state;
+
+    const toggleOneByOne = () => {
+      if (!useBulkCreate) {
+        this.setState({
+          branchId: '',
+          departmentId: '',
+          operationId: ''
+        });
+      }
+
+      this.setState({ useBulkCreate: !useBulkCreate });
+    };
+
+    return (
+      <FormContainer column gap>
+        <FormGroup>
+          <FormControl
+            name="useBulkCreate"
+            componentClass="checkbox"
+            onClick={toggleOneByOne}
+            checked={useBulkCreate}
+          />
+          <ControlLabel>
+            {__('generate one-by-one assessment with selected structures')}
+          </ControlLabel>
+        </FormGroup>
+        {useBulkCreate
+          ? this.renderBulkAssessment()
+          : this.renderSingleAssessment()}
       </FormContainer>
     );
   }

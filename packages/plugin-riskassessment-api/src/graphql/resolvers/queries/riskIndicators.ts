@@ -35,6 +35,10 @@ const generateGroupsFilter = params => {
     filter.name = { $regex: new RegExp(params.searchValue, 'i') };
   }
 
+  if (params.tagIds) {
+    filter.tagIds = { $in: params.tagIds };
+  }
+
   return filter;
 };
 
@@ -44,7 +48,7 @@ const RiskIndicatorQueries = {
    */
   async riskIndicators(
     _root,
-    params: { categoryId: string } & IRiskIndicatorsField & PaginateField,
+    params: { tagIds: string[] } & IRiskIndicatorsField & PaginateField,
     { models }: IContext
   ) {
     return await models.RiskIndicators.riskIndicators(params);
@@ -52,7 +56,7 @@ const RiskIndicatorQueries = {
 
   async riskIndicatorsTotalCount(
     _root,
-    params: { categoryId: string } & IRiskIndicatorsField & PaginateField,
+    params: { tagIds: string[] } & IRiskIndicatorsField & PaginateField,
     { models }: IContext
   ) {
     return await models.RiskIndicators.riskIndicatorsTotalCount(params);

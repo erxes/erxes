@@ -25,6 +25,7 @@ import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import { cardTypes, statusColorConstant } from '../../common/constants';
 import { DateContainer } from '@erxes/ui/src/styles/main';
+import { FilterByTags } from '../../common/utils';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -226,6 +227,7 @@ export function SideBar({ history, queryParams }) {
             </EndDateContainer>
           </CustomRangeContainer>
         </CustomForm>
+        <FilterByTags history={history} queryParams={queryParams} />
       </Padding>
     </Sidebar>
   );

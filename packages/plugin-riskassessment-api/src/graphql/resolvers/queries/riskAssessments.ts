@@ -84,7 +84,7 @@ const RiskAssessmentQueries = {
     return models.RiskAssessments.riskAssessmentDetail(id);
   },
   async riskAssessment(_root, { cardId, cardType }, { models }: IContext) {
-    return await models.RiskAssessments.findOne({
+    return await models.RiskAssessments.find({
       cardId,
       cardType
     });
@@ -107,13 +107,12 @@ const RiskAssessmentQueries = {
 
   async riskAssessmentAssignedMembers(
     _root,
-    { cardId, cardType, riskAssessmentId },
+    { cardId, cardType },
     { models }: IContext
   ) {
     return models.RiskAssessments.riskAssessmentAssignedMembers(
       cardId,
-      cardType,
-      riskAssessmentId
+      cardType
     );
   },
   async riskAssessmentSubmitForm(

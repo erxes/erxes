@@ -1,18 +1,10 @@
+import { colors, Icon } from '@erxes/ui/src';
+import { PopoverList } from '@erxes/ui/src/components/filterableList/styles';
 import React from 'react';
-import {
-  Button,
-  colors,
-  EmptyState,
-  Icon,
-  ModalTrigger,
-  Tip
-} from '@erxes/ui/src';
+import { RiskIndicatorsType } from '../../../indicator/common/types';
 import { FormContainer } from '../../../styles';
 import { DetailPopOver } from '../../common/utils';
-import { PopoverList } from '@erxes/ui/src/components/filterableList/styles';
 import RiskIndicatorForm from '../containers/RiskIndicatorForm';
-import { RiskIndicatorsType } from '../../../indicator/common/types';
-import IndicatorAssessmentHistory from '../containers/IndicatorAssessmentHistory';
 
 type IndicatorsTypes = {
   _id: string;

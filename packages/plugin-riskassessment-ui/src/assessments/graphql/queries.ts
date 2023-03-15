@@ -41,26 +41,31 @@ const commonField = `
      card{
       _id,name
      }
-    branchIds
-    branches
-    createdAt
-    closedAt
-    departmentIds
-    operationIds
-    operations
+     createdAt
+     closedAt
+    branchId
+    branch {
+      _id,title
+    }
+    departmentId
+    department {
+      _id,title
+    }
+    operationId
+    operation {
+      _id,name
+    }
     resultScore
-    riskIndicatorId
+    indicatorId
+    groupId
+    group{
+      _id,name
+    }
     riskIndicators {
-      ${riskIndicatorFields({
-        calculateLogics: false,
-        categories: false,
-        customScoreField: false,
-        forms: false
-      })}
+      _id,name
     }
     status
     statusColor
-    departments
  `;
 
 const riskAssessments = `

@@ -14,14 +14,17 @@ export const types = `
         resultScore: String
         createdAt: Date
         closedAt: Date
-        riskIndicatorId:String
+        indicatorId:String
+        groupId:String
+        group:IndicatorsGroupType
         riskIndicators:[RiskIndicatorType]
-        branchIds:[String],
-        branches: JSON
-        departmentIds:[String],
-        departments: JSON
-        operationIds:[String],
-        operations:JSON
+        branchId:String,
+        branch: Branch
+        departmentId:String,
+        department: Department
+        operationId:String,
+        operation:Operation,
+        isSplittedUsers:Boolean
     }
 
     type RiskAssessmentDetail  {
@@ -60,6 +63,13 @@ export const types = `
         assignedUserIds:[String]
     }
 
+    input IBulkAddAssessment {
+        branchIds:[String]
+        departmentIds:[String]
+        operationIds:[String]
+        groupId:String
+    }
+
 `;
 
 const commonMutationParams = `
@@ -75,7 +85,7 @@ const commonMutationParams = `
 
 export const mutations = `
     addRiskAssessment(${commonMutationParams}):RiskAssessment
-    addBulkRiskAssessment:[RiskAssessment]
+    addBulkRiskAssessment(cardId:String,cardType:String,bulkItems:[IBulkAddAssessment]):[RiskAssessment]
     editRiskAssessment(_id:String,${commonMutationParams}):RiskAssessment
     removeRiskAssessment(riskAssessmentId:String):RiskAssessment
 `;
@@ -106,13 +116,22 @@ const commonFormSubmitParams = `
 
 export const queries = `
     riskAssessments(${commonParams}):[RiskAssessment]
+
     riskAssessmentsTotalCount(${commonParams}):Int
+
     riskAssessmentDetail(id:String):JSON
+
     riskAssessmentFormSubmissionDetail(${commonFormSubmitParams}):JSON
-    riskAssessment(cardId:String,cardType:String):JSON
-    riskAssessmentAssignedMembers(cardId:String,cardType:String,riskAssessmentId:String):JSON
+    
+    riskAssessment(cardId:String,cardType:String):[RiskAssessment]
+
+    riskAssessmentAssignedMembers(cardId:String,cardType:String):[User]
+
     riskAssessmentSubmitForm(cardId:String,cardType:String,riskAssessmentId:String,userId:String):JSON
+
     riskAssessmentIndicatorForm(riskAssessmentId:String,indicatorId:String,userId:String):JSON
+
     riskAssessmentGroups(riskAssessmentId:String,groupIds:[String] ):JSON
+    
     indicatorsAssessmentHistory(indicatorId:String):[IndicatorAssessment]
 `;

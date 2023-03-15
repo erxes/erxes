@@ -1,7 +1,5 @@
 import {
   Button,
-  ControlLabel,
-  Icon,
   ModalTrigger,
   NameCard,
   Tabs,
@@ -10,15 +8,15 @@ import {
   Tip,
   __
 } from '@erxes/ui/src';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import moment from 'moment';
 import React from 'react';
 import { ColorBox, FormContainer, TriggerTabs } from '../../../styles';
 import {
   IndicatorAssessmentHistory,
   IndicatorSubmissions
 } from '../../common/types';
-import moment from 'moment';
 import { renderSubmission } from '../../components/Detail';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
 
 type Props = {
   assessmentsHistory: IndicatorAssessmentHistory[];

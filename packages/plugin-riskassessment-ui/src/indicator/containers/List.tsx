@@ -33,7 +33,7 @@ type FinalProps = {
   ICommonFormProps;
 class ListContainer extends React.Component<FinalProps> {
   render() {
-    const { removeMutation, listQuery, totalCountQuery } = this.props;
+    const { removeMutation, listQuery, totalCountQuery, history } = this.props;
 
     const { riskIndicators, loading, error } = listQuery;
 
@@ -60,7 +60,8 @@ class ListContainer extends React.Component<FinalProps> {
       totalCount: totalCountQuery?.riskIndicatorsTotalCount || 0,
       refetch: listQuery.refetch,
       loading,
-      remove
+      remove,
+      history
     };
 
     return <List {...updatedProps} />;

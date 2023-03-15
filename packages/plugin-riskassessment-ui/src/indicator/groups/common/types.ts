@@ -11,6 +11,7 @@ export interface IIndicatorsGroups {
   _id: string;
   name: string;
   description: string;
+  tagIds: string[];
   calculateMethod: string;
   calculateLogics: [RiskCalculateLogicType];
   groups: [IIndicatorsGroup];

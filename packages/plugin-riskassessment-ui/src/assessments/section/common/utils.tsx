@@ -1,25 +1,21 @@
-import React from 'react';
-import {
-  Button,
-  CollapseContent,
-  ControlLabel,
-  dimensions,
-  EmptyState,
-  FormGroup,
-  SelectTeamMembers,
-  Spinner,
-  __
-} from '@erxes/ui/src';
-import { withProps } from '@erxes/ui/src/utils/core';
-import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
 import { queries as dealQueries } from '@erxes/ui-cards/src/deals/graphql';
 import { queries as taskQueries } from '@erxes/ui-cards/src/tasks/graphql';
 import { queries as ticketQueries } from '@erxes/ui-cards/src/tickets/graphql';
-import { useQuery } from 'react-apollo';
-import { queries } from '../graphql';
+import {
+  CollapseContent,
+  ControlLabel,
+  EmptyState,
+  FormGroup,
+  SelectTeamMembers,
+  Spinner
+} from '@erxes/ui/src';
+import { withProps } from '@erxes/ui/src/utils/core';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import { graphql } from 'react-apollo';
 import { ListItem } from '../../../styles';
+import { queries } from '../graphql';
 import { GroupsQueryResponse } from './types';
 
 type SelectGroupsAssignedUsersProps = {

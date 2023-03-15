@@ -46,7 +46,6 @@ export const riskIndicatorParams = `
     _id,
     name,
     description,
-    categoryId,
     operationIds
     departmentIds,
     branchIds,
@@ -56,12 +55,7 @@ export const riskIndicatorParams = `
         label,
         percentWeight
     }
-    category{
-        _id
-        formId
-        parentId
-        name
-    },
+    tagIds
       forms {
         _id
         calculateMethod
@@ -84,4 +78,21 @@ export const riskConformityParams = `
     description
     name
     status
+`;
+
+export const tags = `
+  query tagsQuery($type: String, $tagIds: [String], $parentId: String) {
+    tags(type: $type, tagIds: $tagIds, parentId: $parentId) {
+      _id
+      name
+      type
+      colorCode
+      createdAt
+      objectCount
+      totalObjectCount
+      parentId
+      order
+      relatedIds
+    }
+  }
 `;

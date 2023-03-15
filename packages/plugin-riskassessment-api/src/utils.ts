@@ -6,8 +6,8 @@ import {
 } from './messageBroker';
 
 export const validRiskIndicators = async params => {
-  if (!params.categoryId) {
-    throw new Error('Please select some categories');
+  if (!params.tagIds) {
+    throw new Error('Please select some tags');
   }
   if (await models?.RiskIndicators.findOne({ name: params.name })) {
     throw new Error(
@@ -212,12 +212,12 @@ export const getFormId = async (model, cardId: string, cardType: String) => {
     cardId,
     cardType
   }).lean();
-  const { categoryId } = await model.RiskAssessment.findOne({
+  const { tagIds } = await model.RiskAssessment.findOne({
     _id: riskAssessmentId
   }).lean();
 
   const { formId } = await model.RiskAssessmentCategory.findOne({
-    _id: categoryId
+    _id: tagIds
   }).lean();
   return formId;
 };

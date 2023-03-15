@@ -7,6 +7,8 @@ import { graphql } from 'react-apollo';
 import { queries } from '../graphql';
 import ListComponent from '../components/List';
 import { EmptyState, Spinner } from '@erxes/ui/src';
+import { generateParamsIds } from '../../common/utils';
+
 type Props = {
   queryParams: any;
   history: any;
@@ -44,16 +46,6 @@ class List extends React.Component<FinalProps, State> {
     return <ListComponent {...updatedProps} />;
   }
 }
-
-const generateParamsIds = ids => {
-  if (!ids?.length) {
-    return undefined;
-  }
-  if (typeof ids === 'string') {
-    return [ids];
-  }
-  return ids;
-};
 
 export const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),

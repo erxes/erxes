@@ -1,3 +1,4 @@
+import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
 import {
   Button,
   ControlLabel,
@@ -5,16 +6,15 @@ import {
   FormGroup,
   __
 } from '@erxes/ui/src';
-import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
 import {
   FormColumn,
   FormWrapper,
   ModalFooter
 } from '@erxes/ui/src/styles/main';
 import { IField } from '@erxes/ui/src/types';
+import { default as loadash, default as _loadash } from 'lodash';
 import React from 'react';
 import { Padding } from '../../../styles';
-import _loadash from 'lodash';
 import { DetailPopOver } from '../../common/utils';
 import IndicatorAssessmentHistory from '../containers/IndicatorAssessmentHistory';
 
@@ -157,7 +157,7 @@ class IndicatorForm extends React.Component<Props, State> {
               )}
             </FormWrapper>
           ))}
-          {customScoreField && (
+          {!loadash.isEmpty(customScoreField) && (
             <FormWrapper>
               <FormColumn>
                 <FormGroup>

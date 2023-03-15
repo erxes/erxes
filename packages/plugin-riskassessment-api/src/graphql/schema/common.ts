@@ -1,4 +1,4 @@
-export const commonTypes = `
+export const commonDateTypes = `
     createdAt:String
     modifiedAt:String
 `;
@@ -13,11 +13,11 @@ export const commonPaginateTypes = `
     sortToDate: String
 `;
 
-export const commonRiskIndicatorTypes = `
+export const commonIndicatorTypes = `
     _id: String
     name: String!
     description: String
-    categoryId: String
+    tagIds: [String]
     operationIds: [String]
     branchIds:[String]
     departmentIds:[String]
@@ -50,7 +50,7 @@ export const commonRiskIndicatorParams = `
         _id:String,
         name: String
         description: String
-        categoryId: String
+        tagIds: [String]
         operationIds:[String]
         branchIds: [String]
         departmentIds: [String]

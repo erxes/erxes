@@ -54,6 +54,14 @@ mutation AddRiskAssessment(${commonParams}) {
 }
 `;
 
+const addBulkAssessment = `
+mutation AddBulkRiskAssessment($cardId:String,$cardType:String,$bulkItems: [IBulkAddAssessment]) {
+  addBulkRiskAssessment(cardId:$cardId,cardType:$cardType,bulkItems: $bulkItems) {
+    _id
+  }
+}
+`;
+
 const editRiskAssessment = `
 mutation EditRiskAssessment($_id: String,${commonParams}) {
   editRiskAssessment(_id: $_id,${commonParamsDef}) {
@@ -80,5 +88,6 @@ export default {
   addRiskAssessment,
   editRiskAssessment,
   removeRiskAssessment,
-  riskFormSaveSubmission
+  riskFormSaveSubmission,
+  addBulkAssessment
 };

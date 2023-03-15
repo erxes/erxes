@@ -1,11 +1,11 @@
-import React from 'react';
-import { graphql } from 'react-apollo';
+import { Alert, confirm } from '@erxes/ui/src';
+import { withProps } from '@erxes/ui/src/utils/core';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils/core';
-import FormComponent from '../components/Form';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import FormComponent from '../components/SingleAddForm';
 import { mutations, queries } from '../graphql';
-import { Alert, confirm } from '@erxes/ui/src';
 type Props = {
   closeModal: () => void;
   cardId: string;

@@ -9,7 +9,7 @@ import {
 import { IRiskFormSubmissionParams } from './definitions/common';
 import {
   IRiskFormSubmissionDocument,
-  riskConformityFormSubmissionSchema
+  formSubmissionSchema
 } from './definitions/confimity';
 import { IRiskAssessmentsDocument } from './definitions/riskassessment';
 
@@ -58,7 +58,9 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
   class FormSubmissionsClass {
     public static async formSaveSubmission(params: IRiskFormSubmissionParams) {
       const {
-        riskAssessmentId,
+        branchId,
+        departmentId,
+        operationId,
         formSubmissions,
         cardId,
         cardType,
@@ -66,9 +68,21 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         customScore
       } = params;
 
-      const riskAssessment = await models.RiskAssessments.findOne({
-        _id: riskAssessmentId
-      });
+      let commonFilter: any = { cardId, cardType };
+
+      if (branchId) {
+        commonFilter.branchId = branchId;
+      }
+
+      if (departmentId) {
+        commonFilter.departmentId = departmentId;
+      }
+
+      if (operationId) {
+        commonFilter.operationId = operationId;
+      }
+
+      const riskAssessment = await models.RiskAssessments.findOne(commonFilter);
 
       if (!riskAssessment) {
         throw new Error('Somethin went wrong');
@@ -498,6 +512,6 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
     }
   }
 
-  riskConformityFormSubmissionSchema.loadClass(FormSubmissionsClass);
-  return riskConformityFormSubmissionSchema;
+  formSubmissionSchema.loadClass(FormSubmissionsClass);
+  return formSubmissionSchema;
 };

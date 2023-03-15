@@ -4,16 +4,15 @@ import {
   FormControl,
   Icon,
   ModalTrigger,
-  Tip,
-  __
+  Tip
 } from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import gql from 'graphql-tag';
 import moment from 'moment';
 import React from 'react';
 import { RiskIndicatorsType } from '../common/types';
-import { default as Form, default as FormContainer } from '../containers/Form';
 import { generateParams } from '../common/utils';
+import { default as Form, default as FormContainer } from '../containers/Form';
 import { mutations, queries } from '../graphql';
 
 type IProps = {

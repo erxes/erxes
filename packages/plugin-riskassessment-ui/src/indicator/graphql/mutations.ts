@@ -1,7 +1,7 @@
 const riskIndicatorParams = `
     $name: String!, 
     $description: String, 
-    $categoryId: String,
+    $tagIds: [String],
     $operationIds:[String]
     $departmentIds: [String],
     $branchIds: [String],
@@ -15,7 +15,7 @@ const riskIndicatorParams = `
 const riskIndicatorParamsDef = `
     name:$name,
     description:$description,
-    categoryId:$categoryId,
+    tagIds:$tagIds,
     operationIds: $operationIds,
     departmentIds:$departmentIds,
     branchIds:$branchIds,

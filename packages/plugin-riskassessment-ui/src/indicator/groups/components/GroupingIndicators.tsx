@@ -1,5 +1,4 @@
 import {
-  Button,
   CollapseContent,
   ControlLabel,
   FormControl,
@@ -7,7 +6,7 @@ import {
   Icon,
   __
 } from '@erxes/ui/src';
-import { LinkButton, ModalFooter } from '@erxes/ui/src/styles/main';
+import { LinkButton } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import {
   CommonCalculateFields,

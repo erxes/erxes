@@ -14,9 +14,21 @@ export type RiskAssessmentTypes = {
   };
   indicatorId: string;
   groupId: string;
-  branchIds: string[];
-  departmentId: string[];
-  operationIds: string[];
+  branchId: string;
+  branch: {
+    _id: string;
+    title: string;
+  };
+  departmentId: string;
+  department: {
+    _id: string;
+    title: string;
+  };
+  operationId: string;
+  operation: {
+    _id: string;
+    name: string;
+  };
   status: string;
   statusColor: string;
   resultScore: string;
@@ -50,7 +62,7 @@ export type RiskAssessmentAssignedMembers = {
 } & IUser;
 
 export type RiskAssessmentQueryResponse = {
-  riskAssessment: RiskAssessmentTypes;
+  riskAssessment: RiskAssessmentTypes[];
 } & QueryResponse;
 
 export type RiskAssessmentAssignedMembersQueryResponse = {

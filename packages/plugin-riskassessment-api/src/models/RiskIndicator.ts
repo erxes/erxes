@@ -14,10 +14,10 @@ import {
 
 export interface IRiskIndicatorsModel extends Model<IRiskIndicatorsDocument> {
   riskIndicators(
-    params: { categoryId: string } & IRiskIndicatorsField & PaginateField
+    params: { tagIds: string[] } & IRiskIndicatorsField & PaginateField
   ): Promise<IRiskIndicatorsDocument>;
   riskIndicatorsTotalCount(
-    params: { categoryId: string } & IRiskIndicatorsField & PaginateField
+    params: { tagIds: string[] } & IRiskIndicatorsField & PaginateField
   ): Promise<IRiskIndicatorsDocument>;
   riskIndicatorDetail(params: {
     _id: string;
@@ -49,7 +49,7 @@ const statusColors = {
 const generateFilter = (
   params: {
     _id?: string;
-    categoryId?: string;
+    tagIds?: string[];
     ignoreIds?: string[];
     branchId?: string;
     departmentId?: string;
@@ -63,8 +63,8 @@ const generateFilter = (
     filter._id = params._id;
   }
 
-  if (params.categoryId) {
-    filter.categoryId = params.categoryId;
+  if (params.tagIds) {
+    filter.tagIds = { $in: params.tagIds };
   }
 
   if (params.sortFromDate) {
@@ -124,7 +124,7 @@ export const loadRiskIndicators = (model: IModels, subdomain: string) => {
   class RiskIndicatorClass {
     public static async riskIndicators(
       params: {
-        categoryId: string;
+        tagId: string;
         ignoreIds: string[];
       } & IRiskIndicatorsField &
         PaginateField
@@ -135,7 +135,7 @@ export const loadRiskIndicators = (model: IModels, subdomain: string) => {
     }
     public static async riskIndicatorsTotalCount(
       params: {
-        categoryId: string;
+        tagId: string;
         ignoreIds: string[];
       } & IRiskIndicatorsField &
         PaginateField

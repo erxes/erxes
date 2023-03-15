@@ -1,6 +1,28 @@
 const riskAssessment = `
 query RiskAssessment($cardId: String, $cardType: String) {
-  riskAssessment(cardId: $cardId, cardType: $cardType)
+  riskAssessment(cardId: $cardId, cardType: $cardType){
+    _id,
+    status,
+    statusColor,
+    resultScore,
+    cardId,
+    cardType,
+    branchId
+    branch{
+      _id,title
+    }
+    departmentId,
+    department {
+      _id,title
+    }
+    operationId,
+    operation{
+      _id,name
+    },
+    groupId,
+    isSplittedUsers,
+    createdAt
+  }
 }
 `;
 
@@ -11,8 +33,20 @@ const riskAssessmentGroups = `
 `;
 
 const riskAssessmentAssignedMembers = `
-query RiskAssessmentAssignedMembers($cardId: String, $cardType: String, $riskAssessmentId: String) {
-  riskAssessmentAssignedMembers(cardId: $cardId, cardType: $cardType, riskAssessmentId: $riskAssessmentId)
+query RiskAssessmentAssignedMembers($cardId: String, $cardType: String,) {
+  riskAssessmentAssignedMembers(cardId: $cardId, cardType: $cardType){
+    _id,
+    email,
+    username,
+    submitStatus
+    details{
+      avatar,
+      firstName,
+      lastName,
+      middleName,
+      fullName,
+    }
+  }
 }
 `;
 

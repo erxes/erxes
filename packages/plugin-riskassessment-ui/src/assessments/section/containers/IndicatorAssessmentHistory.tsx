@@ -1,12 +1,12 @@
-import React from 'react';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
-import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { queries } from '../graphql';
-import { IndicatorAssessmentsQueryResponse } from '../../common/types';
 import { EmptyState, Spinner } from '@erxes/ui/src';
+import { withProps } from '@erxes/ui/src/utils/core';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { IndicatorAssessmentsQueryResponse } from '../../common/types';
 import AssessmentHistoryComponent from '../components/IndicatorAssessmentHistory';
+import { queries } from '../graphql';
 
 type Props = {
   indicatorId: string;

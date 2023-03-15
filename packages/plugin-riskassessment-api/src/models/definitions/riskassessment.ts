@@ -98,8 +98,8 @@ export const riskAssessmentsSchema = new Schema({
   }),
   groupId: field({ type: String, label: 'Indicator Group Id' }),
   isSplittedUsers: field({ type: Boolean, label: 'Is Splitted Team Members' }),
-  branchIds: field({ type: [String], label: 'Branch ids ' }),
-  departmentIds: field({ type: [String], label: 'Department ids ' }),
-  operationIds: field({ type: [String], label: 'Operation Ids' }),
+  branchId: field({ type: String, label: 'branchId', optional: true }),
+  departmentId: field({ type: String, label: 'departmentId', optional: true }),
+  operationId: field({ type: String, label: 'operationId', optional: true }),
   ...commonAssessmentSchema
 });

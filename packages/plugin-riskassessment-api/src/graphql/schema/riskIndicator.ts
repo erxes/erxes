@@ -4,8 +4,8 @@ import {
   commonPaginateTypes,
   commonRiskIndicatorFormParams,
   commonRiskIndicatorParams,
-  commonRiskIndicatorTypes,
-  commonTypes
+  commonIndicatorTypes,
+  commonDateTypes
 } from './common';
 
 const configParams = `
@@ -124,6 +124,7 @@ export const types = `
         _id:String,
         name:String,
         description:String
+        tagIds:[String]
         calculateMethod:String,
         calculateLogics:[CalculateLogicType]
         groups:[GroupsOfGroupTypes]
@@ -134,7 +135,7 @@ export const types = `
 `;
 
 const commonIndicatorParams = `
-    categoryId:String,
+    tagIds:[String],
     ignoreIds:[String],
     branchIds:[String],
     departmentIds:[String],
@@ -144,6 +145,7 @@ const commonIndicatorParams = `
 
 const commonIndicatorGroupsParams = `
     searchValue:String,
+    tagIds:[String]
     perPage:Int
     page:Int
 `;
@@ -164,6 +166,7 @@ const commonIndicatorGroupsMutationsParams = `
     _id:String,
     name:String,
     description:String,
+    tagIds:[String],
     calculateMethod:String,
     calculateLogics:[ICalculateLogic]
     groups:[IIndicatorGroups]
@@ -171,16 +174,16 @@ const commonIndicatorGroupsMutationsParams = `
 
 export const mutations = `
     addRiskIndicator (
-        ${commonRiskIndicatorTypes}
-        ${commonTypes},
+        ${commonIndicatorTypes}
+        ${commonDateTypes},
         customScoreField:ICustomScoreField,
         calculateLogics:[ICalculateLogic],
         forms:[IRiskIndicatorForm]): JSON
     removeRiskIndicators (_ids:[String]):JSON
     updateRiskIndicator (
         _id:String,
-        ${commonRiskIndicatorTypes}
-        ${commonTypes},
+        ${commonIndicatorTypes}
+        ${commonDateTypes},
         customScoreField:ICustomScoreField,
         calculateLogics:[ICalculateLogic],
         forms:[IRiskIndicatorForm]):JSON

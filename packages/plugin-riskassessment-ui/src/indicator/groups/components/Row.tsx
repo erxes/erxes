@@ -1,15 +1,8 @@
-import {
-  Button,
-  FormControl,
-  Icon,
-  ModalTrigger,
-  Tip,
-  __
-} from '@erxes/ui/src';
+import { FormControl, ModalTrigger, __ } from '@erxes/ui/src';
+import moment from 'moment';
 import React from 'react';
 import { IIndicatorsGroups } from '../common/types';
 import Form from '../containers/Form';
-import moment from 'moment';
 type Props = {
   indicatorsGroups: IIndicatorsGroups;
   selectedItems: string[];

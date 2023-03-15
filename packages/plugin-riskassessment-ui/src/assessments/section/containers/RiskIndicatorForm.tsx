@@ -1,12 +1,12 @@
-import React from 'react';
-import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
-import { Spinner, confirm, Alert, EmptyState } from '@erxes/ui/src';
+import { Alert, confirm, EmptyState, Spinner } from '@erxes/ui/src';
 import { withProps } from '@erxes/ui/src/utils/core';
-import { mutations, queries } from '../graphql';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import { graphql } from 'react-apollo';
 import { RiskAssessmentIndicatorFormQueryResponse } from '../../common/types';
 import IndicatorForm from '../components/RiskIndicatorForm';
+import { mutations, queries } from '../graphql';
 type Props = {
   riskAssessmentId: string;
   indicatorId: string;
