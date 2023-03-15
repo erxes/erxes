@@ -63,7 +63,7 @@ export const initBroker = async cl => {
             break;
           case 'slots':
             const { slots = [] } = data;
-            await importSlots(models, slots);
+            await importSlots(models, slots, token);
             break;
           default:
             break;
@@ -160,7 +160,17 @@ export const initBroker = async cl => {
   );
 };
 
-const sendMessageWrapper = async (
+export const sendCommonMessage = async (
+  args: ISendMessageArgs & { serviceName: string }
+): Promise<any> => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    ...args
+  });
+};
+
+export const sendMessageWrapper = async (
   serviceName: string,
   args: ISendMessageArgs
 ): Promise<any> => {
@@ -249,6 +259,12 @@ export const sendSegmentsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessageWrapper('segments', args);
+};
+
+export const sendFormsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessageWrapper('forms', args);
 };
 
 export const fetchSegment = (

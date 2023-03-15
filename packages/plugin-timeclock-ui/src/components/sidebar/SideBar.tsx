@@ -152,7 +152,7 @@ const LeftSideBar = (props: Props) => {
 
   return (
     <Sidebar wide={true} hasBorder={true} header={renderSidebarHeader()}>
-      <FlexColumnCustom marginNum={15}>
+      <FlexColumnCustom marginNum={20}>
         <SelectDepartments
           isRequired={false}
           defaultValue={deptIds}

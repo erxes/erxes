@@ -213,11 +213,15 @@ const FlexColumnCustom = styledTS<{
   gap: ${props => props.marginNum}px
   margin: 20px 20px
 
-  .kOAWdn {
+  div:first-child {
     margin-bottom: 0;
   }
 
   `;
+
+const TextAlignCenter = styled.div`
+  text-align: center;
+`;
 
 const ToggleDisplay = styledTS<{
   display: boolean;
@@ -249,6 +253,30 @@ const RowField = styled.div`
   }
 `;
 
+const CustomCollapseRow = styledTS<{ isChild: boolean }>(styled.div)`
+  font-size: 15px;
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  justify-content: space-between;
+  align-items: center;
+  padding: ${props =>
+    props.isChild ? dimensions.unitSpacing : dimensions.coreSpacing}px;
+  margin: 0px;
+  background: ${colors.colorWhite};
+  
+  div {
+    display: flex
+    flex: 1
+    gap: 10px
+  }
+  span {
+    font-size: 12px;
+    color: ${colors.colorCoreGray};
+    margin-left: 5px;
+  }
+`;
+
 export {
   FilterItem,
   FilterWrapper,
@@ -271,5 +299,7 @@ export {
   ToggleButton,
   InlineBlock,
   Margin,
-  RowField
+  RowField,
+  TextAlignCenter,
+  CustomCollapseRow
 };
