@@ -11,6 +11,7 @@ import typeDefs from './graphql/typeDefs';
 import { initBroker } from './messageBroker';
 import * as permissions from './permissions';
 import segments from './segments';
+import { getTransportData } from './utils';
 
 export let debug;
 export let graphqlPubsub;
@@ -29,6 +30,13 @@ export default {
   },
 
   hasSubscriptions: true,
+
+  getHandlers: [
+    {
+      path: `/transports`,
+      method: getTransportData
+    }
+  ],
 
   meta: {
     segments,

@@ -8,6 +8,7 @@
     "start": "cd .erxes/dist/plugin-tumentech-api/.erxes && node src"
   },
   "dependencies": {
-    "erxes-api-utils": "^0.0.39"
+    "erxes-api-utils": "^0.0.39",
+    "googleapis": "^113.0.0"
   }
 }
