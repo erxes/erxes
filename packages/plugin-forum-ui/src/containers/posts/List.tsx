@@ -28,12 +28,11 @@ function List({ removeMutation, queryParams, history }: FinalProps) {
   );
 
   const [categoryApprovalState] = useSearchParam('categoryApprovalState');
-  const [strLimit] = useSearchParam('limit');
 
-  const limit = Number(strLimit || 20);
-  const pageIndex = Number(queryParams.pageIndex || 0);
-  const offset = limit * pageIndex;
-
+  const limit = Number(queryParams.perPage || 20);
+  const pageIndex = Number(queryParams.page || 1);
+  const offset = limit * (pageIndex - 1);
+  console.log('queryParams', queryParams);
   const variables = {
     categoryId,
     state,
@@ -44,12 +43,24 @@ function List({ removeMutation, queryParams, history }: FinalProps) {
     offset
   };
 
+  const totalPostsVariable = {
+    categoryId,
+    state,
+    categoryApprovalState,
+    categoryIncludeDescendants: !!categoryIncludeDescendants
+  };
+
   const postQuery = useQuery(gql(queries.forumPostsQuery), {
     variables,
     fetchPolicy: 'network-only'
   });
 
-  if (postQuery.loading) {
+  const totalPostQuery = useQuery(gql(queries.forumPostsQuery), {
+    variables: totalPostsVariable,
+    fetchPolicy: 'network-only'
+  });
+
+  if (postQuery.loading || totalPostQuery.loading) {
     return <Spinner objective={true} />;
   }
   if (postQuery.error) {
@@ -83,6 +94,8 @@ function List({ removeMutation, queryParams, history }: FinalProps) {
   const posts = postQuery.data.forumPosts || ([] as IPost[]);
   let filteredPosts;
 
+  const totalCount = totalPostQuery.data.forumPosts.length || 0;
+
   if (queryParams.search) {
     filteredPosts = posts.filter(p => p.title.includes(queryParams.search));
   }
@@ -93,6 +106,7 @@ function List({ removeMutation, queryParams, history }: FinalProps) {
         {...props}
         queryParams={queryParams}
         history={history}
+        totalCount={totalCount}
         remove={remove}
         posts={queryParams.search ? filteredPosts : posts}
       />
