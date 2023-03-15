@@ -111,8 +111,11 @@ class PutResponseDetail extends React.Component<Props, State> {
           <FlexRow key={paidAmount._id}>
             <FieldStyle>
               {__(
-                `${(paymentTypes.find(pt => pt.type === paidAmount.type) || {})
-                  .title || paidAmount.type}`
+                `${(
+                  (paymentTypes || []).find(
+                    pt => pt.type === paidAmount.type
+                  ) || {}
+                ).title || paidAmount.type}`
               )}
               :
             </FieldStyle>
