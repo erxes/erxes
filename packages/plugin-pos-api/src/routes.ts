@@ -103,7 +103,8 @@ export const getProductsData = async (
         code: category.code,
         parentId: category.parentId,
         order: category.order,
-        attachment: category.attachment
+        attachment: category.attachment,
+        meta: category.meta
       });
     }
 
