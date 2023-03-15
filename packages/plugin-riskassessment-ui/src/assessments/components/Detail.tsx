@@ -12,9 +12,9 @@ import React from 'react';
 import {
   CardBox,
   ColorBox,
+  Divider,
   FormContainer,
   FormContent,
-  Divider,
   TableRow,
   TriggerTabs
 } from '../../styles';
@@ -145,7 +145,9 @@ class Detail extends React.Component<Props, State> {
         <TriggerTabs>
           <Tabs full>
             {(submissions || []).map(({ _id }) => {
-              const assignedUser = assignedUsers.find(user => user._id === _id);
+              const assignedUser = assignedUsers.find(
+                user => user?._id === _id
+              );
               if (!assignedUser) {
                 return;
               }

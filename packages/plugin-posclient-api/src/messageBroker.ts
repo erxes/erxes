@@ -63,7 +63,7 @@ export const initBroker = async cl => {
             break;
           case 'slots':
             const { slots = [] } = data;
-            await importSlots(models, slots);
+            await importSlots(models, slots, token);
             break;
           default:
             break;

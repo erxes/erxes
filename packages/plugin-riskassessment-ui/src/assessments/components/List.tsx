@@ -1,45 +1,43 @@
 import {
-  Button,
   ControlLabel,
+  DateControl,
   FormGroup,
+  HeaderDescription,
   Icon,
   router,
   Sidebar,
   SortHandler,
   Table,
   Tip,
-  DateControl,
-  __,
-  HeaderDescription
+  __
 } from '@erxes/ui/src';
+import { DateContainer } from '@erxes/ui/src/styles/main';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import { setParams } from '@erxes/ui/src/utils/router';
 import React from 'react';
+import Select from 'react-select-plus';
+import {
+  cardTypes,
+  statusColorConstant,
+  subMenu
+} from '../../common/constants';
 import {
   DefaultWrapper,
   SelectOperation,
   SelectRiskIndicator
 } from '../../common/utils';
 import {
-  cardTypes,
-  statusColorConstant,
-  subMenu
-} from '../../common/constants';
-import Row from './Row';
-import { setParams } from '@erxes/ui/src/utils/router';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import {
-  ClearableBtn,
-  FormContainer as Container,
   Box as StatusBox,
+  ClearableBtn,
   ColorBox,
   CustomRangeContainer,
   EndDateContainer,
-  Box,
-  SidebarHeader,
-  Padding
+  FormContainer as Container,
+  Padding,
+  SidebarHeader
 } from '../../styles';
-import Select from 'react-select-plus';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import Row from './Row';
 type Props = {
   list: any[];
   totalCount: number;
@@ -92,7 +90,7 @@ class List extends React.Component<Props> {
         </thead>
         <tbody>
           {(list || []).map(item => (
-            <Row item={item} key={item._id} />
+            <Row item={item} key={item?._id || ''} />
           ))}
         </tbody>
       </Table>
