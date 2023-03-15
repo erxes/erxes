@@ -1,5 +1,6 @@
 import { IContext } from '../../connectionResolver';
 import {
+  paginateArray,
   timeclockReportByUser,
   timeclockReportFinal,
   timeclockReportPivot,
@@ -13,9 +14,6 @@ import {
 } from '../../utils';
 import { fixDate, paginate } from '@erxes/api-utils/src';
 import { IReport } from '../../models/definitions/timeclock';
-
-const paginateArray = (array, perPage = 20, page = 1) =>
-  array.slice((page - 1) * perPage, page * perPage);
 
 const timeclockQueries = {
   async absences(_root, queryParams, { models, subdomain }: IContext) {
@@ -33,7 +31,17 @@ const timeclockQueries = {
   },
 
   async timeclocksMain(_root, queryParams, { subdomain, models }: IContext) {
-    const selector = await generateFilter(queryParams, subdomain, 'timeclock');
+    const [selector, commonUserFound] = await generateFilter(
+      queryParams,
+      subdomain,
+      'timeclock'
+    );
+
+    // if there's no common user, return empty list
+    if (!commonUserFound) {
+      return { list: [], totalCount: 0 };
+    }
+
     const totalCount = models.Timeclocks.find(selector).countDocuments();
 
     const list = paginate(
@@ -64,8 +72,17 @@ const timeclockQueries = {
   },
 
   async timelogsMain(_root, queryParams, { subdomain, models }: IContext) {
-    const selector = await generateFilter(queryParams, subdomain, 'timelog');
+    const [selector, commonUserFound] = await generateFilter(
+      queryParams,
+      subdomain,
+      'timelog'
+    );
     const queryList = models.TimeLogs.find(selector);
+
+    // if there's no common user, return empty list
+    if (!commonUserFound) {
+      return { list: [], totalCount: 0 };
+    }
 
     const list = paginate(
       models.TimeLogs.find(selector).sort({ userId: 1, timelog: -1 }),
@@ -91,8 +108,17 @@ const timeclockQueries = {
   },
 
   async schedulesMain(_root, queryParams, { models, subdomain }: IContext) {
-    const selector = await generateFilter(queryParams, subdomain, 'schedule');
+    const [selector, commonUserFound] = await generateFilter(
+      queryParams,
+      subdomain,
+      'schedule'
+    );
     const totalCount = models.Schedules.find(selector).countDocuments();
+
+    // if there's no common user, return empty list
+    if (!commonUserFound) {
+      return { list: [], totalCount: 0 };
+    }
 
     const list = paginate(models.Schedules.find(selector), {
       perPage: queryParams.perPage,
@@ -102,17 +128,38 @@ const timeclockQueries = {
     return { list, totalCount };
   },
 
+  schedulesPerUser(_root, queryParams, { models, user }: IContext) {
+    const getUserId = queryParams.userId || user._id;
+    return models.Schedules.find({ userId: getUserId });
+  },
+
   scheduleConfigs(_root, {}, { models }: IContext) {
     return models.ScheduleConfigs.find();
   },
 
-  deviceConfigs(_root, {}, { models }: IContext) {
-    return models.DeviceConfigs.find();
+  deviceConfigs(_root, queryParams, { models }: IContext) {
+    const totalCount = models.DeviceConfigs.find().countDocuments();
+
+    const list = paginate(models.DeviceConfigs.find(), {
+      perPage: queryParams.perPage,
+      page: queryParams.page
+    });
+
+    return { list, totalCount };
   },
 
   async requestsMain(_root, queryParams, { models, subdomain }: IContext) {
-    const selector = await generateFilter(queryParams, subdomain, 'absence');
+    const [selector, commonUserFound] = await generateFilter(
+      queryParams,
+      subdomain,
+      'absence'
+    );
     const totalCount = models.Absences.find(selector).countDocuments();
+
+    // if there's no common user, return empty list
+    if (!commonUserFound) {
+      return { list: [], totalCount: 0 };
+    }
 
     const list = paginate(
       models.Absences.find(selector).sort({ startTime: -1 }),
@@ -139,6 +186,11 @@ const timeclockQueries = {
 
   scheduleDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Schedules.findOne({ _id });
+  },
+
+  checkedReportsPerUser(_root, doc, { models, user }: IContext) {
+    const userId = doc.userId || user._id;
+    return models.ReportChecks.find({ userId });
   },
 
   async timeclockReportByUser(
@@ -233,11 +285,9 @@ const timeclockQueries = {
         );
 
         for (const userId of Object.keys(reportPivot)) {
-          if (userId !== 'scheduleReport') {
-            returnReport.push({
-              groupReport: [{ userId, ...reportPivot[userId] }]
-            });
-          }
+          returnReport.push({
+            groupReport: [{ userId, ...reportPivot[userId] }]
+          });
         }
         break;
     }

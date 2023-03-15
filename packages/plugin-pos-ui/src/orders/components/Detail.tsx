@@ -37,9 +37,22 @@ class PutResponseDetail extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { order } = this.props;
+    const { order, pos } = this.props;
+    const paidAmounts = order.paidAmounts;
+    const paidKeys: string[] = paidAmounts.map(pa => pa.type);
+
+    for (const emptyType of pos.paymentTypes.filter(
+      pt => !paidKeys.includes(pt.type)
+    )) {
+      paidAmounts.push({
+        _id: Math.random().toString(),
+        amount: 0,
+        type: emptyType.type
+      });
+    }
+
     this.state = {
-      paidAmounts: order.paidAmounts,
+      paidAmounts,
       cashAmount: order.cashAmount,
       mobileAmount: order.mobileAmount
     };
@@ -76,45 +89,43 @@ class PutResponseDetail extends React.Component<Props, State> {
     );
   }
 
-  renderEditPaid(label, key) {
+  onChangePaidAmount = e => {
     const { paidAmounts } = this.state;
+    const name = e.target.name;
+    const value = e.target.value;
+    this.setState({
+      paidAmounts: paidAmounts.map(pa =>
+        pa._id === name ? { ...pa, amount: value } : pa
+      )
+    });
+  };
 
-    const paidAmount = paidAmounts.find(pa => pa.type === key);
-    const onChangeValue = e => {
-      const value = e.target.value;
-      if (paidAmount) {
-        paidAmount.amount = value;
-        this.setState({
-          paidAmounts: paidAmounts.map(pa =>
-            pa.type === key ? paidAmount : pa
-          )
-        });
-      } else {
-        this.setState({
-          paidAmounts: [
-            ...paidAmounts,
-            {
-              _id: Math.random().toString(),
-              type: key,
-              amount: value
-            }
-          ]
-        });
-      }
-    };
+  renderEditPaid() {
+    const { paidAmounts } = this.state;
+    return paidAmounts.map(paidAmount => {
+      const { pos } = this.props;
+      const { paymentTypes } = pos;
 
-    return (
-      <li key={Math.random()}>
-        <FlexRow>
-          <FieldStyle>{__(`${label}`)}:</FieldStyle>
-          <FormControl
-            type="number"
-            onChange={onChangeValue}
-            value={(paidAmount && paidAmount.amount) || 0}
-          />
-        </FlexRow>
-      </li>
-    );
+      return (
+        <li key={paidAmount._id}>
+          <FlexRow key={paidAmount._id}>
+            <FieldStyle>
+              {__(
+                `${(paymentTypes.find(pt => pt.type === paidAmount.type) || {})
+                  .title || paidAmount.type}`
+              )}
+              :
+            </FieldStyle>
+            <FormControl
+              type="number"
+              name={paidAmount._id}
+              onChange={this.onChangePaidAmount}
+              value={paidAmount.amount || 0}
+            />
+          </FlexRow>
+        </li>
+      );
+    });
   }
 
   renderDeliveryInfo() {
@@ -149,7 +160,7 @@ class PutResponseDetail extends React.Component<Props, State> {
       this.props.order._id,
       cashAmount,
       mobileAmount,
-      paidAmounts
+      paidAmounts.filter(pa => Number(pa.amount) !== 0)
     );
   };
 
@@ -173,7 +184,7 @@ class PutResponseDetail extends React.Component<Props, State> {
   };
 
   render() {
-    const { order, pos } = this.props;
+    const { order } = this.props;
 
     return (
       <SidebarList>
@@ -230,12 +241,7 @@ class PutResponseDetail extends React.Component<Props, State> {
         <ul>
           {this.renderEditRow('Cash Amount', 'cashAmount')}
           {this.renderEditRow('Mobile Amount', 'mobileAmount')}
-          {pos.paymentTypes.map(pt => this.renderEditPaid(pt.title, pt.type))}
-          {order.paidAmounts
-            .filter(
-              pa => !pos.paymentTypes.map(pt => pt.type).includes(pa.type)
-            )
-            .map(pa => this.renderEditPaid(pa.type, pa.type))}
+          {this.renderEditPaid()}
         </ul>
 
         <Button btnStyle="success" size="small" onClick={this.save} icon="edit">

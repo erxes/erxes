@@ -29,7 +29,10 @@ export function generateBranchOptions(array: IBranch[] = []): IOption[] {
 const branchesQuery = `
   query branches(${commonStructureParamsDef},$withoutUserFilter:Boolean) {
     branches (${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter){
-      _id,title,parentId
+      _id,
+      code,
+      title,
+      parentId
     }
   }
 `;

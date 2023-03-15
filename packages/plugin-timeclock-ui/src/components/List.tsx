@@ -39,6 +39,7 @@ function List(props: Props) {
         setModalComponent(
           <ConfigList
             {...props}
+            getPagination={setPagination}
             showSideBar={setShowSideBar}
             getActionBar={setRightActionBar}
             queryParams={queryParams}

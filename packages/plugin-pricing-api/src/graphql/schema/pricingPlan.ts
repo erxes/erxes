@@ -74,6 +74,7 @@ export const types = () => `
     productsBundle: [String],
     categories: [String],
     categoriesExcluded: [String],
+    segments: [String],
 
     isStartDateEnabled: Boolean,
     isEndDateEnabled: Boolean,
@@ -86,13 +87,13 @@ export const types = () => `
     boardId: [String],
     pipelineId: [String],
     stageId: [String],
-    
+
     isQuantityEnabled: Boolean,
     quantityRules: [QuantityRule],
-    
+
     isPriceEnabled: Boolean,
     priceRules: [PriceRule],
-    
+
     isExpiryEnabled: Boolean,
     expiryRules: [ExpiryRule],
 
@@ -170,13 +171,14 @@ export const types = () => `
     productsBundle: [String],
     categories: [String],
     categoriesExcluded: [String],
+    segments: [String],
 
     isStartDateEnabled: Boolean,
     isEndDateEnabled: Boolean,
 
     startDate: Date,
     endDate: Date,
-    
+
     branchIds: [String],
     departmentIds: [String],
     boardId: [String],
@@ -214,13 +216,14 @@ export const types = () => `
     productsBundle: [String],
     categories: [String],
     categoriesExcluded: [String],
+    segments: [String],
 
     isStartDateEnabled: Boolean,
     isEndDateEnabled: Boolean,
 
     startDate: Date,
     endDate: Date,
-    
+
     branchIds: [String],
     departmentIds: [String],
     boardId: [String],

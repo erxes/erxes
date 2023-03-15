@@ -1,3 +1,4 @@
+import { readFile } from '@erxes/ui/src/utils';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 import {
   IAttachment,
@@ -97,7 +98,7 @@ class PostForm extends React.Component<Props, State> {
       _id: finalValues._id,
       title: finalValues.title,
       content: this.state.content,
-      thumbnail: this.state.thumbnail.url || '',
+      thumbnail: readFile(this.state.thumbnail.url) || '',
       categoryId: finalValues.categoryId,
       description: finalValues.description,
       tagIds: this.state.selectedTags,

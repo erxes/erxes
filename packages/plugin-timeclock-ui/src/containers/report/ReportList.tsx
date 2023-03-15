@@ -64,7 +64,7 @@ const ListContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, ReportsQueryResponse>(gql(queries.listReports), {
+    graphql<Props, ReportsQueryResponse>(gql(queries.timeclockReports), {
       name: 'listReportsQuery',
       skip: isEnabled('bichil') || false,
       options: ({ queryParams, reportType }) => ({

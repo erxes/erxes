@@ -69,6 +69,8 @@ export interface ISchedule {
   status?: string;
   solved?: boolean;
   scheduleConfigId?: string;
+  scheduleChecked?: boolean;
+  submittedByAdmin?: boolean;
 }
 
 export interface IScheduleDocument extends ISchedule, Document {
@@ -119,6 +121,15 @@ export interface IDeviceConfigDocument extends IDeviceConfig, Document {
   _id: string;
 }
 
+export interface IReportCheck {
+  userId: string;
+  startDate: string;
+  endDate: string;
+}
+export interface IReportCheckDocument extends IReportCheck, Document {
+  _id: string;
+}
+
 export const attachmentSchema = new Schema(
   {
     name: field({ type: String }),
@@ -141,7 +152,7 @@ export const timeLogSchema = new Schema({
   timelog: field({ type: Date, label: 'Shift starting time' })
 });
 
-export const timeSchema = new Schema({
+export const timeclockSchema = new Schema({
   _id: field({ pkey: true }),
   userId: field({ type: String, label: 'User' }),
   shiftStart: field({ type: Date, label: 'Shift starting time' }),
@@ -241,6 +252,16 @@ export const scheduleSchema = new Schema({
   scheduleConfigId: field({
     type: String,
     label: 'Schedule Config id used for reports'
+  }),
+  scheduleChecked: field({
+    type: Boolean,
+    label: 'Whether schedule is checked by employee',
+    default: false
+  }),
+  submittedByAdmin: field({
+    type: Boolean,
+    label: 'Whether schedule was submitted/assigned directly by an admin',
+    default: false
   })
 });
 
@@ -312,6 +333,16 @@ export const deviceConfigSchema = new Schema({
   })
 });
 
+export const reportCheckSchema = new Schema({
+  _id: field({ pkey: true }),
+  userId: field({ type: String, label: 'User of the report' }),
+  startDate: field({ type: String, label: 'Start date of report' }),
+  endDate: field({
+    type: String,
+    label: 'End date of report'
+  })
+});
+
 // common types
 export interface IScheduleReport {
   date?: string;
@@ -343,15 +374,19 @@ export interface IUserReport {
   firstName?: string;
   lastName?: string;
   position?: string;
+
   scheduleReport: IScheduleReport[];
+
   totalMinsWorked?: number;
   totalMinsWorkedToday?: number;
   totalMinsWorkedThisMonth?: number;
   totalDaysWorkedThisMonth?: number;
+
   totalMinsScheduled?: number;
   totalMinsScheduledToday?: number;
   totalMinsScheduledThisMonth?: number;
   totalDaysScheduledThisMonth?: number;
+
   totalMinsLate?: number;
   totalMinsLateToday?: number;
   totalMinsLateThisMonth?: number;

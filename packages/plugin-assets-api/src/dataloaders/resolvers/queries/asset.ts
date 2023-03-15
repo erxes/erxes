@@ -1,11 +1,11 @@
 import { afterQueryWrapper, paginate } from '@erxes/api-utils/src';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { ASSET_STATUSES } from '../../../common/constant/asset';
-import { IContext } from '../../../connectionResolver';
+import { IContext, IModels } from '../../../connectionResolver';
 import messageBroker from '../../../messageBroker';
 
 export const generateCommonAssetFilter = async (
-  models,
+  models: IModels,
   {
     categoryId,
     parentId,
@@ -16,6 +16,7 @@ export const generateCommonAssetFilter = async (
     pipelineId,
     boardId,
     ignoreIds,
+    irregular,
     ...pagintationArgs
   }: {
     ids: string[];
@@ -29,6 +30,7 @@ export const generateCommonAssetFilter = async (
     pipelineId: string;
     boardId: string;
     ignoreIds: string[];
+    irregular: boolean;
   }
 ) => {
   const filter: any = {};
@@ -72,9 +74,15 @@ export const generateCommonAssetFilter = async (
   if (searchValue) {
     const fields = [
       {
-        name: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
+        name: {
+          $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
+        }
       },
-      { code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] } }
+      {
+        code: {
+          $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
+        }
+      }
     ];
 
     filter.$or = fields;
@@ -85,6 +93,14 @@ export const generateCommonAssetFilter = async (
       { kbArticleIds: { $exists: true } },
       { 'kbArticleIds.0': { $exists: true } }
     ];
+  }
+
+  if (irregular) {
+    const irregularAssets = await models.Assets.find({
+      categoryId: { $in: ['', null, undefined] },
+      parentId: { $in: ['', null, undefined] }
+    });
+    filter._id = { $in: irregularAssets.map(asset => asset._id) };
   }
 
   return filter;
@@ -107,6 +123,7 @@ const assetQueries = {
       ids: string[];
       excludeIds: boolean;
       withKnowledgebase: boolean;
+      irregular: boolean;
       categoryId: string;
       parentId: string;
       searchValue: string;

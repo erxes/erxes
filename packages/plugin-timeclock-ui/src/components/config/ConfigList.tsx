@@ -6,7 +6,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { Row, FilterItem } from '../../styles';
+import { Row, FilterItem, TextAlignCenter } from '../../styles';
 import {
   IAbsence,
   IAbsenceType,
@@ -20,16 +20,24 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 
 import ConfigForm from './ConfigForm';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 
 type Props = {
   getActionBar: (actionBar: any) => void;
   showSideBar: (sideBar: boolean) => void;
+  getPagination: (pagination: any) => void;
 
   absenceTypes?: IAbsenceType[];
+
   holidays?: IAbsence[];
+
   payDates: IPayDates[];
+
   scheduleConfigs?: IScheduleConfig[];
+
   deviceConfigs?: IDeviceConfig[];
+  deviceConfigsTotalCount?: number;
+
   loading?: boolean;
   renderButton: (props: IButtonMutateProps) => void;
   removeAbsenceType: (absenceTypeId: string) => void;
@@ -46,13 +54,15 @@ function ConfigList(props: Props) {
     holidays,
     scheduleConfigs,
     deviceConfigs,
+    deviceConfigsTotalCount,
     removeAbsenceType,
     removeHoliday,
     removePayDate,
     getActionBar,
     removeScheduleConfig,
     removeDeviceConfig,
-    showSideBar
+    showSideBar,
+    getPagination
   } = props;
 
   const [selectedType, setType] = useState(
@@ -278,7 +288,9 @@ function ConfigList(props: Props) {
             <th>Valid check in</th>
             <th>Valid check out</th>
             <th>Overtime shift</th>
-            <th>Action</th>
+            <th>
+              <TextAlignCenter>Action</TextAlignCenter>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -331,15 +343,17 @@ function ConfigList(props: Props) {
                     }
                   })}
                   <td>
-                    <ModalTrigger
-                      size="lg"
-                      title="Edit Schedule Configs"
-                      trigger={editTrigger}
-                      content={contentProps =>
-                        scheduleConfigContent(contentProps, scheduleConfig)
-                      }
-                    />
-                    {removeTrigger(scheduleConfig._id, 'schedule')}
+                    <TextAlignCenter>
+                      <ModalTrigger
+                        size="lg"
+                        title="Edit Schedule Configs"
+                        trigger={editTrigger}
+                        content={contentProps =>
+                          scheduleConfigContent(contentProps, scheduleConfig)
+                        }
+                      />
+                      {removeTrigger(scheduleConfig._id, 'schedule')}
+                    </TextAlignCenter>
                   </td>
                 </tr>
               );
@@ -355,7 +369,9 @@ function ConfigList(props: Props) {
         <thead>
           <th>Pay date occurrence</th>
           <th colSpan={2}>Dates</th>
-          <th>Action</th>
+          <th>
+            <TextAlignCenter>Action</TextAlignCenter>
+          </th>
         </thead>
         <tbody>
           {payDates.length > 0 && (
@@ -364,14 +380,16 @@ function ConfigList(props: Props) {
               <td>{payDates[0].payDates[0]}</td>
               <td>{payDates[0].payDates[1]}</td>
               <td>
-                <ModalTrigger
-                  title="Edit Pay Dates"
-                  trigger={editTrigger}
-                  content={contentProps =>
-                    payPeriodConfigContent(contentProps, payDates[0])
-                  }
-                />
-                {removeTrigger(payDates[0]._id, 'payDate')}
+                <TextAlignCenter>
+                  <ModalTrigger
+                    title="Edit Pay Dates"
+                    trigger={editTrigger}
+                    content={contentProps =>
+                      payPeriodConfigContent(contentProps, payDates[0])
+                    }
+                  />
+                  {removeTrigger(payDates[0]._id, 'payDate')}
+                </TextAlignCenter>
               </td>
             </>
           )}
@@ -390,7 +408,9 @@ function ConfigList(props: Props) {
             <th>Time period</th>
             <th>Explanation required</th>
             <th>Attachment required</th>
-            <th>Action</th>
+            <th>
+              <TextAlignCenter>Action</TextAlignCenter>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -409,14 +429,16 @@ function ConfigList(props: Props) {
                   <td>{absenceType.explRequired ? 'true' : 'false'}</td>
                   <td>{absenceType.attachRequired ? 'true' : 'false'}</td>
                   <td>
-                    <ModalTrigger
-                      title="Edit absence type"
-                      trigger={editTrigger}
-                      content={contentProps =>
-                        absenceConfigContent(contentProps, absenceType)
-                      }
-                    />
-                    {removeTrigger(absenceType._id, 'absenceType')}
+                    <TextAlignCenter>
+                      <ModalTrigger
+                        title="Edit absence type"
+                        trigger={editTrigger}
+                        content={contentProps =>
+                          absenceConfigContent(contentProps, absenceType)
+                        }
+                      />
+                      {removeTrigger(absenceType._id, 'absenceType')}
+                    </TextAlignCenter>
                   </td>
                 </tr>
               );
@@ -434,7 +456,9 @@ function ConfigList(props: Props) {
             <th>Holiday Name</th>
             <th>Starting date</th>
             <th>Ending date</th>
-            <th>Action</th>
+            <th>
+              <TextAlignCenter>Action</TextAlignCenter>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -462,14 +486,16 @@ function ConfigList(props: Props) {
                       '-'}
                   </td>
                   <td>
-                    <ModalTrigger
-                      title="Edit holiday"
-                      trigger={editTrigger}
-                      content={contentProps =>
-                        holidayConfigContent(contentProps, holiday)
-                      }
-                    />
-                    {removeTrigger(holiday._id, 'holiday')}
+                    <TextAlignCenter>
+                      <ModalTrigger
+                        title="Edit holiday"
+                        trigger={editTrigger}
+                        content={contentProps =>
+                          holidayConfigContent(contentProps, holiday)
+                        }
+                      />
+                      {removeTrigger(holiday._id, 'holiday')}
+                    </TextAlignCenter>
                   </td>
                 </tr>
               );
@@ -487,7 +513,9 @@ function ConfigList(props: Props) {
             <th>Device Name</th>
             <th>Serial Number</th>
             <th>Extract from the device</th>
-            <th>Action</th>
+            <th>
+              <TextAlignCenter>Action</TextAlignCenter>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -497,14 +525,16 @@ function ConfigList(props: Props) {
               <td>{deviceConfig.serialNo}</td>
               <td>{deviceConfig.extractRequired ? 'True' : 'False'}</td>
               <td>
-                <ModalTrigger
-                  title="Edit holiday"
-                  trigger={editTrigger}
-                  content={contentProps =>
-                    deviceConfigContent(contentProps, deviceConfig)
-                  }
-                />
-                {removeTrigger(deviceConfig._id, 'deviceConfig')}
+                <TextAlignCenter>
+                  <ModalTrigger
+                    title="Edit holiday"
+                    trigger={editTrigger}
+                    content={contentProps =>
+                      deviceConfigContent(contentProps, deviceConfig)
+                    }
+                  />
+                  {removeTrigger(deviceConfig._id, 'deviceConfig')}
+                </TextAlignCenter>
               </td>
             </tr>
           ))}
@@ -515,6 +545,8 @@ function ConfigList(props: Props) {
 
   showSideBar(false);
   getActionBar(actionBar);
+  getPagination(<Pagination count={deviceConfigsTotalCount} />);
+
   return content();
 }
 
