@@ -7,7 +7,11 @@ import {
   FormGroup,
   __
 } from '@erxes/ui/src';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+import {
+  FormColumn,
+  FormWrapper,
+  ModalFooter
+} from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { FormContainer } from '../../../styles';
@@ -77,6 +81,13 @@ class Form extends React.Component<Props, State> {
       this.setState(prev => ({ detail: { ...prev.detail, [name]: values } }));
     };
 
+    const toggleProperty = e => {
+      console.log({ e });
+      const { name } = e.currentTarget as HTMLInputElement;
+      console.log({ name });
+      this.setState({ detail: { ...detail, [name]: !detail[name] } });
+    };
+
     return (
       <FormContainer column gap>
         <FormGroup>
@@ -99,16 +110,29 @@ class Form extends React.Component<Props, State> {
             required
           />
         </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Tag')}</ControlLabel>
-          <SelectTags
-            name="tagIds"
-            label="Choose Tag"
-            initialValue={detail.tagIds}
-            onSelect={handleSelect}
-            multi
-          />
-        </FormGroup>
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel>{__('Tag')}</ControlLabel>
+              <SelectTags
+                name="tagIds"
+                label="Choose Tag"
+                initialValue={detail.tagIds}
+                onSelect={handleSelect}
+                multi
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormGroup>
+            <ControlLabel>{__('Ignore Zeros')}</ControlLabel>
+            <FormControl
+              name="ignoreZeros"
+              componentClass="checkbox"
+              value={detail.ignoreZeros}
+              onChange={toggleProperty}
+            />
+          </FormGroup>
+        </FormWrapper>
         <GroupingIndicators
           handleChange={handleChange}
           indicatorGroups={detail.groups}

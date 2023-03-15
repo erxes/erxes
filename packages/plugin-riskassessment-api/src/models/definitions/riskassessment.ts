@@ -1,5 +1,4 @@
 import { Document, Schema } from 'mongoose';
-import { calculateMethodsSchema } from './indicator';
 import { field } from './utils';
 
 export interface IRiskAssessmentCategoryDocument extends Document {

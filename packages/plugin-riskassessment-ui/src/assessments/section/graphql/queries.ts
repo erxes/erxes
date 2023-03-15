@@ -66,13 +66,13 @@ const commonIndicatorParams = `
   $departmentIds:[String]
   $branchIds:[String]
   $operationIds:[String],
-  $categoryId: String,
+  $tagIds: [String],
   $searchValue: String,
   $perPage: Int
 `;
 
 const commonIndicatorParamsDef = `
-  categoryId: $categoryId ,
+  tagIds: $tagIds ,
   perPage: $perPage,
   searchValue: $searchValue,
   branchIds: $branchIds,
@@ -83,7 +83,7 @@ const commonIndicatorParamsDef = `
 const riskIndicators = `
   query RiskIndicators(${commonIndicatorParams}) {
     riskIndicators(${commonIndicatorParamsDef}) {
-      _id,name,description,categoryId
+      _id,name,description,tagIds
     }
   }
   `;

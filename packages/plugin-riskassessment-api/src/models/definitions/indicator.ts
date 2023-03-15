@@ -1,5 +1,4 @@
 import { Document, Schema } from 'mongoose';
-import { commonAssessmentSchema } from './riskassessment';
 import { field } from './utils';
 
 type ICalculateLogics = {
@@ -60,6 +59,7 @@ export interface IIndicatorsGroupsDocument extends Document {
   calculateMethod: string;
   calculateLogics: ICalculateLogics[];
   groups: IIndicatorsGroupDocument[];
+  ignoreZeros: boolean;
 }
 
 export const calculateMethodsSchema = new Schema({
@@ -188,5 +188,6 @@ export const riskIndicatorGroupSchema = new Schema({
   }),
   groups: field({ type: [indicatorGroupsSchema], label: 'indicators groups' }),
   createdAt: field({ type: Date, label: 'Created At', default: Date.now }),
-  modifiedAt: field({ type: Date, label: 'Modified At', default: Date.now })
+  modifiedAt: field({ type: Date, label: 'Modified At', default: Date.now }),
+  ignoreZeros: field({ type: Boolean, label: 'Ignore Zeros', optional: true })
 });

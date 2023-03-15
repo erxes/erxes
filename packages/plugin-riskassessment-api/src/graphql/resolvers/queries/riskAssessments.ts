@@ -36,6 +36,21 @@ const generateFilter = async (params, models: IModels) => {
     }
   }
 
+  if (params.tagIds) {
+    const indicatorIds = (
+      await models.RiskIndicators.find({ tagIds: { $in: params.tagIds } })
+    ).map(indicator => indicator._id);
+
+    const groupIds = (
+      await models.IndicatorsGroups.find({ tagIds: { $in: params.tagIds } })
+    ).map(group => group._id);
+
+    filter.$or = [
+      { groupId: { $in: groupIds } },
+      { indicatorId: { $in: indicatorIds } }
+    ];
+  }
+
   if (params.createdAtFrom) {
     filter.createdAt = { $gte: params.createdAtFrom };
   }

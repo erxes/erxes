@@ -27,7 +27,7 @@ import {
 } from '@erxes/ui/src/styles/main';
 import { IFormProps, IOption, IQueryParams } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils/core';
-import { setParams } from '@erxes/ui/src/utils/router';
+import { removeParams, setParams } from '@erxes/ui/src/utils/router';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
@@ -676,19 +676,13 @@ export function FilterByTags({
     return <EmptyState text={error.message} />;
   }
 
-  const extraButtons = (
-    <BarItems>
-      <Link to={`/tags?type=riskassessment:riskassessment`}>
-        <button>
-          <Icon icon="cog" />
-        </button>
-      </Link>
-    </BarItems>
-  );
-
   const tags = data?.tags || [];
 
-  const handleClick = _id => {
+  const handleRemoveParams = () => {
+    removeParams(history, 'tagIds');
+  };
+
+  const handleSetParams = _id => {
     let tagIds = queryParams?.tagIds || [];
     tagIds = typeof tagIds === 'string' ? [tagIds] : tagIds;
     if (tagIds.find(tagId => tagId === _id)) {
@@ -698,6 +692,22 @@ export function FilterByTags({
     }
     setParams(history, { tagIds });
   };
+  const extraButtons = (
+    <BarItems>
+      <Link to={`/tags?type=riskassessment:riskassessment`}>
+        <button>
+          <Icon icon="cog" />
+        </button>
+      </Link>
+      {queryParams.tagIds && (
+        <a>
+          <button onClick={handleRemoveParams}>
+            <Icon icon="cancel-1" />
+          </button>
+        </a>
+      )}
+    </BarItems>
+  );
 
   return (
     <Box name="tags" title="Filter by Tags" extraButtons={extraButtons}>
@@ -710,7 +720,7 @@ export function FilterByTags({
               <SidebarListItem
                 key={_id}
                 isActive={(queryParams?.tagIds || []).includes(_id)}
-                onClick={handleClick.bind(this, _id)}
+                onClick={handleSetParams.bind(this, _id)}
               >
                 <a>
                   {'\u00A0 \u00A0 '.repeat(level)}

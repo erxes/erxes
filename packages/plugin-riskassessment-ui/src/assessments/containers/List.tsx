@@ -1,13 +1,13 @@
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { router, withProps } from '@erxes/ui/src/utils/core';
-import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
-import { queries } from '../graphql';
-import ListComponent from '../components/List';
 import { EmptyState, Spinner } from '@erxes/ui/src';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { router, withProps } from '@erxes/ui/src/utils/core';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import { graphql } from 'react-apollo';
 import { generateParamsIds } from '../../common/utils';
+import ListComponent from '../components/List';
+import { queries } from '../graphql';
 
 type Props = {
   queryParams: any;
@@ -61,7 +61,8 @@ export const generateParams = ({ queryParams }) => ({
   closedTo: queryParams.closedTo || undefined,
   branchIds: generateParamsIds(queryParams.branchIds),
   departmentIds: generateParamsIds(queryParams.departmentIds),
-  operationIds: generateParamsIds(queryParams.operationIds)
+  operationIds: generateParamsIds(queryParams.operationIds),
+  tagIds: generateParamsIds(queryParams.tagIds)
 });
 
 export default withProps<Props>(

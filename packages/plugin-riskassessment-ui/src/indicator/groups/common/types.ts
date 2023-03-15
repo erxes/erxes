@@ -1,5 +1,5 @@
-import { RiskCalculateLogicType } from '../../common/types';
 import { QueryResponse } from '@erxes/ui/src/types';
+import { RiskCalculateLogicType } from '../../common/types';
 
 export interface IIndicatorsGroup {
   indicatorIds: string[];
@@ -17,6 +17,7 @@ export interface IIndicatorsGroups {
   groups: [IIndicatorsGroup];
   createdAt: string;
   modifiedAt: string;
+  ignoreZeros: boolean;
 }
 
 export interface IIndicatorsGroupsQueryResponse extends QueryResponse {

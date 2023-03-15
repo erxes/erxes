@@ -105,6 +105,7 @@ const commonParams = `
     page:Int
     sortField:String
     sortDirection:Int
+    tagIds:[String]
 `;
 
 const commonFormSubmitParams = `

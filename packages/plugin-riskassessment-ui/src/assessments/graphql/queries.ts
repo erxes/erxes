@@ -1,5 +1,3 @@
-import { riskIndicatorFields } from '../../indicator/common/graphql';
-
 const commonParams = `
   $branchIds: [String],
   $closedAtFrom: String,
@@ -15,6 +13,7 @@ const commonParams = `
   $status: String
   $sortDirection:Int
   $sortField:String
+  $tagIds:[String]
 `;
 
 const commonParamsDef = ` 
@@ -32,6 +31,7 @@ const commonParamsDef = `
   status: $status,
   sortDirection: $sortDirection
   sortField: $sortField
+  tagIds:$tagIds 
  `;
 
 const commonField = `

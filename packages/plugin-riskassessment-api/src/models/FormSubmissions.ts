@@ -8,8 +8,8 @@ import {
 } from '../utils';
 import { IRiskFormSubmissionParams } from './definitions/common';
 import {
-  IRiskFormSubmissionDocument,
-  formSubmissionSchema
+  formSubmissionSchema,
+  IRiskFormSubmissionDocument
 } from './definitions/confimity';
 import { IRiskAssessmentsDocument } from './definitions/riskassessment';
 
@@ -439,7 +439,8 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
           _id,
           groups,
           calculateLogics,
-          calculateMethod
+          calculateMethod,
+          ignoreZeros
         } = indicatorsGroup;
 
         const assignedUsersCount = (
@@ -455,15 +456,31 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
 
         let totalCount = calculateMethod === 'Multiply' ? 1 : 0;
         for (const assessmentGroup of assessmentGroups) {
-          const percentWeight =
-            (groups.find(group => group._id === assessmentGroup.groupId) || {})
-              ?.percentWeight || 100;
+          const percentWeight = () => {
+            let percentWeight = 100;
+
+            const group = groups.find(
+              group => group._id === assessmentGroup.groupId
+            );
+
+            if (group) {
+              percentWeight = group.percentWeight || 100;
+            }
+
+            if (ignoreZeros && assessmentGroup.resultScore === 0) {
+              percentWeight = 100;
+            }
+
+            return percentWeight;
+          };
+          (groups.find(group => group._id === assessmentGroup.groupId) || {})
+            ?.percentWeight || 100;
 
           if (calculateMethod === 'Multiply') {
-            totalCount *= assessmentGroup.resultScore * (percentWeight / 100);
+            totalCount *= assessmentGroup.resultScore * (percentWeight() / 100);
           }
           if (calculateMethod === 'Addition') {
-            totalCount += assessmentGroup.resultScore * (percentWeight / 100);
+            totalCount += assessmentGroup.resultScore * (percentWeight() / 100);
           }
         }
         if (calculateMethod === 'Avarege') {
