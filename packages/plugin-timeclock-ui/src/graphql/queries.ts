@@ -102,6 +102,8 @@ const schedulesMain = `
           user {
             ${userFields}
           }
+          scheduleChecked
+          submittedByAdmin
         }
         totalCount
   }
