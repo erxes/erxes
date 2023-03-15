@@ -8,7 +8,12 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Table from '@erxes/ui/src/components/table';
 import TimeForm from '../../containers/timeclock/TimeFormList';
-import { CustomRangeContainer, FlexCenter, FlexColumn } from '../../styles';
+import {
+  CustomRangeContainer,
+  FlexCenter,
+  FlexColumn,
+  TextAlignCenter
+} from '../../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import { ControlLabel } from '@erxes/ui/src/components/form';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
@@ -154,7 +159,9 @@ function List({
           <th>{__('Overnight')}</th>
           <th>{__('Location')}</th>
           <th>{__('Status')}</th>
-          <th>{__('Action')}</th>
+          <th>
+            <TextAlignCenter>{__('Action')}</TextAlignCenter>
+          </th>
         </tr>
       </thead>
       <tbody>

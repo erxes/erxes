@@ -4,14 +4,13 @@ import customScalars from '@erxes/api-utils/src/customScalars';
 import Order from './order';
 import OrderItem from './orderItem';
 import PosConfig from './posConfig';
-import Product from './product';
+import PoscProduct from './poscProduct';
 
 const resolvers: any = async () => ({
   ...customScalars,
 
   PosConfig,
-  PoscProduct: Product,
-
+  PoscProduct,
   Order,
   PosOrderItem: OrderItem,
   Mutation,

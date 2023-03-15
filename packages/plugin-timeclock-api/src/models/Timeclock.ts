@@ -28,7 +28,10 @@ import {
   deviceConfigSchema,
   ITimeLogDocument,
   ITimeLog,
-  timeLogSchema
+  timeLogSchema,
+  IReportCheck,
+  IReportCheckDocument,
+  reportCheckSchema
 } from './definitions/timeclock';
 
 export interface ITimeModel extends Model<ITimeClockDocument> {
@@ -420,4 +423,49 @@ export const loadDeviceConfigClass = (models: IModels) => {
   deviceConfigSchema.loadClass(DeviceConfig);
 
   return deviceConfigSchema;
+};
+
+export interface IReportCheckModel extends Model<IReportCheckDocument> {
+  getReportCheck(_id: string): Promise<IReportCheckDocument>;
+  createReportCheck(doc: IReportCheck): Promise<IReportCheckDocument>;
+  updateReportCheck(
+    _id: string,
+    doc: IReportCheck
+  ): Promise<IReportCheckDocument>;
+  removeReportCheck(_id: string): void;
+}
+
+export const loadReportCheckClass = (models: IModels) => {
+  // tslint:disable-next-line:max-classes-per-file
+  class ReportCheck {
+    // get
+    public static async getReportCheck(_id: string) {
+      const reportCheck = await models.ReportChecks.findOne({ _id });
+      if (!reportCheck) {
+        throw new Error('Report check not found');
+      }
+      return reportCheck;
+    }
+    // create
+    public static async createReportCheck(doc: IReportCheck) {
+      return models.ReportChecks.create({
+        ...doc
+      });
+    }
+    // update
+    public static async updateReportCheck(_id: string, doc: IReportCheck) {
+      await models.ReportChecks.updateOne(
+        { _id },
+        { $set: { ...doc } }
+      ).then(err => console.error(err));
+    }
+    // remove
+    public static async removeReportCheck(_id: string) {
+      return models.ReportChecks.deleteOne({ _id });
+    }
+  }
+
+  reportCheckSchema.loadClass(ReportCheck);
+
+  return reportCheckSchema;
 };
