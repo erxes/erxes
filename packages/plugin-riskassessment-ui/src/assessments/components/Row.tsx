@@ -28,7 +28,7 @@ class Row extends React.Component<Props> {
       <DetailPopOver title={title} icon="downarrow-2" withoutPopoverTitle>
         <FormContainer gapBetween={5}>
           {(contents || []).map(item => (
-            <Label key={item?._id || ''}>{__(item[field] || '')}</Label>
+            <Label key={item?._id || ''}>{__((item || {})[field] || '')}</Label>
           ))}
         </FormContainer>
       </DetailPopOver>
