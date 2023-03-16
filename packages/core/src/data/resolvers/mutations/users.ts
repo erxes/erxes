@@ -229,7 +229,7 @@ const userMutations = {
     args: IUsersEdit,
     { user, models, subdomain }: IContext
   ) {
-    const { _id, channelIds, ...doc } = args;
+    const { _id, channelIds, brandIds, ...doc } = args;
     const userOnDb = await models.Users.getUser(_id);
 
     // clean custom field values
@@ -267,6 +267,10 @@ const userMutations = {
         action: 'updateUserChannels',
         data: { channelIds, userId: _id }
       });
+    }
+
+    if (brandIds) {
+      await models.Brands.updateUserBrands(brandIds, _id);
     }
 
     await resetPermissionsCache(models);
