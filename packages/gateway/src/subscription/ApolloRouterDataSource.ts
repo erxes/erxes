@@ -45,8 +45,7 @@ export default class ApolloRouterDataSource extends GatewayDataSource {
     }
 
     const query = buildQueryUsingSelections(selections);
-    const documentNode: DocumentNode =
-      typeof query === 'string' ? gql(query) : query;
+    const documentNode: DocumentNode = gql(query);
 
     try {
       const response = await this.query(documentNode, {

@@ -40,12 +40,10 @@ const basicFields = `
 
   links
   ownerId
-  ... @defer {
-    owner {
-      _id
-      details {
-        fullName
-      }
+  owner {
+    _id
+    details {
+      fullName
     }
   }
 `;
@@ -64,12 +62,10 @@ export const customerFields = `
   ${
     isEnabled('tags')
       ? `
-      ... @defer {
-        getTags {
-          _id
-          name
-          colorCode
-        }
+      getTags {
+        _id
+        name
+        colorCode
       }
     `
       : ` `

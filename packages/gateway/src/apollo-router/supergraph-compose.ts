@@ -10,7 +10,7 @@ import * as yaml from 'yaml';
 // import { promisify } from "util";
 // const exec = promisify(execCb);
 
-const { NODE_ENV } = process.env;
+const { NODE_ENV, SUPERGRAPH_POLL_INTERVAL_MS } = process.env;
 
 type SupergraphConfig = {
   federation_version: number;
@@ -54,14 +54,14 @@ const supergraphComposeOnce = async () => {
   const superGraphqlNext = supergraphPath + '.next';
   execSync(
     `npx rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept`,
-    { stdio: 'inherit' }
+    { stdio: 'pipe' }
   );
   if (
     !fs.existsSync(supergraphPath) ||
     !isSameFile(supergraphPath, superGraphqlNext)
   ) {
     execSync(`cp ${superGraphqlNext} ${supergraphPath}`);
-    console.log(`Supergraph Schema was printed to ${supergraphPath}`);
+    console.log(`NEW Supergraph Schema was printed to ${supergraphPath}`);
   }
 };
 
@@ -77,6 +77,6 @@ export default async function supergraphCompose(
       } catch (e) {
         console.error(e.message);
       }
-    }, 6000);
+    }, Number(SUPERGRAPH_POLL_INTERVAL_MS) || 10_000);
   }
 }

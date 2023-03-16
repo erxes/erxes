@@ -4,7 +4,6 @@
   "private": true,
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
-    "@apollo/client": "^3.7.7",
     "@elastic/apm-rum": "^5.12.0",
     "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
     "@types/node": "^10.9.4",
