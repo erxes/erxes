@@ -32,7 +32,7 @@ var command = async () => {
       continue;
     }
 
-    var name = city.name === 'Улаанбаатар' ? 'Улаанбаатар' : `${city.name} аймаг`;
+    var name = city.name === 'Улаанбаатар' ? 'Улаанбаатар' : `${city.name}%20аймаг`;
 
     const url = `https://nominatim.openstreetmap.org/search?format=json&polygon_geojson=1&limit=1&q=${name},%20mongolia`
 
@@ -42,57 +42,63 @@ var command = async () => {
       'Accept-language': 'en'
     }
 
-    const cityResponse = await fetch(`${url}`, { method: 'GET', headers: headers });
+    try {
+      console.log('fetching ', url)
+      const cityResponse = await fetch(`${url}`, { method: 'GET', headers: headers });
 
-    const response = await cityResponse.json();
-
-    if (response.length === 0) {
-      continue;
-    }
-
-    const aimag = response[0];
-
-    const doc = {};
-
-    doc.nameEn = aimag.display_name.split(',')[0].replace('ö', 'u').replace('ü', 'u');
-    doc.boundingBox = aimag.boundingbox.map(item => parseFloat(item));
-    doc.geojson = aimag.geojson;
-    doc.center = { type: 'Point', coordinates: [parseFloat(aimag.lon), parseFloat(aimag.lat)] }
-
-    await Cities.updateOne({ _id: city._id }, { $set: doc });
-
-    var districts = await Districts.find({ cityId: city._id }).toArray();
-
-    if (districts.length === 0) {
-      continue;
-    }
-
-    for (var district of districts) {
-      if (district.name === 'Unknown') {
+      const response = await cityResponse.json();
+  
+      if (response.length === 0) {
         continue;
       }
-
-      const districtQry = `https://nominatim.openstreetmap.org/search?format=json&polygon_geojson=1&limit=1&q=${district.name}%20${name},%20mongolia`
-
-      const distResponse = await fetch(`${districtQry}`, { method: 'GET', headers: headers });
-
-      const distResponseJson = await distResponse.json();
-
-      if (distResponseJson.length === 0) {
+  
+      const aimag = response[0];
+  
+      const doc = {};
+  
+      doc.nameEn = aimag.display_name.split(',')[0].replace('ö', 'u').replace('ü', 'u');
+      doc.boundingBox = aimag.boundingbox.map(item => parseFloat(item));
+      doc.geojson = aimag.geojson;
+      doc.center = { type: 'Point', coordinates: [parseFloat(aimag.lon), parseFloat(aimag.lat)] }
+  
+      await Cities.updateOne({ _id: city._id }, { $set: doc });
+  
+      var districts = await Districts.find({ cityId: city._id }).toArray();
+  
+      if (districts.length === 0) {
         continue;
       }
-
-      const sum = distResponseJson[0];
-
-      const distDoc = {};
-
-      distDoc.nameEn = sum.display_name.split(',')[0].replace('ö', 'u').replace('ü', 'u');
-      distDoc.boundingBox = sum.boundingbox.map(item => parseFloat(item));
-      distDoc.geojson = sum.geojson;
-      distDoc.center = { type: 'Point', coordinates: [parseFloat(sum.lon), parseFloat(sum.lat)] }
-
-      await Districts.updateOne({ _id: district._id }, { $set: distDoc });
+  
+      for (var district of districts) {
+        if (district.name === 'Unknown') {
+          continue;
+        }
+  
+        const districtQry = `https://nominatim.openstreetmap.org/search?format=json&polygon_geojson=1&limit=1&q=${district.name}%20${name},%20mongolia`
+  
+        const distResponse = await fetch(`${districtQry}`, { method: 'GET', headers: headers });
+  
+        const distResponseJson = await distResponse.json();
+  
+        if (distResponseJson.length === 0) {
+          continue;
+        }
+  
+        const sum = distResponseJson[0];
+  
+        const distDoc = {};
+  
+        distDoc.nameEn = sum.display_name.split(',')[0].replace('ö', 'u').replace('ü', 'u');
+        distDoc.boundingBox = sum.boundingbox.map(item => parseFloat(item));
+        distDoc.geojson = sum.geojson;
+        distDoc.center = { type: 'Point', coordinates: [parseFloat(sum.lon), parseFloat(sum.lat)] }
+  
+        await Districts.updateOne({ _id: district._id }, { $set: distDoc });
+      }
+    }catch(e) {
+      console.log(e);
     }
+
   }
 
   console.log(`Process finished at: ${new Date()}`);
