@@ -79,6 +79,7 @@ export const createScheduleShiftsByUserIds = async (
       userId: `${userId}`,
       solved: true,
       status: 'Approved',
+      submittedByAdmin: true,
       scheduleConfigId: `${scheduleConfigId}`
     });
 

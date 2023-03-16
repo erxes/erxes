@@ -50,7 +50,8 @@ export const syncSlotsToClient = async (
     action: 'crudData',
     data: {
       type: 'slots',
-      slots
+      slots,
+      token: pos.token
     },
     pos
   });
