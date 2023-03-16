@@ -82,7 +82,7 @@ const Map = (props: Props) => {
     });
 
     map.addGeoJSONTiles(
-      'http://{s}.data.osmbuildings.org/0.2/anonymous/tile/{z}/{x}/{y}.json'
+      'https://{s}.data.osmbuildings.org/0.2/anonymous/tile/{z}/{x}/{y}.json'
     );
 
     map.on('doubleclick', e => {
