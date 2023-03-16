@@ -18,6 +18,7 @@ export const renderText = value => {
 };
 
 export const renderIcon = contentType => {
+  console.log(contentType);
   switch (contentType) {
     case 'customer':
       return 'users-alt';
@@ -32,6 +33,9 @@ export const renderIcon = contentType => {
 
     case 'lead':
       return 'file-alt';
+
+    case 'user':
+      return 'user-square';
 
     default:
       return 'users-alt';
