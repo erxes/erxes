@@ -86,10 +86,10 @@ const subscriptionProducts = ({ location, history }) => {
   return <SubscriptionProducts queryParams={queryParams} history={history} />;
 };
 
-const quiz = ({ location, history }) => {
+const quiz = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <QuizList />;
+  return <QuizList queryParams={queryParams} />;
 };
 
 const routes = () => {
