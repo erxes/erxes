@@ -75,7 +75,7 @@ jobs:
           aws-region: us-west-2
 
       - name: Deploy
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' )
         run: |
           tar -cf build.tar --directory=packages/plugin-products-ui/.erxes/dist .
           cp build.tar packages/plugin-products-ui/.erxes/dist
