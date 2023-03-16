@@ -35,7 +35,7 @@ var command = async () => {
     var name = city.name === 'Улаанбаатар' ? 'Улаанбаатар' : `${city.name}%20аймаг`;
 
     const url = `https://nominatim.openstreetmap.org/search?format=json&polygon_geojson=1&limit=1&q=${name},%20mongolia`
-
+    
     var headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -44,7 +44,7 @@ var command = async () => {
 
     try {
       console.log('fetching ', url)
-      const cityResponse = await fetch(`${url}`, { method: 'GET', headers: headers });
+      const cityResponse = await fetch(encodeURI(url), { method: 'GET', headers: headers });
 
       const response = await cityResponse.json();
   
@@ -76,7 +76,7 @@ var command = async () => {
   
         const districtQry = `https://nominatim.openstreetmap.org/search?format=json&polygon_geojson=1&limit=1&q=${district.name}%20${name},%20mongolia`
   
-        const distResponse = await fetch(`${districtQry}`, { method: 'GET', headers: headers });
+        const distResponse = await fetch(encodeURI(districtQry), { method: 'GET', headers: headers });
   
         const distResponseJson = await distResponse.json();
   
