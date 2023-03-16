@@ -51,17 +51,20 @@ const reportQueries = {
   },
 
   apexCompanies(_root, { search }) {
+    const selector: any = {
+      tagIds: { $in: [process.env.PUBLIC_COMPANIES_TAG || ''] }
+    };
+
+    if (search) {
+      selector.$or = [{ primaryName: { $regex: '.*' + search + '.*' } }];
+    }
+
     return sendCommonMessage({
       subdomain: 'os',
       serviceName: 'contacts',
       action: 'companies.findActiveCompanies',
       isRPC: true,
-      data: {
-        selector: {
-          tagIds: { $in: [process.env.PUBLIC_COMPANIES_TAG || ''] },
-          $or: [{ primaryName: { $regex: '.*' + search + '.*' } }]
-        }
-      }
+      data: { selector }
     });
   },
 
