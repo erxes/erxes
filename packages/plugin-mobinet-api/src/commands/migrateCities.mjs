@@ -38,14 +38,15 @@ const command = async () => {
     const url = `https://nominatim.openstreetmap.org/search?format=json&polygon_geojson=1&limit=1&q=${name},%20mongolia`;
 
     const headers = {
-      'Content-Type': 'application/json',
+      // 'Content-Type': 'application/json',
       Accept: 'application/json',
       'Accept-language': 'en',
+      'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
     };
 
     try {
-      console.log('fetching ', url);
-      const cityResponse = await fetch(encodeURI(url), {
+      console.log('fetching ', (url));
+      const cityResponse = await fetch(url, {
         method: 'GET',
         headers,
       });
@@ -88,7 +89,7 @@ const command = async () => {
 
         const districtQry = `https://nominatim.openstreetmap.org/search?format=json&polygon_geojson=1&limit=1&q=${district.name}%20${name},%20mongolia`;
 
-        const distResponse = await fetch(encodeURI(districtQry), {
+        const distResponse = await fetch(districtQry, {
           method: 'GET',
           headers,
         });
