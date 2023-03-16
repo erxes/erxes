@@ -11,6 +11,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils';
 import { dateFormat, timeFormat } from '../../constants';
 import dayjs from 'dayjs';
+import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
   queryParams: any;
@@ -19,6 +20,7 @@ type Props = {
   totalCount?: number;
 
   extractTimeLogsFromMsSQL: (startDate: Date, endDate: Date) => void;
+  createTimeclockFromLog: (userId: string, timelog: Date) => void;
 
   showSideBar: (sideBar: boolean) => void;
   getActionBar: (actionBar: any) => void;
@@ -32,7 +34,8 @@ function ReportList(props: Props) {
     extractTimeLogsFromMsSQL,
     getPagination,
     showSideBar,
-    getActionBar
+    getActionBar,
+    createTimeclockFromLog
   } = props;
 
   const [startDate, setStartDate] = useState(
@@ -114,6 +117,7 @@ function ReportList(props: Props) {
           <th>{__('Date')}</th>
           <th>{__('Time')}</th>
           <th>{__('Device')}</th>
+          <th>{__('Action')}</th>
         </tr>
       </thead>
       <tbody>
@@ -130,6 +134,17 @@ function ReportList(props: Props) {
               <td>{dayjs(timelog.timelog).format(dateFormat)}</td>
               <td>{dayjs(timelog.timelog).format(timeFormat)}</td>
               <td>{timelog.deviceName}</td>
+              <td>
+                <Tip text={__('Create Timeclock')} placement="top">
+                  <Button
+                    btnStyle="link"
+                    onClick={() =>
+                      createTimeclockFromLog(timelog.user._id, timelog.timelog)
+                    }
+                    icon="clock-eight"
+                  />
+                </Tip>
+              </td>
             </tr>
           );
         })}

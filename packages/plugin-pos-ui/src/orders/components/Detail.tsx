@@ -41,7 +41,7 @@ class PutResponseDetail extends React.Component<Props, State> {
     const paidAmounts = order.paidAmounts;
     const paidKeys: string[] = paidAmounts.map(pa => pa.type);
 
-    for (const emptyType of pos.paymentTypes.filter(
+    for (const emptyType of (pos.paymentTypes || []).filter(
       pt => !paidKeys.includes(pt.type)
     )) {
       paidAmounts.push({
@@ -111,8 +111,11 @@ class PutResponseDetail extends React.Component<Props, State> {
           <FlexRow key={paidAmount._id}>
             <FieldStyle>
               {__(
-                `${(paymentTypes.find(pt => pt.type === paidAmount.type) || {})
-                  .title || paidAmount.type}`
+                `${(
+                  (paymentTypes || []).find(
+                    pt => pt.type === paidAmount.type
+                  ) || {}
+                ).title || paidAmount.type}`
               )}
               :
             </FieldStyle>
@@ -160,7 +163,7 @@ class PutResponseDetail extends React.Component<Props, State> {
       this.props.order._id,
       cashAmount,
       mobileAmount,
-      paidAmounts.filter(pa => Number(pa.amount) !== 0)
+      (paidAmounts || []).filter(pa => Number(pa.amount) !== 0)
     );
   };
 

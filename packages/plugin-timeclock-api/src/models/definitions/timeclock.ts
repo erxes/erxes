@@ -3,16 +3,12 @@ import { field } from './utils';
 
 export interface ITimeClock {
   userId?: string;
-  employeeId?: number;
-  employeeUserName?: string;
   shiftStart: Date;
   shiftEnd?: Date;
   shiftActive?: boolean;
   branchName?: string;
   deviceName?: string;
   deviceType?: string;
-  longitude?: number;
-  latitude?: number;
 }
 
 export interface ITimeClockDocument extends ITimeClock, Document {
@@ -169,14 +165,6 @@ export const timeclockSchema = new Schema({
   deviceName: field({
     type: String,
     label: 'Device name, which user used to clock in / out '
-  }),
-  employeeUserName: field({
-    type: String,
-    label: 'Employee user name, as saved on companys terminal'
-  }),
-  employeeId: field({
-    type: String,
-    label: 'Employee id, custom field'
   }),
   deviceType: field({
     type: String,

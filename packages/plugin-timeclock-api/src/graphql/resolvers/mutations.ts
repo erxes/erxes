@@ -601,6 +601,14 @@ const timeclockMutations = {
     });
   },
 
+  createTimeClockFromLog(_root, { userId, timelog }, { models }: IContext) {
+    return models.Timeclocks.createTimeClock({
+      shiftStart: timelog,
+      userId,
+      shiftActive: true
+    });
+  },
+
   async extractAllDataFromMsSQL(
     _root,
     { startDate, endDate },

@@ -135,8 +135,8 @@ export default (props: Props) => {
   };
 
   const onSaveDateRange = () => {
-    localStorage.setItem('dateRangeStart', dateRange.startTime.toISOString());
     localStorage.setItem('dateRangeEnd', dateRange.endTime.toISOString());
+    localStorage.setItem('dateRangeStart', dateRange.startTime.toISOString());
     Alert.success('succesfully saved');
   };
 
