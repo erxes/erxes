@@ -15,6 +15,7 @@ type Props = {
   filemanagerFolders: IFolder[];
   remove: (folderId: string) => void;
   setParentId: (id: string) => void;
+  // getSubfolders: (id: string, callback?: (data) => void) => void;
   queryParams: any;
   isActive: boolean;
   isChild?: boolean;
@@ -44,6 +45,7 @@ class FolderRow extends React.Component<Props, State> {
 
     this.setState({ isParentOpen: !this.state.isParentOpen }, () => {
       setParentId(folder._id);
+      // getSubfolders(folder._id);
     });
   };
 
@@ -83,9 +85,7 @@ class FolderRow extends React.Component<Props, State> {
           {isParent && (
             <span className="toggle-icon">
               <Icon
-                icon={`angle-${
-                  this.state.isParentOpen || isActive ? 'down' : 'right'
-                }`}
+                icon={`angle-${this.state.isParentOpen ? 'down' : 'right'}`}
                 size={20}
               />
             </span>

@@ -7,12 +7,13 @@ import {
   RemoveFilemanagerFolderMutationResponse
 } from '../../types';
 import { IRouterProps, MutationVariables } from '@erxes/ui/src/types';
+import React, { useState } from 'react';
+import { graphql, useLazyQuery } from 'react-apollo';
 import { mutations, queries } from '../../graphql';
 
 import FolderList from '../../components/folder/FolderList';
-import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 
 type Props = {
@@ -30,9 +31,28 @@ type FinalProps = {
   RemoveFilemanagerFolderMutationResponse;
 
 const FolderListContainer = (props: FinalProps) => {
-  const { removeMutation, history, filemanagerFoldersQuery } = props;
+  const {
+    removeMutation,
+    filemanagerFolders,
+    history,
+    filemanagerFoldersQuery
+  } = props;
 
-  const childrens = filemanagerFoldersQuery.filemanagerFolders || [];
+  // const [
+  //   getSubfoldersQuery,
+  //   { data, loading: subFoldersLoading },
+  // ] = useLazyQuery(gql(queries.filemanagerFolders));
+
+  // if (subFoldersLoading) {
+  //   return <Spinner />;
+  // }
+
+  // const getSubfolders = (folderId: string) => {
+  //   console.log("working");
+  //   getSubfoldersQuery({
+  //     variables: { parentId: folderId },
+  //   });
+  // };
 
   // remove action
   const remove = folderId => {
@@ -51,10 +71,18 @@ const FolderListContainer = (props: FinalProps) => {
     });
   };
 
+  const childFolders = filemanagerFoldersQuery.filemanagerFolders || [];
+
+  if (childFolders.length !== 0) {
+    Array.prototype.push.apply(filemanagerFolders, childFolders);
+  }
+
   const updatedProps = {
     ...props,
-    childrens,
+    childrens: [],
+    filemanagerFolders,
     remove
+    // getSubfolders,
   };
 
   return <FolderList {...updatedProps} />;
