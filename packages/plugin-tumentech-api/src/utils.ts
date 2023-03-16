@@ -3,8 +3,10 @@ import { sendRequest } from '@erxes/api-utils/src/requests';
 import * as _ from 'underscore';
 
 import { generateModels } from './connectionResolver';
-import { sendCardsMessage } from './messageBroker';
+import { sendCardsMessage, sendCoreMessage } from './messageBroker';
 import { IPlaceDocument } from './models/definitions/places';
+import { google } from 'googleapis';
+import * as moment from 'moment';
 
 const gatherNames = async params => {
   const {
@@ -274,51 +276,68 @@ export const getPath = async (apiKey: string, places: IPlaceDocument[]) => {
   }
 };
 
-export const transliterate = (value: string) => {
-  let response = '';
+export const getTransportData = async (req, res, subdomain) => {
+  const config = await sendCoreMessage({
+    subdomain,
+    action: 'configs.findOne',
+    data: {
+      query: {
+        code: 'GOOGLE_APPLICATION_CREDENTIALS_JSON'
+      }
+    },
+    isRPC: true,
+    defaultValue: null
+  });
 
-  const A = new Array();
-  A['a'] = 'а';
-  A['b'] = 'б';
-  A['c'] = 'ц';
-  A['d'] = 'д';
-  A['e'] = 'э';
-  A['f'] = 'ф';
-  A['g'] = 'г';
-  A['h'] = 'х';
-  A['i'] = 'и';
-  A['j'] = 'ж';
-  A['k'] = 'к';
-  A['l'] = 'л';
-  A['m'] = 'м';
-  A['n'] = 'н';
-  A['o'] = 'о';
-  A['p'] = 'п';
-  A['q'] = 'ө';
-  A['r'] = 'р';
-  A['s'] = 'с';
-  A['t'] = 'т';
-  A['u'] = 'у';
-  A['v'] = 'в';
-  A['w'] = 'в';
-  A['x'] = 'кс';
-  A['y'] = 'ү';
-  A['z'] = 'з';
-
-  A['ye'] = 'е';
-  A['yo'] = 'ё';
-  A['yu'] = 'ю';
-  A['ya'] = 'я';
-  A['sh'] = 'ш';
-  A['ch'] = 'ч';
-  A['kh'] = 'х';
-  A['ts'] = 'ц';
-  A['zh'] = 'ж';
-  A['ii'] = 'ий';
-  A['yi'] = 'й';
-
-  for (let i = 0; i < value.length; ++i) {
-    response += A[value[i]] === undefined ? value[i] : A[value[i]];
+  if (!config) {
+    return res.json([]);
   }
-  return response;
+
+  const auth = new google.auth.GoogleAuth({
+    credentials: JSON.parse(config.value),
+    scopes: ['https://www.googleapis.com/auth/spreadsheets']
+  });
+
+  const authClientObject = await auth.getClient();
+  const sheets = google.sheets({ version: 'v4', auth: authClientObject });
+
+  const response = await sheets.spreadsheets.values.get({
+    spreadsheetId:
+      process.env.TRANSPORT_SPREADSHEET_ID ||
+      '18CwXZcOU4THxhvkvdA80mPNmGg7xsWpEfkHJh1M1bg0',
+    range: 'A:O'
+  });
+
+  const sheetData = response.data;
+
+  const rows = sheetData.values || [];
+
+  const data: any[] = [];
+
+  for (const [index, value] of rows.entries()) {
+    if (index < 3) {
+      continue;
+    }
+
+    const obj = {
+      tid: value[0],
+      from: value[1],
+      to: value[2],
+      payloadtype: value[3],
+      weight: value[4],
+      payloadsize: value[5],
+      trantype: value[6],
+      vehicletype: value[7],
+      trunktype: value[8],
+      tran_start_dt: moment(new Date(value[9])).format('YYYY-MM-DD'),
+      year: Number(value[10]),
+      month: Number(value[11]),
+      week: Number(value[12]),
+      day: Number(value[13])
+    };
+
+    data.push(obj);
+  }
+
+  return res.json(data);
 };

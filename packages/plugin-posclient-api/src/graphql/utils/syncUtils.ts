@@ -50,8 +50,13 @@ export const importUsers = async (
   }
 };
 
-export const importSlots = async (models: IModels, slots: any[]) => {
-  await models.PosSlots.deleteMany({});
+export const importSlots = async (
+  models: IModels,
+  slots: any[],
+  token: string
+) => {
+  const pos = await models.Configs.getConfig({ token });
+  await models.PosSlots.deleteMany({ posId: pos.posId });
   await models.PosSlots.insertMany(slots);
 };
 

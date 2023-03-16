@@ -1,4 +1,4 @@
-import { Button, Tip, Icon, ModalTrigger, __, Label } from '@erxes/ui/src';
+import { Button, Icon, Label, ModalTrigger, Tip, __ } from '@erxes/ui/src';
 import moment from 'moment';
 import React from 'react';
 import { Badge, FormContainer } from '../../styles';
@@ -28,7 +28,7 @@ class Row extends React.Component<Props> {
       <DetailPopOver title={title} icon="downarrow-2" withoutPopoverTitle>
         <FormContainer gapBetween={5}>
           {(contents || []).map(item => (
-            <Label key={item._id}>{__(item[field])}</Label>
+            <Label key={item?._id || ''}>{__((item || {})[field] || '')}</Label>
           ))}
         </FormContainer>
       </DetailPopOver>
@@ -62,7 +62,7 @@ class Row extends React.Component<Props> {
     };
 
     return (
-      <tr key={item?._id}>
+      <tr key={item?._id || ''}>
         <td>{__(item?.cardType)}</td>
         <td>{__(item?.card?.name)}</td>
         <td>{this.renderPopOver('Indicators', item?.riskIndicators)}</td>
@@ -70,18 +70,18 @@ class Row extends React.Component<Props> {
         <td>{this.renderPopOver('Departments', item?.departments)}</td>
         <td>{this.renderPopOver('Operations', item?.operations)}</td>
         <td>
-          <Badge color={item.statusColor}>{__(item.status)}</Badge>
+          <Badge color={item?.statusColor || ''}>{__(item.status)}</Badge>
         </td>
         <td>
-          {item.status !== 'In Progress'
-            ? __(item.resultScore?.toString() || '')
+          {item?.status !== 'In Progress'
+            ? __(item?.resultScore?.toString() || '')
             : '-'}
         </td>
         <td>
-          {item?.createdAt ? moment(item.createdAt).format('ll HH:mm') : '-'}
+          {item?.createdAt ? moment(item?.createdAt).format('ll HH:mm') : '-'}
         </td>
         <td>
-          {item?.closedAt ? moment(item.closedAt).format('ll HH:mm') : '-'}
+          {item?.closedAt ? moment(item?.closedAt).format('ll HH:mm') : '-'}
         </td>
         <td>{renderFormSubmitHistory(item)}</td>
       </tr>

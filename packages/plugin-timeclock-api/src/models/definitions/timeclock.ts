@@ -3,16 +3,12 @@ import { field } from './utils';
 
 export interface ITimeClock {
   userId?: string;
-  employeeId?: number;
-  employeeUserName?: string;
   shiftStart: Date;
   shiftEnd?: Date;
   shiftActive?: boolean;
   branchName?: string;
   deviceName?: string;
   deviceType?: string;
-  longitude?: number;
-  latitude?: number;
 }
 
 export interface ITimeClockDocument extends ITimeClock, Document {
@@ -69,6 +65,8 @@ export interface ISchedule {
   status?: string;
   solved?: boolean;
   scheduleConfigId?: string;
+  scheduleChecked?: boolean;
+  submittedByAdmin?: boolean;
 }
 
 export interface IScheduleDocument extends ISchedule, Document {
@@ -119,6 +117,15 @@ export interface IDeviceConfigDocument extends IDeviceConfig, Document {
   _id: string;
 }
 
+export interface IReportCheck {
+  userId: string;
+  startDate: string;
+  endDate: string;
+}
+export interface IReportCheckDocument extends IReportCheck, Document {
+  _id: string;
+}
+
 export const attachmentSchema = new Schema(
   {
     name: field({ type: String }),
@@ -158,14 +165,6 @@ export const timeclockSchema = new Schema({
   deviceName: field({
     type: String,
     label: 'Device name, which user used to clock in / out '
-  }),
-  employeeUserName: field({
-    type: String,
-    label: 'Employee user name, as saved on companys terminal'
-  }),
-  employeeId: field({
-    type: String,
-    label: 'Employee id, custom field'
   }),
   deviceType: field({
     type: String,
@@ -241,6 +240,16 @@ export const scheduleSchema = new Schema({
   scheduleConfigId: field({
     type: String,
     label: 'Schedule Config id used for reports'
+  }),
+  scheduleChecked: field({
+    type: Boolean,
+    label: 'Whether schedule is checked by employee',
+    default: false
+  }),
+  submittedByAdmin: field({
+    type: Boolean,
+    label: 'Whether schedule was submitted/assigned directly by an admin',
+    default: false
   })
 });
 
@@ -309,6 +318,16 @@ export const deviceConfigSchema = new Schema({
   extractRequired: field({
     type: Boolean,
     label: 'whether extract from the device'
+  })
+});
+
+export const reportCheckSchema = new Schema({
+  _id: field({ pkey: true }),
+  userId: field({ type: String, label: 'User of the report' }),
+  startDate: field({ type: String, label: 'Start date of report' }),
+  endDate: field({
+    type: String,
+    label: 'End date of report'
   })
 });
 

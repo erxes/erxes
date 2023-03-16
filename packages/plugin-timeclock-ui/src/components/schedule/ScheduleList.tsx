@@ -8,20 +8,22 @@ import { CustomRow, Margin, RowField } from '../../styles';
 import { IBranch } from '@erxes/ui/src/team/types';
 import Tip from '@erxes/ui/src/components/Tip';
 import ScheduleForm from './ScheduleForm';
-import { IScheduleConfig } from '../../types';
+import { ISchedule, IScheduleConfig } from '../../types';
 import dayjs from 'dayjs';
 import { dateFormat, timeFormat } from '../../constants';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import SortableList from '@erxes/ui/src/components/SortableList';
 import {
-  CollapseRow,
   DropIcon,
   PropertyListTable,
   PropertyTableHeader,
   PropertyTableRow
 } from '@erxes/ui-forms/src/settings/properties/styles';
 import Collapse from 'react-bootstrap/Collapse';
+import { CustomCollapseRow } from '../../styles';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Icon from '@erxes/ui/src/components/Icon';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   scheduleOfMembers: any;
@@ -200,7 +202,7 @@ function ScheduleList(props: Props) {
     ));
   };
 
-  const content = schedule => {
+  const content = (schedule: ISchedule) => {
     const [collapse, setCollapse] = useState(false);
     const { details, email } = schedule.user;
 
@@ -211,8 +213,37 @@ function ScheduleList(props: Props) {
     const name =
       schedule.user && details && details.fullName ? details.fullName : email;
 
+    const scheduleChecked =
+      schedule.scheduleChecked || !schedule.submittedByAdmin ? (
+        <Icon icon="checked" color="green" />
+      ) : (
+        <Icon icon="times-circle" color="#F29339" />
+      );
+
+    const getScheduleEnd = new Date(schedule.shifts[0].shiftEnd);
+    const getScheduleStart = new Date(schedule.shifts.slice(-1)[0].shiftStart);
+
+    const scheduleStartDate = dayjs(getScheduleStart).format(dateFormat);
+    const scheduleEndDate = dayjs(getScheduleEnd).format(dateFormat);
+
+    const getTotalScheduledDays = Math.ceil(
+      (getScheduleEnd.getTime() - getScheduleStart.getTime()) /
+        (1000 * 3600 * 24)
+    );
+
+    let getTotalScheduledHours = 0;
+
+    schedule.shifts.forEach(shift => {
+      const shiftStart = new Date(shift.shiftStart);
+      const shiftEnd = new Date(shift.shiftEnd);
+
+      getTotalScheduledHours += Math.ceil(
+        (shiftEnd.getTime() - shiftStart.getTime()) / (1000 * 3600)
+      );
+    });
+
     const status = schedule.solved ? (
-      __(schedule.status)
+      __(schedule.status || '')
     ) : (
       <>
         <Button
@@ -232,14 +263,23 @@ function ScheduleList(props: Props) {
     );
 
     if (schedule.shifts.length > 0) {
+      const showScheduleChecked = !isEnabled('bichil') ? scheduleChecked : '';
       return (
         <div key={schedule._id} style={{ flex: 1 }}>
-          <CollapseRow isChild={false}>
-            <div style={{ flex: 1 }} onClick={handleCollapse}>
+          <CustomCollapseRow isChild={false}>
+            <div onClick={handleCollapse}>
               <DropIcon isOpen={collapse} />
               {name}
             </div>
+
+            <div> {showScheduleChecked}</div>
+            <div>{scheduleStartDate}</div>
+            <div>{scheduleEndDate}</div>
+
+            <div>{`Total ${getTotalScheduledDays} days / ${getTotalScheduledHours} hours`}</div>
+
             {status}
+
             <Tip text={__('Delete')} placement="top">
               <Button
                 btnStyle="link"
@@ -247,7 +287,7 @@ function ScheduleList(props: Props) {
                 icon="times-circle"
               />
             </Tip>
-          </CollapseRow>
+          </CustomCollapseRow>
           <Collapse in={collapse}>
             <Margin>
               <PropertyListTable>
