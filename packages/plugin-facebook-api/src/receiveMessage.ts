@@ -86,7 +86,8 @@ const receiveMessage = async (
           integrationId: integration.erxesApiId,
           content: text || '',
           attachments: formattedAttachments,
-          conversationId: conversation.erxesApiId
+          conversationId: conversation.erxesApiId,
+          updatedAt: timestamp
         })
       },
       isRPC: true
