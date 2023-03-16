@@ -34,6 +34,7 @@ import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
 import ActivateInstallation from './ActivateInstallation';
 import Header from '@erxes/ui-settings/src/general/components/Header';
 import { SelectTeamMembers } from '@erxes/ui/src';
+import { ImageMaxWidth } from 'modules/common/components/ImageMaxWidth';
 
 type Props = {
   currentLanguage: string;
@@ -185,9 +186,9 @@ class GeneralSettings extends React.Component<Props, State> {
         <ControlLabel>{KEY_LABELS[field]}</ControlLabel>
         {description && <p>{__(description)}</p>}
         {value ? (
-          <p>
+          <ImageMaxWidth>
             <img alt={field} src={readFile(value)} />
-          </p>
+          </ImageMaxWidth>
         ) : null}
         <input type="file" onChange={this.handleLogoChange.bind(this, field)} />
       </FormGroup>
