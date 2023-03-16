@@ -180,6 +180,19 @@ const InlineBlock = styled.div`
   align-items: center;
 `;
 
+const CustomLabel = styledTS<{ uppercase?: boolean }>(styled.label)`
+  text-transform: ${props => (props.uppercase ? 'uppercase' : 'none')};
+  display: inline-block;
+  margin: 10px 0;
+  font-weight: ${typography.fontWeightRegular};
+  font-size: 14px;
+  color: ${colors.textPrimary};
+
+  > span {
+    color: ${colors.colorCoreRed};
+  }
+`;
+
 const FlexRowEven = styled.div`
   display: flex;
   flex-direction: row;
@@ -301,5 +314,6 @@ export {
   Margin,
   RowField,
   TextAlignCenter,
-  CustomCollapseRow
+  CustomCollapseRow,
+  CustomLabel
 };
