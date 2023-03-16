@@ -305,7 +305,7 @@ export const getTransportData = async (req, res, subdomain) => {
     spreadsheetId:
       process.env.TRANSPORT_SPREADSHEET_ID ||
       '18CwXZcOU4THxhvkvdA80mPNmGg7xsWpEfkHJh1M1bg0',
-    range: 'Sheet1!A:O'
+    range: 'A:O'
   });
 
   const sheetData = response.data;
