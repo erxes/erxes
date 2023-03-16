@@ -1,16 +1,16 @@
-import React from "react";
+import React from 'react';
 
-import { withRouter } from "react-router-dom";
-import Icon from "@erxes/ui/src/components/Icon";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import { ActionButtons } from "@erxes/ui-settings/src/styles";
-import Tip from "@erxes/ui/src/components/Tip";
-import Button from "@erxes/ui/src/components/Button";
-import { __ } from "modules/common/utils";
-import { SideList } from "../../styles";
-import * as routerUtils from "@erxes/ui/src/utils/router";
-import { IRouterProps } from "@erxes/ui/src/types";
-import queryString from "query-string";
+import { withRouter } from 'react-router-dom';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { ActionButtons } from '@erxes/ui-settings/src/styles';
+import Tip from '@erxes/ui/src/components/Tip';
+import Button from '@erxes/ui/src/components/Button';
+import { __ } from 'modules/common/utils';
+import { SideList } from '../../styles';
+import * as routerUtils from '@erxes/ui/src/utils/router';
+import { IRouterProps } from '@erxes/ui/src/types';
+import queryString from 'query-string';
 
 type Props = {
   item: any;
@@ -35,11 +35,11 @@ function BlockItem({
   renderForm,
   level,
   history,
-  location,
+  location
 }: FinalProps) {
   const trigger = (
     <Button btnStyle="link">
-      <Tip text={__("Edit")} placement="bottom">
+      <Tip text={__('Edit')} placement="bottom">
         <Icon icon="edit" />
       </Tip>
     </Button>
@@ -53,8 +53,8 @@ function BlockItem({
     />
   );
 
-  const onClick = (_id) => {
-    routerUtils.removeParams(history, "branchId", "unitId", "departmentId");
+  const onClick = _id => {
+    routerUtils.removeParams(history, 'page');
 
     routerUtils.setParams(history, { [queryParamName]: _id });
   };
@@ -69,7 +69,7 @@ function BlockItem({
     >
       <span onClick={() => onClick(item._id)}>
         {icon && <Icon icon={icon} />}
-        {item.title}
+        {item.code} - {item.title}
       </span>
       <ActionButtons>
         {editButton}
