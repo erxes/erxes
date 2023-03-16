@@ -31,7 +31,7 @@ const Map = (props: Props) => {
     }
 
     const script: any = document.createElement('script');
-    script.src = 'http://localhost:3000/js/osmb.js';
+    script.src = 'https://erxesmn.s3.amazonaws.com/osmb.js';
     script.async = true;
     script.defer = true;
     script.id = props.id;
