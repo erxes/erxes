@@ -18,7 +18,6 @@ export const renderText = value => {
 };
 
 export const renderIcon = contentType => {
-  console.log(contentType);
   switch (contentType) {
     case 'customer':
       return 'users-alt';
