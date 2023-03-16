@@ -59,7 +59,7 @@ const reportQueries = {
       data: {
         selector: {
           tagIds: { $in: [process.env.PUBLIC_COMPANIES_TAG || ''] },
-          $or: [{ primaryName: { $regex: new RegExp(`^${search}$`, 'i') } }]
+          $or: [{ primaryName: { $regex: '.*' + search + '.*' } }]
         }
       }
     });
