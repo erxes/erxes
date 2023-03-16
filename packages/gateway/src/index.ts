@@ -1,6 +1,5 @@
 import * as apm from 'elastic-apm-node';
 import * as dotenv from 'dotenv';
-// import * as ws from 'ws';
 dotenv.config();
 
 if (process.env.ELASTIC_APM_HOST_NAME) {
@@ -10,11 +9,9 @@ if (process.env.ELASTIC_APM_HOST_NAME) {
   });
 }
 
-// import * as ws from 'ws';
 import * as express from 'express';
 import * as http from 'http';
 import * as cookieParser from 'cookie-parser';
-// import { loadSubscriptions } from './subscription';
 import userMiddleware from './middlewares/userMiddleware';
 import pubsub from './subscription/pubsub';
 import {
