@@ -34,11 +34,7 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
   const config = getEnvQuery.configsGetEnv || {};
   const object = props.object || ({} as IUser);
 
-  if (
-    (channelsQuery && channelsQuery.loading) ||
-    groupsQuery.loading ||
-    (brandsQuery && brandsQuery.loading)
-  ) {
+  if ((channelsQuery && channelsQuery.loading) || groupsQuery.loading) {
     return <Spinner />;
   }
 
