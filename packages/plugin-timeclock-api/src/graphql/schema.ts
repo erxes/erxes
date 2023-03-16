@@ -318,6 +318,8 @@ export const mutations = `
   checkReport(userId: String, startDate: String, endDate: String): CheckReport
   checkSchedule(scheduleId: String): JSON
 
+  createTimeClockFromLog(userId: String, timelog: Date): Timeclock
+
   extractAllDataFromMsSQL(startDate: String, endDate: String): [Timeclock]
   extractTimeLogsFromMsSQL(startDate: String, endDate: String): [Timelog]
 `;

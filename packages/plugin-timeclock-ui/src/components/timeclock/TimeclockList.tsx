@@ -17,6 +17,7 @@ import {
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import { ControlLabel } from '@erxes/ui/src/components/form';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   queryParams: any;
@@ -108,11 +109,13 @@ function List({
 
   const actionBarRight = (
     <>
-      <ModalTrigger
-        title={__('Extract all data')}
-        trigger={extractTrigger}
-        content={extractContent}
-      />
+      {!isEnabled('bichil') && (
+        <ModalTrigger
+          title={__('Extract all data')}
+          trigger={extractTrigger}
+          content={extractContent}
+        />
+      )}
       <ModalTrigger
         title={__('Start shift')}
         trigger={trigger}

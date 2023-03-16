@@ -8,7 +8,7 @@ import { CustomRow, Margin, RowField } from '../../styles';
 import { IBranch } from '@erxes/ui/src/team/types';
 import Tip from '@erxes/ui/src/components/Tip';
 import ScheduleForm from './ScheduleForm';
-import { IScheduleConfig } from '../../types';
+import { ISchedule, IScheduleConfig } from '../../types';
 import dayjs from 'dayjs';
 import { dateFormat, timeFormat } from '../../constants';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
@@ -23,6 +23,7 @@ import Collapse from 'react-bootstrap/Collapse';
 import { CustomCollapseRow } from '../../styles';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Icon from '@erxes/ui/src/components/Icon';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   scheduleOfMembers: any;
@@ -137,7 +138,7 @@ function ScheduleList(props: Props) {
     removeScheduleShifts(_id, type);
   };
 
-  const ListShiftContent = (shifts, scheduleChecked) => {
+  const ListShiftContent = shifts => {
     return shifts.map(shift => (
       <PropertyTableRow key="">
         <RowField>
@@ -201,7 +202,7 @@ function ScheduleList(props: Props) {
     ));
   };
 
-  const content = schedule => {
+  const content = (schedule: ISchedule) => {
     const [collapse, setCollapse] = useState(false);
     const { details, email } = schedule.user;
 
@@ -242,7 +243,7 @@ function ScheduleList(props: Props) {
     });
 
     const status = schedule.solved ? (
-      __(schedule.status)
+      __(schedule.status || '')
     ) : (
       <>
         <Button
@@ -262,6 +263,7 @@ function ScheduleList(props: Props) {
     );
 
     if (schedule.shifts.length > 0) {
+      const showScheduleChecked = !isEnabled('bichil') ? scheduleChecked : '';
       return (
         <div key={schedule._id} style={{ flex: 1 }}>
           <CustomCollapseRow isChild={false}>
@@ -270,7 +272,7 @@ function ScheduleList(props: Props) {
               {name}
             </div>
 
-            <div> {scheduleChecked}</div>
+            <div> {showScheduleChecked}</div>
             <div>{scheduleStartDate}</div>
             <div>{scheduleEndDate}</div>
 
@@ -299,7 +301,7 @@ function ScheduleList(props: Props) {
                   <ControlLabel>{__('Shift Status')}</ControlLabel>
                   <ControlLabel>{__('Actions')}</ControlLabel>
                 </PropertyTableHeader>
-                {ListShiftContent(schedule.shifts, scheduleChecked)}
+                {ListShiftContent(schedule.shifts)}
               </PropertyListTable>
             </Margin>
           </Collapse>
