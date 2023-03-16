@@ -32,7 +32,7 @@ var command = async () => {
       continue;
     }
 
-    var name = city.name === 'Улаанбаатар' ? 'Улаанбаатар' : `${city.name} аймаг`;
+    var name = city.name === 'Улаанбаатар' ? 'Улаанбаатар' : `${city.name}%20аймаг`;
 
     const url = `https://nominatim.openstreetmap.org/search?format=json&polygon_geojson=1&limit=1&q=${name},%20mongolia`
 
