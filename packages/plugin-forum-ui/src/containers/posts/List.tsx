@@ -32,7 +32,7 @@ function List({ removeMutation, queryParams, history }: FinalProps) {
   const limit = Number(queryParams.perPage || 20);
   const pageIndex = Number(queryParams.page || 1);
   const offset = limit * (pageIndex - 1);
-  console.log('queryParams', queryParams);
+
   const variables = {
     categoryId,
     state,
