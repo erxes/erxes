@@ -12,7 +12,6 @@ import {
   validate
 } from 'graphql';
 import * as ws from 'ws';
-// import { GraphQLSchema } from "graphql";
 import ApolloRouterDataSource from './ApolloRouterDataSource';
 import { Disposable, SubscribeMessage } from 'graphql-ws';
 import genTypeDefsAndResolvers from './genTypeDefsAndResolvers';
