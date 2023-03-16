@@ -1,5 +1,6 @@
 import mongoDb from 'mongodb';
-import fetch from 'node-fetch';
+
+import requestify from 'requestify';
 
 const MongoClient = mongoDb.MongoClient;
 
@@ -38,22 +39,22 @@ const command = async () => {
     const url = `https://nominatim.openstreetmap.org/search?format=json&polygon_geojson=1&limit=1&q=${name},%20mongolia`;
 
     const headers = {
-      // 'Content-Type': 'application/json',
+      'Content-Type': 'application/json',
       Accept: 'application/json',
       'Accept-language': 'en',
-      'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
     };
 
     try {
-      console.log('fetching ', (url));
-      const cityResponse = await fetch(url, {
+      console.log('fetching ', url);
+      const cityResponse = await requestify.request(url, {
         method: 'GET',
         headers,
       });
+      // console.log('cityResponse ', cityResponse);
 
-      const response = await cityResponse.json();
+      const response = await JSON.parse(cityResponse.body);
 
-      console.log('response ',response)
+      console.log('response ', response);
 
       if (response.length === 0) {
         continue;
@@ -89,12 +90,12 @@ const command = async () => {
 
         const districtQry = `https://nominatim.openstreetmap.org/search?format=json&polygon_geojson=1&limit=1&q=${district.name}%20${name},%20mongolia`;
 
-        const distResponse = await fetch(districtQry, {
+        const distResponse = await requestify.request(districtQry, {
           method: 'GET',
           headers,
         });
 
-        const distResponseJson = await distResponse.json();
+        const distResponseJson = await JSON.parse(distResponse.body);
         console.log('distResponseJson ', distResponseJson);
 
         if (distResponseJson.length === 0) {
