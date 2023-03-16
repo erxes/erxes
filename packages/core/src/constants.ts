@@ -20,20 +20,20 @@ export const USER_MOVEMENT_STATUSES = {
 export const USER_EXTENDED_FIELDS = [
   {
     _id: Math.random(),
-    name: 'department',
-    label: 'Department',
+    name: 'departments',
+    label: 'Departments',
     type: 'string'
   },
   {
     _id: Math.random(),
-    name: 'branch',
-    label: 'Branch',
+    name: 'branches',
+    label: 'Branches',
     type: 'string'
   },
   {
     _id: Math.random(),
-    name: 'brand',
-    label: 'Brand',
+    name: 'password',
+    label: 'password',
     type: 'string'
   }
 ];
