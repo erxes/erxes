@@ -448,10 +448,10 @@ export const initBroker = async options => {
     systemFields: forms.systemFields
   });
 
-  consumeRPCQueue('core:fields.getList', async ({ subdomain }) => {
+  consumeRPCQueue('core:fields.getList', async ({ subdomain, data }) => {
     return {
       status: 'success',
-      data: await forms.fields({ subdomain })
+      data: await forms.fields({ subdomain, data })
     };
   });
 
@@ -520,6 +520,15 @@ export const sendInboxMessage = (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: 'inbox',
+    ...args
+  });
+};
+
+export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'forms',
     ...args
   });
 };
