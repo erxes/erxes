@@ -31,7 +31,7 @@ export default {
 
   hasSubscriptions: true,
 
-  getHandlers: [
+  postHandlers: [
     {
       path: `/transports`,
       method: getTransportData
