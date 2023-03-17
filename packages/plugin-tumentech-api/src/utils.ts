@@ -278,9 +278,10 @@ export const getPath = async (apiKey: string, places: IPlaceDocument[]) => {
 };
 
 export const getTransportData = async (req, res, subdomain) => {
-  const { json } = req.body;
+  console.log('getTransportData', req.body);
+  const { unixtimestamp, offset, pagesize } = req.body;
 
-  const { unixtimestamp, offset = 1, pagesize = 20 } = JSON.parse(json);
+  // const {  } = JSON.parse(json || '{}');
 
   const models = await generateModels(subdomain);
 
@@ -371,6 +372,8 @@ export const getTransportData = async (req, res, subdomain) => {
     qry.tid = { $gt: Number(unixtimestamp) };
   }
 
+  console.log('page size', pagesize, 'offset', offset, 'qry', qry, 'range');
+
   const list = await paginate(
     models.TransportDatas.find(qry, '-scopeBrandIds -range').sort({
       tid: 1
@@ -378,5 +381,13 @@ export const getTransportData = async (req, res, subdomain) => {
     { page: Number(offset || 1), perPage: Number(pagesize || 20) }
   );
 
-  return res.json(list);
+  if (list.length === 0) {
+    return res.json({
+      response: { status: 'error', message: 'No data found' }
+    });
+  }
+
+  return res.json({
+    response: { status: 'success', result: list }
+  });
 };
