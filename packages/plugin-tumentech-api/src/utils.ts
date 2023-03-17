@@ -278,7 +278,9 @@ export const getPath = async (apiKey: string, places: IPlaceDocument[]) => {
 };
 
 export const getTransportData = async (req, res, subdomain) => {
-  const { unixtimestamp, offset = 1, pagesize = 20 } = req.query;
+  const { json } = req.body;
+
+  const { unixtimestamp, offset = 1, pagesize = 20 } = JSON.parse(json);
 
   const models = await generateModels(subdomain);
 
