@@ -1,5 +1,4 @@
-import { getEnv, withProps } from '@erxes/ui/src/utils/core';
-import queryString from 'query-string';
+import { withProps } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
@@ -15,7 +14,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { generateParams } from '../../utils';
 import { dateFormat } from '../../constants';
 import dayjs from 'dayjs';
-import { Alert } from '@erxes/ui/src/utils';
+import { Alert, confirm } from '@erxes/ui/src/utils';
 
 type Props = {
   history: any;
@@ -38,7 +37,8 @@ const ListContainer = (props: FinalProps) => {
   const {
     listTimelogsQuery,
     queryParams,
-    extractTimeLogsFromMsSQLMutation
+    extractTimeLogsFromMsSQLMutation,
+    createTimeClockFromLogMutation
   } = props;
 
   const { branchId, deptId } = queryParams;
@@ -69,9 +69,22 @@ const ListContainer = (props: FinalProps) => {
       });
   };
 
+  const createTimeclockFromLog = (userId: string, timelog: Date) => {
+    confirm('Are you sure to create timeclock from the log?').then(() =>
+      createTimeClockFromLogMutation({
+        variables: { userId, timelog }
+      })
+        .then(() => Alert.success('Successfully created Timeclock'))
+        .catch(e => {
+          Alert.error(e.message);
+        })
+    );
+  };
+
   const updatedProps = {
     ...props,
     extractTimeLogsFromMsSQL,
+    createTimeclockFromLog,
     timelogs: list,
     totalCount,
     branchId,
@@ -83,7 +96,7 @@ const ListContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, ReportsQueryResponse>(gql(queries.listTimelogsMain), {
+    graphql<Props, ReportsQueryResponse>(gql(queries.timelogsMain), {
       name: 'listTimelogsQuery',
       options: ({ queryParams, reportType }) => ({
         variables: {
@@ -98,6 +111,13 @@ export default withProps<Props>(
       gql(mutations.extractTimeLogsFromMsSql),
       {
         name: 'extractTimeLogsFromMsSQLMutation'
+      }
+    ),
+
+    graphql<Props, ReportsQueryResponse>(
+      gql(mutations.createTimeClockFromLog),
+      {
+        name: 'createTimeClockFromLogMutation'
       }
     )
   )(ListContainer)

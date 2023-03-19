@@ -148,6 +148,7 @@ const generateQueryParams = queryParams => {
     parentId: queryParams?.parentId,
     searchValue: queryParams?.searchValue,
     type: queryParams?.type,
+    irregular: Boolean(queryParams?.irregular),
     ...generatePaginationParams(queryParams || {})
   };
 };

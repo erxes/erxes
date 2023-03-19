@@ -18,6 +18,7 @@ on:
       - "packages/ui-segments/**"
       - "packages/ui-settings/**"
       - "packages/ui-team/**"
+      - "packages/ui-tags/**"
       - "packages/ui-contacts/**"
       - "packages/plugin-contacts-ui/**"
       - ".github/workflows/plugin-contacts-ui.yaml"
@@ -38,6 +39,7 @@ on:
       - "packages/ui-segments/**"
       - "packages/ui-settings/**"
       - "packages/ui-team/**"
+      - "packages/ui-tags/**"
       - "packages/ui-contacts/**"
       - "packages/plugin-contacts-ui/**"
       - ".github/workflows/plugin-contacts-ui.yaml"
@@ -47,12 +49,12 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      - name: Use Node.js 14.18.x
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 14.20.x
         uses: actions/setup-node@v1
         with:
-          node-version: 14.18.x
-
-      - uses: actions/checkout@v2
+          node-version: 14.20.x
 
       - name: Build
         run: |

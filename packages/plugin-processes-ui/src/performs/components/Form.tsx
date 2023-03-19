@@ -66,7 +66,6 @@ type State = {
   inProducts: IProductsData[];
   outProducts: IProductsData[];
   categoryId: string;
-  btnDisabled: boolean;
 };
 
 class Form extends React.Component<Props, State> {
@@ -150,13 +149,8 @@ class Form extends React.Component<Props, State> {
       resultProducts,
       inProducts,
       outProducts,
-      categoryId: '',
-      btnDisabled: true
+      categoryId: ''
     };
-  }
-
-  componentDidMount() {
-    this.setState({ btnDisabled: !this.checkValidation() });
   }
 
   generateDoc = (values: {
@@ -228,17 +222,21 @@ class Form extends React.Component<Props, State> {
 
     if (
       overallWorkDet.type === 'income' &&
-      (!overallWorkDet.outBranchId ||
-        !overallWorkDet.outDepartmentId ||
-        !outProducts.length)
+      !(
+        overallWorkDet.key.outBranchId &&
+        overallWorkDet.key.outDepartmentId &&
+        outProducts.length
+      )
     ) {
       return false;
     }
     if (
       overallWorkDet.type === 'outlet' &&
-      (!overallWorkDet.inBranchId ||
-        !overallWorkDet.inDepartmentId ||
-        !inProducts.length)
+      !(
+        overallWorkDet.key.inBranchId &&
+        overallWorkDet.inDepartmentId &&
+        inProducts.length
+      )
     ) {
       return false;
     }
@@ -247,10 +245,12 @@ class Form extends React.Component<Props, State> {
     }
     if (
       ['job', 'end', 'move'].includes(overallWorkDet.type) &&
-      (!overallWorkDet.inBranchId ||
-        !overallWorkDet.inDepartmentId ||
-        !overallWorkDet.outBranchId ||
-        !overallWorkDet.outDepartmentId)
+      !(
+        overallWorkDet.key.inBranchId &&
+        overallWorkDet.key.inDepartmentId &&
+        overallWorkDet.key.outBranchId &&
+        overallWorkDet.key.outDepartmentId
+      )
     ) {
       return false;
     }
@@ -267,7 +267,7 @@ class Form extends React.Component<Props, State> {
   };
 
   setStateWrapper = state => {
-    this.setState({ ...state, btnDisabled: !this.checkValidation() });
+    this.setState({ ...state });
   };
 
   renderViewInfo = (name: string, variable: number, uom: string) => {
@@ -862,7 +862,7 @@ class Form extends React.Component<Props, State> {
 
   renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton, max, perform } = this.props;
-    const { overallWorkDet, btnDisabled } = this.state;
+    const { overallWorkDet } = this.state;
     const { values, isSubmitted } = formProps;
     const { count, startAt, endAt, description, appendix } = this.state;
 
@@ -1025,7 +1025,7 @@ class Form extends React.Component<Props, State> {
             isSubmitted,
             // callback: closeModal,
             object: perform,
-            disabled: btnDisabled
+            disabled: !this.checkValidation()
           })}
         </ModalFooter>
       </>

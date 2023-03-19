@@ -90,18 +90,18 @@ class Row extends React.Component<Props> {
         <td>{item?.department?.title || '-'}</td>
         <td>{item?.operation?.name || '-'}</td>
         <td>
-          <Badge color={item.statusColor}>{__(item.status)}</Badge>
+          <Badge color={item?.statusColor || ''}>{__(item.status)}</Badge>
         </td>
         <td>
-          {item.status !== 'In Progress'
-            ? __(item.resultScore?.toString() || '')
+          {item?.status !== 'In Progress'
+            ? __(item?.resultScore?.toString() || '')
             : '-'}
         </td>
         <td>
-          {item?.createdAt ? moment(item.createdAt).format('ll HH:mm') : '-'}
+          {item?.createdAt ? moment(item?.createdAt).format('ll HH:mm') : '-'}
         </td>
         <td>
-          {item?.closedAt ? moment(item.closedAt).format('ll HH:mm') : '-'}
+          {item?.closedAt ? moment(item?.closedAt).format('ll HH:mm') : '-'}
         </td>
         <td>{renderFormSubmitHistory(item)}</td>
       </tr>

@@ -10,6 +10,7 @@ import Tip from '@erxes/ui/src/components/Tip';
 import { returnDeviceTypes } from '../../utils';
 import Icon from '@erxes/ui/src/components/Icon';
 import TimelogForm from '../../containers/timeclock/TimelogForm';
+import { TextAlignCenter } from '../../styles';
 
 type Props = {
   history?: any;
@@ -116,21 +117,23 @@ class Row extends React.Component<Props> {
         </td>
         <td>{this.shiftBtnTrigger(timeclock.shiftActive)}</td>
         <td>
-          <ModalTrigger
-            size="lg"
-            title="Edit Shift"
-            trigger={this.editShiftTimeTrigger()}
-            content={contentProps =>
-              this.editShiftTimeContent(contentProps, timeclock)
-            }
-          />
-          <Tip text={__('Delete')} placement="top">
-            <Button
-              btnStyle="link"
-              onClick={() => removeTimeclock(timeclock._id)}
-              icon="times-circle"
+          <TextAlignCenter>
+            <ModalTrigger
+              size="lg"
+              title="Edit Shift"
+              trigger={this.editShiftTimeTrigger()}
+              content={contentProps =>
+                this.editShiftTimeContent(contentProps, timeclock)
+              }
             />
-          </Tip>
+            <Tip text={__('Delete')} placement="top">
+              <Button
+                btnStyle="link"
+                onClick={() => removeTimeclock(timeclock._id)}
+                icon="times-circle"
+              />
+            </Tip>
+          </TextAlignCenter>
         </td>
       </tr>
     );

@@ -20,13 +20,16 @@ import {
   IDeviceConfigModel,
   loadDeviceConfigClass,
   ITimeLogModel,
-  loadTimeLogClass
+  loadTimeLogClass,
+  IReportCheckModel,
+  loadReportCheckClass
 } from './models/Timeclock';
 import {
   IAbsenceDocument,
   IAbsenceTypeDocument,
   IDeviceConfigDocument,
   IPayDateDocument,
+  IReportCheckDocument,
   IScheduleConfigDocument,
   IScheduleDocument,
   IShiftDocument,
@@ -44,6 +47,7 @@ export interface IModels {
   PayDates: IPayDateModel;
   ScheduleConfigs: IScheduleConfigModel;
   DeviceConfigs: IDeviceConfigModel;
+  ReportChecks: IReportCheckModel;
 }
 
 export interface IContext extends IMainContext {
@@ -99,6 +103,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.TimeLogs = db.model<ITimeLogDocument, ITimeLogModel>(
     'timeclock_time_log',
     loadTimeLogClass(models)
+  );
+
+  models.ReportChecks = db.model<IReportCheckDocument, IReportCheckModel>(
+    'timeclock_report_check',
+    loadReportCheckClass(models)
   );
 
   return models;

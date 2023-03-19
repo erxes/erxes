@@ -49,12 +49,11 @@ export default {
         _id: { $in: indicatorIds }
       });
     }
+    const indicator = await models.RiskIndicators.findOne({
+      _id: { $in: riskAssessment.indicatorId || [] }
+    });
 
-    return [
-      await models.RiskIndicators.findOne({
-        _id: { $in: riskAssessment.indicatorId || [] }
-      })
-    ];
+    return indicator ? [indicator] : null;
   },
 
   async indicator(riskAssessment, {}, { models }: IContext) {

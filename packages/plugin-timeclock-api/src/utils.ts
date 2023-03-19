@@ -557,6 +557,102 @@ const getShiftStartAndEndIdx = (
   return [getShiftStartIdx, getShiftEndIdx];
 };
 
+const checkTimeClockAlreadyExists = (
+  userData: ITimeClock,
+  existingTimeclocks: ITimeClockDocument[]
+) => {
+  let alreadyExists = false;
+
+  // find duplicates and not include them in new timeclock data
+  const findExistingTimeclock = existingTimeclocks.find(
+    existingShift =>
+      existingShift.shiftStart.getTime() === userData.shiftStart?.getTime() ||
+      existingShift.shiftEnd?.getTime() === userData.shiftEnd?.getTime()
+  );
+
+  if (findExistingTimeclock) {
+    alreadyExists = true;
+  }
+
+  return alreadyExists;
+};
+
+const findAndUpdateUnfinishedShifts = async (
+  models: IModels,
+  teamMemberIds: string[],
+  teamMembersObj: any,
+  empData: any,
+  empSchedulesObj: any,
+  devicesDictionary: any
+) => {
+  const newEmpData = empData.slice();
+
+  // find unfinished shifts
+  const unfinishedShifts = await models?.Timeclocks.find({
+    shiftActive: true,
+    userId: { $in: teamMemberIds }
+  });
+
+  unfinishedShifts.forEach(async unfinishedShift => {
+    let getShiftEndIdx;
+    const teamMemberId = unfinishedShift.userId || '';
+    const empId = parseInt(teamMembersObj[teamMemberId || ''], 10);
+
+    const shiftStart = unfinishedShift.shiftStart;
+    const getShiftStart = dayjs(shiftStart);
+
+    const getScheduledDay = getShiftStart.format(dateFormat);
+
+    // if there's no schedule config for that shift
+    if (
+      !(teamMemberId in empSchedulesObj) ||
+      !(getScheduledDay in empSchedulesObj[teamMemberId])
+    ) {
+      return;
+    }
+
+    const [getShiftStartIdx, getShiftEndReverseIdx] = getShiftStartAndEndIdx(
+      empSchedulesObj[teamMemberId][getScheduledDay],
+      getScheduledDay,
+      newEmpData,
+      empId,
+      shiftStart
+    );
+
+    // if shift end is found
+    if (getShiftEndReverseIdx !== -1) {
+      getShiftEndIdx = newEmpData.length - 1 - getShiftEndReverseIdx;
+
+      const getShiftEnd = dayjs(
+        newEmpData[getShiftEndIdx].authDateTime
+      ).toDate();
+
+      const getDeviceName =
+        devicesDictionary[newEmpData[getShiftEndIdx].deviceSerialNo] ||
+        newEmpData[getShiftEndIdx].deviceName;
+
+      const updateTimeClock = {
+        shiftStart: unfinishedShift.shiftStart,
+        shiftEnd: getShiftEnd,
+        userId: teamMemberId,
+        shiftActive: false,
+        deviceName: getDeviceName,
+        deviceType: unfinishedShift.deviceType + ' x faceTerminal'
+      };
+
+      await models.Timeclocks.updateTimeClock(
+        unfinishedShift._id,
+        updateTimeClock
+      );
+
+      const deleteCount = getShiftEndIdx - getShiftStartIdx + 1;
+      await newEmpData.splice(getShiftStartIdx, deleteCount);
+    }
+  });
+
+  return newEmpData;
+};
+
 const createScheduleObjOfMembers = async (
   models: IModels,
   teamMemberIds: string[],
@@ -714,100 +810,25 @@ const createScheduleObjOfMembers = async (
   return totalEmployeesSchedulesObject;
 };
 
-const findAndUpdateUnfinishedShifts = async (
-  models: IModels,
-  teamMemberIds: string[],
-  teamMembersObj: any,
-  empData: any,
-  empSchedulesObj: any,
-  devicesDictionary: any
-) => {
-  const newEmpData = empData.slice();
+const createTeamMembersObject = async (subdomain: string) => {
+  const teamMembersWithEmpId = await findAllTeamMembersWithEmpId(subdomain);
 
-  // find unfinished shifts
-  const unfinishedShifts = await models?.Timeclocks.find({
-    shiftActive: true,
-    userId: { $in: teamMemberIds }
-  });
+  const teamMembersObject = {};
 
-  unfinishedShifts.forEach(async unfinishedShift => {
-    let getShiftEndIdx;
-    const teamMemberId = unfinishedShift.userId || '';
-    const empId = parseInt(teamMembersObj[teamMemberId || ''], 10);
-
-    const shiftStart = unfinishedShift.shiftStart;
-    const getShiftStart = dayjs(shiftStart);
-
-    const getScheduledDay = getShiftStart.format(dateFormat);
-
-    // if there's no schedule config for that shift
-    if (
-      !(teamMemberId in empSchedulesObj) ||
-      !(getScheduledDay in empSchedulesObj[teamMemberId])
-    ) {
-      return;
+  for (const teamMember of teamMembersWithEmpId) {
+    if (!teamMember.employeeId) {
+      continue;
     }
 
-    const [getShiftStartIdx, getShiftEndReverseIdx] = getShiftStartAndEndIdx(
-      empSchedulesObj[teamMemberId][getScheduledDay],
-      getScheduledDay,
-      newEmpData,
-      empId,
-      shiftStart
-    );
-
-    // if shift end is found
-    if (getShiftEndReverseIdx !== -1) {
-      getShiftEndIdx = newEmpData.length - 1 - getShiftEndReverseIdx;
-
-      const getShiftEnd = dayjs(
-        newEmpData[getShiftEndIdx].authDateTime
-      ).toDate();
-
-      const getDeviceName =
-        devicesDictionary[newEmpData[getShiftEndIdx].deviceSerialNo] ||
-        newEmpData[getShiftEndIdx].deviceName;
-
-      const updateTimeClock = {
-        shiftStart: unfinishedShift.shiftStart,
-        shiftEnd: getShiftEnd,
-        userId: teamMemberId,
-        shiftActive: false,
-        deviceName: getDeviceName,
-        deviceType: unfinishedShift.deviceType + ' x faceTerminal'
-      };
-
-      await models.Timeclocks.updateTimeClock(
-        unfinishedShift._id,
-        updateTimeClock
-      );
-
-      const deleteCount = getShiftEndIdx - getShiftStartIdx + 1;
-      await newEmpData.splice(getShiftStartIdx, deleteCount);
-    }
-  });
-
-  return newEmpData;
-};
-
-const checkTimeClockAlreadyExists = (
-  userData: ITimeClock,
-  existingTimeclocks: ITimeClockDocument[]
-) => {
-  let alreadyExists = false;
-
-  // find duplicates and not include them in new timeclock data
-  const findExistingTimeclock = existingTimeclocks.find(
-    existingShift =>
-      existingShift.shiftStart.getTime() === userData.shiftStart?.getTime() ||
-      existingShift.shiftEnd?.getTime() === userData.shiftEnd?.getTime()
-  );
-
-  if (findExistingTimeclock) {
-    alreadyExists = true;
+    teamMembersObject[teamMember._id] = {
+      employeeId: teamMember.employeeId,
+      lastName: teamMember.details.lastName,
+      firstName: teamMember.details.firstName,
+      position: teamMember.details.position
+    };
   }
 
-  return alreadyExists;
+  return teamMembersObject;
 };
 
 const generateFilter = async (params: any, subdomain: string, type: string) => {
@@ -824,43 +845,56 @@ const generateFilter = async (params: any, subdomain: string, type: string) => {
     departmentIds
   );
 
-  let returnFilter = {};
-  let dateGiven: boolean = false;
+  const models = await generateModels(subdomain);
+
+  const scheduleShiftSelector = {
+    shiftStart: {
+      $gte: fixDate(startDate),
+      $lte: customFixDate(endDate)
+    },
+    shiftEnd: {
+      $gte: fixDate(startDate),
+      $lte: customFixDate(endDate)
+    }
+  };
+
+  // check non empty schedule shifts for schedulesMainQuery
+  const scheduleShifts = await models.Shifts.find(scheduleShiftSelector);
+
+  const scheduleIds = new Set(
+    scheduleShifts.map(scheduleShift => scheduleShift.scheduleId)
+  );
+
+  let returnFilter: any = { _id: { $in: [...scheduleIds] } };
+  let userIdsGiven: boolean = false;
+  let commonUserFound: boolean = true;
 
   const timeFields = returnTimeFieldsFilter(type, params);
 
-  if (startDate || endDate) {
-    dateGiven = true;
+  if (branchIds || departmentIds || userIds) {
+    userIdsGiven = true;
   }
 
   if (totalUserIds.length > 0) {
-    if (dateGiven) {
-      returnFilter =
-        type === 'schedule'
-          ? { userId: { $in: [...totalUserIds] } }
-          : {
-              $and: [
-                { $or: timeFields },
-                { userId: { $in: [...totalUserIds] } }
-              ]
-            };
+    if (type === 'schedule') {
+      returnFilter = { ...returnFilter, userId: { $in: [...totalUserIds] } };
     } else {
-      returnFilter = { userId: { $in: [...totalUserIds] } };
+      returnFilter = {
+        $and: [{ $or: timeFields }, { userId: { $in: [...totalUserIds] } }]
+      };
     }
   }
 
-  if (
-    !departmentIds &&
-    !branchIds &&
-    !userIds &&
-    dateGiven &&
-    type !== 'schedule'
-  ) {
+  if (!userIdsGiven && type !== 'schedule') {
     returnFilter = { $or: timeFields };
   }
 
-  // if no param is given, return empty filter
-  return returnFilter;
+  // user Ids given but no related data was found
+  if (userIdsGiven && !totalUserIds.length) {
+    commonUserFound = false;
+  }
+
+  return [returnFilter, commonUserFound];
 };
 
 const returnTimeFieldsFilter = (type: string, queryParams: any) => {
@@ -954,69 +988,61 @@ const generateCommonUserIds = async (
   departmentIds?: string[]
 ) => {
   const totalUserIds: string[] = [];
-  let commonUser: boolean = false;
 
-  if (branchIds) {
-    const branchUsers = await findBranchUsers(subdomain, branchIds);
-    const branchUserIds = branchUsers.map(branchUser => branchUser._id);
+  const branchUsers =
+    branchIds && (await findBranchUsers(subdomain, branchIds));
 
-    if (userIds) {
-      commonUser = true;
-      for (const userId of userIds) {
-        if (branchUserIds.includes(userId)) {
-          totalUserIds.push(userId);
-        }
-      }
-    } else {
-      totalUserIds.push(...branchUserIds);
-    }
-  }
+  const departmentUsers =
+    departmentIds && (await findDepartmentUsers(subdomain, departmentIds));
 
-  if (departmentIds) {
-    const departmentUsers = await findDepartmentUsers(subdomain, departmentIds);
+  const branchUserIds =
+    branchUsers && branchUsers.map(branchUser => branchUser._id);
 
-    const departmentUserIds = departmentUsers.map(
-      departmentUser => departmentUser._id
+  const departmentUserIds =
+    departmentUsers &&
+    departmentUsers.map(departmentUser => departmentUser._id);
+
+  // if both branch and department are given find common users between them
+  if (branchIds && departmentIds) {
+    const intersectionOfUserIds = branchUserIds.filter(branchUserId =>
+      departmentUserIds.includes(branchUserId)
     );
 
-    if (userIds) {
-      commonUser = true;
-      for (const userId of userIds) {
-        if (departmentUserIds.includes(userId)) {
-          totalUserIds.push(userId);
-        }
+    return intersectionOfUserIds;
+  }
+
+  // if no branch/department was given return userIds
+  if (userIds && !branchUserIds && !departmentUserIds) {
+    return userIds;
+  }
+
+  // if both branch, userIds were given
+  if (branchUserIds) {
+    if (!userIds) {
+      return branchUserIds;
+    }
+
+    for (const userId of userIds) {
+      if (branchUserIds.includes(userId)) {
+        totalUserIds.push(userId);
       }
-    } else {
-      totalUserIds.push(...departmentUserIds);
     }
   }
 
-  if (!commonUser && userIds) {
-    totalUserIds.push(...userIds);
+  // if both department, userIds were given
+  if (departmentUserIds) {
+    if (!userIds) {
+      return departmentUserIds;
+    }
+
+    for (const userId of userIds) {
+      if (departmentUserIds.includes(userId)) {
+        totalUserIds.push(userId);
+      }
+    }
   }
 
   return totalUserIds;
-};
-
-const createTeamMembersObject = async (subdomain: string) => {
-  const teamMembersWithEmpId = await findAllTeamMembersWithEmpId(subdomain);
-
-  const teamMembersObject = {};
-
-  for (const teamMember of teamMembersWithEmpId) {
-    if (!teamMember.employeeId) {
-      continue;
-    }
-
-    teamMembersObject[teamMember._id] = {
-      employeeId: teamMember.employeeId,
-      lastName: teamMember.details.lastName,
-      firstName: teamMember.details.firstName,
-      position: teamMember.details.position
-    };
-  }
-
-  return teamMembersObject;
 };
 
 export {

@@ -86,7 +86,7 @@ export default withProps<Props>(
           longitude: `${longitude}`,
           latitude: `${latitude}`
         },
-        refetchQueries: ['listTimeclocksQuery']
+        refetchQueries: ['timeclocksMain']
       })
     }),
 
@@ -99,7 +99,7 @@ export default withProps<Props>(
           longitude: `${longitude}`,
           latitude: `${latitude}`
         },
-        refetchQueries: ['listTimeclocksQuery']
+        refetchQueries: ['timeclocksMain']
       })
     })
   )(ListContainer)

@@ -1,5 +1,9 @@
 import React from 'react';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import {
+  IButtonMutateProps,
+  IFormProps,
+  IAttachment
+} from '@erxes/ui/src/types';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
@@ -9,6 +13,7 @@ import Button from '@erxes/ui/src/components/Button';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IQuestion, IChoice } from '../../types';
+import { readFile } from '@erxes/ui/src/utils';
 
 type Props = {
   question?: IQuestion;
@@ -29,7 +34,20 @@ const QuizQuestionForm: React.FC<Props> = ({
   choice,
   questionId
 }) => {
-  const [image, setImage] = React.useState({ url: question?.imageUrl } as any);
+  const defaultFile = question
+    ? {
+        url: question.imageUrl,
+        name: 'Question image',
+        type: 'image'
+      }
+    : choice
+    ? {
+        url: choice.imageUrl,
+        name: 'Choice image',
+        type: 'image'
+      }
+    : ({} as IAttachment);
+  const [image, setImage] = React.useState(defaultFile);
   const [isMultipleChoice, setIsMultipleChoice] = React.useState(
     question?.isMultipleChoice || false
   );
@@ -54,7 +72,7 @@ const QuizQuestionForm: React.FC<Props> = ({
     return {
       _id: finalValues._id,
       text: finalValues.text,
-      imageUrl: image.url,
+      imageUrl: readFile(image.url) || '',
       isMultipleChoice,
       listOrder: parseInt(finalValues.listOrder, 10),
       quizId,
@@ -63,9 +81,12 @@ const QuizQuestionForm: React.FC<Props> = ({
     };
   };
 
-  const onChangeAttachment = attachment => {
-    setImage({ attachment });
-  };
+  const onChangeAttachment = attachment =>
+    setImage(
+      attachment && attachment.length !== 0
+        ? attachment[0]
+        : ({} as IAttachment)
+    );
 
   const checkboxOptions = props => {
     if (type === 'choice') {
@@ -112,6 +133,8 @@ const QuizQuestionForm: React.FC<Props> = ({
       object = choice || ({} as IChoice);
     }
 
+    const images = Object.keys(image).length === 0 ? [] : [image];
+
     return (
       <>
         <FormGroup>
@@ -126,11 +149,9 @@ const QuizQuestionForm: React.FC<Props> = ({
         <FormGroup>
           <ControlLabel>Image</ControlLabel>
           <Uploader
-            defaultFileList={[]}
+            defaultFileList={images}
             onChange={onChangeAttachment}
             single={true}
-            text="Upload an image"
-            icon="upload-6"
           />
         </FormGroup>
 

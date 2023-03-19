@@ -21,6 +21,7 @@ type Props = {
   remove?: (id: string, emptyBulk: () => void) => void;
   refetch?: () => void;
   history?: any;
+  totalCount: any;
   emptyBulk: () => void;
   bulk: any[];
   isAllSelected: boolean;
@@ -51,6 +52,7 @@ class List extends React.Component<Props> {
   render() {
     const {
       loading,
+      totalCount,
       quizzes,
       isAllSelected,
       bulk,
@@ -143,7 +145,7 @@ class List extends React.Component<Props> {
       <Wrapper
         header={<Wrapper.Header title={__('Quiz')} submenu={submenu} />}
         actionBar={actionBar}
-        footer={<Pagination count={quizzes.length} />}
+        footer={<Pagination count={totalCount} />}
         content={
           <DataWithLoader
             data={content}

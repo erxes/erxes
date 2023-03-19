@@ -23,8 +23,8 @@ const configQueries = {
     return models.Configs.find();
   },
 
-  poscSlots(_root, _args, { models }: IContext) {
-    return models.PosSlots.find().lean();
+  poscSlots(_root, _args, { models, config }: IContext) {
+    return models.PosSlots.find({ posId: config.posId }).lean();
   },
 
   async getBranches(_root, _param, { subdomain, config }: IContext) {

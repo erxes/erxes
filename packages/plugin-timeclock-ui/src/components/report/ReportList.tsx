@@ -74,9 +74,10 @@ function ReportList(props: Props) {
               <th colSpan={6} style={{ textAlign: 'center' }}>
                 {__('Timeclock info')}
               </th>
-              <th colSpan={3} style={{ textAlign: 'center' }}>
+              <th colSpan={4} style={{ textAlign: 'center' }}>
                 {__('Absence info')}
               </th>
+              <th rowSpan={2}>{__('Checked by member')}</th>
             </tr>
             <tr>
               <td>{__('Days')}</td>
@@ -87,9 +88,42 @@ function ReportList(props: Props) {
               <td>{__('Overnight')}</td>
               <td>{__('Total')}</td>
               <td>{__('Mins Late')}</td>
-              <td>{__('-')}</td>
-              <td>{__('-')}</td>
-              <td>{__('-')}</td>
+              <td>{__('Томилолтоор ажилласан цаг')}</td>
+              <td>{__('Чөлөөтэй цаг цалинтай')}</td>
+              <td>{__('Чөлөөтэй цаг цалингүй')}</td>
+              <td>{__('Өвдсөн цаг /ХЧТАТ бодох цаг/')}</td>
+            </tr>
+          </>
+        );
+      case 'Сүүлд 2':
+        return (
+          <>
+            <tr>
+              <th rowSpan={2}>{__('Branch name')}</th>
+              <th rowSpan={2}>{__('Department name')}</th>
+              <th rowSpan={2}>{__('Number of employees')}</th>
+              <th rowSpan={2}>{__('Planned hours')}</th>
+
+              <th colSpan={4} style={{ textAlign: 'center' }}>
+                {__('Timeclock info')}
+              </th>
+
+              <th rowSpan={2}>{__('Total worked')}</th>
+              <th rowSpan={2}>{__('Overnight')}</th>
+              <th rowSpan={2}>{__('Late mins')}</th>
+
+              <th colSpan={2} style={{ textAlign: 'center' }}>
+                {__('Absence info')}
+              </th>
+            </tr>
+            <tr>
+              <td rowSpan={2}>{__('Worked hours')}</td>
+              <td rowSpan={2}>{__('Face terminal')}</td>
+              <td rowSpan={2}>{__('Shift request')}</td>
+              <td rowSpan={2}>{__('Overtime')}</td>
+
+              <td rowSpan={2}>{__('Paid absence')}</td>
+              <td rowSpan={2}>{__('Unpaid absence')}</td>
             </tr>
           </>
         );
@@ -190,7 +224,7 @@ function ReportList(props: Props) {
               onChange={onTypeSelect}
               placeholder="Select type"
               multi={false}
-              options={['Урьдчилсан', 'Сүүлд', 'Pivot'].map(ipt => ({
+              options={['Урьдчилсан', 'Сүүлд', 'Сүүлд 2', 'Pivot'].map(ipt => ({
                 value: ipt,
                 label: __(ipt)
               }))}

@@ -90,7 +90,7 @@ const ListContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, TimeClockQueryResponse>(gql(queries.listTimeclocksMain), {
+    graphql<Props, TimeClockQueryResponse>(gql(queries.timeclocksMain), {
       name: 'timeclocksMainQuery',
       options: ({ queryParams }) => ({
         variables: generateParams(queryParams),
@@ -109,7 +109,7 @@ export default withProps<Props>(
         variables: {
           _id: timeclockId
         },
-        refetchQueries: ['listTimeclocksQuery']
+        refetchQueries: ['timeclocksMain']
       })
     })
   )(ListContainer)
