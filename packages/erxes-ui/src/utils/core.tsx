@@ -24,8 +24,12 @@ export const loadComponent = (scope, module) => {
 
     const container = window[scope]; // or get the container somewhere else
 
-    // Initialize the container, it may provide shared modules
-    await container.init(__webpack_share_scopes__.default);
+    try {
+      // Initialize the container, it may provide shared modules
+      await container.init(__webpack_share_scopes__.default);
+    } catch (e) {
+      // already was initialized
+    }
 
     const factory = await window[scope].get(module);
 
@@ -574,6 +578,11 @@ export const bustIframe = () => {
   } else {
     window.top.location = window.self.location;
   }
+};
+
+export const getSubdomain = () => {
+  const env = (window as any).erxesEnv || {};
+  return env.subdomain || 'localhost';
 };
 
 // get env config from process.env or window.env

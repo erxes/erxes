@@ -96,13 +96,16 @@ const useDynamicScript = args => {
   const [failed, setFailed] = React.useState(false);
 
   React.useEffect(() => {
-    if (!args.url) {
+    const id = `dynamic-script-${args.scope}`;
+
+    if (!args.url || document.getElementById(id)) {
       return;
     }
 
     const element = document.createElement('script');
 
     element.src = args.url;
+    element.id = id;
     element.type = 'text/javascript';
     element.async = true;
 
@@ -140,8 +143,14 @@ export const loadComponent = (scope, module) => {
     await __webpack_init_sharing__('default');
 
     const container = window[scope]; // or get the container somewhere else
-    // Initialize the container, it may provide shared modules
-    await container.init(__webpack_share_scopes__.default);
+
+    try {
+      // Initialize the container, it may provide shared modules
+      await container.init(__webpack_share_scopes__.default);
+    } catch (e) {
+      // already was initialized
+    }
+
     const factory = await window[scope].get(module);
 
     const Module = factory();
@@ -183,7 +192,8 @@ const renderPluginSidebar = (itemName: string, type: string, object: any) => {
 const System = props => {
   if (props.loadScript) {
     const { ready, failed } = useDynamicScript({
-      url: props.system && props.system.url
+      url: props.system && props.system.url,
+      scope: props.system.scope
     });
 
     if (!props.system || !ready || failed) {
