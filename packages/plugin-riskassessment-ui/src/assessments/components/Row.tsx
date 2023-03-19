@@ -1,11 +1,12 @@
 import {
   Button,
-  Tip,
+  ControlLabel,
+  FormControl,
   Icon,
-  ModalTrigger,
-  __,
   Label,
-  ControlLabel
+  ModalTrigger,
+  Tip,
+  __
 } from '@erxes/ui/src';
 import moment from 'moment';
 import React from 'react';
@@ -15,6 +16,8 @@ import Detail from '../containers/Detail';
 
 type Props = {
   item: any;
+  selecteAssessmentIds: string[];
+  handleSelect: (id: string) => void;
 };
 
 class Row extends React.Component<Props> {
@@ -26,10 +29,12 @@ class Row extends React.Component<Props> {
     return (
       <DetailPopOver title={title} icon="downarrow-2" withoutPopoverTitle>
         <FormContainer column>
-          <ControlLabel>{`Group Name: ${group?.name || ''}`}</ControlLabel>
+          {group && (
+            <ControlLabel>{`Group Name: ${group?.name || ''}`}</ControlLabel>
+          )}
           <FormContainer gapBetween={5}>
             {(contents || []).map(item => (
-              <Label key={item._id}>{__(item['name'])}</Label>
+              <Label key={item?._id}>{__(item?.name)}</Label>
             ))}
           </FormContainer>
         </FormContainer>
@@ -38,7 +43,7 @@ class Row extends React.Component<Props> {
   }
 
   render() {
-    const { item } = this.props;
+    const { item, selecteAssessmentIds, handleSelect } = this.props;
 
     const renderFormSubmitHistory = item => {
       const content = () => {
@@ -63,8 +68,19 @@ class Row extends React.Component<Props> {
       );
     };
 
+    const onclick = e => {
+      e.stopPropagation();
+    };
+
     return (
       <tr key={item?._id}>
+        <td onClick={onclick}>
+          <FormControl
+            componentClass="checkbox"
+            checked={selecteAssessmentIds.includes(item?._id)}
+            onChange={() => handleSelect(item?._id)}
+          />
+        </td>
         <td>{__(item?.cardType)}</td>
         <td>{__(item?.card?.name)}</td>
         <td>

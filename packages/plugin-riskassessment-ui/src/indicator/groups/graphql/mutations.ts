@@ -5,6 +5,7 @@ const commonParams = `
   $calculateMethod:String
   $calculateLogics:[ICalculateLogic]
   $groups:[IIndicatorGroups]
+  $ignoreZeros:Boolean
 `;
 
 const commonParamsDef = `
@@ -14,6 +15,7 @@ const commonParamsDef = `
   calculateMethod:$calculateMethod
   calculateLogics:$calculateLogics
   groups:$groups
+  ignoreZeros:$ignoreZeros
 `;
 
 const addGroups = `

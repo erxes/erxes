@@ -58,6 +58,10 @@ export const calculateMethods = [
   {
     value: 'Multiply',
     label: 'Multiply'
+  },
+  {
+    value: 'Average',
+    label: 'Average'
   }
 ];
 

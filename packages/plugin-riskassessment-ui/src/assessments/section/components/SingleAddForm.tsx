@@ -1,4 +1,4 @@
-import { ControlLabel, FormControl, FormGroup, __ } from '@erxes/ui/src';
+import { ControlLabel, FormGroup, Toggle, __ } from '@erxes/ui/src';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import React from 'react';
@@ -142,17 +142,12 @@ class Form extends React.Component<Props, State> {
 
     return (
       <FormContainer column gap>
-        <FormGroup>
-          <FormControl
-            name="useBulkCreate"
-            componentClass="checkbox"
-            onClick={toggleOneByOne}
-            checked={useBulkCreate}
-          />
+        <FormContainer row gap align="center">
+          <Toggle onChange={toggleOneByOne} checked={useBulkCreate} />
           <ControlLabel>
             {__('generate one-by-one assessment with selected structures')}
           </ControlLabel>
-        </FormGroup>
+        </FormContainer>
         {useBulkCreate
           ? this.renderBulkAssessment()
           : this.renderSingleAssessment()}

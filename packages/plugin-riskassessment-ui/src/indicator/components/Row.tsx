@@ -3,6 +3,7 @@ import {
   ButtonMutate,
   FormControl,
   Icon,
+  Label,
   ModalTrigger,
   Tip
 } from '@erxes/ui/src';
@@ -10,9 +11,10 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import gql from 'graphql-tag';
 import moment from 'moment';
 import React from 'react';
+import { FormContainer } from '../../styles';
 import { RiskIndicatorsType } from '../common/types';
 import { generateParams } from '../common/utils';
-import { default as Form, default as FormContainer } from '../containers/Form';
+import { default as Form } from '../containers/Form';
 import { mutations, queries } from '../graphql';
 
 type IProps = {
@@ -73,7 +75,7 @@ class TableRow extends React.Component<IProps> {
           queryParams,
           renderButton
         };
-        return <FormContainer {...updatedProps} />;
+        return <Form {...updatedProps} />;
       };
 
       return (
@@ -98,7 +100,15 @@ class TableRow extends React.Component<IProps> {
           />
         </td>
         <td>{object.name}</td>
-        <td>{object.category?.name || '-'}</td>
+        <td>
+          <FormContainer gapBetween={5} row maxItemsRow={3}>
+            {(object?.tags || []).map(tag => (
+              <Label key={tag._id} lblColor={tag.colorCode}>
+                {tag.name}
+              </Label>
+            ))}
+          </FormContainer>
+        </td>
         <Tip
           text={moment(object.createdAt).format('MM/DD/YYYY HH:mm')}
           placement="bottom"

@@ -37,10 +37,8 @@ import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
-import { queries as categoryQueries } from '../categories/graphql';
 import { tags as tagsQuery } from '../common/graphql';
 import {
-  CategoryTypes,
   RiskCalculateLogicType,
   RiskIndicatorsType
 } from '../indicator/common/types';
@@ -123,65 +121,7 @@ export const subOption = category => {
   );
 };
 
-export const SelectWithCategory = ({
-  label,
-  name,
-  queryParams,
-  initialValue,
-  multi,
-  customOption,
-  skip,
-  onSelect
-}: {
-  queryParams?: IQueryParams;
-  label: string;
-  onSelect: (value: string[] | string, name: string) => void;
-  multi?: boolean;
-  customOption?: IOption;
-  initialValue?: string | string[];
-  name: string;
-  skip?: string[];
-}) => {
-  const defaultValue = queryParams ? queryParams[name] : initialValue;
-
-  const generateCategoryOptions = (array: CategoryTypes[] = []): IOption[] => {
-    let list: any[] = [];
-    for (const item of array) {
-      const category = item || ({} as CategoryTypes);
-      const order = category.order;
-      const foundedString = order?.match(/[/]/gi);
-
-      let space = '';
-      if (foundedString) {
-        space = '\u00A0 '.repeat(foundedString.length);
-      }
-
-      list.push({ label: `${space} ${category.name}`, value: category._id });
-    }
-
-    if (skip) {
-      list = list.filter(item => item.value !== skip);
-    }
-    return list;
-  };
-
-  return (
-    <SelectWithSearch
-      label={label}
-      queryName="riskAssesmentCategories"
-      name={name}
-      initialValue={defaultValue}
-      generateOptions={generateCategoryOptions}
-      onSelect={onSelect}
-      customQuery={categoryQueries.listAssessmentCategories}
-      customOption={
-        customOption ? customOption : { value: '', label: 'Choose a Category' }
-      }
-      multi={multi}
-    />
-  );
-};
-export function SelectRiskIndicator({
+export function SelectIndicators({
   label,
   name,
   queryParams,
@@ -690,6 +630,7 @@ export function FilterByTags({
     } else {
       tagIds = [...tagIds, _id];
     }
+    removeParams(history, 'page');
     setParams(history, { tagIds });
   };
   const extraButtons = (
@@ -710,7 +651,12 @@ export function FilterByTags({
   );
 
   return (
-    <Box name="tags" title="Filter by Tags" extraButtons={extraButtons}>
+    <Box
+      name="tags"
+      title="Filter by Tags"
+      extraButtons={extraButtons}
+      collapsible
+    >
       <SidebarList>
         {generateTree(
           tags.map(tag => (!tag?.parentId ? { ...tag, parentId: null } : tag)),

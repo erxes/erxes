@@ -1,5 +1,5 @@
 import { checkPermission, paginate } from '@erxes/api-utils/src';
-import { IContext, models } from '../../../connectionResolver';
+import { IContext } from '../../../connectionResolver';
 import {
   IRiskIndicatorsField,
   PaginateField
@@ -30,6 +30,10 @@ const generateConfigFilter = params => {
 
 const generateGroupsFilter = params => {
   let filter: any = {};
+
+  if (!!params?.ids?.length) {
+    filter._id = { $in: params.ids };
+  }
 
   if (params.searchValue) {
     filter.name = { $regex: new RegExp(params.searchValue, 'i') };
@@ -87,24 +91,31 @@ const RiskIndicatorQueries = {
     return await models.IndicatorsGroups.countDocuments(filter);
   },
 
+  async riskIndicatorsGroup(_root, { _id }, { models }: IContext) {
+    if (!_id) {
+      throw new Error('Please provide _id');
+    }
+    return await models.IndicatorsGroups.findOne({ _id }).lean();
+  },
+
   /**
    * Config Queries
    */
 
-  async riskIndicatorConfigs(_root, params, { models }: IContext) {
+  async riskAssessmentsConfigs(_root, params, { models }: IContext) {
     const filter = generateConfigFilter(params);
 
     return await paginate(
-      models.RiskIndicatorConfigs.find(filter).sort({
+      models.RiskAssessmentsConfigs.find(filter).sort({
         [params.sortField]: params.sortDirection
       }),
       params
     );
   },
-  async riskIndicatorConfigsTotalCount(_root, params, { models }: IContext) {
+  async riskAssessmentsConfigsTotalCount(_root, params, { models }: IContext) {
     const filter = generateConfigFilter(params);
 
-    return await models.RiskIndicatorConfigs.find(filter).countDocuments();
+    return await models.RiskAssessmentsConfigs.find(filter).countDocuments();
   }
 };
 

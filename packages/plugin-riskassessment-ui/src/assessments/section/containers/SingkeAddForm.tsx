@@ -42,7 +42,7 @@ class Form extends React.Component<FinalProps> {
         );
       }
 
-      if (riskAssessment && (!doc.groupId || doc.indicatorId)) {
+      if (riskAssessment && !doc.groupId && !doc.indicatorId) {
         return confirm().then(() => {
           removeRiskAssessment({
             variables: { riskAssessmentId: riskAssessment._id }
@@ -68,7 +68,7 @@ class Form extends React.Component<FinalProps> {
   }
 }
 
-const refetchQueries = ({ cardId, cardType }) => [
+export const refetchQueries = ({ cardId, cardType }) => [
   {
     query: gql(queries.riskAssessment),
     variables: { cardId, cardType }

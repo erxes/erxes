@@ -9,7 +9,6 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { ICommonListProps } from '../../common/types';
 import {
-  RiskAssessmentsCategoriesQueryResponse,
   RiskIndicatorsListQueryResponse,
   RiskIndicatorsTotalCountQueryResponse
 } from '../common/types';
@@ -26,7 +25,6 @@ type FinalProps = {
   listQuery: RiskIndicatorsListQueryResponse;
   totalCountQuery: RiskIndicatorsTotalCountQueryResponse;
   removeMutation: any;
-  categories: RiskAssessmentsCategoriesQueryResponse;
 } & Props &
   ICommonListProps &
   IRouterProps &

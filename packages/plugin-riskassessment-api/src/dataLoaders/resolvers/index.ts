@@ -1,10 +1,11 @@
-import RiskIndicatorType from './riskIndicator';
-import FormSubmissionUserType from './riskFormSubmissionUsers';
-import RiskIndicatorConfigs from './riskIndicatorConfigs';
-import RiskAssessment from './riskAssessment';
 import RiskConformityFormDetailType from './formDetail';
-import IndicatorSubmissions from './IndicatorSubmissions';
 import IndicatorAssessment from './indicatorAssessment';
+import IndicatorsGroupType from './indicatorsGroup';
+import IndicatorSubmissions from './IndicatorSubmissions';
+import RiskAssessment from './riskAssessment';
+import FormSubmissionUserType from './riskFormSubmissionUsers';
+import RiskIndicatorType from './riskIndicator';
+import RiskIndicatorConfigs from './riskIndicatorConfigs';
 
 export default {
   RiskIndicatorType,
@@ -13,5 +14,6 @@ export default {
   RiskAssessment,
   RiskConformityFormDetailType,
   IndicatorSubmissions,
-  IndicatorAssessment
+  IndicatorAssessment,
+  IndicatorsGroupType
 };

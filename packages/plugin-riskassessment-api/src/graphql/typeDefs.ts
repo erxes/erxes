@@ -1,19 +1,14 @@
 import { gql } from 'apollo-server-express';
 
 import {
-  types as formSubmissionsType,
-  mutations as formSubmissionsMutations
+  mutations as formSubmissionsMutations,
+  types as formSubmissionsType
 } from './schema/formSubmissions';
 import {
-  mutations as RiskAssessmentMutations,
-  queries as RiskAssessmentQueries,
-  types as RiskAssessmentTypes
+  mutations as RiskIndicatorsMutations,
+  queries as RiskIndicatorsQueries,
+  types as RiskIndicatorsTypes
 } from './schema/riskIndicator';
-import {
-  mutations as RiskAssessmentCategoryMutations,
-  queries as RiskAssessmentCategoryQueries,
-  types as RiskAssessmentCategoryTypes
-} from './schema/category';
 
 import {
   mutations as OpearionMutations,
@@ -27,6 +22,7 @@ import {
 } from './schema/riskAssessment';
 
 const typeDefs = async _serviceDiscovery => {
+  const tagsAvailable = await _serviceDiscovery.isEnabled('tags');
   return gql`
     scalar JSON
     scalar Date
@@ -44,22 +40,29 @@ const typeDefs = async _serviceDiscovery => {
           _id: String! @external
     }
 
-    ${RiskAssessmentTypes}
-    ${RiskAssessmentCategoryTypes}
+    ${
+      tagsAvailable
+        ? `
+        extend type Tag @key(fields: "_id") {
+          _id: String! @external
+        }
+        `
+        : ''
+    }
+
+    ${RiskIndicatorsTypes(tagsAvailable)}
     ${OpearionTypes}
     ${RiskAsessmentTypes}
     ${formSubmissionsType}
     
     extend type Query {
-      ${RiskAssessmentQueries}
-      ${RiskAssessmentCategoryQueries}
+      ${RiskIndicatorsQueries}
       ${OpearionQueries}
       ${RiskAsessmentQueries}
     }
     
     extend type Mutation {
-      ${RiskAssessmentMutations}
-      ${RiskAssessmentCategoryMutations}
+      ${RiskIndicatorsMutations}
       ${formSubmissionsMutations},
       ${OpearionMutations}
       ${RiskAsessmentMutations}

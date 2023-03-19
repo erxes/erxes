@@ -1,7 +1,7 @@
 import { paginate } from '@erxes/api-utils/src';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { Model } from 'mongoose';
-import { IModels, models } from '../connectionResolver';
+import { IModels } from '../connectionResolver';
 import { sendFormsMessage } from '../messageBroker';
 import { validateCalculateMethods, validRiskIndicators } from '../utils';
 import { IRiskIndicatorsField, PaginateField } from './definitions/common';
@@ -31,7 +31,7 @@ export interface IRiskIndicatorsModel extends Model<IRiskIndicatorsDocument> {
     _id?: string,
     doc?: IRiskIndicatorsField
   ): Promise<IRiskIndicatorsDocument>;
-  removeUnusedRiskIndicatorForm(
+  removeRiskIndicatorUnusedForms(
     ids: string[]
   ): Promise<IRiskIndicatorsDocument>;
 }
@@ -49,6 +49,7 @@ const statusColors = {
 const generateFilter = (
   params: {
     _id?: string;
+    ids?: string[];
     tagIds?: string[];
     ignoreIds?: string[];
     branchId?: string;
@@ -61,6 +62,10 @@ const generateFilter = (
 
   if (params._id) {
     filter._id = params._id;
+  }
+
+  if (!!params?.ids?.length) {
+    filter._id = { $in: params.ids };
   }
 
   if (params.tagIds) {
@@ -193,7 +198,7 @@ export const loadRiskIndicators = (model: IModels, subdomain: string) => {
       return await model.RiskIndicators.findOne(filter).select(fieldsSkip);
     }
 
-    public static async removeUnusedRiskIndicatorsForm(ids: string[]) {
+    public static async removeRiskIndicatorUnusedForms(ids: string[]) {
       try {
         await sendFormsMessage({
           subdomain,

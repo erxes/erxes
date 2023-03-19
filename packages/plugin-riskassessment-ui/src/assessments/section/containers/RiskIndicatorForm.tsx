@@ -5,14 +5,11 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { RiskAssessmentIndicatorFormQueryResponse } from '../../common/types';
+import { AssessmentFilters } from '../common/types';
 import IndicatorForm from '../components/RiskIndicatorForm';
 import { mutations, queries } from '../graphql';
 type Props = {
-  riskAssessmentId: string;
-  indicatorId: string;
-  userId: string;
-  cardId: string;
-  cardType: string;
+  filters: AssessmentFilters;
   closeModal: () => void;
   onlyPreview?: boolean;
 };
@@ -31,7 +28,7 @@ class RiskIndicatorForm extends React.Component<FinalProps> {
       indicatorFormQueryResponse,
       closeModal,
       onlyPreview,
-      indicatorId
+      filters
     } = this.props;
 
     if (indicatorFormQueryResponse.loading) {
@@ -53,7 +50,7 @@ class RiskIndicatorForm extends React.Component<FinalProps> {
     }
 
     const submitForm = doc => {
-      const { saveSubmission, userId, cardId, cardType } = this.props;
+      const { saveSubmission, filters } = this.props;
 
       let confirmText = 'Are you sure';
 
@@ -71,9 +68,7 @@ class RiskIndicatorForm extends React.Component<FinalProps> {
       confirm(confirmText).then(() => {
         const variables = {
           ...doc,
-          userId,
-          cardId,
-          cardType
+          ...filters
         };
         saveSubmission({ variables }).catch(err => Alert.error(err.message));
       });
@@ -82,9 +77,8 @@ class RiskIndicatorForm extends React.Component<FinalProps> {
     const updatedProps = {
       fields: riskAssessmentIndicatorForm?.fields,
       submittedFields: riskAssessmentIndicatorForm?.submittedFields,
-      customScoreField: riskAssessmentIndicatorForm?.customScoreField,
       withDescription: riskAssessmentIndicatorForm?.withDescription,
-      indicatorId,
+      indicatorId: filters.indicatorId || '',
       submitForm,
       closeModal,
       onlyPreview
@@ -123,18 +117,14 @@ export default withProps(
   compose(
     graphql<Props>(gql(queries.riskAssessmentIndicatorForm), {
       name: 'indicatorFormQueryResponse',
-      options: ({ indicatorId, riskAssessmentId, userId }) => ({
+      options: ({ filters: { indicatorId, riskAssessmentId, userId } }) => ({
         variables: { indicatorId, riskAssessmentId, userId }
       })
     }),
     graphql<Props>(gql(mutations.riskFormSaveSubmission), {
       name: 'saveSubmission',
       options: ({
-        indicatorId,
-        riskAssessmentId,
-        userId,
-        cardId,
-        cardType
+        filters: { indicatorId, riskAssessmentId, userId, cardId, cardType }
       }) => ({
         variables: { indicatorId, riskAssessmentId, userId },
         refetchQueries: refetchQueries({

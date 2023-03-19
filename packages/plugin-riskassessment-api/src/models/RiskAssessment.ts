@@ -1,13 +1,12 @@
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { sendCardsMessage, sendFormsMessage } from '../messageBroker';
-import { getAsssignedUsers } from '../utils';
+import { sendFormsMessage } from '../messageBroker';
+import { getAsssignedUsers, getIndicatorSubmissions } from '../utils';
 import {
-  IRiskAssessmentsDocument,
   IRiskAssessmentIndicatorsDocument,
+  IRiskAssessmentsDocument,
   riskAssessmentsSchema
 } from './definitions/riskassessment';
-import { getIndicatorSubmissions } from '../utils';
 export interface IRiskAssessmentsModel extends Model<IRiskAssessmentsDocument> {
   addRiskAssessment(params): Promise<IRiskAssessmentsDocument>;
   addBulkRiskAssessment(params): Promise<IRiskAssessmentsDocument>;
@@ -90,16 +89,28 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
     public static async addBulkRiskAssessment(params) {
       const { cardType, cardId, bulkItems } = params;
 
+      if (!cardId && !cardType) {
+        throw new Error('please provide a card type and a card id');
+      }
+
       let doc = { cardId, cardType };
 
-      const createByIds = async (ids: string, fieldName: string, groupId) => {
-        if (!!ids.length) {
+      const createByIds = async (
+        ids: string,
+        fieldName: string,
+        groupId,
+        indicatorId,
+        groupsAssignedUsers: any[]
+      ) => {
+        if (!!ids?.length) {
           for (const id of ids) {
             {
               await this.addRiskAssessment({
                 ...doc,
+                groupId: !!groupId ? groupId : undefined,
+                indicatorId: !!indicatorId ? indicatorId : undefined,
                 [fieldName]: id,
-                groupId
+                groupsAssignedUsers
               });
             }
           }
@@ -107,14 +118,27 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
       };
 
       for (const item of bulkItems) {
-        const { branchIds, departmentIds, operationIds, groupId } = item;
+        const {
+          branchIds,
+          departmentIds,
+          operationIds,
+          groupId,
+          indicatorIds,
+          indicatorId,
+          groupsAssignedUsers
+        } = item;
         const IdsMap = [
           { key: 'branchId', ids: branchIds },
           { key: 'departmentId', ids: departmentIds },
           { key: 'operationId', ids: operationIds }
         ];
+
+        if (!!indicatorIds.length) {
+          IdsMap.push({ key: 'indicatorId', ids: indicatorIds });
+        }
+
         for (const { ids, key } of IdsMap) {
-          createByIds(ids, key, groupId);
+          createByIds(ids, key, groupId, indicatorId, groupsAssignedUsers);
         }
       }
     }
@@ -286,7 +310,10 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
           },
           {
             $group: {
-              _id: '$indicatorId',
+              _id: '$assessmentId',
+              indicatorIds: {
+                $addToSet: '$$ROOT.indicatorId'
+              },
               count: { $sum: 1 }
             }
           }
@@ -299,15 +326,24 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
         if (
           submittedResults.length >= 1 &&
           riskAssessmentIndicatorIds.some(indicatorId =>
-            submittedResults.find(result => result._id === indicatorId)
+            submittedResults.find(result =>
+              result.indicatorIds.includes(indicatorId)
+            )
           )
         ) {
           assignedUser.submitStatus = 'inProgress';
         }
+
         if (
           submittedResults.length >= 1 &&
-          riskAssessmentIndicatorIds.every(indicatorId =>
-            submittedResults.find(result => result._id === indicatorId)
+          riskAssessmentIds.every(assessmentId =>
+            submittedResults.some(
+              result =>
+                result._id === assessmentId &&
+                riskAssessmentIndicatorIds.every(indicatorId =>
+                  result.indicatorIds.includes(indicatorId)
+                )
+            )
           )
         ) {
           assignedUser.submitStatus = 'submitted';
@@ -434,7 +470,7 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
         throw new Error('Cannot find indicator');
       }
 
-      const { customScoreField, forms } = indicator.toObject();
+      const { forms } = indicator.toObject();
 
       const formIds = forms?.map(form => form.formId);
 
@@ -455,13 +491,6 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
         formId: { $in: formIds }
       });
 
-      const customScore = await models.RiksFormSubmissions.findOne({
-        assessmentId: riskAssessment._id,
-        indicatorId,
-        userId,
-        contentType: 'customScore'
-      });
-
       const editedSubmittedFields = {};
 
       for (const submittedField of submittedFields) {
@@ -472,11 +501,6 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
       }
       return {
         fields,
-        customScoreField: {
-          ...customScoreField,
-          value: customScore?.value,
-          description: customScore?.description
-        },
         withDescription: indicator.isWithDescription,
         submittedFields: editedSubmittedFields
       };
@@ -654,53 +678,6 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
         groupsAssignedUsers?.every(group => group?.assignedUserIds?.length)
       );
     }
-
-    // static async getIndicatorSubmissions({
-    //   riskAssessment,
-    //   cardId,
-    //   cardType,
-    //   indicatorId,
-    //   subdomain
-    // }) {
-    //   const submissions = await models.RiksFormSubmissions.aggregate([
-    //     {
-    //       $match: {
-    //         assessmentId: riskAssessment._id,
-    //         cardId,
-    //         cardType,
-    //         indicatorId
-    //       }
-    //     },
-    //     {
-    //       $group: {
-    //         _id: '$userId',
-    //         fields: { $push: '$$ROOT' },
-    //         count: { $sum: 1 }
-    //       }
-    //     }
-    //   ]);
-
-    //   for (const submission of submissions) {
-    //     for (const field of submission.fields) {
-    //       const fieldDetail = await sendFormsMessage({
-    //         subdomain,
-    //         action: 'fields.findOne',
-    //         data: {
-    //           query: { _id: field.fieldId }
-    //         },
-    //         isRPC: true,
-    //         defaultValue: {}
-    //       });
-
-    //       field.optionsValues = fieldDetail.optionsValues;
-    //       field.text =
-    //         field.contentType === 'customScore'
-    //           ? 'Custom Score'
-    //           : fieldDetail.text;
-    //     }
-    //   }
-    //   return submissions;
-    // }
   }
   riskAssessmentsSchema.loadClass(RiskAssessment);
   return riskAssessmentsSchema;

@@ -4,6 +4,7 @@ import React from 'react';
 import { RiskIndicatorsType } from '../../../indicator/common/types';
 import { FormContainer } from '../../../styles';
 import { DetailPopOver } from '../../common/utils';
+import { AssessmentFilters } from '../common/types';
 import RiskIndicatorForm from '../containers/RiskIndicatorForm';
 
 type IndicatorsTypes = {
@@ -12,11 +13,8 @@ type IndicatorsTypes = {
 } & RiskIndicatorsType;
 
 type Props = {
-  cardId: string;
-  cardType: string;
   indicators: IndicatorsTypes[];
-  riskAssessmentId: string;
-  userId: string;
+  filters: AssessmentFilters;
   closeModal: () => void;
   onlyPreview?: boolean;
 };
@@ -39,7 +37,7 @@ class RiskAssessmentForm extends React.Component<Props, State> {
       indicatorId = indicator._id;
     }
 
-    indicatorId = props?.indicators[0]?._id;
+    indicatorId = (props?.indicators || [])[0]?._id;
     this.state = {
       indicatorId
     };
@@ -62,22 +60,11 @@ class RiskAssessmentForm extends React.Component<Props, State> {
   }
 
   renderForm() {
-    const {
-      riskAssessmentId,
-      userId,
-      cardId,
-      cardType,
-      closeModal,
-      onlyPreview
-    } = this.props;
+    const { filters, closeModal, onlyPreview } = this.props;
     const { indicatorId } = this.state;
 
     const updatedProps = {
-      riskAssessmentId,
-      userId,
-      indicatorId,
-      cardId,
-      cardType,
+      filters: { ...filters, indicatorId },
       closeModal,
       onlyPreview
     };

@@ -147,8 +147,8 @@ class ListComp extends React.Component<Props, IState> {
                 />
               )}
             </th>
-            <th>Name</th>
-            <th>{__('Category Name')}</th>
+            <th>{__('Name')}</th>
+            <th>{__('Tags')}</th>
             <th>
               <SortHandler />
               {__('Create At')}

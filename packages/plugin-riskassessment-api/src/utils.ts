@@ -15,13 +15,9 @@ export const validRiskIndicators = async params => {
     );
   }
 
-  const { forms, customScoreField } = params;
+  const { forms } = params;
 
   let percentWeight = 0;
-
-  if (customScoreField) {
-    percentWeight += customScoreField;
-  }
 
   if (!forms.length) {
     throw new Error('Please add a form to the risk assessment');
@@ -36,7 +32,7 @@ export const validRiskIndicators = async params => {
     }
     if (forms.length > 1) {
       if (!form.percentWeight) {
-        throw new Error('Provide a percent weigth on form');
+        throw new Error('Provide a percent weight on form');
       }
     }
 
@@ -207,21 +203,6 @@ export const getAsssignedUsers = async (
   return assignedUsers;
 };
 
-export const getFormId = async (model, cardId: string, cardType: String) => {
-  const { riskAssessmentId } = await model.RiskConformity.findOne({
-    cardId,
-    cardType
-  }).lean();
-  const { tagIds } = await model.RiskAssessment.findOne({
-    _id: riskAssessmentId
-  }).lean();
-
-  const { formId } = await model.RiskAssessmentCategory.findOne({
-    _id: tagIds
-  }).lean();
-  return formId;
-};
-
 export const calculateFormResponses = async ({
   responses,
   fields,
@@ -276,6 +257,9 @@ export const calculateFormResponses = async ({
         fieldId: key
       });
     } else {
+      if (typeof response.value === 'number') {
+        sumNumber += response.value;
+      }
       submissions.push({
         ...filter,
         ...response,
@@ -386,7 +370,7 @@ export const calculateResult = async ({
             $set: {
               status: name,
               statusColor: color,
-              resultScore,
+              resultScore: roundResult(resultScore),
               closedAt: Date.now()
             }
           },
@@ -403,7 +387,7 @@ export const calculateResult = async ({
             $set: {
               status: name,
               statusColor: color,
-              resultScore,
+              resultScore: roundResult(resultScore),
               closedAt: Date.now()
             }
           },
@@ -421,7 +405,7 @@ export const calculateResult = async ({
           $set: {
             status: 'No Result',
             statusColor: '#888',
-            resultScore,
+            resultScore: roundResult(resultScore),
             closedAt: Date.now()
           }
         },
@@ -478,9 +462,16 @@ export const getIndicatorSubmissions = async ({
       });
 
       field.optionsValues = fieldDetail.optionsValues;
-      field.text =
-        field.contentType === 'customScore' ? 'Custom Score' : fieldDetail.text;
+      field.text = fieldDetail.text;
     }
   }
   return submissions;
+};
+
+export const roundResult = (number, places = 2) => {
+  var multiplier = Math.pow(10, places + 2); // get two extra digits
+  var fixed = Math.floor(number * multiplier); // convert to integer
+  fixed += 44; // round down on anything less than x.xxx56
+  fixed = Math.floor(fixed / 100); // chop off last 2 digits
+  return fixed / Math.pow(10, places);
 };

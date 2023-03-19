@@ -12,9 +12,9 @@ import React from 'react';
 import {
   CardBox,
   ColorBox,
+  Divider,
   FormContainer,
   FormContent,
-  Divider,
   TableRow,
   TriggerTabs
 } from '../../styles';
@@ -84,13 +84,13 @@ class Detail extends React.Component<Props, State> {
         icon="downarrow-2"
       >
         {assignedUsers.map(user => (
-          <>
+          <div key={user._id}>
             <FormContainer row spaceBetween>
               <NameCard user={user} />
               {renderStatus(user?.submitStatus || '')}
             </FormContainer>
             <Divider />
-          </>
+          </div>
         ))}
       </DetailPopOver>
     );
@@ -131,21 +131,6 @@ class Detail extends React.Component<Props, State> {
       </FormContent>
     );
   }
-
-  // renderSubmission(fields) {
-  //   return fields.map(field => (
-  //     <CollapseContent
-  //       key={field.fieldId}
-  //       title={`${field?.text}: ${field?.value}`}
-  //       description={field.description}
-  //       compact
-  //     >
-  //       {(field?.optionsValues?.split('\n') || []).map(value => (
-  //         <p key={Math.random()}>{__(value)}</p>
-  //       ))}
-  //     </CollapseContent>
-  //   ));
-  // }
 
   renderAssignedUsers = submissions => {
     const { assignedUsers } = this.props;

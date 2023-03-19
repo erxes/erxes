@@ -1,8 +1,4 @@
 export const types = `
-    input ICustomScore {
-        value:Int
-        description:String
-    }
 `;
 
 const commonFormSubmissionsTypes = `
@@ -12,8 +8,10 @@ const commonFormSubmissionsTypes = `
     userId: String,
     fieldId: String,
     indicatorId: String,
-    customScore:ICustomScore,
-    formSubmissions:JSON
+    formSubmissions:JSON,
+    branchId:String,
+    departmentId:String,
+    operationId:String,
 `;
 
 export const mutations = `

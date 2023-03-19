@@ -1,3 +1,5 @@
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
 export const commonPaginateDef = `
     $page:Int
     $perPage:Int
@@ -18,30 +20,6 @@ export const commonPaginateValue = `
     sortToDate:$sortToDate
 `;
 
-export const riskIndicatorDef = `
-    $categoryIds: String,
-    $description: String,
-    $name: String!,
-    $calculateMethod: String,
-`;
-
-export const riskIndicatorValues = `
-    categoryIds: $categoryIds,
-    description: $description,
-    name: $name,
-    calculateMethod: $calculateMethod
-`;
-
-export const riskAssessmentCategoryParams = `
-_id
-formId
-parentId
-name
-code
-order
-type
-`;
-
 export const riskIndicatorParams = `
     _id,
     name,
@@ -51,10 +29,8 @@ export const riskIndicatorParams = `
     branchIds,
     createdAt,
     isWithDescription
-    customScoreField {
-        label,
-        percentWeight
-    }
+    ${isEnabled('tags') ? `tags{_id,name,colorCode}` : ''}
+    
     tagIds
       forms {
         _id
@@ -69,15 +45,6 @@ export const riskIndicatorParams = `
         formId
         percentWeight
       }
-`;
-
-export const riskConformityParams = `
-    _id
-    categoryId
-    createdAt
-    description
-    name
-    status
 `;
 
 export const tags = `

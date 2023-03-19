@@ -1,4 +1,4 @@
-import { Alert } from '@erxes/ui/src';
+import { Alert, confirm } from '@erxes/ui/src';
 import { withProps } from '@erxes/ui/src/utils/core';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
@@ -6,6 +6,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import BulkAddFormComponent from '../components/BulkAddForm';
 import { mutations } from '../graphql';
+import { refetchQueries } from './SingkeAddForm';
 
 type Props = {
   closeModal: () => void;
@@ -27,14 +28,17 @@ class BulkAddForm extends React.Component<FinalProps> {
 
     const handleSave = (bulkItems: any[]) => {
       const { cardId, cardType } = this.props;
-      addBulkAssessment({ variables: { bulkItems, cardId, cardType } })
-        .then(() => {
-          Alert.success('Added successfully');
-          this.props.closeModal();
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
+
+      confirm().then(() => {
+        addBulkAssessment({ variables: { bulkItems, cardId, cardType } })
+          .then(() => {
+            Alert.success('Added successfully');
+            this.props.closeModal();
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          });
+      });
     };
 
     const updateProps = {
@@ -49,7 +53,10 @@ class BulkAddForm extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(mutations.addBulkAssessment), {
-      name: 'addBulkAssessment'
+      name: 'addBulkAssessment',
+      options: ({ cardId, cardType }) => ({
+        refetchQueries: refetchQueries({ cardId, cardType })
+      })
     })
   )(BulkAddForm)
 );

@@ -1,6 +1,5 @@
 import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
-import { IRiskFormSubmissionParams } from '../../../models/definitions/common';
 import { getIndicatorSubmissions } from '../../../utils';
 
 const formSubmissionQueries = {
@@ -24,17 +23,16 @@ const formSubmissionQueries = {
         assessmentId: indicatorAssessment.assessmentId,
         indicatorId: indicatorAssessment.indicatorId
       });
-      console.log({ indicatorAssessment });
     }
 
     return indicatorAssessments;
   }
 };
 
-// checkPermission(
-//   formSubmissionQueries,
-//   'indicatorsAssessmentHistory',
-//   'showRiskAssessment'
-// );
+checkPermission(
+  formSubmissionQueries,
+  'indicatorsAssessmentHistory',
+  'showRiskAssessment'
+);
 
 export default formSubmissionQueries;

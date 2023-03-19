@@ -1,13 +1,16 @@
 import { IContext } from '../../connectionResolver';
 import { sendTagsMessage } from '../../messageBroker';
-import { IRiskIndicatorsDocument } from '../../models/definitions/indicator';
+import { IIndicatorsGroupsDocument } from '../../models/definitions/indicator';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
-    return models.RiskIndicators.findOne({ _id });
+    return models.IndicatorsGroups.findOne({ _id });
   },
-
-  async tags(indicator: IRiskIndicatorsDocument, {}, { subdomain }: IContext) {
+  async tags(
+    indicator: IIndicatorsGroupsDocument,
+    {},
+    { subdomain }: IContext
+  ) {
     return sendTagsMessage({
       subdomain,
       action: 'find',

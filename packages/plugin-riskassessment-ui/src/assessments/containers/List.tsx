@@ -1,4 +1,4 @@
-import { EmptyState, Spinner } from '@erxes/ui/src';
+import { Alert, confirm, EmptyState, Spinner } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { router, withProps } from '@erxes/ui/src/utils/core';
 import gql from 'graphql-tag';
@@ -7,7 +7,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { generateParamsIds } from '../../common/utils';
 import ListComponent from '../components/List';
-import { queries } from '../graphql';
+import { mutations, queries } from '../graphql';
 
 type Props = {
   queryParams: any;
@@ -17,6 +17,7 @@ type Props = {
 type FinalProps = {
   listQuery: any;
   totalCount: any;
+  removeAssessments: any;
 } & Props;
 
 type State = {};
@@ -26,7 +27,13 @@ class List extends React.Component<FinalProps, State> {
     super(props);
   }
   render() {
-    const { listQuery, totalCount, queryParams, history } = this.props;
+    const {
+      listQuery,
+      totalCount,
+      queryParams,
+      history,
+      removeAssessments
+    } = this.props;
 
     if (listQuery.loading) {
       return <Spinner />;
@@ -36,11 +43,26 @@ class List extends React.Component<FinalProps, State> {
       return <EmptyState text={listQuery.error} icon="info-circle" />;
     }
 
+    const remove = (ids: string[]) => {
+      confirm(
+        'this action will erase every data of assessments.Are you sure?'
+      ).then(() => {
+        removeAssessments({ variables: { ids } })
+          .then(() => {
+            Alert.success('Removed successfully');
+          })
+          .catch(err => {
+            Alert.error(err.message);
+          });
+      });
+    };
+
     const updatedProps = {
+      list: listQuery?.riskAssessments || [],
+      totalCount: totalCount?.riskAssessmentsTotalCount,
       queryParams,
       history,
-      list: listQuery?.riskAssessments || [],
-      totalCount: totalCount?.riskAssessmentsTotalCount
+      remove
     };
 
     return <ListComponent {...updatedProps} />;
@@ -55,15 +77,29 @@ export const generateParams = ({ queryParams }) => ({
   searchValue: queryParams?.searchValue,
   sortField: queryParams?.sortField,
   sortDirection: Number(queryParams?.sortDirection) || undefined,
-  createdFrom: queryParams.createdFrom || undefined,
-  createdTo: queryParams.createdTo || undefined,
-  closedFrom: queryParams.closedFrom || undefined,
-  closedTo: queryParams.closedTo || undefined,
+  createdAtFrom: queryParams.createdAtFrom || undefined,
+  createdAtTo: queryParams.createdAtTo || undefined,
+  closedAtFrom: queryParams.closedAtFrom || undefined,
+  closedAtTo: queryParams.closedAtTo || undefined,
   branchIds: generateParamsIds(queryParams.branchIds),
   departmentIds: generateParamsIds(queryParams.departmentIds),
   operationIds: generateParamsIds(queryParams.operationIds),
-  tagIds: generateParamsIds(queryParams.tagIds)
+  tagIds: generateParamsIds(queryParams.tagIds),
+  groupIds: generateParamsIds(queryParams.groupIds)
 });
+
+const refetchQueries = ({ queryParams }) => {
+  return [
+    {
+      query: gql(queries.riskAssessments),
+      variables: { ...generateParams({ queryParams }) }
+    },
+    {
+      query: gql(queries.totalCount),
+      variables: { ...generateParams({ queryParams }) }
+    }
+  ];
+};
 
 export default withProps<Props>(
   compose(
@@ -77,6 +113,12 @@ export default withProps<Props>(
       name: 'totalCount',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams })
+      })
+    }),
+    graphql<Props>(gql(mutations.removeAssessments), {
+      name: 'removeAssessments',
+      options: ({ queryParams }) => ({
+        refetchQueries: refetchQueries({ queryParams })
       })
     })
   )(List)

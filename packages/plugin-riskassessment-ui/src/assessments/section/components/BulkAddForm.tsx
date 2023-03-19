@@ -1,5 +1,6 @@
 import {
   Button,
+  confirm,
   ControlLabel,
   FormControl,
   FormGroup,
@@ -13,10 +14,11 @@ import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import React from 'react';
 import {
   SelectIndicatorGroups,
-  SelectOperations,
-  SelectRiskIndicator
+  SelectIndicators,
+  SelectOperations
 } from '../../../common/utils';
 import { FormContainer, ListItem } from '../../../styles';
+import { SelectGroupsAssignedUsersWrapper } from '../common/utils';
 
 type Props = {
   cardId: string;
@@ -38,9 +40,33 @@ class Form extends React.Component<Props, State> {
     };
   }
 
-  renderBulkItem(item) {
+  renderSplitAssignedUsers(item) {
     const { cardId, cardType } = this.props;
 
+    if (!item?.useSplitTeamMembers || !item.groupId) {
+      return;
+    }
+
+    const handleSelectedUsersbyGroup = groupsAssignedUsers => {
+      const updateBulkItems = this.state.bulkItems.map(bulkItem =>
+        bulkItem._id === item._id
+          ? { ...bulkItem, groupsAssignedUsers }
+          : bulkItem
+      );
+      this.setState({ bulkItems: updateBulkItems });
+    };
+
+    return (
+      <SelectGroupsAssignedUsersWrapper
+        _id={item.groupId}
+        cardId={cardId}
+        cardType={cardType}
+        handleSelect={handleSelectedUsersbyGroup}
+      />
+    );
+  }
+
+  renderBulkItem(item) {
     const { bulkItems } = this.state;
 
     const handleSelect = (values, name) => {
@@ -58,16 +84,12 @@ class Form extends React.Component<Props, State> {
           ? {
               ...bulkItem,
               [name]: !bulkItem[name],
-              groupId: '',
+              groupId: name === 'useSplitTeamMembers' ? bulkItem.groupId : '',
               indicatorId: ''
             }
           : bulkItem
       );
       this.setState({ bulkItems: updateBulkItems });
-    };
-
-    const handleSelectedUsersbyGroup = () => {
-      console.log('aasd');
     };
 
     return (
@@ -107,13 +129,16 @@ class Form extends React.Component<Props, State> {
           </Column>
           <Column>
             <FormGroup>
-              <ControlLabel>{__('Groups')}</ControlLabel>
+              <ControlLabel>
+                {__(item?.useIndicator ? 'Indicators' : 'Groups')}
+              </ControlLabel>
               {item?.useIndicator ? (
-                <SelectRiskIndicator
+                <SelectIndicators
                   label="Select Indicators"
                   name="indicatorId"
                   onSelect={handleSelect}
                   initialValue={item?.indicatorId || ''}
+                  customOption={{ label: 'Choose Groups', value: '' }}
                 />
               ) : (
                 <SelectIndicatorGroups
@@ -121,18 +146,11 @@ class Form extends React.Component<Props, State> {
                   name="groupId"
                   onSelect={handleSelect}
                   initialValue={item.groupId || ''}
+                  customOption={{ label: 'Choose Groups', value: '' }}
                 />
               )}
             </FormGroup>
-            {/* {item?.useSplitTeamMembers && (
-              <SelectGroupsAssignedUsers
-                cardId={cardId}
-                cardType={cardType}
-                handleSelect={handleSelectedUsersbyGroup}
-                riskAssessmentId=""
-                groups={[]}
-              />
-            )} */}
+            {this.renderSplitAssignedUsers(item)}
             <FormContainer row>
               <FormGroup>
                 <FormControl
@@ -142,16 +160,18 @@ class Form extends React.Component<Props, State> {
                 />
                 <ControlLabel>{'Use Indicators'}</ControlLabel>
               </FormGroup>
-              <FormGroup>
-                <FormControl
-                  name="useSplitTeamMembers"
-                  componentClass="checkbox"
-                  onClick={toggleBool}
-                />
-                <ControlLabel>
-                  {'Split assigned team members to groups'}
-                </ControlLabel>
-              </FormGroup>
+              {!item.useIndicator && (
+                <FormGroup>
+                  <FormControl
+                    name="useSplitTeamMembers"
+                    componentClass="checkbox"
+                    onClick={toggleBool}
+                  />
+                  <ControlLabel>
+                    {'Split assigned team members to groups'}
+                  </ControlLabel>
+                </FormGroup>
+              )}
             </FormContainer>
           </Column>
         </Columns>
@@ -165,7 +185,14 @@ class Form extends React.Component<Props, State> {
 
     const save = e => {
       e.preventDefault();
-      handleSave(bulkItems.map(({ _id, ...bulkItem }) => bulkItem));
+      confirm().then(() =>
+        handleSave(
+          bulkItems.map(
+            ({ _id, useIndicator, useSplitTeamMembers, ...bulkItem }) =>
+              bulkItem
+          )
+        )
+      );
     };
 
     const addBulkItem = () => {

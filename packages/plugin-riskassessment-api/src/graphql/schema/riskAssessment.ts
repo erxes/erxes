@@ -15,6 +15,7 @@ export const types = `
         createdAt: Date
         closedAt: Date
         indicatorId:String
+        indicator:RiskIndicatorType
         groupId:String
         group:IndicatorsGroupType
         riskIndicators:[RiskIndicatorType]
@@ -67,7 +68,10 @@ export const types = `
         branchIds:[String]
         departmentIds:[String]
         operationIds:[String]
+        indicatorIds:[String]
         groupId:String
+        indicatorId:String
+        groupsAssignedUsers:[GroupsAssignedUsers]
     }
 
 `;
@@ -77,9 +81,9 @@ const commonMutationParams = `
     cardType:String,
     groupId:String
     indicatorId: String
-    operationIds:[String]
-    branchIds:[String]
-    departmentIds:[String]
+    operationId:String
+    branchId:String
+    departmentId:String
     groupsAssignedUsers:[GroupsAssignedUsers]
 `;
 
@@ -88,9 +92,11 @@ export const mutations = `
     addBulkRiskAssessment(cardId:String,cardType:String,bulkItems:[IBulkAddAssessment]):[RiskAssessment]
     editRiskAssessment(_id:String,${commonMutationParams}):RiskAssessment
     removeRiskAssessment(riskAssessmentId:String):RiskAssessment
+    removeRiskAssessments(ids:[String]):JSON
 `;
 
 const commonParams = `
+    cardType:String,
     status:String
     searchValue:String
     createdAtFrom:String
@@ -106,6 +112,7 @@ const commonParams = `
     sortField:String
     sortDirection:Int
     tagIds:[String]
+    groupIds:[String]
 `;
 
 const commonFormSubmitParams = `

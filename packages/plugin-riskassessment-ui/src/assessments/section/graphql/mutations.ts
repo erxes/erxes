@@ -1,47 +1,36 @@
-import { riskIndicatorParams } from '../../../common/graphql';
 import {
   commonFormSaveParams,
   commonFormSaveParamsDef
 } from '../../common/graphql';
 
 const commonParams = `
-    $branchIds: [String],
+    $branchId: String,
     $cardId: String,
     $cardType: String,
     $groupId: String,
-    $departmentIds: [String],
+    $departmentId: String,
     $indicatorId: String,
-    $operationIds: [String]
+    $operationId: String
     $groupsAssignedUsers:[GroupsAssignedUsers]
 `;
 
 const commonParamsDef = `
-    branchIds: $branchIds,
+    branchId: $branchId,
     cardId: $cardId,
     cardType: $cardType,
     groupId: $groupId,
-    departmentIds: $departmentIds,
+    departmentId: $departmentId,
     indicatorId: $indicatorId,
-    operationIds: $operationIds
+    operationId: $operationId
     groupsAssignedUsers:$groupsAssignedUsers
 `;
 
 const commonFields = `
     _id
-    branchIds
-    branches
     cardId
     cardType
     createdAt
-    departmentIds
-    departments
-    operationIds
-    operations
     resultScore
-    riskIndicatorId
-    riskIndicators {
-      ${riskIndicatorParams}
-    }
     status
     statusColor
 `;

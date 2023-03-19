@@ -7,7 +7,6 @@ const riskIndicatorParams = `
     $branchIds: [String],
     $calculateMethod:String,
     $calculateLogics:[ICalculateLogic],
-    $customScoreField:ICustomScoreField
     $forms: [IRiskIndicatorForm],
     $isWithDescription:Boolean
 `;
@@ -21,7 +20,6 @@ const riskIndicatorParamsDef = `
     branchIds:$branchIds,
     calculateMethod:$calculateMethod,
     calculateLogics:$calculateLogics,
-    customScoreField:$customScoreField,
     forms:$forms,
     isWithDescription:$isWithDescription
 `;

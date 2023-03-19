@@ -8,6 +8,7 @@ import {
   Toggle,
   __
 } from '@erxes/ui/src';
+import client from '@erxes/ui/src/apolloClient';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import gql from 'graphql-tag';
 import React, { useEffect, useState } from 'react';
@@ -162,14 +163,32 @@ export default function SelectIndicators(props: Props) {
     if (detail.groupId) {
       setUseGroups(true);
       if (detail.isSplittedUsers) setSplitUsers(true);
-      setSelectedItems(
-        (list || []).filter(item => detail.groupId === item._id)
-      );
+      client
+        .query({
+          query: gql(groupsQueries.list),
+          fetchPolicy: 'network-only',
+          variables: { ids: [detail.groupId] }
+        })
+        .then(res => {
+          const { riskIndicatorsGroups } = res.data;
+          if (!!riskIndicatorsGroups?.length) {
+            setSelectedItems(riskIndicatorsGroups);
+          }
+        });
     }
     if (detail.indicatorId && !useGroups) {
-      setSelectedItems(
-        (list || []).filter(item => detail.indicatorId === item._id)
-      );
+      client
+        .query({
+          query: gql(queries.riskIndicators),
+          fetchPolicy: 'network-only',
+          variables: { ids: [detail.indicatorId] }
+        })
+        .then(res => {
+          const { riskIndicators } = res.data;
+          if (!!riskIndicators?.length) {
+            setSelectedItems(riskIndicators);
+          }
+        });
     }
   }
 

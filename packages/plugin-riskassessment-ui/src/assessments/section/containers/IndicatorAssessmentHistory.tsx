@@ -52,6 +52,7 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.indicatorAssessments), {
       name: 'assessmentHistoryQueryResponse',
+      skip: ({ indicatorId }) => !indicatorId,
       options: ({ indicatorId }) => ({
         variables: {
           indicatorId

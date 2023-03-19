@@ -1,6 +1,7 @@
-import { FormControl, ModalTrigger, __ } from '@erxes/ui/src';
+import { FormControl, Label, ModalTrigger, __ } from '@erxes/ui/src';
 import moment from 'moment';
 import React from 'react';
+import { FormContainer } from '../../../styles';
 import { IIndicatorsGroups } from '../common/types';
 import Form from '../containers/Form';
 type Props = {
@@ -37,6 +38,15 @@ class Row extends React.Component<Props> {
           />
         </td>
         <td>{__(indicatorsGroups.name)}</td>
+        <td>
+          <FormContainer gapBetween={5} row maxItemsRow={3}>
+            {(indicatorsGroups?.tags || []).map(tag => (
+              <Label key={tag._id} lblColor={tag.colorCode}>
+                {tag.name}
+              </Label>
+            ))}
+          </FormContainer>
+        </td>
         <td>{moment(indicatorsGroups.createdAt).format('lll')}</td>
         <td>{moment(indicatorsGroups.modifiedAt).format('lll')} </td>
         <td></td>

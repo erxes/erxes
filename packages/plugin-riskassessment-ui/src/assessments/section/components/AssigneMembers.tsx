@@ -17,6 +17,7 @@ import {
   RiskAssessmentTypes
 } from '../../common/types';
 import RiskAssessmentForm from '../containers/RiskAssessmentForm';
+import MultipleAssessment from './MultipleAssessmentForm';
 
 type Props = {
   assignedMembers: RiskAssessmentAssignedMembers[];
@@ -64,14 +65,35 @@ class AssignedMembers extends React.Component<Props> {
     const content = props => {
       const updatedProps = {
         ...props,
-        cardId,
-        cardType,
-        riskAssessmentId: riskAssessments[0]._id,
-        userId: currentUser._id,
+        filters: {
+          cardId,
+          cardType,
+          userId: currentUser._id
+        },
+
         onlyPreview: currentUser._id !== userId
       };
 
-      return <RiskAssessmentForm {...updatedProps} />;
+      if (riskAssessments.length > 1) {
+        return (
+          <MultipleAssessment
+            {...updatedProps}
+            riskAssessments={riskAssessments}
+          />
+        );
+      }
+
+      return (
+        <RiskAssessmentForm
+          {...{
+            ...updatedProps,
+            filters: {
+              ...updatedProps.filters,
+              riskAssessmentId: riskAssessments[0]._id
+            }
+          }}
+        />
+      );
     };
 
     return (
@@ -100,7 +122,7 @@ class AssignedMembers extends React.Component<Props> {
     }
 
     return (
-      <Box title="Risk Assessment Assigned Members">
+      <Box title="Risk Assessment Assigned Members" name="assignedMembers">
         <ErrorBoundary>
           {assignedMembers.map(assignedMember => (
             <SectionBodyItem key={assignedMember._id}>

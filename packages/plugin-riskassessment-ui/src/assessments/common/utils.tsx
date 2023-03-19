@@ -1,8 +1,8 @@
 import { Button, ControlLabel, dimensions, __ } from '@erxes/ui/src';
 import React from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import styled from 'styled-components';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import { FormContainer } from '../../styles';
 
 type Props = {

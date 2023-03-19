@@ -40,7 +40,6 @@ type Props = {
   indicatorDetail?: RiskIndicatorsType;
   detailLoading?: boolean;
   renderButton?: (props: IButtonMutateProps) => JSX.Element;
-  categoryIds?: string;
   fieldsSkip?: any;
 } & ICommonFormProps;
 
@@ -48,7 +47,6 @@ type IRiskIndicatorsStateType = {
   _id?: string;
   name?: string;
   description?: string;
-  categoryId?: string;
   operationIds?: string[];
   departmentIds?: string[];
   branchIds?: string[];
@@ -56,15 +54,12 @@ type IRiskIndicatorsStateType = {
   calculateMethod?: string;
   calculateLogics?: RiskCalculateLogicType[];
   createdAt?: string;
-  category?: any;
-  customScoreField?: any;
   isWithDescription?: boolean;
   tagIds: string;
 };
 
 type State = {
   riskIndicator: IRiskIndicatorsStateType;
-  withCustomScore: boolean;
 };
 
 class Form extends React.Component<Props & ICommonFormProps, State> {
@@ -72,10 +67,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     super(props);
 
     this.state = {
-      riskIndicator: props.indicatorDetail || {
-        categoryId: props.categoryId || ''
-      },
-      withCustomScore: props.indicatorDetail?.customScoreField ? true : false
+      riskIndicator: props.indicatorDetail || {}
     };
 
     this.generateDoc = this.generateDoc.bind(this);
@@ -87,8 +79,6 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     delete values.logic;
     delete values.value;
     delete values.value2;
-
-    delete riskIndicator?.customScoreField?.__typename;
 
     (riskIndicator.forms || []).forEach(formData => {
       delete formData.__typename;
@@ -266,8 +256,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
   }
 
   renderGeneralLogics(formProps) {
-    const { riskIndicator, withCustomScore } = this.state;
-    const { customScoreField } = riskIndicator;
+    const { riskIndicator } = this.state;
 
     if (!(riskIndicator?.forms?.length > 1)) {
       return null;
@@ -298,67 +287,14 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
       }));
     };
 
-    const toggleCustomScoreField = () => {
-      this.setState(({ withCustomScore }) => ({
-        withCustomScore: !withCustomScore
-      }));
-    };
-
-    const handleCustomScoreField = e => {
-      const { name, value } = e.currentTarget as HTMLInputElement;
-
-      this.setState(({ riskIndicator }) => ({
-        riskIndicator: {
-          ...riskIndicator,
-          customScoreField: {
-            ...riskIndicator.customScoreField,
-            [name]: name === 'percentWeight' ? Number(value) : value
-          }
-        }
-      }));
-    };
-
     return (
       <FormContent>
         <FormWrapper>
           <FormColumn>
             <Header>{__('General Configuration of Forms')}</Header>
           </FormColumn>
-          <FormContainer row gap align="center">
-            <ControlLabel>{__('indicator with custom score')}</ControlLabel>
-            <Toggle
-              checked={withCustomScore}
-              onChange={toggleCustomScoreField}
-            />
-          </FormContainer>
         </FormWrapper>
-        {withCustomScore && (
-          <FormGroup>
-            <ControlLabel>{__('Custom score field')}</ControlLabel>
-            <FormWrapper>
-              <FormColumn>
-                <FormGroup>
-                  <FormControl
-                    type="text"
-                    name="label"
-                    placeholder="Label"
-                    value={customScoreField?.label}
-                    onChange={handleCustomScoreField}
-                  />
-                </FormGroup>
-              </FormColumn>
-              <FormGroup>
-                <FormControl
-                  type="number"
-                  name="percentWeight"
-                  placeholder="Percent weight"
-                  value={customScoreField?.percentWeight}
-                  onChange={handleCustomScoreField}
-                />
-              </FormGroup>
-            </FormWrapper>
-          </FormGroup>
-        )}
+
         <FormGroup>
           <ControlLabel>{__('Calculate Methods')}</ControlLabel>
           <Select
@@ -413,7 +349,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
 
     return (riskIndicator?.forms || []).map(form => (
       <FormItem
-        key={form.id}
+        key={form._id}
         doc={form}
         handleChange={handleChange}
         remove={removeRow}
@@ -538,15 +474,13 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             <FormColumn>
               <Header>{__('Forms')}</Header>
             </FormColumn>
-            <FormGroup>
-              <ControlLabel>{__('use fields with description')}</ControlLabel>
-              <FormControl
-                name="isWithDescription"
-                componentClass="checkbox"
+            <FormContainer row gap align="center">
+              <Toggle
                 onChange={toggleWithDescription}
                 checked={riskIndicator?.isWithDescription}
               />
-            </FormGroup>
+              <ControlLabel>{__('use fields with description')}</ControlLabel>
+            </FormContainer>
           </FormWrapper>
           {this.renderForms()}
           <div style={{ textAlign: 'center' }}>

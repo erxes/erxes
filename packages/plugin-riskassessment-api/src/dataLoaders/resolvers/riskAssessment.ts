@@ -1,4 +1,4 @@
-import { IContext, IModels } from '../../connectionResolver';
+import { IContext } from '../../connectionResolver';
 import { sendCardsMessage, sendCoreMessage } from '../../messageBroker';
 
 export default {
@@ -55,6 +55,12 @@ export default {
         _id: { $in: riskAssessment.indicatorId || [] }
       })
     ];
+  },
+
+  async indicator(riskAssessment, {}, { models }: IContext) {
+    return riskAssessment.indicatorId
+      ? await models.RiskIndicators.findOne({ _id: riskAssessment.indicatorId })
+      : null;
   },
 
   async group(riskAssessment, {}, { models }: IContext) {

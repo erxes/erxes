@@ -22,7 +22,6 @@ export const commonIndicatorTypes = `
     branchIds:[String]
     departmentIds:[String]
     calculateMethod:String
-    customScoreField: JSON
     isWithDescription:Boolean
 `;
 
@@ -30,13 +29,6 @@ export const commonRiskConformityTypes = `
     _id: String!,
     cardId: String!,
     riskIndicatorId: String!,
-`;
-
-export const commonAssessmentCategoryTypes = `
-    _id: String
-    name: String
-    formId: String
-    parentId: String
 `;
 
 export const commonRiskIndicatorFormParams = `

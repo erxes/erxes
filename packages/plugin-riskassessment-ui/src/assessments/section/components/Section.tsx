@@ -49,33 +49,6 @@ class Section extends React.Component<Props> {
   renderAssignedUser = () => {
     const { riskAssessments, cardId, cardType } = this.props;
 
-    const selection = riskAssessments.map(riskAssessment => {
-      const {
-        branchId,
-        branch,
-        department,
-        departmentId,
-        operation,
-        operationId
-      } = riskAssessment;
-
-      let doc: any = {};
-
-      if (branch && branchId) {
-        doc = { ...doc, branchId, branchName: branch.title };
-      }
-      if (department && departmentId) {
-        doc = { ...doc, departmentId, departmentName: department.title };
-      }
-      if (operationId && operationId) {
-        doc = { ...doc, operationId, operationName: operation.name };
-      }
-
-      return doc;
-    });
-
-    console.log({ selection });
-
     const updatedProps = {
       riskAssessments,
       cardId,
@@ -91,7 +64,9 @@ class Section extends React.Component<Props> {
       statusColor,
       department,
       branch,
-      operation
+      operation,
+      group,
+      indicator
     } = riskAssessment as RiskAssessmentTypes;
 
     const renderName = () => {
@@ -99,6 +74,14 @@ class Section extends React.Component<Props> {
         return `${branch?.title || ''} ${department?.title ||
           ''} ${operation?.name || ''}`;
       }
+
+      if (group) {
+        return group?.name || '';
+      }
+      if (indicator) {
+        return indicator?.name || '';
+      }
+
       if (status) {
         return status;
       }
@@ -128,7 +111,7 @@ class Section extends React.Component<Props> {
   renderBulkAssessment(riskAssessments: RiskAssessmentTypes[]) {
     return riskAssessments.map(assessment => (
       <SectionBodyItem key={assessment._id}>
-        {this.renderItem(assessment)}
+        {this.renderSingleAssessment(assessment)}
       </SectionBodyItem>
     ));
   }
@@ -168,6 +151,7 @@ class Section extends React.Component<Props> {
       <FormContainer column padding="0 0 10px 0">
         <Box
           title="Risk Assessment"
+          name="riskAssessments"
           extraButtons={!riskAssessments.length && extraButton}
           collapsible
         >

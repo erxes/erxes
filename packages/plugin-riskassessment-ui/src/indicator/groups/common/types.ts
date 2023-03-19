@@ -1,3 +1,4 @@
+import { ITag } from '@erxes/ui-tags/src/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 import { RiskCalculateLogicType } from '../../common/types';
 
@@ -12,6 +13,7 @@ export interface IIndicatorsGroups {
   name: string;
   description: string;
   tagIds: string[];
+  tags: ITag[];
   calculateMethod: string;
   calculateLogics: [RiskCalculateLogicType];
   groups: [IIndicatorsGroup];

@@ -6,16 +6,24 @@ import { RiskAssessmentGroupParams } from '../types';
 const generateFilter = async (params, models: IModels) => {
   let filter: any = {};
 
+  if (params.cardType) {
+    filter.cardType = params.cardType;
+  }
+
+  if (params.groupIds) {
+    filter.groupId = { $in: params.groupIds };
+  }
+
   if (params.operationIds) {
-    filter.operationIds = { $in: params.operationIds };
+    filter.operationId = { $in: params.operationIds };
   }
 
   if (params.branchIds) {
-    filter.branchIds = { $in: params.branchIds };
+    filter.branchId = { $in: params.branchIds };
   }
 
   if (params.departmentIds) {
-    filter.departmentIds = { $in: params.departmentId };
+    filter.departmentId = { $in: params.departmentIds };
   }
   if (params.riskIndicatorIds) {
     const groupIds = (

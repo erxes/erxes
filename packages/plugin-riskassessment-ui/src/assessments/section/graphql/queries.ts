@@ -20,6 +20,13 @@ query RiskAssessment($cardId: String, $cardType: String) {
       _id,name
     },
     groupId,
+    group {
+      _id,name
+    }
+    indicatorId
+    indicator {
+      _id,name
+    }
     isSplittedUsers,
     createdAt
   }
@@ -63,6 +70,7 @@ query RiskAssessmentIndicatorForm($indicatorId: String, $riskAssessmentId: Strin
 `;
 
 const commonIndicatorParams = `
+  $ids:[String],
   $departmentIds:[String]
   $branchIds:[String]
   $operationIds:[String],
@@ -72,6 +80,7 @@ const commonIndicatorParams = `
 `;
 
 const commonIndicatorParamsDef = `
+  ids:$ids,
   tagIds: $tagIds ,
   perPage: $perPage,
   searchValue: $searchValue,
@@ -118,6 +127,20 @@ const indicatorAssessments = `
   }
 }
 `;
+const riskIndicatorsGroup = `
+    query RiskIndicatorsGroup ($_id:String) {
+        riskIndicatorsGroup(_id:$_id){
+            _id,
+            name,
+            tagIds
+            groups {
+                _id
+                name
+            }
+        }
+
+    }
+`;
 
 export default {
   riskAssessment,
@@ -126,5 +149,6 @@ export default {
   riskAssessmentSubmitForm,
   riskAssessmentIndicatorForm,
   riskIndicators,
-  indicatorAssessments
+  indicatorAssessments,
+  riskIndicatorsGroup
 };

@@ -12,7 +12,7 @@ import {
   ModalFooter
 } from '@erxes/ui/src/styles/main';
 import { IField } from '@erxes/ui/src/types';
-import { default as loadash, default as _loadash } from 'lodash';
+import { default as _loadash } from 'lodash';
 import React from 'react';
 import { Padding } from '../../../styles';
 import { DetailPopOver } from '../../common/utils';
@@ -21,7 +21,6 @@ import IndicatorAssessmentHistory from '../containers/IndicatorAssessmentHistory
 type Props = {
   fields: IField[];
   submittedFields: any;
-  customScoreField: any;
   withDescription: boolean;
   submitForm: (doc: any) => void;
   closeModal: () => void;
@@ -31,7 +30,6 @@ type Props = {
 
 type State = {
   submissions: { [key: string]: { value: string; description: string } };
-  customScore: { value: number; description: string };
 };
 
 class IndicatorForm extends React.Component<Props, State> {
@@ -39,22 +37,26 @@ class IndicatorForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      submissions: props?.submittedFields || {},
-      customScore: {
-        value: 0,
-        description: ''
-      }
+      submissions: {}
     };
 
     this.submitForm = this.submitForm.bind(this);
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (
+      JSON.stringify(nextProps.submittedFields) ===
+      JSON.stringify(this.state.submissions)
+    ) {
+      this.setState({ submissions: nextProps.submittedFields });
+    }
+  }
+
   submitForm() {
     const { submitForm } = this.props;
-    const { submissions, customScore } = this.state;
+    const { submissions } = this.state;
     submitForm({
-      formSubmissions: submissions,
-      customScore
+      formSubmissions: submissions
     });
   }
 
@@ -67,12 +69,6 @@ class IndicatorForm extends React.Component<Props, State> {
     const onChangeDescription = e => {
       const { submissions } = this.state;
       const { value } = e.currentTarget as HTMLInputElement;
-
-      if (key === 'customScore') {
-        return this.setState(prev => ({
-          customScore: { ...prev.customScore, description: value }
-        }));
-      }
 
       submissions[key] = {
         ...submissions[key],
@@ -102,7 +98,6 @@ class IndicatorForm extends React.Component<Props, State> {
     const {
       fields,
       submittedFields,
-      customScoreField,
       closeModal,
       onlyPreview,
       indicatorId
@@ -111,21 +106,11 @@ class IndicatorForm extends React.Component<Props, State> {
     const { submissions } = this.state;
 
     const handleChange = field => {
-      const { submissions } = this.state;
-
       submissions[field._id] = {
         ...submissions[field._id],
         value: field.value
       };
-
       this.setState({ submissions });
-    };
-
-    const handleChangeCustomScore = e => {
-      const { value } = e.currentTarget as HTMLInputElement;
-      this.setState(prev => ({
-        customScore: { ...prev.customScore, value: Number(value) }
-      }));
     };
 
     const setHistory = submissions => {
@@ -157,25 +142,6 @@ class IndicatorForm extends React.Component<Props, State> {
               )}
             </FormWrapper>
           ))}
-          {!loadash.isEmpty(customScoreField) && (
-            <FormWrapper>
-              <FormColumn>
-                <FormGroup>
-                  <ControlLabel>{customScoreField.label}</ControlLabel>
-                  <FormControl
-                    name="customScore"
-                    type="number"
-                    onChange={handleChangeCustomScore}
-                    value={customScoreField.value}
-                  />
-                </FormGroup>
-              </FormColumn>
-              {this.renderDescriptionField(
-                customScoreField.description,
-                'customScore'
-              )}
-            </FormWrapper>
-          )}
         </Padding>
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal}>

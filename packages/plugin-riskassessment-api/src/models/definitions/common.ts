@@ -26,15 +26,6 @@ export interface IRiskIndicatorsField {
   operationIds?: string[];
 }
 
-export interface IRiskAssessmentCategoryField extends PaginateField {
-  _id?: string;
-  name: string;
-  formId: string;
-  parentId: string;
-  code: string;
-  type: string;
-}
-
 export interface IRiskConformityField {
   _id: string;
   cardId: string;
@@ -61,7 +52,6 @@ export interface IRiskFormSubmissionParams {
   cardType: string;
   userId: string;
   indicatorId: string;
-  customScore: { value: number; description: string };
   formSubmissions: {
     [key: string]: { value: number; description: string };
   };

@@ -13,7 +13,7 @@ import { withProps } from '@erxes/ui/src/utils/core';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql, useQuery } from 'react-apollo';
 import { ListItem } from '../../../styles';
 import { queries } from '../graphql';
 import { GroupsQueryResponse } from './types';
@@ -35,7 +35,6 @@ type SelectGroupsAssignedUsersFinalProps = {
 
 function SelectGroupAssignedUsers({
   index,
-  riskAssessmentId,
   group,
   assignedUserIds,
   groupAssignedUserIds,
@@ -59,6 +58,7 @@ function SelectGroupAssignedUsers({
           name="groupTeamMembers"
           label="Assign Team Members"
           initialValue={groupAssignedUserIds || []}
+          filterParams={{ status: '', ids: assignedUserIds }}
           onSelect={values =>
             handleSelect({
               groupId: group._id,
@@ -115,13 +115,14 @@ class SelectGroupsAssignedUsersComponent extends React.Component<
     } = this.props;
     const { groupsAssignedUsers } = this.state;
 
-    if (groupsQueryResponse.loading) {
+    if (groupsQueryResponse?.loading) {
       return <Spinner />;
     }
 
     const cardDetail = cardDetailQuery[`${cardType}Detail`] || {};
 
-    const riskAssessmentGroups = groupsQueryResponse.riskAssessmentGroups || [];
+    const riskAssessmentGroups =
+      groupsQueryResponse?.riskAssessmentGroups || [];
 
     const assignedUserIds = (cardDetail.assignedUsers || []).map(
       user => user._id
@@ -234,3 +235,33 @@ export const SelectGroupsAssignedUsers = withProps<
     })
   )(SelectGroupsAssignedUsersComponent)
 );
+
+export function SelectGroupsAssignedUsersWrapper({
+  _id,
+  cardId,
+  cardType,
+  handleSelect
+}) {
+  if (!_id) {
+    return <></>;
+  }
+  const { data, loading } = useQuery(gql(queries.riskIndicatorsGroup), {
+    variables: {
+      _id
+    }
+  });
+
+  if (loading) {
+    return <Spinner />;
+  }
+  const { riskIndicatorsGroup } = data;
+  return (
+    <SelectGroupsAssignedUsers
+      cardId={cardId}
+      cardType={cardType}
+      handleSelect={handleSelect}
+      riskAssessmentId=""
+      groups={riskIndicatorsGroup?.groups || []}
+    />
+  );
+}

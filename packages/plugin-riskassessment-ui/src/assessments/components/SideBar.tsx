@@ -1,31 +1,36 @@
-import React from 'react';
 import {
-  Sidebar,
-  FormGroup,
+  Box,
   ControlLabel,
-  Tip,
+  DateControl,
+  FormGroup,
   Icon,
-  __,
-  DateControl
+  Sidebar,
+  Tip,
+  __
 } from '@erxes/ui/src';
-import {
-  SidebarHeader,
-  Padding,
-  ClearableBtn,
-  FormContainer as Container,
-  Box as StatusBox,
-  ColorBox,
-  CustomRangeContainer,
-  EndDateContainer
-} from '../../styles';
-import { SelectRiskIndicator, SelectOperations } from '../../common/utils';
-import { removeParams, setParams } from '@erxes/ui/src/utils/router';
-import Select from 'react-select-plus';
+import { DateContainer } from '@erxes/ui/src/styles/main';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import { removeParams, setParams } from '@erxes/ui/src/utils/router';
+import React from 'react';
+import Select from 'react-select-plus';
 import { cardTypes, statusColorConstant } from '../../common/constants';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import { FilterByTags } from '../../common/utils';
+import {
+  FilterByTags,
+  SelectIndicatorGroups,
+  SelectIndicators,
+  SelectOperations
+} from '../../common/utils';
+import {
+  Box as StatusBox,
+  ClearableBtn,
+  ColorBox,
+  CustomRangeContainer,
+  EndDateContainer,
+  FormContainer as Container,
+  Padding,
+  SidebarHeader
+} from '../../styles';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -41,21 +46,26 @@ export function SideBar({ history, queryParams }) {
   };
 
   const handleRiskIndicator = values => {
+    removeParams(history, 'page');
     setParams(history, { riskIndicatorIds: values });
   };
   const selectStatus = color => {
+    removeParams(history, 'page');
     setParams(history, { status: color });
   };
 
   const dateOrder = (value, name) => {
+    removeParams(history, 'page');
     setParams(history, {
       [name]: new Date(value).valueOf()
     });
   };
   const onChangeCardType = e => {
+    removeParams(history, 'page');
     setParams(history, { cardType: e.value });
   };
   const handleSelectStructure = (values, name) => {
+    removeParams(history, 'page');
     setParams(history, { [name]: [...values] });
   };
   const CustomForm = ({ children, label, field, clearable }: LayoutProps) => {
@@ -83,77 +93,130 @@ export function SideBar({ history, queryParams }) {
     );
   };
 
+  const renderFiltersSelectionExtraBtn = () => {
+    const params = [
+      queryParams.branchIds,
+      queryParams.departmentIds,
+      queryParams.operationIds,
+      queryParams.cardType,
+      queryParams.riskIndicatorIds
+    ].every(i => !i);
+
+    if (params) {
+      return <></>;
+    }
+
+    const removeFilters = () => {
+      removeParams(
+        history,
+        'branchIds',
+        'departmentIds',
+        'operationIds',
+        'cardType',
+        'riskIndicatorIds'
+      );
+    };
+
+    return (
+      <button onClick={removeFilters}>
+        <Icon icon="cancel-1" />
+      </button>
+    );
+  };
+
   return (
     <Sidebar
       full
       header={<SidebarHeader>{__('Additional Filter')}</SidebarHeader>}
     >
       <Padding>
-        <CustomForm
-          label="Card type"
-          field={'cardType'}
-          clearable={!!queryParams?.cardType}
+        <FilterByTags history={history} queryParams={queryParams} />
+        <Box
+          title="Filters by Selection"
+          name="filterSelection"
+          extraButtons={renderFiltersSelectionExtraBtn()}
         >
-          <Select
-            placeholder={__('Select Type')}
-            value={queryParams?.cardType}
-            options={cardTypes}
-            multi={false}
-            onChange={onChangeCardType}
-          />
-        </CustomForm>
-        <CustomForm
-          label="Risk Indicator"
-          field={'riskIndicatorIds'}
-          clearable={!!queryParams.riskIndicatorIds}
-        >
-          <SelectRiskIndicator
-            name="riskIndicatorIds"
-            label="Select risk indicators"
-            initialValue={queryParams?.riskIndicatorIds}
-            onSelect={handleRiskIndicator}
-            multi={true}
-          />
-        </CustomForm>
-        <CustomForm
-          label={'Branches'}
-          field={'branchIds'}
-          clearable={!!queryParams?.branchIds}
-        >
-          <SelectBranches
-            name="branchIds"
-            label="Select Branches"
-            initialValue={queryParams?.branchIds}
-            onSelect={handleSelectStructure}
-            multi={true}
-          />
-        </CustomForm>
-        <CustomForm
-          label={'Departments'}
-          field={'departmentIds'}
-          clearable={!!queryParams?.departmentIds}
-        >
-          <SelectDepartments
-            name="departmentIds"
-            label="Select Departments"
-            initialValue={queryParams?.departmentIds}
-            onSelect={handleSelectStructure}
-            multi={true}
-          />
-        </CustomForm>
-        <CustomForm
-          label={'Operations'}
-          field={'operationIds'}
-          clearable={!!queryParams?.operationIds}
-        >
-          <SelectOperations
-            name="operationIds"
-            label="Select Operations"
-            initialValue={queryParams?.operationIds}
-            onSelect={handleSelectStructure}
-            multi={true}
-          />
-        </CustomForm>
+          <Padding>
+            <CustomForm
+              label="Card type"
+              field={'cardType'}
+              clearable={!!queryParams?.cardType}
+            >
+              <Select
+                placeholder={__('Select Type')}
+                value={queryParams?.cardType}
+                options={cardTypes}
+                multi={false}
+                onChange={onChangeCardType}
+              />
+            </CustomForm>
+            <CustomForm
+              label="Indicators groupg"
+              field={'groupIds'}
+              clearable={!!queryParams.groupIds}
+            >
+              <SelectIndicatorGroups
+                name="groupIds"
+                label="Select indicator groups"
+                initialValue={queryParams?.groupIds}
+                onSelect={handleSelectStructure}
+                multi={true}
+              />
+            </CustomForm>
+            <CustomForm
+              label="Indicators"
+              field={'riskIndicatorIds'}
+              clearable={!!queryParams.riskIndicatorIds}
+            >
+              <SelectIndicators
+                name="riskIndicatorIds"
+                label="Select risk indicators"
+                initialValue={queryParams?.riskIndicatorIds}
+                onSelect={handleSelectStructure}
+                multi={true}
+              />
+            </CustomForm>
+            <CustomForm
+              label={'Branches'}
+              field={'branchIds'}
+              clearable={!!queryParams?.branchIds}
+            >
+              <SelectBranches
+                name="branchIds"
+                label="Select Branches"
+                initialValue={queryParams?.branchIds}
+                onSelect={handleSelectStructure}
+                multi={true}
+              />
+            </CustomForm>
+            <CustomForm
+              label={'Departments'}
+              field={'departmentIds'}
+              clearable={!!queryParams?.departmentIds}
+            >
+              <SelectDepartments
+                name="departmentIds"
+                label="Select Departments"
+                initialValue={queryParams?.departmentIds}
+                onSelect={handleSelectStructure}
+                multi={true}
+              />
+            </CustomForm>
+            <CustomForm
+              label={'Operations'}
+              field={'operationIds'}
+              clearable={!!queryParams?.operationIds}
+            >
+              <SelectOperations
+                name="operationIds"
+                label="Select Operations"
+                initialValue={queryParams?.operationIds}
+                onSelect={handleSelectStructure}
+                multi={true}
+              />
+            </CustomForm>
+          </Padding>
+        </Box>
         <CustomForm
           label="Status"
           field={'status'}
@@ -177,25 +240,25 @@ export function SideBar({ history, queryParams }) {
         </CustomForm>
         <CustomForm
           label="Created Date Range"
-          field={['createdFrom', 'createdTo']}
-          clearable={queryParams?.createdFrom || queryParams?.createdTo}
+          field={['createdAtFrom', 'createdAtTo']}
+          clearable={queryParams?.createdAtFrom || queryParams?.createdAtTo}
         >
           <CustomRangeContainer>
             <DateContainer>
               <DateControl
-                name="createdFrom"
-                value={generateQueryParamsDate(queryParams?.createdFrom)}
+                name="createdAtFrom"
+                value={generateQueryParamsDate(queryParams?.createdAtFrom)}
                 placeholder="select from date "
-                onChange={e => dateOrder(e, 'createdFrom')}
+                onChange={e => dateOrder(e, 'createdAtFrom')}
               />
             </DateContainer>
             <EndDateContainer>
               <DateContainer>
                 <DateControl
-                  name="createdTo"
-                  value={generateQueryParamsDate(queryParams?.createdTo)}
+                  name="createdAtTo"
+                  value={generateQueryParamsDate(queryParams?.createdAtTo)}
                   placeholder="select to date "
-                  onChange={e => dateOrder(e, 'createdTo')}
+                  onChange={e => dateOrder(e, 'createdAtTo')}
                 />
               </DateContainer>
             </EndDateContainer>
@@ -203,31 +266,30 @@ export function SideBar({ history, queryParams }) {
         </CustomForm>
         <CustomForm
           label="Closed Date Range"
-          field={['closedFrom', 'closedTo']}
-          clearable={queryParams?.closedFrom || queryParams?.closedTo}
+          field={['closedAtFrom', 'closedAtTo']}
+          clearable={queryParams?.closedAtFrom || queryParams?.closedAtTo}
         >
           <CustomRangeContainer>
             <DateContainer>
               <DateControl
-                name="closedFrom"
-                value={generateQueryParamsDate(queryParams?.closedFrom)}
+                name="closedAtFrom"
+                value={generateQueryParamsDate(queryParams?.closedAtFrom)}
                 placeholder="select from date "
-                onChange={e => dateOrder(e, 'closedFrom')}
+                onChange={e => dateOrder(e, 'closedAtFrom')}
               />
             </DateContainer>
             <EndDateContainer>
               <DateContainer>
                 <DateControl
-                  name="closedTo"
-                  value={generateQueryParamsDate(queryParams?.closedTo)}
+                  name="closedAtTo"
+                  value={generateQueryParamsDate(queryParams?.closedAtTo)}
                   placeholder="select to date "
-                  onChange={e => dateOrder(e, 'closedTo')}
+                  onChange={e => dateOrder(e, 'closedAtTo')}
                 />
               </DateContainer>
             </EndDateContainer>
           </CustomRangeContainer>
         </CustomForm>
-        <FilterByTags history={history} queryParams={queryParams} />
       </Padding>
     </Sidebar>
   );

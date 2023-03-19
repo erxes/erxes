@@ -29,7 +29,6 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
 import Select from 'react-select-plus';
-import { mutations } from '../../categories/graphql';
 import { calculateMethods, COLORS } from '../../common/constants';
 import {
   ContentWrapper,
@@ -39,6 +38,7 @@ import {
   RemoveRow
 } from '../../styles';
 import { RiskCalculateLogicType } from '../common/types';
+import { mutations } from '../graphql';
 
 type Props = {
   formId?: string;
@@ -73,7 +73,7 @@ class Item extends React.Component<Props, State> {
         `Are you sure you want to close.Your created form won't save`
       ).then(() => {
         client.mutate({
-          mutation: gql(mutations.removeUnsavedRiskAssessmentCategoryForm),
+          mutation: gql(mutations.removeUnusedRiskIndicatorForm),
           variables: { formId }
         });
         return closeModal();
@@ -359,13 +359,12 @@ class Item extends React.Component<Props, State> {
           'Are you sure.If you remove this row you will lose created form data'
         ).then(() => {
           client.mutate({
-            mutation: gql(mutations.removeUnsavedRiskAssessmentCategoryForm),
+            mutation: gql(mutations.removeUnusedRiskIndicatorForm),
             variables: { formId: doc.formId }
           });
+          remove(id);
         });
       }
-
-      remove(id);
     };
 
     const content = formProps => (

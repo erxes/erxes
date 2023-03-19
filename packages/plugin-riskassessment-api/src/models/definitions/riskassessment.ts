@@ -1,14 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { field } from './utils';
 
-export interface IRiskAssessmentCategoryDocument extends Document {
-  _id: String;
-  name: String;
-  parentId: String;
-  order: String;
-  code: String;
-}
-
 interface AssessmentCommonTypes {
   status: string;
   statusColor: string;
@@ -61,15 +53,6 @@ export const commonAssessmentSchema = {
   createdAt: field({ type: Date, label: 'Created At', default: Date.now }),
   closedAt: field({ type: Date, optional: true, label: 'Closed At' })
 };
-
-export const riskAssessmentCategorySchema = new Schema({
-  _id: field({ pkey: true }),
-  name: field({ type: String, label: 'Category Name' }),
-  parentId: field({ type: String, label: 'Category Parent Name' }),
-  order: field({ type: String, label: 'Category Order' }),
-  code: field({ type: String, label: 'Category Code' }),
-  type: field({ type: String, label: 'Category Type' })
-});
 
 export const riskAssessmentIndicatorsSchema = new Schema({
   assessmentId: field({ type: String, label: 'Risk assessment Id' }),

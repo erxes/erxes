@@ -126,6 +126,7 @@ class List extends React.Component<Props, State> {
               <FormControl componentClass="checkbox" onClick={selectAll} />
             </th>
             <th>{__('Name')}</th>
+            <th>{__('Tags')}</th>
             <th>{__('Created At')}</th>
             <th>{__('Modified At')}</th>
             <th>{__('')}</th>

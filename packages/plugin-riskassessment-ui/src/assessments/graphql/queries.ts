@@ -1,4 +1,5 @@
 const commonParams = `
+  $cardType:String,
   $branchIds: [String],
   $closedAtFrom: String,
   $closedAtTo: String,
@@ -14,9 +15,11 @@ const commonParams = `
   $sortDirection:Int
   $sortField:String
   $tagIds:[String]
+  $groupIds:[String]
 `;
 
 const commonParamsDef = ` 
+  cardType:$cardType,
   branchIds: $branchIds,
   closedAtFrom: $closedAtFrom,
   closedAtTo: $closedAtTo,
@@ -32,6 +35,7 @@ const commonParamsDef = `
   sortDirection: $sortDirection
   sortField: $sortField
   tagIds:$tagIds 
+  groupIds:$groupIds
  `;
 
 const commonField = `
