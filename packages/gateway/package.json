@@ -29,7 +29,8 @@
     "node-fetch": "^2.6.7",
     "nodejs-file-downloader": "^4.9.2",
     "server-timing": "^3.3.2",
-    "ws": "^8.4.0"
+    "ws": "^8.4.0",
+    "yaml": "^1.10.2"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.2",
