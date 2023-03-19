@@ -575,6 +575,11 @@ export const bustIframe = () => {
   }
 };
 
+export const getSubdomain = () => {
+  const env = (window as any).erxesEnv || {};
+  return env.subdomain || 'localhost';
+};
+
 // get env config from process.env or window.env
 export const getEnv = (): any => {
   const envs = {};
