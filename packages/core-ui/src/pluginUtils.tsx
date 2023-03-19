@@ -96,13 +96,16 @@ const useDynamicScript = args => {
   const [failed, setFailed] = React.useState(false);
 
   React.useEffect(() => {
-    if (!args.url || window[args.scope]) {
+    const id = `dynamic-script-${args.scope}`;
+
+    if (!args.url || document.getElementById(id)) {
       return;
     }
 
     const element = document.createElement('script');
 
     element.src = args.url;
+    element.id = id;
     element.type = 'text/javascript';
     element.async = true;
 
