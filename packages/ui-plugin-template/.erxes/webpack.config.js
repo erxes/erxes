@@ -151,8 +151,11 @@ module.exports = (env, args) => {
           const { REACT_APP_PUBLIC_PATH } = window.env || {};
           const remoteUrl = (REACT_APP_PUBLIC_PATH ? REACT_APP_PUBLIC_PATH : window.location.origin) + '/remoteEntry.js';
 
-          const script = document.createElement('script')
-          script.src = remoteUrl
+          const id = 'coreuiRemoteEntry';
+
+          const script = document.createElement('script');
+          script.src = remoteUrl;
+          script.id = id;
           script.onload = () => {
             // the injected script has loaded and is available on window
             // we can now resolve this Promise
@@ -168,8 +171,11 @@ module.exports = (env, args) => {
             }
             resolve(proxy)
           }
-          // inject this script with the src set to the versioned remoteEntry.js
-          document.head.appendChild(script);
+
+          if (!document.getElementById(id)) {
+            // inject this script with the src set to the versioned remoteEntry.js
+            document.head.appendChild(script);
+          }
         })
         `,
         },
