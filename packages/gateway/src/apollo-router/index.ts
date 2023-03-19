@@ -68,6 +68,9 @@ const createRouterConfig = () => {
       listen: `127.0.0.1:${apolloRouterPort}`
     }
   };
+
+  console.log('mmmmmmmmmmmm', config);
+
   fs.writeFileSync(routerConfigPath, yaml.stringify(config));
 };
 
