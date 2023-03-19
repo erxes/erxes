@@ -69,8 +69,6 @@ const createRouterConfig = () => {
     }
   };
 
-  console.log('mmmmmmmmmmmm', config);
-
   fs.writeFileSync(routerConfigPath, yaml.stringify(config));
 };
 
