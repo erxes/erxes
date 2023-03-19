@@ -96,7 +96,7 @@ const useDynamicScript = args => {
   const [failed, setFailed] = React.useState(false);
 
   React.useEffect(() => {
-    if (!args.url) {
+    if (!args.url || window[args.scope]) {
       return;
     }
 
@@ -189,7 +189,8 @@ const renderPluginSidebar = (itemName: string, type: string, object: any) => {
 const System = props => {
   if (props.loadScript) {
     const { ready, failed } = useDynamicScript({
-      url: props.system && props.system.url
+      url: props.system && props.system.url,
+      scope: props.system.scope
     });
 
     if (!props.system || !ready || failed) {
