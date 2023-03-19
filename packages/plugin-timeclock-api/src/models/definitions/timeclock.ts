@@ -3,16 +3,12 @@ import { field } from './utils';
 
 export interface ITimeClock {
   userId?: string;
-  employeeId?: number;
-  employeeUserName?: string;
   shiftStart: Date;
   shiftEnd?: Date;
   shiftActive?: boolean;
   branchName?: string;
   deviceName?: string;
   deviceType?: string;
-  longitude?: number;
-  latitude?: number;
 }
 
 export interface ITimeClockDocument extends ITimeClock, Document {
@@ -38,7 +34,7 @@ export interface IAbsence {
   checkTime?: Date;
   checkInOutRequest?: boolean;
 
-  reason?: string;
+  reason: string;
   explanation?: string;
   status?: string;
   solved?: boolean;
@@ -49,7 +45,7 @@ export interface IAbsenceType {
 
   requestType?: string;
   requestTimeType?: string;
-  requestHoursPerDay?: number;
+  requestHoursPerDay: number;
 
   explRequired: boolean;
   attachRequired: boolean;
@@ -169,14 +165,6 @@ export const timeclockSchema = new Schema({
   deviceName: field({
     type: String,
     label: 'Device name, which user used to clock in / out '
-  }),
-  employeeUserName: field({
-    type: String,
-    label: 'Employee user name, as saved on companys terminal'
-  }),
-  employeeId: field({
-    type: String,
-    label: 'Employee id, custom field'
   }),
   deviceType: field({
     type: String,
@@ -410,7 +398,16 @@ export interface IUserExportReport {
   totalHoursOvernight?: string;
   totalMinsLate?: string;
 
+  absenceInfo?: IUserAbsenceInfo;
+
   scheduleReport?: IScheduleReport[];
+}
+
+export interface IUserAbsenceInfo {
+  totalHoursWorkedAbroad?: number;
+  totalHoursPaidAbsence?: number;
+  totalHoursUnpaidAbsence?: number;
+  totalHoursSick?: number;
 }
 
 export interface IUsersReport {

@@ -74,7 +74,7 @@ function ReportList(props: Props) {
               <th colSpan={6} style={{ textAlign: 'center' }}>
                 {__('Timeclock info')}
               </th>
-              <th colSpan={3} style={{ textAlign: 'center' }}>
+              <th colSpan={4} style={{ textAlign: 'center' }}>
                 {__('Absence info')}
               </th>
               <th rowSpan={2}>{__('Checked by member')}</th>
@@ -88,9 +88,10 @@ function ReportList(props: Props) {
               <td>{__('Overnight')}</td>
               <td>{__('Total')}</td>
               <td>{__('Mins Late')}</td>
-              <th>{__('-')}</th>
-              <th>{__('-')}</th>
-              <th>{__('-')}</th>
+              <td>{__('Томилолтоор ажилласан цаг')}</td>
+              <td>{__('Чөлөөтэй цаг цалинтай')}</td>
+              <td>{__('Чөлөөтэй цаг цалингүй')}</td>
+              <td>{__('Өвдсөн цаг /ХЧТАТ бодох цаг/')}</td>
             </tr>
           </>
         );

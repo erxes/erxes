@@ -34,7 +34,23 @@ function PagesList({
   pagesQuery,
   queryParams
 }: FinalProps) {
+  const limit = Number(queryParams.perPage || 20);
+  const pageIndex = Number(queryParams.page || 1);
+  const offset = limit * (pageIndex - 1);
+
   const { data, loading, error } = useQuery(gql(queries.pages), {
+    fetchPolicy: 'network-only',
+    variables: {
+      sort: {
+        code: 1,
+        listOrder: 1
+      },
+      limit,
+      offset
+    }
+  });
+
+  const totalCountQuery = useQuery(gql(queries.pages), {
     fetchPolicy: 'network-only',
     variables: {
       sort: {
@@ -44,7 +60,7 @@ function PagesList({
     }
   });
 
-  if (loading) {
+  if (loading || totalCountQuery.loading) {
     return <Spinner objective={true} />;
   }
 
@@ -104,12 +120,15 @@ function PagesList({
     filteredPages = pages.filter(p => p.title.includes(queryParams.search));
   }
 
+  const totalCount = totalCountQuery.data.forumPages.length || 0;
+
   const content = props => {
     return (
       <PageList
         {...props}
         queryParams={queryParams}
         renderButton={renderButton}
+        totalCount={totalCount}
         pages={queryParams.search ? filteredPages : pages}
         history={history}
         remove={remove}

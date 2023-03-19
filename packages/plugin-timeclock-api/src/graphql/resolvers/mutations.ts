@@ -464,6 +464,7 @@ const timeclockMutations = {
       startTime: startDate,
       endTime: endDate,
       status: 'Holiday',
+      reason: 'Holiday',
       solved: true
     });
   },
@@ -598,6 +599,14 @@ const timeclockMutations = {
   checkSchedule(_root, { scheduleId }, { models }: IContext) {
     return models.Schedules.updateSchedule(scheduleId, {
       scheduleChecked: true
+    });
+  },
+
+  createTimeClockFromLog(_root, { userId, timelog }, { models }: IContext) {
+    return models.Timeclocks.createTimeClock({
+      shiftStart: timelog,
+      userId,
+      shiftActive: true
     });
   },
 

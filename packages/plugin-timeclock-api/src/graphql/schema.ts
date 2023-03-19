@@ -85,6 +85,13 @@ export const types = `
     submittedByAdmin: Boolean
   }
 
+  type IUserAbsenceInfo{ 
+    totalHoursWorkedAbroad: Float
+    totalHoursPaidAbsence: Float
+    totalHoursUnpaidAbsence: Float
+    totalHoursSick: Float
+  }
+
   type ScheduleReport{
     timeclockDate: String
     timeclockStart: Date
@@ -128,8 +135,8 @@ export const types = `
     totalMinsLateThisMonth: Int
     totalMinsAbsenceThisMonth: Int
 
+    absenceInfo: IUserAbsenceInfo
   }
-
   
   type Report {
     groupTitle: String
@@ -317,6 +324,8 @@ export const mutations = `
   
   checkReport(userId: String, startDate: String, endDate: String): CheckReport
   checkSchedule(scheduleId: String): JSON
+
+  createTimeClockFromLog(userId: String, timelog: Date): Timeclock
 
   extractAllDataFromMsSQL(startDate: String, endDate: String): [Timeclock]
   extractTimeLogsFromMsSQL(startDate: String, endDate: String): [Timelog]
