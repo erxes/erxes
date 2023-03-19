@@ -52,10 +52,12 @@ const createSupergraphConfig = (proxyTargets: ErxesProxyTarget[]) => {
 
 const supergraphComposeOnce = async () => {
   const superGraphqlNext = supergraphPath + '.next';
+
   execSync(
     `node dist/node_modules/.bin/rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept`,
-    { stdio: 'pipe' }
+    { stdio: 'inherit' }
   );
+
   if (
     !fs.existsSync(supergraphPath) ||
     !isSameFile(supergraphPath, superGraphqlNext)
