@@ -172,13 +172,10 @@ module.exports = (env, args) => {
             resolve(proxy)
           }
 
-          // inject this script with the src set to the versioned remoteEntry.js
-          document.head.appendChild(script);
-
-          // if (!document.getElementById(id)) {
-          //   // inject this script with the src set to the versioned remoteEntry.js
-          //   document.head.appendChild(script);
-          // }
+          if (!document.getElementById(id)) {
+            // inject this script with the src set to the versioned remoteEntry.js
+            document.head.appendChild(script);
+          }
         })
         `,
         },

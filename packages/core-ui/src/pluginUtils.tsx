@@ -98,7 +98,7 @@ const useDynamicScript = args => {
   React.useEffect(() => {
     const id = `dynamic-script-${args.scope}`;
 
-    if (!args.url || document.getElementById(id)) {
+    if (!args.url) {
       return;
     }
 
@@ -123,7 +123,9 @@ const useDynamicScript = args => {
       setFailed(true);
     };
 
-    document.head.appendChild(element);
+    if (!document.getElementById(id)) {
+      document.head.appendChild(element);
+    }
 
     return () => {
       console.log(`Dynamic Script Removed: ${args.url}`);
