@@ -26,13 +26,15 @@ yarn test
 REDIS_HOST=localhost
 REDIS_PORT=6379
 REDIS_PASSWORD=
+REDIS_DB=0
 ```
 
 Redis is necessary for reactive subscriptions.
 
 - `REDIS_HOST` is your redis server's URL.
-- `REDIST_PORT` defines which port is redis running.
+- `REDIS_PORT` defines which port is redis running.
 - `REDIS_PASSWORD` fill this if you have password on your redis server.
+- `REDIS_DB` defines which redis db number you witch to use.
 
 ## General configs
 
