@@ -4,6 +4,7 @@ import { __ } from '@erxes/ui/src/utils';
 import dayjs from 'dayjs';
 import { timeFormat } from '../../constants';
 import { returnDeviceTypes } from '../../utils';
+import { TextAlignCenter } from '../../styles';
 
 type Props = {
   reportType: string;
@@ -40,10 +41,10 @@ const ReportRow = (userReport: IUserReport, reportType: string) => {
           <td>{userReport.totalHoursOvernight}</td>
           <td>{userReport.totalHoursWorked}</td>
           <td>{userReport.totalMinsLate}</td>
-          <td>{'-'}</td>
-
-          <td>{'-'}</td>
-          <td>{'-'}</td>
+          <td>{userReport.absenceInfo?.totalHoursWorkedAbroad}</td>
+          <td>{userReport.absenceInfo?.totalHoursPaidAbsence}</td>
+          <td>{userReport.absenceInfo?.totalHoursUnpaidAbsence}</td>
+          <td>{userReport.absenceInfo?.totalHoursSick}</td>
           <td>{'-'}</td>
         </tr>
       );
