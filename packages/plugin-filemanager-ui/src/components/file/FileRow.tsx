@@ -9,13 +9,12 @@ import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from 'coreui/utils';
 import dayjs from 'dayjs';
-import { readFile } from '@erxes/ui/src/utils';
 import { renderFileIcon } from '../../utils';
 
 type Props = {
   item: any;
   queryParams: any;
-  remove: (fileId: string) => void;
+  remove?: (fileId: string) => void;
   isFolder?: boolean;
   isChecked?: boolean;
   toggleBulk?: (target: any, toAdd: boolean) => void;
@@ -42,7 +41,9 @@ const FileRow = ({
   };
 
   const onRemove = () => {
-    remove(item._id);
+    if (remove) {
+      remove(item._id);
+    }
   };
 
   const renderEditAction = () => {
@@ -74,8 +75,18 @@ const FileRow = ({
       </td>
       <td style={{ paddingLeft: '0' }}>
         <ItemName>
-          <a href={`/filemanager/details/${item._id}`}>
-            {renderFileIcon(item.type === 'dynamic' ? 'aaa.dynamic' : name)}
+          <a
+            href={
+              isFolder
+                ? `/filemanager/folder/details/${item._id}`
+                : `/filemanager/details/${item._id}`
+            }
+          >
+            {isFolder ? (
+              <img src="/images/folder.png" alt="folder" />
+            ) : (
+              renderFileIcon(item.type === 'dynamic' ? 'aaa.dynamic' : name)
+            )}
             {isFolder || item.contentType ? item.name : name}
           </a>
         </ItemName>
@@ -85,9 +96,11 @@ const FileRow = ({
       <td>
         <ActionButtons>
           {/* {item.contentType && renderEditAction()} */}
-          <Tip text={__('Delete')} placement="bottom">
-            <Button btnStyle="link" onClick={onRemove} icon="cancel-1" />
-          </Tip>
+          {remove && (
+            <Tip text={__('Delete')} placement="bottom">
+              <Button btnStyle="link" onClick={onRemove} icon="cancel-1" />
+            </Tip>
+          )}
         </ActionButtons>
       </td>
     </tr>

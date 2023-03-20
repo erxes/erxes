@@ -30,13 +30,7 @@ type FinalProps = {
   RemoveFilemanagerFolderMutationResponse;
 
 const FolderListContainer = (props: FinalProps) => {
-  const {
-    removeMutation,
-    filemanagerFolders,
-    history,
-    parentFolderId,
-    filemanagerFoldersQuery
-  } = props;
+  const { removeMutation, filemanagerFolders, filemanagerFoldersQuery } = props;
 
   const getDifference = (array1, array2) => {
     return array1.filter(object1 =>
@@ -52,8 +46,6 @@ const FolderListContainer = (props: FinalProps) => {
       })
         .then(() => {
           Alert.success('You successfully deleted a folder.');
-
-          history.push('/filemanager');
         })
         .catch(error => {
           Alert.error(error.message);
@@ -76,7 +68,6 @@ const FolderListContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    childrens: [],
     filemanagerFolders,
     remove
   };
