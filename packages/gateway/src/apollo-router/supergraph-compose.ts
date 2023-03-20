@@ -13,7 +13,7 @@ import * as yaml from 'yaml';
 const { NODE_ENV, SUPERGRAPH_POLL_INTERVAL_MS } = process.env;
 
 type SupergraphConfig = {
-  federation_version: number;
+  federation_version: string;
   subgraphs: {
     [name: string]: {
       routing_url: string;
@@ -27,7 +27,7 @@ type SupergraphConfig = {
 const createSupergraphConfig = (proxyTargets: ErxesProxyTarget[]) => {
   const superGraphConfigNext = supergraphConfigPath + '.next';
   const config: SupergraphConfig = {
-    federation_version: 2,
+    federation_version: '=2.3.1',
     subgraphs: {}
   };
 
