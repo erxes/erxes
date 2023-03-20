@@ -46,6 +46,10 @@ ${
     registrationContent : String
   }
 
+  type ManualVerificationConfig {
+    userIds: [String]
+  }
+
   input OTPConfigInput {
     content: String
     codeLength: Int
@@ -95,6 +99,7 @@ ${
   
     otpConfig: OTPConfig
     mailConfig: MailConfig
+    manualVerificationConfig: ManualVerificationConfig
 
     kbToggle: Boolean,
     publicTaskToggle: Boolean,
@@ -162,7 +167,8 @@ export const queries = (cardAvailable, kbAvailable) => `
     kbAvailable
       ? `
     clientPortalKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
-    clientPortalKnowledgeBaseArticles(searchValue: String, categoryIds: [String]): [KnowledgeBaseArticle]
+    clientPortalKnowledgeBaseArticles(searchValue: String, categoryIds: [String], topicId: String): 
+[KnowledgeBaseArticle]
    `
       : ''
   }
@@ -207,6 +213,7 @@ export const mutations = cardAvailable => `
 
     otpConfig: OTPConfigInput
     mailConfig: MailConfigInput
+    manualVerificationConfig: JSON
   ): ClientPortal
 
   clientPortalRemove (_id: String!): JSON
@@ -224,6 +231,8 @@ export const mutations = cardAvailable => `
         closeDate: Date
         startDate: Date
       ): JSON
+      clientPortalCommentsAdd(type: String!, typeId: String!, content: String! userType: String!): ClientPortalComment
+      clientPortalCommentsRemove(_id: String!): String
      `
       : ''
   }

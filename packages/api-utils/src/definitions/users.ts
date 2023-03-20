@@ -75,8 +75,8 @@ export interface IUserDocument extends IUser, Document {
 // Mongoose schemas ===============================
 const emailSignatureSchema = new Schema(
   {
-    brandId: field({ type: String, label: 'Brand' }),
-    signature: field({ type: String, label: 'Signature' })
+    brandId: field({ type: String, label: 'Email signature nrand' }),
+    signature: field({ type: String, label: 'Email signature' })
   },
   { _id: false }
 );
@@ -199,6 +199,11 @@ export const userSchema = schemaWrapper(
       label: 'Linked app id',
       optional: true
     }),
-    employeeId: field({ type: String, unique: true, optional: true })
+    employeeId: field({
+      type: String,
+      unique: true,
+      optional: true,
+      sparse: true
+    })
   })
 );

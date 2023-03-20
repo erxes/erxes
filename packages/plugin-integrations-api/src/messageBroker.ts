@@ -1,17 +1,9 @@
 import * as dotenv from 'dotenv';
-import {
-  removeAccount,
-  removeCustomers,
-  removeIntegration,
-  repairIntegrations
-} from './helpers';
-import { handleFacebookMessage } from './facebook/handleFacebookMessage';
+
+import { removeAccount, removeCustomers, removeIntegration } from './helpers';
+
 import { userIds } from './userMiddleware';
 import { getConfig } from './utils';
-import {
-  facebookCreateIntegration,
-  facebookGetCustomerPosts
-} from './facebook/controller';
 import {
   callproCreateIntegration,
   callproGetAudio
@@ -52,7 +44,7 @@ export const initBroker = async cl => {
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
-      const { action, type } = data;
+      const { action } = data;
 
       let response: any = null;
 
@@ -68,14 +60,6 @@ export const initBroker = async cl => {
               integrations: await models.Integrations.find({ kind: 'telnyx' })
             }
           };
-        }
-
-        if (action === 'repair-integrations') {
-          response = { data: await repairIntegrations(models, data._id) };
-        }
-
-        if (type === 'facebook') {
-          response = { data: await handleFacebookMessage(models, data) };
         }
 
         if (action === 'getConfigs') {
@@ -94,34 +78,6 @@ export const initBroker = async cl => {
     }
   );
 
-  // /facebook/get-status'
-  consumeRPCQueue(
-    'integrations:getFacebookStatus',
-    async ({ subdomain, data: { integrationId } }) => {
-      const models = await generateModels(subdomain);
-
-      const integration = await models.Integrations.findOne({
-        erxesApiId: integrationId
-      });
-
-      let result = {
-        status: 'healthy'
-      } as any;
-
-      if (integration) {
-        result = {
-          status: integration.healthStatus || 'healthy',
-          error: integration.error
-        };
-      }
-
-      return {
-        data: result,
-        status: 'success'
-      };
-    }
-  );
-
   // '/callpro/get-audio',
   consumeRPCQueue(
     'integrations:getCallproAudio',
@@ -135,44 +91,18 @@ export const initBroker = async cl => {
     }
   );
 
-  // /facebook/get-post
-  consumeRPCQueue(
-    'integrations:getFacebookPost',
-    async ({ subdomain, data: { erxesApiId } }) => {
-      const models = await generateModels(subdomain);
-
-      const post = await models.FbPosts.getPost({ erxesApiId }, true);
-
-      return {
-        data: post,
-        status: 'success'
-      };
-    }
-  );
-
-  // app.get('/facebook/get-customer-posts'
-  consumeRPCQueue(
-    'integrations:getFbCustomerPosts',
-    async ({ subdomain, data }) => {
-      const models = await generateModels(subdomain);
-
-      return {
-        data: await facebookGetCustomerPosts(models, data),
-        status: 'success'
-      };
-    }
-  );
-
   consumeRPCQueue(
     'integrations:createIntegration',
     async ({ subdomain, data: { doc, kind } }) => {
       const models = await generateModels(subdomain);
 
-      switch (kind) {
-        case 'facebook':
-          return facebookCreateIntegration(models, doc);
-        case 'callpro':
-          return callproCreateIntegration(models, doc);
+      if (kind === 'callpro') {
+        return callproCreateIntegration(models, doc);
+      } else {
+        return {
+          status: 'error',
+          errorMessage: `Unsupported kind: ${kind}`
+        };
       }
     }
   );
@@ -192,7 +122,7 @@ export const initBroker = async cl => {
   consumeQueue('integrations:notification', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const { action, payload, type } = data;
+    const { payload, type } = data;
 
     switch (type) {
       case 'removeCustomers':

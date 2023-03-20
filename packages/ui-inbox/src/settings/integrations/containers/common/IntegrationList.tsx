@@ -94,8 +94,8 @@ const IntegrationListContainer = (props: FinalProps) => {
     });
   };
 
-  const repair = (id: string) => {
-    repairIntegration({ variables: { _id: id } })
+  const repair = (id: string, kind: string) => {
+    repairIntegration({ variables: { _id: id, kind } })
       .then(() => {
         Alert.success(`Sucess`);
       })

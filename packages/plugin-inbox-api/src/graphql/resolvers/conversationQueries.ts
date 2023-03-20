@@ -51,7 +51,8 @@ const conversationQueries: any = {
     const qb = new QueryBuilder(models, subdomain, params, {
       _id: user._id,
       code: user.code,
-      starredConversationIds: user.starredConversationIds
+      starredConversationIds: user.starredConversationIds,
+      role: user.role
     });
 
     await qb.buildAllQueries();
@@ -136,7 +137,8 @@ const conversationQueries: any = {
     const _user = {
       _id: user._id,
       code: user.code,
-      starredConversationIds: user.starredConversationIds
+      starredConversationIds: user.starredConversationIds,
+      role: user.role
     };
 
     const qb = new QueryBuilder(models, subdomain, params, _user);

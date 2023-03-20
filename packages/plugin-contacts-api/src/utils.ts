@@ -29,7 +29,8 @@ import {
 import { companySchema } from './models/definitions/companies';
 import { ICustomField, ILink } from '@erxes/api-utils/src/types';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
-import { customFieldsDataByFieldCode } from './coc/utils';
+import { customFieldsDataByFieldCode } from '@erxes/api-utils/src/fieldUtils';
+import { sendCommonMessage } from './messageBroker';
 
 const EXTEND_FIELDS = {
   CUSTOMER: [
@@ -49,8 +50,11 @@ export const findCustomer = async (
 ) => {
   let customer;
 
+  const defaultFilter = { status: { $ne: 'deleted' } };
+
   if (doc.customerPrimaryEmail) {
     customer = await Customers.findOne({
+      ...defaultFilter,
       $or: [
         { emails: { $in: [doc.customerPrimaryEmail] } },
         { primaryEmail: doc.customerPrimaryEmail }
@@ -60,6 +64,7 @@ export const findCustomer = async (
 
   if (!customer && doc.customerPrimaryPhone) {
     customer = await Customers.findOne({
+      ...defaultFilter,
       $or: [
         { phones: { $in: [doc.customerPrimaryPhone] } },
         { primaryPhone: doc.customerPrimaryPhone }
@@ -68,11 +73,17 @@ export const findCustomer = async (
   }
 
   if (!customer && doc.customerCode) {
-    customer = await Customers.findOne({ code: doc.customerCode }).lean();
+    customer = await Customers.findOne({
+      ...defaultFilter,
+      code: doc.customerCode
+    }).lean();
   }
 
   if (!customer && doc._id) {
-    customer = await Customers.findOne({ _id: doc._id }).lean();
+    customer = await Customers.findOne({
+      ...defaultFilter,
+      _id: doc._id
+    }).lean();
   }
 
   if (!customer) {
@@ -82,7 +93,8 @@ export const findCustomer = async (
   if (customer) {
     customer.customFieldsDataByFieldCode = await customFieldsDataByFieldCode(
       customer,
-      subdomain
+      subdomain,
+      sendCommonMessage
     );
   }
 
@@ -96,8 +108,11 @@ export const findCompany = async (
 ) => {
   let company;
 
+  const defaultFilter = { status: { $ne: 'deleted' } };
+
   if (doc.companyPrimaryName) {
     company = await Companies.findOne({
+      ...defaultFilter,
       $or: [
         { names: { $in: [doc.companyPrimaryName] } },
         { primaryName: doc.companyPrimaryName }
@@ -107,24 +122,28 @@ export const findCompany = async (
 
   if (!company && doc.name) {
     company = await Companies.findOne({
+      ...defaultFilter,
       $or: [{ names: { $in: [doc.name] } }, { primaryName: doc.name }]
     }).lean();
   }
 
   if (!company && doc.email) {
     company = await Companies.findOne({
+      ...defaultFilter,
       $or: [{ emails: { $in: [doc.email] } }, { primaryEmail: doc.email }]
     }).lean();
   }
 
   if (!company && doc.phone) {
     company = await Companies.findOne({
+      ...defaultFilter,
       $or: [{ phones: { $in: [doc.phone] } }, { primaryPhone: doc.phone }]
     }).lean();
   }
 
   if (!company && doc.companyPrimaryEmail) {
     company = await Companies.findOne({
+      ...defaultFilter,
       $or: [
         { emails: { $in: [doc.companyPrimaryEmail] } },
         { primaryEmail: doc.companyPrimaryEmail }
@@ -134,6 +153,7 @@ export const findCompany = async (
 
   if (!company && doc.companyPrimaryPhone) {
     company = await Companies.findOne({
+      ...defaultFilter,
       $or: [
         { phones: { $in: [doc.companyPrimaryPhone] } },
         { primaryPhone: doc.companyPrimaryPhone }
@@ -142,11 +162,17 @@ export const findCompany = async (
   }
 
   if (!company && doc.companyCode) {
-    company = await Companies.findOne({ code: doc.companyCode }).lean();
+    company = await Companies.findOne({
+      ...defaultFilter,
+      code: doc.companyCode
+    }).lean();
   }
 
   if (!company && doc._id) {
-    company = await Companies.findOne({ _id: doc._id }).lean();
+    company = await Companies.findOne({
+      ...defaultFilter,
+      _id: doc._id
+    }).lean();
   }
 
   if (!company) {
@@ -156,7 +182,8 @@ export const findCompany = async (
   if (company) {
     company.customFieldsDataByFieldCode = await customFieldsDataByFieldCode(
       company,
-      subdomain
+      subdomain,
+      sendCommonMessage
     );
   }
 

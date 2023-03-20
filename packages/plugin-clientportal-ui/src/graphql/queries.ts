@@ -69,6 +69,10 @@ export const commonFields = `
     invitationContent
     registrationContent
   }
+
+  manualVerificationConfig {
+    userIds
+  }
 `;
 
 export const basicFields = `
@@ -103,6 +107,17 @@ export const basicFields = `
 export const clientPortalUserFields = `
   ${basicFields}
   createdAt
+
+  verificationRequest {
+    status
+    attachments{
+      name
+      url
+      size
+      type
+    }
+    description
+  }
 
   customFieldsData
 `;
@@ -212,6 +227,17 @@ const clientPortalUserDetail = `
   }
 `;
 
+const clientPortalComments = `
+  query clientPortalComments($typeId: String!, $type: String!) {
+    clientPortalComments(typeId: $typeId, type: $type) {
+      _id
+      content
+      createdAt
+      createdUser
+    }
+  }
+`;
+
 export default {
   getConfig,
   getConfigs,
@@ -220,5 +246,6 @@ export default {
   clientPortalUsers,
   clientPortalUsersMain,
   clientPortalUserDetail,
-  clientPortalUserCounts
+  clientPortalUserCounts,
+  clientPortalComments
 };

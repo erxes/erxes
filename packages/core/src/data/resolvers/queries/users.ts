@@ -75,32 +75,22 @@ const queryBuilder = async (models: IModels, params: IListArgs) => {
     selector.brandIds = { $in: brandIds };
   }
 
-  const getUserIds = obj => {
-    const userIds = obj.supervisorId
-      ? (obj.userIds || []).concat(obj.supervisorId)
-      : obj.userIds || [];
-
-    return { $in: userIds };
-  };
+  if (branchId) {
+    selector.branchIds = { $in: [branchId] };
+  }
 
   if (departmentId) {
-    const department = await models.Departments.getDepartment({
-      _id: departmentId
-    });
-
-    selector._id = getUserIds(department);
+    selector.departmentIds = { $in: [departmentId] };
   }
 
   if (unitId) {
     const unit = await models.Units.getUnit({ _id: unitId });
 
-    selector._id = getUserIds(unit);
-  }
+    const userIds = unit.supervisorId
+      ? (unit.userIds || []).concat(unit.supervisorId)
+      : unit.userIds || [];
 
-  if (branchId) {
-    const branch = await models.Branches.getBranch({ _id: branchId });
-
-    selector._id = getUserIds(branch);
+    selector._id = { $in: userIds };
   }
 
   return selector;

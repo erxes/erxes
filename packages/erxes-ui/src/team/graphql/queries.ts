@@ -6,20 +6,20 @@ const nameFields = `
   lastName
 `;
 
-const commonStructureParamsDef = `
+export const commonStructureParamsDef = `
+    $ids:[String]
     $perPage: Int,
     $page: Int 
     $searchValue: String,
     $status:String,
-    $withoutUserFilter:Boolean
 `;
 
-const commonStructureParamsValue = `
+export const commonStructureParamsValue = `
+    ids:$ids
     perPage: $perPage,
     page: $page 
     searchValue:$searchValue
     status:$status
-    withoutUserFilter:$withoutUserFilter
 `;
 
 const allUsers = `
@@ -144,20 +144,21 @@ const contactInfoFields = `
 `;
 
 const departments = `
-  query departments(${commonStructureParamsDef}) {
-    departments(${commonStructureParamsValue}) {
+  query departments(${commonStructureParamsDef},$withoutUserFilter:Boolean) {
+    departments(${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter) {
       ${departmentField}
     }
   }
 `;
 
 const departmentsMain = `
-  query departmentsMain(${commonStructureParamsDef}) {
-    departmentsMain(${commonStructureParamsValue}) {
+  query departmentsMain(${commonStructureParamsDef},$withoutUserFilter:Boolean) {
+    departmentsMain(${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter) {
       list {
         ${departmentField}
       }
       totalCount
+      totalUsersCount
     }
   }
 `;
@@ -198,6 +199,17 @@ const unitField = `
   }
 `;
 
+const unitsMain = `
+  query unitsMain(${commonStructureParamsDef}) {
+    unitsMain(${commonStructureParamsValue}) {
+      list {
+        ${unitField}
+      }
+      totalCount
+      totalUsersCount
+    }
+  }
+`;
 const units = `
   query units ($searchValue:String) {
     units (searchValue:$searchValue) {
@@ -228,8 +240,8 @@ export const branchField = `
 `;
 
 const branches = `
-  query branches(${commonStructureParamsDef}) {
-    branches (${commonStructureParamsValue}){
+  query branches(${commonStructureParamsDef},$withoutUserFilter:Boolean) {
+    branches (${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter){
       ${branchField}
         parent {${branchField}}
     }
@@ -237,13 +249,14 @@ const branches = `
 `;
 
 const branchesMain = `
-  query branchesMain(${commonStructureParamsDef}) {
-    branchesMain (${commonStructureParamsValue}){
+  query branchesMain(${commonStructureParamsDef},$withoutUserFilter:Boolean) {
+    branchesMain (${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter){
       list {
         ${branchField}
         parent {${branchField}}
       }
       totalCount
+      totalUsersCount
     }
   }
 `;
@@ -429,6 +442,8 @@ const fieldsGroups = `
     fieldsGroups(contentType: $contentType, isDefinedByErxes: $isDefinedByErxes, config: $config) {
       name
       ${genericFields}
+      isMultiple
+      parentId
       config
       logicAction
       logics {
@@ -465,6 +480,20 @@ const userMovements = `
   }
 `;
 
+const brands = `
+  query brands($page: Int, $perPage: Int, $searchValue: String) {
+    brands(page: $page, perPage: $perPage, searchValue: $searchValue) {
+      _id
+      code
+      name
+      createdAt
+      description
+      emailConfig
+      memberIds
+    }
+  }
+`;
+
 export default {
   userSkills,
   userDetail,
@@ -477,6 +506,7 @@ export default {
   departmentsMain,
   departmentDetail,
   units,
+  unitsMain,
   unitDetail,
   noDepartmentUsers,
   branches,
@@ -486,5 +516,6 @@ export default {
   channels: channelQueries.channels,
   skillTypes,
   fieldsGroups,
-  userMovements
+  userMovements,
+  brands
 };

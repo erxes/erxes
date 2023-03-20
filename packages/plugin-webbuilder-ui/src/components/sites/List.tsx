@@ -12,13 +12,14 @@ import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import { ISiteDoc } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
+import { readFile, __ } from '@erxes/ui/src/utils';
 import { getEnv } from '@erxes/ui/src/utils/core';
 
 type Props = {
   sites: ISiteDoc[];
   getActionBar: (actionBar: any) => void;
   remove: (_id: string) => void;
+  duplicate: (_id: string) => void;
   setCount: (count: number) => void;
   sitesCount: number;
   queryParams: any;
@@ -34,13 +35,15 @@ class SiteList extends React.Component<Props, {}> {
   };
 
   renderList(site: ISiteDoc) {
-    const { remove } = this.props;
+    const { remove, duplicate } = this.props;
 
     return (
       <SiteBox key={site._id} nowrap={true}>
         <SitePreview>
           <img
-            src={site.templateImage || '/images/template-preview.png'}
+            src={
+              readFile(site.coverImage?.url) || '/images/template-preview.png'
+            }
             alt="site-img"
           />
 
@@ -69,6 +72,9 @@ class SiteList extends React.Component<Props, {}> {
                   <Icon icon="edit-3" /> {__('Editor')}
                 </li>
               </a>
+              <li key="duplicate" onClick={() => duplicate(site._id)}>
+                <Icon icon="copy" /> {__('Duplicate')}
+              </li>
               <li key="delete" onClick={() => remove(site._id)}>
                 <Icon icon="trash-alt" size={14} /> {__('Delete')}
               </li>

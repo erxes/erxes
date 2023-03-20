@@ -16,6 +16,11 @@ import {
   types as notificationTypes
 } from './schema/clientPortalNotifications';
 
+import {
+  queries as commentQueries,
+  types as commentTypes
+} from './schema/comment';
+
 const typeDefs = async serviceDiscovery => {
   const kbAvailable = await serviceDiscovery.isEnabled('knowledgebase');
   const cardAvailable = await serviceDiscovery.isEnabled('cards');
@@ -28,11 +33,13 @@ const typeDefs = async serviceDiscovery => {
     ${clientPortalTypes(cardAvailable, kbAvailable)}
     ${clientPortalUserTypes(isContactsEnabled)}
     ${notificationTypes}
+    ${commentTypes}
 
     extend type Query {
      ${clientPortalQueries(cardAvailable, kbAvailable)}
      ${clientPortalUserQueries()}
      ${notificationQueries}
+     ${commentQueries}
     }
 
     extend type Mutation {

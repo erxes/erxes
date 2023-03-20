@@ -98,6 +98,7 @@ export interface IFieldDocument extends IField, Document {
 export interface IFieldGroup extends IVisibility {
   name?: string;
   contentType?: string;
+  parentId?: string;
   order?: number;
   isDefinedByErxes?: boolean;
   description?: string;
@@ -240,6 +241,7 @@ export const fieldGroupSchema = schemaWrapper(
       label: 'Is defined by erxes'
     }),
     description: field({ type: String, label: 'Description' }),
+    parentId: field({ type: String, label: 'Parent Group ID', optional: true }),
     code: field({
       type: String,
       optional: true,
@@ -247,6 +249,7 @@ export const fieldGroupSchema = schemaWrapper(
     }),
     // Id of user who updated the group
     lastUpdatedUserId: field({ type: String, label: 'Last updated by' }),
+    isMultiple: field({ type: Boolean, default: false, label: 'Is multple' }),
     isVisible: field({ type: Boolean, default: true, label: 'Is visible' }),
     isVisibleInDetail: field({
       type: Boolean,

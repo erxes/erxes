@@ -475,6 +475,12 @@ const buildLeadFile = async (
       return item.value[0].url;
     }
 
+    if (item.type === 'select') {
+      return item.value && item.value.value
+        ? item.value.value
+        : item.value || '';
+    }
+
     return item.value;
   };
 
@@ -495,21 +501,6 @@ const buildLeadFile = async (
   }
 
   debugBase('End building an excel file for popups export');
-};
-
-const filterHeaders = headers => {
-  const first = [] as any;
-  const others = [] as any;
-
-  for (const column of headers) {
-    if (column.name.startsWith('productsData')) {
-      first.push(column);
-    } else {
-      others.push(column);
-    }
-  }
-
-  return others.concat(first);
 };
 
 export const buildFile = async (
