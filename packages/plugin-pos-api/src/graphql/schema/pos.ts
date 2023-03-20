@@ -41,6 +41,7 @@ const posCommonFields = `
   cardsConfig: JSON
   checkRemainder: Boolean
   permissionConfig: JSON
+  allowTypes: [String]
 `;
 
 const catProd = `

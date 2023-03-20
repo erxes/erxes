@@ -14,14 +14,18 @@ export const types = `
         resultScore: String
         createdAt: Date
         closedAt: Date
-        riskIndicatorId:String
+        indicatorId:String
+        indicator:RiskIndicatorType
+        groupId:String
+        group:IndicatorsGroupType
         riskIndicators:[RiskIndicatorType]
-        branchIds:[String],
-        branches: JSON
-        departmentIds:[String],
-        departments: JSON
-        operationIds:[String],
-        operations:JSON
+        branchId:String,
+        branch: Branch
+        departmentId:String,
+        department: Department
+        operationId:String,
+        operation:Operation,
+        isSplittedUsers:Boolean
     }
 
     type RiskAssessmentDetail  {
@@ -34,9 +38,40 @@ export const types = `
         indicatorId:String
     }
 
+    type IndicatorAssessment {
+        _id:String
+        status:String
+        statusColor:String
+        resultScore:String,
+        assessmentId:String
+        indicatorId:String
+
+        indicator:RiskIndicatorType
+
+        createdAt:Date
+        closedAt:Date
+        submissions:[IndicatorSubmissions]
+    }
+
+    type IndicatorSubmissions {
+        _id:String
+        user:User
+        fields:JSON
+    }
+
     input GroupsAssignedUsers {
         groupId:String
         assignedUserIds:[String]
+    }
+
+    input IBulkAddAssessment {
+        branchIds:[String]
+        departmentIds:[String]
+        operationIds:[String]
+        indicatorIds:[String]
+        groupId:String
+        indicatorId:String
+        groupsAssignedUsers:[GroupsAssignedUsers]
     }
 
 `;
@@ -46,19 +81,22 @@ const commonMutationParams = `
     cardType:String,
     groupId:String
     indicatorId: String
-    operationIds:[String]
-    branchIds:[String]
-    departmentIds:[String]
+    operationId:String
+    branchId:String
+    departmentId:String
     groupsAssignedUsers:[GroupsAssignedUsers]
 `;
 
 export const mutations = `
     addRiskAssessment(${commonMutationParams}):RiskAssessment
+    addBulkRiskAssessment(cardId:String,cardType:String,bulkItems:[IBulkAddAssessment]):[RiskAssessment]
     editRiskAssessment(_id:String,${commonMutationParams}):RiskAssessment
     removeRiskAssessment(riskAssessmentId:String):RiskAssessment
+    removeRiskAssessments(ids:[String]):JSON
 `;
 
 const commonParams = `
+    cardType:String,
     status:String
     searchValue:String
     createdAtFrom:String
@@ -73,6 +111,8 @@ const commonParams = `
     page:Int
     sortField:String
     sortDirection:Int
+    tagIds:[String]
+    groupIds:[String]
 `;
 
 const commonFormSubmitParams = `
@@ -84,12 +124,22 @@ const commonFormSubmitParams = `
 
 export const queries = `
     riskAssessments(${commonParams}):[RiskAssessment]
+
     riskAssessmentsTotalCount(${commonParams}):Int
+
     riskAssessmentDetail(id:String):JSON
+
     riskAssessmentFormSubmissionDetail(${commonFormSubmitParams}):JSON
-    riskAssessment(cardId:String,cardType:String):JSON
-    riskAssessmentAssignedMembers(cardId:String,cardType:String,riskAssessmentId:String):JSON
+    
+    riskAssessment(cardId:String,cardType:String):[RiskAssessment]
+
+    riskAssessmentAssignedMembers(cardId:String,cardType:String):[User]
+
     riskAssessmentSubmitForm(cardId:String,cardType:String,riskAssessmentId:String,userId:String):JSON
+
     riskAssessmentIndicatorForm(riskAssessmentId:String,indicatorId:String,userId:String):JSON
+
     riskAssessmentGroups(riskAssessmentId:String,groupIds:[String] ):JSON
+    
+    indicatorsAssessmentHistory(indicatorId:String):[IndicatorAssessment]
 `;

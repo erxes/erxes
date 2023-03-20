@@ -102,6 +102,8 @@ const schedulesMain = `
           user {
             ${userFields}
           }
+          scheduleChecked
+          submittedByAdmin
         }
         totalCount
   }
@@ -181,6 +183,14 @@ const timeclockReports = `
               totalMinsScheduledThisMonth
               totalDaysScheduled
               totalHoursScheduled
+          
+              absenceInfo {
+                totalHoursWorkedAbroad
+                totalHoursPaidAbsence
+                totalHoursUnpaidAbsence
+                totalHoursSick
+              }
+
             }
             groupTotalMinsLate
             groupTotalAbsenceMins

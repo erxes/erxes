@@ -367,8 +367,16 @@ const pageDetail = `
 const pageRefetch = ['ForumPages', 'ForumPage'];
 
 const pages = `
-query ForumPages($sort: JSON) {
-  forumPages(sort: $sort) {
+query ForumPages(
+    $sort: JSON
+    $limit: Int 
+    $offset: Int 
+  ) {
+  forumPages(
+    sort: $sort
+    limit: $limit
+    offset: $offset
+  ) {
     _id
     code
     content

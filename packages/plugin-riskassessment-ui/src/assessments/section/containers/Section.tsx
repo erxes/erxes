@@ -1,14 +1,14 @@
-import React from 'react';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { queries } from '../graphql';
-import { RiskAssessmentQueryResponse } from '../../common/types';
-import SectionComponent from '../components/Section';
 import { Spinner } from '@erxes/ui/src';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { withProps } from '@erxes/ui/src/utils/core';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { RiskAssessmentQueryResponse } from '../../common/types';
+import SectionComponent from '../components/Section';
+import { queries } from '../graphql';
 
 type Props = {
   queryParams: any;
@@ -34,7 +34,7 @@ class Section extends React.Component<FinalProps> {
     const { riskAssessment } = riskAssessmentQueryResponse;
 
     const updatedProps = {
-      riskAssessment,
+      riskAssessments: riskAssessment,
       cardType: mainType,
       cardId: mainTypeId
     };

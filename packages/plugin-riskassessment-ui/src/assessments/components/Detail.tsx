@@ -12,9 +12,9 @@ import React from 'react';
 import {
   CardBox,
   ColorBox,
+  Divider,
   FormContainer,
   FormContent,
-  Divider,
   TableRow,
   TriggerTabs
 } from '../../styles';
@@ -34,6 +34,22 @@ type State = {
   currentIndicatorId: string;
   currentUserId: string;
 };
+
+export function renderSubmission(fields) {
+  return fields.map(field => (
+    <CollapseContent
+      key={field.fieldId}
+      title={`${field?.text}: ${field?.value}`}
+      description={field.description}
+      compact
+    >
+      {(field?.optionsValues?.split('\n') || []).map(value => (
+        <p key={Math.random()}>{__(value)}</p>
+      ))}
+    </CollapseContent>
+  ));
+}
+
 class Detail extends React.Component<Props, State> {
   constructor(props) {
     super(props);
@@ -68,13 +84,13 @@ class Detail extends React.Component<Props, State> {
         icon="downarrow-2"
       >
         {assignedUsers.map(user => (
-          <>
+          <div key={user._id}>
             <FormContainer row spaceBetween>
               <NameCard user={user} />
               {renderStatus(user?.submitStatus || '')}
             </FormContainer>
             <Divider />
-          </>
+          </div>
         ))}
       </DetailPopOver>
     );
@@ -116,22 +132,6 @@ class Detail extends React.Component<Props, State> {
     );
   }
 
-  renderSubmission(fields) {
-    return fields.map(field => (
-      <CollapseContent
-        key={field.fieldId}
-        // beforeTitle={<ControlLabel>{}</ControlLabel>}
-        title={`${field?.text}: ${field?.value}`}
-        description={field.description}
-        compact
-      >
-        {(field?.optionsValues?.split('\n') || []).map(value => (
-          <p key={Math.random()}>{__(value)}</p>
-        ))}
-      </CollapseContent>
-    ));
-  }
-
   renderAssignedUsers = submissions => {
     const { assignedUsers } = this.props;
     const { currentUserId } = this.state;
@@ -145,7 +145,9 @@ class Detail extends React.Component<Props, State> {
         <TriggerTabs>
           <Tabs full>
             {(submissions || []).map(({ _id }) => {
-              const assignedUser = assignedUsers.find(user => user._id === _id);
+              const assignedUser = assignedUsers.find(
+                user => user?._id === _id
+              );
               if (!assignedUser) {
                 return;
               }
@@ -162,7 +164,7 @@ class Detail extends React.Component<Props, State> {
           </Tabs>
         </TriggerTabs>
         {currentUserId &&
-          this.renderSubmission(
+          renderSubmission(
             (submissions.find(({ _id }) => _id === currentUserId) || {})
               .fields || []
           )}

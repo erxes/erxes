@@ -70,13 +70,14 @@ const searchParams = `
     pipelineId: String,
     boardId: String,
     ignoreIds:[String]
+    irregular: Boolean
 `;
 
 export const queries = `
   assets(${searchParams}): [Asset]
   assetsTotalCount(${searchParams}): Int
   assetDetail(_id: String): Asset
-  assetCategories(parentId: String, searchValue: String, status: String): [AssetCategory]
+  assetCategories(parentId: String, searchValue: String, status: String, withKbOnly: Boolean): [AssetCategory]
   assetCategoryDetail(_id: String): AssetCategory
   assetCategoriesTotalCount: Int
 `;

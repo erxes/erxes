@@ -25,11 +25,13 @@ import { queries } from '../../graphql';
 import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
+  advancedView?: boolean;
   uom: string[];
   currencies: string[];
   productsData?: IProductData[];
   productData: IProductData;
   removeProductItem?: (productId: string) => void;
+  duplicateProductItem?: (productId: string) => void;
   onChangeProductsData?: (productsData: IProductData[]) => void;
   calculatePerProductAmount: (type: string, productData: IProductData) => void;
   updateTotal?: () => void;
@@ -79,6 +81,7 @@ class ProductItem extends React.Component<Props, State> {
     if (currencies.length > 0 && !productData.currency) {
       this.onChangeField('currency', currencies[0], productData._id);
     }
+
     if (isEnabled('loyalties') && productData.product) {
       this.changeDiscountPercent(productData);
       this.toggleVoucherCardChecBox();
@@ -96,11 +99,7 @@ class ProductItem extends React.Component<Props, State> {
     this.setState({ categoryId });
   };
 
-  onChangeField = (
-    type: string,
-    value: string | boolean | IProduct | number,
-    productId: string
-  ) => {
+  onChangeField = (type: string, value, _id: string) => {
     const {
       productsData,
       onChangeProductsData,
@@ -108,7 +107,8 @@ class ProductItem extends React.Component<Props, State> {
     } = this.props;
 
     if (productsData) {
-      const productData = productsData.find(p => p._id === productId);
+      const productData = productsData.find(p => p._id === _id);
+
       if (productData) {
         if (type === 'product') {
           const product = value as IProduct;
@@ -116,6 +116,14 @@ class ProductItem extends React.Component<Props, State> {
           productData.unitPrice = product.unitPrice;
           productData.currency =
             productData.currency || this.props.currencies[0];
+        }
+
+        if (type === 'unitPricePercent') {
+          productData.unitPrice = (productData.globalUnitPrice * value) / 100;
+        }
+
+        if (type === 'globalUnitPrice') {
+          productData.unitPrice = (value * productData.unitPricePercent) / 100;
         }
 
         productData[type] = value;
@@ -333,9 +341,9 @@ class ProductItem extends React.Component<Props, State> {
     this.onChangeField('assignUserId', userId, this.props.productData._id);
   };
 
-  changeCurrentProduct = (productId: string) => {
+  changeCurrentProduct = (_id: string) => {
     this.setState({
-      currentProduct: this.state.currentProduct === productId ? '' : productId
+      currentProduct: this.state.currentProduct === _id ? '' : _id
     });
   };
 
@@ -347,7 +355,7 @@ class ProductItem extends React.Component<Props, State> {
       _id: dealQuery._id,
       products: [
         {
-          productId: product._id,
+          productId: product.productId,
           quantity
         }
       ]
@@ -382,7 +390,16 @@ class ProductItem extends React.Component<Props, State> {
   };
 
   render() {
-    const { productData, uom, currencies, removeProductItem } = this.props;
+    const {
+      advancedView,
+      productData,
+      uom,
+      currencies,
+      duplicateProductItem,
+      removeProductItem
+    } = this.props;
+
+    const avStyle = { display: advancedView ? '' : 'none' };
 
     const selectOption = option => (
       <div className="simple-option">
@@ -443,7 +460,7 @@ class ProductItem extends React.Component<Props, State> {
             onChange={this.onChange}
           />
         </td>
-        <td>
+        <td style={avStyle}>
           <FormControl
             defaultValue={productData.taxPercent || ''}
             type="number"
@@ -454,7 +471,7 @@ class ProductItem extends React.Component<Props, State> {
             onChange={this.onChange}
           />
         </td>
-        <td>
+        <td style={avStyle}>
           <Amount>{(productData.tax || 0).toLocaleString()} </Amount>
         </td>
 
@@ -467,7 +484,7 @@ class ProductItem extends React.Component<Props, State> {
           </Amount>
         </td>
 
-        <td>
+        <td style={avStyle}>
           <Select
             name="currency"
             placeholder={__('Choose')}
@@ -477,7 +494,7 @@ class ProductItem extends React.Component<Props, State> {
             options={selectConfigOptions(currencies, CURRENCIES)}
           />
         </td>
-        <td>
+        <td style={avStyle}>
           <Select
             name="uom"
             placeholder={__('Choose')}
@@ -515,10 +532,36 @@ class ProductItem extends React.Component<Props, State> {
             onSelect={this.assignUserOnChange}
           />
         </td>
+        <td style={avStyle}>
+          <FormControl
+            value={productData.globalUnitPrice || ''}
+            type="number"
+            placeholder="0"
+            name="globalUnitPrice"
+            onChange={this.onChange}
+          />
+        </td>
+        <td style={avStyle}>
+          <FormControl
+            value={productData.unitPricePercent || ''}
+            type="number"
+            min={0}
+            max={100}
+            placeholder="0"
+            name="unitPricePercent"
+            onChange={this.onChange}
+          />
+        </td>
         <td>
           <Icon
             onClick={removeProductItem?.bind(this, productData._id)}
             icon="times-circle"
+          />
+        </td>
+        <td>
+          <Icon
+            onClick={duplicateProductItem?.bind(this, productData._id)}
+            icon="copy-alt"
           />
         </td>
       </tr>

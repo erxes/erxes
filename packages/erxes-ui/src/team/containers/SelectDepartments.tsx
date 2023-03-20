@@ -40,6 +40,7 @@ const departmentsQuery = `
 export default (props: {
   queryParams?: IQueryParams;
   filterParams?: {
+    ids?: string[];
     status?: string;
     searchValue?: string;
     withoutUserFilter: boolean;

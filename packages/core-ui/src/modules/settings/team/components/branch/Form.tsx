@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Select from 'react-select-plus';
 import { FormControl, FormGroup } from '@erxes/ui/src/components/form';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import Form from '@erxes/ui/src/components/form/Form';
@@ -10,7 +9,6 @@ import { __ } from 'modules/common/utils';
 import { IBranch } from '@erxes/ui/src/team/types';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import ContactInfoForm from '../common/ContactInfoForm';
-import { generateTree } from '../../utils';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 
 type Props = {
@@ -21,7 +19,7 @@ type Props = {
 };
 
 export default function BranchForm(props: Props) {
-  const { closeModal, renderButton, branches } = props;
+  const { closeModal, renderButton } = props;
   const object = props.branch || ({} as IBranch);
 
   const [userIds, setUserIds] = useState(

@@ -24,10 +24,9 @@ class PutResponseRow extends React.Component<Props> {
   displayPaid(order, key) {
     const { paidAmounts } = order;
     const value = (
-      (paidAmounts || []).find(pa => pa.title === key || pa.type === key) || {
-        amount: 0
-      }
-    ).amount;
+      (paidAmounts || []).filter(pa => pa.title === key || pa.type === key) ||
+      []
+    ).reduce((sum, pa) => sum + pa.amount, 0);
     return (
       <FinanceAmount key={Math.random()}>
         {(value || 0).toLocaleString()}

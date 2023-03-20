@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormGroup, ControlLabel, Button, FormControl } from '@erxes/ui/src';
+import { FormGroup, Button, FormControl } from '@erxes/ui/src';
 import { Block, FlexRow } from '../../../styles';
 import { ISlot } from '../../../types';
 
@@ -29,7 +29,6 @@ export default class PosSlotItem extends React.Component<Props> {
         <Block>
           <FlexRow key={slot._id}>
             <FormGroup>
-              <ControlLabel>Code</ControlLabel>
               <FormControl
                 id="code"
                 name="code"
@@ -39,7 +38,6 @@ export default class PosSlotItem extends React.Component<Props> {
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>Name</ControlLabel>
               <FormControl
                 id="name"
                 name="name"

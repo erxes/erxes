@@ -29,6 +29,7 @@ const commonFields = `
   $deliveryConfig: JSON
   $checkRemainder: Boolean
   $permissionConfig: JSON
+  $allowTypes: [String]
 `;
 
 const commonVariables = `
@@ -60,6 +61,7 @@ const commonVariables = `
   cardsConfig: $cardsConfig
   checkRemainder: $checkRemainder
   permissionConfig: $permissionConfig
+  allowTypes: $allowTypes
 `;
 
 const posAdd = `

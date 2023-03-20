@@ -103,7 +103,8 @@ export const getProductsData = async (
         code: category.code,
         parentId: category.parentId,
         order: category.order,
-        attachment: category.attachment
+        attachment: category.attachment,
+        meta: category.meta
       });
     }
 
@@ -154,7 +155,8 @@ export const getProductsData = async (
         }))
       },
       isRPC: true,
-      defaultValue: {}
+      defaultValue: {},
+      timeout: 50000
     });
 
     for (const product of products) {

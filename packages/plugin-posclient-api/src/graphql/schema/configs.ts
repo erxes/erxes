@@ -65,6 +65,7 @@ export const types = `
     departmentId: String
     checkRemainder: Boolean
     permissionConfig: JSON
+    allowTypes: [String]
   }
 `;
 

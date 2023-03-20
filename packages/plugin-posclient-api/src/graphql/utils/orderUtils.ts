@@ -18,6 +18,7 @@ import {
 import * as moment from 'moment';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { isValidBarcode } from './otherUtils';
+import { IProductDocument } from '../../models/definitions/products';
 
 interface IDetailItem {
   count: number;
@@ -347,11 +348,11 @@ export const prepareOrderDoc = async (
 
   const items = doc.items.filter(i => !i.isPackage) || [];
 
-  const products = await models.Products.find({
+  const products: IProductDocument[] = await models.Products.find({
     _id: { $in: items.map(i => i.productId) }
   }).lean();
 
-  const productsOfId = {};
+  const productsOfId: { [_id: string]: IProductDocument } = {};
 
   for (const prod of products) {
     productsOfId[prod._id] = prod;
@@ -362,7 +363,7 @@ export const prepareOrderDoc = async (
   for (const item of items) {
     const fixedUnitPrice = Number(
       (
-        (productsOfId[item.productId] || {}).unitPrice ||
+        ((productsOfId[item.productId] || {}).prices || {})[config.token] ||
         item.unitPrice ||
         0
       ).toFixed(2)
@@ -386,8 +387,8 @@ export const prepareOrderDoc = async (
     for (const item of hasTakeItems) {
       const product = productsOfId[item.productId];
 
-      if (Object.keys(packOfCategoryId).includes(product.categoryId)) {
-        const packProductId = packOfCategoryId[product.categoryId];
+      if (Object.keys(packOfCategoryId).includes(product.categoryId || '')) {
+        const packProductId = packOfCategoryId[product.categoryId || ''];
 
         if (!Object.keys(toAddProducts).includes(packProductId)) {
           toAddProducts[packProductId] = { count: 0 };
@@ -407,7 +408,9 @@ export const prepareOrderDoc = async (
       for (const addProduct of takingProducts) {
         const toAddItem = toAddProducts[addProduct._id];
 
-        const fixedUnitPrice = Number((addProduct.unitPrice || 0).toFixed(2));
+        const fixedUnitPrice = Number(
+          ((addProduct.prices || {})[config.token] || 0).toFixed(2)
+        );
 
         items.push({
           _id: Math.random().toString(),

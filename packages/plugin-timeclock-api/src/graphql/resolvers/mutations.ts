@@ -464,6 +464,7 @@ const timeclockMutations = {
       startTime: startDate,
       endTime: endDate,
       status: 'Holiday',
+      reason: 'Holiday',
       solved: true
     });
   },
@@ -587,6 +588,28 @@ const timeclockMutations = {
     return models.DeviceConfigs.removeDeviceConfig(_id);
   },
 
+  checkReport(_root, doc, { models, user }: IContext) {
+    const getUserId = doc.userId || user._id;
+    return models.ReportChecks.createReportCheck({
+      userId: getUserId,
+      ...doc
+    });
+  },
+
+  checkSchedule(_root, { scheduleId }, { models }: IContext) {
+    return models.Schedules.updateSchedule(scheduleId, {
+      scheduleChecked: true
+    });
+  },
+
+  createTimeClockFromLog(_root, { userId, timelog }, { models }: IContext) {
+    return models.Timeclocks.createTimeClock({
+      shiftStart: timelog,
+      userId,
+      shiftActive: true
+    });
+  },
+
   async extractAllDataFromMsSQL(
     _root,
     { startDate, endDate },
@@ -608,6 +631,6 @@ const timeclockMutations = {
   }
 };
 
-moduleRequireLogin(timeclockMutations);
+// moduleRequireLogin(timeclockMutations);
 
 export default timeclockMutations;

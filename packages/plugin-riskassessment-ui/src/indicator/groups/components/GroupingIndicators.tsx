@@ -1,5 +1,4 @@
 import {
-  Button,
   CollapseContent,
   ControlLabel,
   FormControl,
@@ -7,12 +6,9 @@ import {
   Icon,
   __
 } from '@erxes/ui/src';
-import { LinkButton, ModalFooter } from '@erxes/ui/src/styles/main';
+import { LinkButton } from '@erxes/ui/src/styles/main';
 import React from 'react';
-import {
-  CommonCalculateFields,
-  SelectRiskIndicator
-} from '../../../common/utils';
+import { CommonCalculateFields, SelectIndicators } from '../../../common/utils';
 import { FormContainer, ListItem, Padding, RemoveRow } from '../../../styles';
 
 type Props = {
@@ -57,10 +53,9 @@ export default class GroupingIndicators extends React.Component<Props, State> {
       calculateMethod,
       percentWeight
     },
-    length,
-    ignoreIds
+    length
   ) {
-    const { indicatorGroups, generalConfig } = this.state;
+    const { indicatorGroups } = this.state;
 
     const handleSelect = (values, id) => {
       this.setState({
@@ -92,13 +87,22 @@ export default class GroupingIndicators extends React.Component<Props, State> {
 
     const handleChangePercentWeight = e => {
       const { value } = e.currentTarget as HTMLInputElement;
-      this.setState({
-        indicatorGroups: indicatorGroups.map(indicator =>
-          indicator._id === _id
-            ? { ...indicator, percentWeight: Number(value) }
-            : indicator
-        )
-      });
+      const totalPercentWeight = indicatorGroups.reduce((acc, group) => {
+        if (group._id === _id) {
+          return acc + Number(value) || 0;
+        } else {
+          return acc + Number(group.percentWeight) || 0;
+        }
+      }, 0);
+      if (Number(value) > -1 && totalPercentWeight <= 100) {
+        this.setState({
+          indicatorGroups: indicatorGroups.map(indicator =>
+            indicator._id === _id
+              ? { ...indicator, percentWeight: Number(value) }
+              : indicator
+          )
+        });
+      }
     };
     const handleChangeGroupName = e => {
       const { value } = e.currentTarget as HTMLInputElement;
@@ -130,7 +134,7 @@ export default class GroupingIndicators extends React.Component<Props, State> {
               <div style={{ flex: 1 }}>
                 <FormGroup>
                   <ControlLabel>{__('Indicators')}</ControlLabel>
-                  <SelectRiskIndicator
+                  <SelectIndicators
                     name="indicatorIds"
                     label="Choose Indicators"
                     initialValue={indicatorIds}
@@ -141,11 +145,11 @@ export default class GroupingIndicators extends React.Component<Props, State> {
               </div>
               {length > 1 && (
                 <FormGroup>
-                  <ControlLabel>{__('Percent Weigth')}</ControlLabel>
+                  <ControlLabel>{__('Percent Weight')}</ControlLabel>
                   <FormControl
                     type="number"
                     name="percentWeight"
-                    placeholder="Type Percent Weigth"
+                    placeholder="Type Percent Weight"
                     value={percentWeight}
                     onChange={handleChangePercentWeight}
                   />
@@ -190,12 +194,6 @@ export default class GroupingIndicators extends React.Component<Props, State> {
       });
     };
 
-    const ignoreIds: string[] = [];
-
-    for (const group of indicatorGroups) {
-      ignoreIds.push(...(group?.indicatorIds || []));
-    }
-
     return (
       <>
         {indicatorGroups.length > 1 && (
@@ -203,7 +201,7 @@ export default class GroupingIndicators extends React.Component<Props, State> {
         )}
         <CollapseContent title="Groups">
           {indicatorGroups.map(group =>
-            this.renderItem(group, indicatorGroups.length, ignoreIds)
+            this.renderItem(group, indicatorGroups.length)
           )}
           <LinkButton onClick={addGroup}>
             <Icon icon="plus-1" /> {__('Add group')}

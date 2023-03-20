@@ -78,6 +78,14 @@ export interface IUserReport {
   totalMinsLateThisMonth?: number;
   totalAbsenceMins?: number;
   totalMinsAbsenceThisMonth?: number;
+  absenceInfo?: IUserAbsenceInfo;
+}
+
+export interface IUserAbsenceInfo {
+  totalHoursWorkedAbroad?: number;
+  totalHoursPaidAbsence?: number;
+  totalHoursUnpaidAbsence?: number;
+  totalHoursSick?: number;
 }
 
 export interface IScheduleReport {
@@ -101,7 +109,16 @@ export interface IPayDates {
   _id: string;
   payDates: number[];
 }
-
+export interface ISchedule {
+  _id: string;
+  user: IUser;
+  shifts: IShift[];
+  solved: boolean;
+  status?: string;
+  scheduleConfigId: string;
+  scheduleChecked: boolean;
+  submittedByAdmin: boolean;
+}
 export interface IShift {
   user?: IUser;
   date?: Date;
@@ -128,12 +145,12 @@ export interface IScheduleConfigDays {
   configShiftEnd?: string;
   overnightShift?: boolean;
 }
-export interface ISchedule {
+export interface IScheduleForm {
   [key: string]: {
     overnightShift?: boolean;
     shiftDate?: Date;
-    shiftStart?: Date;
-    shiftEnd?: Date;
+    shiftStart: Date;
+    shiftEnd: Date;
   };
 }
 
@@ -230,6 +247,10 @@ export type ScheduleMutationVariables = {
 export type TimeLogMutationResponse = {
   extractTimeLogsFromMsSQLMutation: (params: {
     variables: { startDate: string; endDate: string };
+  }) => Promise<any>;
+
+  createTimeClockFromLogMutation: (params: {
+    variables: { userId: string; timelog: Date };
   }) => Promise<any>;
 };
 

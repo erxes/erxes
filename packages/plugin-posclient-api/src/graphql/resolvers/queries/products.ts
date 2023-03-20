@@ -11,7 +11,13 @@ import { sendRequest } from '@erxes/api-utils/src/requests';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { Builder } from '../../../utils';
 
-interface IProductParams {
+interface ICommonParams {
+  sortField?: string;
+  sortDirection?: number;
+  page?: number;
+  perPage?: number;
+}
+interface IProductParams extends ICommonParams {
   ids?: string[];
   excludeIds?: boolean;
   type?: string;
@@ -23,16 +29,13 @@ interface IProductParams {
   boardId?: string;
   segment?: string;
   segmentData?: string;
-  sortField?: string;
-  sortDirection?: number;
-  page?: number;
-  perPage?: number;
 }
 
-interface ICategoryParams {
+interface ICategoryParams extends ICommonParams {
   parentId: string;
   searchValue: string;
   excludeEmpty?: boolean;
+  meta?: string;
 }
 
 const generateFilter = async (
@@ -109,12 +112,20 @@ const generateFilter = async (
   return filter;
 };
 
-const generateFilterCat = ({ token, parentId, searchValue }) => {
+const generateFilterCat = ({ token, parentId, searchValue, meta }) => {
   const filter: any = { tokens: { $in: [token] } };
   filter.status = { $nin: ['disabled', 'archived'] };
 
   if (parentId) {
     filter.parentId = parentId;
+  }
+
+  if (meta) {
+    if (!isNaN(meta)) {
+      filter.meta = { $lte: Number(meta) };
+    } else {
+      filter.meta = meta;
+    }
   }
 
   if (searchValue) {
@@ -277,18 +288,36 @@ const productQueries = {
 
   async poscProductCategories(
     _root,
-    { parentId, searchValue, excludeEmpty }: ICategoryParams,
+    {
+      parentId,
+      searchValue,
+      excludeEmpty,
+      meta,
+      sortDirection,
+      sortField,
+      ...paginationArgs
+    }: ICategoryParams,
     { models, config }: IContext
   ) {
     const filter = generateFilterCat({
       token: config.token,
       parentId,
-      searchValue
+      searchValue,
+      meta
     });
 
-    const categories = await models.ProductCategories.find(filter).sort({
-      order: 1
-    });
+    let sortParams: any = { order: 1 };
+
+    if (sortField) {
+      sortParams = { [sortField]: sortDirection };
+    }
+
+    const categories = await paginate(
+      models.ProductCategories.find(filter)
+        .sort(sortParams)
+        .lean(),
+      paginationArgs
+    );
     const list: IProductCategoryDocument[] = [];
 
     if (excludeEmpty) {
@@ -311,13 +340,18 @@ const productQueries = {
 
   async poscProductCategoriesTotalCount(
     _root,
-    { parentId, searchValue }: { parentId: string; searchValue: string },
+    {
+      parentId,
+      searchValue,
+      meta
+    }: { parentId: string; searchValue: string; meta: string },
     { models, config }: IContext
   ) {
     const filter = await generateFilterCat({
       token: config.token,
       parentId,
-      searchValue
+      searchValue,
+      meta
     });
     return models.ProductCategories.find(filter).countDocuments();
   },
@@ -340,17 +374,21 @@ const productQueries = {
     { models, subdomain, config }: IContext
   ) {
     const product = await models.Products.getProduct({ _id: productId });
+
     const d = await sendPricingMessage({
       subdomain,
       action: 'getQuanityRules',
       data: {
         departmentId: config.departmentId,
         branchId: config.branchId,
-        products: [product]
+        products: [
+          { ...product, unitPrice: (product.prices || {})[config.token] }
+        ]
       },
       isRPC: true,
       defaultValue: {}
     });
+
     return JSON.stringify(d);
   }
 };
