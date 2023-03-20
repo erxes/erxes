@@ -15,6 +15,10 @@ type Props = {
   filemanagerFolders: IFolder[];
   remove: (folderId: string) => void;
   setParentId: (id: string) => void;
+  onClickRow: (isOpen: boolean) => void;
+  onToggle: any;
+  parentIds: any;
+  isParentOpen: boolean;
   // getSubfolders: (id: string, callback?: (data) => void) => void;
   queryParams: any;
   isActive: boolean;
@@ -24,6 +28,7 @@ type Props = {
 
 type State = {
   isParentOpen: boolean;
+  parentIds: { [key: string]: boolean };
 };
 
 class FolderRow extends React.Component<Props, State> {
@@ -31,7 +36,8 @@ class FolderRow extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      isParentOpen: props.isActive ? true : false
+      isParentOpen: props.isActive ? true : false,
+      parentIds: props.parentIds || {}
     };
   }
 
@@ -40,12 +46,16 @@ class FolderRow extends React.Component<Props, State> {
     remove(folder._id);
   };
 
-  onParentOpen = () => {
-    const { setParentId, folder } = this.props;
+  onParentOpen = (id: string, isOpen: boolean) => {
+    const { setParentId, onClickRow, folder, onToggle } = this.props;
+
+    const parentIds = this.state.parentIds;
+    parentIds[id] = !isOpen;
 
     this.setState({ isParentOpen: !this.state.isParentOpen }, () => {
       setParentId(folder._id);
-      // getSubfolders(folder._id);
+      onToggle(parentIds);
+      onClickRow(this.state.isParentOpen);
     });
   };
 
@@ -74,6 +84,8 @@ class FolderRow extends React.Component<Props, State> {
   render() {
     const { folder, isActive, isChild, isParent } = this.props;
 
+    const isOpen = this.state.parentIds[folder._id];
+
     return (
       <FolderItemRow
         key={folder._id}
@@ -81,7 +93,7 @@ class FolderRow extends React.Component<Props, State> {
         isParent={isParent}
         isActive={isActive}
       >
-        <div onClick={this.onParentOpen}>
+        <div onClick={this.onParentOpen.bind(this, folder._id, isOpen)}>
           {isParent && (
             <span className="toggle-icon">
               <Icon

@@ -8,22 +8,18 @@ import { IFolder } from '../../types';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { SidebarList } from '@erxes/ui/src/layout/styles';
 
 type Props = {
   filemanagerFolders: IFolder[];
-  // childrens: IFolder[];
   remove: (folderId: string) => void;
   loading: boolean;
   queryParams: any;
   parentFolderId: string;
   setParentId: (id: string) => void;
-  // getSubfolders: (id: string, callback?: (data) => void) => void;
 };
 
 type State = {
-  // childFolders: IFolder[];
-  // parents: IFolder[];
+  isParentOpen: boolean;
   parentIds: { [key: string]: boolean };
 };
 
@@ -32,23 +28,10 @@ class FolderList extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      // childFolders: props.childrens || ([] as IFolder[]),
-      // parents: props.filemanagerFolders || ([] as IFolder[]),
-      parentIds: {}
+      isParentOpen: false,
+      parentIds: props.parentFolderId ? { [props.parentFolderId]: true } : {}
     };
   }
-
-  // componentWillReceiveProps(nextProps: Props) {
-  //   const { childrens } = nextProps;
-  //   console.log("childrens:", childrens);
-  //   if (childrens !== this.state.childFolders) {
-  //     this.setState({ childFolders: childrens });
-  //   }
-  // }
-
-  setParentIds = parentIds => {
-    this.setState({ parentIds });
-  };
 
   groupByParent = (array: any[]) => {
     const key = 'parentId';
@@ -58,6 +41,14 @@ class FolderList extends React.Component<Props, State> {
 
       return rv;
     }, {});
+  };
+
+  onToggle = parentIds => {
+    this.setState({ parentIds });
+  };
+
+  onClickRow = (isOpen: boolean) => {
+    this.setState({ isParentOpen: isOpen });
   };
 
   renderRow(folder: IFolder, isChild: boolean) {
@@ -73,7 +64,10 @@ class FolderList extends React.Component<Props, State> {
         isChild={isChild}
         isParent={folder?.hasChild ? folder.hasChild : false}
         setParentId={setParentId}
-        // getSubfolders={this.props.getSubfolders}
+        isParentOpen={this.state.isParentOpen}
+        onClickRow={this.onClickRow}
+        onToggle={this.onToggle}
+        parentIds={this.state.parentIds}
         filemanagerFolders={filemanagerFolders}
       />
     );
@@ -82,18 +76,21 @@ class FolderList extends React.Component<Props, State> {
   renderTree(parent, subFolders?) {
     const groupByParent = this.groupByParent(subFolders);
     const childrens = groupByParent[parent._id];
-    // console.log("eee", parent, subFolders, groupByParent, childrens);
+
     if (childrens) {
-      // const isOpen = this.state.parentIds[parent._id] || !!this.state.key;
+      const isOpen = this.state.parentIds[parent._id];
 
       return (
         <>
           {this.renderRow(parent, true)}
 
           <ChildList>
-            {childrens.map(childparent =>
-              this.renderTree(childparent, subFolders)
-            )}
+            {isOpen &&
+              childrens.map(childparent => (
+                <React.Fragment key={childparent._id}>
+                  {this.renderTree(childparent, subFolders)}
+                </React.Fragment>
+              ))}
           </ChildList>
         </>
       );
@@ -104,27 +101,15 @@ class FolderList extends React.Component<Props, State> {
 
   renderItems = () => {
     const { filemanagerFolders } = this.props;
-    // const groupByParent = this.groupByParent(childrens);
-    // console.log("parent folders", groupByParent);
-    // const parents = this.props.parents.filter(item => !item.parentId);
+
     const parents = filemanagerFolders.filter(item => !item.parentId);
     const subFields = filemanagerFolders.filter(item => item.parentId);
 
-    return parents.map((folder: IFolder) => {
-      // const childs = groupByParent[folder._id] || [];
-      // if (folder.parentId) {
-      //   return null;
-      // }
-
-      return this.renderTree(folder, subFields);
-
-      // return (
-      //   <React.Fragment key={folder._id}>
-      //     {this.renderRow(folder, false)}
-      //     {(folder.childrens || []).map((child) => this.renderRow(child, true))}
-      //   </React.Fragment>
-      // );
-    });
+    return parents.map((folder: IFolder) => (
+      <React.Fragment key={folder._id}>
+        {this.renderTree(folder, subFields)}
+      </React.Fragment>
+    ));
   };
 
   renderSidebarHeader() {
