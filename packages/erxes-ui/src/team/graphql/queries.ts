@@ -7,6 +7,7 @@ const nameFields = `
 `;
 
 export const commonStructureParamsDef = `
+    $ids:[String]
     $perPage: Int,
     $page: Int 
     $searchValue: String,
@@ -14,6 +15,7 @@ export const commonStructureParamsDef = `
 `;
 
 export const commonStructureParamsValue = `
+    ids:$ids
     perPage: $perPage,
     page: $page 
     searchValue:$searchValue
