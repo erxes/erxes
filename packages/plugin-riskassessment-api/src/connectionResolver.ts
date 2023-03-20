@@ -2,53 +2,46 @@ import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 import * as mongoose from 'mongoose';
 import { Model } from 'mongoose';
-
 import {
-  IRiskAssessmentCategoryDocument,
-  IRiskAssessmentsDocument,
+  IRiskAssessmentsConfigModel,
+  loadRiskAssessmentsConfig
+} from './models/Configs';
+import { IRiskFormSubmissionDocument } from './models/definitions/confimity';
+import {
+  IIndicatorsGroupsDocument,
+  IRiskAssessmentsConfigsDocument,
+  IRiskIndicatorsDocument
+} from './models/definitions/indicator';
+import { IOperationsDocument } from './models/definitions/operations';
+import {
   IRiskAssessmentIndicatorsDocument,
+  IRiskAssessmentsDocument,
   riskAssessmentIndicatorsGroupsSchema,
   riskAssessmentIndicatorsSchema
 } from './models/definitions/riskassessment';
 import {
-  IIndicatorsGroupsDocument,
-  IRiskIndicatorsConfigsDocument,
-  IRiskIndicatorsDocument
-} from './models/definitions/indicator';
-import { IRiskFormSubmissionDocument } from './models/definitions/confimity';
-import {
   IRiskFormSubmissionModel,
   loadRiskFormSubmissions
 } from './models/FormSubmissions';
+import { IOperationsModel, loadOperations } from './models/Operations';
+import {
+  IRiskAssessmentsModel,
+  loadRiskAssessments
+} from './models/RiskAssessment';
 import {
   IIndicatorsGroupsModel,
   IRiskIndicatorsModel,
   loadIndicatorsGroups,
   loadRiskIndicators
 } from './models/RiskIndicator';
-import {
-  IRiskAssessmentCategoryModel,
-  loadAssessmentCategory
-} from './models/Category';
-import {
-  IRiskIndicatorsConfigModel,
-  loadRiskIndicatorConfig
-} from './models/Configs';
-import {
-  IRiskAssessmentsModel,
-  loadRiskAssessments
-} from './models/RiskAssessment';
-import { IOperationsModel, loadOperations } from './models/Operations';
-import { IOperationsDocument } from './models/definitions/operations';
 
 export interface IModels {
   RiskIndicators: IRiskIndicatorsModel;
   RiskAssessments: IRiskAssessmentsModel;
   RiskAssessmentIndicators: Model<any>;
   RiskAssessmentGroups: Model<any>;
-  RiskAssessmentCategory: IRiskAssessmentCategoryModel;
   RiksFormSubmissions: IRiskFormSubmissionModel;
-  RiskIndicatorConfigs: IRiskIndicatorsConfigModel;
+  RiskAssessmentsConfigs: IRiskAssessmentsConfigModel;
   Operations: IOperationsModel;
   IndicatorsGroups: IIndicatorsGroupsModel;
 }
@@ -71,11 +64,6 @@ export const loadClasses = (
     IRiskIndicatorsModel
   >('risk_indicator', loadRiskIndicators(models, subdomain));
 
-  models.RiskAssessmentCategory = db.model<
-    IRiskAssessmentCategoryDocument,
-    IRiskAssessmentCategoryModel
-  >('risk_assessment_category', loadAssessmentCategory(models, subdomain));
-
   models.RiskAssessments = db.model<
     IRiskAssessmentsDocument,
     IRiskAssessmentsModel
@@ -95,10 +83,10 @@ export const loadClasses = (
     IRiskFormSubmissionModel
   >('risk_form_submissions', loadRiskFormSubmissions(models, subdomain));
 
-  models.RiskIndicatorConfigs = db.model<
-    IRiskIndicatorsConfigsDocument,
-    IRiskIndicatorsConfigModel
-  >('risk_indicators_configs', loadRiskIndicatorConfig(models, subdomain));
+  models.RiskAssessmentsConfigs = db.model<
+    IRiskAssessmentsConfigsDocument,
+    IRiskAssessmentsConfigModel
+  >('risk_assessments_configs', loadRiskAssessmentsConfig(models, subdomain));
 
   models.IndicatorsGroups = db.model<
     IIndicatorsGroupsDocument,

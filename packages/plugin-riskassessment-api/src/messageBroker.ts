@@ -54,6 +54,14 @@ export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
     ...args
   });
 };
+export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'tags',
+    ...args
+  });
+};
 
 export const sendRiskAssessmentMessage = (
   args: ISendMessageArgs

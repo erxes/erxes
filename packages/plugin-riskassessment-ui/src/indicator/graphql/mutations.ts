@@ -1,13 +1,12 @@
 const riskIndicatorParams = `
     $name: String!, 
     $description: String, 
-    $categoryId: String,
+    $tagIds: [String],
     $operationIds:[String]
     $departmentIds: [String],
     $branchIds: [String],
     $calculateMethod:String,
     $calculateLogics:[ICalculateLogic],
-    $customScoreField:ICustomScoreField
     $forms: [IRiskIndicatorForm],
     $isWithDescription:Boolean
 `;
@@ -15,13 +14,12 @@ const riskIndicatorParams = `
 const riskIndicatorParamsDef = `
     name:$name,
     description:$description,
-    categoryId:$categoryId,
+    tagIds:$tagIds,
     operationIds: $operationIds,
     departmentIds:$departmentIds,
     branchIds:$branchIds,
     calculateMethod:$calculateMethod,
     calculateLogics:$calculateLogics,
-    customScoreField:$customScoreField,
     forms:$forms,
     isWithDescription:$isWithDescription
 `;

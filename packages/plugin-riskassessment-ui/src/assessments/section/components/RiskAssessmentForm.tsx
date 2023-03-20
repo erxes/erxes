@@ -1,10 +1,11 @@
+import { colors, Icon } from '@erxes/ui/src';
+import { PopoverList } from '@erxes/ui/src/components/filterableList/styles';
 import React from 'react';
-import { Button, colors, EmptyState, Icon, Tip } from '@erxes/ui/src';
+import { RiskIndicatorsType } from '../../../indicator/common/types';
 import { FormContainer } from '../../../styles';
 import { DetailPopOver } from '../../common/utils';
-import { PopoverList } from '@erxes/ui/src/components/filterableList/styles';
+import { AssessmentFilters } from '../common/types';
 import RiskIndicatorForm from '../containers/RiskIndicatorForm';
-import { RiskIndicatorsType } from '../../../indicator/common/types';
 
 type IndicatorsTypes = {
   _id: string;
@@ -12,11 +13,8 @@ type IndicatorsTypes = {
 } & RiskIndicatorsType;
 
 type Props = {
-  cardId: string;
-  cardType: string;
   indicators: IndicatorsTypes[];
-  riskAssessmentId: string;
-  userId: string;
+  filters: AssessmentFilters;
   closeModal: () => void;
   onlyPreview?: boolean;
 };
@@ -39,7 +37,7 @@ class RiskAssessmentForm extends React.Component<Props, State> {
       indicatorId = indicator._id;
     }
 
-    indicatorId = props?.indicators[0]?._id;
+    indicatorId = (props?.indicators || [])[0]?._id;
     this.state = {
       indicatorId
     };
@@ -62,22 +60,11 @@ class RiskAssessmentForm extends React.Component<Props, State> {
   }
 
   renderForm() {
-    const {
-      riskAssessmentId,
-      userId,
-      cardId,
-      cardType,
-      closeModal,
-      onlyPreview
-    } = this.props;
+    const { filters, closeModal, onlyPreview } = this.props;
     const { indicatorId } = this.state;
 
     const updatedProps = {
-      riskAssessmentId,
-      userId,
-      indicatorId,
-      cardId,
-      cardType,
+      filters: { ...filters, indicatorId },
       closeModal,
       onlyPreview
     };
@@ -102,9 +89,6 @@ class RiskAssessmentForm extends React.Component<Props, State> {
         {indicator.group && <Icon icon="arrows-up-right" color="#3CCC38" />}
         {indicator.submitted && <Icon icon="check-1" />}
         {indicator.name}
-        <Button btnStyle="link" style={{ paddingRight: 0 }}>
-          <Icon icon="history-alt" />
-        </Button>
       </li>
     ));
   }

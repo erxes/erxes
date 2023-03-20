@@ -1,18 +1,18 @@
-import React from 'react';
-import { graphql } from 'react-apollo';
+import { Alert, confirm, EmptyState, Spinner } from '@erxes/ui/src';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { withProps } from '@erxes/ui/src/utils/core';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import ListComponent from '../components/List';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { mutations, queries } from '../graphql';
-import { Spinner, confirm, Alert, EmptyState } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { generateParams, refetchQueries } from '../common/utils';
+import React from 'react';
+import { graphql } from 'react-apollo';
 import {
   OperationsQueryResponse,
   OperationsTotalCountQueryResponse,
   RemoveOperationsMutationResponse
 } from '../common/types';
+import { generateParams, refetchQueries } from '../common/utils';
+import ListComponent from '../components/List';
+import { mutations, queries } from '../graphql';
 type Props = {
   queryParams: any;
 } & IRouterProps;

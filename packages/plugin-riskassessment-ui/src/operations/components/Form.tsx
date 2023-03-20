@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Button,
   ControlLabel,
@@ -8,9 +7,10 @@ import {
   SelectTeamMembers,
   __
 } from '@erxes/ui/src';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { SelectOperation } from '../../common/utils';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import React from 'react';
+import { SelectOperations } from '../../common/utils';
 
 type Props = {
   operation?: any;
@@ -103,7 +103,7 @@ class Form extends React.Component<Props, State> {
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Parent')}</ControlLabel>
-          <SelectOperation
+          <SelectOperations
             name="parentId"
             label="Choose Operation"
             multi={false}
