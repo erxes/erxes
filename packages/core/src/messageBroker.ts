@@ -23,6 +23,7 @@ import forms from './forms';
 import { generateModels } from './connectionResolver';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
 import imports from './imports';
+import exporter from './exporter';
 
 let client;
 
@@ -466,6 +467,11 @@ export const initBroker = async options => {
   consumeRPCQueue('core:imports:insertImportItems', async args => ({
     status: 'success',
     data: await imports.insertImportItems(args)
+  }));
+
+  consumeRPCQueue('core:exporter:prepareExportData', async args => ({
+    status: 'success',
+    data: await exporter.prepareExportData(args)
   }));
 
   return client;
