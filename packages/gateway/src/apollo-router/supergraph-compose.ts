@@ -68,7 +68,7 @@ const supergraphComposeOnce = async () => {
     '------------------ with --log=debug ----------------------------'
   );
   execSync(
-    `yarn rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept --log=debug`,
+    `rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept --log=debug`,
     {
       stdio: 'inherit'
     }
