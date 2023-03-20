@@ -8,7 +8,6 @@
     "download:plugins": "yarn ts-node src/subscription/plugins/runDownloadPlugins.ts"
   },
   "dependencies": {
-    "@apollo/rover": "^0.11.1",
     "@graphql-tools/schema": "^9.0.16",
     "cookie-parser": "^1.4.6",
     "dotenv": "^10.0.0",
