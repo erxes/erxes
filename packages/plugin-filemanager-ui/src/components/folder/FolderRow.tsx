@@ -15,11 +15,8 @@ type Props = {
   filemanagerFolders: IFolder[];
   remove: (folderId: string) => void;
   setParentId: (id: string) => void;
-  onClickRow: (isOpen: boolean) => void;
   onToggle: any;
   parentIds: any;
-  isParentOpen: boolean;
-  // getSubfolders: (id: string, callback?: (data) => void) => void;
   queryParams: any;
   isActive: boolean;
   isChild?: boolean;
@@ -47,7 +44,7 @@ class FolderRow extends React.Component<Props, State> {
   };
 
   onParentOpen = (id: string, isOpen: boolean) => {
-    const { setParentId, onClickRow, folder, onToggle } = this.props;
+    const { setParentId, folder, onToggle } = this.props;
 
     const parentIds = this.state.parentIds;
     parentIds[id] = !isOpen;
@@ -55,7 +52,6 @@ class FolderRow extends React.Component<Props, State> {
     this.setState({ isParentOpen: !this.state.isParentOpen }, () => {
       setParentId(folder._id);
       onToggle(parentIds);
-      onClickRow(this.state.isParentOpen);
     });
   };
 

@@ -19,7 +19,6 @@ type Props = {
 };
 
 type State = {
-  isParentOpen: boolean;
   parentIds: { [key: string]: boolean };
 };
 
@@ -28,7 +27,6 @@ class FolderList extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      isParentOpen: false,
       parentIds: props.parentFolderId ? { [props.parentFolderId]: true } : {}
     };
   }
@@ -47,10 +45,6 @@ class FolderList extends React.Component<Props, State> {
     this.setState({ parentIds });
   };
 
-  onClickRow = (isOpen: boolean) => {
-    this.setState({ isParentOpen: isOpen });
-  };
-
   renderRow(folder: IFolder, isChild: boolean) {
     const { remove, queryParams, setParentId, filemanagerFolders } = this.props;
 
@@ -64,8 +58,6 @@ class FolderList extends React.Component<Props, State> {
         isChild={isChild}
         isParent={folder?.hasChild ? folder.hasChild : false}
         setParentId={setParentId}
-        isParentOpen={this.state.isParentOpen}
-        onClickRow={this.onClickRow}
         onToggle={this.onToggle}
         parentIds={this.state.parentIds}
         filemanagerFolders={filemanagerFolders}
