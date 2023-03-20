@@ -106,7 +106,11 @@ const Map = (props: IMapProps) => {
   };
 
   const renderMap = () => {
-    const mapElement = document.getElementById(props.id);
+    const isChildModal = localStorage.getItem('isChildModal');
+    const mapElement =
+      isChildModal === 'true'
+        ? document.getElementById(props.id + '1')
+        : document.getElementById(props.id);
 
     if (!mapElement || !(window as any).google) {
       return;
@@ -363,7 +367,12 @@ const Map = (props: IMapProps) => {
     }
   };
 
-  return <MapContainer id={props.id} fullHeight={props.fullHeight} />;
+  const isChildModal = localStorage.getItem('isChildModal');
+  return isChildModal === 'true' ? (
+    <MapContainer id={props.id + '1'} fullHeight={props.fullHeight} />
+  ) : (
+    <MapContainer id={props.id} fullHeight={props.fullHeight} />
+  );
 };
 
 export default Map;

@@ -14,14 +14,14 @@ export const afterMutationHandlers = async (
   params
 ) => {
   if (
-    ['cards:task', 'cards:ticket'].includes(params.type) &&
+    ['cards:task', 'cards:ticket', 'cards:deal'].includes(params.type) &&
     params.action === 'update'
   ) {
     await cardUpdateHandler(models, subdomain, params);
   }
 
   if (
-    ['cards:task', 'cards:ticket'].includes(params.type) &&
+    ['cards:task', 'cards:ticket', 'cards:deal'].includes(params.type) &&
     params.action === 'delete'
   ) {
     await cardDeleteHandler(models, subdomain, params);
