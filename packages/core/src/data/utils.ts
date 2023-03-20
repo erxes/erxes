@@ -931,14 +931,7 @@ export const sendMobileNotification = async (
     tokens.push(...deviceTokens);
   }
 
-  //   if (customerId) {
-  //     tokens.push(
-  //       ...(await Customers.findOne({ _id: customerId }).distinct(
-  //         'deviceTokens'
-  //       ))
-  //     );
-  //   }
-
+  const expiredTokens = [''];
   if (tokens.length > 0) {
     // send notification
     for (const token of tokens) {
@@ -950,7 +943,15 @@ export const sendMobileNotification = async (
         });
       } catch (e) {
         debugError(`Error occurred during firebase send: ${e.message}`);
+        expiredTokens.push(token);
       }
+    }
+
+    if (expiredTokens.length > 0) {
+      await models.Users.updateMany(
+        {},
+        { $pull: { deviceTokens: { $in: expiredTokens } } }
+      );
     }
   }
 };

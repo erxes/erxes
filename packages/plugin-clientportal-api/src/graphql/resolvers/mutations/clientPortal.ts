@@ -21,7 +21,16 @@ const clientPortalMutations = {
 
   async clientPortalCreateCard(
     _root,
-    { type, subject, priority, description, stageId },
+    {
+      type,
+      subject,
+      priority,
+      description,
+      stageId,
+      parentId,
+      closeDate,
+      startDate
+    },
     { subdomain, cpUser, models }: IContext
   ) {
     if (!cpUser) {
@@ -52,7 +61,10 @@ const clientPortalMutations = {
         stageId,
         status: 'active',
         customerId: customer._id,
-        createdAt: new Date()
+        createdAt: new Date(),
+        parentId,
+        closeDate,
+        startDate
       },
       isRPC: true
     });
