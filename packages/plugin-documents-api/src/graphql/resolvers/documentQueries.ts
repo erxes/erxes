@@ -35,6 +35,20 @@ const documentQueries = {
     { contentType },
     { subdomain }: IContext
   ) {
+    if (contentType === 'core:user') {
+      const fields = await sendCommonMessage({
+        subdomain,
+        serviceName: 'forms',
+        action: 'fields.fieldsCombinedByContentType',
+        isRPC: true,
+        data: {
+          contentType
+        }
+      });
+
+      return fields.map(f => ({ value: f.name, name: f.label }));
+    }
+
     return sendCommonMessage({
       subdomain,
       serviceName: contentType,
@@ -49,8 +63,8 @@ const documentQueries = {
   }
 };
 
-checkPermission(documentQueries, 'documents', 'showDocuments', []);
-checkPermission(documentQueries, 'documents', 'showDocuments');
-checkPermission(documentQueries, 'documents', 'showDocuments');
+checkPermission(documentQueries, 'documents', 'manageDocuments', []);
+checkPermission(documentQueries, 'documents', 'manageDocuments');
+checkPermission(documentQueries, 'documents', 'manageDocuments');
 
 export default documentQueries;

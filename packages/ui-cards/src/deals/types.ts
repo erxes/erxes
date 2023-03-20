@@ -38,6 +38,8 @@ export interface IProductData {
   currency?: string;
   quantity: number;
   unitPrice: number;
+  globalUnitPrice: number;
+  unitPricePercent: number;
   taxPercent: number;
   tax: number;
   vatPercent: number;

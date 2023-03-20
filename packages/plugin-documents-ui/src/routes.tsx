@@ -18,7 +18,9 @@ const documents = ({ location, history }) => {
 };
 
 const documentsCreate = ({ history }) => {
-  return <Form history={history} />;
+  const queryParams = queryString.parse(location.search);
+
+  return <Form contentType={queryParams.contentType} history={history} />;
 };
 
 const documentsEdit = ({ history, match }) => {
