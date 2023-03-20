@@ -7,6 +7,7 @@ const nameFields = `
 `;
 
 export const commonStructureParamsDef = `
+    $ids:[String]
     $perPage: Int,
     $page: Int 
     $searchValue: String,
@@ -14,6 +15,7 @@ export const commonStructureParamsDef = `
 `;
 
 export const commonStructureParamsValue = `
+    ids:$ids
     perPage: $perPage,
     page: $page 
     searchValue:$searchValue
@@ -478,6 +480,20 @@ const userMovements = `
   }
 `;
 
+const brands = `
+  query brands($page: Int, $perPage: Int, $searchValue: String) {
+    brands(page: $page, perPage: $perPage, searchValue: $searchValue) {
+      _id
+      code
+      name
+      createdAt
+      description
+      emailConfig
+      memberIds
+    }
+  }
+`;
+
 export default {
   userSkills,
   userDetail,
@@ -500,5 +516,6 @@ export default {
   channels: channelQueries.channels,
   skillTypes,
   fieldsGroups,
-  userMovements
+  userMovements,
+  brands
 };

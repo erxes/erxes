@@ -48,6 +48,7 @@ export const storeConstantToStore = core.storeConstantToStore;
 export const getConstantFromStore = core.getConstantFromStore;
 export const bustIframe = core.bustIframe;
 export const getEnv = core.getEnv;
+export const getSubdomain = core.getSubdomain;
 export const cleanIntegrationKind = core.cleanIntegrationKind;
 export const getConfig = core.getConfig;
 export const setConfig = core.setConfig;

@@ -53,7 +53,11 @@ interface IWidgetEmailParams {
   attachments?: IAttachment[];
 }
 
-export const pConversationClientMessageInserted = async (models, message) => {
+export const pConversationClientMessageInserted = async (
+  models,
+  subdomain,
+  message
+) => {
   const conversation = await models.Conversations.findOne(
     {
       _id: message.conversationId
@@ -89,6 +93,7 @@ export const pConversationClientMessageInserted = async (models, message) => {
 
   graphqlPubsub.publish('conversationClientMessageInserted', {
     conversationClientMessageInserted: message,
+    subdomain,
     conversation,
     integration,
     channelMemberIds
@@ -239,7 +244,7 @@ const createFormConversation = async (
     ...conversationData.message
   });
 
-  await pConversationClientMessageInserted(models, message);
+  await pConversationClientMessageInserted(models, subdomain, message);
 
   graphqlPubsub.publish('conversationMessageInserted', {
     conversationMessageInserted: message
@@ -821,7 +826,7 @@ const widgetMutations = {
       isRPC: true
     });
 
-    await pConversationClientMessageInserted(models, msg);
+    await pConversationClientMessageInserted(models, subdomain, msg);
 
     graphqlPubsub.publish('conversationMessageInserted', {
       conversationMessageInserted: msg
