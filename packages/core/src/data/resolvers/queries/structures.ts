@@ -17,7 +17,7 @@ const generateFilters = async ({
 }) => {
   const filter: any = { status: { $ne: STRUCTURE_STATUSES.DELETED } };
 
-  if (params.ids) {
+  if (!!params?.ids?.length) {
     filter._id = { $in: params.ids };
   }
 

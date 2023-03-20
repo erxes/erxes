@@ -103,6 +103,7 @@ export default function Home(props: Props) {
   const renderFilter = (
     <FilterContainer>
       <FlexRow>
+        <ControlLabel>#{totalCount} members&nbsp;&nbsp;</ControlLabel>
         {renderBrandChooser()}
         <InputBar type="searchBar">
           <Icon icon="search-1" size={20} />
