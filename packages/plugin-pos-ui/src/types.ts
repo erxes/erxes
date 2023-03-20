@@ -62,6 +62,7 @@ export type IPos = {
   cardsConfig?: any;
   checkRemainder?: boolean;
   permissionConfig?: any;
+  allowTypes?: string[];
 };
 
 export type ISlot = {
