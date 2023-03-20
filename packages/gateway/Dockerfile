@@ -1,5 +1,4 @@
 FROM node:14.21.3
-RUN npm install -g --unsafe-perm  @apollo/rover
 
 WORKDIR /erxes-gateway
 RUN chown -R node:node /erxes-gateway
