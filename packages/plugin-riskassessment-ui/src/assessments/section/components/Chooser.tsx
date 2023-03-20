@@ -8,18 +8,18 @@ import {
   Toggle,
   __
 } from '@erxes/ui/src';
+import client from '@erxes/ui/src/apolloClient';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { mutations as riskIndicatorMutattions } from '../../../indicator/graphql';
-import { queries } from '../graphql';
-import RiskIndicatorForm from '../../../indicator/containers/Form';
-import RiskGroupsForm from '../../../indicator/groups/containers/Form';
-import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
-import { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useQuery } from 'react-apollo';
 import { DetailPopOver } from '../../../assessments/common/utils';
-import { SelectGroupsAssignedUsers } from '../common/utils';
+import RiskIndicatorForm from '../../../indicator/containers/Form';
+import { mutations as riskIndicatorMutattions } from '../../../indicator/graphql';
+import RiskGroupsForm from '../../../indicator/groups/containers/Form';
 import { queries as groupsQueries } from '../../../indicator/groups/graphql';
+import { SelectGroupsAssignedUsers } from '../common/utils';
+import { queries } from '../graphql';
 
 type Props = {
   detail: any;
@@ -38,9 +38,9 @@ type Props = {
   }) => void;
 
   filters: {
-    branchIds: string[];
-    departmentIds: string[];
-    operationIds: string[];
+    branchId: string;
+    departmentId: string;
+    operationId: string;
   };
 };
 
@@ -163,14 +163,32 @@ export default function SelectIndicators(props: Props) {
     if (detail.groupId) {
       setUseGroups(true);
       if (detail.isSplittedUsers) setSplitUsers(true);
-      setSelectedItems(
-        (list || []).filter(item => detail.groupId === item._id)
-      );
+      client
+        .query({
+          query: gql(groupsQueries.list),
+          fetchPolicy: 'network-only',
+          variables: { ids: [detail.groupId] }
+        })
+        .then(res => {
+          const { riskIndicatorsGroups } = res.data;
+          if (!!riskIndicatorsGroups?.length) {
+            setSelectedItems(riskIndicatorsGroups);
+          }
+        });
     }
     if (detail.indicatorId && !useGroups) {
-      setSelectedItems(
-        (list || []).filter(item => detail.indicatorId === item._id)
-      );
+      client
+        .query({
+          query: gql(queries.riskIndicators),
+          fetchPolicy: 'network-only',
+          variables: { ids: [detail.indicatorId] }
+        })
+        .then(res => {
+          const { riskIndicators } = res.data;
+          if (!!riskIndicators?.length) {
+            setSelectedItems(riskIndicators);
+          }
+        });
     }
   }
 

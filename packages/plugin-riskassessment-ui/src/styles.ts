@@ -1,11 +1,11 @@
+import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import { colors, dimensions, WhiteBoxRoot } from '@erxes/ui/src';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import { BoxRoot } from '@erxes/ui/src/styles/main';
+import { highlight } from '@erxes/ui/src/utils/animations';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import { highlight } from '@erxes/ui/src/utils/animations';
 
 export const GridContainer = styledTS<{
   horizontal?: boolean;
@@ -97,9 +97,11 @@ export const FormContainer = styledTS<{
   align?: string;
   justifyCenter?: boolean;
   flex?: boolean;
+  maxItemsRow?: number;
   justify?: string;
   padding?: string;
   placeContent?: string;
+  flexWrap?: boolean;
 }>(styled.div)`
   display: flex;
   flex-wrap: wrap;
@@ -115,12 +117,19 @@ export const FormContainer = styledTS<{
   justify-content:${({ justifyCenter }) => (justifyCenter ? 'center' : '')}; 
   justify-content:${({ justify }) => (justify ? justify : '')}; 
   place-content:${({ placeContent }) => (placeContent ? placeContent : '')};
+  flex-wrap: ${({ flexWrap }) => (flexWrap ? 'wrap' : '')};
   ${({ flex }) =>
     flex
       ? `div {
-    flex:1
-  }`
+        flex:  1
+      }`
       : ''}
+      ${({ maxItemsRow }) =>
+        maxItemsRow
+          ? `div {
+        flex:  1 0 ${100 / maxItemsRow}%
+      }`
+          : ''}
 `;
 
 export const BoxItem = styled.div`
@@ -181,11 +190,14 @@ export const Badge = styledTS<{ color?: string }>(styled.div)`
   max-width: 100px;
 `;
 
-export const ColorBox = styledTS<{ color?: string }>(styled.div)`
+export const ColorBox = styledTS<{ color?: string; cursor?: boolean }>(
+  styled.div
+)`
   height: 10px;
   width: 10px;
   background-color: ${({ color }) => color}
-  border-radius: 15px
+  border-radius: 15px;
+  ${({ cursor }) => (cursor ? 'cursor:pointer' : '')}
 `;
 
 export const ColorButton = styledTS<{ color?: string }>(styled.div)`

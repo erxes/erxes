@@ -1,16 +1,19 @@
-import React from 'react';
-import { graphql } from 'react-apollo';
+import { EmptyState, Spinner, withCurrentUser } from '@erxes/ui/src';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { withProps } from '@erxes/ui/src/utils/core';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { queries } from '../graphql';
-import { RiskAssessmentAssignedMembersQueryResponse } from '../../common/types';
-import { EmptyState, Spinner, withCurrentUser } from '@erxes/ui/src';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import {
+  RiskAssessmentAssignedMembersQueryResponse,
+  RiskAssessmentTypes
+} from '../../common/types';
 import AssignedMembersComponent from '../components/AssigneMembers';
-import { IUser } from '@erxes/ui/src/auth/types';
+import { queries } from '../graphql';
 
 type Props = {
-  riskAssessmentId: string;
+  riskAssessments: RiskAssessmentTypes[];
   cardId: string;
   cardType: string;
 };
@@ -31,7 +34,7 @@ class AssignedMembers extends React.Component<FinalProps> {
       currentUser,
       cardId,
       cardType,
-      riskAssessmentId
+      riskAssessments
     } = this.props;
 
     if (assignedMembersQueryResponse.loading) {
@@ -50,7 +53,7 @@ class AssignedMembers extends React.Component<FinalProps> {
       currentUser,
       cardId,
       cardType,
-      riskAssessmentId
+      riskAssessments
     };
 
     return <AssignedMembersComponent {...updatedProps} />;

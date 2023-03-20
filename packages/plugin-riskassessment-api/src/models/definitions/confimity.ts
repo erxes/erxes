@@ -12,7 +12,7 @@ export interface IRiskFormSubmissionDocument extends Document {
   description: string;
 }
 
-export const riskConformityFormSubmissionSchema = new Schema({
+export const formSubmissionSchema = new Schema({
   _id: field({ pkey: true }),
   cardId: field({ type: String, label: 'Card Id' }),
   cardType: field({ type: String, label: 'Card Type' }),
@@ -29,3 +29,13 @@ export const riskConformityFormSubmissionSchema = new Schema({
   value: field({ type: String, lablel: 'Form Field Value' }),
   description: field({ type: String, label: 'Description', optional: true })
 });
+
+export interface IAssessmentConformitiesDocument extends Document {
+  _id: string;
+  cardId: string;
+  cardType: string;
+  assessmentIds: string[];
+  branchIds: string[];
+  departmentIds: string[];
+  operationIds: string[];
+}

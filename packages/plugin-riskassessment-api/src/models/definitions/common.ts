@@ -17,22 +17,13 @@ export interface IRiskIndicatorsField {
   name?: string;
   description?: string;
   createdAt?: string;
-  categoryId?: string;
+  tagIDs?: string[];
   status?: string;
   calculateMethod?: string;
   calculateLogics?: IRiskIndicatorCalculateLogicsField[];
   branchIds?: string[];
   departmentIds?: string[];
   operationIds?: string[];
-}
-
-export interface IRiskAssessmentCategoryField extends PaginateField {
-  _id?: string;
-  name: string;
-  formId: string;
-  parentId: string;
-  code: string;
-  type: string;
 }
 
 export interface IRiskConformityField {
@@ -54,11 +45,13 @@ export interface IRiskConformityParams {
 
 export interface IRiskFormSubmissionParams {
   riskAssessmentId?: string;
+  branchId?: string;
+  departmentId?: string;
+  operationId?: string;
   cardId: string;
   cardType: string;
   userId: string;
   indicatorId: string;
-  customScore: { value: number; description: string };
   formSubmissions: {
     [key: string]: { value: number; description: string };
   };

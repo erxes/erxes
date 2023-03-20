@@ -1,13 +1,13 @@
+import { Alert } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
 import { router, withProps } from '@erxes/ui/src/utils/core';
-import * as compose from 'lodash.flowright';
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import React from 'react';
 import { graphql } from 'react-apollo';
+import { refetchQueries } from '../common';
 import ListComponents from '../components/List';
 import { mutations, queries } from '../graphql';
-import { Alert } from '@erxes/ui/src';
-import { refetchQueries } from '../common';
 type Props = {
   queryParams: any;
   history: any;
@@ -39,8 +39,8 @@ class List extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      configs: configs?.riskIndicatorConfigs || [],
-      totalCount: configsTotalCount.riskIndicatorConfigsTotalCount || 0,
+      configs: configs?.riskAssessmentsConfigs || [],
+      totalCount: configsTotalCount.riskAssessmentsConfigsTotalCount || 0,
       remove
     };
 

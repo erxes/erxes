@@ -13,3 +13,14 @@ type RiskAssessmentGroups = {
 export type GroupsQueryResponse = {
   riskAssessmentGroups: RiskAssessmentGroups[];
 } & QueryResponse;
+
+export type AssessmentFilters = {
+  cardId: string;
+  cardType: string;
+  userId: string;
+  riskAssessmentId: string;
+  indicatorId?: string;
+  branchId?: string;
+  departmentId?: string;
+  operationId?: string;
+};
