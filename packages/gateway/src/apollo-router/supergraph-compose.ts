@@ -41,7 +41,7 @@ const createSupergraphConfig = (proxyTargets: ErxesProxyTarget[]) => {
     };
   }
   fs.writeFileSync(superGraphConfigNext, yaml.stringify(config), {
-    encoding: "ascii"
+    encoding: 'ascii'
   });
 
   if (
@@ -56,7 +56,7 @@ const supergraphComposeOnce = async () => {
   const superGraphqlNext = supergraphPath + '.next';
 
   execSync(
-    `node dist/node_modules/.bin/rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept`,
+    `yarn rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept`,
     { stdio: 'inherit' }
   );
 
