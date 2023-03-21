@@ -68,4 +68,6 @@ export const mutations = `
     receiveBySms: Boolean,
     configs: [NotificationConfigInput],
   ): ClientPortalUser
+
+    clientPortalSendNotification(receivers: [String], title: String, content: String, isMobile: Boolean): JSON
 `;
