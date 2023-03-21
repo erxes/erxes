@@ -278,7 +278,6 @@ export const getPath = async (apiKey: string, places: IPlaceDocument[]) => {
 };
 
 export const getTransportData = async (req, res, subdomain) => {
-  console.log('getTransportData', req.body);
   const { unixtimestamp, offset, pagesize } = req.body;
 
   // const {  } = JSON.parse(json || '{}');
@@ -371,8 +370,6 @@ export const getTransportData = async (req, res, subdomain) => {
   if (unixtimestamp) {
     qry.tid = { $gt: Number(unixtimestamp) };
   }
-
-  console.log('page size', pagesize, 'offset', offset, 'qry', qry, 'range');
 
   const list = await paginate(
     models.TransportDatas.find(qry, '-scopeBrandIds -range').sort({
