@@ -53,20 +53,6 @@ const createSupergraphConfig = (proxyTargets: ErxesProxyTarget[]) => {
 const supergraphComposeOnce = async () => {
   const superGraphqlNext = supergraphPath + '.next';
 
-  // const args = [
-  //   'supergraph',
-  //   'compose',
-  //   '--config',
-  //   supergraphConfigPath,
-  //   '--output',
-  //   superGraphqlNext,
-  //   '--elv2-license=accept'
-  // ];
-
-  // spawnSync('rover', args, { stdio: 'inherit' });
-  console.log(
-    '------------------ with --log=TRACE ----------------------------'
-  );
   execSync(
     `rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept`,
     {
