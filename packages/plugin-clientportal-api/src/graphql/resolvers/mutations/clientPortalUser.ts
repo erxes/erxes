@@ -341,7 +341,7 @@ const clientPortalUserMutations = {
       attachments: IAttachment[];
       description: string;
     },
-    { models, subdomain, user }: IContext
+    { models, subdomain }: IContext
   ) => {
     const { login, password, clientPortalId, attachments, description } = args;
 
@@ -360,7 +360,7 @@ const clientPortalUserMutations = {
 
     const valid = await models.ClientPortalUsers.comparePassword(
       password,
-      user.password
+      cpuser.password || ''
     );
 
     if (!valid) {
