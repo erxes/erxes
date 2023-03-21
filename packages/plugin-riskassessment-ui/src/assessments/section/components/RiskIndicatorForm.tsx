@@ -43,12 +43,12 @@ class IndicatorForm extends React.Component<Props, State> {
     this.submitForm = this.submitForm.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentDidMount() {
     if (
-      JSON.stringify(nextProps.submittedFields) ===
+      JSON.stringify(this.props.submittedFields) ===
       JSON.stringify(this.state.submissions)
     ) {
-      this.setState({ submissions: nextProps.submittedFields });
+      this.setState({ submissions: this.props.submittedFields });
     }
   }
 
