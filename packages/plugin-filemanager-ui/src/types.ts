@@ -11,6 +11,7 @@ export interface IFolder {
   createdUserId?: string;
   parentId?: string;
   parent?: IFolder;
+  childrens?: IFolder[];
   sharedUsers: IUser[];
 }
 
