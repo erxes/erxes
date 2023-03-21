@@ -141,6 +141,7 @@ export type DepartmentsMainQueryResponse = {
   departmentsMain: {
     list: IDepartment[];
     totalCount: number;
+    totalUsersCount: number;
   };
 } & QueryResponse;
 
@@ -148,6 +149,14 @@ export type BranchesMainQueryResponse = {
   branchesMain: {
     list: IDepartment[];
     totalCount: number;
+    totalUsersCount: number;
+  };
+} & QueryResponse;
+export type UnitsMainQueryResponse = {
+  unitsMain: {
+    list: IUnit[];
+    totalCount: number;
+    totalUsersCount: number;
   };
 } & QueryResponse;
 

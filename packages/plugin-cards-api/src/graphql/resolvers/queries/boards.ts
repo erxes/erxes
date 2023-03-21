@@ -56,6 +56,7 @@ export interface IListParams extends IConformityQueryParams {
   stageChangedEndDate?: Date;
   noSkipArchive?: boolean;
   tagIds?: string[];
+  number?: string;
 }
 
 const boardQueries = {
@@ -215,17 +216,17 @@ const boardQueries = {
           };
 
     if (!user.isOwner && !isAll) {
-      const departments = await sendCoreMessage({
+      const userDetail = await sendCoreMessage({
         subdomain,
-        action: 'departments.find',
+        action: 'users.find',
         data: {
-          userIds: { $in: [user._id] }
+          _id: user._id
         },
         isRPC: true,
         defaultValue: []
       });
 
-      const departmentIds = departments.map(d => d._id);
+      const departmentIds = userDetail?.departmentIds || [];
 
       if (Object.keys(query) && departmentIds.length > 0) {
         query.$or.push({
@@ -376,18 +377,17 @@ const boardQueries = {
         }
       ];
 
-      const departments = await sendCoreMessage({
+      const userDetail = await sendCoreMessage({
         subdomain,
-        action: 'departments.find',
+        action: 'users.findOne',
         data: {
-          userIds: { $in: [user._id] }
+          _id: user._id
         },
         isRPC: true,
         defaultValue: []
       });
 
-      const departmentIds = departments.map(d => d._id);
-
+      const departmentIds = userDetail?.departmentIds || [];
       if (departmentIds.length > 0) {
         filter.$or.push({
           $and: [

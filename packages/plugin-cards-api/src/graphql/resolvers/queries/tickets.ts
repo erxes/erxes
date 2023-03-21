@@ -62,7 +62,7 @@ const ticketQueries = {
   ) {
     const ticket = await models.Tickets.getTicket(_id);
 
-    return checkItemPermByUser(models, user._id, ticket);
+    return checkItemPermByUser(models, user, ticket);
   }
 };
 

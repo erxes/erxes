@@ -46,6 +46,18 @@ export const initBroker = async cl => {
       };
     }
   );
+
+  consumeRPCQueue(
+    'knowledgebase:categories.findOne',
+    async ({ subdomain, data: { query } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.KnowledgeBaseCategories.findOne(query).lean()
+      };
+    }
+  );
 };
 
 export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
@@ -53,6 +65,17 @@ export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: 'core',
+    ...args
+  });
+};
+
+export const sendSegmentsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'segments',
     ...args
   });
 };

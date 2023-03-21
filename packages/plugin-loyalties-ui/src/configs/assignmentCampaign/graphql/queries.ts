@@ -35,19 +35,8 @@ const assignmentCampaignDetail = `
   }
 `;
 
-const segments = `
-  query segments($contentTypes: [String]!, $ids: [String]) {
-    segments(contentTypes: $contentTypes, ids: $ids) {
-      _id
-      name
-      color
-    }
-  }
-`;
-
 export default {
   assignmentCampaigns,
   assignmentCampaignsCount,
-  assignmentCampaignDetail,
-  segments
+  assignmentCampaignDetail
 };

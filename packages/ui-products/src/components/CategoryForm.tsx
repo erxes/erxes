@@ -98,6 +98,11 @@ class CategoryForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
+          <ControlLabel>Meta</ControlLabel>
+          <FormControl {...formProps} name="meta" defaultValue={object.meta} />
+        </FormGroup>
+
+        <FormGroup>
           <ControlLabel>Description</ControlLabel>
           <FormControl
             {...formProps}

@@ -25,6 +25,8 @@ import { IOptions } from "../types";
 import Archive from "./Archive";
 import SelectLabel from "./label/SelectLabel";
 import { isEnabled } from "@erxes/ui/src/utils/core";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 
 type Props = {
   onSearch: (search: string) => void;
@@ -168,6 +170,18 @@ export default class RightMenu extends React.Component<Props, State> {
           label="Filter by created members"
           name="userIds"
           queryParams={queryParams}
+          onSelect={onSelect}
+        />
+        <SelectBranches
+          name="branchIds"
+          label="Filter by branches"
+          initialValue={queryParams.branchIds}
+          onSelect={onSelect}
+        />
+        <SelectDepartments
+          name="departmentIds"
+          label="Filter by departments"
+          initialValue={queryParams.departmentIds}
           onSelect={onSelect}
         />
         <Select
