@@ -35,7 +35,6 @@ type Props = {
   isActionLoading: boolean;
   groups: IProductGroup[];
   save: (params: any) => void;
-  productCategories: IProductCategory[];
   slots: ISlot[];
   envs: any;
 };
@@ -133,7 +132,9 @@ class Pos extends React.Component<Props, State> {
     const cleanMappings = (pos.catProdMappings || []).map(m => ({
       _id: m._id,
       categoryId: m.categoryId,
-      productId: m.productId
+      productId: m.productId,
+      code: m.code || '',
+      name: m.name || ''
     }));
 
     const cleanSlot = (slots || []).map(m => ({
@@ -279,7 +280,7 @@ class Pos extends React.Component<Props, State> {
       checkRemainder,
       allowTypes
     } = this.state;
-    const { productCategories, envs } = this.props;
+    const { envs } = this.props;
     const breadcrumb = [{ title: 'POS List', link: `/pos` }, { title: 'POS' }];
 
     const name = pos.name || '';
@@ -306,7 +307,7 @@ class Pos extends React.Component<Props, State> {
               </Step>
               <Step
                 img="/images/icons/erxes-12.svg"
-                title={`General`}
+                title={`Payments`}
                 onClick={this.onStepClick}
               >
                 <PaymentsStep
@@ -337,7 +338,6 @@ class Pos extends React.Component<Props, State> {
                   pos={pos}
                   groups={groups}
                   catProdMappings={pos.catProdMappings || []}
-                  productCategories={productCategories}
                 />
               </Step>
               <Step

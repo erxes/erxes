@@ -7,6 +7,8 @@ export type IConfigsMap = { [key: string]: any };
 export type CatProd = {
   _id: string;
   categoryId: string;
+  code?: string;
+  name?: string;
   productId: string;
 };
 

@@ -2,7 +2,6 @@ import * as compose from 'lodash.flowright';
 import gql from 'graphql-tag';
 import React from 'react';
 import { Alert, Spinner, withProps } from '@erxes/ui/src';
-import { queries as productQueries } from '@erxes/ui-products/src/graphql';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { graphql } from 'react-apollo';
 import Pos from '../components/Pos';
@@ -17,7 +16,7 @@ import {
   SlotsBulkUpdateMutationResponse,
   SlotsQueryResponse
 } from '../../types';
-import { IPos, ProductCategoriesQueryResponse, ISlot } from '../../types';
+import { IPos, ISlot } from '../../types';
 import { mutations, queries } from '../graphql';
 
 type Props = {
@@ -33,7 +32,6 @@ type State = {
 type FinalProps = {
   posDetailQuery: PosDetailQueryResponse;
   groupsQuery: GroupsQueryResponse;
-  productCategoriesQuery: ProductCategoriesQueryResponse;
   slotsQuery: SlotsQueryResponse;
   posEnvQuery: PosEnvQueryResponse;
 } & Props &
@@ -59,7 +57,6 @@ class EditPosContainer extends React.Component<FinalProps, State> {
       productGroupsBulkInsertMutation,
       slotsBulkUpdateMutation,
       history,
-      productCategoriesQuery,
       slotsQuery,
       posEnvQuery
     } = this.props;
@@ -67,7 +64,6 @@ class EditPosContainer extends React.Component<FinalProps, State> {
     if (
       (posDetailQuery && posDetailQuery.loading) ||
       (groupsQuery && groupsQuery.loading) ||
-      productCategoriesQuery.loading ||
       (slotsQuery && slotsQuery.loading)
     ) {
       return <Spinner objective={true} />;
@@ -76,7 +72,6 @@ class EditPosContainer extends React.Component<FinalProps, State> {
     const pos = (posDetailQuery && posDetailQuery.posDetail) || ({} as IPos);
     const groups = (groupsQuery && groupsQuery.productGroups) || [];
     const slots = (slotsQuery && slotsQuery.posSlots) || [];
-    const productCategories = productCategoriesQuery.productCategories || [];
     const envs = posEnvQuery.posEnv || {};
 
     const save = doc => {
@@ -136,7 +131,6 @@ class EditPosContainer extends React.Component<FinalProps, State> {
       save,
       isActionLoading: this.state.isLoading,
       slots,
-      productCategories,
       envs
     };
 
@@ -217,16 +211,6 @@ export default withProps<Props>(
       { posId: string; groups: ISlot[] }
     >(gql(mutations.saveSlots), {
       name: 'slotsBulkUpdateMutation'
-    }),
-
-    graphql<Props, ProductCategoriesQueryResponse>(
-      gql(productQueries.productCategories),
-      {
-        name: 'productCategoriesQuery',
-        options: () => ({
-          fetchPolicy: 'network-only'
-        })
-      }
-    )
+    })
   )(EditPosContainer)
 );

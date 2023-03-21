@@ -34,6 +34,8 @@ interface IUIOptions {
 interface ICatProd {
   _id: string;
   categoryId: string;
+  code?: string;
+  name?: string;
   productId: string;
 }
 
