@@ -1,4 +1,4 @@
-FROM node:14.21.3
+FROM node:14.21.3-slim
 RUN yarn global add @apollo/rover
 
 WORKDIR /erxes-gateway
