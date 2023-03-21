@@ -283,7 +283,8 @@ export const extractConfig = async (subdomain, doc) => {
     departmentId: doc.departmentId,
     allowBranchIds: doc.allowBranchIds,
     checkRemainder: doc.checkRemainder,
-    permissionConfig: doc.permissionConfig
+    permissionConfig: doc.permissionConfig,
+    allowTypes: doc.allowTypes
   };
 };
 

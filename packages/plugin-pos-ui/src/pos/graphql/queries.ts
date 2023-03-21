@@ -42,6 +42,7 @@ export const posCommonFields = `
   deliveryConfig
   checkRemainder
   permissionConfig
+  allowTypes
 `;
 
 const commonParamDefs = `

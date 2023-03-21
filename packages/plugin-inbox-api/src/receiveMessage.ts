@@ -214,7 +214,9 @@ export const receiveIntegrationsNotification = async (subdomain, msg) => {
 
     if (conversationId) {
       await models.Conversations.reopen(conversationId);
-      await pConversationClientMessageInserted(models, { conversationId });
+      await pConversationClientMessageInserted(models, subdomain, {
+        conversationId
+      });
     }
 
     return sendSuccess({ status: 'ok' });

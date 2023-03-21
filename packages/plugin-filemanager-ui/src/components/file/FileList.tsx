@@ -1,16 +1,12 @@
 import { IFile, IFolder } from '../../types';
 
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { EMPTY_CONTENT_FILES } from '../../constants';
-import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FileRow from './FileRow';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { ItemName } from '../../styles';
 import React from 'react';
-import { RowArticle } from './styles';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import Table from '@erxes/ui/src/components/table';
 import { __ } from '@erxes/ui/src/utils';
 import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
@@ -74,14 +70,14 @@ class FileList extends React.Component<Props> {
           </thead>
           <tbody id="fileManagerfiles">
             <>
-              {/* {folders.map((folder: IFolder) => (
+              {folders.map((folder: IFolder) => (
                 <FileRow
                   key={folder._id}
                   item={folder}
                   queryParams={queryParams}
                   isFolder={true}
                 />
-              ))} */}
+              ))}
               {files.map(file => (
                 <FileRow
                   key={file._id}

@@ -146,12 +146,7 @@ function FileManager({
       }
       content={
         <DataWithLoader
-          data={
-            <FileList
-              queryParams={queryParams}
-              // currentFolderId={currentFolder._id}
-            />
-          }
+          data={<FileList queryParams={queryParams} />}
           loading={false}
           count={100}
           emptyContent={

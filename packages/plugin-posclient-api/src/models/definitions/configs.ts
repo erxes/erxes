@@ -66,6 +66,7 @@ export interface IConfig {
   allowBranchIds?: string[];
   checkRemainder?: boolean;
   permissionConfig?: any;
+  allowTypes: string[];
 }
 
 export interface IConfigDocument extends Document, IConfig {
@@ -146,7 +147,8 @@ export const configSchema = new Schema({
     label: 'Allow branches'
   }),
   checkRemainder: field({ type: Boolean, optional: true }),
-  permissionConfig: field({ type: Object, optional: true })
+  permissionConfig: field({ type: Object, optional: true }),
+  allowTypes: field({ type: [String], label: 'Allow Types' })
 });
 
 export const productGroupSchema = new Schema({
