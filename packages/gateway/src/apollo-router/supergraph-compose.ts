@@ -39,7 +39,7 @@ const createSupergraphConfig = (proxyTargets: ErxesProxyTarget[]) => {
     };
   }
   fs.writeFileSync(superGraphConfigNext, yaml.stringify(config), {
-    encoding: 'ascii'
+    encoding: 'utf-8'
   });
 
   if (
