@@ -68,7 +68,7 @@ const supergraphComposeOnce = async () => {
     '------------------ with --log=TRACE ----------------------------'
   );
   execSync(
-    `rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept --log=trace`,
+    `rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept`,
     {
       stdio: 'inherit'
     }
