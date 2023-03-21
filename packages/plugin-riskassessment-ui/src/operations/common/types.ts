@@ -1,5 +1,4 @@
 import { QueryResponse } from '@erxes/ui/src/types';
-import { CategoryTypes } from '../../indicator/common/types';
 
 export type OperationTypes = {
   _id: string;
@@ -7,7 +6,7 @@ export type OperationTypes = {
   parentId: string;
   code?: string;
   order: string;
-  parent?: CategoryTypes;
+  parent?: any;
   createdAt?: string;
   modifiedAt?: string;
 };

@@ -1,7 +1,11 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { router as routerUtils, withProps } from '@erxes/ui/src/utils';
+import {
+  router as routerUtils,
+  withProps,
+  getSubdomain
+} from '@erxes/ui/src/utils';
 import ConversationList from '../../components/leftSidebar/ConversationList';
 import { queries, subscriptions } from '@erxes/ui-inbox/src/inbox/graphql';
 import { generateParams } from '@erxes/ui-inbox/src/inbox/utils';
@@ -42,7 +46,10 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
 
     conversationsQuery.subscribeToMore({
       document: gql(subscriptions.conversationClientMessageInserted),
-      variables: { userId: currentUser ? currentUser._id : null },
+      variables: {
+        subdomain: getSubdomain(),
+        userId: currentUser ? currentUser._id : null
+      },
       updateQuery: () => {
         if (updateCountsForNewMessage) {
           updateCountsForNewMessage();

@@ -1,5 +1,6 @@
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import gql from 'graphql-tag';
+import { generateParamsIds } from '../../../common/utils';
 import { queries } from '../graphql';
 export const refetchQueries = queryParams => [
   {
@@ -9,5 +10,6 @@ export const refetchQueries = queryParams => [
 ];
 export const generateParams = queryParams => ({
   ...generatePaginationParams(queryParams || {}),
-  searchValue: queryParams?.searchValue
+  searchValue: queryParams?.searchValue,
+  tagIds: generateParamsIds(queryParams?.tagIds || [])
 });

@@ -152,8 +152,8 @@ export default (props: Props) => {
           value={checkInOutType}
           onChange={e => setCheckInOutType(e.value)}
           options={['Check in', 'Check out'].map(ipt => ({
-            value: ipt,
-            label: ipt
+            label: ipt,
+            value: ipt
           }))}
         />
 

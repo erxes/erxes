@@ -437,7 +437,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
     },
     services: {
       coreui: {
-        image: `erxes/erxes:${image_tag}`,
+        image: `erxes/erxes:${(configs.coreui || {}).image_tag || image_tag}`,
         environment: {
           REACT_APP_PUBLIC_PATH: '',
           REACT_APP_CDN_HOST: widgets_domain,
@@ -459,7 +459,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         networks: ['erxes'],
       },
       plugin_core_api: {
-        image: `erxes/core:${image_tag}`,
+        image: `erxes/core:${(configs.core || {}).image_tag || image_tag}`,
         environment: {
           SERVICE_NAME: 'core-api',
           PORT: SERVICE_INTERNAL_PORT,
@@ -483,7 +483,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         networks: ['erxes'],
       },
       gateway: {
-        image: `erxes/gateway:${image_tag}`,
+        image: `erxes/gateway:${(configs.gateway || {}).image_tag || image_tag}`,
         environment: {
           SERVICE_NAME: 'gateway',
           PORT: SERVICE_INTERNAL_PORT,

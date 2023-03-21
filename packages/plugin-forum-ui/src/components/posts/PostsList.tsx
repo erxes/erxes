@@ -27,6 +27,7 @@ type Props = {
   bulk: any[];
   emptyBulk: () => void;
   isAllSelected: boolean;
+  totalCount: number;
   toggleBulk: (target: IPost, toAdd: boolean) => void;
   toggleAll: (targets: IPost[], containerId: string) => void;
 };
@@ -62,7 +63,8 @@ class List extends React.Component<Props, {}> {
       toggleAll,
       remove,
       emptyBulk,
-      history
+      history,
+      totalCount
     } = this.props;
 
     let actionBarLeft: React.ReactNode;
@@ -196,7 +198,7 @@ class List extends React.Component<Props, {}> {
         }
         leftSidebar={<Sidebar />}
         actionBar={actionBar}
-        footer={<Pagination count={posts.length} />}
+        footer={<Pagination count={totalCount} />}
         content={
           <DataWithLoader
             data={content}

@@ -5,7 +5,6 @@ import {
   confirm,
   EmptyState,
   FormGroup,
-  Icon,
   Spinner,
   Tip,
   Toggle,
@@ -18,30 +17,29 @@ import {
   ColorPick,
   ColorPicker,
   FormColumn,
-  FormWrapper,
-  LinkButton
+  FormWrapper
 } from '@erxes/ui/src/styles/main';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import gql from 'graphql-tag';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
 import Select from 'react-select-plus';
 import { calculateMethods, COLORS } from '../../common/constants';
-import { RiskIndicatorsType, RiskCalculateLogicType } from '../common/types';
-import { SelectOperation, SelectWithCategory } from '../../common/utils';
-import { mutations } from '../graphql';
+import { SelectOperations } from '../../common/utils';
 import { FormContainer, FormContent, Header } from '../../styles';
+import { RiskCalculateLogicType, RiskIndicatorsType } from '../common/types';
+import { SelectTags } from '../common/utils';
+import { mutations } from '../graphql';
 import FormItem from './FormItem';
-import gql from 'graphql-tag';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 
 type Props = {
   indicatorDetail?: RiskIndicatorsType;
   detailLoading?: boolean;
   renderButton?: (props: IButtonMutateProps) => JSX.Element;
-  categoryIds?: string;
   fieldsSkip?: any;
 } & ICommonFormProps;
 
@@ -49,7 +47,6 @@ type IRiskIndicatorsStateType = {
   _id?: string;
   name?: string;
   description?: string;
-  categoryId?: string;
   operationIds?: string[];
   departmentIds?: string[];
   branchIds?: string[];
@@ -57,14 +54,12 @@ type IRiskIndicatorsStateType = {
   calculateMethod?: string;
   calculateLogics?: RiskCalculateLogicType[];
   createdAt?: string;
-  category?: any;
-  customScoreField?: any;
   isWithDescription?: boolean;
+  tagIds: string;
 };
 
 type State = {
   riskIndicator: IRiskIndicatorsStateType;
-  withCustomScore: boolean;
 };
 
 class Form extends React.Component<Props & ICommonFormProps, State> {
@@ -72,10 +67,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     super(props);
 
     this.state = {
-      riskIndicator: props.indicatorDetail || {
-        categoryId: props.categoryId || ''
-      },
-      withCustomScore: props.indicatorDetail?.customScoreField ? true : false
+      riskIndicator: props.indicatorDetail || {}
     };
 
     this.generateDoc = this.generateDoc.bind(this);
@@ -87,8 +79,6 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     delete values.logic;
     delete values.value;
     delete values.value2;
-
-    delete riskIndicator?.customScoreField?.__typename;
 
     (riskIndicator.forms || []).forEach(formData => {
       delete formData.__typename;
@@ -266,8 +256,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
   }
 
   renderGeneralLogics(formProps) {
-    const { riskIndicator, withCustomScore } = this.state;
-    const { customScoreField } = riskIndicator;
+    const { riskIndicator } = this.state;
 
     if (!(riskIndicator?.forms?.length > 1)) {
       return null;
@@ -298,67 +287,14 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
       }));
     };
 
-    const toggleCustomScoreField = () => {
-      this.setState(({ withCustomScore }) => ({
-        withCustomScore: !withCustomScore
-      }));
-    };
-
-    const handleCustomScoreField = e => {
-      const { name, value } = e.currentTarget as HTMLInputElement;
-
-      this.setState(({ riskIndicator }) => ({
-        riskIndicator: {
-          ...riskIndicator,
-          customScoreField: {
-            ...riskIndicator.customScoreField,
-            [name]: name === 'percentWeight' ? Number(value) : value
-          }
-        }
-      }));
-    };
-
     return (
       <FormContent>
         <FormWrapper>
           <FormColumn>
             <Header>{__('General Configuration of Forms')}</Header>
           </FormColumn>
-          <FormContainer row gap align="center">
-            <ControlLabel>{__('indicator with custom score')}</ControlLabel>
-            <Toggle
-              checked={withCustomScore}
-              onChange={toggleCustomScoreField}
-            />
-          </FormContainer>
         </FormWrapper>
-        {withCustomScore && (
-          <FormGroup>
-            <ControlLabel>{__('Custom score field')}</ControlLabel>
-            <FormWrapper>
-              <FormColumn>
-                <FormGroup>
-                  <FormControl
-                    type="text"
-                    name="label"
-                    placeholder="Label"
-                    value={customScoreField?.label}
-                    onChange={handleCustomScoreField}
-                  />
-                </FormGroup>
-              </FormColumn>
-              <FormGroup>
-                <FormControl
-                  type="number"
-                  name="percentWeight"
-                  placeholder="Percent weight"
-                  value={customScoreField?.percentWeight}
-                  onChange={handleCustomScoreField}
-                />
-              </FormGroup>
-            </FormWrapper>
-          </FormGroup>
-        )}
+
         <FormGroup>
           <ControlLabel>{__('Calculate Methods')}</ControlLabel>
           <Select
@@ -413,7 +349,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
 
     return (riskIndicator?.forms || []).map(form => (
       <FormItem
-        key={form.id}
+        key={form._id}
         doc={form}
         handleChange={handleChange}
         remove={removeRow}
@@ -437,7 +373,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
       }));
     };
 
-    const handleChangeSelection = (name, value) => {
+    const handleChangeSelection = (value, name) => {
       this.setState(prev => ({
         riskIndicator: { ...prev.riskIndicator, [name]: value }
       }));
@@ -490,13 +426,13 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Category')}</ControlLabel>
-          <SelectWithCategory
-            name="categoryId"
-            label="Choose Category"
-            multi={false}
-            initialValue={riskIndicator?.categoryId}
-            onSelect={value => handleChangeSelection('categoryId', value)}
+          <ControlLabel>{__('Tags')}</ControlLabel>
+          <SelectTags
+            name="tagIds"
+            label="Choose Tags"
+            initialValue={riskIndicator.tagIds}
+            onSelect={handleChangeSelection}
+            multi
           />
         </FormGroup>
         <FormContainer row flex gap>
@@ -507,7 +443,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
               label="Choose Branches"
               multi={true}
               initialValue={riskIndicator?.branchIds}
-              onSelect={value => handleChangeSelection('branchIds', value)}
+              onSelect={handleChangeSelection}
             />
           </FormGroup>
           <FormGroup>
@@ -517,17 +453,17 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
               label="Choose Departments"
               multi={true}
               initialValue={riskIndicator?.departmentIds}
-              onSelect={value => handleChangeSelection('departmentIds', value)}
+              onSelect={handleChangeSelection}
             />
           </FormGroup>
           <FormGroup>
             <ControlLabel>{__('Operations')}</ControlLabel>
-            <SelectOperation
+            <SelectOperations
               name="operationIds"
               label="Choose Operations"
               multi={true}
               initialValue={riskIndicator?.operationIds}
-              onSelect={value => handleChangeSelection('operationIds', value)}
+              onSelect={handleChangeSelection}
             />
           </FormGroup>
         </FormContainer>
@@ -538,15 +474,13 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             <FormColumn>
               <Header>{__('Forms')}</Header>
             </FormColumn>
-            <FormGroup>
-              <ControlLabel>{__('use fields with description')}</ControlLabel>
-              <FormControl
-                name="isWithDescription"
-                componentClass="checkbox"
+            <FormContainer row gap align="center">
+              <Toggle
                 onChange={toggleWithDescription}
                 checked={riskIndicator?.isWithDescription}
               />
-            </FormGroup>
+              <ControlLabel>{__('use fields with description')}</ControlLabel>
+            </FormContainer>
           </FormWrapper>
           {this.renderForms()}
           <div style={{ textAlign: 'center' }}>

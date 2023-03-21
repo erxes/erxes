@@ -1,14 +1,15 @@
 import { Button, ControlLabel, dimensions, __ } from '@erxes/ui/src';
 import React from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import styled from 'styled-components';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import { FormContainer } from '../../styles';
 
 type Props = {
   title: string;
   withoutPopoverTitle?: boolean;
   icon?: string;
+  customComponent?: JSX.Element;
 };
 
 const PopoverContent = styled.div`
@@ -30,7 +31,7 @@ export class DetailPopOver extends React.Component<Props> {
     super(props);
   }
 
-  renderContent() {
+  renderOverlay() {
     const { title, withoutPopoverTitle } = this.props;
     return (
       <Popover id="help-popover">
@@ -42,26 +43,38 @@ export class DetailPopOver extends React.Component<Props> {
     );
   }
 
+  renderContent() {
+    const { customComponent, title, icon } = this.props;
+    if (customComponent) {
+      return customComponent;
+    }
+
+    return (
+      <>
+        <div>
+          <ControlLabel>{__(title)}</ControlLabel>
+        </div>
+        <div>
+          <Button
+            style={{ padding: '7px 0' }}
+            btnStyle="link"
+            icon={icon ? icon : 'question-circle'}
+          ></Button>
+        </div>
+      </>
+    );
+  }
+
   render() {
-    const { icon, title } = this.props;
     return (
       <OverlayTrigger
         trigger={'click'}
         placement="auto"
-        overlay={this.renderContent()}
+        overlay={this.renderOverlay()}
         rootClose={true}
       >
         <FormContainer row flex gapBetween={5} align="center">
-          <div>
-            <ControlLabel>{__(title)}</ControlLabel>
-          </div>
-          <div>
-            <Button
-              style={{ padding: '7px 0' }}
-              btnStyle="link"
-              icon={icon ? icon : 'question-circle'}
-            ></Button>
-          </div>
+          {this.renderContent()}
         </FormContainer>
       </OverlayTrigger>
     );

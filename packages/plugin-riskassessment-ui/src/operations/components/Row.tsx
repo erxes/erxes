@@ -1,6 +1,6 @@
-import React from 'react';
 import { FormControl, ModalTrigger, __ } from '@erxes/ui/src';
 import moment from 'moment';
+import React from 'react';
 import Form from '../containers/Form';
 type Props = {
   queryParams: any;

@@ -24,12 +24,12 @@ const RiskIndicatorsMutations = {
     return result;
   },
 
-  async removeUnusedRiskIndicatorForm(
+  async removeRiskIndicatorUnusedForms(
     _root,
     { formIds },
     { models }: IContext
   ) {
-    return await models.RiskIndicators.removeUnusedRiskIndicatorForm(formIds);
+    return await models.RiskIndicators.removeRiskIndicatorUnusedForms(formIds);
   },
 
   async addRiskIndicatorsGroups(_root, params, { models }: IContext) {
@@ -46,20 +46,24 @@ const RiskIndicatorsMutations = {
     return await models.IndicatorsGroups.removeGroups(ids);
   },
 
-  async addRiskIndicatorConfig(_root, params, { models }: IContext) {
-    return await models.RiskIndicatorConfigs.addConfig(params);
+  async addRiskAssessmentConfig(_root, params, { models }: IContext) {
+    return await models.RiskAssessmentsConfigs.addConfig(params);
   },
 
-  async updateRiskIndicatorConfig(
+  async updateRiskAssessmentConfig(
     _root,
     { configId, doc },
     { models }: IContext
   ) {
-    return await models.RiskIndicatorConfigs.updateConfig(configId, doc);
+    return await models.RiskAssessmentsConfigs.updateConfig(configId, doc);
   },
 
-  async removeRiskIndicatorConfigs(_root, { configIds }, { models }: IContext) {
-    return await models.RiskIndicatorConfigs.removeConfigs(configIds);
+  async removeRiskAssessmentConfigs(
+    _root,
+    { configIds },
+    { models }: IContext
+  ) {
+    return await models.RiskAssessmentsConfigs.removeConfigs(configIds);
   }
 };
 

@@ -1,4 +1,4 @@
-import { models } from './connectionResolver';
+import { IModels, models } from './connectionResolver';
 import {
   sendCardsMessage,
   sendCoreMessage,
@@ -6,8 +6,8 @@ import {
 } from './messageBroker';
 
 export const validRiskIndicators = async params => {
-  if (!params.categoryId) {
-    throw new Error('Please select some categories');
+  if (!params.tagIds) {
+    throw new Error('Please select some tags');
   }
   if (await models?.RiskIndicators.findOne({ name: params.name })) {
     throw new Error(
@@ -15,13 +15,9 @@ export const validRiskIndicators = async params => {
     );
   }
 
-  const { forms, customScoreField } = params;
+  const { forms } = params;
 
   let percentWeight = 0;
-
-  if (customScoreField) {
-    percentWeight += customScoreField;
-  }
 
   if (!forms.length) {
     throw new Error('Please add a form to the risk assessment');
@@ -36,7 +32,7 @@ export const validRiskIndicators = async params => {
     }
     if (forms.length > 1) {
       if (!form.percentWeight) {
-        throw new Error('Provide a percent weigth on form');
+        throw new Error('Provide a percent weight on form');
       }
     }
 
@@ -207,21 +203,6 @@ export const getAsssignedUsers = async (
   return assignedUsers;
 };
 
-export const getFormId = async (model, cardId: string, cardType: String) => {
-  const { riskAssessmentId } = await model.RiskConformity.findOne({
-    cardId,
-    cardType
-  }).lean();
-  const { categoryId } = await model.RiskAssessment.findOne({
-    _id: riskAssessmentId
-  }).lean();
-
-  const { formId } = await model.RiskAssessmentCategory.findOne({
-    _id: categoryId
-  }).lean();
-  return formId;
-};
-
 export const calculateFormResponses = async ({
   responses,
   fields,
@@ -248,7 +229,7 @@ export const calculateFormResponses = async ({
         .split('\n')
         .map(item => {
           if (item.match(/=/g)) {
-            const label = item?.substring(0, item.indexOf('='));
+            const label = item?.substring(0, item.indexOf('=')).trim();
             const value = parseInt(
               item.substring(item?.indexOf('=') + 1, item.length)
             );
@@ -276,6 +257,9 @@ export const calculateFormResponses = async ({
         fieldId: key
       });
     } else {
+      if (typeof response.value === 'number') {
+        sumNumber += response.value;
+      }
       submissions.push({
         ...filter,
         ...response,
@@ -386,7 +370,7 @@ export const calculateResult = async ({
             $set: {
               status: name,
               statusColor: color,
-              resultScore,
+              resultScore: roundResult(resultScore),
               closedAt: Date.now()
             }
           },
@@ -403,7 +387,7 @@ export const calculateResult = async ({
             $set: {
               status: name,
               statusColor: color,
-              resultScore,
+              resultScore: roundResult(resultScore),
               closedAt: Date.now()
             }
           },
@@ -421,7 +405,7 @@ export const calculateResult = async ({
           $set: {
             status: 'No Result',
             statusColor: '#888',
-            resultScore,
+            resultScore: roundResult(resultScore),
             closedAt: Date.now()
           }
         },
@@ -429,4 +413,65 @@ export const calculateResult = async ({
       );
     }
   }
+};
+
+export const getIndicatorSubmissions = async ({
+  models,
+  subdomain,
+  cardId,
+  cardType,
+  assessmentId,
+  indicatorId
+}: {
+  models: IModels;
+  subdomain;
+  cardId?: string;
+  cardType?: string;
+  assessmentId: string;
+  indicatorId: string;
+}) => {
+  let match: any = { assessmentId, indicatorId };
+
+  if (cardId && cardType) {
+    match = { ...match, cardType, cardId };
+  }
+
+  const submissions = await models.RiksFormSubmissions.aggregate([
+    {
+      $match: match
+    },
+    {
+      $group: {
+        _id: '$userId',
+        fields: { $push: '$$ROOT' },
+        count: { $sum: 1 }
+      }
+    }
+  ]);
+
+  for (const submission of submissions) {
+    for (const field of submission.fields) {
+      const fieldDetail = await sendFormsMessage({
+        subdomain,
+        action: 'fields.findOne',
+        data: {
+          query: { _id: field.fieldId }
+        },
+        isRPC: true,
+        defaultValue: {}
+      });
+
+      field.optionsValues = fieldDetail.optionsValues;
+      field.text = fieldDetail.text;
+    }
+  }
+  return submissions;
+};
+
+export const roundResult = (number, places = 2) => {
+  var multiplier = Math.pow(10, places + 2); // get two extra digits
+  var fixed = Math.floor(number * multiplier); // convert to integer
+  fixed += 44; // round down on anything less than x.xxx56
+  fixed = Math.floor(fixed / 100); // chop off last 2 digits
+  return fixed / Math.pow(10, places);
 };

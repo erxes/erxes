@@ -34,6 +34,7 @@ export interface IPos {
   cardsConfig?: any;
   checkRemainder?: boolean;
   permissionConfig?: any;
+  allowTypes: string[];
 }
 export interface IPosDocument extends IPos, Document {
   _id: string;
@@ -122,7 +123,8 @@ export const posSchema = schemaHooksWrapper(
       type: Object,
       optional: true,
       label: 'Permission'
-    })
+    }),
+    allowTypes: field({ type: [String], label: 'Allow Types' })
   }),
   'erxes_pos'
 );

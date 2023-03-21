@@ -10,11 +10,13 @@ import {
 } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
+import { subMenu } from '../../../common/constants';
 import { DefaultWrapper } from '../../../common/utils';
+import Sidebar from '../../components/SideBar';
 import { IIndicatorsGroups } from '../common/types';
 import Form from '../containers/Form';
-import { subMenu } from '../../../common/constants';
 import Row from './Row';
+
 type Props = {
   queryParams: any;
   list: IIndicatorsGroups[];
@@ -124,6 +126,7 @@ class List extends React.Component<Props, State> {
               <FormControl componentClass="checkbox" onClick={selectAll} />
             </th>
             <th>{__('Name')}</th>
+            <th>{__('Tags')}</th>
             <th>{__('Created At')}</th>
             <th>{__('Modified At')}</th>
             <th>{__('')}</th>
@@ -132,6 +135,7 @@ class List extends React.Component<Props, State> {
         <tbody>
           {list.map(item => (
             <Row
+              key={item._id}
               indicatorsGroups={item}
               selectedItems={selectedItems}
               selectItem={selectItem}
@@ -145,7 +149,7 @@ class List extends React.Component<Props, State> {
 
   render() {
     const { selectedItems } = this.state;
-    const { totalCount } = this.props;
+    const { totalCount, history, queryParams } = this.props;
     const rightActionBar = (
       <BarItems>
         {this.renderSearchField()}
@@ -166,6 +170,7 @@ class List extends React.Component<Props, State> {
       title: 'Indicators Groups',
       rightActionBar,
       leftActionBar,
+      sidebar: <Sidebar queryParams={queryParams} history={history} />,
       content: this.renderContent(),
       totalCount,
       subMenu

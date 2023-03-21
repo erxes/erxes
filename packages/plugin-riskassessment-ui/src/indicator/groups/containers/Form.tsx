@@ -1,14 +1,12 @@
-import React from 'react';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { IIndicatorsGroups } from '../common/types';
-import FormComponent from '../components/Form';
 import { ButtonMutate } from '@erxes/ui/src';
-import { mutations } from '../graphql';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { withProps } from '@erxes/ui/src/utils/core';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import { IIndicatorsGroups } from '../common/types';
 import { refetchQueries } from '../common/utilss';
+import FormComponent from '../components/Form';
+import { mutations } from '../graphql';
 
 type Props = {
   detail: IIndicatorsGroups;

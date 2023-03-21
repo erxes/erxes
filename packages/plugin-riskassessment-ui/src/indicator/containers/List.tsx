@@ -9,7 +9,6 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { ICommonListProps } from '../../common/types';
 import {
-  RiskAssessmentsCategoriesQueryResponse,
   RiskIndicatorsListQueryResponse,
   RiskIndicatorsTotalCountQueryResponse
 } from '../common/types';
@@ -26,14 +25,13 @@ type FinalProps = {
   listQuery: RiskIndicatorsListQueryResponse;
   totalCountQuery: RiskIndicatorsTotalCountQueryResponse;
   removeMutation: any;
-  categories: RiskAssessmentsCategoriesQueryResponse;
 } & Props &
   ICommonListProps &
   IRouterProps &
   ICommonFormProps;
 class ListContainer extends React.Component<FinalProps> {
   render() {
-    const { removeMutation, listQuery, totalCountQuery } = this.props;
+    const { removeMutation, listQuery, totalCountQuery, history } = this.props;
 
     const { riskIndicators, loading, error } = listQuery;
 
@@ -60,7 +58,8 @@ class ListContainer extends React.Component<FinalProps> {
       totalCount: totalCountQuery?.riskIndicatorsTotalCount || 0,
       refetch: listQuery.refetch,
       loading,
-      remove
+      remove,
+      history
     };
 
     return <List {...updatedProps} />;

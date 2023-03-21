@@ -183,6 +183,14 @@ const timeclockReports = `
               totalMinsScheduledThisMonth
               totalDaysScheduled
               totalHoursScheduled
+          
+              absenceInfo {
+                totalHoursWorkedAbroad
+                totalHoursPaidAbsence
+                totalHoursUnpaidAbsence
+                totalHoursSick
+              }
+
             }
             groupTotalMinsLate
             groupTotalAbsenceMins

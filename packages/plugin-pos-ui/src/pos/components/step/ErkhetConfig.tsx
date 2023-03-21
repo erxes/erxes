@@ -229,7 +229,7 @@ class ErkhetConfig extends React.Component<
         {this.renderAccLoc()}
         <BlockRow>
           {(pos.paymentTypes || []).map(pt => (
-            <FormGroup>
+            <FormGroup key={pt.type}>
               <ControlLabel>{pt.title}</ControlLabel>
               {this.renderSelectType(`_${pt.type}`, config[`_${pt.type}`])}
             </FormGroup>
