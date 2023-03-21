@@ -15,6 +15,7 @@ const createOrUpdateConfig = `
     $knowledgeBaseLabel: String
     $knowledgeBaseTopicId: String
     $ticketLabel: String
+    $dealLabel: String
     $taskPublicBoardId: String
     $taskPublicPipelineId: String
     $taskLabel: String
@@ -24,6 +25,9 @@ const createOrUpdateConfig = `
     $ticketStageId: String
     $ticketPipelineId: String
     $ticketBoardId: String
+    $dealStageId: String
+    $dealPipelineId: String
+    $dealBoardId: String
     $styles: StylesParams
     $mobileResponsive: Boolean
     $googleCredentials: JSON
@@ -32,6 +36,7 @@ const createOrUpdateConfig = `
     $publicTaskToggle: Boolean
     $ticketToggle: Boolean
     $taskToggle: Boolean
+    $dealToggle: Boolean
     $otpConfig: OTPConfigInput
     $mailConfig: MailConfigInput
     $manualVerificationConfig: JSON
@@ -53,12 +58,16 @@ const createOrUpdateConfig = `
       taskPublicPipelineId: $taskPublicPipelineId,
       ticketLabel: $ticketLabel,
       taskLabel: $taskLabel,
+      dealLabel: $dealLabel,
       taskStageId: $taskStageId,
       taskPipelineId: $taskPipelineId,
       taskBoardId: $taskBoardId,
       ticketStageId: $ticketStageId,
       ticketPipelineId: $ticketPipelineId,
-      ticketBoardId: $ticketBoardId
+      ticketBoardId: $ticketBoardId,
+      dealStageId: $dealStageId,
+      dealPipelineId: $dealPipelineId,
+      dealBoardId: $dealBoardId
       styles: $styles
       mobileResponsive: $mobileResponsive
       googleCredentials: $googleCredentials
@@ -67,6 +76,7 @@ const createOrUpdateConfig = `
       publicTaskToggle: $publicTaskToggle,
       ticketToggle: $ticketToggle,
       taskToggle: $taskToggle,
+      dealToggle: $dealToggle,
       otpConfig: $otpConfig
       mailConfig: $mailConfig
       manualVerificationConfig: $manualVerificationConfig

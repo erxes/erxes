@@ -42,6 +42,7 @@ export interface IClientPortal {
   knowledgeBaseLabel?: string;
   knowledgeBaseTopicId?: string;
   ticketLabel?: string;
+  dealLabel?: string;
   taskLabel?: string;
   taskStageId?: string;
   taskPipelineId?: string;
@@ -51,10 +52,14 @@ export interface IClientPortal {
   ticketStageId?: string;
   ticketPipelineId?: string;
   ticketBoardId?: string;
+  dealStageId?: string;
+  dealPipelineId?: string;
+  dealBoardId?: string;
 
   kbToggle?: boolean;
   publicTaskToggle?: boolean;
   ticketToggle?: boolean;
+  dealToggle?: boolean;
   taskToggle?: boolean;
 }
 
@@ -155,6 +160,7 @@ export const clientPortalSchema = new Schema({
   knowledgeBaseLabel: field({ type: String, optional: true }),
   knowledgeBaseTopicId: field({ type: String }),
   ticketLabel: field({ type: String, optional: true }),
+  dealLabel: field({ type: String, optional: true }),
   taskPublicBoardId: field({ type: String, optional: true }),
   taskPublicPipelineId: field({ type: String, optional: true }),
   taskLabel: field({ type: String, optional: true }),
@@ -164,11 +170,19 @@ export const clientPortalSchema = new Schema({
   ticketStageId: field({ type: String }),
   ticketPipelineId: field({ type: String }),
   ticketBoardId: field({ type: String }),
+  dealStageId: field({ type: String }),
+  dealPipelineId: field({ type: String }),
+  dealBoardId: field({ type: String }),
 
   kbToggle: field({ type: Boolean }),
   publicTaskToggle: field({ type: Boolean }),
   ticketToggle: field({ type: Boolean }),
   taskToggle: field({ type: Boolean }),
+  dealToggle: field({ type: Boolean }),
 
-  createdAt: field({ type: Date, default: new Date(), label: 'Created at' })
+  createdAt: field({
+    type: Date,
+    default: new Date(),
+    label: 'Created at'
+  })
 });
