@@ -103,10 +103,12 @@ class ChildrenSection extends React.Component<Props, State> {
     const { openChildId } = this.state;
 
     const closeModal = () => {
+      localStorage.removeItem('isChildModal');
       this.setState({ openChildId: '' });
     };
 
     const openModal = () => {
+      localStorage.setItem('isChildModal', 'true');
       this.setState({ openChildId: child._id });
     };
 
