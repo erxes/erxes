@@ -173,7 +173,7 @@ module.exports = (env, args) => {
             resolve(proxy)
           }
 
-          if (document.getElementById(id) || window.coreui) {
+          if (document.getElementById(id) && window.coreui) {
             resolve(proxy)
           } else {
             // inject this script with the src set to the versioned remoteEntry.js
