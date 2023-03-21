@@ -19,6 +19,7 @@ export const commonFields = `
   knowledgeBaseLabel
   knowledgeBaseTopicId
   ticketLabel
+  dealLabel
   taskPublicPipelineId
   taskPublicBoardId
   taskLabel
@@ -28,6 +29,9 @@ export const commonFields = `
   ticketStageId
   ticketPipelineId
   ticketBoardId
+  dealStageId
+  dealPipelineId
+  dealBoardId
   styles {
     bodyColor
     headerColor
@@ -52,6 +56,7 @@ export const commonFields = `
   publicTaskToggle
   ticketToggle
   taskToggle
+  dealToggle
   otpConfig {
     smsTransporterType
     content
