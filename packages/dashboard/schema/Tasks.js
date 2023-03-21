@@ -8,6 +8,10 @@ cube(`Tasks`, {
       sql: `${CUBE}.stageId = ${Stages}._id`,
       relationship: `belongsTo`
     },
+    TasksLabel: {
+      sql: `${CUBE}._id= ${TasksLabel}._id`,
+      relationship: `belongsTo`
+    },
     TasksAssigneduser: {
       sql: `${CUBE}._id = ${TasksAssigneduser}._id`,
       relationship: `belongsTo`
