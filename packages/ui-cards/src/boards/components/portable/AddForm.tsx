@@ -18,6 +18,7 @@ import { IItem, IItemParams, IOptions, IStage } from '../../types';
 import { invalidateCache } from '../../utils';
 import CardSelect from './CardSelect';
 import GenerateAddFormFields from './GenerateAddFormFields';
+import * as _ from 'lodash';
 
 type Props = {
   options: IOptions;
@@ -141,7 +142,7 @@ class AddForm extends React.Component<Props, State> {
         }
 
         // check if field is required but hidden
-        if (field._id !== customField.field) {
+        if (!_.isEmpty(customField) && field._id !== customField.field) {
           alert = false;
         }
 
