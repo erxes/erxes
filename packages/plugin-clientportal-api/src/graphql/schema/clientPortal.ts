@@ -101,6 +101,8 @@ ${
     publicTaskToggle: Boolean,
     ticketToggle: Boolean,
     taskToggle: Boolean,
+
+    facebookAppId: String
   }
 
   type Styles {

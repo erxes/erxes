@@ -1,3 +1,4 @@
+import { sendRequest } from '@erxes/api-utils/src';
 import { authCookieOptions, getEnv } from '@erxes/api-utils/src/core';
 import { IAttachment } from '@erxes/api-utils/src/types';
 
@@ -159,6 +160,82 @@ const clientPortalUserMutations = {
     res.cookie('client-auth-token', token, options);
 
     return 'loggedin';
+  },
+
+  clientPortalFaceBookAuthentication: async (
+    _root,
+    args: any,
+    { models, requestInfo, res }: IContext
+  ) => {
+    const { clientPortalId, accessToken } = args;
+
+    try {
+      const response = await sendRequest({
+        url: 'https://graph.facebook.com/v12.0/me',
+        method: 'GET',
+        params: {
+          access_token: accessToken,
+          fields: 'id,name,email,gender,education,work,picture'
+        }
+      });
+      const { id, name, email, gender, work, picture } = response.data || [];
+      let user = await models.ClientPortalUsers.findOne({
+        facebookAppId: id
+      });
+
+      if (!user) {
+        user = await models.ClientPortalUsers.create({
+          socialId: id,
+          email,
+          logo: picture?.data?.url,
+          username: name,
+          clientPortalId
+        });
+      }
+
+      const { token } = await createJwtToken({
+        userId: user._id,
+        type: 'customer'
+      });
+
+      const cookieOptions: any = {};
+
+      const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+
+      if (!['test', 'development'].includes(NODE_ENV)) {
+        cookieOptions.sameSite = 'none';
+      }
+
+      const options = authCookieOptions(cookieOptions);
+
+      res.cookie('client-auth-token', token, options);
+      console.log(options, 'options');
+      return 'loggedin';
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  },
+
+  clientPortalGoogleAuthentication: async (
+    _root,
+    args: any,
+    { models, requestInfo, res }: IContext
+  ) => {
+    // const { OAuth2Client } = require('google-auth-library');
+    // const verifyIdToken = async (idToken) => {
+    //   const clientId =
+    //     '721161606407-j0esl5u8usfa7br8rk4mchmf3aergjcs.apps.googleusercontent.com';
+    //   const client = new OAuth2Client(clientId);
+    //   const ticket = await client.verifyIdToken({
+    //     idToken: idToken,
+    //     audience: clientId
+    //   });
+    //   const payload = ticket.getPayload();
+    //   const userId = payload.sub;
+    //   return userId;
+    // };
+    // const userId = await verifyIdToken(args.token);
+    // console.log(userId, 'userId');
   },
 
   /*

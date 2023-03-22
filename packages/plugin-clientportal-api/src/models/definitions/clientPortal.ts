@@ -56,6 +56,7 @@ export interface IClientPortal {
   publicTaskToggle?: boolean;
   ticketToggle?: boolean;
   taskToggle?: boolean;
+  facebookAppId: string;
 }
 
 interface IStyles {
@@ -170,5 +171,10 @@ export const clientPortalSchema = new Schema({
   ticketToggle: field({ type: Boolean }),
   taskToggle: field({ type: Boolean }),
 
-  createdAt: field({ type: Date, default: new Date(), label: 'Created at' })
+  createdAt: field({
+    type: Date,
+    default: new Date(),
+    label: 'Created at'
+  }),
+  facebookAppId: field({ type: String })
 });
