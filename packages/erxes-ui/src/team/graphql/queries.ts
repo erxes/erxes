@@ -23,8 +23,8 @@ export const commonStructureParamsValue = `
 `;
 
 const allUsers = `
-  query allUsers($isActive: Boolean) {
-    allUsers(isActive: $isActive) {
+  query allUsers($isActive: Boolean,$ids:[String],$assignedToMe: String) {
+    allUsers(isActive: $isActive,ids:$ids,assignedToMe: $assignedToMe) {
       _id
       email
       username
