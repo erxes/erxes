@@ -86,7 +86,7 @@ export default {
 
     if (serviceRunning) {
       try {
-        return sendCommonMessage({
+        const status = await sendCommonMessage({
           serviceName: kind,
           subdomain,
           action: 'getStatus',
@@ -95,6 +95,8 @@ export default {
           },
           isRPC: true
         });
+
+        return status;
       } catch (e) {
         return { status: 'healthy' };
       }
