@@ -26,7 +26,7 @@ export default {
     };
   },
   meta: {
-    inboxIntegration: {
+    inboxIntegrations: {
       kind: 'imap',
       label: 'IMap'
     }
