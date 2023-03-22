@@ -943,7 +943,7 @@ export const sendMobileNotification = async (
       } catch (e) {
         debugError(`Error occurred during firebase send: ${e.message}`);
 
-        await models.Users.updateMany(
+        await models.Users.updateOne(
           { deviceTokens: token },
           { $pull: { deviceTokens: token } }
         );
