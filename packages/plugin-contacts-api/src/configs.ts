@@ -43,6 +43,7 @@ export default {
   },
 
   hasSubscriptions: true,
+  hasDashboard: true,
   meta: {
     imports,
     segments,
@@ -56,7 +57,8 @@ export default {
     dashboards,
     exporter,
     // for fixing permissions
-    permissions
+    permissions,
+    dashboardTypes: ['Contacts']
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
