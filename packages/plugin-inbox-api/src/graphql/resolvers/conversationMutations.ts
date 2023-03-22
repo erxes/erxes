@@ -19,12 +19,13 @@ import {
   sendIntegrationsMessage,
   sendNotificationsMessage,
   sendToWebhook,
-  sendCommonMessage
+  sendCommonMessage,
+  sendAutomationsMessage
 } from '../../messageBroker';
 import { putUpdateLog } from '../../logUtils';
 import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
 import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
-import { IContext, IModels } from '../../connectionResolver';
+import { generateModels, IContext, IModels } from '../../connectionResolver';
 import { isServiceRunning } from '../../utils';
 import { IIntegrationDocument } from '../../models/definitions/integrations';
 
@@ -126,13 +127,27 @@ export const conversationNotifReceivers = (
  * Using this subscription to track conversation detail's assignee, tag, status
  * changes
  */
-export const publishConversationsChanged = (
+export const publishConversationsChanged = async (
+  subdomain: string,
   _ids: string[],
   type: string
-): string[] => {
+): Promise<string[]> => {
+  const models = await generateModels(subdomain);
+
   for (const _id of _ids) {
     graphqlPubsub.publish('conversationChanged', {
       conversationChanged: { conversationId: _id, type }
+    });
+
+    const conversation = await models.Conversations.findOne({ _id });
+
+    sendAutomationsMessage({
+      subdomain,
+      action: 'trigger',
+      data: {
+        type: `inbox:conversation`,
+        targets: [conversation]
+      }
     });
   }
 
@@ -291,19 +306,6 @@ const conversationMutations = {
       messageContent: doc.content
     });
 
-    // do not send internal message to third service integrations
-    if (doc.internal) {
-      const messageObj = await models.ConversationMessages.addMessage(
-        doc,
-        user._id
-      );
-
-      // publish new message to conversation detail
-      publishMessage(models, messageObj);
-
-      return messageObj;
-    }
-
     const kind = integration.kind;
 
     const customer = await sendContactsMessage({
@@ -319,7 +321,7 @@ const conversationMutations = {
     // customer's email
     const email = customer ? customer.primaryEmail : '';
 
-    if (kind === 'lead' && email) {
+    if (!doc.internal && kind === 'lead' && email) {
       await sendCoreMessage({
         subdomain,
         action: 'sendEmail',
@@ -341,6 +343,7 @@ const conversationMutations = {
         integrationId: integration._id,
         conversationId: conversation._id,
         content: doc.content,
+        internal: doc.internal,
         attachments: doc.attachments || [],
         extraInfo: doc.extraInfo,
         userId: user._id
@@ -357,6 +360,19 @@ const conversationMutations = {
       if (response && response.data) {
         return { ...response.data };
       }
+    }
+
+    // do not send internal message to third service integrations
+    if (doc.internal) {
+      const messageObj = await models.ConversationMessages.addMessage(
+        doc,
+        user._id
+      );
+
+      // publish new message to conversation detail
+      publishMessage(models, messageObj);
+
+      return messageObj;
     }
 
     const message = await models.ConversationMessages.addMessage(doc, user._id);
@@ -399,7 +415,7 @@ const conversationMutations = {
     );
 
     // notify graphl subscription
-    publishConversationsChanged(conversationIds, 'assigneeChanged');
+    publishConversationsChanged(subdomain, conversationIds, 'assigneeChanged');
 
     await sendNotifications(subdomain, {
       user,
@@ -448,7 +464,7 @@ const conversationMutations = {
     });
 
     // notify graphl subscription
-    publishConversationsChanged(_ids, 'assigneeChanged');
+    publishConversationsChanged(subdomain, _ids, 'assigneeChanged');
 
     for (const conversation of updatedConversations) {
       await putUpdateLog(
@@ -489,7 +505,7 @@ const conversationMutations = {
     serverTiming.startTime('sendNotifications');
 
     // notify graphl subscription
-    publishConversationsChanged(_ids, status);
+    publishConversationsChanged(subdomain, _ids, status);
 
     const updatedConversations = await models.Conversations.find({
       _id: { $in: _ids }

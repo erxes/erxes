@@ -142,6 +142,8 @@ export interface IStage {
   pipelineId: string;
   visibility: string;
   memberIds: string[];
+  canMoveMemberIds?: string[];
+  canEditMemberIds?: string[];
   departmentIds: string[];
   status: string;
   order: number;
@@ -212,6 +214,8 @@ export interface IItem {
   tags: ITag[];
   tagIds: string[];
   customProperties?: any;
+  departmentIds: string[];
+  branchIds: string[];
 }
 
 export interface IDraggableLocation {
@@ -392,6 +396,8 @@ export interface IFilterParams extends ISavedConformity {
   endDate?: string;
   pipelineId?: string;
   tagIds?: string[];
+  branchIds: string[];
+  departmentIds: string[];
 }
 
 export interface INonFilterParams {

@@ -75,25 +75,12 @@ const queryBuilder = async (models: IModels, params: IListArgs) => {
     selector.brandIds = { $in: brandIds };
   }
 
-  const getUserIds = async (contentType, contentTypeId, obj) => {
-    let userIds: string[] = [];
-    const users = await models.Users.find({
-      [`${contentType}Ids`]: contentTypeId
-    });
-
-    userIds = users.map(user => user._id);
-
-    userIds = obj.supervisorId ? userIds.concat(obj.supervisorId) : userIds;
-
-    return { $in: userIds };
-  };
+  if (branchId) {
+    selector.branchIds = { $in: [branchId] };
+  }
 
   if (departmentId) {
-    const department = await models.Departments.getDepartment({
-      _id: departmentId
-    });
-
-    selector._id = await getUserIds('department', departmentId, department);
+    selector.departmentIds = { $in: [departmentId] };
   }
 
   if (unitId) {
@@ -104,14 +91,6 @@ const queryBuilder = async (models: IModels, params: IListArgs) => {
       : unit.userIds || [];
 
     selector._id = { $in: userIds };
-  }
-
-  if (branchId) {
-    const branch = await models.Branches.getBranch({
-      _id: branchId
-    });
-
-    selector._id = await getUserIds('branch', branchId, branch);
   }
 
   return selector;
@@ -147,13 +126,23 @@ const userQueries = {
    */
   allUsers(
     _root,
-    { isActive }: { isActive: boolean },
-    { userBrandIdsSelector, models }: IContext
+    {
+      isActive,
+      ids,
+      assignedToMe
+    }: { isActive: boolean; ids: string[]; assignedToMe: string },
+    { userBrandIdsSelector, user, models }: IContext
   ) {
-    const selector: { isActive?: boolean } = userBrandIdsSelector;
+    const selector: { isActive?: boolean; _id?: any } = userBrandIdsSelector;
 
     if (isActive) {
       selector.isActive = true;
+    }
+    if (!!ids?.length) {
+      selector._id = { $in: ids };
+    }
+    if (assignedToMe === 'true') {
+      selector._id = user._id;
     }
 
     return models.Users.find({ ...selector, ...NORMAL_USER_SELECTOR }).sort({

@@ -8,10 +8,12 @@ import { isEnabled, withProps } from '@erxes/ui/src/utils/core';
 import { mutations } from '../../graphql';
 
 type Props = {
+  advancedView?: boolean;
   uom: string[];
   currencies: string[];
   productsData?: IProductData[];
   productData: IProductData;
+  duplicateProductItem?: (productId: string) => void;
   removeProductItem?: (productId: string) => void;
   onChangeProductsData?: (productsData: IProductData[]) => void;
   calculatePerProductAmount: (type: string, productData: IProductData) => void;

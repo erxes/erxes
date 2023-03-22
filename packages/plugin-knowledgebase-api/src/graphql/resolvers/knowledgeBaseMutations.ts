@@ -5,7 +5,8 @@ import { IArticleCreate, ICategoryCreate } from '../../models/KnowledgeBase';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { MODULE_NAMES } from '../../constants';
 import { IContext } from '../../connectionResolver';
-import { sendCoreMessage } from '../../messageBroker';
+import { sendCoreMessage, sendSegmentsMessage } from '../../messageBroker';
+import { stripHtml } from '@erxes/api-utils/src/core';
 
 const knowledgeBaseMutations = {
   /**
@@ -169,6 +170,11 @@ const knowledgeBaseMutations = {
   ) {
     const kbCategory = await models.KnowledgeBaseCategories.getCategory(_id);
 
+    await models.KnowledgeBaseCategories.updateMany(
+      { parentCategoryId: { $in: [kbCategory._id] } },
+      { $unset: { parentCategoryId: 1 } }
+    );
+
     const removed = await models.KnowledgeBaseCategories.removeDoc(_id);
 
     await putDeleteLog(
@@ -209,45 +215,34 @@ const knowledgeBaseMutations = {
       user
     );
 
-    let receivers = await sendCoreMessage({
-      subdomain,
-      action: 'users.find',
-      data: {
-        query: {
-          _id: { $ne: user._id }
-        }
-      },
-      isRPC: true,
-      defaultValue: []
+    const topic = await models.KnowledgeBaseTopics.findOne({
+      _id: kbArticle.topicId
     });
 
-    receivers = receivers.map(r => r._id);
-
-    const strip_html = (string: any) => {
-      if (typeof string === 'undefined' || string === null) {
-        return;
-      } else {
-        const regex = /(&nbsp;|<([^>]+)>)/gi;
-        let result = string.replace(regex, '');
-        result = result.replace(/&#[0-9][0-9][0-9][0-9];/gi, ' ');
-        const cut = result.slice(0, 70);
-        return cut;
-      }
-    };
-
-    sendCoreMessage({
-      subdomain,
-      action: 'sendMobileNotification',
-      data: {
-        title: doc.title,
-        body: strip_html(doc.content),
-        receivers,
+    if (topic && topic.notificationSegmentId) {
+      const userIds = await sendSegmentsMessage({
+        subdomain,
+        action: 'fetchSegment',
         data: {
-          type: 'knowledge',
-          id: kbArticle._id
+          segmentId: topic.notificationSegmentId
+        },
+        isRPC: true
+      });
+
+      sendCoreMessage({
+        subdomain,
+        action: 'sendMobileNotification',
+        data: {
+          title: doc.title,
+          body: stripHtml(doc.content),
+          receivers: userIds.filter(userId => userId !== user._id),
+          data: {
+            type: 'knowledge',
+            id: kbArticle._id
+          }
         }
-      }
-    });
+      });
+    }
 
     return kbArticle;
   },

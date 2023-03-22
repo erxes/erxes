@@ -17,6 +17,7 @@ type Props = {
   groups: any[]; // check - IUserGroup
   selectedChannels: any[]; // check - IChannel
   selectedGroups: any[]; // check - IUserGroup
+  selectedBrands: any[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   showBrands: boolean;
 } & ICommonFormProps;
@@ -25,7 +26,7 @@ type State = {
   avatar: string;
   selectedChannels: any[]; // check - IChannel
   selectedGroups: any[]; // check - IUserGroup
-  selectedBrands: string[];
+  selectedBrands: any[];
 };
 
 class UserForm extends React.Component<Props, State> {
@@ -42,7 +43,7 @@ class UserForm extends React.Component<Props, State> {
           : defaultAvatar,
       selectedChannels: this.generateParams(props.selectedChannels),
       selectedGroups: this.generateParams(props.selectedGroups),
-      selectedBrands: user.brandIds || []
+      selectedBrands: this.generateParams(props.selectedBrands)
     };
   }
 

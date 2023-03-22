@@ -1,7 +1,7 @@
-import { dimensions, colors } from "../styles";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
-import { rgba, darken } from "./ecolor";
+import { dimensions, colors } from '../styles';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+import { rgba, darken } from './ecolor';
 
 const TicketRow = styled.div`
   margin-bottom: ${dimensions.unitSpacing}px;
@@ -128,7 +128,7 @@ const TicketComment = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
 `;
 
-const Label = styledTS<{ lblStyle: string }>(styled.div)`
+const Label = styledTS<{ lblStyle: string; colorCode?: string }>(styled.div)`
     border-radius: 14px;
     padding: 3px 9px;
     text-transform: uppercase;
@@ -136,13 +136,17 @@ const Label = styledTS<{ lblStyle: string }>(styled.div)`
     display: inline-block;
     line-height: 1.32857143;
     font-weight: 600;
-    background: ${(props) =>
-      props.lblStyle === "danger"
+    background: ${({ lblStyle, colorCode }) =>
+      lblStyle === 'danger'
         ? rgba(colors.colorCoreRed, 0.2)
+        : lblStyle === 'custom'
+        ? colorCode
         : rgba(colors.colorCoreGreen, 0.15)};
-    color: ${(props) =>
-      props.lblStyle === "danger"
+    color: ${({ lblStyle }) =>
+      lblStyle === 'danger'
         ? darken(colors.colorCoreRed, 50)
+        : lblStyle === 'custom'
+        ? colors.colorWhite
         : darken(colors.colorCoreGreen, 50)};
 `;
 

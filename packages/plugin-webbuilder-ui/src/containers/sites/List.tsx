@@ -1,7 +1,11 @@
 import * as compose from 'lodash.flowright';
 
 import { Alert, confirm } from '@erxes/ui/src/utils';
-import { SitesQueryResponse, SitesRemoveMutationResponse } from '../../types';
+import {
+  SitesDuplicateMutationResponse,
+  SitesQueryResponse,
+  SitesRemoveMutationResponse
+} from '../../types';
 import { mutations, queries } from '../../graphql';
 
 import List from '../../components/sites/List';
@@ -22,10 +26,17 @@ type Props = {
 type FinalProps = {
   sitesQuery: SitesQueryResponse;
 } & Props &
-  SitesRemoveMutationResponse;
+  SitesRemoveMutationResponse &
+  SitesDuplicateMutationResponse;
 
 function SitesContainer(props: FinalProps) {
-  const { sitesQuery, sitesRemoveMutation, selectedSite, queryParams } = props;
+  const {
+    sitesQuery,
+    sitesRemoveMutation,
+    sitesDuplicateMutation,
+    selectedSite,
+    queryParams
+  } = props;
 
   if (sitesQuery.loading) {
     return <Spinner objective={true} />;
@@ -54,11 +65,26 @@ function SitesContainer(props: FinalProps) {
     });
   };
 
+  const duplicate = (_id: string) => {
+    confirm().then(() => {
+      sitesDuplicateMutation({ variables: { _id } })
+        .then(() => {
+          Alert.success('Successfully duplicated a site');
+
+          sitesQuery.refetch();
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    });
+  };
+
   const updatedProps = {
     ...props,
     sites,
     remove,
-    searchValue
+    searchValue,
+    duplicate
   };
 
   return <List {...updatedProps} />;
@@ -76,18 +102,12 @@ export default compose(
     })
   }),
   graphql<Props, SitesRemoveMutationResponse>(gql(mutations.sitesRemove), {
-    name: 'sitesRemoveMutation',
-    options: ({ selectedSite }) => ({
-      refetchQueries: [
-        { query: gql(queries.sites), variables: { fromSelect: true } },
-        {
-          query: gql(queries.sitesTotalCount)
-        },
-        {
-          query: gql(queries.contentTypes),
-          variables: { siteId: selectedSite }
-        }
-      ]
-    })
-  })
+    name: 'sitesRemoveMutation'
+  }),
+  graphql<Props, SitesDuplicateMutationResponse>(
+    gql(mutations.sitesDuplicate),
+    {
+      name: 'sitesDuplicateMutation'
+    }
+  )
 )(SitesContainer);

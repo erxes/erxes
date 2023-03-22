@@ -9,12 +9,14 @@ export interface IConversationMessage {
   content: string;
   // from inbox
   createdAt?: Date;
+  updatedAt?: Date;
   attachments?: any;
   customerId?: string;
   visitorId?: string;
   userId?: string;
   fromBot?: boolean;
   isCustomerRead?: boolean;
+  internal?: boolean;
 }
 
 export interface IConversationMessageDocument
@@ -39,5 +41,7 @@ export const conversationMessageSchema = new Schema({
   fromBot: field({ type: Boolean }),
   userId: field({ type: String, index: true }),
   createdAt: field({ type: Date, index: true }),
-  isCustomerRead: field({ type: Boolean })
+  updatedAt: field({ type: Date, index: true }),
+  isCustomerRead: field({ type: Boolean }),
+  internal: field({ type: Boolean })
 });

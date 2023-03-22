@@ -1,5 +1,6 @@
+import { IAttachment, QueryResponse } from '@erxes/ui/src/types';
+
 import { IUser } from '@erxes/ui/src/auth/types';
-import { QueryResponse } from '@erxes/ui/src/types';
 export interface IPage {
   name: string;
   description: string;
@@ -52,6 +53,7 @@ export interface ITemplate {
   name: string;
   html: string;
   image: string;
+  categories: string;
 }
 
 export interface ITemplateDoc extends ITemplate {
@@ -62,6 +64,7 @@ export interface ISite {
   name: string;
   domain: string;
   templateImage?: string;
+  coverImage: IAttachment;
 }
 
 export interface ISiteDoc extends ISite {
@@ -173,7 +176,7 @@ export type EntriesRemoveMutationResponse = {
 // template
 export type TemplatesUseMutationResponse = {
   templatesUse: (doc: {
-    variables: { _id: string; name: string };
+    variables: { _id: string; name: string; coverImage: string };
   }) => Promise<any>;
 };
 
@@ -191,4 +194,8 @@ export type SitesEditMutationResponse = {
 
 export type SitesRemoveMutationResponse = {
   sitesRemoveMutation: (doc: { variables: { _id: string } }) => Promise<any>;
+};
+
+export type SitesDuplicateMutationResponse = {
+  sitesDuplicateMutation: (doc: { variables: { _id: string } }) => Promise<any>;
 };

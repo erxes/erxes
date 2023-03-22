@@ -1,4 +1,3 @@
-import { ISegment } from '@erxes/ui-segments/src/types';
 import { ICommonTypes } from '../../types';
 
 export interface IAssignmentCampaign extends ICommonTypes {
@@ -9,12 +8,6 @@ export interface IAssignmentCampaign extends ICommonTypes {
 // query types
 export type AssignmentCampaignQueryResponse = {
   assignmentCampaigns: IAssignmentCampaign[];
-  loading: boolean;
-  refetch: () => void;
-};
-
-export type SegmentsQueryResponse = {
-  segments: ISegment[];
   loading: boolean;
   refetch: () => void;
 };

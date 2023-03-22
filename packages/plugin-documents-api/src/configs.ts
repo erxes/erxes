@@ -22,7 +22,6 @@ export default {
       resolvers
     };
   },
-  hasSubscriptions: true,
   segment: {},
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
@@ -35,7 +34,7 @@ export default {
     {
       path: '/print',
       method: async (req, res, next) => {
-        const { _id, stageId, itemId } = req.query;
+        const { _id, copies, width, itemId } = req.query;
         const subdomain = getSubdomain(req);
         const models = await generateModels(subdomain);
         const document = await models.Documents.findOne({ _id });
@@ -54,27 +53,114 @@ export default {
           return next(new Error('Permission denied'));
         }
 
-        let replacedContent = await sendCommonMessage({
-          subdomain,
-          serviceName: document.contentType,
-          action: 'documents.replaceContent',
-          isRPC: true,
-          data: {
-            stageId,
-            itemId,
-            content: document.content
+        let replacedContents: any[] = [];
+
+        if (document.contentType === 'core:user') {
+          const user = await sendCommonMessage({
+            subdomain,
+            serviceName: 'core',
+            isRPC: true,
+            action: 'users.findOne',
+            data: {
+              _id: itemId
+            }
+          });
+
+          let content = document.content;
+
+          const details = user.details || {};
+
+          content = content.replace(/{{ username }}/g, user.username);
+          content = content.replace(/{{ email }}/g, user.email);
+          content = content.replace(
+            /{{ details.firstName }}/g,
+            details.firstName
+          );
+          content = content.replace(
+            /{{ details.lastName }}/g,
+            details.lastName
+          );
+          content = content.replace(
+            /{{ details.middleName }}/g,
+            details.middleName
+          );
+          content = content.replace(
+            /{{ details.position }}/g,
+            details.position
+          );
+          content = content.replace(/{{ details.avatar }}/g, details.avatar);
+          content = content.replace(
+            /{{ details.description }}/g,
+            details.description
+          );
+
+          for (const data of user.customFieldsData || []) {
+            const regex = new RegExp(
+              `{{ customFieldsData.${data.field} }}`,
+              'g'
+            );
+            content = content.replace(regex, data.stringValue);
           }
-        });
+
+          replacedContents.push(content);
+        } else {
+          try {
+            replacedContents = await sendCommonMessage({
+              subdomain,
+              serviceName: document.contentType,
+              action: 'documents.replaceContent',
+              isRPC: true,
+              data: {
+                ...(req.query || {}),
+                content: document.content
+              },
+              timeout: 50000
+            });
+          } catch (e) {
+            replacedContents = [e.message];
+          }
+        }
+
+        let results: string = '';
 
         const replacers = (document.replacer || '').split('\n');
 
-        for (const replacer of replacers) {
-          const [key, value] = replacer.split(',');
+        for (let replacedContent of replacedContents) {
+          for (const replacer of replacers) {
+            const [key, value] = replacer.split(',');
 
-          if (key) {
-            const regex = new RegExp(key, 'g');
-            replacedContent = replacedContent.replace(regex, value);
+            if (key) {
+              const regex = new RegExp(key, 'g');
+              replacedContent = replacedContent.replace(regex, value);
+            }
           }
+
+          if (copies) {
+            results = `
+             ${results}
+              <div style="margin-right: 20px; margin-bottom: 20px;width: ${width}px;float: left;">
+                ${replacedContent}
+              </div>
+            `;
+          } else {
+            results = results + replacedContent;
+          }
+        }
+
+        let multipliedResults: string[] = [];
+
+        if (copies) {
+          let i = 0;
+          while (i < copies) {
+            i++;
+            multipliedResults.push(`
+              <div style="margin-right: 20px; margin-bottom: 20px;float: left;">
+              ${results}
+              </div>
+            `);
+          }
+        } else {
+          multipliedResults = [results];
         }
 
         const style = `
@@ -113,7 +199,7 @@ export default {
           </style>
       `;
 
-        return res.send(replacedContent + style);
+        return res.send(multipliedResults + style);
       }
     }
   ],

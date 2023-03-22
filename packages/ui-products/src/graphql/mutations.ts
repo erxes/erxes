@@ -26,6 +26,7 @@ const productCategoryParamsDef = `
   $description: String,
   $attachment: AttachmentInput,
   $status: String,
+  $meta: String
 `;
 
 const productParams = `
@@ -56,6 +57,7 @@ const productCategoryParams = `
   description: $description,
   attachment: $attachment,
   status: $status,
+  meta: $meta
 `;
 
 const productAdd = `

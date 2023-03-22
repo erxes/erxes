@@ -10,6 +10,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import { Title } from '@erxes/ui/src/styles/main';
 
 type Props = {
+  contentType: String;
   history: any;
   obj: any;
   save: (doc) => void;
@@ -58,7 +59,7 @@ class Form extends React.Component<Props, State> {
   };
 
   render() {
-    const { obj } = this.props;
+    const { obj, contentType } = this.props;
     const { content } = this.state;
 
     const formContent = (
@@ -78,6 +79,7 @@ class Form extends React.Component<Props, State> {
         <FormGroup>
           <div style={{ float: 'left', width: '800px', marginRight: '50px' }}>
             <EditorCK
+              contentType={obj.contentType || contentType}
               content={obj.content}
               onChange={this.onContentChange}
               height={600}

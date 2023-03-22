@@ -39,6 +39,7 @@ module.exports = {
               userId
               createdAt
               isCustomerRead
+              internal
 
               attachments {
                 url

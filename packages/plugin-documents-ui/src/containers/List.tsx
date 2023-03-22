@@ -6,10 +6,14 @@ import { graphql } from 'react-apollo';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 
+type Props = {
+  queryParams: any;
+};
+
 type FinalProps = {
   listQuery;
   removeMutation;
-};
+} & Props;
 
 class ListContainer extends React.Component<FinalProps> {
   render() {
@@ -41,10 +45,17 @@ class ListContainer extends React.Component<FinalProps> {
   }
 }
 
-export default withProps(
+export default withProps<Props>(
   compose(
-    graphql(gql(queries.documents), {
-      name: 'listQuery'
+    graphql<Props>(gql(queries.documents), {
+      name: 'listQuery',
+      options: ({ queryParams }) => {
+        return {
+          variables: {
+            contentType: queryParams.contentType
+          }
+        };
+      }
     }),
 
     // mutations

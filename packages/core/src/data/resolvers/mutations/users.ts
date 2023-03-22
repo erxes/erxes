@@ -229,8 +229,16 @@ const userMutations = {
     args: IUsersEdit,
     { user, models, subdomain }: IContext
   ) {
-    const { _id, channelIds, ...doc } = args;
+    const { _id, channelIds, brandIds, ...doc } = args;
     const userOnDb = await models.Users.getUser(_id);
+
+    // clean custom field values
+    if (doc.customFieldsData) {
+      doc.customFieldsData = doc.customFieldsData.map(cd => ({
+        ...cd,
+        stringValue: cd.value ? cd.value.toString() : ''
+      }));
+    }
 
     let updatedDoc = doc;
 
@@ -259,6 +267,10 @@ const userMutations = {
         action: 'updateUserChannels',
         data: { channelIds, userId: _id }
       });
+    }
+
+    if (brandIds) {
+      await models.Brands.updateUserBrands(brandIds, _id);
     }
 
     await resetPermissionsCache(models);
@@ -404,16 +416,20 @@ const userMutations = {
       }
 
       if (entry.branchId) {
-        await models.Branches.updateOne(
-          { _id: entry.branchId },
-          { $push: { userIds: createdUser?._id } }
+        await models.Users.updateOne(
+          { _id: createdUser?._id },
+          {
+            $addToSet: { branchIds: entry.branchId }
+          }
         );
       }
 
       if (entry.departmentId) {
-        await models.Departments.updateOne(
-          { _id: entry.departmentId },
-          { $push: { userIds: createdUser?._id } }
+        await models.Users.updateOne(
+          { _id: createdUser?._id },
+          {
+            $addToSet: { departmentIds: entry.departmentId }
+          }
         );
       }
 
