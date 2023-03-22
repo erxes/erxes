@@ -40,7 +40,7 @@ export const initBroker = async cl => {
   );
 
   consumeRPCQueue(
-    'imap:removeIntegration',
+    'imap:removeIntegrations',
     async ({ subdomain, data: { integrationId } }) => {
       const models = await generateModels(subdomain);
 
