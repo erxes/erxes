@@ -19,6 +19,7 @@ module.exports = {
       image: '/images/icons/erxes-25.png',
       location: 'settings',
       scope: 'khanbank',
+      action: 'khanbankConfigsAll',
       permissions: ['khanbankConfigsShow']
     },
     {
@@ -26,7 +27,9 @@ module.exports = {
       url: '/khanbank-corporate-gateway',
       icon: 'icon-university',
       location: 'mainNavigation',
-      permission: 'khanbankConfigsShow'
+      scope: 'khanbank',
+      action: 'khanbankConfigsAll',
+      permissions: ['khanbankConfigsShow']
     },
     {
       text: 'Currency Rates Widget',

@@ -9,6 +9,7 @@ import { useQuery } from 'react-apollo';
 import List from '../components/List';
 import { queries } from '../graphql';
 import { StatementQueryResponse } from '../types';
+import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 
 type Props = {
   queryParams: any;
@@ -35,7 +36,7 @@ export default function ListContainer(props: Props) {
     endDate = dayjs(new Date()).format('YYYY-MM-DD');
   }
 
-  const { data, loading } = useQuery<StatementQueryResponse>(
+  const { data, loading, error } = useQuery<StatementQueryResponse>(
     gql(queries.transactionsQuery),
     {
       variables: {
@@ -52,6 +53,10 @@ export default function ListContainer(props: Props) {
 
   if (loading) {
     return <Spinner />;
+  }
+
+  if (error) {
+    return <ErrorMsg>{error.message}</ErrorMsg>;
   }
 
   const statement = data && data.khanbankStatements;
