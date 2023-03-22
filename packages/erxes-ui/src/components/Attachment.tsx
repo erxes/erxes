@@ -1,12 +1,14 @@
-import Icon from './Icon';
-import React from 'react';
-import styled from 'styled-components';
-import { rgba } from '../styles/ecolor';
-import colors from '../styles/colors';
-import { IAttachment } from '../types';
 import { __, readFile } from '../utils/core';
+
 import AttachmentWithPreview from './AttachmentWithPreview';
+import { IAttachment } from '../types';
+import Icon from './Icon';
 import ImageWithPreview from './ImageWithPreview';
+import React from 'react';
+import colors from '../styles/colors';
+import { rgba } from '../styles/ecolor';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 export const AttachmentWrapper = styled.div`
   border-radius: 4px;
@@ -48,9 +50,9 @@ const Download = styled.a`
   }
 `;
 
-const PreviewWrapper = styled.div`
-  height: 80px;
-  width: 110px;
+const PreviewWrapper = styledTS<{ large?: boolean }>(styled.div)`
+  width: ${props => (props.large ? '300px' : '110px')};
+  height: ${props => (props.large ? '220px' : '80px')};
   background: ${rgba(colors.colorCoreDarkBlue, 0.08)};
   display: flex;
   justify-content: center;
@@ -88,6 +90,7 @@ type Props = {
   scrollBottom?: () => void;
   additionalItem?: React.ReactNode;
   simple?: boolean;
+  large?: boolean;
 
   index?: number;
   attachments?: IAttachment[];
@@ -131,11 +134,11 @@ class Attachment extends React.Component<Props> {
   };
 
   renderOtherFile = (attachment: IAttachment, icon?: string) => {
-    const { index, attachments } = this.props;
+    const { index, attachments, large } = this.props;
 
     return (
       <AttachmentWrapper>
-        <PreviewWrapper>
+        <PreviewWrapper large={large}>
           <AttachmentWithPreview
             icon={icon}
             index={index}
