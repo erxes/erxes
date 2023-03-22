@@ -25,9 +25,11 @@ export const types = `
     footerText: String
   }
 
-  type CatProd {
+  type PoscCatProd {
     _id: String
     categoryId: String
+    code: String
+    name: String
     productId: String
   }
 
@@ -57,7 +59,7 @@ export const types = `
     erxesAppToken: String
     uiOptions: UIOptions
     ebarimtConfig: EbarimtConfig
-    catProdMappings: [CatProd]
+    catProdMappings: [PoscCatProd]
     initialCategoryIds: [String]
     kioskExcludeProductIds: [String]
     deliveryConfig: JSON
