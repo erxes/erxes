@@ -26,6 +26,7 @@ module.exports = {
     logo: '/images/integrations/email.png',
     createModal: 'imap',
     category:
-      'All integrations, For support teams, Marketing automation, Email marketing'
+      'All integrations, For support teams, Marketing automation, Email marketing',
+    components: ['inboxConversationDetail'],
   }]
 };
