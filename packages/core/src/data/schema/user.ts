@@ -114,7 +114,7 @@ const commonSelector = `
 
 export const queries = `
   users(sortField: String, sortDirection: Int, page: Int, perPage: Int, status: String, excludeIds: Boolean, ${commonSelector}): [User]
-  allUsers(isActive: Boolean): [User]
+  allUsers(isActive: Boolean,ids:[String],assignedToMe:String): [User]
   userDetail(_id: String): User
   usersTotalCount(${commonSelector}): Int
   currentUser: User
