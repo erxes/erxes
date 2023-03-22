@@ -34,6 +34,8 @@ export const posCommonFields = `
   catProdMappings {
     _id
     categoryId
+    code
+    name
     productId
   }
 

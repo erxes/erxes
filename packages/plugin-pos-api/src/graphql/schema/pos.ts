@@ -47,6 +47,8 @@ const posCommonFields = `
 const catProd = `
   _id: String
   categoryId: String
+  code: String
+  name: String
   productId: String
 `;
 
