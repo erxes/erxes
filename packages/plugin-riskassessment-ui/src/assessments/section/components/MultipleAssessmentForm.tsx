@@ -44,7 +44,7 @@ class MultipleAssessment extends React.Component<Props, State> {
       ) {
         riskAssessment = riskAssessments[0];
       } else {
-        riskAssessments.find(
+        riskAssessment = riskAssessments.find(
           riskAssessment => riskAssessment.status === 'In Progress'
         );
       }
@@ -53,7 +53,8 @@ class MultipleAssessment extends React.Component<Props, State> {
         Object.entries({
           branchId: riskAssessment?.branchId,
           departmentId: riskAssessment?.departmentId,
-          operationId: riskAssessment?.operationId
+          operationId: riskAssessment?.operationId,
+          indicatorId: riskAssessment?.indicatorId
         }).filter(([_, property]) => property)
       );
 
@@ -119,7 +120,8 @@ class MultipleAssessment extends React.Component<Props, State> {
           Object.entries({
             branchId: riskAssessment?.branchId,
             departmentId: riskAssessment?.departmentId,
-            operationId: riskAssessment?.operationId
+            operationId: riskAssessment?.operationId,
+            indicatorId: riskAssessment?.indicatorId
           }).filter(([_, property]) => property)
         )
       });

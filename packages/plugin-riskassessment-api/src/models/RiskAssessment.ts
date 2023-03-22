@@ -133,7 +133,7 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
           { key: 'operationId', ids: operationIds }
         ];
 
-        if (!!indicatorIds.length) {
+        if (!!indicatorIds?.length) {
           IdsMap.push({ key: 'indicatorId', ids: indicatorIds });
         }
 
