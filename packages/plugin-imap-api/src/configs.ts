@@ -26,10 +26,12 @@ export default {
     };
   },
   meta: {
-    inboxIntegrations: {
-      kind: 'imap',
-      label: 'IMap'
-    }
+    inboxIntegrations: [
+      {
+        kind: 'imap',
+        label: 'IMap'
+      }
+    ]
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
