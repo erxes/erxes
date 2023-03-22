@@ -45,6 +45,7 @@ export const loadDynamicComponent = (
   pluginName?: string
 ): any => {
   const plugins: any[] = (window as any).plugins || [];
+
   const filteredPlugins = plugins.filter(plugin => plugin[componentName]);
 
   const renderDynamicComp = (plugin: any) => (
