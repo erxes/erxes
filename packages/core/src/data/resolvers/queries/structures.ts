@@ -17,8 +17,8 @@ const generateFilters = async ({
 }) => {
   const filter: any = { status: { $ne: STRUCTURE_STATUSES.DELETED } };
 
-  if (!!params?.ids?.length) {
-    filter._id = { $in: params.ids };
+  if (params.ids && params.ids.length) {
+    filter._id = { [params.excludeIds ? '$nin' : '$in']: params.ids };
   }
 
   if (params.status) {
@@ -105,11 +105,7 @@ const generateFilters = async ({
 };
 
 const structureQueries = {
-  async departments(
-    _root,
-    params: { searchValue?: string },
-    { models, user }: IContext
-  ) {
+  async departments(_root, params: any, { models, user }: IContext) {
     const filter = await generateFilters({
       models,
       user,
