@@ -273,6 +273,7 @@ export const extractConfig = async (subdomain, doc) => {
     catProdMappings: doc.catProdMappings,
     posSlot: doc.posSlot,
     initialCategoryIds: doc.initialCategoryIds,
+    kioskExcludeCategoryIds: doc.kioskExcludeCategoryIds,
     kioskExcludeProductIds: doc.kioskExcludeProductIds,
     deliveryConfig: doc.deliveryConfig,
     posId: doc._id,

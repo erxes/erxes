@@ -58,6 +58,7 @@ export interface IConfig {
   erkhetConfig?: any;
   catProdMappings?: ICatProd[];
   initialCategoryIds?: string[];
+  kioskExcludeCategoryIds?: string[];
   kioskExcludeProductIds?: string[];
   deliveryConfig?: any;
   posId: string;
@@ -130,6 +131,10 @@ export const configSchema = new Schema({
   initialCategoryIds: field({
     type: [String],
     label: 'Pos initial categories'
+  }),
+  kioskExcludeCategoryIds: field({
+    type: [String],
+    label: 'kiosk Exclude Categories'
   }),
   kioskExcludeProductIds: field({
     type: [String],
