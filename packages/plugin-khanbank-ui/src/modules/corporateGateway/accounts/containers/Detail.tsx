@@ -1,12 +1,13 @@
-import { AccountDetailQueryResponse, IKhanbankAccount } from '../types';
-
+import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { IRouterProps } from '@erxes/ui/src/types';
 import gql from 'graphql-tag';
 import React from 'react';
 import { useQuery } from 'react-apollo';
+
 import Detail from '../components/Detail';
 import queries from '../graphql/queries';
-import { IRouterProps } from '@erxes/ui/src/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
+import { AccountDetailQueryResponse } from '../types';
 
 type Props = {
   queryParams: any;
@@ -15,7 +16,7 @@ type Props = {
 const DetailContainer = (props: Props) => {
   const { _id, account } = props.queryParams;
 
-  const { data, loading } = useQuery<AccountDetailQueryResponse>(
+  const { data, loading, error } = useQuery<AccountDetailQueryResponse>(
     gql(queries.detailQuery),
     {
       variables: {
@@ -30,6 +31,10 @@ const DetailContainer = (props: Props) => {
     return <Spinner />;
   }
 
+  if (error) {
+    return <ErrorMsg>{error.message}</ErrorMsg>;
+  }
+
   const accountDetail = data && data.khanbankAccountDetail;
 
   if (!accountDetail) {
@@ -42,7 +47,11 @@ const DetailContainer = (props: Props) => {
     account: accountDetail
   };
 
-  return <Detail {...extendedProps} />;
+  return (
+    <>
+      <Detail {...extendedProps} />
+    </>
+  );
 };
 
 export default DetailContainer;

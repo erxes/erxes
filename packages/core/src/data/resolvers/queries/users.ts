@@ -126,13 +126,23 @@ const userQueries = {
    */
   allUsers(
     _root,
-    { isActive }: { isActive: boolean },
-    { userBrandIdsSelector, models }: IContext
+    {
+      isActive,
+      ids,
+      assignedToMe
+    }: { isActive: boolean; ids: string[]; assignedToMe: string },
+    { userBrandIdsSelector, user, models }: IContext
   ) {
-    const selector: { isActive?: boolean } = userBrandIdsSelector;
+    const selector: { isActive?: boolean; _id?: any } = userBrandIdsSelector;
 
     if (isActive) {
       selector.isActive = true;
+    }
+    if (!!ids?.length) {
+      selector._id = { $in: ids };
+    }
+    if (assignedToMe === 'true') {
+      selector._id = user._id;
     }
 
     return models.Users.find({ ...selector, ...NORMAL_USER_SELECTOR }).sort({
