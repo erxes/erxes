@@ -1,15 +1,83 @@
+import Box from '@erxes/ui/src/components/Box';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Map from '@erxes/ui/src/containers/map/Map';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 
-type Props = {
-  customerAccount: any;
+import DealPlaceForm from '../../containers/dealPlaces/Form';
+import { IDealPlace } from '../../types';
+
+export type Props = {
+  customerAccount?: any;
 };
 
-const AccountSection = (props: Props) => {
-  return (
-    <div>
-      <h1>Account Section</h1>
-    </div>
+export default function Component(props: Props) {
+  const { customerAccount } = props;
+  //   const renderActionSection = customer => {
+  //     if (!actionSection) {
+  //       return;
+  //     }
+
+  //     const ActionSection = actionSection;
+  //     return <ActionSection customer={customer} isSmall={true} />;
+  //   };
+
+  const renderBody = (dealPlace?: IDealPlace) => {
+    if (!customerAccount) {
+      return <EmptyState icon="location-point" text="No data" />;
+    }
+
+    const { startPlace, endPlace } = dealPlace;
+    return (
+      <div style={{ width: '100%', backgroundColor: 'black' }}>
+        {startPlace && startPlace._id && endPlace && endPlace._id && (
+          <Map
+            id={Math.random().toString(10)}
+            center={startPlace.center}
+            zoom={7}
+            locationOptions={[startPlace.center, endPlace.center]}
+            streetViewControl={false}
+            connectWithLines={true}
+          />
+        )}
+      </div>
+    );
+  };
+
+  const managePlaces = props => (
+    <DealPlaceForm
+      dealId={dealId}
+      dealPlace={dealPlace}
+      closeModal={props.closeModal}
+    />
   );
-};
 
-export default AccountSection;
+  const extraButtons = (
+    <>
+      <ModalTrigger
+        title="Places"
+        size="lg"
+        trigger={
+          <button>
+            <Icon icon={dealPlace ? 'edit-3' : 'plus-circle'} />
+          </button>
+        }
+        content={managePlaces}
+      />
+    </>
+  );
+
+  return (
+    <Box
+      title={__(`${title || 'Places'}`)}
+      extraButtons={extraButtons}
+      isOpen={true}
+      name="showLocation"
+    >
+      {renderBody(dealPlace)}
+    </Box>
+  );
+}
