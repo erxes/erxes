@@ -29,6 +29,7 @@ export interface IPos {
   syncInfos?: any;
   catProdMappings?: any;
   initialCategoryIds?: string;
+  kioskExcludeCategoryIds?: string;
   kioskExcludeProductIds?: string;
   deliveryConfig?: any;
   cardsConfig?: any;
@@ -111,6 +112,10 @@ export const posSchema = schemaHooksWrapper(
     initialCategoryIds: field({
       type: [String],
       label: 'Pos initial categories'
+    }),
+    kioskExcludeCategoryIds: field({
+      type: [String],
+      label: 'Kiosk exclude categories'
     }),
     kioskExcludeProductIds: field({
       type: [String],

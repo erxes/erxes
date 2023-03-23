@@ -8,7 +8,8 @@ import { ILoginParams } from '../../../models/ClientPortalUser';
 import { IUser } from '../../../models/definitions/clientPortalUser';
 import { sendSms } from '../../../utils';
 import { sendCommonMessage } from './../../../messageBroker';
-
+import redis from '../../../redis';
+import * as randomize from 'randomatic';
 export interface IVerificationParams {
   userId: string;
   emailOtp?: string;
@@ -199,7 +200,6 @@ const clientPortalUserMutations = {
     args: { currentPassword: string; newPassword: string },
     { cpUser, models }: IContext
   ) {
-    cpUser;
     return models.ClientPortalUsers.changePassword({
       _id: (cpUser && cpUser._id) || '',
       ...args
@@ -458,6 +458,95 @@ const clientPortalUserMutations = {
     );
 
     return 'Verification status changed';
+  },
+
+  clientPortalUsersReplacePhone: async (
+    _root,
+    args: { clientPortalId: string; phone: string },
+    { models, subdomain, cpUser }: IContext
+  ) => {
+    if (!cpUser) {
+      throw new Error('login required');
+    }
+
+    const { phone, clientPortalId } = args;
+
+    const user = await models.ClientPortalUsers.findOne({
+      clientPortalId,
+      phone
+    });
+
+    if (user && user._id === cpUser._id) {
+      throw new Error(
+        'Please enter a different phone number than the current one'
+      );
+    }
+
+    if (user) {
+      throw new Error(
+        'The phone number is already registered with another user'
+      );
+    }
+
+    const cp = await models.ClientPortals.getConfig(clientPortalId);
+
+    const config: any = cp.otpConfig || {
+      content:
+        'Please enter the following code to verify your phone number: {{ code }}',
+      smsTransporterType: 'messagePro',
+      codeLength: 4,
+      loginWithOTP: false,
+      expireAfter: 5
+    };
+
+    const code = randomize('0', config.codeLength);
+
+    await redis.set(
+      `cpUser:${cpUser._id}`,
+      JSON.stringify({ code, phone }),
+      'EX',
+      60 * config.expireAfter
+    );
+
+    await sendSms(
+      subdomain,
+      config.smsTransporterType,
+      phone,
+      config.content.replace(/{.*}/, code)
+    );
+
+    return 'Confirmation code sent to your phone';
+  },
+
+  clientPortalUsersVerifyPhone: async (
+    _root,
+    args: { code: string },
+    { models, cpUser }: IContext
+  ) => {
+    if (!cpUser) {
+      throw new Error('login required');
+    }
+
+    const { code } = args;
+
+    const redisObj = await redis.get(`cpUser:${cpUser._id}`);
+
+    if (!redisObj) {
+      throw new Error('Code has expired');
+    }
+
+    const { code: redisCode, phone } = JSON.parse(redisObj);
+
+    if (redisCode !== code) {
+      throw new Error('Invalid code');
+    }
+
+    await models.ClientPortalUsers.updateOne(
+      { _id: cpUser._id },
+      { $set: { phoneVerified: true, phone } }
+    );
+
+    return 'Phone verified';
   }
 };
 
