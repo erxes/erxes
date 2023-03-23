@@ -54,6 +54,7 @@ import automations from './automations';
 import imports from './imports';
 import exporter from './exporter';
 import { moduleObjects } from './data/permissions/actions/permission';
+import dashboards from './dashboards';
 
 const {
   JWT_TOKEN_SECRET,
@@ -265,6 +266,16 @@ app.use((error, _req, res, _next) => {
   res.status(500).send(error.message);
 });
 
+app.get('/dashboard', async (req, res) => {
+  const headers = req.rawHeaders;
+
+  const index = headers.indexOf('schemaName') + 1;
+
+  const schemaName = headers[index];
+
+  res.sendFile(path.join(__dirname, `./dashboardSchemas/${schemaName}.js`));
+});
+
 // Wrap the Express server
 const httpServer = createServer(app);
 
@@ -300,6 +311,7 @@ httpServer.listen(PORT, async () => {
     port: PORT,
     dbConnectionString: MONGO_URL,
     hasSubscriptions: false,
+    hasDashboard: true,
     meta: {
       logs: { providesActivityLog: true, consumers: logs },
       forms,
@@ -307,7 +319,8 @@ httpServer.listen(PORT, async () => {
       automations,
       permissions: moduleObjects,
       imports,
-      exporter
+      exporter,
+      dashboards
     }
   });
 
