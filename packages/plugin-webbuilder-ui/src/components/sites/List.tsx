@@ -122,7 +122,7 @@ class SiteList extends React.Component<Props, State> {
 
   render() {
     const { sites = [] } = this.props;
-    console.log('sites', sites);
+
     return <FlexWrap>{sites.map(site => this.renderList(site))}</FlexWrap>;
   }
 }

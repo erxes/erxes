@@ -34,7 +34,7 @@ type FinalProps = Props & {
 
 const PageDetailContainer = (props: FinalProps) => {
   const { pageDetailQuery, history, pagesMainQuery, typesQuery } = props;
-  console.log(pageDetailQuery && pageDetailQuery.loading);
+
   if (
     (pageDetailQuery && pageDetailQuery.loading) ||
     pagesMainQuery.loading ||

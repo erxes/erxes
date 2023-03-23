@@ -239,9 +239,8 @@ export const CollapseLeftMenu = styled.div`
 export const SubTitle = styledTS<{ flexBetween?: boolean }>(styled.div)`
   margin: 0;
   letter-spacing: 0.5px;
-  font-size: 12px;
   background-color: rgba(0, 0, 0, 0.1);
-  padding: 9px ${dimensions.unitSpacing}px;
+  padding: ${dimensions.unitSpacing}px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.25);
   border-top: 1px solid rgba(0, 0, 0, 0.25);
 

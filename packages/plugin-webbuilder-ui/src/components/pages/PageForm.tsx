@@ -65,7 +65,6 @@ class PageForm extends React.Component<Props, State> {
       <Button
         btnStyle="simple"
         icon="times-circle"
-        size="small"
         onClick={() => onCancel(null, '')}
       >
         Cancel
@@ -76,7 +75,6 @@ class PageForm extends React.Component<Props, State> {
       <Button
         btnStyle="danger"
         icon="trash-alt"
-        size="small"
         onClick={() => remove(page._id, onCancel(null, ''))}
       >
         Delete
@@ -88,12 +86,7 @@ class PageForm extends React.Component<Props, State> {
         {page.name && deleteButton}
         {cancelButton}
 
-        <Button
-          btnStyle="success"
-          icon={'check-circle'}
-          onClick={this.save}
-          size="small"
-        >
+        <Button btnStyle="success" icon={'check-circle'} onClick={this.save}>
           Save
         </Button>
       </Button.Group>
@@ -106,8 +99,7 @@ class PageForm extends React.Component<Props, State> {
     return (
       <PageFormContainer className="gjs-one-bg gjs-two-color">
         <SubTitle flexBetween={true}>
-          {__('Page Settings')}
-          {this.renderButtons()}
+          {__('Page Settings')} {this.renderButtons()}
         </SubTitle>
         <FlexPad direction="column" overflow="auto">
           <FormGroup>

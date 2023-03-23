@@ -110,7 +110,7 @@ const FormContainer = (props: FinalProps) => {
 
   const pagesMain = pagesMainQuery.webbuilderPagesMain || {};
   const contentTypes = typesQuery.webbuilderContentTypes || [];
-  console.log(page);
+
   const updatedProps = {
     ...props,
     pageSave,

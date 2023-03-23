@@ -1,5 +1,6 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
 
+import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import styled from 'styled-components';
 
 export const List = styled.ul`
@@ -75,4 +76,5 @@ export const PageHeader = styled.div`
 export const PageFormContainer = styled.div`
   width: 500px;
   height: 100%;
+  position: relative;
 `;
