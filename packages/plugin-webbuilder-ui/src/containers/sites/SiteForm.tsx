@@ -2,6 +2,7 @@ import * as compose from 'lodash.flowright';
 
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import {
+  IPageDoc,
   PageDetailQueryResponse,
   PagesAddMutationResponse,
   PagesEditMutationResponse,
@@ -33,8 +34,8 @@ type FinalProps = Props & {
   PagesRemoveMutationResponse;
 
 const FormContainer = (props: FinalProps) => {
-  const { pageDetailQuery, history, pagesMainQuery, typesQuery } = props;
-  console.log(pageDetailQuery && pageDetailQuery.loading);
+  const { pageDetailQuery, pagesMainQuery, typesQuery } = props;
+
   if (
     (pageDetailQuery && pageDetailQuery.loading) ||
     pagesMainQuery.loading ||
@@ -101,7 +102,7 @@ const FormContainer = (props: FinalProps) => {
     });
   };
 
-  let page;
+  let page = {} as IPageDoc;
 
   if (pageDetailQuery) {
     page = pageDetailQuery.webbuilderPageDetail;
@@ -109,7 +110,7 @@ const FormContainer = (props: FinalProps) => {
 
   const pagesMain = pagesMainQuery.webbuilderPagesMain || {};
   const contentTypes = typesQuery.webbuilderContentTypes || [];
-
+  console.log(page);
   const updatedProps = {
     ...props,
     pageSave,

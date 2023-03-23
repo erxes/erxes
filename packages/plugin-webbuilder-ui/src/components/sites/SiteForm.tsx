@@ -5,11 +5,12 @@ import {
   ItemDetailContainer,
   LeftSidebar,
   LeftSidebarContent,
+  Loader,
   SettingsContent,
   SiteFormContainer,
   SubTitle
 } from './styles';
-import { IContentTypeDoc, IPageDoc } from '../../types';
+import { IContentTypeDoc, IPage, IPageDoc } from '../../types';
 import { __, uploadHandler } from '@erxes/ui/src/utils';
 
 import Alert from '@erxes/ui/src/utils/Alert';
@@ -22,6 +23,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import PageForm from '../pages/PageForm';
 import PageList from '../pages/List';
 import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import customPlugins from '../customPlugins';
 import gjsPresetWebpage from 'grapesjs-preset-webpage';
@@ -52,6 +54,7 @@ type State = {
   settingsObject: any;
   showDarkMode: boolean;
   showPage: boolean;
+  loading: boolean;
   showContentType: boolean;
   type?: string;
 };
@@ -71,12 +74,13 @@ class SiteForm extends React.Component<Props, State> {
       settingsObject: null,
       showPage: false,
       showContentType: false,
+      loading: false,
       showDarkMode:
         localStorage.getItem('showDarkMode') === 'true' ? true : false || false
     };
   }
 
-  componentDidMount() {
+  fetchPage = () => {
     const { contentTypes } = this.props;
     let { pages } = this.props;
 
@@ -95,7 +99,12 @@ class SiteForm extends React.Component<Props, State> {
           open: false
         }
       },
-      storageManager: false,
+      storageManager: {
+        type: 'local', // Storage type. Available: local | remote
+        autosave: true, // Store data automatically
+        autoload: true, // Autoload stored data on init
+        stepsBeforeSave: 1 // If autosave is enabled, indicates how many changes are necessary before the store method is triggered
+      },
       assetManager: {
         uploadFile: e => {
           const files = e.dataTransfer ? e.dataTransfer.files : e.target.files;
@@ -244,6 +253,20 @@ class SiteForm extends React.Component<Props, State> {
         }
       }
     ]);
+
+    this.setState({ loading: false });
+  };
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.page !== this.props.page) {
+      this.setState({ loading: true }, () => {
+        this.fetchPage();
+      });
+    }
+  }
+
+  componentDidMount() {
+    this.fetchPage();
   }
 
   onChange = (type: string, value: any) => {
@@ -386,8 +409,7 @@ class SiteForm extends React.Component<Props, State> {
   }
 
   render() {
-    const { name, settingsObject, showDarkMode } = this.state;
-
+    const { name, settingsObject, showDarkMode, loading } = this.state;
     const breadcrumb = [{ title: 'Sites', link: '/xbuilder' }, { title: name }];
 
     return (
@@ -404,7 +426,12 @@ class SiteForm extends React.Component<Props, State> {
                 </ItemDetailContainer>
               </SettingsContent>
             )}
-            <FlexItem count="7">
+            <FlexItem className="right-section" count="7">
+              {loading && (
+                <Loader showDarkMode={showDarkMode}>
+                  <Spinner objective={true} />
+                </Loader>
+              )}
               <div id="editor" />
             </FlexItem>
           </FlexItem>

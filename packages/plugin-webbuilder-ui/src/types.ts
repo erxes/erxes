@@ -1,6 +1,7 @@
 import { IAttachment, QueryResponse } from '@erxes/ui/src/types';
 
 import { IUser } from '@erxes/ui/src/auth/types';
+
 export interface IPage {
   name: string;
   description: string;
@@ -176,7 +177,7 @@ export type EntriesRemoveMutationResponse = {
 // template
 export type TemplatesUseMutationResponse = {
   templatesUse: (doc: {
-    variables: { _id: string; name: string; coverImage: string };
+    variables: { _id: string; name: string; coverImage?: string };
   }) => Promise<any>;
 };
 

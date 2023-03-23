@@ -347,6 +347,10 @@ export const SiteFormContainer = styledTS<{ showDarkMode?: boolean }>(
           background-color: #3d3d3d !important;
         }
       `}
+  
+  .right-section {
+    position: relative;
+  }
 `;
 
 export const SettingsContent = styled.div`
@@ -355,4 +359,24 @@ export const SettingsContent = styled.div`
   left: 199px;
   width: calc(100% - 200px);
   z-index: 10;
+`;
+
+export const Editor = styled.div`
+  position: relative;
+`;
+
+export const Loader = styledTS<{ showDarkMode?: boolean }>(styled.div)`
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  opacity: .7;
+  background: ${props =>
+    props.showDarkMode ? colors.colorCoreDarkGray : colors.colorWhite};
+  z-index: 9;
+
+  > div {
+    height: 100%;
+  }
 `;
