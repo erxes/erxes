@@ -88,7 +88,7 @@ var sideBar = {
                 {
                   type: 'link',
                   label: 'Collection Download', // The link label
-                  href: 'https://github.com/erxes/erxes/releases'
+                  href: 'https://erxes-docs.s3.us-west-2.amazonaws.com/erxes-graphql-postman.postman_collection.json'
                 }
               ]
             }
