@@ -48,6 +48,8 @@ ${
 
   type ManualVerificationConfig {
     userIds: [String]
+    verifyCustomer: Boolean
+    verifyCompany: Boolean
   }
 
   input OTPConfigInput {
