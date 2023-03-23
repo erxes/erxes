@@ -19,6 +19,8 @@ export type MailConfig = {
 
 export type ManualVerificationConfig = {
   userIds: string[];
+  verifyCustomer: boolean;
+  verifyCompany: boolean;
 };
 
 export interface IVerificationRequest {
