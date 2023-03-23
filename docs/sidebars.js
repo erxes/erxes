@@ -80,19 +80,13 @@ var sideBar = {
             'api/enums',
             'api/scalars',
             'api/queries',
-            'api/mutations',
-            {
-              type: 'category',
-              label: 'Graphql API Postman Collection',
-              items: [
-                {
-                  type: 'link',
-                  label: 'Collection Download', // The link label
-                  href: 'https://erxes-docs.s3.us-west-2.amazonaws.com/erxes-graphql-postman.postman_collection.json'
-                }
-              ]
-            }
+            'api/mutations'
           ]
+        },
+        {
+          type: 'doc',
+          id: 'api/postmanCollection',
+          label: 'Postman Collection',
         },
         {
           'Code reference': [
