@@ -61,6 +61,7 @@ export const types = `
     ebarimtConfig: EbarimtConfig
     catProdMappings: [PoscCatProd]
     initialCategoryIds: [String]
+    kioskExcludeCategoryIds: [String]
     kioskExcludeProductIds: [String]
     deliveryConfig: JSON
     branchId: String

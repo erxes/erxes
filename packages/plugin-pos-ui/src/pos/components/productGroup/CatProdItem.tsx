@@ -106,7 +106,7 @@ export default class CatProdItem extends React.Component<Props, State> {
             {this.renderLabel('Packaging products')}
             <SelectProducts
               label={''}
-              name="kioskExcludeProductIds"
+              name="productIds"
               onSelect={option => onSelectChange('productId', option)}
               initialValue={productId}
               multi={false}

@@ -170,6 +170,7 @@ class Pos extends React.Component<Props, State> {
       beginNumber: pos.beginNumber,
       maxSkipNumber: Number(pos.maxSkipNumber) || 0,
       initialCategoryIds: pos.initialCategoryIds || [],
+      kioskExcludeCategoryIds: pos.kioskExcludeCategoryIds || [],
       kioskExcludeProductIds: pos.kioskExcludeProductIds || [],
       deliveryConfig,
       cardsConfig,

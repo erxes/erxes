@@ -36,6 +36,7 @@ const posCommonFields = `
   ebarimtConfig: JSON
   erkhetConfig: JSON
   initialCategoryIds: [String]
+  kioskExcludeCategoryIds: [String]
   kioskExcludeProductIds: [String]
   deliveryConfig: JSON
   cardsConfig: JSON

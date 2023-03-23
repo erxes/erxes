@@ -35,6 +35,7 @@ type State = {
   currentMode: 'create' | 'update' | undefined;
   mappings: CatProd[];
   initialCategoryIds: string[];
+  kioskExcludeCategoryIds: string[];
   kioskExcludeProductIds: string[];
 };
 
@@ -49,6 +50,7 @@ export default class ConfigStep extends React.Component<Props, State> {
       currentMode: undefined,
       mappings: pos && pos.catProdMappings ? pos.catProdMappings : [],
       initialCategoryIds: (pos && pos.initialCategoryIds) || [],
+      kioskExcludeCategoryIds: (pos && pos.kioskExcludeCategoryIds) || [],
       kioskExcludeProductIds: (pos && pos.kioskExcludeProductIds) || []
     };
   }
@@ -192,11 +194,11 @@ export default class ConfigStep extends React.Component<Props, State> {
     onChange('pos', pos);
   };
 
-  onChangekioskExcludeProduct = ids => {
+  onChangekioskExclude = (name, ids) => {
     const { pos, onChange } = this.props;
-    this.setState({ kioskExcludeProductIds: ids });
+    this.setState({ [name]: ids } as any);
 
-    pos.kioskExcludeProductIds = ids;
+    pos[name] = ids;
     onChange('pos', pos);
   };
 
@@ -205,6 +207,7 @@ export default class ConfigStep extends React.Component<Props, State> {
     const {
       mappings = [],
       initialCategoryIds,
+      kioskExcludeCategoryIds,
       kioskExcludeProductIds
     } = this.state;
 
@@ -263,12 +266,32 @@ export default class ConfigStep extends React.Component<Props, State> {
             <Block>
               <h4>{__('kiosk exclude products')}</h4>
               <FormGroup>
+                <ControlLabel>Categories</ControlLabel>
+                <SelectProductCategory
+                  label={'kiosk'}
+                  name="kioskExcludeCategoryIds"
+                  initialValue={kioskExcludeCategoryIds}
+                  onSelect={categoryIds =>
+                    this.onChangekioskExclude(
+                      'kioskExcludeCategoryIds',
+                      categoryIds
+                    )
+                  }
+                  multi={true}
+                />
+              </FormGroup>
+              <FormGroup>
                 <ControlLabel>Products</ControlLabel>
                 <SelectProducts
                   label={'kiosk'}
                   name="kioskExcludeProductIds"
                   initialValue={kioskExcludeProductIds}
-                  onSelect={this.onChangekioskExcludeProduct}
+                  onSelect={productIds =>
+                    this.onChangekioskExclude(
+                      'kioskExcludeProductIds',
+                      productIds
+                    )
+                  }
                   multi={true}
                 />
               </FormGroup>
