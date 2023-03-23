@@ -75,8 +75,8 @@ var sideBar = {
         {
           'GraphQL API': [
             'api/introduction',
-            'api/types',
-            'api/inputTypes',
+            'api/objects',
+            'api/inputObjects',
             'api/enums',
             'api/scalars',
             'api/queries',

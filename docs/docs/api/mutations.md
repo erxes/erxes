@@ -5,9 +5,197 @@ slug: mutations
 sidebar_position: 2
 ---
 
+## absenceTypeAdd
+
+**Type:** [AbsenceType](/docs/api/objects#absencetype)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+attachRequired<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+explRequired<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+name<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+requestHoursPerDay<br />
+<a href="/docs/api/scalars#float"><code>Float</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+requestTimeType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+requestType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+shiftRequest<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## absenceTypeEdit
+
+**Type:** [AbsenceType](/docs/api/objects#absencetype)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+attachRequired<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+explRequired<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+name<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+requestHoursPerDay<br />
+<a href="/docs/api/scalars#float"><code>Float</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+requestTimeType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+requestType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+shiftRequest<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## absenceTypeRemove
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ## addUserSkills
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -17,7 +205,7 @@ sidebar_position: 2
 <tr>
 <td>
 memberId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -26,7 +214,7 @@ memberId<br />
 <tr>
 <td>
 skillIds<br />
-<a href="/api/scalars#string"><code>[String]!</code></a>
+<a href="/docs/api/scalars#string"><code>[String]!</code></a>
 </td>
 <td>
 
@@ -37,7 +225,9 @@ skillIds<br />
 
 ## appsAdd
 
-**Type:** [App](/api/objects#app)
+**Type:** [App](/docs/api/objects#app)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -47,7 +237,7 @@ skillIds<br />
 <tr>
 <td>
 expireDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -56,7 +246,7 @@ expireDate<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -65,7 +255,7 @@ name<br />
 <tr>
 <td>
 userGroupId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -76,7 +266,9 @@ userGroupId<br />
 
 ## appsEdit
 
-**Type:** [App](/api/objects#app)
+**Type:** [App](/docs/api/objects#app)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -86,7 +278,7 @@ userGroupId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -95,7 +287,7 @@ _id<br />
 <tr>
 <td>
 expireDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -104,7 +296,7 @@ expireDate<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -113,7 +305,7 @@ name<br />
 <tr>
 <td>
 userGroupId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -124,7 +316,9 @@ userGroupId<br />
 
 ## appsRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -134,7 +328,1041 @@ userGroupId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assetCategoryAdd
+
+**Type:** [AssetCategory](/docs/api/objects#assetcategory)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+attachment<br />
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+code<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+description<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+name<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+status<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assetCategoryEdit
+
+**Type:** [AssetCategory](/docs/api/objects#assetcategory)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+attachment<br />
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+code<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+description<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+name<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+status<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assetCategoryRemove
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assetMovementAdd
+
+**Type:** [String](/docs/api/scalars#string)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+description<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+items<br />
+<a href="/docs/api/inputObjects#imovementitem"><code>[IMovementItem]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+movedAt<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assetMovementRemove
+
+**Type:** [String](/docs/api/scalars#string)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+ids<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assetMovementUpdate
+
+**Type:** [String](/docs/api/scalars#string)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+doc<br />
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assetsAdd
+
+**Type:** [Asset](/docs/api/objects#asset)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+assetCount<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+attachment<br />
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+attachmentMore<br />
+<a href="/docs/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+categoryId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+code<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+customFieldsData<br />
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+description<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+name<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+order<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+unitPrice<br />
+<a href="/docs/api/scalars#float"><code>Float</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+vendorId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assetsAssignKbArticles
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+action<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+articleIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+boardId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+categoryId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+excludeIds<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+ids<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+ignoreIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+irregular<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+pipelineId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+searchValue<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+withKnowledgebase<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assetsEdit
+
+**Type:** [Asset](/docs/api/objects#asset)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+assetCount<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+attachment<br />
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+attachmentMore<br />
+<a href="/docs/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+categoryId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+code<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+customFieldsData<br />
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+description<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+name<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+order<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+unitPrice<br />
+<a href="/docs/api/scalars#float"><code>Float</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+vendorId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assetsMerge
+
+**Type:** [Asset](/docs/api/objects#asset)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+assetFields<br />
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+assetIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assetsRemove
+
+**Type:** [String](/docs/api/scalars#string)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+assetIds<br />
+<a href="/docs/api/scalars#string"><code>[String!]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assignmentCampaignsAdd
+
+**Type:** [AssignmentCampaign](/docs/api/objects#assignmentcampaign)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+attachment<br />
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+description<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+endDate<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+finishDateOfUse<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+numberFormat<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+segmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+startDate<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+status<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+title<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+voucherCampaignId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assignmentCampaignsEdit
+
+**Type:** [AssignmentCampaign](/docs/api/objects#assignmentcampaign)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+attachment<br />
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+description<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+endDate<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+finishDateOfUse<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+numberFormat<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+segmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+startDate<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+status<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+title<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+voucherCampaignId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assignmentCampaignsRemove
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_ids<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assignmentsAdd
+
+**Type:** [Assignment](/docs/api/objects#assignment)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+campaignId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+ownerId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+ownerType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+segmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+usedAt<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assignmentsRemove
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_ids<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -145,7 +1373,9 @@ _id<br />
 
 ## automationsAdd
 
-**Type:** [Automation](/api/objects#automation)
+**Type:** [Automation](/docs/api/objects#automation)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -155,7 +1385,7 @@ _id<br />
 <tr>
 <td>
 actions<br />
-<a href="/api/inputObjects#actioninput"><code>[ActionInput]</code></a>
+<a href="/docs/api/inputObjects#actioninput"><code>[ActionInput]</code></a>
 </td>
 <td>
 
@@ -164,7 +1394,7 @@ actions<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -173,7 +1403,7 @@ name<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -182,7 +1412,7 @@ status<br />
 <tr>
 <td>
 triggers<br />
-<a href="/api/inputObjects#triggerinput"><code>[TriggerInput]</code></a>
+<a href="/docs/api/inputObjects#triggerinput"><code>[TriggerInput]</code></a>
 </td>
 <td>
 
@@ -193,7 +1423,9 @@ triggers<br />
 
 ## automationsAddNote
 
-**Type:** [AutomationNote](/api/objects#automationnote)
+**Type:** [AutomationNote](/docs/api/objects#automationnote)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -203,7 +1435,7 @@ triggers<br />
 <tr>
 <td>
 actionId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -212,7 +1444,7 @@ actionId<br />
 <tr>
 <td>
 automationId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -221,7 +1453,7 @@ automationId<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -230,7 +1462,7 @@ description<br />
 <tr>
 <td>
 triggerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -241,7 +1473,9 @@ triggerId<br />
 
 ## automationsCreateFromTemplate
 
-**Type:** [Automation](/api/objects#automation)
+**Type:** [Automation](/docs/api/objects#automation)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -251,7 +1485,7 @@ triggerId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -262,7 +1496,9 @@ _id<br />
 
 ## automationsEdit
 
-**Type:** [Automation](/api/objects#automation)
+**Type:** [Automation](/docs/api/objects#automation)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -272,7 +1508,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -281,7 +1517,7 @@ _id<br />
 <tr>
 <td>
 actions<br />
-<a href="/api/inputObjects#actioninput"><code>[ActionInput]</code></a>
+<a href="/docs/api/inputObjects#actioninput"><code>[ActionInput]</code></a>
 </td>
 <td>
 
@@ -290,7 +1526,7 @@ actions<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -299,7 +1535,7 @@ name<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -308,7 +1544,7 @@ status<br />
 <tr>
 <td>
 triggers<br />
-<a href="/api/inputObjects#triggerinput"><code>[TriggerInput]</code></a>
+<a href="/docs/api/inputObjects#triggerinput"><code>[TriggerInput]</code></a>
 </td>
 <td>
 
@@ -319,7 +1555,9 @@ triggers<br />
 
 ## automationsEditNote
 
-**Type:** [AutomationNote](/api/objects#automationnote)
+**Type:** [AutomationNote](/docs/api/objects#automationnote)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -329,7 +1567,7 @@ triggers<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -338,7 +1576,7 @@ _id<br />
 <tr>
 <td>
 actionId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -347,7 +1585,7 @@ actionId<br />
 <tr>
 <td>
 automationId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -356,7 +1594,7 @@ automationId<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -365,7 +1603,7 @@ description<br />
 <tr>
 <td>
 triggerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -376,7 +1614,9 @@ triggerId<br />
 
 ## automationsRemove
 
-**Type:** [[String]](/api/scalars#string)
+**Type:** [[String]](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -386,7 +1626,7 @@ triggerId<br />
 <tr>
 <td>
 automationIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -397,7 +1637,9 @@ automationIds<br />
 
 ## automationsRemoveNote
 
-**Type:** [AutomationNote](/api/objects#automationnote)
+**Type:** [AutomationNote](/docs/api/objects#automationnote)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -407,7 +1649,7 @@ automationIds<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -418,7 +1660,9 @@ _id<br />
 
 ## automationsSaveAsTemplate
 
-**Type:** [Automation](/api/objects#automation)
+**Type:** [Automation](/docs/api/objects#automation)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -428,7 +1672,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -437,7 +1681,7 @@ _id<br />
 <tr>
 <td>
 duplicate<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -446,7 +1690,7 @@ duplicate<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -457,7 +1701,9 @@ name<br />
 
 ## boardItemsSaveForGanttTimeline
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -467,7 +1713,7 @@ name<br />
 <tr>
 <td>
 items<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -476,7 +1722,7 @@ items<br />
 <tr>
 <td>
 links<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -485,7 +1731,7 @@ links<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -496,7 +1742,9 @@ type<br />
 
 ## boardItemUpdateTimeTracking
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -506,7 +1754,7 @@ type<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -515,7 +1763,7 @@ _id<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -524,7 +1772,7 @@ startDate<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -533,7 +1781,7 @@ status<br />
 <tr>
 <td>
 timeSpent<br />
-<a href="/api/scalars#int"><code>Int!</code></a>
+<a href="/docs/api/scalars#int"><code>Int!</code></a>
 </td>
 <td>
 
@@ -542,7 +1790,7 @@ timeSpent<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -553,7 +1801,9 @@ type<br />
 
 ## boardsAdd
 
-**Type:** [Board](/api/objects#board)
+**Type:** [Board](/docs/api/objects#board)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -563,7 +1813,7 @@ type<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -572,7 +1822,7 @@ name<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -583,7 +1833,9 @@ type<br />
 
 ## boardsEdit
 
-**Type:** [Board](/api/objects#board)
+**Type:** [Board](/docs/api/objects#board)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -593,7 +1845,7 @@ type<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -602,7 +1854,7 @@ _id<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -611,7 +1863,7 @@ name<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -622,7 +1874,9 @@ type<br />
 
 ## boardsRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -632,7 +1886,7 @@ type<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -643,7 +1897,9 @@ _id<br />
 
 ## branchesAdd
 
-**Type:** [Branch](/api/objects#branch)
+**Type:** [Branch](/docs/api/objects#branch)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -653,7 +1909,7 @@ _id<br />
 <tr>
 <td>
 address<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -662,7 +1918,7 @@ address<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -671,7 +1927,7 @@ code<br />
 <tr>
 <td>
 coordinate<br />
-<a href="/api/inputObjects#coordinateinput"><code>CoordinateInput</code></a>
+<a href="/docs/api/inputObjects#coordinateinput"><code>CoordinateInput</code></a>
 </td>
 <td>
 
@@ -680,7 +1936,7 @@ coordinate<br />
 <tr>
 <td>
 email<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -689,7 +1945,7 @@ email<br />
 <tr>
 <td>
 image<br />
-<a href="/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
 </td>
 <td>
 
@@ -698,7 +1954,7 @@ image<br />
 <tr>
 <td>
 links<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -707,7 +1963,7 @@ links<br />
 <tr>
 <td>
 parentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -716,7 +1972,16 @@ parentId<br />
 <tr>
 <td>
 phoneNumber<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+radius<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -725,7 +1990,7 @@ phoneNumber<br />
 <tr>
 <td>
 supervisorId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -734,7 +1999,7 @@ supervisorId<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -743,7 +2008,7 @@ title<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -754,7 +2019,9 @@ userIds<br />
 
 ## branchesEdit
 
-**Type:** [Branch](/api/objects#branch)
+**Type:** [Branch](/docs/api/objects#branch)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -764,7 +2031,7 @@ userIds<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -773,7 +2040,7 @@ _id<br />
 <tr>
 <td>
 address<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -782,7 +2049,7 @@ address<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -791,7 +2058,7 @@ code<br />
 <tr>
 <td>
 coordinate<br />
-<a href="/api/inputObjects#coordinateinput"><code>CoordinateInput</code></a>
+<a href="/docs/api/inputObjects#coordinateinput"><code>CoordinateInput</code></a>
 </td>
 <td>
 
@@ -800,7 +2067,7 @@ coordinate<br />
 <tr>
 <td>
 email<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -809,7 +2076,7 @@ email<br />
 <tr>
 <td>
 image<br />
-<a href="/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
 </td>
 <td>
 
@@ -818,7 +2085,7 @@ image<br />
 <tr>
 <td>
 links<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -827,7 +2094,7 @@ links<br />
 <tr>
 <td>
 parentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -836,7 +2103,16 @@ parentId<br />
 <tr>
 <td>
 phoneNumber<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+radius<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -845,7 +2121,7 @@ phoneNumber<br />
 <tr>
 <td>
 supervisorId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -854,7 +2130,7 @@ supervisorId<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -863,7 +2139,7 @@ title<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -874,7 +2150,9 @@ userIds<br />
 
 ## branchesRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -883,8 +2161,8 @@ userIds<br />
 <tbody>
 <tr>
 <td>
-_id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+ids<br />
+<a href="/docs/api/scalars#string"><code>[String!]</code></a>
 </td>
 <td>
 
@@ -895,7 +2173,9 @@ _id<br />
 
 ## brandsAdd
 
-**Type:** [Brand](/api/objects#brand)
+**Type:** [Brand](/docs/api/objects#brand)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -905,7 +2185,7 @@ _id<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -914,7 +2194,7 @@ description<br />
 <tr>
 <td>
 emailConfig<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -923,7 +2203,7 @@ emailConfig<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -934,7 +2214,9 @@ name<br />
 
 ## brandsEdit
 
-**Type:** [Brand](/api/objects#brand)
+**Type:** [Brand](/docs/api/objects#brand)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -944,7 +2226,7 @@ name<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -953,7 +2235,7 @@ _id<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -962,7 +2244,7 @@ description<br />
 <tr>
 <td>
 emailConfig<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -971,7 +2253,7 @@ emailConfig<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -982,7 +2264,9 @@ name<br />
 
 ## brandsRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -992,7 +2276,7 @@ name<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1003,7 +2287,9 @@ _id<br />
 
 ## buyLottery
 
-**Type:** [Lottery](/api/objects#lottery)
+**Type:** [Lottery](/docs/api/objects#lottery)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1013,7 +2299,7 @@ _id<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1022,7 +2308,7 @@ campaignId<br />
 <tr>
 <td>
 count<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -1031,7 +2317,7 @@ count<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1040,7 +2326,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1051,7 +2337,9 @@ ownerType<br />
 
 ## buySpin
 
-**Type:** [Spin](/api/objects#spin)
+**Type:** [Spin](/docs/api/objects#spin)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1061,7 +2349,7 @@ ownerType<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1070,7 +2358,7 @@ campaignId<br />
 <tr>
 <td>
 count<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -1079,7 +2367,7 @@ count<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1088,7 +2376,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1099,7 +2387,9 @@ ownerType<br />
 
 ## buyVoucher
 
-**Type:** [Voucher](/api/objects#voucher)
+**Type:** [Voucher](/docs/api/objects#voucher)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1109,7 +2399,7 @@ ownerType<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1118,7 +2408,7 @@ campaignId<br />
 <tr>
 <td>
 count<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -1127,7 +2417,7 @@ count<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1136,7 +2426,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1147,7 +2437,9 @@ ownerType<br />
 
 ## changeConversationOperator
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1157,7 +2449,7 @@ ownerType<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1166,7 +2458,7 @@ _id<br />
 <tr>
 <td>
 operatorStatus<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1177,7 +2469,9 @@ operatorStatus<br />
 
 ## changeScore
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1187,7 +2481,7 @@ operatorStatus<br />
 <tr>
 <td>
 changeScore<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -1196,7 +2490,7 @@ changeScore<br />
 <tr>
 <td>
 createdBy<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1205,7 +2499,7 @@ createdBy<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1214,7 +2508,7 @@ description<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1223,7 +2517,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1234,7 +2528,9 @@ ownerType<br />
 
 ## channelsAdd
 
-**Type:** [Channel](/api/objects#channel)
+**Type:** [Channel](/docs/api/objects#channel)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1244,7 +2540,7 @@ ownerType<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1253,7 +2549,7 @@ description<br />
 <tr>
 <td>
 integrationIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -1262,7 +2558,7 @@ integrationIds<br />
 <tr>
 <td>
 memberIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -1271,7 +2567,7 @@ memberIds<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1282,7 +2578,9 @@ name<br />
 
 ## channelsEdit
 
-**Type:** [Channel](/api/objects#channel)
+**Type:** [Channel](/docs/api/objects#channel)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1292,7 +2590,7 @@ name<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1301,7 +2599,7 @@ _id<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1310,7 +2608,7 @@ description<br />
 <tr>
 <td>
 integrationIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -1319,7 +2617,7 @@ integrationIds<br />
 <tr>
 <td>
 memberIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -1328,7 +2626,7 @@ memberIds<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1339,7 +2637,9 @@ name<br />
 
 ## channelsRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1349,7 +2649,7 @@ name<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1360,7 +2660,9 @@ _id<br />
 
 ## chatAdd
 
-**Type:** [Chat](/api/objects#chat)
+**Type:** [Chat](/docs/api/objects#chat)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1370,7 +2672,7 @@ _id<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1379,7 +2681,7 @@ description<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1388,7 +2690,7 @@ name<br />
 <tr>
 <td>
 participantIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -1397,7 +2699,7 @@ participantIds<br />
 <tr>
 <td>
 type<br />
-<a href="/api/enums#chattype"><code>ChatType!</code></a>
+<a href="/docs/api/enums#chattype"><code>ChatType!</code></a>
 </td>
 <td>
 
@@ -1406,7 +2708,7 @@ type<br />
 <tr>
 <td>
 visibility<br />
-<a href="/api/enums#chatvisibilitytype"><code>ChatVisibilityType</code></a>
+<a href="/docs/api/enums#chatvisibilitytype"><code>ChatVisibilityType</code></a>
 </td>
 <td>
 
@@ -1417,7 +2719,9 @@ visibility<br />
 
 ## chatAddOrRemoveMember
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1427,7 +2731,7 @@ visibility<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1436,7 +2740,7 @@ _id<br />
 <tr>
 <td>
 type<br />
-<a href="/api/enums#chatmembermodifytype"><code>ChatMemberModifyType</code></a>
+<a href="/docs/api/enums#chatmembermodifytype"><code>ChatMemberModifyType</code></a>
 </td>
 <td>
 
@@ -1445,7 +2749,7 @@ type<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -1456,7 +2760,9 @@ userIds<br />
 
 ## chatEdit
 
-**Type:** [Chat](/api/objects#chat)
+**Type:** [Chat](/docs/api/objects#chat)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1466,7 +2772,7 @@ userIds<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1475,7 +2781,7 @@ _id<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1484,7 +2790,7 @@ description<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1493,7 +2799,7 @@ name<br />
 <tr>
 <td>
 visibility<br />
-<a href="/api/enums#chatvisibilitytype"><code>ChatVisibilityType</code></a>
+<a href="/docs/api/enums#chatvisibilitytype"><code>ChatVisibilityType</code></a>
 </td>
 <td>
 
@@ -1504,7 +2810,9 @@ visibility<br />
 
 ## chatMakeOrRemoveAdmin
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1514,7 +2822,7 @@ visibility<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1523,7 +2831,7 @@ _id<br />
 <tr>
 <td>
 userId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1534,7 +2842,9 @@ userId<br />
 
 ## chatMarkAsRead
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1544,7 +2854,7 @@ userId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1555,7 +2865,9 @@ _id<br />
 
 ## chatMessageAdd
 
-**Type:** [ChatMessage](/api/objects#chatmessage)
+**Type:** [ChatMessage](/docs/api/objects#chatmessage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1565,7 +2877,7 @@ _id<br />
 <tr>
 <td>
 attachments<br />
-<a href="/api/scalars#json"><code>[JSON]</code></a>
+<a href="/docs/api/scalars#json"><code>[JSON]</code></a>
 </td>
 <td>
 
@@ -1574,7 +2886,7 @@ attachments<br />
 <tr>
 <td>
 chatId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1583,7 +2895,7 @@ chatId<br />
 <tr>
 <td>
 content<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1592,7 +2904,7 @@ content<br />
 <tr>
 <td>
 mentionedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -1601,7 +2913,7 @@ mentionedUserIds<br />
 <tr>
 <td>
 relatedId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1612,7 +2924,9 @@ relatedId<br />
 
 ## chatMessageRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1622,7 +2936,7 @@ relatedId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1633,7 +2947,9 @@ _id<br />
 
 ## chatMessageToggleIsPinned
 
-**Type:** [Boolean](/api/scalars#boolean)
+**Type:** [Boolean](/docs/api/scalars#boolean)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1643,7 +2959,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1654,7 +2970,9 @@ _id<br />
 
 ## chatRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1664,7 +2982,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1675,7 +2993,9 @@ _id<br />
 
 ## chatTypingInfo
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1685,7 +3005,7 @@ _id<br />
 <tr>
 <td>
 chatId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1694,7 +3014,7 @@ chatId<br />
 <tr>
 <td>
 userId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1705,7 +3025,9 @@ userId<br />
 
 ## checklistItemsAdd
 
-**Type:** [ChecklistItem](/api/objects#checklistitem)
+**Type:** [ChecklistItem](/docs/api/objects#checklistitem)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1715,7 +3037,7 @@ userId<br />
 <tr>
 <td>
 checklistId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1724,7 +3046,7 @@ checklistId<br />
 <tr>
 <td>
 content<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1733,7 +3055,7 @@ content<br />
 <tr>
 <td>
 isChecked<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -1744,7 +3066,9 @@ isChecked<br />
 
 ## checklistItemsEdit
 
-**Type:** [ChecklistItem](/api/objects#checklistitem)
+**Type:** [ChecklistItem](/docs/api/objects#checklistitem)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1754,7 +3078,7 @@ isChecked<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1763,7 +3087,7 @@ _id<br />
 <tr>
 <td>
 checklistId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1772,7 +3096,7 @@ checklistId<br />
 <tr>
 <td>
 content<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1781,7 +3105,7 @@ content<br />
 <tr>
 <td>
 isChecked<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -1792,7 +3116,9 @@ isChecked<br />
 
 ## checklistItemsOrder
 
-**Type:** [ChecklistItem](/api/objects#checklistitem)
+**Type:** [ChecklistItem](/docs/api/objects#checklistitem)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1802,7 +3128,7 @@ isChecked<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1811,7 +3137,7 @@ _id<br />
 <tr>
 <td>
 destinationIndex<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -1822,7 +3148,9 @@ destinationIndex<br />
 
 ## checklistItemsRemove
 
-**Type:** [ChecklistItem](/api/objects#checklistitem)
+**Type:** [ChecklistItem](/docs/api/objects#checklistitem)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1832,7 +3160,7 @@ destinationIndex<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1843,7 +3171,9 @@ _id<br />
 
 ## checklistsAdd
 
-**Type:** [Checklist](/api/objects#checklist)
+**Type:** [Checklist](/docs/api/objects#checklist)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1853,7 +3183,7 @@ _id<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1862,7 +3192,7 @@ contentType<br />
 <tr>
 <td>
 contentTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1871,7 +3201,7 @@ contentTypeId<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1882,7 +3212,9 @@ title<br />
 
 ## checklistsEdit
 
-**Type:** [Checklist](/api/objects#checklist)
+**Type:** [Checklist](/docs/api/objects#checklist)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1892,7 +3224,7 @@ title<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1901,7 +3233,7 @@ _id<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1910,7 +3242,7 @@ contentType<br />
 <tr>
 <td>
 contentTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1919,7 +3251,7 @@ contentTypeId<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1930,7 +3262,9 @@ title<br />
 
 ## checklistsRemove
 
-**Type:** [Checklist](/api/objects#checklist)
+**Type:** [Checklist](/docs/api/objects#checklist)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1940,7 +3274,144 @@ title<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## checkReport
+
+**Type:** [CheckReport](/docs/api/objects#checkreport)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+endDate<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+startDate<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+userId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## checkSchedule
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+scheduleId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## clientPortalCommentsAdd
+
+**Type:** [ClientPortalComment](/docs/api/objects#clientportalcomment)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+content<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+type<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+typeId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+userType<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## clientPortalCommentsRemove
+
+**Type:** [String](/docs/api/scalars#string)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1951,7 +3422,9 @@ _id<br />
 
 ## clientPortalConfigUpdate
 
-**Type:** [ClientPortal](/api/objects#clientportal)
+**Type:** [ClientPortal](/docs/api/objects#clientportal)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1961,7 +3434,52 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+dealBoardId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+dealLabel<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+dealPipelineId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+dealStageId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+dealToggle<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -1970,7 +3488,7 @@ _id<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1979,7 +3497,7 @@ description<br />
 <tr>
 <td>
 domain<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1988,7 +3506,7 @@ domain<br />
 <tr>
 <td>
 footerHtml<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1997,7 +3515,7 @@ footerHtml<br />
 <tr>
 <td>
 googleCredentials<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -2006,7 +3524,7 @@ googleCredentials<br />
 <tr>
 <td>
 headerHtml<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2015,7 +3533,7 @@ headerHtml<br />
 <tr>
 <td>
 icon<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2024,7 +3542,7 @@ icon<br />
 <tr>
 <td>
 kbToggle<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -2033,7 +3551,7 @@ kbToggle<br />
 <tr>
 <td>
 knowledgeBaseLabel<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2042,7 +3560,7 @@ knowledgeBaseLabel<br />
 <tr>
 <td>
 knowledgeBaseTopicId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2051,7 +3569,25 @@ knowledgeBaseTopicId<br />
 <tr>
 <td>
 logo<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+mailConfig<br />
+<a href="/docs/api/inputObjects#mailconfiginput"><code>MailConfigInput</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+manualVerificationConfig<br />
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -2060,7 +3596,7 @@ logo<br />
 <tr>
 <td>
 messengerBrandCode<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2069,7 +3605,7 @@ messengerBrandCode<br />
 <tr>
 <td>
 mobileResponsive<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -2078,7 +3614,7 @@ mobileResponsive<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2087,7 +3623,7 @@ name<br />
 <tr>
 <td>
 otpConfig<br />
-<a href="/api/inputObjects#otpconfiginput"><code>OTPConfigInput</code></a>
+<a href="/docs/api/inputObjects#otpconfiginput"><code>OTPConfigInput</code></a>
 </td>
 <td>
 
@@ -2096,7 +3632,7 @@ otpConfig<br />
 <tr>
 <td>
 publicTaskToggle<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -2105,7 +3641,7 @@ publicTaskToggle<br />
 <tr>
 <td>
 styles<br />
-<a href="/api/inputObjects#stylesparams"><code>StylesParams</code></a>
+<a href="/docs/api/inputObjects#stylesparams"><code>StylesParams</code></a>
 </td>
 <td>
 
@@ -2114,7 +3650,7 @@ styles<br />
 <tr>
 <td>
 taskBoardId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2123,7 +3659,7 @@ taskBoardId<br />
 <tr>
 <td>
 taskLabel<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2132,7 +3668,7 @@ taskLabel<br />
 <tr>
 <td>
 taskPipelineId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2141,7 +3677,7 @@ taskPipelineId<br />
 <tr>
 <td>
 taskPublicBoardId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2150,7 +3686,7 @@ taskPublicBoardId<br />
 <tr>
 <td>
 taskPublicPipelineId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2159,7 +3695,7 @@ taskPublicPipelineId<br />
 <tr>
 <td>
 taskStageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2168,7 +3704,7 @@ taskStageId<br />
 <tr>
 <td>
 taskToggle<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -2177,7 +3713,7 @@ taskToggle<br />
 <tr>
 <td>
 ticketBoardId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2186,7 +3722,7 @@ ticketBoardId<br />
 <tr>
 <td>
 ticketLabel<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2195,7 +3731,7 @@ ticketLabel<br />
 <tr>
 <td>
 ticketPipelineId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2204,7 +3740,7 @@ ticketPipelineId<br />
 <tr>
 <td>
 ticketStageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2213,7 +3749,7 @@ ticketStageId<br />
 <tr>
 <td>
 ticketToggle<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -2222,7 +3758,7 @@ ticketToggle<br />
 <tr>
 <td>
 url<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2233,7 +3769,9 @@ url<br />
 
 ## clientPortalConfirmInvitation
 
-**Type:** [ClientPortalUser](/api/objects#clientportaluser)
+**Type:** [ClientPortalUser](/docs/api/objects#clientportaluser)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2243,7 +3781,7 @@ url<br />
 <tr>
 <td>
 password<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2252,7 +3790,7 @@ password<br />
 <tr>
 <td>
 passwordConfirmation<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2261,7 +3799,7 @@ passwordConfirmation<br />
 <tr>
 <td>
 token<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2270,7 +3808,7 @@ token<br />
 <tr>
 <td>
 username<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2281,7 +3819,9 @@ username<br />
 
 ## clientPortalCreateCard
 
-**Type:** [Ticket](/api/objects#ticket)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2290,8 +3830,8 @@ username<br />
 <tbody>
 <tr>
 <td>
-description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+closeDate<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -2299,8 +3839,17 @@ description<br />
 </tr>
 <tr>
 <td>
-email<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+description<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2309,7 +3858,7 @@ email<br />
 <tr>
 <td>
 priority<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2318,7 +3867,16 @@ priority<br />
 <tr>
 <td>
 stageId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+startDate<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -2327,7 +3885,7 @@ stageId<br />
 <tr>
 <td>
 subject<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -2336,7 +3894,7 @@ subject<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -2347,7 +3905,9 @@ type<br />
 
 ## clientPortalForgotPassword
 
-**Type:** [String!](/api/scalars#string)
+**Type:** [String!](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2357,7 +3917,7 @@ type<br />
 <tr>
 <td>
 clientPortalId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -2366,7 +3926,7 @@ clientPortalId<br />
 <tr>
 <td>
 email<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2375,7 +3935,7 @@ email<br />
 <tr>
 <td>
 phone<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2386,7 +3946,9 @@ phone<br />
 
 ## clientPortalLogin
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2396,7 +3958,7 @@ phone<br />
 <tr>
 <td>
 clientPortalId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -2405,7 +3967,7 @@ clientPortalId<br />
 <tr>
 <td>
 deviceToken<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2414,7 +3976,7 @@ deviceToken<br />
 <tr>
 <td>
 login<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -2423,7 +3985,48 @@ login<br />
 <tr>
 <td>
 password<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## clientPortalLoginWithPhone
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+clientPortalId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+deviceToken<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+phone<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -2434,11 +4037,15 @@ password<br />
 
 ## clientPortalLogout
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
 
-## clientPortalRegister
 
-**Type:** [String](/api/scalars#string)
+
+## clientPortalNotificationsMarkAsRead
+
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2447,8 +4054,63 @@ password<br />
 <tbody>
 <tr>
 <td>
+_ids<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## clientPortalNotificationsRemove
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_ids<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## clientPortalRegister
+
+**Type:** [String](/docs/api/scalars#string)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+avatar<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
 clientPortalId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2457,7 +4119,7 @@ clientPortalId<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2466,7 +4128,7 @@ code<br />
 <tr>
 <td>
 companyName<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2475,7 +4137,7 @@ companyName<br />
 <tr>
 <td>
 companyRegistrationNumber<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2484,7 +4146,7 @@ companyRegistrationNumber<br />
 <tr>
 <td>
 customFieldsData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -2493,7 +4155,7 @@ customFieldsData<br />
 <tr>
 <td>
 email<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2502,7 +4164,7 @@ email<br />
 <tr>
 <td>
 firstName<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2511,7 +4173,7 @@ firstName<br />
 <tr>
 <td>
 lastName<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2520,7 +4182,7 @@ lastName<br />
 <tr>
 <td>
 links<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -2529,7 +4191,7 @@ links<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2538,7 +4200,7 @@ ownerId<br />
 <tr>
 <td>
 password<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2547,7 +4209,7 @@ password<br />
 <tr>
 <td>
 phone<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2556,7 +4218,7 @@ phone<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2565,7 +4227,7 @@ type<br />
 <tr>
 <td>
 username<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2576,7 +4238,9 @@ username<br />
 
 ## clientPortalRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2586,7 +4250,7 @@ username<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -2597,7 +4261,9 @@ _id<br />
 
 ## clientPortalResetPassword
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2607,7 +4273,7 @@ _id<br />
 <tr>
 <td>
 newPassword<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -2616,7 +4282,7 @@ newPassword<br />
 <tr>
 <td>
 token<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -2627,7 +4293,9 @@ token<br />
 
 ## clientPortalResetPasswordWithCode
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2637,7 +4305,7 @@ token<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -2646,7 +4314,7 @@ code<br />
 <tr>
 <td>
 password<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -2655,7 +4323,89 @@ password<br />
 <tr>
 <td>
 phone<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## clientPortalSendNotification
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+content<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+isMobile<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+receivers<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+title<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## clientPortalUpdateUser
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+doc<br />
+<a href="/docs/api/inputObjects#clientportaluserupdate"><code>ClientPortalUserUpdate!</code></a>
 </td>
 <td>
 
@@ -2666,7 +4416,9 @@ phone<br />
 
 ## clientPortalUserChangePassword
 
-**Type:** [ClientPortalUser](/api/objects#clientportaluser)
+**Type:** [ClientPortalUser](/docs/api/objects#clientportaluser)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2676,7 +4428,7 @@ phone<br />
 <tr>
 <td>
 currentPassword<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -2685,7 +4437,39 @@ currentPassword<br />
 <tr>
 <td>
 newPassword<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## clientPortalUsersChangeVerificationStatus
+
+**Type:** [String](/docs/api/scalars#string)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+status<br />
+<a href="/docs/api/enums#clientportaluserverificationstatus"><code>ClientPortalUserVerificationStatus!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+userId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -2696,7 +4480,9 @@ newPassword<br />
 
 ## clientPortalUsersEdit
 
-**Type:** [ClientPortalUser](/api/objects#clientportaluser)
+**Type:** [ClientPortalUser](/docs/api/objects#clientportaluser)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2706,7 +4492,16 @@ newPassword<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+avatar<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2715,7 +4510,7 @@ _id<br />
 <tr>
 <td>
 clientPortalId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2724,7 +4519,7 @@ clientPortalId<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2733,7 +4528,7 @@ code<br />
 <tr>
 <td>
 companyName<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2742,7 +4537,7 @@ companyName<br />
 <tr>
 <td>
 companyRegistrationNumber<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2751,7 +4546,7 @@ companyRegistrationNumber<br />
 <tr>
 <td>
 customFieldsData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -2760,7 +4555,7 @@ customFieldsData<br />
 <tr>
 <td>
 email<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2769,7 +4564,7 @@ email<br />
 <tr>
 <td>
 firstName<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2778,7 +4573,7 @@ firstName<br />
 <tr>
 <td>
 lastName<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2787,7 +4582,7 @@ lastName<br />
 <tr>
 <td>
 links<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -2796,7 +4591,7 @@ links<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2805,7 +4600,7 @@ ownerId<br />
 <tr>
 <td>
 password<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2814,7 +4609,7 @@ password<br />
 <tr>
 <td>
 phone<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2823,7 +4618,7 @@ phone<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2832,7 +4627,7 @@ type<br />
 <tr>
 <td>
 username<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2843,7 +4638,9 @@ username<br />
 
 ## clientPortalUsersInvite
 
-**Type:** [ClientPortalUser](/api/objects#clientportaluser)
+**Type:** [ClientPortalUser](/docs/api/objects#clientportaluser)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2852,8 +4649,17 @@ username<br />
 <tbody>
 <tr>
 <td>
+avatar<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
 clientPortalId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2862,7 +4668,7 @@ clientPortalId<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2871,7 +4677,7 @@ code<br />
 <tr>
 <td>
 companyName<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2880,7 +4686,7 @@ companyName<br />
 <tr>
 <td>
 companyRegistrationNumber<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2889,7 +4695,7 @@ companyRegistrationNumber<br />
 <tr>
 <td>
 customFieldsData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -2898,7 +4704,7 @@ customFieldsData<br />
 <tr>
 <td>
 email<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2907,7 +4713,7 @@ email<br />
 <tr>
 <td>
 firstName<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2916,7 +4722,7 @@ firstName<br />
 <tr>
 <td>
 lastName<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2925,7 +4731,7 @@ lastName<br />
 <tr>
 <td>
 links<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -2934,7 +4740,7 @@ links<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2943,7 +4749,7 @@ ownerId<br />
 <tr>
 <td>
 password<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2952,7 +4758,7 @@ password<br />
 <tr>
 <td>
 phone<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2961,7 +4767,7 @@ phone<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2970,7 +4776,7 @@ type<br />
 <tr>
 <td>
 username<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2981,7 +4787,9 @@ username<br />
 
 ## clientPortalUsersRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2991,7 +4799,98 @@ username<br />
 <tr>
 <td>
 clientPortalUserIds<br />
-<a href="/api/scalars#string"><code>[String!]</code></a>
+<a href="/docs/api/scalars#string"><code>[String!]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## clientPortalUsersReplacePhone
+
+**Type:** [String!](/docs/api/scalars#string)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+clientPortalId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+phone<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## clientPortalUsersSendVerificationRequest
+
+**Type:** [String](/docs/api/scalars#string)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+attachments<br />
+<a href="/docs/api/inputObjects#attachmentinput"><code>[AttachmentInput]!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+clientPortalId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+description<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+login<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+password<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -3002,7 +4901,9 @@ clientPortalUserIds<br />
 
 ## clientPortalUsersVerify
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3012,7 +4913,7 @@ clientPortalUserIds<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3021,7 +4922,71 @@ type<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]!</code></a>
+<a href="/docs/api/scalars#string"><code>[String]!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## clientPortalUsersVerifyPhone
+
+**Type:** [String!](/docs/api/scalars#string)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+code<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## clientPortalUserUpdateNotificationSettings
+
+**Type:** [ClientPortalUser](/docs/api/objects#clientportaluser)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+configs<br />
+<a href="/docs/api/inputObjects#notificationconfiginput"><code>[NotificationConfigInput]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+receiveByEmail<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+receiveBySms<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -3032,7 +4997,9 @@ userIds<br />
 
 ## clientPortalVerifyOTP
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3042,7 +5009,7 @@ userIds<br />
 <tr>
 <td>
 emailOtp<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3051,7 +5018,7 @@ emailOtp<br />
 <tr>
 <td>
 password<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3060,7 +5027,7 @@ password<br />
 <tr>
 <td>
 phoneOtp<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3069,7 +5036,7 @@ phoneOtp<br />
 <tr>
 <td>
 userId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -3080,7 +5047,9 @@ userId<br />
 
 ## commentAdd
 
-**Type:** [Comment](/api/objects#comment)
+**Type:** [Comment](/docs/api/objects#comment)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3090,7 +5059,7 @@ userId<br />
 <tr>
 <td>
 comment<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -3099,7 +5068,7 @@ comment<br />
 <tr>
 <td>
 contentId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -3108,7 +5077,7 @@ contentId<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/enums#reactioncontenttype"><code>ReactionContentType!</code></a>
+<a href="/docs/api/enums#reactioncontenttype"><code>ReactionContentType!</code></a>
 </td>
 <td>
 
@@ -3117,7 +5086,7 @@ contentType<br />
 <tr>
 <td>
 parentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3128,7 +5097,9 @@ parentId<br />
 
 ## commentEdit
 
-**Type:** [Comment](/api/objects#comment)
+**Type:** [Comment](/docs/api/objects#comment)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3138,7 +5109,7 @@ parentId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3147,7 +5118,7 @@ _id<br />
 <tr>
 <td>
 comment<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -3156,7 +5127,7 @@ comment<br />
 <tr>
 <td>
 contentId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -3165,7 +5136,7 @@ contentId<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/enums#reactioncontenttype"><code>ReactionContentType!</code></a>
+<a href="/docs/api/enums#reactioncontenttype"><code>ReactionContentType!</code></a>
 </td>
 <td>
 
@@ -3174,7 +5145,7 @@ contentType<br />
 <tr>
 <td>
 parentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3185,7 +5156,9 @@ parentId<br />
 
 ## commentRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3195,7 +5168,7 @@ parentId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -3206,7 +5179,9 @@ _id<br />
 
 ## companiesAdd
 
-**Type:** [Company](/api/objects#company)
+**Type:** [Company](/docs/api/objects#company)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3216,7 +5191,7 @@ _id<br />
 <tr>
 <td>
 avatar<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3225,7 +5200,7 @@ avatar<br />
 <tr>
 <td>
 businessType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3234,7 +5209,7 @@ businessType<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3243,7 +5218,7 @@ code<br />
 <tr>
 <td>
 customFieldsData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -3252,7 +5227,7 @@ customFieldsData<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3261,7 +5236,7 @@ description<br />
 <tr>
 <td>
 email<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3270,7 +5245,7 @@ email<br />
 <tr>
 <td>
 emails<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -3279,7 +5254,7 @@ emails<br />
 <tr>
 <td>
 industry<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3288,7 +5263,7 @@ industry<br />
 <tr>
 <td>
 isSubscribed<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3297,7 +5272,7 @@ isSubscribed<br />
 <tr>
 <td>
 links<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -3306,7 +5281,7 @@ links<br />
 <tr>
 <td>
 location<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3315,7 +5290,7 @@ location<br />
 <tr>
 <td>
 names<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -3324,7 +5299,7 @@ names<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3333,7 +5308,7 @@ ownerId<br />
 <tr>
 <td>
 parentCompanyId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3342,7 +5317,7 @@ parentCompanyId<br />
 <tr>
 <td>
 phones<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -3351,7 +5326,7 @@ phones<br />
 <tr>
 <td>
 primaryEmail<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3360,7 +5335,7 @@ primaryEmail<br />
 <tr>
 <td>
 primaryName<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3369,7 +5344,7 @@ primaryName<br />
 <tr>
 <td>
 primaryPhone<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3378,7 +5353,7 @@ primaryPhone<br />
 <tr>
 <td>
 size<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -3387,7 +5362,7 @@ size<br />
 <tr>
 <td>
 tagIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -3396,7 +5371,7 @@ tagIds<br />
 <tr>
 <td>
 website<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3407,7 +5382,9 @@ website<br />
 
 ## companiesEdit
 
-**Type:** [Company](/api/objects#company)
+**Type:** [Company](/docs/api/objects#company)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3417,7 +5394,7 @@ website<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -3426,7 +5403,7 @@ _id<br />
 <tr>
 <td>
 avatar<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3435,7 +5412,7 @@ avatar<br />
 <tr>
 <td>
 businessType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3444,7 +5421,7 @@ businessType<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3453,7 +5430,7 @@ code<br />
 <tr>
 <td>
 customFieldsData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -3462,7 +5439,7 @@ customFieldsData<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3471,7 +5448,7 @@ description<br />
 <tr>
 <td>
 email<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3480,7 +5457,7 @@ email<br />
 <tr>
 <td>
 emails<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -3489,7 +5466,7 @@ emails<br />
 <tr>
 <td>
 industry<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3498,7 +5475,7 @@ industry<br />
 <tr>
 <td>
 isSubscribed<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3507,7 +5484,7 @@ isSubscribed<br />
 <tr>
 <td>
 links<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -3516,7 +5493,7 @@ links<br />
 <tr>
 <td>
 location<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3525,7 +5502,7 @@ location<br />
 <tr>
 <td>
 names<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -3534,7 +5511,7 @@ names<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3543,7 +5520,7 @@ ownerId<br />
 <tr>
 <td>
 parentCompanyId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3552,7 +5529,7 @@ parentCompanyId<br />
 <tr>
 <td>
 phones<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -3561,7 +5538,7 @@ phones<br />
 <tr>
 <td>
 primaryEmail<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3570,7 +5547,7 @@ primaryEmail<br />
 <tr>
 <td>
 primaryName<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3579,7 +5556,7 @@ primaryName<br />
 <tr>
 <td>
 primaryPhone<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3588,7 +5565,7 @@ primaryPhone<br />
 <tr>
 <td>
 size<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -3597,7 +5574,7 @@ size<br />
 <tr>
 <td>
 tagIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -3606,7 +5583,7 @@ tagIds<br />
 <tr>
 <td>
 website<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3617,7 +5594,9 @@ website<br />
 
 ## companiesEditByField
 
-**Type:** [Company](/api/objects#company)
+**Type:** [Company](/docs/api/objects#company)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3627,7 +5606,7 @@ website<br />
 <tr>
 <td>
 doc<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -3636,7 +5615,7 @@ doc<br />
 <tr>
 <td>
 selector<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -3647,7 +5626,9 @@ selector<br />
 
 ## companiesMerge
 
-**Type:** [Company](/api/objects#company)
+**Type:** [Company](/docs/api/objects#company)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3657,7 +5638,7 @@ selector<br />
 <tr>
 <td>
 companyFields<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -3666,7 +5647,7 @@ companyFields<br />
 <tr>
 <td>
 companyIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -3677,7 +5658,9 @@ companyIds<br />
 
 ## companiesRemove
 
-**Type:** [[String]](/api/scalars#string)
+**Type:** [[String]](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3687,7 +5670,7 @@ companyIds<br />
 <tr>
 <td>
 companyIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -3698,7 +5681,9 @@ companyIds<br />
 
 ## configsActivateInstallation
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3708,7 +5693,7 @@ companyIds<br />
 <tr>
 <td>
 hostname<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -3717,7 +5702,7 @@ hostname<br />
 <tr>
 <td>
 token<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -3728,7 +5713,9 @@ token<br />
 
 ## configsManagePluginInstall
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3738,7 +5725,7 @@ token<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -3747,7 +5734,7 @@ name<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -3758,7 +5745,9 @@ type<br />
 
 ## configsUpdate
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3768,7 +5757,7 @@ type<br />
 <tr>
 <td>
 configsMap<br />
-<a href="/api/scalars#json"><code>JSON!</code></a>
+<a href="/docs/api/scalars#json"><code>JSON!</code></a>
 </td>
 <td>
 
@@ -3779,7 +5768,9 @@ configsMap<br />
 
 ## confirmLoyalties
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3789,7 +5780,7 @@ configsMap<br />
 <tr>
 <td>
 checkInfo<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -3800,7 +5791,9 @@ checkInfo<br />
 
 ## conformityAdd
 
-**Type:** [Conformity](/api/objects#conformity)
+**Type:** [Conformity](/docs/api/objects#conformity)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3810,7 +5803,7 @@ checkInfo<br />
 <tr>
 <td>
 mainType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3819,7 +5812,7 @@ mainType<br />
 <tr>
 <td>
 mainTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3828,7 +5821,7 @@ mainTypeId<br />
 <tr>
 <td>
 relType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3837,7 +5830,7 @@ relType<br />
 <tr>
 <td>
 relTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3848,7 +5841,9 @@ relTypeId<br />
 
 ## conformityEdit
 
-**Type:** [SuccessResult](/api/objects#successresult)
+**Type:** [SuccessResult](/docs/api/objects#successresult)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3858,7 +5853,7 @@ relTypeId<br />
 <tr>
 <td>
 mainType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3867,7 +5862,7 @@ mainType<br />
 <tr>
 <td>
 mainTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3876,7 +5871,7 @@ mainTypeId<br />
 <tr>
 <td>
 relType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3885,7 +5880,7 @@ relType<br />
 <tr>
 <td>
 relTypeIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -3896,7 +5891,9 @@ relTypeIds<br />
 
 ## conversationConvertToCard
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3906,7 +5903,7 @@ relTypeIds<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -3915,7 +5912,7 @@ _id<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -3924,7 +5921,7 @@ assignedUserIds<br />
 <tr>
 <td>
 attachments<br />
-<a href="/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
 </td>
 <td>
 
@@ -3933,7 +5930,7 @@ attachments<br />
 <tr>
 <td>
 bookingProductId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3942,7 +5939,7 @@ bookingProductId<br />
 <tr>
 <td>
 closeDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -3951,7 +5948,7 @@ closeDate<br />
 <tr>
 <td>
 customFieldsData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -3960,7 +5957,7 @@ customFieldsData<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3969,7 +5966,7 @@ description<br />
 <tr>
 <td>
 itemId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3978,7 +5975,7 @@ itemId<br />
 <tr>
 <td>
 itemName<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3987,7 +5984,7 @@ itemName<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -3996,7 +5993,7 @@ labelIds<br />
 <tr>
 <td>
 priority<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4005,7 +6002,7 @@ priority<br />
 <tr>
 <td>
 stageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4014,7 +6011,7 @@ stageId<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -4023,7 +6020,7 @@ startDate<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -4034,7 +6031,9 @@ type<br />
 
 ## conversationCreateVideoChatRoom
 
-**Type:** [VideoCallData](/api/objects#videocalldata)
+**Type:** [VideoCallData](/docs/api/objects#videocalldata)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -4044,7 +6043,7 @@ type<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -4055,7 +6054,9 @@ _id<br />
 
 ## conversationEditCustomFields
 
-**Type:** [Conversation](/api/objects#conversation)
+**Type:** [Conversation](/docs/api/objects#conversation)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -4065,7 +6066,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -4074,7 +6075,7 @@ _id<br />
 <tr>
 <td>
 customFieldsData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -4085,7 +6086,9 @@ customFieldsData<br />
 
 ## conversationMarkAsRead
 
-**Type:** [Conversation](/api/objects#conversation)
+**Type:** [Conversation](/docs/api/objects#conversation)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -4095,7 +6098,7 @@ customFieldsData<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4106,7 +6109,9 @@ _id<br />
 
 ## conversationMessageAdd
 
-**Type:** [ConversationMessage](/api/objects#conversationmessage)
+**Type:** [ConversationMessage](/docs/api/objects#conversationmessage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -4116,7 +6121,7 @@ _id<br />
 <tr>
 <td>
 attachments<br />
-<a href="/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
 </td>
 <td>
 
@@ -4125,7 +6130,7 @@ attachments<br />
 <tr>
 <td>
 content<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4134,7 +6139,7 @@ content<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4143,7 +6148,7 @@ contentType<br />
 <tr>
 <td>
 conversationId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4151,8 +6156,8 @@ conversationId<br />
 </tr>
 <tr>
 <td>
-facebookMessageTag<br />
-<a href="/api/scalars#string"><code>String</code></a>
+extraInfo<br />
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -4161,7 +6166,7 @@ facebookMessageTag<br />
 <tr>
 <td>
 internal<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -4170,7 +6175,7 @@ internal<br />
 <tr>
 <td>
 mentionedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -4181,7 +6186,9 @@ mentionedUserIds<br />
 
 ## conversationResolveAll
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -4191,7 +6198,7 @@ mentionedUserIds<br />
 <tr>
 <td>
 awaitingResponse<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4200,7 +6207,7 @@ awaitingResponse<br />
 <tr>
 <td>
 brandId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4209,7 +6216,7 @@ brandId<br />
 <tr>
 <td>
 channelId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4218,7 +6225,7 @@ channelId<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4227,7 +6234,7 @@ endDate<br />
 <tr>
 <td>
 integrationType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4236,7 +6243,7 @@ integrationType<br />
 <tr>
 <td>
 participating<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4245,7 +6252,7 @@ participating<br />
 <tr>
 <td>
 segment<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4254,7 +6261,7 @@ segment<br />
 <tr>
 <td>
 starred<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4263,7 +6270,7 @@ starred<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4272,7 +6279,7 @@ startDate<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4281,7 +6288,7 @@ status<br />
 <tr>
 <td>
 tag<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4290,7 +6297,7 @@ tag<br />
 <tr>
 <td>
 unassigned<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4301,7 +6308,9 @@ unassigned<br />
 
 ## conversationsAssign
 
-**Type:** [[Conversation]](/api/objects#conversation)
+**Type:** [[Conversation]](/docs/api/objects#conversation)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -4311,7 +6320,7 @@ unassigned<br />
 <tr>
 <td>
 assignedUserId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4320,7 +6329,7 @@ assignedUserId<br />
 <tr>
 <td>
 conversationIds<br />
-<a href="/api/scalars#string"><code>[String]!</code></a>
+<a href="/docs/api/scalars#string"><code>[String]!</code></a>
 </td>
 <td>
 
@@ -4331,7 +6340,9 @@ conversationIds<br />
 
 ## conversationsChangeStatus
 
-**Type:** [[Conversation]](/api/objects#conversation)
+**Type:** [[Conversation]](/docs/api/objects#conversation)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -4341,7 +6352,7 @@ conversationIds<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]!</code></a>
+<a href="/docs/api/scalars#string"><code>[String]!</code></a>
 </td>
 <td>
 
@@ -4350,67 +6361,7 @@ _ids<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String!</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## conversationsChangeStatusFacebookComment
-
-**Type:** [FacebookComment](/api/objects#facebookcomment)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-commentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## conversationsReplyFacebookComment
-
-**Type:** [FacebookComment](/api/objects#facebookcomment)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-commentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-content<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-conversationId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -4421,7 +6372,9 @@ conversationId<br />
 
 ## conversationsUnassign
 
-**Type:** [[Conversation]](/api/objects#conversation)
+**Type:** [[Conversation]](/docs/api/objects#conversation)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -4431,7 +6384,89 @@ conversationId<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]!</code></a>
+<a href="/docs/api/scalars#string"><code>[String]!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## cpAssignmentsAdd
+
+**Type:** [Assignment](/docs/api/objects#assignment)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+campaignId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+ownerId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+ownerType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+segmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+usedAt<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## cpAssignmentsRemove
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_ids<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -4442,7 +6477,9 @@ _ids<br />
 
 ## cpDonatesAdd
 
-**Type:** [Donate](/api/objects#donate)
+**Type:** [Donate](/docs/api/objects#donate)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -4452,7 +6489,7 @@ _ids<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4461,7 +6498,7 @@ campaignId<br />
 <tr>
 <td>
 donateScore<br />
-<a href="/api/scalars#float"><code>Float</code></a>
+<a href="/docs/api/scalars#float"><code>Float</code></a>
 </td>
 <td>
 
@@ -4470,7 +6507,7 @@ donateScore<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4479,7 +6516,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4488,7 +6525,7 @@ ownerType<br />
 <tr>
 <td>
 usedAt<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -4499,7 +6536,9 @@ usedAt<br />
 
 ## cpDonatesRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -4509,7 +6548,7 @@ usedAt<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -4520,7 +6559,9 @@ _ids<br />
 
 ## createSkill
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -4530,7 +6571,7 @@ _ids<br />
 <tr>
 <td>
 memberIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -4539,7 +6580,7 @@ memberIds<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -4548,7 +6589,7 @@ name<br />
 <tr>
 <td>
 typeId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -4559,7 +6600,9 @@ typeId<br />
 
 ## createSkillType
 
-**Type:** [SkillType](/api/objects#skilltype)
+**Type:** [SkillType](/docs/api/objects#skilltype)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -4569,7 +6612,39 @@ typeId<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## createTimeClockFromLog
+
+**Type:** [Timeclock](/docs/api/objects#timeclock)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+timelog<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+userId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4580,7 +6655,9 @@ name<br />
 
 ## customersAdd
 
-**Type:** [Customer](/api/objects#customer)
+**Type:** [Customer](/docs/api/objects#customer)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -4590,7 +6667,7 @@ name<br />
 <tr>
 <td>
 avatar<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4599,7 +6676,7 @@ avatar<br />
 <tr>
 <td>
 birthDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -4608,7 +6685,7 @@ birthDate<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4617,7 +6694,7 @@ code<br />
 <tr>
 <td>
 customFieldsData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -4626,7 +6703,7 @@ customFieldsData<br />
 <tr>
 <td>
 department<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4635,7 +6712,7 @@ department<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4644,7 +6721,7 @@ description<br />
 <tr>
 <td>
 emailValidationStatus<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4653,7 +6730,7 @@ emailValidationStatus<br />
 <tr>
 <td>
 emails<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -4662,7 +6739,7 @@ emails<br />
 <tr>
 <td>
 firstName<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4671,7 +6748,7 @@ firstName<br />
 <tr>
 <td>
 hasAuthority<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4680,7 +6757,7 @@ hasAuthority<br />
 <tr>
 <td>
 isSubscribed<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4689,7 +6766,7 @@ isSubscribed<br />
 <tr>
 <td>
 lastName<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4698,7 +6775,7 @@ lastName<br />
 <tr>
 <td>
 leadStatus<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4707,7 +6784,7 @@ leadStatus<br />
 <tr>
 <td>
 links<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -4716,7 +6793,7 @@ links<br />
 <tr>
 <td>
 middleName<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4725,7 +6802,7 @@ middleName<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4734,7 +6811,7 @@ ownerId<br />
 <tr>
 <td>
 phoneValidationStatus<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4743,7 +6820,7 @@ phoneValidationStatus<br />
 <tr>
 <td>
 phones<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -4752,7 +6829,7 @@ phones<br />
 <tr>
 <td>
 position<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4761,7 +6838,7 @@ position<br />
 <tr>
 <td>
 primaryEmail<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4770,7 +6847,7 @@ primaryEmail<br />
 <tr>
 <td>
 primaryPhone<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4779,7 +6856,7 @@ primaryPhone<br />
 <tr>
 <td>
 sex<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -4788,7 +6865,7 @@ sex<br />
 <tr>
 <td>
 state<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4799,7 +6876,9 @@ state<br />
 
 ## customersChangeState
 
-**Type:** [Customer](/api/objects#customer)
+**Type:** [Customer](/docs/api/objects#customer)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -4809,7 +6888,7 @@ state<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -4818,7 +6897,39 @@ _id<br />
 <tr>
 <td>
 value<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## customersChangeStateBulk
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_ids<br />
+<a href="/docs/api/scalars#string"><code>[String]!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+value<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -4829,7 +6940,9 @@ value<br />
 
 ## customersChangeVerificationStatus
 
-**Type:** [[Customer]](/api/objects#customer)
+**Type:** [[Customer]](/docs/api/objects#customer)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -4839,7 +6952,7 @@ value<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -4848,7 +6961,7 @@ customerIds<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -4857,7 +6970,7 @@ status<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -4868,7 +6981,9 @@ type<br />
 
 ## customersEdit
 
-**Type:** [Customer](/api/objects#customer)
+**Type:** [Customer](/docs/api/objects#customer)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -4878,7 +6993,7 @@ type<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -4887,7 +7002,7 @@ _id<br />
 <tr>
 <td>
 avatar<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4896,7 +7011,7 @@ avatar<br />
 <tr>
 <td>
 birthDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -4905,7 +7020,7 @@ birthDate<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4914,7 +7029,7 @@ code<br />
 <tr>
 <td>
 customFieldsData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -4923,7 +7038,7 @@ customFieldsData<br />
 <tr>
 <td>
 department<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4932,7 +7047,7 @@ department<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4941,7 +7056,7 @@ description<br />
 <tr>
 <td>
 emailValidationStatus<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4950,7 +7065,7 @@ emailValidationStatus<br />
 <tr>
 <td>
 emails<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -4959,7 +7074,7 @@ emails<br />
 <tr>
 <td>
 firstName<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4968,7 +7083,7 @@ firstName<br />
 <tr>
 <td>
 hasAuthority<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4977,7 +7092,7 @@ hasAuthority<br />
 <tr>
 <td>
 isSubscribed<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4986,7 +7101,7 @@ isSubscribed<br />
 <tr>
 <td>
 lastName<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4995,7 +7110,7 @@ lastName<br />
 <tr>
 <td>
 leadStatus<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5004,7 +7119,7 @@ leadStatus<br />
 <tr>
 <td>
 links<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -5013,7 +7128,7 @@ links<br />
 <tr>
 <td>
 middleName<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5022,7 +7137,7 @@ middleName<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5031,7 +7146,7 @@ ownerId<br />
 <tr>
 <td>
 phoneValidationStatus<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5040,7 +7155,7 @@ phoneValidationStatus<br />
 <tr>
 <td>
 phones<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5049,7 +7164,7 @@ phones<br />
 <tr>
 <td>
 position<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5058,7 +7173,7 @@ position<br />
 <tr>
 <td>
 primaryEmail<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5067,7 +7182,7 @@ primaryEmail<br />
 <tr>
 <td>
 primaryPhone<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5076,7 +7191,7 @@ primaryPhone<br />
 <tr>
 <td>
 sex<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -5087,7 +7202,9 @@ sex<br />
 
 ## customersEditByField
 
-**Type:** [Customer](/api/objects#customer)
+**Type:** [Customer](/docs/api/objects#customer)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -5097,7 +7214,7 @@ sex<br />
 <tr>
 <td>
 doc<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -5106,7 +7223,7 @@ doc<br />
 <tr>
 <td>
 selector<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -5117,7 +7234,9 @@ selector<br />
 
 ## customersMerge
 
-**Type:** [Customer](/api/objects#customer)
+**Type:** [Customer](/docs/api/objects#customer)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -5127,7 +7246,7 @@ selector<br />
 <tr>
 <td>
 customerFields<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -5136,7 +7255,7 @@ customerFields<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5147,7 +7266,9 @@ customerIds<br />
 
 ## customersRemove
 
-**Type:** [[String]](/api/scalars#string)
+**Type:** [[String]](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -5157,7 +7278,7 @@ customerIds<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5168,7 +7289,9 @@ customerIds<br />
 
 ## customersVerify
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -5178,7 +7301,7 @@ customerIds<br />
 <tr>
 <td>
 verificationType<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -5187,132 +7310,11 @@ verificationType<br />
 </tbody>
 </table>
 
-## dashboardAdd
+## dashboardItemsAdd
 
-**Type:** [Dashboard](/api/objects#dashboard)
+**Type:** [DashboardItem](/docs/api/objects#dashboarditem)
 
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-description<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-name<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-parentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-selectedMemberIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-visibility<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## dashboardEdit
-
-**Type:** [Dashboard](/api/objects#dashboard)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-_id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-description<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-parentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-selectedMemberIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-visibility<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## dashboardItemAdd
-
-**Type:** [DashboardItem](/api/objects#dashboarditem)
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -5322,7 +7324,7 @@ visibility<br />
 <tr>
 <td>
 dashboardId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5331,7 +7333,7 @@ dashboardId<br />
 <tr>
 <td>
 isDateRange<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -5340,7 +7342,7 @@ isDateRange<br />
 <tr>
 <td>
 layout<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5349,7 +7351,7 @@ layout<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5358,7 +7360,7 @@ name<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5367,7 +7369,7 @@ type<br />
 <tr>
 <td>
 vizState<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5376,9 +7378,11 @@ vizState<br />
 </tbody>
 </table>
 
-## dashboardItemEdit
+## dashboardItemsEdit
 
-**Type:** [DashboardItem](/api/objects#dashboarditem)
+**Type:** [DashboardItem](/docs/api/objects#dashboarditem)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -5388,7 +7392,7 @@ vizState<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -5397,7 +7401,7 @@ _id<br />
 <tr>
 <td>
 dashboardId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5406,7 +7410,7 @@ dashboardId<br />
 <tr>
 <td>
 layout<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5415,7 +7419,7 @@ layout<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5424,7 +7428,7 @@ name<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5433,7 +7437,7 @@ type<br />
 <tr>
 <td>
 vizState<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5442,9 +7446,11 @@ vizState<br />
 </tbody>
 </table>
 
-## dashboardItemRemove
+## dashboardItemsRemove
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -5454,7 +7460,7 @@ vizState<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -5463,9 +7469,79 @@ _id<br />
 </tbody>
 </table>
 
-## dashboardRemove
+## dashboardsAdd
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [Dashboard](/docs/api/objects#dashboard)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+departmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+description<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+name<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+selectedMemberIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+visibility<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## dashboardsEdit
+
+**Type:** [Dashboard](/docs/api/objects#dashboard)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -5475,7 +7551,84 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+description<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+name<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+selectedMemberIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+visibility<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## dashboardsRemove
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+dashboardIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5486,7 +7639,9 @@ _id<br />
 
 ## dealsAdd
 
-**Type:** [Deal](/api/objects#deal)
+**Type:** [Deal](/docs/api/objects#deal)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -5496,7 +7651,7 @@ _id<br />
 <tr>
 <td>
 aboveItemId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5505,7 +7660,7 @@ aboveItemId<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5514,7 +7669,16 @@ assignedUserIds<br />
 <tr>
 <td>
 attachments<br />
-<a href="/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+branchIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5523,7 +7687,7 @@ attachments<br />
 <tr>
 <td>
 closeDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -5532,7 +7696,7 @@ closeDate<br />
 <tr>
 <td>
 companyIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5541,7 +7705,7 @@ companyIds<br />
 <tr>
 <td>
 customFieldsData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -5550,7 +7714,16 @@ customFieldsData<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5559,7 +7732,7 @@ customerIds<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5568,7 +7741,7 @@ description<br />
 <tr>
 <td>
 isComplete<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -5577,7 +7750,7 @@ isComplete<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5586,7 +7759,7 @@ labelIds<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -5595,7 +7768,16 @@ name<br />
 <tr>
 <td>
 order<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5604,7 +7786,7 @@ order<br />
 <tr>
 <td>
 paymentsData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -5613,7 +7795,7 @@ paymentsData<br />
 <tr>
 <td>
 priority<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5622,7 +7804,7 @@ priority<br />
 <tr>
 <td>
 proccessId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5631,7 +7813,7 @@ proccessId<br />
 <tr>
 <td>
 productsData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -5640,7 +7822,7 @@ productsData<br />
 <tr>
 <td>
 reminderMinute<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -5649,7 +7831,7 @@ reminderMinute<br />
 <tr>
 <td>
 sourceConversationIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5658,7 +7840,7 @@ sourceConversationIds<br />
 <tr>
 <td>
 stageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5667,7 +7849,7 @@ stageId<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -5676,7 +7858,16 @@ startDate<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+tagIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5687,7 +7878,9 @@ status<br />
 
 ## dealsArchive
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -5697,7 +7890,7 @@ status<br />
 <tr>
 <td>
 proccessId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5706,7 +7899,7 @@ proccessId<br />
 <tr>
 <td>
 stageId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -5717,7 +7910,9 @@ stageId<br />
 
 ## dealsChange
 
-**Type:** [Deal](/api/objects#deal)
+**Type:** [Deal](/docs/api/objects#deal)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -5727,7 +7922,7 @@ stageId<br />
 <tr>
 <td>
 aboveItemId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5736,7 +7931,7 @@ aboveItemId<br />
 <tr>
 <td>
 destinationStageId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -5745,7 +7940,7 @@ destinationStageId<br />
 <tr>
 <td>
 itemId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -5754,7 +7949,7 @@ itemId<br />
 <tr>
 <td>
 proccessId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5763,7 +7958,7 @@ proccessId<br />
 <tr>
 <td>
 sourceStageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5774,7 +7969,9 @@ sourceStageId<br />
 
 ## dealsCopy
 
-**Type:** [Deal](/api/objects#deal)
+**Type:** [Deal](/docs/api/objects#deal)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -5784,7 +7981,7 @@ sourceStageId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -5793,7 +7990,7 @@ _id<br />
 <tr>
 <td>
 proccessId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5804,7 +8001,9 @@ proccessId<br />
 
 ## dealsEdit
 
-**Type:** [Deal](/api/objects#deal)
+**Type:** [Deal](/docs/api/objects#deal)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -5814,7 +8013,7 @@ proccessId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -5823,7 +8022,7 @@ _id<br />
 <tr>
 <td>
 aboveItemId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5832,7 +8031,7 @@ aboveItemId<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5841,7 +8040,16 @@ assignedUserIds<br />
 <tr>
 <td>
 attachments<br />
-<a href="/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+branchIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5850,7 +8058,7 @@ attachments<br />
 <tr>
 <td>
 closeDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -5859,7 +8067,16 @@ closeDate<br />
 <tr>
 <td>
 customFieldsData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5868,7 +8085,7 @@ customFieldsData<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5877,7 +8094,7 @@ description<br />
 <tr>
 <td>
 isComplete<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -5886,7 +8103,7 @@ isComplete<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5895,7 +8112,16 @@ name<br />
 <tr>
 <td>
 order<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5904,7 +8130,7 @@ order<br />
 <tr>
 <td>
 paymentsData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -5913,7 +8139,7 @@ paymentsData<br />
 <tr>
 <td>
 priority<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5922,7 +8148,7 @@ priority<br />
 <tr>
 <td>
 proccessId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5931,7 +8157,7 @@ proccessId<br />
 <tr>
 <td>
 productsData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -5940,7 +8166,7 @@ productsData<br />
 <tr>
 <td>
 reminderMinute<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -5949,7 +8175,7 @@ reminderMinute<br />
 <tr>
 <td>
 sourceConversationIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5958,7 +8184,7 @@ sourceConversationIds<br />
 <tr>
 <td>
 stageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5967,7 +8193,7 @@ stageId<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -5976,7 +8202,16 @@ startDate<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+tagIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5987,7 +8222,9 @@ status<br />
 
 ## dealsRemove
 
-**Type:** [Deal](/api/objects#deal)
+**Type:** [Deal](/docs/api/objects#deal)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -5997,7 +8234,7 @@ status<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6008,7 +8245,9 @@ _id<br />
 
 ## dealsWatch
 
-**Type:** [Deal](/api/objects#deal)
+**Type:** [Deal](/docs/api/objects#deal)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6018,7 +8257,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6027,7 +8266,7 @@ _id<br />
 <tr>
 <td>
 isAdd<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -6038,7 +8277,9 @@ isAdd<br />
 
 ## departmentsAdd
 
-**Type:** [Department](/api/objects#department)
+**Type:** [Department](/docs/api/objects#department)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6048,7 +8289,7 @@ isAdd<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6057,7 +8298,7 @@ code<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6066,7 +8307,7 @@ description<br />
 <tr>
 <td>
 parentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6075,7 +8316,7 @@ parentId<br />
 <tr>
 <td>
 supervisorId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6084,7 +8325,7 @@ supervisorId<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6093,7 +8334,7 @@ title<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -6104,7 +8345,9 @@ userIds<br />
 
 ## departmentsEdit
 
-**Type:** [Department](/api/objects#department)
+**Type:** [Department](/docs/api/objects#department)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6114,7 +8357,7 @@ userIds<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6123,7 +8366,7 @@ _id<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6132,7 +8375,7 @@ code<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6141,7 +8384,7 @@ description<br />
 <tr>
 <td>
 parentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6150,7 +8393,7 @@ parentId<br />
 <tr>
 <td>
 supervisorId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6159,7 +8402,7 @@ supervisorId<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6168,7 +8411,7 @@ title<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -6179,7 +8422,73 @@ userIds<br />
 
 ## departmentsRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+ids<br />
+<a href="/docs/api/scalars#string"><code>[String!]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## deviceConfigAdd
+
+**Type:** [DeviceConfig](/docs/api/objects#deviceconfig)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+deviceName<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+extractRequired<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+serialNo<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## deviceConfigEdit
+
+**Type:** [DeviceConfig](/docs/api/objects#deviceconfig)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6189,7 +8498,139 @@ userIds<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+deviceName<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+extractRequired<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+serialNo<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## deviceConfigRemove
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## documentsRemove
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## documentsSave
+
+**Type:** [Document](/docs/api/objects#document)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+content<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+contentType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+name<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+replacer<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6200,7 +8641,9 @@ _id<br />
 
 ## doLottery
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6210,7 +8653,7 @@ _id<br />
 <tr>
 <td>
 awardId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6219,7 +8662,7 @@ awardId<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6230,7 +8673,9 @@ campaignId<br />
 
 ## doLotteryMultiple
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6240,7 +8685,7 @@ campaignId<br />
 <tr>
 <td>
 awardId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6249,7 +8694,7 @@ awardId<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6258,7 +8703,7 @@ campaignId<br />
 <tr>
 <td>
 multiple<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -6269,7 +8714,9 @@ multiple<br />
 
 ## donateCampaignsAdd
 
-**Type:** [DonateCampaign](/api/objects#donatecampaign)
+**Type:** [DonateCampaign](/docs/api/objects#donatecampaign)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6279,7 +8726,7 @@ multiple<br />
 <tr>
 <td>
 attachment<br />
-<a href="/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
 </td>
 <td>
 
@@ -6288,7 +8735,7 @@ attachment<br />
 <tr>
 <td>
 awards<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -6297,7 +8744,7 @@ awards<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6306,7 +8753,7 @@ description<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -6315,7 +8762,7 @@ endDate<br />
 <tr>
 <td>
 finishDateOfUse<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -6324,7 +8771,7 @@ finishDateOfUse<br />
 <tr>
 <td>
 maxScore<br />
-<a href="/api/scalars#float"><code>Float</code></a>
+<a href="/docs/api/scalars#float"><code>Float</code></a>
 </td>
 <td>
 
@@ -6333,7 +8780,7 @@ maxScore<br />
 <tr>
 <td>
 numberFormat<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6342,7 +8789,7 @@ numberFormat<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -6351,7 +8798,7 @@ startDate<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6360,7 +8807,7 @@ status<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6371,7 +8818,9 @@ title<br />
 
 ## donateCampaignsEdit
 
-**Type:** [DonateCampaign](/api/objects#donatecampaign)
+**Type:** [DonateCampaign](/docs/api/objects#donatecampaign)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6381,7 +8830,7 @@ title<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6390,7 +8839,7 @@ _id<br />
 <tr>
 <td>
 attachment<br />
-<a href="/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
 </td>
 <td>
 
@@ -6399,7 +8848,7 @@ attachment<br />
 <tr>
 <td>
 awards<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -6408,7 +8857,7 @@ awards<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6417,7 +8866,7 @@ description<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -6426,7 +8875,7 @@ endDate<br />
 <tr>
 <td>
 finishDateOfUse<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -6435,7 +8884,7 @@ finishDateOfUse<br />
 <tr>
 <td>
 maxScore<br />
-<a href="/api/scalars#float"><code>Float</code></a>
+<a href="/docs/api/scalars#float"><code>Float</code></a>
 </td>
 <td>
 
@@ -6444,7 +8893,7 @@ maxScore<br />
 <tr>
 <td>
 numberFormat<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6453,7 +8902,7 @@ numberFormat<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -6462,7 +8911,7 @@ startDate<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6471,7 +8920,7 @@ status<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6482,7 +8931,9 @@ title<br />
 
 ## donateCampaignsRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6492,7 +8943,7 @@ title<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -6503,7 +8954,9 @@ _ids<br />
 
 ## donatesAdd
 
-**Type:** [Donate](/api/objects#donate)
+**Type:** [Donate](/docs/api/objects#donate)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6513,7 +8966,7 @@ _ids<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6522,7 +8975,7 @@ campaignId<br />
 <tr>
 <td>
 donateScore<br />
-<a href="/api/scalars#float"><code>Float</code></a>
+<a href="/docs/api/scalars#float"><code>Float</code></a>
 </td>
 <td>
 
@@ -6531,7 +8984,7 @@ donateScore<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6540,7 +8993,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6549,7 +9002,7 @@ ownerType<br />
 <tr>
 <td>
 usedAt<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -6560,7 +9013,9 @@ usedAt<br />
 
 ## donatesRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6570,7 +9025,7 @@ usedAt<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -6581,7 +9036,9 @@ _ids<br />
 
 ## doSpin
 
-**Type:** [Spin](/api/objects#spin)
+**Type:** [Spin](/docs/api/objects#spin)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6591,7 +9048,7 @@ _ids<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6602,7 +9059,9 @@ _id<br />
 
 ## emailTemplatesAdd
 
-**Type:** [EmailTemplate](/api/objects#emailtemplate)
+**Type:** [EmailTemplate](/docs/api/objects#emailtemplate)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6612,7 +9071,7 @@ _id<br />
 <tr>
 <td>
 content<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6621,7 +9080,7 @@ content<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6632,7 +9091,9 @@ name<br />
 
 ## emailTemplatesChangeStatus
 
-**Type:** [EmailTemplate](/api/objects#emailtemplate)
+**Type:** [EmailTemplate](/docs/api/objects#emailtemplate)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6642,7 +9103,7 @@ name<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6651,7 +9112,7 @@ _id<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6662,7 +9123,9 @@ status<br />
 
 ## emailTemplatesDuplicate
 
-**Type:** [EmailTemplate](/api/objects#emailtemplate)
+**Type:** [EmailTemplate](/docs/api/objects#emailtemplate)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6672,7 +9135,7 @@ status<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6683,7 +9146,9 @@ _id<br />
 
 ## emailTemplatesEdit
 
-**Type:** [EmailTemplate](/api/objects#emailtemplate)
+**Type:** [EmailTemplate](/docs/api/objects#emailtemplate)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6693,7 +9158,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6702,7 +9167,7 @@ _id<br />
 <tr>
 <td>
 content<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6711,7 +9176,7 @@ content<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6722,7 +9187,9 @@ name<br />
 
 ## emailTemplatesRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6732,7 +9199,7 @@ name<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6743,7 +9210,9 @@ _id<br />
 
 ## emojiReact
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6753,7 +9222,7 @@ _id<br />
 <tr>
 <td>
 contentId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6762,7 +9231,7 @@ contentId<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/enums#reactioncontenttype"><code>ReactionContentType!</code></a>
+<a href="/docs/api/enums#reactioncontenttype"><code>ReactionContentType!</code></a>
 </td>
 <td>
 
@@ -6771,7 +9240,7 @@ contentType<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6782,7 +9251,9 @@ type<br />
 
 ## engageMessageAdd
 
-**Type:** [EngageMessage](/api/objects#engagemessage)
+**Type:** [EngageMessage](/docs/api/objects#engagemessage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6792,7 +9263,7 @@ type<br />
 <tr>
 <td>
 brandIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -6801,7 +9272,7 @@ brandIds<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -6810,7 +9281,7 @@ customerIds<br />
 <tr>
 <td>
 customerTagIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -6819,7 +9290,16 @@ customerTagIds<br />
 <tr>
 <td>
 email<br />
-<a href="/api/inputObjects#engagemessageemail"><code>EngageMessageEmail</code></a>
+<a href="/docs/api/inputObjects#engagemessageemail"><code>EngageMessageEmail</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+forceCreateConversation<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -6828,7 +9308,7 @@ email<br />
 <tr>
 <td>
 fromUserId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6837,7 +9317,7 @@ fromUserId<br />
 <tr>
 <td>
 isDraft<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -6846,7 +9326,7 @@ isDraft<br />
 <tr>
 <td>
 isLive<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -6855,7 +9335,7 @@ isLive<br />
 <tr>
 <td>
 kind<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6864,7 +9344,7 @@ kind<br />
 <tr>
 <td>
 messenger<br />
-<a href="/api/inputObjects#engagemessagemessenger"><code>EngageMessageMessenger</code></a>
+<a href="/docs/api/inputObjects#engagemessagemessenger"><code>EngageMessageMessenger</code></a>
 </td>
 <td>
 
@@ -6873,7 +9353,7 @@ messenger<br />
 <tr>
 <td>
 method<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6882,7 +9362,7 @@ method<br />
 <tr>
 <td>
 scheduleDate<br />
-<a href="/api/inputObjects#engagescheduledateinput"><code>EngageScheduleDateInput</code></a>
+<a href="/docs/api/inputObjects#engagescheduledateinput"><code>EngageScheduleDateInput</code></a>
 </td>
 <td>
 
@@ -6891,7 +9371,7 @@ scheduleDate<br />
 <tr>
 <td>
 segmentIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -6900,7 +9380,7 @@ segmentIds<br />
 <tr>
 <td>
 shortMessage<br />
-<a href="/api/inputObjects#engagemessagesmsinput"><code>EngageMessageSmsInput</code></a>
+<a href="/docs/api/inputObjects#engagemessagesmsinput"><code>EngageMessageSmsInput</code></a>
 </td>
 <td>
 
@@ -6909,7 +9389,7 @@ shortMessage<br />
 <tr>
 <td>
 stopDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -6918,7 +9398,7 @@ stopDate<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6927,7 +9407,7 @@ title<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6938,7 +9418,9 @@ type<br />
 
 ## engageMessageCopy
 
-**Type:** [EngageMessage](/api/objects#engagemessage)
+**Type:** [EngageMessage](/docs/api/objects#engagemessage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6948,7 +9430,7 @@ type<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6959,7 +9441,9 @@ _id<br />
 
 ## engageMessageEdit
 
-**Type:** [EngageMessage](/api/objects#engagemessage)
+**Type:** [EngageMessage](/docs/api/objects#engagemessage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6969,7 +9453,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6978,7 +9462,7 @@ _id<br />
 <tr>
 <td>
 brandIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -6987,7 +9471,7 @@ brandIds<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -6996,7 +9480,7 @@ customerIds<br />
 <tr>
 <td>
 customerTagIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -7005,7 +9489,16 @@ customerTagIds<br />
 <tr>
 <td>
 email<br />
-<a href="/api/inputObjects#engagemessageemail"><code>EngageMessageEmail</code></a>
+<a href="/docs/api/inputObjects#engagemessageemail"><code>EngageMessageEmail</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+forceCreateConversation<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -7014,7 +9507,7 @@ email<br />
 <tr>
 <td>
 fromUserId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7023,7 +9516,7 @@ fromUserId<br />
 <tr>
 <td>
 isDraft<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -7032,7 +9525,7 @@ isDraft<br />
 <tr>
 <td>
 isLive<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -7041,7 +9534,7 @@ isLive<br />
 <tr>
 <td>
 kind<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7050,7 +9543,7 @@ kind<br />
 <tr>
 <td>
 messenger<br />
-<a href="/api/inputObjects#engagemessagemessenger"><code>EngageMessageMessenger</code></a>
+<a href="/docs/api/inputObjects#engagemessagemessenger"><code>EngageMessageMessenger</code></a>
 </td>
 <td>
 
@@ -7059,7 +9552,7 @@ messenger<br />
 <tr>
 <td>
 method<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7068,7 +9561,7 @@ method<br />
 <tr>
 <td>
 scheduleDate<br />
-<a href="/api/inputObjects#engagescheduledateinput"><code>EngageScheduleDateInput</code></a>
+<a href="/docs/api/inputObjects#engagescheduledateinput"><code>EngageScheduleDateInput</code></a>
 </td>
 <td>
 
@@ -7077,7 +9570,7 @@ scheduleDate<br />
 <tr>
 <td>
 segmentIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -7086,7 +9579,7 @@ segmentIds<br />
 <tr>
 <td>
 shortMessage<br />
-<a href="/api/inputObjects#engagemessagesmsinput"><code>EngageMessageSmsInput</code></a>
+<a href="/docs/api/inputObjects#engagemessagesmsinput"><code>EngageMessageSmsInput</code></a>
 </td>
 <td>
 
@@ -7095,7 +9588,7 @@ shortMessage<br />
 <tr>
 <td>
 stopDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -7104,7 +9597,7 @@ stopDate<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7113,7 +9606,7 @@ title<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7124,7 +9617,9 @@ type<br />
 
 ## engageMessageRemove
 
-**Type:** [EngageMessage](/api/objects#engagemessage)
+**Type:** [EngageMessage](/docs/api/objects#engagemessage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7134,7 +9629,7 @@ type<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7145,7 +9640,9 @@ _id<br />
 
 ## engageMessageRemoveVerifiedEmail
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7155,7 +9652,7 @@ _id<br />
 <tr>
 <td>
 email<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7166,7 +9663,9 @@ email<br />
 
 ## engageMessageSendTestEmail
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7176,7 +9675,7 @@ email<br />
 <tr>
 <td>
 content<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7185,7 +9684,7 @@ content<br />
 <tr>
 <td>
 from<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7194,7 +9693,7 @@ from<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7203,7 +9702,7 @@ title<br />
 <tr>
 <td>
 to<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7214,7 +9713,9 @@ to<br />
 
 ## engageMessageSetLive
 
-**Type:** [EngageMessage](/api/objects#engagemessage)
+**Type:** [EngageMessage](/docs/api/objects#engagemessage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7224,7 +9725,7 @@ to<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7235,7 +9736,9 @@ _id<br />
 
 ## engageMessageSetLiveManual
 
-**Type:** [EngageMessage](/api/objects#engagemessage)
+**Type:** [EngageMessage](/docs/api/objects#engagemessage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7245,7 +9748,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7256,7 +9759,9 @@ _id<br />
 
 ## engageMessageSetPause
 
-**Type:** [EngageMessage](/api/objects#engagemessage)
+**Type:** [EngageMessage](/docs/api/objects#engagemessage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7266,7 +9771,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7277,7 +9782,9 @@ _id<br />
 
 ## engageMessageVerifyEmail
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7287,7 +9794,93 @@ _id<br />
 <tr>
 <td>
 email<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## engageSendMail
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+attachments<br />
+<a href="/docs/api/scalars#json"><code>[JSON]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+bcc<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+body<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+cc<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+customerId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+from<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+subject<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+to<br />
+<a href="/docs/api/scalars#string"><code>[String]!</code></a>
 </td>
 <td>
 
@@ -7298,7 +9891,9 @@ email<br />
 
 ## engagesUpdateConfigs
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7308,7 +9903,7 @@ email<br />
 <tr>
 <td>
 configsMap<br />
-<a href="/api/scalars#json"><code>JSON!</code></a>
+<a href="/docs/api/scalars#json"><code>JSON!</code></a>
 </td>
 <td>
 
@@ -7319,7 +9914,9 @@ configsMap<br />
 
 ## excludeUserSkill
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7329,7 +9926,7 @@ configsMap<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7338,7 +9935,7 @@ _id<br />
 <tr>
 <td>
 memberIds<br />
-<a href="/api/scalars#string"><code>[String]!</code></a>
+<a href="/docs/api/scalars#string"><code>[String]!</code></a>
 </td>
 <td>
 
@@ -7349,7 +9946,9 @@ memberIds<br />
 
 ## exmFeedAdd
 
-**Type:** [ExmFeed](/api/objects#exmfeed)
+**Type:** [ExmFeed](/docs/api/objects#exmfeed)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7359,7 +9958,7 @@ memberIds<br />
 <tr>
 <td>
 attachments<br />
-<a href="/api/scalars#json"><code>[JSON]</code></a>
+<a href="/docs/api/scalars#json"><code>[JSON]</code></a>
 </td>
 <td>
 
@@ -7368,7 +9967,7 @@ attachments<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/enums#contenttype"><code>ContentType!</code></a>
+<a href="/docs/api/enums#contenttype"><code>ContentType!</code></a>
 </td>
 <td>
 
@@ -7377,7 +9976,7 @@ contentType<br />
 <tr>
 <td>
 createdAt<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -7386,7 +9985,16 @@ createdAt<br />
 <tr>
 <td>
 customFieldsData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+department<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7395,7 +10003,7 @@ customFieldsData<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7404,7 +10012,7 @@ description<br />
 <tr>
 <td>
 eventData<br />
-<a href="/api/inputObjects#exmeventdatainput"><code>ExmEventDataInput</code></a>
+<a href="/docs/api/inputObjects#exmeventdatainput"><code>ExmEventDataInput</code></a>
 </td>
 <td>
 
@@ -7413,7 +10021,7 @@ eventData<br />
 <tr>
 <td>
 images<br />
-<a href="/api/scalars#json"><code>[JSON]</code></a>
+<a href="/docs/api/scalars#json"><code>[JSON]</code></a>
 </td>
 <td>
 
@@ -7422,7 +10030,7 @@ images<br />
 <tr>
 <td>
 isPinned<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -7431,7 +10039,7 @@ isPinned<br />
 <tr>
 <td>
 recipientIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -7440,7 +10048,7 @@ recipientIds<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7451,7 +10059,9 @@ title<br />
 
 ## exmFeedEdit
 
-**Type:** [ExmFeed](/api/objects#exmfeed)
+**Type:** [ExmFeed](/docs/api/objects#exmfeed)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7461,7 +10071,7 @@ title<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7470,7 +10080,7 @@ _id<br />
 <tr>
 <td>
 attachments<br />
-<a href="/api/scalars#json"><code>[JSON]</code></a>
+<a href="/docs/api/scalars#json"><code>[JSON]</code></a>
 </td>
 <td>
 
@@ -7479,7 +10089,7 @@ attachments<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/enums#contenttype"><code>ContentType!</code></a>
+<a href="/docs/api/enums#contenttype"><code>ContentType!</code></a>
 </td>
 <td>
 
@@ -7488,7 +10098,7 @@ contentType<br />
 <tr>
 <td>
 createdAt<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -7497,7 +10107,16 @@ createdAt<br />
 <tr>
 <td>
 customFieldsData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+department<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7506,7 +10125,7 @@ customFieldsData<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7515,7 +10134,7 @@ description<br />
 <tr>
 <td>
 eventData<br />
-<a href="/api/inputObjects#exmeventdatainput"><code>ExmEventDataInput</code></a>
+<a href="/docs/api/inputObjects#exmeventdatainput"><code>ExmEventDataInput</code></a>
 </td>
 <td>
 
@@ -7524,7 +10143,7 @@ eventData<br />
 <tr>
 <td>
 images<br />
-<a href="/api/scalars#json"><code>[JSON]</code></a>
+<a href="/docs/api/scalars#json"><code>[JSON]</code></a>
 </td>
 <td>
 
@@ -7533,7 +10152,7 @@ images<br />
 <tr>
 <td>
 isPinned<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -7542,7 +10161,7 @@ isPinned<br />
 <tr>
 <td>
 recipientIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -7551,7 +10170,7 @@ recipientIds<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7562,7 +10181,9 @@ title<br />
 
 ## exmFeedEventGoingOrInterested
 
-**Type:** [ExmFeed](/api/objects#exmfeed)
+**Type:** [ExmFeed](/docs/api/objects#exmfeed)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7572,7 +10193,7 @@ title<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7581,7 +10202,7 @@ _id<br />
 <tr>
 <td>
 goingOrInterested<br />
-<a href="/api/enums#exmgoingorinterested"><code>ExmGoingOrInterested!</code></a>
+<a href="/docs/api/enums#exmgoingorinterested"><code>ExmGoingOrInterested!</code></a>
 </td>
 <td>
 
@@ -7592,7 +10213,9 @@ goingOrInterested<br />
 
 ## exmFeedRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7602,7 +10225,7 @@ goingOrInterested<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7613,7 +10236,9 @@ _id<br />
 
 ## exmFeedToggleIsPinned
 
-**Type:** [Boolean](/api/scalars#boolean)
+**Type:** [Boolean](/docs/api/scalars#boolean)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7623,7 +10248,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7634,7 +10259,9 @@ _id<br />
 
 ## exmsAdd
 
-**Type:** [Exm](/api/objects#exm)
+**Type:** [Exm](/docs/api/objects#exm)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7644,7 +10271,7 @@ _id<br />
 <tr>
 <td>
 appearance<br />
-<a href="/api/inputObjects#exmappearanceinput"><code>ExmAppearanceInput</code></a>
+<a href="/docs/api/inputObjects#exmappearanceinput"><code>ExmAppearanceInput</code></a>
 </td>
 <td>
 
@@ -7653,7 +10280,7 @@ appearance<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7662,7 +10289,7 @@ description<br />
 <tr>
 <td>
 features<br />
-<a href="/api/inputObjects#exmfeatureinput"><code>[ExmFeatureInput]</code></a>
+<a href="/docs/api/inputObjects#exmfeatureinput"><code>[ExmFeatureInput]</code></a>
 </td>
 <td>
 
@@ -7671,7 +10298,7 @@ features<br />
 <tr>
 <td>
 logo<br />
-<a href="/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
 </td>
 <td>
 
@@ -7680,7 +10307,7 @@ logo<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7689,7 +10316,7 @@ name<br />
 <tr>
 <td>
 welcomeContent<br />
-<a href="/api/inputObjects#exmwelcomecontentinput"><code>[ExmWelcomeContentInput]</code></a>
+<a href="/docs/api/inputObjects#exmwelcomecontentinput"><code>[ExmWelcomeContentInput]</code></a>
 </td>
 <td>
 
@@ -7700,7 +10327,9 @@ welcomeContent<br />
 
 ## exmsEdit
 
-**Type:** [Exm](/api/objects#exm)
+**Type:** [Exm](/docs/api/objects#exm)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7710,7 +10339,7 @@ welcomeContent<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7719,7 +10348,7 @@ _id<br />
 <tr>
 <td>
 appearance<br />
-<a href="/api/inputObjects#exmappearanceinput"><code>ExmAppearanceInput</code></a>
+<a href="/docs/api/inputObjects#exmappearanceinput"><code>ExmAppearanceInput</code></a>
 </td>
 <td>
 
@@ -7728,7 +10357,7 @@ appearance<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7737,7 +10366,7 @@ description<br />
 <tr>
 <td>
 features<br />
-<a href="/api/inputObjects#exmfeatureinput"><code>[ExmFeatureInput]</code></a>
+<a href="/docs/api/inputObjects#exmfeatureinput"><code>[ExmFeatureInput]</code></a>
 </td>
 <td>
 
@@ -7746,7 +10375,7 @@ features<br />
 <tr>
 <td>
 logo<br />
-<a href="/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
 </td>
 <td>
 
@@ -7755,7 +10384,7 @@ logo<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7764,7 +10393,7 @@ name<br />
 <tr>
 <td>
 welcomeContent<br />
-<a href="/api/inputObjects#exmwelcomecontentinput"><code>[ExmWelcomeContentInput]</code></a>
+<a href="/docs/api/inputObjects#exmwelcomecontentinput"><code>[ExmWelcomeContentInput]</code></a>
 </td>
 <td>
 
@@ -7775,7 +10404,9 @@ welcomeContent<br />
 
 ## exmsRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7785,7 +10416,7 @@ welcomeContent<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7796,7 +10427,9 @@ _id<br />
 
 ## exmThankAdd
 
-**Type:** [ExmThank](/api/objects#exmthank)
+**Type:** [ExmThank](/docs/api/objects#exmthank)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7806,7 +10439,7 @@ _id<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7815,7 +10448,7 @@ description<br />
 <tr>
 <td>
 recipientIds<br />
-<a href="/api/scalars#string"><code>[String]!</code></a>
+<a href="/docs/api/scalars#string"><code>[String]!</code></a>
 </td>
 <td>
 
@@ -7826,7 +10459,9 @@ recipientIds<br />
 
 ## exmThankEdit
 
-**Type:** [ExmThank](/api/objects#exmthank)
+**Type:** [ExmThank](/docs/api/objects#exmthank)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7836,7 +10471,7 @@ recipientIds<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7845,7 +10480,7 @@ _id<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7854,7 +10489,7 @@ description<br />
 <tr>
 <td>
 recipientIds<br />
-<a href="/api/scalars#string"><code>[String]!</code></a>
+<a href="/docs/api/scalars#string"><code>[String]!</code></a>
 </td>
 <td>
 
@@ -7865,7 +10500,9 @@ recipientIds<br />
 
 ## exmThankRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7875,7 +10512,231 @@ recipientIds<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## exportHistoriesCreate
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+columnsConfig<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+contentType<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+name<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+segmentData<br />
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## extractAllDataFromMsSQL
+
+**Type:** [[Timeclock]](/docs/api/objects#timeclock)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+endDate<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+startDate<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## extractTimeLogsFromMsSQL
+
+**Type:** [[Timelog]](/docs/api/objects#timelog)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+endDate<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+startDate<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## facebookChangeCommentStatus
+
+**Type:** [FacebookComment](/docs/api/objects#facebookcomment)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+commentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## facebookRepair
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## facebookReplyToComment
+
+**Type:** [FacebookComment](/docs/api/objects#facebookcomment)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+commentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+content<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+conversationId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## facebookUpdateConfigs
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+configsMap<br />
+<a href="/docs/api/scalars#json"><code>JSON!</code></a>
 </td>
 <td>
 
@@ -7886,7 +10747,9 @@ _id<br />
 
 ## fieldsAdd
 
-**Type:** [Field](/api/objects#field)
+**Type:** [Field](/docs/api/objects#field)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7896,7 +10759,7 @@ _id<br />
 <tr>
 <td>
 associatedFieldId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7905,7 +10768,7 @@ associatedFieldId<br />
 <tr>
 <td>
 canHide<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -7914,7 +10777,7 @@ canHide<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7923,7 +10786,7 @@ code<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7932,7 +10795,7 @@ contentType<br />
 <tr>
 <td>
 contentTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7941,7 +10804,7 @@ contentTypeId<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7950,7 +10813,7 @@ description<br />
 <tr>
 <td>
 groupId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7959,7 +10822,7 @@ groupId<br />
 <tr>
 <td>
 isRequired<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -7968,7 +10831,7 @@ isRequired<br />
 <tr>
 <td>
 isVisible<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -7977,7 +10840,7 @@ isVisible<br />
 <tr>
 <td>
 isVisibleToCreate<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -7986,7 +10849,7 @@ isVisibleToCreate<br />
 <tr>
 <td>
 locationOptions<br />
-<a href="/api/inputObjects#locationoptioninput"><code>[LocationOptionInput]</code></a>
+<a href="/docs/api/inputObjects#locationoptioninput"><code>[LocationOptionInput]</code></a>
 </td>
 <td>
 
@@ -7994,8 +10857,17 @@ locationOptions<br />
 </tr>
 <tr>
 <td>
-logic<br />
-<a href="/api/inputObjects#logicinput"><code>LogicInput</code></a>
+logicAction<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+logics<br />
+<a href="/docs/api/inputObjects#logicinput"><code>[LogicInput]</code></a>
 </td>
 <td>
 
@@ -8004,7 +10876,7 @@ logic<br />
 <tr>
 <td>
 objectListConfigs<br />
-<a href="/api/inputObjects#objectlistconfiginput"><code>[objectListConfigInput]</code></a>
+<a href="/docs/api/inputObjects#objectlistconfiginput"><code>[objectListConfigInput]</code></a>
 </td>
 <td>
 
@@ -8013,7 +10885,7 @@ objectListConfigs<br />
 <tr>
 <td>
 options<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -8022,7 +10894,7 @@ options<br />
 <tr>
 <td>
 order<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -8031,7 +10903,7 @@ order<br />
 <tr>
 <td>
 searchable<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -8040,7 +10912,7 @@ searchable<br />
 <tr>
 <td>
 showInCard<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -8049,7 +10921,7 @@ showInCard<br />
 <tr>
 <td>
 text<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8058,7 +10930,7 @@ text<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8067,7 +10939,7 @@ type<br />
 <tr>
 <td>
 validation<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8078,7 +10950,9 @@ validation<br />
 
 ## fieldsBulkAddAndEdit
 
-**Type:** [[Field]](/api/objects#field)
+**Type:** [[Field]](/docs/api/objects#field)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8088,7 +10962,7 @@ validation<br />
 <tr>
 <td>
 addingFields<br />
-<a href="/api/inputObjects#fielditem"><code>[FieldItem]</code></a>
+<a href="/docs/api/inputObjects#fielditem"><code>[FieldItem]</code></a>
 </td>
 <td>
 
@@ -8097,7 +10971,7 @@ addingFields<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -8106,7 +10980,7 @@ contentType<br />
 <tr>
 <td>
 contentTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8115,7 +10989,7 @@ contentTypeId<br />
 <tr>
 <td>
 editingFields<br />
-<a href="/api/inputObjects#fielditem"><code>[FieldItem]</code></a>
+<a href="/docs/api/inputObjects#fielditem"><code>[FieldItem]</code></a>
 </td>
 <td>
 
@@ -8126,7 +11000,9 @@ editingFields<br />
 
 ## fieldsEdit
 
-**Type:** [Field](/api/objects#field)
+**Type:** [Field](/docs/api/objects#field)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8136,7 +11012,7 @@ editingFields<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -8145,7 +11021,7 @@ _id<br />
 <tr>
 <td>
 associatedFieldId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8154,7 +11030,7 @@ associatedFieldId<br />
 <tr>
 <td>
 canHide<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -8163,7 +11039,7 @@ canHide<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8172,7 +11048,7 @@ code<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8181,7 +11057,7 @@ description<br />
 <tr>
 <td>
 groupId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8190,7 +11066,7 @@ groupId<br />
 <tr>
 <td>
 isRequired<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -8199,7 +11075,7 @@ isRequired<br />
 <tr>
 <td>
 isVisible<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -8208,7 +11084,7 @@ isVisible<br />
 <tr>
 <td>
 isVisibleToCreate<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -8217,7 +11093,7 @@ isVisibleToCreate<br />
 <tr>
 <td>
 locationOptions<br />
-<a href="/api/inputObjects#locationoptioninput"><code>[LocationOptionInput]</code></a>
+<a href="/docs/api/inputObjects#locationoptioninput"><code>[LocationOptionInput]</code></a>
 </td>
 <td>
 
@@ -8225,8 +11101,17 @@ locationOptions<br />
 </tr>
 <tr>
 <td>
-logic<br />
-<a href="/api/inputObjects#logicinput"><code>LogicInput</code></a>
+logicAction<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+logics<br />
+<a href="/docs/api/inputObjects#logicinput"><code>[LogicInput]</code></a>
 </td>
 <td>
 
@@ -8235,7 +11120,7 @@ logic<br />
 <tr>
 <td>
 objectListConfigs<br />
-<a href="/api/inputObjects#objectlistconfiginput"><code>[objectListConfigInput]</code></a>
+<a href="/docs/api/inputObjects#objectlistconfiginput"><code>[objectListConfigInput]</code></a>
 </td>
 <td>
 
@@ -8244,7 +11129,7 @@ objectListConfigs<br />
 <tr>
 <td>
 options<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -8253,7 +11138,7 @@ options<br />
 <tr>
 <td>
 order<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -8262,7 +11147,7 @@ order<br />
 <tr>
 <td>
 searchable<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -8271,7 +11156,7 @@ searchable<br />
 <tr>
 <td>
 showInCard<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -8280,7 +11165,7 @@ showInCard<br />
 <tr>
 <td>
 text<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8289,7 +11174,7 @@ text<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8298,7 +11183,7 @@ type<br />
 <tr>
 <td>
 validation<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8309,7 +11194,9 @@ validation<br />
 
 ## fieldsGroupsAdd
 
-**Type:** [FieldsGroup](/api/objects#fieldsgroup)
+**Type:** [FieldsGroup](/docs/api/objects#fieldsgroup)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8319,7 +11206,7 @@ validation<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8328,7 +11215,7 @@ code<br />
 <tr>
 <td>
 config<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -8337,7 +11224,7 @@ config<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8346,7 +11233,16 @@ contentType<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+isMultiple<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -8355,7 +11251,7 @@ description<br />
 <tr>
 <td>
 isVisible<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -8364,7 +11260,25 @@ isVisible<br />
 <tr>
 <td>
 isVisibleInDetail<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+logicAction<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+logics<br />
+<a href="/docs/api/inputObjects#logicinput"><code>[LogicInput]</code></a>
 </td>
 <td>
 
@@ -8373,7 +11287,7 @@ isVisibleInDetail<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8382,7 +11296,16 @@ name<br />
 <tr>
 <td>
 order<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8393,7 +11316,9 @@ order<br />
 
 ## fieldsGroupsEdit
 
-**Type:** [FieldsGroup](/api/objects#fieldsgroup)
+**Type:** [FieldsGroup](/docs/api/objects#fieldsgroup)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8403,7 +11328,7 @@ order<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -8412,7 +11337,7 @@ _id<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8421,7 +11346,7 @@ code<br />
 <tr>
 <td>
 config<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -8430,7 +11355,7 @@ config<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8439,7 +11364,16 @@ contentType<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+isMultiple<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -8448,7 +11382,7 @@ description<br />
 <tr>
 <td>
 isVisible<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -8457,7 +11391,25 @@ isVisible<br />
 <tr>
 <td>
 isVisibleInDetail<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+logicAction<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+logics<br />
+<a href="/docs/api/inputObjects#logicinput"><code>[LogicInput]</code></a>
 </td>
 <td>
 
@@ -8466,7 +11418,7 @@ isVisibleInDetail<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8475,7 +11427,16 @@ name<br />
 <tr>
 <td>
 order<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8486,7 +11447,9 @@ order<br />
 
 ## fieldsGroupsRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8496,7 +11459,7 @@ order<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -8507,7 +11470,9 @@ _id<br />
 
 ## fieldsGroupsUpdateOrder
 
-**Type:** [[FieldsGroup]](/api/objects#fieldsgroup)
+**Type:** [[FieldsGroup]](/docs/api/objects#fieldsgroup)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8517,7 +11482,7 @@ _id<br />
 <tr>
 <td>
 orders<br />
-<a href="/api/inputObjects#orderitem"><code>[OrderItem]</code></a>
+<a href="/docs/api/inputObjects#orderitem"><code>[OrderItem]</code></a>
 </td>
 <td>
 
@@ -8528,7 +11493,9 @@ orders<br />
 
 ## fieldsGroupsUpdateVisible
 
-**Type:** [FieldsGroup](/api/objects#fieldsgroup)
+**Type:** [FieldsGroup](/docs/api/objects#fieldsgroup)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8538,7 +11505,7 @@ orders<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8547,7 +11514,7 @@ _id<br />
 <tr>
 <td>
 isVisible<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -8556,7 +11523,7 @@ isVisible<br />
 <tr>
 <td>
 isVisibleInDetail<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -8567,7 +11534,9 @@ isVisibleInDetail<br />
 
 ## fieldsRemove
 
-**Type:** [Field](/api/objects#field)
+**Type:** [Field](/docs/api/objects#field)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8577,7 +11546,7 @@ isVisibleInDetail<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -8588,7 +11557,9 @@ _id<br />
 
 ## fieldsUpdateOrder
 
-**Type:** [[Field]](/api/objects#field)
+**Type:** [[Field]](/docs/api/objects#field)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8598,7 +11569,7 @@ _id<br />
 <tr>
 <td>
 orders<br />
-<a href="/api/inputObjects#orderitem"><code>[OrderItem]</code></a>
+<a href="/docs/api/inputObjects#orderitem"><code>[OrderItem]</code></a>
 </td>
 <td>
 
@@ -8609,7 +11580,9 @@ orders<br />
 
 ## fieldsUpdateSystemFields
 
-**Type:** [Field](/api/objects#field)
+**Type:** [Field](/docs/api/objects#field)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8619,7 +11592,7 @@ orders<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -8628,7 +11601,7 @@ _id<br />
 <tr>
 <td>
 isRequired<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -8637,7 +11610,7 @@ isRequired<br />
 <tr>
 <td>
 isVisibleToCreate<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -8648,7 +11621,9 @@ isVisibleToCreate<br />
 
 ## fieldsUpdateVisible
 
-**Type:** [Field](/api/objects#field)
+**Type:** [Field](/docs/api/objects#field)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8658,7 +11633,7 @@ isVisibleToCreate<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -8667,7 +11642,7 @@ _id<br />
 <tr>
 <td>
 isVisible<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -8676,7 +11651,7 @@ isVisible<br />
 <tr>
 <td>
 isVisibleInDetail<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -8687,7 +11662,9 @@ isVisibleInDetail<br />
 
 ## forgotPassword
 
-**Type:** [String!](/api/scalars#string)
+**Type:** [String!](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8697,7 +11674,7 @@ isVisibleInDetail<br />
 <tr>
 <td>
 email<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -8708,7 +11685,9 @@ email<br />
 
 ## formsAdd
 
-**Type:** [Form](/api/objects#form)
+**Type:** [Form](/docs/api/objects#form)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8718,7 +11697,7 @@ email<br />
 <tr>
 <td>
 buttonText<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8727,7 +11706,7 @@ buttonText<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8736,7 +11715,7 @@ description<br />
 <tr>
 <td>
 googleMapApiKey<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8745,7 +11724,7 @@ googleMapApiKey<br />
 <tr>
 <td>
 numberOfPages<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -8754,7 +11733,7 @@ numberOfPages<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8763,7 +11742,7 @@ title<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -8774,7 +11753,9 @@ type<br />
 
 ## formsEdit
 
-**Type:** [Form](/api/objects#form)
+**Type:** [Form](/docs/api/objects#form)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8784,7 +11765,7 @@ type<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -8793,7 +11774,7 @@ _id<br />
 <tr>
 <td>
 buttonText<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8802,7 +11783,7 @@ buttonText<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8811,7 +11792,7 @@ description<br />
 <tr>
 <td>
 googleMapApiKey<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8820,7 +11801,7 @@ googleMapApiKey<br />
 <tr>
 <td>
 numberOfPages<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -8829,7 +11810,7 @@ numberOfPages<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8838,7 +11819,80 @@ title<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## formSubmissionsEdit
+
+**Type:** [Submission](/docs/api/objects#submission)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+contentTypeId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+customerId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+submissions<br />
+<a href="/docs/api/inputObjects#formsubmissioninput"><code>[FormSubmissionInput]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## formSubmissionsRemove
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+contentTypeId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+customerId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -8849,7 +11903,9 @@ type<br />
 
 ## formSubmissionsSave
 
-**Type:** [Boolean](/api/scalars#boolean)
+**Type:** [Boolean](/docs/api/scalars#boolean)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8859,7 +11915,7 @@ type<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8868,7 +11924,7 @@ contentType<br />
 <tr>
 <td>
 contentTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8877,7 +11933,7 @@ contentTypeId<br />
 <tr>
 <td>
 formId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8886,7 +11942,111 @@ formId<br />
 <tr>
 <td>
 formSubmissions<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## generateInvoiceUrl
+
+**Type:** [String](/docs/api/scalars#string)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+amount<br />
+<a href="/docs/api/scalars#float"><code>Float!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+companyId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+contentType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+contentTypeId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+customerId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+description<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+email<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+paymentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+phone<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+redirectUri<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8897,7 +12057,9 @@ formSubmissions<br />
 
 ## getNextChar
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8907,7 +12069,7 @@ formSubmissions<br />
 <tr>
 <td>
 awardId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8916,7 +12078,7 @@ awardId<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8925,7 +12087,7 @@ campaignId<br />
 <tr>
 <td>
 prevChars<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8936,7 +12098,9 @@ prevChars<br />
 
 ## growthHacksAdd
 
-**Type:** [GrowthHack](/api/objects#growthhack)
+**Type:** [GrowthHack](/docs/api/objects#growthhack)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8946,7 +12110,7 @@ prevChars<br />
 <tr>
 <td>
 aboveItemId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8955,7 +12119,7 @@ aboveItemId<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -8964,7 +12128,7 @@ assignedUserIds<br />
 <tr>
 <td>
 attachments<br />
-<a href="/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
 </td>
 <td>
 
@@ -8973,7 +12137,7 @@ attachments<br />
 <tr>
 <td>
 closeDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -8982,7 +12146,7 @@ closeDate<br />
 <tr>
 <td>
 confidence<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -8991,7 +12155,7 @@ confidence<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9000,7 +12164,7 @@ description<br />
 <tr>
 <td>
 ease<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9009,7 +12173,7 @@ ease<br />
 <tr>
 <td>
 hackStages<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -9018,7 +12182,7 @@ hackStages<br />
 <tr>
 <td>
 impact<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9027,7 +12191,7 @@ impact<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -9036,7 +12200,7 @@ labelIds<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9045,7 +12209,7 @@ name<br />
 <tr>
 <td>
 priority<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9054,7 +12218,7 @@ priority<br />
 <tr>
 <td>
 proccessId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9063,7 +12227,7 @@ proccessId<br />
 <tr>
 <td>
 reach<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9072,7 +12236,7 @@ reach<br />
 <tr>
 <td>
 stageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9081,7 +12245,7 @@ stageId<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9092,7 +12256,9 @@ status<br />
 
 ## growthHacksArchive
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9102,7 +12268,7 @@ status<br />
 <tr>
 <td>
 proccessId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9111,7 +12277,7 @@ proccessId<br />
 <tr>
 <td>
 stageId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9122,7 +12288,9 @@ stageId<br />
 
 ## growthHacksChange
 
-**Type:** [GrowthHack](/api/objects#growthhack)
+**Type:** [GrowthHack](/docs/api/objects#growthhack)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9132,7 +12300,7 @@ stageId<br />
 <tr>
 <td>
 aboveItemId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9141,7 +12309,7 @@ aboveItemId<br />
 <tr>
 <td>
 destinationStageId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9150,7 +12318,7 @@ destinationStageId<br />
 <tr>
 <td>
 itemId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9159,7 +12327,7 @@ itemId<br />
 <tr>
 <td>
 proccessId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9168,7 +12336,7 @@ proccessId<br />
 <tr>
 <td>
 sourceStageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9179,7 +12347,9 @@ sourceStageId<br />
 
 ## growthHacksCopy
 
-**Type:** [GrowthHack](/api/objects#growthhack)
+**Type:** [GrowthHack](/docs/api/objects#growthhack)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9189,7 +12359,7 @@ sourceStageId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9198,7 +12368,7 @@ _id<br />
 <tr>
 <td>
 proccessId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9209,7 +12379,9 @@ proccessId<br />
 
 ## growthHacksEdit
 
-**Type:** [GrowthHack](/api/objects#growthhack)
+**Type:** [GrowthHack](/docs/api/objects#growthhack)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9219,7 +12391,7 @@ proccessId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9228,7 +12400,7 @@ _id<br />
 <tr>
 <td>
 aboveItemId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9237,7 +12409,7 @@ aboveItemId<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -9246,7 +12418,7 @@ assignedUserIds<br />
 <tr>
 <td>
 attachments<br />
-<a href="/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
 </td>
 <td>
 
@@ -9255,7 +12427,7 @@ attachments<br />
 <tr>
 <td>
 closeDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -9264,7 +12436,7 @@ closeDate<br />
 <tr>
 <td>
 confidence<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9273,7 +12445,7 @@ confidence<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9282,7 +12454,7 @@ description<br />
 <tr>
 <td>
 ease<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9291,7 +12463,7 @@ ease<br />
 <tr>
 <td>
 hackStages<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -9300,7 +12472,7 @@ hackStages<br />
 <tr>
 <td>
 impact<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9309,7 +12481,7 @@ impact<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9318,7 +12490,7 @@ name<br />
 <tr>
 <td>
 priority<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9327,7 +12499,7 @@ priority<br />
 <tr>
 <td>
 proccessId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9336,7 +12508,7 @@ proccessId<br />
 <tr>
 <td>
 reach<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9345,7 +12517,7 @@ reach<br />
 <tr>
 <td>
 stageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9354,7 +12526,7 @@ stageId<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9365,7 +12537,9 @@ status<br />
 
 ## growthHacksRemove
 
-**Type:** [GrowthHack](/api/objects#growthhack)
+**Type:** [GrowthHack](/docs/api/objects#growthhack)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9375,7 +12549,7 @@ status<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9386,7 +12560,9 @@ _id<br />
 
 ## growthHacksVote
 
-**Type:** [GrowthHack](/api/objects#growthhack)
+**Type:** [GrowthHack](/docs/api/objects#growthhack)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9396,7 +12572,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9405,7 +12581,7 @@ _id<br />
 <tr>
 <td>
 isVote<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -9416,7 +12592,9 @@ isVote<br />
 
 ## growthHacksWatch
 
-**Type:** [GrowthHack](/api/objects#growthhack)
+**Type:** [GrowthHack](/docs/api/objects#growthhack)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9426,7 +12604,7 @@ isVote<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9435,7 +12613,297 @@ _id<br />
 <tr>
 <td>
 isAdd<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## holidayAdd
+
+**Type:** [Absence](/docs/api/objects#absence)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+endDate<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+name<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+startDate<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## holidayEdit
+
+**Type:** [Absence](/docs/api/objects#absence)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+endDate<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+name<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+startDate<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## holidayRemove
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## imapSendMail
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+attachments<br />
+<a href="/docs/api/scalars#json"><code>[JSON]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+bcc<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+body<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+cc<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+conversationId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+customerId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+from<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+headerId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+inReplyTo<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+integrationId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+messageId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+references<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+replyTo<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+replyToMessageId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+shouldResolve<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+subject<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+threadId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+to<br />
+<a href="/docs/api/scalars#string"><code>[String]!</code></a>
 </td>
 <td>
 
@@ -9446,7 +12914,9 @@ isAdd<br />
 
 ## importHistoriesCancel
 
-**Type:** [Boolean](/api/scalars#boolean)
+**Type:** [Boolean](/docs/api/scalars#boolean)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9456,7 +12926,7 @@ isAdd<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9467,7 +12937,9 @@ _id<br />
 
 ## importHistoriesCreate
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9477,7 +12949,7 @@ _id<br />
 <tr>
 <td>
 associatedContentType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9486,7 +12958,7 @@ associatedContentType<br />
 <tr>
 <td>
 associatedField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9495,7 +12967,7 @@ associatedField<br />
 <tr>
 <td>
 columnsConfig<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -9504,7 +12976,7 @@ columnsConfig<br />
 <tr>
 <td>
 contentTypes<br />
-<a href="/api/scalars#json"><code>[JSON]</code></a>
+<a href="/docs/api/scalars#json"><code>[JSON]</code></a>
 </td>
 <td>
 
@@ -9513,7 +12985,7 @@ contentTypes<br />
 <tr>
 <td>
 files<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -9522,7 +12994,7 @@ files<br />
 <tr>
 <td>
 importName<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9533,7 +13005,9 @@ importName<br />
 
 ## importHistoriesRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9543,7 +13017,7 @@ importName<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9552,7 +13026,7 @@ _id<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9563,7 +13037,9 @@ contentType<br />
 
 ## integrationsArchive
 
-**Type:** [Integration](/api/objects#integration)
+**Type:** [Integration](/docs/api/objects#integration)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9573,7 +13049,7 @@ contentType<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9582,7 +13058,7 @@ _id<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#boolean"><code>Boolean!</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean!</code></a>
 </td>
 <td>
 
@@ -9593,7 +13069,9 @@ status<br />
 
 ## integrationsCopyLeadIntegration
 
-**Type:** [Integration](/api/objects#integration)
+**Type:** [Integration](/docs/api/objects#integration)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9603,7 +13081,7 @@ status<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9614,7 +13092,9 @@ _id<br />
 
 ## integrationsCreateBookingIntegration
 
-**Type:** [Integration](/api/objects#integration)
+**Type:** [Integration](/docs/api/objects#integration)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9624,7 +13104,7 @@ _id<br />
 <tr>
 <td>
 bookingData<br />
-<a href="/api/inputObjects#integrationbookingdata"><code>IntegrationBookingData</code></a>
+<a href="/docs/api/inputObjects#integrationbookingdata"><code>IntegrationBookingData</code></a>
 </td>
 <td>
 
@@ -9633,7 +13113,7 @@ bookingData<br />
 <tr>
 <td>
 brandId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9642,7 +13122,7 @@ brandId<br />
 <tr>
 <td>
 channelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -9651,7 +13131,7 @@ channelIds<br />
 <tr>
 <td>
 formId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9660,7 +13140,7 @@ formId<br />
 <tr>
 <td>
 languageCode<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9669,7 +13149,7 @@ languageCode<br />
 <tr>
 <td>
 leadData<br />
-<a href="/api/inputObjects#integrationleaddata"><code>IntegrationLeadData</code></a>
+<a href="/docs/api/inputObjects#integrationleaddata"><code>IntegrationLeadData</code></a>
 </td>
 <td>
 
@@ -9678,7 +13158,7 @@ leadData<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9689,7 +13169,9 @@ name<br />
 
 ## integrationsCreateExternalIntegration
 
-**Type:** [Integration](/api/objects#integration)
+**Type:** [Integration](/docs/api/objects#integration)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9699,7 +13181,7 @@ name<br />
 <tr>
 <td>
 accountId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9708,7 +13190,7 @@ accountId<br />
 <tr>
 <td>
 brandId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9717,7 +13199,7 @@ brandId<br />
 <tr>
 <td>
 channelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -9726,7 +13208,7 @@ channelIds<br />
 <tr>
 <td>
 data<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -9735,7 +13217,7 @@ data<br />
 <tr>
 <td>
 kind<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9744,7 +13226,7 @@ kind<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9755,7 +13237,9 @@ name<br />
 
 ## integrationsCreateLeadIntegration
 
-**Type:** [Integration](/api/objects#integration)
+**Type:** [Integration](/docs/api/objects#integration)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9765,7 +13249,7 @@ name<br />
 <tr>
 <td>
 brandId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9774,7 +13258,7 @@ brandId<br />
 <tr>
 <td>
 channelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -9783,7 +13267,7 @@ channelIds<br />
 <tr>
 <td>
 departmentIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -9792,7 +13276,7 @@ departmentIds<br />
 <tr>
 <td>
 formId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9801,7 +13285,7 @@ formId<br />
 <tr>
 <td>
 languageCode<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9810,7 +13294,7 @@ languageCode<br />
 <tr>
 <td>
 leadData<br />
-<a href="/api/inputObjects#integrationleaddata"><code>IntegrationLeadData!</code></a>
+<a href="/docs/api/inputObjects#integrationleaddata"><code>IntegrationLeadData!</code></a>
 </td>
 <td>
 
@@ -9819,7 +13303,7 @@ leadData<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9828,7 +13312,7 @@ name<br />
 <tr>
 <td>
 visibility<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9839,7 +13323,9 @@ visibility<br />
 
 ## integrationsCreateMessengerIntegration
 
-**Type:** [Integration](/api/objects#integration)
+**Type:** [Integration](/docs/api/objects#integration)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9849,7 +13335,7 @@ visibility<br />
 <tr>
 <td>
 brandId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9858,7 +13344,7 @@ brandId<br />
 <tr>
 <td>
 channelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -9867,7 +13353,7 @@ channelIds<br />
 <tr>
 <td>
 languageCode<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9876,7 +13362,7 @@ languageCode<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9887,7 +13373,9 @@ name<br />
 
 ## integrationsEditBookingIntegration
 
-**Type:** [Integration](/api/objects#integration)
+**Type:** [Integration](/docs/api/objects#integration)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9897,7 +13385,7 @@ name<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9906,7 +13394,7 @@ _id<br />
 <tr>
 <td>
 bookingData<br />
-<a href="/api/inputObjects#integrationbookingdata"><code>IntegrationBookingData</code></a>
+<a href="/docs/api/inputObjects#integrationbookingdata"><code>IntegrationBookingData</code></a>
 </td>
 <td>
 
@@ -9915,7 +13403,7 @@ bookingData<br />
 <tr>
 <td>
 brandId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9924,7 +13412,7 @@ brandId<br />
 <tr>
 <td>
 channelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -9933,7 +13421,7 @@ channelIds<br />
 <tr>
 <td>
 formId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9942,7 +13430,7 @@ formId<br />
 <tr>
 <td>
 languageCode<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9951,7 +13439,7 @@ languageCode<br />
 <tr>
 <td>
 leadData<br />
-<a href="/api/inputObjects#integrationleaddata"><code>IntegrationLeadData</code></a>
+<a href="/docs/api/inputObjects#integrationleaddata"><code>IntegrationLeadData</code></a>
 </td>
 <td>
 
@@ -9960,7 +13448,7 @@ leadData<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9971,7 +13459,9 @@ name<br />
 
 ## integrationsEditCommonFields
 
-**Type:** [Integration](/api/objects#integration)
+**Type:** [Integration](/docs/api/objects#integration)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9981,7 +13471,7 @@ name<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9990,7 +13480,7 @@ _id<br />
 <tr>
 <td>
 brandId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9999,7 +13489,7 @@ brandId<br />
 <tr>
 <td>
 channelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -10008,7 +13498,7 @@ channelIds<br />
 <tr>
 <td>
 data<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -10017,7 +13507,7 @@ data<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10028,7 +13518,9 @@ name<br />
 
 ## integrationsEditLeadIntegration
 
-**Type:** [Integration](/api/objects#integration)
+**Type:** [Integration](/docs/api/objects#integration)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10038,7 +13530,7 @@ name<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10047,7 +13539,7 @@ _id<br />
 <tr>
 <td>
 brandId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10056,7 +13548,7 @@ brandId<br />
 <tr>
 <td>
 channelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -10065,7 +13557,7 @@ channelIds<br />
 <tr>
 <td>
 departmentIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -10074,7 +13566,7 @@ departmentIds<br />
 <tr>
 <td>
 formId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10083,7 +13575,7 @@ formId<br />
 <tr>
 <td>
 languageCode<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10092,7 +13584,7 @@ languageCode<br />
 <tr>
 <td>
 leadData<br />
-<a href="/api/inputObjects#integrationleaddata"><code>IntegrationLeadData!</code></a>
+<a href="/docs/api/inputObjects#integrationleaddata"><code>IntegrationLeadData!</code></a>
 </td>
 <td>
 
@@ -10101,7 +13593,7 @@ leadData<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10110,7 +13602,7 @@ name<br />
 <tr>
 <td>
 visibility<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10121,7 +13613,9 @@ visibility<br />
 
 ## integrationsEditMessengerIntegration
 
-**Type:** [Integration](/api/objects#integration)
+**Type:** [Integration](/docs/api/objects#integration)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10131,7 +13625,7 @@ visibility<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10140,7 +13634,7 @@ _id<br />
 <tr>
 <td>
 brandId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10149,7 +13643,7 @@ brandId<br />
 <tr>
 <td>
 channelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -10158,7 +13652,7 @@ channelIds<br />
 <tr>
 <td>
 languageCode<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10167,181 +13661,7 @@ languageCode<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## integrationSendMail
-
-**Type:** [JSON](/api/scalars#json)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-attachments<br />
-<a href="/api/scalars#json"><code>[JSON]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-bcc<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-body<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-cc<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-customerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-erxesApiId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-from<br />
-<a href="/api/scalars#string"><code>String!</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-headerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-inReplyTo<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-kind<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-messageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-references<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-replyTo<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-replyToMessageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-shouldResolve<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-subject<br />
-<a href="/api/scalars#string"><code>String!</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-threadId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-to<br />
-<a href="/api/scalars#string"><code>[String]!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10352,7 +13672,9 @@ to<br />
 
 ## integrationsRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10362,7 +13684,7 @@ to<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10373,7 +13695,9 @@ _id<br />
 
 ## integrationsRemoveAccount
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10383,7 +13707,16 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+kind<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10394,7 +13727,9 @@ _id<br />
 
 ## integrationsRepair
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10404,7 +13739,16 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+kind<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10415,7 +13759,9 @@ _id<br />
 
 ## integrationsSaveMessengerAppearanceData
 
-**Type:** [Integration](/api/objects#integration)
+**Type:** [Integration](/docs/api/objects#integration)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10425,7 +13771,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10434,7 +13780,7 @@ _id<br />
 <tr>
 <td>
 uiOptions<br />
-<a href="/api/inputObjects#messengeruioptions"><code>MessengerUiOptions</code></a>
+<a href="/docs/api/inputObjects#messengeruioptions"><code>MessengerUiOptions</code></a>
 </td>
 <td>
 
@@ -10445,7 +13791,9 @@ uiOptions<br />
 
 ## integrationsSaveMessengerConfigs
 
-**Type:** [Integration](/api/objects#integration)
+**Type:** [Integration](/docs/api/objects#integration)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10455,7 +13803,7 @@ uiOptions<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10464,7 +13812,7 @@ _id<br />
 <tr>
 <td>
 messengerData<br />
-<a href="/api/inputObjects#integrationmessengerdata"><code>IntegrationMessengerData</code></a>
+<a href="/docs/api/inputObjects#integrationmessengerdata"><code>IntegrationMessengerData</code></a>
 </td>
 <td>
 
@@ -10475,7 +13823,9 @@ messengerData<br />
 
 ## integrationsSendSms
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10485,7 +13835,7 @@ messengerData<br />
 <tr>
 <td>
 content<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10494,7 +13844,7 @@ content<br />
 <tr>
 <td>
 integrationId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10503,7 +13853,7 @@ integrationId<br />
 <tr>
 <td>
 to<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10514,7 +13864,9 @@ to<br />
 
 ## integrationsUpdateConfigs
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10524,7 +13876,7 @@ to<br />
 <tr>
 <td>
 configsMap<br />
-<a href="/api/scalars#json"><code>JSON!</code></a>
+<a href="/docs/api/scalars#json"><code>JSON!</code></a>
 </td>
 <td>
 
@@ -10535,7 +13887,9 @@ configsMap<br />
 
 ## internalNotesAdd
 
-**Type:** [InternalNote](/api/objects#internalnote)
+**Type:** [InternalNote](/docs/api/objects#internalnote)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10545,7 +13899,7 @@ configsMap<br />
 <tr>
 <td>
 content<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10554,7 +13908,7 @@ content<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10563,7 +13917,7 @@ contentType<br />
 <tr>
 <td>
 contentTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10572,7 +13926,7 @@ contentTypeId<br />
 <tr>
 <td>
 mentionedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -10583,7 +13937,9 @@ mentionedUserIds<br />
 
 ## internalNotesEdit
 
-**Type:** [InternalNote](/api/objects#internalnote)
+**Type:** [InternalNote](/docs/api/objects#internalnote)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10593,7 +13949,7 @@ mentionedUserIds<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10602,7 +13958,7 @@ _id<br />
 <tr>
 <td>
 content<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10611,7 +13967,7 @@ content<br />
 <tr>
 <td>
 mentionedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -10622,7 +13978,9 @@ mentionedUserIds<br />
 
 ## internalNotesRemove
 
-**Type:** [InternalNote](/api/objects#internalnote)
+**Type:** [InternalNote](/docs/api/objects#internalnote)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10632,7 +13990,7 @@ mentionedUserIds<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10643,7 +14001,9 @@ _id<br />
 
 ## knowledgeBaseArticlesAdd
 
-**Type:** [KnowledgeBaseArticle](/api/objects#knowledgebasearticle)
+**Type:** [KnowledgeBaseArticle](/docs/api/objects#knowledgebasearticle)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10653,7 +14013,7 @@ _id<br />
 <tr>
 <td>
 doc<br />
-<a href="/api/inputObjects#knowledgebasearticledoc"><code>KnowledgeBaseArticleDoc!</code></a>
+<a href="/docs/api/inputObjects#knowledgebasearticledoc"><code>KnowledgeBaseArticleDoc!</code></a>
 </td>
 <td>
 
@@ -10664,7 +14024,9 @@ doc<br />
 
 ## knowledgeBaseArticlesEdit
 
-**Type:** [KnowledgeBaseArticle](/api/objects#knowledgebasearticle)
+**Type:** [KnowledgeBaseArticle](/docs/api/objects#knowledgebasearticle)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10674,7 +14036,7 @@ doc<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10683,7 +14045,7 @@ _id<br />
 <tr>
 <td>
 doc<br />
-<a href="/api/inputObjects#knowledgebasearticledoc"><code>KnowledgeBaseArticleDoc!</code></a>
+<a href="/docs/api/inputObjects#knowledgebasearticledoc"><code>KnowledgeBaseArticleDoc!</code></a>
 </td>
 <td>
 
@@ -10694,7 +14056,9 @@ doc<br />
 
 ## knowledgeBaseArticlesRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10704,7 +14068,7 @@ doc<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10715,7 +14079,9 @@ _id<br />
 
 ## knowledgeBaseCategoriesAdd
 
-**Type:** [KnowledgeBaseCategory](/api/objects#knowledgebasecategory)
+**Type:** [KnowledgeBaseCategory](/docs/api/objects#knowledgebasecategory)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10725,7 +14091,7 @@ _id<br />
 <tr>
 <td>
 doc<br />
-<a href="/api/inputObjects#knowledgebasecategorydoc"><code>KnowledgeBaseCategoryDoc!</code></a>
+<a href="/docs/api/inputObjects#knowledgebasecategorydoc"><code>KnowledgeBaseCategoryDoc!</code></a>
 </td>
 <td>
 
@@ -10736,7 +14102,9 @@ doc<br />
 
 ## knowledgeBaseCategoriesEdit
 
-**Type:** [KnowledgeBaseCategory](/api/objects#knowledgebasecategory)
+**Type:** [KnowledgeBaseCategory](/docs/api/objects#knowledgebasecategory)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10746,7 +14114,7 @@ doc<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10755,7 +14123,7 @@ _id<br />
 <tr>
 <td>
 doc<br />
-<a href="/api/inputObjects#knowledgebasecategorydoc"><code>KnowledgeBaseCategoryDoc!</code></a>
+<a href="/docs/api/inputObjects#knowledgebasecategorydoc"><code>KnowledgeBaseCategoryDoc!</code></a>
 </td>
 <td>
 
@@ -10766,7 +14134,9 @@ doc<br />
 
 ## knowledgeBaseCategoriesRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10776,7 +14146,7 @@ doc<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10787,7 +14157,9 @@ _id<br />
 
 ## knowledgeBaseTopicsAdd
 
-**Type:** [KnowledgeBaseTopic](/api/objects#knowledgebasetopic)
+**Type:** [KnowledgeBaseTopic](/docs/api/objects#knowledgebasetopic)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10797,7 +14169,7 @@ _id<br />
 <tr>
 <td>
 doc<br />
-<a href="/api/inputObjects#knowledgebasetopicdoc"><code>KnowledgeBaseTopicDoc!</code></a>
+<a href="/docs/api/inputObjects#knowledgebasetopicdoc"><code>KnowledgeBaseTopicDoc!</code></a>
 </td>
 <td>
 
@@ -10808,7 +14180,9 @@ doc<br />
 
 ## knowledgeBaseTopicsEdit
 
-**Type:** [KnowledgeBaseTopic](/api/objects#knowledgebasetopic)
+**Type:** [KnowledgeBaseTopic](/docs/api/objects#knowledgebasetopic)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10818,7 +14192,7 @@ doc<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10827,7 +14201,7 @@ _id<br />
 <tr>
 <td>
 doc<br />
-<a href="/api/inputObjects#knowledgebasetopicdoc"><code>KnowledgeBaseTopicDoc!</code></a>
+<a href="/docs/api/inputObjects#knowledgebasetopicdoc"><code>KnowledgeBaseTopicDoc!</code></a>
 </td>
 <td>
 
@@ -10838,7 +14212,9 @@ doc<br />
 
 ## knowledgeBaseTopicsRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10848,7 +14224,7 @@ doc<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10859,7 +14235,9 @@ _id<br />
 
 ## login
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10869,7 +14247,7 @@ _id<br />
 <tr>
 <td>
 deviceToken<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10878,7 +14256,7 @@ deviceToken<br />
 <tr>
 <td>
 email<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10887,7 +14265,7 @@ email<br />
 <tr>
 <td>
 password<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10898,11 +14276,15 @@ password<br />
 
 ## logout
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 ## lotteriesAdd
 
-**Type:** [Lottery](/api/objects#lottery)
+**Type:** [Lottery](/docs/api/objects#lottery)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10912,7 +14294,7 @@ password<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10921,7 +14303,7 @@ campaignId<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10930,7 +14312,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10939,7 +14321,7 @@ ownerType<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10948,7 +14330,7 @@ status<br />
 <tr>
 <td>
 usedAt<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -10959,7 +14341,9 @@ usedAt<br />
 
 ## lotteriesEdit
 
-**Type:** [Lottery](/api/objects#lottery)
+**Type:** [Lottery](/docs/api/objects#lottery)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10969,7 +14353,7 @@ usedAt<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10978,7 +14362,7 @@ _id<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10987,7 +14371,7 @@ campaignId<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10996,7 +14380,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11005,7 +14389,7 @@ ownerType<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11014,7 +14398,7 @@ status<br />
 <tr>
 <td>
 usedAt<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -11025,7 +14409,9 @@ usedAt<br />
 
 ## lotteriesRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11035,7 +14421,7 @@ usedAt<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -11046,7 +14432,9 @@ _ids<br />
 
 ## lotteryCampaignsAdd
 
-**Type:** [LotteryCampaign](/api/objects#lotterycampaign)
+**Type:** [LotteryCampaign](/docs/api/objects#lotterycampaign)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11056,7 +14444,7 @@ _ids<br />
 <tr>
 <td>
 attachment<br />
-<a href="/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
 </td>
 <td>
 
@@ -11065,7 +14453,7 @@ attachment<br />
 <tr>
 <td>
 awards<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -11074,7 +14462,7 @@ awards<br />
 <tr>
 <td>
 buyScore<br />
-<a href="/api/scalars#float"><code>Float</code></a>
+<a href="/docs/api/scalars#float"><code>Float</code></a>
 </td>
 <td>
 
@@ -11083,7 +14471,7 @@ buyScore<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11092,7 +14480,7 @@ description<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -11101,7 +14489,7 @@ endDate<br />
 <tr>
 <td>
 finishDateOfUse<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -11110,7 +14498,7 @@ finishDateOfUse<br />
 <tr>
 <td>
 numberFormat<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11119,7 +14507,7 @@ numberFormat<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -11128,7 +14516,7 @@ startDate<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11137,7 +14525,7 @@ status<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11148,7 +14536,9 @@ title<br />
 
 ## lotteryCampaignsEdit
 
-**Type:** [LotteryCampaign](/api/objects#lotterycampaign)
+**Type:** [LotteryCampaign](/docs/api/objects#lotterycampaign)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11158,7 +14548,7 @@ title<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -11167,7 +14557,7 @@ _id<br />
 <tr>
 <td>
 attachment<br />
-<a href="/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
 </td>
 <td>
 
@@ -11176,7 +14566,7 @@ attachment<br />
 <tr>
 <td>
 awards<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -11185,7 +14575,7 @@ awards<br />
 <tr>
 <td>
 buyScore<br />
-<a href="/api/scalars#float"><code>Float</code></a>
+<a href="/docs/api/scalars#float"><code>Float</code></a>
 </td>
 <td>
 
@@ -11194,7 +14584,7 @@ buyScore<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11203,7 +14593,7 @@ description<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -11212,7 +14602,7 @@ endDate<br />
 <tr>
 <td>
 finishDateOfUse<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -11221,7 +14611,7 @@ finishDateOfUse<br />
 <tr>
 <td>
 numberFormat<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11230,7 +14620,7 @@ numberFormat<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -11239,7 +14629,7 @@ startDate<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11248,7 +14638,7 @@ status<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11259,7 +14649,9 @@ title<br />
 
 ## lotteryCampaignsRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11269,7 +14661,7 @@ title<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -11280,7 +14672,9 @@ _ids<br />
 
 ## loyaltyConfigsUpdate
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11290,7 +14684,7 @@ _ids<br />
 <tr>
 <td>
 configsMap<br />
-<a href="/api/scalars#json"><code>JSON!</code></a>
+<a href="/docs/api/scalars#json"><code>JSON!</code></a>
 </td>
 <td>
 
@@ -11301,7 +14695,9 @@ configsMap<br />
 
 ## messengerAppSave
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11311,7 +14707,7 @@ configsMap<br />
 <tr>
 <td>
 integrationId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -11320,418 +14716,7 @@ integrationId<br />
 <tr>
 <td>
 messengerApps<br />
-<a href="/api/inputObjects#messengerappsinput"><code>MessengerAppsInput</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## neighborItemCreate
-
-**Type:** [JSON](/api/scalars#json)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-_id<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-busStopData<br />
-<a href="/api/inputObjects#commoninput"><code>CommonInput</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-createdAt<br />
-<a href="/api/scalars#date"><code>Date</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-createdBy<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-districtTownData<br />
-<a href="/api/inputObjects#districttowninput"><code>DistrictTownInput</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-envInfoData<br />
-<a href="/api/inputObjects#envinfoinput"><code>EnvInfoInput</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-hospitalData<br />
-<a href="/api/inputObjects#commoninput"><code>CommonInput</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-khorooData<br />
-<a href="/api/inputObjects#khorooinput"><code>KhorooInput</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-kindergardenData<br />
-<a href="/api/inputObjects#schoolinput"><code>SchoolInput</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-name<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-parkingData<br />
-<a href="/api/inputObjects#commoninput"><code>CommonInput</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-pharmacyData<br />
-<a href="/api/inputObjects#commoninput"><code>CommonInput</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-schoolData<br />
-<a href="/api/inputObjects#schoolinput"><code>SchoolInput</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-sohData<br />
-<a href="/api/inputObjects#sohinput"><code>SohInput</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-type<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-universityData<br />
-<a href="/api/inputObjects#universityinput"><code>UniversityInput</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## neighborItemEdit
-
-**Type:** [JSON](/api/scalars#json)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-_id<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-busStopData<br />
-<a href="/api/inputObjects#commoninput"><code>CommonInput</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-createdAt<br />
-<a href="/api/scalars#date"><code>Date</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-createdBy<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-districtTownData<br />
-<a href="/api/inputObjects#districttowninput"><code>DistrictTownInput</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-envInfoData<br />
-<a href="/api/inputObjects#envinfoinput"><code>EnvInfoInput</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-hospitalData<br />
-<a href="/api/inputObjects#commoninput"><code>CommonInput</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-khorooData<br />
-<a href="/api/inputObjects#khorooinput"><code>KhorooInput</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-kindergardenData<br />
-<a href="/api/inputObjects#schoolinput"><code>SchoolInput</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-name<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-parkingData<br />
-<a href="/api/inputObjects#commoninput"><code>CommonInput</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-pharmacyData<br />
-<a href="/api/inputObjects#commoninput"><code>CommonInput</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-schoolData<br />
-<a href="/api/inputObjects#schoolinput"><code>SchoolInput</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-sohData<br />
-<a href="/api/inputObjects#sohinput"><code>SohInput</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-type<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-universityData<br />
-<a href="/api/inputObjects#universityinput"><code>UniversityInput</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## neighborItemRemove
-
-**Type:** [JSON](/api/scalars#json)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-_id<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## neighborRemove
-
-**Type:** [Neighbor](/api/objects#neighbor)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-data<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-productCategoryId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-rate<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## neighborSave
-
-**Type:** [Neighbor](/api/objects#neighbor)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-data<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-productCategoryId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-rate<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/inputObjects#messengerappsinput"><code>MessengerAppsInput</code></a>
 </td>
 <td>
 
@@ -11742,7 +14727,9 @@ rate<br />
 
 ## notificationsMarkAsRead
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11752,7 +14739,7 @@ rate<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -11761,7 +14748,7 @@ _ids<br />
 <tr>
 <td>
 contentTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11772,7 +14759,9 @@ contentTypeId<br />
 
 ## notificationsSaveConfig
 
-**Type:** [NotificationConfiguration](/api/objects#notificationconfiguration)
+**Type:** [NotificationConfiguration](/docs/api/objects#notificationconfiguration)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11782,7 +14771,7 @@ contentTypeId<br />
 <tr>
 <td>
 isAllowed<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -11791,7 +14780,7 @@ isAllowed<br />
 <tr>
 <td>
 notifType<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -11802,15 +14791,21 @@ notifType<br />
 
 ## notificationsShow
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 ## onboardingCheckStatus
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 ## onboardingCompleteShowStep
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11820,7 +14815,7 @@ notifType<br />
 <tr>
 <td>
 step<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11831,11 +14826,321 @@ step<br />
 
 ## onboardingForceComplete
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+## payDateAdd
+
+**Type:** [PayDate](/docs/api/objects#paydate)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+dateNums<br />
+<a href="/docs/api/scalars#int"><code>[Int]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## payDateEdit
+
+**Type:** [PayDate](/docs/api/objects#paydate)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+dateNums<br />
+<a href="/docs/api/scalars#int"><code>[Int]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## payDateRemove
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## paymentAdd
+
+**Type:** [Payment](/docs/api/objects#payment)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+config<br />
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+kind<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+name<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+status<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## paymentConfigsAdd
+
+**Type:** [PaymentConfig](/docs/api/objects#paymentconfig)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+contentType<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+contentTypeId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+paymentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## paymentConfigsEdit
+
+**Type:** [PaymentConfig](/docs/api/objects#paymentconfig)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+paymentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## paymentConfigsRemove
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## paymentEdit
+
+**Type:** [Payment](/docs/api/objects#payment)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+config<br />
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+kind<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+name<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+status<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## paymentRemove
+
+**Type:** [String](/docs/api/scalars#string)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
 
 ## permissionsAdd
 
-**Type:** [[Permission]](/api/objects#permission)
+**Type:** [[Permission]](/docs/api/objects#permission)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11845,7 +15150,7 @@ step<br />
 <tr>
 <td>
 actions<br />
-<a href="/api/scalars#string"><code>[String!]!</code></a>
+<a href="/docs/api/scalars#string"><code>[String!]!</code></a>
 </td>
 <td>
 
@@ -11854,7 +15159,7 @@ actions<br />
 <tr>
 <td>
 allowed<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -11863,7 +15168,7 @@ allowed<br />
 <tr>
 <td>
 groupIds<br />
-<a href="/api/scalars#string"><code>[String!]</code></a>
+<a href="/docs/api/scalars#string"><code>[String!]</code></a>
 </td>
 <td>
 
@@ -11872,7 +15177,7 @@ groupIds<br />
 <tr>
 <td>
 module<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -11881,7 +15186,7 @@ module<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String!]</code></a>
+<a href="/docs/api/scalars#string"><code>[String!]</code></a>
 </td>
 <td>
 
@@ -11892,11 +15197,15 @@ userIds<br />
 
 ## permissionsFix
 
-**Type:** [[String]](/api/scalars#string)
+**Type:** [[String]](/docs/api/scalars#string)
+
+
 
 ## permissionsRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11906,7 +15215,7 @@ userIds<br />
 <tr>
 <td>
 ids<br />
-<a href="/api/scalars#string"><code>[String]!</code></a>
+<a href="/docs/api/scalars#string"><code>[String]!</code></a>
 </td>
 <td>
 
@@ -11917,7 +15226,9 @@ ids<br />
 
 ## pipelineLabelsAdd
 
-**Type:** [PipelineLabel](/api/objects#pipelinelabel)
+**Type:** [PipelineLabel](/docs/api/objects#pipelinelabel)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11927,7 +15238,7 @@ ids<br />
 <tr>
 <td>
 colorCode<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -11936,7 +15247,7 @@ colorCode<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -11945,7 +15256,7 @@ name<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -11956,7 +15267,9 @@ pipelineId<br />
 
 ## pipelineLabelsEdit
 
-**Type:** [PipelineLabel](/api/objects#pipelinelabel)
+**Type:** [PipelineLabel](/docs/api/objects#pipelinelabel)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11966,7 +15279,7 @@ pipelineId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -11975,7 +15288,7 @@ _id<br />
 <tr>
 <td>
 colorCode<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -11984,7 +15297,7 @@ colorCode<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -11993,7 +15306,7 @@ name<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12004,7 +15317,9 @@ pipelineId<br />
 
 ## pipelineLabelsLabel
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12014,7 +15329,7 @@ pipelineId<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String!]!</code></a>
+<a href="/docs/api/scalars#string"><code>[String!]!</code></a>
 </td>
 <td>
 
@@ -12023,7 +15338,7 @@ labelIds<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12032,7 +15347,7 @@ pipelineId<br />
 <tr>
 <td>
 targetId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12043,7 +15358,9 @@ targetId<br />
 
 ## pipelineLabelsRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12053,7 +15370,7 @@ targetId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12064,7 +15381,9 @@ _id<br />
 
 ## pipelinesAdd
 
-**Type:** [Pipeline](/api/objects#pipeline)
+**Type:** [Pipeline](/docs/api/objects#pipeline)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12074,7 +15393,7 @@ _id<br />
 <tr>
 <td>
 bgColor<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12083,7 +15402,7 @@ bgColor<br />
 <tr>
 <td>
 boardId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12092,7 +15411,7 @@ boardId<br />
 <tr>
 <td>
 departmentIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12101,7 +15420,7 @@ departmentIds<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -12110,7 +15429,7 @@ endDate<br />
 <tr>
 <td>
 excludeCheckUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12119,7 +15438,7 @@ excludeCheckUserIds<br />
 <tr>
 <td>
 hackScoringType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12128,7 +15447,7 @@ hackScoringType<br />
 <tr>
 <td>
 isCheckDepartment<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -12137,7 +15456,7 @@ isCheckDepartment<br />
 <tr>
 <td>
 isCheckUser<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -12146,7 +15465,7 @@ isCheckUser<br />
 <tr>
 <td>
 memberIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12155,7 +15474,7 @@ memberIds<br />
 <tr>
 <td>
 metric<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12164,7 +15483,7 @@ metric<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12173,7 +15492,7 @@ name<br />
 <tr>
 <td>
 numberConfig<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12182,7 +15501,7 @@ numberConfig<br />
 <tr>
 <td>
 numberSize<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12191,7 +15510,7 @@ numberSize<br />
 <tr>
 <td>
 stages<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -12200,7 +15519,16 @@ stages<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+tagId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12209,7 +15537,7 @@ startDate<br />
 <tr>
 <td>
 templateId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12218,7 +15546,7 @@ templateId<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12227,7 +15555,7 @@ type<br />
 <tr>
 <td>
 visibility<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12238,7 +15566,9 @@ visibility<br />
 
 ## pipelinesArchive
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12248,7 +15578,7 @@ visibility<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12259,7 +15589,9 @@ _id<br />
 
 ## pipelinesCopied
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12269,7 +15601,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12280,7 +15612,9 @@ _id<br />
 
 ## pipelinesEdit
 
-**Type:** [Pipeline](/api/objects#pipeline)
+**Type:** [Pipeline](/docs/api/objects#pipeline)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12290,7 +15624,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12299,7 +15633,7 @@ _id<br />
 <tr>
 <td>
 bgColor<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12308,7 +15642,7 @@ bgColor<br />
 <tr>
 <td>
 boardId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12317,7 +15651,7 @@ boardId<br />
 <tr>
 <td>
 departmentIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12326,7 +15660,7 @@ departmentIds<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -12335,7 +15669,7 @@ endDate<br />
 <tr>
 <td>
 excludeCheckUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12344,7 +15678,7 @@ excludeCheckUserIds<br />
 <tr>
 <td>
 hackScoringType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12353,7 +15687,7 @@ hackScoringType<br />
 <tr>
 <td>
 isCheckDepartment<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -12362,7 +15696,7 @@ isCheckDepartment<br />
 <tr>
 <td>
 isCheckUser<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -12371,7 +15705,7 @@ isCheckUser<br />
 <tr>
 <td>
 memberIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12380,7 +15714,7 @@ memberIds<br />
 <tr>
 <td>
 metric<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12389,7 +15723,7 @@ metric<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12398,7 +15732,7 @@ name<br />
 <tr>
 <td>
 numberConfig<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12407,7 +15741,7 @@ numberConfig<br />
 <tr>
 <td>
 numberSize<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12416,7 +15750,7 @@ numberSize<br />
 <tr>
 <td>
 stages<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -12425,7 +15759,16 @@ stages<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+tagId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12434,7 +15777,7 @@ startDate<br />
 <tr>
 <td>
 templateId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12443,7 +15786,7 @@ templateId<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12452,7 +15795,7 @@ type<br />
 <tr>
 <td>
 visibility<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12463,7 +15806,9 @@ visibility<br />
 
 ## pipelinesRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12473,7 +15818,7 @@ visibility<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12484,7 +15829,9 @@ _id<br />
 
 ## pipelinesUpdateOrder
 
-**Type:** [[Pipeline]](/api/objects#pipeline)
+**Type:** [[Pipeline]](/docs/api/objects#pipeline)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12494,7 +15841,7 @@ _id<br />
 <tr>
 <td>
 orders<br />
-<a href="/api/inputObjects#orderitem"><code>[OrderItem]</code></a>
+<a href="/docs/api/inputObjects#orderitem"><code>[OrderItem]</code></a>
 </td>
 <td>
 
@@ -12505,7 +15852,9 @@ orders<br />
 
 ## pipelinesWatch
 
-**Type:** [Pipeline](/api/objects#pipeline)
+**Type:** [Pipeline](/docs/api/objects#pipeline)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12515,7 +15864,7 @@ orders<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12524,7 +15873,7 @@ _id<br />
 <tr>
 <td>
 isAdd<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -12533,7 +15882,7 @@ isAdd<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12544,7 +15893,9 @@ type<br />
 
 ## pipelineTemplatesAdd
 
-**Type:** [PipelineTemplate](/api/objects#pipelinetemplate)
+**Type:** [PipelineTemplate](/docs/api/objects#pipelinetemplate)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12554,7 +15905,7 @@ type<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12563,7 +15914,7 @@ description<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12572,7 +15923,7 @@ name<br />
 <tr>
 <td>
 stages<br />
-<a href="/api/inputObjects#pipelinetemplatestageinput"><code>[PipelineTemplateStageInput]</code></a>
+<a href="/docs/api/inputObjects#pipelinetemplatestageinput"><code>[PipelineTemplateStageInput]</code></a>
 </td>
 <td>
 
@@ -12581,7 +15932,7 @@ stages<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12592,7 +15943,9 @@ type<br />
 
 ## pipelineTemplatesDuplicate
 
-**Type:** [PipelineTemplate](/api/objects#pipelinetemplate)
+**Type:** [PipelineTemplate](/docs/api/objects#pipelinetemplate)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12602,7 +15955,7 @@ type<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12613,7 +15966,9 @@ _id<br />
 
 ## pipelineTemplatesEdit
 
-**Type:** [PipelineTemplate](/api/objects#pipelinetemplate)
+**Type:** [PipelineTemplate](/docs/api/objects#pipelinetemplate)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12623,7 +15978,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12632,7 +15987,7 @@ _id<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12641,7 +15996,7 @@ description<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12650,7 +16005,7 @@ name<br />
 <tr>
 <td>
 stages<br />
-<a href="/api/inputObjects#pipelinetemplatestageinput"><code>[PipelineTemplateStageInput]</code></a>
+<a href="/docs/api/inputObjects#pipelinetemplatestageinput"><code>[PipelineTemplateStageInput]</code></a>
 </td>
 <td>
 
@@ -12659,7 +16014,7 @@ stages<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12670,7 +16025,9 @@ type<br />
 
 ## pipelineTemplatesRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12680,595 +16037,7 @@ type<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## posAdd
-
-**Type:** [Pos](/api/objects#pos)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-adminIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-allowBranchIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-beginNumber<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-branchId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-cardsConfig<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-cashierIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-catProdMappings<br />
-<a href="/api/inputObjects#catprodinput"><code>[CatProdInput]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-deliveryConfig<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-description<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-ebarimtConfig<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-erkhetConfig<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-initialCategoryIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-isOnline<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-kioskExcludeProductIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-kioskMachine<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-kitchenScreen<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-maxSkipNumber<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-name<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-onServer<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-productDetails<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-token<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-uiOptions<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-waitingScreen<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## posEdit
-
-**Type:** [Pos](/api/objects#pos)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-_id<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-adminIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-allowBranchIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-beginNumber<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-branchId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-cardsConfig<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-cashierIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-catProdMappings<br />
-<a href="/api/inputObjects#catprodinput"><code>[CatProdInput]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-deliveryConfig<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-description<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-ebarimtConfig<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-erkhetConfig<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-initialCategoryIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-isOnline<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-kioskExcludeProductIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-kioskMachine<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-kitchenScreen<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-maxSkipNumber<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-name<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-onServer<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-productDetails<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-token<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-uiOptions<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-waitingScreen<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## posOrderChangePayments
-
-**Type:** [PosOrder](/api/objects#posorder)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-_id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-cardAmount<br />
-<a href="/api/scalars#float"><code>Float</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-cashAmount<br />
-<a href="/api/scalars#float"><code>Float</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-mobileAmount<br />
-<a href="/api/scalars#float"><code>Float</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## posOrderReturnBill
-
-**Type:** [PosOrder](/api/objects#posorder)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-_id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## posOrderSyncErkhet
-
-**Type:** [PosOrder](/api/objects#posorder)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-_id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## posRemove
-
-**Type:** [JSON](/api/scalars#json)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-_id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## posSlotBulkUpdate
-
-**Type:** [[PosSlot]](/api/objects#posslot)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-posId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-slots<br />
-<a href="/api/inputObjects#slotinput"><code>[SlotInput]</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -13279,7 +16048,9 @@ slots<br />
 
 ## productCategoriesAdd
 
-**Type:** [ProductCategory](/api/objects#productcategory)
+**Type:** [ProductCategory](/docs/api/objects#productcategory)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -13289,7 +16060,7 @@ slots<br />
 <tr>
 <td>
 attachment<br />
-<a href="/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
 </td>
 <td>
 
@@ -13298,7 +16069,7 @@ attachment<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -13307,7 +16078,16 @@ code<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+meta<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13316,7 +16096,7 @@ description<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -13325,7 +16105,7 @@ name<br />
 <tr>
 <td>
 parentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13334,7 +16114,7 @@ parentId<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13345,7 +16125,9 @@ status<br />
 
 ## productCategoriesEdit
 
-**Type:** [ProductCategory](/api/objects#productcategory)
+**Type:** [ProductCategory](/docs/api/objects#productcategory)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -13355,7 +16137,7 @@ status<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -13364,7 +16146,7 @@ _id<br />
 <tr>
 <td>
 attachment<br />
-<a href="/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
 </td>
 <td>
 
@@ -13373,7 +16155,7 @@ attachment<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -13382,7 +16164,16 @@ code<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+meta<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13391,7 +16182,7 @@ description<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -13400,7 +16191,7 @@ name<br />
 <tr>
 <td>
 parentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13409,7 +16200,7 @@ parentId<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13420,7 +16211,9 @@ status<br />
 
 ## productCategoriesRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -13430,103 +16223,7 @@ status<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## productGroupsAdd
-
-**Type:** [ProductGroups](/api/objects#productgroups)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-categoryIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-description<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-excludedCategoryIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-excludedProductIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-name<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-posId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## productGroupsBulkInsert
-
-**Type:** [[ProductGroups]](/api/objects#productgroups)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-groups<br />
-<a href="/api/inputObjects#groupinput"><code>[GroupInput]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-posId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -13537,7 +16234,9 @@ posId<br />
 
 ## productsAdd
 
-**Type:** [Product](/api/objects#product)
+**Type:** [Product](/docs/api/objects#product)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -13547,7 +16246,7 @@ posId<br />
 <tr>
 <td>
 attachment<br />
-<a href="/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
 </td>
 <td>
 
@@ -13556,7 +16255,25 @@ attachment<br />
 <tr>
 <td>
 attachmentMore<br />
-<a href="/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+barcodeDescription<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+barcodes<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13565,7 +16282,7 @@ attachmentMore<br />
 <tr>
 <td>
 categoryId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13574,7 +16291,7 @@ categoryId<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13583,7 +16300,7 @@ code<br />
 <tr>
 <td>
 customFieldsData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -13592,7 +16309,7 @@ customFieldsData<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13601,7 +16318,7 @@ description<br />
 <tr>
 <td>
 minimiumCount<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -13610,7 +16327,7 @@ minimiumCount<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13619,7 +16336,7 @@ name<br />
 <tr>
 <td>
 productCount<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -13628,7 +16345,7 @@ productCount<br />
 <tr>
 <td>
 sku<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13637,7 +16354,7 @@ sku<br />
 <tr>
 <td>
 subUoms<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -13646,7 +16363,25 @@ subUoms<br />
 <tr>
 <td>
 supply<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+taxCode<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+taxType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13655,7 +16390,7 @@ supply<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13664,7 +16399,7 @@ type<br />
 <tr>
 <td>
 unitPrice<br />
-<a href="/api/scalars#float"><code>Float</code></a>
+<a href="/docs/api/scalars#float"><code>Float</code></a>
 </td>
 <td>
 
@@ -13673,7 +16408,7 @@ unitPrice<br />
 <tr>
 <td>
 uomId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13682,7 +16417,7 @@ uomId<br />
 <tr>
 <td>
 vendorId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13693,7 +16428,9 @@ vendorId<br />
 
 ## productsConfigsUpdate
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -13703,7 +16440,7 @@ vendorId<br />
 <tr>
 <td>
 configsMap<br />
-<a href="/api/scalars#json"><code>JSON!</code></a>
+<a href="/docs/api/scalars#json"><code>JSON!</code></a>
 </td>
 <td>
 
@@ -13714,7 +16451,9 @@ configsMap<br />
 
 ## productsEdit
 
-**Type:** [Product](/api/objects#product)
+**Type:** [Product](/docs/api/objects#product)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -13724,7 +16463,7 @@ configsMap<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -13733,7 +16472,7 @@ _id<br />
 <tr>
 <td>
 attachment<br />
-<a href="/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
 </td>
 <td>
 
@@ -13742,7 +16481,25 @@ attachment<br />
 <tr>
 <td>
 attachmentMore<br />
-<a href="/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+barcodeDescription<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+barcodes<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13751,7 +16508,7 @@ attachmentMore<br />
 <tr>
 <td>
 categoryId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13760,7 +16517,7 @@ categoryId<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13769,7 +16526,7 @@ code<br />
 <tr>
 <td>
 customFieldsData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -13778,7 +16535,7 @@ customFieldsData<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13787,7 +16544,7 @@ description<br />
 <tr>
 <td>
 minimiumCount<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -13796,7 +16553,7 @@ minimiumCount<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13805,7 +16562,7 @@ name<br />
 <tr>
 <td>
 productCount<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -13814,7 +16571,7 @@ productCount<br />
 <tr>
 <td>
 sku<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13823,7 +16580,7 @@ sku<br />
 <tr>
 <td>
 subUoms<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -13832,7 +16589,25 @@ subUoms<br />
 <tr>
 <td>
 supply<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+taxCode<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+taxType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13841,7 +16616,7 @@ supply<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13850,7 +16625,7 @@ type<br />
 <tr>
 <td>
 unitPrice<br />
-<a href="/api/scalars#float"><code>Float</code></a>
+<a href="/docs/api/scalars#float"><code>Float</code></a>
 </td>
 <td>
 
@@ -13859,7 +16634,7 @@ unitPrice<br />
 <tr>
 <td>
 uomId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13868,7 +16643,7 @@ uomId<br />
 <tr>
 <td>
 vendorId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13879,7 +16654,9 @@ vendorId<br />
 
 ## productsMerge
 
-**Type:** [Product](/api/objects#product)
+**Type:** [Product](/docs/api/objects#product)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -13889,7 +16666,7 @@ vendorId<br />
 <tr>
 <td>
 productFields<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -13898,7 +16675,7 @@ productFields<br />
 <tr>
 <td>
 productIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13909,7 +16686,9 @@ productIds<br />
 
 ## productsRemove
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -13919,7 +16698,7 @@ productIds<br />
 <tr>
 <td>
 productIds<br />
-<a href="/api/scalars#string"><code>[String!]</code></a>
+<a href="/docs/api/scalars#string"><code>[String!]</code></a>
 </td>
 <td>
 
@@ -13930,7 +16709,9 @@ productIds<br />
 
 ## removeSkill
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -13940,7 +16721,7 @@ productIds<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -13951,7 +16732,9 @@ _id<br />
 
 ## removeSkillType
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -13961,7 +16744,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -13972,11 +16755,15 @@ _id<br />
 
 ## renderDashboard
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 ## resetPassword
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -13986,7 +16773,7 @@ _id<br />
 <tr>
 <td>
 newPassword<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -13995,7 +16782,7 @@ newPassword<br />
 <tr>
 <td>
 token<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14006,7 +16793,9 @@ token<br />
 
 ## responseTemplatesAdd
 
-**Type:** [ResponseTemplate](/api/objects#responsetemplate)
+**Type:** [ResponseTemplate](/docs/api/objects#responsetemplate)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14016,7 +16805,7 @@ token<br />
 <tr>
 <td>
 brandId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14025,7 +16814,7 @@ brandId<br />
 <tr>
 <td>
 content<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14034,7 +16823,7 @@ content<br />
 <tr>
 <td>
 files<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -14043,7 +16832,7 @@ files<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14054,7 +16843,9 @@ name<br />
 
 ## responseTemplatesEdit
 
-**Type:** [ResponseTemplate](/api/objects#responsetemplate)
+**Type:** [ResponseTemplate](/docs/api/objects#responsetemplate)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14064,7 +16855,7 @@ name<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14073,7 +16864,7 @@ _id<br />
 <tr>
 <td>
 brandId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14082,7 +16873,7 @@ brandId<br />
 <tr>
 <td>
 content<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14091,7 +16882,7 @@ content<br />
 <tr>
 <td>
 files<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -14100,7 +16891,7 @@ files<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14111,7 +16902,9 @@ name<br />
 
 ## responseTemplatesRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14121,7 +16914,7 @@ name<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14132,7 +16925,9 @@ _id<br />
 
 ## robotEntriesMarkAsNotified
 
-**Type:** [[RobotEntry]](/api/objects#robotentry)
+**Type:** [[RobotEntry]](/docs/api/objects#robotentry)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14142,7 +16937,185 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## scheduleConfigAdd
+
+**Type:** [ScheduleConfig](/docs/api/objects#scheduleconfig)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+configShiftEnd<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+configShiftStart<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+scheduleConfig<br />
+<a href="/docs/api/inputObjects#shiftsrequestinput"><code>[ShiftsRequestInput]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+scheduleName<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## scheduleConfigEdit
+
+**Type:** [ScheduleConfig](/docs/api/objects#scheduleconfig)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+configShiftEnd<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+configShiftStart<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+scheduleConfig<br />
+<a href="/docs/api/inputObjects#shiftsrequestinput"><code>[ShiftsRequestInput]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+scheduleName<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## scheduleConfigRemove
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## scheduleRemove
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## scheduleShiftRemove
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14153,7 +17126,9 @@ _id<br />
 
 ## scriptsAdd
 
-**Type:** [Script](/api/objects#script)
+**Type:** [Script](/docs/api/objects#script)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14163,7 +17138,7 @@ _id<br />
 <tr>
 <td>
 kbTopicId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14172,7 +17147,7 @@ kbTopicId<br />
 <tr>
 <td>
 leadIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -14181,7 +17156,7 @@ leadIds<br />
 <tr>
 <td>
 messengerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14190,7 +17165,7 @@ messengerId<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14201,7 +17176,9 @@ name<br />
 
 ## scriptsEdit
 
-**Type:** [Script](/api/objects#script)
+**Type:** [Script](/docs/api/objects#script)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14211,7 +17188,7 @@ name<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14220,7 +17197,7 @@ _id<br />
 <tr>
 <td>
 kbTopicId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14229,7 +17206,7 @@ kbTopicId<br />
 <tr>
 <td>
 leadIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -14238,7 +17215,7 @@ leadIds<br />
 <tr>
 <td>
 messengerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14247,7 +17224,7 @@ messengerId<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14258,7 +17235,9 @@ name<br />
 
 ## scriptsRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14268,7 +17247,7 @@ name<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14279,7 +17258,9 @@ _id<br />
 
 ## segmentsAdd
 
-**Type:** [Segment](/api/objects#segment)
+**Type:** [Segment](/docs/api/objects#segment)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14289,7 +17270,7 @@ _id<br />
 <tr>
 <td>
 color<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14298,7 +17279,7 @@ color<br />
 <tr>
 <td>
 conditionSegments<br />
-<a href="/api/inputObjects#subsegment"><code>[SubSegment]</code></a>
+<a href="/docs/api/inputObjects#subsegment"><code>[SubSegment]</code></a>
 </td>
 <td>
 
@@ -14307,7 +17288,7 @@ conditionSegments<br />
 <tr>
 <td>
 conditions<br />
-<a href="/api/inputObjects#segmentcondition"><code>[SegmentCondition]</code></a>
+<a href="/docs/api/inputObjects#segmentcondition"><code>[SegmentCondition]</code></a>
 </td>
 <td>
 
@@ -14316,7 +17297,7 @@ conditions<br />
 <tr>
 <td>
 conditionsConjunction<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14325,7 +17306,7 @@ conditionsConjunction<br />
 <tr>
 <td>
 config<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -14334,7 +17315,7 @@ config<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14343,7 +17324,7 @@ contentType<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14352,7 +17333,7 @@ description<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14361,7 +17342,7 @@ name<br />
 <tr>
 <td>
 shouldWriteActivityLog<br />
-<a href="/api/scalars#boolean"><code>Boolean!</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean!</code></a>
 </td>
 <td>
 
@@ -14370,7 +17351,7 @@ shouldWriteActivityLog<br />
 <tr>
 <td>
 subOf<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14381,7 +17362,9 @@ subOf<br />
 
 ## segmentsEdit
 
-**Type:** [Segment](/api/objects#segment)
+**Type:** [Segment](/docs/api/objects#segment)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14391,7 +17374,7 @@ subOf<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14400,7 +17383,7 @@ _id<br />
 <tr>
 <td>
 color<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14409,7 +17392,7 @@ color<br />
 <tr>
 <td>
 conditionSegments<br />
-<a href="/api/inputObjects#subsegment"><code>[SubSegment]</code></a>
+<a href="/docs/api/inputObjects#subsegment"><code>[SubSegment]</code></a>
 </td>
 <td>
 
@@ -14418,7 +17401,7 @@ conditionSegments<br />
 <tr>
 <td>
 conditions<br />
-<a href="/api/inputObjects#segmentcondition"><code>[SegmentCondition]</code></a>
+<a href="/docs/api/inputObjects#segmentcondition"><code>[SegmentCondition]</code></a>
 </td>
 <td>
 
@@ -14427,7 +17410,7 @@ conditions<br />
 <tr>
 <td>
 conditionsConjunction<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14436,7 +17419,7 @@ conditionsConjunction<br />
 <tr>
 <td>
 config<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -14445,7 +17428,7 @@ config<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14454,7 +17437,7 @@ description<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14463,7 +17446,7 @@ name<br />
 <tr>
 <td>
 shouldWriteActivityLog<br />
-<a href="/api/scalars#boolean"><code>Boolean!</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean!</code></a>
 </td>
 <td>
 
@@ -14472,7 +17455,7 @@ shouldWriteActivityLog<br />
 <tr>
 <td>
 subOf<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14483,7 +17466,9 @@ subOf<br />
 
 ## segmentsRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14493,7 +17478,125 @@ subOf<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## sendAbsenceRequest
+
+**Type:** [Absence](/docs/api/objects#absence)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+absenceTypeId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+attachment<br />
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+endTime<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+explanation<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+reason<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+startTime<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+userId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## sendScheduleRequest
+
+**Type:** [Schedule](/docs/api/objects#schedule)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+scheduleConfigId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+shifts<br />
+<a href="/docs/api/inputObjects#shiftsrequestinput"><code>[ShiftsRequestInput]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+userId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14504,7 +17607,9 @@ _id<br />
 
 ## shareScore
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14514,7 +17619,7 @@ _id<br />
 <tr>
 <td>
 destinationCode<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14523,7 +17628,7 @@ destinationCode<br />
 <tr>
 <td>
 destinationEmail<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14532,7 +17637,7 @@ destinationEmail<br />
 <tr>
 <td>
 destinationOwnerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14541,7 +17646,7 @@ destinationOwnerId<br />
 <tr>
 <td>
 destinationPhone<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14550,7 +17655,7 @@ destinationPhone<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14559,7 +17664,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14568,7 +17673,103 @@ ownerType<br />
 <tr>
 <td>
 score<br />
-<a href="/api/scalars#float"><code>Float</code></a>
+<a href="/docs/api/scalars#float"><code>Float</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## solveAbsenceRequest
+
+**Type:** [Absence](/docs/api/objects#absence)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+status<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## solveScheduleRequest
+
+**Type:** [Schedule](/docs/api/objects#schedule)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+status<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## solveShiftRequest
+
+**Type:** [ShiftsRequest](/docs/api/objects#shiftsrequest)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+status<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14579,7 +17780,9 @@ score<br />
 
 ## spinCampaignsAdd
 
-**Type:** [SpinCampaign](/api/objects#spincampaign)
+**Type:** [SpinCampaign](/docs/api/objects#spincampaign)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14589,7 +17792,7 @@ score<br />
 <tr>
 <td>
 attachment<br />
-<a href="/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
 </td>
 <td>
 
@@ -14598,7 +17801,7 @@ attachment<br />
 <tr>
 <td>
 awards<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -14607,7 +17810,7 @@ awards<br />
 <tr>
 <td>
 buyScore<br />
-<a href="/api/scalars#float"><code>Float</code></a>
+<a href="/docs/api/scalars#float"><code>Float</code></a>
 </td>
 <td>
 
@@ -14616,7 +17819,7 @@ buyScore<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14625,7 +17828,7 @@ description<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -14634,7 +17837,7 @@ endDate<br />
 <tr>
 <td>
 finishDateOfUse<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -14643,7 +17846,7 @@ finishDateOfUse<br />
 <tr>
 <td>
 numberFormat<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14652,7 +17855,7 @@ numberFormat<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -14661,7 +17864,7 @@ startDate<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14670,7 +17873,7 @@ status<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14681,7 +17884,9 @@ title<br />
 
 ## spinCampaignsEdit
 
-**Type:** [SpinCampaign](/api/objects#spincampaign)
+**Type:** [SpinCampaign](/docs/api/objects#spincampaign)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14691,7 +17896,7 @@ title<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14700,7 +17905,7 @@ _id<br />
 <tr>
 <td>
 attachment<br />
-<a href="/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
 </td>
 <td>
 
@@ -14709,7 +17914,7 @@ attachment<br />
 <tr>
 <td>
 awards<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -14718,7 +17923,7 @@ awards<br />
 <tr>
 <td>
 buyScore<br />
-<a href="/api/scalars#float"><code>Float</code></a>
+<a href="/docs/api/scalars#float"><code>Float</code></a>
 </td>
 <td>
 
@@ -14727,7 +17932,7 @@ buyScore<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14736,7 +17941,7 @@ description<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -14745,7 +17950,7 @@ endDate<br />
 <tr>
 <td>
 finishDateOfUse<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -14754,7 +17959,7 @@ finishDateOfUse<br />
 <tr>
 <td>
 numberFormat<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14763,7 +17968,7 @@ numberFormat<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -14772,7 +17977,7 @@ startDate<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14781,7 +17986,7 @@ status<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14792,7 +17997,9 @@ title<br />
 
 ## spinCampaignsRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14802,7 +18009,7 @@ title<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -14813,7 +18020,9 @@ _ids<br />
 
 ## spinsAdd
 
-**Type:** [Spin](/api/objects#spin)
+**Type:** [Spin](/docs/api/objects#spin)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14823,7 +18032,7 @@ _ids<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14832,7 +18041,7 @@ campaignId<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14841,7 +18050,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14850,7 +18059,7 @@ ownerType<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14859,7 +18068,7 @@ status<br />
 <tr>
 <td>
 usedAt<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -14870,7 +18079,9 @@ usedAt<br />
 
 ## spinsEdit
 
-**Type:** [Spin](/api/objects#spin)
+**Type:** [Spin](/docs/api/objects#spin)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14880,7 +18091,7 @@ usedAt<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14889,7 +18100,7 @@ _id<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14898,7 +18109,7 @@ campaignId<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14907,7 +18118,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14916,7 +18127,7 @@ ownerType<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14925,7 +18136,7 @@ status<br />
 <tr>
 <td>
 usedAt<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -14936,7 +18147,9 @@ usedAt<br />
 
 ## spinsRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14946,7 +18159,7 @@ usedAt<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -14957,7 +18170,9 @@ _ids<br />
 
 ## stagesEdit
 
-**Type:** [Stage](/api/objects#stage)
+**Type:** [Stage](/docs/api/objects#stage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14967,7 +18182,7 @@ _ids<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14976,7 +18191,7 @@ _id<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14985,7 +18200,7 @@ name<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14994,7 +18209,7 @@ status<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15005,7 +18220,9 @@ type<br />
 
 ## stagesRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15015,7 +18232,7 @@ type<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15026,7 +18243,9 @@ _id<br />
 
 ## stagesSortItems
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15036,7 +18255,7 @@ _id<br />
 <tr>
 <td>
 proccessId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15045,7 +18264,7 @@ proccessId<br />
 <tr>
 <td>
 sortType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15054,7 +18273,7 @@ sortType<br />
 <tr>
 <td>
 stageId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15063,7 +18282,7 @@ stageId<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15074,7 +18293,9 @@ type<br />
 
 ## stagesUpdateOrder
 
-**Type:** [[Stage]](/api/objects#stage)
+**Type:** [[Stage]](/docs/api/objects#stage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15084,7 +18305,7 @@ type<br />
 <tr>
 <td>
 orders<br />
-<a href="/api/inputObjects#orderitem"><code>[OrderItem]</code></a>
+<a href="/docs/api/inputObjects#orderitem"><code>[OrderItem]</code></a>
 </td>
 <td>
 
@@ -15095,7 +18316,9 @@ orders<br />
 
 ## structuresAdd
 
-**Type:** [Structure](/api/objects#structure)
+**Type:** [Structure](/docs/api/objects#structure)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15105,7 +18328,7 @@ orders<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15114,7 +18337,7 @@ code<br />
 <tr>
 <td>
 coordinate<br />
-<a href="/api/inputObjects#coordinateinput"><code>CoordinateInput</code></a>
+<a href="/docs/api/inputObjects#coordinateinput"><code>CoordinateInput</code></a>
 </td>
 <td>
 
@@ -15123,7 +18346,7 @@ coordinate<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15132,7 +18355,7 @@ description<br />
 <tr>
 <td>
 email<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15141,7 +18364,7 @@ email<br />
 <tr>
 <td>
 image<br />
-<a href="/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
 </td>
 <td>
 
@@ -15150,7 +18373,7 @@ image<br />
 <tr>
 <td>
 links<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -15159,7 +18382,7 @@ links<br />
 <tr>
 <td>
 phoneNumber<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15168,7 +18391,7 @@ phoneNumber<br />
 <tr>
 <td>
 supervisorId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15177,7 +18400,7 @@ supervisorId<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15186,7 +18409,7 @@ title<br />
 <tr>
 <td>
 website<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15197,7 +18420,9 @@ website<br />
 
 ## structuresEdit
 
-**Type:** [Structure](/api/objects#structure)
+**Type:** [Structure](/docs/api/objects#structure)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15207,7 +18432,7 @@ website<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15216,7 +18441,7 @@ _id<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15225,7 +18450,7 @@ code<br />
 <tr>
 <td>
 coordinate<br />
-<a href="/api/inputObjects#coordinateinput"><code>CoordinateInput</code></a>
+<a href="/docs/api/inputObjects#coordinateinput"><code>CoordinateInput</code></a>
 </td>
 <td>
 
@@ -15234,7 +18459,7 @@ coordinate<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15243,7 +18468,7 @@ description<br />
 <tr>
 <td>
 email<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15252,7 +18477,7 @@ email<br />
 <tr>
 <td>
 image<br />
-<a href="/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
 </td>
 <td>
 
@@ -15261,7 +18486,7 @@ image<br />
 <tr>
 <td>
 links<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -15270,7 +18495,7 @@ links<br />
 <tr>
 <td>
 phoneNumber<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15279,7 +18504,7 @@ phoneNumber<br />
 <tr>
 <td>
 supervisorId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15288,7 +18513,7 @@ supervisorId<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15297,7 +18522,7 @@ title<br />
 <tr>
 <td>
 website<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15308,7 +18533,9 @@ website<br />
 
 ## structuresRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15318,7 +18545,107 @@ website<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## submitCheckInOutRequest
+
+**Type:** [AbsenceType](/docs/api/objects#absencetype)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+checkTime<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+checkType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+userId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## submitSchedule
+
+**Type:** [Schedule](/docs/api/objects#schedule)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+branchIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+scheduleConfigId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+shifts<br />
+<a href="/docs/api/inputObjects#shiftsrequestinput"><code>[ShiftsRequestInput]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+userIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -15329,7 +18656,9 @@ _id<br />
 
 ## tagsAdd
 
-**Type:** [Tag](/api/objects#tag)
+**Type:** [Tag](/docs/api/objects#tag)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15339,7 +18668,7 @@ _id<br />
 <tr>
 <td>
 colorCode<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15348,7 +18677,7 @@ colorCode<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15357,7 +18686,7 @@ name<br />
 <tr>
 <td>
 parentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15366,7 +18695,7 @@ parentId<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15377,7 +18706,9 @@ type<br />
 
 ## tagsEdit
 
-**Type:** [Tag](/api/objects#tag)
+**Type:** [Tag](/docs/api/objects#tag)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15387,7 +18718,7 @@ type<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15396,7 +18727,7 @@ _id<br />
 <tr>
 <td>
 colorCode<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15405,7 +18736,7 @@ colorCode<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15414,7 +18745,7 @@ name<br />
 <tr>
 <td>
 parentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15423,7 +18754,7 @@ parentId<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15434,7 +18765,9 @@ type<br />
 
 ## tagsMerge
 
-**Type:** [Tag](/api/objects#tag)
+**Type:** [Tag](/docs/api/objects#tag)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15444,7 +18777,7 @@ type<br />
 <tr>
 <td>
 destId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15453,7 +18786,7 @@ destId<br />
 <tr>
 <td>
 sourceId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15464,7 +18797,9 @@ sourceId<br />
 
 ## tagsRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15474,7 +18809,7 @@ sourceId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15485,7 +18820,9 @@ _id<br />
 
 ## tagsTag
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15495,7 +18832,7 @@ _id<br />
 <tr>
 <td>
 tagIds<br />
-<a href="/api/scalars#string"><code>[String!]!</code></a>
+<a href="/docs/api/scalars#string"><code>[String!]!</code></a>
 </td>
 <td>
 
@@ -15504,7 +18841,7 @@ tagIds<br />
 <tr>
 <td>
 targetIds<br />
-<a href="/api/scalars#string"><code>[String!]!</code></a>
+<a href="/docs/api/scalars#string"><code>[String!]!</code></a>
 </td>
 <td>
 
@@ -15513,7 +18850,7 @@ targetIds<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15524,7 +18861,9 @@ type<br />
 
 ## tasksAdd
 
-**Type:** [Task](/api/objects#task)
+**Type:** [Task](/docs/api/objects#task)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15534,7 +18873,7 @@ type<br />
 <tr>
 <td>
 aboveItemId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15543,7 +18882,7 @@ aboveItemId<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -15552,7 +18891,16 @@ assignedUserIds<br />
 <tr>
 <td>
 attachments<br />
-<a href="/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+branchIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -15561,7 +18909,7 @@ attachments<br />
 <tr>
 <td>
 closeDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -15570,7 +18918,7 @@ closeDate<br />
 <tr>
 <td>
 companyIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -15579,7 +18927,7 @@ companyIds<br />
 <tr>
 <td>
 customFieldsData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -15588,7 +18936,16 @@ customFieldsData<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -15597,7 +18954,7 @@ customerIds<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15606,7 +18963,7 @@ description<br />
 <tr>
 <td>
 isComplete<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -15615,7 +18972,7 @@ isComplete<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -15624,7 +18981,7 @@ labelIds<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15633,7 +18990,16 @@ name<br />
 <tr>
 <td>
 order<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15642,7 +19008,7 @@ order<br />
 <tr>
 <td>
 priority<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15651,7 +19017,7 @@ priority<br />
 <tr>
 <td>
 proccessId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15660,7 +19026,7 @@ proccessId<br />
 <tr>
 <td>
 reminderMinute<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -15669,7 +19035,7 @@ reminderMinute<br />
 <tr>
 <td>
 sourceConversationIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -15678,7 +19044,7 @@ sourceConversationIds<br />
 <tr>
 <td>
 stageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15687,7 +19053,7 @@ stageId<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -15696,7 +19062,16 @@ startDate<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+tagIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -15707,7 +19082,9 @@ status<br />
 
 ## tasksArchive
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15717,7 +19094,7 @@ status<br />
 <tr>
 <td>
 proccessId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15726,7 +19103,7 @@ proccessId<br />
 <tr>
 <td>
 stageId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15737,7 +19114,9 @@ stageId<br />
 
 ## tasksChange
 
-**Type:** [Task](/api/objects#task)
+**Type:** [Task](/docs/api/objects#task)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15747,7 +19126,7 @@ stageId<br />
 <tr>
 <td>
 aboveItemId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15756,7 +19135,7 @@ aboveItemId<br />
 <tr>
 <td>
 destinationStageId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15765,7 +19144,7 @@ destinationStageId<br />
 <tr>
 <td>
 itemId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15774,7 +19153,7 @@ itemId<br />
 <tr>
 <td>
 proccessId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15783,7 +19162,7 @@ proccessId<br />
 <tr>
 <td>
 sourceStageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15794,7 +19173,9 @@ sourceStageId<br />
 
 ## tasksCopy
 
-**Type:** [Task](/api/objects#task)
+**Type:** [Task](/docs/api/objects#task)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15804,7 +19185,7 @@ sourceStageId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15813,7 +19194,7 @@ _id<br />
 <tr>
 <td>
 proccessId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15824,7 +19205,9 @@ proccessId<br />
 
 ## tasksEdit
 
-**Type:** [Task](/api/objects#task)
+**Type:** [Task](/docs/api/objects#task)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15834,7 +19217,7 @@ proccessId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15843,7 +19226,7 @@ _id<br />
 <tr>
 <td>
 aboveItemId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15852,7 +19235,7 @@ aboveItemId<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -15861,7 +19244,16 @@ assignedUserIds<br />
 <tr>
 <td>
 attachments<br />
-<a href="/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+branchIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -15870,7 +19262,7 @@ attachments<br />
 <tr>
 <td>
 closeDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -15879,7 +19271,16 @@ closeDate<br />
 <tr>
 <td>
 customFieldsData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -15888,7 +19289,7 @@ customFieldsData<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15897,7 +19298,7 @@ description<br />
 <tr>
 <td>
 isComplete<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -15906,7 +19307,7 @@ isComplete<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15915,7 +19316,16 @@ name<br />
 <tr>
 <td>
 order<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15924,7 +19334,7 @@ order<br />
 <tr>
 <td>
 priority<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15933,7 +19343,7 @@ priority<br />
 <tr>
 <td>
 proccessId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15942,7 +19352,7 @@ proccessId<br />
 <tr>
 <td>
 reminderMinute<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -15951,7 +19361,7 @@ reminderMinute<br />
 <tr>
 <td>
 sourceConversationIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -15960,7 +19370,7 @@ sourceConversationIds<br />
 <tr>
 <td>
 stageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15969,7 +19379,7 @@ stageId<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -15978,7 +19388,16 @@ startDate<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+tagIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -15989,7 +19408,9 @@ status<br />
 
 ## tasksRemove
 
-**Type:** [Task](/api/objects#task)
+**Type:** [Task](/docs/api/objects#task)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15999,7 +19420,7 @@ status<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -16010,7 +19431,9 @@ _id<br />
 
 ## tasksWatch
 
-**Type:** [Task](/api/objects#task)
+**Type:** [Task](/docs/api/objects#task)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -16020,7 +19443,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16029,7 +19452,7 @@ _id<br />
 <tr>
 <td>
 isAdd<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -16040,7 +19463,9 @@ isAdd<br />
 
 ## ticketsAdd
 
-**Type:** [Ticket](/api/objects#ticket)
+**Type:** [Ticket](/docs/api/objects#ticket)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -16050,7 +19475,7 @@ isAdd<br />
 <tr>
 <td>
 aboveItemId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16059,7 +19484,7 @@ aboveItemId<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -16068,7 +19493,16 @@ assignedUserIds<br />
 <tr>
 <td>
 attachments<br />
-<a href="/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+branchIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -16077,7 +19511,7 @@ attachments<br />
 <tr>
 <td>
 closeDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -16086,7 +19520,7 @@ closeDate<br />
 <tr>
 <td>
 companyIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -16095,7 +19529,7 @@ companyIds<br />
 <tr>
 <td>
 customFieldsData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -16104,7 +19538,16 @@ customFieldsData<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -16113,7 +19556,7 @@ customerIds<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16122,7 +19565,7 @@ description<br />
 <tr>
 <td>
 isComplete<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -16131,7 +19574,7 @@ isComplete<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -16140,7 +19583,7 @@ labelIds<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -16149,7 +19592,16 @@ name<br />
 <tr>
 <td>
 order<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16158,7 +19610,7 @@ order<br />
 <tr>
 <td>
 priority<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16167,7 +19619,7 @@ priority<br />
 <tr>
 <td>
 proccessId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16176,7 +19628,7 @@ proccessId<br />
 <tr>
 <td>
 reminderMinute<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -16185,7 +19637,7 @@ reminderMinute<br />
 <tr>
 <td>
 source<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16194,7 +19646,7 @@ source<br />
 <tr>
 <td>
 sourceConversationIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -16203,7 +19655,7 @@ sourceConversationIds<br />
 <tr>
 <td>
 stageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16212,7 +19664,7 @@ stageId<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -16221,7 +19673,16 @@ startDate<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+tagIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -16232,7 +19693,9 @@ status<br />
 
 ## ticketsArchive
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -16242,7 +19705,7 @@ status<br />
 <tr>
 <td>
 proccessId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16251,7 +19714,7 @@ proccessId<br />
 <tr>
 <td>
 stageId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -16262,7 +19725,9 @@ stageId<br />
 
 ## ticketsChange
 
-**Type:** [Ticket](/api/objects#ticket)
+**Type:** [Ticket](/docs/api/objects#ticket)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -16272,7 +19737,7 @@ stageId<br />
 <tr>
 <td>
 aboveItemId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16281,7 +19746,7 @@ aboveItemId<br />
 <tr>
 <td>
 destinationStageId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -16290,7 +19755,7 @@ destinationStageId<br />
 <tr>
 <td>
 itemId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -16299,7 +19764,7 @@ itemId<br />
 <tr>
 <td>
 proccessId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16308,7 +19773,7 @@ proccessId<br />
 <tr>
 <td>
 sourceStageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16319,7 +19784,9 @@ sourceStageId<br />
 
 ## ticketsCopy
 
-**Type:** [Ticket](/api/objects#ticket)
+**Type:** [Ticket](/docs/api/objects#ticket)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -16329,7 +19796,7 @@ sourceStageId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -16338,7 +19805,7 @@ _id<br />
 <tr>
 <td>
 proccessId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16349,7 +19816,9 @@ proccessId<br />
 
 ## ticketsEdit
 
-**Type:** [Ticket](/api/objects#ticket)
+**Type:** [Ticket](/docs/api/objects#ticket)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -16359,7 +19828,7 @@ proccessId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -16368,7 +19837,7 @@ _id<br />
 <tr>
 <td>
 aboveItemId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16377,7 +19846,7 @@ aboveItemId<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -16386,7 +19855,16 @@ assignedUserIds<br />
 <tr>
 <td>
 attachments<br />
-<a href="/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+branchIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -16395,7 +19873,7 @@ attachments<br />
 <tr>
 <td>
 closeDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -16404,7 +19882,16 @@ closeDate<br />
 <tr>
 <td>
 customFieldsData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -16413,7 +19900,7 @@ customFieldsData<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16422,7 +19909,7 @@ description<br />
 <tr>
 <td>
 isComplete<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -16431,7 +19918,7 @@ isComplete<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16440,7 +19927,16 @@ name<br />
 <tr>
 <td>
 order<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16449,7 +19945,7 @@ order<br />
 <tr>
 <td>
 priority<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16458,7 +19954,7 @@ priority<br />
 <tr>
 <td>
 proccessId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16467,7 +19963,7 @@ proccessId<br />
 <tr>
 <td>
 reminderMinute<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -16476,7 +19972,7 @@ reminderMinute<br />
 <tr>
 <td>
 source<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16485,7 +19981,7 @@ source<br />
 <tr>
 <td>
 sourceConversationIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -16494,7 +19990,7 @@ sourceConversationIds<br />
 <tr>
 <td>
 stageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16503,7 +19999,7 @@ stageId<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -16512,7 +20008,16 @@ startDate<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+tagIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -16523,7 +20028,9 @@ status<br />
 
 ## ticketsRemove
 
-**Type:** [Ticket](/api/objects#ticket)
+**Type:** [Ticket](/docs/api/objects#ticket)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -16533,7 +20040,7 @@ status<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -16544,7 +20051,9 @@ _id<br />
 
 ## ticketsWatch
 
-**Type:** [Ticket](/api/objects#ticket)
+**Type:** [Ticket](/docs/api/objects#ticket)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -16554,7 +20063,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16563,7 +20072,198 @@ _id<br />
 <tr>
 <td>
 isAdd<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## timeclockEdit
+
+**Type:** [Timeclock](/docs/api/objects#timeclock)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+shiftActive<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+shiftEnd<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+shiftStart<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## timeclockRemove
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## timeclockStart
+
+**Type:** [Timeclock](/docs/api/objects#timeclock)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+deviceType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+latitude<br />
+<a href="/docs/api/scalars#float"><code>Float</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+longitude<br />
+<a href="/docs/api/scalars#float"><code>Float</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+userId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## timeclockStop
+
+**Type:** [Timeclock](/docs/api/objects#timeclock)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+deviceType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+latitude<br />
+<a href="/docs/api/scalars#float"><code>Float</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+longitude<br />
+<a href="/docs/api/scalars#float"><code>Float</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+userId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16574,7 +20274,9 @@ isAdd<br />
 
 ## unitsAdd
 
-**Type:** [Unit](/api/objects#unit)
+**Type:** [Unit](/docs/api/objects#unit)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -16584,7 +20286,7 @@ isAdd<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16593,7 +20295,7 @@ code<br />
 <tr>
 <td>
 departmentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16602,7 +20304,7 @@ departmentId<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16611,7 +20313,7 @@ description<br />
 <tr>
 <td>
 supervisorId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16620,7 +20322,7 @@ supervisorId<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16629,7 +20331,7 @@ title<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -16640,7 +20342,9 @@ userIds<br />
 
 ## unitsEdit
 
-**Type:** [Unit](/api/objects#unit)
+**Type:** [Unit](/docs/api/objects#unit)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -16650,7 +20354,7 @@ userIds<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -16659,7 +20363,7 @@ _id<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16668,7 +20372,7 @@ code<br />
 <tr>
 <td>
 departmentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16677,7 +20381,7 @@ departmentId<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16686,7 +20390,7 @@ description<br />
 <tr>
 <td>
 supervisorId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16695,7 +20399,7 @@ supervisorId<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16704,7 +20408,7 @@ title<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -16715,7 +20419,9 @@ userIds<br />
 
 ## unitsRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -16724,8 +20430,8 @@ userIds<br />
 <tbody>
 <tr>
 <td>
-_id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+ids<br />
+<a href="/docs/api/scalars#string"><code>[String!]</code></a>
 </td>
 <td>
 
@@ -16736,7 +20442,9 @@ _id<br />
 
 ## uomsAdd
 
-**Type:** [Uom](/api/objects#uom)
+**Type:** [Uom](/docs/api/objects#uom)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -16746,7 +20454,7 @@ _id<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16755,7 +20463,7 @@ code<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16766,7 +20474,9 @@ name<br />
 
 ## uomsEdit
 
-**Type:** [Uom](/api/objects#uom)
+**Type:** [Uom](/docs/api/objects#uom)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -16776,7 +20486,7 @@ name<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -16785,7 +20495,7 @@ _id<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16794,7 +20504,7 @@ code<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16805,7 +20515,9 @@ name<br />
 
 ## uomsRemove
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -16815,7 +20527,7 @@ name<br />
 <tr>
 <td>
 uomIds<br />
-<a href="/api/scalars#string"><code>[String!]</code></a>
+<a href="/docs/api/scalars#string"><code>[String!]</code></a>
 </td>
 <td>
 
@@ -16826,7 +20538,9 @@ uomIds<br />
 
 ## updateSkill
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -16836,7 +20550,7 @@ uomIds<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -16845,7 +20559,7 @@ _id<br />
 <tr>
 <td>
 exclude<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -16854,7 +20568,7 @@ exclude<br />
 <tr>
 <td>
 memberIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -16863,7 +20577,7 @@ memberIds<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16872,7 +20586,7 @@ name<br />
 <tr>
 <td>
 typeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16883,7 +20597,9 @@ typeId<br />
 
 ## updateSkillType
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -16893,7 +20609,7 @@ typeId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -16902,7 +20618,7 @@ _id<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16913,7 +20629,9 @@ name<br />
 
 ## userRegistrationCreate
 
-**Type:** [User](/api/objects#user)
+**Type:** [User](/docs/api/objects#user)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -16923,7 +20641,7 @@ name<br />
 <tr>
 <td>
 email<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16932,7 +20650,7 @@ email<br />
 <tr>
 <td>
 password<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -16943,7 +20661,9 @@ password<br />
 
 ## usersChangePassword
 
-**Type:** [User](/api/objects#user)
+**Type:** [User](/docs/api/objects#user)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -16953,7 +20673,7 @@ password<br />
 <tr>
 <td>
 currentPassword<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -16962,7 +20682,7 @@ currentPassword<br />
 <tr>
 <td>
 newPassword<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -16973,7 +20693,9 @@ newPassword<br />
 
 ## usersConfigEmailSignatures
 
-**Type:** [User](/api/objects#user)
+**Type:** [User](/docs/api/objects#user)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -16983,7 +20705,7 @@ newPassword<br />
 <tr>
 <td>
 signatures<br />
-<a href="/api/inputObjects#emailsignature"><code>[EmailSignature]</code></a>
+<a href="/docs/api/inputObjects#emailsignature"><code>[EmailSignature]</code></a>
 </td>
 <td>
 
@@ -16994,7 +20716,9 @@ signatures<br />
 
 ## usersConfigGetNotificationByEmail
 
-**Type:** [User](/api/objects#user)
+**Type:** [User](/docs/api/objects#user)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -17004,7 +20728,7 @@ signatures<br />
 <tr>
 <td>
 isAllowed<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -17015,7 +20739,9 @@ isAllowed<br />
 
 ## usersConfirmInvitation
 
-**Type:** [User](/api/objects#user)
+**Type:** [User](/docs/api/objects#user)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -17025,7 +20751,7 @@ isAllowed<br />
 <tr>
 <td>
 fullName<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17034,7 +20760,7 @@ fullName<br />
 <tr>
 <td>
 password<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17043,7 +20769,7 @@ password<br />
 <tr>
 <td>
 passwordConfirmation<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17052,7 +20778,7 @@ passwordConfirmation<br />
 <tr>
 <td>
 token<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17061,7 +20787,7 @@ token<br />
 <tr>
 <td>
 username<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17072,7 +20798,9 @@ username<br />
 
 ## usersCreateOwner
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -17082,7 +20810,7 @@ username<br />
 <tr>
 <td>
 email<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -17091,7 +20819,7 @@ email<br />
 <tr>
 <td>
 firstName<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -17100,7 +20828,7 @@ firstName<br />
 <tr>
 <td>
 lastName<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17109,7 +20837,7 @@ lastName<br />
 <tr>
 <td>
 password<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -17118,7 +20846,7 @@ password<br />
 <tr>
 <td>
 purpose<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17127,7 +20855,7 @@ purpose<br />
 <tr>
 <td>
 subscribeEmail<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -17138,7 +20866,9 @@ subscribeEmail<br />
 
 ## usersEdit
 
-**Type:** [User](/api/objects#user)
+**Type:** [User](/docs/api/objects#user)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -17148,7 +20878,16 @@ subscribeEmail<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+branchIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -17157,7 +20896,7 @@ _id<br />
 <tr>
 <td>
 brandIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -17166,7 +20905,7 @@ brandIds<br />
 <tr>
 <td>
 channelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -17175,7 +20914,16 @@ channelIds<br />
 <tr>
 <td>
 customFieldsData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -17184,7 +20932,7 @@ customFieldsData<br />
 <tr>
 <td>
 details<br />
-<a href="/api/inputObjects#userdetails"><code>UserDetails</code></a>
+<a href="/docs/api/inputObjects#userdetails"><code>UserDetails</code></a>
 </td>
 <td>
 
@@ -17193,7 +20941,16 @@ details<br />
 <tr>
 <td>
 email<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+employeeId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17202,7 +20959,7 @@ email<br />
 <tr>
 <td>
 groupIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -17211,7 +20968,7 @@ groupIds<br />
 <tr>
 <td>
 links<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -17220,7 +20977,7 @@ links<br />
 <tr>
 <td>
 username<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17231,7 +20988,9 @@ username<br />
 
 ## usersEditProfile
 
-**Type:** [User](/api/objects#user)
+**Type:** [User](/docs/api/objects#user)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -17241,7 +21000,7 @@ username<br />
 <tr>
 <td>
 details<br />
-<a href="/api/inputObjects#userdetails"><code>UserDetails</code></a>
+<a href="/docs/api/inputObjects#userdetails"><code>UserDetails</code></a>
 </td>
 <td>
 
@@ -17250,7 +21009,16 @@ details<br />
 <tr>
 <td>
 email<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+employeeId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17259,7 +21027,7 @@ email<br />
 <tr>
 <td>
 links<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -17268,7 +21036,7 @@ links<br />
 <tr>
 <td>
 password<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -17277,7 +21045,7 @@ password<br />
 <tr>
 <td>
 username<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -17288,7 +21056,9 @@ username<br />
 
 ## usersGroupsAdd
 
-**Type:** [UsersGroup](/api/objects#usersgroup)
+**Type:** [UsersGroup](/docs/api/objects#usersgroup)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -17298,7 +21068,7 @@ username<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17307,7 +21077,7 @@ description<br />
 <tr>
 <td>
 memberIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -17316,7 +21086,7 @@ memberIds<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -17327,7 +21097,9 @@ name<br />
 
 ## usersGroupsCopy
 
-**Type:** [UsersGroup](/api/objects#usersgroup)
+**Type:** [UsersGroup](/docs/api/objects#usersgroup)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -17337,7 +21109,7 @@ name<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -17346,7 +21118,7 @@ _id<br />
 <tr>
 <td>
 memberIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -17357,7 +21129,9 @@ memberIds<br />
 
 ## usersGroupsEdit
 
-**Type:** [UsersGroup](/api/objects#usersgroup)
+**Type:** [UsersGroup](/docs/api/objects#usersgroup)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -17367,7 +21141,7 @@ memberIds<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -17376,7 +21150,7 @@ _id<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17385,7 +21159,7 @@ description<br />
 <tr>
 <td>
 memberIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -17394,7 +21168,7 @@ memberIds<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -17405,7 +21179,9 @@ name<br />
 
 ## usersGroupsRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -17415,7 +21191,7 @@ name<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -17426,7 +21202,9 @@ _id<br />
 
 ## usersInvite
 
-**Type:** [Boolean](/api/scalars#boolean)
+**Type:** [Boolean](/docs/api/scalars#boolean)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -17436,7 +21214,7 @@ _id<br />
 <tr>
 <td>
 entries<br />
-<a href="/api/inputObjects#invitationentry"><code>[InvitationEntry]</code></a>
+<a href="/docs/api/inputObjects#invitationentry"><code>[InvitationEntry]</code></a>
 </td>
 <td>
 
@@ -17447,7 +21225,9 @@ entries<br />
 
 ## usersResendInvitation
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -17457,7 +21237,7 @@ entries<br />
 <tr>
 <td>
 email<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -17468,7 +21248,9 @@ email<br />
 
 ## usersResetMemberPassword
 
-**Type:** [User](/api/objects#user)
+**Type:** [User](/docs/api/objects#user)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -17478,7 +21260,7 @@ email<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -17487,7 +21269,7 @@ _id<br />
 <tr>
 <td>
 newPassword<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -17498,11 +21280,15 @@ newPassword<br />
 
 ## usersSeenOnBoard
 
-**Type:** [User](/api/objects#user)
+**Type:** [User](/docs/api/objects#user)
+
+
 
 ## usersSetActiveStatus
 
-**Type:** [User](/api/objects#user)
+**Type:** [User](/docs/api/objects#user)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -17512,7 +21298,7 @@ newPassword<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -17523,7 +21309,9 @@ _id<br />
 
 ## voucherCampaignsAdd
 
-**Type:** [VoucherCampaign](/api/objects#vouchercampaign)
+**Type:** [VoucherCampaign](/docs/api/objects#vouchercampaign)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -17533,7 +21321,7 @@ _id<br />
 <tr>
 <td>
 attachment<br />
-<a href="/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
 </td>
 <td>
 
@@ -17542,7 +21330,7 @@ attachment<br />
 <tr>
 <td>
 bonusCount<br />
-<a href="/api/scalars#float"><code>Float</code></a>
+<a href="/docs/api/scalars#float"><code>Float</code></a>
 </td>
 <td>
 
@@ -17551,7 +21339,7 @@ bonusCount<br />
 <tr>
 <td>
 bonusProductId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17560,7 +21348,7 @@ bonusProductId<br />
 <tr>
 <td>
 buyScore<br />
-<a href="/api/scalars#float"><code>Float</code></a>
+<a href="/docs/api/scalars#float"><code>Float</code></a>
 </td>
 <td>
 
@@ -17569,7 +21357,7 @@ buyScore<br />
 <tr>
 <td>
 coupon<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17578,7 +21366,7 @@ coupon<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17587,7 +21375,7 @@ description<br />
 <tr>
 <td>
 discountPercent<br />
-<a href="/api/scalars#float"><code>Float</code></a>
+<a href="/docs/api/scalars#float"><code>Float</code></a>
 </td>
 <td>
 
@@ -17596,7 +21384,7 @@ discountPercent<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -17605,7 +21393,7 @@ endDate<br />
 <tr>
 <td>
 finishDateOfUse<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -17614,7 +21402,7 @@ finishDateOfUse<br />
 <tr>
 <td>
 lotteryCampaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17623,7 +21411,7 @@ lotteryCampaignId<br />
 <tr>
 <td>
 lotteryCount<br />
-<a href="/api/scalars#float"><code>Float</code></a>
+<a href="/docs/api/scalars#float"><code>Float</code></a>
 </td>
 <td>
 
@@ -17632,7 +21420,7 @@ lotteryCount<br />
 <tr>
 <td>
 numberFormat<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17641,7 +21429,7 @@ numberFormat<br />
 <tr>
 <td>
 productCategoryIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -17650,7 +21438,7 @@ productCategoryIds<br />
 <tr>
 <td>
 productIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -17659,7 +21447,7 @@ productIds<br />
 <tr>
 <td>
 score<br />
-<a href="/api/scalars#float"><code>Float</code></a>
+<a href="/docs/api/scalars#float"><code>Float</code></a>
 </td>
 <td>
 
@@ -17668,7 +21456,7 @@ score<br />
 <tr>
 <td>
 scoreAction<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17677,7 +21465,7 @@ scoreAction<br />
 <tr>
 <td>
 spinCampaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17686,7 +21474,7 @@ spinCampaignId<br />
 <tr>
 <td>
 spinCount<br />
-<a href="/api/scalars#float"><code>Float</code></a>
+<a href="/docs/api/scalars#float"><code>Float</code></a>
 </td>
 <td>
 
@@ -17695,7 +21483,7 @@ spinCount<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -17704,7 +21492,7 @@ startDate<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17713,7 +21501,7 @@ status<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17722,7 +21510,7 @@ title<br />
 <tr>
 <td>
 voucherType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17733,7 +21521,9 @@ voucherType<br />
 
 ## voucherCampaignsEdit
 
-**Type:** [VoucherCampaign](/api/objects#vouchercampaign)
+**Type:** [VoucherCampaign](/docs/api/objects#vouchercampaign)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -17743,7 +21533,7 @@ voucherType<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -17752,7 +21542,7 @@ _id<br />
 <tr>
 <td>
 attachment<br />
-<a href="/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
 </td>
 <td>
 
@@ -17761,7 +21551,7 @@ attachment<br />
 <tr>
 <td>
 bonusCount<br />
-<a href="/api/scalars#float"><code>Float</code></a>
+<a href="/docs/api/scalars#float"><code>Float</code></a>
 </td>
 <td>
 
@@ -17770,7 +21560,7 @@ bonusCount<br />
 <tr>
 <td>
 bonusProductId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17779,7 +21569,7 @@ bonusProductId<br />
 <tr>
 <td>
 buyScore<br />
-<a href="/api/scalars#float"><code>Float</code></a>
+<a href="/docs/api/scalars#float"><code>Float</code></a>
 </td>
 <td>
 
@@ -17788,7 +21578,7 @@ buyScore<br />
 <tr>
 <td>
 coupon<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17797,7 +21587,7 @@ coupon<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17806,7 +21596,7 @@ description<br />
 <tr>
 <td>
 discountPercent<br />
-<a href="/api/scalars#float"><code>Float</code></a>
+<a href="/docs/api/scalars#float"><code>Float</code></a>
 </td>
 <td>
 
@@ -17815,7 +21605,7 @@ discountPercent<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -17824,7 +21614,7 @@ endDate<br />
 <tr>
 <td>
 finishDateOfUse<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -17833,7 +21623,7 @@ finishDateOfUse<br />
 <tr>
 <td>
 lotteryCampaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17842,7 +21632,7 @@ lotteryCampaignId<br />
 <tr>
 <td>
 lotteryCount<br />
-<a href="/api/scalars#float"><code>Float</code></a>
+<a href="/docs/api/scalars#float"><code>Float</code></a>
 </td>
 <td>
 
@@ -17851,7 +21641,7 @@ lotteryCount<br />
 <tr>
 <td>
 numberFormat<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17860,7 +21650,7 @@ numberFormat<br />
 <tr>
 <td>
 productCategoryIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -17869,7 +21659,7 @@ productCategoryIds<br />
 <tr>
 <td>
 productIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -17878,7 +21668,7 @@ productIds<br />
 <tr>
 <td>
 score<br />
-<a href="/api/scalars#float"><code>Float</code></a>
+<a href="/docs/api/scalars#float"><code>Float</code></a>
 </td>
 <td>
 
@@ -17887,7 +21677,7 @@ score<br />
 <tr>
 <td>
 scoreAction<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17896,7 +21686,7 @@ scoreAction<br />
 <tr>
 <td>
 spinCampaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17905,7 +21695,7 @@ spinCampaignId<br />
 <tr>
 <td>
 spinCount<br />
-<a href="/api/scalars#float"><code>Float</code></a>
+<a href="/docs/api/scalars#float"><code>Float</code></a>
 </td>
 <td>
 
@@ -17914,7 +21704,7 @@ spinCount<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -17923,7 +21713,7 @@ startDate<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17932,7 +21722,7 @@ status<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17941,7 +21731,7 @@ title<br />
 <tr>
 <td>
 voucherType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17952,7 +21742,9 @@ voucherType<br />
 
 ## voucherCampaignsRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -17962,7 +21754,7 @@ voucherType<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -17973,7 +21765,9 @@ _ids<br />
 
 ## vouchersAdd
 
-**Type:** [Voucher](/api/objects#voucher)
+**Type:** [Voucher](/docs/api/objects#voucher)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -17983,7 +21777,7 @@ _ids<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -17992,7 +21786,7 @@ campaignId<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18001,7 +21795,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18010,7 +21804,7 @@ ownerType<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18019,7 +21813,7 @@ status<br />
 <tr>
 <td>
 usedAt<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -18030,7 +21824,9 @@ usedAt<br />
 
 ## vouchersEdit
 
-**Type:** [Voucher](/api/objects#voucher)
+**Type:** [Voucher](/docs/api/objects#voucher)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -18040,7 +21836,7 @@ usedAt<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -18049,7 +21845,7 @@ _id<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18058,7 +21854,7 @@ campaignId<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18067,7 +21863,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18076,7 +21872,7 @@ ownerType<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18085,7 +21881,7 @@ status<br />
 <tr>
 <td>
 usedAt<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -18096,7 +21892,9 @@ usedAt<br />
 
 ## vouchersRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -18106,7 +21904,7 @@ usedAt<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -18117,7 +21915,9 @@ _ids<br />
 
 ## webbuilderContentTypesAdd
 
-**Type:** [WebbuilderContentType](/api/objects#webbuildercontenttype)
+**Type:** [WebbuilderContentType](/docs/api/objects#webbuildercontenttype)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -18127,7 +21927,7 @@ _ids<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18136,7 +21936,7 @@ code<br />
 <tr>
 <td>
 displayName<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18145,7 +21945,7 @@ displayName<br />
 <tr>
 <td>
 fields<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -18154,7 +21954,7 @@ fields<br />
 <tr>
 <td>
 siteId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18165,7 +21965,9 @@ siteId<br />
 
 ## webbuilderContentTypesEdit
 
-**Type:** [WebbuilderContentType](/api/objects#webbuildercontenttype)
+**Type:** [WebbuilderContentType](/docs/api/objects#webbuildercontenttype)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -18175,7 +21977,7 @@ siteId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -18184,7 +21986,7 @@ _id<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18193,7 +21995,7 @@ code<br />
 <tr>
 <td>
 displayName<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18202,7 +22004,7 @@ displayName<br />
 <tr>
 <td>
 fields<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -18211,7 +22013,7 @@ fields<br />
 <tr>
 <td>
 siteId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18222,7 +22024,9 @@ siteId<br />
 
 ## webbuilderContentTypesRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -18232,7 +22036,7 @@ siteId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -18243,7 +22047,9 @@ _id<br />
 
 ## webbuilderEntriesAdd
 
-**Type:** [WebbuilderEntry](/api/objects#webbuilderentry)
+**Type:** [WebbuilderEntry](/docs/api/objects#webbuilderentry)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -18253,7 +22059,7 @@ _id<br />
 <tr>
 <td>
 contentTypeId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -18262,7 +22068,7 @@ contentTypeId<br />
 <tr>
 <td>
 values<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -18273,7 +22079,9 @@ values<br />
 
 ## webbuilderEntriesEdit
 
-**Type:** [WebbuilderEntry](/api/objects#webbuilderentry)
+**Type:** [WebbuilderEntry](/docs/api/objects#webbuilderentry)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -18283,7 +22091,7 @@ values<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -18292,7 +22100,7 @@ _id<br />
 <tr>
 <td>
 contentTypeId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -18301,7 +22109,7 @@ contentTypeId<br />
 <tr>
 <td>
 values<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -18312,7 +22120,9 @@ values<br />
 
 ## webbuilderEntriesRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -18322,7 +22132,7 @@ values<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -18333,7 +22143,9 @@ _id<br />
 
 ## webbuilderPagesAdd
 
-**Type:** [WebbuilderPage](/api/objects#webbuilderpage)
+**Type:** [WebbuilderPage](/docs/api/objects#webbuilderpage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -18343,7 +22155,7 @@ _id<br />
 <tr>
 <td>
 css<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18352,7 +22164,7 @@ css<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18361,16 +22173,7 @@ description<br />
 <tr>
 <td>
 html<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-jsonData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18379,7 +22182,7 @@ jsonData<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -18388,7 +22191,7 @@ name<br />
 <tr>
 <td>
 siteId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18399,7 +22202,9 @@ siteId<br />
 
 ## webbuilderPagesEdit
 
-**Type:** [WebbuilderPage](/api/objects#webbuilderpage)
+**Type:** [WebbuilderPage](/docs/api/objects#webbuilderpage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -18409,7 +22214,7 @@ siteId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -18418,7 +22223,7 @@ _id<br />
 <tr>
 <td>
 css<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18427,7 +22232,7 @@ css<br />
 <tr>
 <td>
 description<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18436,16 +22241,7 @@ description<br />
 <tr>
 <td>
 html<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-jsonData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18454,7 +22250,7 @@ jsonData<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -18463,7 +22259,7 @@ name<br />
 <tr>
 <td>
 siteId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18474,7 +22270,9 @@ siteId<br />
 
 ## webbuilderPagesRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -18484,7 +22282,7 @@ siteId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -18495,7 +22293,9 @@ _id<br />
 
 ## webbuilderSitesAdd
 
-**Type:** [WebbuilderSite](/api/objects#webbuildersite)
+**Type:** [WebbuilderSite](/docs/api/objects#webbuildersite)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -18505,7 +22305,7 @@ _id<br />
 <tr>
 <td>
 domain<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18514,7 +22314,30 @@ domain<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## webbuilderSitesDuplicate
+
+**Type:** [WebbuilderSite](/docs/api/objects#webbuildersite)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -18525,7 +22348,9 @@ name<br />
 
 ## webbuilderSitesEdit
 
-**Type:** [WebbuilderSite](/api/objects#webbuildersite)
+**Type:** [WebbuilderSite](/docs/api/objects#webbuildersite)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -18535,7 +22360,7 @@ name<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -18544,7 +22369,7 @@ _id<br />
 <tr>
 <td>
 domain<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18553,7 +22378,7 @@ domain<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18564,7 +22389,9 @@ name<br />
 
 ## webbuilderSitesRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -18574,7 +22401,7 @@ name<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -18585,7 +22412,9 @@ _id<br />
 
 ## webbuilderTemplatesAdd
 
-**Type:** [WebbuilderTemplate](/api/objects#webbuildertemplate)
+**Type:** [WebbuilderTemplate](/docs/api/objects#webbuildertemplate)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -18595,16 +22424,7 @@ _id<br />
 <tr>
 <td>
 html<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-jsonData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18613,7 +22433,7 @@ jsonData<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18624,7 +22444,9 @@ name<br />
 
 ## webbuilderTemplatesRemove
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -18634,7 +22456,48 @@ name<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## webbuilderTemplatesUse
+
+**Type:** [String](/docs/api/scalars#string)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+coverImage<br />
+<a href="/docs/api/inputObjects#attachmentinput"><code>AttachmentInput</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+name<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -18645,7 +22508,9 @@ _id<br />
 
 ## widgetBotRequest
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -18655,7 +22520,7 @@ _id<br />
 <tr>
 <td>
 conversationId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18664,7 +22529,7 @@ conversationId<br />
 <tr>
 <td>
 customerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18673,7 +22538,7 @@ customerId<br />
 <tr>
 <td>
 integrationId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -18682,7 +22547,7 @@ integrationId<br />
 <tr>
 <td>
 message<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -18691,7 +22556,7 @@ message<br />
 <tr>
 <td>
 payload<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -18700,7 +22565,7 @@ payload<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -18709,7 +22574,7 @@ type<br />
 <tr>
 <td>
 visitorId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18720,7 +22585,9 @@ visitorId<br />
 
 ## widgetGetBotInitialMessage
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -18730,7 +22597,7 @@ visitorId<br />
 <tr>
 <td>
 integrationId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18741,7 +22608,9 @@ integrationId<br />
 
 ## widgetsBookingConnect
 
-**Type:** [Integration](/api/objects#integration)
+**Type:** [Integration](/docs/api/objects#integration)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -18751,7 +22620,7 @@ integrationId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18762,7 +22631,9 @@ _id<br />
 
 ## widgetsInsertMessage
 
-**Type:** [ConversationMessage](/api/objects#conversationmessage)
+**Type:** [ConversationMessage](/docs/api/objects#conversationmessage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -18772,7 +22643,7 @@ _id<br />
 <tr>
 <td>
 attachments<br />
-<a href="/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
 </td>
 <td>
 
@@ -18781,7 +22652,7 @@ attachments<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18790,7 +22661,7 @@ contentType<br />
 <tr>
 <td>
 conversationId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18799,7 +22670,7 @@ conversationId<br />
 <tr>
 <td>
 customerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18808,7 +22679,7 @@ customerId<br />
 <tr>
 <td>
 integrationId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -18817,7 +22688,7 @@ integrationId<br />
 <tr>
 <td>
 message<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18826,7 +22697,7 @@ message<br />
 <tr>
 <td>
 skillId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18835,7 +22706,7 @@ skillId<br />
 <tr>
 <td>
 visitorId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18846,7 +22717,9 @@ visitorId<br />
 
 ## widgetsLeadConnect
 
-**Type:** [FormConnectResponse](/api/objects#formconnectresponse)
+**Type:** [FormConnectResponse](/docs/api/objects#formconnectresponse)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -18856,7 +22729,7 @@ visitorId<br />
 <tr>
 <td>
 brandCode<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -18865,7 +22738,7 @@ brandCode<br />
 <tr>
 <td>
 cachedCustomerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18874,7 +22747,7 @@ cachedCustomerId<br />
 <tr>
 <td>
 formCode<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -18885,7 +22758,9 @@ formCode<br />
 
 ## widgetsLeadIncreaseViewCount
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -18895,7 +22770,7 @@ formCode<br />
 <tr>
 <td>
 formId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -18906,7 +22781,9 @@ formId<br />
 
 ## widgetsMessengerConnect
 
-**Type:** [MessengerConnectResponse](/api/objects#messengerconnectresponse)
+**Type:** [MessengerConnectResponse](/docs/api/objects#messengerconnectresponse)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -18916,7 +22793,7 @@ formId<br />
 <tr>
 <td>
 brandCode<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -18925,7 +22802,7 @@ brandCode<br />
 <tr>
 <td>
 cachedCustomerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18934,7 +22811,7 @@ cachedCustomerId<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18943,7 +22820,7 @@ code<br />
 <tr>
 <td>
 companyData<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -18952,7 +22829,7 @@ companyData<br />
 <tr>
 <td>
 data<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -18961,7 +22838,7 @@ data<br />
 <tr>
 <td>
 deviceToken<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18970,7 +22847,7 @@ deviceToken<br />
 <tr>
 <td>
 email<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18979,7 +22856,7 @@ email<br />
 <tr>
 <td>
 isUser<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -18988,7 +22865,7 @@ isUser<br />
 <tr>
 <td>
 phone<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -18997,7 +22874,7 @@ phone<br />
 <tr>
 <td>
 visitorId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -19008,7 +22885,9 @@ visitorId<br />
 
 ## widgetsReadConversationMessages
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -19018,7 +22897,7 @@ visitorId<br />
 <tr>
 <td>
 conversationId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -19029,7 +22908,9 @@ conversationId<br />
 
 ## widgetsSaveBooking
 
-**Type:** [SaveFormResponse](/api/objects#saveformresponse)
+**Type:** [SaveFormResponse](/docs/api/objects#saveformresponse)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -19039,7 +22920,7 @@ conversationId<br />
 <tr>
 <td>
 browserInfo<br />
-<a href="/api/scalars#json"><code>JSON!</code></a>
+<a href="/docs/api/scalars#json"><code>JSON!</code></a>
 </td>
 <td>
 
@@ -19048,7 +22929,7 @@ browserInfo<br />
 <tr>
 <td>
 cachedCustomerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -19057,7 +22938,7 @@ cachedCustomerId<br />
 <tr>
 <td>
 formId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -19066,7 +22947,7 @@ formId<br />
 <tr>
 <td>
 integrationId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -19075,7 +22956,7 @@ integrationId<br />
 <tr>
 <td>
 productId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -19084,7 +22965,7 @@ productId<br />
 <tr>
 <td>
 submissions<br />
-<a href="/api/inputObjects#fieldvalueinput"><code>[FieldValueInput]</code></a>
+<a href="/docs/api/inputObjects#fieldvalueinput"><code>[FieldValueInput]</code></a>
 </td>
 <td>
 
@@ -19095,7 +22976,9 @@ submissions<br />
 
 ## widgetsSaveBrowserInfo
 
-**Type:** [ConversationMessage](/api/objects#conversationmessage)
+**Type:** [ConversationMessage](/docs/api/objects#conversationmessage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -19105,7 +22988,7 @@ submissions<br />
 <tr>
 <td>
 browserInfo<br />
-<a href="/api/scalars#json"><code>JSON!</code></a>
+<a href="/docs/api/scalars#json"><code>JSON!</code></a>
 </td>
 <td>
 
@@ -19114,7 +22997,7 @@ browserInfo<br />
 <tr>
 <td>
 customerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -19123,7 +23006,7 @@ customerId<br />
 <tr>
 <td>
 visitorId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -19134,7 +23017,9 @@ visitorId<br />
 
 ## widgetsSaveCustomerGetNotified
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -19144,7 +23029,7 @@ visitorId<br />
 <tr>
 <td>
 customerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -19153,7 +23038,7 @@ customerId<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -19162,7 +23047,7 @@ type<br />
 <tr>
 <td>
 value<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -19171,7 +23056,7 @@ value<br />
 <tr>
 <td>
 visitorId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -19182,7 +23067,9 @@ visitorId<br />
 
 ## widgetsSaveLead
 
-**Type:** [SaveFormResponse](/api/objects#saveformresponse)
+**Type:** [SaveFormResponse](/docs/api/objects#saveformresponse)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -19192,7 +23079,7 @@ visitorId<br />
 <tr>
 <td>
 browserInfo<br />
-<a href="/api/scalars#json"><code>JSON!</code></a>
+<a href="/docs/api/scalars#json"><code>JSON!</code></a>
 </td>
 <td>
 
@@ -19201,7 +23088,7 @@ browserInfo<br />
 <tr>
 <td>
 cachedCustomerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -19210,7 +23097,7 @@ cachedCustomerId<br />
 <tr>
 <td>
 formId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -19219,7 +23106,7 @@ formId<br />
 <tr>
 <td>
 integrationId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -19228,7 +23115,7 @@ integrationId<br />
 <tr>
 <td>
 submissions<br />
-<a href="/api/inputObjects#fieldvalueinput"><code>[FieldValueInput]</code></a>
+<a href="/docs/api/inputObjects#fieldvalueinput"><code>[FieldValueInput]</code></a>
 </td>
 <td>
 
@@ -19237,7 +23124,7 @@ submissions<br />
 <tr>
 <td>
 userId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -19248,7 +23135,9 @@ userId<br />
 
 ## widgetsSendEmail
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -19258,7 +23147,7 @@ userId<br />
 <tr>
 <td>
 attachments<br />
-<a href="/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
+<a href="/docs/api/inputObjects#attachmentinput"><code>[AttachmentInput]</code></a>
 </td>
 <td>
 
@@ -19267,7 +23156,7 @@ attachments<br />
 <tr>
 <td>
 content<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -19276,7 +23165,7 @@ content<br />
 <tr>
 <td>
 customerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -19285,7 +23174,7 @@ customerId<br />
 <tr>
 <td>
 formId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -19294,7 +23183,7 @@ formId<br />
 <tr>
 <td>
 fromEmail<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -19303,7 +23192,7 @@ fromEmail<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -19312,7 +23201,7 @@ title<br />
 <tr>
 <td>
 toEmails<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -19323,7 +23212,9 @@ toEmails<br />
 
 ## widgetsSendTypingInfo
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -19333,7 +23224,7 @@ toEmails<br />
 <tr>
 <td>
 conversationId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -19342,7 +23233,7 @@ conversationId<br />
 <tr>
 <td>
 text<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -19350,3 +23241,50 @@ text<br />
 </tr>
 </tbody>
 </table>
+
+## zaloRemoveAccount
+
+**Type:** [String](/docs/api/scalars#string)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## zaloUpdateConfigs
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+configsMap<br />
+<a href="/docs/api/scalars#json"><code>JSON!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+

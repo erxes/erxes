@@ -101,6 +101,36 @@ sidebar_position: 6
 </tbody>
 </table>
 
+## ClientPortalUserVerificationStatus
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Values</strong></p>
+
+<table>
+<thead><tr><th>Value</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>notVerified</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>pending</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>verified</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ## ContentType
 
 
@@ -196,6 +226,30 @@ sidebar_position: 6
 </tr>
 <tr>
 <td>upcoming</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## NotificationType
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Values</strong></p>
+
+<table>
+<thead><tr><th>Value</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>engage</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>system</td>
 <td>
 
 </td>

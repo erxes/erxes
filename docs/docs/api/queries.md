@@ -5,9 +5,63 @@ slug: queries
 sidebar_position: 1
 ---
 
+## absenceDetail
+
+**Type:** [Absence](/docs/api/objects#absence)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## absenceTypes
+
+**Type:** [[AbsenceType]](/docs/api/objects#absencetype)
+
+
+
+## activeMe
+
+**Type:** [UserStatus](/docs/api/objects#userstatus)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+userId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ## activityLogs
 
-**Type:** [[ActivityLog]](/api/objects#activitylog)
+**Type:** [[ActivityLog]](/docs/api/objects#activitylog)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -17,7 +71,7 @@ sidebar_position: 1
 <tr>
 <td>
 activityType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -26,7 +80,7 @@ activityType<br />
 <tr>
 <td>
 contentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -35,7 +89,7 @@ contentId<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -44,7 +98,7 @@ contentType<br />
 <tr>
 <td>
 limit<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -55,7 +109,9 @@ limit<br />
 
 ## activityLogsByAction
 
-**Type:** [ActivityLogByActionResponse](/api/objects#activitylogbyactionresponse)
+**Type:** [ActivityLogByActionResponse](/docs/api/objects#activitylogbyactionresponse)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -65,7 +121,7 @@ limit<br />
 <tr>
 <td>
 action<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -74,7 +130,7 @@ action<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -83,7 +139,7 @@ contentType<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -92,7 +148,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -101,7 +157,7 @@ perPage<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -112,15 +168,21 @@ pipelineId<br />
 
 ## allBrands
 
-**Type:** [[Brand]](/api/objects#brand)
+**Type:** [[Brand]](/docs/api/objects#brand)
+
+
 
 ## allLeadIntegrations
 
-**Type:** [[Integration]](/api/objects#integration)
+**Type:** [[Integration]](/docs/api/objects#integration)
+
+
 
 ## allUsers
 
-**Type:** [[User]](/api/objects#user)
+**Type:** [[User]](/docs/api/objects#user)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -129,8 +191,26 @@ pipelineId<br />
 <tbody>
 <tr>
 <td>
+assignedToMe<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+ids<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
 isActive<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -141,7 +221,9 @@ isActive<br />
 
 ## appDetail
 
-**Type:** [App](/api/objects#app)
+**Type:** [App](/docs/api/objects#app)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -151,7 +233,7 @@ isActive<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -162,15 +244,21 @@ _id<br />
 
 ## apps
 
-**Type:** [[App]](/api/objects#app)
+**Type:** [[App]](/docs/api/objects#app)
+
+
 
 ## appsTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 ## archivedDeals
 
-**Type:** [[Deal]](/api/objects#deal)
+**Type:** [[Deal]](/docs/api/objects#deal)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -180,7 +268,7 @@ _id<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -189,7 +277,7 @@ assignedUserIds<br />
 <tr>
 <td>
 companyIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -198,7 +286,7 @@ companyIds<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -207,7 +295,7 @@ customerIds<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -216,7 +304,7 @@ endDate<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -225,7 +313,7 @@ labelIds<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -234,7 +322,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -243,7 +331,7 @@ perPage<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -252,7 +340,7 @@ pipelineId<br />
 <tr>
 <td>
 priorities<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -261,7 +349,7 @@ priorities<br />
 <tr>
 <td>
 productIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -270,7 +358,7 @@ productIds<br />
 <tr>
 <td>
 search<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -279,7 +367,7 @@ search<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -288,7 +376,7 @@ startDate<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -299,7 +387,9 @@ userIds<br />
 
 ## archivedDealsCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -309,7 +399,7 @@ userIds<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -318,7 +408,7 @@ assignedUserIds<br />
 <tr>
 <td>
 companyIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -327,7 +417,7 @@ companyIds<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -336,7 +426,7 @@ customerIds<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -345,7 +435,7 @@ endDate<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -354,7 +444,7 @@ labelIds<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -363,7 +453,7 @@ pipelineId<br />
 <tr>
 <td>
 priorities<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -372,7 +462,7 @@ priorities<br />
 <tr>
 <td>
 productIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -381,7 +471,7 @@ productIds<br />
 <tr>
 <td>
 search<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -390,7 +480,7 @@ search<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -399,7 +489,7 @@ startDate<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -410,7 +500,9 @@ userIds<br />
 
 ## archivedGrowthHacks
 
-**Type:** [[GrowthHack]](/api/objects#growthhack)
+**Type:** [[GrowthHack]](/docs/api/objects#growthhack)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -420,7 +512,7 @@ userIds<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -429,7 +521,7 @@ assignedUserIds<br />
 <tr>
 <td>
 companyIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -438,7 +530,7 @@ companyIds<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -447,7 +539,7 @@ customerIds<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -456,7 +548,7 @@ endDate<br />
 <tr>
 <td>
 hackStages<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -465,7 +557,7 @@ hackStages<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -474,7 +566,7 @@ labelIds<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -483,7 +575,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -492,7 +584,7 @@ perPage<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -501,7 +593,7 @@ pipelineId<br />
 <tr>
 <td>
 priorities<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -510,7 +602,7 @@ priorities<br />
 <tr>
 <td>
 productIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -519,7 +611,7 @@ productIds<br />
 <tr>
 <td>
 search<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -528,7 +620,7 @@ search<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -537,7 +629,7 @@ startDate<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -548,7 +640,9 @@ userIds<br />
 
 ## archivedGrowthHacksCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -558,7 +652,7 @@ userIds<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -567,7 +661,7 @@ assignedUserIds<br />
 <tr>
 <td>
 companyIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -576,7 +670,7 @@ companyIds<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -585,7 +679,7 @@ customerIds<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -594,7 +688,7 @@ endDate<br />
 <tr>
 <td>
 hackStages<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -603,7 +697,7 @@ hackStages<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -612,7 +706,7 @@ labelIds<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -621,7 +715,7 @@ pipelineId<br />
 <tr>
 <td>
 priorities<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -630,7 +724,7 @@ priorities<br />
 <tr>
 <td>
 productIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -639,7 +733,7 @@ productIds<br />
 <tr>
 <td>
 search<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -648,7 +742,7 @@ search<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -657,7 +751,7 @@ startDate<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -668,7 +762,9 @@ userIds<br />
 
 ## archivedStages
 
-**Type:** [[Stage]](/api/objects#stage)
+**Type:** [[Stage]](/docs/api/objects#stage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -678,7 +774,7 @@ userIds<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -687,7 +783,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -696,7 +792,7 @@ perPage<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -705,7 +801,7 @@ pipelineId<br />
 <tr>
 <td>
 search<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -716,7 +812,9 @@ search<br />
 
 ## archivedStagesCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -726,7 +824,7 @@ search<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -735,7 +833,7 @@ pipelineId<br />
 <tr>
 <td>
 search<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -746,7 +844,9 @@ search<br />
 
 ## archivedTasks
 
-**Type:** [[Task]](/api/objects#task)
+**Type:** [[Task]](/docs/api/objects#task)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -756,7 +856,7 @@ search<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -765,7 +865,7 @@ assignedUserIds<br />
 <tr>
 <td>
 companyIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -774,7 +874,7 @@ companyIds<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -783,7 +883,7 @@ customerIds<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -792,7 +892,7 @@ endDate<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -801,7 +901,7 @@ labelIds<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -810,7 +910,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -819,7 +919,7 @@ perPage<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -828,7 +928,7 @@ pipelineId<br />
 <tr>
 <td>
 priorities<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -837,7 +937,7 @@ priorities<br />
 <tr>
 <td>
 search<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -846,7 +946,7 @@ search<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -855,7 +955,7 @@ startDate<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -866,7 +966,9 @@ userIds<br />
 
 ## archivedTasksCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -876,7 +978,7 @@ userIds<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -885,7 +987,7 @@ assignedUserIds<br />
 <tr>
 <td>
 companyIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -894,7 +996,7 @@ companyIds<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -903,7 +1005,7 @@ customerIds<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -912,7 +1014,7 @@ endDate<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -921,7 +1023,7 @@ labelIds<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -930,7 +1032,7 @@ pipelineId<br />
 <tr>
 <td>
 priorities<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -939,7 +1041,7 @@ priorities<br />
 <tr>
 <td>
 search<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -948,7 +1050,7 @@ search<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -957,7 +1059,7 @@ startDate<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -968,7 +1070,9 @@ userIds<br />
 
 ## archivedTickets
 
-**Type:** [[Ticket]](/api/objects#ticket)
+**Type:** [[Ticket]](/docs/api/objects#ticket)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -978,7 +1082,7 @@ userIds<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -987,7 +1091,7 @@ assignedUserIds<br />
 <tr>
 <td>
 companyIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -996,7 +1100,7 @@ companyIds<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -1005,7 +1109,7 @@ customerIds<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1014,7 +1118,7 @@ endDate<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -1023,7 +1127,7 @@ labelIds<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -1032,7 +1136,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -1041,7 +1145,7 @@ perPage<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1050,7 +1154,7 @@ pipelineId<br />
 <tr>
 <td>
 priorities<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -1059,7 +1163,7 @@ priorities<br />
 <tr>
 <td>
 search<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1068,7 +1172,7 @@ search<br />
 <tr>
 <td>
 sources<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -1077,7 +1181,7 @@ sources<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1086,7 +1190,7 @@ startDate<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -1097,7 +1201,9 @@ userIds<br />
 
 ## archivedTicketsCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1107,7 +1213,7 @@ userIds<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -1116,7 +1222,7 @@ assignedUserIds<br />
 <tr>
 <td>
 companyIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -1125,7 +1231,7 @@ companyIds<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -1134,7 +1240,7 @@ customerIds<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1143,7 +1249,7 @@ endDate<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -1152,7 +1258,7 @@ labelIds<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1161,7 +1267,7 @@ pipelineId<br />
 <tr>
 <td>
 priorities<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -1170,7 +1276,7 @@ priorities<br />
 <tr>
 <td>
 search<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1179,7 +1285,7 @@ search<br />
 <tr>
 <td>
 sources<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -1188,7 +1294,7 @@ sources<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1197,7 +1303,1475 @@ startDate<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assetCategories
+
+**Type:** [[AssetCategory]](/docs/api/objects#assetcategory)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+searchValue<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+status<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+withKbOnly<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assetCategoriesTotalCount
+
+**Type:** [Int](/docs/api/scalars#int)
+
+
+
+## assetCategoryDetail
+
+**Type:** [AssetCategory](/docs/api/objects#assetcategory)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assetDetail
+
+**Type:** [Asset](/docs/api/objects#asset)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assetMovement
+
+**Type:** [Movement](/docs/api/objects#movement)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assetMovementItem
+
+**Type:** [MovementItem](/docs/api/objects#movementitem)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+assetId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assetMovementItems
+
+**Type:** [[MovementItem]](/docs/api/objects#movementitem)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+assetId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+assetIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+branchId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+companyId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+createdAtFrom<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+createdAtTo<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+customerId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+modifiedAtFrom<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+modifiedAtTo<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+movedAtFrom<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+movedAtTo<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+movementId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+searchValue<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+teamMemberId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+userId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assetMovementItemsTotalCount
+
+**Type:** [Int](/docs/api/scalars#int)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+assetId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+assetIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+branchId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+companyId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+createdAtFrom<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+createdAtTo<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+customerId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+modifiedAtFrom<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+modifiedAtTo<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+movedAtFrom<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+movedAtTo<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+movementId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+searchValue<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+teamMemberId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+userId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assetMovements
+
+**Type:** [[Movement]](/docs/api/objects#movement)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+assetId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+assetIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+branchId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+companyId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+createdAtFrom<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+createdAtTo<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+customerId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+modifiedAtFrom<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+modifiedAtTo<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+movedAtFrom<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+movedAtTo<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+movementId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+searchValue<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+teamMemberId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+userId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assetMovementTotalCount
+
+**Type:** [Int](/docs/api/scalars#int)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+assetId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+assetIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+branchId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+companyId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+createdAtFrom<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+createdAtTo<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+customerId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+modifiedAtFrom<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+modifiedAtTo<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+movedAtFrom<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+movedAtTo<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+movementId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+searchValue<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+teamMemberId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+userId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assets
+
+**Type:** [[Asset]](/docs/api/objects#asset)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+boardId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+categoryId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+excludeIds<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+ids<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+ignoreIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+irregular<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+pipelineId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+searchValue<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+withKnowledgebase<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assetsTotalCount
+
+**Type:** [Int](/docs/api/scalars#int)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+boardId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+categoryId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+excludeIds<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+ids<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+ignoreIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+irregular<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+pipelineId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+searchValue<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+withKnowledgebase<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assignmentCampaignDetail
+
+**Type:** [AssignmentCampaign](/docs/api/objects#assignmentcampaign)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assignmentCampaigns
+
+**Type:** [[AssignmentCampaign]](/docs/api/objects#assignmentcampaign)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_ids<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+filterStatus<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+searchValue<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+sortDirection<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+sortField<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assignmentCampaignsCount
+
+**Type:** [Int](/docs/api/scalars#int)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_ids<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+filterStatus<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+searchValue<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assignmentDetail
+
+**Type:** [Assignment](/docs/api/objects#assignment)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assignments
+
+**Type:** [[Assignment]](/docs/api/objects#assignment)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+campaignId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+ownerId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+ownerType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+searchValue<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+sortDirection<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+sortField<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+status<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## assignmentsMain
+
+**Type:** [AssignmentMain](/docs/api/objects#assignmentmain)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+campaignId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+ownerId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+ownerType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+searchValue<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+sortDirection<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+sortField<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+status<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1208,7 +2782,9 @@ userIds<br />
 
 ## automationConfigPrievewCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1218,7 +2794,7 @@ userIds<br />
 <tr>
 <td>
 config<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -1227,9 +2803,17 @@ config<br />
 </tbody>
 </table>
 
+## automationConstants
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
 ## automationDetail
 
-**Type:** [Automation](/api/objects#automation)
+**Type:** [Automation](/docs/api/objects#automation)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1239,7 +2823,7 @@ config<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1250,7 +2834,9 @@ _id<br />
 
 ## automationHistories
 
-**Type:** [[AutomationHistory]](/api/objects#automationhistory)
+**Type:** [[AutomationHistory]](/docs/api/objects#automationhistory)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1260,7 +2846,7 @@ _id<br />
 <tr>
 <td>
 automationId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1269,7 +2855,7 @@ automationId<br />
 <tr>
 <td>
 beginDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -1278,7 +2864,7 @@ beginDate<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -1287,7 +2873,7 @@ endDate<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -1296,7 +2882,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -1305,7 +2891,7 @@ perPage<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1314,7 +2900,7 @@ status<br />
 <tr>
 <td>
 triggerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1323,7 +2909,7 @@ triggerId<br />
 <tr>
 <td>
 triggerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1334,7 +2920,9 @@ triggerType<br />
 
 ## automationNotes
 
-**Type:** [[AutomationNote]](/api/objects#automationnote)
+**Type:** [[AutomationNote]](/docs/api/objects#automationnote)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1344,7 +2932,7 @@ triggerType<br />
 <tr>
 <td>
 actionId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1353,7 +2941,7 @@ actionId<br />
 <tr>
 <td>
 automationId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1362,7 +2950,7 @@ automationId<br />
 <tr>
 <td>
 triggerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1373,7 +2961,9 @@ triggerId<br />
 
 ## automations
 
-**Type:** [[Automation]](/api/objects#automation)
+**Type:** [[Automation]](/docs/api/objects#automation)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1383,7 +2973,7 @@ triggerId<br />
 <tr>
 <td>
 excludeIds<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -1392,7 +2982,7 @@ excludeIds<br />
 <tr>
 <td>
 ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -1401,7 +2991,7 @@ ids<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -1410,7 +3000,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -1419,7 +3009,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1428,7 +3018,7 @@ searchValue<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -1437,7 +3027,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1446,7 +3036,7 @@ sortField<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1457,7 +3047,9 @@ status<br />
 
 ## automationsMain
 
-**Type:** [AutomationsListResponse](/api/objects#automationslistresponse)
+**Type:** [AutomationsListResponse](/docs/api/objects#automationslistresponse)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1467,7 +3059,7 @@ status<br />
 <tr>
 <td>
 excludeIds<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -1476,7 +3068,7 @@ excludeIds<br />
 <tr>
 <td>
 ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -1485,7 +3077,7 @@ ids<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -1494,7 +3086,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -1503,7 +3095,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1512,7 +3104,7 @@ searchValue<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -1521,7 +3113,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1530,7 +3122,7 @@ sortField<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1541,7 +3133,9 @@ status<br />
 
 ## automationsTotalCount
 
-**Type:** [automationsTotalCountResponse](/api/objects#automationstotalcountresponse)
+**Type:** [automationsTotalCountResponse](/docs/api/objects#automationstotalcountresponse)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1551,7 +3145,7 @@ status<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1562,7 +3156,9 @@ status<br />
 
 ## boardContentTypeDetail
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1572,7 +3168,7 @@ status<br />
 <tr>
 <td>
 contentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1581,7 +3177,7 @@ contentId<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1592,7 +3188,9 @@ contentType<br />
 
 ## boardCounts
 
-**Type:** [[BoardCount]](/api/objects#boardcount)
+**Type:** [[BoardCount]](/docs/api/objects#boardcount)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1602,7 +3200,7 @@ contentType<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1613,7 +3211,9 @@ type<br />
 
 ## boardDetail
 
-**Type:** [Board](/api/objects#board)
+**Type:** [Board](/docs/api/objects#board)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1623,7 +3223,7 @@ type<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1634,7 +3234,9 @@ _id<br />
 
 ## boardGetLast
 
-**Type:** [Board](/api/objects#board)
+**Type:** [Board](/docs/api/objects#board)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1644,7 +3246,7 @@ _id<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1655,7 +3257,9 @@ type<br />
 
 ## boardLogs
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1665,7 +3269,7 @@ type<br />
 <tr>
 <td>
 action<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1674,7 +3278,7 @@ action<br />
 <tr>
 <td>
 content<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -1683,7 +3287,7 @@ content<br />
 <tr>
 <td>
 contentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1692,7 +3296,7 @@ contentId<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1703,7 +3307,9 @@ contentType<br />
 
 ## boards
 
-**Type:** [[Board]](/api/objects#board)
+**Type:** [[Board]](/docs/api/objects#board)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1713,7 +3319,7 @@ contentType<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1724,7 +3330,9 @@ type<br />
 
 ## branchDetail
 
-**Type:** [Branch](/api/objects#branch)
+**Type:** [Branch](/docs/api/objects#branch)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1734,7 +3342,7 @@ type<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1745,7 +3353,9 @@ _id<br />
 
 ## branches
 
-**Type:** [[Branch]](/api/objects#branch)
+**Type:** [[Branch]](/docs/api/objects#branch)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1754,8 +3364,139 @@ _id<br />
 <tbody>
 <tr>
 <td>
+excludeIds<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+ids<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+status<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+withoutUserFilter<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## branchesMain
+
+**Type:** [BranchListQueryResponse](/docs/api/objects#branchlistqueryresponse)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+excludeIds<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+ids<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+searchValue<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+status<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+withoutUserFilter<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -1766,7 +3507,9 @@ searchValue<br />
 
 ## brandDetail
 
-**Type:** [Brand](/api/objects#brand)
+**Type:** [Brand](/docs/api/objects#brand)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1776,7 +3519,7 @@ searchValue<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1787,7 +3530,9 @@ _id<br />
 
 ## brands
 
-**Type:** [[Brand]](/api/objects#brand)
+**Type:** [[Brand]](/docs/api/objects#brand)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1797,7 +3542,7 @@ _id<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -1806,7 +3551,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -1815,7 +3560,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1826,19 +3571,27 @@ searchValue<br />
 
 ## brandsGetLast
 
-**Type:** [Brand](/api/objects#brand)
+**Type:** [Brand](/docs/api/objects#brand)
+
+
 
 ## brandsTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 ## cardsFields
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 ## channelDetail
 
-**Type:** [Channel](/api/objects#channel)
+**Type:** [Channel](/docs/api/objects#channel)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1848,7 +3601,7 @@ searchValue<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1859,7 +3612,9 @@ _id<br />
 
 ## channels
 
-**Type:** [[Channel]](/api/objects#channel)
+**Type:** [[Channel]](/docs/api/objects#channel)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1869,7 +3624,7 @@ _id<br />
 <tr>
 <td>
 memberIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -1878,7 +3633,7 @@ memberIds<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -1887,7 +3642,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -1898,7 +3653,9 @@ perPage<br />
 
 ## channelsByMembers
 
-**Type:** [[Channel]](/api/objects#channel)
+**Type:** [[Channel]](/docs/api/objects#channel)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1908,7 +3665,7 @@ perPage<br />
 <tr>
 <td>
 memberIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -1919,15 +3676,21 @@ memberIds<br />
 
 ## channelsGetLast
 
-**Type:** [Channel](/api/objects#channel)
+**Type:** [Channel](/docs/api/objects#channel)
+
+
 
 ## channelsTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 ## chatDetail
 
-**Type:** [Chat](/api/objects#chat)
+**Type:** [Chat](/docs/api/objects#chat)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1937,7 +3700,7 @@ memberIds<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -1948,7 +3711,9 @@ _id<br />
 
 ## chatMessageDetail
 
-**Type:** [ChatMessage](/api/objects#chatmessage)
+**Type:** [ChatMessage](/docs/api/objects#chatmessage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1958,7 +3723,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1969,7 +3734,9 @@ _id<br />
 
 ## chatMessages
 
-**Type:** [ChatMessageResponse](/api/objects#chatmessageresponse)
+**Type:** [ChatMessageResponse](/docs/api/objects#chatmessageresponse)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1979,7 +3746,7 @@ _id<br />
 <tr>
 <td>
 chatId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -1988,7 +3755,7 @@ chatId<br />
 <tr>
 <td>
 isPinned<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -1997,7 +3764,7 @@ isPinned<br />
 <tr>
 <td>
 limit<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -2006,7 +3773,7 @@ limit<br />
 <tr>
 <td>
 skip<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -2017,7 +3784,9 @@ skip<br />
 
 ## chats
 
-**Type:** [ChatResponse](/api/objects#chatresponse)
+**Type:** [ChatResponse](/docs/api/objects#chatresponse)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2027,7 +3796,7 @@ skip<br />
 <tr>
 <td>
 limit<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -2036,7 +3805,7 @@ limit<br />
 <tr>
 <td>
 skip<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -2045,7 +3814,39 @@ skip<br />
 <tr>
 <td>
 type<br />
-<a href="/api/enums#chattype"><code>ChatType</code></a>
+<a href="/docs/api/enums#chattype"><code>ChatType</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## checkAssignment
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_ids<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+customerId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2056,7 +3857,9 @@ type<br />
 
 ## checkDiscount
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2066,7 +3869,7 @@ type<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -2075,7 +3878,85 @@ _id<br />
 <tr>
 <td>
 products<br />
-<a href="/api/inputObjects#productfield"><code>[ProductField]</code></a>
+<a href="/docs/api/inputObjects#productfield"><code>[ProductField]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## checkedReportsPerUser
+
+**Type:** [[CheckReport]](/docs/api/objects#checkreport)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+userId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## checkFreeTimes
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+intervals<br />
+<a href="/docs/api/inputObjects#interval"><code>[Interval]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+pipelineId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## checkInvoice
+
+**Type:** [String](/docs/api/scalars#string)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -2086,7 +3967,9 @@ products<br />
 
 ## checklistDetail
 
-**Type:** [Checklist](/api/objects#checklist)
+**Type:** [Checklist](/docs/api/objects#checklist)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2096,7 +3979,7 @@ products<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -2107,7 +3990,9 @@ _id<br />
 
 ## checklists
 
-**Type:** [[Checklist]](/api/objects#checklist)
+**Type:** [[Checklist]](/docs/api/objects#checklist)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2117,7 +4002,7 @@ _id<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2126,7 +4011,7 @@ contentType<br />
 <tr>
 <td>
 contentTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2137,7 +4022,9 @@ contentTypeId<br />
 
 ## checkLoyalties
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2147,7 +4034,7 @@ contentTypeId<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2156,7 +4043,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2165,7 +4052,39 @@ ownerType<br />
 <tr>
 <td>
 products<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## clientPortalComments
+
+**Type:** [[ClientPortalComment]](/docs/api/objects#clientportalcomment)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+type<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+typeId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -2176,15 +4095,21 @@ products<br />
 
 ## clientPortalConfigsTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 ## clientPortalCurrentUser
 
-**Type:** [ClientPortalUser](/api/objects#clientportaluser)
+**Type:** [ClientPortalUser](/docs/api/objects#clientportaluser)
+
+
 
 ## clientPortalGetConfig
 
-**Type:** [ClientPortal](/api/objects#clientportal)
+**Type:** [ClientPortal](/docs/api/objects#clientportal)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2194,7 +4119,7 @@ products<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -2205,11 +4130,15 @@ _id<br />
 
 ## clientPortalGetConfigByDomain
 
-**Type:** [ClientPortal](/api/objects#clientportal)
+**Type:** [ClientPortal](/docs/api/objects#clientportal)
+
+
 
 ## clientPortalGetConfigs
 
-**Type:** [[ClientPortal]](/api/objects#clientportal)
+**Type:** [[ClientPortal]](/docs/api/objects#clientportal)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2219,7 +4148,7 @@ _id<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -2228,7 +4157,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -2239,11 +4168,15 @@ perPage<br />
 
 ## clientPortalGetLast
 
-**Type:** [ClientPortal](/api/objects#clientportal)
+**Type:** [ClientPortal](/docs/api/objects#clientportal)
+
+
 
 ## clientPortalGetTasks
 
-**Type:** [[Task]](/api/objects#task)
+**Type:** [[Task]](/docs/api/objects#task)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2253,7 +4186,7 @@ perPage<br />
 <tr>
 <td>
 stageId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -2264,11 +4197,15 @@ stageId<br />
 
 ## clientPortalGetTaskStages
 
-**Type:** [[Stage]](/api/objects#stage)
+**Type:** [[Stage]](/docs/api/objects#stage)
+
+
 
 ## clientPortalKnowledgeBaseArticles
 
-**Type:** [[KnowledgeBaseArticle]](/api/objects#knowledgebasearticle)
+**Type:** [[KnowledgeBaseArticle]](/docs/api/objects#knowledgebasearticle)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2278,7 +4215,7 @@ stageId<br />
 <tr>
 <td>
 categoryIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -2287,7 +4224,16 @@ categoryIds<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+topicId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2298,7 +4244,9 @@ searchValue<br />
 
 ## clientPortalKnowledgeBaseTopicDetail
 
-**Type:** [KnowledgeBaseTopic](/api/objects#knowledgebasetopic)
+**Type:** [KnowledgeBaseTopic](/docs/api/objects#knowledgebasetopic)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2308,7 +4256,122 @@ searchValue<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## clientPortalNotificationCount
+
+**Type:** [Int](/docs/api/scalars#int)
+
+
+
+## clientPortalNotificationDetail
+
+**Type:** [ClientPortalNotification](/docs/api/objects#clientportalnotification)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## clientPortalNotifications
+
+**Type:** [[ClientPortalNotification]](/docs/api/objects#clientportalnotification)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+endDate<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+limit<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+notifType<br />
+<a href="/docs/api/enums#notificationtype"><code>NotificationType</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+requireRead<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+search<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+startDate<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2319,7 +4382,9 @@ _id<br />
 
 ## clientPortalTicket
 
-**Type:** [Ticket](/api/objects#ticket)
+**Type:** [Ticket](/docs/api/objects#ticket)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2329,7 +4394,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -2340,28 +4405,15 @@ _id<br />
 
 ## clientPortalTickets
 
-**Type:** [[Ticket]](/api/objects#ticket)
+**Type:** [[Ticket]](/docs/api/objects#ticket)
 
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-email<br />
-<a href="/api/scalars#string"><code>String!</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
 
 ## clientPortalUserCounts
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2371,7 +4423,7 @@ email<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2382,7 +4434,9 @@ type<br />
 
 ## clientPortalUserDetail
 
-**Type:** [ClientPortalUser](/api/objects#clientportaluser)
+**Type:** [ClientPortalUser](/docs/api/objects#clientportaluser)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2392,7 +4446,7 @@ type<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -2403,7 +4457,9 @@ _id<br />
 
 ## clientPortalUsers
 
-**Type:** [[ClientPortalUser]](/api/objects#clientportaluser)
+**Type:** [[ClientPortalUser]](/docs/api/objects#clientportaluser)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2413,7 +4469,7 @@ _id<br />
 <tr>
 <td>
 conformityIsRelated<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -2422,7 +4478,7 @@ conformityIsRelated<br />
 <tr>
 <td>
 conformityIsSaved<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -2431,7 +4487,7 @@ conformityIsSaved<br />
 <tr>
 <td>
 conformityMainType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2440,7 +4496,7 @@ conformityMainType<br />
 <tr>
 <td>
 conformityMainTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2449,7 +4505,7 @@ conformityMainTypeId<br />
 <tr>
 <td>
 conformityRelType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2458,7 +4514,16 @@ conformityRelType<br />
 <tr>
 <td>
 cpId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+dateFilters<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2467,7 +4532,7 @@ cpId<br />
 <tr>
 <td>
 excludeIds<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -2476,7 +4541,7 @@ excludeIds<br />
 <tr>
 <td>
 ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -2485,7 +4550,7 @@ ids<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -2494,7 +4559,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -2503,7 +4568,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2512,7 +4577,7 @@ searchValue<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -2521,7 +4586,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2530,7 +4595,7 @@ sortField<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2541,7 +4606,9 @@ type<br />
 
 ## clientPortalUsersMain
 
-**Type:** [clientPortalUsersListResponse](/api/objects#clientportaluserslistresponse)
+**Type:** [clientPortalUsersListResponse](/docs/api/objects#clientportaluserslistresponse)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2551,7 +4618,7 @@ type<br />
 <tr>
 <td>
 conformityIsRelated<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -2560,7 +4627,7 @@ conformityIsRelated<br />
 <tr>
 <td>
 conformityIsSaved<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -2569,7 +4636,7 @@ conformityIsSaved<br />
 <tr>
 <td>
 conformityMainType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2578,7 +4645,7 @@ conformityMainType<br />
 <tr>
 <td>
 conformityMainTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2587,7 +4654,7 @@ conformityMainTypeId<br />
 <tr>
 <td>
 conformityRelType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2596,7 +4663,16 @@ conformityRelType<br />
 <tr>
 <td>
 cpId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+dateFilters<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2605,7 +4681,7 @@ cpId<br />
 <tr>
 <td>
 excludeIds<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -2614,7 +4690,7 @@ excludeIds<br />
 <tr>
 <td>
 ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -2623,7 +4699,7 @@ ids<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -2632,7 +4708,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -2641,7 +4717,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2650,7 +4726,7 @@ searchValue<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -2659,7 +4735,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2668,7 +4744,7 @@ sortField<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2679,7 +4755,9 @@ type<br />
 
 ## commentCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2689,7 +4767,7 @@ type<br />
 <tr>
 <td>
 contentId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -2698,7 +4776,7 @@ contentId<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/enums#reactioncontenttype"><code>ReactionContentType!</code></a>
+<a href="/docs/api/enums#reactioncontenttype"><code>ReactionContentType!</code></a>
 </td>
 <td>
 
@@ -2709,7 +4787,9 @@ contentType<br />
 
 ## comments
 
-**Type:** [CommentResponse](/api/objects#commentresponse)
+**Type:** [CommentResponse](/docs/api/objects#commentresponse)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2719,7 +4799,7 @@ contentType<br />
 <tr>
 <td>
 contentId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -2728,7 +4808,7 @@ contentId<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/enums#reactioncontenttype"><code>ReactionContentType!</code></a>
+<a href="/docs/api/enums#reactioncontenttype"><code>ReactionContentType!</code></a>
 </td>
 <td>
 
@@ -2737,7 +4817,7 @@ contentType<br />
 <tr>
 <td>
 limit<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -2746,7 +4826,7 @@ limit<br />
 <tr>
 <td>
 parentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2755,7 +4835,7 @@ parentId<br />
 <tr>
 <td>
 skip<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -2766,7 +4846,9 @@ skip<br />
 
 ## companies
 
-**Type:** [[Company]](/api/objects#company)
+**Type:** [[Company]](/docs/api/objects#company)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2776,7 +4858,7 @@ skip<br />
 <tr>
 <td>
 autoCompletion<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -2785,7 +4867,7 @@ autoCompletion<br />
 <tr>
 <td>
 autoCompletionType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2794,7 +4876,7 @@ autoCompletionType<br />
 <tr>
 <td>
 brand<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2803,7 +4885,7 @@ brand<br />
 <tr>
 <td>
 conformityIsRelated<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -2812,7 +4894,7 @@ conformityIsRelated<br />
 <tr>
 <td>
 conformityIsSaved<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -2821,7 +4903,7 @@ conformityIsSaved<br />
 <tr>
 <td>
 conformityMainType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2830,7 +4912,7 @@ conformityMainType<br />
 <tr>
 <td>
 conformityMainTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2839,7 +4921,16 @@ conformityMainTypeId<br />
 <tr>
 <td>
 conformityRelType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+dateFilters<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2848,7 +4939,7 @@ conformityRelType<br />
 <tr>
 <td>
 excludeIds<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -2857,7 +4948,7 @@ excludeIds<br />
 <tr>
 <td>
 ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -2866,7 +4957,7 @@ ids<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -2875,7 +4966,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -2884,7 +4975,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2893,7 +4984,16 @@ searchValue<br />
 <tr>
 <td>
 segment<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+segmentData<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2902,7 +5002,7 @@ segment<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -2911,7 +5011,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2920,7 +5020,7 @@ sortField<br />
 <tr>
 <td>
 tag<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2931,7 +5031,9 @@ tag<br />
 
 ## companiesMain
 
-**Type:** [CompaniesListResponse](/api/objects#companieslistresponse)
+**Type:** [CompaniesListResponse](/docs/api/objects#companieslistresponse)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2941,7 +5043,7 @@ tag<br />
 <tr>
 <td>
 autoCompletion<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -2950,7 +5052,7 @@ autoCompletion<br />
 <tr>
 <td>
 autoCompletionType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2959,7 +5061,7 @@ autoCompletionType<br />
 <tr>
 <td>
 brand<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2968,7 +5070,7 @@ brand<br />
 <tr>
 <td>
 conformityIsRelated<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -2977,7 +5079,7 @@ conformityIsRelated<br />
 <tr>
 <td>
 conformityIsSaved<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -2986,7 +5088,7 @@ conformityIsSaved<br />
 <tr>
 <td>
 conformityMainType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -2995,7 +5097,7 @@ conformityMainType<br />
 <tr>
 <td>
 conformityMainTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3004,7 +5106,16 @@ conformityMainTypeId<br />
 <tr>
 <td>
 conformityRelType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+dateFilters<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3013,7 +5124,7 @@ conformityRelType<br />
 <tr>
 <td>
 excludeIds<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -3022,7 +5133,7 @@ excludeIds<br />
 <tr>
 <td>
 ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -3031,7 +5142,7 @@ ids<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -3040,7 +5151,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -3049,7 +5160,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3058,7 +5169,16 @@ searchValue<br />
 <tr>
 <td>
 segment<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+segmentData<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3067,7 +5187,7 @@ segment<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -3076,7 +5196,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3085,7 +5205,7 @@ sortField<br />
 <tr>
 <td>
 tag<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3096,7 +5216,9 @@ tag<br />
 
 ## companyCounts
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3106,7 +5228,7 @@ tag<br />
 <tr>
 <td>
 autoCompletion<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -3115,7 +5237,7 @@ autoCompletion<br />
 <tr>
 <td>
 autoCompletionType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3124,7 +5246,7 @@ autoCompletionType<br />
 <tr>
 <td>
 brand<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3133,7 +5255,7 @@ brand<br />
 <tr>
 <td>
 conformityIsRelated<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -3142,7 +5264,7 @@ conformityIsRelated<br />
 <tr>
 <td>
 conformityIsSaved<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -3151,7 +5273,7 @@ conformityIsSaved<br />
 <tr>
 <td>
 conformityMainType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3160,7 +5282,7 @@ conformityMainType<br />
 <tr>
 <td>
 conformityMainTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3169,7 +5291,16 @@ conformityMainTypeId<br />
 <tr>
 <td>
 conformityRelType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+dateFilters<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3178,7 +5309,7 @@ conformityRelType<br />
 <tr>
 <td>
 excludeIds<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -3187,7 +5318,7 @@ excludeIds<br />
 <tr>
 <td>
 ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -3196,7 +5327,7 @@ ids<br />
 <tr>
 <td>
 only<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3205,7 +5336,7 @@ only<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -3214,7 +5345,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -3223,7 +5354,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3232,7 +5363,16 @@ searchValue<br />
 <tr>
 <td>
 segment<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+segmentData<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3241,7 +5381,7 @@ segment<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -3250,7 +5390,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3259,7 +5399,7 @@ sortField<br />
 <tr>
 <td>
 tag<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3270,7 +5410,9 @@ tag<br />
 
 ## companyDetail
 
-**Type:** [Company](/api/objects#company)
+**Type:** [Company](/docs/api/objects#company)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3280,7 +5422,7 @@ tag<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -3291,11 +5433,15 @@ _id<br />
 
 ## configs
 
-**Type:** [[Config]](/api/objects#config)
+**Type:** [[Config]](/docs/api/objects#config)
+
+
 
 ## configsCheckActivateInstallation
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3305,7 +5451,7 @@ _id<br />
 <tr>
 <td>
 hostname<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -3316,7 +5462,9 @@ hostname<br />
 
 ## configsCheckPremiumService
 
-**Type:** [Boolean](/api/scalars#boolean)
+**Type:** [Boolean](/docs/api/scalars#boolean)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3326,7 +5474,7 @@ hostname<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -3337,11 +5485,15 @@ type<br />
 
 ## configsConstants
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 ## configsGetEmailTemplate
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3351,7 +5503,7 @@ type<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3362,11 +5514,38 @@ name<br />
 
 ## configsGetEnv
 
-**Type:** [ENV](/api/objects#env)
+**Type:** [ENV](/docs/api/objects#env)
+
+
+
+## configsGetInstallationStatus
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+name<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
 
 ## configsGetValue
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3376,7 +5555,7 @@ name<br />
 <tr>
 <td>
 code<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -3387,7 +5566,9 @@ code<br />
 
 ## configsGetVersion
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3397,7 +5578,7 @@ code<br />
 <tr>
 <td>
 releaseNotes<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -3408,7 +5589,9 @@ releaseNotes<br />
 
 ## contactsLogs
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3418,7 +5601,7 @@ releaseNotes<br />
 <tr>
 <td>
 action<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3427,7 +5610,7 @@ action<br />
 <tr>
 <td>
 content<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -3436,7 +5619,7 @@ content<br />
 <tr>
 <td>
 contentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3445,7 +5628,7 @@ contentId<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3456,7 +5639,9 @@ contentType<br />
 
 ## conversationCounts
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3466,7 +5651,7 @@ contentType<br />
 <tr>
 <td>
 awaitingResponse<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3475,7 +5660,7 @@ awaitingResponse<br />
 <tr>
 <td>
 brandId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3484,7 +5669,7 @@ brandId<br />
 <tr>
 <td>
 channelId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3493,7 +5678,7 @@ channelId<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3502,7 +5687,7 @@ endDate<br />
 <tr>
 <td>
 ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -3511,7 +5696,7 @@ ids<br />
 <tr>
 <td>
 integrationType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3520,7 +5705,7 @@ integrationType<br />
 <tr>
 <td>
 limit<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -3529,7 +5714,7 @@ limit<br />
 <tr>
 <td>
 only<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3538,7 +5723,7 @@ only<br />
 <tr>
 <td>
 participating<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3547,7 +5732,7 @@ participating<br />
 <tr>
 <td>
 segment<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3556,7 +5741,7 @@ segment<br />
 <tr>
 <td>
 starred<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3565,7 +5750,7 @@ starred<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3574,7 +5759,7 @@ startDate<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3583,7 +5768,7 @@ status<br />
 <tr>
 <td>
 tag<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3592,7 +5777,7 @@ tag<br />
 <tr>
 <td>
 unassigned<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3603,7 +5788,9 @@ unassigned<br />
 
 ## conversationDetail
 
-**Type:** [Conversation](/api/objects#conversation)
+**Type:** [Conversation](/docs/api/objects#conversation)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3613,7 +5800,7 @@ unassigned<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -3624,7 +5811,9 @@ _id<br />
 
 ## conversationMessage
 
-**Type:** [ConversationMessage](/api/objects#conversationmessage)
+**Type:** [ConversationMessage](/docs/api/objects#conversationmessage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3634,7 +5823,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -3645,7 +5834,9 @@ _id<br />
 
 ## conversationMessages
 
-**Type:** [[ConversationMessage]](/api/objects#conversationmessage)
+**Type:** [[ConversationMessage]](/docs/api/objects#conversationmessage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3655,7 +5846,7 @@ _id<br />
 <tr>
 <td>
 conversationId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -3664,7 +5855,7 @@ conversationId<br />
 <tr>
 <td>
 getFirst<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -3673,7 +5864,7 @@ getFirst<br />
 <tr>
 <td>
 limit<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -3682,7 +5873,7 @@ limit<br />
 <tr>
 <td>
 skip<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -3693,7 +5884,9 @@ skip<br />
 
 ## conversationMessagesTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3703,7 +5896,7 @@ skip<br />
 <tr>
 <td>
 conversationId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -3714,7 +5907,9 @@ conversationId<br />
 
 ## conversations
 
-**Type:** [[Conversation]](/api/objects#conversation)
+**Type:** [[Conversation]](/docs/api/objects#conversation)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3724,7 +5919,7 @@ conversationId<br />
 <tr>
 <td>
 awaitingResponse<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3733,7 +5928,7 @@ awaitingResponse<br />
 <tr>
 <td>
 brandId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3742,7 +5937,7 @@ brandId<br />
 <tr>
 <td>
 channelId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3751,7 +5946,7 @@ channelId<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3760,7 +5955,7 @@ endDate<br />
 <tr>
 <td>
 ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -3769,7 +5964,7 @@ ids<br />
 <tr>
 <td>
 integrationType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3778,7 +5973,7 @@ integrationType<br />
 <tr>
 <td>
 limit<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -3787,7 +5982,7 @@ limit<br />
 <tr>
 <td>
 participating<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3796,7 +5991,7 @@ participating<br />
 <tr>
 <td>
 segment<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3805,7 +6000,7 @@ segment<br />
 <tr>
 <td>
 starred<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3814,7 +6009,7 @@ starred<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3823,7 +6018,7 @@ startDate<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3832,7 +6027,7 @@ status<br />
 <tr>
 <td>
 tag<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3841,7 +6036,7 @@ tag<br />
 <tr>
 <td>
 unassigned<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3852,7 +6047,9 @@ unassigned<br />
 
 ## conversationsGetLast
 
-**Type:** [Conversation](/api/objects#conversation)
+**Type:** [Conversation](/docs/api/objects#conversation)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3862,7 +6059,7 @@ unassigned<br />
 <tr>
 <td>
 awaitingResponse<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3871,7 +6068,7 @@ awaitingResponse<br />
 <tr>
 <td>
 brandId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3880,7 +6077,7 @@ brandId<br />
 <tr>
 <td>
 channelId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3889,7 +6086,7 @@ channelId<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3898,7 +6095,7 @@ endDate<br />
 <tr>
 <td>
 ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -3907,7 +6104,7 @@ ids<br />
 <tr>
 <td>
 integrationType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3916,7 +6113,7 @@ integrationType<br />
 <tr>
 <td>
 limit<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -3925,7 +6122,7 @@ limit<br />
 <tr>
 <td>
 participating<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3934,7 +6131,7 @@ participating<br />
 <tr>
 <td>
 segment<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3943,7 +6140,7 @@ segment<br />
 <tr>
 <td>
 starred<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3952,7 +6149,7 @@ starred<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3961,7 +6158,7 @@ startDate<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3970,7 +6167,7 @@ status<br />
 <tr>
 <td>
 tag<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3979,7 +6176,7 @@ tag<br />
 <tr>
 <td>
 unassigned<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -3990,7 +6187,9 @@ unassigned<br />
 
 ## conversationsTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -4000,7 +6199,7 @@ unassigned<br />
 <tr>
 <td>
 awaitingResponse<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4009,7 +6208,7 @@ awaitingResponse<br />
 <tr>
 <td>
 brandId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4018,7 +6217,7 @@ brandId<br />
 <tr>
 <td>
 channelId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4027,7 +6226,7 @@ channelId<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4036,7 +6235,7 @@ endDate<br />
 <tr>
 <td>
 ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -4045,7 +6244,7 @@ ids<br />
 <tr>
 <td>
 integrationType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4054,7 +6253,7 @@ integrationType<br />
 <tr>
 <td>
 limit<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -4063,7 +6262,7 @@ limit<br />
 <tr>
 <td>
 participating<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4072,7 +6271,7 @@ participating<br />
 <tr>
 <td>
 segment<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4081,7 +6280,7 @@ segment<br />
 <tr>
 <td>
 starred<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4090,7 +6289,7 @@ starred<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4099,7 +6298,7 @@ startDate<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4108,7 +6307,7 @@ status<br />
 <tr>
 <td>
 tag<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4117,7 +6316,7 @@ tag<br />
 <tr>
 <td>
 unassigned<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4128,11 +6327,15 @@ unassigned<br />
 
 ## conversationsTotalUnreadCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 ## convertToInfo
 
-**Type:** [ConvertTo](/api/objects#convertto)
+**Type:** [ConvertTo](/docs/api/objects#convertto)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -4142,7 +6345,7 @@ unassigned<br />
 <tr>
 <td>
 conversationId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -4153,27 +6356,62 @@ conversationId<br />
 
 ## cpDonateCampaigns
 
-**Type:** [[DonateCampaign]](/api/objects#donatecampaign)
+**Type:** [[DonateCampaign]](/docs/api/objects#donatecampaign)
+
+
 
 ## cpLotteryCampaigns
 
-**Type:** [[LotteryCampaign]](/api/objects#lotterycampaign)
+**Type:** [[LotteryCampaign]](/docs/api/objects#lotterycampaign)
+
+
 
 ## cpSpinCampaigns
 
-**Type:** [[SpinCampaign]](/api/objects#spincampaign)
+**Type:** [[SpinCampaign]](/docs/api/objects#spincampaign)
+
+
 
 ## cpVoucherCampaigns
 
-**Type:** [[VoucherCampaign]](/api/objects#vouchercampaign)
+**Type:** [[VoucherCampaign]](/docs/api/objects#vouchercampaign)
+
+
+
+## currentAssetMovementItems
+
+**Type:** [[MovementItem]](/docs/api/objects#movementitem)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+assetIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
 
 ## currentUser
 
-**Type:** [User](/api/objects#user)
+**Type:** [User](/docs/api/objects#user)
+
+
 
 ## customerCounts
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -4183,7 +6421,7 @@ conversationId<br />
 <tr>
 <td>
 autoCompletion<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -4192,7 +6430,7 @@ autoCompletion<br />
 <tr>
 <td>
 autoCompletionType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4201,7 +6439,7 @@ autoCompletionType<br />
 <tr>
 <td>
 birthDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -4210,7 +6448,7 @@ birthDate<br />
 <tr>
 <td>
 brand<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4219,7 +6457,7 @@ brand<br />
 <tr>
 <td>
 conformityIsRelated<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -4228,7 +6466,7 @@ conformityIsRelated<br />
 <tr>
 <td>
 conformityIsSaved<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -4237,7 +6475,7 @@ conformityIsSaved<br />
 <tr>
 <td>
 conformityMainType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4246,7 +6484,7 @@ conformityMainType<br />
 <tr>
 <td>
 conformityMainTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4255,7 +6493,16 @@ conformityMainTypeId<br />
 <tr>
 <td>
 conformityRelType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+dateFilters<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4264,7 +6511,7 @@ conformityRelType<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4273,7 +6520,7 @@ endDate<br />
 <tr>
 <td>
 excludeIds<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -4282,7 +6529,7 @@ excludeIds<br />
 <tr>
 <td>
 form<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4291,7 +6538,7 @@ form<br />
 <tr>
 <td>
 ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -4300,7 +6547,7 @@ ids<br />
 <tr>
 <td>
 integration<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4309,7 +6556,7 @@ integration<br />
 <tr>
 <td>
 leadStatus<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4318,7 +6565,7 @@ leadStatus<br />
 <tr>
 <td>
 only<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4327,7 +6574,7 @@ only<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -4336,7 +6583,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -4345,7 +6592,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4354,7 +6601,16 @@ searchValue<br />
 <tr>
 <td>
 segment<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+segmentData<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4363,7 +6619,7 @@ segment<br />
 <tr>
 <td>
 sex<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -4372,7 +6628,7 @@ sex<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -4381,7 +6637,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4390,7 +6646,7 @@ sortField<br />
 <tr>
 <td>
 source<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4399,7 +6655,7 @@ source<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4408,7 +6664,7 @@ startDate<br />
 <tr>
 <td>
 tag<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4417,7 +6673,7 @@ tag<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4428,7 +6684,9 @@ type<br />
 
 ## customerDetail
 
-**Type:** [Customer](/api/objects#customer)
+**Type:** [Customer](/docs/api/objects#customer)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -4438,7 +6696,7 @@ type<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -4449,7 +6707,9 @@ _id<br />
 
 ## customers
 
-**Type:** [[Customer]](/api/objects#customer)
+**Type:** [[Customer]](/docs/api/objects#customer)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -4459,7 +6719,7 @@ _id<br />
 <tr>
 <td>
 autoCompletion<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -4468,7 +6728,7 @@ autoCompletion<br />
 <tr>
 <td>
 autoCompletionType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4477,7 +6737,7 @@ autoCompletionType<br />
 <tr>
 <td>
 birthDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -4486,7 +6746,7 @@ birthDate<br />
 <tr>
 <td>
 brand<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4495,7 +6755,7 @@ brand<br />
 <tr>
 <td>
 conformityIsRelated<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -4504,7 +6764,7 @@ conformityIsRelated<br />
 <tr>
 <td>
 conformityIsSaved<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -4513,7 +6773,7 @@ conformityIsSaved<br />
 <tr>
 <td>
 conformityMainType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4522,7 +6782,7 @@ conformityMainType<br />
 <tr>
 <td>
 conformityMainTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4531,7 +6791,16 @@ conformityMainTypeId<br />
 <tr>
 <td>
 conformityRelType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+dateFilters<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4540,7 +6809,7 @@ conformityRelType<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4549,7 +6818,7 @@ endDate<br />
 <tr>
 <td>
 excludeIds<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -4558,7 +6827,7 @@ excludeIds<br />
 <tr>
 <td>
 form<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4567,7 +6836,7 @@ form<br />
 <tr>
 <td>
 ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -4576,7 +6845,7 @@ ids<br />
 <tr>
 <td>
 integration<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4585,7 +6854,7 @@ integration<br />
 <tr>
 <td>
 leadStatus<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4594,7 +6863,7 @@ leadStatus<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -4603,7 +6872,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -4612,7 +6881,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4621,7 +6890,16 @@ searchValue<br />
 <tr>
 <td>
 segment<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+segmentData<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4630,7 +6908,7 @@ segment<br />
 <tr>
 <td>
 sex<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -4639,7 +6917,7 @@ sex<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -4648,7 +6926,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4657,7 +6935,7 @@ sortField<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4666,7 +6944,7 @@ startDate<br />
 <tr>
 <td>
 tag<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4675,7 +6953,7 @@ tag<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4686,7 +6964,9 @@ type<br />
 
 ## customersMain
 
-**Type:** [CustomersListResponse](/api/objects#customerslistresponse)
+**Type:** [CustomersListResponse](/docs/api/objects#customerslistresponse)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -4696,7 +6976,7 @@ type<br />
 <tr>
 <td>
 autoCompletion<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -4705,7 +6985,7 @@ autoCompletion<br />
 <tr>
 <td>
 autoCompletionType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4714,7 +6994,7 @@ autoCompletionType<br />
 <tr>
 <td>
 birthDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -4723,7 +7003,7 @@ birthDate<br />
 <tr>
 <td>
 brand<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4732,7 +7012,7 @@ brand<br />
 <tr>
 <td>
 conformityIsRelated<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -4741,7 +7021,7 @@ conformityIsRelated<br />
 <tr>
 <td>
 conformityIsSaved<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -4750,7 +7030,7 @@ conformityIsSaved<br />
 <tr>
 <td>
 conformityMainType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4759,7 +7039,7 @@ conformityMainType<br />
 <tr>
 <td>
 conformityMainTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4768,7 +7048,16 @@ conformityMainTypeId<br />
 <tr>
 <td>
 conformityRelType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+dateFilters<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4777,7 +7066,7 @@ conformityRelType<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4786,7 +7075,7 @@ endDate<br />
 <tr>
 <td>
 excludeIds<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -4795,7 +7084,7 @@ excludeIds<br />
 <tr>
 <td>
 form<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4804,7 +7093,7 @@ form<br />
 <tr>
 <td>
 ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -4813,7 +7102,7 @@ ids<br />
 <tr>
 <td>
 integration<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4822,7 +7111,7 @@ integration<br />
 <tr>
 <td>
 leadStatus<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4831,7 +7120,7 @@ leadStatus<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -4840,7 +7129,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -4849,7 +7138,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4858,7 +7147,16 @@ searchValue<br />
 <tr>
 <td>
 segment<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+segmentData<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4867,7 +7165,7 @@ segment<br />
 <tr>
 <td>
 sex<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -4876,7 +7174,7 @@ sex<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -4885,7 +7183,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4894,7 +7192,7 @@ sortField<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4903,7 +7201,7 @@ startDate<br />
 <tr>
 <td>
 tag<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4912,7 +7210,7 @@ tag<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -4920,10 +7218,18 @@ type<br />
 </tr>
 </tbody>
 </table>
+
+## dashboardCountByTags
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 ## dashboardDetails
 
-**Type:** [Dashboard](/api/objects#dashboard)
+**Type:** [Dashboard](/docs/api/objects#dashboard)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -4933,7 +7239,7 @@ type<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -4942,51 +7248,17 @@ _id<br />
 </tbody>
 </table>
 
-## dashboardFilters
+## dashboardGetTypes
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [[String]](/docs/api/scalars#string)
 
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-type<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## dashboardInitialDatas
-
-**Type:** [[DashboardItem]](/api/objects#dashboarditem)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-type<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
 
 ## dashboardItemDetail
 
-**Type:** [DashboardItem](/api/objects#dashboarditem)
+**Type:** [DashboardItem](/docs/api/objects#dashboarditem)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -4996,7 +7268,7 @@ type<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -5007,7 +7279,9 @@ _id<br />
 
 ## dashboardItems
 
-**Type:** [[DashboardItem]](/api/objects#dashboarditem)
+**Type:** [[DashboardItem]](/docs/api/objects#dashboarditem)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -5017,7 +7291,7 @@ _id<br />
 <tr>
 <td>
 dashboardId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -5028,7 +7302,9 @@ dashboardId<br />
 
 ## dashboards
 
-**Type:** [[Dashboard]](/api/objects#dashboard)
+**Type:** [[Dashboard]](/docs/api/objects#dashboard)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -5037,8 +7313,35 @@ dashboardId<br />
 <tbody>
 <tr>
 <td>
+departmentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+excludeIds<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+ids<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -5047,7 +7350,138 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+searchValue<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+sortDirection<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+sortField<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+tag<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## dashboardsMain
+
+**Type:** [DashboardListResponse](/docs/api/objects#dashboardlistresponse)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+departmentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+excludeIds<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+ids<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+searchValue<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+sortDirection<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+sortField<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+tag<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5058,11 +7492,15 @@ perPage<br />
 
 ## dashboardsTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 ## dealDetail
 
-**Type:** [Deal](/api/objects#deal)
+**Type:** [Deal](/docs/api/objects#deal)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -5072,7 +7510,7 @@ perPage<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -5083,7 +7521,9 @@ _id<br />
 
 ## deals
 
-**Type:** [[DealListItem]](/api/objects#deallistitem)
+**Type:** [[DealListItem]](/docs/api/objects#deallistitem)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -5093,7 +7533,7 @@ _id<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5102,7 +7542,7 @@ _ids<br />
 <tr>
 <td>
 assignedToMe<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5111,7 +7551,16 @@ assignedToMe<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+branchIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5120,7 +7569,7 @@ assignedUserIds<br />
 <tr>
 <td>
 closeDateType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5129,7 +7578,7 @@ closeDateType<br />
 <tr>
 <td>
 companyIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5138,7 +7587,7 @@ companyIds<br />
 <tr>
 <td>
 conformityIsRelated<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -5147,7 +7596,7 @@ conformityIsRelated<br />
 <tr>
 <td>
 conformityIsSaved<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -5156,7 +7605,7 @@ conformityIsSaved<br />
 <tr>
 <td>
 conformityMainType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5165,7 +7614,7 @@ conformityMainType<br />
 <tr>
 <td>
 conformityMainTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5174,7 +7623,7 @@ conformityMainTypeId<br />
 <tr>
 <td>
 conformityRelType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5183,7 +7632,7 @@ conformityRelType<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5192,7 +7641,16 @@ customerIds<br />
 <tr>
 <td>
 date<br />
-<a href="/api/inputObjects#itemdate"><code>ItemDate</code></a>
+<a href="/docs/api/inputObjects#itemdate"><code>ItemDate</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5201,7 +7659,7 @@ date<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5210,7 +7668,7 @@ endDate<br />
 <tr>
 <td>
 hasStartAndCloseDate<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -5219,7 +7677,7 @@ hasStartAndCloseDate<br />
 <tr>
 <td>
 initialStageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5228,7 +7686,7 @@ initialStageId<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5237,7 +7695,7 @@ labelIds<br />
 <tr>
 <td>
 limit<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -5246,7 +7704,25 @@ limit<br />
 <tr>
 <td>
 noSkipArchive<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+number<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5255,7 +7731,16 @@ noSkipArchive<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+pipelineIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5264,7 +7749,7 @@ pipelineId<br />
 <tr>
 <td>
 priority<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5273,7 +7758,7 @@ priority<br />
 <tr>
 <td>
 productIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5282,7 +7767,7 @@ productIds<br />
 <tr>
 <td>
 search<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5291,7 +7776,16 @@ search<br />
 <tr>
 <td>
 segment<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+segmentData<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5300,7 +7794,7 @@ segment<br />
 <tr>
 <td>
 skip<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -5309,7 +7803,7 @@ skip<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -5318,7 +7812,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5327,7 +7821,7 @@ sortField<br />
 <tr>
 <td>
 stageChangedEndDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -5336,7 +7830,7 @@ stageChangedEndDate<br />
 <tr>
 <td>
 stageChangedStartDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -5345,7 +7839,7 @@ stageChangedStartDate<br />
 <tr>
 <td>
 stageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5354,7 +7848,16 @@ stageId<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+tagIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5363,7 +7866,7 @@ startDate<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5374,7 +7877,9 @@ userIds<br />
 
 ## dealsTotalAmounts
 
-**Type:** [[TotalForType]](/api/objects#totalfortype)
+**Type:** [[TotalForType]](/docs/api/objects#totalfortype)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -5384,7 +7889,7 @@ userIds<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5393,7 +7898,7 @@ _ids<br />
 <tr>
 <td>
 assignedToMe<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5402,7 +7907,16 @@ assignedToMe<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+branchIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5411,7 +7925,7 @@ assignedUserIds<br />
 <tr>
 <td>
 closeDateType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5420,7 +7934,7 @@ closeDateType<br />
 <tr>
 <td>
 companyIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5429,7 +7943,7 @@ companyIds<br />
 <tr>
 <td>
 conformityIsRelated<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -5438,7 +7952,7 @@ conformityIsRelated<br />
 <tr>
 <td>
 conformityIsSaved<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -5447,7 +7961,7 @@ conformityIsSaved<br />
 <tr>
 <td>
 conformityMainType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5456,7 +7970,7 @@ conformityMainType<br />
 <tr>
 <td>
 conformityMainTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5465,7 +7979,7 @@ conformityMainTypeId<br />
 <tr>
 <td>
 conformityRelType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5474,7 +7988,7 @@ conformityRelType<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5483,7 +7997,16 @@ customerIds<br />
 <tr>
 <td>
 date<br />
-<a href="/api/inputObjects#itemdate"><code>ItemDate</code></a>
+<a href="/docs/api/inputObjects#itemdate"><code>ItemDate</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5492,7 +8015,7 @@ date<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5501,7 +8024,7 @@ endDate<br />
 <tr>
 <td>
 hasStartAndCloseDate<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -5510,7 +8033,7 @@ hasStartAndCloseDate<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5519,7 +8042,25 @@ labelIds<br />
 <tr>
 <td>
 noSkipArchive<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+number<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5528,7 +8069,16 @@ noSkipArchive<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+pipelineIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5537,7 +8087,7 @@ pipelineId<br />
 <tr>
 <td>
 priority<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5546,7 +8096,7 @@ priority<br />
 <tr>
 <td>
 productIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5555,7 +8105,7 @@ productIds<br />
 <tr>
 <td>
 search<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5564,7 +8114,16 @@ search<br />
 <tr>
 <td>
 segment<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+segmentData<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5573,7 +8132,7 @@ segment<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -5582,7 +8141,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5591,7 +8150,7 @@ sortField<br />
 <tr>
 <td>
 stageChangedEndDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -5600,7 +8159,7 @@ stageChangedEndDate<br />
 <tr>
 <td>
 stageChangedStartDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -5609,7 +8168,16 @@ stageChangedStartDate<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+tagIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5618,7 +8186,7 @@ startDate<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5629,7 +8197,9 @@ userIds<br />
 
 ## dealsTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -5639,7 +8209,7 @@ userIds<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5648,7 +8218,7 @@ _ids<br />
 <tr>
 <td>
 assignedToMe<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5657,7 +8227,16 @@ assignedToMe<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+branchIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5666,7 +8245,7 @@ assignedUserIds<br />
 <tr>
 <td>
 closeDateType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5675,7 +8254,7 @@ closeDateType<br />
 <tr>
 <td>
 companyIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5684,7 +8263,7 @@ companyIds<br />
 <tr>
 <td>
 conformityIsRelated<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -5693,7 +8272,7 @@ conformityIsRelated<br />
 <tr>
 <td>
 conformityIsSaved<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -5702,7 +8281,7 @@ conformityIsSaved<br />
 <tr>
 <td>
 conformityMainType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5711,7 +8290,7 @@ conformityMainType<br />
 <tr>
 <td>
 conformityMainTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5720,7 +8299,7 @@ conformityMainTypeId<br />
 <tr>
 <td>
 conformityRelType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5729,7 +8308,7 @@ conformityRelType<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5738,7 +8317,16 @@ customerIds<br />
 <tr>
 <td>
 date<br />
-<a href="/api/inputObjects#itemdate"><code>ItemDate</code></a>
+<a href="/docs/api/inputObjects#itemdate"><code>ItemDate</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5747,7 +8335,7 @@ date<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5756,7 +8344,7 @@ endDate<br />
 <tr>
 <td>
 hasStartAndCloseDate<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -5765,7 +8353,7 @@ hasStartAndCloseDate<br />
 <tr>
 <td>
 initialStageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5774,7 +8362,7 @@ initialStageId<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5783,7 +8371,7 @@ labelIds<br />
 <tr>
 <td>
 limit<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -5792,7 +8380,25 @@ limit<br />
 <tr>
 <td>
 noSkipArchive<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+number<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5801,7 +8407,16 @@ noSkipArchive<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+pipelineIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5810,7 +8425,7 @@ pipelineId<br />
 <tr>
 <td>
 priority<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5819,7 +8434,7 @@ priority<br />
 <tr>
 <td>
 productIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5828,7 +8443,7 @@ productIds<br />
 <tr>
 <td>
 search<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5837,7 +8452,16 @@ search<br />
 <tr>
 <td>
 segment<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+segmentData<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5846,7 +8470,7 @@ segment<br />
 <tr>
 <td>
 skip<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -5855,7 +8479,7 @@ skip<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -5864,7 +8488,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5873,7 +8497,7 @@ sortField<br />
 <tr>
 <td>
 stageChangedEndDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -5882,7 +8506,7 @@ stageChangedEndDate<br />
 <tr>
 <td>
 stageChangedStartDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -5891,7 +8515,7 @@ stageChangedStartDate<br />
 <tr>
 <td>
 stageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -5900,7 +8524,16 @@ stageId<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+tagIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5909,7 +8542,7 @@ startDate<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -5920,7 +8553,9 @@ userIds<br />
 
 ## departmentDetail
 
-**Type:** [Department](/api/objects#department)
+**Type:** [Department](/docs/api/objects#department)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -5930,7 +8565,7 @@ userIds<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -5941,7 +8576,9 @@ _id<br />
 
 ## departments
 
-**Type:** [[Department]](/api/objects#department)
+**Type:** [[Department]](/docs/api/objects#department)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -5950,8 +8587,62 @@ _id<br />
 <tbody>
 <tr>
 <td>
+excludeIds<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+ids<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+status<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+withoutUserFilter<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -5960,9 +8651,224 @@ searchValue<br />
 </tbody>
 </table>
 
-## donateCampaignDetail
+## departmentsMain
 
-**Type:** [DonateCampaign](/api/objects#donatecampaign)
+**Type:** [DepartmentListQueryResponse](/docs/api/objects#departmentlistqueryresponse)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+excludeIds<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+ids<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+searchValue<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+status<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+withoutUserFilter<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## deviceConfigs
+
+**Type:** [DeviceConfigsListResponse](/docs/api/objects#deviceconfigslistresponse)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+branchIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+endDate<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+reportType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+startDate<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+userIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## documents
+
+**Type:** [[Document]](/docs/api/objects#document)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+contentType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+limit<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## documentsDetail
+
+**Type:** [Document](/docs/api/objects#document)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -5972,7 +8878,59 @@ searchValue<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## documentsGetEditorAttributes
+
+**Type:** [[DocumentEditorAttribute]](/docs/api/objects#documenteditorattribute)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+contentType<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## documentsTotalCount
+
+**Type:** [Int](/docs/api/scalars#int)
+
+
+
+## donateCampaignDetail
+
+**Type:** [DonateCampaign](/docs/api/objects#donatecampaign)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -5983,7 +8941,9 @@ _id<br />
 
 ## donateCampaigns
 
-**Type:** [[DonateCampaign]](/api/objects#donatecampaign)
+**Type:** [[DonateCampaign]](/docs/api/objects#donatecampaign)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -5993,7 +8953,7 @@ _id<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -6002,7 +8962,7 @@ _ids<br />
 <tr>
 <td>
 filterStatus<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6011,7 +8971,7 @@ filterStatus<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -6020,7 +8980,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -6029,7 +8989,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6038,7 +8998,7 @@ searchValue<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -6047,7 +9007,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6058,7 +9018,9 @@ sortField<br />
 
 ## donateCampaignsCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6068,7 +9030,7 @@ sortField<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -6077,7 +9039,7 @@ _ids<br />
 <tr>
 <td>
 filterStatus<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6086,7 +9048,7 @@ filterStatus<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6097,7 +9059,9 @@ searchValue<br />
 
 ## donateDetail
 
-**Type:** [Donate](/api/objects#donate)
+**Type:** [Donate](/docs/api/objects#donate)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6107,7 +9071,7 @@ searchValue<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6118,7 +9082,9 @@ _id<br />
 
 ## donates
 
-**Type:** [[Donate]](/api/objects#donate)
+**Type:** [[Donate]](/docs/api/objects#donate)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6128,7 +9094,7 @@ _id<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6137,7 +9103,7 @@ campaignId<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6146,7 +9112,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6155,7 +9121,7 @@ ownerType<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -6164,7 +9130,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -6173,7 +9139,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6182,7 +9148,7 @@ searchValue<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -6191,7 +9157,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6200,7 +9166,7 @@ sortField<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6211,7 +9177,9 @@ status<br />
 
 ## donatesMain
 
-**Type:** [DonateMain](/api/objects#donatemain)
+**Type:** [DonateMain](/docs/api/objects#donatemain)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6221,7 +9189,7 @@ status<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6230,7 +9198,7 @@ campaignId<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6239,7 +9207,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6248,7 +9216,7 @@ ownerType<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -6257,7 +9225,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -6266,7 +9234,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6275,7 +9243,7 @@ searchValue<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -6284,7 +9252,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6293,28 +9261,7 @@ sortField<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## ecommerceGetBranches
-
-**Type:** [[JSON]](/api/scalars#json)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-posToken<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6325,7 +9272,9 @@ posToken<br />
 
 ## emailDeliveriesAsLogs
 
-**Type:** [[JSON]](/api/scalars#json)
+**Type:** [[JSON]](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6335,7 +9284,7 @@ posToken<br />
 <tr>
 <td>
 contentId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6346,7 +9295,9 @@ contentId<br />
 
 ## emailDeliveryDetail
 
-**Type:** [EmailDelivery](/api/objects#emaildelivery)
+**Type:** [EmailDelivery](/docs/api/objects#emaildelivery)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6356,7 +9307,7 @@ contentId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6367,7 +9318,9 @@ _id<br />
 
 ## emailTemplates
 
-**Type:** [[EmailTemplate]](/api/objects#emailtemplate)
+**Type:** [[EmailTemplate]](/docs/api/objects#emailtemplate)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6377,7 +9330,7 @@ _id<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -6386,7 +9339,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -6395,7 +9348,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6404,7 +9357,7 @@ searchValue<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6415,11 +9368,32 @@ status<br />
 
 ## emailTemplatesTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+searchValue<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
 
 ## emojiCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6429,7 +9403,7 @@ status<br />
 <tr>
 <td>
 contentId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6438,7 +9412,7 @@ contentId<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/enums#reactioncontenttype"><code>ReactionContentType!</code></a>
+<a href="/docs/api/enums#reactioncontenttype"><code>ReactionContentType!</code></a>
 </td>
 <td>
 
@@ -6447,7 +9421,7 @@ contentType<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6458,7 +9432,9 @@ type<br />
 
 ## emojiIsReacted
 
-**Type:** [Boolean](/api/scalars#boolean)
+**Type:** [Boolean](/docs/api/scalars#boolean)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6468,7 +9444,7 @@ type<br />
 <tr>
 <td>
 contentId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6477,7 +9453,7 @@ contentId<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/enums#reactioncontenttype"><code>ReactionContentType!</code></a>
+<a href="/docs/api/enums#reactioncontenttype"><code>ReactionContentType!</code></a>
 </td>
 <td>
 
@@ -6486,7 +9462,7 @@ contentType<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6497,7 +9473,9 @@ type<br />
 
 ## emojiReactedUsers
 
-**Type:** [[User]](/api/objects#user)
+**Type:** [[User]](/docs/api/objects#user)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6507,7 +9485,7 @@ type<br />
 <tr>
 <td>
 contentId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6516,7 +9494,7 @@ contentId<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/enums#reactioncontenttype"><code>ReactionContentType!</code></a>
+<a href="/docs/api/enums#reactioncontenttype"><code>ReactionContentType!</code></a>
 </td>
 <td>
 
@@ -6525,7 +9503,7 @@ contentType<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6536,15 +9514,21 @@ type<br />
 
 ## enabledServices
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 ## engageEmailPercentages
 
-**Type:** [AvgEmailStats](/api/objects#avgemailstats)
+**Type:** [AvgEmailStats](/docs/api/objects#avgemailstats)
+
+
 
 ## engageLogs
 
-**Type:** [[EngageLog]](/api/objects#engagelog)
+**Type:** [[EngageLog]](/docs/api/objects#engagelog)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6554,7 +9538,7 @@ type<br />
 <tr>
 <td>
 engageMessageId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6563,7 +9547,7 @@ engageMessageId<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -6572,7 +9556,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -6583,7 +9567,9 @@ perPage<br />
 
 ## engageMessageCounts
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6593,7 +9579,7 @@ perPage<br />
 <tr>
 <td>
 kind<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6602,7 +9588,7 @@ kind<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6611,7 +9597,7 @@ name<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6622,7 +9608,9 @@ status<br />
 
 ## engageMessageDetail
 
-**Type:** [EngageMessage](/api/objects#engagemessage)
+**Type:** [EngageMessage](/docs/api/objects#engagemessage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6632,7 +9620,7 @@ status<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6643,7 +9631,9 @@ _id<br />
 
 ## engageMessages
 
-**Type:** [[EngageMessage]](/api/objects#engagemessage)
+**Type:** [[EngageMessage]](/docs/api/objects#engagemessage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6653,7 +9643,7 @@ _id<br />
 <tr>
 <td>
 ids<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6662,7 +9652,7 @@ ids<br />
 <tr>
 <td>
 kind<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6671,7 +9661,7 @@ kind<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -6680,7 +9670,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -6689,7 +9679,7 @@ perPage<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6698,7 +9688,7 @@ status<br />
 <tr>
 <td>
 tag<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6709,7 +9699,9 @@ tag<br />
 
 ## engageMessagesTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6719,7 +9711,7 @@ tag<br />
 <tr>
 <td>
 ids<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6728,7 +9720,7 @@ ids<br />
 <tr>
 <td>
 kind<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6737,7 +9729,7 @@ kind<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -6746,7 +9738,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -6755,7 +9747,7 @@ perPage<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6764,7 +9756,7 @@ status<br />
 <tr>
 <td>
 tag<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6775,7 +9767,9 @@ tag<br />
 
 ## engageReportsList
 
-**Type:** [EngageDeliveryReport](/api/objects#engagedeliveryreport)
+**Type:** [EngageDeliveryReport](/docs/api/objects#engagedeliveryreport)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6785,7 +9779,7 @@ tag<br />
 <tr>
 <td>
 customerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6794,7 +9788,7 @@ customerId<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -6803,7 +9797,16 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+searchValue<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6812,7 +9815,7 @@ perPage<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6823,11 +9826,15 @@ status<br />
 
 ## engagesConfigDetail
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 ## engageSmsDeliveries
 
-**Type:** [DeliveryList](/api/objects#deliverylist)
+**Type:** [DeliveryList](/docs/api/objects#deliverylist)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6837,7 +9844,7 @@ status<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -6846,7 +9853,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -6855,7 +9862,7 @@ perPage<br />
 <tr>
 <td>
 to<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6864,7 +9871,7 @@ to<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -6875,11 +9882,15 @@ type<br />
 
 ## engageVerifiedEmails
 
-**Type:** [[String]](/api/scalars#string)
+**Type:** [[String]](/docs/api/scalars#string)
+
+
 
 ## exmFeed
 
-**Type:** [ExmFeedResponse](/api/objects#exmfeedresponse)
+**Type:** [ExmFeedResponse](/docs/api/objects#exmfeedresponse)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6889,7 +9900,7 @@ type<br />
 <tr>
 <td>
 bravoType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6898,7 +9909,7 @@ bravoType<br />
 <tr>
 <td>
 contentTypes<br />
-<a href="/api/enums#contenttype"><code>[ContentType]</code></a>
+<a href="/docs/api/enums#contenttype"><code>[ContentType]</code></a>
 </td>
 <td>
 
@@ -6907,7 +9918,7 @@ contentTypes<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6916,7 +9927,7 @@ endDate<br />
 <tr>
 <td>
 isPinned<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -6925,7 +9936,7 @@ isPinned<br />
 <tr>
 <td>
 limit<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -6934,7 +9945,7 @@ limit<br />
 <tr>
 <td>
 recipientType<br />
-<a href="/api/enums#recipienttype"><code>RecipientType</code></a>
+<a href="/docs/api/enums#recipienttype"><code>RecipientType</code></a>
 </td>
 <td>
 
@@ -6943,7 +9954,7 @@ recipientType<br />
 <tr>
 <td>
 skip<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -6952,7 +9963,7 @@ skip<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6961,7 +9972,7 @@ startDate<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -6970,7 +9981,7 @@ title<br />
 <tr>
 <td>
 type<br />
-<a href="/api/enums#sourcetype"><code>SourceType</code></a>
+<a href="/docs/api/enums#sourcetype"><code>SourceType</code></a>
 </td>
 <td>
 
@@ -6981,7 +9992,9 @@ type<br />
 
 ## exmFeedCeremonies
 
-**Type:** [ExmFeedResponse](/api/objects#exmfeedresponse)
+**Type:** [ExmFeedResponse](/docs/api/objects#exmfeedresponse)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -6991,7 +10004,7 @@ type<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/enums#contenttype"><code>ContentType</code></a>
+<a href="/docs/api/enums#contenttype"><code>ContentType</code></a>
 </td>
 <td>
 
@@ -7000,7 +10013,7 @@ contentType<br />
 <tr>
 <td>
 filterType<br />
-<a href="/api/enums#filtertype"><code>FilterType</code></a>
+<a href="/docs/api/enums#filtertype"><code>FilterType</code></a>
 </td>
 <td>
 
@@ -7011,7 +10024,9 @@ filterType<br />
 
 ## exmFeedDetail
 
-**Type:** [ExmFeed](/api/objects#exmfeed)
+**Type:** [ExmFeed](/docs/api/objects#exmfeed)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7021,7 +10036,7 @@ filterType<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7032,11 +10047,15 @@ _id<br />
 
 ## exmGet
 
-**Type:** [Exm](/api/objects#exm)
+**Type:** [Exm](/docs/api/objects#exm)
+
+
 
 ## exms
 
-**Type:** [ExmList](/api/objects#exmlist)
+**Type:** [ExmList](/docs/api/objects#exmlist)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7046,7 +10065,7 @@ _id<br />
 <tr>
 <td>
 name<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7055,7 +10074,7 @@ name<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -7064,7 +10083,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -7075,7 +10094,9 @@ perPage<br />
 
 ## exmThanks
 
-**Type:** [ExmThankResponse](/api/objects#exmthankresponse)
+**Type:** [ExmThankResponse](/docs/api/objects#exmthankresponse)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7085,7 +10106,7 @@ perPage<br />
 <tr>
 <td>
 limit<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -7094,7 +10115,7 @@ limit<br />
 <tr>
 <td>
 skip<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -7103,7 +10124,466 @@ skip<br />
 <tr>
 <td>
 type<br />
-<a href="/api/enums#sourcetype"><code>SourceType</code></a>
+<a href="/docs/api/enums#sourcetype"><code>SourceType</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## exportHistories
+
+**Type:** [ExportHistoryList](/docs/api/objects#exporthistorylist)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+type<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## exportHistoryDetail
+
+**Type:** [ImportHistory](/docs/api/objects#importhistory)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## exportHistoryGetColumns
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+attachmentName<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## exportHistoryGetDuplicatedHeaders
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+attachmentNames<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## facebookConversationDetail
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## facebookConversationMessages
+
+**Type:** [[FacebookConversationMessage]](/docs/api/objects#facebookconversationmessage)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+conversationId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+getFirst<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+limit<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+skip<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## facebookConversationMessagesCount
+
+**Type:** [Int](/docs/api/scalars#int)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+conversationId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## facebookGetAccounts
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+kind<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## facebookGetCommentCount
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+conversationId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+isResolved<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## facebookGetComments
+
+**Type:** [[FacebookComment]](/docs/api/objects#facebookcomment)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+commentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+conversationId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+isResolved<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+limit<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+senderId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+skip<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## facebookGetConfigs
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+## facebookGetIntegrationDetail
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+erxesApiId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## facebookGetIntegrations
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+kind<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## facebookGetPages
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+accountId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+kind<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## facebookGetPost
+
+**Type:** [FacebookPost](/docs/api/objects#facebookpost)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+erxesApiId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## facebookHasTaggedMessages
+
+**Type:** [Boolean](/docs/api/scalars#boolean)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+conversationId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7114,7 +10594,9 @@ type<br />
 
 ## fields
 
-**Type:** [[Field]](/api/objects#field)
+**Type:** [[Field]](/docs/api/objects#field)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7124,7 +10606,7 @@ type<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7133,7 +10615,7 @@ contentType<br />
 <tr>
 <td>
 contentTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7142,7 +10624,7 @@ contentTypeId<br />
 <tr>
 <td>
 isVisible<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -7151,7 +10633,7 @@ isVisible<br />
 <tr>
 <td>
 isVisibleToCreate<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -7160,7 +10642,7 @@ isVisibleToCreate<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7169,7 +10651,7 @@ pipelineId<br />
 <tr>
 <td>
 searchable<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -7180,7 +10662,9 @@ searchable<br />
 
 ## fieldsCombinedByContentType
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7190,7 +10674,7 @@ searchable<br />
 <tr>
 <td>
 config<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -7199,7 +10683,7 @@ config<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7208,7 +10692,16 @@ contentType<br />
 <tr>
 <td>
 excludedNames<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+onlyDates<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -7217,7 +10710,7 @@ excludedNames<br />
 <tr>
 <td>
 segmentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7226,7 +10719,7 @@ segmentId<br />
 <tr>
 <td>
 usageType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7237,7 +10730,9 @@ usageType<br />
 
 ## fieldsDefaultColumnsConfig
 
-**Type:** [[ColumnConfigItem]](/api/objects#columnconfigitem)
+**Type:** [[ColumnConfigItem]](/docs/api/objects#columnconfigitem)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7247,7 +10742,39 @@ usageType<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## fieldsGetDetail
+
+**Type:** [Field](/docs/api/objects#field)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+code<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7258,11 +10785,15 @@ contentType<br />
 
 ## fieldsGetTypes
 
-**Type:** [[JSON]](/api/scalars#json)
+**Type:** [[JSON]](/docs/api/scalars#json)
+
+
 
 ## fieldsGroups
 
-**Type:** [[FieldsGroup]](/api/objects#fieldsgroup)
+**Type:** [[FieldsGroup]](/docs/api/objects#fieldsgroup)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7272,7 +10803,7 @@ contentType<br />
 <tr>
 <td>
 config<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -7281,7 +10812,7 @@ config<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7290,7 +10821,7 @@ contentType<br />
 <tr>
 <td>
 isDefinedByErxes<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -7301,7 +10832,9 @@ isDefinedByErxes<br />
 
 ## formDetail
 
-**Type:** [Form](/api/objects#form)
+**Type:** [Form](/docs/api/objects#form)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7311,7 +10844,7 @@ isDefinedByErxes<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7322,11 +10855,15 @@ _id<br />
 
 ## forms
 
-**Type:** [[Form]](/api/objects#form)
+**Type:** [[Form]](/docs/api/objects#form)
 
-## formSubmissions
 
-**Type:** [[Submission]](/api/objects#submission)
+
+## formSubmissionDetail
+
+**Type:** [Submission](/docs/api/objects#submission)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7335,8 +10872,49 @@ _id<br />
 <tbody>
 <tr>
 <td>
+contentTypeId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## formSubmissions
+
+**Type:** [[Submission]](/docs/api/objects#submission)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+contentTypeIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+customerId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
 filters<br />
-<a href="/api/inputObjects#submissionfilter"><code>[SubmissionFilter]</code></a>
+<a href="/docs/api/inputObjects#submissionfilter"><code>[SubmissionFilter]</code></a>
 </td>
 <td>
 
@@ -7345,7 +10923,7 @@ filters<br />
 <tr>
 <td>
 formId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7354,7 +10932,7 @@ formId<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -7363,7 +10941,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -7372,7 +10950,7 @@ perPage<br />
 <tr>
 <td>
 tagId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7383,7 +10961,9 @@ tagId<br />
 
 ## formSubmissionsTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7392,8 +10972,26 @@ tagId<br />
 <tbody>
 <tr>
 <td>
+contentTypeIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+customerId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
 filters<br />
-<a href="/api/inputObjects#submissionfilter"><code>[SubmissionFilter]</code></a>
+<a href="/docs/api/inputObjects#submissionfilter"><code>[SubmissionFilter]</code></a>
 </td>
 <td>
 
@@ -7402,7 +11000,7 @@ filters<br />
 <tr>
 <td>
 formId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7411,7 +11009,7 @@ formId<br />
 <tr>
 <td>
 tagId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7422,7 +11020,9 @@ tagId<br />
 
 ## getChatIdByUserIds
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7432,7 +11032,7 @@ tagId<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -7443,7 +11043,9 @@ userIds<br />
 
 ## getDbSchemaLabels
 
-**Type:** [[SchemaField]](/api/objects#schemafield)
+**Type:** [[SchemaField]](/docs/api/objects#schemafield)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7453,7 +11055,7 @@ userIds<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7462,9 +11064,17 @@ type<br />
 </tbody>
 </table>
 
-## getDealLink
+## getFieldsInputTypes
 
-**Type:** [String](/api/scalars#string)
+**Type:** [[JSON]](/docs/api/scalars#json)
+
+
+
+## getPaymentConfig
+
+**Type:** [PaymentConfig](/docs/api/objects#paymentconfig)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7473,8 +11083,17 @@ type<br />
 <tbody>
 <tr>
 <td>
-_id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+contentType<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+contentTypeId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7483,9 +11102,11 @@ _id<br />
 </tbody>
 </table>
 
-## getNeighbor
+## getPaymentConfigs
 
-**Type:** [Neighbor](/api/objects#neighbor)
+**Type:** [[PaymentConfig]](/docs/api/objects#paymentconfig)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7494,50 +11115,26 @@ _id<br />
 <tbody>
 <tr>
 <td>
-productCategoryId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+contentType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
 </td>
 </tr>
-</tbody>
-</table>
-
-## getNeighborItem
-
-**Type:** [JSON](/api/scalars#json)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
 <tr>
 <td>
-_id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
 </td>
 </tr>
-</tbody>
-</table>
-
-## getNeighborItems
-
-**Type:** [JSON](/api/scalars#json)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
 <tr>
 <td>
-type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -7548,7 +11145,9 @@ type<br />
 
 ## getSystemFieldsGroup
 
-**Type:** [FieldsGroup](/api/objects#fieldsgroup)
+**Type:** [FieldsGroup](/docs/api/objects#fieldsgroup)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7558,7 +11157,7 @@ type<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7569,11 +11168,15 @@ contentType<br />
 
 ## getUnreadChatCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 ## growthHackDetail
 
-**Type:** [GrowthHack](/api/objects#growthhack)
+**Type:** [GrowthHack](/docs/api/objects#growthhack)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7583,7 +11186,7 @@ contentType<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7594,7 +11197,9 @@ _id<br />
 
 ## growthHacks
 
-**Type:** [[GrowthHack]](/api/objects#growthhack)
+**Type:** [[GrowthHack]](/docs/api/objects#growthhack)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7604,7 +11209,7 @@ _id<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -7613,7 +11218,7 @@ _ids<br />
 <tr>
 <td>
 assignedToMe<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7622,7 +11227,7 @@ assignedToMe<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -7631,7 +11236,7 @@ assignedUserIds<br />
 <tr>
 <td>
 closeDateType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7640,7 +11245,7 @@ closeDateType<br />
 <tr>
 <td>
 hackStage<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -7649,7 +11254,7 @@ hackStage<br />
 <tr>
 <td>
 initialStageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7658,7 +11263,7 @@ initialStageId<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -7667,7 +11272,7 @@ labelIds<br />
 <tr>
 <td>
 limit<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -7676,7 +11281,16 @@ limit<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+pipelineIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -7685,7 +11299,7 @@ pipelineId<br />
 <tr>
 <td>
 priority<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -7694,7 +11308,7 @@ priority<br />
 <tr>
 <td>
 search<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7703,7 +11317,7 @@ search<br />
 <tr>
 <td>
 skip<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -7712,7 +11326,7 @@ skip<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -7721,7 +11335,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7730,7 +11344,7 @@ sortField<br />
 <tr>
 <td>
 stageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7739,7 +11353,7 @@ stageId<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -7750,7 +11364,9 @@ userIds<br />
 
 ## growthHacksPriorityMatrix
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7760,7 +11376,7 @@ userIds<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -7769,7 +11385,7 @@ assignedUserIds<br />
 <tr>
 <td>
 closeDateType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7778,7 +11394,7 @@ closeDateType<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7787,7 +11403,7 @@ pipelineId<br />
 <tr>
 <td>
 search<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7798,7 +11414,9 @@ search<br />
 
 ## growthHacksTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7808,7 +11426,7 @@ search<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -7817,7 +11435,7 @@ _ids<br />
 <tr>
 <td>
 assignedToMe<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7826,7 +11444,7 @@ assignedToMe<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -7835,7 +11453,7 @@ assignedUserIds<br />
 <tr>
 <td>
 closeDateType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7844,7 +11462,7 @@ closeDateType<br />
 <tr>
 <td>
 hackStage<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -7853,7 +11471,7 @@ hackStage<br />
 <tr>
 <td>
 initialStageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7862,7 +11480,7 @@ initialStageId<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -7871,7 +11489,7 @@ labelIds<br />
 <tr>
 <td>
 limit<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -7880,7 +11498,16 @@ limit<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+pipelineIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -7889,7 +11516,7 @@ pipelineId<br />
 <tr>
 <td>
 priority<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -7898,7 +11525,7 @@ priority<br />
 <tr>
 <td>
 search<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7907,7 +11534,7 @@ search<br />
 <tr>
 <td>
 skip<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -7916,7 +11543,7 @@ skip<br />
 <tr>
 <td>
 stageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7925,7 +11552,7 @@ stageId<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -7934,9 +11561,90 @@ userIds<br />
 </tbody>
 </table>
 
+## historyGetTypes
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+## historyPreviewCount
+
+**Type:** [String](/docs/api/scalars#string)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+contentType<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+segmentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## holidays
+
+**Type:** [[Absence]](/docs/api/objects#absence)
+
+
+
+## imapConversationDetail
+
+**Type:** [[IMap]](/docs/api/objects#imap)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+conversationId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## imapGetIntegrations
+
+**Type:** [[IMapIntegration]](/docs/api/objects#imapintegration)
+
+
+
+## imapLogs
+
+**Type:** [[JSON]](/docs/api/scalars#json)
+
+
+
 ## importHistories
 
-**Type:** [ImportHistoryList](/api/objects#importhistorylist)
+**Type:** [ImportHistoryList](/docs/api/objects#importhistorylist)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7946,7 +11654,7 @@ userIds<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -7955,7 +11663,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -7964,7 +11672,7 @@ perPage<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -7975,7 +11683,9 @@ type<br />
 
 ## importHistoryDetail
 
-**Type:** [ImportHistory](/api/objects#importhistory)
+**Type:** [ImportHistory](/docs/api/objects#importhistory)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -7985,7 +11695,7 @@ type<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -7996,7 +11706,9 @@ _id<br />
 
 ## importHistoryGetColumns
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8006,7 +11718,7 @@ _id<br />
 <tr>
 <td>
 attachmentName<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8017,7 +11729,9 @@ attachmentName<br />
 
 ## importHistoryGetDuplicatedHeaders
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8027,45 +11741,7 @@ attachmentName<br />
 <tr>
 <td>
 attachmentNames<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## importHistoryGetExportableServices
-
-**Type:** [JSON](/api/scalars#json)
-
-## importHistoryGetTypes
-
-**Type:** [JSON](/api/scalars#json)
-
-## importHistoryPreviewExportCount
-
-**Type:** [String](/api/scalars#string)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-contentType<br />
-<a href="/api/scalars#string"><code>String!</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-segmentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -8076,11 +11752,15 @@ segmentId<br />
 
 ## inboxFields
 
-**Type:** [InboxField](/api/objects#inboxfield)
+**Type:** [InboxField](/docs/api/objects#inboxfield)
+
+
 
 ## integrationDetail
 
-**Type:** [Integration](/api/objects#integration)
+**Type:** [Integration](/docs/api/objects#integration)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8090,7 +11770,7 @@ segmentId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -8101,7 +11781,9 @@ _id<br />
 
 ## integrationGetLineWebhookUrl
 
-**Type:** [String](/api/scalars#string)
+**Type:** [String](/docs/api/scalars#string)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8111,7 +11793,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -8122,7 +11804,9 @@ _id<br />
 
 ## integrations
 
-**Type:** [[Integration]](/api/objects#integration)
+**Type:** [[Integration]](/docs/api/objects#integration)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8132,7 +11816,7 @@ _id<br />
 <tr>
 <td>
 brandId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8141,7 +11825,7 @@ brandId<br />
 <tr>
 <td>
 channelId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8150,7 +11834,7 @@ channelId<br />
 <tr>
 <td>
 formLoadType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8159,7 +11843,7 @@ formLoadType<br />
 <tr>
 <td>
 kind<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8168,7 +11852,7 @@ kind<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -8177,7 +11861,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -8186,7 +11870,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8195,7 +11879,7 @@ searchValue<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -8204,7 +11888,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8213,7 +11897,7 @@ sortField<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8222,103 +11906,7 @@ status<br />
 <tr>
 <td>
 tag<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## integrationsConversationFbComments
-
-**Type:** [[FacebookComment]](/api/objects#facebookcomment)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-commentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-isResolved<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-limit<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-postId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-senderId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-skip<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## integrationsConversationFbCommentsCount
-
-**Type:** [JSON](/api/scalars#json)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-isResolved<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-postId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8329,7 +11917,9 @@ postId<br />
 
 ## integrationsGetAccounts
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8339,7 +11929,7 @@ postId<br />
 <tr>
 <td>
 kind<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8350,41 +11940,15 @@ kind<br />
 
 ## integrationsGetConfigs
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
 
-## integrationsGetFbPages
 
-**Type:** [JSON](/api/scalars#json)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-accountId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-kind<br />
-<a href="/api/scalars#string"><code>String!</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
 
 ## integrationsGetIntegrationDetail
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8394,7 +11958,7 @@ kind<br />
 <tr>
 <td>
 erxesApiId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8405,7 +11969,9 @@ erxesApiId<br />
 
 ## integrationsGetIntegrations
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8415,7 +11981,7 @@ erxesApiId<br />
 <tr>
 <td>
 kind<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8426,11 +11992,15 @@ kind<br />
 
 ## integrationsGetUsedTypes
 
-**Type:** [[integrationsGetUsedTypes]](/api/objects#integrationsgetusedtypes)
+**Type:** [[integrationsGetUsedTypes]](/docs/api/objects#integrationsgetusedtypes)
+
+
 
 ## integrationsTotalCount
 
-**Type:** [integrationsTotalCount](/api/objects#integrationstotalcount)
+**Type:** [integrationsTotalCount](/docs/api/objects#integrationstotalcount)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8440,7 +12010,7 @@ kind<br />
 <tr>
 <td>
 brandId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8449,7 +12019,7 @@ brandId<br />
 <tr>
 <td>
 channelId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8458,7 +12028,7 @@ channelId<br />
 <tr>
 <td>
 formLoadType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8467,7 +12037,7 @@ formLoadType<br />
 <tr>
 <td>
 kind<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8476,7 +12046,7 @@ kind<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8485,7 +12055,7 @@ status<br />
 <tr>
 <td>
 tag<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8496,7 +12066,9 @@ tag<br />
 
 ## internalNoteDetail
 
-**Type:** [InternalNote](/api/objects#internalnote)
+**Type:** [InternalNote](/docs/api/objects#internalnote)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8506,7 +12078,7 @@ tag<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -8517,7 +12089,9 @@ _id<br />
 
 ## internalNotes
 
-**Type:** [[InternalNote]](/api/objects#internalnote)
+**Type:** [[InternalNote]](/docs/api/objects#internalnote)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8527,7 +12101,7 @@ _id<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -8536,7 +12110,7 @@ contentType<br />
 <tr>
 <td>
 contentTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8547,7 +12121,9 @@ contentTypeId<br />
 
 ## internalNotesAsLogs
 
-**Type:** [[JSON]](/api/scalars#json)
+**Type:** [[JSON]](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8557,7 +12133,7 @@ contentTypeId<br />
 <tr>
 <td>
 contentTypeId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -8568,7 +12144,9 @@ contentTypeId<br />
 
 ## internalNotesByAction
 
-**Type:** [InternalNotesByAction](/api/objects#internalnotesbyaction)
+**Type:** [InternalNotesByAction](/docs/api/objects#internalnotesbyaction)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8578,7 +12156,7 @@ contentTypeId<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8587,7 +12165,7 @@ contentType<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -8596,7 +12174,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -8605,7 +12183,166 @@ perPage<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## invoices
+
+**Type:** [[Invoice]](/docs/api/objects#invoice)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+contentType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+contentTypeId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+kind<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+searchValue<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+status<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## invoicesTotalCount
+
+**Type:** [invoicesTotalCount](/docs/api/objects#invoicestotalcount)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+contentType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+contentTypeId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+kind<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+searchValue<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+status<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## isChatUserOnline
+
+**Type:** [[UserStatus]](/docs/api/objects#userstatus)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+userIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -8616,7 +12353,9 @@ pipelineId<br />
 
 ## itemsCountByAssignedUser
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8626,7 +12365,7 @@ pipelineId<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -8635,7 +12374,7 @@ pipelineId<br />
 <tr>
 <td>
 stackBy<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8644,7 +12383,7 @@ stackBy<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -8655,7 +12394,9 @@ type<br />
 
 ## itemsCountBySegments
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8665,7 +12406,7 @@ type<br />
 <tr>
 <td>
 boardId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8674,7 +12415,7 @@ boardId<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8683,7 +12424,7 @@ pipelineId<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -8694,7 +12435,9 @@ type<br />
 
 ## knowledgeBaseArticleDetail
 
-**Type:** [KnowledgeBaseArticle](/api/objects#knowledgebasearticle)
+**Type:** [KnowledgeBaseArticle](/docs/api/objects#knowledgebasearticle)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8704,7 +12447,7 @@ type<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -8715,7 +12458,9 @@ _id<br />
 
 ## knowledgeBaseArticleDetailAndIncViewCount
 
-**Type:** [KnowledgeBaseArticle](/api/objects#knowledgebasearticle)
+**Type:** [KnowledgeBaseArticle](/docs/api/objects#knowledgebasearticle)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8725,7 +12470,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -8736,7 +12481,9 @@ _id<br />
 
 ## knowledgeBaseArticles
 
-**Type:** [[KnowledgeBaseArticle]](/api/objects#knowledgebasearticle)
+**Type:** [[KnowledgeBaseArticle]](/docs/api/objects#knowledgebasearticle)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8746,7 +12493,7 @@ _id<br />
 <tr>
 <td>
 categoryIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -8755,7 +12502,7 @@ categoryIds<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -8764,7 +12511,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -8773,7 +12520,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8784,7 +12531,9 @@ searchValue<br />
 
 ## knowledgeBaseArticlesTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8794,7 +12543,7 @@ searchValue<br />
 <tr>
 <td>
 categoryIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -8805,7 +12554,9 @@ categoryIds<br />
 
 ## knowledgeBaseCategories
 
-**Type:** [[KnowledgeBaseCategory]](/api/objects#knowledgebasecategory)
+**Type:** [[KnowledgeBaseCategory]](/docs/api/objects#knowledgebasecategory)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8815,7 +12566,7 @@ categoryIds<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -8824,7 +12575,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -8833,7 +12584,7 @@ perPage<br />
 <tr>
 <td>
 topicIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -8844,11 +12595,15 @@ topicIds<br />
 
 ## knowledgeBaseCategoriesGetLast
 
-**Type:** [KnowledgeBaseCategory](/api/objects#knowledgebasecategory)
+**Type:** [KnowledgeBaseCategory](/docs/api/objects#knowledgebasecategory)
+
+
 
 ## knowledgeBaseCategoriesTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8858,7 +12613,7 @@ topicIds<br />
 <tr>
 <td>
 topicIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -8869,7 +12624,9 @@ topicIds<br />
 
 ## knowledgeBaseCategoryDetail
 
-**Type:** [KnowledgeBaseCategory](/api/objects#knowledgebasecategory)
+**Type:** [KnowledgeBaseCategory](/docs/api/objects#knowledgebasecategory)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8879,7 +12636,7 @@ topicIds<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -8890,7 +12647,9 @@ _id<br />
 
 ## knowledgeBaseTopicDetail
 
-**Type:** [KnowledgeBaseTopic](/api/objects#knowledgebasetopic)
+**Type:** [KnowledgeBaseTopic](/docs/api/objects#knowledgebasetopic)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8900,7 +12659,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -8911,7 +12670,9 @@ _id<br />
 
 ## knowledgeBaseTopics
 
-**Type:** [[KnowledgeBaseTopic]](/api/objects#knowledgebasetopic)
+**Type:** [[KnowledgeBaseTopic]](/docs/api/objects#knowledgebasetopic)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8921,7 +12682,7 @@ _id<br />
 <tr>
 <td>
 brandId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8930,7 +12691,7 @@ brandId<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -8939,7 +12700,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -8950,11 +12711,15 @@ perPage<br />
 
 ## knowledgeBaseTopicsTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 ## logs
 
-**Type:** [LogList](/api/objects#loglist)
+**Type:** [LogList](/docs/api/objects#loglist)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -8964,7 +12729,7 @@ perPage<br />
 <tr>
 <td>
 action<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8973,7 +12738,7 @@ action<br />
 <tr>
 <td>
 end<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -8982,7 +12747,7 @@ end<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -8991,7 +12756,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9000,7 +12765,7 @@ perPage<br />
 <tr>
 <td>
 start<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9009,7 +12774,7 @@ start<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9018,7 +12783,7 @@ type<br />
 <tr>
 <td>
 userId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9029,7 +12794,9 @@ userId<br />
 
 ## lotteries
 
-**Type:** [[Lottery]](/api/objects#lottery)
+**Type:** [[Lottery]](/docs/api/objects#lottery)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9039,7 +12806,7 @@ userId<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9048,7 +12815,7 @@ campaignId<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9057,7 +12824,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9066,7 +12833,7 @@ ownerType<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9075,7 +12842,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9084,7 +12851,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9093,7 +12860,7 @@ searchValue<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9102,7 +12869,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9111,7 +12878,7 @@ sortField<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9120,7 +12887,7 @@ status<br />
 <tr>
 <td>
 voucherCampaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9131,7 +12898,9 @@ voucherCampaignId<br />
 
 ## lotteriesCampaignCustomerList
 
-**Type:** [LotteryMain](/api/objects#lotterymain)
+**Type:** [LotteryMain](/docs/api/objects#lotterymain)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9141,7 +12910,7 @@ voucherCampaignId<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9150,7 +12919,7 @@ campaignId<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9159,7 +12928,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9168,7 +12937,7 @@ ownerType<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9177,7 +12946,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9186,7 +12955,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9195,7 +12964,7 @@ searchValue<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9204,7 +12973,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9213,7 +12982,7 @@ sortField<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9222,7 +12991,7 @@ status<br />
 <tr>
 <td>
 voucherCampaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9233,7 +13002,9 @@ voucherCampaignId<br />
 
 ## lotteriesMain
 
-**Type:** [LotteryMain](/api/objects#lotterymain)
+**Type:** [LotteryMain](/docs/api/objects#lotterymain)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9243,7 +13014,7 @@ voucherCampaignId<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9252,7 +13023,7 @@ campaignId<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9261,7 +13032,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9270,7 +13041,7 @@ ownerType<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9279,7 +13050,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9288,7 +13059,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9297,7 +13068,7 @@ searchValue<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9306,7 +13077,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9315,7 +13086,7 @@ sortField<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9324,7 +13095,7 @@ status<br />
 <tr>
 <td>
 voucherCampaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9335,7 +13106,9 @@ voucherCampaignId<br />
 
 ## lotteryCampaignDetail
 
-**Type:** [LotteryCampaign](/api/objects#lotterycampaign)
+**Type:** [LotteryCampaign](/docs/api/objects#lotterycampaign)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9345,7 +13118,7 @@ voucherCampaignId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9356,7 +13129,9 @@ _id<br />
 
 ## lotteryCampaigns
 
-**Type:** [[LotteryCampaign]](/api/objects#lotterycampaign)
+**Type:** [[LotteryCampaign]](/docs/api/objects#lotterycampaign)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9366,7 +13141,7 @@ _id<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -9375,7 +13150,7 @@ _ids<br />
 <tr>
 <td>
 filterStatus<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9384,7 +13159,7 @@ filterStatus<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9393,7 +13168,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9402,7 +13177,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9411,7 +13186,7 @@ searchValue<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9420,7 +13195,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9431,7 +13206,9 @@ sortField<br />
 
 ## lotteryCampaignsCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9441,7 +13218,7 @@ sortField<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -9450,7 +13227,7 @@ _ids<br />
 <tr>
 <td>
 filterStatus<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9459,7 +13236,7 @@ filterStatus<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9470,7 +13247,9 @@ searchValue<br />
 
 ## lotteryCampaignWinnerList
 
-**Type:** [LotteryMain](/api/objects#lotterymain)
+**Type:** [LotteryMain](/docs/api/objects#lotterymain)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9480,7 +13259,7 @@ searchValue<br />
 <tr>
 <td>
 awardId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9489,7 +13268,7 @@ awardId<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9498,7 +13277,7 @@ campaignId<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9507,7 +13286,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9516,7 +13295,7 @@ ownerType<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9525,7 +13304,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9534,7 +13313,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9543,7 +13322,7 @@ searchValue<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9552,7 +13331,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9561,7 +13340,7 @@ sortField<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9570,7 +13349,7 @@ status<br />
 <tr>
 <td>
 voucherCampaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9581,7 +13360,9 @@ voucherCampaignId<br />
 
 ## lotteryDetail
 
-**Type:** [Lottery](/api/objects#lottery)
+**Type:** [Lottery](/docs/api/objects#lottery)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9591,7 +13372,7 @@ voucherCampaignId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9602,7 +13383,9 @@ _id<br />
 
 ## loyalties
 
-**Type:** [Loyalty](/api/objects#loyalty)
+**Type:** [Loyalty](/docs/api/objects#loyalty)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9612,7 +13395,7 @@ _id<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9621,7 +13404,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9630,7 +13413,7 @@ ownerType<br />
 <tr>
 <td>
 statuses<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -9641,11 +13424,15 @@ statuses<br />
 
 ## loyaltyConfigs
 
-**Type:** [[LoyaltyConfig]](/api/objects#loyaltyconfig)
+**Type:** [[LoyaltyConfig]](/docs/api/objects#loyaltyconfig)
+
+
 
 ## messengerApps
 
-**Type:** [MessengerAppsResponse](/api/objects#messengerappsresponse)
+**Type:** [MessengerAppsResponse](/docs/api/objects#messengerappsresponse)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9655,7 +13442,7 @@ statuses<br />
 <tr>
 <td>
 integrationId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9666,7 +13453,9 @@ integrationId<br />
 
 ## noDepartmentUsers
 
-**Type:** [[User]](/api/objects#user)
+**Type:** [[User]](/docs/api/objects#user)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9676,7 +13465,7 @@ integrationId<br />
 <tr>
 <td>
 excludeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9687,7 +13476,9 @@ excludeId<br />
 
 ## notificationCounts
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9696,8 +13487,17 @@ excludeId<br />
 <tbody>
 <tr>
 <td>
+contentTypes<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
 notifType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9706,7 +13506,7 @@ notifType<br />
 <tr>
 <td>
 requireRead<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -9717,7 +13517,9 @@ requireRead<br />
 
 ## notifications
 
-**Type:** [[Notification]](/api/objects#notification)
+**Type:** [[Notification]](/docs/api/objects#notification)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9726,8 +13528,17 @@ requireRead<br />
 <tbody>
 <tr>
 <td>
+contentTypes<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9736,7 +13547,7 @@ endDate<br />
 <tr>
 <td>
 limit<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9745,7 +13556,7 @@ limit<br />
 <tr>
 <td>
 notifType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9754,7 +13565,7 @@ notifType<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9763,7 +13574,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9772,7 +13583,7 @@ perPage<br />
 <tr>
 <td>
 requireRead<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -9781,7 +13592,7 @@ requireRead<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9790,7 +13601,7 @@ startDate<br />
 <tr>
 <td>
 title<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9801,19 +13612,27 @@ title<br />
 
 ## notificationsGetConfigurations
 
-**Type:** [[NotificationConfiguration]](/api/objects#notificationconfiguration)
+**Type:** [[NotificationConfiguration]](/docs/api/objects#notificationconfiguration)
+
+
 
 ## notificationsModules
 
-**Type:** [[JSON]](/api/scalars#json)
+**Type:** [[JSON]](/docs/api/scalars#json)
+
+
 
 ## onboardingGetAvailableFeatures
 
-**Type:** [[OnboardingGetAvailableFeaturesResponse]](/api/objects#onboardinggetavailablefeaturesresponse)
+**Type:** [[OnboardingGetAvailableFeaturesResponse]](/docs/api/objects#onboardinggetavailablefeaturesresponse)
+
+
 
 ## onboardingStepsCompleteness
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9823,7 +13642,80 @@ title<br />
 <tr>
 <td>
 steps<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## payDates
+
+**Type:** [[PayDate]](/docs/api/objects#paydate)
+
+
+
+## paymentConfigsTotalCount
+
+**Type:** [Int](/docs/api/scalars#int)
+
+
+
+## payments
+
+**Type:** [[Payment]](/docs/api/objects#payment)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+status<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## paymentsCountByType
+
+**Type:** [paymentsTotalCount](/docs/api/objects#paymentstotalcount)
+
+
+
+## paymentsTotalCount
+
+**Type:** [paymentsTotalCount](/docs/api/objects#paymentstotalcount)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+kind<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+status<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9834,15 +13726,21 @@ steps<br />
 
 ## permissionActions
 
-**Type:** [[PermissionAction]](/api/objects#permissionaction)
+**Type:** [[PermissionAction]](/docs/api/objects#permissionaction)
+
+
 
 ## permissionModules
 
-**Type:** [[PermissionModule]](/api/objects#permissionmodule)
+**Type:** [[PermissionModule]](/docs/api/objects#permissionmodule)
+
+
 
 ## permissions
 
-**Type:** [[Permission]](/api/objects#permission)
+**Type:** [[Permission]](/docs/api/objects#permission)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9852,7 +13750,7 @@ steps<br />
 <tr>
 <td>
 action<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9861,7 +13759,7 @@ action<br />
 <tr>
 <td>
 allowed<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -9870,7 +13768,7 @@ allowed<br />
 <tr>
 <td>
 groupId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9879,7 +13777,7 @@ groupId<br />
 <tr>
 <td>
 module<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9888,7 +13786,7 @@ module<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9897,7 +13795,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -9906,7 +13804,7 @@ perPage<br />
 <tr>
 <td>
 userId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9917,7 +13815,9 @@ userId<br />
 
 ## permissionsTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9927,7 +13827,7 @@ userId<br />
 <tr>
 <td>
 action<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9936,7 +13836,7 @@ action<br />
 <tr>
 <td>
 allowed<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -9945,7 +13845,7 @@ allowed<br />
 <tr>
 <td>
 groupId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9954,7 +13854,7 @@ groupId<br />
 <tr>
 <td>
 module<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9963,7 +13863,7 @@ module<br />
 <tr>
 <td>
 userId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -9974,7 +13874,9 @@ userId<br />
 
 ## pipelineAssignedUsers
 
-**Type:** [[User]](/api/objects#user)
+**Type:** [[User]](/docs/api/objects#user)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -9984,7 +13886,7 @@ userId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -9995,7 +13897,9 @@ _id<br />
 
 ## pipelineDetail
 
-**Type:** [Pipeline](/api/objects#pipeline)
+**Type:** [Pipeline](/docs/api/objects#pipeline)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10005,7 +13909,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10016,7 +13920,9 @@ _id<br />
 
 ## pipelineLabelDetail
 
-**Type:** [PipelineLabel](/api/objects#pipelinelabel)
+**Type:** [PipelineLabel](/docs/api/objects#pipelinelabel)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10026,7 +13932,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10037,7 +13943,9 @@ _id<br />
 
 ## pipelineLabels
 
-**Type:** [[PipelineLabel]](/api/objects#pipelinelabel)
+**Type:** [[PipelineLabel]](/docs/api/objects#pipelinelabel)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10047,7 +13955,7 @@ _id<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10058,7 +13966,9 @@ pipelineId<br />
 
 ## pipelines
 
-**Type:** [[Pipeline]](/api/objects#pipeline)
+**Type:** [[Pipeline]](/docs/api/objects#pipeline)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10068,7 +13978,7 @@ pipelineId<br />
 <tr>
 <td>
 boardId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10077,7 +13987,7 @@ boardId<br />
 <tr>
 <td>
 isAll<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -10086,7 +13996,7 @@ isAll<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -10095,7 +14005,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -10104,7 +14014,7 @@ perPage<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10115,7 +14025,9 @@ type<br />
 
 ## pipelineStateCount
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10125,7 +14037,7 @@ type<br />
 <tr>
 <td>
 boardId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10134,7 +14046,7 @@ boardId<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10145,7 +14057,9 @@ type<br />
 
 ## pipelineTemplateDetail
 
-**Type:** [PipelineTemplate](/api/objects#pipelinetemplate)
+**Type:** [PipelineTemplate](/docs/api/objects#pipelinetemplate)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10155,7 +14069,7 @@ type<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10166,7 +14080,9 @@ _id<br />
 
 ## pipelineTemplates
 
-**Type:** [[PipelineTemplate]](/api/objects#pipelinetemplate)
+**Type:** [[PipelineTemplate]](/docs/api/objects#pipelinetemplate)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10176,7 +14092,7 @@ _id<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -10187,513 +14103,15 @@ type<br />
 
 ## pipelineTemplatesTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
 
-## posDetail
 
-**Type:** [Pos](/api/objects#pos)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-_id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## posEnv
-
-**Type:** [JSON](/api/scalars#json)
-
-## posList
-
-**Type:** [[Pos]](/api/objects#pos)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-isOnline<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## posOrderDetail
-
-**Type:** [PosOrderDetail](/api/objects#posorderdetail)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-_id<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## posOrders
-
-**Type:** [[PosOrder]](/api/objects#posorder)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-createdEndDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-createdStartDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-customerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-paidDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-paidEndDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-paidStartDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-search<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-userId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## posOrdersSummary
-
-**Type:** [JSON](/api/scalars#json)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-createdEndDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-createdStartDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-customerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-paidDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-paidEndDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-paidStartDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-search<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-userId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## posProducts
-
-**Type:** [PosProducts](/api/objects#posproducts)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-categoryId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-createdEndDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-createdStartDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-customerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-paidDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-paidEndDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-paidStartDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-search<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-userId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## posSlots
-
-**Type:** [[PosSlot]](/api/objects#posslot)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-posId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
 
 ## productCategories
 
-**Type:** [[ProductCategory]](/api/objects#productcategory)
+**Type:** [[ProductCategory]](/docs/api/objects#productcategory)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10702,8 +14120,17 @@ posId<br />
 <tbody>
 <tr>
 <td>
+meta<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
 parentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10712,7 +14139,7 @@ parentId<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10721,7 +14148,7 @@ searchValue<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10732,11 +14159,15 @@ status<br />
 
 ## productCategoriesTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 ## productCategoryDetail
 
-**Type:** [ProductCategory](/api/objects#productcategory)
+**Type:** [ProductCategory](/docs/api/objects#productcategory)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10746,7 +14177,7 @@ status<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10757,11 +14188,15 @@ _id<br />
 
 ## productCountByTags
 
-**Type:** [JSON](/api/scalars#json)
+**Type:** [JSON](/docs/api/scalars#json)
+
+
 
 ## productDetail
 
-**Type:** [Product](/api/objects#product)
+**Type:** [Product](/docs/api/objects#product)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10771,28 +14206,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## productGroups
-
-**Type:** [[ProductGroups]](/api/objects#productgroups)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-posId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10803,7 +14217,9 @@ posId<br />
 
 ## products
 
-**Type:** [[Product]](/api/objects#product)
+**Type:** [[Product]](/docs/api/objects#product)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -10813,7 +14229,7 @@ posId<br />
 <tr>
 <td>
 boardId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10822,7 +14238,7 @@ boardId<br />
 <tr>
 <td>
 categoryId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10831,7 +14247,7 @@ categoryId<br />
 <tr>
 <td>
 excludeIds<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -10840,7 +14256,7 @@ excludeIds<br />
 <tr>
 <td>
 ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -10849,7 +14265,7 @@ ids<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -10858,7 +14274,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -10867,7 +14283,7 @@ perPage<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10876,7 +14292,25 @@ pipelineId<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+segment<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+segmentData<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10885,7 +14319,7 @@ searchValue<br />
 <tr>
 <td>
 tag<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10894,7 +14328,7 @@ tag<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10905,21 +14339,147 @@ type<br />
 
 ## productsConfigs
 
-**Type:** [[ProductsConfig]](/api/objects#productsconfig)
+**Type:** [[ProductsConfig]](/docs/api/objects#productsconfig)
+
+
+
+## productsGroupCounts
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+only<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
 
 ## productsTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
 <thead><tr><th>Name</th><th>Description</th></tr></thead>
 <tbody>
+<tr>
+<td>
+boardId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+categoryId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+excludeIds<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+ids<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+pipelineId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+searchValue<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+segment<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+segmentData<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+tag<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -10928,174 +14488,11 @@ type<br />
 </tbody>
 </table>
 
-## putResponses
+## requestsMain
 
-**Type:** [[PutResponse]](/api/objects#putresponse)
+**Type:** [RequestsListResponse](/docs/api/objects#requestslistresponse)
 
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-billIdRule<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-billType<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-contentType<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-createdEndDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-createdStartDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-dealName<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-isLast<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-orderNumber<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-paidDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-pipelineId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-search<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-stageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-success<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## putResponsesAmount
-
-**Type:** [Float](/api/scalars#float)
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11104,8 +14501,8 @@ success<br />
 <tbody>
 <tr>
 <td>
-billIdRule<br />
-<a href="/api/scalars#string"><code>String</code></a>
+branchIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -11113,8 +14510,8 @@ billIdRule<br />
 </tr>
 <tr>
 <td>
-billType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+departmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -11122,53 +14519,8 @@ billType<br />
 </tr>
 <tr>
 <td>
-contentType<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-createdEndDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-createdStartDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-dealName<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-isLast<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-orderNumber<br />
-<a href="/api/scalars#string"><code>String</code></a>
+endDate<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -11177,16 +14529,7 @@ orderNumber<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-paidDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -11195,7 +14538,7 @@ paidDate<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -11203,8 +14546,8 @@ perPage<br />
 </tr>
 <tr>
 <td>
-pipelineId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+reportType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11212,8 +14555,8 @@ pipelineId<br />
 </tr>
 <tr>
 <td>
-search<br />
-<a href="/api/scalars#string"><code>String</code></a>
+startDate<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
 </td>
 <td>
 
@@ -11221,200 +14564,8 @@ search<br />
 </tr>
 <tr>
 <td>
-sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-stageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-success<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## putResponsesCount
-
-**Type:** [Int](/api/scalars#int)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-billIdRule<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-billType<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-contentType<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-createdEndDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-createdStartDate<br />
-<a href="/api/scalars#date"><code>Date</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-dealName<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-isLast<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-orderNumber<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-paidDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-pipelineId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-search<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-stageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-success<br />
-<a href="/api/scalars#string"><code>String</code></a>
+userIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -11425,7 +14576,9 @@ success<br />
 
 ## responseTemplates
 
-**Type:** [[ResponseTemplate]](/api/objects#responsetemplate)
+**Type:** [[ResponseTemplate]](/docs/api/objects#responsetemplate)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11435,7 +14588,7 @@ success<br />
 <tr>
 <td>
 brandId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11444,7 +14597,7 @@ brandId<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -11453,7 +14606,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -11462,7 +14615,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11473,7 +14626,9 @@ searchValue<br />
 
 ## responseTemplatesTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11483,7 +14638,7 @@ searchValue<br />
 <tr>
 <td>
 brandId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11492,7 +14647,7 @@ brandId<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11503,7 +14658,9 @@ searchValue<br />
 
 ## robotEntries
 
-**Type:** [[RobotEntry]](/api/objects#robotentry)
+**Type:** [[RobotEntry]](/docs/api/objects#robotentry)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11513,7 +14670,7 @@ searchValue<br />
 <tr>
 <td>
 action<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11522,7 +14679,7 @@ action<br />
 <tr>
 <td>
 isNotified<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -11531,7 +14688,163 @@ isNotified<br />
 <tr>
 <td>
 parentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## scheduleConfigs
+
+**Type:** [[ScheduleConfig]](/docs/api/objects#scheduleconfig)
+
+
+
+## scheduleDetail
+
+**Type:** [Schedule](/docs/api/objects#schedule)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## schedulesMain
+
+**Type:** [SchedulesListResponse](/docs/api/objects#scheduleslistresponse)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+branchIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+endDate<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+reportType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+startDate<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+userIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## schedulesPerUser
+
+**Type:** [[Schedule]](/docs/api/objects#schedule)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+endDate<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+startDate<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+userId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11542,7 +14855,9 @@ parentId<br />
 
 ## scoreLogList
 
-**Type:** [List](/api/objects#list)
+**Type:** [List](/docs/api/objects#list)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11552,7 +14867,7 @@ parentId<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11561,7 +14876,7 @@ campaignId<br />
 <tr>
 <td>
 fromDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11570,7 +14885,7 @@ fromDate<br />
 <tr>
 <td>
 order<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11579,7 +14894,7 @@ order<br />
 <tr>
 <td>
 orderType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11588,7 +14903,7 @@ orderType<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11597,7 +14912,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11606,7 +14921,7 @@ ownerType<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -11615,7 +14930,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -11624,7 +14939,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11633,7 +14948,7 @@ searchValue<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -11642,7 +14957,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11651,7 +14966,7 @@ sortField<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11660,7 +14975,7 @@ status<br />
 <tr>
 <td>
 toDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11671,7 +14986,9 @@ toDate<br />
 
 ## scoreLogs
 
-**Type:** [[ScoreLog]](/api/objects#scorelog)
+**Type:** [[ScoreLog]](/docs/api/objects#scorelog)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11681,7 +14998,7 @@ toDate<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11690,7 +15007,7 @@ campaignId<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11699,7 +15016,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11708,7 +15025,7 @@ ownerType<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -11717,7 +15034,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -11726,7 +15043,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11735,7 +15052,7 @@ searchValue<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -11744,7 +15061,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11753,7 +15070,7 @@ sortField<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11764,7 +15081,9 @@ status<br />
 
 ## scripts
 
-**Type:** [[Script]](/api/objects#script)
+**Type:** [[Script]](/docs/api/objects#script)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11774,7 +15093,7 @@ status<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -11783,7 +15102,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -11794,11 +15113,15 @@ perPage<br />
 
 ## scriptsTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 ## search
 
-**Type:** [[JSON]](/api/scalars#json)
+**Type:** [[JSON]](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11808,7 +15131,7 @@ perPage<br />
 <tr>
 <td>
 value<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -11819,7 +15142,9 @@ value<br />
 
 ## segmentDetail
 
-**Type:** [Segment](/api/objects#segment)
+**Type:** [Segment](/docs/api/objects#segment)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11829,7 +15154,7 @@ value<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11840,7 +15165,9 @@ _id<br />
 
 ## segments
 
-**Type:** [[Segment]](/api/objects#segment)
+**Type:** [[Segment]](/docs/api/objects#segment)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11850,7 +15177,7 @@ _id<br />
 <tr>
 <td>
 config<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -11859,7 +15186,16 @@ config<br />
 <tr>
 <td>
 contentTypes<br />
-<a href="/api/scalars#string"><code>[String]!</code></a>
+<a href="/docs/api/scalars#string"><code>[String]!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+ids<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -11870,7 +15206,9 @@ contentTypes<br />
 
 ## segmentsEvents
 
-**Type:** [[JSON]](/api/scalars#json)
+**Type:** [[JSON]](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11880,7 +15218,7 @@ contentTypes<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -11891,7 +15229,9 @@ contentType<br />
 
 ## segmentsGetAssociationTypes
 
-**Type:** [[JSON]](/api/scalars#json)
+**Type:** [[JSON]](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11901,7 +15241,7 @@ contentType<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -11912,15 +15252,21 @@ contentType<br />
 
 ## segmentsGetHeads
 
-**Type:** [[Segment]](/api/objects#segment)
+**Type:** [[Segment]](/docs/api/objects#segment)
+
+
 
 ## segmentsGetTypes
 
-**Type:** [[JSON]](/api/scalars#json)
+**Type:** [[JSON]](/docs/api/scalars#json)
+
+
 
 ## segmentsPreviewCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11930,7 +15276,7 @@ contentType<br />
 <tr>
 <td>
 conditions<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -11939,7 +15285,7 @@ conditions<br />
 <tr>
 <td>
 conditionsConjunction<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11948,7 +15294,7 @@ conditionsConjunction<br />
 <tr>
 <td>
 config<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -11957,7 +15303,7 @@ config<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -11966,7 +15312,7 @@ contentType<br />
 <tr>
 <td>
 subOf<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -11977,7 +15323,9 @@ subOf<br />
 
 ## skill
 
-**Type:** [Skill](/api/objects#skill)
+**Type:** [Skill](/docs/api/objects#skill)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -11987,7 +15335,7 @@ subOf<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -11998,7 +15346,9 @@ _id<br />
 
 ## skills
 
-**Type:** [[Skill]](/api/objects#skill)
+**Type:** [[Skill]](/docs/api/objects#skill)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12008,7 +15358,7 @@ _id<br />
 <tr>
 <td>
 list<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -12017,7 +15367,7 @@ list<br />
 <tr>
 <td>
 memberIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12026,7 +15376,7 @@ memberIds<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -12035,7 +15385,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -12044,7 +15394,7 @@ perPage<br />
 <tr>
 <td>
 typeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12055,7 +15405,9 @@ typeId<br />
 
 ## skillsTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12065,7 +15417,7 @@ typeId<br />
 <tr>
 <td>
 typeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12076,15 +15428,21 @@ typeId<br />
 
 ## skillTypes
 
-**Type:** [[SkillType]](/api/objects#skilltype)
+**Type:** [[SkillType]](/docs/api/objects#skilltype)
+
+
 
 ## skillTypesTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 ## spinCampaignDetail
 
-**Type:** [SpinCampaign](/api/objects#spincampaign)
+**Type:** [SpinCampaign](/docs/api/objects#spincampaign)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12094,7 +15452,7 @@ typeId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12105,7 +15463,9 @@ _id<br />
 
 ## spinCampaigns
 
-**Type:** [[SpinCampaign]](/api/objects#spincampaign)
+**Type:** [[SpinCampaign]](/docs/api/objects#spincampaign)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12115,7 +15475,7 @@ _id<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12124,7 +15484,7 @@ _ids<br />
 <tr>
 <td>
 filterStatus<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12133,7 +15493,7 @@ filterStatus<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -12142,7 +15502,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -12151,7 +15511,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12160,7 +15520,7 @@ searchValue<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -12169,7 +15529,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12180,7 +15540,9 @@ sortField<br />
 
 ## spinCampaignsCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12190,7 +15552,7 @@ sortField<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12199,7 +15561,7 @@ _ids<br />
 <tr>
 <td>
 filterStatus<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12208,7 +15570,7 @@ filterStatus<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12219,7 +15581,9 @@ searchValue<br />
 
 ## spinDetail
 
-**Type:** [Spin](/api/objects#spin)
+**Type:** [Spin](/docs/api/objects#spin)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12229,7 +15593,7 @@ searchValue<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12240,7 +15604,9 @@ _id<br />
 
 ## spins
 
-**Type:** [[Spin]](/api/objects#spin)
+**Type:** [[Spin]](/docs/api/objects#spin)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12250,7 +15616,7 @@ _id<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12259,7 +15625,7 @@ campaignId<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12268,7 +15634,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12277,7 +15643,7 @@ ownerType<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -12286,7 +15652,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -12295,7 +15661,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12304,7 +15670,7 @@ searchValue<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -12313,7 +15679,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12322,7 +15688,7 @@ sortField<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12331,7 +15697,7 @@ status<br />
 <tr>
 <td>
 voucherCampaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12342,7 +15708,9 @@ voucherCampaignId<br />
 
 ## spinsMain
 
-**Type:** [SpinMain](/api/objects#spinmain)
+**Type:** [SpinMain](/docs/api/objects#spinmain)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12352,7 +15720,7 @@ voucherCampaignId<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12361,7 +15729,7 @@ campaignId<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12370,7 +15738,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12379,7 +15747,7 @@ ownerType<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -12388,7 +15756,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -12397,7 +15765,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12406,7 +15774,7 @@ searchValue<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -12415,7 +15783,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12424,7 +15792,7 @@ sortField<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12433,7 +15801,7 @@ status<br />
 <tr>
 <td>
 voucherCampaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12444,7 +15812,9 @@ voucherCampaignId<br />
 
 ## stageDetail
 
-**Type:** [Stage](/api/objects#stage)
+**Type:** [Stage](/docs/api/objects#stage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12454,7 +15824,7 @@ voucherCampaignId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12463,7 +15833,7 @@ _id<br />
 <tr>
 <td>
 age<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -12472,7 +15842,7 @@ age<br />
 <tr>
 <td>
 assignedToMe<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12481,7 +15851,7 @@ assignedToMe<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12490,7 +15860,7 @@ assignedUserIds<br />
 <tr>
 <td>
 closeDateType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12499,7 +15869,7 @@ closeDateType<br />
 <tr>
 <td>
 companyIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12508,7 +15878,7 @@ companyIds<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12517,7 +15887,7 @@ customerIds<br />
 <tr>
 <td>
 extraParams<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -12526,7 +15896,7 @@ extraParams<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12535,7 +15905,7 @@ labelIds<br />
 <tr>
 <td>
 search<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12546,7 +15916,9 @@ search<br />
 
 ## stages
 
-**Type:** [[Stage]](/api/objects#stage)
+**Type:** [[Stage]](/docs/api/objects#stage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12556,7 +15928,7 @@ search<br />
 <tr>
 <td>
 age<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -12565,7 +15937,7 @@ age<br />
 <tr>
 <td>
 assignedToMe<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12574,7 +15946,7 @@ assignedToMe<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12583,7 +15955,7 @@ assignedUserIds<br />
 <tr>
 <td>
 closeDateType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12592,7 +15964,7 @@ closeDateType<br />
 <tr>
 <td>
 companyIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12601,7 +15973,7 @@ companyIds<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12610,7 +15982,7 @@ customerIds<br />
 <tr>
 <td>
 extraParams<br />
-<a href="/api/scalars#json"><code>JSON</code></a>
+<a href="/docs/api/scalars#json"><code>JSON</code></a>
 </td>
 <td>
 
@@ -12619,7 +15991,7 @@ extraParams<br />
 <tr>
 <td>
 isAll<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -12628,7 +16000,7 @@ isAll<br />
 <tr>
 <td>
 isNotLost<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -12637,7 +16009,7 @@ isNotLost<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12646,7 +16018,7 @@ labelIds<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12655,7 +16027,7 @@ pipelineId<br />
 <tr>
 <td>
 search<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12666,11 +16038,15 @@ search<br />
 
 ## structureDetail
 
-**Type:** [Structure](/api/objects#structure)
+**Type:** [Structure](/docs/api/objects#structure)
+
+
 
 ## tagDetail
 
-**Type:** [Tag](/api/objects#tag)
+**Type:** [Tag](/docs/api/objects#tag)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12680,7 +16056,7 @@ search<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12691,7 +16067,9 @@ _id<br />
 
 ## tags
 
-**Type:** [[Tag]](/api/objects#tag)
+**Type:** [[Tag]](/docs/api/objects#tag)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12700,8 +16078,17 @@ _id<br />
 <tbody>
 <tr>
 <td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12710,7 +16097,7 @@ searchValue<br />
 <tr>
 <td>
 tagIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12719,7 +16106,7 @@ tagIds<br />
 <tr>
 <td>
 type<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12730,11 +16117,15 @@ type<br />
 
 ## tagsGetTypes
 
-**Type:** [[JSON]](/api/scalars#json)
+**Type:** [[JSON]](/docs/api/scalars#json)
+
+
 
 ## taskDetail
 
-**Type:** [Task](/api/objects#task)
+**Type:** [Task](/docs/api/objects#task)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12744,7 +16135,7 @@ type<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -12755,7 +16146,9 @@ _id<br />
 
 ## tasks
 
-**Type:** [[TaskListItem]](/api/objects#tasklistitem)
+**Type:** [[TaskListItem]](/docs/api/objects#tasklistitem)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -12765,7 +16158,7 @@ _id<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12774,7 +16167,7 @@ _ids<br />
 <tr>
 <td>
 assignedToMe<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12783,7 +16176,16 @@ assignedToMe<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+branchIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12792,7 +16194,7 @@ assignedUserIds<br />
 <tr>
 <td>
 closeDateType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12801,7 +16203,7 @@ closeDateType<br />
 <tr>
 <td>
 companyIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12810,7 +16212,7 @@ companyIds<br />
 <tr>
 <td>
 conformityIsRelated<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -12819,7 +16221,7 @@ conformityIsRelated<br />
 <tr>
 <td>
 conformityIsSaved<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -12828,7 +16230,7 @@ conformityIsSaved<br />
 <tr>
 <td>
 conformityMainType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12837,7 +16239,7 @@ conformityMainType<br />
 <tr>
 <td>
 conformityMainTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12846,7 +16248,7 @@ conformityMainTypeId<br />
 <tr>
 <td>
 conformityRelType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12855,7 +16257,7 @@ conformityRelType<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12864,7 +16266,16 @@ customerIds<br />
 <tr>
 <td>
 date<br />
-<a href="/api/inputObjects#itemdate"><code>ItemDate</code></a>
+<a href="/docs/api/inputObjects#itemdate"><code>ItemDate</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12873,7 +16284,7 @@ date<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12882,7 +16293,7 @@ endDate<br />
 <tr>
 <td>
 hasStartAndCloseDate<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -12891,7 +16302,7 @@ hasStartAndCloseDate<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12900,7 +16311,34 @@ labelIds<br />
 <tr>
 <td>
 limit<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+noSkipArchive<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+number<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12909,7 +16347,16 @@ limit<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+pipelineIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12918,7 +16365,7 @@ pipelineId<br />
 <tr>
 <td>
 priority<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12927,7 +16374,7 @@ priority<br />
 <tr>
 <td>
 search<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12936,7 +16383,16 @@ search<br />
 <tr>
 <td>
 segment<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+segmentData<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12945,7 +16401,7 @@ segment<br />
 <tr>
 <td>
 skip<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -12954,7 +16410,7 @@ skip<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -12963,7 +16419,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12972,7 +16428,7 @@ sortField<br />
 <tr>
 <td>
 stageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -12981,7 +16437,16 @@ stageId<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+tagIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -12990,7 +16455,7 @@ startDate<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13001,7 +16466,9 @@ userIds<br />
 
 ## tasksAsLogs
 
-**Type:** [[JSON]](/api/scalars#json)
+**Type:** [[JSON]](/docs/api/scalars#json)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -13011,7 +16478,7 @@ userIds<br />
 <tr>
 <td>
 contentId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -13020,7 +16487,7 @@ contentId<br />
 <tr>
 <td>
 contentType<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -13029,7 +16496,7 @@ contentType<br />
 <tr>
 <td>
 limit<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -13040,7 +16507,9 @@ limit<br />
 
 ## tasksTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -13050,7 +16519,7 @@ limit<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13059,7 +16528,7 @@ _ids<br />
 <tr>
 <td>
 assignedToMe<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13068,7 +16537,16 @@ assignedToMe<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+branchIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13077,7 +16555,7 @@ assignedUserIds<br />
 <tr>
 <td>
 closeDateType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13086,7 +16564,7 @@ closeDateType<br />
 <tr>
 <td>
 companyIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13095,7 +16573,7 @@ companyIds<br />
 <tr>
 <td>
 conformityIsRelated<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -13104,7 +16582,7 @@ conformityIsRelated<br />
 <tr>
 <td>
 conformityIsSaved<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -13113,7 +16591,7 @@ conformityIsSaved<br />
 <tr>
 <td>
 conformityMainType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13122,7 +16600,7 @@ conformityMainType<br />
 <tr>
 <td>
 conformityMainTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13131,7 +16609,7 @@ conformityMainTypeId<br />
 <tr>
 <td>
 conformityRelType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13140,7 +16618,7 @@ conformityRelType<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13149,7 +16627,16 @@ customerIds<br />
 <tr>
 <td>
 date<br />
-<a href="/api/inputObjects#itemdate"><code>ItemDate</code></a>
+<a href="/docs/api/inputObjects#itemdate"><code>ItemDate</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13158,7 +16645,7 @@ date<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13167,7 +16654,7 @@ endDate<br />
 <tr>
 <td>
 hasStartAndCloseDate<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -13176,7 +16663,7 @@ hasStartAndCloseDate<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13185,7 +16672,34 @@ labelIds<br />
 <tr>
 <td>
 limit<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+noSkipArchive<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+number<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13194,7 +16708,16 @@ limit<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+pipelineIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13203,7 +16726,7 @@ pipelineId<br />
 <tr>
 <td>
 priority<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13212,7 +16735,7 @@ priority<br />
 <tr>
 <td>
 search<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13221,7 +16744,16 @@ search<br />
 <tr>
 <td>
 segment<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+segmentData<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13230,7 +16762,7 @@ segment<br />
 <tr>
 <td>
 skip<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -13239,7 +16771,7 @@ skip<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -13248,7 +16780,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13257,7 +16789,7 @@ sortField<br />
 <tr>
 <td>
 stageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13266,7 +16798,16 @@ stageId<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+tagIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13275,7 +16816,7 @@ startDate<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13286,7 +16827,9 @@ userIds<br />
 
 ## ticketDetail
 
-**Type:** [Ticket](/api/objects#ticket)
+**Type:** [Ticket](/docs/api/objects#ticket)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -13296,7 +16839,7 @@ userIds<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -13307,7 +16850,9 @@ _id<br />
 
 ## tickets
 
-**Type:** [[TicketListItem]](/api/objects#ticketlistitem)
+**Type:** [[TicketListItem]](/docs/api/objects#ticketlistitem)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -13317,7 +16862,7 @@ _id<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13326,7 +16871,7 @@ _ids<br />
 <tr>
 <td>
 assignedToMe<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13335,7 +16880,16 @@ assignedToMe<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+branchIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13344,7 +16898,7 @@ assignedUserIds<br />
 <tr>
 <td>
 closeDateType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13353,7 +16907,7 @@ closeDateType<br />
 <tr>
 <td>
 companyIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13362,7 +16916,7 @@ companyIds<br />
 <tr>
 <td>
 conformityIsRelated<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -13371,7 +16925,7 @@ conformityIsRelated<br />
 <tr>
 <td>
 conformityIsSaved<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -13380,7 +16934,7 @@ conformityIsSaved<br />
 <tr>
 <td>
 conformityMainType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13389,7 +16943,7 @@ conformityMainType<br />
 <tr>
 <td>
 conformityMainTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13398,7 +16952,7 @@ conformityMainTypeId<br />
 <tr>
 <td>
 conformityRelType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13407,7 +16961,7 @@ conformityRelType<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13416,7 +16970,16 @@ customerIds<br />
 <tr>
 <td>
 date<br />
-<a href="/api/inputObjects#itemdate"><code>ItemDate</code></a>
+<a href="/docs/api/inputObjects#itemdate"><code>ItemDate</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13425,7 +16988,7 @@ date<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13434,7 +16997,7 @@ endDate<br />
 <tr>
 <td>
 hasStartAndCloseDate<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -13443,7 +17006,7 @@ hasStartAndCloseDate<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13452,7 +17015,34 @@ labelIds<br />
 <tr>
 <td>
 limit<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+noSkipArchive<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+number<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13461,7 +17051,16 @@ limit<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+pipelineIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13470,7 +17069,7 @@ pipelineId<br />
 <tr>
 <td>
 priority<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13479,7 +17078,7 @@ priority<br />
 <tr>
 <td>
 search<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13488,7 +17087,16 @@ search<br />
 <tr>
 <td>
 segment<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+segmentData<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13497,7 +17105,7 @@ segment<br />
 <tr>
 <td>
 skip<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -13506,7 +17114,7 @@ skip<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -13515,7 +17123,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13524,7 +17132,7 @@ sortField<br />
 <tr>
 <td>
 source<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13533,7 +17141,7 @@ source<br />
 <tr>
 <td>
 stageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13542,7 +17150,16 @@ stageId<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+tagIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13551,7 +17168,7 @@ startDate<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13562,7 +17179,9 @@ userIds<br />
 
 ## ticketsTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -13572,7 +17191,7 @@ userIds<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13581,7 +17200,7 @@ _ids<br />
 <tr>
 <td>
 assignedToMe<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13590,7 +17209,16 @@ assignedToMe<br />
 <tr>
 <td>
 assignedUserIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+branchIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13599,7 +17227,7 @@ assignedUserIds<br />
 <tr>
 <td>
 closeDateType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13608,7 +17236,7 @@ closeDateType<br />
 <tr>
 <td>
 companyIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13617,7 +17245,7 @@ companyIds<br />
 <tr>
 <td>
 conformityIsRelated<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -13626,7 +17254,7 @@ conformityIsRelated<br />
 <tr>
 <td>
 conformityIsSaved<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -13635,7 +17263,7 @@ conformityIsSaved<br />
 <tr>
 <td>
 conformityMainType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13644,7 +17272,7 @@ conformityMainType<br />
 <tr>
 <td>
 conformityMainTypeId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13653,7 +17281,7 @@ conformityMainTypeId<br />
 <tr>
 <td>
 conformityRelType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13662,7 +17290,7 @@ conformityRelType<br />
 <tr>
 <td>
 customerIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13671,7 +17299,16 @@ customerIds<br />
 <tr>
 <td>
 date<br />
-<a href="/api/inputObjects#itemdate"><code>ItemDate</code></a>
+<a href="/docs/api/inputObjects#itemdate"><code>ItemDate</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13680,7 +17317,7 @@ date<br />
 <tr>
 <td>
 endDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13689,7 +17326,7 @@ endDate<br />
 <tr>
 <td>
 hasStartAndCloseDate<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -13698,7 +17335,7 @@ hasStartAndCloseDate<br />
 <tr>
 <td>
 labelIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13707,7 +17344,34 @@ labelIds<br />
 <tr>
 <td>
 limit<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+noSkipArchive<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+number<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+parentId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13716,7 +17380,16 @@ limit<br />
 <tr>
 <td>
 pipelineId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+pipelineIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13725,7 +17398,7 @@ pipelineId<br />
 <tr>
 <td>
 priority<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13734,7 +17407,7 @@ priority<br />
 <tr>
 <td>
 search<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13743,7 +17416,16 @@ search<br />
 <tr>
 <td>
 segment<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+segmentData<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13752,7 +17434,7 @@ segment<br />
 <tr>
 <td>
 skip<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -13761,7 +17443,7 @@ skip<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -13770,7 +17452,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13779,7 +17461,7 @@ sortField<br />
 <tr>
 <td>
 source<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13788,7 +17470,7 @@ source<br />
 <tr>
 <td>
 stageId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13797,7 +17479,16 @@ stageId<br />
 <tr>
 <td>
 startDate<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+tagIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13806,7 +17497,375 @@ startDate<br />
 <tr>
 <td>
 userIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## timeclockActivePerUser
+
+**Type:** [Timeclock](/docs/api/objects#timeclock)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+userId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## timeclockDetail
+
+**Type:** [Timeclock](/docs/api/objects#timeclock)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+_id<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## timeclockReportByUser
+
+**Type:** [UserReport](/docs/api/objects#userreport)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+selectedUser<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## timeclockReports
+
+**Type:** [ReportsListResponse](/docs/api/objects#reportslistresponse)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+branchIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+endDate<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+reportType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+startDate<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+userIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## timeclocksMain
+
+**Type:** [TimeClocksListResponse](/docs/api/objects#timeclockslistresponse)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+branchIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+endDate<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+reportType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+startDate<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+userIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## timelogsMain
+
+**Type:** [TimelogListResponse](/docs/api/objects#timeloglistresponse)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+branchIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+departmentIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+endDate<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+reportType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+startDate<br />
+<a href="/docs/api/scalars#date"><code>Date</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+userIds<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## timeLogsPerUser
+
+**Type:** [[Timelog]](/docs/api/objects#timelog)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+endDate<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+startDate<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+userId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13817,7 +17876,9 @@ userIds<br />
 
 ## transactionEmailDeliveries
 
-**Type:** [EmailDeliveryList](/api/objects#emaildeliverylist)
+**Type:** [EmailDeliveryList](/docs/api/objects#emaildeliverylist)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -13827,7 +17888,7 @@ userIds<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -13836,7 +17897,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -13845,7 +17906,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13856,7 +17917,9 @@ searchValue<br />
 
 ## unitDetail
 
-**Type:** [Unit](/api/objects#unit)
+**Type:** [Unit](/docs/api/objects#unit)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -13866,7 +17929,7 @@ searchValue<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -13877,7 +17940,9 @@ _id<br />
 
 ## units
 
-**Type:** [[Unit]](/api/objects#unit)
+**Type:** [[Unit]](/docs/api/objects#unit)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -13887,7 +17952,75 @@ _id<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## unitsMain
+
+**Type:** [UnitListQueryResponse](/docs/api/objects#unitlistqueryresponse)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+excludeIds<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+ids<br />
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+page<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+perPage<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+searchValue<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+status<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13898,15 +18031,21 @@ searchValue<br />
 
 ## uoms
 
-**Type:** [[Uom]](/api/objects#uom)
+**Type:** [[Uom]](/docs/api/objects#uom)
+
+
 
 ## uomsTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 ## userConversations
 
-**Type:** [UserConversationListResponse](/api/objects#userconversationlistresponse)
+**Type:** [UserConversationListResponse](/docs/api/objects#userconversationlistresponse)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -13916,7 +18055,7 @@ searchValue<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13925,7 +18064,7 @@ _id<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -13936,7 +18075,9 @@ perPage<br />
 
 ## userDetail
 
-**Type:** [User](/api/objects#user)
+**Type:** [User](/docs/api/objects#user)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -13946,7 +18087,39 @@ perPage<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## userMovements
+
+**Type:** [[UserMovement]](/docs/api/objects#usermovement)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+contentType<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+userId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -13957,7 +18130,9 @@ _id<br />
 
 ## users
 
-**Type:** [[User]](/api/objects#user)
+**Type:** [[User]](/docs/api/objects#user)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -13967,7 +18142,7 @@ _id<br />
 <tr>
 <td>
 branchId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13976,7 +18151,7 @@ branchId<br />
 <tr>
 <td>
 brandIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -13985,7 +18160,7 @@ brandIds<br />
 <tr>
 <td>
 departmentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -13994,7 +18169,7 @@ departmentId<br />
 <tr>
 <td>
 excludeIds<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -14003,7 +18178,7 @@ excludeIds<br />
 <tr>
 <td>
 ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -14012,7 +18187,7 @@ ids<br />
 <tr>
 <td>
 isActive<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -14021,7 +18196,7 @@ isActive<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -14030,7 +18205,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -14039,7 +18214,7 @@ perPage<br />
 <tr>
 <td>
 requireUsername<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -14048,7 +18223,7 @@ requireUsername<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14057,7 +18232,7 @@ searchValue<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -14066,7 +18241,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14075,7 +18250,7 @@ sortField<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14084,7 +18259,7 @@ status<br />
 <tr>
 <td>
 unitId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14095,7 +18270,9 @@ unitId<br />
 
 ## usersGroups
 
-**Type:** [[UsersGroup]](/api/objects#usersgroup)
+**Type:** [[UsersGroup]](/docs/api/objects#usersgroup)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14105,7 +18282,7 @@ unitId<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -14114,7 +18291,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -14125,11 +18302,15 @@ perPage<br />
 
 ## usersGroupsTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 ## usersTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14139,7 +18320,7 @@ perPage<br />
 <tr>
 <td>
 branchId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14148,7 +18329,7 @@ branchId<br />
 <tr>
 <td>
 brandIds<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -14157,7 +18338,7 @@ brandIds<br />
 <tr>
 <td>
 departmentId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14166,7 +18347,7 @@ departmentId<br />
 <tr>
 <td>
 ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -14175,7 +18356,7 @@ ids<br />
 <tr>
 <td>
 isActive<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -14184,7 +18365,7 @@ isActive<br />
 <tr>
 <td>
 requireUsername<br />
-<a href="/api/scalars#boolean"><code>Boolean</code></a>
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
 </td>
 <td>
 
@@ -14193,7 +18374,7 @@ requireUsername<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14202,7 +18383,7 @@ searchValue<br />
 <tr>
 <td>
 unitId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14213,7 +18394,9 @@ unitId<br />
 
 ## voucherCampaignDetail
 
-**Type:** [VoucherCampaign](/api/objects#vouchercampaign)
+**Type:** [VoucherCampaign](/docs/api/objects#vouchercampaign)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14223,7 +18406,7 @@ unitId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14234,7 +18417,9 @@ _id<br />
 
 ## voucherCampaigns
 
-**Type:** [[VoucherCampaign]](/api/objects#vouchercampaign)
+**Type:** [[VoucherCampaign]](/docs/api/objects#vouchercampaign)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14244,7 +18429,7 @@ _id<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -14253,7 +18438,7 @@ _ids<br />
 <tr>
 <td>
 equalTypeCampaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14262,7 +18447,7 @@ equalTypeCampaignId<br />
 <tr>
 <td>
 filterStatus<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14271,7 +18456,7 @@ filterStatus<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -14280,7 +18465,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -14289,7 +18474,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14298,7 +18483,7 @@ searchValue<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -14307,7 +18492,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14316,7 +18501,7 @@ sortField<br />
 <tr>
 <td>
 voucherType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14327,7 +18512,9 @@ voucherType<br />
 
 ## voucherCampaignsCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14337,7 +18524,7 @@ voucherType<br />
 <tr>
 <td>
 _ids<br />
-<a href="/api/scalars#string"><code>[String]</code></a>
+<a href="/docs/api/scalars#string"><code>[String]</code></a>
 </td>
 <td>
 
@@ -14346,7 +18533,7 @@ _ids<br />
 <tr>
 <td>
 filterStatus<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14355,7 +18542,7 @@ filterStatus<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14366,7 +18553,9 @@ searchValue<br />
 
 ## voucherDetail
 
-**Type:** [Voucher](/api/objects#voucher)
+**Type:** [Voucher](/docs/api/objects#voucher)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14376,7 +18565,7 @@ searchValue<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14387,7 +18576,9 @@ _id<br />
 
 ## vouchers
 
-**Type:** [[Voucher]](/api/objects#voucher)
+**Type:** [[Voucher]](/docs/api/objects#voucher)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14397,7 +18588,7 @@ _id<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14406,7 +18597,7 @@ campaignId<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14415,7 +18606,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14424,7 +18615,7 @@ ownerType<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -14433,7 +18624,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -14442,7 +18633,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14451,7 +18642,7 @@ searchValue<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -14460,7 +18651,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14469,7 +18660,7 @@ sortField<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14480,7 +18671,9 @@ status<br />
 
 ## vouchersMain
 
-**Type:** [VoucherMain](/api/objects#vouchermain)
+**Type:** [VoucherMain](/docs/api/objects#vouchermain)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14490,7 +18683,7 @@ status<br />
 <tr>
 <td>
 campaignId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14499,7 +18692,7 @@ campaignId<br />
 <tr>
 <td>
 ownerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14508,7 +18701,7 @@ ownerId<br />
 <tr>
 <td>
 ownerType<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14517,7 +18710,7 @@ ownerType<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -14526,7 +18719,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -14535,7 +18728,7 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14544,7 +18737,7 @@ searchValue<br />
 <tr>
 <td>
 sortDirection<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -14553,7 +18746,7 @@ sortDirection<br />
 <tr>
 <td>
 sortField<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14562,7 +18755,7 @@ sortField<br />
 <tr>
 <td>
 status<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14573,7 +18766,9 @@ status<br />
 
 ## webbuilderContentTypeDetail
 
-**Type:** [WebbuilderContentType](/api/objects#webbuildercontenttype)
+**Type:** [WebbuilderContentType](/docs/api/objects#webbuildercontenttype)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14583,7 +18778,7 @@ status<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14594,7 +18789,32 @@ _id<br />
 
 ## webbuilderContentTypes
 
-**Type:** [[WebbuilderContentType]](/api/objects#webbuildercontenttype)
+**Type:** [[WebbuilderContentType]](/docs/api/objects#webbuildercontenttype)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+siteId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## webbuilderContentTypesMain
+
+**Type:** [WebbuilderContentTypesList](/docs/api/objects#webbuildercontenttypeslist)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14604,7 +18824,7 @@ _id<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -14613,7 +18833,16 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+siteId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14622,13 +18851,11 @@ perPage<br />
 </tbody>
 </table>
 
-## webbuilderContentTypesTotalCount
+## webbuilderEntriesMain
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [WebbuilderEntriesList](/docs/api/objects#webbuilderentrieslist)
 
-## webbuilderEntries
 
-**Type:** [[WebbuilderEntry]](/api/objects#webbuilderentry)
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14638,7 +18865,7 @@ perPage<br />
 <tr>
 <td>
 contentTypeId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14647,7 +18874,7 @@ contentTypeId<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -14656,46 +18883,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-</tbody>
-</table>
-
-## webbuilderEntriesTotalCount
-
-**Type:** [Int](/api/scalars#int)
-
-<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
-
-<table>
-<thead><tr><th>Name</th><th>Description</th></tr></thead>
-<tbody>
-<tr>
-<td>
-contentTypeId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
-</td>
-<td>
-
-</td>
-</tr>
-<tr>
-<td>
-perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -14706,7 +18894,9 @@ perPage<br />
 
 ## webbuilderEntryDetail
 
-**Type:** [WebbuilderEntry](/api/objects#webbuilderentry)
+**Type:** [WebbuilderEntry](/docs/api/objects#webbuilderentry)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14716,7 +18906,7 @@ perPage<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14727,7 +18917,9 @@ _id<br />
 
 ## webbuilderPageDetail
 
-**Type:** [WebbuilderPage](/api/objects#webbuilderpage)
+**Type:** [WebbuilderPage](/docs/api/objects#webbuilderpage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14737,7 +18929,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14746,9 +18938,11 @@ _id<br />
 </tbody>
 </table>
 
-## webbuilderPages
+## webbuilderPagesMain
 
-**Type:** [[WebbuilderPage]](/api/objects#webbuilderpage)
+**Type:** [WebbuilderPagesList](/docs/api/objects#webbuilderpageslist)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14758,7 +18952,7 @@ _id<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -14767,7 +18961,7 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -14776,7 +18970,16 @@ perPage<br />
 <tr>
 <td>
 searchValue<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+siteId<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14785,13 +18988,11 @@ searchValue<br />
 </tbody>
 </table>
 
-## webbuilderPagesTotalCount
-
-**Type:** [Int](/api/scalars#int)
-
 ## webbuilderSites
 
-**Type:** [[WebbuilderSite]](/api/objects#webbuildersite)
+**Type:** [[WebbuilderSite]](/docs/api/objects#webbuildersite)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14800,8 +19001,17 @@ searchValue<br />
 <tbody>
 <tr>
 <td>
+fromSelect<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -14810,7 +19020,16 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+searchValue<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14821,11 +19040,15 @@ perPage<br />
 
 ## webbuilderSitesTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 ## webbuilderTemplateDetail
 
-**Type:** [WebbuilderTemplate](/api/objects#webbuildertemplate)
+**Type:** [WebbuilderTemplate](/docs/api/objects#webbuildertemplate)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14835,7 +19058,7 @@ perPage<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14846,7 +19069,9 @@ _id<br />
 
 ## webbuilderTemplates
 
-**Type:** [[WebbuilderTemplate]](/api/objects#webbuildertemplate)
+**Type:** [[WebbuilderTemplate]](/docs/api/objects#webbuildertemplate)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14856,7 +19081,7 @@ _id<br />
 <tr>
 <td>
 page<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
 </td>
 <td>
 
@@ -14865,7 +19090,16 @@ page<br />
 <tr>
 <td>
 perPage<br />
-<a href="/api/scalars#int"><code>Int</code></a>
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+searchValue<br />
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14876,11 +19110,15 @@ perPage<br />
 
 ## webbuilderTemplatesTotalCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 ## widgetsBookingProductWithFields
 
-**Type:** [BookingProduct](/api/objects#bookingproduct)
+**Type:** [BookingProduct](/docs/api/objects#bookingproduct)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14890,7 +19128,7 @@ perPage<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14901,7 +19139,9 @@ _id<br />
 
 ## widgetsConversationDetail
 
-**Type:** [ConversationDetailResponse](/api/objects#conversationdetailresponse)
+**Type:** [ConversationDetailResponse](/docs/api/objects#conversationdetailresponse)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14911,7 +19151,7 @@ _id<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14920,7 +19160,7 @@ _id<br />
 <tr>
 <td>
 integrationId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14931,7 +19171,9 @@ integrationId<br />
 
 ## widgetsConversations
 
-**Type:** [[Conversation]](/api/objects#conversation)
+**Type:** [[Conversation]](/docs/api/objects#conversation)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14941,7 +19183,7 @@ integrationId<br />
 <tr>
 <td>
 customerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14950,7 +19192,7 @@ customerId<br />
 <tr>
 <td>
 integrationId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -14959,7 +19201,7 @@ integrationId<br />
 <tr>
 <td>
 visitorId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14970,7 +19212,9 @@ visitorId<br />
 
 ## widgetsGetEngageMessage
 
-**Type:** [ConversationMessage](/api/objects#conversationmessage)
+**Type:** [ConversationMessage](/docs/api/objects#conversationmessage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -14980,7 +19224,7 @@ visitorId<br />
 <tr>
 <td>
 browserInfo<br />
-<a href="/api/scalars#json"><code>JSON!</code></a>
+<a href="/docs/api/scalars#json"><code>JSON!</code></a>
 </td>
 <td>
 
@@ -14989,7 +19233,7 @@ browserInfo<br />
 <tr>
 <td>
 customerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -14998,7 +19242,7 @@ customerId<br />
 <tr>
 <td>
 integrationId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15007,7 +19251,7 @@ integrationId<br />
 <tr>
 <td>
 visitorId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15018,7 +19262,9 @@ visitorId<br />
 
 ## widgetsGetMessengerIntegration
 
-**Type:** [Integration](/api/objects#integration)
+**Type:** [Integration](/docs/api/objects#integration)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15028,7 +19274,7 @@ visitorId<br />
 <tr>
 <td>
 brandCode<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15039,7 +19285,9 @@ brandCode<br />
 
 ## widgetsKnowledgeBaseArticles
 
-**Type:** [[KnowledgeBaseArticle]](/api/objects#knowledgebasearticle)
+**Type:** [[KnowledgeBaseArticle]](/docs/api/objects#knowledgebasearticle)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15049,7 +19297,7 @@ brandCode<br />
 <tr>
 <td>
 searchString<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15058,7 +19306,7 @@ searchString<br />
 <tr>
 <td>
 topicId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15069,7 +19317,9 @@ topicId<br />
 
 ## widgetsKnowledgeBaseTopicDetail
 
-**Type:** [KnowledgeBaseTopic](/api/objects#knowledgebasetopic)
+**Type:** [KnowledgeBaseTopic](/docs/api/objects#knowledgebasetopic)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15079,7 +19329,7 @@ topicId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15090,7 +19340,9 @@ _id<br />
 
 ## widgetsMessages
 
-**Type:** [[ConversationMessage]](/api/objects#conversationmessage)
+**Type:** [[ConversationMessage]](/docs/api/objects#conversationmessage)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15100,7 +19352,7 @@ _id<br />
 <tr>
 <td>
 conversationId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15111,7 +19363,9 @@ conversationId<br />
 
 ## widgetsMessengerSupporters
 
-**Type:** [MessengerSupportersResponse](/api/objects#messengersupportersresponse)
+**Type:** [MessengerSupportersResponse](/docs/api/objects#messengersupportersresponse)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15121,7 +19375,7 @@ conversationId<br />
 <tr>
 <td>
 integrationId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15132,7 +19386,9 @@ integrationId<br />
 
 ## widgetsProductCategory
 
-**Type:** [ProductCategory](/api/objects#productcategory)
+**Type:** [ProductCategory](/docs/api/objects#productcategory)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15142,7 +19398,7 @@ integrationId<br />
 <tr>
 <td>
 _id<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15153,7 +19409,9 @@ _id<br />
 
 ## widgetsTotalUnreadCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15163,7 +19421,7 @@ _id<br />
 <tr>
 <td>
 customerId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15172,7 +19430,7 @@ customerId<br />
 <tr>
 <td>
 integrationId<br />
-<a href="/api/scalars#string"><code>String!</code></a>
+<a href="/docs/api/scalars#string"><code>String!</code></a>
 </td>
 <td>
 
@@ -15181,7 +19439,7 @@ integrationId<br />
 <tr>
 <td>
 visitorId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15192,7 +19450,9 @@ visitorId<br />
 
 ## widgetsUnreadCount
 
-**Type:** [Int](/api/scalars#int)
+**Type:** [Int](/docs/api/scalars#int)
+
+
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -15202,7 +19462,7 @@ visitorId<br />
 <tr>
 <td>
 conversationId<br />
-<a href="/api/scalars#string"><code>String</code></a>
+<a href="/docs/api/scalars#string"><code>String</code></a>
 </td>
 <td>
 
@@ -15210,3 +19470,118 @@ conversationId<br />
 </tr>
 </tbody>
 </table>
+
+## zaloAccounts
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+## zaloConversationDetail
+
+**Type:** [[Zalo]](/docs/api/objects#zalo)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+conversationId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## zaloConversationMessages
+
+**Type:** [[ZaloConversationMessage]](/docs/api/objects#zaloconversationmessage)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+conversationId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+getFirst<br />
+<a href="/docs/api/scalars#boolean"><code>Boolean</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+limit<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+skip<br />
+<a href="/docs/api/scalars#int"><code>Int</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## zaloConversationMessagesCount
+
+**Type:** [Int](/docs/api/scalars#int)
+
+
+
+<p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
+
+<table>
+<thead><tr><th>Name</th><th>Description</th></tr></thead>
+<tbody>
+<tr>
+<td>
+conversationId<br />
+<a href="/docs/api/scalars#string"><code>String!</code></a>
+</td>
+<td>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+## zaloGetAccounts
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
+## zaloGetConfigs
+
+**Type:** [JSON](/docs/api/scalars#json)
+
+
+
