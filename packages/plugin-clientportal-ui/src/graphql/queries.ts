@@ -72,6 +72,8 @@ export const commonFields = `
 
   manualVerificationConfig {
     userIds
+    verifyCustomer
+    verifyCompany
   }
 `;
 
