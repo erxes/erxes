@@ -1,3 +1,4 @@
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { authCookieOptions, getEnv } from '@erxes/api-utils/src/core';
 import { IAttachment } from '@erxes/api-utils/src/types';
 
@@ -547,7 +548,23 @@ const clientPortalUserMutations = {
     );
 
     return 'Phone verified';
+  },
+
+  clientPortalUpdateUser: async (
+    _root,
+    args: { _id: string; doc },
+    { models }: IContext
+  ) => {
+    const { _id, doc } = args;
+
+    return models.ClientPortalUsers.update({ _id }, { $set: doc });
   }
 };
+
+checkPermission(
+  clientPortalUserMutations,
+  'clientPortalUpdateUser',
+  'updateUser'
+);
 
 export default clientPortalUserMutations;

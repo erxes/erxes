@@ -28,6 +28,23 @@ type VerificationRequest {
   verifiedBy: String
 }
 
+  input ClientPortalUserUpdate {
+    firstName: String
+    lastName: String
+    phone: String
+    email: String
+    username: String
+    companyName: String
+    companyRegistrationNumber: String
+    code: String,
+    links: JSON,
+    customFieldsData: JSON,
+    isEmailVerified: Boolean
+    isPhoneVerified: Boolean
+    isOnline: Boolean
+    avatar: String
+  }
+
   type ClientPortalUser @key(fields: "_id") {
     _id: String!
     createdAt: Date
@@ -157,4 +174,5 @@ export const mutations = () => `
   clientPortalUserChangePassword(currentPassword: String!, newPassword: String!): ClientPortalUser
   clientPortalUsersSendVerificationRequest(login: String!, password: String!, clientPortalId: String!,  attachments: [AttachmentInput]!, description: String): String
   clientPortalUsersChangeVerificationStatus(userId: String!, status: ClientPortalUserVerificationStatus!): String
+  clientPortalUpdateUser(_id: String!, doc: ClientPortalUserUpdate!): JSON
 `;

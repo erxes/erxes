@@ -7,6 +7,10 @@ module.exports = {
         name: 'manageClientPortal',
         description: 'Manage client portal',
       },
+      {
+        name: 'updateUser',
+        description: 'Update user',
+      },
     ],
   },
 };
