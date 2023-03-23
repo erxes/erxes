@@ -71,7 +71,8 @@ export const tumentechMenu = [
   { title: 'Places', link: '/erxes-plugin-tumentech/place/list' },
   { title: 'Directions', link: '/erxes-plugin-tumentech/direction/list' },
   { title: 'Routes', link: '/erxes-plugin-tumentech/route/list' },
-  { title: 'Trips', link: '/erxes-plugin-tumentech/trips/list' }
+  { title: 'Trips', link: '/erxes-plugin-tumentech/trips/list' },
+  { title: 'Accounts', link: '/erxes-plugin-tumentech/accounts/list' }
 ];
 
 class CarsList extends React.Component<IProps, State> {

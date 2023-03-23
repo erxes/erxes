@@ -1,14 +1,12 @@
 import Box from '@erxes/ui/src/components/Box';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Map from '@erxes/ui/src/containers/map/Map';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+import {
+  FieldStyle,
+  SectionBodyItem,
+  SidebarList
+} from '@erxes/ui/src/layout/styles';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
-
-import DealPlaceForm from '../../containers/dealPlaces/Form';
-import { IDealPlace } from '../../types';
 
 export type Props = {
   customerAccount?: any;
@@ -16,6 +14,9 @@ export type Props = {
 
 export default function Component(props: Props) {
   const { customerAccount } = props;
+
+  console.log(customerAccount);
+
   //   const renderActionSection = customer => {
   //     if (!actionSection) {
   //       return;
@@ -25,59 +26,55 @@ export default function Component(props: Props) {
   //     return <ActionSection customer={customer} isSmall={true} />;
   //   };
 
-  const renderBody = (dealPlace?: IDealPlace) => {
+  const renderBody = () => {
     if (!customerAccount) {
-      return <EmptyState icon="location-point" text="No data" />;
+      return <EmptyState icon="piggybank" text="No data" />;
     }
 
-    const { startPlace, endPlace } = dealPlace;
     return (
-      <div style={{ width: '100%', backgroundColor: 'black' }}>
-        {startPlace && startPlace._id && endPlace && endPlace._id && (
-          <Map
-            id={Math.random().toString(10)}
-            center={startPlace.center}
-            zoom={7}
-            locationOptions={[startPlace.center, endPlace.center]}
-            streetViewControl={false}
-            connectWithLines={true}
-          />
-        )}
-      </div>
+      <SectionBodyItem>
+        <SidebarList>
+          <li>
+            <FieldStyle>
+              {__('Balance')} : {customerAccount.balance.toLocaleString()} ₮
+            </FieldStyle>
+          </li>
+        </SidebarList>
+      </SectionBodyItem>
     );
   };
 
-  const managePlaces = props => (
-    <DealPlaceForm
-      dealId={dealId}
-      dealPlace={dealPlace}
-      closeModal={props.closeModal}
-    />
-  );
+  // const managePlaces = (props) => (
+  //   <DealPlaceForm
+  //     dealId={dealId}
+  //     dealPlace={dealPlace}
+  //     closeModal={props.closeModal}
+  //   />
+  // );
 
-  const extraButtons = (
-    <>
-      <ModalTrigger
-        title="Places"
-        size="lg"
-        trigger={
-          <button>
-            <Icon icon={dealPlace ? 'edit-3' : 'plus-circle'} />
-          </button>
-        }
-        content={managePlaces}
-      />
-    </>
-  );
+  // const extraButtons = (
+  //   <>
+  //     <ModalTrigger
+  //       title="Places"
+  //       size="lg"
+  //       trigger={
+  //         <button>
+  //           <Icon icon={dealPlace ? 'edit-3' : 'plus-circle'} />
+  //         </button>
+  //       }
+  //       content={managePlaces}
+  //     />
+  //   </>
+  // );
 
   return (
     <Box
-      title={__(`${title || 'Places'}`)}
-      extraButtons={extraButtons}
+      title={__('Account')}
+      // extraButtons={extraButtons}
       isOpen={true}
-      name="showLocation"
+      name="account"
     >
-      {renderBody(dealPlace)}
+      {renderBody()}
     </Box>
   );
 }

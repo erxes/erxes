@@ -113,7 +113,7 @@ const mutations = {
   ) => {
     const user = await sendCommonMessage({
       serviceName: 'clientportal',
-      subdomain: subdomain,
+      subdomain,
       action: 'clientPortalUsers.findOne',
       data: {
         _id: cpUser.userId
