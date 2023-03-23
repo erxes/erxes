@@ -47,7 +47,6 @@ const downloadPlugins = async () => {
       const schemaNames = service.config.meta.dashboards.schemaNames || [];
 
       const url = `${service.address}/dashboard`;
-      const fileName = `${Math.random()}.js`;
 
       schemaNames.map(async schemaName => {
         const downloader = new (Downloader as any)({
@@ -60,11 +59,11 @@ const downloadPlugins = async () => {
         try {
           await downloader.download();
           console.log(
-            `${service.name} schema downloaded from ${url} to ${fileName}.`
+            `${service.name} schema downloaded from ${url} to ${schemaName}.`
           );
         } catch (e) {
           console.error(
-            `${service.name} schema download from ${url} to ${fileName} failed.`
+            `${service.name} schema download from ${url} to ${schemaName} failed.`
           );
         }
       });

@@ -57,8 +57,7 @@ export default {
     dashboards,
     exporter,
     // for fixing permissions
-    permissions,
-    dashboardTypes: ['Contacts']
+    permissions
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);

@@ -109,7 +109,7 @@ if (configs.hasDashboard) {
       const schemaName = headers[index];
 
       res.sendFile(
-        path.join(__dirname, `../../src/dashboard/${schemaName}.js`)
+        path.join(__dirname, `../../src/dashboardSchemas/${schemaName}.js`)
       );
     });
   }
