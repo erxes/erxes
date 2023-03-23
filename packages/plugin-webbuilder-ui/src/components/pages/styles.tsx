@@ -11,11 +11,12 @@ export const List = styled.ul`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 5px 0;
     font-size: 12px;
     text-transform: capitalize;
     line-height: 15px;
     transition: all ease 0.3s;
+    cursor: pointer;
+    border-bottom: 1px solid ${colors.borderPrimary};
 
     > i {
       visibility: hidden;
@@ -25,7 +26,8 @@ export const List = styled.ul`
     > a {
       display: flex;
       color: inherit;
-      cursor: pointer;
+      padding: 8px 0;
+      flex: 1;
 
       &.active {
         color: ${colors.colorSecondary};
@@ -36,14 +38,24 @@ export const List = styled.ul`
       }
     }
 
-    .link,
-    .link > i:before {
+    &.link,
+    &.link > i:before {
       font-weight: 600;
       cursor: pointer;
+      padding: 8px 0;
+    }
+
+    &:last-child {
+      border: 0;
     }
 
     &: hover {
-      color: ${colors.colorSecondary};
+      color: ${colors.textPrimary};
+      background: ${colors.bgActive};
+
+      &.link {
+        background: none;
+      }
 
       > i {
         visibility: visible;

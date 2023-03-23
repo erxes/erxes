@@ -214,7 +214,7 @@ export const Labels = styledTS<{ filteredCategories?: boolean }>(styled.div)`
 export const LeftSidebar = styledTS<{ width?: number }>(styled.div)`
   overflow: auto;
   height: 100%;
-  width: 200px;
+  width: 250px;
   border-right: 1px solid ${colors.colorShadowGray};
 
   &.darkmode {
@@ -356,8 +356,8 @@ export const SiteFormContainer = styledTS<{ showDarkMode?: boolean }>(
 export const SettingsContent = styled.div`
   height: 100%;
   position: absolute;
-  left: 199px;
-  width: calc(100% - 200px);
+  left: 249px;
+  width: calc(100% - 250px);
   z-index: 10;
 `;
 

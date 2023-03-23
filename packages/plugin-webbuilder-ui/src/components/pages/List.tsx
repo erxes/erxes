@@ -40,11 +40,12 @@ class PageList extends React.Component<Props> {
           </li>
         ))}
         <li
+          className="link"
           onClick={() =>
             handleItemSettings({ name: '', description: '' }, 'page')
           }
         >
-          <div className="link">
+          <div>
             <Icon icon="plus-1" /> &nbsp;
             {__('Create page')}
           </div>

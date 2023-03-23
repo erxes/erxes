@@ -52,7 +52,7 @@ function WebBuilder(props: Props) {
         value={searchValue}
       />
       <Link to="/xbuilder/sites/create">
-        <Button btnStyle="success" size="small" icon="plus-circle">
+        <Button btnStyle="success" icon="plus-circle">
           New website
         </Button>
       </Link>
