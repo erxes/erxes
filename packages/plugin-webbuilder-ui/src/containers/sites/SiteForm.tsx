@@ -15,6 +15,7 @@ import { mutations, queries } from '../../graphql';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import SiteForm from '../../components/sites/SiteForm';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
@@ -41,7 +42,7 @@ const FormContainer = (props: FinalProps) => {
     pagesMainQuery.loading ||
     typesQuery.loading
   ) {
-    return null;
+    return <Spinner objective={true} />;
   }
 
   const pageSave = (
