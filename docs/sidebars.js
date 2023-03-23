@@ -83,7 +83,7 @@ var sideBar = {
             'api/mutations',
             {
               type: 'category',
-              label: 'Erxes Collections',
+              label: 'Graphql API Postman Collection',
               items: [
                 {
                   type: 'link',
