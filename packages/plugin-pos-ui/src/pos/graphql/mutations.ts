@@ -25,6 +25,7 @@ const commonFields = `
   $cardsConfig: JSON
   $catProdMappings: [CatProdInput]
   $initialCategoryIds: [String]
+  $kioskExcludeCategoryIds: [String]
   $kioskExcludeProductIds: [String]
   $deliveryConfig: JSON
   $checkRemainder: Boolean
@@ -56,6 +57,7 @@ const commonVariables = `
   erkhetConfig: $erkhetConfig
   catProdMappings: $catProdMappings
   initialCategoryIds: $initialCategoryIds
+  kioskExcludeCategoryIds: $kioskExcludeCategoryIds
   kioskExcludeProductIds: $kioskExcludeProductIds
   deliveryConfig: $deliveryConfig
   cardsConfig: $cardsConfig

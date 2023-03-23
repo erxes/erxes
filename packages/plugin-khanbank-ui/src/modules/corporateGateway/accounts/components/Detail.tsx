@@ -1,7 +1,7 @@
+import WithPermission from 'coreui/withPermission';
 import Button from '@erxes/ui/src/components/Button';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils/core';
@@ -101,15 +101,17 @@ const Detail = (props: Props) => {
             />
           </FormGroup>
 
-          <FormGroup>
-            <ModalTrigger
-              size="lg"
-              title="Transfer"
-              autoOpenKey="showAppAddModal"
-              trigger={transactionTrigger}
-              content={transactionFormContent}
-            />
-          </FormGroup>
+          <WithPermission action="khanbankTransfer">
+            <FormGroup>
+              <ModalTrigger
+                size="lg"
+                title="Transfer"
+                autoOpenKey="showAppAddModal"
+                trigger={transactionTrigger}
+                content={transactionFormContent}
+              />
+            </FormGroup>
+          </WithPermission>
         </BlockRow>
       </Block>
     );

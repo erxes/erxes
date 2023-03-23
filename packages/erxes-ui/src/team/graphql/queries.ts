@@ -7,19 +7,21 @@ const nameFields = `
 `;
 
 export const commonStructureParamsDef = `
-    $ids:[String]
+    $ids: [String]
+    $excludeIds: Boolean,
     $perPage: Int,
-    $page: Int 
+    $page: Int
     $searchValue: String,
     $status:String,
 `;
 
 export const commonStructureParamsValue = `
-    ids:$ids
+    ids: $ids
+    excludeIds: $excludeIds,
     perPage: $perPage,
-    page: $page 
-    searchValue:$searchValue
-    status:$status
+    page: $page
+    searchValue: $searchValue
+    status: $status
 `;
 
 const allUsers = `
@@ -240,17 +242,17 @@ export const branchField = `
 `;
 
 const branches = `
-  query branches(${commonStructureParamsDef},$withoutUserFilter:Boolean) {
-    branches (${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter){
+  query branches(${commonStructureParamsDef}, $withoutUserFilter: Boolean) {
+    branches (${commonStructureParamsValue}, withoutUserFilter: $withoutUserFilter){
       ${branchField}
-        parent {${branchField}}
+      parent {${branchField}}
     }
   }
 `;
 
 const branchesMain = `
-  query branchesMain(${commonStructureParamsDef},$withoutUserFilter:Boolean) {
-    branchesMain (${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter){
+  query branchesMain(${commonStructureParamsDef}, $withoutUserFilter: Boolean) {
+    branchesMain (${commonStructureParamsValue}, withoutUserFilter: $withoutUserFilter){
       list {
         ${branchField}
         parent {${branchField}}

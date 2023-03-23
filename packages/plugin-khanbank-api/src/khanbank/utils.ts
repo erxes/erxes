@@ -45,6 +45,7 @@ export const getAuthHeaders = async (args: {
       Authorization: `Bearer ${response.access_token}`
     };
   } catch (e) {
+    console.error(e.message);
     throw new Error('Authentication failed');
   }
 };

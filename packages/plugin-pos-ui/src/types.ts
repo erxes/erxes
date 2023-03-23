@@ -59,6 +59,7 @@ export type IPos = {
   erkhetConfig: any;
   catProdMappings?: CatProd[];
   initialCategoryIds?: string[];
+  kioskExcludeCategoryIds?: string[];
   kioskExcludeProductIds?: string[];
   deliveryConfig?: any;
   cardsConfig?: any;

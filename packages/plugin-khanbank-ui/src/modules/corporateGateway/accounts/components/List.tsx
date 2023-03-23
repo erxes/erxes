@@ -2,6 +2,7 @@ import { Description, SidebarListItem } from '@erxes/ui-settings/src/styles';
 import { FieldStyle } from '@erxes/ui/src/layout/styles';
 import { IRouterProps } from '@erxes/ui/src/types';
 import * as routerUtils from '@erxes/ui/src/utils/router';
+import WithPermission from 'coreui/withPermission';
 import React from 'react';
 import { Link, withRouter } from 'react-router-dom';
 
@@ -24,19 +25,23 @@ const List = (props: any) => {
   };
 
   return (accounts || []).map(account => (
-    <SidebarListItem
-      id={account.number}
-      key={account.number}
-      onClick={onClickRow}
-      isActive={queryParams.account === account.number}
-    >
-      <Link to={`?_id=${props._id}&account=${account.number}`}>
-        <FieldStyle>
-          {account.number}
-          <Description>{account.name}</Description>
-        </FieldStyle>
-      </Link>
-    </SidebarListItem>
+    <>
+      <WithPermission action="khanbankAccounts">
+        <SidebarListItem
+          id={account.number}
+          key={account.number}
+          onClick={onClickRow}
+          isActive={queryParams.account === account.number}
+        >
+          <Link to={`?_id=${props._id}&account=${account.number}`}>
+            <FieldStyle>
+              {account.number}
+              <Description>{account.name}</Description>
+            </FieldStyle>
+          </Link>
+        </SidebarListItem>
+      </WithPermission>
+    </>
   ));
 };
 
