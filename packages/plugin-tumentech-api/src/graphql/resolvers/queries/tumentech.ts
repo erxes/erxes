@@ -480,6 +480,49 @@ const carQueries = {
     );
 
     return ebarimtData;
+  },
+
+  customerAccount: async (
+    _root,
+    args: { customerId: string },
+    { models, subdomain }: IContext
+  ) => {
+    const { customerId } = args;
+
+    const customer = await sendCommonMessage({
+      serviceName: 'contacts',
+      subdomain,
+      action: 'customers.findOne',
+      data: {
+        _id: customerId
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    if (!customer) {
+      throw new Error('customer not found');
+    }
+
+    if (
+      !customer.tagIds.includes('FjtEHstburfa9TWfJ') &&
+      !customer.tagIds.includes('Bn9oK3hxqo7jgBtPk')
+    ) {
+      return null;
+    }
+
+    let account = await models.CustomerAccounts.findOne({
+      customerId
+    });
+
+    if (!account) {
+      account = await models.CustomerAccounts.create({
+        customerId,
+        balance: 200000
+      });
+    }
+
+    return account;
   }
 };
 

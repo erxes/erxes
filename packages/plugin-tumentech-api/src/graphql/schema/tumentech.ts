@@ -274,6 +274,7 @@ export const queries = `
 
   getAccount: CustomerAccount
 
+  customerAccount(customerId: String!): CustomerAccount
   topupHistory(page: Int, perPage: Int, customerId: String): TopupListResponse
 
   getEbarimt(topupId: String!, companyRegNumber: String, companyName: String): JSON
