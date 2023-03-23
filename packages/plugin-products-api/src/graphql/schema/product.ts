@@ -69,6 +69,9 @@ export const types = (tagsAvailable, contactsAvailable) => `
     uom: Uom
     category: ProductCategory
     ${contactsAvailable ? 'vendor: Company' : ''}
+    taxType: String
+    taxCode: String
+
   }
 `;
 
@@ -91,6 +94,8 @@ const productParams = `
   vendorId: String,
   uomId: String,
   subUoms: JSON,
+  taxType: String,
+  taxCode: String,
 `;
 
 const productCategoryParams = `

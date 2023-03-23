@@ -17,6 +17,8 @@ const productParamsDef = `
   $vendorId: String,
   $uomId: String,
   $subUoms: JSON,
+  $taxType: String,
+  $taxCode: String
 `;
 
 const productCategoryParamsDef = `
@@ -47,7 +49,9 @@ const productParams = `
   minimiumCount: $minimiumCount,
   vendorId: $vendorId,
   uomId: $uomId,
-  subUoms: $subUoms
+  subUoms: $subUoms,
+  taxType: $taxType,
+  taxCode: $taxCode
 `;
 
 const productCategoryParams = `

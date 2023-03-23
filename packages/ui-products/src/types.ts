@@ -46,6 +46,8 @@ export interface IProduct {
   uomId?: string;
   uom?: any;
   subUoms?: any[];
+  taxType?: string;
+  taxCode?: string;
 }
 
 export interface IProductCategory {

@@ -18,6 +18,8 @@ export interface IMailConfig {
 
 export interface IManualVerificationConfig {
   userIds: string[];
+  verifyCustomer: boolean;
+  verifyCompany: boolean;
 }
 
 export interface IClientPortal {
@@ -150,7 +152,9 @@ export const clientPortalSchema = new Schema({
   mailConfig: field({ type: mailConfigSchema, optional: true }),
   manualVerificationConfig: field({
     type: {
-      userIds: field({ type: [String], required: true })
+      userIds: field({ type: [String], required: true }),
+      verifyCustomer: field({ type: Boolean, optional: true, default: false }),
+      verifyCompany: field({ type: Boolean, optional: true, default: false })
     },
     optional: true
   }),
