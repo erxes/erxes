@@ -12,7 +12,10 @@ export default {
     'DealsProductsData',
     'DealsCustomfieldsdata',
     'TasksCustomfieldsdata',
-    'TicketsCustomfieldsdata'
+    'TicketsCustomfieldsdata',
+    'Pipelines',
+    'PipelineLabels',
+    'Stages'
   ],
   types: ['Deals', 'Tasks', 'Tickets']
 };
