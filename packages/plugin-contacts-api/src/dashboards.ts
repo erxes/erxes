@@ -1,4 +1,4 @@
 export default {
-  schemaNames: ['Brands', 'Brandsa', 'Customers'],
-  types: ['Customers', 'Integrations']
+  schemaNames: ['Brands', 'Customers', 'CustomersCustomfieldsdata'],
+  types: ['Customers']
 };
