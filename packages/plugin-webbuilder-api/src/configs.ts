@@ -164,6 +164,40 @@ export default {
       );
     });
 
+    app.get('/:sitename/get-data', async (req, res) => {
+      const subdomain = getSubdomain(req);
+      const models = await generateModels(subdomain);
+
+      const { sitename, name } = req.params;
+
+      const site = await models.Sites.findOne({ name: sitename }).lean();
+
+      if (!site) {
+        return res.status(404).send('Not found');
+      }
+
+      const pages = await models.Pages.find({ siteId: site._id }).lean();
+
+      const responses = await models.ContentTypes.find({
+        siteId: site._id
+      }).lean();
+      const contentTypes: any[] = [];
+
+      for (const contentType of responses) {
+        contentTypes.push({
+          ...contentType,
+          entries: await models.Entries.find({
+            contentTypeId: contentType._id
+          }).lean()
+        });
+      }
+
+      return res.json({
+        pages,
+        contentTypes
+      });
+    });
+
     app.get('/demo/:templateId', async (req, res) => {
       const HELPERS_DOMAIN = `https://helper.erxes.io`;
 

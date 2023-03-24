@@ -284,19 +284,26 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         assignedUserIds = groupAssignedUserIds;
       }
 
-      const submissions = await models.RiksFormSubmissions.find({
-        cardId,
-        assessmentId,
-        indicatorId,
-        userId: { $in: assignedUserIds }
-      });
+      const submittedUsers = await models.RiksFormSubmissions.aggregate([
+        {
+          $match: {
+            cardId,
+            assessmentId,
+            indicatorId,
+            userId: { $in: assignedUserIds }
+          }
+        },
+        {
+          $group: {
+            _id: '$userId',
+            submission: { $push: '$$ROOT' }
+          }
+        }
+      ]);
 
-      let submittedUsers: any = {};
-
-      for (const submission of submissions) {
-        submittedUsers[submission.userId] = submission;
-      }
-      return Object.keys(submittedUsers).length === assignedUserIds.length;
+      return assignedUserIds.every(userId =>
+        submittedUsers.some(submittedUser => submittedUser._id === userId)
+      );
     }
 
     static async checkAndCalculateRiskAssessmentGroup({
@@ -367,7 +374,9 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         _id: indicatorId
       });
       if (!indicator) {
-        return 'Cannot find indicator';
+        throw new Error(
+          'Cannot find indicator when trying to calculate indicator result'
+        );
       }
       let { calculateLogics, calculateMethod, forms } = indicator;
 
