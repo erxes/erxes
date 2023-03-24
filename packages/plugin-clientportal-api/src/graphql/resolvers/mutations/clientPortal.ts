@@ -41,6 +41,10 @@ const clientPortalMutations = {
       throw new Error('Customer not registered');
     }
 
+    if (['High', 'Critical'].includes(priority)) {
+      priority = 'Normal';
+    }
+
     const card = await sendCardsMessage({
       subdomain,
       action: `${type}s.create`,
