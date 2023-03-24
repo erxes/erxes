@@ -54,7 +54,7 @@ const supergraphComposeOnce = async () => {
   const superGraphqlNext = supergraphPath + '.next';
 
   execSync(
-    `rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept`,
+    `yarn rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept`,
     {
       stdio: 'inherit'
     }
