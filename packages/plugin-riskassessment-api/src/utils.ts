@@ -461,8 +461,8 @@ export const getIndicatorSubmissions = async ({
         defaultValue: {}
       });
 
-      field.optionsValues = fieldDetail.optionsValues;
-      field.text = fieldDetail.text;
+      field.optionsValues = fieldDetail?.optionsValues || '';
+      field.text = fieldDetail?.text || '';
     }
   }
   return submissions;
