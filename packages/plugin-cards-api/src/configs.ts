@@ -21,6 +21,7 @@ import documents from './documents';
 import tags from './tags';
 import exporter from './exporter';
 import cronjobs from './cronjobs/common';
+import dashboards from './dashboards';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -40,6 +41,7 @@ export default {
     };
   },
   hasSubscriptions: true,
+  hasDashboard: true,
 
   meta: {
     cronjobs,
@@ -54,7 +56,8 @@ export default {
     webhooks,
     tags,
     permissions,
-    documents
+    documents,
+    dashboards
   },
 
   apolloServerContext: async (context, req, res) => {
