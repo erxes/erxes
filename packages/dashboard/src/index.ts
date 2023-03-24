@@ -1,13 +1,82 @@
 import * as dotenv from 'dotenv';
 import * as jwt from 'jsonwebtoken';
+import * as Downloader from 'nodejs-file-downloader';
+import * as fs from 'fs';
+import * as path from 'path';
 
 import { CubejsServer } from '@cubejs-backend/server';
+import { getService, getServices } from './serviceDiscovery';
 
 dotenv.config();
 
 const { CUBEJS_API_SECRET, DB_NAME } = process.env;
 
-const server = new CubejsServer({});
+async function clearDirectory(directory: string) {
+  const files = await fs.promises.readdir(directory);
+  const unlinkPromises = files.map(file =>
+    fs.promises.unlink(`${directory}/${file}`)
+  );
+  await Promise.all(unlinkPromises);
+}
+
+const downloadPlugins = async () => {
+  const directory = path.join(__dirname, '../dynamicSchema');
+
+  if (!fs.existsSync(directory)) {
+    await fs.promises.mkdir(directory, { recursive: true });
+  }
+
+  await clearDirectory(directory);
+
+  const serviceNames = await getServices();
+
+  const allServices: any[] = await Promise.all(
+    serviceNames.map(async serviceName => {
+      const service: any = await getService(serviceName, true);
+      service.name = serviceName;
+      return service;
+    })
+  );
+
+  const services = allServices.filter(
+    service => service.config && service.config.hasDashboard
+  );
+
+  await Promise.all(
+    services.map(async service => {
+      const schemaNames = service.config.meta.dashboards.schemaNames || [];
+
+      const url = `${service.address}/dashboard`;
+
+      schemaNames.map(async schemaName => {
+        const downloader = new (Downloader as any)({
+          url,
+          directory,
+          cloneFiles: false,
+          fileName: `${schemaName}.js`,
+          headers: { schemaName }
+        });
+        try {
+          await downloader.download();
+          console.log(
+            `${service.name} schema downloaded from ${url} to ${schemaName}.`
+          );
+        } catch (e) {
+          console.error(
+            `${service.name} schema download from ${url} to ${schemaName} failed.`
+          );
+        }
+      });
+    })
+  );
+};
+
+const server = new CubejsServer({
+  schemaPath: './dynamicSchema',
+  initApp: async () => {
+    await downloadPlugins();
+  }
+});
 
 server
   .listen()
