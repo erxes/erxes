@@ -111,6 +111,8 @@ const mutations = {
     { _id, buildingData, ticketData, quarterId },
     { models, subdomain, cpUser }: IContext
   ) => {
+    console.log('cpUser', cpUser);
+
     if (!cpUser) {
       throw new Error('login required');
     }
