@@ -116,7 +116,7 @@ const mutations = {
       subdomain: subdomain,
       action: 'clientPortalUsers.findOne',
       data: {
-        _id: cpUser.userId
+        _id: cpUser._id
       },
       isRPC: true,
       defaultValue: undefined
