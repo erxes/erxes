@@ -111,9 +111,13 @@ const mutations = {
     { _id, buildingData, ticketData, quarterId },
     { models, subdomain, cpUser }: IContext
   ) => {
+    if (!cpUser) {
+      throw new Error('login required');
+    }
+
     const user = await sendCommonMessage({
       serviceName: 'clientportal',
-      subdomain: subdomain,
+      subdomain,
       action: 'clientPortalUsers.findOne',
       data: {
         _id: cpUser._id
@@ -121,10 +125,6 @@ const mutations = {
       isRPC: true,
       defaultValue: undefined
     });
-
-    if (!user) {
-      throw new Error('login required');
-    }
 
     // const user = { erxesCustomerId: 'hTqM74dJPreqy4K5t' };
 
@@ -156,7 +156,7 @@ const mutations = {
 
     const ticket = await sendCommonMessage({
       serviceName: 'cards',
-      subdomain: subdomain,
+      subdomain,
       action: 'tickets.create',
       data: {
         ...ticketData,
