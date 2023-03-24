@@ -43,6 +43,7 @@ export default {
   },
 
   hasSubscriptions: true,
+  hasDashboard: true,
   meta: {
     imports,
     segments,
