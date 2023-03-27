@@ -33,6 +33,14 @@ const SelectCustomers = asyncComponent(
     )
 );
 
+const SelectCompanies = asyncComponent(
+  () =>
+    isEnabled('contacts') &&
+    import(
+      /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/companies/containers/SelectCompanies'
+    )
+);
+
 type Props = {
   onSearch: (search: string) => void;
   onFilter: (filterParams: IQueryParams) => void;
@@ -194,14 +202,24 @@ export default class RightMenu extends React.Component<Props, State> {
         />
 
         {isEnabled('contacts') && (
-          <SelectCustomers
-            label="Filter by customer"
-            name="customerId"
-            initialValue={filterParams.customerId}
-            onSelect={this.onSelect}
-            customOption={{ value: '', label: '...Clear customer filter' }}
-            multi={false}
-          />
+          <>
+            <SelectCustomers
+              label="Filter by customer"
+              name="customerId"
+              initialValue={filterParams.customerId}
+              onSelect={this.onSelect}
+              customOption={{ value: '', label: '...Clear customer filter' }}
+              multi={false}
+            />
+            <SelectCompanies
+              label="Filter by company"
+              name="customerId"
+              initialValue={filterParams.customerId}
+              onSelect={this.onSelect}
+              customOption={{ value: '', label: '...Clear company filter' }}
+              multi={false}
+            />
+          </>
         )}
 
         <SelectTeamMembers
