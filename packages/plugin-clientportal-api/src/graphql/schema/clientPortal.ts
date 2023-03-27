@@ -104,7 +104,6 @@ ${
     publicTaskToggle: Boolean,
     ticketToggle: Boolean,
     taskToggle: Boolean,
-
   }
 
   type Styles {
