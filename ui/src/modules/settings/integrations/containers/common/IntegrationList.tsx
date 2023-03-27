@@ -93,7 +93,7 @@ const IntegrationListContainer = (props: FinalProps) => {
   const repair = (id: string) => {
     repairIntegration({ variables: { _id: id } })
       .then(() => {
-        Alert.success(`Sucess`);
+        Alert.success(`Success`);
       })
       .catch((error: Error) => {
         Alert.error(error.message);
