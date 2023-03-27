@@ -1,4 +1,4 @@
 export default {
-  schemaNames: ['Conformities', 'Users'],
+  schemaNames: ['Conformities', 'Users', 'Brands'],
   types: ['Conformities', 'Users']
 };
