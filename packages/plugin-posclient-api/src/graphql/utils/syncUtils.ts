@@ -273,6 +273,7 @@ export const extractConfig = async (subdomain, doc) => {
     catProdMappings: doc.catProdMappings,
     posSlot: doc.posSlot,
     initialCategoryIds: doc.initialCategoryIds,
+    kioskExcludeCategoryIds: doc.kioskExcludeCategoryIds,
     kioskExcludeProductIds: doc.kioskExcludeProductIds,
     deliveryConfig: doc.deliveryConfig,
     posId: doc._id,
@@ -283,7 +284,8 @@ export const extractConfig = async (subdomain, doc) => {
     departmentId: doc.departmentId,
     allowBranchIds: doc.allowBranchIds,
     checkRemainder: doc.checkRemainder,
-    permissionConfig: doc.permissionConfig
+    permissionConfig: doc.permissionConfig,
+    allowTypes: doc.allowTypes
   };
 };
 

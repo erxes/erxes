@@ -7,6 +7,7 @@ import { sendCardsMessage, sendCoreMessage } from './messageBroker';
 import { IPlaceDocument } from './models/definitions/places';
 import { google } from 'googleapis';
 import * as moment from 'moment';
+import { paginate } from '@erxes/api-utils/src/core';
 
 const gatherNames = async params => {
   const {
@@ -277,6 +278,12 @@ export const getPath = async (apiKey: string, places: IPlaceDocument[]) => {
 };
 
 export const getTransportData = async (req, res, subdomain) => {
+  const { unixtimestamp, offset, pagesize } = req.body;
+
+  // const {  } = JSON.parse(json || '{}');
+
+  const models = await generateModels(subdomain);
+
   const config = await sendCoreMessage({
     subdomain,
     action: 'configs.findOne',
@@ -293,6 +300,20 @@ export const getTransportData = async (req, res, subdomain) => {
     return res.json([]);
   }
 
+  const lastData = await models.TransportDatas.find({})
+    .sort({ tid: -1 })
+    .limit(1);
+
+  const lastTid = lastData.length > 0 ? lastData[0].tid : 0;
+
+  const lastTransport = await models.TransportDatas.findOne({ tid: lastTid });
+
+  let range = 'A:O';
+
+  if (lastTid > 0 && lastTransport) {
+    range = lastTransport.range;
+  }
+
   const auth = new google.auth.GoogleAuth({
     credentials: JSON.parse(config.value),
     scopes: ['https://www.googleapis.com/auth/spreadsheets']
@@ -305,7 +326,7 @@ export const getTransportData = async (req, res, subdomain) => {
     spreadsheetId:
       process.env.TRANSPORT_SPREADSHEET_ID ||
       '18CwXZcOU4THxhvkvdA80mPNmGg7xsWpEfkHJh1M1bg0',
-    range: 'A:O'
+    range
   });
 
   const sheetData = response.data;
@@ -320,7 +341,7 @@ export const getTransportData = async (req, res, subdomain) => {
     }
 
     const obj = {
-      tid: value[0],
+      tid: Number(value[0]),
       from: value[1],
       to: value[2],
       payloadtype: value[3],
@@ -333,11 +354,37 @@ export const getTransportData = async (req, res, subdomain) => {
       year: Number(value[10]),
       month: Number(value[11]),
       week: Number(value[12]),
-      day: Number(value[13])
+      day: Number(value[13]),
+      range: `A${index + 1}:O${index + 1}`
     };
 
     data.push(obj);
   }
 
-  return res.json(data);
+  await models.TransportDatas.insertMany(data);
+
+  await models.TransportDatas.find({});
+
+  const qry: any = {};
+
+  if (unixtimestamp) {
+    qry.tid = { $gt: Number(unixtimestamp) };
+  }
+
+  const list = await paginate(
+    models.TransportDatas.find(qry, '-scopeBrandIds -range').sort({
+      tid: 1
+    }),
+    { page: Number(offset || 1), perPage: Number(pagesize || 20) }
+  );
+
+  if (list.length === 0) {
+    return res.json({
+      response: { status: 'error', message: 'No data found' }
+    });
+  }
+
+  return res.json({
+    response: { status: 'success', result: list }
+  });
 };

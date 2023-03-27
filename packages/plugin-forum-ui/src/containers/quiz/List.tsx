@@ -8,8 +8,27 @@ import Bulk from '@erxes/ui/src/components/Bulk';
 import List from '../../components/quiz/QuizList';
 import { IQuiz } from '../../types';
 
-const QuizList = () => {
+type Props = {
+  queryParams: any;
+};
+
+const QuizList = ({ queryParams }: Props) => {
+  const limit = Number(queryParams.perPage || 20);
+  const pageIndex = Number(queryParams.page || 1);
+  const offset = limit * (pageIndex - 1);
+
   const { data, loading, error } = useQuery(gql(queries.quizzesList), {
+    fetchPolicy: 'network-only',
+    variables: {
+      sort: {
+        _id: -1
+      },
+      limit,
+      offset
+    }
+  });
+
+  const totalCountQuery = useQuery(gql(queries.quizzesList), {
     fetchPolicy: 'network-only',
     variables: {
       sort: {
@@ -42,7 +61,7 @@ const QuizList = () => {
     }
   };
 
-  if (loading) {
+  if (loading || totalCountQuery.loading) {
     return <Spinner objective={true} />;
   }
 
@@ -50,12 +69,15 @@ const QuizList = () => {
     Alert.error(error.message);
   }
 
+  const totalCount = totalCountQuery.data.forumQuizzes.length || 0;
+
   const content = props => {
     return (
       <List
         {...props}
         quizzes={data?.forumQuizzes || ([] as IQuiz)}
         history={history}
+        totalCount={totalCount}
         remove={deleteQuiz}
       />
     );

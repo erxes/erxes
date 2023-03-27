@@ -1,13 +1,13 @@
 import { IContext } from '../../connectionResolver';
-import { IRiskIndicatorsConfigsDocument } from '../../models/definitions/indicator';
+import { IRiskAssessmentsConfigsDocument } from '../../models/definitions/indicator';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
-    return models.RiskIndicatorConfigs.findOne({ _id });
+    return models.RiskAssessmentsConfigs.findOne({ _id });
   },
 
   async board(
-    config: IRiskIndicatorsConfigsDocument,
+    config: IRiskAssessmentsConfigsDocument,
     {},
     { dataLoaders }: IContext
   ) {
@@ -15,7 +15,7 @@ export default {
   },
 
   async pipeline(
-    config: IRiskIndicatorsConfigsDocument,
+    config: IRiskAssessmentsConfigsDocument,
     {},
     { dataLoaders }: IContext
   ) {
@@ -26,7 +26,7 @@ export default {
   },
 
   async stage(
-    config: IRiskIndicatorsConfigsDocument,
+    config: IRiskAssessmentsConfigsDocument,
     {},
     { dataLoaders }: IContext
   ) {
@@ -34,7 +34,7 @@ export default {
   },
 
   async field(
-    config: IRiskIndicatorsConfigsDocument,
+    config: IRiskAssessmentsConfigsDocument,
     {},
     { dataLoaders }: IContext
   ) {
@@ -44,13 +44,13 @@ export default {
     );
   },
   async riskIndicator(
-    config: IRiskIndicatorsConfigsDocument,
+    config: IRiskAssessmentsConfigsDocument,
     {},
     { dataLoaders }: IContext
   ) {
     return (
-      (config.riskIndicatorId &&
-        dataLoaders.riskIndicator.load(config.riskIndicatorId)) ||
+      (config.indicatorId &&
+        dataLoaders.riskIndicator.load(config.indicatorId)) ||
       null
     );
   }

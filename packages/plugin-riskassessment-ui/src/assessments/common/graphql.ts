@@ -4,9 +4,11 @@ export const commonFormSaveParams = `
   $fieldId: String,
   $formSubmissions: JSON,
   $riskAssessmentId:String
-  $customScore:ICustomScore
   $userId: String,
   $indicatorId:String
+  $branchId:String
+  $departmentId:String
+  $operationId:String
 `;
 export const commonFormSaveParamsDef = `
   cardId: $cardId,
@@ -14,7 +16,9 @@ export const commonFormSaveParamsDef = `
   fieldId: $fieldId,
   riskAssessmentId: $riskAssessmentId
   formSubmissions: $formSubmissions,
-  customScore: $customScore
   userId: $userId,
-  indicatorId: $indicatorId
+  indicatorId: $indicatorId,
+  branchId:$branchId,
+  departmentId:$departmentId,
+  operationId:$operationId,
 `;

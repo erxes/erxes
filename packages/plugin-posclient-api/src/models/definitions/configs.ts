@@ -34,6 +34,8 @@ interface IUIOptions {
 interface ICatProd {
   _id: string;
   categoryId: string;
+  code?: string;
+  name?: string;
   productId: string;
 }
 
@@ -56,6 +58,7 @@ export interface IConfig {
   erkhetConfig?: any;
   catProdMappings?: ICatProd[];
   initialCategoryIds?: string[];
+  kioskExcludeCategoryIds?: string[];
   kioskExcludeProductIds?: string[];
   deliveryConfig?: any;
   posId: string;
@@ -66,6 +69,7 @@ export interface IConfig {
   allowBranchIds?: string[];
   checkRemainder?: boolean;
   permissionConfig?: any;
+  allowTypes: string[];
 }
 
 export interface IConfigDocument extends Document, IConfig {
@@ -128,6 +132,10 @@ export const configSchema = new Schema({
     type: [String],
     label: 'Pos initial categories'
   }),
+  kioskExcludeCategoryIds: field({
+    type: [String],
+    label: 'kiosk Exclude Categories'
+  }),
   kioskExcludeProductIds: field({
     type: [String],
     label: 'kiosk Exclude Products'
@@ -146,7 +154,8 @@ export const configSchema = new Schema({
     label: 'Allow branches'
   }),
   checkRemainder: field({ type: Boolean, optional: true }),
-  permissionConfig: field({ type: Object, optional: true })
+  permissionConfig: field({ type: Object, optional: true }),
+  allowTypes: field({ type: [String], label: 'Allow Types' })
 });
 
 export const productGroupSchema = new Schema({

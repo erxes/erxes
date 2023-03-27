@@ -1,7 +1,7 @@
 import { paginate } from '@erxes/api-utils/src';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { Model } from 'mongoose';
-import { IModels, models } from '../connectionResolver';
+import { IModels } from '../connectionResolver';
 import { sendFormsMessage } from '../messageBroker';
 import { validateCalculateMethods, validRiskIndicators } from '../utils';
 import { IRiskIndicatorsField, PaginateField } from './definitions/common';
@@ -14,10 +14,10 @@ import {
 
 export interface IRiskIndicatorsModel extends Model<IRiskIndicatorsDocument> {
   riskIndicators(
-    params: { categoryId: string } & IRiskIndicatorsField & PaginateField
+    params: { tagIds: string[] } & IRiskIndicatorsField & PaginateField
   ): Promise<IRiskIndicatorsDocument>;
   riskIndicatorsTotalCount(
-    params: { categoryId: string } & IRiskIndicatorsField & PaginateField
+    params: { tagIds: string[] } & IRiskIndicatorsField & PaginateField
   ): Promise<IRiskIndicatorsDocument>;
   riskIndicatorDetail(params: {
     _id: string;
@@ -31,7 +31,7 @@ export interface IRiskIndicatorsModel extends Model<IRiskIndicatorsDocument> {
     _id?: string,
     doc?: IRiskIndicatorsField
   ): Promise<IRiskIndicatorsDocument>;
-  removeUnusedRiskIndicatorForm(
+  removeRiskIndicatorUnusedForms(
     ids: string[]
   ): Promise<IRiskIndicatorsDocument>;
 }
@@ -49,8 +49,12 @@ const statusColors = {
 const generateFilter = (
   params: {
     _id?: string;
-    categoryId?: string;
+    ids?: string[];
+    tagIds?: string[];
     ignoreIds?: string[];
+    branchId?: string;
+    departmentId?: string;
+    operationId?: string;
   } & IRiskIndicatorsField &
     PaginateField
 ) => {
@@ -60,8 +64,12 @@ const generateFilter = (
     filter._id = params._id;
   }
 
-  if (params.categoryId) {
-    filter.categoryId = params.categoryId;
+  if (!!params?.ids?.length) {
+    filter._id = { $in: params.ids };
+  }
+
+  if (params.tagIds) {
+    filter.tagIds = { $in: params.tagIds };
   }
 
   if (params.sortFromDate) {
@@ -92,14 +100,14 @@ const generateFilter = (
     filter._id = { $nin: params.ignoreIds };
   }
 
-  if (params?.branchIds?.length) {
-    filter.branchIds = { $in: params.branchIds };
+  if (params?.branchId) {
+    filter.branchIds = { $in: [params.branchId] };
   }
-  if (params?.departmentIds?.length) {
-    filter.departmentIds = { $in: params.departmentIds };
+  if (params?.departmentId) {
+    filter.departmentIds = { $in: [params.departmentId] };
   }
-  if (params?.operationIds?.length) {
-    filter.operationIds = { $in: params.operationIds };
+  if (params?.operationId) {
+    filter.operationIds = { $in: [params.operationId] };
   }
 
   return filter;
@@ -121,7 +129,7 @@ export const loadRiskIndicators = (model: IModels, subdomain: string) => {
   class RiskIndicatorClass {
     public static async riskIndicators(
       params: {
-        categoryId: string;
+        tagId: string;
         ignoreIds: string[];
       } & IRiskIndicatorsField &
         PaginateField
@@ -132,7 +140,7 @@ export const loadRiskIndicators = (model: IModels, subdomain: string) => {
     }
     public static async riskIndicatorsTotalCount(
       params: {
-        categoryId: string;
+        tagId: string;
         ignoreIds: string[];
       } & IRiskIndicatorsField &
         PaginateField
@@ -190,7 +198,7 @@ export const loadRiskIndicators = (model: IModels, subdomain: string) => {
       return await model.RiskIndicators.findOne(filter).select(fieldsSkip);
     }
 
-    public static async removeUnusedRiskIndicatorsForm(ids: string[]) {
+    public static async removeRiskIndicatorUnusedForms(ids: string[]) {
       try {
         await sendFormsMessage({
           subdomain,

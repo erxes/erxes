@@ -17,6 +17,7 @@ import { ICustomerAccountDocument } from './models/definitions/customerAccount';
 import { IDealPlaceDocument } from './models/definitions/dealPlaces';
 import { IDealRouteDocument } from './models/definitions/dealRoutes';
 import { IDirectionDocument } from './models/definitions/directions';
+
 import { IParticipantDocument } from './models/definitions/participants';
 import { IPlaceDocument } from './models/definitions/places';
 import { IRouteDocument } from './models/definitions/routes';
@@ -41,6 +42,11 @@ import {
   loadCarsClass
 } from './models/Tumentech';
 import { IPurchaseHistoryDocument } from './models/definitions/customerPurchaseHistory';
+import {
+  ITransportDataModel,
+  loadTransportDataClass
+} from './models/TransportDatas';
+import { ITransportDataDocument } from './models/definitions/transportDatas';
 
 export interface IModels {
   Cars: ICarModel;
@@ -56,6 +62,7 @@ export interface IModels {
   CustomerAccounts: ICustomerAccountModel;
   Topups: ITopupModel;
   PurchaseHistories: IPurchaseHistoryModel;
+  TransportDatas: ITransportDataModel;
 }
 
 export interface IContext extends IMainContext {
@@ -145,6 +152,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     IPurchaseHistoryDocument,
     IPurchaseHistoryModel
   >('tumentech_purchase_histories', loadPurchaseHistoryClass(models));
+
+  models.TransportDatas = db.model<ITransportDataDocument, ITransportDataModel>(
+    'tumentech_transport_datas',
+    loadTransportDataClass(models)
+  );
 
   return models;
 };

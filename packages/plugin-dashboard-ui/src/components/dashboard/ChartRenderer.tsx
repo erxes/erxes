@@ -293,15 +293,11 @@ const ChartRenderer = (props: Props) => {
   if (renderProps.resultSet) {
     const { timeDimensions } = query;
 
+    result = resultSet.totalRow() || 0;
+
     if (timeDimensions && timeDimensions[0]) {
       dateType = timeDimensions[0].granularity;
     }
-
-    resultSet.seriesNames().map(s => {
-      result = resultSet.totalRow();
-
-      result = result[s.key];
-    });
 
     if (result === 0) {
       return (

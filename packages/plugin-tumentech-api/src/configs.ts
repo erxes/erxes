@@ -12,6 +12,7 @@ import { initBroker } from './messageBroker';
 import * as permissions from './permissions';
 import segments from './segments';
 import { getTransportData } from './utils';
+import dashboards from './dashboards';
 
 export let debug;
 export let graphqlPubsub;
@@ -30,8 +31,9 @@ export default {
   },
 
   hasSubscriptions: true,
+  hasDashboard: true,
 
-  getHandlers: [
+  postHandlers: [
     {
       path: `/transports`,
       method: getTransportData
@@ -42,7 +44,8 @@ export default {
     segments,
     forms,
     afterMutations,
-    exporter
+    exporter,
+    dashboards
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);

@@ -1,3 +1,5 @@
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
 export const commonPaginateDef = `
     $page:Int
     $perPage:Int
@@ -7,6 +9,7 @@ export const commonPaginateDef = `
     $sortFromDate:String
     $sortToDate:String
 `;
+
 export const commonPaginateValue = `
     page:$page
     perPage:$perPage
@@ -17,50 +20,18 @@ export const commonPaginateValue = `
     sortToDate:$sortToDate
 `;
 
-export const riskIndicatorDef = `
-    $categoryIds: String,
-    $description: String,
-    $name: String!,
-    $calculateMethod: String,
-`;
-
-export const riskIndicatorValues = `
-    categoryIds: $categoryIds,
-    description: $description,
-    name: $name,
-    calculateMethod: $calculateMethod
-`;
-
-export const riskAssessmentCategoryParams = `
-_id
-formId
-parentId
-name
-code
-order
-type
-`;
-
 export const riskIndicatorParams = `
     _id,
     name,
     description,
-    categoryId,
     operationIds
     departmentIds,
     branchIds,
     createdAt,
     isWithDescription
-    customScoreField {
-        label,
-        percentWeight
-    }
-    category{
-        _id
-        formId
-        parentId
-        name
-    },
+    ${isEnabled('tags') ? `tags{_id,name,colorCode}` : ''}
+    
+    tagIds
       forms {
         _id
         calculateMethod
@@ -76,11 +47,19 @@ export const riskIndicatorParams = `
       }
 `;
 
-export const riskConformityParams = `
-    _id
-    categoryId
-    createdAt
-    description
-    name
-    status
+export const tags = `
+  query tagsQuery($type: String, $tagIds: [String], $parentId: String) {
+    tags(type: $type, tagIds: $tagIds, parentId: $parentId) {
+      _id
+      name
+      type
+      colorCode
+      createdAt
+      objectCount
+      totalObjectCount
+      parentId
+      order
+      relatedIds
+    }
+  }
 `;

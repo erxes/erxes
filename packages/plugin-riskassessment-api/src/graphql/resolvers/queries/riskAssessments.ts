@@ -6,16 +6,24 @@ import { RiskAssessmentGroupParams } from '../types';
 const generateFilter = async (params, models: IModels) => {
   let filter: any = {};
 
+  if (params.cardType) {
+    filter.cardType = params.cardType;
+  }
+
+  if (params.groupIds) {
+    filter.groupId = { $in: params.groupIds };
+  }
+
   if (params.operationIds) {
-    filter.operationIds = { $in: params.operationIds };
+    filter.operationId = { $in: params.operationIds };
   }
 
   if (params.branchIds) {
-    filter.branchIds = { $in: params.branchIds };
+    filter.branchId = { $in: params.branchIds };
   }
 
   if (params.departmentIds) {
-    filter.departmentIds = { $in: params.departmentId };
+    filter.departmentId = { $in: params.departmentIds };
   }
   if (params.riskIndicatorIds) {
     const groupIds = (
@@ -34,6 +42,21 @@ const generateFilter = async (params, models: IModels) => {
         { indicatorId: { $in: params.riskIndicatorIds } }
       ];
     }
+  }
+
+  if (params.tagIds) {
+    const indicatorIds = (
+      await models.RiskIndicators.find({ tagIds: { $in: params.tagIds } })
+    ).map(indicator => indicator._id);
+
+    const groupIds = (
+      await models.IndicatorsGroups.find({ tagIds: { $in: params.tagIds } })
+    ).map(group => group._id);
+
+    filter.$or = [
+      { groupId: { $in: groupIds } },
+      { indicatorId: { $in: indicatorIds } }
+    ];
   }
 
   if (params.createdAtFrom) {
@@ -84,7 +107,7 @@ const RiskAssessmentQueries = {
     return models.RiskAssessments.riskAssessmentDetail(id);
   },
   async riskAssessment(_root, { cardId, cardType }, { models }: IContext) {
-    return await models.RiskAssessments.findOne({
+    return await models.RiskAssessments.find({
       cardId,
       cardType
     });
@@ -107,13 +130,12 @@ const RiskAssessmentQueries = {
 
   async riskAssessmentAssignedMembers(
     _root,
-    { cardId, cardType, riskAssessmentId },
+    { cardId, cardType },
     { models }: IContext
   ) {
     return models.RiskAssessments.riskAssessmentAssignedMembers(
       cardId,
-      cardType,
-      riskAssessmentId
+      cardType
     );
   },
   async riskAssessmentSubmitForm(

@@ -1,13 +1,11 @@
-import React from 'react';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils/core';
-import FormComponent from '../components/Form';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { mutations } from '../graphql';
 import { ButtonMutate } from '@erxes/ui/src';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { withProps } from '@erxes/ui/src/utils/core';
+import * as compose from 'lodash.flowright';
+import React from 'react';
 import { refetchQueries } from '../common/utils';
+import FormComponent from '../components/Form';
+import { mutations } from '../graphql';
 type Props = {
   queryParams: any;
   operation: any;

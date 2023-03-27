@@ -1,5 +1,4 @@
 import { Document, Schema } from 'mongoose';
-import { commonAssessmentSchema } from './riskassessment';
 import { field } from './utils';
 
 type ICalculateLogics = {
@@ -23,27 +22,27 @@ export interface IRiskIndicatorsDocument extends Document {
   createdAt: Date;
   name: string;
   description: string;
-  categoryId: [string];
+  tagIds: [string];
   departmentIds: [string];
   branchIds: [string];
   operationIds: [string];
   status: string;
   calculateLogics?: ICalculateLogics[];
   calculateMethod?: string;
-  customScoreField: { label: string; percentWeight: number }[];
   forms?: IIndicatorForms[];
   isWithDescription?: boolean;
 }
 
-export interface IRiskIndicatorsConfigsDocument extends Document {
+export interface IRiskAssessmentsConfigsDocument extends Document {
   _id: string;
   boardId: string;
   pipelineId: string;
   stageId?: string;
   customFieldId?: string;
   configs: any[];
-  riskIndicatorId?: string;
-  indicatorsGroupId?: string;
+  indicatorId?: string;
+  indicatorIds: string[];
+  groupId?: string;
 }
 
 export interface IIndicatorsGroupDocument extends Document {
@@ -60,6 +59,8 @@ export interface IIndicatorsGroupsDocument extends Document {
   calculateMethod: string;
   calculateLogics: ICalculateLogics[];
   groups: IIndicatorsGroupDocument[];
+  tagIds: string[];
+  ignoreZeros: boolean;
 }
 
 export const calculateMethodsSchema = new Schema({
@@ -83,27 +84,15 @@ const riskIndicatorFormsSchema = new Schema({
   percentWeight: field({ type: Number, label: 'Percent Weight' })
 });
 
-const customScoreField = new Schema(
-  {
-    label: field({ type: String, label: 'Custom Score Field Label' }),
-    percentWeight: field({
-      type: Number,
-      label: 'Custom Score Field Percent Weigth'
-    })
-  },
-  { _id: false }
-);
-
 export const riskIndicatorSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Name' }),
   description: field({ type: String, label: 'Description' }),
   createdAt: field({ type: Date, default: Date.now, label: 'Created At' }),
-  categoryId: field({ type: String, label: 'CategoryId' }),
+  tagIds: field({ type: [String], label: 'Tag Ids' }),
   operationIds: field({ type: [String], label: 'OperationIDs' }),
   branchIds: field({ type: [String], label: ' BranchIDs' }),
   departmentIds: field({ type: [String], label: 'DepartmentIDs' }),
-  customScoreField: { type: customScoreField, label: 'Custom Score Field' },
   calculateMethod: field({
     type: String,
     optional: true,
@@ -125,31 +114,37 @@ const riskIndicatorConfigsFieldsSchema = new Schema({
   _id: field({ pkey: true }),
   value: field({ type: String, label: 'Field Value' }),
   label: field({ type: String, label: 'Field Label' }),
-  riskIndicatorId: field({
+  indicatorId: field({
     type: String,
     label: 'Field Config Risk indicator Id'
   }),
-  indicatorsGroupId: field({
+  indicatorIds: field({ type: [String], label: 'Indicator Ids' }),
+  groupId: field({
     type: String,
     label: 'Field Config Risk Indicators Group Id'
   })
 });
 
-export const riskIndicatorConfigsSchema = new Schema({
+export const riskAssessmentsConfigsSchema = new Schema({
   _id: field({ pkey: true }),
   cardType: field({ type: String, label: 'Card Type' }),
   boardId: field({ type: String, label: 'Board Id' }),
   pipelineId: field({ type: String, label: 'Pipeline Id' }),
   stageId: field({ type: String, label: 'Stage Id', optional: true }),
-  riskIndicatorId: field({
+  indicatorId: field({
     type: String,
     optional: true,
-    label: 'Risk indicator id'
+    label: 'indicator id'
   }),
-  indicatorsGroupId: field({
+  indicatorIds: field({
+    type: [String],
+    label: 'Indicator Ids',
+    optional: true
+  }),
+  groupId: field({
     type: String,
     optional: true,
-    label: 'Risk indicators group id'
+    label: 'indicators group id'
   }),
   customFieldId: field({ type: String, label: 'Custom Field Id' }),
   configs: field({
@@ -180,6 +175,7 @@ export const riskIndicatorGroupSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Name' }),
   description: field({ type: String, label: 'Description' }),
+  tagIds: field({ type: [String], label: 'Tag Ids' }),
   calculateMethod: field({ type: String, label: 'Calculate Method' }),
   calculateLogics: field({
     type: [calculateMethodsSchema],
@@ -187,5 +183,6 @@ export const riskIndicatorGroupSchema = new Schema({
   }),
   groups: field({ type: [indicatorGroupsSchema], label: 'indicators groups' }),
   createdAt: field({ type: Date, label: 'Created At', default: Date.now }),
-  modifiedAt: field({ type: Date, label: 'Modified At', default: Date.now })
+  modifiedAt: field({ type: Date, label: 'Modified At', default: Date.now }),
+  ignoreZeros: field({ type: Boolean, label: 'Ignore Zeros', optional: true })
 });

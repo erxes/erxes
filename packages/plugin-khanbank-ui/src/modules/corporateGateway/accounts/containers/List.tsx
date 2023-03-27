@@ -1,8 +1,9 @@
-import { router } from '@erxes/ui/src';
+import { router, Spinner } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import gql from 'graphql-tag';
 import React from 'react';
 import { useQuery } from 'react-apollo';
+import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 
 import List from '../components/List';
 import queries from '../graphql/queries';
@@ -17,7 +18,7 @@ type Props = {
 } & IRouterProps;
 
 export default function ListContainer(props: Props) {
-  const { data, loading } = useQuery<AccountsListQueryResponse>(
+  const { data, loading, error } = useQuery<AccountsListQueryResponse>(
     gql(queries.listQuery),
     {
       variables: {
@@ -27,6 +28,14 @@ export default function ListContainer(props: Props) {
       fetchPolicy: props.fetchPolicy || 'network-only'
     }
   );
+
+  if (loading) {
+    return <Spinner />;
+  }
+
+  if (error) {
+    return <ErrorMsg>{error.message}</ErrorMsg>;
+  }
 
   const accounts = (data && data.khanbankAccounts) || [];
 

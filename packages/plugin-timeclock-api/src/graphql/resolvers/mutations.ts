@@ -464,6 +464,7 @@ const timeclockMutations = {
       startTime: startDate,
       endTime: endDate,
       status: 'Holiday',
+      reason: 'Holiday',
       solved: true
     });
   },

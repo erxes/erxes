@@ -18,7 +18,13 @@ export default function Item({
   level
 }: Props) {
   const renderForm = ({ closeModal }) => {
-    return <Form department={department} closeModal={closeModal} />;
+    return (
+      <Form
+        department={department}
+        closeModal={closeModal}
+        additionalRefetchQueries={['users']}
+      />
+    );
   };
 
   return (

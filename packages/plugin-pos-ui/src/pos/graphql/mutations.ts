@@ -25,10 +25,12 @@ const commonFields = `
   $cardsConfig: JSON
   $catProdMappings: [CatProdInput]
   $initialCategoryIds: [String]
+  $kioskExcludeCategoryIds: [String]
   $kioskExcludeProductIds: [String]
   $deliveryConfig: JSON
   $checkRemainder: Boolean
   $permissionConfig: JSON
+  $allowTypes: [String]
 `;
 
 const commonVariables = `
@@ -55,11 +57,13 @@ const commonVariables = `
   erkhetConfig: $erkhetConfig
   catProdMappings: $catProdMappings
   initialCategoryIds: $initialCategoryIds
+  kioskExcludeCategoryIds: $kioskExcludeCategoryIds
   kioskExcludeProductIds: $kioskExcludeProductIds
   deliveryConfig: $deliveryConfig
   cardsConfig: $cardsConfig
   checkRemainder: $checkRemainder
   permissionConfig: $permissionConfig
+  allowTypes: $allowTypes
 `;
 
 const posAdd = `
