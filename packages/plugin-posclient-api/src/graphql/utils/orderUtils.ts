@@ -451,6 +451,11 @@ export const prepareOrderDoc = async (
     for (const item of hasTakeItems) {
       const product = productsOfId[item.productId];
       const category = categoriesOfId[product.categoryId || ''];
+
+      if (!category) {
+        continue;
+      }
+
       const perOrders = category.order.split('/');
       const matchOrders: string[] = [];
       for (let i = perOrders.length - 1; i > 0; i--) {
@@ -464,9 +469,8 @@ export const prepareOrderDoc = async (
           if (!Object.keys(toAddProducts).includes(packProductId)) {
             toAddProducts[packProductId] = { count: 0 };
           }
+          toAddProducts[packProductId].count += item.count;
         }
-
-        toAddProducts[packProductId].count += item.count;
       }
     }
 
