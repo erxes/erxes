@@ -185,23 +185,36 @@ export const getProductsData = async (
     });
   } // end product group for loop
 
+  const followProductIds: string[] = [];
+
   if (pos.deliveryConfig && pos.deliveryConfig.productId) {
-    const deliveryProd = await sendProductsMessage({
+    followProductIds.push(pos.deliveryConfig.productId);
+  }
+
+  if (pos.catProdMappings && pos.catProdMappings.length) {
+    for (const map of pos.catProdMappings) {
+      if (!followProductIds.includes(map.productId)) {
+        followProductIds.push(map.productId);
+      }
+    }
+  }
+
+  if (followProductIds.length) {
+    const followProducts = await sendProductsMessage({
       subdomain,
-      action: 'findOne',
+      action: 'find',
       data: {
-        _id: pos.deliveryConfig.productId
+        query: { _id: { $in: followProductIds } },
+        limit: followProductIds.length
       },
-      isRPC: true
+      isRPC: true,
+      defaultValue: []
     });
+
     productGroups.push({
       categories: [
         {
-          products: [
-            {
-              ...deliveryProd
-            }
-          ]
+          products: followProducts
         }
       ]
     });
