@@ -75,6 +75,8 @@ export default {
         defaultValue: [],
         data: {
           prioritizeRule: 'exclude',
+          branchId,
+          departmentId,
           products
         }
       });
