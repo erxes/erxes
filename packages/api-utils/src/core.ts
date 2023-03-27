@@ -85,7 +85,9 @@ export const regexSearchText = (
   const words = searchValue.split(' ');
 
   for (const word of words) {
-    result.push({ [searchKey]: new RegExp(`${stringToRegex(word)}`, 'mui') });
+    result.push({
+      [searchKey]: { $regex: `${stringToRegex(word)}`, $options: 'mui' }
+    });
   }
 
   return { $and: result };
@@ -334,6 +336,19 @@ export const userActionsMap = async (
   }
 
   return allowedActions;
+};
+
+/*
+ * Generate url depending on given file upload publicly or not
+ */
+export const generateAttachmentUrl = (urlOrName: string) => {
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
+
+  if (urlOrName.startsWith('http')) {
+    return urlOrName;
+  }
+
+  return `${DOMAIN}/gateway/pl:core/read-file?key=${urlOrName}`;
 };
 
 export const getSubdomain = (req): string => {

@@ -52,6 +52,8 @@ const productFields = `
     name
   }
   subUoms
+  taxType
+  taxCode
 `;
 
 const products = `
@@ -122,20 +124,20 @@ const productCategories = `
 // UOM
 
 const uoms = `
-query uoms {
-  uoms {
-    _id
-    name
-    code
-    createdAt
+  query uoms {
+    uoms {
+      _id
+      name
+      code
+      createdAt
+    }
   }
-}
 `;
 
 const uomsTotalCount = `
-query uomsTotalCount {
-  uomsTotalCount
-}
+  query uomsTotalCount {
+    uomsTotalCount
+  }
 `;
 
 // Settings

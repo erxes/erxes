@@ -48,6 +48,8 @@ ${
 
   type ManualVerificationConfig {
     userIds: [String]
+    verifyCustomer: Boolean
+    verifyCompany: Boolean
   }
 
   input OTPConfigInput {
@@ -80,6 +82,7 @@ ${
     knowledgeBaseLabel: String
     knowledgeBaseTopicId: String
     ticketLabel: String
+    dealLabel: String
     taskPublicBoardId: String
     taskPublicPipelineId: String
     taskLabel: String
@@ -89,6 +92,9 @@ ${
     ticketStageId: String
     ticketPipelineId: String
     ticketBoardId: String
+    dealStageId: String
+    dealPipelineId: String
+    dealBoardId: String
     googleCredentials: JSON
     styles: Styles
     mobileResponsive: Boolean
@@ -101,6 +107,7 @@ ${
     publicTaskToggle: Boolean,
     ticketToggle: Boolean,
     taskToggle: Boolean,
+    dealToggle: Boolean,
   }
 
   type Styles {
@@ -185,6 +192,7 @@ export const mutations = cardAvailable => `
     knowledgeBaseTopicId: String
     ticketLabel: String
     taskLabel: String
+    dealLabel: String
     taskPublicBoardId: String
     taskPublicPipelineId: String
     taskStageId: String
@@ -193,12 +201,16 @@ export const mutations = cardAvailable => `
     ticketStageId: String
     ticketPipelineId: String
     ticketBoardId: String
+    dealStageId: String
+    dealPipelineId: String
+    dealBoardId: String
     googleCredentials: JSON
     styles: StylesParams
     mobileResponsive: Boolean
     kbToggle: Boolean,
     publicTaskToggle: Boolean,
     ticketToggle: Boolean,
+    dealToggle: Boolean,
     taskToggle: Boolean,
 
     otpConfig: OTPConfigInput
@@ -217,6 +229,9 @@ export const mutations = cardAvailable => `
         subject: String!
         description: String
         priority: String,
+        parentId: String,
+        closeDate: Date
+        startDate: Date
       ): JSON
       clientPortalCommentsAdd(type: String!, typeId: String!, content: String! userType: String!): ClientPortalComment
       clientPortalCommentsRemove(_id: String!): String
