@@ -170,7 +170,7 @@ export const getAsssignedUsers = async (
   cardId: string,
   cardType: string
 ) => {
-  let assignedUsers;
+  let assignedUsers: any[] = [];
 
   if (!cardId && !cardType) {
     throw new Error(

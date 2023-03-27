@@ -261,6 +261,10 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         await getAsssignedUsers(subdomain, cardId || '', cardType || '')
       ).map(user => user._id);
 
+      if (!assignedUserIds?.length) {
+        throw new Error('Something went wrong when fetch assigned users');
+      }
+
       const riskAssessment = await models.RiskAssessments.findOne({
         _id: assessmentId
       });
@@ -300,6 +304,8 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
           }
         }
       ]);
+
+      console.log({ assignedUserIds, submittedUsers });
 
       return assignedUserIds.every(userId =>
         submittedUsers.some(submittedUser => submittedUser._id === userId)
