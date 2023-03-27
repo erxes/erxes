@@ -56,9 +56,7 @@ function SelectIndicators(props: FinalProps) {
   const [useGroups, setUseGroups] = useState(false);
   const [groupsAssignedUsers, setGroupsAssignedUsers] = useState<any[]>([]);
   const [isSplittedUsers, setSplitUsers] = useState(false);
-  const [selectedItems, setSelectedItems] = useState<any[]>(
-    props.selectedItemsQuery['riskIndicators'] || []
-  );
+  const [selectedItems, setSelectedItems] = useState<any[]>([]);
   const { data, error, loading } = useQuery(
     gql(useGroups ? groupsQueries.list : queries.riskIndicators),
     {
@@ -67,7 +65,13 @@ function SelectIndicators(props: FinalProps) {
   );
   useEffect(() => {
     if (props.selectedItemsQuery) {
-      const { riskIndicatorsGroups, riskIndicators } = props.selectedItemsQuery;
+      const {
+        riskIndicatorsGroups,
+        riskIndicators
+      } = props.selectedItemsQuery as {
+        riskIndicators: any;
+        riskIndicatorsGroups: any;
+      };
       if (riskIndicatorsGroups) {
         setUseGroups(true);
         if (props.detail.isSplittedUsers) {
@@ -83,7 +87,7 @@ function SelectIndicators(props: FinalProps) {
   }, [props.selectedItemsQuery]);
 
   if (error) {
-    return <EmptyState text="Something went wrong" />;
+    return <EmptyState text="Something went wrong" extra={error.message} />;
   }
 
   if (loading) {
@@ -234,7 +238,6 @@ export default withProps<Props>(
       name: 'selectedItemsQuery',
       skip: ({ detail }) => !detail?.groupId,
       options: ({ detail }) => ({
-        fetchPolicy: 'network-only',
         variables: {
           ids: [detail.groupId]
         }
@@ -244,7 +247,6 @@ export default withProps<Props>(
       name: 'selectedItemsQuery',
       skip: ({ detail }) => !detail?.indicatorId,
       options: ({ detail }) => ({
-        fetchPolicy: 'network-only',
         variables: {
           ids: [detail.indicatorId]
         }
