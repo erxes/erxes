@@ -90,6 +90,9 @@ ${
     ticketPipelineId: String
     ticketBoardId: String
     googleCredentials: JSON
+    googleClientId: String
+    googleClientSecret: String
+    googleRedirectUri: String
     styles: Styles
     mobileResponsive: Boolean
   
@@ -102,7 +105,6 @@ ${
     ticketToggle: Boolean,
     taskToggle: Boolean,
 
-    facebookAppId: String
   }
 
   type Styles {
@@ -196,6 +198,9 @@ export const mutations = cardAvailable => `
     ticketPipelineId: String
     ticketBoardId: String
     googleCredentials: JSON
+    googleClientId: String
+    googleClientSecret: String
+    googleRedirectUri: String
     styles: StylesParams
     mobileResponsive: Boolean
     kbToggle: Boolean,

@@ -37,6 +37,9 @@ export interface IClientPortal {
   manualVerificationConfig?: IManualVerificationConfig;
 
   googleCredentials?: string;
+  googleClientId?: string;
+  googleClientSecret?: string;
+  googleRedirectUri?: string;
 
   messengerBrandCode?: string;
   knowledgeBaseLabel?: string;
@@ -56,7 +59,6 @@ export interface IClientPortal {
   publicTaskToggle?: boolean;
   ticketToggle?: boolean;
   taskToggle?: boolean;
-  facebookAppId: string;
 }
 
 interface IStyles {
@@ -151,6 +153,9 @@ export const clientPortalSchema = new Schema({
     optional: true
   }),
   googleCredentials: field({ type: Object, optional: true }),
+  googleClientId: field({ type: String, optional: true }),
+  googleClientSecret: field({ type: String, optional: true }),
+  googleRedirectUri: field({ type: String, optional: true }),
 
   messengerBrandCode: field({ type: String, optional: true }),
   knowledgeBaseLabel: field({ type: String, optional: true }),
@@ -175,6 +180,5 @@ export const clientPortalSchema = new Schema({
     type: Date,
     default: new Date(),
     label: 'Created at'
-  }),
-  facebookAppId: field({ type: String })
+  })
 });

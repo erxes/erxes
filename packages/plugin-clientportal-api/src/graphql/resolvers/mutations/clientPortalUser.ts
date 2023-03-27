@@ -20,6 +20,25 @@ export interface IVerificationParams {
 interface IClientPortalUserEdit extends IUser {
   _id: string;
 }
+interface GoogleOauthToken {
+  access_token: string;
+  id_token: string;
+  expires_in: number;
+  refresh_token: string;
+  token_type: string;
+  scope: string;
+}
+
+interface GoogleUserResult {
+  id: string;
+  email: string;
+  verified_email: boolean;
+  name: string;
+  given_name: string;
+  family_name: string;
+  picture: string;
+  locale: string;
+}
 
 const clientPortalUserMutations = {
   async clientPortalConfirmInvitation(
@@ -180,12 +199,12 @@ const clientPortalUserMutations = {
       });
       const { id, name, email, gender, work, picture } = response.data || [];
       let user = await models.ClientPortalUsers.findOne({
-        facebookAppId: id
+        facebookId: id
       });
 
       if (!user) {
         user = await models.ClientPortalUsers.create({
-          socialId: id,
+          facebookId: id,
           email,
           logo: picture?.data?.url,
           username: name,
@@ -209,7 +228,6 @@ const clientPortalUserMutations = {
       const options = authCookieOptions(cookieOptions);
 
       res.cookie('client-auth-token', token, options);
-      console.log(options, 'options');
       return 'loggedin';
     } catch (e) {
       throw new Error(e.message);
@@ -221,21 +239,101 @@ const clientPortalUserMutations = {
     args: any,
     { models, requestInfo, res }: IContext
   ) => {
-    // const { OAuth2Client } = require('google-auth-library');
-    // const verifyIdToken = async (idToken) => {
-    //   const clientId =
-    //     '721161606407-j0esl5u8usfa7br8rk4mchmf3aergjcs.apps.googleusercontent.com';
-    //   const client = new OAuth2Client(clientId);
-    //   const ticket = await client.verifyIdToken({
-    //     idToken: idToken,
-    //     audience: clientId
-    //   });
-    //   const payload = ticket.getPayload();
-    //   const userId = payload.sub;
-    //   return userId;
-    // };
-    // const userId = await verifyIdToken(args.token);
-    // console.log(userId, 'userId');
+    const { clientPortalId, code } = args;
+
+    const clientPortals = await models.ClientPortals.getConfig(clientPortalId);
+
+    if (!code) {
+      throw new Error('Authorization code not provided!');
+    }
+
+    const getGoogleOauthToken = async ({
+      code
+    }: {
+      code: string;
+    }): Promise<GoogleOauthToken> => {
+      try {
+        const response = await sendRequest({
+          url: 'https://oauth2.googleapis.com/token',
+          method: 'POST',
+          params: {
+            code: code,
+            client_id: clientPortals.googleClientId || '',
+            grant_type: 'authorization_code',
+            client_secret: clientPortals.googleClientSecret || '',
+            redirect_uri: clientPortals.googleRedirectUri || ''
+          }
+        });
+        return response;
+      } catch (err) {
+        throw new Error(err);
+      }
+    };
+
+    async function getGoogleUser({
+      id_token,
+      access_token
+    }: {
+      id_token: string;
+      access_token: string;
+    }): Promise<GoogleUserResult> {
+      try {
+        const response = await sendRequest({
+          url: 'https://www.googleapis.com/oauth2/v1/userinfo',
+          method: 'GET',
+          params: {
+            alt: 'json',
+            access_token
+          },
+          headers: {
+            Authorization: `Bearer ${id_token}`
+          }
+        });
+        return response;
+      } catch (err) {
+        throw Error(err);
+      }
+    }
+
+    // Use the code to get the id and access tokens
+    const { id_token, access_token } = await getGoogleOauthToken({ code });
+
+    // Use the token to get the User
+    const { name, verified_email, email, picture, id } = await getGoogleUser({
+      id_token,
+      access_token
+    });
+    let user = await models.ClientPortalUsers.findOne({
+      googleId: id
+    });
+
+    if (!user) {
+      user = await models.ClientPortalUsers.create({
+        googleId: id,
+        email,
+        logo: picture,
+        username: name,
+        clientPortalId
+      });
+    }
+
+    const { token } = await createJwtToken({
+      userId: user._id,
+      type: 'customer'
+    });
+
+    const cookieOptions: any = {};
+
+    const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+
+    if (!['test', 'development'].includes(NODE_ENV)) {
+      cookieOptions.sameSite = 'none';
+    }
+
+    const options = authCookieOptions(cookieOptions);
+
+    res.cookie('client-auth-token', token, options);
+    return 'loggedin';
   },
 
   /*

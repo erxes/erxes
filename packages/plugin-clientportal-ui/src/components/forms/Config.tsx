@@ -30,6 +30,9 @@ type ControlItem = {
 
 function General({
   googleCredentials,
+  googleClientId,
+  googleRedirectUri,
+  googleClientSecret,
   otpConfig,
   mailConfig,
   name,
@@ -401,6 +404,21 @@ function General({
           label: 'Google Application Credentials',
           formValueName: 'googleCredentials',
           formValue: googleCredentials
+        })}
+        {renderControl({
+          label: 'Google Client Id',
+          formValueName: 'googleClientId',
+          formValue: googleClientId
+        })}
+        {renderControl({
+          label: 'Google Client Secret',
+          formValueName: 'googleClientSecret',
+          formValue: googleClientSecret
+        })}
+        {renderControl({
+          label: 'Google Client Redirect Uri',
+          formValueName: 'googleRedirectUri',
+          formValue: googleRedirectUri
         })}
       </CollapseContent>
 

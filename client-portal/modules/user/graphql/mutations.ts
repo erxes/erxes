@@ -58,11 +58,23 @@ const resetPassword = `
     )
   }
 `;
+const getGoogleCode = `
+  mutation clientPortalGoogleAuthentication(
+    $code: String!,
+    $clientPortalId: String!,
+  ) {
+    clientPortalGoogleAuthentication(
+      clientPortalId: $clientPortalId,
+      code: $code,
+    )
+  }
+`;
 
 export default {
   login: clientPortalLogin,
   logout,
   createUser,
   getCode,
-  resetPassword
+  resetPassword,
+  getGoogleCode
 };

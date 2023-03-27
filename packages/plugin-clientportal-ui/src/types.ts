@@ -118,6 +118,9 @@ export type ClientPortalConfig = {
   styles?: Styles;
   mobileResponsive?: boolean;
   googleCredentials?: object;
+  googleClientId?: object;
+  googleRedirectUri?: object;
+  googleClientSecret?: object;
 
   kbToggle?: boolean;
   publicTaskToggle?: boolean;

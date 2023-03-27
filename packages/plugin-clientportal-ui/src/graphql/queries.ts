@@ -46,6 +46,9 @@ export const commonFields = `
   }
   mobileResponsive
   googleCredentials
+  googleClientId
+  googleClientSecret
+  googleRedirectUri
 
   kbToggle
   publicTaskToggle
