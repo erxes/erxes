@@ -29,6 +29,7 @@ export interface IPosOrder {
   paidDate?: Date;
   number: string;
   customerId?: string;
+  customerType?: string;
   cashAmount?: number;
   mobileAmount?: number;
   paidAmounts?: IPaidAmount[];
@@ -123,6 +124,7 @@ export const posOrderSchema = schemaHooksWrapper(
     paidDate: field({ type: Date, label: 'Paid date' }),
     number: field({ type: String, label: 'Order number', index: true }),
     customerId: field({ type: String, label: 'Customer' }),
+    customerType: field({ type: String, label: 'Customer type' }),
     cashAmount: field({ type: Number, label: 'Cash amount' }),
     mobileAmount: field({ type: Number, label: 'Mobile amount' }),
     paidAmounts: field({ type: [paidAmountSchema], label: 'Paid amounts' }),

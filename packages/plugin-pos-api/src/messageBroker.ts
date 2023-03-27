@@ -24,6 +24,7 @@ export const initBroker = async cl => {
     const pos = await models.Pos.findOne({ token: posToken }).lean();
 
     // ====== if (action === 'statusToDone')
+    // if (doneOrder.type === 'delivery' && doneOrder.status === 'done') { }
     if (action === 'statusToDone') {
       // must have
       const doneOrder = await models.PosOrders.findOne({
@@ -102,7 +103,7 @@ export const initBroker = async cl => {
           data: {
             mainType: 'deal',
             mainTypeId: deal._id,
-            relType: 'customer',
+            relType: doneOrder.customerType || 'customer',
             relTypeId: doneOrder.customerId
           },
           isRPC: true
@@ -223,7 +224,7 @@ export const initBroker = async cl => {
           data: {
             mainType: 'deal',
             mainTypeId: cardDeal._id,
-            relType: 'customer',
+            relType: newOrder.customerType || 'customer',
             relTypeId: newOrder.customerId
           },
           isRPC: true

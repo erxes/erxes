@@ -1,7 +1,7 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { serviceDiscovery } from './configs';
-import { checkPricing } from './utils';
+import { checkPricing, getMainConditions } from './utils';
 import { getAllowedProducts } from './utils/product';
 import { calculatePriceAdjust } from './utils/rule';
 
@@ -41,7 +41,7 @@ export const initBroker = async cl => {
   consumeRPCQueue('pricing:getQuanityRules', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const { products } = data;
+    const { products, branchId, departmentId } = data;
 
     const productsById = {};
     for (const product of products) {
@@ -51,7 +51,11 @@ export const initBroker = async cl => {
     const productIds = products.map(pr => pr._id);
     const rulesByProductId = {};
 
+    const conditions = getMainConditions(branchId, departmentId);
+    conditions.isPriority = false;
+
     const plans = await models.PricingPlans.find({
+      ...conditions,
       'quantityRules.0': { $exists: true }
     }).sort({ value: -1 });
 

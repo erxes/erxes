@@ -192,7 +192,7 @@ class PutResponseDetail extends React.Component<Props, State> {
     return (
       <SidebarList>
         {this.renderRow(
-          'Customer',
+          `${(order.customerType || 'Customer').toLocaleUpperCase()}`,
           order.customer ? this.generateLabel(order.customer) : ''
         )}
         {this.renderRow('Bill Number', order.number)}
