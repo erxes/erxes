@@ -931,14 +931,6 @@ export const sendMobileNotification = async (
     tokens.push(...deviceTokens);
   }
 
-  //   if (customerId) {
-  //     tokens.push(
-  //       ...(await Customers.findOne({ _id: customerId }).distinct(
-  //         'deviceTokens'
-  //       ))
-  //     );
-  //   }
-
   if (tokens.length > 0) {
     // send notification
     for (const token of tokens) {
@@ -950,6 +942,11 @@ export const sendMobileNotification = async (
         });
       } catch (e) {
         debugError(`Error occurred during firebase send: ${e.message}`);
+
+        await models.Users.updateOne(
+          { deviceTokens: token },
+          { $pull: { deviceTokens: token } }
+        );
       }
     }
   }

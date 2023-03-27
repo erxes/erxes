@@ -23,6 +23,7 @@ import forms from './forms';
 import { generateModels } from './connectionResolver';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
 import imports from './imports';
+import exporter from './exporter';
 
 let client;
 
@@ -420,6 +421,24 @@ export const initBroker = async options => {
     };
   });
 
+  consumeRPCQueue('core:units.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Units.find(data).lean()
+    };
+  });
+
+  consumeRPCQueue('core:units.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Units.findOne(data).lean()
+    };
+  });
+
   consumeRPCQueue('core:getFileUploadConfigs', async ({ subdomain }) => {
     const models = await generateModels(subdomain);
 
@@ -466,6 +485,11 @@ export const initBroker = async options => {
   consumeRPCQueue('core:imports:insertImportItems', async args => ({
     status: 'success',
     data: await imports.insertImportItems(args)
+  }));
+
+  consumeRPCQueue('core:exporter:prepareExportData', async args => ({
+    status: 'success',
+    data: await exporter.prepareExportData(args)
   }));
 
   return client;
