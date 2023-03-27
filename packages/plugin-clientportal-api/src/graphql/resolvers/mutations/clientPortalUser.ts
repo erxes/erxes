@@ -20,7 +20,7 @@ export interface IVerificationParams {
 interface IClientPortalUserEdit extends IUser {
   _id: string;
 }
-interface GoogleOauthToken {
+interface IGoogleOauthToken {
   access_token: string;
   id_token: string;
   expires_in: number;
@@ -29,7 +29,7 @@ interface GoogleOauthToken {
   scope: string;
 }
 
-interface GoogleUserResult {
+interface IGoogleUserResult {
   id: string;
   email: string;
   verified_email: boolean;
@@ -194,10 +194,12 @@ const clientPortalUserMutations = {
         method: 'GET',
         params: {
           access_token: accessToken,
-          fields: 'id,name,email,gender,education,work,picture'
+          fields:
+            'id,name,email,gender,education,work,picture,last_name,first_name'
         }
       });
-      const { id, name, email, gender, work, picture } = response.data || [];
+      const { id, name, email, picture, first_name, last_name } =
+        response.data || [];
       let user = await models.ClientPortalUsers.findOne({
         facebookId: id
       });
@@ -208,6 +210,8 @@ const clientPortalUserMutations = {
           email,
           logo: picture?.data?.url,
           username: name,
+          firstName: first_name,
+          lastName: last_name,
           clientPortalId
         });
       }
@@ -251,7 +255,7 @@ const clientPortalUserMutations = {
       code
     }: {
       code: string;
-    }): Promise<GoogleOauthToken> => {
+    }): Promise<IGoogleOauthToken> => {
       try {
         const response = await sendRequest({
           url: 'https://oauth2.googleapis.com/token',
@@ -276,7 +280,7 @@ const clientPortalUserMutations = {
     }: {
       id_token: string;
       access_token: string;
-    }): Promise<GoogleUserResult> {
+    }): Promise<IGoogleUserResult> {
       try {
         const response = await sendRequest({
           url: 'https://www.googleapis.com/oauth2/v1/userinfo',
@@ -299,7 +303,7 @@ const clientPortalUserMutations = {
     const { id_token, access_token } = await getGoogleOauthToken({ code });
 
     // Use the token to get the User
-    const { name, verified_email, email, picture, id } = await getGoogleUser({
+    const { name, email, picture, id, family_name } = await getGoogleUser({
       id_token,
       access_token
     });
@@ -313,6 +317,7 @@ const clientPortalUserMutations = {
         email,
         logo: picture,
         username: name,
+        firstName: family_name,
         clientPortalId
       });
     }

@@ -93,6 +93,7 @@ ${
     googleClientId: String
     googleClientSecret: String
     googleRedirectUri: String
+    facebookAppId: String
     styles: Styles
     mobileResponsive: Boolean
   
@@ -200,6 +201,7 @@ export const mutations = cardAvailable => `
     googleClientId: String
     googleClientSecret: String
     googleRedirectUri: String
+    facebookAppId: String
     styles: StylesParams
     mobileResponsive: Boolean
     kbToggle: Boolean,

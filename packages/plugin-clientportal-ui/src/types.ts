@@ -118,9 +118,10 @@ export type ClientPortalConfig = {
   styles?: Styles;
   mobileResponsive?: boolean;
   googleCredentials?: object;
-  googleClientId?: object;
-  googleRedirectUri?: object;
-  googleClientSecret?: object;
+  googleClientId?: string;
+  googleRedirectUri?: string;
+  googleClientSecret?: string;
+  facebookAppId?: string;
 
   kbToggle?: boolean;
   publicTaskToggle?: boolean;

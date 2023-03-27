@@ -1,35 +1,36 @@
-import React from 'react';
 import { mutations } from '../graphql';
 
 import { useRouter } from 'next/router';
 import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
-import VerifyComponent from '../components/Verify';
-
-function VerifyContainer() {
+import { Config } from '../../types';
+type Props = {
+  config: Config;
+};
+function VerifyContainer(props: Props) {
   const router = useRouter();
-  const { code, state } = router.query;
-  const [sendVerificationCode] = useMutation(gql(mutations.getGoogleCode));
+  const { code } = router.query;
+  const { config } = props;
+  const [sendVerificationCode] = useMutation(gql(mutations.googleLogin));
 
-  const verify = () => {
+  config._id &&
+    code &&
     sendVerificationCode({
       variables: {
         code,
-        clientPortalId: process.env.CLIENT_PORTAL_ID
+        clientPortalId: config._id
       }
     })
       .then((result) => {
         if (result?.data?.clientPortalGoogleAuthentication === 'loggedin') {
-          router.push('/');
+          window.location.href = '/';
         }
       })
       .catch((e) => {
         console.log('error: ', e.message);
       });
-  };
-  if (code) {
-    return <VerifyComponent verify={() => verify()} />;
-  }
+
+  return <p />;
 }
 
 export default VerifyContainer;

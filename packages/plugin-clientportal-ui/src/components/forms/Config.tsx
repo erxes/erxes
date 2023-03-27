@@ -33,6 +33,7 @@ function General({
   googleClientId,
   googleRedirectUri,
   googleClientSecret,
+  facebookAppId,
   otpConfig,
   mailConfig,
   name,
@@ -419,6 +420,17 @@ function General({
           label: 'Google Client Redirect Uri',
           formValueName: 'googleRedirectUri',
           formValue: googleRedirectUri
+        })}
+      </CollapseContent>
+      <CollapseContent
+        title={__('Facebook Application Credentials')}
+        compact={true}
+        open={false}
+      >
+        {renderControl({
+          label: 'Facebook App Id',
+          formValueName: 'facebookAppId',
+          formValue: facebookAppId
         })}
       </CollapseContent>
 

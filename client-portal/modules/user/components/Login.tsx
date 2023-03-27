@@ -7,21 +7,34 @@ import { IButtonMutateProps } from '../../common/types';
 import { LOGIN_TYPES } from '../types';
 import Icon from '../../common/Icon';
 import { Config } from '../../types';
+import FacebookLogin from 'react-facebook-login';
 import { getGoogleUrl } from '../../../utils';
+import { GoogleLoginButton } from 'react-social-login-buttons';
 
 type Props = {
   config: Config;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   hasCompany: boolean;
   infoText?: string;
+  facebookLoginResponse: (accessToken: string, clientPortalId: string) => void;
 };
 
-function Login({ config, renderButton, hasCompany, infoText }: Props) {
+function Login({
+  config,
+  renderButton,
+  hasCompany,
+  infoText,
+  facebookLoginResponse
+}: Props) {
   const [type, changeType] = useState(LOGIN_TYPES.CUSTOMER);
 
   const onChange = (e) => {
     changeType(e.target.value);
     e.isDefaultPrevented();
+  };
+  const responseFacebook = (response) => {
+    const { accessToken } = response;
+    facebookLoginResponse(accessToken, config._id);
   };
 
   const renderContent = (formProps) => {
@@ -65,9 +78,16 @@ function Login({ config, renderButton, hasCompany, infoText }: Props) {
         </FormGroup>
 
         <FormGroup>
-          <div>
-            <a href={getGoogleUrl('/')}>Google</a>
-          </div>
+          <GoogleLoginButton>
+            <a href={getGoogleUrl('/', config)}>Google</a>
+          </GoogleLoginButton>
+        </FormGroup>
+        <FormGroup>
+          <FacebookLogin
+            appId={config.facebookAppId || ''}
+            callback={responseFacebook}
+            icon='fa-facebook'
+          />
         </FormGroup>
       </>
     );

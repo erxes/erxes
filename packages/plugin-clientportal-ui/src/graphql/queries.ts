@@ -49,6 +49,7 @@ export const commonFields = `
   googleClientId
   googleClientSecret
   googleRedirectUri
+  facebookAppId
 
   kbToggle
   publicTaskToggle
