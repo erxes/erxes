@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "NODE_ENV=development yarn watchTemplate & nodemon src/index.ts",
     "watchTemplate": "nodemon src/commands/watch-template.ts",
-    "download:plugins": "yarn ts-node src/subscription/plugins/runDownloadPlugins.ts"
+    "download:plugins": "yarn ts-node src/subscription/plugins/runDownloadPlugins.ts",
+    "build": "yarn tsc -p tsconfig.prod.json && node fix-build.js"
   },
   "dependencies": {
     "@apollo/rover" : "^0.13.0",

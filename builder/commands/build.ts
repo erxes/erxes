@@ -103,12 +103,8 @@ const main = async () => {
   process.chdir(folderName);
 
   console.log('Yarn build ....');
-
-  if (type === 'gateway') {
-    await execCommand('yarn tsc -p tsconfig.prod.json');
-  } else {
-    await execCommand('yarn build');
-  }
+  
+  await execCommand('yarn build');
 
   console.log('Removing node_modules with dev dependencies ....');
   process.chdir('..');
