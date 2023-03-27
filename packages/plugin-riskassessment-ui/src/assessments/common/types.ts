@@ -72,9 +72,13 @@ export type RiskAssessmentAssignedMembersQueryResponse = {
   riskAssessmentAssignedMembers: RiskAssessmentAssignedMembers[];
 } & QueryResponse;
 
+export interface RiskIndicatorsSubmitType extends RiskIndicatorsType {
+  _id: string;
+  submitted: boolean;
+}
+
 export type RiskAssessmentSubmitFormQueryResponse = {
-  riskAssessmentSubmitForm: RiskIndicatorsType &
-    { _id: string; submitted: boolean }[];
+  riskAssessmentSubmitForm: RiskIndicatorsSubmitType[];
 } & QueryResponse;
 
 type IndicatorFormType = {

@@ -170,10 +170,12 @@ export const getAsssignedUsers = async (
   cardId: string,
   cardType: string
 ) => {
-  let assignedUsers;
+  let assignedUsers: any[] = [];
 
   if (!cardId && !cardType) {
-    return 'Something went wrong trying to get assigned users of card';
+    throw new Error(
+      'Something went wrong trying to get assigned users of card'
+    );
   }
 
   const card = await sendCardsMessage({
@@ -183,7 +185,7 @@ export const getAsssignedUsers = async (
       _id: cardId
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: {}
   });
 
   if (card) {
@@ -240,13 +242,14 @@ export const calculateFormResponses = async ({
         }, [])
         .filter(item => item);
       const fieldValue = optValues.find(
-        option => option.label === response.value
+        option => option.label.trim() === String(response.value).trim()
       );
       switch (calculateMethod) {
         case 'Multiply':
           sumNumber *= parseInt(fieldValue?.value || 0);
           break;
         case 'Addition':
+        case 'Average':
           sumNumber += parseInt(fieldValue?.value || 0);
           break;
       }
@@ -267,6 +270,11 @@ export const calculateFormResponses = async ({
         fieldId: key
       });
     }
+  }
+
+  if (calculateMethod === 'Average') {
+    const fieldCount = fields?.length || 1;
+    sumNumber = sumNumber / fieldCount;
   }
 
   return { submissions, sumNumber };
@@ -461,8 +469,8 @@ export const getIndicatorSubmissions = async ({
         defaultValue: {}
       });
 
-      field.optionsValues = fieldDetail.optionsValues;
-      field.text = fieldDetail.text;
+      field.optionsValues = fieldDetail?.optionsValues || '';
+      field.text = fieldDetail?.text || '';
     }
   }
   return submissions;

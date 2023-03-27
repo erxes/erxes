@@ -261,6 +261,10 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         await getAsssignedUsers(subdomain, cardId || '', cardType || '')
       ).map(user => user._id);
 
+      if (!assignedUserIds?.length) {
+        throw new Error('Something went wrong when fetch assigned users');
+      }
+
       const riskAssessment = await models.RiskAssessments.findOne({
         _id: assessmentId
       });
@@ -284,19 +288,28 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         assignedUserIds = groupAssignedUserIds;
       }
 
-      const submissions = await models.RiksFormSubmissions.find({
-        cardId,
-        assessmentId,
-        indicatorId,
-        userId: { $in: assignedUserIds }
-      });
+      const submittedUsers = await models.RiksFormSubmissions.aggregate([
+        {
+          $match: {
+            cardId,
+            assessmentId,
+            indicatorId,
+            userId: { $in: assignedUserIds }
+          }
+        },
+        {
+          $group: {
+            _id: '$userId',
+            submission: { $push: '$$ROOT' }
+          }
+        }
+      ]);
 
-      let submittedUsers: any = {};
+      console.log({ assignedUserIds, submittedUsers });
 
-      for (const submission of submissions) {
-        submittedUsers[submission.userId] = submission;
-      }
-      return Object.keys(submittedUsers).length === assignedUserIds.length;
+      return assignedUserIds.every(userId =>
+        submittedUsers.some(submittedUser => submittedUser._id === userId)
+      );
     }
 
     static async checkAndCalculateRiskAssessmentGroup({
@@ -367,7 +380,9 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         _id: indicatorId
       });
       if (!indicator) {
-        return 'Cannot find indicator';
+        throw new Error(
+          'Cannot find indicator when trying to calculate indicator result'
+        );
       }
       let { calculateLogics, calculateMethod, forms } = indicator;
 
