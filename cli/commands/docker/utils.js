@@ -605,8 +605,9 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         CUBEJS_URL: dashboard_domain,
         CUBEJS_TOKEN: dashboard.api_token,
         CUBEJS_API_SECRET: dashboard.api_secret,
-        REDIS_URL: `redis://${db_server_address || 'redis'}:${REDIS_PORT}`,
-        REDIS_PASSWORD: configs.redis.password || '',
+        CUBEJS_REDIS_URL: `redis://${db_server_address ||
+          'redis'}:${REDIS_PORT}`,
+        CUBEJS_REDIS_PASSWORD: configs.redis.password || '',
         ENABLED_SERVICES_PATH: '/data/enabled-services.js',
         ...(dashboard.extra_env || {})
       },
