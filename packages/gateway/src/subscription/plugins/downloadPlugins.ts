@@ -28,9 +28,7 @@ export default async function downloadPlugins(): Promise<void> {
 
   await Promise.all(
     services.map(async service => {
-      const url = `${service.address}/dashboard`;
-
-      console.log(url);
+      const url = `${service.address}/subscriptionPlugin.js`;
       const fileName = `${service.name}.js`;
       const downloader = new (Downloader as any)({
         url,
