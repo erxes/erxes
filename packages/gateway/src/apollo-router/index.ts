@@ -40,6 +40,9 @@ const createRouterConfig = () => {
   const rhaiPath = path.resolve(__dirname, 'rhai/main.rhai');
 
   const config = {
+    include_subgraph_errors: {
+      all: true
+    },
     rhai: {
       main: rhaiPath
     },
