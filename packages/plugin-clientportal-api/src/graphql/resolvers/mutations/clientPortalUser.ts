@@ -4,7 +4,7 @@ import { IAttachment } from '@erxes/api-utils/src/types';
 
 import { createJwtToken } from '../../../auth/authUtils';
 import { IContext } from '../../../connectionResolver';
-import { sendCoreMessage } from '../../../messageBroker';
+import { sendContactsMessage, sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
 import { IUser } from '../../../models/definitions/clientPortalUser';
 import { sendSms } from '../../../utils';
@@ -184,7 +184,7 @@ const clientPortalUserMutations = {
   clientPortalFaceBookAuthentication: async (
     _root,
     args: any,
-    { models, requestInfo, res }: IContext
+    { subdomain, models, requestInfo, res }: IContext
   ) => {
     const { clientPortalId, accessToken } = args;
 
@@ -199,10 +199,31 @@ const clientPortalUserMutations = {
         }
       });
       const { id, name, email, picture, first_name, last_name } =
-        response.data || [];
-      let user = await models.ClientPortalUsers.findOne({
-        facebookId: id
+        response || [];
+      let qry: any = {};
+      let user: any = {};
+
+      const trimmedMail = (email || '').toLowerCase().trim();
+
+      if (email) {
+        qry = { email: trimmedMail };
+      }
+
+      qry.clientPortalId = clientPortalId;
+
+      let customer = await sendContactsMessage({
+        subdomain,
+        action: 'customers.findOne',
+        data: {
+          customerPrimaryEmail: email
+        },
+        isRPC: true
       });
+      if (customer) {
+        qry = { erxesCustomerId: customer._id, clientPortalId };
+      }
+
+      user = await models.ClientPortalUsers.findOne(qry);
 
       if (!user) {
         user = await models.ClientPortalUsers.create({
@@ -214,6 +235,29 @@ const clientPortalUserMutations = {
           lastName: last_name,
           clientPortalId
         });
+      }
+
+      if (!customer) {
+        customer = await sendContactsMessage({
+          subdomain,
+          action: 'customers.createCustomer',
+          data: {
+            firstName: first_name,
+            lastName: last_name,
+            primaryEmail: trimmedMail,
+            state: 'lead',
+            avatar: picture?.data?.url
+          },
+          isRPC: true
+        });
+      }
+
+      if (customer && customer._id) {
+        user.erxesCustomerId = customer._id;
+        await models.ClientPortalUsers.updateOne(
+          { _id: user._id },
+          { $set: { erxesCustomerId: customer._id } }
+        );
       }
 
       const { token } = await createJwtToken({
@@ -241,7 +285,7 @@ const clientPortalUserMutations = {
   clientPortalGoogleAuthentication: async (
     _root,
     args: any,
-    { models, requestInfo, res }: IContext
+    { subdomain, models, requestInfo, res }: IContext
   ) => {
     const { clientPortalId, code } = args;
 
@@ -303,13 +347,44 @@ const clientPortalUserMutations = {
     const { id_token, access_token } = await getGoogleOauthToken({ code });
 
     // Use the token to get the User
-    const { name, email, picture, id, family_name } = await getGoogleUser({
+    const {
+      name,
+      email,
+      picture,
+      id,
+      family_name,
+      given_name
+    } = await getGoogleUser({
       id_token,
       access_token
     });
-    let user = await models.ClientPortalUsers.findOne({
-      googleId: id
+    let qry: any = {};
+    let user: any = {};
+
+    const trimmedMail = (email || '').toLowerCase().trim();
+
+    if (email) {
+      qry = { email: trimmedMail };
+    }
+
+    qry.clientPortalId = clientPortalId;
+
+    let customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: {
+        customerPrimaryEmail: email
+      },
+      isRPC: true
     });
+    if (customer) {
+      qry = { erxesCustomerId: customer._id, clientPortalId };
+    }
+    if (id) {
+      qry = { googleId: id };
+    }
+
+    user = await models.ClientPortalUsers.findOne(qry);
 
     if (!user) {
       user = await models.ClientPortalUsers.create({
@@ -320,6 +395,29 @@ const clientPortalUserMutations = {
         firstName: family_name,
         clientPortalId
       });
+    }
+
+    if (!customer) {
+      customer = await sendContactsMessage({
+        subdomain,
+        action: 'customers.createCustomer',
+        data: {
+          firstName: given_name,
+          lastName: family_name,
+          primaryEmail: trimmedMail,
+          state: 'lead',
+          avatar: picture
+        },
+        isRPC: true
+      });
+    }
+
+    if (customer && customer._id) {
+      user.erxesCustomerId = customer._id;
+      await models.ClientPortalUsers.updateOne(
+        { _id: user._id },
+        { $set: { erxesCustomerId: customer._id } }
+      );
     }
 
     const { token } = await createJwtToken({
