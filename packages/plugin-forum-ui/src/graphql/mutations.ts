@@ -110,6 +110,7 @@ const createPost = `
     $pollOptions: [ForumPollOptionInput!]
     $isPollMultiChoice: Boolean
     $createdAt: Date
+    $tagIds: [ID!]
   ) {
     forumCreatePost(
       categoryId: $categoryId
@@ -122,6 +123,7 @@ const createPost = `
       pollOptions: $pollOptions
       isPollMultiChoice: $isPollMultiChoice
       createdAt: $createdAt
+      tagIds: $tagIds
     ) {
       _id
     }
