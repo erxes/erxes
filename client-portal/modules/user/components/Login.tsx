@@ -77,18 +77,22 @@ function Login({
           })}
         </FormGroup>
 
-        <FormGroup>
-          <GoogleLoginButton>
-            <a href={getGoogleUrl('/', config)}>Google</a>
-          </GoogleLoginButton>
-        </FormGroup>
-        <FormGroup>
-          <FacebookLogin
-            appId={config.facebookAppId || ''}
-            callback={responseFacebook}
-            icon='fa-facebook'
-          />
-        </FormGroup>
+        {config.googleClientId && (
+          <FormGroup>
+            <GoogleLoginButton>
+              <a href={getGoogleUrl('/', config)}>Google</a>
+            </GoogleLoginButton>
+          </FormGroup>
+        )}
+        {config.facebookAppId && (
+          <FormGroup>
+            <FacebookLogin
+              appId={config.facebookAppId || ''}
+              callback={responseFacebook}
+              icon='fa-facebook'
+            />
+          </FormGroup>
+        )}
       </>
     );
   };
