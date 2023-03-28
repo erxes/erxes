@@ -16,6 +16,7 @@ import { __, uploadHandler } from '@erxes/ui/src/utils';
 import Alert from '@erxes/ui/src/utils/Alert';
 import ContentTypeForm from '../../containers/contentTypes/ContentTypeForm';
 import ContentTypeList from '../../containers/contentTypes/List';
+import Detail from '../../containers/sites/Detail';
 import EntryList from '../../containers/entries/List';
 import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import GrapesJS from 'grapesjs';
@@ -30,18 +31,6 @@ import gjsPresetWebpage from 'grapesjs-preset-webpage';
 import { readFile } from '@erxes/ui/src/utils/core';
 
 type Props = {
-  page?: IPageDoc;
-  pageSave: (
-    name: string,
-    description: string,
-    siteId: string,
-    html: string,
-    css: string,
-    pageId?: string,
-    afterSave?: any
-  ) => void;
-  pageRemove: (_id: string, afterSave?: any) => void;
-  contentTypes: IContentTypeDoc[];
   pages: IPageDoc[];
   queryParams: any;
   _id: string;
@@ -60,8 +49,6 @@ type State = {
 };
 
 class SiteForm extends React.Component<Props, State> {
-  grapes;
-
   constructor(props) {
     super(props);
 
@@ -78,190 +65,6 @@ class SiteForm extends React.Component<Props, State> {
       showDarkMode:
         localStorage.getItem('showDarkMode') === 'true' ? true : false || false
     };
-  }
-
-  fetchPage = () => {
-    const { contentTypes } = this.props;
-    let { pages } = this.props;
-
-    const page = this.props.page ? this.props.page : pages[0];
-    pages = pages.filter(p => p._id !== page?._id);
-
-    this.grapes = GrapesJS.init({
-      protectedCss: '',
-      container: `#editor`,
-      fromElement: true,
-      plugins: [gjsPresetWebpage, customPlugins],
-      pluginsOpts: {
-        [customPlugins as any]: {
-          pages,
-          contentTypes,
-          open: false
-        }
-      },
-      storageManager: false,
-      assetManager: {
-        uploadFile: e => {
-          const files = e.dataTransfer ? e.dataTransfer.files : e.target.files;
-
-          uploadHandler({
-            files,
-
-            beforeUpload: () => {
-              Alert.warning(
-                'Upload in progress. Please wait until response shows.'
-              );
-            },
-
-            afterUpload: ({ status, response, fileInfo }) => {
-              if (status !== 'ok') {
-                Alert.error(response.statusText);
-              }
-
-              Alert.info('Success');
-
-              editor.AssetManager.add({
-                type: fileInfo.type,
-                src: readFile(response),
-                height: 350,
-                width: 250,
-                name: fileInfo.name
-              });
-            }
-          });
-        }
-      }
-    });
-
-    const editor = this.grapes;
-
-    const pfx = editor.getConfig().stylePrefix;
-    const modal = editor.Modal;
-    const cmdm = editor.Commands;
-    const htmlCodeViewer = editor.CodeManager.getViewer('CodeMirror').clone();
-    const cssCodeViewer = editor.CodeManager.getViewer('CodeMirror').clone();
-    const pnm = editor.Panels;
-    const container = document.createElement('div');
-    const btnEdit = document.createElement('button');
-
-    const codeViewerOptions = {
-      theme: 'hopscotch',
-      autoBeautify: true,
-      autoCloseTags: true,
-      autoCloseBrackets: true,
-      lineWrapping: true,
-      styleActiveLine: true,
-      smartIndent: true,
-      indentWithTabs: true,
-      readOnly: 0
-    };
-
-    htmlCodeViewer.set({
-      codeName: 'htmlmixed',
-      ...codeViewerOptions
-    });
-
-    cssCodeViewer.set({
-      codeName: 'css',
-      ...codeViewerOptions
-    });
-
-    editor.getConfig().allowScripts = 1;
-    btnEdit.innerHTML = 'Edit';
-    btnEdit.className = pfx + 'btn-prim ' + pfx + 'btn-import';
-    btnEdit.onclick = () => {
-      const html = htmlCodeViewer.editor.getValue();
-      const css = cssCodeViewer.editor.getValue();
-
-      editor.DomComponents.getWrapper().set('content', '');
-
-      editor.setComponents(html.trim());
-      editor.setStyle(css.trim());
-
-      modal.close();
-    };
-
-    // don't move this block
-    if (page && page.html) {
-      const { html, css } = page;
-
-      editor.setComponents(html);
-      editor.setStyle(css.trim());
-    }
-
-    cmdm.add('html-edit', {
-      run: (editr, sender) => {
-        // tslint:disable-next-line:no-unused-expression
-        sender && sender.set('active', 0);
-        let htmlViewer = htmlCodeViewer.editor;
-        let cssViewer = cssCodeViewer.editor;
-
-        modal.setTitle('Edit code');
-
-        if (!htmlViewer && !cssViewer) {
-          const htmlArea = document.createElement('textarea');
-          const htmlLabel = document.createElement('p');
-          htmlLabel.innerHTML = 'Html';
-
-          const cssArea = document.createElement('textarea');
-          const cssLabel = document.createElement('p');
-          cssLabel.innerHTML = 'Css';
-
-          container.appendChild(htmlLabel);
-          container.appendChild(htmlArea);
-
-          container.appendChild(cssLabel);
-          container.appendChild(cssArea);
-
-          container.appendChild(btnEdit);
-
-          htmlCodeViewer.init(htmlArea);
-          cssCodeViewer.init(cssArea);
-
-          htmlViewer = htmlCodeViewer.editor;
-          cssViewer = cssCodeViewer.editor;
-        }
-
-        const InnerHtml = editr.getHtml();
-        const Css = editr.getCss({ keepUnusedStyles: true });
-
-        modal.setContent('');
-        modal.setContent(container);
-
-        htmlCodeViewer.setContent(InnerHtml);
-        cssCodeViewer.setContent(Css);
-
-        modal.open();
-
-        htmlViewer.refresh();
-        cssViewer.refresh();
-      }
-    });
-
-    pnm.addButton('options', [
-      {
-        id: 'edit',
-        className: 'fa fa-edit',
-        command: 'html-edit',
-        attributes: {
-          title: 'Edit'
-        }
-      }
-    ]);
-
-    this.setState({ loading: false });
-  };
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.page !== this.props.page) {
-      this.setState({ loading: true }, () => {
-        this.fetchPage();
-      });
-    }
-  }
-
-  componentDidMount() {
-    this.fetchPage();
   }
 
   onChange = (type: string, value: any) => {
@@ -286,24 +89,30 @@ class SiteForm extends React.Component<Props, State> {
     });
   };
 
-  pageSave = (
-    pageName: string,
-    pageDescription: string,
-    pageId: string,
-    pageSlug?: string
-  ) => {
-    const e = this.grapes;
-
-    this.props.pageSave(
-      pageName,
-      pageDescription,
-      this.props._id,
-      pageId ? e.getHtml() : '',
-      pageId ? e.getCss({ keepUnusedStyles: true }) : '',
-      pageId,
-      this.handleItemSettings(null, '')
-    );
+  onLoad = (loading?: boolean) => {
+    this.setState({ loading: loading ? loading : false });
   };
+
+  // pageSave = (
+  //   pageName: string,
+  //   pageDescription: string,
+  //   pageId: string,
+  //   pageSlug?: string
+  // ) => {
+  //   const e = this.grapes;
+
+  //   this.props.pageSave(
+  //     pageName,
+  //     pageDescription,
+  //     this.props._id,
+  //     // pageId ? e.getHtml() : "",
+  //     // pageId ? e.getCss({ keepUnusedStyles: true }) : "",
+  //     "",
+  //     "",
+  //     pageId,
+  //     this.handleItemSettings(null, "")
+  //   );
+  // };
 
   renderLeftSidebar() {
     const { pages = [], _id, queryParams } = this.props;
@@ -339,6 +148,7 @@ class SiteForm extends React.Component<Props, State> {
               pages={pages}
               siteId={_id}
               queryParams={queryParams}
+              onLoad={this.onLoad}
               handleItemSettings={this.handleItemSettings}
             />
           </LeftSidebarContent>
@@ -370,41 +180,9 @@ class SiteForm extends React.Component<Props, State> {
     );
   }
 
-  renderItemSettings() {
-    const { settingsObject, type } = this.state;
-
-    switch (type) {
-      case 'page':
-        return (
-          <PageForm
-            page={settingsObject}
-            save={this.pageSave}
-            remove={this.props.pageRemove}
-            onCancel={this.handleItemSettings}
-          />
-        );
-      case 'contenttype':
-        return (
-          <ContentTypeForm
-            contentType={settingsObject}
-            siteId={this.props._id}
-            onCancel={this.handleItemSettings}
-          />
-        );
-      case 'entries':
-        return (
-          <EntryList
-            contentType={settingsObject}
-            queryParams={this.props.queryParams}
-          />
-        );
-      default:
-        return null;
-    }
-  }
-
   render() {
-    const { name, settingsObject, showDarkMode, loading } = this.state;
+    const { _id, queryParams, pages } = this.props;
+    const { name, settingsObject, showDarkMode, type, loading } = this.state;
     const breadcrumb = [{ title: 'Sites', link: '/xbuilder' }, { title: name }];
 
     return (
@@ -414,21 +192,17 @@ class SiteForm extends React.Component<Props, State> {
         <SiteFormContainer showDarkMode={showDarkMode}>
           <FlexItem>
             {this.renderLeftSidebar()}
-            {settingsObject && (
-              <SettingsContent>
-                <ItemDetailContainer>
-                  {this.renderItemSettings()}
-                </ItemDetailContainer>
-              </SettingsContent>
-            )}
-            <FlexItem className="right-section" count="7">
-              {loading && (
-                <Loader showDarkMode={showDarkMode}>
-                  <Spinner objective={true} />
-                </Loader>
-              )}
-              <div id="editor" />
-            </FlexItem>
+            <Detail
+              _id={_id}
+              queryParams={queryParams}
+              pages={pages}
+              loading={loading}
+              handleItemSettings={this.handleItemSettings}
+              // pageSave={this.pageSave}
+              type={type}
+              settingsObject={settingsObject}
+              onLoad={this.onLoad}
+            />
           </FlexItem>
         </SiteFormContainer>
       </>

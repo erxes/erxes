@@ -11,34 +11,44 @@ type Props = {
   siteId?: string;
   pages: IPageDoc[];
   queryParams: any;
+  onLoad: (isLoading?: boolean) => void;
   handleItemSettings: (item: any, type: string) => void;
 };
 
 class PageList extends React.Component<Props> {
   render() {
-    const { pages, handleItemSettings, siteId = '', queryParams } = this.props;
+    const {
+      pages,
+      handleItemSettings,
+      siteId = '',
+      queryParams,
+      onLoad
+    } = this.props;
 
     return (
       <List>
-        {pages.map(page => (
-          <li key={page._id}>
-            <Link
-              className={
-                queryParams.pageId && queryParams.pageId === page._id
-                  ? 'active'
-                  : ''
-              }
-              to={`/xbuilder/sites/edit/${siteId}?pageId=${page._id}`}
-            >
-              <Icon icon="file-1" />
-              {page.name}
-            </Link>
-            <Icon
-              icon="settings"
-              onClick={() => handleItemSettings(page, 'page')}
-            />
-          </li>
-        ))}
+        {pages.map(page => {
+          const isActive =
+            queryParams.pageId && queryParams.pageId === page._id;
+
+          return (
+            <li key={page._id} onClick={() => onLoad(true)}>
+              <Link
+                className={isActive ? 'active' : ''}
+                to={`/xbuilder/sites/edit/${siteId}?pageId=${page._id}`}
+              >
+                <Icon icon="file-1" />
+                {page.name}
+              </Link>
+              {isActive && (
+                <Icon
+                  icon="settings"
+                  onClick={() => handleItemSettings(page, 'page')}
+                />
+              )}
+            </li>
+          );
+        })}
         <li
           className="link"
           onClick={() =>

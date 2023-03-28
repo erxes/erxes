@@ -1,5 +1,3 @@
-import 'grapesjs/dist/css/grapes.min.css';
-
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FlexPad } from '@erxes/ui/src/components/step/styles';
