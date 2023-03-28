@@ -99,6 +99,8 @@ const saveMessages = async (
 
   const msgs: any = await searchMessages(imap, criteria);
 
+  console.log(`======== found ${msgs.length} messages`);
+
   for (const msg of msgs) {
     if (
       msg.to &&
