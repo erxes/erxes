@@ -214,7 +214,7 @@ const structureQueries = {
 
   async branches(
     _root,
-    params: { searchValue?: string },
+    params: any & { searchValue?: string },
     { models, user }: IContext
   ) {
     const filter = await generateFilters({
@@ -223,7 +223,18 @@ const structureQueries = {
       type: 'branch',
       params
     });
-    return models.Branches.find(filter).sort({ order: 1 });
+    const pipeline: any[] = [{ $match: filter }, { $sort: { order: 1 } }];
+
+    if (!!params?.ids?.length) {
+      pipeline.push({
+        $addFields: {
+          __order: { $indexOfArray: [params.ids, '$_id'] }
+        }
+      });
+      pipeline.push({ $sort: { __order: 1 } });
+    }
+
+    return models.Branches.aggregate(pipeline);
   },
 
   async branchesMain(

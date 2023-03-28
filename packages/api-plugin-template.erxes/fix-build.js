@@ -1,19 +1,19 @@
 var deps = require('../package.json');
-var fs = require("fs")
-var path = require("path")
+var fs = require('fs');
+var path = require('path');
 
-async function copyDir(src,dest) {
+async function copyDir(src, dest) {
   try {
-    const entries = await fs.promises.readdir(src, {withFileTypes: true});
+    const entries = await fs.promises.readdir(src, { withFileTypes: true });
     await fs.promises.mkdir(dest);
-    for(let entry of entries) {
-        const srcPath = path.join(src, entry.name);
-        const destPath = path.join(dest, entry.name);
-        if(entry.isDirectory()) {
-            await copyDir(srcPath, destPath);
-        } else {
-            await fs.promises.copyFile(srcPath, destPath);
-        }
+    for (let entry of entries) {
+      const srcPath = path.join(src, entry.name);
+      const destPath = path.join(dest, entry.name);
+      if (entry.isDirectory()) {
+        await copyDir(srcPath, destPath);
+      } else {
+        await fs.promises.copyFile(srcPath, destPath);
+      }
     }
   } catch (e) {
     console.log(e);
@@ -22,29 +22,35 @@ async function copyDir(src,dest) {
 async function copyFile(src, dest) {
   try {
     await fs.promises.copyFile(src, dest);
-  } catch (e) {
-  }
+  } catch (e) {}
 }
 
 async function main() {
   var pluginName = deps.name.replace('@erxes', '');
 
-  await copyFile('../src/graphql/subscriptionPlugin.js', `./dist/${pluginName}/src/graphql/subscriptionPlugin.js`);
+  await copyFile(
+    '../src/graphql/subscriptionPlugin.js',
+    `./dist/${pluginName}/src/graphql/subscriptionPlugin.js`
+  );
   await copyDir('../src/cronjobs', `./dist/${pluginName}/src/cronjobs`);
   await copyDir('../src/commands', `./dist/${pluginName}/src/commands`);
   await copyDir('../src/locales', `./dist/${pluginName}/src/locales`);
   await copyDir('../src/views', `./dist/${pluginName}/src/views`);
   await copyDir('../src/public', `./dist/${pluginName}/src/public`);
+  await copyDir(
+    '../src/dashboardSchemas',
+    `./dist/${pluginName}/src/dashboardSchemas`
+  );
 
   fs.rename(`./dist/${pluginName}`, './dist/main', function(err) {
     if (err) {
-      console.log(err)
+      console.log(err);
     }
-  })
+  });
 }
 
 main()
-.then(() => {
-  process.exit();
-}).catch((e) => {
-})
+  .then(() => {
+    process.exit();
+  })
+  .catch(e => {});
