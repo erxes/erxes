@@ -167,7 +167,6 @@ class SiteForm extends React.Component<Props, State> {
               pages={pages}
               loading={loading}
               handleItemSettings={this.handleItemSettings}
-              // pageSave={this.pageSave}
               type={type}
               settingsObject={settingsObject}
               onLoad={this.onLoad}

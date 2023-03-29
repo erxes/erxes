@@ -364,6 +364,13 @@ export const Editor = styled.div`
   position: relative;
 `;
 
+export const CustomButtonWrapper = styled.div`
+  position: absolute;
+  z-index: 5;
+  left: 130px;
+  top: 7px;
+`;
+
 export const Loader = styledTS<{ showDarkMode?: boolean }>(styled.div)`
   position: absolute;
   left: 0;

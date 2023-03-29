@@ -1,10 +1,16 @@
 import 'grapesjs/dist/css/grapes.min.css';
 
+import {
+  CustomButtonWrapper,
+  ItemDetailContainer,
+  Loader,
+  SettingsContent
+} from './styles';
 import { IContentTypeDoc, IPageDoc } from '../../types';
-import { ItemDetailContainer, Loader, SettingsContent } from './styles';
 import { __, uploadHandler } from '@erxes/ui/src/utils';
 
 import Alert from '@erxes/ui/src/utils/Alert';
+import Button from '@erxes/ui/src/components/Button';
 import ContentTypeForm from '../../containers/contentTypes/ContentTypeForm';
 import EntryList from '../../containers/entries/List';
 import { FlexItem } from '@erxes/ui/src/components/step/styles';
@@ -299,11 +305,14 @@ class SiteDetail extends React.Component<Props, State> {
   }
 
   render() {
-    const { loading } = this.state;
+    const { loading, name, description } = this.state;
+    const { page, pages, settingsObject } = this.props;
+
+    const pageId = page ? page._id : pages[0]._id;
 
     return (
       <>
-        {this.props.settingsObject && (
+        {settingsObject && (
           <SettingsContent>
             <ItemDetailContainer>
               {this.renderItemSettings()}
@@ -311,11 +320,22 @@ class SiteDetail extends React.Component<Props, State> {
           </SettingsContent>
         )}
         <FlexItem className="right-section" count="7">
-          {this.props.loading && (
+          <CustomButtonWrapper>
+            <Button
+              btnStyle="success"
+              icon={'check-circle'}
+              size="small"
+              uppercase={true}
+              onClick={() => this.pageSave(name, description, pageId)}
+            >
+              Save page
+            </Button>
+          </CustomButtonWrapper>
+          {/* {this.props.loading && (
             <Loader showDarkMode={this.props.showDarkMode}>
               <Spinner objective={true} />
             </Loader>
-          )}
+          )} */}
           <div id="editor" />
         </FlexItem>
       </>
