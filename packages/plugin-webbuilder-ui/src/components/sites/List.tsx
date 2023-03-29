@@ -43,7 +43,7 @@ class SiteList extends React.Component<Props, State> {
   showSite = (site: ISiteDoc) => {
     const { REACT_APP_API_URL } = getEnv();
 
-    const url = `${REACT_APP_API_URL}/pl:xbuilder/${site.name}`;
+    const url = `${REACT_APP_API_URL}/pl:webbuilder/${site.name}`;
 
     window.open(`${url}`, '_blank');
   };
