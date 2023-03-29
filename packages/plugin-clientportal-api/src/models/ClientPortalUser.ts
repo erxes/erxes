@@ -735,7 +735,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
         clientPortalId
       });
 
-      console.log('passed');
+      console.log('user passed');
 
       if (!user || !user.password) {
         throw new Error('Invalid login');
@@ -744,11 +744,12 @@ export const loadClientPortalUserClass = (models: IModels) => {
       if (!user.isPhoneVerified && !user.isEmailVerified) {
         throw new Error('User is not verified');
       }
-      console.log('clientPortalStarted');
+
+      console.log('config started');
 
       const cp = await models.ClientPortals.getConfig(clientPortalId);
 
-      console.log('clientPortalPassed');
+      console.log('config passed');
 
       if (
         cp.manualVerificationConfig &&
