@@ -1,21 +1,21 @@
 module.exports = {
-  name: 'webbuilder',
+  name: 'xbuilder',
   port: 3027,
   exposes: {
     './routes': './src/routes.tsx'
   },
   routes: {
     url: 'http://localhost:3027/remoteEntry.js',
-    scope: 'webbuilder',
+    scope: 'xbuilder',
     module: './routes'
   },
   menus: [
     {
-      text: 'Web builder',
-      url: '/webbuilder',
+      text: 'X Builder',
+      url: '/xbuilder',
       icon: 'icon-window-grid',
       location: 'mainNavigation',
-      permission: 'showWebbuilder'
+      permission: 'showXbuilder'
     }
   ]
 };
