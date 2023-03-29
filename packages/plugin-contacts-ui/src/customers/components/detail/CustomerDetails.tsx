@@ -48,6 +48,7 @@ class CustomerDetails extends React.Component<Props> {
         <MailForm
           fromEmail={customer.primaryEmail}
           refetchQueries={['activityLogsCustomer']}
+          source={isEnabled('imap') ? 'inbox' : undefined}
           closeModal={props.closeModal}
         />
       </MailBox>
