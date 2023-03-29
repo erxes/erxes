@@ -146,6 +146,8 @@ const clientPortalUserMutations = {
     args: ILoginParams,
     { models, requestInfo, res }: IContext
   ) => {
+    console.log('clientPortalLogin');
+
     const { token } = await models.ClientPortalUsers.login(args);
 
     const cookieOptions: any = {};
