@@ -40,23 +40,15 @@ export const getTomorrow = (date: Date) => {
 };
 
 export const getChildCategories = async (subdomain: string, categoryIds) => {
-  let catIds: string[] = [];
-  for (const categoryId of categoryIds) {
-    if (catIds.includes(categoryId)) {
-      continue;
-    }
+  const childs = await sendProductsMessage({
+    subdomain,
+    action: 'categories.withChilds',
+    data: { ids: categoryIds },
+    isRPC: true,
+    defaultValue: []
+  });
 
-    const childs = await sendProductsMessage({
-      subdomain,
-      action: 'categories.withChilds',
-      data: { _id: categoryId },
-      isRPC: true,
-      defaultValue: []
-    });
-
-    catIds = catIds.concat((childs || []).map(ch => ch._id) || []);
-  }
-
+  const catIds = (childs || []).map(ch => ch._id) || [];
   return Array.from(new Set(catIds));
 };
 
