@@ -724,6 +724,8 @@ export const loadClientPortalUserClass = (models: IModels) => {
         throw new Error('Invalid login');
       }
 
+      console.log({ login, password, clientPortalId });
+
       const user = await models.ClientPortalUsers.findOne({
         $or: [
           { email: { $regex: new RegExp(`^${login}$`, 'i') } },
@@ -733,6 +735,8 @@ export const loadClientPortalUserClass = (models: IModels) => {
         clientPortalId
       });
 
+      console.log('passed');
+
       if (!user || !user.password) {
         throw new Error('Invalid login');
       }
@@ -740,8 +744,11 @@ export const loadClientPortalUserClass = (models: IModels) => {
       if (!user.isPhoneVerified && !user.isEmailVerified) {
         throw new Error('User is not verified');
       }
+      console.log('clientPortalStarted');
 
       const cp = await models.ClientPortals.getConfig(clientPortalId);
+
+      console.log('clientPortalPassed');
 
       if (
         cp.manualVerificationConfig &&
