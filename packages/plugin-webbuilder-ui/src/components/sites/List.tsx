@@ -72,7 +72,7 @@ class SiteList extends React.Component<Props, State> {
     const { remove, duplicate } = this.props;
 
     return (
-      <SiteBox key={site._id} nowrap={true}>
+      <SiteBox key={site._id}>
         <SitePreview>
           <img
             src={

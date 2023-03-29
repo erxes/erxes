@@ -40,11 +40,11 @@ class SiteForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const page = props.pages[0];
+    const page = props.pages[0] || ({} as IPageDoc);
 
     this.state = {
-      name: page.name,
-      description: page.description,
+      name: page.name || '',
+      description: page.description || '',
       siteId: page.siteId,
       settingsObject: null,
       showPage: false,
@@ -77,7 +77,9 @@ class SiteForm extends React.Component<Props, State> {
     const { pages = [], _id, queryParams } = this.props;
     const { showDarkMode, showContentType, showPage } = this.state;
     const currentPageId =
-      Object.keys(queryParams).length !== 0 ? queryParams.pageId : pages[0]._id;
+      Object.keys(queryParams).length !== 0
+        ? queryParams.pageId
+        : (pages[0] || ({} as IPageDoc))._id;
 
     return (
       <LeftSidebar

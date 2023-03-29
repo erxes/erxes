@@ -15,6 +15,7 @@ import Detail from '../../components/sites/Detail';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
@@ -118,10 +119,11 @@ const SitesDetailContainer = (props: FinalProps) => {
   return <Detail {...updatedProps} />;
 };
 
-const refetchPageQueries = ({ _id }) => [
+const refetchPageQueries = ({ _id, queryParams }) => [
   {
     query: gql(queries.pagesMain),
     variables: {
+      ...generatePaginationParams(queryParams),
       siteId: _id || ''
     }
   }
@@ -140,15 +142,15 @@ export default compose(
   ),
   graphql<Props, PagesAddMutationResponse>(gql(mutations.add), {
     name: 'pagesAdd',
-    options: ({ _id }) => ({
-      refetchQueries: refetchPageQueries({ _id })
+    options: ({ _id, queryParams }) => ({
+      refetchQueries: refetchPageQueries({ _id, queryParams })
     })
   }),
   graphql<Props, PagesEditMutationResponse>(gql(mutations.edit), {
     name: 'pagesEdit',
     options: ({ queryParams, _id }) => ({
       refetchQueries: [
-        ...refetchPageQueries({ _id }),
+        ...refetchPageQueries({ _id, queryParams }),
         {
           query: gql(queries.pageDetail),
           variables: { _id: queryParams.pageId || '' }
@@ -158,8 +160,8 @@ export default compose(
   }),
   graphql<Props, PagesRemoveMutationResponse>(gql(mutations.remove), {
     name: 'pagesRemoveMutation',
-    options: ({ _id }) => ({
-      refetchQueries: refetchPageQueries({ _id })
+    options: ({ _id, queryParams }) => ({
+      refetchQueries: refetchPageQueries({ _id, queryParams })
     })
   }),
   graphql<{}, TypesQueryResponse>(gql(queries.contentTypes), {

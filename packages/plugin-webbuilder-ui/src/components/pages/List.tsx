@@ -38,10 +38,11 @@ class PageList extends React.Component<Props> {
           };
 
           return (
-            <li key={page._id} onClick={onClick}>
+            <li key={page._id}>
               <Link
                 className={isActive ? 'active' : ''}
                 to={`/xbuilder/sites/edit/${siteId}?pageId=${page._id}`}
+                onClick={onClick}
               >
                 <Icon icon="file-1" />
                 {page.name}

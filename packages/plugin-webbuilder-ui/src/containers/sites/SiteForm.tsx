@@ -36,8 +36,6 @@ const FormContainer = (props: FinalProps) => {
   return <SiteForm {...updatedProps} />;
 };
 
-const refetchPageQueries = () => [{ query: gql(queries.pagesMain) }];
-
 export default compose(
   graphql<Props, PagesMainQueryResponse>(gql(queries.pagesMain), {
     name: 'pagesMainQuery',

@@ -3,6 +3,7 @@ import 'grapesjs/dist/css/grapes.min.css';
 import {
   CustomButtonWrapper,
   ItemDetailContainer,
+  Loader,
   SettingsContent
 } from './styles';
 import { IContentTypeDoc, IPageDoc } from '../../types';
@@ -16,6 +17,7 @@ import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import GrapesJS from 'grapesjs';
 import PageForm from '../pages/PageForm';
 import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import customPlugins from '../customPlugins';
 import gjsPresetWebpage from 'grapesjs-preset-webpage';
 import { readFile } from '@erxes/ui/src/utils/core';
@@ -47,7 +49,6 @@ type Props = {
 type State = {
   name: string;
   description: string;
-  loading: boolean;
 };
 
 class SiteDetail extends React.Component<Props, State> {
@@ -56,12 +57,11 @@ class SiteDetail extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const page = props.page ? props.page : props.pages[0];
+    const page = props.page ? props.page : props.pages[0] || ({} as IPageDoc);
 
     this.state = {
-      name: page.name,
-      description: page.description,
-      loading: props.loading || false
+      name: page.name || '',
+      description: page.description || ''
     };
   }
 
@@ -235,14 +235,13 @@ class SiteDetail extends React.Component<Props, State> {
     ]);
 
     onLoad(false);
-    this.setState({ loading: false });
   };
 
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.page !== this.props.page) {
-      this.setState({ loading: true }, () => {
+      setTimeout(() => {
         this.fetchPage();
-      });
+      }, 1000);
     }
   }
 
@@ -298,10 +297,10 @@ class SiteDetail extends React.Component<Props, State> {
   }
 
   render() {
-    const { loading, name, description } = this.state;
-    const { page, pages, settingsObject } = this.props;
+    const { name, description } = this.state;
+    const { page, pages, settingsObject, showDarkMode, loading } = this.props;
 
-    const pageId = page ? page._id : pages[0]._id;
+    const pageId = page ? page._id : (pages[0] || ({} as IPageDoc))._id;
 
     return (
       <>
@@ -324,11 +323,11 @@ class SiteDetail extends React.Component<Props, State> {
               Save page
             </Button>
           </CustomButtonWrapper>
-          {/* {this.props.loading && (
-            <Loader showDarkMode={this.props.showDarkMode}>
+          {loading && (
+            <Loader showDarkMode={showDarkMode}>
               <Spinner objective={true} />
             </Loader>
-          )} */}
+          )}
           <div id="editor" />
         </FlexItem>
       </>

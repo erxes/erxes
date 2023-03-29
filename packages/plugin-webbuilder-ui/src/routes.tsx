@@ -1,5 +1,6 @@
+import { Route, Switch } from 'react-router-dom';
+
 import React from 'react';
-import { Route } from 'react-router-dom';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 
@@ -50,7 +51,7 @@ const webBuilderSitesEdit = ({ match, location }) => {
 
 const routes = () => {
   return (
-    <>
+    <Switch>
       <Route
         path="/xbuilder"
         exact={true}
@@ -68,7 +69,7 @@ const routes = () => {
         exact={true}
         component={webBuilderSitesEdit}
       />
-    </>
+    </Switch>
   );
 };
 
