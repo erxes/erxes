@@ -48,7 +48,7 @@ export const getChildCategories = async (subdomain: string, categoryIds) => {
     defaultValue: []
   });
 
-  const catIds = (childs || []).map(ch => ch._id) || [];
+  const catIds: string[] = (childs || []).map(ch => ch._id) || [];
   return Array.from(new Set(catIds));
 };
 
