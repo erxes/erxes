@@ -64,7 +64,7 @@ const downloadPlugins = async () => {
         } catch (e) {
           console.error(
             `${service.name} schema download from ${url} to ${schemaName} failed.`,
-            e
+            e.message
           );
         }
       });
