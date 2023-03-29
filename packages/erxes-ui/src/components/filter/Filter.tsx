@@ -64,13 +64,24 @@ function Filter({ queryParams = {}, history }: IProps) {
     if (queryParams[paramKey]) {
       const id = queryParams[paramKey];
 
-      const graphqlQuery = gql`
+      let graphqlQuery = gql`
           query ${type}Detail($id: String!) {
             ${type}Detail(_id: $id) {
               ${fields}
             }
           }
         `;
+
+      if (type === 'forum') {
+        graphqlQuery = gql`
+          query ForumCategoryDetail($id: ID!) {
+            forumCategory(_id: $id) {
+              _id
+              name
+            }
+          }
+        `;
+      }
 
       const ids = id.split(',');
 
@@ -79,7 +90,10 @@ function Filter({ queryParams = {}, history }: IProps) {
           const ChipText = createChipText(graphqlQuery, _id);
 
           return (
-            <Chip onClick={onClickRemove.bind(null, paramKey, ids, _id)}>
+            <Chip
+              onClick={onClickRemove.bind(null, paramKey, ids, _id)}
+              key={_id}
+            >
               <ChipText />
             </Chip>
           );
@@ -116,6 +130,9 @@ function Filter({ queryParams = {}, history }: IProps) {
     <Filters>
       {renderFilterWithData('channelId', 'channel')}
       {renderFilterParam('status', false)}
+      {renderFilterParam('state', false)}
+      {renderFilterParam('categoryApprovalState', false)}
+      {renderFilterWithData('categoryId', 'forum')}
       {renderFilterParam('participating', true)}
       {renderFilterParam('unassigned', true)}
       {renderFilterParam('awaitingResponse', true, 'Awaiting Response')}

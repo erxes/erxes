@@ -8,7 +8,7 @@ import { IEntry } from '../../models/definitions/entries';
 import { IContext } from '../../connectionResolver';
 import { ITemplate } from '../../models/definitions/templates';
 import { ISite } from '../../models/definitions/sites';
-import { createSiteContentTypes, readHelpersData } from './utils';
+import { sendRequest } from '@erxes/api-utils/src';
 
 interface IContentTypeEdit extends IContentType {
   _id: string;
@@ -103,17 +103,10 @@ const webbuilderMutations = {
       user._id
     );
 
-    const pages = await readHelpersData('pages', `templateId=${_id}`);
-
-    if (!pages.length) {
-      return;
-    }
-
-    // read and write all content types from erxes-helper
-    const contentTypesAll = await readHelpersData('contentTypes');
-
-    // read and write all entries from erxes-helper
-    const entriesAll = await readHelpersData('entries');
+    const { pages, contentTypes } = await sendRequest({
+      url: `https://helper.erxes.io/get-webbuilder-template?templateId=${_id}`,
+      method: 'get'
+    });
 
     for (const page of pages) {
       await models.Pages.createPage(
@@ -124,23 +117,27 @@ const webbuilderMutations = {
         },
         user._id
       );
+    }
 
-      // find contentTypes related with page
-      const contentTypes = contentTypesAll.filter(
-        type => type.code + '_entry' === page.name
+    for (const contentType of contentTypes) {
+      const ct = await models.ContentTypes.createContentType(
+        {
+          ...contentType,
+          _id: undefined,
+          siteId: site._id
+        },
+        user._id
       );
 
-      if (!contentTypes.length) {
-        continue;
+      for (const entry of contentType.entries) {
+        models.Entries.createEntry(
+          {
+            values: entry.values,
+            contentTypeId: ct._id
+          },
+          user._id
+        );
       }
-
-      // create content types and entries
-      await createSiteContentTypes(models, {
-        siteId: site._id,
-        contentTypes,
-        entriesAll,
-        userId: user._id
-      });
     }
 
     return site._id;
