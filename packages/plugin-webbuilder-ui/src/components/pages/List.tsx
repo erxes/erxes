@@ -11,6 +11,7 @@ type Props = {
   siteId?: string;
   pages: IPageDoc[];
   pageId: string;
+  showDarkMode: boolean;
   onLoad: (isLoading?: boolean) => void;
   handleItemSettings: (item: any, type: string) => void;
 };
@@ -22,11 +23,12 @@ class PageList extends React.Component<Props> {
       handleItemSettings,
       siteId = '',
       pageId,
-      onLoad
+      onLoad,
+      showDarkMode
     } = this.props;
 
     return (
-      <List>
+      <List showDarkMode={showDarkMode}>
         {pages.map(page => {
           const isActive = pageId === page._id;
 

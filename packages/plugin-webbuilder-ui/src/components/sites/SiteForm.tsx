@@ -110,6 +110,7 @@ class SiteForm extends React.Component<Props, State> {
               siteId={_id}
               pageId={currentPageId}
               onLoad={this.onLoad}
+              showDarkMode={showDarkMode}
               handleItemSettings={this.handleItemSettings}
             />
           </LeftSidebarContent>
