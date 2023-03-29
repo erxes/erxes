@@ -6,6 +6,8 @@ import { __ } from '@erxes/ui/src/utils';
 import { MEASUREMENTS } from '@erxes/ui-settings/src/general/constants';
 import { IProduct } from '@erxes/ui-products/src/types';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import React from 'react';
 import Select from 'react-select-plus';
 import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
@@ -341,6 +343,10 @@ class ProductItem extends React.Component<Props, State> {
     this.onChangeField('assignUserId', userId, this.props.productData._id);
   };
 
+  placeOnChange = (name, value) => {
+    this.onChangeField(name, value, this.props.productData._id);
+  };
+
   changeCurrentProduct = (_id: string) => {
     this.setState({
       currentProduct: this.state.currentProduct === _id ? '' : _id
@@ -530,6 +536,34 @@ class ProductItem extends React.Component<Props, State> {
             }}
             initialValue={productData.assignUserId}
             onSelect={this.assignUserOnChange}
+          />
+        </td>
+        <td style={avStyle}>
+          <SelectBranches
+            label="Choose branch"
+            name="branchId"
+            multi={false}
+            customOption={{
+              value: '',
+              label: '-----------'
+            }}
+            initialValue={productData.branchId}
+            onSelect={branchId => this.placeOnChange('branchId', branchId)}
+          />
+        </td>
+        <td style={avStyle}>
+          <SelectDepartments
+            label="Choose department"
+            name="departmentId"
+            multi={false}
+            customOption={{
+              value: '',
+              label: '-----------'
+            }}
+            initialValue={productData.departmentId}
+            onSelect={departmentId =>
+              this.placeOnChange('departmentId', departmentId)
+            }
           />
         </td>
         <td style={avStyle}>
