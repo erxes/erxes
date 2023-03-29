@@ -2,33 +2,21 @@ import 'grapesjs/dist/css/grapes.min.css';
 
 import {
   CollapseLeftMenu,
-  ItemDetailContainer,
   LeftSidebar,
   LeftSidebarContent,
-  Loader,
-  SettingsContent,
   SiteFormContainer,
   SubTitle
 } from './styles';
-import { IContentTypeDoc, IPage, IPageDoc } from '../../types';
-import { __, uploadHandler } from '@erxes/ui/src/utils';
 
-import Alert from '@erxes/ui/src/utils/Alert';
-import ContentTypeForm from '../../containers/contentTypes/ContentTypeForm';
 import ContentTypeList from '../../containers/contentTypes/List';
 import Detail from '../../containers/sites/Detail';
-import EntryList from '../../containers/entries/List';
 import { FlexItem } from '@erxes/ui/src/components/step/styles';
-import GrapesJS from 'grapesjs';
+import { IPageDoc } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
-import PageForm from '../pages/PageForm';
 import PageList from '../pages/List';
 import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import customPlugins from '../customPlugins';
-import gjsPresetWebpage from 'grapesjs-preset-webpage';
-import { readFile } from '@erxes/ui/src/utils/core';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   pages: IPageDoc[];
@@ -52,7 +40,7 @@ class SiteForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const page = props.page ? props.page : props.pages[0];
+    const page = props.pages[0];
 
     this.state = {
       name: page.name,
@@ -93,30 +81,11 @@ class SiteForm extends React.Component<Props, State> {
     this.setState({ loading: loading ? loading : false });
   };
 
-  // pageSave = (
-  //   pageName: string,
-  //   pageDescription: string,
-  //   pageId: string,
-  //   pageSlug?: string
-  // ) => {
-  //   const e = this.grapes;
-
-  //   this.props.pageSave(
-  //     pageName,
-  //     pageDescription,
-  //     this.props._id,
-  //     // pageId ? e.getHtml() : "",
-  //     // pageId ? e.getCss({ keepUnusedStyles: true }) : "",
-  //     "",
-  //     "",
-  //     pageId,
-  //     this.handleItemSettings(null, "")
-  //   );
-  // };
-
   renderLeftSidebar() {
     const { pages = [], _id, queryParams } = this.props;
     const { showDarkMode, showContentType, showPage } = this.state;
+    const currentPageId =
+      Object.keys(queryParams).length !== 0 ? queryParams.pageId : pages[0]._id;
 
     return (
       <LeftSidebar
@@ -147,7 +116,7 @@ class SiteForm extends React.Component<Props, State> {
             <PageList
               pages={pages}
               siteId={_id}
-              queryParams={queryParams}
+              pageId={currentPageId}
               onLoad={this.onLoad}
               handleItemSettings={this.handleItemSettings}
             />

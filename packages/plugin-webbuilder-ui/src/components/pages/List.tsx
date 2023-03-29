@@ -10,7 +10,7 @@ import { __ } from '@erxes/ui/src/utils/core';
 type Props = {
   siteId?: string;
   pages: IPageDoc[];
-  queryParams: any;
+  pageId: string;
   onLoad: (isLoading?: boolean) => void;
   handleItemSettings: (item: any, type: string) => void;
 };
@@ -21,15 +21,14 @@ class PageList extends React.Component<Props> {
       pages,
       handleItemSettings,
       siteId = '',
-      queryParams,
+      pageId,
       onLoad
     } = this.props;
 
     return (
       <List>
         {pages.map(page => {
-          const isActive =
-            queryParams.pageId && queryParams.pageId === page._id;
+          const isActive = pageId === page._id;
 
           return (
             <li key={page._id} onClick={() => onLoad(true)}>
