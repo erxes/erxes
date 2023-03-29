@@ -55,14 +55,6 @@ class SiteForm extends React.Component<Props, State> {
     };
   }
 
-  onChange = (type: string, value: any) => {
-    this.setState({ [type]: value } as any);
-  };
-
-  onSelectSite = (value: any) => {
-    this.setState({ siteId: value });
-  };
-
   toggleSubTitle = (key: string, value: boolean) => {
     this.setState({ [key]: value } as any);
   };

@@ -3,7 +3,6 @@ import 'grapesjs/dist/css/grapes.min.css';
 import {
   CustomButtonWrapper,
   ItemDetailContainer,
-  Loader,
   SettingsContent
 } from './styles';
 import { IContentTypeDoc, IPageDoc } from '../../types';
@@ -17,7 +16,6 @@ import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import GrapesJS from 'grapesjs';
 import PageForm from '../pages/PageForm';
 import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import customPlugins from '../customPlugins';
 import gjsPresetWebpage from 'grapesjs-preset-webpage';
 import { readFile } from '@erxes/ui/src/utils/core';
@@ -252,12 +250,7 @@ class SiteDetail extends React.Component<Props, State> {
     this.fetchPage();
   }
 
-  pageSave = (
-    pageName: string,
-    pageDescription: string,
-    pageId: string,
-    pageSlug?: string
-  ) => {
+  pageSave = (pageName: string, pageDescription: string, pageId: string) => {
     const e = this.grapes;
 
     this.props.pageSave(

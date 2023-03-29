@@ -30,8 +30,13 @@ class PageList extends React.Component<Props> {
         {pages.map(page => {
           const isActive = pageId === page._id;
 
+          const onClick = () => {
+            onLoad(true);
+            handleItemSettings({}, '');
+          };
+
           return (
-            <li key={page._id} onClick={() => onLoad(true)}>
+            <li key={page._id} onClick={onClick}>
               <Link
                 className={isActive ? 'active' : ''}
                 to={`/xbuilder/sites/edit/${siteId}?pageId=${page._id}`}

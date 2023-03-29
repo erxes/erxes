@@ -30,6 +30,10 @@ export const List = styled.ul`
       padding: 8px 0;
       flex: 1;
 
+      > div {
+        flex: 1;
+      }
+
       &.active {
         color: ${colors.colorSecondary};
       }
