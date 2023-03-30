@@ -79,6 +79,13 @@ export const commonFields = `
     verifyCustomer
     verifyCompany
   }
+
+  passwordVerificationConfig {
+    verifyByOTP
+    emailSubject
+    emailContent
+    smsContent
+  }
 `;
 
 export const basicFields = `
