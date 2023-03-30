@@ -43,6 +43,8 @@ export interface IUser {
   notificationSettings: INotifcationSettings;
   avatar?: string;
   customFieldsData?: any;
+  facebookId?: string;
+  googleId?: string;
 
   // verification for company
   verificationRequest?: {
@@ -238,7 +240,9 @@ export const clientPortalUserSchema = new Schema({
     type: [customFieldSchema],
     optional: true,
     label: 'Custom fields data'
-  })
+  }),
+  facebookId: field({ type: String }),
+  googleId: field({ type: String })
 });
 
 clientPortalUserSchema.index(
