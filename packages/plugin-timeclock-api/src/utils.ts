@@ -102,8 +102,6 @@ const createTimelogs = async (
   queryData: any,
   teamMembersObj: any
 ) => {
-  console.log('debug ======= before existingTimeLogs');
-
   const existingTimeLogs = await models.TimeLogs.find({
     timelog: {
       $gte: fixDate(startDate),
@@ -111,15 +109,18 @@ const createTimelogs = async (
     }
   });
 
-  console.log('debug ======= after existingTimeLogs');
-
   const totalTimeLogs: ITimeLog[] = [];
 
   let currentEmpId;
 
-  console.log('debug ======= query data', queryData.length);
+  console.log('========', queryData.length);
+
+  let i = 0;
 
   for (const queryRow of queryData) {
+    i++;
+    console.log(i);
+
     const currEmpId = queryRow.ID;
 
     if (currEmpId === currentEmpId) {
@@ -141,13 +142,7 @@ const createTimelogs = async (
     }
   }
 
-  console.log('debug ======= before insert many');
-
-  const result = await models.TimeLogs.insertMany(totalTimeLogs);
-
-  console.log('debug ======= after insert many');
-
-  return result;
+  return await models.TimeLogs.insertMany(totalTimeLogs);
 };
 
 const connectAndQueryTimeLogsFromMsSql = async (
