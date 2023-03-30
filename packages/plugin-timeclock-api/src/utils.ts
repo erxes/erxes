@@ -102,6 +102,8 @@ const createTimelogs = async (
   queryData: any,
   teamMembersObj: any
 ) => {
+  console.log('debug ======= before existingTimeLogs');
+
   const existingTimeLogs = await models.TimeLogs.find({
     timelog: {
       $gte: fixDate(startDate),
@@ -109,9 +111,14 @@ const createTimelogs = async (
     }
   });
 
+  console.log('debug ======= after existingTimeLogs');
+
   const totalTimeLogs: ITimeLog[] = [];
 
   let currentEmpId;
+
+  console.log('debug ======= query data', queryData.length);
+
   for (const queryRow of queryData) {
     const currEmpId = queryRow.ID;
 
@@ -134,7 +141,13 @@ const createTimelogs = async (
     }
   }
 
-  return await models.TimeLogs.insertMany(totalTimeLogs);
+  console.log('debug ======= before insert many');
+
+  const result = await models.TimeLogs.insertMany(totalTimeLogs);
+
+  console.log('debug ======= after insert many');
+
+  return result;
 };
 
 const connectAndQueryTimeLogsFromMsSql = async (
@@ -147,8 +160,6 @@ const connectAndQueryTimeLogsFromMsSql = async (
   const models = await generateModels(subdomain);
 
   let returnData;
-
-  console.log('debug ========');
 
   try {
     const teamMembers = await findAllTeamMembersWithEmpId(subdomain);
@@ -165,13 +176,9 @@ const connectAndQueryTimeLogsFromMsSql = async (
 
     const query = `SELECT * FROM ${MYSQL_TABLE} WHERE authDateTime >= '${startDate}' AND authDateTime <= '${endDate}' AND ISNUMERIC(ID)=1 AND ID IN (${teamEmployeeIds}) ORDER BY ID, authDateTime`;
 
-    console.log('debug ======== before select');
-
     const queryData = await sequelize.query(query, {
       type: QueryTypes.SELECT
     });
-
-    console.log('debug ======== after select');
 
     returnData = await createTimelogs(
       models,
@@ -180,8 +187,6 @@ const connectAndQueryTimeLogsFromMsSql = async (
       queryData,
       teamMembersObject
     );
-
-    console.log('debug ======== after timelogs');
   } catch (err) {
     console.error(err);
   }
