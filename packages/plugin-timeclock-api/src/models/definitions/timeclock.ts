@@ -139,20 +139,20 @@ export const attachmentSchema = new Schema(
 
 export const timeLogSchema = new Schema({
   _id: field({ pkey: true }),
-  userId: field({ type: String, label: 'User' }),
+  userId: field({ type: String, label: 'User', index: true }),
   deviceSerialNo: field({
     type: String,
     label: 'Terminal device serial number',
     optional: true
   }),
-  timelog: field({ type: Date, label: 'Shift starting time' })
+  timelog: field({ type: Date, label: 'Shift starting time', index: true })
 });
 
 export const timeclockSchema = new Schema({
   _id: field({ pkey: true }),
-  userId: field({ type: String, label: 'User' }),
-  shiftStart: field({ type: Date, label: 'Shift starting time' }),
-  shiftEnd: field({ type: Date, label: 'Shift ending time' }),
+  userId: field({ type: String, label: 'User', index: true }),
+  shiftStart: field({ type: Date, label: 'Shift starting time', index: true }),
+  shiftEnd: field({ type: Date, label: 'Shift ending time', index: true }),
   shiftActive: field({
     type: Boolean,
     label: 'Is shift started and active',
@@ -199,9 +199,9 @@ export const absenceTypeSchema = new Schema({
 
 export const absenceSchema = new Schema({
   _id: field({ pkey: true }),
-  userId: field({ type: String, label: 'User' }),
-  startTime: field({ type: Date, label: 'Absence starting time' }),
-  endTime: field({ type: Date, label: 'Absence ending time' }),
+  userId: field({ type: String, label: 'User', index: true }),
+  startTime: field({ type: Date, label: 'Absence starting time', index: true }),
+  endTime: field({ type: Date, label: 'Absence ending time', index: true }),
   holidayName: field({ type: String, label: 'Name of a holiday' }),
   reason: field({ type: String, label: 'reason for absence' }),
   explanation: field({ type: String, label: 'explanation by a team member' }),
