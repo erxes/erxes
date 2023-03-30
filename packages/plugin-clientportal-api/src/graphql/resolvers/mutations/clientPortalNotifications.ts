@@ -60,7 +60,12 @@ const notificationMutations = {
     { _id, ...doc }: any,
     { models, subdomain }: IContext
   ) {
-    await sendNotification(models, subdomain, doc);
+    try {
+      await sendNotification(models, subdomain, doc);
+      return 'success';
+    } catch (e) {
+      throw new Error(e.message);
+    }
   }
 };
 
