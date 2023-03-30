@@ -227,7 +227,7 @@ export const absenceSchema = new Schema({
 
 export const scheduleSchema = new Schema({
   _id: field({ pkey: true }),
-  userId: field({ type: String, label: 'User' }),
+  userId: field({ type: String, label: 'User', index: true }),
   solved: field({
     type: Boolean,
     default: false,
