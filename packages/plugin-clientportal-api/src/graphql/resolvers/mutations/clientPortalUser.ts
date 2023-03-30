@@ -1,17 +1,18 @@
 import { sendRequest } from '@erxes/api-utils/src';
-import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { authCookieOptions, getEnv } from '@erxes/api-utils/src/core';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IAttachment } from '@erxes/api-utils/src/types';
+
+import * as randomize from 'randomatic';
 
 import { createJwtToken } from '../../../auth/authUtils';
 import { IContext } from '../../../connectionResolver';
 import { sendContactsMessage, sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
 import { IUser } from '../../../models/definitions/clientPortalUser';
+import redis from '../../../redis';
 import { sendSms } from '../../../utils';
 import { sendCommonMessage } from './../../../messageBroker';
-import redis from '../../../redis';
-import * as randomize from 'randomatic';
 export interface IVerificationParams {
   userId: string;
   emailOtp?: string;
@@ -298,23 +299,23 @@ const clientPortalUserMutations = {
     }
 
     const getGoogleOauthToken = async ({
-      code
+      authCode
     }: {
-      code: string;
+      authCode: string;
     }): Promise<IGoogleOauthToken> => {
       try {
-        const response = await sendRequest({
+        const authResponse = await sendRequest({
           url: 'https://oauth2.googleapis.com/token',
           method: 'POST',
           params: {
-            code: code,
+            code: authCode,
             client_id: clientPortals.googleClientId || '',
             grant_type: 'authorization_code',
             client_secret: clientPortals.googleClientSecret || '',
             redirect_uri: clientPortals.googleRedirectUri || ''
           }
         });
-        return response;
+        return authResponse;
       } catch (err) {
         throw new Error(err);
       }
@@ -328,7 +329,7 @@ const clientPortalUserMutations = {
       access_token: string;
     }): Promise<IGoogleUserResult> {
       try {
-        const response = await sendRequest({
+        const userResponse = await sendRequest({
           url: 'https://www.googleapis.com/oauth2/v1/userinfo',
           method: 'GET',
           params: {
@@ -339,14 +340,14 @@ const clientPortalUserMutations = {
             Authorization: `Bearer ${id_token}`
           }
         });
-        return response;
+        return userResponse;
       } catch (err) {
         throw Error(err);
       }
     }
 
     // Use the code to get the id and access tokens
-    const { id_token, access_token } = await getGoogleOauthToken({ code });
+    const response = await getGoogleOauthToken({ authCode: code });
 
     // Use the token to get the User
     const {
@@ -357,8 +358,8 @@ const clientPortalUserMutations = {
       family_name,
       given_name
     } = await getGoogleUser({
-      id_token,
-      access_token
+      id_token: response.id_token,
+      access_token: response.access_token
     });
     let qry: any = {};
     let user: any = {};
