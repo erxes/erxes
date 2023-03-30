@@ -858,7 +858,21 @@ const clientPortalUserMutations = {
   ) => {
     const { _id, doc } = args;
 
-    return models.ClientPortalUsers.update({ _id }, { $set: doc });
+    if (doc.phone) {
+      const user = await models.ClientPortalUsers.findOne({
+        _id: { $ne: _id },
+        phone: doc.phone,
+        clientPortalId: doc.clientPortalId
+      });
+
+      if (user) {
+        throw new Error('Phone number already exists');
+      }
+    }
+
+    await models.ClientPortalUsers.update({ _id }, { $set: doc });
+
+    return models.ClientPortalUsers.findOne({ _id });
   }
 };
 
