@@ -42,7 +42,7 @@ const typeDefs = async serviceDiscovery => {
       inheritMaxAge: Boolean
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
     
-    ${invoiceTypes(isEnabled)}
+    ${invoiceTypes}
     ${paymentTypes}
     ${configsTypes}
 
