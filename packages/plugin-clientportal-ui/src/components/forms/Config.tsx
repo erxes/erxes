@@ -70,8 +70,8 @@ function General({
     });
   };
 
-  const onChangeToggle = (controlName: string, value: boolean) => {
-    if (controlName === 'otpEnabled') {
+  const onChangeToggle = (type: string, value: boolean) => {
+    if (type === 'otpEnabled') {
       setOtpEnabled(value);
 
       if (!value) {
@@ -87,7 +87,7 @@ function General({
       }
     }
 
-    if (name === 'mailEnabled') {
+    if (type === 'mailEnabled') {
       setMailEnabled(value);
 
       if (!value) {
@@ -95,16 +95,38 @@ function General({
       }
     }
 
-    if (name === 'manualVerificationEnabled') {
+    if (type === 'manualVerificationEnabled') {
       setManualVerificationEnabled(value);
 
       if (!value) {
         handleFormChange('manualVerificationConfig', null);
       } else {
         handleFormChange('manualVerificationConfig', {
-          userIds: []
+          userIds: [],
+          verifyCustomer: false,
+          verifyCompany: false
         });
       }
+    }
+
+    if (type === 'verifyCompany') {
+      setVerifyCompany(value);
+
+      handleFormChange('manualVerificationConfig', {
+        userIds,
+        verifyCompany: value,
+        verifyCustomer
+      });
+    }
+
+    if (type === 'verifyCustomer') {
+      setVerifyCustomer(value);
+
+      handleFormChange('manualVerificationConfig', {
+        userIds,
+        verifyCompany,
+        verifyCustomer: value
+      });
     }
   };
 
