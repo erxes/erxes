@@ -4,7 +4,7 @@ export const PAYMENTCONFIGS = [
     description: 'QPay payment method',
     isAvailable: true,
     kind: 'qpay',
-    logo: '/images/payments/qpay.png',
+    logo: 'images/payments/qpay.png',
     createModal: 'qpay',
     createUrl: '/settings/payments/createQpay',
     category: 'Payment method'
@@ -14,7 +14,7 @@ export const PAYMENTCONFIGS = [
     description: 'SocialPay payment method',
     isAvailable: true,
     kind: 'socialpay',
-    logo: '/images/payments/socialpay.png',
+    logo: 'images/payments/socialpay.png',
     createModal: 'socialpay',
     createUrl: '/settings/payments/createSocialPay',
     category: 'Payment method'
@@ -24,7 +24,7 @@ export const PAYMENTCONFIGS = [
     description: 'MonPay payment method',
     isAvailable: true,
     kind: 'monpay',
-    logo: '/images/payments/monpay.png',
+    logo: 'images/payments/monpay.png',
     createModal: 'monPay',
     createUrl: '/settings/payments/createMonPay',
     category: 'Payment method'
@@ -34,7 +34,7 @@ export const PAYMENTCONFIGS = [
     description: 'Storepay payment method',
     isAvailable: true,
     kind: 'storepay',
-    logo: '/images/payments/storepay.png',
+    logo: 'images/payments/storepay.png',
     createModal: 'storepay',
     createUrl: '/settings/payments/createStorePay',
     category: 'Payment method'
