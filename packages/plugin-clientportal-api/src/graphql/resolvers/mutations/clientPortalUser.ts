@@ -395,11 +395,26 @@ const clientPortalUserMutations = {
       user = await models.ClientPortalUsers.create({
         googleId: id,
         email,
-        logo: picture,
-        username: name,
-        firstName: family_name,
+        avatar: picture,
+        username: email,
+        lastName: family_name,
+        firstName: given_name,
         clientPortalId
       });
+    } else {
+      user.avatar = picture;
+      user.lastName = family_name;
+      user.firstName = given_name;
+      await models.ClientPortalUsers.updateOne(
+        { _id: user._id },
+        {
+          $set: {
+            avatar: picture,
+            lastName: family_name,
+            firstName: given_name
+          }
+        }
+      );
     }
 
     if (!customer) {
