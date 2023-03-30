@@ -1,22 +1,14 @@
-export const types = ({ contacts }) => `
-${
-  contacts
-    ? `
-      extend type Customer @key(fields: "_id") {
-        _id: String! @external
-      }
-
-      extend type Company @key(fields: "_id") {
-        _id: String! @external
-      }
-      `
-    : ''
-}
-
+export const types = `
   type invoicesTotalCount {
     total: Int
     byKind: JSON
     byStatus: JSON
+  }
+
+  enum CustomerType {
+    company
+    customer
+    user
   }
 
   type Invoice @key(fields: "_id") {
@@ -27,7 +19,7 @@ ${
     email: String
     description: String
     status: String
-    companyId: String
+    customerType: CustomerType
     customerId: String
     contentType: String
     contentTypeId: String
@@ -37,14 +29,7 @@ ${
     paymentKind: String
     apiResponse: JSON
 
-    ${
-      contacts
-        ? `
-        customer: Customer
-        company: Company
-        `
-        : ''
-    }
+    customer: JSON
 
     pluginData: JSON
   }
@@ -56,11 +41,12 @@ const mutationParams = `
   email: String
   description: String
   customerId: String
-  companyId: String
+  customerType: String
   contentType: String
   contentTypeId: String
   redirectUri: String
   paymentIds: [String]
+  warningText: String
 `;
 
 export const mutations = `

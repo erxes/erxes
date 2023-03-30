@@ -2,7 +2,6 @@ import { Icon } from '@erxes/ui/src/components';
 import { FormControl } from '@erxes/ui/src/components/form';
 import Label from '@erxes/ui/src/components/Label';
 import { DateWrapper } from '@erxes/ui/src/styles/main';
-import { renderFullName } from '@erxes/ui/src/utils/core';
 import dayjs from 'dayjs';
 import React from 'react';
 
@@ -60,7 +59,7 @@ class Row extends React.Component<Props> {
       createdAt,
       resolvedAt,
       customer,
-      company,
+      customerType,
       status,
       pluginData
     } = invoice;
@@ -78,6 +77,15 @@ class Row extends React.Component<Props> {
         labelStyle = 'danger';
     }
 
+    const renderName = () => {
+      if (customer.name || customer.phone || customer.email) {
+        return `${customer.name || ''} ${customer.phone ||
+          ''} ${customer.email || ''}`;
+      }
+
+      return '-';
+    };
+
     return (
       <tr onClick={onTrClick}>
         <td onClick={onClick}>
@@ -91,13 +99,13 @@ class Row extends React.Component<Props> {
         <td>{payment ? payment.kind : 'NA'}</td>
         <td>{amount.toFixed(2)}</td>
 
-        <td>{`${contentType.split(':')[0]} - ${pluginData &&
-          renderPluginItemName(pluginData)}`}</td>
+        {/* <td>{`${contentType.split(':')[0]} - ${pluginData &&
+          renderPluginItemName(pluginData)}`}</td> */}
         <td>
           <Label lblStyle={labelStyle}>{status}</Label>
         </td>
-        <td>{customer ? renderFullName(customer) : '-'}</td>
-        <td>{company ? renderFullName(company) : '-'}</td>
+        <td>{customer ? renderName() : '-'}</td>
+        <td>{customerType}</td>
         <td>{description}</td>
         <td>
           <Icon icon="calender" />{' '}

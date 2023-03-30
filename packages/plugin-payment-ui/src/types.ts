@@ -26,13 +26,23 @@ export interface IMonpayConfig {
   accountId: string;
 }
 
+export interface IStorepayConfig {
+  merchantUsername: string;
+  merchantPassword: string;
+
+  appUsername: string;
+  appPassword: string;
+
+  storeId: string;
+}
+
 export interface IPaymentDocument extends IPayment, Document {
   _id: string;
 }
 
 export type ByKindTotalCount = {
   qpay: number;
-  socialPay: number;
+  socialpay: number;
 };
 
 export type InvoicesCount = {
@@ -54,8 +64,8 @@ export interface IInvoice {
   phone: string;
   resolvedAt: Date;
   status: string;
-  company?: ICompany;
-  customer?: ICustomer;
+  customerType: string;
+  customer?: any;
   pluginData?: any;
 }
 

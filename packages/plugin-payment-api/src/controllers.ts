@@ -1,6 +1,6 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { Router } from 'express';
 import { debugInfo } from '@erxes/api-utils/src/debuggers';
+import { Router } from 'express';
 
 import { generateModels } from './connectionResolver';
 import redisUtils from './redisUtils';
@@ -20,6 +20,8 @@ router.post('/checkInvoice', async (req, res) => {
     redisUtils.removeInvoice(invoiceId);
 
     res.clearCookie(`paymentData_${invoice.contentTypeId}`);
+
+    return res.json({ status: invoice.status });
   }
 
   return res.json({ status });
@@ -47,23 +49,19 @@ router.get('/gateway', async (req, res) => {
     })
     .lean();
 
-  let invoice = await models.Invoices.findOne({ _id: data._id }).lean();
+  const invoice = await models.Invoices.findOne({ _id: data._id }).lean();
 
   const prefix = subdomain === 'localhost' ? '' : `/gateway`;
-  const domain = process.env.DOMAIN || 'http://localhost:3000';
 
-  debugInfo(
-    `in gateway path-: subdomain: ${subdomain}, prefix: ${prefix}, domain: ${domain}`
-  );
+  debugInfo(`in gateway path-: subdomain: ${subdomain}, prefix: ${prefix}`);
 
   if (invoice && invoice.status === 'paid') {
     return res.render('index', {
       title: 'Payment gateway',
-      payments: payments,
+      payments,
       invoiceData: data,
       invoice,
-      prefix,
-      domain
+      prefix
     });
   }
 
@@ -71,12 +69,11 @@ router.get('/gateway', async (req, res) => {
     title: 'Payment gateway',
     payments,
     invoiceData: data,
-    domain,
     prefix: subdomain === 'localhost' ? '' : `/gateway`
   });
 });
 
-router.post('/gateway', async (req, res) => {
+router.post('/gateway', async (req, res, next) => {
   const { params } = req.query;
 
   const data = JSON.parse(
@@ -87,7 +84,6 @@ router.post('/gateway', async (req, res) => {
   const models = await generateModels(subdomain);
 
   const prefix = subdomain === 'localhost' ? '' : `/gateway`;
-  const domain = process.env.DOMAIN || 'http://localhost:3000';
 
   const filter: any = {};
 
@@ -122,8 +118,7 @@ router.post('/gateway', async (req, res) => {
       payments: paymentsModified,
       invoiceData: data,
       invoice,
-      prefix,
-      domain
+      prefix
     });
   }
 
@@ -152,8 +147,7 @@ router.post('/gateway', async (req, res) => {
       payments: paymentsModified,
       invoiceData: data,
       invoice,
-      prefix,
-      domain
+      prefix
     });
   } catch (e) {
     res.render('index', {
@@ -161,8 +155,7 @@ router.post('/gateway', async (req, res) => {
       payments: paymentsModified,
       invoiceData: data,
       error: e.message,
-      prefix,
-      domain
+      prefix
     });
   }
 });
