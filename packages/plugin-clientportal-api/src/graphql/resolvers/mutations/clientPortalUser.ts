@@ -238,7 +238,8 @@ const clientPortalUserMutations = {
           username: name,
           firstName: first_name,
           lastName: last_name,
-          clientPortalId
+          clientPortalId,
+          isEmailVerified: email ? true : false
         });
       }
 
@@ -251,7 +252,8 @@ const clientPortalUserMutations = {
             lastName: last_name,
             primaryEmail: trimmedMail,
             state: 'lead',
-            avatar: picture?.data?.url
+            avatar: picture?.data?.url,
+            emailValidationStatus: email && 'valid'
           },
           isRPC: true
         });
@@ -399,6 +401,7 @@ const clientPortalUserMutations = {
         username: email,
         lastName: family_name,
         firstName: given_name,
+        isEmailVerified: true,
         clientPortalId
       });
     } else {
@@ -411,7 +414,8 @@ const clientPortalUserMutations = {
           $set: {
             avatar: picture,
             lastName: family_name,
-            firstName: given_name
+            firstName: given_name,
+            isEmailVerified: true
           }
         }
       );
@@ -426,7 +430,8 @@ const clientPortalUserMutations = {
           lastName: family_name,
           primaryEmail: trimmedMail,
           state: 'lead',
-          avatar: picture
+          avatar: picture,
+          emailValidationStatus: 'valid'
         },
         isRPC: true
       });
