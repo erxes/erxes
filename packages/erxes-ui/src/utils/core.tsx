@@ -24,8 +24,12 @@ export const loadComponent = (scope, module) => {
 
     const container = window[scope]; // or get the container somewhere else
 
-    // Initialize the container, it may provide shared modules
-    await container.init(__webpack_share_scopes__.default);
+    try {
+      // Initialize the container, it may provide shared modules
+      await container.init(__webpack_share_scopes__.default);
+    } catch (e) {
+      // already was initialized
+    }
 
     const factory = await window[scope].get(module);
 
@@ -41,6 +45,7 @@ export const loadDynamicComponent = (
   pluginName?: string
 ): any => {
   const plugins: any[] = (window as any).plugins || [];
+
   const filteredPlugins = plugins.filter(plugin => plugin[componentName]);
 
   const renderDynamicComp = (plugin: any) => (
@@ -118,6 +123,21 @@ export class RenderDynamicComponent extends React.Component<
     return this.renderComponent();
   }
 }
+
+export const getPluginConfig = ({ pluginName, configName }) => {
+  const plugins: any[] = (window as any).plugins || [];
+
+  let result;
+
+  for (const plugin of plugins) {
+    if (plugin.name === pluginName && plugin[configName]) {
+      result = plugin[configName];
+      break;
+    }
+  }
+
+  return result;
+};
 
 export const renderFullName = data => {
   if (data.firstName || data.lastName || data.middleName || data.primaryPhone) {
@@ -558,6 +578,11 @@ export const bustIframe = () => {
   } else {
     window.top.location = window.self.location;
   }
+};
+
+export const getSubdomain = () => {
+  const env = (window as any).erxesEnv || {};
+  return env.subdomain || 'localhost';
 };
 
 // get env config from process.env or window.env

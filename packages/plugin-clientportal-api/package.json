@@ -12,6 +12,7 @@
     "cookie-parser": "^1.4.6",
     "bcryptjs": "^2.4.3",
     "randomatic": "^3.0.0",
-    "sha256": "^0.2.0"
+    "sha256": "^0.2.0",
+    "firebase-admin": "^8.6.1"
   }
 }

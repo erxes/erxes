@@ -151,25 +151,34 @@ module.exports = (env, args) => {
           const { REACT_APP_PUBLIC_PATH } = window.env || {};
           const remoteUrl = (REACT_APP_PUBLIC_PATH ? REACT_APP_PUBLIC_PATH : window.location.origin) + '/remoteEntry.js';
 
-          const script = document.createElement('script')
-          script.src = remoteUrl
-          script.onload = () => {
-            // the injected script has loaded and is available on window
-            // we can now resolve this Promise
-            const proxy = {
-              get: (request) => window.coreui.get(request),
-              init: (arg) => {
-                try {
-                  return window.coreui.init(arg)
-                } catch(e) {
-                  console.log('remote container already initialized')
-                }
+          const id = 'coreuiRemoteEntry';
+
+          // the injected script has loaded and is available on window
+          // we can now resolve this Promise
+          const proxy = {
+            get: (request) => window.coreui.get(request),
+            init: (arg) => {
+              try {
+                return window.coreui.init(arg)
+              } catch(e) {
+                console.log('remote container already initialized')
               }
             }
+          }
+
+          const script = document.createElement('script');
+          script.src = remoteUrl;
+          script.id = id;
+          script.onload = () => {
             resolve(proxy)
           }
-          // inject this script with the src set to the versioned remoteEntry.js
-          document.head.appendChild(script);
+
+          if (document.getElementById(id) && window.coreui) {
+            resolve(proxy)
+          } else {
+            // inject this script with the src set to the versioned remoteEntry.js
+            document.head.appendChild(script);
+          }
         })
         `,
         },

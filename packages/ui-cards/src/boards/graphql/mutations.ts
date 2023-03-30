@@ -32,6 +32,8 @@ export const commonMutationVariables = `
   $sourceConversationIds: [String],
   $customFieldsData: JSON,
   $tagIds: [String]
+  $branchIds:[String],
+  $departmentIds:[String]
 `;
 
 export const commonMutationParams = `
@@ -52,6 +54,8 @@ export const commonMutationParams = `
   sourceConversationIds: $sourceConversationIds,
   customFieldsData: $customFieldsData,
   tagIds: $tagIds
+  branchIds: $branchIds
+  departmentIds: $departmentIds
 `;
 
 export const commonDragVariables = `
@@ -91,6 +95,7 @@ export const commonListFields = `
   number
   tagIds
   customProperties
+  status
 `;
 
 export const commonFields = `
@@ -175,6 +180,7 @@ export const commonFields = `
   labelIds
   stage {
     probability
+    type
   }
   isWatched
   attachments {
@@ -206,6 +212,8 @@ export const commonFields = `
   }
   number
   customProperties
+  branchIds
+  departmentIds
 `;
 
 const pipelinesWatch = `

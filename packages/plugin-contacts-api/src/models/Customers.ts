@@ -648,24 +648,32 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
     }: IGetCustomerParams) {
       let customer: ICustomerDocument | null = null;
 
+      const defaultFilter = { status: { $ne: 'deleted' } };
+
       if (email) {
         customer = await models.Customers.findOne({
+          ...defaultFilter,
           $or: [{ emails: { $in: [email] } }, { primaryEmail: email }]
         }).lean();
       }
 
       if (!customer && phone) {
         customer = await models.Customers.findOne({
+          ...defaultFilter,
           $or: [{ phones: { $in: [phone] } }, { primaryPhone: phone }]
         }).lean();
       }
 
       if (!customer && code) {
-        customer = await models.Customers.findOne({ code }).lean();
+        customer = await models.Customers.findOne({
+          ...defaultFilter,
+          code
+        }).lean();
       }
 
       if (!customer && cachedCustomerId) {
         customer = await models.Customers.findOne({
+          ...defaultFilter,
           _id: cachedCustomerId
         }).lean();
       }
@@ -675,10 +683,12 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
 
         if (integrationId && ids && !ids.includes(integrationId)) {
           ids.push(integrationId);
+
           await models.Customers.updateOne(
             { _id: customer._id },
             { $set: { relatedIntegrationIds: ids } }
           );
+
           customer = await models.Customers.findOne({
             _id: customer._id
           }).lean();

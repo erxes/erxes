@@ -46,6 +46,12 @@ ${
     registrationContent : String
   }
 
+  type ManualVerificationConfig {
+    userIds: [String]
+    verifyCustomer: Boolean
+    verifyCompany: Boolean
+  }
+
   input OTPConfigInput {
     content: String
     codeLength: Int
@@ -76,6 +82,7 @@ ${
     knowledgeBaseLabel: String
     knowledgeBaseTopicId: String
     ticketLabel: String
+    dealLabel: String
     taskPublicBoardId: String
     taskPublicPipelineId: String
     taskLabel: String
@@ -85,17 +92,26 @@ ${
     ticketStageId: String
     ticketPipelineId: String
     ticketBoardId: String
+    dealStageId: String
+    dealPipelineId: String
+    dealBoardId: String
     googleCredentials: JSON
+    googleClientId: String
+    googleClientSecret: String
+    googleRedirectUri: String
+    facebookAppId: String
     styles: Styles
     mobileResponsive: Boolean
   
     otpConfig: OTPConfig
     mailConfig: MailConfig
+    manualVerificationConfig: ManualVerificationConfig
 
     kbToggle: Boolean,
     publicTaskToggle: Boolean,
     ticketToggle: Boolean,
     taskToggle: Boolean,
+    dealToggle: Boolean,
   }
 
   type Styles {
@@ -157,7 +173,8 @@ export const queries = (cardAvailable, kbAvailable) => `
     kbAvailable
       ? `
     clientPortalKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
-    clientPortalKnowledgeBaseArticles(searchValue: String, categoryIds: [String]): [KnowledgeBaseArticle]
+    clientPortalKnowledgeBaseArticles(searchValue: String, categoryIds: [String], topicId: String): 
+[KnowledgeBaseArticle]
    `
       : ''
   }
@@ -179,6 +196,7 @@ export const mutations = cardAvailable => `
     knowledgeBaseTopicId: String
     ticketLabel: String
     taskLabel: String
+    dealLabel: String
     taskPublicBoardId: String
     taskPublicPipelineId: String
     taskStageId: String
@@ -187,16 +205,25 @@ export const mutations = cardAvailable => `
     ticketStageId: String
     ticketPipelineId: String
     ticketBoardId: String
+    dealStageId: String
+    dealPipelineId: String
+    dealBoardId: String
     googleCredentials: JSON
+    googleClientId: String
+    googleClientSecret: String
+    googleRedirectUri: String
+    facebookAppId: String
     styles: StylesParams
     mobileResponsive: Boolean
     kbToggle: Boolean,
     publicTaskToggle: Boolean,
     ticketToggle: Boolean,
+    dealToggle: Boolean,
     taskToggle: Boolean,
 
     otpConfig: OTPConfigInput
     mailConfig: MailConfigInput
+    manualVerificationConfig: JSON
   ): ClientPortal
 
   clientPortalRemove (_id: String!): JSON
@@ -210,7 +237,12 @@ export const mutations = cardAvailable => `
         subject: String!
         description: String
         priority: String,
+        parentId: String,
+        closeDate: Date
+        startDate: Date
       ): JSON
+      clientPortalCommentsAdd(type: String!, typeId: String!, content: String! userType: String!): ClientPortalComment
+      clientPortalCommentsRemove(_id: String!): String
      `
       : ''
   }

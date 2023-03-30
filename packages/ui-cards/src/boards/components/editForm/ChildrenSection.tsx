@@ -1,4 +1,11 @@
-import { ModalTrigger, Button, Box, EmptyState, Tip, Icon } from '@erxes/ui/src/components';
+import {
+  ModalTrigger,
+  Button,
+  Box,
+  EmptyState,
+  Tip,
+  Icon
+} from '@erxes/ui/src/components';
 import React from 'react';
 import { AddForm } from '@erxes/ui-cards/src/boards/containers/portable';
 import EditForm from '@erxes/ui-cards/src/boards/containers/editForm/EditForm';
@@ -50,7 +57,13 @@ class ChildrenSection extends React.Component<Props, State> {
         </Tip>
       </Button>
     );
-    return <ModalTrigger title="Add New Child Card" trigger={trigger} content={content} />;
+    return (
+      <ModalTrigger
+        title="Add New Child Card"
+        trigger={trigger}
+        content={content}
+      />
+    );
   }
 
   renderParentForm() {
@@ -90,10 +103,12 @@ class ChildrenSection extends React.Component<Props, State> {
     const { openChildId } = this.state;
 
     const closeModal = () => {
+      localStorage.removeItem('isChildModal');
       this.setState({ openChildId: '' });
     };
 
     const openModal = () => {
+      localStorage.setItem('isChildModal', 'true');
       this.setState({ openChildId: child._id });
     };
 
@@ -129,7 +144,9 @@ class ChildrenSection extends React.Component<Props, State> {
       <Box title="Children" extraButtons={extraButtons()} isOpen={true}>
         {children?.length ? (
           (children as Array<IDeal | ITicket | ITask>).map(child => (
-            <SectionBodyItem key={child._id}>{this.renderChildForm(child)}</SectionBodyItem>
+            <SectionBodyItem key={child._id}>
+              {this.renderChildForm(child)}
+            </SectionBodyItem>
           ))
         ) : (
           <EmptyState text="No Children" icon="list-ui-alt" />

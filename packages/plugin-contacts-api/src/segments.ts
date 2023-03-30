@@ -3,9 +3,10 @@ import { fetchByQuery } from '@erxes/api-utils/src/elasticsearch';
 import {
   gatherAssociatedTypes,
   getEsIndexByContentType,
-  getName
+  getName,
+  getServiceName
 } from '@erxes/api-utils/src/segments';
-import { sendCoreMessage } from './messageBroker';
+import { sendCommonMessage, sendCoreMessage } from './messageBroker';
 
 const changeType = (type: string) =>
   type === 'contacts:lead' ? 'contacts:customer' : type;
@@ -60,9 +61,23 @@ export default {
         positiveQuery,
         negativeQuery
       });
-
-      ids = _.uniq(ids);
+    } else {
+      ids = await sendCommonMessage({
+        serviceName: getServiceName(propertyType),
+        subdomain,
+        action: 'segments.associationFilter',
+        data: {
+          mainType,
+          propertyType,
+          positiveQuery,
+          negativeQuery
+        },
+        defaultValue: [],
+        isRPC: true
+      });
     }
+
+    ids = _.uniq(ids);
 
     return { data: ids, status: 'success' };
   },

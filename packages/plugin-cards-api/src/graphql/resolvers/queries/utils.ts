@@ -162,7 +162,10 @@ export const generateCommonFilters = async (
     hasStartAndCloseDate,
     stageChangedStartDate,
     stageChangedEndDate,
-    noSkipArchive
+    noSkipArchive,
+    number,
+    branchIds,
+    departmentIds
   } = args;
 
   const isListEmpty = value => {
@@ -175,8 +178,8 @@ export const generateCommonFilters = async (
 
   let filterIds: string[] = [];
 
-  if(parentId){
-    filter.parentId = parentId
+  if (parentId) {
+    filter.parentId = parentId;
   }
 
   if (assignedUserIds) {
@@ -184,6 +187,61 @@ export const generateCommonFilters = async (
     const notAssigned = isListEmpty(assignedUserIds);
 
     filter.assignedUserIds = notAssigned ? [] : contains(assignedUserIds);
+  }
+
+  if (branchIds) {
+    const branchOrders = (
+      await sendCoreMessage({
+        subdomain,
+        action: `branches.find`,
+        data: {
+          query: { _id: { $in: branchIds } }
+        },
+        isRPC: true,
+        defaultValue: []
+      })
+    ).map(item => item.order);
+
+    const ids = (
+      await sendCoreMessage({
+        subdomain,
+        action: `branches.find`,
+        data: {
+          query: { order: { $regex: branchOrders.join('|'), $options: 'i' } }
+        },
+        isRPC: true,
+        defaultValue: []
+      })
+    ).map(item => item._id);
+
+    filter.branchIds = { $in: ids };
+  }
+  if (departmentIds) {
+    const departmentOrders = (
+      await sendCoreMessage({
+        subdomain,
+        action: `departments.find`,
+        data: {
+          _id: { $in: departmentIds }
+        },
+        isRPC: true,
+        defaultValue: []
+      })
+    ).map(item => item.order);
+
+    const ids = (
+      await sendCoreMessage({
+        subdomain,
+        action: `departments.find`,
+        data: {
+          order: { $regex: departmentOrders.join('|'), $options: 'i' }
+        },
+        isRPC: true,
+        defaultValue: []
+      })
+    ).map(item => item._id);
+
+    filter.departmentIds = { $in: ids };
   }
 
   if (customerIds && type) {
@@ -334,7 +392,6 @@ export const generateCommonFilters = async (
 
   if (pipelineId) {
     const pipeline = await models.Pipelines.getPipeline(pipelineId);
-
     if (
       (pipeline.isCheckUser || pipeline.isCheckDepartment) &&
       !(pipeline.excludeCheckUserIds || []).includes(currentUserId)
@@ -342,19 +399,38 @@ export const generateCommonFilters = async (
       let includeCheckUserIds: string[] = [];
 
       if (pipeline.isCheckDepartment) {
-        const departments = await sendCoreMessage({
+        const user = await sendCoreMessage({
           subdomain,
-          action: 'departments.find',
+          action: 'users.findOne',
           data: {
-            userIds: { $in: [currentUserId] }
+            _id: currentUserId
           },
           isRPC: true
         });
 
-        for (const department of departments) {
-          includeCheckUserIds = includeCheckUserIds.concat(
-            department.userIds || []
-          );
+        const userDepartmentIds = user?.departmentIds || [];
+        const pipelineDepartmentIds = pipeline.departmentIds || [];
+
+        const otherDepartmentUsers = await sendCoreMessage({
+          subdomain,
+          action: 'users.find',
+          data: {
+            query: { departmentIds: { $in: userDepartmentIds } }
+          },
+          isRPC: true,
+          defaultValue: []
+        });
+
+        for (const departmentUser of otherDepartmentUsers) {
+          includeCheckUserIds = [...includeCheckUserIds, departmentUser._id];
+        }
+
+        if (
+          !!pipelineDepartmentIds.filter(departmentId =>
+            userDepartmentIds.includes(departmentId)
+          ).length
+        ) {
+          includeCheckUserIds = includeCheckUserIds.concat(user._id || []);
         }
       }
 
@@ -402,6 +478,10 @@ export const generateCommonFilters = async (
   if (hasStartAndCloseDate) {
     filter.startDate = { $exists: true };
     filter.closeDate = { $exists: true };
+  }
+
+  if (number) {
+    filter.number = { $regex: `${number}`, $options: 'mui' };
   }
 
   return filter;
@@ -567,18 +647,51 @@ const dateSelector = (date: IDate) => {
   };
 };
 
+// comparing pipelines departmentIds and current user departmentIds
+const compareDepartmentIds = (
+  pipelineDepartmentIds: string[],
+  userDepartmentIds: string[]
+): boolean => {
+  if (!pipelineDepartmentIds.length || !userDepartmentIds.length) {
+    return false;
+  }
+
+  for (const uDepartmentId of userDepartmentIds) {
+    if (pipelineDepartmentIds.includes(uDepartmentId)) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
 export const checkItemPermByUser = async (
   models: IModels,
-  currentUserId: string,
+  user: any,
   item: IItemCommonFields
 ) => {
   const stage = await models.Stages.getStage(item.stageId);
 
-  const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+  const {
+    visibility,
+    memberIds,
+    departmentIds = [],
+    isCheckUser,
+    excludeCheckUserIds
+  } = await models.Pipelines.getPipeline(stage.pipelineId);
+
+  const userDepartmentIds = user.departmentIds || [];
+
+  // check permission on department
+  const hasUserInDepartment = compareDepartmentIds(
+    departmentIds,
+    userDepartmentIds
+  );
 
   if (
-    pipeline.visibility === 'private' &&
-    !(pipeline.memberIds || []).includes(currentUserId)
+    visibility === 'private' &&
+    !(memberIds || []).includes(user._id) &&
+    !hasUserInDepartment
   ) {
     throw new Error('You do not have permission to view.');
   }
@@ -587,11 +700,11 @@ export const checkItemPermByUser = async (
   // and current user nothing dominant users
   // current user hans't this carts assigned and created
   if (
-    pipeline.isCheckUser &&
-    !(pipeline.excludeCheckUserIds || []).includes(currentUserId) &&
+    isCheckUser &&
+    !(excludeCheckUserIds || []).includes(user._id) &&
     !(
-      (item.assignedUserIds || []).includes(currentUserId) ||
-      item.userId === currentUserId
+      (item.assignedUserIds || []).includes(user._id) ||
+      item.userId === user._id
     )
   ) {
     throw new Error('You do not have permission to view.');
@@ -784,6 +897,9 @@ export const getItemList = async (
         customFieldsData: 1,
         stageChangedDate: 1,
         tagIds: 1,
+        status: 1,
+        branchIds: 1,
+        departmentIds: 1,
         ...(extraFields || {})
       }
     }

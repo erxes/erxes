@@ -4,8 +4,11 @@ import {
   Pipeline,
   Stage,
   Deal,
+  DealListItem,
   Task,
+  TaskListItem,
   Ticket,
+  TicketListItem,
   GrowthHack,
   Checklist
 } from './customResolvers';
@@ -36,8 +39,11 @@ const resolvers: any = {
   Pipeline,
   Stage,
   Deal,
+  DealListItem,
   Task,
+  TaskListItem,
   Ticket,
+  TicketListItem,
   GrowthHack,
   Checklist,
   Mutation: {
@@ -48,7 +54,7 @@ const resolvers: any = {
     ...GrowthHackMutations,
     ...PipelineTemplateMutations,
     ...PipelineLabelMutations,
-    ...ChecklistMutations,
+    ...ChecklistMutations
   },
   Query: {
     ...BoardQueries,

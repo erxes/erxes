@@ -49,8 +49,14 @@ const emailTemplateQueries = {
   /**
    * Get all email templates count. We will use it in pager
    */
-  emailTemplatesTotalCount(_root, _args, { models }: IContext) {
-    return models.EmailTemplates.find({}).countDocuments();
+  emailTemplatesTotalCount(_root, { searchValue }, { models }: IContext) {
+    const filter: any = {};
+
+    if (searchValue) {
+      filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+    }
+
+    return models.EmailTemplates.find(filter).countDocuments();
   }
 };
 

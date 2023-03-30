@@ -229,19 +229,37 @@ const userMutations = {
     args: IUsersEdit,
     { user, models, subdomain }: IContext
   ) {
-    const { _id, channelIds, ...doc } = args;
+    const { _id, channelIds, brandIds, ...doc } = args;
     const userOnDb = await models.Users.getUser(_id);
 
-    const updatedDoc = {
-      ...doc,
-      details: {
-        ...doc.details,
-        fullName: `${doc.details?.firstName || ''} ${doc.details?.lastName ||
-          ''}`
-      }
-    };
+    // clean custom field values
+    if (doc.customFieldsData) {
+      doc.customFieldsData = doc.customFieldsData.map(cd => ({
+        ...cd,
+        stringValue: cd.value ? cd.value.toString() : ''
+      }));
+    }
+
+    let updatedDoc = doc;
+
+    if (doc.details) {
+      updatedDoc = {
+        ...doc,
+        details: {
+          ...doc.details,
+          fullName: `${doc.details.firstName || ''} ${doc.details.lastName ||
+            ''}`
+        }
+      };
+    }
 
     const updatedUser = await models.Users.updateUser(_id, updatedDoc);
+
+    if (args.departmentIds || args.branchIds) {
+      await models.UserMovements.manageUserMovement({
+        user: updatedUser
+      });
+    }
 
     if (channelIds) {
       await sendInboxMessage({
@@ -249,6 +267,10 @@ const userMutations = {
         action: 'updateUserChannels',
         data: { channelIds, userId: _id }
       });
+    }
+
+    if (brandIds) {
+      await models.Brands.updateUserBrands(brandIds, _id);
     }
 
     await resetPermissionsCache(models);
@@ -279,13 +301,15 @@ const userMutations = {
       email,
       password,
       details,
-      links
+      links,
+      employeeId
     }: {
       username: string;
       email: string;
       password: string;
       details: IDetail;
       links: ILink;
+      employeeId: string;
     },
     { user, models, subdomain }: IContext
   ) {
@@ -308,7 +332,8 @@ const userMutations = {
         ...details,
         fullName: `${details.firstName || ''} ${details.lastName || ''}`
       },
-      links
+      links,
+      employeeId
     };
 
     const updatedUser = models.Users.editProfile(user._id, doc);
@@ -391,16 +416,20 @@ const userMutations = {
       }
 
       if (entry.branchId) {
-        await models.Branches.updateOne(
-          { _id: entry.branchId },
-          { $push: { userIds: createdUser?._id } }
+        await models.Users.updateOne(
+          { _id: createdUser?._id },
+          {
+            $addToSet: { branchIds: entry.branchId }
+          }
         );
       }
 
       if (entry.departmentId) {
-        await models.Departments.updateOne(
-          { _id: entry.departmentId },
-          { $push: { userIds: createdUser?._id } }
+        await models.Users.updateOne(
+          { _id: createdUser?._id },
+          {
+            $addToSet: { departmentIds: entry.departmentId }
+          }
         );
       }
 

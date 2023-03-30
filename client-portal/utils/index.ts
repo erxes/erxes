@@ -42,3 +42,23 @@ export const getLangParam = () =>
   typeof window !== 'undefined' && window.location.href.indexOf('=mn') > -1
     ? 'mn'
     : 'en';
+
+export const getGoogleUrl = (from, config) => {
+  const rootUrl = `https://accounts.google.com/o/oauth2/v2/auth`;
+  const options = {
+    redirect_uri: 'http://localhost:4200/verify',
+    client_id: config.googleClientId || '',
+    access_type: 'offline',
+    response_type: 'code',
+    prompt: 'consent',
+    scope: [
+      'https://www.googleapis.com/auth/userinfo.profile',
+      'https://www.googleapis.com/auth/userinfo.email'
+    ].join(' '),
+    state: from
+  };
+
+  const qs = new URLSearchParams(options);
+
+  return `${rootUrl}?${qs.toString()}`;
+};

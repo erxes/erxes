@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components';
+import styledTS from 'styled-components-ts';
 import { colors, dimensions } from '@erxes/ui/src/styles/';
 
 export const LoyaltyAmount = styled.div`
@@ -146,4 +147,16 @@ export const Divider = styled.div`
     align-self: center;
     border-bottom: 1px solid ${colors.borderPrimary};
   }
+`;
+export const Indicator = styledTS<{ color: string }>(styled.div)`
+  border-radius: 50%;
+  width: 10px; 
+  height: 10px;
+  background: ${props => props.color}
+`;
+
+export const FormFooter = styled.div`
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
 `;

@@ -55,6 +55,10 @@ const listQueryParams = `
     endDate: String
     hasStartAndCloseDate: Boolean
     tagIds: [String]
+    noSkipArchive: Boolean
+    number: String
+    branchIds: [String]
+    departmentIds: [String]
     ${conformityQueryFields}
 `;
 

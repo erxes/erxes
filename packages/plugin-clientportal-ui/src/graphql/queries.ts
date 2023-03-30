@@ -18,6 +18,7 @@ export const commonFields = `
   knowledgeBaseLabel
   knowledgeBaseTopicId
   ticketLabel
+  dealLabel
   taskPublicPipelineId
   taskPublicBoardId
   taskLabel
@@ -27,6 +28,9 @@ export const commonFields = `
   ticketStageId
   ticketPipelineId
   ticketBoardId
+  dealStageId
+  dealPipelineId
+  dealBoardId
   styles {
     bodyColor
     headerColor
@@ -46,11 +50,16 @@ export const commonFields = `
   }
   mobileResponsive
   googleCredentials
+  googleClientId
+  googleClientSecret
+  googleRedirectUri
+  facebookAppId
 
   kbToggle
   publicTaskToggle
   ticketToggle
   taskToggle
+  dealToggle
   otpConfig {
     smsTransporterType
     content
@@ -63,6 +72,12 @@ export const commonFields = `
     subject
     invitationContent
     registrationContent
+  }
+
+  manualVerificationConfig {
+    userIds
+    verifyCustomer
+    verifyCompany
   }
 `;
 
@@ -91,11 +106,24 @@ export const basicFields = `
   lastSeenAt
   sessionCount
   isOnline
+
+  avatar
 `;
 
 export const clientPortalUserFields = `
   ${basicFields}
   createdAt
+
+  verificationRequest {
+    status
+    attachments{
+      name
+      url
+      size
+      type
+    }
+    description
+  }
 
   customFieldsData
 `;
@@ -205,6 +233,17 @@ const clientPortalUserDetail = `
   }
 `;
 
+const clientPortalComments = `
+  query clientPortalComments($typeId: String!, $type: String!) {
+    clientPortalComments(typeId: $typeId, type: $type) {
+      _id
+      content
+      createdAt
+      createdUser
+    }
+  }
+`;
+
 export default {
   getConfig,
   getConfigs,
@@ -213,5 +252,6 @@ export default {
   clientPortalUsers,
   clientPortalUsersMain,
   clientPortalUserDetail,
-  clientPortalUserCounts
+  clientPortalUserCounts,
+  clientPortalComments
 };

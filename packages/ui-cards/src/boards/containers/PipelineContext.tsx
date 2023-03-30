@@ -415,6 +415,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
       })
       .catch((e: Error) => {
         Alert.error(e.message);
+        location.reload();
       });
   };
 

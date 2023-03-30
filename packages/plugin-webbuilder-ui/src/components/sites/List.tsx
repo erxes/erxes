@@ -5,26 +5,41 @@ import {
   SiteBox,
   SitePreview
 } from './styles';
+import { __, readFile } from '@erxes/ui/src/utils';
 
 import Button from '@erxes/ui/src/components/Button';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import { ISiteDoc } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
+import TemplateForm from '../../containers/templates/TemplateForm';
 import { getEnv } from '@erxes/ui/src/utils/core';
 
 type Props = {
   sites: ISiteDoc[];
   getActionBar: (actionBar: any) => void;
   remove: (_id: string) => void;
+  duplicate: (_id: string) => void;
   setCount: (count: number) => void;
   sitesCount: number;
   queryParams: any;
 };
 
-class SiteList extends React.Component<Props, {}> {
+type State = {
+  currentSite: any;
+};
+
+class SiteList extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      currentSite: null
+    };
+  }
+
   showSite = (site: ISiteDoc) => {
     const { REACT_APP_API_URL } = getEnv();
 
@@ -33,14 +48,36 @@ class SiteList extends React.Component<Props, {}> {
     window.open(`${url}`, '_blank');
   };
 
-  renderList(site: ISiteDoc) {
-    const { remove } = this.props;
+  renderEditAction = (site: ISiteDoc) => {
+    const trigger = (
+      <Button btnStyle="white" icon="edit">
+        {__('Edit site')}
+      </Button>
+    );
+
+    const content = ({ closeModal }) => (
+      <TemplateForm closeModal={closeModal} selectedSite={site} />
+    );
 
     return (
-      <SiteBox key={site._id} nowrap={true}>
+      <ModalTrigger
+        title="Edit your site"
+        trigger={trigger}
+        content={content}
+      />
+    );
+  };
+
+  renderList(site: ISiteDoc) {
+    const { remove, duplicate } = this.props;
+
+    return (
+      <SiteBox key={site._id}>
         <SitePreview>
           <img
-            src={site.templateImage || '/images/template-preview.png'}
+            src={
+              readFile(site.coverImage?.url) || '/images/template-preview.png'
+            }
             alt="site-img"
           />
 
@@ -52,6 +89,7 @@ class SiteList extends React.Component<Props, {}> {
             >
               {__('View site')}
             </Button>
+            {this.renderEditAction(site)}
           </PreviewContent>
         </SitePreview>
         <Content>
@@ -64,11 +102,14 @@ class SiteList extends React.Component<Props, {}> {
               <Icon icon="ellipsis-h" size={18} />
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <a href={`/webbuilder/sites/edit/${site._id}`}>
+              <a href={`/xbuilder/sites/edit/${site._id}`}>
                 <li key="editor">
                   <Icon icon="edit-3" /> {__('Editor')}
                 </li>
               </a>
+              <li key="duplicate" onClick={() => duplicate(site._id)}>
+                <Icon icon="copy" /> {__('Duplicate')}
+              </li>
               <li key="delete" onClick={() => remove(site._id)}>
                 <Icon icon="trash-alt" size={14} /> {__('Delete')}
               </li>

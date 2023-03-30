@@ -53,6 +53,7 @@ export interface ITopic {
   color?: string;
   backgroundImage?: string;
   languageCode?: string;
+  notificationSegmentId?: string;
 }
 
 export interface ITopicDocument extends ICommonFields, ITopic, Document {
@@ -145,6 +146,11 @@ export const topicSchema = schemaWrapper(
       type: String,
       optional: true,
       label: 'Language codes'
+    }),
+
+    notificationSegmentId: field({
+      type: String,
+      required: false
     }),
 
     ...commonFields

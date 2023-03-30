@@ -6,13 +6,15 @@ import { __ } from '@erxes/ui/src/utils';
 import { MEASUREMENTS } from '@erxes/ui-settings/src/general/constants';
 import { IProduct } from '@erxes/ui-products/src/types';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import React from 'react';
 import Select from 'react-select-plus';
 import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
 import {
   Amount,
-  Measure,
   ProductButton,
+  TypeBox,
   VoucherCard,
   VoucherContainer
 } from '../../styles';
@@ -22,13 +24,16 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 import { queries } from '../../graphql';
+import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
+  advancedView?: boolean;
   uom: string[];
   currencies: string[];
   productsData?: IProductData[];
   productData: IProductData;
   removeProductItem?: (productId: string) => void;
+  duplicateProductItem?: (productId: string) => void;
   onChangeProductsData?: (productsData: IProductData[]) => void;
   calculatePerProductAmount: (type: string, productData: IProductData) => void;
   updateTotal?: () => void;
@@ -78,6 +83,7 @@ class ProductItem extends React.Component<Props, State> {
     if (currencies.length > 0 && !productData.currency) {
       this.onChangeField('currency', currencies[0], productData._id);
     }
+
     if (isEnabled('loyalties') && productData.product) {
       this.changeDiscountPercent(productData);
       this.toggleVoucherCardChecBox();
@@ -95,11 +101,7 @@ class ProductItem extends React.Component<Props, State> {
     this.setState({ categoryId });
   };
 
-  onChangeField = (
-    type: string,
-    value: string | boolean | IProduct | number,
-    productId: string
-  ) => {
+  onChangeField = (type: string, value, _id: string) => {
     const {
       productsData,
       onChangeProductsData,
@@ -107,7 +109,8 @@ class ProductItem extends React.Component<Props, State> {
     } = this.props;
 
     if (productsData) {
-      const productData = productsData.find(p => p._id === productId);
+      const productData = productsData.find(p => p._id === _id);
+
       if (productData) {
         if (type === 'product') {
           const product = value as IProduct;
@@ -115,6 +118,14 @@ class ProductItem extends React.Component<Props, State> {
           productData.unitPrice = product.unitPrice;
           productData.currency =
             productData.currency || this.props.currencies[0];
+        }
+
+        if (type === 'unitPricePercent') {
+          productData.unitPrice = (productData.globalUnitPrice * value) / 100;
+        }
+
+        if (type === 'globalUnitPrice') {
+          productData.unitPrice = (value * productData.unitPricePercent) / 100;
         }
 
         productData[type] = value;
@@ -128,6 +139,42 @@ class ProductItem extends React.Component<Props, State> {
         onChangeProductsData(productsData);
       }
     }
+  };
+
+  renderType = (product: IProduct) => {
+    const { type = '' } = product;
+
+    if (!type) {
+      return (
+        <Tip text={__('Unknown')} placement="left">
+          <TypeBox color="#AAAEB3">
+            <Icon icon="folder-2" />
+          </TypeBox>
+        </Tip>
+      );
+    }
+
+    if (type.includes('product')) {
+      return (
+        <>
+          <Tip text={__('Product')} placement="left">
+            <TypeBox color="#3B85F4">
+              <Icon icon="box" />
+            </TypeBox>
+          </Tip>
+        </>
+      );
+    }
+
+    return (
+      <>
+        <Tip text={__('Service')} placement="left">
+          <TypeBox color="#EA475D">
+            <Icon icon="invoice" />
+          </TypeBox>
+        </Tip>
+      </>
+    );
   };
 
   renderProductServiceTrigger(product?: IProduct) {
@@ -159,8 +206,8 @@ class ProductItem extends React.Component<Props, State> {
         if (isEnabled('loyalties') && this.state.isSelectedVoucher === true) {
           const { confirmLoyalties } = this.props;
           const { discountValue } = this.state;
-          let variables = {};
-          variables['checkInfo'] = {
+          const variables = {};
+          variables.checkInfo = {
             [product._id]: {
               voucherId: discountValue?.voucherId,
               count: 1
@@ -204,8 +251,8 @@ class ProductItem extends React.Component<Props, State> {
                 .substring(0, 1)
                 .toUpperCase()}${type.substring(1)} Voucher`}</div>
             </div>
-            <div className="left-dot"></div>
-            <div className="right-dot"></div>
+            <div className="left-dot" />
+            <div className="right-dot" />
           </VoucherCard>
         );
       };
@@ -296,9 +343,13 @@ class ProductItem extends React.Component<Props, State> {
     this.onChangeField('assignUserId', userId, this.props.productData._id);
   };
 
-  changeCurrentProduct = (productId: string) => {
+  placeOnChange = (name, value) => {
+    this.onChangeField(name, value, this.props.productData._id);
+  };
+
+  changeCurrentProduct = (_id: string) => {
     this.setState({
-      currentProduct: this.state.currentProduct === productId ? '' : productId
+      currentProduct: this.state.currentProduct === _id ? '' : _id
     });
   };
 
@@ -310,8 +361,8 @@ class ProductItem extends React.Component<Props, State> {
       _id: dealQuery._id,
       products: [
         {
-          productId: product._id,
-          quantity: quantity
+          productId: product.productId,
+          quantity
         }
       ]
     };
@@ -345,7 +396,16 @@ class ProductItem extends React.Component<Props, State> {
   };
 
   render() {
-    const { productData, uom, currencies, removeProductItem } = this.props;
+    const {
+      advancedView,
+      productData,
+      uom,
+      currencies,
+      duplicateProductItem,
+      removeProductItem
+    } = this.props;
+
+    const avStyle = { display: advancedView ? '' : 'none' };
 
     const selectOption = option => (
       <div className="simple-option">
@@ -359,6 +419,7 @@ class ProductItem extends React.Component<Props, State> {
 
     return (
       <tr key={productData._id}>
+        <td>{this.renderType(productData.product)}</td>
         <td>{this.renderProductModal(productData)}</td>
         <td>
           <FormControl
@@ -405,7 +466,7 @@ class ProductItem extends React.Component<Props, State> {
             onChange={this.onChange}
           />
         </td>
-        <td>
+        <td style={avStyle}>
           <FormControl
             defaultValue={productData.taxPercent || ''}
             type="number"
@@ -416,17 +477,20 @@ class ProductItem extends React.Component<Props, State> {
             onChange={this.onChange}
           />
         </td>
-        <td>
+        <td style={avStyle}>
           <Amount>{(productData.tax || 0).toLocaleString()} </Amount>
         </td>
 
         <td>
           <Amount>
-            {(productData.quantity * productData.unitPrice).toLocaleString()}{' '}
+            {(
+              productData.quantity * productData.unitPrice -
+              productData.discount
+            ).toLocaleString()}{' '}
           </Amount>
         </td>
 
-        <td>
+        <td style={avStyle}>
           <Select
             name="currency"
             placeholder={__('Choose')}
@@ -436,7 +500,7 @@ class ProductItem extends React.Component<Props, State> {
             options={selectConfigOptions(currencies, CURRENCIES)}
           />
         </td>
-        <td>
+        <td style={avStyle}>
           <Select
             name="uom"
             placeholder={__('Choose')}
@@ -454,6 +518,14 @@ class ProductItem extends React.Component<Props, State> {
           />
         </td>
         <td>
+          <FormControl
+            componentClass="checkbox"
+            disabled={true}
+            value={productData.isVatApplied}
+            checked={productData.isVatApplied}
+          />
+        </td>
+        <td>
           <SelectTeamMembers
             label="Choose assigned user"
             name="assignedUserId"
@@ -466,10 +538,64 @@ class ProductItem extends React.Component<Props, State> {
             onSelect={this.assignUserOnChange}
           />
         </td>
+        <td style={avStyle}>
+          <SelectBranches
+            label="Choose branch"
+            name="branchId"
+            multi={false}
+            customOption={{
+              value: '',
+              label: '-----------'
+            }}
+            initialValue={productData.branchId}
+            onSelect={branchId => this.placeOnChange('branchId', branchId)}
+          />
+        </td>
+        <td style={avStyle}>
+          <SelectDepartments
+            label="Choose department"
+            name="departmentId"
+            multi={false}
+            customOption={{
+              value: '',
+              label: '-----------'
+            }}
+            initialValue={productData.departmentId}
+            onSelect={departmentId =>
+              this.placeOnChange('departmentId', departmentId)
+            }
+          />
+        </td>
+        <td style={avStyle}>
+          <FormControl
+            value={productData.globalUnitPrice || ''}
+            type="number"
+            placeholder="0"
+            name="globalUnitPrice"
+            onChange={this.onChange}
+          />
+        </td>
+        <td style={avStyle}>
+          <FormControl
+            value={productData.unitPricePercent || ''}
+            type="number"
+            min={0}
+            max={100}
+            placeholder="0"
+            name="unitPricePercent"
+            onChange={this.onChange}
+          />
+        </td>
         <td>
           <Icon
             onClick={removeProductItem?.bind(this, productData._id)}
             icon="times-circle"
+          />
+        </td>
+        <td>
+          <Icon
+            onClick={duplicateProductItem?.bind(this, productData._id)}
+            icon="copy-alt"
           />
         </td>
       </tr>

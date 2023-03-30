@@ -1,6 +1,6 @@
 import Button from '@erxes/ui/src/components/Button';
 import { Alert } from '@erxes/ui/src/utils';
-import { removeTypename } from '@erxes/ui/src/utils/core';
+import { isEnabled, removeTypename } from '@erxes/ui/src/utils/core';
 import React from 'react';
 
 import { CONFIG_TYPES } from '../constants';
@@ -45,7 +45,7 @@ class Form extends React.Component<Props, State> {
       this.setState({ formValues: nextProps.defaultConfigValues });
     }
   }
-  s;
+
   handleSubmit = e => {
     e.preventDefault();
     const { formValues } = this.state;
@@ -62,16 +62,8 @@ class Form extends React.Component<Props, State> {
       return Alert.error('Please enter a valid domain');
     }
 
-    if (!formValues.knowledgeBaseTopicId) {
+    if (!formValues.knowledgeBaseTopicId && isEnabled('knowledgebase')) {
       return Alert.error('Please choose a Knowledge base topic');
-    }
-
-    if (!formValues.taskPublicBoardId) {
-      return Alert.error('Please select a public task board first');
-    }
-
-    if (!formValues.taskPublicPipelineId) {
-      return Alert.error('Please select a public task pipeline');
     }
 
     delete (formValues.styles || ({} as any)).__typename;
@@ -107,6 +99,13 @@ class Form extends React.Component<Props, State> {
       formValues.otpConfig = removeTypename(formValues.otpConfig);
     }
 
+    if (
+      formValues.manualVerificationConfig &&
+      !formValues.manualVerificationConfig.userIds.length
+    ) {
+      return Alert.error('Please select at least one user who can verify');
+    }
+
     this.props.handleUpdate(formValues);
   };
 
@@ -130,7 +129,7 @@ class Form extends React.Component<Props, State> {
         return <General {...commonProps} />;
       case CONFIG_TYPES.APPEARANCE.VALUE:
         return <Appearance {...commonProps} />;
-      case CONFIG_TYPES.CUSTOM.VALUE:
+      case CONFIG_TYPES.AUTH.VALUE:
         return <Config {...commonProps} />;
       default:
         return null;

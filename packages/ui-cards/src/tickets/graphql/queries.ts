@@ -21,6 +21,9 @@ const commonParams = `
   $assignedToMe: String,
   $startDate: String,
   $endDate: String,
+  $noSkipArchive: Boolean,
+  $branchIds:[String]
+  $departmentIds:[String]
   ${conformityQueryFields}
 `;
 
@@ -41,6 +44,9 @@ const commonParamDefs = `
   assignedToMe: $assignedToMe,
   startDate: $startDate,
   endDate: $endDate,
+  noSkipArchive: $noSkipArchive,
+  branchIds: $branchIds,
+  departmentIds: $departmentIds,
   ${conformityQueryFieldDefs}
 `;
 

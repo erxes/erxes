@@ -1,8 +1,11 @@
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { moduleObjects } from '../../permissions/actions/permission';
-import { getUserAllowedActions, IModuleMap } from '../../permissions/utils';
+import { IModuleMap } from '../../permissions/utils';
 import { IContext } from '../../../connectionResolver';
-import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
+import {
+  moduleRequireLogin,
+  getUserAllowedActions
+} from '@erxes/api-utils/src/permissions';
 
 const features: {
   [key: string]: {
@@ -233,7 +236,7 @@ const robotQueries = {
   async onboardingGetAvailableFeatures(
     _root,
     _args,
-    { user, models }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const results: Array<{
       name: string;
@@ -241,7 +244,7 @@ const robotQueries = {
       settings?: string[];
       showSettings?: boolean;
     }> = [];
-    const actionsMap = await getUserAllowedActions(models, user);
+    const actionsMap = await getUserAllowedActions(subdomain, user);
 
     for (const value of Object.keys(features)) {
       const { settings, feature } = features[value];

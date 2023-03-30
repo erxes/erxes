@@ -60,14 +60,12 @@ type FinalProps = {
 
 class AddFormContainer extends React.Component<FinalProps> {
   saveItem = (doc: IItemParams, callback: (item: IItem) => void) => {
-    const queryParams = new URLSearchParams(window.location.search);
-    const conversationId = queryParams.get('_id');
-
     const {
       addMutation,
       conversationConvertToCard,
       options,
       assignedUserIds,
+      sourceConversationId,
       description,
       attachments,
       relType,
@@ -88,8 +86,8 @@ class AddFormContainer extends React.Component<FinalProps> {
     doc.attachments = doc.attachments || attachments;
     doc.parentId = parentId;
 
-    if (conversationId) {
-      doc.sourceConversationIds = [conversationId];
+    if (sourceConversationId) {
+      doc.sourceConversationIds = [sourceConversationId];
 
       conversationConvertToCard({
         variables: {
@@ -99,7 +97,7 @@ class AddFormContainer extends React.Component<FinalProps> {
           itemName: doc.name,
           stageId: doc.stageId,
           bookingProductId,
-          _id: conversationId || ''
+          _id: sourceConversationId || ''
         }
       })
         .then(({ data }) => {

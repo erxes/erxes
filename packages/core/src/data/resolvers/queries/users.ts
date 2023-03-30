@@ -47,6 +47,7 @@ const queryBuilder = async (models: IModels, params: IListArgs) => {
   if (searchValue) {
     const fields = [
       { email: new RegExp(`.*${params.searchValue}.*`, 'i') },
+      { employeeId: new RegExp(`.*${params.searchValue}.*`, 'i') },
       { 'details.fullName': new RegExp(`.*${params.searchValue}.*`, 'i') },
       { 'details.position': new RegExp(`.*${params.searchValue}.*`, 'i') }
     ];
@@ -74,32 +75,22 @@ const queryBuilder = async (models: IModels, params: IListArgs) => {
     selector.brandIds = { $in: brandIds };
   }
 
-  const getUserIds = obj => {
-    const userIds = obj.supervisorId
-      ? (obj.userIds || []).concat(obj.supervisorId)
-      : obj.userIds || [];
-
-    return { $in: userIds };
-  };
+  if (branchId) {
+    selector.branchIds = { $in: [branchId] };
+  }
 
   if (departmentId) {
-    const department = await models.Departments.getDepartment({
-      _id: departmentId
-    });
-
-    selector._id = getUserIds(department);
+    selector.departmentIds = { $in: [departmentId] };
   }
 
   if (unitId) {
     const unit = await models.Units.getUnit({ _id: unitId });
 
-    selector._id = getUserIds(unit);
-  }
+    const userIds = unit.supervisorId
+      ? (unit.userIds || []).concat(unit.supervisorId)
+      : unit.userIds || [];
 
-  if (branchId) {
-    const branch = await models.Branches.getBranch({ _id: branchId });
-
-    selector._id = getUserIds(branch);
+    selector._id = { $in: userIds };
   }
 
   return selector;
@@ -135,13 +126,23 @@ const userQueries = {
    */
   allUsers(
     _root,
-    { isActive }: { isActive: boolean },
-    { userBrandIdsSelector, models }: IContext
+    {
+      isActive,
+      ids,
+      assignedToMe
+    }: { isActive: boolean; ids: string[]; assignedToMe: string },
+    { userBrandIdsSelector, user, models }: IContext
   ) {
-    const selector: { isActive?: boolean } = userBrandIdsSelector;
+    const selector: { isActive?: boolean; _id?: any } = userBrandIdsSelector;
 
     if (isActive) {
       selector.isActive = true;
+    }
+    if (!!ids?.length) {
+      selector._id = { $in: ids };
+    }
+    if (assignedToMe === 'true') {
+      selector._id = user._id;
     }
 
     return models.Users.find({ ...selector, ...NORMAL_USER_SELECTOR }).sort({
@@ -180,6 +181,13 @@ const userQueries = {
     return user
       ? models.Users.findOne({ _id: user._id, isActive: { $ne: false } })
       : null;
+  },
+
+  /**
+   *  Get all user movements
+   */
+  async userMovements(_root, args, { models }: IContext) {
+    return await models.UserMovements.find(args).sort({ createdAt: -1 });
   }
 };
 

@@ -85,7 +85,9 @@ export const regexSearchText = (
   const words = searchValue.split(' ');
 
   for (const word of words) {
-    result.push({ [searchKey]: new RegExp(`${stringToRegex(word)}`, 'mui') });
+    result.push({
+      [searchKey]: { $regex: `${stringToRegex(word)}`, $options: 'mui' }
+    });
   }
 
   return { $and: result };
@@ -336,6 +338,19 @@ export const userActionsMap = async (
   return allowedActions;
 };
 
+/*
+ * Generate url depending on given file upload publicly or not
+ */
+export const generateAttachmentUrl = (urlOrName: string) => {
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
+
+  if (urlOrName.startsWith('http')) {
+    return urlOrName;
+  }
+
+  return `${DOMAIN}/gateway/pl:core/read-file?key=${urlOrName}`;
+};
+
 export const getSubdomain = (req): string => {
   const hostname = req.headers.hostname || req.hostname;
   return hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
@@ -383,4 +398,16 @@ export const authCookieOptions = (options: any = {}) => {
   };
 
   return cookieOptions;
+};
+
+export const stripHtml = (string: any) => {
+  if (typeof string === 'undefined' || string === null) {
+    return;
+  } else {
+    const regex = /(&nbsp;|<([^>]+)>)/gi;
+    let result = string.replace(regex, '');
+    result = result.replace(/&#[0-9][0-9][0-9][0-9];/gi, ' ');
+    const cut = result.slice(0, 70);
+    return cut;
+  }
 };

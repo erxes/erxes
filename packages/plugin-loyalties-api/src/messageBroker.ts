@@ -45,6 +45,28 @@ export const initBroker = async cl => {
       status: 'success'
     };
   });
+
+  consumeQueue(
+    'loyalties:automations.receiveSetPropertyForwardTo',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      const target = data.target;
+
+      const response = await models.ScoreLogs.create({
+        ownerId: target._id,
+        ownerType: data.collectionType,
+        changeScore: data.setDoc[Object.keys(data.setDoc)[0]],
+        createdAt: new Date(),
+        description: 'Via automation'
+      });
+
+      return {
+        data: response,
+        status: 'success'
+      };
+    }
+  );
 };
 
 export const sendProductsMessage = async (
@@ -99,6 +121,17 @@ export const sendRPCMessage = async (channel, message): Promise<any> => {
 
 export const sendNotification = (subdomain: string, data) => {
   return sendNotificationsMessage({ subdomain, action: 'send', data });
+};
+
+export const sendSegmentsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'segments',
+    ...args
+  });
 };
 
 export default function() {

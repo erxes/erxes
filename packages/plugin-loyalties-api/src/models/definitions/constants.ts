@@ -31,3 +31,10 @@ export const SPIN_STATUS = {
   WON: 'won',
   ALL: ['new', 'loss', 'won']
 };
+
+export const ASSIGNMENT_STATUS = {
+  NEW: 'new',
+  WON: 'won',
+  LOSS: 'loss',
+  ALL: ['new', 'won', 'loss']
+};

@@ -1,4 +1,4 @@
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../connectionResolver';
 import { sendCommonMessage } from '../../messageBroker';
@@ -35,6 +35,20 @@ const documentQueries = {
     { contentType },
     { subdomain }: IContext
   ) {
+    if (contentType === 'core:user') {
+      const fields = await sendCommonMessage({
+        subdomain,
+        serviceName: 'forms',
+        action: 'fields.fieldsCombinedByContentType',
+        isRPC: true,
+        data: {
+          contentType
+        }
+      });
+
+      return fields.map(f => ({ value: f.name, name: f.label }));
+    }
+
     return sendCommonMessage({
       subdomain,
       serviceName: contentType,
@@ -49,6 +63,8 @@ const documentQueries = {
   }
 };
 
-moduleCheckPermission(documentQueries, 'manageDocuments');
+checkPermission(documentQueries, 'documents', 'manageDocuments', []);
+checkPermission(documentQueries, 'documents', 'manageDocuments');
+checkPermission(documentQueries, 'documents', 'manageDocuments');
 
 export default documentQueries;

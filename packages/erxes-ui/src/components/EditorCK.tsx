@@ -94,7 +94,8 @@ class EditorCK extends React.Component<IEditorProps, { content: string }> {
       autoGrowMinHeight = 180,
       autoGrowMaxHeight,
       toolbarLocation = 'top',
-      onChange
+      onChange,
+      onInstanceReady
     } = this.props;
 
     const mentionDataFeed = (opts, callback) => {
@@ -116,6 +117,7 @@ class EditorCK extends React.Component<IEditorProps, { content: string }> {
       <CKEditor
         data={content}
         onChange={onChange}
+        onInstanceReady={onInstanceReady}
         config={{
           height,
           startupFocus: autoFocus,
