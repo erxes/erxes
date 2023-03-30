@@ -56,7 +56,7 @@ function LoginContainer(props: Props) {
           window.location.href = '/';
         })
         .catch((e) => {
-          console.log('error: ', e.message);
+          console.error('error: ', e.message);
         });
   };
 
