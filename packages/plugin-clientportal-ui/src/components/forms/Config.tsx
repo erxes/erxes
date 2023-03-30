@@ -66,14 +66,12 @@ function General({
 
   const onSelectUsers = values => {
     handleFormChange('manualVerificationConfig', {
-      userIds: values,
-      verifyCompany,
-      verifyCustomer
+      userIds: values
     });
   };
 
-  const onChangeToggle = (type: string, value: boolean) => {
-    if (type === 'otpEnabled') {
+  const onChangeToggle = (controlName: string, value: boolean) => {
+    if (controlName === 'otpEnabled') {
       setOtpEnabled(value);
 
       if (!value) {
@@ -89,7 +87,7 @@ function General({
       }
     }
 
-    if (type === 'mailEnabled') {
+    if (name === 'mailEnabled') {
       setMailEnabled(value);
 
       if (!value) {
@@ -97,38 +95,16 @@ function General({
       }
     }
 
-    if (type === 'manualVerificationEnabled') {
+    if (name === 'manualVerificationEnabled') {
       setManualVerificationEnabled(value);
 
       if (!value) {
         handleFormChange('manualVerificationConfig', null);
       } else {
         handleFormChange('manualVerificationConfig', {
-          userIds: [],
-          verifyCustomer: false,
-          verifyCompany: false
+          userIds: []
         });
       }
-    }
-
-    if (type === 'verifyCompany') {
-      setVerifyCompany(value);
-
-      handleFormChange('manualVerificationConfig', {
-        userIds,
-        verifyCompany: value,
-        verifyCustomer
-      });
-    }
-
-    if (type === 'verifyCustomer') {
-      setVerifyCustomer(value);
-
-      handleFormChange('manualVerificationConfig', {
-        userIds,
-        verifyCompany,
-        verifyCustomer: value
-      });
     }
   };
 
@@ -517,6 +493,32 @@ function General({
           label: 'Google Application Credentials',
           formValueName: 'googleCredentials',
           formValue: googleCredentials
+        })}
+        {renderControl({
+          label: 'Google Client Id',
+          formValueName: 'googleClientId',
+          formValue: googleClientId
+        })}
+        {renderControl({
+          label: 'Google Client Secret',
+          formValueName: 'googleClientSecret',
+          formValue: googleClientSecret
+        })}
+        {renderControl({
+          label: 'Google Client Redirect Uri',
+          formValueName: 'googleRedirectUri',
+          formValue: googleRedirectUri
+        })}
+      </CollapseContent>
+      <CollapseContent
+        title={__('Facebook Application Credentials')}
+        compact={true}
+        open={false}
+      >
+        {renderControl({
+          label: 'Facebook App Id',
+          formValueName: 'facebookAppId',
+          formValue: facebookAppId
         })}
       </CollapseContent>
     </>
