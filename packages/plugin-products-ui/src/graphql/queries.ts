@@ -18,29 +18,11 @@ const productCategoriesCount = `
 
 const productsGroupCounts = `
   query productsGroupCounts(
-    $type: String,
-    $categoryId: String,
-    $tag: String,
-    $searchValue: String,
-    $perPage: Int,
-    $page: Int $ids: [String],
-    $excludeIds: Boolean,
-    $pipelineId: String,
-    $boardId: String,
     $segment: String,
     $segmentData: String,
     $only: String
   ) {
     productsGroupCounts(
-      type: $type,
-      categoryId: $categoryId,
-      tag: $tag,
-      searchValue: $searchValue,
-      perPage: $perPage,
-      page: $page ids: $ids,
-      excludeIds: $excludeIds,
-      pipelineId: $pipelineId,
-      boardId: $boardId,
       segment: $segment,
       segmentData: $segmentData,
       only: $only
