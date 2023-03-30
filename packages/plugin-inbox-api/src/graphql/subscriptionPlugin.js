@@ -23,7 +23,7 @@ module.exports = {
   typeDefs: `
 			conversationChanged(_id: String!): ConversationChangedResponse
 			conversationMessageInserted(_id: String!): ConversationMessage
-			conversationClientMessageInserted(userId: String!): ConversationMessage
+			conversationClientMessageInserted(subdomain: String!, userId: String!): ConversationMessage
 			conversationClientTypingStatusChanged(_id: String!): ConversationClientTypingStatusChangedResponse
 			conversationAdminMessageInserted(customerId: String): ConversationAdminMessageInsertedResponse
 			conversationExternalIntegrationMessageInserted: JSON
@@ -125,8 +125,12 @@ module.exports = {
           () =>
             graphqlPubsub.asyncIterator("conversationClientMessageInserted"),
           async (payload, variables) => {
-            const { conversation, integration, channelMemberIds } = payload;
+            const { subdomain, conversation, integration, channelMemberIds } = payload;
 
+            if (subdomain !== variables.subdomain) {
+              return false;
+            }
+    
             if (!conversation) {
               return false;
             }

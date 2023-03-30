@@ -66,10 +66,12 @@ export const customFieldsDataByFieldCode = async (
   const results: any = {};
 
   for (const data of customFieldsData) {
-    results[fieldCodesById[data.field].code] = {
-      ...data,
-      text: fieldCodesById[data.field].text
-    };
+    if (fieldCodesById[data.field]) {
+      results[fieldCodesById[data.field].code] = {
+        ...data,
+        text: fieldCodesById[data.field].text
+      };
+    }
   }
 
   return results;

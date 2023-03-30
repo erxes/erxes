@@ -11,7 +11,9 @@ export default {
   idleTime(conversation: IConversationDocument) {
     const now = new Date();
 
-    return (now.getTime() - conversation.updatedAt.getTime()) / (1000 * 60);
+    return (
+      (now.getTime() - (conversation.updatedAt || now).getTime()) / (1000 * 60)
+    );
   },
 
   customer(conversation: IConversationDocument) {

@@ -27,8 +27,8 @@ export function generateBranchOptions(array: IBranch[] = []): IOption[] {
 }
 
 const branchesQuery = `
-  query branches(${commonStructureParamsDef},$withoutUserFilter:Boolean) {
-    branches (${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter){
+  query branches(${commonStructureParamsDef}, $withoutUserFilter: Boolean) {
+    branches (${commonStructureParamsValue}, withoutUserFilter: $withoutUserFilter){
       _id,
       code,
       title,
@@ -40,6 +40,7 @@ const branchesQuery = `
 export default (props: {
   queryParams?: IQueryParams;
   filterParams?: {
+    ids?: string[];
     status?: string;
     searchValue?: string;
     withoutUserFilter?: boolean;

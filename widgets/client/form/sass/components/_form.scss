@@ -42,10 +42,13 @@
 .date-input {
   .rdtPicker {
     background: #faf9fb;
-    right: 40px;
     z-index: 999;
+    padding: 10px;
     border: 1px solid #eee;
     border-top: 0;
+    transform: none !important;
+    will-change: unset !important;
+    position: unset !important;
 
     table {
       width: 300px;

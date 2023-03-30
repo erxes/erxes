@@ -105,11 +105,12 @@ export const types = `
 `;
 
 const commonParams = `
-    ids:[String]
-    perPage:Int
-    page:Int
+    ids: [String]
+    excludeIds: Boolean
+    perPage: Int
+    page: Int
     searchValue: String,
-    status:String,
+    status: String,
 `;
 
 export const queries = `
