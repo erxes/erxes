@@ -27,7 +27,7 @@ function VerifyContainer(props: Props) {
         }
       })
       .catch((e) => {
-        console.log('error: ', e.message);
+        console.error('error: ', e.message);
       });
 
   return <p />;
