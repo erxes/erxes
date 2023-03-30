@@ -62,8 +62,6 @@ export default {
           if (unitPrice < 0) {
             unitPrice = 0;
           }
-
-          product.unitPrice = unitPrice;
         }
       }
 

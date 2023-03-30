@@ -14,6 +14,7 @@ import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
+import { LittleGroup } from '../styles';
 
 type Props = {
   condition: any;
@@ -29,17 +30,6 @@ class PerConditions extends React.Component<Props, State> {
 
     this.state = {};
   }
-
-  // onSave = e => {
-  //   e.preventDefault();
-  //   const { configsMap, currentConfigKey } = this.props;
-  //   const { config } = this.state;
-  //   const key = config.stageId;
-
-  //   delete configsMap.dealsProductsDataPlaces[currentConfigKey];
-  //   configsMap.dealsProductsDataPlaces[key] = config;
-  //   this.props.save(configsMap);
-  // };
 
   onChangeConfig = (code: string, value) => {
     const { condition, onChange } = this.props;
@@ -150,32 +140,51 @@ class PerConditions extends React.Component<Props, State> {
                 autoFocus={true}
               />
             </FormGroup>
+            <FormGroup>
+              <ControlLabel>{'Sub uom type'}</ControlLabel>
+              <FormControl
+                componentClass="select"
+                defaultValue={condition.subUomType}
+                options={[
+                  { label: 'Not use', value: '' },
+                  { label: 'Low than count', value: 'lt' },
+                  { label: 'Greater, equal than count', value: 'gte' }
+                ]}
+                onChange={(e: any) => {
+                  this.onChange('subUomType', e.target.value);
+                }}
+              />
+            </FormGroup>
           </FormColumn>
         </FormWrapper>
-        <FormWrapper>
-          <FormColumn>
-            <SelectBranches
-              label="Choose Branch"
-              name="branchId"
-              initialValue={condition.branchId}
-              onSelect={branchId => this.onChange('branchId', branchId)}
-              multi={false}
-              customOption={{ value: '', label: 'Clean branch' }}
-            />
-          </FormColumn>
-          <FormColumn>
-            <SelectDepartments
-              label="Choose department"
-              name="selectedDepartmentIds"
-              initialValue={condition.departmentId}
-              onSelect={departmentId =>
-                this.onChange('departmentId', departmentId)
-              }
-              multi={false}
-              customOption={{ value: '', label: 'Clean department' }}
-            />
-          </FormColumn>
-        </FormWrapper>
+        <LittleGroup>
+          <FormWrapper>
+            <FormColumn>
+              <ControlLabel>{'Set branch'}</ControlLabel>
+              <SelectBranches
+                label="Choose Branch"
+                name="branchId"
+                initialValue={condition.branchId}
+                onSelect={branchId => this.onChange('branchId', branchId)}
+                multi={false}
+                customOption={{ value: '', label: 'Clean branch' }}
+              />
+            </FormColumn>
+            <FormColumn>
+              <ControlLabel>{'Set department'}</ControlLabel>
+              <SelectDepartments
+                label="Choose department"
+                name="selectedDepartmentIds"
+                initialValue={condition.departmentId}
+                onSelect={departmentId =>
+                  this.onChange('departmentId', departmentId)
+                }
+                multi={false}
+                customOption={{ value: '', label: 'Clean department' }}
+              />
+            </FormColumn>
+          </FormWrapper>
+        </LittleGroup>
         <Tip text={'Delete'}>
           <Button
             btnStyle="simple"
