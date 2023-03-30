@@ -32,9 +32,10 @@ export const checkCondition = async (
   condition,
   productById
 ) => {
-  let categoryRes = false;
+  let categoryRes = true;
   let segmentRes = true;
-  let numberRes = false;
+  let numberRes = true;
+  let checkUomRes = true;
 
   if (
     condition.gtCount ||
@@ -81,6 +82,29 @@ export const checkCondition = async (
     return false;
   }
 
+  if (condition.subUomType) {
+    checkUomRes = false;
+    const product = productById[pdata.productId];
+    if (product.subUoms && product.subUoms.length) {
+      const ratio = product.subUoms[0].ratio || 0;
+      if (ratio) {
+        const checkCount = 1 / ratio;
+        if (
+          (condition.subUomType === 'lt' && pdata.quantity < checkCount) ||
+          (condition.subUomType === 'gte' && pdata.quantity >= checkCount)
+        ) {
+          checkUomRes = true;
+        }
+      }
+    } else {
+      checkUomRes = true;
+    }
+  }
+
+  if (!checkUomRes) {
+    return false;
+  }
+
   if (condition.productCategoryIds && condition.productCategoryIds.length) {
     categoryRes = false;
     const product = productById[pdata.productId];
@@ -117,5 +141,5 @@ export const checkCondition = async (
     return false;
   }
 
-  return categoryRes && segmentRes && numberRes;
+  return categoryRes && segmentRes && numberRes && checkUomRes;
 };
