@@ -47,7 +47,6 @@ const invoicesFields = `
     resolvedAt
     status
     customer
-    pluginData
 `;
 
 const invoices = gql`
