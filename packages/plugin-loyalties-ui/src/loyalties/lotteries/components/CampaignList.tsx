@@ -23,7 +23,7 @@ class List extends React.Component<IProps> {
     router.setParams(this.props.history, { campaignId: null });
   };
 
-  isActive = (id: string) => {
+  isActive = (id?: string) => {
     const { queryParams } = this.props;
     const currentGroup = queryParams.campaignId || '';
 

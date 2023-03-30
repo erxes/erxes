@@ -50,6 +50,8 @@ export interface IProductData {
   isVatApplied?: boolean;
   assignUserId?: string;
   maxQuantity: number;
+  branchId?: string;
+  departmentId?: string;
 }
 
 export interface IPaymentsData {

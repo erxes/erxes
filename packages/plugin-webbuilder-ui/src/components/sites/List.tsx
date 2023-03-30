@@ -5,14 +5,16 @@ import {
   SiteBox,
   SitePreview
 } from './styles';
+import { __, readFile } from '@erxes/ui/src/utils';
 
 import Button from '@erxes/ui/src/components/Button';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import { ISiteDoc } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
-import { readFile, __ } from '@erxes/ui/src/utils';
+import TemplateForm from '../../containers/templates/TemplateForm';
 import { getEnv } from '@erxes/ui/src/utils/core';
 
 type Props = {
@@ -25,7 +27,19 @@ type Props = {
   queryParams: any;
 };
 
-class SiteList extends React.Component<Props, {}> {
+type State = {
+  currentSite: any;
+};
+
+class SiteList extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      currentSite: null
+    };
+  }
+
   showSite = (site: ISiteDoc) => {
     const { REACT_APP_API_URL } = getEnv();
 
@@ -34,11 +48,31 @@ class SiteList extends React.Component<Props, {}> {
     window.open(`${url}`, '_blank');
   };
 
+  renderEditAction = (site: ISiteDoc) => {
+    const trigger = (
+      <Button btnStyle="white" icon="edit">
+        {__('Edit site')}
+      </Button>
+    );
+
+    const content = ({ closeModal }) => (
+      <TemplateForm closeModal={closeModal} selectedSite={site} />
+    );
+
+    return (
+      <ModalTrigger
+        title="Edit your site"
+        trigger={trigger}
+        content={content}
+      />
+    );
+  };
+
   renderList(site: ISiteDoc) {
     const { remove, duplicate } = this.props;
 
     return (
-      <SiteBox key={site._id} nowrap={true}>
+      <SiteBox key={site._id}>
         <SitePreview>
           <img
             src={
@@ -55,6 +89,7 @@ class SiteList extends React.Component<Props, {}> {
             >
               {__('View site')}
             </Button>
+            {this.renderEditAction(site)}
           </PreviewContent>
         </SitePreview>
         <Content>
@@ -67,7 +102,7 @@ class SiteList extends React.Component<Props, {}> {
               <Icon icon="ellipsis-h" size={18} />
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <a href={`/webbuilder/sites/edit/${site._id}`}>
+              <a href={`/xbuilder/sites/edit/${site._id}`}>
                 <li key="editor">
                   <Icon icon="edit-3" /> {__('Editor')}
                 </li>

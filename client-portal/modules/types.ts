@@ -1,4 +1,3 @@
-
 export type Store = {
   currentUser: IUser;
   topic: Topic;
@@ -70,6 +69,8 @@ export type Config = {
     permission?: string;
     viewTicket?: string;
   };
+  googleClientId?: string;
+  facebookAppId?: string;
 };
 
 interface ICommonFields {

@@ -58,11 +58,30 @@ const resetPassword = `
     )
   }
 `;
+const googleLogin = `
+  mutation clientPortalGoogleAuthentication(
+    $code: String!,
+    $clientPortalId: String!,
+  ) {
+    clientPortalGoogleAuthentication(
+      clientPortalId: $clientPortalId,
+      code: $code,
+    )
+  }
+`;
+
+const facebookLogin = `
+ mutation ClientPortalFaceBookAuthentication($accessToken: String!, $clientPortalId: String!) {
+  clientPortalFacebookAuthentication(accessToken: $accessToken, clientPortalId: $clientPortalId)
+}
+`;
 
 export default {
   login: clientPortalLogin,
   logout,
   createUser,
   getCode,
-  resetPassword
+  resetPassword,
+  googleLogin,
+  facebookLogin
 };
