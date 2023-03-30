@@ -148,6 +148,8 @@ const connectAndQueryTimeLogsFromMsSql = async (
 
   let returnData;
 
+  console.log('debug ========');
+
   try {
     const teamMembers = await findAllTeamMembersWithEmpId(subdomain);
     const teamMembersObject = {};
@@ -163,9 +165,13 @@ const connectAndQueryTimeLogsFromMsSql = async (
 
     const query = `SELECT * FROM ${MYSQL_TABLE} WHERE authDateTime >= '${startDate}' AND authDateTime <= '${endDate}' AND ISNUMERIC(ID)=1 AND ID IN (${teamEmployeeIds}) ORDER BY ID, authDateTime`;
 
+    console.log('debug ======== before select');
+
     const queryData = await sequelize.query(query, {
       type: QueryTypes.SELECT
     });
+
+    console.log('debug ======== after select');
 
     returnData = await createTimelogs(
       models,
@@ -174,6 +180,8 @@ const connectAndQueryTimeLogsFromMsSql = async (
       queryData,
       teamMembersObject
     );
+
+    console.log('debug ======== after timelogs');
   } catch (err) {
     console.error(err);
   }
