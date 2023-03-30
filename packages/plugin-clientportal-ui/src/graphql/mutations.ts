@@ -30,6 +30,7 @@ const createOrUpdateConfig = `
     $googleClientId: String
     $googleRedirectUri: String
     $googleClientSecret: String
+    $facebookAppId: String
 
     $kbToggle: Boolean
     $publicTaskToggle: Boolean
@@ -68,6 +69,7 @@ const createOrUpdateConfig = `
       googleClientId: $googleClientId
       googleRedirectUri: $googleRedirectUri
       googleClientSecret: $googleClientSecret
+      facebookAppId: $facebookAppId
 
       kbToggle: $kbToggle,
       publicTaskToggle: $publicTaskToggle,

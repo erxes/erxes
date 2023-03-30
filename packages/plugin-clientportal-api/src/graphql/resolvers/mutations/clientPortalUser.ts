@@ -4,7 +4,7 @@ import { IAttachment } from '@erxes/api-utils/src/types';
 
 import { createJwtToken } from '../../../auth/authUtils';
 import { IContext } from '../../../connectionResolver';
-import { sendCoreMessage } from '../../../messageBroker';
+import { sendContactsMessage, sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
 import { IUser } from '../../../models/definitions/clientPortalUser';
 import { sendSms } from '../../../utils';
@@ -20,7 +20,7 @@ export interface IVerificationParams {
 interface IClientPortalUserEdit extends IUser {
   _id: string;
 }
-interface GoogleOauthToken {
+interface IGoogleOauthToken {
   access_token: string;
   id_token: string;
   expires_in: number;
@@ -29,7 +29,7 @@ interface GoogleOauthToken {
   scope: string;
 }
 
-interface GoogleUserResult {
+interface IGoogleUserResult {
   id: string;
   email: string;
   verified_email: boolean;
@@ -184,7 +184,7 @@ const clientPortalUserMutations = {
   clientPortalFaceBookAuthentication: async (
     _root,
     args: any,
-    { models, requestInfo, res }: IContext
+    { subdomain, models, requestInfo, res }: IContext
   ) => {
     const { clientPortalId, accessToken } = args;
 
@@ -194,13 +194,36 @@ const clientPortalUserMutations = {
         method: 'GET',
         params: {
           access_token: accessToken,
-          fields: 'id,name,email,gender,education,work,picture'
+          fields:
+            'id,name,email,gender,education,work,picture,last_name,first_name'
         }
       });
-      const { id, name, email, gender, work, picture } = response.data || [];
-      let user = await models.ClientPortalUsers.findOne({
-        facebookId: id
+      const { id, name, email, picture, first_name, last_name } =
+        response || [];
+      let qry: any = {};
+      let user: any = {};
+
+      const trimmedMail = (email || '').toLowerCase().trim();
+
+      if (email) {
+        qry = { email: trimmedMail };
+      }
+
+      qry.clientPortalId = clientPortalId;
+
+      let customer = await sendContactsMessage({
+        subdomain,
+        action: 'customers.findOne',
+        data: {
+          customerPrimaryEmail: email
+        },
+        isRPC: true
       });
+      if (customer) {
+        qry = { erxesCustomerId: customer._id, clientPortalId };
+      }
+
+      user = await models.ClientPortalUsers.findOne(qry);
 
       if (!user) {
         user = await models.ClientPortalUsers.create({
@@ -208,8 +231,33 @@ const clientPortalUserMutations = {
           email,
           logo: picture?.data?.url,
           username: name,
+          firstName: first_name,
+          lastName: last_name,
           clientPortalId
         });
+      }
+
+      if (!customer) {
+        customer = await sendContactsMessage({
+          subdomain,
+          action: 'customers.createCustomer',
+          data: {
+            firstName: first_name,
+            lastName: last_name,
+            primaryEmail: trimmedMail,
+            state: 'lead',
+            avatar: picture?.data?.url
+          },
+          isRPC: true
+        });
+      }
+
+      if (customer && customer._id) {
+        user.erxesCustomerId = customer._id;
+        await models.ClientPortalUsers.updateOne(
+          { _id: user._id },
+          { $set: { erxesCustomerId: customer._id } }
+        );
       }
 
       const { token } = await createJwtToken({
@@ -237,7 +285,7 @@ const clientPortalUserMutations = {
   clientPortalGoogleAuthentication: async (
     _root,
     args: any,
-    { models, requestInfo, res }: IContext
+    { subdomain, models, requestInfo, res }: IContext
   ) => {
     const { clientPortalId, code } = args;
 
@@ -251,7 +299,7 @@ const clientPortalUserMutations = {
       code
     }: {
       code: string;
-    }): Promise<GoogleOauthToken> => {
+    }): Promise<IGoogleOauthToken> => {
       try {
         const response = await sendRequest({
           url: 'https://oauth2.googleapis.com/token',
@@ -276,7 +324,7 @@ const clientPortalUserMutations = {
     }: {
       id_token: string;
       access_token: string;
-    }): Promise<GoogleUserResult> {
+    }): Promise<IGoogleUserResult> {
       try {
         const response = await sendRequest({
           url: 'https://www.googleapis.com/oauth2/v1/userinfo',
@@ -299,13 +347,44 @@ const clientPortalUserMutations = {
     const { id_token, access_token } = await getGoogleOauthToken({ code });
 
     // Use the token to get the User
-    const { name, verified_email, email, picture, id } = await getGoogleUser({
+    const {
+      name,
+      email,
+      picture,
+      id,
+      family_name,
+      given_name
+    } = await getGoogleUser({
       id_token,
       access_token
     });
-    let user = await models.ClientPortalUsers.findOne({
-      googleId: id
+    let qry: any = {};
+    let user: any = {};
+
+    const trimmedMail = (email || '').toLowerCase().trim();
+
+    if (email) {
+      qry = { email: trimmedMail };
+    }
+
+    qry.clientPortalId = clientPortalId;
+
+    let customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: {
+        customerPrimaryEmail: email
+      },
+      isRPC: true
     });
+    if (customer) {
+      qry = { erxesCustomerId: customer._id, clientPortalId };
+    }
+    if (id) {
+      qry = { googleId: id };
+    }
+
+    user = await models.ClientPortalUsers.findOne(qry);
 
     if (!user) {
       user = await models.ClientPortalUsers.create({
@@ -313,8 +392,32 @@ const clientPortalUserMutations = {
         email,
         logo: picture,
         username: name,
+        firstName: family_name,
         clientPortalId
       });
+    }
+
+    if (!customer) {
+      customer = await sendContactsMessage({
+        subdomain,
+        action: 'customers.createCustomer',
+        data: {
+          firstName: given_name,
+          lastName: family_name,
+          primaryEmail: trimmedMail,
+          state: 'lead',
+          avatar: picture
+        },
+        isRPC: true
+      });
+    }
+
+    if (customer && customer._id) {
+      user.erxesCustomerId = customer._id;
+      await models.ClientPortalUsers.updateOne(
+        { _id: user._id },
+        { $set: { erxesCustomerId: customer._id } }
+      );
     }
 
     const { token } = await createJwtToken({

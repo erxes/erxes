@@ -43,11 +43,11 @@ export const getLangParam = () =>
     ? 'mn'
     : 'en';
 
-export const getGoogleUrl = (from) => {
+export const getGoogleUrl = (from, config) => {
   const rootUrl = `https://accounts.google.com/o/oauth2/v2/auth`;
   const options = {
     redirect_uri: 'http://localhost:4200/verify',
-    client_id: process.env.GOOGLE_CLIENT_ID,
+    client_id: config.googleClientId || '',
     access_type: 'offline',
     response_type: 'code',
     prompt: 'consent',
@@ -55,7 +55,7 @@ export const getGoogleUrl = (from) => {
       'https://www.googleapis.com/auth/userinfo.profile',
       'https://www.googleapis.com/auth/userinfo.email'
     ].join(' '),
-    state: '/'
+    state: from
   };
 
   const qs = new URLSearchParams(options);

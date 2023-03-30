@@ -58,7 +58,7 @@ const resetPassword = `
     )
   }
 `;
-const getGoogleCode = `
+const googleLogin = `
   mutation clientPortalGoogleAuthentication(
     $code: String!,
     $clientPortalId: String!,
@@ -70,11 +70,18 @@ const getGoogleCode = `
   }
 `;
 
+const facebookLogin = `
+ mutation ClientPortalFaceBookAuthentication($accessToken: String!, $clientPortalId: String!) {
+  clientPortalFaceBookAuthentication(accessToken: $accessToken, clientPortalId: $clientPortalId)
+}
+`;
+
 export default {
   login: clientPortalLogin,
   logout,
   createUser,
   getCode,
   resetPassword,
-  getGoogleCode
+  googleLogin,
+  facebookLogin
 };
