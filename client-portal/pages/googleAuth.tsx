@@ -1,13 +1,13 @@
 import AppProvider, { AppConsumer } from '../modules/appContext';
 import { Store } from '../modules/types';
-import VerifyContainer from '../modules/user/containers/Verify';
+import GoogleAuthContainer from '../modules/user/containers/GoogleAuth';
 
-export default function VerifyPage() {
+export default function GoogleAuth() {
   return (
     <AppProvider>
       <AppConsumer>
         {({ config }: Store) => {
-          return <VerifyContainer {...{ config }} />;
+          return <GoogleAuthContainer {...{ config }} />;
         }}
       </AppConsumer>
     </AppProvider>
