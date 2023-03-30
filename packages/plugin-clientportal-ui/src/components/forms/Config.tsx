@@ -66,7 +66,9 @@ function General({
 
   const onSelectUsers = values => {
     handleFormChange('manualVerificationConfig', {
-      userIds: values
+      userIds: values,
+      verifyCompany,
+      verifyCustomer
     });
   };
 

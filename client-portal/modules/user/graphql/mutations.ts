@@ -72,7 +72,7 @@ const googleLogin = `
 
 const facebookLogin = `
  mutation ClientPortalFaceBookAuthentication($accessToken: String!, $clientPortalId: String!) {
-  clientPortalFaceBookAuthentication(accessToken: $accessToken, clientPortalId: $clientPortalId)
+  clientPortalFacebookAuthentication(accessToken: $accessToken, clientPortalId: $clientPortalId)
 }
 `;
 

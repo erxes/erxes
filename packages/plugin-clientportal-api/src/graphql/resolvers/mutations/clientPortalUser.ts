@@ -186,7 +186,7 @@ const clientPortalUserMutations = {
     return 'loggedin';
   },
 
-  clientPortalFaceBookAuthentication: async (
+  clientPortalFacebookAuthentication: async (
     _root,
     args: any,
     { subdomain, models, requestInfo, res }: IContext
