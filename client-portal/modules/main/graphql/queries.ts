@@ -21,6 +21,8 @@ export const clientPortalGetConfig = `
       ticketToggle
       taskToggle
       kbToggle
+      googleClientId
+      facebookAppId
 
       styles {
         bodyColor
