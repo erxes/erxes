@@ -28,7 +28,7 @@ export const validRiskIndicators = async params => {
       throw new Error('Please build a form');
     }
 
-    // await validateCalculateMethods(form);
+    await validateCalculateMethods(form);
 
     if (forms.length > 1) {
       if (!form.percentWeight) {
