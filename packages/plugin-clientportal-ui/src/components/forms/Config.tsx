@@ -13,6 +13,7 @@ import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { CONFIGURATIONS } from '../../constants';
 import { ToggleWrap } from '../../styles';
 import { ClientPortalConfig } from '../../types';
+import PasswordConfig from './PasswordConfig';
 
 type Props = {
   handleFormChange: (name: string, value: any) => void;
@@ -38,6 +39,7 @@ function General({
   mailConfig,
   name,
   manualVerificationConfig,
+  passwordVerificationConfig,
   handleFormChange
 }: Props) {
   const [otpEnabled, setOtpEnabled] = useState<boolean>(
@@ -506,6 +508,10 @@ function General({
     <>
       {renderOtp()}
       {renderMailConfig()}
+      <PasswordConfig
+        config={passwordVerificationConfig}
+        onChange={handleFormChange}
+      />
       {renderManualVerification()}
 
       <CollapseContent

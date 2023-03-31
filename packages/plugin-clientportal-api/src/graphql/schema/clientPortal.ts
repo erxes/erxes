@@ -52,6 +52,14 @@ ${
     verifyCompany: Boolean
   }
 
+  type PasswordVerificationConfig {
+    verifyByOTP: Boolean
+    emailSubject: String
+    emailContent: String
+    smsContent: String
+  }
+
+
   input OTPConfigInput {
     content: String
     codeLength: Int
@@ -106,6 +114,7 @@ ${
     otpConfig: OTPConfig
     mailConfig: MailConfig
     manualVerificationConfig: ManualVerificationConfig
+    passwordVerificationConfig: PasswordVerificationConfig
 
     kbToggle: Boolean,
     publicTaskToggle: Boolean,
@@ -224,6 +233,7 @@ export const mutations = cardAvailable => `
     otpConfig: OTPConfigInput
     mailConfig: MailConfigInput
     manualVerificationConfig: JSON
+    passwordVerificationConfig: JSON
   ): ClientPortal
 
   clientPortalRemove (_id: String!): JSON

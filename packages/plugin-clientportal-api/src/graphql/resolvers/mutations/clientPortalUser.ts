@@ -167,8 +167,6 @@ const clientPortalUserMutations = {
     args: ILoginParams,
     { models, requestInfo, res }: IContext
   ) => {
-    console.log('clientPortalLogin');
-
     const { token } = await models.ClientPortalUsers.login(args);
 
     const cookieOptions: any = {};
@@ -535,6 +533,10 @@ const clientPortalUserMutations = {
     const { clientPortalId, phone, email } = args;
     const query: any = { clientPortalId };
 
+    if (!phone && !email) {
+      throw new Error('Phone or email is required');
+    }
+
     if (email) {
       query.email = email;
     }
@@ -551,37 +553,55 @@ const clientPortalUserMutations = {
       email
     );
 
-    if (token) {
-      const link = `${clientPortal.url}/reset-password?token=${token}`;
+    const passwordVerificationConfig = clientPortal.passwordVerificationConfig || {
+      verifyByOTP: false,
+      smsContent: `Reset password link: ${clientPortal.url}/reset-password?token=${token}`,
+      emailSubject: 'Reset password',
+      emailContent: `Reset password link: ${clientPortal.url}/reset-password?token=${token}`
+    };
 
-      await sendCoreMessage({
-        subdomain,
-        action: 'sendEmail',
-        data: {
-          toEmails: [email],
-          title: 'Reset password',
-          template: {
-            name: 'resetPassword',
-            data: {
-              content: link
-            }
+    const verifyByLink = !passwordVerificationConfig.verifyByOTP;
+
+    const config = clientPortal.otpConfig || {
+      content: '',
+      smsTransporterType: 'messagepro',
+      codeLength: 4
+    };
+
+    if (phone) {
+      const smsContent = verifyByLink
+        ? passwordVerificationConfig.smsContent.replace(
+            /{{ link }}/,
+            `${clientPortal.url}/reset-password?token=${token}`
+          )
+        : passwordVerificationConfig.smsContent.replace(/{.*}/, phoneCode);
+
+      await sendSms(subdomain, config.smsTransporterType, phone, smsContent);
+
+      return 'sent';
+    }
+
+    const emailContent = verifyByLink
+      ? passwordVerificationConfig.emailContent.replace(
+          /{{ link }}/,
+          `${clientPortal.url}/reset-password?token=${token}`
+        )
+      : passwordVerificationConfig.emailContent.replace(/{.*}/, phoneCode);
+
+    await sendCoreMessage({
+      subdomain,
+      action: 'sendEmail',
+      data: {
+        toEmails: [email],
+        title: passwordVerificationConfig.emailSubject,
+        template: {
+          name: 'base',
+          data: {
+            content: emailContent
           }
         }
-      });
-    }
-
-    if (phoneCode) {
-      const config = clientPortal.otpConfig || {
-        content: '',
-        smsTransporterType: '',
-        codeLength: 4
-      };
-      const body =
-        config.content.replace(/{.*}/, phoneCode) ||
-        `Your verification code is ${phoneCode}`;
-
-      await sendSms(subdomain, config.smsTransporterType, phone, body);
-    }
+      }
+    });
 
     return 'sent';
   },
@@ -628,7 +648,7 @@ const clientPortalUserMutations = {
         config.content.replace(/{.*}/, phoneCode) ||
         `Your verification code is ${phoneCode}`;
 
-      await sendSms(subdomain, config.smsTransporterType, phone, body);
+      await sendSms(subdomain, 'messagePro', phone, body);
     }
 
     return { userId, message: 'Sms sent' };
@@ -858,7 +878,21 @@ const clientPortalUserMutations = {
   ) => {
     const { _id, doc } = args;
 
-    return models.ClientPortalUsers.update({ _id }, { $set: doc });
+    if (doc.phone) {
+      const user = await models.ClientPortalUsers.findOne({
+        _id: { $ne: _id },
+        phone: doc.phone,
+        clientPortalId: doc.clientPortalId
+      });
+
+      if (user) {
+        throw new Error('Phone number already exists');
+      }
+    }
+
+    await models.ClientPortalUsers.update({ _id }, { $set: doc });
+
+    return models.ClientPortalUsers.findOne({ _id });
   }
 };
 
