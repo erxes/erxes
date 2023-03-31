@@ -305,8 +305,6 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         }
       ]);
 
-      console.log({ assignedUserIds, submittedUsers });
-
       return assignedUserIds.every(userId =>
         submittedUsers.some(submittedUser => submittedUser._id === userId)
       );
