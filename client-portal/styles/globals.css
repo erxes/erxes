@@ -2,7 +2,7 @@ html,
 body {
   padding: 0;
   margin: 0;
-  font-family: "Open Sans", sans-serif;
+  font-family: 'Open Sans', sans-serif;
   line-height: 1.5;
   color: #444;
 }
@@ -91,4 +91,9 @@ hr {
   to {
     transform: scale(1);
   }
+}
+.kep-login-facebook {
+  width: 100% !important;
+  padding: inherit;
+  border-radius: 3px !important;
 }

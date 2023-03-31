@@ -52,6 +52,14 @@ ${
     verifyCompany: Boolean
   }
 
+  type PasswordVerificationConfig {
+    verifyByOTP: Boolean
+    emailSubject: String
+    emailContent: String
+    smsContent: String
+  }
+
+
   input OTPConfigInput {
     content: String
     codeLength: Int
@@ -96,12 +104,17 @@ ${
     dealPipelineId: String
     dealBoardId: String
     googleCredentials: JSON
+    googleClientId: String
+    googleClientSecret: String
+    googleRedirectUri: String
+    facebookAppId: String
     styles: Styles
     mobileResponsive: Boolean
   
     otpConfig: OTPConfig
     mailConfig: MailConfig
     manualVerificationConfig: ManualVerificationConfig
+    passwordVerificationConfig: PasswordVerificationConfig
 
     kbToggle: Boolean,
     publicTaskToggle: Boolean,
@@ -205,6 +218,10 @@ export const mutations = cardAvailable => `
     dealPipelineId: String
     dealBoardId: String
     googleCredentials: JSON
+    googleClientId: String
+    googleClientSecret: String
+    googleRedirectUri: String
+    facebookAppId: String
     styles: StylesParams
     mobileResponsive: Boolean
     kbToggle: Boolean,
@@ -216,6 +233,7 @@ export const mutations = cardAvailable => `
     otpConfig: OTPConfigInput
     mailConfig: MailConfigInput
     manualVerificationConfig: JSON
+    passwordVerificationConfig: JSON
   ): ClientPortal
 
   clientPortalRemove (_id: String!): JSON
