@@ -73,7 +73,6 @@ const downloadPlugins = async () => {
 };
 
 const server = new CubejsServer({
-  schemaPath: './dynamicSchema',
   initApp: async () => {
     await downloadPlugins();
   }
