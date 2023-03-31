@@ -281,6 +281,7 @@ export const SiteFormContainer = styledTS<{ showDarkMode?: boolean }>(
   styled.div
 )`
   position: relative;
+  height: 100%;
 
   ${props =>
     !props.showDarkMode &&
