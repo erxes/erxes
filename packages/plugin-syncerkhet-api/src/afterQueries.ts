@@ -52,7 +52,8 @@ export const afterQueryHandlers = async (subdomain, data) => {
         accounts: remConfig.account,
         locations: remConfig.location,
         inventories: codes.join(',')
-      }
+      },
+      timeout: 8000
     });
 
     const jsonRes = JSON.parse(response);
