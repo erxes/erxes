@@ -1,37 +1,43 @@
-export const QPAY_ENDPOINT = 'https://merchant.qpay.mn';
-export const SOCIALPAY_ENDPOINT = 'https://instore.golomtbank.com';
+export const PAYMENTS = {
+  qpay: {
+    kind: 'qpay',
+    apiUrl: 'https://merchant.qpay.mn/v2',
+    actions: {
+      getToken: 'auth/token',
+      invoice: 'invoice'
+    },
+    handlerMethod: 'GET'
+  },
+  socialpay: {
+    kind: 'socialpay',
+    apiUrl: 'https://instore.golomtbank.com',
+    actions: {
+      invoicePhone: 'pos/invoice/phone',
+      invoiceQr: 'pos/invoice/qr',
+      invoiceCheck: 'pos/invoice/check',
+      invoiceCancel: 'pos/invoice/cancel'
+    },
+    handlerMethod: 'POST'
+  },
+  monpay: {
+    kind: 'monpay',
+    apiUrl: 'https://wallet.monpay.mn',
+    actions: {
+      invoiceQr: 'rest/branch/qrpurchase/generate',
+      invoiceCheck: 'rest/branch/qrpurchase/check'
+    },
+    handlerMethod: 'GET'
+  },
+  storepay: {
+    kind: 'storepay',
+    apiUrl: 'http://service-merchant.storepay.mn:7005',
+    actions: {
+      invoice: 'invoice'
+    },
+    handlerMethod: 'GET'
+  },
 
-export const PAYMENT_KINDS = {
-  QPAY: 'qpay',
-  SOCIAL_PAY: 'socialPay',
-  MONPAY: 'monpay',
-
-  ALL: ['qpay', 'socialPay', 'monpay']
-};
-
-export const QPAY_ACTIONS = {
-  GET_TOKEN: '/v2/auth/token',
-  INVOICE: '/v2/invoice'
-};
-
-export const SOCIALPAY_ACTIONS = {
-  INVOICE_PHONE: '/pos/invoice/phone',
-  INVOICE_QR: '/pos/invoice/qr',
-  INVOICE_CHECK: '/pos/invoice/check',
-  INVOICE_CANCEL: '/pos/invoice/cancel'
-};
-
-export const POST_CALLBACK_TYPES = {
-  SOCIAL_PAY: 'socialPay',
-
-  ALL: ['socialPay']
-};
-
-export const GET_CALLBACK_TYPES = {
-  QPAY: 'qpay',
-  MONPAY: 'monpay',
-
-  ALL: ['qpay', 'monpay']
+  ALL: ['qpay', 'socialpay', 'monpay', 'storepay']
 };
 
 export const PAYMENT_STATUS = {

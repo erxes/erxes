@@ -90,9 +90,9 @@ export const getAllowedProducts = async (
         subdomain,
         action: 'find',
         data: {
-          query: { _id: { $in: productIds } },
+          query: { _id: { $in: filterProductIds } },
           sort: { _id: 1, categoryId: 1 },
-          limit: productIds.length
+          limit: filterProductIds.length
         },
         isRPC: true,
         defaultValue: []

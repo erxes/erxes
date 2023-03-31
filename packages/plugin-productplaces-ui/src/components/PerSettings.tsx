@@ -7,6 +7,7 @@ import {
   FormGroup
 } from '@erxes/ui/src/components';
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
+import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { IConfigsMap } from '../types';
@@ -76,6 +77,10 @@ class PerSettings extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.value);
   };
 
+  onChangeCheckbox = (code: string, e) => {
+    this.onChangeConfig(code, e.target.checked);
+  };
+
   addCondition = () => {
     const { conditions } = this.state;
     conditions.push({
@@ -125,18 +130,33 @@ class PerSettings extends React.Component<Props, State> {
             autoFocus={true}
           />
         </FormGroup>
-        <FormGroup>
-          <BoardSelectContainer
-            type="deal"
-            autoSelectStage={false}
-            boardId={config.boardId}
-            pipelineId={config.pipelineId}
-            stageId={config.stageId}
-            onChangeBoard={this.onChangeBoard}
-            onChangePipeline={this.onChangePipeline}
-            onChangeStage={this.onChangeStage}
-          />
-        </FormGroup>
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <BoardSelectContainer
+                type="deal"
+                autoSelectStage={false}
+                boardId={config.boardId}
+                pipelineId={config.pipelineId}
+                stageId={config.stageId}
+                onChangeBoard={this.onChangeBoard}
+                onChangePipeline={this.onChangePipeline}
+                onChangeStage={this.onChangeStage}
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel>Split for packages</ControlLabel>
+              <FormControl
+                checked={config.isSplit || false}
+                onChange={this.onChangeCheckbox.bind(this, 'isSplit')}
+                componentClass="checkbox"
+              />
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
+
         {this.renderConditions()}
         <ModalFooter>
           <Button
