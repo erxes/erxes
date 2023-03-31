@@ -49,12 +49,19 @@ const documentQueries = {
       return fields.map(f => ({ value: f.name, name: f.label }));
     }
 
+    let data: any = {};
+
+    if (contentType.match(new RegExp('contacts:'))) {
+      data.contentType = contentType;
+      contentType = 'contacts';
+    }
+
     return sendCommonMessage({
       subdomain,
       serviceName: contentType,
       action: 'documents.editorAttributes',
       isRPC: true,
-      data: {}
+      data
     });
   },
 

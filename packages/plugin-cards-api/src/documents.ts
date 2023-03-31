@@ -2,35 +2,88 @@ import { generateModels } from './connectionResolver';
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendProductsMessage
+  sendProductsMessage,
+  sendFormsMessage
 } from './messageBroker';
-
+import * as _ from 'lodash';
 const toMoney = value => {
   return new Intl.NumberFormat().format(value);
 };
 
-export default {
-  editorAttributes: async () => {
-    return [
-      { value: 'name', name: 'Name' },
-      { value: 'createdAt', name: 'Created at' },
-      { value: 'closeDate', name: 'Close date' },
-      { value: 'description', name: 'Description' },
-      { value: 'productsInfo', name: 'Products information' },
-      { value: 'servicesInfo', name: 'Services information' },
-      { value: 'assignedUsers', name: 'Assigned users' },
-      { value: 'customers', name: 'Customers' },
-      { value: 'companies', name: 'Companies' },
-      { value: 'now', name: 'Now' },
-      { value: 'productTotalAmount', name: 'Products total amount' },
-      { value: 'servicesTotalAmount', name: 'Services total amount' },
-      { value: 'totalAmount', name: 'Total amount' },
-      { value: 'totalAmountVat', name: 'Total amount vat' },
-      { value: 'totalAmountWithoutVat', name: 'Total amount without vat' },
-      { value: 'discount', name: 'Discount' },
-      { value: 'paymentCash', name: 'Payment cash' },
-      { value: 'paymentNonCash', name: 'Payment non cash' }
+const getCustomFields = async ({ subdomain }) => {
+  let fields: any[] = [];
+
+  for (const cardType of ['task', 'ticket', 'deal']) {
+    let items = await sendFormsMessage({
+      subdomain,
+      action: 'fields.fieldsCombinedByContentType',
+      isRPC: true,
+      data: {
+        contentType: `cards:${cardType}`
+      },
+      defaultValue: []
+    });
+
+    fields = [
+      ...fields,
+      ...items.map(f => ({
+        value: f.name,
+        name: `${cardType}:${f.label}`
+      }))
     ];
+  }
+  return fields;
+};
+
+const commonFields = [
+  { value: 'name', name: 'Name' },
+  { value: 'createdAt', name: 'Created at' },
+  { value: 'closeDate', name: 'Close date' },
+  { value: 'description', name: 'Description' },
+  { value: 'productsInfo', name: 'Products information' },
+  { value: 'servicesInfo', name: 'Services information' },
+  { value: 'assignedUsers', name: 'Assigned users' },
+  { value: 'customers', name: 'Customers' },
+  { value: 'companies', name: 'Companies' },
+  { value: 'now', name: 'Now' },
+  { value: 'productTotalAmount', name: 'Products total amount' },
+  { value: 'servicesTotalAmount', name: 'Services total amount' },
+  { value: 'totalAmount', name: 'Total amount' },
+  { value: 'totalAmountVat', name: 'Total amount vat' },
+  { value: 'totalAmountWithoutVat', name: 'Total amount without vat' },
+  { value: 'discount', name: 'Discount' },
+  { value: 'paymentCash', name: 'Payment cash' },
+  { value: 'paymentNonCash', name: 'Payment non cash' }
+];
+
+function flattenObject(ob) {
+  var toReturn = {};
+
+  for (var i in ob) {
+    if (!ob.hasOwnProperty(i)) continue;
+
+    if (typeof ob[i] == 'object' && ob[i] !== null) {
+      var flatObject = flattenObject(ob[i]);
+      for (var x in flatObject) {
+        if (!flatObject.hasOwnProperty(x)) continue;
+
+        toReturn[i + '.' + x] = flatObject[x];
+      }
+    } else {
+      toReturn[i] = ob[i];
+    }
+  }
+  return toReturn;
+}
+
+export default {
+  editorAttributes: async ({ subdomain }) => {
+    const customFields = await getCustomFields({ subdomain });
+    const uniqueFields = customFields.filter(
+      customField =>
+        !commonFields.some(field => field.value === customField.value)
+    );
+    return [...commonFields, ...uniqueFields];
   },
 
   replaceContent: async ({ subdomain, data: { stageId, itemId, content } }) => {
@@ -330,6 +383,62 @@ export default {
       /{{ discount }}/g,
       toMoney(replaceProductsResult.discount + replaceServicesResult.discount)
     );
+
+    for (const customFieldData of item.customFieldsData || []) {
+      replacedContent = replacedContent.replace(
+        new RegExp(`{{ customFieldsData.${customFieldData.field} }}`, 'g'),
+        customFieldData.stringValue
+      );
+    }
+
+    const fileds = (await getCustomFields({ subdomain })).filter(
+      customField =>
+        customField.name.includes(stage.type) &&
+        !customField.value.includes('customFieldsData')
+    );
+
+    for (const field of fileds) {
+      if (field.value === 'assignedUserIds') {
+        const usersData = await sendCoreMessage({
+          subdomain,
+          action: 'users.find',
+          data: {
+            query: {
+              _id: { $in: item.assignedUserIds }
+            }
+          }
+        });
+        const userNames = usersData.map(user => user.username).join(',');
+        replacedContent = replacedContent.replace(
+          /{{ assignedUserIds }}/g,
+          userNames
+        );
+      }
+
+      const itemFlatten = flattenObject(item);
+
+      replacedContent = replacedContent.replace(
+        new RegExp(`{{ ${field.value}}}`, 'g'),
+        field.value.includes('.') ? itemFlatten[field.value] : item[field.value]
+      );
+    }
+
+    // console.log(
+    //   customFields.map(field =>
+    //     field.substring(field.lastIndexOf('.') + 1, field.length)
+    //   )
+    // );
+    // const customFieldsData = await sendFormsMessage({
+    //   subdomain,
+    //   action: 'fields.find',
+    //   data: {
+    //     _id: {
+    //       $in: customFields.map(field =>
+    //         field.substring(field.lastIndexOf('.') + 1, field.length)
+    //       )
+    //     }
+    //   }
+    // });
 
     return [replacedContent];
   }

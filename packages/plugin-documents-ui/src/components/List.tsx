@@ -79,27 +79,42 @@ function List({ queryParams, list, remove }: Props) {
     { title: __('Documents'), link: '/documents' }
   ];
 
+  const documentTypes = [
+    {
+      label: 'Cards',
+      contentType: 'cards'
+    },
+    {
+      label: 'Products',
+      contentType: 'products'
+    },
+    {
+      label: 'Team members',
+      contentType: 'core:user'
+    },
+    {
+      label: 'Customers',
+      contentType: 'contacts:customer'
+    },
+    {
+      label: 'Company',
+      contentType: 'contacts:company'
+    }
+  ];
+
   const sidebar = (
     <LeftSidebar header={<SidebarHeader />} hasBorder>
       <LeftSidebar.Header uppercase={true}>
         {__('Document type')}
       </LeftSidebar.Header>
       <SidebarList noTextColor noBackground id={'DocumentsSidebar'}>
-        <li>
-          <Link to={`/settings/documents/?contentType=cards`}>
-            {__('Cards')}
-          </Link>
-        </li>
-        <li>
-          <Link to={`/settings/documents/?contentType=products`}>
-            {__('Products')}
-          </Link>
-        </li>
-        <li>
-          <Link to={`/settings/documents/?contentType=core:user`}>
-            {__('Team members')}
-          </Link>
-        </li>
+        {documentTypes.map(({ label, contentType }) => (
+          <li>
+            <Link to={`/settings/documents/?contentType=${contentType}`}>
+              {__(label)}
+            </Link>
+          </li>
+        ))}
       </SidebarList>
     </LeftSidebar>
   );
