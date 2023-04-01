@@ -141,4 +141,5 @@ export const mutations = `
   dealsWatch(_id: String, isAdd: Boolean): Deal
   dealsCopy(_id: String!, proccessId: String): Deal
   dealsArchive(stageId: String!, proccessId: String): String
+  dealsEditProductData(proccessId: String, dealId: String, dataId: String, doc: JSON, action: String): JSON
 `;
