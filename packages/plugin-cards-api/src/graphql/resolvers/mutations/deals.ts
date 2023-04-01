@@ -208,7 +208,7 @@ const dealMutations = {
     return itemsArchive(models, subdomain, stageId, 'deal', proccessId, user);
   },
 
-  async productDataEdit(
+  async dealsEditProductData(
     _root,
     {
       proccessId,
