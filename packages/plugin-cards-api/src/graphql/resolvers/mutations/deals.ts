@@ -4,6 +4,7 @@ import { IDeal } from '../../../models/definitions/deals';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { checkUserIds } from '@erxes/api-utils/src';
 import {
+  itemResolver,
   itemsAdd,
   itemsArchive,
   itemsChange,
@@ -13,6 +14,7 @@ import {
 } from './utils';
 import { IContext } from '../../../connectionResolver';
 import { sendProductsMessage } from '../../../messageBroker';
+import { graphqlPubsub } from '../../../configs';
 
 interface IDealsEdit extends IDeal {
   _id: string;
@@ -204,11 +206,97 @@ const dealMutations = {
     { user, models, subdomain }: IContext
   ) {
     return itemsArchive(models, subdomain, stageId, 'deal', proccessId, user);
+  },
+
+  async productDataEdit(
+    _root,
+    {
+      proccessId,
+      dealId,
+      dataId,
+      doc,
+      action
+    }: {
+      proccessId: string;
+      dealId: string;
+      dataId: string;
+      doc: any;
+      action: string;
+    },
+    { models, subdomain, user }: IContext
+  ) {
+    const deal = await models.Deals.getDeal(dealId);
+    let productsData;
+    let oldPData;
+
+    if (action === 'create') {
+      productsData = [...(deal.productsData || []), { ...doc }];
+    } else {
+      oldPData = (deal.productsData || []).find(pdata => pdata.id === dataId);
+
+      if (!oldPData) {
+        throw new Error('Deals productData not found');
+      }
+
+      if (action === 'delete') {
+        productsData = (deal.productsData || []).filter(
+          data => data.id !== dataId
+        );
+      }
+
+      if (action === 'update') {
+        productsData = (deal.productsData || []).map(data =>
+          data.id === dataId ? { ...doc } : data
+        );
+      }
+    }
+
+    if (productsData) {
+      await models.Deals.updateOne({ _id: dealId }, { $set: { productsData } });
+
+      const stage = await models.Stages.getStage(deal.stageId);
+      const updatedItem =
+        (await models.Deals.findOne({ _id: dealId })) || ({} as any);
+
+      graphqlPubsub.publish('pipelinesChanged', {
+        pipelinesChanged: {
+          _id: stage.pipelineId,
+          proccessId,
+          action: 'itemUpdate',
+          data: {
+            item: {
+              ...updatedItem,
+              ...(await itemResolver(
+                models,
+                subdomain,
+                user,
+                'deal',
+                updatedItem
+              ))
+            }
+          }
+        }
+      });
+
+      graphqlPubsub.publish('productsDataChanged', {
+        pipelinesChanged: {
+          _id: dealId,
+          proccessId,
+          action,
+          data: {
+            dataId,
+            doc,
+            productsData
+          }
+        }
+      });
+    }
   }
 };
 
 checkPermission(dealMutations, 'dealsAdd', 'dealsAdd');
 checkPermission(dealMutations, 'dealsEdit', 'dealsEdit');
+checkPermission(dealMutations, 'productDataEdit', 'dealsEdit');
 checkPermission(dealMutations, 'dealsRemove', 'dealsRemove');
 checkPermission(dealMutations, 'dealsWatch', 'dealsWatch');
 checkPermission(dealMutations, 'dealsArchive', 'dealsArchive');
