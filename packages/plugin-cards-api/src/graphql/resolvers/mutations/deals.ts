@@ -1,6 +1,6 @@
 import * as _ from 'underscore';
 import { IItemDragCommonFields } from '../../../models/definitions/boards';
-import { IDeal } from '../../../models/definitions/deals';
+import { IDeal, IProductData } from '../../../models/definitions/deals';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { checkUserIds } from '@erxes/api-utils/src';
 import {
@@ -208,95 +208,216 @@ const dealMutations = {
     return itemsArchive(models, subdomain, stageId, 'deal', proccessId, user);
   },
 
+  async dealsCreateProductsData(
+    _root,
+    {
+      proccessId,
+      dealId,
+      docs
+    }: {
+      proccessId: string;
+      dealId: string;
+      docs: IProductData[];
+    },
+    { models, subdomain, user }: IContext
+  ) {
+    const deal = await models.Deals.getDeal(dealId);
+    const oldDataIds = (deal.productsData || []).map(pd => pd._id);
+
+    for (const doc of docs) {
+      if (doc._id) {
+        const checkDup = (deal.productsData || []).find(
+          pd => pd._id === doc._id
+        );
+        if (checkDup) {
+          throw new Error('Deals productData duplicated');
+        }
+      }
+    }
+
+    const productsData = (deal.productsData || []).concat(docs);
+    await models.Deals.updateOne({ _id: dealId }, { $set: { productsData } });
+
+    const stage = await models.Stages.getStage(deal.stageId);
+    const updatedItem =
+      (await models.Deals.findOne({ _id: dealId })) || ({} as any);
+
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: stage.pipelineId,
+        proccessId,
+        action: 'itemUpdate',
+        data: {
+          item: {
+            ...updatedItem,
+            ...(await itemResolver(
+              models,
+              subdomain,
+              user,
+              'deal',
+              updatedItem
+            ))
+          }
+        }
+      }
+    });
+
+    graphqlPubsub.publish('productsDataChanged', {
+      pipelinesChanged: {
+        _id: dealId,
+        proccessId,
+        action: 'create',
+        data: {
+          dataIds: (updatedItem.productsData || [])
+            .filter(pd => !oldDataIds.includes(pd._id))
+            .map(pd => pd._id),
+          docs,
+          productsData
+        }
+      }
+    });
+  },
+
   async dealsEditProductData(
     _root,
     {
       proccessId,
       dealId,
       dataId,
-      doc,
-      action
+      doc
     }: {
       proccessId: string;
       dealId: string;
       dataId: string;
-      doc: any;
-      action: string;
+      doc: IProductData;
     },
     { models, subdomain, user }: IContext
   ) {
     const deal = await models.Deals.getDeal(dealId);
-    let productsData;
-    let oldPData;
+    const oldPData = (deal.productsData || []).find(
+      pdata => pdata.id === dataId
+    );
 
-    if (action === 'create') {
-      productsData = [...(deal.productsData || []), { ...doc }];
-    } else {
-      oldPData = (deal.productsData || []).find(pdata => pdata.id === dataId);
-
-      if (!oldPData) {
-        throw new Error('Deals productData not found');
-      }
-
-      if (action === 'delete') {
-        productsData = (deal.productsData || []).filter(
-          data => data.id !== dataId
-        );
-      }
-
-      if (action === 'update') {
-        productsData = (deal.productsData || []).map(data =>
-          data.id === dataId ? { ...doc } : data
-        );
-      }
+    if (!oldPData) {
+      throw new Error('Deals productData not found');
     }
 
-    if (productsData) {
-      await models.Deals.updateOne({ _id: dealId }, { $set: { productsData } });
+    const productsData = (deal.productsData || []).map(data =>
+      data.id === dataId ? { ...doc } : data
+    );
 
-      const stage = await models.Stages.getStage(deal.stageId);
-      const updatedItem =
-        (await models.Deals.findOne({ _id: dealId })) || ({} as any);
+    await models.Deals.updateOne({ _id: dealId }, { $set: { productsData } });
 
-      graphqlPubsub.publish('pipelinesChanged', {
-        pipelinesChanged: {
-          _id: stage.pipelineId,
-          proccessId,
-          action: 'itemUpdate',
-          data: {
-            item: {
-              ...updatedItem,
-              ...(await itemResolver(
-                models,
-                subdomain,
-                user,
-                'deal',
-                updatedItem
-              ))
-            }
+    const stage = await models.Stages.getStage(deal.stageId);
+    const updatedItem =
+      (await models.Deals.findOne({ _id: dealId })) || ({} as any);
+
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: stage.pipelineId,
+        proccessId,
+        action: 'itemUpdate',
+        data: {
+          item: {
+            ...updatedItem,
+            ...(await itemResolver(
+              models,
+              subdomain,
+              user,
+              'deal',
+              updatedItem
+            ))
           }
         }
-      });
+      }
+    });
 
-      graphqlPubsub.publish('productsDataChanged', {
-        pipelinesChanged: {
-          _id: dealId,
-          proccessId,
-          action,
-          data: {
-            dataId,
-            doc,
-            productsData
-          }
+    graphqlPubsub.publish('productsDataChanged', {
+      pipelinesChanged: {
+        _id: dealId,
+        proccessId,
+        action: 'edit',
+        data: {
+          dataId,
+          doc,
+          productsData
         }
-      });
+      }
+    });
+  },
+
+  async dealsDeleteProductData(
+    _root,
+    {
+      proccessId,
+      dealId,
+      dataId
+    }: {
+      proccessId: string;
+      dealId: string;
+      dataId: string;
+    },
+    { models, subdomain, user }: IContext
+  ) {
+    const deal = await models.Deals.getDeal(dealId);
+
+    const oldPData = (deal.productsData || []).find(
+      pdata => pdata.id === dataId
+    );
+
+    if (!oldPData) {
+      throw new Error('Deals productData not found');
     }
+
+    const productsData = (deal.productsData || []).filter(
+      data => data.id !== dataId
+    );
+
+    await models.Deals.updateOne({ _id: dealId }, { $set: { productsData } });
+
+    const stage = await models.Stages.getStage(deal.stageId);
+    const updatedItem =
+      (await models.Deals.findOne({ _id: dealId })) || ({} as any);
+
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: stage.pipelineId,
+        proccessId,
+        action: 'itemUpdate',
+        data: {
+          item: {
+            ...updatedItem,
+            ...(await itemResolver(
+              models,
+              subdomain,
+              user,
+              'deal',
+              updatedItem
+            ))
+          }
+        }
+      }
+    });
+
+    graphqlPubsub.publish('productsDataChanged', {
+      pipelinesChanged: {
+        _id: dealId,
+        proccessId,
+        action: 'delete',
+        data: {
+          dataId,
+          productsData
+        }
+      }
+    });
   }
 };
 
 checkPermission(dealMutations, 'dealsAdd', 'dealsAdd');
 checkPermission(dealMutations, 'dealsEdit', 'dealsEdit');
-checkPermission(dealMutations, 'productDataEdit', 'dealsEdit');
+checkPermission(dealMutations, 'dealsCreateProductsData', 'dealsEdit');
+checkPermission(dealMutations, 'dealsEditProductData', 'dealsEdit');
+checkPermission(dealMutations, 'dealsDeleteProductData', 'dealsEdit');
 checkPermission(dealMutations, 'dealsRemove', 'dealsRemove');
 checkPermission(dealMutations, 'dealsWatch', 'dealsWatch');
 checkPermission(dealMutations, 'dealsArchive', 'dealsArchive');
