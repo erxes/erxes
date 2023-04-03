@@ -82,7 +82,10 @@ export default withProps<Props>(
         name: 'filemanagerFilesQuery',
         options: ({ queryParams }: { queryParams: any }) => ({
           variables: {
-            folderId: queryParams._id ? queryParams._id : ''
+            folderId: queryParams._id ? queryParams._id : '',
+            search: queryParams.search,
+            contentTypeId: queryParams.contentTypeId,
+            createdAtFrom: queryParams.createdAtFrom
           }
         })
       }
