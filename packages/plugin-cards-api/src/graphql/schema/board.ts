@@ -74,6 +74,13 @@ export const types = ({ tags }) => `
     data: JSON
   }
 
+  type ProductsDataChangeResponse {
+    _id: String
+    proccessId: String
+    action: String
+    data: JSON
+  }
+
   type ConvertTo {
     ticketUrl: String,
     dealUrl: String,
