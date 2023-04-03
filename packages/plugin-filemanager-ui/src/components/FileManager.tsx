@@ -32,8 +32,6 @@ type Props = {
   folderQueryLoading: boolean;
   onSearch: (search: string) => void;
   onSelect: (values: string[] | string, key: string) => void;
-  isFiltered: () => boolean;
-  clearFilter: () => void;
 };
 
 type State = {
@@ -96,13 +94,7 @@ class FileManager extends React.Component<Props, State> {
   };
 
   renderFilters = () => {
-    const {
-      queryParams,
-      filemanagerFolders,
-      onSelect,
-      isFiltered,
-      clearFilter
-    } = this.props;
+    const { queryParams, filemanagerFolders, onSelect } = this.props;
 
     const folders = filemanagerFolders.map(f => ({
       label: f.name,
@@ -118,16 +110,6 @@ class FileManager extends React.Component<Props, State> {
 
     return (
       <FilterWrapper>
-        {isFiltered() && (
-          <Button
-            block={true}
-            btnStyle="warning"
-            onClick={clearFilter}
-            icon="times-circle"
-          >
-            {__('Clear Filter')}
-          </Button>
-        )}
         <FormControl
           type="text"
           defaultValue={queryParams.search}

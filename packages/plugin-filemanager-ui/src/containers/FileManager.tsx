@@ -76,28 +76,6 @@ class FileManagerContainer extends React.Component<FinalProps> {
     return routerUtils.setParams(this.props.history, { [key]: values });
   };
 
-  isFiltered = (): boolean => {
-    const params = generateQueryParams(this.props.history);
-
-    for (const param in params) {
-      if (FILTER_PARAMS.includes(param)) {
-        return true;
-      }
-    }
-
-    return false;
-  };
-
-  clearFilter = () => {
-    const params = generateQueryParams(this.props.history);
-
-    const remainedParams = Object.keys(params).filter(
-      key => !['_id'].includes(key)
-    );
-
-    routerUtils.removeParams(this.props.history, ...remainedParams);
-  };
-
   render() {
     const {
       filemanagerFoldersQuery,
@@ -121,8 +99,6 @@ class FileManagerContainer extends React.Component<FinalProps> {
       filemanagerFolders,
       folderQueryLoading: filemanagerFoldersQuery.loading,
       onSelect: this.onSelect,
-      isFiltered: this.isFiltered,
-      clearFilter: this.clearFilter,
       onSearch: this.onSearch
     };
 
