@@ -1,12 +1,13 @@
-import { __ } from '../utils/core';
-import React from 'react';
-import { Modal } from 'react-bootstrap';
-import { withRouter } from 'react-router-dom';
-import RTG from 'react-transition-group';
+import * as routerUtils from '../utils/router';
+
 import { CloseModal } from '../styles/main';
 import { IRouterProps } from '../types';
-import * as routerUtils from '../utils/router';
 import Icon from './Icon';
+import { Modal } from 'react-bootstrap';
+import RTG from 'react-transition-group';
+import React from 'react';
+import { __ } from '../utils/core';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   title: string;
@@ -23,6 +24,7 @@ type Props = {
   history: any;
   paddingContent?: 'less-padding';
   centered?: boolean;
+  style?: any;
   onExit?: () => void;
   isAnimate?: boolean;
 } & IRouterProps;
@@ -92,6 +94,7 @@ class ModalTrigger extends React.Component<Props, State> {
       onExit,
       paddingContent,
       centered,
+      style,
       isAnimate = false
     } = this.props;
 
@@ -118,6 +121,7 @@ class ModalTrigger extends React.Component<Props, State> {
           onExit={onExit}
           animation={isAnimate}
           centered={centered}
+          style={style}
         >
           {this.renderHeader()}
           <Modal.Body className={paddingContent}>

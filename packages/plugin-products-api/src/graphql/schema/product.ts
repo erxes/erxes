@@ -132,7 +132,7 @@ export const queries = `
     page: Int
   ): [Product]
   productsTotalCount(${productsQueryParams}): Int
-  productsGroupCounts(only: String): JSON
+  productsGroupCounts(only: String, segment: String, segmentData: String): JSON
   productDetail(_id: String): Product
   productCountByTags: JSON
 `;

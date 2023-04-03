@@ -598,6 +598,8 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
       ports: [`4300:${SERVICE_INTERNAL_PORT}`],
       environment: {
         PORT: SERVICE_INTERNAL_PORT,
+        CUBEJS_SCHEMA_PATH: 'dist/dashboard/dynamicSchema',
+        NODE_ENV: 'production',
         CUBEJS_DB_TYPE: 'mongobi',
         CUBEJS_DB_HOST: `${dashboard.dashboard_db_host || 'mongosqld'}`,
         CUBEJS_DB_PORT: `${dashboard.dashboard_db_port || '3307'}`,
