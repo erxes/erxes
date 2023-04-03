@@ -262,20 +262,27 @@ const dealMutations = {
       }
     });
 
+    const dataIds = (updatedItem.productsData || [])
+      .filter(pd => !oldDataIds.includes(pd._id))
+      .map(pd => pd._id);
+
     graphqlPubsub.publish('productsDataChanged', {
-      pipelinesChanged: {
+      productsDataChanged: {
         _id: dealId,
         proccessId,
         action: 'create',
         data: {
-          dataIds: (updatedItem.productsData || [])
-            .filter(pd => !oldDataIds.includes(pd._id))
-            .map(pd => pd._id),
+          dataIds,
           docs,
           productsData
         }
       }
     });
+
+    return {
+      dataIds,
+      productsData
+    };
   },
 
   async dealsEditProductData(
@@ -333,7 +340,7 @@ const dealMutations = {
     });
 
     graphqlPubsub.publish('productsDataChanged', {
-      pipelinesChanged: {
+      productsDataChanged: {
         _id: dealId,
         proccessId,
         action: 'edit',
@@ -344,6 +351,11 @@ const dealMutations = {
         }
       }
     });
+
+    return {
+      dataId,
+      productsData
+    };
   },
 
   async dealsDeleteProductData(
@@ -400,7 +412,7 @@ const dealMutations = {
     });
 
     graphqlPubsub.publish('productsDataChanged', {
-      pipelinesChanged: {
+      productsDataChanged: {
         _id: dealId,
         proccessId,
         action: 'delete',
@@ -410,6 +422,11 @@ const dealMutations = {
         }
       }
     });
+
+    return {
+      dataId,
+      productsData
+    };
   }
 };
 

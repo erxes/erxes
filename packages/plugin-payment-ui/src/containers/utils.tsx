@@ -28,7 +28,7 @@ export const getSubMenu = () => {
     isEnabled('inbox')
   ) {
     subMenu.push({
-      title: 'Lead Integration Configs',
+      title: 'Form Integration Configs',
       link: '/payment/configs'
     });
   }
