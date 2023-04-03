@@ -1,6 +1,7 @@
 import { IInvoiceDocument } from '../models/definitions/invoices';
 import { IPaymentDocument } from '../models/definitions/payments';
 import { MonpayAPI } from './monpay/api';
+import { PaypalAPI } from './paypal/api';
 import { QpayAPI } from './qpay/api';
 import { SocialPayAPI } from './socialpay/api';
 import { StorePayAPI } from './storepay/api';
@@ -10,6 +11,7 @@ class ErxesPayment {
   public storepay: StorePayAPI;
   public qpay: QpayAPI;
   public monpay: MonpayAPI;
+  public paypal: PaypalAPI;
 
   private payment: any;
 
@@ -19,6 +21,7 @@ class ErxesPayment {
     this.storepay = new StorePayAPI(payment.config);
     this.qpay = new QpayAPI(payment.config);
     this.monpay = new MonpayAPI(payment.config);
+    this.paypal = new PaypalAPI(payment.config);
   }
 
   async createInvoice(invoice: IInvoiceDocument) {

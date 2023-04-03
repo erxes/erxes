@@ -10,6 +10,7 @@ import { mutations } from '../graphql';
 import { ByKindTotalCount } from '../types';
 import { PAYMENTCONFIGS, PAYMENT_KINDS } from './constants';
 import MonpayForm from './form/MonpayForm';
+import PaypalForm from './form/PaypalForm';
 import QpayForm from './form/QpayForm';
 import SocialPayForm from './form/SocialPayForm';
 import StorepayForm from './form/StorePayForm';
@@ -92,6 +93,11 @@ function renderCreate(kind: string) {
         <StorepayForm {...props} renderButton={renderButton} />
       );
       break;
+    case PAYMENT_KINDS.PAYPAL:
+      formContent = props => (
+        <PaypalForm {...props} renderButton={renderButton} />
+      );
+      break;
     default:
       formContent = () => null;
       break;
@@ -100,6 +106,10 @@ function renderCreate(kind: string) {
   const meta = PAYMENTCONFIGS.find(p => p.kind === kind);
 
   const title = meta ? `Add ${meta.name}` : 'Add payment config';
+
+  if (!meta || !meta.isAvailable) {
+    return null;
+  }
 
   return <ModalTrigger title={title} trigger={trigger} content={formContent} />;
 }

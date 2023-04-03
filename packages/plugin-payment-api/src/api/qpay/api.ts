@@ -142,7 +142,6 @@ export class QpayAPI extends BaseAPI {
   }
 
   async checkInvoice(invoice: IInvoiceDocument) {
-    return PAYMENT_STATUS.PAID;
     try {
       const res = await this.request({
         method: 'GET',

@@ -36,8 +36,17 @@ export const PAYMENTS = {
     },
     handlerMethod: 'GET'
   },
+  paypal: {
+    kind: 'paypal',
+    apiUrl: 'https://api-m.sandbox.paypal.com',
+    actions: {
+      getToken: 'v1/oauth2/token',
+      draftInvoice: 'v2/invoicing/invoices'
+    },
+    handlerMethod: 'POST'
+  },
 
-  ALL: ['qpay', 'socialpay', 'monpay', 'storepay']
+  ALL: ['qpay', 'socialpay', 'monpay', 'storepay', 'paypal']
 };
 
 export const PAYMENT_STATUS = {
