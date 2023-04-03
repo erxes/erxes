@@ -11,6 +11,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { queries } from '../graphql';
+import queryString from 'query-string';
 import { withRouter } from 'react-router-dom';
 
 type Props = {
@@ -23,6 +24,12 @@ type FinalProps = {
   filemanagerFolderDetailQuery: any;
 } & Props &
   IRouterProps;
+
+const FILTER_PARAMS = ['search', 'folderId', 'contentTypeId', 'createdAtFrom'];
+
+const generateQueryParams = ({ location }) => {
+  return queryString.parse(location.search);
+};
 
 class FileManagerContainer extends React.Component<FinalProps> {
   componentWillReceiveProps(nextProps: FinalProps) {
@@ -51,6 +58,24 @@ class FileManagerContainer extends React.Component<FinalProps> {
     }
   }
 
+  onSearch = (search: string) => {
+    if (!search) {
+      return routerUtils.removeParams(this.props.history, 'search');
+    }
+
+    routerUtils.setParams(this.props.history, { search });
+  };
+
+  onSelect = (values: string[] | string, key: string) => {
+    const params = generateQueryParams(this.props.history);
+
+    if (params[key] === values) {
+      return routerUtils.removeParams(this.props.history, key);
+    }
+
+    return routerUtils.setParams(this.props.history, { [key]: values });
+  };
+
   render() {
     const {
       filemanagerFoldersQuery,
@@ -72,7 +97,9 @@ class FileManagerContainer extends React.Component<FinalProps> {
       ...this.props,
       currentFolder,
       filemanagerFolders,
-      folderQueryLoading: filemanagerFoldersQuery.loading
+      folderQueryLoading: filemanagerFoldersQuery.loading,
+      onSelect: this.onSelect,
+      onSearch: this.onSearch
     };
 
     return <FileManager {...updatedProps} />;

@@ -1,8 +1,8 @@
 import { unitField } from '@erxes/ui/src/team/graphql/queries';
 
 const filemanagerFiles = `
-  query filemanagerFiles($folderId: String!, $search: String) {
-    filemanagerFiles(folderId: $folderId, search: $search) {
+  query filemanagerFiles($folderId: String!, $search: String, $type: String, $contentType: String, $contentTypeId: String, $createdAtFrom: String, $createdAtTo: String, $sortField: String, $sortDirection: Int) {
+    filemanagerFiles(folderId: $folderId, search: $search, type: $type, contentType: $contentType, contentTypeId: $contentTypeId, createdAtFrom: $createdAtFrom, createdAtTo: $createdAtTo, sortField: $sortField, sortDirection: $sortDirection) {
       _id
       contentType
       contentTypeId
