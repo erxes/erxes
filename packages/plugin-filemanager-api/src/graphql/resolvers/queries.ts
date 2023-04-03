@@ -150,6 +150,20 @@ const queries = {
     { models, user }: IContext
   ) {
     return models.AckRequests.findOne({ fileId, toUserId: user._id });
+  },
+
+  async filemanagerGetAccessRequests(
+    _root,
+    { fileId }: { fileId: string },
+    { models, user }: IContext
+  ) {
+    const file = await models.Files.getFile({ _id: fileId });
+
+    if (file.createdUserId !== user._id) {
+      return [];
+    }
+
+    return models.AccessRequests.find({ fileId });
   }
 };
 

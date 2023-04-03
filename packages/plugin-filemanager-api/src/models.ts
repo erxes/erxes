@@ -134,7 +134,7 @@ export const loadFileClass = models => {
 // =================== Log ====================================
 interface ILog {
   contentType: 'folder' | 'file';
-  contentTypeId: string;
+  contentTypeId?: string;
   createdAt: Date;
   userId: string;
   description: string;
@@ -209,4 +209,43 @@ export const loadAckRequestClass = models => {
   ackRequestSchema.loadClass(AckRequest);
 
   return ackRequestSchema;
+};
+
+// =================== access request ====================================
+interface IAccessRequest {
+  createdAt: Date;
+  fromUserId: string;
+  fileId: string;
+  status: string;
+  description: string;
+}
+
+export interface IAccessRequestDocument extends IAccessRequest, Document {
+  _id: string;
+}
+
+const accessRequestSchema = new Schema({
+  createdAt: { type: Date },
+  fromUserId: { type: String },
+  status: { type: String },
+  fileId: { type: String },
+  description: { type: String }
+});
+
+export interface IAccessRequestModel extends Model<IAccessRequestDocument> {
+  createRequest(doc): IAckRequestDocument;
+}
+
+export const loadAccessRequestClass = models => {
+  class AccessRequest {
+    public static async createLog(doc) {
+      doc.createdAt = new Date();
+
+      return models.AccessRequests.create(doc);
+    }
+  }
+
+  accessRequestSchema.loadClass(AccessRequest);
+
+  return accessRequestSchema;
 };

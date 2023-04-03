@@ -60,6 +60,15 @@ const typeDefs = gql`
     description: String
   }
 
+  type FileManagerAccessRequest {
+    _id: String!
+    createdAt: Date
+    fileId: String
+    fromUserId: String
+    status: String
+    description: String
+  }
+
   extend type Query {
     filemanagerFolders(parentId: String): [FileManagerFolder]
 
@@ -79,6 +88,7 @@ const typeDefs = gql`
     filemanagerFolderDetail(_id: String!): FileManagerFolder
     filemanagerLogs(contentTypeId: String!): [FileManagerLog]
     filemanagerGetAckRequest(fileId: String!): FileManagerAckRequest
+    filemanagerGetAccessRequests(fileId: String!): [FileManagerAccessRequest]
   }
 
   extend type Mutation {
@@ -117,6 +127,9 @@ const typeDefs = gql`
     ): String
 
     filemanagerAckRequest(_id: String!): JSON
+
+    filemanagerRequestAccess(fileId: String!, description: String): String
+    filemanagerConfirmAccessRequest(requestId: String!): String
   }
 `;
 
