@@ -7,34 +7,10 @@ const queries = {
   async filemanagerFolders(
     _root,
     { limit, parentId }: { limit: number; parentId: string },
-    { models, subdomain, user }: IContext
+    { models }: IContext
   ) {
-    const units = await sendCoreMessage({
-      subdomain,
-      action: 'units.find',
-      data: {
-        userIds: { $in: user._id }
-      },
-      isRPC: true
-    });
-
-    const permissionSelector = [
-      { permissionUserIds: { $in: [user._id] } },
-      { permissionUnitId: { $in: units.map(u => u._id) } }
-    ];
-
-    const filesWithAccess = await models.Files.find(
-      { $or: permissionSelector },
-      { folderId: 1 }
-    );
-
     const selector: any = {
-      parentId: '',
-      $or: [
-        { createdUserId: user._id },
-        ...permissionSelector,
-        { _id: filesWithAccess.map(file => file.folderId) }
-      ]
+      parentId: ''
     };
 
     const sort = { createdAt: -1 };
@@ -84,19 +60,8 @@ const queries = {
       sortDirection?: number;
     },
 
-    { models, subdomain, user }: IContext
+    { models }: IContext
   ) {
-    const units = await sendCoreMessage({
-      subdomain,
-      action: 'units.find',
-      data: {
-        userIds: { $in: user._id }
-      },
-      isRPC: true
-    });
-
-    const unitIds = units.map(u => u._id);
-
     const selector: any = {
       folderId
     };
@@ -129,21 +94,6 @@ const queries = {
       }
     }
 
-    const folder = await models.Folders.getFolder({ _id: folderId });
-
-    if (
-      !(
-        unitIds.includes(folder.permissionUnitId) ||
-        (folder.permissionUserIds || []).includes(user._id)
-      )
-    ) {
-      selector.$or = [
-        { createdUserId: user._id },
-        { permissionUserIds: { $in: [user._id] } },
-        { permissionUnitId: { $in: units.map(u => u._id) } }
-      ];
-    }
-
     return models.Files.find(selector).sort({
       [sortField ? sortField : 'createdAt']: sortDirection || -1
     });
@@ -152,9 +102,38 @@ const queries = {
   async filemanagerFileDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models, subdomain, user }: IContext
   ) {
-    return models.Files.findOne({ _id });
+    const units = await sendCoreMessage({
+      subdomain,
+      action: 'units.find',
+      data: {
+        userIds: { $in: user._id }
+      },
+      isRPC: true
+    });
+
+    const unitIds = units.map(u => u._id);
+
+    const file = await models.Files.getFile({ _id });
+    const folder = await models.Folders.getFolder({ _id: file.folderId });
+
+    if (
+      unitIds.includes(folder.permissionUnitId) ||
+      (folder.permissionUserIds || []).includes(user._id)
+    ) {
+      return file;
+    }
+
+    if (
+      file.createdUserId === user._id ||
+      (file.permissionUserIds || []).includes(user._id) ||
+      units.map(u => u._id).includes(file.permissionUnitId || [])
+    ) {
+      return file;
+    }
+
+    throw new Error('Permission denied');
   },
 
   async filemanagerLogs(
