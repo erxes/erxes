@@ -8,6 +8,7 @@ module.exports = {
 
       checklistsChanged(contentType: String!, contentTypeId: String!): Checklist
       checklistDetailChanged(_id: String!): Checklist
+      productsDataChanged(_id: String!): ProductsDataChangeResponse
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {
@@ -70,6 +71,16 @@ module.exports = {
           }
         ),
       },
+
+      productsDataChanged: {
+        subscribe: withFilter(
+          () => graphqlPubsub.asyncIterator("productsDataChanged"),
+          // filter by _id
+          (payload, variables) => {
+            return payload.productsDataChanged._id === variables._id;
+          }
+        ),
+      }
     };
   },
 };

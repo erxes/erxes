@@ -1,5 +1,7 @@
-import { sendCardsMessage, sendProductsMessage } from './messageBroker';
-import { checkCondition, getChildCategories, getConfig } from './utils/utils';
+import { sendProductsMessage } from './messageBroker';
+import { setPlace } from './utils/setPlace';
+import { splitData } from './utils/splitData';
+import { getConfig } from './utils/utils';
 
 export default {
   'cards:deal': ['update']
@@ -22,20 +24,26 @@ export const afterMutationHandlers = async (subdomain, params) => {
         return;
       }
 
-      const configs = await getConfig(subdomain, 'dealsProductsDataPlaces', {});
+      const splitConfigs = await getConfig(
+        subdomain,
+        'dealsProductsDataSplit',
+        {}
+      );
+      const placeConfigs = await getConfig(
+        subdomain,
+        'dealsProductsDataPlaces',
+        {}
+      );
 
-      // nothing
-      if (!Object.keys(configs).includes(destinationStageId)) {
+      if (
+        !(
+          Object.keys(splitConfigs).includes(destinationStageId) ||
+          Object.keys(placeConfigs).includes(destinationStageId)
+        )
+      ) {
         return;
       }
 
-      const config = configs[destinationStageId];
-
-      if (!(config.conditions && config.conditions.length)) {
-        return;
-      }
-
-      // split productsData
       const pdatas = deal.productsData;
       const products = await sendProductsMessage({
         subdomain,
@@ -47,73 +55,32 @@ export const afterMutationHandlers = async (subdomain, params) => {
         isRPC: true,
         defaultValue: []
       });
-
       const productById = {};
       for (const product of products) {
         productById[product._id] = product;
       }
 
-      const conditions = config.conditions.filter(
-        c => c.branchId || c.departmentId
-      );
+      let pDatas = deal.productsData;
 
-      // const categoryIds =
-      for (const condition of conditions) {
-        if (
-          !(condition.productCategoryIds && condition.productCategoryIds.length)
-        ) {
-          condition.calcedCatIds = [];
-          continue;
-        }
-
-        const includeCatIds = await getChildCategories(
+      if (Object.keys(splitConfigs).includes(destinationStageId)) {
+        pDatas = await splitData(
           subdomain,
-          condition.productCategoryIds
+          deal._id,
+          pDatas,
+          splitConfigs[destinationStageId],
+          productById
         );
-        const excludeCatIds = await getChildCategories(
-          subdomain,
-          condition.excludedCategoryIds || []
-        );
-
-        const productCategoryIds = includeCatIds.filter(
-          c => !excludeCatIds.includes(c)
-        );
-
-        const productCategories = await sendProductsMessage({
-          subdomain,
-          action: 'categories.find',
-          data: {
-            query: { _id: { $in: productCategoryIds } },
-            sort: { order: 1 }
-          },
-          isRPC: true,
-          defaultValue: []
-        });
-
-        condition.calcedCatIds = (productCategories || []).map(pc => pc._id);
       }
 
-      for (const pdata of pdatas) {
-        for (const condition of conditions) {
-          if (await checkCondition(subdomain, pdata, condition, productById)) {
-            pdata.branchId = condition.branchId;
-            pdata.departmentId = condition.departmentId;
-            continue;
-          }
-        }
+      if (Object.keys(placeConfigs).includes(destinationStageId)) {
+        await setPlace(
+          subdomain,
+          deal._id,
+          pDatas,
+          placeConfigs[destinationStageId],
+          productById
+        );
       }
-
-      await sendCardsMessage({
-        subdomain,
-        action: 'deals.updateOne',
-        data: {
-          selector: { _id: deal._id },
-          modifier: { $set: { productsData: pdatas } }
-        },
-        isRPC: true
-      });
-
-      return;
     }
     return;
   }

@@ -7,7 +7,7 @@ import React from 'react';
 import { ContentBox } from '../styles';
 import { IConfigsMap } from '../types';
 import Header from './Header';
-import PerSettings from './PerSettings';
+import PerSplit from './PerSplit';
 import Sidebar from './Sidebar';
 
 type Props = {
@@ -32,17 +32,20 @@ class GeneralSettings extends React.Component<Props, State> {
     e.preventDefault();
     const { configsMap } = this.state;
 
-    if (!configsMap.dealsProductsDataPlaces) {
-      configsMap.dealsProductsDataPlaces = {};
+    if (!configsMap.dealsProductsDataSplit) {
+      configsMap.dealsProductsDataSplit = {};
     }
 
     // must save prev item saved then new item
-    configsMap.dealsProductsDataPlaces.newPlacesConfig = {
+    configsMap.dealsProductsDataSplit.newSplitConfig = {
       title: 'New Places Config',
       boardId: '',
       pipelineId: '',
       stageId: '',
-      conditions: []
+      productCategoryIds: [],
+      excludeCategoryIds: [],
+      excludeProductIds: [],
+      segmentIds: []
     };
 
     this.setState({ configsMap });
@@ -50,8 +53,8 @@ class GeneralSettings extends React.Component<Props, State> {
 
   delete = (currentConfigKey: string) => {
     const { configsMap } = this.state;
-    delete configsMap.dealsProductsDataPlaces[currentConfigKey];
-    delete configsMap.dealsProductsDataPlaces['newPlacesConfig'];
+    delete configsMap.dealsProductsDataSplit[currentConfigKey];
+    delete configsMap.dealsProductsDataSplit['newSplitConfig'];
 
     this.setState({ configsMap });
 
@@ -61,7 +64,7 @@ class GeneralSettings extends React.Component<Props, State> {
   renderConfigs(configs) {
     return Object.keys(configs).map(key => {
       return (
-        <PerSettings
+        <PerSplit
           key={Math.random()}
           configsMap={this.state.configsMap}
           config={configs[key]}
@@ -75,7 +78,7 @@ class GeneralSettings extends React.Component<Props, State> {
 
   renderContent() {
     const { configsMap } = this.state;
-    const configs = configsMap.dealsProductsDataPlaces || {};
+    const configs = configsMap.dealsProductsDataSplit || {};
 
     return (
       <ContentBox id={'GeneralSettingsMenu'}>
