@@ -33,6 +33,9 @@ export const renderIcon = contentType => {
     case 'lead':
       return 'file-alt';
 
+    case 'user':
+      return 'user-square';
+
     default:
       return 'users-alt';
   }

@@ -6,6 +6,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const Sidebar = asyncComponent(() =>
   import(
@@ -32,7 +33,13 @@ class Inbox extends React.Component<Props> {
 
     const menuInbox = [{ title: 'Team Inbox', link: '/inbox/index' }];
 
-    const content = () => <MailForm isReply={false} clearOnSubmit={true} />;
+    const content = () => (
+      <MailForm
+        isReply={false}
+        clearOnSubmit={true}
+        source={isEnabled('imap') ? 'inbox' : undefined}
+      />
+    );
 
     const sendEmail = (
       <ModalTrigger

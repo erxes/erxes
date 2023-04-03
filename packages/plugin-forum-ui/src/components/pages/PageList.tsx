@@ -25,6 +25,7 @@ type Props = {
   history?: any;
   emptyBulk: () => void;
   bulk: any[];
+  totalCount: number;
   isAllSelected: boolean;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   toggleBulk: (target: IPage, toAdd: boolean) => void;
@@ -60,7 +61,7 @@ class List extends React.Component<Props> {
 
   render() {
     const {
-      queryParams,
+      totalCount,
       loading,
       pages,
       isAllSelected,
@@ -160,15 +161,9 @@ class List extends React.Component<Props> {
 
     return (
       <Wrapper
-        header={
-          <Wrapper.Header
-            title={__('Pages')}
-            queryParams={queryParams}
-            submenu={submenu}
-          />
-        }
+        header={<Wrapper.Header title={__('Pages')} submenu={submenu} />}
         actionBar={actionBar}
-        footer={<Pagination count={pages.length} />}
+        footer={<Pagination count={totalCount} />}
         content={
           <DataWithLoader
             data={content}

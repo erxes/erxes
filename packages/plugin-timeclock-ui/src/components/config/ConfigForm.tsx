@@ -199,7 +199,7 @@ function ConfigForm(props: Props) {
         if (requestTime === 'by day') {
           generateValues = {
             ...generateValues,
-            requestHoursPerDay: hoursPerDay
+            requestHoursPerDay: hoursPerDay || 8
           };
         }
 

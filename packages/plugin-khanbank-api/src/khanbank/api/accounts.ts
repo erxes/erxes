@@ -50,6 +50,7 @@ export class AccountsApi extends BaseApi {
   /**
    * get account holder
    * @param {string} accountNumber - account number
+   * @param {string} bankCode - bank code
    * @return {object} - Returns an account object
    * TODO: update return type
    */

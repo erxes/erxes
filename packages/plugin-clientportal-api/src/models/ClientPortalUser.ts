@@ -745,8 +745,20 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
       if (
         cp.manualVerificationConfig &&
-        (!user.verificationRequest ||
-          user.verificationRequest.status !== 'verified')
+        user.type === 'customer' &&
+        user.verificationRequest &&
+        user.verificationRequest.status !== 'verified' &&
+        cp.manualVerificationConfig.verifyCustomer
+      ) {
+        throw new Error('User is not verified');
+      }
+
+      if (
+        cp.manualVerificationConfig &&
+        user.type === 'company' &&
+        user.verificationRequest &&
+        user.verificationRequest.status !== 'verified' &&
+        cp.manualVerificationConfig.verifyCompany
       ) {
         throw new Error('User is not verified');
       }

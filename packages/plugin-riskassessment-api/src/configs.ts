@@ -7,6 +7,7 @@ import { generateModels } from './connectionResolver';
 import { generateAllDataLoaders } from './dataLoaders';
 import * as permissions from './permissions';
 import afterMutations from './afterMutations';
+import tags from './tags';
 
 export let mainDb;
 export let debug;
@@ -45,6 +46,7 @@ export default {
     debug = options.debug;
   },
   meta: {
-    afterMutations
+    afterMutations,
+    tags
   }
 };

@@ -108,15 +108,30 @@ requireLogin(queries, 'khanbankAccountHolder');
 requireLogin(queries, 'khanbankStatements');
 requireLogin(queries, 'khanbankStatementsAfterRecord');
 
-checkPermission(queries, 'khanbankAccounts', 'khanbankAccountsShow', []);
-checkPermission(queries, 'khanbankAccountDetail', 'khanbankAccountDetail', []);
-checkPermission(queries, 'khanbankAccountHolder', 'khanbankAccountDetail', []);
-checkPermission(queries, 'khanbankStatements', 'khanbankTransactionsShow', []);
+checkPermission(queries, 'khanbankAccounts', 'khanbankAccounts');
+checkPermission(
+  queries,
+  'khanbankAccountDetail',
+  'khanbankAccountDetail',
+  null
+);
+checkPermission(
+  queries,
+  'khanbankAccountHolder',
+  'khanbankAccountDetail',
+  null
+);
+checkPermission(
+  queries,
+  'khanbankStatements',
+  'khanbankTransactionsShow',
+  null
+);
 checkPermission(
   queries,
   'khanbankStatementsAfterRecord',
   'khanbankTransactionsShow',
-  []
+  null
 );
 
 export default queries;

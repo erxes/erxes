@@ -52,14 +52,24 @@ function General({
     manualVerificationConfig ? manualVerificationConfig.userIds : []
   );
 
+  const [verifyCompany, setVerifyCompany] = useState<boolean>(
+    manualVerificationConfig ? manualVerificationConfig.verifyCompany : false
+  );
+
+  const [verifyCustomer, setVerifyCustomer] = useState<boolean>(
+    manualVerificationConfig ? manualVerificationConfig.verifyCustomer : false
+  );
+
   const onSelectUsers = values => {
     handleFormChange('manualVerificationConfig', {
-      userIds: values
+      userIds: values,
+      verifyCompany,
+      verifyCustomer
     });
   };
 
-  const onChangeToggle = (name: string, value: boolean) => {
-    if (name === 'otpEnabled') {
+  const onChangeToggle = (type: string, value: boolean) => {
+    if (type === 'otpEnabled') {
       setOtpEnabled(value);
 
       if (!value) {
@@ -75,7 +85,7 @@ function General({
       }
     }
 
-    if (name === 'mailEnabled') {
+    if (type === 'mailEnabled') {
       setMailEnabled(value);
 
       if (!value) {
@@ -83,17 +93,46 @@ function General({
       }
     }
 
-    if (name === 'manualVerificationEnabled') {
+    if (type === 'manualVerificationEnabled') {
       setManualVerificationEnabled(value);
 
       if (!value) {
         handleFormChange('manualVerificationConfig', null);
       } else {
         handleFormChange('manualVerificationConfig', {
-          userIds: []
+          userIds: [],
+          verifyCustomer: false,
+          verifyCompany: false
         });
       }
     }
+
+    if (type === 'verifyCompany') {
+      setVerifyCompany(value);
+
+      handleFormChange('manualVerificationConfig', {
+        userIds,
+        verifyCompany: value,
+        verifyCustomer
+      });
+    }
+
+    if (type === 'verifyCustomer') {
+      setVerifyCustomer(value);
+
+      handleFormChange('manualVerificationConfig', {
+        userIds,
+        verifyCompany,
+        verifyCustomer: value
+      });
+    }
+  };
+
+  const onChangeConfiguration = option => {
+    handleFormChange('otpConfig', {
+      ...otpConfig,
+      smsTransporterType: option.value
+    });
   };
 
   function renderControl({
@@ -130,7 +169,7 @@ function General({
   }
 
   const renderOtp = () => {
-    let obj = otpConfig || {
+    const obj = otpConfig || {
       content: '',
       codeLength: 4,
       smsTransporterType: 'messagePro',
@@ -162,7 +201,7 @@ function General({
       }
 
       if (['codeLength', 'expireAfter'].includes(key)) {
-        obj[key] = parseInt(value);
+        obj[key] = Number(value);
       }
 
       if (key === 'loginWithOTP') {
@@ -264,7 +303,7 @@ function General({
   };
 
   const renderMailConfig = () => {
-    let obj = mailConfig || {
+    const obj = mailConfig || {
       registrationContent: `Hello <br /><br />Your verification link is {{ link }}.<br /><br />Thanks<br />${name}`,
       invitationContent: `Hello <br /><br />Your verification link is {{ link }}.<br />  Your password is: {{ password }} . Please change your password after you login. <br /><br />Thanks <br />${name}`,
       subject: `${name} - invitation`
@@ -382,28 +421,8 @@ function General({
     );
   };
 
-  const onChangeConfiguration = option => {
-    otpConfig && (otpConfig.smsTransporterType = option.value);
-    handleFormChange('otpConfig', otpConfig);
-  };
-
-  return (
-    <>
-      {renderOtp()}
-      {renderMailConfig()}
-
-      <CollapseContent
-        title={__('Google Application Credentials')}
-        compact={true}
-        open={false}
-      >
-        {renderControl({
-          label: 'Google Application Credentials',
-          formValueName: 'googleCredentials',
-          formValue: googleCredentials
-        })}
-      </CollapseContent>
-
+  const renderManualVerification = () => {
+    return (
       <CollapseContent
         title={__('Manual verification')}
         compact={true}
@@ -428,19 +447,73 @@ function General({
           </FormGroup>
         </ToggleWrap>
         {manualVerificationEnabled && (
-          <FormGroup>
-            <ControlLabel required={true}>{__('Team members')}</ControlLabel>
+          <>
+            <FormGroup>
+              <ControlLabel required={true}>{__('Team members')}</ControlLabel>
 
-            <p>{__('Select team members who can verify')}</p>
-            <SelectTeamMembers
-              label="Select team members"
-              name="userIds"
-              initialValue={userIds}
-              onSelect={onSelectUsers}
-              multi={true}
-            />
-          </FormGroup>
+              <p>{__('Select team members who can verify')}</p>
+              <SelectTeamMembers
+                label="Select team members"
+                name="userIds"
+                initialValue={userIds}
+                onSelect={onSelectUsers}
+                multi={true}
+              />
+            </FormGroup>
+
+            <ToggleWrap>
+              <FormGroup>
+                <ControlLabel>Verify customer</ControlLabel>
+                <Toggle
+                  checked={verifyCustomer}
+                  onChange={() =>
+                    onChangeToggle('verifyCustomer', !verifyCustomer)
+                  }
+                  icons={{
+                    checked: <span>Yes</span>,
+                    unchecked: <span>No</span>
+                  }}
+                />
+              </FormGroup>
+            </ToggleWrap>
+
+            <ToggleWrap>
+              <FormGroup>
+                <ControlLabel>Verify company</ControlLabel>
+                <Toggle
+                  checked={verifyCompany}
+                  onChange={() =>
+                    onChangeToggle('verifyCompany', !verifyCompany)
+                  }
+                  icons={{
+                    checked: <span>Yes</span>,
+                    unchecked: <span>No</span>
+                  }}
+                />
+              </FormGroup>
+            </ToggleWrap>
+          </>
         )}
+      </CollapseContent>
+    );
+  };
+
+  return (
+    <>
+      {renderOtp()}
+      {renderMailConfig()}
+      {renderManualVerification()}
+
+      <CollapseContent
+        title={__('Google Application Credentials')}
+        compact={true}
+        open={false}
+      >
+        {renderControl({
+          label: 'Google Application Credentials',
+          formValueName: 'googleCredentials',
+          formValue: googleCredentials
+        })}
       </CollapseContent>
     </>
   );

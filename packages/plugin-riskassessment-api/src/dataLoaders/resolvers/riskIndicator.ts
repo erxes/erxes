@@ -1,4 +1,5 @@
 import { IContext } from '../../connectionResolver';
+import { sendTagsMessage } from '../../messageBroker';
 import { IRiskIndicatorsDocument } from '../../models/definitions/indicator';
 
 export default {
@@ -6,15 +7,15 @@ export default {
     return models.RiskIndicators.findOne({ _id });
   },
 
-  async category(
-    riskIndicator: IRiskIndicatorsDocument,
-    {},
-    { dataLoaders }: IContext
-  ) {
-    return (
-      (riskIndicator.categoryId &&
-        dataLoaders.categories.load(riskIndicator.categoryId)) ||
-      null
-    );
+  async tags(indicator: IRiskIndicatorsDocument, {}, { subdomain }: IContext) {
+    return sendTagsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        _id: { $in: indicator.tagIds }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
   }
 };

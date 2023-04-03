@@ -13,7 +13,6 @@ import { queries as engageQueries } from '@erxes/ui-engage/src/graphql';
 import { mutations as engageMutations } from '@erxes/ui-engage/src/graphql';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { queries as messageQueries } from '@erxes/ui-inbox/src/inbox/graphql';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import queryString from 'query-string';
 import { IRouterProps } from '@erxes/ui/src/types';
@@ -71,7 +70,6 @@ class MailFormContainer extends React.Component<
       conversationId,
       isReply,
       closeModal,
-      closeReply,
       emailTemplatesQuery,
       emailTemplatesTotalCountQuery,
       currentUser,

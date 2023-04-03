@@ -12,8 +12,8 @@ import {
   generateCommonUserIds,
   generateFilter
 } from '../../utils';
-import { fixDate, paginate } from '@erxes/api-utils/src';
 import { IReport } from '../../models/definitions/timeclock';
+import { fixDate, paginate } from '@erxes/api-utils/src';
 
 const timeclockQueries = {
   async absences(_root, queryParams, { models, subdomain }: IContext) {

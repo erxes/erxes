@@ -16,14 +16,7 @@ const FolderItemRow = styledTS<{
   list-style: none;
 
   > div {
-    padding: ${props =>
-      props.isChild
-        ? props.isParent
-          ? '8px 0 8px 30px'
-          : '8px 0 8px 55px'
-        : props.isParent
-        ? '10px 0'
-        : '10px 0 10px 35px'};
+    padding: ${props => (props.isParent ? '10px 0' : '10px 0 10px 35px')};
     display: flex;
 
     > a {

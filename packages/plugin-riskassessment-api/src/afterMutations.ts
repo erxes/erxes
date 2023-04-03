@@ -47,7 +47,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
     } as IRiskConformityField;
 
     for (const data of customFieldsData) {
-      const config = await models.RiskIndicatorConfigs.findOne({
+      const config = await models.RiskAssessmentsConfigs.findOne({
         $or: [
           { ...commonFilter, stageId, customFieldId: data.field },
           { ...commonFilter, stageId: '', customFieldId: data.field }
@@ -60,14 +60,26 @@ export const afterMutationHandlers = async (subdomain, params) => {
           item => item.value === data.value
         );
         if (customField) {
-          const addedConformity = await models.RiskAssessments.addRiskAssessment(
-            {
-              ...conformity,
-              indicatorId: customField.riskIndicatorId,
-              groupId: customField.indicatorsGroupId
+          if (!!customField?.indicatorIds?.length) {
+            for (const indicatorId of customField.indicatorIds) {
+              const addedConformity = await models.RiskAssessments.addRiskAssessment(
+                {
+                  ...conformity,
+                  indicatorId: indicatorId || undefined
+                }
+              );
+              addedRiskAssessment.push(addedConformity);
             }
-          );
-          addedRiskAssessment.push(addedConformity);
+          } else {
+            const addedConformity = await models.RiskAssessments.addRiskAssessment(
+              {
+                ...conformity,
+                indicatorId: customField.indicatorId,
+                groupId: customField.groupId
+              }
+            );
+            addedRiskAssessment.push(addedConformity);
+          }
         }
       }
     }
@@ -75,7 +87,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
     if (!addedRiskAssessment.length) {
       const filter = { ...commonFilter, customFieldId: null, configs: [] };
 
-      const config = await models.RiskIndicatorConfigs.findOne({
+      const config = await models.RiskAssessmentsConfigs.findOne({
         $or: [
           { ...filter, stageId },
           { ...filter, stageId: '' }
@@ -83,11 +95,21 @@ export const afterMutationHandlers = async (subdomain, params) => {
       })
         .sort({ createdAt: -1 })
         .limit(1);
-      if (config?.riskIndicatorId || config?.indicatorsGroupId) {
+
+      if (!!config?.indicatorIds?.length) {
+        for (const indicatorId of config?.indicatorIds) {
+          await models.RiskAssessments.addRiskAssessment({
+            ...conformity,
+            indicatorId: indicatorId || undefined
+          });
+        }
+      }
+
+      if (config?.indicatorId || config?.groupId) {
         await models.RiskAssessments.addRiskAssessment({
           ...conformity,
-          indicatorId: config?.riskIndicatorId || undefined,
-          groupId: config?.indicatorsGroupId || undefined
+          indicatorId: config?.indicatorId || undefined,
+          groupId: config?.groupId || undefined
         });
       }
     }

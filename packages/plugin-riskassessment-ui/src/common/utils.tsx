@@ -1,51 +1,54 @@
+import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
+import { SidebarListItem } from '@erxes/ui-settings/src/styles';
 import {
+  BarItems,
+  Box,
   Button,
   ControlLabel,
   DataWithLoader,
-  FilterByParams,
+  EmptyState,
   FormControl,
   FormGroup,
+  generateTree,
   Icon,
   Pagination,
   SelectWithSearch,
+  SidebarList,
   Spinner,
   Tip,
   Wrapper,
   __
 } from '@erxes/ui/src';
-import { IFormProps, IOption, IQueryParams } from '@erxes/ui/src/types';
-import React from 'react';
-import { queries as categoryQueries } from '../categories/graphql';
-import { queries as riskIndicatorQueries } from '../indicator/graphql';
-import { queries as riskIndicatorsGroupQueries } from '../indicator/groups/graphql';
-import { queries as operationQueries } from '../operations/graphql';
-import { FormContainer, FormGroupRow } from '../styles';
-import { CustomFormGroupProps } from './types';
-import { OperationTypes } from '../operations/common/types';
-import {
-  RiskIndicatorsType,
-  CategoryTypes,
-  RiskIndicatorsListQueryResponse,
-  RiskCalculateLogicType
-} from '../indicator/common/types';
-import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
-import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
-import gql from 'graphql-tag';
-import Select from 'react-select-plus';
-import client from '@erxes/ui/src/apolloClient';
-import { graphql } from 'react-apollo';
-import { withProps } from '@erxes/ui/src/utils/core';
-import * as compose from 'lodash.flowright';
-import { calculateMethods, COLORS } from './constants';
 import {
   ColorPick,
   ColorPicker,
   FormColumn,
   FormWrapper
 } from '@erxes/ui/src/styles/main';
+import { IFormProps, IOption, IQueryParams } from '@erxes/ui/src/types';
+import { withProps } from '@erxes/ui/src/utils/core';
+import { removeParams, setParams } from '@erxes/ui/src/utils/router';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import { graphql, useQuery } from 'react-apollo';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import { Link } from 'react-router-dom';
+import Select from 'react-select-plus';
+import { tags as tagsQuery } from '../common/graphql';
+import {
+  RiskCalculateLogicType,
+  RiskIndicatorsType
+} from '../indicator/common/types';
+import { queries as riskIndicatorQueries } from '../indicator/graphql';
+import { queries as riskIndicatorsGroupQueries } from '../indicator/groups/graphql';
+import { OperationTypes } from '../operations/common/types';
+import { queries as operationQueries } from '../operations/graphql';
+import { FormContainer, FormGroupRow } from '../styles';
+import { calculateMethods, COLORS } from './constants';
+import { CustomFormGroupProps } from './types';
 
 export const DefaultWrapper = ({
   title,
@@ -118,65 +121,7 @@ export const subOption = category => {
   );
 };
 
-export const SelectWithCategory = ({
-  label,
-  name,
-  queryParams,
-  initialValue,
-  multi,
-  customOption,
-  skip,
-  onSelect
-}: {
-  queryParams?: IQueryParams;
-  label: string;
-  onSelect: (value: string[] | string, name: string) => void;
-  multi?: boolean;
-  customOption?: IOption;
-  initialValue?: string | string[];
-  name: string;
-  skip?: string[];
-}) => {
-  const defaultValue = queryParams ? queryParams[name] : initialValue;
-
-  const generateCategoryOptions = (array: CategoryTypes[] = []): IOption[] => {
-    let list: any[] = [];
-    for (const item of array) {
-      const category = item || ({} as CategoryTypes);
-      const order = category.order;
-      const foundedString = order?.match(/[/]/gi);
-
-      let space = '';
-      if (foundedString) {
-        space = '\u00A0 '.repeat(foundedString.length);
-      }
-
-      list.push({ label: `${space} ${category.name}`, value: category._id });
-    }
-
-    if (skip) {
-      list = list.filter(item => item.value !== skip);
-    }
-    return list;
-  };
-
-  return (
-    <SelectWithSearch
-      label={label}
-      queryName="riskAssesmentCategories"
-      name={name}
-      initialValue={defaultValue}
-      generateOptions={generateCategoryOptions}
-      onSelect={onSelect}
-      customQuery={categoryQueries.listAssessmentCategories}
-      customOption={
-        customOption ? customOption : { value: '', label: 'Choose a Category' }
-      }
-      multi={multi}
-    />
-  );
-};
-export function SelectRiskIndicator({
+export function SelectIndicators({
   label,
   name,
   queryParams,
@@ -378,7 +323,7 @@ export const SelectCustomFields = withProps<SelectCustomFieldProps>(
   )(SelectCustomFieldsComponent)
 );
 
-export const SelectOperation = ({
+export const SelectOperations = ({
   label,
   name,
   queryParams,
@@ -640,4 +585,99 @@ export class CommonCalculateFields extends React.Component<Props, State> {
       </>
     );
   }
+}
+
+export const generateParamsIds = ids => {
+  if (!ids?.length) {
+    return undefined;
+  }
+  if (typeof ids === 'string') {
+    return [ids];
+  }
+  return ids;
+};
+
+export function FilterByTags({
+  history,
+  queryParams
+}: {
+  history: any;
+  queryParams: any;
+}) {
+  const { data, error, loading } = useQuery(gql(tagsQuery), {
+    variables: { type: 'riskassessment:riskassessment' }
+  });
+
+  if (loading) {
+    return <Spinner />;
+  }
+
+  if (error) {
+    return <EmptyState text={error.message} />;
+  }
+
+  const tags = data?.tags || [];
+
+  const handleRemoveParams = () => {
+    removeParams(history, 'tagIds');
+  };
+
+  const handleSetParams = _id => {
+    let tagIds = queryParams?.tagIds || [];
+    tagIds = typeof tagIds === 'string' ? [tagIds] : tagIds;
+    if (tagIds.find(tagId => tagId === _id)) {
+      tagIds = tagIds.filter(tagId => tagId !== _id);
+    } else {
+      tagIds = [...tagIds, _id];
+    }
+    removeParams(history, 'page');
+    setParams(history, { tagIds });
+  };
+  const extraButtons = (
+    <BarItems>
+      <Link to={`/tags?type=riskassessment:riskassessment`}>
+        <button>
+          <Icon icon="cog" />
+        </button>
+      </Link>
+      {queryParams.tagIds && (
+        <a>
+          <button onClick={handleRemoveParams}>
+            <Icon icon="cancel-1" />
+          </button>
+        </a>
+      )}
+    </BarItems>
+  );
+
+  return (
+    <Box
+      name="tags"
+      title="Filter by Tags"
+      extraButtons={extraButtons}
+      collapsible
+    >
+      <SidebarList>
+        {generateTree(
+          tags.map(tag => (!tag?.parentId ? { ...tag, parentId: null } : tag)),
+          null,
+          ({ _id, colorCode, name }, level) => {
+            return (
+              <SidebarListItem
+                key={_id}
+                isActive={(queryParams?.tagIds || []).includes(_id)}
+                onClick={handleSetParams.bind(this, _id)}
+              >
+                <a>
+                  {'\u00A0 \u00A0 '.repeat(level)}
+                  <Icon icon="tag-2" color={colorCode} />
+                  {name}
+                </a>
+              </SidebarListItem>
+            );
+          }
+        )}
+      </SidebarList>
+    </Box>
+  );
 }

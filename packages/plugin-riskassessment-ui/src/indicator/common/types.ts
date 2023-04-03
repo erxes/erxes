@@ -1,3 +1,4 @@
+import { ITag } from '@erxes/ui-tags/src/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 
 /**
@@ -12,31 +13,19 @@ export type RiskCalculateLogicType = {
   color?: string;
   __typename?: string;
 };
-export type CategoryTypes = {
-  _id: string;
-  name: string;
-  formId: string;
-  parentId: string;
-  code?: string;
-  order?: string;
-  parent?: CategoryTypes;
-  formName?: string;
-  type: string;
-};
 export type RiskIndicatorsType = {
   _id: string;
-  categoryId?: string;
   operationIds?: string[];
   branchIds?: string[];
   departmentIds?: string[];
   description?: string;
   name?: string;
   createdAt?: string;
-  category?: CategoryTypes;
   calculateLogics?: [RiskCalculateLogicType];
   calculateMethod?: string;
   forms?: any[];
-  customScoreField?: object;
+  tagIds: string[];
+  tags: ITag[];
 };
 
 /**
@@ -52,8 +41,4 @@ export type RiskIndicatorsListQueryResponse = {
 } & QueryResponse;
 export type RiskIndicatorsTotalCountQueryResponse = {
   riskIndicatorsTotalCount: number;
-} & QueryResponse;
-
-export type RiskAssessmentsCategoriesQueryResponse = {
-  riskAssesmentCategories: [CategoryTypes];
 } & QueryResponse;

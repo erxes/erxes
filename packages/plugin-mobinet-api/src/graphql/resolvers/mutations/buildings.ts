@@ -111,12 +111,16 @@ const mutations = {
     { _id, buildingData, ticketData, quarterId, phone },
     { models, subdomain, cpUser }: IContext
   ) => {
+    if (!cpUser) {
+      throw new Error('login required');
+    }
+
     const user = await sendCommonMessage({
       serviceName: 'clientportal',
       subdomain,
       action: 'clientPortalUsers.findOne',
       data: {
-        _id: cpUser.userId
+        _id: cpUser._id
       },
       isRPC: true,
       defaultValue: undefined

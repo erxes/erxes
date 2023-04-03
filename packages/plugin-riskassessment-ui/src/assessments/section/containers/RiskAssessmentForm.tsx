@@ -1,18 +1,16 @@
-import React from 'react';
-import { graphql } from 'react-apollo';
+import { Spinner } from '@erxes/ui/src';
+import { withProps } from '@erxes/ui/src/utils/core';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { queries } from '../graphql';
+import React from 'react';
+import { graphql } from 'react-apollo';
 import { RiskAssessmentSubmitFormQueryResponse } from '../../common/types';
-import { Spinner } from '@erxes/ui/src';
+import { AssessmentFilters } from '../common/types';
 import RiskAssessmentFormComponent from '../components/RiskAssessmentForm';
+import { queries } from '../graphql';
 
 type Props = {
-  cardId: string;
-  cardType: string;
-  riskAssessmentId: string;
-  userId: string;
+  filters: AssessmentFilters;
   closeModal: () => void;
   onlyPreview?: boolean;
 };
@@ -29,10 +27,7 @@ class RiskAssessmentForm extends React.Component<FinalProps> {
   render() {
     const {
       formDetailQueryResponse,
-      riskAssessmentId,
-      userId,
-      cardId,
-      cardType,
+      filters,
       closeModal,
       onlyPreview
     } = this.props;
@@ -45,10 +40,7 @@ class RiskAssessmentForm extends React.Component<FinalProps> {
 
     const updatedProps = {
       indicators: riskAssessmentSubmitForm,
-      riskAssessmentId,
-      userId,
-      cardId,
-      cardType,
+      filters,
       closeModal,
       onlyPreview
     };
@@ -61,8 +53,10 @@ export default withProps(
   compose(
     graphql<Props>(gql(queries.riskAssessmentSubmitForm), {
       name: 'formDetailQueryResponse',
-      options: ({ closeModal, ...props }) => ({
-        variables: { ...props }
+      options: ({
+        filters: { cardId, cardType, userId, riskAssessmentId }
+      }) => ({
+        variables: { cardId, cardType, userId, riskAssessmentId }
       })
     })
   )(RiskAssessmentForm)
