@@ -142,7 +142,7 @@ const mutations = {
     { user, models }: IContext
   ) {
     for (const userId of toUserIds) {
-      const request = await models.Requests.findOne({
+      const request = await models.AckRequests.findOne({
         fileId,
         toUserId: userId
       });
@@ -151,8 +151,7 @@ const mutations = {
         continue;
       }
 
-      await models.Requests.createRequest({
-        type: 'ack',
+      await models.AckRequests.createRequest({
         fileId,
         fromUserId: user._id,
         toUserId: userId,
@@ -165,13 +164,13 @@ const mutations = {
   },
 
   async filemanagerAckRequest(_root, { _id }, { user, models }: IContext) {
-    const request = await models.Requests.findOne({ _id });
+    const request = await models.AckRequests.findOne({ _id });
 
     if (request && request.toUserId !== user._id) {
       throw new Error('Permission denied');
     }
 
-    return models.Requests.update({ _id }, { $set: { status: 'acked' } });
+    return models.AckRequests.update({ _id }, { $set: { status: 'acked' } });
   }
 };
 

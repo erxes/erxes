@@ -50,10 +50,9 @@ const typeDefs = gql`
     user: User
   }
 
-  type FileManagerRequest {
+  type FileManagerAckRequest {
     _id: String!
     createdAt: Date
-    type: String
     fileId: String
     fromUserId: String
     toUserId: String
@@ -79,7 +78,7 @@ const typeDefs = gql`
     filemanagerFileDetail(_id: String!): FileManagerFile
     filemanagerFolderDetail(_id: String!): FileManagerFolder
     filemanagerLogs(contentTypeId: String!): [FileManagerLog]
-    filemanagerGetAckRequest(fileId: String!): FileManagerRequest
+    filemanagerGetAckRequest(fileId: String!): FileManagerAckRequest
   }
 
   extend type Mutation {

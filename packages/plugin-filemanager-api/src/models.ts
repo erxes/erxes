@@ -170,9 +170,8 @@ export const loadLogClass = models => {
   return logSchema;
 };
 
-// =================== request ====================================
-interface IRequest {
-  type: string;
+// =================== acknowledgement request ====================================
+interface IAckRequest {
   createdAt: Date;
   fromUserId: string;
   toUserId: string;
@@ -181,12 +180,11 @@ interface IRequest {
   description: string;
 }
 
-export interface IRequestDocument extends IRequest, Document {
+export interface IAckRequestDocument extends IAckRequest, Document {
   _id: string;
 }
 
-const requestSchema = new Schema({
-  type: { type: String },
+const ackRequestSchema = new Schema({
   createdAt: { type: Date },
   fromUserId: { type: String },
   toUserId: { type: String },
@@ -195,20 +193,20 @@ const requestSchema = new Schema({
   description: { type: String }
 });
 
-export interface IRequestModel extends Model<IRequestDocument> {
+export interface IAckRequestModel extends Model<IAckRequestDocument> {
   createRequest(doc): void;
 }
 
-export const loadRequestClass = models => {
-  class Request {
+export const loadAckRequestClass = models => {
+  class AckRequest {
     public static async createLog(doc) {
       doc.createdAt = new Date();
 
-      return models.Requests.create(doc);
+      return models.AckRequests.create(doc);
     }
   }
 
-  requestSchema.loadClass(Request);
+  ackRequestSchema.loadClass(AckRequest);
 
-  return requestSchema;
+  return ackRequestSchema;
 };

@@ -149,7 +149,7 @@ const queries = {
     { fileId }: { fileId: string },
     { models, user }: IContext
   ) {
-    return models.Requests.findOne({ fileId, toUserId: user._id });
+    return models.AckRequests.findOne({ fileId, toUserId: user._id });
   }
 };
 

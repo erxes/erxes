@@ -9,9 +9,9 @@ import {
   ILogModel,
   ILogDocument,
   loadLogClass,
-  IRequestModel,
-  IRequestDocument,
-  loadRequestClass
+  IAckRequestModel,
+  IAckRequestDocument,
+  loadAckRequestClass
 } from './models';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
@@ -20,7 +20,7 @@ export interface IModels {
   Folders: IFolderModel;
   Files: IFileModel;
   Logs: ILogModel;
-  Requests: IRequestModel;
+  AckRequests: IAckRequestModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -50,9 +50,9 @@ export const loadClasses = (
     loadLogClass(models)
   );
 
-  models.Requests = db.model<IRequestDocument, IRequestModel>(
-    'filemanager_requests',
-    loadRequestClass(models)
+  models.AckRequests = db.model<IAckRequestDocument, IAckRequestModel>(
+    'filemanager_ack_requests',
+    loadAckRequestClass(models)
   );
 
   return models;
