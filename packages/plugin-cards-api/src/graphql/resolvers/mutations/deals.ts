@@ -263,7 +263,7 @@ const dealMutations = {
     });
 
     graphqlPubsub.publish('productsDataChanged', {
-      pipelinesChanged: {
+      productsDataChanged: {
         _id: dealId,
         proccessId,
         action: 'create',
@@ -333,7 +333,7 @@ const dealMutations = {
     });
 
     graphqlPubsub.publish('productsDataChanged', {
-      pipelinesChanged: {
+      productsDataChanged: {
         _id: dealId,
         proccessId,
         action: 'edit',
@@ -400,7 +400,7 @@ const dealMutations = {
     });
 
     graphqlPubsub.publish('productsDataChanged', {
-      pipelinesChanged: {
+      productsDataChanged: {
         _id: dealId,
         proccessId,
         action: 'delete',
