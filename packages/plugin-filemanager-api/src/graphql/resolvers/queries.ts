@@ -62,7 +62,28 @@ const queries = {
 
   async filemanagerFiles(
     _root,
-    { folderId, search }: { folderId: string; search?: string },
+    {
+      folderId,
+      search,
+      type,
+      contentType,
+      contentTypeId,
+      createdAtFrom,
+      createdAtTo,
+      sortField,
+      sortDirection
+    }: {
+      folderId: string;
+      search?: string;
+      type?: string;
+      contentType?: string;
+      contentTypeId?: string;
+      createdAtFrom?: string;
+      createdAtTo?: string;
+      sortField?: string;
+      sortDirection?: number;
+    },
+
     { models, subdomain, user }: IContext
   ) {
     const units = await sendCoreMessage({
@@ -84,6 +105,30 @@ const queries = {
       selector.name = { $regex: `.*${search.trim()}.*`, $options: 'i' };
     }
 
+    if (type) {
+      selector.type = type;
+    }
+
+    if (contentType) {
+      selector.contentType = contentType;
+    }
+
+    if (contentTypeId) {
+      selector.contentTypeId = contentTypeId;
+    }
+
+    if (createdAtFrom || createdAtTo) {
+      selector.createdAt = {};
+
+      if (createdAtFrom) {
+        selector.createdAt.$gte = new Date(createdAtFrom);
+      }
+
+      if (createdAtTo) {
+        selector.createdAt.$lte = new Date(createdAtTo);
+      }
+    }
+
     const folder = await models.Folders.getFolder({ _id: folderId });
 
     if (
@@ -99,7 +144,9 @@ const queries = {
       ];
     }
 
-    return models.Files.find(selector).sort({ createdAt: -1 });
+    return models.Files.find(selector).sort({
+      [sortField ? sortField : 'createdAt']: sortDirection || -1
+    });
   },
 
   async filemanagerFileDetail(

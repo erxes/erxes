@@ -82,19 +82,19 @@ export interface IFileDocument extends IFile, Document {
 }
 
 const fileSchema = new Schema({
-  createdAt: { type: Date },
-  createdUserId: { type: String },
-  name: { type: String },
-  type: { type: String },
-  folderId: { type: String },
+  createdAt: { type: Date, index: true },
+  createdUserId: { type: String, index: true },
+  name: { type: String, index: true },
+  type: { type: String, index: true },
+  folderId: { type: String, index: true },
   url: { type: String },
   info: { type: Object },
-  contentType: { type: String },
-  contentTypeId: { type: String },
+  contentType: { type: String, index: true },
+  contentTypeId: { type: String, index: true },
   documentId: { type: String },
 
-  permissionUserIds: { type: [String] },
-  permissionUnitId: { type: String }
+  permissionUserIds: { type: [String], index: true },
+  permissionUnitId: { type: String, index: true }
 });
 
 export interface IFileModel extends Model<IFileDocument> {
