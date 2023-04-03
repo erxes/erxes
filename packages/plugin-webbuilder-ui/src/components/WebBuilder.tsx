@@ -51,8 +51,8 @@ function WebBuilder(props: Props) {
         onChange={search}
         value={searchValue}
       />
-      <Link to="/webbuilder/sites/create">
-        <Button btnStyle="success" size="small" icon="plus-circle">
+      <Link to="/xbuilder/sites/create">
+        <Button btnStyle="success" icon="plus-circle">
           New website
         </Button>
       </Link>
@@ -64,8 +64,8 @@ function WebBuilder(props: Props) {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Webbuilder Workspace')}
-            breadcrumb={[{ title: __('Webbuilder') }]}
+            title={__('X Builder Workspace')}
+            breadcrumb={[{ title: __('X Builder') }]}
           />
         }
         actionBar={
