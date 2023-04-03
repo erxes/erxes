@@ -7,34 +7,10 @@ const queries = {
   async filemanagerFolders(
     _root,
     { limit, parentId }: { limit: number; parentId: string },
-    { models, subdomain, user }: IContext
+    { models }: IContext
   ) {
-    const units = await sendCoreMessage({
-      subdomain,
-      action: 'units.find',
-      data: {
-        userIds: { $in: user._id }
-      },
-      isRPC: true
-    });
-
-    const permissionSelector = [
-      { permissionUserIds: { $in: [user._id] } },
-      { permissionUnitId: { $in: units.map(u => u._id) } }
-    ];
-
-    const filesWithAccess = await models.Files.find(
-      { $or: permissionSelector },
-      { folderId: 1 }
-    );
-
     const selector: any = {
-      parentId: '',
-      $or: [
-        { createdUserId: user._id },
-        ...permissionSelector,
-        { _id: filesWithAccess.map(file => file.folderId) }
-      ]
+      parentId: ''
     };
 
     const sort = { createdAt: -1 };
@@ -62,7 +38,70 @@ const queries = {
 
   async filemanagerFiles(
     _root,
-    { folderId, search }: { folderId: string; search?: string },
+    {
+      folderId,
+      search,
+      type,
+      contentType,
+      contentTypeId,
+      createdAtFrom,
+      createdAtTo,
+      sortField,
+      sortDirection
+    }: {
+      folderId: string;
+      search?: string;
+      type?: string;
+      contentType?: string;
+      contentTypeId?: string;
+      createdAtFrom?: string;
+      createdAtTo?: string;
+      sortField?: string;
+      sortDirection?: number;
+    },
+
+    { models }: IContext
+  ) {
+    const selector: any = {
+      folderId
+    };
+
+    if (search) {
+      selector.name = { $regex: `.*${search.trim()}.*`, $options: 'i' };
+    }
+
+    if (type) {
+      selector.type = type;
+    }
+
+    if (contentType) {
+      selector.contentType = contentType;
+    }
+
+    if (contentTypeId) {
+      selector.contentTypeId = contentTypeId;
+    }
+
+    if (createdAtFrom || createdAtTo) {
+      selector.createdAt = {};
+
+      if (createdAtFrom) {
+        selector.createdAt.$gte = new Date(createdAtFrom);
+      }
+
+      if (createdAtTo) {
+        selector.createdAt.$lte = new Date(createdAtTo);
+      }
+    }
+
+    return models.Files.find(selector).sort({
+      [sortField ? sortField : 'createdAt']: sortDirection || -1
+    });
+  },
+
+  async filemanagerFileDetail(
+    _root,
+    { _id }: { _id: string },
     { models, subdomain, user }: IContext
   ) {
     const units = await sendCoreMessage({
@@ -76,38 +115,25 @@ const queries = {
 
     const unitIds = units.map(u => u._id);
 
-    const selector: any = {
-      folderId
-    };
-
-    if (search) {
-      selector.name = { $regex: `.*${search.trim()}.*`, $options: 'i' };
-    }
-
-    const folder = await models.Folders.getFolder({ _id: folderId });
+    const file = await models.Files.getFile({ _id });
+    const folder = await models.Folders.getFolder({ _id: file.folderId });
 
     if (
-      !(
-        unitIds.includes(folder.permissionUnitId) ||
-        (folder.permissionUserIds || []).includes(user._id)
-      )
+      unitIds.includes(folder.permissionUnitId) ||
+      (folder.permissionUserIds || []).includes(user._id)
     ) {
-      selector.$or = [
-        { createdUserId: user._id },
-        { permissionUserIds: { $in: [user._id] } },
-        { permissionUnitId: { $in: units.map(u => u._id) } }
-      ];
+      return file;
     }
 
-    return models.Files.find(selector).sort({ createdAt: -1 });
-  },
+    if (
+      file.createdUserId === user._id ||
+      (file.permissionUserIds || []).includes(user._id) ||
+      units.map(u => u._id).includes(file.permissionUnitId || [])
+    ) {
+      return file;
+    }
 
-  async filemanagerFileDetail(
-    _root,
-    { _id }: { _id: string },
-    { models }: IContext
-  ) {
-    return models.Files.findOne({ _id });
+    throw new Error('Permission denied');
   },
 
   async filemanagerLogs(
@@ -123,7 +149,21 @@ const queries = {
     { fileId }: { fileId: string },
     { models, user }: IContext
   ) {
-    return models.Requests.findOne({ fileId, toUserId: user._id });
+    return models.AckRequests.findOne({ fileId, toUserId: user._id });
+  },
+
+  async filemanagerGetAccessRequests(
+    _root,
+    { fileId }: { fileId: string },
+    { models, user }: IContext
+  ) {
+    const file = await models.Files.getFile({ _id: fileId });
+
+    if (file.createdUserId !== user._id) {
+      return [];
+    }
+
+    return models.AccessRequests.find({ fileId });
   }
 };
 

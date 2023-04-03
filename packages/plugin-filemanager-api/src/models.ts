@@ -73,6 +73,8 @@ interface IFile {
   contentTypeId?: string;
   documentId?: string;
 
+  relatedFileIds?: string[];
+
   permissionUserIds?: string[];
   permissionUnitId?: string;
 }
@@ -82,19 +84,21 @@ export interface IFileDocument extends IFile, Document {
 }
 
 const fileSchema = new Schema({
-  createdAt: { type: Date },
-  createdUserId: { type: String },
-  name: { type: String },
-  type: { type: String },
-  folderId: { type: String },
+  createdAt: { type: Date, index: true },
+  createdUserId: { type: String, index: true },
+  name: { type: String, index: true },
+  type: { type: String, index: true },
+  folderId: { type: String, index: true },
   url: { type: String },
   info: { type: Object },
-  contentType: { type: String },
-  contentTypeId: { type: String },
+  contentType: { type: String, index: true },
+  contentTypeId: { type: String, index: true },
   documentId: { type: String },
 
-  permissionUserIds: { type: [String] },
-  permissionUnitId: { type: String }
+  relatedFileIds: { type: [String], index: true },
+
+  permissionUserIds: { type: [String], index: true },
+  permissionUnitId: { type: String, index: true }
 });
 
 export interface IFileModel extends Model<IFileDocument> {
@@ -134,7 +138,7 @@ export const loadFileClass = models => {
 // =================== Log ====================================
 interface ILog {
   contentType: 'folder' | 'file';
-  contentTypeId: string;
+  contentTypeId?: string;
   createdAt: Date;
   userId: string;
   description: string;
@@ -170,9 +174,8 @@ export const loadLogClass = models => {
   return logSchema;
 };
 
-// =================== request ====================================
-interface IRequest {
-  type: string;
+// =================== acknowledgement request ====================================
+interface IAckRequest {
   createdAt: Date;
   fromUserId: string;
   toUserId: string;
@@ -181,12 +184,11 @@ interface IRequest {
   description: string;
 }
 
-export interface IRequestDocument extends IRequest, Document {
+export interface IAckRequestDocument extends IAckRequest, Document {
   _id: string;
 }
 
-const requestSchema = new Schema({
-  type: { type: String },
+const ackRequestSchema = new Schema({
   createdAt: { type: Date },
   fromUserId: { type: String },
   toUserId: { type: String },
@@ -195,20 +197,59 @@ const requestSchema = new Schema({
   description: { type: String }
 });
 
-export interface IRequestModel extends Model<IRequestDocument> {
+export interface IAckRequestModel extends Model<IAckRequestDocument> {
   createRequest(doc): void;
 }
 
-export const loadRequestClass = models => {
-  class Request {
+export const loadAckRequestClass = models => {
+  class AckRequest {
     public static async createLog(doc) {
       doc.createdAt = new Date();
 
-      return models.Requests.create(doc);
+      return models.AckRequests.create(doc);
     }
   }
 
-  requestSchema.loadClass(Request);
+  ackRequestSchema.loadClass(AckRequest);
 
-  return requestSchema;
+  return ackRequestSchema;
+};
+
+// =================== access request ====================================
+interface IAccessRequest {
+  createdAt: Date;
+  fromUserId: string;
+  fileId: string;
+  status: string;
+  description: string;
+}
+
+export interface IAccessRequestDocument extends IAccessRequest, Document {
+  _id: string;
+}
+
+const accessRequestSchema = new Schema({
+  createdAt: { type: Date },
+  fromUserId: { type: String },
+  status: { type: String },
+  fileId: { type: String },
+  description: { type: String }
+});
+
+export interface IAccessRequestModel extends Model<IAccessRequestDocument> {
+  createRequest(doc): IAckRequestDocument;
+}
+
+export const loadAccessRequestClass = models => {
+  class AccessRequest {
+    public static async createLog(doc) {
+      doc.createdAt = new Date();
+
+      return models.AccessRequests.create(doc);
+    }
+  }
+
+  accessRequestSchema.loadClass(AccessRequest);
+
+  return accessRequestSchema;
 };
