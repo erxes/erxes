@@ -3,14 +3,16 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { Formgroup } from '@erxes/ui/src/components/form/styles';
+import Toggle from '@erxes/ui/src/components/Toggle';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __, getEnv } from '@erxes/ui/src/utils';
+import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
-import { IPaymentDocument, ISocialPayConfig } from '../../types';
 
+import { IPaypalConfig, IPaymentDocument } from '../../types';
 import { PAYMENT_KINDS } from '../constants';
-import { SettingsContent } from './styles';
+import { SettingsContent, ToggleWrapper } from './styles';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -20,39 +22,42 @@ type Props = {
 
 type State = {
   paymentName: string;
-  inStoreSPTerminal: string;
-  inStoreSPKey: string;
+  paypalMode: 'sandbox' | 'live';
+  paypalClientId: string;
+  paypalClientSecret: string;
 };
 
-class SocialPayConfigForm extends React.Component<Props, State> {
+class PaypalConfigForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
     const { payment } = this.props;
-    const { name, config } = payment || ({} as IPaymentDocument);
-    const { inStoreSPTerminal, inStoreSPKey } =
-      config || ({} as ISocialPayConfig);
+    const { name = '', config } = payment || ({} as IPaymentDocument);
+    const paypal = config || ({} as IPaypalConfig);
 
     this.state = {
-      paymentName: name || '',
-      inStoreSPTerminal: inStoreSPTerminal || '',
-      inStoreSPKey: inStoreSPKey || ''
+      paymentName: name,
+      paypalMode: paypal.mode || 'sandbox',
+      paypalClientId: paypal.clientId || '',
+      paypalClientSecret: paypal.clientSecret || ''
     };
   }
 
   generateDoc = (values: {
     paymentName: string;
-    inStoreSPTerminal: string;
-    inStoreSPKey: string;
+    paypalClientId: string;
+    paypalClientSecret: string;
+    paypalMode: 'sandbox' | 'live';
   }) => {
     const { payment } = this.props;
     const generatedValues = {
       name: values.paymentName,
-      kind: PAYMENT_KINDS.SOCIALPAY,
+      kind: PAYMENT_KINDS.PAYPAL,
       status: 'active',
       config: {
-        inStoreSPTerminal: values.inStoreSPTerminal,
-        inStoreSPKey: values.inStoreSPKey
+        paypalClientId: values.paypalClientId,
+        paypalClientSecret: values.paypalClientSecret,
+        paypalMode: values.paypalMode
       }
     };
 
@@ -69,10 +74,7 @@ class SocialPayConfigForm extends React.Component<Props, State> {
     description?: string,
     isPassword?: boolean
   ) => {
-    const value =
-      key === 'pushNotification'
-        ? `${getEnv().REACT_APP_API_URL}/pl:payment/callback/socialpay`
-        : this.state[key];
+    const value = this.state[key];
 
     return (
       <FormGroup>
@@ -82,7 +84,6 @@ class SocialPayConfigForm extends React.Component<Props, State> {
           defaultValue={value}
           onChange={this.onChangeConfig.bind(this, key)}
           value={value}
-          disabled={key === 'pushNotification'}
           type={isPassword ? 'password' : ''}
         />
       </FormGroup>
@@ -92,25 +93,39 @@ class SocialPayConfigForm extends React.Component<Props, State> {
   renderContent = (formProps: IFormProps) => {
     const { renderButton, closeModal } = this.props;
     const { isSubmitted } = formProps;
-    const { paymentName, inStoreSPTerminal, inStoreSPKey } = this.state;
+    const {
+      paymentName,
+      paypalClientId,
+      paypalClientSecret,
+      paypalMode
+    } = this.state;
 
     const values = {
       paymentName,
-      inStoreSPTerminal,
-      inStoreSPKey
+      paypalClientId,
+      paypalClientSecret,
+      paypalMode
     };
 
     return (
       <>
         <SettingsContent title={__('General settings')}>
           {this.renderItem('paymentName', 'Name')}
-          {this.renderItem('inStoreSPTerminal', 'Terminal')}
-          {this.renderItem('inStoreSPKey', 'Key', '', true)}
-          {this.renderItem(
-            'pushNotification',
-            'Notification URL',
-            'Register following URL in Golomt Bank'
-          )}
+          <Formgroup>
+            <ControlLabel>Mode</ControlLabel>
+            <ToggleWrapper>
+              <span className={paypalMode === 'live' ? 'active' : ''}>
+                {__('Sandbox')}
+              </span>
+              <Toggle defaultChecked={paypalMode === 'live'} />
+              <span className={paypalMode !== 'live' ? 'active' : ''}>
+                {__('Live')}
+              </span>
+            </ToggleWrapper>
+          </Formgroup>
+
+          {this.renderItem('paypalClientId', 'Client ID')}
+          {this.renderItem('paypalClientSecret', 'Client Secret', '', true)}
         </SettingsContent>
 
         <ModalFooter>
@@ -123,7 +138,7 @@ class SocialPayConfigForm extends React.Component<Props, State> {
             Cancel
           </Button>
           {renderButton({
-            name: 'socialpay',
+            name: 'paypal',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal
@@ -138,4 +153,4 @@ class SocialPayConfigForm extends React.Component<Props, State> {
   }
 }
 
-export default SocialPayConfigForm;
+export default PaypalConfigForm;
