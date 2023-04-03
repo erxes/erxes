@@ -198,12 +198,12 @@ const ackRequestSchema = new Schema({
 });
 
 export interface IAckRequestModel extends Model<IAckRequestDocument> {
-  createRequest(doc): void;
+  createRequest(doc): IAckRequestDocument;
 }
 
 export const loadAckRequestClass = models => {
   class AckRequest {
-    public static async createLog(doc) {
+    public static async createRequest(doc) {
       doc.createdAt = new Date();
 
       return models.AckRequests.create(doc);

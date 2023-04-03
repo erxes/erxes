@@ -144,12 +144,20 @@ const queries = {
     return models.Logs.find({ contentTypeId }).sort({ createdAt: -1 });
   },
 
-  async filemanagerGetAckRequest(
+  async filemanagerGetAckRequestByUser(
     _root,
     { fileId }: { fileId: string },
     { models, user }: IContext
   ) {
     return models.AckRequests.findOne({ fileId, toUserId: user._id });
+  },
+
+  async filemanagerGetAckRequests(
+    _root,
+    { fileId }: { fileId: string },
+    { models, user }: IContext
+  ) {
+    return models.AckRequests.find({ fileId });
   },
 
   async filemanagerGetAccessRequests(

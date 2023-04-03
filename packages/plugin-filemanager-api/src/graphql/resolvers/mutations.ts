@@ -138,10 +138,26 @@ const mutations = {
 
   async filemanagerRequestAcks(
     _root,
-    { fileId, toUserIds, description },
-    { user, models }: IContext
+    { fileId, description },
+    { user, models, subdomain }: IContext
   ) {
-    for (const userId of toUserIds) {
+    const file = await models.Files.getFile({ _id: fileId });
+
+    const unit = await sendCoreMessage({
+      subdomain,
+      action: 'units.find',
+      data: {
+        _id: file.permissionUnitId
+      },
+      isRPC: true
+    });
+
+    const totalUserIds = [
+      ...(file.permissionUserIds || []),
+      ...(unit.memberIds || [])
+    ];
+
+    for (const userId of totalUserIds) {
       const request = await models.AckRequests.findOne({
         fileId,
         toUserId: userId

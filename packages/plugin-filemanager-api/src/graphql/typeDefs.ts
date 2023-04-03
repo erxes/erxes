@@ -91,7 +91,8 @@ const typeDefs = gql`
     filemanagerFileDetail(_id: String!): FileManagerFile
     filemanagerFolderDetail(_id: String!): FileManagerFolder
     filemanagerLogs(contentTypeId: String!): [FileManagerLog]
-    filemanagerGetAckRequest(fileId: String!): FileManagerAckRequest
+    filemanagerGetAckRequestByUser(fileId: String!): FileManagerAckRequest
+    filemanagerGetAckRequests(fileId: String!): [FileManagerAckRequest]
     filemanagerGetAccessRequests(fileId: String!): [FileManagerAccessRequest]
   }
 
@@ -131,11 +132,7 @@ const typeDefs = gql`
       unitId: String
     ): JSON
 
-    filemanagerRequestAcks(
-      fileId: String!
-      toUserIds: [String]!
-      description: String
-    ): String
+    filemanagerRequestAcks(fileId: String!, description: String): String
 
     filemanagerAckRequest(_id: String!): JSON
 
