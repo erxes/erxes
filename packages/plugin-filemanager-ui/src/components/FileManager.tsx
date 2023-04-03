@@ -103,11 +103,8 @@ class FileManager extends React.Component<Props, State> {
 
     const types = queryParams ? queryParams.type : [];
 
-    const onTypeSelect = (ops: IOption[]) =>
-      onSelect(
-        ops.map(option => option.value),
-        'type'
-      );
+    const onTypeSelect = (ops: IOption) =>
+      onSelect(ops && ops.value ? ops.value : '', 'type');
 
     return (
       <FilterWrapper>
@@ -124,6 +121,7 @@ class FileManager extends React.Component<Props, State> {
           name="contentTypeId"
           queryParams={queryParams}
           onSelect={onSelect}
+          multi={false}
         />
         <ControlLabel>By file type</ControlLabel>
         <Select
@@ -133,9 +131,9 @@ class FileManager extends React.Component<Props, State> {
             { value: 'simple', label: 'Simple file' },
             { value: 'dynamic', label: 'Dynamic file' }
           ]}
+          isClearable={true}
           name="type"
           onChange={onTypeSelect}
-          multi={true}
           loadingPlaceholder={__('Loading...')}
         />
         <ControlLabel>By created date</ControlLabel>
