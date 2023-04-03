@@ -382,14 +382,37 @@ export const initBroker = async cl => {
   consumeQueue(
     'cards:pipelinesChanged',
     async ({ subdomain, data: { pipelineId, action, data } }) => {
-      const models = await generateModels(subdomain);
-
       graphqlPubsub.publish('pipelinesChanged', {
         pipelinesChanged: {
           _id: pipelineId,
           proccessId: Math.random(),
           action,
           data
+        }
+      });
+
+      return {
+        status: 'success'
+      };
+    }
+  );
+
+  consumeQueue(
+    'cards:productsDataChanged',
+    async ({
+      subdomain,
+      data: { dealId, action, dataId, doc, productsData }
+    }) => {
+      graphqlPubsub.publish('productsDataChanged', {
+        pipelinesChanged: {
+          _id: dealId,
+          proccessId: Math.random(),
+          action,
+          data: {
+            dataId,
+            doc,
+            productsData
+          }
         }
       });
 
