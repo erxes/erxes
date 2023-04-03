@@ -65,7 +65,7 @@ export const afterQueryHandlers = async (subdomain, data) => {
 
       for (const acc of accounts) {
         for (const loc of locations) {
-          const resp = jsonRes[acc][loc] || {};
+          const resp = (jsonRes[acc] || {})[loc] || {};
           for (const invCode of Object.keys(resp)) {
             if (!Object.keys(responseByCode).includes(invCode)) {
               responseByCode[invCode] = '';
@@ -82,7 +82,7 @@ export const afterQueryHandlers = async (subdomain, data) => {
     }
 
     for (const r of results) {
-      r.name = r.name.concat(` (${responseByCode[r.code] || '-0'})`);
+      r.name = (r.name || '').concat(` (${responseByCode[r.code] || '-0'})`);
     }
   } catch (e) {
     console.log(e.message);
