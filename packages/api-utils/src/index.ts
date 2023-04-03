@@ -14,7 +14,9 @@ import {
   validSearchText,
   cleanHtml,
   splitStr,
-  escapeRegExp
+  escapeRegExp,
+  dateToShortStr,
+  shortStrToDate
 } from './core';
 import { putCreateLog, putDeleteLog, putUpdateLog } from './logUtils';
 import { sendRequest, sendToWebhook } from './requests';
@@ -60,6 +62,8 @@ export { updateUserScore };
 export { getScoringConfig };
 export { generateFieldsFromSchema };
 export { afterQueryWrapper };
+export { dateToShortStr };
+export { shortStrToDate };
 export {
   can,
   IActionMap,
@@ -102,5 +106,7 @@ export default {
   updateUserScore,
   getScoringConfig,
   generateFieldsFromSchema,
-  afterQueryWrapper
+  afterQueryWrapper,
+  dateToShortStr,
+  shortStrToDate
 };
