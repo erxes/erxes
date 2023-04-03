@@ -278,7 +278,7 @@ const mutations = {
   }
 };
 
-checkPermission(mutations, 'filemanagerFolderSave', 'showFilemanager');
-checkPermission(mutations, 'filemanagerFolderRemove', 'showFilemanager');
+checkPermission(mutations, 'filemanagerFolderSave', 'filemanagerFolderSave');
+checkPermission(mutations, 'filemanagerFileCreate', 'filemanagerFileCreate');
 
 export default mutations;
