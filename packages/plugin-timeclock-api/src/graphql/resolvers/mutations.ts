@@ -231,6 +231,10 @@ const timeclockMutations = {
     });
   },
 
+  async removeAbsenceRequest(_root, { _id }, { models }: IContext) {
+    return models.Absences.removeAbsence(_id);
+  },
+
   async sendAbsenceRequest(
     _root,
     doc: IAbsence,
