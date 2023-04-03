@@ -73,6 +73,8 @@ interface IFile {
   contentTypeId?: string;
   documentId?: string;
 
+  relatedFileIds?: string[];
+
   permissionUserIds?: string[];
   permissionUnitId?: string;
 }
@@ -92,6 +94,8 @@ const fileSchema = new Schema({
   contentType: { type: String, index: true },
   contentTypeId: { type: String, index: true },
   documentId: { type: String },
+
+  relatedFileIds: { type: [String], index: true },
 
   permissionUserIds: { type: [String], index: true },
   permissionUnitId: { type: String, index: true }

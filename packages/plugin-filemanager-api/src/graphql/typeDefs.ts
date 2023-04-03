@@ -34,10 +34,14 @@ const typeDefs = gql`
     contentType: String
     contentTypeId: String
     documentId: String
+
     permissionUserIds: [String]
     permissionUnitId: String
 
     sharedUsers: [User]
+
+    relatedFileIds: [String]
+    relatedFiles: [FileManagerFile]
   }
 
   type FileManagerLog {
@@ -110,6 +114,13 @@ const typeDefs = gql`
       contentTypeId: String
       documentId: String
     ): FileManagerFile
+
+    filemanagerRelateFiles(sourceId: String!, targetIds: [String!]!): String
+
+    filemanagerRemoveRelatedFiles(
+      sourceId: String!
+      targetIds: [String!]!
+    ): String
 
     filemanagerFileRemove(_id: String!): JSON
 

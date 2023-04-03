@@ -235,6 +235,46 @@ const mutations = {
     await models.AccessRequests.remove({ _id: requestId });
 
     return 'ok';
+  },
+
+  async filemanagerRelateFiles(
+    _root,
+    { sourceId, targetIds },
+    { user, models }: IContext
+  ) {
+    const file = await models.Files.getFile({ _id: sourceId });
+
+    if (file.createdUserId !== user._id) {
+      throw new Error('Permission denied');
+    }
+
+    await models.Files.update(
+      { _id: sourceId },
+      { $set: { relatedFileIds: targetIds } }
+    );
+
+    return 'ok';
+  },
+
+  async filemanagerRemoveRelatedFiles(
+    _root,
+    { sourceId, targetIds },
+    { user, models }: IContext
+  ) {
+    const file = await models.Files.getFile({ _id: sourceId });
+
+    if (file.createdUserId !== user._id) {
+      throw new Error('Permission denied');
+    }
+
+    for (const targetId of targetIds) {
+      await models.Files.update(
+        { _id: sourceId },
+        { $pull: { relatedFileIds: targetId } }
+      );
+    }
+
+    return 'ok';
   }
 };
 
