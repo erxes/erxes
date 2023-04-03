@@ -108,12 +108,12 @@ const mutations = {
 
   buildingsSubmitServiceRequest: async (
     _root,
-    { _id, buildingData, ticketData, quarterId },
+    { _id, buildingData, ticketData, quarterId, phone },
     { models, subdomain, cpUser }: IContext
   ) => {
     const user = await sendCommonMessage({
       serviceName: 'clientportal',
-      subdomain: subdomain,
+      subdomain,
       action: 'clientPortalUsers.findOne',
       data: {
         _id: cpUser.userId
@@ -122,8 +122,38 @@ const mutations = {
       defaultValue: undefined
     });
 
+    let customerId = '';
+
+    if (user) {
+      customerId = user.erxesCustomerId;
+    }
+
     if (!user) {
-      throw new Error('login required');
+      let customer = await sendCommonMessage({
+        serviceName: 'contacts',
+        subdomain,
+        action: 'customers.findOne',
+        data: {
+          phone
+        },
+        isRPC: true,
+        defaultValue: null
+      });
+
+      if (!customer) {
+        customer = await sendCommonMessage({
+          serviceName: 'contacts',
+          subdomain,
+          action: 'customers.createCustomer',
+          data: {
+            primaryName: phone
+          },
+          isRPC: true,
+          defaultValue: null
+        });
+
+        customerId = customer._id;
+      }
     }
 
     // const user = { erxesCustomerId: 'hTqM74dJPreqy4K5t' };
@@ -156,13 +186,13 @@ const mutations = {
 
     const ticket = await sendCommonMessage({
       serviceName: 'cards',
-      subdomain: subdomain,
+      subdomain,
       action: 'tickets.create',
       data: {
         ...ticketData,
         createdAt: new Date(),
         name: `Сүлжээ тавиулах хүсэлт: ${building.name}`,
-        customerId: user.erxesCustomerId
+        customerId
       },
       isRPC: true,
       defaultValue: undefined
