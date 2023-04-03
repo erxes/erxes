@@ -145,6 +145,7 @@ export default withProps<Props>(
             paidDate: queryParams.paidDate,
             userId: queryParams.userId,
             customerId: queryParams.customerId,
+            customerType: queryParams.customerType,
             posId: queryParams.posId
           },
           fetchPolicy: 'network-only'

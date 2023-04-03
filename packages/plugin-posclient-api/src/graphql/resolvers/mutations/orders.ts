@@ -68,7 +68,7 @@ const orderMutations = {
     doc: IOrderInput,
     { posUser, config, models, subdomain }: IContext
   ) {
-    const { totalAmount, type, customerId, branchId } = doc;
+    const { totalAmount, type, customerId, customerType, branchId } = doc;
     if (!posUser && !doc.customerId) {
       throw new Error('order has not owner');
     }
@@ -82,6 +82,7 @@ const orderMutations = {
       type,
       branchId,
       customerId,
+      customerType,
       userId: posUser ? posUser._id : ''
     };
 
@@ -120,7 +121,8 @@ const orderMutations = {
           ...order,
           _id: order._id,
           status: order.status,
-          customerId: order.customerId
+          customerId: order.customerId,
+          customerType: order.customerType
         }
       });
 
@@ -173,6 +175,7 @@ const orderMutations = {
       deliveryInfo: doc.deliveryInfo,
       branchId: doc.branchId,
       customerId: doc.customerId,
+      customerType: doc.customerType,
       userId: posUser ? posUser._id : '',
       type: doc.type,
       totalAmount: getTotalAmount(preparedDoc.items),
@@ -190,7 +193,8 @@ const orderMutations = {
         ...updatedOrder,
         _id: updatedOrder._id,
         status: updatedOrder.status,
-        customerId: updatedOrder.customerId
+        customerId: updatedOrder.customerId,
+        customerType: order.customerType
       }
     });
 
@@ -229,7 +233,8 @@ const orderMutations = {
         ...order,
         _id,
         status: order.status,
-        customerId: order.customerId
+        customerId: order.customerId,
+        customerType: order.customerType
       }
     });
 

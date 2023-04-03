@@ -53,6 +53,7 @@ export const DISTRICTS = [
 export const FILTER_PARAMS = [
   'search',
   'customerId',
+  'customerType',
   'billType',
   'registerNumber',
   'type',

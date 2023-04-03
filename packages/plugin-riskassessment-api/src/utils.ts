@@ -27,9 +27,9 @@ export const validRiskIndicators = async params => {
     if (!form.formId) {
       throw new Error('Please build a form');
     }
-    if (!form.calculateMethod) {
-      throw new Error('Provide a calculate method on form');
-    }
+
+    await validateCalculateMethods(form);
+
     if (forms.length > 1) {
       if (!form.percentWeight) {
         throw new Error('Provide a percent weight on form');
@@ -48,19 +48,17 @@ export const validRiskIndicators = async params => {
 
 export const validateCalculateMethods = async params => {
   if (!params.calculateMethod) {
-    throw new Error(
-      'You must specify calculate method of general configuration'
-    );
+    throw new Error('You must specify calculate method');
   }
-  if (!params.calculateLogics.length) {
+  if (!params.calculateLogics?.length) {
     throw new Error('You must specify at least one metric');
   }
   for (const calculateLogic of params.calculateLogics || []) {
-    if (!calculateLogic.logic) {
-      throw new Error('You must specify metric logic');
-    }
     if (!calculateLogic.name) {
       throw new Error('You must specify metric name');
+    }
+    if (!calculateLogic.logic) {
+      throw new Error('You must specify metric logic');
     }
     if (!calculateLogic.value) {
       throw new Error('You must specify metric value ');
@@ -170,10 +168,12 @@ export const getAsssignedUsers = async (
   cardId: string,
   cardType: string
 ) => {
-  let assignedUsers;
+  let assignedUsers: any[] = [];
 
   if (!cardId && !cardType) {
-    return 'Something went wrong trying to get assigned users of card';
+    throw new Error(
+      'Something went wrong trying to get assigned users of card'
+    );
   }
 
   const card = await sendCardsMessage({
@@ -183,7 +183,7 @@ export const getAsssignedUsers = async (
       _id: cardId
     },
     isRPC: true,
-    defaultValue: []
+    defaultValue: {}
   });
 
   if (card) {
@@ -240,13 +240,14 @@ export const calculateFormResponses = async ({
         }, [])
         .filter(item => item);
       const fieldValue = optValues.find(
-        option => option.label === response.value
+        option => option.label.trim() === String(response.value).trim()
       );
       switch (calculateMethod) {
         case 'Multiply':
           sumNumber *= parseInt(fieldValue?.value || 0);
           break;
         case 'Addition':
+        case 'Average':
           sumNumber += parseInt(fieldValue?.value || 0);
           break;
       }
@@ -267,6 +268,11 @@ export const calculateFormResponses = async ({
         fieldId: key
       });
     }
+  }
+
+  if (calculateMethod === 'Average') {
+    const fieldCount = fields?.length || 1;
+    sumNumber = sumNumber / fieldCount;
   }
 
   return { submissions, sumNumber };
@@ -360,6 +366,21 @@ export const calculateResult = async ({
   resultScore,
   filter
 }) => {
+  if (!calculateLogics?.length) {
+    return await collection.findOneAndUpdate(
+      { ...filter },
+      {
+        $set: {
+          status: 'No Result',
+          statusColor: '#888',
+          resultScore: roundResult(resultScore),
+          closedAt: Date.now()
+        }
+      },
+      { new: true }
+    );
+  }
+
   for (const { name, value, value2, logic, color } of calculateLogics || []) {
     let operator = logic.substring(1, 2);
     if (operator === '≈') {
@@ -461,8 +482,8 @@ export const getIndicatorSubmissions = async ({
         defaultValue: {}
       });
 
-      field.optionsValues = fieldDetail.optionsValues;
-      field.text = fieldDetail.text;
+      field.optionsValues = fieldDetail?.optionsValues || '';
+      field.text = fieldDetail?.text || '';
     }
   }
   return submissions;

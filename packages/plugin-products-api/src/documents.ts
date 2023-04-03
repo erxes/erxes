@@ -62,8 +62,6 @@ export default {
           if (unitPrice < 0) {
             unitPrice = 0;
           }
-
-          product.unitPrice = unitPrice;
         }
       }
 
@@ -75,6 +73,8 @@ export default {
         defaultValue: [],
         data: {
           prioritizeRule: 'exclude',
+          branchId,
+          departmentId,
           products
         }
       });

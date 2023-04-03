@@ -28,6 +28,12 @@ export const initBroker = async cl => {
     const { pos, order } = data;
 
     const postData = await getPostData(subdomain, pos, order);
+    if (!postData) {
+      return {
+        status: 'success',
+        data: {}
+      };
+    }
 
     return {
       status: 'success',

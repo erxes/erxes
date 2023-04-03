@@ -5,6 +5,7 @@ const posOrderFields = contactsEnabled => `
   paidDate: Date,
   number: String,
   customerId: String,
+  customerType: String,
   cashAmount: Float,
   mobileAmount: Float,
   paidAmounts: JSON,
@@ -25,7 +26,7 @@ const posOrderFields = contactsEnabled => `
   ${
     contactsEnabled
       ? `
-      customer: Customer
+      customer: CustomerPos
     `
       : ''
   }
@@ -34,6 +35,15 @@ const posOrderFields = contactsEnabled => `
 `;
 
 export const types = ({ contactsEnabled, productsEnabled }) => `
+  type CustomerPos {
+    _id: String!
+    code: String
+    primaryPhone: String
+    firstName: String
+    primaryEmail: String
+    lastName: String
+  }
+  
   type PosOrder {
     ${posOrderFields(contactsEnabled)}
   }
@@ -91,6 +101,7 @@ const queryParams = `
   paidDate: String
   userId: String
   customerId: String
+  customerType: String
   posId: String
   posToken: String
 `;

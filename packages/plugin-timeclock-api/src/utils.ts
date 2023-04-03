@@ -112,7 +112,15 @@ const createTimelogs = async (
   const totalTimeLogs: ITimeLog[] = [];
 
   let currentEmpId;
+
+  console.log('========', queryData.length);
+
+  let i = 0;
+
   for (const queryRow of queryData) {
+    i++;
+    console.log(i);
+
     const currEmpId = queryRow.ID;
 
     if (currEmpId === currentEmpId) {

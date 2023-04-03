@@ -42,58 +42,58 @@ const downloadPlugins = async () => {
     service => service.config && service.config.hasDashboard
   );
 
-  await Promise.all(
-    services.map(async service => {
-      const schemaNames = service.config.meta.dashboards.schemaNames || [];
+  for (const service of services) {
+    const schemaNames = service.config.meta.dashboards.schemaNames || [];
 
-      const url = `${service.address}/dashboard`;
+    const url = `${service.address}/dashboard`;
 
-      schemaNames.map(async schemaName => {
-        const downloader = new (Downloader as any)({
-          url,
-          directory,
-          cloneFiles: false,
-          fileName: `${schemaName}.js`,
-          headers: { schemaName }
-        });
-        try {
-          await downloader.download();
-          console.log(
-            `${service.name} schema downloaded from ${url} to ${schemaName}.`
-          );
-        } catch (e) {
-          console.error(
-            `${service.name} schema download from ${url} to ${schemaName} failed.`
-          );
-        }
+    for (const schemaName of schemaNames) {
+      const downloader = await new (Downloader as any)({
+        url,
+        directory,
+        cloneFiles: false,
+        fileName: `${schemaName}.js`,
+        headers: { schemaName }
       });
-    })
-  );
+      try {
+        await downloader.download();
+        console.log(
+          `${service.name} schema downloaded from ${url} to ${schemaName}.`
+        );
+      } catch (e) {
+        console.error(
+          `${service.name} schema download from ${url} to ${schemaName} failed.`,
+          e.message
+        );
+      }
+    }
+  }
 };
 
-const server = new CubejsServer({
-  schemaPath: './dynamicSchema',
-  initApp: async () => {
-    await downloadPlugins();
-  }
-});
+(async () => {
+  await downloadPlugins();
 
-server
-  .listen()
-  .then(async ({ app, port }) => {
-    app.get('/get-token', async (_req, res) => {
-      const dashboardToken = jwt.sign({}, CUBEJS_API_SECRET || 'secret', {
-        expiresIn: '10day'
+  const server = new CubejsServer({});
+
+  server
+    .listen()
+    .then(async ({ app, port }) => {
+      app.get('/get-token', async (_req, res) => {
+        const dashboardToken = jwt.sign({}, CUBEJS_API_SECRET || 'secret', {
+          expiresIn: '10day'
+        });
+
+        return res.send({
+          dashboardToken
+        });
       });
 
-      return res.send({
-        dashboardToken
-      });
+      console.log(
+        `🚀 Cube.js server is listening on ${port} dbname ${DB_NAME}`
+      );
+    })
+    .catch(e => {
+      console.error('Fatal error during server start: ');
+      console.error(e.stack || e);
     });
-
-    console.log(`🚀 Cube.js server is listening on ${port} dbname ${DB_NAME}`);
-  })
-  .catch(e => {
-    console.error('Fatal error during server start: ');
-    console.error(e.stack || e);
-  });
+})();

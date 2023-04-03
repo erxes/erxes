@@ -7,8 +7,9 @@ import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import listen, { findAttachmentParts, generateImap, toUpper } from './utils';
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
+import logs from './logUtils';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -31,7 +32,8 @@ export default {
         kind: 'imap',
         label: 'IMap'
       }
-    ]
+    ],
+    logs: { providesActivityLog: true, consumers: logs }
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);

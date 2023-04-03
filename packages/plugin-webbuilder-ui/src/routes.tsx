@@ -1,5 +1,6 @@
+import { Route, Switch } from 'react-router-dom';
+
 import React from 'react';
-import { Route } from 'react-router-dom';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 
@@ -11,13 +12,13 @@ const SitesListContainer = asyncComponent(() =>
 
 const SiteForm = asyncComponent(() =>
   import(
-    /* webpackChunkName: "SiteForm - WebBuilders" */ './containers/sites/SiteForm'
+    /* webpackChunkName: "SiteForm - XBuilders" */ './containers/sites/SiteForm'
   )
 );
 
 const WebBuilderContainer = asyncComponent(() =>
   import(
-    /* webpackChunkName: "PageForm - WebBuilderContainer" */ './containers/Webbuilder'
+    /* webpackChunkName: "PageForm - XBuilderContainer" */ './containers/Webbuilder'
   )
 );
 
@@ -35,17 +36,10 @@ const webBuilderSitesCreate = history => {
   const { location, match } = history;
 
   const queryParams = queryString.parse(location.search);
-  const site = localStorage.getItem('webbuilderSiteId') || '';
 
   const { step } = match.params;
 
-  return (
-    <SitesListContainer
-      step={step}
-      selectedSite={site}
-      queryParams={queryParams}
-    />
-  );
+  return <SitesListContainer step={step} queryParams={queryParams} />;
 };
 
 const webBuilderSitesEdit = ({ match, location }) => {
@@ -57,25 +51,25 @@ const webBuilderSitesEdit = ({ match, location }) => {
 
 const routes = () => {
   return (
-    <>
+    <Switch>
       <Route
-        path="/webbuilder"
+        path="/xbuilder"
         exact={true}
         component={webBuilderSitesContainer}
       />
 
       <Route
-        path="/webbuilder/sites/create"
+        path="/xbuilder/sites/create"
         exact={true}
         component={webBuilderSitesCreate}
       />
 
       <Route
-        path="/webbuilder/sites/edit/:_id"
+        path="/xbuilder/sites/edit/:_id"
         exact={true}
         component={webBuilderSitesEdit}
       />
-    </>
+    </Switch>
   );
 };
 

@@ -49,6 +49,7 @@ export interface IOrderInput {
   totalAmount: number;
   type: string;
   customerId?: string;
+  customerType?: string;
   branchId?: string;
   deliveryInfo?: any;
   origin?: string;

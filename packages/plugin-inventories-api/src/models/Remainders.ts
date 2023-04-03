@@ -283,7 +283,7 @@ export const loadRemainderClass = (models: IModels) => {
 
       for (const data of productsData) {
         const product = productById[data.productId];
-        const ratio = getRatio(product, data.uomId);
+        const ratio = getRatio(product, data.uomId || product.uomId);
 
         bulkOps.push({
           updateOne: {

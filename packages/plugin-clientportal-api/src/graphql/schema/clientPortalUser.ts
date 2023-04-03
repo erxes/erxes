@@ -162,6 +162,8 @@ export const mutations = () => `
   clientPortalVerifyOTP(userId: String!, phoneOtp: String, emailOtp: String, password: String): String
   clientPortalUsersVerify(userIds: [String]!, type: String): JSON
   clientPortalLogin(login: String!, password: String!, clientPortalId: String!, deviceToken: String): String
+  clientPortalGoogleAuthentication(clientPortalId: String, code: String): String
+  clientPortalFacebookAuthentication(accessToken: String, clientPortalId: String!): String
   clientPortalLogout: String
   clientPortalLoginWithPhone(phone: String!, clientPortalId: String!, deviceToken: String): JSON
   clientPortalUsersReplacePhone(clientPortalId: String!, phone: String!): String!

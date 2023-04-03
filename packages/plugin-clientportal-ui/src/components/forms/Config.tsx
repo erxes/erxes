@@ -13,6 +13,7 @@ import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { CONFIGURATIONS } from '../../constants';
 import { ToggleWrap } from '../../styles';
 import { ClientPortalConfig } from '../../types';
+import PasswordConfig from './PasswordConfig';
 
 type Props = {
   handleFormChange: (name: string, value: any) => void;
@@ -30,10 +31,15 @@ type ControlItem = {
 
 function General({
   googleCredentials,
+  googleClientId,
+  googleRedirectUri,
+  googleClientSecret,
+  facebookAppId,
   otpConfig,
   mailConfig,
   name,
   manualVerificationConfig,
+  passwordVerificationConfig,
   handleFormChange
 }: Props) {
   const [otpEnabled, setOtpEnabled] = useState<boolean>(
@@ -502,6 +508,10 @@ function General({
     <>
       {renderOtp()}
       {renderMailConfig()}
+      <PasswordConfig
+        config={passwordVerificationConfig}
+        onChange={handleFormChange}
+      />
       {renderManualVerification()}
 
       <CollapseContent
@@ -513,6 +523,32 @@ function General({
           label: 'Google Application Credentials',
           formValueName: 'googleCredentials',
           formValue: googleCredentials
+        })}
+        {renderControl({
+          label: 'Google Client Id',
+          formValueName: 'googleClientId',
+          formValue: googleClientId
+        })}
+        {renderControl({
+          label: 'Google Client Secret',
+          formValueName: 'googleClientSecret',
+          formValue: googleClientSecret
+        })}
+        {renderControl({
+          label: 'Google Client Redirect Uri',
+          formValueName: 'googleRedirectUri',
+          formValue: googleRedirectUri
+        })}
+      </CollapseContent>
+      <CollapseContent
+        title={__('Facebook Application Credentials')}
+        compact={true}
+        open={false}
+      >
+        {renderControl({
+          label: 'Facebook App Id',
+          formValueName: 'facebookAppId',
+          formValue: facebookAppId
         })}
       </CollapseContent>
     </>

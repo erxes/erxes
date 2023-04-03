@@ -214,7 +214,7 @@ export const Labels = styledTS<{ filteredCategories?: boolean }>(styled.div)`
 export const LeftSidebar = styledTS<{ width?: number }>(styled.div)`
   overflow: auto;
   height: 100%;
-  width: 200px;
+  width: 250px;
   border-right: 1px solid ${colors.colorShadowGray};
 
   &.darkmode {
@@ -239,9 +239,8 @@ export const CollapseLeftMenu = styled.div`
 export const SubTitle = styledTS<{ flexBetween?: boolean }>(styled.div)`
   margin: 0;
   letter-spacing: 0.5px;
-  font-size: 12px;
   background-color: rgba(0, 0, 0, 0.1);
-  padding: 9px ${dimensions.unitSpacing}px;
+  padding: ${dimensions.unitSpacing}px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.25);
   border-top: 1px solid rgba(0, 0, 0, 0.25);
 
@@ -282,6 +281,7 @@ export const SiteFormContainer = styledTS<{ showDarkMode?: boolean }>(
   styled.div
 )`
   position: relative;
+  height: 100%;
 
   ${props =>
     !props.showDarkMode &&
@@ -347,12 +347,43 @@ export const SiteFormContainer = styledTS<{ showDarkMode?: boolean }>(
           background-color: #3d3d3d !important;
         }
       `}
+  
+  .right-section {
+    position: relative;
+  }
 `;
 
 export const SettingsContent = styled.div`
   height: 100%;
   position: absolute;
-  left: 199px;
-  width: calc(100% - 200px);
+  left: 249px;
+  width: calc(100% - 250px);
   z-index: 10;
+`;
+
+export const Editor = styled.div`
+  position: relative;
+`;
+
+export const CustomButtonWrapper = styled.div`
+  position: absolute;
+  z-index: 5;
+  left: 130px;
+  top: 7px;
+`;
+
+export const Loader = styledTS<{ showDarkMode?: boolean }>(styled.div)`
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  opacity: .7;
+  background: ${props =>
+    props.showDarkMode ? colors.colorCoreDarkGray : colors.colorWhite};
+  z-index: 9;
+
+  > div {
+    height: 100%;
+  }
 `;
