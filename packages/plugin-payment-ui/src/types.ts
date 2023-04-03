@@ -21,6 +21,12 @@ export interface ISocialPayConfig {
   inStoreSPKey: string;
 }
 
+export interface IPaypalConfig {
+  paypalMode: 'sandbox' | 'live';
+  paypalClientId: string;
+  paypalClientSecret: string;
+}
+
 export interface IMonpayConfig {
   username: string;
   accountId: string;
