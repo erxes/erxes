@@ -186,19 +186,14 @@ const ListContainer = (props: FinalProps) => {
   const { list = [], totalCount = 0 } =
     listDeviceConfigsQuery.deviceConfigs || {};
 
-  const { scheduleConfigs = [] } = listScheduleConfigsQuery;
-  const { holidays = [] } = listHolidaysQuery;
-  const { absenceTypes = [] } = listAbsenceTypesQuery;
-  const { payDates = [] } = listPayDatesQuery;
-
   const updatedProps = {
     ...props,
     deviceConfigs: list,
     deviceConfigsTotalCount: totalCount,
-    scheduleConfigs,
-    holidays,
-    absenceTypes,
-    payDates,
+    scheduleConfigs: listScheduleConfigsQuery.scheduleConfigs,
+    holidays: listHolidaysQuery.holidays,
+    absenceTypes: listAbsenceTypesQuery.absenceTypes,
+    payDates: listPayDatesQuery.payDates || [],
     removeAbsenceType,
     removeHoliday,
     removePayDate,
