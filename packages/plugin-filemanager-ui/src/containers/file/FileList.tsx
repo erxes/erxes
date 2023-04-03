@@ -86,7 +86,9 @@ export default withProps<Props>(
             search: queryParams.search,
             type: queryParams.type,
             sortField: queryParams.sortField,
-            sortDirection: queryParams.sortDirection,
+            sortDirection: queryParams.sortDirection
+              ? parseInt(queryParams.sortDirection, 10)
+              : undefined,
             contentType: queryParams.contentType,
             contentTypeId: queryParams.contentTypeId,
             createdAtTo: queryParams.createdAtTo,
