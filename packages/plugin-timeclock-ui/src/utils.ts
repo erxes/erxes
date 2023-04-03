@@ -1,11 +1,11 @@
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import dayjs from 'dayjs';
-import { ISchedule } from './types';
+import { IScheduleForm } from './types';
 
 const timeFormat = 'HH:mm';
 
 export const compareStartAndEndTime = (
-  scheduleDates: ISchedule,
+  scheduleDates: IScheduleForm,
   day_key,
   newShiftStart?,
   newShiftEnd?,

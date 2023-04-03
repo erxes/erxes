@@ -18,6 +18,7 @@ export const types = `
   type PosProductCategory {
     ${commonFieldDefs}
     parentId: String
+    meta: String
     order: String!
     isRoot: Boolean
     productCount: Int
@@ -32,6 +33,7 @@ export const types = `
     unitPrice: Float
     categoryId: String
     customFieldsData: JSON
+    customFieldsDataByFieldCode: JSON
     createdAt: Date
     tagIds: [String]
     vendorId: String
@@ -51,27 +53,40 @@ const productsQueryParams = `
   categoryId: String,
   searchValue: String,
   tag: String,
-  page: Int,
-  perPage: Int ids: [String],
-  sortField: String,
-  sortDirection: Int,
+  ids: [String],
   excludeIds: Boolean,
   segment: String,
   segmentData: String,
 `;
 
+const productCategoriesParams = `
+  parentId: String, 
+  searchValue: String, 
+  excludeEmpty: Boolean, 
+  meta: String,
+`;
+const commonParams = `
+  page: Int,
+  perPage: Int,
+  sortField: String,
+  sortDirection: Int,
+`;
+
 export const queries = `
-  poscProductCategories(parentId: String, searchValue: String, excludeEmpty: Boolean): [PosProductCategory]
-  poscProductCategoriesTotalCount(parentId: String, searchValue: String): Int
+  poscProductCategories(
+    ${productCategoriesParams} 
+    ${commonParams}
+  ): [PosProductCategory]
+  poscProductCategoriesTotalCount(${productCategoriesParams}): Int
   poscProductCategoryDetail(_id: String): PosProductCategory
 
   poscProducts(
     ${productsQueryParams}
-    page: Int,
-    perPage: Int,
+    ${commonParams}
   ): [PoscProduct]
   poscProductsTotalCount(
     ${productsQueryParams}
   ): Int
   poscProductDetail(_id: String): PoscProduct
+  getPriceInfo(productId: String!): String
 `;

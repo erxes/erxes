@@ -19,7 +19,10 @@ function HomeContainer(props: Props) {
     fetchPolicy: 'network-only'
   });
   const configsEnvQuery = useQuery(gql(generalQueries.configsGetEnv));
-  const totalCountQuery = useQuery(gql(queries.usersTotalCount));
+  const totalCountQuery = useQuery(
+    gql(queries.usersTotalCount),
+    options({ queryParams: props.queryParams || {} })
+  );
 
   const getRefetchQueries = () => {
     return [
@@ -55,8 +58,8 @@ function HomeContainer(props: Props) {
     : usersGroupQuery.data.usersGroups || [];
 
   const totalCount = totalCountQuery.loading
-    ? []
-    : totalCountQuery.data.usersTotalCount || [];
+    ? 0
+    : totalCountQuery.data.usersTotalCount || 0;
 
   return (
     <Home

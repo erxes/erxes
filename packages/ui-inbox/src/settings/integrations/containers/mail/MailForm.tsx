@@ -13,7 +13,6 @@ import { queries as engageQueries } from '@erxes/ui-engage/src/graphql';
 import { mutations as engageMutations } from '@erxes/ui-engage/src/graphql';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { queries as messageQueries } from '@erxes/ui-inbox/src/inbox/graphql';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import queryString from 'query-string';
 import { IRouterProps } from '@erxes/ui/src/types';
@@ -71,7 +70,6 @@ class MailFormContainer extends React.Component<
       conversationId,
       isReply,
       closeModal,
-      closeReply,
       emailTemplatesQuery,
       emailTemplatesTotalCountQuery,
       currentUser,
@@ -108,11 +106,14 @@ class MailFormContainer extends React.Component<
             const emails: string[] = [];
 
             for (const integration of data.imapGetIntegrations || []) {
-              if (!emails.includes(integration.user)) {
+              if (integration.user && !emails.includes(integration.user)) {
                 emails.push(integration.user);
               }
 
-              if (!emails.includes(integration.mainUser)) {
+              if (
+                integration.mainUser &&
+                !emails.includes(integration.mainUser)
+              ) {
                 emails.push(integration.mainUser);
               }
             }

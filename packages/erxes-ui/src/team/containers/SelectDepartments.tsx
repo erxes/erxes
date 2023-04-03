@@ -27,9 +27,12 @@ export function generateUserOptions(array: IDepartment[] = []): IOption[] {
 }
 
 const departmentsQuery = `
-  query departments(${commonStructureParamsDef},$withoutUserFilter:Boolean) {
-    departments(${commonStructureParamsValue},withoutUserFilter:$withoutUserFilter) {
-      _id,title,parentId
+  query departments(${commonStructureParamsDef}, $withoutUserFilter: Boolean) {
+    departments(${commonStructureParamsValue}, withoutUserFilter: $withoutUserFilter) {
+      _id,
+      code,
+      title,
+      parentId
     }
   }
 `;
@@ -37,6 +40,7 @@ const departmentsQuery = `
 export default (props: {
   queryParams?: IQueryParams;
   filterParams?: {
+    ids?: string[];
     status?: string;
     searchValue?: string;
     withoutUserFilter: boolean;

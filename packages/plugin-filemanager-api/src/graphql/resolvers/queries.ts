@@ -1,4 +1,4 @@
-// import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../connectionResolver';
 import { sendCoreMessage } from '../../messageBroker';
@@ -127,7 +127,7 @@ const queries = {
   }
 };
 
-// checkPermission(queries, 'filemanagerFolders', 'manageFilemanager', []);
-// checkPermission(queries, 'filemanagerFiles', 'manageFilemanager');
+checkPermission(queries, 'filemanagerFolders', 'showFilemanager', []);
+checkPermission(queries, 'filemanagerFiles', 'showFilemanager');
 
 export default queries;

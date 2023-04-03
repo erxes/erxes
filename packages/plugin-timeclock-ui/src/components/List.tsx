@@ -12,6 +12,7 @@ import ScheduleList from '../containers/schedule/ScheduleList';
 import LogsList from '../containers/logs/LogsList';
 import { IBranch } from '@erxes/ui/src/team/types';
 import { IScheduleConfig } from '../types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   currentDate?: string;
@@ -39,6 +40,7 @@ function List(props: Props) {
         setModalComponent(
           <ConfigList
             {...props}
+            getPagination={setPagination}
             showSideBar={setShowSideBar}
             getActionBar={setRightActionBar}
             queryParams={queryParams}
@@ -88,16 +90,18 @@ function List(props: Props) {
         setLoading(false);
         break;
       case 'logs':
-        setModalComponent(
-          <LogsList
-            {...props}
-            showSideBar={setShowSideBar}
-            getPagination={setPagination}
-            getActionBar={setRightActionBar}
-            queryParams={queryParams}
-            history={history}
-          />
-        );
+        if (!isEnabled('bichil')) {
+          setModalComponent(
+            <LogsList
+              {...props}
+              showSideBar={setShowSideBar}
+              getPagination={setPagination}
+              getActionBar={setRightActionBar}
+              queryParams={queryParams}
+              history={history}
+            />
+          );
+        }
         setLoading(false);
         break;
       default:

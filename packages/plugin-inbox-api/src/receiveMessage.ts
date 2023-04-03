@@ -94,7 +94,7 @@ export const receiveRpcMessage = async (subdomain, data) => {
   }
 
   if (action === 'create-or-update-conversation') {
-    const { conversationId, content, owner } = doc;
+    const { conversationId, content, owner, updatedAt } = doc;
 
     let user;
 
@@ -116,6 +116,7 @@ export const receiveRpcMessage = async (subdomain, data) => {
       await Conversations.updateConversation(conversationId, {
         content,
         assignedUserId,
+        updatedAt,
         // mark this conversation as unread
         readUserIds: [],
 
@@ -213,7 +214,9 @@ export const receiveIntegrationsNotification = async (subdomain, msg) => {
 
     if (conversationId) {
       await models.Conversations.reopen(conversationId);
-      await pConversationClientMessageInserted(models, { conversationId });
+      await pConversationClientMessageInserted(models, subdomain, {
+        conversationId
+      });
     }
 
     return sendSuccess({ status: 'ok' });

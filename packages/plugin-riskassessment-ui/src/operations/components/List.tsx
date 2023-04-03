@@ -1,22 +1,20 @@
 import {
   BarItems,
   Button,
-  DataWithLoader,
   FormControl,
   generateTree,
   HeaderDescription,
   ModalTrigger,
   router,
-  SortHandler,
   Table,
   __
 } from '@erxes/ui/src';
+import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
+import { subMenu } from '../../common/constants';
 import { DefaultWrapper } from '../../common/utils';
 import Form from '../containers/Form';
-import { subMenu } from '../../common/constants';
 import Row from './Row';
-import { IRouterProps } from '@erxes/ui/src/types';
 type Props = {
   queryParams: any;
   list: any[];

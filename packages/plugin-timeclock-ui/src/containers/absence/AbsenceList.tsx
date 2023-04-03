@@ -11,7 +11,7 @@ import {
 } from '../../types';
 import { mutations, queries } from '../../graphql';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { Alert } from '@erxes/ui/src/utils';
+import { Alert, confirm } from '@erxes/ui/src/utils';
 import { IAttachment } from '@erxes/ui/src/types';
 import { generateParams } from '../../utils';
 
@@ -48,6 +48,7 @@ const ListContainer = (props: FinalProps) => {
     queryParams,
     sendAbsenceReqMutation,
     solveAbsenceMutation,
+    removeAbsenceMutation,
 
     submitCheckInOutRequestMutation,
 
@@ -65,6 +66,14 @@ const ListContainer = (props: FinalProps) => {
     })
       .then(() => Alert.success('Successfully solved absence request'))
       .catch(err => Alert.error(err.message));
+  };
+
+  const removeAbsence = (_id: string) => {
+    confirm('Are you sure to remove this request').then(() => {
+      removeAbsenceMutation({ variables: { _id } })
+        .then(() => Alert.success('Successfully removed absence request'))
+        .catch(err => Alert.error(err.message));
+    });
   };
 
   const submitRequest = (
@@ -115,6 +124,7 @@ const ListContainer = (props: FinalProps) => {
     absenceTypes: listAbsenceTypesQuery.absenceTypes || [],
     loading: listAbsenceQuery.loading,
     solveAbsence,
+    removeAbsence,
     submitRequest,
     submitCheckInOut
   };
@@ -124,7 +134,7 @@ const ListContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, AbsenceQueryResponse>(gql(queries.listRequestsMain), {
+    graphql<Props, AbsenceQueryResponse>(gql(queries.requestsMain), {
       name: 'listAbsenceQuery',
       options: ({ queryParams }) => ({
         variables: generateParams(queryParams),
@@ -132,7 +142,7 @@ export default withProps<Props>(
       })
     }),
 
-    graphql<Props, AbsenceTypeQueryResponse>(gql(queries.listAbsenceTypes), {
+    graphql<Props, AbsenceTypeQueryResponse>(gql(queries.absenceTypes), {
       name: 'listAbsenceTypesQuery',
       options: () => ({
         fetchPolicy: 'network-only'
@@ -159,20 +169,36 @@ export default withProps<Props>(
           attachment,
           absenceTypeId
         },
-        refetchQueries: ['listRequestsMain']
+        refetchQueries: ['requestsMain']
       })
     }),
 
-    graphql<Props, AbsenceMutationResponse>(gql(mutations.solveAbsence), {
-      name: 'solveAbsenceMutation',
-      options: ({ absenceId, absenceStatus }) => ({
-        variables: {
-          _id: absenceId,
-          status: absenceStatus
-        },
-        refetchQueries: ['listRequestsMain']
-      })
-    }),
+    graphql<Props, AbsenceMutationResponse>(
+      gql(mutations.solveAbsenceRequest),
+      {
+        name: 'solveAbsenceMutation',
+        options: ({ absenceId, absenceStatus }) => ({
+          variables: {
+            _id: absenceId,
+            status: absenceStatus
+          },
+          refetchQueries: ['requestsMain']
+        })
+      }
+    ),
+
+    graphql<Props, AbsenceMutationResponse>(
+      gql(mutations.removeAbsenceRequest),
+      {
+        name: 'removeAbsenceMutation',
+        options: ({ absenceId }) => ({
+          variables: {
+            _id: absenceId
+          },
+          refetchQueries: ['requestsMain']
+        })
+      }
+    ),
 
     graphql<Props, AbsenceMutationResponse>(
       gql(mutations.submitCheckInOutRequest),
@@ -184,7 +210,7 @@ export default withProps<Props>(
             userId,
             checkTime
           },
-          refetchQueries: ['listRequestsMain', 'listTimeclocksQuery']
+          refetchQueries: ['requestsMain', 'timeclocksMain']
         })
       }
     )

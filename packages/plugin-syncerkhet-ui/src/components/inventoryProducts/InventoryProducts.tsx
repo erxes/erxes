@@ -9,6 +9,7 @@ import {
   DataWithLoader,
   Pagination
 } from '@erxes/ui/src/components';
+import { menuSyncerkhet } from '../../constants';
 
 type Props = {
   loading: boolean;
@@ -22,13 +23,6 @@ type State = {
   openCollapse: Number;
   loading: boolean;
 };
-
-export const menuPos = [
-  { title: 'Check deals', link: '/check-synced-deals' },
-  { title: 'Check orders', link: '/check-pos-orders' },
-  { title: 'Check Category', link: '/inventory-category' },
-  { title: 'Check Products', link: '/inventory-products' }
-];
 
 class InventoryProducts extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -253,7 +247,7 @@ class InventoryProducts extends React.Component<Props, State> {
           <Wrapper.Header
             title={__(`Check product`)}
             queryParams={this.props.queryParams}
-            submenu={menuPos}
+            submenu={menuSyncerkhet}
           />
         }
         content={

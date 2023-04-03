@@ -29,11 +29,13 @@ export interface IPos {
   syncInfos?: any;
   catProdMappings?: any;
   initialCategoryIds?: string;
+  kioskExcludeCategoryIds?: string;
   kioskExcludeProductIds?: string;
   deliveryConfig?: any;
   cardsConfig?: any;
   checkRemainder?: boolean;
   permissionConfig?: any;
+  allowTypes: string[];
 }
 export interface IPosDocument extends IPos, Document {
   _id: string;
@@ -111,6 +113,10 @@ export const posSchema = schemaHooksWrapper(
       type: [String],
       label: 'Pos initial categories'
     }),
+    kioskExcludeCategoryIds: field({
+      type: [String],
+      label: 'Kiosk exclude categories'
+    }),
     kioskExcludeProductIds: field({
       type: [String],
       label: 'Kiosk exclude products'
@@ -122,7 +128,8 @@ export const posSchema = schemaHooksWrapper(
       type: Object,
       optional: true,
       label: 'Permission'
-    })
+    }),
+    allowTypes: field({ type: [String], label: 'Allow Types' })
   }),
   'erxes_pos'
 );

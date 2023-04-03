@@ -60,6 +60,12 @@ export const ChooseBox = styled(BoxRoot)`
   }
 `;
 
+export const LeftActionbar = styled.div`
+  ul {
+    margin-right: 10px;
+  }
+`;
+
 export const ItemName = styled.div`
   a {
     display: flex;

@@ -26,6 +26,8 @@ import { IProductCategory } from '@erxes/ui-products/src/types';
 import { Link } from 'react-router-dom';
 import React from 'react';
 import PermissionStep from './step/Permission';
+import PaymentsStep from './step/PaymentsStep';
+import { ALLOW_TYPES } from '../../constants';
 
 type Props = {
   pos?: IPos;
@@ -33,7 +35,6 @@ type Props = {
   isActionLoading: boolean;
   groups: IProductGroup[];
   save: (params: any) => void;
-  productCategories: IProductCategory[];
   slots: ISlot[];
   envs: any;
 };
@@ -55,6 +56,7 @@ type State = {
   deliveryConfig: any;
   cardsConfig: any;
   checkRemainder: boolean;
+  allowTypes: string[];
 };
 
 class Pos extends React.Component<Props, State> {
@@ -89,7 +91,8 @@ class Pos extends React.Component<Props, State> {
       deliveryConfig: pos.deliveryConfig,
       cardsConfig: pos.cardsConfig,
       slots: props.slots || [],
-      checkRemainder: pos.checkRemainder || false
+      checkRemainder: pos.checkRemainder || false,
+      allowTypes: pos.allowTypes || ALLOW_TYPES.map(at => at.value)
     };
   }
 
@@ -105,7 +108,8 @@ class Pos extends React.Component<Props, State> {
       ebarimtConfig,
       erkhetConfig,
       deliveryConfig,
-      cardsConfig
+      cardsConfig,
+      allowTypes
     } = this.state;
 
     if (!pos.name) {
@@ -120,10 +124,17 @@ class Pos extends React.Component<Props, State> {
       return Alert.error('Choose cashier users');
     }
 
+    const saveTypes = allowTypes.filter(at => at);
+    if (!saveTypes.length) {
+      return Alert.error('Toggle at least one type');
+    }
+
     const cleanMappings = (pos.catProdMappings || []).map(m => ({
       _id: m._id,
       categoryId: m.categoryId,
-      productId: m.productId
+      productId: m.productId,
+      code: m.code || '',
+      name: m.name || ''
     }));
 
     const cleanSlot = (slots || []).map(m => ({
@@ -159,11 +170,13 @@ class Pos extends React.Component<Props, State> {
       beginNumber: pos.beginNumber,
       maxSkipNumber: Number(pos.maxSkipNumber) || 0,
       initialCategoryIds: pos.initialCategoryIds || [],
+      kioskExcludeCategoryIds: pos.kioskExcludeCategoryIds || [],
       kioskExcludeProductIds: pos.kioskExcludeProductIds || [],
       deliveryConfig,
       cardsConfig,
       checkRemainder,
-      permissionConfig: pos.permissionConfig || {}
+      permissionConfig: pos.permissionConfig || {},
+      allowTypes: saveTypes
     };
 
     if (pos.isOnline) {
@@ -260,8 +273,15 @@ class Pos extends React.Component<Props, State> {
   };
 
   render() {
-    const { pos, slots, groups, uiOptions, checkRemainder } = this.state;
-    const { productCategories, envs } = this.props;
+    const {
+      pos,
+      slots,
+      groups,
+      uiOptions,
+      checkRemainder,
+      allowTypes
+    } = this.state;
+    const { envs } = this.props;
     const breadcrumb = [{ title: 'POS List', link: `/pos` }, { title: 'POS' }];
 
     const name = pos.name || '';
@@ -279,6 +299,19 @@ class Pos extends React.Component<Props, State> {
                 onClick={this.onStepClick}
               >
                 <GeneralStep
+                  onChange={this.onChange}
+                  pos={pos}
+                  posSlots={slots}
+                  allowTypes={allowTypes}
+                  envs={envs}
+                />
+              </Step>
+              <Step
+                img="/images/icons/erxes-12.svg"
+                title={`Payments`}
+                onClick={this.onStepClick}
+              >
+                <PaymentsStep
                   onChange={this.onChange}
                   pos={pos}
                   posSlots={slots}
@@ -306,7 +339,6 @@ class Pos extends React.Component<Props, State> {
                   pos={pos}
                   groups={groups}
                   catProdMappings={pos.catProdMappings || []}
-                  productCategories={productCategories}
                 />
               </Step>
               <Step

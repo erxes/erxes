@@ -3,6 +3,9 @@ import { sendCommonMessage } from './messageBroker';
 import { serviceDiscovery } from './configs';
 
 const toMoney = value => {
+  if (!value) {
+    return '-';
+  }
   return new Intl.NumberFormat().format(value);
 };
 
@@ -24,80 +27,80 @@ export default {
     const models = await generateModels(subdomain);
 
     const results: string[] = [];
+    const productsIds = JSON.parse(productIds || '[]');
+    const products =
+      (await models.Products.find({ _id: { $in: productsIds } }).lean()) || [];
 
-    for (const productId of JSON.parse(productIds || '[]')) {
-      const product = await models.Products.findOne({ _id: productId }).lean();
+    const pricingAvailable = await serviceDiscovery.isEnabled('pricing');
+    let quantityRules = {};
 
-      if (!product) {
-        continue;
+    if (pricingAvailable) {
+      const pricing = await sendCommonMessage({
+        subdomain,
+        serviceName: 'pricing',
+        action: 'checkPricing',
+        data: {
+          prioritizeRule: 'only',
+          totalAmount: 0,
+          departmentId,
+          branchId,
+          products: products.map(pr => ({
+            productId: pr._id,
+            quantity: 1,
+            price: pr.unitPrice
+          }))
+        },
+        isRPC: true,
+        defaultValue: {}
+      });
+
+      for (const product of products) {
+        const discount = pricing[product._id] || {};
+
+        if (Object.keys(discount).length) {
+          let unitPrice = (product.unitPrice -= discount.value);
+          if (unitPrice < 0) {
+            unitPrice = 0;
+          }
+        }
       }
+
+      quantityRules = await sendCommonMessage({
+        subdomain,
+        serviceName: 'pricing',
+        action: 'getQuanityRules',
+        isRPC: true,
+        defaultValue: [],
+        data: {
+          prioritizeRule: 'exclude',
+          branchId,
+          departmentId,
+          products
+        }
+      });
+    }
+
+    for (const product of products) {
+      const qtyRule = quantityRules[product._id] || {};
+      const { value, price } = qtyRule;
 
       let replacedContent = content;
 
       replacedContent = replacedContent.replace('{{ name }}', product.name);
       replacedContent = replacedContent.replace('{{ code }}', product.code);
 
-      const pricingAvailable = await serviceDiscovery.isEnabled('pricing');
-
-      let mainPrice = product.unitPrice || 0;
-
-      if (pricingAvailable) {
-        const pricing = await sendCommonMessage({
-          subdomain,
-          serviceName: 'pricing',
-          action: 'checkPricing',
-          data: {
-            prioritizeRule: 'only',
-            totalAmount: 0,
-            departmentId,
-            branchId,
-            products: [
-              {
-                productId: product._id,
-                quantity: 1,
-                price: mainPrice
-              }
-            ]
-          },
-          isRPC: true,
-          defaultValue: {}
-        });
-
-        const discount = pricing[product._id] || {};
-
-        if (Object.keys(discount).length) {
-          let unitPrice = (mainPrice -= discount.value);
-          if (unitPrice < 0) {
-            unitPrice = 0;
-          }
-
-          mainPrice = unitPrice;
-        }
-
-        const { value, price } = await sendCommonMessage({
-          subdomain,
-          serviceName: 'pricing',
-          action: 'getQuanityRules',
-          isRPC: true,
-          defaultValue: [],
-          data: {
-            product: { ...product, unitPrice: mainPrice }
-          }
-        });
-
-        replacedContent = replacedContent.replace(
-          '{{ bulkQuantity }}',
-          value || ''
-        );
-        replacedContent = replacedContent.replace(
-          '{{ bulkPrice }}',
-          toMoney(price)
-        );
-      }
-
       replacedContent = replacedContent.replace(
         '{{ price }}',
-        toMoney(mainPrice)
+        toMoney(product.unitPrice)
+      );
+
+      replacedContent = replacedContent.replace(
+        '{{ bulkQuantity }}',
+        value || '-'
+      );
+      replacedContent = replacedContent.replace(
+        '{{ bulkPrice }}',
+        toMoney(price)
       );
 
       results.push(replacedContent);

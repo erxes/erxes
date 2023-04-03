@@ -1,9 +1,7 @@
 import CatProdItem from '../../components/productGroup/CatProdItem';
 import GroupForm from '../../components/productGroup/GroupForm';
 import React from 'react';
-import Select from 'react-select-plus';
 import { CatProd, IPos, IProductGroup } from '../../../types';
-import { IProductCategory } from '@erxes/ui-products/src/types';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import {
   FormGroup,
@@ -23,13 +21,13 @@ import {
   Block,
   BlockRow
 } from '../../../styles';
+import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 
 type Props = {
   onChange: (name: 'pos' | 'description' | 'groups', value: any) => void;
   pos: IPos;
   groups: IProductGroup[];
   catProdMappings: CatProd[];
-  productCategories: IProductCategory[];
 };
 
 type State = {
@@ -37,6 +35,7 @@ type State = {
   currentMode: 'create' | 'update' | undefined;
   mappings: CatProd[];
   initialCategoryIds: string[];
+  kioskExcludeCategoryIds: string[];
   kioskExcludeProductIds: string[];
 };
 
@@ -51,6 +50,7 @@ export default class ConfigStep extends React.Component<Props, State> {
       currentMode: undefined,
       mappings: pos && pos.catProdMappings ? pos.catProdMappings : [],
       initialCategoryIds: (pos && pos.initialCategoryIds) || [],
+      kioskExcludeCategoryIds: (pos && pos.kioskExcludeCategoryIds) || [],
       kioskExcludeProductIds: (pos && pos.kioskExcludeProductIds) || []
     };
   }
@@ -70,15 +70,8 @@ export default class ConfigStep extends React.Component<Props, State> {
   };
 
   renderGroupFormTrigger(trigger: React.ReactNode, group?: IProductGroup) {
-    const { productCategories } = this.props;
-
     const content = props => (
-      <GroupForm
-        {...props}
-        group={group}
-        onSubmit={this.onSubmitGroup}
-        categories={productCategories}
-      />
+      <GroupForm {...props} group={group} onSubmit={this.onSubmitGroup} />
     );
 
     const title = group ? 'Edit group' : 'Add group';
@@ -134,20 +127,24 @@ export default class ConfigStep extends React.Component<Props, State> {
     );
   }
 
-  renderMapping(mapping: CatProd) {
-    const { productCategories, pos, onChange } = this.props;
+  renderMapping(mapping: CatProd, index: number) {
+    const { pos, onChange } = this.props;
 
     const cleanFields = (cat: CatProd) => ({
       _id: cat._id,
       categoryId: cat.categoryId,
-      productId: cat.productId
+      productId: cat.productId,
+      code: cat.code || '',
+      name: cat.name || ''
     });
 
     // for omitting react __typename field
     const mappings = this.state.mappings.map(m => ({
       _id: m._id,
       categoryId: m.categoryId,
-      productId: m.productId
+      productId: m.productId,
+      code: m.code || '',
+      name: m.name || ''
     }));
 
     const editMapping = (item: CatProd) => {
@@ -182,7 +179,7 @@ export default class ConfigStep extends React.Component<Props, State> {
         editMapping={editMapping}
         removeMapping={removeMapping}
         item={mapping}
-        productCategories={productCategories}
+        index={index}
         key={mapping._id}
       />
     );
@@ -190,26 +187,27 @@ export default class ConfigStep extends React.Component<Props, State> {
 
   onChangeInitialCategory = values => {
     const { pos, onChange } = this.props;
-    const initialCategoryIds = values.map(v => v.value);
+    const initialCategoryIds = values;
     this.setState({ initialCategoryIds });
 
     pos.initialCategoryIds = initialCategoryIds;
     onChange('pos', pos);
   };
 
-  onChangekioskExcludeProduct = ids => {
+  onChangekioskExclude = (name, ids) => {
     const { pos, onChange } = this.props;
-    this.setState({ kioskExcludeProductIds: ids });
+    this.setState({ [name]: ids } as any);
 
-    pos.kioskExcludeProductIds = ids;
+    pos[name] = ids;
     onChange('pos', pos);
   };
 
   render() {
-    const { groups, productCategories } = this.props;
+    const { groups } = this.props;
     const {
       mappings = [],
       initialCategoryIds,
+      kioskExcludeCategoryIds,
       kioskExcludeProductIds
     } = this.state;
 
@@ -249,13 +247,17 @@ export default class ConfigStep extends React.Component<Props, State> {
               <Description></Description>
               <FormGroup>
                 <ControlLabel>Product Category</ControlLabel>
-                <Select
-                  options={productCategories.map(e => ({
-                    value: e._id,
-                    label: e.name
-                  }))}
-                  value={initialCategoryIds}
-                  onChange={this.onChangeInitialCategory}
+                <SelectProductCategory
+                  label="Choose product category"
+                  name="productCategoryId"
+                  initialValue={initialCategoryIds}
+                  customOption={{
+                    value: '',
+                    label: '...Clear product category filter'
+                  }}
+                  onSelect={categoryIds =>
+                    this.onChangeInitialCategory(categoryIds)
+                  }
                   multi={true}
                 />
               </FormGroup>
@@ -264,12 +266,32 @@ export default class ConfigStep extends React.Component<Props, State> {
             <Block>
               <h4>{__('kiosk exclude products')}</h4>
               <FormGroup>
+                <ControlLabel>Categories</ControlLabel>
+                <SelectProductCategory
+                  label={'kiosk'}
+                  name="kioskExcludeCategoryIds"
+                  initialValue={kioskExcludeCategoryIds}
+                  onSelect={categoryIds =>
+                    this.onChangekioskExclude(
+                      'kioskExcludeCategoryIds',
+                      categoryIds
+                    )
+                  }
+                  multi={true}
+                />
+              </FormGroup>
+              <FormGroup>
                 <ControlLabel>Products</ControlLabel>
                 <SelectProducts
                   label={'kiosk'}
                   name="kioskExcludeProductIds"
                   initialValue={kioskExcludeProductIds}
-                  onSelect={this.onChangekioskExcludeProduct}
+                  onSelect={productIds =>
+                    this.onChangekioskExclude(
+                      'kioskExcludeProductIds',
+                      productIds
+                    )
+                  }
                   multi={true}
                 />
               </FormGroup>
@@ -283,7 +305,7 @@ export default class ConfigStep extends React.Component<Props, State> {
                 product will be added to the price.
               </Description>
               <FormGroup>
-                {mappings.map(item => this.renderMapping(item))}
+                {mappings.map((item, index) => this.renderMapping(item, index))}
               </FormGroup>
               <Button btnStyle="primary" icon="plus-circle" onClick={onClick}>
                 Add mapping

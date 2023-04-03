@@ -21,7 +21,16 @@ const clientPortalMutations = {
 
   async clientPortalCreateCard(
     _root,
-    { type, subject, priority, description, stageId },
+    {
+      type,
+      subject,
+      priority,
+      description,
+      stageId,
+      parentId,
+      closeDate,
+      startDate
+    },
     { subdomain, cpUser, models }: IContext
   ) {
     if (!cpUser) {
@@ -41,6 +50,10 @@ const clientPortalMutations = {
       throw new Error('Customer not registered');
     }
 
+    if (['High', 'Critical'].includes(priority)) {
+      priority = 'Normal';
+    }
+
     const card = await sendCardsMessage({
       subdomain,
       action: `${type}s.create`,
@@ -52,7 +65,10 @@ const clientPortalMutations = {
         stageId,
         status: 'active',
         customerId: customer._id,
-        createdAt: new Date()
+        createdAt: new Date(),
+        parentId,
+        closeDate,
+        startDate
       },
       isRPC: true
     });

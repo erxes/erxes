@@ -309,7 +309,7 @@ export const initBroker = cl => {
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
-      await pConversationClientMessageInserted(models, data);
+      await pConversationClientMessageInserted(models, subdomain, data);
     }
   );
 };

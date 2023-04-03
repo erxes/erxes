@@ -1,4 +1,13 @@
-import { Button, Tip, Icon, ModalTrigger, __, Label } from '@erxes/ui/src';
+import {
+  Button,
+  ControlLabel,
+  FormControl,
+  Icon,
+  Label,
+  ModalTrigger,
+  Tip,
+  __
+} from '@erxes/ui/src';
 import moment from 'moment';
 import React from 'react';
 import { Badge, FormContainer } from '../../styles';
@@ -7,6 +16,8 @@ import Detail from '../containers/Detail';
 
 type Props = {
   item: any;
+  selecteAssessmentIds: string[];
+  handleSelect: (id: string) => void;
 };
 
 class Row extends React.Component<Props> {
@@ -14,29 +25,25 @@ class Row extends React.Component<Props> {
     super(props);
   }
 
-  renderPopOver(title, contents) {
-    let field = '';
-
-    if (['Branches', 'Departments'].includes(title)) {
-      field = 'title';
-    }
-    if (['Operations', 'Indicators'].includes(title)) {
-      field = 'name';
-    }
-
+  renderPopOver(title, contents, group) {
     return (
       <DetailPopOver title={title} icon="downarrow-2" withoutPopoverTitle>
-        <FormContainer gapBetween={5}>
-          {(contents || []).map(item => (
-            <Label key={item._id}>{__(item[field])}</Label>
-          ))}
+        <FormContainer column>
+          {group && (
+            <ControlLabel>{`Group Name: ${group?.name || ''}`}</ControlLabel>
+          )}
+          <FormContainer gapBetween={5}>
+            {(contents || []).map(item => (
+              <Label key={item?._id}>{__(item?.name)}</Label>
+            ))}
+          </FormContainer>
         </FormContainer>
       </DetailPopOver>
     );
   }
 
   render() {
-    const { item } = this.props;
+    const { item, selecteAssessmentIds, handleSelect } = this.props;
 
     const renderFormSubmitHistory = item => {
       const content = () => {
@@ -61,27 +68,40 @@ class Row extends React.Component<Props> {
       );
     };
 
+    const onclick = e => {
+      e.stopPropagation();
+    };
+
     return (
       <tr key={item?._id}>
+        <td onClick={onclick}>
+          <FormControl
+            componentClass="checkbox"
+            checked={selecteAssessmentIds.includes(item?._id)}
+            onChange={() => handleSelect(item?._id)}
+          />
+        </td>
         <td>{__(item?.cardType)}</td>
         <td>{__(item?.card?.name)}</td>
-        <td>{this.renderPopOver('Indicators', item?.riskIndicators)}</td>
-        <td>{this.renderPopOver('Branches', item?.branches)}</td>
-        <td>{this.renderPopOver('Departments', item?.departments)}</td>
-        <td>{this.renderPopOver('Operations', item?.operations)}</td>
         <td>
-          <Badge color={item.statusColor}>{__(item.status)}</Badge>
+          {this.renderPopOver('Indicators', item?.riskIndicators, item.group)}
+        </td>
+        <td>{item?.branch?.title || '-'}</td>
+        <td>{item?.department?.title || '-'}</td>
+        <td>{item?.operation?.name || '-'}</td>
+        <td>
+          <Badge color={item?.statusColor || ''}>{__(item.status)}</Badge>
         </td>
         <td>
-          {item.status !== 'In Progress'
-            ? __(item.resultScore?.toString() || '')
+          {item?.status !== 'In Progress'
+            ? __(item?.resultScore?.toString() || '')
             : '-'}
         </td>
         <td>
-          {item?.createdAt ? moment(item.createdAt).format('ll HH:mm') : '-'}
+          {item?.createdAt ? moment(item?.createdAt).format('ll HH:mm') : '-'}
         </td>
         <td>
-          {item?.closedAt ? moment(item.closedAt).format('ll HH:mm') : '-'}
+          {item?.closedAt ? moment(item?.closedAt).format('ll HH:mm') : '-'}
         </td>
         <td>{renderFormSubmitHistory(item)}</td>
       </tr>

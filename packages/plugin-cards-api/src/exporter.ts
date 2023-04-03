@@ -149,8 +149,35 @@ const fillDealProductValue = async (subdomain, column, item) => {
         value = productData.isVatApplied;
         break;
 
+      case 'productsData.branch':
+        const branch =
+          (await sendCoreMessage({
+            subdomain,
+            action: 'branches.findOne',
+            data: {
+              _id: productData.branchId
+            },
+            isRPC: true
+          })) || {};
+
+        value = branch.code;
+        break;
+
+      case 'productsData.department':
+        const department =
+          (await sendCoreMessage({
+            subdomain,
+            action: 'departments.findOne',
+            data: {
+              _id: productData.departmentId
+            },
+            isRPC: true
+          })) || {};
+
+        value = department.code;
+        break;
+
       case 'productsData.maxQuantity':
-        console.log('productData.maxQuantity', productData.maxQuantity);
         value = productData.maxQuantity;
         break;
     }

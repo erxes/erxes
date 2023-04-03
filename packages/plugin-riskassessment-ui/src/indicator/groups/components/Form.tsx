@@ -1,5 +1,3 @@
-import React from 'react';
-import { IIndicatorsGroups } from '../common/types';
 import {
   Button,
   confirm,
@@ -9,9 +7,16 @@ import {
   FormGroup,
   __
 } from '@erxes/ui/src';
+import {
+  FormColumn,
+  FormWrapper,
+  ModalFooter
+} from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import React from 'react';
 import { FormContainer } from '../../../styles';
-import { CloseModal, ModalFooter } from '@erxes/ui/src/styles/main';
+import { SelectTags } from '../../common/utils';
+import { IIndicatorsGroups } from '../common/types';
 import GroupingIndicators from './GroupingIndicators';
 
 type Props = {
@@ -72,13 +77,13 @@ class Form extends React.Component<Props, State> {
       this.setState({ detail: { ...this.props.detail, ...doc } });
     };
 
-    const onChange = e => {
-      const { detail } = this.state;
-      const { name, value } = e.currentTarget as HTMLInputElement;
+    const handleSelect = (values, name) => {
+      this.setState(prev => ({ detail: { ...prev.detail, [name]: values } }));
+    };
 
-      detail[name] = value;
-
-      this.setState({ detail });
+    const toggleProperty = e => {
+      const { name } = e.currentTarget as HTMLInputElement;
+      this.setState({ detail: { ...detail, [name]: !detail[name] } });
     };
 
     return (
@@ -91,7 +96,6 @@ class Form extends React.Component<Props, State> {
             name="name"
             defaultValue={detail?.name}
             required
-            // onChange={onChange}
           />
         </FormGroup>
         <FormGroup>
@@ -102,9 +106,35 @@ class Form extends React.Component<Props, State> {
             name="description"
             defaultValue={detail?.name}
             required
-            // onChange={onChange}
           />
         </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Tag')}</ControlLabel>
+          <SelectTags
+            name="tagIds"
+            label="Choose Tag"
+            initialValue={detail.tagIds}
+            onSelect={handleSelect}
+            multi
+          />
+        </FormGroup>
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <FormControl
+                name="ignoreZeros"
+                componentClass="checkbox"
+                checked={detail.ignoreZeros}
+                onChange={toggleProperty}
+              />
+              <ControlLabel>
+                {__(
+                  'Ignore Zeros ( ignore percent weight if assessment equals zero )'
+                )}
+              </ControlLabel>
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
         <GroupingIndicators
           handleChange={handleChange}
           indicatorGroups={detail.groups}

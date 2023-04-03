@@ -1,4 +1,4 @@
-// import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
 import { sendCoreMessage } from '../../messageBroker';
 
@@ -175,7 +175,7 @@ const mutations = {
   }
 };
 
-// checkPermission(mutations, 'filemanagerFolderSave', 'manageFilemanager');
-// checkPermission(mutations, 'filemanagerFolderRemove', 'manageFilemanager');
+checkPermission(mutations, 'filemanagerFolderSave', 'showFilemanager');
+checkPermission(mutations, 'filemanagerFolderRemove', 'showFilemanager');
 
 export default mutations;

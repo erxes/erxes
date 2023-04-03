@@ -24,6 +24,9 @@ import React from 'react';
 import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
 
 import styled from 'styled-components';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 
 const TableWrapper = styled.div`
   table thead tr th {
@@ -71,8 +74,8 @@ type State = {
   changePayData: { [currency: string]: number };
   tempId: string;
   categoryId?: string;
-  filterProductSearch: string;
-  filterProductCategoryId: string;
+  filterValues: any;
+  advancedView?: boolean;
 };
 
 class ProductForm extends React.Component<Props, State> {
@@ -87,9 +90,9 @@ class ProductForm extends React.Component<Props, State> {
       currentTab: 'products',
       changePayData: {},
       tempId: '',
-      filterProductCategoryId:
-        localStorage.getItem('dealProductFormCategoryId') || '',
-      filterProductSearch: localStorage.getItem('dealProductFormSearch') || ''
+      filterValues: JSON.parse(
+        localStorage.getItem('dealProductFormFilter') || '{}'
+      )
     };
   }
 
@@ -97,10 +100,27 @@ class ProductForm extends React.Component<Props, State> {
     this.updateTotal();
   }
 
-  removeProductItem = productId => {
+  duplicateProductItem = _id => {
     const { productsData, onChangeProductsData } = this.props;
 
-    const removedProductsData = productsData.filter(p => p._id !== productId);
+    const productData: any = productsData.find(p => p._id === _id);
+
+    productsData.push({
+      ...productData,
+      _id: Math.random().toString()
+    });
+
+    onChangeProductsData(productsData);
+
+    for (const productData of productsData) {
+      this.calculatePerProductAmount('discount', productData);
+    }
+  };
+
+  removeProductItem = _id => {
+    const { productsData, onChangeProductsData } = this.props;
+
+    const removedProductsData = productsData.filter(p => p._id !== _id);
 
     onChangeProductsData(removedProductsData);
 
@@ -209,32 +229,45 @@ class ProductForm extends React.Component<Props, State> {
       );
     }
 
-    const filterSearch = localStorage.getItem('dealProductFormSearch');
-    const filterParentCategory = localStorage.getItem(
-      'dealProductFormCategoryId'
-    );
-    const filterCategoryIds = JSON.parse(
-      localStorage.getItem('dealProductFormCategoryIds') || '[]'
-    );
-
     let filteredProductsData = productsData;
 
-    if (filterSearch) {
+    const { filterValues } = this.state;
+
+    if (filterValues.search) {
       filteredProductsData = filteredProductsData.filter(
         p =>
           p.product &&
-          (p.product.name.includes(filterSearch) ||
-            p.product.code.includes(filterSearch))
+          (p.product.name.includes(filterValues.search) ||
+            p.product.code.includes(filterValues.search))
       );
     }
 
-    if (filterParentCategory && filterCategoryIds.length > 0) {
-      filteredProductsData = filteredProductsData.filter(p => {
-        if (p.product) {
-          return filterCategoryIds.find(_id => _id === p.product?.categoryId);
-        }
-      });
+    if (filterValues.categories && filterValues.categories.length) {
+      filteredProductsData = filteredProductsData.filter(
+        p => p.product && filterValues.categories.includes(p.product.categoryId)
+      );
     }
+
+    if (filterValues.vendors && filterValues.vendors.length) {
+      filteredProductsData = filteredProductsData.filter(
+        p => p.product && filterValues.vendors.includes(p.product.vendorId)
+      );
+    }
+
+    if (filterValues.branches && filterValues.branches.length) {
+      filteredProductsData = filteredProductsData.filter(p =>
+        filterValues.branches.includes(p.branchId)
+      );
+    }
+
+    if (filterValues.departments && filterValues.departments.length) {
+      filteredProductsData = filteredProductsData.filter(p =>
+        filterValues.departments.includes(p.departmentId)
+      );
+    }
+
+    const { advancedView } = this.state;
+    const avStyle = { display: advancedView ? '' : 'none' };
 
     return (
       <TableWrapper>
@@ -247,14 +280,19 @@ class ProductForm extends React.Component<Props, State> {
               <th>{__('Unit price')}</th>
               <th style={{ width: '90px' }}>{__('Discount %')}</th>
               <th>{__('Discount')}</th>
-              <th style={{ width: '50px' }}>{__('Tax %')}</th>
-              <th>{__('Tax')}</th>
+              <th style={avStyle}>{__('Tax %')}</th>
+              <th style={avStyle}>{__('Tax')}</th>
               <th>{__('Amount')}</th>
-              <th>{__('Currency')}</th>
-              <th>{__('UOM')}</th>
+              <th style={avStyle}>{__('Currency')}</th>
+              <th style={avStyle}>{__('UOM')}</th>
               <th>{__('Is tick used')}</th>
               <th>{__('Is vat applied')}</th>
               <th>{__('Assigned to')}</th>
+              <th style={avStyle}>{__('Branch')}</th>
+              <th style={avStyle}>{__('Department')}</th>
+              <th style={avStyle}>{__('Unit price (global)')}</th>
+              <th style={avStyle}>{__('Unit price percent')}</th>
+              <th />
               <th />
             </tr>
           </thead>
@@ -262,7 +300,9 @@ class ProductForm extends React.Component<Props, State> {
             {filteredProductsData.map(productData => (
               <ProductItem
                 key={productData._id}
+                advancedView={advancedView}
                 productData={productData}
+                duplicateProductItem={this.duplicateProductItem}
                 removeProductItem={this.removeProductItem}
                 productsData={productsData}
                 onChangeProductsData={onChangeProductsData}
@@ -341,6 +381,7 @@ class ProductForm extends React.Component<Props, State> {
       Object.keys(changePayData).length > 0
     ) {
       let alertMsg = '';
+
       for (const key of Object.keys(changePayData)) {
         // warning greater pay
         if (changePayData[key] > 0) {
@@ -364,47 +405,92 @@ class ProductForm extends React.Component<Props, State> {
     closeModal();
   };
 
-  onFilterSearch = (e: any) => {
-    const searchText = e.target.value;
-    localStorage.setItem('dealProductFormSearch', searchText);
-    this.setState({ filterProductSearch: searchText });
+  onFilter = (name, value, callback?, params?) => {
+    const { filterValues } = this.state;
+    this.setState({ filterValues: { ...filterValues, [name]: value } }, () => {
+      let otherValues = {};
+      if (callback) {
+        otherValues = callback(params);
+      }
+
+      localStorage.setItem(
+        'dealProductFormFilter',
+        JSON.stringify({ ...filterValues, [name]: value, ...otherValues })
+      );
+    });
   };
 
-  onFilterCategory = (categoryId: string, childIds?: string[]) => {
-    localStorage.setItem(
-      'dealProductFormCategoryIds',
-      JSON.stringify(childIds || [])
-    );
-    localStorage.setItem('dealProductFormCategoryId', categoryId);
-    this.setState({ filterProductCategoryId: categoryId });
+  onFilterCategory = (childIds?: string[]) => {
+    const { filterValues } = this.state;
+    this.setState({ filterValues: { ...filterValues, categories: childIds } });
+    return { categories: childIds };
   };
 
   clearFilter = () => {
-    localStorage.setItem('dealProductFormCategoryIds', '');
-    localStorage.setItem('dealProductFormCategoryId', '');
-    localStorage.setItem('dealProductFormSearch', '');
-    this.setState({ filterProductCategoryId: '', filterProductSearch: '' });
+    this.setState({ filterValues: {} }, () => {
+      localStorage.removeItem('dealProductFormFilter');
+    });
   };
 
   renderProductFilter() {
+    const { filterValues } = this.state;
     return (
       <FlexRowGap>
         <FormGroup>
-          <ControlLabel>Filter by product</ControlLabel>
+          <ControlLabel>By product</ControlLabel>
           <FormControl
             type="text"
             placeholder={__('Type to search')}
-            onChange={this.onFilterSearch}
-            value={localStorage.getItem('dealProductFormSearch')}
+            onChange={(e: any) => this.onFilter('search', e.target.value)}
+            value={filterValues.search}
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>Filter by category</ControlLabel>
+          <ControlLabel>By category</ControlLabel>
           <ProductCategoryChooser
             categories={this.props.categories}
-            currentId={this.state.filterProductCategoryId}
-            onChangeCategory={this.onFilterCategory}
+            currentId={filterValues.category}
+            onChangeCategory={(categoryId, childIds) =>
+              this.onFilter(
+                'category',
+                categoryId,
+                this.onFilterCategory,
+                childIds
+              )
+            }
             hasChildIds={true}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>By branch</ControlLabel>
+          <SelectBranches
+            label="Choose branch"
+            name="branches"
+            initialValue={filterValues.branches}
+            multi={true}
+            onSelect={branchIds => this.onFilter('branches', branchIds)}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>By department</ControlLabel>
+          <SelectDepartments
+            label="Choose department"
+            name="departments"
+            initialValue={filterValues.departments}
+            multi={true}
+            onSelect={departmentIds =>
+              this.onFilter('departments', departmentIds)
+            }
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>By vendor</ControlLabel>
+          <SelectCompanies
+            label="Choose vendor"
+            name="vendors"
+            initialValue={filterValues.vendors}
+            multi={true}
+            onSelect={companyIds => this.onFilter('vendors', companyIds)}
           />
         </FormGroup>
         <Button
@@ -457,17 +543,13 @@ class ProductForm extends React.Component<Props, State> {
 
     const productOnChange = (products: IProduct[]) => {
       this.clearFilter();
+
       const { onChangeProductsData, currencies } = this.props;
+
       const { tax, discount } = this.state;
       const currency = currencies ? currencies[0] : '';
 
-      const currentProductIds = productsData.map(p => p.productId);
-
       for (const product of products) {
-        if (currentProductIds.includes(product._id)) {
-          continue;
-        }
-
         productsData.push({
           tax: 0,
           taxPercent: tax[currency] ? tax[currency].percent || 0 : 0,
@@ -484,7 +566,9 @@ class ProductForm extends React.Component<Props, State> {
           quantity: 1,
           productId: product._id,
           unitPrice: product.unitPrice,
-          _id: product._id
+          globalUnitPrice: product.unitPrice,
+          unitPricePercent: 100,
+          _id: Math.random().toString()
         });
       }
 
@@ -503,7 +587,7 @@ class ProductForm extends React.Component<Props, State> {
         categoryId={this.state.categoryId}
         data={{
           name: 'Product',
-          products: productsData.filter(p => p.product).map(p => p.product)
+          products: []
         }}
       />
     );
@@ -528,7 +612,7 @@ class ProductForm extends React.Component<Props, State> {
   }
 
   renderTabContent() {
-    const { total, tax, discount, currentTab } = this.state;
+    const { total, tax, discount, currentTab, advancedView } = this.state;
 
     if (currentTab === 'payments') {
       const { onChangePaymentsData } = this.props;
@@ -545,6 +629,8 @@ class ProductForm extends React.Component<Props, State> {
       );
     }
 
+    const avStyle = { display: advancedView ? 'inherit' : 'none' };
+
     return (
       <FormContainer>
         {this.renderProductFilter()}
@@ -554,11 +640,11 @@ class ProductForm extends React.Component<Props, State> {
         <FooterInfo>
           <table>
             <tbody>
-              <tr>
+              <tr style={avStyle}>
                 <td>{__('Discount')}:</td>
                 <td>{this.renderTotal(discount, 'discount')}</td>
               </tr>
-              <tr>
+              <tr style={avStyle}>
                 <td>{__('Tax')}:</td>
                 <td>{this.renderTotal(tax, 'tax')}</td>
               </tr>
@@ -598,8 +684,14 @@ class ProductForm extends React.Component<Props, State> {
     this.setState({ currentTab });
   };
 
+  toggleAdvancedView = () => {
+    const { advancedView } = this.state;
+
+    this.setState({ advancedView: !advancedView });
+  };
+
   render() {
-    const { currentTab } = this.state;
+    const { advancedView, currentTab } = this.state;
 
     return (
       <>
@@ -623,6 +715,14 @@ class ProductForm extends React.Component<Props, State> {
         {this.renderTabContent()}
 
         <ModalFooter>
+          <Button
+            btnStyle="primary"
+            icon="plus-circle"
+            onClick={this.toggleAdvancedView}
+          >
+            {advancedView ? 'Compact view' : 'Advanced view'}
+          </Button>
+
           <Button
             btnStyle="simple"
             onClick={this.props.closeModal}

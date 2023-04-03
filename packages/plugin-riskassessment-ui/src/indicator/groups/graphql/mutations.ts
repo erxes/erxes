@@ -1,17 +1,21 @@
 const commonParams = `
   $name:String
   $description:String
+  $tagIds:[String]
   $calculateMethod:String
   $calculateLogics:[ICalculateLogic]
   $groups:[IIndicatorGroups]
+  $ignoreZeros:Boolean
 `;
 
 const commonParamsDef = `
   name:$name
   description:$description
+  tagIds:$tagIds
   calculateMethod:$calculateMethod
   calculateLogics:$calculateLogics
   groups:$groups
+  ignoreZeros:$ignoreZeros
 `;
 
 const addGroups = `

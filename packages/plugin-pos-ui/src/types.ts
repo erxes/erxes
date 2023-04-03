@@ -7,6 +7,8 @@ export type IConfigsMap = { [key: string]: any };
 export type CatProd = {
   _id: string;
   categoryId: string;
+  code?: string;
+  name?: string;
   productId: string;
 };
 
@@ -57,11 +59,13 @@ export type IPos = {
   erkhetConfig: any;
   catProdMappings?: CatProd[];
   initialCategoryIds?: string[];
+  kioskExcludeCategoryIds?: string[];
   kioskExcludeProductIds?: string[];
   deliveryConfig?: any;
   cardsConfig?: any;
   checkRemainder?: boolean;
   permissionConfig?: any;
+  allowTypes?: string[];
 };
 
 export type ISlot = {

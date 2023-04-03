@@ -3,7 +3,7 @@ import { IContext } from '../../connectionResolver';
 import { IOrderDocument } from '../../models/definitions/orders';
 import { IOrderItem } from '../../models/definitions/orderItems';
 import { IPutResponseDocument } from '../../models/definitions/putResponses';
-import { sendContactsMessage } from '../../messageBroker';
+import { sendContactsMessage, sendCoreMessage } from '../../messageBroker';
 
 export default {
   async items(order: IOrderDocument, {}, { models }: IContext) {
@@ -15,12 +15,60 @@ export default {
       return null;
     }
 
-    return sendContactsMessage({
+    if (order.customerType === 'company') {
+      const company = await sendContactsMessage({
+        subdomain,
+        action: 'companies.findOne',
+        data: { _id: order.customerId },
+        isRPC: true,
+        defaultValue: {}
+      });
+
+      return {
+        _id: company._id,
+        code: company.code,
+        primaryPhone: company.primaryPhone,
+        firstName: company.primaryName,
+        primaryEmail: company.primaryEmail,
+        lastName: ''
+      };
+    }
+
+    if (order.customerType === 'user') {
+      const user = await sendCoreMessage({
+        subdomain,
+        action: 'users.findOne',
+        data: { _id: order.customerId },
+        isRPC: true,
+        defaultValue: {}
+      });
+
+      return {
+        _id: user._id,
+        code: user.code,
+        primaryPhone: (user.details && user.details.operatorPhone) || '',
+        firstName: `${user.firstName || ''} ${user.lastName || ''}`,
+        primaryEmail: user.email,
+        lastName: user.username
+      };
+    }
+
+    const customer = await sendContactsMessage({
       subdomain,
       action: 'customers.findOne',
       data: { _id: order.customerId },
-      isRPC: true
+      isRPC: true,
+      defaultValue: {}
     });
+
+    return {
+      _id: customer._id,
+      code: customer.code,
+      primaryPhone: customer.primaryPhone,
+      firstName: customer.firstName,
+      primaryEmail: customer.primaryEmail,
+      lastName: customer.lastName
+    };
   },
 
   user(order: IOrderDocument, {}, { models }: IContext) {

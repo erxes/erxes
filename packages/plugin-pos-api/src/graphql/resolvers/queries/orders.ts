@@ -43,6 +43,7 @@ const generateFilterPosQuery = async (
     paidDate,
     userId,
     customerId,
+    customerType,
     posId,
     posToken
   } = params;
@@ -56,6 +57,13 @@ const generateFilterPosQuery = async (
 
   if (customerId) {
     query.customerId = customerId;
+  }
+
+  if (customerType) {
+    query.customerType =
+      customerType === 'customer'
+        ? { $in: [customerType, '', undefined, null] }
+        : customerType;
   }
 
   if (posId) {

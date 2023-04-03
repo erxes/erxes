@@ -30,11 +30,11 @@ const Groups = asyncComponent(() =>
   )
 );
 
-const riskIndicators = ({ history, location }) => {
+const riskIndicators = props => {
   return (
     <RiskIndicators
-      history={history}
-      queryParams={queryString.parse(location.search)}
+      {...props}
+      queryParams={queryString.parse(props.location.search)}
     />
   );
 };
@@ -74,7 +74,11 @@ const groups = props => {
 const routes = () => {
   return (
     <>
-      <Route path="/settings/risk-indicators" component={riskIndicators} />
+      <Route
+        path="/settings/risk-indicators"
+        exact
+        component={riskIndicators}
+      />
       <Route
         path="/settings/risk-indicators-configs"
         exact

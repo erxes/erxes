@@ -55,6 +55,11 @@ const sendAbsenceRequest = `
     }
   }`;
 
+const removeAbsenceRequest = `
+mutation removeAbsenceRequest($_id: String){
+  removeAbsenceRequest(_id: $_id)
+}`;
+
 const absenceTypeAdd = `
   mutation absenceTypeAdd(${absenceTypeParams}){
     absenceTypeAdd(${absenceTypeValues}){
@@ -88,7 +93,7 @@ const submitSchedule = `
     }
   }`;
 
-const solveAbsence = `
+const solveAbsenceRequest = `
   mutation solveAbsenceRequest($_id: String, $status: String){
     solveAbsenceRequest(_id: $_id, status: $status){
       _id
@@ -204,6 +209,13 @@ mutation extractTimeLogsFromMsSQL($startDate: String, $endDate: String){
   }
 }`;
 
+const createTimeClockFromLog = `
+mutation createTimeClockFromLog($userId: String, $timelog: Date){
+  createTimeClockFromLog(userId: $userId, timelog: $timelog){
+    _id
+  }
+}`;
+
 const submitCheckInOutRequest = `
 mutation submitCheckInOutRequest($checkType: String, $userId: String, $checkTime: Date){
   submitCheckInOutRequest(checkType: $checkType, userId: $userId, checkTime: $checkTime){
@@ -219,7 +231,8 @@ export default {
   absenceTypeEdit,
   absenceTypeRemove,
 
-  solveAbsence,
+  solveAbsenceRequest,
+  removeAbsenceRequest,
   solveSchedule,
   solveShift,
 
@@ -249,5 +262,6 @@ export default {
   submitCheckInOutRequest,
 
   extractAllDataFromMsSQL,
-  extractTimeLogsFromMsSql
+  extractTimeLogsFromMsSql,
+  createTimeClockFromLog
 };

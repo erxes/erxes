@@ -24,6 +24,7 @@ export const initBroker = async cl => {
     const pos = await models.Pos.findOne({ token: posToken }).lean();
 
     // ====== if (action === 'statusToDone')
+    // if (doneOrder.type === 'delivery' && doneOrder.status === 'done') { }
     if (action === 'statusToDone') {
       // must have
       const doneOrder = await models.PosOrders.findOne({
@@ -102,7 +103,7 @@ export const initBroker = async cl => {
           data: {
             mainType: 'deal',
             mainTypeId: deal._id,
-            relType: 'customer',
+            relType: doneOrder.customerType || 'customer',
             relTypeId: doneOrder.customerId
           },
           isRPC: true
@@ -223,7 +224,7 @@ export const initBroker = async cl => {
           data: {
             mainType: 'deal',
             mainTypeId: cardDeal._id,
-            relType: 'customer',
+            relType: newOrder.customerType || 'customer',
             relTypeId: newOrder.customerId
           },
           isRPC: true
@@ -276,25 +277,46 @@ export const initBroker = async cl => {
       }
     }
 
-    const resp = await sendSyncerkhetMessage({
-      subdomain,
-      action: 'toOrder',
-      data: {
-        pos,
-        order: newOrder
-      },
-      isRPC: true,
-      defaultValue: {},
-      timeout: 50000
-    });
+    if (pos.erkhetConfig && pos.erkhetConfig.isSyncErkhet) {
+      const resp = await sendSyncerkhetMessage({
+        subdomain,
+        action: 'toOrder',
+        data: {
+          pos,
+          order: newOrder
+        },
+        isRPC: true,
+        defaultValue: {},
+        timeout: 50000
+      });
 
-    if (resp.message || resp.error) {
-      const txt = JSON.stringify({ message: resp.message, error: resp.error });
+      if (resp.message || resp.error) {
+        const txt = JSON.stringify({
+          message: resp.message,
+          error: resp.error
+        });
 
-      await models.PosOrders.updateOne(
-        { _id: order._id },
-        { $set: { syncErkhetInfo: txt } }
-      );
+        await models.PosOrders.updateOne(
+          { _id: order._id },
+          { $set: { syncErkhetInfo: txt } }
+        );
+      }
+    }
+
+    if (pos.checkRemainder) {
+      sendInventoriesMessage({
+        subdomain,
+        action: 'remainders.updateMany',
+        data: {
+          branchId: newOrder.branchId,
+          departmentId: newOrder.departmentId,
+          productsData: (newOrder.items || []).map(item => ({
+            productId: item.productId,
+            uomId: item.uomId,
+            diffCount: -1 * item.count
+          }))
+        }
+      });
     }
 
     return {
@@ -518,6 +540,17 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: 'core',
+    ...args
+  });
+};
+
+export const sendInventoriesMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'inventories',
     ...args
   });
 };

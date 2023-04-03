@@ -1,7 +1,7 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { serviceDiscovery } from './configs';
-import { checkPricing } from './utils';
+import { checkPricing, getMainConditions } from './utils';
 import { getAllowedProducts } from './utils/product';
 import { calculatePriceAdjust } from './utils/rule';
 
@@ -41,11 +41,23 @@ export const initBroker = async cl => {
   consumeRPCQueue('pricing:getQuanityRules', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const { product } = data;
+    const { products, branchId, departmentId } = data;
+
+    const productsById = {};
+    for (const product of products) {
+      productsById[product._id] = product;
+    }
+
+    const productIds = products.map(pr => pr._id);
+    const rulesByProductId = {};
+
+    const conditions = getMainConditions(branchId, departmentId);
+    conditions.isPriority = false;
 
     const plans = await models.PricingPlans.find({
+      ...conditions,
       'quantityRules.0': { $exists: true }
-    });
+    }).sort({ value: -1 });
 
     let value = 0;
     let discountValue = 0;
@@ -56,35 +68,47 @@ export const initBroker = async cl => {
       const allowedProductIds = await getAllowedProducts(
         subdomain,
         plan,
-        product._id
+        productIds
       );
 
       const rules = plan.quantityRules || [];
+      if (!(allowedProductIds.length > 0 && rules.length > 0)) {
+        continue;
+      }
 
-      if (allowedProductIds.length > 0 && (rules || []).length > 0) {
-        const firstRule = rules[0];
+      const firstRule = rules[0];
+      discountValue = firstRule.discountValue;
+      value = firstRule.value;
+      adjustType = firstRule.priceAdjustType;
+      adjustFactor = firstRule.priceAdjustFactor;
 
-        if (firstRule.discountValue > discountValue) {
-          discountValue = firstRule.discountValue;
-          value = firstRule.value;
-          adjustType = firstRule.priceAdjustType;
-          adjustFactor = firstRule.priceAdjustFactor;
+      for (const allowProductId of allowedProductIds) {
+        const product = productsById[allowProductId];
+
+        const unitPrice = product.unitPrice || 0;
+        const prePrice =
+          (rulesByProductId[allowProductId] || {}).price || unitPrice;
+
+        const price =
+          unitPrice -
+          calculatePriceAdjust(
+            unitPrice,
+            (unitPrice / 100) * discountValue,
+            adjustType,
+            adjustFactor
+          );
+
+        if (price < prePrice) {
+          rulesByProductId[allowProductId] = {
+            value,
+            price
+          };
         }
       }
     }
 
-    const unitPrice = product.unitPrice || 0;
-
     return {
-      data: {
-        value,
-        price: calculatePriceAdjust(
-          unitPrice,
-          unitPrice - (unitPrice / 100) * discountValue,
-          adjustType,
-          adjustFactor
-        )
-      },
+      data: rulesByProductId,
       status: 'success'
     };
   });
@@ -97,6 +121,17 @@ export const sendProductsMessage = async (
     client,
     serviceDiscovery,
     serviceName: 'products',
+    ...args
+  });
+};
+
+export const sendSegmentsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'segments',
     ...args
   });
 };

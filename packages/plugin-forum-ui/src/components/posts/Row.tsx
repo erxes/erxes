@@ -38,6 +38,7 @@ class Row extends React.Component<Props> {
         size="lg"
         trigger={trigger}
         content={content}
+        enforceFocus={false}
       />
     );
   }

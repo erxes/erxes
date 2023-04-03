@@ -28,7 +28,7 @@ export interface IProductModel extends Model<IProductDocument> {
 export const loadProductClass = models => {
   class Product {
     public static async getProduct(selector: any) {
-      const product = await models.Products.findOne(selector);
+      const product = await models.Products.findOne(selector).lean();
 
       if (!product) {
         throw new Error('Product not found');
@@ -69,7 +69,7 @@ export const loadProductClass = models => {
 
       await models.Products.updateOne({ _id }, { $set: { ...checkSKU(doc) } });
 
-      return models.Products.findOne({ _id });
+      return models.Products.findOne({ _id }).lean();
     }
 
     /**
@@ -130,7 +130,9 @@ export interface IProductCategoryModel extends Model<IProductCategoryDocument> {
 export const loadProductCategoryClass = models => {
   class ProductCategory {
     public static async getProductCategory(selector: any) {
-      const productCategory = await models.ProductCategories.findOne(selector);
+      const productCategory = await models.ProductCategories.findOne(
+        selector
+      ).lean();
 
       if (!productCategory) {
         throw new Error('Product & service category not found');
@@ -142,7 +144,7 @@ export const loadProductCategoryClass = models => {
     static async checkCodeDuplication(code: string) {
       const category = await models.ProductCategories.findOne({
         code
-      });
+      }).lean();
 
       if (category) {
         throw new Error(`Code must be unique ${code}`);
@@ -217,7 +219,7 @@ export const loadProductCategoryClass = models => {
         );
       });
 
-      return models.ProductCategories.findOne({ _id });
+      return models.ProductCategories.findOne({ _id }).lean();
     }
 
     /**

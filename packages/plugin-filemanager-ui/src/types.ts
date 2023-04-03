@@ -1,5 +1,7 @@
 import { MutationVariables, QueryResponse } from '@erxes/ui/src/types';
 
+import { IUser } from '@erxes/ui/src/auth/types';
+
 // query types
 export interface IFolder {
   _id: string;
@@ -9,6 +11,8 @@ export interface IFolder {
   createdUserId?: string;
   parentId?: string;
   parent?: IFolder;
+  childrens?: IFolder[];
+  sharedUsers: IUser[];
 }
 
 export interface IFile {

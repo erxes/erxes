@@ -104,16 +104,21 @@ export default {
 
           replacedContents.push(content);
         } else {
-          replacedContents = await sendCommonMessage({
-            subdomain,
-            serviceName: document.contentType,
-            action: 'documents.replaceContent',
-            isRPC: true,
-            data: {
-              ...(req.query || {}),
-              content: document.content
-            }
-          });
+          try {
+            replacedContents = await sendCommonMessage({
+              subdomain,
+              serviceName: document.contentType,
+              action: 'documents.replaceContent',
+              isRPC: true,
+              data: {
+                ...(req.query || {}),
+                content: document.content
+              },
+              timeout: 50000
+            });
+          } catch (e) {
+            replacedContents = [e.message];
+          }
         }
 
         let results: string = '';

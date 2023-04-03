@@ -20,7 +20,7 @@ import {
   IAbsenceType,
   IDeviceConfig,
   IPayDates,
-  ISchedule,
+  IScheduleForm,
   IScheduleConfig
 } from '../../types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
@@ -86,7 +86,7 @@ function ConfigForm(props: Props) {
       (scheduleConfig ? scheduleConfig.shiftEnd : '17:00:00')
   );
 
-  const configDaysTime: ISchedule = {
+  const configDaysTime: IScheduleForm = {
     configTime: {
       shiftStart: shiftStartTime,
       shiftEnd: shiftEndTime
@@ -114,7 +114,7 @@ function ConfigForm(props: Props) {
     );
   });
 
-  const [configDays, setConfigDays] = useState<ISchedule>({
+  const [configDays, setConfigDays] = useState<IScheduleForm>({
     ...configDaysTime
   });
 
@@ -199,7 +199,7 @@ function ConfigForm(props: Props) {
         if (requestTime === 'by day') {
           generateValues = {
             ...generateValues,
-            requestHoursPerDay: hoursPerDay
+            requestHoursPerDay: hoursPerDay || 8
           };
         }
 
