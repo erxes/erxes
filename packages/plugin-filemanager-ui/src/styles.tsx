@@ -117,21 +117,17 @@ export const RightMenuContainer = styled.div`
     0 0 0 1px rgba(9, 30, 66, 0.08);
 `;
 
-export const FilterWrapper = styled.div`
-  flex: 1;
-  padding: ${dimensions.coreSpacing}px;
+export const CustomRangeContainer = styled.div`
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-end;
 
-  .Select {
-    margin-bottom: 15px;
-  }
+  > div {
+    flex: 1;
+    margin-right: 8px;
 
-  input {
-    margin-bottom: 20px;
-    width: 100% !important;
-  }
-
-  .rdt {
-    input {
+    input[type='text'] {
       border: none;
       width: 100%;
       height: 34px;
@@ -144,5 +140,19 @@ export const FilterWrapper = styled.div`
       box-shadow: none;
       font-size: 13px;
     }
+  }
+`;
+
+export const FilterWrapper = styled.div`
+  flex: 1;
+  padding: ${dimensions.coreSpacing}px;
+
+  .Select {
+    margin-bottom: 15px;
+  }
+
+  input {
+    margin-bottom: 20px;
+    width: 100% !important;
   }
 `;

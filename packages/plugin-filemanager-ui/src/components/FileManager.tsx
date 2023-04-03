@@ -1,4 +1,9 @@
-import { FilterWrapper, LeftActionbar, RightMenuContainer } from '../styles';
+import {
+  CustomRangeContainer,
+  FilterWrapper,
+  LeftActionbar,
+  RightMenuContainer
+} from '../styles';
 import React, { useState } from 'react';
 
 import { BarItems } from '@erxes/ui/src/layout';
@@ -94,54 +99,65 @@ class FileManager extends React.Component<Props, State> {
   };
 
   renderFilters = () => {
-    const { queryParams, filemanagerFolders, onSelect } = this.props;
+    const { queryParams, onSelect } = this.props;
 
-    const folders = filemanagerFolders.map(f => ({
-      label: f.name,
-      value: f._id
-    }));
-    const folderId = queryParams ? queryParams._id : [];
+    const types = queryParams ? queryParams.type : [];
 
-    const onFolderSelect = (ops: IOption[]) =>
+    const onTypeSelect = (ops: IOption[]) =>
       onSelect(
         ops.map(option => option.value),
-        '_id'
+        'type'
       );
 
     return (
       <FilterWrapper>
+        <ControlLabel>By Name</ControlLabel>
         <FormControl
           type="text"
           defaultValue={queryParams.search}
           placeholder={__('Type to search ...')}
           onKeyPress={this.onSearch}
         />
-        <ControlLabel>By Folder:</ControlLabel>
-        <Select
-          placeholder={__('Filter by folder')}
-          value={folderId}
-          options={folders}
-          name="folderId"
-          onChange={onFolderSelect}
-          multi={true}
-          loadingPlaceholder={__('Loading...')}
-        />
-        <ControlLabel>By created team member:</ControlLabel>
+        <ControlLabel>By created team member</ControlLabel>
         <SelectTeamMembers
           label="Filter by team members"
           name="contentTypeId"
           queryParams={queryParams}
           onSelect={onSelect}
         />
-        <ControlLabel>By created date:</ControlLabel>
-        <DateControl
-          value={queryParams.createdAtFrom}
-          required={false}
-          name="createdAtFrom"
-          onChange={date => this.onChangeRangeFilter('createdAtFrom', date)}
-          placeholder={'Created date'}
-          dateFormat={'YYYY-MM-DD'}
+        <ControlLabel>By file type</ControlLabel>
+        <Select
+          placeholder={__('Filter by type')}
+          value={types}
+          options={[
+            { value: 'simple', label: 'Simple file' },
+            { value: 'dynamic', label: 'Dynamic file' }
+          ]}
+          name="type"
+          onChange={onTypeSelect}
+          multi={true}
+          loadingPlaceholder={__('Loading...')}
         />
+        <ControlLabel>By created date</ControlLabel>
+        <CustomRangeContainer>
+          <DateControl
+            value={queryParams.createdAtFrom}
+            required={false}
+            name="createdAtFrom"
+            onChange={date => this.onChangeRangeFilter('createdAtFrom', date)}
+            placeholder={'Start date'}
+            dateFormat={'YYYY-MM-DD'}
+          />
+
+          <DateControl
+            value={queryParams.createdAtTo}
+            required={false}
+            name="createdAtTo"
+            placeholder={'End date'}
+            onChange={date => this.onChangeRangeFilter('createdAtTo', date)}
+            dateFormat={'YYYY-MM-DD'}
+          />
+        </CustomRangeContainer>
       </FilterWrapper>
     );
   };
