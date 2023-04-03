@@ -176,17 +176,36 @@ const mutations = {
       });
     }
 
+    await models.Logs.createLog({
+      contentType: 'file',
+      contentTypeId: file._id,
+      userId: user._id,
+      description: 'Requested acknowledgement'
+    });
+
     return 'ok';
   },
 
   async filemanagerAckRequest(_root, { _id }, { user, models }: IContext) {
     const request = await models.AckRequests.findOne({ _id });
 
-    if (request && request.toUserId !== user._id) {
+    if (!request || (request && request.toUserId !== user._id)) {
       throw new Error('Permission denied');
     }
 
-    return models.AckRequests.update({ _id }, { $set: { status: 'acked' } });
+    const response = await models.AckRequests.update(
+      { _id },
+      { $set: { status: 'acked' } }
+    );
+
+    await models.Logs.createLog({
+      contentType: 'file',
+      contentTypeId: request.fileId,
+      userId: user._id,
+      description: `Acknowledged`
+    });
+
+    return response;
   },
 
   async filemanagerRequestAccess(
