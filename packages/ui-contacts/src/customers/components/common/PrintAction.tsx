@@ -97,7 +97,6 @@ export default function PrintAction({ coc, contentType }: Props) {
         </Dropdown.Toggle>
         <Dropdown.Menu>
           {documents.map(document => {
-            console.log({ document });
             return (
               <li key={document._id}>
                 <ActionItem onClick={print.bind(this, document._id)}>
