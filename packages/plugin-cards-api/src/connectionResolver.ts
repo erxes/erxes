@@ -19,7 +19,6 @@ import { ITicketModel, loadTicketClass } from './models/Tickets';
 import { IGrowthHackModel, loadGrowthHackClass } from './models/GrowthHacks';
 import { IChecklistModel } from './models/Checklists';
 import {
-  boardSchema,
   IBoardDocument,
   IPipelineDocument,
   IStageDocument
@@ -43,7 +42,6 @@ import {
 } from './models/PipelineTemplates';
 import { IPipelineTemplateDocument } from './models/definitions/pipelineTemplates';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
-import { Board } from './graphql/resolvers/customResolvers';
 
 export interface IModels {
   Boards: IBoardModel;

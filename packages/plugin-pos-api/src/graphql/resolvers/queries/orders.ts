@@ -289,7 +289,7 @@ const queries = {
       commonQuerySelector,
       user._id
     );
-    const query: any = { status: { $ne: 'deleted' } };
+    const query: any = {};
 
     if (params.categoryId) {
       const category = await sendProductsMessage({
@@ -405,7 +405,12 @@ const queries = {
       }
     }
 
-    return { totalCount, products };
+    return {
+      totalCount,
+      products: products.filter(
+        p => !(p.status === 'deleted' && !p.count && !p.amount)
+      )
+    };
   }
 };
 

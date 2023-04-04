@@ -34,7 +34,7 @@ class PageList extends React.Component<Props> {
 
           const onClick = () => {
             onLoad(true);
-            handleItemSettings({}, '');
+            handleItemSettings(null, '');
           };
 
           return (

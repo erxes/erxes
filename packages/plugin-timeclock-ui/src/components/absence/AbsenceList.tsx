@@ -11,6 +11,7 @@ import Attachment from '@erxes/ui/src/components/Attachment';
 import dayjs from 'dayjs';
 import { dateFormat, timeFormat } from '../../constants';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
   absences: IAbsence[];
@@ -32,6 +33,7 @@ type Props = {
   ) => void;
 
   submitCheckInOut: (type: string, userId: string, dateVal: Date) => void;
+  removeAbsence: (absenceId: string) => void;
 
   getActionBar: (actionBar: any) => void;
   getPagination: (pagination: any) => void;
@@ -42,6 +44,7 @@ function AbsenceList(props: Props) {
   const {
     absences,
     solveAbsence,
+    removeAbsence,
     getActionBar,
     showSideBar,
     getPagination,
@@ -160,6 +163,15 @@ function AbsenceList(props: Props) {
             </>
           )}
         </td>
+        <td>
+          <Tip text={__('Delete')} placement="top">
+            <Button
+              btnStyle="link"
+              onClick={() => removeAbsence(absence._id)}
+              icon="times-circle"
+            />
+          </Tip>
+        </td>
       </tr>
     );
   };
@@ -175,6 +187,7 @@ function AbsenceList(props: Props) {
           <th rowSpan={2}>{__('Explanation')}</th>
           <th rowSpan={2}>{__('Attachment')}</th>
           <th rowSpan={2}>{__('Status')}</th>
+          <th rowSpan={2}>{__('Action')}</th>
         </tr>
       </thead>
       <tbody>

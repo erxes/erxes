@@ -13,6 +13,16 @@ const StageSetting = () => {
   );
 };
 
+const SplitSettings = asyncComponent(() =>
+  import(/* webpackChunkName: "SplitSettings" */ './components/SplitSettings')
+);
+
+const SplitSetting = () => {
+  return (
+    <Settings component={SplitSettings} configCode="dealsProductsDataSplit" />
+  );
+};
+
 const routes = () => {
   return (
     <React.Fragment>
@@ -21,6 +31,12 @@ const routes = () => {
         exact={true}
         path="/erxes-plugin-product-places/settings/stage"
         component={StageSetting}
+      />
+      <Route
+        key="/erxes-plugin-product-places/settings/stage"
+        exact={true}
+        path="/erxes-plugin-product-places/settings/split"
+        component={SplitSetting}
       />
     </React.Fragment>
   );

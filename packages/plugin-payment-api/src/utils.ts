@@ -1,6 +1,7 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
 import { monpayCallbackHandler } from './api/monpay/api';
+import { paypalCallbackHandler } from './api/paypal/api';
 import { qpayCallbackHandler } from './api/qpay/api';
 import { socialpayCallbackHandler } from './api/socialpay/api';
 import { storepayCallbackHandler } from './api/storepay/api';
@@ -43,6 +44,9 @@ export const callbackHandler = async (req, res) => {
         break;
       case PAYMENTS.monpay.kind:
         invoiceDoc = await monpayCallbackHandler(models, data);
+        break;
+      case PAYMENTS.paypal.kind:
+        invoiceDoc = await paypalCallbackHandler(models, data);
         break;
       default:
         return res.status(400).send('Invalid kind');
