@@ -86,7 +86,7 @@ const queries = {
     { lat, lng }: { lat: number; lng: number },
     { models }: IContext
   ) => {
-    return models.Districts.findOne({
+    let dist = await models.Districts.findOne({
       geojson: {
         $geoIntersects: {
           $geometry: {
@@ -96,6 +96,24 @@ const queries = {
         }
       }
     }).lean();
+
+    if (dist) {
+      return dist;
+    }
+
+    dist = await models.Districts.findOne({
+      center: {
+        $near: {
+          $geometry: {
+            type: 'Point',
+            coordinates: [lng, lat]
+          },
+          $maxDistance: 10000
+        }
+      }
+    }).lean();
+
+    return dist;
   }
 };
 

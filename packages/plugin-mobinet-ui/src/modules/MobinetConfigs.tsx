@@ -18,7 +18,9 @@ type Props = {
 const labels = {
   fttbTagId: 'FTTB Tag',
   ftthTagId: 'FTTH Tag',
+  suhTagId: 'SUH Tag',
   vooCatId: 'VOO Category',
+
   hbbCatId: 'HBB Category',
   installationTicketsStageId: 'INSTALLATION REQUEST CONFIG',
   repairTicketsStageId: 'REPAIR REQUEST CONFIG',
@@ -31,15 +33,13 @@ const MobinetConfigs = (props: Props) => {
     ftthTagId: '',
     vooCatId: '',
     hbbCatId: '',
+    suhTagId: '',
     installationTicket: { boardId: '', pipelineId: '', stageId: '' },
     repairTicket: { boardId: '', pipelineId: '', stageId: '' },
     capitalTagId: ''
   };
 
-  const [installBoardId, setInstallBoardId] = React.useState('');
-  const [installPipelineId, setInstallPipelineId] = React.useState('');
-  const [repairBoardId, setRepairBoardId] = React.useState('');
-  const [repairPipelineId, setRepairPipelineId] = React.useState('');
+  console.log(configs);
 
   React.useEffect(() => {
     props.onChangeConfig('MOBINET_CONFIGS', props.configsMap.MOBINET_CONFIGS);
@@ -106,6 +106,7 @@ const MobinetConfigs = (props: Props) => {
           <ControlLabel>{labels.fttbTagId}</ControlLabel>
           <SelectTags
             value={configs.fttbTagId}
+            type={'products:product'}
             onChange={value => onChangeTags('fttbTagId', value)}
           />
         </FormGroup>
@@ -113,6 +114,7 @@ const MobinetConfigs = (props: Props) => {
         <FormGroup>
           <ControlLabel>{labels.ftthTagId}</ControlLabel>
           <SelectTags
+            type={'products:product'}
             value={configs.ftthTagId}
             onChange={value => onChangeTags('ftthTagId', value)}
           />
@@ -121,8 +123,25 @@ const MobinetConfigs = (props: Props) => {
         <FormGroup>
           <ControlLabel>{labels.capitalTagId}</ControlLabel>
           <SelectTags
+            type={'products:product'}
             value={configs.capitalTagId}
             onChange={value => onChangeTags('capitalTagId', value)}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{labels.capitalTagId}</ControlLabel>
+          <SelectTags
+            type={'products:product'}
+            value={configs.capitalTagId}
+            onChange={value => onChangeTags('capitalTagId', value)}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{labels.suhTagId}</ControlLabel>
+          <SelectTags
+            type={'contacts:company'}
+            value={configs.suhTagId}
+            onChange={value => onChangeTags('suhTagId', value)}
           />
         </FormGroup>
         <FormGroup>

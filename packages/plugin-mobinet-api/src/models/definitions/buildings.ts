@@ -43,6 +43,8 @@ export interface IBuilding {
 
   createdAt: Date;
   updatedAt: Date;
+
+  netWorkType: 'ftth' | 'fttb';
 }
 
 export interface IBuildingDocument extends IBuilding, Document {
@@ -133,7 +135,14 @@ export const buildingSchema = schemaHooksWrapper(
 
     createdAt: field({ type: Date, label: 'createdAt', default: Date.now }),
     updatedAt: field({ type: Date, label: 'updatedAt', default: Date.now }),
-
+    netWorkType: field({
+      type: String,
+      enum: ['ftth', 'fttb'],
+      label: 'netWorkType',
+      required: true,
+      default: 'ftth',
+      index: true
+    }),
     searchText: field({ type: String, optional: true, index: true })
   }),
   'mobinet_buildings'

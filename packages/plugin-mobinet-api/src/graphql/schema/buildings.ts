@@ -50,6 +50,11 @@ enum ServiceStatus {
   inprogress
 }
 
+enum NetworkType {
+  fttb
+  ftth
+}
+
   type ProductPriceConfig {
     productId: String
     price: Float
@@ -105,6 +110,8 @@ enum ServiceStatus {
     installationRequestIds: [String]
     ticketIds: [String]
     assetIds: [String]
+
+    netWorkType: NetworkType
 
     ${
       assets
@@ -172,6 +179,7 @@ const qryParams = `
     page: Int
     perPage: Int
     customQuery: JSON
+    netWorkType: NetworkType
 `;
 
 export const queries = `

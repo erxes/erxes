@@ -12,18 +12,18 @@ const TAGS_QUERY = gql`
   }
 `;
 
-const Container = ({ onChange, value }) => {
+const Container = ({ onChange, value, type }) => {
   const [getTags, { data, loading }] = useLazyQuery(TAGS_QUERY, {
     fetchPolicy: 'network-only',
     variables: {
-      type: 'products:product',
+      type,
       searchValue: ''
     }
   });
 
   const tagsQuery = useQuery(TAGS_QUERY, {
     variables: {
-      type: 'products:product',
+      type,
       searchValue: ''
     }
   });
@@ -32,7 +32,7 @@ const Container = ({ onChange, value }) => {
     getTags({
       variables: {
         searchValue,
-        type: 'products:product'
+        type
       }
     });
   };
