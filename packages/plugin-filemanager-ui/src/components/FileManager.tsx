@@ -266,7 +266,9 @@ class FileManager extends React.Component<Props, State> {
         }
         content={
           <DataWithLoader
-            data={<FileList queryParams={queryParams} />}
+            data={
+              queryParams._id ? <FileList queryParams={queryParams} /> : null
+            }
             loading={false}
             count={100}
             emptyContent={

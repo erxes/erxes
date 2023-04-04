@@ -18,7 +18,7 @@ type Props = {
 };
 
 type FinalProps = {
-  filemanagerFolderDetailQuery: any;
+  filemanagerFolderDetailQuery?: any;
 } & Props &
   IRouterProps;
 
@@ -49,7 +49,9 @@ class FileManagerContainer extends React.Component<FinalProps> {
     const { filemanagerFolderDetailQuery } = this.props;
 
     const currentFolder =
-      filemanagerFolderDetailQuery.filemanagerFolderDetail || ({} as any);
+      (filemanagerFolderDetailQuery &&
+        filemanagerFolderDetailQuery.filemanagerFolderDetail) ||
+      {};
 
     const updatedProps = {
       ...this.props,
@@ -66,6 +68,9 @@ const WithProps = withProps<Props>(
   compose(
     graphql<Props>(gql(queries.filemanagerFolderDetail), {
       name: 'filemanagerFolderDetailQuery',
+      skip: ({ queryParams }) => {
+        return !queryParams._id;
+      },
       options: ({ queryParams }: { queryParams: any }) => ({
         variables: {
           _id: queryParams && queryParams._id ? queryParams._id : ''
