@@ -6,8 +6,10 @@ module.exports = {
     './routes': './src/routes.tsx',
     './customerSidebar': './src/modules/contracts/containers/CustomerSidebar.tsx',
     "./cardDetailAction": "./src/modules/contracts/containers/CardDetailAction.tsx",
-    './buildingsSection': './src/common/routes/Buildings.tsx'
+    './buildingsSection': './src/common/routes/Buildings.tsx',
+    './mobinetConfigs': './src/modules/MobinetConfigs.tsx'
   },
+  extendSystemConfig: './mobinetConfigs',
   routes: {
     url: 'http://localhost:3029/remoteEntry.js',
     scope: 'mobinet',

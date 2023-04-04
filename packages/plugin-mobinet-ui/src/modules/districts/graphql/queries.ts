@@ -11,6 +11,7 @@ cityId
 createdAt
 name
 updatedAt
+isCapital
 `;
 
 const listQuery = `
