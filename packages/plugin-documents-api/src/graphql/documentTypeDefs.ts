@@ -15,6 +15,12 @@ export const types = `
     value: String
     name: String
   }
+
+  type DocumentsTypes {
+    label: String
+    contentType: String
+  }
+
 `;
 
 const params = `
@@ -28,6 +34,7 @@ export const queries = `
   documents(${params}): [Document]
   documentsDetail(_id: String!): Document
   documentsGetEditorAttributes(contentType: String!): [DocumentEditorAttribute]
+  documentsGetContentTypes:[DocumentsTypes]
   documentsTotalCount: Int
 `;
 

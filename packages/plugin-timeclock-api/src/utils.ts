@@ -190,7 +190,7 @@ const connectAndQueryFromMsSql = async (
   subdomain: string,
   startDate: string,
   endDate: string
-) => {
+): Promise<ITimeClockDocument[]> => {
   const sequelize = createMsSqlConnection();
   const MYSQL_TABLE = getEnv({ name: 'MYSQL_TABLE' });
 
@@ -198,7 +198,7 @@ const connectAndQueryFromMsSql = async (
   const teamMembers = await findAllTeamMembersWithEmpId(subdomain);
   const models: IModels = await generateModels(subdomain);
 
-  let returnData;
+  let returnData: ITimeClockDocument[];
 
   sequelize
     .authenticate()
