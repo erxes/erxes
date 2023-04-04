@@ -76,13 +76,7 @@ class PutResponseRow extends React.Component<Props> {
           <td key={key}>{this.displayPaid(order, key)}</td>
         ))}
         <td key={'totalAmount'}>{this.displayValue(order, 'totalAmount')}</td>
-        <td key={'customer'}>
-          {order.customer
-            ? order.customer.primaryEmail ||
-              order.customer.primaryPhone ||
-              order.customer.firstName
-            : ''}
-        </td>
+        <td key={'customer'}>{order.customerType}</td>
         <td key={'pos'}>
           {order.posName || ''}
           {order.origin === 'kiosk' ? '*' : ''}

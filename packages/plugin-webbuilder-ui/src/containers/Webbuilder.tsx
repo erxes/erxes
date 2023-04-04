@@ -13,7 +13,7 @@ type Props = {
 };
 
 type FinalProps = {
-  sitesTotalCountQuery: any;
+  sitesTotalCountQuery: SitesTotalCountQueryResponse;
 } & Props;
 
 function WebBuilderContainer(props: FinalProps) {

@@ -11,6 +11,7 @@ import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { IField, IFieldLogic, IOption } from '@erxes/ui/src/types';
 import { __, loadDynamicComponent } from '@erxes/ui/src/utils';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Select from 'react-select-plus';
@@ -453,6 +454,11 @@ class FieldForm extends React.Component<Props, State> {
                 onChange={toggle}
               />
             </FlexRow>
+            {isEnabled('payment') && field.type === 'productCategory' && (
+              <p>
+                {__('If you need to enable payment, field must be required!')}
+              </p>
+            )}
           </FormGroup>
           <FormGroup>
             <ControlLabel htmlFor="text" required={false}>

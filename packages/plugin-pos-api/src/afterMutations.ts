@@ -30,10 +30,22 @@ const isInProduct = async (
 ) => {
   const groups = await models.ProductGroups.groups(pos._id);
 
-  let allProductIds: string[] = [];
+  const followProductIds: string[] = [];
 
   if (pos.deliveryConfig && pos.deliveryConfig.productId) {
-    allProductIds.push(pos.deliveryConfig.productId);
+    followProductIds.push(pos.deliveryConfig.productId);
+  }
+
+  if (pos.catProdMappings && pos.catProdMappings.length) {
+    for (const map of pos.catProdMappings) {
+      if (!followProductIds.includes(map.productId)) {
+        followProductIds.push(map.productId);
+      }
+    }
+  }
+
+  if (followProductIds.includes(productId)) {
+    return true;
   }
 
   let allExcludedProductIds: string[] = [];

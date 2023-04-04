@@ -475,11 +475,12 @@ export const loadClientPortalUserClass = (models: IModels) => {
     ) {
       const query: any = { clientPortalId: clientPortal._id };
 
-      let isEmail = false;
+      const isEmail = clientPortal.passwordVerificationConfig
+        ? !clientPortal.passwordVerificationConfig.verifyByOTP
+        : true;
 
       if (email) {
         query.email = email;
-        isEmail = true;
       }
 
       if (phone) {
@@ -508,6 +509,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
           : 4,
         clientPortalId: clientPortal._id,
         phone,
+        email,
         isRessetting: true
       });
 

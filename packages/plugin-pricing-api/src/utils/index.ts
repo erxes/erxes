@@ -12,24 +12,12 @@ import {
 import { getAllowedProducts } from './product';
 import { Plan, CalculatedRule, OrderItem } from '../types';
 
-export const checkPricing = async (
-  models: IModels,
-  subdomain: string,
-  prioritizeRule: string,
-  totalAmount: number,
-  departmentId: string,
-  branchId: string,
-  orderItems: OrderItem[]
-) => {
+// Finding valid discounts
+export const getMainConditions: any = (branchId, departmentId) => {
   const now = dayjs(new Date());
   const nowISO = now.toISOString();
-  const productIds: string[] = orderItems.map(p => p.productId);
-  const result: object = {};
 
-  let allowedProductIds: string[] = [];
-
-  // Finding valid discounts
-  const conditions: any = {
+  return {
     status: 'active',
     $and: [
       {
@@ -86,6 +74,24 @@ export const checkPricing = async (
       }
     ]
   };
+};
+
+export const checkPricing = async (
+  models: IModels,
+  subdomain: string,
+  prioritizeRule: string,
+  totalAmount: number,
+  departmentId: string,
+  branchId: string,
+  orderItems: OrderItem[]
+) => {
+  const productIds: string[] = orderItems.map(p => p.productId);
+  const result: object = {};
+
+  let allowedProductIds: string[] = [];
+
+  // Finding valid discounts
+  const conditions: any = getMainConditions(branchId, departmentId);
 
   if (prioritizeRule === 'only') {
     conditions.isPriority = true;

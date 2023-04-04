@@ -126,7 +126,8 @@ export const initBroker = async cl => {
           ...(await models.Orders.findOne({ _id: order._id }).lean()),
           _id: order._id,
           status: order.status,
-          customerId: order.customerId
+          customerId: order.customerId,
+          customerType: order.customerType
         }
       });
     }

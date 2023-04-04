@@ -79,6 +79,8 @@ export interface IProductData extends Document {
   tickUsed?: boolean;
   isVatApplied?: boolean;
   assignUserId?: string;
+  branchId?: string;
+  departmentId?: string;
 }
 
 interface IPaymentsData {
@@ -210,7 +212,9 @@ export const productDataSchema = new Schema(
     amount: field({ type: Number, label: 'Amount' }), // Amount
     tickUsed: field({ type: Boolean, label: 'Tick used' }), // TickUsed
     isVatApplied: field({ type: Boolean, label: 'Is vat applied' }), // isVatApplied
-    assignUserId: field({ type: String, optional: true, esType: 'keyword' }) // AssignUserId
+    assignUserId: field({ type: String, optional: true, esType: 'keyword' }), // AssignUserId
+    branchId: field({ type: String, optional: true, esType: 'keyword' }),
+    departmentId: field({ type: String, optional: true, esType: 'keyword' })
   },
   { _id: false }
 );

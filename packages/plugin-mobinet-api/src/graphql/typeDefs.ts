@@ -27,6 +27,12 @@ import {
   types as contractTypes
 } from './schema/contracts';
 
+import {
+  queries as productQueries,
+  mutations as productMutations,
+  types as productTypes
+} from './schema/mobinetProducts';
+
 const typeDefs = async serviceDiscovery => {
   const isEnabled = {
     contacts: await serviceDiscovery.isEnabled('contacts'),
@@ -54,6 +60,7 @@ const typeDefs = async serviceDiscovery => {
     ${quarterTypes}
     ${cityTypes}
     ${buildingTypes(isEnabled)}
+    ${productTypes}
     ${contractTypes}
     
     extend type Query {
@@ -62,6 +69,7 @@ const typeDefs = async serviceDiscovery => {
       ${quarterQueries}
       ${buildingQueries}
       ${contractQueries}
+      ${productQueries}
     }
     
     extend type Mutation {
@@ -70,6 +78,7 @@ const typeDefs = async serviceDiscovery => {
       ${quarterMutations}
       ${buildingMutations}
       ${contractMutations}
+      ${productMutations}
     }
   `;
 };

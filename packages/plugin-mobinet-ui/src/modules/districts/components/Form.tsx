@@ -4,11 +4,13 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Toggle from '@erxes/ui/src/components/Toggle';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React, { useState } from 'react';
 
 import Map from '../../../common/OSMap';
+import { ToggleWrap } from '../../../styles';
 import SelectCity from '../../cities/containers/SelectCity';
 import { IDistrict } from '../types';
 
@@ -60,6 +62,16 @@ const DistrictForm = (props: Props) => {
     obj[id] = value;
 
     setDistrictObject(obj);
+  };
+
+  const onChangeToggle = e => {
+    const obj: any = districtObject || {};
+
+    obj.isCapital = e.target.checked;
+
+    setDistrictObject(obj);
+
+    console.log(districtObject);
   };
 
   const onChangeCenter = position => {
@@ -124,6 +136,8 @@ const DistrictForm = (props: Props) => {
     const { closeModal, renderButton } = props;
     const { isSubmitted } = formProps;
 
+    console.log(districtObject?.isCapital);
+
     return (
       <>
         <SelectCity
@@ -147,6 +161,21 @@ const DistrictForm = (props: Props) => {
           'string',
           district && district.name
         )}
+
+        <ToggleWrap>
+          <FormGroup>
+            <ControlLabel>Is Capital</ControlLabel>
+            <Toggle
+              id="isCapital"
+              checked={districtObject?.isCapital}
+              onChange={onChangeToggle}
+              icons={{
+                checked: <span>Yes</span>,
+                unchecked: <span>No</span>
+              }}
+            />
+          </FormGroup>
+        </ToggleWrap>
 
         {renderMap()}
 

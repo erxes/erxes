@@ -118,7 +118,8 @@ export default withProps(
     graphql<Props>(gql(queries.riskAssessmentIndicatorForm), {
       name: 'indicatorFormQueryResponse',
       options: ({ filters: { indicatorId, riskAssessmentId, userId } }) => ({
-        variables: { indicatorId, riskAssessmentId, userId }
+        variables: { indicatorId, riskAssessmentId, userId },
+        fetchPolicy: 'cache-and-network'
       })
     }),
     graphql<Props>(gql(mutations.riskFormSaveSubmission), {

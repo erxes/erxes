@@ -35,6 +35,7 @@ const invoicesFields = `
     contentType
     contentTypeId
     createdAt
+    customerType
     customerId
     description
     email
@@ -45,19 +46,7 @@ const invoicesFields = `
     phone
     resolvedAt
     status
-    company {
-      _id
-      primaryName
-    }
-    customer {
-      _id
-      firstName
-      lastName
-      middleName
-      primaryEmail
-      primaryPhone
-    }
-    pluginData
+    customer
 `;
 
 const invoices = gql`

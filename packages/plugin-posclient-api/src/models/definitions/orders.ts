@@ -23,6 +23,7 @@ export interface IOrder {
   paidDate?: Date;
   number?: string;
   customerId?: string;
+  customerType?: string;
   cashAmount?: number;
   mobileAmount?: number;
   paidAmounts?: IPaidAmount[];
@@ -83,6 +84,11 @@ export const orderSchema = schemaHooksWrapper(
       index: true
     }),
     customerId: field({ type: String, optional: true, label: 'Customer' }),
+    customerType: field({
+      type: String,
+      optional: true,
+      label: 'Customer type'
+    }),
     cashAmount: getNumberFieldDefinition({
       ...commonAttributes,
       label: 'Cash amount'

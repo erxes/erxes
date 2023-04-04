@@ -133,7 +133,7 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
           { key: 'operationId', ids: operationIds }
         ];
 
-        if (!!indicatorIds.length) {
+        if (!!indicatorIds?.length) {
           IdsMap.push({ key: 'indicatorId', ids: indicatorIds });
         }
 
@@ -151,10 +151,22 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
       }
 
       const { indicatorId, groupId, groupsAssignedUsers } = doc;
+      let unsetFields: any = {};
 
       /**
        * Update risk assessment groups if has groupId
        */
+
+      if (indicatorId && groupId) {
+        for (const [key] of Object.entries(riskAssessment.toObject())) {
+          if (['indicatorId', 'groupId'].includes(key)) {
+            if (riskAssessment[key]) {
+              delete doc[key];
+              unsetFields = { [key]: 1 };
+            }
+          }
+        }
+      }
 
       if (await this.checkSplittedUsersByGroup(groupsAssignedUsers)) {
         const groupIds = await this.getGroupIds(groupId);
@@ -229,7 +241,7 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
 
       return await models.RiskAssessments.updateOne(
         { _id },
-        { $set: { ...doc } }
+        { $set: { ...doc }, $unset: { ...unsetFields } }
       );
     }
 
