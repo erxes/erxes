@@ -1,6 +1,11 @@
 import * as compose from 'lodash.flowright';
 
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import {
+  router as routerUtils,
+  Alert,
+  confirm,
+  withProps
+} from '@erxes/ui/src/utils';
 import {
   FilemanagerFoldersQueryResponse,
   RemoveFilemanagerFolderMutationResponse
@@ -16,6 +21,7 @@ import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
+  history: any;
 };
 
 type FinalProps = {
@@ -25,9 +31,18 @@ type FinalProps = {
   RemoveFilemanagerFolderMutationResponse;
 
 const FolderListContainer = (props: FinalProps) => {
-  const { removeMutation, filemanagerFoldersQuery } = props;
+  const {
+    removeMutation,
+    filemanagerFoldersQuery,
+    queryParams,
+    history
+  } = props;
 
   const folders = filemanagerFoldersQuery.filemanagerFolders || [];
+
+  if (folders.length > 0 && !queryParams._id) {
+    routerUtils.setParams(history, { _id: folders[0]._id });
+  }
 
   // remove action
   const remove = folderId => {
