@@ -149,10 +149,17 @@ const assets = `
   }
 `;
 
+const configs = `
+  query configsGetValue($code: String!) {
+    configsGetValue(code: $code)
+  }
+`;
+
 export default {
   listQuery,
   detailQuery,
   buildingsByBoundsQuery,
   buildingsQuery,
-  assets
+  assets,
+  configs
 };

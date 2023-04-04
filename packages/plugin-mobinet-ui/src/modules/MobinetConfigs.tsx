@@ -1,14 +1,14 @@
-import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import gql from 'graphql-tag';
-import React from 'react';
+import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
 import { __ } from '@erxes/ui/src/utils/core';
-import SelectTags from './configs/containers/SelectTags';
+import React from 'react';
+
 import SelectCategories from './configs/containers/SelectCategories';
-import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import SelectTags from './configs/containers/SelectTags';
 
 type Props = {
   onChangeConfig: (code: string, value: any) => void;

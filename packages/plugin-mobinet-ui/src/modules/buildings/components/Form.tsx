@@ -1,3 +1,4 @@
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Form from '@erxes/ui/src/components/form/Form';
@@ -5,32 +6,29 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import OSMBuildings from '../../../common/OSMBuildings';
+import { ICoordinates } from '../../../types';
+import { findCenter, getBuildingColor } from '../../../utils';
 import SelectCity from '../../cities/containers/SelectCity';
 import { ICity } from '../../cities/types';
 import SelectDistrict from '../../districts/containers/SelectDistrict';
 import { IDistrict } from '../../districts/types';
 import SelectQuarter from '../../quarters/containers/SelectQuarter';
-import OSMBuildings from '../../../common/OSMBuildings';
 import { IBuilding, IOSMBuilding } from '../types';
-import { ICoordinates } from '../../../types';
-import { findCenter, getBuildingColor } from '../../../utils';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import { getEnv } from '@erxes/ui/src/utils/core';
 
 type Props = {
   osmBuilding?: IOSMBuilding;
   city?: ICity;
   district?: IDistrict;
   building?: IBuilding;
+  suhTagId?: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 
 const BuildingForm = (props: Props) => {
   const { building } = props;
-
-  const { SUH_TAG } = getEnv();
 
   console.log('************', building);
 
@@ -293,7 +291,7 @@ const BuildingForm = (props: Props) => {
               setBuildingObject(obj);
             }}
             multi={false}
-            filterParams={{ tag: 'HovpPzg2bfxCoNc4F' }}
+            filterParams={{ tag: props.suhTagId }}
           />
         </FormGroup>
 
