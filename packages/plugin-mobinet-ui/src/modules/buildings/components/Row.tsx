@@ -106,15 +106,15 @@ const Row = (props: Props) => {
       </td>
 
       <td key={Math.random()}>
-        <RowTitle>{building.networkType || '-'}</RowTitle>
-      </td>
-
-      <td key={Math.random()}>
         <RowTitle>{installationRequestIds.length}</RowTitle>
       </td>
 
       <td key={Math.random()}>
         <RowTitle>{ticketIds.length}</RowTitle>
+      </td>
+
+      <td key={Math.random()}>
+        <RowTitle>{building.networkType || '-'}</RowTitle>
       </td>
 
       <td>
