@@ -19,6 +19,7 @@ import { TabTitle } from '@erxes/ui/src/components/tabs';
 import Widget from '@erxes/ui-engage/src/containers/Widget';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import PrintAction from '@erxes/ui-contacts/src/customers/components/common/PrintAction';
 
 type Props = {
   customer: ICustomer;
@@ -143,6 +144,9 @@ class CustomerDetails extends React.Component<Props> {
         mainHead={
           <UserHeader>
             <InfoSection avatarSize={40} customer={customer}>
+              {isEnabled('documents') && (
+                <PrintAction coc={customer} contentType="contacts:customer" />
+              )}
               <ActionSection customer={customer} />
             </InfoSection>
             <LeadState customer={customer} />

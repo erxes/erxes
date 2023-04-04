@@ -58,6 +58,18 @@ const uomsTotalCount = productQueries.uomsTotalCount;
 
 const productsConfigs = productQueries.productsConfigs;
 
+// product documents
+const documents = `
+  query documents($page: Int, $perPage: Int, $contentType: String) {
+    documents(page: $page, perPage: $perPage, contentType: $contentType) {
+      _id
+      contentType
+      name
+      createdAt
+    }
+  }
+`;
+
 export default {
   products,
   productDetail,
@@ -69,5 +81,6 @@ export default {
   productCategoryDetail,
   uoms,
   uomsTotalCount,
-  productsConfigs
+  productsConfigs,
+  documents
 };

@@ -1,10 +1,13 @@
 import * as dayjs from 'dayjs';
 import { connectAndQueryFromMsSql } from '../utils';
 import { Db, MongoClient } from 'mongodb';
-import * as assert from 'assert';
 
 const createLogWhenImportedFromMssql = async (
-  importedTimeclocksCount: string
+  queryStartTime: string,
+  queryEndTime: string,
+  timeclocksCreated: boolean,
+  importedTimeclocksCount: number,
+  errorMsg?: string
 ) => {
   let db: Db;
 
@@ -21,14 +24,19 @@ const createLogWhenImportedFromMssql = async (
 
   db = client.db('erxes') as Db;
 
-  const NOW = new Date();
+  const NOW = dayjs(new Date()).format('YYYY-MM-DD HH:mm');
 
-  // Insert importedQueryCount, importedTime into timeclock_mssql_logs collection
   const r = await db
     .collection('timeclock_mssql_logs')
-    .insertOne({ importedTime: NOW, importedTimeclocksCount });
-
-  assert.equal(1, r.insertedCount);
+    .insertOne({
+      createdAt: NOW,
+      timeclocksCreated,
+      queryStartTime,
+      queryEndTime,
+      errorMsg,
+      importedTimeclocksCount
+    })
+    .catch(err => console.error(err));
 
   console.log('Created log at ' + NOW);
   console.log(`Imported ${importedTimeclocksCount} timeclocks`);
@@ -46,17 +54,30 @@ const connectAndImportFromMysql = async (subdomain: string) => {
     NOW.format(format)
   );
 
-  createLogWhenImportedFromMssql(returnQuery.length);
+  if (returnQuery instanceof Error) {
+    createLogWhenImportedFromMssql(
+      YESTERDAY.format(format),
+      NOW.format(format),
+      false,
+      0,
+      returnQuery.message
+    );
+
+    return;
+  }
+
+  createLogWhenImportedFromMssql(
+    YESTERDAY.format(format),
+    NOW.format(format),
+    returnQuery.length > 0,
+    returnQuery.length
+  );
 
   return returnQuery;
 };
 
 export default {
   handleDailyJob: async ({ subdomain }) => {
-    await connectAndImportFromMysql(subdomain);
-  },
-
-  handleMinutelyJob: async ({ subdomain }) => {
     await connectAndImportFromMysql(subdomain);
   }
 };
