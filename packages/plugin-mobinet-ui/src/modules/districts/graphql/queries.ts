@@ -39,6 +39,7 @@ query Districts($cityId: String, $page: Int, $perPage: Int, $searchValue: String
     _id
     name
     center
+    isCapital
   }
 }
 `;

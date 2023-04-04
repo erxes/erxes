@@ -69,7 +69,7 @@ export const districtSchema = schemaHooksWrapper(
       label: 'Geo data',
       required: false
     }),
-    isCpital: field({
+    isCapital: field({
       type: Boolean,
       label: 'Is capital',
       required: false,

@@ -24,6 +24,9 @@ const DistrictForm = (props: Props) => {
   const { district } = props;
 
   const [cityId, setCityId] = useState<string>(district ? district.cityId : '');
+  const [isCapital, setIsCapital] = useState<boolean>(
+    district ? district.isCapital : false
+  );
 
   const [districtObject, setDistrictObject] = useState<IDistrict | undefined>(
     district
@@ -35,6 +38,12 @@ const DistrictForm = (props: Props) => {
       lng: 106.904299
     }
   );
+
+  React.useEffect(() => {
+    if (districtObject) {
+      setDistrictObject(districtObject);
+    }
+  }, [districtObject]);
 
   const generateDoc = () => {
     const finalValues: any = {};
@@ -48,6 +57,7 @@ const DistrictForm = (props: Props) => {
       finalValues.code = districtObject.code;
       finalValues.cityId = cityId;
       finalValues.center = { ...center };
+      finalValues.isCapital = isCapital;
     }
 
     return {
@@ -65,13 +75,7 @@ const DistrictForm = (props: Props) => {
   };
 
   const onChangeToggle = e => {
-    const obj: any = districtObject || {};
-
-    obj.isCapital = e.target.checked;
-
-    setDistrictObject(obj);
-
-    console.log(districtObject);
+    setIsCapital(e.target.checked);
   };
 
   const onChangeCenter = position => {
@@ -136,7 +140,7 @@ const DistrictForm = (props: Props) => {
     const { closeModal, renderButton } = props;
     const { isSubmitted } = formProps;
 
-    console.log(districtObject?.isCapital);
+    console.log('________ ', districtObject?.isCapital);
 
     return (
       <>
@@ -167,7 +171,7 @@ const DistrictForm = (props: Props) => {
             <ControlLabel>Is Capital</ControlLabel>
             <Toggle
               id="isCapital"
-              checked={districtObject?.isCapital}
+              checked={isCapital}
               onChange={onChangeToggle}
               icons={{
                 checked: <span>Yes</span>,

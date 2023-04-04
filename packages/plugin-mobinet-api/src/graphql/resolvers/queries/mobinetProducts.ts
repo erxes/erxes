@@ -50,8 +50,6 @@ const queries = {
 
     const config: IMobinetConfig = mobinetConfigs && mobinetConfigs.value;
 
-    console.log('config', config);
-
     let vooProducts: any = [];
     const hbbProducts: { fttb: []; ftth: [] } = { fttb: [], ftth: [] };
 
@@ -92,12 +90,8 @@ const queries = {
         defaultValue: []
       });
 
-      console.log('fttb', fttb);
       hbbProducts.fttb = fttb;
     }
-
-    console.log('voo', voo);
-    console.log('hbbProducts', hbbProducts);
 
     if (voo) {
       vooProducts = await sendCommonMessage({
