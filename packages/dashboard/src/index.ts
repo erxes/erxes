@@ -20,7 +20,7 @@ async function clearDirectory(directory: string) {
 }
 
 const downloadPlugins = async () => {
-  const directory = path.join(__dirname, '../schema');
+  const directory = path.join(__dirname, '../dynamicSchema');
 
   if (!fs.existsSync(directory)) {
     await fs.promises.mkdir(directory, { recursive: true });

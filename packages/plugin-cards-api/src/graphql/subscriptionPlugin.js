@@ -77,7 +77,6 @@ module.exports = {
           () => graphqlPubsub.asyncIterator("productsDataChanged"),
           // filter by _id
           (payload, variables) => {
-            console.log(payload, 'wwwwwwww', variables, 'xxxxxxxxxxxxxxxx')
             return payload.productsDataChanged._id === variables._id;
           }
         ),
