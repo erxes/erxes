@@ -111,7 +111,7 @@ enum NetworkType {
     ticketIds: [String]
     assetIds: [String]
 
-    netWorkType: NetworkType
+    networkType: NetworkType
 
     ${
       assets
@@ -153,6 +153,7 @@ const mutationParams = `
     bounds: JSON
     type: String
     serviceStatus: ServiceStatus
+    networkType: NetworkType
     suhId: String
 `;
 
@@ -179,7 +180,7 @@ const qryParams = `
     page: Int
     perPage: Int
     customQuery: JSON
-    netWorkType: NetworkType
+    networkType: NetworkType
 `;
 
 export const queries = `

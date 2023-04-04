@@ -10,6 +10,7 @@ const variables = `
     $type: String
     $serviceStatus: ServiceStatus
     $suhId: String
+    $networkType: NetworkType
 `;
 
 const fields = `
@@ -24,6 +25,7 @@ const fields = `
     type: $type
     serviceStatus: $serviceStatus
     suhId: $suhId
+    networkType: $networkType
 `;
 
 const addMutation = `

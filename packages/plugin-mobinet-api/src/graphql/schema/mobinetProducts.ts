@@ -1,13 +1,12 @@
 export const types = `
-    type MobinetService {
-        fttb: [Product]
-        ftth: [Product]
-    }
-
-  type MobinetProductListResponse {
-    hbbServices: MobinetService
+  type MobinetServices {
+    hbbServices: [Product]
     vooServices: [Product]
-    totalCount: Int
+  }
+
+  type MobinetProducts {
+    hbbProducts: [Product]
+    vooProducts: [Product]
   }
 `;
 
@@ -30,5 +29,6 @@ const qryParams = `
 `;
 
 export const queries = `
-mobinetServices(${qryParams}, districtId: String!, voo: Boolean, hbb: Boolean): MobinetProductListResponse
+mobinetServices(${qryParams},districtId:String!, buildingId: String!, voo: Boolean, hbb: Boolean): MobinetServices
+mobinetProducts(${qryParams},districtId:String!, buildingId: String!, voo: Boolean, hbb: Boolean): MobinetProducts
 `;

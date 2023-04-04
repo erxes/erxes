@@ -25,6 +25,7 @@ quarter {
 }
 quarterId
 type
+networkType
 `;
 
 const commonParamsDef = `

@@ -135,6 +135,7 @@ const BuildingForm = (props: Props) => {
       finalValues.suhId = buildingObject.suhId;
 
       finalValues.serviceStatus = buildingObject.serviceStatus;
+      finalValues.networkType = buildingObject.networkType;
     }
 
     return {
@@ -305,6 +306,23 @@ const BuildingForm = (props: Props) => {
             onChange={onChangeInput}
           >
             {['inactive', 'active', 'inprogress'].map((p, index) => (
+              <option key={index} value={p}>
+                {p}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Network type</ControlLabel>
+          <FormControl
+            id={'networkType'}
+            defaultValue={building ? building.networkType : 'ftth'}
+            componentClass="select"
+            name="networkType"
+            onChange={onChangeInput}
+          >
+            {['ftth', 'fttb'].map((p, index) => (
               <option key={index} value={p}>
                 {p}
               </option>

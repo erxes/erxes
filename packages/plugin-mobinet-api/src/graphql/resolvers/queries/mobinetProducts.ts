@@ -19,102 +19,121 @@ export interface IMobinetConfig {
   repairTicket: ITicketConfig;
 }
 
-const queries = {
-  mobinetServices: async (_root, args, { models, subdomain }: IContext) => {
-    const { page, perPage, searchValue, districtId, hbb, voo } = args;
+const getProducts = async (models, subdomain, args, kind) => {
+  const { searchValue, buildingId, districtId, hbb, voo } = args;
+  const filter: any = {};
 
-    const filter: any = {};
+  if (searchValue) {
+    filter.searchText = { $in: [new RegExp(`.*${searchValue}.*`, 'i')] };
+  }
 
-    if (searchValue) {
-      filter.searchText = { $in: [new RegExp(`.*${searchValue}.*`, 'i')] };
-    }
+  const mobinetConfigs = await sendCommonMessage({
+    subdomain,
+    serviceName: 'core',
+    action: 'configs.findOne',
+    data: {
+      query: {
+        code: 'MOBINET_CONFIGS'
+      }
+    },
+    isRPC: true,
+    defaultValue: null
+  });
 
-    const district = await models.Districts.getDistrict({ _id: districtId });
+  if (!mobinetConfigs) {
+    throw new Error('Config not found');
+  }
 
-    const mobinetConfigs = await sendCommonMessage({
+  const config: IMobinetConfig = mobinetConfigs && mobinetConfigs.value;
+
+  if (!config.hbbCatId || !config.vooCatId) {
+    throw new Error('Config not found');
+  }
+
+  const building = await models.Buildings.getBuilding({ _id: buildingId });
+
+  if (building.networkType === 'ftth' && !config.ftthTagId) {
+    throw new Error('Config not found');
+  }
+
+  if (building.networkType === 'fttb' && !config.fttbTagId) {
+    throw new Error('Config not found');
+  }
+
+  const district = await models.Districts.getDistrict({ _id: districtId });
+
+  let vooProducts: any = [];
+  let hbbProducts: any = [];
+
+  if (hbb) {
+    hbbProducts = await sendCommonMessage({
       subdomain,
-      serviceName: 'core',
-      action: 'configs.findOne',
+      serviceName: 'products',
+      action: 'find',
       data: {
         query: {
-          code: 'MOBINET_CONFIGS'
-        }
+          tagIds: {
+            $all: [
+              building.networkType === 'ftth'
+                ? config.ftthTagId
+                : config.fttbTagId,
+              district.isCapital && config.capitalTagId
+            ]
+          },
+          type: kind
+        },
+        categoryId: config.hbbCatId
       },
       isRPC: true,
-      defaultValue: null
+      defaultValue: []
     });
+  }
 
-    if (!mobinetConfigs) {
-      throw new Error('Config not found');
-    }
-
-    const config: IMobinetConfig = mobinetConfigs && mobinetConfigs.value;
-
-    let vooProducts: any = [];
-    const hbbProducts: { fttb: []; ftth: [] } = { fttb: [], ftth: [] };
-
-    if (hbb) {
-      hbbProducts.ftth = await sendCommonMessage({
-        subdomain,
-        serviceName: 'products',
-        action: 'find',
-        data: {
-          query: {
-            tagIds: {
-              $in: [config.ftthTagId, district.isCapital && config.capitalTagId]
-            },
-            type: 'service'
-          },
-          skip: (page - 1) * perPage,
-          limit: perPage,
-          categoryId: config.hbbCatId
+  if (voo) {
+    vooProducts = await sendCommonMessage({
+      subdomain,
+      serviceName: 'products',
+      action: 'find',
+      data: {
+        query: {
+          type: kind
         },
-        isRPC: true,
-        defaultValue: []
-      });
+        categoryId: config.vooCatId
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+  }
 
-      const fttb = await sendCommonMessage({
-        subdomain,
-        serviceName: 'products',
-        action: 'find',
-        data: {
-          query: {
-            tagIds: {
-              $in: [config.fttbTagId, district.isCapital && config.capitalTagId]
-            },
-            type: 'service'
-          },
-          categoryId: config.hbbCatId
-        },
-        isRPC: true,
-        defaultValue: []
-      });
+  return { hbbProducts, vooProducts };
+};
 
-      hbbProducts.fttb = fttb;
-    }
-
-    if (voo) {
-      vooProducts = await sendCommonMessage({
-        subdomain,
-        serviceName: 'products',
-        action: 'find',
-        data: {
-          query: {
-            tagIds: { $in: [config.vooCatId] },
-            type: 'service'
-          },
-          skip: (page - 1) * perPage,
-          limit: perPage,
-          categoryId: config.vooCatId
-        },
-        isRPC: true,
-        defaultValue: []
-      });
-    }
+const queries = {
+  mobinetServices: async (_root, args, { models, subdomain }: IContext) => {
+    const { hbbProducts, vooProducts } = await getProducts(
+      models,
+      subdomain,
+      args,
+      'service'
+    );
 
     return {
       hbbServices: hbbProducts,
       vooServices: vooProducts
+    };
+  },
+
+  mobinetProducts: async (_root, args, { models, subdomain }: IContext) => {
+    const { hbbProducts, vooProducts } = await getProducts(
+      models,
+      subdomain,
+      args,
+      'product'
+    );
+
+    return {
+      hbbProducts,
+      vooProducts
     };
   }
 };

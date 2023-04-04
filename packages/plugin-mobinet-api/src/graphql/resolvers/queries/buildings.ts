@@ -10,7 +10,7 @@ const buildQuery = (params: any) => {
     districtId,
     quarterId,
     customQuery,
-    netWorkType
+    networkType
   } = params;
   const filter: any = {};
 
@@ -30,8 +30,8 @@ const buildQuery = (params: any) => {
     filter.quarterId = quarterId;
   }
 
-  if (netWorkType) {
-    filter.netWorkType = netWorkType;
+  if (networkType) {
+    filter.networkType = networkType;
   }
 
   return { ...filter, ...customQuery };

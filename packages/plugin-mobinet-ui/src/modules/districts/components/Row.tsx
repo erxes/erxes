@@ -70,9 +70,9 @@ const Row = (props: Props) => {
         <RowTitle>{(district.city && district.city.name) || '-'}</RowTitle>
       </td>
 
-      {/*<td key={Math.random()}>
-        <RowTitle>{district.stat || '-'}</RowTitle>
-      </td> */}
+      <td key={Math.random()}>
+        <RowTitle>{district.isCapital ? 'capital' : 'rural'}</RowTitle>
+      </td>
 
       <td>
         <ActionButtons>
