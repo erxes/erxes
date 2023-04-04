@@ -57,6 +57,13 @@ const commonFields = [
 ];
 
 export default {
+  types: [
+    {
+      label: 'Cards',
+      type: 'cards'
+    }
+  ],
+
   editorAttributes: async ({ subdomain }) => {
     const customFields = await getCustomFields({ subdomain });
     const uniqueFields = customFields.filter(

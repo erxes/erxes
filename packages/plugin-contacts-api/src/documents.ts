@@ -33,11 +33,11 @@ export default {
   types: [
     {
       label: 'Customer',
-      type: 'customer'
+      type: 'contacts:customer'
     },
     {
       label: 'Company',
-      type: 'company'
+      type: 'contacts:company'
     }
   ],
 

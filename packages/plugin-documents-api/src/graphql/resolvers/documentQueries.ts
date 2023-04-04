@@ -35,14 +35,6 @@ const documentQueries = {
     const services = await serviceDiscovery.getServices();
     const fieldTypes: Array<{ label: string; contentType: string }> = [
       {
-        label: 'Cards',
-        contentType: 'cards'
-      },
-      {
-        label: 'Products',
-        contentType: 'products'
-      },
-      {
         label: 'Team members',
         contentType: 'core:user'
       }
@@ -57,7 +49,7 @@ const documentQueries = {
         for (const type of types) {
           fieldTypes.push({
             label: type.label,
-            contentType: `${serviceName}:${type.type}`
+            contentType: `${type.type}`
           });
         }
       }

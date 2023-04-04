@@ -1,5 +1,10 @@
 import { generateModels } from './connectionResolver';
-import { sendCommonMessage, sendFormsMessage } from './messageBroker';
+import {
+  sendCommonMessage,
+  sendContactsMessage,
+  sendCoreMessage,
+  sendFormsMessage
+} from './messageBroker';
 import { serviceDiscovery } from './configs';
 
 const toMoney = value => {
@@ -26,6 +31,13 @@ const getCustomFields = async ({ subdomain }) => {
 };
 
 export default {
+  types: [
+    {
+      type: 'products',
+      label: 'Products'
+    }
+  ],
+
   editorAttributes: async ({ subdomain }) => {
     return [
       { value: 'name', name: 'Name' },
@@ -122,10 +134,29 @@ export default {
         toMoney(price)
       );
 
+      if (replacedContent.includes(`{{ vendorId }}`)) {
+        const vendor = await sendContactsMessage({
+          subdomain,
+          action: 'companies.findOne',
+          data: {
+            _id: product.vendorId
+          },
+          isRPC: true,
+          defaultValue: {}
+        });
+
+        if (vendor?.primaryName) {
+          replacedContent = replacedContent.replace(
+            /{{ vendorId }}/g,
+            vendor.primaryName
+          );
+        }
+      }
+
       for (const customFieldData of product.customFieldsData || []) {
         replacedContent = replacedContent.replace(
           new RegExp(`{{ customFieldsData.${customFieldData.field} }}`, 'g'),
-          customFieldData.stringValue
+          customFieldData.value
         );
       }
 
