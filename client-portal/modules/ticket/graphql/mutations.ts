@@ -33,6 +33,7 @@ const clientPortalCreateTicket = `
     $subject: String!
     $description: String
     $priority: String
+    $customFieldsData: JSON
   ) {
     clientPortalCreateCard(
       type: $type
@@ -40,6 +41,7 @@ const clientPortalCreateTicket = `
       subject: $subject
       description: $description
       priority: $priority
+      customFieldsData: $customFieldsData
     ) 
   }
 `;
@@ -47,5 +49,5 @@ const clientPortalCreateTicket = `
 export default {
   clientPortalCommentsAdd,
   clientPortalCommentsRemove,
-  clientPortalCreateTicket 
+  clientPortalCreateTicket
 };

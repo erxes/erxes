@@ -3,7 +3,7 @@ import React from 'react';
 import Select from 'react-select-plus';
 import FormControl from '../../common/form/Control';
 import FormGroup from '../../common/form/Group';
-import { IAttachment, IField } from '../../types';
+import { IAttachment, IField, IOption } from '../../types';
 import { ControlLabel } from '../../common/form';
 import { SelectInput } from '../../styles/tickets';
 import Uploader from '../../common/Uploader';
@@ -12,34 +12,104 @@ import { __ } from '../../../utils';
 
 type Props = {
   field: IField;
+  defaultValue?: any;
+  isEditing?: boolean;
+  onValueChange?: (data: { _id: string; value: any }) => void;
 };
 
 type State = {
   value?: any;
   checkBoxValues: any[];
-  errorCounter: number;
 };
 
 export default class GenerateField extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
+
+    this.state = {
+      ...this.generateState(props)
+    };
   }
 
+  generateState = (props) => {
+    const { field, defaultValue } = props;
+
+    const state = { value: defaultValue, checkBoxValues: [] };
+
+    if (defaultValue && field.type === 'check') {
+      state.checkBoxValues = defaultValue;
+    }
+
+    return state;
+  };
+
+  onChange = (e, optionValue) => {
+    const { field, onValueChange } = this.props;
+    const { validation, type } = field;
+
+    if (!e.target && !optionValue) {
+      return;
+    }
+
+    let value = optionValue || e.target.value;
+
+    if (validation === 'number') {
+      value = Number(value);
+    }
+
+    if (type === 'check') {
+      let checkBoxValues = this.state.checkBoxValues;
+      const isChecked = e.target.checked;
+      // if selected value is not already in list then add it
+      if (isChecked && !checkBoxValues.includes(optionValue)) {
+        checkBoxValues.push(optionValue);
+      }
+
+      // remove option from checked list
+      if (!isChecked) {
+        checkBoxValues = checkBoxValues.filter((v) => v !== optionValue);
+      }
+
+      this.setState({ checkBoxValues });
+
+      value = checkBoxValues;
+    }
+
+    if (onValueChange) {
+      this.setState({ value });
+
+      onValueChange({ _id: field._id, value });
+    }
+  };
+
   renderInput(attrs, hasError?: boolean) {
+    let { value } = this.state;
+    let checkBoxValues = this.state.checkBoxValues || [];
     const { type } = this.props.field;
 
+    // if (hasError) {
+    //   value = '';
+    //   checkBoxValues = [];
+    //   this.setState({ value, checkBoxValues });
+    // }
+
     attrs.type = 'text';
+
+    attrs.onChange = (e) => {
+      this.setState({ value: e.target.value });
+      this.onChange(e, attrs.option);
+    };
 
     if (type === 'radio') {
       attrs.type = 'radio';
       attrs.componentClass = 'radio';
-      //   attrs.checked = String(value) === attrs.option;
+      attrs.checked = String(value) === attrs.option;
     }
 
     if (type === 'check') {
       attrs.type = 'checkbox';
       attrs.componentClass = 'checkbox';
-      //   attrs.checked = checkBoxValues.includes(attrs.option);
+      attrs.checked = checkBoxValues.includes(attrs.option);
     }
 
     return <FormControl {...attrs} />;
@@ -65,9 +135,22 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderMultiSelect(options: string[] = [], attrs) {
+    const onChange = (ops: IOption[]) => {
+      const { field, onValueChange } = this.props;
+
+      if (onValueChange) {
+        const value = ops.map((e) => e.value).toString();
+        this.setState({ value });
+
+        onValueChange({ _id: field._id, value });
+      }
+    };
+
     return (
       <Select
+        value={attrs.value}
         options={options.map((e) => ({ value: e, label: e }))}
+        onChange={onChange}
         multi={true}
       />
     );
@@ -93,7 +176,15 @@ export default class GenerateField extends React.Component<Props, State> {
     }
 
     const onChange = (ops) => {
-      const { field } = this.props;
+      const { field, onValueChange } = this.props;
+
+      if (onValueChange) {
+        const value = ops.toString();
+
+        this.setState({ value });
+
+        onValueChange({ _id: field._id, value });
+      }
     };
 
     return (
@@ -108,17 +199,19 @@ export default class GenerateField extends React.Component<Props, State> {
 
   renderFile({ id, value }) {
     const onChangeFile = (attachments: IAttachment[]) => {
-      //   const { onValueChange } = this.props;
-      //   if (onValueChange) {
-      //     this.setState({ value: attachments });
-      //     onValueChange({ _id: id, value: attachments });
-      //   }
+      const { onValueChange } = this.props;
+
+      if (onValueChange) {
+        this.setState({ value: attachments });
+
+        onValueChange({ _id: id, value: attachments });
+      }
     };
 
     return (
       <Uploader
         defaultFileList={value || []}
-        // onChange={onChangeFile}
+        onChange={onChangeFile}
         multiple={true}
         single={false}
       />
@@ -127,10 +220,13 @@ export default class GenerateField extends React.Component<Props, State> {
 
   renderControl() {
     const { field } = this.props;
-    const { type, options } = field;
+    const { type } = field;
+    const options = field.options || [];
 
     const attrs = {
       id: field._id,
+      value: this.state.value,
+      onChange: this.onChange,
       name: ''
     };
 
@@ -162,10 +258,6 @@ export default class GenerateField extends React.Component<Props, State> {
       case 'list': {
         return this.renderList(attrs);
       }
-
-      //   case 'objectList': {
-      //     return this.renderObjectList(objectListConfigs, attrs);
-      //   }
 
       case 'file': {
         return this.renderFile(attrs);

@@ -4,7 +4,7 @@ import Select from 'react-select-plus';
 import FormControl from '../../common/form/Control';
 import FormGroup from '../../common/form/Group';
 import Button from '../../common/Button';
-import { Ticket } from '../../types';
+import { ICustomField, Ticket } from '../../types';
 import { ControlLabel } from '../../common/form';
 import { FormWrapper } from '../../styles/main';
 import GenerateField from './GenerateField';
@@ -31,9 +31,41 @@ const PRIORITY_OPTIONS = [
 
 export default function TicketForm({ handleSubmit, customFields }: Props) {
   const [ticket, setTicket] = useState<Ticket>({} as Ticket);
+  const [customFieldsData, setCustomFieldsData] = useState<ICustomField[]>([]);
 
   const handleClick = () => {
-    handleSubmit(ticket);
+    handleSubmit({ ...ticket, customFieldsData });
+  };
+
+  const onCustomFieldsDataChange = ({ _id, value }) => {
+    const field = customFieldsData?.find((c) => c.field === _id);
+
+    for (const f of customFields) {
+      const logics = f.logics || [];
+
+      if (!logics.length) {
+        continue;
+      }
+
+      if (
+        logics.findIndex((l) => l.fieldId && l.fieldId.includes(_id)) === -1
+      ) {
+        continue;
+      }
+
+      customFieldsData.forEach((c) => {
+        if (c.field === f._id) {
+          c.value = '';
+        }
+      });
+    }
+
+    if (field) {
+      field.value = value;
+      setCustomFieldsData(customFieldsData);
+    } else {
+      setCustomFieldsData([...customFieldsData, { field: _id, value }]);
+    }
   };
 
   function renderControl({ label, name, placeholder, value = '' }) {
@@ -60,7 +92,14 @@ export default function TicketForm({ handleSubmit, customFields }: Props) {
 
   function renderCustomFields() {
     return customFields.map((field: any, index: number) => {
-      return <GenerateField key={index} field={field} />;
+      return (
+        <GenerateField
+          key={index}
+          field={field}
+          onValueChange={onCustomFieldsDataChange}
+          isEditing={true}
+        />
+      );
     });
   }
 

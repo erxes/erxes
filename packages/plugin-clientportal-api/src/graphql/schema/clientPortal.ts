@@ -252,6 +252,7 @@ export const mutations = cardAvailable => `
         parentId: String,
         closeDate: Date
         startDate: Date
+        customFieldsData: JSON
       ): JSON
       clientPortalCommentsAdd(type: String!, typeId: String!, content: String! userType: String!): ClientPortalComment
       clientPortalCommentsRemove(_id: String!): String

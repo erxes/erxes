@@ -12,7 +12,23 @@ export type Ticket = {
   description?: string;
   requestor: string;
   priority: string;
+  customFieldsData: ICustomField[];
 };
+
+export type IOption = {
+  label: string;
+  value: string;
+  avatar?: string;
+};
+
+export interface ICustomField {
+  field: string;
+  value: any;
+  stringValue?: string;
+  numberValue?: number;
+  dateValue?: Date;
+  locationValue?: ILocationOption;
+}
 
 export interface IAttachment {
   name: string;
