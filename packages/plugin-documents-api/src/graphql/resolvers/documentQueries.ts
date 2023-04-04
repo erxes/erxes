@@ -2,6 +2,7 @@ import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../connectionResolver';
 import { sendCommonMessage } from '../../messageBroker';
+import { serviceDiscovery } from '../../configs';
 
 const documentQueries = {
   documents(
@@ -30,6 +31,33 @@ const documentQueries = {
     return models.Documents.findOne({ _id });
   },
 
+  async documentsGetContentTypes(_root, args, { models }: IContext) {
+    const services = await serviceDiscovery.getServices();
+    const fieldTypes: Array<{ label: string; contentType: string }> = [
+      {
+        label: 'Team members',
+        contentType: 'core:user'
+      }
+    ];
+
+    for (const serviceName of services) {
+      const service = await serviceDiscovery.getService(serviceName, true);
+      const meta = service.config.meta || {};
+      if (meta && meta.documents) {
+        const types = meta.documents.types || [];
+
+        for (const type of types) {
+          fieldTypes.push({
+            label: type.label,
+            contentType: `${type.type}`
+          });
+        }
+      }
+    }
+
+    return fieldTypes;
+  },
+
   async documentsGetEditorAttributes(
     _root,
     { contentType },
@@ -49,12 +77,19 @@ const documentQueries = {
       return fields.map(f => ({ value: f.name, name: f.label }));
     }
 
+    let data: any = {};
+
+    if (contentType.match(new RegExp('contacts:'))) {
+      data.contentType = contentType;
+      contentType = 'contacts';
+    }
+
     return sendCommonMessage({
       subdomain,
       serviceName: contentType,
       action: 'documents.editorAttributes',
       isRPC: true,
-      data: {}
+      data
     });
   },
 
