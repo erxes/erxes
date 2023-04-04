@@ -571,7 +571,7 @@ async function startServer() {
         `${configs.name}:documents.editorAttributes`,
         async args => ({
           status: 'success',
-          data: await documents.editorAttributes()
+          data: await documents.editorAttributes(args)
         })
       );
 
