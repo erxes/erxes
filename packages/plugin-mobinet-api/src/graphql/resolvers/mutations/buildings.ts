@@ -111,29 +111,24 @@ const mutations = {
     { _id, buildingData, ticketData, quarterId, phone },
     { models, subdomain, cpUser }: IContext
   ) => {
-    if (!cpUser) {
-      throw new Error('login required');
-    }
-
     const user = await sendCommonMessage({
       serviceName: 'clientportal',
       subdomain,
       action: 'clientPortalUsers.findOne',
       data: {
-        _id: cpUser._id
+        _id: (cpUser && cpUser._id) || ''
       },
       isRPC: true,
       defaultValue: undefined
     });
 
     let customerId = '';
-
+    let customer = {} as any;
     if (user) {
       customerId = user.erxesCustomerId;
     }
-
     if (!user) {
-      let customer = await sendCommonMessage({
+      customer = await sendCommonMessage({
         serviceName: 'contacts',
         subdomain,
         action: 'customers.findOne',
@@ -156,12 +151,11 @@ const mutations = {
           defaultValue: null
         });
 
-        customerId = customer._id;
+        customerId = customer?._id || '';
       }
     }
 
     // const user = { erxesCustomerId: 'hTqM74dJPreqy4K5t' };
-
     let building = await models.Buildings.findOne({
       $or: [{ _id }, { osmbId: buildingData.id }]
     });
@@ -209,10 +203,9 @@ const mutations = {
     building.installationRequestIds.push(ticket._id);
 
     await building.save();
-
     await models.BuildingToContacts.createDoc({
       buildingId: building._id,
-      contactId: user.erxesCustomerId,
+      contactId: customerId || customer._id,
       contactType: 'customer'
     });
 
