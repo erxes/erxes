@@ -4,7 +4,7 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import React from 'react';
 import Table from '@erxes/ui/src/components/table';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import { Title } from '@erxes/ui-settings/src/styles';
+import { SidebarListItem, Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -12,14 +12,17 @@ import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
 import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
 import { Link } from 'react-router-dom';
+import { removeParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
   queryParams: any;
   list: any[];
+  contentTypes: { label: string; contentType: string }[];
+  history: any;
   remove: (_id: String) => void;
 };
 
-function List({ queryParams, list, remove }: Props) {
+function List({ queryParams, contentTypes, list, remove, history }: Props) {
   const actionBarRight = (
     <Button
       href={`/settings/documents/create?contentType=${queryParams.contentType}`}
@@ -79,41 +82,28 @@ function List({ queryParams, list, remove }: Props) {
     { title: __('Documents'), link: '/documents' }
   ];
 
-  const documentTypes = [
-    {
-      label: 'Cards',
-      contentType: 'cards'
-    },
-    {
-      label: 'Products',
-      contentType: 'products'
-    },
-    {
-      label: 'Team members',
-      contentType: 'core:user'
-    },
-    {
-      label: 'Customers',
-      contentType: 'contacts:customer'
-    },
-    {
-      label: 'Company',
-      contentType: 'contacts:company'
-    }
-  ];
+  const clearParams = () => {
+    removeParams(history, 'contentType');
+  };
 
   const sidebar = (
     <LeftSidebar header={<SidebarHeader />} hasBorder>
       <LeftSidebar.Header uppercase={true}>
         {__('Document type')}
+        {queryParams.contentType && (
+          <Button icon="cancel-1" btnStyle="link" onClick={clearParams} />
+        )}
       </LeftSidebar.Header>
       <SidebarList noTextColor noBackground id={'DocumentsSidebar'}>
-        {documentTypes.map(({ label, contentType }) => (
-          <li>
+        {contentTypes.map(({ label, contentType }) => (
+          <SidebarListItem
+            key={contentType}
+            isActive={queryParams?.contentType === contentType}
+          >
             <Link to={`/settings/documents/?contentType=${contentType}`}>
               {__(label)}
             </Link>
-          </li>
+          </SidebarListItem>
         ))}
       </SidebarList>
     </LeftSidebar>

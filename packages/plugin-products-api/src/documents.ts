@@ -1,5 +1,5 @@
 import { generateModels } from './connectionResolver';
-import { sendCommonMessage } from './messageBroker';
+import { sendCommonMessage, sendFormsMessage } from './messageBroker';
 import { serviceDiscovery } from './configs';
 
 const toMoney = value => {
@@ -9,14 +9,31 @@ const toMoney = value => {
   return new Intl.NumberFormat().format(value);
 };
 
+const getCustomFields = async ({ subdomain }) => {
+  const fields = await sendFormsMessage({
+    subdomain,
+    action: 'fields.fieldsCombinedByContentType',
+    isRPC: true,
+    data: {
+      contentType: `products:product`
+    },
+    defaultValue: []
+  });
+
+  return fields
+    .filter(field => !['categoryId', 'code'].includes(field.name))
+    .map(field => ({ value: field.name, name: field.label, type: field.type }));
+};
+
 export default {
-  editorAttributes: async () => {
+  editorAttributes: async ({ subdomain }) => {
     return [
       { value: 'name', name: 'Name' },
       { value: 'code', name: 'Code' },
       { value: 'price', name: 'Price' },
       { value: 'bulkQuantity', name: 'Bulk quantity' },
-      { value: 'bulkPrice', name: 'Bulk price' }
+      { value: 'bulkPrice', name: 'Bulk price' },
+      ...(await getCustomFields({ subdomain }))
     ];
   },
 
@@ -104,6 +121,13 @@ export default {
         '{{ bulkPrice }}',
         toMoney(price)
       );
+
+      for (const customFieldData of product.customFieldsData || []) {
+        replacedContent = replacedContent.replace(
+          new RegExp(`{{ customFieldsData.${customFieldData.field} }}`, 'g'),
+          customFieldData.stringValue
+        );
+      }
 
       results.push(replacedContent);
     }

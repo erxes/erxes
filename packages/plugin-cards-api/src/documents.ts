@@ -56,26 +56,6 @@ const commonFields = [
   { value: 'paymentNonCash', name: 'Payment non cash' }
 ];
 
-function flattenObject(ob) {
-  var toReturn = {};
-
-  for (var i in ob) {
-    if (!ob.hasOwnProperty(i)) continue;
-
-    if (typeof ob[i] == 'object' && ob[i] !== null) {
-      var flatObject = flattenObject(ob[i]);
-      for (var x in flatObject) {
-        if (!flatObject.hasOwnProperty(x)) continue;
-
-        toReturn[i + '.' + x] = flatObject[x];
-      }
-    } else {
-      toReturn[i] = ob[i];
-    }
-  }
-  return toReturn;
-}
-
 export default {
   editorAttributes: async ({ subdomain }) => {
     const customFields = await getCustomFields({ subdomain });
@@ -398,47 +378,20 @@ export default {
     );
 
     for (const field of fileds) {
-      if (field.value === 'assignedUserIds') {
-        const usersData = await sendCoreMessage({
-          subdomain,
-          action: 'users.find',
-          data: {
-            query: {
-              _id: { $in: item.assignedUserIds }
-            }
-          }
-        });
-        const userNames = usersData.map(user => user.username).join(',');
-        replacedContent = replacedContent.replace(
-          /{{ assignedUserIds }}/g,
-          userNames
-        );
+      const propertyNames = field.value.includes('.')
+        ? field.value.split('.')
+        : [field.value];
+      let propertyValue = item;
+
+      for (const propertyName of propertyNames) {
+        propertyValue = item[propertyName];
       }
 
-      const itemFlatten = flattenObject(item);
-
       replacedContent = replacedContent.replace(
-        new RegExp(`{{ ${field.value}}}`, 'g'),
-        field.value.includes('.') ? itemFlatten[field.value] : item[field.value]
+        new RegExp(`{{ ${field.value} }}`, 'g'),
+        propertyValue || ''
       );
     }
-
-    // console.log(
-    //   customFields.map(field =>
-    //     field.substring(field.lastIndexOf('.') + 1, field.length)
-    //   )
-    // );
-    // const customFieldsData = await sendFormsMessage({
-    //   subdomain,
-    //   action: 'fields.find',
-    //   data: {
-    //     _id: {
-    //       $in: customFields.map(field =>
-    //         field.substring(field.lastIndexOf('.') + 1, field.length)
-    //       )
-    //     }
-    //   }
-    // });
 
     return [replacedContent];
   }

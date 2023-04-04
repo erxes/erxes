@@ -2,6 +2,7 @@ import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../connectionResolver';
 import { sendCommonMessage } from '../../messageBroker';
+import { serviceDiscovery } from '../../configs';
 
 const documentQueries = {
   documents(
@@ -28,6 +29,41 @@ const documentQueries = {
 
   documentsDetail(_root, { _id }, { models }: IContext) {
     return models.Documents.findOne({ _id });
+  },
+
+  async documentsGetContentTypes(_root, args, { models }: IContext) {
+    const services = await serviceDiscovery.getServices();
+    const fieldTypes: Array<{ label: string; contentType: string }> = [
+      {
+        label: 'Cards',
+        contentType: 'cards'
+      },
+      {
+        label: 'Products',
+        contentType: 'products'
+      },
+      {
+        label: 'Team members',
+        contentType: 'core:user'
+      }
+    ];
+
+    for (const serviceName of services) {
+      const service = await serviceDiscovery.getService(serviceName, true);
+      const meta = service.config.meta || {};
+      if (meta && meta.documents) {
+        const types = meta.documents.types || [];
+
+        for (const type of types) {
+          fieldTypes.push({
+            label: type.label,
+            contentType: `${serviceName}:${type.type}`
+          });
+        }
+      }
+    }
+
+    return fieldTypes;
   },
 
   async documentsGetEditorAttributes(
