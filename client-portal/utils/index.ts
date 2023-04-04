@@ -1,6 +1,6 @@
 import T from 'i18n-react';
 
-export const __ = (key, options) => {
+export const __ = (key: string, options?: any) => {
   const translation = T.translate(key, options);
 
   if (!translation) {

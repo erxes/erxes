@@ -1,4 +1,4 @@
-import { gql, useMutation } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 import React from 'react';
 import { Config, IUser, Ticket, Store } from '../../types';
 import Form from '../components/Form';
@@ -22,6 +22,14 @@ function FormContainer({
     refetchQueries: [{ query: gql(queries.clientPortalTickets) }]
   });
 
+  const { data: customFields } = useQuery(gql(queries.fields), {
+    variables: {
+      contentType: 'cards:ticket',
+      pipelineId: '4yBEcXZYn2sn69qQD',
+      isVisibleToCreate: true
+    }
+  });
+
   const handleSubmit = (doc: Ticket) => {
     createTicket({
       variables: {
@@ -40,13 +48,14 @@ function FormContainer({
 
   const updatedProps = {
     ...props,
+    customFields: customFields?.fields || [],
     handleSubmit
   };
 
   return <Form {...updatedProps} />;
 }
 
-const WithConsumer = props => {
+const WithConsumer = (props) => {
   return (
     <AppConsumer>
       {({ currentUser, config }: Store) => {

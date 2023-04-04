@@ -54,10 +54,51 @@ const clientPortalComments = `
       createdAt
     }
   }
-`
+`;
+
+const fields = `
+  query fields($contentType: String!, $contentTypeId: String, $isVisibleToCreate: Boolean, $pipelineId: String) {
+    fields(contentType: $contentType, contentTypeId: $contentTypeId, isVisibleToCreate: $isVisibleToCreate, pipelineId: $pipelineId) {
+      _id
+      type
+      validation
+      text
+      field
+      content
+      description
+      options
+      objectListConfigs {
+        key
+        label
+        type
+      }
+      isRequired
+      order
+      column
+      logicAction
+      logics {
+        fieldId
+        logicOperator
+        logicValue
+      }
+      groupName
+      associatedFieldId
+      associatedField {
+        _id
+        text
+        contentType
+      }
+      pageNumber
+      productCategoryId
+      isDefinedByErxes
+      optionsValues,
+    }
+  }
+`;
 
 export default {
   clientPortalGetTicket,
   clientPortalTickets,
-  clientPortalComments 
+  clientPortalComments,
+  fields
 };
