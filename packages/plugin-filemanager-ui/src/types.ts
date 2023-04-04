@@ -6,12 +6,12 @@ import { IUser } from '@erxes/ui/src/auth/types';
 export interface IFolder {
   _id: string;
   name: string;
+  order: string;
   hasChild?: boolean;
   createdAt?: Date;
   createdUserId?: string;
   parentId?: string;
   parent?: IFolder;
-  childrens?: IFolder[];
   sharedUsers: IUser[];
 }
 

@@ -6,9 +6,17 @@ import { sendCoreMessage } from '../../messageBroker';
 const queries = {
   async filemanagerFolders(
     _root,
-    { limit, parentId }: { limit: number; parentId: string },
+    {
+      limit,
+      parentId,
+      isTree
+    }: { limit: number; parentId: string; isTree: boolean },
     { models }: IContext
   ) {
+    if (isTree) {
+      return models.Folders.find({}).sort({ order: 1 });
+    }
+
     const selector: any = {
       parentId: ''
     };

@@ -1,10 +1,14 @@
+import * as Random from 'meteor-random';
 import { Model } from 'mongoose';
 
 import { Document, Schema } from 'mongoose';
+import { IModels } from './connectionResolver';
 
 interface IFolder {
   createdAt: Date;
   createdUserId: string;
+  code: string;
+  order: string;
   name: string;
   parentId: string;
 
@@ -20,6 +24,8 @@ const folderSchema = new Schema({
   createdAt: { type: Date },
   createdUserId: { type: String },
   name: { type: String },
+  code: { type: String },
+  order: { type: String },
   parentId: { type: String },
 
   permissionUserIds: { type: [String] },
@@ -31,8 +37,23 @@ export interface IFolderModel extends Model<IFolderDocument> {
   getFolder(selector): IFolderDocument;
 }
 
-export const loadFolderClass = models => {
+export const loadFolderClass = (models: IModels) => {
   class Folder {
+    public static async generateCode(code?: string) {
+      let generatedCode = code || Random.id().substr(0, 6);
+
+      let prevBrand = await models.Folders.findOne({ code: generatedCode });
+
+      // search until not existing one found
+      while (prevBrand) {
+        generatedCode = Random.id().substr(0, 6);
+
+        prevBrand = await models.Folders.findOne({ code: generatedCode });
+      }
+
+      return generatedCode;
+    }
+
     public static async saveFolder({ _id, doc }) {
       if (_id) {
         await models.Folders.update({ _id }, { $set: doc });
@@ -40,6 +61,12 @@ export const loadFolderClass = models => {
       }
 
       doc.createdAt = new Date();
+      doc.code = await this.generateCode();
+
+      const pf =
+        doc.parentId && (await models.Folders.findOne({ _id: doc.parentId }));
+
+      doc.order = pf ? `${pf.order}${doc.code}/` : `${doc.code}/`;
 
       return models.Folders.create(doc);
     }

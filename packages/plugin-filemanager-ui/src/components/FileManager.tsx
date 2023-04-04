@@ -4,7 +4,8 @@ import {
   LeftActionbar,
   RightMenuContainer
 } from '../styles';
-import React, { useState } from 'react';
+
+import React from 'react';
 
 import { BarItems } from '@erxes/ui/src/layout';
 import BreadCrumb from '@erxes/ui/src/components/breadcrumb/BreadCrumb';
@@ -33,14 +34,11 @@ import dayjs from 'dayjs';
 type Props = {
   queryParams: any;
   currentFolder: IFolder;
-  filemanagerFolders: IFolder[];
-  folderQueryLoading: boolean;
   onSearch: (search: string) => void;
   onSelect: (values: string[] | string, key: string) => void;
 };
 
 type State = {
-  parentId: string;
   showFilter: boolean;
 };
 
@@ -51,7 +49,6 @@ class FileManager extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      parentId: props.queryParams._id ? props.queryParams._id : '',
       showFilter: false
     };
 
@@ -92,10 +89,6 @@ class FileManager extends React.Component<Props, State> {
     if (queryParams[kind] !== formattedDate) {
       onSelect(formattedDate, kind);
     }
-  };
-
-  setParentId = (parentId: string) => {
-    this.setState({ parentId });
   };
 
   renderFilters = () => {
@@ -161,12 +154,7 @@ class FileManager extends React.Component<Props, State> {
   };
 
   render() {
-    const {
-      queryParams,
-      currentFolder,
-      filemanagerFolders,
-      folderQueryLoading
-    } = this.props;
+    const { queryParams, currentFolder } = this.props;
     const { showFilter } = this.state;
 
     const breadcrumb = [
@@ -272,20 +260,9 @@ class FileManager extends React.Component<Props, State> {
         header={
           <Wrapper.Header title={__('FileManager')} breadcrumb={breadcrumb} />
         }
-        leftSidebar={
-          <FolderList
-            queryParams={queryParams}
-            parentFolderId={this.state.parentId}
-            setParentId={this.setParentId}
-            filemanagerFolders={filemanagerFolders}
-            loading={folderQueryLoading}
-          />
-        }
+        leftSidebar={<FolderList queryParams={queryParams} />}
         actionBar={
-          filemanagerFolders &&
-          filemanagerFolders.length !== 0 && (
-            <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
-          )
+          <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
         }
         content={
           <DataWithLoader

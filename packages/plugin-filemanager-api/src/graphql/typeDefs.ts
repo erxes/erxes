@@ -13,6 +13,7 @@ const typeDefs = gql`
     createdAt: Date
     createdUserId: String
     name: String!
+    order: String!
     parentId: String
     parent: FileManagerFolder
     permissionUserIds: [String]
@@ -74,7 +75,7 @@ const typeDefs = gql`
   }
 
   extend type Query {
-    filemanagerFolders(parentId: String): [FileManagerFolder]
+    filemanagerFolders(parentId: String, isTree: Boolean): [FileManagerFolder]
 
     filemanagerFiles(
       folderId: String!

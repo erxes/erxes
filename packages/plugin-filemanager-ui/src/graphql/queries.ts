@@ -18,9 +18,20 @@ const filemanagerFiles = `
   }
 `;
 
+const filemanagerFoldersTree = `
+  query filemanagerFolders($parentId: String, $isTree: Boolean) {
+    filemanagerFolders(parentId: $parentId, isTree: $isTree) {
+      _id
+      parentId
+      name
+      order
+    }
+  }
+`;
+
 const filemanagerFolders = `
-  query filemanagerFolders($parentId: String) {
-    filemanagerFolders(parentId: $parentId) {
+  query filemanagerFolders($parentId: String, $isTree: Boolean) {
+    filemanagerFolders(parentId: $parentId, isTree: $isTree) {
       _id
       createdAt
       createdUserId
@@ -142,6 +153,7 @@ const units = `
 export default {
   filemanagerFiles,
   filemanagerFolders,
+  filemanagerFoldersTree,
   filemanagerLogs,
   filemanagerFileDetail,
   filemanagerFolderDetail,
