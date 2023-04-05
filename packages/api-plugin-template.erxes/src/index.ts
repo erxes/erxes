@@ -324,6 +324,7 @@ async function startServer() {
       cronjobs,
       documents,
       exporter,
+      documentPrintHook,
       readFileHook
     } = configs.meta;
 
@@ -591,6 +592,15 @@ async function startServer() {
       consumeRPCQueue(`${configs.name}:readFileHook`, async args => ({
         status: 'success',
         data: await readFileHook.action(args)
+      }));
+    }
+
+    if (documentPrintHook) {
+      documentPrintHook.isAvailable = true;
+
+      consumeRPCQueue(`${configs.name}:documentPrintHook`, async args => ({
+        status: 'success',
+        data: await documentPrintHook.action(args)
       }));
     }
   } // end configs.meta if
