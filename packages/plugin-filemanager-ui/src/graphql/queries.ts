@@ -1,19 +1,46 @@
 import { unitField } from '@erxes/ui/src/team/graphql/queries';
 
+const fileFields = `
+  _id
+  contentType
+  contentTypeId
+  createdAt
+  createdUserId
+  documentId
+  folderId
+  info
+  name
+  permissionUnitId
+  permissionUserIds
+  relatedFiles {
+   _id
+   name
+   info
+   folderId
+   documentId
+   type
+   url
+  }
+  relatedFileIds
+  sharedUsers {
+    _id
+    username
+    email
+    details {
+      firstName
+      lastName
+      fullName
+      avatar
+    }
+  }
+  type
+  url
+`;
+
 const filemanagerFiles = `
   query filemanagerFiles($folderId: String!, $search: String, $type: String, $contentType: String, $contentTypeId: String, $createdAtFrom: String, $createdAtTo: String, $sortField: String, $sortDirection: Int) {
     filemanagerFiles(folderId: $folderId, search: $search, type: $type, contentType: $contentType, contentTypeId: $contentTypeId, createdAtFrom: $createdAtFrom, createdAtTo: $createdAtTo, sortField: $sortField, sortDirection: $sortDirection) {
-      _id
-      contentType
-      contentTypeId
-      createdAt
-      createdUserId
-      documentId
-      folderId
-      info
-      name
-      type
-      url
+      ${fileFields}
     }
   }
 `;
@@ -51,28 +78,7 @@ const filemanagerFolders = `
 const filemanagerFileDetail = `
   query filemanagerFileDetail($_id: String!) {
     filemanagerFileDetail(_id: $_id) {
-      _id
-      contentType
-      contentTypeId
-      createdAt
-      createdUserId
-      documentId
-      folderId
-      info
-      name
-      type
-      url
-      sharedUsers {
-        _id
-        username
-        email
-        details {
-          firstName
-          lastName
-          fullName
-          avatar
-        }
-      }
+      ${fileFields}
     }
   }
 `;
@@ -150,6 +156,47 @@ const units = `
   }
 `;
 
+const filemanagerGetAccessRequests = `
+  query FilemanagerGetAccessRequests($fileId: String!) {
+    filemanagerGetAccessRequests(fileId: $fileId) {
+      _id
+      createdAt
+      description
+      fileId
+      fromUserId
+      status
+    }
+  }
+`;
+
+const filemanagerGetAckRequestByUser = `
+  query filemanagerGetAckRequestByUser($fileId: String!) {
+    filemanagerGetAckRequestByUser(fileId: $fileId) {
+      _id
+      createdAt
+      description
+      fileId
+      fromUserId
+      toUserId
+      status
+    }
+  }
+`;
+
+const filemanagerGetAckRequests = `
+  query filemanagerGetAckRequests($fileId: String!) {
+    filemanagerGetAckRequests(fileId: $fileId) {
+      _id
+      createdAt
+      description
+      fileId
+      fromUserId
+      toUserId
+      status
+    }
+  }
+`;
+
 export default {
   filemanagerFiles,
   filemanagerFolders,
@@ -157,6 +204,9 @@ export default {
   filemanagerLogs,
   filemanagerFileDetail,
   filemanagerFolderDetail,
+  filemanagerGetAccessRequests,
+  filemanagerGetAckRequestByUser,
+  filemanagerGetAckRequests,
   documents,
   units
 };

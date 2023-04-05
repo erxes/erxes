@@ -26,12 +26,14 @@ const filemanager = ({ location, history }) => {
 
 const detail = ({ location, history, match }) => {
   const fileId = match.params.id;
+  const folderId = match.params.folderId;
 
   return (
     <FileDetail
       queryParams={queryString.parse(location.search)}
       history={history}
       fileId={fileId}
+      folderId={folderId}
     />
   );
 };
@@ -58,9 +60,9 @@ const routes = () => (
     />
 
     <Route
-      key="/filemanager/details/:id"
+      key="/filemanager/details/:folderId/:id"
       exact={true}
-      path="/filemanager/details/:id"
+      path="/filemanager/details/:folderId/:id"
       component={detail}
     />
 

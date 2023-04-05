@@ -10,6 +10,7 @@ import Label from '@erxes/ui/src/components/Label';
 import LogRow from './LogRow';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
+import RelatedForm from '../../containers/file/RelatedForm';
 import ShareForm from '../../containers/ShareForm';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -18,6 +19,7 @@ type Props = {
   item: any;
   history: any;
   logs: any;
+  folderId: string;
 };
 class FileDetail extends React.Component<Props> {
   onContentChange = e => {
@@ -153,7 +155,7 @@ class FileDetail extends React.Component<Props> {
   }
 
   render() {
-    const { item } = this.props;
+    const { item, folderId } = this.props;
     const isDynamic = item.type === 'dynamic';
 
     const trigger = (
@@ -162,7 +164,16 @@ class FileDetail extends React.Component<Props> {
       </Button>
     );
 
+    const relatedTrigger = (
+      <Button btnStyle="primary" icon="settings" type="button">
+        {__('Manage related files')}
+      </Button>
+    );
+
     const content = props => <ShareForm {...props} item={item} />;
+    const relatedFileChooser = props => (
+      <RelatedForm {...props} item={item} folderId={folderId} />
+    );
 
     const actionButtons = (
       <>
@@ -181,6 +192,15 @@ class FileDetail extends React.Component<Props> {
           content={content}
           centered={true}
           enforceFocus={false}
+        />
+
+        <ModalTrigger
+          title="Manage related files"
+          trigger={relatedTrigger}
+          content={relatedFileChooser}
+          centered={true}
+          enforceFocus={false}
+          size={'lg'}
         />
 
         {item.folderId && (
