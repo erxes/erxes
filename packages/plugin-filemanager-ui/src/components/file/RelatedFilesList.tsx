@@ -1,3 +1,4 @@
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { IFile } from '../../types';
 import { ItemName } from '../../styles';
 import React from 'react';
@@ -14,6 +15,15 @@ type Props = {
 class RelatedFileList extends React.Component<Props> {
   render() {
     const { files } = this.props;
+
+    if (!files || files.length === 0) {
+      return (
+        <EmptyState
+          image="/images/actions/5.svg"
+          text="No related files at the moment!"
+        />
+      );
+    }
 
     return (
       <withTableWrapper.Wrapper>
