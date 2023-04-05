@@ -12,6 +12,7 @@ import GenerateField from './GenerateField';
 type Props = {
   handleSubmit: (doc: Ticket) => void;
   customFields?: any[];
+  departments?: string[];
 };
 
 const PRIORITY_OPTIONS = [
@@ -29,7 +30,11 @@ const PRIORITY_OPTIONS = [
   }
 ];
 
-export default function TicketForm({ handleSubmit, customFields }: Props) {
+export default function TicketForm({
+  handleSubmit,
+  customFields,
+  departments
+}: Props) {
   const [ticket, setTicket] = useState<Ticket>({} as Ticket);
   const [customFieldsData, setCustomFieldsData] = useState<ICustomField[]>([]);
 

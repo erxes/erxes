@@ -96,9 +96,122 @@ const fields = `
   }
 `;
 
+export const commonStructureParamsDef = `
+    $ids: [String]
+    $excludeIds: Boolean,
+    $perPage: Int,
+    $page: Int
+    $searchValue: String,
+    $status:String,
+`;
+
+export const commonStructureParamsValue = `
+    ids: $ids
+    excludeIds: $excludeIds,
+    perPage: $perPage,
+    page: $page
+    searchValue: $searchValue
+    status: $status
+`;
+
+export const branchField = `
+  _id
+  title
+  address
+  parentId
+  supervisorId
+  code
+  order
+  userIds
+  userCount
+  users {
+    _id
+    details {
+      avatar
+      fullName
+    }
+  }
+  radius
+`;
+
+const branches = `
+  query branches(${commonStructureParamsDef}, $withoutUserFilter: Boolean) {
+    branches (${commonStructureParamsValue}, withoutUserFilter: $withoutUserFilter){
+      ${branchField}
+      parent {${branchField}}
+    }
+  }
+`;
+
+const departments = `
+query departments {
+  departments {
+    _id
+    title
+    description
+    parentId
+    code
+    supervisorId
+    userIds
+  }
+}
+`;
+
+const productFields = `
+  _id
+  name
+  type
+  code
+  categoryId
+  vendorId
+  description
+  unitPrice
+  createdAt
+  category {
+    _id
+    code
+    name
+  }
+`;
+
+const products = `
+  query products(
+    $type: String,
+    $categoryId: String,
+    $tag: String,
+    $searchValue: String,
+    $perPage: Int,
+    $page: Int $ids: [String],
+    $excludeIds: Boolean,
+    $pipelineId: String,
+    $boardId: String,
+    $segment: String,
+    $segmentData: String
+  ) {
+    products(
+      type: $type,
+      categoryId: $categoryId,
+      tag: $tag,
+      searchValue: $searchValue,
+      perPage: $perPage,
+      page: $page ids: $ids,
+      excludeIds: $excludeIds,
+      pipelineId: $pipelineId,
+      boardId: $boardId,
+      segment: $segment,
+      segmentData: $segmentData
+    ) {
+      ${productFields}
+    }
+  }
+`;
+
 export default {
   clientPortalGetTicket,
   clientPortalTickets,
   clientPortalComments,
-  fields
+  fields,
+  departments,
+  branches,
+  products
 };

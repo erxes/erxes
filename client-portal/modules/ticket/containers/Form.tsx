@@ -30,6 +30,12 @@ function FormContainer({
     }
   });
 
+  const { data: departments } = useQuery(gql(queries.departments), {});
+
+  const { data: branches } = useQuery(gql(queries.branches), {});
+
+  const { data: products } = useQuery(gql(queries.products), {});
+
   const handleSubmit = (doc: Ticket) => {
     createTicket({
       variables: {
@@ -49,6 +55,7 @@ function FormContainer({
   const updatedProps = {
     ...props,
     customFields: customFields?.fields || [],
+    departments: departments?.departments || [],
     handleSubmit
   };
 

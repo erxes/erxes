@@ -1,5 +1,4 @@
 import React from 'react';
-
 import Select from 'react-select-plus';
 import FormControl from '../../common/form/Control';
 import FormGroup from '../../common/form/Group';
@@ -83,15 +82,9 @@ export default class GenerateField extends React.Component<Props, State> {
   };
 
   renderInput(attrs, hasError?: boolean) {
-    let { value } = this.state;
-    let checkBoxValues = this.state.checkBoxValues || [];
+    const { value } = this.state;
+    const checkBoxValues = this.state.checkBoxValues || [];
     const { type } = this.props.field;
-
-    // if (hasError) {
-    //   value = '';
-    //   checkBoxValues = [];
-    //   this.setState({ value, checkBoxValues });
-    // }
 
     attrs.type = 'text';
 
@@ -218,6 +211,66 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
+  renderProduct({ id, value }) {
+    const onSelect = (e) => {
+      const { onValueChange } = this.props;
+
+      if (onValueChange) {
+        this.setState({ value: e });
+
+        onValueChange({ _id: id, value: e });
+      }
+    };
+
+    return (
+      // <SelectProducts
+      //   label="Filter by products"
+      //   name="productIds"
+      //   multi={false}
+      //   initialValue={value}
+      //   onSelect={onSelect}
+      // />
+      <>hi</>
+    );
+  }
+
+  renderBranch({ id, value }) {
+    const onSelect = (e) => {
+      const { onValueChange } = this.props;
+
+      if (onValueChange) {
+        this.setState({ value: e });
+
+        onValueChange({ _id: id, value: e });
+      }
+    };
+
+    return <>hi</>;
+  }
+
+  renderDepartment({ id, value }) {
+    const onSelect = (e) => {
+      const { onValueChange } = this.props;
+
+      if (onValueChange) {
+        this.setState({ value: e });
+
+        onValueChange({ _id: id, value: e });
+      }
+    };
+
+    return (
+      // <SelectDepartments
+      //   label="Filter by departments"
+      //   name="departmentIds"
+      //   multi={false}
+      //   initialValue={value}
+      //   onSelect={onSelect}
+      // />
+      <>hi</>
+    );
+  }
+
   renderControl() {
     const { field } = this.props;
     const { type } = field;
@@ -263,6 +316,18 @@ export default class GenerateField extends React.Component<Props, State> {
         return this.renderFile(attrs);
       }
 
+      case 'product': {
+        return this.renderProduct(attrs);
+      }
+
+      case 'branch': {
+        return this.renderBranch(attrs);
+      }
+
+      case 'department': {
+        return this.renderDepartment(attrs);
+      }
+
       default:
         return this.renderInput(attrs, true);
     }
@@ -276,6 +341,10 @@ export default class GenerateField extends React.Component<Props, State> {
         <ControlLabel ignoreTrans={true} required={field.isRequired}>
           {field.text}
         </ControlLabel>
+
+        {field.description ? (
+          <div dangerouslySetInnerHTML={{ __html: field.description }} />
+        ) : null}
 
         {this.renderControl()}
       </FormGroup>
