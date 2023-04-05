@@ -279,6 +279,15 @@ async function startServer() {
     httpServer.listen({ port: PORT }, resolve)
   );
 
+  if (configs.freeSubscriptions) {
+    const wsServer = new ws.Server({
+      server: httpServer,
+      path: '/subscriptions'
+    });
+
+    await configs.freeSubscriptions(wsServer);
+  }
+
   console.log(
     `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}${apolloServer.graphqlPath}`
   );
@@ -314,7 +323,8 @@ async function startServer() {
       initialSetup,
       cronjobs,
       documents,
-      exporter
+      exporter,
+      readFileHook
     } = configs.meta;
 
     const { consumeRPCQueue, consumeQueue } = messageBrokerClient;
@@ -574,6 +584,15 @@ async function startServer() {
         })
       );
     }
+
+    if (readFileHook) {
+      readFileHook.isAvailable = true;
+
+      consumeRPCQueue(`${configs.name}:readFileHook`, async args => ({
+        status: 'success',
+        data: await readFileHook.action(args)
+      }));
+    }
   } // end configs.meta if
 
   await join({
@@ -597,15 +616,6 @@ async function startServer() {
       error: debugError
     }
   });
-
-  if (configs.freeSubscriptions) {
-    const wsServer = new ws.Server({
-      server: httpServer,
-      path: '/subscriptions'
-    });
-
-    await configs.freeSubscriptions(wsServer);
-  }
 
   debugInfo(`${configs.name} server is running on port: ${PORT}`);
 }
