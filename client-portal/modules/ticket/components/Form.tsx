@@ -13,6 +13,8 @@ type Props = {
   handleSubmit: (doc: Ticket) => void;
   customFields?: any[];
   departments?: string[];
+  branches?: string[];
+  products?: string[];
 };
 
 const PRIORITY_OPTIONS = [
@@ -33,7 +35,9 @@ const PRIORITY_OPTIONS = [
 export default function TicketForm({
   handleSubmit,
   customFields,
-  departments
+  departments,
+  branches,
+  products
 }: Props) {
   const [ticket, setTicket] = useState<Ticket>({} as Ticket);
   const [customFieldsData, setCustomFieldsData] = useState<ICustomField[]>([]);
@@ -102,6 +106,9 @@ export default function TicketForm({
           key={index}
           field={field}
           onValueChange={onCustomFieldsDataChange}
+          departments={departments}
+          branches={branches}
+          products={products}
           isEditing={true}
         />
       );

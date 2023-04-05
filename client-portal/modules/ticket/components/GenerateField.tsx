@@ -8,11 +8,15 @@ import { SelectInput } from '../../styles/tickets';
 import Uploader from '../../common/Uploader';
 import ModifiableList from '../../common/form/ModifiableList';
 import { __ } from '../../../utils';
+import SelectData from './SelectData';
 
 type Props = {
   field: IField;
   defaultValue?: any;
   isEditing?: boolean;
+  departments?: string[];
+  branches?: string[];
+  products?: string[];
   onValueChange?: (data: { _id: string; value: any }) => void;
 };
 
@@ -212,9 +216,8 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderProduct({ id, value }) {
+    const { onValueChange, products } = this.props;
     const onSelect = (e) => {
-      const { onValueChange } = this.props;
-
       if (onValueChange) {
         this.setState({ value: e });
 
@@ -223,35 +226,36 @@ export default class GenerateField extends React.Component<Props, State> {
     };
 
     return (
-      // <SelectProducts
-      //   label="Filter by products"
-      //   name="productIds"
-      //   multi={false}
-      //   initialValue={value}
-      //   onSelect={onSelect}
-      // />
-      <>hi</>
+      <SelectData
+        label={'Add a Product'}
+        products={products}
+        value={value}
+        onSelect={onSelect}
+      />
     );
   }
 
   renderBranch({ id, value }) {
+    const { onValueChange, branches } = this.props;
     const onSelect = (e) => {
-      const { onValueChange } = this.props;
-
       if (onValueChange) {
         this.setState({ value: e });
-
         onValueChange({ _id: id, value: e });
       }
     };
-
-    return <>hi</>;
+    return (
+      <SelectData
+        label={'Add a Branch'}
+        branches={branches}
+        value={value}
+        onSelect={onSelect}
+      />
+    );
   }
 
   renderDepartment({ id, value }) {
+    const { onValueChange, departments } = this.props;
     const onSelect = (e) => {
-      const { onValueChange } = this.props;
-
       if (onValueChange) {
         this.setState({ value: e });
 
@@ -260,14 +264,12 @@ export default class GenerateField extends React.Component<Props, State> {
     };
 
     return (
-      // <SelectDepartments
-      //   label="Filter by departments"
-      //   name="departmentIds"
-      //   multi={false}
-      //   initialValue={value}
-      //   onSelect={onSelect}
-      // />
-      <>hi</>
+      <SelectData
+        label={'Add a Department'}
+        departments={departments}
+        value={value}
+        onSelect={onSelect}
+      />
     );
   }
 

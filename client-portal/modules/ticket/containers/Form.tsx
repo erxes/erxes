@@ -56,6 +56,8 @@ function FormContainer({
     ...props,
     customFields: customFields?.fields || [],
     departments: departments?.departments || [],
+    branches: branches?.branches || [],
+    products: products?.products || [],
     handleSubmit
   };
 
