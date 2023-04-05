@@ -54,7 +54,6 @@ export default {
     webhooks,
     automations,
     cronjobs,
-    // for fixing permissions
     permissions,
     dashboards
   },
