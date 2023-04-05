@@ -323,7 +323,8 @@ async function startServer() {
       initialSetup,
       cronjobs,
       documents,
-      exporter
+      exporter,
+      readFileHook
     } = configs.meta;
 
     const { consumeRPCQueue, consumeQueue } = messageBrokerClient;
@@ -582,6 +583,15 @@ async function startServer() {
           data: await documents.replaceContent(args)
         })
       );
+    }
+
+    if (readFileHook) {
+      readFileHook.isAvailable = true;
+
+      consumeRPCQueue(`${configs.name}:readFileHook`, async args => ({
+        status: 'success',
+        data: await readFileHook.action(args)
+      }));
     }
   } // end configs.meta if
 
