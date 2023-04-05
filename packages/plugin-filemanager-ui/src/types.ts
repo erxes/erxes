@@ -26,6 +26,16 @@ export interface IFile {
   documentId?: string;
   folderId: string;
   url: string;
+  info: {
+    name: string;
+    size: number;
+    type: string;
+  };
+  permissionUnitId: string;
+  permissionUserIds: string[];
+  relatedFileIds: string[];
+  relatedFiles: IFile[];
+  sharedUsers: IUser[];
 }
 
 // query types
