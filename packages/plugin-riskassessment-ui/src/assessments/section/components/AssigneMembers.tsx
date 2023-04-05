@@ -103,6 +103,7 @@ class AssignedMembers extends React.Component<Props> {
         title="Risk Indicators Submit Form"
         size="xl"
         enforceFocus={false}
+        style={{ overflow: 'auto' }}
       />
     );
   }
