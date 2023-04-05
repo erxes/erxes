@@ -10,6 +10,9 @@ import { queries } from '../graphql';
 
 type Props = {
   indicatorId: string;
+  branchId?: string;
+  departmentId?: string;
+  operationId?: string;
   setHistory: (submission: any) => void;
 };
 
@@ -53,9 +56,12 @@ export default withProps<Props>(
     graphql<Props>(gql(queries.indicatorAssessments), {
       name: 'assessmentHistoryQueryResponse',
       skip: ({ indicatorId }) => !indicatorId,
-      options: ({ indicatorId }) => ({
+      options: ({ indicatorId, branchId, departmentId, operationId }) => ({
         variables: {
-          indicatorId
+          indicatorId,
+          branchId,
+          departmentId,
+          operationId
         }
       })
     })
