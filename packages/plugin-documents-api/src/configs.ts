@@ -105,9 +105,16 @@ export default {
           replacedContents.push(content);
         } else {
           try {
+            const serviceName = document.contentType.includes(':')
+              ? document.contentType.substring(
+                  0,
+                  document.contentType.indexOf(':')
+                )
+              : document.contentType;
+
             replacedContents = await sendCommonMessage({
               subdomain,
-              serviceName: document.contentType,
+              serviceName,
               action: 'documents.replaceContent',
               isRPC: true,
               data: {

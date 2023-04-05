@@ -8,16 +8,18 @@ import { mutations, queries } from '../graphql';
 
 type Props = {
   queryParams: any;
+  history: any;
 };
 
 type FinalProps = {
   listQuery;
   removeMutation;
+  getTypesQuery;
 } & Props;
 
 class ListContainer extends React.Component<FinalProps> {
   render() {
-    const { listQuery, removeMutation } = this.props;
+    const { getTypesQuery, listQuery, removeMutation } = this.props;
 
     const remove = _id => {
       confirm().then(() => {
@@ -33,11 +35,14 @@ class ListContainer extends React.Component<FinalProps> {
       });
     };
 
+    const contentTypes = getTypesQuery?.documentsGetContentTypes || [];
+
     const list = listQuery.documents || [];
 
     const updatedProps = {
       ...this.props,
       list,
+      contentTypes,
       remove
     };
 
@@ -47,6 +52,10 @@ class ListContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
+    graphql<Props>(gql(queries.documentsGetContentTypes), {
+      name: 'getTypesQuery'
+    }),
+
     graphql<Props>(gql(queries.documents), {
       name: 'listQuery',
       options: ({ queryParams }) => {
