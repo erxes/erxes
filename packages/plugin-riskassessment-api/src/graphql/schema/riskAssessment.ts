@@ -141,5 +141,5 @@ export const queries = `
 
     riskAssessmentGroups(riskAssessmentId:String,groupIds:[String] ):JSON
     
-    indicatorsAssessmentHistory(indicatorId:String):[IndicatorAssessment]
+    indicatorsAssessmentHistory(indicatorId:String,branchId:String,departmentId:String,operationId:String):[IndicatorAssessment]
 `;
