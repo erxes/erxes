@@ -13,8 +13,6 @@ const getByHost = async (models, requestInfo) => {
   const origin = requestInfo.headers.origin;
   const pattern = `.*${origin}.*`;
 
-  console.log('****************** pattern ******************', pattern);
-
   const config = await models.ClientPortals.findOne({
     url: { $regex: pattern }
   });
