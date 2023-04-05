@@ -13,6 +13,25 @@ export let serviceDiscovery;
 
 export let debug;
 
+const checkPermission = async ({ subdomain, models, files, userId }) => {
+  if (files.length > 0) {
+    if (!userId) {
+      throw new Error('Permission denied from filemanager');
+    }
+
+    const user = await sendCoreMessage({
+      subdomain,
+      action: 'users.findOne',
+      data: { _id: userId },
+      isRPC: true
+    });
+
+    for (const file of files) {
+      await checkFilePermission({ file, subdomain, models, user });
+    }
+  }
+};
+
 export default {
   name: 'filemanager',
   permissions,
@@ -30,23 +49,16 @@ export default {
         const models = await generateModels(subdomain);
 
         const files = await models.Files.find({ url: key });
+        await checkPermission({ subdomain, models, files, userId });
+      }
+    },
+    documentPrintHook: {
+      action: async ({ subdomain, data: { document, userId } }) => {
+        const models = await generateModels(subdomain);
 
-        if (files.length > 0) {
-          if (!userId) {
-            throw new Error('Permission denied from filemanager');
-          }
+        const files = await models.Files.find({ documentId: document._id });
 
-          const user = await sendCoreMessage({
-            subdomain,
-            action: 'users.findOne',
-            data: { _id: userId },
-            isRPC: true
-          });
-
-          for (const file of files) {
-            await checkFilePermission({ file, subdomain, models, user });
-          }
-        }
+        await checkPermission({ subdomain, models, files, userId });
       }
     }
   },
