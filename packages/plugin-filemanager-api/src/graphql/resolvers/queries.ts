@@ -2,6 +2,7 @@ import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../connectionResolver';
 import { sendCoreMessage } from '../../messageBroker';
+import { checkFilePermission } from '../../utils';
 
 const queries = {
   async filemanagerFolders(
@@ -112,36 +113,9 @@ const queries = {
     { _id }: { _id: string },
     { models, subdomain, user }: IContext
   ) {
-    const units = await sendCoreMessage({
-      subdomain,
-      action: 'units.find',
-      data: {
-        userIds: { $in: user._id }
-      },
-      isRPC: true
-    });
-
-    const unitIds = units.map(u => u._id);
-
     const file = await models.Files.getFile({ _id });
-    const folder = await models.Folders.getFolder({ _id: file.folderId });
 
-    if (
-      unitIds.includes(folder.permissionUnitId) ||
-      (folder.permissionUserIds || []).includes(user._id)
-    ) {
-      return file;
-    }
-
-    if (
-      file.createdUserId === user._id ||
-      (file.permissionUserIds || []).includes(user._id) ||
-      units.map(u => u._id).includes(file.permissionUnitId || [])
-    ) {
-      return file;
-    }
-
-    throw new Error('Permission denied');
+    return checkFilePermission({ file, models, subdomain, user });
   },
 
   async filemanagerLogs(

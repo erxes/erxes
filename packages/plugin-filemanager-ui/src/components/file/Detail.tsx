@@ -199,7 +199,7 @@ class FileDetail extends React.Component<Props, State> {
             name: item.name,
             size: item.info && item.info.size,
             type: item.info && item.info.type,
-            url: item.url
+            url: readFile(item.url)
           }}
         />
         {this.renderSharedInfo()}

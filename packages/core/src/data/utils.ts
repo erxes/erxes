@@ -12,10 +12,10 @@ import { graphqlPubsub } from '../pubsub';
 import * as _ from 'underscore';
 import * as Handlebars from 'handlebars';
 import * as nodemailer from 'nodemailer';
-import { sendLogsMessage } from '../messageBroker';
+import { sendCommonMessage, sendLogsMessage } from '../messageBroker';
 import { IModels } from '../connectionResolver';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
-import { redis } from '../serviceDiscovery';
+import { getService, getServices, redis } from '../serviceDiscovery';
 import { sendContactsMessage } from '../messageBroker';
 
 export interface IEmailParams {
@@ -610,10 +610,34 @@ const deleteFileGCS = async (fileName: string, models?: IModels) => {
 /**
  * Read file from GCS, AWS
  */
-export const readFileRequest = async (
-  key: string,
-  models?: IModels
-): Promise<any> => {
+export const readFileRequest = async ({
+  key,
+  subdomain,
+  models,
+  userId
+}: {
+  userId: string;
+  key: string;
+  subdomain: string;
+  models?: IModels;
+}): Promise<any> => {
+  const services = await getServices();
+
+  for (const serviceName of services) {
+    const service = await getService(serviceName, true);
+    const meta = service.config?.meta || {};
+
+    if (meta && meta.readFileHook) {
+      await sendCommonMessage({
+        subdomain,
+        action: 'readFileHook',
+        isRPC: true,
+        serviceName,
+        data: { key, userId }
+      });
+    }
+  }
+
   const UPLOAD_SERVICE_TYPE = await getConfig(
     'UPLOAD_SERVICE_TYPE',
     'AWS',

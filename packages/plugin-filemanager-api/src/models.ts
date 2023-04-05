@@ -116,7 +116,7 @@ const fileSchema = new Schema({
   name: { type: String, index: true },
   type: { type: String, index: true },
   folderId: { type: String, index: true },
-  url: { type: String },
+  url: { type: String, index: true },
   info: { type: Object },
   contentType: { type: String, index: true },
   contentTypeId: { type: String, index: true },
