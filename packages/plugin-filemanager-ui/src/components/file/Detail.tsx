@@ -28,6 +28,7 @@ type Props = {
 type State = {
   currentTab: string;
 };
+
 class FileDetail extends React.Component<Props, State> {
   constructor(props) {
     super(props);
@@ -119,10 +120,12 @@ class FileDetail extends React.Component<Props, State> {
   }
 
   renderTabContent() {
-    const { item } = this.props;
+    const { item, folderId } = this.props;
 
     if (this.state.currentTab === 'related') {
-      return <RelatedFileList files={item.relatedFiles || []} />;
+      return (
+        <RelatedFileList files={item.relatedFiles || []} folderId={folderId} />
+      );
     }
 
     return this.renderLogs();
@@ -211,6 +214,11 @@ class FileDetail extends React.Component<Props, State> {
     const { item, folderId } = this.props;
     const isDynamic = item.type === 'dynamic';
 
+    const breadcrumb = [
+      { title: __('File manager'), link: '/filemanager' },
+      { title: __(item.name) }
+    ];
+
     const trigger = (
       <Button btnStyle="primary" icon="share-alt" type="button">
         {__('Share')}
@@ -271,11 +279,6 @@ class FileDetail extends React.Component<Props, State> {
         )}
       </>
     );
-
-    const breadcrumb = [
-      { title: __('File manager'), link: '/filemanager' },
-      { title: __(item.name) }
-    ];
 
     return (
       <Wrapper
