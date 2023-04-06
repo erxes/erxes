@@ -176,7 +176,8 @@ const configClientPortalQueries = {
       subdomain,
       action: 'tickets.find',
       data: {
-        _id: { $in: ticketIds }
+        query: { _id: { $in: ticketIds } },
+        sort: { createdAt: -1 }
       },
       isRPC: true
     });
