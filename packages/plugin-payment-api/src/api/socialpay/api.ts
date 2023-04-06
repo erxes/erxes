@@ -103,7 +103,6 @@ export class SocialPayAPI extends BaseAPI {
       });
 
       if (header.code !== 200) {
-        // throw new Error(body.response.desc);
         return { error: body.response.desc };
       }
 
@@ -145,8 +144,6 @@ export class SocialPayAPI extends BaseAPI {
   }
 
   async checkInvoice(data: any) {
-    return PAYMENT_STATUS.PAID;
-
     try {
       const { body } = await this.request({
         path: PAYMENTS.socialpay.actions.invoiceCheck,
