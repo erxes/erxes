@@ -96,9 +96,20 @@ export const initBroker = async cl => {
   consumeRPCQueue('cards:tickets.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
+    if (!data.query) {
+      return {
+        status: 'success',
+        data: await models.Tickets.find(data).lean()
+      };
+    }
+
+    const { query, sort = {} } = data;
+
     return {
       status: 'success',
-      data: await models.Tickets.find(data).lean()
+      data: await models.Tickets.find(query)
+        .sort(sort)
+        .lean()
     };
   });
 
