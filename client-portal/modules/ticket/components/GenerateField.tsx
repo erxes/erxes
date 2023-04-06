@@ -345,7 +345,10 @@ export default class GenerateField extends React.Component<Props, State> {
         </ControlLabel>
 
         {field.description ? (
-          <div dangerouslySetInnerHTML={{ __html: field.description }} />
+          <div
+            className="customFieldDescription"
+            dangerouslySetInnerHTML={{ __html: field.description }}
+          />
         ) : null}
 
         {this.renderControl()}

@@ -3,6 +3,15 @@ import React from 'react';
 import Select from 'react-select-plus';
 import { generateTree } from '../../../utils';
 import { IOption } from '../../types';
+import styled from 'styled-components';
+
+const SelectWrapper = styled.div`
+  position: relative;
+
+  .Select-clear-zone {
+    visibility: hidden;
+  }
+`;
 
 type Props = {
   value: string;
@@ -28,29 +37,33 @@ export default function SelectData({
 
   if (products) {
     return (
-      <Select
-        placeholder={label}
-        value={value}
-        onChange={onChange}
-        options={products.map((item: any) => ({
-          value: item._id,
-          label: item.name
-        }))}
-        multi={false}
-      />
+      <SelectWrapper>
+        <Select
+          placeholder={label}
+          value={value}
+          onChange={onChange}
+          options={products.map((item: any) => ({
+            value: item._id,
+            label: item.name
+          }))}
+          multi={false}
+        />
+      </SelectWrapper>
     );
   }
 
   return (
-    <Select
-      placeholder={label}
-      value={value}
-      onChange={onChange}
-      options={generateTree(departments || branches, null, (node, level) => ({
-        value: node._id,
-        label: `${'---'.repeat(level)} ${node.title}`
-      }))}
-      multi={false}
-    />
+    <SelectWrapper>
+      <Select
+        placeholder={label}
+        value={value}
+        onChange={onChange}
+        options={generateTree(departments || branches, null, (node, level) => ({
+          value: node._id,
+          label: `${'---'.repeat(level)} ${node.title}`
+        }))}
+        multi={false}
+      />
+    </SelectWrapper>
   );
 }
