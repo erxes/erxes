@@ -1,6 +1,7 @@
 import * as requestify from 'requestify';
 import { sendMessage } from './messageBroker';
 import { debugExternalApi } from './debuggers';
+import { isServiceEnabled } from './enabledServices';
 export interface IRequestParams {
   url?: string;
   path?: string;
@@ -72,10 +73,7 @@ export const routeErrorHandling = (fn, callback?: any) => {
 };
 
 export const sendToWebhook = async (messageBroker, { subdomain, data }) => {
-  const isWebhooksAvailable = await messageBroker.sendRPCMessage(
-    'gateway:isServiceAvailable',
-    'webhooks'
-  );
+  const isWebhooksAvailable = await isServiceEnabled('webhooks');
 
   if (isWebhooksAvailable) {
     await sendMessage(`webhooks:send`, {
