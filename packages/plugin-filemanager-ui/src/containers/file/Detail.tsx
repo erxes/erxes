@@ -17,29 +17,21 @@ type Props = {
 type FinalProps = {
   filemanagerDetailQuery: any;
   filemanagerLogsQuery: any;
-  getAccessRequestQuery: any;
 } & Props &
   IRouterProps;
 
 const FileDetailContainer = (props: FinalProps) => {
-  const {
-    filemanagerDetailQuery,
-    filemanagerLogsQuery,
-    getAccessRequestQuery
-  } = props;
+  const { filemanagerDetailQuery, filemanagerLogsQuery } = props;
 
   if (
     (filemanagerDetailQuery && filemanagerDetailQuery.loading) ||
-    (filemanagerLogsQuery && filemanagerLogsQuery.loading) ||
-    (getAccessRequestQuery && getAccessRequestQuery.loading)
+    (filemanagerLogsQuery && filemanagerLogsQuery.loading)
   ) {
     return <Spinner objective={true} />;
   }
 
   const item = filemanagerDetailQuery.filemanagerFileDetail || ({} as any);
   const logs = filemanagerLogsQuery.filemanagerLogs || ([] as any);
-  const accessRequests =
-    getAccessRequestQuery.filemanagerGetAccessRequests || ([] as any);
 
   const isViewPermissionDenied =
     filemanagerDetailQuery.error &&
@@ -51,7 +43,6 @@ const FileDetailContainer = (props: FinalProps) => {
     ...props,
     item,
     logs,
-    accessRequests,
     isViewPermissionDenied
   };
 
@@ -64,14 +55,6 @@ export default compose(
     options: ({ fileId }: { fileId: string }) => ({
       variables: {
         _id: fileId
-      }
-    })
-  }),
-  graphql<Props>(gql(queries.filemanagerGetAccessRequests), {
-    name: 'getAccessRequestQuery',
-    options: ({ fileId }: { fileId: string }) => ({
-      variables: {
-        fileId
       }
     })
   }),

@@ -163,6 +163,9 @@ const filemanagerGetAccessRequests = `
       createdAt
       description
       fileId
+      file {
+        ${fileFields}
+      }
       fromUserId
       status
     }

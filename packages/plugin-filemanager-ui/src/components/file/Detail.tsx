@@ -15,6 +15,7 @@ import React from 'react';
 import RelatedFileList from './RelatedFilesList';
 import RelatedForm from '../../containers/file/RelatedForm';
 import RequestAccessForm from '../../containers/file/RequestAccessForm';
+import RequestedFilesList from '../../containers/file/RequestedFilesList';
 import ShareForm from '../../containers/ShareForm';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -26,7 +27,6 @@ type Props = {
   logs: ILogs[];
   folderId: string;
   fileId: string;
-  accessRequests: IAccessRequests[];
   isViewPermissionDenied: boolean;
 };
 
@@ -122,7 +122,7 @@ class FileDetail extends React.Component<Props, State> {
   }
 
   renderTabContent() {
-    const { item, folderId, accessRequests } = this.props;
+    const { item, folderId, fileId } = this.props;
 
     if (this.state.currentTab === 'related') {
       return (
@@ -131,9 +131,7 @@ class FileDetail extends React.Component<Props, State> {
     }
 
     if (this.state.currentTab === 'requested') {
-      return (
-        <RelatedFileList files={item.relatedFiles || []} folderId={folderId} />
-      );
+      return <RequestedFilesList fileId={fileId} />;
     }
 
     return this.renderLogs();
@@ -225,19 +223,14 @@ class FileDetail extends React.Component<Props, State> {
   }
 
   render() {
-    const {
-      item,
-      folderId,
-      isViewPermissionDenied,
-      accessRequests
-    } = this.props;
+    const { item, folderId, isViewPermissionDenied } = this.props;
     const isDynamic = item.type === 'dynamic';
 
     const breadcrumb = [
       { title: __('File manager'), link: '/filemanager' },
       { title: __(item.name) }
     ];
-    console.log(accessRequests, '=====');
+
     const trigger = (
       <Button btnStyle="primary" icon="share-alt" type="button">
         {__('Share')}

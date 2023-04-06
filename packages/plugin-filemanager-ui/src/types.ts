@@ -39,10 +39,12 @@ export interface IFile {
 }
 export interface IAccessRequests {
   _id: string;
+  file: IFile;
   createdAt?: Date;
   description?: string;
   fileId?: string;
   fromUserId?: string;
+  user?: IUser;
   status: string;
 }
 
@@ -92,6 +94,10 @@ export type RequestAccessMutationVariables = {
   description?: string;
 };
 
+export type ConfirmRequestMutationVariables = {
+  requestId: string;
+};
+
 export type RemoveFilemanagerFolderMutationResponse = {
   removeMutation: (params: { variables: MutationVariables }) => Promise<void>;
 };
@@ -123,5 +129,11 @@ export type RelateFileMutationResponse = {
 export type RequestAccessMutationResponse = {
   requestAccessMutation: (params: {
     variables: RequestAccessMutationVariables;
+  }) => Promise<void>;
+};
+
+export type ConfirmRequestMutationResponse = {
+  confirmRequestMutation: (params: {
+    variables: ConfirmRequestMutationVariables;
   }) => Promise<void>;
 };
