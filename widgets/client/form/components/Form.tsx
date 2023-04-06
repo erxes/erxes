@@ -95,6 +95,30 @@ class Form extends React.Component<Props, State> {
       this.setState({ doc: this.resetDocState() });
     }
 
+    if (
+      (this.props?.form?.fields || []).some(
+        field => field?.pageNumber && field?.pageNumber > 1
+      )
+    ) {
+      if (
+        JSON.stringify(this.props?.currentStatus?.errors || []) !==
+        JSON.stringify(nextProps?.currentStatus?.errors || [])
+      ) {
+        const errors = nextProps.currentStatus?.errors || [];
+        if (!!errors?.length) {
+          const errorField = nextProps.form.fields.find(field =>
+            errors.find(error => error.fieldId === field._id)
+          );
+
+          const pageNumber = errorField?.pageNumber || 1;
+
+          this.setState({
+            currentPage: pageNumber
+          });
+        }
+      }
+    }
+
     if (!this.props.callSubmit && nextProps.callSubmit) {
       this.onSubmit();
     }
