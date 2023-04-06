@@ -86,9 +86,30 @@ const SupportMenus = styledTS<{ color?: string }>(styled.div)`
 
   span {
     margin-left: 10px;
+    
+    i {
+      font-size: 18px
+    }
 
     &:hover {
       cursor: pointer;
+    }
+  }
+
+  .notifications {
+    position: relative;
+
+    div {
+      border-radius: 15px;
+      background-color: red;
+      font-size: 10px;
+      max-width: 50px;
+      color: white;
+      text-align: center;
+      position: absolute;
+      right: -6px;
+      width: 14px;
+      top: -8px;
     }
   }
 
