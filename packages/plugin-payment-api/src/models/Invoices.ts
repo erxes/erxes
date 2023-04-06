@@ -75,7 +75,30 @@ export const loadInvoiceClass = (models: IModels) => {
         throw new Error('Already settled');
       }
 
-      if (!invoice.selectedPaymentId) {
+      if (!invoice.selectedPaymentId && !invoice.apiResponse) {
+        try {
+          const payment = await models.Payments.getPayment(
+            doc.selectedPaymentId
+          );
+
+          const api = new ErxesPayment(payment);
+          invoice.identifier = doc.identifier || makeInvoiceNo(32);
+
+          const apiResponse = await api.createInvoice(invoice);
+          invoice.apiResponse = apiResponse;
+          invoice.paymentKind = payment.kind;
+          invoice.selectedPaymentId = payment._id;
+
+          await invoice.save();
+
+          return invoice;
+        } catch (e) {
+          throw new Error(e.message);
+        }
+      }
+
+      if (!invoice.apiResponse) {
+        await models.Invoices.updateOne({ _id }, { $set: doc });
         try {
           const payment = await models.Payments.getPayment(
             doc.selectedPaymentId
@@ -113,6 +136,7 @@ export const loadInvoiceClass = (models: IModels) => {
       new ErxesPayment(prevPayment).cancelInvoice(invoice);
 
       try {
+        invoice.identifier = doc.identifier || makeInvoiceNo(32);
         const apiResponse = await new ErxesPayment(newPayment).createInvoice(
           invoice
         );

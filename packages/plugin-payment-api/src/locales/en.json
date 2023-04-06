@@ -14,5 +14,8 @@
   "Error": "Error",
   "Insufficient loan amount": "Insufficient loan amount",
   "Phone number": "Phone number",
-  "Submit": "Submit"
+  "Submit": "Submit",
+  "Please enter your phone number": "Please enter your phone number",
+  "Error: ": "Error: ",
+  "Enter your Storepay registered phone number": "Enter your Storepay registered phone number"
 }

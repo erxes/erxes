@@ -125,7 +125,7 @@ export const splitData = async (
       const tax = (pdata.tax / pdata.quantity) * newCount;
       const discount = (pdata.discount / pdata.quantity) * newCount;
 
-      pdatas = pdata.map(pd =>
+      pdatas = pdatas.map(pd =>
         pd._id === pdata._id
           ? {
               ...pdata,
@@ -139,6 +139,7 @@ export const splitData = async (
 
       pdatas.push({
         ...pdata,
+        _id: Math.random().toString(),
         quantity: newCount,
         amount,
         tax,
