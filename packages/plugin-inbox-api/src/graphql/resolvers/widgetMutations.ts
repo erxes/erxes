@@ -72,7 +72,7 @@ export const pConversationClientMessageInserted = async (
       {
         _id: conversation.integrationId
       },
-      { _id: 1 }
+      { _id: 1, name: 1 }
     );
   }
 
