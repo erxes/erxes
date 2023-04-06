@@ -1,6 +1,10 @@
 import { IContext } from '../../connectionResolver';
 import { sendCoreMessage } from '../../messageBroker';
-import { IFileDocument, IFolderDocument } from '../../models';
+import {
+  IAccessRequestDocument,
+  IFileDocument,
+  IFolderDocument
+} from '../../models';
 
 const sharedUsers = async (root, _args, { models, subdomain }: IContext) => {
   let sharedUsers = root.permissionUserIds || [];
@@ -60,6 +64,12 @@ export const file = {
         { relatedFileIds: { $in: [root._id] } }
       ]
     });
+  }
+};
+
+export const accessRequest = {
+  async file(root: IAccessRequestDocument, _args, { models }: IContext) {
+    return models.Files.findOne({ _id: root.fileId });
   }
 };
 

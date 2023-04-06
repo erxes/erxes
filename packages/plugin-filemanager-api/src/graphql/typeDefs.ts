@@ -69,6 +69,7 @@ const typeDefs = gql`
     _id: String!
     createdAt: Date
     fileId: String
+    file: FileManagerFile
     fromUserId: String
     status: String
     description: String
