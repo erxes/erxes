@@ -1,4 +1,5 @@
 import { DetailTitle, DocumentPreview, FilePreview, FlexRow } from './styles';
+import { IAccessRequests, ILogs } from '../../types';
 import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 import { __, getEnv } from '@erxes/ui/src/utils';
 import { readFile, renderUserFullName } from '@erxes/ui/src/utils';
@@ -22,9 +23,10 @@ import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 type Props = {
   item: any;
   history: any;
-  logs: any;
+  logs: ILogs[];
   folderId: string;
   fileId: string;
+  accessRequests: IAccessRequests[];
   isViewPermissionDenied: boolean;
 };
 
@@ -120,9 +122,15 @@ class FileDetail extends React.Component<Props, State> {
   }
 
   renderTabContent() {
-    const { item, folderId } = this.props;
+    const { item, folderId, accessRequests } = this.props;
 
     if (this.state.currentTab === 'related') {
+      return (
+        <RelatedFileList files={item.relatedFiles || []} folderId={folderId} />
+      );
+    }
+
+    if (this.state.currentTab === 'requested') {
       return (
         <RelatedFileList files={item.relatedFiles || []} folderId={folderId} />
       );
@@ -148,6 +156,12 @@ class FileDetail extends React.Component<Props, State> {
             onClick={this.onTabClick.bind(this, 'related')}
           >
             {__('Related files')}
+          </TabTitle>
+          <TabTitle
+            className={currentTab === 'requested' ? 'active' : ''}
+            onClick={this.onTabClick.bind(this, 'requested')}
+          >
+            {__('Requested files')}
           </TabTitle>
         </Tabs>
         {this.renderTabContent()}
@@ -211,14 +225,19 @@ class FileDetail extends React.Component<Props, State> {
   }
 
   render() {
-    const { item, folderId, isViewPermissionDenied } = this.props;
+    const {
+      item,
+      folderId,
+      isViewPermissionDenied,
+      accessRequests
+    } = this.props;
     const isDynamic = item.type === 'dynamic';
 
     const breadcrumb = [
       { title: __('File manager'), link: '/filemanager' },
       { title: __(item.name) }
     ];
-
+    console.log(accessRequests, '=====');
     const trigger = (
       <Button btnStyle="primary" icon="share-alt" type="button">
         {__('Share')}

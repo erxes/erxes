@@ -16,6 +16,9 @@ type Props = {
 
 function RequestAccessForm({ requestAccess, fileId }: Props) {
   const [description, setDesc] = useState('');
+  const [isSubmitted, setSubmitted] = useState(
+    Boolean(localStorage.getItem('requestAccess')) || false
+  );
 
   const onRequest = callback => {
     requestAccess(
@@ -76,17 +79,27 @@ function RequestAccessForm({ requestAccess, fileId }: Props) {
         <p>
           {__('Want in? Ask for access, or log in account with permission')}
         </p>
-        <ModalTrigger
-          title="Request access"
-          trigger={
-            <Button btnStyle="primary" type="button" icon={'key-skeleton-alt'}>
-              Request access
-            </Button>
-          }
-          content={props => renderForm(props)}
-          centered={true}
-          enforceFocus={false}
-        />
+        {isSubmitted ? (
+          <Button btnStyle="success" type="button" icon={'key-skeleton-alt'}>
+            Request sent
+          </Button>
+        ) : (
+          <ModalTrigger
+            title="Request access"
+            trigger={
+              <Button
+                btnStyle="primary"
+                type="button"
+                icon={'key-skeleton-alt'}
+              >
+                Request access
+              </Button>
+            }
+            content={props => renderForm(props)}
+            centered={true}
+            enforceFocus={false}
+          />
+        )}
       </AccessPopup>
     </RequestAccessWrapper>
   );

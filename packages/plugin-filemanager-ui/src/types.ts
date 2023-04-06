@@ -37,6 +37,24 @@ export interface IFile {
   relatedFiles: IFile[];
   sharedUsers: IUser[];
 }
+export interface IAccessRequests {
+  _id: string;
+  createdAt?: Date;
+  description?: string;
+  fileId?: string;
+  fromUserId?: string;
+  status: string;
+}
+
+export interface ILogs {
+  _id: string;
+  contentType?: string;
+  contentTypeId?: string;
+  createdAt?: Date;
+  description?: string;
+  user?: IUser;
+  userId?: string;
+}
 
 // query types
 export type FilemanagerFoldersQueryResponse = {

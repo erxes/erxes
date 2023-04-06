@@ -157,7 +157,7 @@ const units = `
 `;
 
 const filemanagerGetAccessRequests = `
-  query FilemanagerGetAccessRequests($fileId: String!) {
+  query filemanagerGetAccessRequests($fileId: String!) {
     filemanagerGetAccessRequests(fileId: $fileId) {
       _id
       createdAt
