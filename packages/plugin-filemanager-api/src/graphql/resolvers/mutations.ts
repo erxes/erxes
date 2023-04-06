@@ -158,6 +158,11 @@ const mutations = {
     ];
 
     for (const userId of totalUserIds) {
+      // ignore owner
+      if (userId === user._id) {
+        continue;
+      }
+
       const request = await models.AckRequests.findOne({
         fileId,
         toUserId: userId
