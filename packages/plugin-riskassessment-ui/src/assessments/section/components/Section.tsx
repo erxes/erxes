@@ -1,4 +1,5 @@
 import {
+  BarItems,
   Box,
   EmptyState,
   Icon,
@@ -9,10 +10,10 @@ import React from 'react';
 import { ColorBox, FormContainer, ProductName } from '../../../styles';
 import { RiskAssessmentTypes } from '../../common/types';
 import AssignedUsers from '../containers/AssignedUsers';
-import Form from '../containers/Form';
+import SinglAddForm from '../containers/SingkeAddForm';
 
 type Props = {
-  riskAssessment: RiskAssessmentTypes;
+  riskAssessments: RiskAssessmentTypes[];
   cardId: string;
   cardType: string;
 };
@@ -22,8 +23,11 @@ class Section extends React.Component<Props> {
     super(props);
   }
 
-  renderChooserModal = (trigger: React.ReactNode) => {
-    const { cardId, cardType, riskAssessment } = this.props;
+  renderChooserModal = (
+    trigger: React.ReactNode,
+    riskAssessment?: RiskAssessmentTypes
+  ) => {
+    const { cardId, cardType } = this.props;
     const content = ({ closeModal }) => {
       const updateProps = {
         riskAssessment,
@@ -32,7 +36,7 @@ class Section extends React.Component<Props> {
         cardType
       };
 
-      return <Form {...updateProps} />;
+      return <SinglAddForm {...updateProps} />;
     };
 
     return (
@@ -46,9 +50,10 @@ class Section extends React.Component<Props> {
   };
 
   renderAssignedUser = () => {
-    const { riskAssessment, cardId, cardType } = this.props;
+    const { riskAssessments, cardId, cardType } = this.props;
+
     const updatedProps = {
-      riskAssessmentId: riskAssessment._id,
+      riskAssessments,
       cardId,
       cardType
     };
@@ -56,18 +61,45 @@ class Section extends React.Component<Props> {
     return <AssignedUsers {...updatedProps} />;
   };
 
-  renderItem = (title, statusColor) => {
+  renderItem = riskAssessment => {
+    const {
+      status,
+      statusColor,
+      department,
+      branch,
+      operation,
+      group,
+      indicator
+    } = riskAssessment as RiskAssessmentTypes;
+
+    const renderName = () => {
+      if ([department, branch, operation].some(x => x)) {
+        return `${branch?.title || ''} ${department?.title ||
+          ''} ${operation?.name || ''}`;
+      }
+
+      if (group) {
+        return group?.name || '';
+      }
+      if (indicator) {
+        return indicator?.name || '';
+      }
+
+      if (status) {
+        return status;
+      }
+      return '';
+    };
+
     return (
       <ProductName>
-        {title && title}
+        {renderName()}
         <ColorBox color={statusColor && statusColor} />
       </ProductName>
     );
   };
 
-  renderContent = () => {
-    const { riskAssessment } = this.props;
-
+  renderSingleAssessment = (riskAssessment: RiskAssessmentTypes) => {
     if (!riskAssessment) {
       return <EmptyState text="No Risk Assessment" icon="list-2" />;
     }
@@ -75,30 +107,63 @@ class Section extends React.Component<Props> {
     return (
       <SectionBodyItem>
         {this.renderChooserModal(
-          this.renderItem(riskAssessment?.status, riskAssessment?.statusColor)
+          this.renderItem(riskAssessment),
+          riskAssessment
         )}
       </SectionBodyItem>
     );
   };
 
-  render() {
-    const { riskAssessment } = this.props;
+  renderBulkAssessment(riskAssessments: RiskAssessmentTypes[]) {
+    return riskAssessments.map(assessment => (
+      <SectionBodyItem key={assessment._id}>
+        {this.renderSingleAssessment(assessment)}
+      </SectionBodyItem>
+    ));
+  }
 
-    const extraButton = this.renderChooserModal(
-      <button>
-        <Icon icon="plus-circle" />
-      </button>
+  renderAssessment() {
+    const { riskAssessments } = this.props;
+
+    if (!riskAssessments.length) {
+      return <EmptyState text="No Risk Assessment" icon="list-2" />;
+    }
+
+    if (riskAssessments.length === 1) {
+      return this.renderSingleAssessment(riskAssessments[0] || {});
+    }
+
+    if (riskAssessments.length > 1) {
+      return this.renderBulkAssessment(riskAssessments);
+    }
+
+    return;
+  }
+
+  render() {
+    const { riskAssessments } = this.props;
+
+    const extraButton = (
+      <BarItems>
+        {this.renderChooserModal(
+          <button>
+            <Icon icon="plus-circle" />
+          </button>
+        )}
+      </BarItems>
     );
 
     return (
       <FormContainer column padding="0 0 10px 0">
         <Box
           title="Risk Assessment"
-          extraButtons={!riskAssessment && extraButton}
+          name="riskAssessments"
+          extraButtons={!riskAssessments.length && extraButton}
+          collapsible
         >
-          {this.renderContent()}
+          {this.renderAssessment()}
         </Box>
-        {riskAssessment && this.renderAssignedUser()}
+        {!!riskAssessments.length && this.renderAssignedUser()}
       </FormContainer>
     );
   }

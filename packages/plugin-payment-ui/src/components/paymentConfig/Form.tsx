@@ -1,26 +1,23 @@
-import {
-  IButtonMutateProps,
-  IFormProps,
-  ILocationOption
-} from '@erxes/ui/src/types';
-import React, { useState, useEffect } from 'react';
-
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IPaymentConfig } from '../../types';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import Select from 'react-select-plus';
-import { __ } from '@erxes/ui/src/utils/core';
 import { ILeadIntegration } from '@erxes/ui-leads/src/types';
+import Button from '@erxes/ui/src/components/Button';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils/core';
+import React, { useEffect, useState } from 'react';
+import Select from 'react-select-plus';
+
 import SelectPayments from '../../containers/SelectPayments';
+import { IPaymentConfig } from '../../types';
 
 type Props = {
   config?: IPaymentConfig;
   excludeIds?: string[];
+  loading?: boolean;
   integrations: ILeadIntegration[];
+  onSearch: (value: string) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
@@ -36,7 +33,21 @@ const ConfigForm = (props: Props) => {
     (config && config.contentTypeId) || ''
   );
 
-  useEffect(() => {}, [contentTypeId]);
+  const [searchValue, setSearchValue] = useState<string>('');
+
+  useEffect(() => {
+    let timeoutId: any = null;
+
+    if (searchValue) {
+      timeoutId = setTimeout(() => {
+        props.onSearch(searchValue);
+      }, 1500);
+
+      return () => {
+        clearTimeout(timeoutId);
+      };
+    }
+  }, [searchValue, contentTypeId]);
 
   const generateDoc = () => {
     const finalValues: any = {};
@@ -54,8 +65,12 @@ const ConfigForm = (props: Props) => {
     };
   };
 
-  const onChangeIntegraiton = e => {
-    setContentTypeId(e.target.value);
+  const onChangeIntegraiton = option => {
+    setContentTypeId(option.value);
+  };
+
+  const onInputChange = value => {
+    setSearchValue(value);
   };
 
   const onChangePayments = (values: string[]) => {
@@ -75,23 +90,19 @@ const ConfigForm = (props: Props) => {
         <FormGroup>
           <ControlLabel required={true}>Integrations</ControlLabel>
           {!config && <p> {__('Select Integration ')}</p>}
-          <FormControl
-            {...formProps}
-            name="integrationId"
-            componentClass="select"
-            placeholder={__('Select Lead Integration')}
-            defaultValue={config && config.contentTypeId}
+          <Select
+            placeholder={__('Type to search...')}
+            value={contentTypeId}
+            defaultValue={contentTypeId}
             onChange={onChangeIntegraiton}
-            required={true}
-            disabled={config ? true : false}
-          >
-            <option />
-            {integrationsFiltered.map(integration => (
-              <option key={integration._id} value={integration._id}>
-                {integration.name}
-              </option>
-            ))}
-          </FormControl>
+            isLoading={props.loading}
+            onInputChange={onInputChange}
+            options={integrationsFiltered.map(integration => ({
+              value: integration._id,
+              label: integration.name
+            }))}
+            multi={false}
+          />
         </FormGroup>
 
         {contentTypeId && (

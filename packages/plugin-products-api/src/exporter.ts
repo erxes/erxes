@@ -4,11 +4,9 @@ import * as moment from 'moment';
 
 const prepareData = async (
   models: IModels,
-  subdomain: string,
-  query: any
+  _subdomain: string,
+  _query: any
 ): Promise<any[]> => {
-  const { contentType, segmentId } = query;
-
   let data: any[] = [];
 
   const productsFilter: any = {};

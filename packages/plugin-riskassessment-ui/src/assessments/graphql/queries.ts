@@ -1,6 +1,5 @@
-import { riskIndicatorFields } from '../../indicator/common/graphql';
-
 const commonParams = `
+  $cardType:String,
   $branchIds: [String],
   $closedAtFrom: String,
   $closedAtTo: String,
@@ -15,9 +14,12 @@ const commonParams = `
   $status: String
   $sortDirection:Int
   $sortField:String
+  $tagIds:[String]
+  $groupIds:[String]
 `;
 
 const commonParamsDef = ` 
+  cardType:$cardType,
   branchIds: $branchIds,
   closedAtFrom: $closedAtFrom,
   closedAtTo: $closedAtTo,
@@ -32,6 +34,8 @@ const commonParamsDef = `
   status: $status,
   sortDirection: $sortDirection
   sortField: $sortField
+  tagIds:$tagIds 
+  groupIds:$groupIds
  `;
 
 const commonField = `
@@ -41,26 +45,31 @@ const commonField = `
      card{
       _id,name
      }
-    branchIds
-    branches
-    createdAt
-    closedAt
-    departmentIds
-    operationIds
-    operations
+     createdAt
+     closedAt
+    branchId
+    branch {
+      _id,title
+    }
+    departmentId
+    department {
+      _id,title
+    }
+    operationId
+    operation {
+      _id,name
+    }
     resultScore
-    riskIndicatorId
+    indicatorId
+    groupId
+    group{
+      _id,name
+    }
     riskIndicators {
-      ${riskIndicatorFields({
-        calculateLogics: false,
-        categories: false,
-        customScoreField: false,
-        forms: false
-      })}
+      _id,name
     }
     status
     statusColor
-    departments
  `;
 
 const riskAssessments = `

@@ -1,11 +1,10 @@
 import { queries as integrationsQueries } from '@erxes/ui-leads/src/graphql';
 import { LeadIntegrationsQueryResponse } from '@erxes/ui-leads/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import gql from 'graphql-tag';
 import React from 'react';
-import { useQuery } from 'react-apollo';
+import { useLazyQuery } from 'react-apollo';
 
 import ConfigForm from '../../components/paymentConfig/Form';
 import { mutations, queries } from '../../graphql';
@@ -17,15 +16,24 @@ type Props = {
 };
 
 const FormContainer = (props: Props) => {
-  const { data, loading } = useQuery<LeadIntegrationsQueryResponse>(
-    gql(integrationsQueries.integrations),
-    {
-      fetchPolicy: 'network-only',
+  const [getIntegrations, { data, loading }] = useLazyQuery<
+    LeadIntegrationsQueryResponse
+  >(gql(integrationsQueries.integrations), {
+    fetchPolicy: 'network-only',
+    variables: {
+      kind: 'lead',
+      searchValue: ''
+    }
+  });
+
+  const onSearch = (value: string) => {
+    getIntegrations({
       variables: {
+        searchValue: value,
         kind: 'lead'
       }
-    }
-  );
+    });
+  };
 
   const renderButton = ({
     values,
@@ -55,13 +63,11 @@ const FormContainer = (props: Props) => {
 
   const integrations = (data && data.integrations) || [];
 
-  if (loading) {
-    return <Spinner />;
-  }
-
   const updatedProps = {
     ...props,
     integrations,
+    loading,
+    onSearch,
     renderButton
   };
 

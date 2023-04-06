@@ -6,33 +6,35 @@ export default {
     return models.RiskAssessments.findOne({ _id });
   },
 
-  async branches(riskAssessment, {}, { subdomain }: IContext) {
-    return await sendCoreMessage({
-      subdomain,
-      action: 'branches.find',
-      data: {
-        query: {
-          _id: { $in: riskAssessment.branchIds || [] }
-        }
-      },
-      isRPC: true,
-      defaultValue: []
-    });
+  async branch(riskAssessment, {}, { subdomain }: IContext) {
+    return riskAssessment.branchId
+      ? await sendCoreMessage({
+          subdomain,
+          action: 'branches.findOne',
+          data: { _id: riskAssessment.branchId },
+          isRPC: true,
+          defaultValue: {}
+        })
+      : null;
   },
 
-  async departments(riskAssessment, {}, { subdomain }: IContext) {
-    return await sendCoreMessage({
-      subdomain,
-      action: 'departments.find',
-      data: { _id: { $in: riskAssessment.departmentIds || [] } },
-      isRPC: true,
-      defaultValue: []
-    });
+  async department(riskAssessment, {}, { subdomain }: IContext) {
+    return riskAssessment.departmentId
+      ? await sendCoreMessage({
+          subdomain,
+          action: 'departments.findOne',
+          data: { _id: riskAssessment.departmentId },
+          isRPC: true,
+          defaultValue: {}
+        })
+      : null;
   },
-  async operations(riskAssessment, {}, { models }: IContext) {
-    return await models.Operations.find({
-      _id: { $in: riskAssessment.operationIds || [] }
-    });
+  async operation(riskAssessment, {}, { models }: IContext) {
+    return riskAssessment.operationId
+      ? await models.Operations.findOne({
+          _id: riskAssessment.operationId
+        })
+      : null;
   },
 
   async riskIndicators(riskAssessment, {}, { models }: IContext) {
@@ -47,12 +49,23 @@ export default {
         _id: { $in: indicatorIds }
       });
     }
+    const indicator = await models.RiskIndicators.findOne({
+      _id: { $in: riskAssessment.indicatorId || [] }
+    });
 
-    return [
-      await models.RiskIndicators.findOne({
-        _id: { $in: riskAssessment.indicatorId || [] }
-      })
-    ];
+    return indicator ? [indicator] : null;
+  },
+
+  async indicator(riskAssessment, {}, { models }: IContext) {
+    return riskAssessment.indicatorId
+      ? await models.RiskIndicators.findOne({ _id: riskAssessment.indicatorId })
+      : null;
+  },
+
+  async group(riskAssessment, {}, { models }: IContext) {
+    return riskAssessment.groupId
+      ? await models.IndicatorsGroups.findOne({ _id: riskAssessment.groupId })
+      : null;
   },
 
   async card(riskAssessment, {}, { subdomain }: IContext) {

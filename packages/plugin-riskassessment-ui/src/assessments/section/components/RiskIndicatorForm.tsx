@@ -1,3 +1,4 @@
+import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
 import {
   Button,
   ControlLabel,
@@ -5,31 +6,33 @@ import {
   FormGroup,
   __
 } from '@erxes/ui/src';
-import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
 import {
   FormColumn,
   FormWrapper,
   ModalFooter
 } from '@erxes/ui/src/styles/main';
 import { IField } from '@erxes/ui/src/types';
+import { default as _loadash } from 'lodash';
 import React from 'react';
 import { Padding } from '../../../styles';
-import _loadash from 'lodash';
 import { DetailPopOver } from '../../common/utils';
+import IndicatorAssessmentHistory from '../containers/IndicatorAssessmentHistory';
 
 type Props = {
   fields: IField[];
   submittedFields: any;
-  customScoreField: any;
   withDescription: boolean;
   submitForm: (doc: any) => void;
   closeModal: () => void;
   onlyPreview?: boolean;
+  indicatorId: string;
+  branchId: string;
+  departmentId: string;
+  operationId: string;
 };
 
 type State = {
   submissions: { [key: string]: { value: string; description: string } };
-  customScore: { value: number; description: string };
 };
 
 class IndicatorForm extends React.Component<Props, State> {
@@ -37,23 +40,17 @@ class IndicatorForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      submissions: {},
-      customScore: {
-        value: 0,
-        description: ''
-      }
+      submissions: {}
     };
-
-    this.submitForm = this.submitForm.bind(this);
   }
 
-  submitForm() {
-    const { submitForm } = this.props;
-    const { submissions, customScore } = this.state;
-    submitForm({
-      formSubmissions: submissions,
-      customScore
-    });
+  componentDidMount() {
+    if (
+      JSON.stringify(this.props.submittedFields) !==
+      JSON.stringify(this.state.submissions)
+    ) {
+      this.setState({ submissions: this.props.submittedFields });
+    }
   }
 
   renderDescriptionField(value, key: string) {
@@ -65,12 +62,6 @@ class IndicatorForm extends React.Component<Props, State> {
     const onChangeDescription = e => {
       const { submissions } = this.state;
       const { value } = e.currentTarget as HTMLInputElement;
-
-      if (key === 'customScore') {
-        return this.setState(prev => ({
-          customScore: { ...prev.customScore, description: value }
-        }));
-      }
 
       submissions[key] = {
         ...submissions[key],
@@ -100,76 +91,72 @@ class IndicatorForm extends React.Component<Props, State> {
     const {
       fields,
       submittedFields,
-      customScoreField,
       closeModal,
-      onlyPreview
+      onlyPreview,
+      indicatorId,
+      branchId,
+      departmentId,
+      operationId
     } = this.props;
 
+    const { submissions } = this.state;
+
     const handleChange = field => {
-      const { submissions } = this.state;
+      this.setState(prev => ({
+        submissions: {
+          ...prev.submissions,
+          [field._id]: { ...prev.submissions[field._id], value: field.value }
+        }
+      }));
+    };
 
-      submissions[field._id] = {
-        ...submissions[field._id],
-        value: field.value
-      };
-
+    const setHistory = submissions => {
       this.setState({ submissions });
     };
 
-    const handleChangeCustomScore = e => {
-      const { value } = e.currentTarget as HTMLInputElement;
-      this.setState(prev => ({
-        customScore: { ...prev.customScore, value: Number(value) }
-      }));
+    const submitForm = () => {
+      const { submitForm } = this.props;
+      const { submissions } = this.state;
+      submitForm({
+        formSubmissions: submissions
+      });
     };
 
     return (
       <>
+        <IndicatorAssessmentHistory
+          indicatorId={indicatorId}
+          branchId={branchId}
+          departmentId={departmentId}
+          operationId={operationId}
+          setHistory={setHistory}
+        />
         <Padding horizontal>
           {(fields || []).map(field => (
             <FormWrapper key={field._id}>
               <FormColumn>
                 <GenerateField
-                  isEditing={true}
+                  isEditing={false}
                   key={field._id}
                   field={field}
-                  defaultValue={submittedFields[field._id]?.value}
+                  defaultValue={submissions[field._id]?.value}
                   onValueChange={handleChange}
                   isPreview={true}
                 />
               </FormColumn>
               {this.renderDescriptionField(
-                submittedFields[field._id]?.description,
+                submissions[field._id]?.description || '',
                 field._id
               )}
             </FormWrapper>
           ))}
-          {customScoreField && (
-            <FormWrapper>
-              <FormColumn>
-                <FormGroup>
-                  <ControlLabel>{customScoreField.label}</ControlLabel>
-                  <FormControl
-                    name="customScore"
-                    type="number"
-                    onChange={handleChangeCustomScore}
-                    value={customScoreField.value}
-                  />
-                </FormGroup>
-              </FormColumn>
-              {this.renderDescriptionField(
-                customScoreField.description,
-                'customScore'
-              )}
-            </FormWrapper>
-          )}
         </Padding>
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal}>
             {__('Cancel')}
           </Button>
           {_loadash.isEmpty(submittedFields) && !onlyPreview && (
-            <Button btnStyle="success" onClick={this.submitForm}>
+            <Button btnStyle="success" onClick={submitForm}>
               {__('Save')}
             </Button>
           )}

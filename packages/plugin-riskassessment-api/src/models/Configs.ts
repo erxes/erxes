@@ -1,14 +1,14 @@
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import {
-  IRiskIndicatorsConfigsDocument,
-  riskIndicatorConfigsSchema
+  IRiskAssessmentsConfigsDocument,
+  riskAssessmentsConfigsSchema
 } from './definitions/indicator';
-export interface IRiskIndicatorsConfigModel
-  extends Model<IRiskIndicatorsConfigsDocument> {
-  addConfig(doc): Promise<IRiskIndicatorsConfigsDocument>;
-  updateConfig(_id, doc): Promise<IRiskIndicatorsConfigsDocument>;
-  removeConfigs(ids: string[]): Promise<IRiskIndicatorsConfigsDocument>;
+export interface IRiskAssessmentsConfigModel
+  extends Model<IRiskAssessmentsConfigsDocument> {
+  addConfig(doc): Promise<IRiskAssessmentsConfigsDocument>;
+  updateConfig(_id, doc): Promise<IRiskAssessmentsConfigsDocument>;
+  removeConfigs(ids: string[]): Promise<IRiskAssessmentsConfigsDocument>;
 }
 
 const validDoc = doc => {
@@ -22,17 +22,20 @@ const validDoc = doc => {
   }
 
   if (
-    !doc.indicatorsGroupId &&
-    !doc.riskIndicatorId &&
+    !doc.groupId &&
+    !doc.indicatorId &&
     !doc.customFieldId &&
-    !doc.configs.some(config => config.riskIndicatorId)
+    !doc.configs.some(config => config.indicatorId || config.groupId)
   ) {
     throw new Error(`Select some configration on risk assessment config`);
   }
 };
 
-export const loadRiskIndicatorConfig = (models: IModels, subdomain: string) => {
-  class RiskIndicatorConfigsClass {
+export const loadRiskAssessmentsConfig = (
+  models: IModels,
+  subdomain: string
+) => {
+  class RiskAssessmentsConfigsClass {
     public static async addConfig(doc) {
       try {
         validDoc(doc);
@@ -40,7 +43,7 @@ export const loadRiskIndicatorConfig = (models: IModels, subdomain: string) => {
         throw new Error(e.message);
       }
 
-      return models.RiskIndicatorConfigs.create({ ...doc });
+      return models.RiskAssessmentsConfigs.create({ ...doc });
     }
 
     public static async updateConfig(_id: string, doc) {
@@ -55,18 +58,18 @@ export const loadRiskIndicatorConfig = (models: IModels, subdomain: string) => {
         );
       }
 
-      return models.RiskIndicatorConfigs.findByIdAndUpdate(_id, {
+      return models.RiskAssessmentsConfigs.findByIdAndUpdate(_id, {
         ...doc,
         modifiedAt: new Date()
       });
     }
     public static async removeConfigs(ids: string[]) {
-      return await models.RiskIndicatorConfigs.deleteMany({
+      return await models.RiskAssessmentsConfigs.deleteMany({
         _id: { $in: ids }
       });
     }
   }
 
-  riskIndicatorConfigsSchema.loadClass(RiskIndicatorConfigsClass);
-  return riskIndicatorConfigsSchema;
+  riskAssessmentsConfigsSchema.loadClass(RiskAssessmentsConfigsClass);
+  return riskAssessmentsConfigsSchema;
 };

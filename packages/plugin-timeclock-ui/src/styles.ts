@@ -180,6 +180,19 @@ const InlineBlock = styled.div`
   align-items: center;
 `;
 
+const CustomLabel = styledTS<{ uppercase?: boolean }>(styled.label)`
+  text-transform: ${props => (props.uppercase ? 'uppercase' : 'none')};
+  display: inline-block;
+  margin: 10px 0;
+  font-weight: ${typography.fontWeightRegular};
+  font-size: 14px;
+  color: ${colors.textPrimary};
+
+  > span {
+    color: ${colors.colorCoreRed};
+  }
+`;
+
 const FlexRowEven = styled.div`
   display: flex;
   flex-direction: row;
@@ -213,11 +226,15 @@ const FlexColumnCustom = styledTS<{
   gap: ${props => props.marginNum}px
   margin: 20px 20px
 
-  .kOAWdn {
+  div:first-child {
     margin-bottom: 0;
   }
 
   `;
+
+const TextAlignCenter = styled.div`
+  text-align: center;
+`;
 
 const ToggleDisplay = styledTS<{
   display: boolean;
@@ -249,6 +266,30 @@ const RowField = styled.div`
   }
 `;
 
+const CustomCollapseRow = styledTS<{ isChild: boolean }>(styled.div)`
+  font-size: 15px;
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  justify-content: space-between;
+  align-items: center;
+  padding: ${props =>
+    props.isChild ? dimensions.unitSpacing : dimensions.coreSpacing}px;
+  margin: 0px;
+  background: ${colors.colorWhite};
+  
+  div {
+    display: flex
+    flex: 1
+    gap: 10px
+  }
+  span {
+    font-size: 12px;
+    color: ${colors.colorCoreGray};
+    margin-left: 5px;
+  }
+`;
+
 export {
   FilterItem,
   FilterWrapper,
@@ -271,5 +312,8 @@ export {
   ToggleButton,
   InlineBlock,
   Margin,
-  RowField
+  RowField,
+  TextAlignCenter,
+  CustomCollapseRow,
+  CustomLabel
 };

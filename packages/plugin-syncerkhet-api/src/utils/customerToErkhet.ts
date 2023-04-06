@@ -26,7 +26,7 @@ export const customerToErkhet = async (subdomain, params, action) => {
     object: {
       code: customer.code || '',
       name,
-      defaultCategory: config.customerCategoryCode.concat(''),
+      defaultCategory: (config.customerCategoryCode || '').toString(),
       email: customer.primaryEmail || '',
       phone: customer.primaryPhone || ''
     }

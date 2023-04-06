@@ -4,13 +4,12 @@ import {
   TypesMainQueryResponse,
   TypesRemoveMutationResponse
 } from '../../types';
-import { mutations, queries } from '../../graphql';
 
 import List from '../../components/contentTypes/List';
 import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
+import { queries } from '../../graphql';
 
 type Props = {
   siteId: string;
@@ -19,14 +18,13 @@ type Props = {
 
 type FinalProps = {
   typesMainQuery: TypesMainQueryResponse;
-} & Props &
-  TypesRemoveMutationResponse;
+} & Props;
 
 function ContentTypesContainer(props: FinalProps) {
-  const { typesRemoveMutation, typesMainQuery } = props;
+  const { typesMainQuery } = props;
 
   if (typesMainQuery.loading) {
-    return <Spinner objective={true} />;
+    return null;
   }
 
   const { list = [], totalCount } =
@@ -49,19 +47,6 @@ export default compose(
         siteId
       },
       fetchPolicy: 'network-only'
-    })
-  }),
-  graphql<Props, TypesRemoveMutationResponse>(gql(mutations.typesRemove), {
-    name: 'typesRemoveMutation',
-    options: ({ siteId }) => ({
-      refetchQueries: [
-        {
-          query: gql(queries.contentTypes),
-          variables: {
-            siteId
-          }
-        }
-      ]
     })
   })
 )(ContentTypesContainer);

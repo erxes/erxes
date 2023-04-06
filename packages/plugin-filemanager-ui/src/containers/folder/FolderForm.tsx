@@ -37,7 +37,7 @@ const FolderFormContainer = (props: FinalProps) => {
         mutation={mutations.filemanagerFolderSave}
         variables={values}
         callback={callback}
-        refetchQueries={getRefetchQueries()}
+        refetchQueries={getRefetchQueries(values.parentId)}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
@@ -55,10 +55,13 @@ const FolderFormContainer = (props: FinalProps) => {
   return <FolderForm {...updatedProps} />;
 };
 
-const getRefetchQueries = () => {
+const getRefetchQueries = (parentId?: string) => {
   return [
     {
-      query: gql(queries.filemanagerFolders)
+      query: gql(queries.filemanagerFolders),
+      variables: {
+        parentId: parentId ? parentId : ''
+      }
     }
   ];
 };

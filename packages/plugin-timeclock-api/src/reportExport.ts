@@ -66,6 +66,9 @@ const addIntoSheet = async (
       sheet.column('I').width(15);
       sheet.column('J').width(15);
       sheet.column('K').width(15);
+      sheet.column('N').width(20);
+      sheet.column('O').width(20);
+      sheet.column('P').width(20);
     }
     if (reportType === 'Pivot') {
       sheet.column('E').width(50);
@@ -98,8 +101,11 @@ const prepareHeader = async (sheet: any, reportType: string) => {
       addIntoSheet([final_headers[1][1]], 'F2', 'G2', sheet, reportType);
       addIntoSheet([final_headers[2][0]], 'H1', 'M1', sheet, reportType, true);
       addIntoSheet([final_headers[2][1]], 'H2', 'M2', sheet, reportType);
-      addIntoSheet([final_headers[3][0]], 'N1', 'P1', sheet, reportType, true);
-      addIntoSheet([final_headers[3][1]], 'N2', 'P2', sheet, reportType);
+      addIntoSheet([final_headers[3][0]], 'N1', 'N1', sheet, reportType, true);
+      addIntoSheet([final_headers[3][1]], 'N2', 'N2', sheet, reportType);
+      // absence info
+      addIntoSheet([final_headers[4][0]], 'O1', 'Q1', sheet, reportType, true);
+      addIntoSheet([final_headers[4][1]], 'O2', 'Q2', sheet, reportType);
       break;
 
     case 'Pivot':
@@ -155,6 +161,7 @@ const extractAndAddIntoSheet = (
     case 'Сүүлд' || 'Final':
       startRowIdx = 3;
       rowNum = 3;
+
       for (const empReport of empReports) {
         extractValuesIntoArr.push([rowNum - 2, ...Object.values(empReport)]);
         rowNum += 1;
@@ -163,7 +170,7 @@ const extractAndAddIntoSheet = (
       addIntoSheet(
         extractValuesIntoArr,
         `A${startRowIdx}`,
-        `P${endRowIdx}`,
+        `Q${endRowIdx}`,
         sheet,
         reportType
       );

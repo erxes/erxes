@@ -1,46 +1,44 @@
-import React from 'react';
-import { ShowPreview } from '@erxes/ui-forms/src/forms/styles';
-import {
-  Icon,
-  Button,
-  confirm,
-  __,
-  ModalTrigger,
-  colors,
-  FormGroup,
-  ControlLabel,
-  Tip,
-  Form as CommonForm,
-  FormControl
-} from '@erxes/ui/src';
-import { IField } from '@erxes/ui/src/types';
-import {
-  FormColumn,
-  FormWrapper,
-  ModalFooter,
-  ColorPick,
-  ColorPicker
-} from '@erxes/ui/src/styles/main';
-import {
-  ContentWrapper,
-  FormContainer,
-  PreviewWrapper,
-  Box as FormTriggerBtn,
-  Typography,
-  FormContent,
-  RemoveRow
-} from '../../styles';
 import CreateForm from '@erxes/ui-forms/src/forms/containers/CreateForm';
 import EditForm from '@erxes/ui-forms/src/forms/containers/EditForm';
+import { ShowPreview } from '@erxes/ui-forms/src/forms/styles';
+import {
+  Button,
+  colors,
+  confirm,
+  ControlLabel,
+  Form as CommonForm,
+  FormControl,
+  FormGroup,
+  Icon,
+  ModalTrigger,
+  Tip,
+  __
+} from '@erxes/ui/src';
 import client from '@erxes/ui/src/apolloClient';
-import { mutations } from '../../categories/graphql';
+import {
+  ColorPick,
+  ColorPicker,
+  FormColumn,
+  FormWrapper,
+  ModalFooter
+} from '@erxes/ui/src/styles/main';
+import { IField } from '@erxes/ui/src/types';
 import gql from 'graphql-tag';
-import Select from 'react-select-plus';
-import { calculateMethods, COLORS } from '../../common/constants';
+import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
+import Select from 'react-select-plus';
+import { calculateMethods, COLORS } from '../../common/constants';
+import {
+  ContentWrapper,
+  FormContainer,
+  FormContent,
+  PreviewWrapper,
+  RemoveRow
+} from '../../styles';
 import { RiskCalculateLogicType } from '../common/types';
+import { mutations } from '../graphql';
 
 type Props = {
   formId?: string;
@@ -75,7 +73,7 @@ class Item extends React.Component<Props, State> {
         `Are you sure you want to close.Your created form won't save`
       ).then(() => {
         client.mutate({
-          mutation: gql(mutations.removeUnsavedRiskAssessmentCategoryForm),
+          mutation: gql(mutations.removeUnusedRiskIndicatorForm),
           variables: { formId }
         });
         return closeModal();
@@ -361,13 +359,12 @@ class Item extends React.Component<Props, State> {
           'Are you sure.If you remove this row you will lose created form data'
         ).then(() => {
           client.mutate({
-            mutation: gql(mutations.removeUnsavedRiskAssessmentCategoryForm),
+            mutation: gql(mutations.removeUnusedRiskIndicatorForm),
             variables: { formId: doc.formId }
           });
+          remove(id);
         });
       }
-
-      remove(id);
     };
 
     const content = formProps => (
@@ -410,6 +407,7 @@ class Item extends React.Component<Props, State> {
             size="xl"
             content={this.renderFormContent}
             trigger={formTrigger}
+            style={{ overflow: 'auto' }}
           />
         </FormWrapper>
         {totalFormsCount === 1 && (

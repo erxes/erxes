@@ -28,6 +28,23 @@ type VerificationRequest {
   verifiedBy: String
 }
 
+  input ClientPortalUserUpdate {
+    firstName: String
+    lastName: String
+    phone: String
+    email: String
+    username: String
+    companyName: String
+    companyRegistrationNumber: String
+    code: String,
+    links: JSON,
+    customFieldsData: JSON,
+    isEmailVerified: Boolean
+    isPhoneVerified: Boolean
+    isOnline: Boolean
+    avatar: String
+  }
+
   type ClientPortalUser @key(fields: "_id") {
     _id: String!
     createdAt: Date
@@ -145,8 +162,12 @@ export const mutations = () => `
   clientPortalVerifyOTP(userId: String!, phoneOtp: String, emailOtp: String, password: String): String
   clientPortalUsersVerify(userIds: [String]!, type: String): JSON
   clientPortalLogin(login: String!, password: String!, clientPortalId: String!, deviceToken: String): String
+  clientPortalGoogleAuthentication(clientPortalId: String, code: String): String
+  clientPortalFacebookAuthentication(accessToken: String, clientPortalId: String!): String
   clientPortalLogout: String
   clientPortalLoginWithPhone(phone: String!, clientPortalId: String!, deviceToken: String): JSON
+  clientPortalUsersReplacePhone(clientPortalId: String!, phone: String!): String!
+  clientPortalUsersVerifyPhone(code: String!): String!
 
   clientPortalConfirmInvitation(token: String, password: String, passwordConfirmation: String, username: String): ClientPortalUser
   clientPortalForgotPassword(clientPortalId: String!, email: String, phone: String): String!
@@ -155,4 +176,5 @@ export const mutations = () => `
   clientPortalUserChangePassword(currentPassword: String!, newPassword: String!): ClientPortalUser
   clientPortalUsersSendVerificationRequest(login: String!, password: String!, clientPortalId: String!,  attachments: [AttachmentInput]!, description: String): String
   clientPortalUsersChangeVerificationStatus(userId: String!, status: ClientPortalUserVerificationStatus!): String
+  clientPortalUpdateUser(_id: String!, doc: ClientPortalUserUpdate!): JSON
 `;

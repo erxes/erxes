@@ -339,6 +339,36 @@ export const prepareEbarimtData = async (
   return result;
 };
 
+const getMatchMaps = (matchOrders, lastCatProdMaps, product) => {
+  for (const order of matchOrders) {
+    const matchMaps = lastCatProdMaps.filter(
+      lcp => lcp.category.order === order
+    );
+
+    if (matchMaps.length) {
+      const withCodeMatch = matchMaps.find(
+        m => m.code && product.code.includes(m.code)
+      );
+      if (withCodeMatch) {
+        return withCodeMatch;
+      }
+
+      const withNameMatch = matchMaps.find(
+        m => !m.code && m.name && product.name.includes(m.name)
+      );
+      if (withNameMatch) {
+        return withNameMatch;
+      }
+
+      const normalMatch = matchMaps.find(m => !m.code && !m.name);
+      if (normalMatch) {
+        return normalMatch;
+      }
+    }
+  }
+  return;
+};
+
 export const prepareOrderDoc = async (
   doc: IOrderInput,
   config: IConfigDocument,
@@ -376,27 +406,53 @@ export const prepareOrderDoc = async (
   const hasTakeItems = items.filter(i => i.isTake);
 
   if (hasTakeItems.length > 0 && catProdMappings.length > 0) {
-    const packOfCategoryId = {};
-
-    for (const rel of catProdMappings) {
-      packOfCategoryId[rel.categoryId] = rel.productId;
-    }
-
     const toAddProducts = {};
+
+    const mapCatIds = catProdMappings
+      .filter(cpm => cpm.categoryId)
+      .map(cpm => cpm.categoryId);
+    const hasTakeProducIds = hasTakeItems.map(hti => hti.productId);
+    const hasTakeCatIds = hasTakeProducIds.map(
+      htpi => (productsOfId[htpi] || {}).categoryId
+    );
+    const categories = await models.ProductCategories.find({
+      _id: { $in: [...mapCatIds, ...hasTakeCatIds] }
+    }).lean();
+
+    const categoriesOfId = {};
+    for (const cat of categories) {
+      categoriesOfId[cat._id] = cat;
+    }
+    const lastCatProdMaps = catProdMappings.map(cpm => ({
+      ...cpm,
+      category: categoriesOfId[cpm.categoryId]
+    }));
 
     for (const item of hasTakeItems) {
       const product = productsOfId[item.productId];
+      const category = categoriesOfId[product.categoryId || ''];
 
-      if (Object.keys(packOfCategoryId).includes(product.categoryId || '')) {
-        const packProductId = packOfCategoryId[product.categoryId || ''];
-
-        if (!Object.keys(toAddProducts).includes(packProductId)) {
-          toAddProducts[packProductId] = { count: 0 };
-        }
-
-        toAddProducts[packProductId].count += item.count;
+      if (!category) {
+        continue;
       }
-    } // end items loop
+
+      const perOrders = category.order.split('/');
+      const matchOrders: string[] = [];
+      for (let i = perOrders.length - 1; i > 0; i--) {
+        matchOrders.push(`${perOrders.slice(0, i).join('/')}/`);
+      }
+
+      const matchMap = getMatchMaps(matchOrders, lastCatProdMaps, product);
+      if (matchMap) {
+        const packProductId = matchMap.productId;
+        if (packProductId) {
+          if (!Object.keys(toAddProducts).includes(packProductId)) {
+            toAddProducts[packProductId] = { count: 0 };
+          }
+          toAddProducts[packProductId].count += item.count;
+        }
+      }
+    }
 
     const addProductIds = Object.keys(toAddProducts);
 

@@ -11861,7 +11861,7 @@ follow-redirects@^1.14.9:
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.1.tgz#0ca6a452306c9b276e4d3127483e29575e207ad5"
   integrity sha512-yLAMQs+k0b2m7cVxpS1VKJVvoz7SS9Td1zss3XRwXj+ZDH00RJgnuLx7E44wx02kQLrdM3aOOy+FpzS7+8OizA==
 
-follow-redirects@^1.15.0:
+follow-redirects@^1.15.0, follow-redirects@^1.15.1:
   version "1.15.2"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.2.tgz#b460864144ba63f2681096f274c4e57026da2c13"
   integrity sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==
@@ -13347,6 +13347,17 @@ http-proxy-middleware@^2.0.0, http-proxy-middleware@^2.0.1:
     is-plain-obj "^3.0.0"
     micromatch "^4.0.2"
 
+http-proxy-middleware@^2.0.6:
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/http-proxy-middleware/-/http-proxy-middleware-2.0.6.tgz#e1a4dd6979572c7ab5a4e4b55095d1f32a74963f"
+  integrity sha512-ya/UeJ6HVBYxrgYotAZo1KvPWlgB48kUJLDePFeneHsVujFaW5WNj2NgWCAE//B1Dl02BIfYlpNgBy8Kf8Rjmw==
+  dependencies:
+    "@types/http-proxy" "^1.17.8"
+    http-proxy "^1.18.1"
+    is-glob "^4.0.1"
+    is-plain-obj "^3.0.0"
+    micromatch "^4.0.2"
+
 http-proxy@^1.18.1:
   version "1.18.1"
   resolved "https://registry.yarnpkg.com/http-proxy/-/http-proxy-1.18.1.tgz#401541f0534884bbf95260334e72f88ee3976549"
@@ -13364,6 +13375,11 @@ http-signature@~1.2.0:
     assert-plus "^1.0.0"
     jsprim "^1.2.2"
     sshpk "^1.7.0"
+
+http@^0.0.1-security:
+  version "0.0.1-security"
+  resolved "https://registry.yarnpkg.com/http/-/http-0.0.1-security.tgz#3aac09129d12dc2747bbce4157afde20ad1f7995"
+  integrity sha512-RnDvP10Ty9FxqOtPZuxtebw1j4L/WiqNMDtuc1YMH1XQm5TgDRaR1G9u8upL6KD1bXHSp9eSXo/ED+8Q7FAr+g==
 
 https-proxy-agent@1.0.0:
   version "1.0.0"
@@ -17820,6 +17836,16 @@ node-watch@^0.7.2, node-watch@^0.7.3:
   resolved "https://registry.yarnpkg.com/node-watch/-/node-watch-0.7.3.tgz#6d4db88e39c8d09d3ea61d6568d80e5975abc7ab"
   integrity sha512-3l4E8uMPY1HdMMryPRUAl+oIHtXtyiTlIiESNSVSNxcPfzAFzeTbXFQkZfAwBbo0B1qMSG8nUABx+Gd+YrbKrQ==
 
+nodejs-file-downloader@^4.10.6:
+  version "4.10.6"
+  resolved "https://registry.yarnpkg.com/nodejs-file-downloader/-/nodejs-file-downloader-4.10.6.tgz#a2b6e2c721de14968cf6f8d7d980aac448217ea3"
+  integrity sha512-n9XK3+h1aSKbnf1dYvEiB6wd4rnzPz40IKBNuqr4zKlzfvc9AT69Vjf/X8+QwyOxsqYLY3/4etDZX97FKh27Jw==
+  dependencies:
+    follow-redirects "^1.15.1"
+    https-proxy-agent "^5.0.0"
+    mime-types "^2.1.27"
+    sanitize-filename "^1.6.3"
+
 nodejs-file-downloader@^4.9.2:
   version "4.9.3"
   resolved "https://registry.yarnpkg.com/nodejs-file-downloader/-/nodejs-file-downloader-4.9.3.tgz#0aee8232e5a3539b606520d15dc0a3a96b8c4a53"
@@ -19376,16 +19402,6 @@ qr.js@0.0.0:
   version "0.0.0"
   resolved "https://registry.yarnpkg.com/qr.js/-/qr.js-0.0.0.tgz#cace86386f59a0db8050fa90d9b6b0e88a1e364f"
   integrity sha512-c4iYnWb+k2E+vYpRimHqSu575b1/wKl4XFeJGpFmrJQz5I88v9aY2czh7s0w36srfCM1sXgC/xpoJz5dJfq+OQ==
-
-qrcode@1.5.0:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/qrcode/-/qrcode-1.5.0.tgz#95abb8a91fdafd86f8190f2836abbfc500c72d1b"
-  integrity sha512-9MgRpgVc+/+47dFvQeD6U2s0Z92EsKzcHogtum4QB+UNd025WOJSHvn/hjk9xmzj7Stj95CyUAs31mrjxliEsQ==
-  dependencies:
-    dijkstrajs "^1.0.1"
-    encode-utf8 "^1.0.3"
-    pngjs "^5.0.0"
-    yargs "^15.3.1"
 
 qrcode@^1.5.0:
   version "1.5.1"

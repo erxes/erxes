@@ -15,6 +15,8 @@ import { IPaymentDocument } from '../types';
 import QpayForm from './form/QpayForm';
 import SocialPayForm from './form/SocialPayForm';
 import MonpayForm from './form/MonpayForm';
+import PaypalFrom from './form/PaypalForm';
+import StorepayForm from './form/StorePayForm';
 import { getRefetchQueries } from '../containers/utils';
 import { PAYMENT_KINDS } from './constants';
 
@@ -104,6 +106,24 @@ class IntegrationListItem extends React.Component<Props, State> {
       case PAYMENT_KINDS.MONPAY:
         content = props => (
           <MonpayForm
+            {...props}
+            payment={payment}
+            renderButton={renderButton}
+          />
+        );
+        break;
+      case PAYMENT_KINDS.STOREPAY:
+        content = props => (
+          <StorepayForm
+            {...props}
+            payment={payment}
+            renderButton={renderButton}
+          />
+        );
+        break;
+      case PAYMENT_KINDS.PAYPAL:
+        content = props => (
+          <PaypalFrom
             {...props}
             payment={payment}
             renderButton={renderButton}

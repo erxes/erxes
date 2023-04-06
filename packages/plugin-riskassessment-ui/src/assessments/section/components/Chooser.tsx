@@ -9,17 +9,19 @@ import {
   __
 } from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { mutations as riskIndicatorMutattions } from '../../../indicator/graphql';
-import { queries } from '../graphql';
-import RiskIndicatorForm from '../../../indicator/containers/Form';
-import RiskGroupsForm from '../../../indicator/groups/containers/Form';
-import { useQuery } from 'react-apollo';
+import { withProps } from '@erxes/ui/src/utils/core';
 import gql from 'graphql-tag';
-import { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useQuery } from 'react-apollo';
 import { DetailPopOver } from '../../../assessments/common/utils';
-import { SelectGroupsAssignedUsers } from '../common/utils';
+import RiskIndicatorForm from '../../../indicator/containers/Form';
+import { mutations as riskIndicatorMutattions } from '../../../indicator/graphql';
+import RiskGroupsForm from '../../../indicator/groups/containers/Form';
 import { queries as groupsQueries } from '../../../indicator/groups/graphql';
+import { SelectGroupsAssignedUsers } from '../common/utils';
+import { queries } from '../graphql';
+import * as compose from 'lodash.flowright';
+import { graphql } from 'react-apollo';
 
 type Props = {
   detail: any;
@@ -38,19 +40,23 @@ type Props = {
   }) => void;
 
   filters: {
-    branchIds: string[];
-    departmentIds: string[];
-    operationIds: string[];
+    branchId: string;
+    departmentId: string;
+    operationId: string;
   };
 };
 
-export default function SelectIndicators(props: Props) {
-  const [selectedItems, setSelectedItems] = useState<any[]>([]);
+type FinalProps = {
+  selectedItemsQuery: any;
+} & Props;
+
+function SelectIndicators(props: FinalProps) {
   const [perPage, setPerPage] = useState(10);
   const [searchValue, setSearchValue] = useState('');
   const [useGroups, setUseGroups] = useState(false);
   const [groupsAssignedUsers, setGroupsAssignedUsers] = useState<any[]>([]);
   const [isSplittedUsers, setSplitUsers] = useState(false);
+  const [selectedItems, setSelectedItems] = useState<any[]>([]);
   const { data, error, loading } = useQuery(
     gql(useGroups ? groupsQueries.list : queries.riskIndicators),
     {
@@ -58,13 +64,30 @@ export default function SelectIndicators(props: Props) {
     }
   );
   useEffect(() => {
-    if (props.detail) {
-      fethcDetail();
+    if (props.selectedItemsQuery) {
+      const {
+        riskIndicatorsGroups,
+        riskIndicators
+      } = props.selectedItemsQuery as {
+        riskIndicators: any;
+        riskIndicatorsGroups: any;
+      };
+      if (riskIndicatorsGroups) {
+        setUseGroups(true);
+        if (props.detail.isSplittedUsers) {
+          setSplitUsers(true);
+        }
+        setSelectedItems(
+          !!riskIndicatorsGroups.length ? riskIndicatorsGroups : []
+        );
+      } else {
+        setSelectedItems(!!riskIndicators?.length ? riskIndicators : []);
+      }
     }
-  }, [searchValue, data]);
+  }, [props.selectedItemsQuery]);
 
   if (error) {
-    return <EmptyState text="Something went wrong" />;
+    return <EmptyState text="Something went wrong" extra={error.message} />;
   }
 
   if (loading) {
@@ -158,21 +181,6 @@ export default function SelectIndicators(props: Props) {
 
     handleSelect({ [fieldName]: selectedItemIds[0], groupsAssignedUsers });
   };
-  function fethcDetail() {
-    const { detail } = props;
-    if (detail.groupId) {
-      setUseGroups(true);
-      if (detail.isSplittedUsers) setSplitUsers(true);
-      setSelectedItems(
-        (list || []).filter(item => detail.groupId === item._id)
-      );
-    }
-    if (detail.indicatorId && !useGroups) {
-      setSelectedItems(
-        (list || []).filter(item => detail.indicatorId === item._id)
-      );
-    }
-  }
 
   const hadleExtraField = data => {
     setSelectedItems([data]);
@@ -220,5 +228,29 @@ export default function SelectIndicators(props: Props) {
     renderExtra: renderExtraField,
     handleExtra: hadleExtraField
   };
+
   return <Chooser {...updateProps} />;
 }
+
+export default withProps<Props>(
+  compose(
+    graphql<Props>(gql(groupsQueries.list), {
+      name: 'selectedItemsQuery',
+      skip: ({ detail }) => !detail?.groupId,
+      options: ({ detail }) => ({
+        variables: {
+          ids: [detail.groupId]
+        }
+      })
+    }),
+    graphql<Props>(gql(queries.riskIndicators), {
+      name: 'selectedItemsQuery',
+      skip: ({ detail }) => !detail?.indicatorId,
+      options: ({ detail }) => ({
+        variables: {
+          ids: [detail.indicatorId]
+        }
+      })
+    })
+  )(SelectIndicators)
+);

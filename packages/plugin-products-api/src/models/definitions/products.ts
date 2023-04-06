@@ -78,6 +78,7 @@ export interface IProductCategory {
   code: string;
   order: string;
   description?: string;
+  meta?: string;
   parentId?: string;
   attachment?: any;
   status?: string;
@@ -157,14 +158,14 @@ export const productSchema = schemaWrapper(
       index: true
     }),
     productCount: field({
-      type: String,
+      type: Number,
       label: 'Product Count',
-      default: '0'
+      default: 0
     }),
     minimiumCount: field({
-      type: String,
+      type: Number,
       label: 'Minimium Count',
-      default: '0'
+      default: 0
     }),
     vendorId: field({ type: String, optional: true, label: 'Vendor' }),
     mergedIds: field({ type: [String], optional: true }),
@@ -192,6 +193,7 @@ export const productCategorySchema = schemaWrapper(
     order: field({ type: String, label: 'Order' }),
     parentId: field({ type: String, optional: true, label: 'Parent' }),
     description: field({ type: String, optional: true, label: 'Description' }),
+    meta: field({ type: String, optional: true, label: 'Meta' }),
     attachment: field({ type: attachmentSchema }),
     status: field({
       type: String,

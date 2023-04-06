@@ -21,7 +21,7 @@ const paymentOptionsParams = `
   contentType: String
   contentTypeId: String
   customerId: String
-  companyId: String
+  customerType: String
   description: String
   redirectUri: String
   phone: String

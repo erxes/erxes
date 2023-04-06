@@ -38,3 +38,19 @@ export type IRiskFormDetailQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+export type IFormSubmissions = {
+  _id: string;
+  contentType: string;
+  indicatorId: string;
+  userId: string;
+  cardId: string;
+  cardType: string;
+  assessmentId: string;
+  value: string;
+  description: string;
+  formId: string;
+  fieldId: string;
+  optionsValues: string;
+  text: string;
+};

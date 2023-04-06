@@ -19,6 +19,7 @@ import { TabTitle } from '@erxes/ui/src/components/tabs';
 import Widget from '@erxes/ui-engage/src/containers/Widget';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import PrintAction from '@erxes/ui-contacts/src/customers/components/common/PrintAction';
 
 type Props = {
   customer: ICustomer;
@@ -48,6 +49,7 @@ class CustomerDetails extends React.Component<Props> {
         <MailForm
           fromEmail={customer.primaryEmail}
           refetchQueries={['activityLogsCustomer']}
+          source={isEnabled('imap') ? 'inbox' : undefined}
           closeModal={props.closeModal}
         />
       </MailBox>
@@ -121,7 +123,7 @@ class CustomerDetails extends React.Component<Props> {
             contentType="contacts:customer"
             extraTabs={[
               { name: 'inbox:conversation', label: 'Conversation' },
-              { name: 'email', label: 'Email' },
+              { name: 'imap:email', label: 'Email' },
               { name: 'cards:task', label: 'Task' },
               // { name: 'sms', label: 'SMS' },
               { name: 'engages:campaign', label: 'Campaign' }
@@ -142,6 +144,9 @@ class CustomerDetails extends React.Component<Props> {
         mainHead={
           <UserHeader>
             <InfoSection avatarSize={40} customer={customer}>
+              {isEnabled('documents') && (
+                <PrintAction coc={customer} contentType="contacts:customer" />
+              )}
               <ActionSection customer={customer} />
             </InfoSection>
             <LeadState customer={customer} />

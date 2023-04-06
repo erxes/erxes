@@ -24,10 +24,9 @@ class PutResponseRow extends React.Component<Props> {
   displayPaid(order, key) {
     const { paidAmounts } = order;
     const value = (
-      (paidAmounts || []).find(pa => pa.title === key || pa.type === key) || {
-        amount: 0
-      }
-    ).amount;
+      (paidAmounts || []).filter(pa => pa.title === key || pa.type === key) ||
+      []
+    ).reduce((sum, pa) => sum + pa.amount, 0);
     return (
       <FinanceAmount key={Math.random()}>
         {(value || 0).toLocaleString()}
@@ -77,13 +76,7 @@ class PutResponseRow extends React.Component<Props> {
           <td key={key}>{this.displayPaid(order, key)}</td>
         ))}
         <td key={'totalAmount'}>{this.displayValue(order, 'totalAmount')}</td>
-        <td key={'customer'}>
-          {order.customer
-            ? order.customer.primaryEmail ||
-              order.customer.primaryPhone ||
-              order.customer.firstName
-            : ''}
-        </td>
+        <td key={'customer'}>{order.customerType}</td>
         <td key={'pos'}>
           {order.posName || ''}
           {order.origin === 'kiosk' ? '*' : ''}

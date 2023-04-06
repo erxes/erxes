@@ -1,23 +1,11 @@
 export const types = `
   type PosCustomer {
     _id: String!
-    state: String
-    createdAt: Date
-    modifiedAt: Date
-    avatar: String
-    firstName: String
-    lastName: String
-    middleName: String
-    birthDate: Date
-    sex: Int
-    email: String
-    primaryEmail: String
-    emails: [String]
-    primaryPhone: String
-    phones: [String]
-    phone: String
-    tagIds: [String]
     code: String
+    primaryPhone: String
+    firstName: String
+    primaryEmail: String
+    lastName: String
   }
 `;
 
@@ -46,7 +34,7 @@ const queryParams = `
 
 export const queries = `
   poscCustomers(${queryParams}): [PosCustomer]
-  poscCustomerDetail(_id: String!): PosCustomer
+  poscCustomerDetail(_id: String!, type: String): PosCustomer
 `;
 
 const mutationParams = `

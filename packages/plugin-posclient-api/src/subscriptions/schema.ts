@@ -8,6 +8,7 @@ const commonFields = `
 const orderFields = `
   status: String
   customerId: String
+  customerType: String
   number: String
 `;
 

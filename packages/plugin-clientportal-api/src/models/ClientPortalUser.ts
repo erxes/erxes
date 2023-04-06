@@ -475,11 +475,12 @@ export const loadClientPortalUserClass = (models: IModels) => {
     ) {
       const query: any = { clientPortalId: clientPortal._id };
 
-      let isEmail = false;
+      const isEmail = clientPortal.passwordVerificationConfig
+        ? !clientPortal.passwordVerificationConfig.verifyByOTP
+        : true;
 
       if (email) {
         query.email = email;
-        isEmail = true;
       }
 
       if (phone) {
@@ -508,6 +509,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
           : 4,
         clientPortalId: clientPortal._id,
         phone,
+        email,
         isRessetting: true
       });
 
@@ -745,8 +747,20 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
       if (
         cp.manualVerificationConfig &&
-        (!user.verificationRequest ||
-          user.verificationRequest.status !== 'verified')
+        user.type === 'customer' &&
+        user.verificationRequest &&
+        user.verificationRequest.status !== 'verified' &&
+        cp.manualVerificationConfig.verifyCustomer
+      ) {
+        throw new Error('User is not verified');
+      }
+
+      if (
+        cp.manualVerificationConfig &&
+        user.type === 'company' &&
+        user.verificationRequest &&
+        user.verificationRequest.status !== 'verified' &&
+        cp.manualVerificationConfig.verifyCompany
       ) {
         throw new Error('User is not verified');
       }

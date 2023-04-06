@@ -30,7 +30,7 @@ export const sendContactsMessage = async (
   });
 };
 
-export const sendPluginsMessage = async (
+export const sendCommonMessage = async (
   serviceName: string,
   args: ISendMessageArgs
 ): Promise<any> => {
