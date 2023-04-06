@@ -933,28 +933,6 @@ const widgetMutations = {
       });
     }
 
-    if (!HAS_BOTENDPOINT_URL && customerId) {
-      try {
-        await sendCoreMessage({
-          subdomain,
-          action: 'sendMobileNotification',
-          data: {
-            title: 'You have a new message',
-            body: conversationContent,
-            customerId,
-            conversationId: conversation._id,
-            receivers: conversationNotifReceivers(conversation, customerId),
-            data: {
-              type: 'messenger',
-              id: conversation._id
-            }
-          }
-        });
-      } catch (e) {
-        debug.error(`Failed to send mobile notification: ${e.message}`);
-      }
-    }
-
     await sendToWebhook({
       subdomain,
       data: {
