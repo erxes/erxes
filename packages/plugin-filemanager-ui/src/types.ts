@@ -37,6 +37,26 @@ export interface IFile {
   relatedFiles: IFile[];
   sharedUsers: IUser[];
 }
+export interface IAccessRequests {
+  _id: string;
+  file: IFile;
+  createdAt?: Date;
+  description?: string;
+  fileId?: string;
+  fromUserId?: string;
+  fromUser?: IUser;
+  status: string;
+}
+
+export interface ILogs {
+  _id: string;
+  contentType?: string;
+  contentTypeId?: string;
+  createdAt?: Date;
+  description?: string;
+  user?: IUser;
+  userId?: string;
+}
 
 // query types
 export type FilemanagerFoldersQueryResponse = {
@@ -69,6 +89,15 @@ export type RelateFileMutationVariables = {
   targetIds: string[];
 };
 
+export type RequestAccessMutationVariables = {
+  fileId: string;
+  description?: string;
+};
+
+export type ConfirmRequestMutationVariables = {
+  requestId: string;
+};
+
 export type RemoveFilemanagerFolderMutationResponse = {
   removeMutation: (params: { variables: MutationVariables }) => Promise<void>;
 };
@@ -94,5 +123,17 @@ export type SaveFileMutationResponse = {
 export type RelateFileMutationResponse = {
   relateFileMutation: (params: {
     variables: RelateFileMutationVariables;
+  }) => Promise<void>;
+};
+
+export type RequestAccessMutationResponse = {
+  requestAccessMutation: (params: {
+    variables: RequestAccessMutationVariables;
+  }) => Promise<void>;
+};
+
+export type ConfirmRequestMutationResponse = {
+  confirmRequestMutation: (params: {
+    variables: ConfirmRequestMutationVariables;
   }) => Promise<void>;
 };

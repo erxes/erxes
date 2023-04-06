@@ -45,8 +45,8 @@ const filemanagerRemoveRelatedFiles = `
 `;
 
 const filemanagerRequestAccess = `
-  mutation filemanagerRequestAccess($fileId: String!) {
-    filemanagerRequestAccess(fileId: $fileId)
+  mutation filemanagerRequestAccess($fileId: String!, $description: String) {
+    filemanagerRequestAccess(fileId: $fileId, description: $description)
   }
 `;
 

@@ -1,4 +1,5 @@
-import { DetailTitle, FilePreview, FlexRow } from './styles';
+import { DetailTitle, DocumentPreview, FilePreview, FlexRow } from './styles';
+import { IAccessRequests, ILogs } from '../../types';
 import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 import { __, getEnv } from '@erxes/ui/src/utils';
 import { readFile, renderUserFullName } from '@erxes/ui/src/utils';
@@ -13,6 +14,8 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import RelatedFileList from './RelatedFilesList';
 import RelatedForm from '../../containers/file/RelatedForm';
+import RequestAccessForm from '../../containers/file/RequestAccessForm';
+import RequestedFilesList from '../../containers/file/RequestedFilesList';
 import ShareForm from '../../containers/ShareForm';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -21,8 +24,10 @@ import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 type Props = {
   item: any;
   history: any;
-  logs: any;
+  logs: ILogs[];
   folderId: string;
+  fileId: string;
+  isViewPermissionDenied: boolean;
 };
 
 type State = {
@@ -64,14 +69,11 @@ class FileDetail extends React.Component<Props, State> {
     }
 
     return (
-      <div style={{ marginTop: '50px;', marginLeft: '20px' }}>
+      <DocumentPreview>
         <h3>Preview</h3>
 
-        <iframe
-          src={this.getPrintUrl()}
-          style={{ width: '100%', border: 'none', height: '700px' }}
-        />
-      </div>
+        <iframe src={this.getPrintUrl()} />
+      </DocumentPreview>
     );
   }
 
@@ -120,12 +122,16 @@ class FileDetail extends React.Component<Props, State> {
   }
 
   renderTabContent() {
-    const { item, folderId } = this.props;
+    const { item, folderId, fileId } = this.props;
 
     if (this.state.currentTab === 'related') {
       return (
         <RelatedFileList files={item.relatedFiles || []} folderId={folderId} />
       );
+    }
+
+    if (this.state.currentTab === 'requested') {
+      return <RequestedFilesList fileId={fileId} />;
     }
 
     return this.renderLogs();
@@ -148,6 +154,12 @@ class FileDetail extends React.Component<Props, State> {
             onClick={this.onTabClick.bind(this, 'related')}
           >
             {__('Related files')}
+          </TabTitle>
+          <TabTitle
+            className={currentTab === 'requested' ? 'active' : ''}
+            onClick={this.onTabClick.bind(this, 'requested')}
+          >
+            {__('Requested files')}
           </TabTitle>
         </Tabs>
         {this.renderTabContent()}
@@ -211,7 +223,7 @@ class FileDetail extends React.Component<Props, State> {
   }
 
   render() {
-    const { item, folderId } = this.props;
+    const { item, folderId, isViewPermissionDenied } = this.props;
     const isDynamic = item.type === 'dynamic';
 
     const breadcrumb = [
@@ -279,6 +291,10 @@ class FileDetail extends React.Component<Props, State> {
         )}
       </>
     );
+
+    if (isViewPermissionDenied) {
+      return <RequestAccessForm fileId={this.props.fileId} />;
+    }
 
     return (
       <Wrapper
