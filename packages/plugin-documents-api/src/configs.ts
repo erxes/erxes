@@ -3,6 +3,7 @@ import resolvers from './graphql/resolvers';
 
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getServices, getService } from '@erxes/api-utils/src/serviceDiscovery';
 import { initBroker, sendCommonMessage } from './messageBroker';
 import * as permissions from './permissions';
 
@@ -51,6 +52,27 @@ export default {
 
         if (!userId) {
           return next(new Error('Permission denied'));
+        }
+
+        const services = await getServices();
+
+        for (const serviceName of services) {
+          const service = await getService(serviceName, true);
+          const meta = service.config?.meta || {};
+
+          if (meta && meta.documentPrintHook) {
+            try {
+              await sendCommonMessage({
+                subdomain,
+                action: 'documentPrintHook',
+                isRPC: true,
+                serviceName,
+                data: { document, userId }
+              });
+            } catch (e) {
+              return next(e);
+            }
+          }
         }
 
         let replacedContents: any[] = [];

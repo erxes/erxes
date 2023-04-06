@@ -129,7 +129,7 @@ const saveMessages = async (
         subdomain,
         action: 'customers.findOne',
         data: {
-          primaryEmail: from
+          customerPrimaryEmail: from
         },
         isRPC: true
       });

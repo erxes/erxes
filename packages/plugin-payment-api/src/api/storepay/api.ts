@@ -164,7 +164,9 @@ export class StorePayAPI extends BaseAPI {
       const possibleAmount = await this.checkLoanAmount(invoice.phone);
 
       if (possibleAmount < invoice.amount) {
-        throw new Error('Insufficient loan amount');
+        return {
+          error: 'Insufficient amount'
+        };
       }
 
       const res = await this.request({
@@ -177,13 +179,12 @@ export class StorePayAPI extends BaseAPI {
       if (res.status !== 'Success') {
         const error =
           res.msgList.length > 0 ? res.msgList[0].code : 'Unknown error';
-        console.error(error);
+
         return { error };
       }
 
       return { ...res, text: `Invoice has sent to ${invoice.phone}` };
     } catch (e) {
-      console.error(e);
       return { error: e.message };
     }
   }
@@ -207,7 +208,6 @@ export class StorePayAPI extends BaseAPI {
 
       return PAYMENT_STATUS.PAID;
     } catch (e) {
-      console.error(e);
       throw new Error(e.message);
     }
   }
