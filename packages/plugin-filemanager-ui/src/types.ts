@@ -69,6 +69,11 @@ export type RelateFileMutationVariables = {
   targetIds: string[];
 };
 
+export type RequestAccessMutationVariables = {
+  fileId: string;
+  description?: string;
+};
+
 export type RemoveFilemanagerFolderMutationResponse = {
   removeMutation: (params: { variables: MutationVariables }) => Promise<void>;
 };
@@ -94,5 +99,11 @@ export type SaveFileMutationResponse = {
 export type RelateFileMutationResponse = {
   relateFileMutation: (params: {
     variables: RelateFileMutationVariables;
+  }) => Promise<void>;
+};
+
+export type RequestAccessMutationResponse = {
+  requestAccessMutation: (params: {
+    variables: RequestAccessMutationVariables;
   }) => Promise<void>;
 };

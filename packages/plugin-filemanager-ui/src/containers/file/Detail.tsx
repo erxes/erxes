@@ -32,11 +32,17 @@ const FileDetailContainer = (props: FinalProps) => {
 
   const item = filemanagerDetailQuery.filemanagerFileDetail || ({} as any);
   const logs = filemanagerLogsQuery.filemanagerLogs || ([] as any);
+  const isViewPermissionDenied =
+    filemanagerDetailQuery.error &&
+    filemanagerDetailQuery.error.message.includes('Permission denied')
+      ? true
+      : false;
 
   const extendedProps = {
     ...props,
     item,
-    logs
+    logs,
+    isViewPermissionDenied
   };
 
   return <FileDetail {...extendedProps} />;

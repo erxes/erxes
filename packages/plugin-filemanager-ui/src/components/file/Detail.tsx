@@ -1,4 +1,4 @@
-import { DetailTitle, FilePreview, FlexRow } from './styles';
+import { DetailTitle, DocumentPreview, FilePreview, FlexRow } from './styles';
 import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 import { __, getEnv } from '@erxes/ui/src/utils';
 import { readFile, renderUserFullName } from '@erxes/ui/src/utils';
@@ -13,6 +13,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import RelatedFileList from './RelatedFilesList';
 import RelatedForm from '../../containers/file/RelatedForm';
+import RequestAccessForm from '../../containers/file/RequestAccessForm';
 import ShareForm from '../../containers/ShareForm';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -23,6 +24,8 @@ type Props = {
   history: any;
   logs: any;
   folderId: string;
+  fileId: string;
+  isViewPermissionDenied: boolean;
 };
 
 type State = {
@@ -64,14 +67,11 @@ class FileDetail extends React.Component<Props, State> {
     }
 
     return (
-      <div style={{ marginTop: '50px;', marginLeft: '20px' }}>
+      <DocumentPreview>
         <h3>Preview</h3>
 
-        <iframe
-          src={this.getPrintUrl()}
-          style={{ width: '100%', border: 'none', height: '700px' }}
-        />
-      </div>
+        <iframe src={this.getPrintUrl()} />
+      </DocumentPreview>
     );
   }
 
@@ -211,7 +211,7 @@ class FileDetail extends React.Component<Props, State> {
   }
 
   render() {
-    const { item, folderId } = this.props;
+    const { item, folderId, isViewPermissionDenied } = this.props;
     const isDynamic = item.type === 'dynamic';
 
     const breadcrumb = [
@@ -279,6 +279,10 @@ class FileDetail extends React.Component<Props, State> {
         )}
       </>
     );
+
+    if (isViewPermissionDenied) {
+      return <RequestAccessForm fileId={this.props.fileId} />;
+    }
 
     return (
       <Wrapper
