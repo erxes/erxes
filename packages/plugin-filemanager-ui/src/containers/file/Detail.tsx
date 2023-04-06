@@ -18,6 +18,7 @@ import { graphql } from 'react-apollo';
 type Props = {
   queryParams: any;
   fileId: string;
+  folderId: string;
 };
 
 type FinalProps = {

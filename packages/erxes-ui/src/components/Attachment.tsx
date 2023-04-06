@@ -124,9 +124,18 @@ class Attachment extends React.Component<Props> {
           </Download>
         </h5>
         <Meta>
-          {attachment.size && (
-            <span>Size: {Math.round(attachment.size / 1000)}kB</span>
-          )}
+          <span>
+            {attachment.size && (
+              <div>
+                {__('Size')}: {Math.round(attachment.size / 1000)}kB
+              </div>
+            )}
+            {attachment.type && (
+              <div>
+                {__('Type')}: {attachment.type}
+              </div>
+            )}
+          </span>
           {this.props.additionalItem}
         </Meta>
       </>

@@ -26,14 +26,7 @@ class FileList extends React.Component<Props> {
   };
 
   renderFiles() {
-    const {
-      files,
-      folders,
-      queryParams,
-      // currentCategoryId,
-      // topicId,
-      remove
-    } = this.props;
+    const { files, folders, queryParams, remove } = this.props;
 
     return (
       <withTableWrapper.Wrapper>

@@ -32,10 +32,45 @@ const filemanagerChangePermission = `
   }
 `;
 
+const filemanagerRelateFiles = `
+  mutation filemanagerRelateFiles($sourceId: String!, $targetIds: [String!]!) {
+    filemanagerRelateFiles(sourceId: $sourceId, targetIds: $targetIds)
+  }
+`;
+
+const filemanagerRemoveRelatedFiles = `
+  mutation filemanagerRemoveRelatedFiles($sourceId: String!, $targetIds: [String!]!) {
+    filemanagerRemoveRelatedFiles(sourceId: $sourceId, targetIds: $targetIds)
+  }
+`;
+
+const filemanagerRequestAccess = `
+  mutation filemanagerRequestAccess($fileId: String!) {
+    filemanagerRequestAccess(fileId: $fileId)
+  }
+`;
+
+const filemanagerRequestAcks = `
+  mutation filemanagerRequestAcks($fileId: String!) {
+    filemanagerRequestAcks(fileId: $fileId)
+  }
+`;
+
+const filemanagerConfirmAccessRequest = `
+  mutation filemanagerConfirmAccessRequest($requestId: String!) {
+    filemanagerConfirmAccessRequest(requestId: $requestId)
+  }
+`;
+
 export default {
   filemanagerFolderSave,
   filemanagerFolderRemove,
   filemanagerFileCreate,
   filemanagerFileRemove,
-  filemanagerChangePermission
+  filemanagerChangePermission,
+  filemanagerRelateFiles,
+  filemanagerRemoveRelatedFiles,
+  filemanagerRequestAccess,
+  filemanagerRequestAcks,
+  filemanagerConfirmAccessRequest
 };

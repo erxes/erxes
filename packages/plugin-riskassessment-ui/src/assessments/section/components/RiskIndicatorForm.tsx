@@ -26,6 +26,9 @@ type Props = {
   closeModal: () => void;
   onlyPreview?: boolean;
   indicatorId: string;
+  branchId: string;
+  departmentId: string;
+  operationId: string;
 };
 
 type State = {
@@ -90,7 +93,10 @@ class IndicatorForm extends React.Component<Props, State> {
       submittedFields,
       closeModal,
       onlyPreview,
-      indicatorId
+      indicatorId,
+      branchId,
+      departmentId,
+      operationId
     } = this.props;
 
     const { submissions } = this.state;
@@ -120,6 +126,9 @@ class IndicatorForm extends React.Component<Props, State> {
       <>
         <IndicatorAssessmentHistory
           indicatorId={indicatorId}
+          branchId={branchId}
+          departmentId={departmentId}
+          operationId={operationId}
           setHistory={setHistory}
         />
         <Padding horizontal>

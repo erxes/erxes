@@ -95,7 +95,6 @@ class DynamicForm extends React.Component<Props, State> {
           <SelectTeamMembers
             label={__('Choose team member')}
             name="userId"
-            // initialValue={queryParams.userId}
             onSelect={this.usersOnChange}
             multi={false}
           />

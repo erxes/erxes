@@ -26,6 +26,16 @@ export interface IFile {
   documentId?: string;
   folderId: string;
   url: string;
+  info: {
+    name: string;
+    size: number;
+    type: string;
+  };
+  permissionUnitId: string;
+  permissionUserIds: string[];
+  relatedFileIds: string[];
+  relatedFiles: IFile[];
+  sharedUsers: IUser[];
 }
 
 // query types
@@ -54,6 +64,11 @@ export type SaveFileMutationVariables = {
   documentId: string;
 };
 
+export type RelateFileMutationVariables = {
+  sourceId: string;
+  targetIds: string[];
+};
+
 export type RemoveFilemanagerFolderMutationResponse = {
   removeMutation: (params: { variables: MutationVariables }) => Promise<void>;
 };
@@ -73,5 +88,11 @@ export type SaveFilemanagerFolderMutationResponse = {
 export type SaveFileMutationResponse = {
   saveFileMutation: (params: {
     variables: SaveFileMutationVariables;
+  }) => Promise<void>;
+};
+
+export type RelateFileMutationResponse = {
+  relateFileMutation: (params: {
+    variables: RelateFileMutationVariables;
   }) => Promise<void>;
 };

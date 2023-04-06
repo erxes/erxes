@@ -79,6 +79,9 @@ class RiskIndicatorForm extends React.Component<FinalProps> {
       submittedFields: riskAssessmentIndicatorForm?.submittedFields,
       withDescription: riskAssessmentIndicatorForm?.withDescription,
       indicatorId: filters.indicatorId || '',
+      branchId: filters.branchId || '',
+      departmentId: filters.departmentId || '',
+      operationId: filters.operationId || '',
       submitForm,
       closeModal,
       onlyPreview
