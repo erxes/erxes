@@ -44,7 +44,7 @@ export interface IAccessRequests {
   description?: string;
   fileId?: string;
   fromUserId?: string;
-  user?: IUser;
+  fromUser?: IUser;
   status: string;
 }
 

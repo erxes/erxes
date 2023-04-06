@@ -31,23 +31,17 @@ const RequestedFilesListContainer = ({
     return <Spinner objective={true} />;
   }
 
-  const onConfirm = (variables, callback) => {
+  const onConfirm = (requestId: string) => {
     confirmRequestMutation({
-      variables
+      variables: {
+        requestId
+      }
     })
       .then(() => {
         Alert.success('Request confirmed!');
-
-        if (callback) {
-          callback();
-        }
       })
       .catch(error => {
         Alert.error(error.message);
-
-        if (callback) {
-          callback();
-        }
       });
   };
 
@@ -69,7 +63,19 @@ export default compose(
   graphql<Props, ConfirmRequestMutationResponse, {}>(
     gql(mutations.filemanagerConfirmAccessRequest),
     {
-      name: 'confirmRequestMutation'
+      name: 'confirmRequestMutation',
+      options: ({ fileId }: { fileId: string }) => {
+        return {
+          refetchQueries: [
+            {
+              query: gql(queries.filemanagerGetAccessRequests),
+              variables: {
+                fileId
+              }
+            }
+          ]
+        };
+      }
     }
   )
 )(RequestedFilesListContainer);

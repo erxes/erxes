@@ -25,7 +25,6 @@ const RequestAccessFormContainer = ({
     })
       .then(() => {
         Alert.success('You request submitted!');
-        localStorage.setItem('requestAccess', 'true');
 
         if (callback) {
           callback();

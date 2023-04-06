@@ -1,4 +1,5 @@
 import { IAccessRequests, IFile } from '../../types';
+import { __, renderUserFullName } from '@erxes/ui/src/utils/core';
 
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
@@ -8,20 +9,19 @@ import Label from '@erxes/ui/src/components/Label';
 import React from 'react';
 import Table from '@erxes/ui/src/components/table';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
 import dayjs from 'dayjs';
 import { renderFileIcon } from '../../utils';
 import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 
 type Props = {
   requests: IAccessRequests[];
-  onConfirm: (vars: any, callback?: void) => void;
+  onConfirm: (vars: any) => void;
 };
 
 class RequestedFileList extends React.Component<Props> {
   render() {
     const { requests, onConfirm } = this.props;
-    console.log('===', requests);
+
     if (!requests || requests.length === 0) {
       return (
         <EmptyState
@@ -58,6 +58,9 @@ class RequestedFileList extends React.Component<Props> {
                 <ItemName>{__('Description')}</ItemName>
               </th>
               <th>
+                <ItemName>{__('Requested user')}</ItemName>
+              </th>
+              <th>
                 <ItemName>{__('Created Date')}</ItemName>
               </th>
               <th>
@@ -88,9 +91,15 @@ class RequestedFileList extends React.Component<Props> {
                     <Label ignoreTrans={true}>{item.status}</Label>
                   </td>
                   <td>{item.description || '-'}</td>
+                  <td> {renderUserFullName(item.fromUser)}</td>
                   <td>{dayjs(item.createdAt).format('MMMM D, YYYY h:mm A')}</td>
                   <td>
-                    <Button btnStyle="success" icon="checked-1" size="small">
+                    <Button
+                      btnStyle="success"
+                      icon="checked-1"
+                      size="small"
+                      onClick={() => onConfirm(item._id)}
+                    >
                       Confirm request
                     </Button>
                   </td>

@@ -1,5 +1,17 @@
 import { unitField } from '@erxes/ui/src/team/graphql/queries';
 
+const userFields = `
+  _id
+  username
+  email
+  details {
+    firstName
+    lastName
+    fullName
+    avatar
+  }
+`;
+
 const fileFields = `
   _id
   contentType
@@ -23,15 +35,7 @@ const fileFields = `
   }
   relatedFileIds
   sharedUsers {
-    _id
-    username
-    email
-    details {
-      firstName
-      lastName
-      fullName
-      avatar
-    }
+    ${userFields}
   }
   type
   url
@@ -99,15 +103,7 @@ const filemanagerFolderDetail = `
         parentId
       }
       sharedUsers {
-        _id
-        username
-        email
-        details {
-          firstName
-          lastName
-          fullName
-          avatar
-        }
+        ${userFields}
       }
     }
   }
@@ -122,15 +118,7 @@ const filemanagerLogs = `
       createdAt
       userId
       user {
-        _id
-        username
-        email
-        details {
-          firstName
-          lastName
-          fullName
-          avatar
-        }
+        ${userFields}
       }
       description
     }
@@ -165,6 +153,9 @@ const filemanagerGetAccessRequests = `
       fileId
       file {
         ${fileFields}
+      }
+      fromUser {
+        ${userFields}
       }
       fromUserId
       status
