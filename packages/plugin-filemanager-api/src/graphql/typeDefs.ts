@@ -63,6 +63,10 @@ const typeDefs = gql`
     toUserId: String
     status: String
     description: String
+
+    file: FileManagerFile
+    fromUser: User
+    toUser: User
   }
 
   type FileManagerAccessRequest {

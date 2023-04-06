@@ -2,6 +2,7 @@ import { IContext } from '../../connectionResolver';
 import { sendCoreMessage } from '../../messageBroker';
 import {
   IAccessRequestDocument,
+  IAckRequestDocument,
   IFileDocument,
   IFolderDocument
 } from '../../models';
@@ -77,6 +78,30 @@ export const accessRequest = {
       root.fromUserId && {
         __typename: 'User',
         _id: root.fromUserId
+      }
+    );
+  }
+};
+
+export const ackRequest = {
+  async file(root: IAckRequestDocument, _args, { models }: IContext) {
+    return models.Files.findOne({ _id: root.fileId });
+  },
+
+  fromUser(root: IAckRequestDocument) {
+    return (
+      root.fromUserId && {
+        __typename: 'User',
+        _id: root.fromUserId
+      }
+    );
+  },
+
+  toUser(root: IAckRequestDocument) {
+    return (
+      root.toUserId && {
+        __typename: 'User',
+        _id: root.toUserId
       }
     );
   }
