@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 
-import Select from 'react-select-plus';
 import FormControl from '../../common/form/Control';
 import FormGroup from '../../common/form/Group';
 import Button from '../../common/Button';
@@ -16,21 +15,6 @@ type Props = {
   branches?: string[];
   products?: string[];
 };
-
-const PRIORITY_OPTIONS = [
-  {
-    label: 'Critical',
-    value: 'critical'
-  },
-  {
-    label: 'Normal',
-    value: 'normal'
-  },
-  {
-    label: 'Low',
-    value: 'low'
-  }
-];
 
 export default function TicketForm({
   handleSubmit,

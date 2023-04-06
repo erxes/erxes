@@ -201,6 +201,8 @@ export default class GenerateField extends React.Component<Props, State> {
       if (onValueChange) {
         this.setState({ value: attachments });
 
+        console.log(value, 'sda');
+
         onValueChange({ _id: id, value: attachments });
       }
     };
