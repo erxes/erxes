@@ -13,33 +13,29 @@ if (!ENABLED_SERVICES_PATH) {
   );
 }
 
-const readEnabledServices = async () => {
-  const cacheValue = await redis.get('enabled_services');
+async function ensureCache() {
+  const serviceCount = await redisClient.scard('enabled_services');
+  if (serviceCount > 0) return;
 
-  if (cacheValue && cacheValue.length > 0) {
-    return cacheValue;
+  if (!ENABLED_SERVICES_PATH) {
+    throw new Error(
+      'ENABLED_SERVICES_PATH environment variable is not configured.'
+    );
   }
-
   delete require.cache[require.resolve(ENABLED_SERVICES_PATH)];
-
-  const enabledServices = require(ENABLED_SERVICES_PATH)
-    .map(e => `:${e}:`)
-    .join(' ');
-
-  if (enabledServices && enabledServices.length > 0) {
-    await redis.set('enabled_services', enabledServices);
-  }
-
-  return enabledServices;
-};
+  const enabledServices: string[] = require(ENABLED_SERVICES_PATH);
+  // @ts-ignore
+  await redisClient.sadd('enabled_services', enabledServices);
+}
 
 export const redis = redisClient;
 
 const generateKey = name => `service:config:${name}`;
 
 export const getServices = async (): Promise<string[]> => {
-  const enabledPlugins = await readEnabledServices();
-  return ['core', ...enabledPlugins.split(' ').map(p => p.replace(/:/gi, ''))];
+  await ensureCache();
+  const enabledPlugins = await redisClient.smembers('enabled_services');
+  return ['core', ...enabledPlugins];
 };
 
 export const getService = async (name: string, config?: boolean) => {
@@ -98,12 +94,10 @@ export const leave = async (name, _port) => {
   console.log(`$service:${name} left`);
 };
 
-export const isAvailable = async name => {
-  const serviceNames = await readEnabledServices();
-  return name === 'core' || serviceNames.includes(`:${name}:`);
+export const isEnabled = async name => {
+  if (name === 'core') return true;
+  await ensureCache();
+  return !!(await redisClient.sismember('enabled_services', name));
 };
 
-export const isEnabled = async name => {
-  const serviceNames = await readEnabledServices();
-  return name === 'core' || serviceNames.includes(`:${name}:`);
-};
+export const isAvailable = isEnabled;

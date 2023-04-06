@@ -96,3 +96,7 @@ export const sadd = async (_channel: string, _action: any) => {
 export const scard = async (_key: string) => {
   return 1;
 };
+
+export const smembers = async (_key: string): Promise<string[]> => {
+  return [];
+};
