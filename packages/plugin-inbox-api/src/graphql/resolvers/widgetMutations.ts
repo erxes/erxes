@@ -103,7 +103,7 @@ export const pConversationClientMessageInserted = async (
     subdomain: 'os',
     action: 'sendMobileNotification',
     data: {
-      title: 'You have a new conversation message',
+      title: integration ? integration.name : 'New message',
       body: message.content,
       receivers: channelMemberIds,
       data: {
