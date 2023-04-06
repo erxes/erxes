@@ -71,6 +71,7 @@ const typeDefs = gql`
     fileId: String
     file: FileManagerFile
     fromUserId: String
+    fromUser: User
     status: String
     description: String
   }

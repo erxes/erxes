@@ -70,6 +70,15 @@ export const file = {
 export const accessRequest = {
   async file(root: IAccessRequestDocument, _args, { models }: IContext) {
     return models.Files.findOne({ _id: root.fileId });
+  },
+
+  fromUser(root: IAccessRequestDocument) {
+    return (
+      root.fromUserId && {
+        __typename: 'User',
+        _id: root.fromUserId
+      }
+    );
   }
 };
 
