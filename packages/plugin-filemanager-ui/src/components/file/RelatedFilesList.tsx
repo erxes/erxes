@@ -10,11 +10,12 @@ import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 
 type Props = {
   files: IFile[];
+  folderId: string;
 };
 
 class RelatedFileList extends React.Component<Props> {
   render() {
-    const { files } = this.props;
+    const { files, folderId } = this.props;
 
     if (!files || files.length === 0) {
       return (
@@ -58,7 +59,7 @@ class RelatedFileList extends React.Component<Props> {
                 <tr key={item._id} className="crow">
                   <td style={{ paddingLeft: '0' }}>
                     <ItemName>
-                      <a>
+                      <a href={`/filemanager/details/${folderId}/${item._id}`}>
                         {renderFileIcon(
                           item.type === 'dynamic' ? 'aaa.dynamic' : name
                         )}
