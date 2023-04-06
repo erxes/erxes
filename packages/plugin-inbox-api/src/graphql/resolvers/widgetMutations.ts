@@ -1,4 +1,5 @@
 import * as strip from 'strip';
+import { Db, MongoClient } from 'mongodb';
 
 import {
   CONVERSATION_OPERATOR_STATUS,
@@ -22,7 +23,7 @@ import {
   BOT_MESSAGE_TYPES
 } from '../../models/definitions/constants';
 
-import { sendRequest } from '@erxes/api-utils/src';
+import { getEnv, sendRequest } from '@erxes/api-utils/src';
 
 import { solveSubmissions } from '../../widgetUtils';
 import { conversationNotifReceivers } from './conversationMutations';
@@ -97,6 +98,20 @@ export const pConversationClientMessageInserted = async (
     conversation,
     integration,
     channelMemberIds
+  });
+
+  sendCoreMessage({
+    subdomain: 'os',
+    action: 'sendMobileNotification',
+    data: {
+      title: 'You have a new conversation message',
+      body: message.content,
+      receivers: channelMemberIds,
+      data: {
+        type: 'conversation',
+        id: conversation._id
+      }
+    }
   });
 };
 
