@@ -269,7 +269,7 @@ export interface IAccessRequestModel extends Model<IAccessRequestDocument> {
 
 export const loadAccessRequestClass = models => {
   class AccessRequest {
-    public static async createLog(doc) {
+    public static async createRequest(doc) {
       doc.createdAt = new Date();
 
       return models.AccessRequests.create(doc);
