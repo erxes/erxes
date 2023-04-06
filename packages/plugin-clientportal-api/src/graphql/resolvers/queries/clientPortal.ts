@@ -11,9 +11,7 @@ import {
 
 const getByHost = async (models, requestInfo) => {
   const origin = requestInfo.headers.origin;
-  console.log('********** origin **********', origin);
   const pattern = `.*${origin}.*`;
-  console.log('********** pattern **********', pattern);
 
   const config = await models.ClientPortals.findOne({
     url: { $regex: pattern }
@@ -178,8 +176,7 @@ const configClientPortalQueries = {
       subdomain,
       action: 'tickets.find',
       data: {
-        query: { _id: { $in: ticketIds } },
-        sort: { createdAt: -1 }
+        _id: { $in: ticketIds }
       },
       isRPC: true
     });
