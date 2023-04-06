@@ -1,12 +1,15 @@
 import * as compose from 'lodash.flowright';
 
+import { mutations, queries } from '../../graphql';
+
+import Alert from '@erxes/ui/src/utils/Alert';
 import FileDetail from '../../components/file/Detail';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
+import { RequestAckMutationResponse } from '../../types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { queries } from '../../graphql';
 
 type Props = {
   queryParams: any;
@@ -18,10 +21,15 @@ type FinalProps = {
   filemanagerDetailQuery: any;
   filemanagerLogsQuery: any;
 } & Props &
+  RequestAckMutationResponse &
   IRouterProps;
 
 const FileDetailContainer = (props: FinalProps) => {
-  const { filemanagerDetailQuery, filemanagerLogsQuery } = props;
+  const {
+    filemanagerDetailQuery,
+    filemanagerLogsQuery,
+    requestAckMutation
+  } = props;
 
   if (
     (filemanagerDetailQuery && filemanagerDetailQuery.loading) ||
@@ -29,6 +37,26 @@ const FileDetailContainer = (props: FinalProps) => {
   ) {
     return <Spinner objective={true} />;
   }
+
+  const requestAck = (variables, callback) => {
+    requestAckMutation({
+      variables
+    })
+      .then(() => {
+        Alert.success('You successfully acknowledge a file');
+
+        if (callback) {
+          callback();
+        }
+      })
+      .catch(error => {
+        Alert.error(error.message);
+
+        if (callback) {
+          callback();
+        }
+      });
+  };
 
   const item = filemanagerDetailQuery.filemanagerFileDetail || ({} as any);
   const logs = filemanagerLogsQuery.filemanagerLogs || ([] as any);
@@ -43,7 +71,8 @@ const FileDetailContainer = (props: FinalProps) => {
     ...props,
     item,
     logs,
-    isViewPermissionDenied
+    isViewPermissionDenied,
+    requestAck
   };
 
   return <FileDetail {...extendedProps} />;
@@ -65,5 +94,23 @@ export default compose(
         contentTypeId: fileId
       }
     })
-  })
+  }),
+  graphql<Props, RequestAckMutationResponse, {}>(
+    gql(mutations.filemanagerRequestAcks),
+    {
+      name: 'requestAckMutation',
+      options: ({ folderId }: { folderId: string }) => {
+        return {
+          refetchQueries: [
+            {
+              query: gql(queries.filemanagerFiles),
+              variables: {
+                folderId: folderId || ''
+              }
+            }
+          ]
+        };
+      }
+    }
+  )
 )(FileDetailContainer);

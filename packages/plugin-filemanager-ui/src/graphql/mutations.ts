@@ -50,9 +50,15 @@ const filemanagerRequestAccess = `
   }
 `;
 
+const filemanagerAckRequest = `
+  mutation filemanagerAckRequest($_id: String!) {
+    filemanagerAckRequest(_id: $_id)
+  }
+`;
+
 const filemanagerRequestAcks = `
-  mutation filemanagerRequestAcks($fileId: String!) {
-    filemanagerRequestAcks(fileId: $fileId)
+  mutation filemanagerRequestAcks($fileId: String!, $description: String) {
+    filemanagerRequestAcks(fileId: $fileId, description: $description)
   }
 `;
 
@@ -72,5 +78,6 @@ export default {
   filemanagerRemoveRelatedFiles,
   filemanagerRequestAccess,
   filemanagerRequestAcks,
+  filemanagerAckRequest,
   filemanagerConfirmAccessRequest
 };

@@ -41,6 +41,25 @@ const fileFields = `
   url
 `;
 
+const ackFields = `
+  _id
+  createdAt
+  description
+  file {
+    ${fileFields}
+  }
+  fileId
+  fromUser {
+    ${userFields}
+  }
+  fromUserId
+  toUserId
+  toUser {
+    ${userFields}
+  }
+  status
+`;
+
 const filemanagerFiles = `
   query filemanagerFiles($folderId: String!, $search: String, $type: String, $contentType: String, $contentTypeId: String, $createdAtFrom: String, $createdAtTo: String, $sortField: String, $sortDirection: Int) {
     filemanagerFiles(folderId: $folderId, search: $search, type: $type, contentType: $contentType, contentTypeId: $contentTypeId, createdAtFrom: $createdAtFrom, createdAtTo: $createdAtTo, sortField: $sortField, sortDirection: $sortDirection) {
@@ -166,13 +185,7 @@ const filemanagerGetAccessRequests = `
 const filemanagerGetAckRequestByUser = `
   query filemanagerGetAckRequestByUser($fileId: String!) {
     filemanagerGetAckRequestByUser(fileId: $fileId) {
-      _id
-      createdAt
-      description
-      fileId
-      fromUserId
-      toUserId
-      status
+      ${ackFields}
     }
   }
 `;
@@ -180,13 +193,7 @@ const filemanagerGetAckRequestByUser = `
 const filemanagerGetAckRequests = `
   query filemanagerGetAckRequests($fileId: String!) {
     filemanagerGetAckRequests(fileId: $fileId) {
-      _id
-      createdAt
-      description
-      fileId
-      fromUserId
-      toUserId
-      status
+      ${ackFields}
     }
   }
 `;

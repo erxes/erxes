@@ -1,20 +1,32 @@
-import { DetailTitle, DocumentPreview, FilePreview, FlexRow } from './styles';
+import {
+  ActionButtonsWrapper,
+  DetailTitle,
+  DocumentPreview,
+  FilePreview,
+  FlexRow
+} from './styles';
 import { IAccessRequests, ILogs } from '../../types';
 import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 import { __, getEnv } from '@erxes/ui/src/utils';
 import { readFile, renderUserFullName } from '@erxes/ui/src/utils';
 
+import AckList from '../../containers/file/AckList';
 import Attachment from '@erxes/ui/src/components/Attachment';
 import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import Icon from '@erxes/ui/src/components/Icon';
 import Label from '@erxes/ui/src/components/Label';
 import LogRow from './LogRow';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import RelatedFileList from './RelatedFilesList';
 import RelatedForm from '../../containers/file/RelatedForm';
 import RequestAccessForm from '../../containers/file/RequestAccessForm';
+import RequestedAckList from '../../containers/file/RequestedAckList';
 import RequestedFilesList from '../../containers/file/RequestedFilesList';
 import ShareForm from '../../containers/ShareForm';
 import Table from '@erxes/ui/src/components/table';
@@ -28,10 +40,12 @@ type Props = {
   folderId: string;
   fileId: string;
   isViewPermissionDenied: boolean;
+  requestAck: (vars: any, callback?: any) => void;
 };
 
 type State = {
   currentTab: string;
+  description: string;
 };
 
 class FileDetail extends React.Component<Props, State> {
@@ -39,7 +53,8 @@ class FileDetail extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      currentTab: 'logs'
+      currentTab: 'logs',
+      description: ''
     };
   }
 
@@ -47,6 +62,18 @@ class FileDetail extends React.Component<Props, State> {
     const { history } = this.props;
 
     history.push('/filemanager');
+  };
+
+  onAcknowledge = callback => {
+    const { requestAck, fileId } = this.props;
+
+    requestAck(
+      {
+        fileId,
+        description: this.state.description
+      },
+      callback
+    );
   };
 
   onTabClick = (currentTab: string) => {
@@ -124,17 +151,23 @@ class FileDetail extends React.Component<Props, State> {
   renderTabContent() {
     const { item, folderId, fileId } = this.props;
 
-    if (this.state.currentTab === 'related') {
-      return (
-        <RelatedFileList files={item.relatedFiles || []} folderId={folderId} />
-      );
+    switch (this.state.currentTab) {
+      case 'related':
+        return (
+          <RelatedFileList
+            files={item.relatedFiles || []}
+            folderId={folderId}
+          />
+        );
+      case 'requested':
+        return <RequestedFilesList fileId={fileId} />;
+      case 'acknowledges':
+        return <RequestedAckList fileId={fileId} folderId={folderId} />;
+      case 'ackByUser':
+        return <AckList fileId={fileId} folderId={folderId} />;
+      default:
+        return this.renderLogs();
     }
-
-    if (this.state.currentTab === 'requested') {
-      return <RequestedFilesList fileId={fileId} />;
-    }
-
-    return this.renderLogs();
   }
 
   renderContent() {
@@ -153,13 +186,31 @@ class FileDetail extends React.Component<Props, State> {
             className={currentTab === 'related' ? 'active' : ''}
             onClick={this.onTabClick.bind(this, 'related')}
           >
-            {__('Related files')}
+            <>
+              {__('Related files')}(
+              {this.props.item.relatedFiles
+                ? this.props.item.relatedFiles.length
+                : 0}
+              )
+            </>
           </TabTitle>
           <TabTitle
             className={currentTab === 'requested' ? 'active' : ''}
             onClick={this.onTabClick.bind(this, 'requested')}
           >
             {__('Requested files')}
+          </TabTitle>
+          <TabTitle
+            className={currentTab === 'acknowledges' ? 'active' : ''}
+            onClick={this.onTabClick.bind(this, 'acknowledges')}
+          >
+            {__('Acknowledges')}
+          </TabTitle>
+          <TabTitle
+            className={currentTab === 'ackByUser' ? 'active' : ''}
+            onClick={this.onTabClick.bind(this, 'ackByUser')}
+          >
+            {__('Requested acknowledges')}
           </TabTitle>
         </Tabs>
         {this.renderTabContent()}
@@ -222,6 +273,48 @@ class FileDetail extends React.Component<Props, State> {
     );
   }
 
+  renderAckForm = props => {
+    const onChange = e =>
+      this.setState({ description: (e.target as HTMLInputElement).value });
+
+    return (
+      <>
+        <FormGroup>
+          <ControlLabel>{__('Description')}</ControlLabel>
+          <p>{__('You can write description or not')}</p>
+          <FormControl
+            name="description"
+            componentClass="textarea"
+            rows={3}
+            onChange={onChange}
+            autoFocus={true}
+            value={this.state.description}
+          />
+        </FormGroup>
+
+        <ModalFooter>
+          <Button
+            btnStyle="simple"
+            type="button"
+            onClick={props.closeModal}
+            icon="times-circle"
+          >
+            {__('Cancel')}
+          </Button>
+
+          <Button
+            type="submit"
+            btnStyle="success"
+            icon="key-skeleton-alt"
+            onClick={() => this.onAcknowledge(props.closeModal)}
+          >
+            {__('Request')}
+          </Button>
+        </ModalFooter>
+      </>
+    );
+  };
+
   render() {
     const { item, folderId, isViewPermissionDenied } = this.props;
     const isDynamic = item.type === 'dynamic';
@@ -249,7 +342,7 @@ class FileDetail extends React.Component<Props, State> {
     );
 
     const actionButtons = (
-      <>
+      <ActionButtonsWrapper>
         <Button
           btnStyle="simple"
           icon="leftarrow-3"
@@ -276,6 +369,18 @@ class FileDetail extends React.Component<Props, State> {
           size={'lg'}
         />
 
+        <ModalTrigger
+          title="Acknowledge file"
+          trigger={
+            <Button btnStyle="primary" icon="hold" type="button">
+              {__('Acknowledge')}
+            </Button>
+          }
+          content={props => this.renderAckForm(props)}
+          centered={true}
+          enforceFocus={false}
+        />
+
         {item.folderId && (
           <a href={isDynamic ? '#' : readFile(item.url)}>
             <Button
@@ -289,7 +394,7 @@ class FileDetail extends React.Component<Props, State> {
             </Button>
           </a>
         )}
-      </>
+      </ActionButtonsWrapper>
     );
 
     if (isViewPermissionDenied) {
