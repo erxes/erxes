@@ -144,7 +144,6 @@ class Uploader extends React.Component<Props, State> {
   render() {
     const { limit = 4, onChange } = this.props;
     const { attachments, loading } = this.state;
-    console.log(attachments, 'sdasadadas');
 
     return (
       <>
