@@ -25,7 +25,7 @@ function FormContainer({
   const { data: customFields } = useQuery(gql(queries.fields), {
     variables: {
       contentType: 'cards:ticket',
-      pipelineId: '4yBEcXZYn2sn69qQD',
+      pipelineId: config?.ticketPipelineId,
       isVisibleToCreate: true
     }
   });

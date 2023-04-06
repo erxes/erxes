@@ -128,6 +128,7 @@ export type Config = {
   taskLabel?: string;
   taskStageId?: string;
   ticketStageId?: string;
+  ticketPipelineId?: string;
 
   kbToggle?: boolean;
   publicTaskToggle?: boolean;

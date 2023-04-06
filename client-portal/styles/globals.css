@@ -160,9 +160,9 @@ hr {
 }
 
 .Select--multi .Select-value {
-  background-color: rgba(#444, 0.8);
+  background-color: #6569df;
   border-radius: 11px;
-  border: 1px solid rgba(#444, 0.8);
+  border: 1px solid #6569df;
   color: #fff;
   margin-top: 6px;
   margin-left: 0;
