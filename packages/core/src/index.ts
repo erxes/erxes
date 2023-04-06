@@ -199,7 +199,12 @@ app.get('/read-file', async (req: any, res, next) => {
       return res.send('Invalid key');
     }
 
-    const response = await readFileRequest(key, models);
+    const response = await readFileRequest({
+      key,
+      subdomain,
+      models,
+      userId: req.headers.userid
+    });
 
     res.attachment(name || key);
 
