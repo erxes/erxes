@@ -144,8 +144,8 @@ const branches = `
 `;
 
 const departments = `
-query departments {
-  departments {
+query departments($withoutUserFilter: Boolean) {
+  departments(withoutUserFilter: $withoutUserFilter) {
     _id
     title
     description

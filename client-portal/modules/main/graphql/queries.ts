@@ -23,7 +23,7 @@ export const clientPortalGetConfig = `
       taskToggle
       kbToggle
       googleClientId
-      facebookAppId
+      erxesAppToken
 
       styles {
         bodyColor

@@ -27,14 +27,43 @@ function FormContainer({
       contentType: 'cards:ticket',
       pipelineId: config?.ticketPipelineId,
       isVisibleToCreate: true
+    },
+    context: {
+      headers: {
+        'erxes-app-token': config?.erxesAppToken
+      }
     }
   });
 
-  const { data: departments } = useQuery(gql(queries.departments), {});
+  const { data: departments } = useQuery(gql(queries.departments), {
+    variables: {
+      withoutUserFilter: true
+    },
+    context: {
+      headers: {
+        'erxes-app-token': config?.erxesAppToken
+      }
+    }
+  });
 
-  const { data: branches } = useQuery(gql(queries.branches), {});
+  const { data: branches } = useQuery(gql(queries.branches), {
+    variables: {
+      withoutUserFilter: true
+    },
+    context: {
+      headers: {
+        'erxes-app-token': config?.erxesAppToken
+      }
+    }
+  });
 
-  const { data: products } = useQuery(gql(queries.products), {});
+  const { data: products } = useQuery(gql(queries.products), {
+    context: {
+      headers: {
+        'erxes-app-token': config?.erxesAppToken
+      }
+    }
+  });
 
   const handleSubmit = (doc: Ticket) => {
     createTicket({

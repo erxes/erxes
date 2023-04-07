@@ -160,6 +160,7 @@ export type Config = {
   };
   googleClientId?: string;
   facebookAppId?: string;
+  erxesAppToken?: string;
 };
 
 interface ICommonFields {
