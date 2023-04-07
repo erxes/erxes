@@ -100,7 +100,7 @@ export const pConversationClientMessageInserted = async (
   });
 
   sendCoreMessage({
-    subdomain: 'os',
+    subdomain,
     action: 'sendMobileNotification',
     data: {
       title: integration ? integration.name : 'New message',
