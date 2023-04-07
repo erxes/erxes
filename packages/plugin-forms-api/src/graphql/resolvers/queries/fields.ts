@@ -140,17 +140,24 @@ const fieldQueries = {
         .select({ _id: 1 })
         .sort({ order: 1 });
 
-      const fields: any[] = [];
+      models.Fields.find(query).sort({ order: 1 });
+
+      const allFields: any[] = [];
+
+      const otherFields = await models.Fields.find(query).sort({ order: 1 });
+
+      allFields.push(...otherFields);
+
       for (const groupId of otherGroupIds) {
         const groupFields = await models.Fields.find({
           groupId,
           ...query
         }).sort({ order: 1 });
 
-        fields.push(...groupFields);
+        allFields.push(...groupFields);
       }
 
-      return fields;
+      return allFields;
     }
 
     if (groupIds && groupIds.length > 0) {
