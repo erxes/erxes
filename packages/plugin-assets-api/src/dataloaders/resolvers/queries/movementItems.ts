@@ -54,6 +54,63 @@ const movementItemQueries = {
       };
     }
     return item;
+  },
+  async assetsActiveLocations(_root, params, { models }: IContext) {
+    const {
+      branchId,
+      departmentId,
+      companyId,
+      customerId,
+      teamMemberId
+    } = params;
+
+    let pipeline: any[] = [];
+
+    if (params.withKnowledgebase) {
+      const assetIds = await models.Assets.find({
+        $and: [
+          { kbArticleIds: { $exists: true } },
+          { 'kbArticleIds.0': { $exists: true } }
+        ]
+      }).distinct('_id');
+
+      pipeline = [{ $match: { assetId: { $in: assetIds } } }];
+    }
+
+    pipeline = [
+      ...pipeline,
+      {
+        $group: {
+          _id: '$assetId',
+          movements: {
+            $push: '$$ROOT'
+          }
+        }
+      },
+      { $unwind: '$movements' },
+      { $sort: { 'movements.assetId': 1 } },
+      { $group: { _id: '$_id', movements: { $push: '$movements' } } },
+      { $replaceRoot: { newRoot: { $arrayElemAt: ['$movements', 0] } } }
+    ];
+
+    const project = { _id: 0 };
+
+    Object.entries({
+      branchId,
+      departmentId,
+      companyId,
+      customerId,
+      teamMemberId
+    }).forEach(([key, value]) => {
+      if (value) {
+        project[key] = 1;
+      }
+    });
+
+    pipeline = [...pipeline, { $project: project }];
+    const locations = await models.MovementItems.aggregate(pipeline);
+
+    return locations;
   }
 };
 
