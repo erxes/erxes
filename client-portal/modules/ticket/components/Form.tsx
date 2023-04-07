@@ -7,6 +7,8 @@ import { ICustomField, Ticket } from '../../types';
 import { ControlLabel } from '../../common/form';
 import { FormWrapper } from '../../styles/main';
 import GenerateField from './GenerateField';
+import Alert from '../../utils/Alert';
+import * as _ from 'lodash';
 
 type Props = {
   handleSubmit: (doc: Ticket) => void;
@@ -27,6 +29,19 @@ export default function TicketForm({
   const [customFieldsData, setCustomFieldsData] = useState<ICustomField[]>([]);
 
   const handleClick = () => {
+    for (const field of customFields) {
+      const customField =
+        customFieldsData.find((c) => c.field === field._id) || ({} as any);
+
+      if (field.isRequired) {
+        const alert = customField.value;
+
+        if (!alert) {
+          return Alert.error('Please enter or choose a required field');
+        }
+      }
+    }
+
     handleSubmit({ ...ticket, customFieldsData });
   };
 
