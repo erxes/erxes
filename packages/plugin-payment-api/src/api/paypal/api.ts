@@ -83,11 +83,4 @@ export class PaypalAPI extends BaseAPI {
       console.log('e', e);
     }
   }
-
-  // async createInvoice(invoice: IInvoiceDocument) {
-  //   const MAIN_API_DOMAIN = process.env.DOMAIN
-  //     ? `${process.env.DOMAIN}/gateway`
-  //     : 'http://localhost:4000';
-
-  // }
 }

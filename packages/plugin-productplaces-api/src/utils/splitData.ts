@@ -139,6 +139,7 @@ export const splitData = async (
 
       pdatas.push({
         ...pdata,
+        _id: Math.random().toString(),
         quantity: newCount,
         amount,
         tax,
