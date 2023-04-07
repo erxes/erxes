@@ -72,7 +72,7 @@ export const pConversationClientMessageInserted = async (
       {
         _id: conversation.integrationId
       },
-      { _id: 1 }
+      { _id: 1, name: 1 }
     );
   }
 
@@ -97,6 +97,20 @@ export const pConversationClientMessageInserted = async (
     conversation,
     integration,
     channelMemberIds
+  });
+
+  sendCoreMessage({
+    subdomain: 'os',
+    action: 'sendMobileNotification',
+    data: {
+      title: integration ? integration.name : 'New message',
+      body: message.content,
+      receivers: channelMemberIds,
+      data: {
+        type: 'conversation',
+        id: conversation._id
+      }
+    }
   });
 };
 
@@ -917,28 +931,6 @@ const widgetMutations = {
           status: 'connected'
         }
       });
-    }
-
-    if (!HAS_BOTENDPOINT_URL && customerId) {
-      try {
-        await sendCoreMessage({
-          subdomain,
-          action: 'sendMobileNotification',
-          data: {
-            title: 'You have a new message',
-            body: conversationContent,
-            customerId,
-            conversationId: conversation._id,
-            receivers: conversationNotifReceivers(conversation, customerId),
-            data: {
-              type: 'messenger',
-              id: conversation._id
-            }
-          }
-        });
-      } catch (e) {
-        debug.error(`Failed to send mobile notification: ${e.message}`);
-      }
     }
 
     await sendToWebhook({
