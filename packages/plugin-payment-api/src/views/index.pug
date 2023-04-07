@@ -20,6 +20,7 @@ block layout-content
                         .col.m6.s12 
                             form(method="post")
                                 input(type="hidden" name="selectedPaymentId", value=val._id)
+                                input(type="hidden" name="invoiceData", value=invoiceData)
                                 button(type="submit").button
                                     div.Payment__logo( class=`payments ${val.selected === true && 'active'}`)
                                         img(src=`${prefix}/pl:payment/static/images/payments/${val.kind}.png`)
@@ -30,7 +31,7 @@ block layout-content
                 .col.m6.s12 
                     if invoice
                         .qr
-                            +#{invoice.paymentKind}(invoice)       
+                            +#{invoice.paymentKind}(invoice)
                 .col.m6.s12 
                     .amount
                         h4 #{__('Amount')}
@@ -42,9 +43,7 @@ block layout-content
 
             if invoice && invoice.apiResponse && invoice.apiResponse.error
                 .error
-                    h3 #{__('Error')}
-                    .border
-                        strong #{__(invoice.apiResponse.error)}
+                    strong #{__(invoice.apiResponse.error)}
                 script.
                     const message = {
                         fromPayment: true,
@@ -59,7 +58,7 @@ block layout-content
                     }
                     window.parent.postMessage(message, '*');
 
-        if invoice && invoice.status !== 'paid'
+        if invoice && invoice.status !== 'paid' && invoice.apiResponse && !invoice.apiResponse.error
             script.
                 setInterval(() => {
                     window.fetch(`#{prefix}/pl:payment/checkInvoice`, {
