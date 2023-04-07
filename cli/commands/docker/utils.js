@@ -974,6 +974,12 @@ module.exports.up = program => {
   return up({ uis: program.uis, fromInstaller: program.fromInstaller, downloadLocales: program.locales });
 };
 
+//creates Locales directory
+fs.mkdir('./locales', {recursive : true}, (err) => {
+  if (err) throw err;
+  console.log('Locales directory has been created');
+});
+
 const dumpDb = async program => {
   if (process.argv.length < 4) {
     return console.log('Pass db name !!!');
