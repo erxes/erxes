@@ -74,11 +74,6 @@ const setBeforeResolvers = async () => {
   setCommonResolvers('beforeResolvers');
 };
 
-export const clearCache = async () => {
-  console.log('Clearing enabled services cache ........');
-  await redis.del('enabled_services');
-};
-
 export const serviceDiscovery = {
   isAvailable,
   getServices,
