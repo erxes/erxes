@@ -27,7 +27,10 @@ async function ensureCache() {
   delete require.cache[require.resolve(ENABLED_SERVICES_PATH)];
   const enabledServices: string[] = require(ENABLED_SERVICES_PATH);
   // @ts-ignore
-  await redisClient.sadd(REDIS_ENABLED_SERVICES_KEY, enabledServices);
+  await redisClient.sadd(REDIS_ENABLED_SERVICES_KEY, [
+    'core',
+    ...enabledServices
+  ]);
 }
 
 export const redis = redisClient;
@@ -37,7 +40,7 @@ const generateKey = name => `service:config:${name}`;
 export const getServices = async (): Promise<string[]> => {
   await ensureCache();
   const enabledPlugins = await redisClient.smembers(REDIS_ENABLED_SERVICES_KEY);
-  return ['core', ...enabledPlugins];
+  return enabledPlugins;
 };
 
 export const getService = async (name: string, config?: boolean) => {
