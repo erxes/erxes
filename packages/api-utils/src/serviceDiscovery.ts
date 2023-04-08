@@ -3,7 +3,7 @@ import redisClient from './redis';
 
 dotenv.config();
 
-const REDIS_ENABLED_SERVICES_KEY = 'enabled_services';
+const REDIS_ENABLED_SERVICES_KEY = 'enabled_services_set';
 
 const { NODE_ENV, LOAD_BALANCER_ADDRESS, ENABLED_SERVICES_PATH } = process.env;
 
