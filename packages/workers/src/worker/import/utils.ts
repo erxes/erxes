@@ -367,9 +367,7 @@ export const receiveImportCreate = async (
     }
 
     if (
-      updatedImportHistory.failed +
-        updatedImportHistory.success +
-        updatedImportHistory.updated >=
+      updatedImportHistory.failed + updatedImportHistory.success >=
       updatedImportHistory.total
     ) {
       status = 'Done';

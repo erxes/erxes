@@ -100,7 +100,7 @@ export const pConversationClientMessageInserted = async (
   });
 
   sendCoreMessage({
-    subdomain: 'os',
+    subdomain,
     action: 'sendMobileNotification',
     data: {
       title: integration ? integration.name : 'New message',
@@ -345,31 +345,6 @@ const createFormConversation = async (
         ]
       }
     });
-  }
-
-  if (formId === 'j2maRsaS2J5uJGxgy') {
-    const MONGO_URL = getEnv({ name: 'MONGO_URL' });
-
-    const client = new MongoClient(MONGO_URL);
-
-    await client.connect();
-    const db = client.db() as Db;
-
-    const Blocks = db.collection('blocks');
-
-    const block = await Blocks.findOne({ erxesCustomerId: cachedCustomer._id });
-
-    if (block) {
-      await Blocks.updateOne(
-        { erxesCustomerId: cachedCustomer._id },
-        { $set: { isVerified: 'loading' } }
-      );
-    } else {
-      await Blocks.insert({
-        erxesCustomerId: cachedCustomer._id,
-        isVerified: 'loading'
-      });
-    }
   }
 
   return {
@@ -956,28 +931,6 @@ const widgetMutations = {
           status: 'connected'
         }
       });
-    }
-
-    if (!HAS_BOTENDPOINT_URL && customerId) {
-      try {
-        await sendCoreMessage({
-          subdomain,
-          action: 'sendMobileNotification',
-          data: {
-            title: 'You have a new message',
-            body: conversationContent,
-            customerId,
-            conversationId: conversation._id,
-            receivers: conversationNotifReceivers(conversation, customerId),
-            data: {
-              type: 'messenger',
-              id: conversation._id
-            }
-          }
-        });
-      } catch (e) {
-        debug.error(`Failed to send mobile notification: ${e.message}`);
-      }
     }
 
     await sendToWebhook({
