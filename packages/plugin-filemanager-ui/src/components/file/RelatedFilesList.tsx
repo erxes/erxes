@@ -52,8 +52,9 @@ class RelatedFileList extends React.Component<Props> {
             </tr>
           </thead>
           <tbody id="fileManagerfiles">
-            {files.map(item => {
-              const { name, size, type } = item.info || ({} as any);
+            {(files || []).map(item => {
+              const { name = '', size, type } =
+                item && item.info ? item.info : ({} as any);
 
               return (
                 <tr key={item._id} className="crow">
@@ -61,9 +62,9 @@ class RelatedFileList extends React.Component<Props> {
                     <ItemName>
                       <a href={`/filemanager/details/${folderId}/${item._id}`}>
                         {renderFileIcon(
-                          item.type === 'dynamic' ? 'aaa.dynamic' : name
+                          item.type === 'dynamic' ? 'aaa.dynamic' : name || ''
                         )}
-                        {item.contentType ? item.name : name}
+                        {item.contentType ? item.name : name || ''}
                       </a>
                     </ItemName>
                   </td>

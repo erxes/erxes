@@ -42,7 +42,7 @@ const FileListContainer = (props: FinalProps) => {
         .then(() => {
           filemanagerFilesQuery.refetch();
 
-          Alert.success('You successfully deleted an file');
+          Alert.success('You successfully deleted a file');
         })
         .catch(error => {
           Alert.error(error.message);

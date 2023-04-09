@@ -40,7 +40,7 @@ const RelatedFormContainer = (props: FinalProps) => {
       variables
     })
       .then(() => {
-        Alert.success('You successfully related an file');
+        Alert.success('You successfully related a file');
       })
       .catch(error => {
         Alert.error(error.message);

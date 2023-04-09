@@ -28,7 +28,7 @@ const FileFormContainer = (props: FinalProps) => {
       variables
     })
       .then(() => {
-        Alert.success('You successfully add an file');
+        Alert.success('You successfully add a file');
 
         props.closeModal();
       })

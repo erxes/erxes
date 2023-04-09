@@ -171,6 +171,12 @@ const AccessPopup = styled(FlexCenter)`
   }
 `;
 
+const ActionButtonsWrapper = styled.div`
+  button {
+    margin-bottom: ${dimensions.coreSpacing}px;
+  }
+`;
+
 export {
   RowArticle,
   ArticleTitle,
@@ -187,5 +193,6 @@ export {
   DetailHeader,
   DocumentPreview,
   RequestAccessWrapper,
-  AccessPopup
+  AccessPopup,
+  ActionButtonsWrapper
 };

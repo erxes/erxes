@@ -1,7 +1,6 @@
 import { IAccessRequests, IFile } from '../../types';
 import { __, renderUserFullName } from '@erxes/ui/src/utils/core';
 
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { ItemName } from '../../styles';
@@ -16,17 +15,19 @@ import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 type Props = {
   requests: IAccessRequests[];
   onConfirm: (vars: any) => void;
+  type?: string;
+  hideActions?: boolean;
 };
 
 class RequestedFileList extends React.Component<Props> {
   render() {
-    const { requests, onConfirm } = this.props;
+    const { requests, onConfirm, hideActions } = this.props;
 
     if (!requests || requests.length === 0) {
       return (
         <EmptyState
           image="/images/actions/5.svg"
-          text="No file requests at the moment!"
+          text="No files at the moment!"
         />
       );
     }
@@ -58,20 +59,24 @@ class RequestedFileList extends React.Component<Props> {
                 <ItemName>{__('Description')}</ItemName>
               </th>
               <th>
-                <ItemName>{__('Requested user')}</ItemName>
+                <ItemName>
+                  {hideActions ? __('User') : __('Requested user')}
+                </ItemName>
               </th>
               <th>
                 <ItemName>{__('Created Date')}</ItemName>
               </th>
-              <th>
-                <ItemName>{__('Actions')}</ItemName>
-              </th>
+              {!hideActions && (
+                <th>
+                  <ItemName>{__('Actions')}</ItemName>
+                </th>
+              )}
             </tr>
           </thead>
           <tbody id="fileManagerfiles">
             {requests.map(item => {
-              const { type, name, contentType, info } =
-                item.file || ({} as IFile);
+              const { type, name, contentType, info = {} as any } =
+                item && item.file ? item.file : ({} as IFile);
 
               return (
                 <tr key={item._id} className="crow">
@@ -91,18 +96,26 @@ class RequestedFileList extends React.Component<Props> {
                     <Label ignoreTrans={true}>{item.status}</Label>
                   </td>
                   <td>{item.description || '-'}</td>
-                  <td> {renderUserFullName(item.fromUser)}</td>
-                  <td>{dayjs(item.createdAt).format('MMMM D, YYYY h:mm A')}</td>
                   <td>
-                    <Button
-                      btnStyle="success"
-                      icon="checked-1"
-                      size="small"
-                      onClick={() => onConfirm(item._id)}
-                    >
-                      Confirm request
-                    </Button>
+                    {renderUserFullName(
+                      hideActions ? item.toUser || {} : item.fromUser || {}
+                    )}
                   </td>
+                  <td>{dayjs(item.createdAt).format('MMMM D, YYYY h:mm A')}</td>
+                  {!hideActions && (
+                    <td>
+                      <Button
+                        btnStyle="success"
+                        icon="checked-1"
+                        size="small"
+                        onClick={() => onConfirm(item._id)}
+                      >
+                        {this.props.type
+                          ? 'Acknowledge request'
+                          : 'Confirm request'}
+                      </Button>
+                    </td>
+                  )}
                 </tr>
               );
             })}

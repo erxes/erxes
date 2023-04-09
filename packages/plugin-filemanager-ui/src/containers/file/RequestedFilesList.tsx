@@ -1,14 +1,10 @@
 import * as compose from 'lodash.flowright';
 
-import {
-  ConfirmRequestMutationResponse,
-  RequestAccessMutationResponse
-} from '../../types';
 import { mutations, queries } from '../../graphql';
 
 import { Alert } from '@erxes/ui/src/utils';
+import { ConfirmRequestMutationResponse } from '../../types';
 import React from 'react';
-import RequestAccessForm from '../../components/file/RequestAccessForm';
 import RequestedFileList from '../../components/file/RequestedFilesList';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import gql from 'graphql-tag';

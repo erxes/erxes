@@ -45,6 +45,7 @@ export interface IAccessRequests {
   fileId?: string;
   fromUserId?: string;
   fromUser?: IUser;
+  toUser?: IUser;
   status: string;
 }
 
@@ -136,4 +137,14 @@ export type ConfirmRequestMutationResponse = {
   confirmRequestMutation: (params: {
     variables: ConfirmRequestMutationVariables;
   }) => Promise<void>;
+};
+
+export type RequestAckMutationResponse = {
+  requestAckMutation: (params: {
+    variables: RequestAccessMutationVariables;
+  }) => Promise<void>;
+};
+
+export type AckRequestMutationResponse = {
+  ackRequestMutation: (params: { variables: { _id: string } }) => Promise<void>;
 };
