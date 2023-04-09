@@ -11,8 +11,10 @@ import {
 
 const getByHost = async (models, requestInfo) => {
   const origin = requestInfo.headers.origin;
+  console.error('****************** origin ******************', origin);
   const pattern = `.*${origin}.*`;
 
+  console.error('****************** pattern ******************', pattern);
   const config = await models.ClientPortals.findOne({
     url: { $regex: pattern }
   });
@@ -220,7 +222,7 @@ const configClientPortalQueries = {
             { summary: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } }
           ]
         },
-        { topicId: topicId }
+        { topicId }
       ];
     }
 
