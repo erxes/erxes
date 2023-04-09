@@ -5,12 +5,13 @@ import {
 } from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
 
 import Button from '@erxes/ui/src/components/Button';
+import Label from '@erxes/ui/src/components/Label';
 import Comments from '../../containers/comment';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { IPost } from '../../types';
 import { PreviewContent } from '@erxes/ui-engage/src/styles';
 import React from 'react';
-import { Thumbnail } from '../../styles';
+import { Thumbnail, Space } from '../../styles';
 import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils';
@@ -298,6 +299,16 @@ function PostDetail(props: Props) {
             <li key={op._id}>{op.title}</li>
           ))}
         </ul>
+      </Subject>
+      <Subject>
+        <FlexRow>
+          <label>{__('Tags')}</label>
+        </FlexRow>
+        <Space>
+          {post.tags.map(tag => (
+            <Label key={tag._id}>{tag.name}</Label>
+          ))}
+        </Space>
       </Subject>
       <Subject>
         <FlexRow>

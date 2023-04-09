@@ -13,6 +13,7 @@ interface ISearchParams {
   sortField?: string;
   sortDirection?: number;
   customerId?: string;
+  customerType?: string;
 }
 
 interface IFullOrderParams extends ISearchParams {
@@ -27,7 +28,14 @@ export const getPureDate = (date: Date, multiplier = 1) => {
 };
 
 const generateFilter = (config: IConfig, params: IFullOrderParams) => {
-  const { searchValue, statuses, customerId, startDate, endDate } = params;
+  const {
+    searchValue,
+    statuses,
+    customerId,
+    startDate,
+    endDate,
+    customerType
+  } = params;
   const filter: any = {
     $or: [
       { posToken: config.token },
@@ -41,8 +49,16 @@ const generateFilter = (config: IConfig, params: IFullOrderParams) => {
       { origin: { $regex: new RegExp(escapeRegExp(searchValue), 'i') } }
     ];
   }
+
   if (customerId) {
     filter.customerId = customerId;
+  }
+
+  if (customerType) {
+    filter.customerType =
+      customerType === 'customer'
+        ? { $in: [customerType, '', undefined, null] }
+        : customerType;
   }
 
   const dateQry: any = {};

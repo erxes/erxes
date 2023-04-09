@@ -1,0 +1,12 @@
+mixin qpay(invoice)
+    .isMobile#isMobile
+        h3 #{__('Select bank')}
+            .border
+                if invoice.apiResponse.qrData
+                    each url in (invoice.apiResponse.urls || [])
+                        a(href=url.link class="bank")
+                            img(src=url.logo class="urlLogo")
+    .desktop#desktop
+        h3 QR code
+            .border.flex-center
+                img(src=`${invoice.apiResponse.qrData}`)

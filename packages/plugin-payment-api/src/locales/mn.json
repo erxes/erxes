@@ -6,5 +6,9 @@
   "Description": "Гүйлгээний утга",
   "Select bank": "Банк сонгоно уу",
   "Status": "Tөлөв",
-  "pending": "хүлээгдэж байна"
+  "pending": "хүлээгдэж байна",
+  "Payment method": "Төлбөрийн хэрэгсэл",
+  "Error": "Алдаа",
+  "Insufficient loan amount": "Insufficient loan amount",
+  "Check Social pay app": "Check Social pay app"
 }

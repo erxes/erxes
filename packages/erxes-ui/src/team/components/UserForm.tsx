@@ -173,7 +173,7 @@ class UserForm extends React.Component<Props, State> {
       channelIds: this.collectValues(selectedChannels),
       links,
       groupIds: this.collectValues(selectedGroups),
-      brandIds: selectedBrands,
+      brandIds: this.collectValues(selectedBrands),
       employeeId: finalValues.employeeId
     };
   };

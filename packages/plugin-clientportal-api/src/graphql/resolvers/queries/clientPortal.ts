@@ -220,7 +220,7 @@ const configClientPortalQueries = {
             { summary: { $regex: `.*${searchValue.trim()}.*`, $options: 'i' } }
           ]
         },
-        { topicId: topicId }
+        { topicId }
       ];
     }
 

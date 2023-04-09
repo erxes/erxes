@@ -26,6 +26,9 @@ type Props = {
   closeModal: () => void;
   onlyPreview?: boolean;
   indicatorId: string;
+  branchId: string;
+  departmentId: string;
+  operationId: string;
 };
 
 type State = {
@@ -39,25 +42,15 @@ class IndicatorForm extends React.Component<Props, State> {
     this.state = {
       submissions: {}
     };
-
-    this.submitForm = this.submitForm.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentDidMount() {
     if (
-      JSON.stringify(nextProps.submittedFields) ===
+      JSON.stringify(this.props.submittedFields) !==
       JSON.stringify(this.state.submissions)
     ) {
-      this.setState({ submissions: nextProps.submittedFields });
+      this.setState({ submissions: this.props.submittedFields });
     }
-  }
-
-  submitForm() {
-    const { submitForm } = this.props;
-    const { submissions } = this.state;
-    submitForm({
-      formSubmissions: submissions
-    });
   }
 
   renderDescriptionField(value, key: string) {
@@ -100,27 +93,42 @@ class IndicatorForm extends React.Component<Props, State> {
       submittedFields,
       closeModal,
       onlyPreview,
-      indicatorId
+      indicatorId,
+      branchId,
+      departmentId,
+      operationId
     } = this.props;
 
     const { submissions } = this.state;
 
     const handleChange = field => {
-      submissions[field._id] = {
-        ...submissions[field._id],
-        value: field.value
-      };
-      this.setState({ submissions });
+      this.setState(prev => ({
+        submissions: {
+          ...prev.submissions,
+          [field._id]: { ...prev.submissions[field._id], value: field.value }
+        }
+      }));
     };
 
     const setHistory = submissions => {
       this.setState({ submissions });
     };
 
+    const submitForm = () => {
+      const { submitForm } = this.props;
+      const { submissions } = this.state;
+      submitForm({
+        formSubmissions: submissions
+      });
+    };
+
     return (
       <>
         <IndicatorAssessmentHistory
           indicatorId={indicatorId}
+          branchId={branchId}
+          departmentId={departmentId}
+          operationId={operationId}
           setHistory={setHistory}
         />
         <Padding horizontal>
@@ -128,7 +136,7 @@ class IndicatorForm extends React.Component<Props, State> {
             <FormWrapper key={field._id}>
               <FormColumn>
                 <GenerateField
-                  isEditing={true}
+                  isEditing={false}
                   key={field._id}
                   field={field}
                   defaultValue={submissions[field._id]?.value}
@@ -148,7 +156,7 @@ class IndicatorForm extends React.Component<Props, State> {
             {__('Cancel')}
           </Button>
           {_loadash.isEmpty(submittedFields) && !onlyPreview && (
-            <Button btnStyle="success" onClick={this.submitForm}>
+            <Button btnStyle="success" onClick={submitForm}>
               {__('Save')}
             </Button>
           )}

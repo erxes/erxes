@@ -33,7 +33,7 @@ const getInvoiceStatus = async invoiceId => {
     }
   }
 
-  return invoices[invoiceId] ? invoices[invoiceId].status : 'settled';
+  return invoices[invoiceId] ? invoices[invoiceId].status : 'paid';
 };
 
 const removeInvoice = async invoiceId => {

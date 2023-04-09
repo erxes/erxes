@@ -98,8 +98,8 @@ const riskIndicators = `
   `;
 
 const indicatorAssessments = `
-  query IndicatorsAssessmentHistory($indicatorId: String) {
-  indicatorsAssessmentHistory(indicatorId: $indicatorId) {
+  query IndicatorsAssessmentHistory($indicatorId: String,$branchId: String,$departmentId: String,$operationId: String) {
+  indicatorsAssessmentHistory(indicatorId: $indicatorId,branchId:$branchId,departmentId:$departmentId,operationId:$operationId) {
     _id
     assessmentId
     closedAt

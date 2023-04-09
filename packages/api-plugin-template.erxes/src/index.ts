@@ -323,7 +323,9 @@ async function startServer() {
       initialSetup,
       cronjobs,
       documents,
-      exporter
+      exporter,
+      documentPrintHook,
+      readFileHook
     } = configs.meta;
 
     const { consumeRPCQueue, consumeQueue } = messageBrokerClient;
@@ -571,7 +573,7 @@ async function startServer() {
         `${configs.name}:documents.editorAttributes`,
         async args => ({
           status: 'success',
-          data: await documents.editorAttributes()
+          data: await documents.editorAttributes(args)
         })
       );
 
@@ -582,6 +584,24 @@ async function startServer() {
           data: await documents.replaceContent(args)
         })
       );
+    }
+
+    if (readFileHook) {
+      readFileHook.isAvailable = true;
+
+      consumeRPCQueue(`${configs.name}:readFileHook`, async args => ({
+        status: 'success',
+        data: await readFileHook.action(args)
+      }));
+    }
+
+    if (documentPrintHook) {
+      documentPrintHook.isAvailable = true;
+
+      consumeRPCQueue(`${configs.name}:documentPrintHook`, async args => ({
+        status: 'success',
+        data: await documentPrintHook.action(args)
+      }));
     }
   } // end configs.meta if
 

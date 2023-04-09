@@ -407,6 +407,7 @@ class Item extends React.Component<Props, State> {
             size="xl"
             content={this.renderFormContent}
             trigger={formTrigger}
+            style={{ overflow: 'auto' }}
           />
         </FormWrapper>
         {totalFormsCount === 1 && (

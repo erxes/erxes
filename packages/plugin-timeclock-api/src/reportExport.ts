@@ -162,8 +162,6 @@ const extractAndAddIntoSheet = (
       startRowIdx = 3;
       rowNum = 3;
 
-      console.log(empReports);
-
       for (const empReport of empReports) {
         extractValuesIntoArr.push([rowNum - 2, ...Object.values(empReport)]);
         rowNum += 1;

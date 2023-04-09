@@ -278,3 +278,8 @@ export const PostTitle = styled.p`
   text-overflow: ellipsis;
   white-space: nowrap;
 `;
+
+export const Space = styled.div`
+  gap: 7px;
+  display: flex;
+`;

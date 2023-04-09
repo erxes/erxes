@@ -1,9 +1,10 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { Router } from 'express';
 import { debugInfo } from '@erxes/api-utils/src/debuggers';
+import { Router } from 'express';
 
 import { generateModels } from './connectionResolver';
 import redisUtils from './redisUtils';
+import { PAYMENTS } from './constants';
 
 const router = Router();
 
@@ -20,6 +21,8 @@ router.post('/checkInvoice', async (req, res) => {
     redisUtils.removeInvoice(invoiceId);
 
     res.clearCookie(`paymentData_${invoice.contentTypeId}`);
+
+    return res.json({ status: invoice.status });
   }
 
   return res.json({ status });
@@ -47,23 +50,19 @@ router.get('/gateway', async (req, res) => {
     })
     .lean();
 
-  let invoice = await models.Invoices.findOne({ _id: data._id }).lean();
+  const invoice = await models.Invoices.findOne({ _id: data._id }).lean();
 
   const prefix = subdomain === 'localhost' ? '' : `/gateway`;
-  const domain = process.env.DOMAIN || 'http://localhost:3000';
 
-  debugInfo(
-    `in gateway path-: subdomain: ${subdomain}, prefix: ${prefix}, domain: ${domain}`
-  );
+  debugInfo(`in gateway path-: subdomain: ${subdomain}, prefix: ${prefix}`);
 
   if (invoice && invoice.status === 'paid') {
     return res.render('index', {
       title: 'Payment gateway',
-      payments: payments,
+      payments,
       invoiceData: data,
       invoice,
-      prefix,
-      domain
+      prefix
     });
   }
 
@@ -71,12 +70,11 @@ router.get('/gateway', async (req, res) => {
     title: 'Payment gateway',
     payments,
     invoiceData: data,
-    domain,
     prefix: subdomain === 'localhost' ? '' : `/gateway`
   });
 });
 
-router.post('/gateway', async (req, res) => {
+router.post('/gateway', async (req, res, next) => {
   const { params } = req.query;
 
   const data = JSON.parse(
@@ -87,7 +85,6 @@ router.post('/gateway', async (req, res) => {
   const models = await generateModels(subdomain);
 
   const prefix = subdomain === 'localhost' ? '' : `/gateway`;
-  const domain = process.env.DOMAIN || 'http://localhost:3000';
 
   const filter: any = {};
 
@@ -102,9 +99,11 @@ router.post('/gateway', async (req, res) => {
     .lean();
 
   const selectedPaymentId = req.body.selectedPaymentId;
+  let selectedPayment: any = null;
 
   const paymentsModified = payments.map(p => {
     if (p._id === selectedPaymentId) {
+      selectedPayment = p;
       return {
         ...p,
         selected: true
@@ -116,14 +115,44 @@ router.post('/gateway', async (req, res) => {
 
   let invoice = await models.Invoices.findOne({ _id: data._id });
 
+  if (req.body.phone && invoice) {
+    data.phone = req.body.phone;
+    invoice.phone = req.body.phone;
+  }
+
+  if (
+    !data.phone &&
+    invoice &&
+    invoice.status === 'pending' &&
+    selectedPayment.kind === PAYMENTS.storepay.kind
+  ) {
+    res.render('index', {
+      title: 'Payment gateway',
+      payments: paymentsModified,
+      invoiceData: data,
+      invoice: {
+        ...invoice,
+        selectedPaymentId,
+        paymentKind: PAYMENTS.storepay.kind,
+        apiResponse: {
+          error: 'Enter your Storepay registered phone number',
+          errorType: 'phoneRequired'
+        }
+      },
+      error: 'Enter your Storepay registered phone number',
+      prefix
+    });
+
+    return;
+  }
+
   if (invoice && invoice.status === 'paid') {
     return res.render('index', {
       title: 'Payment gateway',
       payments: paymentsModified,
       invoiceData: data,
       invoice,
-      prefix,
-      domain
+      prefix
     });
   }
 
@@ -132,7 +161,11 @@ router.post('/gateway', async (req, res) => {
     invoice.status !== 'paid' &&
     invoice.selectedPaymentId !== selectedPaymentId
   ) {
-    await models.Invoices.updateInvoice(invoice._id, { selectedPaymentId });
+    await models.Invoices.updateInvoice(invoice._id, {
+      selectedPaymentId,
+      ...data,
+      paymentKind: selectedPayment.kind
+    });
 
     invoice = await models.Invoices.findOne({ _id: data._id });
   }
@@ -152,8 +185,7 @@ router.post('/gateway', async (req, res) => {
       payments: paymentsModified,
       invoiceData: data,
       invoice,
-      prefix,
-      domain
+      prefix
     });
   } catch (e) {
     res.render('index', {
@@ -161,8 +193,7 @@ router.post('/gateway', async (req, res) => {
       payments: paymentsModified,
       invoiceData: data,
       error: e.message,
-      prefix,
-      domain
+      prefix
     });
   }
 });

@@ -275,6 +275,10 @@ export type AbsenceMutationResponse = {
     variables: { _id: string; status: string };
   }) => Promise<any>;
 
+  removeAbsenceMutation: (params: {
+    variables: { _id: string };
+  }) => Promise<any>;
+
   submitCheckInOutRequestMutation: (params: {
     variables: {
       checkType: string;

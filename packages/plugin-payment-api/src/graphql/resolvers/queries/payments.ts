@@ -4,7 +4,7 @@ import {
 } from '@erxes/api-utils/src/permissions';
 
 import { IContext } from '../../../connectionResolver';
-import { PAYMENT_KINDS } from '../../../constants';
+import { PAYMENTS } from '../../../constants';
 
 interface IParam {
   searchValue?: string;
@@ -68,7 +68,7 @@ const queries = {
       return models.Payments.find(query).countDocuments();
     };
 
-    for (const kind of PAYMENT_KINDS.ALL) {
+    for (const kind of PAYMENTS.ALL) {
       const countQueryResult = await count({ kind, ...qry });
       counts.byKind[kind] = !args.kind
         ? countQueryResult

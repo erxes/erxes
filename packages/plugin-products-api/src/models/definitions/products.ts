@@ -158,14 +158,14 @@ export const productSchema = schemaWrapper(
       index: true
     }),
     productCount: field({
-      type: String,
+      type: Number,
       label: 'Product Count',
-      default: '0'
+      default: 0
     }),
     minimiumCount: field({
-      type: String,
+      type: Number,
       label: 'Minimium Count',
-      default: '0'
+      default: 0
     }),
     vendorId: field({ type: String, optional: true, label: 'Vendor' }),
     mergedIds: field({ type: [String], optional: true }),
