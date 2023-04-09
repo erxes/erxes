@@ -101,28 +101,8 @@ export const increaseViewCountMutation = `
 `;
 
 export const generateInvoiceUrl = `
-mutation generateInvoiceUrl(
-  $amount: Float!
-  $companyId: String
-  $contentType: String
-  $contentTypeId: String
-  $customerId: String
-  $description: String
-  $redirectUri: String
-  $phone: String
-  $paymentIds: [String]
-) {
-  generateInvoiceUrl(
-    amount: $amount
-    companyId: $companyId
-    contentType: $contentType
-    contentTypeId: $contentTypeId
-    customerId: $customerId
-    description: $description
-    redirectUri: $redirectUri
-    phone: $phone
-    paymentIds: $paymentIds
-  )
+mutation GenerateInvoiceUrl($amount: Float!, $contentType: String, $contentTypeId: String, $customerId: String, $customerType: String, $description: String, $email: String, $paymentIds: [String], $phone: String) {
+  generateInvoiceUrl(amount: $amount, contentType: $contentType, contentTypeId: $contentTypeId, customerId: $customerId, customerType: $customerType, description: $description, email: $email, paymentIds: $paymentIds, phone: $phone)
 }
 `
 

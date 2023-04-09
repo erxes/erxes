@@ -1,6 +1,7 @@
 import * as _ from 'underscore';
 import redis from './redis';
 import { IUserDocument } from './types';
+import { isEnabled } from './serviceDiscovery';
 
 export interface ILogDataParams {
   type: string;
@@ -110,10 +111,7 @@ export const putCreateLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  const isAutomationsAvailable = await messageBroker.sendRPCMessage(
-    'gateway:isServiceAvailable',
-    'automations'
-  );
+  const isAutomationsAvailable = await isEnabled('automations');
 
   if (isAutomationsAvailable) {
     messageBroker.sendMessage('automations:trigger', {
@@ -125,10 +123,7 @@ export const putCreateLog = async (
     });
   }
 
-  const isWebhooksAvailable = await messageBroker.sendRPCMessage(
-    'gateway:isServiceAvailable',
-    'webhooks'
-  );
+  const isWebhooksAvailable = await isEnabled('webhooks');
 
   if (isWebhooksAvailable) {
     messageBroker.sendMessage('webhooks:send', {
@@ -160,10 +155,7 @@ export const putUpdateLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  const isAutomationsAvailable = await messageBroker.sendRPCMessage(
-    'gateway:isServiceAvailable',
-    'automations'
-  );
+  const isAutomationsAvailable = await isEnabled('automations');
 
   if (isAutomationsAvailable) {
     messageBroker.sendMessage('automations:trigger', {
@@ -175,10 +167,7 @@ export const putUpdateLog = async (
     });
   }
 
-  const isWebhooksAvailable = await messageBroker.sendRPCMessage(
-    'gateway:isServiceAvailable',
-    'webhooks'
-  );
+  const isWebhooksAvailable = await isEnabled('webhooks');
 
   if (isWebhooksAvailable) {
     messageBroker.sendMessage('webhooks:send', {
@@ -210,10 +199,7 @@ export const putDeleteLog = async (
   params: ILogDataParams,
   user: IUserDocument
 ) => {
-  const isWebhooksAvailable = await messageBroker.sendRPCMessage(
-    'gateway:isServiceAvailable',
-    'webhooks'
-  );
+  const isWebhooksAvailable = await isEnabled('webhooks');
 
   if (isWebhooksAvailable) {
     messageBroker.sendMessage('webhooks:send', {
@@ -262,10 +248,7 @@ const putLog = async (
     }
   }
 
-  const isLoggerAvailable = await messageBroker.sendRPCMessage(
-    'gateway:isServiceAvailable',
-    'logs'
-  );
+  const isLoggerAvailable = await isEnabled('logs');
 
   if (!isLoggerAvailable) {
     return;
@@ -296,10 +279,7 @@ export const putActivityLog = async (
   params: IActivityLogParams
 ) => {
   const { messageBroker, data } = params;
-  const isAutomationsAvailable = await messageBroker.sendRPCMessage(
-    'gateway:isServiceAvailable',
-    'automations'
-  );
+  const isAutomationsAvailable = await isEnabled('automations');
 
   try {
     if (isAutomationsAvailable && data.target) {

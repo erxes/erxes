@@ -15,7 +15,6 @@ import * as cookieParser from 'cookie-parser';
 import userMiddleware from './middlewares/userMiddleware';
 import pubsub from './subscription/pubsub';
 import {
-  clearCache,
   redis,
   setAfterMutations,
   setBeforeResolvers,
@@ -29,6 +28,7 @@ import apolloRouter from './apollo-router';
 import { ChildProcess } from 'child_process';
 import { startSubscriptionServer } from './subscription';
 import { Disposable } from 'graphql-ws';
+import { clearCache } from '@erxes/api-utils/src/serviceDiscovery';
 
 const {
   NODE_ENV,

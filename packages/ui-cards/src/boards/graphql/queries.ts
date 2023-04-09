@@ -388,6 +388,17 @@ const boardLogs = `
   }
 `;
 
+const documents = `
+  query documents($page: Int, $perPage: Int, $contentType: String) {
+    documents(page: $page, perPage: $perPage, contentType: $contentType) {
+      _id
+      contentType
+      name
+      createdAt
+    }
+  }
+`;
+
 export default {
   archivedStages,
   archivedStagesCount,
@@ -416,5 +427,6 @@ export default {
   tickets,
   tasks,
   boardContentTypeDetail,
-  boardLogs
+  boardLogs,
+  documents
 };

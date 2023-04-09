@@ -31,6 +31,10 @@ const createOrUpdateConfig = `
     $styles: StylesParams
     $mobileResponsive: Boolean
     $googleCredentials: JSON
+    $googleClientId: String
+    $googleRedirectUri: String
+    $googleClientSecret: String
+    $facebookAppId: String
 
     $kbToggle: Boolean
     $publicTaskToggle: Boolean
@@ -40,6 +44,7 @@ const createOrUpdateConfig = `
     $otpConfig: OTPConfigInput
     $mailConfig: MailConfigInput
     $manualVerificationConfig: JSON
+    $passwordVerificationConfig: JSON
   ) {
     clientPortalConfigUpdate(
       _id: $_id,
@@ -71,6 +76,10 @@ const createOrUpdateConfig = `
       styles: $styles
       mobileResponsive: $mobileResponsive
       googleCredentials: $googleCredentials
+      googleClientId: $googleClientId
+      googleRedirectUri: $googleRedirectUri
+      googleClientSecret: $googleClientSecret
+      facebookAppId: $facebookAppId
 
       kbToggle: $kbToggle,
       publicTaskToggle: $publicTaskToggle,
@@ -80,6 +89,7 @@ const createOrUpdateConfig = `
       otpConfig: $otpConfig
       mailConfig: $mailConfig
       manualVerificationConfig: $manualVerificationConfig
+      passwordVerificationConfig: $passwordVerificationConfig
     ) {
       ${commonFields}
     }

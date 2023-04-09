@@ -730,7 +730,10 @@ export default class Field extends React.Component<Props, State> {
         <span className="error">{error && error.text}</span>
 
         {field.description ? (
-          <span className="description">{field.description}</span>
+          <div
+            className="description"
+            dangerouslySetInnerHTML={{ __html: field.description }}
+          />
         ) : null}
 
         {this.renderAddButton()}

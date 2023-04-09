@@ -52,6 +52,7 @@ class TemplateList extends React.Component<Props> {
           </div>
         }
         content={content}
+        style={{ overflow: 'auto' }}
       />
     );
   };
