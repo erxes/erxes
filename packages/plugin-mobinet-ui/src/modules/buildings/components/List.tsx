@@ -175,6 +175,7 @@ const List = (props: Props) => {
             <th>{__('quarter')}</th>
             <th>{__('request count')}</th>
             <th>{__('ticket count')}</th>
+            <th>{__('network type')}</th>
             <th>{__('Action')}</th>
           </tr>
         </thead>

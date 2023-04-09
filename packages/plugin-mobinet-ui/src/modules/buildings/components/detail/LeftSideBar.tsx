@@ -35,7 +35,7 @@ export default class LeftSidebar extends React.Component<Props> {
             console.log('onChangeItem');
           }}
         />
-        <ProductsConfigsSection building={building} />
+        {/* <ProductsConfigsSection building={building} /> */}
       </Sidebar>
     );
   }

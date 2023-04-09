@@ -11,6 +11,7 @@ cityId
 createdAt
 name
 updatedAt
+isCapital
 `;
 
 const listQuery = `
@@ -38,6 +39,7 @@ query Districts($cityId: String, $page: Int, $perPage: Int, $searchValue: String
     _id
     name
     center
+    isCapital
   }
 }
 `;

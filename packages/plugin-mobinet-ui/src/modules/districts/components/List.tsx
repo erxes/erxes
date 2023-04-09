@@ -66,6 +66,7 @@ const List = (props: Props) => {
           <th>{__('Latitude')}</th>
           <th>{__('Longitude')}</th>
           <th>{__('city')}</th>
+          <th>{__('kind')}</th>
           <th>{__('Action')}</th>
         </tr>
       </thead>

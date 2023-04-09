@@ -37,6 +37,7 @@ const IntoSection = (props: Props) => {
           {renderRow('Сум/Дүүрэг', building.quarter.district.name)}
           {renderRow('Хороо/Баг', building.quarter.name)}
           {renderRow('СӨХ', building.suh && renderCompanyName(building.suh))}
+          {renderRow('Холболт', building.networkType)}
         </SidebarList>
         <OSMap
           id={Math.random().toString(10)}
