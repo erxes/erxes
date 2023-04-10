@@ -1,6 +1,7 @@
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { generateFilter } from '../../../utils';
+import { escapeRegExp } from '@erxes/api-utils/src/core';
 
 const movementItemQueries = {
   async assetMovementItems(_root, params, { models, subdomain }: IContext) {
@@ -61,18 +62,44 @@ const movementItemQueries = {
       departmentId,
       companyId,
       customerId,
-      teamMemberId
+      teamMemberId,
+      withKnowledgebase,
+      searchValue
     } = params;
 
     let pipeline: any[] = [];
 
-    if (params.withKnowledgebase) {
-      const assetIds = await models.Assets.find({
-        $and: [
+    if (withKnowledgebase || searchValue) {
+      const filter: any = { $and: [] };
+
+      if (withKnowledgebase) {
+        filter.$and = [
           { kbArticleIds: { $exists: true } },
           { 'kbArticleIds.0': { $exists: true } }
-        ]
-      }).distinct('_id');
+        ];
+      }
+
+      if (searchValue) {
+        filter.$and = [
+          ...filter.$and,
+          {
+            $or: [
+              {
+                name: {
+                  $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
+                }
+              },
+              {
+                code: {
+                  $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
+                }
+              }
+            ]
+          }
+        ];
+      }
+
+      const assetIds = await models.Assets.find(filter).distinct('_id');
 
       pipeline = [{ $match: { assetId: { $in: assetIds } } }];
     }
