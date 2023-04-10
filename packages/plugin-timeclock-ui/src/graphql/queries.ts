@@ -84,6 +84,18 @@ const timeclocksMain = `
     }
 }
 `;
+
+const timeclocksPerUser = `
+  query timeclocksPerUser($userId: String, $startDate: String, $endDate: String){
+    timeclocksPerUser(userId: $userId, startDate: $startDate, endDate: $endDate){
+      _id
+      shiftStart
+      shiftEnd
+      shiftActive
+    }
+  }
+`;
+
 const schedulesMain = `
   query schedulesMain(${listParamsDef}) {
     schedulesMain(${listParamsValue}) {
@@ -283,6 +295,8 @@ export default {
   branches,
 
   timeclocksMain,
+  timeclocksPerUser,
+
   timelogsMain,
   timeLogsPerUser,
 
