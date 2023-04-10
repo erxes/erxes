@@ -80,12 +80,16 @@ class FileDetail extends React.Component<Props, State> {
     this.setState({ currentTab });
   };
 
-  getPrintUrl = () => {
+  readUrl = () => {
     const { item } = this.props;
 
-    return `${getEnv().REACT_APP_API_URL}/pl:documents/print?_id=${
-      item.documentId
-    }&itemId=${item.contentTypeId}`;
+    if (item.type === 'dynamic') {
+      return `${getEnv().REACT_APP_API_URL}/pl:documents/print?_id=${
+        item.documentId
+      }&itemId=${item.contentTypeId}`;
+    }
+
+    return readFile(item.url);
   };
 
   renderDocumentPreview() {
@@ -99,7 +103,7 @@ class FileDetail extends React.Component<Props, State> {
       <DocumentPreview>
         <h3>Preview</h3>
 
-        <iframe src={this.getPrintUrl()} />
+        <iframe src={this.readUrl()} />
       </DocumentPreview>
     );
   }
@@ -268,7 +272,6 @@ class FileDetail extends React.Component<Props, State> {
             url: readFile(item.url)
           }}
         />
-        {this.renderSharedInfo()}
       </FilePreview>
     );
   }
@@ -343,57 +346,59 @@ class FileDetail extends React.Component<Props, State> {
 
     const actionButtons = (
       <ActionButtonsWrapper>
-        <Button
-          btnStyle="simple"
-          icon="leftarrow-3"
-          type="button"
-          onClick={this.onCancel}
-        >
-          {__('Back')}
-        </Button>
+        <div>
+          <Button
+            btnStyle="simple"
+            icon="leftarrow-3"
+            type="button"
+            onClick={this.onCancel}
+          >
+            {__('Back')}
+          </Button>
+          {this.renderSharedInfo()}
+        </div>
+        <div>
+          <ModalTrigger
+            title="Share File"
+            trigger={trigger}
+            content={content}
+            centered={true}
+            enforceFocus={false}
+          />
 
-        <ModalTrigger
-          title="Share File"
-          trigger={trigger}
-          content={content}
-          centered={true}
-          enforceFocus={false}
-        />
+          <ModalTrigger
+            title="Manage related files"
+            trigger={relatedTrigger}
+            content={relatedFileChooser}
+            centered={true}
+            enforceFocus={false}
+            size={'lg'}
+          />
 
-        <ModalTrigger
-          title="Manage related files"
-          trigger={relatedTrigger}
-          content={relatedFileChooser}
-          centered={true}
-          enforceFocus={false}
-          size={'lg'}
-        />
+          <ModalTrigger
+            title="Acknowledge file"
+            trigger={
+              <Button btnStyle="primary" icon="hold" type="button">
+                {__('Request acknowledge')}
+              </Button>
+            }
+            content={props => this.renderAckForm(props)}
+            centered={true}
+            enforceFocus={false}
+          />
 
-        <ModalTrigger
-          title="Acknowledge file"
-          trigger={
-            <Button btnStyle="primary" icon="hold" type="button">
-              {__('Acknowledge')}
-            </Button>
-          }
-          content={props => this.renderAckForm(props)}
-          centered={true}
-          enforceFocus={false}
-        />
-
-        {item.folderId && (
-          <a href={isDynamic ? '#' : readFile(item.url)}>
+          {item.folderId && (
             <Button
               btnStyle="success"
               type="button"
-              href={this.getPrintUrl()}
+              href={this.readUrl()}
               target="__blank"
               icon={isDynamic ? 'print' : 'download-1'}
             >
               {isDynamic ? __('Print') : __('Download')}
             </Button>
-          </a>
-        )}
+          )}
+        </div>
       </ActionButtonsWrapper>
     );
 
