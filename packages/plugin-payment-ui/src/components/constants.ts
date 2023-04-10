@@ -40,6 +40,16 @@ export const PAYMENTCONFIGS = [
     category: 'Payment method'
   },
   {
+    name: 'Qpay Wechat Pay',
+    description: 'Receive payments in Mongolia through the WeChat Pay',
+    isAvailable: false,
+    kind: 'wechatpay',
+    logo: 'images/payments/wechatpay.png',
+    createModal: 'wechatpay',
+    createUrl: '/settings/payments/createWechatpay',
+    category: 'Payment method'
+  },
+  {
     name: 'Paypal',
     description: 'Paypal payment method',
     isAvailable: false,
@@ -56,9 +66,10 @@ export const PAYMENT_KINDS = {
   SOCIALPAY: 'socialpay',
   MONPAY: 'monpay',
   STOREPAY: 'storepay',
+  WECHATPAY: 'wechatpay',
   PAYPAL: 'paypal',
 
-  ALL: ['qpay', 'socialpay', 'monpay', 'storepay', 'paypal']
+  ALL: ['qpay', 'socialpay', 'monpay', 'storepay', 'wechatpay', 'paypal']
 };
 
 export const PAYMENT_STATUS = {

@@ -5,8 +5,6 @@ import {
   RightMenuContainer
 } from '../styles';
 
-import React from 'react';
-
 import { BarItems } from '@erxes/ui/src/layout';
 import BreadCrumb from '@erxes/ui/src/components/breadcrumb/BreadCrumb';
 import Button from '@erxes/ui/src/components/Button';
@@ -24,6 +22,7 @@ import { IOption } from '@erxes/ui/src/types';
 import Label from '@erxes/ui/src/components/Label';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import RTG from 'react-transition-group';
+import React from 'react';
 import Select from 'react-select-plus';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import ShareForm from '../containers/ShareForm';

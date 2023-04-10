@@ -1,7 +1,7 @@
 import { Document, Schema } from 'mongoose';
 
-import { PAYMENTS, PAYMENT_STATUS } from '../../constants';
 import { field, schemaHooksWrapper } from './utils';
+import { PAYMENTS, PAYMENT_STATUS } from '../../api/constants';
 
 export interface IInvoice {
   selectedPaymentId: string;
