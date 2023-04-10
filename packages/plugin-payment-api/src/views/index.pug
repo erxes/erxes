@@ -4,6 +4,7 @@ include ./kinds/qpay.pug
 include ./kinds/monpay.pug
 include ./kinds/storepay.pug
 include ./kinds/paypal.pug
+include ./kinds/wechatpay.pug
 
 block layout-content
     .my-layout
@@ -25,7 +26,7 @@ block layout-content
                                     div.Payment__logo( class=`payments ${val.selected === true && 'active'}`)
                                         img(src=`${prefix}/pl:payment/static/images/payments/${val.kind}.png`)
                                         .payment-name  
-                                            p !{val.name}
+                                            p !{val.title}
                                             span Pay with app
             .row.flex-reverse 
                 .col.m6.s12 

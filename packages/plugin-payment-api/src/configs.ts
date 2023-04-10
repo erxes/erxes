@@ -4,13 +4,14 @@ import * as path from 'path';
 
 import { generateModels } from './connectionResolver';
 import * as permissions from './permissions';
-import { PAYMENTS } from './constants';
+
 import controllers from './controllers';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
 import { initBroker } from './messageBroker';
 import { callbackHandler } from './utils';
 import i18n = require('i18n');
+import { PAYMENTS } from './api/constants';
 
 export let mainDb;
 export let debug;

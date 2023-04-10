@@ -1,5 +1,5 @@
 import { IModels } from '../../connectionResolver';
-import { PAYMENTS } from '../../constants';
+import { PAYMENTS } from '../constants';
 import { BaseAPI } from '../base';
 import redis from '../../redis';
 

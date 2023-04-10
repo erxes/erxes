@@ -5,7 +5,7 @@ import {
 } from '@erxes/api-utils/src/permissions';
 
 import { IContext } from '../../../connectionResolver';
-import { PAYMENTS, PAYMENT_STATUS } from '../../../constants';
+import { PAYMENTS, PAYMENT_STATUS } from '../../../api/constants';
 
 interface IParam {
   searchValue?: string;
