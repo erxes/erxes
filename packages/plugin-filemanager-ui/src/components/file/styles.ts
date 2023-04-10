@@ -172,6 +172,12 @@ const AccessPopup = styled(FlexCenter)`
 `;
 
 const ActionButtonsWrapper = styled.div`
+  > div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
   button {
     margin-bottom: ${dimensions.coreSpacing}px;
   }

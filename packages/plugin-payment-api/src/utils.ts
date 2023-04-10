@@ -7,7 +7,7 @@ import { socialpayCallbackHandler } from './api/socialpay/api';
 import { storepayCallbackHandler } from './api/storepay/api';
 import { graphqlPubsub } from './configs';
 import { generateModels } from './connectionResolver';
-import { PAYMENTS, PAYMENT_STATUS } from './constants';
+import { PAYMENTS, PAYMENT_STATUS } from './api/constants';
 import redisUtils from './redisUtils';
 
 export const callbackHandler = async (req, res) => {
