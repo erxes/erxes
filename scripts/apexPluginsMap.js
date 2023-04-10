@@ -12,32 +12,66 @@ module.exports = {
       },
       menus: [
         {
-          text: 'Domestic trading',
-          url: '/domestic/order-list',
-          icon: 'icon-laptop',
+          text: 'Trading',
+          url: '/trading/home',
+          // scope: 'trading',
           location: 'mainNavigation',
+          icon: 'icon-piggy-bank',
         },
         {
           text: 'Stock List',
-          to: '/domestic/stock-list',
-          image: '/images/icons/erxes-29.png',
-          location: 'settings',
+          to: '/trading/stock-list',
           scope: 'trading',
+          location: 'settings',
+          image: '/images/icons/erxes-18.svg',
+          permission: 'tradingStockShow'
         },
         {
           text: 'Stock Order',
-          to: '/domestic/stock-order',
-          image: '/images/icons/erxes-29.png',
-          location: 'settings',
+          to: '/trading/stock-order',
           scope: 'trading',
+          location: 'settings',
+          image: '/images/icons/erxes-18.svg',
+          permission: 'tradingOrderShow'
         },
         {
           text: 'Order List',
-          to: '/domestic/order-list',
-          image: '/images/icons/erxes-29.png',
+          to: '/trading/order-list',
+          scope: 'trading',
+          location: 'settings',
+          image: '/images/icons/erxes-18.svg',
+          permission: 'tradingOrderShow'
+        },
+        {
+          text: 'Wallet List',
+          to: '/trading/wallet-list',
+          scope: 'trading',
+          location: 'settings',
+          image: '/images/icons/erxes-18.svg',
+          permission: 'tradingWalletShow'
+        },
+        {
+          text: 'Withdraw List',
+          to: '/trading/withdraw-list',
+          scope: 'trading',
+          location: 'settings',
+          image: '/images/icons/erxes-18.svg',
+          permission: 'tradingWithdrawShow'
+        },
+        {
+          text: 'Nominal statement list',
+          to: '/trading/nominal-statement-list',
           location: 'settings',
           scope: 'trading',
+          image: '/images/icons/erxes-18.svg',
         },
+        {
+          text: 'Contract note list',
+          to: '/trading/contract-list',
+          location: 'settings',
+          scope: 'trading',
+          image: '/images/icons/erxes-18.svg',
+        }
       ],
       url:
         'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-trading-ui/remoteEntry.js',
@@ -48,9 +82,64 @@ module.exports = {
           name: 'trading',
           description: 'Trading',
           actions: [
-            { name: 'All', description: 'All' },
-            { name: 'WalletManage', description: 'wallet manage' },
-          ],
+            {
+                name: 'tradingAll',
+                description: 'All',
+                use: ['tradingOrderManagement', 'tradingStockManagement',
+                    'tradingWithdrawManagement', 'tradingCustomerFeeManagement',
+                    'tradingWalletManagement', 'tradingStatementShow'
+                ]
+            },
+            {
+                name: 'tradingOrderManagement',
+                description: 'Manage orders',
+                use: ['tradingOrderShow']
+            },
+            {
+                name: 'tradingOrderShow',
+                description: 'Show orders'
+            },
+            {
+                name: 'tradingStockManagement',
+                description: 'Manage stocks',
+                use: ['tradingStockShow']
+            },
+            {
+                name: 'tradingStockShow',
+                description: 'Show stocks'
+            },
+            {
+                name: 'tradingWithdrawManagement',
+                description: 'Manage withdraws',
+                use: ['tradingWithdrawShow']
+            },
+            {
+                name: 'tradingWithdrawShow',
+                description: 'Show withdraw'
+            },
+            {
+                name: 'tradingCustomerFeeManagement',
+                description: 'Manage customer fee',
+                use: ['tradingCustomerFeeShow']
+            },
+            {
+                name: 'tradingCustomerFeeShow',
+                description: 'Show customer fee'
+            },
+            {
+                name: 'tradingWalletManagement',
+                description: 'Manage wallets',
+                use: ['tradingWalletShow']
+            },
+            {
+                name: 'tradingWalletShow',
+                description: 'Show wallets'
+            },
+            {
+                name: 'tradingStatementShow',
+                description: "Show statements"
+            }
+        ]
         },
       },
     },

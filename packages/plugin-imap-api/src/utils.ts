@@ -161,13 +161,18 @@ const saveMessages = async (
 
     let conversationId;
 
+    const $or: any[] = [
+      { references: { $in: [msg.messageId] } },
+      { messageId: { $in: msg.references || [] } }
+    ];
+
+    if (msg.inReplyTo) {
+      $or.push({ messageId: msg.inReplyTo });
+      $or.push({ references: { $in: [msg.inReplyTo] } });
+    }
+
     const relatedMessage = await models.Messages.findOne({
-      $or: [
-        { messageId: msg.inReplyTo },
-        { messageId: { $in: msg.references || [] } },
-        { references: { $in: [msg.messageId] } },
-        { references: { $in: [msg.inReplyTo] } }
-      ]
+      $or
     });
 
     if (relatedMessage) {
