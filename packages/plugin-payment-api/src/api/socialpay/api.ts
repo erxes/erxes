@@ -2,7 +2,7 @@ import * as crypto from 'crypto';
 import * as QRCode from 'qrcode';
 
 import { IModels } from '../../connectionResolver';
-import { PAYMENTS, PAYMENT_STATUS } from '../../constants';
+import { PAYMENTS, PAYMENT_STATUS } from '../constants';
 import { IInvoiceDocument } from '../../models/definitions/invoices';
 import { BaseAPI } from '../base';
 import { ISocialPayInvoice } from '../types';
@@ -103,7 +103,6 @@ export class SocialPayAPI extends BaseAPI {
       });
 
       if (header.code !== 200) {
-        // throw new Error(body.response.desc);
         return { error: body.response.desc };
       }
 
@@ -145,8 +144,6 @@ export class SocialPayAPI extends BaseAPI {
   }
 
   async checkInvoice(data: any) {
-    return PAYMENT_STATUS.PAID;
-
     try {
       const { body } = await this.request({
         path: PAYMENTS.socialpay.actions.invoiceCheck,

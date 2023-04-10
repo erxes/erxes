@@ -1,7 +1,7 @@
+import { FlexCenter, Title } from '@erxes/ui/src/styles/main';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
-import { Title } from '@erxes/ui/src/styles/main';
 import styled from 'styled-components';
 
 const RowArticle = styled.div`
@@ -135,6 +135,54 @@ const FlexRow = styled.div`
   }
 `;
 
+const DocumentPreview = styled.h4`
+  margintop: 50px;
+  marginleft: 20px;
+
+  iframe {
+    width: 100%;
+    border: none;
+    height: 700px;
+  }
+`;
+
+const RequestAccessWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: ${colors.bgMain};
+`;
+
+const AccessPopup = styled(FlexCenter)`
+  flex-direction: column;
+  box-shadow: rgba(55, 55, 55, 0.08) 0px 6px 10px 1px;
+  padding: ${dimensions.headerSpacing}px;
+  border-radius: ${dimensions.unitSpacing - 2}px;
+  background: ${colors.colorWhite};
+
+  img {
+    height: 100px;
+  }
+
+  p {
+    margin-bottom: ${dimensions.coreSpacing}px;
+    font-size: 14px;
+  }
+`;
+
+const ActionButtonsWrapper = styled.div`
+  > div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  button {
+    margin-bottom: ${dimensions.coreSpacing}px;
+  }
+`;
+
 export {
   RowArticle,
   ArticleTitle,
@@ -148,5 +196,9 @@ export {
   Forms,
   FilePreview,
   DetailTitle,
-  DetailHeader
+  DetailHeader,
+  DocumentPreview,
+  RequestAccessWrapper,
+  AccessPopup,
+  ActionButtonsWrapper
 };

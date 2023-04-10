@@ -100,3 +100,59 @@ export const ActionButton = styledTS<{ color?: string }>(styled.div)`
     background-color: ${props => rgba(props.color || colors.colorPrimary, 0.2)};
   }
 `;
+
+export const RightMenuContainer = styled.div`
+  position: fixed;
+  z-index: 2;
+  top: 117px;
+  right: 21px;
+  bottom: 0;
+  width: 350px;
+  background: ${colors.bgLight};
+  white-space: normal;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 12px 24px -6px rgba(9, 30, 66, 0.25),
+    0 0 0 1px rgba(9, 30, 66, 0.08);
+`;
+
+export const CustomRangeContainer = styled.div`
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-end;
+
+  > div {
+    flex: 1;
+    margin-right: 8px;
+
+    input[type='text'] {
+      border: none;
+      width: 100%;
+      height: 34px;
+      padding: 5px 0;
+      color: #444;
+      border-bottom: 1px solid;
+      border-color: #ddd;
+      background: none;
+      border-radius: 0;
+      box-shadow: none;
+      font-size: 13px;
+    }
+  }
+`;
+
+export const FilterWrapper = styled.div`
+  flex: 1;
+  padding: ${dimensions.coreSpacing}px;
+
+  .Select {
+    margin-bottom: 15px;
+  }
+
+  input {
+    margin-bottom: 20px;
+    width: 100% !important;
+  }
+`;

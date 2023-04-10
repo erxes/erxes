@@ -4,6 +4,7 @@ import { Router } from 'express';
 
 import { generateModels } from './connectionResolver';
 import redisUtils from './redisUtils';
+import { PAYMENTS } from './api/constants';
 
 const router = Router();
 
@@ -43,11 +44,16 @@ router.get('/gateway', async (req, res) => {
     filter._id = { $in: data.paymentIds };
   }
 
-  const payments = await models.Payments.find(filter)
+  const paymentsFound = await models.Payments.find(filter)
     .sort({
       type: 1
     })
     .lean();
+
+  const payments = paymentsFound.map(p => ({
+    ...p,
+    title: PAYMENTS[p.kind].title
+  }));
 
   const invoice = await models.Invoices.findOne({ _id: data._id }).lean();
 
@@ -91,16 +97,23 @@ router.post('/gateway', async (req, res, next) => {
     filter._id = { $in: data.paymentIds };
   }
 
-  const payments = await models.Payments.find(filter)
+  const paymentsFound = await models.Payments.find(filter)
     .sort({
       type: 1
     })
     .lean();
 
+  const payments = paymentsFound.map(p => ({
+    ...p,
+    title: PAYMENTS[p.kind].title
+  }));
+
   const selectedPaymentId = req.body.selectedPaymentId;
+  let selectedPayment: any = null;
 
   const paymentsModified = payments.map(p => {
     if (p._id === selectedPaymentId) {
+      selectedPayment = p;
       return {
         ...p,
         selected: true
@@ -111,6 +124,37 @@ router.post('/gateway', async (req, res, next) => {
   });
 
   let invoice = await models.Invoices.findOne({ _id: data._id });
+
+  if (req.body.phone && invoice) {
+    data.phone = req.body.phone;
+    invoice.phone = req.body.phone;
+  }
+
+  if (
+    !data.phone &&
+    invoice &&
+    invoice.status === 'pending' &&
+    selectedPayment.kind === PAYMENTS.storepay.kind
+  ) {
+    res.render('index', {
+      title: 'Payment gateway',
+      payments: paymentsModified,
+      invoiceData: data,
+      invoice: {
+        ...invoice,
+        selectedPaymentId,
+        paymentKind: PAYMENTS.storepay.kind,
+        apiResponse: {
+          error: 'Enter your Storepay registered phone number',
+          errorType: 'phoneRequired'
+        }
+      },
+      error: 'Enter your Storepay registered phone number',
+      prefix
+    });
+
+    return;
+  }
 
   if (invoice && invoice.status === 'paid') {
     return res.render('index', {
@@ -127,7 +171,11 @@ router.post('/gateway', async (req, res, next) => {
     invoice.status !== 'paid' &&
     invoice.selectedPaymentId !== selectedPaymentId
   ) {
-    await models.Invoices.updateInvoice(invoice._id, { selectedPaymentId });
+    await models.Invoices.updateInvoice(invoice._id, {
+      selectedPaymentId,
+      ...data,
+      paymentKind: selectedPayment.kind
+    });
 
     invoice = await models.Invoices.findOne({ _id: data._id });
   }
