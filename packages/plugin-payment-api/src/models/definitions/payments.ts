@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
 
-import { PAYMENTS } from '../../constants';
+import { PAYMENTS } from '../../api/constants';
 import { field } from './utils';
 
 export interface IPayment {
