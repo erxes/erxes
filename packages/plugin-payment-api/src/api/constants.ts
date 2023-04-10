@@ -1,5 +1,6 @@
 export const PAYMENTS = {
   qpay: {
+    title: 'Qpay',
     kind: 'qpay',
     apiUrl: 'https://merchant.qpay.mn/v2',
     actions: {
@@ -9,6 +10,7 @@ export const PAYMENTS = {
     handlerMethod: 'GET'
   },
   socialpay: {
+    title: 'Social Pay',
     kind: 'socialpay',
     apiUrl: 'https://instore.golomtbank.com',
     actions: {
@@ -20,21 +22,36 @@ export const PAYMENTS = {
     handlerMethod: 'POST'
   },
   monpay: {
+    title: 'MonPay',
     kind: 'monpay',
     apiUrl: 'https://wallet.monpay.mn',
     actions: {
       invoiceQr: 'rest/branch/qrpurchase/generate',
-      invoiceCheck: 'rest/branch/qrpurchase/check'
+      invoiceCheck: 'rest/branch/qrpurchase/check',
+      couponScan: 'rest/branch/coupon/scan',
+      branchLogin: 'rest/branch/login'
     },
     handlerMethod: 'GET'
   },
   storepay: {
+    title: 'storepay',
     kind: 'storepay',
     apiUrl: 'http://service-merchant.storepay.mn:7005',
     actions: {
       invoice: 'invoice'
     },
     handlerMethod: 'GET'
+  },
+  wechatpay: {
+    title: 'WeChat Pay',
+    kind: 'wechatpay',
+    apiUrl: 'https://sandbox-wechat.qpay.mn/v2',
+    actions: {
+      getToken: 'auth/token',
+      invoice: 'invoice',
+      getPayment: 'payment'
+    },
+    handlerMethod: 'POST'
   },
   paypal: {
     kind: 'paypal',
@@ -46,7 +63,7 @@ export const PAYMENTS = {
     handlerMethod: 'POST'
   },
 
-  ALL: ['qpay', 'socialpay', 'monpay', 'storepay', 'paypal']
+  ALL: ['qpay', 'socialpay', 'monpay', 'storepay', 'wechatpay', 'paypal']
 };
 
 export const PAYMENT_STATUS = {

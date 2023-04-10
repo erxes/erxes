@@ -15,6 +15,7 @@ import { SettingsContent } from './styles';
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
+  isWechatpay?: boolean;
   payment?: IPaymentDocument;
 };
 
@@ -52,7 +53,9 @@ class QpayConfigForm extends React.Component<Props, State> {
     const { payment } = this.props;
     const generatedValues = {
       name: values.paymentName,
-      kind: PAYMENT_KINDS.QPAY,
+      kind: this.props.isWechatpay
+        ? PAYMENT_KINDS.WECHATPAY
+        : PAYMENT_KINDS.QPAY,
       status: 'active',
       config: {
         qpayMerchantUser: values.qpayMerchantUser,

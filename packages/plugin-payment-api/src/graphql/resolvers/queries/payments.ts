@@ -4,7 +4,8 @@ import {
 } from '@erxes/api-utils/src/permissions';
 
 import { IContext } from '../../../connectionResolver';
-import { PAYMENTS } from '../../../constants';
+import { MonpayAPI } from '../../../api/monpay/api';
+import { PAYMENTS } from '../../../api/constants';
 
 interface IParam {
   searchValue?: string;
@@ -91,6 +92,23 @@ const queries = {
     counts.total = await count(qry);
 
     return counts;
+  },
+
+  async paymentsCheckMonpayCoupon(
+    _root,
+    args: {
+      paymentId: string;
+      couponCode: string;
+    },
+    { models }: IContext
+  ) {
+    const { paymentId, couponCode } = args;
+
+    const config = await models.Payments.getPayment(paymentId);
+
+    const api = new MonpayAPI(config.config);
+
+    return api.couponCheck(couponCode);
   }
 };
 

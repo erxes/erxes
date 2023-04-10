@@ -5,7 +5,7 @@ import redis from '../../redis';
 import { BaseAPI } from '../base';
 import { IQpayInvoice } from '../types';
 
-export const qpayCallbackHandler = async (models: IModels, data: any) => {
+export const wechatCallbackHandler = async (models: IModels, data: any) => {
   const { identifier } = data;
 
   if (!identifier) {
@@ -18,12 +18,12 @@ export const qpayCallbackHandler = async (models: IModels, data: any) => {
 
   const payment = await models.Payments.getPayment(invoice.selectedPaymentId);
 
-  if (payment.kind !== 'qpay') {
+  if (payment.kind !== 'wechatpay') {
     throw new Error('Payment config type is mismatched');
   }
 
   try {
-    const api = new QpayAPI(payment.config);
+    const api = new WechatPayAPI(payment.config);
     const status = await api.checkInvoice(invoice);
 
     if (status !== PAYMENT_STATUS.PAID) {
@@ -54,7 +54,7 @@ export interface IQpayConfig {
   qpayInvoiceCode: string;
 }
 
-export class QpayAPI extends BaseAPI {
+export class WechatPayAPI extends BaseAPI {
   private qpayMerchantUser: string;
   private qpayMerchantPassword: string;
   private qpayInvoiceCode: any;
@@ -66,11 +66,11 @@ export class QpayAPI extends BaseAPI {
     this.qpayMerchantPassword = config.qpayMerchantPassword;
     this.qpayMerchantUser = config.qpayMerchantUser;
 
-    this.apiUrl = PAYMENTS.qpay.apiUrl;
+    this.apiUrl = PAYMENTS.wechatpay.apiUrl;
   }
 
   async getHeaders() {
-    const token = await redis.get(`qpay_token_${this.qpayMerchantUser}`);
+    const token = await redis.get(`wechatpay_token_${this.qpayMerchantUser}`);
 
     if (token) {
       return {
@@ -82,7 +82,7 @@ export class QpayAPI extends BaseAPI {
     try {
       const { access_token } = await this.request({
         method: 'POST',
-        path: PAYMENTS.qpay.actions.getToken,
+        path: PAYMENTS.wechatpay.actions.getToken,
         headers: {
           Authorization:
             'Basic ' +
@@ -93,7 +93,7 @@ export class QpayAPI extends BaseAPI {
       });
 
       await redis.set(
-        `qpay_token_${this.qpayMerchantUser}`,
+        `wechatpay_token_${this.qpayMerchantUser}`,
         access_token,
         'EX',
         3600
@@ -119,15 +119,16 @@ export class QpayAPI extends BaseAPI {
       const data: IQpayInvoice = {
         invoice_code: qpayInvoiceCode,
         sender_invoice_no: invoice._id,
+        sender_terminal_code: 'kktt_wechat_test',
         invoice_receiver_code: 'terminal',
         invoice_description: invoice.description || 'test invoice',
         amount: invoice.amount,
-        callback_url: `${MAIN_API_DOMAIN}/pl:payment/callback/${PAYMENTS.qpay.kind}?identifier=${invoice.identifier}`
+        callback_url: `${MAIN_API_DOMAIN}/pl:payment/callback/${PAYMENTS.wechatpay.kind}?identifier=${invoice.identifier}`
       };
 
       const res = await this.request({
         method: 'POST',
-        path: PAYMENTS.qpay.actions.invoice,
+        path: PAYMENTS.wechatpay.actions.invoice,
         headers: await this.getHeaders(),
         data
       });
@@ -145,7 +146,7 @@ export class QpayAPI extends BaseAPI {
     try {
       const res = await this.request({
         method: 'GET',
-        path: `${PAYMENTS.qpay.actions.invoice}/${invoice.apiResponse.invoice_id}`,
+        path: `${PAYMENTS.wechatpay.actions.getPayment}/${invoice.apiResponse.invoice_id}`,
         headers: await this.getHeaders()
       });
 
@@ -163,7 +164,7 @@ export class QpayAPI extends BaseAPI {
     try {
       await this.request({
         method: 'DELETE',
-        path: `${PAYMENTS.qpay.actions.invoice}/${invoice.apiResponse.invoice_id}`,
+        path: `${PAYMENTS.wechatpay.actions.invoice}/${invoice.apiResponse.invoice_id}`,
         headers: await this.getHeaders()
       });
     } catch (e) {

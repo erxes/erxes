@@ -31,6 +31,8 @@ export const queries = `
   payments(status: String): [Payment]
   paymentsCountByType: paymentsTotalCount
   paymentsTotalCount(kind: String, status: String): paymentsTotalCount
+
+  paymentsCheckMonpayCoupon(couponCode: String!, paymentId: String!): JSON
 `;
 
 const params = `
