@@ -2,7 +2,7 @@ import * as crypto from 'crypto';
 import * as QRCode from 'qrcode';
 
 import { IModels } from '../../connectionResolver';
-import { PAYMENTS, PAYMENT_STATUS } from '../../constants';
+import { PAYMENTS, PAYMENT_STATUS } from '../constants';
 import { IInvoiceDocument } from '../../models/definitions/invoices';
 import { BaseAPI } from '../base';
 import { ISocialPayInvoice } from '../types';
