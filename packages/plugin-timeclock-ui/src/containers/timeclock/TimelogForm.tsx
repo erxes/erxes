@@ -54,9 +54,9 @@ export default withProps<Props>(
       name: 'listTimeLogsPerUser',
       options: ({ userId, startDate, endDate }) => ({
         variables: {
-          userId: `${userId}`,
-          startDate: `${startDate}`,
-          endDate: `${endDate}`
+          userId,
+          startDate,
+          endDate
         }
       })
     }),

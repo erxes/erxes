@@ -31,7 +31,7 @@ const clientPortalTickets = `
       status
       priority
       createdAt
-
+      stageChangedDate
       stage {
         name
       }
@@ -54,10 +54,10 @@ const clientPortalComments = `
       createdAt
     }
   }
-`
+`;
 
 export default {
   clientPortalGetTicket,
   clientPortalTickets,
-  clientPortalComments 
+  clientPortalComments
 };

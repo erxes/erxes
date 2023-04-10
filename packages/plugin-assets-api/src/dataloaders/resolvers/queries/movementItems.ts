@@ -1,6 +1,7 @@
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { generateFilter } from '../../../utils';
+import { escapeRegExp } from '@erxes/api-utils/src/core';
 
 const movementItemQueries = {
   async assetMovementItems(_root, params, { models, subdomain }: IContext) {
@@ -54,6 +55,89 @@ const movementItemQueries = {
       };
     }
     return item;
+  },
+  async assetsActiveLocations(_root, params, { models }: IContext) {
+    const {
+      branchId,
+      departmentId,
+      companyId,
+      customerId,
+      teamMemberId,
+      withKnowledgebase,
+      searchValue
+    } = params;
+
+    let pipeline: any[] = [];
+
+    if (withKnowledgebase || searchValue) {
+      const filter: any = { $and: [] };
+
+      if (withKnowledgebase) {
+        filter.$and = [
+          { kbArticleIds: { $exists: true } },
+          { 'kbArticleIds.0': { $exists: true } }
+        ];
+      }
+
+      if (searchValue) {
+        filter.$and = [
+          ...filter.$and,
+          {
+            $or: [
+              {
+                name: {
+                  $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
+                }
+              },
+              {
+                code: {
+                  $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
+                }
+              }
+            ]
+          }
+        ];
+      }
+
+      const assetIds = await models.Assets.find(filter).distinct('_id');
+
+      pipeline = [{ $match: { assetId: { $in: assetIds } } }];
+    }
+
+    pipeline = [
+      ...pipeline,
+      {
+        $group: {
+          _id: '$assetId',
+          movements: {
+            $push: '$$ROOT'
+          }
+        }
+      },
+      { $unwind: '$movements' },
+      { $sort: { 'movements.assetId': 1 } },
+      { $group: { _id: '$_id', movements: { $push: '$movements' } } },
+      { $replaceRoot: { newRoot: { $arrayElemAt: ['$movements', 0] } } }
+    ];
+
+    const project = { _id: 0 };
+
+    Object.entries({
+      branchId,
+      departmentId,
+      companyId,
+      customerId,
+      teamMemberId
+    }).forEach(([key, value]) => {
+      if (value) {
+        project[key] = 1;
+      }
+    });
+
+    pipeline = [...pipeline, { $project: project }];
+    const locations = await models.MovementItems.aggregate(pipeline);
+
+    return locations;
   }
 };
 

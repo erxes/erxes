@@ -1,9 +1,9 @@
 import * as compose from 'lodash.flowright';
 
 import {
-  router as routerUtils,
   Alert,
   confirm,
+  router as routerUtils,
   withProps
 } from '@erxes/ui/src/utils';
 import {
@@ -21,7 +21,6 @@ import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = {
