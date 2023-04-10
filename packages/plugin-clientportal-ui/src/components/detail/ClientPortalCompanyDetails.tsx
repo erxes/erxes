@@ -45,7 +45,7 @@ class ClientPortalCompanyDetails extends React.Component<Props> {
 
   render() {
     const { clientPortalUser } = this.props;
-    console.log('aaa', clientPortalUser);
+
     const title = clientPortalUser.companyName || 'Unknown';
 
     const breadcrumb = [
