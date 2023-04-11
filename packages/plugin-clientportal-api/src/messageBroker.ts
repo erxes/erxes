@@ -49,6 +49,18 @@ export const initBroker = async cl => {
   );
 
   consumeRPCQueue(
+    'clientportal:clientPortalUsers.create',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.ClientPortalUsers.createUser(subdomain, data),
+        status: 'success'
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'clientportal:clientPortals.count',
     async ({ subdomain, data: { selector } }) => {
       const models = await generateModels(subdomain);
@@ -81,6 +93,49 @@ export const initBroker = async cl => {
 
     return afterMutationHandlers(models, subdomain, data);
   });
+
+  consumeRPCQueue(
+    'clientportal:clientPortalUsers.createOrUpdate',
+    async ({ subdomain, data: { rows } }) => {
+      const models = await generateModels(subdomain);
+
+      const operations: any = [];
+
+      for (const row of rows) {
+        const { selector, doc } = row;
+
+        const prevEntry = await models.ClientPortalUsers.findOne(selector, {
+          _id: 1
+        }).lean();
+
+        if (prevEntry) {
+          operations.push({
+            updateOne: { filter: selector, update: { $set: doc } }
+          });
+        } else {
+          const customer = await sendContactsMessage({
+            subdomain,
+            action: 'customers.findOne',
+            data: { primaryEmail: doc.email },
+            isRPC: true
+          });
+
+          if (doc.email && customer) {
+            doc.erxesCustomerId = customer._id;
+            doc.createdAt = new Date();
+            doc.modifiedAt = new Date();
+
+            operations.push({ insertOne: { document: doc } });
+          }
+        }
+      }
+
+      return {
+        data: models.ClientPortalUsers.bulkWrite(operations),
+        status: 'success'
+      };
+    }
+  );
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs) => {

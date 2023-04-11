@@ -17,6 +17,7 @@ import Tags from '@erxes/ui/src/components/Tags';
 import Watch from '../../containers/editForm/Watch';
 import { loadDynamicComponent, __ } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import PrintActionButton from './PrintDocumentBtn';
 
 type Props = {
   item: IItem;
@@ -133,7 +134,8 @@ class Actions extends React.Component<Props> {
           />
         )}
 
-        {loadDynamicComponent('cardDetailAction', { item }, true)}
+        {/* {loadDynamicComponent('cardDetailAction', { item }, true)} */}
+        {isEnabled('documents') && <PrintActionButton item={item} />}
       </ActionContainer>
     );
   }

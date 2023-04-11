@@ -96,9 +96,20 @@ export const initBroker = async cl => {
   consumeRPCQueue('cards:tickets.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
+    if (!data.query) {
+      return {
+        status: 'success',
+        data: await models.Tickets.find(data).lean()
+      };
+    }
+
+    const { query, sort = {} } = data;
+
     return {
       status: 'success',
-      data: await models.Tickets.find(data).lean()
+      data: await models.Tickets.find(query)
+        .sort(sort)
+        .lean()
     };
   });
 
@@ -382,14 +393,37 @@ export const initBroker = async cl => {
   consumeQueue(
     'cards:pipelinesChanged',
     async ({ subdomain, data: { pipelineId, action, data } }) => {
-      const models = await generateModels(subdomain);
-
       graphqlPubsub.publish('pipelinesChanged', {
         pipelinesChanged: {
           _id: pipelineId,
           proccessId: Math.random(),
           action,
           data
+        }
+      });
+
+      return {
+        status: 'success'
+      };
+    }
+  );
+
+  consumeQueue(
+    'cards:productsDataChanged',
+    async ({
+      subdomain,
+      data: { dealId, action, dataId, doc, productsData }
+    }) => {
+      graphqlPubsub.publish('productsDataChanged', {
+        pipelinesChanged: {
+          _id: dealId,
+          proccessId: Math.random(),
+          action,
+          data: {
+            dataId,
+            doc,
+            productsData
+          }
         }
       });
 

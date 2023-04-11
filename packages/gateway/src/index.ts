@@ -23,7 +23,6 @@ import { createGateway, IGatewayContext } from './gateway';
 import userMiddleware from './middlewares/userMiddleware';
 import pubsub from './subscription/pubsub';
 import {
-  clearCache,
   getService,
   getServices,
   redis,
@@ -33,6 +32,7 @@ import {
 } from './redis';
 import { initBroker } from './messageBroker';
 import * as cors from 'cors';
+import { clearCache } from '@erxes/api-utils/src/serviceDiscovery';
 
 const {
   NODE_ENV,
