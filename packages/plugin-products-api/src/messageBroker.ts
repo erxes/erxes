@@ -82,7 +82,9 @@ export const initBroker = async cl => {
         };
       }
 
-      const categories = await models.ProductCategories.find({ _id: { $in: ids } }).lean();
+      const categories = await models.ProductCategories.find({
+        _id: { $in: ids }
+      }).lean();
 
       if (!categories.length) {
         return {
@@ -95,7 +97,7 @@ export const initBroker = async cl => {
       for (const category of categories) {
         orderQry.push({
           order: { $regex: new RegExp(category.order) }
-        })
+        });
       }
 
       return {
@@ -184,7 +186,7 @@ export const initBroker = async cl => {
         data: await models.Products.find(query, fields || {})
           .sort(sort)
           .skip(skip || 0)
-          .limit(limit || 100)
+          .limit(limit || 10000)
           .lean(),
         status: 'success'
       };
