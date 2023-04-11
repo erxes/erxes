@@ -22,16 +22,14 @@ const serviceDiscovery = {
   isEnabled
 };
 
-const bankField = 'uCMfbsZNtntf9PRvQ';
-const bankAccountNoField = '3WedBm5MhX4A3ctw8';
-const addressField = 'tn9HoKuwwXDrf9zgm';
-const customerTypeField = 'fyNL2XEZZuKqHSdWT';
-const registerNumberField = 'PhKCRTsPqLJJKXn6g';
-
-const clientPortalId =
-  process.env.NODE_ENV === 'production'
-    ? '5JNSjcL8eRuRuAxFK'
-    : 'fEHX3LsHH6AsKxRCL';
+const bankField = process.env.bankField;
+const bankAccountNameField = process.env.bankAccountNameField;
+const bankAccountNoField = process.env.bankAccountNoField;
+const addressField = process.env.addressField;
+const customerTypeField = process.env.customerTypeField;
+const registerNumberField = process.env.registerNumberField;
+const professionField = process.env.professionField;
+const clientPortalId = process.env.clientPortalId;
 
 const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
@@ -163,6 +161,11 @@ const importUsers = async (rows: any[]) => {
           stringValue: address
         },
         {
+          field: professionField,
+          value: 'employee',
+          stringValue: 'employee'
+        },
+        {
           field: customerTypeField,
           value: customerType,
           stringValue: customerType,
@@ -226,6 +229,11 @@ const importBankInfo = async (rows: any[]) => {
           field: bankField,
           value: bank_name,
           stringValue: bank_name
+        },
+        {
+          field: bankAccountNameField,
+          value: account_name,
+          stringValue: account_name
         },
         {
           field: bankAccountNoField,
