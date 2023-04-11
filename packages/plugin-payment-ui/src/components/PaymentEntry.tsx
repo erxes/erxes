@@ -93,6 +93,11 @@ function renderCreate(kind: string) {
         <StorepayForm {...props} renderButton={renderButton} />
       );
       break;
+    case PAYMENT_KINDS.WECHATPAY:
+      formContent = props => (
+        <QpayForm {...props} isWechatpay={true} renderButton={renderButton} />
+      );
+      break;
     case PAYMENT_KINDS.PAYPAL:
       formContent = props => (
         <PaypalForm {...props} renderButton={renderButton} />

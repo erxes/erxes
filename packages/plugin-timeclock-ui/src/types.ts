@@ -164,6 +164,10 @@ export type TimeClockMainQueryResponse = {
   timeclocksMain: { list: ITimeclock[]; totalCount: number };
 } & QueryResponse;
 
+export type TimeClockPerUserQueryResponse = {
+  timeclocksPerUser: ITimeclock[];
+} & QueryResponse;
+
 export type TimeClockQueryResponse = {
   timeclocks: ITimeclock[];
 } & QueryResponse;
@@ -259,6 +263,9 @@ export type TimeClockMutationResponse = {
   stopTimeMutation: (params: { variables: MutationVariables }) => Promise<any>;
   timeclockRemove: (params: { variables: { _id: string } }) => Promise<any>;
   timeclockEditMutation: (params: {
+    variables: MutationVariables;
+  }) => Promise<any>;
+  timeclockCreateMutation: (params: {
     variables: MutationVariables;
   }) => Promise<any>;
   extractAllMsSqlDataMutation: (params: {

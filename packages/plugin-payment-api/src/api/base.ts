@@ -2,11 +2,8 @@ import { sendRequest } from '@erxes/api-utils/src/requests';
 
 export class BaseAPI {
   public apiUrl: string;
-  private config: any;
 
   constructor(config) {
-    this.config = config;
-
     this.apiUrl = config.apiUrl;
   }
 
@@ -28,7 +25,9 @@ export class BaseAPI {
         body: data
       };
 
-      return await sendRequest(requestOptions);
+      const res = await sendRequest(requestOptions);
+
+      return res;
     } catch (e) {
       throw new Error(e.message);
     }

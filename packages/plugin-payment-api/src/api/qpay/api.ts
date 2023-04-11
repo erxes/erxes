@@ -1,5 +1,5 @@
 import { IModels } from '../../connectionResolver';
-import { PAYMENTS, PAYMENT_STATUS } from '../../constants';
+import { PAYMENTS, PAYMENT_STATUS } from '../constants';
 import { IInvoiceDocument } from '../../models/definitions/invoices';
 import redis from '../../redis';
 import { BaseAPI } from '../base';

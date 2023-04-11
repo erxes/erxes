@@ -4,7 +4,7 @@ import { Router } from 'express';
 
 import { generateModels } from './connectionResolver';
 import redisUtils from './redisUtils';
-import { PAYMENTS } from './constants';
+import { PAYMENTS } from './api/constants';
 
 const router = Router();
 
@@ -44,11 +44,16 @@ router.get('/gateway', async (req, res) => {
     filter._id = { $in: data.paymentIds };
   }
 
-  const payments = await models.Payments.find(filter)
+  const paymentsFound = await models.Payments.find(filter)
     .sort({
       type: 1
     })
     .lean();
+
+  const payments = paymentsFound.map(p => ({
+    ...p,
+    title: PAYMENTS[p.kind].title
+  }));
 
   const invoice = await models.Invoices.findOne({ _id: data._id }).lean();
 
@@ -92,11 +97,16 @@ router.post('/gateway', async (req, res, next) => {
     filter._id = { $in: data.paymentIds };
   }
 
-  const payments = await models.Payments.find(filter)
+  const paymentsFound = await models.Payments.find(filter)
     .sort({
       type: 1
     })
     .lean();
+
+  const payments = paymentsFound.map(p => ({
+    ...p,
+    title: PAYMENTS[p.kind].title
+  }));
 
   const selectedPaymentId = req.body.selectedPaymentId;
   let selectedPayment: any = null;
