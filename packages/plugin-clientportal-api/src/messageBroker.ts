@@ -113,7 +113,17 @@ export const initBroker = async cl => {
             updateOne: { filter: selector, update: { $set: doc } }
           });
         } else {
-          operations.push({ insertOne: { document: doc } });
+          const customer = await sendContactsMessage({
+            subdomain,
+            action: 'customers.findOne',
+            data: { primaryEmail: doc.email },
+            isRPC: true
+          });
+
+          if (doc.email && customer) {
+            (doc.erxesCustomerId = customer._id),
+              operations.push({ insertOne: { document: doc } });
+          }
         }
       }
 
