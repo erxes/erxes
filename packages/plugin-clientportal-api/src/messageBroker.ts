@@ -121,8 +121,11 @@ export const initBroker = async cl => {
           });
 
           if (doc.email && customer) {
-            (doc.erxesCustomerId = customer._id),
-              operations.push({ insertOne: { document: doc } });
+            doc.erxesCustomerId = customer._id;
+            doc.createdAt = new Date();
+            doc.modifiedAt = new Date();
+
+            operations.push({ insertOne: { document: doc } });
           }
         }
       }
