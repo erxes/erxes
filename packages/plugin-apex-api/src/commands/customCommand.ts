@@ -147,7 +147,9 @@ const importUsers = async (rows: any[]) => {
         primaryPhone: mobile_number,
         code: register_number,
         firstName: first_name,
-        lastName: last_name
+        lastName: last_name,
+        emailValidationStatus: 'valid',
+        phoneValidationStatus: 'valid'
       },
       customFieldsData: [
         {
