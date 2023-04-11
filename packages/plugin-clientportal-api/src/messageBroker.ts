@@ -94,7 +94,7 @@ export const initBroker = async cl => {
     return afterMutationHandlers(models, subdomain, data);
   });
 
-  consumeQueue(
+  consumeRPCQueue(
     'clientportal:clientPortalUsers.createOrUpdate',
     async ({ subdomain, data: { rows } }) => {
       const models = await generateModels(subdomain);
@@ -127,7 +127,10 @@ export const initBroker = async cl => {
         }
       }
 
-      return models.ClientPortalUsers.bulkWrite(operations);
+      return {
+        data: models.ClientPortalUsers.bulkWrite(operations),
+        status: 'success'
+      };
     }
   );
 };
