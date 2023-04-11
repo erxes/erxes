@@ -145,9 +145,12 @@ const importUsers = async (rows: any[]) => {
         state: 'lead',
         primaryEmail: email,
         primaryPhone: mobile_number,
+        emails: [email],
+        phones: [mobile_number],
         code: register_number,
         firstName: first_name,
         lastName: last_name,
+        status: 'Active',
         emailValidationStatus: 'valid',
         phoneValidationStatus: 'valid'
       },
