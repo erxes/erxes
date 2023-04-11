@@ -55,6 +55,8 @@ const createOrUpdate = async ({
       });
     } else {
       doc.customFieldsData = customFieldsData;
+      doc.createdAt = new Date();
+      doc.modifiedAt = new Date();
       operations.push({ insertOne: { document: doc } });
     }
   }

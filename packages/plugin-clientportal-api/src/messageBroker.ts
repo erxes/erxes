@@ -94,7 +94,7 @@ export const initBroker = async cl => {
     return afterMutationHandlers(models, subdomain, data);
   });
 
-  consumeQueue(
+  consumeRPCQueue(
     'clientportal:clientPortalUsers.createOrUpdate',
     async ({ subdomain, data: { rows } }) => {
       const models = await generateModels(subdomain);
@@ -121,13 +121,19 @@ export const initBroker = async cl => {
           });
 
           if (doc.email && customer) {
-            (doc.erxesCustomerId = customer._id),
-              operations.push({ insertOne: { document: doc } });
+            doc.erxesCustomerId = customer._id;
+            doc.createdAt = new Date();
+            doc.modifiedAt = new Date();
+
+            operations.push({ insertOne: { document: doc } });
           }
         }
       }
 
-      return models.ClientPortalUsers.bulkWrite(operations);
+      return {
+        data: models.ClientPortalUsers.bulkWrite(operations),
+        status: 'success'
+      };
     }
   );
 };
