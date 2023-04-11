@@ -140,9 +140,9 @@ const importUsers = async (rows: any[]) => {
     }
 
     customerOperations.push({
-      selector: { code: register_number },
+      selector: { primaryEmail: email },
       doc: {
-        state: 'lead',
+        state: 'customer',
         primaryEmail: email,
         primaryPhone: mobile_number,
         emails: [email],
