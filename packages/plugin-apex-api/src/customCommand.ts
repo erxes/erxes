@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 import { init } from '@erxes/api-utils/src/messageBroker';
 import { redis } from '@erxes/api-utils/src/serviceDiscovery';
-import { initBroker } from '../messageBroker';
+import { initBroker } from './messageBroker';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import * as fs from 'fs';
 import { Writable } from 'stream';
