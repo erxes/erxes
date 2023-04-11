@@ -23,7 +23,7 @@ const createOrUpdate = async ({
   for (const row of rows) {
     const { selector, doc, customFieldsData } = row;
 
-    const prevEntry = await collection.findOne(selector, { _id: 1 }).lean();
+    const prevEntry = await collection.findOne(selector).lean();
 
     if (prevEntry) {
       let cfData = prevEntry.customFieldsData || [];
