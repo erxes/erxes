@@ -262,6 +262,7 @@ export const queries = `
   requestsMain(${queryParams}): RequestsListResponse
   timelogsMain(${queryParams}): TimelogListResponse
   
+  timeclocksPerUser(userId: String, shiftActive: Boolean, startDate: String, endDate:String): [Timeclock]
   timeLogsPerUser(userId: String, startDate: String, endDate: String ): [Timelog]
   schedulesPerUser(userId: String, startDate: String, endDate: String): [Schedule]
   absenceTypes:[AbsenceType]
@@ -287,6 +288,7 @@ export const mutations = `
   timeclockStart(${params}): Timeclock
   timeclockStop(${params}): Timeclock
   timeclockRemove(_id : String): JSON
+  timeclockCreate(userId: String, shiftStart: Date, shiftEnd: Date, shiftActive: Boolean): Timeclock
   timeclockEdit(_id: String, shiftStart: Date, shiftEnd: Date, shiftActive: Boolean): Timeclock
   
   absenceTypeRemove(_id: String): JSON

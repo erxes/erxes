@@ -24,13 +24,13 @@ export default function Ticket({ tickets, currentUser }: Props) {
       <ListHead className="head">
         <div>Subject</div>
         <div>Created date</div>
+        <div>Stage changed date</div>
         <div>Stage</div>
         <div>Labels</div>
       </ListHead>
       <ListBody>
         {tickets.map(ticket => {
           const { stage = {}, labels } = ticket;
-
           return (
             <ListRow
               key={ticket._id}
@@ -40,6 +40,11 @@ export default function Ticket({ tickets, currentUser }: Props) {
               <div className="base-color">{ticket.name}</div>
 
               <div>{dayjs(ticket.createdAt).format('MMM D YYYY')}</div>
+              <div>
+                {ticket.stageChangedDate
+                  ? dayjs(ticket.stageChangedDate).format('MMM D YYYY')
+                  : '-'}
+              </div>
 
               <div className="base-color">{stage.name}</div>
 
