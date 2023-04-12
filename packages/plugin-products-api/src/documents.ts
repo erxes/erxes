@@ -2,7 +2,6 @@ import { generateModels } from './connectionResolver';
 import {
   sendCommonMessage,
   sendContactsMessage,
-  sendCoreMessage,
   sendFormsMessage
 } from './messageBroker';
 import { serviceDiscovery } from './configs';
