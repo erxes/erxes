@@ -1,0 +1,29 @@
+{
+	"jwt_token_secret": "token",
+	"dashboard": {
+	},
+	"client_portal_domains": "",
+	"elasticsearch": {},
+	"redis": {
+		"password": ""
+	},
+	"mongo": {
+		"username": "",
+		"password": ""
+	},
+	"rabbitmq": {
+		"cookie": "",
+		"user": "",
+		"pass": "",
+		"vhost": ""
+	},
+	"plugins": [
+		{
+			"name": "inbox",
+            "ui": "local"
+		},
+		{
+			"name": "logs"
+		}
+	]
+}

@@ -1,0 +1,39 @@
+version: "3.6"
+services:
+  erxes:
+    build:
+      context: ..
+      dockerfile: .ergomake/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - MONGO_URL=mongodb://mongo:27017/erxes
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - RABBITMQ_HOST=amqp://rabbitmq
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+
+  mongo:
+    image: mongo:4.0.10
+    ports:
+      - "27017"
+
+  redis:
+    image: "redis"
+    ports:
+      - "6379"
+
+  rabbitmq:
+    image: rabbitmq:3.7.17-management
+    hostname: rabbitmq
+    ports:
+      - "15672"
+      - "5672"
+
+  elasticsearch:
+    image: "docker.elastic.co/elasticsearch/elasticsearch:7.8.0"
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9200"
