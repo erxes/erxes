@@ -16,7 +16,7 @@ type Props = {
   totalCount: number;
   safeRemainder: any;
   safeRemainderItems: any[];
-  submitItems: (data: any) => void;
+  submitSafeRemainder: (_id: string) => void;
   updateItem: (_id: string, remainder: number, status: string) => void;
   removeItem: (item: any) => void;
 };
@@ -27,7 +27,7 @@ export default function List(props: Props) {
     loading,
     safeRemainder,
     safeRemainderItems,
-    submitItems,
+    submitSafeRemainder,
     updateItem,
     removeItem
   } = props;
@@ -75,7 +75,7 @@ export default function List(props: Props) {
       btnStyle="success"
       icon="check-circle"
       size="small"
-      onClick={() => submitItems(safeRemainderItems)}
+      onClick={() => submitSafeRemainder(safeRemainder._id)}
     >
       {__('Submit')}
     </Button>
