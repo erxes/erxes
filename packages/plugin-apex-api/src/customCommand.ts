@@ -22,12 +22,14 @@ const serviceDiscovery = {
   isEnabled
 };
 
-const bankAccountNoField = '3WedBm5MhX4A3ctw8';
-const addressField = 'tn9HoKuwwXDrf9zgm';
-const clientPortalId =
-  process.env.NODE_ENV === 'production'
-    ? '5JNSjcL8eRuRuAxFK'
-    : 'fEHX3LsHH6AsKxRCL';
+const bankField = process.env.bankField;
+const bankAccountNameField = process.env.bankAccountNameField;
+const bankAccountNoField = process.env.bankAccountNoField;
+const addressField = process.env.addressField;
+const customerTypeField = process.env.customerTypeField;
+const registerNumberField = process.env.registerNumberField;
+const professionField = process.env.professionField;
+const clientPortalId = process.env.clientPortalId;
 
 const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
@@ -87,149 +89,172 @@ const importBulkStream = ({
   });
 };
 
-const importUsers = async (row: any) => {
-  const [
-    email,
-    register_number,
-    parent_register_number,
-    passport,
-    family,
-    first_name,
-    last_name,
-    mobile_number,
-    address
-  ] = row;
+const importUsers = async (rows: any[]) => {
+  const customerOperations: any = [];
+  const clientPortalUserOperations: any = [];
 
-  if (!email || !register_number) {
-    return;
-  }
+  for (const row of rows) {
+    const [
+      email,
+      register_number,
+      parent_register_number,
+      passport,
+      family,
+      first_name,
+      last_name,
+      mobile_number,
+      address,
+      work_addr,
+      work_phone,
+      country_name,
+      country_code,
+      account_number,
+      broker_code,
+      mit_prefix,
+      suffix // TTOL-B/2411199-LI/0
+    ] = row;
 
-  let customer = await sendCommonMessage({
-    subdomain: 'os',
-    serviceName: 'contacts',
-    action: 'customers.findOne',
-    isRPC: true,
-    data: {
-      code: register_number
+    if (!email || !register_number || !suffix) {
+      continue;
     }
-  });
 
-  const doc = {
-    primaryEmail: email,
-    primaryPhone: mobile_number,
-    code: register_number,
-    firstName: first_name,
-    lastName: last_name,
-    customFieldsData: [
-      {
-        field: addressField,
-        value: address,
-        stringValue: address
-      }
-    ]
-  };
+    const [s1, s2, s3] = suffix.split('-');
+    const [p1, p2] = s3.split('/');
 
-  if (customer) {
-    await sendCommonMessage({
-      subdomain: 'os',
-      serviceName: 'contacts',
-      action: 'customers.updateCustomer',
-      isRPC: true,
-      data: {
-        _id: customer._id,
-        doc
-      }
-    });
-  } else {
-    customer = await sendCommonMessage({
-      subdomain: 'os',
-      serviceName: 'contacts',
-      action: 'customers.createCustomer',
-      isRPC: true,
-      data: {}
-    });
-  }
+    let customerType;
 
-  const prevUser = await sendCommonMessage({
-    subdomain: 'os',
-    serviceName: 'clientportal',
-    action: 'clientPortalUsers.findOne',
-    isRPC: true,
-    data: {
-      email
+    if (p1 === 'LI') {
+      customerType = 1;
     }
-  });
 
-  if (!prevUser) {
-    await sendCommonMessage({
-      subdomain: 'os',
-      serviceName: 'clientportal',
-      action: 'clientPortalUsers.create',
-      isRPC: true,
-      data: {
-        password: 'Temp@123',
-        clientPortalId,
+    if (p1 === 'FI') {
+      customerType = 2;
+    }
+
+    if (p1 === 'LC' || p2 === 'FC') {
+      customerType = 3;
+    }
+
+    if (p1 === 'JR') {
+      customerType = 4;
+    }
+
+    customerOperations.push({
+      selector: { primaryEmail: email },
+      doc: {
+        state: 'customer',
+        primaryEmail: email,
+        primaryPhone: mobile_number,
+        emails: [email],
+        phones: [mobile_number],
+        code: register_number,
+        firstName: first_name,
+        lastName: last_name,
+        status: 'Active',
+        emailValidationStatus: 'valid',
+        phoneValidationStatus: 'valid'
+      },
+      customFieldsData: [
+        {
+          field: registerNumberField,
+          value: register_number,
+          stringValue: register_number
+        },
+        {
+          field: addressField,
+          value: address,
+          stringValue: address
+        },
+        {
+          field: professionField,
+          value: 'employee',
+          stringValue: 'employee'
+        },
+        {
+          field: customerTypeField,
+          value: customerType,
+          stringValue: customerType,
+          numberValue: customerType
+        }
+      ]
+    });
+
+    clientPortalUserOperations.push({
+      selector: { email },
+      doc: {
         email,
         phone: mobile_number,
         firstName: first_name,
         lastName: last_name,
-        erxesCustomerId: customer._id
+        clientPortalId
       }
     });
   }
-};
-
-const importBankInfo = async (row: any) => {
-  const [
-    register_number,
-    mit_prefix,
-    bank_name,
-    bank_code,
-    account_name,
-    account_number,
-    account_type
-  ] = row;
-
-  if (!register_number) {
-    return;
-  }
-
-  const customer = await sendCommonMessage({
-    subdomain: 'os',
-    serviceName: 'contacts',
-    action: 'customers.findOne',
-    isRPC: true,
-    data: {
-      code: register_number
-    }
-  });
-
-  if (!customer) {
-    return;
-  }
-
-  // remove bank account no
-  let customFieldsData = (customer.customFieldsData || []).filter(
-    ({ field }) => field !== bankAccountNoField
-  );
-
-  customFieldsData.push({
-    field: bankAccountNoField,
-    value: account_number,
-    stringValue: account_number
-  });
 
   await sendCommonMessage({
     subdomain: 'os',
     serviceName: 'contacts',
-    action: 'customers.updateCustomer',
+    action: 'customers.createOrUpdate',
     isRPC: true,
-    data: {
-      _id: customer._id,
-      doc: {
-        customFieldsData
-      }
+    data: { rows: customerOperations, doNotReplaceExistingValues: true }
+  });
+
+  await sendCommonMessage({
+    subdomain: 'os',
+    serviceName: 'clientportal',
+    action: 'clientPortalUsers.createOrUpdate',
+    isRPC: true,
+    data: { rows: clientPortalUserOperations }
+  });
+};
+
+const importBankInfo = async (rows: any[]) => {
+  const customerOperations: any[] = [];
+
+  for (const row of rows) {
+    const [
+      register_number,
+      mit_prefix,
+      bank_name,
+      bank_code,
+      account_name,
+      account_number,
+      account_type
+    ] = row;
+
+    if (!register_number) {
+      continue;
     }
+
+    customerOperations.push({
+      selector: { code: register_number },
+      doc: {},
+      customFieldsData: [
+        {
+          field: bankField,
+          value: bank_name,
+          stringValue: bank_name
+        },
+        {
+          field: bankAccountNameField,
+          value: account_name,
+          stringValue: account_name
+        },
+        {
+          field: bankAccountNoField,
+          value: account_number,
+          stringValue: account_number
+        }
+      ]
+    });
+  }
+
+  await sendCommonMessage({
+    subdomain: 'os',
+    serviceName: 'contacts',
+    action: 'customers.createOrUpdate',
+    isRPC: true,
+    data: { rows: customerOperations, doNotReplaceExistingValues: true }
   });
 };
 
@@ -238,18 +263,20 @@ const handleBulkOperation = async (
   rowIndex: number,
   rows: any
 ) => {
-  for (const row of rows) {
-    try {
-      const parsedRow = Object.values(row);
+  let parsedRows: any = [];
 
-      if (filePath.includes('users.csv')) {
-        await importUsers(parsedRow);
-      } else {
-        await importBankInfo(parsedRow);
-      }
-    } catch (e) {
-      console.log(`Error during line ${rowIndex}`, e.message);
+  for (const row of rows) {
+    parsedRows.push(Object.values(row));
+  }
+
+  try {
+    if (filePath.includes('users.csv')) {
+      await importUsers(parsedRows);
+    } else {
+      await importBankInfo(parsedRows);
     }
+  } catch (e) {
+    console.log(`Error during line ${rowIndex}`, e.message);
   }
 };
 

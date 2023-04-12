@@ -7,6 +7,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { initBroker } from './messageBroker';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import * as permissions from './permissions';
+import * as customCommand from './customCommand';
 
 export let mainDb;
 export let graphqlPubsub;

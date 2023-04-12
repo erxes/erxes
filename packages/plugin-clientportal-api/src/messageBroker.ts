@@ -93,6 +93,43 @@ export const initBroker = async cl => {
 
     return afterMutationHandlers(models, subdomain, data);
   });
+
+  consumeQueue(
+    'clientportal:clientPortalUsers.createOrUpdate',
+    async ({ subdomain, data: { rows } }) => {
+      const models = await generateModels(subdomain);
+
+      const operations: any = [];
+
+      for (const row of rows) {
+        const { selector, doc } = row;
+
+        const prevEntry = await models.ClientPortalUsers.findOne(selector, {
+          _id: 1
+        }).lean();
+
+        if (prevEntry) {
+          operations.push({
+            updateOne: { filter: selector, update: { $set: doc } }
+          });
+        } else {
+          const customer = await sendContactsMessage({
+            subdomain,
+            action: 'customers.findOne',
+            data: { primaryEmail: doc.email },
+            isRPC: true
+          });
+
+          if (doc.email && customer) {
+            (doc.erxesCustomerId = customer._id),
+              operations.push({ insertOne: { document: doc } });
+          }
+        }
+      }
+
+      return models.ClientPortalUsers.bulkWrite(operations);
+    }
+  );
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs) => {
