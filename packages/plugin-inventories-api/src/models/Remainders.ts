@@ -297,6 +297,9 @@ export const loadRemainderClass = (models: IModels) => {
         const product = productById[data.productId];
         const ratio = getRatio(product, data.uomId || product.uomId);
         const diffCount = data.diffCount / (ratio || 1);
+        if (!diffCount) {
+          continue;
+        }
 
         bulkOps.push({
           updateOne: {
