@@ -124,4 +124,3 @@ export const generateModels = createGenerateModels<IModels>(
   models,
   loadClasses
 );
-

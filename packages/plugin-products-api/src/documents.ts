@@ -2,7 +2,6 @@ import { generateModels } from './connectionResolver';
 import {
   sendCommonMessage,
   sendContactsMessage,
-  sendCoreMessage,
   sendFormsMessage
 } from './messageBroker';
 import { serviceDiscovery } from './configs';
@@ -91,8 +90,6 @@ export default {
           if (unitPrice < 0) {
             unitPrice = 0;
           }
-
-          product.unitPrice = unitPrice;
         }
       }
 
