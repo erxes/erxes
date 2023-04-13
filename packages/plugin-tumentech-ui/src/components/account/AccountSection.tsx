@@ -15,8 +15,6 @@ export type Props = {
 export default function Component(props: Props) {
   const { customerAccount } = props;
 
-  console.log(customerAccount);
-
   //   const renderActionSection = customer => {
   //     if (!actionSection) {
   //       return;
@@ -27,7 +25,7 @@ export default function Component(props: Props) {
   //   };
 
   const renderBody = () => {
-    if (!customerAccount) {
+    if (!customerAccount || !customerAccount.balance) {
       return <EmptyState icon="piggybank" text="No data" />;
     }
 
@@ -36,7 +34,8 @@ export default function Component(props: Props) {
         <SidebarList>
           <li>
             <FieldStyle>
-              {__('Balance')} : {customerAccount.balance.toLocaleString()} ₮
+              {__('Current balance')} :{' '}
+              {customerAccount.balance.toLocaleString()} ₮
             </FieldStyle>
           </li>
         </SidebarList>

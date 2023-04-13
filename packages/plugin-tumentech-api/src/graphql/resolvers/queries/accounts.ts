@@ -1,12 +1,10 @@
-import { paginate } from '@erxes/api-utils/src';
-
 import { IContext } from '../../../connectionResolver';
 import {
   sendClientPortalMessage,
   sendCommonMessage
 } from '../../../messageBroker';
 
-const tripsQuery = {
+const queries = {
   customerAccount: async (
     _root,
     args: { customerId: string },
@@ -209,4 +207,4 @@ const tripsQuery = {
   }
 };
 
-export default tripsQuery;
+export default queries;
