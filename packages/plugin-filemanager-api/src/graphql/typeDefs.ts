@@ -85,6 +85,7 @@ const typeDefs = gql`
     contentType: String!
     contentTypeId: String!
     fileIds: [String]
+    files: [FileManagerFile]
   }
 
   extend type Query {
