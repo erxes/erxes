@@ -2,20 +2,10 @@ import { safeRemainderItemFields } from './queries';
 
 const safeRemainderSubmit = `
   mutation safeRemainderSubmit(
-    $branchId: String,
-    $departmentId: String,
-    $contentId: String,
-    $contentType: String,
-    $status: String,
-    $products: [SafeRemainderSubmitProduct]
+    $_id: String!
   ) {
     safeRemainderSubmit(
-      branchId: $branchId,
-      departmentId: $departmentId,
-      contentId: $contentId,
-      contentType: $contentType,
-      status: $status,
-      products: $products
+      _id: $_id
     )
   }
 `;

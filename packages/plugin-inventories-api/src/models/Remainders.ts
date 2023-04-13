@@ -212,12 +212,23 @@ export const loadRemainderClass = (models: IModels) => {
       if (branchId) filter.branchId = branchId;
 
       if (productCategoryId) {
+        const limit: number = await sendProductsMessage({
+          subdomain,
+          action: 'count',
+          data: {
+            query: {},
+            categoryId: productCategoryId
+          },
+          isRPC: true
+        });
+
         const products: any = await sendProductsMessage({
           subdomain,
           action: 'find',
           data: {
             query: {},
-            categoryId: productCategoryId
+            categoryId: productCategoryId,
+            limit
           },
           isRPC: true
         });
@@ -257,7 +268,8 @@ export const loadRemainderClass = (models: IModels) => {
       subdomain: string,
       branchId: string,
       departmentId: string,
-      productsData: { productId: string; uomId: string; diffCount: number }[]
+      productsData: { productId: string; uomId: string; diffCount: number }[],
+      isCensus: false
     ) {
       let bulkOps: {
         updateOne: {
@@ -284,13 +296,18 @@ export const loadRemainderClass = (models: IModels) => {
       for (const data of productsData) {
         const product = productById[data.productId];
         const ratio = getRatio(product, data.uomId || product.uomId);
+        const diffCount = data.diffCount / (ratio || 1);
+        if (!diffCount) {
+          continue;
+        }
 
         bulkOps.push({
           updateOne: {
             filter: { productId: data.productId, branchId, departmentId },
             update: {
-              $inc: { count: data.diffCount / (ratio || 1) },
-              $set: { productId: data.productId, branchId, departmentId }
+              $inc: { count: diffCount },
+              $set: { productId: data.productId, branchId, departmentId },
+              $push: { shortLogs: { count: diffCount, date: new Date() } }
             },
             upsert: true
           }

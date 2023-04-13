@@ -75,7 +75,7 @@ export const initBroker = async cl => {
     async ({ subdomain, data: { _id, ids } }) => {
       const models = await generateModels(subdomain);
       const categoryIds = _id ? [_id] : ids || [];
-      if (!categoryIds) {
+      if (!categoryIds.length) {
         return {
           data: [],
           status: 'success'
@@ -83,7 +83,7 @@ export const initBroker = async cl => {
       }
 
       const categories = await models.ProductCategories.find({
-        _id: { $in: ids }
+        _id: { $in: categoryIds }
       }).lean();
 
       if (!categories.length) {
