@@ -4,6 +4,7 @@ module.exports = {
   port: 3060,
   exposes: {
     "./routes": "./src/routes.tsx",
+    "./fileChooserSection": "./src/containers/file/CardFolderChooser.tsx",
   },
   routes: {
     url: "http://localhost:3060/remoteEntry.js",
@@ -16,7 +17,28 @@ module.exports = {
       url: "/filemanager",
       icon: "icon-folder-1",
       location: "mainNavigation",
-      permissions: ['showFileManager'],
+      permissions: ["showFileManager"],
+    },
+  ],
+  dealRightSidebarSection: [
+    {
+      text: "fileChooserSection",
+      component: "./fileChooserSection",
+      scope: "filemanager",
+    },
+  ],
+  ticketRightSidebarSection: [
+    {
+      text: "fileChooserSection",
+      component: "./fileChooserSection",
+      scope: "filemanager",
+    },
+  ],
+  taskRightSidebarSection: [
+    {
+      text: "fileChooserSection",
+      component: "./fileChooserSection",
+      scope: "filemanager",
     },
   ],
 };

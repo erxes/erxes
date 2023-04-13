@@ -13,8 +13,8 @@ import { queries } from '../../graphql';
 import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
-  contentType: string;
-  contentTypeId: string;
+  mainType: string;
+  mainTypeId: string;
 };
 
 type FinalProps = {
@@ -65,10 +65,10 @@ export default withProps<Props>(
       gql(queries.filemanagerGetRelatedFilesContentType),
       {
         name: 'relatedFilesContentTypeQuery',
-        options: ({ contentType, contentTypeId }: Props) => ({
+        options: ({ mainType, mainTypeId }: Props) => ({
           variables: {
-            contentType,
-            contentTypeId
+            contentType: mainType,
+            contentTypeId: mainTypeId
           }
         })
       }

@@ -13,8 +13,8 @@ type Props = {
   folderId: string;
   folders: IFolder[];
   relatedFiles: IRelatedFiles[];
-  contentType: string;
-  contentTypeId: string;
+  mainType: string;
+  mainTypeId: string;
 };
 
 type State = {
@@ -35,7 +35,7 @@ class CardFileChooser extends React.Component<Props, State> {
   };
 
   renderExtraButtons = () => {
-    const { folders, contentType, contentTypeId, relatedFiles } = this.props;
+    const { folders, mainType, mainTypeId, relatedFiles } = this.props;
 
     const renderFileChooser = props => {
       return (
@@ -43,8 +43,8 @@ class CardFileChooser extends React.Component<Props, State> {
           {...props}
           folderId={this.state.folderId}
           folders={folders}
-          contentType={contentType}
-          contentTypeId={contentTypeId}
+          contentType={mainType}
+          contentTypeId={mainTypeId}
           currentId={this.state.folderId}
           onChangeFolder={this.onChangeFolder}
           chosenFiles={relatedFiles || []}
