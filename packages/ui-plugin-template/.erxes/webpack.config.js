@@ -36,8 +36,9 @@ module.exports = (env, args) => {
   return {
     output: {
       uniqueName: configs.name,
-      publicPath: args.mode === 'development' ? `http://localhost:${port}/` : undefined,
-      chunkFilename: '[chunkhash].js'
+      publicPath:
+        args.mode === "development" ? `http://localhost:${port}/` : undefined,
+      chunkFilename: "[chunkhash].js",
     },
 
     optimization: {
@@ -76,7 +77,7 @@ module.exports = (env, args) => {
 
     devServer: {
       port: port,
-      allowedHosts: 'all',
+      allowedHosts: "all",
       historyApiFallback: true,
     },
 
@@ -120,6 +121,7 @@ module.exports = (env, args) => {
             path.resolve(__dirname, "../../ui-leads/src"),
             path.resolve(__dirname, "../../ui-tags/src"),
             path.resolve(__dirname, "../../ui-forum/src"),
+            path.resolve(__dirname, "../../ui-filemanager/src"),
             path.resolve(__dirname, "plugin-src"),
           ],
           use: {
@@ -199,11 +201,13 @@ module.exports = (env, args) => {
       new HtmlWebPackPlugin({
         template: "./src/index.html",
       }),
-      args.mode === 'development' ? new MFLiveReloadPlugin({
-        port, // the port your app runs on
-        container: configs.name, // the name of your app, must be unique
-        standalone: false, // false uses chrome extention
-      }) : false,
+      args.mode === "development"
+        ? new MFLiveReloadPlugin({
+            port, // the port your app runs on
+            container: configs.name, // the name of your app, must be unique
+            standalone: false, // false uses chrome extention
+          })
+        : false,
       // new BundleAnalyzerPlugin()
     ].filter(Boolean),
   };
