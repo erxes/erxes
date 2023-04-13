@@ -358,6 +358,12 @@ const conversationMutations = {
 
       // if the service runs separately & returns data, then don't save message inside inbox
       if (response && response.data) {
+        const { _id, ...conversation } = response.data;
+
+        await models.Conversations.updateConversation(
+          conversation?.conversationId,
+          conversation
+        );
         return { ...response.data };
       }
     }
