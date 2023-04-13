@@ -1,6 +1,6 @@
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
-import FileFormContainer from '@erxes/ui-filemanager/src/containers/FileForm';
+import FileFormContainer from '../../containers/file/FileForm';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';
 import { ItemName } from '../../styles';

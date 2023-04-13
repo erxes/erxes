@@ -2,7 +2,6 @@ import { IItem, IOptions } from '../../types';
 import TaskTimer, { STATUS_TYPES } from '@erxes/ui/src/components/Timer';
 
 import ActionSection from '@erxes/ui-contacts/src/customers/containers/ActionSection';
-import CardFolderChooser from '@erxes/ui-filemanager/src/containers/CardFolderChooser';
 import CompanySection from '@erxes/ui-contacts/src/companies/components/CompanySection';
 import CustomFieldsSection from '../../containers/editForm/CustomFieldsSection';
 import CustomerSection from '@erxes/ui-contacts/src/customers/components/CustomerSection';
@@ -64,12 +63,6 @@ class SidebarConformity extends React.Component<Props> {
 
         {renderItems()}
 
-        {isEnabled('filemanager') && (
-          <CardFolderChooser
-            contentType={options.type}
-            contentTypeId={item._id}
-          />
-        )}
         <CustomFieldsSection item={item} options={options} />
       </RightContent>
     );
