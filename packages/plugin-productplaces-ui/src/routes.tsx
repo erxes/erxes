@@ -33,7 +33,7 @@ const routes = () => {
         component={StageSetting}
       />
       <Route
-        key="/erxes-plugin-product-places/settings/stage"
+        key="/erxes-plugin-product-places/settings/split"
         exact={true}
         path="/erxes-plugin-product-places/settings/split"
         component={SplitSetting}

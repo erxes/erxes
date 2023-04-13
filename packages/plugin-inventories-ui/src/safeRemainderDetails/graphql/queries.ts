@@ -46,7 +46,6 @@ export const safeRemainderItemFields = `
   preCount
   count
   status
-  lastTransactionDate
   remainderId
   modifiedAt
 

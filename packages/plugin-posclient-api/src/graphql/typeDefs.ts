@@ -24,6 +24,11 @@ import {
   types as ProductTypes
 } from './schema/product';
 import {
+  queries as CoverQueries,
+  types as CoverTypes,
+  mutations as CoverMutations
+} from './schema/covers';
+import {
   queries as ReportQueries,
   types as ReportTypes
 } from './schema/report';
@@ -43,6 +48,7 @@ const typeDefs = async () => {
     ${ConfigTypes}
     ${ReportTypes}
     ${BridgesTypes}
+    ${CoverTypes}
 
    extend type Query {
     ${PosUserQueries}
@@ -51,6 +57,7 @@ const typeDefs = async () => {
     ${ConfigQueries}
     ${ReportQueries}
     ${BridgesQueries}
+    ${CoverQueries}
    }
 
    extend type Mutation {
@@ -58,6 +65,7 @@ const typeDefs = async () => {
     ${OrderMutations}
     ${ConfigMutations}
     ${BridgesMutations}
+    ${CoverMutations}
    }
   `;
 };

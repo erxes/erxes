@@ -15,6 +15,10 @@ const OrderList = asyncComponent(() =>
   import(/* webpackChunkName: "OrderList" */ './orders/containers/List')
 );
 
+const CoverList = asyncComponent(() =>
+  import(/* webpackChunkName: "OrderList" */ './orders/containers/CoverList')
+);
+
 const PosProductList = asyncComponent(() =>
   import(
     /* webpackChunkName: "PosProductList" */ './orders/containers/ProductList'
@@ -44,6 +48,16 @@ const OrderListComponent = ({ location, history }) => {
     />
   );
 };
+
+const CoverListComponent = ({ location, history }) => {
+  return (
+    <CoverList
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
 const OrderItemsComponent = ({ location, history }) => {
   return (
     <PosProductList
@@ -79,6 +93,12 @@ const routes = () => {
         exact={true}
         path="/pos-orders"
         component={OrderListComponent}
+      />
+      <Route
+        key="/pos-covers"
+        exact={true}
+        path="/pos-covers"
+        component={CoverListComponent}
       />
       <Route
         key="/pos-order-items"

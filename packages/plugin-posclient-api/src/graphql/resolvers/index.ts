@@ -5,6 +5,7 @@ import Order from './order';
 import OrderItem from './orderItem';
 import PosConfig from './posConfig';
 import PoscProduct from './poscProduct';
+import Cover from './cover';
 
 const resolvers: any = async () => ({
   ...customScalars,
@@ -12,6 +13,7 @@ const resolvers: any = async () => ({
   PosConfig,
   PoscProduct,
   Order,
+  Cover,
   PosOrderItem: OrderItem,
   Mutation,
   Query

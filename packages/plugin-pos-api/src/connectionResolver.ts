@@ -15,7 +15,8 @@ import {
   loadProductGroupClass
 } from './models/Pos';
 import { IPosOrderModel, loadPosOrderClass } from './models/Orders';
-
+import { ICoverModel, loadCoverClass } from './models/Covers';
+import { ICoverDocument } from './models/definitions/covers';
 import { IPosOrderDocument } from './models/definitions/orders';
 
 export interface IModels {
@@ -23,6 +24,7 @@ export interface IModels {
   ProductGroups: IProductGroupModel;
   PosOrders: IPosOrderModel;
   PosSlots: IPosSlotModel;
+  Covers: ICoverModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -53,6 +55,10 @@ export const loadClasses = (
   models.PosSlots = db.model<IPosSlotDocument, IPosSlotModel>(
     'pos_slots',
     loadPosSlotClass(models, subdomain)
+  );
+  models.Covers = db.model<ICoverDocument, ICoverModel>(
+    'pos_covers',
+    loadCoverClass(models)
   );
 
   return models;
