@@ -342,7 +342,7 @@ const conversationMutations = {
       const payload = {
         integrationId: integration._id,
         conversationId: conversation._id,
-        content: doc.content,
+        content: doc.content || '',
         internal: doc.internal,
         attachments: doc.attachments || [],
         extraInfo: doc.extraInfo,
@@ -360,10 +360,12 @@ const conversationMutations = {
       if (response && response.data) {
         const { conversationId, content } = response.data;
 
-        await models.Conversations.updateConversation(conversationId, {
-          content,
-          updatedAt: new Date()
-        });
+        if (!!conversationId && !!content) {
+          await models.Conversations.updateConversation(conversationId, {
+            content: content || '',
+            updatedAt: new Date()
+          });
+        }
         return { ...response.data };
       }
     }
