@@ -13,7 +13,6 @@ export const types = `
     uom: Uom,
     uomId: String,
 
-    lastTransactionDate: Date,
     modifiedAt: Date,
     modifiedBy: String
   }

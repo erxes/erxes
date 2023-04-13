@@ -1,6 +1,5 @@
 import { IContext } from '../../../connectionResolver';
 import { ITransactionInput } from '../../../models/definitions/transactions';
-import { updateLiveRemainders } from './utils';
 
 const transactionMutations = {
   transactionAdd: async (
