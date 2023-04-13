@@ -80,6 +80,13 @@ const typeDefs = gql`
     description: String
   }
 
+  type FileManagerRelation {
+    _id: String!
+    contentType: String!
+    contentTypeId: String!
+    fileIds: [String]
+  }
+
   extend type Query {
     filemanagerFolders(parentId: String, isTree: Boolean): [FileManagerFolder]
 
@@ -101,6 +108,8 @@ const typeDefs = gql`
     filemanagerGetAckRequestByUser(fileId: String!): FileManagerAckRequest
     filemanagerGetAckRequests(fileId: String!): [FileManagerAckRequest]
     filemanagerGetAccessRequests(fileId: String!): [FileManagerAccessRequest]
+
+    filemanagerGetRelatedFilesContentType(contentType: String!, contentTypeId: String!): [FileManagerRelation]
   }
 
   extend type Mutation {
@@ -145,6 +154,7 @@ const typeDefs = gql`
 
     filemanagerRequestAccess(fileId: String!, description: String): String
     filemanagerConfirmAccessRequest(requestId: String!): String
+    filemanagerRelateFilesContentType(contentType!: String, contentTypeId: String!, fileIds: [String]): String
   }
 `;
 

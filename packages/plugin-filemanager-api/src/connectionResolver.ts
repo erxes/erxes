@@ -14,7 +14,10 @@ import {
   loadAckRequestClass,
   IAccessRequestModel,
   IAccessRequestDocument,
-  loadAccessRequestClass
+  loadAccessRequestClass,
+  IRelationModel,
+  IRelationDocument,
+  loadRelationClass
 } from './models';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
@@ -25,6 +28,7 @@ export interface IModels {
   Logs: ILogModel;
   AckRequests: IAckRequestModel;
   AccessRequests: IAccessRequestModel;
+  Relations: IRelationModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -62,6 +66,11 @@ export const loadClasses = (
   models.AccessRequests = db.model<IAccessRequestDocument, IAccessRequestModel>(
     'filemanager_access_requests',
     loadAccessRequestClass(models)
+  );
+
+  models.Relations = db.model<IRelationDocument, IRelationModel>(
+    'filemanager_relations',
+    loadRelationClass(models)
   );
 
   return models;
