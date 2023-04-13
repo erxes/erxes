@@ -3,7 +3,8 @@ import * as compose from 'lodash.flowright';
 import {
   FilemanagerFilesQueryResponse,
   IFolder,
-  RelateFileMutationResponse
+  IRelatedFiles,
+  RelateFileContentTypeMutationResponse
 } from '../types';
 import React, { useState } from 'react';
 import { mutations, queries } from '../graphql';
@@ -15,33 +16,41 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 
 type Props = {
-  item: any;
   closeModal: () => void;
   folderId: string;
   folders: IFolder[];
   currentId: string;
+  contentType: string;
+  contentTypeId: string;
+  chosenFiles: IRelatedFiles[];
   onChangeFolder: (folderId: string) => void;
 };
 
 type FinalProps = {
   filemanagerFilesQuery: FilemanagerFilesQueryResponse;
 } & Props &
-  RelateFileMutationResponse;
+  RelateFileContentTypeMutationResponse;
 
 const FileChooserContainer = (props: FinalProps) => {
   const [perPage, setPerPage] = useState(20);
 
-  const { filemanagerFilesQuery, relateFileMutation, item, closeModal } = props;
+  const {
+    filemanagerFilesQuery,
+    relateFileContentTypeMutation,
+    closeModal,
+    contentType,
+    contentTypeId,
+    chosenFiles
+  } = props;
 
   if (!filemanagerFilesQuery || filemanagerFilesQuery.loading) {
     return null;
   }
-  console.log('hereee', props.folderId);
+
   const files = filemanagerFilesQuery.filemanagerFiles || [];
-  const relatedFiles = files.filter(file => file._id !== item._id);
 
   const relateFile = variables => {
-    relateFileMutation({
+    relateFileContentTypeMutation({
       variables
     })
       .then(() => {
@@ -68,8 +77,9 @@ const FileChooserContainer = (props: FinalProps) => {
   };
 
   const onSelect = datas => {
-    const targetIds = datas.map(data => data._id);
-    relateFile({ sourceId: item._id, targetIds });
+    const fileIds = datas.map(data => data._id);
+
+    relateFile({ contentType, contentTypeId, fileIds });
   };
 
   const renderFolderChooser = () => {
@@ -87,10 +97,10 @@ const FileChooserContainer = (props: FinalProps) => {
   return (
     <Chooser
       title="Related files"
-      datas={relatedFiles}
+      datas={files}
       data={{
-        name: item.name,
-        datas: item.relatedFiles ? item.relatedFiles : []
+        name: chosenFiles[0].contentType || '',
+        datas: chosenFiles[0].files || []
       }}
       search={search}
       clearState={() => search('', true)}
@@ -116,17 +126,18 @@ export default compose(
       })
     }
   ),
-  graphql<Props, RelateFileMutationResponse, {}>(
-    gql(mutations.filemanagerRelateFiles),
+  graphql<Props, RelateFileContentTypeMutationResponse, {}>(
+    gql(mutations.filemanagerRelateFilesContentType),
     {
-      name: 'relateFileMutation',
-      options: ({ folderId }: { folderId: string }) => {
+      name: 'relateFileContentTypeMutation',
+      options: ({ contentType, contentTypeId }: Props) => {
         return {
           refetchQueries: [
             {
-              query: gql(queries.filemanagerFiles),
+              query: gql(queries.filemanagerGetRelatedFilesContentType),
               variables: {
-                folderId: folderId || ''
+                contentType,
+                contentTypeId
               }
             }
           ]

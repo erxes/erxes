@@ -1,14 +1,20 @@
-import { IFile, IFolder } from '../types';
+import { IFolder, IRelatedFiles } from '../types';
 
 import Box from '@erxes/ui/src/components/Box';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FileChooser from '../containers/FileChooser';
 import Icon from '@erxes/ui/src/components/Icon';
+import { Link } from 'react-router-dom';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
+import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
 
 type Props = {
   folderId: string;
   folders: IFolder[];
+  relatedFiles: IRelatedFiles[];
+  contentType: string;
+  contentTypeId: string;
 };
 
 type State = {
@@ -29,15 +35,19 @@ class CardFileChooser extends React.Component<Props, State> {
   };
 
   renderExtraButtons = () => {
+    const { folders, contentType, contentTypeId, relatedFiles } = this.props;
+
     const renderFileChooser = props => {
       return (
         <FileChooser
           {...props}
           folderId={this.state.folderId}
-          folders={this.props.folders}
+          folders={folders}
+          contentType={contentType}
+          contentTypeId={contentTypeId}
           currentId={this.state.folderId}
           onChangeFolder={this.onChangeFolder}
-          item={{} as any}
+          chosenFiles={relatedFiles || []}
         />
       );
     };
@@ -56,6 +66,22 @@ class CardFileChooser extends React.Component<Props, State> {
     );
   };
 
+  renderFiles() {
+    const { relatedFiles } = this.props;
+
+    if (relatedFiles && relatedFiles[0].fileIds.length === 0) {
+      return <EmptyState icon="file-alt" text="No files" />;
+    }
+
+    return (relatedFiles[0].files || []).map(file => (
+      <SectionBodyItem key={file._id}>
+        <Link to={`/filemanager/details/${file.folderId}/${file._id}`}>
+          {file.name || 'Unknown'}
+        </Link>
+      </SectionBodyItem>
+    ));
+  }
+
   render() {
     return (
       <Box
@@ -64,7 +90,7 @@ class CardFileChooser extends React.Component<Props, State> {
         name="showFiles"
         extraButtons={this.renderExtraButtons()}
       >
-        hi
+        {this.renderFiles()}
       </Box>
     );
   }

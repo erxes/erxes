@@ -43,6 +43,7 @@ class FolderChooser extends React.Component<Props, State> {
     return folders.map(item => ({
       value: item._id,
       label: item.name,
+      order: item.order,
       isRoot: !item.hasChild
     }));
   }
@@ -80,9 +81,18 @@ class FolderChooser extends React.Component<Props, State> {
       </>
     );
 
+    const order = option.order.match(/[/]/gi);
+    let space = '';
+
+    if (order) {
+      space = '\u00A0 '.repeat(order.length);
+    }
     return (
       <div className="simple-option">
-        <span>{name}</span>
+        <span>
+          {space}
+          {name}
+        </span>
       </div>
     );
   };

@@ -68,6 +68,12 @@ const filemanagerConfirmAccessRequest = `
   }
 `;
 
+const filemanagerRelateFilesContentType = `
+  mutation filemanagerRelateFilesContentType($contentType: String!, $contentTypeId: String!, $fileIds: [String]) {
+    filemanagerRelateFilesContentType(contentType: $contentType, contentTypeId: $contentTypeId, fileIds: $fileIds)
+  }
+`;
+
 export default {
   filemanagerFolderSave,
   filemanagerFolderRemove,
@@ -79,5 +85,6 @@ export default {
   filemanagerRequestAccess,
   filemanagerRequestAcks,
   filemanagerAckRequest,
-  filemanagerConfirmAccessRequest
+  filemanagerConfirmAccessRequest,
+  filemanagerRelateFilesContentType
 };

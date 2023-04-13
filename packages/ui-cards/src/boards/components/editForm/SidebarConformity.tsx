@@ -35,7 +35,7 @@ class SidebarConformity extends React.Component<Props> {
 
   render() {
     const { item, options, renderItems, updateTimeTrack } = this.props;
-    console.log(item);
+
     const timeTrack = item.timeTrack || {
       timeSpent: 0,
       status: STATUS_TYPES.STOPPED
@@ -64,7 +64,12 @@ class SidebarConformity extends React.Component<Props> {
 
         {renderItems()}
 
-        {isEnabled('filemanager') && <CardFolderChooser />}
+        {isEnabled('filemanager') && (
+          <CardFolderChooser
+            contentType={options.type}
+            contentTypeId={item._id}
+          />
+        )}
         <CustomFieldsSection item={item} options={options} />
       </RightContent>
     );
