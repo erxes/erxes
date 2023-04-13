@@ -32,8 +32,8 @@ const PlaceForm = (props: Props) => {
     setAmount(e.target.value);
   };
 
-  const onSelect = customerId => {
-    setCustomerId(customerId);
+  const onSelect = id => {
+    setCustomerId(id);
   };
 
   const renderContent = (formProps: IFormProps) => {
