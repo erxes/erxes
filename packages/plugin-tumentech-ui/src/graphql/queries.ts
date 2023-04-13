@@ -761,6 +761,16 @@ query TopupHistory($customerId: String, $page: Int, $perPage: Int) {
 }
 `;
 
+const customerAccountQry = `
+query CustomerAccount($customerId: String!) {
+  customerAccount(customerId: $customerId) {
+    customerId
+    balance
+    _id
+  }
+}
+`;
+
 export default {
   cars,
   carsMain,
@@ -797,5 +807,6 @@ export default {
 
   dealRouteQuery,
 
-  topupList
+  topupList,
+  customerAccountQry
 };

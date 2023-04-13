@@ -194,12 +194,6 @@ type Participant @key(fields: "_id") @cacheControl(maxAge: 3) {
   ${contacts ? `driver: Customer` : ''}
 }
 
-type CustomerAccount @key(fields: "_id") @cacheControl(maxAge: 3) {
-  _id: String!
-  balance: Float
-  customerId: String
-}
-
 type Topup @key(fields: "_id") @cacheControl(maxAge: 3) {
   _id: String!
   customerId: String
@@ -272,11 +266,8 @@ export const queries = `
   participantDetail(_id: String!): Participant
   participantsTotalCount(driverId: String, dealId: String, status: String): Int
 
-  getAccount: CustomerAccount
-
+  
   topupHistory(page: Int, perPage: Int, customerId: String): TopupListResponse
-
-  getEbarimt(topupId: String!, companyRegNumber: String, companyName: String): JSON
 `;
 
 const tumentechCommonFields = `
@@ -399,12 +390,6 @@ export const mutations = `
   participantsRemove(_id: String): JSON
   participantsRemoveFromDeal(dealId: String!, customerIds: [String]): JSON
   selectWinner(dealId: String!, driverId: String!): Participant
-
-  topupAccount(invoiceId: String): JSON
-
-  manualTopup(customerId: String!, amount: Float!): JSON
-
-  revealPhone(driverId: String, carId: String, dealId: String): String
 
   generateRandomName(modelName: String!, prefix: String!, numberOfDigits: Int): String
 `;

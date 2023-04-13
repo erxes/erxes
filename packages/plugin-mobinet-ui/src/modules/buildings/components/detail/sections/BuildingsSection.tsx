@@ -19,7 +19,7 @@ export type Props = {
 };
 
 export default function Component({ buildings, title = '' }: Props) {
-  const renderBody = buildings => {
+  const renderBody = () => {
     if (!buildings || !buildings.length) {
       return <EmptyState icon="user-6" text="No data" />;
     }
@@ -61,7 +61,7 @@ export default function Component({ buildings, title = '' }: Props) {
       isOpen={false}
       name="showBuildings"
     >
-      {renderBody(buildings)}
+      {renderBody()}
     </Box>
   );
 }
