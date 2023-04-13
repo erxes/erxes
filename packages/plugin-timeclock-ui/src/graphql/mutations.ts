@@ -48,12 +48,25 @@ const timeclockStop = `
   }
 `;
 
+const timeclockCreate = `
+    mutation timeclockCreate($userId: String, $shiftStart: Date, $shiftEnd: Date, $shiftActive: Boolean){
+      timeclockCreate(userId: $userId, shiftStart: $shiftStart, shiftEnd: $shiftEnd, shiftActive: $shiftActive){
+        _id
+      }
+    }
+`;
+
 const sendAbsenceRequest = `
   mutation sendAbsenceRequest($startTime: Date, $endTime: Date, $userId: String, $reason: String, $explanation: String, $attachment: AttachmentInput, $absenceTypeId: String){
     sendAbsenceRequest(startTime: $startTime, endTime: $endTime, userId: $userId, reason: $reason, explanation: $explanation, attachment: $attachment, absenceTypeId: $absenceTypeId){
       _id
     }
   }`;
+
+const removeAbsenceRequest = `
+mutation removeAbsenceRequest($_id: String){
+  removeAbsenceRequest(_id: $_id)
+}`;
 
 const absenceTypeAdd = `
   mutation absenceTypeAdd(${absenceTypeParams}){
@@ -88,7 +101,7 @@ const submitSchedule = `
     }
   }`;
 
-const solveAbsence = `
+const solveAbsenceRequest = `
   mutation solveAbsenceRequest($_id: String, $status: String){
     solveAbsenceRequest(_id: $_id, status: $status){
       _id
@@ -226,11 +239,13 @@ export default {
   absenceTypeEdit,
   absenceTypeRemove,
 
-  solveAbsence,
+  solveAbsenceRequest,
+  removeAbsenceRequest,
   solveSchedule,
   solveShift,
 
   timeclockEdit,
+  timeclockCreate,
   timeclockRemove,
   timeclockStart,
   timeclockStop,

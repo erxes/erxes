@@ -17,11 +17,26 @@ export interface IDistrictModel extends Model<IDistrictDocument> {
 export const loadDistrictClass = (models: IModels) => {
   class District {
     public static async createDistrict(doc: IDistrict) {
+      if (doc.center) {
+        doc.center = {
+          type: 'Point',
+          coordinates: [doc.center.lng, doc.center.lat]
+        };
+      }
+
       return models.Districts.create(doc);
     }
 
     public static async updateDistrict(_id: string, doc: IDistrict) {
       await models.Districts.getDistrict({ _id });
+
+      if (doc.center) {
+        doc.center = {
+          type: 'Point',
+          coordinates: [doc.center.lng, doc.center.lat]
+        };
+      }
+
       await models.Districts.updateOne(
         { _id },
         { $set: { ...doc, updatedAt: new Date() } }

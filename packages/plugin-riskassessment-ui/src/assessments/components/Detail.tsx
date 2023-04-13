@@ -291,7 +291,8 @@ class Detail extends React.Component<Props, State> {
           {this.renderUsers()}
         </FormContainer>
         {groupAssessment && this.renderGroups()}
-        {indicatorAssessment &&
+        {!groupAssessment?.length &&
+          indicatorAssessment &&
           this.renderAssignedUsers(indicatorAssessment?.submissions)}
       </FormContainer>
     );

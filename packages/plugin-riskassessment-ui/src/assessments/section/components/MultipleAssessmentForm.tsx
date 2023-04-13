@@ -36,18 +36,29 @@ class MultipleAssessment extends React.Component<Props, State> {
     if (!!this.props?.riskAssessments?.length) {
       const { riskAssessments } = this.props;
 
-      const riskAssessment: any =
-        riskAssessments.find(
+      let riskAssessment: any = {};
+      if (
+        riskAssessments.every(
+          riskAssessment => riskAssessment.status !== 'In Progress'
+        )
+      ) {
+        riskAssessment = riskAssessments[0];
+      } else {
+        riskAssessment = riskAssessments.find(
           riskAssessment => riskAssessment.status === 'In Progress'
-        ) || {};
+        );
+      }
 
       const selected = Object.fromEntries(
         Object.entries({
           branchId: riskAssessment?.branchId,
           departmentId: riskAssessment?.departmentId,
-          operationId: riskAssessment?.operationId
+          operationId: riskAssessment?.operationId,
+          indicatorId: riskAssessment?.indicatorId
         }).filter(([_, property]) => property)
       );
+
+      console.log({ selected });
 
       this.setState({ selected });
     }
@@ -109,7 +120,8 @@ class MultipleAssessment extends React.Component<Props, State> {
           Object.entries({
             branchId: riskAssessment?.branchId,
             departmentId: riskAssessment?.departmentId,
-            operationId: riskAssessment?.operationId
+            operationId: riskAssessment?.operationId,
+            indicatorId: riskAssessment?.indicatorId
           }).filter(([_, property]) => property)
         )
       });

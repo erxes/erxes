@@ -9,8 +9,10 @@ import { IAttachment } from '@erxes/ui/src/types';
 import AbsenceForm from './AbsenceForm';
 import Attachment from '@erxes/ui/src/components/Attachment';
 import dayjs from 'dayjs';
-import { dateFormat, timeFormat } from '../../constants';
+import { dateAndTimeFormat, dateFormat, timeFormat } from '../../constants';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import CheckInOutForm from '../../containers/absence/CheckInOutForm';
+import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
   absences: IAbsence[];
@@ -32,6 +34,7 @@ type Props = {
   ) => void;
 
   submitCheckInOut: (type: string, userId: string, dateVal: Date) => void;
+  removeAbsence: (absenceId: string) => void;
 
   getActionBar: (actionBar: any) => void;
   getPagination: (pagination: any) => void;
@@ -42,6 +45,7 @@ function AbsenceList(props: Props) {
   const {
     absences,
     solveAbsence,
+    removeAbsence,
     getActionBar,
     showSideBar,
     getPagination,
@@ -74,6 +78,38 @@ function AbsenceList(props: Props) {
       contentProps
     };
     return <AbsenceForm {...updatedProps} />;
+  };
+
+  const checkInOutFormBtn = <Button btnStyle="primary">Approve</Button>;
+
+  const openCheckInOutForm = (
+    contentProps: any,
+    absence: IAbsence,
+    absenceReason: string
+  ) => {
+    const dateTime = absence.startTime;
+    const userId = absence.user._id;
+
+    const startDate = dayjs(dateTime)
+      .add(-16, 'hour')
+      .format(dateAndTimeFormat);
+    const endDate = dayjs(dateTime)
+      .add(16, 'hour')
+      .format(dateAndTimeFormat);
+
+    // either check in or check out
+    const timeType = absenceReason.split('request')[0].toLocaleLowerCase();
+
+    return (
+      <CheckInOutForm
+        userId={userId}
+        timeType={timeType}
+        contentProps={contentProps}
+        startDate={startDate}
+        endDate={endDate}
+        absenceRequest={absence}
+      />
+    );
   };
 
   const actionBarRight = (
@@ -143,6 +179,24 @@ function AbsenceList(props: Props) {
         <td>
           {absence.solved ? (
             __(absence.status)
+          ) : absence.reason.toLowerCase().includes('check') ? (
+            <>
+              <ModalTrigger
+                size="lg"
+                title="Approve Request"
+                trigger={checkInOutFormBtn}
+                content={contentProps =>
+                  openCheckInOutForm(contentProps, absence, absence.reason)
+                }
+              />
+
+              <Button
+                btnStyle="danger"
+                onClick={() => solveAbsence(absence._id, 'Rejected')}
+              >
+                Reject
+              </Button>
+            </>
           ) : (
             <>
               <Button
@@ -160,6 +214,15 @@ function AbsenceList(props: Props) {
             </>
           )}
         </td>
+        <td>
+          <Tip text={__('Delete')} placement="top">
+            <Button
+              btnStyle="link"
+              onClick={() => removeAbsence(absence._id)}
+              icon="times-circle"
+            />
+          </Tip>
+        </td>
       </tr>
     );
   };
@@ -175,6 +238,7 @@ function AbsenceList(props: Props) {
           <th rowSpan={2}>{__('Explanation')}</th>
           <th rowSpan={2}>{__('Attachment')}</th>
           <th rowSpan={2}>{__('Status')}</th>
+          <th rowSpan={2}>{__('Action')}</th>
         </tr>
       </thead>
       <tbody>

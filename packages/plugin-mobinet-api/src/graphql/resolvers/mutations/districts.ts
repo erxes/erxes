@@ -11,6 +11,7 @@ const cityMutations = {
 
   districtsEdit: async (_root, doc: IDistrictEdit, { models }: IContext) => {
     const { _id } = doc;
+
     return models.Districts.updateDistrict(_id, doc);
   },
 

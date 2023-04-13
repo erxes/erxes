@@ -51,6 +51,10 @@ export const commonFields = `
   }
   mobileResponsive
   googleCredentials
+  googleClientId
+  googleClientSecret
+  googleRedirectUri
+  facebookAppId
 
   kbToggle
   publicTaskToggle
@@ -73,6 +77,15 @@ export const commonFields = `
 
   manualVerificationConfig {
     userIds
+    verifyCustomer
+    verifyCompany
+  }
+
+  passwordVerificationConfig {
+    verifyByOTP
+    emailSubject
+    emailContent
+    smsContent
   }
 `;
 

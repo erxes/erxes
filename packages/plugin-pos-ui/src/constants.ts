@@ -1,3 +1,9 @@
+export const menuPos = [
+  { title: 'Pos Orders', link: '/pos-orders' },
+  { title: 'Pos Covers', link: '/pos-covers' },
+  { title: 'Pos Items', link: '/pos-order-items' }
+];
+
 export const TEXT_COLORS = [
   '#fff',
   '#fefefe',
@@ -53,6 +59,7 @@ export const DISTRICTS = [
 export const FILTER_PARAMS = [
   'search',
   'customerId',
+  'customerType',
   'billType',
   'registerNumber',
   'type',

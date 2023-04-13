@@ -185,12 +185,9 @@ class Form extends React.Component<Props, State> {
 
     const save = e => {
       e.preventDefault();
-      confirm().then(() =>
-        handleSave(
-          bulkItems.map(
-            ({ _id, useIndicator, useSplitTeamMembers, ...bulkItem }) =>
-              bulkItem
-          )
+      handleSave(
+        bulkItems.map(
+          ({ _id, useIndicator, useSplitTeamMembers, ...bulkItem }) => bulkItem
         )
       );
     };

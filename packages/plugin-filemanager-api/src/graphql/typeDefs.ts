@@ -13,6 +13,7 @@ const typeDefs = gql`
     createdAt: Date
     createdUserId: String
     name: String!
+    order: String!
     parentId: String
     parent: FileManagerFolder
     permissionUserIds: [String]
@@ -34,10 +35,14 @@ const typeDefs = gql`
     contentType: String
     contentTypeId: String
     documentId: String
+
     permissionUserIds: [String]
     permissionUnitId: String
 
     sharedUsers: [User]
+
+    relatedFileIds: [String]
+    relatedFiles: [FileManagerFile]
   }
 
   type FileManagerLog {
@@ -50,24 +55,65 @@ const typeDefs = gql`
     user: User
   }
 
-  type FileManagerRequest {
+  type FileManagerAckRequest {
     _id: String!
     createdAt: Date
-    type: String
     fileId: String
     fromUserId: String
     toUserId: String
     status: String
     description: String
+
+    file: FileManagerFile
+    fromUser: User
+    toUser: User
+  }
+
+  type FileManagerAccessRequest {
+    _id: String!
+    createdAt: Date
+    fileId: String
+    file: FileManagerFile
+    fromUserId: String
+    fromUser: User
+    status: String
+    description: String
+  }
+
+  type FileManagerRelation {
+    _id: String!
+    contentType: String!
+    contentTypeId: String!
+    fileIds: [String]
+    files: [FileManagerFile]
   }
 
   extend type Query {
-    filemanagerFolders(parentId: String): [FileManagerFolder]
-    filemanagerFiles(folderId: String!, search: String): [FileManagerFile]
+    filemanagerFolders(parentId: String, isTree: Boolean): [FileManagerFolder]
+
+    filemanagerFiles(
+      folderId: String!
+      search: String
+      type: String
+      contentType: String
+      contentTypeId: String
+      createdAtFrom: String
+      createdAtTo: String
+      sortField: String
+      sortDirection: Int
+    ): [FileManagerFile]
+
     filemanagerFileDetail(_id: String!): FileManagerFile
     filemanagerFolderDetail(_id: String!): FileManagerFolder
     filemanagerLogs(contentTypeId: String!): [FileManagerLog]
-    filemanagerGetAckRequest(fileId: String!): FileManagerRequest
+    filemanagerGetAckRequestByUser(fileId: String!): FileManagerAckRequest
+    filemanagerGetAckRequests(fileId: String!): [FileManagerAckRequest]
+    filemanagerGetAccessRequests(fileId: String!): [FileManagerAccessRequest]
+
+    filemanagerGetRelatedFilesContentType(
+      contentType: String!
+      contentTypeId: String!
+    ): [FileManagerRelation]
   }
 
   extend type Mutation {
@@ -90,6 +136,13 @@ const typeDefs = gql`
       documentId: String
     ): FileManagerFile
 
+    filemanagerRelateFiles(sourceId: String!, targetIds: [String!]!): String
+
+    filemanagerRemoveRelatedFiles(
+      sourceId: String!
+      targetIds: [String!]!
+    ): String
+
     filemanagerFileRemove(_id: String!): JSON
 
     filemanagerChangePermission(
@@ -99,13 +152,17 @@ const typeDefs = gql`
       unitId: String
     ): JSON
 
-    filemanagerRequestAcks(
-      fileId: String!
-      toUserIds: [String]!
-      description: String
-    ): String
+    filemanagerRequestAcks(fileId: String!, description: String): String
 
     filemanagerAckRequest(_id: String!): JSON
+
+    filemanagerRequestAccess(fileId: String!, description: String): String
+    filemanagerConfirmAccessRequest(requestId: String!): String
+    filemanagerRelateFilesContentType(
+      contentType: String!
+      contentTypeId: String!
+      fileIds: [String]
+    ): String
   }
 `;
 

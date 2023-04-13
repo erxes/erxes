@@ -1,3 +1,4 @@
+import { shortStrToDate } from '@erxes/api-utils/src/core';
 import * as dayjs from 'dayjs';
 import { CalculatedRule } from '../types';
 
@@ -297,7 +298,7 @@ export const calculateExpiryRule = (
     for (const rule of plan.expiryRules) {
       // Check validity
       const expiredDate = dayjs
-        .unix(parseInt(item.manufacturedDate) * 1000)
+        .unix(Number(shortStrToDate(item.manufacturedDate, 92, 'h', 'n')))
         .add(rule.value, rule.type);
       let rulePassed = false;
 

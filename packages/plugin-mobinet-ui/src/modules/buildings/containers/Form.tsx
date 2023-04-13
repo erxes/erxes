@@ -10,6 +10,7 @@ import { IBuilding } from '../types';
 import { useQuery } from 'react-apollo';
 import { CityByCoordinateQueryResponse } from '../../cities/types';
 import { ICoordinates } from '../../../types';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   osmbId?: string;
@@ -30,6 +31,13 @@ const BuildingFormContainer = (props: Props) => {
     }
   );
 
+  const configsQuery = useQuery(gql(queries.configs), {
+    variables: {
+      code: 'MOBINET_CONFIGS'
+    },
+    fetchPolicy: 'network-only'
+  });
+
   const { data, loading, refetch } = useQuery<CityByCoordinateQueryResponse>(
     gql(cityQueries.cityByCoordinatesQuery),
     {
@@ -41,6 +49,10 @@ const BuildingFormContainer = (props: Props) => {
       fetchPolicy: 'network-only'
     }
   );
+
+  if (configsQuery.loading) {
+    return <Spinner objective={true} />;
+  }
 
   const renderButton = ({
     values,
@@ -72,6 +84,7 @@ const BuildingFormContainer = (props: Props) => {
     district:
       districtsByCoordinates.data &&
       districtsByCoordinates.data.districtByCoordinates,
+    suhTagId: configsQuery.data.configsGetValue.value.suhTagId || '',
     renderButton
   };
 

@@ -1,5 +1,5 @@
 import Button from '@erxes/ui/src/components/Button';
-import { ChildList } from '@erxes/ui/src/components/filterableList/styles';
+// import { ChildList } from '@erxes/ui/src/components/filterableList/styles';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import FolderForm from '../../containers/folder/FolderForm';
 import FolderRow from './FolderRow';
@@ -10,97 +10,88 @@ import React from 'react';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 
 type Props = {
-  filemanagerFolders: IFolder[];
+  folders: IFolder[];
   remove: (folderId: string) => void;
   loading: boolean;
   queryParams: any;
-  parentFolderId: string;
-  setParentId: (id: string) => void;
 };
 
-type State = {
-  parentIds: { [key: string]: boolean };
-};
-
-class FolderList extends React.Component<Props, State> {
+class FolderList extends React.Component<Props, { openFolderIds: string[] }> {
   constructor(props: Props) {
     super(props);
 
-    this.state = {
-      parentIds: props.parentFolderId ? { [props.parentFolderId]: true } : {}
-    };
+    this.state = { openFolderIds: [] };
   }
 
-  groupByParent = (array: any[]) => {
-    const key = 'parentId';
+  toggleFolder = folderId => {
+    const { openFolderIds } = this.state;
 
-    return array.reduce((rv, x) => {
-      (rv[x[key]] = rv[x[key]] || []).push(x);
+    const { folders } = this.props;
+    const folder = folders.find(f => f._id === folderId);
 
-      return rv;
-    }, {});
+    if (!folder) {
+      return;
+    }
+
+    if (openFolderIds.includes(folderId)) {
+      const idsToRemove: string[] = [];
+
+      for (const f of folders) {
+        if (f.order.startsWith(folder.order)) {
+          idsToRemove.push(f._id);
+        }
+      }
+
+      this.setState({
+        openFolderIds: openFolderIds.filter(id => !idsToRemove.includes(id))
+      });
+    } else {
+      for (const f of folders) {
+        if (f.order.startsWith(folder.order)) {
+          const [firstPart, lastPart] = f.order.split(folder.order);
+
+          // is first child
+          if (!lastPart.includes('/')) {
+            openFolderIds.push(f._id);
+          }
+        }
+      }
+
+      this.setState({ openFolderIds });
+    }
   };
 
-  onToggle = parentIds => {
-    this.setState({ parentIds });
-  };
+  renderRow(folder) {
+    const { remove, queryParams, folders } = this.props;
+    const { openFolderIds } = this.state;
 
-  renderRow(folder: IFolder, isChild: boolean) {
-    const { remove, queryParams, setParentId, filemanagerFolders } = this.props;
+    if (folder.parentId && !openFolderIds.includes(folder.parentId)) {
+      return null;
+    }
+
+    folder.isOpen = openFolderIds.includes(folder._id);
+    folder.isParent =
+      folders.filter(
+        f => f._id !== folder._id && f.order.startsWith(folder.order)
+      ).length > 0;
 
     return (
       <FolderRow
         key={folder._id}
         isActive={queryParams ? queryParams._id === folder._id : false}
         folder={folder}
+        toggleFolder={this.toggleFolder}
         remove={remove}
         queryParams={queryParams}
-        isChild={isChild}
-        isParent={folder?.hasChild ? folder.hasChild : false}
-        setParentId={setParentId}
-        onToggle={this.onToggle}
-        parentIds={this.state.parentIds}
-        filemanagerFolders={filemanagerFolders}
       />
     );
   }
 
-  renderTree(parent, subFolders?) {
-    const groupByParent = this.groupByParent(subFolders);
-    const childrens = groupByParent[parent._id];
-
-    if (childrens) {
-      const isOpen = this.state.parentIds[parent._id];
-
-      return (
-        <>
-          {this.renderRow(parent, true)}
-
-          <ChildList>
-            {isOpen &&
-              childrens.map(childparent => (
-                <React.Fragment key={childparent._id}>
-                  {this.renderTree(childparent, subFolders)}
-                </React.Fragment>
-              ))}
-          </ChildList>
-        </>
-      );
-    }
-
-    return this.renderRow(parent, false);
-  }
-
   renderItems = () => {
-    const { filemanagerFolders } = this.props;
+    const { folders } = this.props;
 
-    const parents = filemanagerFolders.filter(item => !item.parentId);
-    const subFields = filemanagerFolders.filter(item => item.parentId);
-
-    return parents.map((folder: IFolder) => (
-      <React.Fragment key={folder._id}>
-        {this.renderTree(folder, subFields)}
-      </React.Fragment>
+    return folders.map((folder: IFolder) => (
+      <React.Fragment key={folder._id}>{this.renderRow(folder)}</React.Fragment>
     ));
   };
 
@@ -129,14 +120,14 @@ class FolderList extends React.Component<Props, State> {
   }
 
   render() {
-    const { loading, filemanagerFolders } = this.props;
+    const { loading, folders } = this.props;
 
     return (
       <Sidebar wide={true} hasBorder={true} header={this.renderSidebarHeader()}>
         <DataWithLoader
           data={this.renderItems()}
           loading={loading}
-          count={filemanagerFolders.length}
+          count={folders.length}
           emptyText="There is no folder"
           emptyImage="/images/actions/5.svg"
         />

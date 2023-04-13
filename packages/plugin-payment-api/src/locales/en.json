@@ -6,5 +6,16 @@
   "Description": "Description",
   "Select bank": "Select bank",
   "Status": "Status",
-  "pending": "pending"
+  "pending": "pending",
+  "Payment method": "Payment method",
+  "Check Social pay app": "Check Social pay app",
+  "Insert phone number": "Insert phone number",
+  "Send": "Send",
+  "Error": "Error",
+  "Insufficient loan amount": "Insufficient loan amount",
+  "Phone number": "Phone number",
+  "Submit": "Submit",
+  "Please enter your phone number": "Please enter your phone number",
+  "Error: ": "Error: ",
+  "Enter your Storepay registered phone number": "Enter your Storepay registered phone number"
 }

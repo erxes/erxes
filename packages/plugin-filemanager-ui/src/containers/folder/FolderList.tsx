@@ -1,9 +1,13 @@
 import * as compose from 'lodash.flowright';
 
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import {
+  Alert,
+  confirm,
+  router as routerUtils,
+  withProps
+} from '@erxes/ui/src/utils';
 import {
   FilemanagerFoldersQueryResponse,
-  IFolder,
   RemoveFilemanagerFolderMutationResponse
 } from '../../types';
 import { IRouterProps, MutationVariables } from '@erxes/ui/src/types';
@@ -17,10 +21,6 @@ import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
-  filemanagerFolders: IFolder[];
-  loading: boolean;
-  parentFolderId: string;
-  setParentId: (id: string) => void;
 };
 
 type FinalProps = {
@@ -30,13 +30,18 @@ type FinalProps = {
   RemoveFilemanagerFolderMutationResponse;
 
 const FolderListContainer = (props: FinalProps) => {
-  const { removeMutation, filemanagerFolders, filemanagerFoldersQuery } = props;
+  const {
+    removeMutation,
+    filemanagerFoldersQuery,
+    queryParams,
+    history
+  } = props;
 
-  const getDifference = (array1, array2) => {
-    return array1.filter(object1 =>
-      array2.some(object2 => object1._id === object2._id)
-    );
-  };
+  const folders = filemanagerFoldersQuery.filemanagerFolders || [];
+
+  if (folders.length > 0 && !queryParams._id) {
+    routerUtils.setParams(history, { _id: folders[0]._id });
+  }
 
   // remove action
   const remove = folderId => {
@@ -53,46 +58,24 @@ const FolderListContainer = (props: FinalProps) => {
     });
   };
 
-  const childFolders = filemanagerFoldersQuery.filemanagerFolders || [];
-
-  if (childFolders.length !== 0) {
-    const difference = [
-      ...getDifference(filemanagerFolders, childFolders),
-      ...getDifference(childFolders, filemanagerFolders)
-    ];
-
-    if (difference.length === 0) {
-      Array.prototype.push.apply(filemanagerFolders, childFolders);
-    }
-  }
-
   const updatedProps = {
     ...props,
-    filemanagerFolders,
+    folders,
+    loading: false,
     remove
   };
 
   return <FolderList {...updatedProps} />;
 };
 
-const getRefetchQueries = () => {
-  return [
-    {
-      query: gql(queries.filemanagerFolders)
-    }
-  ];
-};
-
 export default withProps<Props>(
   compose(
-    graphql<Props, FilemanagerFoldersQueryResponse, { parentId: string }>(
-      gql(queries.filemanagerFolders),
+    graphql<Props, FilemanagerFoldersQueryResponse>(
+      gql(queries.filemanagerFoldersTree),
       {
         name: 'filemanagerFoldersQuery',
-        options: ({ parentFolderId }: { parentFolderId: string }) => ({
-          variables: {
-            parentId: parentFolderId
-          },
+        options: () => ({
+          variables: { isTree: true },
           fetchPolicy: 'network-only'
         })
       }
@@ -102,7 +85,14 @@ export default withProps<Props>(
       {
         name: 'removeMutation',
         options: () => ({
-          refetchQueries: getRefetchQueries()
+          refetchQueries: [
+            {
+              query: gql(queries.filemanagerFoldersTree),
+              variables: {
+                isTree: true
+              }
+            }
+          ]
         })
       }
     )

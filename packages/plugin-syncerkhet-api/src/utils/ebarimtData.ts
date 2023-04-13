@@ -116,6 +116,40 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
 
   const details: any = [];
 
+  const branchIds = deal.productsData.map(pd => pd.branchId) || [];
+  const departmentIds = deal.productsData.map(pd => pd.departmentId) || [];
+
+  const branchesById = {};
+  const departmentsById = {};
+
+  if (branchIds.length) {
+    const branches = await await sendCoreMessage({
+      subdomain,
+      action: 'branches.find',
+      data: { _ids: { $in: branchIds } },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    for (const branch of branches) {
+      branchesById[branch._id] = branch;
+    }
+  }
+
+  if (departmentIds.length) {
+    const departments = await await sendCoreMessage({
+      subdomain,
+      action: 'departments.find',
+      data: { _ids: { $in: departmentIds } },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    for (const department of departments) {
+      departmentsById[department._id] = department;
+    }
+  }
+
   for (const productData of deal.productsData) {
     // not tickUsed product not sent
     if (!productData.tickUsed) {
@@ -127,11 +161,20 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
       continue;
     }
 
+    let otherCode: string = '';
+
+    if (productData.branchId || productData.departmentId) {
+      const branch = branchesById[productData.branchId] || {};
+      const department = departmentsById[productData.departmentId] || {};
+      otherCode = `${branch.code || ''}_${department.code || ''}`;
+    }
+
     details.push({
       count: productData.quantity,
       amount: productData.amount,
       discount: productData.discount,
       inventoryCode: productCodeById[productData.productId],
+      otherCode,
       workerEmail:
         productData.assignUserId && userEmailById[productData.assignUserId]
     });

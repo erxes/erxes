@@ -21,7 +21,7 @@ const paymentOptionsParams = `
   contentType: String
   contentTypeId: String
   customerId: String
-  companyId: String
+  customerType: String
   description: String
   redirectUri: String
   phone: String
@@ -31,6 +31,8 @@ export const queries = `
   payments(status: String): [Payment]
   paymentsCountByType: paymentsTotalCount
   paymentsTotalCount(kind: String, status: String): paymentsTotalCount
+
+  paymentsCheckMonpayCoupon(couponCode: String!, paymentId: String!): JSON
 `;
 
 const params = `

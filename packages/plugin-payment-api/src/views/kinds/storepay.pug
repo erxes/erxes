@@ -1,0 +1,14 @@
+mixin storepay(invoice)
+    if invoice.apiResponse.text
+        .h3 #{invoice.apiResponse.text}
+    if invoice.apiResponse.errorType === 'phoneRequired' || invoice.apiResponse.error
+        .h3 #{__('Please enter your phone number')}
+        form(method='POST')
+            input(type="hidden" name="selectedPaymentId", value=invoice.selectedPaymentId)
+            .form-group
+                input.form-control(type='text' name='phone' id='phone' placeholder='Phone')
+                button.btn.purple(type='submit') #{__('Submit')}
+
+
+    
+                    

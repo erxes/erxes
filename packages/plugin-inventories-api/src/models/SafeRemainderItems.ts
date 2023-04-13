@@ -1,6 +1,7 @@
 import { Model } from 'mongoose';
 import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
+import { SAFE_REMAINDER_STATUSES } from './definitions/constants';
 import { IRemainderParams } from './definitions/remainders';
 import {
   ISafeRemainderItem,
@@ -29,7 +30,9 @@ export const loadSafeRemainderItemClass = (models: IModels) => {
      * @returns Found object
      */
     public static async getItem(_id: string) {
-      const result: any = await models.SafeRemainderItems.findById(_id);
+      const result: any = await models.SafeRemainderItems.findOne({
+        _id
+      }).lean();
 
       if (!result) throw new Error('Safe remainder item not found!');
 
@@ -81,13 +84,34 @@ export const loadSafeRemainderItemClass = (models: IModels) => {
       doc: ISafeRemainderItem,
       userId: string
     ) {
-      await models.SafeRemainderItems.findByIdAndUpdate(_id, {
-        $set: {
-          ...doc,
-          modifiedAt: new Date(),
-          modifiedBy: userId
+      console.log(doc);
+      const item = await models.SafeRemainderItems.getItem(_id);
+      const safeRemainder = await models.SafeRemainders.getRemainder(
+        item.remainderId
+      );
+      if (safeRemainder.status === SAFE_REMAINDER_STATUSES.PUBLISHED) {
+        throw new Error('Cant edit cause remainder has submited');
+      }
+
+      const liveRem =
+        (await models.Remainders.findOne({
+          productId: item.productId,
+          branchId: item.branchId,
+          departmentId: item.departmentId
+        }).lean()) || {};
+
+      console.log(liveRem);
+      await models.SafeRemainderItems.updateOne(
+        { _id },
+        {
+          $set: {
+            ...doc,
+            preCount: liveRem.count || 0,
+            modifiedAt: new Date(),
+            modifiedBy: userId
+          }
         }
-      });
+      );
 
       return await this.getItem(_id);
     }
@@ -98,7 +122,15 @@ export const loadSafeRemainderItemClass = (models: IModels) => {
      * @returns Deleted response
      */
     public static async removeItem(_id: string) {
-      await models.SafeRemainderItems.findByIdAndDelete(_id);
+      const item = await models.SafeRemainderItems.getItem(_id);
+      const safeRemainder = await models.SafeRemainders.getRemainder(
+        item.remainderId
+      );
+      if (safeRemainder.status === SAFE_REMAINDER_STATUSES.PUBLISHED) {
+        throw new Error('Cant remove cause remainder has submited');
+      }
+
+      await models.SafeRemainderItems.deleteOne({ _id });
     }
   }
 

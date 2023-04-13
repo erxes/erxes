@@ -1,5 +1,6 @@
 import { Document, Schema } from 'mongoose';
-import { PAYMENT_KINDS } from '../../constants';
+
+import { PAYMENTS } from '../../api/constants';
 import { field } from './utils';
 
 export interface IPayment {
@@ -20,7 +21,7 @@ export const paymentSchema = new Schema({
     type: String,
     required: true,
     label: 'Kind',
-    enum: PAYMENT_KINDS.ALL
+    enum: PAYMENTS.ALL
   }),
   status: field({ type: String, label: 'Status' }),
   config: field({ type: Object, label: 'Config' }),

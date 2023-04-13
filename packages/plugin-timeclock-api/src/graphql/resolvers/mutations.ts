@@ -187,6 +187,21 @@ const timeclockMutations = {
     return updated;
   },
 
+  /**
+   * Removes a single timeclock
+   */
+  timeclockRemove(_root, { _id }, { models }: IContext) {
+    return models.Timeclocks.removeTimeClock(_id);
+  },
+
+  timeclockEdit(_root, { _id, ...doc }: ITimeClockEdit, { models }: IContext) {
+    return models.Timeclocks.updateTimeClock(_id, doc);
+  },
+
+  timeclockCreate(_root, doc, { models }: IContext) {
+    return models.Timeclocks.createTimeClock(doc);
+  },
+
   absenceTypeAdd(_root, doc, { models }: IContext) {
     return models.AbsenceTypes.createAbsenceType(doc);
   },
@@ -203,21 +218,6 @@ const timeclockMutations = {
     return models.AbsenceTypes.updateAbsenceType(_id, doc);
   },
 
-  /**
-   * Removes a single timeclock
-   */
-  async timeclockRemove(_root, { _id }, { models }: IContext) {
-    return models.Timeclocks.removeTimeClock(_id);
-  },
-
-  async timeclockEdit(
-    _root,
-    { _id, ...doc }: ITimeClockEdit,
-    { models }: IContext
-  ) {
-    return models.Timeclocks.updateTimeClock(_id, doc);
-  },
-
   async submitCheckInOutRequest(
     _root,
     { checkType, userId, checkTime },
@@ -229,6 +229,10 @@ const timeclockMutations = {
       startTime: checkTime,
       checkInOutRequest: true
     });
+  },
+
+  async removeAbsenceRequest(_root, { _id }, { models }: IContext) {
+    return models.Absences.removeAbsence(_id);
   },
 
   async sendAbsenceRequest(
@@ -287,34 +291,16 @@ const timeclockMutations = {
           });
         }
       }
+
+      return updated;
     }
 
-    // solve check in / out requests
-    const checkTime = shiftRequest.startTime;
-
-    updated = models.Absences.updateAbsence(_id, {
+    // if request is check in/out request
+    return models.Absences.updateAbsence(_id, {
       status: `${shiftRequest.reason} / ${status}`,
+      solved: true,
       ...doc
     });
-
-    // create time logs if request is approved
-    if (status === 'Approved') {
-      if (shiftRequest.reason?.toLowerCase() === 'check in request') {
-        await models.Timeclocks.createTimeClock({
-          userId: shiftRequest.userId,
-          shiftStart: checkTime,
-          shiftActive: true,
-          deviceType: shiftRequest.reason
-        });
-      }
-
-      await models.TimeLogs.createTimeLog({
-        userId: shiftRequest.userId,
-        timelog: checkTime
-      });
-    }
-
-    return updated;
   },
 
   async solveScheduleRequest(

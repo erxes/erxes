@@ -13,6 +13,10 @@ const Building = {
   },
 
   async location(building, _params, _context) {
+    if (!building.location || !building.location.coordinates) {
+      return null;
+    }
+
     return {
       lat: building.location.coordinates[1],
       lng: building.location.coordinates[0]

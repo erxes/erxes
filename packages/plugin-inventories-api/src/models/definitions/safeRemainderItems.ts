@@ -10,8 +10,6 @@ export interface ISafeRemainderItem {
   preCount: number;
   count: number;
   status: string;
-
-  lastTransactionDate: Date;
 }
 
 export interface ISafeRemainderItemDocument
@@ -35,8 +33,6 @@ export const safeRemainderItemSchema = schemaHooksWrapper(
 
     status: field({ type: String, label: 'Status' }),
     uomId: field({ type: String, label: 'UOM ID' }),
-
-    lastTransactionDate: field({ type: Date, label: 'Last Transaction Date' }),
     modifiedAt: field({
       type: Date,
       default: new Date(),

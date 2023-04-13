@@ -36,8 +36,8 @@ export default {
   onServerInit: async options => {
     mainDb = options.db;
 
-    await initBroker(options.messageBrokerClient);
     await initBrokerErkhet();
+    await initBroker(options.messageBrokerClient);
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;

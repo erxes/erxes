@@ -24,6 +24,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
 import automations from './automations';
 import cronjobs from './cronjobs/conversations';
+import dashboards from './dashboards';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -43,6 +44,7 @@ export default {
     };
   },
   hasSubscriptions: true,
+  hasDashboard: true,
   meta: {
     forms,
     segments,
@@ -52,8 +54,8 @@ export default {
     webhooks,
     automations,
     cronjobs,
-    // for fixing permissions
-    permissions
+    permissions,
+    dashboards
   },
   apolloServerContext: async (context, req, res) => {
     const subdomain = getSubdomain(req);

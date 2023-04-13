@@ -14,6 +14,7 @@ const listParamsDef = `
   $paidDate: String
   $userId: String
   $customerId: String
+  $customerType: String
   $posId: String
 `;
 
@@ -30,6 +31,7 @@ const listParamsValue = `
   paidDate: $paidDate
   userId: $userId
   customerId: $customerId
+  customerType: $customerType
   posId: $posId
 `;
 
@@ -40,6 +42,7 @@ export const orderFields = `
   paidDate
   number
   customerId
+  customerType
   cashAmount
   mobileAmount
   paidAmounts
@@ -64,21 +67,6 @@ export const orderFields = `
     _id
     email
   }
-  ${
-    isEnabled('contacts')
-      ? `
-        customer {
-          _id
-          firstName
-          lastName
-          middleName
-          primaryEmail
-          primaryPhone
-        }
-      `
-      : ``
-  }
-
 `;
 
 const posOrders = `
@@ -99,6 +87,20 @@ const posOrderDetail = `
   query posOrderDetail($_id: String) {
     posOrderDetail(_id: $_id) {
       ${orderFields}
+      ${
+        isEnabled('contacts')
+          ? `
+        customer {
+          _id
+          code
+          firstName
+          lastName
+          primaryEmail
+          primaryPhone
+        }
+      `
+          : ``
+      }
       syncErkhetInfo
       putResponses
       deliveryInfo
@@ -141,10 +143,90 @@ const posProducts = `
 
 const productCategories = productQueries.productCategories;
 
+const coverFields = `
+  _id
+  posToken
+  status
+  beginDate
+  endDate
+  description
+  userId
+  details {
+    _id
+    paidType    
+    paidSummary {
+      _id
+      kind
+      kindOfVal
+      amount
+    }
+    paidDetail
+  }
+  createdAt
+  createdBy
+  modifiedAt
+  modifiedBy
+  note
+  posName
+
+  user {
+    _id
+    email
+  }
+  createdUser {
+    _id
+    email
+  }
+  modifiedUser {
+    _id
+    email
+  }
+`;
+
+const coverParams = `
+  $page: Int
+  $perPage: Int
+  $sortField: String
+  $sortDirection: Int
+  $posId: String
+  $startDate: Date
+  $endDate: Date
+  $userId: String
+`;
+
+const coverParamsVal = `
+  page: $page
+  perPage: $perPage
+  sortField: $sortField
+  sortDirection: $sortDirection
+  posId: $posId
+  startDate: $startDate
+  endDate: $endDate
+  userId: $userId
+`;
+
+const covers = `
+  query posCovers(${coverParams}) {
+    posCovers(${coverParamsVal}) {
+      ${coverFields}
+    }
+  }
+`;
+
+const coverDetail = `
+  query posCoverDetail($_id: String!) {
+    posCoverDetail(_id: $_id) {
+      ${coverFields}
+    }
+  }
+`;
+
 export default {
   posOrders,
   posOrdersSummary,
   posOrderDetail,
   posProducts,
-  productCategories
+  productCategories,
+  covers,
+  coverDetail
 };

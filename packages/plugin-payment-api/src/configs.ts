@@ -1,15 +1,17 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as express from 'express';
 import * as path from 'path';
-import * as permissions from './permissions';
+
 import { generateModels } from './connectionResolver';
-import { GET_CALLBACK_TYPES, POST_CALLBACK_TYPES } from './constants';
+import * as permissions from './permissions';
+
 import controllers from './controllers';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
 import { initBroker } from './messageBroker';
-import { getHandler, postHandler } from './utils';
+import { callbackHandler } from './utils';
 import i18n = require('i18n');
+import { PAYMENTS } from './api/constants';
 
 export let mainDb;
 export let debug;
@@ -33,14 +35,14 @@ export default {
     permissions
   },
 
-  getHandlers: GET_CALLBACK_TYPES.ALL.map(type => ({
+  getHandlers: PAYMENTS.ALL.map(type => ({
     path: `/callback/${type}`,
-    method: getHandler
+    method: callbackHandler
   })),
 
-  postHandlers: POST_CALLBACK_TYPES.ALL.map(type => ({
+  postHandlers: PAYMENTS.ALL.map(type => ({
     path: `/callback/${type}`,
-    method: postHandler
+    method: callbackHandler
   })),
 
   apolloServerContext: async (context, req, res) => {

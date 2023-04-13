@@ -3,6 +3,7 @@ const variables = `
     $name: String!
     $code: String!
     $center: JSON
+    $isCapital: Boolean
 `;
 
 const fields = `
@@ -10,6 +11,7 @@ const fields = `
     name : $name
     code : $code
     center : $center
+    isCapital : $isCapital
 `;
 
 const addMutation = `

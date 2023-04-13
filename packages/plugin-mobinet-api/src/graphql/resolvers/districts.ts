@@ -21,7 +21,7 @@ const District = {
       _id: district._id
     }).lean();
 
-    if (!distDoc || !distDoc.center) {
+    if (!distDoc || !distDoc.center || !distDoc.center.coordinates) {
       return null;
     }
 

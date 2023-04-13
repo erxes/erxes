@@ -108,7 +108,7 @@ const mutations = {
 
   buildingsSubmitServiceRequest: async (
     _root,
-    { _id, buildingData, ticketData, quarterId },
+    { _id, buildingData, ticketData, quarterId, phone },
     { models, subdomain, cpUser }: IContext
   ) => {
     const user = await sendCommonMessage({
@@ -116,18 +116,46 @@ const mutations = {
       subdomain,
       action: 'clientPortalUsers.findOne',
       data: {
-        _id: cpUser.userId
+        _id: (cpUser && cpUser._id) || ''
       },
       isRPC: true,
       defaultValue: undefined
     });
 
+    let customerId = '';
+    let customer = {} as any;
+    if (user) {
+      customerId = user.erxesCustomerId;
+    }
     if (!user) {
-      throw new Error('login required');
+      customer = await sendCommonMessage({
+        serviceName: 'contacts',
+        subdomain,
+        action: 'customers.findOne',
+        data: {
+          phone
+        },
+        isRPC: true,
+        defaultValue: null
+      });
+
+      if (!customer) {
+        customer = await sendCommonMessage({
+          serviceName: 'contacts',
+          subdomain,
+          action: 'customers.createCustomer',
+          data: {
+            primaryName: phone
+          },
+          isRPC: true,
+          defaultValue: null
+        });
+
+        customerId = customer?._id || '';
+      }
     }
 
     // const user = { erxesCustomerId: 'hTqM74dJPreqy4K5t' };
-
     let building = await models.Buildings.findOne({
       $or: [{ _id }, { osmbId: buildingData.id }]
     });
@@ -156,13 +184,13 @@ const mutations = {
 
     const ticket = await sendCommonMessage({
       serviceName: 'cards',
-      subdomain: subdomain,
+      subdomain,
       action: 'tickets.create',
       data: {
         ...ticketData,
         createdAt: new Date(),
         name: `Сүлжээ тавиулах хүсэлт: ${building.name}`,
-        customerId: user.erxesCustomerId
+        customerId
       },
       isRPC: true,
       defaultValue: undefined
@@ -175,10 +203,9 @@ const mutations = {
     building.installationRequestIds.push(ticket._id);
 
     await building.save();
-
     await models.BuildingToContacts.createDoc({
       buildingId: building._id,
-      contactId: user.erxesCustomerId,
+      contactId: customerId || customer._id,
       contactType: 'customer'
     });
 

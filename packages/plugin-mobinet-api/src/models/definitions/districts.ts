@@ -14,6 +14,7 @@ export interface IDistrict {
 
   createdAt: Date;
   updatedAt: Date;
+  isCapital: boolean;
 }
 
 export interface IDistrictDocument extends IDistrict, Document {
@@ -67,6 +68,12 @@ export const districtSchema = schemaHooksWrapper(
       type: Schema.Types.Mixed,
       label: 'Geo data',
       required: false
+    }),
+    isCapital: field({
+      type: Boolean,
+      label: 'Is capital',
+      required: false,
+      default: false
     }),
 
     searchText: field({ type: String, optional: true, index: true })

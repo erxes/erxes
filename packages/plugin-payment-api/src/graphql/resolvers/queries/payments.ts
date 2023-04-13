@@ -4,7 +4,8 @@ import {
 } from '@erxes/api-utils/src/permissions';
 
 import { IContext } from '../../../connectionResolver';
-import { PAYMENT_KINDS } from '../../../constants';
+import { MonpayAPI } from '../../../api/monpay/api';
+import { PAYMENTS } from '../../../api/constants';
 
 interface IParam {
   searchValue?: string;
@@ -68,7 +69,7 @@ const queries = {
       return models.Payments.find(query).countDocuments();
     };
 
-    for (const kind of PAYMENT_KINDS.ALL) {
+    for (const kind of PAYMENTS.ALL) {
       const countQueryResult = await count({ kind, ...qry });
       counts.byKind[kind] = !args.kind
         ? countQueryResult
@@ -91,6 +92,23 @@ const queries = {
     counts.total = await count(qry);
 
     return counts;
+  },
+
+  async paymentsCheckMonpayCoupon(
+    _root,
+    args: {
+      paymentId: string;
+      couponCode: string;
+    },
+    { models }: IContext
+  ) {
+    const { paymentId, couponCode } = args;
+
+    const config = await models.Payments.getPayment(paymentId);
+
+    const api = new MonpayAPI(config.config);
+
+    return api.couponCheck(couponCode);
   }
 };
 

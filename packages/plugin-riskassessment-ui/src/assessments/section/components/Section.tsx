@@ -23,11 +23,14 @@ class Section extends React.Component<Props> {
     super(props);
   }
 
-  renderChooserModal = (trigger: React.ReactNode) => {
-    const { cardId, cardType, riskAssessments } = this.props;
+  renderChooserModal = (
+    trigger: React.ReactNode,
+    riskAssessment?: RiskAssessmentTypes
+  ) => {
+    const { cardId, cardType } = this.props;
     const content = ({ closeModal }) => {
       const updateProps = {
-        riskAssessment: riskAssessments[0],
+        riskAssessment,
         closeModal,
         cardId,
         cardType
@@ -103,7 +106,10 @@ class Section extends React.Component<Props> {
 
     return (
       <SectionBodyItem>
-        {this.renderChooserModal(this.renderItem(riskAssessment))}
+        {this.renderChooserModal(
+          this.renderItem(riskAssessment),
+          riskAssessment
+        )}
       </SectionBodyItem>
     );
   };

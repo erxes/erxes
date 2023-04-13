@@ -1,7 +1,5 @@
 import { QueryResponse } from '../types';
 import { IProduct, IProductCategory } from '@erxes/ui-products/src/types';
-
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 export type IOrder = {
@@ -11,6 +9,7 @@ export type IOrder = {
   paidDate: Date;
   number: string;
   customerId: string;
+  customerType: string;
   cashAmount: number;
   paidAmounts: any;
   mobileAmount: number;
@@ -29,7 +28,14 @@ export type IOrder = {
   posToken: string;
   posName: string;
   user: IUser;
-  customer: ICustomer;
+  customer: {
+    _id: string;
+    code: string;
+    primaryPhone: string;
+    firstName: string;
+    primaryEmail: string;
+    lastName: string;
+  };
   origin?: string;
   syncedErkhet: boolean;
 };
@@ -93,6 +99,64 @@ export type PosOrderReturnBillMutationResponse = {
 
 export type PosOrderChangePaymentsMutationResponse = {
   posOrderChangePayments: (mutation: {
+    variables: {
+      _id: string;
+      cashAmount: number;
+      mobileAmount: number;
+      paidAmounts: any[];
+    };
+  }) => Promise<any>;
+};
+
+export interface ICoverSummary {
+  _id?: string;
+  kind: string;
+  kindOfVal: number;
+  amount: number;
+}
+
+export interface ICoverDetail {
+  _id?: string;
+  paidType: string;
+  paidSummary: ICoverSummary[];
+  paidDetail: any;
+}
+
+export type ICover = {
+  _id?: string;
+  posToken: string;
+  status: string;
+  beginDate: Date;
+  endDate: Date;
+  description: string;
+  userId: string;
+  details: ICoverDetail[];
+  createdAt: Date;
+  createdBy: string;
+  modifiedAt: Date;
+  modifiedBy: string;
+  note?: string;
+  posName: string;
+
+  user: IUser;
+  createdUser: IUser;
+  modifiedUser: IUser;
+};
+
+export type CoversQueryResponse = {
+  posCovers: ICover[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type CoverDetailQueryResponse = {
+  posCoverDetail: ICover;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type PosCoverEditNoteMutationResponse = {
+  posCoverEditNote: (mutation: {
     variables: {
       _id: string;
       cashAmount: number;

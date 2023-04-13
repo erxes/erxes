@@ -106,11 +106,14 @@ class MailFormContainer extends React.Component<
             const emails: string[] = [];
 
             for (const integration of data.imapGetIntegrations || []) {
-              if (!emails.includes(integration.user)) {
+              if (integration.user && !emails.includes(integration.user)) {
                 emails.push(integration.user);
               }
 
-              if (!emails.includes(integration.mainUser)) {
+              if (
+                integration.mainUser &&
+                !emails.includes(integration.mainUser)
+              ) {
                 emails.push(integration.mainUser);
               }
             }

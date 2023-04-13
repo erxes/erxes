@@ -2,16 +2,18 @@ import { ButtonMutate } from '@erxes/ui/src/components';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { getEnv, __ } from '@erxes/ui/src/utils';
 import React from 'react';
 
 import { getGqlString, getRefetchQueries } from '../containers/utils';
 import { mutations } from '../graphql';
 import { ByKindTotalCount } from '../types';
-import { PAYMENT_KINDS, PAYMENTCONFIGS } from './constants';
+import { PAYMENTCONFIGS, PAYMENT_KINDS } from './constants';
 import MonpayForm from './form/MonpayForm';
+import PaypalForm from './form/PaypalForm';
 import QpayForm from './form/QpayForm';
 import SocialPayForm from './form/SocialPayForm';
+import StorepayForm from './form/StorePayForm';
 import { Box, PaymentItem, Ribbon, Type } from './styles';
 
 type Props = {
@@ -86,6 +88,21 @@ function renderCreate(kind: string) {
         <MonpayForm {...props} renderButton={renderButton} />
       );
       break;
+    case PAYMENT_KINDS.STOREPAY:
+      formContent = props => (
+        <StorepayForm {...props} renderButton={renderButton} />
+      );
+      break;
+    case PAYMENT_KINDS.WECHATPAY:
+      formContent = props => (
+        <QpayForm {...props} isWechatpay={true} renderButton={renderButton} />
+      );
+      break;
+    case PAYMENT_KINDS.PAYPAL:
+      formContent = props => (
+        <PaypalForm {...props} renderButton={renderButton} />
+      );
+      break;
     default:
       formContent = () => null;
       break;
@@ -94,6 +111,10 @@ function renderCreate(kind: string) {
   const meta = PAYMENTCONFIGS.find(p => p.kind === kind);
 
   const title = meta ? `Add ${meta.name}` : 'Add payment config';
+
+  if (!meta || !meta.isAvailable) {
+    return null;
+  }
 
   return <ModalTrigger title={title} trigger={trigger} content={formContent} />;
 }
@@ -104,7 +125,10 @@ function Entry({ payment, getClassName, toggleBox, paymentsCount }: Props) {
   return (
     <PaymentItem key={name} className={getClassName(kind)}>
       <Box onClick={() => toggleBox(kind)} isInMessenger={inMessenger}>
-        <img alt="logo" src={logo} />
+        <img
+          alt="logo"
+          src={`${getEnv().REACT_APP_API_URL}/pl:payment/static/${logo}`}
+        />
         <h5>
           {name} {getCount(kind, paymentsCount)}
         </h5>

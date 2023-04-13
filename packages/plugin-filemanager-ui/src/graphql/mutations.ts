@@ -32,10 +32,59 @@ const filemanagerChangePermission = `
   }
 `;
 
+const filemanagerRelateFiles = `
+  mutation filemanagerRelateFiles($sourceId: String!, $targetIds: [String!]!) {
+    filemanagerRelateFiles(sourceId: $sourceId, targetIds: $targetIds)
+  }
+`;
+
+const filemanagerRemoveRelatedFiles = `
+  mutation filemanagerRemoveRelatedFiles($sourceId: String!, $targetIds: [String!]!) {
+    filemanagerRemoveRelatedFiles(sourceId: $sourceId, targetIds: $targetIds)
+  }
+`;
+
+const filemanagerRequestAccess = `
+  mutation filemanagerRequestAccess($fileId: String!, $description: String) {
+    filemanagerRequestAccess(fileId: $fileId, description: $description)
+  }
+`;
+
+const filemanagerAckRequest = `
+  mutation filemanagerAckRequest($_id: String!) {
+    filemanagerAckRequest(_id: $_id)
+  }
+`;
+
+const filemanagerRequestAcks = `
+  mutation filemanagerRequestAcks($fileId: String!, $description: String) {
+    filemanagerRequestAcks(fileId: $fileId, description: $description)
+  }
+`;
+
+const filemanagerConfirmAccessRequest = `
+  mutation filemanagerConfirmAccessRequest($requestId: String!) {
+    filemanagerConfirmAccessRequest(requestId: $requestId)
+  }
+`;
+
+const filemanagerRelateFilesContentType = `
+  mutation filemanagerRelateFilesContentType($contentType: String!, $contentTypeId: String!, $fileIds: [String]) {
+    filemanagerRelateFilesContentType(contentType: $contentType, contentTypeId: $contentTypeId, fileIds: $fileIds)
+  }
+`;
+
 export default {
   filemanagerFolderSave,
   filemanagerFolderRemove,
   filemanagerFileCreate,
   filemanagerFileRemove,
-  filemanagerChangePermission
+  filemanagerChangePermission,
+  filemanagerRelateFiles,
+  filemanagerRemoveRelatedFiles,
+  filemanagerRequestAccess,
+  filemanagerRequestAcks,
+  filemanagerAckRequest,
+  filemanagerConfirmAccessRequest,
+  filemanagerRelateFilesContentType
 };

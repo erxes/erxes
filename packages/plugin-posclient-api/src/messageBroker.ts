@@ -126,7 +126,8 @@ export const initBroker = async cl => {
           ...(await models.Orders.findOne({ _id: order._id }).lean()),
           _id: order._id,
           status: order.status,
-          customerId: order.customerId
+          customerId: order.customerId,
+          customerType: order.customerType
         }
       });
     }
@@ -155,6 +156,22 @@ export const initBroker = async cl => {
       return {
         status: 'success',
         data: { healthy: 'ok' }
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    `posclient:cover.remove${channelToken}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      const { cover } = data;
+      return {
+        status: 'success',
+        data: await models.Covers.updateOne(
+          { _id: cover._id },
+          { $set: { status: 'reconf' } }
+        )
       };
     }
   );

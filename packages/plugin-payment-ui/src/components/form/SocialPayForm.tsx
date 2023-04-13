@@ -71,7 +71,7 @@ class SocialPayConfigForm extends React.Component<Props, State> {
   ) => {
     const value =
       key === 'pushNotification'
-        ? `${getEnv().REACT_APP_API_URL}/pl:payment/callback/socialPay`
+        ? `${getEnv().REACT_APP_API_URL}/pl:payment/callback/socialpay`
         : this.state[key];
 
     return (
@@ -123,7 +123,7 @@ class SocialPayConfigForm extends React.Component<Props, State> {
             Cancel
           </Button>
           {renderButton({
-            name: 'socialPay',
+            name: 'socialpay',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal

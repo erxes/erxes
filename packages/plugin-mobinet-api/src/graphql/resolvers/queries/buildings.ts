@@ -4,7 +4,14 @@ import { IContext } from '../../../connectionResolver';
 import { ServiceStatus } from '../../../models/definitions/buildings';
 
 const buildQuery = (params: any) => {
-  const { searchValue, cityId, districtId, quarterId, customQuery } = params;
+  const {
+    searchValue,
+    cityId,
+    districtId,
+    quarterId,
+    customQuery,
+    networkType
+  } = params;
   const filter: any = {};
 
   if (searchValue) {
@@ -21,6 +28,10 @@ const buildQuery = (params: any) => {
 
   if (quarterId) {
     filter.quarterId = quarterId;
+  }
+
+  if (networkType) {
+    filter.networkType = networkType;
   }
 
   return { ...filter, ...customQuery };

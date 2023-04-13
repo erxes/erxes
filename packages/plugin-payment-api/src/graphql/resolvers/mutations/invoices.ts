@@ -8,11 +8,12 @@ type InvoiceParams = {
   email: string;
   description: string;
   customerId: string;
-  companyId: string;
+  customerType: string;
   contentType: string;
   contentTypeId: string;
   paymentIds: string[];
   redirectUri: string;
+  warningText: string;
 };
 
 const mutations = {

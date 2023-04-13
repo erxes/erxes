@@ -1,72 +1,302 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
 import Khanbank from './khanbank/khanbank';
+import { generateModels } from './connectionResolver';
+import { TransferParams } from './khanbank/types';
 
 let client;
 
 export const initBroker = async cl => {
   client = cl;
 
-  const { consumeQueue, consumeRPCQueue } = client;
+  const { consumeRPCQueue } = client;
 
-  consumeQueue('khanbank:send', async ({ data }) => {
-    return {
-      status: 'success'
-    };
+  /**
+   * Get account list
+   * @param {string} subdomain
+   * @param {string} configId
+   * @return { Promise<any>}
+   * TODO: add return type
+   */
+  consumeRPCQueue('khanbank:accounts', async ({ subdomain, data }) => {
+    const { configId } = data;
+
+    if (!configId) {
+      return {
+        status: 'error',
+        message: 'Config id is required'
+      };
+    }
+
+    const models = await generateModels(subdomain);
+
+    const config = await models.KhanbankConfigs.findOne({ _id: configId });
+
+    if (!config) {
+      return {
+        status: 'error',
+        message: 'Config not found'
+      };
+    }
+
+    const api = new Khanbank(config);
+    try {
+      const response = await api.accounts.list();
+
+      return {
+        status: 'success',
+        data: response
+      };
+    } catch (e) {
+      return {
+        status: 'error',
+        message: e.message
+      };
+    }
   });
 
-  // consumeRPCQueue('khanbank:accounts', async ({ data }) => {
-  //   const { consumerKey, secretKey } = data;
+  /**
+   * Get account detail
+   * @param {string} subdomain
+   * @param {string} configId
+   * @param {string} accountNumber
+   * @return { Promise<any>}
+   * TODO: add return type
+   */
+  consumeRPCQueue('khanbank:accountDetail', async ({ subdomain, data }) => {
+    const { configId, accountNumber } = data;
 
-  //   const config: any = { consumerKey, secretKey };
+    if (!accountNumber || !configId) {
+      return {
+        status: 'error',
+        message: 'Account number and config id is required'
+      };
+    }
 
-  //   const api = new Khanbank(config);
+    const models = await generateModels(subdomain);
 
-  //   const response = await api.accounts.list();
+    const config = await models.KhanbankConfigs.findOne({ _id: configId });
 
-  //   return {
-  //     status: 'success',
-  //     data: response,
-  //   };
-  // });
+    if (!config) {
+      return {
+        status: 'error',
+        message: 'Config not found'
+      };
+    }
 
-  // consumeRPCQueue('khanbank:accountDetail', async ({ data }) => {
-  //   const { consumerKey, secretKey, accountNumber } = data;
+    const api = new Khanbank(config);
+    try {
+      const response = await api.accounts.get(accountNumber);
 
-  //   if (!accountNumber) {
-  //     throw new Error('Account number is required');
-  //   }
+      return {
+        status: 'success',
+        data: response
+      };
+    } catch (e) {
+      return {
+        status: 'error',
+        message: e.message
+      };
+    }
+  });
 
-  //   const config: any = { consumerKey, secretKey };
+  /**
+   * Get account holder
+   * @param {string} consumerKey
+   * @param {string} secretKey
+   * @param {string} accountNumber
+   * @param {string} bankCode
+   * @return { Promise<any>}
+   * TODO: add return type
+   */
+  consumeRPCQueue('khanbank:accountHolder', async ({ subdomain, data }) => {
+    const { configId, accountNumber, bankCode } = data;
 
-  //   const api = new Khanbank(config);
+    if (!configId || !accountNumber || !bankCode) {
+      return {
+        status: 'error',
+        message: 'Account number, bank code and config id is required'
+      };
+    }
 
-  //   const response = await api.accounts.get(accountNumber);
+    const models = await generateModels(subdomain);
 
-  //   return {
-  //     status: 'success',
-  //     data: response,
-  //   };
-  // });
+    const config = await models.KhanbankConfigs.findOne({ _id: configId });
 
-  // consumeRPCQueue('khanbank:accountHolder', async ({ data }) => {
-  //   const { consumerKey, secretKey, accountNumber, bankCode } = data;
+    if (!config) {
+      return {
+        status: 'error',
+        message: 'Config not found'
+      };
+    }
 
-  //   if (!accountNumber || !bankCode) {
-  //     throw new Error('Account and bank code is required');
-  //   }
+    const api = new Khanbank(config);
+    try {
+      const response = await api.accounts.getHolder(accountNumber, bankCode);
 
-  //   const config: any = { consumerKey, secretKey };
+      return {
+        status: 'success',
+        data: response
+      };
+    } catch (e) {
+      return {
+        status: 'error',
+        message: e.message
+      };
+    }
+  });
 
-  //   const api = new Khanbank(config);
+  /**
+   * Get statements
+   * @param {string} accountNumber - account number
+   * @param {string} startDate - start date string
+   * @param {string} endDate - end date string
+   * @param {number} page - page number
+   * @param {number} perPage - per page
+   * @param {number} record - record number
+   * @return {[object]} - Returns an array of statements
+   * TODO: update return type
+   */
+  consumeRPCQueue('khanbank:statements', async ({ subdomain, data }) => {
+    const { configId, accountNumber } = data;
 
-  //   const response = await api.accounts.getHolder(accountNumber, bankCode);
+    if (!configId || !accountNumber) {
+      return {
+        status: 'error',
+        message: 'Config id and account number is required'
+      };
+    }
 
-  //   return {
-  //     status: 'success',
-  //     data: response,
-  //   };
-  // });
+    const models = await generateModels(subdomain);
+
+    const config = await models.KhanbankConfigs.findOne({ _id: configId });
+
+    if (!config) {
+      return {
+        status: 'error',
+        message: 'Config not found'
+      };
+    }
+
+    const api = new Khanbank(config);
+    try {
+      const response = await api.statements.list({ accountNumber, ...data });
+
+      return {
+        status: 'success',
+        data: response
+      };
+    } catch (e) {
+      return {
+        status: 'error',
+        message: e.message
+      };
+    }
+  });
+
+  /**
+   * make transfer from khanbank to khanbank
+   * @param {string} configId - config id
+   * @param {TransferParams} transferParams - transfer params
+   * @return {object} - Returns a response object
+   */
+  consumeRPCQueue('khanbank:domesticTransfer', async ({ subdomain, data }) => {
+    const { configId } = data;
+    const transferParams: TransferParams = data.transferParams;
+
+    if (!configId || !transferParams) {
+      return {
+        status: 'error',
+        message: 'Config id and transfer params is required'
+      };
+    }
+
+    const models = await generateModels(subdomain);
+
+    const config = await models.KhanbankConfigs.findOne({ _id: configId });
+
+    if (!config) {
+      return {
+        status: 'error',
+        message: 'Config not found'
+      };
+    }
+
+    const api = new Khanbank(config);
+    try {
+      const response = await api.transfer.domestic(transferParams);
+
+      return {
+        status: 'success',
+        data: response
+      };
+    } catch (e) {
+      return {
+        status: 'error',
+        message: e.message
+      };
+    }
+  });
+
+  /**
+   * make transfer from khanbank to other bank
+   * @param {string} configId - config id
+   * @param {TransferParams} transferParams - transfer params
+   * @param {string} toCurrency - to currency
+   * @param {string} toAccountName - to account name
+   * @param {string} toBank - to bank
+   * @return {object} - Returns a response object
+   * TODO: update return type
+   */
+  consumeRPCQueue('khanbank:interbankTransfer', async ({ subdomain, data }) => {
+    const { configId, toCurrency, toAccountName, toBank } = data;
+    const transferParams: TransferParams = data.transferParams;
+
+    if (
+      !configId ||
+      !transferParams ||
+      !toCurrency ||
+      !toAccountName ||
+      !toBank
+    ) {
+      return {
+        status: 'error',
+        message:
+          'Config id and transfer params and toCurrency and toAccountName and toBank is required'
+      };
+    }
+
+    const models = await generateModels(subdomain);
+
+    const config = await models.KhanbankConfigs.findOne({ _id: configId });
+
+    if (!config) {
+      return {
+        status: 'error',
+        message: 'Config not found'
+      };
+    }
+
+    const api = new Khanbank(config);
+    try {
+      const response = await api.transfer.interbank({
+        ...transferParams,
+        toCurrency,
+        toAccountName,
+        toBank
+      });
+
+      return {
+        status: 'success',
+        data: response
+      };
+    } catch (e) {
+      return {
+        status: 'error',
+        message: e.message
+      };
+    }
+  });
 };
 
 export const sendCommonMessage = async (

@@ -52,6 +52,8 @@ export interface IBuilding {
   suhId: string;
 
   suh: ICompany;
+
+  networkType: 'fttb' | 'ftth';
 }
 
 export type BuildingListQueryResponse = {

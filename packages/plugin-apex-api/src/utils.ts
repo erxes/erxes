@@ -48,7 +48,5 @@ export const calculateDynamicValue = async (models: IModels, report) => {
         }
       }
     }
-
-    console.log('mmmmmmmmmmmm', expression);
   }
 };

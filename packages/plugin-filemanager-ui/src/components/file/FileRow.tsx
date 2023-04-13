@@ -79,7 +79,7 @@ const FileRow = ({
             href={
               isFolder
                 ? `/filemanager/folder/details/${item._id}`
-                : `/filemanager/details/${item._id}`
+                : `/filemanager/details/${queryParams._id}/${item._id}`
             }
           >
             {isFolder ? (

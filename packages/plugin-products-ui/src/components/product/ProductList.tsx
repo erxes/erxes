@@ -29,6 +29,7 @@ import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
+import ProductsPrintAction from './ProductPrintAction';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -254,7 +255,7 @@ class List extends React.Component<IProps, State> {
 
       actionBarRight = (
         <BarItems>
-          {loadDynamicComponent('productListAction', { bulk }, true)}
+          {isEnabled('documents') && <ProductsPrintAction bulk={bulk} />}
 
           {bulk.length === 2 && (
             <ModalTrigger
