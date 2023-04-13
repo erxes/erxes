@@ -342,7 +342,7 @@ const conversationMutations = {
       const payload = {
         integrationId: integration._id,
         conversationId: conversation._id,
-        content: doc.content,
+        content: doc.content || '',
         internal: doc.internal,
         attachments: doc.attachments || [],
         extraInfo: doc.extraInfo,
@@ -358,6 +358,14 @@ const conversationMutations = {
 
       // if the service runs separately & returns data, then don't save message inside inbox
       if (response && response.data) {
+        const { conversationId, content } = response.data;
+
+        if (!!conversationId && !!content) {
+          await models.Conversations.updateConversation(conversationId, {
+            content: content || '',
+            updatedAt: new Date()
+          });
+        }
         return { ...response.data };
       }
     }
