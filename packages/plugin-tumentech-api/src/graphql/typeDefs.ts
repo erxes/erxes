@@ -26,6 +26,12 @@ import {
   types as tumentechTypes
 } from './schema/tumentech';
 
+import {
+  mutations as accountMutations,
+  queries as accountQueries,
+  types as accountTypes
+} from './schema/accounts';
+
 const typeDefs = async serviceDiscovery => {
   const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
   const cardsAvailable = await serviceDiscovery.isEnabled('cards');
@@ -55,6 +61,7 @@ const typeDefs = async serviceDiscovery => {
     ${routeTypes}
     ${directionTypes}
     ${tripTypes(isEnabled)}
+    ${accountTypes}
     
     extend type Query {
       ${placeQueries}
@@ -62,6 +69,7 @@ const typeDefs = async serviceDiscovery => {
       ${directionQueries}
       ${routeQueries}
       ${tripQueries}
+      ${accountQueries}
     }
     
     extend type Mutation {
@@ -70,6 +78,7 @@ const typeDefs = async serviceDiscovery => {
       ${directionMutations}
       ${routeMutations}
       ${tripMutations}
+      ${accountMutations}
     }
   `;
 };

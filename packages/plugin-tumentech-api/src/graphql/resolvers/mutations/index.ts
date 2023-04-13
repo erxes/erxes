@@ -5,7 +5,7 @@ import placeMutations from './places';
 import routeMutations from './routes';
 import tripMutations from './trips';
 import tumentechMutations from './tumentech';
-import topupMutations from './topup';
+import accountMutations from './accounts';
 
 export default {
   ...tumentechMutations,
@@ -15,5 +15,5 @@ export default {
   ...routeMutations,
   ...placeMutations,
   ...tripMutations,
-  ...topupMutations
+  ...accountMutations
 };
