@@ -44,7 +44,7 @@ class FolderChooser extends React.Component<Props, State> {
       value: item._id,
       label: item.name,
       order: item.order,
-      isRoot: !item.hasChild
+      isRoot: !item.parentId
     }));
   }
 

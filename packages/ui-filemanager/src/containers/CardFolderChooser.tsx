@@ -52,10 +52,14 @@ const CardFolderChooser = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, FilemanagerFoldersQueryResponse, {}>(
+    graphql<Props, FilemanagerFoldersQueryResponse>(
       gql(queries.filemanagerFolders),
       {
-        name: 'filemanagerFoldersQuery'
+        name: 'filemanagerFoldersQuery',
+        options: () => ({
+          variables: { isTree: true },
+          fetchPolicy: 'network-only'
+        })
       }
     ),
     graphql<Props, GetRelatedFilesContentTypeQueryResponse, {}>(

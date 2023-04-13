@@ -21,18 +21,9 @@ const filemanagerFolders = `
   query filemanagerFolders($parentId: String, $isTree: Boolean) {
     filemanagerFolders(parentId: $parentId, isTree: $isTree) {
       _id
-      createdAt
-      createdUserId
       parentId
       name
       order
-      hasChild
-      parent {
-        _id
-        createdAt
-        name
-        parentId
-      }
     }
   }
 `;
