@@ -280,3 +280,36 @@ export const loadAccessRequestClass = models => {
 
   return accessRequestSchema;
 };
+
+// =================== relations ====================================
+interface IRelation {
+  contentType: string;
+  contentTypeId: string;
+  fileIds: string[];
+}
+
+export interface IRelationDocument extends IRelation, Document {
+  _id: string;
+}
+
+const relationSchema = new Schema({
+  contentType: { type: String },
+  contentTypeId: { type: String },
+  fileIds: { type: [String] }
+});
+
+export interface IRelationModel extends Model<IRelationDocument> {
+  relate(doc): IRelationDocument;
+}
+
+export const loadRelationClass = models => {
+  class Relation {
+    public static async relate(doc) {
+      return models.Relations.create(doc);
+    }
+  }
+
+  relationSchema.loadClass(Relation);
+
+  return relationSchema;
+};

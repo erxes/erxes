@@ -154,6 +154,17 @@ const queries = {
     }
 
     return models.AccessRequests.find({ fileId });
+  },
+
+  async filemanagerGetRelatedFilesContentType(
+    _root,
+    {
+      contentType,
+      contentTypeId
+    }: { contentType: string; contentTypeId: string },
+    { models }: IContext
+  ) {
+    return models.Relations.find({ contentType, contentTypeId });
   }
 };
 
