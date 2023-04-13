@@ -59,9 +59,21 @@ export interface ILogs {
   userId?: string;
 }
 
+export interface IRelatedFiles {
+  _id: string;
+  contentType: string;
+  contentTypeId: string;
+  fileIds: string[];
+  files: IFile[];
+}
+
 // query types
 export type FilemanagerFoldersQueryResponse = {
   filemanagerFolders: IFolder[];
+} & QueryResponse;
+
+export type GetRelatedFilesContentTypeQueryResponse = {
+  filemanagerGetRelatedFilesContentType: IRelatedFiles[];
 } & QueryResponse;
 
 export type FilemanagerFilesQueryResponse = {
@@ -88,6 +100,12 @@ export type SaveFileMutationVariables = {
 export type RelateFileMutationVariables = {
   sourceId: string;
   targetIds: string[];
+};
+
+export type RelateFileContentTypeMutationVariables = {
+  contentType: string;
+  contentTypeId: string;
+  fileIds: string[];
 };
 
 export type RequestAccessMutationVariables = {
@@ -124,6 +142,12 @@ export type SaveFileMutationResponse = {
 export type RelateFileMutationResponse = {
   relateFileMutation: (params: {
     variables: RelateFileMutationVariables;
+  }) => Promise<void>;
+};
+
+export type RelateFileContentTypeMutationResponse = {
+  relateFileContentTypeMutation: (params: {
+    variables: RelateFileContentTypeMutationVariables;
   }) => Promise<void>;
 };
 
