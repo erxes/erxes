@@ -12,7 +12,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
-import FileFormContainer from '../containers/file/FileForm';
+import FileFormContainer from '@erxes/ui-filemanager/src/containers/FileForm';
 import FileList from '../containers/file/FileList';
 import FolderForm from '../containers/folder/FolderForm';
 import FolderList from '../containers/folder/FolderList';

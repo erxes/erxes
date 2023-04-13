@@ -31,13 +31,13 @@ class FolderChooser extends React.Component<Props, State> {
     };
   }
 
-  // componentDidUpdate(prevProps: Readonly<Props>): void {
-  //   if (prevProps.currentId) {
-  //     if (this.props.currentId === "") {
-  //       this.setState({ folderId: "" });
-  //     }
-  //   }
-  // }
+  componentDidUpdate(prevProps: Readonly<Props>): void {
+    if (prevProps.currentId) {
+      if (this.props.currentId === '') {
+        this.setState({ folderId: '' });
+      }
+    }
+  }
 
   selectOptions(folders: IFolder[]) {
     return folders.map(item => ({

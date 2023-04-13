@@ -24,7 +24,7 @@ class FolderList extends React.Component<Props, { openFolderIds: string[] }> {
   }
 
   toggleFolder = folderId => {
-    let { openFolderIds } = this.state;
+    const { openFolderIds } = this.state;
 
     const { folders } = this.props;
     const folder = folders.find(f => f._id === folderId);

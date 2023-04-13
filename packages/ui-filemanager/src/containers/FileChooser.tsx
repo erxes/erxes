@@ -11,6 +11,7 @@ import { mutations, queries } from '../graphql';
 
 import { Alert } from '@erxes/ui/src/utils';
 import Chooser from '@erxes/ui/src/components/Chooser';
+import FileForm from './FileForm';
 import FolderChooser from '../components/FolderChooser';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
@@ -38,6 +39,7 @@ const FileChooserContainer = (props: FinalProps) => {
     filemanagerFilesQuery,
     relateFileContentTypeMutation,
     closeModal,
+    folderId,
     contentType,
     contentTypeId,
     chosenFiles
@@ -68,12 +70,12 @@ const FileChooserContainer = (props: FinalProps) => {
 
     setPerPage(perPage + 5);
 
-    setTimeout(() => {
-      filemanagerFilesQuery!.refetch({
-        perPage,
-        search: value
-      });
-    }, 500);
+    // setTimeout(() => {
+    //   filemanagerFilesQuery!.refetch({
+    //     perPage,
+    //     search: value,
+    //   });
+    // }, 500);
   };
 
   const onSelect = datas => {
@@ -96,11 +98,11 @@ const FileChooserContainer = (props: FinalProps) => {
 
   return (
     <Chooser
-      title="Related files"
+      title="Files"
       datas={files}
       data={{
-        name: chosenFiles[0].contentType || '',
-        datas: chosenFiles[0].files || []
+        name: (chosenFiles[0] || {}).contentType || '',
+        datas: (chosenFiles[0] || {}).files || []
       }}
       search={search}
       clearState={() => search('', true)}
@@ -108,6 +110,9 @@ const FileChooserContainer = (props: FinalProps) => {
       closeModal={() => closeModal()}
       renderName={file => file.name}
       renderFilter={renderFolderChooser}
+      renderForm={formProps => (
+        <FileForm {...formProps} queryParams={{ _id: folderId }} />
+      )}
       perPage={5}
       limit={100}
     />

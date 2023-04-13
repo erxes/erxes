@@ -1,10 +1,10 @@
 import * as compose from 'lodash.flowright';
 
-import { IFile, SaveFileMutationResponse } from '../../types';
-import { mutations, queries } from '../../graphql';
+import { IFile, SaveFileMutationResponse } from '../types';
+import { mutations, queries } from '../graphql';
 
 import { Alert } from '@erxes/ui/src/utils';
-import FileForm from '../../components/file/FileForm';
+import FileForm from '../components/FileForm';
 import React from 'react';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';

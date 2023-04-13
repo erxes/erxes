@@ -69,11 +69,11 @@ class CardFileChooser extends React.Component<Props, State> {
   renderFiles() {
     const { relatedFiles } = this.props;
 
-    if (relatedFiles && relatedFiles[0].fileIds.length === 0) {
+    if (relatedFiles && ((relatedFiles[0] || {}).fileIds || []).length === 0) {
       return <EmptyState icon="file-alt" text="No files" />;
     }
 
-    return (relatedFiles[0].files || []).map(file => (
+    return ((relatedFiles[0] || {}).files || []).map(file => (
       <SectionBodyItem key={file._id}>
         <Link to={`/filemanager/details/${file.folderId}/${file._id}`}>
           {file.name || 'Unknown'}
@@ -86,7 +86,6 @@ class CardFileChooser extends React.Component<Props, State> {
     return (
       <Box
         title="File manager"
-        isOpen={true}
         name="showFiles"
         extraButtons={this.renderExtraButtons()}
       >

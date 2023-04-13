@@ -1,8 +1,8 @@
-import { ChooseBox, FileUpload, FlexContainer } from '../../styles';
+import { ChooseBox, FileUpload, FlexContainer } from '../styles';
 import React, { useState } from 'react';
 
 import DynamicForm from './DynamicForm';
-import { IFile } from '../../types';
+import { IFile } from '../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Spinner from '@erxes/ui/src/components/Spinner';
