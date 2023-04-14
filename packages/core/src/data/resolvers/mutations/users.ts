@@ -436,15 +436,6 @@ const userMutations = {
         );
       }
 
-      if (entry.channelIds) {
-        await models.Users.updateOne(
-          { _id: createdUser?._id },
-          {
-            channelIds: entry.channelIds
-          }
-        );
-      }
-
       sendInvitationEmail(models, subdomain, { email: entry.email, token });
 
       await putCreateLog(
