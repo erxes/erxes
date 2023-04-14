@@ -10,7 +10,6 @@ export interface IBrandModel extends Model<IBrandDocument> {
   createBrand(doc: IBrand): IBrandDocument;
   updateBrand(_id: string, fields: IBrand): IBrandDocument;
   removeBrand(_id: string): IBrandDocument;
-  updateUserBrands(brandIds: string[], userId: string): IBrandDocument[];
 }
 
 export const loadBrandClass = (models: IModels) => {
@@ -70,24 +69,6 @@ export const loadBrandClass = (models: IModels) => {
       }
 
       return brandObj.remove();
-    }
-
-    public static async updateUserBrands(brandIds: string[], userId: string) {
-      // remove from previous brands
-      await models.Brands.updateMany(
-        { memberIds: { $in: [userId] } },
-        { $pull: { memberIds: userId } },
-        { multi: true }
-      );
-
-      // add to given brands
-      await models.Brands.updateMany(
-        { _id: { $in: brandIds } },
-        { $push: { memberIds: userId } },
-        { multi: true }
-      );
-
-      return models.Brands.find({ _id: { $in: brandIds } });
     }
   }
 
