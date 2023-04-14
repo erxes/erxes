@@ -156,6 +156,7 @@ export const types = `
   type ScheduleConfig {
     _id: String!
     scheduleName: String
+    lunchBreakInMins: Int
     shiftStart: String
     shiftEnd: String
     configDays: [ConfigDay]
@@ -307,8 +308,8 @@ export const mutations = `
   solveScheduleRequest(_id: String, status: String): Schedule
   solveShiftRequest(_id: String, status: String): ShiftsRequest
   
-  scheduleConfigAdd(scheduleName: String, scheduleConfig: [ShiftsRequestInput], configShiftStart: String, configShiftEnd: String): ScheduleConfig
-  scheduleConfigEdit(_id : String ,scheduleName: String, scheduleConfig: [ShiftsRequestInput], configShiftStart: String, configShiftEnd: String): ScheduleConfig
+  scheduleConfigAdd(scheduleName: String, lunchBreakInMins: Int,  scheduleConfig: [ShiftsRequestInput], configShiftStart: String, configShiftEnd: String): ScheduleConfig
+  scheduleConfigEdit(_id : String ,scheduleName: String, lunchBreakInMins: Int,  scheduleConfig: [ShiftsRequestInput], configShiftStart: String, configShiftEnd: String): ScheduleConfig
   scheduleConfigRemove(_id : String ): JSON
   
   payDateAdd(dateNums: [Int]): PayDate

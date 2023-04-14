@@ -67,9 +67,12 @@ const CustomRow = styledTS<{
   margin: ${props => props.marginNum}px 0
 `;
 
-const Input = styledTS<{ round?: boolean; hasError?: boolean; align?: string }>(
-  styled.input
-)`
+const Input = styledTS<{
+  round?: boolean;
+  hasError?: boolean;
+  align?: string;
+  type?: string;
+}>(styled.input)`
   border: none;
   width: 100%;
   padding: ${dimensions.unitSpacing}px 0;
@@ -79,7 +82,11 @@ const Input = styledTS<{ round?: boolean; hasError?: boolean; align?: string }>(
     props.hasError ? colors.colorCoreRed : colors.colorShadowGray};
   background: none;
   transition: all 0.3s ease;
-
+  type: ${props => {
+    if (props.type) {
+      return props.type;
+    }
+  }}
   ${props => {
     if (props.round) {
       return `
