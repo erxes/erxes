@@ -229,7 +229,7 @@ const userMutations = {
     args: IUsersEdit,
     { user, models, subdomain }: IContext
   ) {
-    const { _id, channelIds, brandIds, ...doc } = args;
+    const { _id, channelIds, ...doc } = args;
     const userOnDb = await models.Users.getUser(_id);
 
     // clean custom field values
@@ -267,10 +267,6 @@ const userMutations = {
         action: 'updateUserChannels',
         data: { channelIds, userId: _id }
       });
-    }
-
-    if (brandIds) {
-      await models.Brands.updateUserBrands(brandIds, _id);
     }
 
     await resetPermissionsCache(models);
@@ -400,12 +396,19 @@ const userMutations = {
         departmentId?: string;
       }>;
     },
-    { user, subdomain, models }: IContext
+    { user, subdomain, docModifier, models }: IContext
   ) {
     for (const entry of entries) {
       await models.Users.checkDuplication({ email: entry.email });
 
-      const token = await models.Users.invite(entry);
+      const docModified = docModifier(entry);
+
+      const { scopeBrandIds, ...doc } = docModified;
+
+      const token = await models.Users.invite({
+        ...doc,
+        brandIds: scopeBrandIds
+      });
       const createdUser = await models.Users.findOne({ email: entry.email });
 
       if (entry.unitId) {
@@ -429,6 +432,15 @@ const userMutations = {
           { _id: createdUser?._id },
           {
             $addToSet: { departmentIds: entry.departmentId }
+          }
+        );
+      }
+
+      if (entry.channelIds) {
+        await models.Users.updateOne(
+          { _id: createdUser?._id },
+          {
+            channelIds: entry.channelIds
           }
         );
       }
