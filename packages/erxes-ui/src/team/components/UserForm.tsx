@@ -202,7 +202,6 @@ class UserForm extends React.Component<Props, State> {
   };
 
   render() {
-    console.log({ props: this.props });
     return (
       <CommonForm
         {...this.props}
