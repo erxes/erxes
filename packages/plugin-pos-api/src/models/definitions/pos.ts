@@ -170,3 +170,11 @@ export const posSlotSchema = schemaHooksWrapper(
   }),
   'erxes_pos_slot'
 );
+
+export const posCoverKindValueSchema = schemaHooksWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    code: field({ type: String, label: 'Code' })
+  }),
+  'erxes_pos_slot'
+);

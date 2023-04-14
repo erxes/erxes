@@ -30,7 +30,7 @@ export default function Row(props: Props) {
     if (!date) {
       return null;
     }
-    return moment(date).format('YYYY/MM/DD');
+    return moment(date).format('YYYY/MM/DD HH:mm:ss');
   };
 
   const handleCheckChange = (event: any) => {

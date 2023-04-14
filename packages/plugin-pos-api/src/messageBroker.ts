@@ -467,6 +467,24 @@ export const initBroker = async cl => {
       data: await models.Pos.findOne(data).lean()
     };
   });
+
+  consumeRPCQueue('pos:covers.confirm', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    const { cover } = data;
+    await models.Covers.updateOne(
+      { _id: cover._id },
+      { ...cover },
+      { upsert: true }
+    );
+    return {
+      status: 'success',
+      data: await models.Covers.updateOne(
+        { _id: cover._id },
+        { ...cover },
+        { upsert: true }
+      )
+    };
+  });
 };
 
 export const sendProductsMessage = async (

@@ -59,12 +59,5 @@ export const mutations = `
     productCategoryId: String
   ): SafeRemainder
   safeRemainderRemove(_id: String!): JSON
-  safeRemainderSubmit(
-    branchId: String,
-    departmentId: String,
-    status: String,
-    contentType: String,
-    contentId: String,
-    products: [SafeRemainderSubmitProduct]
-  ): JSON
+  safeRemainderSubmit( _id: String! ): JSON
 `;

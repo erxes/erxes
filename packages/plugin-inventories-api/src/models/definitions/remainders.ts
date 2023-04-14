@@ -36,6 +36,7 @@ export interface IRemainder {
   departmentId: string;
   productId: string;
   count: number;
+  shortLogs: any[];
 }
 
 export interface IRemainderDocument extends IRemainder, Document {
@@ -57,7 +58,8 @@ export const remainderSchema = schemaHooksWrapper(
       type: Date,
       default: new Date(),
       label: 'Modified date'
-    })
+    }),
+    shortLogs: field({ type: [Object] })
   }),
   'erxes_remainders'
 );

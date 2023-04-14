@@ -198,6 +198,22 @@ const filemanagerGetAckRequests = `
   }
 `;
 
+const filemanagerGetRelatedFilesContentType = `
+  query filemanagerGetRelatedFilesContentType($contentType: String!, $contentTypeId: String!) {
+    filemanagerGetRelatedFilesContentType(contentType: $contentType, contentTypeId: $contentTypeId) {
+      _id
+      contentType
+      contentTypeId
+      fileIds
+      files {
+        _id
+        name
+        folderId
+      }
+    }
+  }
+`;
+
 export default {
   filemanagerFiles,
   filemanagerFolders,
@@ -208,6 +224,7 @@ export default {
   filemanagerGetAccessRequests,
   filemanagerGetAckRequestByUser,
   filemanagerGetAckRequests,
+  filemanagerGetRelatedFilesContentType,
   documents,
   units
 };
