@@ -401,14 +401,14 @@ const userMutations = {
     for (const entry of entries) {
       await models.Users.checkDuplication({ email: entry.email });
 
-      const docModified = docModifier(entry);
+      let doc: any = entry;
 
-      const { scopeBrandIds, ...doc } = docModified;
+      const docModified = docModifier({});
 
-      const token = await models.Users.invite({
-        ...doc,
-        brandIds: scopeBrandIds
-      });
+      if (!!docModified?.scopeBrandIds?.length) {
+        doc.brandIds = docModified.scopeBrandIds;
+      }
+      const token = await models.Users.invite(doc);
       const createdUser = await models.Users.findOne({ email: entry.email });
 
       if (entry.unitId) {
