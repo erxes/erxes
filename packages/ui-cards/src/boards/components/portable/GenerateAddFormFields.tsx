@@ -124,11 +124,13 @@ function GenerateAddFormFields(props: Props) {
               };
             }
 
+            const object = props.object || {};
+
             return {
               fieldId,
               operator: logic.logicOperator,
               logicValue: logic.logicValue,
-              fieldValue: props.object[logic.fieldId || ''],
+              fieldValue: object[logic.fieldId || ''] || '',
               validation: fields.find(e => e._id === fieldId)?.validation,
               type: field.type
             };
