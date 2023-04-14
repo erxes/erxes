@@ -4,20 +4,6 @@ import { IOption, IQueryParams } from '../../types';
 import React from 'react';
 import { queries } from '../graphql';
 
-// get user options for react-select-plus
-export function generateUserOptions(array: IUser[] = []): IOption[] {
-  return array.map(item => {
-    const user = item || ({} as IUser);
-    const details = item.details || ({} as IUserDetails);
-
-    return {
-      value: user._id,
-      label: details.fullName || user.email,
-      avatar: details.avatar
-    };
-  });
-}
-
 export default (props: {
   queryParams?: IQueryParams;
   filterParams?: { ids?: string[]; status?: string };
@@ -25,7 +11,7 @@ export default (props: {
   onSelect: (value: string[] | string, name: string) => void;
   multi?: boolean;
   customOption?: IOption;
-
+  customField?: string;
   initialValue?: string | string[];
 
   name: string;
@@ -34,6 +20,7 @@ export default (props: {
     queryParams,
     onSelect,
     customOption,
+    customField,
     initialValue,
     multi = true,
     label,
@@ -41,6 +28,28 @@ export default (props: {
     name
   } = props;
   const defaultValue = queryParams ? queryParams[name] : initialValue;
+
+  // get user options for react-select-plus
+  function generateUserOptions(array: IUser[] = []): IOption[] {
+    return array.map(item => {
+      const user = item || ({} as IUser);
+      const details = item.details || ({} as IUserDetails);
+
+      const includeCustomFieldOnSelectLabel =
+        customField && user[customField] ? user[customField] : '';
+
+      const generateLabel =
+        (details.fullName || user.email) +
+        '\t' +
+        includeCustomFieldOnSelectLabel;
+
+      return {
+        value: user._id,
+        label: generateLabel,
+        avatar: details.avatar
+      };
+    });
+  }
 
   return (
     <SelectWithSearch
