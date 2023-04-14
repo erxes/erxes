@@ -432,6 +432,14 @@ const userMutations = {
           }
         );
       }
+      if (entry.channelIds) {
+        sendInboxMessage({
+          subdomain,
+          action: 'updateUserChannels',
+          data: { channelIds: entry.channelIds, userId: createdUser?._id },
+          isRPC: true
+        });
+      }
 
       sendInvitationEmail(models, subdomain, { email: entry.email, token });
 
