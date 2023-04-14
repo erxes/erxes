@@ -53,6 +53,7 @@ interface IInviteParams {
   email: string;
   password: string;
   groupId: string;
+  brandIds: string[];
 }
 
 interface ILoginParams {
@@ -275,7 +276,12 @@ export const loadUserClass = (models: IModels) => {
     /**
      * Create new user with invitation token
      */
-    public static async invite({ email, password, groupId }: IInviteParams) {
+    public static async invite({
+      email,
+      password,
+      groupId,
+      brandIds
+    }: IInviteParams) {
       email = (email || '').toLowerCase().trim();
       password = (password || '').trim();
 
@@ -298,7 +304,8 @@ export const loadUserClass = (models: IModels) => {
         password: await this.generatePassword(password),
         registrationToken: token,
         registrationTokenExpires: expires,
-        code: await this.generateUserCode()
+        code: await this.generateUserCode(),
+        brandIds
       });
 
       return token;
