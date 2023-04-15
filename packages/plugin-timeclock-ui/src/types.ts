@@ -134,6 +134,7 @@ export interface IShiftSchedule {
 export interface IScheduleConfig {
   _id: string;
   scheduleName?: string;
+  lunchBreakInMins: number;
   shiftStart: string;
   shiftEnd: string;
   configDays: IScheduleConfigDays[];
