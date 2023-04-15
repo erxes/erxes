@@ -30,7 +30,7 @@ export default function createErxesProxyMiddleware(
   return createProxyMiddleware({
     target:
       NODE_ENV === 'production'
-        ? `http://plugin-core-api${
+        ? `http://plugin_core_api${
             PLUGINS_INTERNAL_PORT ? `:${PLUGINS_INTERNAL_PORT}` : ''
           }`
         : 'http://localhost:3300',
