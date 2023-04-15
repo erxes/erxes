@@ -59,7 +59,8 @@ export const generateParams = queryParams => ({
   endDate: queryParams.endDate,
   userIds: queryParams.userIds,
   departmentIds: queryParams.departmentIds,
-  branchIds: queryParams.branchIds
+  branchIds: queryParams.branchIds,
+  scheduleStatus: queryParams.scheduleStatus
 });
 
 export const returnDeviceTypes = deviceType => {

@@ -67,12 +67,14 @@ const ListContainer = (props: FinalProps) => {
   const submitRequest = (
     selectedUserIds: string[],
     requestedShifts: IShift[],
+    totalBreakInMins?: number | string,
     selectedScheduleConfigId?: string
   ) => {
     sendScheduleReqMutation({
       variables: {
         userId: `${selectedUserIds}`,
         shifts: requestedShifts,
+        totalBreakInMins,
         scheduleConfigId: selectedScheduleConfigId
       }
     })
@@ -85,6 +87,7 @@ const ListContainer = (props: FinalProps) => {
     selectedDeptIds: string[],
     selectedUserIds: string[],
     requestedShifts: IShift[],
+    totalBreakInMins?: number | string,
     selectedScheduleConfigId?: string
   ) => {
     submitScheduleMutation({
@@ -93,6 +96,7 @@ const ListContainer = (props: FinalProps) => {
         departmentIds: selectedDeptIds,
         userIds: selectedUserIds,
         shifts: requestedShifts,
+        totalBreakInMins,
         scheduleConfigId: selectedScheduleConfigId
       }
     })
@@ -101,7 +105,7 @@ const ListContainer = (props: FinalProps) => {
   };
 
   const removeScheduleShifts = (scheduleId, type) => {
-    confirm(`Are you sure to remove schedele ${type}`).then(() => {
+    confirm(`Are you sure to remove schedule ${type}`).then(() => {
       (type === 'shift'
         ? removeScheduleShiftMutation({ variables: { _id: scheduleId } })
         : removeScheduleMutation({ variables: { _id: scheduleId } })

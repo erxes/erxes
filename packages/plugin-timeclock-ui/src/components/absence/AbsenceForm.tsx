@@ -159,6 +159,7 @@ export default (props: Props) => {
 
         <SelectTeamMembers
           queryParams={queryParams}
+          customField="employeeId"
           label={'Team member'}
           onSelect={onUserSelect}
           multi={false}
@@ -198,6 +199,7 @@ export default (props: Props) => {
       />
 
       <SelectTeamMembers
+        customField="employeeId"
         queryParams={queryParams}
         label={'Team member'}
         onSelect={onUserSelect}

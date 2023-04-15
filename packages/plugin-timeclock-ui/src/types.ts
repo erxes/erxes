@@ -118,12 +118,14 @@ export interface ISchedule {
   scheduleConfigId: string;
   scheduleChecked: boolean;
   submittedByAdmin: boolean;
+  totalBreakInMins?: number;
 }
 export interface IShift {
   user?: IUser;
   date?: Date;
   shiftStart: Date;
   shiftEnd: Date;
+  scheduleConfigId: string;
 }
 
 export interface IShiftSchedule {
@@ -147,12 +149,18 @@ export interface IScheduleConfigDays {
   overnightShift?: boolean;
 }
 export interface IScheduleForm {
-  [key: string]: {
-    overnightShift?: boolean;
-    shiftDate?: Date;
-    shiftStart: Date;
-    shiftEnd: Date;
-  };
+  [key: string]: IScheduleDate;
+}
+
+export interface IScheduleDate {
+  overnightShift?: boolean;
+
+  scheduleConfigId: string;
+  lunchBreakInMins: number;
+
+  shiftDate?: Date;
+  shiftStart: Date;
+  shiftEnd: Date;
 }
 
 export interface IDeviceConfig {
@@ -207,7 +215,7 @@ export type DeviceConfigsQueryResponse = {
 } & QueryResponse;
 
 export type ScheduleQueryResponse = {
-  schedulesMain: { list: IShiftSchedule[]; totalCount: number };
+  schedulesMain: { list: ISchedule[]; totalCount: number };
 } & QueryResponse;
 
 export type BranchesQueryResponse = {
@@ -247,6 +255,7 @@ export type ScheduleMutationVariables = {
   departmentIds?: string[];
   userIds?: string[];
   scheduleConfigId?: string;
+  totalBreakInMins?: number | string;
 };
 
 export type TimeLogMutationResponse = {
