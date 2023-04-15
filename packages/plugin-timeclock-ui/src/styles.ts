@@ -182,6 +182,13 @@ const FlexRow = styled.div`
   justify-content: space-between;
 `;
 
+const FlexRowLeft = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: start;
+`;
+
 const InlineBlock = styled.div`
   display: inline;
   align-items: center;
@@ -275,8 +282,12 @@ const DateName = styled.div`
   text-align: center;
 `;
 
-const Margin = styled.div`
+const MarginX = styled.div`
   margin: 0 ${dimensions.coreSpacing}px;
+`;
+
+const MarginY = styled.div`
+  margin: ${dimensions.unitSpacing}px 0;
 `;
 
 const RowField = styled.div`
@@ -326,6 +337,7 @@ export {
   SidebarActions,
   Input,
   FlexRow,
+  FlexRowLeft,
   CustomFlexRow,
   CustomWidthDiv,
   FlexColumn,
@@ -340,7 +352,8 @@ export {
   ConfigFormWrapper,
   ToggleButton,
   InlineBlock,
-  Margin,
+  MarginX,
+  MarginY,
   RowField,
   TextAlignCenter,
   TextAlignRight,

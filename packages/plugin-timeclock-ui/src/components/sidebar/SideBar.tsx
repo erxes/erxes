@@ -2,13 +2,7 @@ import { router, __ } from '@erxes/ui/src/utils';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import React, { useState } from 'react';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import {
-  FlexColumn,
-  FlexColumnCustom,
-  FlexColumnMargined,
-  SidebarActions,
-  SidebarHeader
-} from '../../styles';
+import { FlexColumnCustom, SidebarActions, SidebarHeader } from '../../styles';
 import { CustomRangeContainer } from '../../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import Button from '@erxes/ui/src/components/Button';
@@ -172,6 +166,7 @@ const LeftSideBar = (props: Props) => {
           <ControlLabel>Team members</ControlLabel>
           <SelectTeamMembers
             initialValue={currUserIds}
+            customField="employeeId"
             label="Select team member"
             name="userIds"
             queryParams={queryParams}

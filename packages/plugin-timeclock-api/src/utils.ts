@@ -837,11 +837,14 @@ const createTeamMembersObject = async (subdomain: string) => {
 };
 
 const generateFilter = async (params: any, subdomain: string, type: string) => {
-  const branchIds = params.branchIds;
-  const departmentIds = params.departmentIds;
-  const userIds = params.userIds;
-  const startDate = params.startDate;
-  const endDate = params.endDate;
+  const {
+    branchIds,
+    departmentIds,
+    userIds,
+    startDate,
+    endDate,
+    scheduleStatus
+  } = params;
 
   const totalUserIds: string[] = await generateCommonUserIds(
     subdomain,
@@ -852,6 +855,20 @@ const generateFilter = async (params: any, subdomain: string, type: string) => {
 
   const models = await generateModels(subdomain);
 
+  let scheduleFilter;
+
+  if (scheduleStatus) {
+    if (scheduleStatus.toLowerCase() === 'pending') {
+      scheduleFilter = { solved: false };
+    }
+
+    if (
+      scheduleStatus.toLowerCase() === 'approved' ||
+      scheduleStatus.toLowerCase() === 'rejected'
+    ) {
+      scheduleFilter = { status: scheduleStatus };
+    }
+  }
   const scheduleShiftSelector = {
     shiftStart: {
       $gte: fixDate(startDate),
@@ -870,7 +887,7 @@ const generateFilter = async (params: any, subdomain: string, type: string) => {
     scheduleShifts.map(scheduleShift => scheduleShift.scheduleId)
   );
 
-  let returnFilter: any = { _id: { $in: [...scheduleIds] } };
+  let returnFilter: any = { _id: { $in: [...scheduleIds] }, ...scheduleFilter };
   let userIdsGiven: boolean = false;
   let commonUserFound: boolean = true;
 

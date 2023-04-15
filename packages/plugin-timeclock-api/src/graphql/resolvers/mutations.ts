@@ -371,7 +371,14 @@ const timeclockMutations = {
 
   async submitSchedule(
     _root,
-    { branchIds, departmentIds, userIds, shifts, scheduleConfigId },
+    {
+      branchIds,
+      departmentIds,
+      userIds,
+      shifts,
+      scheduleConfigId,
+      totalBreakInMins
+    },
     { subdomain, models }: IContext
   ) {
     if (userIds.length) {
@@ -379,7 +386,8 @@ const timeclockMutations = {
         userIds,
         shifts,
         models,
-        scheduleConfigId
+        scheduleConfigId,
+        totalBreakInMins
       );
     }
 
