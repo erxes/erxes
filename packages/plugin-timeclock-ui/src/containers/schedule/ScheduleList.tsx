@@ -14,7 +14,7 @@ import {
 import { mutations, queries } from '../../graphql';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import { IBranch } from '@erxes/ui/src/team/types';
-import { generateParams } from '../../utils';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
   history: any;
@@ -135,7 +135,15 @@ export default withProps<Props>(
     graphql<Props, ScheduleQueryResponse>(gql(queries.schedulesMain), {
       name: 'listSchedulesMain',
       options: ({ queryParams }) => ({
-        variables: generateParams(queryParams),
+        variables: {
+          ...generatePaginationParams(queryParams || {}),
+          startDate: queryParams.startDate,
+          endDate: queryParams.endDate,
+          userIds: queryParams.userIds,
+          departmentIds: queryParams.departmentIds,
+          branchIds: queryParams.branchIds,
+          scheduleStatus: queryParams.scheduleStatus
+        },
         fetchPolicy: 'network-only'
       })
     }),

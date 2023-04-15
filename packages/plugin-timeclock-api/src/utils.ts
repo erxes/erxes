@@ -857,17 +857,18 @@ const generateFilter = async (params: any, subdomain: string, type: string) => {
 
   let scheduleFilter;
 
-  if (scheduleStatus.toLowerCase() === 'pending') {
-    scheduleFilter = { solved: false };
-  }
+  if (scheduleStatus) {
+    if (scheduleStatus.toLowerCase() === 'pending') {
+      scheduleFilter = { solved: false };
+    }
 
-  if (
-    scheduleStatus.toLowerCase() === 'approved' ||
-    scheduleStatus.toLowerCase() === 'rejected'
-  ) {
-    scheduleFilter = { status: scheduleStatus };
+    if (
+      scheduleStatus.toLowerCase() === 'approved' ||
+      scheduleStatus.toLowerCase() === 'rejected'
+    ) {
+      scheduleFilter = { status: scheduleStatus };
+    }
   }
-
   const scheduleShiftSelector = {
     shiftStart: {
       $gte: fixDate(startDate),
