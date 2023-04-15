@@ -2,7 +2,6 @@ import { ActionButtons } from '@erxes/ui-settings/src/styles';
 import Button from '@erxes/ui/src/components/Button';
 import FolderForm from '../../containers/folder/FolderForm';
 import { FolderItemRow } from './styles';
-import { IFolder } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
