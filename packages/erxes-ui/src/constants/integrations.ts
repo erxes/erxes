@@ -151,7 +151,7 @@ export const INTEGRATIONS = [
     name: 'Incoming Webhook',
     description: 'Configure incoming webhooks',
     inMessenger: false,
-    isAvailable: false,
+    isAvailable: true,
     kind: 'webhook',
     logo: '/images/integrations/incoming-webhook.png',
     createModal: 'webhook',
