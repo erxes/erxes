@@ -5,6 +5,7 @@ export interface ICoverSummary {
   _id?: string;
   kind: string;
   kindOfVal: number;
+  value: number;
   amount: number;
 }
 
@@ -40,6 +41,7 @@ const coverSummarySchema = new Schema(
     _id: field({ pkey: true }),
     kind: field({ type: String, label: 'Kind' }),
     kindOfVal: field({ type: Number, label: 'Kind of value' }),
+    value: field({ type: Number, label: 'Value' }),
     amount: field({ type: Number, label: 'Amount' })
   },
   { _id: false }

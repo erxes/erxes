@@ -5,10 +5,21 @@ import queryString from 'query-string';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { ListQueryVariables, CoversQueryResponse } from '../types';
+import {
+  ListQueryVariables,
+  CoversQueryResponse,
+  RemoveCoverMutationResponse
+} from '../types';
 import { mutations, queries } from '../graphql';
 import { withRouter } from 'react-router-dom';
-import { Bulk, withProps, router, Alert, Spinner } from '@erxes/ui/src';
+import {
+  Alert,
+  confirm,
+  withProps,
+  Bulk,
+  router,
+  Spinner
+} from '@erxes/ui/src';
 import { FILTER_PARAMS } from '../../constants';
 import { IQueryParams } from '@erxes/ui/src/types';
 
@@ -20,6 +31,7 @@ type Props = {
 type FinalProps = {
   coversQuery: CoversQueryResponse;
 } & Props &
+  RemoveCoverMutationResponse &
   IRouterProps;
 
 type State = {
@@ -92,11 +104,30 @@ class OrdersContainer extends React.Component<FinalProps, State> {
   };
 
   render() {
-    const { coversQuery } = this.props;
+    const { coversQuery, removeCover } = this.props;
 
     if (coversQuery.loading) {
       return <Spinner />;
     }
+
+    const remove = (_id: string) => {
+      const message = 'Are you sure?';
+
+      confirm(message).then(() => {
+        removeCover({
+          variables: { _id }
+        })
+          .then(() => {
+            // refresh queries
+            coversQuery.refetch();
+
+            Alert.success('You successfully deleted a pos.');
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          });
+      });
+    };
 
     const covers = coversQuery.posCovers || [];
 
@@ -107,7 +138,8 @@ class OrdersContainer extends React.Component<FinalProps, State> {
       onSelect: this.onSelect,
       onSearch: this.onSearch,
       isFiltered: this.isFiltered(),
-      clearFilter: this.clearFilter
+      clearFilter: this.clearFilter,
+      remove
     };
 
     const ordersList = props => {
@@ -144,6 +176,12 @@ export default withProps<Props>(
           variables: generateParams({ queryParams }),
           fetchPolicy: 'network-only'
         })
+      }
+    ),
+    graphql<Props, RemoveCoverMutationResponse, { _id: string }>(
+      gql(mutations.coversRemove),
+      {
+        name: 'removeCover'
       }
     )
   )(withRouter<IRouterProps>(OrdersContainer))
