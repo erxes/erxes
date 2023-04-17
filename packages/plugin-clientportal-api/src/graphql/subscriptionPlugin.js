@@ -1,5 +1,4 @@
 var { withFilter } = require("graphql-subscriptions");
-var { gql } = require("apollo-server-express");
 
 module.exports = {
   name: "clientportal",
@@ -23,7 +22,7 @@ module.exports = {
             payload,
             info,
             queryVariables: { _id: payload.clientPortalNotificationInserted._id },
-            buildQueryUsingSelections: (selections) => gql`
+            buildQueryUsingSelections: (selections) => `
               query Subscription_GetCPNotification($_id: String!) {
                 clientPortalNotificationDetail(_id: $_id) {
                   ${selections}
