@@ -11,7 +11,6 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 type Props = {
   company: ICompany;
   taggerRefetchQueries?: any[];
-  fields: IField[];
 };
 
 class LeftSidebar extends React.Component<Props> {
@@ -30,11 +29,11 @@ class LeftSidebar extends React.Component<Props> {
   }
 
   render() {
-    const { company, taggerRefetchQueries, fields } = this.props;
+    const { company, taggerRefetchQueries } = this.props;
 
     return (
       <Sidebar wide={true}>
-        <BasicInfoSection company={company} fields={fields} />
+        <BasicInfoSection company={company} />
         <CustomFieldsSection company={company} />
         {this.renderTrackedData()}
         {isEnabled('tags') && (

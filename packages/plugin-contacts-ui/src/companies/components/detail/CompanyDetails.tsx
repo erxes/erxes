@@ -10,13 +10,12 @@ import React from 'react';
 import RightSidebar from './RightSidebar';
 import { UserHeader } from '@erxes/ui-contacts/src/customers/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import PrintAction from '@erxes/ui-contacts/src/customers/components/common/PrintAction';
 
 type Props = {
   company: ICompany;
-  fields: IField[];
   currentUser: IUser;
   taggerRefetchQueries?: any[];
 };

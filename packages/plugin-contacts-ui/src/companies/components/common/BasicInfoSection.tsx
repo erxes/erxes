@@ -6,17 +6,16 @@ import DetailInfo from '@erxes/ui-contacts/src/companies/components/common/Detai
 
 type Props = {
   company: ICompany;
-  fields: IField[];
 };
 
 class BasicInfoSection extends React.Component<Props> {
   render() {
     const { Section } = Sidebar;
-    const { company, fields } = this.props;
+    const { company } = this.props;
 
     return (
       <Section>
-        <DetailInfo company={company} fields={fields} />
+        <DetailInfo company={company} />
       </Section>
     );
   }
