@@ -3,6 +3,7 @@ export const types = `
     _id: String
     kind: String
     kindOfVal: Float
+    value: Float
     amount: Float
   }
 
@@ -49,7 +50,7 @@ const queryParams = `
 
 export const mutations = `
   posCoversEdit(_id: String!, note: String): PosCover
-  posCoversRemove(_id: String!): String
+  posCoversRemove(_id: String!): JSON
 `;
 
 export const queries = `

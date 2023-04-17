@@ -158,6 +158,7 @@ const coverFields = `
       _id
       kind
       kindOfVal
+      value
       amount
     }
     paidDetail

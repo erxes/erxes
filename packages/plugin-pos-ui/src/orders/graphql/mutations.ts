@@ -33,7 +33,7 @@ const coversEdit = `
 `;
 
 const coversRemove = `
-  posCoversRemove($_id: String!) {
+  mutation posCoversRemove($_id: String!) {
     posCoversRemove(_id: $_id) 
   }
 `;
