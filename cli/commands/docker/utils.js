@@ -119,9 +119,7 @@ const generatePluginBlock = (configs, plugin) => {
       PORT: plugin.port || SERVICE_INTERNAL_PORT || 80,
       API_MONGO_URL: api_mongo_url,
       MONGO_URL: mongo_url,
-      LOAD_BALANCER_ADDRESS: generateLBaddress(
-        `http://plugin_${plugin.name}_api`
-      ),
+      LOAD_BALANCER_ADDRESS: generateLBaddress(`http://plugin-${plugin.name}-api`),
       ...commonEnvs(configs),
       ...(plugin.extra_env || {})
     },
@@ -478,14 +476,14 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         ],
         networks: ['erxes']
       },
-      plugin_core_api: {
+      "plugin-core-api": {
         image: `erxes/core:${(configs.core || {}).image_tag || image_tag}`,
         environment: {
           SERVICE_NAME: 'core-api',
           PORT: SERVICE_INTERNAL_PORT,
           CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || '',
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
-          LOAD_BALANCER_ADDRESS: generateLBaddress('http://plugin_core_api'),
+          LOAD_BALANCER_ADDRESS: generateLBaddress('http://plugin-core-api'),
           MONGO_URL: mongoEnv(configs),
           EMAIL_VERIFIER_ENDPOINT:
             configs.email_verifier_endpoint ||
@@ -503,8 +501,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         networks: ['erxes']
       },
       gateway: {
-        image: `erxes/gateway:${(configs.gateway || {}).image_tag ||
-          image_tag}`,
+        image: `erxes/gateway:${(configs.gateway || {}).image_tag || image_tag}`,
         environment: {
           SERVICE_NAME: 'gateway',
           PORT: SERVICE_INTERNAL_PORT,
@@ -530,13 +527,13 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         volumes: ['./enabled-services.js:/data/enabled-services.js'],
         networks: ['erxes']
       },
-      plugin_workers_api: {
+      "plugin-workers-api": {
         image: `erxes/workers:${image_tag}`,
         environment: {
           SERVICE_NAME: 'workers',
           PORT: SERVICE_INTERNAL_PORT,
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
-          LOAD_BALANCER_ADDRESS: generateLBaddress('http://plugin_workers_api'),
+          LOAD_BALANCER_ADDRESS: generateLBaddress('http://plugin-workers-api'),
           MONGO_URL: mongoEnv(configs),
           ...commonEnvs(configs),
           ...((configs.workers || {}).extra_env || {})
@@ -714,7 +711,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
 
   for (const plugin of configs.plugins || []) {
     dockerComposeConfig.services[
-      `plugin_${plugin.name}_api`
+      `plugin-${plugin.name}-api`
     ] = generatePluginBlock(configs, plugin);
 
     enabledPlugins.push(`'${plugin.name}'`);
@@ -874,10 +871,10 @@ const update = async ({ serviceNames, noimage, uis }) => {
   await cleaning();
 
   const configs = await fse.readJSON(filePath('configs.json'));
-  const image_tag = configs.image_tag || 'federation';
-
+  
   for (const name of serviceNames.split(',')) {
     const pluginConfig = (configs.plugins || []).find(p => p.name === name);
+    const image_tag = (pluginConfig && pluginConfig.image_tag) || (configs[name] && configs[name].image_tag) || configs.image_tag || 'federation';
 
     if (!noimage) {
       log(`Updating image ${name}......`);
@@ -912,14 +909,14 @@ const update = async ({ serviceNames, noimage, uis }) => {
 
       if (name === 'core') {
         await execCommand(
-          `docker service update erxes_plugin_core_api --image erxes/core:${image_tag}`
+          `docker service update erxes_plugin-core-api --image erxes/core:${image_tag}`
         );
         continue;
       }
 
       if (name === 'workers') {
         await execCommand(
-          `docker service update erxes_plugin_workers_api --image erxes/workers:${image_tag}`
+          `docker service update erxes_plugin-workers-api --image erxes/workers:${image_tag}`
         );
         continue;
       }
@@ -931,7 +928,7 @@ const update = async ({ serviceNames, noimage, uis }) => {
           : '';
 
         await execCommand(
-          `docker service update erxes_plugin_${name}_api --image ${registry}erxes/plugin-${name}-api:${tag} --with-registry-auth`
+          `docker service update erxes_plugin-${name}-api --image ${registry}erxes/plugin-${name}-api:${tag} --with-registry-auth`
         );
       } else {
         console.error('No plugin found');
@@ -967,7 +964,7 @@ const restart = async name => {
     return;
   }
 
-  await execCommand(`docker service update --force erxes_plugin_${name}_api`);
+  await execCommand(`docker service update --force erxes_plugin-${name}-api`);
 };
 
 module.exports.installerUpdateConfigs = async () => {

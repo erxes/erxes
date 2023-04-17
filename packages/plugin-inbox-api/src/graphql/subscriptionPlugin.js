@@ -1,5 +1,4 @@
 var { withFilter } = require("graphql-subscriptions");
-var { gql } = require("apollo-server-express");
 
 function queryAndMergeMissingConversationMessageData({ gatewayDataSource, payload, info }) {
   const conversationMessage = Object.values(payload)[0];
@@ -8,7 +7,7 @@ function queryAndMergeMissingConversationMessageData({ gatewayDataSource, payloa
     payload,
     info,
     queryVariables: { _id: conversationMessage._id },
-    buildQueryUsingSelections: (selections) => gql`
+    buildQueryUsingSelections: (selections) => `
           query Subscription_GetMessage($_id: String!) {
             conversationMessage(_id: $_id) {
               ${selections}
