@@ -367,7 +367,7 @@ export const receiveImportCreate = async (
     }
 
     if (
-      updatedImportHistory.failed + updatedImportHistory.success >=
+      updatedImportHistory.failed + updatedImportHistory.success ===
       updatedImportHistory.total
     ) {
       status = 'Done';
@@ -407,7 +407,7 @@ export const receiveImportCreate = async (
         importHistoryId,
         result,
         useElkSyncer,
-        percentage: Number(((result.length / total) * 100).toFixed(3))
+        percentage: Number(((result.length / total) * 100).toFixed(0))
       });
     } catch (e) {
       return models.ImportHistory.updateOne(
