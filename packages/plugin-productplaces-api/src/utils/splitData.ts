@@ -14,7 +14,7 @@ const checkSplit = async (
 ) => {
   const product = productById[pdata.productId];
 
-  if (!product.subUoms && product.subUoms.length) {
+  if (!product.subUoms || !product.subUoms.length) {
     return;
   }
 
