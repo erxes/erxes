@@ -24,7 +24,7 @@ const checkSplit = async (
     return;
   }
 
-  const checkCount = 1 / ratio;
+  const checkCount = Math.round((1 / ratio) * 100) / 100;
 
   if (checkCount < 1) {
     return;
