@@ -14,7 +14,7 @@ const coverQueries = {
   },
 
   async posCoverDetail(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.Covers.find({ _id });
+    return models.Covers.getCover(_id);
   }
 };
 

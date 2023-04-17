@@ -1,7 +1,7 @@
 import * as dayjs from 'dayjs';
 import _ from 'lodash';
 import Button from '@erxes/ui/src/components/Button';
-import Detail from '../containers/Detail';
+import Detail from '../containers/CoverDetail';
 import React from 'react';
 import { ModalTrigger, confirm } from '@erxes/ui/src';
 import { FinanceAmount } from '../../styles';
@@ -10,6 +10,7 @@ import { ICover } from '../types';
 type Props = {
   cover: ICover;
   history: any;
+  remove: (_id: string) => void;
 };
 
 class CoverRow extends React.Component<Props> {
@@ -33,15 +34,18 @@ class CoverRow extends React.Component<Props> {
 
   modalContent = _props => {
     const { cover } = this.props;
-    return <></>;
-    // return <Detail cover={cover} />;
+    return <Detail cover={cover} />;
   };
 
   render() {
-    const { cover } = this.props;
+    const { cover, remove } = this.props;
 
     const onClick = e => {
       e.stopPropagation();
+    };
+
+    const onRemove = () => {
+      remove(cover._id || '');
     };
 
     const trigger = (
@@ -50,6 +54,16 @@ class CoverRow extends React.Component<Props> {
         <td key={'endDate'}>{dayjs(cover.endDate).format('lll')}</td>
         <td key={'pos'}>{cover.posName}</td>
         <td key={'user'}>{cover.user ? cover.user.email : ''}</td>
+        <td key={'actions'} onClick={onClick}>
+          <Button
+            btnStyle="warning"
+            size="small"
+            icon="external-link-alt"
+            onClick={onRemove}
+          >
+            Delete
+          </Button>
+        </td>
       </tr>
     );
 
