@@ -270,7 +270,9 @@ export const receiveImportRemove = async (
     debugWorkers(`Failed to remove import: ${e.message}`);
     return models.ImportHistory.updateOne(
       { _id: importHistoryId },
-      { error: e.message }
+      {
+        error: `Error occurred during remove${e.message}`
+      }
     );
   }
 };
@@ -332,7 +334,9 @@ export const receiveImportCreate = async (
     } catch (e) {
       return models.ImportHistory.updateOne(
         { _id: importHistoryId },
-        { error: e.message }
+        {
+          error: `Error occurred during creating import check your fields ${e.message}`
+        }
       );
     }
 
@@ -412,7 +416,7 @@ export const receiveImportCreate = async (
     } catch (e) {
       return models.ImportHistory.updateOne(
         { _id: importHistoryId },
-        { error: e.message }
+        { error: `Error occurred during creating import ${e.message}` }
       );
     }
   };
@@ -430,7 +434,7 @@ export const receiveImportCreate = async (
   } catch (e) {
     return models.ImportHistory.updateOne(
       { _id: importHistoryId },
-      { error: e.message }
+      { error: `Error occurred during creating import ${e.message}` }
     );
   }
 

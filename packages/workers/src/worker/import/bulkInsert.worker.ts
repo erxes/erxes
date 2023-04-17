@@ -112,7 +112,9 @@ connect().then(async () => {
   } catch (e) {
     return models.ImportHistory.updateOne(
       { _id: importHistoryId },
-      { error: e.message }
+      {
+        error: `Error occurred during preparing docs please check your document "${e.message}"`
+      }
     );
   }
 
