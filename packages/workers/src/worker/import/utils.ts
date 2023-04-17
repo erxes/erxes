@@ -10,6 +10,7 @@ import CustomWorker from '../workerUtil';
 import { debugWorkers } from '../debugger';
 import { getFileUploadConfigs } from '../../messageBroker';
 import { IModels } from '../../connectionResolvers';
+import importHistory from 'src/data/resolvers/importHistory';
 
 const { ELK_SYNCER } = process.env;
 const WORKER_BULK_LIMIT = 300;
@@ -371,8 +372,8 @@ export const receiveImportCreate = async (
     }
 
     if (
-      updatedImportHistory.failed + updatedImportHistory.success ===
-      updatedImportHistory.total
+      updatedImportHistory.failed + updatedImportHistory.success >=
+      updatedImportHistory.total - 1
     ) {
       status = 'Done';
       await updateImportHistory({
