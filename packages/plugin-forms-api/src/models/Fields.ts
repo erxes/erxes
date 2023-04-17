@@ -328,11 +328,11 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
         // date
         if (validation === 'date') {
+          value = new Date(value);
+
           if (!isValidDate(value)) {
             throwError('Invalid date');
           }
-
-          value = new Date(value);
         }
 
         // objectList
