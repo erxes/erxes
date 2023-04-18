@@ -18,6 +18,7 @@ export const types = `
   type Cover {
     _id: String
     posToken: String
+    status: String
     beginDate: Date
     endDate: Date
     description: String
