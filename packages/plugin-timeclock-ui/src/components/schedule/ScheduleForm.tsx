@@ -8,7 +8,6 @@ import { IScheduleForm, IScheduleConfig } from '../../types';
 import Select from 'react-select-plus';
 import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
 import {
-  CustomLabel,
   FlexCenter,
   FlexColumn,
   FlexRow,
@@ -30,7 +29,7 @@ import { Alert, __ } from '@erxes/ui/src/utils';
 import { compareStartAndEndTime } from '../../utils';
 import Datetime from '@nateradebaugh/react-datetime';
 import Tip from '@erxes/ui/src/components/Tip';
-import { dateFormat, timeFormat } from '../../constants';
+import { dateFormat } from '../../constants';
 
 type Props = {
   scheduleOfMembers: any;

@@ -6,10 +6,19 @@ import { FormControl } from '@erxes/ui/src/components/form';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { IAbsenceType } from '../../types';
 import Uploader from '@erxes/ui/src/components/Uploader';
-import { CustomRangeContainer, FlexCenter, FlexColumn } from '../../styles';
+import {
+  CustomRangeContainer,
+  FlexCenter,
+  FlexColumn,
+  MarginY
+} from '../../styles';
 import { IAttachment } from '@erxes/ui/src/types';
-import DateRange from '../datepicker/DateRange';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
+import Datetime from '@nateradebaugh/react-datetime';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import { PopoverButton } from '@erxes/ui/src/styles/main';
+import Icon from '@erxes/ui/src/components/Icon';
 
 type Props = {
   absenceTypes: IAbsenceType[];
@@ -35,6 +44,10 @@ type DateTimeRange = {
   endTime: Date;
 };
 
+type RequestDates = {
+  dates?: Date[];
+};
+
 export default (props: Props) => {
   const {
     absenceTypes,
@@ -46,6 +59,10 @@ export default (props: Props) => {
   } = props;
 
   const { closeModal } = contentProps;
+
+  const [overlayTrigger, setOverlayTrigger] = useState<any>(null);
+
+  const [requestDates, setRequestDates] = useState<Date[]>([]);
 
   const [dateRange, setDateRange] = useState<DateTimeRange>({
     startTime: new Date(localStorage.getItem('dateRangeStart') || ''),
@@ -187,16 +204,100 @@ export default (props: Props) => {
     );
   }
 
+  const closePopover = () => {
+    if (overlayTrigger) {
+      overlayTrigger.hide();
+    }
+  };
+
+  const onDateSelectChange = dateString => {
+    const findIndex = requestDates.indexOf(dateString);
+
+    if (findIndex !== -1) {
+      requestDates.splice(findIndex, 1);
+      setRequestDates(requestDates);
+      return;
+    }
+
+    requestDates.push(dateString);
+    setRequestDates(requestDates);
+  };
+
+  const renderDay = (dateTimeProps: any, currentDate) => {
+    let isSelected = false;
+
+    console.log('cirr ', currentDate);
+    console.log('render days', requestDates);
+
+    if (requestDates.indexOf(currentDate) !== -1) {
+      console.log('selected');
+      isSelected = true;
+    }
+
+    return (
+      <td
+        {...dateTimeProps}
+        className={`rdtDay ${isSelected ? 'rdtActive' : ''}`}
+      >
+        {new Date(currentDate).getDate()}
+      </td>
+    );
+  };
+
+  const renderDateSelection = () => {
+    return (
+      <Popover id="schedule-date-select-popover" content={true}>
+        <div style={{ position: 'relative' }}>
+          <Datetime
+            open={true}
+            input={false}
+            renderDay={renderDay}
+            closeOnSelect={false}
+            timeFormat={false}
+            onChange={onDateSelectChange}
+            inputProps={{ required: false }}
+          />
+          <FlexCenter>
+            <MarginY>
+              <Button onClick={closePopover}>Close</Button>
+            </MarginY>
+          </FlexCenter>
+        </div>
+      </Popover>
+    );
+  };
+
+  const requestTimeByDay =
+    absenceTypes[absenceIdx].requestTimeType === 'by day';
+
   return (
     <FlexColumn marginNum={10}>
-      <DateRange
+      {/* <DateRange
         showTime={absenceTypes[absenceIdx].requestTimeType === 'by hour'}
         startDate={dateRange.startTime}
         endDate={dateRange.endTime}
         onChangeEnd={onDateRangeEndChange}
         onChangeStart={onDateRangeStartChange}
         onSaveButton={onSaveDateRange}
-      />
+      /> */}
+
+      <OverlayTrigger
+        ref={overlay => setOverlayTrigger(overlay)}
+        placement="left-start"
+        trigger="click"
+        overlay={renderDateSelection()}
+        container={this}
+        rootClose={this}
+      >
+        <PopoverButton>
+          {__('Please select date')}
+          <Icon icon="angle-down" />
+        </PopoverButton>
+      </OverlayTrigger>
+
+      <FlexCenter>
+        {requestTimeByDay ? `Total days: ${0} ` : `Total hours : ${0}`}
+      </FlexCenter>
 
       <SelectTeamMembers
         customField="employeeId"
