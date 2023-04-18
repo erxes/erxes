@@ -478,11 +478,7 @@ export const initBroker = async cl => {
     );
     return {
       status: 'success',
-      data: await models.Covers.updateOne(
-        { _id: cover._id },
-        { ...cover },
-        { upsert: true }
-      )
+      data: await models.Covers.findOne({ _id: cover._id })
     };
   });
 };

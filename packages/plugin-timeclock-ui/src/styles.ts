@@ -67,9 +67,12 @@ const CustomRow = styledTS<{
   margin: ${props => props.marginNum}px 0
 `;
 
-const Input = styledTS<{ round?: boolean; hasError?: boolean; align?: string }>(
-  styled.input
-)`
+const Input = styledTS<{
+  round?: boolean;
+  hasError?: boolean;
+  align?: string;
+  type?: string;
+}>(styled.input)`
   border: none;
   width: 100%;
   padding: ${dimensions.unitSpacing}px 0;
@@ -79,7 +82,11 @@ const Input = styledTS<{ round?: boolean; hasError?: boolean; align?: string }>(
     props.hasError ? colors.colorCoreRed : colors.colorShadowGray};
   background: none;
   transition: all 0.3s ease;
-
+  type: ${props => {
+    if (props.type) {
+      return props.type;
+    }
+  }}
   ${props => {
     if (props.round) {
       return `
@@ -175,6 +182,13 @@ const FlexRow = styled.div`
   justify-content: space-between;
 `;
 
+const FlexRowLeft = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: start;
+`;
+
 const InlineBlock = styled.div`
   display: inline;
   align-items: center;
@@ -268,8 +282,12 @@ const DateName = styled.div`
   text-align: center;
 `;
 
-const Margin = styled.div`
+const MarginX = styled.div`
   margin: 0 ${dimensions.coreSpacing}px;
+`;
+
+const MarginY = styled.div`
+  margin: ${dimensions.unitSpacing}px 0;
 `;
 
 const RowField = styled.div`
@@ -319,6 +337,7 @@ export {
   SidebarActions,
   Input,
   FlexRow,
+  FlexRowLeft,
   CustomFlexRow,
   CustomWidthDiv,
   FlexColumn,
@@ -333,7 +352,8 @@ export {
   ConfigFormWrapper,
   ToggleButton,
   InlineBlock,
-  Margin,
+  MarginX,
+  MarginY,
   RowField,
   TextAlignCenter,
   TextAlignRight,

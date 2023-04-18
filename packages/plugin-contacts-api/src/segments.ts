@@ -51,6 +51,8 @@ export default {
         },
         isRPC: true
       });
+
+      return { data: ids, status: 'success' };
     }
 
     if (propertyType === 'forms:form_submission') {

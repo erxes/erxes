@@ -59,6 +59,7 @@ export const types = `
   
   input ShiftsRequestInput {
     _id: String
+    scheduleConfigId: String
     overnightShift: Boolean
     configName: String
     shiftStart: Date
@@ -67,6 +68,7 @@ export const types = `
 
   type ShiftsRequest{
     _id: String
+    scheduleConfigId: String
     shiftStart: Date
     shiftEnd: Date
     solved: Boolean
@@ -83,6 +85,7 @@ export const types = `
     scheduleConfigId: String
     scheduleChecked: Boolean
     submittedByAdmin: Boolean
+    totalBreakInMins: Int
   }
 
   type IUserAbsenceInfo{ 
@@ -156,6 +159,7 @@ export const types = `
   type ScheduleConfig {
     _id: String!
     scheduleName: String
+    lunchBreakInMins: Int
     shiftStart: String
     shiftEnd: String
     configDays: [ConfigDay]
@@ -232,6 +236,7 @@ const queryParams = `
   branchIds: [String]
   departmentIds: [String]
   reportType: String
+  scheduleStatus: String
 `;
 
 const absence_params = `
@@ -300,15 +305,15 @@ export const mutations = `
 
   submitCheckInOutRequest(checkType: String,userId: String, checkTime: Date): AbsenceType
   
-  sendScheduleRequest(userId: String, shifts: [ShiftsRequestInput], scheduleConfigId: String): Schedule
-  submitSchedule(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftsRequestInput], scheduleConfigId: String): Schedule
+  sendScheduleRequest(userId: String, shifts: [ShiftsRequestInput], scheduleConfigId: String, totalBreakInMins: Int): Schedule
+  submitSchedule(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftsRequestInput], scheduleConfigId: String, totalBreakInMins: Int): Schedule
   
   solveAbsenceRequest(_id: String, status: String): Absence
   solveScheduleRequest(_id: String, status: String): Schedule
   solveShiftRequest(_id: String, status: String): ShiftsRequest
   
-  scheduleConfigAdd(scheduleName: String, scheduleConfig: [ShiftsRequestInput], configShiftStart: String, configShiftEnd: String): ScheduleConfig
-  scheduleConfigEdit(_id : String ,scheduleName: String, scheduleConfig: [ShiftsRequestInput], configShiftStart: String, configShiftEnd: String): ScheduleConfig
+  scheduleConfigAdd(scheduleName: String, lunchBreakInMins: Int,  scheduleConfig: [ShiftsRequestInput], configShiftStart: String, configShiftEnd: String): ScheduleConfig
+  scheduleConfigEdit(_id : String ,scheduleName: String, lunchBreakInMins: Int,  scheduleConfig: [ShiftsRequestInput], configShiftStart: String, configShiftEnd: String): ScheduleConfig
   scheduleConfigRemove(_id : String ): JSON
   
   payDateAdd(dateNums: [Int]): PayDate

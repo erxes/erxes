@@ -66,8 +66,6 @@ class List extends React.Component<Props, {}> {
       <Wrapper.ActionBar
         right={actionBarRight}
         left={actionBarLeft}
-        withMargin
-        wide
         background="colorWhite"
       />
     );
@@ -133,7 +131,6 @@ class List extends React.Component<Props, {}> {
         }
         hasBorder={true}
         transparent={true}
-        noPadding
       />
     );
   }

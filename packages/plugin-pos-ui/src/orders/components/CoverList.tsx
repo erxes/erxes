@@ -14,7 +14,6 @@ import { menuPos } from '../../constants';
 
 import { TableWrapper } from '../../styles';
 import { ICover } from '../types';
-import RightMenu from './RightMenu';
 import Row from './CoverRow';
 
 interface IProps extends IRouterProps {
@@ -29,6 +28,7 @@ interface IProps extends IRouterProps {
   onSelect: (values: string[] | string, key: string) => void;
   isFiltered: boolean;
   clearFilter: () => void;
+  remove: (_id: string) => void;
 }
 
 class Covers extends React.Component<IProps, {}> {
@@ -43,16 +43,7 @@ class Covers extends React.Component<IProps, {}> {
   };
 
   render() {
-    const {
-      covers,
-      history,
-      queryParams,
-      onFilter,
-      onSelect,
-      onSearch,
-      isFiltered,
-      clearFilter
-    } = this.props;
+    const { covers, history, queryParams, remove } = this.props;
 
     const mainContent = (
       <TableWrapper>
@@ -71,12 +62,17 @@ class Covers extends React.Component<IProps, {}> {
               <th>
                 <SortHandler sortField={'user'} label={__('User')} />
               </th>
-              <th>Үйлдлүүд</th>
+              <th>{__('Actions')}</th>
             </tr>
           </thead>
           <tbody id="covers">
             {(covers || []).map(cover => (
-              <Row cover={cover} key={cover._id} history={history} />
+              <Row
+                cover={cover}
+                key={cover._id}
+                history={history}
+                remove={remove}
+              />
             ))}
           </tbody>
         </Table>

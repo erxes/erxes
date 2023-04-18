@@ -1,4 +1,4 @@
-import { Alert, __ } from '@erxes/ui/src/utils';
+import { __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import Select from 'react-select-plus';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
@@ -9,7 +9,6 @@ import {
   FlexColumnMargined,
   FlexCenter,
   ConfigFormWrapper,
-  FlexRowEven,
   ToggleDisplay
 } from '../../styles';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
@@ -49,9 +48,11 @@ function ConfigForm(props: Props) {
   const [requestTime, setRequestTime] = useState(
     absenceType?.requestTimeType || 'by day'
   );
+
   const [requestType, setRequestType] = useState(
     absenceType?.requestType || 'shift request'
   );
+
   const [hoursPerDay, setHoursPerDay] = useState(8);
 
   const [payPeriod, setPayPeriod] = useState('');
@@ -170,6 +171,7 @@ function ConfigForm(props: Props) {
       endDate?: Date;
       absenceName?: string;
       scheduleName?: string;
+      lunchBreak: number;
       explRequired?: boolean;
       attachRequired?: boolean;
       shiftRequest?: boolean;
@@ -234,6 +236,7 @@ function ConfigForm(props: Props) {
         const returnVariables: {
           _id?: string;
           scheduleName?: string;
+          lunchBreakInMins?: number;
           configShiftStart?: string;
           configShiftEnd?: string;
           scheduleConfig: any[];
@@ -245,6 +248,8 @@ function ConfigForm(props: Props) {
           returnVariables._id = scheduleConfig._id;
         }
         const timeFormat = 'HH:mm';
+
+        returnVariables.lunchBreakInMins = parseInt(`${values.lunchBreak}`, 10);
 
         Object.keys(configDays).forEach(day_key => {
           if (day_key.toLocaleLowerCase() !== 'configtime') {
@@ -263,6 +268,7 @@ function ConfigForm(props: Props) {
             ).format(timeFormat);
           }
         });
+
         return returnVariables;
 
       case 'deviceConfig':
@@ -511,7 +517,7 @@ function ConfigForm(props: Props) {
         />
 
         <FlexColumnMargined marginNum={10}>
-          {renderConfigTime()}
+          {renderConfigTime(formProps)}
         </FlexColumnMargined>
 
         <FlexCenter style={{ marginTop: '10px' }}>
@@ -600,7 +606,7 @@ function ConfigForm(props: Props) {
     setConfigDays(newconfigDays);
   };
 
-  const renderConfigTime = () => {
+  const renderConfigTime = (formProps: IFormProps) => {
     return (
       <>
         <FlexRow>
@@ -615,6 +621,32 @@ function ConfigForm(props: Props) {
             changeStartTime={onStartTimeChange}
             timeOnly={true}
           />
+        </FlexRow>
+
+        <FlexRow>
+          <ControlLabel>Lunch break</ControlLabel>
+
+          <div
+            style={{
+              display: 'flex',
+              width: '67%',
+              alignItems: 'center'
+            }}
+          >
+            <div style={{ width: '10%' }}>
+              <FormControl
+                {...formProps}
+                defaultValue={
+                  scheduleConfig ? scheduleConfig?.lunchBreakInMins : 30
+                }
+                align="center"
+                name="lunchBreak"
+                type="number"
+                required={true}
+              />
+            </div>
+            <div style={{ width: '80%' }}>minutes</div>
+          </div>
         </FlexRow>
         <FlexRow>
           <ControlLabel>Valid Check-In</ControlLabel>

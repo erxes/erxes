@@ -36,6 +36,7 @@ type Props = {
   scheduleConfigs?: IScheduleConfig[];
 
   deviceConfigs?: IDeviceConfig[];
+
   deviceConfigsTotalCount?: number;
 
   loading?: boolean;
@@ -283,8 +284,9 @@ function ConfigList(props: Props) {
         <thead>
           <tr>
             <th>Schedule Name</th>
-            <th>check in</th>
-            <th>check out</th>
+            <th>Check in</th>
+            <th>Check out</th>
+            <th>Lunch break</th>
             <th>Valid check in</th>
             <th>Valid check out</th>
             <th>Overtime shift</th>
@@ -301,6 +303,7 @@ function ConfigList(props: Props) {
                   <td>{scheduleConfig.scheduleName}</td>
                   <td>{scheduleConfig.shiftStart}</td>
                   <td>{scheduleConfig.shiftEnd}</td>
+                  <td>{scheduleConfig.lunchBreakInMins}</td>
                   {scheduleConfig.configDays.map(configDay => {
                     if (
                       configDay.configName?.toLocaleLowerCase() ===
