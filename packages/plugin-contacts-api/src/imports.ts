@@ -95,19 +95,9 @@ export default {
           doc.createdAt = new Date();
           doc.modifiedAt = new Date();
 
-          if (
-            doc.primaryEmail ||
-            doc.code ||
-            doc.primaryName ||
-            doc.primaryPhone
-          ) {
+          if (doc.primaryEmail) {
             const previousCompany = await models.Companies.findOne({
-              $or: [
-                { primaryEmail: doc.primaryEmail },
-                { code: doc.code },
-                { primartName: doc.primartName },
-                { primaryPhone: doc.primaryPhone }
-              ]
+              $or: [{ primaryEmail: doc.primaryEmail }]
             });
 
             if (previousCompany) {

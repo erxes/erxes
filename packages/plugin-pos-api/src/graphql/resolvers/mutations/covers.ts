@@ -15,7 +15,7 @@ const coverMutations = {
     });
   },
 
-  async coversRemove(
+  async posCoversRemove(
     _root,
     { _id }: { _id: string },
     { models, subdomain }: IContext
@@ -23,14 +23,19 @@ const coverMutations = {
     const cover = await models.Covers.getCover(_id);
     const toPos = await models.Pos.getPos({ token: cover.posToken });
 
-    await sendPosclientMessage({
+    const posclientCover = await sendPosclientMessage({
       subdomain,
       action: 'covers.remove',
       data: {
         cover
       },
-      pos: toPos
+      pos: toPos,
+      isRPC: true
     });
+
+    if (posclientCover.status !== 'reconf') {
+      throw new Error('error of posclient');
+    }
 
     return await models.Covers.deleteCover(_id);
   }

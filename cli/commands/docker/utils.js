@@ -874,7 +874,7 @@ const update = async ({ serviceNames, noimage, uis }) => {
   
   for (const name of serviceNames.split(',')) {
     const pluginConfig = (configs.plugins || []).find(p => p.name === name);
-    const image_tag = pluginConfig.image_tag || (configs[name] && configs[name].image_tag) || configs.image_tag || 'federation';
+    const image_tag = (pluginConfig && pluginConfig.image_tag) || (configs[name] && configs[name].image_tag) || configs.image_tag || 'federation';
 
     if (!noimage) {
       log(`Updating image ${name}......`);

@@ -674,24 +674,6 @@ const createScheduleObjOfMembers = async (
 
   const totalScheduleIds = totalSchedules.map(schedule => schedule._id);
 
-  const totalScheduleConfigIds: string[] = [];
-
-  totalSchedules.forEach(schedule => {
-    if (schedule.scheduleConfigId) {
-      totalScheduleConfigIds.push(schedule.scheduleConfigId);
-    }
-  });
-
-  const totalScheduleConfigShifts = await models.Shifts.find({
-    scheduleConfigId: {
-      $in: totalScheduleConfigIds
-    }
-  });
-
-  const totalScheduleConfigs = await models.ScheduleConfigs.find({
-    _id: { $in: [...totalScheduleConfigIds] }
-  });
-
   const totalScheduleShifts = await models.Shifts.find({
     $and: [
       { scheduleId: { $in: totalScheduleIds } },
@@ -708,6 +690,24 @@ const createScheduleObjOfMembers = async (
     ]
   });
 
+  const totalScheduleConfigIds: string[] = [];
+
+  totalScheduleShifts.forEach(scheduleShift => {
+    if (scheduleShift.scheduleConfigId) {
+      totalScheduleConfigIds.push(scheduleShift.scheduleConfigId);
+    }
+  });
+
+  const totalScheduleConfigShifts = await models.Shifts.find({
+    scheduleConfigId: {
+      $in: totalScheduleConfigIds
+    }
+  });
+
+  const totalScheduleConfigs = await models.ScheduleConfigs.find({
+    _id: { $in: [...totalScheduleConfigIds] }
+  });
+
   for (const teamMemberId of teamMemberIds) {
     const empSchedulesDict: any = {};
 
@@ -720,31 +720,36 @@ const createScheduleObjOfMembers = async (
         scheduleShift => scheduleShift.scheduleId === empSchedule._id
       );
 
-      let currEmpScheduleConfig = {};
-      if (empSchedule.scheduleConfigId) {
-        const currScheduleConfigs = totalScheduleConfigShifts.filter(
-          scheduleConfig =>
-            scheduleConfig.scheduleConfigId === empSchedule.scheduleConfigId
-        );
-
-        currScheduleConfigs.forEach(scheduleConfig => {
-          currEmpScheduleConfig[scheduleConfig.configName || ''] = {
-            configShiftStart: scheduleConfig.configShiftStart,
-            configShiftEnd: scheduleConfig.configShiftEnd
-          };
-        });
-      }
-
       for (const scheduleShift of currEmployeeScheduleShifts) {
         const shift_date_key = dayjs(scheduleShift.shiftStart).format(
           dateFormat
         );
-        // if schedule has config
-        if (empSchedule.scheduleConfigId) {
+
+        // if schedule shift has a config
+        if (scheduleShift.scheduleConfigId) {
+          // add ValidCheckin ValidCheckout
+          let currEmpScheduleConfig = {};
+
           const getScheduleConfig = totalScheduleConfigs.find(
             scheduleConfig =>
-              scheduleConfig._id === empSchedule.scheduleConfigId
+              scheduleConfig._id === scheduleShift.scheduleConfigId
           );
+
+          const scheduleConfigShifts =
+            getScheduleConfig &&
+            totalScheduleConfigShifts.filter(
+              scheduleConfigShift =>
+                scheduleConfigShift.configShiftStart &&
+                scheduleConfigShift.configShiftEnd &&
+                scheduleConfigShift.scheduleConfigId === getScheduleConfig._id
+            );
+
+          scheduleConfigShifts?.forEach(scheduleConfigShift => {
+            currEmpScheduleConfig[scheduleConfigShift.configName || ''] = {
+              configShiftStart: scheduleConfigShift.configShiftStart,
+              configShiftEnd: scheduleConfigShift.configShiftEnd
+            };
+          });
 
           currEmpScheduleConfig = {
             ...currEmpScheduleConfig,
@@ -762,16 +767,17 @@ const createScheduleObjOfMembers = async (
                   getScheduleConfig?.shiftEnd
               )
           };
-          // if there's config already, put all in array
+          // if there're config(s) already, put all in array
           if (shift_date_key in empSchedulesDict) {
-            const existingSchedule = empSchedulesDict[shift_date_key];
+            const existingSchedules = empSchedulesDict[shift_date_key];
             empSchedulesDict[shift_date_key] = [
-              existingSchedule,
+              ...existingSchedules,
               currEmpScheduleConfig
             ];
             continue;
           }
-          empSchedulesDict[shift_date_key] = currEmpScheduleConfig;
+
+          empSchedulesDict[shift_date_key] = [currEmpScheduleConfig];
         }
         // else compare with schedule shift start, shift end
         else {
@@ -791,16 +797,16 @@ const createScheduleObjOfMembers = async (
               dayjs(new Date().toLocaleDateString() + ' ' + getShiftEndTime)
           };
 
-          // if there's config already, put all in array
+          // if there're config(s) already, put all in array
           if (shift_date_key in empSchedulesDict) {
-            const existingSchedule = empSchedulesDict[shift_date_key];
+            const existingSchedules = empSchedulesDict[shift_date_key];
             empSchedulesDict[shift_date_key] = [
-              existingSchedule,
+              ...existingSchedules,
               currEmpSchedule
             ];
             continue;
           }
-          empSchedulesDict[shift_date_key] = currEmpSchedule;
+          empSchedulesDict[shift_date_key] = [currEmpSchedule];
         }
       }
     }

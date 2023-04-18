@@ -78,7 +78,6 @@ export const createScheduleShiftsByUserIds = async (
   userIds: string[],
   shifts,
   models: IModels,
-  scheduleConfigId?: string,
   totalBreakInMins?: number
 ) => {
   let schedule;
@@ -88,7 +87,6 @@ export const createScheduleShiftsByUserIds = async (
       solved: true,
       status: 'Approved',
       submittedByAdmin: true,
-      scheduleConfigId: `${scheduleConfigId}`,
       totalBreakInMins
     });
 
