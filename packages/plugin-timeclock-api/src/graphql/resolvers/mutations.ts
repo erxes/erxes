@@ -371,14 +371,7 @@ const timeclockMutations = {
 
   async submitSchedule(
     _root,
-    {
-      branchIds,
-      departmentIds,
-      userIds,
-      shifts,
-      scheduleConfigId,
-      totalBreakInMins
-    },
+    { branchIds, departmentIds, userIds, shifts, totalBreakInMins },
     { subdomain, models }: IContext
   ) {
     if (userIds.length) {
@@ -386,7 +379,6 @@ const timeclockMutations = {
         userIds,
         shifts,
         models,
-        scheduleConfigId,
         totalBreakInMins
       );
     }
@@ -415,12 +407,7 @@ const timeclockMutations = {
       return concatBranchDept.indexOf(value) === pos;
     });
 
-    return createScheduleShiftsByUserIds(
-      unionOfUserIds,
-      shifts,
-      models,
-      scheduleConfigId
-    );
+    return createScheduleShiftsByUserIds(unionOfUserIds, shifts, models);
   },
 
   scheduleRemove(_root, { _id }, { models }: IContext) {
