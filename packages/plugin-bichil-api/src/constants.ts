@@ -48,3 +48,29 @@ export const PIVOT_REPORT_COLUMNS = [
     ]
   ]
 ];
+
+export const SALARY_FIELDS_MAP = {
+  'ажилтаны код': 'employeeId',
+  'ажиллавал зохих цаг': 'totalWorkHours',
+  'ажилласан цаг': 'totalWorkedHours',
+  'үндсэн цалин': 'mainSalary',
+  урамшуулал: 'bonus',
+  нэмэгдэл: 'addition',
+  'эрхлэгч томилолт': 'appointment',
+  kpi: 'kpi',
+  эамралт: 'vacation',
+  'нийт нэмэгдэл': 'totalAddition',
+  хоцролт: 'lateHoursDeduction',
+  'үр дүн хасалт': 'resultDeduction',
+  'нийт хасалт': 'totalDeduction',
+  'нийт цалин': 'totalSalary',
+  'урьдчилгаа цалин': 'preliminarySalary',
+  авлага: 'receivable',
+  эмндш: 'ndsh',
+  ххоат: 'hhoat',
+  'нийт суутгал': 'mainDeduction',
+  'bi /сан/': 'biSan',
+  'ярианы төлбөр': 'phoneCharge',
+  'татвар хөнгөлөлт авлага': 'taxReceivable',
+  'гарт олгох цалин': 'salaryOnHand'
+};

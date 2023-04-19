@@ -16,8 +16,8 @@ module.exports = {
   bichilExportReportBtn: './bichilExportReportBtn',
   menus: [
     {
-      text: 'Bichils',
-      to: '/bichils',
+      text: 'Bichil Globus',
+      to: '/bichil/salary',
       image: '/images/icons/erxes-18.svg',
       location: 'settings',
       scope: 'bichil'

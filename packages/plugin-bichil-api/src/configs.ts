@@ -6,6 +6,11 @@ import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { buildFile } from './reportExport';
+import * as bodyParser from 'body-parser';
+import * as multer from 'multer';
+import * as cors from 'cors';
+import * as cookieParser from 'cookie-parser';
+import userMiddleware, { handleUpload } from './utils';
 
 export let mainDb;
 export let debug;
@@ -23,13 +28,43 @@ export default {
     };
   },
 
-  apolloServerContext: async context => {
+  apolloServerContext: async (context, req, res) => {
+    const subdomain = getSubdomain(req);
+    const models = await generateModels(subdomain);
+
+    const requestInfo = {
+      secure: req.secure,
+      cookies: req.cookies,
+      headers: req.headers
+    };
+
+    context.subdomain = subdomain;
+    context.models = models;
+
+    context.requestInfo = requestInfo;
+    context.res = res;
+
     return context;
   },
+
+  // postHandlers: [
+  //   { path: `/upload-salary`, method: uploader },
+  // ],
+
+  middlewares: [cookieParser(), userMiddleware],
 
   onServerInit: async options => {
     mainDb = options.db;
     const app = options.app;
+
+    const { DOMAIN } = process.env;
+
+    const corsOptions = {
+      credentials: true,
+      origin: DOMAIN || 'http://localhost:3000'
+    };
+
+    app.use(cors(corsOptions));
 
     app.get(
       '/bichil-report-export',
@@ -45,6 +80,37 @@ export default {
 
         return res.send(result.response);
       })
+    );
+
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({ extended: true }));
+
+    const upload = multer({ dest: '../uploads/' });
+    app.post(
+      '/upload-salary',
+      upload.single('file'),
+      async (req, res, next) => {
+        if (!req.user) {
+          return res.status(401).send('Unauthorized');
+        }
+
+        const file = req.file;
+        const title = req.body.title || 'Untitled';
+
+        if (!file) {
+          return res.status(400).send('No file uploaded.');
+        }
+
+        const subdomain = getSubdomain(req);
+
+        try {
+          const result = await handleUpload(subdomain, req.user, file, title);
+
+          res.send(result);
+        } catch (e) {
+          return res.status(400).send(e.message);
+        }
+      }
     );
 
     initBroker(options.messageBrokerClient);

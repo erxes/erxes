@@ -10,7 +10,9 @@ import {
   bichilTimeclockReportPivot,
   bichilTimeclockReportPreliminary
 } from './utils';
+import { paginate } from '@erxes/api-utils/src/core';
 import { IReport } from '../../models/definitions/timeclock';
+import { salarySchema } from '../../models/definitions/salary';
 
 const bichilQueries = {
   bichils(_root, _args, _context: IContext) {
@@ -115,6 +117,40 @@ const bichilQueries = {
       list: returnReport,
       totalCount: totalTeamMemberIds.length
     };
+  },
+
+  async bichilSalaryReport(_root, args: any, { models }: IContext) {
+    const { page, perPage, employeeId } = args;
+
+    console.log('models ', models);
+
+    const qry: any = {};
+
+    if (employeeId) {
+      qry.employeeId = employeeId;
+    }
+
+    const list = await paginate(models.Salaries.find(qry), { page, perPage });
+    const totalCount = await models.Salaries.find(qry).countDocuments();
+
+    return { list, totalCount };
+  },
+
+  bichilSalaryLabels(_root, _args, _context: IContext) {
+    const labels: any = {};
+    const exclude = ['createdAt', 'createdBy'];
+
+    Object.keys(salarySchema.paths).forEach(path => {
+      if (
+        salarySchema.paths[path].options.label === undefined ||
+        exclude.includes(path)
+      ) {
+        return;
+      }
+      labels[path] = salarySchema.paths[path].options.label;
+    });
+
+    return labels;
   }
 };
 

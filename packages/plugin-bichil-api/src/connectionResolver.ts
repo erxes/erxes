@@ -33,6 +33,8 @@ import {
   ITimeClockDocument,
   ITimeLogDocument
 } from './models/definitions/timeclock';
+import { ISalaryModel, loadSalaryClass } from './models/Salary';
+import { ISalaryDocument } from './models/definitions/salary';
 
 export interface IModels {
   Timeclocks: ITimeModel;
@@ -44,6 +46,7 @@ export interface IModels {
   PayDates: IPayDateModel;
   ScheduleConfigs: IScheduleConfigModel;
   DeviceConfigs: IDeviceConfigModel;
+  Salaries: ISalaryModel;
 }
 
 export interface IContext extends IMainContext {
@@ -99,6 +102,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.TimeLogs = db.model<ITimeLogDocument, ITimeLogModel>(
     'timeclock_time_log',
     loadTimeLogClass(models)
+  );
+
+  models.Salaries = db.model<ISalaryDocument, ISalaryModel>(
+    'bichil_salaries',
+    loadSalaryClass(models)
   );
 
   return models;
