@@ -20,7 +20,7 @@ async function copyDir(src, dest) {
   }
 }
 async function main() {
-  await copyDir('./src/private', `./dist/core/src/private`);
+  await copyDir('./src/private', `./dist/workers/src/private`);
 }
 
 main()
