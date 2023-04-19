@@ -83,6 +83,7 @@ export type CalculatedRule = {
 };
 
 export type OrderItem = {
+  itemId: string;
   productId: string;
   quantity: number;
   price: number;

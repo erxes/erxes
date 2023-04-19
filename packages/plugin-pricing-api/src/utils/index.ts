@@ -105,9 +105,9 @@ export const checkPricing = async (
   };
 
   // Prepare object to save calculated data
-  for (const productId of productIds) {
-    if (!Object.keys(result).includes(productId)) {
-      result[productId] = {
+  for (const item of orderItems) {
+    if (!Object.keys(result).includes(item.itemId)) {
+      result[item.itemId] = {
         type: '',
         value: 0,
         bonusProducts: []
@@ -232,14 +232,14 @@ export const checkPricing = async (
 
         // Finalize values
         if (type !== 'bonus') {
-          result[item.productId].type = type;
+          result[item.itemId].type = type;
 
           // Priority calculation
           if (plan.isPriority) {
-            result[item.productId].value += value;
+            result[item.itemId].value += value;
           } else {
-            if (result[item.productId].value < value) {
-              result[item.productId].value = value;
+            if (result[item.itemId].value < value) {
+              result[item.itemId].value = value;
             }
           }
         }
@@ -247,12 +247,12 @@ export const checkPricing = async (
         if (type === 'bonus') {
           // Priority calculation
           if (plan.isPriority) {
-            result[item.productId].bonusProducts = [
-              ...result[item.productId].bonusProducts,
+            result[item.itemId].bonusProducts = [
+              ...result[item.itemId].bonusProducts,
               ...bonusProducts
             ];
           } else {
-            result[item.productId].bonusProducts = bonusProducts;
+            result[item.itemId].bonusProducts = bonusProducts;
           }
         }
 
@@ -263,9 +263,9 @@ export const checkPricing = async (
     // Calculate bundle
     if (plan.applyType === 'bundle') {
       appliedBundleItems.map((item: any) => {
-        if (result[item.productId].type !== 'bonus') {
-          result[item.productId].value = Math.floor(
-            (result[item.productId].value / item.quantity) * appliedBundleCounts
+        if (result[item.itemId].type !== 'bonus') {
+          result[item.itemId].value = Math.floor(
+            (result[item.itemId].value / item.quantity) * appliedBundleCounts
           );
         }
       });
