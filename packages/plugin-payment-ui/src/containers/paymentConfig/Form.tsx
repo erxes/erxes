@@ -4,11 +4,13 @@ import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import gql from 'graphql-tag';
 import React from 'react';
-import { useLazyQuery } from 'react-apollo';
+import { useQuery } from 'react-apollo';
+import { useState } from 'react';
 
 import ConfigForm from '../../components/paymentConfig/Form';
 import { mutations, queries } from '../../graphql';
 import { getGqlString } from '../utils';
+import { EmptyState } from '@erxes/ui/src';
 
 type Props = {
   closeModal: () => void;
@@ -16,23 +18,25 @@ type Props = {
 };
 
 const FormContainer = (props: Props) => {
-  const [getIntegrations, { data, loading }] = useLazyQuery<
-    LeadIntegrationsQueryResponse
-  >(gql(integrationsQueries.integrations), {
-    fetchPolicy: 'network-only',
-    variables: {
-      kind: 'lead',
-      searchValue: ''
+  const [searchValue, setSearchValue] = useState('');
+
+  const { data, loading, error } = useQuery<LeadIntegrationsQueryResponse>(
+    gql(integrationsQueries.integrations),
+    {
+      fetchPolicy: 'network-only',
+      variables: {
+        kind: 'lead',
+        searchValue
+      }
     }
-  });
+  );
+
+  if (error) {
+    return <EmptyState image="/images/actions/5.svg" text={error.message} />;
+  }
 
   const onSearch = (value: string) => {
-    getIntegrations({
-      variables: {
-        searchValue: value,
-        kind: 'lead'
-      }
-    });
+    setSearchValue(value);
   };
 
   const renderButton = ({
