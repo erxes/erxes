@@ -1,5 +1,4 @@
 var { withFilter } = require("graphql-subscriptions");
-var { gql } = require("apollo-server-express");
 
 module.exports = {
   name: "chats",
@@ -17,7 +16,7 @@ module.exports = {
             payload,
             info,
             queryVariables: { _id: payload.chatMessageInserted._id },
-            buildQueryUsingSelections: (selections) => gql`
+            buildQueryUsingSelections: (selections) => `
               query Subscription_GetChatMessage($_id: String!) {
                 chatMessageDetail(_id: $_id) {
                   ${selections}

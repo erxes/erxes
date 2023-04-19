@@ -37,6 +37,8 @@
     "updateUserNames": "node_modules/.bin/ts-node src/commands/updateUserNames.ts"
   },
   "dependencies": {
+    "apollo-server-core": "^3.6.1",
+    "apollo-server-express": "^3.6.1",
     "apollo-datasource-rest": "^0.5.1",
     "aws-sdk": "^2.151.0",
     "bcryptjs": "^2.4.3",

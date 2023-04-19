@@ -75,7 +75,7 @@ const findContentItemName = async (
       name = await sendContactsMessage({
         subdomain,
         action: 'customers.getCustomerName',
-        data: { customer },
+        data: customer,
         isRPC: true,
         defaultValue: 'Unknown'
       });

@@ -67,6 +67,7 @@ export interface ISchedule {
   scheduleConfigId?: string;
   scheduleChecked?: boolean;
   submittedByAdmin?: boolean;
+  totalBreakInMins?: number;
 }
 
 export interface IScheduleDocument extends ISchedule, Document {
@@ -99,6 +100,7 @@ export interface IPayDateDocument extends IPayDate, Document {
 }
 export interface IScheduleConfig {
   scheduleName?: string;
+  lunchBreakInMins: number;
   shiftStart?: string;
   shiftEnd?: string;
 }
@@ -250,6 +252,11 @@ export const scheduleSchema = new Schema({
     type: Boolean,
     label: 'Whether schedule was submitted/assigned directly by an admin',
     default: false
+  }),
+  totalBreakInMins: field({
+    type: Number,
+    label: 'Total break time in mins',
+    default: false
   })
 });
 
@@ -277,6 +284,11 @@ export const scheduleShiftSchema = new Schema({
     label: 'to be sure of whether shift occurs overnight'
   }),
 
+  chosenScheduleConfigId: field({
+    type: String,
+    label: '_id of a chosen schedule config when creating schedule'
+  }),
+
   solved: field({
     type: Boolean,
     default: false,
@@ -300,7 +312,15 @@ export const payDateSchema = new Schema({
 
 export const scheduleConfigSchema = new Schema({
   _id: field({ pkey: true }),
-  scheduleName: field({ type: String, label: 'Name of the schedule' }),
+  scheduleName: field({
+    type: String,
+    label: 'Name of the schedule'
+  }),
+  lunchBreakInMins: field({
+    type: Number,
+    label: 'Lunch break in mins',
+    default: 30
+  }),
   shiftStart: field({
     type: String,
     label: 'starting time of shift'

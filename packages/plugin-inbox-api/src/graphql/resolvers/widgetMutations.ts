@@ -99,19 +99,21 @@ export const pConversationClientMessageInserted = async (
     channelMemberIds
   });
 
-  sendCoreMessage({
-    subdomain,
-    action: 'sendMobileNotification',
-    data: {
-      title: integration ? integration.name : 'New message',
-      body: message.content,
-      receivers: channelMemberIds,
+  if (message.content) {
+    sendCoreMessage({
+      subdomain,
+      action: 'sendMobileNotification',
       data: {
-        type: 'conversation',
-        id: conversation._id
+        title: integration ? integration.name : 'New message',
+        body: message.content,
+        receivers: channelMemberIds,
+        data: {
+          type: 'conversation',
+          id: conversation._id
+        }
       }
-    }
-  });
+    });
+  }
 };
 
 export const getMessengerData = async (

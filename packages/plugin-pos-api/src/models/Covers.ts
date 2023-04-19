@@ -5,7 +5,7 @@ export interface ICoverModel extends Model<ICoverDocument> {
   getCover(_id: string): Promise<ICoverDocument>;
   createCover(doc: ICover): Promise<ICoverDocument>;
   updateCover(_id: string, doc: ICover): Promise<ICoverDocument>;
-  deleteCover(_id: string): Promise<String>;
+  deleteCover(_id: string): Promise<any>;
 }
 
 export const loadCoverClass = models => {
@@ -29,7 +29,7 @@ export const loadCoverClass = models => {
       return models.Covers.findOne({ _id }).lean();
     }
 
-    public static async deleteCover(_id: string, doc: ICover) {
+    public static async deleteCover(_id: string) {
       return models.Covers.deleteOne({ _id });
     }
   }
