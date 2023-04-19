@@ -17,6 +17,7 @@ export const clientPortalCreateTask = gql`
     $subject: String!
     $description: String
     $priority: String
+    $attachments: [AttachmentInput]
   ) {
     clientPortalCreateCard(
       type: $type
@@ -24,6 +25,7 @@ export const clientPortalCreateTask = gql`
       subject: $subject
       description: $description
       priority: $priority
+      attachments: $attachments
     )
   }
 `;

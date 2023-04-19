@@ -136,6 +136,7 @@ export type ClientPortalConfig = {
   googleRedirectUri?: string;
   googleClientSecret?: string;
   facebookAppId?: string;
+  erxesAppToken?: string;
 
   kbToggle?: boolean;
   publicTaskToggle?: boolean;

@@ -55,6 +55,7 @@ export const commonFields = `
   googleClientSecret
   googleRedirectUri
   facebookAppId
+  erxesAppToken
 
   kbToggle
   publicTaskToggle
