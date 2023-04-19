@@ -175,8 +175,8 @@ moduleRequireLogin(webbuilderQueries);
 
 checkPermission(webbuilderQueries, 'webbuilderPagesMain', 'showWebbuilder');
 checkPermission(webbuilderQueries, 'webbuilderPageDetail', 'showWebbuilder');
-
 checkPermission(webbuilderQueries, 'webbuilderContentTypes', 'showWebbuilder');
+
 checkPermission(
   webbuilderQueries,
   'webbuilderContentTypesMain',
@@ -202,7 +202,6 @@ checkPermission(
   'webbuilderTemplateDetail',
   'showWebbuilder'
 );
-
 checkPermission(webbuilderQueries, 'webbuilderSites', 'showWebbuilder');
 checkPermission(
   webbuilderQueries,

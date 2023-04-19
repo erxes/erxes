@@ -13,7 +13,7 @@ const toMoney = value => {
 const getCustomFields = async ({ subdomain }) => {
   let fields: any[] = [];
 
-  for (const cardType of ['task', 'ticket', 'deal']) {
+  for (const cardType of ['task', 'ticket', 'deal', 'purchase']) {
     let items = await sendFormsMessage({
       subdomain,
       action: 'fields.fieldsCombinedByContentType',
@@ -86,7 +86,9 @@ export default {
     if (stage.type == 'deal') {
       collection = models.Deals;
     }
-
+    if (stage.type == 'purchase') {
+      collection = models.Purchase;
+    }
     if (stage.type == 'ticket') {
       collection = models.Tickets;
     }

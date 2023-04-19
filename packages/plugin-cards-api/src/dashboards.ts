@@ -1,12 +1,15 @@
 export default {
   schemaNames: [
     'Deals',
+    'Purchase',
     'Tasks',
     'Tickets',
     'DealsAssigneduser',
+    'PurchasesAssigneduser',
     'TasksAssigneduser',
     'TicketsAssigneduser',
     'DealsLabel',
+    'PurchaseLabel',
     'TasksLabel',
     'TicketsLabel',
     'DealsProductsData',
@@ -17,5 +20,5 @@ export default {
     'PipelineLabels',
     'Stages'
   ],
-  types: ['Deals', 'Tasks', 'Tickets']
+  types: ['Deals', 'Purchase', 'Tasks', 'Tickets']
 };

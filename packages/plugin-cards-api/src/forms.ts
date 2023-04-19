@@ -14,6 +14,10 @@ export default {
     {
       description: 'Sales pipelines',
       type: 'deal'
+    },
+    {
+      description: 'Purchase',
+      type: 'purchase'
     }
   ],
   fields: generateFields,

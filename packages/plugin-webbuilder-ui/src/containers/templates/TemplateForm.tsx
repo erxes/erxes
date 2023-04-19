@@ -33,9 +33,7 @@ function TemplateFormContainer(props: FinalProps) {
         const {
           data: { webbuilderTemplatesUse }
         } = res;
-
         Alert.success('Successfully created a website');
-
         window.location.href = `/xbuilder/sites/edit/${webbuilderTemplatesUse}`;
       })
       .catch(e => {

@@ -28,10 +28,8 @@ export const siteSchema = new Schema({
     optional: true,
     label: 'Cover image'
   }),
-
   createdBy: field({ type: String, optional: true, label: 'Created by' }),
   modifiedBy: field({ type: String, optional: true, label: 'Modified by' }),
-
   createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
   modifiedAt: field({ type: Date, label: 'Modified at', esType: 'date' })
 });

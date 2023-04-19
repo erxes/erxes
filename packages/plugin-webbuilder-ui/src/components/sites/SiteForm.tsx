@@ -72,7 +72,6 @@ class SiteForm extends React.Component<Props, State> {
   onLoad = (loading?: boolean) => {
     this.setState({ loading: loading ? loading : false });
   };
-
   renderLeftSidebar() {
     const { pages = [], _id, queryParams } = this.props;
     const { showDarkMode, showContentType, showPage } = this.state;
@@ -93,7 +92,6 @@ class SiteForm extends React.Component<Props, State> {
             onClick={() => this.handleDarkMode()}
           />
         </CollapseLeftMenu>
-
         <SubTitle
           className="collapses"
           onClick={() => this.toggleSubTitle('showPage', !showPage)}
@@ -117,7 +115,6 @@ class SiteForm extends React.Component<Props, State> {
             />
           </LeftSidebarContent>
         )}
-
         <SubTitle
           className="collapses"
           onClick={() =>
@@ -148,11 +145,9 @@ class SiteForm extends React.Component<Props, State> {
     const { _id, queryParams, pages } = this.props;
     const { name, settingsObject, showDarkMode, type, loading } = this.state;
     const breadcrumb = [{ title: 'Sites', link: '/xbuilder' }, { title: name }];
-
     return (
       <>
         <Wrapper.Header title={'Site Edit Form'} breadcrumb={breadcrumb} />
-
         <SiteFormContainer showDarkMode={showDarkMode}>
           <FlexItem>
             {this.renderLeftSidebar()}

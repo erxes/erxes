@@ -14,6 +14,7 @@ import {
   loadItemClass
 } from './models/Checklists';
 import { IDealModel, loadDealClass } from './models/Deals';
+import { IPurchaseModel, loadPurchaseClass } from './models/Purchase';
 import { ITaskModel, loadTaskClass } from './models/Tasks';
 import { ITicketModel, loadTicketClass } from './models/Tickets';
 import { IGrowthHackModel, loadGrowthHackClass } from './models/GrowthHacks';
@@ -24,6 +25,7 @@ import {
   IStageDocument
 } from './models/definitions/boards';
 import { IDealDocument } from './models/definitions/deals';
+import { IPurchaseDocument } from './models/definitions/purchase';
 import { ITaskDocument } from './models/definitions/tasks';
 import { ITicketDocument } from './models/definitions/tickets';
 import { IGrowthHackDocument } from './models/definitions/growthHacks';
@@ -48,6 +50,7 @@ export interface IModels {
   Pipelines: IPipelineModel;
   Stages: IStageModel;
   Deals: IDealModel;
+  Purchase: IPurchaseModel;
   Tasks: ITaskModel;
   Tickets: ITicketModel;
   GrowthHacks: IGrowthHackModel;
@@ -88,6 +91,10 @@ export const loadClasses = (
     'deals',
     loadDealClass(models, subdomain)
   );
+  models.Purchase = db.model<IPurchaseDocument, IPurchaseModel>(
+    'purchase',
+    loadPurchaseClass(models, subdomain)
+  );
   models.Tasks = db.model<ITaskDocument, ITaskModel>(
     'tasks',
     loadTaskClass(models, subdomain)
@@ -124,4 +131,3 @@ export const generateModels = createGenerateModels<IModels>(
   models,
   loadClasses
 );
-

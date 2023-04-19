@@ -62,7 +62,6 @@ function ListContainer(props: FinalProps) {
 
   return <List {...updatedProps} />;
 }
-
 export default compose(
   graphql<Props, EntriesMainQueryResponse>(gql(queries.entriesMain), {
     name: 'entriesMainQuery',

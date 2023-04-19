@@ -88,7 +88,7 @@ class SiteDetail extends React.Component<Props, State> {
       assetManager: {
         uploadFile: e => {
           const files = e.dataTransfer ? e.dataTransfer.files : e.target.files;
-
+          //
           uploadHandler({
             files,
 
@@ -102,9 +102,7 @@ class SiteDetail extends React.Component<Props, State> {
               if (status !== 'ok') {
                 Alert.error(response.statusText);
               }
-
               Alert.info('Success');
-
               editor.AssetManager.add({
                 type: fileInfo.type,
                 src: readFile(response),
@@ -194,7 +192,6 @@ class SiteDetail extends React.Component<Props, State> {
 
           container.appendChild(htmlLabel);
           container.appendChild(htmlArea);
-
           container.appendChild(cssLabel);
           container.appendChild(cssArea);
 
@@ -206,23 +203,17 @@ class SiteDetail extends React.Component<Props, State> {
           htmlViewer = htmlCodeViewer.editor;
           cssViewer = cssCodeViewer.editor;
         }
-
         const InnerHtml = editr.getHtml();
         const Css = editr.getCss({ keepUnusedStyles: true });
-
         modal.setContent('');
         modal.setContent(container);
-
         htmlCodeViewer.setContent(InnerHtml);
         cssCodeViewer.setContent(Css);
-
         modal.open();
-
         htmlViewer.refresh();
         cssViewer.refresh();
       }
     });
-
     pnm.addButton('options', [
       {
         id: 'edit',
@@ -233,7 +224,6 @@ class SiteDetail extends React.Component<Props, State> {
         }
       }
     ]);
-
     onLoad(false);
   };
 
@@ -248,10 +238,8 @@ class SiteDetail extends React.Component<Props, State> {
   componentDidMount() {
     this.fetchPage();
   }
-
   pageSave = (pageName: string, pageDescription: string, pageId: string) => {
     const e = this.grapes;
-
     this.props.pageSave(
       pageName,
       pageDescription,
@@ -262,10 +250,8 @@ class SiteDetail extends React.Component<Props, State> {
       this.props.handleItemSettings(null, '')
     );
   };
-
   renderItemSettings() {
     const { settingsObject, type } = this.props;
-
     switch (type) {
       case 'page':
         return (
@@ -323,6 +309,7 @@ class SiteDetail extends React.Component<Props, State> {
               Save page
             </Button>
           </CustomButtonWrapper>
+
           {loading && (
             <Loader showDarkMode={showDarkMode}>
               <Spinner objective={true} />

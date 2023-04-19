@@ -15,10 +15,8 @@ const customPlugins = (editor, options?) => {
 
   contentTypes.map(type => {
     const fields = type.fields || [];
-
     for (const field of fields) {
       const code = type.code + field.code;
-
       bm.add(code, {
         category: { label: `Content type: ${type.displayName}`, open },
         label: field.text,

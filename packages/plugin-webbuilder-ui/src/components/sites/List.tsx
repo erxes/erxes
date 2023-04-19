@@ -54,7 +54,6 @@ class SiteList extends React.Component<Props, State> {
         {__('Edit site')}
       </Button>
     );
-
     const content = ({ closeModal }) => (
       <TemplateForm closeModal={closeModal} selectedSite={site} />
     );
@@ -122,7 +121,6 @@ class SiteList extends React.Component<Props, State> {
 
   render() {
     const { sites = [] } = this.props;
-
     return <FlexWrap>{sites.map(site => this.renderList(site))}</FlexWrap>;
   }
 }

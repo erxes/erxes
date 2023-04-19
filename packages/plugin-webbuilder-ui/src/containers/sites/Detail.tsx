@@ -105,9 +105,7 @@ const SitesDetailContainer = (props: FinalProps) => {
   if (pageDetailQuery) {
     page = pageDetailQuery.webbuilderPageDetail;
   }
-
   const contentTypes = typesQuery.webbuilderContentTypes || [];
-
   const updatedProps = {
     ...props,
     contentTypes,
@@ -115,7 +113,6 @@ const SitesDetailContainer = (props: FinalProps) => {
     pageSave,
     pageRemove
   };
-
   return <Detail {...updatedProps} />;
 };
 

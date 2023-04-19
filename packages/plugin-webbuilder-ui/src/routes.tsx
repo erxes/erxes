@@ -24,11 +24,8 @@ const WebBuilderContainer = asyncComponent(() =>
 
 const webBuilderSitesContainer = history => {
   const { location, match } = history;
-
   const queryParams = queryString.parse(location.search);
-
   const { step } = match.params;
-
   return <WebBuilderContainer step={step} queryParams={queryParams} />;
 };
 
@@ -38,7 +35,6 @@ const webBuilderSitesCreate = history => {
   const queryParams = queryString.parse(location.search);
 
   const { step } = match.params;
-
   return <SitesListContainer step={step} queryParams={queryParams} />;
 };
 

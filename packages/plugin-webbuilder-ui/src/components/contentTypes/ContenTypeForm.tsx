@@ -33,7 +33,6 @@ class ContentTypeForm extends React.Component<Props, State> {
       ...field,
       _id: Math.random()
     }));
-
     this.state = {
       displayName: contentType.displayName || '',
       code: contentType.code || '',

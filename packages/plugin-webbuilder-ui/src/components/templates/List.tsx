@@ -11,7 +11,6 @@ import {
 import { ModalFooter, Title } from '@erxes/ui/src/styles/main';
 import React, { useState } from 'react';
 import { __, getEnv, router } from '@erxes/ui/src/utils/core';
-
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
 import { CATEGORIES } from '../../constants';
@@ -45,49 +44,36 @@ function List(props: Props) {
     undefined
   );
   const [category, setCategory] = useState('');
-
   const { templates, templatesCount, use, queryParams } = props;
-
   const [search, setSearch] = useState(queryParams.searchValue);
-
   const renderDemoAction = (template: ITemplateDoc) => {
     const { REACT_APP_API_URL } = getEnv();
-
     const url = `${REACT_APP_API_URL}/pl:webbuilder/demo/${template._id}`;
-
     const onClick = () => window.open(`${url}`, '_blank');
-
     return (
       <Button btnStyle="white" onClick={onClick}>
         Preview
       </Button>
     );
   };
-
   const filterTemplates = () => {
     if (!category) {
       return templates;
     }
-
     return templates.filter(template =>
       (template.categories || '').includes(category)
     );
   };
-
   const onClickCategory = (value: any) => {
     setCategory(value);
   };
-
   const onChangeCoverImage = (attachment: IAttachment[]) => {
     if (attachment.length) {
       setCoverImage(attachment[0]);
-
       return;
     }
-
     setCoverImage(undefined);
   };
-
   const renderCategories = (cat: any, index: number) => {
     return (
       <Tag
@@ -100,7 +86,6 @@ function List(props: Props) {
       </Tag>
     );
   };
-
   const renderUseAction = template => {
     const trigger = <Button btnStyle="white">{__('Use')}</Button>;
     const site = localStorage.getItem('webbuilderSiteId') || '';
@@ -112,7 +97,6 @@ function List(props: Props) {
         selectedSite={site}
       />
     );
-
     return (
       <ModalTrigger
         title="Name your site"
@@ -156,13 +140,9 @@ function List(props: Props) {
     if (timer) {
       clearTimeout(timer);
     }
-
     const { history } = props;
-
     const value = e.target.value;
-
     setSearch(value);
-
     timer = setTimeout(() => {
       router.removeParams(history, 'page');
       router.setParams(history, { searchValue: value });

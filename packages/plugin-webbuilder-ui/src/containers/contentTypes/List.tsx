@@ -22,23 +22,18 @@ type FinalProps = {
 
 function ContentTypesContainer(props: FinalProps) {
   const { typesMainQuery } = props;
-
   if (typesMainQuery.loading) {
     return null;
   }
-
   const { list = [], totalCount } =
     typesMainQuery.webbuilderContentTypesMain || {};
-
   const updatedProps = {
     ...props,
     contentTypes: list,
     contentTypesCount: totalCount
   };
-
   return <List {...updatedProps} />;
 }
-
 export default compose(
   graphql<Props, TypesMainQueryResponse>(gql(queries.contentTypesMain), {
     name: 'typesMainQuery',

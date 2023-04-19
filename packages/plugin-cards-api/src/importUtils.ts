@@ -1,4 +1,4 @@
-import { IModels } from "./connectionResolver";
+import { IModels } from './connectionResolver';
 
 export const insertImportItems = async (models: IModels, args) => {
   const { docs, contentType } = args;
@@ -10,6 +10,9 @@ export const insertImportItems = async (models: IModels, args) => {
     switch (contentType) {
       case 'deal':
         model = models.Deals;
+        break;
+      case 'purchase':
+        model = models.Purchase;
         break;
       case 'task':
         model = models.Tasks;

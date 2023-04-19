@@ -12,13 +12,11 @@ import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { withRouter } from 'react-router-dom';
-
 type Props = {
   loading: boolean;
   sitesCount: number;
   queryParams: any;
 } & IRouterProps;
-
 function WebBuilder(props: Props) {
   let timer;
 
@@ -58,7 +56,6 @@ function WebBuilder(props: Props) {
       </Link>
     </BarItems>
   );
-
   return (
     <>
       <Wrapper
