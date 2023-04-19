@@ -20,6 +20,7 @@ export const checkPricing = async (
         branchId: config.branchId,
         products: [
           ...doc.items.map(i => ({
+            itemId: i._id,
             productId: i.productId,
             quantity: i.count,
             price: i.unitPrice,
@@ -37,7 +38,7 @@ export const checkPricing = async (
   let bonusProductsToAdd: any = {};
 
   for (const item of doc.items || []) {
-    const discount = pricing[item.productId];
+    const discount = pricing[item._id];
 
     if (discount) {
       if (discount.bonusProducts.length !== 0) {

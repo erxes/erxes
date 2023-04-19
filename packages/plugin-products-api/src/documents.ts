@@ -73,6 +73,7 @@ export default {
           departmentId,
           branchId,
           products: products.map(pr => ({
+            itemId: pr._id,
             productId: pr._id,
             quantity: 1,
             price: pr.unitPrice
