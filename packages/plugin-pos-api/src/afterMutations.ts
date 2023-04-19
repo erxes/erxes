@@ -164,6 +164,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
             branchId: pos.branchId,
             products: [
               {
+                itemId: item._id,
                 productId: item._id,
                 quantity: 1,
                 price: item.unitPrice

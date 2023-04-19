@@ -113,7 +113,8 @@ const orderMutations = {
           orderId: order._id,
           isPackage: item.isPackage,
           isTake: item.isTake,
-          status: ORDER_ITEM_STATUSES.NEW
+          status: ORDER_ITEM_STATUSES.NEW,
+          manufacturedDate: item.manufacturedDate
         });
       }
 

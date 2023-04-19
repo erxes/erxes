@@ -149,7 +149,8 @@ export const updateOrderItems = async (
       bonusCount: item.bonusCount,
       bonusVoucherId: item.bonusVoucherId,
       isPackage: item.isPackage,
-      isTake: item.isTake
+      isTake: item.isTake,
+      manufacturedDate: item.manufacturedDate
     };
 
     if (itemIds.includes(item._id)) {

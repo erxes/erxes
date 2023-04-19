@@ -56,6 +56,7 @@ export const types = `
     isTake: Boolean
     productImgUrl: String
     status: String
+    manufacturedDate: String
   }
 
   type PosPutResponse {

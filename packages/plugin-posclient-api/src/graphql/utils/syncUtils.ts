@@ -321,7 +321,7 @@ export const receiveProduct = async (models: IModels, data) => {
     const info = action === 'update' ? updatedDocument : object;
     return await models.Products.updateOne(
       { _id: object._id },
-      { ...info, tokens },
+      { ...info, [`prices.${token}`]: info.unitPrice, tokens },
       { upsert: true }
     );
   }
