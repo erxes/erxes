@@ -128,7 +128,7 @@ connect().then(async () => {
     }
 
     modifier.$push = { errorMsgs: e.message };
-    modifier.$inc.failed = bulkDoc.length;
+    modifier.$inc.failed = WORKER_BULK_LIMIT;
     modifier.$push = {
       errorMsgs: {
         startRow,
@@ -137,6 +137,17 @@ connect().then(async () => {
         contentType
       }
     };
+
+    await models.ImportHistory.update({ _id: importHistoryId }, modifier);
+
+    mongoose.connection.close();
+
+    console.log(`Worker done`);
+
+    parentPort.postMessage({
+      action: 'remove',
+      message: 'Successfully finished the job'
+    });
   }
 
   try {
@@ -168,7 +179,7 @@ connect().then(async () => {
     }
 
     modifier.$push = { errorMsgs: e.message };
-    modifier.$inc.failed = bulkDoc.length;
+    modifier.$inc.failed = WORKER_BULK_LIMIT;
     modifier.$push = {
       errorMsgs: {
         startRow,

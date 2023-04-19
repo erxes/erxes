@@ -95,6 +95,7 @@ const orderMutations = {
         ...doc,
         ...orderDoc,
         totalAmount: getTotalAmount(preparedDoc.items),
+        branchId: doc.branchId || config.branchId,
         posToken: config.token,
         departmentId: config.departmentId,
         taxInfo: getTaxInfo(config)
@@ -173,7 +174,7 @@ const orderMutations = {
 
     const updatedOrder = await models.Orders.updateOrder(doc._id, {
       deliveryInfo: doc.deliveryInfo,
-      branchId: doc.branchId,
+      branchId: doc.branchId || config.branchId,
       customerId: doc.customerId,
       customerType: doc.customerType,
       userId: posUser ? posUser._id : '',

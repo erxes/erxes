@@ -61,6 +61,7 @@ const getCsvInfo = (fileName: string, uploadType: string) => {
 
       const rl = readline.createInterface({
         input: readSteam,
+
         terminal: false
       });
 
@@ -139,14 +140,16 @@ const importBulkStream = ({
 
       const s3 = await createAWS();
 
-      const errorCallback = error => {
-        throw new Error(error.code);
-      };
-
       const params = { Bucket: AWS_BUCKET, Key: fileName };
 
-      readSteam = s3.getObject(params).createReadStream();
-      readSteam.on('error', errorCallback);
+      const file = (await s3.getObject(params).promise()) as any;
+
+      await fs.promises.writeFile(
+        `${uploadsFolderPath}/${fileName}`,
+        file.Body
+      );
+
+      readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
     } else {
       readSteam = fs.createReadStream(`${uploadsFolderPath}/${fileName}`);
     }
@@ -304,6 +307,7 @@ export const receiveImportCreate = async (
   const config: any = {};
 
   let total = 0;
+  let fileName = '';
 
   let mainType = contentTypes[0].contentType;
   const serviceType = contentTypes[0].serviceType;
@@ -315,7 +319,7 @@ export const receiveImportCreate = async (
   for (const contentType of contentTypes) {
     const file = files[contentType.contentType];
     const columnConfig = columnsConfig[contentType.contentType];
-    const fileName = file[0].url;
+    fileName = file[0].url;
 
     const { rows, columns }: any = await getCsvInfo(fileName, uploadType);
 
@@ -375,6 +379,8 @@ export const receiveImportCreate = async (
       updatedImportHistory.total
     ) {
       status = 'Done';
+      await fs.promises.unlink(`${uploadsFolderPath}/${fileName}`);
+
       await updateImportHistory({
         $set: { status, percentage: 100 }
       });

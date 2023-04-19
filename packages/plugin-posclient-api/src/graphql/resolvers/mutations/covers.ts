@@ -77,7 +77,7 @@ const coverMutations = {
       throw new Error('cannot confirm');
     }
 
-    await sendPosMessage({
+    const response = await sendPosMessage({
       subdomain,
       action: 'covers.confirm',
       data: { posToken: config.token || '', cover },
@@ -85,13 +85,19 @@ const coverMutations = {
       defaultValue: {}
     });
 
-    return await models.Covers.updateCover(_id, {
+    if (!response._id) {
+      throw new Error('unknown error on confirmed');
+    }
+
+    await models.Covers.updateCover(_id, {
       ...cover,
       status: 'confirm',
       posToken: config.token,
       modifiedAt: new Date(),
       modifiedBy: posUser._id
     });
+
+    return models.Covers.getCover(_id);
   }
 };
 
