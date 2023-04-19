@@ -392,4 +392,6 @@ export const mutations = `
   selectWinner(dealId: String!, driverId: String!): Participant
 
   generateRandomName(modelName: String!, prefix: String!, numberOfDigits: Int): String
+
+  tumentechInvite(phone: String!): String
 `;

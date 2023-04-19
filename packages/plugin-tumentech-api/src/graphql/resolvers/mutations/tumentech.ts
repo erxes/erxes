@@ -192,7 +192,7 @@ const carMutations = {
 
     if (doc.customerId) {
       await sendCoreMessage({
-        subdomain: subdomain,
+        subdomain,
         action: 'conformities.addConformities',
         data: {
           mainType: 'customer',
@@ -205,7 +205,7 @@ const carMutations = {
 
     if (doc.companyId) {
       await sendCoreMessage({
-        subdomain: subdomain,
+        subdomain,
         action: 'conformities.addConformities',
         data: {
           mainType: 'company',
@@ -246,6 +246,79 @@ const carMutations = {
     { subdomain }
   ) => {
     return generateRandomString(subdomain, modelName, prefix, numberOfDigits);
+  },
+
+  tumentechInvite: async (
+    _root,
+    { phone }: { phone: string },
+    { subdomain, cpUser }: IContext
+  ) => {
+    if (!cpUser) {
+      throw new Error('Login required');
+    }
+
+    const clientPortalId = process.env.MOBILE_CP_ID;
+
+    if (!clientPortalId) {
+      throw new Error('Client portal id is not set');
+    }
+
+    console.log('clientPortalId', clientPortalId);
+
+    const foundUser = await sendClientPortalMessage({
+      subdomain,
+      action: 'clientPortalUsers.findOne',
+      data: {
+        phone,
+        clientPortalId
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    console.log('foundUser', foundUser);
+
+    if (foundUser) {
+      throw new Error('User already exists');
+    }
+
+    let foundCustomer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: {
+        customerPrimaryPhone: phone
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    if (!foundCustomer) {
+      foundCustomer = await sendContactsMessage({
+        subdomain,
+        action: 'customers.createCustomer',
+        data: {
+          primaryPhone: phone
+        },
+        isRPC: true
+      });
+    }
+
+    const MAIN_API_DOMAIN = process.env.DOMAIN
+      ? `${process.env.DOMAIN}/gateway`
+      : 'http://localhost:4000';
+
+    const url = `${MAIN_API_DOMAIN}/pl:tumentech/download`;
+
+    sendClientPortalMessage({
+      subdomain,
+      action: 'sendSMS',
+      data: {
+        to: phone,
+        content: `Та Түмэн Тээх платформд уригдлаа,татах линк ${url}`
+      }
+    });
+
+    return foundCustomer._id;
   }
 };
 

@@ -3,7 +3,7 @@ import { afterMutationHandlers } from './afterMutations';
 
 import { serviceDiscovery } from './configs';
 import { generateModels, IModels } from './connectionResolver';
-import { sendNotification } from './utils';
+import { sendNotification, sendSms } from './utils';
 
 let client;
 
@@ -69,6 +69,13 @@ export const initBroker = async cl => {
         data: await models.ClientPortals.find(selector).count(),
         status: 'success'
       };
+    }
+  );
+
+  consumeQueue(
+    'clientportal:sendSMS',
+    async ({ subdomain, data: { to, content } }) => {
+      await sendSms(subdomain, 'messagePro', to, content);
     }
   );
 

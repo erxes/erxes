@@ -40,6 +40,31 @@ export default {
     }
   ],
 
+  getHandlers: [
+    {
+      path: `/download`,
+      method: async (req, res) => {
+        const userAgent = req.headers['user-agent'];
+        const isAndroid = /Android/.test(userAgent);
+        const isiOS = /(iPhone|iPad|iPod)/.test(userAgent);
+
+        if (isiOS) {
+          return res.redirect(
+            'https://apps.apple.com/us/app/%D1%82%D2%AF%D0%BC%D1%8D%D0%BD-%D1%82%D1%8D%D1%8D%D1%85/id1610092431'
+          );
+        }
+
+        if (isAndroid) {
+          return res.redirect(
+            'https://play.google.com/store/apps/details?id=com.tumentech'
+          );
+        }
+
+        return res.redirect('https://www.tumentech.mn/');
+      }
+    }
+  ],
+
   meta: {
     segments,
     forms,
