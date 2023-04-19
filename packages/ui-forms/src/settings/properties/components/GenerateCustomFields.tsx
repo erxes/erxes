@@ -12,6 +12,7 @@ import { Divider, SidebarContent } from '../styles';
 import { IFieldGroup, LogicParams } from '../types';
 import { checkLogic } from '../utils';
 import GenerateField from './GenerateField';
+import { ModalTrigger } from '@erxes/ui/src';
 
 declare const navigator: any;
 
@@ -418,6 +419,30 @@ class GenerateGroup extends React.Component<Props, State> {
     });
   }
 
+  modalContent = (fieldGroup: IFieldGroup) => {
+    let extraButtons = <></>;
+    if (fieldGroup.isMultiple) {
+      extraButtons = (
+        <Tip placement="top" text="Add Group Input">
+          <button onClick={this.onAddGroupInput}>
+            <Icon icon="plus-circle" />
+          </button>
+        </Tip>
+      );
+    }
+    return (
+      <Box
+        extraButtons={extraButtons}
+        title={fieldGroup.name}
+        name="showCustomFields"
+      >
+        {this.renderContent()}
+        {this.renderButtons()}
+        {this.renderChildGroups()}
+      </Box>
+    );
+  };
+
   render() {
     const { fieldGroup, isDetail } = this.props;
     const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
@@ -429,11 +454,35 @@ class GenerateGroup extends React.Component<Props, State> {
 
     if (fieldGroup.isMultiple) {
       extraButtons = (
-        <Tip placement="top" text="Add Group Input">
-          <button onClick={this.onAddGroupInput}>
-            <Icon icon="plus-circle" />
-          </button>
-        </Tip>
+        <>
+          {
+            <ModalTrigger
+              title={'Edit'}
+              trigger={
+                <Icon icon="expand-arrows-alt" style={{ cursor: 'pointer' }} />
+              }
+              size="xl"
+              content={() => this.modalContent(fieldGroup)}
+            />
+          }
+          <Tip placement="top" text="Add Group Input">
+            <button onClick={this.onAddGroupInput}>
+              <Icon icon="plus-circle" />
+            </button>
+          </Tip>
+        </>
+      );
+    }
+    if (!fieldGroup.isMultiple) {
+      extraButtons = (
+        <ModalTrigger
+          title={'Edit'}
+          trigger={
+            <Icon icon="expand-arrows-alt" style={{ cursor: 'pointer' }} />
+          }
+          size="xl"
+          content={() => this.modalContent(fieldGroup)}
+        />
       );
     }
 
