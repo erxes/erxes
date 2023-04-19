@@ -1,6 +1,6 @@
-var deps = require('./package.json');
-var fs = require('fs');
-var path = require('path');
+var deps = require("../package.json");
+var fs = require("fs");
+var path = require("path");
 
 async function copyDir(src, dest) {
   try {
@@ -20,11 +20,11 @@ async function copyDir(src, dest) {
   }
 }
 async function main() {
-  await copyDir('./src/private', `./dist/core/src/private`);
+  await copyDir("./src/apollo-router/rhai", `./dist/gateway/src/apollo-router/rhai`);
 }
 
 main()
   .then(() => {
     process.exit();
   })
-  .catch(e => {});
+  .catch((e) => {});
