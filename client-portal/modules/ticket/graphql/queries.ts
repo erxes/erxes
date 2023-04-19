@@ -31,7 +31,7 @@ const clientPortalTickets = `
       status
       priority
       createdAt
-
+      stageChangedDate
       stage {
         name
       }

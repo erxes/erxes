@@ -679,3 +679,78 @@ export const getThemeItem = code => {
 
   return config ? config.value : '';
 };
+
+const DATE_OPTIONS = {
+  d: 1000 * 60 * 60 * 24,
+  h: 1000 * 60 * 60,
+  m: 1000 * 60,
+  s: 1000,
+  ms: 1
+};
+
+const CHARACTERS =
+  '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@#$%^&*()-=+{}[]<>.,:;"`|/?';
+
+const BEGIN_DIFF = 1577836800000; // new Date('2020-01-01').getTime();
+
+export const dateToShortStr = (
+  date?: Date | string | number,
+  scale?: 10 | 16 | 62 | 92 | number,
+  kind?: 'd' | 'h' | 'm' | 's' | 'ms'
+) => {
+  date = new Date(date || new Date());
+
+  if (!scale) {
+    scale = 62;
+  }
+  if (!kind) {
+    kind = 'd';
+  }
+
+  const divider = DATE_OPTIONS[kind];
+  const chars = CHARACTERS.substring(0, scale);
+
+  let intgr = Math.round((date.getTime() - BEGIN_DIFF) / divider);
+
+  let short = '';
+
+  while (intgr > 0) {
+    const preInt = intgr;
+    intgr = Math.floor(intgr / scale);
+    const strInd = preInt - intgr * scale;
+    short = `${chars[strInd]}${short}`;
+  }
+
+  return short;
+};
+
+export const shortStrToDate = (
+  shortStr: string,
+  scale?: 10 | 16 | 62 | 92 | number,
+  kind?: 'd' | 'h' | 'm' | 's' | 'ms',
+  resultType?: 'd' | 'n'
+) => {
+  if (!scale) {
+    scale = 62;
+  }
+  if (!kind) {
+    kind = 'd';
+  }
+  const chars = CHARACTERS.substring(0, scale);
+  const multiplier = DATE_OPTIONS[kind];
+
+  let intgr = 0;
+  let scaler = 1;
+
+  for (let i = shortStr.length; i--; i >= 0) {
+    const char = shortStr[i];
+    intgr = intgr + scaler * chars.indexOf(char);
+    scaler = scaler * scale;
+  }
+
+  intgr = intgr * multiplier + BEGIN_DIFF;
+
+  if (resultType === 'd') return new Date(intgr);
+
+  return intgr;
+};

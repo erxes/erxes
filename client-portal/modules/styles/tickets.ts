@@ -71,14 +71,14 @@ const ListHead = styled.div`
   > div {
     display: inline-block;
     font-weight: 600;
-    flex: 0 0 15%;
+    flex: 0 0 12%;
     color: ${colors.colorCoreGray};
     text-align: center;
     text-transform: uppercase;
     font-size: 12px;
 
     &:first-child {
-      flex: 0 0 55%;
+      flex: 0 0 52%;
       text-align: left;
     }
   }
@@ -98,12 +98,12 @@ const ListRow = styled.div`
 
   > div {
     display: inline-block;
-    flex: 0 0 15%;
+    flex: 0 0 12%;
     text-align: center;
     font-size: 14px;
 
     &:first-child {
-      flex: 0 0 55%;
+      flex: 0 0 52%;
       text-align: left;
       font-weight: 600;
       text-transform: capitalize;

@@ -67,6 +67,7 @@ const clientPortalMutations = {
         status: 'active',
         customerId: customer._id,
         createdAt: new Date(),
+        stageChangedDate: null,
         parentId,
         closeDate,
         startDate,
