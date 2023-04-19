@@ -35,6 +35,18 @@ function FormContainer({
     }
   });
 
+  const labelsQuery = useQuery(gql(queries.pipelineLabels), {
+    variables: {
+      pipelineId: config?.ticketPipelineId
+    },
+    context: {
+      headers: {
+        'erxes-app-token': config?.erxesAppToken
+      }
+    }
+  });
+  
+
   const { data: departments } = useQuery(gql(queries.departments), {
     variables: {
       withoutUserFilter: true
@@ -72,7 +84,6 @@ function FormContainer({
         type: 'ticket',
         stageId: config.ticketStageId,
         email: currentUser.email,
-        priority: 'Critical' // TODO: Add select in Form
       }
     }).then(() => {
       Alert.success("You've successfully created a ticket");
@@ -81,12 +92,16 @@ function FormContainer({
     });
   };
 
+
+  const labels = labelsQuery?.data?.pipelineLabels || [];
+
   const updatedProps = {
     ...props,
-    customFields: customFields?.fields || [],
+    customFields: customFields?.fields.filter(f => f.field !== 'description') || [],
     departments: departments?.departments || [],
     branches: branches?.branches || [],
     products: products?.products || [],
+    labels,
     handleSubmit
   };
 

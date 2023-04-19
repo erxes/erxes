@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import FormControl from '../../common/form/Control';
 import FormGroup from '../../common/form/Group';
 import Button from '../../common/Button';
-import { ICustomField, Ticket } from '../../types';
+import { ICustomField, Label, Ticket } from '../../types';
 import { ControlLabel } from '../../common/form';
 import { FormWrapper } from '../../styles/main';
 import GenerateField from './GenerateField';
@@ -12,10 +12,11 @@ import * as _ from 'lodash';
 
 type Props = {
   handleSubmit: (doc: Ticket) => void;
-  customFields?: any[];
-  departments?: string[];
-  branches?: string[];
-  products?: string[];
+  customFields: any[];
+  departments: string[];
+  branches: string[];
+  products: string[];
+  labels: Label[];
 };
 
 export default function TicketForm({
@@ -23,7 +24,8 @@ export default function TicketForm({
   customFields,
   departments,
   branches,
-  products
+  products,
+  labels
 }: Props) {
   const [ticket, setTicket] = useState<Ticket>({} as Ticket);
   const [customFieldsData, setCustomFieldsData] = useState<ICustomField[]>([]);
@@ -47,6 +49,17 @@ export default function TicketForm({
 
   const onCustomFieldsDataChange = ({ _id, value }) => {
     const field = customFieldsData?.find((c) => c.field === _id);
+
+    const systemField = customFields.find(
+      (f) => f._id === _id && f.isDefinedByErxes
+    );
+
+    if (systemField) {
+      return setTicket({
+        ...ticket,
+        [systemField.field]: value,
+      });
+    }
 
     for (const f of customFields) {
       const logics = f.logics || [];
@@ -80,7 +93,7 @@ export default function TicketForm({
     const handleChange = (e) => {
       setTicket({
         ...ticket,
-        [name]: e.target.value
+        [name]: e.target.value,
       });
     };
 
@@ -102,6 +115,7 @@ export default function TicketForm({
     return customFields.map((field: any, index: number) => {
       return (
         <GenerateField
+          labels={labels}
           key={index}
           field={field}
           onValueChange={onCustomFieldsDataChange}
@@ -122,13 +136,13 @@ export default function TicketForm({
           name: 'subject',
           label: 'Subject',
           value: ticket.subject,
-          placeholder: 'Enter a subject'
+          placeholder: 'Enter a subject',
         })}
         {renderControl({
           name: 'description',
           label: 'Description',
           value: ticket.description,
-          placeholder: 'Enter a description'
+          placeholder: 'Enter a description',
         })}
         {renderCustomFields()}
         <div className="right">

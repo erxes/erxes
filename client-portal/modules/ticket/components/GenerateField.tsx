@@ -2,7 +2,7 @@ import React from 'react';
 import Select from 'react-select-plus';
 import FormControl from '../../common/form/Control';
 import FormGroup from '../../common/form/Group';
-import { IAttachment, IField, IOption } from '../../types';
+import { IAttachment, IField, IOption, Label } from '../../types';
 import { ControlLabel } from '../../common/form';
 import { SelectInput } from '../../styles/tickets';
 import Uploader from '../../common/Uploader';
@@ -17,6 +17,7 @@ type Props = {
   departments?: string[];
   branches?: string[];
   products?: string[];
+  labels: Label[];
   onValueChange?: (data: { _id: string; value: any }) => void;
 };
 
@@ -30,7 +31,7 @@ export default class GenerateField extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      ...this.generateState(props)
+      ...this.generateState(props),
     };
   }
 
@@ -253,6 +254,26 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
+  renderLabels(attrs) {
+    const { onValueChange, labels } = this.props;
+    const onSelect = (e) => {
+      onValueChange({ _id: attrs.id, value: [e.currentTarget.value] });
+    };
+
+    return (
+      <FormControl componentClass="select" {...attrs} onChange={onSelect}>
+        <option key={''} value="">
+          Choose option
+        </option>
+        {labels.map((label) => (
+          <option key={label._id} value={label._id}>
+            {label.name}
+          </option>
+        ))}
+      </FormControl>
+    );
+  }
+
   renderDepartment({ id, value }) {
     const { onValueChange, departments } = this.props;
     const onSelect = (e) => {
@@ -282,8 +303,12 @@ export default class GenerateField extends React.Component<Props, State> {
       id: field._id,
       value: this.state.value,
       onChange: this.onChange,
-      name: ''
+      name: '',
     };
+
+    if (field.field === 'labelIds') {
+      return this.renderLabels(attrs);
+    }
 
     switch (type) {
       case 'select':

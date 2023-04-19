@@ -13,6 +13,8 @@ export type Ticket = {
   requestor: string;
   priority: string;
   customFieldsData: ICustomField[];
+  attachments: IAttachment[];
+  labelIds: string[];
 };
 
 export type IOption = {
@@ -109,6 +111,12 @@ export type Task = {
   requestor: string;
   priority: string;
 };
+
+export type Label = {
+  _id: string;
+  name: string;
+  colorCode: string;
+}
 
 export type Config = {
   _id?: string;

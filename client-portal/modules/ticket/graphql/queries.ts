@@ -206,6 +206,16 @@ const products = `
   }
 `;
 
+const pipelineLabels = `
+query pipelineLabels($pipelineId: String!) {
+  pipelineLabels(pipelineId: $pipelineId) {
+    _id
+    name
+    colorCode
+  }
+}
+`
+
 export default {
   clientPortalGetTicket,
   clientPortalTickets,
@@ -213,5 +223,6 @@ export default {
   fields,
   departments,
   branches,
-  products
+  products,
+  pipelineLabels
 };
