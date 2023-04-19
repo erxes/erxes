@@ -72,6 +72,15 @@ class Row extends React.Component<Props> {
               <Button btnStyle="link" onClick={onClickSync} icon="sync" />
             </Tip>
           )}
+          {isUnsynced === false && syncedInfo.syncedDate && (
+            <Tip text="ReSync">
+              <Button
+                btnStyle="link"
+                onClick={onClickSync}
+                icon="sync-exclamation"
+              />
+            </Tip>
+          )}
         </td>
       </tr>
     );
