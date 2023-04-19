@@ -315,6 +315,28 @@ const mutations = {
     }
 
     return 'ok';
+  },
+
+  async filemanagerRelateFilesContentType(
+    _root,
+    { contentType, contentTypeId, fileIds },
+    { models }: IContext
+  ) {
+    const prevRelation = await models.Relations.findOne({
+      contentType,
+      contentTypeId
+    });
+
+    if (prevRelation) {
+      await models.Relations.update(
+        { _id: prevRelation._id },
+        { $set: { fileIds } }
+      );
+    } else {
+      await models.Relations.relate({ contentType, contentTypeId, fileIds });
+    }
+
+    return 'ok';
   }
 };
 

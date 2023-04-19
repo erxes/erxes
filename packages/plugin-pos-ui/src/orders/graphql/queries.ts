@@ -143,10 +143,91 @@ const posProducts = `
 
 const productCategories = productQueries.productCategories;
 
+const coverFields = `
+  _id
+  posToken
+  status
+  beginDate
+  endDate
+  description
+  userId
+  details {
+    _id
+    paidType    
+    paidSummary {
+      _id
+      kind
+      kindOfVal
+      value
+      amount
+    }
+    paidDetail
+  }
+  createdAt
+  createdBy
+  modifiedAt
+  modifiedBy
+  note
+  posName
+
+  user {
+    _id
+    email
+  }
+  createdUser {
+    _id
+    email
+  }
+  modifiedUser {
+    _id
+    email
+  }
+`;
+
+const coverParams = `
+  $page: Int
+  $perPage: Int
+  $sortField: String
+  $sortDirection: Int
+  $posId: String
+  $startDate: Date
+  $endDate: Date
+  $userId: String
+`;
+
+const coverParamsVal = `
+  page: $page
+  perPage: $perPage
+  sortField: $sortField
+  sortDirection: $sortDirection
+  posId: $posId
+  startDate: $startDate
+  endDate: $endDate
+  userId: $userId
+`;
+
+const covers = `
+  query posCovers(${coverParams}) {
+    posCovers(${coverParamsVal}) {
+      ${coverFields}
+    }
+  }
+`;
+
+const coverDetail = `
+  query posCoverDetail($_id: String!) {
+    posCoverDetail(_id: $_id) {
+      ${coverFields}
+    }
+  }
+`;
+
 export default {
   posOrders,
   posOrdersSummary,
   posOrderDetail,
   posProducts,
-  productCategories
+  productCategories,
+  covers,
+  coverDetail
 };

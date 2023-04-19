@@ -159,6 +159,23 @@ export const initBroker = async cl => {
       };
     }
   );
+
+  consumeRPCQueue(
+    `posclient:covers.remove${channelToken}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      const { cover } = data;
+      await models.Covers.updateOne(
+        { _id: cover._id },
+        { $set: { status: 'reconf' } }
+      );
+      return {
+        status: 'success',
+        data: await models.Covers.findOne({ _id: cover._id })
+      };
+    }
+  );
 };
 
 export const sendCommonMessage = async (

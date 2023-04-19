@@ -14,7 +14,7 @@ import {
 import { mutations, queries } from '../../graphql';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import { IBranch } from '@erxes/ui/src/team/types';
-import { generateParams } from '../../utils';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
   history: any;
@@ -67,12 +67,14 @@ const ListContainer = (props: FinalProps) => {
   const submitRequest = (
     selectedUserIds: string[],
     requestedShifts: IShift[],
+    totalBreakInMins?: number | string,
     selectedScheduleConfigId?: string
   ) => {
     sendScheduleReqMutation({
       variables: {
         userId: `${selectedUserIds}`,
         shifts: requestedShifts,
+        totalBreakInMins,
         scheduleConfigId: selectedScheduleConfigId
       }
     })
@@ -85,6 +87,7 @@ const ListContainer = (props: FinalProps) => {
     selectedDeptIds: string[],
     selectedUserIds: string[],
     requestedShifts: IShift[],
+    totalBreakInMins?: number | string,
     selectedScheduleConfigId?: string
   ) => {
     submitScheduleMutation({
@@ -93,6 +96,7 @@ const ListContainer = (props: FinalProps) => {
         departmentIds: selectedDeptIds,
         userIds: selectedUserIds,
         shifts: requestedShifts,
+        totalBreakInMins,
         scheduleConfigId: selectedScheduleConfigId
       }
     })
@@ -101,7 +105,7 @@ const ListContainer = (props: FinalProps) => {
   };
 
   const removeScheduleShifts = (scheduleId, type) => {
-    confirm(`Are you sure to remove schedele ${type}`).then(() => {
+    confirm(`Are you sure to remove schedule ${type}`).then(() => {
       (type === 'shift'
         ? removeScheduleShiftMutation({ variables: { _id: scheduleId } })
         : removeScheduleMutation({ variables: { _id: scheduleId } })
@@ -131,7 +135,15 @@ export default withProps<Props>(
     graphql<Props, ScheduleQueryResponse>(gql(queries.schedulesMain), {
       name: 'listSchedulesMain',
       options: ({ queryParams }) => ({
-        variables: generateParams(queryParams),
+        variables: {
+          ...generatePaginationParams(queryParams || {}),
+          startDate: queryParams.startDate,
+          endDate: queryParams.endDate,
+          userIds: queryParams.userIds,
+          departmentIds: queryParams.departmentIds,
+          branchIds: queryParams.branchIds,
+          scheduleStatus: queryParams.scheduleStatus
+        },
         fetchPolicy: 'network-only'
       })
     }),

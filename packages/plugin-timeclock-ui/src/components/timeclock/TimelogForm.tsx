@@ -134,7 +134,6 @@ export const TimelogForm = (props: Props) => {
   };
 
   const renderTimelogForm = (formProps: IFormProps) => {
-    const { values } = formProps;
     return (
       <FlexColumn marginNum={20}>
         <div>
@@ -184,7 +183,6 @@ export const TimelogForm = (props: Props) => {
         <FlexRow>
           <ControlLabel>Shift Ended</ControlLabel>
           <FlexRowEven>
-            {/* <div>Active</div> */}
             <FormControl
               name="shiftActive"
               defaultChecked={shiftEnded}

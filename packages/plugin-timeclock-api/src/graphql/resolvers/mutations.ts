@@ -187,6 +187,21 @@ const timeclockMutations = {
     return updated;
   },
 
+  /**
+   * Removes a single timeclock
+   */
+  timeclockRemove(_root, { _id }, { models }: IContext) {
+    return models.Timeclocks.removeTimeClock(_id);
+  },
+
+  timeclockEdit(_root, { _id, ...doc }: ITimeClockEdit, { models }: IContext) {
+    return models.Timeclocks.updateTimeClock(_id, doc);
+  },
+
+  timeclockCreate(_root, doc, { models }: IContext) {
+    return models.Timeclocks.createTimeClock(doc);
+  },
+
   absenceTypeAdd(_root, doc, { models }: IContext) {
     return models.AbsenceTypes.createAbsenceType(doc);
   },
@@ -201,21 +216,6 @@ const timeclockMutations = {
     { models }: IContext
   ) {
     return models.AbsenceTypes.updateAbsenceType(_id, doc);
-  },
-
-  /**
-   * Removes a single timeclock
-   */
-  async timeclockRemove(_root, { _id }, { models }: IContext) {
-    return models.Timeclocks.removeTimeClock(_id);
-  },
-
-  async timeclockEdit(
-    _root,
-    { _id, ...doc }: ITimeClockEdit,
-    { models }: IContext
-  ) {
-    return models.Timeclocks.updateTimeClock(_id, doc);
   },
 
   async submitCheckInOutRequest(
@@ -291,34 +291,16 @@ const timeclockMutations = {
           });
         }
       }
+
+      return updated;
     }
 
-    // solve check in / out requests
-    const checkTime = shiftRequest.startTime;
-
-    updated = models.Absences.updateAbsence(_id, {
+    // if request is check in/out request
+    return models.Absences.updateAbsence(_id, {
       status: `${shiftRequest.reason} / ${status}`,
+      solved: true,
       ...doc
     });
-
-    // create time logs if request is approved
-    if (status === 'Approved') {
-      if (shiftRequest.reason?.toLowerCase() === 'check in request') {
-        await models.Timeclocks.createTimeClock({
-          userId: shiftRequest.userId,
-          shiftStart: checkTime,
-          shiftActive: true,
-          deviceType: shiftRequest.reason
-        });
-      }
-
-      await models.TimeLogs.createTimeLog({
-        userId: shiftRequest.userId,
-        timelog: checkTime
-      });
-    }
-
-    return updated;
   },
 
   async solveScheduleRequest(
@@ -389,7 +371,7 @@ const timeclockMutations = {
 
   async submitSchedule(
     _root,
-    { branchIds, departmentIds, userIds, shifts, scheduleConfigId },
+    { branchIds, departmentIds, userIds, shifts, totalBreakInMins },
     { subdomain, models }: IContext
   ) {
     if (userIds.length) {
@@ -397,7 +379,7 @@ const timeclockMutations = {
         userIds,
         shifts,
         models,
-        scheduleConfigId
+        totalBreakInMins
       );
     }
 
@@ -425,12 +407,7 @@ const timeclockMutations = {
       return concatBranchDept.indexOf(value) === pos;
     });
 
-    return createScheduleShiftsByUserIds(
-      unionOfUserIds,
-      shifts,
-      models,
-      scheduleConfigId
-    );
+    return createScheduleShiftsByUserIds(unionOfUserIds, shifts, models);
   },
 
   scheduleRemove(_root, { _id }, { models }: IContext) {
@@ -493,12 +470,19 @@ const timeclockMutations = {
 
   async scheduleConfigAdd(
     _root,
-    { scheduleName, scheduleConfig, configShiftStart, configShiftEnd },
+    {
+      scheduleName,
+      lunchBreakInMins,
+      scheduleConfig,
+      configShiftStart,
+      configShiftEnd
+    },
     { models }: IContext
   ) {
     const newScheduleConfig = await models.ScheduleConfigs.createScheduleConfig(
       {
-        scheduleName: `${scheduleName}`,
+        scheduleName,
+        lunchBreakInMins,
         shiftStart: configShiftStart,
         shiftEnd: configShiftEnd
       }
@@ -534,6 +518,7 @@ const timeclockMutations = {
     {
       _id,
       scheduleName,
+      lunchBreakInMins,
       scheduleConfig,
       configShiftStart,
       configShiftEnd,
@@ -544,7 +529,8 @@ const timeclockMutations = {
     const newScheduleConfig = await models.ScheduleConfigs.updateScheduleConfig(
       _id,
       {
-        scheduleName: `${scheduleName}`,
+        scheduleName,
+        lunchBreakInMins,
         shiftEnd: configShiftEnd,
         shiftStart: configShiftStart,
         ...doc

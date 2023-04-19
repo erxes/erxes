@@ -178,5 +178,11 @@ export default async function userMiddleware(
     console.error(e);
   }
 
+  if (req.user) {
+    const userJson = JSON.stringify(req.user);
+    const userJsonBase64 = Buffer.from(userJson, 'utf8').toString('base64');
+    req.headers.user = userJsonBase64;
+  }
+
   return next();
 }

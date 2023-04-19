@@ -159,6 +159,7 @@ export default (props: Props) => {
 
         <SelectTeamMembers
           queryParams={queryParams}
+          customField="employeeId"
           label={'Team member'}
           onSelect={onUserSelect}
           multi={false}
@@ -169,10 +170,10 @@ export default (props: Props) => {
           <DateControl
             required={false}
             value={checkInOutDate}
-            timeFormat={true}
             name="startDate"
             placeholder={'Starting date'}
-            dateFormat={'YYYY-MM-DD'}
+            dateFormat="YYYY-MM-DD"
+            timeFormat="HH:mm"
             onChange={val => onCheckInDateChange(val)}
           />
         </CustomRangeContainer>
@@ -198,6 +199,7 @@ export default (props: Props) => {
       />
 
       <SelectTeamMembers
+        customField="employeeId"
         queryParams={queryParams}
         label={'Team member'}
         onSelect={onUserSelect}
