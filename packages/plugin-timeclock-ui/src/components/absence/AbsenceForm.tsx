@@ -10,7 +10,8 @@ import {
   CustomRangeContainer,
   FlexCenter,
   FlexColumn,
-  MarginY
+  MarginY,
+  ToggleDisplay
 } from '../../styles';
 import { IAttachment } from '@erxes/ui/src/types';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
@@ -19,6 +20,9 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import { PopoverButton } from '@erxes/ui/src/styles/main';
 import Icon from '@erxes/ui/src/components/Icon';
+import DateTimePicker from '../datepicker/DateTimePicker';
+import { dateFormat } from '../../constants';
+import * as dayjs from 'dayjs';
 
 type Props = {
   absenceTypes: IAbsenceType[];
@@ -62,7 +66,7 @@ export default (props: Props) => {
 
   const [overlayTrigger, setOverlayTrigger] = useState<any>(null);
 
-  const [requestDates, setRequestDates] = useState<Date[]>([]);
+  const [requestDates, setRequestDates] = useState<string[]>([]);
 
   const [dateRange, setDateRange] = useState<DateTimeRange>({
     startTime: new Date(localStorage.getItem('dateRangeStart') || ''),
@@ -210,27 +214,29 @@ export default (props: Props) => {
     }
   };
 
-  const onDateSelectChange = dateString => {
-    const findIndex = requestDates.indexOf(dateString);
+  const onDateSelectChange = date => {
+    if (date) {
+      const dateString = dayjs(date).format(dateFormat);
 
-    if (findIndex !== -1) {
-      requestDates.splice(findIndex, 1);
-      setRequestDates(requestDates);
-      return;
+      const findIndex = requestDates.indexOf(dateString);
+
+      if (findIndex !== -1) {
+        requestDates.splice(findIndex, 1);
+        setRequestDates([...requestDates]);
+        return;
+      }
+
+      requestDates.push(dateString);
+      setRequestDates([...requestDates]);
     }
-
-    requestDates.push(dateString);
-    setRequestDates(requestDates);
   };
 
   const renderDay = (dateTimeProps: any, currentDate) => {
     let isSelected = false;
 
-    console.log('cirr ', currentDate);
-    console.log('render days', requestDates);
+    const dateString = dayjs(currentDate).format(dateFormat);
 
-    if (requestDates.indexOf(currentDate) !== -1) {
-      console.log('selected');
+    if (requestDates.indexOf(dateString) !== -1) {
       isSelected = true;
     }
 
@@ -267,33 +273,45 @@ export default (props: Props) => {
     );
   };
 
+  const onDateChange = () => {};
+
+  const onChangeStartTime = () => {};
+
+  const onChangeEndTime = () => {};
+
+  const renderDateAndTimeSelection = () => {
+    return (
+      <DateTimePicker
+        curr_day_key="1"
+        changeDate={onDateChange}
+        changeStartTime={onChangeStartTime}
+        changeEndTime={onChangeEndTime}
+      />
+    );
+  };
+
   const requestTimeByDay =
     absenceTypes[absenceIdx].requestTimeType === 'by day';
 
   return (
     <FlexColumn marginNum={10}>
-      {/* <DateRange
-        showTime={absenceTypes[absenceIdx].requestTimeType === 'by hour'}
-        startDate={dateRange.startTime}
-        endDate={dateRange.endTime}
-        onChangeEnd={onDateRangeEndChange}
-        onChangeStart={onDateRangeStartChange}
-        onSaveButton={onSaveDateRange}
-      /> */}
+      <ToggleDisplay display={requestTimeByDay}>
+        <OverlayTrigger
+          ref={overlay => setOverlayTrigger(overlay)}
+          placement="left-start"
+          trigger="click"
+          overlay={renderDateSelection()}
+          container={this}
+          rootClose={this}
+        >
+          <PopoverButton>
+            {__('Please select date')}
+            <Icon icon="angle-down" />
+          </PopoverButton>
+        </OverlayTrigger>
+      </ToggleDisplay>
 
-      <OverlayTrigger
-        ref={overlay => setOverlayTrigger(overlay)}
-        placement="left-start"
-        trigger="click"
-        overlay={renderDateSelection()}
-        container={this}
-        rootClose={this}
-      >
-        <PopoverButton>
-          {__('Please select date')}
-          <Icon icon="angle-down" />
-        </PopoverButton>
-      </OverlayTrigger>
+      <ToggleDisplay display={!requestTimeByDay}>{}</ToggleDisplay>
 
       <FlexCenter>
         {requestTimeByDay ? `Total days: ${0} ` : `Total hours : ${0}`}

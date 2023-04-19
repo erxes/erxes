@@ -17,7 +17,7 @@ type Props = {
   timeOnly?: boolean;
 };
 
-const DatePicker = (props: Props) => {
+const DateTimePicker = (props: Props) => {
   const {
     changeDate,
     changeEndTime,
@@ -119,4 +119,4 @@ const DatePicker = (props: Props) => {
   );
 };
 
-export default DatePicker;
+export default DateTimePicker;
