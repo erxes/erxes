@@ -35,6 +35,7 @@ const createOrUpdateConfig = `
     $googleRedirectUri: String
     $googleClientSecret: String
     $facebookAppId: String
+    $erxesAppToken: String
 
     $kbToggle: Boolean
     $publicTaskToggle: Boolean
@@ -80,6 +81,7 @@ const createOrUpdateConfig = `
       googleRedirectUri: $googleRedirectUri
       googleClientSecret: $googleClientSecret
       facebookAppId: $facebookAppId
+      erxesAppToken: $erxesAppToken
 
       kbToggle: $kbToggle,
       publicTaskToggle: $publicTaskToggle,
