@@ -126,7 +126,11 @@ export const checkPricing = async (
   // Calculating discount
   for (const plan of plans) {
     // Take all products that can be discounted
-    allowedProductIds = await getAllowedProducts(subdomain, plan, productIds);
+    allowedProductIds = await getAllowedProducts(
+      subdomain,
+      plan,
+      productIds || []
+    );
 
     // Check repeat rule first
     const repeatPassed: boolean = checkRepeatRule(plan);
@@ -190,10 +194,14 @@ export const checkPricing = async (
         // Bonus product will always be prioritized
         if (
           (priceRule.type === 'bonus' &&
+            priceRule.bonusProducts &&
             priceRule.bonusProducts.length !== 0) ||
           (quantityRule.type === 'bonus' &&
+            quantityRule.bonusProducts &&
             quantityRule.bonusProducts.length !== 0) ||
-          (expiryRule.type === 'bonus' && expiryRule.bonusProducts.length !== 0)
+          (expiryRule.type === 'bonus' &&
+            expiryRule.bonusProducts &&
+            expiryRule.bonusProducts.length !== 0)
         ) {
           type = 'bonus';
           bonusProducts = [
@@ -215,7 +223,7 @@ export const checkPricing = async (
           return prev;
         });
 
-        if (maxValueRule.type.length !== 0) {
+        if (maxValueRule.type && maxValueRule.type.length !== 0) {
           type = maxValueRule.type;
           value = maxValueRule.value;
         }
