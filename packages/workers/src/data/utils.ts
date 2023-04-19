@@ -5,6 +5,8 @@ import * as readline from 'readline';
 import csvParser = require('csv-parser');
 import utils from '@erxes/api-utils/src';
 import { getFileUploadConfigs } from '../messageBroker';
+import { getService } from '@erxes/api-utils/src/serviceDiscovery';
+import * as Downloader from 'nodejs-file-downloader';
 
 export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 
@@ -99,6 +101,26 @@ export const createAWS = async () => {
 
 export const getImportCsvInfo = async (fileName: string) => {
   const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
+
+  const service: any = await getService('core', true);
+
+  const url = `${service.address}/get-import-file`;
+
+  const downloader = await new (Downloader as any)({
+    url,
+    directory: uploadsFolderPath,
+    cloneFiles: false,
+    fileName,
+    headers: { fileName }
+  });
+  try {
+    await downloader.download();
+  } catch (e) {
+    console.error(
+      `${service.name} csv download from ${url} to ${fileName} failed.`,
+      e.message
+    );
+  }
 
   return new Promise(async (resolve, reject) => {
     if (UPLOAD_SERVICE_TYPE === 'local') {
