@@ -1,5 +1,4 @@
 var { withFilter } = require("graphql-subscriptions");
-var { gql } = require("apollo-server-express");
 
 module.exports = {
   name: "cards",
@@ -8,6 +7,7 @@ module.exports = {
 
       checklistsChanged(contentType: String!, contentTypeId: String!): Checklist
       checklistDetailChanged(_id: String!): Checklist
+      productsDataChanged(_id: String!): ProductsDataChangeResponse
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {
@@ -26,7 +26,7 @@ module.exports = {
             payload,
             info,
             queryVariables: { _id: payload.checklistsChanged._id },
-            buildQueryUsingSelections: (selections) => gql`
+            buildQueryUsingSelections: (selections) => `
               query Subscription_GetChecklist($_id: String!) {
                 checklistDetail(_id: $_id) {
                   ${selections}
@@ -54,7 +54,7 @@ module.exports = {
             payload,
             info,
             queryVariables: { _id: payload.checklistDetailChanged._id },
-            buildQueryUsingSelections: (selections) => gql`
+            buildQueryUsingSelections: (selections) => `
               query Subscription_GetChecklist($_id: String!) {
                 checklistDetail(_id: $_id) {
                   ${selections}
@@ -70,6 +70,16 @@ module.exports = {
           }
         ),
       },
+
+      productsDataChanged: {
+        subscribe: withFilter(
+          () => graphqlPubsub.asyncIterator("productsDataChanged"),
+          // filter by _id
+          (payload, variables) => {
+            return payload.productsDataChanged._id === variables._id;
+          }
+        ),
+      }
     };
   },
 };

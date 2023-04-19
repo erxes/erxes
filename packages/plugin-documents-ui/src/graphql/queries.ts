@@ -36,9 +36,19 @@ const totalCount = `
   }
 `;
 
+const documentsGetContentTypes = `
+  query DocumentsGetContentTypes {
+  documentsGetContentTypes {
+    contentType
+    label
+  }
+}
+`;
+
 export default {
   documents,
   documentsDetail,
   editorAttributes,
-  totalCount
+  totalCount,
+  documentsGetContentTypes
 };

@@ -158,14 +158,14 @@ export const productSchema = schemaWrapper(
       index: true
     }),
     productCount: field({
-      type: String,
+      type: Number,
       label: 'Product Count',
-      default: '0'
+      default: 0
     }),
     minimiumCount: field({
-      type: String,
+      type: Number,
       label: 'Minimium Count',
-      default: '0'
+      default: 0
     }),
     vendorId: field({ type: String, optional: true, label: 'Vendor' }),
     mergedIds: field({ type: [String], optional: true }),
@@ -178,10 +178,10 @@ export const productSchema = schemaWrapper(
     subUoms: field({
       type: [subUomSchema],
       optional: true,
-      label: 'Sum unit of measurements'
+      label: 'Sub unit of measurements'
     }),
-    taxType: field({ type: String, optional: true, label: 'VAT type' }),
-    taxCode: field({ type: String, optional: true, label: '' })
+    taxType: field({ type: String, optional: true, label: 'TAX type' }),
+    taxCode: field({ type: String, optional: true, label: 'tax type code' })
   })
 );
 

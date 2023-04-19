@@ -1,4 +1,3 @@
-import { HeaderContent } from './styles';
 import {
   Content,
   FilterContainer,
@@ -16,24 +15,25 @@ import { __, getEnv, router } from '@erxes/ui/src/utils/core';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
 import { CATEGORIES } from '../../constants';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
+import { HeaderContent } from './styles';
+import { IAttachment } from '@erxes/ui/src/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import { ITemplateDoc } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
+import { Label } from '@erxes/ui/src/components/form/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import TemplateForm from '../../containers/templates/TemplateForm';
 import Uploader from '@erxes/ui/src/components/Uploader';
-import { IAttachment } from '@erxes/ui/src/types';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
 
 type Props = {
   templates: ITemplateDoc[];
   templatesCount: number;
-  use: (_id: string, name: string, coverImage: any) => void;
+  // use: (_id: string, name: string, coverImage: any) => void;
   queryParams: any;
 } & IRouterProps;
 
@@ -103,51 +103,14 @@ function List(props: Props) {
 
   const renderUseAction = template => {
     const trigger = <Button btnStyle="white">{__('Use')}</Button>;
+    const site = localStorage.getItem('webbuilderSiteId') || '';
 
     const content = ({ closeModal }) => (
-      <>
-        <FormGroup>
-          <ControlLabel required={true}>Your WebSite Name</ControlLabel>
-
-          <FormControl
-            name="name"
-            autoFocus={true}
-            defaultValue={name}
-            required={true}
-            onChange={(e: any) => setName(e.target.value)}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>Cover image</ControlLabel>
-
-          <Uploader
-            defaultFileList={coverImage ? [coverImage] : []}
-            onChange={onChangeCoverImage}
-            single={true}
-          />
-        </FormGroup>
-
-        <ModalFooter>
-          <Button
-            btnStyle="simple"
-            onClick={closeModal}
-            icon="times-circle"
-            uppercase={false}
-          >
-            Cancel
-          </Button>
-
-          <Button
-            btnStyle="success"
-            icon="plus-circle"
-            onClick={() => use(template._id, name, coverImage)}
-            uppercase={false}
-          >
-            Create
-          </Button>
-        </ModalFooter>
-      </>
+      <TemplateForm
+        closeModal={closeModal}
+        currentTemplateId={template._id}
+        selectedSite={site}
+      />
     );
 
     return (
@@ -172,8 +135,9 @@ function List(props: Props) {
         <Content>
           <div>
             <b>{template.name}</b>
-            <span>Business</span>
+            <span>{__('Business')}</span>
           </div>
+          <Label>{__('Free')}</Label>
         </Content>
       </SiteBox>
     );
@@ -221,9 +185,9 @@ function List(props: Props) {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Webbuilder Workspace')}
+          title={__('X Builder Workspace')}
           breadcrumb={[
-            { title: 'Webbuilder', link: '/webbuilder' },
+            { title: 'X Builder', link: '/xbuilder' },
             { title: __('New website') }
           ]}
         />
@@ -248,6 +212,18 @@ function List(props: Props) {
                 </Labels>
               </FilterContainer>
               <FlexWrap noPadding={true}>
+                {renderRow(
+                  {
+                    _id: '0',
+                    name: 'Blank Site',
+                    html: '',
+                    image: '/images/previews/blank.png',
+                    categories: ''
+                  },
+                  0
+                )}
+                {/* {templates.map((template, index) =>
+                  renderRow(template, index + 1) */}
                 {filterTemplates().map((template, index) =>
                   renderRow(template, index)
                 )}

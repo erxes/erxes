@@ -2,35 +2,75 @@ import { generateModels } from './connectionResolver';
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendProductsMessage
+  sendProductsMessage,
+  sendFormsMessage
 } from './messageBroker';
-
+import * as _ from 'lodash';
 const toMoney = value => {
   return new Intl.NumberFormat().format(value);
 };
 
-export default {
-  editorAttributes: async () => {
-    return [
-      { value: 'name', name: 'Name' },
-      { value: 'createdAt', name: 'Created at' },
-      { value: 'closeDate', name: 'Close date' },
-      { value: 'description', name: 'Description' },
-      { value: 'productsInfo', name: 'Products information' },
-      { value: 'servicesInfo', name: 'Services information' },
-      { value: 'assignedUsers', name: 'Assigned users' },
-      { value: 'customers', name: 'Customers' },
-      { value: 'companies', name: 'Companies' },
-      { value: 'now', name: 'Now' },
-      { value: 'productTotalAmount', name: 'Products total amount' },
-      { value: 'servicesTotalAmount', name: 'Services total amount' },
-      { value: 'totalAmount', name: 'Total amount' },
-      { value: 'totalAmountVat', name: 'Total amount vat' },
-      { value: 'totalAmountWithoutVat', name: 'Total amount without vat' },
-      { value: 'discount', name: 'Discount' },
-      { value: 'paymentCash', name: 'Payment cash' },
-      { value: 'paymentNonCash', name: 'Payment non cash' }
+const getCustomFields = async ({ subdomain }) => {
+  let fields: any[] = [];
+
+  for (const cardType of ['task', 'ticket', 'deal']) {
+    let items = await sendFormsMessage({
+      subdomain,
+      action: 'fields.fieldsCombinedByContentType',
+      isRPC: true,
+      data: {
+        contentType: `cards:${cardType}`
+      },
+      defaultValue: []
+    });
+
+    fields = [
+      ...fields,
+      ...items.map(f => ({
+        value: f.name,
+        name: `${cardType}:${f.label}`
+      }))
     ];
+  }
+  return fields;
+};
+
+const commonFields = [
+  { value: 'name', name: 'Name' },
+  { value: 'createdAt', name: 'Created at' },
+  { value: 'closeDate', name: 'Close date' },
+  { value: 'description', name: 'Description' },
+  { value: 'productsInfo', name: 'Products information' },
+  { value: 'servicesInfo', name: 'Services information' },
+  { value: 'assignedUsers', name: 'Assigned users' },
+  { value: 'customers', name: 'Customers' },
+  { value: 'companies', name: 'Companies' },
+  { value: 'now', name: 'Now' },
+  { value: 'productTotalAmount', name: 'Products total amount' },
+  { value: 'servicesTotalAmount', name: 'Services total amount' },
+  { value: 'totalAmount', name: 'Total amount' },
+  { value: 'totalAmountVat', name: 'Total amount vat' },
+  { value: 'totalAmountWithoutVat', name: 'Total amount without vat' },
+  { value: 'discount', name: 'Discount' },
+  { value: 'paymentCash', name: 'Payment cash' },
+  { value: 'paymentNonCash', name: 'Payment non cash' }
+];
+
+export default {
+  types: [
+    {
+      label: 'Cards',
+      type: 'cards'
+    }
+  ],
+
+  editorAttributes: async ({ subdomain }) => {
+    const customFields = await getCustomFields({ subdomain });
+    const uniqueFields = customFields.filter(
+      customField =>
+        !commonFields.some(field => field.value === customField.value)
+    );
+    return [...commonFields, ...uniqueFields];
   },
 
   replaceContent: async ({ subdomain, data: { stageId, itemId, content } }) => {
@@ -144,7 +184,7 @@ export default {
         const name = await sendContactsMessage({
           subdomain,
           action: 'customers.getCustomerName',
-          data: { customer: item },
+          data: item,
           isRPC: true,
           defaultValue: ''
         });
@@ -330,6 +370,35 @@ export default {
       /{{ discount }}/g,
       toMoney(replaceProductsResult.discount + replaceServicesResult.discount)
     );
+
+    for (const customFieldData of item.customFieldsData || []) {
+      replacedContent = replacedContent.replace(
+        new RegExp(`{{ customFieldsData.${customFieldData.field} }}`, 'g'),
+        customFieldData.stringValue
+      );
+    }
+
+    const fileds = (await getCustomFields({ subdomain })).filter(
+      customField =>
+        customField.name.includes(stage.type) &&
+        !customField.value.includes('customFieldsData')
+    );
+
+    for (const field of fileds) {
+      const propertyNames = field.value.includes('.')
+        ? field.value.split('.')
+        : [field.value];
+      let propertyValue = item;
+
+      for (const propertyName of propertyNames) {
+        propertyValue = item[propertyName];
+      }
+
+      replacedContent = replacedContent.replace(
+        new RegExp(`{{ ${field.value} }}`, 'g'),
+        propertyValue || ''
+      );
+    }
 
     return [replacedContent];
   }

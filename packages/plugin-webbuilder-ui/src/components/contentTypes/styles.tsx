@@ -18,6 +18,7 @@ export const TypeFormContainer = styled.div`
 
 export const ContentTypeItem = styled.div`
   margin-left: ${dimensions.unitSpacing - 5}px;
+  flex: 1;
 
   i {
     color: ${colors.colorCoreGray};

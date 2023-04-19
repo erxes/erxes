@@ -50,7 +50,9 @@ export default {
 
     return response.hits.hits.map(hit => {
       const source = hit._source;
-      const firstAttribute = source.attributes[0] || {};
+      const { attributes } = source;
+      const firstAttribute =
+        (attributes && attributes.length > 0 && attributes[0]) || {};
 
       return {
         createdAt: source.createdAt,
