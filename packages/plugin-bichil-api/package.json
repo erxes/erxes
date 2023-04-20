@@ -9,6 +9,9 @@
   },
   "dependencies": {
     "dayjs": "^1.11.7",
-    "xlsx-populate": "^1.21.0"
+    "xlsx-populate": "^1.21.0",
+    "jsonwebtoken": "^8.5.1",
+    "csv-parser": "^3.0.0",
+    "multer": "^1.4.2"
   }
 }
