@@ -178,6 +178,7 @@ export const clientPortalSchema = new Schema({
   googleClientSecret: field({ type: String, optional: true }),
   googleRedirectUri: field({ type: String, optional: true }),
   facebookAppId: field({ type: String, optional: true }),
+  erxesAppToken: field({ type: String, optional: true }),
 
   messengerBrandCode: field({ type: String, optional: true }),
   knowledgeBaseLabel: field({ type: String, optional: true }),

@@ -29,7 +29,10 @@ const clientPortalMutations = {
       stageId,
       parentId,
       closeDate,
-      startDate
+      startDate,
+      customFieldsData,
+      attachments,
+      labelIds
     },
     { subdomain, cpUser, models }: IContext
   ) {
@@ -69,7 +72,10 @@ const clientPortalMutations = {
         stageChangedDate: null,
         parentId,
         closeDate,
-        startDate
+        startDate,
+        customFieldsData,
+        attachments,
+        labelIds
       },
       isRPC: true
     });

@@ -94,6 +94,10 @@ export async function retryGetProxyTargets(): Promise<ErxesProxyTarget[]> {
     await Promise.all(proxyTargets.map(retryEnsureGraphqlEndpointIsUp));
     return proxyTargets;
   } catch (e) {
+    console.log(
+      '-----------------------------------------ERRRORR retryGetProxyTargets-------------------------------------------'
+    );
+    console.log(e);
     console.error(e);
     process.exit(1);
   }

@@ -37,7 +37,7 @@ export const initApolloServer = async (_app, httpServer) => {
     ]),
     // for graceful shutdowns
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-    context: async ({ req, res }) => {
+    context: async ({ req, res }: any) => {
       let user: any = null;
 
       const subdomain = getSubdomain(req);
