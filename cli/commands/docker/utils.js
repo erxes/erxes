@@ -976,8 +976,13 @@ module.exports.up = program => {
 
 //creates Locales directory
 fs.mkdir('./locales', {recursive : true}, (err) => {
-  if (err) throw err;
-  console.log('Locales directory has been created');
+  if (err) {
+    throw err;
+    console.log('failed to create Locales Directory');
+  }
+  else {
+    console.log('Locales directory has been created');
+  }
 });
 
 const dumpDb = async program => {
