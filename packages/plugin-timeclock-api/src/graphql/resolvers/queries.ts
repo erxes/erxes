@@ -67,7 +67,7 @@ const timeclockQueries = {
       return { list: [], totalCount: 0 };
     }
 
-    const totalCount = models.Timeclocks.find(selector).countDocuments();
+    const totalCount = models.Timeclocks.count(selector);
 
     const list = paginate(
       models.Timeclocks.find(selector).sort({
@@ -102,7 +102,7 @@ const timeclockQueries = {
       subdomain,
       'timelog'
     );
-    const queryList = models.TimeLogs.find(selector);
+    const totalCount = models.TimeLogs.count(selector);
 
     // if there's no common user, return empty list
     if (!commonUserFound) {
@@ -113,8 +113,6 @@ const timeclockQueries = {
       models.TimeLogs.find(selector).sort({ userId: 1, timelog: -1 }),
       { perPage: queryParams.perPage, page: queryParams.page }
     );
-
-    const totalCount = queryList.countDocuments();
 
     return { list, totalCount };
   },
@@ -138,7 +136,7 @@ const timeclockQueries = {
       subdomain,
       'schedule'
     );
-    const totalCount = models.Schedules.find(selector).countDocuments();
+    const totalCount = models.Schedules.count(selector);
 
     // if there's no common user, return empty list
     if (!commonUserFound) {
@@ -163,7 +161,7 @@ const timeclockQueries = {
   },
 
   deviceConfigs(_root, queryParams, { models }: IContext) {
-    const totalCount = models.DeviceConfigs.find().countDocuments();
+    const totalCount = models.DeviceConfigs.count({});
 
     const list = paginate(models.DeviceConfigs.find(), {
       perPage: queryParams.perPage,
@@ -179,7 +177,7 @@ const timeclockQueries = {
       subdomain,
       'absence'
     );
-    const totalCount = models.Absences.find(selector).countDocuments();
+    const totalCount = models.Absences.count(selector);
 
     // if there's no common user, return empty list
     if (!commonUserFound) {
