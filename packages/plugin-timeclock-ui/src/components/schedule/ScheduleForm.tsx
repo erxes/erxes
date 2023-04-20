@@ -231,7 +231,11 @@ function ScheduleForm(props: Props) {
       totalBreakMins += scheduleDates[scheduledDateIdx].lunchBreakInMins || 0;
     }
 
-    return [totalDays, totalHours.toFixed(1), totalBreakMins];
+    return [
+      totalDays,
+      (totalHours - totalBreakMins / 60).toFixed(1),
+      totalBreakMins
+    ];
   };
 
   const checkInput = (selectedUsers, shifts, branchIds?, departmentIds?) => {
