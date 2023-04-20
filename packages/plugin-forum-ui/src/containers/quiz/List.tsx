@@ -20,9 +20,7 @@ const QuizList = ({ queryParams }: Props) => {
   const { data, loading, error } = useQuery(gql(queries.quizzesList), {
     fetchPolicy: 'network-only',
     variables: {
-      sort: {
-        _id: -1
-      },
+      sort: { [queryParams.sortField]: queryParams.sortDirection },
       limit,
       offset
     }

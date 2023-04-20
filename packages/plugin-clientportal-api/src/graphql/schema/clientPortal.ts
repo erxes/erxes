@@ -108,6 +108,7 @@ ${
     googleClientSecret: String
     googleRedirectUri: String
     facebookAppId: String
+    erxesAppToken: String
     styles: Styles
     mobileResponsive: Boolean
   
@@ -222,6 +223,7 @@ export const mutations = cardAvailable => `
     googleClientSecret: String
     googleRedirectUri: String
     facebookAppId: String
+    erxesAppToken: String
     styles: StylesParams
     mobileResponsive: Boolean
     kbToggle: Boolean,
@@ -250,6 +252,9 @@ export const mutations = cardAvailable => `
         parentId: String,
         closeDate: Date
         startDate: Date
+        attachments: [AttachmentInput]
+        customFieldsData: JSON
+        labelIds: [String]
       ): JSON
       clientPortalCommentsAdd(type: String!, typeId: String!, content: String! userType: String!): ClientPortalComment
       clientPortalCommentsRemove(_id: String!): String

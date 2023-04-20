@@ -226,6 +226,14 @@ const CreatedUser = styled.div`
   }
 `;
 
+const SelectInput = styled.div`
+  margin-bottom: 5px;
+
+  label {
+    margin-right: 5px;
+  }
+`;
+
 export {
   TicketRow,
   TicketLabel,
@@ -241,4 +249,5 @@ export {
   CommentWrapper,
   CommentContent,
   CreatedUser,
+  SelectInput
 };
