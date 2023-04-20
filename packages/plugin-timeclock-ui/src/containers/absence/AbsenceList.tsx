@@ -45,7 +45,6 @@ type FinalProps = {
 
 const ListContainer = (props: FinalProps) => {
   const {
-    queryParams,
     sendAbsenceReqMutation,
     solveAbsenceMutation,
     removeAbsenceMutation,
@@ -83,7 +82,8 @@ const ListContainer = (props: FinalProps) => {
     attachment: IAttachment,
     submitTime: any,
     absenceTypeId: string,
-    absenceTimeType: string
+    absenceTimeType: string,
+    totalHoursOfAbsence: string
   ) => {
     const checkAttachment = attachment.url.length ? attachment : undefined;
 
@@ -100,7 +100,8 @@ const ListContainer = (props: FinalProps) => {
           explanation,
           attachment: checkAttachment,
           absenceTypeId,
-          absenceTimeType
+          absenceTimeType,
+          totalHoursOfAbsence
         }
       })
         .then(() => Alert.success('Successfully sent an absence request'))
@@ -118,7 +119,8 @@ const ListContainer = (props: FinalProps) => {
         explanation,
         attachment: checkAttachment,
         absenceTypeId,
-        absenceTimeType
+        absenceTimeType,
+        totalHoursOfAbsence
       }
     })
       .then(() => Alert.success('Successfully sent an absence request'))

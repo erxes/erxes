@@ -42,6 +42,10 @@ export const types = `
     solved: Boolean
     status: String
     attachment: Attachment
+    
+    absenceTimeType: String
+    requestDates: [String]
+    totalHoursOfAbsence: String
   }
 
   type AbsenceType {
@@ -247,7 +251,10 @@ const absence_params = `
     reason: String
     explanation: String
     attachment: AttachmentInput
+    
     absenceTypeId: String
+    absenceTimeType: String
+    totalHoursOfAbsence: String
 `;
 
 const absenceType_params = `

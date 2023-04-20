@@ -32,6 +32,10 @@ export interface IAbsence {
   solved: boolean;
   status: string;
   attachment: IAttachment;
+
+  absenceTimeType: string;
+  requestDates: string[];
+  totalHoursOfAbsence: string;
 }
 export interface IAbsenceType {
   _id: string;
@@ -243,6 +247,8 @@ export type AbsenceMutationVariables = {
 
   absenceTypeId: string;
   absenceTimeType: string;
+
+  totalHoursOfAbsence: string;
 
   explanation?: string;
   attachment?: IAttachment;

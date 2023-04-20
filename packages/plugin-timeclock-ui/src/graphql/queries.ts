@@ -142,6 +142,9 @@ const requestsMain = `
           attachment{
             ${attachmentFields}
           }
+          absenceTimeType
+          requestDates
+          totalHoursOfAbsence
         }
         totalCount
   }

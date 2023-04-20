@@ -22,7 +22,6 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import { PopoverButton } from '@erxes/ui/src/styles/main';
 import Icon from '@erxes/ui/src/components/Icon';
-import DateTimePicker from '../datepicker/DateTimePicker';
 import { dateFormat } from '../../constants';
 import * as dayjs from 'dayjs';
 import { compareStartAndEndTimeOfSingleDate } from '../../utils';
@@ -42,7 +41,8 @@ type Props = {
     attachment: IAttachment,
     timeRange: TimeRange | RequestDates,
     absenceTypeId: string,
-    absenceTimeType: string
+    absenceTimeType: string,
+    totalHoursOfAbsence: string
   ) => void;
   contentProps: any;
 };
@@ -124,6 +124,25 @@ export default (props: Props) => {
       return true;
     }
   };
+
+  const calculateTotalHoursOfAbsence = () => {
+    const absenceTimeType = absenceTypes[absenceIdx].requestTimeType;
+
+    if (absenceTimeType === 'by day') {
+      const totalRequestedDays = request.byDay.requestDates.length;
+
+      const totalRequestedDaysTime =
+        totalRequestedDays * (absenceTypes[absenceIdx].requestHoursPerDay || 0);
+
+      return totalRequestedDaysTime.toFixed(1);
+    }
+
+    return (
+      (request.byTime.endTime.getTime() - request.byTime.startTime.getTime()) /
+      3600000
+    ).toFixed(1);
+  };
+
   const onSubmitClick = () => {
     const validInput = checkInput(userId);
     if (validInput) {
@@ -143,7 +162,8 @@ export default (props: Props) => {
         attachment,
         submitTime,
         absenceTypes[absenceIdx]._id,
-        absenceTimeType
+        absenceTimeType,
+        calculateTotalHoursOfAbsence()
       );
       closeModal();
     }
@@ -407,13 +427,6 @@ export default (props: Props) => {
   const renderTotalRequestTime = () => {
     const totalRequestedDays = request.byDay.requestDates.length;
 
-    const totalRequestedDaysTime =
-      totalRequestedDays * (absenceTypes[absenceIdx].requestHoursPerDay || 0);
-
-    const totalRequestedHours =
-      (request.byTime.endTime.getTime() - request.byTime.startTime.getTime()) /
-      3600000;
-
     if (requestTimeByDay) {
       return (
         <FlexRow>
@@ -423,7 +436,7 @@ export default (props: Props) => {
           </FlexColumn>
           <FlexColumn marginNum={2}>
             <div>{totalRequestedDays}</div>
-            <div>{totalRequestedDaysTime}</div>
+            <div>{calculateTotalHoursOfAbsence()}</div>
           </FlexColumn>
         </FlexRow>
       );
@@ -432,7 +445,7 @@ export default (props: Props) => {
     return (
       <FlexRow>
         <div>Total hours :</div>
-        <div> {totalRequestedHours.toFixed(2)}</div>
+        <div> {calculateTotalHoursOfAbsence()}</div>
       </FlexRow>
     );
   };
