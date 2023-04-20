@@ -41,10 +41,7 @@ function PagesList({
   const { data, loading, error } = useQuery(gql(queries.pages), {
     fetchPolicy: 'network-only',
     variables: {
-      sort: {
-        code: 1,
-        listOrder: 1
-      },
+      sort: { [queryParams.sortField]: queryParams.sortDirection },
       limit,
       offset
     }
