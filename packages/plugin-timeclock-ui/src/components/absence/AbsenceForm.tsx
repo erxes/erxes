@@ -10,6 +10,8 @@ import {
   CustomRangeContainer,
   FlexCenter,
   FlexColumn,
+  FlexRow,
+  FlexRowEven,
   MarginY,
   ToggleDisplay
 } from '../../styles';
@@ -23,6 +25,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import DateTimePicker from '../datepicker/DateTimePicker';
 import { dateFormat } from '../../constants';
 import * as dayjs from 'dayjs';
+import { compareStartAndEndTimeOfSingleDate } from '../../utils';
 
 type Props = {
   absenceTypes: IAbsenceType[];
@@ -37,19 +40,20 @@ type Props = {
     reason: string,
     explanation: string,
     attachment: IAttachment,
-    dateRange: DateTimeRange,
-    absenceTypeId: string
+    timeRange: TimeRange | RequestDates,
+    absenceTypeId: string,
+    absenceTimeType: string
   ) => void;
   contentProps: any;
 };
 
-type DateTimeRange = {
+type TimeRange = {
   startTime: Date;
   endTime: Date;
 };
 
 type RequestDates = {
-  dates?: Date[];
+  requestDates: string[];
 };
 
 export default (props: Props) => {
@@ -62,15 +66,27 @@ export default (props: Props) => {
     submitCheckInOut
   } = props;
 
+  type RequestByTime = {
+    date: Date;
+    startTime: Date;
+    endTime: Date;
+  };
+
+  type Request = {
+    byDay: {
+      requestDates: string[];
+    };
+
+    byTime: RequestByTime;
+  };
+
   const { closeModal } = contentProps;
 
   const [overlayTrigger, setOverlayTrigger] = useState<any>(null);
 
-  const [requestDates, setRequestDates] = useState<string[]>([]);
-
-  const [dateRange, setDateRange] = useState<DateTimeRange>({
-    startTime: new Date(localStorage.getItem('dateRangeStart') || ''),
-    endTime: new Date(localStorage.getItem('dateRangeEnd') || '')
+  const [request, setRequest] = useState<Request>({
+    byDay: { requestDates: [] },
+    byTime: { date: new Date(), startTime: new Date(), endTime: new Date() }
   });
 
   const [checkInOutType, setCheckInOutType] = useState('Check in');
@@ -111,13 +127,23 @@ export default (props: Props) => {
   const onSubmitClick = () => {
     const validInput = checkInput(userId);
     if (validInput) {
+      const absenceTimeType = absenceTypes[absenceIdx].requestTimeType;
+      const submitTime =
+        absenceTimeType === 'by day'
+          ? request.byDay
+          : {
+              startTime: request.byTime.startTime,
+              endTime: request.byTime.endTime
+            };
+
       submitRequest(
         userId,
         absenceTypes[absenceIdx].name,
         explanation,
         attachment,
-        dateRange,
-        absenceTypes[absenceIdx]._id
+        submitTime,
+        absenceTypes[absenceIdx]._id,
+        absenceTimeType
       );
       closeModal();
     }
@@ -139,26 +165,8 @@ export default (props: Props) => {
     setAttachment(files[0]);
   };
 
-  const onDateRangeStartChange = (newStart: Date) => {
-    const newRange = dateRange;
-    newRange.startTime = newStart;
-    setDateRange({ ...newRange });
-  };
-
-  const onDateRangeEndChange = (newEnd: Date) => {
-    const newRange = dateRange;
-    newRange.endTime = newEnd;
-    setDateRange({ ...newRange });
-  };
-
   const onCheckInDateChange = date => {
     setCheckInOutDate(date);
-  };
-
-  const onSaveDateRange = () => {
-    localStorage.setItem('dateRangeEnd', dateRange.endTime.toISOString());
-    localStorage.setItem('dateRangeStart', dateRange.startTime.toISOString());
-    Alert.success('succesfully saved');
   };
 
   const onSubmitCheckInOut = () => {
@@ -218,16 +226,17 @@ export default (props: Props) => {
     if (date) {
       const dateString = dayjs(date).format(dateFormat);
 
-      const findIndex = requestDates.indexOf(dateString);
+      const oldRequestDates = request.byDay.requestDates;
+      const findIndex = oldRequestDates.indexOf(dateString);
 
       if (findIndex !== -1) {
-        requestDates.splice(findIndex, 1);
-        setRequestDates([...requestDates]);
+        oldRequestDates.splice(findIndex, 1);
+        setRequest({ ...request, byDay: { requestDates: oldRequestDates } });
         return;
       }
 
-      requestDates.push(dateString);
-      setRequestDates([...requestDates]);
+      oldRequestDates.push(dateString);
+      setRequest({ ...request, byDay: { requestDates: oldRequestDates } });
     }
   };
 
@@ -236,7 +245,7 @@ export default (props: Props) => {
 
     const dateString = dayjs(currentDate).format(dateFormat);
 
-    if (requestDates.indexOf(dateString) !== -1) {
+    if (request.byDay.requestDates.indexOf(dateString) !== -1) {
       isSelected = true;
     }
 
@@ -264,7 +273,7 @@ export default (props: Props) => {
             inputProps={{ required: false }}
           />
           <FlexCenter>
-            <MarginY>
+            <MarginY margin={10}>
               <Button onClick={closePopover}>Close</Button>
             </MarginY>
           </FlexCenter>
@@ -273,26 +282,160 @@ export default (props: Props) => {
     );
   };
 
-  const onDateChange = () => {};
-
-  const onChangeStartTime = () => {};
-
-  const onChangeEndTime = () => {};
-
-  const renderDateAndTimeSelection = () => {
-    return (
-      <DateTimePicker
-        curr_day_key="1"
-        changeDate={onDateChange}
-        changeStartTime={onChangeStartTime}
-        changeEndTime={onChangeEndTime}
-      />
+  const onDateChange = (day_key, selectedDate) => {
+    const [
+      getCorrectStartTime,
+      getCorrectEndTime
+    ] = compareStartAndEndTimeOfSingleDate(
+      request.byTime.startTime,
+      request.byTime.endTime,
+      selectedDate
     );
+
+    setRequest({
+      ...request,
+      byTime: {
+        date: new Date(selectedDate),
+        endTime: getCorrectEndTime,
+        startTime: getCorrectStartTime
+      }
+    });
   };
+
+  const onChangeStartTime = starTimeValue => {
+    const [
+      getCorrectStartTime,
+      getCorrectEndTime
+    ] = compareStartAndEndTimeOfSingleDate(
+      starTimeValue,
+      request.byTime.endTime,
+      request.byTime.date
+    );
+
+    setRequest({
+      ...request,
+      byTime: {
+        ...request.byTime,
+        endTime: getCorrectEndTime,
+        startTime: getCorrectStartTime
+      }
+    });
+  };
+
+  const onChangeEndTime = endTimeValue => {
+    const [
+      getCorrectStartTime,
+      getCorrectEndTime
+    ] = compareStartAndEndTimeOfSingleDate(
+      request.byTime.startTime,
+      endTimeValue,
+      request.byTime.date
+    );
+
+    setRequest({
+      ...request,
+      byTime: {
+        ...request.byTime,
+        endTime: getCorrectEndTime,
+        startTime: getCorrectStartTime
+      }
+    });
+  };
+
+  const onTimeChange = (input: any, type: string) => {
+    const startDate = request.byTime.date;
+
+    const getDate = startDate
+      ? startDate.toLocaleDateString()
+      : new Date().toLocaleDateString();
+    const validateInput = dayjs(getDate + ' ' + input).toDate();
+
+    if (
+      input instanceof Date &&
+      startDate?.getUTCFullYear() === input.getUTCFullYear()
+    ) {
+      if (type === 'start') {
+        onChangeStartTime(input);
+      } else {
+        onChangeEndTime(input);
+      }
+    }
+
+    if (!isNaN(validateInput.getTime())) {
+      if (type === 'start') {
+        onChangeStartTime(validateInput);
+      } else {
+        onChangeEndTime(validateInput);
+      }
+    }
+  };
+
+  const renderDateAndTimeSelection = (
+    <FlexRowEven>
+      <FlexColumn marginNum={2}>
+        <div>Date:</div>
+        <Datetime value={request.byTime.date} timeFormat={false} />
+      </FlexColumn>
+
+      <FlexColumn marginNum={2}>
+        <div>From:</div>
+        <Datetime
+          value={request.byTime.startTime}
+          dateFormat={false}
+          timeFormat="HH:mm"
+          timeConstraints={{
+            hours: { min: 0, max: 24, step: 1 }
+          }}
+          onChange={val => onTimeChange(val, 'start')}
+        />
+      </FlexColumn>
+      <FlexColumn marginNum={2}>
+        <div>To:</div>
+        <Datetime
+          value={request.byTime.endTime}
+          dateFormat={false}
+          timeFormat="HH:mm"
+          onChange={val => onTimeChange(val, 'end')}
+        />
+      </FlexColumn>
+    </FlexRowEven>
+  );
 
   const requestTimeByDay =
     absenceTypes[absenceIdx].requestTimeType === 'by day';
 
+  const renderTotalRequestTime = () => {
+    const totalRequestedDays = request.byDay.requestDates.length;
+
+    const totalRequestedDaysTime =
+      totalRequestedDays * (absenceTypes[absenceIdx].requestHoursPerDay || 0);
+
+    const totalRequestedHours =
+      (request.byTime.endTime.getTime() - request.byTime.startTime.getTime()) /
+      3600000;
+
+    if (requestTimeByDay) {
+      return (
+        <FlexRow>
+          <FlexColumn marginNum={2}>
+            <div>Total days :</div>
+            <div>Total hours :</div>
+          </FlexColumn>
+          <FlexColumn marginNum={2}>
+            <div>{totalRequestedDays}</div>
+            <div>{totalRequestedDaysTime}</div>
+          </FlexColumn>
+        </FlexRow>
+      );
+    }
+
+    return (
+      <FlexRow>
+        <div>Total hours :</div>
+        <div> {totalRequestedHours.toFixed(2)}</div>
+      </FlexRow>
+    );
+  };
   return (
     <FlexColumn marginNum={10}>
       <ToggleDisplay display={requestTimeByDay}>
@@ -311,12 +454,17 @@ export default (props: Props) => {
         </OverlayTrigger>
       </ToggleDisplay>
 
-      <ToggleDisplay display={!requestTimeByDay}>{}</ToggleDisplay>
+      <ToggleDisplay display={!requestTimeByDay}>
+        {renderDateAndTimeSelection}
+      </ToggleDisplay>
 
-      <FlexCenter>
-        {requestTimeByDay ? `Total days: ${0} ` : `Total hours : ${0}`}
-      </FlexCenter>
-
+      <MarginY margin={15}>
+        <FlexCenter>
+          <div style={{ fontSize: '14px', width: '30%' }}>
+            {renderTotalRequestTime()}
+          </div>
+        </FlexCenter>
+      </MarginY>
       <SelectTeamMembers
         customField="employeeId"
         queryParams={queryParams}

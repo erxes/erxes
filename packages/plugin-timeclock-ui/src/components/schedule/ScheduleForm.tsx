@@ -228,7 +228,7 @@ function ScheduleForm(props: Props) {
     let totalBreakMins = 0;
 
     for (const scheduledDateIdx of Object.keys(scheduleDates)) {
-      totalBreakMins += scheduleDates[scheduledDateIdx].lunchBreakInMins;
+      totalBreakMins += scheduleDates[scheduledDateIdx].lunchBreakInMins || 0;
     }
 
     return [totalDays, totalHours.toFixed(1), totalBreakMins];
@@ -435,14 +435,14 @@ function ScheduleForm(props: Props) {
     let totalBreakMins = 0;
 
     for (const scheduledDateIdx of Object.keys(scheduleDates)) {
-      totalBreakMins += scheduleDates[scheduledDateIdx].lunchBreakInMins;
+      totalBreakMins += scheduleDates[scheduledDateIdx].lunchBreakInMins || 0;
     }
 
     return (
       <FlexCenter>
         <div style={{ width: '35%' }}>
           <FlexRow>
-            <MarginX>
+            <MarginX margin={20}>
               <FlexColumn marginNum={0}>
                 <div>Total days :</div>
                 <div>Total hours :</div>
@@ -704,7 +704,7 @@ function ScheduleForm(props: Props) {
             inputProps={{ required: false }}
           />
           <FlexCenter>
-            <MarginY>
+            <MarginY margin={10}>
               <Button onClick={closePopover}>Close</Button>
             </MarginY>
           </FlexCenter>

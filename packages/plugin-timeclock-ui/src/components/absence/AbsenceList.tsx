@@ -29,8 +29,9 @@ type Props = {
     reason: string,
     explanation: string,
     attachment: IAttachment,
-    dateRange: any,
-    absenceTypeId: string
+    submitTime: any,
+    absenceTypeId: string,
+    absenceTimeType: string
   ) => void;
 
   submitCheckInOut: (type: string, userId: string, dateVal: Date) => void;

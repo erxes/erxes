@@ -155,8 +155,8 @@ export interface IScheduleForm {
 export interface IScheduleDate {
   overnightShift?: boolean;
 
-  scheduleConfigId: string;
-  lunchBreakInMins: number;
+  scheduleConfigId?: string;
+  lunchBreakInMins?: number;
 
   shiftDate?: Date;
   shiftStart: Date;
@@ -238,13 +238,17 @@ export type MutationVariables = {
 };
 export type AbsenceMutationVariables = {
   _id?: string;
-  startTime: Date;
-  endTime: Date;
   userId: string;
   reason: string;
+
+  absenceTypeId: string;
+  absenceTimeType: string;
+
   explanation?: string;
   attachment?: IAttachment;
-  absenceTypeId?: string;
+  requestDates?: string[];
+  startTime?: Date;
+  endTime?: Date;
 };
 
 export type ScheduleMutationVariables = {

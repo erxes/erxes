@@ -243,6 +243,7 @@ const absence_params = `
     userId: String
     startTime: Date
     endTime: Date
+    requestDates: [String]
     reason: String
     explanation: String
     attachment: AttachmentInput

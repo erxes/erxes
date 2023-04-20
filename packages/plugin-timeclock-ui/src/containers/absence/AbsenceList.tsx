@@ -77,30 +77,52 @@ const ListContainer = (props: FinalProps) => {
   };
 
   const submitRequest = (
-    usrId: string,
+    userId: string,
     reason: string,
-    expl: string,
-    attchment: IAttachment,
-    dateRange: any,
-    absenceTypeId: string
+    explanation: string,
+    attachment: IAttachment,
+    submitTime: any,
+    absenceTypeId: string,
+    absenceTimeType: string
   ) => {
-    if (!reason || !dateRange.startTime || !dateRange.endTime) {
-      Alert.error('Please fill all the fields');
-    } else {
+    const checkAttachment = attachment.url.length ? attachment : undefined;
+
+    if (absenceTimeType === 'by day') {
+      const sortedRequestDates = submitTime.requestDates.sort();
+
       sendAbsenceReqMutation({
         variables: {
-          userId: usrId,
-          startTime: dateRange.startTime,
-          endTime: dateRange.endTime,
-          reason: `${reason}`,
-          explanation: expl.length > 0 ? expl : undefined,
-          attachment: attchment.url.length > 0 ? attchment : undefined,
-          absenceTypeId: `${absenceTypeId}`
+          userId,
+          requestDates: submitTime.requestDates,
+          reason,
+          startTime: new Date(sortedRequestDates[0]),
+          endTime: new Date(sortedRequestDates.slice(-1)),
+          explanation,
+          attachment: checkAttachment,
+          absenceTypeId,
+          absenceTimeType
         }
       })
         .then(() => Alert.success('Successfully sent an absence request'))
         .catch(err => Alert.error(err.message));
+
+      return;
     }
+    // by time
+    sendAbsenceReqMutation({
+      variables: {
+        userId,
+        startTime: submitTime.startTime,
+        endTime: submitTime.endTime,
+        reason,
+        explanation,
+        attachment: checkAttachment,
+        absenceTypeId,
+        absenceTimeType
+      }
+    })
+      .then(() => Alert.success('Successfully sent an absence request'))
+      .catch(err => Alert.error(err.message));
   };
 
   const submitCheckInOut = (type: string, userId: string, dateVal: Date) => {
