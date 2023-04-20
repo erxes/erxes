@@ -9,7 +9,6 @@ const exec = require('child_process').exec;
 const colors = require('colors');
 
 const filePath = pathName => {
-  console.log('pathname', pathName);
   if (pathName) {
     return resolve(process.cwd(), pathName);
   }
