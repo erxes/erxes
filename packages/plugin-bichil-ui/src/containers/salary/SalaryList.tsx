@@ -1,13 +1,12 @@
 import { router } from '@erxes/ui/src';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { Alert, confirm } from '@erxes/ui/src/utils';
 import gql from 'graphql-tag';
 import React from 'react';
-import { useMutation, useQuery } from 'react-apollo';
-
+import { useQuery, useLazyQuery } from 'react-apollo';
+import { __, Alert, confirm } from '@erxes/ui/src/utils';
 import List from '../../components/salary/SalaryList';
-import { mutations, queries } from '../../graphql';
+import { queries } from '../../graphql';
 
 type Props = {
   refetch?: () => void;
@@ -16,14 +15,18 @@ type Props = {
 } & IRouterProps;
 
 export default function ListContainer(props: Props) {
+  const isEmployeeSalary =
+    props.history.location.pathname === '/profile/salaries/bichil';
+
   const variables: any = {
     ...router.generatePaginationParams(props.queryParams || {})
   };
 
-  const { data, loading, refetch } = useQuery(gql(queries.bichilSalaryReport), {
+  const salariesQry = useQuery(gql(queries.bichilSalaryReport), {
     variables: {
       ...variables
     },
+    skip: isEmployeeSalary,
     fetchPolicy: 'network-only'
   });
 
@@ -31,49 +34,60 @@ export default function ListContainer(props: Props) {
     fetchPolicy: 'cache-first'
   });
 
-  //   const { data, loading, refetch } = useQuery<ConfigsListQueryResponse>(
-  //     gql(queries.listQuery),
-  //     {
-  //       variables: isSettings ? variables : {},
-  //       fetchPolicy: 'network-only'
-  //     }
-  //   );
+  const [getEmployeeSalary, { data, loading, error }] = useLazyQuery(
+    gql(queries.salaryByEmployee),
+    {
+      fetchPolicy: 'network-only',
+      variables: {
+        password: ''
+      }
+    }
+  );
 
-  //   const [removeMutation] = useMutation(gql(mutations.removeMutation));
-
-  //   const remove = (_id: string) => {
-  //     const message = 'Are you sure want to remove this config ?';
-
-  //     confirm(message).then(() => {
-  //       removeMutation({
-  //         variables: { _id }
-  //       })
-  //         .then(() => {
-  //           refetch();
-
-  //           Alert.success('You successfully deleted a config.');
-  //         })
-  //         .catch(e => {
-  //           Alert.error(e.message);
-  //         });
-  //     });
-  //   };
-
-  if (loading || labelsQuery.loading) {
+  if (loading || labelsQuery.loading || salariesQry.loading) {
     return <Spinner />;
   }
 
-  //   const configs = (data && data.khanbankConfigsList.list) || [];
+  const confirmPassword = () => {
+    const message = 'Please enter your password to confirm this action.';
 
-  //   const totalCount = (data && data.khanbankConfigsList.totalCount) || 0;
+    confirm(message, { hasPasswordConfirm: true })
+      .then(password => {
+        getEmployeeSalary({
+          variables: {
+            password: password as string
+          }
+        });
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
+
+  let salaries: any = [];
+  let totalCount = 0;
+
+  if (!isEmployeeSalary) {
+    salaries = salariesQry.data.bichilSalaryReport || [];
+    totalCount = salariesQry.data.bichilSalaryReport.length || 0;
+  }
+
+  if (isEmployeeSalary) {
+    salaries = (data && data.bichilSalaryByEmployee.list) || [];
+    totalCount = (data && data.bichilSalaryByEmployee.totalCount) || 0;
+
+    if (error) {
+      Alert.error(error.message);
+    }
+  }
 
   const extendedProps = {
-    ...props
-    // loading,
-    // configs,
-    // totalCount,
-    // refetch,
-    // remove
+    ...props,
+    labels: labelsQuery.data.bichilSalaryLabels || {},
+    salaries,
+    totalCount,
+    isEmployeeSalary,
+    confirmPassword
   };
 
   return <List {...extendedProps} />;

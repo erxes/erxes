@@ -13,6 +13,11 @@ import {
 import { paginate } from '@erxes/api-utils/src/core';
 import { IReport } from '../../models/definitions/timeclock';
 import { salarySchema } from '../../models/definitions/salary';
+import {
+  checkPermission,
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
+import { sendCommonMessage } from '../../messageBroker';
 
 const bichilQueries = {
   bichils(_root, _args, _context: IContext) {
@@ -122,8 +127,6 @@ const bichilQueries = {
   async bichilSalaryReport(_root, args: any, { models }: IContext) {
     const { page, perPage, employeeId } = args;
 
-    console.log('models ', models);
-
     const qry: any = {};
 
     if (employeeId) {
@@ -151,7 +154,57 @@ const bichilQueries = {
     });
 
     return labels;
+  },
+
+  async bichilSalaryByEmployee(
+    _root,
+    args: { password: string; page: number; perPage: number },
+    { models, user, subdomain }: IContext
+  ) {
+    const { password, page = 1, perPage = 20 } = args;
+    const employee = await sendCommonMessage({
+      subdomain,
+      serviceName: 'core',
+      action: 'users.findOne',
+      data: {
+        _id: user._id
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    const checkPassword = await sendCommonMessage({
+      subdomain,
+      serviceName: 'core',
+      action: 'users.comparePassword',
+      data: {
+        password,
+        userPassword: employee.password
+      },
+      isRPC: true,
+      defaultValue: false
+    });
+
+    if (!checkPassword) {
+      throw new Error('Нууц үг буруу байна');
+    }
+
+    const list = await paginate(
+      models.Salaries.find({ employeeId: employee.employeeId }),
+      { page, perPage }
+    );
+
+    const totalCount = await models.Salaries.find({
+      employeeId: employee.employeeId
+    }).countDocuments();
+
+    return { list, totalCount };
   }
 };
+
+requireLogin(bichilQueries, 'bichilSalaryReport');
+requireLogin(bichilQueries, 'bichilSalaryByEmployee');
+
+checkPermission(bichilQueries, 'bichilSalaryReport', 'showSalaries', []);
 
 export default bichilQueries;

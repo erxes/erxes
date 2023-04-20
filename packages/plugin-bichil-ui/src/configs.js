@@ -5,7 +5,8 @@ module.exports = {
   exposes: {
     './routes': './src/routes.tsx',
     './bichilReportTable': './src/containers/report/ReportList.tsx',
-    './bichilExportReportBtn': './src/components/report/ExportBtn.tsx'
+    './bichilExportReportBtn': './src/components/report/ExportBtn.tsx',
+    './gotoSalaries': './src/components/salary/SalaryBtn.tsx',
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
@@ -14,6 +15,7 @@ module.exports = {
   },
   bichilReportTable: './bichilReportTable',
   bichilExportReportBtn: './bichilExportReportBtn',
+  actionForms: './gotoSalaries',
   menus: [
     {
       text: 'Bichil Globus',

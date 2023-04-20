@@ -1,6 +1,6 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { sendCoreMessage } from './messageBroker';
-import { generateModels } from './connectionResolver';
+import { IModels, generateModels } from './connectionResolver';
 import * as formidable from 'formidable';
 import * as telemetry from 'erxes-telemetry';
 import * as jwt from 'jsonwebtoken';
@@ -9,6 +9,8 @@ import { redis } from '@erxes/api-utils/src/serviceDiscovery';
 import * as csvParser from 'csv-parser';
 import * as fs from 'fs';
 import { SALARY_FIELDS_MAP } from './constants';
+import { IUserDocument } from '@erxes/api-utils/src/types';
+import { can, checkLogin } from '@erxes/api-utils/src/permissions';
 
 export const calculateWeekendDays = (fromDate: Date, toDate: Date): number => {
   let weekendDayCount = 0;
@@ -290,4 +292,34 @@ export const handleUpload = async (
         resolve('success');
       });
   });
+};
+
+export const checkPermission = async (
+  subdomain: string,
+  user: IUserDocument,
+  mutationName: string
+) => {
+  checkLogin(user);
+
+  const permissions = ['manageSalaries'];
+
+  const actionName = permissions.find(
+    permission => permission === mutationName
+  );
+
+  if (!actionName) {
+    throw new Error('Permission required');
+  }
+
+  let allowed = await can(subdomain, actionName, user);
+
+  if (user.isOwner) {
+    allowed = true;
+  }
+
+  if (!allowed) {
+    throw new Error('Permission required');
+  }
+
+  return;
 };

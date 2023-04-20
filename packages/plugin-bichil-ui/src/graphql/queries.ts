@@ -107,47 +107,62 @@ const labelsQuery = `
   }
 `;
 
+const salaryFields = `
+_id
+employee {
+  _id
+  details {
+    firstName
+    lastName
+    position
+  }
+  branches {
+    _id
+    title
+  }
+}
+      employeeId 
+totalWorkHours 
+totalWorkedHours 
+mainSalary 
+bonus 
+addition 
+appointment 
+kpi 
+vacation 
+totalAddition 
+lateHoursDeduction 
+resultDeduction 
+totalDeduction 
+totalSalary 
+preliminarySalary
+receivable 
+ndsh 
+hhoat 
+mainDeduction
+biSan
+phoneCharge
+taxReceivable
+salaryOnHand
+title
+`;
+
 const bichilSalaryReport = `
 query BichilSalaryReport($page: Int, $perPage: Int) {
   bichilSalaryReport(page: $page, perPage: $perPage) {
     list {
-      _id
-      employee {
-        _id
-        details {
-          firstName
-          lastName
-          position
-        }
-        branches {
-          _id
-          title
-        }
-      }
-            employeeId 
-      totalWorkHours 
-      totalWorkedHours 
-      mainSalary 
-      bonus 
-      addition 
-      appointment 
-      kpi 
-      vacation 
-      totalAddition 
-      lateHoursDeduction 
-      resultDeduction 
-      totalDeduction 
-      totalSalary 
-      preliminarySalary
-      receivable 
-      ndsh 
-      hhoat 
-      mainDeduction
-      biSan
-      phoneCharge
-      taxReceivable
-      salaryOnHand
-      title
+      ${salaryFields}
+    }
+    totalCount
+  }
+}
+`;
+
+const salaryByEmployee = `
+query BichilSalaryByEmployee($password: String!) {
+  bichilSalaryByEmployee(password: $password) {
+    list {
+      ${salaryFields}
     }
     totalCount
   }
@@ -157,5 +172,6 @@ query BichilSalaryReport($page: Int, $perPage: Int) {
 export default {
   bichilTimeclockReport,
   labelsQuery,
-  bichilSalaryReport
+  bichilSalaryReport,
+  salaryByEmployee
 };

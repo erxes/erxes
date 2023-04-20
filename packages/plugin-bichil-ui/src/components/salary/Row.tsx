@@ -8,37 +8,67 @@ import React from 'react';
 
 type Props = {
   salary: any;
-  remove: (id: string) => void;
+  keys: any[];
 };
 
 const Row = (props: Props) => {
-  const { salary, remove } = props;
+  const { salary, keys } = props;
 
-  const renderRemoveAction = () => {
-    const onClick = () => {
-      remove(salary._id);
-    };
+  // TODO: discuss with bichil then implement
+  // const renderRemoveAction = () => {
+  //   const onClick = () => {
+  //     remove(salary._id);
+  //   };
 
-    return (
-      <Tip text={__('Delete')} placement="top">
-        <Button
-          id="configDelete"
-          btnStyle="link"
-          onClick={onClick}
-          icon="times-circle"
-        />
-      </Tip>
-    );
-  };
+  //   return (
+  //     <Tip text={__('Delete')} placement="top">
+  //       <Button
+  //         id="configDelete"
+  //         btnStyle="link"
+  //         onClick={onClick}
+  //         icon="times-circle"
+  //       />
+  //     </Tip>
+  //   );
+  // };
+
+  const branches = salary.employee.branches
+    .map(branch => branch.name)
+    .join(', ')
+    .slice(0, -1);
+  const position = salary.employee.details.position.name;
+  const fullName =
+    salary.employee.details.lastName + ' ' + salary.employee.details.firstName;
 
   return (
     <tr>
-      <td key={Math.random()}>
-        <RowTitle>{salary.name || '-'}</RowTitle>
+      <td key={'title'}>
+        <RowTitle>{salary.title || '-'}</RowTitle>
       </td>
+
+      <td key={'department'}>
+        <RowTitle>{branches || '-'}</RowTitle>
+      </td>
+
+      <td key={'position'}>
+        <RowTitle>{position || '-'}</RowTitle>
+      </td>
+
+      <td key={'fullName'}>
+        <RowTitle>{fullName || '-'}</RowTitle>
+      </td>
+
+      {keys.map(key => (
+        <td key={key}>
+          <RowTitle>{Number(salary[key]).toLocaleString() || '-'}</RowTitle>
+        </td>
+      ))}
+
+      {/*
+        TODO: discuss with bichil then implement this
       <td>
         <ActionButtons>{renderRemoveAction()}</ActionButtons>
-      </td>
+      </td> */}
     </tr>
   );
 };

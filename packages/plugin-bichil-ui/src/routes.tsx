@@ -19,6 +19,7 @@ const routes = () => {
   return (
     <>
       <Route path="/bichil/salary" component={salaryList} />
+      <Route path="/profile/salaries/bichil" component={salaryList} />
     </>
   );
 };

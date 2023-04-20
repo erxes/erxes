@@ -125,6 +125,8 @@ const queries = `
 
   bichilSalaryReport(page: Int, perPage: Int, employeeId: String): BichilSalaryReportsListResponse
 
+  bichilSalaryByEmployee(password: String!): BichilSalaryReportsListResponse
+
   bichilSalaryLabels: JSON
 `;
 

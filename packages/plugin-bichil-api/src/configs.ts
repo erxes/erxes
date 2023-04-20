@@ -10,7 +10,8 @@ import * as bodyParser from 'body-parser';
 import * as multer from 'multer';
 import * as cors from 'cors';
 import * as cookieParser from 'cookie-parser';
-import userMiddleware, { handleUpload } from './utils';
+import userMiddleware, { checkPermission, handleUpload } from './utils';
+import * as permissions from './permissions';
 
 export let mainDb;
 export let debug;
@@ -19,6 +20,12 @@ export let serviceDiscovery;
 
 export default {
   name: 'bichil',
+  permissions,
+
+  meta: {
+    permissions
+  },
+
   graphql: async sd => {
     serviceDiscovery = sd;
 
@@ -46,10 +53,6 @@ export default {
 
     return context;
   },
-
-  // postHandlers: [
-  //   { path: `/upload-salary`, method: uploader },
-  // ],
 
   middlewares: [cookieParser(), userMiddleware],
 
@@ -89,10 +92,14 @@ export default {
     app.post(
       '/upload-salary',
       upload.single('file'),
-      async (req, res, next) => {
+      async (req, res, _next) => {
         if (!req.user) {
           return res.status(401).send('Unauthorized');
         }
+
+        const subdomain = getSubdomain(req);
+
+        await checkPermission(subdomain, req.user, 'addSalaries');
 
         const file = req.file;
         const title = req.body.title || 'Untitled';
@@ -100,8 +107,6 @@ export default {
         if (!file) {
           return res.status(400).send('No file uploaded.');
         }
-
-        const subdomain = getSubdomain(req);
 
         try {
           const result = await handleUpload(subdomain, req.user, file, title);
