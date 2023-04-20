@@ -378,6 +378,17 @@ export const initBroker = async options => {
     };
   });
 
+  consumeRPCQueue('core:users.comparePassword', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const { password, userPassword } = data;
+
+    return {
+      status: 'success',
+      data: await models.Users.comparePassword(password, userPassword)
+    };
+  });
+
   consumeRPCQueue(
     'core:brands.findOne',
     async ({ subdomain, data: { query } }) => {

@@ -68,7 +68,7 @@ export const initBroker = async cl => {
       const allowedProductIds = await getAllowedProducts(
         subdomain,
         plan,
-        productIds
+        productIds || []
       );
 
       const rules = plan.quantityRules || [];
