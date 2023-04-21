@@ -43,7 +43,7 @@ const ConformityChooser = (props: FinalProps) => {
         mainTypeId: data.mainTypeId,
         relType: data.relType,
         isSaved: true
-      }
+      };
 
       // add archived items in contacts side bar
       if (data.mainType === 'customer' || data.mainType === 'company') {

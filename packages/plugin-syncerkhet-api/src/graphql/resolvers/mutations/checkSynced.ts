@@ -3,7 +3,6 @@ import { getPostData as getPostDataOrders } from '../../../utils/orders';
 import { getPostData } from '../../../utils/ebarimtData';
 import { IContext } from '../../../connectionResolver';
 import { sendCardsMessage, sendPosMessage } from '../../../messageBroker';
-import { sendEbarimtMessage } from '../../../messageBroker';
 import { sendRPCMessage } from '../../../messageBrokerErkhet';
 
 const checkSyncedMutations = {

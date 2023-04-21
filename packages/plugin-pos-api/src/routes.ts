@@ -149,6 +149,7 @@ export const getProductsData = async (
         departmentId: pos.departmentId,
         branchId: pos.branchId,
         products: products.map(p => ({
+          itemId: p._id,
           productId: p._id,
           quantity: 1,
           price: p.unitPrice

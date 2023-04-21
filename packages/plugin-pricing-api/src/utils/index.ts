@@ -105,9 +105,9 @@ export const checkPricing = async (
   };
 
   // Prepare object to save calculated data
-  for (const productId of productIds) {
-    if (!Object.keys(result).includes(productId)) {
-      result[productId] = {
+  for (const item of orderItems) {
+    if (!Object.keys(result).includes(item.itemId)) {
+      result[item.itemId] = {
         type: '',
         value: 0,
         bonusProducts: []
@@ -126,7 +126,11 @@ export const checkPricing = async (
   // Calculating discount
   for (const plan of plans) {
     // Take all products that can be discounted
-    allowedProductIds = await getAllowedProducts(subdomain, plan, productIds);
+    allowedProductIds = await getAllowedProducts(
+      subdomain,
+      plan,
+      productIds || []
+    );
 
     // Check repeat rule first
     const repeatPassed: boolean = checkRepeatRule(plan);
@@ -190,10 +194,14 @@ export const checkPricing = async (
         // Bonus product will always be prioritized
         if (
           (priceRule.type === 'bonus' &&
-            priceRule.bonusProducts.length !== 0) ||
+            priceRule.bonusProducts &&
+            priceRule.bonusProducts.length) ||
           (quantityRule.type === 'bonus' &&
-            quantityRule.bonusProducts.length !== 0) ||
-          (expiryRule.type === 'bonus' && expiryRule.bonusProducts.length !== 0)
+            quantityRule.bonusProducts &&
+            quantityRule.bonusProducts.length) ||
+          (expiryRule.type === 'bonus' &&
+            expiryRule.bonusProducts &&
+            expiryRule.bonusProducts.length)
         ) {
           type = 'bonus';
           bonusProducts = [
@@ -215,7 +223,7 @@ export const checkPricing = async (
           return prev;
         });
 
-        if (maxValueRule.type.length !== 0) {
+        if (maxValueRule.type && maxValueRule.type.length) {
           type = maxValueRule.type;
           value = maxValueRule.value;
         }
@@ -232,14 +240,14 @@ export const checkPricing = async (
 
         // Finalize values
         if (type !== 'bonus') {
-          result[item.productId].type = type;
+          result[item.itemId].type = type;
 
           // Priority calculation
           if (plan.isPriority) {
-            result[item.productId].value += value;
+            result[item.itemId].value += value;
           } else {
-            if (result[item.productId].value < value) {
-              result[item.productId].value = value;
+            if (result[item.itemId].value < value) {
+              result[item.itemId].value = value;
             }
           }
         }
@@ -247,12 +255,12 @@ export const checkPricing = async (
         if (type === 'bonus') {
           // Priority calculation
           if (plan.isPriority) {
-            result[item.productId].bonusProducts = [
-              ...result[item.productId].bonusProducts,
+            result[item.itemId].bonusProducts = [
+              ...result[item.itemId].bonusProducts,
               ...bonusProducts
             ];
           } else {
-            result[item.productId].bonusProducts = bonusProducts;
+            result[item.itemId].bonusProducts = bonusProducts;
           }
         }
 
@@ -263,9 +271,9 @@ export const checkPricing = async (
     // Calculate bundle
     if (plan.applyType === 'bundle') {
       appliedBundleItems.map((item: any) => {
-        if (result[item.productId].type !== 'bonus') {
-          result[item.productId].value = Math.floor(
-            (result[item.productId].value / item.quantity) * appliedBundleCounts
+        if (result[item.itemId].type !== 'bonus') {
+          result[item.itemId].value = Math.floor(
+            (result[item.itemId].value / item.quantity) * appliedBundleCounts
           );
         }
       });

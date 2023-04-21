@@ -100,6 +100,7 @@ const bridgesQueries = {
             { email: _id },
             { code: _id },
             { username: _id },
+            { employeeId: _id },
             { 'details.operatorPhone': _id }
           ]
         },
