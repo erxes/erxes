@@ -25,7 +25,7 @@ interface IPurchaseEdit extends IPurchase {
 }
 const purchaseMutations = {
   // create new purchase
-  async purchaseAdd(
+  async purchasesAdd(
     _root,
     doc: IPurchase & { proccessId: string; aboveItemId: string },
     { user, models, subdomain }: IContext

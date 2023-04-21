@@ -1,6 +1,7 @@
 import {
   EMPTY_CONTENT_DEAL_PIPELINE,
-  EMPTY_CONTENT_TASK_PIPELINE
+  EMPTY_CONTENT_TASK_PIPELINE,
+  EMPTY_CONTENT_PURCHASE_PIPELINE
 } from '@erxes/ui-settings/src/constants';
 import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
@@ -179,6 +180,19 @@ class Pipelines extends React.Component<Props, State> {
             content={
               type === 'deal'
                 ? EMPTY_CONTENT_DEAL_PIPELINE
+                : EMPTY_CONTENT_TASK_PIPELINE
+            }
+            maxItemWidth="420px"
+          />
+        );
+      }
+
+      if (type === 'purchase') {
+        return (
+          <EmptyContent
+            content={
+              type === 'purchase'
+                ? EMPTY_CONTENT_PURCHASE_PIPELINE
                 : EMPTY_CONTENT_TASK_PIPELINE
             }
             maxItemWidth="420px"

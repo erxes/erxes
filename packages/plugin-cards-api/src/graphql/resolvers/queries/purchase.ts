@@ -254,7 +254,7 @@ const purchaseQueries = {
     return checkItemPermByUser(models, user, purchase);
   },
 
-  async checkDiscount(
+  async purchasecheckDiscount(
     _root,
     {
       _id,

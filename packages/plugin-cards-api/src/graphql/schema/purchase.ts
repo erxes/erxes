@@ -116,7 +116,7 @@ const archivedPurchasesParams = `
 
 export const queries = `
  purchaseDetail(_id: String!): Purchase
- checkDiscount(_id: String!,products:[ProductField]):JSON
+ purchasecheckDiscount(_id: String!,products:[ProductField]):JSON
  purchases(${listQueryParams}): [PurchaseListItem]
  purchasesTotalCount(${listQueryParams}): Int
  archivedPurchases(

@@ -1,0 +1,14 @@
+federation_version: =2.3.1
+subgraphs:
+  core:
+    routing_url: http://localhost:3300/graphql
+    schema:
+      subgraph_url: http://localhost:3300/graphql
+  logs:
+    routing_url: http://localhost:3301/graphql
+    schema:
+      subgraph_url: http://localhost:3301/graphql
+  cards:
+    routing_url: http://localhost:3302/graphql
+    schema:
+      subgraph_url: http://localhost:3302/graphql

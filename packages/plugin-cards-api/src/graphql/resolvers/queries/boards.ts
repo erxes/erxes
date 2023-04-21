@@ -16,6 +16,7 @@ import {
 import { IContext } from '../../../connectionResolver';
 import { getContentTypeDetail } from '../../../utils';
 import { IUserDocument } from '@erxes/api-utils/src/types';
+import { Purchase } from '.';
 
 export interface IIntervals {
   startTime: string;
@@ -597,10 +598,13 @@ const boardQueries = {
   async convertToInfo(
     _root,
     { conversationId }: { conversationId: string },
-    { models: { Deals, Stages, Pipelines, Boards, Tasks, Tickets } }: IContext
+    {
+      models: { Deals, Purchase, Stages, Pipelines, Boards, Tasks, Tickets }
+    }: IContext
   ) {
     const filter = { sourceConversationIds: { $in: [conversationId] } };
     let dealUrl = '';
+    let purchaseurl = '';
     let ticketUrl = '';
     let taskUrl = '';
 
@@ -612,6 +616,14 @@ const boardQueries = {
       const board = await Boards.getBoard(pipeline.boardId);
 
       dealUrl = `/deal/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${deal._id}`;
+    }
+
+    const purchase = await Purchase.findOne(filter).lean();
+    if (purchase) {
+      const stage = await Stages.getStage(purchase.stateId);
+      const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+      const board = await Boards.getBoard(pipeline.boardId);
+      purchaseurl = `/deal/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${purchase._id}`;
     }
 
     const task = await Tasks.findOne(filter).lean();
@@ -636,6 +648,7 @@ const boardQueries = {
 
     return {
       dealUrl,
+      purchaseurl,
       ticketUrl,
       taskUrl
     };
@@ -681,7 +694,7 @@ const boardQueries = {
   },
 
   async boardLogs(_root, args, { subdomain, models }: IContext) {
-    const { Deals, Tasks, GrowthHacks, Tickets, Stages } = models;
+    const { Deals, Purchase, Tasks, GrowthHacks, Tickets, Stages } = models;
     const { action, content, contentType, contentId } = args;
 
     const type = contentType.split(':')[0];
@@ -692,6 +705,9 @@ const boardQueries = {
       switch (type) {
         case 'deal':
           item = await Deals.getDeal(contentId);
+          break;
+        case 'purchase':
+          item = await Purchase.getPurchase(contentId);
           break;
         case 'task':
           item = await Tasks.getTask(contentId);
@@ -764,7 +780,7 @@ const boardQueries = {
   async cardsFields(_root, _args, { models, subdomain }: IContext) {
     const result = {};
 
-    for (const ct of ['deal', 'ticket', 'task']) {
+    for (const ct of ['deal', 'purchase', 'ticket', 'task']) {
       result[ct] = [];
 
       const groups = await sendFormsMessage({

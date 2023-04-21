@@ -95,9 +95,10 @@ export const TIME_TRACK_TYPES = {
 export const BOARD_TYPES = {
   DEAL: 'deal',
   TICKET: 'ticket',
+  PURCHASE: 'purchase',
   TASK: 'task',
   GROWTH_HACK: 'growthHack',
-  ALL: ['deal', 'ticket', 'task', 'growthHack']
+  ALL: ['deal', 'ticket', 'task', 'growthHack', 'purchase']
 };
 
 export const NOTIFICATION_TYPES = {
@@ -107,6 +108,12 @@ export const NOTIFICATION_TYPES = {
   DEAL_CHANGE: 'dealChange',
   DEAL_DUE_DATE: 'dealDueDate',
   DEAL_DELETE: 'dealDelete',
+  PURCHASE_ADD: 'purchaseAdd',
+  PURCHASE_REMOVE_ASSIGN: 'purchaseRemoveAssign',
+  PURCHASE_EDIT: 'purchaseEdit',
+  PURCHASE_CHANGE: 'purchaseChange',
+  PURCHASE_DUE_DATE: 'purchaseDueDate',
+  PURCHASE_DELETE: 'purchaseDelete',
   GROWTHHACK_ADD: 'growthHackAdd',
   GROWTHHACK_REMOVE_ASSIGN: 'growthHackRemoveAssign',
   GROWTHHACK_EDIT: 'growthHackEdit',
@@ -132,6 +139,12 @@ export const NOTIFICATION_TYPES = {
     'dealChange',
     'dealDueDate',
     'dealDelete',
+    'purchaseAdd',
+    'purchaseRemoveAssign',
+    'purchaseEdit',
+    'purchaseChange',
+    'purchaseDueDate',
+    'purchaseDelete',
     'growthHackAdd',
     'growthHackRemoveAssign',
     'growthHackEdit',

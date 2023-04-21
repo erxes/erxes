@@ -67,6 +67,15 @@ const features: {
     settings: ['dealBoardsCreate', 'dealPipelinesCreate', 'dealCreate'],
     settingsPermissions: ['dealBoardsAdd', 'dealPipelinesAdd']
   },
+  purchasePipeline: {
+    feature: 'purchase',
+    settings: [
+      'purchaseBoardsCreate',
+      'purchasePipelinesCreate',
+      'purchaseCreate'
+    ],
+    settingsPermissions: ['purchaseBoardsAdd', 'purchasePipelinesAdd']
+  },
 
   createProductServices: {
     feature: 'products',
