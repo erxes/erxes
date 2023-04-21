@@ -58,14 +58,15 @@ const supergraphComposeOnce = async () => {
     }
 
     execSync(
-      `rover supergraph compose --config ${supergraphConfigPath} --output ${supergraphPath} --elv2-license=accept --log=debug`,
+      `rover supergraph compose --config ${supergraphConfigPath} --output ${supergraphPath} --elv2-license=accept --log=error`,
       {
         stdio: 'inherit',
         encoding: 'utf-8'
       }
     );
 
-    // Running execSync('rover') causes the container to exit with code 137. Exiting early.
+    // Running execSync('rover') causes the container to exit with code 137 later. Make the container quit without waiting for that to happen.
+    console.log('Exiting on purpose do not panic.');
     process.exit(1);
   } else {
     const superGraphqlNext = supergraphPath + '.next';
