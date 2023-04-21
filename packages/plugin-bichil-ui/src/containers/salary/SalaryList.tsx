@@ -68,8 +68,8 @@ export default function ListContainer(props: Props) {
   let totalCount = 0;
 
   if (!isEmployeeSalary) {
-    salaries = salariesQry.data.bichilSalaryReport || [];
-    totalCount = salariesQry.data.bichilSalaryReport.length || 0;
+    salaries = salariesQry.data.bichilSalaryReport.list || [];
+    totalCount = salariesQry.data.bichilSalaryReport.totalCount || 0;
   }
 
   if (isEmployeeSalary) {
