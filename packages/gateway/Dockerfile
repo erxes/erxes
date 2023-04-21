@@ -4,6 +4,8 @@ RUN apt-get update -y
 RUN apt-get install -y curl
 # RUN apt-get install -y heaptrack
 
+RUN yarn global add @apollo/rover
+
 WORKDIR /erxes-gateway
 RUN chown -R node:node /erxes-gateway
 COPY --chown=node:node . /erxes-gateway
