@@ -1,8 +1,5 @@
 const menuInbox = [{ title: 'Team Inbox', link: '/inbox/index' }];
-
 const menuDeal = [{ title: 'Sales pipeline', link: '/deal/board' }];
-const menuPurchase = [{ title: 'Sales pipeline', link: '/purchase/board' }];
-
 const menuContacts = [
   { title: 'Visitors', link: '/contacts/visitor' },
   { title: 'Leads', link: '/contacts/lead' },
@@ -10,7 +7,6 @@ const menuContacts = [
   { title: 'Companies', link: '/companies' },
   { title: 'Team members', link: '/settings/team' }
 ];
-
 const menuStructures = [
   { title: 'Strucure', link: '/settings/structure' },
   { title: 'Branches', link: '/settings/branches' },
@@ -18,4 +14,4 @@ const menuStructures = [
   { title: 'Units', link: '/settings/units' }
 ];
 
-export { menuContacts, menuInbox, menuDeal, menuPurchase, menuStructures };
+export { menuContacts, menuInbox, menuDeal, menuStructures };
