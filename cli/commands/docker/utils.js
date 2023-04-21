@@ -5,6 +5,15 @@ const { log, execCommand, filePath, execCurl } = require('../utils');
 
 require('dotenv').config();
 
+
+const routerConfigDirPath = filePath('./apollo-router-config');
+
+async function createRouterConfigDir() {
+  if (!fs.existsSync(routerConfigDirPath)) {
+    await fs.mkdirSync(routerConfigDirPath,{ recursive: true });
+  }
+}
+
 const {
   DEPLOYMENT_METHOD,
   SERVICE_INTERNAL_PORT = 80,
@@ -411,6 +420,7 @@ const deployDbs = async () => {
 
 const up = async ({ uis, downloadLocales, fromInstaller }) => {
   await cleaning();
+  await createRouterConfigDir();
 
   const configs = await fse.readJSON(filePath('configs.json'));
   const image_tag = configs.image_tag || 'federation';
@@ -512,7 +522,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
           ...commonEnvs(configs),
           ...((configs.gateway || {}).extra_env || {})
         },
-        volumes: ['./enabled-services.js:/data/enabled-services.js'],
+        volumes: ['./enabled-services.js:/data/enabled-services.js', `${routerConfigDirPath}:/erxes-gateway/dist/gateway/src/apollo-router/temp`],
         healthcheck,
         extra_hosts,
         ports: [`${GATEWAY_PORT}:${SERVICE_INTERNAL_PORT}`],
