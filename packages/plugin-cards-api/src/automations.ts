@@ -168,6 +168,9 @@ const getItems = async (
     case 'ticket':
       model = models.Tickets;
       break;
+    case 'purchase':
+      model = models.Purchase;
+      break;
     default:
       model = models.Deals;
   }
@@ -279,6 +282,14 @@ export default {
         label: 'Sales pipeline',
         description:
           'Start with a blank workflow that enralls and is triggered off sales pipeline item'
+      },
+      {
+        type: 'cards:purchase',
+        img: 'automation3.svg',
+        icon: 'piggy-bank',
+        label: 'Sales pipeline',
+        description:
+          'Start with a blank workflow that enralls and is triggered off sales pipeline item'
       }
     ],
     actions: [
@@ -294,6 +305,13 @@ export default {
         icon: 'piggy-bank',
         label: 'Create deal',
         description: 'Create deal',
+        isAvailable: true
+      },
+      {
+        type: 'cards:purchase.create',
+        icon: 'piggy-bank',
+        label: 'Create purchase',
+        description: 'Create purchase',
         isAvailable: true
       },
       {

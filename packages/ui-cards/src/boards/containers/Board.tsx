@@ -8,7 +8,11 @@ import { withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { EMPTY_CONTENT_DEAL, EMPTY_CONTENT_TASK } from '../constants';
+import {
+  EMPTY_CONTENT_DEAL,
+  EMPTY_CONTENT_TASK,
+  EMPTY_CONTENT_PURCHASE
+} from '../constants';
 import { queries } from '../graphql';
 import { RootBack, ScrolledContent, ChartBack } from '../styles/common';
 import { IOptions, PipelineDetailQueryResponse } from '../types';
@@ -39,6 +43,17 @@ class Board extends React.Component<Props> {
         return (
           <EmptyContent
             content={type === 'deal' ? EMPTY_CONTENT_DEAL : EMPTY_CONTENT_TASK}
+            maxItemWidth="400px"
+          />
+        );
+      }
+
+      if (type === 'purchase') {
+        return (
+          <EmptyContent
+            content={
+              type === 'purchase' ? EMPTY_CONTENT_PURCHASE : EMPTY_CONTENT_TASK
+            }
             maxItemWidth="400px"
           />
         );

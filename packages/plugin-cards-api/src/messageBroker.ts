@@ -103,6 +103,27 @@ export const initBroker = async cl => {
     }
   );
 
+  consumeRPCQueue('cards:purchases.create', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Purchase.create(data)
+    };
+  });
+
+  consumeRPCQueue(
+    'cards:purchases.remove',
+    async ({ subdomain, data: { _ids } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Purchase.removePurchases(_ids)
+      };
+    }
+  );
+
   consumeRPCQueue('cards:tickets.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -299,6 +320,60 @@ export const initBroker = async cl => {
     }
   );
 
+  consumeRPCQueue('cards:deals.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    if (!data.query) {
+      return {
+        status: 'success',
+        data: await models.Deals.find(data).lean()
+      };
+    }
+
+    const { query, skip, limit, sort = {} } = data;
+
+    return {
+      status: 'success',
+      data: await models.Deals.find(query)
+        .skip(skip || 0)
+        .limit(limit || 20)
+        .sort(sort)
+        .lean()
+    };
+  });
+
+  consumeRPCQueue('cards:purchases.count', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Purchase.find(data).count()
+    };
+  });
+
+  consumeRPCQueue('cards:purchases.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Purchase.findOne(data).lean()
+    };
+  });
+
+  consumeRPCQueue('cards:purchases.generateAmounts', async productsData => {
+    return { data: generateAmounts(productsData), status: 'success' };
+  });
+
+  consumeRPCQueue(
+    'cards:purchases.generateProducts',
+    async ({ subdomain, data }) => {
+      return {
+        data: await generateProducts(subdomain, data),
+        status: 'success'
+      };
+    }
+  );
+
   consumeRPCQueue('cards:findItem', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -311,6 +386,19 @@ export const initBroker = async cl => {
       const models = await generateModels(subdomain);
 
       const dealProductIds = await await models.Deals.find({
+        'productsData.productId': { $in: _ids }
+      }).distinct('productsData.productId');
+
+      return { data: dealProductIds, status: 'success' };
+    }
+  );
+
+  consumeRPCQueue(
+    'cards:findPurchaseProductIds',
+    async ({ subdomain, data: { _ids } }) => {
+      const models = await generateModels(subdomain);
+
+      const dealProductIds = await await models.Purchase.find({
         'productsData.productId': { $in: _ids }
       }).distinct('productsData.productId');
 

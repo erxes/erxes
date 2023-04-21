@@ -62,7 +62,6 @@ const boardMutations = {
     { user, models, subdomain, docModifier }: IContext
   ) {
     await checkPermission(models, subdomain, doc.type, user, 'boardsAdd');
-
     const extendedDoc = docModifier({ userId: user._id, ...doc });
 
     const board = await models.Boards.createBoard(extendedDoc);

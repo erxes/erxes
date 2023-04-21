@@ -1,4 +1,4 @@
-import { generateModels } from "./connectionResolver";
+import { generateModels } from './connectionResolver';
 
 export default {
   generateInternalNoteNotif: async ({ subdomain, data }) => {
@@ -19,6 +19,9 @@ export default {
     switch (type) {
       case 'deal':
         model = models.Deals;
+        break;
+      case 'purchase':
+        model = models.Purchase;
         break;
       case 'task':
         model = models.Tasks;

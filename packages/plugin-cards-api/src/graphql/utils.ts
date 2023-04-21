@@ -188,6 +188,21 @@ const PERMISSION_MAP = {
     itemsSort: 'dealsSort',
     updateTimeTracking: 'dealUpdateTimeTracking'
   },
+  purchase: {
+    boardsAdd: 'purchaseBoardsAdd',
+    boardsEdit: 'purchaseBoardsEdit',
+    boardsRemove: 'purchaseBoardsRemove',
+    pipelinesAdd: 'purchasePipelinesAdd',
+    pipelinesEdit: 'purchasePipelinesEdit',
+    pipelinesRemove: 'purchasePipelinesRemove',
+    pipelinesArchive: 'purchasePipelinesArchive',
+    pipelinesCopied: 'purchasePipelinesCopied',
+    pipelinesWatch: 'purchasePipelinesWatch',
+    stagesEdit: 'purchaseStagesEdit',
+    stagesRemove: 'purchaseStagesRemove',
+    itemsSort: 'purchasesSort',
+    updateTimeTracking: 'purchaseUpdateTimeTracking'
+  },
   ticket: {
     boardsAdd: 'ticketBoardsAdd',
     boardsEdit: 'ticketBoardsEdit',
