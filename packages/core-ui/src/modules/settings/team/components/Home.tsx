@@ -4,7 +4,6 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'modules/common/utils';
 import UserList from '../containers/UserList';
 import Sidebar from './Sidebar';
-import { menuContacts } from '@erxes/ui/src/utils/menus';
 import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
 import { FilterContainer, InputBar } from '@erxes/ui-settings/src/styles';
 import { ControlLabel, FormControl } from '@erxes/ui/src/components/form';
@@ -179,11 +178,14 @@ export default function Home(props: Props) {
       wideSpacing
     />
   );
-  const breadcrumb = [{ title: 'Team members' }];
+
   return (
     <Wrapper
       header={
-        <Wrapper.Header title={__('Team members')} breadcrumb={breadcrumb} />
+        <Wrapper.Header
+          title={__('Team members')}
+          breadcrumb={[{ title: 'Team members' }]}
+        />
       }
       leftSidebar={<Sidebar loadingMainQuery={loading} />}
       actionBar={actionBar}
