@@ -7,10 +7,10 @@ import * as fs from 'fs';
 import * as yaml from 'yaml';
 import { ErxesProxyTarget } from 'src/proxy/targets';
 import {
-  dirTempPath,
   routerConfigPath,
   routerPath,
-  supergraphPath
+  supergraphPath,
+  downloadsPath
 } from './paths';
 import supergraphCompose from './supergraph-compose';
 
@@ -26,13 +26,16 @@ const {
 export const apolloRouterPort = Number(APOLLO_ROUTER_PORT) || 50_000;
 
 const downloadRouter = async () => {
+  if (NODE_ENV === 'production') {
+    // router must be already inside the image
+    return;
+  }
   if (fs.existsSync(routerPath)) {
     return routerPath;
   }
-  console.log("Downloading router since it doesn't exist");
   const args = [
     '-c',
-    `cd ${dirTempPath} && curl -sSL https://router.apollo.dev/download/nix/v1.10.2 | sh`
+    `cd ${downloadsPath} && curl -sSL https://router.apollo.dev/download/nix/v1.10.2 | sh`
   ];
   spawnSync('sh', args, { stdio: 'inherit' });
 };
