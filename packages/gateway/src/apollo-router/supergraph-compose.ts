@@ -66,6 +66,7 @@ const supergraphComposeOnce = async () => {
     );
 
     // Running execSync('rover') causes the container to exit with code 137 later. Make the container quit without waiting for that to happen.
+    console.log('Exiting on purpose do not panic.');
     process.exit(1);
   } else {
     const superGraphqlNext = supergraphPath + '.next';

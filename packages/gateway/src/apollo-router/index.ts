@@ -29,6 +29,7 @@ const downloadRouter = async () => {
   if (fs.existsSync(routerPath)) {
     return routerPath;
   }
+  console.log("Downloading router since it doesn't exist");
   const args = [
     '-c',
     `cd ${dirTempPath} && curl -sSL https://router.apollo.dev/download/nix/v1.10.2 | sh`
