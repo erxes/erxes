@@ -43,7 +43,7 @@ export default async function downloadPlugins(): Promise<void> {
         );
       } catch (e) {
         console.error(
-          `${service.name} subscription plugin download from ${url} to ${fileName} failed.`,
+          `${service.name} subscription plugin download from ${url} to ${fileName} failed. ${e.message}`,
           e
         );
       }

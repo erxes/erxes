@@ -27,10 +27,15 @@ const dateDayFormat = 'dd MM/DD/YYYY';
 const timeFormat = 'HH:mm';
 const dateAndTimeFormat = 'MM/DD/YYYY HH:mm';
 
+const dayOfTheWeekFormat = 'dd';
+const dateOfTheMonthFormat = 'MM/DD';
+
 export {
   menuTimeClock,
   dateFormat,
-  dateDayFormat,
   timeFormat,
-  dateAndTimeFormat
+  dateAndTimeFormat,
+  dateDayFormat,
+  dayOfTheWeekFormat,
+  dateOfTheMonthFormat
 };

@@ -284,6 +284,7 @@ const userDetail = `
       customFieldsData
       score
       employeeId
+      brandIds
     }
   }
 `;
@@ -482,20 +483,6 @@ const userMovements = `
   }
 `;
 
-const brands = `
-  query brands($page: Int, $perPage: Int, $searchValue: String) {
-    brands(page: $page, perPage: $perPage, searchValue: $searchValue) {
-      _id
-      code
-      name
-      createdAt
-      description
-      emailConfig
-      memberIds
-    }
-  }
-`;
-
 export default {
   userSkills,
   userDetail,
@@ -518,6 +505,5 @@ export default {
   channels: channelQueries.channels,
   skillTypes,
   fieldsGroups,
-  userMovements,
-  brands
+  userMovements
 };

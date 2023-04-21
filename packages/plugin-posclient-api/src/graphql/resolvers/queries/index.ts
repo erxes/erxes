@@ -4,6 +4,7 @@ import PosUser from './posUsers';
 import Product from './products';
 import Report from './report';
 import Bridges from './bridges';
+import Cover from './covers';
 
 export default {
   ...Order,
@@ -11,5 +12,6 @@ export default {
   ...PosUser,
   ...Product,
   ...Report,
-  ...Bridges
+  ...Bridges,
+  ...Cover
 };

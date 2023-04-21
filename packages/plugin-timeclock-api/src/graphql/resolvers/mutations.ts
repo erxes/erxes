@@ -371,7 +371,7 @@ const timeclockMutations = {
 
   async submitSchedule(
     _root,
-    { branchIds, departmentIds, userIds, shifts, scheduleConfigId },
+    { branchIds, departmentIds, userIds, shifts, totalBreakInMins },
     { subdomain, models }: IContext
   ) {
     if (userIds.length) {
@@ -379,7 +379,7 @@ const timeclockMutations = {
         userIds,
         shifts,
         models,
-        scheduleConfigId
+        totalBreakInMins
       );
     }
 
@@ -407,12 +407,7 @@ const timeclockMutations = {
       return concatBranchDept.indexOf(value) === pos;
     });
 
-    return createScheduleShiftsByUserIds(
-      unionOfUserIds,
-      shifts,
-      models,
-      scheduleConfigId
-    );
+    return createScheduleShiftsByUserIds(unionOfUserIds, shifts, models);
   },
 
   scheduleRemove(_root, { _id }, { models }: IContext) {
@@ -475,12 +470,19 @@ const timeclockMutations = {
 
   async scheduleConfigAdd(
     _root,
-    { scheduleName, scheduleConfig, configShiftStart, configShiftEnd },
+    {
+      scheduleName,
+      lunchBreakInMins,
+      scheduleConfig,
+      configShiftStart,
+      configShiftEnd
+    },
     { models }: IContext
   ) {
     const newScheduleConfig = await models.ScheduleConfigs.createScheduleConfig(
       {
-        scheduleName: `${scheduleName}`,
+        scheduleName,
+        lunchBreakInMins,
         shiftStart: configShiftStart,
         shiftEnd: configShiftEnd
       }
@@ -516,6 +518,7 @@ const timeclockMutations = {
     {
       _id,
       scheduleName,
+      lunchBreakInMins,
       scheduleConfig,
       configShiftStart,
       configShiftEnd,
@@ -526,7 +529,8 @@ const timeclockMutations = {
     const newScheduleConfig = await models.ScheduleConfigs.updateScheduleConfig(
       _id,
       {
-        scheduleName: `${scheduleName}`,
+        scheduleName,
+        lunchBreakInMins,
         shiftEnd: configShiftEnd,
         shiftStart: configShiftStart,
         ...doc

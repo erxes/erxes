@@ -71,6 +71,42 @@ const types = `
     list: [BichilReport]
     totalCount: Float
   }
+
+  type BichilSalaryReport {
+    _id: String
+    employeeId: String
+    employee: User
+    title: String
+    
+    totalWorkHours: Float
+    totalWorkedHours: Float
+    mainSalary: Float
+    bonus: Float
+    addition: Float
+    appointment: Float
+    kpi: Float
+    vacation: Float
+    totalAddition: Float
+    lateHoursDeduction: Float
+    resultDeduction: Float
+    totalDeduction: Float
+    totalSalary: Float
+    preliminarySalary: Float
+    receivable: Float
+    ndsh: Float
+    hhoat: Float
+    mainDeduction: Float
+    biSan: Float
+    phoneCharge: Float
+    taxReceivable: Float
+    salaryOnHand: Float
+  }
+
+  type BichilSalaryReportsListResponse {
+    list: [BichilSalaryReport]
+    totalCount: Int
+  }
+
 `;
 
 const queryParams = `
@@ -86,6 +122,12 @@ const queryParams = `
 
 const queries = `
   bichilTimeclockReport(${queryParams}): BichilReportsListResponse
+
+  bichilSalaryReport(page: Int, perPage: Int, employeeId: String): BichilSalaryReportsListResponse
+
+  bichilSalaryByEmployee(password: String!): BichilSalaryReportsListResponse
+
+  bichilSalaryLabels: JSON
 `;
 
 const typeDefs = async _serviceDiscovery => {

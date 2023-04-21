@@ -17,7 +17,7 @@ type Props = {
   groups: any[]; // check - IUserGroup
   selectedChannels: any[]; // check - IChannel
   selectedGroups: any[]; // check - IUserGroup
-  selectedBrands: any[];
+  selectedBrandIds: string[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   showBrands: boolean;
 } & ICommonFormProps;
@@ -26,7 +26,7 @@ type State = {
   avatar: string;
   selectedChannels: any[]; // check - IChannel
   selectedGroups: any[]; // check - IUserGroup
-  selectedBrands: any[];
+  selectedBrandIds: string[];
 };
 
 class UserForm extends React.Component<Props, State> {
@@ -43,7 +43,7 @@ class UserForm extends React.Component<Props, State> {
           : defaultAvatar,
       selectedChannels: this.generateParams(props.selectedChannels),
       selectedGroups: this.generateParams(props.selectedGroups),
-      selectedBrands: this.generateParams(props.selectedBrands)
+      selectedBrandIds: props.selectedBrandIds
     };
   }
 
@@ -59,7 +59,9 @@ class UserForm extends React.Component<Props, State> {
   };
 
   collectValues = items => {
-    return items.map(item => item.value);
+    if (items.some(item => typeof item === 'string')) {
+    }
+    return items.map(item => (typeof item === 'string' ? item : item.value));
   };
 
   renderGroups() {
@@ -94,8 +96,8 @@ class UserForm extends React.Component<Props, State> {
       return null;
     }
 
-    const onChange = selectedBrands => {
-      this.setState({ selectedBrands });
+    const onChange = selectedBrandIds => {
+      this.setState({ selectedBrandIds });
     };
 
     return (
@@ -105,9 +107,9 @@ class UserForm extends React.Component<Props, State> {
 
         <SelectBrands
           label="Brand"
-          initialValue={self.state.selectedBrands}
+          initialValue={self.state.selectedBrandIds}
           onSelect={onChange}
-          name="selectedBrands"
+          name="selectedBrandIds"
           multi={true}
         />
       </FormGroup>
@@ -140,7 +142,7 @@ class UserForm extends React.Component<Props, State> {
 
   generateDoc = (values: {} & IUser & IUserDetails & IUserLinks) => {
     const { object } = this.props;
-    const { selectedChannels, selectedGroups, selectedBrands } = this.state;
+    const { selectedChannels, selectedGroups, selectedBrandIds } = this.state;
     const finalValues = values;
 
     if (object) {
@@ -173,7 +175,7 @@ class UserForm extends React.Component<Props, State> {
       channelIds: this.collectValues(selectedChannels),
       links,
       groupIds: this.collectValues(selectedGroups),
-      brandIds: this.collectValues(selectedBrands),
+      brandIds: selectedBrandIds,
       employeeId: finalValues.employeeId
     };
   };

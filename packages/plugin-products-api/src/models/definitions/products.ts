@@ -178,10 +178,10 @@ export const productSchema = schemaWrapper(
     subUoms: field({
       type: [subUomSchema],
       optional: true,
-      label: 'Sum unit of measurements'
+      label: 'Sub unit of measurements'
     }),
-    taxType: field({ type: String, optional: true, label: 'VAT type' }),
-    taxCode: field({ type: String, optional: true, label: '' })
+    taxType: field({ type: String, optional: true, label: 'TAX type' }),
+    taxCode: field({ type: String, optional: true, label: 'tax type code' })
   })
 );
 

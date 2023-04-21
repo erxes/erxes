@@ -35,6 +35,7 @@ const listParamsDef = `
   $branchIds: [String]
   $departmentIds: [String]
   $reportType: String
+  $scheduleStatus: String
 `;
 
 const listParamsValue = `
@@ -46,6 +47,7 @@ const listParamsValue = `
   branchIds: $branchIds
   departmentIds: $departmentIds
   reportType: $reportType
+  scheduleStatus: $scheduleStatus
 `;
 
 const timelogsMain = `
@@ -107,6 +109,7 @@ const schedulesMain = `
             shiftEnd
             solved
             status
+            scheduleConfigId
           }
           scheduleConfigId
           solved
@@ -116,6 +119,7 @@ const schedulesMain = `
           }
           scheduleChecked
           submittedByAdmin
+          totalBreakInMins
         }
         totalCount
   }
@@ -253,6 +257,7 @@ const scheduleConfigs = `
     scheduleConfigs{
       _id
       scheduleName
+      lunchBreakInMins
       shiftStart
       shiftEnd
       configDays{

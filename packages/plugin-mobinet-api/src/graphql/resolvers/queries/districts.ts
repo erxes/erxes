@@ -78,7 +78,7 @@ const queries = {
     { _id }: { _id: string },
     { models }: IContext
   ) => {
-    return models.Districts.getDistrict(_id);
+    return models.Districts.getDistrict({ _id });
   },
 
   districtByCoordinates: async (

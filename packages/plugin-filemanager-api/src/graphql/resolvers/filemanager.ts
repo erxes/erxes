@@ -4,7 +4,8 @@ import {
   IAccessRequestDocument,
   IAckRequestDocument,
   IFileDocument,
-  IFolderDocument
+  IFolderDocument,
+  IRelationDocument
 } from '../../models';
 
 const sharedUsers = async (root, _args, { models, subdomain }: IContext) => {
@@ -115,5 +116,11 @@ export const log = {
         _id: root.userId
       }
     );
+  }
+};
+
+export const relation = {
+  async files(root: IRelationDocument, _args, { models }: IContext) {
+    return models.Files.find({ _id: { $in: root.fileIds || [] } });
   }
 };

@@ -2,7 +2,6 @@ import { generateModels } from './connectionResolver';
 import {
   sendCommonMessage,
   sendContactsMessage,
-  sendCoreMessage,
   sendFormsMessage
 } from './messageBroker';
 import { serviceDiscovery } from './configs';
@@ -74,6 +73,7 @@ export default {
           departmentId,
           branchId,
           products: products.map(pr => ({
+            itemId: pr._id,
             productId: pr._id,
             quantity: 1,
             price: pr.unitPrice

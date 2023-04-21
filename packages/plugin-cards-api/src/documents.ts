@@ -184,7 +184,7 @@ export default {
         const name = await sendContactsMessage({
           subdomain,
           action: 'customers.getCustomerName',
-          data: { customer: item },
+          data: item,
           isRPC: true,
           defaultValue: ''
         });

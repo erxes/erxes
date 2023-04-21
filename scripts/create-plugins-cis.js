@@ -20,6 +20,7 @@ var plugins = [
   { name: 'tumentech', ui: true, api: true },
   { name: 'priuscenter', ui: true, api: true },
   { name: 'apex', ui: true, api: true },
+  { name: 'bichil', ui: true, api: true },
   { name: 'mobinet', ui: true, api: true }
 ];
 

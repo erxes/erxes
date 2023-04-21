@@ -82,6 +82,7 @@ const FormComponent = ({
             <SelectTeamMembers
               label="Choose a team member"
               name="userId"
+              customField="employeeId"
               initialValue={selectedUserId}
               onSelect={onTeamMemberSelect}
               multi={false}

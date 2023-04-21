@@ -297,9 +297,9 @@ export const calculateExpiryRule = (
   if (plan.isExpiryEnabled && plan.expiryRules && plan.expiryRules.length !== 0)
     for (const rule of plan.expiryRules) {
       // Check validity
-      const expiredDate = dayjs
-        .unix(Number(shortStrToDate(item.manufacturedDate, 92, 'h', 'n')))
-        .add(rule.value, rule.type);
+      const expiredDate = dayjs(
+        Number(shortStrToDate(item.manufacturedDate, 92, 'h', 'n'))
+      ).add(rule.value, rule.type);
       let rulePassed = false;
 
       if (now.isAfter(expiredDate)) rulePassed = true;

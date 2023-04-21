@@ -95,14 +95,83 @@ const bichilTimeclockReport = `
         groupTotalAbsenceMins
         groupTotalMinsWorked
         groupTotalMinsScheduled
-      
-      
       }
       totalCount  
     }
   
   }`;
 
+const labelsQuery = `
+  query bichilSalaryLabels {
+    bichilSalaryLabels
+  }
+`;
+
+const salaryFields = `
+_id
+employee {
+  _id
+  details {
+    firstName
+    lastName
+    position
+  }
+  branches {
+    _id
+    title
+  }
+}
+      employeeId 
+totalWorkHours 
+totalWorkedHours 
+mainSalary 
+bonus 
+addition 
+appointment 
+kpi 
+vacation 
+totalAddition 
+lateHoursDeduction 
+resultDeduction 
+totalDeduction 
+totalSalary 
+preliminarySalary
+receivable 
+ndsh 
+hhoat 
+mainDeduction
+biSan
+phoneCharge
+taxReceivable
+salaryOnHand
+title
+`;
+
+const bichilSalaryReport = `
+query BichilSalaryReport($page: Int, $perPage: Int) {
+  bichilSalaryReport(page: $page, perPage: $perPage) {
+    list {
+      ${salaryFields}
+    }
+    totalCount
+  }
+}
+`;
+
+const salaryByEmployee = `
+query BichilSalaryByEmployee($password: String!) {
+  bichilSalaryByEmployee(password: $password) {
+    list {
+      ${salaryFields}
+    }
+    totalCount
+  }
+}
+`;
+
 export default {
-  bichilTimeclockReport
+  bichilTimeclockReport,
+  labelsQuery,
+  bichilSalaryReport,
+  salaryByEmployee
 };
