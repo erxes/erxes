@@ -280,7 +280,7 @@ const fillValue = async (
         subdomain,
         action: 'departments.find',
         data: {
-          query: { _id: { $in: item.departmentIds || [] } }
+          _id: { $in: item.departmentIds || [] }
         },
         isRPC: true,
         defaultValue: []

@@ -123,10 +123,10 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
   const departmentsById = {};
 
   if (branchIds.length) {
-    const branches = await await sendCoreMessage({
+    const branches = await sendCoreMessage({
       subdomain,
       action: 'branches.find',
-      data: { _ids: { $in: branchIds } },
+      data: { query: { _id: { $in: branchIds } } },
       isRPC: true,
       defaultValue: []
     });
@@ -137,10 +137,10 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
   }
 
   if (departmentIds.length) {
-    const departments = await await sendCoreMessage({
+    const departments = await sendCoreMessage({
       subdomain,
       action: 'departments.find',
-      data: { _ids: { $in: departmentIds } },
+      data: { _id: { $in: departmentIds } },
       isRPC: true,
       defaultValue: []
     });
@@ -164,8 +164,8 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
     let otherCode: string = '';
 
     if (productData.branchId || productData.departmentId) {
-      const branch = branchesById[productData.branchId] || {};
-      const department = departmentsById[productData.departmentId] || {};
+      const branch = branchesById[productData.branchId || ''] || {};
+      const department = departmentsById[productData.departmentId || ''] || {};
       otherCode = `${branch.code || ''}_${department.code || ''}`;
     }
 

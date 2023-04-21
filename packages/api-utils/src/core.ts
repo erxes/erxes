@@ -462,6 +462,8 @@ export const shortStrToDate = (
   kind?: 'd' | 'h' | 'm' | 's' | 'ms',
   resultType?: 'd' | 'n'
 ) => {
+  if (!shortStr) return;
+
   if (!scale) {
     scale = 62;
   }
