@@ -1,3 +1,4 @@
+//purchase
 import {
   ColumnContainer,
   ColumnContentBody,
