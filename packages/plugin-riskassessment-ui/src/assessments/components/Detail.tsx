@@ -6,7 +6,8 @@ import {
   Table,
   Tabs,
   TabTitle,
-  __
+  __,
+  Attachment
 } from '@erxes/ui/src';
 import React from 'react';
 import {
@@ -35,19 +36,51 @@ type State = {
   currentUserId: string;
 };
 
+const isJsonString = value => {
+  try {
+    JSON.parse(value);
+  } catch (e) {
+    return false;
+  }
+  return true;
+};
+
 export function renderSubmission(fields) {
-  return fields.map(field => (
-    <CollapseContent
-      key={field.fieldId}
-      title={`${field?.text}: ${field?.value}`}
-      description={field.description}
-      compact
-    >
-      {(field?.optionsValues?.split('\n') || []).map(value => (
-        <p key={Math.random()}>{__(value)}</p>
-      ))}
-    </CollapseContent>
-  ));
+  return fields.map(field => {
+    const updateProps: any = {
+      key: field.fieldId,
+      description: field.description,
+      compact: true
+    };
+
+    let children;
+
+    if (isJsonString(field.value)) {
+      updateProps.title = field.text;
+
+      const attachments = JSON.parse(field.value);
+
+      children = (
+        <>
+          {attachments.map(attachment => (
+            <Attachment key={Math.random()} attachment={attachment} />
+          ))}
+        </>
+      );
+    } else {
+      updateProps.title = `${field?.text}: ${field?.value}`;
+
+      children = (
+        <>
+          {(field?.optionsValues?.split('\n') || []).map(value => (
+            <p key={Math.random()}>{__(value)}</p>
+          ))}
+        </>
+      );
+    }
+
+    return <CollapseContent {...updateProps}>{children}</CollapseContent>;
+  });
 }
 
 class Detail extends React.Component<Props, State> {

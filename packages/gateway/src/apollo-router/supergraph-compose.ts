@@ -51,26 +51,39 @@ const createSupergraphConfig = (proxyTargets: ErxesProxyTarget[]) => {
 };
 
 const supergraphComposeOnce = async () => {
-  const superGraphqlNext = supergraphPath + '.next';
-
-  const command =
-    process.env.NODE_ENV == 'development'
-      ? 'yarn rover'
-      : './dist/node_modules/@apollo/rover/run.js';
-
-  execSync(
-    `${command} supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept`,
-    {
-      stdio: 'inherit'
+  if (NODE_ENV === 'production') {
+    // Don't rewrite supergraph schema if it exists. Delete and restart to update the supergraph.graphql
+    if (fs.existsSync(supergraphPath)) {
+      return;
     }
-  );
 
-  if (
-    !fs.existsSync(supergraphPath) ||
-    !isSameFile(supergraphPath, superGraphqlNext)
-  ) {
-    execSync(`cp ${superGraphqlNext} ${supergraphPath}`);
-    console.log(`NEW Supergraph Schema was printed to ${supergraphPath}`);
+    execSync(
+      `rover supergraph compose --config ${supergraphConfigPath} --output ${supergraphPath} --elv2-license=accept --log=debug`,
+      {
+        stdio: 'inherit',
+        encoding: 'utf-8'
+      }
+    );
+
+    // Running execSync('rover') causes the container to exit with code 137. Exiting early.
+    process.exit(1);
+  } else {
+    const superGraphqlNext = supergraphPath + '.next';
+
+    execSync(
+      `yarn rover supergraph compose --config ${supergraphConfigPath} --output ${superGraphqlNext} --elv2-license=accept`,
+      {
+        stdio: 'inherit'
+      }
+    );
+
+    if (
+      !fs.existsSync(supergraphPath) ||
+      !isSameFile(supergraphPath, superGraphqlNext)
+    ) {
+      execSync(`cp ${superGraphqlNext} ${supergraphPath}`);
+      console.log(`NEW Supergraph Schema was printed to ${supergraphPath}`);
+    }
   }
 };
 
