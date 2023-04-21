@@ -179,15 +179,11 @@ export default function Home(props: Props) {
       wideSpacing
     />
   );
-
+  const breadcrumb = [{ title: 'Team members' }];
   return (
     <Wrapper
       header={
-        <Wrapper.Header
-          queryParams={queryParams}
-          title={'Team members'}
-          submenu={menuContacts}
-        />
+        <Wrapper.Header title={__('Team members')} breadcrumb={breadcrumb} />
       }
       leftSidebar={<Sidebar loadingMainQuery={loading} />}
       actionBar={actionBar}
