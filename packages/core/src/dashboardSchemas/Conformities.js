@@ -24,6 +24,10 @@ cube(`Conformities`, {
     Deals: {
       sql: `${CUBE}.relTypeId = ${Deals}._id`,
       relationship: `belongsTo`
+    },
+    Purchase: {
+      sql: `${CUBE}.relTypeId = ${Purchase}._id`,
+      relationship: `belongsTo`
     }
   },
 
@@ -83,6 +87,11 @@ cube(`Conformities`, {
       sql: `${Deals}.\`name\``,
       type: `string`,
       title: 'Rel-Type Deals'
+    },
+    reltypepurchases: {
+      sql: `${Purchases}.\`name\``,
+      type: `string`,
+      title: 'Rel-Type Purchases'
     }
   },
 

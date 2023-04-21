@@ -1,4 +1,5 @@
 var { withFilter } = require("graphql-subscriptions");
+var { gql } = require("apollo-server-express");
 
 module.exports = {
   name: "cards",
@@ -26,7 +27,7 @@ module.exports = {
             payload,
             info,
             queryVariables: { _id: payload.checklistsChanged._id },
-            buildQueryUsingSelections: (selections) => `
+            buildQueryUsingSelections: (selections) => gql`
               query Subscription_GetChecklist($_id: String!) {
                 checklistDetail(_id: $_id) {
                   ${selections}
@@ -54,7 +55,7 @@ module.exports = {
             payload,
             info,
             queryVariables: { _id: payload.checklistDetailChanged._id },
-            buildQueryUsingSelections: (selections) => `
+            buildQueryUsingSelections: (selections) => gql`
               query Subscription_GetChecklist($_id: String!) {
                 checklistDetail(_id: $_id) {
                   ${selections}

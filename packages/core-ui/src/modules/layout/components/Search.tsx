@@ -251,6 +251,9 @@ class Search extends React.Component<
       if (module === 'deals') {
         href = `/deal/board?id=${source.boardId}&itemId=${source._id}&pipelineId=${source.pipelineId}`;
       }
+      if (module === 'purchases') {
+        href = `/purchase/board?id=${source.boardId}&itemId=${source._id}&pipelineId=${source.pipelineId}`;
+      }
 
       if (module === 'tasks') {
         href = `/task/board?id=${source.boardId}&itemId=${source._id}&pipelineId=${source.pipelineId}`;

@@ -9,6 +9,10 @@ import {
   checklistItemSchema
 } from './models/definitions/checklists';
 import { dealSchema, productDataSchema } from './models/definitions/deals';
+import {
+  purchaseSchema,
+  purchaseproductDataSchema
+} from './models/definitions/purchase';
 import { growthHackSchema } from './models/definitions/growthHacks';
 import {
   pipelineTemplateSchema,
@@ -22,6 +26,11 @@ export const IMPORT_EXPORT_TYPES = [
   {
     text: 'Deal',
     contentType: 'deal',
+    icon: 'signal-alt-3'
+  },
+  {
+    text: 'Purchase',
+    contentTypeL: 'purchase',
     icon: 'signal-alt-3'
   },
   {
@@ -136,6 +145,7 @@ export const BOARD_BASIC_INFOS = [
 export const MODULE_NAMES = {
   BOARD: 'board',
   BOARD_DEAL: 'dealBoards',
+  BOARD_PURCHASE: 'purchaseBoards',
   BOARD_TASK: 'taskBoards',
   BOARD_TICKET: 'ticketBoards',
   BOARD_GH: 'growthHackBoards',
@@ -150,6 +160,7 @@ export const MODULE_NAMES = {
   CHECKLIST: 'checklist',
   CHECKLIST_ITEM: 'checkListItem',
   DEAL: 'deal',
+  PURCHASE: 'purchase',
   TICKET: 'ticket',
   TASK: 'task',
   PIPELINE_LABEL: 'pipelineLabel',
@@ -198,6 +209,10 @@ export const LOG_MAPPINGS: ISchemaMap[] = [
   {
     name: MODULE_NAMES.DEAL,
     schemas: [dealSchema, productDataSchema]
+  },
+  {
+    name: MODULE_NAMES.PURCHASE,
+    schemas: [purchaseSchema, purchaseproductDataSchema]
   },
   {
     name: MODULE_NAMES.PIPELINE_LABEL,

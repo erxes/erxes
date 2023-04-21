@@ -29,8 +29,7 @@ import {
   handleUnsubscription,
   readFileRequest,
   registerOnboardHistory,
-  routeErrorHandling,
-  uploadsFolderPath
+  routeErrorHandling
 } from './data/utils';
 
 import { debugBase, debugError, debugInit } from './debuggers';
@@ -280,16 +279,6 @@ app.get('/dashboard', async (req, res) => {
   const schemaName = headers[index];
 
   res.sendFile(path.join(__dirname, `./dashboardSchemas/${schemaName}.js`));
-});
-
-app.get('/get-import-file', async (req, res) => {
-  const headers = req.rawHeaders;
-
-  const index = headers.indexOf('fileName') + 1;
-
-  const fileName = headers[index];
-
-  res.sendFile(`${uploadsFolderPath}/${fileName}`);
 });
 
 // Wrap the Express server

@@ -10,6 +10,7 @@ import { IOptions } from '../../types';
 import { IQueryParams } from '@erxes/ui/src/types';
 import { getFilterParams } from '../../utils';
 import { DealsQueryResponse } from '../../../deals/types';
+import { PurchasesQueryResponse } from '../../../purchase/types';
 import { TasksQueryResponse } from '../../../tasks/types';
 import { TicketsQueryResponse } from '../../../tickets/types';
 import ChildrenSectionComponent from '../../components/editForm/ChildrenSection';
@@ -26,6 +27,7 @@ type Props = {
 
 type FinalProps = {
   dealQueries: DealsQueryResponse;
+  purchaseQueries: PurchasesQueryResponse;
   taskQueries: TasksQueryResponse;
   ticketQueries: TicketsQueryResponse;
 } & Props;
@@ -35,6 +37,7 @@ class ChildrenSection extends React.Component<FinalProps> {
     const {
       type,
       dealQueries,
+      purchaseQueries,
       taskQueries,
       ticketQueries,
       parentId,
@@ -48,6 +51,11 @@ class ChildrenSection extends React.Component<FinalProps> {
       children = dealQueries.deals;
       refetch = dealQueries.refetch;
     }
+    // if (type === 'purchase') {
+    //   children = purchaseQueries.purchases;
+    //   refetch = purchaseQueries.refetch;
+    // }
+
     if (type === 'task') {
       children = taskQueries.tasks;
       refetch = taskQueries.refetch;

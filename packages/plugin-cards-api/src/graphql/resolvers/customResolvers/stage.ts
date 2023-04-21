@@ -1,3 +1,4 @@
+import { Purchase } from '.';
 import { IContext } from '../../../connectionResolver';
 import { IStageDocument } from '../../../models/definitions/boards';
 import {
@@ -7,6 +8,7 @@ import {
 } from '../../../models/definitions/constants';
 import {
   generateDealCommonFilters,
+  generatePurchaseCommonFilters,
   generateGrowthHackCommonFilters,
   generateTaskCommonFilters,
   generateTicketCommonFilters
@@ -77,6 +79,47 @@ export default {
       });
     }
 
+    if (stage.type === BOARD_TYPES.PURCHASE) {
+      const filter = await generatePurchaseCommonFilters(
+        models,
+        subdomain,
+        user._id,
+        { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
+        args.extraParams
+      );
+
+      const amountList = await models.Purchase.aggregate([
+        {
+          $match: filter
+        },
+        {
+          $unwind: '$productsData'
+        },
+        {
+          $project: {
+            amount: '$productsData.amount',
+            currency: '$productsData.currency',
+            tickUsed: '$productsData.tickUsed'
+          }
+        },
+        {
+          $match: { tickUsed: true }
+        },
+        {
+          $group: {
+            _id: '$currency',
+            amount: { $sum: '$amount' }
+          }
+        }
+      ]);
+
+      amountList.forEach(item => {
+        if (item._id) {
+          amountsMap[item._id] = item.amount;
+        }
+      });
+    }
+
     return amountsMap;
   },
 
@@ -86,7 +129,7 @@ export default {
     { user, models, subdomain }: IContext,
     { variableValues: args }
   ) {
-    const { Deals, Tickets, Tasks, GrowthHacks } = models;
+    const { Deals, Tickets, Tasks, GrowthHacks, Purchase } = models;
 
     switch (stage.type) {
       case BOARD_TYPES.DEAL: {
@@ -100,6 +143,18 @@ export default {
 
         return Deals.find(filter).count();
       }
+      case BOARD_TYPES.PURCHASE: {
+        const filter = await generatePurchaseCommonFilters(
+          models,
+          subdomain,
+          user._id,
+          { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
+          args.extraParams
+        );
+
+        return Purchase.find(filter).count();
+      }
+
       case BOARD_TYPES.TICKET: {
         const filter = await generateTicketCommonFilters(
           models,
