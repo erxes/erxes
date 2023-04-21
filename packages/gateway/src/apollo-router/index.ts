@@ -41,6 +41,10 @@ const downloadRouter = async () => {
 };
 
 const createRouterConfig = () => {
+  if (NODE_ENV === 'production' && fs.existsSync(routerConfigPath)) {
+    // Don't rewrite in production if it exists. Delete and restart to update the config
+    return;
+  }
   const rhaiPath = path.resolve(__dirname, 'rhai/main.rhai');
 
   const config = {
