@@ -1,9 +1,7 @@
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import React from 'react';
-import gql from 'graphql-tag';
-import SalaryForm from '../../components/salary/Form';
+import Alert from '@erxes/ui/src/utils/Alert';
 import { getEnv } from '@erxes/ui/src/utils/core';
+import React from 'react';
+import SalaryForm from '../../components/salary/Form';
 // import { mutations, queries } from '../graphql';
 
 type Props = {
@@ -27,11 +25,19 @@ const FormContainer = (props: Props) => {
         'Access-Control-Allow-Origin': '*'
       }
     })
-      .then(_response => {
+      .then(res => res.json())
+      .then(res => {
+        if (!res.error) {
+          Alert.success('Successfully uploaded');
+        } else {
+          Alert.error(res.error);
+        }
+
         props.closeModal();
       })
+
       .catch(error => {
-        console.log(error);
+        Alert.error(error.message);
       });
   };
 

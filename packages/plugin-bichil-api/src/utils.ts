@@ -259,9 +259,13 @@ export const handleUpload = async (
 
     const models = await generateModels(subdomain);
 
+    console.log('pathhhhhh ', file.path);
+
     fs.createReadStream(file.path)
       .pipe(csvParser())
       .on('error', error => {
+        // remove file
+        fs.unlinkSync(file.path);
         reject(error);
       })
       .on('data', data => results.push(data))
@@ -290,6 +294,9 @@ export const handleUpload = async (
           rawResult: true
         });
 
+        // remove file
+        await fs.unlinkSync(file.path);
+
         resolve('success');
       });
   });
@@ -302,7 +309,7 @@ export const checkPermission = async (
 ) => {
   checkLogin(user);
 
-  const permissions = ['manageSalaries'];
+  const permissions = ['addSalaries'];
 
   const actionName = permissions.find(
     permission => permission === mutationName

@@ -99,21 +99,27 @@ export default {
 
         const subdomain = getSubdomain(req);
 
-        await checkPermission(subdomain, req.user, 'addSalaries');
-
-        const file = req.file;
-        const title = req.body.title || 'Untitled';
-
-        if (!file) {
-          return res.status(400).send('No file uploaded.');
-        }
-
         try {
-          const result = await handleUpload(subdomain, req.user, file, title);
+          await checkPermission(subdomain, req.user, 'addSalaries');
 
-          res.send(result);
+          const file = req.file;
+          const title = req.body.title || 'Untitled';
+
+          if (!file) {
+            return res.status(200).json({ error: 'File is required' });
+          }
+
+          try {
+            const result = await handleUpload(subdomain, req.user, file, title);
+
+            res.status(200).json({ success: true, result });
+          } catch (e) {
+            return res.status(200).json({ error: e.message });
+          }
         } catch (e) {
-          return res.status(400).send(e.message);
+          console.error(e.message);
+          // next(e);
+          return res.status(200).json({ error: e.message });
         }
       }
     );
