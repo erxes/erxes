@@ -57,8 +57,9 @@ export const checkPricing = async (
           ((discount.value / item.unitPrice) * 100).toFixed(2)
         );
         item.unitPrice -= discount.value;
+        item.discountAmount = discount.value * item.count;
       } else {
-        item.discountAmount = discount.value;
+        item.discountAmount = discount.value * item.count;
         item.unitPrice -= discount.value;
       }
     }

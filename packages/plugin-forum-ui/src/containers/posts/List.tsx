@@ -38,7 +38,7 @@ function List({ removeMutation, queryParams, history }: FinalProps) {
     state,
     categoryApprovalState,
     categoryIncludeDescendants: !!categoryIncludeDescendants,
-    sort: { createdAt: -1 },
+    sort: { [queryParams.sortField]: queryParams.sortDirection },
     limit,
     offset
   };
