@@ -35,6 +35,7 @@ function General({
   googleRedirectUri,
   googleClientSecret,
   facebookAppId,
+  erxesAppToken,
   otpConfig,
   mailConfig,
   name,
@@ -549,6 +550,17 @@ function General({
           label: 'Facebook App Id',
           formValueName: 'facebookAppId',
           formValue: facebookAppId
+        })}
+      </CollapseContent>
+      <CollapseContent
+        title={__('Erxes App Token')}
+        compact={true}
+        open={false}
+      >
+        {renderControl({
+          label: 'Erxes App Token',
+          formValueName: 'erxesAppToken',
+          formValue: erxesAppToken
         })}
       </CollapseContent>
     </>

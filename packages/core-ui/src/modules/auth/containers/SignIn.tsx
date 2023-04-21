@@ -15,7 +15,11 @@ const SignInContainer = (props: IRouterProps) => {
     const callbackResponse = () => {
       apolloClient.resetStore();
 
-      history.push(`${location.pathname}${location.search}` || '/?signedIn=true');
+      history.push(
+        (!location.pathname.includes('sign-in') &&
+          `${location.pathname}${location.search}`) ||
+          '/?signedIn=true'
+      );
 
       window.location.reload();
     };
