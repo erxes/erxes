@@ -14,6 +14,11 @@ async function createRouterConfigDir() {
   }
 }
 
+async function recreateRouterConfigDir() {
+  await fse.removeSync(routerConfigDirPath, { recursive: true });
+  await createRouterConfigDir();
+}
+
 const {
   DEPLOYMENT_METHOD,
   SERVICE_INTERNAL_PORT = 80,
@@ -869,6 +874,8 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
   log('Deploy ......');
 
   if (isSwarm) {
+    await recreateRouterConfigDir();
+    await execCommand('docker service rm erxes_gateway');
     return execCommand(
       'docker stack deploy --compose-file docker-compose.yml erxes --with-registry-auth --resolve-image changed'
     );
@@ -961,6 +968,7 @@ const update = async ({ serviceNames, noimage, uis }) => {
   }
 
   log('Updating gateway ....');
+  await recreateRouterConfigDir();
   await execCommand(`docker service update --force erxes_gateway`);
 };
 
