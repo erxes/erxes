@@ -88,7 +88,14 @@ export default {
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
 
+    initBroker(options.messageBrokerClient);
+
+    graphqlPubsub = options.pubsubClient;
+
+    debug = options.debug;
+
     const upload = multer({ dest: '../uploads/' });
+
     app.post(
       '/upload-salary',
       upload.single('file'),
@@ -123,11 +130,5 @@ export default {
         }
       }
     );
-
-    initBroker(options.messageBrokerClient);
-
-    graphqlPubsub = options.pubsubClient;
-
-    debug = options.debug;
   }
 };
