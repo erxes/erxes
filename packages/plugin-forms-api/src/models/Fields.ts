@@ -451,6 +451,18 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         }).lean();
 
         if (!field) {
+          const group = await models.FieldsGroups.findOne({
+            _id: customFieldData.field
+          }).lean();
+
+          if (group) {
+            result.push({
+              ...customFieldData,
+              stringValue: customFieldData.value
+                ? customFieldData.value.toString()
+                : ''
+            });
+          }
           continue;
         }
 

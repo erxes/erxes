@@ -11,6 +11,7 @@ const commonFields = `
   $config: JSON,
   $logicAction: String,
   $logics: [LogicInput],
+  $alwaysOpen: Boolean,
 `;
 
 const commonTypes = `
@@ -26,6 +27,7 @@ const commonTypes = `
   config: $config
   logicAction: $logicAction,
   logics: $logics,
+  alwaysOpen: $alwaysOpen,
 `;
 
 const updateVisibleFields = `
