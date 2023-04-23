@@ -32,6 +32,10 @@ export interface IAbsence {
   solved: boolean;
   status: string;
   attachment: IAttachment;
+
+  absenceTimeType: string;
+  requestDates: string[];
+  totalHoursOfAbsence: string;
 }
 export interface IAbsenceType {
   _id: string;
@@ -155,8 +159,8 @@ export interface IScheduleForm {
 export interface IScheduleDate {
   overnightShift?: boolean;
 
-  scheduleConfigId: string;
-  lunchBreakInMins: number;
+  scheduleConfigId?: string;
+  lunchBreakInMins?: number;
 
   shiftDate?: Date;
   shiftStart: Date;
@@ -238,13 +242,19 @@ export type MutationVariables = {
 };
 export type AbsenceMutationVariables = {
   _id?: string;
-  startTime: Date;
-  endTime: Date;
   userId: string;
   reason: string;
+
+  absenceTypeId: string;
+  absenceTimeType: string;
+
+  totalHoursOfAbsence: string;
+
   explanation?: string;
   attachment?: IAttachment;
-  absenceTypeId?: string;
+  requestDates?: string[];
+  startTime?: Date;
+  endTime?: Date;
 };
 
 export type ScheduleMutationVariables = {

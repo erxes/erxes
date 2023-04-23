@@ -8,7 +8,6 @@ import { IScheduleForm, IScheduleConfig } from '../../types';
 import Select from 'react-select-plus';
 import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
 import {
-  CustomLabel,
   FlexCenter,
   FlexColumn,
   FlexRow,
@@ -30,7 +29,7 @@ import { Alert, __ } from '@erxes/ui/src/utils';
 import { compareStartAndEndTime } from '../../utils';
 import Datetime from '@nateradebaugh/react-datetime';
 import Tip from '@erxes/ui/src/components/Tip';
-import { dateFormat, timeFormat } from '../../constants';
+import { dateFormat } from '../../constants';
 
 type Props = {
   scheduleOfMembers: any;
@@ -229,10 +228,14 @@ function ScheduleForm(props: Props) {
     let totalBreakMins = 0;
 
     for (const scheduledDateIdx of Object.keys(scheduleDates)) {
-      totalBreakMins += scheduleDates[scheduledDateIdx].lunchBreakInMins;
+      totalBreakMins += scheduleDates[scheduledDateIdx].lunchBreakInMins || 0;
     }
 
-    return [totalDays, totalHours.toFixed(1), totalBreakMins];
+    return [
+      totalDays,
+      (totalHours - totalBreakMins / 60).toFixed(1),
+      totalBreakMins
+    ];
   };
 
   const checkInput = (selectedUsers, shifts, branchIds?, departmentIds?) => {
@@ -436,14 +439,14 @@ function ScheduleForm(props: Props) {
     let totalBreakMins = 0;
 
     for (const scheduledDateIdx of Object.keys(scheduleDates)) {
-      totalBreakMins += scheduleDates[scheduledDateIdx].lunchBreakInMins;
+      totalBreakMins += scheduleDates[scheduledDateIdx].lunchBreakInMins || 0;
     }
 
     return (
       <FlexCenter>
         <div style={{ width: '35%' }}>
           <FlexRow>
-            <MarginX>
+            <MarginX margin={20}>
               <FlexColumn marginNum={0}>
                 <div>Total days :</div>
                 <div>Total hours :</div>
@@ -705,7 +708,7 @@ function ScheduleForm(props: Props) {
             inputProps={{ required: false }}
           />
           <FlexCenter>
-            <MarginY>
+            <MarginY margin={10}>
               <Button onClick={closePopover}>Close</Button>
             </MarginY>
           </FlexCenter>

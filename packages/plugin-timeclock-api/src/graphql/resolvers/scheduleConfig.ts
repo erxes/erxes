@@ -9,6 +9,9 @@ export default {
     { models }: IContext,
     {}
   ) {
-    return models.Shifts.find({ scheduleConfigId: scheduleConfig._id });
+    return models.Shifts.find({
+      scheduleConfigId: scheduleConfig._id,
+      scheduleId: { $exists: false }
+    });
   }
 };
