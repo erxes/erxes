@@ -102,16 +102,22 @@ class SelectWithSearch extends React.Component<
     totalOptions?: IOption[];
     selectedOptions?: IOption[];
     selectedValues: string[];
+    searchValue: string;
   }
 > {
+  private timer: any;
+
   constructor(props: Props) {
     super(props);
 
     this.state = {
       selectedValues: props.initialValues,
+      searchValue: '',
       selectedOptions: undefined,
       totalOptions: undefined
     };
+
+    this.timer = 0;
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -204,9 +210,13 @@ class SelectWithSearch extends React.Component<
     const onChange = multi ? selectMultiple : selectSingle;
 
     const onSearch = (searchValue: string) => {
-      if (searchValue) {
-        debounce(() => search(searchValue), 1000)();
-      }
+      this.setState({ searchValue });
+
+      clearTimeout(this.timer);
+
+      this.timer = setTimeout(() => {
+        search(searchValue);
+      }, 1000);
     };
 
     const onOpen = () => search('reload');

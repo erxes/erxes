@@ -1,21 +1,21 @@
-import Box from '@erxes/ui/src/components/Box';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import {
   FieldStyle,
   SidebarCounter,
   SidebarList
 } from '@erxes/ui/src/layout/styles';
-import { LinkButton } from '@erxes/ui/src/styles/main';
 import { __, renderFullName } from '@erxes/ui/src/utils/core';
-import React from 'react';
 
+import Box from '@erxes/ui/src/components/Box';
 import CustomFieldsSection from '../../containers/CustomFieldsSection';
-import VerificationForm from '../../containers/details/VerificationForm';
-import { List } from '../../styles';
-import { IClientPortalUser } from '../../types';
 import DetailInfo from './DetailInfo';
+import { IClientPortalUser } from '../../types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { LinkButton } from '@erxes/ui/src/styles/main';
+import { List } from '../../styles';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import VerificationForm from '../../containers/details/VerificationForm';
 
 type Props = {
   clientPortalUser: IClientPortalUser;
@@ -86,7 +86,6 @@ class LeftSidebar extends React.Component<Props> {
             <FieldStyle>{__('status')}</FieldStyle>
             <SidebarCounter>{__(verificationStatus)}</SidebarCounter>
           </li>
-          <List></List>
         </SidebarList>
       </Box>
     );
