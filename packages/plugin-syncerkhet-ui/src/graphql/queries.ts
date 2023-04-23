@@ -47,23 +47,27 @@ const commonOrderParams = `
   $sortDirection: Int,
   $posToken: String,
   $search: String,
-  $paidStartDate: Date
-  $paidEndDate: Date
-  $createdStartDate: Date
-  $createdEndDate: Date
+  $posId: String,
+  $userId: String,
+  $paidStartDate: Date,
+  $paidEndDate: Date,
+  $createdStartDate: Date,
+  $createdEndDate: Date,
 `;
 
 const commonOrderParamDefs = `
   page: $page,
   perPage: $perPage,
-  sortField: $sortField
-  sortDirection: $sortDirection
-  posToken: $posToken
-  search: $search
-  createdStartDate: $createdStartDate
-  createdEndDate: $createdEndDate
-  paidStartDate: $paidStartDate
-  paidEndDate: $paidEndDate
+  sortField: $sortField,
+  sortDirection: $sortDirection,
+  posToken: $posToken,
+  search: $search,
+  posId: $posId,
+  userId: $userId,
+  createdStartDate: $createdStartDate,
+  createdEndDate: $createdEndDate,
+  paidStartDate: $paidStartDate,
+  paidEndDate: $paidEndDate,
 `;
 
 const checkSyncDeals = `

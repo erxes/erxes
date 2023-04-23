@@ -27,6 +27,7 @@ type Props = {
   unSyncedOrderIds: string[];
   syncedOrderInfos: any;
   toSyncOrders: (orderIds: string[]) => void;
+  posList?: any[];
 };
 
 type State = {
@@ -91,6 +92,7 @@ class CheckSyncedOrders extends React.Component<Props, State> {
       loading,
       unSyncedOrderIds,
       toSyncOrders,
+      posList,
       syncedOrderInfos
     } = this.props;
     const tablehead = [
@@ -126,6 +128,7 @@ class CheckSyncedOrders extends React.Component<Props, State> {
       <CheckSyncedOrdersSidebar
         queryParams={queryParams}
         history={this.props.history}
+        posList={posList}
       />
     );
 

@@ -58,14 +58,15 @@ export class QpayAPI extends BaseAPI {
   private qpayMerchantUser: string;
   private qpayMerchantPassword: string;
   private qpayInvoiceCode: any;
+  private domain?: string;
 
-  constructor(config: IQpayConfig) {
+  constructor(config: IQpayConfig, domain?: string) {
     super(config);
 
     this.qpayInvoiceCode = config.qpayInvoiceCode;
     this.qpayMerchantPassword = config.qpayMerchantPassword;
     this.qpayMerchantUser = config.qpayMerchantUser;
-
+    this.domain = domain;
     this.apiUrl = PAYMENTS.qpay.apiUrl;
   }
 
@@ -109,10 +110,6 @@ export class QpayAPI extends BaseAPI {
   }
 
   async createInvoice(invoice: IInvoiceDocument) {
-    const MAIN_API_DOMAIN = process.env.DOMAIN
-      ? `${process.env.DOMAIN}/gateway`
-      : 'http://localhost:4000';
-
     const { qpayInvoiceCode } = this;
 
     try {
@@ -122,7 +119,7 @@ export class QpayAPI extends BaseAPI {
         invoice_receiver_code: 'terminal',
         invoice_description: invoice.description || 'test invoice',
         amount: invoice.amount,
-        callback_url: `${MAIN_API_DOMAIN}/pl:payment/callback/${PAYMENTS.qpay.kind}?identifier=${invoice.identifier}`
+        callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.qpay.kind}?identifier=${invoice.identifier}`
       };
 
       const res = await this.request({
