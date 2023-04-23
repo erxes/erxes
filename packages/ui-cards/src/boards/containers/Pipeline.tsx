@@ -202,7 +202,10 @@ const WithQuery = withProps<WithQueryProps>(
           extraParams: getExtraParams(queryParams),
           closeDateType: queryParams.closeDateType,
           userIds: queryParams.userIds,
-          assignedToMe: queryParams.assignedToMe
+          assignedToMe: queryParams.assignedToMe,
+          branchIds: queryParams.branchIds,
+          departmentIds: queryParams.departmentIds,
+          segmentData: queryParams.segmentData
         },
         context: {
           fetchOptions: { signal: abortController && abortController.signal }
