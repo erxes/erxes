@@ -36,7 +36,6 @@ type State = {
 };
 
 class GenerateGroup extends React.Component<Props, State> {
-  s;
   constructor(props: Props) {
     super(props);
 
@@ -284,7 +283,7 @@ class GenerateGroup extends React.Component<Props, State> {
                 <GenerateField
                   field={field}
                   key={index}
-                  onValueChange={data => this.onChange(groupDataIndex, data)}
+                  onValueChange={val => this.onChange(groupDataIndex, val)}
                   defaultValue={
                     isMultiple
                       ? groupDataValue[field._id] || ''
@@ -334,7 +333,7 @@ class GenerateGroup extends React.Component<Props, State> {
     });
 
     const saveGroup = (groupData, callback) => {
-      const { customFieldsData, save } = this.props;
+      const { save } = this.props;
 
       const prevData = {};
       (customFieldsData || []).forEach(cd => (prevData[cd.field] = cd.value));
@@ -437,6 +436,7 @@ class GenerateGroup extends React.Component<Props, State> {
         extraButtons={extraButtons}
         title={fieldGroup.name}
         name="showCustomFields"
+        isOpen={true}
       >
         {this.renderContent()}
         {this.renderButtons()}
@@ -493,6 +493,7 @@ class GenerateGroup extends React.Component<Props, State> {
         extraButtons={extraButtons}
         title={fieldGroup.name}
         name="showCustomFields"
+        isOpen={fieldGroup.alwaysOpen}
       >
         {this.renderContent()}
         {this.renderButtons()}
