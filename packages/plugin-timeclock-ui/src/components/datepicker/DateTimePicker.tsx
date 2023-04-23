@@ -17,7 +17,7 @@ type Props = {
   timeOnly?: boolean;
 };
 
-const DatePicker = (props: Props) => {
+const DateTimePicker = (props: Props) => {
   const {
     changeDate,
     changeEndTime,
@@ -110,13 +110,8 @@ const DatePicker = (props: Props) => {
         onChange={val => onTimeChange(val, 'end')}
       />
       {overnightShift ? 'Overnight' : ''}
-      {!timeOnly && (
-        <Tip text="Delete" placement="top">
-          <Button btnStyle="link" onClick={onDeleteDate} icon="times-circle" />
-        </Tip>
-      )}
     </div>
   );
 };
 
-export default DatePicker;
+export default DateTimePicker;

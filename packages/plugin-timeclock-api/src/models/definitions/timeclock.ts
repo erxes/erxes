@@ -39,6 +39,8 @@ export interface IAbsence {
   status?: string;
   solved?: boolean;
   absenceTypeId?: string;
+  absenceTimeType?: string;
+  totalHoursOfAbsence?: string;
 }
 export interface IAbsenceType {
   name: string;
@@ -204,9 +206,15 @@ export const absenceSchema = new Schema({
   userId: field({ type: String, label: 'User', index: true }),
   startTime: field({ type: Date, label: 'Absence starting time', index: true }),
   endTime: field({ type: Date, label: 'Absence ending time', index: true }),
-  holidayName: field({ type: String, label: 'Name of a holiday' }),
+
+  requestDates: field({
+    type: [String],
+    label: 'Requested dates in string format'
+  }),
+
   reason: field({ type: String, label: 'reason for absence' }),
   explanation: field({ type: String, label: 'explanation by a team member' }),
+
   solved: field({
     type: Boolean,
     default: false,
@@ -221,9 +229,21 @@ export const absenceSchema = new Schema({
     type: Boolean,
     label: 'Whether request is check in/out request'
   }),
+
   absenceTypeId: field({
     type: String,
     label: 'id of an absence type'
+  }),
+
+  absenceTimeType: field({
+    type: String,
+    default: 'by hour',
+    label: 'absence time type either by day or by hour'
+  }),
+
+  totalHoursOfAbsence: field({
+    type: String,
+    label: 'total hours of absence request'
   })
 });
 

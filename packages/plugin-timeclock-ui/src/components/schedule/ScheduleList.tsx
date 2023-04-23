@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { CustomRow, FlexRowLeft, RowField, ToggleButton } from '../../styles';
+import { FlexRowLeft, ToggleButton } from '../../styles';
 
 import { IBranch } from '@erxes/ui/src/team/types';
 import ScheduleForm from './ScheduleForm';
@@ -261,9 +261,11 @@ function ScheduleList(props: Props) {
           <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
             {__('Total Break')}
           </th>
-          <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
-            {__('Member checked')}
-          </th>
+          {!isEnabled('bichil') && (
+            <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+              {__('Member checked')}
+            </th>
+          )}
           {daysAndDatesHeaders.map(column => {
             return (
               <th
@@ -454,7 +456,7 @@ function ScheduleList(props: Props) {
         <td>{totalDaysScheduled}</td>
         <td>{totalHoursScheduled}</td>
         <td>{totalBreakInHours}</td>
-        <td>{scheduleChecked}</td>
+        {!isEnabled('bichil') && <td>{scheduleChecked}</td>}
         {renderScheduleShifts(scheduleOfMember.shifts, user._id)}
       </tr>
     );

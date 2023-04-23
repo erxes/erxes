@@ -157,6 +157,7 @@ const FlexCenter = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: center;
+  align-items: center;
 `;
 
 const SidebarActions = styled.div`
@@ -282,12 +283,12 @@ const DateName = styled.div`
   text-align: center;
 `;
 
-const MarginX = styled.div`
-  margin: 0 ${dimensions.coreSpacing}px;
+const MarginX = styledTS<{ margin: number }>(styled.div)`
+  margin: 0 ${props => props.margin}px;
 `;
 
-const MarginY = styled.div`
-  margin: ${dimensions.unitSpacing}px 0;
+const MarginY = styledTS<{ margin: number }>(styled.div)`
+  margin: ${props => props.margin}px 0;
 `;
 
 const RowField = styled.div`

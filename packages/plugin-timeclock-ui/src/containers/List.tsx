@@ -53,6 +53,10 @@ class ListContainer extends React.Component<FinalProps> {
       return <Spinner />;
     }
 
+    if (!listScheduleConfigsQuery.scheduleConfigs) {
+      listScheduleConfigsQuery.refetch();
+    }
+
     const currentUserId = currentUser._id;
 
     const updatedProps = {

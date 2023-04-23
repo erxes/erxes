@@ -57,8 +57,8 @@ const timeclockCreate = `
 `;
 
 const sendAbsenceRequest = `
-  mutation sendAbsenceRequest($startTime: Date, $endTime: Date, $userId: String, $reason: String, $explanation: String, $attachment: AttachmentInput, $absenceTypeId: String){
-    sendAbsenceRequest(startTime: $startTime, endTime: $endTime, userId: $userId, reason: $reason, explanation: $explanation, attachment: $attachment, absenceTypeId: $absenceTypeId){
+  mutation sendAbsenceRequest($startTime: Date, $endTime: Date,$requestDates: [String] $userId: String, $reason: String, $explanation: String, $attachment: AttachmentInput, $absenceTypeId: String, $absenceTimeType: String, $totalHoursOfAbsence: String){
+    sendAbsenceRequest(startTime: $startTime, endTime: $endTime,requestDates: $requestDates,  userId: $userId, reason: $reason, explanation: $explanation, attachment: $attachment, absenceTypeId: $absenceTypeId, absenceTimeType: $absenceTimeType, totalHoursOfAbsence: $totalHoursOfAbsence ){
       _id
     }
   }`;
