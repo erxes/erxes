@@ -35,6 +35,7 @@ const createOrUpdateConfig = `
     $googleRedirectUri: String
     $googleClientSecret: String
     $facebookAppId: String
+    $erxesAppToken: String
 
     $kbToggle: Boolean
     $publicTaskToggle: Boolean
@@ -44,6 +45,7 @@ const createOrUpdateConfig = `
     $otpConfig: OTPConfigInput
     $mailConfig: MailConfigInput
     $manualVerificationConfig: JSON
+    $passwordVerificationConfig: JSON
   ) {
     clientPortalConfigUpdate(
       _id: $_id,
@@ -79,6 +81,7 @@ const createOrUpdateConfig = `
       googleRedirectUri: $googleRedirectUri
       googleClientSecret: $googleClientSecret
       facebookAppId: $facebookAppId
+      erxesAppToken: $erxesAppToken
 
       kbToggle: $kbToggle,
       publicTaskToggle: $publicTaskToggle,
@@ -88,6 +91,7 @@ const createOrUpdateConfig = `
       otpConfig: $otpConfig
       mailConfig: $mailConfig
       manualVerificationConfig: $manualVerificationConfig
+      passwordVerificationConfig: $passwordVerificationConfig
     ) {
       ${commonFields}
     }

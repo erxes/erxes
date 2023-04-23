@@ -75,6 +75,7 @@ export const loadClasses = (
     'boards',
     loadBoardClass(models, subdomain)
   );
+
   models.Pipelines = db.model<IPipelineDocument, IPipelineModel>(
     'pipelines',
     loadPipelineClass(models, subdomain)
@@ -119,4 +120,7 @@ export const loadClasses = (
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(models, loadClasses);
+export const generateModels = createGenerateModels<IModels>(
+  models,
+  loadClasses
+);

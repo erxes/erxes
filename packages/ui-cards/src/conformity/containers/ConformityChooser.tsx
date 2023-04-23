@@ -38,14 +38,21 @@ const ConformityChooser = (props: FinalProps) => {
   const onSelected = relTypes => {
     const relTypeIds = relTypes.map(item => item._id);
     const update = proxy => {
+      const variables: any = {
+        mainType: data.mainType,
+        mainTypeId: data.mainTypeId,
+        relType: data.relType,
+        isSaved: true
+      };
+
+      // add archived items in contacts side bar
+      if (data.mainType === 'customer' || data.mainType === 'company') {
+        variables.noSkipArchive = true;
+      }
+
       const selector: { query: any; variables?: any } = {
         query: gql(refetchQuery),
-        variables: {
-          mainType: data.mainType,
-          mainTypeId: data.mainTypeId,
-          relType: data.relType,
-          isSaved: true
-        }
+        variables
       };
 
       // Read the data from our cache for this query.

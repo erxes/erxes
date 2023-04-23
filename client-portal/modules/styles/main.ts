@@ -1,8 +1,8 @@
-import { colors, dimensions, typography } from "../styles";
-import styled, { css } from "styled-components";
+import { colors, dimensions, typography } from '../styles';
+import styled, { css } from 'styled-components';
 
-import { rgba } from "../styles/ecolor";
-import styledTS from "styled-components-ts";
+import { rgba } from '../styles/ecolor';
+import styledTS from 'styled-components-ts';
 
 const Header = styledTS<{
   color?: string;
@@ -10,11 +10,11 @@ const Header = styledTS<{
   backgroundImage?: string;
   headingSpacing?: boolean;
 }>(styled.div)`
-  padding: ${(props) => (props.headingSpacing ? "30px 30px 180px" : "30px 0")};
+  padding: ${(props) => (props.headingSpacing ? '30px 30px 180px' : '30px 0')};
   color: ${(props) => (props.color ? props.color : colors.colorWhite)};
   font-size: ${typography.fontSizeBody}px;
   background-color: ${(props) =>
-    props.background ? props.background : "#f5f8fb"};
+    props.background ? props.background : '#f5f8fb'};
   background-image: ${(props) =>
     props.backgroundImage && `url(${props.backgroundImage})`};
 
@@ -65,7 +65,7 @@ const HeaderRight = styled.div`
 const HeaderLeft = styled.div`
   display: flex;
   align-items: center;
-  `;
+`;
 
 const SupportMenus = styledTS<{ color?: string }>(styled.div)`
   display: flex;
@@ -80,15 +80,36 @@ const SupportMenus = styledTS<{ color?: string }>(styled.div)`
   }
 
   > button {
-    color: ${props =>
+    color: ${(props) =>
       props.color ? props.color : colors.colorWhite} !important;
   }
 
   span {
     margin-left: 10px;
+    
+    i {
+      font-size: 18px
+    }
 
     &:hover {
       cursor: pointer;
+    }
+  }
+
+  .notifications {
+    position: relative;
+
+    div {
+      border-radius: 15px;
+      background-color: red;
+      font-size: 10px;
+      max-width: 50px;
+      color: white;
+      text-align: center;
+      position: absolute;
+      right: -6px;
+      width: 14px;
+      top: -8px;
     }
   }
 
@@ -148,7 +169,7 @@ const MainContent = styledTS<{ baseColor?: string; bodyColor?: string }>(
   styled.div
 )`
   background-color: ${(props) =>
-    props.bodyColor ? props.bodyColor : "#f5f8fb"};
+    props.bodyColor ? props.bodyColor : '#f5f8fb'};
   min-height: 60vh;
   padding: 32px 0;
 
@@ -352,7 +373,7 @@ const ModalWrapper = styledTS<{ isFull?: boolean }>(styled.div)`
       position: relative;
       z-index: 99;
       width: 60%;
-      max-width: ${(props) => (props.isFull ? "900px" : "600px")};
+      max-width: ${(props) => (props.isFull ? '900px' : '600px')};
       border-radius: 2px;
       margin: 100px auto;
     }
@@ -411,6 +432,12 @@ const HeaderWrapper = styled.div`
 const FormWrapper = styled.div`
   background: ${colors.colorWhite};
   border-radius: 5px;
+  color: #444;
+
+  .customFieldDescription {
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
 
   h4 {
     color: ${colors.textPrimary};
@@ -438,7 +465,7 @@ const FormWrapper = styled.div`
 
 const Badge = styled.div`
   border-radius: 15px;
-  background-color: ${props => props.color};
+  background-color: ${(props) => props.color};
   font-size: 11px;
   max-width: 50px;
   color: white;
@@ -451,7 +478,7 @@ const NotificationContent = styledTS<{ isList?: boolean }>(styled.div)`
   border-radius: 3px;
   margin: ${dimensions.unitSpacing - 5}px 0;
   word-break: break-word;
-  max-width: ${props => (props.isList ? '100%' : '270px')};
+  max-width: ${(props) => (props.isList ? '100%' : '270px')};
 
   > p {
     margin: 0;
@@ -464,7 +491,7 @@ const Content = styledTS<{ isList?: boolean }>(styled.div)`
   border-radius: 3px;
   margin: ${dimensions.unitSpacing - 5}px 0;
   word-break: break-word;
-  max-width: ${props => (props.isList ? '100%' : '270px')};
+  max-width: ${(props) => (props.isList ? '100%' : '270px')};
 
   > p {
     margin: 0;
@@ -514,7 +541,7 @@ const CreatedDate = styledTS<{ isList?: boolean }>(styled.div)`
   color: ${colors.colorCoreGray};
   padding-top: 3px;
 
-  ${props =>
+  ${(props) =>
     props.isList &&
     css`
       position: absolute;

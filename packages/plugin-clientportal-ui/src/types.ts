@@ -23,11 +23,18 @@ export type ManualVerificationConfig = {
   verifyCompany: boolean;
 };
 
+export type PasswordVerificationConfig = {
+  verifyByOTP: boolean;
+  emailSubject: string;
+  emailContent: string;
+  smsContent: string;
+};
+
 export interface IVerificationRequest {
   status: string;
   attachments: IAttachment[];
-  description: string;
-  verifiedBy: string;
+  description?: string;
+  verifiedBy?: string;
 }
 
 export interface IClientPortalUserDoc {
@@ -128,6 +135,7 @@ export type ClientPortalConfig = {
   googleRedirectUri?: string;
   googleClientSecret?: string;
   facebookAppId?: string;
+  erxesAppToken?: string;
 
   kbToggle?: boolean;
   publicTaskToggle?: boolean;
@@ -137,6 +145,7 @@ export type ClientPortalConfig = {
   otpConfig?: OTPConfig;
   mailConfig?: MailConfig;
   manualVerificationConfig?: ManualVerificationConfig;
+  passwordVerificationConfig?: PasswordVerificationConfig;
 };
 
 export type Styles = {

@@ -5,6 +5,20 @@ const { log, execCommand, filePath, execCurl } = require('../utils');
 
 require('dotenv').config();
 
+
+const routerConfigDirPath = filePath('./apollo-router-config');
+
+async function createRouterConfigDir() {
+  if (!fs.existsSync(routerConfigDirPath)) {
+    await fs.mkdirSync(routerConfigDirPath,{ recursive: true });
+  }
+}
+
+async function recreateRouterConfigDir() {
+  await fse.removeSync(routerConfigDirPath, { recursive: true });
+  await createRouterConfigDir();
+}
+
 const {
   DEPLOYMENT_METHOD,
   SERVICE_INTERNAL_PORT = 80,
@@ -119,9 +133,7 @@ const generatePluginBlock = (configs, plugin) => {
       PORT: plugin.port || SERVICE_INTERNAL_PORT || 80,
       API_MONGO_URL: api_mongo_url,
       MONGO_URL: mongo_url,
-      LOAD_BALANCER_ADDRESS: generateLBaddress(
-        `http://plugin_${plugin.name}_api`
-      ),
+      LOAD_BALANCER_ADDRESS: generateLBaddress(`http://plugin-${plugin.name}-api`),
       ...commonEnvs(configs),
       ...(plugin.extra_env || {})
     },
@@ -413,6 +425,7 @@ const deployDbs = async () => {
 
 const up = async ({ uis, downloadLocales, fromInstaller }) => {
   await cleaning();
+  await createRouterConfigDir();
 
   const configs = await fse.readJSON(filePath('configs.json'));
   const image_tag = configs.image_tag || 'federation';
@@ -478,14 +491,14 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         ],
         networks: ['erxes']
       },
-      plugin_core_api: {
+      "plugin-core-api": {
         image: `erxes/core:${(configs.core || {}).image_tag || image_tag}`,
         environment: {
           SERVICE_NAME: 'core-api',
           PORT: SERVICE_INTERNAL_PORT,
           CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || '',
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
-          LOAD_BALANCER_ADDRESS: generateLBaddress('http://plugin_core_api'),
+          LOAD_BALANCER_ADDRESS: generateLBaddress('http://plugin-core-api'),
           MONGO_URL: mongoEnv(configs),
           EMAIL_VERIFIER_ENDPOINT:
             configs.email_verifier_endpoint ||
@@ -503,8 +516,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         networks: ['erxes']
       },
       gateway: {
-        image: `erxes/gateway:${(configs.gateway || {}).image_tag ||
-          image_tag}`,
+        image: `erxes/gateway:${(configs.gateway || {}).image_tag || image_tag}`,
         environment: {
           SERVICE_NAME: 'gateway',
           PORT: SERVICE_INTERNAL_PORT,
@@ -515,7 +527,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
           ...commonEnvs(configs),
           ...((configs.gateway || {}).extra_env || {})
         },
-        volumes: ['./enabled-services.js:/data/enabled-services.js'],
+        volumes: ['./enabled-services.js:/data/enabled-services.js', `${routerConfigDirPath}:/erxes-gateway/dist/gateway/src/apollo-router/temp`],
         healthcheck,
         extra_hosts,
         ports: [`${GATEWAY_PORT}:${SERVICE_INTERNAL_PORT}`],
@@ -530,13 +542,13 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
         volumes: ['./enabled-services.js:/data/enabled-services.js'],
         networks: ['erxes']
       },
-      plugin_workers_api: {
+      "plugin-workers-api": {
         image: `erxes/workers:${image_tag}`,
         environment: {
           SERVICE_NAME: 'workers',
           PORT: SERVICE_INTERNAL_PORT,
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
-          LOAD_BALANCER_ADDRESS: generateLBaddress('http://plugin_workers_api'),
+          LOAD_BALANCER_ADDRESS: generateLBaddress('http://plugin-workers-api'),
           MONGO_URL: mongoEnv(configs),
           ...commonEnvs(configs),
           ...((configs.workers || {}).extra_env || {})
@@ -598,6 +610,8 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
       ports: [`4300:${SERVICE_INTERNAL_PORT}`],
       environment: {
         PORT: SERVICE_INTERNAL_PORT,
+        CUBEJS_SCHEMA_PATH: 'dist/dashboard/dynamicSchema',
+        NODE_ENV: 'production',
         CUBEJS_DB_TYPE: 'mongobi',
         CUBEJS_DB_HOST: `${dashboard.dashboard_db_host || 'mongosqld'}`,
         CUBEJS_DB_PORT: `${dashboard.dashboard_db_port || '3307'}`,
@@ -712,7 +726,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
 
   for (const plugin of configs.plugins || []) {
     dockerComposeConfig.services[
-      `plugin_${plugin.name}_api`
+      `plugin-${plugin.name}-api`
     ] = generatePluginBlock(configs, plugin);
 
     enabledPlugins.push(`'${plugin.name}'`);
@@ -860,6 +874,8 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
   log('Deploy ......');
 
   if (isSwarm) {
+    await recreateRouterConfigDir();
+    await execCommand('docker service rm erxes_gateway');
     return execCommand(
       'docker stack deploy --compose-file docker-compose.yml erxes --with-registry-auth --resolve-image changed'
     );
@@ -872,10 +888,10 @@ const update = async ({ serviceNames, noimage, uis }) => {
   await cleaning();
 
   const configs = await fse.readJSON(filePath('configs.json'));
-  const image_tag = configs.image_tag || 'federation';
-
+  
   for (const name of serviceNames.split(',')) {
     const pluginConfig = (configs.plugins || []).find(p => p.name === name);
+    const image_tag = (pluginConfig && pluginConfig.image_tag) || (configs[name] && configs[name].image_tag) || configs.image_tag || 'federation';
 
     if (!noimage) {
       log(`Updating image ${name}......`);
@@ -910,14 +926,14 @@ const update = async ({ serviceNames, noimage, uis }) => {
 
       if (name === 'core') {
         await execCommand(
-          `docker service update erxes_plugin_core_api --image erxes/core:${image_tag}`
+          `docker service update erxes_plugin-core-api --image erxes/core:${image_tag}`
         );
         continue;
       }
 
       if (name === 'workers') {
         await execCommand(
-          `docker service update erxes_plugin_workers_api --image erxes/workers:${image_tag}`
+          `docker service update erxes_plugin-workers-api --image erxes/workers:${image_tag}`
         );
         continue;
       }
@@ -929,7 +945,7 @@ const update = async ({ serviceNames, noimage, uis }) => {
           : '';
 
         await execCommand(
-          `docker service update erxes_plugin_${name}_api --image ${registry}erxes/plugin-${name}-api:${tag} --with-registry-auth`
+          `docker service update erxes_plugin-${name}-api --image ${registry}erxes/plugin-${name}-api:${tag} --with-registry-auth`
         );
       } else {
         console.error('No plugin found');
@@ -952,6 +968,7 @@ const update = async ({ serviceNames, noimage, uis }) => {
   }
 
   log('Updating gateway ....');
+  await recreateRouterConfigDir();
   await execCommand(`docker service update --force erxes_gateway`);
 };
 
@@ -965,7 +982,7 @@ const restart = async name => {
     return;
   }
 
-  await execCommand(`docker service update --force erxes_plugin_${name}_api`);
+  await execCommand(`docker service update --force erxes_plugin-${name}-api`);
 };
 
 module.exports.installerUpdateConfigs = async () => {

@@ -11,6 +11,7 @@
     "noImplicitAny": false,
     "skipLibCheck": true,
     "useUnknownInCatchVariables": false,
+    "allowSyntheticDefaultImports": true,
     "strict": true,
     "baseUrl": ".",
     "paths": {

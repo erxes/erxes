@@ -52,6 +52,14 @@ ${
     verifyCompany: Boolean
   }
 
+  type PasswordVerificationConfig {
+    verifyByOTP: Boolean
+    emailSubject: String
+    emailContent: String
+    smsContent: String
+  }
+
+
   input OTPConfigInput {
     content: String
     codeLength: Int
@@ -100,12 +108,14 @@ ${
     googleClientSecret: String
     googleRedirectUri: String
     facebookAppId: String
+    erxesAppToken: String
     styles: Styles
     mobileResponsive: Boolean
   
     otpConfig: OTPConfig
     mailConfig: MailConfig
     manualVerificationConfig: ManualVerificationConfig
+    passwordVerificationConfig: PasswordVerificationConfig
 
     kbToggle: Boolean,
     publicTaskToggle: Boolean,
@@ -213,6 +223,7 @@ export const mutations = cardAvailable => `
     googleClientSecret: String
     googleRedirectUri: String
     facebookAppId: String
+    erxesAppToken: String
     styles: StylesParams
     mobileResponsive: Boolean
     kbToggle: Boolean,
@@ -224,6 +235,7 @@ export const mutations = cardAvailable => `
     otpConfig: OTPConfigInput
     mailConfig: MailConfigInput
     manualVerificationConfig: JSON
+    passwordVerificationConfig: JSON
   ): ClientPortal
 
   clientPortalRemove (_id: String!): JSON
@@ -240,6 +252,9 @@ export const mutations = cardAvailable => `
         parentId: String,
         closeDate: Date
         startDate: Date
+        attachments: [AttachmentInput]
+        customFieldsData: JSON
+        labelIds: [String]
       ): JSON
       clientPortalCommentsAdd(type: String!, typeId: String!, content: String! userType: String!): ClientPortalComment
       clientPortalCommentsRemove(_id: String!): String

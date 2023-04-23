@@ -13,6 +13,7 @@ import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { CONFIGURATIONS } from '../../constants';
 import { ToggleWrap } from '../../styles';
 import { ClientPortalConfig } from '../../types';
+import PasswordConfig from './PasswordConfig';
 
 type Props = {
   handleFormChange: (name: string, value: any) => void;
@@ -34,10 +35,12 @@ function General({
   googleRedirectUri,
   googleClientSecret,
   facebookAppId,
+  erxesAppToken,
   otpConfig,
   mailConfig,
   name,
   manualVerificationConfig,
+  passwordVerificationConfig,
   handleFormChange
 }: Props) {
   const [otpEnabled, setOtpEnabled] = useState<boolean>(
@@ -506,6 +509,10 @@ function General({
     <>
       {renderOtp()}
       {renderMailConfig()}
+      <PasswordConfig
+        config={passwordVerificationConfig}
+        onChange={handleFormChange}
+      />
       {renderManualVerification()}
 
       <CollapseContent
@@ -543,6 +550,17 @@ function General({
           label: 'Facebook App Id',
           formValueName: 'facebookAppId',
           formValue: facebookAppId
+        })}
+      </CollapseContent>
+      <CollapseContent
+        title={__('Erxes App Token')}
+        compact={true}
+        open={false}
+      >
+        {renderControl({
+          label: 'Erxes App Token',
+          formValueName: 'erxesAppToken',
+          formValue: erxesAppToken
         })}
       </CollapseContent>
     </>

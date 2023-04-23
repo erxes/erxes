@@ -54,6 +54,7 @@ export const commonFields = `
   googleClientSecret
   googleRedirectUri
   facebookAppId
+  erxesAppToken
 
   kbToggle
   publicTaskToggle
@@ -78,6 +79,13 @@ export const commonFields = `
     userIds
     verifyCustomer
     verifyCompany
+  }
+
+  passwordVerificationConfig {
+    verifyByOTP
+    emailSubject
+    emailContent
+    smsContent
   }
 `;
 

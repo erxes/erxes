@@ -14,22 +14,60 @@ import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
 
 export let client;
 
+const createOrUpdate = async ({
+  collection,
+  data: { rows, doNotReplaceExistingValues }
+}) => {
+  const operations: any = [];
+
+  for (const row of rows) {
+    const { selector, doc, customFieldsData } = row;
+
+    const prevEntry = await collection.findOne(selector).lean();
+
+    if (prevEntry) {
+      let cfData = prevEntry.customFieldsData || [];
+
+      // remove existing rows
+      for (const cf of customFieldsData || []) {
+        cfData = cfData.filter(({ field }) => field !== cf.field);
+      }
+
+      // add new rows
+      for (const cf of customFieldsData || []) {
+        cfData.push(cf);
+      }
+
+      let newDoc = doc;
+
+      if (doNotReplaceExistingValues) {
+        for (const fieldName of Object.keys(doc)) {
+          if (prevEntry[fieldName]) {
+            delete newDoc[fieldName];
+          }
+        }
+      }
+
+      newDoc.customFieldsData = cfData;
+
+      operations.push({
+        updateOne: { filter: selector, update: { $set: newDoc } }
+      });
+    } else {
+      doc.customFieldsData = customFieldsData;
+      doc.createdAt = new Date();
+      doc.modifiedAt = new Date();
+      operations.push({ insertOne: { document: doc } });
+    }
+  }
+
+  return collection.bulkWrite(operations);
+};
+
 export const initBroker = cl => {
   client = cl;
 
   const { consumeRPCQueue, consumeQueue } = client;
-
-  consumeRPCQueue(
-    'contacts:customers.getCustomerName',
-    async ({ subdomain, data: { customer } }) => {
-      const models = await generateModels(subdomain);
-
-      return {
-        data: await models.Customers.getCustomerName(customer),
-        status: 'success'
-      };
-    }
-  );
 
   consumeRPCQueue('contacts:customers.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
@@ -402,6 +440,30 @@ export const initBroker = cl => {
       return {
         status: 'success',
         data: await updateContactsField(models, subdomain, data)
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'contacts:customers.createOrUpdate',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await createOrUpdate({ collection: models.Customers, data })
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'contacts:companies.createOrUpdate',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await createOrUpdate({ collection: models.Companies, data })
       };
     }
   );

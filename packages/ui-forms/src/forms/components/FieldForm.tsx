@@ -1,3 +1,22 @@
+import SelectProperty from '@erxes/ui-forms/src/settings/properties/containers/SelectProperty';
+import { IProductCategory } from '@erxes/ui-products/src/types';
+import Button from '@erxes/ui/src/components/Button';
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import EditorCK from '@erxes/ui/src/components/EditorCK';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Icon from '@erxes/ui/src/components/Icon';
+import { FlexItem } from '@erxes/ui/src/components/step/styles';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import { IField, IFieldLogic, IOption } from '@erxes/ui/src/types';
+import { loadDynamicComponent, __ } from '@erxes/ui/src/utils';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
+import React from 'react';
+import Modal from 'react-bootstrap/Modal';
+import Select from 'react-select-plus';
+
 import {
   FlexRow,
   LeftSection,
@@ -5,27 +24,10 @@ import {
   PreviewSection,
   ShowPreview
 } from '../styles';
-import { IField, IFieldLogic, IOption } from '@erxes/ui/src/types';
-import { __, loadDynamicComponent } from '@erxes/ui/src/utils';
-
-import Button from '@erxes/ui/src/components/Button';
-import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
 import FieldLogics from './FieldLogics';
 import FieldPreview from './FieldPreview';
-import { FlexItem } from '@erxes/ui/src/components/step/styles';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IProductCategory } from '@erxes/ui-products/src/types';
-import Icon from '@erxes/ui/src/components/Icon';
 import LocationOptions from './LocationOptions';
-import Modal from 'react-bootstrap/Modal';
 import ObjectListConfigs from './ObjectListConfigs';
-import React from 'react';
-import Select from 'react-select-plus';
-import SelectProperty from '@erxes/ui-forms/src/settings/properties/containers/SelectProperty';
-import Toggle from '@erxes/ui/src/components/Toggle';
 
 type Props = {
   onSubmit: (field: IField) => void;
@@ -475,6 +477,11 @@ class FieldForm extends React.Component<Props, State> {
                 onChange={toggle}
               />
             </FlexRow>
+            {isEnabled('payment') && field.type === 'productCategory' && (
+              <p>
+                {__('If you need to enable payment, field must be required!')}
+              </p>
+            )}
           </FormGroup>
           <FormGroup>
             <ControlLabel htmlFor="text" required={false}>

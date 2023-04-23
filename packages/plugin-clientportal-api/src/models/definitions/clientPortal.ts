@@ -22,6 +22,17 @@ export interface IManualVerificationConfig {
   verifyCompany: boolean;
 }
 
+export interface IPasswordVerificationConfig {
+  verifyByOTP: boolean;
+
+  // email
+  emailSubject: string;
+  emailContent: string;
+
+  // sms
+  smsContent: string;
+}
+
 export interface IClientPortal {
   _id?: string;
   name?: string;
@@ -37,6 +48,7 @@ export interface IClientPortal {
   otpConfig?: IOTPConfig;
   mailConfig?: IMailConfig;
   manualVerificationConfig?: IManualVerificationConfig;
+  passwordVerificationConfig?: IPasswordVerificationConfig;
 
   googleCredentials?: string;
   googleClientId?: string;
@@ -166,6 +178,7 @@ export const clientPortalSchema = new Schema({
   googleClientSecret: field({ type: String, optional: true }),
   googleRedirectUri: field({ type: String, optional: true }),
   facebookAppId: field({ type: String, optional: true }),
+  erxesAppToken: field({ type: String, optional: true }),
 
   messengerBrandCode: field({ type: String, optional: true }),
   knowledgeBaseLabel: field({ type: String, optional: true }),
@@ -195,5 +208,15 @@ export const clientPortalSchema = new Schema({
     type: Date,
     default: new Date(),
     label: 'Created at'
+  }),
+
+  passwordVerificationConfig: field({
+    type: {
+      verifyByOTP: field({ type: Boolean, optional: true, default: false }),
+      emailSubject: field({ type: String, optional: true }),
+      emailContent: field({ type: String, optional: true }),
+      smsContent: field({ type: String, optional: true })
+    },
+    optional: true
   })
 });

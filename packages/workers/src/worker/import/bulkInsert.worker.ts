@@ -92,6 +92,9 @@ connect().then(async () => {
   // tslint:disable-next-line:no-eval
 
   let bulkDoc = [];
+  const modifier: { $inc?; $push? } = {
+    $inc: { percentage }
+  };
 
   try {
     bulkDoc = await messageBroker().sendRPCMessage(
@@ -110,15 +113,42 @@ connect().then(async () => {
       }
     );
   } catch (e) {
-    return models.ImportHistory.updateOne(
-      { _id: importHistoryId },
-      { error: e.message }
-    );
-  }
+    let startRow = 1;
+    let endRow = WORKER_BULK_LIMIT;
 
-  const modifier: { $inc?; $push? } = {
-    $inc: { percentage }
-  };
+    if (rowIndex && rowIndex > 1) {
+      startRow = rowIndex * WORKER_BULK_LIMIT - WORKER_BULK_LIMIT;
+      endRow = startRow + WORKER_BULK_LIMIT;
+    }
+
+    const distance = endRow - startRow;
+
+    if (distance === 1) {
+      endRow = startRow;
+    }
+
+    modifier.$push = { errorMsgs: e.message };
+    modifier.$inc.failed = WORKER_BULK_LIMIT;
+    modifier.$push = {
+      errorMsgs: {
+        startRow,
+        endRow,
+        errorMsgs: e.message,
+        contentType
+      }
+    };
+
+    await models.ImportHistory.update({ _id: importHistoryId }, modifier);
+
+    mongoose.connection.close();
+
+    console.log(`Worker done`);
+
+    parentPort.postMessage({
+      action: 'remove',
+      message: 'Successfully finished the job'
+    });
+  }
 
   try {
     const { updated, objects } = await create({
@@ -149,7 +179,7 @@ connect().then(async () => {
     }
 
     modifier.$push = { errorMsgs: e.message };
-    modifier.$inc.failed = bulkDoc.length;
+    modifier.$inc.failed = WORKER_BULK_LIMIT;
     modifier.$push = {
       errorMsgs: {
         startRow,
