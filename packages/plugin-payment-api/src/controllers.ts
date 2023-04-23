@@ -1,4 +1,4 @@
-import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getEnv, getSubdomain } from '@erxes/api-utils/src/core';
 import { debugInfo } from '@erxes/api-utils/src/debuggers';
 import { Router } from 'express';
 
@@ -91,6 +91,8 @@ router.post('/gateway', async (req, res, next) => {
 
   const prefix = subdomain === 'localhost' ? '' : `/gateway`;
 
+  console.log('prefix', prefix);
+
   const filter: any = {};
 
   if (data.paymentIds) {
@@ -166,6 +168,11 @@ router.post('/gateway', async (req, res, next) => {
     });
   }
 
+  const DOMAIN = getEnv({ name: 'DOMAIN' })
+    ? `${getEnv({ name: 'DOMAIN' })}/gateway`
+    : 'http://localhost:4000';
+  const domain = DOMAIN.replace('<subdomain>', subdomain);
+
   if (
     invoice &&
     invoice.status !== 'paid' &&
@@ -174,7 +181,8 @@ router.post('/gateway', async (req, res, next) => {
     await models.Invoices.updateInvoice(invoice._id, {
       selectedPaymentId,
       ...data,
-      paymentKind: selectedPayment.kind
+      paymentKind: selectedPayment.kind,
+      domain
     });
 
     invoice = await models.Invoices.findOne({ _id: data._id });
@@ -183,7 +191,8 @@ router.post('/gateway', async (req, res, next) => {
   if (!invoice) {
     invoice = await models.Invoices.createInvoice({
       ...data,
-      selectedPaymentId
+      selectedPaymentId,
+      domain
     });
   }
 
