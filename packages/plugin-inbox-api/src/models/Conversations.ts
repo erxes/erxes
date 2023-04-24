@@ -262,15 +262,17 @@ export const loadClass = (models: IModels, subdomain: string) => {
     ) {
       let closedAt;
       let closedUserId;
+      const updatedAt = new Date();
 
       if (status === CONVERSATION_STATUSES.CLOSED) {
         closedAt = new Date();
+
         closedUserId = userId;
       }
 
       return models.Conversations.updateMany(
         { _id: { $in: conversationIds } },
-        { $set: { status, closedAt, closedUserId } },
+        { $set: { status, closedAt, closedUserId, updatedAt } },
         { multi: true }
       );
     }
