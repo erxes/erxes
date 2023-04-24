@@ -10,7 +10,7 @@ const productreviewMutations = {
     const added = await ProductReview.createProductReview({
       productId,
       customerId,
-      review
+      review: review || 0
     });
     return added;
   },
@@ -23,7 +23,7 @@ const productreviewMutations = {
     const updated = await ProductReview.updateProductReview(_id, {
       productId,
       customerId,
-      review
+      review: review || 0
     });
     return updated;
   },

@@ -8,16 +8,14 @@ const wishlistQueries = {
     { models: { Wishlist }, subdomain }: IContext
   ) => {
     const { customerId, productId } = params;
-    const wsh = await Wishlist.findOne({ customerId, productId });
+    const wsh = await Wishlist.findOne({ customerId, productId }).lean();
 
     if (!wsh) return null;
 
     const product = await sendProductsMessage({
       subdomain,
       action: 'findOne',
-      data: {
-        query: { _id: wsh?.productId }
-      },
+      data: { _id: productId },
       isRPC: true
     });
 

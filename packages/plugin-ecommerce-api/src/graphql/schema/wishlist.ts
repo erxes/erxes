@@ -1,6 +1,6 @@
 export const types = `
 	type Wish {
-		_id: String!
+		_id: String
 		productId: String
 		customerId: String
 		product: Product
