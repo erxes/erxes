@@ -113,7 +113,10 @@ const stageParams = `
   extraParams: JSON,
   closeDateType: String,
   assignedToMe: String,
-  age: Int
+  age: Int,
+  branchIds: [String]
+  departmentIds: [String]
+  segmentData:String
 `;
 
 export const queries = `

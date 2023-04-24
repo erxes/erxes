@@ -147,6 +147,8 @@ export const loadClass = (models: IModels, subdomain: string) => {
         doc.content = cleanHtml(doc.content);
       }
 
+      doc.updatedAt = new Date();
+
       // clean custom field values
       doc.customFieldsData = await sendFormsMessage({
         subdomain,
@@ -262,15 +264,17 @@ export const loadClass = (models: IModels, subdomain: string) => {
     ) {
       let closedAt;
       let closedUserId;
+      const updatedAt = new Date();
 
       if (status === CONVERSATION_STATUSES.CLOSED) {
         closedAt = new Date();
+
         closedUserId = userId;
       }
 
       return models.Conversations.updateMany(
         { _id: { $in: conversationIds } },
-        { $set: { status, closedAt, closedUserId } },
+        { $set: { status, closedAt, closedUserId, updatedAt } },
         { multi: true }
       );
     }
