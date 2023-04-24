@@ -3,23 +3,24 @@ export const types = `
     _id: String!
     productId: String!
     customerId : String
-    review: Int 
+    review: Float
   }
-`;
-
-const queryParams = `
-    productId: String!,
+  type AverageReview {
+    productId: String
+    average: Float
+    length: Int
+  }
 `;
 
 const mutationParams = `
     productId: String,
     customerId : String,
-    review: Int 
+    review: Float
 `;
 
 export const queries = `
-  productreviews(${queryParams}): [Productreview]
-  allProductreviews(customerId: String): [Productreview]
+  productreview(productId: String!): AverageReview
+  productreviews(productIds: [String], customerId : String):[Productreview]
 `;
 
 export const mutations = `

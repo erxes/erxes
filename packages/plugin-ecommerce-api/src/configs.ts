@@ -1,6 +1,5 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-
 import { initBroker } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
@@ -11,10 +10,9 @@ export let graphqlPubsub;
 export let serviceDiscovery;
 
 export default {
-  name: 'productreview',
+  name: 'ecommerce',
   graphql: async sd => {
     serviceDiscovery = sd;
-
     return {
       typeDefs: await typeDefs(sd),
       resolvers: await resolvers(sd)

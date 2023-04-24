@@ -1,4 +1,3 @@
-import { requireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 
 const productreviewMutations = {
@@ -38,6 +37,5 @@ const productreviewMutations = {
     return removed;
   }
 };
-// requireLogin(productreviewMutations, 'productreviewsAdd');
 
 export default productreviewMutations;
