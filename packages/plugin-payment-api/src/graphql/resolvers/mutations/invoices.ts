@@ -23,7 +23,7 @@ const mutations = {
     { models, requestInfo, res, subdomain }: IContext
   ) {
     const domain = getEnv({ name: 'DOMAIN', subdomain })
-      ? `${getEnv({ name: 'DOMAIN' })}/gateway`
+      ? `${getEnv({ name: 'DOMAIN', subdomain })}/gateway`
       : 'http://localhost:4000';
 
     const cookies = requestInfo.cookies;
