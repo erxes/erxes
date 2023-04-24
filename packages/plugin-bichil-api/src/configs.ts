@@ -100,6 +100,7 @@ export default {
       '/upload-salary',
       upload.single('file'),
       async (req, res, _next) => {
+        console.log('******************** upload salary', req.body);
         if (!req.user) {
           return res.status(401).send('Unauthorized');
         }
