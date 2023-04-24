@@ -23,6 +23,7 @@ const typeDefs = async serviceDiscovery => {
   return gql`
     scalar JSON
     scalar Date
+    
 
     ${posTypes({ contactsEnabled, productsEnabled })}
     ${posOrderTypes({ contactsEnabled, productsEnabled })}

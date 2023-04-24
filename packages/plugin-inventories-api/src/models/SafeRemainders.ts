@@ -74,7 +74,8 @@ export const loadSafeRemainderClass = (models: IModels) => {
         subdomain,
         action: 'count',
         data: {
-          categoryId: productCategoryId
+          categoryId: productCategoryId,
+          query: { status: { $ne: 'deleted' } }
         },
         isRPC: true
       });
@@ -84,6 +85,7 @@ export const loadSafeRemainderClass = (models: IModels) => {
         action: 'find',
         data: {
           categoryId: productCategoryId,
+          query: { status: { $ne: 'deleted' } },
           sort: {},
           limit
         },
