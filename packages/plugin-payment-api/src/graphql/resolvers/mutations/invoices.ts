@@ -20,11 +20,12 @@ const mutations = {
   async generateInvoiceUrl(
     _root,
     params: InvoiceParams,
-    { models, requestInfo, res }: IContext
+    { models, requestInfo, res, subdomain }: IContext
   ) {
-    const MAIN_API_DOMAIN = process.env.DOMAIN
-      ? `${process.env.DOMAIN}/gateway`
+    const DOMAIN = getEnv({ name: 'DOMAIN' })
+      ? `${getEnv({ name: 'DOMAIN' })}/gateway`
       : 'http://localhost:4000';
+    const domain = DOMAIN.replace('<subdomain>', subdomain);
 
     const cookies = requestInfo.cookies;
 
@@ -48,7 +49,7 @@ const mutations = {
           paymentData.amount === params.amount &&
           paymentData.customerId === params.customerId
         ) {
-          return `${MAIN_API_DOMAIN}/pl:payment/gateway?params=${dataInCookie}`;
+          return `${domain}/pl:payment/gateway?params=${dataInCookie}`;
         }
       }
     }
@@ -81,7 +82,7 @@ const mutations = {
 
     res.cookie(`paymentData_${params.contentTypeId}`, base64, cookieOptions);
 
-    return `${MAIN_API_DOMAIN}/pl:payment/gateway?params=${base64}`;
+    return `${domain}/pl:payment/gateway?params=${base64}`;
   }
 };
 
