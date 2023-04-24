@@ -22,10 +22,9 @@ const mutations = {
     params: InvoiceParams,
     { models, requestInfo, res, subdomain }: IContext
   ) {
-    const DOMAIN = getEnv({ name: 'DOMAIN' })
+    const domain = getEnv({ name: 'DOMAIN', subdomain })
       ? `${getEnv({ name: 'DOMAIN' })}/gateway`
       : 'http://localhost:4000';
-    const domain = DOMAIN.replace('<subdomain>', subdomain);
 
     const cookies = requestInfo.cookies;
 
