@@ -19,12 +19,14 @@ const postMutations = `
     ${commonPostParams(true)}
     createdAt: Date
     lastPublishedAt: Date
+    createdById: String
   ): ForumPost!
   forumPatchPost(
     _id: ID!
     ${commonPostParams()}
     createdAt: Date
     lastPublishedAt: Date
+    createdById: String
     ): ForumPost!
   forumDeletePost(_id: ID!): ForumPost!
   forumPostDraft(_id: ID!): ForumPost!
