@@ -90,8 +90,7 @@ block layout-content
                             if(`#{invoiceData.redirectUri}` && window.confirm('Payment is completed. Do you want to continue?')) {
                                 window.location.href = `#{invoiceData.redirectUri}`;
                             } else if (window.confirm('Payment is completed. Do you want to close this window?')) {
-                                //- window.close();
-                                
+                                window.close();                                
                             }
                         }
                     });
