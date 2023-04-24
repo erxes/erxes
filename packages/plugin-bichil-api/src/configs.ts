@@ -69,6 +69,9 @@ export default {
 
     app.use(cors(corsOptions));
 
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({ extended: true }));
+
     app.get(
       '/bichil-report-export',
       routeErrorHandling(async (req: any, res) => {
@@ -84,9 +87,6 @@ export default {
         return res.send(result.response);
       })
     );
-
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({ extended: true }));
 
     initBroker(options.messageBrokerClient);
 
