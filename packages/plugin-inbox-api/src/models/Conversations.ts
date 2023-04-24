@@ -147,6 +147,8 @@ export const loadClass = (models: IModels, subdomain: string) => {
         doc.content = cleanHtml(doc.content);
       }
 
+      doc.updatedAt = new Date();
+
       // clean custom field values
       doc.customFieldsData = await sendFormsMessage({
         subdomain,
