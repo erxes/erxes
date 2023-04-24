@@ -94,7 +94,7 @@ export default {
 
     debug = options.debug;
 
-    const upload = multer({ dest: '../uploads/' });
+    const upload = multer({ dest: __dirname + '../uploads/' });
 
     app.post(
       '/upload-salary',
