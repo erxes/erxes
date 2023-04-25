@@ -76,6 +76,7 @@ export interface IUserReport {
 
   totalHoursOvertime?: number;
   totalHoursOvernight?: number;
+  totalHoursBreak?: number;
 
   totalMinsLate?: number;
   totalMinsLateToday?: number;
@@ -104,6 +105,8 @@ export interface IScheduleReport {
   scheduledStart: Date;
   scheduledEnd: Date;
   scheduledDuration: number;
+
+  lunchBreakInHrs: string;
 
   totalMinsLate: number;
   totalHoursOvertime: number;

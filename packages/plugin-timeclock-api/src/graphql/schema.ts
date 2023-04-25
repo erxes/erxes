@@ -112,6 +112,8 @@ export const types = `
     scheduledEnd: Date
     scheduledDuration:String
     
+    lunchBreakInHrs: String
+    
     totalMinsLate: String
     totalHoursOvertime: String
     totalHoursOvernight: String
@@ -134,7 +136,8 @@ export const types = `
     totalDaysScheduled: Int
     totalMinsScheduledToday: Int
     totalMinsScheduledThisMonth: Int
-    
+    totalHoursBreak: Float
+
     totalHoursOvertime: Float
     totalHoursOvernight: Float
 
