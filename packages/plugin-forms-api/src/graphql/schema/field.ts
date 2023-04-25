@@ -176,6 +176,7 @@ export const fieldsGroupsTypes = `
     isMultiple: Boolean
     isVisible: Boolean
     isVisibleInDetail: Boolean
+    alwaysOpen: Boolean
     isDefinedByErxes: Boolean
     fields: [Field]
     lastUpdatedUserId: String
@@ -196,6 +197,7 @@ const fieldsGroupsCommonFields = `
   code: String
   isMultiple: Boolean
   isVisible: Boolean
+  alwaysOpen: Boolean
   isVisibleInDetail: Boolean
   config: JSON
 
