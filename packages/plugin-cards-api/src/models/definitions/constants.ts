@@ -98,7 +98,8 @@ export const BOARD_TYPES = {
   PURCHASE: 'purchase',
   TASK: 'task',
   GROWTH_HACK: 'growthHack',
-  ALL: ['deal', 'ticket', 'task', 'growthHack', 'purchase']
+  COST: 'cost',
+  ALL: ['deal', 'ticket', 'task', 'growthHack', 'purchase', 'cost']
 };
 
 export const NOTIFICATION_TYPES = {

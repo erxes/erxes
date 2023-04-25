@@ -42,8 +42,8 @@ class ProductFormContainer extends React.Component<Props> {
             ...this.props,
             categories: categories,
             loading: productCategoriesQuery.loading,
-            uom: configs.purchaseUOM || [],
-            currencies: configs.purchaseCurrency || []
+            uom: configs.dealUOM || [],
+            currencies: configs.dealCurrency || []
           };
 
           return <ProductForm {...extendedProps} />;

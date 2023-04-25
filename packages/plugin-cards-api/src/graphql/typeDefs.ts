@@ -130,9 +130,7 @@ const typeDefs = async serviceDiscovery => {
       ${purchaseMutations}
       ${taskMutations}
       ${ticketMutations}
-
       ${formsEnabled ? growthHackMutations : ''}
-
       ${plMutations}
       ${ptMutations}
       ${checkListMutations}

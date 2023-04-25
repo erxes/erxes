@@ -21,14 +21,16 @@ import Select from 'react-select-plus';
 import { SelectMemberStyled } from '@erxes/ui-cards/src/settings/boards/styles';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import Stages from './Stages';
-import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import { FlexContent, FlexItem, Add } from '@erxes/ui/src/layout/styles';
 import { ITag } from '@erxes/ui-tags/src/types';
 import TwitterPicker from 'react-color/lib/Twitter';
 import { colors } from '@erxes/ui/src/styles';
-
+import Table from '@erxes/ui/src/components/table';
+import Icon from '@erxes/ui/src/components/Icon';
 type Props = {
   type: string;
   show: boolean;
+  costs: any;
   boardId: string;
   pipeline?: IPipeline;
   stages?: IStage[];
@@ -43,7 +45,9 @@ type Props = {
 };
 
 type State = {
+  costRows: string[];
   stages: IStage[];
+  showModal: boolean;
   visibility: string;
   selectedMemberIds: string[];
   backgroundColor: string;
@@ -62,8 +66,9 @@ class PipelineForm extends React.Component<Props, State> {
     super(props);
 
     const { pipeline, stages } = this.props;
-
     this.state = {
+      showModal: false,
+      costRows: [],
       stages: (stages || []).map(stage => ({ ...stage })),
       visibility: pipeline ? pipeline.visibility || 'public' : 'public',
       selectedMemberIds: pipeline ? pipeline.memberIds || [] : [],
@@ -79,9 +84,15 @@ class PipelineForm extends React.Component<Props, State> {
       departmentIds: pipeline ? pipeline.departmentIds || [] : []
     };
   }
+  handleShowModal = () => this.setState({ showModal: true });
+  handleCloseModal = () => this.setState({ showModal: false });
 
   onChangeStages = stages => {
     this.setState({ stages });
+  };
+
+  handleAddRow = () => {
+    this.setState({ costRows: [...this.state.costRows, ''] });
   };
 
   onChangeVisibility = (e: React.FormEvent<HTMLElement>) => {
@@ -405,6 +416,89 @@ class PipelineForm extends React.Component<Props, State> {
 
           {this.renderNumberInput()}
 
+          <Modal
+            centered
+            show={this.state.showModal}
+            onHide={this.handleCloseModal}
+          >
+            <Modal.Header closeButton>
+              <Modal.Title>Costs Accounting</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <Table>
+                <thead>
+                  <tr>
+                    <th>id</th>
+                    <th>name</th>
+                  </tr>
+                </thead>
+
+                <tbody id="id">
+                  {this.props.costs.map(cost => (
+                    <tr key={cost._id}>
+                      <td>{cost._id}</td>
+                      <td>{cost.name}</td>
+                    </tr>
+                  ))}
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.5rem'
+                    }}
+                  >
+                    {this.state.costRows.map((row, index) => (
+                      <div key={row + index}>
+                        <input
+                          placeholder={__('Cost name')}
+                          onChange={e => {
+                            let rows = this.state.costRows;
+                            let currentRow = rows[index];
+                            currentRow = e.target.value;
+                            this.setState({ costRows: rows });
+                          }}
+                        />
+                        <Icon
+                          onClick={() => {
+                            this.setState({
+                              costRows: [
+                                ...this.state.costRows.slice(0, index),
+                                ...this.state.costRows.slice(index + 1)
+                              ]
+                            });
+                          }}
+                          icon="demo-icon icon-archive-alt"
+                        ></Icon>
+                      </div>
+                    ))}
+                  </div>
+                </tbody>
+                <Add>
+                  <Button
+                    onClick={this.handleAddRow}
+                    btnStyle="primary"
+                    icon="plus-circle"
+                  >
+                    Add cost
+                  </Button>
+                </Add>
+              </Table>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button onClick={this.handleCloseModal}>Save</Button>
+            </Modal.Footer>
+          </Modal>
+
+          {this.props.type === 'purchase' ? (
+            <Button
+              btnStyle="success"
+              onClick={this.handleShowModal}
+              icon="check-circle"
+              uppercase={false}
+            >
+              {'Add costs accounting'}
+            </Button>
+          ) : null}
           <FormGroup>
             <FlexContent>
               <FlexItem>
@@ -477,7 +571,6 @@ class PipelineForm extends React.Component<Props, State> {
 
   render() {
     const { show, closeModal } = this.props;
-
     if (!show) {
       return null;
     }

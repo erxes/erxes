@@ -337,7 +337,7 @@ export const EMPTY_CONTENT_DEAL_PIPELINE = {
 };
 
 export const EMPTY_CONTENT_PURCHASE_PIPELINE = {
-  title: __('Getting Started with Sales Pipeline'),
+  title: __('Getting Started with Purchase Pipeline'),
   description: __(
     'Drive leads to a successful close with our Kanban-style boards'
   ),

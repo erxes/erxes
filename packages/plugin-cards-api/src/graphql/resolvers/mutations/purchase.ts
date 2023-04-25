@@ -4,6 +4,9 @@ import {
   IPurchase,
   IProductPurchaseData
 } from '../../../models/definitions/purchase';
+
+import { ICost, ICostDocument } from '../../../models/definitions/cost';
+
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { checkUserIds } from '@erxes/api-utils/src';
 import {
@@ -19,11 +22,71 @@ import { IContext } from '../../../connectionResolver';
 import { sendProductsMessage } from '../../../messageBroker';
 import { graphqlPubsub } from '../../../configs';
 import purchase from '../customResolvers/purchase';
+import { doc } from 'prettier';
 
 interface IPurchaseEdit extends IPurchase {
   _id: string;
 }
+
+interface ICostEdit extends ICost {
+  _id: string;
+}
+
 const purchaseMutations = {
+  // first cost result
+
+  async costPriceResult(
+    _root,
+    doc: any,
+    { user, docModifier, models, subdomain }: IContext
+  ) {
+    const cost = await models.Costs.find().lean();
+    if (!cost) {
+      throw new Error('cost not found');
+    }
+    const quantity = doc.quantity;
+    let sum = cost
+      .map(o => parseInt(o.price))
+      .reduce((a, c) => {
+        return a + c;
+      });
+  },
+
+  // add cost costAccounting
+
+  // async costAccountingAdd(
+  //   _root,
+  //   doc: ICostData,
+  //   { user, docModifier, models, subdomain }: IContext
+  // ) {
+  //   const data = await models.Costs.createCostData(docModifier(doc));
+  //   return data;
+  // },
+
+  // add cost
+  async costAdd(
+    _root,
+    doc: ICost,
+    { user, docModifier, models, subdomain }: IContext
+  ) {
+    const data = await models.Costs.createCost(docModifier(doc));
+    return data;
+  },
+
+  //edit cost
+  async costEdit(
+    _root,
+    { _id, ...doc }: ICostEdit,
+    { user, models, subdomain }: IContext
+  ) {
+    const updated = await models.Costs.updateCost(_id, doc);
+    return updated;
+  },
+  //remove cost
+  async costRemove(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Costs.removeCost(_id);
+  },
+
   // create new purchase
   async purchasesAdd(
     _root,

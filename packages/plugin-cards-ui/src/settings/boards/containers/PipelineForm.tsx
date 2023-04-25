@@ -2,6 +2,7 @@ import * as compose from 'lodash.flowright';
 
 import {
   BoardsQueryResponse,
+  CostsQueryResponse,
   StagesQueryResponse
 } from '@erxes/ui-cards/src/boards/types';
 
@@ -34,6 +35,7 @@ type FinalProps = {
   stagesQuery: StagesQueryResponse;
   boardsQuery: BoardsQueryResponse;
   departmentsQuery: DepartmentsQueryResponse;
+  costsQuery: CostsQueryResponse;
   tagsQuery: TagsQueryResponse;
 } & Props;
 
@@ -42,6 +44,7 @@ class PipelineFormContainer extends React.Component<FinalProps> {
     const {
       stagesQuery,
       boardsQuery,
+      costsQuery,
       departmentsQuery,
       boardId,
       renderButton,
@@ -52,6 +55,7 @@ class PipelineFormContainer extends React.Component<FinalProps> {
     if (
       (stagesQuery && stagesQuery.loading) ||
       (boardsQuery && boardsQuery.loading) ||
+      (costsQuery && costsQuery.loading) ||
       (departmentsQuery && departmentsQuery.loading) ||
       (tagsQuery && tagsQuery.loading)
     ) {
@@ -60,6 +64,7 @@ class PipelineFormContainer extends React.Component<FinalProps> {
 
     const stages = stagesQuery ? stagesQuery.stages : [];
     const boards = boardsQuery.boards || [];
+    const costs = costsQuery.costs || [];
     const departments = departmentsQuery.departments || [];
     const tags = tagsQuery.tags || [];
 
@@ -67,6 +72,7 @@ class PipelineFormContainer extends React.Component<FinalProps> {
       ...this.props,
       stages,
       boards,
+      costs,
       departments,
       boardId,
       renderButton,
@@ -101,6 +107,9 @@ export default withProps<Props>(
     ),
     graphql<{}, DepartmentsQueryResponse>(gql(teamQueries.departments), {
       name: 'departmentsQuery'
+    }),
+    graphql<{}, CostsQueryResponse>(gql(queries.costs), {
+      name: 'costsQuery'
     }),
     graphql<Props, BoardsQueryResponse, {}>(gql(queries.boards), {
       name: 'boardsQuery',

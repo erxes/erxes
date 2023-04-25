@@ -1,4 +1,5 @@
 import Board from './board';
+
 import Pipeline from './pipeline';
 import Stage from './stage';
 import Deal from './deal';

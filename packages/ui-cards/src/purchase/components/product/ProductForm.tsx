@@ -91,7 +91,7 @@ class ProductForm extends React.Component<Props, State> {
       changePayData: {},
       tempId: '',
       filterValues: JSON.parse(
-        localStorage.getItem('purchaseProductFormFilter') || '{}'
+        localStorage.getItem('dealProductFormFilter') || '{}'
       )
     };
   }
@@ -414,7 +414,7 @@ class ProductForm extends React.Component<Props, State> {
       }
 
       localStorage.setItem(
-        'purchaseProductFormFilter',
+        'dealProductFormFilter',
         JSON.stringify({ ...filterValues, [name]: value, ...otherValues })
       );
     });
@@ -428,7 +428,7 @@ class ProductForm extends React.Component<Props, State> {
 
   clearFilter = () => {
     this.setState({ filterValues: {} }, () => {
-      localStorage.removeItem('purchaseProductFormFilter');
+      localStorage.removeItem('dealProductFormFilter');
     });
   };
 

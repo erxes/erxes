@@ -279,7 +279,7 @@ window.plugins = [
       {
         text: 'Purchase Pipeline',
         url: '/purchase',
-        icon: 'icon-piggy-bank',
+        icon: 'icon-bag-alt',
         location: 'mainNavigation',
         permission: 'showPurchases'
       },
