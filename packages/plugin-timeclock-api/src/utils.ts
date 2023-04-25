@@ -870,6 +870,10 @@ const generateFilter = async (params: any, subdomain: string, type: string) => {
 
   let scheduleFilter;
 
+  if (type === 'schedule' && !scheduleStatus) {
+    return [scheduleFilter, false];
+  }
+
   if (scheduleStatus) {
     if (scheduleStatus.toLowerCase() === 'pending') {
       scheduleFilter = { solved: false };

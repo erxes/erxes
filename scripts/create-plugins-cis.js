@@ -60,6 +60,7 @@ var plugins = [
   { name: 'filemanager', ui: true, api: true },
   { name: 'khanbank', ui: true, api: true },
   { name: 'productplaces', ui: true, api: true },
+  { name: 'ecommerce', api: true },
 ];
 
 const pluginsMap = {};
