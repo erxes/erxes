@@ -24,9 +24,20 @@ interface IPurchaseListParams extends IListParams {
 }
 
 const purchaseQueries = {
-  /**
-   * purchases list
-   */
+  //list cost
+  async costs(_root, _args, { models }: IContext) {
+    return models.Costs.find().lean();
+  },
+  //count cost
+  async costTotalCount(_root, _args, { models }: IContext) {
+    return models.Costs.countDocuments();
+  },
+  //cost detail
+  async costDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Costs.findOne({ _id });
+  },
+
+  // purchase list
   async purchases(
     _root,
     args: IPurchaseListParams,

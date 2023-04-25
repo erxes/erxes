@@ -48,6 +48,7 @@ import {
   sendFormsMessage,
   sendNotificationsMessage
 } from '../../../messageBroker';
+import { ICost } from '../../../models/definitions/cost';
 
 export const itemResolver = async (
   models: IModels,
@@ -111,6 +112,7 @@ export const itemsAdd = async (
 ) => {
   const { collection } = getCollection(models, type);
 
+  console.log(typeof doc, 'doc');
   doc.initialStageId = doc.stageId;
   doc.watchedUserIds = user && [user._id];
 

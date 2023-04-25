@@ -151,6 +151,11 @@ export interface IStage {
   age?: number;
 }
 
+export interface ICost {
+  _id: string;
+  name: string;
+}
+
 export interface IConversionStage extends IStage {
   initialDealsTotalCount: number;
   inProcessDealsTotalCount: number;
@@ -255,6 +260,9 @@ export type BoardsQueryResponse = {
   boards: IBoard[];
 } & QueryResponse;
 
+export type CostsQueryResponse = {
+  costs: ICost[];
+} & QueryResponse;
 export interface IBoardCount {
   _id: string;
   name: string;

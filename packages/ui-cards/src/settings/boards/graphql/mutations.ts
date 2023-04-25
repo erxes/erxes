@@ -114,8 +114,14 @@ const pipelinesUpdateOrder = `
   }
 `;
 
+const costAdd = `
+
+  mutation costAdd(name: String!)
+`;
+
 export default {
   boardAdd,
+  costAdd,
   boardEdit,
   boardRemove,
   pipelineAdd,

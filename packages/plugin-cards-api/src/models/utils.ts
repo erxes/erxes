@@ -166,7 +166,7 @@ export const getCollection = (models: IModels, type: string) => {
   let update;
   let remove;
 
-  const { Deals, GrowthHacks, Tasks, Tickets, Purchase } = models;
+  const { Deals, GrowthHacks, Tasks, Tickets, Purchase, Costs } = models;
 
   switch (type) {
     case BOARD_TYPES.DEAL: {
@@ -201,6 +201,14 @@ export const getCollection = (models: IModels, type: string) => {
       create = Tickets.createTicket;
       update = Tickets.updateTicket;
       remove = Tickets.removeTickets;
+      break;
+    }
+    case BOARD_TYPES.COST: {
+      collection = Costs;
+      create = Costs.createCost;
+      update = Costs.updateCost;
+      remove = Costs.removeCost;
+
       break;
     }
     default:

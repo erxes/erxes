@@ -4,7 +4,9 @@ import {
   commonMutationParams,
   commonTypes,
   conformityQueryFields,
-  copyParams
+  copyParams,
+  commonCostParamsDef,
+  commonCostParams
 } from './common';
 
 export const types = ({ contacts, tags }) => `
@@ -131,7 +133,11 @@ export const queries = `
    ${commonQueryParams}
    ${conformityQueryFields}
  ): [TotalForType]
+  costs:JSON
+  costTotalCount:JSON
+  costDetail(_id: String!): JSON
 `;
+
 export const mutations = `
  purchasesAdd(name: String!, ${copyParams}, ${purchaseMutationParams}, ${commonMutationParams}): Purchase
  purchasesEdit(_id: String!, name: String, ${purchaseMutationParams}, ${commonMutationParams}): Purchase
@@ -143,4 +149,8 @@ export const mutations = `
  purchasesCreateProductsData(proccessId: String, purchaseId: String, docs: JSON): JSON
  purchasesEditProductData(proccessId: String, purchaseId: String, dataId: String, doc: JSON): JSON
  purchasesDeleteProductData(proccessId: String, purchaseId: String, dataId: String): JSON
+ costAdd(name: String!): JSON
+ costRemove(_id: String!): JSON
+ costEdit(_id: String!, ${commonCostParamsDef}): JSON
+
 `;

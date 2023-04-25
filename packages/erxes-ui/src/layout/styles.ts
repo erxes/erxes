@@ -474,6 +474,12 @@ const FlexItem = styledTS<{ count?: number; hasSpace?: boolean }>(styled.div)`
     `};
 `;
 
+const Add = styled.div`
+  display: block;
+  margin: ${dimensions.coreSpacing}px;
+  text-align: center;
+`;
+
 const FlexRightItem = styled.div`
   margin-left: auto;
 `;
@@ -782,5 +788,6 @@ export {
   FlexContent,
   FlexRightItem,
   SectionBodyItem,
-  NotFoundWrapper
+  NotFoundWrapper,
+  Add
 };
