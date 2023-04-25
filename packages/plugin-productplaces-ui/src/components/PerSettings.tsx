@@ -147,10 +147,10 @@ class PerSettings extends React.Component<Props, State> {
           </FormColumn>
           <FormColumn>
             <FormGroup>
-              <ControlLabel>Split for packages</ControlLabel>
+              <ControlLabel>Check pricing</ControlLabel>
               <FormControl
-                checked={config.isSplit || false}
-                onChange={this.onChangeCheckbox.bind(this, 'isSplit')}
+                checked={config.checkPricing || false}
+                onChange={this.onChangeCheckbox.bind(this, 'checkPricing')}
                 componentClass="checkbox"
               />
             </FormGroup>
