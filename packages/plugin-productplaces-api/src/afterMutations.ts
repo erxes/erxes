@@ -76,15 +76,16 @@ export const afterMutationHandlers = async (subdomain, params) => {
       }
 
       if (Object.keys(placeConfigs).includes(destinationStageId)) {
+        const placeConfig = placeConfigs[destinationStageId];
         pDatas = await setPlace(
           subdomain,
           deal._id,
           pDatas,
-          placeConfigs[destinationStageId],
+          placeConfig,
           productById
         );
 
-        if ((await isEnabled('pricing')) && placeConfigs.checkPricing) {
+        if ((await isEnabled('pricing')) && placeConfig.checkPricing) {
           const groupedData: any = {};
           for (const data of pDatas) {
             const { branchId = '', departmentId = '' } = data;
@@ -134,17 +135,25 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
                   if (discount) {
                     isSetPricing = true;
+
                     if (discount.type === 'percentage') {
                       item.discountPercent = parseFloat(
-                        ((discount.value / item.unitPrice) * 100).toFixed(2)
+                        (
+                          (discount.value / (item.unitPrice || 1)) *
+                          100
+                        ).toFixed(2)
                       );
-                      item.unitPrice -= discount.value;
-                      item.discount = discount.value * item.count;
-                      item.amount = item.unitPrice * item.quantity;
+                      item.discount = discount.value * item.quantity;
+                      item.amount =
+                        ((item.globalUnitPrice || item.unitPrice) -
+                          discount.value) *
+                        item.quantity;
                     } else {
-                      item.discount = discount.value * item.count;
-                      item.unitPrice -= discount.value;
-                      item.amount = item.unitPrice * item.quantity;
+                      item.discount = discount.value * item.quantity;
+                      item.amount =
+                        ((item.globalUnitPrice || item.unitPrice) -
+                          discount.value) *
+                        item.quantity;
                     }
                   }
                 }
