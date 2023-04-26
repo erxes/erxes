@@ -93,7 +93,11 @@ export const afterDealCreate = async (subdomain, params) => {
         receivers: cpUsers.map(cpUser => cpUser._id),
         notifType: 'system',
         link: '',
-        isMobile: true
+        isMobile: true,
+        eventData: {
+          type: 'deal',
+          id: deal._id
+        }
       }
     });
   }
