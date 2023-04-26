@@ -18,7 +18,7 @@ const movementItemQueries = {
     params,
     { models, subdomain }: IContext
   ) {
-    const filter = await generateFilter(params, 'movmentItems', subdomain);
+    const filter = await generateFilter(params, 'movementItems', subdomain);
 
     return models.MovementItems.find(filter).countDocuments();
   },
@@ -115,7 +115,7 @@ const movementItemQueries = {
         }
       },
       { $unwind: '$movements' },
-      { $sort: { 'movements.assetId': 1 } },
+      { $sort: { 'movements.createdAt': -1 } },
       { $group: { _id: '$_id', movements: { $push: '$movements' } } },
       { $replaceRoot: { newRoot: { $arrayElemAt: ['$movements', 0] } } }
     ];
