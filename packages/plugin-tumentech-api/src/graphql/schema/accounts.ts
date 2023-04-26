@@ -1,10 +1,16 @@
-export const types = `
+export const types = ({ contacts }) => `
 type CustomerAccount @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     balance: Float
     customerId: String
 
-    customer: Customer
+    ${
+      contacts
+        ? `
+        customer: Customer
+        `
+        : ''
+    }
   }
 
   type CustomerAccountListResponse {
