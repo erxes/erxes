@@ -213,9 +213,13 @@ export const loadRemainderClass = (models: IModels) => {
       } = params;
       const filter: any = {};
 
-      if (departmentIds && departmentIds)
+      if (departmentIds && departmentIds.length) {
         filter.departmentId = { $in: departmentIds };
-      if (branchIds && branchIds) filter.branchId = { $in: branchIds };
+      }
+
+      if (branchIds && branchIds.length) {
+        filter.branchId = { $in: branchIds };
+      }
 
       if (productCategoryId) {
         const limit: number = await sendProductsMessage({

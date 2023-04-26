@@ -3,13 +3,9 @@ import { IContext } from '../../types';
 import { IModels } from '../../../connectionResolver';
 import { IProductCategoryDocument } from '../../../models/definitions/products';
 import { PRODUCT_STATUSES } from '../../../models/definitions/constants';
-import {
-  sendInventoriesMessage,
-  sendPricingMessage
-} from '../../../messageBroker';
-import { sendRequest } from '@erxes/api-utils/src/requests';
-import { debugError } from '@erxes/api-utils/src/debuggers';
+import { sendPricingMessage } from '../../../messageBroker';
 import { Builder } from '../../../utils';
+import { checkRemainders } from '../../utils/products';
 
 interface ICommonParams {
   sortField?: string;
@@ -176,103 +172,12 @@ const productQueries = {
       paginationArgs
     );
 
-    if (config.erkhetConfig && config.erkhetConfig.getRemainder) {
-      const configs = config.erkhetConfig;
-      if (
-        configs &&
-        configs.getRemainderApiUrl &&
-        configs.apiKey &&
-        configs.apiSecret
-      ) {
-        try {
-          let account = configs.account;
-          let location = configs.location;
-
-          if (config.isOnline && branchId) {
-            const accLocConf = configs[branchId];
-
-            if (accLocConf) {
-              account = accLocConf.account;
-              location = accLocConf.location;
-            }
-          }
-
-          if (account && location) {
-            const response = await sendRequest({
-              url: configs.getRemainderApiUrl,
-              method: 'GET',
-              params: {
-                kind: 'remainder',
-                api_key: configs.apiKey,
-                api_secret: configs.apiSecret,
-                check_relate: paginatedProducts.length < 4 ? '1' : '',
-                accounts: account,
-                locations: location,
-                inventories: paginatedProducts.map(p => p.code).join(',')
-              }
-            });
-
-            const jsonRes = JSON.parse(response);
-
-            let responseByCode = jsonRes;
-
-            responseByCode =
-              (jsonRes[account] && jsonRes[account][location]) || {};
-
-            paginatedProducts.map((item: any) => {
-              item.remainder = responseByCode[item.code]
-                ? responseByCode[item.code]
-                : undefined;
-              return item;
-            });
-          }
-        } catch (e) {
-          debugError(`fetch remainder from erkhet, Error: ${e.message}`);
-        }
-      }
-    }
-
-    let branchIds = branchId
-      ? [branchId]
-      : config.isOnline
-      ? config.allowBranchIds
-      : config.branchId;
-    const productIds = paginatedProducts.map(p => p._id);
-
-    if (config.checkRemainder) {
-      config.isOnline ? branchId : config.branchId;
-
-      const inventoryResponse = await sendInventoriesMessage({
-        subdomain,
-        action: 'remainders',
-        data: {
-          productIds,
-          departmentId: config.departmentId,
-          branchIds
-        },
-        isRPC: true,
-        defaultValue: []
-      });
-
-      const remainderByProductId = {};
-      for (const rem of inventoryResponse) {
-        if (!Object.keys(remainderByProductId).includes(rem.productId)) {
-          remainderByProductId[rem.productId] = [];
-        }
-
-        remainderByProductId[rem.productId].push(rem);
-      }
-
-      for (const product of paginatedProducts) {
-        product.remainders = remainderByProductId[product._id];
-        product.remainder = (remainderByProductId[product._id] || []).reduce(
-          (sum, cur) => sum + cur.count,
-          0
-        );
-      }
-    }
-
-    return paginatedProducts;
+    return checkRemainders(
+      subdomain,
+      config,
+      paginatedProducts,
+      branchId || ''
+    );
   },
 
   /**
@@ -362,8 +267,21 @@ const productQueries = {
     return models.ProductCategories.find(filter).countDocuments();
   },
 
-  poscProductDetail(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.Products.findOne({ _id }).lean();
+  async poscProductDetail(
+    _root,
+    { _id, branchId }: { _id: string; branchId?: string },
+    { subdomain, models, config }: IContext
+  ) {
+    const product = await models.Products.getProduct({ _id });
+
+    const result = await checkRemainders(
+      subdomain,
+      config,
+      [product],
+      branchId
+    );
+
+    return result[0];
   },
 
   poscProductCategoryDetail(
