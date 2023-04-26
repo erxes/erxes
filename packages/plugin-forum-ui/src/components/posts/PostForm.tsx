@@ -182,7 +182,7 @@ class PostForm extends React.Component<Props, State> {
     };
 
     const onUserChange = memberId => {
-      this.setState({ selectedUser: memberId[0] });
+      this.setState({ selectedUser: memberId });
     };
 
     const thumbnail =
@@ -249,6 +249,7 @@ class PostForm extends React.Component<Props, State> {
                 <SelectTeamMembers
                   label="Choose publisher"
                   name="selectedUser"
+                  multi={false}
                   initialValue={this.state.selectedUser}
                   onSelect={e => onUserChange(e)}
                 />
