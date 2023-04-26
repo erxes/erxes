@@ -5,14 +5,8 @@ import {
   IButtonMutateProps,
   IFormProps
 } from '@erxes/ui/src/types';
-import {
-  ICategory,
-  IPollOption,
-  IPost,
-  ITag,
-  IClientPortalUser
-} from '../../types';
-
+import { ICategory, IPollOption, IPost, ITag } from '../../types';
+import { SelectTeamMembers } from '@erxes/ui/src';
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { CustomRangeContainer } from '../../styles';
@@ -34,7 +28,6 @@ type Props = {
   tags?: ITag[];
   closeModal: () => void;
   categories: ICategory[];
-  allUsers?: IClientPortalUser[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
@@ -84,6 +77,7 @@ class PostForm extends React.Component<Props, State> {
     title: string;
     categoryId?: string;
     description?: string;
+    selectedUser?: string;
   }) => {
     const { post } = this.props;
     const finalValues = values;
@@ -141,14 +135,6 @@ class PostForm extends React.Component<Props, State> {
     );
   };
 
-  renderUserOptions = () => {
-    return this.props.allUsers.map(user => ({
-      value: user._id,
-      label: user.username || user.firstName || user.email,
-      _id: user._id
-    }));
-  };
-
   onChangeRangeFilter = (date, key: string) => {
     const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
     this.setState({ ...this.state, [key]: formattedDate });
@@ -173,7 +159,7 @@ class PostForm extends React.Component<Props, State> {
       multipleChoice,
       hasEndDate
     } = this.state;
-    console.log('post', post);
+
     const { isSubmitted, values } = formProps;
 
     const object = post || ({} as IPost);
@@ -195,8 +181,8 @@ class PostForm extends React.Component<Props, State> {
       this.setState({ pollOptions: ops });
     };
 
-    const onUserChange = member => {
-      this.setState({ selectedUser: member._id });
+    const onUserChange = memberId => {
+      this.setState({ selectedUser: memberId[0] });
     };
 
     const thumbnail =
@@ -258,13 +244,13 @@ class PostForm extends React.Component<Props, State> {
             </FlexItem>
             <FlexItem>
               <CustomRangeContainer>
-                <ControlLabel>User</ControlLabel>
+                <ControlLabel>Choose publisher</ControlLabel>
 
-                <Select
-                  placeholder={__('Choose publisher')}
-                  options={this.renderUserOptions()}
-                  value={this.state.selectedUser}
-                  onChange={e => onUserChange(e)}
+                <SelectTeamMembers
+                  label="Choose publisher"
+                  name="selectedUser"
+                  initialValue={this.state.selectedUser}
+                  onSelect={e => onUserChange(e)}
                 />
               </CustomRangeContainer>
             </FlexItem>

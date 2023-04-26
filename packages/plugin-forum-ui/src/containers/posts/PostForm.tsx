@@ -17,10 +17,6 @@ function PostFormContainer({ closeModal, post }: Props) {
   const { data } = useQuery(gql(queries.categoriesAll));
   const tagsQuery = useQuery(gql(queries.tags));
 
-  const allUsers = useQuery(gql(queries.clientPortalUsers), {
-    fetchPolicy: 'network-only'
-  });
-
   const { forumCategories } = data;
   const tags = tagsQuery.data?.tags || [];
 
@@ -53,7 +49,6 @@ function PostFormContainer({ closeModal, post }: Props) {
       categories={forumCategories}
       renderButton={renderButton}
       closeModal={closeModal}
-      allUsers={allUsers?.data?.clientPortalUsers || []}
     />
   );
 }
