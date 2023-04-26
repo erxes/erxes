@@ -5,7 +5,13 @@ import {
   IButtonMutateProps,
   IFormProps
 } from '@erxes/ui/src/types';
-import { ICategory, IPollOption, IPost, ITag } from '../../types';
+import {
+  ICategory,
+  IPollOption,
+  IPost,
+  ITag,
+  IClientPortalUser
+} from '../../types';
 
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
@@ -28,6 +34,7 @@ type Props = {
   tags?: ITag[];
   closeModal: () => void;
   categories: ICategory[];
+  allUsers?: IClientPortalUser[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
@@ -42,6 +49,7 @@ type State = {
   endDate?: any;
   thumbnail: any;
   createdAt: string;
+  selectedUser: string;
 };
 
 class PostForm extends React.Component<Props, State> {
@@ -66,7 +74,8 @@ class PostForm extends React.Component<Props, State> {
             type: 'image',
             url: post.thumbnail
           }
-        : ({} as IAttachment)
+        : ({} as IAttachment),
+      selectedUser: post.createdById || ''
     };
   }
 
@@ -105,7 +114,8 @@ class PostForm extends React.Component<Props, State> {
       pollEndDate: this.state.endDate,
       isPollMultiChoice: this.state.multipleChoice,
       pollOptions: optionsCleaned,
-      createdAt: this.state.createdAt
+      createdAt: this.state.createdAt,
+      createdById: this.state.selectedUser
     };
   };
 
@@ -129,6 +139,14 @@ class PostForm extends React.Component<Props, State> {
           ))}
       </>
     );
+  };
+
+  renderUserOptions = () => {
+    return this.props.allUsers.map(user => ({
+      value: user._id,
+      label: user.username || user.firstName || user.email,
+      _id: user._id
+    }));
   };
 
   onChangeRangeFilter = (date, key: string) => {
@@ -155,7 +173,7 @@ class PostForm extends React.Component<Props, State> {
       multipleChoice,
       hasEndDate
     } = this.state;
-
+    console.log('post', post);
     const { isSubmitted, values } = formProps;
 
     const object = post || ({} as IPost);
@@ -175,6 +193,10 @@ class PostForm extends React.Component<Props, State> {
 
     const changeOption = (ops: IPollOption[]) => {
       this.setState({ pollOptions: ops });
+    };
+
+    const onUserChange = member => {
+      this.setState({ selectedUser: member._id });
     };
 
     const thumbnail =
@@ -222,16 +244,31 @@ class PostForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>Choose the category</ControlLabel>
+          <FlexContent>
+            <FlexItem>
+              <ControlLabel required={true}>Choose the category</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="categoryId"
+                componentClass="select"
+                defaultValue={categoryId}
+              >
+                {this.renderOptions()}
+              </FormControl>
+            </FlexItem>
+            <FlexItem>
+              <CustomRangeContainer>
+                <ControlLabel>User</ControlLabel>
 
-          <FormControl
-            {...formProps}
-            name="categoryId"
-            componentClass="select"
-            defaultValue={categoryId}
-          >
-            {this.renderOptions()}
-          </FormControl>
+                <Select
+                  placeholder={__('Choose publisher')}
+                  options={this.renderUserOptions()}
+                  value={this.state.selectedUser}
+                  onChange={e => onUserChange(e)}
+                />
+              </CustomRangeContainer>
+            </FlexItem>
+          </FlexContent>
         </FormGroup>
 
         <FormGroup>
