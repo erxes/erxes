@@ -45,6 +45,10 @@ const TopupList = asyncComponent(() =>
   import(/* webpackChunkName: "TopupList" */ './containers/topup/List')
 );
 
+const AccountList = asyncComponent(() =>
+  import(/* webpackChunkName: "AccountList" */ './containers/account/List')
+);
+
 const placeList = history => {
   const { location } = history;
   const queryParams = queryString.parse(location.search);
@@ -88,6 +92,15 @@ const details = ({ match }) => {
 const list = ({ location, history }) => {
   return (
     <CarList
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const accountList = ({ location, history }) => {
+  return (
+    <AccountList
       queryParams={queryString.parse(location.search)}
       history={history}
     />
@@ -184,6 +197,13 @@ const routes = () => {
         exact={true}
         path="/erxes-plugin-tumentech/topup"
         component={topupList}
+      />
+
+      <Route
+        key="erxes-plugin-tumentech/accounts/list"
+        exact={true}
+        path="/erxes-plugin-tumentech/accounts/list"
+        component={accountList}
       />
     </React.Fragment>
   );

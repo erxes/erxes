@@ -1,33 +1,27 @@
-import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 
-import DirectionForm from '../../containers/directions/Form';
-import { IDirection } from '../../types';
 import { tumentechMenu } from '../list/CarsList';
 import Row from './Row';
 
 type Props = {
-  directions: IDirection[];
+  accounts: any[];
   totalCount: number;
   queryParams: any;
   loading: boolean;
-  remove: (directionId: string) => void;
+  //   remove: (directionId: string) => void;
   refetch?: () => void;
 };
 
 const List = (props: Props) => {
-  const { totalCount, queryParams, loading, directions, remove } = props;
+  const { totalCount, queryParams, loading, accounts } = props;
 
   const renderRow = () => {
-    return directions.map(direction => (
-      <Row key={direction._id} direction={direction} remove={remove} />
-    ));
+    return accounts.map(account => <Row key={account._id} account={account} />);
   };
 
   queryParams.loadingMainQuery = loading;
@@ -40,38 +34,35 @@ const List = (props: Props) => {
   //   </Link>
   // );
 
-  const trigger = (
-    <Button btnStyle="success" size="small" icon="plus-circle">
-      Add direction
-    </Button>
-  );
+  //   const trigger = (
+  //     <Button btnStyle="success" size="small" icon="plus-circle">
+  //       Add direction
+  //     </Button>
+  //   );
 
-  const formContent = formProps => <DirectionForm {...formProps} />;
+  //   const formContent = formProps => <DirectionForm {...formProps} />;
 
-  const righActionBar = (
-    <ModalTrigger
-      size="lg"
-      title="Direction"
-      autoOpenKey="showAppAddModal"
-      trigger={trigger}
-      content={formContent}
-    />
-  );
+  //   const righActionBar = (
+  //     <ModalTrigger
+  //       size="lg"
+  //       title="Direction"
+  //       autoOpenKey="showAppAddModal"
+  //       trigger={trigger}
+  //       content={formContent}
+  //     />
+  //   );
 
-  const actionBar = <Wrapper.ActionBar right={righActionBar} />;
+  //   const actionBar = (
+  //     <Wrapper.ActionBar right={righActionBar} />
+  //   );
 
   const content = (
     <Table whiteSpace="nowrap" hover={true}>
       <thead>
         <tr>
-          <th>{__('Route code')}</th>
-          <th>{__('Road code')}</th>
-          <th>{__('Place A')}</th>
-          <th>{__('Place B')}</th>
-          <th>{__('Road conditions')}</th>
-          <th>{__('duration')}</th>
-          <th>{__('distance (km)')}</th>
-          <th>{__('Actions')}</th>
+          <th>{__('Customer')}</th>
+          <th>{__('Balance')}</th>
+          <th>{__('Profile')}</th>
         </tr>
       </thead>
       <tbody>{renderRow()}</tbody>
@@ -81,18 +72,18 @@ const List = (props: Props) => {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Directions')}
+          title={__('Accounts')}
           queryParams={queryParams}
           submenu={tumentechMenu}
         />
       }
-      actionBar={actionBar}
+      //   actionBar={actionBar}
       footer={<Pagination count={totalCount} />}
       content={
         <DataWithLoader
           data={content}
           loading={loading}
-          count={directions.length}
+          count={totalCount}
           emptyContent={
             <h3
               style={{

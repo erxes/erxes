@@ -1,3 +1,4 @@
+import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import {
   sendClientPortalMessage,
@@ -204,6 +205,20 @@ const queries = {
     );
 
     return ebarimtData;
+  },
+
+  customerAccountsList: async (
+    _root,
+    { page, perPage },
+    { models, subdomain }: IContext
+  ) => {
+    return {
+      totalCount: await models.CustomerAccounts.find().countDocuments(),
+      list: paginate(models.CustomerAccounts.find({}).lean(), {
+        page: page || 1,
+        perPage: perPage || 20
+      })
+    };
   }
 };
 
