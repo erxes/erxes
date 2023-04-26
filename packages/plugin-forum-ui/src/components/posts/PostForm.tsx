@@ -6,7 +6,7 @@ import {
   IFormProps
 } from '@erxes/ui/src/types';
 import { ICategory, IPollOption, IPost, ITag } from '../../types';
-
+import { SelectTeamMembers } from '@erxes/ui/src';
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { CustomRangeContainer } from '../../styles';
@@ -42,6 +42,7 @@ type State = {
   endDate?: any;
   thumbnail: any;
   createdAt: string;
+  selectedUser: string;
 };
 
 class PostForm extends React.Component<Props, State> {
@@ -66,7 +67,8 @@ class PostForm extends React.Component<Props, State> {
             type: 'image',
             url: post.thumbnail
           }
-        : ({} as IAttachment)
+        : ({} as IAttachment),
+      selectedUser: post.createdById || ''
     };
   }
 
@@ -75,6 +77,7 @@ class PostForm extends React.Component<Props, State> {
     title: string;
     categoryId?: string;
     description?: string;
+    selectedUser?: string;
   }) => {
     const { post } = this.props;
     const finalValues = values;
@@ -105,7 +108,8 @@ class PostForm extends React.Component<Props, State> {
       pollEndDate: this.state.endDate,
       isPollMultiChoice: this.state.multipleChoice,
       pollOptions: optionsCleaned,
-      createdAt: this.state.createdAt
+      createdAt: this.state.createdAt,
+      createdById: this.state.selectedUser
     };
   };
 
@@ -177,6 +181,10 @@ class PostForm extends React.Component<Props, State> {
       this.setState({ pollOptions: ops });
     };
 
+    const onUserChange = memberId => {
+      this.setState({ selectedUser: memberId });
+    };
+
     const thumbnail =
       Object.keys(this.state.thumbnail).length === 0
         ? []
@@ -222,16 +230,32 @@ class PostForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>Choose the category</ControlLabel>
+          <FlexContent>
+            <FlexItem>
+              <ControlLabel required={true}>Choose the category</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="categoryId"
+                componentClass="select"
+                defaultValue={categoryId}
+              >
+                {this.renderOptions()}
+              </FormControl>
+            </FlexItem>
+            <FlexItem>
+              <CustomRangeContainer>
+                <ControlLabel>Choose publisher</ControlLabel>
 
-          <FormControl
-            {...formProps}
-            name="categoryId"
-            componentClass="select"
-            defaultValue={categoryId}
-          >
-            {this.renderOptions()}
-          </FormControl>
+                <SelectTeamMembers
+                  label="Choose publisher"
+                  name="selectedUser"
+                  multi={false}
+                  initialValue={this.state.selectedUser}
+                  onSelect={e => onUserChange(e)}
+                />
+              </CustomRangeContainer>
+            </FlexItem>
+          </FlexContent>
         </FormGroup>
 
         <FormGroup>
