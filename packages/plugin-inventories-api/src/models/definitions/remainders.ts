@@ -19,8 +19,8 @@ export interface IRemainderProductsParams {
 }
 
 export interface IRemaindersParams {
-  departmentId?: string;
-  branchId?: string;
+  departmentIds?: string[];
+  branchIds?: string[];
   productCategoryId?: string;
   productIds?: string[];
 }

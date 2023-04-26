@@ -135,6 +135,7 @@ const forumPostsQuery = `
       downVoteCount
 
       createdUserType
+      createdById
       createdBy {
         _id
         username
@@ -202,6 +203,7 @@ const forumPostDetail = `
       isPollMultiChoice
       pollEndDate
 
+      createdById
       createdUserType
       createdBy {
         _id
