@@ -97,15 +97,18 @@ const prepareHeader = async (sheet: any, reportType: string) => {
       addIntoSheet([final_headers[0][0]], 'A1', 'E1', sheet, reportType, true);
       addIntoSheet([final_headers[0][1]], 'A2', 'E2', sheet, reportType);
 
-      addIntoSheet([final_headers[1][0]], 'F1', 'G1', sheet, reportType, true);
-      addIntoSheet([final_headers[1][1]], 'F2', 'G2', sheet, reportType);
-      addIntoSheet([final_headers[2][0]], 'H1', 'M1', sheet, reportType, true);
-      addIntoSheet([final_headers[2][1]], 'H2', 'M2', sheet, reportType);
-      addIntoSheet([final_headers[3][0]], 'N1', 'N1', sheet, reportType, true);
-      addIntoSheet([final_headers[3][1]], 'N2', 'N2', sheet, reportType);
+      addIntoSheet([final_headers[1][0]], 'F1', 'H1', sheet, reportType, true);
+      addIntoSheet([final_headers[1][1]], 'F2', 'H2', sheet, reportType);
+
+      addIntoSheet([final_headers[2][0]], 'I1', 'N1', sheet, reportType, true);
+      addIntoSheet([final_headers[2][1]], 'I2', 'N2', sheet, reportType);
+
+      addIntoSheet([final_headers[3][0]], 'O1', 'O1', sheet, reportType, true);
+      addIntoSheet([final_headers[3][1]], 'O2', 'O2', sheet, reportType);
+
       // absence info
-      addIntoSheet([final_headers[4][0]], 'O1', 'Q1', sheet, reportType, true);
-      addIntoSheet([final_headers[4][1]], 'O2', 'Q2', sheet, reportType);
+      addIntoSheet([final_headers[4][0]], 'P1', 'R1', sheet, reportType, true);
+      addIntoSheet([final_headers[4][1]], 'P2', 'R2', sheet, reportType);
       break;
 
     case 'Pivot':
@@ -117,11 +120,11 @@ const prepareHeader = async (sheet: any, reportType: string) => {
       addIntoSheet([pivot_headers[1][0]], 'F1', 'F1', sheet, reportType, true);
       addIntoSheet([pivot_headers[1][1]], 'F2', 'F2', sheet, reportType);
 
-      addIntoSheet([pivot_headers[2][0]], 'G1', 'I1', sheet, reportType, true);
-      addIntoSheet([pivot_headers[2][1]], 'G2', 'I2', sheet, reportType);
+      addIntoSheet([pivot_headers[2][0]], 'G1', 'J1', sheet, reportType, true);
+      addIntoSheet([pivot_headers[2][1]], 'G2', 'J2', sheet, reportType);
 
-      addIntoSheet([pivot_headers[3][0]], 'J1', 'R1', sheet, reportType, true);
-      addIntoSheet([pivot_headers[3][1]], 'J2', 'R2', sheet, reportType);
+      addIntoSheet([pivot_headers[3][0]], 'K1', 'R1', sheet, reportType, true);
+      addIntoSheet([pivot_headers[3][1]], 'K2', 'R2', sheet, reportType);
 
       break;
   }
@@ -170,7 +173,7 @@ const extractAndAddIntoSheet = (
       addIntoSheet(
         extractValuesIntoArr,
         `A${startRowIdx}`,
-        `Q${endRowIdx}`,
+        `R${endRowIdx}`,
         sheet,
         reportType
       );
@@ -201,11 +204,23 @@ const extractAndAddIntoSheet = (
 
             if (getDeviceNames) {
               if (getDeviceNames.length === 2) {
-                checkInDevice = getDeviceNames[0];
-                checkOutDevice = getDeviceNames[1];
+                // checkInDevice = getDeviceNames[0];
+                // checkOutDevice = getDeviceNames[1];
+                if (
+                  getDeviceNames[0] &&
+                  getDeviceNames[0].includes('faceTerminal')
+                ) {
+                  checkInDevice = scheduleShift.deviceName || '-';
+                }
+                if (
+                  getDeviceNames[1] &&
+                  getDeviceNames[1].includes('faceTerminal')
+                ) {
+                  checkOutDevice = scheduleShift.deviceName || '-';
+                }
               } else {
-                checkInDevice = getDeviceNames[0];
-                checkOutDevice = getDeviceNames[0];
+                checkInDevice = scheduleShift.deviceName || '-';
+                checkOutDevice = scheduleShift.deviceName || '-';
               }
             }
             const shiftInfo: any = [];
@@ -233,11 +248,11 @@ const extractAndAddIntoSheet = (
               scheduledStart,
               scheduledEnd,
               scheduleShift.scheduledDuration,
+              scheduleShift.lunchBreakInHrs,
               shiftStart,
               checkInDevice,
               shiftEnd,
               checkOutDevice,
-              scheduleShift.deviceName,
               scheduleShift.timeclockDuration,
               scheduleShift.totalHoursOvertime,
               scheduleShift.totalHoursOvernight,
@@ -247,7 +262,7 @@ const extractAndAddIntoSheet = (
             addIntoSheet(
               [shiftInfo],
               `B${rowNum}`,
-              `Q${rowNum}`,
+              `R${rowNum}`,
               sheet,
               reportType
             );

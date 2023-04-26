@@ -161,7 +161,6 @@ function List({
           <th>{__('Out Device')}</th>
           <th>{__('Overnight')}</th>
           <th>{__('Location')}</th>
-          <th>{__('Status')}</th>
           <th>
             <TextAlignCenter>{__('Action')}</TextAlignCenter>
           </th>

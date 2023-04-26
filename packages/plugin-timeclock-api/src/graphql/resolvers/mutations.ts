@@ -403,7 +403,12 @@ const timeclockMutations = {
       return concatBranchDept.indexOf(value) === pos;
     });
 
-    return createScheduleShiftsByUserIds(unionOfUserIds, shifts, models);
+    return createScheduleShiftsByUserIds(
+      unionOfUserIds,
+      shifts,
+      models,
+      totalBreakInMins
+    );
   },
 
   scheduleRemove(_root, { _id }, { models }: IContext) {

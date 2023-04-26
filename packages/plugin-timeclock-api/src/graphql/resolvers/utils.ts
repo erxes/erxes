@@ -4,7 +4,6 @@ import { generateModels, IModels } from '../../connectionResolver';
 import { sendCoreMessage } from '../../messageBroker';
 import {
   IAbsence,
-  IAbsenceType,
   IAbsenceTypeDocument,
   IScheduleDocument,
   IShiftDocument,
@@ -76,31 +75,40 @@ export const findDepartmentUsers = async (
 
 export const createScheduleShiftsByUserIds = async (
   userIds: string[],
-  shifts,
+  scheduleShifts,
   models: IModels,
   totalBreakInMins?: number
 ) => {
+  const shiftsBulkCreateOps: any[] = [];
+
   let schedule;
-  userIds.forEach(async userId => {
+  for (const userId of userIds) {
     schedule = await models.Schedules.createSchedule({
-      userId: `${userId}`,
+      userId,
       solved: true,
       status: 'Approved',
       submittedByAdmin: true,
       totalBreakInMins
     });
 
-    shifts.forEach(shift => {
-      models.Shifts.createShift({
-        scheduleId: schedule._id,
-        shiftStart: shift.shiftStart,
-        shiftEnd: shift.shiftEnd,
-        scheduleConfigId: shift.scheduleConfigId,
-        solved: true,
-        status: 'Approved'
+    for (const shift of scheduleShifts) {
+      shiftsBulkCreateOps.push({
+        insertOne: {
+          document: {
+            scheduleId: schedule._id,
+            shiftStart: shift.shiftStart,
+            shiftEnd: shift.shiftEnd,
+            scheduleConfigId: shift.scheduleConfigId,
+            solved: true,
+            status: 'Approved'
+          }
+        }
       });
-    });
-  });
+    }
+  }
+
+  // create shifts of each schedule
+  await models.Shifts.bulkWrite(shiftsBulkCreateOps);
 
   return schedule;
 };
@@ -440,9 +448,11 @@ export const timeclockReportFinal = async (
   const usersReport: IUsersReport = {};
   const shiftsOfSchedule: any = [];
 
-  // get the schedule data of this month
+  // get the schedule data of time interval
   const schedules = await models.Schedules.find({
-    userId: { $in: userIds }
+    userId: { $in: userIds },
+    solved: true,
+    status: { $regex: /Approved/gi }
   }).sort({
     userId: 1
   });
@@ -534,6 +544,14 @@ export const timeclockReportFinal = async (
     let totalMinsLatePerUser = 0;
     let totalHoursOvernightPerUser = 0;
 
+    // calculate total break time from schedules of an user
+    const totalBreakInHours =
+      currUserSchedules.reduce(
+        (partialBreakSum, userSchedule) =>
+          userSchedule.totalBreakInMins || 0 + partialBreakSum,
+        0
+      ) / 60;
+
     if (currUserTimeclocks) {
       totalDaysWorkedPerUser = new Set(
         currUserTimeclocks.map(shift =>
@@ -597,6 +615,11 @@ export const timeclockReportFinal = async (
         }
       });
 
+      // deduct lunch break from worked hours
+      if (totalRegularHoursWorkedPerUser) {
+        totalRegularHoursWorkedPerUser -= totalBreakInHours;
+      }
+
       // deduct overtime from worked hours
       totalRegularHoursWorkedPerUser -= totalHoursOvertimePerUser;
       totalHoursWorkedPerUser =
@@ -641,11 +664,17 @@ export const timeclockReportFinal = async (
       relatedAbsenceTypes
     );
 
+    // deduct lunch breaks from total scheduled hours
+    if (totalHoursScheduledPerUser) {
+      totalHoursScheduledPerUser -= totalBreakInHours;
+    }
+
     if (exportToXlsx) {
       usersReport[currUserId] = {
         ...usersReport[currUserId],
         totalDaysScheduled: totalDaysScheduledPerUser,
         totalHoursScheduled: totalHoursScheduledPerUser.toFixed(2),
+        totalHoursBreak: totalBreakInHours.toFixed(2),
         totalDaysWorked: totalDaysWorkedPerUser,
         totalRegularHoursWorked: totalRegularHoursWorkedPerUser.toFixed(2),
         totalHoursOvertime: totalHoursOvertimePerUser.toFixed(2),
@@ -661,6 +690,7 @@ export const timeclockReportFinal = async (
       ...usersReport[currUserId],
       totalDaysScheduled: totalDaysScheduledPerUser,
       totalHoursScheduled: totalHoursScheduledPerUser.toFixed(2),
+      totalHoursBreak: totalBreakInHours.toFixed(2),
       totalDaysWorked: totalDaysWorkedPerUser,
       totalRegularHoursWorked: totalRegularHoursWorkedPerUser.toFixed(2),
       totalHoursOvertime: totalHoursOvertimePerUser.toFixed(2),
@@ -728,7 +758,27 @@ export const timeclockReportPivot = async (
     }))
   );
 
-  const schedulesObj = createSchedulesObj(userIds, schedules, shiftsOfSchedule);
+  const shiftsOfScheduleConfigIds = shiftsOfSchedule.map(
+    scheduleShift => scheduleShift.scheduleConfigId
+  );
+  const scheduleShiftsConfigs = await models.ScheduleConfigs.find({
+    _id: { $in: shiftsOfScheduleConfigIds }
+  });
+
+  const scheduleShiftConfigsMap: { [scheduleConfigId: string]: number } = {};
+
+  scheduleShiftsConfigs.map(
+    scheduleConfig =>
+      (scheduleShiftConfigsMap[scheduleConfig._id] =
+        scheduleConfig.lunchBreakInMins)
+  );
+
+  const schedulesObj = createSchedulesObj(
+    userIds,
+    schedules,
+    shiftsOfSchedule,
+    scheduleShiftConfigsMap
+  );
 
   userIds.forEach(async currUserId => {
     // assign team member info from teamMembersObj
@@ -779,6 +829,7 @@ export const timeclockReportPivot = async (
           let scheduleShiftStart;
           let scheduleShiftEnd;
           let getScheduleDuration: number = 0;
+          let lunchBreakInHrs = 0;
           if (
             currUserId in schedulesObj &&
             scheduledDay in schedulesObj[currUserId]
@@ -787,6 +838,7 @@ export const timeclockReportPivot = async (
 
             scheduleShiftStart = getScheduleOfTheDay.shiftStart;
             scheduleShiftEnd = getScheduleOfTheDay.shiftEnd;
+            lunchBreakInHrs = getScheduleOfTheDay.lunchBreakInMins / 60;
 
             getScheduleDuration = Math.abs(
               scheduleShiftEnd.getTime() - scheduleShiftStart.getTime()
@@ -810,11 +862,21 @@ export const timeclockReportPivot = async (
             }
           }
 
+          let timeclockDurationinHrs = getTimeClockDuration / MMSTOHRS;
+          let scheduledDurationInHrs = getScheduleDuration / MMSTOHRS;
+
+          if (timeclockDurationinHrs) {
+            timeclockDurationinHrs -= lunchBreakInHrs;
+          }
+          if (scheduledDurationInHrs) {
+            scheduledDurationInHrs -= lunchBreakInHrs;
+          }
+
           totalShiftsOfUser.push({
             timeclockDate: scheduledDay,
             timeclockStart: shiftStart,
             timeclockEnd: shiftEnd,
-            timeclockDuration: (getTimeClockDuration / MMSTOHRS).toFixed(2),
+            timeclockDuration: timeclockDurationinHrs.toFixed(2),
 
             deviceType: currUserTimeclock.deviceType,
             deviceName: currUserTimeclock.deviceName,
@@ -822,7 +884,8 @@ export const timeclockReportPivot = async (
             scheduledStart: scheduleShiftStart,
             scheduledEnd: scheduleShiftEnd,
 
-            scheduledDuration: (getScheduleDuration / MMSTOHRS).toFixed(2),
+            lunchBreakInHrs: lunchBreakInHrs.toFixed(2),
+            scheduledDuration: scheduledDurationInHrs.toFixed(2),
             totalMinsLate: totalMinsLatePerShift.toFixed(2),
             totalHoursOvertime: totalHoursOvertimePerShift.toFixed(2),
             totalHoursOvernight: totalHoursOvernightPerShift.toFixed(2)
@@ -977,7 +1040,8 @@ const returnOvernightHours = (shiftStart: Date, shiftEnd: Date) => {
 const createSchedulesObj = (
   userIds: string[],
   totalSchedules: IScheduleDocument[],
-  totalScheduleShifts: IShiftDocument[]
+  totalScheduleShifts: IShiftDocument[],
+  scheduleShiftsConfigsMap?: { [scheduleConfigId: string]: number }
 ) => {
   const returnObject = {};
 
@@ -996,7 +1060,16 @@ const createSchedulesObj = (
 
       currEmpScheduleShifts.forEach(currEmpScheduleShift => {
         const date_key = currEmpScheduleShift.shiftStart?.toLocaleDateString();
+
+        const getScheduleConfigId = currEmpScheduleShift.scheduleConfigId;
+
+        const lunchBreakInMins =
+          scheduleShiftsConfigsMap && getScheduleConfigId
+            ? scheduleShiftsConfigsMap[getScheduleConfigId]
+            : 0;
+
         returnObject[userId][date_key] = {
+          lunchBreakInMins,
           shiftStart: currEmpScheduleShift.shiftStart,
           shiftEnd: currEmpScheduleShift.shiftEnd
         };
