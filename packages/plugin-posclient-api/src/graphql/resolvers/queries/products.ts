@@ -176,124 +176,99 @@ const productQueries = {
       paginationArgs
     );
 
-    let latestBranchId = config.isOnline ? branchId : config.branchId;
+    if (config.erkhetConfig && config.erkhetConfig.getRemainder) {
+      const configs = config.erkhetConfig;
+      if (
+        configs &&
+        configs.getRemainderApiUrl &&
+        configs.apiKey &&
+        configs.apiSecret
+      ) {
+        try {
+          let account = configs.account;
+          let location = configs.location;
+
+          if (config.isOnline && branchId) {
+            const accLocConf = configs[branchId];
+
+            if (accLocConf) {
+              account = accLocConf.account;
+              location = accLocConf.location;
+            }
+          }
+
+          if (account && location) {
+            const response = await sendRequest({
+              url: configs.getRemainderApiUrl,
+              method: 'GET',
+              params: {
+                kind: 'remainder',
+                api_key: configs.apiKey,
+                api_secret: configs.apiSecret,
+                check_relate: paginatedProducts.length < 4 ? '1' : '',
+                accounts: account,
+                locations: location,
+                inventories: paginatedProducts.map(p => p.code).join(',')
+              }
+            });
+
+            const jsonRes = JSON.parse(response);
+
+            let responseByCode = jsonRes;
+
+            responseByCode =
+              (jsonRes[account] && jsonRes[account][location]) || {};
+
+            paginatedProducts.map((item: any) => {
+              item.remainder = responseByCode[item.code]
+                ? responseByCode[item.code]
+                : undefined;
+              return item;
+            });
+          }
+        } catch (e) {
+          debugError(`fetch remainder from erkhet, Error: ${e.message}`);
+        }
+      }
+    }
+
+    let branchIds = branchId
+      ? [branchId]
+      : config.isOnline
+      ? config.allowBranchIds
+      : config.branchId;
     const productIds = paginatedProducts.map(p => p._id);
 
-    if (latestBranchId) {
-      if (config.checkRemainder) {
-        try {
-          const inventoryResponse = await sendInventoriesMessage({
-            subdomain,
-            action: 'remainders',
-            data: {
-              productIds,
-              departmentId: config.departmentId,
-              branchId: latestBranchId
-            },
-            isRPC: true,
-            defaultValue: []
-          });
+    if (config.checkRemainder) {
+      config.isOnline ? branchId : config.branchId;
 
-          const remainderByProductId = {};
-          for (const rem of inventoryResponse) {
-            remainderByProductId[rem.productId] = rem;
-          }
+      const inventoryResponse = await sendInventoriesMessage({
+        subdomain,
+        action: 'remainders',
+        data: {
+          productIds,
+          departmentId: config.departmentId,
+          branchIds
+        },
+        isRPC: true,
+        defaultValue: []
+      });
 
-          paginatedProducts.map((item: any) => {
-            item.remainder = remainderByProductId[item._id]
-              ? remainderByProductId[item._id].count
-              : undefined;
-            return item;
-          });
-        } catch (e) {
-          debugError(`fetch remainder from inventories, Error: ${e.message}`);
+      const remainderByProductId = {};
+      for (const rem of inventoryResponse) {
+        if (!Object.keys(remainderByProductId).includes(rem.productId)) {
+          remainderByProductId[rem.productId] = [];
         }
+
+        remainderByProductId[rem.productId].push(rem);
       }
 
-      if (config.erkhetConfig && config.erkhetConfig.getRemainder) {
-        const configs = config.erkhetConfig;
-        if (
-          configs &&
-          configs.getRemainderApiUrl &&
-          configs.apiKey &&
-          configs.apiSecret
-        ) {
-          try {
-            let account = configs.account;
-            let location = configs.location;
-
-            if (config.isOnline && branchId) {
-              const accLocConf = configs[branchId];
-
-              if (accLocConf) {
-                account = accLocConf.account;
-                location = accLocConf.location;
-              }
-            }
-
-            if (account && location) {
-              const response = await sendRequest({
-                url: configs.getRemainderApiUrl,
-                method: 'GET',
-                params: {
-                  kind: 'remainder',
-                  api_key: configs.apiKey,
-                  api_secret: configs.apiSecret,
-                  check_relate: paginatedProducts.length < 4 ? '1' : '',
-                  accounts: account,
-                  locations: location,
-                  inventories: paginatedProducts.map(p => p.code).join(',')
-                }
-              });
-
-              const jsonRes = JSON.parse(response);
-
-              let responseByCode = jsonRes;
-
-              responseByCode =
-                (jsonRes[account] && jsonRes[account][location]) || {};
-
-              paginatedProducts.map((item: any) => {
-                item.remainder = responseByCode[item.code]
-                  ? responseByCode[item.code]
-                  : undefined;
-                return item;
-              });
-            }
-          } catch (e) {
-            debugError(`fetch remainder from erkhet, Error: ${e.message}`);
-          }
-        }
-      }
-    } else {
-      if (config.checkRemainder) {
-        const inventoryResponse = await sendInventoriesMessage({
-          subdomain,
-          action: 'remainders',
-          data: {
-            productIds,
-            departmentId: config.departmentId
-          },
-          isRPC: true,
-          defaultValue: []
-        });
-
-        const remainderByProductId = {};
-        for (const rem of inventoryResponse) {
-          if (!Object.keys(remainderByProductId).includes(rem.productId)) {
-            remainderByProductId[rem.productId] = [];
-          }
-
-          remainderByProductId[rem.productId].push(rem);
-        }
-
-        for (const product of paginatedProducts) {
-          product.remainders = remainderByProductId[product._id];
-          product.remainder = (remainderByProductId[product._id] || []).reduce(
-            (sum, cur) => sum + cur.count,
-            0
-          );
-        }
+      for (const product of paginatedProducts) {
+        product.remainders = remainderByProductId[product._id];
+        product.remainder = (remainderByProductId[product._id] || []).reduce(
+          (sum, cur) => sum + cur.count,
+          0
+        );
       }
     }
 
