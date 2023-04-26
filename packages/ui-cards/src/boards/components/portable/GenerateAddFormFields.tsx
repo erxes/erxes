@@ -141,7 +141,7 @@ function GenerateAddFormFields(props: Props) {
           }
         }
         return (
-          <AddRow key={field._id}>
+          <AddRow>
             <AddContent>
               <GenerateField
                 field={field}
