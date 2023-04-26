@@ -84,7 +84,6 @@ export const loadSafeRemainderItemClass = (models: IModels) => {
       doc: ISafeRemainderItem,
       userId: string
     ) {
-      console.log(doc);
       const item = await models.SafeRemainderItems.getItem(_id);
       const safeRemainder = await models.SafeRemainders.getRemainder(
         item.remainderId
@@ -100,7 +99,6 @@ export const loadSafeRemainderItemClass = (models: IModels) => {
           departmentId: item.departmentId
         }).lean()) || {};
 
-      console.log(liveRem);
       await models.SafeRemainderItems.updateOne(
         { _id },
         {

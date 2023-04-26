@@ -15,6 +15,7 @@ import { mutations, queries } from '../../graphql';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import { IBranch } from '@erxes/ui/src/team/types';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   history: any;
@@ -52,6 +53,9 @@ const ListContainer = (props: FinalProps) => {
     listSchedulesMain
   } = props;
 
+  if (listSchedulesMain.loading) {
+    return <Spinner />;
+  }
   const solveSchedule = (scheduleId: string, status: string) => {
     solveScheduleMutation({
       variables: { _id: scheduleId, status: `${status}` }

@@ -246,7 +246,10 @@ export const checkPricing = async (
           if (plan.isPriority) {
             result[item.itemId].value += value;
           } else {
-            if (result[item.itemId].value < value) {
+            if (
+              (value > 0 && result[item.itemId].value < value) ||
+              (value < 0 && result[item.itemId].value > value)
+            ) {
               result[item.itemId].value = value;
             }
           }

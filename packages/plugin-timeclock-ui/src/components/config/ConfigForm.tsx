@@ -23,7 +23,7 @@ import {
   IScheduleConfig
 } from '../../types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import DatePicker from '../datepicker/DateTimePicker';
+import DateTimePicker from '../datepicker/DateTimePicker';
 import { compareStartAndEndTime } from '../../utils';
 import dayjs from 'dayjs';
 
@@ -611,7 +611,7 @@ function ConfigForm(props: Props) {
       <>
         <FlexRow>
           <ControlLabel>Check in / Check out</ControlLabel>
-          <DatePicker
+          <DateTimePicker
             curr_day_key={'configTime'}
             startDate={configDays.configTime.shiftStart}
             startTime_value={configDays.configTime.shiftStart}
@@ -650,7 +650,7 @@ function ConfigForm(props: Props) {
         </FlexRow>
         <FlexRow>
           <ControlLabel>Valid Check-In</ControlLabel>
-          <DatePicker
+          <DateTimePicker
             curr_day_key={'validCheckIn'}
             startDate={configDays.validCheckIn.shiftStart}
             startTime_value={configDays.validCheckIn.shiftStart}
@@ -663,7 +663,7 @@ function ConfigForm(props: Props) {
         </FlexRow>
         <FlexRow>
           <ControlLabel>Valid Check-Out</ControlLabel>
-          <DatePicker
+          <DateTimePicker
             curr_day_key={'validCheckout'}
             startDate={configDays.validCheckout.shiftStart}
             startTime_value={configDays.validCheckout.shiftStart}
@@ -676,7 +676,7 @@ function ConfigForm(props: Props) {
         </FlexRow>
         <FlexRow>
           <ControlLabel>Overtime</ControlLabel>
-          <DatePicker
+          <DateTimePicker
             curr_day_key={'overtime'}
             startDate={configDays.overtime.shiftStart}
             startTime_value={configDays.overtime.shiftStart}

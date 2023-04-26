@@ -159,7 +159,8 @@ const productQueries = {
     let filter = await generateFilter(subdomain, models, config.token, {
       type,
       categoryId,
-      searchValue
+      searchValue,
+      ids
     });
 
     let sortParams: any = { code: 1 };
@@ -175,12 +176,12 @@ const productQueries = {
       paginationArgs
     );
 
-    const latestBranchId = config.isOnline ? branchId : config.branchId;
+    let latestBranchId = config.isOnline ? branchId : config.branchId;
+    const productIds = paginatedProducts.map(p => p._id);
+
     if (latestBranchId) {
       if (config.checkRemainder) {
         try {
-          const productIds = paginatedProducts.map(p => p._id);
-
           const inventoryResponse = await sendInventoriesMessage({
             subdomain,
             action: 'remainders',
@@ -262,6 +263,36 @@ const productQueries = {
           } catch (e) {
             debugError(`fetch remainder from erkhet, Error: ${e.message}`);
           }
+        }
+      }
+    } else {
+      if (config.checkRemainder) {
+        const inventoryResponse = await sendInventoriesMessage({
+          subdomain,
+          action: 'remainders',
+          data: {
+            productIds,
+            departmentId: config.departmentId
+          },
+          isRPC: true,
+          defaultValue: []
+        });
+
+        const remainderByProductId = {};
+        for (const rem of inventoryResponse) {
+          if (!Object.keys(remainderByProductId).includes(rem.productId)) {
+            remainderByProductId[rem.productId] = [];
+          }
+
+          remainderByProductId[rem.productId].push(rem);
+        }
+
+        for (const product of paginatedProducts) {
+          product.remainders = remainderByProductId[product._id];
+          product.remainder = (remainderByProductId[product._id] || []).reduce(
+            (sum, cur) => sum + cur.count,
+            0
+          );
         }
       }
     }

@@ -319,7 +319,7 @@ export const pluginsOfTopNavigations = () => {
             <CustomComponent
               scope={menu.scope}
               component={menu.component}
-              isTopNav
+              isTopNav={true}
             />
           </React.Fragment>
         );
@@ -372,7 +372,7 @@ export const pluginRouters = () => {
 };
 
 export const pluginsOfCustomerSidebar = (customer: any) => {
-  //check - ICustomer
+  // check - ICustomer
   return renderPluginSidebar(
     'customerRightSidebarSection',
     'customer',
@@ -381,7 +381,7 @@ export const pluginsOfCustomerSidebar = (customer: any) => {
 };
 
 export const pluginsOfCompanySidebar = (company: any) => {
-  //check - ICompany
+  // check - ICompany
   return renderPluginSidebar('companyRightSidebarSection', 'company', company);
 };
 
@@ -473,4 +473,10 @@ export const pluginsOfJobCategoryActions = (productCategoryId: string) => {
       }}
     />
   );
+};
+
+export const pluginsOfWebhooks = () => {
+  const plugins = (window as any).plugins.filter(p => p.webhookActions) || [];
+
+  return plugins;
 };

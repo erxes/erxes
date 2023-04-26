@@ -142,6 +142,9 @@ const requestsMain = `
           attachment{
             ${attachmentFields}
           }
+          absenceTimeType
+          requestDates
+          totalHoursOfAbsence
         }
         totalCount
   }
@@ -179,6 +182,8 @@ const timeclockReports = `
                 scheduledEnd
                 scheduledDuration
                 
+                lunchBreakInHrs
+
                 totalMinsLate
                 totalHoursOvertime
                 totalHoursOvernight
@@ -195,6 +200,7 @@ const timeclockReports = `
 
               totalHoursOvertime
               totalHoursOvernight
+              totalHoursBreak
             
               totalMinsScheduledThisMonth
               totalDaysScheduled

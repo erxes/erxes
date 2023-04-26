@@ -42,6 +42,10 @@ export const types = `
     solved: Boolean
     status: String
     attachment: Attachment
+    
+    absenceTimeType: String
+    requestDates: [String]
+    totalHoursOfAbsence: String
   }
 
   type AbsenceType {
@@ -108,6 +112,8 @@ export const types = `
     scheduledEnd: Date
     scheduledDuration:String
     
+    lunchBreakInHrs: String
+    
     totalMinsLate: String
     totalHoursOvertime: String
     totalHoursOvernight: String
@@ -130,7 +136,8 @@ export const types = `
     totalDaysScheduled: Int
     totalMinsScheduledToday: Int
     totalMinsScheduledThisMonth: Int
-    
+    totalHoursBreak: Float
+
     totalHoursOvertime: Float
     totalHoursOvernight: Float
 
@@ -243,10 +250,14 @@ const absence_params = `
     userId: String
     startTime: Date
     endTime: Date
+    requestDates: [String]
     reason: String
     explanation: String
     attachment: AttachmentInput
+    
     absenceTypeId: String
+    absenceTimeType: String
+    totalHoursOfAbsence: String
 `;
 
 const absenceType_params = `
