@@ -875,7 +875,9 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
 
   if (isSwarm) {
     await recreateRouterConfigDir();
-    await execCommand('docker service rm erxes_gateway');
+
+    await execCommand('docker service rm erxes_gateway', true);
+
     return execCommand(
       'docker stack deploy --compose-file docker-compose.yml erxes --with-registry-auth --resolve-image changed'
     );
