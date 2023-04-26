@@ -168,7 +168,7 @@ export const afterDealUpdate = async (subdomain, params) => {
         status: 'won'
       });
 
-      let estimatedCloseDate: any = undefined;
+      let estimatedCloseDate: any;
 
       if (!trip && participant) {
         if (dealRoute) {
