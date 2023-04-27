@@ -12,9 +12,8 @@ import {
 import {
   createScheduleShiftsByUserIds,
   findBranches,
-  findBranchUsers,
-  findDepartmentUsers,
-  findUser
+  findUser,
+  returnUnionOfUserIds
 } from './utils';
 import dayjs = require('dayjs');
 import {
@@ -364,47 +363,83 @@ const timeclockMutations = {
 
     return schedule;
   },
+  async checkDuplicateScheduleShifts(
+    _root,
+    { branchIds, departmentIds, userIds, shifts, status },
+    { models, subdomain }: IContext
+  ) {
+    const scheduledUserIds = await returnUnionOfUserIds(
+      branchIds,
+      departmentIds,
+      userIds,
+      subdomain
+    );
 
+    const filterApprovedSchedules = status ? { status, solved: true } : {};
+
+    const totalSchedules = await models.Schedules.find({
+      userId: { $in: scheduledUserIds },
+      ...filterApprovedSchedules
+    });
+
+    if (!totalSchedules.length) {
+      return [];
+    }
+
+    const totalScheduleIds = totalSchedules.map(schedule => schedule._id);
+
+    const findManyOps: any[] = [];
+
+    for (const shift of shifts) {
+      const shiftDuplicateCases = [
+        {
+          shiftStart: { $gte: shift.shiftStart },
+          shiftEnd: { $lte: shift.shiftEnd }
+        },
+        {
+          shiftEnd: { $gte: shift.shiftStart, $lte: shift.shiftEnd }
+        },
+        { shiftStart: { $gte: shift.shiftStart, $lte: shift.shiftEnd } },
+        {
+          shiftStart: {
+            $lte: shift.shiftEnd
+          },
+          shiftEnd: {
+            $gte: shift.shiftStart
+          }
+        }
+      ];
+
+      findManyOps.push(...shiftDuplicateCases);
+    }
+
+    const duplicateShifts = await models.Shifts.find({
+      $and: [
+        { scheduleId: { $in: totalScheduleIds } },
+        {
+          $or: findManyOps
+        }
+      ]
+    });
+
+    const duplicateScheduleIds = duplicateShifts.map(shift => shift.scheduleId);
+    const duplicateSchedules = totalSchedules.filter(schedule =>
+      duplicateScheduleIds.includes(schedule._id)
+    );
+
+    for (const schedule of duplicateSchedules) {
+      schedule.shiftIds = duplicateShifts.map(shift => shift._id);
+    }
+
+    return duplicateSchedules;
+  },
   async submitSchedule(
     _root,
     { branchIds, departmentIds, userIds, shifts, totalBreakInMins },
     { subdomain, models }: IContext
   ) {
-    if (userIds.length) {
-      return createScheduleShiftsByUserIds(
-        userIds,
-        shifts,
-        models,
-        totalBreakInMins
-      );
-    }
-
-    const concatBranchDept: string[] = [];
-
-    if (branchIds) {
-      const branchUsers = await findBranchUsers(subdomain, branchIds);
-      const branchUserIds = branchUsers.map(branchUser => branchUser._id);
-      concatBranchDept.push(...branchUserIds);
-    }
-    if (departmentIds) {
-      const departmentUsers = await findDepartmentUsers(
-        subdomain,
-        departmentIds
-      );
-      const departmentUserIds = departmentUsers.map(
-        departmentUser => departmentUser._id
-      );
-      concatBranchDept.push(...departmentUserIds);
-    }
-
-    // prevent creating double schedule for common users
-    const sorted = concatBranchDept.sort();
-    const unionOfUserIds = sorted.filter((value, pos) => {
-      return concatBranchDept.indexOf(value) === pos;
-    });
-
     return createScheduleShiftsByUserIds(
-      unionOfUserIds,
+      await returnUnionOfUserIds(branchIds, departmentIds, userIds, subdomain),
       shifts,
       models,
       totalBreakInMins

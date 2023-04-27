@@ -73,6 +73,38 @@ export const findDepartmentUsers = async (
   return deptUsers;
 };
 
+export const returnUnionOfUserIds = async (
+  branchIds: string[],
+  departmentIds: string[],
+  userIds: string[],
+  subdomain: any
+) => {
+  if (userIds.length) {
+    return userIds;
+  }
+  const concatBranchDept: string[] = [];
+
+  if (branchIds) {
+    const branchUsers = await findBranchUsers(subdomain, branchIds);
+    const branchUserIds = branchUsers.map(branchUser => branchUser._id);
+    concatBranchDept.push(...branchUserIds);
+  }
+  if (departmentIds) {
+    const departmentUsers = await findDepartmentUsers(subdomain, departmentIds);
+    const departmentUserIds = departmentUsers.map(
+      departmentUser => departmentUser._id
+    );
+    concatBranchDept.push(...departmentUserIds);
+  }
+
+  // prevent creating double schedule for common users
+  const sorted = concatBranchDept.sort();
+  const unionOfUserIds = sorted.filter((value, pos) => {
+    return concatBranchDept.indexOf(value) === pos;
+  });
+
+  return unionOfUserIds;
+};
 export const createScheduleShiftsByUserIds = async (
   userIds: string[],
   scheduleShifts,

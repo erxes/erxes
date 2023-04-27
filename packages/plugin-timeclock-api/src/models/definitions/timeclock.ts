@@ -70,6 +70,7 @@ export interface ISchedule {
   scheduleChecked?: boolean;
   submittedByAdmin?: boolean;
   totalBreakInMins?: number;
+  shiftIds?: string[];
 }
 
 export interface IScheduleDocument extends ISchedule, Document {

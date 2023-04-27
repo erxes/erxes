@@ -71,7 +71,7 @@ function ReportList(props: Props) {
               <th rowSpan={2}>{__('First Name')}</th>
               <th rowSpan={2}>{__('Position')}</th>
               <th colSpan={2}>{__('Scheduled time')}</th>
-              <th colSpan={7} style={{ textAlign: 'center' }}>
+              <th colSpan={8} style={{ textAlign: 'center' }}>
                 {__('Timeclock info')}
               </th>
               <th colSpan={4} style={{ textAlign: 'center' }}>
@@ -80,19 +80,20 @@ function ReportList(props: Props) {
               <th rowSpan={2}>{__('Checked by member')}</th>
             </tr>
             <tr>
-              <td>{__('Days')}</td>
-              <td>{__('Hours')}</td>
-              <td>{__('Total break')}</td>
-              <td>{__('Worked days')}</td>
-              <td>{__('Worked hours')}</td>
-              <td>{__('Overtime')}</td>
-              <td>{__('Overnight')}</td>
-              <td>{__('Total')}</td>
-              <td>{__('Mins Late')}</td>
-              <td>{__('Томилолтоор ажилласан цаг')}</td>
-              <td>{__('Чөлөөтэй цаг цалинтай')}</td>
-              <td>{__('Чөлөөтэй цаг цалингүй')}</td>
-              <td>{__('Өвдсөн цаг /ХЧТАТ бодох цаг/')}</td>
+              <th>{__('Days')}</th>
+              <th>{__('Hours')}</th>
+              <th>{__('Total break')}</th>
+              <th>{__('Worked days')}</th>
+              <th>{__('Worked hours')}</th>
+              <th>{__('Overtime')}</th>
+              <th>{__('Overnight')}</th>
+              <th>{__('Total break')}</th>
+              <th>{__('Total')}</th>
+              <th>{__('Mins Late')}</th>
+              <th>{__('Томилолтоор ажилласан цаг')}</th>
+              <th>{__('Чөлөөтэй цаг цалинтай')}</th>
+              <th>{__('Чөлөөтэй цаг цалингүй')}</th>
+              <th>{__('Өвдсөн цаг /ХЧТАТ бодох цаг/')}</th>
             </tr>
           </>
         );
@@ -125,19 +126,20 @@ function ReportList(props: Props) {
               <td>{__('Last Name')}</td>
               <td>{__('First Name')}</td>
               <td style={{ textAlign: 'left' }}>{__('Position')}</td>
-              <td>{__('Date')}</td>
-              <td>{__('Planned Check In')}</td>
-              <td>{__('Planned Check Out')}</td>
-              <td>{__('Planned Duration')}</td>
-              <td>{__('Planned Break')}</td>
-              <td>{__('Check In')}</td>
-              <td>{__('In Device')}</td>
-              <td>{__('Check Out')}</td>
-              <td>{__('Out Device')}</td>
-              <td>{__('Duration')}</td>
-              <td>{__('Overtime')}</td>
-              <td>{__('Overnight')}</td>
-              <td>{__('Mins Late')}</td>
+              <th>{__('Date')}</th>
+              <th>{__('Planned Check In')}</th>
+              <th>{__('Planned Check Out')}</th>
+              <th>{__('Planned Duration')}</th>
+              <th>{__('Planned Break')}</th>
+              <th>{__('Check In')}</th>
+              <th>{__('In Device')}</th>
+              <th>{__('Check Out')}</th>
+              <th>{__('Out Device')}</th>
+              <th>{__('Planned Break')}</th>
+              <th>{__('Overnight')}</th>
+              <th>{__('Overtime')}</th>
+              <th>{__('Duration')}</th>
+              <th>{__('Mins Late')}</th>
             </tr>
           </>
         );
