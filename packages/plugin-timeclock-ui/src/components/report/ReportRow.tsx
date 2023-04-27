@@ -39,6 +39,7 @@ const ReportRow = (userReport: IUserReport, reportType: string) => {
           <td>{userReport.totalRegularHoursWorked}</td>
           <td>{userReport.totalHoursOvertime}</td>
           <td>{userReport.totalHoursOvernight}</td>
+          <td>{userReport.totalHoursBreak}</td>
           <td>{userReport.totalHoursWorked}</td>
           <td>{userReport.totalMinsLate}</td>
           <td>{userReport.absenceInfo?.totalHoursWorkedAbroad}</td>
@@ -60,6 +61,7 @@ const ReportRow = (userReport: IUserReport, reportType: string) => {
             <td style={{ textAlign: 'left' }}>
               {userReport.user.details?.position || '-'}
             </td>
+            <td>{}</td>
             <td>{}</td>
             <td>{}</td>
             <td>{}</td>
@@ -142,9 +144,10 @@ const renderScheduleShiftInfo = scheduledShift => {
       <td>{getInDevice}</td>
       <td>{dayjs(scheduledShift.timeclockEnd).format(timeFormat)}</td>
       <td>{getOutDevice}</td>
-      <td>{scheduledShift.timeclockDuration}</td>
-      <td>{scheduledShift.totalHoursOvertime}</td>
+      <td>{scheduledShift.lunchBreakInHrs || 0}</td>
       <td>{scheduledShift.totalHoursOvernight}</td>
+      <td>{scheduledShift.totalHoursOvertime}</td>
+      <td>{scheduledShift.timeclockDuration}</td>
       <td>{scheduledShift.totalMinsLate}</td>
     </>
   );

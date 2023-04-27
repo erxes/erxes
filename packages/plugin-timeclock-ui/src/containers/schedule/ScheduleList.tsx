@@ -6,6 +6,7 @@ import React from 'react';
 import ScheduleList from '../../components/schedule/ScheduleList';
 import {
   BranchesQueryResponse,
+  ISchedule,
   IScheduleConfig,
   IShift,
   ScheduleMutationResponse,
@@ -16,6 +17,9 @@ import { Alert, confirm } from '@erxes/ui/src/utils';
 import { IBranch } from '@erxes/ui/src/team/types';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import { dateFormat, timeFormat } from '../../constants';
+import * as dayjs from 'dayjs';
+import { AlertContainer } from '../../styles';
 
 type Props = {
   history: any;
@@ -50,6 +54,7 @@ const ListContainer = (props: FinalProps) => {
     solveShiftMutation,
     removeScheduleMutation,
     removeScheduleShiftMutation,
+    checkDuplicateScheduleShiftsMutation,
     listSchedulesMain
   } = props;
 
@@ -68,43 +73,41 @@ const ListContainer = (props: FinalProps) => {
     });
   };
 
-  const submitRequest = (
-    selectedUserIds: string[],
-    requestedShifts: IShift[],
-    totalBreakInMins?: number | string,
-    selectedScheduleConfigId?: string
-  ) => {
+  const submitRequest = (variables: {
+    userIds: string[];
+    shifts: IShift[];
+    totalBreakInMins?: number | string;
+    scheduleConfigId?: string;
+    closeModal: () => void;
+  }) => {
+    const userId = `${variables.userIds}`;
     sendScheduleReqMutation({
       variables: {
-        userId: `${selectedUserIds}`,
-        shifts: requestedShifts,
-        totalBreakInMins,
-        scheduleConfigId: selectedScheduleConfigId
+        userId,
+        ...variables
       }
     })
-      .then(() => Alert.success('Successfully sent a schedule request'))
+      .then(() => {
+        Alert.success('Successfully sent a schedule request');
+        variables.closeModal();
+      })
       .catch(err => Alert.error(err.message));
   };
 
-  const submitSchedule = (
-    selectedBranchIds: string[],
-    selectedDeptIds: string[],
-    selectedUserIds: string[],
-    requestedShifts: IShift[],
-    totalBreakInMins?: number | string,
-    selectedScheduleConfigId?: string
-  ) => {
-    submitScheduleMutation({
-      variables: {
-        branchIds: selectedBranchIds,
-        departmentIds: selectedDeptIds,
-        userIds: selectedUserIds,
-        shifts: requestedShifts,
-        totalBreakInMins,
-        scheduleConfigId: selectedScheduleConfigId
-      }
-    })
-      .then(() => Alert.success('Successfully sent a schedule request'))
+  const submitSchedule = (variables: {
+    branchIds: string[];
+    departmentIds: string[];
+    userIds: string[];
+    shifts: IShift[];
+    totalBreakInMins?: number | string;
+    scheduleConfigId?: string;
+    closeModal: () => any;
+  }) => {
+    submitScheduleMutation({ variables })
+      .then(() => {
+        Alert.success('Successfully submitted schedule');
+        variables.closeModal();
+      })
       .catch(err => Alert.error(err.message));
   };
 
@@ -115,6 +118,107 @@ const ListContainer = (props: FinalProps) => {
         : removeScheduleMutation({ variables: { _id: scheduleId } })
       ).then(() => Alert.success(`Successfully removed schedule ${type}`));
     });
+  };
+
+  const checkInput = (variables: {
+    branchIds: string[];
+    departmentIds: string[];
+    userIds: string[];
+    shifts: IShift[];
+    totalBreakInMins?: number | string;
+    scheduleConfigId?: string;
+    closeModal: () => void;
+  }) => {
+    const { branchIds, departmentIds, userIds, shifts } = variables;
+
+    if (
+      (!branchIds || !branchIds.length) &&
+      (!departmentIds || !departmentIds.length) &&
+      !userIds.length
+    ) {
+      Alert.error('No users were given');
+    } else if (shifts.length === 0) {
+      Alert.error('No shifts were given');
+    } else {
+      return true;
+    }
+  };
+
+  const checkDuplicateScheduleShifts = (variables: any) => {
+    const { userType } = variables;
+    let duplicateSchedules: ISchedule[] = [];
+
+    checkDuplicateScheduleShiftsMutation({
+      variables
+    })
+      .then(res => {
+        duplicateSchedules = res.data.checkDuplicateScheduleShifts;
+        if (!duplicateSchedules.length) {
+          Alert.success('No duplicate schedules');
+          if (checkInput(variables)) {
+            userType === 'admin'
+              ? submitSchedule(variables)
+              : submitRequest(variables);
+          }
+        }
+
+        const usersWithDuplicateShifts: {
+          [userId: string]: { userInfo: string; shiftInfo: string[] };
+        } = {};
+
+        for (const duplicateSchedule of duplicateSchedules) {
+          const { user } = duplicateSchedule;
+          const { details } = user;
+
+          const getUserInfo =
+            user && details && details.fullName
+              ? details.fullName
+              : user.email || user.employeeId;
+
+          const duplicateShifts: string[] = [];
+
+          for (const shift of duplicateSchedule.shifts) {
+            const shiftDay = dayjs(shift.shiftStart).format(dateFormat);
+            const shiftStart = dayjs(shift.shiftStart).format(timeFormat);
+            const shiftEnd = dayjs(shift.shiftEnd).format(timeFormat);
+            const shiftRequest = duplicateSchedule.solved ? '' : '(Request)';
+
+            duplicateShifts.push(
+              `${shiftRequest} ${shiftDay} ${shiftStart} ~ ${shiftEnd}`
+            );
+          }
+
+          usersWithDuplicateShifts[user._id] = {
+            userInfo: getUserInfo || '-',
+            shiftInfo: duplicateShifts
+          };
+        }
+
+        const alertMessages: any = [];
+        for (const userId of Object.keys(usersWithDuplicateShifts)) {
+          const displayDuplicateShifts = usersWithDuplicateShifts[
+            userId
+          ].shiftInfo.join('\n');
+
+          const displayUserInfo = usersWithDuplicateShifts[userId].userInfo;
+
+          alertMessages.push(
+            (Alert.error(
+              `${displayUserInfo} has duplicate schedule:\n${displayDuplicateShifts}`
+            ),
+            200000)
+          );
+        }
+
+        return (
+          <AlertContainer>
+            <>{alertMessages.map(alertMessage => alertMessage)}</>
+          </AlertContainer>
+        );
+      })
+      .catch(err => Alert.error(err.message));
+
+    return duplicateSchedules;
   };
 
   const { list = [], totalCount = 0 } = listSchedulesMain.schedulesMain || [];
@@ -128,7 +232,8 @@ const ListContainer = (props: FinalProps) => {
     solveShift,
     submitRequest,
     submitSchedule,
-    removeScheduleShifts
+    removeScheduleShifts,
+    checkDuplicateScheduleShifts
   };
 
   return <ScheduleList {...updatedProps} />;
@@ -215,6 +320,13 @@ export default withProps<Props>(
           },
           refetchQueries: ['schedulesMain']
         })
+      }
+    ),
+
+    graphql<Props, ScheduleMutationResponse>(
+      gql(mutations.checkDuplicateScheduleShifts),
+      {
+        name: 'checkDuplicateScheduleShiftsMutation'
       }
     )
   )(ListContainer)
