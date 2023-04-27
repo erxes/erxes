@@ -136,7 +136,7 @@ export const orderSchema = schemaHooksWrapper(
       enum: ORDER_TYPES.ALL,
       default: ORDER_TYPES.EAT
     }),
-    branchId: field({ type: String, label: 'Branch' }),
+    branchId: field({ type: String, optional: true, label: 'Branch' }),
     departmentId: field({ type: String, optional: true, label: 'Branch' }),
     userId: field({
       type: String,
