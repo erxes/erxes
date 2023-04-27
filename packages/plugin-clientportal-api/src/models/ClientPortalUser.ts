@@ -804,7 +804,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
         this.checkPassword(password);
       }
 
-      const plainPassword = password;
+      const plainPassword = password || '';
 
       const user = await handleContacts({
         subdomain,
