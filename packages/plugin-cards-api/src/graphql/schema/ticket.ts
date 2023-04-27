@@ -61,6 +61,8 @@ const listQueryParams = `
   number: String
   branchIds: [String]
   departmentIds: [String]
+  boardIds: [String]
+  stageCodes: [String]
   ${conformityQueryFields}
 `;
 
