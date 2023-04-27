@@ -88,7 +88,7 @@ export const checkCondition = async (
     if (product.subUoms && product.subUoms.length) {
       const ratio = product.subUoms[0].ratio || 0;
       if (ratio) {
-        const checkCount = 1 / ratio;
+        const checkCount = Math.round((1 / ratio) * 100) / 100;
         if (
           (condition.subUomType === 'lt' && pdata.quantity < checkCount) ||
           (condition.subUomType === 'gte' && pdata.quantity >= checkCount)
