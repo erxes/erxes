@@ -1,5 +1,5 @@
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils/core';
+import { isEnabled, __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { UserHeader } from '@erxes/ui-contacts/src/customers/styles';
 
@@ -7,6 +7,8 @@ import { IBuilding } from '../../types';
 import LeftSideBar from './LeftSideBar';
 import RightSidebar from './RightSideBar';
 import InfoSection from './sections/InfoSection';
+import ActivityInputs from '@erxes/ui-log/src/activityLogs/components/ActivityInputs';
+import ActivityLogs from '@erxes/ui-log/src/activityLogs/containers/ActivityLogs';
 
 type Props = {
   building: IBuilding;
@@ -27,7 +29,23 @@ const BuildingDetail = (props: Props) => {
     { title: name }
   ];
 
-  const content = <></>;
+  const content = (
+    <>
+      <ActivityInputs
+        contentTypeId={building._id}
+        contentType="mobinet:buildings"
+        showEmail={false}
+      />
+      {isEnabled('logs') && (
+        <ActivityLogs
+          target={name || ''}
+          contentId={building._id}
+          contentType="mobinet:buildings"
+          extraTabs={[]}
+        />
+      )}
+    </>
+  );
 
   return (
     <Wrapper

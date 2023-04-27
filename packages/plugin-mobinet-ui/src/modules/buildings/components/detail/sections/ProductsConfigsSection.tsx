@@ -10,7 +10,7 @@ import { ButtonRelated } from '@erxes/ui/src/styles/main';
 import { renderFullName } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import ProductConfigForm from '../../../containers/ProductConfigForm';
+// import ProductConfigForm from '../../../containers/ProductConfigForm';
 
 import ContactChooser from '../../../containers/ContactChooser';
 import { IBuilding } from '../../../types';
@@ -79,28 +79,28 @@ const CustomerSection = (props: Props) => {
   //   />
   // );
 
-  const formContent = props => (
-    <ProductConfigForm
-      {...props}
-      buildingId={building._id}
-      productConfigs={building.productPriceConfigs || []}
-    />
-  );
+  // const formContent = props => (
+  //   <ProductConfigForm
+  //     {...props}
+  //     buildingId={building._id}
+  //     productConfigs={building.productPriceConfigs || []}
+  //   />
+  // );
 
-  const extraButtons = (
-    <>
-      <ModalTrigger
-        title="Manage"
-        size="sm"
-        trigger={
-          <button>
-            <Icon icon="edit-3" />
-          </button>
-        }
-        content={formContent}
-      />
-    </>
-  );
+  // const extraButtons = (
+  //   <>
+  //     <ModalTrigger
+  //       title="Manage"
+  //       size="sm"
+  //       trigger={
+  //         <button>
+  //           <Icon icon="edit-3" />
+  //         </button>
+  //       }
+  //       content={formContent}
+  //     />
+  //   </>
+  // );
 
   const content = (
     <>
@@ -120,7 +120,7 @@ const CustomerSection = (props: Props) => {
     <Box
       title={__('Product configs')}
       name="showProductConfigs"
-      extraButtons={extraButtons}
+      // extraButtons={extraButtons}
       isOpen={true}
       // callback={collapseCallback}
     >
