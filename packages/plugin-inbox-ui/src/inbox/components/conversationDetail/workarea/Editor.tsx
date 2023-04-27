@@ -48,22 +48,22 @@ const MentionEntry = props => {
 
   return (
     <div {...parentProps}>
-      <div className="mentionSuggestionsEntryContainer">
-        <div className="mentionSuggestionsEntryContainerLeft">
+      <div className='mentionSuggestionsEntryContainer'>
+        <div className='mentionSuggestionsEntryContainerLeft'>
           <img
             alt={mention.get('name')}
-            role="presentation"
+            role='presentation'
             src={mention.get('avatar') || '/images/avatar-colored.svg'}
-            className="mentionSuggestionsEntryAvatar"
+            className='mentionSuggestionsEntryAvatar'
           />
         </div>
 
-        <div className="mentionSuggestionsEntryContainerRight">
-          <div className="mentionSuggestionsEntryText">
+        <div className='mentionSuggestionsEntryContainerRight'>
+          <div className='mentionSuggestionsEntryText'>
             {mention.get('name')}
           </div>
 
-          <div className="mentionSuggestionsEntryTitle">
+          <div className='mentionSuggestionsEntryTitle'>
             {mention.get('title')}
           </div>
         </div>
