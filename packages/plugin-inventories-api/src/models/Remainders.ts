@@ -205,11 +205,21 @@ export const loadRemainderClass = (models: IModels) => {
       subdomain: string,
       params: IRemaindersParams
     ) {
-      const { departmentId, branchId, productCategoryId, productIds } = params;
+      const {
+        departmentIds,
+        branchIds,
+        productCategoryId,
+        productIds
+      } = params;
       const filter: any = {};
 
-      if (departmentId) filter.departmentId = departmentId;
-      if (branchId) filter.branchId = branchId;
+      if (departmentIds && departmentIds.length) {
+        filter.departmentId = { $in: departmentIds };
+      }
+
+      if (branchIds && branchIds.length) {
+        filter.branchId = { $in: branchIds };
+      }
 
       if (productCategoryId) {
         const limit: number = await sendProductsMessage({

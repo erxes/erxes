@@ -175,7 +175,7 @@ const orderMutations = {
 
     const updatedOrder = await models.Orders.updateOrder(doc._id, {
       deliveryInfo: doc.deliveryInfo,
-      branchId: doc.branchId || config.branchId,
+      branchId: config.isOnline ? doc.branchId : config.branchId,
       customerId: doc.customerId,
       customerType: doc.customerType,
       userId: posUser ? posUser._id : '',

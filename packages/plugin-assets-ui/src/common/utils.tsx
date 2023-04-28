@@ -236,7 +236,8 @@ export const generateParams = ({ queryParams }) => ({
   customerId: queryParams?.customerId,
   assetId: queryParams?.assetId,
   parentId: queryParams?.parentId,
-  searchValue: queryParams?.searchValue
+  searchValue: queryParams?.searchValue,
+  onlyCurrent: !!queryParams?.onlyCurrent
 });
 
 export const SelectWithAssets = ({

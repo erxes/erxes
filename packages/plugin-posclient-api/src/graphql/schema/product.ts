@@ -88,6 +88,6 @@ export const queries = `
   poscProductsTotalCount(
     ${productsQueryParams}
   ): Int
-  poscProductDetail(_id: String): PoscProduct
+  poscProductDetail(_id: String, branchId: String): PoscProduct
   getPriceInfo(productId: String!): String
 `;

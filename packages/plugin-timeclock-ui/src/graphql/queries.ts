@@ -125,6 +125,34 @@ const schedulesMain = `
   }
 }
 `;
+
+const checkDuplicateScheduleShifts = `
+  query checkDuplicateScheduleShifts(${listParamsDef}) {
+    checkDuplicateScheduleShifts(${listParamsValue}) {
+      list {
+          _id
+          shifts{
+            _id
+            shiftStart
+            shiftEnd
+            solved
+            status
+            scheduleConfigId
+          }
+          scheduleConfigId
+          solved
+          status
+          user {
+            ${userFields}
+          }
+          scheduleChecked
+          submittedByAdmin
+          totalBreakInMins
+        }
+        totalCount
+  }
+}
+`;
 const requestsMain = `
   query requestsMain(${listParamsDef}) {
     requestsMain(${listParamsValue}) {
@@ -182,6 +210,8 @@ const timeclockReports = `
                 scheduledEnd
                 scheduledDuration
                 
+                lunchBreakInHrs
+
                 totalMinsLate
                 totalHoursOvertime
                 totalHoursOvernight
@@ -198,6 +228,7 @@ const timeclockReports = `
 
               totalHoursOvertime
               totalHoursOvernight
+              totalHoursBreak
             
               totalMinsScheduledThisMonth
               totalDaysScheduled
@@ -310,6 +341,7 @@ export default {
 
   schedulesMain,
   requestsMain,
+  checkDuplicateScheduleShifts,
 
   absenceTypes,
   payDates,

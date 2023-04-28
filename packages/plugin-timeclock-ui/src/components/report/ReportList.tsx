@@ -8,7 +8,7 @@ import Select from 'react-select-plus';
 import Button from '@erxes/ui/src/components/Button';
 import ReportRow from './ReportRow';
 import { IReport } from '../../types';
-import { FilterItem, FlexRow, InlineBlock, ToggleButton } from '../../styles';
+import { FilterItem, FlexRow, ToggleButton } from '../../styles';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Icon from '@erxes/ui/src/components/Icon';
 
@@ -71,7 +71,7 @@ function ReportList(props: Props) {
               <th rowSpan={2}>{__('First Name')}</th>
               <th rowSpan={2}>{__('Position')}</th>
               <th colSpan={2}>{__('Scheduled time')}</th>
-              <th colSpan={6} style={{ textAlign: 'center' }}>
+              <th colSpan={8} style={{ textAlign: 'center' }}>
                 {__('Timeclock info')}
               </th>
               <th colSpan={4} style={{ textAlign: 'center' }}>
@@ -80,50 +80,20 @@ function ReportList(props: Props) {
               <th rowSpan={2}>{__('Checked by member')}</th>
             </tr>
             <tr>
-              <td>{__('Days')}</td>
-              <td>{__('Hours')}</td>
-              <td>{__('Worked days')}</td>
-              <td>{__('Worked hours')}</td>
-              <td>{__('Overtime')}</td>
-              <td>{__('Overnight')}</td>
-              <td>{__('Total')}</td>
-              <td>{__('Mins Late')}</td>
-              <td>{__('Томилолтоор ажилласан цаг')}</td>
-              <td>{__('Чөлөөтэй цаг цалинтай')}</td>
-              <td>{__('Чөлөөтэй цаг цалингүй')}</td>
-              <td>{__('Өвдсөн цаг /ХЧТАТ бодох цаг/')}</td>
-            </tr>
-          </>
-        );
-      case 'Сүүлд 2':
-        return (
-          <>
-            <tr>
-              <th rowSpan={2}>{__('Branch name')}</th>
-              <th rowSpan={2}>{__('Department name')}</th>
-              <th rowSpan={2}>{__('Number of employees')}</th>
-              <th rowSpan={2}>{__('Planned hours')}</th>
-
-              <th colSpan={4} style={{ textAlign: 'center' }}>
-                {__('Timeclock info')}
-              </th>
-
-              <th rowSpan={2}>{__('Total worked')}</th>
-              <th rowSpan={2}>{__('Overnight')}</th>
-              <th rowSpan={2}>{__('Late mins')}</th>
-
-              <th colSpan={2} style={{ textAlign: 'center' }}>
-                {__('Absence info')}
-              </th>
-            </tr>
-            <tr>
-              <td rowSpan={2}>{__('Worked hours')}</td>
-              <td rowSpan={2}>{__('Face terminal')}</td>
-              <td rowSpan={2}>{__('Shift request')}</td>
-              <td rowSpan={2}>{__('Overtime')}</td>
-
-              <td rowSpan={2}>{__('Paid absence')}</td>
-              <td rowSpan={2}>{__('Unpaid absence')}</td>
+              <th>{__('Days')}</th>
+              <th>{__('Hours')}</th>
+              <th>{__('Total break')}</th>
+              <th>{__('Worked days')}</th>
+              <th>{__('Worked hours')}</th>
+              <th>{__('Overtime')}</th>
+              <th>{__('Overnight')}</th>
+              <th>{__('Total break')}</th>
+              <th>{__('Total')}</th>
+              <th>{__('Mins Late')}</th>
+              <th>{__('Томилолтоор ажилласан цаг')}</th>
+              <th>{__('Чөлөөтэй цаг цалинтай')}</th>
+              <th>{__('Чөлөөтэй цаг цалингүй')}</th>
+              <th>{__('Өвдсөн цаг /ХЧТАТ бодох цаг/')}</th>
             </tr>
           </>
         );
@@ -139,13 +109,13 @@ function ReportList(props: Props) {
               </th>
               <th>{__('Time')}</th>
               <th
-                colSpan={3}
+                colSpan={4}
                 style={{ textAlign: 'center', border: '1px solid #EEE' }}
               >
                 {__('Schedule')}
               </th>
               <th
-                colSpan={8}
+                colSpan={7}
                 style={{ textAlign: 'center', border: '1px solid #EEE' }}
               >
                 {__('Performance')}
@@ -155,20 +125,21 @@ function ReportList(props: Props) {
               <td>{__('Team member Id')}</td>
               <td>{__('Last Name')}</td>
               <td>{__('First Name')}</td>
-              <td>{__('Position')}</td>
-              <td>{__('Date')}</td>
-              <td>{__('Planned Check In')}</td>
-              <td>{__('Planned Check Out')}</td>
-              <td>{__('Planned Duration')}</td>
-              <td>{__('Check In')}</td>
-              <td>{__('In Device')}</td>
-              <td>{__('Check Out')}</td>
-              <td>{__('Out Device')}</td>
-              <td>{__('Location')}</td>
-              <td>{__('Duration')}</td>
-              <td>{__('Overtime')}</td>
-              <td>{__('Overnight')}</td>
-              <td>{__('Mins Late')}</td>
+              <td style={{ textAlign: 'left' }}>{__('Position')}</td>
+              <th>{__('Date')}</th>
+              <th>{__('Planned Check In')}</th>
+              <th>{__('Planned Check Out')}</th>
+              <th>{__('Planned Duration')}</th>
+              <th>{__('Planned Break')}</th>
+              <th>{__('Check In')}</th>
+              <th>{__('In Device')}</th>
+              <th>{__('Check Out')}</th>
+              <th>{__('Out Device')}</th>
+              <th>{__('Planned Break')}</th>
+              <th>{__('Overnight')}</th>
+              <th>{__('Overtime')}</th>
+              <th>{__('Duration')}</th>
+              <th>{__('Mins Late')}</th>
             </tr>
           </>
         );
@@ -224,7 +195,7 @@ function ReportList(props: Props) {
               onChange={onTypeSelect}
               placeholder="Select type"
               multi={false}
-              options={['Урьдчилсан', 'Сүүлд', 'Сүүлд 2', 'Pivot'].map(ipt => ({
+              options={['Урьдчилсан', 'Сүүлд', 'Pivot'].map(ipt => ({
                 value: ipt,
                 label: __(ipt)
               }))}

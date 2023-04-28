@@ -23,6 +23,15 @@ const ConfigFormWrapper = styled.div`
   }
 `;
 
+const AlertContainer = styled.div`
+  > div {
+    > div {
+      align-items: start;
+      overflow: scroll;
+      height: 600px;
+    }
+  }
+`;
 const SidebarHeader = styledTS<{
   spaceBottom?: boolean;
   uppercase?: boolean;
@@ -359,5 +368,6 @@ export {
   TextAlignCenter,
   TextAlignRight,
   CustomCollapseRow,
-  CustomLabel
+  CustomLabel,
+  AlertContainer
 };
