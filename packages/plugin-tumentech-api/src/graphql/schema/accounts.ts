@@ -17,6 +17,21 @@ type CustomerAccount @key(fields: "_id") @cacheControl(maxAge: 3) {
     list: [CustomerAccount],
     totalCount: Int
   }
+
+  enum SearchType {
+    phone
+    plateNumber
+  }
+  
+
+  type SearchResult {
+    error: String
+    success: String
+
+    purchase: JSON
+
+    foundDriver: Customer
+  }
 `;
 
 export const queries = `
@@ -26,6 +41,8 @@ export const queries = `
     customerAccountsList(page: Int, perPage: Int): CustomerAccountListResponse
 
     getEbarimt(topupId: String!, companyRegNumber: String, companyName: String): JSON
+
+    searchDriver(type: SearchType!, value: String!): SearchResult
 `;
 
 export const mutations = `

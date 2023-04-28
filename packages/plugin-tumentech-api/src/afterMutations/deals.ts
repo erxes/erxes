@@ -144,7 +144,7 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (stage.code && stage.code === 'advancePaid') {
+    if (stage.code && stage.code === 'dealsAdvancePaid') {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.MOBILE_CP_ID || '',

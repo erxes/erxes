@@ -2,7 +2,9 @@ import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import {
   sendClientPortalMessage,
-  sendCommonMessage
+  sendCommonMessage,
+  sendContactsMessage,
+  sendCoreMessage
 } from '../../../messageBroker';
 
 const queries = {
@@ -219,6 +221,121 @@ const queries = {
         perPage: perPage || 20
       })
     };
+  },
+
+  searchDriver: async (
+    _root,
+    args: any,
+    { models, subdomain, cpUser }: IContext
+  ) => {
+    if (!cpUser) {
+      throw new Error('login required');
+    }
+
+    const { type, value } = args;
+
+    if (type !== 'phone') {
+      const car = await models.Cars.findOne({ plateNumber: value }).lean();
+
+      if (!car) {
+        return { error: 'not found' };
+      }
+
+      const conformities = await sendCoreMessage({
+        subdomain,
+        action: 'conformities.getConformities',
+        data: {
+          mainType: 'car',
+          mainTypeIds: [car._id],
+          relTypes: ['customer']
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      if (!conformities.length) {
+        return { error: 'not found' };
+      }
+
+      const possibleCustomerIds = conformities.map((c: any) => {
+        if (c.mainType === 'car') {
+          return c.relTypeId;
+        }
+
+        return c.mainTypeId;
+      });
+
+      const customers = await sendContactsMessage({
+        subdomain,
+        action: 'customers.find',
+        data: {
+          _id: { $in: possibleCustomerIds }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      if (!customers.length) {
+        return { error: 'not found' };
+      }
+
+      const customersWithPhone = customers.filter((c: any) => c.primaryPhone);
+
+      if (!customersWithPhone.length) {
+        return { error: 'not found' };
+      }
+
+      const customer = customersWithPhone[0];
+
+      const purchaseHistory = await models.PurchaseHistories.findOne({
+        cpUserId: cpUser.userId,
+        driverId: customer._id
+      }).lean();
+
+      if (!purchaseHistory) {
+        return {
+          error: 'must purchase first',
+          purchase: {
+            driverId: customer._id,
+            carId: car._id
+          }
+        };
+      }
+
+      return { success: 'driver found', foundDriver: customer };
+    }
+
+    const pHistory = await models.PurchaseHistories.findOne({
+      cpUserId: cpUser.userId,
+      phone: value
+    });
+
+    const possibleCustomer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: {
+        primaryPhone: value
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    if (!possibleCustomer) {
+      return { error: 'not found' };
+    }
+
+    if (!pHistory) {
+      // throw new Error('must purchase first');
+      return {
+        error: 'must purchase first',
+        purchase: {
+          driverId: possibleCustomer._id,
+          carId: ''
+        }
+      };
+    }
+
+    return { success: 'driver found', foundDriver: possibleCustomer };
   }
 };
 
