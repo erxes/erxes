@@ -116,6 +116,7 @@ class PurchaseColumn extends React.Component<Props, {}> {
   }
 
   render() {
+    console.log('3');
     return (
       <ColumnContainer>
         {this.renderTotalAmount()}

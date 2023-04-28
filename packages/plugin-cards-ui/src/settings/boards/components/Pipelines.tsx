@@ -23,9 +23,11 @@ import Table from '@erxes/ui/src/components/table';
 import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { collectOrders } from '@erxes/ui-cards/src/boards/utils';
+import CostForm from './Cost';
 
 type Props = {
   type: string;
+  costs: any;
   pipelines: IPipeline[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   updateOrder?: any;
@@ -227,6 +229,7 @@ class Pipelines extends React.Component<Props, State> {
   }
 
   renderAdditionalButton = () => {
+    // const { options, costs } = this.props;
     const { options } = this.props;
 
     if (options && options.additionalButton) {
@@ -239,7 +242,7 @@ class Pipelines extends React.Component<Props, State> {
       );
     }
 
-    return null;
+    return <CostForm />;
   };
 
   renderButton() {

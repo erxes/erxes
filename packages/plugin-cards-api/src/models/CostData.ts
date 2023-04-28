@@ -1,19 +1,23 @@
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { ICost, ICostDocument, costSchema } from './definitions/cost';
+import {
+  ICostData,
+  ICostDataDocument,
+  costDataSchema
+} from './definitions/costData';
 
-export interface ICostModel extends Model<ICostDocument> {
-  getCost(_id: string): Promise<ICostDocument>;
-  createCost(doc: ICost): Promise<ICostDocument>;
-  updateCost(_id: string, doc: ICost): Promise<ICostDocument>;
-  removeCost(_id: string): void;
+export interface ICostDataModel extends Model<ICostDataDocument> {
+  getCostData(_id: string): Promise<ICostDataDocument>;
+  createCostData(doc: ICostData): Promise<ICostDataDocument>;
+  updateCostData(_id: string, doc: ICostData): Promise<ICostDataDocument>;
+  removeCostData(_id: string): void;
 }
 
-export const loadCostClass = (models: IModels, subdomain: string) => {
-  class Cost {
-    public static async createCost(doc: ICost, createdUserId: string) {
+export const loadCostDataClass = (models: IModels, subdomain: string) => {
+  class CostData {
+    public static async createCost(doc: ICostData, createdUserId: string) {
       return models.Costs.create({
-        doc,
+        ...doc,
         createdDate: new Date(),
         createdUserId
       });
@@ -28,7 +32,7 @@ export const loadCostClass = (models: IModels, subdomain: string) => {
       return cost;
     }
 
-    public static async updateCost(_id: string, doc: ICost) {
+    public static async updateCost(_id: string, doc: ICostData) {
       await models.Costs.updateOne(
         { _id },
         { $set: doc },
@@ -48,7 +52,7 @@ export const loadCostClass = (models: IModels, subdomain: string) => {
     }
   }
 
-  costSchema.loadClass(Cost);
+  costDataSchema.loadClass(CostData);
 
-  return costSchema;
+  return costDataSchema;
 };

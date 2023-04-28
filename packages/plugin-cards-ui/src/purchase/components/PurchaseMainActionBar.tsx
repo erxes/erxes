@@ -63,7 +63,7 @@ const PurchaseMainActionBar = (props: Props) => {
     type: 'm',
     link: `/purchase/${viewType}`
   };
-
+  console.log('1');
   return <MainActionBar viewType={viewType} {...extendedProps} />;
 };
 

@@ -5,8 +5,7 @@ import {
   commonTypes,
   conformityQueryFields,
   copyParams,
-  commonCostParamsDef,
-  commonCostParams
+  commonCostParamsDef
 } from './common';
 
 export const types = ({ contacts, tags }) => `
@@ -53,7 +52,13 @@ export const types = ({ contacts, tags }) => `
     productId : String
     quantity: Int
   }
-
+  input costObjectInput {
+    name: String
+    code: String
+  }
+`;
+const fieldsCommonFields = `
+  data: [costObjectInput]
 `;
 
 const purchaseMutationParams = `
@@ -116,6 +121,22 @@ const archivedPurchasesParams = `
   endDate: String
  `;
 
+const fieldsGroupsCommonFields = `
+  name: String
+  contentType: String
+  order: Int
+  description: String
+  parentId: String
+  code: String
+  isMultiple: Boolean
+  isVisible: Boolean
+  isVisibleInDetail: Boolean
+  config: JSON
+
+  logicAction: String
+  logics: [LogicInput]
+`;
+
 export const queries = `
  purchaseDetail(_id: String!): Purchase
  purchasecheckDiscount(_id: String!,products:[ProductField]):JSON
@@ -133,9 +154,10 @@ export const queries = `
    ${commonQueryParams}
    ${conformityQueryFields}
  ): [TotalForType]
-  costs:JSON
+  costs: [JSON]
   costTotalCount:JSON
   costDetail(_id: String!): JSON
+
 `;
 
 export const mutations = `
@@ -149,7 +171,7 @@ export const mutations = `
  purchasesCreateProductsData(proccessId: String, purchaseId: String, docs: JSON): JSON
  purchasesEditProductData(proccessId: String, purchaseId: String, dataId: String, doc: JSON): JSON
  purchasesDeleteProductData(proccessId: String, purchaseId: String, dataId: String): JSON
- costAdd(name: String!): JSON
+ costAdd(${fieldsCommonFields}): JSON
  costRemove(_id: String!): JSON
  costEdit(_id: String!, ${commonCostParamsDef}): JSON
 

@@ -8,6 +8,8 @@ const options = {
   Item: PurchaseItem,
   title: 'purchase',
   type: 'purchase',
+  additionalButton: '/settings/expenses/',
+  additionalButtonText: 'Manage expense',
   queriesName: {
     itemsQuery: 'purchases',
     itemsTotalCountQuery: 'purchasesTotalCount',

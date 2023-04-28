@@ -110,7 +110,6 @@ export const queries = `
   forms: [Form]
   formSubmissions(${formSubmissionQueryParams}, page: Int, perPage: Int): [Submission]
   formSubmissionsTotalCount(${formSubmissionQueryParams}): Int
-
   formSubmissionDetail(contentTypeId: String!): Submission
 `;
 

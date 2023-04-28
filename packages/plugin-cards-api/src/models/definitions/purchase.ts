@@ -14,6 +14,7 @@ import {
   PRODUCT_SUPPLY
 } from './constants';
 import { field, schemaWrapper } from './utils';
+
 export interface IProductPurchase {
   name: string;
   categoryId?: string;
@@ -218,9 +219,22 @@ export const purchaseproductDataSchema = new Schema(
   { _id: false }
 );
 
+export const costSchema = new Schema({
+  _id: field({ pkey: true }),
+  code: field({ type: String, esType: 'keyword', label: 'Code' }),
+  name: field({ type: String, esType: 'keyword', label: 'Name' })
+});
+
+export const costDataSchema = new Schema({
+  _id: field({ pkey: true }),
+  expenseId: field({ type: String, esType: 'keyword', label: 'Code' }),
+  cost: field({ type: Number, label: 'Cost' })
+});
+
 export const purchaseSchema = new Schema({
   ...commonItemFieldsSchema,
 
   productsData: field({ type: [purchaseproductDataSchema], label: 'Products' }),
-  paymentsData: field({ type: Object, optional: true, label: 'Payments' })
+  paymentsData: field({ type: Object, optional: true, label: 'Payments' }),
+  costsData: field({ type: [costDataSchema], optianal: true, label: 'Costs' })
 });

@@ -4,6 +4,7 @@ import { Alert, __, confirm, withProps } from 'coreui/utils';
 import {
   ArchivePipelineMutationResponse,
   CopiedPipelineMutationResponse,
+  CostsQueryResponse,
   IOption,
   RemovePipelineMutationResponse,
   UpdateOrderPipelineMutationResponse,
@@ -188,7 +189,6 @@ class PipelinesContainer extends React.Component<FinalProps> {
       updateOrder,
       currentBoard: boardDetailQuery ? boardDetailQuery?.boardDetail : undefined
     };
-
     return <Pipelines {...extendedProps} />;
   }
 }
@@ -261,7 +261,9 @@ export default withProps<Props>(
         name: 'copiedPipelineMutation'
       }
     ),
-
+    graphql<{}, CostsQueryResponse>(gql(queries.costs), {
+      name: 'costsQuery'
+    }),
     graphql<
       Props,
       UpdateOrderPipelineMutationResponse,

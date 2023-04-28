@@ -2,6 +2,7 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
+import { options } from './options';
 const Home = asyncComponent(() =>
   import(/* webpackChunkName: "Settings - Board Home"  */ './containers/Home')
 );
@@ -11,7 +12,7 @@ const DealHome = () => {
 };
 
 const PurchaseHome = () => {
-  return <Home type="purchase" title="Purchase" />;
+  return <Home type="purchase" title="Purchase" options={options} />;
 };
 
 const TicketHome = () => {

@@ -1,3 +1,4 @@
+import { ICost } from '@erxes/ui-cards/src/boards/types';
 import { MutationVariables } from '@erxes/ui/src/types';
 // mutations
 export type AddBoardMutationVariables = {
@@ -34,6 +35,19 @@ export type CopiedPipelineMutationResponse = {
     refetchQueries: any[];
   }) => Promise<void>;
 };
+
+export type CostsQueryResponse = {
+  // data: { costs: ICost[] };
+  costs: ICost[];
+};
+
+export type CostMutationResponse = {
+  name?: string;
+  code?: string;
+};
+// export type CostsQueryResponse = {
+//   costs: ICost[];
+// } & QueryResponse;
 
 export type ArchivePipelineMutationResponse = {
   archivePipelineMutation: (params: {
@@ -83,6 +97,7 @@ export type IOption = {
   pipelineName: string;
   StageItem: any;
   PipelineForm: any;
+  CostForm?: any;
   additionalButton?: string;
   additionalButtonText?: string;
 };
