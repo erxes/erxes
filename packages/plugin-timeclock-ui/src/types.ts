@@ -269,6 +269,7 @@ export type ScheduleMutationVariables = {
   userIds?: string[];
   scheduleConfigId?: string;
   totalBreakInMins?: number | string;
+  status?: string;
 };
 
 export type TimeLogMutationResponse = {
@@ -413,5 +414,9 @@ export type ScheduleMutationResponse = {
 
   removeScheduleShiftMutation: (params: {
     variables: { _id: string };
+  }) => Promise<any>;
+
+  checkDuplicateScheduleShiftsMutation: (params: {
+    variables: ScheduleMutationVariables;
   }) => Promise<any>;
 };

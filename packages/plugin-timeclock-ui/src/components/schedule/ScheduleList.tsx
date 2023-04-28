@@ -48,6 +48,8 @@ type Props = {
   ) => void;
   removeScheduleShifts: (_id: string, type: string) => void;
 
+  checkDuplicateScheduleShifts: (values: any) => any;
+
   getActionBar: (actionBar: any) => void;
   showSideBar: (sideBar: boolean) => void;
   getPagination: (pagination: any) => void;
@@ -60,7 +62,6 @@ function ScheduleList(props: Props) {
     totalCount,
     queryParams,
     solveSchedule,
-    solveShift,
     removeScheduleShifts,
     getActionBar,
     showSideBar,
@@ -410,8 +411,13 @@ function ScheduleList(props: Props) {
     });
 
     const totalBreakInHours = scheduleOfMember.totalBreakInMins
-      ? (scheduleOfMember.totalBreakInMins / 60).toFixed(1)
+      ? scheduleOfMember.totalBreakInMins / 60
       : 0;
+
+    if (totalHoursScheduled) {
+      totalHoursScheduled -= totalBreakInHours;
+    }
+
     return (
       <tr style={{ textAlign: 'left' }}>
         <td
@@ -454,8 +460,8 @@ function ScheduleList(props: Props) {
         <td>{name}</td>
         <td>{employeeId}</td>
         <td>{totalDaysScheduled}</td>
-        <td>{totalHoursScheduled}</td>
-        <td>{totalBreakInHours}</td>
+        <td>{totalHoursScheduled.toFixed(1)}</td>
+        <td>{totalBreakInHours.toFixed(1)}</td>
         {!isEnabled('bichil') && <td>{scheduleChecked}</td>}
         {renderScheduleShifts(scheduleOfMember.shifts, user._id)}
       </tr>

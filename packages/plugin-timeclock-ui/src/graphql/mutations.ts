@@ -19,6 +19,26 @@ requestTimeType: $requestTimeType,
 requestHoursPerDay: $requestHoursPerDay
 `;
 
+const userFields = `
+  _id
+  username
+  email
+  employeeId
+  details {
+    avatar
+    fullName
+    firstName
+    lastName
+    position
+  }
+  departments {
+    title
+  }
+  branches {
+    title
+  }
+`;
+
 const timeclockEdit = `
   mutation timeclockEdit($_id: String!, $shiftStart: Date, $shiftEnd: Date, $shiftActive: Boolean){
     timeclockEdit(_id: $_id, shiftStart: $shiftStart, shiftEnd: $shiftEnd, shiftActive: $shiftActive){
@@ -98,6 +118,24 @@ const submitSchedule = `
   mutation submitSchedule($branchIds: [String], $departmentIds: [String],$userIds: [String], $shifts: [ShiftsRequestInput], $scheduleConfigId: String, $totalBreakInMins: Int){
     submitSchedule(branchIds: $branchIds, departmentIds:$departmentIds, userIds: $userIds, shifts: $shifts, scheduleConfigId: $scheduleConfigId, totalBreakInMins: $totalBreakInMins){
       _id
+    }
+  }`;
+
+const checkDuplicateScheduleShifts = `
+  mutation checkDuplicateScheduleShifts($branchIds: [String], $departmentIds: [String],$userIds: [String], $shifts: [ShiftsRequestInput], $status: String){
+    checkDuplicateScheduleShifts(branchIds: $branchIds, departmentIds:$departmentIds, userIds: $userIds, shifts: $shifts, status: $status ){
+        shifts{
+          _id
+          shiftStart
+          shiftEnd
+          solved
+          status
+          scheduleConfigId
+        }
+        user {
+          ${userFields}
+        }
+        solved
     }
   }`;
 
@@ -239,6 +277,7 @@ export default {
   absenceTypeEdit,
   absenceTypeRemove,
 
+  checkDuplicateScheduleShifts,
   solveAbsenceRequest,
   removeAbsenceRequest,
   solveSchedule,
