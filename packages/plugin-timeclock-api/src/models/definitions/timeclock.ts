@@ -70,6 +70,7 @@ export interface ISchedule {
   scheduleChecked?: boolean;
   submittedByAdmin?: boolean;
   totalBreakInMins?: number;
+  shiftIds?: string[];
 }
 
 export interface IScheduleDocument extends ISchedule, Document {
@@ -388,9 +389,13 @@ export interface IScheduleReport {
   timeclockDuration?: string;
   deviceType?: string;
   deviceName?: string;
+
   scheduledStart?: Date;
   scheduledEnd?: Date;
   scheduledDuration?: string;
+
+  lunchBreakInHrs?: string;
+
   totalMinsLate?: string;
   totalHoursOvertime?: string;
   totalHoursOvernight?: string;
@@ -436,6 +441,9 @@ export interface IUserExportReport {
 
   totalHoursOvertime?: string;
   totalHoursOvernight?: string;
+
+  totalHoursBreak?: string;
+
   totalMinsLate?: string;
 
   absenceInfo?: IUserAbsenceInfo;

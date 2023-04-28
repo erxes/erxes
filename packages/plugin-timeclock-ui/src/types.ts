@@ -76,6 +76,7 @@ export interface IUserReport {
 
   totalHoursOvertime?: number;
   totalHoursOvernight?: number;
+  totalHoursBreak?: number;
 
   totalMinsLate?: number;
   totalMinsLateToday?: number;
@@ -104,6 +105,8 @@ export interface IScheduleReport {
   scheduledStart: Date;
   scheduledEnd: Date;
   scheduledDuration: number;
+
+  lunchBreakInHrs: string;
 
   totalMinsLate: number;
   totalHoursOvertime: number;
@@ -266,6 +269,7 @@ export type ScheduleMutationVariables = {
   userIds?: string[];
   scheduleConfigId?: string;
   totalBreakInMins?: number | string;
+  status?: string;
 };
 
 export type TimeLogMutationResponse = {
@@ -410,5 +414,9 @@ export type ScheduleMutationResponse = {
 
   removeScheduleShiftMutation: (params: {
     variables: { _id: string };
+  }) => Promise<any>;
+
+  checkDuplicateScheduleShiftsMutation: (params: {
+    variables: ScheduleMutationVariables;
   }) => Promise<any>;
 };

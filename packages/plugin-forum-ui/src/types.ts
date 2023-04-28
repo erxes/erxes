@@ -59,6 +59,7 @@ export interface IPost {
     }
   ];
   isPollMultiChoice?: boolean;
+  createdById?: string;
   pollEndDate?: string;
   categoryId: string;
   description?: string;

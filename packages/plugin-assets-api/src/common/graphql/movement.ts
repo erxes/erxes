@@ -25,6 +25,8 @@ export const movementFilters = `
     createdAtTo:String,
     searchValue:String,
     userId:String,
+    withKnowledgebase:Boolean,
+    onlyCurrent:Boolean,
 `;
 
 export const commonFilterParams = `

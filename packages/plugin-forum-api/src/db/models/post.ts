@@ -88,7 +88,6 @@ const OMIT_FROM_INPUT = [
   'trendScore',
 
   'createdUserType',
-  'createdById',
   'createdByCpId',
 
   'categoryApprovalState',
@@ -115,6 +114,12 @@ export type PostCreateInput = Omit<IPost, typeof OMIT_FROM_INPUT[number]> & {
 };
 
 export type PostPatchInput = Partial<PostCreateInput>;
+
+export type PostCreateInputCp = Omit<
+  PostCreateInput,
+  'createdById' | 'lastPublishedAt'
+>;
+export type PostPatchInputCp = Partial<PostCreateInputCp>;
 
 export interface IPostModel extends Model<PostDocument> {
   findByIdOrThrow(_id: string): Promise<PostDocument>;
@@ -372,7 +377,7 @@ export const generatePostModel = (
         categoryApprovalState,
 
         createdUserType: USER_TYPES[0],
-        createdById: user._id,
+        createdById: input.createdById || user._id,
 
         updatedUserType: USER_TYPES[0],
         updatedById: user._id,
@@ -590,7 +595,7 @@ export const generatePostModel = (
       return post;
     }
     public static async createPostCp(
-      input: Omit<PostCreateInput, 'createdAt' | 'lastPublishedAt'>,
+      input: Omit<PostCreateInputCp, 'createdAt' | 'lastPublishedAt'>,
       cpUser?: ICpUser
     ): Promise<PostDocument> {
       if (!cpUser) throw new LoginRequiredError();
@@ -638,7 +643,7 @@ export const generatePostModel = (
     }
     public static async patchPostCp(
       _id: string,
-      input: Omit<PostPatchInput, 'createdAt' | 'lastPublishedAt'>,
+      input: Omit<PostPatchInputCp, 'createdAt' | 'lastPublishedAt'>,
       cpUser?: ICpUser
     ): Promise<PostDocument> {
       if (!cpUser) throw new LoginRequiredError();

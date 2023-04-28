@@ -24,23 +24,6 @@ class Row extends React.Component<Props> {
     super(props);
   }
 
-  shiftTrigger = shiftStarted =>
-    shiftStarted ? (
-      <Button id="timeClockButton1" btnStyle={'danger'} icon="plus-circle">
-        End shift
-      </Button>
-    ) : (
-      <>Ended</>
-    );
-
-  shiftBtnTrigger = shiftStarted => (
-    <ModalTrigger
-      title={__('Start shift')}
-      trigger={this.shiftTrigger(shiftStarted)}
-      content={this.modalContent}
-    />
-  );
-
   modalContent = props => (
     <TimeForm
       {...props}
@@ -115,7 +98,6 @@ class Row extends React.Component<Props> {
         <td>
           {timeclock.branchName ? timeclock.branchName : timeclock.deviceName}
         </td>
-        <td>{this.shiftBtnTrigger(timeclock.shiftActive)}</td>
         <td>
           <TextAlignCenter>
             <ModalTrigger

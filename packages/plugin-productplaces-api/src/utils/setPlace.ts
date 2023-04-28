@@ -9,7 +9,7 @@ export const setPlace = async (
   productById
 ) => {
   if (!(config.conditions && config.conditions.length)) {
-    return;
+    return productsData;
   }
 
   // split productsData
@@ -75,5 +75,5 @@ export const setPlace = async (
     isRPC: true
   });
 
-  return;
+  return pdatas;
 };

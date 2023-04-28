@@ -1,10 +1,10 @@
 {
-  "name": "@erxes/plugin-productreview-api",
+  "name": "@erxes/plugin-ecommerce-api",
   "version": "1.0.0",
   "scripts": {
     "install-deps": "cd .erxes && yarn install",
     "dev": "cd .erxes && yarn dev",
     "build": "cd .erxes && yarn build",
-    "start": "cd .erxes/dist/plugin-productreview-api/.erxes && node src"
+    "start": "cd .erxes/dist/plugin-ecommerce-api/.erxes && node src"
   }
 }
