@@ -95,6 +95,17 @@ export interface IBoard {
   name: string;
   pipelines?: IPipeline[];
 }
+export interface ICost {
+  _id: string;
+  code: string;
+  name: string;
+}
+
+export interface IPipelineCost {
+  _id: string;
+  code: string;
+  name: string;
+}
 
 export interface IItemParams {
   _id?: string;
@@ -260,9 +271,6 @@ export type BoardsQueryResponse = {
   boards: IBoard[];
 } & QueryResponse;
 
-export type CostsQueryResponse = {
-  costs: ICost[];
-} & QueryResponse;
 export interface IBoardCount {
   _id: string;
   name: string;

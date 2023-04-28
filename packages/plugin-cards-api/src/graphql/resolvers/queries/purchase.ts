@@ -24,10 +24,15 @@ interface IPurchaseListParams extends IListParams {
 }
 
 const purchaseQueries = {
+  // async costs(_root, _args, { commonQuerySelector, models }: IContext) {
+  //   return models.Costs.find(commonQuerySelector).sort({ title: 1 });
+  // },
+
   //list cost
   async costs(_root, _args, { models }: IContext) {
     return models.Costs.find().lean();
   },
+
   //count cost
   async costTotalCount(_root, _args, { models }: IContext) {
     return models.Costs.countDocuments();

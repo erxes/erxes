@@ -179,7 +179,6 @@ export const mutations = `
   boardsRemove(_id: String!): JSON
   boardItemUpdateTimeTracking(_id: String!, type: String!, status: String!, timeSpent: Int!, startDate: String): JSON
   boardItemsSaveForGanttTimeline(items: JSON, links: JSON, type: String!): String
-
   pipelinesAdd(${commonParams}, ${pipelineParams}): Pipeline
   pipelinesEdit(_id: String!, ${commonParams}, ${pipelineParams}): Pipeline
   pipelinesUpdateOrder(orders: [OrderItem]): [Pipeline]
@@ -187,7 +186,6 @@ export const mutations = `
   pipelinesRemove(_id: String!): JSON
   pipelinesArchive(_id: String!): JSON  
   pipelinesCopied(_id: String!): JSON
-
   stagesUpdateOrder(orders: [OrderItem]): [Stage]
   stagesRemove(_id: String!): JSON
   stagesEdit(_id: String!, type: String, name: String, status: String): Stage

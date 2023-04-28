@@ -116,8 +116,6 @@ export const copyParams = `companyIds: [String], customerIds: [String], labelIds
 
 export const commonCostParamsDef = `
   name: String,
- 
-
 `;
 
 export const commonCostParams = `

@@ -15,7 +15,10 @@ import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { queries } from '@erxes/ui-cards/src/settings/boards/graphql';
+import {
+  queries,
+  mutations
+} from '@erxes/ui-cards/src/settings/boards/graphql';
 import { queries as teamQueries } from '@erxes/ui/src/team/graphql';
 import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
 import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
@@ -37,6 +40,7 @@ type FinalProps = {
   departmentsQuery: DepartmentsQueryResponse;
   costsQuery: CostsQueryResponse;
   tagsQuery: TagsQueryResponse;
+  costAddMutation: any;
 } & Props;
 
 class PipelineFormContainer extends React.Component<FinalProps> {
@@ -49,7 +53,8 @@ class PipelineFormContainer extends React.Component<FinalProps> {
       boardId,
       renderButton,
       options,
-      tagsQuery
+      tagsQuery,
+      costAddMutation
     } = this.props;
 
     if (
@@ -79,9 +84,17 @@ class PipelineFormContainer extends React.Component<FinalProps> {
       tags
     };
 
+    const addCost = (name: string, callback: any) => {
+      costAddMutation({
+        variables: { name }
+      }).then(() => {
+        costsQuery.refetch();
+      });
+    };
+
     const Form = options ? options.PipelineForm : PipelineForm;
 
-    return <Form {...extendedProps} />;
+    return <Form {...extendedProps} addCost={addCost} />;
   }
 }
 
@@ -93,7 +106,9 @@ export default withProps<Props>(
         variables: { type: `cards:${props.type}` }
       })
     }),
-
+    graphql<Props, any, any>(gql(mutations.costAdd), {
+      name: 'costAddMutation'
+    }),
     graphql<Props, StagesQueryResponse, { pipelineId: string }>(
       gql(queries.stages),
       {

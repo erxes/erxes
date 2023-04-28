@@ -350,6 +350,7 @@ window.plugins = [
           'purchaseStagesRemove'
         ]
       },
+      
       {
         text: 'Task Pipelines',
         to: '/settings/boards/task',

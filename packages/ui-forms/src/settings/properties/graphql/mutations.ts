@@ -111,7 +111,8 @@ const commonParams = `
 `;
 
 const fieldsAdd = `
-  mutation fieldsAdd(
+  mutation
+   fieldsAdd(
     $contentType: String!,
     $contentTypeId: String,
     ${commonVariables}

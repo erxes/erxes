@@ -34,7 +34,6 @@ interface ICostEdit extends ICost {
 
 const purchaseMutations = {
   // first cost result
-
   async costPriceResult(
     _root,
     doc: any,
@@ -52,25 +51,15 @@ const purchaseMutations = {
       });
   },
 
-  // add cost costAccounting
-
-  // async costAccountingAdd(
-  //   _root,
-  //   doc: ICostData,
-  //   { user, docModifier, models, subdomain }: IContext
-  // ) {
-  //   const data = await models.Costs.createCostData(docModifier(doc));
-  //   return data;
-  // },
-
   // add cost
   async costAdd(
     _root,
     doc: ICost,
     { user, docModifier, models, subdomain }: IContext
   ) {
-    const data = await models.Costs.createCost(docModifier(doc));
-    return data;
+    // const data = await models.Costs.createCost(docModifier(doc));
+    // return data;
+    return models.Costs.insertMany(doc.data);
   },
 
   //edit cost
@@ -82,6 +71,7 @@ const purchaseMutations = {
     const updated = await models.Costs.updateCost(_id, doc);
     return updated;
   },
+
   //remove cost
   async costRemove(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Costs.removeCost(_id);
