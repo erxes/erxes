@@ -19,10 +19,6 @@
 </p>
 
 <p align="center">
-  <a href="https://app.codacy.com/gh/erxes/erxes?utm_source=github.com&utm_medium=referral&utm_content=erxes">
-    <img alt="Codacy Badge" src="https://api.codacy.com/project/badge/Grade/afdc2d36ea294a01a036a4eeae4346b8">
-  </a>
-
    <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md">
       <img alt="License Badge" src="https://img.shields.io/badge/license-AGPLv3-brightgreen">
   </a>
@@ -36,13 +32,16 @@
       <img alt="Help Wanted" src="https://img.shields.io/badge/Help%20Wanted-Contribute-blue">
   </a>
    <a href="https://github.com/erxes/erxes/stargazers">
-      <img alt="Stars" src="https://img.shields.io/badge/stars-%202.2k-orange">
+      <img alt="Stars" src="https://img.shields.io/badge/Stars-%202.7k-orange">
   </a>
    <a href="https://discord.com/invite/aaGzy3gQK5">
       <img alt="Discord" src="https://img.shields.io/badge/Discord-%20Community-blueviolet">
   </a>
    <a href="https://explore.transifex.com/erxes-inc/erxes/">
       <img alt="Transfix" src="https://img.shields.io/badge/translations-contribute-brightgreen">
+  </a>
+   <a href="https://ossrank.com/p/416">
+      <img alt="Ossrank" src="https://shields.io/endpoint?url=https://ossrank.com/shield/416">
   </a>
    <a href="https://twitter.com/erxeshq">
       <img alt="Twitter" src="https://img.shields.io/badge/twitter-blue">
