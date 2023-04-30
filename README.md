@@ -89,7 +89,7 @@ erxes is composed of 2 main components: **XOS** & **Plugins**
 - **Knowledgebase** - Educate your customers and staff by creating a help center related to your brands, products, and services to reach a higher level of satisfaction.
 - **Task Management** - Create a more collaborative, self-reliant and cross-linked team. **<a href="https://erxes.io/marketplace" >See more on our website</a>**.
  
-## Getting Started
+## Getting Started 😊
 
 Read **<a href="https://docs.erxes.io/docs/intro" >the documentation<a>** to install erxes locally.
 
@@ -122,17 +122,17 @@ Software package managing systems:
 
 We recommend always using the latest version of erxes to start your new projects. Enjoy 🎉
 
-## Become a partner
+## Become a partner 🤝
 
 
 Offer your expertise to the world and introduce your community to erxes. 
 Let’s start growing **<a href="https://erxes.io/partners">together</a>**.
 
-## Contributing 
+## Contributing 💖
 
 Please read our **<a href="https://github.com/erxes/erxes/blob/master/CONTRIBUTING.md" >contributing guide<a>** before submitting a Pull Request to the project.
 
-## Community support
+## Community support 🤗
 
 
 For general help using erxes, please refer to the erxes documentation. For additional help, you can use one of these channels to ask a question:
@@ -142,11 +142,11 @@ For general help using erxes, please refer to the erxes documentation. For addit
 - **<a href="https://github.com/erxes/erxes/issues" > Feedback section</a>** Roadmap, feature requests & bugs
 - **<a href="https://twitter.com/erxesHQ" > Twitter</a>** Get the news fast
  
-## Upgrade Guides
+## Upgrade Guides 💻
 
 Follow our **<a href="https://docs.erxes.io/docs/update/">upgrade guides</a>** on the documentation to keep your erxes code up-to-date. See our dedicated repository for the erxes documentation, or view our **<a href="https://docs.erxes.io/docs/intro">documentation here</a>**.
 
  
-## License
+## License 📜
 See the <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md" >**LICENSE**</a> file for licensing information.
 
