@@ -1,13 +1,36 @@
-export const types = `
+export const types = ({ contacts }) => `
 type CustomerAccount @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     balance: Float
     customerId: String
+
+    ${
+      contacts
+        ? `
+        customer: Customer
+        `
+        : ''
+    }
   }
 
   type CustomerAccountListResponse {
     list: [CustomerAccount],
     totalCount: Int
+  }
+
+  enum SearchType {
+    phone
+    plateNumber
+  }
+  
+
+  type SearchResult {
+    error: String
+    success: String
+
+    purchase: JSON
+
+    foundDriver: Customer
   }
 `;
 
@@ -18,6 +41,8 @@ export const queries = `
     customerAccountsList(page: Int, perPage: Int): CustomerAccountListResponse
 
     getEbarimt(topupId: String!, companyRegNumber: String, companyName: String): JSON
+
+    searchDriver(type: SearchType!, value: String!): SearchResult
 `;
 
 export const mutations = `

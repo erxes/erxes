@@ -771,6 +771,25 @@ query CustomerAccount($customerId: String!) {
 }
 `;
 
+const accountsQuery = `
+query CustomerAccountsList($page: Int, $perPage: Int) {
+  customerAccountsList(page: $page, perPage: $perPage) {
+    list {
+      _id
+      balance
+      customerId
+      customer {
+        firstName
+        phone
+        primaryPhone
+        lastName
+      }
+    }
+    totalCount
+  }
+}
+`;
+
 export default {
   cars,
   carsMain,
@@ -808,5 +827,6 @@ export default {
   dealRouteQuery,
 
   topupList,
-  customerAccountQry
+  customerAccountQry,
+  accountsQuery
 };

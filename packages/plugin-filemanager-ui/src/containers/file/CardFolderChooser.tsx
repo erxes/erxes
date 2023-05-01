@@ -35,7 +35,10 @@ const CardFolderChooser = (props: FinalProps) => {
   }
 
   const folders = filemanagerFoldersQuery.filemanagerFolders || [];
-  const folderId = Object.keys(folders[0]).length !== 0 ? folders[0]._id : '';
+  const folderId =
+    folders.length && Object.keys(folders[0]).length !== 0
+      ? folders[0]._id
+      : '';
   const relatedFiles =
     relatedFilesContentTypeQuery.filemanagerGetRelatedFilesContentType || [];
 

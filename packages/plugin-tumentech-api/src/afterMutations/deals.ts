@@ -93,7 +93,11 @@ export const afterDealCreate = async (subdomain, params) => {
         receivers: cpUsers.map(cpUser => cpUser._id),
         notifType: 'system',
         link: '',
-        isMobile: true
+        isMobile: true,
+        eventData: {
+          type: 'deal',
+          id: deal._id
+        }
       }
     });
   }
@@ -140,7 +144,7 @@ export const afterDealUpdate = async (subdomain, params) => {
       );
     }
 
-    if (stage.code && stage.code === 'advancePaid') {
+    if (stage.code && stage.code === 'dealsAdvancePaid') {
       await notifyDealRelatedUsers(
         subdomain,
         process.env.MOBILE_CP_ID || '',
@@ -164,7 +168,7 @@ export const afterDealUpdate = async (subdomain, params) => {
         status: 'won'
       });
 
-      let estimatedCloseDate: any = undefined;
+      let estimatedCloseDate: any;
 
       if (!trip && participant) {
         if (dealRoute) {

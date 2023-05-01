@@ -42,6 +42,10 @@ export const types = `
     solved: Boolean
     status: String
     attachment: Attachment
+    
+    absenceTimeType: String
+    requestDates: [String]
+    totalHoursOfAbsence: String
   }
 
   type AbsenceType {
@@ -87,6 +91,13 @@ export const types = `
     submittedByAdmin: Boolean
     totalBreakInMins: Int
   }
+  
+  type DuplicateSchedule {
+    _id: String!
+    user: User
+    solved: Boolean
+    shifts: [ShiftsRequest]
+  }
 
   type IUserAbsenceInfo{ 
     totalHoursWorkedAbroad: Float
@@ -107,6 +118,8 @@ export const types = `
     scheduledStart: Date
     scheduledEnd: Date
     scheduledDuration:String
+    
+    lunchBreakInHrs: String
     
     totalMinsLate: String
     totalHoursOvertime: String
@@ -130,7 +143,8 @@ export const types = `
     totalDaysScheduled: Int
     totalMinsScheduledToday: Int
     totalMinsScheduledThisMonth: Int
-    
+    totalHoursBreak: Float
+
     totalHoursOvertime: Float
     totalHoursOvernight: Float
 
@@ -243,10 +257,14 @@ const absence_params = `
     userId: String
     startTime: Date
     endTime: Date
+    requestDates: [String]
     reason: String
     explanation: String
     attachment: AttachmentInput
+    
     absenceTypeId: String
+    absenceTimeType: String
+    totalHoursOfAbsence: String
 `;
 
 const absenceType_params = `
@@ -307,7 +325,8 @@ export const mutations = `
   
   sendScheduleRequest(userId: String, shifts: [ShiftsRequestInput], scheduleConfigId: String, totalBreakInMins: Int): Schedule
   submitSchedule(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftsRequestInput], scheduleConfigId: String, totalBreakInMins: Int): Schedule
-  
+  checkDuplicateScheduleShifts(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftsRequestInput], status: String): [DuplicateSchedule]
+
   solveAbsenceRequest(_id: String, status: String): Absence
   solveScheduleRequest(_id: String, status: String): Schedule
   solveShiftRequest(_id: String, status: String): ShiftsRequest

@@ -279,7 +279,11 @@ const participantMutations = {
           receivers: [winner._id],
           notifType: 'system',
           link: ``,
-          isMobile: true
+          isMobile: true,
+          eventData: {
+            type: 'deal',
+            id: deal._id
+          }
         }
       });
     }

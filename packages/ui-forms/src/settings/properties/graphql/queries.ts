@@ -58,6 +58,7 @@ const commonFieldsGroups = `
   name
   ${genericFields}
   isMultiple
+  alwaysOpen
   parentId
   config
 

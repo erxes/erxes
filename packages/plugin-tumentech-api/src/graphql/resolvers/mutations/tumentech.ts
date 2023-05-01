@@ -263,8 +263,6 @@ const carMutations = {
       throw new Error('Client portal id is not set');
     }
 
-    console.log('clientPortalId', clientPortalId);
-
     const foundUser = await sendClientPortalMessage({
       subdomain,
       action: 'clientPortalUsers.findOne',
@@ -275,8 +273,6 @@ const carMutations = {
       isRPC: true,
       defaultValue: null
     });
-
-    console.log('foundUser', foundUser);
 
     if (foundUser) {
       throw new Error('User already exists');

@@ -69,6 +69,9 @@ export default {
 
     app.use(cors(corsOptions));
 
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({ extended: true }));
+
     app.get(
       '/bichil-report-export',
       routeErrorHandling(async (req: any, res) => {
@@ -85,16 +88,13 @@ export default {
       })
     );
 
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({ extended: true }));
-
     initBroker(options.messageBrokerClient);
 
     graphqlPubsub = options.pubsubClient;
 
     debug = options.debug;
 
-    const upload = multer({ dest: '../uploads/' });
+    const upload = multer({ dest: __dirname + '../uploads/' });
 
     app.post(
       '/upload-salary',

@@ -32,6 +32,10 @@ export interface IAbsence {
   solved: boolean;
   status: string;
   attachment: IAttachment;
+
+  absenceTimeType: string;
+  requestDates: string[];
+  totalHoursOfAbsence: string;
 }
 export interface IAbsenceType {
   _id: string;
@@ -72,6 +76,7 @@ export interface IUserReport {
 
   totalHoursOvertime?: number;
   totalHoursOvernight?: number;
+  totalHoursBreak?: number;
 
   totalMinsLate?: number;
   totalMinsLateToday?: number;
@@ -100,6 +105,8 @@ export interface IScheduleReport {
   scheduledStart: Date;
   scheduledEnd: Date;
   scheduledDuration: number;
+
+  lunchBreakInHrs: string;
 
   totalMinsLate: number;
   totalHoursOvertime: number;
@@ -155,8 +162,8 @@ export interface IScheduleForm {
 export interface IScheduleDate {
   overnightShift?: boolean;
 
-  scheduleConfigId: string;
-  lunchBreakInMins: number;
+  scheduleConfigId?: string;
+  lunchBreakInMins?: number;
 
   shiftDate?: Date;
   shiftStart: Date;
@@ -238,13 +245,19 @@ export type MutationVariables = {
 };
 export type AbsenceMutationVariables = {
   _id?: string;
-  startTime: Date;
-  endTime: Date;
   userId: string;
   reason: string;
+
+  absenceTypeId: string;
+  absenceTimeType: string;
+
+  totalHoursOfAbsence: string;
+
   explanation?: string;
   attachment?: IAttachment;
-  absenceTypeId?: string;
+  requestDates?: string[];
+  startTime?: Date;
+  endTime?: Date;
 };
 
 export type ScheduleMutationVariables = {
@@ -256,6 +269,7 @@ export type ScheduleMutationVariables = {
   userIds?: string[];
   scheduleConfigId?: string;
   totalBreakInMins?: number | string;
+  status?: string;
 };
 
 export type TimeLogMutationResponse = {
@@ -400,5 +414,9 @@ export type ScheduleMutationResponse = {
 
   removeScheduleShiftMutation: (params: {
     variables: { _id: string };
+  }) => Promise<any>;
+
+  checkDuplicateScheduleShiftsMutation: (params: {
+    variables: ScheduleMutationVariables;
   }) => Promise<any>;
 };

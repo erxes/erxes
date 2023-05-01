@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { CustomRow, FlexRowLeft, RowField, ToggleButton } from '../../styles';
+import { FlexRowLeft, ToggleButton } from '../../styles';
 
 import { IBranch } from '@erxes/ui/src/team/types';
 import ScheduleForm from './ScheduleForm';
@@ -48,6 +48,8 @@ type Props = {
   ) => void;
   removeScheduleShifts: (_id: string, type: string) => void;
 
+  checkDuplicateScheduleShifts: (values: any) => any;
+
   getActionBar: (actionBar: any) => void;
   showSideBar: (sideBar: boolean) => void;
   getPagination: (pagination: any) => void;
@@ -60,7 +62,6 @@ function ScheduleList(props: Props) {
     totalCount,
     queryParams,
     solveSchedule,
-    solveShift,
     removeScheduleShifts,
     getActionBar,
     showSideBar,
@@ -261,9 +262,11 @@ function ScheduleList(props: Props) {
           <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
             {__('Total Break')}
           </th>
-          <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
-            {__('Member checked')}
-          </th>
+          {!isEnabled('bichil') && (
+            <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
+              {__('Member checked')}
+            </th>
+          )}
           {daysAndDatesHeaders.map(column => {
             return (
               <th
@@ -408,8 +411,13 @@ function ScheduleList(props: Props) {
     });
 
     const totalBreakInHours = scheduleOfMember.totalBreakInMins
-      ? (scheduleOfMember.totalBreakInMins / 60).toFixed(1)
+      ? scheduleOfMember.totalBreakInMins / 60
       : 0;
+
+    if (totalHoursScheduled) {
+      totalHoursScheduled -= totalBreakInHours;
+    }
+
     return (
       <tr style={{ textAlign: 'left' }}>
         <td
@@ -452,9 +460,9 @@ function ScheduleList(props: Props) {
         <td>{name}</td>
         <td>{employeeId}</td>
         <td>{totalDaysScheduled}</td>
-        <td>{totalHoursScheduled}</td>
-        <td>{totalBreakInHours}</td>
-        <td>{scheduleChecked}</td>
+        <td>{totalHoursScheduled.toFixed(1)}</td>
+        <td>{totalBreakInHours.toFixed(1)}</td>
+        {!isEnabled('bichil') && <td>{scheduleChecked}</td>}
         {renderScheduleShifts(scheduleOfMember.shifts, user._id)}
       </tr>
     );

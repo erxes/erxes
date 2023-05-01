@@ -124,8 +124,8 @@ export const generateRandomPassword = (len: number = 10) => {
     min: number,
     max: number
   ) => {
-    let n,
-      chars = '';
+    let n;
+    let chars = '';
 
     if (max === undefined) {
       n = min;
@@ -149,11 +149,11 @@ export const generateRandomPassword = (len: number = 10) => {
 
   const shuffle = (string: string) => {
     const array = string.split('');
-    let tmp,
-      current,
-      top = array.length;
+    let tmp;
+    let current;
+    let top = array.length;
 
-    if (top)
+    if (top) {
       while (--top) {
         current = Math.floor(Math.random() * (top + 1));
         tmp = array[current];
@@ -161,7 +161,8 @@ export const generateRandomPassword = (len: number = 10) => {
         array[top] = tmp;
       }
 
-    return array.join('');
+      return array.join('');
+    }
   };
 
   let password = '';
@@ -230,7 +231,7 @@ export const sendNotification = async (
     eventData
   } = doc;
 
-  let link = doc.link;
+  const link = doc.link;
 
   // remove duplicated ids
   const receiverIds = [...Array.from(new Set(receivers))];

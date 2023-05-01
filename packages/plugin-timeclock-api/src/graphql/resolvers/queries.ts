@@ -155,6 +155,9 @@ const timeclockQueries = {
     const getUserId = queryParams.userId || user._id;
     return models.Schedules.find({ userId: getUserId });
   },
+  // scheduleShiftsOfUser(_root, queryParams, { models }: IContext) {
+
+  // },
 
   scheduleConfigs(_root, {}, { models }: IContext) {
     return models.ScheduleConfigs.find();

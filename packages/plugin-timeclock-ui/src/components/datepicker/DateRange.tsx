@@ -122,7 +122,7 @@ const DateRange = (props: Props) => {
             />
           </div>
         </FlexRow>
-        <MarginY>
+        <MarginY margin={10}>
           <FlexCenter>
             <Button
               btnStyle="warning"

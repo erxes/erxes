@@ -8,7 +8,6 @@ import { IScheduleForm, IScheduleConfig } from '../../types';
 import Select from 'react-select-plus';
 import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
 import {
-  CustomLabel,
   FlexCenter,
   FlexColumn,
   FlexRow,
@@ -30,7 +29,7 @@ import { Alert, __ } from '@erxes/ui/src/utils';
 import { compareStartAndEndTime } from '../../utils';
 import Datetime from '@nateradebaugh/react-datetime';
 import Tip from '@erxes/ui/src/components/Tip';
-import { dateFormat, timeFormat } from '../../constants';
+import { dateFormat } from '../../constants';
 
 type Props = {
   scheduleOfMembers: any;
@@ -39,32 +38,20 @@ type Props = {
   branchesList: IBranch[];
   modalContentType: string;
   scheduleConfigs: IScheduleConfig[];
-  submitRequest: (
-    userId: any,
-    filledShifts: any,
-    totalBreakInMins?: number | string,
-    selectedScheduleConfigId?: string
-  ) => void;
-  submitSchedule: (
-    branchIds: any,
-    departmentIds: any,
-    userIds: any,
-    filledShifts: any,
-    totalBreakInMins?: number | string,
-    selectedScheduleConfigId?: string
-  ) => void;
+
+  checkDuplicateScheduleShifts: (values: any) => any;
+
   closeModal: any;
 };
 
 function ScheduleForm(props: Props) {
   const {
     queryParams,
-    submitRequest,
-    submitSchedule,
     closeModal,
     branchesList,
     modalContentType,
-    scheduleConfigs
+    scheduleConfigs,
+    checkDuplicateScheduleShifts
   } = props;
 
   if (!scheduleConfigs.length) {
@@ -81,6 +68,8 @@ function ScheduleForm(props: Props) {
   const [selectedScheduleConfigId, setScheduleConfigId] = useState(
     scheduleConfigs[0]._id
   );
+
+  const [lastSelectedDate, setlastSelectedDate] = useState(new Date());
 
   const [scheduleDaysLastIdx, setScheduleDaysLastIdx] = useState(0);
 
@@ -99,8 +88,8 @@ function ScheduleForm(props: Props) {
   const [contentType, setContentType] = useState('By Date Range');
 
   const [userIds, setUserIds] = useState([]);
-  const [selectedDeptIds, setDepartments] = useState([]);
-  const [selectedBranchIds, setBranches] = useState([]);
+  const [departmentIds, setDepartmentIds] = useState([]);
+  const [branchIds, setBranchIds] = useState([]);
 
   const [overlayTrigger, setOverlayTrigger] = useState<any>(null);
 
@@ -164,13 +153,13 @@ function ScheduleForm(props: Props) {
   // };
 
   const onBranchSelect = selectedBranch => {
-    const branchIds: any = [];
-    branchIds.push(...selectedBranch.map(branch => branch.value));
-    setBranches(branchIds);
+    const selectedBranchIds: any = [];
+    selectedBranchIds.push(...selectedBranch.map(branch => branch.value));
+    setBranchIds(selectedBranchIds);
   };
 
   const onDepartmentSelect = dept => {
-    setDepartments(dept);
+    setDepartmentIds(dept);
   };
 
   const onRemoveDate = day_key => {
@@ -229,52 +218,41 @@ function ScheduleForm(props: Props) {
     let totalBreakMins = 0;
 
     for (const scheduledDateIdx of Object.keys(scheduleDates)) {
-      totalBreakMins += scheduleDates[scheduledDateIdx].lunchBreakInMins;
+      totalBreakMins += scheduleDates[scheduledDateIdx].lunchBreakInMins || 0;
     }
 
-    return [totalDays, totalHours.toFixed(1), totalBreakMins];
-  };
-
-  const checkInput = (selectedUsers, shifts, branchIds?, departmentIds?) => {
-    if (
-      (!branchIds || !branchIds.length) &&
-      (!departmentIds || !departmentIds.length) &&
-      !selectedUsers.length
-    ) {
-      Alert.error('No users were given');
-    } else if (shifts.length === 0) {
-      Alert.error('No shifts were given');
-    } else {
-      return true;
-    }
+    return [
+      totalDays,
+      (totalHours - totalBreakMins / 60).toFixed(1),
+      totalBreakMins
+    ];
   };
 
   const onSubmitClick = () => {
-    const validInput = checkInput(userIds, pickSubset);
-    if (validInput) {
-      submitRequest(userIds, pickSubset, calculateScheduledDaysAndHours()[2]);
-      closeModal();
-    }
+    checkDuplicateScheduleShifts({
+      branchIds,
+      departmentIds,
+      userIds,
+      shifts: pickSubset,
+      totalBreakInMins: calculateScheduledDaysAndHours()[2],
+      userType: 'employee',
+      closeModal
+    });
   };
 
   const onAdminSubmitClick = () => {
-    const validInput = checkInput(
+    checkDuplicateScheduleShifts({
+      branchIds,
+      departmentIds,
       userIds,
-      pickSubset,
-      selectedBranchIds,
-      selectedDeptIds
-    );
-    if (validInput) {
-      submitSchedule(
-        selectedBranchIds,
-        selectedDeptIds,
-        userIds,
-        pickSubset,
-        calculateScheduledDaysAndHours()[2]
-      );
-      closeModal();
-    }
+      shifts: pickSubset,
+      totalBreakInMins: calculateScheduledDaysAndHours()[2],
+      userType: 'admin',
+      closeModal,
+      status: 'Approved'
+    });
   };
+
   const onUserSelect = users => {
     setUserIds(users);
   };
@@ -436,14 +414,14 @@ function ScheduleForm(props: Props) {
     let totalBreakMins = 0;
 
     for (const scheduledDateIdx of Object.keys(scheduleDates)) {
-      totalBreakMins += scheduleDates[scheduledDateIdx].lunchBreakInMins;
+      totalBreakMins += scheduleDates[scheduledDateIdx].lunchBreakInMins || 0;
     }
 
     return (
       <FlexCenter>
         <div style={{ width: '35%' }}>
           <FlexRow>
-            <MarginX>
+            <MarginX margin={20}>
               <FlexColumn marginNum={0}>
                 <div>Total days :</div>
                 <div>Total hours :</div>
@@ -466,7 +444,7 @@ function ScheduleForm(props: Props) {
         <div style={{ marginBottom: '0' }}>
           <SelectDepartments
             isRequired={false}
-            defaultValue={selectedDeptIds}
+            defaultValue={departmentIds}
             onChange={onDepartmentSelect}
           />
         </div>
@@ -475,7 +453,7 @@ function ScheduleForm(props: Props) {
             <ControlLabel>Branches</ControlLabel>
             <Row>
               <Select
-                value={selectedBranchIds}
+                value={branchIds}
                 onChange={onBranchSelect}
                 placeholder="Select branch"
                 multi={true}
@@ -615,6 +593,14 @@ function ScheduleForm(props: Props) {
 
   const onDateSelectChange = dateString => {
     if (dateString) {
+      // handle click on a different month
+      if (
+        JSON.stringify(dateString).split('-')[1] !==
+        JSON.stringify(lastSelectedDate).split('-')[1]
+      ) {
+        setlastSelectedDate(new Date(dateString));
+      }
+
       const getDate = dayjs(dateString).format(dateFormat);
 
       // if date is already selected remove from schedule date
@@ -627,7 +613,6 @@ function ScheduleForm(props: Props) {
           setScheduleDates({
             ...scheduleDates
           });
-          setScheduleDaysLastIdx(scheduleDaysLastIdx - 1);
           return;
         }
       }
@@ -698,6 +683,7 @@ function ScheduleForm(props: Props) {
           <Datetime
             open={true}
             input={false}
+            value={lastSelectedDate}
             renderDay={renderDay}
             closeOnSelect={false}
             timeFormat={false}
@@ -705,7 +691,7 @@ function ScheduleForm(props: Props) {
             inputProps={{ required: false }}
           />
           <FlexCenter>
-            <MarginY>
+            <MarginY margin={10}>
               <Button onClick={closePopover}>Close</Button>
             </MarginY>
           </FlexCenter>

@@ -53,8 +53,8 @@ export const getProductsDataOnOwork = async (
     action: 'remainders',
     data: {
       productIds,
-      branchId,
-      departmentId
+      branchIds: [branchId],
+      departmentIds: [departmentId]
     },
     isRPC: true,
     defaultValue: []

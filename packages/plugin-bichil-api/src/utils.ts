@@ -259,8 +259,6 @@ export const handleUpload = async (
 
     const models = await generateModels(subdomain);
 
-    console.log('pathhhhhh ', file.path);
-
     fs.createReadStream(file.path)
       .pipe(csvParser())
       .on('error', error => {

@@ -195,13 +195,13 @@ export const checkPricing = async (
         if (
           (priceRule.type === 'bonus' &&
             priceRule.bonusProducts &&
-            priceRule.bonusProducts.length !== 0) ||
+            priceRule.bonusProducts.length) ||
           (quantityRule.type === 'bonus' &&
             quantityRule.bonusProducts &&
-            quantityRule.bonusProducts.length !== 0) ||
+            quantityRule.bonusProducts.length) ||
           (expiryRule.type === 'bonus' &&
             expiryRule.bonusProducts &&
-            expiryRule.bonusProducts.length !== 0)
+            expiryRule.bonusProducts.length)
         ) {
           type = 'bonus';
           bonusProducts = [
@@ -223,7 +223,7 @@ export const checkPricing = async (
           return prev;
         });
 
-        if (maxValueRule.type && maxValueRule.type.length !== 0) {
+        if (maxValueRule.type && maxValueRule.type.length) {
           type = maxValueRule.type;
           value = maxValueRule.value;
         }
@@ -246,7 +246,10 @@ export const checkPricing = async (
           if (plan.isPriority) {
             result[item.itemId].value += value;
           } else {
-            if (result[item.itemId].value < value) {
+            if (
+              (value > 0 && result[item.itemId].value < value) ||
+              (value < 0 && result[item.itemId].value > value)
+            ) {
               result[item.itemId].value = value;
             }
           }

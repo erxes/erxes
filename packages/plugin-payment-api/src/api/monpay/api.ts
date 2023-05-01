@@ -62,13 +62,15 @@ export class MonpayAPI extends BaseAPI {
   private username: string;
   private accountId: string;
   private headers: any;
+  private domain?: string;
 
-  constructor(config: IMonpayConfig) {
+  constructor(config: IMonpayConfig, domain?: string) {
     super(config);
 
     this.username = config.username;
     this.accountId = config.accountId;
     this.apiUrl = PAYMENTS.monpay.apiUrl;
+    this.domain = domain;
     this.headers = {
       Authorization:
         'Basic ' +
@@ -79,15 +81,11 @@ export class MonpayAPI extends BaseAPI {
   }
 
   async createInvoice(invoice: IInvoiceDocument) {
-    const MAIN_API_DOMAIN = process.env.DOMAIN
-      ? `${process.env.DOMAIN}/gateway`
-      : 'http://localhost:4000';
-
     const data: IMonpayInvoice = {
       amount: invoice.amount,
       generateUuid: true,
       displayName: invoice.description || 'monpay transaction',
-      callbackUrl: `${MAIN_API_DOMAIN}/pl:payment/callback/${PAYMENTS.monpay.kind}`
+      callbackUrl: `${this.domain}/pl:payment/callback/${PAYMENTS.monpay.kind}`
     };
 
     try {

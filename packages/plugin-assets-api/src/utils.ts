@@ -19,7 +19,7 @@ export const generateFilter = async (params, type, subdomain: string) => {
   if (params.parentId) {
     if (params.parentId === '*') {
       const assets = await models?.Assets.find({
-        parentId: ''
+        parentId: { $in: ['', undefined, null] }
       });
       const assetIds = (assets || []).map(asset => asset._id);
       filter.assetId = { $in: assetIds };
@@ -133,14 +133,54 @@ export const generateFilter = async (params, type, subdomain: string) => {
       const assetIds = await models?.Assets.find({
         $or: [
           {
-            name: { $regex: new RegExp(`.*${params.searchValue}.*`, 'i') },
+            name: { $regex: new RegExp(`.*${params.searchValue}.*`, 'i') }
+          },
+          {
             code: { $regex: new RegExp(`.*${params.searchValue}.*`, 'i') }
           }
         ]
-      });
+      }).distinct('_id');
 
       filter.assetId = { $in: assetIds };
     }
+  }
+
+  if (params.withKnowledgebase) {
+    let KbFilter: any = { 'kbArticleIds.0': { $exists: 1 } };
+    if (!!filter?.assetId?.$in?.length) {
+      KbFilter._id = filter?.assetId?.$in;
+    }
+    const assetIdsWithKb = await models?.Assets.find(KbFilter).distinct('_id');
+    filter.assetId = { $in: assetIdsWithKb };
+  }
+
+  if (params.onlyCurrent) {
+    let pipeline: any = [];
+
+    if (!!filter?.assetId?.$in?.length) {
+      pipeline = [{ $match: { assetId: { $in: filter?.assetId?.$in } } }];
+    }
+
+    pipeline = [
+      ...pipeline,
+      {
+        $group: {
+          _id: '$assetId',
+          movements: {
+            $push: '$$ROOT'
+          }
+        }
+      },
+      { $unwind: '$movements' },
+      { $sort: { 'movements.createdAt': -1 } },
+      { $group: { _id: '$_id', movements: { $push: '$movements' } } },
+      { $replaceRoot: { newRoot: { $arrayElemAt: ['$movements', 0] } } }
+    ];
+
+    const movements = await models?.MovementItems.aggregate(pipeline);
+
+    const movementIds = movements?.map(movement => movement._id);
+    filter._id = { $in: movementIds };
   }
 
   return filter;

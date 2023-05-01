@@ -74,3 +74,9 @@ export type ToSyncOrdersMutationResponse = {
     variables: { orderIds: string[] };
   }) => Promise<any>;
 };
+
+export type PosListQueryResponse = {
+  posList: any[];
+  loading: boolean;
+  refetch: () => void;
+};

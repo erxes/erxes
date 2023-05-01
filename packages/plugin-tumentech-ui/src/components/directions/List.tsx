@@ -25,14 +25,12 @@ const List = (props: Props) => {
   const { totalCount, queryParams, loading, directions, remove } = props;
 
   const renderRow = () => {
-    const { directions } = props;
     return directions.map(direction => (
       <Row key={direction._id} direction={direction} remove={remove} />
     ));
   };
 
   queryParams.loadingMainQuery = loading;
-  let actionBarLeft: React.ReactNode;
 
   // const actionBarRight = (
   //   <Link to="/forms/create">
@@ -48,7 +46,7 @@ const List = (props: Props) => {
     </Button>
   );
 
-  const formContent = props => <DirectionForm {...props} />;
+  const formContent = formProps => <DirectionForm {...formProps} />;
 
   const righActionBar = (
     <ModalTrigger
@@ -60,9 +58,7 @@ const List = (props: Props) => {
     />
   );
 
-  const actionBar = (
-    <Wrapper.ActionBar right={righActionBar} left={actionBarLeft} />
-  );
+  const actionBar = <Wrapper.ActionBar right={righActionBar} />;
 
   const content = (
     <Table whiteSpace="nowrap" hover={true}>

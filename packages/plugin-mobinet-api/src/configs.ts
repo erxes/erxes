@@ -7,6 +7,7 @@ import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
 import { initBroker } from './messageBroker';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
+import internalNotes from './internalNotes';
 
 export let mainDb;
 export let debug;
@@ -16,7 +17,8 @@ export let serviceDiscovery;
 export default {
   name: 'mobinet',
   meta: {
-    documents
+    documents,
+    internalNotes
   },
   graphql: async sd => {
     serviceDiscovery = sd;

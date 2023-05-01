@@ -119,7 +119,13 @@ const accountMutations = {
       defaultValue: []
     });
 
-    const conformity = conformities.find(c => c.relTypeId === carId);
+    const conformity = conformities.find(c => {
+      if (c.mainType === 'customer') {
+        return c.mainTypeId === driverId && c.relTypeId === carId;
+      }
+
+      return c.relTypeId === driverId && c.mainTypeId === carId;
+    });
 
     if (!conformity) {
       throw new Error('Driver and car are not related');
